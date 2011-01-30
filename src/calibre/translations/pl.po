@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-01-28 20:12+0000\n"
-"PO-Revision-Date: 2011-01-29 00:29+0000\n"
+"PO-Revision-Date: 2011-01-29 22:17+0000\n"
 "Last-Translator: Nightelf <Unknown>\n"
 "Language-Team: Polish <pl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-01-29 04:46+0000\n"
+"X-Launchpad-Export-Date: 2011-01-30 04:48+0000\n"
 "X-Generator: Launchpad (build 12177)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -2956,7 +2956,7 @@ msgstr "Pobierz metadane społecznościowe z amazon.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:254
 msgid "Downloads series/covers/rating information from librarything.com"
-msgstr ""
+msgstr "Ś"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fictionwise.py:25
 msgid "Downloads metadata from Fictionwise"
@@ -2986,7 +2986,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fictionwise.py:316
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fictionwise.py:333
 msgid "Failed to get all details for an entry"
-msgstr ""
+msgstr "Nie udało się zebrać wszystkich danych dla wpisu"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fictionwise.py:354
 msgid ""
@@ -3152,7 +3152,7 @@ msgstr "Przekształć grafiki tak, aby odpowiadały limitom urządzenia Palm."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:26
 msgid "When present, use author sort field as author."
-msgstr ""
+msgstr "Kiedy dostępne, użyj pola author sort jako autor(rzy)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:30
 msgid ""
@@ -3313,7 +3313,7 @@ msgstr "Pasek boczny"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/output.py:23
 msgid "Format to use inside the pdb container. Choices are:"
-msgstr ""
+msgstr "Format jaki ma być użyty wewnątrz kontenera pdb. Do wyboru są:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/output.py:27
 msgid ""
@@ -3563,7 +3563,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/pdftohtml.py:55
 msgid "Could not find pdftohtml, check it is in your PATH"
-msgstr ""
+msgstr "Nie mogę znaleźć pdftohtml, sprawdź podaną Ś"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pml/output.py:33
 msgid ""
@@ -4127,7 +4127,7 @@ msgstr "Zmień nazwę"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:212
 msgid "Choose a new name for the library <b>%s</b>. "
-msgstr ""
+msgstr "Wybierz nową nazwę dla biblioteki <b>%s</b>. "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:213
 msgid "Note that the actual library folder will be renamed."
@@ -4140,7 +4140,7 @@ msgstr "Już istnieje"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:221
 msgid "The folder %s already exists. Delete it first."
-msgstr ""
+msgstr "Folder %s Już istnieje. Najpierw go usuń."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:227
 msgid "Rename failed"
@@ -4199,6 +4199,8 @@ msgid ""
 "Found no errors in your calibre library database. Do you want calibre to "
 "check if the files in your  library match the information in the database?"
 msgstr ""
+"Nie znaleziono błędów w bazie danych calibre. Czy chcesz by calibre "
+"sprawdził czy pliki w bibliotece zgadzają się z informacjami w bazie danych?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:295
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:150
@@ -4302,7 +4304,7 @@ msgstr "Nie ma biblioteki"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:132
 msgid "No library found at %s"
-msgstr ""
+msgstr "Nie znaleziono żadnej biblioteki w lokalizacji %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:135
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:139
@@ -4432,6 +4434,8 @@ msgid ""
 "The selected books will be <b>permanently deleted</b> and the files removed "
 "from your calibre library. Are you sure?"
 msgstr ""
+"Wybrane książki zostaną <b>trwale usunięte</b> oraz pliki zostaną usunięte z "
+"twojej biblioteki calibre. Czy jesteś pewien?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:274
 msgid ""
@@ -4478,7 +4482,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:114
 msgid "D"
-msgstr ""
+msgstr "D"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:114
 msgid "Send to device"
@@ -4567,7 +4571,7 @@ msgstr "metadane"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:102
 msgid "Downloading {0} for {1} book(s)"
-msgstr ""
+msgstr "Ś {0} for {1} book(s)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:126
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:186
@@ -4661,7 +4665,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/next_match.py:13
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:376
 msgid "N"
-msgstr ""
+msgstr "N"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/next_match.py:13
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:204
@@ -4678,7 +4682,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/next_match.py:26
 msgid "Shift+N"
-msgstr ""
+msgstr "Shift+N"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/next_match.py:27
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:213
@@ -4691,7 +4695,7 @@ msgstr "Otwórz folder zawierający"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/open.py:15
 msgid "O"
-msgstr ""
+msgstr "O"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:18
 msgid "Ctrl+P"
@@ -4704,7 +4708,7 @@ msgstr "Uruchom kreatora ustawień wstępnych"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:28
 msgid "Restart in debug mode"
-msgstr ""
+msgstr "Uruchom ponownie w trybie debugowania"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:38
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:43
@@ -4726,7 +4730,7 @@ msgstr "&Uruchom ponownie"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/restart.py:14
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/main.py:59
 msgid "Ctrl+R"
-msgstr ""
+msgstr "Ctrl+R"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:24
 msgid "Save single format to disk..."
@@ -4794,7 +4798,7 @@ msgstr "Pokaż szczegóły ksiązki"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/show_book_details.py:17
 msgid "I"
-msgstr ""
+msgstr "I"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/show_book_details.py:26
 msgid "No detailed info available"
@@ -4810,7 +4814,7 @@ msgstr "Podobne książki..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:24
 msgid "Alt+A"
-msgstr ""
+msgstr "Alt+A"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:24
 msgid "Books by same author"
@@ -4822,11 +4826,11 @@ msgstr "Książki w tym cyklu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:26
 msgid "Alt+Shift+S"
-msgstr ""
+msgstr "Alt+Shift+S"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:27
 msgid "Alt+P"
-msgstr ""
+msgstr "Alt+P"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:27
 msgid "Books by this publisher"
@@ -4834,7 +4838,7 @@ msgstr "Książki tego samego wydawcy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:28
 msgid "Alt+T"
-msgstr ""
+msgstr "Alt+T"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:28
 msgid "Books with the same tags"
@@ -4843,7 +4847,7 @@ msgstr "Książki z takimi samymi etykietami"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:15
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:54
 msgid "Tweak ePub"
-msgstr ""
+msgstr "Ulepsz ePub"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:16
 msgid "Make small changes to ePub format books"
@@ -4851,16 +4855,16 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:17
 msgid "T"
-msgstr ""
+msgstr "T"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:27
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:39
 msgid "Cannot tweak ePub"
-msgstr ""
+msgstr "Nie można ulepszyć ePub"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:40
 msgid "No ePub available. First convert the book to ePub."
-msgstr ""
+msgstr "Brak dostępnego ePub. Najpierw skonwertuj książkę do formatu ePub."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:24
 msgid "V"
@@ -4883,7 +4887,7 @@ msgstr "Nie można wyświetlić"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:98
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:112
 msgid "Format unavailable"
-msgstr ""
+msgstr "Ten format jest niedostępny"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:99
 msgid "Selected books have no formats"
@@ -4899,6 +4903,8 @@ msgid ""
 "Not all the selected books were available in the %s format. You should "
 "convert them first."
 msgstr ""
+"Nie wszystkie dostępne książki były dostępne w formacie %s. Powinno się je "
+"wcześniej skonwertować."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:120
 msgid "Multiple Books Selected"
@@ -4971,7 +4977,7 @@ msgstr "Znleziono duplikaty!"
 msgid ""
 "Books with the same title as the following already exist in the database. "
 "Add them anyway?"
-msgstr ""
+msgstr "Książka o identycznym tytule jest już w bazie danych. Dodać mimo to?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:348
 msgid "Adding duplicates..."
@@ -5021,7 +5027,7 @@ msgstr "Dodaj książki do calibre"
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:54
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/stanza_ui.py:46
 msgid "WizardPage"
-msgstr ""
+msgstr "Strona Kreatora"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/scan_ui.py:27
 msgid "Scanning root folder for books"
@@ -5292,7 +5298,7 @@ msgstr "Kodowanie pliku Bib:"
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:91
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_csv_xml_ui.py:43
 msgid "Fields to include in output:"
-msgstr ""
+msgstr "Pola do uwzględnienia w pliku wyjściowym"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:92
 msgid "ascii/LaTeX"
@@ -5379,7 +5385,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:299
 msgid "Recently &Added"
-msgstr ""
+msgstr "Ostatnio &Dodane"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:300
 msgid "&Descriptions"
@@ -5448,7 +5454,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:319
 msgid "Read books"
-msgstr ""
+msgstr "Czytaj książkę"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:321
 msgid "Column containing 'read' status"
@@ -5460,7 +5466,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:323
 msgid "Other options"
-msgstr ""
+msgstr "Inne opcje"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:324
 msgid "&Wishlist tag"
@@ -5480,7 +5486,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:328
 msgid " inch"
-msgstr ""
+msgstr " cal"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:329
 msgid "&Description note"
