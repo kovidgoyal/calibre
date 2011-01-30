@@ -55,7 +55,7 @@ class Develop(Command):
     short_description = 'Setup a development environment for calibre'
     MODE = 0755
 
-    sub_commands = ['build', 'resources', 'gui']
+    sub_commands = ['build', 'resources', 'pykakasi', 'gui']
 
     def add_postinstall_options(self, parser):
         parser.add_option('--make-errors-fatal', action='store_true', default=False,
@@ -235,7 +235,7 @@ class Install(Develop):
     ''')
     short_description = 'Install calibre from source'
 
-    sub_commands = ['build', 'gui']
+    sub_commands = ['build', 'resources','pykakasi','gui']
 
     def add_options(self, parser):
         parser.add_option('--prefix', help='Installation prefix.')

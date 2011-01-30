@@ -11,7 +11,7 @@ __all__ = [
         'build', 'build_pdf2xml', 'server',
         'gui',
         'develop', 'install',
-        'resources',
+        'resources', 'pykakasi',
         'check',
         'sdist',
         'manual', 'tag_release',
@@ -51,6 +51,9 @@ check = Check()
 
 from setup.resources import Resources
 resources = Resources()
+
+from setup.pykakasi import Pykakasi
+pykakasi = Pykakasi()
 
 from setup.publish import Manual, TagRelease, Stage1, Stage2, \
         Stage3, Stage4, Publish

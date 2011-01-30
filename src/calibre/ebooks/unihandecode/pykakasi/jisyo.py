@@ -17,14 +17,14 @@ class jisyo (object):
 
     def __init__(self):
         if self.kanwadict is None:
-            dictpath = resources.get_path('kanwadict2.db')
+            dictpath = resources.get_path(os.path.join('localization','pykakasi','kanwadict2.db'))
             self.kanwadict = anydbm.open(dictpath,'r')
         if self.itaijidict is  None:
-            itaijipath = resources.get_path('itaijidict2.pickle')
+            itaijipath = resources.get_path(os.path.join('localization','pykakasi','itaijidict2.pickle'))
             itaiji_pkl = open(itaijipath, 'rb')
             self.itaijidict = load(itaiji_pkl)
         if self.kanadict is None:
-            kanadictpath = resources.get_path('kanadict2.pickle')
+            kanadictpath = resources.get_path(os.path.join('localization','pykakasi','kanadict2.pickle'))
             kanadict_pkl = open(kanadictpath, 'rb')
             self.kanadict = load(kanadict_pkl)
 
