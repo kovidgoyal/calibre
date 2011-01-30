@@ -11,7 +11,7 @@ class CubaDebate(BasicNewsRecipe):
     __author__            = 'Darko Miletic'
     description           = 'Contra el Terorismo Mediatico'
     oldest_article        = 15
-    language              = 'es'
+    language              = 'es_CU'
     max_articles_per_feed = 100
     no_stylesheets        = True
     use_embedded_content  = False
@@ -20,8 +20,8 @@ class CubaDebate(BasicNewsRecipe):
     encoding              = 'utf-8'
     masthead_url          = 'http://www.cubadebate.cu/wp-content/themes/cubadebate/images/logo.gif'
     publication_type      = 'newsportal'
-    extra_css             = """ 
-                               #BlogTitle{font-size: xx-large; font-weight: bold} 
+    extra_css             = """
+                               #BlogTitle{font-size: xx-large; font-weight: bold}
                                body{font-family: Verdana, Arial, Tahoma, sans-serif}
                             """
 
@@ -41,7 +41,7 @@ class CubaDebate(BasicNewsRecipe):
 
     feeds          = [(u'Articulos', u'http://www.cubadebate.cu/feed/')]
     remove_attributes=['width','height','lang']
-    
+
     def print_version(self, url):
         return url + 'print/'
 
@@ -50,5 +50,5 @@ class CubaDebate(BasicNewsRecipe):
             del item['style']
         for item in soup.findAll('img'):
             if not item.has_key('alt'):
-               item['alt'] = 'image'                
+               item['alt'] = 'image'
         return soup

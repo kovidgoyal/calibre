@@ -11,15 +11,15 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class LaMujerDeMiVida(BasicNewsRecipe):
     title                 = 'La Mujer de mi Vida'
     __author__            = 'Darko Miletic'
-    description           = 'Cultura de otra manera'    
+    description           = 'Cultura de otra manera'
     oldest_article        = 90
     max_articles_per_feed = 100
     no_stylesheets        = True
     use_embedded_content  = False
     encoding              = 'cp1252'
     publisher             = 'La Mujer de mi Vida'
-    category              = 'literatura, critica, arte, ensayos'    
-    language = 'es'
+    category              = 'literatura, critica, arte, ensayos'
+    language = 'es_AR'
 
     INDEX                 = 'http://www.lamujerdemivida.com.ar/'
     html2lrf_options = [
@@ -28,8 +28,8 @@ class LaMujerDeMiVida(BasicNewsRecipe):
                         , '--publisher', publisher
                         , '--ignore-tables'
                         ]
-    
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"\nlinearize_tables=True' 
+
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"\nlinearize_tables=True'
 
     keep_only_tags = [dict(name='table', attrs={'width':'570'})]
 
@@ -51,7 +51,7 @@ class LaMujerDeMiVida(BasicNewsRecipe):
         if cover_item:
            cover_url = self.INDEX + cover_item['src']
         return cover_url
-    
+
     def parse_index(self):
         totalfeeds = []
         lfeeds = self.get_feeds()
@@ -74,4 +74,4 @@ class LaMujerDeMiVida(BasicNewsRecipe):
                                     })
             totalfeeds.append((feedtitle, articles))
         return totalfeeds
-                
+

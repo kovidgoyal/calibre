@@ -13,7 +13,7 @@ class Reptantes(BasicNewsRecipe):
     description           = u"cada vez que te haces acupuntura, tu muñeco vudú sufre en algún lado"
     oldest_article        = 130
     max_articles_per_feed = 100
-    language              = 'es'
+    language              = 'es_AR'
     encoding              = 'utf-8'
     no_stylesheets        = True
     use_embedded_content  = False

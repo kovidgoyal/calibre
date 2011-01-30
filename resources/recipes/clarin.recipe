@@ -18,7 +18,7 @@ class Clarin(BasicNewsRecipe):
     use_embedded_content  = False
     no_stylesheets        = True
     encoding              = 'utf8'
-    language              = 'es'
+    language              = 'es_AR'
     publication_type      = 'newspaper'
     INDEX                 = 'http://www.clarin.com'
     masthead_url          = 'http://www.clarin.com/static/CLAClarin/images/logo-clarin-print.jpg'
