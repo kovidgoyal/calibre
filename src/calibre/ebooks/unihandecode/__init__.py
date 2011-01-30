@@ -15,6 +15,7 @@ Copyright(c) 2009, John Schember
 Tranliterate the string from unicode characters to ASCII in Chinese and others.
 
 '''
+import unicodedata
 
 class Unihandecoder(object):
     preferred_encoding = None
@@ -48,12 +49,6 @@ class Unihandecoder(object):
                         text = text.decode('utf-8', 'replace')
         except: # python3, str is unicode
             pass
-        return self.decoder.decode(text)
-
-def unidecode(text):
-    '''
-    backword compatibility to unidecode
-    '''
-    from calibre.ebooks.unihandecode.unidecoder import Unidecoder
-    decoder = Unihandecoder()
-    return decoder.decode(text)
+        #at first unicode normalize it. (see Unicode standards)
+        ntext = unicodedata.normalize('NFKC',text)
+        return self.decoder.decode(ntext)

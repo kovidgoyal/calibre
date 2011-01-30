@@ -12,6 +12,7 @@ import calibre.utils.resources as resources
 class jisyo (object):
     kanwadict = None
     itaijidict = None
+    kanadict = None
     jisyo_table = {}
 
     def __init__(self):
@@ -22,6 +23,10 @@ class jisyo (object):
             itaijipath = resources.get_path('itaijidict2.pickle')
             itaiji_pkl = open(itaijipath, 'rb')
             self.itaijidict = load(itaiji_pkl)
+        if self.kanadict is None:
+            kanadictpath = resources.get_path('kanadict2.pickle')
+            kanadict_pkl = open(kanadictpath, 'rb')
+            self.kanadict = load(kanadict_pkl)
 
     def load_jisyo(self, char):
         try:#python2
