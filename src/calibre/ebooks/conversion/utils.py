@@ -29,6 +29,7 @@ class HeuristicProcessor(object):
         self.blankreg = re.compile(r'\s*(?P<openline><p(?!\sclass=\"(softbreak|whitespace)\")[^>]*>)\s*(?P<closeline></p>)', re.IGNORECASE)
         self.anyblank = re.compile(r'\s*(?P<openline><p[^>]*>)\s*(?P<closeline></p>)', re.IGNORECASE)
         self.multi_blank = re.compile(r'(\s*<p[^>]*>\s*</p>){2,}(?!\s*<h\d)', re.IGNORECASE)
+        self.any_multi_blank = re.compile(r'(\s*<p[^>]*>\s*</p>){2,}', re.IGNORECASE)
 
     def is_pdftohtml(self, src):
         return '<!-- created by calibre\'s pdftohtml -->' in src[:1000]
@@ -418,14 +419,32 @@ class HeuristicProcessor(object):
             if getattr(self.extra_opts, option, False):
                 return True
         return False
+        
+    def merge_blanks(self, html, blanks_count=None):
+        single_blank = re.compile(r'(\s*<p[^>]*>\s*</p>)', re.IGNORECASE)
+        base_em = .5 # Baseline is 1.5em per blank line, 1st line is .5 em css and 1em for the nbsp
+        em_per_line = 1.5 # Add another 1.5 em for each additional blank
+        
+        def merge_matches(match):
+            to_merge = match.group(0)
+            lines = float(len(single_blank.findall(to_merge))) - 1.
+            em = base_em + (em_per_line * lines)
+            if to_merge.find('whitespace'):
+                newline = self.any_multi_blank.sub('\n<p class="whitespace'+str(int(em * 10))+'" style="text-align:center; margin-top:'+str(em)+'em"> </p>', match.group(0))
+            else:
+                newline = self.any_multi_blank.sub('\n<p class="softbreak'+str(int(em * 10))+'" style="text-align:center; margin-top:'+str(em)+'em"> </p>', match.group(0))
+            return newline
+            
+        html = self.any_multi_blank.sub(merge_matches, html)
+        return html
 
-    def detect_blank_formatting(self, html):
+    def detect_whitespace(self, html):
         blanks_before_headings = re.compile(r'(\s*<p[^>]*>\s*</p>){1,}(?=\s*<h\d)', re.IGNORECASE)
         blanks_after_headings = re.compile(r'(?<=</h\d>)(\s*<p[^>]*>\s*</p>){1,}', re.IGNORECASE)
         
         def markup_whitespaces(match):
            blanks = match.group(0)
-           blanks = self.blankreg.sub('\n<p class="whitespace"> </p>', blanks)
+           blanks = self.blankreg.sub('\n<p class="whitespace" style="text-align:center; margin-top:.5em"> </p>', blanks)
            return blanks
         html = blanks_before_headings.sub(markup_whitespaces, html)
         html = blanks_after_headings.sub(markup_whitespaces, html)
@@ -435,9 +454,9 @@ class HeuristicProcessor(object):
 
     def detect_soft_breaks(self, html):
         if not self.blanks_deleted and self.blanks_between_paragraphs:
-            html = self.multi_blank.sub('\n<p class="softbreak" style="margin-top:.5em; margin-bottom:.5em; page-break-before:avoid"> </p>', html)
+            html = self.multi_blank.sub('\n<p class="softbreak" style="margin-top:1em; page-break-before:avoid; text-align:center"> </p>', html)
         else:
-            html = self.blankreg.sub('\n<p class="softbreak" style="margin-top:.5em; margin-bottom:.5em; page-break-before:avoid"> </p>', html)
+            html = self.blankreg.sub('\n<p class="softbreak" style="margin-top:.5em; page-break-before:avoid; text-align:center"> </p>', html)
         return html
 
 
@@ -499,7 +518,7 @@ class HeuristicProcessor(object):
         if self.blanks_between_paragraphs and getattr(self.extra_opts, 'delete_blank_paragraphs', False):
             self.log.debug("deleting blank lines")
             self.blanks_deleted = True
-            html = self.multi_blank.sub('\n<p class="softbreak" style="margin-top:.5em; margin-bottom:.5em; page-break-before:avoid"> </p>', html)
+            html = self.multi_blank.sub('\n<p class="softbreak" style="margin-top:.5em; page-break-before:avoid; text-align:center"> </p>', html)
             html = self.blankreg.sub('', html)
 
         # Determine line ending type
@@ -550,14 +569,21 @@ class HeuristicProcessor(object):
             doubleheading = re.compile(r'(?P<firsthead><h(1|2)[^>]*>.+?</h(1|2)>\s*(<(?!h\d)[^>]*>\s*)*)<h(1|2)(?P<secondhead>[^>]*>.+?)</h(1|2)>', re.IGNORECASE)
             html = doubleheading.sub('\g<firsthead>'+'\n<h3'+'\g<secondhead>'+'</h3>', html)
 
+        # If scene break formatting is enabled, find all blank paragraphs that definitely aren't scenebreaks,
+        # style it with the 'whitespace' class.  All remaining blank lines are styled as softbreaks.
+        # Multiple sequential blank paragraphs are merged with appropriate margins
+        # If non-blank scene breaks exist they are center aligned and styled with appropriate margins.
         if getattr(self.extra_opts, 'format_scene_breaks', False):
-            html = self.detect_blank_formatting(html)
+            html = self.detect_whitespace(html)
             html = self.detect_soft_breaks(html)
-            # Center separator lines
-            html = re.sub(u'<(?P<outer>p|div)[^>]*>\s*(<(?P<inner1>font|span|[ibu])[^>]*>)?\s*(<(?P<inner2>font|span|[ibu])[^>]*>)?\s*(<(?P<inner3>font|span|[ibu])[^>]*>)?\s*(?P<break>([*#•=✦]+\s*)+)\s*(</(?P=inner3)>)?\s*(</(?P=inner2)>)?\s*(</(?P=inner1)>)?\s*</(?P=outer)>', '<p style="text-align:center; margin-top:.5em; margin-bottom:.5em; page-break-before:avoid">' + '\g<break>' + '</p>', html)
+            blanks_count = len(self.any_multi_blank.findall(html))
+            if blanks_count >= 1:
+                html = self.merge_blanks(html, blanks_count)
+            # Center separator lines, use a bit larger margin in this case
+            html = re.sub(u'<(?P<outer>p|div)[^>]*>\s*(<(?P<inner1>font|span|[ibu])[^>]*>)?\s*(<(?P<inner2>font|span|[ibu])[^>]*>)?\s*(<(?P<inner3>font|span|[ibu])[^>]*>)?\s*(?P<break>([*#•=✦]+\s*)+)\s*(</(?P=inner3)>)?\s*(</(?P=inner2)>)?\s*(</(?P=inner1)>)?\s*</(?P=outer)>', '<p style="text-align:center; margin-top:.65em; margin-bottom:.65em; page-break-before:avoid">' + '\g<break>' + '</p>', html)
             #html = re.sub('<p\s+class="softbreak"[^>]*>\s*</p>', '<div id="softbreak" style="margin-left: 45%; margin-right: 45%; margin-top:1.5em; margin-bottom:1.5em"><hr style="height: 3px; background:#505050" /></div>', html)
 
         if self.deleted_nbsps:
-            # put back non-breaking spaces in empty paragraphs to preserve original formatting
+            # put back non-breaking spaces in empty paragraphs so they render correctly
             html = self.anyblank.sub('\n'+r'\g<openline>'+u'\u00a0'+r'\g<closeline>', html)
         return html
