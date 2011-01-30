@@ -24,10 +24,9 @@ from calibre.utils.logging import default_log as log
 from calibre.utils.zipfile import ZipFile, ZipInfo
 from calibre.utils.magick.draw import thumbnail
 
-FIELDS = ['all', 'author_sort', 'authors', 'comments',
-          'cover', 'formats', 'id', 'isbn', 'ondevice', 'pubdate', 'publisher', 'rating',
-          'series_index', 'series', 'size', 'tags', 'timestamp', 'title',
-          'uuid']
+FIELDS = ['all', 'title', 'author_sort', 'authors', 'comments',
+          'cover', 'formats','id', 'isbn', 'ondevice', 'pubdate', 'publisher',
+          'rating', 'series_index', 'series', 'size', 'tags', 'timestamp', 'uuid']
 
 #Allowed fields for template
 TEMPLATE_ALLOWED_FIELDS = [ 'author_sort', 'authors', 'id', 'isbn', 'pubdate',
@@ -54,8 +53,10 @@ class CSV_XML(CatalogPlugin): # {{{
                     'database.  Should be a comma-separated list of fields.\n'
                     'Available fields: %s,\n'
                     'plus user-created custom fields.\n'
+                    'Example: %s=title,authors,tags\n'
                     "Default: '%%default'\n"
-                    "Applies to: CSV, XML output formats")%', '.join(FIELDS)),
+                    "Applies to: CSV, XML output formats")%(', '.join(FIELDS),
+                        '--fields')),
 
             Option('--sort-by',
                 default = 'id',
@@ -231,8 +232,10 @@ class BIBTEX(CatalogPlugin): # {{{
                 help = _('The fields to output when cataloging books in the '
                     'database.  Should be a comma-separated list of fields.\n'
                     'Available fields: %s.\n'
+                    'Example: %s=title,authors,tags\n'
                     "Default: '%%default'\n"
-                    "Applies to: BIBTEX output format")%', '.join(FIELDS)),
+                    "Applies to: BIBTEX output format")%(', '.join(FIELDS),
+                        '--fields')),
 
             Option('--sort-by',
                 default = 'id',
@@ -248,6 +251,15 @@ class BIBTEX(CatalogPlugin): # {{{
                 dest = 'impcit',
                 action = None,
                 help = _('Create a citation for BibTeX entries.\n'
+                'Boolean value: True, False\n'
+                "Default: '%default'\n"
+                "Applies to: BIBTEX output format")),
+
+            Option('--add-files-path',
+                default = 'True',
+                dest = 'addfiles',
+                action = None,
+                help = _('Create a file entry if formats is selected for BibTeX entries.\n'
                 'Boolean value: True, False\n'
                 "Default: '%default'\n"
                 "Applies to: BIBTEX output format")),
@@ -298,7 +310,7 @@ class BIBTEX(CatalogPlugin): # {{{
         from calibre.utils.bibtex import BibTeX
 
         def create_bibtex_entry(entry, fields, mode, template_citation,
-            bibtexdict, citation_bibtex = True):
+            bibtexdict, citation_bibtex=True, calibre_files=True):
 
             #Bibtex doesn't like UTF-8 but keep unicode until writing
             #Define starting chain or if book valid strict and not book return a Fail string
@@ -360,8 +372,13 @@ class BIBTEX(CatalogPlugin): # {{{
                     bibtex_entry.append(u'isbn = "%s"' % re.sub(u'[\D]', u'', item))
 
                 elif field == 'formats' :
-                    item = u', '.join([format.rpartition('.')[2].lower() for format in item])
-                    bibtex_entry.append(u'formats = "%s"' % item)
+                    #Add file path if format is selected
+                    formats = [format.rpartition('.')[2].lower() for format in item]
+                    bibtex_entry.append(u'formats = "%s"' % u', '.join(formats))
+                    if calibre_files:
+                        files = [u':%s:%s' % (format, format.rpartition('.')[2].upper())\
+                            for format in item]
+                        bibtex_entry.append(u'files = "%s"' % u', '.join(files))
 
                 elif field == 'series_index' :
                     bibtex_entry.append(u'volume = "%s"' % int(item))
@@ -511,31 +528,40 @@ class BIBTEX(CatalogPlugin): # {{{
         else :
             citation_bibtex= opts.impcit
 
+        #Check add file entry and go to default in case of bad CLI
+        if isinstance(opts.addfiles, (StringType, UnicodeType)) :
+            if opts.addfiles == 'False' :
+                addfiles_bibtex = False
+            elif opts.addfiles == 'True' :
+                addfiles_bibtex = True
+            else :
+                log(" WARNING: incorrect --add-files-path, revert to default")
+                addfiles_bibtex= True
+        else :
+            addfiles_bibtex = opts.addfiles
+
         #Preprocess for error and light correction
         template_citation = preprocess_template(opts.bib_cit)
 
         #Open output and write entries
-        outfile = codecs.open(path_to_output, 'w', bibfile_enc, bibfile_enctag)
+        with codecs.open(path_to_output, 'w', bibfile_enc, bibfile_enctag)\
+            as outfile:
+            #File header
+            nb_entries = len(data)
+            #check in book strict if all is ok else throw a warning into log
+            if bib_entry == 'book' :
+                nb_books = len(filter(check_entry_book_valid, data))
+                if nb_books < nb_entries :
+                    log(" WARNING: only %d entries in %d are book compatible" % (nb_books, nb_entries))
+                    nb_entries = nb_books
 
-        #File header
-        nb_entries = len(data)
+            outfile.write(u'%%%Calibre catalog\n%%%{0} entries in catalog\n\n'.format(nb_entries))
+            outfile.write(u'@preamble{"This catalog of %d entries was generated by calibre on %s"}\n\n'
+                % (nb_entries, nowf().strftime("%A, %d. %B %Y %H:%M").decode(preferred_encoding)))
 
-        #check in book strict if all is ok else throw a warning into log
-        if bib_entry == 'book' :
-            nb_books = len(filter(check_entry_book_valid, data))
-            if nb_books < nb_entries :
-                log(" WARNING: only %d entries in %d are book compatible" % (nb_books, nb_entries))
-                nb_entries = nb_books
-
-        outfile.write(u'%%%Calibre catalog\n%%%{0} entries in catalog\n\n'.format(nb_entries))
-        outfile.write(u'@preamble{"This catalog of %d entries was generated by calibre on %s"}\n\n'
-            % (nb_entries, nowf().strftime("%A, %d. %B %Y %H:%M").decode(preferred_encoding)))
-
-        for entry in data:
-            outfile.write(create_bibtex_entry(entry, fields, bib_entry, template_citation,
-                bibtexc, citation_bibtex))
-
-        outfile.close()
+            for entry in data:
+                outfile.write(create_bibtex_entry(entry, fields, bib_entry, template_citation,
+                    bibtexc, citation_bibtex, addfiles_bibtex))
 # }}}
 
 class EPUB_MOBI(CatalogPlugin):
@@ -1820,6 +1846,9 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
                 self.booksByTitle_noSeriesPrefix = nspt
 
             # Loop through the books by title
+            # Generate one divRunningTag per initial letter for the purposes of
+            # minimizing widows and orphans on readers that can handle large
+            # <divs> styled as inline-block
             title_list = self.booksByTitle
             if not self.useSeriesPrefixInTitlesSection:
                 title_list = self.booksByTitle_noSeriesPrefix
@@ -1832,7 +1861,7 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
                         divTag.insert(dtc, divRunningTag)
                         dtc += 1
                     divRunningTag = Tag(soup, 'div')
-                    divRunningTag['style'] = 'display:inline-block;width:100%'
+                    divRunningTag['class'] = "logical_group"
                     drtc = 0
                     current_letter = self.letter_or_symbol(book['title_sort'][0])
                     pIndexTag = Tag(soup, "p")
@@ -1954,6 +1983,8 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
             drtc = 0
 
             # Loop through booksByAuthor
+            # Each author/books group goes in an openingTag div (first) or
+            # a runningTag div (subsequent)
             book_count = 0
             current_author = ''
             current_letter = ''
@@ -1977,7 +2008,7 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
                     current_letter = self.letter_or_symbol(book['author_sort'][0].upper())
                     author_count = 0
                     divOpeningTag = Tag(soup, 'div')
-                    divOpeningTag['style'] = 'display:inline-block;width:100%'
+                    divOpeningTag['class'] = "logical_group"
                     dotc = 0
                     pIndexTag = Tag(soup, "p")
                     pIndexTag['class'] = "letter_index"
@@ -2001,7 +2032,7 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
 
                         # Create a divRunningTag for the rest of the authors in this letter
                         divRunningTag = Tag(soup, 'div')
-                        divRunningTag['style'] = 'display:inline-block;width:100%'
+                        divRunningTag['class'] = "logical_group"
                         drtc = 0
 
                     non_series_books = 0

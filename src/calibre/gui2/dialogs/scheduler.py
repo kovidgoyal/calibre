@@ -250,22 +250,27 @@ class Scheduler(QObject):
 
         self.timer = QTimer(self)
         self.timer.start(int(self.INTERVAL * 60 * 1000))
-        self.oldest_timer = QTimer()
-        self.connect(self.oldest_timer, SIGNAL('timeout()'), self.oldest_check)
         self.connect(self.timer, SIGNAL('timeout()'), self.check)
         self.oldest = gconf['oldest_news']
-        self.oldest_timer.start(int(60 * 60 * 1000))
         QTimer.singleShot(5 * 1000, self.oldest_check)
         self.database_changed = self.recipe_model.database_changed
 
     def oldest_check(self):
         if self.oldest > 0:
             delta = timedelta(days=self.oldest)
-            ids = self.recipe_model.db.tags_older_than(_('News'), delta)
+            try:
+                ids = list(self.recipe_model.db.tags_older_than(_('News'),
+                    delta))
+            except:
+                # Should never happen
+                ids = []
+                import traceback
+                traceback.print_exc()
             if ids:
-                ids = list(ids)
                 if ids:
                     self.delete_old_news.emit(ids)
+        QTimer.singleShot(60 * 60 * 1000, self.oldest_check)
+
 
     def show_dialog(self, *args):
         self.lock.lock()

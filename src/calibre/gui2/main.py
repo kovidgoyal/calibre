@@ -4,7 +4,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import sys, os, time, socket, traceback
 from functools import partial
 
-from PyQt4.Qt import QCoreApplication, QIcon, QMessageBox, QObject, QTimer, \
+from PyQt4.Qt import QCoreApplication, QIcon, QObject, QTimer, \
         QThread, pyqtSignal, Qt, QProgressDialog, QString, QPixmap, \
         QSplashScreen, QApplication
 
@@ -150,13 +150,13 @@ class GuiRunner(QObject):
         if DEBUG:
             prints('Starting up...')
 
-    def start_gui(self):
+    def start_gui(self, db):
         from calibre.gui2.ui import Main
         main = Main(self.opts, gui_debug=self.gui_debug)
         if self.splash_screen is not None:
             self.splash_screen.showMessage(_('Initializing user interface...'))
             self.splash_screen.finish(main)
-        main.initialize(self.library_path, self.db, self.listener, self.actions)
+        main.initialize(self.library_path, db, self.listener, self.actions)
         if DEBUG:
             prints('Started up in', time.time() - self.startup_time)
         add_filesystem_book = partial(main.iactions['Add Books'].add_filesystem_book, allow_device=False)
@@ -200,8 +200,7 @@ class GuiRunner(QObject):
                     det_msg=traceback.format_exc(), show=True)
                 self.initialization_failed()
 
-        self.db = db
-        self.start_gui()
+        self.start_gui(db)
 
     def initialize_db(self):
         db = None
@@ -320,9 +319,6 @@ def run_gui(opts, args, actions, listener, app, gui_debug=None):
 
 def cant_start(msg=_('If you are sure it is not running')+', ',
         what=None):
-    d = QMessageBox(QMessageBox.Critical, _('Cannot Start ')+__appname__,
-        '<p>'+(_('%s is already running.')%__appname__)+'</p>',
-        QMessageBox.Ok)
     base = '<p>%s</p><p>%s %s'
     where = __appname__ + ' '+_('may be running in the system tray, in the')+' '
     if isosx:
@@ -335,8 +331,10 @@ def cant_start(msg=_('If you are sure it is not running')+', ',
         else:
             what = _('try deleting the file')+': '+ADDRESS
 
-    d.setInformativeText(base%(where, msg, what))
-    d.exec_()
+    info = base%(where, msg, what)
+    error_dialog(None, _('Cannot Start ')+__appname__,
+        '<p>'+(_('%s is already running.')%__appname__)+'</p>'+info, show=True)
+
     raise SystemExit(1)
 
 def communicate(args):

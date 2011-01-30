@@ -7,13 +7,13 @@ import os, traceback, Queue, time, cStringIO, re, sys
 from threading import Thread
 
 from PyQt4.Qt import QMenu, QAction, QActionGroup, QIcon, SIGNAL, \
-                     Qt, pyqtSignal, QDialog, QMessageBox
+                     Qt, pyqtSignal, QDialog
 
 from calibre.customize.ui import available_input_formats, available_output_formats, \
     device_plugins
 from calibre.devices.interface import DevicePlugin
 from calibre.devices.errors import UserFeedback, OpenFeedback
-from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
+from calibre.gui2.dialogs.choose_format_device import ChooseFormatDeviceDialog
 from calibre.utils.ipc.job import BaseJob
 from calibre.devices.scanner import DeviceScanner
 from calibre.gui2 import config, error_dialog, Dispatcher, dynamic, \
@@ -609,10 +609,8 @@ class DeviceMixin(object): # {{{
         autos = u'\n'.join(map(unicode, map(force_unicode, autos)))
         return self.ask_a_yes_no_question(
                 _('No suitable formats'), msg,
-                buttons=QMessageBox.Yes|QMessageBox.Cancel,
                 ans_when_user_unavailable=True,
-                det_msg=autos,
-                show_copy_button=False
+                det_msg=autos
         )
 
     def set_default_thumbnail(self, height):
@@ -689,7 +687,7 @@ class DeviceMixin(object): # {{{
         except:
             pass
         if not self.device_error_dialog.isVisible():
-            self.device_error_dialog.setDetailedText(job.details)
+            self.device_error_dialog.set_details(job.details)
             self.device_error_dialog.show()
 
     # Device connected {{{
@@ -826,8 +824,24 @@ class DeviceMixin(object): # {{{
 
         fmt = None
         if specific:
-            d = ChooseFormatDialog(self, _('Choose format to send to device'),
-                                self.device_manager.device.settings().format_map)
+            formats = []
+            aval_out_formats = available_output_formats()
+            format_count = {}
+            for row in rows:
+                fmts = self.library_view.model().db.formats(row.row())
+                if fmts:
+                    for f in fmts.split(','):
+                        f = f.lower()
+                        if format_count.has_key(f):
+                            format_count[f] += 1
+                        else:
+                            format_count[f] = 1
+            for f in self.device_manager.device.settings().format_map:
+                if f in format_count.keys():
+                    formats.append((f, _('%i of %i Books' % (format_count[f], len(rows))), True if f in aval_out_formats else False))
+                elif f in aval_out_formats:
+                    formats.append((f, _('0 of %i Books' % len(rows)), True))
+            d = ChooseFormatDeviceDialog(self, _('Choose format to send to device'), formats)
             if d.exec_() != QDialog.Accepted:
                 return
             if d.format():

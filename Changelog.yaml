@@ -4,12 +4,137 @@
 # for important features/bug fixes.
 # Also, each release can have new and improved recipes.
 
+#- version: ?.?.?
+#  date: 2011-??-??
+#
+#  new features:
+#    - title: 
+#  
+#  bug fixes:
+#    - title: 
+#
+#  improved recipes:
+#    - 
+#
+#  new recipes:
+#    - title: 
+
+
+- version: 0.7.43
+  date: 2011-01-28
+
+  new features:
+    - title: "Ask for confirmation when stopping running jobs"
+      tickets: [3101]
+
+    - title: "Combine the database integrity check and library check into a single menu item. Also nicer implementation of the db integrity check."
+
+    - title: "BiBTeX Catalog: Add option to include file paths in the catalog."
+      tickets: [8589]
+
+    - title: "Create 'generic' output profiles and generic devices in the welcome wizard"
+
+    - title: "Bulk metadata edit: Custom column widgets all have an apply checkbox next to them."
+
+    - title: "Only use LibraryThing to download metadata if the user provides a library thing username and password. Since LT doesn't like web scraping"
+
+    - title: "Allow renaming of user categories in the manage categories dialog. Also allow searching for books in a category from the Tag Browser by right clicking ona a category"
+
+    - title: "Folder device plugin: Add option to disable the use of sub folders"
+
+    - title: "Allow saving/loading of search and replace expressions in the bulk metadata edit dialog."
+
+    - title: "Remeber previously used regular expression in the add books preferences dialog"
+
+    - title: "Search and replace wizard: Cache the previously used input document."
+
+    - title: "Pressing Esc clears the current search in the main book list"
+
+    - title: "Preselct right formats when using send specific format to device"
+      tickets: [7834]
+
+    - title: "Regex wizard gets find next and previous match buttons"
+      tickets: [4486]
+  
+  bug fixes:
+    - title: "Do not allow customization of user interface plugins until calibre is restarted"
+      tickets: [8621]
+
+    - title: "EPUB Output: When using preserve cover aspect ratio, use the actual image sizes in the SVG template as otherwise ADE doesn't fully preserve the aspect ratio"
+
+    - title: "Fix completion on a word with a trailing space causing the first letter to be duplicated in the edit metadata dialog"
+
+    - title: "PML Input: PML x and Xn tags don't indent properly in TOC. Also handle invalid T markup and retain soft scene breaks"
+      tickets: [6194, 8565]
+
+    - title: "TXT Input: Retain whitespace at the beginning of lines. Don't preserve spaces in heuristic processing. Detect and retain soft scene breaks."
+
+    - title: "Fix Adding empty book - cover browser doesn't update"
+      tickets: [8557]
+
+    - title: "When generating author sort string ignore trailing Inc."
+      tickets: [8539]
+
+    - title: "When converting HTML/ZIP files do not leave temporary files that are only deleted on application shutdown."
+      tickets: [8597]
+
+    - title: "Don't crash if the prefs stored in the db are corrupted"
+
+    - title: "Catalog generation: Do not use inline-block CSS as apparently Adobe Digital Editions cannot handle it."
+      tickets: [8566]
+
+    - title: "Fix extra spaces being inserted into TOC title when reading TOC from OPF guide element."
+      tickets: [8569]
+
+    - title: "Remember window size for bulk metadata edit and catalog generation dialogs"
+      tickets: [8525]
+
+    - title: "Heuristics, italicize common cases: Enhance pattern matching to match punctuation after pattern."
+
+    - title: "Fix regression in converting HTML files that have ASCII-encoded non unicode characters inside their <style> tags. Apparently Word generates these."
+      tickets: [8494]
+
+  improved recipes:
+    - Calgary Herald
+    - The Economist
+    - New Yorker
+    - Heise
+    - HNA
+    - ZDNet
+    - NRC Handelsblad
+
+  new recipes:
+    - title: "SPIN Magazine"
+      author: Quistopher
+
+    - title: "Caps n Babes"
+      author: skyhawker
+
+    - title: "Leduc"
+      author: Brian Hahn
+
+    - title: "David Bravo's Blog, La Nueva Espana, 20 Minutos and La Tribuna de Talavera"
+      author: Luis Hernandez
+
+    - title: "Sinfest"
+      author: nadid
+
+    - title: "Various Czech news sources"
+      author: FunThomas
+
+    - title: "tportal.h"
+      author: Darko Miletic
+
+    - title: "Everett Herald"
+      author: "77jag5"
+
+    - title: "Roger Ebert"
+      author: Shane Erstad
+
 - version: 0.7.42
   date: 2011-01-21
 
   new features:
-    - title: "0.7.42 is a re-release of 0.7.41, because conversion to MOBI was broken in 0.7.41"
-
     - title: "Conversions: Replace the remove header/footer options with a more geenric search replace option, that allows you to not only remove but also replace text"
 
     - title: "Conversion: The preprocess html option has now become a new 'Heuristic Processing' option which allows you to control exactly which heuristics are used"

@@ -16,7 +16,6 @@ from PyQt4.Qt import QIcon, QFont, QLabel, QListWidget, QAction, \
                         QTimer, QRect
 
 from calibre.gui2 import NONE, error_dialog, pixmap_to_data, gprefs
-from calibre.constants import isosx
 from calibre.gui2.filename_pattern_ui import Ui_Form
 from calibre import fit_image
 from calibre.ebooks import BOOK_EXTENSIONS
@@ -67,17 +66,31 @@ class FilenamePattern(QWidget, Ui_Form):
         self.setupUi(self)
 
         self.connect(self.test_button, SIGNAL('clicked()'), self.do_test)
-        self.connect(self.re, SIGNAL('returnPressed()'), self.do_test)
-        self.initialize()
-        self.re.textChanged.connect(lambda x: self.changed_signal.emit())
+        self.connect(self.re.lineEdit(), SIGNAL('returnPressed()'), self.do_test)
+        self.re.lineEdit().textChanged.connect(lambda x: self.changed_signal.emit())
 
     def initialize(self, defaults=False):
+        # Get all itmes in the combobox. If we are resting
+        # to defaults we don't want to lose what the user
+        # has added.
+        val_hist = [unicode(self.re.lineEdit().text())] + [unicode(self.re.itemText(i)) for i in xrange(self.re.count())]
+        self.re.clear()
+
         if defaults:
             val = prefs.defaults['filename_pattern']
         else:
             val = prefs['filename_pattern']
-        self.re.setText(val)
+        self.re.lineEdit().setText(val)
 
+        val_hist += gprefs.get('filename_pattern_history', ['(?P<title>.+)', '(?P<author>[^_-]+) -?\s*(?P<series>[^_0-9-]*)(?P<series_index>[0-9]*)\s*-\s*(?P<title>[^_].+) ?'])
+        if val in val_hist:
+            del val_hist[val_hist.index(val)]
+        val_hist.insert(0, val)
+        for v in val_hist:
+            # Ensure we don't have duplicate items.
+            if v and self.re.findText(v) == -1:
+                self.re.addItem(v)
+        self.re.setCurrentIndex(0)
 
     def do_test(self):
         try:
@@ -110,12 +123,21 @@ class FilenamePattern(QWidget, Ui_Form):
 
 
     def pattern(self):
-        pat = unicode(self.re.text())
+        pat = unicode(self.re.lineEdit().text())
         return re.compile(pat)
 
     def commit(self):
         pat = self.pattern().pattern
         prefs['filename_pattern'] = pat
+
+        history = []
+        history_pats = [unicode(self.re.lineEdit().text())] + [unicode(self.re.itemText(i)) for i in xrange(self.re.count())]
+        for p in history_pats[:14]:
+            # Ensure we don't have duplicate items.
+            if p and p not in history:
+                history.append(p)
+        gprefs['filename_pattern_history'] = history
+
         return pat
 
 
@@ -304,8 +326,9 @@ class FontFamilyModel(QAbstractListModel):
             return NONE
         if role == Qt.DisplayRole:
             return QVariant(family)
-        if not isosx and role == Qt.FontRole:
-            # Causes a Qt crash with some fonts on OS X
+        if False and role == Qt.FontRole:
+            # Causes a Qt crash with some fonts
+            # so disabled.
             return QVariant(QFont(family))
         return NONE
 
@@ -480,7 +503,7 @@ class CompleteLineEdit(EnLineEdit):
         cursor_pos = self.cursorPosition()
         before_text = unicode(self.text())[:cursor_pos]
         after_text = unicode(self.text())[cursor_pos:]
-        prefix_len = len(before_text.split(self.separator)[-1].strip())
+        prefix_len = len(before_text.split(self.separator)[-1].lstrip())
         if self.space_before_sep:
             complete_text_pat = '%s%s %s %s'
             len_extra = 3

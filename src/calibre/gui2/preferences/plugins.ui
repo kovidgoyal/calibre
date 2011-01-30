@@ -25,6 +25,47 @@
     </widget>
    </item>
    <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="SearchBox2" name="search"/>
+     </item>
+     <item>
+      <widget class="QPushButton" name="next_button">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>&amp;Next</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../../../../resources/images.qrc">
+         <normaloff>:/images/arrow-down.png</normaloff>:/images/arrow-down.png</iconset>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="previous_button">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>&amp;Previous</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../../../../resources/images.qrc">
+         <normaloff>:/images/arrow-up.png</normaloff>:/images/arrow-up.png</iconset>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
     <widget class="QTreeView" name="plugin_view">
      <property name="alternatingRowColors">
       <bool>true</bool>
@@ -84,6 +125,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>SearchBox2</class>
+   <extends>QComboBox</extends>
+   <header>calibre/gui2/search_box.h</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="../../../../resources/images.qrc"/>
  </resources>

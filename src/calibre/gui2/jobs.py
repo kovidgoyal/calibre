@@ -19,7 +19,7 @@ from PyQt4.Qt import QAbstractTableModel, QVariant, QModelIndex, Qt, \
 
 from calibre.utils.ipc.server import Server
 from calibre.utils.ipc.job import ParallelJob
-from calibre.gui2 import Dispatcher, error_dialog, NONE, config, gprefs
+from calibre.gui2 import Dispatcher, error_dialog, question_dialog, NONE, config, gprefs
 from calibre.gui2.device import DeviceJob
 from calibre.gui2.dialogs.jobs_ui import Ui_JobsDialog
 from calibre import __appname__
@@ -380,8 +380,8 @@ class JobsDialog(QDialog, Ui_JobsDialog):
         self.model = model
         self.setWindowModality(Qt.NonModal)
         self.setWindowTitle(__appname__ + _(' - Jobs'))
-        self.kill_button.clicked.connect(self.kill_job)
         self.details_button.clicked.connect(self.show_details)
+        self.kill_button.clicked.connect(self.kill_job)
         self.stop_all_jobs_button.clicked.connect(self.kill_all_jobs)
         self.pb_delegate = ProgressBarDelegate(self)
         self.jobs_view.setItemDelegateForColumn(2, self.pb_delegate)
@@ -415,19 +415,20 @@ class JobsDialog(QDialog, Ui_JobsDialog):
         d.exec_()
         d.timer.stop()
 
-    def kill_job(self, *args):
-        for index in self.jobs_view.selectedIndexes():
-            row = index.row()
-            self.model.kill_job(row, self)
-            return
-
     def show_details(self, *args):
         for index in self.jobs_view.selectedIndexes():
             self.show_job_details(index)
             return
 
+    def kill_job(self, *args):
+        if question_dialog(self, _('Are you sure?'), _('Do you really want to stop the selected job?')):
+            for index in self.jobs_view.selectedIndexes():
+                row = index.row()
+                self.model.kill_job(row, self)
+
     def kill_all_jobs(self, *args):
-        self.model.kill_all_jobs()
+        if question_dialog(self, _('Are you sure?'), _('Do you really want to stop all non-device jobs?')):
+            self.model.kill_all_jobs()
 
     def closeEvent(self, e):
         self.save_state()

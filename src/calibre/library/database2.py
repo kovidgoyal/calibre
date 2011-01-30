@@ -7,9 +7,9 @@ __docformat__ = 'restructuredtext en'
 The database used to store ebook metadata
 '''
 import os, sys, shutil, cStringIO, glob, time, functools, traceback, re, json
+import threading, random
 from itertools import repeat
 from math import ceil
-from Queue import Queue
 
 from PyQt4.QtGui import QImage
 
@@ -21,7 +21,7 @@ from calibre.library.field_metadata import FieldMetadata, TagsIcons
 from calibre.library.schema_upgrades import SchemaUpgrade
 from calibre.library.caches import ResultCache
 from calibre.library.custom_columns import CustomColumns
-from calibre.library.sqlite import connect, IntegrityError, DBThread
+from calibre.library.sqlite import connect, IntegrityError
 from calibre.library.prefs import DBPrefs
 from calibre.ebooks.metadata import string_to_authors, authors_to_string
 from calibre.ebooks.metadata.book.base import Metadata
@@ -117,7 +117,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     def __init__(self, library_path, row_factory=False, default_prefs=None,
             read_only=False):
         self.field_metadata = FieldMetadata()
-        self.dirtied_queue = Queue()
+        # Create the lock to be used to guard access to the metadata writer
+        # queues. This must be an RLock, not a Lock
+        self.dirtied_lock = threading.RLock()
         if not os.path.exists(library_path):
             os.makedirs(library_path)
         self.listeners = set([])
@@ -185,6 +187,29 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         migrate_preference('user_categories', {})
         migrate_preference('saved_searches', {})
         set_saved_searches(self, 'saved_searches')
+
+        # Rename any user categories with names that differ only in case
+        user_cats = self.prefs.get('user_categories', [])
+        catmap = {}
+        for uc in user_cats:
+            ucl = icu_lower(uc)
+            if ucl not in catmap:
+                catmap[ucl] = []
+            catmap[ucl].append(uc)
+        cats_changed = False
+        for uc in catmap:
+            if len(catmap[uc]) > 1:
+                prints('found user category case overlap', catmap[uc])
+                cat = catmap[uc][0]
+                suffix = 1
+                while icu_lower((cat + unicode(suffix))) in catmap:
+                    suffix += 1
+                prints('Renaming user category %s to %s'%(cat, cat+unicode(suffix)))
+                user_cats[cat + unicode(suffix)] = user_cats[cat]
+                del user_cats[cat]
+                cats_changed = True
+        if cats_changed:
+            self.prefs.set('user_categories', user_cats)
 
         load_user_template_functions(self.prefs.get('user_template_functions', []))
 
@@ -319,7 +344,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.field_metadata.remove_dynamic_categories()
         tb_cats = self.field_metadata
         for user_cat in sorted(self.prefs.get('user_categories', {}).keys(), key=sort_key):
-            cat_name = user_cat+':' # add the ':' to avoid name collision
+            cat_name = '@' + user_cat # add the '@' to avoid name collision
             tb_cats.add_user_category(label=cat_name, name=user_cat)
         if len(saved_searches().names()):
             tb_cats.add_search_category(label='search', name=_('Searches'))
@@ -332,7 +357,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 traceback.print_exc()
 
         self.book_on_device_func = None
-        self.data    = ResultCache(self.FIELD_MAP, self.field_metadata)
+        self.data    = ResultCache(self.FIELD_MAP, self.field_metadata, db_prefs=self.prefs)
         self.search  = self.data.search
         self.search_getting_ids  = self.data.search_getting_ids
         self.refresh = functools.partial(self.data.refresh, self)
@@ -353,16 +378,21 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 loc=self.FIELD_MAP['sort']))
 
         d = self.conn.get('SELECT book FROM metadata_dirtied', all=True)
-        for x in d:
-            self.dirtied_queue.put(x[0])
-        self.dirtied_cache = set([x[0] for x in d])
+        with self.dirtied_lock:
+            self.dirtied_sequence = 0
+            self.dirtied_cache = {}
+            for x in d:
+                self.dirtied_cache[x[0]] = self.dirtied_sequence
+                self.dirtied_sequence += 1
 
         self.refresh_ondevice = functools.partial(self.data.refresh_ondevice, self)
         self.refresh()
         self.last_update_check = self.last_modified()
 
     def break_cycles(self):
-        self.data = self.field_metadata = self.prefs = self.listeners = None
+        self.data.break_cycles()
+        self.data = self.field_metadata = self.prefs = self.listeners = \
+            self.refresh_ondevice = None
 
     def initialize_database(self):
         metadata_sqlite = open(P('metadata_sqlite.sql'), 'rb').read()
@@ -580,21 +610,27 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     def metadata_for_field(self, key):
         return self.field_metadata[key]
 
-    def clear_dirtied(self, book_ids):
+    def clear_dirtied(self, book_id, sequence):
         '''
         Clear the dirtied indicator for the books. This is used when fetching
         metadata, creating an OPF, and writing a file are separated into steps.
         The last step is clearing the indicator
         '''
-        for book_id in book_ids:
-            self.conn.execute('DELETE FROM metadata_dirtied WHERE book=?',
-                    (book_id,))
-            # if a later exception prevents the commit, then the dirtied
-            # table will still have the book. No big deal, because the OPF
-            # is there and correct. We will simply do it again on next
-            # start
-            self.dirtied_cache.discard(book_id)
-        self.conn.commit()
+        with self.dirtied_lock:
+            dc_sequence = self.dirtied_cache.get(book_id, None)
+            # print 'clear_dirty: check book', book_id, dc_sequence
+            if dc_sequence is None or sequence is None or dc_sequence == sequence:
+                # print 'needs to be cleaned'
+                self.conn.execute('DELETE FROM metadata_dirtied WHERE book=?',
+                        (book_id,))
+                self.conn.commit()
+                try:
+                    del self.dirtied_cache[book_id]
+                except:
+                    pass
+            elif dc_sequence is not None:
+                # print 'book needs to be done again'
+                pass
 
     def dump_metadata(self, book_ids=None, remove_from_dirtied=True,
             commit=True):
@@ -607,37 +643,58 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         for book_id in book_ids:
             if not self.data.has_id(book_id):
                 continue
-            path, mi = self.get_metadata_for_dump(book_id,
-                                        remove_from_dirtied=remove_from_dirtied)
+            path, mi, sequence = self.get_metadata_for_dump(book_id)
             if path is None:
                 continue
             try:
                 raw = metadata_to_opf(mi)
                 with lopen(path, 'wb') as f:
                     f.write(raw)
+                if remove_from_dirtied:
+                    self.clear_dirtied(book_id, sequence)
             except:
-                # Something went wrong. Put the book back on the dirty list
-                self.dirtied([book_id])
+                pass
         if commit:
             self.conn.commit()
 
     def dirtied(self, book_ids, commit=True):
-        for book in frozenset(book_ids) - self.dirtied_cache:
-            try:
-                self.conn.execute(
-                    'INSERT INTO metadata_dirtied (book) VALUES (?)',
-                        (book,))
-                self.dirtied_queue.put(book)
-            except IntegrityError:
-                # Already in table
-                pass
-            # If the commit doesn't happen, then our cache will be wrong. This
-            # could lead to a problem because we won't put the book back into
-            # the dirtied table. We deal with this by writing the dirty cache
-            # back to the table on GUI exit. Not perfect, but probably OK
-            self.dirtied_cache.add(book)
-        if commit:
+        changed = False
+        for book in book_ids:
+            with self.dirtied_lock:
+                # print 'dirtied: check id', book
+                if book in self.dirtied_cache:
+                    self.dirtied_cache[book] = self.dirtied_sequence
+                    self.dirtied_sequence += 1
+                    continue
+                # print 'book not already dirty'
+                try:
+                    self.conn.execute(
+                        'INSERT INTO metadata_dirtied (book) VALUES (?)',
+                            (book,))
+                    changed = True
+                except IntegrityError:
+                    # Already in table
+                    pass
+                self.dirtied_cache[book] = self.dirtied_sequence
+                self.dirtied_sequence += 1
+        # If the commit doesn't happen, then the DB table will be wrong. This
+        # could lead to a problem because on restart, we won't put the book back
+        # into the dirtied_cache. We deal with this by writing the dirtied_cache
+        # back to the table on GUI exit. Not perfect, but probably OK
+        if commit and changed:
             self.conn.commit()
+
+    def get_a_dirtied_book(self):
+        with self.dirtied_lock:
+            l = len(self.dirtied_cache)
+            if l > 0:
+                # The random stuff is here to prevent a single book from
+                # blocking progress if its metadata cannot be written for some
+                # reason.
+                id_ = self.dirtied_cache.keys()[random.randint(0, l-1)]
+                sequence = self.dirtied_cache[id_]
+                return (id_, sequence)
+            return (None, None)
 
     def dirty_queue_length(self):
         return len(self.dirtied_cache)
@@ -651,12 +708,19 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         is no problem with setting a dirty indication for a book that isn't in
         fact dirty. Just wastes a few cycles.
         '''
-        book_ids = list(self.dirtied_cache)
-        self.dirtied_cache = set()
-        self.dirtied(book_ids)
+        with self.dirtied_lock:
+            book_ids = list(self.dirtied_cache.keys())
+            self.dirtied_cache = {}
+            self.dirtied(book_ids)
 
-    def get_metadata_for_dump(self, idx, remove_from_dirtied=True):
+    def get_metadata_for_dump(self, idx):
         path, mi = (None, None)
+        # get the current sequence number for this book to pass back to the
+        # backup thread. This will avoid double calls in the case where the
+        # thread has not done the work between the put and the get_metadata
+        with self.dirtied_lock:
+            sequence = self.dirtied_cache.get(idx, None)
+        # print 'get_md_for_dump', idx, sequence
         try:
             # While a book is being created, the path is empty. Don't bother to
             # try to write the opf, because it will go to the wrong folder.
@@ -671,16 +735,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             # This almost certainly means that the book has been deleted while
             # the backup operation sat in the queue.
             pass
-
-        try:
-            # clear the dirtied indicator. The user must put it back if
-            # something goes wrong with writing the OPF
-            if remove_from_dirtied:
-                self.clear_dirtied([idx])
-        except:
-            # No real problem. We will just do it again.
-            pass
-        return (path, mi)
+        return (path, mi, sequence)
 
     def get_metadata(self, idx, index_is_id=False, get_cover=False):
         '''
@@ -772,7 +827,6 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             try:
                 book_ids = self.data.parse(query)
             except:
-                import traceback
                 traceback.print_exc()
                 return identical_book_ids
             for book_id in book_ids:
@@ -1241,7 +1295,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     if category in icon_map:
                         icon = icon_map[label]
                 else:
-                    icon = icon_map[':custom']
+                    icon = icon_map['custom:']
                     icon_map[category] = icon
 
             datatype = cat['datatype']
@@ -1337,20 +1391,19 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 if label in taglist and name in taglist[label]:
                     items.append(taglist[label][name])
                 # else: do nothing, to not include nodes w zero counts
-            if len(items):
-                cat_name = user_cat+':' # add the ':' to avoid name collision
-                # Not a problem if we accumulate entries in the icon map
-                if icon_map is not None:
-                    icon_map[cat_name] = icon_map[':user']
-                if sort == 'popularity':
-                    categories[cat_name] = \
-                        sorted(items, key=lambda x: x.count, reverse=True)
-                elif sort == 'name':
-                    categories[cat_name] = \
-                        sorted(items, key=lambda x: sort_key(x.sort))
-                else:
-                    categories[cat_name] = \
-                        sorted(items, key=lambda x:x.avg_rating, reverse=True)
+            cat_name = '@' + user_cat # add the '@' to avoid name collision
+            # Not a problem if we accumulate entries in the icon map
+            if icon_map is not None:
+                icon_map[cat_name] = icon_map['user:']
+            if sort == 'popularity':
+                categories[cat_name] = \
+                    sorted(items, key=lambda x: x.count, reverse=True)
+            elif sort == 'name':
+                categories[cat_name] = \
+                    sorted(items, key=lambda x: sort_key(x.sort))
+            else:
+                categories[cat_name] = \
+                    sorted(items, key=lambda x:x.avg_rating, reverse=True)
 
         #### Finally, the saved searches category ####
         items = []
@@ -1375,10 +1428,12 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     def tags_older_than(self, tag, delta):
         tag = tag.lower().strip()
         now = nowf()
+        tindex = self.FIELD_MAP['timestamp']
+        gindex = self.FIELD_MAP['tags']
         for r in self.data._data:
             if r is not None:
-                if (now - r[self.FIELD_MAP['timestamp']]) > delta:
-                    tags = r[self.FIELD_MAP['tags']]
+                if (now - r[tindex]) > delta:
+                    tags = r[gindex]
                     if tags and tag in [x.strip() for x in
                             tags.lower().split(',')]:
                         yield r[self.FIELD_MAP['id']]
@@ -1494,7 +1549,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         elif mi.cover is not None:
             if os.access(mi.cover, os.R_OK):
                 with lopen(mi.cover, 'rb') as f:
-                    doit(self.set_cover, id, f, commit=False)
+                    raw = f.read()
+                if raw:
+                    doit(self.set_cover, id, raw, commit=False)
         if mi.tags:
             doit(self.set_tags, id, mi.tags, notify=False, commit=False)
         if mi.comments:
@@ -2741,82 +2798,3 @@ books_series_link      feeds
             yield id, title, script
 
 
-    def check_integrity(self, callback):
-        callback(0., _('Checking SQL integrity...'))
-        self.clean()
-        user_version = self.user_version
-        sql = '\n'.join(self.conn.dump())
-        self.conn.close()
-        dest = self.dbpath+'.tmp'
-        if os.path.exists(dest):
-            os.remove(dest)
-        conn = None
-        try:
-            ndb = DBThread(dest, None)
-            ndb.connect()
-            conn = ndb.conn
-            conn.execute('create table temp_sequence(id INTEGER PRIMARY KEY AUTOINCREMENT)')
-            conn.commit()
-            conn.executescript(sql)
-            conn.commit()
-            conn.execute('pragma user_version=%d'%user_version)
-            conn.commit()
-            conn.execute('drop table temp_sequence')
-            conn.commit()
-            conn.close()
-        except:
-            if conn is not None:
-                try:
-                    conn.close()
-                except:
-                    pass
-            if os.path.exists(dest):
-                os.remove(dest)
-            raise
-        else:
-            shutil.copyfile(dest, self.dbpath)
-            self.connect()
-            self.initialize_dynamic()
-            self.refresh()
-        if os.path.exists(dest):
-            os.remove(dest)
-        callback(0.1, _('Checking for missing files.'))
-        bad = {}
-        us = self.data.universal_set()
-        total = float(len(us))
-        for i, id in enumerate(us):
-            formats = self.data.get(id, self.FIELD_MAP['formats'], row_is_id=True)
-            if not formats:
-                formats = []
-            else:
-                formats = [x.lower() for x in formats.split(',')]
-            actual_formats = self.formats(id, index_is_id=True)
-            if not actual_formats:
-                actual_formats = []
-            else:
-                actual_formats = [x.lower() for x in actual_formats.split(',')]
-
-            for fmt in formats:
-                if fmt in actual_formats:
-                    continue
-                if id not in bad:
-                    bad[id] = []
-                bad[id].append(fmt)
-            has_cover = self.data.get(id, self.FIELD_MAP['cover'],
-                    row_is_id=True)
-            if has_cover and self.cover(id, index_is_id=True, as_path=True) is None:
-                if id not in bad:
-                    bad[id] = []
-                bad[id].append('COVER')
-            callback(0.1+0.9*(1+i)/total, _('Checked id') + ' %d'%id)
-
-        for id in bad:
-            for fmt in bad[id]:
-                if fmt != 'COVER':
-                    self.conn.execute('DELETE FROM data WHERE book=? AND format=?', (id, fmt.upper()))
-                else:
-                    self.conn.execute('UPDATE books SET has_cover=0 WHERE id=?', (id,))
-        self.conn.commit()
-        self.refresh_ids(list(bad.keys()))
-
-        return bad

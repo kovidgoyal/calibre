@@ -141,7 +141,7 @@ class Restore(Thread):
         sizes   = [os.path.getsize(os.path.join(dirpath, x)) for x in formats]
         names   = [os.path.splitext(x)[0] for x in formats]
         opf = os.path.join(dirpath, 'metadata.opf')
-        mi = OPF(opf).to_book_metadata()
+        mi = OPF(opf, basedir=dirpath).to_book_metadata()
         timestamp = os.path.getmtime(opf)
         path = os.path.relpath(dirpath, self.src_library_path).replace(os.sep,
                 '/')

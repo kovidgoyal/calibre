@@ -251,18 +251,25 @@ class LibraryThing(MetadataSource): # {{{
 
     name = 'LibraryThing'
     metadata_type = 'social'
-    description = _('Downloads series/tags/rating information from librarything.com')
+    description = _('Downloads series/covers/rating information from librarything.com')
 
     def fetch(self):
-        if not self.isbn:
+        if not self.isbn or not self.site_customization:
             return
         from calibre.ebooks.metadata.library_thing import get_social_metadata
+        un, _, pw = self.site_customization.partition(':')
         try:
             self.results = get_social_metadata(self.title, self.book_author,
-                    self.publisher, self.isbn)
+                    self.publisher, self.isbn, username=un, password=pw)
         except Exception, e:
             self.exception = e
             self.tb = traceback.format_exc()
+
+    @property
+    def string_customization_help(self):
+        ans = _('To use librarything.com you must sign up for a %sfree account%s '
+                'and enter your username and password separated by a : below.')
+        return '<p>'+ans%('<a href="http://www.librarything.com">', '</a>')
 
     # }}}
 
@@ -411,7 +418,7 @@ def search(title=None, author=None, publisher=None, isbn=None, isbndb_key=None,
                     r.pubdate = pubdate
 
     def fix_case(x):
-        if x and x.isupper():
+        if x:
             x = titlecase(x)
         return x
 

@@ -11,7 +11,7 @@ from functools import partial
 from threading import Thread
 
 from PyQt4.Qt import SIGNAL, QObject, Qt, QTimer, QDate, \
-    QPixmap, QListWidgetItem, QDialog, pyqtSignal, QMessageBox, QIcon, \
+    QPixmap, QListWidgetItem, QDialog, pyqtSignal, QIcon, \
     QPushButton
 
 from calibre.gui2 import error_dialog, file_icon_provider, dynamic, \
@@ -208,6 +208,8 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         from calibre.gui2 import config
         title = unicode(self.title.text()).strip()
         author = unicode(self.authors.text()).strip()
+        if author.endswith('&'):
+            author = author[:-1].strip()
         if not title or not author:
             return error_dialog(self, _('Specify title and author'),
                     _('You must specify a title and author before generating '
@@ -768,9 +770,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             if question_dialog(self, _('Tags changed'),
                     _('You have changed the tags. In order to use the tags'
                        ' editor, you must either discard or apply these '
-                       'changes'), show_copy_button=False,
-                    buttons=QMessageBox.Apply|QMessageBox.Discard,
-                    yes_button=QMessageBox.Apply):
+                       'changes. Apply changes?'), show_copy_button=False):
                 self.apply_tags(commit=True, notify=True)
                 self.original_tags = unicode(self.tags.text())
             else:

@@ -25,13 +25,15 @@ class HeuristicProcessor(object):
         self.chapters_with_title = 0
         self.blanks_deleted = False
         self.linereg = re.compile('(?<=<p).*?(?=</p>)', re.IGNORECASE|re.DOTALL)
-        self.blankreg = re.compile(r'\s*(?P<openline><p(?!\sid=\"softbreak\")[^>]*>)\s*(?P<closeline></p>)', re.IGNORECASE)
+        self.blankreg = re.compile(r'\s*(?P<openline><p(?!\sclass=\"softbreak\")[^>]*>)\s*(?P<closeline></p>)', re.IGNORECASE)
+        self.softbreak = re.compile(r'\s*(?P<openline><p(?=\sclass=\"softbreak\")[^>]*>)\s*(?P<closeline></p>)', re.IGNORECASE)
         self.multi_blank = re.compile(r'(\s*<p[^>]*>\s*</p>){2,}', re.IGNORECASE)
 
     def is_pdftohtml(self, src):
         return '<!-- created by calibre\'s pdftohtml -->' in src[:1000]
 
     def chapter_head(self, match):
+        from calibre.utils.html2text import html2text
         chap = match.group('chap')
         title = match.group('title')
         if not title:
@@ -40,10 +42,12 @@ class HeuristicProcessor(object):
                     " chapters. - " + unicode(chap))
             return '<h2>'+chap+'</h2>\n'
         else:
+            txt_chap = html2text(chap)
+            txt_title = html2text(title)
             self.html_preprocess_sections = self.html_preprocess_sections + 1
             self.log.debug("marked " + unicode(self.html_preprocess_sections) +
                     " chapters & titles. - " + unicode(chap) + ", " + unicode(title))
-            return '<h2>'+chap+'</h2>\n<h3>'+title+'</h3>\n'
+            return '<h2 title="'+txt_chap+', '+txt_title+'">'+chap+'</h2>\n<h3 class="sigilNotInTOC">'+title+'</h3>\n'
 
     def chapter_break(self, match):
         chap = match.group('section')
@@ -137,21 +141,21 @@ class HeuristicProcessor(object):
         ]
 
         ITALICIZE_STYLE_PATS = [
-            r'(?msu)(?<=\s)_(?P<words>\S[^_]{0,40}?\S)?_(?=\s)',
-            r'(?msu)(?<=\s)/(?P<words>\S[^/]{0,40}?\S)?/(?=\s)',
-            r'(?msu)(?<=\s)~~(?P<words>\S[^~]{0,40}?\S)?~~(?=\s)',
-            r'(?msu)(?<=\s)\*(?P<words>\S[^\*]{0,40}?\S)?\*(?=\s)',
-            r'(?msu)(?<=\s)~(?P<words>\S[^~]{0,40}?\S)?~(?=\s)',
-            r'(?msu)(?<=\s)_/(?P<words>\S[^/_]{0,40}?\S)?/_(?=\s)',
-            r'(?msu)(?<=\s)_\*(?P<words>\S[^\*_]{0,40}?\S)?\*_(?=\s)',
-            r'(?msu)(?<=\s)\*/(?P<words>\S[^/\*]{0,40}?\S)?/\*(?=\s)',
-            r'(?msu)(?<=\s)_\*/(?P<words>\S[^\*_]{0,40}?\S)?/\*_(?=\s)',
-            r'(?msu)(?<=\s)/:(?P<words>\S[^:/]{0,40}?\S)?:/(?=\s)',
-            r'(?msu)(?<=\s)\|:(?P<words>\S[^:\|]{0,40}?\S)?:\|(?=\s)',
+            r'(?msu)(?<=\s)_(?P<words>\S[^_]{0,40}?\S)?_(?=[\s\.,\!\?])',
+            r'(?msu)(?<=\s)/(?P<words>\S[^/]{0,40}?\S)?/(?=[\s\.,\!\?])',
+            r'(?msu)(?<=\s)~~(?P<words>\S[^~]{0,40}?\S)?~~(?=[\s\.,\!\?])',
+            r'(?msu)(?<=\s)\*(?P<words>\S[^\*]{0,40}?\S)?\*(?=[\s\.,\!\?])',
+            r'(?msu)(?<=\s)~(?P<words>\S[^~]{0,40}?\S)?~(?=[\s\.,\!\?])',
+            r'(?msu)(?<=\s)_/(?P<words>\S[^/_]{0,40}?\S)?/_(?=[\s\.,\!\?])',
+            r'(?msu)(?<=\s)_\*(?P<words>\S[^\*_]{0,40}?\S)?\*_(?=[\s\.,\!\?])',
+            r'(?msu)(?<=\s)\*/(?P<words>\S[^/\*]{0,40}?\S)?/\*(?=[\s\.,\!\?])',
+            r'(?msu)(?<=\s)_\*/(?P<words>\S[^\*_]{0,40}?\S)?/\*_(?=[\s\.,\!\?])',
+            r'(?msu)(?<=\s)/:(?P<words>\S[^:/]{0,40}?\S)?:/(?=[\s\.,\!\?])',
+            r'(?msu)(?<=\s)\|:(?P<words>\S[^:\|]{0,40}?\S)?:\|(?=[\s\.,\!\?])',
         ]
 
         for word in ITALICIZE_WORDS:
-            html = html.replace(word, '<i>%s</i>' % word)
+            html = re.sub(r'(?<=\s|>)' + re.escape(word) + r'(?=\s|<)', '<i>%s</i>' % word, html)
 
         for pat in ITALICIZE_STYLE_PATS:
             html = re.sub(pat, lambda mo: '<i>%s</i>' % mo.group('words'), html)
@@ -203,8 +207,8 @@ class HeuristicProcessor(object):
             blank_lines = ""
         opt_title_open = "("
         opt_title_close = ")?"
-        n_lookahead_open = "\s+(?!"
-        n_lookahead_close = ")"
+        n_lookahead_open = "(?!\s*"
+        n_lookahead_close = ")\s*"
 
         default_title = r"(<[ibu][^>]*>)?\s{0,3}(?!Chapter)([\w\:\'’\"-]+\s{0,3}){1,5}?(</[ibu][^>]*>)?(?=<)"
         simple_title = r"(<[ibu][^>]*>)?\s{0,3}(?!(Chapter|\s+<)).{0,65}?(</[ibu][^>]*>)?(?=<)"
@@ -215,7 +219,7 @@ class HeuristicProcessor(object):
             [r"[^'\"]?(Introduction|Synopsis|Acknowledgements|Epilogue|CHAPTER|Kapitel|Volume\b|Prologue|Book\b|Part\b|Dedication|Preface)\s*([\d\w-]+\:?\'?\s*){0,5}", True, True, True, False, "Searching for common section headings", 'common'],
             [r"[^'\"]?(CHAPTER|Kapitel)\s*([\dA-Z\-\'\"\?!#,]+\s*){0,7}\s*", True, True, True, False, "Searching for most common chapter headings", 'chapter'],  # Highest frequency headings which include titles
             [r"<b[^>]*>\s*(<span[^>]*>)?\s*(?!([*#•=]+\s*)+)(\s*(?=[\d.\w#\-*\s]+<)([\d.\w#-*]+\s*){1,5}\s*)(?!\.)(</span>)?\s*</b>", True, True, True, False, "Searching for emphasized lines", 'emphasized'], # Emphasized lines
-            [r"[^'\"]?(\d+(\.|:))\s*([\dA-Z\-\'\"#,]+\s*){0,7}\s*", True, True, True, False, "Searching for numeric chapter headings", 'numeric'],  # Numeric Chapters
+            [r"[^'\"]?(\d+(\.|:))\s*([\w\-\'\"#,]+\s*){0,7}\s*", True, True, True, False, "Searching for numeric chapter headings", 'numeric'],  # Numeric Chapters
             [r"([A-Z]\s+){3,}\s*([\d\w-]+\s*){0,3}\s*", True, True, True, False, "Searching for letter spaced headings", 'letter_spaced'],  # Spaced Lettering
             [r"[^'\"]?(\d+\.?\s+([\d\w-]+\:?\'?-?\s?){0,5})\s*", True, True, True, False, "Searching for numeric chapters with titles", 'numeric_title'], # Numeric Titles
             [r"[^'\"]?(\d+)\s*([\dA-Z\-\'\"\?!#,]+\s*){0,7}\s*", True, True, True, False, "Searching for simple numeric headings", 'plain_number'],  # Numeric Chapters, no dot or colon
@@ -275,7 +279,7 @@ class HeuristicProcessor(object):
                         self.log.debug(unicode(type_name)+" had "+unicode(hits)+" hits - "+unicode(self.chapters_no_title)+" chapters with no title, "+unicode(self.chapters_with_title)+" chapters with titles, "+unicode(float(self.chapters_with_title) / float(hits))+" percent. ")
                         if type_name == 'common':
                             analysis_result.append([chapter_type, n_lookahead_req, strict_title, ignorecase, title_req, log_message, type_name])
-                        elif self.min_chapters <= hits < max_chapters:
+                        elif self.min_chapters <= hits < max_chapters or self.min_chapters < 3 > hits:
                             analysis_result.append([chapter_type, n_lookahead_req, strict_title, ignorecase, title_req, log_message, type_name])
                             break
                 else:
@@ -367,6 +371,8 @@ class HeuristicProcessor(object):
         html = re.sub(ur'\s*<o:p>\s*</o:p>', ' ', html)
         # Delete microsoft 'smart' tags
         html = re.sub('(?i)</?st1:\w+>', '', html)
+        # Delete self closing paragraph tags
+        html = re.sub('<p\s?/>', '', html)
         # Get rid of empty span, bold, font, em, & italics tags
         html = re.sub(r"\s*<span[^>]*>\s*(<span[^>]*>\s*</span>){0,2}\s*</span>\s*", " ", html)
         html = re.sub(r"\s*<(font|[ibu]|em)[^>]*>\s*(<(font|[ibu]|em)[^>]*>\s*</(font|[ibu]|em)>\s*){0,2}\s*</(font|[ibu]|em)>", " ", html)
@@ -467,7 +473,7 @@ class HeuristicProcessor(object):
         if blanks_between_paragraphs and getattr(self.extra_opts, 'delete_blank_paragraphs', False):
             self.log.debug("deleting blank lines")
             self.blanks_deleted = True
-            html = self.multi_blank.sub('\n<p id="softbreak" style="margin-top:1.5em; margin-bottom:1.5em"> </p>', html)
+            html = self.multi_blank.sub('\n<p class="softbreak" style="margin-top:1.5em; margin-bottom:1.5em"> </p>', html)
             html = self.blankreg.sub('', html)
 
         # Determine line ending type
@@ -522,11 +528,11 @@ class HeuristicProcessor(object):
             # Center separator lines
             html = re.sub(u'<(?P<outer>p|div)[^>]*>\s*(<(?P<inner1>font|span|[ibu])[^>]*>)?\s*(<(?P<inner2>font|span|[ibu])[^>]*>)?\s*(<(?P<inner3>font|span|[ibu])[^>]*>)?\s*(?P<break>([*#•=✦]+\s*)+)\s*(</(?P=inner3)>)?\s*(</(?P=inner2)>)?\s*(</(?P=inner1)>)?\s*</(?P=outer)>', '<p style="text-align:center; margin-top:1.25em; margin-bottom:1.25em">' + '\g<break>' + '</p>', html)
             if not self.blanks_deleted:
-                html = self.multi_blank.sub('\n<p id="softbreak" style="margin-top:1.5em; margin-bottom:1.5em"> </p>', html)
-            html = re.sub('<p\s+id="softbreak"[^>]*>\s*</p>', '<div id="softbreak" style="margin-left: 45%; margin-right: 45%; margin-top:1.5em; margin-bottom:1.5em"><hr style="height: 3px; background:#505050" /></div>', html)
+                html = self.multi_blank.sub('\n<p class="softbreak" style="margin-top:1.5em; margin-bottom:1.5em"> </p>', html)
+            html = re.sub('<p\s+class="softbreak"[^>]*>\s*</p>', '<div id="softbreak" style="margin-left: 45%; margin-right: 45%; margin-top:1.5em; margin-bottom:1.5em"><hr style="height: 3px; background:#505050" /></div>', html)
 
         if self.deleted_nbsps:
             # put back non-breaking spaces in empty paragraphs to preserve original formatting
             html = self.blankreg.sub('\n'+r'\g<openline>'+u'\u00a0'+r'\g<closeline>', html)
-
+            html = self.softbreak.sub('\n'+r'\g<openline>'+u'\u00a0'+r'\g<closeline>', html)
         return html

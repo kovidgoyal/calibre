@@ -121,6 +121,7 @@ class LibraryThingCovers(CoverDownload): # {{{
     LIBRARYTHING = 'http://www.librarything.com/isbn/'
 
     def get_cover_url(self, isbn, br, timeout=5.):
+
         try:
             src = br.open_novisit('http://www.librarything.com/isbn/'+isbn,
                     timeout=timeout).read().decode('utf-8', 'replace')
@@ -129,6 +130,8 @@ class LibraryThingCovers(CoverDownload): # {{{
                 err = Exception(_('LibraryThing.com timed out. Try again later.'))
             raise err
         else:
+            if '/wiki/index.php/HelpThing:Verify' in src:
+                raise Exception('LibraryThing is blocking calibre.')
             s = BeautifulSoup(src)
             url = s.find('td', attrs={'class':'left'})
             if url is None:
@@ -142,9 +145,12 @@ class LibraryThingCovers(CoverDownload): # {{{
             return url
 
     def has_cover(self, mi, ans, timeout=5.):
-        if not mi.isbn:
+        if not mi.isbn or not self.site_customization:
             return False
-        br = browser()
+        from calibre.ebooks.metadata.library_thing import get_browser, login
+        br = get_browser()
+        un, _, pw = self.site_customization.partition(':')
+        login(br, un, pw)
         try:
             self.get_cover_url(mi.isbn, br, timeout=timeout)
             self.debug('cover for', mi.isbn, 'found')
@@ -153,9 +159,12 @@ class LibraryThingCovers(CoverDownload): # {{{
             self.debug(e)
 
     def get_covers(self, mi, result_queue, abort, timeout=5.):
-        if not mi.isbn:
+        if not mi.isbn or not self.site_customization:
             return
-        br = browser()
+        from calibre.ebooks.metadata.library_thing import get_browser, login
+        br = get_browser()
+        un, _, pw = self.site_customization.partition(':')
+        login(br, un, pw)
         try:
             url = self.get_cover_url(mi.isbn, br, timeout=timeout)
             cover_data = br.open_novisit(url).read()
@@ -163,6 +172,11 @@ class LibraryThingCovers(CoverDownload): # {{{
         except Exception, e:
             result_queue.put((False, self.exception_to_string(e),
                 traceback.format_exc(), self.name))
+
+    def customization_help(self, gui=False):
+        ans = _('To use librarything.com you must sign up for a %sfree account%s '
+                'and enter your username and password separated by a : below.')
+        return '<p>'+ans%('<a href="http://www.librarything.com">', '</a>')
 
 # }}}
 
