@@ -26,7 +26,7 @@ class HeuristicProcessor(object):
         self.blanks_deleted = False
         self.blanks_between_paragraphs = False
         self.linereg = re.compile('(?<=<p).*?(?=</p>)', re.IGNORECASE|re.DOTALL)
-        self.blankreg = re.compile(r'\s*(?P<openline><p(?!\sclass=\"(softbreak|spacer)\")[^>]*>)\s*(?P<closeline></p>)', re.IGNORECASE)
+        self.blankreg = re.compile(r'\s*(?P<openline><p(?!\sclass=\"(softbreak|whitespace)\")[^>]*>)\s*(?P<closeline></p>)', re.IGNORECASE)
         self.anyblank = re.compile(r'\s*(?P<openline><p[^>]*>)\s*(?P<closeline></p>)', re.IGNORECASE)
         self.multi_blank = re.compile(r'(\s*<p[^>]*>\s*</p>){2,}(?!\s*<h\d)', re.IGNORECASE)
 
@@ -423,21 +423,21 @@ class HeuristicProcessor(object):
         blanks_before_headings = re.compile(r'(\s*<p[^>]*>\s*</p>){1,}(?=\s*<h\d)', re.IGNORECASE)
         blanks_after_headings = re.compile(r'(?<=</h\d>)(\s*<p[^>]*>\s*</p>){1,}', re.IGNORECASE)
         
-        def markup_spacers(match):
+        def markup_whitespaces(match):
            blanks = match.group(0)
-           blanks = self.blankreg.sub('\n<p class="spacer"> </p>', blanks)
+           blanks = self.blankreg.sub('\n<p class="whitespace"> </p>', blanks)
            return blanks
-        html = blanks_before_headings.sub(markup_spacers, html)
-        html = blanks_after_headings.sub(markup_spacers, html)
+        html = blanks_before_headings.sub(markup_whitespaces, html)
+        html = blanks_after_headings.sub(markup_whitespaces, html)
         if self.html_preprocess_sections > self.min_chapters:
-            html = re.sub('(?si)^.*?(?=<h\d)', markup_spacers, html)
+            html = re.sub('(?si)^.*?(?=<h\d)', markup_whitespaces, html)
         return html
 
     def detect_soft_breaks(self, html):
         if not self.blanks_deleted and self.blanks_between_paragraphs:
-            html = self.multi_blank.sub('\n<p class="softbreak" style="margin-top:1.25em; margin-bottom:1.25em; page-break-before:avoid"> </p>', html)
+            html = self.multi_blank.sub('\n<p class="softbreak" style="margin-top:.5em; margin-bottom:.5em; page-break-before:avoid"> </p>', html)
         else:
-            html = self.blankreg.sub('\n<p class="softbreak" style="margin-top:1.25em; margin-bottom:1.25em; page-break-before:avoid"> </p>', html)
+            html = self.blankreg.sub('\n<p class="softbreak" style="margin-top:.5em; margin-bottom:.5em; page-break-before:avoid"> </p>', html)
         return html
 
 
@@ -489,6 +489,7 @@ class HeuristicProcessor(object):
 
         if getattr(self.extra_opts, 'markup_chapter_headings', False):
             html = self.markup_chapters(html, self.totalwords, self.blanks_between_paragraphs)
+        self.dump(html, 'after_chapter_markup')
 
         if getattr(self.extra_opts, 'italicize_common_cases', False):
             html = self.markup_italicis(html)
@@ -498,7 +499,7 @@ class HeuristicProcessor(object):
         if self.blanks_between_paragraphs and getattr(self.extra_opts, 'delete_blank_paragraphs', False):
             self.log.debug("deleting blank lines")
             self.blanks_deleted = True
-            html = self.multi_blank.sub('\n<p class="softbreak" style="margin-top:1.25em; margin-bottom:1.25em; page-break-before:avoid"> </p>', html)
+            html = self.multi_blank.sub('\n<p class="softbreak" style="margin-top:.5em; margin-bottom:.5em; page-break-before:avoid"> </p>', html)
             html = self.blankreg.sub('', html)
 
         # Determine line ending type
@@ -553,7 +554,7 @@ class HeuristicProcessor(object):
             html = self.detect_blank_formatting(html)
             html = self.detect_soft_breaks(html)
             # Center separator lines
-            html = re.sub(u'<(?P<outer>p|div)[^>]*>\s*(<(?P<inner1>font|span|[ibu])[^>]*>)?\s*(<(?P<inner2>font|span|[ibu])[^>]*>)?\s*(<(?P<inner3>font|span|[ibu])[^>]*>)?\s*(?P<break>([*#•=✦]+\s*)+)\s*(</(?P=inner3)>)?\s*(</(?P=inner2)>)?\s*(</(?P=inner1)>)?\s*</(?P=outer)>', '<p style="text-align:center; margin-top:1.25em; margin-bottom:1.25em; page-break-before:avoid">' + '\g<break>' + '</p>', html)
+            html = re.sub(u'<(?P<outer>p|div)[^>]*>\s*(<(?P<inner1>font|span|[ibu])[^>]*>)?\s*(<(?P<inner2>font|span|[ibu])[^>]*>)?\s*(<(?P<inner3>font|span|[ibu])[^>]*>)?\s*(?P<break>([*#•=✦]+\s*)+)\s*(</(?P=inner3)>)?\s*(</(?P=inner2)>)?\s*(</(?P=inner1)>)?\s*</(?P=outer)>', '<p style="text-align:center; margin-top:.5em; margin-bottom:.5em; page-break-before:avoid">' + '\g<break>' + '</p>', html)
             #html = re.sub('<p\s+class="softbreak"[^>]*>\s*</p>', '<div id="softbreak" style="margin-left: 45%; margin-right: 45%; margin-top:1.5em; margin-bottom:1.5em"><hr style="height: 3px; background:#505050" /></div>', html)
 
         if self.deleted_nbsps:
