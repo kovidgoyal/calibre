@@ -232,6 +232,7 @@ class BIBTEX(CatalogPlugin): # {{{
                 help = _('The fields to output when cataloging books in the '
                     'database.  Should be a comma-separated list of fields.\n'
                     'Available fields: %s.\n'
+                    'plus user-created custom fields.\n'
                     'Example: %s=title,authors,tags\n'
                     "Default: '%%default'\n"
                     "Applies to: BIBTEX output format")%(', '.join(FIELDS),
@@ -269,7 +270,7 @@ class BIBTEX(CatalogPlugin): # {{{
                 dest = 'bib_cit',
                 action = None,
                 help = _('The template for citation creation from database fields.\n'
-                    ' Should be a template with {} enclosed fields.\n'
+                    'Should be a template with {} enclosed fields.\n'
                     'Available fields: %s.\n'
                     "Default: '%%default'\n"
                     "Applies to: BIBTEX output format")%', '.join(TEMPLATE_ALLOWED_FIELDS)),
