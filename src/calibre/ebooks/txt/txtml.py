@@ -222,6 +222,8 @@ class TXTMLizer(object):
         # Scene breaks.
         if tag == 'hr':
             text.append('\n\n* * *\n\n')
+        elif style['margin-top']:
+            text.append('\n\n' + '\n' * round(style['margin-top']))
 
         # Process tags that contain text.
         if hasattr(elem, 'text') and elem.text:
