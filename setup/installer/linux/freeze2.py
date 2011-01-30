@@ -360,6 +360,9 @@ class LinuxFreeze(Command):
             def main():
                 try:
                     sys.argv[0] = sys.calibre_basename
+                    dfv = os.environ.get('CALIBRE_DEVELOP_FROM', None)
+                    if dfv and os.path.exists(dfv):
+                        sys.path.insert(0, os.path.abspath(dfv))
                     set_default_encoding()
                     set_helper()
                     set_qt_plugin_path()
