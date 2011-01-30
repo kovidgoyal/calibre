@@ -161,32 +161,37 @@ class CheckLibraryDialog(QDialog):
         <p>calibre stores the list of your books and their metadata in a
         database. The actual book files and covers are stored as normal
         files in the calibre library folder. The database contains a list of the files
-        and cover belonging to each book entry. This tool checks that the
-        information in the database and the actual files on your computer
-        match.</p>
+        and covers belonging to each book entry. This tool checks that the
+        actual files in the library folder on your computer match the
+        information in the database.</p>
 
         <p>The result of each type of check is shown to the left. The various
         checks are:
         </p>
         <ul>
-        <li><b>Invalid titles</b>: These represent book entries in the
-        database that have no corresponding files in the calibre library.</li>
-        <li><b>Extra titles</b>: These represent extra files ni your calibre
-        library that have no corresponding entries in the database</li>
-        <li><b>Invalid authors</b>: These represent authors that exist in the
-        database, but do not have corresponding folders in the calibre
-        library</li>
-        <li><b>Extra authors</b>: These represent extra author folders in the
-        calibre library that do not have entries in the database</li>
-        <li><b>Unknown files in books</b>: These represent extra files in the
-        folder of each book that do not correspond to a know format or cover
-        for that book in the database.</li>
+        <li><b>Invalid titles</b>: These are files and folders appearing
+        in the library where books titles should, but that do not have the
+        correct form to be a book title.</li>
+        <li><b>Extra titles</b>: These are extra files in your calibre
+        library that appear to be correctly-formed titles, but have no corresponding
+        entries in the database</li>
+        <li><b>Invalid authors</b>: These are files appearing
+        in the library where only author folders should be.</li>
+        <li><b>Extra authors</b>: These are folders in the
+        calibre library that appear to be authors but that do not have entries
+        in the database</li>
+        <li><b>Missing book formats</b>: These are book formats that are in
+        the database but have no corresponding format file in the book's folder.
+        <li><b>Extra book formats</b>: These are book format files found in
+        the book's folder but not in the database.
+        <li><b>Unknown files in books</b>: These are extra files in the
+        folder of each book that do not correspond to a known format or cover
+        file.</li>
         <li><b>Missing cover files</b>: These represent books that are marked
-        as having covers in the database but whose actual cover files are
+        in the database as having covers but the actual cover files are
         missing.</li>
-        <li><b>Cover files not in database</b>: These represent books whose
-        cover files are present but are marked as not having covers in the
-        database.</li>
+        <li><b>Cover files not in database</b>: These are books that have
+        cover files but are marked as not having covers in the database.</li>
         <li><b>Folder raising exception</b>: These represent folders in the
         calibre library that could not be processed/understood by this
         tool.</li>
@@ -194,16 +199,16 @@ class CheckLibraryDialog(QDialog):
 
         <p>There are two kinds of automatic fixes possible: <i>Delete
         marked</i> and <i>Fix marked</i>.</p>
-        <p><i>Delete marked</i> is used to remove extra files/folders that
-        have no entries in the database. Use with caution.</p>
-        <p><i>Fix marked</i> is more general. When applied to invalid items,
-        i.e. items that should be present according to the database but are not
-        actually present, it updates the database to remove those items. When
-        used with extra items, i.e. items that are present in the file system
-        but that the database doesn't know about, it will try to add those
-        items to the database, if possible. This is not always possible, in
-        which case, you have to use Delete marked or manually fix the
-        problem.</p>
+        <p><i>Delete marked</i> is used to remove extra files/folders/covers that
+        have no entries in the database. Check the box next to the item you want
+        to delete. Use with caution.</p>
+        <p><i>Fix marked</i> is applicable only to covers (the two lines marked
+        'fixable'). In the case of missing cover files, checking the fixable
+        box and pushing this button will remove the cover mark from the
+        database for all the files in that category. In the case of extra
+        cover files, checking the fixable box and pushing this button will
+        add the cover mark to the database for all the files in that
+        category.</p>
         '''))
 
         self.log = QTreeWidget(self)
