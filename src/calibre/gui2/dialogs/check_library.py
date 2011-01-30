@@ -7,7 +7,7 @@ import os, shutil
 
 from PyQt4.Qt import QDialog, QVBoxLayout, QHBoxLayout, QTreeWidget, QLabel, \
             QPushButton, QDialogButtonBox, QApplication, QTreeWidgetItem, \
-            QLineEdit, Qt, QProgressBar, QSize, QTimer
+            QLineEdit, Qt, QProgressBar, QSize, QTimer, QIcon, QTextEdit
 
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.library.check_library import CheckLibrary, CHECKS
@@ -16,7 +16,7 @@ from calibre import prints, as_unicode
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.library.sqlite import DBThread, OperationalError
 
-class DBCheck(QDialog):
+class DBCheck(QDialog): # {{{
 
     def __init__(self, parent, db):
         QDialog.__init__(self, parent)
@@ -134,7 +134,7 @@ class DBCheck(QDialog):
     def reject(self):
         self.rejected = True
         QDialog.reject(self)
-
+# }}}
 
 class Item(QTreeWidgetItem):
     pass
@@ -146,9 +146,65 @@ class CheckLibraryDialog(QDialog):
         self.db = db
 
         self.setWindowTitle(_('Check Library -- Problems Found'))
+        self.setWindowIcon(QIcon(I('debug.png')))
 
-        self._layout = QVBoxLayout(self)
-        self.setLayout(self._layout)
+        self._tl = QHBoxLayout()
+        self._layout = QVBoxLayout()
+        self.setLayout(self._tl)
+        self._tl.addLayout(self._layout)
+        self.helpw = QTextEdit(self)
+        self._tl.addWidget(self.helpw)
+        self.helpw.setReadOnly(True)
+        self.helpw.setText(_('''\
+        <h1>Help</h1>
+
+        <p>calibre stores the list of your books and their metadata in a
+        database. The actual book files and covers are stored as normal
+        files in the calibre library folder. The database contains a list of the files
+        and cover belonging to each book entry. This tool checks that the
+        information in the database and the actual files on your computer
+        match.</p>
+
+        <p>The result of each type of check is shown to the left. The various
+        checks are:
+        </p>
+        <ul>
+        <li><b>Invalid titles</b>: These represent book entries in the
+        database that have no corresponding files in the calibre library.</li>
+        <li><b>Extra titles</b>: These represent extra files ni your calibre
+        library that have no corresponding entries in the database</li>
+        <li><b>Invalid authors</b>: These represent authors that exist in the
+        database, but do not have corresponding folders in the calibre
+        library</li>
+        <li><b>Extra authors</b>: These represent extra author folders in the
+        calibre library that do not have entries in the database</li>
+        <li><b>Unknown files in books</b>: These represent extra files in the
+        folder of each book that do not correspond to a know format or cover
+        for that book in the database.</li>
+        <li><b>Missing cover files</b>: These represent books that are marked
+        as having covers in the database but whose actual cover files are
+        missing.</li>
+        <li><b>Cover files not in database</b>: These represent books whose
+        cover files are present but are marked as not having covers in the
+        database.</li>
+        <li><b>Folder raising exception</b>: These represent folders in the
+        calibre library that could not be processed/understood by this
+        tool.</li>
+        </ul>
+
+        <p>There are two kinds of automatic fixes possible: <i>Delete
+        marked</i> and <i>Fix marked</i>.</p>
+        <p><i>Delete marked</i> is used to remove extra files/folders that
+        have no entries in the database. Use with caution.</p>
+        <p><i>Fix marked</i> is more general. When applied to invalid items,
+        i.e. items that should be present according to the database but are not
+        actually present, it updates the database to remove those items. When
+        used with extra items, i.e. items that are present in the file system
+        but that the database doesn't know about, it will try to add those
+        items to the database, if possible. This is not always possible, in
+        which case, you have to use Delete marked or manually fix the
+        problem.</p>
+        '''))
 
         self.log = QTreeWidget(self)
         self.log.itemChanged.connect(self.item_changed)
@@ -199,7 +255,7 @@ class CheckLibraryDialog(QDialog):
         self._layout.addLayout(h)
 
         self._layout.addWidget(self.bbox)
-        self.resize(750, 500)
+        self.resize(950, 500)
         self.bbox.setEnabled(True)
 
     def do_exec(self):
@@ -347,5 +403,6 @@ class CheckLibraryDialog(QDialog):
 
 if __name__ == '__main__':
     app = QApplication([])
-    d = CheckLibraryDialog()
+    from calibre.library import db
+    d = CheckLibraryDialog(None, db())
     d.exec_()
