@@ -18,7 +18,7 @@ class ElComercio(BasicNewsRecipe):
     no_stylesheets        = True
     encoding              = 'utf-8'
     use_embedded_content  = True
-    language              = 'es'
+    language              = 'es_EC'
     masthead_url          = 'http://ww1.elcomercio.com/nv_images/headers/EC/logo_new_08.gif'
     extra_css             = ' body{font-family: Arial,Verdana,sans-serif} img{margin-bottom: 1em} '
 

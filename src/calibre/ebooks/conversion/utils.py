@@ -24,10 +24,11 @@ class HeuristicProcessor(object):
         self.chapters_no_title = 0
         self.chapters_with_title = 0
         self.blanks_deleted = False
+        self.blanks_between_paragraphs = False
         self.linereg = re.compile('(?<=<p).*?(?=</p>)', re.IGNORECASE|re.DOTALL)
-        self.blankreg = re.compile(r'\s*(?P<openline><p(?!\sclass=\"softbreak\")[^>]*>)\s*(?P<closeline></p>)', re.IGNORECASE)
-        self.softbreak = re.compile(r'\s*(?P<openline><p(?=\sclass=\"softbreak\")[^>]*>)\s*(?P<closeline></p>)', re.IGNORECASE)
-        self.multi_blank = re.compile(r'(\s*<p[^>]*>\s*</p>){2,}', re.IGNORECASE)
+        self.blankreg = re.compile(r'\s*(?P<openline><p(?!\sclass=\"(softbreak|spacer)\")[^>]*>)\s*(?P<closeline></p>)', re.IGNORECASE)
+        self.anyblank = re.compile(r'\s*(?P<openline><p[^>]*>)\s*(?P<closeline></p>)', re.IGNORECASE)
+        self.multi_blank = re.compile(r'(\s*<p[^>]*>\s*</p>){2,}(?!\s*<h\d)', re.IGNORECASE)
 
     def is_pdftohtml(self, src):
         return '<!-- created by calibre\'s pdftohtml -->' in src[:1000]
@@ -42,8 +43,10 @@ class HeuristicProcessor(object):
                     " chapters. - " + unicode(chap))
             return '<h2>'+chap+'</h2>\n'
         else:
-            txt_chap = html2text(chap)
-            txt_title = html2text(title)
+            delete_whitespace = re.compile('^\s*(?P<c>.*?)\s*$')
+            delete_quotes = re.compile('\'\"')
+            txt_chap = delete_quotes.sub('', delete_whitespace.sub('\g<c>', html2text(chap)))
+            txt_title = delete_quotes.sub('', delete_whitespace.sub('\g<c>', html2text(title)))
             self.html_preprocess_sections = self.html_preprocess_sections + 1
             self.log.debug("marked " + unicode(self.html_preprocess_sections) +
                     " chapters & titles. - " + unicode(chap) + ", " + unicode(title))
@@ -155,7 +158,7 @@ class HeuristicProcessor(object):
         ]
 
         for word in ITALICIZE_WORDS:
-            html = re.sub(r'(?<=\s|>)' + word + r'(?=\s|<)', '<i>%s</i>' % word, html)
+            html = re.sub(r'(?<=\s|>)' + re.escape(word) + r'(?=\s|<)', '<i>%s</i>' % word, html)
 
         for pat in ITALICIZE_STYLE_PATS:
             html = re.sub(pat, lambda mo: '<i>%s</i>' % mo.group('words'), html)
@@ -375,9 +378,9 @@ class HeuristicProcessor(object):
         html = re.sub('<p\s?/>', '', html)
         # Get rid of empty span, bold, font, em, & italics tags
         html = re.sub(r"\s*<span[^>]*>\s*(<span[^>]*>\s*</span>){0,2}\s*</span>\s*", " ", html)
-        html = re.sub(r"\s*<(font|[ibu]|em)[^>]*>\s*(<(font|[ibu]|em)[^>]*>\s*</(font|[ibu]|em)>\s*){0,2}\s*</(font|[ibu]|em)>", " ", html)
+        html = re.sub(r"\s*<(font|[ibu]|em|strong)[^>]*>\s*(<(font|[ibu]|em|strong)[^>]*>\s*</(font|[ibu]|em|strong)>\s*){0,2}\s*</(font|[ibu]|em|strong)>", " ", html)
         html = re.sub(r"\s*<span[^>]*>\s*(<span[^>]>\s*</span>){0,2}\s*</span>\s*", " ", html)
-        html = re.sub(r"\s*<(font|[ibu]|em)[^>]*>\s*(<(font|[ibu]|em)[^>]*>\s*</(font|[ibu]|em)>\s*){0,2}\s*</(font|[ibu]|em)>", " ", html)
+        html = re.sub(r"\s*<(font|[ibu]|em|strong)[^>]*>\s*(<(font|[ibu]|em|strong)[^>]*>\s*</(font|[ibu]|em|strong)>\s*){0,2}\s*</(font|[ibu]|em|strong)>", " ", html)
         self.deleted_nbsps = True
         return html
 
@@ -415,6 +418,28 @@ class HeuristicProcessor(object):
             if getattr(self.extra_opts, option, False):
                 return True
         return False
+
+    def detect_blank_formatting(self, html):
+        blanks_before_headings = re.compile(r'(\s*<p[^>]*>\s*</p>){1,}(?=\s*<h\d)', re.IGNORECASE)
+        blanks_after_headings = re.compile(r'(?<=</h\d>)(\s*<p[^>]*>\s*</p>){1,}', re.IGNORECASE)
+        
+        def markup_spacers(match):
+           blanks = match.group(0)
+           blanks = self.blankreg.sub('\n<p class="spacer"> </p>', blanks)
+           return blanks
+        html = blanks_before_headings.sub(markup_spacers, html)
+        html = blanks_after_headings.sub(markup_spacers, html)
+        if self.html_preprocess_sections > self.min_chapters:
+            html = re.sub('(?si)^.*?(?=<h\d)', markup_spacers, html)
+        return html
+
+    def detect_soft_breaks(self, html):
+        if not self.blanks_deleted and self.blanks_between_paragraphs:
+            html = self.multi_blank.sub('\n<p class="softbreak" style="margin-top:1.25em; margin-bottom:1.25em; page-break-before:avoid"> </p>', html)
+        else:
+            html = self.blankreg.sub('\n<p class="softbreak" style="margin-top:1.25em; margin-bottom:1.25em; page-break-before:avoid"> </p>', html)
+        return html
+
 
 
     def __call__(self, html):
@@ -457,23 +482,23 @@ class HeuristicProcessor(object):
         #html = re.sub('<br[^>]*>', u'<p>\u00a0</p>', html)
 
         # Determine whether the document uses interleaved blank lines
-        blanks_between_paragraphs = self.analyze_blanks(html)
+        self.blanks_between_paragraphs = self.analyze_blanks(html)
 
         #self.dump(html, 'before_chapter_markup')
         # detect chapters/sections to match xpath or splitting logic
 
         if getattr(self.extra_opts, 'markup_chapter_headings', False):
-            html = self.markup_chapters(html, self.totalwords, blanks_between_paragraphs)
+            html = self.markup_chapters(html, self.totalwords, self.blanks_between_paragraphs)
 
         if getattr(self.extra_opts, 'italicize_common_cases', False):
             html = self.markup_italicis(html)
 
         # If more than 40% of the lines are empty paragraphs and the user has enabled delete
         # blank paragraphs then delete blank lines to clean up spacing
-        if blanks_between_paragraphs and getattr(self.extra_opts, 'delete_blank_paragraphs', False):
+        if self.blanks_between_paragraphs and getattr(self.extra_opts, 'delete_blank_paragraphs', False):
             self.log.debug("deleting blank lines")
             self.blanks_deleted = True
-            html = self.multi_blank.sub('\n<p class="softbreak" style="margin-top:1.5em; margin-bottom:1.5em"> </p>', html)
+            html = self.multi_blank.sub('\n<p class="softbreak" style="margin-top:1.25em; margin-bottom:1.25em; page-break-before:avoid"> </p>', html)
             html = self.blankreg.sub('', html)
 
         # Determine line ending type
@@ -525,14 +550,13 @@ class HeuristicProcessor(object):
             html = doubleheading.sub('\g<firsthead>'+'\n<h3'+'\g<secondhead>'+'</h3>', html)
 
         if getattr(self.extra_opts, 'format_scene_breaks', False):
+            html = self.detect_blank_formatting(html)
+            html = self.detect_soft_breaks(html)
             # Center separator lines
-            html = re.sub(u'<(?P<outer>p|div)[^>]*>\s*(<(?P<inner1>font|span|[ibu])[^>]*>)?\s*(<(?P<inner2>font|span|[ibu])[^>]*>)?\s*(<(?P<inner3>font|span|[ibu])[^>]*>)?\s*(?P<break>([*#•=✦]+\s*)+)\s*(</(?P=inner3)>)?\s*(</(?P=inner2)>)?\s*(</(?P=inner1)>)?\s*</(?P=outer)>', '<p style="text-align:center; margin-top:1.25em; margin-bottom:1.25em">' + '\g<break>' + '</p>', html)
-            if not self.blanks_deleted:
-                html = self.multi_blank.sub('\n<p class="softbreak" style="margin-top:1.5em; margin-bottom:1.5em"> </p>', html)
-            html = re.sub('<p\s+class="softbreak"[^>]*>\s*</p>', '<div id="softbreak" style="margin-left: 45%; margin-right: 45%; margin-top:1.5em; margin-bottom:1.5em"><hr style="height: 3px; background:#505050" /></div>', html)
+            html = re.sub(u'<(?P<outer>p|div)[^>]*>\s*(<(?P<inner1>font|span|[ibu])[^>]*>)?\s*(<(?P<inner2>font|span|[ibu])[^>]*>)?\s*(<(?P<inner3>font|span|[ibu])[^>]*>)?\s*(?P<break>([*#•=✦]+\s*)+)\s*(</(?P=inner3)>)?\s*(</(?P=inner2)>)?\s*(</(?P=inner1)>)?\s*</(?P=outer)>', '<p style="text-align:center; margin-top:1.25em; margin-bottom:1.25em; page-break-before:avoid">' + '\g<break>' + '</p>', html)
+            #html = re.sub('<p\s+class="softbreak"[^>]*>\s*</p>', '<div id="softbreak" style="margin-left: 45%; margin-right: 45%; margin-top:1.5em; margin-bottom:1.5em"><hr style="height: 3px; background:#505050" /></div>', html)
 
         if self.deleted_nbsps:
             # put back non-breaking spaces in empty paragraphs to preserve original formatting
-            html = self.blankreg.sub('\n'+r'\g<openline>'+u'\u00a0'+r'\g<closeline>', html)
-            html = self.softbreak.sub('\n'+r'\g<openline>'+u'\u00a0'+r'\g<closeline>', html)
+            html = self.anyblank.sub('\n'+r'\g<openline>'+u'\u00a0'+r'\g<closeline>', html)
         return html

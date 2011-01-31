@@ -16,7 +16,6 @@ from calibre.utils.config import prefs
 from calibre.gui2 import gprefs, warning_dialog, Dispatcher, error_dialog, \
     question_dialog, info_dialog
 from calibre.gui2.actions import InterfaceAction
-from calibre.gui2.dialogs.check_library import CheckLibraryDialog, DBCheck
 
 class LibraryUsageStats(object): # {{{
 
@@ -139,6 +138,12 @@ class ChooseLibraryAction(InterfaceAction):
                                       None, None), attr='action_check_library')
         ac.triggered.connect(self.check_library, type=Qt.QueuedConnection)
         self.maintenance_menu.addAction(ac)
+        ac = self.create_action(spec=(_('Restore database'), 'lt.png',
+                                      None, None),
+                                      attr='action_restore_database')
+        ac.triggered.connect(self.restore_database, type=Qt.QueuedConnection)
+        self.maintenance_menu.addAction(ac)
+
         self.choose_menu.addMenu(self.maintenance_menu)
 
     def pick_random(self, *args):
@@ -267,7 +272,17 @@ class ChooseLibraryAction(InterfaceAction):
             _('Metadata will be backed up while calibre is running, at the '
               'rate of approximately 1 book every three seconds.'), show=True)
 
+    def restore_database(self):
+        from calibre.gui2.dialogs.restore_library import restore_database
+        m = self.gui.library_view.model()
+        m.stop_metadata_backup()
+        db = m.db
+        db.prefs.disable_setting = True
+        if restore_database(db, self.gui):
+            self.gui.library_moved(db.library_path, call_close=False)
+
     def check_library(self):
+        from calibre.gui2.dialogs.check_library import CheckLibraryDialog, DBCheck
         self.gui.library_view.save_state()
         m = self.gui.library_view.model()
         m.stop_metadata_backup()

@@ -50,4 +50,4 @@ class LaCuarta(BasicNewsRecipe):
     feeds = [(u'Noticias', u'http://lacuarta.cl/app/rss?sc=TEFDVUFSVEE=')]
 
 
-    language = 'es'
+    language = 'es_CL'

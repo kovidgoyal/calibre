@@ -20,7 +20,7 @@ class Diagonales(BasicNewsRecipe):
     no_stylesheets        = True
     use_embedded_content  = False
     encoding              = 'utf-8'
-    language = 'es'
+    language = 'es_AR'
 
     lang                  = 'es-AR'
     direction             = 'ltr'

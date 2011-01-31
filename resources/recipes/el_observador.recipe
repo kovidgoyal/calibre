@@ -13,7 +13,7 @@ class ObservaDigital(BasicNewsRecipe):
     title                 = 'Observa Digital'
     __author__            = 'yrvn'
     description           = 'Noticias de Uruguay'
-    language       = 'es'
+    language       = 'es_UY'
     timefmt        = '[%a, %d %b, %Y]'
     use_embedded_content  = False
     recursion             = 5
