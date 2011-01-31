@@ -75,12 +75,16 @@ class DefaultEncoding:
             self._encoding()
             self.__datafetched = True
             code_page = 'ansicpg' + self.__code_page
+            if self.__code_page == '10000':
+                self.__code_page = 'mac_roman'
         return self.__platform, code_page, self.__default_num
 
     def get_codepage(self):
         if not self.__datafetched:
             self._encoding()
             self.__datafetched = True
+            if self.__code_page == '10000':
+                self.__code_page = 'mac_roman'
         return self.__code_page
 
     def get_platform(self):
