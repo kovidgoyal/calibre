@@ -191,7 +191,7 @@ class Tokenize:
         #read
         with open(self.__file, 'r') as read_obj:
             input_file = read_obj.read()
-        
+
         #process simple replacements and split giving us a correct list
         #remove '' and \n in the process
         tokens = self.__sub_reg_split(input_file)
@@ -201,7 +201,7 @@ class Tokenize:
         tokens = filter(lambda x: len(x) > 0, tokens)
         #handles bothersome cases
         tokens = map(self.__correct_spliting, tokens)
-        
+
         #write
         with open(self.__write_to, 'wb') as write_obj:
             write_obj.write('\n'.join(tokens))
@@ -211,7 +211,7 @@ class Tokenize:
             copy_obj.copy_file(self.__write_to, "tokenize.data")
         copy_obj.rename(self.__write_to, self.__file)
         os.remove(self.__write_to)
-        
+
         #self.__special_tokens = [ '_', '~', "'", '{', '}' ]
 
 # import sys

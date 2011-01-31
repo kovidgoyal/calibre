@@ -379,7 +379,7 @@ class BIBTEX(CatalogPlugin): # {{{
                     if calibre_files:
                         files = [u':%s:%s' % (format, format.rpartition('.')[2].upper())\
                             for format in item]
-                        bibtex_entry.append(u'files = "%s"' % u', '.join(files))
+                        bibtex_entry.append(u'file = "%s"' % u', '.join(files))
 
                 elif field == 'series_index' :
                     bibtex_entry.append(u'volume = "%s"' % int(item))
@@ -551,6 +551,7 @@ class BIBTEX(CatalogPlugin): # {{{
             as outfile:
             #File header
             nb_entries = len(data)
+
             #check in book strict if all is ok else throw a warning into log
             if bib_entry == 'book' :
                 nb_books = len(filter(check_entry_book_valid, data))
