@@ -12,7 +12,7 @@ class Noticias(BasicNewsRecipe):
     title                 = '180.com.uy'
     __author__            = 'Gustavo Azambuja'
     description           = 'Noticias de Uruguay'
-    language       = 'es'
+    language       = 'es_UY'
     timefmt        = '[%a, %d %b, %Y]'
     use_embedded_content  = False
     recursion             = 5

@@ -16,7 +16,7 @@ class Infobae(BasicNewsRecipe):
     max_articles_per_feed = 100
     no_stylesheets        = True
     use_embedded_content  = False
-    language              = 'es'
+    language              = 'es_AR'
     encoding              = 'cp1252'
     masthead_url          = 'http://www.infobae.com/imgs/header/header.gif'
     remove_javascript     = True
@@ -25,7 +25,7 @@ class Infobae(BasicNewsRecipe):
                               body{font-family:Arial,Helvetica,sans-serif;}
                               .popUpTitulo{color:#0D4261; font-size: xx-large}
                             '''
-    
+
     conversion_options = {
                           'comment'          : description
                         , 'tags'             : category
@@ -33,7 +33,7 @@ class Infobae(BasicNewsRecipe):
                         , 'language'         : language
                         , 'linearize_tables' : True
                         }
-    
+
 
     feeds = [
               (u'Noticias'  , u'http://www.infobae.com/adjuntos/html/RSS/hoy.xml'       )
