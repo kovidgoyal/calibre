@@ -9,7 +9,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class LaSegunda(BasicNewsRecipe):
     title                 = 'La Segunda'
     __author__            = 'Darko Miletic'
-    description           = 'El sitio de noticias online de Chile' 
+    description           = 'El sitio de noticias online de Chile'
     publisher             = 'La Segunda'
     category              = 'news, politics, Chile'
     oldest_article        = 2
@@ -19,9 +19,9 @@ class LaSegunda(BasicNewsRecipe):
     encoding              = 'cp1252'
     masthead_url          = 'http://www.lasegunda.com/imagenes/logotipo_lasegunda_Oli.gif'
     remove_empty_feeds    = True
-    language              = 'es'
-    extra_css             = ' .titulonegritastop{font-size: xx-large; font-weight: bold} '            
-    
+    language              = 'es_CL'
+    extra_css             = ' .titulonegritastop{font-size: xx-large; font-weight: bold} '
+
     conversion_options = {
                           'comment'          : description
                         , 'tags'             : category
@@ -29,13 +29,13 @@ class LaSegunda(BasicNewsRecipe):
                         , 'language'         : language
 						, 'linearize_tables' : True
                         }
-                        
+
     remove_tags_before = dict(attrs={'class':'titulonegritastop'})
     remove_tags        = [dict(name='img')]
     remove_attributes  = ['width','height']
-	
-                        
-    feeds = [ 
+
+
+    feeds = [
                (u'Noticias de ultima hora', u'http://www.lasegunda.com/rss20/index.asp?canal=0')
               ,(u'Politica'               , u'http://www.lasegunda.com/rss20/index.asp?canal=21')
               ,(u'Cronica'                , u'http://www.lasegunda.com/rss20/index.asp?canal=20')
@@ -49,6 +49,6 @@ class LaSegunda(BasicNewsRecipe):
             ]
 
     def print_version(self, url):
-        rest, sep, article_id = url.partition('index.asp?idnoticia=')        
+        rest, sep, article_id = url.partition('index.asp?idnoticia=')
         return u'http://www.lasegunda.com/edicionOnline/include/secciones/_detalle_impresion.asp?idnoticia=' + article_id
-    
+

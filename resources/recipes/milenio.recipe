@@ -12,7 +12,7 @@ import datetime
 class Milenio(BasicNewsRecipe):
     title                 = u'Milenio-diario'
     __author__            = 'Bmsleight'
-    language              = 'es'
+    language              = 'es_MX'
     description           = 'Milenio-diario'
     oldest_article        = 10
     max_articles_per_feed = 100

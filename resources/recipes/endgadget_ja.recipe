@@ -18,3 +18,6 @@ class EndgadgetJapan(BasicNewsRecipe):
     language = 'ja'
     encoding = 'utf-8'
     feeds          = [(u'engadget', u'http://japanese.engadget.com/rss.xml')]
+
+    remove_tags_before = dict(name="div", attrs={'id':"content_wrap"})
+    remove_tags_after = dict(name='h3', attrs={'id':'addcomments'})

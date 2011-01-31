@@ -21,7 +21,7 @@ class ElTiempoHn(BasicNewsRecipe):
     no_stylesheets        = True
     remove_javascript     = True
     encoding              = 'utf-8'
-    language = 'es'
+    language = 'es_HN'
 
     lang                  = 'es-HN'
     direction             = 'ltr'

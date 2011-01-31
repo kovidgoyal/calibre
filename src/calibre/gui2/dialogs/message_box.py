@@ -45,14 +45,12 @@ class MessageBox(QDialog, Ui_Dialog):
             self.ctc_button.clicked.connect(self.copy_to_clipboard)
 
 
-        if det_msg:
-            self.show_det_msg = _('Show &details')
-            self.hide_det_msg = _('Hide &details')
-            self.det_msg_toggle = self.bb.addButton(self.show_det_msg, self.bb.ActionRole)
-            self.det_msg_toggle.clicked.connect(self.toggle_det_msg)
-            self.det_msg_toggle.setToolTip(
-                    _('Show detailed information about this error'))
-
+        self.show_det_msg = _('Show &details')
+        self.hide_det_msg = _('Hide &details')
+        self.det_msg_toggle = self.bb.addButton(self.show_det_msg, self.bb.ActionRole)
+        self.det_msg_toggle.clicked.connect(self.toggle_det_msg)
+        self.det_msg_toggle.setToolTip(
+                _('Show detailed information about this error'))
 
         self.copy_action = QAction(self)
         self.addAction(self.copy_action)
@@ -66,10 +64,14 @@ class MessageBox(QDialog, Ui_Dialog):
         else:
             self.bb.button(self.bb.Ok).setDefault(True)
 
+        if not det_msg:
+            self.det_msg_toggle.setVisible(False)
+
         self.do_resize()
 
+
     def toggle_det_msg(self, *args):
-        vis = self.det_msg.isVisible()
+        vis = unicode(self.det_msg_toggle.text()) == self.hide_det_msg
         self.det_msg_toggle.setText(self.show_det_msg if vis else
                 self.hide_det_msg)
         self.det_msg.setVisible(not vis)
@@ -92,10 +94,22 @@ class MessageBox(QDialog, Ui_Dialog):
     def showEvent(self, ev):
         ret = QDialog.showEvent(self, ev)
         if self.is_question:
-            self.bb.button(self.bb.Yes).setFocus(Qt.OtherFocusReason)
+            try:
+                self.bb.button(self.bb.Yes).setFocus(Qt.OtherFocusReason)
+            except:
+                pass# Buttons were changed
         else:
             self.bb.button(self.bb.Ok).setFocus(Qt.OtherFocusReason)
         return ret
+
+    def set_details(self, msg):
+        if not msg:
+            msg = ''
+        self.det_msg.setPlainText(msg)
+        self.det_msg_toggle.setText(self.show_det_msg)
+        self.det_msg_toggle.setVisible(bool(msg))
+        self.det_msg.setVisible(False)
+        self.do_resize()
 
 if __name__ == '__main__':
     app = QApplication([])

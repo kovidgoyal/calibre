@@ -4,7 +4,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import sys, os, time, socket, traceback
 from functools import partial
 
-from PyQt4.Qt import QCoreApplication, QIcon, QMessageBox, QObject, QTimer, \
+from PyQt4.Qt import QCoreApplication, QIcon, QObject, QTimer, \
         QThread, pyqtSignal, Qt, QProgressDialog, QString, QPixmap, \
         QSplashScreen, QApplication
 
@@ -319,9 +319,6 @@ def run_gui(opts, args, actions, listener, app, gui_debug=None):
 
 def cant_start(msg=_('If you are sure it is not running')+', ',
         what=None):
-    d = QMessageBox(QMessageBox.Critical, _('Cannot Start ')+__appname__,
-        '<p>'+(_('%s is already running.')%__appname__)+'</p>',
-        QMessageBox.Ok)
     base = '<p>%s</p><p>%s %s'
     where = __appname__ + ' '+_('may be running in the system tray, in the')+' '
     if isosx:
@@ -334,8 +331,10 @@ def cant_start(msg=_('If you are sure it is not running')+', ',
         else:
             what = _('try deleting the file')+': '+ADDRESS
 
-    d.setInformativeText(base%(where, msg, what))
-    d.exec_()
+    info = base%(where, msg, what)
+    error_dialog(None, _('Cannot Start ')+__appname__,
+        '<p>'+(_('%s is already running.')%__appname__)+'</p>'+info, show=True)
+
     raise SystemExit(1)
 
 def communicate(args):

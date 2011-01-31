@@ -21,9 +21,9 @@ class Dialog(QDialog, Ui_Dialog):
         self.again.stateChanged.connect(self.toggle)
         self.buttonBox.setFocus(Qt.OtherFocusReason)
 
-
     def toggle(self, *args):
         dynamic[_config_name(self.name)] = self.again.isChecked()
+
 
 def confirm(msg, name, parent=None, pixmap='dialog_warning.png'):
     if not dynamic.get(_config_name(name), True):

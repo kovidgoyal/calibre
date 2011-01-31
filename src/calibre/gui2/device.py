@@ -7,7 +7,7 @@ import os, traceback, Queue, time, cStringIO, re, sys
 from threading import Thread
 
 from PyQt4.Qt import QMenu, QAction, QActionGroup, QIcon, SIGNAL, \
-                     Qt, pyqtSignal, QDialog, QMessageBox
+                     Qt, pyqtSignal, QDialog
 
 from calibre.customize.ui import available_input_formats, available_output_formats, \
     device_plugins
@@ -609,10 +609,8 @@ class DeviceMixin(object): # {{{
         autos = u'\n'.join(map(unicode, map(force_unicode, autos)))
         return self.ask_a_yes_no_question(
                 _('No suitable formats'), msg,
-                buttons=QMessageBox.Yes|QMessageBox.Cancel,
                 ans_when_user_unavailable=True,
-                det_msg=autos,
-                show_copy_button=False
+                det_msg=autos
         )
 
     def set_default_thumbnail(self, height):
@@ -689,7 +687,7 @@ class DeviceMixin(object): # {{{
         except:
             pass
         if not self.device_error_dialog.isVisible():
-            self.device_error_dialog.setDetailedText(job.details)
+            self.device_error_dialog.set_details(job.details)
             self.device_error_dialog.show()
 
     # Device connected {{{
@@ -840,9 +838,9 @@ class DeviceMixin(object): # {{{
                             format_count[f] = 1
             for f in self.device_manager.device.settings().format_map:
                 if f in format_count.keys():
-                    formats.append((f, _('%i of %i Books' % (format_count[f], len(rows))), True if f in aval_out_formats else False))
+                    formats.append((f, _('%i of %i Books') % (format_count[f], len(rows))), True if f in aval_out_formats else False)
                 elif f in aval_out_formats:
-                    formats.append((f, _('0 of %i Books' % len(rows)), True))
+                    formats.append((f, _('0 of %i Books') % len(rows)), True)
             d = ChooseFormatDeviceDialog(self, _('Choose format to send to device'), formats)
             if d.exec_() != QDialog.Accepted:
                 return

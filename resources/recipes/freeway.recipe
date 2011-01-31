@@ -12,7 +12,7 @@ class General(BasicNewsRecipe):
     title                 = 'freeway.com.uy'
     __author__            = 'Gustavo Azambuja'
     description           = 'Revista Freeway, Montevideo, Uruguay'
-    language       = 'es'
+    language       = 'es_UY'
     timefmt        = '[%a, %d %b, %Y]'
     use_embedded_content  = False
     recursion             = 1

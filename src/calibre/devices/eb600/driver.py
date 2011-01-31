@@ -21,6 +21,7 @@ from calibre.devices.usbms.driver import USBMS
 class EB600(USBMS):
 
     name           = 'Netronix EB600 Device Interface'
+    gui_name       = 'Netronix EB600'
     description    = _('Communicate with the EB600 eBook reader.')
     author         = 'Kovid Goyal'
     supported_platforms = ['windows', 'osx', 'linux']

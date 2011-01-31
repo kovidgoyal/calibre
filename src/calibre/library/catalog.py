@@ -53,8 +53,10 @@ class CSV_XML(CatalogPlugin): # {{{
                     'database.  Should be a comma-separated list of fields.\n'
                     'Available fields: %s,\n'
                     'plus user-created custom fields.\n'
+                    'Example: %s=title,authors,tags\n'
                     "Default: '%%default'\n"
-                    "Applies to: CSV, XML output formats")%', '.join(FIELDS)),
+                    "Applies to: CSV, XML output formats")%(', '.join(FIELDS),
+                        '--fields')),
 
             Option('--sort-by',
                 default = 'id',
@@ -230,8 +232,10 @@ class BIBTEX(CatalogPlugin): # {{{
                 help = _('The fields to output when cataloging books in the '
                     'database.  Should be a comma-separated list of fields.\n'
                     'Available fields: %s.\n'
+                    'Example: %s=title,authors,tags\n'
                     "Default: '%%default'\n"
-                    "Applies to: BIBTEX output format")%', '.join(FIELDS)),
+                    "Applies to: BIBTEX output format")%(', '.join(FIELDS),
+                        '--fields')),
 
             Option('--sort-by',
                 default = 'id',
@@ -523,7 +527,7 @@ class BIBTEX(CatalogPlugin): # {{{
                 citation_bibtex= True
         else :
             citation_bibtex= opts.impcit
-        
+
         #Check add file entry and go to default in case of bad CLI
         if isinstance(opts.addfiles, (StringType, UnicodeType)) :
             if opts.addfiles == 'False' :

@@ -356,9 +356,9 @@ class BrowseServer(object):
             if category in category_icon_map:
                 icon = category_icon_map[category]
             elif meta['is_custom']:
-                icon = category_icon_map[':custom']
+                icon = category_icon_map['custom:']
             elif meta['kind'] == 'user':
-                icon = category_icon_map[':user']
+                icon = category_icon_map['user:']
             else:
                 icon = 'blank.png'
             cats.append((meta['name'], category, icon))
