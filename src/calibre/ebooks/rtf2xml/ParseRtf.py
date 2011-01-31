@@ -238,6 +238,8 @@ class ParseRtf:
                     bug_handler = RtfInvalidCodeException,
                         )
             enc = 'cp' + encode_obj.get_codepage()
+            if enc == 'cp10000':
+                enc = 'mac_roman'
             msg = 'Exception in token processing'
             if check_encoding_obj.check_encoding(self.__file, enc):
                 file_name = self.__file if isinstance(self.__file, str) \

@@ -41,7 +41,7 @@ class GetCharMap:
     def get_char_map(self, map):
         if map == 'ansicpg0':
             map = 'ansicpg1250'
-        if map in ('ansicpg10000', '10000'):
+        if map == 'ansicpg10000':
             map = 'mac_roman'
         found_map = False
         map_dict = {}
