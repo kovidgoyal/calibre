@@ -159,7 +159,7 @@ class HeuristicProcessor(object):
         ]
 
         for word in ITALICIZE_WORDS:
-            html = re.sub(r'(?<=\s|>)' + word + r'(?=\s|<)', '<i>%s</i>' % word, html)
+            html = re.sub(r'(?<=\s|>)' + re.escape(word) + r'(?=\s|<)', '<i>%s</i>' % word, html)
 
         for pat in ITALICIZE_STYLE_PATS:
             html = re.sub(pat, lambda mo: '<i>%s</i>' % mo.group('words'), html)
@@ -375,8 +375,8 @@ class HeuristicProcessor(object):
         html = re.sub(ur'\s*<o:p>\s*</o:p>', ' ', html)
         # Delete microsoft 'smart' tags
         html = re.sub('(?i)</?st1:\w+>', '', html)
-        # Delete self closing paragraph tags
-        html = re.sub('<p\s?/>', '', html)
+        # Re-open self closing paragraph tags
+        html = re.sub('<p[^>/]*/>', '<p> </p>', html)
         # Get rid of empty span, bold, font, em, & italics tags
         html = re.sub(r"\s*<span[^>]*>\s*(<span[^>]*>\s*</span>){0,2}\s*</span>\s*", " ", html)
         html = re.sub(r"\s*<(font|[ibu]|em|strong)[^>]*>\s*(<(font|[ibu]|em|strong)[^>]*>\s*</(font|[ibu]|em|strong)>\s*){0,2}\s*</(font|[ibu]|em|strong)>", " ", html)
@@ -463,7 +463,6 @@ class HeuristicProcessor(object):
 
     def __call__(self, html):
         self.log.debug("*********  Heuristic processing HTML  *********")
-
         # Count the words in the document to estimate how many chapters to look for and whether
         # other types of processing are attempted
         try:
@@ -477,7 +476,7 @@ class HeuristicProcessor(object):
 
         # Arrange line feeds and </p> tags so the line_length and no_markup functions work correctly
         html = self.arrange_htm_line_endings(html)
-
+        self.dump(html, 'after_arrange_line_endings')
         if self.cleanup_required():
             ###### Check Markup ######
             #
@@ -580,7 +579,9 @@ class HeuristicProcessor(object):
             if blanks_count >= 1:
                 html = self.merge_blanks(html, blanks_count)
             # Center separator lines, use a bit larger margin in this case
-            html = re.sub(u'<(?P<outer>p|div)[^>]*>\s*(<(?P<inner1>font|span|[ibu])[^>]*>)?\s*(<(?P<inner2>font|span|[ibu])[^>]*>)?\s*(<(?P<inner3>font|span|[ibu])[^>]*>)?\s*(?![\w\'\"])(?P<break>((?P<breakchar>(?!\s)\W)\s*(?P=breakchar)?)+)\s*(</(?P=inner3)>)?\s*(</(?P=inner2)>)?\s*(</(?P=inner1)>)?\s*</(?P=outer)>', '<p style="text-align:center; margin-top:.65em; margin-bottom:.65em; page-break-before:avoid">' + '\g<break>' + '</p>', html)
+            scene_break = re.compile(r'<(?P<outer>p|div)[^>]*>\s*(<(?P<inner1>font|span|[ibu])[^>]*>)?\s*(<(?P<inner2>font|span|[ibu])[^>]*>)?\s*(<(?P<inner3>font|span|[ibu])[^>]*>)?\s*(?![\w\'\"])(?P<break>((?P<break_char>((?!\s)\W))\s*(?P=break_char)?)+)\s*(</(?P=inner3)>)?\s*(</(?P=inner2)>)?\s*(</(?P=inner1)>)?\s*</(?P=outer)>', re.IGNORECASE|re.UNICODE)
+            print "found "+str(len(scene_break.findall(html)))+" scene breaks"
+            html = scene_break.sub('<p class="scenebreak" style="text-align:center; margin-top:.65em; margin-bottom:.65em; page-break-before:avoid">' + '\g<break>' + '</p>', html)
             #html = re.sub('<p\s+class="softbreak"[^>]*>\s*</p>', '<div id="softbreak" style="margin-left: 45%; margin-right: 45%; margin-top:1.5em; margin-bottom:1.5em"><hr style="height: 3px; background:#505050" /></div>', html)
 
         if self.deleted_nbsps:
