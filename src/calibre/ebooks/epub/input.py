@@ -175,6 +175,19 @@ class EPUBInput(InputFormatPlugin):
                 raise ValueError(
                     'EPUB files with DTBook markup are not supported')
 
+        for x in list(opf.iterspine()):
+            ref = x.get('idref', None)
+            if ref is None:
+                x.getparent().remove(x)
+                continue
+            for y in opf.itermanifest():
+                if y.get('id', None) == ref and y.get('media-type', None) in \
+                    ('application/vnd.adobe-page-template+xml',):
+                        p = x.getparent()
+                        if p is not None:
+                            p.remove(x)
+                        break
+
         with open('content.opf', 'wb') as nopf:
             nopf.write(opf.render())
 
