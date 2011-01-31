@@ -53,7 +53,7 @@ def find_pages(dir, sort_on_mtime=False, verbose=False):
         prints('\t'+'\n\t'.join([os.path.basename(p) for p in pages]))
     return pages
 
-class PageProcessor(list):
+class PageProcessor(list): # {{{
     '''
     Contains the actual image rendering logic. See :method:`render` and
     :method:`process_pages`.
@@ -110,6 +110,13 @@ class PageProcessor(list):
             sizex, sizey = wand.size
 
             SCRWIDTH, SCRHEIGHT = self.opts.output_profile.comic_screen_size
+
+            try:
+                if self.opts.comic_image_size:
+                    SCRWIDTH, SCRHEIGHT = map(int, [x.strip() for x in
+                        self.opts.comic_image_size.split('x')])
+            except:
+                pass # Ignore
 
             if self.opts.keep_aspect_ratio:
                 # Preserve the aspect ratio by adding border
@@ -170,6 +177,7 @@ class PageProcessor(list):
                 dest = dest[:-1]
                 os.rename(dest+'8', dest)
             self.append(dest)
+# }}}
 
 def render_pages(tasks, dest, opts, notification=lambda x, y: x):
     '''
@@ -291,7 +299,11 @@ class ComicInput(InputFormatPlugin):
         OptionRecommendation(name='no_process', recommended_value=False,
               help=_("Apply no processing to the image")),
         OptionRecommendation(name='dont_grayscale', recommended_value=False,
-            help=_('Do not convert the image to grayscale (black and white)'))
+            help=_('Do not convert the image to grayscale (black and white)')),
+        OptionRecommendation(name='comic_image_size', recommended_value=None,
+            help=_('Specify the image size as widthxheight pixels. Normally,'
+                ' an image size is automatically calculated from the output '
+                'profile, this option overrides it.')),
         ])
 
     recommendations = set([

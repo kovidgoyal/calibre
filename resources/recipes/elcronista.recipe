@@ -13,7 +13,7 @@ class ElCronista(BasicNewsRecipe):
     __author__            = 'Darko Miletic'
     description           = 'Noticias de Argentina'
     oldest_article        = 2
-    language = 'es'
+    language = 'es_AR'
 
     max_articles_per_feed = 100
     no_stylesheets        = True
@@ -25,14 +25,14 @@ class ElCronista(BasicNewsRecipe):
                         , '--category'      , 'news, Argentina'
                         , '--publisher'     , title
                         ]
-    
+
     keep_only_tags = [
                         dict(name='table', attrs={'width':'100%'             })
                        ,dict(name='h1'   , attrs={'class':'Arialgris16normal'})
                      ]
 
     remove_tags = [dict(name='a', attrs={'class':'Arialazul12'})]
-                     
+
     feeds = [
                (u'Economia'                , u'http://www.cronista.com/adjuntos/8/rss/Economia_EI.xml'             )
               ,(u'Negocios'                , u'http://www.cronista.com/adjuntos/8/rss/negocios_EI.xml'             )
@@ -69,4 +69,4 @@ class ElCronista(BasicNewsRecipe):
         if link_item:
            cover_url = index + link_item.img['src']
         return cover_url
-        
+

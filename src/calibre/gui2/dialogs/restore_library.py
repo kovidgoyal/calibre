@@ -21,7 +21,7 @@ class DBRestore(QDialog):
         self.l = QVBoxLayout()
         self.setLayout(self.l)
         self.l1 = QLabel('<b>'+_('Restoring database from backups, do not'
-            ' interrupt, this will happen in two stages')+'...')
+            ' interrupt, this will happen in three stages')+'...')
         self.setWindowTitle(_('Restoring database'))
         self.l.addWidget(self.l1)
         self.pb = QProgressBar(self)
@@ -104,7 +104,7 @@ def restore_database(db, parent=None):
     else:
         if r.errors_occurred:
             warning_dialog(parent, _('Success'),
-                    _('Restoring the database succeeded with some warnings',
+                    _('Restoring the database succeeded with some warnings'
                         ' click Show details to see the details.'),
                     det_msg=r.report, show=True)
         else:

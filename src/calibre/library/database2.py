@@ -1549,7 +1549,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         elif mi.cover is not None:
             if os.access(mi.cover, os.R_OK):
                 with lopen(mi.cover, 'rb') as f:
-                    doit(self.set_cover, id, f, commit=False)
+                    raw = f.read()
+                if raw:
+                    doit(self.set_cover, id, raw, commit=False)
         if mi.tags:
             doit(self.set_tags, id, mi.tags, notify=False, commit=False)
         if mi.comments:

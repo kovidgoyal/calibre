@@ -33,13 +33,13 @@ class ConvertToTags:
         self.__copy = copy
         self.__dtd_path = dtd_path
         self.__no_dtd = no_dtd
-        if encoding != 'mac_roman':
-            self.__encoding = 'cp' + encoding
-        else:
+        self.__encoding = 'cp' + encoding
+        if encoding == 'mac_roman':
             self.__encoding = 'mac_roman'
         self.__indent = indent
         self.__run_level = run_level
         self.__write_to = tempfile.mktemp()
+        self.__convert_utf = False
 
     def __initiate_values(self):
         """
@@ -213,7 +213,8 @@ class ConvertToTags:
         if not check_encoding_obj.check_encoding(self.__file, verbose=False):
             self.__write_obj.write('<?xml version="1.0" encoding="US-ASCII" ?>')
         elif not check_encoding_obj.check_encoding(self.__file, self.__encoding):
-            self.__write_obj.write('<?xml version="1.0" encoding="%s" ?>' % self.__encoding)
+            self.__write_obj.write('<?xml version="1.0" encoding="UTF-8" ?>')
+            self.__convert_utf = True
         else:
             self.__write_obj.write('<?xml version="1.0" encoding="US-ASCII" ?>')
             sys.stderr.write('Bad RTF encoding, revert to US-ASCII chars and'
@@ -253,15 +254,28 @@ class ConvertToTags:
             an empty tag function.
             """
         self.__initiate_values()
-        self.__write_obj = open(self.__write_to, 'w')
-        self.__write_dec()
-        with open(self.__file, 'r') as read_obj:
-            for line in read_obj:
-                self.__token_info = line[:16]
-                action = self.__state_dict.get(self.__token_info)
-                if action is not None:
-                    action(line)
+        with open(self.__write_to, 'w') as self.__write_obj:
+            self.__write_dec()
+            with open(self.__file, 'r') as read_obj:
+                for line in read_obj:
+                    self.__token_info = line[:16]
+                    action = self.__state_dict.get(self.__token_info)
+                    if action is not None:
+                        action(line)
         self.__write_obj.close()
+        #convert all encodings to UTF8 to avoid unsupported encodings in lxml
+        if self.__convert_utf:
+            copy_obj = copy.Copy(bug_handler = self.__bug_handler)
+            copy_obj.rename(self.__write_to, self.__file)
+            with open(self.__file, 'r') as read_obj:
+                with open(self.__write_to, 'w') as write_obj:
+                    file = read_obj.read()
+                    try:
+                        file = file.decode(self.__encoding)
+                        write_obj.write(file.encode('utf-8'))
+                    except:
+                        sys.stderr.write('Conversion to UTF-8 is not possible,'
+                        ' encoding should be very carefully checked')
         copy_obj = copy.Copy(bug_handler = self.__bug_handler)
         if self.__copy:
             copy_obj.copy_file(self.__write_to, "convert_to_tags.data")

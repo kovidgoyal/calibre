@@ -7,7 +7,7 @@ import os, shutil
 
 from PyQt4.Qt import QDialog, QVBoxLayout, QHBoxLayout, QTreeWidget, QLabel, \
             QPushButton, QDialogButtonBox, QApplication, QTreeWidgetItem, \
-            QLineEdit, Qt, QProgressBar, QSize, QTimer
+            QLineEdit, Qt, QProgressBar, QSize, QTimer, QIcon, QTextEdit
 
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.library.check_library import CheckLibrary, CHECKS
@@ -16,7 +16,7 @@ from calibre import prints, as_unicode
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.library.sqlite import DBThread, OperationalError
 
-class DBCheck(QDialog):
+class DBCheck(QDialog): # {{{
 
     def __init__(self, parent, db):
         QDialog.__init__(self, parent)
@@ -74,21 +74,27 @@ class DBCheck(QDialog):
             self.reject()
 
     def start_load(self):
-        self.conn.close()
-        self.pb.setMaximum(self.count)
-        self.pb.setValue(0)
-        self.msg.setText(_('Loading database from SQL'))
-        self.db.conn.close()
-        self.ndbpath = PersistentTemporaryFile('.db')
-        self.ndbpath.close()
-        self.ndbpath = self.ndbpath.name
-        t = DBThread(self.ndbpath, False)
-        t.connect()
-        self.conn = t.conn
-        self.conn.execute('create temporary table temp_sequence(id INTEGER PRIMARY KEY AUTOINCREMENT)')
-        self.conn.commit()
+        try:
+            self.conn.close()
+            self.pb.setMaximum(self.count)
+            self.pb.setValue(0)
+            self.msg.setText(_('Loading database from SQL'))
+            self.db.conn.close()
+            self.ndbpath = PersistentTemporaryFile('.db')
+            self.ndbpath.close()
+            self.ndbpath = self.ndbpath.name
+            t = DBThread(self.ndbpath, False)
+            t.connect()
+            self.conn = t.conn
+            self.conn.execute('create temporary table temp_sequence(id INTEGER PRIMARY KEY AUTOINCREMENT)')
+            self.conn.commit()
 
-        QTimer.singleShot(0, self.do_one_load)
+            QTimer.singleShot(0, self.do_one_load)
+        except Exception, e:
+            import traceback
+            self.error = (as_unicode(e), traceback.format_exc())
+            self.reject()
+
 
     def do_one_load(self):
         if self.rejected:
@@ -128,7 +134,7 @@ class DBCheck(QDialog):
     def reject(self):
         self.rejected = True
         QDialog.reject(self)
-
+# }}}
 
 class Item(QTreeWidgetItem):
     pass
@@ -140,9 +146,70 @@ class CheckLibraryDialog(QDialog):
         self.db = db
 
         self.setWindowTitle(_('Check Library -- Problems Found'))
+        self.setWindowIcon(QIcon(I('debug.png')))
 
-        self._layout = QVBoxLayout(self)
-        self.setLayout(self._layout)
+        self._tl = QHBoxLayout()
+        self._layout = QVBoxLayout()
+        self.setLayout(self._tl)
+        self._tl.addLayout(self._layout)
+        self.helpw = QTextEdit(self)
+        self._tl.addWidget(self.helpw)
+        self.helpw.setReadOnly(True)
+        self.helpw.setText(_('''\
+        <h1>Help</h1>
+
+        <p>calibre stores the list of your books and their metadata in a
+        database. The actual book files and covers are stored as normal
+        files in the calibre library folder. The database contains a list of the files
+        and covers belonging to each book entry. This tool checks that the
+        actual files in the library folder on your computer match the
+        information in the database.</p>
+
+        <p>The result of each type of check is shown to the left. The various
+        checks are:
+        </p>
+        <ul>
+        <li><b>Invalid titles</b>: These are files and folders appearing
+        in the library where books titles should, but that do not have the
+        correct form to be a book title.</li>
+        <li><b>Extra titles</b>: These are extra files in your calibre
+        library that appear to be correctly-formed titles, but have no corresponding
+        entries in the database</li>
+        <li><b>Invalid authors</b>: These are files appearing
+        in the library where only author folders should be.</li>
+        <li><b>Extra authors</b>: These are folders in the
+        calibre library that appear to be authors but that do not have entries
+        in the database</li>
+        <li><b>Missing book formats</b>: These are book formats that are in
+        the database but have no corresponding format file in the book's folder.
+        <li><b>Extra book formats</b>: These are book format files found in
+        the book's folder but not in the database.
+        <li><b>Unknown files in books</b>: These are extra files in the
+        folder of each book that do not correspond to a known format or cover
+        file.</li>
+        <li><b>Missing cover files</b>: These represent books that are marked
+        in the database as having covers but the actual cover files are
+        missing.</li>
+        <li><b>Cover files not in database</b>: These are books that have
+        cover files but are marked as not having covers in the database.</li>
+        <li><b>Folder raising exception</b>: These represent folders in the
+        calibre library that could not be processed/understood by this
+        tool.</li>
+        </ul>
+
+        <p>There are two kinds of automatic fixes possible: <i>Delete
+        marked</i> and <i>Fix marked</i>.</p>
+        <p><i>Delete marked</i> is used to remove extra files/folders/covers that
+        have no entries in the database. Check the box next to the item you want
+        to delete. Use with caution.</p>
+        <p><i>Fix marked</i> is applicable only to covers (the two lines marked
+        'fixable'). In the case of missing cover files, checking the fixable
+        box and pushing this button will remove the cover mark from the
+        database for all the files in that category. In the case of extra
+        cover files, checking the fixable box and pushing this button will
+        add the cover mark to the database for all the files in that
+        category.</p>
+        '''))
 
         self.log = QTreeWidget(self)
         self.log.itemChanged.connect(self.item_changed)
@@ -193,7 +260,7 @@ class CheckLibraryDialog(QDialog):
         self._layout.addLayout(h)
 
         self._layout.addWidget(self.bbox)
-        self.resize(750, 500)
+        self.resize(950, 500)
         self.bbox.setEnabled(True)
 
     def do_exec(self):
@@ -341,5 +408,6 @@ class CheckLibraryDialog(QDialog):
 
 if __name__ == '__main__':
     app = QApplication([])
-    d = CheckLibraryDialog()
+    from calibre.library import db
+    d = CheckLibraryDialog(None, db())
     d.exec_()
