@@ -391,6 +391,8 @@ Take your pick:
   * A tribute to the SONY Librie which was the first e-ink based e-book reader
   * My wife chose it ;-)
 
+|app| is pronounced as cal-i-ber *not* ca-libre. If you're wondering, |app| is the British/commonwealth spelling for caliber. Being Indian, that's the natural spelling for me. 
+
 Why does |app| show only some of my fonts on OS X?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 |app| embeds fonts in ebook files it creates. E-book files support embedding only TrueType (.ttf) fonts. Most fonts on OS X systems are in .dfont format, thus they cannot be embedded. |app| shows only TrueType fonts found on your system. You can obtain many TrueType fonts on the web. Simply download the .ttf files and add them to the Library/Fonts directory in your home directory.
