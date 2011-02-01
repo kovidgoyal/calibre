@@ -45,7 +45,8 @@ For full documentation of the conversion system see
 HEURISTIC_OPTIONS = ['markup_chapter_headings',
                       'italicize_common_cases', 'fix_indents',
                       'html_unwrap_factor', 'unwrap_lines',
-                      'delete_blank_paragraphs', 'format_scene_breaks',
+                      'delete_blank_paragraphs',
+                      'format_scene_breaks', 'replace_soft_scene_breaks',
                       'dehyphenate', 'renumber_headings']
 
 def print_help(parser, log):
