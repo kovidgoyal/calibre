@@ -483,10 +483,23 @@ class HeuristicProcessor(object):
         return html
 
     def markup_user_break(self, replacement_break):
+        '''
+        Takes string a user supplies and wraps it in markup that will be centered with 
+        appropriate margins.  <hr> and <img> tags are allowed.  If the user specifies
+        a style with width attributes in the <hr> tag then the appropriate margins are
+        applied to wrapping divs.  This is because many ebook devices don't support margin:auto
+        All other html is converted to text.
+        '''
         hr_open = '<div id="scenebreak" style="margin-left: 45%; margin-right: 45%; margin-top:1.5em; margin-bottom:1.5em">'
         if re.findall('(<|>)', replacement_break):
             if re.match('^<hr', replacement_break):
-                scene_break = hr_open+'<hr style="height: 3px; background:#505050" /></div>'
+                if replacement_break.find('width') != -1:
+                   width = int(re.sub('.*?width(:|=)(?P<wnum>\d+).*', '\g<wnum>', replacement_break))
+                   divpercent = (100 - width) / 2
+                   hr_open = re.sub('45', str(divpercent), hr_open)
+                   scene_break = hr_open+replacement_break+'</div>'
+                else:
+                    scene_break = hr_open+'<hr style="height: 3px; background:#505050" /></div>'
             elif re.match('^<img', replacement_break):
                 scene_break = self.scene_break_open+replacement_break+'</p>'
             else:
@@ -622,9 +635,11 @@ class HeuristicProcessor(object):
             blanks_count = len(self.any_multi_blank.findall(html))
             if blanks_count >= 1:
                 html = self.merge_blanks(html, blanks_count)
-            # Center separator lines, use a bit larger margin in this case
             scene_break_regex = self.line_open+'(?![\w\'\"])(?P<break>((?P<break_char>((?!\s)\W))\s*(?P=break_char)?)+)\s*'+self.line_close
             scene_break = re.compile(r'%s' % scene_break_regex, re.IGNORECASE|re.UNICODE)
+            # If the user has enabled scene break replacement, then either softbreaks
+            # or 'hard' scene breaks are replaced, depending on which is in use
+            # Otherwise separator lines are centered, use a bit larger margin in this case
             replacement_break = getattr(self.extra_opts, 'replace_scene_breaks', None)
             if replacement_break is not None:
                 replacement_break = self.markup_user_break(replacement_break)
