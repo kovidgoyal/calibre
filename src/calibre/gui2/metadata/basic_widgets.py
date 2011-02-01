@@ -472,6 +472,7 @@ class FormatsManager(QWidget): # {{{
     def initialize(self, db, id_):
         self.changed = False
         exts = db.formats(id_, index_is_id=True)
+        self.original_val = set([])
         if exts:
             exts = exts.split(',')
             for ext in exts:
@@ -482,6 +483,7 @@ class FormatsManager(QWidget): # {{{
                 if size is None:
                     continue
                 Format(self.formats, ext, size, timestamp=timestamp)
+                self.original_val.add(ext.lower())
 
     def commit(self, db, id_):
         if not self.changed:
@@ -500,11 +502,12 @@ class FormatsManager(QWidget): # {{{
         for ext in new_extensions:
             db.add_format(id_, ext, open(paths[ext], 'rb'), notify=False,
                     index_is_id=True)
-        db_extensions = set([f.lower() for f in db.formats(id_,
-            index_is_id=True).split(',')])
+        dbfmts = db.formats(id_, index_is_id=True)
+        db_extensions = set([f.lower() for f in (dbfmts.split(',') if dbfmts
+            else [])])
         extensions = new_extensions.union(old_extensions)
         for ext in db_extensions:
-            if ext not in extensions:
+            if ext not in extensions and ext in self.original_val:
                 db.remove_format(id_, ext, notify=False, index_is_id=True)
 
         self.changed = False
