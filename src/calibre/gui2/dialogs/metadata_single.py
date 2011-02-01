@@ -429,10 +429,12 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                 old_extensions.add(ext)
         for ext in new_extensions:
             self.db.add_format(self.row, ext, open(paths[ext], 'rb'), notify=False)
-        db_extensions = set([f.lower() for f in self.db.formats(self.row).split(',')])
+        dbfmts = self.db.formats(self.row)
+        db_extensions = set([f.lower() for f in (dbfmts.split(',') if dbfmts
+            else [])])
         extensions = new_extensions.union(old_extensions)
         for ext in db_extensions:
-            if ext not in extensions:
+            if ext not in extensions and ext in self.original_formats:
                 self.db.remove_format(self.row, ext, notify=False)
 
     def show_format(self, item, *args):
@@ -576,6 +578,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         self.orig_date = qt_to_dt(self.date.date())
 
         exts = self.db.formats(row)
+        self.original_formats = []
         if exts:
             exts = exts.split(',')
             for ext in exts:
@@ -586,6 +589,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                 if size is None:
                     continue
                 Format(self.formats, ext, size, timestamp=timestamp)
+                self.original_formats.append(ext.lower())
 
 
         self.initialize_combos()
