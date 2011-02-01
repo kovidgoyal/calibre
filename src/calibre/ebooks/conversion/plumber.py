@@ -530,6 +530,10 @@ OptionRecommendation(name='format_scene_breaks',
     help=_('Left aligned scene break markers are center aligned. '
            'Replace soft scene breaks that use multiple blank lines with'
            'horizontal rules.')),
+           
+OptionRecommendation(name='replace_scene_breaks',
+    recommended_value=None, level=OptionRecommendation.LOW,
+    help=_('Replace scene breaks with the specified text.')),
 
 OptionRecommendation(name='dehyphenate',
     recommended_value=True, level=OptionRecommendation.LOW,

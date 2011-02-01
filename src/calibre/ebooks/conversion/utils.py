@@ -33,6 +33,7 @@ class HeuristicProcessor(object):
         self.line_open = "<(?P<outer>p|div)[^>]*>\s*(<(?P<inner1>font|span|[ibu])[^>]*>)?\s*(<(?P<inner2>font|span|[ibu])[^>]*>)?\s*(<(?P<inner3>font|span|[ibu])[^>]*>)?\s*"
         self.line_close = "(</(?P=inner3)>)?\s*(</(?P=inner2)>)?\s*(</(?P=inner1)>)?\s*</(?P=outer)>"
         self.single_blank = re.compile(r'(\s*<p[^>]*>\s*</p>)', re.IGNORECASE)
+        self.scene_break_open = '<p class="scenebreak" style="text-align:center; text-indent:0%; margin-top:1em; margin-bottom:1em; page-break-before:avoid">'
 
     def is_pdftohtml(self, src):
         return '<!-- created by calibre\'s pdftohtml -->' in src[:1000]
@@ -481,6 +482,22 @@ class HeuristicProcessor(object):
             html = self.blankreg.sub('\n<p class="softbreak" style="margin-top:.5em; page-break-before:avoid; text-align:center"> </p>', html)
         return html
 
+    def markup_user_break(self, replacement_break):
+        hr_open = '<div id="scenebreak" style="margin-left: 45%; margin-right: 45%; margin-top:1.5em; margin-bottom:1.5em">'
+        if re.findall('(<|>)', replacement_break):
+            if re.match('^<hr', replacement_break):
+                scene_break = hr_open+'<hr style="height: 3px; background:#505050" /></div>'
+            elif re.match('^<img', replacement_break):
+                scene_break = self.scene_break_open+replacement_break+'</p>'
+            else:
+                replacement_break = html2text(replacement_break)
+                replacement_break = re.sub('\s', '&nbsp;', replacement_break)
+                scene_break = self.scene_break_open+replacement_break+'</p>'
+        else:
+            replacement_break = re.sub('\s', '&nbsp;', replacement_break)
+            scene_break = self.scene_break_open+replacement_break+'</p>'
+
+        return scene_break
 
 
     def __call__(self, html):
@@ -498,7 +515,7 @@ class HeuristicProcessor(object):
 
         # Arrange line feeds and </p> tags so the line_length and no_markup functions work correctly
         html = self.arrange_htm_line_endings(html)
-        self.dump(html, 'after_arrange_line_endings')
+        #self.dump(html, 'after_arrange_line_endings')
         if self.cleanup_required():
             ###### Check Markup ######
             #
@@ -534,7 +551,7 @@ class HeuristicProcessor(object):
 
         if getattr(self.extra_opts, 'markup_chapter_headings', False):
             html = self.markup_chapters(html, self.totalwords, self.blanks_between_paragraphs)
-        self.dump(html, 'after_chapter_markup')
+        #self.dump(html, 'after_chapter_markup')
 
         if getattr(self.extra_opts, 'italicize_common_cases', False):
             html = self.markup_italicis(html)
@@ -608,9 +625,15 @@ class HeuristicProcessor(object):
             # Center separator lines, use a bit larger margin in this case
             scene_break_regex = self.line_open+'(?![\w\'\"])(?P<break>((?P<break_char>((?!\s)\W))\s*(?P=break_char)?)+)\s*'+self.line_close
             scene_break = re.compile(r'%s' % scene_break_regex, re.IGNORECASE|re.UNICODE)
-            print "found "+str(len(scene_break.findall(html)))+" scene breaks"
-            html = scene_break.sub('<p class="scenebreak" style="text-align:center; text-indent:0%; margin-top:.65em; margin-bottom:.65em; page-break-before:avoid">' + '\g<break>' + '</p>', html)
-            #html = re.sub('<p\s+class="softbreak"[^>]*>\s*</p>', '<div id="softbreak" style="margin-left: 45%; margin-right: 45%; margin-top:1.5em; margin-bottom:1.5em"><hr style="height: 3px; background:#505050" /></div>', html)
+            replacement_break = getattr(self.extra_opts, 'replace_scene_breaks', None)
+            if replacement_break is not None:
+                replacement_break = self.markup_user_break(replacement_break)
+                if len(scene_break.findall(html)) >= 1:
+                    html = scene_break.sub(replacement_break, html)
+                else:
+                    html = re.sub('<p\s+class="softbreak"[^>]*>\s*</p>', replacement_break, html) 
+            else:
+                html = scene_break.sub(self.scene_break_open+'\g<break>'+'</p>', html)
 
         if self.deleted_nbsps:
             # put back non-breaking spaces in empty paragraphs so they render correctly

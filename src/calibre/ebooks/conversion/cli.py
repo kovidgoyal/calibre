@@ -143,7 +143,7 @@ def add_pipeline_options(parser, plumber):
                      ' patterns. Disabled by default. Use %s to enable. '
                      ' Individual actions can be disabled with the %s options.')
                   % ('--enable-heuristics', '--disable-*'),
-                  ['enable_heuristics'] + HEURISTIC_OPTIONS
+                  ['enable_heuristics', 'replace_scene_breaks'] + HEURISTIC_OPTIONS
                   ),
 
               'SEARCH AND REPLACE' : (
