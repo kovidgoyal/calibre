@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-01-30 19:51+0000\n"
-"PO-Revision-Date: 2011-01-30 20:50+0000\n"
+"PO-Revision-Date: 2011-01-31 23:51+0000\n"
 "Last-Translator: sengian <Unknown>\n"
 "Language-Team: Français <kde-i18n-doc@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-01-31 04:42+0000\n"
+"X-Launchpad-Export-Date: 2011-02-01 04:38+0000\n"
 "X-Generator: Launchpad (build 12177)\n"
 "X-Poedit-Bookmarks: 1177,1104,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -4065,6 +4065,10 @@ msgid ""
 "* markdown: Produce Markdown formatted text.\n"
 "* textile: Produce Textile formatted text."
 msgstr ""
+"Mise en forme utilisé à l'intérieur du document.\n"
+"* plain : produit du texte simple.\n"
+"* markdown :  Produit du texte avec la mise en forme Markdown.\n"
+"* textile : Produit du texte avec la mise en forme Textile."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:55
 msgid ""
@@ -4072,6 +4076,10 @@ msgid ""
 "with a txt-output-formatting option that is not none because links are "
 "always removed with plain text output."
 msgstr ""
+"Ne pas supprimer les liens à l'intérieur du document. Cette option est utile "
+"seulement quand elle est couplée avec une option txt-output-formatting qui "
+"n'est pas nulle car les liens sont toujours supprimées avec la sortie texte "
+"classique."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:60
 msgid ""
@@ -4079,6 +4087,10 @@ msgid ""
 "paired with a txt-output-formatting option that is not none because links "
 "are always removed with plain text output."
 msgstr ""
+"Ne pas supprimer les références à des images à l'intérieur du document. "
+"Cette option est utile seulement quand elle est couplée avec une option txt-"
+"output-formatting qui n'est pas nulle car les références à des images sont "
+"toujours supprimées avec la sortie texte classique."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:70
 msgid "Send file to storage card instead of main memory by default"
@@ -4504,7 +4516,7 @@ msgstr "Vérifier la bibliothèque"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:141
 msgid "Restore database"
-msgstr ""
+msgstr "Restaurer la base de données"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:216
 msgid "Rename"
@@ -7602,11 +7614,11 @@ msgstr "sélectionné pour l'envoi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:841
 msgid "%i of %i Books"
-msgstr ""
+msgstr "Livre %i de %i"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:843
 msgid "0 of %i Books"
-msgstr ""
+msgstr "Livre 0 de %i"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:844
 msgid "Choose format to send to device"
@@ -9112,6 +9124,9 @@ msgid ""
 "You have changed the tags. In order to use the tags editor, you must either "
 "discard or apply these changes. Apply changes?"
 msgstr ""
+"Vous avez modifié les étiquettes. Afin d'utiliser l'éditeur d'étiquettes, "
+"vous devez soit ou appliquer ces modifications. Voulez-vous appliquer les "
+"modifications?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:805
 msgid "Timed out"
@@ -9347,10 +9362,12 @@ msgid ""
 "Restoring database from backups, do not interrupt, this will happen in three "
 "stages"
 msgstr ""
+"Restaurer la base de données à partir des sauvegardes, ne pas interrompre, "
+"ceci se passera en 3 étapes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:25
 msgid "Restoring database"
-msgstr ""
+msgstr "Restaurer la base de données"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:79
 msgid ""
@@ -9366,16 +9383,20 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:102
 msgid "Restoring database failed, click Show details to see details"
 msgstr ""
+"La restauration de la base de données a échoué, cliquer sur Afficher les "
+"détails pour voir les détails"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:107
 msgid ""
 "Restoring the database succeeded with some warnings click Show details to "
 "see the details."
 msgstr ""
+"La restauration de la base de données a réussi avec quelques avertissements, "
+"cliquer sur Afficher les détails pour voir les détails"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:112
 msgid "Restoring database was successful"
-msgstr ""
+msgstr "La restauration de la base de données a réussi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor.py:55
 msgid ""
@@ -11875,15 +11896,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:218
 msgid "Search for plugin"
-msgstr ""
+msgstr "Chercher le plugin"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:226
 msgid "No matches"
-msgstr ""
+msgstr "Pas de résultats"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:227
 msgid "Could not find any matching plugins"
-msgstr ""
+msgstr "Impossible de trouver un plugin correspondant"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:268
 msgid "Add plugin"
@@ -12919,7 +12940,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:603
 msgid "Active jobs"
-msgstr ""
+msgstr "Travaux actifs"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:669
 msgid ""
@@ -14313,11 +14334,11 @@ msgstr "Fichiers inconnus dans les livres"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:33
 msgid "Missing covers files"
-msgstr ""
+msgstr "Fichiers de couverture manquants"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:34
 msgid "Cover files not in database"
-msgstr ""
+msgstr "Fichiers de couvertures non présents dans la base de données"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:35
 msgid "Folders raising exception"
@@ -15969,43 +15990,43 @@ msgstr "Espagnol (Paraguay)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:115
 msgid "Spanish (Uruguay)"
-msgstr ""
+msgstr "Espagnol (Uruguay)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:116
 msgid "Spanish (Argentina)"
-msgstr ""
+msgstr "Espagnol (Argentine)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:117
 msgid "Spanish (Mexico)"
-msgstr ""
+msgstr "Espagnol (Mexique)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:118
 msgid "Spanish (Cuba)"
-msgstr ""
+msgstr "Espagnol (Cuba)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:119
 msgid "Spanish (Chile)"
-msgstr ""
+msgstr "Espagnol (Chili)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:120
 msgid "Spanish (Ecuador)"
-msgstr ""
+msgstr "Espagnol (Equateur)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:121
 msgid "Spanish (Honduras)"
-msgstr ""
+msgstr "Espagnol (Honduras)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:122
 msgid "Spanish (Venezuela)"
-msgstr ""
+msgstr "Espagnol (Venezuela)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:123
 msgid "Spanish (Bolivia)"
-msgstr ""
+msgstr "Espagnol (Bolivie)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:124
 msgid "Spanish (Nicaragua)"
-msgstr ""
+msgstr "Espagnol (Nicaragua)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:125
 msgid "German (AT)"

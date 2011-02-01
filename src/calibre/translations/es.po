@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-01-30 19:51+0000\n"
-"PO-Revision-Date: 2011-01-29 16:36+0000\n"
+"PO-Revision-Date: 2011-01-31 19:22+0000\n"
 "Last-Translator: Jellby <Unknown>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-01-31 04:50+0000\n"
+"X-Launchpad-Export-Date: 2011-02-01 04:39+0000\n"
 "X-Generator: Launchpad (build 12177)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:527
@@ -4024,6 +4024,10 @@ msgid ""
 "* markdown: Produce Markdown formatted text.\n"
 "* textile: Produce Textile formatted text."
 msgstr ""
+"Formato usado en el documento.\n"
+"* plain: Texto simple.\n"
+"* markdown: Texto con formato Markdown.\n"
+"* textile: Texto con formato Textile."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:55
 msgid ""
@@ -4031,6 +4035,9 @@ msgid ""
 "with a txt-output-formatting option that is not none because links are "
 "always removed with plain text output."
 msgstr ""
+"No eliminar enlaces en el documento. Esta opción sólo tiene utilidad cuando "
+"se combina con una opción de formato de salida de texto que no es «ninguno», "
+"porque los enlaces siempre se eliminan en la salida de texto simple."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:60
 msgid ""
@@ -4038,6 +4045,10 @@ msgid ""
 "paired with a txt-output-formatting option that is not none because links "
 "are always removed with plain text output."
 msgstr ""
+"No eliminar referencias a imágenes en el documento. Esta opción sólo tiene "
+"utilidad cuando se combina con una opción de formato de salida de texto que "
+"no es «ninguno», porque las referencias a imágenes siempre se eliminan en la "
+"salida de texto simple."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:70
 msgid "Send file to storage card instead of main memory by default"
@@ -4458,7 +4469,7 @@ msgstr "Comprobar biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:141
 msgid "Restore database"
-msgstr ""
+msgstr "Restaurar base de datos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:216
 msgid "Rename"
@@ -7529,11 +7540,11 @@ msgstr "elegido para enviar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:841
 msgid "%i of %i Books"
-msgstr ""
+msgstr "%i de %i libros"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:843
 msgid "0 of %i Books"
-msgstr ""
+msgstr "0 de %i libros"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:844
 msgid "Choose format to send to device"
@@ -7807,6 +7818,56 @@ msgid ""
 "        category.</p>\n"
 "        "
 msgstr ""
+"        <h1>Ayuda</h1>\n"
+"<p>calibre almacena la lista de libros y sus metadatos en una base de datos. "
+"Los ficheros de los libros y las portadas se guardan como ficheros normales "
+"en la carpeta de la biblioteca de calibre. La base de datos contiene una "
+"lista de los ficheros y portadas correspondientes a cada libro. Esta "
+"utilidad comprueba que los ficheros realmente presentes en la carpeta de la "
+"biblioteca de su ordenador se corresponden con la información de la base de "
+"datos.</p>\n"
+"<p>El resultado de cada comprobación se muestra a la izquierda. Las "
+"distintas comprobaciones son:</p>\n"
+"<ul>\n"
+"<li><b>Títulos no válidos</b>: Son ficheros y carpetas que están en la "
+"biblioteca, donde se encuentran los libros, pero que no tienen la forma "
+"correcta para ser un título de libro.</li>\n"
+"<li><b>Títulos adicionales</b>: Son ficheros adicionales en la biblioteca de "
+"calibre que parecen títulos correctos, pero que no tienen una entrada "
+"correspondiente en la base de datos.</li>\n"
+"<li><b>Autores no válidos</b>: Son ficheros que están en la biblioteca, "
+"donde sólo deberían estar las carpetas de los autores.</li>\n"
+"<li><b>Autores adicionales</b>: Son carpetas en la biblioteca de calibre que "
+"parecen autores, pero que no tienen entrada en la base de datos.</li>\n"
+"<li><b>Formatos de libro inexistentes</b>: Son formatos de libro que "
+"aparecen en la base de datos, pero que no tienen su correspondiente fichero "
+"en la carpeta del libro.</li>\n"
+"<li><b>Formatos de libro adicionales</b>: Son ficheros de libro que están en "
+"la carpeta del libro pero no en la base de datos.</li>\n"
+"<li><b>Ficheros desconocidos</b>: Son ficheros adicionales en la carpeta del "
+"libro que no corresponden a ningún formato conocido ni a la portada.</li>\n"
+"<li><b>Portadas inexistentes</b>: Son libros que en la base de datos tienen "
+"una portada asignada, pero cuyo fichero de la portada no existe "
+"realmente.</li>\n"
+"<li><b>Portadas que no están en la base de datos</b>: Son libros que tienen "
+"sus ficheros de portadas, pero que no tienen ninguna portada asignada en la "
+"base de datos.</li>\n"
+"<li><b>Carpetas que dan error</b>: Son carpetas en la biblioteca de calibre "
+"que esta utilidad no ha podido procesar o interpretar.</li>\n"
+"</ul>\n"
+"<p>Hay dos tipos de corrección automática posibles: <i>Borrar marcados</i> y "
+"<i>Reparar marcados</i>.</p>\n"
+"<p><i>Borrar marcados</i> se usa para eliminar los ficheros, carpetas o "
+"portadas adicionales que no tienen entrada en la base de datos. Marque la "
+"casilla junto al elemento que desee borrar. Utilícelo con precaución.</p>\n"
+"<p><i>Reparar marcados</i> se aplica sólo a las portadas (las dos líneas "
+"marcadas con «reparable»). En el caso de portadas inexistentes, al marcar la "
+"casilla de «reparable» y pulsar este botón se eliminará la asignación de "
+"portada de la base de datos para todos los ficheros de esa categoría. En el "
+"caso de portadas adicionales, al marcar la casilla de «reparable» y pulsar "
+"este botón se asignará la portada a todos los ficheros de esta "
+"categoría.</p>\n"
+"        "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:218
 msgid "&Run the check again"
@@ -9026,6 +9087,8 @@ msgid ""
 "You have changed the tags. In order to use the tags editor, you must either "
 "discard or apply these changes. Apply changes?"
 msgstr ""
+"Ha modificado las etiquetas. Para usar el editor de etiquetas debe descartar "
+"o aplicar los cambios. ¿Desea aplicarlos?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:805
 msgid "Timed out"
@@ -9258,10 +9321,12 @@ msgid ""
 "Restoring database from backups, do not interrupt, this will happen in three "
 "stages"
 msgstr ""
+"Restaurando base de datos a partir de copia de respaldo, no interrumpa la "
+"operación, esto puede ocurrir en tres etapas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:25
 msgid "Restoring database"
-msgstr ""
+msgstr "Restaurando base de datos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:79
 msgid ""
@@ -9273,20 +9338,32 @@ msgid ""
 "only restores books, not any settings stored in the database, or any custom "
 "recipes.<p>Do you want to restore the database?"
 msgstr ""
+"Su lista de libros, con todos sus metadatos, se almacena en un único "
+"fichero, llamado base de datos. Además, los metadatos de cada libro se "
+"almacenan en la carpeta del libro como copia de respaldo.<p>Esta operación "
+"reconstruirá la base de datos a partir de los metadatos individuales de cada "
+"libro. Esto es útil si la base de datos está corrupta y la lista de libros "
+"aparece en blanco. Tenga en cuenta que sólo se restauran los libros, no las "
+"configuraciones ni las recetas personalizadas.<p>¿Desea restaurar la base de "
+"datos?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:102
 msgid "Restoring database failed, click Show details to see details"
 msgstr ""
+"La restauración de la base de datos ha fallado, pulse «Mostrar detalles» "
+"para más información"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:107
 msgid ""
 "Restoring the database succeeded with some warnings click Show details to "
 "see the details."
 msgstr ""
+"La restauración de la base de datos ha terminado satisfactoriamente, con "
+"algunos avisos. Pulse «Mostrar detalles» para más información"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:112
 msgid "Restoring database was successful"
-msgstr ""
+msgstr "La restauración de la base de datos ha terminado satisfactoriamente"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor.py:55
 msgid ""
@@ -11759,15 +11836,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:218
 msgid "Search for plugin"
-msgstr ""
+msgstr "Buscar complemento"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:226
 msgid "No matches"
-msgstr ""
+msgstr "Sin coincidencias"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:227
 msgid "Could not find any matching plugins"
-msgstr ""
+msgstr "No se encontró ningún complemento que coincida con la búsqueda"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:268
 msgid "Add plugin"
@@ -12771,7 +12848,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:603
 msgid "Active jobs"
-msgstr ""
+msgstr "Tareas activas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:669
 msgid ""
@@ -14147,7 +14224,7 @@ msgstr "Autores adicionales"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:30
 msgid "Missing book formats"
-msgstr "Faltan formatos de libro"
+msgstr "Formatos de libro inexistentes"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:31
 msgid "Extra book formats"
@@ -14155,19 +14232,19 @@ msgstr "Formatos de libro adicionales"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:32
 msgid "Unknown files in books"
-msgstr "Ficheros desconocidos en libros"
+msgstr "Ficheros desconocidos"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:33
 msgid "Missing covers files"
-msgstr ""
+msgstr "Portadas inexistentes"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:34
 msgid "Cover files not in database"
-msgstr ""
+msgstr "Portadas que no están en la base de datos"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:35
 msgid "Folders raising exception"
-msgstr "Hay carpetas que dan error"
+msgstr "Carpetas que dan error"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:43
 msgid ""
@@ -15810,43 +15887,43 @@ msgstr "Español (Paraguay)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:115
 msgid "Spanish (Uruguay)"
-msgstr ""
+msgstr "Español (Uruguay)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:116
 msgid "Spanish (Argentina)"
-msgstr ""
+msgstr "Español (Argentina)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:117
 msgid "Spanish (Mexico)"
-msgstr ""
+msgstr "Español (México)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:118
 msgid "Spanish (Cuba)"
-msgstr ""
+msgstr "Español (Cuba)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:119
 msgid "Spanish (Chile)"
-msgstr ""
+msgstr "Español (Chile)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:120
 msgid "Spanish (Ecuador)"
-msgstr ""
+msgstr "Español (Ecuador)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:121
 msgid "Spanish (Honduras)"
-msgstr ""
+msgstr "Español (Honduras)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:122
 msgid "Spanish (Venezuela)"
-msgstr ""
+msgstr "Español (Venezuela)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:123
 msgid "Spanish (Bolivia)"
-msgstr ""
+msgstr "Español (Bolivia)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:124
 msgid "Spanish (Nicaragua)"
-msgstr ""
+msgstr "Español (Nicaragua)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:125
 msgid "German (AT)"
