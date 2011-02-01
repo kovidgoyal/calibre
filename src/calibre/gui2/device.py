@@ -1398,7 +1398,7 @@ class DeviceMixin(object): # {{{
 
         if update_metadata:
             if self.device_manager.is_device_connected:
-                if self.device_manager.device.CAN_UPDATE_THUMBNAILS:
+                if self.device_manager.device.WANTS_UPDATED_THUMBNAILS:
                     for blist in booklists:
                         for book in blist:
                             if book.cover and os.access(book.cover, os.R_OK):

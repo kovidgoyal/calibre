@@ -149,7 +149,7 @@ class PRS505(USBMS):
         # that we do not preserve aspect ratio
         if not self.settings().extra_customization[3]:
             self.THUMBNAIL_WIDTH = 168
-        # Set CAN_UPDATE_THUMBNAILS if the user has asked that thumbnails be
+        # Set WANTS_UPDATED_THUMBNAILS if the user has asked that thumbnails be
         # updated on every connect
         self.WANTS_UPDATED_THUMBNAILS = self.settings().extra_customization[2]
 
