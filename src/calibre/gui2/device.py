@@ -871,6 +871,16 @@ class DeviceMixin(object): # {{{
             self.send_by_mail(to, fmts, delete)
 
     def cover_to_thumbnail(self, data):
+        if self.device_manager.device and \
+                hasattr(self.device_manager.device, 'THUMBNAIL_WIDTH'):
+            try:
+                return thumbnail(data,
+                                 self.device_manager.device.THUMBNAIL_WIDTH,
+                                 self.device_manager.device.THUMBNAIL_HEIGHT,
+                                 preserve_aspect_ratio=False)
+            except:
+                pass
+            return
         ht = self.device_manager.device.THUMBNAIL_HEIGHT \
                 if self.device_manager else DevicePlugin.THUMBNAIL_HEIGHT
         try:
@@ -1272,6 +1282,8 @@ class DeviceMixin(object): # {{{
             x = x.lower() if x else ''
             return string_pat.sub('', x)
 
+        update_metadata = prefs['manage_device_metadata'] == 'on_connect'
+
         # Force a reset if the caches are not initialized
         if reset or not hasattr(self, 'db_book_title_cache'):
             # Build a cache (map) of the library, so the search isn't On**2
@@ -1284,8 +1296,13 @@ class DeviceMixin(object): # {{{
             except:
                 return False
 
+            get_covers = False
+            if update_metadata and self.device_manager.is_device_connected:
+                if self.device_manager.device.WANTS_UPDATED_THUMBNAILS:
+                    get_covers = True
+
             for id in db.data.iterallids():
-                mi = db.get_metadata(id, index_is_id=True)
+                mi = db.get_metadata(id, index_is_id=True, get_cover=get_covers)
                 title = clean_string(mi.title)
                 if title not in db_book_title_cache:
                     db_book_title_cache[title] = \
@@ -1311,7 +1328,6 @@ class DeviceMixin(object): # {{{
         # the application_id to the db_id of the matching book. This value
         # will be used by books_on_device to indicate matches.
 
-        update_metadata = prefs['manage_device_metadata'] == 'on_connect'
         for booklist in booklists:
             for book in booklist:
                 book.in_library = None
@@ -1382,6 +1398,12 @@ class DeviceMixin(object): # {{{
 
         if update_metadata:
             if self.device_manager.is_device_connected:
+                if self.device_manager.device.WANTS_UPDATED_THUMBNAILS:
+                    for blist in booklists:
+                        for book in blist:
+                            if book.cover and os.access(book.cover, os.R_OK):
+                                book.thumbnail = \
+                                    self.cover_to_thumbnail(open(book.cover, 'rb').read())
                 plugboards = self.library_view.model().db.prefs.get('plugboards', {})
                 self.device_manager.sync_booklists(
                                     Dispatcher(self.metadata_synced), booklists,
