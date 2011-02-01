@@ -45,8 +45,7 @@ For full documentation of the conversion system see
 HEURISTIC_OPTIONS = ['markup_chapter_headings',
                       'italicize_common_cases', 'fix_indents',
                       'html_unwrap_factor', 'unwrap_lines',
-                      'delete_blank_paragraphs',
-                      'format_scene_breaks', 'replace_soft_scene_breaks',
+                      'delete_blank_paragraphs', 'format_scene_breaks',
                       'dehyphenate', 'renumber_headings']
 
 def print_help(parser, log):
@@ -144,7 +143,7 @@ def add_pipeline_options(parser, plumber):
                      ' patterns. Disabled by default. Use %s to enable. '
                      ' Individual actions can be disabled with the %s options.')
                   % ('--enable-heuristics', '--disable-*'),
-                  ['enable_heuristics'] + HEURISTIC_OPTIONS
+                  ['enable_heuristics',  'replace_scene_breaks'] + HEURISTIC_OPTIONS
                   ),
 
               'SEARCH AND REPLACE' : (

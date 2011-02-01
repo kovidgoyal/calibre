@@ -23,7 +23,7 @@ class HeuristicsWidget(Widget, Ui_Form):
                  'italicize_common_cases', 'fix_indents',
                  'html_unwrap_factor', 'unwrap_lines',
                  'delete_blank_paragraphs',
-                 'format_scene_breaks', 'replace_soft_scene_breaks',
+                 'format_scene_breaks', 'replace_scene_breaks',
                  'dehyphenate', 'renumber_headings']
                 )
         self.db, self.book_id = db, book_id
@@ -40,16 +40,16 @@ class HeuristicsWidget(Widget, Ui_Form):
     def restore_defaults(self, get_option):
         Widget.restore_defaults(self, get_option)
         
-        rssb_hist = gprefs['replace_soft_scene_breaks_history']
+        rssb_hist = gprefs['replace_scene_breaks_history']
         for x in self.rssb_defaults:
             if x in rssb_hist:
                 del rssb_hist[rssb_hist.index(x)]
-        gprefs['replace_soft_scene_breaks_history'] = self.rssb_defaults + gprefs['replace_soft_scene_breaks_history']
+        gprefs['replace_scene_breaks_history'] = self.rssb_defaults + gprefs['replace_scene_breaks_history']
 
     def commit_options(self, save_defaults=False):
-        Widget.commit_options(self, save_defaults)
-        
         self.save_histories()
+        
+        return Widget.commit_options(self, save_defaults)
 
     def break_cycles(self):
         Widget.break_cycles(self)
@@ -64,30 +64,30 @@ class HeuristicsWidget(Widget, Ui_Form):
         if val is None and g is self.opt_html_unwrap_factor:
             g.setValue(0.0)
             return True
-        if not val and g is self.opt_replace_soft_scene_breaks:
+        if not val and g is self.opt_replace_scene_breaks:
             g.lineEdit().setText('')
             return True
 
     def load_histories(self):
-        val = unicode(self.opt_replace_soft_scene_breaks.currentText())
-        rssb_hist = gprefs.get('replace_soft_scene_breaks_history', self.rssb_defaults)
+        val = unicode(self.opt_replace_scene_breaks.currentText())
+        rssb_hist = gprefs.get('replace_scene_breaks_history', self.rssb_defaults)
         if val in rssb_hist:
             del rssb_hist[rssb_hist.index(val)]
         rssb_hist.insert(0, val)
         for v in rssb_hist:
             # Ensure we don't have duplicate items.
-            if self.opt_replace_soft_scene_breaks.findText(v) == -1:
-                self.opt_replace_soft_scene_breaks.addItem(v)
-        self.opt_replace_soft_scene_breaks.setCurrentIndex(0)
+            if self.opt_replace_scene_breaks.findText(v) == -1:
+                self.opt_replace_scene_breaks.addItem(v)
+        self.opt_replace_scene_breaks.setCurrentIndex(0)
 
     def save_histories(self):
         rssb_history = []
-        history_pats = [unicode(self.opt_replace_soft_scene_breaks.lineEdit().text())] + [unicode(self.opt_replace_soft_scene_breaks.itemText(i)) for i in xrange(self.opt_replace_soft_scene_breaks.count())]
+        history_pats = [unicode(self.opt_replace_scene_breaks.lineEdit().text())] + [unicode(self.opt_replace_scene_breaks.itemText(i)) for i in xrange(self.opt_replace_scene_breaks.count())]
         for p in history_pats[:10]:
             # Ensure we don't have duplicate items.
             if p not in rssb_history:
                 rssb_history.append(p)
-        gprefs['replace_soft_scene_breaks_history'] = rssb_history
+        gprefs['replace_scene_breaks_history'] = rssb_history
 
     def enable_heuristics(self, state):
         state = state == Qt.Checked

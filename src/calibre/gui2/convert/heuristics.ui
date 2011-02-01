@@ -169,7 +169,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QComboBox" name="opt_replace_soft_scene_breaks">
+         <widget class="QComboBox" name="opt_replace_scene_breaks">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
             <horstretch>0</horstretch>

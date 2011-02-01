@@ -531,9 +531,9 @@ OptionRecommendation(name='format_scene_breaks',
            'Replace soft scene breaks that use multiple blank lines with'
            'horizontal rules.')),
            
-OptionRecommendation(name='replace_soft_scene_breaks',
+OptionRecommendation(name='replace_scene_breaks',
     recommended_value='', level=OptionRecommendation.LOW,
-    help=_('Replace soft scene breaks with the specified text.')),
+    help=_('Replace scene breaks with the specified text.')),
 
 OptionRecommendation(name='dehyphenate',
     recommended_value=True, level=OptionRecommendation.LOW,
