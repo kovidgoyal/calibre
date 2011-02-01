@@ -258,7 +258,6 @@ class Config(ResizableDialog, Ui_Dialog):
             if not w.pre_commit_check():
                 return
             x = w.commit(save_defaults=False)
-            print x
             recs.update(x)
         self.opf_file, self.cover_file = self.mw.opf_file, self.mw.cover_file
         self._recommendations = recs
