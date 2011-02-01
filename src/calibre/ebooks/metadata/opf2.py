@@ -780,22 +780,30 @@ class OPF(object): # {{{
     def title_sort(self):
 
         def fget(self):
-            matches = self.title_path(self.metadata)
+            matches = self.root.xpath('//*[name() = "meta" and starts-with(@name,'
+                                      '"calibre:title_sort") and @content]')
             if matches:
-                for match in matches:
-                    ans = match.get('{%s}file-as'%self.NAMESPACES['opf'], None)
-                    if not ans:
-                        ans = match.get('file-as', None)
-                    if ans:
-                        return ans
+                for elem in matches:
+                    return self.get_text(elem)
+            return None
 
         def fset(self, val):
+            print 'here'
+            matches = self.root.xpath('//*[name() = "meta" and starts-with(@name,'
+                                      '"calibre:title_sort") and @content]')
+            if matches:
+                for elem in matches:
+                    elem.getparent().remove(elem)
             matches = self.title_path(self.metadata)
             if matches:
-                for key in matches[0].attrib:
-                    if key.endswith('file-as'):
-                        matches[0].attrib.pop(key)
-                matches[0].set('{%s}file-as'%self.NAMESPACES['opf'], unicode(val))
+                for elem in matches:
+                    parent = elem.getparent()
+                    attrib = {}
+                    attrib['name'] = 'calibre:title_sort'
+                    attrib['content'] = val
+                    e = elem.makeelement('meta', attrib=attrib)
+                    e.tail = '\n'+(' '*8)
+                    parent.append(elem)
 
         return property(fget=fget, fset=fset)
 
