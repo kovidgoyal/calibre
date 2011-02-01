@@ -451,21 +451,21 @@ class HeuristicProcessor(object):
             top_margin = ''
             bottom_margin = ''
             if initblanks is not None:
-                top_margin = 'margin=top:'+str(len(self.single_blank.findall(initblanks)))+'em;'
+                top_margin = 'margin-top:'+str(len(self.single_blank.findall(initblanks)))+'em;'
             if endblanks is not None:
-                bottom_margin = 'margin=top:'+str(len(self.single_blank.findall(initblanks)))+'em;'
+                bottom_margin = 'margin-bottom:'+str(len(self.single_blank.findall(initblanks)))+'em;'
 
             if initblanks == None and endblanks == None:
                 return heading
             else:
-                heading = re.sub('(?i)<h(?P<hnum>\d+)[^>]*>', '<h'+'\g<hnum>'+' style="'+top_margin+bottom_margin+'">', heading)
+                heading = re.sub('(?i)<h(?P<hnum>\d+)[^>]*>', '\n\n<h'+'\g<hnum>'+' style="'+top_margin+bottom_margin+'">', heading)
             return heading
 
         html = blanks_around_headings.sub(merge_header_whitespace, html)
 
         def markup_whitespaces(match):
             blanks = match.group(0)
-            blanks = self.blankreg.sub('\n<p class="whitespace" style="text-align:center; margin-top:.5em"> </p>', blanks)
+            blanks = self.blankreg.sub('\n<p class="whitespace" style="text-align:center; margin-top:0em; margin-bottom:0em"> </p>', blanks)
             return blanks
 
         html = blanks_n_nopunct.sub(markup_whitespaces, html)
