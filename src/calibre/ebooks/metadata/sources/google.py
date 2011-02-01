@@ -65,7 +65,7 @@ def to_metadata(browser, log, entry_):
 
     mi = Metadata(title_, authors)
     try:
-        raw = browser.open(id_url).read()
+        raw = browser.open_novisit(id_url).read()
         feed = etree.fromstring(raw)
         extra = entry(feed)[0]
     except:
@@ -129,7 +129,7 @@ class Worker(Thread):
         for i in self.entries:
             try:
                 ans = to_metadata(self.browser, self.log, i)
-                if ans is not None:
+                if isinstance(ans, Metadata):
                     self.result_queue.put(ans)
             except:
                 self.log.exception(

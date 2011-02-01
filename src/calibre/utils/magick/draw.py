@@ -83,7 +83,6 @@ def thumbnail(data, width=120, height=120, bgcolor='#ffffff', fmt='jpg',
         nheight = height
     else:
         scaled, nwidth, nheight = fit_image(owidth, oheight, width, height)
-    print 'in thumbnail', scaled, nwidth, nheight
     if scaled:
         img.size = (nwidth, nheight)
     canvas = create_canvas(img.size[0], img.size[1], bgcolor)
