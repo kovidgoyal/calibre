@@ -780,15 +780,24 @@ class OPF(object): # {{{
     def title_sort(self):
 
         def fget(self):
+            #first try the title_sort meta tag
             matches = self.root.xpath('//*[name() = "meta" and starts-with(@name,'
                                       '"calibre:title_sort") and @content]')
             if matches:
                 for elem in matches:
                     return self.get_text(elem)
+            # fallback to file-as
+            matches = self.title_path(self.metadata)
+            if matches:
+                for match in matches:
+                    ans = match.get('{%s}file-as'%self.NAMESPACES['opf'], None)
+                    if not ans:
+                        ans = match.get('file-as', None)
+                    if ans:
+                        return ans
             return None
 
         def fset(self, val):
-            print 'here'
             matches = self.root.xpath('//*[name() = "meta" and starts-with(@name,'
                                       '"calibre:title_sort") and @content]')
             if matches:
