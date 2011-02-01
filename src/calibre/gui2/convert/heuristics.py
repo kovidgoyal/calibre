@@ -27,7 +27,7 @@ class HeuristicsWidget(Widget, Ui_Form):
                  'dehyphenate', 'renumber_headings']
                 )
         self.db, self.book_id = db, book_id
-        self.rssb_defaults = ['', '<hr />', '* * *']
+        self.rssb_defaults = [u'', u'<hr />', u'* * *', u'• • •', u'✦ ✦ ✦', u'✮ ✮ ✮', 'u☆ ☆ ☆', u'❂ ❂ ❂', u'✣ ✣ ✣', u'❖ ❖ ❖', u'☼ ☼ ☼', u'✠ ✠ ✠']
         self.initialize_options(get_option, get_help, db, book_id)
 
         self.load_histories()
@@ -40,11 +40,13 @@ class HeuristicsWidget(Widget, Ui_Form):
     def restore_defaults(self, get_option):
         Widget.restore_defaults(self, get_option)
         
+        self.save_histories()
         rssb_hist = gprefs['replace_scene_breaks_history']
         for x in self.rssb_defaults:
             if x in rssb_hist:
                 del rssb_hist[rssb_hist.index(x)]
         gprefs['replace_scene_breaks_history'] = self.rssb_defaults + gprefs['replace_scene_breaks_history']
+        self.load_histories()
 
     def commit_options(self, save_defaults=False):
         self.save_histories()
@@ -69,6 +71,9 @@ class HeuristicsWidget(Widget, Ui_Form):
             return True
 
     def load_histories(self):
+        self.opt_replace_scene_breaks.clear()
+        self.opt_replace_scene_breaks.lineEdit().setText('')
+        
         val = unicode(self.opt_replace_scene_breaks.currentText())
         rssb_hist = gprefs.get('replace_scene_breaks_history', self.rssb_defaults)
         if val in rssb_hist:
