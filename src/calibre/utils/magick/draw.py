@@ -72,11 +72,18 @@ def save_cover_data_to(data, path, bgcolor='#ffffff', resize_to=None,
                 f.write(data)
     return ret
 
-def thumbnail(data, width=120, height=120, bgcolor='#ffffff', fmt='jpg'):
+def thumbnail(data, width=120, height=120, bgcolor='#ffffff', fmt='jpg',
+              preserve_aspect_ratio=True):
     img = Image()
     img.load(data)
     owidth, oheight = img.size
-    scaled, nwidth, nheight = fit_image(owidth, oheight, width, height)
+    if not preserve_aspect_ratio:
+        scaled = owidth > width or oheight > height
+        nwidth = width
+        nheight = height
+    else:
+        scaled, nwidth, nheight = fit_image(owidth, oheight, width, height)
+    print 'in thumbnail', scaled, nwidth, nheight
     if scaled:
         img.size = (nwidth, nheight)
     canvas = create_canvas(img.size[0], img.size[1], bgcolor)
