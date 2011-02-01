@@ -841,7 +841,7 @@ class DeviceMixin(object): # {{{
                     formats.append((f, _('%i of %i Books') % (format_count[f],
                         len(rows)), True if f in aval_out_formats else False))
                 elif f in aval_out_formats:
-                    formats.append((f, _('0 of %i Books') % len(rows)), True)
+                    formats.append((f, _('0 of %i Books') % len(rows), True))
             d = ChooseFormatDeviceDialog(self, _('Choose format to send to device'), formats)
             if d.exec_() != QDialog.Accepted:
                 return
