@@ -14,7 +14,8 @@ from setup import Command, modules, basenames, functions, __version__, \
 
 SITE_PACKAGES = ['IPython', 'PIL', 'dateutil', 'dns', 'PyQt4', 'mechanize',
         'sip.so', 'BeautifulSoup.py', 'cssutils', 'encutils', 'lxml',
-        'sipconfig.py', 'xdg']
+        'sipconfig.py', 'xdg', 'dbus', '_dbus_bindings.so', 'dbus_bindings.py',
+        '_dbus_glib_bindings.so']
 
 QTDIR          = '/usr/lib/qt4'
 QTDLLS         = ('QtCore', 'QtGui', 'QtNetwork', 'QtSvg', 'QtXml', 'QtWebKit', 'QtDBus')
@@ -49,6 +50,10 @@ binary_includes = [
                 '/lib/libreadline.so.6',
                 '/usr/lib/libchm.so.0',
                 '/usr/lib/liblcms2.so.2',
+                '/usr/lib/libicudata.so.46',
+                '/usr/lib/libicui18n.so.46',
+                '/usr/lib/libicuuc.so.46',
+                '/usr/lib/libicuio.so.46',
                 ]
 binary_includes += [os.path.join(QTDIR, 'lib%s.so.4'%x) for x in QTDLLS]
 
@@ -313,7 +318,11 @@ class LinuxFreeze(Command):
             import codecs
 
             def set_default_encoding():
-                locale.setlocale(locale.LC_ALL, '')
+                try:
+                    locale.setlocale(locale.LC_ALL, '')
+                except:
+                    print 'WARNING: Failed to set default libc locale, using en_US.UTF-8'
+                    locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
                 enc = locale.getdefaultlocale()[1]
                 if not enc:
                     enc = locale.nl_langinfo(locale.CODESET)
@@ -340,6 +349,8 @@ class LinuxFreeze(Command):
                 __builtin__.help = _Helper()
 
             def set_qt_plugin_path():
+                import uuid
+                uuid.uuid4() # Workaround for libuuid/PyQt conflict
                 from PyQt4.Qt import QCoreApplication
                 paths = list(map(unicode, QCoreApplication.libraryPaths()))
                 paths.insert(0, sys.frozen_path + '/lib/qt_plugins')
@@ -349,6 +360,9 @@ class LinuxFreeze(Command):
             def main():
                 try:
                     sys.argv[0] = sys.calibre_basename
+                    dfv = os.environ.get('CALIBRE_DEVELOP_FROM', None)
+                    if dfv and os.path.exists(dfv):
+                        sys.path.insert(0, os.path.abspath(dfv))
                     set_default_encoding()
                     set_helper()
                     set_qt_plugin_path()

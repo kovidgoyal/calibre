@@ -8,16 +8,18 @@ __docformat__ = 'restructuredtext en'
 import os
 from functools import partial
 
-from PyQt4.Qt import QInputDialog, QPixmap, QMenu
+from PyQt4.Qt import QPixmap, QMenu
 
 
 from calibre.gui2 import error_dialog, choose_files, \
     choose_dir, warning_dialog, info_dialog
+from calibre.gui2.dialogs.add_empty_book import AddEmptyBookDialog
 from calibre.gui2.widgets import IMAGE_EXTENSIONS
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.utils.filenames import ascii_filename
 from calibre.constants import preferred_encoding, filesystem_encoding
 from calibre.gui2.actions import InterfaceAction
+from calibre.gui2 import config
 
 class AddAction(InterfaceAction):
 
@@ -41,7 +43,7 @@ class AddAction(InterfaceAction):
             'ebook file is a different book)'), self.add_recursive_multiple)
         self.add_menu.addSeparator()
         self.add_menu.addAction(_('Add Empty book. (Book entry with no '
-            'formats)'), self.add_empty)
+            'formats)'), self.add_empty, _('Shift+Ctrl+E'))
         self.add_menu.addAction(_('Add from ISBN'), self.add_from_isbn)
         self.qaction.setMenu(self.add_menu)
         self.qaction.triggered.connect(self.add_books)
@@ -60,6 +62,7 @@ class AddAction(InterfaceAction):
         self._adder = Adder(self.gui,
                 self.gui.library_view.model().db,
                 self.Dispatcher(self._files_added), spare_server=self.gui.spare_server)
+        self.gui.tags_view.disable_recounting = True
         self._adder.add_recursive(root, single)
 
     def add_recursive_single(self, *args):
@@ -81,27 +84,47 @@ class AddAction(InterfaceAction):
         Add an empty book item to the library. This does not import any formats
         from a book file.
         '''
-        num, ok = QInputDialog.getInt(self.gui, _('How many empty books?'),
-                _('How many empty books should be added?'), 1, 1, 100)
-        if ok:
+        author = None
+        index = self.gui.library_view.currentIndex()
+        if index.isValid():
+            raw = index.model().db.authors(index.row())
+            if raw:
+                authors = [a.strip().replace('|', ',') for a in raw.split(',')]
+                if authors:
+                    author = authors[0]
+        dlg = AddEmptyBookDialog(self.gui, self.gui.library_view.model().db, author)
+        if dlg.exec_() == dlg.Accepted:
+            num = dlg.qty_to_add
             from calibre.ebooks.metadata import MetaInformation
             for x in xrange(num):
-                self.gui.library_view.model().db.import_book(MetaInformation(None), [])
+                mi = MetaInformation(_('Unknown'), dlg.selected_authors)
+                self.gui.library_view.model().db.import_book(mi, [])
             self.gui.library_view.model().books_added(num)
+            if hasattr(self.gui, 'db_images'):
+                self.gui.db_images.reset()
+            self.gui.tags_view.recount()
 
-    def add_isbns(self, books):
+    def add_isbns(self, books, add_tags=[]):
         from calibre.ebooks.metadata import MetaInformation
         ids = set([])
+        db = self.gui.library_view.model().db
+
         for x in books:
             mi = MetaInformation(None)
             mi.isbn = x['isbn']
-            db = self.gui.library_view.model().db
             if x['path'] is not None:
                 ids.add(db.import_book(mi, [x['path']]))
             else:
                 ids.add(db.import_book(mi, []))
         self.gui.library_view.model().books_added(len(books))
-        self.gui.iactions['Edit Metadata'].do_download_metadata(ids)
+        orig = config['overwrite_author_title_metadata']
+        config['overwrite_author_title_metadata'] = True
+        try:
+            self.gui.iactions['Edit Metadata'].do_download_metadata(ids)
+        finally:
+            config['overwrite_author_title_metadata'] = orig
+        if add_tags and ids:
+            db.bulk_modify_tags(ids, add=add_tags)
 
 
     def files_dropped(self, paths):
@@ -113,6 +136,7 @@ class AddAction(InterfaceAction):
         if self.gui.current_view() is not self.gui.library_view:
             return
         db = self.gui.library_view.model().db
+        cover_changed = False
         current_idx = self.gui.library_view.currentIndex()
         if not current_idx.isValid(): return
         cid = db.id(current_idx.row())
@@ -126,12 +150,16 @@ class AddAction(InterfaceAction):
                 if not pmap.isNull():
                     accept = True
                     db.set_cover(cid, pmap)
+                    cover_changed = True
             elif ext in BOOK_EXTENSIONS:
                 db.add_format_with_hooks(cid, ext, path, index_is_id=True)
                 accept = True
         if accept:
             event.accept()
             self.gui.library_view.model().current_changed(current_idx, current_idx)
+        if cover_changed:
+            if self.gui.cover_flow:
+                self.gui.cover_flow.dataChanged()
 
     def __add_filesystem_book(self, paths, allow_device=True):
         if isinstance(paths, basestring):
@@ -154,7 +182,7 @@ class AddAction(InterfaceAction):
         from calibre.gui2.dialogs.add_from_isbn import AddFromISBN
         d = AddFromISBN(self.gui)
         if d.exec_() == d.Accepted:
-            self.add_isbns(d.books)
+            self.add_isbns(d.books, add_tags=d.set_tags)
 
     def add_books(self, *args):
         '''
@@ -195,9 +223,11 @@ class AddAction(InterfaceAction):
         self._adder = Adder(self.gui,
                 None if to_device else self.gui.library_view.model().db,
                 self.Dispatcher(self.__adder_func), spare_server=self.gui.spare_server)
+        self.gui.tags_view.disable_recounting = True
         self._adder.add(paths)
 
     def _files_added(self, paths=[], names=[], infos=[], on_card=None):
+        self.gui.tags_view.disable_recounting = False
         if paths:
             self.gui.upload_books(paths,
                                 list(map(ascii_filename, names)),
@@ -208,6 +238,7 @@ class AddAction(InterfaceAction):
             self.gui.library_view.model().books_added(self._adder.number_of_books_added)
             if hasattr(self.gui, 'db_images'):
                 self.gui.db_images.reset()
+            self.gui.tags_view.recount()
         if getattr(self._adder, 'merged_books', False):
             books = u'\n'.join([x if isinstance(x, unicode) else
                     x.decode(preferred_encoding, 'replace') for x in
@@ -228,7 +259,9 @@ class AddAction(InterfaceAction):
 
         if hasattr(self._adder, 'cleanup'):
             self._adder.cleanup()
-        self._adder = None
+            self._adder.setParent(None)
+            del self._adder
+            self._adder = None
 
     def _add_from_device_adder(self, paths=[], names=[], infos=[],
                                on_card=None, model=None):

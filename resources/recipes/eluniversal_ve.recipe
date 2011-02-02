@@ -18,7 +18,7 @@ class ElUniversal(BasicNewsRecipe):
     encoding               = 'cp1252'
     publisher              = 'El Universal'
     category               = 'news, Caracas, Venezuela, world'
-    language               = 'es'
+    language               = 'es_VE'
     cover_url              = strftime('http://static.eluniversal.com/%Y/%m/%d/portada.jpg')
 
     conversion_options = {

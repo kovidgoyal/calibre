@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>422</width>
-    <height>64</height>
+    <width>430</width>
+    <height>74</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -53,7 +53,7 @@
    <item row="0" column="1">
     <widget class="QToolButton" name="button">
      <property name="toolTip">
-      <string>Use a wizard to help construct the XPath expression</string>
+      <string>Use a wizard to help construct the Regular expression</string>
      </property>
      <property name="text">
       <string>...</string>
@@ -69,19 +69,6 @@
       </size>
      </property>
     </widget>
-   </item>
-   <item row="0" column="2">
-    <spacer name="horizontalSpacer">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>20</height>
-      </size>
-     </property>
-    </spacer>
    </item>
   </layout>
  </widget>

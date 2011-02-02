@@ -4,7 +4,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import sys, os, time, socket, traceback
 from functools import partial
 
-from PyQt4.Qt import QCoreApplication, QIcon, QMessageBox, QObject, QTimer, \
+from PyQt4.Qt import QCoreApplication, QIcon, QObject, QTimer, \
         QThread, pyqtSignal, Qt, QProgressDialog, QString, QPixmap, \
         QSplashScreen, QApplication
 
@@ -34,6 +34,9 @@ path_to_ebook to the database.
                       help=_('Log debugging information to console'))
     parser.add_option('--no-update-check', default=False, action='store_true',
             help=_('Do not check for updates'))
+    parser.add_option('--ignore-plugins', default=False, action='store_true',
+            help=_('Ignore custom plugins, useful if you installed a plugin'
+                ' that is preventing calibre from starting'))
     return parser
 
 def init_qt(args):
@@ -135,9 +138,10 @@ class GuiRunner(QObject):
     '''Make sure an event loop is running before starting the main work of
     initialization'''
 
-    def __init__(self, opts, args, actions, listener, app):
+    def __init__(self, opts, args, actions, listener, app, gui_debug=None):
         self.startup_time = time.time()
         self.opts, self.args, self.listener, self.app = opts, args, listener, app
+        self.gui_debug = gui_debug
         self.actions = actions
         self.main = None
         QObject.__init__(self)
@@ -146,13 +150,13 @@ class GuiRunner(QObject):
         if DEBUG:
             prints('Starting up...')
 
-    def start_gui(self):
+    def start_gui(self, db):
         from calibre.gui2.ui import Main
-        main = Main(self.opts)
+        main = Main(self.opts, gui_debug=self.gui_debug)
         if self.splash_screen is not None:
             self.splash_screen.showMessage(_('Initializing user interface...'))
             self.splash_screen.finish(main)
-        main.initialize(self.library_path, self.db, self.listener, self.actions)
+        main.initialize(self.library_path, db, self.listener, self.actions)
         if DEBUG:
             prints('Started up in', time.time() - self.startup_time)
         add_filesystem_book = partial(main.iactions['Add Books'].add_filesystem_book, allow_device=False)
@@ -196,8 +200,7 @@ class GuiRunner(QObject):
                     det_msg=traceback.format_exc(), show=True)
                 self.initialization_failed()
 
-        self.db = db
-        self.start_gui()
+        self.start_gui(db)
 
     def initialize_db(self):
         db = None
@@ -249,41 +252,73 @@ class GuiRunner(QObject):
 
         self.initialize_db()
 
+def run_in_debug_mode(logpath=None):
+    e = sys.executable if getattr(sys, 'frozen', False) else sys.argv[0]
+    import tempfile, subprocess
+    fd, logpath = tempfile.mkstemp('.txt')
+    os.close(fd)
 
+    if hasattr(sys, 'frameworks_dir'):
+        base = os.path.dirname(sys.frameworks_dir)
+        if 'console.app' not in base:
+            base = os.path.join(base, 'console.app', 'Contents')
+        exe = os.path.basename(e)
+        exe = os.path.join(base, 'MacOS', exe+'-debug')
+    else:
+        base, ext = os.path.splitext(e)
+        exe = base + '-debug' + ext
+    print 'Starting debug executable:', exe
+    creationflags = 0
+    if iswindows:
+        import win32process
+        creationflags = win32process.CREATE_NO_WINDOW
+    subprocess.Popen([exe, '--gui-debug', logpath], stdout=open(logpath, 'w'),
+            stderr=subprocess.STDOUT, stdin=open(os.devnull, 'r'),
+            creationflags=creationflags)
 
-def run_gui(opts, args, actions, listener, app):
+def run_gui(opts, args, actions, listener, app, gui_debug=None):
     initialize_file_icon_provider()
     if not dynamic.get('welcome_wizard_was_run', False):
         from calibre.gui2.wizard import wizard
         wizard().exec_()
         dynamic.set('welcome_wizard_was_run', True)
-    runner = GuiRunner(opts, args, actions, listener, app)
+    runner = GuiRunner(opts, args, actions, listener, app, gui_debug=gui_debug)
     ret = app.exec_()
     if getattr(runner.main, 'run_wizard_b4_shutdown', False):
         from calibre.gui2.wizard import wizard
         wizard().exec_()
     if getattr(runner.main, 'restart_after_quit', False):
         e = sys.executable if getattr(sys, 'frozen', False) else sys.argv[0]
-        print 'Restarting with:', e, sys.argv
-        if hasattr(sys, 'frameworks_dir'):
-            app = os.path.dirname(os.path.dirname(sys.frameworks_dir))
-            import subprocess
-            subprocess.Popen('sleep 3s; open '+app, shell=True)
+        if getattr(runner.main, 'debug_on_restart', False):
+            run_in_debug_mode()
         else:
-            os.execvp(e, sys.argv)
+            print 'Restarting with:', e, sys.argv
+            if hasattr(sys, 'frameworks_dir'):
+                app = os.path.dirname(os.path.dirname(sys.frameworks_dir))
+                import subprocess
+                subprocess.Popen('sleep 3s; open '+app, shell=True)
+            else:
+                os.execvp(e, sys.argv)
     else:
         if iswindows:
             try:
                 runner.main.system_tray_icon.hide()
             except:
                 pass
+    if getattr(runner.main, 'gui_debug', None) is not None:
+        e = sys.executable if getattr(sys, 'frozen', False) else sys.argv[0]
+        import subprocess
+        creationflags = 0
+        if iswindows:
+            import win32process
+            creationflags = win32process.CREATE_NO_WINDOW
+        subprocess.Popen([e, '--show-gui-debug', runner.main.gui_debug],
+            creationflags=creationflags, stdout=open(os.devnull, 'w'),
+            stderr=subprocess.PIPE, stdin=open(os.devnull, 'r'))
     return ret
 
 def cant_start(msg=_('If you are sure it is not running')+', ',
         what=None):
-    d = QMessageBox(QMessageBox.Critical, _('Cannot Start ')+__appname__,
-        '<p>'+(_('%s is already running.')%__appname__)+'</p>',
-        QMessageBox.Ok)
     base = '<p>%s</p><p>%s %s'
     where = __appname__ + ' '+_('may be running in the system tray, in the')+' '
     if isosx:
@@ -296,8 +331,10 @@ def cant_start(msg=_('If you are sure it is not running')+', ',
         else:
             what = _('try deleting the file')+': '+ADDRESS
 
-    d.setInformativeText(base%(where, msg, what))
-    d.exec_()
+    info = base%(where, msg, what)
+    error_dialog(None, _('Cannot Start ')+__appname__,
+        '<p>'+(_('%s is already running.')%__appname__)+'</p>'+info, show=True)
+
     raise SystemExit(1)
 
 def communicate(args):
@@ -317,6 +354,11 @@ def communicate(args):
 
 
 def main(args=sys.argv):
+    gui_debug = None
+    if args[0] == '__CALIBRE_GUI_DEBUG__':
+        gui_debug = args[1]
+        args = ['calibre']
+
     app, opts, args, actions = init_qt(args)
     from calibre.utils.lock import singleinstance
     from multiprocessing.connection import Listener
@@ -333,9 +375,11 @@ def main(args=sys.argv):
             except socket.error:
                 cant_start()
             else:
-                return run_gui(opts, args, actions, listener, app)
+                return run_gui(opts, args, actions, listener, app,
+                        gui_debug=gui_debug)
         else:
-            return run_gui(opts, args, actions, listener, app)
+            return run_gui(opts, args, actions, listener, app,
+                    gui_debug=gui_debug)
     otherinstance = False
     try:
         listener = Listener(address=ADDRESS)
@@ -345,8 +389,7 @@ def main(args=sys.argv):
         # On windows only singleinstance can be trusted
         otherinstance = True if iswindows else False
     if not otherinstance:
-        sys.setcheckinterval(50) # Make GUI more responsive
-        return run_gui(opts, args, actions, listener, app)
+        return run_gui(opts, args, actions, listener, app, gui_debug=gui_debug)
 
     communicate(args)
 

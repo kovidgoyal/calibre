@@ -12,16 +12,23 @@ from calibre.customize.ui import plugin_for_catalog_format
 from calibre.utils.logging import Log
 
 def gui_convert(input, output, recommendations, notification=DummyReporter(),
-        abort_after_input_dump=False, log=None):
+        abort_after_input_dump=False, log=None, override_input_metadata=False):
     recommendations = list(recommendations)
     recommendations.append(('verbose', 2, OptionRecommendation.HIGH))
     if log is None:
         log = Log()
     plumber = Plumber(input, output, log, report_progress=notification,
-            abort_after_input_dump=abort_after_input_dump)
+            abort_after_input_dump=abort_after_input_dump,
+            override_input_metadata=override_input_metadata)
     plumber.merge_ui_recommendations(recommendations)
 
     plumber.run()
+
+def gui_convert_override(input, output, recommendations, notification=DummyReporter(),
+        abort_after_input_dump=False, log=None):
+    gui_convert(input, output, recommendations, notification=notification,
+            abort_after_input_dump=abort_after_input_dump, log=log,
+            override_input_metadata=True)
 
 def gui_catalog(fmt, title, dbspec, ids, out_file_name, sync, fmt_options, connected_device,
         notification=DummyReporter(), log=None):
@@ -30,7 +37,7 @@ def gui_catalog(fmt, title, dbspec, ids, out_file_name, sync, fmt_options, conne
     from calibre.library import db
     from calibre.utils.config import prefs
     prefs.refresh()
-    db = db()
+    db = db(read_only=True)
     db.catalog_plugin_on_device_temp_mapping = dbspec
 
     # Create a minimal OptionParser that we can append to

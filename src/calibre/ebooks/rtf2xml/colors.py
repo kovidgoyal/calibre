@@ -15,8 +15,10 @@
 #                                                                       #
 #                                                                       #
 #########################################################################
-import sys, os, tempfile,  re
+import sys, os, tempfile, re
+
 from calibre.ebooks.rtf2xml import copy
+
 class Colors:
     """
     Change lines with color info from color numbers to the actual color names.
@@ -40,8 +42,10 @@ class Colors:
         self.__file = in_file
         self.__copy = copy
         self.__bug_handler = bug_handler
+        self.__line = 0
         self.__write_to = tempfile.mktemp()
         self.__run_level = run_level
+
     def __initiate_values(self):
         """
         Initiate all values.
@@ -61,6 +65,7 @@ class Colors:
         self.__color_num = 1
         self.__line_color_exp = re.compile(r'bdr-color_:(\d+)')
         # cw<bd<bor-par-to<nu<bdr-hair__|bdr-li-wid:0.50|bdr-sp-wid:1.00|bdr-color_:2
+
     def __before_color_func(self, line):
         """
         Requires:
@@ -76,6 +81,7 @@ class Colors:
         if self.__token_info == 'mi<mk<clrtbl-beg':
             self.__state = 'in_color_table'
         self.__write_obj.write(line)
+
     def __default_color_func(self, line):
         """
         Requires:
@@ -87,6 +93,7 @@ class Colors:
             """
         hex_num = line[-3:-1]
         self.__color_string += hex_num
+
     def __blue_func(self, line):
         """
         Requires:
@@ -109,6 +116,7 @@ class Colors:
         )
         self.__color_num += 1
         self.__color_string = '#'
+
     def __in_color_func(self, line):
         """
         Requires:
@@ -127,12 +135,13 @@ class Colors:
             self.__state = 'after_color_table'
         else:
             action = self.__state_dict.get(self.__token_info)
-            if action == None:
+            if action is None:
                 sys.stderr.write('in module colors.py\n'
                 'function is self.__in_color_func\n'
                 'no action for %s' % self.__token_info
                 )
             action(line)
+
     def __after_color_func(self, line):
         """
         Check the to see if it contains color info. If it does, extract the
@@ -180,6 +189,7 @@ class Colors:
         else:
             self.__write_obj.write(line)
         # cw<bd<bor-par-to<nu<bdr-hair__|bdr-li-wid:0.50|bdr-sp-wid:1.00|bdr-color_:2
+
     def __sub_from_line_color(self, match_obj):
         num = match_obj.group(1)
         try:
@@ -191,25 +201,27 @@ class Colors:
             else:
                 return 'bdr-color_:no-value'
         hex_num = self.__figure_num(num)
-        return_value = 'bdr-color_:%s' % hex_num
-        return return_value
+        return 'bdr-color_:%s' % hex_num
+
     def __figure_num(self, num):
         if num == 0:
             hex_num = 'false'
         else:
             hex_num = self.__color_dict.get(num)
-        if hex_num == None:
-            if self.__run_level > 3:
-                msg = 'no value in self.__color_dict for key %s\n' % num
-                raise self.__bug_hanlder, msg
-        if hex_num == None:
+        if hex_num is None:
             hex_num = '0'
+            if self.__run_level > 5:
+                msg = 'no value in self.__color_dict' \
+                'for key %s at line %d\n' % (num, self.__line)
+                raise self.__bug_handler, msg
         return hex_num
+
     def __do_nothing_func(self, line):
         """
         Bad RTF will have text in the color table
         """
         pass
+
     def convert_colors(self):
         """
         Requires:
@@ -226,20 +238,16 @@ class Colors:
             info, and substitute the number with the hex number.
         """
         self.__initiate_values()
-        read_obj = open(self.__file, 'r')
-        self.__write_obj = open(self.__write_to, 'w')
-        line_to_read = 1
-        while line_to_read:
-            line_to_read = read_obj.readline()
-            line = line_to_read
-            self.__token_info = line[:16]
-            action = self.__state_dict.get(self.__state)
-            if action == None:
-                sys.stderr.write('no no matching state in module fonts.py\n')
-                sys.stderr.write(self.__state + '\n')
-            action(line)
-        read_obj.close()
-        self.__write_obj.close()
+        with open(self.__file, 'r') as read_obj:
+            with open(self.__write_to, 'w') as self.__write_obj:
+                for line in read_obj:
+                    self.__line+=1
+                    self.__token_info = line[:16]
+                    action = self.__state_dict.get(self.__state)
+                    if action is None:
+                        sys.stderr.write('no matching state in module fonts.py\n')
+                        sys.stderr.write(self.__state + '\n')
+                    action(line)
         copy_obj = copy.Copy(bug_handler = self.__bug_handler)
         if self.__copy:
             copy_obj.copy_file(self.__write_to, "color.data")

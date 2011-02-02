@@ -6,6 +6,7 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from functools import partial
+from zipfile import ZipFile
 
 from PyQt4.Qt import QToolButton, QAction, QIcon, QObject
 
@@ -34,6 +35,11 @@ class InterfaceAction(QObject):
     :attr:`gui` member. You can access other plugins by name, for example::
 
         self.gui.iactions['Save To Disk']
+
+    To access the actual plugin, use the :attr:`interface_action_base_plugin`
+    attribute, this attribute only becomes available after the plugin has been
+    initialized. Useful if you want to use methods from the plugin class like
+    do_user_config().
 
     The QAction specified by :attr:`action_spec` is automatically create and
     made available as ``self.qaction``.
@@ -82,6 +88,7 @@ class InterfaceAction(QObject):
         self.setObjectName(self.name)
         self.gui = parent
         self.site_customization = site_customization
+        self.interface_action_base_plugin = None
 
     def do_genesis(self):
         self.Dispatcher = partial(Dispatcher, parent=self)
@@ -104,9 +111,40 @@ class InterfaceAction(QObject):
         action.setWhatsThis(text)
         action.setAutoRepeat(False)
         if shortcut:
-            action.setShortcut(shortcut)
+            if isinstance(shortcut, list):
+                action.setShortcuts(shortcut)
+            else:
+                action.setShortcut(shortcut)
         setattr(self, attr, action)
         return action
+
+    def load_resources(self, names):
+        '''
+        If this plugin comes in a ZIP file (user added plugin), this method
+        will allow you to load resources from the ZIP file.
+
+        For example to load an image::
+
+            pixmap = QPixmap()
+            pixmap.loadFromData(self.load_resources(['images/icon.png']).itervalues().next())
+            icon = QIcon(pixmap)
+
+        :param names: List of paths to resources in the zip file using / as separator
+
+        :return: A dictionary of the form ``{name : file_contents}``. Any names
+                 that were not found in the zip file will not be present in the
+                 dictionary.
+
+        '''
+        if self.plugin_path is None:
+            raise ValueError('This plugin was not loaded from a ZIP file')
+        ans = {}
+        with ZipFile(self.plugin_path, 'r') as zf:
+            for candidate in zf.namelist():
+                if candidate in names:
+                    ans[candidate] = zf.read(candidate)
+        return ans
+
 
     def genesis(self):
         '''
@@ -132,6 +170,14 @@ class InterfaceAction(QObject):
 
         :param db: The LibraryDatabase corresponding to the current library.
 
+        '''
+        pass
+
+    def gui_layout_complete(self):
+        '''
+        Called once per action when the layout of the main GUI is
+        completed. If your action needs to make changes to the layout, they
+        should be done here, rather than in :meth:`initialization_complete`.
         '''
         pass
 

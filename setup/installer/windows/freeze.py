@@ -18,7 +18,7 @@ QT_DLLS = ['Core', 'Gui', 'Network', 'Svg', 'WebKit', 'Xml', 'XmlPatterns']
 LIBUSB_DIR       = 'C:\\libusb'
 LIBUNRAR         = 'C:\\Program Files\\UnrarDLL\\unrar.dll'
 SW               = r'C:\cygwin\home\kovid\sw'
-IMAGEMAGICK      = os.path.join(SW, 'build', 'ImageMagick-6.5.6',
+IMAGEMAGICK      = os.path.join(SW, 'build', 'ImageMagick-6.6.6',
         'VisualMagick', 'bin')
 
 VERSION = re.sub('[a-z]\d+', '', __version__)
@@ -199,7 +199,7 @@ class Win32Freeze(Command, WixMixIn):
         for pat in ('*.dll',):
             for f in glob.glob(os.path.join(bindir, pat)):
                 ok = True
-                for ex in ('expatw',):
+                for ex in ('expatw', 'testplug'):
                     if ex in f.lower():
                         ok = False
                 if not ok: continue

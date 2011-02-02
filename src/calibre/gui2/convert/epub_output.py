@@ -21,7 +21,7 @@ class PluginWidget(Widget, Ui_Form):
         Widget.__init__(self, parent,
                 ['dont_split_on_page_breaks', 'flow_size',
                     'no_default_epub_cover', 'no_svg_cover',
-                    'preserve_cover_aspect_ratio',]
+                    'preserve_cover_aspect_ratio', 'epub_flatten']
                 )
         for i in range(2):
             self.opt_no_svg_cover.toggle()

@@ -93,7 +93,7 @@ class Jacket(object):
 
 # Render Jacket {{{
 
-def get_rating(rating, rchar):
+def get_rating(rating, rchar, e_rchar):
     ans = ''
     try:
         num = float(rating)/2
@@ -104,12 +104,12 @@ def get_rating(rating, rchar):
     if num < 1:
         return ans
 
-    ans = rchar * int(num)
+    ans = ("%s%s") % (rchar * int(num), e_rchar * (5 - int(num)))
     return ans
 
-
 def render_jacket(mi, output_profile,
-        alt_title=_('Unknown'), alt_tags=[], alt_comments=''):
+        alt_title=_('Unknown'), alt_tags=[], alt_comments='',
+        alt_publisher=('Unknown publisher')):
     css = P('jacket/stylesheet.css', data=True).decode('utf-8')
 
     try:
@@ -125,11 +125,16 @@ def render_jacket(mi, output_profile,
         series = ''
 
     try:
+        publisher = mi.publisher if mi.publisher else alt_publisher
+    except:
+        publisher = _('Unknown publisher')
+
+    try:
         pubdate = strftime(u'%Y', mi.pubdate.timetuple())
     except:
         pubdate = ''
 
-    rating = get_rating(mi.rating, output_profile.ratings_char)
+    rating = get_rating(mi.rating, output_profile.ratings_char, output_profile.empty_ratings_char)
 
     tags = mi.tags if mi.tags else alt_tags
     if tags:
@@ -154,6 +159,7 @@ def render_jacket(mi, output_profile,
                     css=css,
                     title=title,
                     author=author,
+                    publisher=publisher,
                     pubdate_label=_('Published'), pubdate=pubdate,
                     series_label=_('Series'), series=series,
                     rating_label=_('Rating'), rating=rating,
@@ -168,16 +174,16 @@ def render_jacket(mi, output_profile,
         # Post-process the generated html to strip out empty header items
         soup = BeautifulSoup(generated_html)
         if not series:
-            series_tag = soup.find('tr', attrs={'class':'cbj_series'})
+            series_tag = soup.find(attrs={'class':'cbj_series'})
             series_tag.extract()
         if not rating:
-            rating_tag = soup.find('tr', attrs={'class':'cbj_rating'})
+            rating_tag = soup.find(attrs={'class':'cbj_rating'})
             rating_tag.extract()
         if not tags:
-            tags_tag = soup.find('tr', attrs={'class':'cbj_tags'})
+            tags_tag = soup.find(attrs={'class':'cbj_tags'})
             tags_tag.extract()
         if not pubdate:
-            pubdate_tag = soup.find('tr', attrs={'class':'cbj_pubdate'})
+            pubdate_tag = soup.find(attrs={'class':'cbj_pubdate'})
             pubdate_tag.extract()
         if output_profile.short_name != 'kindle':
             hr_tag = soup.find('hr', attrs={'class':'cbj_kindle_banner_hr'})

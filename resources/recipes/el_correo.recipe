@@ -1,0 +1,122 @@
+#!/usr/bin/env  python
+__license__     = 'GPL v3'
+__copyright__   = '08 Januery 2011, desUBIKado'
+__author__      = 'desUBIKado'
+__description__ = 'Daily newspaper from Biscay'
+__version__     = 'v0.08'
+__date__        = '08, Januery 2011'
+'''
+[url]http://www.elcorreo.com/[/url]
+'''
+
+import time
+import re
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class heraldo(BasicNewsRecipe):
+    __author__            = 'desUBIKado'
+    description           = 'Daily newspaper from Biscay'
+    title                 = u'El Correo'
+    publisher             = 'Vocento'
+    category              = 'News, politics, culture, economy, general interest'
+    oldest_article        = 2
+    delay                 = 1
+    max_articles_per_feed = 100
+    no_stylesheets        = True
+    use_embedded_content  = False
+    language              = 'es'
+    timefmt               = '[%a, %d %b, %Y]'
+    encoding              = 'iso-8859-1'
+    remove_empty_feeds    = True
+    remove_javascript     = False
+
+    feeds              = [
+                           (u'Portada',       u'http://www.elcorreo.com/vizcaya/portada.xml'),
+                           (u'Local',         u'http://www.elcorreo.com/vizcaya/rss/feeds/vizcaya.xml'),
+               (u'Internacional', u'hhttp://www.elcorreo.com/vizcaya/rss/feeds/internacional.xml'),
+               (u'Econom\xeda',   u'http://www.elcorreo.com/vizcaya/rss/feeds/economia.xml'),
+                           (u'Pol\xedtica',   u'http://www.elcorreo.com/vizcaya/rss/feeds/politica.xml'),
+               (u'Opini\xf3n',    u'http://www.elcorreo.com/vizcaya/rss/feeds/opinion.xml'),
+               (u'Deportes',      u'http://www.elcorreo.com/vizcaya/rss/feeds/deportes.xml'),
+                           (u'Sociedad',      u'http://www.elcorreo.com/vizcaya/rss/feeds/sociedad.xml'),
+               (u'Cultura',       u'http://www.elcorreo.com/vizcaya/rss/feeds/cultura.xml'),
+               (u'Televisi\xf3n', u'http://www.elcorreo.com/vizcaya/rss/feeds/television.xml'),
+               (u'Gente',         u'http://www.elcorreo.com/vizcaya/rss/feeds/gente.xml')
+                         ]
+
+    keep_only_tags     = [
+                          dict(name='div', attrs={'class':['grouphead','date','art_head','story-texto','text','colC_articulo','contenido_comentarios']}),
+                          dict(name='div' , attrs={'id':['articulo','story-texto','story-entradilla']})
+                         ]
+
+    remove_tags        = [
+                          dict(name='div', attrs={'class':['art_barra','detalles-opinion','formdenunciar','modulo calculadoras','nubetags','pie']}),
+                          dict(name='div', attrs={'class':['mod_lomas','bloque_lomas','blm_header','link-app3','link-app4','botones_listado']}),
+                          dict(name='div', attrs={'class':['navegacion_galeria','modulocanalpromocion','separa','separacion','compartir','tags_relacionados']}),
+                          dict(name='div', attrs={'class':['moduloBuscadorDeportes','modulo-gente','moddestacadopeq','OpcArt','articulopiniones']}),
+                          dict(name='div', attrs={'class':['modulo-especial','publiEspecial']}),
+                          dict(name='div', attrs={'id':['articulopina']}),
+                          dict(name='br', attrs={'class':'clear'}),
+                          dict(name='form', attrs={'name':'frm_conversor2'})
+                         ]
+
+    remove_tags_before = dict(name='div' , attrs={'class':'articulo  '})
+    remove_tags_after  = dict(name='div' , attrs={'class':'comentarios'})
+
+    def get_cover_url(self):
+        cover = None
+        st = time.localtime()
+        year = str(st.tm_year)
+        month = "%.2d" % st.tm_mon
+        day = "%.2d" % st.tm_mday
+        #[url]http://img.kiosko.net/2011/01/02/es/elcorreo.750.jpg[/url]
+                #[url]http://info.elcorreo.com/pdf/06012011-viz.pdf[/url]
+        cover='http://info.elcorreo.com/pdf/'+ day + month + year +'-viz.pdf'
+
+        br = BasicNewsRecipe.get_browser()
+        try:
+            br.open(cover)
+        except:
+            self.log("\nPortada no disponible")
+            cover ='http://www.elcorreo.com/vizcaya/noticias/201002/02/Media/logo-elcorreo-nuevo.png'
+        return cover
+
+    extra_css = '''
+                    h1, .headline {font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:30px;}
+                    h2, .subhead {font-family:Arial,Helvetica,sans-serif; font-style:italic; font-weight:normal;font-size:18px;}
+                    h3, .overhead {font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:16px;}
+                    h4 {font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:16px;}
+                    h5 {font-family:Arial,Helvetica,sans-serif; font-weight:normal;font-size:16px;}
+                    h6 {font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:16px;}
+                    .date,.byline, .photo {font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:14px;}
+                    img{margin-bottom: 0.4em}
+                '''
+
+
+
+    preprocess_regexps = [
+
+ # To present the image of the embedded video
+                           (re.compile(r'var RUTA_IMAGEN', re.DOTALL|re.IGNORECASE), lambda match: '</script><img src'),
+                           (re.compile(r'.jpg";', re.DOTALL|re.IGNORECASE), lambda match: '.jpg">'),
+                           (re.compile(r'var SITIO = "elcorreo";', re.DOTALL|re.IGNORECASE), lambda match: '<SCRIPT TYPE="text/JavaScript"'),
+
+# To separate paragraphs with a blank line
+                           (re.compile(r'<div class="p"', re.DOTALL|re.IGNORECASE), lambda match: '<p></p><div class="p"'),
+
+# To put a blank line between the subtitle and the date and time of the news
+                           (re.compile(r'<div class="date">', re.DOTALL|re.IGNORECASE), lambda match: '<br><div class="date">'),
+
+# To put a blank line between the intro of the embedded videos and the previous text
+                           (re.compile(r'<div class="video"', re.DOTALL|re.IGNORECASE), lambda match: '<br><div class="video"'),
+
+# To view photos from the first when these are presented as a gallery
+                           (re.compile(r'src="/img/shim.gif"', re.DOTALL|re.IGNORECASE), lambda match: ''),
+                           (re.compile(r'rel=', re.DOTALL|re.IGNORECASE), lambda match: 'src='),
+
+# To remove the link of the title
+                           (re.compile(r'<h1 class="headline">\n<a href="', re.DOTALL|re.IGNORECASE), lambda match: '<h1 class="'),
+                           (re.compile(r'</a>\n</h1>', re.DOTALL|re.IGNORECASE), lambda match: '</h1>'),
+
+                         ]
+

@@ -9,10 +9,7 @@ __docformat__ = 'restructuredtext en'
 import re, itertools, time, traceback
 from itertools import repeat
 from datetime import timedelta
-from threading import Thread, RLock
-from Queue import Queue, Empty
-
-from PyQt4.Qt import QImage, Qt
+from threading import Thread
 
 from calibre.utils.config import tweaks
 from calibre.utils.date import parse_date, now, UNDEFINED_DATE
@@ -20,7 +17,7 @@ from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.utils.pyparsing import ParseException
 from calibre.ebooks.metadata import title_sort
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
-from calibre import fit_image, prints
+from calibre import prints
 
 class MetadataBackup(Thread): # {{{
     '''
@@ -40,41 +37,47 @@ class MetadataBackup(Thread): # {{{
         self.get_metadata_for_dump = FunctionDispatcher(db.get_metadata_for_dump)
         self.clear_dirtied = FunctionDispatcher(db.clear_dirtied)
         self.set_dirtied = FunctionDispatcher(db.dirtied)
-        self.in_limbo = None
 
     def stop(self):
         self.keep_running = False
 
+    def break_cycles(self):
+        # Break cycles so that this object doesn't hold references to db
+        self.do_write = self.get_metadata_for_dump = self.clear_dirtied = \
+            self.set_dirtied = self.db = None
+
     def run(self):
         while self.keep_running:
-            self.in_limbo = None
             try:
-                time.sleep(0.5) # Limit to two per second
-                id_ = self.db.dirtied_queue.get(True, 1.45)
-            except Empty:
-                continue
+                time.sleep(2) # Limit to one book per two seconds
+                (id_, sequence) = self.db.get_a_dirtied_book()
+                if id_ is None:
+                    continue
+                # print 'writer thread', id_, sequence
             except:
                 # Happens during interpreter shutdown
                 break
+            if not self.keep_running:
+                break
 
             try:
-                path, mi = self.get_metadata_for_dump(id_)
+                path, mi, sequence = self.get_metadata_for_dump(id_)
             except:
                 prints('Failed to get backup metadata for id:', id_, 'once')
                 traceback.print_exc()
                 time.sleep(2)
                 try:
-                    path, mi = self.get_metadata_for_dump(id_)
+                    path, mi, sequence = self.get_metadata_for_dump(id_)
                 except:
                     prints('Failed to get backup metadata for id:', id_, 'again, giving up')
                     traceback.print_exc()
                     continue
 
-            # at this point the dirty indication is off
-
             if mi is None:
+                self.clear_dirtied(id_, sequence)
                 continue
-            self.in_limbo = id_
+            if not self.keep_running:
+                break
 
             # Give the GUI thread a chance to do something. Python threads don't
             # have priorities, so this thread would naturally keep the processor
@@ -83,10 +86,12 @@ class MetadataBackup(Thread): # {{{
             try:
                 raw = metadata_to_opf(mi)
             except:
-                self.set_dirtied([id_])
                 prints('Failed to convert to opf for id:', id_)
                 traceback.print_exc()
                 continue
+
+            if not self.keep_running:
+                break
 
             time.sleep(0.1) # Give the GUI thread a chance to do something
             try:
@@ -97,19 +102,12 @@ class MetadataBackup(Thread): # {{{
                 try:
                     self.do_write(path, raw)
                 except:
-                    self.set_dirtied([id_])
                     prints('Failed to write backup metadata for id:', id_,
                             'again, giving up')
                     continue
-        self.in_limbo = None
 
-    def flush(self):
-        'Used during shutdown to ensure that a dirtied book is not missed'
-        if self.in_limbo is not None:
-            try:
-                self.db.dirtied([self.in_limbo])
-            except:
-                traceback.print_exc()
+            self.clear_dirtied(id_, sequence)
+        self.break_cycles()
 
     def write(self, path, raw):
         with lopen(path, 'wb') as f:
@@ -118,112 +116,13 @@ class MetadataBackup(Thread): # {{{
 
 # }}}
 
-class CoverCache(Thread): # {{{
-
-    def __init__(self, db, cover_func):
-        Thread.__init__(self)
-        self.daemon = True
-        self.db = db
-        self.cover_func = cover_func
-        self.load_queue = Queue()
-        self.keep_running = True
-        self.cache = {}
-        self.lock = RLock()
-        self.null_image = QImage()
-
-    def stop(self):
-        self.keep_running = False
-
-    def _image_for_id(self, id_):
-        img = self.cover_func(id_, index_is_id=True, as_image=True)
-        if img is None:
-            img = QImage()
-        if not img.isNull():
-            scaled, nwidth, nheight = fit_image(img.width(),
-                    img.height(), 600, 800)
-            if scaled:
-                img = img.scaled(nwidth, nheight, Qt.KeepAspectRatio,
-                        Qt.SmoothTransformation)
-
-        return img
-
-    def run(self):
-        while self.keep_running:
-            try:
-                # The GUI puts the same ID into the queue many times. The code
-                # below emptys the queue, building a set of unique values. When
-                # the queue is empty, do the work
-                ids = set()
-                id_ = self.load_queue.get(True, 2)
-                ids.add(id_)
-                try:
-                    while True:
-                        # Give the gui some time to put values into the queue
-                        id_ = self.load_queue.get(True, 0.5)
-                        ids.add(id_)
-                except Empty:
-                    pass
-                except:
-                    # Happens during shutdown
-                    break
-            except Empty:
-                continue
-            except:
-                #Happens during interpreter shutdown
-                break
-            if not self.keep_running:
-                break
-            for id_ in ids:
-                time.sleep(0.050) # Limit 20/second to not overwhelm the GUI
-                try:
-                    img = self._image_for_id(id_)
-                except:
-                    try:
-                        traceback.print_exc()
-                    except:
-                        # happens during shutdown
-                        break
-                    continue
-                try:
-                    with self.lock:
-                        self.cache[id_] = img
-                except:
-                    # Happens during interpreter shutdown
-                    break
-
-    def set_cache(self, ids):
-        with self.lock:
-            already_loaded = set([])
-            for id in self.cache.keys():
-                if id in ids:
-                    already_loaded.add(id)
-                else:
-                    self.cache.pop(id)
-        for id_ in set(ids) - already_loaded:
-            self.load_queue.put(id_)
-
-    def cover(self, id_):
-        with self.lock:
-            return self.cache.get(id_, self.null_image)
-
-    def clear_cache(self):
-        with self.lock:
-            self.cache = {}
-
-    def refresh(self, ids):
-        with self.lock:
-            for id_ in ids:
-                self.cache.pop(id_, None)
-                self.load_queue.put(id_)
-# }}}
-
 ### Global utility function for get_match here and in gui2/library.py
 CONTAINS_MATCH = 0
 EQUALS_MATCH   = 1
 REGEXP_MATCH   = 2
 def _match(query, value, matchkind):
     for t in value:
-        t = t.lower()
+        t = icu_lower(t)
         try:     ### ignore regexp exceptions, required because search-ahead tries before typing is finished
             if ((matchkind == EQUALS_MATCH and query == t) or
                 (matchkind == REGEXP_MATCH and re.search(query, t, re.I)) or ### search unanchored
@@ -233,26 +132,66 @@ def _match(query, value, matchkind):
             pass
     return False
 
+class CacheRow(list): # {{{
+
+    def __init__(self, db, composites, val):
+        self.db = db
+        self._composites = composites
+        list.__init__(self, val)
+        self._must_do = len(composites) > 0
+
+    def __getitem__(self, col):
+        if self._must_do:
+            is_comp = False
+            if isinstance(col, slice):
+                start = 0 if col.start is None else col.start
+                step = 1 if col.stop is None else col.stop
+                for c in range(start, col.stop, step):
+                    if c in self._composites:
+                        is_comp = True
+                        break
+            elif col in self._composites:
+                is_comp = True
+            if is_comp:
+                id = list.__getitem__(self, 0)
+                self._must_do = False
+                mi = self.db.get_metadata(id, index_is_id=True)
+                for c in self._composites:
+                    self[c] =  mi.get(self._composites[c])
+        return list.__getitem__(self, col)
+
+    def __getslice__(self, i, j):
+        return self.__getitem__(slice(i, j))
+
+# }}}
+
 class ResultCache(SearchQueryParser): # {{{
 
     '''
     Stores sorted and filtered metadata in memory.
     '''
-    def __init__(self, FIELD_MAP, field_metadata):
+    def __init__(self, FIELD_MAP, field_metadata, db_prefs=None):
         self.FIELD_MAP = FIELD_MAP
-        self._map = self._data = self._map_filtered = []
+        self.db_prefs = db_prefs
+        self.composites = {}
+        for key in field_metadata:
+            if field_metadata[key]['datatype'] == 'composite':
+                self.composites[field_metadata[key]['rec_index']] = key
+        self._data = []
+        self._map = self._map_filtered = []
         self.first_sort = True
         self.search_restriction = ''
         self.field_metadata = field_metadata
-        self.all_search_locations = field_metadata.get_search_terms()
-        SearchQueryParser.__init__(self, self.all_search_locations)
+        all_search_locations = field_metadata.get_search_terms()
+        SearchQueryParser.__init__(self, all_search_locations, optimize=True)
         self.build_date_relop_dict()
         self.build_numeric_relop_dict()
 
-        self.composites = []
-        for key in field_metadata:
-            if field_metadata[key]['datatype'] == 'composite':
-                self.composites.append((key, field_metadata[key]['rec_index']))
+    def break_cycles(self):
+        self._data = self.field_metadata = self.FIELD_MAP = \
+            self.numeric_search_relops = self.date_search_relops = \
+            self.db_prefs = None
+
 
     def __getitem__(self, row):
         return self._data[self._map_filtered[row]]
@@ -332,7 +271,7 @@ class ResultCache(SearchQueryParser): # {{{
                             '<=':[2, relop_le]
                         }
 
-    def get_dates_matches(self, location, query):
+    def get_dates_matches(self, location, query, candidates):
         matches = set([])
         if len(query) < 2:
             return matches
@@ -342,13 +281,15 @@ class ResultCache(SearchQueryParser): # {{{
         loc = self.field_metadata[location]['rec_index']
 
         if query == 'false':
-            for item in self._data:
+            for id_ in candidates:
+                item = self._data[id_]
                 if item is None: continue
                 if item[loc] is None or item[loc] <= UNDEFINED_DATE:
                     matches.add(item[0])
             return matches
         if query == 'true':
-            for item in self._data:
+            for id_ in candidates:
+                item = self._data[id_]
                 if item is None: continue
                 if item[loc] is not None and item[loc] > UNDEFINED_DATE:
                     matches.add(item[0])
@@ -387,7 +328,8 @@ class ResultCache(SearchQueryParser): # {{{
                 field_count = query.count('-') + 1
             else:
                 field_count = query.count('/') + 1
-        for item in self._data:
+        for id_ in candidates:
+            item = self._data[id_]
             if item is None or item[loc] is None: continue
             if relop(item[loc], qd, field_count):
                 matches.add(item[0])
@@ -403,7 +345,7 @@ class ResultCache(SearchQueryParser): # {{{
                         '<=':[2, lambda r, q: r <= q]
                     }
 
-    def get_numeric_matches(self, location, query, val_func = None):
+    def get_numeric_matches(self, location, query, candidates, val_func = None):
         matches = set([])
         if len(query) == 0:
             return matches
@@ -449,7 +391,8 @@ class ResultCache(SearchQueryParser): # {{{
         except:
             return matches
 
-        for item in self._data:
+        for id_ in candidates:
+            item = self._data[id_]
             if item is None:
                 continue
             v = val_func(item)
@@ -461,16 +404,38 @@ class ResultCache(SearchQueryParser): # {{{
                 matches.add(item[0])
         return matches
 
-    def get_matches(self, location, query, allow_recursion=True):
+    def get_user_category_matches(self, location, query, candidates):
+        res = set([])
+        if self.db_prefs is None:
+            return  res
+        user_cats = self.db_prefs.get('user_categories', [])
+        if location not in user_cats:
+            return res
+        c = set(candidates)
+        for (item, category, ign) in user_cats[location]:
+            s = self.get_matches(category, '=' + item, candidates=c)
+            c -= s
+            res |= s
+        if query == 'false':
+            return candidates - res
+        return res
+
+    def get_matches(self, location, query, allow_recursion=True, candidates=None):
         matches = set([])
+        if candidates is None:
+            candidates = self.universal_set()
+        if len(candidates) == 0:
+            return matches
+
         if query and query.strip():
             # get metadata key associated with the search term. Eliminates
             # dealing with plurals and other aliases
-            location = self.field_metadata.search_term_to_field_key(location.lower().strip())
+            location = self.field_metadata.search_term_to_field_key(icu_lower(location.strip()))
             if isinstance(location, list):
                 if allow_recursion:
                     for loc in location:
-                        matches |= self.get_matches(loc, query, allow_recursion=False)
+                        matches |= self.get_matches(loc, query, candidates,
+                                                    allow_recursion=False)
                     return matches
                 raise ParseException(query, len(query), 'Recursive query group detected', self)
 
@@ -478,11 +443,11 @@ class ResultCache(SearchQueryParser): # {{{
                 fm = self.field_metadata[location]
                 # take care of dates special case
                 if fm['datatype'] == 'datetime':
-                    return self.get_dates_matches(location, query.lower())
+                    return self.get_dates_matches(location, query.lower(), candidates)
 
                 # take care of numbers special case
                 if fm['datatype'] in ('rating', 'int', 'float'):
-                    return self.get_numeric_matches(location, query.lower())
+                    return self.get_numeric_matches(location, query.lower(), candidates)
 
                 # take care of the 'count' operator for is_multiples
                 if fm['is_multiple'] and \
@@ -490,8 +455,13 @@ class ResultCache(SearchQueryParser): # {{{
                         query[1:1] in '=<>!':
                     vf = lambda item, loc=fm['rec_index'], ms=fm['is_multiple']:\
                             len(item[loc].split(ms)) if item[loc] is not None else 0
-                    return self.get_numeric_matches(location, query[1:], val_func=vf)
+                    return self.get_numeric_matches(location, query[1:],
+                                                    candidates, val_func=vf)
 
+            # check for user categories
+            if len(location) >= 2 and location.startswith('@'):
+                return self.get_user_category_matches(location[1:], query.lower(),
+                                                      candidates)
             # everything else, or 'all' matches
             matchkind = CONTAINS_MATCH
             if (len(query) > 1):
@@ -505,7 +475,7 @@ class ResultCache(SearchQueryParser): # {{{
                     query = query[1:]
             if matchkind != REGEXP_MATCH:
                 # leave case in regexps because it can be significant e.g. \S \W \D
-                query = query.lower()
+                query = icu_lower(query)
 
             if not isinstance(query, unicode):
                 query = query.decode('utf-8')
@@ -517,10 +487,12 @@ class ResultCache(SearchQueryParser): # {{{
             for x in range(len(self.FIELD_MAP)):
                 col_datatype.append('')
             for x in self.field_metadata:
+                if x.startswith('@'):
+                    continue
                 if len(self.field_metadata[x]['search_terms']):
                     db_col[x] = self.field_metadata[x]['rec_index']
                     if self.field_metadata[x]['datatype'] not in \
-                                    ['composite', 'text', 'comments', 'series']:
+                            ['composite', 'text', 'comments', 'series', 'enumeration']:
                         exclude_fields.append(db_col[x])
                     col_datatype[db_col[x]] = self.field_metadata[x]['datatype']
                     is_multiple_cols[db_col[x]] = self.field_metadata[x]['is_multiple']
@@ -544,7 +516,8 @@ class ResultCache(SearchQueryParser): # {{{
                 else:
                     q = query
 
-                for item in self._data:
+                for id_ in candidates:
+                    item = self._data[id_]
                     if item is None: continue
 
                     if col_datatype[loc] == 'bool': # complexity caused by the two-/three-value tweak
@@ -656,7 +629,6 @@ class ResultCache(SearchQueryParser): # {{{
 
     def set(self, row, col, val, row_is_id=False):
         id = row if row_is_id else self._map_filtered[row]
-        self._data[id][self.FIELD_MAP['all_metadata']] = None
         self._data[id][col] = val
 
     def get(self, row, col, row_is_id=False):
@@ -684,13 +656,9 @@ class ResultCache(SearchQueryParser): # {{{
         '''
         for id in ids:
             try:
-                self._data[id] = db.conn.get('SELECT * from meta2 WHERE id=?', (id,))[0]
+                self._data[id] = CacheRow(db, self.composites,
+                        db.conn.get('SELECT * from meta2 WHERE id=?', (id,))[0])
                 self._data[id].append(db.book_on_device_string(id))
-                self._data[id].append(None)
-                if len(self.composites) > 0:
-                    mi = db.get_metadata(id, index_is_id=True)
-                    for k,c in self.composites:
-                        self._data[id][c] = mi.get(k, None)
             except IndexError:
                 return None
         try:
@@ -704,13 +672,9 @@ class ResultCache(SearchQueryParser): # {{{
             return
         self._data.extend(repeat(None, max(ids)-len(self._data)+2))
         for id in ids:
-            self._data[id] = db.conn.get('SELECT * from meta2 WHERE id=?', (id,))[0]
+            self._data[id] = CacheRow(db, self.composites,
+                        db.conn.get('SELECT * from meta2 WHERE id=?', (id,))[0])
             self._data[id].append(db.book_on_device_string(id))
-            self._data[id].append(None)
-            if len(self.composites) > 0:
-                mi = db.get_metadata(id, index_is_id=True)
-                for k,c in self.composites:
-                    self._data[id][c] = mi.get(k)
         self._map[0:0] = ids
         self._map_filtered[0:0] = ids
 
@@ -731,16 +695,10 @@ class ResultCache(SearchQueryParser): # {{{
         temp = db.conn.get('SELECT * FROM meta2')
         self._data = list(itertools.repeat(None, temp[-1][0]+2)) if temp else []
         for r in temp:
-            self._data[r[0]] = r
+            self._data[r[0]] = CacheRow(db, self.composites, r)
         for item in self._data:
             if item is not None:
                 item.append(db.book_on_device_string(item[0]))
-                item.append(None)
-                if len(self.composites) > 0:
-                    mi = db.get_metadata(item[0], index_is_id=True)
-                    for k,c in self.composites:
-                        item[c] = mi.get(k)
-
         self._map = [i[0] for i in self._data if i is not None]
         if field is not None:
             self.sort(field, ascending)
@@ -770,10 +728,7 @@ class ResultCache(SearchQueryParser): # {{{
             fields = [('timestamp', False)]
 
         keyg = SortKeyGenerator(fields, self.field_metadata, self._data)
-        if len(fields) == 1:
-            self._map.sort(key=keyg, reverse=not fields[0][1])
-        else:
-            self._map.sort(key=keyg)
+        self._map.sort(key=keyg)
 
         tmap = list(itertools.repeat(False, len(self._data)))
         for x in self._map_filtered:
@@ -796,16 +751,16 @@ class SortKey(object):
 class SortKeyGenerator(object):
 
     def __init__(self, fields, field_metadata, data):
+        from calibre.utils.icu import sort_key
         self.field_metadata = field_metadata
-        self.orders = [-1 if x[1] else 1 for x in fields]
+        self.orders = [1 if x[1] else -1 for x in fields]
         self.entries = [(x[0], field_metadata[x[0]]) for x in fields]
         self.library_order = tweaks['title_series_sorting'] == 'library_order'
         self.data = data
+        self.string_sort_key = sort_key
 
     def __call__(self, record):
         values = tuple(self.itervals(self.data[record]))
-        if len(values) == 1:
-            return values[0]
         return SortKey(self.orders, values)
 
     def itervals(self, record):
@@ -821,17 +776,19 @@ class SortKeyGenerator(object):
                 if val is None:
                     val = ('', 1)
                 else:
-                    val = val.lower()
                     if self.library_order:
                         val = title_sort(val)
                     sidx_fm = self.field_metadata[name + '_index']
                     sidx = record[sidx_fm['rec_index']]
-                    val = (val, sidx)
+                    val = (self.string_sort_key(val), sidx)
 
-            elif dt in ('text', 'comments', 'composite'):
-                if val is None:
-                    val = ''
-                val = val.lower()
+            elif dt in ('text', 'comments', 'composite', 'enumeration'):
+                if val:
+                    sep = fm['is_multiple']
+                    if sep:
+                        val = sep.join(sorted(val.split(sep),
+                                              key=self.string_sort_key))
+                val = self.string_sort_key(val)
 
             elif dt == 'bool':
                 val = {True: 1, False: 2, None: 3}.get(val, 3)

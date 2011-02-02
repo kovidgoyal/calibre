@@ -20,11 +20,11 @@ class IRIVER_STORY(USBMS):
     FORMATS     = ['epub', 'fb2', 'pdf', 'djvu', 'txt']
 
     VENDOR_ID   = [0x1006]
-    PRODUCT_ID  = [0x4023, 0x4025]
+    PRODUCT_ID  = [0x4023, 0x4024, 0x4025]
     BCD         = [0x0323]
 
     VENDOR_NAME = 'IRIVER'
-    WINDOWS_MAIN_MEM = ['STORY', 'STORY_EB05']
+    WINDOWS_MAIN_MEM = ['STORY', 'STORY_EB05', 'STORY_WI-FI']
     WINDOWS_CARD_A_MEM = ['STORY', 'STORY_SD']
 
     #OSX_MAIN_MEM = 'Kindle Internal Storage Media'

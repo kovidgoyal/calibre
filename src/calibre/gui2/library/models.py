@@ -10,19 +10,19 @@ from contextlib import closing
 from operator import attrgetter
 
 from PyQt4.Qt import QAbstractTableModel, Qt, pyqtSignal, QIcon, QImage, \
-        QModelIndex, QVariant, QDate
+        QModelIndex, QVariant, QDate, QColor
 
-from calibre.gui2 import NONE, config, UNDEFINED_QDATE, FunctionDispatcher
+from calibre.gui2 import NONE, config, UNDEFINED_QDATE
 from calibre.utils.pyparsing import ParseException
 from calibre.ebooks.metadata import fmt_sidx, authors_to_string, string_to_authors
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import tweaks, prefs
 from calibre.utils.date import dt_factory, qt_to_dt, isoformat
+from calibre.utils.icu import sort_key, strcmp as icu_strcmp
 from calibre.ebooks.metadata.meta import set_metadata as _set_metadata
 from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.library.caches import _match, CONTAINS_MATCH, EQUALS_MATCH, \
-    REGEXP_MATCH, CoverCache, MetadataBackup
-from calibre.library.cli import parse_series_string
+    REGEXP_MATCH, MetadataBackup
 from calibre import strftime, isbytestring, prepare_string_for_xml
 from calibre.constants import filesystem_encoding, DEBUG
 from calibre.gui2.library import DEFAULT_SORT
@@ -88,12 +88,15 @@ class BooksModel(QAbstractTableModel): # {{{
         self.headers = {}
         self.alignment_map = {}
         self.buffer_size = buffer
-        self.cover_cache = None
         self.metadata_backup = None
         self.bool_yes_icon = QIcon(I('ok.png'))
         self.bool_no_icon = QIcon(I('list_remove.png'))
         self.bool_blank_icon = QIcon(I('blank.png'))
         self.device_connected = False
+        self.ids_to_highlight = []
+        self.ids_to_highlight_set = set()
+        self.current_highlighted_idx = None
+        self.highlight_only = False
         self.read_config()
 
     def change_alignment(self, colname, alignment):
@@ -112,10 +115,6 @@ class BooksModel(QAbstractTableModel): # {{{
     def is_custom_column(self, cc_label):
         return cc_label in self.custom_columns
 
-    def clear_caches(self):
-        if self.cover_cache:
-            self.cover_cache.clear_cache()
-
     def read_config(self):
         self.use_roman_numbers = config['use_roman_numerals_for_series_number']
 
@@ -132,6 +131,9 @@ class BooksModel(QAbstractTableModel): # {{{
         self.book_on_device = func
 
     def set_database(self, db):
+        self.ids_to_highlight = []
+        self.ids_to_highlight_set = set()
+        self.current_highlighted_idx = None
         self.db = db
         self.custom_columns = self.db.field_metadata.custom_field_metadata()
         self.column_map = list(self.orig_headers.keys()) + \
@@ -153,18 +155,8 @@ class BooksModel(QAbstractTableModel): # {{{
         self.build_data_convertors()
         self.reset()
         self.database_changed.emit(db)
-        if self.cover_cache is not None:
-            self.cover_cache.stop()
-            # Would like to to a join here, but the thread might be waiting to
-            # do something on the GUI thread. Deadlock.
-        self.cover_cache = CoverCache(db, FunctionDispatcher(self.db.cover))
-        self.cover_cache.start()
         self.stop_metadata_backup()
         self.start_metadata_backup()
-        def refresh_cover(event, ids):
-            if event == 'cover' and self.cover_cache is not None:
-                self.cover_cache.refresh(ids)
-        db.add_listener(refresh_cover)
 
     def start_metadata_backup(self):
         self.metadata_backup = MetadataBackup(self.db)
@@ -222,21 +214,21 @@ class BooksModel(QAbstractTableModel): # {{{
     def by_author(self):
         return self.sorted_on[0] == 'authors'
 
+    def books_deleted(self):
+        self.count_changed()
+        self.reset()
+
     def delete_books(self, indices):
         ids = map(self.id, indices)
         for id in ids:
             self.db.delete_book(id, notify=False)
-        self.count_changed()
-        self.clear_caches()
-        self.reset()
+        self.books_deleted()
         return ids
 
     def delete_books_by_id(self, ids):
         for id in ids:
             self.db.delete_book(id)
-        self.count_changed()
-        self.clear_caches()
-        self.reset()
+        self.books_deleted()
 
     def books_added(self, num):
         if num > 0:
@@ -244,15 +236,66 @@ class BooksModel(QAbstractTableModel): # {{{
             self.endInsertRows()
             self.count_changed()
 
+    def set_highlight_only(self, toWhat):
+        self.highlight_only = toWhat
+        if self.last_search:
+            self.research()
+
+    def get_current_highlighted_id(self):
+        if len(self.ids_to_highlight) == 0 or self.current_highlighted_idx is None:
+            return None
+        try:
+            return self.ids_to_highlight[self.current_highlighted_idx]
+        except:
+            return None
+
+    def get_next_highlighted_id(self, current_row, forward):
+        if len(self.ids_to_highlight) == 0 or self.current_highlighted_idx is None:
+            return None
+        if current_row is None:
+            row_ = self.current_highlighted_idx
+        else:
+            row_ = current_row
+        while True:
+            row_ += 1 if forward else -1
+            if row_ < 0:
+                row_ = self.count() - 1;
+            elif row_ >= self.count():
+                row_ = 0
+            if self.id(row_) in self.ids_to_highlight_set:
+                break
+        try:
+            self.current_highlighted_idx = self.ids_to_highlight.index(self.id(row_))
+        except:
+            # This shouldn't happen ...
+            return None
+        return self.get_current_highlighted_id()
+
     def search(self, text, reset=True):
         try:
-            self.db.search(text)
+            if self.highlight_only:
+                self.db.search('')
+                if not text:
+                    self.ids_to_highlight = []
+                    self.ids_to_highlight_set = set()
+                    self.current_highlighted_idx = None
+                else:
+                    self.ids_to_highlight = self.db.search(text, return_matches=True)
+                    self.ids_to_highlight_set = set(self.ids_to_highlight)
+                    if self.ids_to_highlight:
+                        self.current_highlighted_idx = 0
+                    else:
+                        self.current_highlighted_idx = None
+            else:
+                self.ids_to_highlight = []
+                self.ids_to_highlight_set = set()
+                self.current_highlighted_idx = None
+                self.db.search(text)
         except ParseException as e:
             self.searched.emit(e.msg)
             return
         self.last_search = text
         if reset:
-            self.clear_caches()
             self.reset()
         if self.last_search:
             # Do not issue search done for the null search. It is used to clear
@@ -263,11 +306,11 @@ class BooksModel(QAbstractTableModel): # {{{
         if not self.db:
             return
         self.about_to_be_sorted.emit(self.db.id)
-        ascending = order == Qt.AscendingOrder
+        if not isinstance(order, bool):
+            order = order == Qt.AscendingOrder
         label = self.column_map[col]
-        self.db.sort(label, ascending)
+        self.db.sort(label, order)
         if reset:
-            self.clear_caches()
             self.reset()
         self.sorted_on = (label, order)
         self.sort_history.insert(0, self.sorted_on)
@@ -301,13 +344,28 @@ class BooksModel(QAbstractTableModel): # {{{
         return self.rowCount(None)
 
     def get_book_display_info(self, idx):
+        def custom_keys_to_display():
+            ans = getattr(self, '_custom_fields_in_book_info', None)
+            if ans is None:
+                cfkeys = set(self.db.custom_field_keys())
+                yes_fields = set(tweaks['book_details_will_display'])
+                no_fields = set(tweaks['book_details_wont_display'])
+                if '*' in yes_fields:
+                    yes_fields = cfkeys
+                if '*' in no_fields:
+                    no_fields = cfkeys
+                ans = frozenset(yes_fields - no_fields)
+                setattr(self, '_custom_fields_in_book_info', ans)
+            return ans
+
         data = {}
         cdata = self.cover(idx)
         if cdata:
             data['cover'] = cdata
-        tags = self.db.tags(idx)
+        tags = list(self.db.get_tags(self.db.id(idx)))
         if tags:
-            tags = tags.replace(',', ', ')
+            tags.sort(key=sort_key)
+            tags = ', '.join(tags)
         else:
             tags = _('None')
         data[_('Tags')] = tags
@@ -331,32 +389,22 @@ class BooksModel(QAbstractTableModel): # {{{
                 _('Book %s of %s.')%\
                     (sidx, prepare_string_for_xml(series))
         mi = self.db.get_metadata(idx)
+        cf_to_display = custom_keys_to_display()
         for key in mi.custom_field_keys():
+            if key not in cf_to_display:
+                continue
             name, val = mi.format_field(key)
-            if val:
+            if mi.metadata_for_field(key)['datatype'] == 'comments':
+                name += ':html'
+            if val and name not in data:
                 data[name] = val
+
         return data
 
-    def set_cache(self, idx):
-        l, r = 0, self.count()-1
-        if self.cover_cache is not None:
-            l = max(l, idx-self.buffer_size)
-            r = min(r, idx+self.buffer_size)
-            k = min(r-idx, idx-l)
-            ids = [idx]
-            for i in range(1, k):
-                ids.extend([idx-i, idx+i])
-            ids = ids + [i for i in range(l, r, 1) if i not in ids]
-            try:
-                ids = [self.db.id(i) for i in ids]
-            except IndexError:
-                return
-            self.cover_cache.set_cache(ids)
 
     def current_changed(self, current, previous, emit_signal=True):
         if current.isValid():
             idx = current.row()
-            self.set_cache(idx)
             data = self.get_book_display_info(idx)
             if emit_signal:
                 self.new_bookdisplay_data.emit(data)
@@ -513,13 +561,7 @@ class BooksModel(QAbstractTableModel): # {{{
     def cover(self, row_number):
         data = None
         try:
-            id = self.db.id(row_number)
-            if self.cover_cache is not None:
-                img = self.cover_cache.cover(id)
-                if not img.isNull():
-                    return img
-            if not data:
-                data = self.db.cover(row_number)
+            data = self.db.cover(row_number)
         except IndexError: # Happens if database has not yet been refreshed
             pass
 
@@ -544,7 +586,7 @@ class BooksModel(QAbstractTableModel): # {{{
         def tags(r, idx=-1):
             tags = self.db.data[r][idx]
             if tags:
-                return QVariant(', '.join(sorted(tags.split(','))))
+                return QVariant(', '.join(sorted(tags.split(','), key=sort_key)))
             return None
 
         def series_type(r, idx=-1, siix=-1):
@@ -595,7 +637,7 @@ class BooksModel(QAbstractTableModel): # {{{
         def text_type(r, mult=False, idx=-1):
             text = self.db.data[r][idx]
             if text and mult:
-                return QVariant(', '.join(sorted(text.split('|'))))
+                return QVariant(', '.join(sorted(text.split('|'),key=sort_key)))
             return QVariant(text)
 
         def number_type(r, idx=-1):
@@ -634,7 +676,7 @@ class BooksModel(QAbstractTableModel): # {{{
         for col in self.custom_columns:
             idx = self.custom_columns[col]['rec_index']
             datatype = self.custom_columns[col]['datatype']
-            if datatype in ('text', 'comments', 'composite'):
+            if datatype in ('text', 'comments', 'composite', 'enumeration'):
                 self.dc[col] = functools.partial(text_type, idx=idx,
                                                  mult=self.custom_columns[col]['is_multiple'])
             elif datatype in ('int', 'float'):
@@ -669,6 +711,9 @@ class BooksModel(QAbstractTableModel): # {{{
             return NONE
         if role in (Qt.DisplayRole, Qt.EditRole):
             return self.column_to_dc_map[col](index.row())
+        elif role == Qt.BackgroundColorRole:
+            if self.id(index) in self.ids_to_highlight_set:
+                return QColor('lightgreen')
         elif role == Qt.DecorationRole:
             if self.column_to_dc_decorator_map[col] is not None:
                 return self.column_to_dc_decorator_map[index.column()](index.row())
@@ -722,7 +767,11 @@ class BooksModel(QAbstractTableModel): # {{{
         if typ in ('text', 'comments'):
             val = unicode(value.toString()).strip()
             val = val if val else None
-        if typ == 'bool':
+        elif typ == 'enumeration':
+            val = unicode(value.toString()).strip()
+            if not val:
+                val = None
+        elif typ == 'bool':
             val = value.toPyObject()
         elif typ == 'rating':
             val = value.toInt()[0]
@@ -730,7 +779,7 @@ class BooksModel(QAbstractTableModel): # {{{
             val *= 2
         elif typ in ('int', 'float'):
             val = unicode(value.toString()).strip()
-            if val is None or not val:
+            if not val:
                 val = None
         elif typ == 'datetime':
             val = value.toDate()
@@ -741,9 +790,7 @@ class BooksModel(QAbstractTableModel): # {{{
                     return False
                 val = qt_to_dt(val, as_utc=False)
         elif typ == 'series':
-            val, s_index = parse_series_string(self.db, label, value.toString())
-            if not val:
-                val = s_index = None
+            val = unicode(value.toString()).strip()
         elif typ == 'composite':
             tmpl = unicode(value.toString()).strip()
             disp = cc['display']
@@ -788,7 +835,7 @@ class BooksModel(QAbstractTableModel): # {{{
                             self.db.set_series_index(id, float(match.group(1)))
                             val = pat.sub('', val).strip()
                         elif val:
-                            if tweaks['series_index_auto_increment'] == 'next':
+                            if tweaks['series_index_auto_increment'] != 'const':
                                 ni = self.db.get_next_series_num_for(val)
                                 if ni != 1:
                                     self.db.set_series_index(id, ni)
@@ -1017,8 +1064,7 @@ class DeviceBooksModel(BooksModel): # {{{
                     x = ''
                 if y == None:
                     y = ''
-                x, y = x.strip().lower(), y.strip().lower()
-                return cmp(x, y)
+                return icu_strcmp(x.strip(), y.strip())
             return _strcmp
         def datecmp(x, y):
             x = self.db[x].datetime
@@ -1029,8 +1075,8 @@ class DeviceBooksModel(BooksModel): # {{{
             x, y = int(self.db[x].size), int(self.db[y].size)
             return cmp(x, y)
         def tagscmp(x, y):
-            x = ','.join(sorted(getattr(self.db[x], 'device_collections', []))).lower()
-            y = ','.join(sorted(getattr(self.db[y], 'device_collections', []))).lower()
+            x = ','.join(sorted(getattr(self.db[x], 'device_collections', []),key=sort_key))
+            y = ','.join(sorted(getattr(self.db[y], 'device_collections', []),key=sort_key))
             return cmp(x, y)
         def libcmp(x, y):
             x, y = self.db[x].in_library, self.db[y].in_library
@@ -1207,7 +1253,7 @@ class DeviceBooksModel(BooksModel): # {{{
             elif cname == 'collections':
                 tags = self.db[self.map[row]].device_collections
                 if tags:
-                    tags.sort(cmp=lambda x,y: cmp(x.lower(), y.lower()))
+                    tags.sort(key=sort_key)
                     return QVariant(', '.join(tags))
             elif DEBUG and cname == 'inlibrary':
                 return QVariant(self.db[self.map[row]].in_library)

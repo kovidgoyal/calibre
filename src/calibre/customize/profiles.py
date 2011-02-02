@@ -37,6 +37,8 @@ class Plugin(_Plugin):
             self.fsizes.append((name, num, float(size)))
         self.fnames = dict((name, sz) for name, _, sz in self.fsizes if name)
         self.fnums = dict((num, sz) for _, num, sz in self.fsizes if num)
+        self.width_pts = self.width * 72./self.dpi
+        self.height_pts = self.height * 72./self.dpi
 
 # Input profiles {{{
 class InputProfile(Plugin):
@@ -437,6 +439,13 @@ class TabletOutput(iPadOutput):
     screen_size = (sys.maxint, sys.maxint)
     comic_screen_size = (sys.maxint, sys.maxint)
 
+class SamsungGalaxy(TabletOutput):
+    name = 'Samsung Galaxy'
+    short_name = 'galaxy'
+    description = _('Intended for the Samsung Galaxy and similar tablet devices with '
+            'a resolution of 600x1280')
+    screen_size = comic_screen_size = (600, 1280)
+
 class SonyReaderOutput(OutputProfile):
 
     name        = 'Sony Reader'
@@ -482,6 +491,22 @@ class SonyReader900Output(SonyReaderOutput):
     name        = 'Sony Reader 900'
     short_name  = 'sony900'
     description = _('This profile is intended for the SONY PRS-900.')
+
+    screen_size               = (600, 999)
+    comic_screen_size = screen_size
+
+class GenericEink(SonyReaderOutput):
+
+    name = 'Generic e-ink'
+    short_name = 'generic_eink'
+    description = _('Suitable for use with any e-ink device')
+    epub_periodical_format = None
+
+class GenericEinkLarge(GenericEink):
+
+    name = 'Generic e-ink large'
+    short_name = 'generic_eink_large'
+    description = _('Suitable for use with any large screen e-ink device')
 
     screen_size               = (600, 999)
     comic_screen_size = screen_size
@@ -558,6 +583,7 @@ class CybookG3Output(OutputProfile):
 
     # Screen size is a best guess
     screen_size               = (600, 800)
+    comic_screen_size         = (600, 757)
     dpi                       = 168.451
     fbase                     = 16
     fsizes                    = [12, 12, 14, 16, 18, 20, 22, 24]
@@ -615,6 +641,8 @@ class KindleDXOutput(OutputProfile):
     #comic_screen_size         = (741, 1022)
     supports_mobi_indexing = True
     periodical_date_in_title = False
+	missing_char = u'x\u2009'
+	empty_ratings_char = u'\u2606'
     ratings_char = u'\u2605'
     read_char = u'\u2713'
     mobi_ems_per_blockquote = 2.0
@@ -694,8 +722,9 @@ class BambookOutput(OutputProfile):
     short_name  = 'bambook'
     description = _('This profile is intended for the Sanda Bambook.')
 
-    # Screen size is a best guess
-    screen_size               = (600, 800)
+    # Screen size is for full screen display
+    screen_size               = (580, 780)
+    # Comic size is for normal display
     comic_screen_size         = (540, 700)
     dpi                       = 168.451
     fbase                     = 12
@@ -704,9 +733,9 @@ class BambookOutput(OutputProfile):
 output_profiles = [OutputProfile, SonyReaderOutput, SonyReader300Output,
         SonyReader900Output, MSReaderOutput, MobipocketOutput, HanlinV3Output,
         HanlinV5Output, CybookG3Output, CybookOpusOutput, KindleOutput,
-        iPadOutput, KoboReaderOutput, TabletOutput,
+        iPadOutput, KoboReaderOutput, TabletOutput, SamsungGalaxy,
         SonyReaderLandscapeOutput, KindleDXOutput, IlliadOutput,
         IRexDR1000Output, IRexDR800Output, JetBook5Output, NookOutput,
-        BambookOutput, NookColorOutput]
+        BambookOutput, NookColorOutput, GenericEink, GenericEinkLarge]
 
 output_profiles.sort(cmp=lambda x,y:cmp(x.name.lower(), y.name.lower()))

@@ -21,6 +21,7 @@ from calibre.devices.usbms.driver import USBMS
 class EB600(USBMS):
 
     name           = 'Netronix EB600 Device Interface'
+    gui_name       = 'Netronix EB600'
     description    = _('Communicate with the EB600 eBook reader.')
     author         = 'Kovid Goyal'
     supported_platforms = ['windows', 'osx', 'linux']
@@ -178,7 +179,7 @@ class INVESBOOK(EB600):
 
 class BOOQ(EB600):
     name = 'Booq Device Interface'
-    gui_name = 'Booq'
+    gui_name = 'bq Reader'
 
     FORMATS = ['epub', 'mobi', 'prc', 'fb2', 'pdf', 'doc', 'rtf', 'txt', 'html']
 
@@ -229,8 +230,8 @@ class POCKETBOOK301(USBMS):
 
 class POCKETBOOK602(USBMS):
 
-    name = 'PocketBook Pro 602 Device Interface'
-    description    = _('Communicate with the PocketBook 602 reader.')
+    name = 'PocketBook Pro 602/902 Device Interface'
+    description    = _('Communicate with the PocketBook 602/603/902/903 reader.')
     author         = 'Kovid Goyal'
     supported_platforms = ['windows', 'osx', 'linux']
     FORMATS = ['epub', 'fb2', 'prc', 'mobi', 'pdf', 'djvu', 'rtf', 'chm',
@@ -244,5 +245,34 @@ class POCKETBOOK602(USBMS):
     BCD         = [0x0324]
 
     VENDOR_NAME = ''
-    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'PB602'
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['PB602', 'PB603', 'PB902', 'PB903']
+
+class POCKETBOOK701(USBMS):
+
+    name = 'PocketBook 701 Device Interface'
+    description = _('Communicate with the PocketBook 701')
+    author = _('Kovid Goyal')
+
+    supported_platforms = ['windows', 'osx', 'linux']
+    FORMATS = ['epub', 'fb2', 'prc', 'mobi', 'pdf', 'djvu', 'rtf', 'chm',
+            'doc', 'tcr', 'txt']
+
+    EBOOK_DIR_MAIN = 'books'
+    SUPPORTS_SUB_DIRS = True
+
+    VENDOR_ID   = [0x18d1]
+    PRODUCT_ID  = [0xa004]
+    BCD         = [0x0224]
+
+    VENDOR_NAME = 'ANDROID'
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = '__UMS_COMPOSITE'
+
+    def windows_sort_drives(self, drives):
+        if len(drives) < 2: return drives
+        main = drives.get('main', None)
+        carda = drives.get('carda', None)
+        if main and carda:
+            drives['main'] = carda
+            drives['carda'] = main
+        return drives
 

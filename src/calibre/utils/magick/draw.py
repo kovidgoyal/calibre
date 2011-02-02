@@ -54,25 +54,35 @@ def save_cover_data_to(data, path, bgcolor='#ffffff', resize_to=None,
         changed = True
     if not changed:
         changed = fmt != orig_fmt
+
+    ret = None
     if return_data:
+        ret = data
         if changed:
             if hasattr(img, 'set_compression_quality') and fmt == 'jpg':
                 img.set_compression_quality(compression_quality)
-            return img.export(fmt)
-        return data
-    if changed:
-        if hasattr(img, 'set_compression_quality') and fmt == 'jpg':
-            img.set_compression_quality(compression_quality)
-        img.save(path)
+            ret = img.export(fmt)
     else:
-        with lopen(path, 'wb') as f:
-            f.write(data)
+        if changed:
+            if hasattr(img, 'set_compression_quality') and fmt == 'jpg':
+                img.set_compression_quality(compression_quality)
+            img.save(path)
+        else:
+            with lopen(path, 'wb') as f:
+                f.write(data)
+    return ret
 
-def thumbnail(data, width=120, height=120, bgcolor='#ffffff', fmt='jpg'):
+def thumbnail(data, width=120, height=120, bgcolor='#ffffff', fmt='jpg',
+              preserve_aspect_ratio=True):
     img = Image()
     img.load(data)
     owidth, oheight = img.size
-    scaled, nwidth, nheight = fit_image(owidth, oheight, width, height)
+    if not preserve_aspect_ratio:
+        scaled = owidth > width or oheight > height
+        nwidth = width
+        nheight = height
+    else:
+        scaled, nwidth, nheight = fit_image(owidth, oheight, width, height)
     if scaled:
         img.size = (nwidth, nheight)
     canvas = create_canvas(img.size[0], img.size[1], bgcolor)
@@ -88,7 +98,10 @@ def identify_data(data):
     or raises an Exception if data is not an image.
     '''
     img = Image()
-    img.load(data)
+    if hasattr(img, 'identify'):
+        img.identify(data)
+    else:
+        img.load(data)
     width, height = img.size
     fmt = img.format
     return (width, height, fmt)

@@ -1,0 +1,43 @@
+import re
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class ABCRecipe(BasicNewsRecipe):
+  title          = u'ABC Linuxu'
+  oldest_article = 5
+  max_articles_per_feed = 3#5
+  __author__ = 'Funthomas'
+  language = 'cs'
+
+  feeds = [
+    #(u'Blogy', u'http://www.abclinuxu.cz/auto/blogDigest.rss'),
+    (u'Články', u'http://www.abclinuxu.cz/auto/abc.rss'),
+    (u'Zprávičky','http://www.abclinuxu.cz/auto/zpravicky.rss')
+  ]
+
+  remove_javascript = True
+  no_stylesheets    = True
+  remove_attributes = ['width','height']
+
+  remove_tags_before = dict(name='h1')
+  remove_tags = [
+    dict(attrs={'class':['meta-vypis','page_tools','cl_perex']}),
+    dict(attrs={'class':['cl_nadpis-link','komix-nav']})
+  ]
+
+  remove_tags_after = [
+    dict(name='div',attrs={'class':['cl_perex','komix-nav']}),
+    dict(attrs={'class':['meta-vypis','page_tools']}),
+    dict(name='',attrs={'':''}),
+  ]
+
+
+  preprocess_regexps = [
+    (re.compile(r'</div>.*<p class="perex">', re.DOTALL),lambda match: '</div><p class="perex">')
+  ]
+  def print_version(self, url):
+    return url + '?varianta=print&noDiz'
+
+  extra_css = '''
+            h1 {font-size:130%; font-weight:bold}
+            h3 {font-size:111%; font-weight:bold}
+        '''

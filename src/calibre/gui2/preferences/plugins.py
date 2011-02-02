@@ -8,20 +8,23 @@ __docformat__ = 'restructuredtext en'
 import textwrap, os
 
 from PyQt4.Qt import Qt, QModelIndex, QAbstractItemModel, QVariant, QIcon, \
-        QBrush, QDialog, QDialogButtonBox, QVBoxLayout, QLabel, QLineEdit
+        QBrush
 
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget
 from calibre.gui2.preferences.plugins_ui import Ui_Form
 from calibre.customize.ui import initialized_plugins, is_disabled, enable_plugin, \
-                                 disable_plugin, customize_plugin, \
-                                 plugin_customization, add_plugin, \
+                                 disable_plugin, plugin_customization, add_plugin, \
                                  remove_plugin
-from calibre.gui2 import NONE, error_dialog, info_dialog, choose_files
+from calibre.gui2 import NONE, error_dialog, info_dialog, choose_files, \
+        question_dialog
+from calibre.utils.search_query_parser import SearchQueryParser
+from calibre.utils.icu import lower
 
-class PluginModel(QAbstractItemModel): # {{{
+class PluginModel(QAbstractItemModel, SearchQueryParser): # {{{
 
     def __init__(self, *args):
         QAbstractItemModel.__init__(self, *args)
+        SearchQueryParser.__init__(self, ['all'])
         self.icon = QVariant(QIcon(I('plugins.png')))
         p = QIcon(self.icon).pixmap(32, 32, QIcon.Disabled, QIcon.On)
         self.disabled_icon = QVariant(QIcon(p))
@@ -39,6 +42,72 @@ class PluginModel(QAbstractItemModel): # {{{
 
         for plugins in self._data.values():
             plugins.sort(cmp=lambda x, y: cmp(x.name.lower(), y.name.lower()))
+
+    def universal_set(self):
+        ans = set([])
+        for c, category in enumerate(self.categories):
+            ans.add((c, -1))
+            for p, plugin in enumerate(self._data[category]):
+                ans.add((c, p))
+        return ans
+
+    def get_matches(self, location, query, candidates=None):
+        if candidates is None:
+            candidates = self.universal_set()
+        ans = set([])
+        if not query:
+            return ans
+        query = lower(query)
+        for c, p in candidates:
+            if p < 0:
+                if query in lower(self.categories[c]):
+                    ans.add((c, p))
+            else:
+                try:
+                    plugin = self._data[self.categories[c]][p]
+                except:
+                    continue
+            if query in lower(plugin.name) or query in lower(plugin.author) or \
+                    query in lower(plugin.description):
+                ans.add((c, p))
+        return ans
+
+    def find(self, query):
+        query = query.strip()
+        matches = self.parse(query)
+        if not matches:
+            return QModelIndex()
+        matches = list(sorted(matches))
+        c, p = matches[0]
+        cat_idx = self.index(c, 0, QModelIndex())
+        if p == -1:
+            return cat_idx
+        return self.index(p, 0, cat_idx)
+
+    def find_next(self, idx, query, backwards=False):
+        query = query.strip()
+        matches = self.parse(query)
+        if not matches:
+            return idx
+        if idx.parent().isValid():
+            loc = (idx.parent().row(), idx.row())
+        else:
+            loc = (idx.row(), -1)
+        if loc not in matches:
+            return self.find(query)
+        if len(matches) == 1:
+            return QModelIndex()
+        matches = list(sorted(matches))
+        i = matches.index(loc)
+        if backwards:
+            ans = i - 1 if i - 1 >= 0 else len(matches)-1
+        else:
+            ans = i + 1 if i + 1 < len(matches) else 0
+
+        ans = matches[ans]
+
+        return self.index(ans[0], 0, QModelIndex()) if ans[1] < 0 else \
+                self.index(ans[1], 0, self.index(ans[0], 0, QModelIndex()))
 
     def index(self, row, column, parent):
         if not self.hasIndex(row, column, parent):
@@ -77,6 +146,16 @@ class PluginModel(QAbstractItemModel): # {{{
                     return self.index(j, 0, parent)
         return QModelIndex()
 
+    def plugin_to_index_by_properties(self, plugin):
+        for i, category in enumerate(self.categories):
+            parent = self.index(i, 0, QModelIndex())
+            for j, p in enumerate(self._data[category]):
+                if plugin.name == p.name and plugin.type == p.type and \
+                        plugin.author == p.author and plugin.version == p.version:
+                    return self.index(j, 0, parent)
+        return QModelIndex()
+
+
     def refresh_plugin(self, plugin, rescan=False):
         if rescan:
             self.populate()
@@ -103,7 +182,7 @@ class PluginModel(QAbstractItemModel): # {{{
             plugin = self.index_to_plugin(index)
             if role == Qt.DisplayRole:
                 ver = '.'.join(map(str, plugin.version))
-                desc = '\n'.join(textwrap.wrap(plugin.description, 50))
+                desc = '\n'.join(textwrap.wrap(plugin.description, 100))
                 ans='%s (%s) %s %s\n%s'%(plugin.name, ver, _('by'), plugin.author, desc)
                 c = plugin_customization(plugin)
                 if c:
@@ -117,6 +196,7 @@ class PluginModel(QAbstractItemModel): # {{{
                 return plugin
         return NONE
 
+
 # }}}
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
@@ -129,14 +209,54 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.plugin_view.setModel(self._plugin_model)
         self.plugin_view.setStyleSheet(
                 "QTreeView::item { padding-bottom: 10px;}")
+        self.plugin_view.doubleClicked.connect(self.double_clicked)
         self.toggle_plugin_button.clicked.connect(self.toggle_plugin)
         self.customize_plugin_button.clicked.connect(self.customize_plugin)
         self.remove_plugin_button.clicked.connect(self.remove_plugin)
-        self.button_plugin_browse.clicked.connect(self.find_plugin)
         self.button_plugin_add.clicked.connect(self.add_plugin)
+        self.search.initialize('plugin_search_history',
+                help_text=_('Search for plugin'))
+        self.search.search.connect(self.find)
+        self.next_button.clicked.connect(self.find_next)
+        self.previous_button.clicked.connect(self.find_previous)
+
+    def find(self, query):
+        idx = self._plugin_model.find(query)
+        if not idx.isValid():
+            return info_dialog(self, _('No matches'),
+                    _('Could not find any matching plugins'), show=True,
+                    show_copy_button=False)
+        self.highlight_index(idx)
+
+    def highlight_index(self, idx):
+        self.plugin_view.scrollTo(idx)
+        self.plugin_view.selectionModel().select(idx,
+                self.plugin_view.selectionModel().ClearAndSelect)
+        self.plugin_view.setCurrentIndex(idx)
+
+    def find_next(self, *args):
+        idx = self.plugin_view.currentIndex()
+        if not idx.isValid():
+            idx = self._plugin_model.index(0, 0)
+        idx = self._plugin_model.find_next(idx,
+                unicode(self.search.currentText()))
+        self.highlight_index(idx)
+
+    def find_previous(self, *args):
+        idx = self.plugin_view.currentIndex()
+        if not idx.isValid():
+            idx = self._plugin_model.index(0, 0)
+        idx = self._plugin_model.find_next(idx,
+            unicode(self.search.currentText()), backwards=True)
+        self.highlight_index(idx)
+
 
     def toggle_plugin(self, *args):
         self.modify_plugin(op='toggle')
+
+    def double_clicked(self, index):
+        if index.parent().isValid():
+            self.modify_plugin(op='customize')
 
     def customize_plugin(self, *args):
         self.modify_plugin(op='customize')
@@ -145,26 +265,46 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.modify_plugin(op='remove')
 
     def add_plugin(self):
-        path = unicode(self.plugin_path.text())
-        if path and os.access(path, os.R_OK) and path.lower().endswith('.zip'):
-            add_plugin(path)
+        path = choose_files(self, 'add a plugin dialog', _('Add plugin'),
+                filters=[(_('Plugins') + ' (*.zip)', ['zip'])], all_files=False,
+                    select_only_single_file=True)
+        if not path:
+            return
+        path = path[0]
+        if path and  os.access(path, os.R_OK) and path.lower().endswith('.zip'):
+            if not question_dialog(self, _('Are you sure?'), '<p>' + \
+                    _('Installing plugins is a <b>security risk</b>. '
+                    'Plugins can contain a virus/malware. '
+                        'Only install it if you got it from a trusted source.'
+                        ' Are you sure you want to proceed?'),
+                    show_copy_button=False):
+                return
+            plugin = add_plugin(path)
             self._plugin_model.populate()
             self._plugin_model.reset()
             self.changed_signal.emit()
+            info_dialog(self, _('Success'),
+                    _('Plugin <b>{0}</b> successfully installed under <b>'
+                        ' {1} plugins</b>. You may have to restart calibre '
+                        'for the plugin to take effect.').format(plugin.name, plugin.type),
+                    show=True, show_copy_button=False)
+            idx = self._plugin_model.plugin_to_index_by_properties(plugin)
+            if idx.isValid():
+                self.highlight_index(idx)
         else:
             error_dialog(self, _('No valid plugin path'),
                          _('%s is not a valid plugin path')%path).exec_()
 
-    def find_plugin(self):
-        path = choose_files(self, 'choose plugin dialog', _('Choose plugin'),
-                            filters=[('Plugins', ['zip'])], all_files=False,
-                            select_only_single_file=True)
-        if path:
-            self.plugin_path.setText(path[0])
 
     def modify_plugin(self, op=''):
         index = self.plugin_view.currentIndex()
         if index.isValid():
+            if not index.parent().isValid():
+                name = unicode(index.data().toString())
+                return error_dialog(self, _('Error'), '<p>'+
+                        _('Select an actual plugin under <b>%s</b> to customize')%name,
+                        show=True, show_copy_button=False)
+
             plugin = self._plugin_model.index_to_plugin(index)
             if op == 'toggle':
                 if not plugin.can_be_disabled:
@@ -183,55 +323,22 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                         _('Plugin: %s does not need customization')%plugin.name).exec_()
                     return
                 self.changed_signal.emit()
-
-                config_dialog = QDialog(self)
-                button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
-                v = QVBoxLayout(config_dialog)
-
-                button_box.accepted.connect(config_dialog.accept)
-                button_box.rejected.connect(config_dialog.reject)
-                config_dialog.setWindowTitle(_('Customize') + ' ' + plugin.name)
-
-                if hasattr(plugin, 'config_widget'):
-                    config_widget = plugin.config_widget()
-                    v.addWidget(config_widget)
-                    v.addWidget(button_box)
-                    config_dialog.exec_()
-
-                    if config_dialog.result() == QDialog.Accepted:
-                        if hasattr(config_widget, 'validate'):
-                            if config_widget.validate():
-                                plugin.save_settings(config_widget)
-                        else:
-                            plugin.save_settings(config_widget)
-                        self._plugin_model.refresh_plugin(plugin)
-                else:
-                    help_text = plugin.customization_help(gui=True)
-                    help_text = QLabel(help_text, config_dialog)
-                    help_text.setWordWrap(True)
-                    help_text.setTextInteractionFlags(Qt.LinksAccessibleByMouse
-                            | Qt.LinksAccessibleByKeyboard)
-                    help_text.setOpenExternalLinks(True)
-                    v.addWidget(help_text)
-                    sc = plugin_customization(plugin)
-                    if not sc:
-                        sc = ''
-                    sc = sc.strip()
-                    sc = QLineEdit(sc, config_dialog)
-                    v.addWidget(sc)
-                    v.addWidget(button_box)
-                    config_dialog.exec_()
-
-                    if config_dialog.result() == QDialog.Accepted:
-                        sc = unicode(sc.text()).strip()
-                        customize_plugin(plugin, sc)
-
+                from calibre.customize import InterfaceActionBase
+                if isinstance(plugin, InterfaceActionBase) and not getattr(plugin,
+                        'actual_iaction_plugin_loaded', False):
+                    return error_dialog(self, _('Must restart'),
+                            _('You must restart calibre before you can'
+                                ' configure the <b>%s</b> plugin')%plugin.name, show=True)
+                if plugin.do_user_config():
                     self._plugin_model.refresh_plugin(plugin)
             elif op == 'remove':
+                msg = _('Plugin <b>{0}</b> successfully removed').format(plugin.name)
                 if remove_plugin(plugin):
                     self._plugin_model.populate()
                     self._plugin_model.reset()
                     self.changed_signal.emit()
+                    info_dialog(self, _('Success'), msg, show=True,
+                            show_copy_button=False)
                 else:
                     error_dialog(self, _('Cannot remove builtin plugin'),
                          plugin.name + _(' cannot be removed. It is a '

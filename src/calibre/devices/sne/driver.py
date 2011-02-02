@@ -23,16 +23,16 @@ class SNE(USBMS):
     FORMATS     = ['epub', 'pdf', 'txt']
 
     VENDOR_ID   = [0x04e8]
-    PRODUCT_ID  = [0x2051, 0x2053]
+    PRODUCT_ID  = [0x2051, 0x2053, 0x2054]
     BCD         = [0x0323]
 
     VENDOR_NAME = 'SAMSUNG'
-    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'SNE-60'
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['SNE-60', 'E65']
 
     MAIN_MEMORY_VOLUME_LABEL  = 'SNE Main Memory'
     STORAGE_CARD_VOLUME_LABEL = 'SNE Storage Card'
 
-    EBOOK_DIR_MAIN = 'Books'
+    EBOOK_DIR_MAIN = EBOOK_DIR_CARD_A = 'Books'
     SUPPORTS_SUB_DIRS = True
 
 

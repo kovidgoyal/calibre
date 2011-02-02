@@ -106,13 +106,16 @@ class Image(_magick.Image): # {{{
         return ans
 
     def load(self, data):
-        return _magick.Image.load(self, bytes(data))
+        data = bytes(data)
+        if not data:
+            raise ValueError('Cannot open image from empty data string')
+        return _magick.Image.load(self, data)
 
     def open(self, path_or_file):
         if not hasattr(path_or_file, 'read') and \
             path_or_file.lower().endswith('.wmf'):
             # Special handling for WMF files as ImageMagick seems
-            # to hand while reading them from a blob on linux
+            # to hang while reading them from a blob on linux
             if isinstance(path_or_file, unicode):
                 path_or_file = path_or_file.encode(filesystem_encoding)
             return _magick.Image.read(self, path_or_file)
@@ -121,6 +124,8 @@ class Image(_magick.Image): # {{{
             data = data.read()
         else:
             data = open(data, 'rb').read()
+        if not data:
+            raise ValueError('%r is an empty file'%path_or_file)
         self.load(data)
 
     @dynamic_property

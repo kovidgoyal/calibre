@@ -58,15 +58,55 @@ class PRS505(USBMS):
     SUPPORTS_USE_AUTHOR_SORT = True
     EBOOK_DIR_MAIN = 'database/media/books'
 
-    EXTRA_CUSTOMIZATION_MESSAGE = _('Comma separated list of metadata fields '
+    ALL_BY_TITLE  = _('All by title')
+    ALL_BY_AUTHOR = _('All by author')
+
+    EXTRA_CUSTOMIZATION_MESSAGE = [
+        _('Comma separated list of metadata fields '
             'to turn into collections on the device. Possibilities include: ')+\
-                    'series, tags, authors'
-    EXTRA_CUSTOMIZATION_DEFAULT = ', '.join(['series', 'tags'])
+                    'series, tags, authors' +\
+            _('. Two special collections are available: %s:%s and %s:%s. Add  '
+            'these values to the list to enable them. The collections will be '
+            'given the name provided after the ":" character.')%(
+                                    'abt', ALL_BY_TITLE, 'aba', ALL_BY_AUTHOR),
+            _('Upload separate cover thumbnails for books (newer readers)') +
+            ':::'+_('Normally, the SONY readers get the cover image from the'
+                ' ebook file itself. With this option, calibre will send a '
+                'separate cover image to the reader, useful if you are '
+                'sending DRMed books in which you cannot change the cover.'
+                ' WARNING: This option should only be used with newer '
+                'SONY readers: 350, 650, 950 and newer.'),
+            _('Refresh separate covers when using automatic management (newer readers)') +
+                ':::' +
+                _('Set this option to have separate book covers uploaded '
+                  'every time you connect your device. Unset this option if '
+                  'you have so many books on the reader that performance is '
+                  'unacceptable.'),
+            _('Preserve cover aspect ratio when building thumbnails') +
+                ':::' +
+                _('Set this option if you want the cover thumbnails to have '
+                  'the same aspect ratio (width to height) as the cover. '
+                  'Unset it if you want the thumbnail to be the maximum size, '
+                  'ignoring aspect ratio.')
+    ]
+    EXTRA_CUSTOMIZATION_DEFAULT = [
+                ', '.join(['series', 'tags']),
+                False,
+                False,
+                True
+    ]
+
+    OPT_COLLECTIONS    = 0
+    OPT_UPLOAD_COVERS  = 1
+    OPT_REFRESH_COVERS = 2
 
     plugboard = None
     plugboard_func = None
 
-    THUMBNAIL_HEIGHT = 200
+    THUMBNAIL_HEIGHT = 217
+
+    MAX_PATH_LEN = 201 # 250 - (max(len(CACHE_THUMBNAIL), len(MEDIA_THUMBNAIL)) +
+                       # len('main_thumbnail.jpg') + 1)
 
     def windows_filter_pnp_id(self, pnp_id):
         return '_LAUNCHER' in pnp_id
@@ -105,6 +145,13 @@ class PRS505(USBMS):
             if not write_cache(self._card_b_prefix):
                 self._card_b_prefix = None
         self.booklist_class.rebuild_collections = self.rebuild_collections
+        # Set the thumbnail width to the theoretical max if the user has asked
+        # that we do not preserve aspect ratio
+        if not self.settings().extra_customization[3]:
+            self.THUMBNAIL_WIDTH = 168
+        # Set WANTS_UPDATED_THUMBNAILS if the user has asked that thumbnails be
+        # updated on every connect
+        self.WANTS_UPDATED_THUMBNAILS = self.settings().extra_customization[2]
 
     def get_device_information(self, end_session=True):
         return (self.gui_name, '', '', '')
@@ -151,8 +198,8 @@ class PRS505(USBMS):
                 blists[i] = booklists[i]
         opts = self.settings()
         if opts.extra_customization:
-            collections = [x.lower().strip() for x in
-                    opts.extra_customization.split(',')]
+            collections = [x.strip() for x in
+                    opts.extra_customization[self.OPT_COLLECTIONS].split(',')]
         else:
             collections = []
         debug_print('PRS505: collection fields:', collections)
@@ -163,6 +210,23 @@ class PRS505(USBMS):
         debug_print('PRS505: use plugboards', pb)
         c.update(blists, collections, pb)
         c.write()
+
+        if opts.extra_customization[self.OPT_REFRESH_COVERS]:
+            debug_print('PRS505: uploading covers in sync_booklists')
+            for idx,bl in blists.items():
+                prefix = self._card_a_prefix if idx == 1 else \
+                                self._card_b_prefix if idx == 2 \
+                                    else self._main_prefix
+                for book in bl:
+                    try:
+                        p = os.path.join(prefix, book.lpath)
+                        self._upload_cover(os.path.dirname(p),
+                                          os.path.splitext(os.path.basename(p))[0],
+                                          book, p)
+                    except:
+                        debug_print('FAILED to upload cover', p)
+        else:
+            debug_print('PRS505: NOT uploading covers in sync_booklists')
 
         USBMS.sync_booklists(self, booklists, end_session=end_session)
         debug_print('PRS505: finished sync_booklists')
@@ -179,6 +243,18 @@ class PRS505(USBMS):
         self.plugboard_func = pb_func
 
     def upload_cover(self, path, filename, metadata, filepath):
+        opts = self.settings()
+        if not opts.extra_customization[self.OPT_UPLOAD_COVERS]:
+            # Building thumbnails disabled
+            debug_print('PRS505: not uploading cover')
+            return
+        debug_print('PRS505: uploading cover')
+        try:
+            self._upload_cover(path, filename, metadata, filepath)
+        except:
+            debug_print('FAILED to upload cover', filepath)
+
+    def _upload_cover(self, path, filename, metadata, filepath):
         if metadata.thumbnail and metadata.thumbnail[-1]:
             path = path.replace('/', os.sep)
             is_main = path.startswith(self._main_prefix)

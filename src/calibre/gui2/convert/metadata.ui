@@ -20,30 +20,6 @@
       <string>Book Cover</string>
      </property>
      <layout class="QGridLayout" name="_2">
-      <item row="0" column="0">
-       <layout class="QHBoxLayout" name="_3">
-        <item>
-         <widget class="ImageView" name="cover" native="true">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item row="2" column="0">
-       <widget class="QCheckBox" name="opt_prefer_metadata_cover">
-        <property name="text">
-         <string>Use cover from &amp;source file</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
       <item row="1" column="0">
        <layout class="QVBoxLayout" name="_4">
         <property name="spacing">
@@ -92,6 +68,30 @@
            </widget>
           </item>
          </layout>
+        </item>
+       </layout>
+      </item>
+      <item row="2" column="0">
+       <widget class="QCheckBox" name="opt_prefer_metadata_cover">
+        <property name="text">
+         <string>Use cover from &amp;source file</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <layout class="QHBoxLayout" name="_3">
+        <item>
+         <widget class="ImageView" name="cover" native="true">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
         </item>
        </layout>
       </item>
@@ -190,7 +190,7 @@
         </widget>
        </item>
        <item row="4" column="1">
-        <widget class="TagsLineEdit" name="tags">
+        <widget class="MultiCompleteLineEdit" name="tags">
          <property name="toolTip">
           <string>Tags categorize the book. This is particularly useful while searching. &lt;br&gt;&lt;br&gt;They can be any words or phrases, separated by commas.</string>
          </property>
@@ -213,7 +213,7 @@
         </widget>
        </item>
        <item row="5" column="1">
-        <widget class="EnComboBox" name="series">
+        <widget class="MultiCompleteComboBox" name="series">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
            <horstretch>10</horstretch>
@@ -248,14 +248,14 @@
         </widget>
        </item>
        <item row="3" column="1">
-        <widget class="EnComboBox" name="publisher">
+        <widget class="MultiCompleteComboBox" name="publisher">
          <property name="editable">
           <bool>true</bool>
          </property>
         </widget>
        </item>
        <item row="1" column="1">
-        <widget class="EnComboBox" name="author">
+        <widget class="MultiCompleteComboBox" name="author">
          <property name="editable">
           <bool>true</bool>
          </property>
@@ -264,35 +264,7 @@
       </layout>
      </item>
      <item>
-      <widget class="QGroupBox" name="groupBox_2">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>16777215</width>
-         <height>200</height>
-        </size>
-       </property>
-       <property name="title">
-        <string>Comments</string>
-       </property>
-       <layout class="QGridLayout" name="_8">
-        <item row="0" column="0">
-         <widget class="QTextEdit" name="comment">
-          <property name="maximumSize">
-           <size>
-            <width>16777215</width>
-            <height>180</height>
-           </size>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
+      <widget class="Editor" name="comment" native="true"/>
      </item>
     </layout>
    </item>
@@ -305,19 +277,25 @@
    <header>widgets.h</header>
   </customwidget>
   <customwidget>
-   <class>EnComboBox</class>
+   <class>MultiCompleteComboBox</class>
    <extends>QComboBox</extends>
-   <header>widgets.h</header>
+   <header>calibre/gui2/complete.h</header>
   </customwidget>
   <customwidget>
-   <class>TagsLineEdit</class>
+   <class>MultiCompleteLineEdit</class>
    <extends>QLineEdit</extends>
-   <header>widgets.h</header>
+   <header>calibre/gui2/complete.h</header>
   </customwidget>
   <customwidget>
    <class>ImageView</class>
    <extends>QWidget</extends>
    <header>calibre/gui2/widgets.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>Editor</class>
+   <extends>QWidget</extends>
+   <header>calibre/gui2/comments_editor.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
@@ -329,7 +307,6 @@
   <tabstop>tags</tabstop>
   <tabstop>series</tabstop>
   <tabstop>series_index</tabstop>
-  <tabstop>comment</tabstop>
   <tabstop>cover_path</tabstop>
   <tabstop>cover_button</tabstop>
   <tabstop>opt_prefer_metadata_cover</tabstop>

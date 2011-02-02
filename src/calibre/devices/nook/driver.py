@@ -91,3 +91,19 @@ class NOOK_COLOR(NOOK):
 
     EBOOK_DIR_MAIN = 'My Files/Books'
 
+    '''
+    def create_upload_path(self, path, mdata, fname, create_dirs=True):
+        filepath = NOOK.create_upload_path(self, path, mdata, fname,
+                create_dirs=create_dirs)
+        edm = self.EBOOK_DIR_MAIN.replace('/', os.sep)
+        npath = os.path.join(edm, _('News')) + os.sep
+        if npath in filepath:
+            filepath = filepath.replace(npath, os.sep.join('My Files',
+                'Magazines')+os.sep)
+            filedir = os.path.dirname(filepath)
+            if create_dirs and not os.path.exists(filedir):
+                os.makedirs(filedir)
+
+        return filepath
+    '''
+

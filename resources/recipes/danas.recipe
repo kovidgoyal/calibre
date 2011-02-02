@@ -1,5 +1,5 @@
 __license__   = 'GPL v3'
-__copyright__ = '2008-2010, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2008-2011, Darko Miletic <darko.miletic at gmail.com>'
 '''
 danas.rs
 '''
@@ -33,13 +33,15 @@ class Danas(BasicNewsRecipe):
                                               margin-bottom: 0; 
                                               margin-top: 0} 
                                 h2,.datum,.lokacija,.autor{font-size: small}
+                                .autor{text-transform: uppercase}
                                 .antrfileNaslov{border-left: 2px solid #999999; 
                                                 margin-left: 0.8em; 
                                                 padding-left: 1.2em; 
                                                 font-weight:bold; 
                                                 margin-bottom: 0; 
                                                 margin-top: 0} 
-                                img{margin-bottom: 0.8em} 
+                                img{margin-bottom: 0.8em}
+                                .naslovTemeDana{font-size: small}
                             """
 
     conversion_options = {
@@ -62,6 +64,7 @@ class Danas(BasicNewsRecipe):
                           ,(re.compile(u'\u00f4'), lambda match: '&ldquo;') # latin small letter o with circumflex
                           ,(re.compile(u'\u00f6'), lambda match: '&rdquo;') # latin small letter o with dieaeresis
                           ,(re.compile(u'\u00e1'), lambda match: '&nbsp;' ) # latin small letter a with acute
+                          ,(re.compile(u'\u00e4'), lambda match: '&nbsp;' ) # latin small letter a with dieaeresis
                          ]
 
     keep_only_tags     = [dict(name='div', attrs={'id':'left'})]
@@ -124,6 +127,6 @@ class Danas(BasicNewsRecipe):
         cover_url = None
         soup = self.index_to_soup('http://www.danas.rs/')
         for citem in soup.findAll('img'):
-            if citem['src'].endswith('naslovna.jpg'):
+            if citem['src'].endswith('naslovna.jpg') or citem['src'].endswith('naslovna1.jpg'):
                return 'http://www.danas.rs' + citem['src']
         return cover_url

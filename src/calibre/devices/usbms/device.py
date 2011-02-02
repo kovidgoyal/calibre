@@ -11,7 +11,7 @@ intended to be subclassed with the relevant parts implemented for a particular
 device. This class handles device detection.
 '''
 
-import os, subprocess, time, re, sys, glob, operator
+import os, subprocess, time, re, sys, glob
 from itertools import repeat
 
 from calibre.devices.interface import DevicePlugin
@@ -97,6 +97,9 @@ class Device(DeviceConfig, DevicePlugin):
     # USB disk-based devices can see the book files on the device, so can
     # copy these back to the library
     BACKLOADING_ERROR_MESSAGE = None
+
+    #: The maximum length of paths created on the device
+    MAX_PATH_LEN = 250
 
     def reset(self, key='-1', log_packets=False, report_progress=None,
             detected_device=None):
@@ -225,7 +228,7 @@ class Device(DeviceConfig, DevicePlugin):
         return False
 
     def open_windows(self):
-        from calibre.devices.scanner import win_pnp_drives
+        from calibre.devices.scanner import win_pnp_drives, drivecmp
 
         time.sleep(5)
         drives = {}
@@ -263,7 +266,7 @@ class Device(DeviceConfig, DevicePlugin):
         if self.WINDOWS_MAIN_MEM in (self.WINDOWS_CARD_A_MEM,
                 self.WINDOWS_CARD_B_MEM) or \
                 self.WINDOWS_CARD_A_MEM == self.WINDOWS_CARD_B_MEM:
-            letters = sorted(drives.values(), key=operator.attrgetter('order'))
+            letters = sorted(drives.values(), cmp=drivecmp)
             drives = {}
             for which, letter in zip(['main', 'carda', 'cardb'], letters):
                 drives[which] = letter
@@ -605,8 +608,9 @@ class Device(DeviceConfig, DevicePlugin):
 
         main, carda, cardb = self.find_device_nodes()
         if main is None:
-            raise DeviceError(_('Unable to detect the %s disk drive. Your '
-            ' kernel is probably exporting a deprecated version of SYSFS.')
+            raise DeviceError(_('Unable to detect the %s disk drive. Either '
+            'the device has already been ejected, or your '
+            'kernel is exporting a deprecated version of SYSFS.')
                     %self.__class__.__name__)
 
         self._linux_mount_map = {}
@@ -874,7 +878,7 @@ class Device(DeviceConfig, DevicePlugin):
 
     def create_upload_path(self, path, mdata, fname, create_dirs=True):
         path = os.path.abspath(path)
-        extra_components = []
+        maxlen = self.MAX_PATH_LEN
 
         special_tag = None
         if mdata.tags:
@@ -901,7 +905,7 @@ class Device(DeviceConfig, DevicePlugin):
         app_id = str(getattr(mdata, 'application_id', ''))
         # The db id will be in the created filename
         extra_components = get_components(template, mdata, fname,
-                timefmt=opts.send_timefmt, length=250-len(app_id)-1)
+                timefmt=opts.send_timefmt, length=maxlen-len(app_id)-1)
         if not extra_components:
             extra_components.append(sanitize(self.filename_callback(fname,
                 mdata)))
@@ -936,11 +940,10 @@ class Device(DeviceConfig, DevicePlugin):
             return ans
 
         extra_components = list(map(remove_trailing_periods, extra_components))
-        components = shorten_components_to(250 - len(path), extra_components)
+        components = shorten_components_to(maxlen - len(path), extra_components)
         components = self.sanitize_path_components(components)
         filepath = os.path.join(path, *components)
         filedir = os.path.dirname(filepath)
-
 
         if create_dirs and not os.path.exists(filedir):
             os.makedirs(filedir)

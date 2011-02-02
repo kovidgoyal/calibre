@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, cPickle
+import sys, cPickle, shutil
 
 from PyQt4.Qt import QString, SIGNAL, QAbstractListModel, Qt, QVariant, QFont
 
@@ -16,6 +16,8 @@ from calibre.ebooks.conversion.config import GuiRecommendations, save_specifics,
 from calibre.gui2.convert.single_ui import Ui_Dialog
 from calibre.gui2.convert.metadata import MetadataWidget
 from calibre.gui2.convert.look_and_feel import LookAndFeelWidget
+from calibre.gui2.convert.heuristics import HeuristicsWidget
+from calibre.gui2.convert.search_and_replace import SearchAndReplaceWidget
 from calibre.gui2.convert.page_setup import PageSetupWidget
 from calibre.gui2.convert.structure_detection import StructureDetectionWidget
 from calibre.gui2.convert.toc import TOCWidget
@@ -170,6 +172,8 @@ class Config(ResizableDialog, Ui_Dialog):
         self.mw = widget_factory(MetadataWidget)
         self.setWindowTitle(_('Convert')+ ' ' + unicode(self.mw.title.text()))
         lf = widget_factory(LookAndFeelWidget)
+        hw = widget_factory(HeuristicsWidget)
+        sr = widget_factory(SearchAndReplaceWidget)
         ps = widget_factory(PageSetupWidget)
         sd = widget_factory(StructureDetectionWidget)
         toc = widget_factory(TOCWidget)
@@ -203,7 +207,7 @@ class Config(ResizableDialog, Ui_Dialog):
             if not c: break
             self.stack.removeWidget(c)
 
-        widgets = [self.mw, lf, ps, sd, toc]
+        widgets = [self.mw, lf, hw, ps, sd, toc, sr]
         if input_widget is not None:
             widgets.append(input_widget)
         if output_widget is not None:
@@ -220,6 +224,10 @@ class Config(ResizableDialog, Ui_Dialog):
         idx = oidx if -1 < oidx < self._groups_model.rowCount() else 0
         self.groups.setCurrentIndex(self._groups_model.index(idx))
         self.stack.setCurrentIndex(idx)
+        try:
+            shutil.rmtree(self.plumber.archive_input_tdir, ignore_errors=True)
+        except:
+            pass
 
 
     def setup_input_output_formats(self, db, book_id, preferred_input_format,

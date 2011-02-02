@@ -29,6 +29,9 @@ from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.metadata.opf2 import OPFCreator, OPF
 from calibre.ebooks.metadata.toc import TOC
 
+class TopazError(ValueError):
+    pass
+
 class EXTHHeader(object):
 
     def __init__(self, raw, codec, title):
@@ -100,6 +103,8 @@ class EXTHHeader(object):
                 pass
         elif id == 108:
             pass # Producer
+        elif id == 113:
+            pass # ASIN or UUID
         #else:
         #    print 'unhandled metadata record', id, repr(content)
 
@@ -136,7 +141,7 @@ class BookHeader(object):
                     65001: 'utf-8',
                     }[self.codepage]
             except (IndexError, KeyError):
-                self.codec = 'cp1252' if user_encoding is None else user_encoding
+                self.codec = 'cp1252' if not user_encoding else user_encoding
                 log.warn('Unknown codepage %d. Assuming %s' % (self.codepage,
                     self.codec))
             if ident == 'TEXTREAD' or self.length < 0xE4 or 0xE8 < self.length \
@@ -239,7 +244,7 @@ class MobiReader(object):
         self.base_css_rules = textwrap.dedent('''
                 blockquote { margin: 0em 0em 0em 2em; text-align: justify }
 
-                p { margin: 0em; text-align: justify }
+                p { margin: 0em; text-align: justify; text-indent: 1.5em }
 
                 .bold { font-weight: bold }
 
@@ -259,7 +264,7 @@ class MobiReader(object):
 
         raw = stream.read()
         if raw.startswith('TPZ'):
-            raise ValueError(_('This is an Amazon Topaz book. It cannot be processed.'))
+            raise TopazError(_('This is an Amazon Topaz book. It cannot be processed.'))
 
         self.header   = raw[0:72]
         self.name     = self.header[:32].replace('\x00', '')
@@ -485,7 +490,7 @@ class MobiReader(object):
 
 
     def remove_random_bytes(self, html):
-        return re.sub('\x14|\x15|\x19|\x1c|\x1d|\xef|\x12|\x13|\xec|\x08',
+        return re.sub('\x14|\x15|\x19|\x1c|\x1d|\xef|\x12|\x13|\xec|\x08|\x01|\x02|\x03|\x04|\x05|\x06|\x07',
                     '', html)
 
     def ensure_unit(self, raw, unit='px'):
@@ -504,16 +509,23 @@ class MobiReader(object):
             'x-large': '5',
             'xx-large': '6',
             }
+        def barename(x):
+            return x.rpartition(':')[-1]
+
         mobi_version = self.book_header.mobi_version
         for x in root.xpath('//ncx'):
             x.getparent().remove(x)
+        svg_tags = []
         for i, tag in enumerate(root.iter(etree.Element)):
             tag.attrib.pop('xmlns', '')
             for x in tag.attrib:
                 if ':' in x:
                     del tag.attrib[x]
-            if tag.tag in ('country-region', 'place', 'placetype', 'placename',
-                'state', 'city', 'street', 'address', 'content', 'form'):
+            if tag.tag and barename(tag.tag) == 'svg':
+                svg_tags.append(tag)
+            if tag.tag and barename(tag.tag.lower()) in \
+                ('country-region', 'place', 'placetype', 'placename',
+                    'state', 'city', 'street', 'address', 'content', 'form'):
                 tag.tag = 'div' if tag.tag in ('content', 'form') else 'span'
                 for key in tag.attrib.keys():
                     tag.attrib.pop(key)
@@ -532,7 +544,17 @@ class MobiReader(object):
                         elif tag.tag == 'img':
                             tag.set('height', height)
                         else:
-                            styles.append('margin-top: %s' % self.ensure_unit(height))
+                            if tag.tag == 'div' and not tag.text and \
+                                    (not tag.tail or not tag.tail.strip()) and \
+                                    not len(list(tag.iterdescendants())):
+                                # Paragraph spacer
+                                # Insert nbsp so that the element is never
+                                # discarded by a renderer
+                                tag.text = u'\u00a0' # nbsp
+                                styles.append('height: %s' %
+                                        self.ensure_unit(height))
+                            else:
+                                styles.append('margin-top: %s' % self.ensure_unit(height))
             if attrib.has_key('width'):
                 width = attrib.pop('width').strip()
                 if width and re.search(r'\d+', width):
@@ -620,6 +642,20 @@ class MobiReader(object):
                 cls = attrib.get('class', '')
                 cls = cls + (' ' if cls else '') + ncls
                 attrib['class'] = cls
+
+        for tag in svg_tags:
+            images = tag.xpath('descendant::img[@src]')
+            parent = tag.getparent()
+
+            if images and hasattr(parent, 'find'):
+                index = parent.index(tag)
+                for img in images:
+                    img.getparent().remove(img)
+                    img.tail = img.text = None
+                    parent.insert(index, img)
+
+            if hasattr(parent, 'remove'):
+                parent.remove(tag)
 
     def create_opf(self, htmlfile, guide=None, root=None):
         mi = getattr(self.book_header.exth, 'mi', self.embedded_mi)
@@ -828,6 +864,15 @@ class MobiReader(object):
             im.save(open(path, 'wb'), format='JPEG')
 
 def get_metadata(stream):
+    stream.seek(0)
+    try:
+        raw = stream.read(3)
+    except:
+        raw = ''
+    stream.seek(0)
+    if raw == 'TPZ':
+        from calibre.ebooks.metadata.topaz import get_metadata
+        return get_metadata(stream)
     from calibre.utils.logging import Log
     log = Log()
     mi = MetaInformation(os.path.basename(stream.name), [_('Unknown')])
@@ -857,7 +902,10 @@ def get_metadata(stream):
         cover_index = mh.first_image_index + mh.exth.cover_offset
         data  = mh.section_data(int(cover_index))
     else:
-        data  = mh.section_data(mh.first_image_index)
+        try:
+            data  = mh.section_data(mh.first_image_index)
+        except:
+            data = ''
     buf = cStringIO.StringIO(data)
     try:
         im = PILImage.open(buf)

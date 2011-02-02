@@ -32,6 +32,11 @@ class ChooseLibrary(QDialog, Ui_Dialog):
         loc = unicode(self.old_location.text()).format(lp)
         self.old_location.setText(loc)
         self.browse_button.clicked.connect(self.choose_loc)
+        self.empty_library.toggled.connect(self.empty_library_toggled)
+        self.copy_structure.setEnabled(False)
+
+    def empty_library_toggled(self, to_what):
+        self.copy_structure.setEnabled(to_what)
 
     def choose_loc(self, *args):
         loc = choose_dir(self, 'choose library location',
@@ -64,7 +69,7 @@ class ChooseLibrary(QDialog, Ui_Dialog):
     def perform_action(self, ac, loc):
         if ac in ('new', 'existing'):
             prefs['library_path'] = loc
-            self.callback(loc)
+            self.callback(loc, copy_structure=self.copy_structure.isChecked())
         else:
             move_library(self.db.library_path, loc, self.parent(),
                     self.callback)

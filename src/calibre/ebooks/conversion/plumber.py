@@ -72,7 +72,8 @@ class Plumber(object):
         ]
 
     def __init__(self, input, output, log, report_progress=DummyReporter(),
-            dummy=False, merge_plugin_recs=True, abort_after_input_dump=False):
+            dummy=False, merge_plugin_recs=True, abort_after_input_dump=False,
+            override_input_metadata=False):
         '''
         :param input: Path to input file.
         :param output: Path to output file/directory
@@ -87,7 +88,9 @@ class Plumber(object):
         self.log = log
         self.ui_reporter = report_progress
         self.abort_after_input_dump = abort_after_input_dump
+        self.override_input_metadata = override_input_metadata
 
+        # Pipeline options {{{
         # Initialize the conversion options that are independent of input and
         # output formats. The input and output plugins can still disable these
         # options via recommendations.
@@ -160,13 +163,30 @@ OptionRecommendation(name='disable_font_rescaling',
                    )
         ),
 
+OptionRecommendation(name='minimum_line_height',
+            recommended_value=120.0, level=OptionRecommendation.LOW,
+            help=_(
+            'The minimum line height, as a percentage of the element\'s '
+            'calculated font size. calibre will ensure that every element '
+            'has a line height of at least this setting, irrespective of '
+            'what the input document specifies. Set to zero to disable. '
+            'Default is 120%. Use this setting in preference to '
+            'the direct line height specification, unless you know what '
+            'you are doing. For example, you can achieve "double spaced" '
+            'text by setting this to 240.'
+            )
+        ),
+
 
 OptionRecommendation(name='line_height',
             recommended_value=0, level=OptionRecommendation.LOW,
-            help=_('The line height in pts. Controls spacing between consecutive '
-                   'lines of text. By default no line height manipulation is '
-                   'performed.'
-                   )
+            help=_(
+            'The line height in pts. Controls spacing between consecutive '
+            'lines of text. Only applies to elements that do not define '
+            'their own line height. In most cases, the minimum line height '
+            'option is more useful. '
+            'By default no line height manipulation is performed.'
+            )
         ),
 
 OptionRecommendation(name='linearize_tables',
@@ -358,54 +378,11 @@ OptionRecommendation(name='insert_metadata',
             )
         ),
 
-OptionRecommendation(name='preprocess_html',
-        recommended_value=False, level=OptionRecommendation.LOW,
-        help=_('Attempt to detect and correct hard line breaks and other '
-            'problems in the source file. This may make things worse, so use '
-            'with care.'
-            )
-        ),
-
-OptionRecommendation(name='html_unwrap_factor',
-        recommended_value=0.40, level=OptionRecommendation.LOW,
-        help=_('Scale used to determine the length at which a line should '
-            'be unwrapped if preprocess is enabled. Valid values are a decimal between 0 and 1. The '
-            'default is 0.40, just below the median line length. This will unwrap typical books '
-            ' with hard line breaks, but should be reduced if the line length is variable.'
-            )
-        ),
-
 OptionRecommendation(name='smarten_punctuation',
         recommended_value=False, level=OptionRecommendation.LOW,
         help=_('Convert plain quotes, dashes and ellipsis to their '
             'typographically correct equivalents. For details, see '
             'http://daringfireball.net/projects/smartypants'
-            )
-        ),
-
-OptionRecommendation(name='remove_header',
-        recommended_value=False, level=OptionRecommendation.LOW,
-        help=_('Use a regular expression to try and remove the header.'
-            )
-        ),
-
-OptionRecommendation(name='header_regex',
-        recommended_value='(?i)(?<=<hr>)((\s*<a name=\d+></a>((<img.+?>)*<br>\s*)?\d+<br>\s*.*?\s*)|(\s*<a name=\d+></a>((<img.+?>)*<br>\s*)?.*?<br>\s*\d+))(?=<br>)',
-        level=OptionRecommendation.LOW,
-        help=_('The regular expression to use to remove the header.'
-            )
-        ),
-
-OptionRecommendation(name='remove_footer',
-        recommended_value=False, level=OptionRecommendation.LOW,
-        help=_('Use a regular expression to try and remove the footer.'
-            )
-        ),
-
-OptionRecommendation(name='footer_regex',
-        recommended_value='(?i)(?<=<hr>)((\s*<a name=\d+></a>((<img.+?>)*<br>\s*)?\d+<br>\s*.*?\s*)|(\s*<a name=\d+></a>((<img.+?>)*<br>\s*)?.*?<br>\s*\d+))(?=<br>)',
-        level=OptionRecommendation.LOW,
-        help=_('The regular expression to use to remove the footer.'
             )
         ),
 
@@ -509,16 +486,107 @@ OptionRecommendation(name='timestamp',
     recommended_value=None, level=OptionRecommendation.LOW,
     help=_('Set the book timestamp (used by the date column in calibre).')),
 
+OptionRecommendation(name='enable_heuristics',
+    recommended_value=False, level=OptionRecommendation.LOW,
+    help=_('Enable heuristic processing. This option must be set for any '
+           'heuristic processing to take place.')),
+
+OptionRecommendation(name='markup_chapter_headings',
+    recommended_value=True, level=OptionRecommendation.LOW,
+    help=_('Detect unformatted chapter headings and sub headings. Change '
+           'them to h2 and h3 tags.  This setting will not create a TOC, '
+           'but can be used in conjunction with structure detection to create '
+           'one.')),
+
+OptionRecommendation(name='italicize_common_cases',
+    recommended_value=True, level=OptionRecommendation.LOW,
+    help=_('Look for common words and patterns that denote '
+           'italics and italicize them.')),
+
+OptionRecommendation(name='fix_indents',
+    recommended_value=True, level=OptionRecommendation.LOW,
+    help=_('Turn indentation created from multiple non-breaking space entities '
+           'into CSS indents.')),
+
+OptionRecommendation(name='html_unwrap_factor',
+    recommended_value=0.40, level=OptionRecommendation.LOW,
+    help=_('Scale used to determine the length at which a line should '
+            'be unwrapped. Valid values are a decimal between 0 and 1. The '
+            'default is 0.4, just below the median line length.  If only a '
+            'few lines in the document require unwrapping this value should '
+            'be reduced')),
+
+OptionRecommendation(name='unwrap_lines',
+    recommended_value=True, level=OptionRecommendation.LOW,
+    help=_('Unwrap lines using punctuation and other formatting clues.')),
+
+OptionRecommendation(name='delete_blank_paragraphs',
+    recommended_value=True, level=OptionRecommendation.LOW,
+    help=_('Remove empty paragraphs from the document when they exist between '
+           'every other paragraph')),
+
+OptionRecommendation(name='format_scene_breaks',
+    recommended_value=True, level=OptionRecommendation.LOW,
+    help=_('Left aligned scene break markers are center aligned. '
+           'Replace soft scene breaks that use multiple blank lines with'
+           'horizontal rules.')),
+
+OptionRecommendation(name='replace_scene_breaks',
+    recommended_value='', level=OptionRecommendation.LOW,
+    help=_('Replace scene breaks with the specified text. By default, the '
+        'text from the input document is used.')),
+
+OptionRecommendation(name='dehyphenate',
+    recommended_value=True, level=OptionRecommendation.LOW,
+    help=_('Analyze hyphenated words throughout the document.  The '
+           'document itself is used as a dictionary to determine whether hyphens '
+           'should be retained or removed.')),
+
+OptionRecommendation(name='renumber_headings',
+    recommended_value=True, level=OptionRecommendation.LOW,
+    help=_('Looks for occurrences of sequential <h1> or <h2> tags. '
+           'The tags are renumbered to prevent splitting in the middle '
+           'of chapter headings.')),
+
+OptionRecommendation(name='sr1_search',
+    recommended_value='', level=OptionRecommendation.LOW,
+    help=_('Search pattern (regular expression) to be replaced with '
+           'sr1-replace.')),
+
+OptionRecommendation(name='sr1_replace',
+    recommended_value='', level=OptionRecommendation.LOW,
+    help=_('Replacement to replace the text found with sr1-search.')),
+
+OptionRecommendation(name='sr2_search',
+    recommended_value='', level=OptionRecommendation.LOW,
+    help=_('Search pattern (regular expression) to be replaced with '
+           'sr2-replace.')),
+
+OptionRecommendation(name='sr2_replace',
+    recommended_value='', level=OptionRecommendation.LOW,
+    help=_('Replacement to replace the text found with sr2-search.')),
+
+OptionRecommendation(name='sr3_search',
+    recommended_value='', level=OptionRecommendation.LOW,
+    help=_('Search pattern (regular expression) to be replaced with '
+           'sr3-replace.')),
+
+OptionRecommendation(name='sr3_replace',
+    recommended_value='', level=OptionRecommendation.LOW,
+    help=_('Replacement to replace the text found with sr3-search.')),
 ]
+        # }}}
 
         input_fmt = os.path.splitext(self.input)[1]
         if not input_fmt:
             raise ValueError('Input file must have an extension')
         input_fmt = input_fmt[1:].lower()
+        self.archive_input_tdir = None
         if input_fmt in ('zip', 'rar', 'oebzip'):
             self.log('Processing archive...')
-            tdir = PersistentTemporaryDirectory('_plumber')
+            tdir = PersistentTemporaryDirectory('_plumber_archive')
             self.input, input_fmt = self.unarchive(self.input, tdir)
+            self.archive_input_tdir = tdir
         if os.access(self.input, os.R_OK):
             nfp = run_plugins_on_preprocess(self.input, input_fmt)
             if nfp != self.input:
@@ -842,7 +910,6 @@ OptionRecommendation(name='timestamp',
                 self.opts_to_mi(self.user_metadata)
             if not hasattr(self.oeb, 'manifest'):
                 self.oeb = create_oebbook(self.log, self.oeb, self.opts,
-                        self.input_plugin,
                         encoding=self.input_plugin.output_encoding)
             self.input_plugin.postprocess_book(self.oeb, self.opts, self.log)
             self.opts.is_image_collection = self.input_plugin.is_image_collection
@@ -866,7 +933,8 @@ OptionRecommendation(name='timestamp',
         self.opts.dest = self.opts.output_profile
 
         from calibre.ebooks.oeb.transforms.metadata import MergeMetadata
-        MergeMetadata()(self.oeb, self.user_metadata, self.opts)
+        MergeMetadata()(self.oeb, self.user_metadata, self.opts,
+                override_input_metadata=self.override_input_metadata)
         pr(0.2)
         self.flush()
 
@@ -952,14 +1020,15 @@ OptionRecommendation(name='timestamp',
         self.log(self.output_fmt.upper(), 'output written to', self.output)
         self.flush()
 
-def create_oebbook(log, path_or_stream, opts, input_plugin, reader=None,
+def create_oebbook(log, path_or_stream, opts, reader=None,
         encoding='utf-8', populate=True):
     '''
     Create an OEBBook.
     '''
     from calibre.ebooks.oeb.base import OEBBook
-    html_preprocessor = HTMLPreProcessor(input_plugin.preprocess_html,
-            opts.preprocess_html, opts)
+    html_preprocessor = HTMLPreProcessor(log, opts)
+    if not encoding:
+        encoding = None
     oeb = OEBBook(log, html_preprocessor,
             pretty_print=opts.pretty_print, input_encoding=encoding)
     if not populate:

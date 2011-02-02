@@ -565,8 +565,9 @@ datatype is one of: {0}
                           'applies if datatype is text.'))
     parser.add_option('--display', default='{}',
             help=_('A dictionary of options to customize how '
-                'the data in this column will be interpreted.'))
-
+                'the data in this column will be interpreted. This is a JSON '
+                ' string. For enumeration columns, use '
+                '--display=\'{"enum_values":["val1", "val2"]}\''))
     return parser
 
 
@@ -640,7 +641,7 @@ def catalog_option_parser(args):
     log = Log()
     parser = get_parser(_(
     '''
-    %prog catalog /path/to/destination.(csv|epub|mobi|xml ...) [options]
+    %prog catalog /path/to/destination.(CSV|EPUB|MOBI|XML ...) [options]
 
     Export a catalog in format specified by path/to/destination extension.
     Options control how entries are displayed in the generated catalog ouput.
@@ -692,10 +693,7 @@ def command_catalog(args, dbpath):
                             }
 
     with plugin:
-        plugin.run(args[1], opts, get_db(dbpath, opts))
-    return 0
-
-# end of GR additions
+        return int(bool(plugin.run(args[1], opts, get_db(dbpath, opts))))
 
 def parse_series_string(db, label, value):
     val = unicode(value).strip()
@@ -706,7 +704,7 @@ def parse_series_string(db, label, value):
         val = pat.sub('', val).strip()
         s_index = float(match.group(1))
     elif val:
-        if tweaks['series_index_auto_increment'] == 'next':
+        if tweaks['series_index_auto_increment'] != 'const':
             s_index = db.get_next_cc_series_num_for(val, label=label)
         else:
             s_index = 1.0
@@ -985,8 +983,8 @@ def command_restore_database(args, dbpath):
         return 1
 
     if not opts.really_do_it:
-        prints(_('You must provide the --really-do-it option to do a'
-            ' recovery'), end='\n\n')
+        prints(_('You must provide the %s option to do a'
+            ' recovery')%'--really-do-it', end='\n\n')
         parser.print_help()
         return 1
 

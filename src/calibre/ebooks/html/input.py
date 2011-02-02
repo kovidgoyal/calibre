@@ -21,10 +21,9 @@ from calibre.customize.conversion import InputFormatPlugin
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.customize.conversion import OptionRecommendation
 from calibre.constants import islinux, isfreebsd, iswindows
-from calibre import unicode_path
+from calibre import unicode_path, as_unicode
 from calibre.utils.localization import get_lang
 from calibre.utils.filenames import ascii_filename
-from calibre.ebooks.conversion.utils import PreProcessor
 
 class Link(object):
     '''
@@ -112,14 +111,14 @@ class HTMLFile(object):
             with open(self.path, 'rb') as f:
                 src = f.read()
         except IOError, err:
-            msg = 'Could not read from file: %s with error: %s'%(self.path, unicode(err))
+            msg = 'Could not read from file: %s with error: %s'%(self.path, as_unicode(err))
             if level == 0:
                 raise IOError(msg)
             raise IgnoreFile(msg, err.errno)
 
         self.is_binary = level > 0 and not bool(self.HTML_PAT.search(src[:4096]))
         if not self.is_binary:
-            if encoding is None:
+            if not encoding:
                 encoding = xml_to_unicode(src[:4096], verbose=verbose)[-1]
                 self.encoding = encoding
             else:
@@ -296,7 +295,7 @@ class HTMLInput(InputFormatPlugin):
             return oeb
 
         from calibre.ebooks.conversion.plumber import create_oebbook
-        return create_oebbook(log, stream.name, opts, self,
+        return create_oebbook(log, stream.name, opts,
                 encoding=opts.input_encoding)
 
     def is_case_sensitive(self, path):
@@ -314,6 +313,8 @@ class HTMLInput(InputFormatPlugin):
             rewrite_links, urlnormalize, urldefrag, BINARY_MIME, OEB_STYLES, \
             xpath
         from calibre import guess_type
+        from calibre.ebooks.oeb.transforms.metadata import \
+            meta_info_to_oeb_metadata
         import cssutils
         self.OEB_STYLES = OEB_STYLES
         oeb = create_oebbook(log, None, opts, self,
@@ -321,15 +322,7 @@ class HTMLInput(InputFormatPlugin):
         self.oeb = oeb
 
         metadata = oeb.metadata
-        if mi.title:
-            metadata.add('title', mi.title)
-        if mi.authors:
-            for a in mi.authors:
-                metadata.add('creator', a, attrib={'role':'aut'})
-        if mi.publisher:
-            metadata.add('publisher', mi.publisher)
-        if mi.isbn:
-            metadata.add('identifier', mi.isbn, attrib={'scheme':'ISBN'})
+        meta_info_to_oeb_metadata(mi, metadata, log)
         if not metadata.language:
             oeb.logger.warn(u'Language not specified')
             metadata.add('language', get_lang().replace('_', '-'))
@@ -491,9 +484,3 @@ class HTMLInput(InputFormatPlugin):
             self.log.exception('Failed to read CSS file: %r'%link)
             return (None, None)
         return (None, raw)
-
-    def preprocess_html(self, options, html):
-        self.options = options
-        preprocessor = PreProcessor(self.options, log=getattr(self, 'log', None))
-        return preprocessor(html)
-

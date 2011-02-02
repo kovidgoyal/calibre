@@ -7,23 +7,24 @@ import os, traceback, Queue, time, cStringIO, re, sys
 from threading import Thread
 
 from PyQt4.Qt import QMenu, QAction, QActionGroup, QIcon, SIGNAL, \
-                     Qt, pyqtSignal, QDialog, QMessageBox
+                     Qt, pyqtSignal, QDialog
 
 from calibre.customize.ui import available_input_formats, available_output_formats, \
     device_plugins
 from calibre.devices.interface import DevicePlugin
-from calibre.devices.errors import UserFeedback
-from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
+from calibre.devices.errors import UserFeedback, OpenFeedback
+from calibre.gui2.dialogs.choose_format_device import ChooseFormatDeviceDialog
 from calibre.utils.ipc.job import BaseJob
 from calibre.devices.scanner import DeviceScanner
 from calibre.gui2 import config, error_dialog, Dispatcher, dynamic, \
         warning_dialog, info_dialog, choose_dir
 from calibre.ebooks.metadata import authors_to_string
-from calibre import preferred_encoding, prints, force_unicode
+from calibre import preferred_encoding, prints, force_unicode, as_unicode
 from calibre.utils.filenames import ascii_filename
 from calibre.devices.errors import FreeSpaceError
 from calibre.devices.apple.driver import ITUNES_ASYNC
 from calibre.devices.folder_device.driver import FOLDER_DEVICE
+from calibre.devices.bambook.driver import BAMBOOK, BAMBOOKWifi
 from calibre.ebooks.metadata.meta import set_metadata
 from calibre.constants import DEBUG
 from calibre.utils.config import prefs, tweaks
@@ -67,13 +68,7 @@ class DeviceJob(BaseJob): # {{{
             if self._aborted:
                 return
             self.failed = True
-            try:
-                ex = unicode(err)
-            except:
-                try:
-                    ex = str(err).decode(preferred_encoding, 'replace')
-                except:
-                    ex = repr(err)
+            ex = as_unicode(err)
             self._details = ex + '\n\n' + \
                 traceback.format_exc()
             self.exception = err
@@ -122,7 +117,8 @@ def device_name_for_plugboards(device_class):
 
 class DeviceManager(Thread): # {{{
 
-    def __init__(self, connected_slot, job_manager, open_feedback_slot, sleep_time=2):
+    def __init__(self, connected_slot, job_manager, open_feedback_slot,
+            open_feedback_msg, sleep_time=2):
         '''
         :sleep_time: Time to sleep between device probes in secs
         '''
@@ -143,6 +139,7 @@ class DeviceManager(Thread): # {{{
         self.ejected_devices  = set([])
         self.mount_connection_requests = Queue.Queue(0)
         self.open_feedback_slot = open_feedback_slot
+        self.open_feedback_msg = open_feedback_msg
 
     def report_progress(self, *args):
         pass
@@ -163,6 +160,11 @@ class DeviceManager(Thread): # {{{
                 dev.reset(detected_device=detected_device,
                     report_progress=self.report_progress)
                 dev.open()
+            except OpenFeedback, e:
+                if dev not in self.ejected_devices:
+                    self.open_feedback_msg(dev.get_gui_name(), e.feedback_msg)
+                    self.ejected_devices.add(dev)
+                continue
             except:
                 tb = traceback.format_exc()
                 if DEBUG or tb not in self.reported_errors:
@@ -586,7 +588,6 @@ class DeviceMenu(QMenu): # {{{
 
     # }}}
 
-
 class DeviceMixin(object): # {{{
 
     def __init__(self):
@@ -594,19 +595,22 @@ class DeviceMixin(object): # {{{
                 _('Error communicating with device'), ' ')
         self.device_error_dialog.setModal(Qt.NonModal)
         self.device_manager = DeviceManager(Dispatcher(self.device_detected),
-                self.job_manager, Dispatcher(self.status_bar.show_message))
+                self.job_manager, Dispatcher(self.status_bar.show_message),
+                Dispatcher(self.show_open_feedback))
         self.device_manager.start()
         if tweaks['auto_connect_to_folder']:
             self.connect_to_folder_named(tweaks['auto_connect_to_folder'])
+
+    def show_open_feedback(self, devname, msg):
+        self.__of_dev_mem__ = d = info_dialog(self, devname, msg)
+        d.show()
 
     def auto_convert_question(self, msg, autos):
         autos = u'\n'.join(map(unicode, map(force_unicode, autos)))
         return self.ask_a_yes_no_question(
                 _('No suitable formats'), msg,
-                buttons=QMessageBox.Yes|QMessageBox.Cancel,
                 ans_when_user_unavailable=True,
-                det_msg=autos,
-                show_copy_button=False
+                det_msg=autos
         )
 
     def set_default_thumbnail(self, height):
@@ -623,6 +627,10 @@ class DeviceMixin(object): # {{{
                              _('Select folder to open as device'))
         if dir is not None:
             self.device_manager.mount_device(kls=FOLDER_DEVICE, kind='folder', path=dir)
+
+    def connect_to_bambook(self):
+        self.device_manager.mount_device(kls=BAMBOOKWifi, kind='bambook',
+                                         path=BAMBOOK.settings().extra_customization)
 
     def connect_to_itunes(self):
         self.device_manager.mount_device(kls=ITUNES_ASYNC, kind='itunes', path=None)
@@ -679,7 +687,7 @@ class DeviceMixin(object): # {{{
         except:
             pass
         if not self.device_error_dialog.isVisible():
-            self.device_error_dialog.setDetailedText(job.details)
+            self.device_error_dialog.set_details(job.details)
             self.device_error_dialog.show()
 
     # Device connected {{{
@@ -816,8 +824,25 @@ class DeviceMixin(object): # {{{
 
         fmt = None
         if specific:
-            d = ChooseFormatDialog(self, _('Choose format to send to device'),
-                                self.device_manager.device.settings().format_map)
+            formats = []
+            aval_out_formats = available_output_formats()
+            format_count = {}
+            for row in rows:
+                fmts = self.library_view.model().db.formats(row.row())
+                if fmts:
+                    for f in fmts.split(','):
+                        f = f.lower()
+                        if format_count.has_key(f):
+                            format_count[f] += 1
+                        else:
+                            format_count[f] = 1
+            for f in self.device_manager.device.settings().format_map:
+                if f in format_count.keys():
+                    formats.append((f, _('%i of %i Books') % (format_count[f],
+                        len(rows)), True if f in aval_out_formats else False))
+                elif f in aval_out_formats:
+                    formats.append((f, _('0 of %i Books') % len(rows), True))
+            d = ChooseFormatDeviceDialog(self, _('Choose format to send to device'), formats)
             if d.exec_() != QDialog.Accepted:
                 return
             if d.format():
@@ -847,6 +872,16 @@ class DeviceMixin(object): # {{{
             self.send_by_mail(to, fmts, delete)
 
     def cover_to_thumbnail(self, data):
+        if self.device_manager.device and \
+                hasattr(self.device_manager.device, 'THUMBNAIL_WIDTH'):
+            try:
+                return thumbnail(data,
+                                 self.device_manager.device.THUMBNAIL_WIDTH,
+                                 self.device_manager.device.THUMBNAIL_HEIGHT,
+                                 preserve_aspect_ratio=False)
+            except:
+                pass
+            return
         ht = self.device_manager.device.THUMBNAIL_HEIGHT \
                 if self.device_manager else DevicePlugin.THUMBNAIL_HEIGHT
         try:
@@ -1002,7 +1037,8 @@ class DeviceMixin(object): # {{{
         ids = [self.library_view.model().id(r) \
                for r in self.library_view.selectionModel().selectedRows()] \
                                 if send_ids is None else send_ids
-        if not self.device_manager or not ids or len(ids) == 0:
+        if not self.device_manager or not ids or len(ids) == 0 or \
+                not self.device_manager.is_device_connected:
             return
 
         settings = self.device_manager.device.settings()
@@ -1247,11 +1283,13 @@ class DeviceMixin(object): # {{{
             x = x.lower() if x else ''
             return string_pat.sub('', x)
 
+        update_metadata = prefs['manage_device_metadata'] == 'on_connect'
+
         # Force a reset if the caches are not initialized
         if reset or not hasattr(self, 'db_book_title_cache'):
             # Build a cache (map) of the library, so the search isn't On**2
-            self.db_book_title_cache = {}
-            self.db_book_uuid_cache = {}
+            db_book_title_cache = {}
+            db_book_uuid_cache = {}
             # It might be possible to get here without having initialized the
             # library view. In this case, simply give up
             try:
@@ -1259,11 +1297,16 @@ class DeviceMixin(object): # {{{
             except:
                 return False
 
+            get_covers = False
+            if update_metadata and self.device_manager.is_device_connected:
+                if self.device_manager.device.WANTS_UPDATED_THUMBNAILS:
+                    get_covers = True
+
             for id in db.data.iterallids():
-                mi = db.get_metadata(id, index_is_id=True)
+                mi = db.get_metadata(id, index_is_id=True, get_cover=get_covers)
                 title = clean_string(mi.title)
-                if title not in self.db_book_title_cache:
-                    self.db_book_title_cache[title] = \
+                if title not in db_book_title_cache:
+                    db_book_title_cache[title] = \
                                 {'authors':{}, 'author_sort':{}, 'db_ids':{}}
                 # If there are multiple books in the library with the same title
                 # and author, then remember the last one. That is OK, because as
@@ -1271,12 +1314,14 @@ class DeviceMixin(object): # {{{
                 # as another.
                 if mi.authors:
                     authors = clean_string(authors_to_string(mi.authors))
-                    self.db_book_title_cache[title]['authors'][authors] = mi
+                    db_book_title_cache[title]['authors'][authors] = mi
                 if mi.author_sort:
                     aus = clean_string(mi.author_sort)
-                    self.db_book_title_cache[title]['author_sort'][aus] = mi
-                self.db_book_title_cache[title]['db_ids'][mi.application_id] = mi
-                self.db_book_uuid_cache[mi.uuid] = mi
+                    db_book_title_cache[title]['author_sort'][aus] = mi
+                db_book_title_cache[title]['db_ids'][mi.application_id] = mi
+                db_book_uuid_cache[mi.uuid] = mi
+            self.db_book_title_cache = db_book_title_cache
+            self.db_book_uuid_cache = db_book_uuid_cache
 
         # Now iterate through all the books on the device, setting the
         # in_library field. If the UUID matches a book in the library, then
@@ -1284,7 +1329,6 @@ class DeviceMixin(object): # {{{
         # the application_id to the db_id of the matching book. This value
         # will be used by books_on_device to indicate matches.
 
-        update_metadata = prefs['manage_device_metadata'] == 'on_connect'
         for booklist in booklists:
             for book in booklist:
                 book.in_library = None
@@ -1355,6 +1399,12 @@ class DeviceMixin(object): # {{{
 
         if update_metadata:
             if self.device_manager.is_device_connected:
+                if self.device_manager.device.WANTS_UPDATED_THUMBNAILS:
+                    for blist in booklists:
+                        for book in blist:
+                            if book.cover and os.access(book.cover, os.R_OK):
+                                book.thumbnail = \
+                                    self.cover_to_thumbnail(open(book.cover, 'rb').read())
                 plugboards = self.library_view.model().db.prefs.get('plugboards', {})
                 self.device_manager.sync_booklists(
                                     Dispatcher(self.metadata_synced), booklists,

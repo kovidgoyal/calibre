@@ -13,8 +13,9 @@ from PyQt4.Qt import QTableView, Qt, QAbstractItemView, QMenu, pyqtSignal, \
     QPoint, QPixmap, QUrl, QImage, QPainter, QColor, QRect
 
 from calibre.gui2.library.delegates import RatingDelegate, PubDateDelegate, \
-    TextDelegate, DateDelegate, TagsDelegate, CcTextDelegate, \
-    CcBoolDelegate, CcCommentsDelegate, CcDateDelegate, CcTemplateDelegate
+    TextDelegate, DateDelegate, CompleteDelegate, CcTextDelegate, \
+    CcBoolDelegate, CcCommentsDelegate, CcDateDelegate, CcTemplateDelegate, \
+    CcEnumDelegate
 from calibre.gui2.library.models import BooksModel, DeviceBooksModel
 from calibre.utils.config import tweaks, prefs
 from calibre.gui2 import error_dialog, gprefs
@@ -56,6 +57,11 @@ class BooksView(QTableView): # {{{
         elif tweaks['doubleclick_on_library_view'] == 'open_viewer':
             self.setEditTriggers(self.SelectedClicked|self.editTriggers())
             self.doubleClicked.connect(parent.iactions['View'].view_triggered)
+        elif tweaks['doubleclick_on_library_view'] == 'edit_metadata':
+            # Must not enable single-click to edit, or the field will remain
+            # open in edit mode underneath the edit metadata dialog
+            self.doubleClicked.connect(
+                        partial(parent.iactions['Edit Metadata'].edit_metadata, checked=False))
 
         self.drag_allowed = True
         self.setDragEnabled(True)
@@ -70,12 +76,13 @@ class BooksView(QTableView): # {{{
         self.rating_delegate = RatingDelegate(self)
         self.timestamp_delegate = DateDelegate(self)
         self.pubdate_delegate = PubDateDelegate(self)
-        self.tags_delegate = TagsDelegate(self)
-        self.authors_delegate = TextDelegate(self)
+        self.tags_delegate = CompleteDelegate(self, ',', 'all_tags')
+        self.authors_delegate = CompleteDelegate(self, '&', 'all_author_names', True)
         self.series_delegate = TextDelegate(self)
         self.publisher_delegate = TextDelegate(self)
         self.text_delegate = TextDelegate(self)
         self.cc_text_delegate = CcTextDelegate(self)
+        self.cc_enum_delegate = CcEnumDelegate(self)
         self.cc_bool_delegate = CcBoolDelegate(self)
         self.cc_comments_delegate = CcCommentsDelegate(self)
         self.cc_template_delegate = CcTemplateDelegate(self)
@@ -103,7 +110,8 @@ class BooksView(QTableView): # {{{
         hv.setCursor(Qt.PointingHandCursor)
         self.selected_ids = []
         self._model.about_to_be_sorted.connect(self.about_to_be_sorted)
-        self._model.sorting_done.connect(self.sorting_done)
+        self._model.sorting_done.connect(self.sorting_done,
+                type=Qt.QueuedConnection)
 
     # Column Header Context Menu {{{
     def column_header_context_handler(self, action=None, column=None):
@@ -120,8 +128,8 @@ class BooksView(QTableView): # {{{
         elif action == 'show':
             h.setSectionHidden(idx, False)
             if h.sectionSize(idx) < 3:
-               sz = h.sectionSizeHint(idx)
-               h.resizeSection(idx, sz)
+                sz = h.sectionSizeHint(idx)
+                h.resizeSection(idx, sz)
         elif action == 'ascending':
             self.sortByColumn(idx, Qt.AscendingOrder)
         elif action == 'descending':
@@ -157,7 +165,7 @@ class BooksView(QTableView): # {{{
                     partial(self.column_header_context_handler,
                         action='descending', column=col))
             if self._model.sorted_on[0] == col:
-                ac = a if self._model.sorted_on[1] == Qt.AscendingOrder else d
+                ac = a if self._model.sorted_on[1] else d
                 ac.setCheckable(True)
                 ac.setChecked(True)
             if col not in ('ondevice', 'rating', 'inlibrary') and \
@@ -225,6 +233,7 @@ class BooksView(QTableView): # {{{
             sm = self.selectionModel()
             for idx in indices:
                 sm.select(idx, sm.Select|sm.Rows)
+            self.scroll_to_row(indices[0].row())
         self.selected_ids = []
     # }}}
 
@@ -273,17 +282,21 @@ class BooksView(QTableView): # {{{
     def cleanup_sort_history(self, sort_history):
         history = []
         for col, order in sort_history:
+            if not isinstance(order, bool):
+                continue
             if col == 'date':
                 col = 'timestamp'
-            if col in self.column_map and (not history or history[0][0] != col):
-                history.append([col, order])
+            if col in self.column_map:
+                if (not history or history[-1][0] != col):
+                    history.append([col, order])
         return history
 
     def apply_sort_history(self, saved_history):
         if not saved_history:
             return
         for col, order in reversed(self.cleanup_sort_history(saved_history)[:3]):
-            self.sortByColumn(self.column_map.index(col), order)
+            self.sortByColumn(self.column_map.index(col),
+                              Qt.AscendingOrder if order else Qt.DescendingOrder)
 
     def apply_state(self, state):
         h = self.column_header
@@ -373,7 +386,12 @@ class BooksView(QTableView): # {{{
             old_state = self.get_default_state()
 
         if tweaks['sort_columns_at_startup'] is not None:
-            old_state['sort_history'] = tweaks['sort_columns_at_startup']
+            sh = []
+            for c,d in tweaks['sort_columns_at_startup']:
+                if not isinstance(d, bool):
+                    d = True if d == 0 else False
+                sh.append((c, d))
+            old_state['sort_history'] = sh
 
         self.apply_state(old_state)
 
@@ -392,8 +410,7 @@ class BooksView(QTableView): # {{{
         self.save_state()
         self._model.set_database(db)
         self.tags_delegate.set_database(db)
-        self.authors_delegate.set_auto_complete_function(
-                lambda: [(x, y.replace('|', ',')) for (x, y) in db.all_authors()])
+        self.authors_delegate.set_database(db)
         self.series_delegate.set_auto_complete_function(db.all_series)
         self.publisher_delegate.set_auto_complete_function(db.all_publishers)
 
@@ -427,6 +444,8 @@ class BooksView(QTableView): # {{{
                     self.setItemDelegateForColumn(cm.index(colhead), self.rating_delegate)
                 elif cc['datatype'] == 'composite':
                     self.setItemDelegateForColumn(cm.index(colhead), self.cc_template_delegate)
+                elif cc['datatype'] == 'enumeration':
+                    self.setItemDelegateForColumn(cm.index(colhead), self.cc_enum_delegate)
             else:
                 dattr = colhead+'_delegate'
                 delegate = colhead if hasattr(self, dattr) else 'text'
@@ -592,7 +611,7 @@ class BooksView(QTableView): # {{{
         if row > -1:
             h = self.horizontalHeader()
             for i in range(h.count()):
-                if not h.isSectionHidden(i):
+                if not h.isSectionHidden(i) and h.sectionViewportPosition(i) >= 0:
                     self.scrollTo(self.model().index(row, i))
                     break
 
@@ -660,8 +679,25 @@ class BooksView(QTableView): # {{{
     def set_editable(self, editable, supports_backloading):
         self._model.set_editable(editable)
 
+    def move_highlighted_row(self, forward):
+        rows = self.selectionModel().selectedRows()
+        if len(rows) > 0:
+            current_row = rows[0].row()
+        else:
+            current_row = None
+        id_to_select = self._model.get_next_highlighted_id(current_row, forward)
+        if id_to_select is not None:
+            self.select_rows([id_to_select], using_ids=True)
+
+    def search_proxy(self, txt):
+        self._model.search(txt)
+        id_to_select = self._model.get_current_highlighted_id()
+        if id_to_select is not None:
+            self.select_rows([id_to_select], using_ids=True)
+        self.setFocus(Qt.OtherFocusReason)
+
     def connect_to_search_box(self, sb, search_done):
-        sb.search.connect(self._model.search)
+        sb.search.connect(self.search_proxy)
         self._search_done = search_done
         self._model.searched.connect(self.search_done)
 

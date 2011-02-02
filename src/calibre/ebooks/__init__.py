@@ -22,6 +22,9 @@ class UnknownFormatError(Exception):
 class DRMError(ValueError):
     pass
 
+class ParserError(ValueError):
+    pass
+
 BOOK_EXTENSIONS = ['lrf', 'rar', 'zip', 'rtf', 'lit', 'txt', 'htm', 'xhtm',
                    'html', 'xhtml', 'pdf', 'pdb', 'pdr', 'prc', 'mobi', 'azw', 'doc',
                    'epub', 'fb2', 'djvu', 'lrx', 'cbr', 'cbz', 'cbc', 'oebzip',
@@ -39,6 +42,10 @@ class HTMLRenderer(object):
         try:
             if not ok:
                 raise RuntimeError('Rendering of HTML failed.')
+            de = self.page.mainFrame().documentElement()
+            pe = de.findFirst('parsererror')
+            if not pe.isNull():
+                raise ParserError(pe.toPlainText())
             image = QImage(self.page.viewportSize(), QImage.Format_ARGB32)
             image.setDotsPerMeterX(96*(100/2.54))
             image.setDotsPerMeterY(96*(100/2.54))
@@ -104,7 +111,7 @@ def render_html_svg_workaround(path_to_html, log, width=590, height=750):
     return data
 
 
-def render_html(path_to_html, width=590, height=750):
+def render_html(path_to_html, width=590, height=750, as_xhtml=True):
     from PyQt4.QtWebKit import QWebPage
     from PyQt4.Qt import QEventLoop, QPalette, Qt, SIGNAL, QUrl, QSize
     from calibre.gui2 import is_ok_to_use_qt
@@ -122,11 +129,18 @@ def render_html(path_to_html, width=590, height=750):
         renderer = HTMLRenderer(page, loop)
         page.connect(page, SIGNAL('loadFinished(bool)'), renderer,
                 Qt.QueuedConnection)
-        page.mainFrame().load(QUrl.fromLocalFile(path_to_html))
+        if as_xhtml:
+            page.mainFrame().setContent(open(path_to_html, 'rb').read(),
+                    'application/xhtml+xml', QUrl.fromLocalFile(path_to_html))
+        else:
+            page.mainFrame().load(QUrl.fromLocalFile(path_to_html))
         loop.exec_()
     renderer.loop = renderer.page = None
     del page
     del loop
+    if isinstance(renderer.exception, ParserError) and as_xhtml:
+        return render_html(path_to_html, width=width, height=height,
+                as_xhtml=False)
     return renderer
 
 def check_ebook_format(stream, current_guess):

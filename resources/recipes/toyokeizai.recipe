@@ -64,5 +64,5 @@ class Toyokeizai(BasicNewsRecipe):
             br.select_form(nr=0)
             br['kaiin_id']   = self.username
             br['password'] = self.password
-            res = br.submit()
+            br.submit()
         return br

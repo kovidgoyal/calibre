@@ -12,15 +12,18 @@ from PyQt4.Qt import QColor, Qt, QModelIndex, QSize, \
                      QPainterPath, QLinearGradient, QBrush, \
                      QPen, QStyle, QPainter, QStyleOptionViewItemV4, \
                      QIcon,  QDoubleSpinBox, QVariant, QSpinBox, \
-                     QStyledItemDelegate, QCompleter, \
-                     QComboBox
+                     QStyledItemDelegate, QComboBox, QTextDocument
 
 from calibre.gui2 import UNDEFINED_QDATE, error_dialog
-from calibre.gui2.widgets import EnLineEdit, TagsLineEdit
+from calibre.gui2.widgets import EnLineEdit
+from calibre.gui2.complete import MultiCompleteLineEdit
 from calibre.utils.date import now, format_date
 from calibre.utils.config import tweaks
 from calibre.utils.formatter import validation_formatter
+from calibre.utils.icu import sort_key
 from calibre.gui2.dialogs.comments_dialog import CommentsDialog
+from calibre.gui2.dialogs.template_dialog import TemplateDialog
+
 
 class RatingDelegate(QStyledItemDelegate): # {{{
     COLOR    = QColor("blue")
@@ -148,33 +151,38 @@ class TextDelegate(QStyledItemDelegate): # {{{
         self.auto_complete_function = f
 
     def createEditor(self, parent, option, index):
-        editor = EnLineEdit(parent)
         if self.auto_complete_function:
+            editor = MultiCompleteLineEdit(parent)
+            editor.set_separator(None)
             complete_items = [i[1] for i in self.auto_complete_function()]
-            completer = QCompleter(complete_items, self)
-            completer.setCaseSensitivity(Qt.CaseInsensitive)
-            completer.setCompletionMode(QCompleter.PopupCompletion)
-            editor.setCompleter(completer)
+            editor.update_items_cache(complete_items)
+        else:
+            editor = EnLineEdit(parent)
         return editor
 #}}}
 
-class TagsDelegate(QStyledItemDelegate): # {{{
-    def __init__(self, parent):
+class CompleteDelegate(QStyledItemDelegate): # {{{
+    def __init__(self, parent, sep, items_func_name, space_before_sep=False):
         QStyledItemDelegate.__init__(self, parent)
-        self.db = None
+        self.sep = sep
+        self.items_func_name = items_func_name
+        self.space_before_sep = space_before_sep
 
     def set_database(self, db):
         self.db = db
 
     def createEditor(self, parent, option, index):
-        if self.db:
+        if self.db and hasattr(self.db, self.items_func_name):
             col = index.model().column_map[index.column()]
+            editor = MultiCompleteLineEdit(parent)
+            editor.set_separator(self.sep)
+            editor.set_space_before_sep(self.space_before_sep)
             if not index.model().is_custom_column(col):
-                editor = TagsLineEdit(parent, self.db.all_tags())
+                all_items = getattr(self.db, self.items_func_name)()
             else:
-                editor = TagsLineEdit(parent,
-                        sorted(list(self.db.all_custom(label=self.db.field_metadata.key_to_label(col)))))
-                return editor
+                all_items = list(self.db.all_custom(
+                    label=self.db.field_metadata.key_to_label(col)))
+            editor.update_items_cache(all_items)
         else:
             editor = EnLineEdit(parent)
         return editor
@@ -244,20 +252,69 @@ class CcTextDelegate(QStyledItemDelegate): # {{{
             editor.setRange(-100., float(sys.maxint))
             editor.setDecimals(2)
         else:
-            editor = EnLineEdit(parent)
-            complete_items = sorted(list(m.db.all_custom(label=m.db.field_metadata.key_to_label(col))))
-            completer = QCompleter(complete_items, self)
-            completer.setCaseSensitivity(Qt.CaseInsensitive)
-            completer.setCompletionMode(QCompleter.PopupCompletion)
-            editor.setCompleter(completer)
+            editor = MultiCompleteLineEdit(parent)
+            editor.set_separator(None)
+            complete_items = sorted(list(m.db.all_custom(label=m.db.field_metadata.key_to_label(col))),
+                                    key=sort_key)
+            editor.update_items_cache(complete_items)
         return editor
 
+# }}}
+
+class CcEnumDelegate(QStyledItemDelegate): # {{{
+    '''
+    Delegate for text/int/float data.
+    '''
+
+    def createEditor(self, parent, option, index):
+        m = index.model()
+        col = m.column_map[index.column()]
+        editor = DelegateCB(parent)
+        editor.addItem('')
+        for v in m.custom_columns[col]['display']['enum_values']:
+            editor.addItem(v)
+        return editor
+
+    def setModelData(self, editor, model, index):
+        val = unicode(editor.currentText())
+        if not val:
+            val = None
+        model.setData(index, QVariant(val), Qt.EditRole)
+
+    def setEditorData(self, editor, index):
+        m = index.model()
+        val = m.db.data[index.row()][m.custom_columns[m.column_map[index.column()]]['rec_index']]
+        if val is None:
+            val = ''
+        idx = editor.findText(val)
+        if idx < 0:
+            editor.setCurrentIndex(0)
+        else:
+            editor.setCurrentIndex(idx)
 # }}}
 
 class CcCommentsDelegate(QStyledItemDelegate): # {{{
     '''
     Delegate for comments data.
     '''
+
+    def __init__(self, parent):
+        QStyledItemDelegate.__init__(self, parent)
+        self.document = QTextDocument()
+
+    def paint(self, painter, option, index):
+        style = self.parent().style()
+        self.document.setHtml(index.data(Qt.DisplayRole).toString())
+        painter.save()
+        if hasattr(QStyle, 'CE_ItemViewItem'):
+            style.drawControl(QStyle.CE_ItemViewItem, option,
+                    painter, self.parent())
+        elif option.state & QStyle.State_Selected:
+            painter.fillRect(option.rect, option.palette.highlight())
+        painter.setClipRect(option.rect)
+        painter.translate(option.rect.topLeft())
+        self.document.drawContents(painter)
+        painter.restore()
 
     def createEditor(self, parent, option, index):
         m = index.model()
@@ -266,11 +323,22 @@ class CcCommentsDelegate(QStyledItemDelegate): # {{{
         editor = CommentsDialog(parent, text)
         d = editor.exec_()
         if d:
-            m.setData(index, QVariant(editor.textbox.toPlainText()), Qt.EditRole)
+            m.setData(index, QVariant(editor.textbox.html), Qt.EditRole)
         return None
 
     def setModelData(self, editor, model, index):
-        model.setData(index, QVariant(editor.textbox.toPlainText()), Qt.EditRole)
+        model.setData(index, QVariant(editor.textbox.html), Qt.EditRole)
+# }}}
+
+class DelegateCB(QComboBox): # {{{
+
+    def __init__(self, parent):
+        QComboBox.__init__(self, parent)
+
+    def event(self, e):
+        if e.type() == e.ShortcutOverride:
+            e.accept()
+        return QComboBox.event(self, e)
 # }}}
 
 class CcBoolDelegate(QStyledItemDelegate): # {{{
@@ -281,7 +349,7 @@ class CcBoolDelegate(QStyledItemDelegate): # {{{
         QStyledItemDelegate.__init__(self, parent)
 
     def createEditor(self, parent, option, index):
-        editor = QComboBox(parent)
+        editor = DelegateCB(parent)
         items = [_('Y'), _('N'), ' ']
         icons = [I('ok.png'), I('list_remove.png'), I('blank.png')]
         if tweaks['bool_custom_columns_are_tristate'] == 'no':
@@ -314,10 +382,19 @@ class CcTemplateDelegate(QStyledItemDelegate): # {{{
         QStyledItemDelegate.__init__(self, parent)
 
     def createEditor(self, parent, option, index):
-        return EnLineEdit(parent)
+        m = index.model()
+        text = m.custom_columns[m.column_map[index.column()]]['display']['composite_template']
+        editor = TemplateDialog(parent, text)
+        editor.setWindowTitle(_("Edit template"))
+        editor.textbox.setTabChangesFocus(False)
+        editor.textbox.setTabStopWidth(20)
+        d = editor.exec_()
+        if d:
+            m.setData(index, QVariant(editor.textbox.toPlainText()), Qt.EditRole)
+        return None
 
     def setModelData(self, editor, model, index):
-        val = unicode(editor.text())
+        val = unicode(editor.textbox.toPlainText())
         try:
             validation_formatter.validate(val)
         except Exception, err:
@@ -329,7 +406,7 @@ class CcTemplateDelegate(QStyledItemDelegate): # {{{
     def setEditorData(self, editor, index):
         m = index.model()
         val = m.custom_columns[m.column_map[index.column()]]['display']['composite_template']
-        editor.setText(val)
+        editor.textbox.setPlainText(val)
 
 
 # }}}

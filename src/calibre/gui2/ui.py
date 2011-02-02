@@ -12,14 +12,12 @@ __docformat__ = 'restructuredtext en'
 import collections, os, sys, textwrap, time
 from Queue import Queue, Empty
 from threading import Thread
-from PyQt4.Qt import Qt, SIGNAL, QTimer, \
-                     QPixmap, QMenu, QIcon, pyqtSignal, \
-                     QDialog, \
-                     QSystemTrayIcon, QApplication, QKeySequence, \
-                     QMessageBox, QHelpEvent
+from PyQt4.Qt import Qt, SIGNAL, QTimer, QHelpEvent, QAction, \
+                     QMenu, QIcon, pyqtSignal, \
+                     QDialog, QSystemTrayIcon, QApplication, QKeySequence
 
 from calibre import  prints
-from calibre.constants import __appname__, isosx, DEBUG
+from calibre.constants import __appname__, isosx
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import prefs, dynamic
 from calibre.utils.ipc.server import Server
@@ -96,20 +94,45 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
     'The main GUI'
 
 
-    def __init__(self, opts, parent=None):
+    def __init__(self, opts, parent=None, gui_debug=None):
         MainWindow.__init__(self, opts, parent)
         self.opts = opts
         self.device_connected = None
-        acmap = OrderedDict()
+        self.gui_debug = gui_debug
+        self.iactions = OrderedDict()
         for action in interface_actions():
-            ac = action.load_actual_plugin(self)
-            if ac.name in acmap:
-                if ac.priority >= acmap[ac.name].priority:
-                    acmap[ac.name] = ac
-            else:
-                acmap[ac.name] = ac
+            if opts.ignore_plugins and action.plugin_path is not None:
+                continue
+            try:
+                ac = self.init_iaction(action)
+            except:
+                # Ignore errors in loading user supplied plugins
+                import traceback
+                traceback.print_exc()
+                if action.plugin_path is None:
+                    raise
+                continue
 
-        self.iactions = acmap
+            ac.plugin_path = action.plugin_path
+            ac.interface_action_base_plugin = action
+
+            self.add_iaction(ac)
+
+    def init_iaction(self, action):
+        ac = action.load_actual_plugin(self)
+        ac.plugin_path = action.plugin_path
+        ac.interface_action_base_plugin = action
+        action.actual_iaction_plugin_loaded = True
+        return ac
+
+    def add_iaction(self, ac):
+        acmap = self.iactions
+        if ac.name in acmap:
+            if ac.priority >= acmap[ac.name].priority:
+                acmap[ac.name] = ac
+        else:
+            acmap[ac.name] = ac
+
 
     def initialize(self, library_path, db, listener, actions, show_gui=True):
         opts = self.opts
@@ -185,6 +208,10 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         self.system_tray_icon.activated.connect(
             self.system_tray_icon_activated)
 
+        self.esc_action = QAction(self)
+        self.addAction(self.esc_action)
+        self.esc_action.setShortcut(QKeySequence(Qt.Key_Escape))
+        self.esc_action.triggered.connect(self.esc)
 
         ####################### Start spare job server ########################
         QTimer.singleShot(1000, self.add_spare_server)
@@ -234,7 +261,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
 
         ######################### Search Restriction ##########################
         SearchRestrictionMixin.__init__(self)
-        self.apply_named_search_restriction(db.prefs['gui_restriction'])
+        if db.prefs['gui_restriction']:
+            self.apply_named_search_restriction(db.prefs['gui_restriction'])
 
         ########################### Cover Flow ################################
 
@@ -244,6 +272,14 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
                 self.height())
         self.resize(self.width(), self._calculated_available_height)
 
+        for ac in self.iactions.values():
+            try:
+                ac.gui_layout_complete()
+            except:
+                import traceback
+                traceback.print_exc()
+                if ac.plugin_path is None:
+                    raise
 
         if config['autolaunch_server']:
             self.start_content_server()
@@ -257,7 +293,23 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         self.set_window_title()
 
         for ac in self.iactions.values():
-            ac.initialization_complete()
+            try:
+                ac.initialization_complete()
+            except:
+                import traceback
+                traceback.print_exc()
+                if ac.plugin_path is None:
+                    raise
+
+        if show_gui and self.gui_debug is not None:
+            info_dialog(self, _('Debug mode'), '<p>' +
+                    _('You have started calibre in debug mode. After you '
+                        'quit calibre, the debug log will be available in '
+                        'the file: %s<p>The '
+                        'log will be displayed automatically.')%self.gui_debug, show=True)
+
+    def esc(self, *args):
+        self.search.clear()
 
     def start_content_server(self):
         from calibre.library.server.main import start_threaded_server
@@ -268,7 +320,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
                 self.iactions['Connect Share'].content_server_state_changed)
         self.content_server.state_callback(True)
         self.test_server_timer = QTimer.singleShot(10000, self.test_server)
-
 
     def resizeEvent(self, ev):
         MainWindow.resizeEvent(self, ev)
@@ -304,11 +355,12 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
     def is_minimized_to_tray(self):
         return getattr(self, '__systray_minimized', False)
 
-    def ask_a_yes_no_question(self, title, msg, **kwargs):
-        awu = kwargs.pop('ans_when_user_unavailable', True)
+    def ask_a_yes_no_question(self, title, msg, det_msg='',
+            show_copy_button=False, ans_when_user_unavailable=True):
         if self.is_minimized_to_tray:
-            return awu
-        return question_dialog(self, title, msg, **kwargs)
+            return ans_when_user_unavailable
+        return question_dialog(self, title, msg, det_msg=det_msg,
+                show_copy_button=show_copy_button)
 
     def hide_windows(self):
         for window in QApplication.topLevelWidgets():
@@ -367,13 +419,16 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
     def booklists(self):
         return self.memory_view.model().db, self.card_a_view.model().db, self.card_b_view.model().db
 
-    def library_moved(self, newloc):
+    def library_moved(self, newloc, copy_structure=False, call_close=True):
         if newloc is None: return
+        default_prefs = None
         try:
             olddb = self.library_view.model().db
+            if copy_structure:
+                default_prefs = olddb.prefs
         except:
             olddb = None
-        db = LibraryDatabase2(newloc)
+        db = LibraryDatabase2(newloc, default_prefs=default_prefs)
         if self.content_server is not None:
             self.content_server.set_database(db)
         self.library_path = newloc
@@ -383,8 +438,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         self.tags_view.set_database(db, self.tag_match, self.sort_by)
         self.library_view.model().set_book_on_device_func(self.book_on_device)
         self.status_bar.clear_message()
-        self.search.clear_to_help()
-        self.saved_search.clear_to_help()
+        self.search.clear()
+        self.saved_search.clear()
         self.book_details.reset_info()
         self.library_view.model().count_changed()
         prefs['library_path'] = self.library_path
@@ -397,10 +452,12 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         self.apply_named_search_restriction(db.prefs['gui_restriction'])
         if olddb is not None:
             try:
-                olddb.conn.close()
+                if call_close:
+                    olddb.conn.close()
             except:
                 import traceback
                 traceback.print_exc()
+            olddb.break_cycles()
         if self.device_connected:
             self.set_books_in_library(self.booklists(), reset=True)
             self.refresh_ondevice()
@@ -410,7 +467,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
 
 
     def set_window_title(self):
-        self.setWindowTitle(__appname__ + u' - ||%s||'%self.iactions['Choose Library'].library_name())
+        self.setWindowTitle(__appname__ + u' - || %s ||'%self.iactions['Choose Library'].library_name())
 
     def location_selected(self, location):
         '''
@@ -445,12 +502,9 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         try:
             if 'calibre.ebooks.DRMError' in job.details:
                 if not minz:
-                    d = error_dialog(self, _('Conversion Error'),
-                        _('<p>Could not convert: %s<p>It is a '
-                        '<a href="%s">DRM</a>ed book. You must first remove the '
-                        'DRM using third party tools.')%\
-                            (job.description.split(':')[-1],
-                                'http://bugs.calibre-ebook.com/wiki/DRM'))
+                    from calibre.gui2.dialogs.drm_error import DRMErrorMessage
+                    d = DRMErrorMessage(self, _('Cannot convert') + ' ' +
+                        job.description.split(':')[-1].partition('(')[-1][:-1])
                     d.setModal(False)
                     d.show()
                     self._modeless_dialogs.append(d)
@@ -493,7 +547,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         dynamic.set('sort_history', self.library_view.model().sort_history)
         self.save_layout_state()
 
-    def quit(self, checked=True, restart=False):
+    def quit(self, checked=True, restart=False, debug_on_restart=False):
         if not self.confirm_quit():
             return
         try:
@@ -501,6 +555,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         except:
             pass
         self.restart_after_quit = restart
+        self.debug_on_restart = debug_on_restart
         QApplication.instance().quit()
 
     def donate(self, *args):
@@ -545,11 +600,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
                       Quitting may cause corruption on the device.<br>
                       Are you sure you want to quit?''')+'</p>'
 
-            d = QMessageBox(QMessageBox.Warning, _('WARNING: Active jobs'), msg,
-                            QMessageBox.Yes|QMessageBox.No, self)
-            d.setIconPixmap(QPixmap(I('dialog_warning.png')))
-            d.setDefaultButton(QMessageBox.No)
-            if d.exec_() != QMessageBox.Yes:
+            if not question_dialog(self, _('Active jobs'), msg):
                 return False
         return True
 
@@ -566,9 +617,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
             # Goes here, because if cf is valid, db is valid.
             db.prefs['field_metadata'] = db.field_metadata.all_metadata()
             db.commit_dirty_cache()
-            if DEBUG and db.gm_count > 0:
-                print 'get_metadata cache: {0:d} calls, {1:4.2f}% misses'.format(
-                        db.gm_count, (db.gm_missed*100.0)/db.gm_count)
         for action in self.iactions.values():
             if not action.shutting_down():
                 return
@@ -581,9 +629,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         while self.spare_servers:
             self.spare_servers.pop().close()
         self.device_manager.keep_going = False
-        cc = self.library_view.model().cover_cache
-        if cc is not None:
-            cc.stop()
         mb = self.library_view.model().metadata_backup
         if mb is not None:
             mb.stop()
@@ -601,8 +646,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         except KeyboardInterrupt:
             pass
         time.sleep(2)
-        if mb is not None:
-            mb.flush()
         self.hide_windows()
         return True
 

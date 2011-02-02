@@ -4,6 +4,8 @@ __license__ = 'GPL 3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
+import shutil
+
 from PyQt4.Qt import QString, SIGNAL
 
 from calibre.gui2.convert.single import Config, sort_formats_by_preference, \
@@ -11,6 +13,8 @@ from calibre.gui2.convert.single import Config, sort_formats_by_preference, \
 from calibre.customize.ui import available_output_formats
 from calibre.gui2 import ResizableDialog
 from calibre.gui2.convert.look_and_feel import LookAndFeelWidget
+from calibre.gui2.convert.heuristics import HeuristicsWidget
+from calibre.gui2.convert.search_and_replace import SearchAndReplaceWidget
 from calibre.gui2.convert.page_setup import PageSetupWidget
 from calibre.gui2.convert.structure_detection import StructureDetectionWidget
 from calibre.gui2.convert.toc import TOCWidget
@@ -69,6 +73,8 @@ class BulkConfig(Config):
 
         self.setWindowTitle(_('Bulk Convert'))
         lf = widget_factory(LookAndFeelWidget)
+        hw = widget_factory(HeuristicsWidget)
+        sr = widget_factory(SearchAndReplaceWidget)
         ps = widget_factory(PageSetupWidget)
         sd = widget_factory(StructureDetectionWidget)
         toc = widget_factory(TOCWidget)
@@ -90,7 +96,7 @@ class BulkConfig(Config):
             if not c: break
             self.stack.removeWidget(c)
 
-        widgets = [lf, ps, sd, toc]
+        widgets = [lf, hw, ps, sd, toc, sr]
         if output_widget is not None:
             widgets.append(output_widget)
         for w in widgets:
@@ -104,6 +110,11 @@ class BulkConfig(Config):
         idx = oidx if -1 < oidx < self._groups_model.rowCount() else 0
         self.groups.setCurrentIndex(self._groups_model.index(idx))
         self.stack.setCurrentIndex(idx)
+        try:
+            shutil.rmtree(self.plumber.archive_input_tdir, ignore_errors=True)
+        except:
+            pass
+
 
     def setup_output_formats(self, db, preferred_output_format):
         if preferred_output_format:

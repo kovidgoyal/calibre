@@ -8,12 +8,12 @@ from urllib import unquote
 from PyQt4.Qt import QVariant, QFileInfo, QObject, SIGNAL, QBuffer, Qt, \
                          QByteArray, QTranslator, QCoreApplication, QThread, \
                          QEvent, QTimer, pyqtSignal, QDate, QDesktopServices, \
-                         QFileDialog, QMessageBox, QPixmap, QFileIconProvider, \
-                         QIcon, QApplication, QDialog, QPushButton, QUrl
+                         QFileDialog, QFileIconProvider, \
+                         QIcon, QApplication, QDialog, QUrl, QFont
 
 ORG_NAME = 'KovidsBrain'
 APP_UID  = 'libprs500'
-from calibre.constants import islinux, iswindows, isosx, isfreebsd, isfrozen
+from calibre.constants import islinux, iswindows, isfreebsd, isfrozen
 from calibre.utils.config import Config, ConfigProxy, dynamic, JSONConfig
 from calibre.utils.localization import set_qt_translator
 from calibre.ebooks.metadata.meta import get_metadata, metadata_from_formats
@@ -52,6 +52,9 @@ gprefs.defaults['show_splash_screen'] = True
 gprefs.defaults['toolbar_icon_size'] = 'medium'
 gprefs.defaults['toolbar_text'] = 'auto'
 gprefs.defaults['show_child_bar'] = False
+gprefs.defaults['font'] = None
+gprefs.defaults['tags_browser_partition_method'] = 'first letter'
+gprefs.defaults['tags_browser_collapse_at'] = 100
 
 # }}}
 
@@ -82,7 +85,7 @@ def _config():
     c.add_opt('LRF_ebook_viewer_options', default=None,
               help=_('Options for the LRF ebook viewer'))
     c.add_opt('internally_viewed_formats', default=['LRF', 'EPUB', 'LIT',
-        'MOBI', 'PRC', 'HTML', 'FB2', 'PDB', 'RB'],
+        'MOBI', 'PRC', 'AZW', 'HTML', 'FB2', 'PDB', 'RB', 'SNB'],
               help=_('Formats that are viewed using the internal viewer'))
     c.add_opt('column_map', default=ALL_COLUMNS,
               help=_('Columns to be displayed in the book list'))
@@ -117,12 +120,16 @@ def _config():
         help='Search history for the LRF viewer')
     c.add_opt('scheduler_search_history', default=[],
         help='Search history for the recipe scheduler')
+    c.add_opt('plugin_search_history', default=[],
+        help='Search history for the recipe scheduler')
     c.add_opt('worker_limit', default=6,
             help=_('Maximum number of waiting worker processes'))
     c.add_opt('get_social_metadata', default=True,
             help=_('Download social metadata (tags/rating/etc.)'))
     c.add_opt('overwrite_author_title_metadata', default=True,
             help=_('Overwrite author and title with new metadata'))
+    c.add_opt('auto_download_cover', default=False,
+            help=_('Automatically download the cover, if available'))
     c.add_opt('enforce_cpu_limit', default=True,
             help=_('Limit max simultaneous jobs to number of CPUs'))
     c.add_opt('tag_browser_hidden_categories', default=set(),
@@ -133,6 +140,7 @@ def _config():
             help=_('Show the average rating per item indication in the tag browser'))
     c.add_opt('disable_animations', default=False,
             help=_('Disable UI animations'))
+    c.add_opt
     return ConfigProxy(c)
 
 config = _config()
@@ -173,101 +181,37 @@ def is_widescreen():
 def extension(path):
     return os.path.splitext(path)[1][1:].lower()
 
-class CopyButton(QPushButton):
-
-    ACTION_KEYS = [Qt.Key_Enter, Qt.Key_Return, Qt.Key_Space]
-
-    def copied(self):
-        self.emit(SIGNAL('copy()'))
-        self.setDisabled(True)
-        self.setText(_('Copied'))
-
-
-    def keyPressEvent(self, ev):
-        try:
-            if ev.key() in self.ACTION_KEYS:
-                self.copied()
-                return
-        except:
-            pass
-        QPushButton.keyPressEvent(self, ev)
-
-
-    def keyReleaseEvent(self, ev):
-        try:
-            if ev.key() in self.ACTION_KEYS:
-                return
-        except:
-            pass
-        QPushButton.keyReleaseEvent(self, ev)
-
-    def mouseReleaseEvent(self, ev):
-        ev.accept()
-        self.copied()
-
-class MessageBox(QMessageBox):
-
-    def __init__(self, type_, title, msg, buttons, parent, det_msg=''):
-        QMessageBox.__init__(self, type_, title, msg, buttons, parent)
-        self.title = title
-        self.msg = msg
-        self.det_msg = det_msg
-        self.setDetailedText(det_msg)
-        # Cannot set keyboard shortcut as the event is not easy to filter
-        self.cb = CopyButton(_('Copy') if isosx else _('Copy to Clipboard'))
-        self.connect(self.cb, SIGNAL('copy()'), self.copy_to_clipboard)
-        self.addButton(self.cb, QMessageBox.ActionRole)
-        default_button = self.button(self.Ok)
-        if default_button is None:
-            default_button = self.button(self.Yes)
-        if default_button is not None:
-            self.setDefaultButton(default_button)
-
-    def copy_to_clipboard(self):
-        QApplication.clipboard().setText('%s: %s\n\n%s' %
-                (self.title, self.msg, self.det_msg))
-
-
 
 def warning_dialog(parent, title, msg, det_msg='', show=False,
         show_copy_button=True):
-    d = MessageBox(QMessageBox.Warning, 'WARNING: '+title, msg, QMessageBox.Ok,
-                    parent, det_msg)
-    d.setEscapeButton(QMessageBox.Ok)
-    d.setIconPixmap(QPixmap(I('dialog_warning.png')))
-    if not show_copy_button:
-        d.cb.setVisible(False)
+    from calibre.gui2.dialogs.message_box import MessageBox
+    d = MessageBox(MessageBox.WARNING, 'WARNING: '+title, msg, det_msg, parent=parent,
+            show_copy_button=show_copy_button)
     if show:
         return d.exec_()
     return d
 
 def error_dialog(parent, title, msg, det_msg='', show=False,
         show_copy_button=True):
-    d = MessageBox(QMessageBox.Critical, 'ERROR: '+title, msg, QMessageBox.Ok,
-                    parent, det_msg)
-    d.setIconPixmap(QPixmap(I('dialog_error.png')))
-    d.setEscapeButton(QMessageBox.Ok)
-    if not show_copy_button:
-        d.cb.setVisible(False)
+    from calibre.gui2.dialogs.message_box import MessageBox
+    d = MessageBox(MessageBox.ERROR, 'ERROR: '+title, msg, det_msg, parent=parent,
+                    show_copy_button=show_copy_button)
     if show:
         return d.exec_()
     return d
 
-def question_dialog(parent, title, msg, det_msg='', show_copy_button=True,
-        buttons=QMessageBox.Yes|QMessageBox.No, yes_button=QMessageBox.Yes):
-    d = MessageBox(QMessageBox.Question, title, msg, buttons,
-                    parent, det_msg)
-    d.setIconPixmap(QPixmap(I('dialog_question.png')))
-    d.setEscapeButton(QMessageBox.No)
-    if not show_copy_button:
-        d.cb.setVisible(False)
+def question_dialog(parent, title, msg, det_msg='', show_copy_button=False):
+    from calibre.gui2.dialogs.message_box import MessageBox
+    d = MessageBox(MessageBox.QUESTION, title, msg, det_msg, parent=parent,
+                    show_copy_button=show_copy_button)
+    return d.exec_() == d.Accepted
 
-    return d.exec_() == yes_button
+def info_dialog(parent, title, msg, det_msg='', show=False,
+        show_copy_button=True):
+    from calibre.gui2.dialogs.message_box import MessageBox
+    d = MessageBox(MessageBox.INFO, title, msg, det_msg, parent=parent,
+                    show_copy_button=show_copy_button)
 
-def info_dialog(parent, title, msg, det_msg='', show=False):
-    d = MessageBox(QMessageBox.Information, title, msg, QMessageBox.Ok,
-                    parent, det_msg)
-    d.setIconPixmap(QPixmap(I('dialog_information.png')))
     if show:
         return d.exec_()
     return d
@@ -496,7 +440,7 @@ class FileDialog(QObject):
         self.selected_files = []
         if mode == QFileDialog.AnyFile:
             f = unicode(QFileDialog.getSaveFileName(parent, title, initial_dir, ftext, ""))
-            if f and os.path.exists(f):
+            if f:
                 self.selected_files.append(f)
         elif mode == QFileDialog.ExistingFile:
             f = unicode(QFileDialog.getOpenFileName(parent, title, initial_dir, ftext, ""))
@@ -537,8 +481,17 @@ def choose_dir(window, name, title, default_dir='~'):
             parent=window, name=name, mode=QFileDialog.Directory,
             default_dir=default_dir)
     dir = fd.get_files()
+    fd.setParent(None)
     if dir:
         return dir[0]
+
+def choose_osx_app(window, name, title, default_dir='/Applications'):
+    fd = FileDialog(title=title, parent=window, name=name, mode=QFileDialog.ExistingFile,
+            default_dir=default_dir)
+    app = fd.get_files()
+    fd.setParent(None)
+    if app:
+        return app
 
 def choose_files(window, name, title,
                  filters=[], all_files=True, select_only_single_file=False):
@@ -557,6 +510,7 @@ def choose_files(window, name, title,
     fd = FileDialog(title=title, name=name, filters=filters,
                     parent=window, add_all_files_filter=all_files, mode=mode,
                     )
+    fd.setParent(None)
     if fd.accepted:
         return fd.get_files()
     return None
@@ -567,6 +521,7 @@ def choose_images(window, name, title, select_only_single_file=True):
                     filters=[('Images', ['png', 'gif', 'jpeg', 'jpg', 'svg'])],
                     parent=window, add_all_files_filter=False, mode=mode,
                     )
+    fd.setParent(None)
     if fd.accepted:
         return fd.get_files()
     return None
@@ -611,6 +566,10 @@ class Application(QApplication):
         qt_app = self
         self._file_open_paths = []
         self._file_open_lock = RLock()
+        self.original_font = QFont(QApplication.font())
+        fi = gprefs['font']
+        if fi is not None:
+            QApplication.setFont(QFont(*fi))
 
     def _send_file_open_events(self):
         with self._file_open_lock:

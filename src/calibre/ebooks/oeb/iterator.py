@@ -96,7 +96,10 @@ class EbookIterator(object):
 
     def search(self, text, index, backwards=False):
         text = text.lower()
-        for i, path in enumerate(self.spine):
+        pmap = [(i, path) for i, path in enumerate(self.spine)]
+        if backwards:
+            pmap.reverse()
+        for i, path in pmap:
             if (backwards and i < index) or (not backwards and i > index):
                 if text in open(path, 'rb').read().decode(path.encoding).lower():
                     return i
@@ -196,8 +199,8 @@ class EbookIterator(object):
                     not hasattr(self.pathtoopf, 'manifest'):
                 if hasattr(self.pathtoopf, 'manifest'):
                     self.pathtoopf = write_oebbook(self.pathtoopf, self.base)
-                self.pathtoopf = create_oebbook(self.log, self.pathtoopf, plumber.opts,
-                        plumber.input_plugin)
+                self.pathtoopf = create_oebbook(self.log, self.pathtoopf,
+                        plumber.opts)
 
         if hasattr(self.pathtoopf, 'manifest'):
             self.pathtoopf = write_oebbook(self.pathtoopf, self.base)
@@ -224,7 +227,7 @@ class EbookIterator(object):
                 self.log.warn('Missing spine item:', repr(spath))
 
         cover = self.opf.cover
-        if self.ebook_ext in ('lit', 'mobi', 'prc', 'opf') and cover:
+        if self.ebook_ext in ('lit', 'mobi', 'prc', 'opf', 'fb2') and cover:
             cfile = os.path.join(self.base, 'calibre_iterator_cover.html')
             chtml = (TITLEPAGE%os.path.relpath(cover, self.base).replace(os.sep,
                 '/')).encode('utf-8')
@@ -254,7 +257,6 @@ class EbookIterator(object):
             s.max_page = s.start_page + s.pages - 1
         self.toc = self.opf.toc
 
-        self.find_embedded_fonts()
         self.read_bookmarks()
 
         return self

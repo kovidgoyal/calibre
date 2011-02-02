@@ -103,7 +103,7 @@ class CoverManager(object):
             from calibre.ebooks import calibre_cover
             img_data = calibre_cover(title, authors_to_string(authors),
                     series_string=series_string)
-            id, href = self.oeb.manifest.generate('cover_image',
+            id, href = self.oeb.manifest.generate('cover',
                     'cover_image.jpg')
             item = self.oeb.manifest.add(id, href, guess_type('t.jpg')[0],
                         data=img_data)
@@ -141,8 +141,8 @@ class CoverManager(object):
             if width is None or height is None:
                 self.log.warning('Failed to read cover dimensions')
                 width, height = 600, 800
-            if self.preserve_aspect_ratio:
-                width, height = 600, 800
+            #if self.preserve_aspect_ratio:
+            #    width, height = 600, 800
             self.svg_template = self.svg_template.replace('__viewbox__',
                     '0 0 %d %d'%(width, height))
             self.svg_template = self.svg_template.replace('__width__',

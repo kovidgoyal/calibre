@@ -42,6 +42,13 @@ option.
 For full documentation of the conversion system see
 ''') + 'http://calibre-ebook.com/user_manual/conversion.html'
 
+HEURISTIC_OPTIONS = ['markup_chapter_headings',
+                      'italicize_common_cases', 'fix_indents',
+                      'html_unwrap_factor', 'unwrap_lines',
+                      'delete_blank_paragraphs', 'format_scene_breaks',
+                      'dehyphenate', 'renumber_headings',
+                      'replace_scene_breaks']
+
 def print_help(parser, log):
     help = parser.format_help().encode(preferred_encoding, 'replace')
     log(help)
@@ -83,6 +90,8 @@ def option_recommendation_to_cli_option(add_option, rec):
     if opt.long_switch == 'verbose':
         attrs['action'] = 'count'
         attrs.pop('type', '')
+    if opt.name in HEURISTIC_OPTIONS and rec.recommended_value is True:
+        switches = ['--disable-'+opt.long_switch]
     add_option(Option(*switches, **attrs))
 
 def add_input_output_options(parser, plumber):
@@ -120,16 +129,32 @@ def add_pipeline_options(parser, plumber):
                   [
                       'base_font_size', 'disable_font_rescaling',
                       'font_size_mapping',
-                      'line_height',
+                      'line_height', 'minimum_line_height',
                       'linearize_tables',
                       'extra_css', 'smarten_punctuation',
                       'margin_top', 'margin_left', 'margin_right',
                       'margin_bottom', 'change_justification',
                       'insert_blank_line', 'remove_paragraph_spacing','remove_paragraph_spacing_indent_size',
-                      'asciiize', 'remove_header', 'header_regex',
-                      'remove_footer', 'footer_regex',
+                      'asciiize',
                   ]
                   ),
+
+              'HEURISTIC PROCESSING' : (
+                  _('Modify the document text and structure using common'
+                     ' patterns. Disabled by default. Use %s to enable. '
+                     ' Individual actions can be disabled with the %s options.')
+                  % ('--enable-heuristics', '--disable-*'),
+                  ['enable_heuristics'] + HEURISTIC_OPTIONS
+                  ),
+
+              'SEARCH AND REPLACE' : (
+                 _('Modify the document text and structure using user defined patterns.'),
+                 [
+                      'sr1_search', 'sr1_replace',
+                      'sr2_search', 'sr2_replace',
+                      'sr3_search', 'sr3_replace',
+                 ]
+              ),
 
               'STRUCTURE DETECTION' : (
                   _('Control auto-detection of document structure.'),
@@ -137,7 +162,6 @@ def add_pipeline_options(parser, plumber):
                       'chapter', 'chapter_mark',
                       'prefer_metadata_cover', 'remove_first_image',
                       'insert_metadata', 'page_breaks_before',
-                      'preprocess_html', 'html_unwrap_factor',
                   ]
                   ),
 
@@ -164,7 +188,8 @@ def add_pipeline_options(parser, plumber):
 
               }
 
-    group_order = ['', 'LOOK AND FEEL', 'STRUCTURE DETECTION',
+    group_order = ['', 'LOOK AND FEEL', 'HEURISTIC PROCESSING',
+            'SEARCH AND REPLACE', 'STRUCTURE DETECTION',
             'TABLE OF CONTENTS', 'METADATA', 'DEBUG']
 
     for group in group_order:

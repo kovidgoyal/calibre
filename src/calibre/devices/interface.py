@@ -35,6 +35,16 @@ class DevicePlugin(Plugin):
 
     #: Height for thumbnails on the device
     THUMBNAIL_HEIGHT = 68
+    #: Width for thumbnails on the device. Setting this will force thumbnails
+    #: to this size, not preserving aspect ratio. If it is not set, then
+    #: the aspect ratio will be preserved and the thumbnail will be no higher
+    #: than THUMBNAIL_HEIGHT
+    # THUMBNAIL_WIDTH = 68
+
+    #: Set this to True if the device supports updating cover thumbnails during
+    #: sync_booklists. Setting it to true will ask device.py to refresh the
+    #: cover thumbnails during book matching
+    WANTS_UPDATED_THUMBNAILS = False
 
     #: Whether the metadata on books can be set via the GUI.
     CAN_SET_METADATA = ['title', 'authors', 'collections']
@@ -216,6 +226,9 @@ class DevicePlugin(Plugin):
         an implementation of
         this function that should serve as a good example for USB Mass storage
         devices.
+
+        This method can raise an OpenFeedback exception to display a message to
+        the user.
         '''
         raise NotImplementedError()
 

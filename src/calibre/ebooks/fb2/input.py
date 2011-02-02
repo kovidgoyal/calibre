@@ -41,17 +41,24 @@ class FB2Input(InputFormatPlugin):
         from calibre.ebooks.metadata.opf2 import OPFCreator
         from calibre.ebooks.metadata.meta import get_metadata
         from calibre.ebooks.oeb.base import XLINK_NS, XHTML_NS, RECOVER_PARSER
+        from calibre.ebooks.chardet import xml_to_unicode
         NAMESPACES = {'f':FB2NS, 'l':XLINK_NS}
         log.debug('Parsing XML...')
         raw = stream.read().replace('\0', '')
+        raw = xml_to_unicode(raw, strip_encoding_pats=True,
+            assume_utf8=True, resolve_entities=True)[0]
         try:
             doc = etree.fromstring(raw)
         except etree.XMLSyntaxError:
             try:
                 doc = etree.fromstring(raw, parser=RECOVER_PARSER)
+                if doc is None:
+                    raise Exception('parse failed')
             except:
                 doc = etree.fromstring(raw.replace('& ', '&amp;'),
                         parser=RECOVER_PARSER)
+        if doc is None:
+            raise ValueError('The FB2 file is not valid XML')
         stylesheets = doc.xpath('//*[local-name() = "stylesheet" and @type="text/css"]')
         css = ''
         for s in stylesheets:
@@ -97,13 +104,17 @@ class FB2Input(InputFormatPlugin):
         entries = [(f, guess_type(f)[0]) for f in os.listdir('.')]
         opf.create_manifest(entries)
         opf.create_spine(['index.xhtml'])
-
-        for img in doc.xpath('//f:coverpage/f:image', namespaces=NAMESPACES):
-            href = img.get('{%s}href'%XLINK_NS, img.get('href', None))
-            if href is not None:
-                if href.startswith('#'):
-                    href = href[1:]
-                opf.guide.set_cover(os.path.abspath(href))
+        if mi.cover_data and mi.cover_data[1]:
+            with open('fb2_cover_calibre_mi.jpg', 'wb') as f:
+                f.write(mi.cover_data[1])
+            opf.guide.set_cover(os.path.abspath('fb2_cover_calibre_mi.jpg'))
+        else:
+            for img in doc.xpath('//f:coverpage/f:image', namespaces=NAMESPACES):
+                href = img.get('{%s}href'%XLINK_NS, img.get('href', None))
+                if href is not None:
+                    if href.startswith('#'):
+                        href = href[1:]
+                    opf.guide.set_cover(os.path.abspath(href))
 
         opf.render(open('metadata.opf', 'wb'))
         return os.path.join(os.getcwd(), 'metadata.opf')

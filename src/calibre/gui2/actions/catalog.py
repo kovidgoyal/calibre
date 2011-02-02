@@ -5,11 +5,11 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, shutil
+import re, os, shutil
 
 from PyQt4.Qt import QModelIndex
 
-from calibre.gui2 import error_dialog, choose_dir
+from calibre.gui2 import choose_dir, error_dialog, warning_dialog
 from calibre.gui2.tools import generate_catalog
 from calibre.utils.config import dynamic
 from calibre.gui2.actions import InterfaceAction
@@ -17,7 +17,7 @@ from calibre.gui2.actions import InterfaceAction
 class GenerateCatalogAction(InterfaceAction):
 
     name = 'Generate Catalog'
-    action_spec = (_('Create catalog of books in your calibre library'), None, None, None)
+    action_spec = (_('Create a catalog of the books in your calibre library'), None, None, None)
     dont_add_to = frozenset(['toolbar-device', 'context-menu-device'])
 
     def generate_catalog(self):
@@ -28,7 +28,7 @@ class GenerateCatalogAction(InterfaceAction):
 
         if not ids:
             return error_dialog(self.gui, _('No books selected'),
-                    _('No books selected to generate catalog for'),
+                    _('No books selected for catalog generation'),
                     show=True)
 
 		db = self.gui.library_view.model().db
@@ -37,7 +37,8 @@ class GenerateCatalogAction(InterfaceAction):
 			dbspec[id] = {'ondevice': db.ondevice(id, index_is_id=True)}
 
         # Calling gui2.tools:generate_catalog()
-        ret = generate_catalog(self.gui, dbspec, ids, self.gui.device_manager)
+        ret = generate_catalog(self.gui, dbspec, ids, self.gui.device_manager,
+                db)
         if ret is None:
             return
 
@@ -54,10 +55,18 @@ class GenerateCatalogAction(InterfaceAction):
 
     def catalog_generated(self, job):
         if job.result:
-            # Search terms nulled catalog results
-            return error_dialog(self.gui, _('No books found'),
-                    _("No books to catalog\nCheck exclude tags"),
-                    show=True)
+            # Problems during catalog generation
+            # jobs.results is a list - the first entry is the intended title for the dialog
+            # Subsequent strings are error messages
+            dialog_title = job.result.pop(0)
+            if re.match('warning:', job.result[0].lower()):
+                job.result.append("Catalog generation complete.")
+                warning_dialog(self.gui, dialog_title, '\n'.join(job.result), show=True)
+            else:
+                job.result.append("Catalog generation terminated.")
+                error_dialog(self.gui, dialog_title,'\n'.join(job.result),show=True)
+                return
+
         if job.failed:
             return self.gui.job_exception(job)
         id = self.gui.library_view.model().add_catalog(job.catalog_file_path, job.catalog_title)

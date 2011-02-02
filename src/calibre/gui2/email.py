@@ -22,6 +22,7 @@ from calibre.customize.ui import available_input_formats, available_output_forma
 from calibre.ebooks.metadata import authors_to_string
 from calibre.constants import preferred_encoding
 from calibre.gui2 import config, Dispatcher, warning_dialog
+from calibre.utils.config import tweaks
 
 class EmailJob(BaseJob): # {{{
 
@@ -83,7 +84,7 @@ class Emailer(Thread): # {{{
         rh = opts.relay_host
         if rh and (
             'gmail.com' in rh or 'live.com' in rh):
-            self.rate_limit = 301
+            self.rate_limit = tweaks['public_smtp_relay_delay']
 
     def stop(self):
         self._run = False
@@ -263,8 +264,9 @@ class EmailMixin(object): # {{{
         if _auto_ids != []:
             for id in _auto_ids:
                 if specific_format == None:
-                    formats = [f.lower() for f in self.library_view.model().db.formats(id, index_is_id=True).split(',')]
-                    formats = formats if formats != None else []
+                    dbfmts = self.library_view.model().db.formats(id, index_is_id=True)
+                    formats = [f.lower() for f in (dbfmts.split(',') if fmts else
+                        [])]
                     if list(set(formats).intersection(available_input_formats())) != [] and list(set(fmts).intersection(available_output_formats())) != []:
                         auto.append(id)
                     else:

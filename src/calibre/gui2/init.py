@@ -86,6 +86,10 @@ class LibraryViewMixin(object): # {{{
         if view is self.current_view():
             self.search.search_done(ok)
             self.set_number_of_books_shown()
+            if ok:
+                v = self.current_view()
+                if hasattr(v, 'set_current_row'):
+                    v.set_current_row(0)
 
     # }}}
 
@@ -119,6 +123,8 @@ class Stack(QStackedWidget): # {{{
                 _('Tag Browser'), I('tags.png'),
                 parent=parent, side_index=0, initial_side_size=200,
                 shortcut=_('Shift+Alt+T'))
+        parent.tb_splitter.state_changed.connect(
+                        self.tb_widget.set_pane_is_visible, Qt.QueuedConnection)
         parent.tb_splitter.addWidget(self.tb_widget)
         parent.tb_splitter.addWidget(parent.cb_splitter)
         parent.tb_splitter.setCollapsible(parent.tb_splitter.other_index, False)
@@ -142,7 +148,6 @@ class StatusBar(QStatusBar): # {{{
                 self.get_version() + ' ' + _('created by Kovid Goyal')
         self.device_string = ''
         self.update_label = QLabel('')
-        self.update_label.setOpenExternalLinks(True)
         self.addPermanentWidget(self.update_label)
         self.update_label.setVisible(False)
         self._font = QFont()
@@ -168,8 +173,9 @@ class StatusBar(QStatusBar): # {{{
         self.clearMessage()
 
     def new_version_available(self, ver, url):
-        msg = (u'<span style="color:red; font-weight: bold">%s: <a href="%s">%s<a></span>') % (
-                _('Update found'), url, ver)
+        msg = (u'<span style="color:red; font-weight: bold">%s: <a'
+               ' href="update:%s">%s<a></span>') % (
+                _('Update found'), ver, ver)
         self.update_label.setText(msg)
         self.update_label.setCursor(Qt.PointingHandCursor)
         self.update_label.setVisible(True)
@@ -234,6 +240,13 @@ class LayoutMixin(object): # {{{
             self.status_bar.addPermanentWidget(button)
         self.status_bar.addPermanentWidget(self.jobs_button)
         self.setStatusBar(self.status_bar)
+        self.status_bar.update_label.linkActivated.connect(self.update_link_clicked)
+
+    def update_link_clicked(self, url):
+        url = unicode(url)
+        if url.startswith('update:'):
+            version = url.partition(':')[-1]
+            self.update_found(version, force=True)
 
     def finalize_layout(self):
         self.status_bar.initialize(self.system_tray_icon)

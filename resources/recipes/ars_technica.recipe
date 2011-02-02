@@ -1,6 +1,5 @@
-
 __license__   = 'GPL v3'
-__copyright__ = '2008-2010, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2008-2011, Darko Miletic <darko.miletic at gmail.com>'
 '''
 arstechnica.com
 '''
@@ -9,19 +8,26 @@ import re
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
 
-class ArsTechnica2(BasicNewsRecipe):
+class ArsTechnica(BasicNewsRecipe):
     title                 = u'Ars Technica'
     language              = 'en'
-    __author__            = 'Darko Miletic and Sujata Raman'
+    __author__            = 'Darko Miletic, Sujata Raman, Alexis Rohou'
     description           = 'The art of technology'
     publisher             = 'Ars Technica'
     category              = 'news, IT, technology'
-    oldest_article        = 2
+    oldest_article        = 5
     max_articles_per_feed = 100
     no_stylesheets        = True
     encoding              = 'utf-8'
     use_embedded_content  = False
-    extra_css             = ' body {font-family: Arial,Helvetica,sans-serif} .title{text-align: left} .byline{font-weight: bold; line-height: 1em; font-size: 0.625em; text-decoration: none} '
+    extra_css             = 	'''
+				body {font-family: Arial,Helvetica,sans-serif}
+				.title{text-align: left}
+				.byline{font-weight: bold; line-height: 1em; font-size: 0.625em; text-decoration: none}
+				.news-item-figure-caption-text{font-size:small; font-style:italic}
+				.news-item-figure-caption-byline{font-size:small; font-style:italic; font-weight:bold}
+				'''
+    ignoreEtcArticles     = True	# Etc feed items can be ignored, as they're not real stories
 
     conversion_options = {
                              'comments'  : description
@@ -31,10 +37,10 @@ class ArsTechnica2(BasicNewsRecipe):
                          }
 
 
-    preprocess_regexps = [
-                (re.compile(r'<div class="news-item-figure', re.DOTALL|re.IGNORECASE),lambda match: '<div class="news-item-figure"')
-               ,(re.compile(r'</title>.*?</head>', re.DOTALL|re.IGNORECASE),lambda match: '</title></head>')
-                         ]
+    #preprocess_regexps = [
+    #            (re.compile(r'<div class="news-item-figure', re.DOTALL|re.IGNORECASE),lambda match: '<div class="news-item-figure"')
+    #           ,(re.compile(r'</title>.*?</head>', re.DOTALL|re.IGNORECASE),lambda match: '</title></head>')
+    #                     ]
 
     keep_only_tags = [dict(name='div', attrs={'id':['story','etc-story']})]
 
@@ -42,7 +48,7 @@ class ArsTechnica2(BasicNewsRecipe):
                      dict(name=['object','link','embed'])
                     ,dict(name='div', attrs={'class':'read-more-link'})
                   ]
-    remove_attributes=['width','height']
+    #remove_attributes=['width','height']
 
     feeds = [
               (u'Infinite Loop (Apple content)'        , u'http://feeds.arstechnica.com/arstechnica/apple/'      )
@@ -56,6 +62,7 @@ class ArsTechnica2(BasicNewsRecipe):
              ,(u'Law & Disorder (Tech policy content)' , u'http://feeds.arstechnica.com/arstechnica/tech-policy/')
             ]
 
+    # This deals with multi-page stories
     def append_page(self, soup, appendtag, position):
         pager = soup.find('div',attrs={'class':'pager'})
         if pager:
@@ -81,6 +88,7 @@ class ArsTechnica2(BasicNewsRecipe):
 
 
     def preprocess_html(self, soup):
+	# Adds line breaks near the byline (not sure why this is needed)
         ftag = soup.find('div', attrs={'class':'byline'})
         if ftag:
            brtag = Tag(soup,'br')
@@ -88,12 +96,33 @@ class ArsTechnica2(BasicNewsRecipe):
            ftag.insert(4,brtag)
            ftag.insert(5,brtag2)
 
+	# Remove style items
         for item in soup.findAll(style=True):
            del item['style']
 
+	# Remove id
+	for item in soup.findAll(id=True):
+		del item['id']
+
+	# For some reason, links to authors don't have the domainname
+	a_author = soup.find('a',{'href':re.compile("^/author")})
+	if a_author:
+		a_author['href'] = 'http://arstechnica.com'+a_author['href']
+
+	# within div class news-item-figure, we need to grab images
+
+	# Deal with multi-page stories
         self.append_page(soup, soup.body, 3)
 
         return soup
 
     def get_article_url(self, article):
+	# If the article title starts with Etc:, don't return it
+	if self.ignoreEtcArticles:
+		article_title = article.get('title',None)
+		if re.match('Etc: ',article_title) is not None:
+			return None
+
+	# The actual article is in a guid tag
         return article.get('guid',  None).rpartition('?')[0]
+

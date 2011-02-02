@@ -1,0 +1,51 @@
+# -*- coding: utf-8 -*-
+__license__   = 'GPL v3'
+__author__    = 'Luis Hernandez'
+__copyright__ = 'Luis Hernandez<tolyluis@gmail.com>'
+description   = 'Diario local de Talavera de la Reina - v1.2 - 27 Jan 2011'
+
+'''
+http://www.latribunadetalavera.es/
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1294946868(BasicNewsRecipe):
+
+    title             = u'La Tribuna de Talavera'
+    publisher      = u'Grupo PROMECAL'
+
+    __author__  = 'Luis Hernández'
+    description   = 'Diario local de Talavera de la Reina'
+    cover_url     = 'http://www.latribunadetalavera.es/entorno/mancheta.gif'
+
+    oldest_article = 5
+    max_articles_per_feed = 50
+
+    remove_javascript = True
+    no_stylesheets        = True
+    use_embedded_content  = False
+
+    encoding              = 'utf-8'
+    language              = 'es'
+    timefmt        = '[%a, %d %b, %Y]'
+
+    keep_only_tags     = [
+                                   dict(name='div', attrs={'id':['articulo']})
+                                  ,dict(name='div', attrs={'class':['foto']})
+                                  ,dict(name='p', attrs={'id':['texto']})
+                                ]
+
+    remove_tags_before = dict(name='div' , attrs={'class':['comparte']})
+    remove_tags_after  = dict(name='div' , attrs={'id':['relacionadas']})
+
+    extra_css             = ' p{text-align: justify; font-size: 100%} body{ text-align: left; font-family: serif; font-size: 100% } h1{ font-family: sans-serif; font-size:150%; font-weight: 700; text-align: justify; } h2{ font-family: sans-serif; font-size:120%; font-weight: 600; text-align: justify } h3{ font-family: sans-serif; font-size:60%; font-weight: 600; text-align: left } h4{ font-family: sans-serif; font-size:80%; font-weight: 600; text-align: left } h5{ font-family: sans-serif; font-size:70%; font-weight: 600; text-align: left }img{margin-bottom: 0.4em} '
+
+    def preprocess_html(self, soup):
+        for alink in soup.findAll('a'):
+            if alink.string is not None:
+               tstr = alink.string
+               alink.replaceWith(tstr)
+        return soup
+
+    feeds          = [(u'Portada', u'http://www.latribunadetalavera.es/rss.html')]

@@ -5,6 +5,7 @@ newscientist.com
 '''
 
 import re
+import urllib
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class NewScientist(BasicNewsRecipe):
@@ -24,7 +25,7 @@ class NewScientist(BasicNewsRecipe):
     needs_subscription    = 'optional'
     extra_css             = """
                                  body{font-family: Arial,sans-serif}
-                                 img{margin-bottom: 0.8em}
+                                 img{margin-bottom: 0.8em; display: block}
                                  .quotebx{font-size: x-large; font-weight: bold; margin-right: 2em; margin-left: 2em}
                             """
 
@@ -41,12 +42,14 @@ class NewScientist(BasicNewsRecipe):
     def get_browser(self):
         br = BasicNewsRecipe.get_browser()
         br.open('http://www.newscientist.com/')
-        if self.username is not None and self.password is not None:
-            br.open('https://www.newscientist.com/user/login?redirectURL=')
-            br.select_form(nr=2)
-            br['loginId' ] = self.username
-            br['password'] = self.password
-            br.submit()
+        if self.username is not None and self.password is not None:        
+            br.open('https://www.newscientist.com/user/login')
+            data = urllib.urlencode({ 'source':'form'
+                                     ,'redirectURL':''
+                                     ,'loginId':self.username
+                                     ,'password':self.password
+                                   })
+            br.open('https://www.newscientist.com/user/login',data)
         return br
 
     remove_tags = [
@@ -55,21 +58,22 @@ class NewScientist(BasicNewsRecipe):
                     ,dict(name='p'    , attrs={'class':['marker','infotext'               ]})
                     ,dict(name='meta' , attrs={'name' :'description'                       })
                     ,dict(name='a'    , attrs={'rel'  :'tag'                               })
+                    ,dict(name='ul'   , attrs={'class':'markerlist'                        })
                     ,dict(name=['link','base','meta','iframe','object','embed'])
                   ]
     remove_tags_after = dict(attrs={'class':['nbpcopy','comments']})
-    remove_attributes = ['height','width','lang']
+    remove_attributes = ['height','width','lang','onclick']
 
     feeds          = [
-                        (u'Latest Headlines'        , u'http://feeds.newscientist.com/science-news'              )
-                       ,(u'Magazine'                , u'http://www.newscientist.com/feed/magazine'               )
-                       ,(u'Health'                  , u'http://www.newscientist.com/feed/view?id=2&type=channel' )
-                       ,(u'Life'                    , u'http://www.newscientist.com/feed/view?id=3&type=channel' )
-                       ,(u'Space'                   , u'http://www.newscientist.com/feed/view?id=6&type=channel' )
-                       ,(u'Physics and Mathematics' , u'http://www.newscientist.com/feed/view?id=4&type=channel' )
-                       ,(u'Environment'             , u'http://www.newscientist.com/feed/view?id=1&type=channel' )
-                       ,(u'Science in Society'      , u'http://www.newscientist.com/feed/view?id=5&type=channel' )
-                       ,(u'Tech'                    , u'http://www.newscientist.com/feed/view?id=7&type=channel' )
+                        (u'Latest Headlines'        , u'http://feeds.newscientist.com/science-news'       )
+                       ,(u'Magazine'                , u'http://feeds.newscientist.com/magazine'           )
+                       ,(u'Health'                  , u'http://feeds.newscientist.com/health'             )
+                       ,(u'Life'                    , u'http://feeds.newscientist.com/life'               )
+                       ,(u'Space'                   , u'http://feeds.newscientist.com/space'              )
+                       ,(u'Physics and Mathematics' , u'http://feeds.newscientist.com/physics-math'       )
+                       ,(u'Environment'             , u'http://feeds.newscientist.com/environment'        )
+                       ,(u'Science in Society'      , u'http://feeds.newscientist.com/science-in-society' )
+                       ,(u'Tech'                    , u'http://feeds.newscientist.com/tech'               )
                      ]
 
     def get_article_url(self, article):
@@ -79,11 +83,21 @@ class NewScientist(BasicNewsRecipe):
         return url + '?full=true&print=true'
 
     def preprocess_html(self, soup):
+        if soup.html.has_key('id'):
+           del soup.html['id']
+        for item in soup.findAll(style=True):
+            del item['style']
         for item in soup.findAll(['quote','quotetext']):
             item.name='p'
+        for item in soup.findAll(['xref','figref']):
+            tstr = item.string
+            item.replaceWith(tstr)            
         for tg in soup.findAll('a'):
             if tg.string == 'Home':
                 tg.parent.extract()
-                return self.adeify_images(soup)
-        return self.adeify_images(soup)
+            else:
+                if tg.string is not None:
+                   tstr = tg.string
+                   tg.replaceWith(tstr)
+        return soup
 

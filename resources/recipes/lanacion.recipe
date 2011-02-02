@@ -16,17 +16,17 @@ class Lanacion(BasicNewsRecipe):
     max_articles_per_feed = 100
     use_embedded_content  = False
     no_stylesheets        = True
-    language              = 'es'
+    language              = 'es_AR'
     publication_type      = 'newspaper'
-    remove_empty_feeds    = True    
+    remove_empty_feeds    = True
     masthead_url          = 'http://www.lanacion.com.ar/imgs/layout/logos/ln341x47.gif'
     extra_css             = """ h1{font-family: Georgia,serif}
-                                h2{color: #626262}    
-                                body{font-family: Arial,sans-serif} 
+                                h2{color: #626262}
+                                body{font-family: Arial,sans-serif}
                                 img{margin-top: 0.5em; margin-bottom: 0.2em; display: block}
-                                .notaFecha{color: #808080}                                
-                                .notaEpigrafe{font-size: x-small} 
-                                .topNota h1{font-family: Arial,sans-serif} 
+                                .notaFecha{color: #808080}
+                                .notaEpigrafe{font-size: x-small}
+                                .topNota h1{font-family: Arial,sans-serif}
                             """
 
 
@@ -45,7 +45,7 @@ class Lanacion(BasicNewsRecipe):
                     ,dict(attrs={'class':['titulosMultimedia','derecha','techo color','encuesta','izquierda compartir','floatFix','videoCentro']})
                     ,dict(name=['iframe','embed','object','form','base','hr','meta','link','input'])
                   ]
-    remove_tags_after = dict(attrs={'class':['tags','nota-destacado']})                
+    remove_tags_after = dict(attrs={'class':['tags','nota-destacado']})
     remove_attributes = ['height','width','visible','onclick','data-count','name']
 
     feeds          = [
@@ -78,4 +78,6 @@ class Lanacion(BasicNewsRecipe):
                      ]
 
     def preprocess_html(self, soup):
+        for item in soup.findAll(style=True):
+            del item['style']
         return self.adeify_images(soup)

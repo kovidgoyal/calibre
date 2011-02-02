@@ -4,7 +4,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import time, os
 
 from PyQt4.Qt import SIGNAL, QUrl, QAbstractListModel, Qt, \
-        QVariant, QInputDialog
+        QVariant
 
 from calibre.web.feeds.recipes import compile_recipe
 from calibre.web.feeds.news import AutomaticNewsRecipe
@@ -13,6 +13,7 @@ from calibre.gui2 import error_dialog, question_dialog, open_url, \
                          choose_files, ResizableDialog, NONE
 from calibre.gui2.widgets import PythonHighlighter
 from calibre.ptempfile import PersistentTemporaryFile
+from calibre.utils.icu import sort_key
 
 class CustomRecipeModel(QAbstractListModel):
 
@@ -255,24 +256,61 @@ class %(classname)s(%(base_class)s):
 
     def add_builtin_recipe(self):
         from calibre.web.feeds.recipes.collection import \
-            get_builtin_recipe_by_title, get_builtin_recipe_titles
-        items = sorted(get_builtin_recipe_titles())
+            get_builtin_recipe_collection, get_builtin_recipe_by_id
+        from PyQt4.Qt import QDialog, QVBoxLayout, QListWidgetItem, \
+                QListWidget, QDialogButtonBox, QSize
 
+        d = QDialog(self)
+        d.l = QVBoxLayout()
+        d.setLayout(d.l)
+        d.list = QListWidget(d)
+        d.list.doubleClicked.connect(lambda x: d.accept())
+        d.l.addWidget(d.list)
+        d.bb = QDialogButtonBox(QDialogButtonBox.Ok|QDialogButtonBox.Cancel,
+                Qt.Horizontal, d)
+        d.bb.accepted.connect(d.accept)
+        d.bb.rejected.connect(d.reject)
+        d.l.addWidget(d.bb)
+        d.setWindowTitle(_('Choose builtin recipe'))
+        items = []
+        for r in get_builtin_recipe_collection():
+            id_ = r.get('id', '')
+            title = r.get('title', '')
+            lang = r.get('language', '')
+            if id_ and title:
+                items.append((title + ' [%s]'%lang, id_))
 
-        title, ok = QInputDialog.getItem(self, _('Pick recipe'), _('Pick the recipe to customize'),
-                                     items, 0, False)
-        if ok:
-            title = unicode(title)
-            profile = get_builtin_recipe_by_title(title)
-            if self._model.has_title(title):
-                if question_dialog(self, _('Replace recipe?'),
-                    _('A custom recipe named %s already exists. Do you want to '
-                        'replace it?')%title):
-                    self._model.replace_by_title(title, profile)
-                else:
-                    return
+        items.sort(key=lambda x:sort_key(x[0]))
+        for title, id_ in items:
+            item = QListWidgetItem(title)
+            item.setData(Qt.UserRole, id_)
+            d.list.addItem(item)
+
+        d.resize(QSize(450, 400))
+        ret = d.exec_()
+        d.list.doubleClicked.disconnect()
+        if ret != d.Accepted:
+            return
+
+        items = list(d.list.selectedItems())
+        if not items:
+            return
+        item = items[-1]
+        id_ = unicode(item.data(Qt.UserRole).toString())
+        title = unicode(item.data(Qt.DisplayRole).toString()).rpartition(' [')[0]
+        profile = get_builtin_recipe_by_id(id_)
+        if profile is None:
+            raise Exception('Something weird happened')
+
+        if self._model.has_title(title):
+            if question_dialog(self, _('Replace recipe?'),
+                _('A custom recipe named %s already exists. Do you want to '
+                    'replace it?')%title):
+                self._model.replace_by_title(title, profile)
             else:
-                self.model.add(title, profile)
+                return
+        else:
+            self.model.add(title, profile)
 
         self.clear()
 
@@ -317,6 +355,13 @@ class %(classname)s(%(base_class)s):
     def clear(self):
         self.populate_options(AutomaticNewsRecipe)
         self.source_code.setText('')
+
+    def reject(self):
+        if question_dialog(self, _('Are you sure?'),
+                _('You will lose any unsaved changes. To save your'
+                    ' changes, click the Add/Update recipe button.'
+                    ' Continue?'), show_copy_button=False):
+            ResizableDialog.reject(self)
 
 if __name__ == '__main__':
     from calibre.gui2 import is_ok_to_use_qt

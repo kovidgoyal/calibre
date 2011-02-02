@@ -19,7 +19,9 @@ class PluginWidget(QWidget, Ui_Form):
                      ('bib_entry', 0), #mixed
                      ('bibfile_enc', 0), #utf-8
                      ('bibfile_enctag', 0), #strict
-                     ('impcit', True) ]
+                     ('impcit', True),
+                     ('addfiles', False),
+                     ]
 
     sync_enabled = False
     formats = set(['bib'])
@@ -27,14 +29,17 @@ class PluginWidget(QWidget, Ui_Form):
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
         self.setupUi(self)
-        from calibre.library.catalog import FIELDS
-        self.all_fields = []
-        for x in FIELDS :
-            if x != 'all':
-                self.all_fields.append(x)
-                QListWidgetItem(x, self.db_fields)
 
-    def initialize(self, name): #not working properly to update
+    def initialize(self, name, db): #not working properly to update
+        from calibre.library.catalog import FIELDS
+
+        self.all_fields = [x for x in FIELDS if x != 'all']
+        #add custom columns
+        self.all_fields.extend([x for x in sorted(db.custom_field_keys())])
+        #populate
+        for x in self.all_fields:
+            QListWidgetItem(x, self.db_fields)
+
         self.name = name
         fields = gprefs.get(name+'_db_fields', self.all_fields)
         # Restore the activated db_fields from last use
@@ -46,7 +51,7 @@ class PluginWidget(QWidget, Ui_Form):
             opt_value = gprefs.get(self.name + '_' + opt[0], opt[1])
             if opt[0] in ['bibfile_enc', 'bibfile_enctag', 'bib_entry']:
                 getattr(self, opt[0]).setCurrentIndex(opt_value)
-            elif opt[0] == 'impcit' :
+            elif opt[0] in ['impcit', 'addfiles'] :
                 getattr(self, opt[0]).setChecked(opt_value)
             else:
                 getattr(self, opt[0]).setText(opt_value)
@@ -73,7 +78,7 @@ class PluginWidget(QWidget, Ui_Form):
         for opt in self.OPTION_FIELDS:
             if opt[0] in ['bibfile_enc', 'bibfile_enctag', 'bib_entry']:
                 opt_value = getattr(self,opt[0]).currentIndex()
-            elif opt[0] == 'impcit' :
+            elif opt[0] in ['impcit', 'addfiles'] :
                 opt_value = getattr(self, opt[0]).isChecked()
             else :
                 opt_value = unicode(getattr(self, opt[0]).text())

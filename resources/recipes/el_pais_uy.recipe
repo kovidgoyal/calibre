@@ -14,7 +14,7 @@ class General(BasicNewsRecipe):
     description           = 'Noticias de Uruguay y el resto del mundo'
     publisher             = 'EL PAIS S.A.'
     category              = 'news, politics, Uruguay'
-    language       = 'es'
+    language       = 'es_UY'
     timefmt        = '[%a, %d %b, %Y]'
     use_embedded_content  = False
     recursion             = 2

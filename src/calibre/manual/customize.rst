@@ -21,6 +21,7 @@ Environment variables
 -----------------------
 
     * ``CALIBRE_CONFIG_DIRECTORY`` - sets the directory where configuration files are stored/read.
+    * ``CALIBRE_TEMP_DIR`` - sets the temporary directory used by calibre
     * ``CALIBRE_OVERRIDE_DATABASE_PATH`` - allows you to specify the full path to metadata.db. Using this variable you can have metadata.db be in a location other than the library folder. Useful if your library folder is on a networked drive that does not support file locking.
     * ``CALIBRE_DEVELOP_FROM`` - Used to run from a calibre development environment. See :ref:`develop`.
     * ``CALIBRE_OVERRIDE_LANG`` - Used to force the language used by the interface (ISO 639 language code)
@@ -103,6 +104,8 @@ A Hello World GUI plugin
 ---------------------------
 
 Here's a simple Hello World plugin for the |app| GUI. It will cause a box to popup with the message "Hellooo World!" when you press Ctrl+Shift+H
+
+.. note:: Only available in calibre versions ``>= 0.7.32``.
 
 .. code-block:: python
 

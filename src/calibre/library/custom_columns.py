@@ -8,17 +8,17 @@ __docformat__ = 'restructuredtext en'
 
 import json, re
 from functools import partial
-from math import floor
 
 from calibre import prints
 from calibre.constants import preferred_encoding
 from calibre.library.field_metadata import FieldMetadata
 from calibre.utils.date import parse_date
+from calibre.utils.config import tweaks
 
 class CustomColumns(object):
 
     CUSTOM_DATA_TYPES = frozenset(['rating', 'text', 'comments', 'datetime',
-        'int', 'float', 'bool', 'series', 'composite'])
+        'int', 'float', 'bool', 'series', 'composite', 'enumeration'])
 
     def custom_table_names(self, num):
         return 'custom_column_%d'%num, 'books_custom_column_%d_link'%num
@@ -133,18 +133,43 @@ class CustomColumns(object):
 
         def adapt_bool(x, d):
             if isinstance(x, (str, unicode, bytes)):
-                x = bool(int(x))
+                x = x.lower()
+                if x == 'true':
+                    x = True
+                elif x == 'false':
+                    x = False
+                elif x == 'none':
+                    x = None
+                else:
+                    x = bool(int(x))
             return x
 
+        def adapt_enum(x, d):
+            v = adapt_text(x, d)
+            if not v:
+                v = None
+            return v
+
+        def adapt_number(x, d):
+            if x is None:
+                return None
+            if isinstance(x, (str, unicode, bytes)):
+                if x.lower() == 'none':
+                    return None
+            if d['datatype'] == 'int':
+                return int(x)
+            return float(x)
+
         self.custom_data_adapters = {
-                'float': lambda x,d : x if x is None else float(x),
-                'int':   lambda x,d : x if x is None else int(x),
+                'float': adapt_number,
+                'int':   adapt_number,
                 'rating':lambda x,d : x if x is None else min(10., max(0., float(x))),
                 'bool':  adapt_bool,
                 'comments': lambda x,d: adapt_text(x, {'is_multiple':False}),
                 'datetime' : adapt_datetime,
                 'text':adapt_text,
-                'series':adapt_text
+                'series':adapt_text,
+                'enumeration': adapt_enum
         }
 
         # Create Tag Browser categories for custom columns
@@ -254,15 +279,15 @@ class CustomColumns(object):
         series_id = self.conn.get('SELECT id from %s WHERE value=?'%table,
                                                         (series,), all=False)
         if series_id is None:
+            if isinstance(tweaks['series_index_auto_increment'], (int, float)):
+                return float(tweaks['series_index_auto_increment'])
             return 1.0
-        # get the label of the associated series number table
-        series_num = self.conn.get('''
-                SELECT MAX({lt}.extra) FROM {lt}
+        series_indices = self.conn.get('''
+                SELECT {lt}.extra FROM {lt}
                 WHERE {lt}.book IN (SELECT book FROM {lt} where value=?)
-                '''.format(lt=lt), (series_id,), all=False)
-        if series_num is None:
-            return 1.0
-        return floor(series_num+1)
+                ORDER BY {lt}.extra
+                '''.format(lt=lt), (series_id,))
+        return self._get_next_series_num_for_list(series_indices)
 
     def all_custom(self, label=None, num=None):
         if label is not None:
@@ -438,7 +463,13 @@ class CustomColumns(object):
                 index_is_id=True)
         val = self.custom_data_adapters[data['datatype']](val, data)
 
+        if data['datatype'] == 'series' and extra is None:
+            (val, extra) = self._get_series_values(val)
+
         if data['normalized']:
+            if data['datatype'] == 'enumeration' and (
+                    val and val not in data['display']['enum_values']):
+                return None
             if not append or not data['is_multiple']:
                 self.conn.execute('DELETE FROM %s WHERE book=?'%lt, (id_,))
                 self.conn.execute(
@@ -558,7 +589,7 @@ class CustomColumns(object):
 
         if datatype in ('rating', 'int'):
             dt = 'INT'
-        elif datatype in ('text', 'comments', 'series', 'composite'):
+        elif datatype in ('text', 'comments', 'series', 'composite', 'enumeration'):
             dt = 'TEXT'
         elif datatype in ('float',):
             dt = 'REAL'

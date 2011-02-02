@@ -39,7 +39,7 @@ class ListWidgetItem(QListWidgetItem):
 
 class TagListEditor(QDialog, Ui_TagListEditor):
 
-    def __init__(self, window, tag_to_match, data, compare):
+    def __init__(self, window, tag_to_match, data, key):
         QDialog.__init__(self, window)
         Ui_TagListEditor.__init__(self)
         self.setupUi(self)
@@ -54,7 +54,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
 
         for k,v in data:
             self.all_tags[v] = k
-        for tag in sorted(self.all_tags.keys(), cmp=compare):
+        for tag in sorted(self.all_tags.keys(), key=key):
             item = ListWidgetItem(tag)
             item.setData(Qt.UserRole, self.all_tags[tag])
             self.available_tags.addItem(item)
@@ -105,9 +105,13 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         if not question_dialog(self, _('Are your sure?'),
             '<p>'+_('Are you certain you want to delete the following items?')+'<br>'+ct):
             return
-
+        row = self.available_tags.row(deletes[0])
         for item in deletes:
             (id,ign) = item.data(Qt.UserRole).toInt()
             self.to_delete.append(id)
             self.available_tags.takeItem(self.available_tags.row(item))
 
+        if row >= self.available_tags.count():
+            row = self.available_tags.count() - 1
+        if row >= 0:
+            self.available_tags.scrollToItem(self.available_tags.item(row))

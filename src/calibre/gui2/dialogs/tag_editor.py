@@ -4,28 +4,26 @@ from PyQt4.QtCore import SIGNAL, Qt
 from PyQt4.QtGui import QDialog
 
 from calibre.gui2.dialogs.tag_editor_ui import Ui_TagEditor
-from calibre.gui2 import question_dialog, error_dialog
+from calibre.gui2 import question_dialog, error_dialog, gprefs
 from calibre.constants import islinux
+from calibre.utils.icu import sort_key
 
 class TagEditor(QDialog, Ui_TagEditor):
 
-    def tag_cmp(self, x, y):
-        return cmp(x.lower(), y.lower())
-
-    def __init__(self, window, db, index=None):
+    def __init__(self, window, db, id_=None):
         QDialog.__init__(self, window)
         Ui_TagEditor.__init__(self)
         self.setupUi(self)
 
         self.db = db
-        self.index = index
+        self.index = db.row(id_) if id_ is not None else None
         if self.index is not None:
             tags = self.db.tags(self.index)
         else:
             tags = []
         if tags:
             tags = [tag.strip() for tag in tags.split(',') if tag.strip()]
-            tags.sort(cmp=self.tag_cmp)
+            tags.sort(key=sort_key)
             for tag in tags:
                 self.applied_tags.addItem(tag)
         else:
@@ -35,7 +33,7 @@ class TagEditor(QDialog, Ui_TagEditor):
 
         all_tags = [tag for tag in self.db.all_tags()]
         all_tags = list(set(all_tags))
-        all_tags.sort(cmp=self.tag_cmp)
+        all_tags.sort(key=sort_key)
         for tag in all_tags:
             if tag not in tags:
                 self.available_tags.addItem(tag)
@@ -50,6 +48,10 @@ class TagEditor(QDialog, Ui_TagEditor):
         else:
             self.connect(self.available_tags, SIGNAL('itemActivated(QListWidgetItem*)'), self.apply_tags)
         self.connect(self.applied_tags,   SIGNAL('itemActivated(QListWidgetItem*)'), self.unapply_tags)
+
+        geom = gprefs.get('tag_editor_geometry', None)
+        if geom is not None:
+            self.restoreGeometry(geom)
 
 
     def delete_tags(self, item=None):
@@ -77,16 +79,24 @@ class TagEditor(QDialog, Ui_TagEditor):
 
     def apply_tags(self, item=None):
         items = self.available_tags.selectedItems() if item is None else [item]
+        rows = [self.available_tags.row(i) for i in items]
+        row = max(rows)
         for item in items:
             tag = unicode(item.text())
             self.tags.append(tag)
             self.available_tags.takeItem(self.available_tags.row(item))
 
-        self.tags.sort(cmp=self.tag_cmp)
+        self.tags.sort(key=sort_key)
         self.applied_tags.clear()
         for tag in self.tags:
             self.applied_tags.addItem(tag)
 
+        if row >= self.available_tags.count():
+            row = self.available_tags.count() - 1
+
+        if row > 2:
+            item = self.available_tags.item(row)
+            self.available_tags.scrollToItem(item)
 
 
     def unapply_tags(self, item=None):
@@ -96,14 +106,14 @@ class TagEditor(QDialog, Ui_TagEditor):
             self.tags.remove(tag)
             self.available_tags.addItem(tag)
 
-        self.tags.sort(cmp=self.tag_cmp)
+        self.tags.sort(key=sort_key)
         self.applied_tags.clear()
         for tag in self.tags:
             self.applied_tags.addItem(tag)
 
         items = [unicode(self.available_tags.item(x).text()) for x in
                 range(self.available_tags.count())]
-        items.sort(cmp=self.tag_cmp)
+        items.sort(key=sort_key)
         self.available_tags.clear()
         for item in items:
             self.available_tags.addItem(item)
@@ -117,9 +127,21 @@ class TagEditor(QDialog, Ui_TagEditor):
             if tag not in self.tags:
                 self.tags.append(tag)
 
-        self.tags.sort(cmp=self.tag_cmp)
+        self.tags.sort(key=sort_key)
         self.applied_tags.clear()
         for tag in self.tags:
             self.applied_tags.addItem(tag)
 
         self.add_tag_input.setText('')
+
+    def accept(self):
+        self.save_state()
+        return QDialog.accept(self)
+
+    def reject(self):
+        self.save_state()
+        return QDialog.reject(self)
+
+    def save_state(self):
+        gprefs['tag_editor_geometry'] = bytearray(self.saveGeometry())
+

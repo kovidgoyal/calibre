@@ -8,12 +8,12 @@ __docformat__ = 'restructuredtext en'
 
 from threading import Thread
 from Queue import Empty
-import os, time, sys, shutil
+import os, time, sys, shutil, json
 
 from calibre.utils.ipc.job import ParallelJob
 from calibre.utils.ipc.server import Server
 from calibre.ptempfile import PersistentTemporaryDirectory, TemporaryDirectory
-from calibre import prints
+from calibre import prints, isbytestring
 from calibre.constants import filesystem_encoding
 
 
@@ -194,14 +194,42 @@ class SaveWorker(Thread):
         self.daemon = True
         self.path, self.opts = path, opts
         self.ids = ids
-        self.library_path = db.library_path
+        self.db = db
         self.canceled = False
         self.result_queue = result_queue
         self.error = None
         self.spare_server = spare_server
         self.start()
 
+    def collect_data(self, ids):
+        from calibre.ebooks.metadata.opf2 import metadata_to_opf
+        data = {}
+        for i in set(ids):
+            mi = self.db.get_metadata(i, index_is_id=True, get_cover=True)
+            opf = metadata_to_opf(mi)
+            if isbytestring(opf):
+                opf = opf.decode('utf-8')
+            cpath = None
+            if mi.cover:
+                cpath = mi.cover
+                if isbytestring(cpath):
+                    cpath = cpath.decode(filesystem_encoding)
+            formats = {}
+            if mi.formats:
+                for fmt in mi.formats:
+                    fpath = self.db.format_abspath(i, fmt, index_is_id=True)
+                    if fpath is not None:
+                        if isbytestring(fpath):
+                            fpath = fpath.decode(filesystem_encoding)
+                        formats[fmt.lower()] = fpath
+            data[i] = [opf, cpath, formats]
+        return data
+
     def run(self):
+        with TemporaryDirectory('save_to_disk_data') as tdir:
+            self._run(tdir)
+
+    def _run(self, tdir):
         from calibre.library.save_to_disk import config
         server = Server() if self.spare_server is None else self.spare_server
         ids = set(self.ids)
@@ -212,12 +240,19 @@ class SaveWorker(Thread):
         for pref in c.preferences:
             recs[pref.name] = getattr(self.opts, pref.name)
 
+        plugboards = self.db.prefs.get('plugboards', {})
+
         for i, task in enumerate(tasks):
             tids = [x[-1] for x in task]
+            data = self.collect_data(tids)
+            dpath = os.path.join(tdir, '%d.json'%i)
+            with open(dpath, 'wb') as f:
+                f.write(json.dumps(data, ensure_ascii=False).encode('utf-8'))
+
             job = ParallelJob('save_book',
                     'Save books (%d of %d)'%(i, len(tasks)),
                     lambda x,y:x,
-                    args=[tids, self.library_path, self.path, recs])
+                    args=[tids, dpath, plugboards, self.path, recs])
             jobs.add(job)
             server.add_job(job)
 
@@ -226,20 +261,20 @@ class SaveWorker(Thread):
             time.sleep(0.2)
             running = False
             for job in jobs:
-                job.update(consume_notifications=False)
-                while True:
-                    try:
-                        id, title, ok, tb = job.notifications.get_nowait()[0]
-                        if id in ids:
-                            self.result_queue.put((id, title, ok, tb))
-                            ids.remove(id)
-                    except Empty:
-                        break
+                self.get_notifications(job, ids)
                 if not job.is_finished:
                     running = True
 
             if not running:
                 break
+
+        for job in jobs:
+            if not job.result:
+                continue
+            for id_, title, ok, tb in job.result:
+                if id_ in ids:
+                    self.result_queue.put((id_, title, ok, tb))
+                    ids.remove(id_)
 
         server.close()
         time.sleep(1)
@@ -257,21 +292,39 @@ class SaveWorker(Thread):
                 except:
                     pass
 
+    def get_notifications(self, job, ids):
+        job.update(consume_notifications=False)
+        while True:
+            try:
+                id, title, ok, tb = job.notifications.get_nowait()[0]
+                if id in ids:
+                    self.result_queue.put((id, title, ok, tb))
+                    ids.remove(id)
+            except Empty:
+                break
 
-def save_book(task, library_path, path, recs, notification=lambda x,y:x):
-    from calibre.library.database2 import LibraryDatabase2
-    db = LibraryDatabase2(library_path)
-    from calibre.library.save_to_disk import config, save_to_disk
+
+def save_book(ids, dpath, plugboards, path, recs, notification=lambda x,y:x):
+    from calibre.library.save_to_disk import config, save_serialized_to_disk
     from calibre.customize.ui import apply_null_metadata
     opts = config().parse()
     for name in recs:
         setattr(opts, name, recs[name])
 
+    results = []
 
     def callback(id, title, failed, tb):
+        results.append((id, title, not failed, tb))
         notification((id, title, not failed, tb))
         return True
 
+    data_ = json.loads(open(dpath, 'rb').read().decode('utf-8'))
+    data = {}
+    for k, v in data_.iteritems():
+        data[int(k)] = v
+
     with apply_null_metadata:
-        save_to_disk(db, task, path, opts, callback)
+        save_serialized_to_disk(ids, data, plugboards, path, opts, callback)
+
+    return results
 

@@ -25,11 +25,10 @@ class TXTOutput(OutputFormatPlugin):
                 'Use \'old_mac\' for compatibility with Mac OS 9 and earlier. '
                 'For Mac OS X use \'unix\'. \'system\' will default to the newline '
                 'type used by this OS.') % sorted(TxtNewlines.NEWLINE_TYPES.keys())),
-        OptionRecommendation(name='output_encoding', recommended_value='utf-8',
+        OptionRecommendation(name='txt_output_encoding', recommended_value='utf-8',
             level=OptionRecommendation.LOW,
             help=_('Specify the character encoding of the output document. ' \
-            'The default is utf-8. Note: This option is not honored by all ' \
-            'formats.')),
+            'The default is utf-8.')),
         OptionRecommendation(name='inline_toc',
             recommended_value=False, level=OptionRecommendation.LOW,
             help=_('Add Table of Contents to beginning of the book.')),
@@ -44,10 +43,35 @@ class TXTOutput(OutputFormatPlugin):
             recommended_value=False, level=OptionRecommendation.LOW,
             help=_('Force splitting on the max-line-length value when no space '
             'is present. Also allows max-line-length to be below the minimum')),
+        OptionRecommendation(name='txt_output_formatting',
+             recommended_value='plain',
+             choices=['plain', 'markdown', 'textile'],
+             help=_('Formatting used within the document.\n'
+                    '* plain: Produce plain text.\n'
+                    '* markdown: Produce Markdown formatted text.\n'
+                    '* textile: Produce Textile formatted text.')),
+        OptionRecommendation(name='keep_links',
+            recommended_value=False, level=OptionRecommendation.LOW,
+            help=_('Do not remove links within the document. This is only ' \
+            'useful when paired with a txt-output-formatting option that '
+            'is not none because links are always removed with plain text output.')),
+        OptionRecommendation(name='keep_image_references',
+            recommended_value=False, level=OptionRecommendation.LOW,
+            help=_('Do not remove image references within the document. This is only ' \
+            'useful when paired with a txt-output-formatting option that '
+            'is not none because links are always removed with plain text output.')),
      ])
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
-        writer = TXTMLizer(log)
+        if opts.txt_output_formatting.lower() == 'markdown':
+            from calibre.ebooks.txt.markdownml import MarkdownMLizer
+            writer = MarkdownMLizer(log)
+        elif opts.txt_output_formatting.lower() == 'textile':
+            from calibre.ebooks.txt.textileml import TextileMLizer
+            writer = TextileMLizer(log)
+        else:
+            writer = TXTMLizer(log)
+
         txt = writer.extract_content(oeb_book, opts)
 
         log.debug('\tReplacing newlines with selected type...')
@@ -64,7 +88,7 @@ class TXTOutput(OutputFormatPlugin):
 
         out_stream.seek(0)
         out_stream.truncate()
-        out_stream.write(txt.encode(opts.output_encoding, 'replace'))
+        out_stream.write(txt.encode(opts.txt_output_encoding, 'replace'))
 
         if close:
             out_stream.close()

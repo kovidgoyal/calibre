@@ -14,6 +14,7 @@ from PyQt4.Qt import QAbstractListModel, Qt, QKeySequence, QListView, \
 
 from calibre.gui2 import NONE, error_dialog
 from calibre.utils.config import XMLConfig
+from calibre.utils.icu import sort_key
 from calibre.gui2.shortcuts_ui import Ui_Frame
 
 DEFAULTS = Qt.UserRole
@@ -149,7 +150,7 @@ class Delegate(QStyledItemDelegate):
         custom = []
         if editor.custom.isChecked():
             for x in ('1', '2'):
-                sc = getattr(editor, 'shortcut'+x)
+                sc = getattr(editor, 'shortcut'+x, None)
                 if sc is not None:
                     custom.append(sc)
 
@@ -175,8 +176,7 @@ class Shortcuts(QAbstractListModel):
         for k, v in shortcuts.items():
             self.keys[k] = v[0]
         self.order = list(shortcuts)
-        self.order.sort(cmp=lambda x,y : cmp(self.descriptions[x],
-            self.descriptions[y]))
+        self.order.sort(key=lambda x : sort_key(self.descriptions[x]))
         self.sequences = {}
         for k, v in self.keys.items():
             self.sequences[k] = [QKeySequence(x) for x in v]
@@ -264,6 +264,11 @@ class ShortcutConfig(QWidget):
 
     def scrollTo(self, index):
         self.view.scrollTo(index)
+
+
+    @property
+    def is_editing(self):
+        return self.view.state() == self.view.EditingState
 
 
 if __name__ == '__main__':

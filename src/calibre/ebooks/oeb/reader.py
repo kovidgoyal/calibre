@@ -17,7 +17,7 @@ from lxml import etree
 import cssutils
 
 from calibre.ebooks.oeb.base import OPF1_NS, OPF2_NS, OPF2_NSMAP, DC11_NS, \
-    DC_NSES, OPF
+    DC_NSES, OPF, xml2text
 from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES, OEB_IMAGES, \
     PAGE_MAP_MIME, JPEG_MIME, NCX_MIME, SVG_MIME
 from calibre.ebooks.oeb.base import XMLDECL_RE, COLLAPSE_RE, \
@@ -423,7 +423,7 @@ class OEBReader(object):
             path, frag = urldefrag(href)
             if path not in self.oeb.manifest.hrefs:
                 continue
-            title = ' '.join(xpath(anchor, './/text()'))
+            title = xml2text(anchor)
             title = COLLAPSE_RE.sub(' ', title.strip())
             if href not in titles:
                 order.append(href)
@@ -544,7 +544,7 @@ class OEBReader(object):
             data = render_html_svg_workaround(path, self.logger)
             if not data:
                 data = ''
-        id, href = self.oeb.manifest.generate('cover', 'cover.jpeg')
+        id, href = self.oeb.manifest.generate('cover', 'cover.jpg')
         item = self.oeb.manifest.add(id, href, JPEG_MIME, data=data)
         return item
 

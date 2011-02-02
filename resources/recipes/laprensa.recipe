@@ -21,9 +21,9 @@ class LaPrensa(BasicNewsRecipe):
     encoding              = 'cp1252'
    # cover_url             = 'http://www.laprensa.com.ar/imgs/logo.gif'
     remove_javascript     = True
-    language = 'es'
+    language = 'es_AR'
     lang = 'es'
-    
+
     html2lrf_options = [
                           '--comment', description
                         , '--category', category
@@ -32,7 +32,7 @@ class LaPrensa(BasicNewsRecipe):
 
     html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"'
     filter_regexps = [r'.*archive.aspx.*']
-   
+
     remove_tags  = [
                     dict(name='td', attrs={'class':["link-registro","link-buscador"]}),
                     dict(name='td', attrs={'id':["TDTabItem1","TDTabItem2","TDTabItem3","TDTabItem4"]}),
@@ -58,9 +58,9 @@ class LaPrensa(BasicNewsRecipe):
                     dict(name='img', src = "/versions/1/imgs/separador-linea-azul.gif"),
                     dict(name='img', src = " /versions/1/imgs/separador-linea.gif"),
                     dict(name='a',text ="Powered by Civinext Groupware - V. 2.0.3567.23706"),
-                    dict(name='img', height ="0")                   
+                    dict(name='img', height ="0")
                     ]
-                            
+
     extra_css = '''
                     .seccion{font-size:xx-small;}
                     body{font-family:Arial,Helvetica,sans-serif;font-size:x-small;}
@@ -69,7 +69,7 @@ class LaPrensa(BasicNewsRecipe):
                     .fecha{font-size:xx-small;}
                     .volanta{font-size:xx-small;}
                 '''
-    
+
     feeds = [
               (u'Politica'    , u'http://www.laprensa.com.ar/ResourcesManager.aspx?Resource=Rss.aspx&Rss=4' )
              ,(u'Economia'    , u'http://www.laprensa.com.ar/ResourcesManager.aspx?Resource=Rss.aspx&Rss=5' )
@@ -80,14 +80,14 @@ class LaPrensa(BasicNewsRecipe):
              ,(u'Espectaculos', u'http://www.laprensa.com.ar/ResourcesManager.aspx?Resource=Rss.aspx?Rss=10')
             ]
 
-    
+
     def preprocess_html(self, soup):
-        
+
         for t in soup.findAll(['table','td','tr','span','tbody']):
             t.name = 'div'
         for t in soup.findAll(['hr']):
             t.extract()
-        
+
         mtag = '<meta http-equiv="Content-Language" content="es-AR"/>'
         soup.head.insert(0,mtag)
         for item in soup.findAll(style=True):
@@ -95,8 +95,8 @@ class LaPrensa(BasicNewsRecipe):
         for item in soup.findAll(align = "center"):
                 del item['align']
         for item in soup.findAll(bgcolor="ffffff"):
-            del item['bgcolor']               
+            del item['bgcolor']
         return soup
-    
-   
-    
+
+
+

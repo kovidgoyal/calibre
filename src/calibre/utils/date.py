@@ -46,6 +46,17 @@ local_tz = _local_tz = SafeLocalTimeZone()
 
 UNDEFINED_DATE = datetime(101,1,1, tzinfo=utc_tz)
 
+def is_date_undefined(qt_or_dt):
+    d = qt_or_dt
+    if d is None:
+        return True
+    if hasattr(d, 'toString'):
+        d = datetime(d.year(), d.month(), d.day(), tzinfo=utc_tz)
+    return d.year < UNDEFINED_DATE.year or (
+            d.year == UNDEFINED_DATE.year and
+            d.month == UNDEFINED_DATE.month and
+            d.day == UNDEFINED_DATE.day)
+
 def parse_date(date_string, assume_utc=False, as_utc=True, default=None):
     '''
     Parse a date/time string into a timezone aware datetime object. The timezone
@@ -148,6 +159,51 @@ def format_date(dt, format, assume_utc=False, as_utc=False):
         if len(mo.group(0)) == 2: return '%02d'%(dt.year % 100)
         return '%04d'%dt.year
 
+    if dt == UNDEFINED_DATE:
+        return ''
+
     format = re.sub('d{1,4}', format_day, format)
     format = re.sub('M{1,4}', format_month, format)
     return re.sub('yyyy|yy', format_year, format)
+
+def replace_months(datestr, clang):
+    # Replace months by english equivalent for parse_date
+    frtoen = {
+        u'[jJ]anvier': u'jan',
+        u'[fF].vrier': u'feb',
+        u'[mM]ars': u'mar',
+        u'[aA]vril': u'apr',
+        u'[mM]ai': u'may',
+        u'[jJ]uin': u'jun',
+        u'[jJ]uillet': u'jul',
+        u'[aA]o.t': u'aug',
+        u'[sS]eptembre': u'sep',
+        u'[Oo]ctobre': u'oct',
+        u'[nN]ovembre': u'nov',
+        u'[dD].cembre': u'dec' }
+    detoen = {
+        u'[jJ]anuar': u'jan',
+        u'[fF]ebruar': u'feb',
+        u'[mM].rz': u'mar',
+        u'[aA]pril': u'apr',
+        u'[mM]ai': u'may',
+        u'[jJ]uni': u'jun',
+        u'[jJ]uli': u'jul',
+        u'[aA]ugust': u'aug',
+        u'[sS]eptember': u'sep',
+        u'[Oo]ktober': u'oct',
+        u'[nN]ovember': u'nov',
+        u'[dD]ezember': u'dec' }
+
+    if clang == 'fr':
+        dictoen = frtoen
+    elif clang == 'de':
+        dictoen = detoen
+    else:
+        return datestr
+
+    for k in dictoen.iterkeys():
+        tmp = re.sub(k, dictoen[k], datestr)
+        if tmp != datestr: break
+    return tmp
+

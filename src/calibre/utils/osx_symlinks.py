@@ -75,7 +75,10 @@ def do_it(scripts, links):
             if ph:
                 del os.environ['PYTHONHOME']
             pipe = auth.executeWithPrivileges(name)
-            sys.stdout.write(pipe.read())
+            try:
+                sys.stdout.write(pipe.read())
+            except:
+                sys.stdout.write(pipe.read()) # Probably EINTR
             pipe.close()
         except:
             r1, r2 = None, traceback.format_exc()

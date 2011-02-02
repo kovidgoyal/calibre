@@ -49,11 +49,26 @@
     </widget>
    </item>
    <item row="5" column="0" colspan="3">
-    <widget class="QRadioButton" name="empty_library">
-     <property name="text">
-      <string>&amp;Create an empty library at the new location</string>
-     </property>
-    </widget>
+    <layout class="QHBoxLayout" name="hbox1">
+     <item>
+      <widget class="QRadioButton" name="empty_library">
+       <property name="text">
+        <string>&amp;Create an empty library at the new location</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="copy_structure">
+       <property name="text">
+        <string>&amp;Copy structure from the current library</string>
+       </property>
+       <property name="toolTip">
+        <string>Copy the custom columns, saved searches, column widths, plugboards,
+user categories, and other information from the old to the new library</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
    <item row="6" column="0" colspan="3">
     <widget class="QRadioButton" name="move_library">

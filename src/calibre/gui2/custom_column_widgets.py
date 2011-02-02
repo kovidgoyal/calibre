@@ -9,14 +9,17 @@ import sys
 from functools import partial
 
 from PyQt4.Qt import QComboBox, QLabel, QSpinBox, QDoubleSpinBox, QDateEdit, \
-        QDate, QGroupBox, QVBoxLayout, QPlainTextEdit, QSizePolicy, \
+        QDate, QGroupBox, QVBoxLayout, QSizePolicy, \
         QSpacerItem, QIcon, QCheckBox, QWidget, QHBoxLayout, SIGNAL, \
         QPushButton
 
 from calibre.utils.date import qt_to_dt, now
-from calibre.gui2.widgets import TagsLineEdit, EnComboBox
-from calibre.gui2 import UNDEFINED_QDATE
+from calibre.gui2.complete import MultiCompleteLineEdit, MultiCompleteComboBox
+from calibre.gui2.comments_editor import Editor as CommentsEditor
+from calibre.gui2 import UNDEFINED_QDATE, error_dialog
 from calibre.utils.config import tweaks
+from calibre.utils.icu import sort_key
+from calibre.library.comments import comments_to_html
 
 class Base(object):
 
@@ -148,12 +151,27 @@ class DateEdit(QDateEdit):
     def set_to_today(self):
         self.setDate(now())
 
+    def set_to_clear(self):
+        self.setDate(UNDEFINED_QDATE)
+
 class DateTime(Base):
 
     def setup_ui(self, parent):
         cm = self.col_metadata
-        self.widgets = [QLabel('&'+cm['name']+':', parent), DateEdit(parent),
-            QLabel(''), QPushButton(_('Set \'%s\' to today')%cm['name'], parent)]
+        self.widgets = [QLabel('&'+cm['name']+':', parent), DateEdit(parent)]
+        self.widgets.append(QLabel(''))
+        w = QWidget(parent)
+        self.widgets.append(w)
+        l = QHBoxLayout()
+        l.setContentsMargins(0, 0, 0, 0)
+        w.setLayout(l)
+        l.addStretch(1)
+        self.today_button = QPushButton(_('Set \'%s\' to today')%cm['name'], parent)
+        l.addWidget(self.today_button)
+        self.clear_button = QPushButton(_('Clear \'%s\'')%cm['name'], parent)
+        l.addWidget(self.clear_button)
+        l.addStretch(2)
+
         w = self.widgets[1]
         format = cm['display'].get('date_format','')
         if not format:
@@ -162,7 +180,8 @@ class DateTime(Base):
         w.setCalendarPopup(True)
         w.setMinimumDate(UNDEFINED_QDATE)
         w.setSpecialValueText(_('Undefined'))
-        self.widgets[3].clicked.connect(w.set_to_today)
+        self.today_button.clicked.connect(w.set_to_today)
+        self.clear_button.clicked.connect(w.set_to_clear)
 
     def setter(self, val):
         if val is None:
@@ -185,9 +204,9 @@ class Comments(Base):
         self._box = QGroupBox(parent)
         self._box.setTitle('&'+self.col_metadata['name'])
         self._layout = QVBoxLayout()
-        self._tb = QPlainTextEdit(self._box)
+        self._tb = CommentsEditor(self._box)
         self._tb.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
-        self._tb.setTabChangesFocus(True)
+        #self._tb.setTabChangesFocus(True)
         self._layout.addWidget(self._tb)
         self._box.setLayout(self._layout)
         self.widgets = [self._box]
@@ -195,10 +214,10 @@ class Comments(Base):
     def setter(self, val):
         if val is None:
             val = ''
-        self._tb.setPlainText(val)
+        self._tb.html = comments_to_html(val)
 
     def getter(self):
-        val = unicode(self._tb.toPlainText()).strip()
+        val = unicode(self._tb.html).strip()
         if not val:
             val = None
         return val
@@ -207,12 +226,14 @@ class Text(Base):
 
     def setup_ui(self, parent):
         values = self.all_values = list(self.db.all_custom(num=self.col_id))
-        values.sort(cmp = lambda x,y: cmp(x.lower(), y.lower()))
+        values.sort(key=sort_key)
         if self.col_metadata['is_multiple']:
-            w = TagsLineEdit(parent, values)
+            w = MultiCompleteLineEdit(parent)
+            w.update_items_cache(values)
             w.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
         else:
-            w = EnComboBox(parent)
+            w = MultiCompleteComboBox(parent)
+            w.set_separator(None)
             w.setSizeAdjustPolicy(w.AdjustToMinimumContentsLengthWithIcon)
             w.setMinimumContentsLength(25)
         self.widgets = [QLabel('&'+self.col_metadata['name']+':', parent), w]
@@ -221,9 +242,10 @@ class Text(Base):
         val = self.db.get_custom(book_id, num=self.col_id, index_is_id=True)
         self.initial_val = val
         val = self.normalize_db_val(val)
+        self.widgets[1].update_items_cache(self.all_values)
+
         if self.col_metadata['is_multiple']:
             self.setter(val)
-            self.widgets[1].update_tags_cache(self.all_values)
         else:
             idx = None
             for i, c in enumerate(self.all_values):
@@ -256,8 +278,8 @@ class Series(Base):
 
     def setup_ui(self, parent):
         values = self.all_values = list(self.db.all_custom(num=self.col_id))
-        values.sort(cmp = lambda x,y: cmp(x.lower(), y.lower()))
-        w = EnComboBox(parent)
+        values.sort(key=sort_key)
+        w = MultiCompleteComboBox(parent)
         w.setSizeAdjustPolicy(w.AdjustToMinimumContentsLengthWithIcon)
         w.setMinimumContentsLength(25)
         self.name_widget = w
@@ -286,6 +308,7 @@ class Series(Base):
             if c == val:
                 idx = i
             self.name_widget.addItem(c)
+        self.name_widget.update_items_cache(self.all_values)
         self.name_widget.setEditText('')
         if idx is not None:
             self.widgets[1].setCurrentIndex(idx)
@@ -302,13 +325,56 @@ class Series(Base):
             if val == '':
                 val = s_index = None
             elif s_index == 0.0:
-                if tweaks['series_index_auto_increment'] == 'next':
+                if tweaks['series_index_auto_increment'] != 'const':
                     s_index = self.db.get_next_cc_series_num_for(val,
                                                              num=self.col_id)
                 else:
                     s_index = None
             self.db.set_custom(book_id, val, extra=s_index,
                                num=self.col_id, notify=notify, commit=False)
+
+class Enumeration(Base):
+
+    def setup_ui(self, parent):
+        self.parent = parent
+        self.widgets = [QLabel('&'+self.col_metadata['name']+':', parent),
+                QComboBox(parent)]
+        w = self.widgets[1]
+        vals = self.col_metadata['display']['enum_values']
+        w.addItem('')
+        for v in vals:
+            w.addItem(v)
+
+    def initialize(self, book_id):
+        val = self.db.get_custom(book_id, num=self.col_id, index_is_id=True)
+        val = self.normalize_db_val(val)
+        self.initial_val = val
+        idx = self.widgets[1].findText(val)
+        if idx < 0:
+            error_dialog(self.parent, '',
+                    _('The enumeration "{0}" contains an invalid value '
+                      'that will be set to the default').format(
+                                            self.col_metadata['name']),
+                    show=True, show_copy_button=False)
+
+            idx = 0
+        self.widgets[1].setCurrentIndex(idx)
+
+    def setter(self, val):
+        self.widgets[1].setCurrentIndex(self.widgets[1].findText(val))
+
+    def getter(self):
+        return unicode(self.widgets[1].currentText())
+
+    def normalize_db_val(self, val):
+        if val is None:
+            val = ''
+        return val
+
+    def normalize_ui_val(self, val):
+        if not val:
+            val = None
+        return val
 
 widgets = {
         'bool' : Bool,
@@ -319,13 +385,13 @@ widgets = {
         'text' : Text,
         'comments': Comments,
         'series': Series,
+        'enumeration': Enumeration
 }
 
-def field_sort(y, z, x=None):
-    m1, m2 = x[y], x[z]
+def field_sort_key(y, x=None):
+    m1 = x[y]
     n1 = 'zzzzz' if m1['datatype'] == 'comments' else m1['name']
-    n2 = 'zzzzz' if m2['datatype'] == 'comments' else m2['name']
-    return cmp(n1.lower(), n2.lower())
+    return sort_key(n1)
 
 def populate_metadata_page(layout, db, book_id, bulk=False, two_column=False, parent=None):
     def widget_factory(type, col):
@@ -333,11 +399,12 @@ def populate_metadata_page(layout, db, book_id, bulk=False, two_column=False, pa
             w = bulk_widgets[type](db, col, parent)
         else:
             w = widgets[type](db, col, parent)
-        w.initialize(book_id)
+        if book_id is not None:
+            w.initialize(book_id)
         return w
     x = db.custom_column_num_map
     cols = list(x)
-    cols.sort(cmp=partial(field_sort, x=x))
+    cols.sort(key=partial(field_sort_key, x=x))
     count_non_comment = len([c for c in cols if x[c]['datatype'] != 'comments'])
 
     layout.setColumnStretch(1, 10)
@@ -423,10 +490,47 @@ class BulkBase(Base):
         self.setter(val)
 
     def commit(self, book_ids, notify=False):
+        if not self.a_c_checkbox.isChecked():
+            return
         val = self.gui_val
         val = self.normalize_ui_val(val)
         if val != self.initial_val:
             self.db.set_custom_bulk(book_ids, val, num=self.col_id, notify=notify)
+
+    def make_widgets(self, parent, main_widget_class, extra_label_text=''):
+        w = QWidget(parent)
+        self.widgets = [QLabel('&'+self.col_metadata['name']+':', w), w]
+        l = QHBoxLayout()
+        l.setContentsMargins(0, 0, 0, 0)
+        w.setLayout(l)
+        self.main_widget = main_widget_class(w)
+        l.addWidget(self.main_widget)
+        l.setStretchFactor(self.main_widget, 10)
+        self.a_c_checkbox = QCheckBox( _('Apply changes'), w)
+        l.addWidget(self.a_c_checkbox)
+        self.ignore_change_signals = True
+
+        # connect to the various changed signals so we can auto-update the
+        # apply changes checkbox
+        if hasattr(self.main_widget, 'editTextChanged'):
+            # editable combobox widgets
+            self.main_widget.editTextChanged.connect(self.a_c_checkbox_changed)
+        if hasattr(self.main_widget, 'textChanged'):
+            # lineEdit widgets
+            self.main_widget.textChanged.connect(self.a_c_checkbox_changed)
+        if hasattr(self.main_widget, 'currentIndexChanged'):
+            # combobox widgets
+            self.main_widget.currentIndexChanged[int].connect(self.a_c_checkbox_changed)
+        if hasattr(self.main_widget, 'valueChanged'):
+            # spinbox widgets
+            self.main_widget.valueChanged.connect(self.a_c_checkbox_changed)
+        if hasattr(self.main_widget, 'dateChanged'):
+            # dateEdit widgets
+            self.main_widget.dateChanged.connect(self.a_c_checkbox_changed)
+
+    def a_c_checkbox_changed(self):
+        if not self.ignore_change_signals:
+            self.a_c_checkbox.setChecked(True)
 
 class BulkBool(BulkBase, Bool):
 
@@ -437,58 +541,144 @@ class BulkBool(BulkBase, Bool):
             if tweaks['bool_custom_columns_are_tristate'] == 'no' and val is None:
                 val = False
             if value is not None and value != val:
-                return 'nochange'
+                return None
             value = val
         return value
 
     def setup_ui(self, parent):
-        self.widgets = [QLabel('&'+self.col_metadata['name']+':', parent),
-                QComboBox(parent)]
-        w = self.widgets[1]
-        items = [_('Yes'), _('No'), _('Undefined'), _('Do not change')]
-        icons = [I('ok.png'), I('list_remove.png'), I('blank.png'), I('blank.png')]
+        self.make_widgets(parent, QComboBox)
+        items = [_('Yes'), _('No'), _('Undefined')]
+        icons = [I('ok.png'), I('list_remove.png'), I('blank.png')]
+        self.main_widget.blockSignals(True)
         for icon, text in zip(icons, items):
-            w.addItem(QIcon(icon), text)
+            self.main_widget.addItem(QIcon(icon), text)
+        self.main_widget.blockSignals(False)
 
     def getter(self):
-        val = self.widgets[1].currentIndex()
-        return {3: 'nochange', 2: None, 1: False, 0: True}[val]
+        val = self.main_widget.currentIndex()
+        return {2: None, 1: False, 0: True}[val]
 
     def setter(self, val):
-        val = {'nochange': 3, None: 2, False: 1, True: 0}[val]
-        self.widgets[1].setCurrentIndex(val)
+        val = {None: 2, False: 1, True: 0}[val]
+        self.main_widget.setCurrentIndex(val)
+        self.ignore_change_signals = False
 
     def commit(self, book_ids, notify=False):
+        if not self.a_c_checkbox.isChecked():
+            return
         val = self.gui_val
         val = self.normalize_ui_val(val)
-        if val != self.initial_val and val != 'nochange':
-            if tweaks['bool_custom_columns_are_tristate'] == 'no' and val is None:
-                val = False
-            self.db.set_custom_bulk(book_ids, val, num=self.col_id, notify=notify)
+        if tweaks['bool_custom_columns_are_tristate'] == 'no' and val is None:
+            val = False
+        self.db.set_custom_bulk(book_ids, val, num=self.col_id, notify=notify)
 
-class BulkInt(BulkBase, Int):
-    pass
+class BulkInt(BulkBase):
 
-class BulkFloat(BulkBase, Float):
-    pass
+    def setup_ui(self, parent):
+        self.make_widgets(parent, QSpinBox)
+        self.main_widget.setRange(-100, sys.maxint)
+        self.main_widget.setSpecialValueText(_('Undefined'))
+        self.main_widget.setSingleStep(1)
 
-class BulkRating(BulkBase, Rating):
-    pass
+    def setter(self, val):
+        if val is None:
+            val = self.main_widget.minimum()
+        else:
+            val = int(val)
+        self.main_widget.setValue(val)
+        self.ignore_change_signals = False
 
-class BulkDateTime(BulkBase, DateTime):
-    pass
+    def getter(self):
+        val = self.main_widget.value()
+        if val == self.main_widget.minimum():
+            val = None
+        return val
+
+class BulkFloat(BulkInt):
+
+    def setup_ui(self, parent):
+        self.make_widgets(parent, QDoubleSpinBox)
+        self.main_widget.setRange(-100., float(sys.maxint))
+        self.main_widget.setDecimals(2)
+        self.main_widget.setSpecialValueText(_('Undefined'))
+        self.main_widget.setSingleStep(1)
+
+class BulkRating(BulkBase):
+
+    def setup_ui(self, parent):
+        self.make_widgets(parent, QSpinBox)
+        self.main_widget.setRange(0, 5)
+        self.main_widget.setSuffix(' '+_('star(s)'))
+        self.main_widget.setSpecialValueText(_('Unrated'))
+        self.main_widget.setSingleStep(1)
+
+    def setter(self, val):
+        if val is None:
+            val = 0
+        self.main_widget.setValue(int(round(val/2.)))
+        self.ignore_change_signals = False
+
+    def getter(self):
+        val = self.main_widget.value()
+        if val == 0:
+            val = None
+        else:
+            val *= 2
+        return val
+
+class BulkDateTime(BulkBase):
+
+    def setup_ui(self, parent):
+        cm = self.col_metadata
+        self.make_widgets(parent, DateEdit)
+        self.widgets.append(QLabel(''))
+        w = QWidget(parent)
+        self.widgets.append(w)
+        l = QHBoxLayout()
+        l.setContentsMargins(0, 0, 0, 0)
+        w.setLayout(l)
+        l.addStretch(1)
+        self.today_button = QPushButton(_('Set \'%s\' to today')%cm['name'], parent)
+        l.addWidget(self.today_button)
+        self.clear_button = QPushButton(_('Clear \'%s\'')%cm['name'], parent)
+        l.addWidget(self.clear_button)
+        l.addStretch(2)
+
+        w = self.main_widget
+        format = cm['display'].get('date_format','')
+        if not format:
+            format = 'dd MMM yyyy'
+        w.setDisplayFormat(format)
+        w.setCalendarPopup(True)
+        w.setMinimumDate(UNDEFINED_QDATE)
+        w.setSpecialValueText(_('Undefined'))
+        self.today_button.clicked.connect(w.set_to_today)
+        self.clear_button.clicked.connect(w.set_to_clear)
+
+    def setter(self, val):
+        if val is None:
+            val = self.main_widget.minimumDate()
+        else:
+            val = QDate(val.year, val.month, val.day)
+        self.main_widget.setDate(val)
+        self.ignore_change_signals = False
+
+    def getter(self):
+        val = self.main_widget.date()
+        if val == UNDEFINED_QDATE:
+            val = None
+        else:
+            val = qt_to_dt(val)
+        return val
 
 class BulkSeries(BulkBase):
 
     def setup_ui(self, parent):
+        self.make_widgets(parent, MultiCompleteComboBox)
         values = self.all_values = list(self.db.all_custom(num=self.col_id))
-        values.sort(cmp = lambda x,y: cmp(x.lower(), y.lower()))
-        w = EnComboBox(parent)
-        w.setSizeAdjustPolicy(w.AdjustToMinimumContentsLengthWithIcon)
-        w.setMinimumContentsLength(25)
-        self.name_widget = w
-        self.widgets = [QLabel('&'+self.col_metadata['name']+':', parent), w]
-
+        values.sort(key=sort_key)
+        self.main_widget.setSizeAdjustPolicy(self.main_widget.AdjustToMinimumContentsLengthWithIcon)
+        self.main_widget.setMinimumContentsLength(25)
         self.widgets.append(QLabel('', parent))
         w = QWidget(parent)
         layout = QHBoxLayout(w)
@@ -508,15 +698,26 @@ class BulkSeries(BulkBase):
         layout.addWidget(self.series_start_number)
         layout.addItem(QSpacerItem(20, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
         self.widgets.append(w)
+        self.idx_widget.stateChanged.connect(self.check_changed_checkbox)
+        self.force_number.stateChanged.connect(self.check_changed_checkbox)
+        self.series_start_number.valueChanged.connect(self.check_changed_checkbox)
+        self.remove_series.stateChanged.connect(self.check_changed_checkbox)
+        self.ignore_change_signals = False
+
+    def check_changed_checkbox(self):
+        self.a_c_checkbox.setChecked(True)
 
     def initialize(self, book_id):
         self.idx_widget.setChecked(False)
+        self.main_widget.set_separator(None)
+        self.main_widget.update_items_cache(self.all_values)
         for c in self.all_values:
-            self.name_widget.addItem(c)
-        self.name_widget.setEditText('')
+            self.main_widget.addItem(c)
+        self.main_widget.setEditText('')
+        self.a_c_checkbox.setChecked(False)
 
     def getter(self):
-        n = unicode(self.name_widget.currentText()).strip()
+        n = unicode(self.main_widget.currentText()).strip()
         i = self.idx_widget.checkState()
         f = self.force_number.checkState()
         s = self.series_start_number.value()
@@ -524,11 +725,12 @@ class BulkSeries(BulkBase):
         return n, i, f, s, r
 
     def commit(self, book_ids, notify=False):
+        if not self.a_c_checkbox.isChecked():
+            return
         val, update_indices, force_start, at_value, clear = self.gui_val
         val = None if clear else self.normalize_ui_val(val)
         if clear or val != '':
             extras = []
-            next_index = self.db.get_next_cc_series_num_for(val, num=self.col_id)
             for book_id in book_ids:
                 if clear:
                     extras.append(None)
@@ -537,19 +739,59 @@ class BulkSeries(BulkBase):
                     if force_start:
                         s_index = at_value
                         at_value += 1
-                    elif tweaks['series_index_auto_increment'] == 'next':
-                        s_index = next_index
-                        next_index += 1
+                    elif tweaks['series_index_auto_increment'] != 'const':
+                        s_index = self.db.get_next_cc_series_num_for(val, num=self.col_id)
                     else:
                         s_index = 1.0
                 else:
                     s_index = self.db.get_custom_extra(book_id, num=self.col_id,
                                                        index_is_id=True)
-                    if s_index is None:
-                        s_index = 1.0
                 extras.append(s_index)
             self.db.set_custom_bulk(book_ids, val, extras=extras,
                                    num=self.col_id, notify=notify)
+
+class BulkEnumeration(BulkBase, Enumeration):
+
+    def get_initial_value(self, book_ids):
+        value = None
+        first = True
+        dialog_shown = False
+        for book_id in book_ids:
+            val = self.db.get_custom(book_id, num=self.col_id, index_is_id=True)
+            if val and val not in self.col_metadata['display']['enum_values']:
+                if not dialog_shown:
+                    error_dialog(self.parent, '',
+                            _('The enumeration "{0}" contains invalid values '
+                              'that will not appear in the list').format(
+                                                    self.col_metadata['name']),
+                            show=True, show_copy_button=False)
+                    dialog_shown = True
+            if first:
+                value = val
+                first = False
+            elif value != val:
+                value = None
+        if not value:
+            self.ignore_change_signals = False
+        return value
+
+    def setup_ui(self, parent):
+        self.make_widgets(parent, QComboBox)
+        vals = self.col_metadata['display']['enum_values']
+        self.main_widget.blockSignals(True)
+        self.main_widget.addItem('')
+        self.main_widget.addItems(vals)
+        self.main_widget.blockSignals(False)
+
+    def getter(self):
+        return unicode(self.main_widget.currentText())
+
+    def setter(self, val):
+        if val is None:
+            self.main_widget.setCurrentIndex(0)
+        else:
+            self.main_widget.setCurrentIndex(self.main_widget.findText(val))
+        self.ignore_change_signals = False
 
 class RemoveTags(QWidget):
 
@@ -559,12 +801,12 @@ class RemoveTags(QWidget):
         layout.setSpacing(5)
         layout.setContentsMargins(0, 0, 0, 0)
 
-        self.tags_box = TagsLineEdit(parent, values)
-        layout.addWidget(self.tags_box, stretch = 1)
-        # self.tags_box.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
-
+        self.tags_box = MultiCompleteLineEdit(parent)
+        self.tags_box.update_items_cache(values)
+        layout.addWidget(self.tags_box, stretch=3)
         self.checkbox = QCheckBox(_('Remove all tags'), parent)
         layout.addWidget(self.checkbox)
+        layout.addStretch(1)
         self.setLayout(layout)
         self.connect(self.checkbox, SIGNAL('stateChanged(int)'), self.box_touched)
 
@@ -579,41 +821,47 @@ class BulkText(BulkBase):
 
     def setup_ui(self, parent):
         values = self.all_values = list(self.db.all_custom(num=self.col_id))
-        values.sort(cmp = lambda x,y: cmp(x.lower(), y.lower()))
+        values.sort(key=sort_key)
         if self.col_metadata['is_multiple']:
-            w = TagsLineEdit(parent, values)
-            w.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
-            self.widgets = [QLabel('&'+self.col_metadata['name']+': ' +
-                                   _('tags to add'), parent), w]
-            self.adding_widget = w
+            self.make_widgets(parent, MultiCompleteLineEdit,
+                              extra_label_text=_('tags to add'))
+            self.main_widget.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
+            self.adding_widget = self.main_widget
 
             w = RemoveTags(parent, values)
             self.widgets.append(QLabel('&'+self.col_metadata['name']+': ' +
                                        _('tags to remove'), parent))
             self.widgets.append(w)
             self.removing_widget = w
+            w.tags_box.textChanged.connect(self.a_c_checkbox_changed)
+            w.checkbox.stateChanged.connect(self.a_c_checkbox_changed)
         else:
-            w = EnComboBox(parent)
-            w.setSizeAdjustPolicy(w.AdjustToMinimumContentsLengthWithIcon)
-            w.setMinimumContentsLength(25)
-            self.widgets = [QLabel('&'+self.col_metadata['name']+':', parent), w]
+            self.make_widgets(parent, MultiCompleteComboBox)
+            self.main_widget.set_separator(None)
+            self.main_widget.setSizeAdjustPolicy(
+                        self.main_widget.AdjustToMinimumContentsLengthWithIcon)
+            self.main_widget.setMinimumContentsLength(25)
+        self.ignore_change_signals = False
 
     def initialize(self, book_ids):
-        if self.col_metadata['is_multiple']:
-            self.widgets[1].update_tags_cache(self.all_values)
-        else:
+        self.main_widget.update_items_cache(self.all_values)
+        if not self.col_metadata['is_multiple']:
             val = self.get_initial_value(book_ids)
             self.initial_val = val = self.normalize_db_val(val)
             idx = None
+            self.main_widget.blockSignals(True)
             for i, c in enumerate(self.all_values):
                 if c == val:
                     idx = i
-                self.widgets[1].addItem(c)
-            self.widgets[1].setEditText('')
+                self.main_widget.addItem(c)
+            self.main_widget.setEditText('')
             if idx is not None:
-                self.widgets[1].setCurrentIndex(idx)
+                self.main_widget.setCurrentIndex(idx)
+            self.main_widget.blockSignals(False)
 
     def commit(self, book_ids, notify=False):
+        if not self.a_c_checkbox.isChecked():
+            return
         if self.col_metadata['is_multiple']:
             remove_all, adding, rtext = self.gui_val
             remove = set()
@@ -642,7 +890,7 @@ class BulkText(BulkBase):
                     unicode(self.adding_widget.text()), \
                     unicode(self.removing_widget.tags_box.text())
 
-        val = unicode(self.widgets[1].currentText()).strip()
+        val = unicode(self.main_widget.currentText()).strip()
         if not val:
             val = None
         return val
@@ -656,4 +904,5 @@ bulk_widgets = {
         'datetime': BulkDateTime,
         'text' : BulkText,
         'series': BulkSeries,
+        'enumeration': BulkEnumeration,
 }

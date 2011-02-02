@@ -9,13 +9,14 @@ from threading import Thread
 
 from PyQt4.QtCore import Qt, QObject, SIGNAL, QVariant, pyqtSignal, \
                          QAbstractTableModel, QCoreApplication, QTimer
-from PyQt4.QtGui import QDialog, QItemSelectionModel
+from PyQt4.QtGui import QDialog, QItemSelectionModel, QIcon
 
 from calibre.gui2.dialogs.fetch_metadata_ui import Ui_FetchMetadata
 from calibre.gui2 import error_dialog, NONE, info_dialog, config
 from calibre.gui2.widgets import ProgressIndicator
 from calibre import strftime, force_unicode
 from calibre.customize.ui import get_isbndb_key, set_isbndb_key
+from calibre.utils.icu import sort_key
 
 _hung_fetchers = set([])
 
@@ -42,13 +43,14 @@ class Matches(QAbstractTableModel):
 
     def __init__(self, matches):
         self.matches = matches
+        self.yes_icon = QVariant(QIcon(I('ok.png')))
         QAbstractTableModel.__init__(self)
 
     def rowCount(self, *args):
         return len(self.matches)
 
     def columnCount(self, *args):
-        return 6
+        return 8
 
     def headerData(self, section, orientation, role):
         if role != Qt.DisplayRole:
@@ -61,6 +63,8 @@ class Matches(QAbstractTableModel):
             elif section == 3: text = _("Publisher")
             elif section == 4: text = _("ISBN")
             elif section == 5: text = _("Published")
+            elif section == 6: text = _("Has Cover")
+            elif section == 7: text = _("Has Summary")
 
             return QVariant(text)
         else:
@@ -69,28 +73,49 @@ class Matches(QAbstractTableModel):
     def summary(self, row):
         return self.matches[row].comments
 
+    def data_as_text(self, book, col):
+        if col == 0 and book.title is not None:
+            return book.title
+        elif col == 1:
+            return ', '.join(book.authors)
+        elif col == 2 and book.author_sort is not None:
+            return book.author_sort
+        elif col == 3 and book.publisher is not None:
+            return book.publisher
+        elif col == 4 and book.isbn is not None:
+            return book.isbn
+        elif col == 5 and hasattr(book.pubdate, 'timetuple'):
+            return strftime('%b %Y', book.pubdate.timetuple())
+        elif col == 6 and book.has_cover:
+            return 'y'
+        elif col == 7 and book.comments:
+            return 'y'
+        return ''
+
     def data(self, index, role):
         row, col = index.row(), index.column()
+        book = self.matches[row]
         if role == Qt.DisplayRole:
-            book = self.matches[row]
-            res = None
-            if col == 0:
-                res = book.title
-            elif col == 1:
-                res = ', '.join(book.authors)
-            elif col == 2:
-                res = book.author_sort
-            elif col == 3:
-                res = book.publisher
-            elif col == 4:
-                res = book.isbn
-            elif col == 5:
-                if hasattr(book.pubdate, 'timetuple'):
-                    res = strftime('%b %Y', book.pubdate.timetuple())
-            if not res:
-                return NONE
-            return QVariant(res)
+            res = self.data_as_text(book, col)
+            if col <= 5 and res:
+                return QVariant(res)
+            return NONE
+        elif role == Qt.DecorationRole:
+            if col == 6 and book.has_cover:
+                return self.yes_icon
+            if col == 7 and book.comments:
+                return self.yes_icon
         return NONE
+
+    def sort(self, col, order, reset=True):
+        if not self.matches:
+            return
+        descending = order == Qt.DescendingOrder
+        self.matches.sort(None,
+            lambda x: sort_key(unicode(force_unicode(self.data_as_text(x, col)))),
+            descending)
+        if reset:
+            self.reset()
 
 class FetchMetadata(QDialog, Ui_FetchMetadata):
 
@@ -128,10 +153,15 @@ class FetchMetadata(QDialog, Ui_FetchMetadata):
         self.connect(self.matches, SIGNAL('entered(QModelIndex)'),
                      self.show_summary)
         self.matches.setMouseTracking(True)
+        # Enabling sorting and setting a sort column will not change the initial
+        # order of the results, as they are filled in later
+        self.matches.setSortingEnabled(True)
+        self.matches.horizontalHeader().sectionClicked.connect(self.show_sort_indicator)
+        self.matches.horizontalHeader().setSortIndicatorShown(False)
         self.fetch_metadata()
         self.opt_get_social_metadata.setChecked(config['get_social_metadata'])
         self.opt_overwrite_author_title_metadata.setChecked(config['overwrite_author_title_metadata'])
-
+        self.opt_auto_download_cover.setChecked(config['auto_download_cover'])
 
     def show_summary(self, current, *args):
         row  = current.row()
@@ -213,6 +243,12 @@ class FetchMetadata(QDialog, Ui_FetchMetadata):
             _hung_fetchers.add(self.fetcher)
         if hasattr(self, '_hangcheck') and self._hangcheck.isActive():
             self._hangcheck.stop()
+        # Save value of auto_download_cover, since this is the only place it can
+        # be set. The values of the other options can be set in
+        # Preferences->Behavior and should not be set here as they affect bulk
+        # downloading as well.
+        if self.opt_auto_download_cover.isChecked() != config['auto_download_cover']:
+           config.set('auto_download_cover', self.opt_auto_download_cover.isChecked())
 
     def __enter__(self, *args):
         return self
@@ -229,3 +265,7 @@ class FetchMetadata(QDialog, Ui_FetchMetadata):
     def chosen(self, index):
         self.matches.setCurrentIndex(index)
         self.accept()
+
+    def show_sort_indicator(self, *args):
+        self.matches.horizontalHeader().setSortIndicatorShown(True)
+

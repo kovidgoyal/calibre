@@ -6,9 +6,9 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-
 from calibre.gui2 import gprefs
 from calibre.gui2.catalog.catalog_csv_xml_ui import Ui_Form
+from calibre.library import db as db_
 from PyQt4.Qt import QWidget, QListWidgetItem
 
 class PluginWidget(QWidget, Ui_Form):
@@ -28,7 +28,13 @@ class PluginWidget(QWidget, Ui_Form):
                 self.all_fields.append(x)
                 QListWidgetItem(x, self.db_fields)
 
-    def initialize(self, name):
+        db = db_()
+        for x in  sorted(db.custom_field_keys()):
+            self.all_fields.append(x)
+            QListWidgetItem(x, self.db_fields)
+
+
+    def initialize(self, name, db):
         self.name = name
         fields = gprefs.get(name+'_db_fields', self.all_fields)
         # Restore the activated fields from last use

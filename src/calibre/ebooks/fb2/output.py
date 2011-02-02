@@ -16,19 +16,27 @@ class FB2Output(OutputFormatPlugin):
     file_type = 'fb2'
 
     options = set([
-        OptionRecommendation(name='inline_toc',
-            recommended_value=False, level=OptionRecommendation.LOW,
-            help=_('Add Table of Contents to beginning of the book.')),
-        OptionRecommendation(name='sectionize_chapters',
-            recommended_value=False, level=OptionRecommendation.LOW,
-            help=_('Try to turn chapters into individual sections. ' \
-                   'WARNING: ' \
-                   'This option is experimental. It can cause conversion ' \
-                   'to fail. It can also produce unexpected output.')),
+        OptionRecommendation(name='sectionize',
+            recommended_value='files', level=OptionRecommendation.LOW,
+            choices=['toc', 'files', 'nothing'],
+            help=_('Specify the sectionization of elements. '
+                'A value of "nothing" turns the book into a single section. '
+                'A value of "files" turns each file into a separate section; use this if your device is having trouble. '
+                'A value of "Table of Contents" turns the entries in the Table of Contents into titles and creates sections; '
+                'if it fails, adjust the "Structure Detection" and/or "Table of Contents" settings '
+                '(turn on "Force use of auto-generated Table of Contents).')),
     ])
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
         from calibre.ebooks.oeb.transforms.jacket import linearize_jacket
+        from calibre.ebooks.oeb.transforms.rasterize import SVGRasterizer, Unavailable
+        
+        try:
+            rasterizer = SVGRasterizer()
+            rasterizer(oeb_book, opts)
+        except Unavailable:
+            log.warn('SVG rasterizer unavailable, SVG will not be converted')
+
         linearize_jacket(oeb_book)
 
         fb2mlizer = FB2MLizer(log)
