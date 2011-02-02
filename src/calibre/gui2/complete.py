@@ -222,7 +222,7 @@ class MultiCompleteLineEdit(QLineEdit):
         text
         '''
         if self.sep is None:
-            return -1, -1, text
+            return -1, text
         else:
             cursor_pos = self.cursorPosition()
             before_text = unicode(self.text())[:cursor_pos]
@@ -231,24 +231,18 @@ class MultiCompleteLineEdit(QLineEdit):
             if len(after_parts) < 3 and not after_parts[-1].strip():
                 after_text = u''
             prefix_len = len(before_text.split(self.sep)[-1].lstrip())
-            if self.space_before_sep:
-                complete_text_pat = '%s%s %s %s'
-                len_extra = 3
-            else:
-                complete_text_pat = '%s%s%s %s'
-                len_extra = 2
-            return prefix_len, len_extra, complete_text_pat % (
-                before_text[:cursor_pos - prefix_len], text, self.sep, after_text)
+            return prefix_len, \
+                before_text[:cursor_pos - prefix_len] + text + after_text
 
     def completion_selected(self, text):
-        prefix_len, len_extra, ctext = self.get_completed_text(text)
+        prefix_len, ctext = self.get_completed_text(text)
         if self.sep is None:
             self.setText(ctext)
             self.setCursorPosition(len(ctext))
         else:
             cursor_pos = self.cursorPosition()
             self.setText(ctext)
-            self.setCursorPosition(cursor_pos - prefix_len + len(text) + len_extra)
+            self.setCursorPosition(cursor_pos - prefix_len + len(text))
 
     def update_complete_window(self, matches):
         self._model.update_matches(matches)
