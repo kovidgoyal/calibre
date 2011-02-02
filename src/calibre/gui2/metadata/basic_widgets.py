@@ -12,8 +12,8 @@ from PyQt4.Qt import Qt, QDateEdit, QDate, \
     QDoubleSpinBox, QListWidgetItem, QSize, QPixmap, \
     QPushButton, QSpinBox, QLineEdit
 
-from calibre.gui2.widgets import EnLineEdit, CompleteComboBox, \
-        EnComboBox, FormatList, ImageView, CompleteLineEdit
+from calibre.gui2.widgets import EnLineEdit, EnComboBox, FormatList, ImageView
+from calibre.gui2.complete import MultiCompleteLineEdit, MultiCompleteComboBox
 from calibre.utils.icu import sort_key
 from calibre.utils.config import tweaks, prefs
 from calibre.ebooks.metadata import title_sort, authors_to_string, \
@@ -149,14 +149,14 @@ class TitleSortEdit(TitleEdit):
 # }}}
 
 # Authors {{{
-class AuthorsEdit(CompleteComboBox):
+class AuthorsEdit(MultiCompleteComboBox):
 
     TOOLTIP = ''
     LABEL = _('&Author(s):')
 
     def __init__(self, parent):
         self.dialog = parent
-        CompleteComboBox.__init__(self, parent)
+        MultiCompleteComboBox.__init__(self, parent)
         self.setToolTip(self.TOOLTIP)
         self.setWhatsThis(self.TOOLTIP)
         self.setEditable(True)
@@ -814,14 +814,14 @@ class RatingEdit(QSpinBox): # {{{
 
 # }}}
 
-class TagsEdit(CompleteLineEdit): # {{{
+class TagsEdit(MultiCompleteLineEdit): # {{{
     LABEL = _('Ta&gs:')
     TOOLTIP = '<p>'+_('Tags categorize the book. This is particularly '
             'useful while searching. <br><br>They can be any words'
             'or phrases, separated by commas.')
 
     def __init__(self, parent):
-        CompleteLineEdit.__init__(self, parent)
+        MultiCompleteLineEdit.__init__(self, parent)
         self.setToolTip(self.TOOLTIP)
         self.setWhatsThis(self.TOOLTIP)
 
@@ -839,7 +839,7 @@ class TagsEdit(CompleteLineEdit): # {{{
         tags = db.tags(id_, index_is_id=True)
         tags = tags.split(',') if tags else []
         self.current_val = tags
-        self.update_items_cache(db.all_tags())
+        self.all_items = db.all_tags()
         self.original_val = self.current_val
 
     @property
@@ -860,7 +860,7 @@ class TagsEdit(CompleteLineEdit): # {{{
         d = TagEditor(self, db, id_)
         if d.exec_() == TagEditor.Accepted:
             self.current_val = d.tags
-            self.update_items_cache(db.all_tags())
+            self.all_items = db.all_tags()
 
 
     def commit(self, db, id_):
