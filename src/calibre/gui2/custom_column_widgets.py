@@ -14,7 +14,7 @@ from PyQt4.Qt import QComboBox, QLabel, QSpinBox, QDoubleSpinBox, QDateEdit, \
         QPushButton
 
 from calibre.utils.date import qt_to_dt, now
-from calibre.gui2.widgets import CompleteLineEdit, EnComboBox
+from calibre.gui2.complete import MultiCompleteLineEdit, MultiCompleteComboBox
 from calibre.gui2.comments_editor import Editor as CommentsEditor
 from calibre.gui2 import UNDEFINED_QDATE, error_dialog
 from calibre.utils.config import tweaks
@@ -228,10 +228,11 @@ class Text(Base):
         values = self.all_values = list(self.db.all_custom(num=self.col_id))
         values.sort(key=sort_key)
         if self.col_metadata['is_multiple']:
-            w = CompleteLineEdit(parent, values)
+            w = MultiCompleteLineEdit(parent)
+            w.update_items_cache(values)
             w.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
         else:
-            w = EnComboBox(parent)
+            w = MultiCompleteComboBox(parent)
             w.setSizeAdjustPolicy(w.AdjustToMinimumContentsLengthWithIcon)
             w.setMinimumContentsLength(25)
         self.widgets = [QLabel('&'+self.col_metadata['name']+':', parent), w]
@@ -240,9 +241,10 @@ class Text(Base):
         val = self.db.get_custom(book_id, num=self.col_id, index_is_id=True)
         self.initial_val = val
         val = self.normalize_db_val(val)
+        self.widgets[1].update_items_cache(self.all_values)
+
         if self.col_metadata['is_multiple']:
             self.setter(val)
-            self.widgets[1].update_items_cache(self.all_values)
         else:
             idx = None
             for i, c in enumerate(self.all_values):
@@ -276,7 +278,7 @@ class Series(Base):
     def setup_ui(self, parent):
         values = self.all_values = list(self.db.all_custom(num=self.col_id))
         values.sort(key=sort_key)
-        w = EnComboBox(parent)
+        w = MultiCompleteComboBox(parent)
         w.setSizeAdjustPolicy(w.AdjustToMinimumContentsLengthWithIcon)
         w.setMinimumContentsLength(25)
         self.name_widget = w
@@ -305,6 +307,7 @@ class Series(Base):
             if c == val:
                 idx = i
             self.name_widget.addItem(c)
+        self.name_widget.update_items_cache(self.all_values)
         self.name_widget.setEditText('')
         if idx is not None:
             self.widgets[1].setCurrentIndex(idx)
@@ -670,7 +673,7 @@ class BulkDateTime(BulkBase):
 class BulkSeries(BulkBase):
 
     def setup_ui(self, parent):
-        self.make_widgets(parent, EnComboBox)
+        self.make_widgets(parent, MultiCompleteComboBox)
         values = self.all_values = list(self.db.all_custom(num=self.col_id))
         values.sort(key=sort_key)
         self.main_widget.setSizeAdjustPolicy(self.main_widget.AdjustToMinimumContentsLengthWithIcon)
@@ -705,6 +708,7 @@ class BulkSeries(BulkBase):
 
     def initialize(self, book_id):
         self.idx_widget.setChecked(False)
+        self.main_widget.update_items_cache(self.all_values)
         for c in self.all_values:
             self.main_widget.addItem(c)
         self.main_widget.setEditText('')
@@ -795,7 +799,8 @@ class RemoveTags(QWidget):
         layout.setSpacing(5)
         layout.setContentsMargins(0, 0, 0, 0)
 
-        self.tags_box = CompleteLineEdit(parent, values)
+        self.tags_box = MultiCompleteLineEdit(parent)
+        self.tags_box.update_items_cache(values)
         layout.addWidget(self.tags_box, stretch=3)
         self.checkbox = QCheckBox(_('Remove all tags'), parent)
         layout.addWidget(self.checkbox)
@@ -816,7 +821,7 @@ class BulkText(BulkBase):
         values = self.all_values = list(self.db.all_custom(num=self.col_id))
         values.sort(key=sort_key)
         if self.col_metadata['is_multiple']:
-            self.make_widgets(parent, CompleteLineEdit,
+            self.make_widgets(parent, MultiCompleteLineEdit,
                               extra_label_text=_('tags to add'))
             self.main_widget.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
             self.adding_widget = self.main_widget
@@ -829,16 +834,15 @@ class BulkText(BulkBase):
             w.tags_box.textChanged.connect(self.a_c_checkbox_changed)
             w.checkbox.stateChanged.connect(self.a_c_checkbox_changed)
         else:
-            self.make_widgets(parent, EnComboBox)
+            self.make_widgets(parent, MultiCompleteComboBox)
             self.main_widget.setSizeAdjustPolicy(
                         self.main_widget.AdjustToMinimumContentsLengthWithIcon)
             self.main_widget.setMinimumContentsLength(25)
         self.ignore_change_signals = False
 
     def initialize(self, book_ids):
-        if self.col_metadata['is_multiple']:
-            self.main_widget.update_items_cache(self.all_values)
-        else:
+        self.main_widget.update_items_cache(self.all_values)
+        if not self.col_metadata['is_multiple']:
             val = self.get_initial_value(book_ids)
             self.initial_val = val = self.normalize_db_val(val)
             idx = None
