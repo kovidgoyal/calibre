@@ -160,6 +160,7 @@ class EditMetadataAction(InterfaceAction):
                 break
 
             changed.add(d.id)
+            changed |= d.books_to_refresh
             if d.row_delta == 0:
                 break
             current_row += d.row_delta
