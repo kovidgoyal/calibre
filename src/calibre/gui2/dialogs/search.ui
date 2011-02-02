@@ -355,11 +355,6 @@
    <header>widgets.h</header>
   </customwidget>
   <customwidget>
-   <class>EnComboBox</class>
-   <extends>QComboBox</extends>
-   <header>widgets.h</header>
-  </customwidget>
-  <customwidget>
    <class>MultiCompleteLineEdit</class>
    <extends>QLineEdit</extends>
    <header>calibre/gui2/complete.h</header>
