@@ -532,7 +532,7 @@ OptionRecommendation(name='format_scene_breaks',
            'horizontal rules.')),
 
 OptionRecommendation(name='replace_scene_breaks',
-    recommended_value=None, level=OptionRecommendation.LOW,
+    recommended_value='', level=OptionRecommendation.LOW,
     help=_('Replace scene breaks with the specified text. By default, the '
         'text from the input document is used.')),
 
