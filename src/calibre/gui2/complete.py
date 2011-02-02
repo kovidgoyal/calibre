@@ -162,6 +162,9 @@ class MultiCompleteLineEdit(QLineEdit):
     separator. Use the :meth:`update_items_cache` to set the list of
     all possible completions. Separator can be controlled with the
     :meth:`set_separator` and :meth:`set_space_before_sep` methods.
+
+    A call to self.set_separator(None) will allow this widget to be used
+    to complete non multiple fields as well.
     '''
 
     def __init__(self, parent=None):
