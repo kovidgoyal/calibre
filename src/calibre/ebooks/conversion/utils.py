@@ -490,11 +490,12 @@ class HeuristicProcessor(object):
         applied to wrapping divs.  This is because many ebook devices don't support margin:auto
         All other html is converted to text.
         '''
-        hr_open = '<div id="scenebreak" style="margin-left: 45%; margin-right: 45%; margin-top:1.5em; margin-bottom:1.5em">'
+        hr_open = '<div id="scenebreak" style="margin-left: 45%; margin-right: 45%; margin-top:1.5em; margin-bottom:1.5em; page-break-before:avoid">'
         if re.findall('(<|>)', replacement_break):
             if re.match('^<hr', replacement_break):
                 if replacement_break.find('width') != -1:
                    width = int(re.sub('.*?width(:|=)(?P<wnum>\d+).*', '\g<wnum>', replacement_break))
+                   replacement_break = re.sub('(?i)(width=\d+\%?|width:\s*\d+(\%|px|pt|em)?;?)', '', replacement_break)
                    divpercent = (100 - width) / 2
                    hr_open = re.sub('45', str(divpercent), hr_open)
                    scene_break = hr_open+replacement_break+'</div>'
@@ -642,7 +643,7 @@ class HeuristicProcessor(object):
             # or 'hard' scene breaks are replaced, depending on which is in use
             # Otherwise separator lines are centered, use a bit larger margin in this case
             replacement_break = getattr(self.extra_opts, 'replace_scene_breaks', None)
-            if replacement_break is not None:
+            if replacement_break != '':
                 replacement_break = self.markup_user_break(replacement_break)
                 if len(scene_break.findall(html)) >= 1:
                     html = scene_break.sub(replacement_break, html)

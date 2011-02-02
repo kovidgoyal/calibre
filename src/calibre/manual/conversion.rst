@@ -316,9 +316,19 @@ remove all non-breaking-space entities, or may include false positive matches re
 
 :guilabel:`Replace scene breaks`
     If this option is configured then |app| will replace scene break markers it finds with the replacement text specified by the
-    user. In general you should avoid using html tags, |app| will discard any tags and use pre-defined markup.  <hr />
-    tags, i.e. horizontal rules, are an exception.  These can optionally be specified with styles, if you choose to add your own
-    style be sure to include the 'width' setting, otherwise the style information will be discarded.
+    user.  Please note that some ornamental characters may not be supported across all reading devices.
+    
+    In general you should avoid using html tags, |app| will discard any tags and use pre-defined markup.  <hr />
+    tags, i.e. horizontal rules, and <img> tags are exceptions.  Horizontal rules can optionally be specified with styles, if you 
+    choose to add your own style be sure to include the 'width' setting, otherwise the style information will be discarded.  Image 
+    tags can used, but |app| does not provide the ability to add the image during conversion, this must be done after the fact using 
+    the 'Tweak Epub' feature, or Sigil.
+        
+        Example image tag (place the image within an 'Images' folder inside the epub after conversion):
+            <img style="width:10%" src="../Images/scenebreak.png" />
+        
+        Example horizontal rule with styles:
+            <hr style="width:20%;padding-top: 1px;border-top: 2px ridge black;border-bottom: 2px groove black;"/>
  
 :guilabel:`Remove unnecessary hyphens`
     |app| will analyze all hyphenated content in the document when this option is enabled.  The document itself is used

@@ -27,8 +27,8 @@ class HeuristicsWidget(Widget, Ui_Form):
                  'dehyphenate', 'renumber_headings']
                 )
         self.db, self.book_id = db, book_id
-        self.rssb_defaults = [u'', u'<hr />', u'* * *', u'• • •', u'✦ ✦ ✦',
-                u'✮ ✮ ✮', u'☆ ☆ ☆', u'❂ ❂ ❂', u'✣ ✣ ✣', u'❖ ❖ ❖', u'☼ ☼ ☼', u'✠ ✠ ✠']
+        self.rssb_defaults = [u'', u'<hr />', u'∗ ∗ ∗', u'• • •', u'♦ ♦ ♦',
+                u'† †', u'‡ ‡ ‡', u'∞ ∞ ∞', u'¤ ¤ ¤', u'§']
         self.initialize_options(get_option, get_help, db, book_id)
 
         self.load_histories()
