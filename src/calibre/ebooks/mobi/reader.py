@@ -103,6 +103,8 @@ class EXTHHeader(object):
                 pass
         elif id == 108:
             pass # Producer
+        elif id == 113:
+            pass # ASIN or UUID
         #else:
         #    print 'unhandled metadata record', id, repr(content)
 

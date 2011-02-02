@@ -423,11 +423,11 @@ class HeuristicProcessor(object):
             if getattr(self.extra_opts, option, False):
                 return True
         return False
-        
+
     def merge_blanks(self, html, blanks_count=None):
         base_em = .5 # Baseline is 1.5em per blank line, 1st line is .5 em css and 1em for the nbsp
         em_per_line = 1.5 # Add another 1.5 em for each additional blank
-        
+
         def merge_matches(match):
             to_merge = match.group(0)
             lines = float(len(self.single_blank.findall(to_merge))) - 1.
@@ -437,17 +437,17 @@ class HeuristicProcessor(object):
             else:
                 newline = self.any_multi_blank.sub('\n<p class="softbreak'+str(int(em * 10))+'" style="text-align:center; margin-top:'+str(em)+'em"> </p>', match.group(0))
             return newline
-            
+
         html = self.any_multi_blank.sub(merge_matches, html)
         return html
 
     def detect_whitespace(self, html):
-        blanks_around_headings = re.compile(r'(?P<initparas>(<p[^>]*>\s*</p>\s*){1,}\s*)?(?P<heading><h(?P<hnum>\d+)[^>]*>.*?</h(?P=hnum)>)(?P<endparas>\s*(<p[^>]*>\s*</p>\s*){1,})?', re.IGNORECASE)                                     
+        blanks_around_headings = re.compile(r'(?P<initparas>(<p[^>]*>\s*</p>\s*){1,}\s*)?(?P<heading><h(?P<hnum>\d+)[^>]*>.*?</h(?P=hnum)>)(?P<endparas>\s*(<p[^>]*>\s*</p>\s*){1,})?', re.IGNORECASE)
         blanks_n_nopunct = re.compile(r'(?P<initparas>(<p[^>]*>\s*</p>\s*){1,}\s*)?<p[^>]*>\s*(<(span|[ibu]|em|strong|font)[^>]*>\s*)*.{1,100}?[^\W](</(span|[ibu]|em|strong|font)>\s*)*</p>(?P<endparas>\s*(<p[^>]*>\s*</p>\s*){1,})?', re.IGNORECASE)
-        
+
         def merge_header_whitespace(match):
             initblanks = match.group('initparas')
-            endblanks = match.group('initparas') 
+            endblanks = match.group('initparas')
             heading = match.group('heading')
             top_margin = ''
             bottom_margin = ''
@@ -484,7 +484,7 @@ class HeuristicProcessor(object):
 
     def markup_user_break(self, replacement_break):
         '''
-        Takes string a user supplies and wraps it in markup that will be centered with 
+        Takes string a user supplies and wraps it in markup that will be centered with
         appropriate margins.  <hr> and <img> tags are allowed.  If the user specifies
         a style with width attributes in the <hr> tag then the appropriate margins are
         applied to wrapping divs.  This is because many ebook devices don't support margin:auto
@@ -499,10 +499,11 @@ class HeuristicProcessor(object):
                    hr_open = re.sub('45', str(divpercent), hr_open)
                    scene_break = hr_open+replacement_break+'</div>'
                 else:
-                    scene_break = hr_open+'<hr style="height: 3px; background:#505050" /></div>'
+                   scene_break = hr_open+'<hr style="height: 3px; background:#505050" /></div>'
             elif re.match('^<img', replacement_break):
                 scene_break = self.scene_break_open+replacement_break+'</p>'
             else:
+                from calibre.utils.html2text import html2text
                 replacement_break = html2text(replacement_break)
                 replacement_break = re.sub('\s', '&nbsp;', replacement_break)
                 scene_break = self.scene_break_open+replacement_break+'</p>'
@@ -646,7 +647,7 @@ class HeuristicProcessor(object):
                 if len(scene_break.findall(html)) >= 1:
                     html = scene_break.sub(replacement_break, html)
                 else:
-                    html = re.sub('<p\s+class="softbreak"[^>]*>\s*</p>', replacement_break, html) 
+                    html = re.sub('<p\s+class="softbreak"[^>]*>\s*</p>', replacement_break, html)
             else:
                 html = scene_break.sub(self.scene_break_open+'\g<break>'+'</p>', html)
 

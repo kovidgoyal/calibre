@@ -391,7 +391,7 @@ Take your pick:
   * A tribute to the SONY Librie which was the first e-ink based e-book reader
   * My wife chose it ;-)
 
-|app| is pronounced as cal-i-ber *not* ca-libre. If you're wondering, |app| is the British/commonwealth spelling for caliber. Being Indian, that's the natural spelling for me. 
+|app| is pronounced as cal-i-ber *not* ca-li-bre. If you're wondering, |app| is the British/commonwealth spelling for caliber. Being Indian, that's the natural spelling for me. 
 
 Why does |app| show only some of my fonts on OS X?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

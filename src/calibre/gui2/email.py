@@ -264,8 +264,9 @@ class EmailMixin(object): # {{{
         if _auto_ids != []:
             for id in _auto_ids:
                 if specific_format == None:
-                    formats = [f.lower() for f in self.library_view.model().db.formats(id, index_is_id=True).split(',')]
-                    formats = formats if formats != None else []
+                    dbfmts = self.library_view.model().db.formats(id, index_is_id=True)
+                    formats = [f.lower() for f in (dbfmts.split(',') if fmts else
+                        [])]
                     if list(set(formats).intersection(available_input_formats())) != [] and list(set(fmts).intersection(available_output_formats())) != []:
                         auto.append(id)
                     else:
