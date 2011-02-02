@@ -233,6 +233,7 @@ class Text(Base):
             w.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
         else:
             w = MultiCompleteComboBox(parent)
+            w.set_separator(None)
             w.setSizeAdjustPolicy(w.AdjustToMinimumContentsLengthWithIcon)
             w.setMinimumContentsLength(25)
         self.widgets = [QLabel('&'+self.col_metadata['name']+':', parent), w]
@@ -708,6 +709,7 @@ class BulkSeries(BulkBase):
 
     def initialize(self, book_id):
         self.idx_widget.setChecked(False)
+        self.main_widget.set_separator(None)
         self.main_widget.update_items_cache(self.all_values)
         for c in self.all_values:
             self.main_widget.addItem(c)
@@ -835,6 +837,7 @@ class BulkText(BulkBase):
             w.checkbox.stateChanged.connect(self.a_c_checkbox_changed)
         else:
             self.make_widgets(parent, MultiCompleteComboBox)
+            self.main_widget.set_separator(None)
             self.main_widget.setSizeAdjustPolicy(
                         self.main_widget.AdjustToMinimumContentsLengthWithIcon)
             self.main_widget.setMinimumContentsLength(25)

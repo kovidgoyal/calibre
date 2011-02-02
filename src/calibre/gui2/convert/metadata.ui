@@ -213,7 +213,7 @@
         </widget>
        </item>
        <item row="5" column="1">
-        <widget class="EnComboBox" name="series">
+        <widget class="MultiCompleteComboBox" name="series">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
            <horstretch>10</horstretch>
@@ -248,7 +248,7 @@
         </widget>
        </item>
        <item row="3" column="1">
-        <widget class="EnComboBox" name="publisher">
+        <widget class="MultiCompleteComboBox" name="publisher">
          <property name="editable">
           <bool>true</bool>
          </property>
@@ -274,11 +274,6 @@
   <customwidget>
    <class>EnLineEdit</class>
    <extends>QLineEdit</extends>
-   <header>widgets.h</header>
-  </customwidget>
-  <customwidget>
-   <class>EnComboBox</class>
-   <extends>QComboBox</extends>
    <header>widgets.h</header>
   </customwidget>
   <customwidget>

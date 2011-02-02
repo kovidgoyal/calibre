@@ -35,6 +35,7 @@ class SearchDialog(QDialog, Ui_Dialog):
 
         all_series = db.all_series()
         all_series.sort(key=lambda x : sort_key(x[1]))
+        self.series_box.set_separator(None)
         self.series_box.update_items_cache([x[1] for x in all_series])
         for i in all_series:
             id, name = i

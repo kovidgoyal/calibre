@@ -764,6 +764,7 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
     def initialize_series(self):
         all_series = self.db.all_series()
         all_series.sort(key=lambda x : sort_key(x[1]))
+        self.series.set_separator(None)
         self.series.update_items_cache([x[1] for x in all_series])
 
         for i in all_series:
@@ -774,6 +775,7 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
     def initialize_publisher(self):
         all_publishers = self.db.all_publishers()
         all_publishers.sort(key=lambda x : sort_key(x[1]))
+        self.publisher.set_separator(None)
         self.publisher.update_items_cache([x[1] for x in all_publishers])
 
         for i in all_publishers:
