@@ -64,8 +64,8 @@ class CompleteWindow(QListView): # {{{
 
     def do_selected(self, idx=None):
         idx = self.currentIndex() if idx is None else idx
-        if not idx.isValid() and self.model().rowCount() > 0:
-            idx = self.model().index(0)
+        #if not idx.isValid() and self.model().rowCount() > 0:
+        #    idx = self.model().index(0)
         if idx.isValid():
             data = unicode(self.model().data(idx, Qt.DisplayRole))
             self.completion_selected.emit(data)
@@ -175,9 +175,10 @@ class MultiCompleteLineEdit(QLineEdit):
 
         self._model = CompleteModel(parent=self)
         self.complete_window = CompleteWindow(self, self._model)
-        self.textChanged.connect(self.text_changed)
+        self.textEdited.connect(self.text_edited)
         self.cursorPositionChanged.connect(self.cursor_position_changed)
         self.complete_window.completion_selected.connect(self.completion_selected)
+        self.installEventFilter(self)
 
     # Interface {{{
     def update_items_cache(self, complete_items):
@@ -198,7 +199,7 @@ class MultiCompleteLineEdit(QLineEdit):
         return QLineEdit.eventFilter(self, o, e)
 
 
-    def text_changed(self, *args):
+    def text_edited(self, *args):
         self.update_completions()
 
     def cursor_position_changed(self, *args):
@@ -206,6 +207,8 @@ class MultiCompleteLineEdit(QLineEdit):
 
     def update_completions(self):
         ' Update the list of completions '
+        if not self.complete_window.isVisible() and not self.hasFocus():
+            return
         cpos = self.cursorPosition()
         text = unicode(self.text())
         prefix = text[:cpos]
@@ -223,7 +226,7 @@ class MultiCompleteLineEdit(QLineEdit):
         text
         '''
         if self.sep is None:
-            return text
+            return -1, -1, text
         else:
             cursor_pos = self.cursorPosition()
             before_text = unicode(self.text())[:cursor_pos]
@@ -334,6 +337,11 @@ class MultiCompleteComboBox(EnComboBox):
     def __init__(self, *args):
         EnComboBox.__init__(self, *args)
         self.setLineEdit(MultiCompleteLineEdit(self))
+        # Needed to allow changing the case of an existing item
+        # otherwise on focus out, the text is changed to the
+        # item that matches case insensitively
+        c = self.lineEdit().completer()
+        c.setCaseSensitivity(Qt.CaseSensitive)
 
     def update_items_cache(self, complete_items):
         self.lineEdit().update_items_cache(complete_items)

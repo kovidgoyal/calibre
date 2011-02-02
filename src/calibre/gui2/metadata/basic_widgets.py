@@ -12,7 +12,7 @@ from PyQt4.Qt import Qt, QDateEdit, QDate, \
     QDoubleSpinBox, QListWidgetItem, QSize, QPixmap, \
     QPushButton, QSpinBox, QLineEdit
 
-from calibre.gui2.widgets import EnLineEdit, EnComboBox, FormatList, ImageView
+from calibre.gui2.widgets import EnLineEdit, FormatList, ImageView
 from calibre.gui2.complete import MultiCompleteLineEdit, MultiCompleteComboBox
 from calibre.utils.icu import sort_key
 from calibre.utils.config import tweaks, prefs
@@ -283,13 +283,14 @@ class AuthorSortEdit(EnLineEdit):
 # }}}
 
 # Series {{{
-class SeriesEdit(EnComboBox):
+class SeriesEdit(MultiCompleteComboBox):
 
     TOOLTIP = _('List of known series. You can add new series.')
     LABEL = _('&Series:')
 
     def __init__(self, parent):
-        EnComboBox.__init__(self, parent)
+        MultiCompleteComboBox.__init__(self, parent)
+        self.set_separator(None)
         self.dialog = parent
         self.setSizeAdjustPolicy(
                 self.AdjustToMinimumContentsLengthWithIcon)
@@ -314,6 +315,7 @@ class SeriesEdit(EnComboBox):
     def initialize(self, db, id_):
         all_series = db.all_series()
         all_series.sort(key=lambda x : sort_key(x[1]))
+        self.update_items_cache([x[1] for x in all_series])
         series_id = db.series_id(id_, index_is_id=True)
         idx, c = None, 0
         for i in all_series:
@@ -910,11 +912,12 @@ class ISBNEdit(QLineEdit): # {{{
 
 # }}}
 
-class PublisherEdit(EnComboBox): # {{{
+class PublisherEdit(MultiCompleteComboBox): # {{{
     LABEL = _('&Publisher:')
 
     def __init__(self, parent):
-        EnComboBox.__init__(self, parent)
+        MultiCompleteComboBox.__init__(self, parent)
+        self.set_separator(None)
         self.setSizeAdjustPolicy(
                 self.AdjustToMinimumContentsLengthWithIcon)
 
@@ -935,6 +938,7 @@ class PublisherEdit(EnComboBox): # {{{
     def initialize(self, db, id_):
         all_publishers = db.all_publishers()
         all_publishers.sort(key=lambda x : sort_key(x[1]))
+        self.update_items_cache([x[1] for x in all_publishers])
         publisher_id = db.publisher_id(id_, index_is_id=True)
         idx, c = None, 0
         for i in all_publishers:
