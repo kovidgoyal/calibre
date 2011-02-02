@@ -1642,8 +1642,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             a = a.strip().replace(',', '|')
             if not isinstance(a, unicode):
                 a = a.decode(preferred_encoding, 'replace')
-            author_id, name = \
-                self.conn.get('SELECT id, name from authors WHERE name=?', (a,))[0]
+            aus = self.conn.get('SELECT id, name from authors WHERE name=?', (a,))
+            if aus:
+                author_id, name = aus[0]
+            else:
+                author_id, name = (None, None)
             if author_id:
                 aid = author_id
                 # Handle change of case
