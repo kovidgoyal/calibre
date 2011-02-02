@@ -12,11 +12,11 @@ from PyQt4.Qt import QColor, Qt, QModelIndex, QSize, \
                      QPainterPath, QLinearGradient, QBrush, \
                      QPen, QStyle, QPainter, QStyleOptionViewItemV4, \
                      QIcon,  QDoubleSpinBox, QVariant, QSpinBox, \
-                     QStyledItemDelegate, QCompleter, \
-                     QComboBox, QTextDocument
+                     QStyledItemDelegate, QComboBox, QTextDocument
 
 from calibre.gui2 import UNDEFINED_QDATE, error_dialog
-from calibre.gui2.widgets import EnLineEdit, CompleteLineEdit
+from calibre.gui2.widgets import EnLineEdit
+from calibre.gui2.complete import MultiCompleteLineEdit
 from calibre.utils.date import now, format_date
 from calibre.utils.config import tweaks
 from calibre.utils.formatter import validation_formatter
@@ -151,38 +151,15 @@ class TextDelegate(QStyledItemDelegate): # {{{
         self.auto_complete_function = f
 
     def createEditor(self, parent, option, index):
-        editor = EnLineEdit(parent)
         if self.auto_complete_function:
+            editor = MultiCompleteLineEdit(parent)
+            editor.set_separator(None)
             complete_items = [i[1] for i in self.auto_complete_function()]
-            completer = QCompleter(complete_items, self)
-            completer.setCaseSensitivity(Qt.CaseInsensitive)
-            completer.setCompletionMode(QCompleter.PopupCompletion)
-            editor.setCompleter(completer)
-        return editor
-#}}}
-
-class TagsDelegate(QStyledItemDelegate): # {{{
-    def __init__(self, parent):
-        QStyledItemDelegate.__init__(self, parent)
-        self.db = None
-
-    def set_database(self, db):
-        self.db = db
-
-    def createEditor(self, parent, option, index):
-        if self.db:
-            col = index.model().column_map[index.column()]
-            if not index.model().is_custom_column(col):
-                editor = CompleteLineEdit(parent, self.db.all_tags())
-            else:
-                editor = CompleteLineEdit(parent,
-                        sorted(list(self.db.all_custom(label=self.db.field_metadata.key_to_label(col))),
-                               key=sort_key))
-                return editor
+            editor.update_items_cache(complete_items)
         else:
             editor = EnLineEdit(parent)
         return editor
-# }}}
+#}}}
 
 class CompleteDelegate(QStyledItemDelegate): # {{{
     def __init__(self, parent, sep, items_func_name, space_before_sep=False):
@@ -197,13 +174,15 @@ class CompleteDelegate(QStyledItemDelegate): # {{{
     def createEditor(self, parent, option, index):
         if self.db and hasattr(self.db, self.items_func_name):
             col = index.model().column_map[index.column()]
+            editor = MultiCompleteLineEdit(parent)
+            editor.set_separator(self.sep)
+            editor.set_space_before_sep(self.space_before_sep)
             if not index.model().is_custom_column(col):
-                editor = CompleteLineEdit(parent, getattr(self.db, self.items_func_name)(),
-                    self.sep, self.space_before_sep)
+                all_items = getattr(self.db, self.items_func_name)()
             else:
-                editor = CompleteLineEdit(parent,
-                    sorted(list(self.db.all_custom(label=self.db.field_metadata.key_to_label(col))),
-                    key=sort_key), self.sep, self.space_before_sep)
+                all_items = list(self.db.all_custom(
+                    label=self.db.field_metadata.key_to_label(col)))
+            editor.update_items_cache(all_items)
         else:
             editor = EnLineEdit(parent)
         return editor
@@ -273,13 +252,11 @@ class CcTextDelegate(QStyledItemDelegate): # {{{
             editor.setRange(-100., float(sys.maxint))
             editor.setDecimals(2)
         else:
-            editor = EnLineEdit(parent)
+            editor = MultiCompleteLineEdit(parent)
+            editor.set_separator(None)
             complete_items = sorted(list(m.db.all_custom(label=m.db.field_metadata.key_to_label(col))),
                                     key=sort_key)
-            completer = QCompleter(complete_items, self)
-            completer.setCaseSensitivity(Qt.CaseInsensitive)
-            completer.setCompletionMode(QCompleter.PopupCompletion)
-            editor.setCompleter(completer)
+            editor.update_items_cache(complete_items)
         return editor
 
 # }}}
