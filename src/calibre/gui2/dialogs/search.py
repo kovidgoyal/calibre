@@ -3,7 +3,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import re, copy
 
-from PyQt4.Qt import QDialog, QDialogButtonBox, QCompleter, Qt
+from PyQt4.Qt import QDialog, QDialogButtonBox
 
 from calibre.gui2.dialogs.search_ui import Ui_Dialog
 from calibre.library.caches import CONTAINS_MATCH, EQUALS_MATCH
@@ -29,20 +29,18 @@ class SearchDialog(QDialog, Ui_Dialog):
             name = name.strip().replace('|', ',')
             self.authors_box.addItem(name)
         self.authors_box.setEditText('')
-        self.authors_box.completer().setCompletionMode(QCompleter.PopupCompletion)
-        self.authors_box.setAutoCompletionCaseSensitivity(Qt.CaseInsensitive)
         self.authors_box.set_separator('&')
         self.authors_box.set_space_before_sep(True)
         self.authors_box.update_items_cache(db.all_author_names())
 
         all_series = db.all_series()
         all_series.sort(key=lambda x : sort_key(x[1]))
+        self.series_box.set_separator(None)
+        self.series_box.update_items_cache([x[1] for x in all_series])
         for i in all_series:
             id, name = i
             self.series_box.addItem(name)
         self.series_box.setEditText('')
-        self.series_box.completer().setCompletionMode(QCompleter.PopupCompletion)
-        self.series_box.setAutoCompletionCaseSensitivity(Qt.CaseInsensitive)
 
         all_tags = db.all_tags()
         self.tags_box.update_items_cache(all_tags)

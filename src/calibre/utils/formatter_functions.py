@@ -186,7 +186,7 @@ class BuiltinTemplate(BuiltinFormatterFunction):
 
     def evaluate(self, formatter, kwargs, mi, locals, template):
         template = template.replace('[[', '{').replace(']]', '}')
-        return formatter.safe_format(template, kwargs, 'TEMPLATE', mi)
+        return formatter.__class__().safe_format(template, kwargs, 'TEMPLATE', mi)
 
 class BuiltinEval(BuiltinFormatterFunction):
     name = 'eval'

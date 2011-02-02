@@ -430,8 +430,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         authors = self.authors(id, index_is_id=True)
         if not authors:
             authors = _('Unknown')
-        author = ascii_filename(authors.split(',')[0][:self.PATH_LIMIT]).decode(filesystem_encoding, 'ignore')
-        title  = ascii_filename(self.title(id, index_is_id=True)[:self.PATH_LIMIT]).decode(filesystem_encoding, 'ignore')
+        author = ascii_filename(authors.split(',')[0])[:self.PATH_LIMIT].decode(filesystem_encoding, 'replace')
+        title  = ascii_filename(self.title(id, index_is_id=True))[:self.PATH_LIMIT].decode(filesystem_encoding, 'replace')
         path   = author + '/' + title + ' (%d)'%id
         return path
 
@@ -442,8 +442,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         authors = self.authors(id, index_is_id=True)
         if not authors:
             authors = _('Unknown')
-        author = ascii_filename(authors.split(',')[0][:self.PATH_LIMIT]).decode(filesystem_encoding, 'replace')
-        title  = ascii_filename(self.title(id, index_is_id=True)[:self.PATH_LIMIT]).decode(filesystem_encoding, 'replace')
+        author = ascii_filename(authors.split(',')[0])[:self.PATH_LIMIT].decode(filesystem_encoding, 'replace')
+        title  = ascii_filename(self.title(id, index_is_id=True))[:self.PATH_LIMIT].decode(filesystem_encoding, 'replace')
         name   = title + ' - ' + author
         while name.endswith('.'):
             name = name[:-1]

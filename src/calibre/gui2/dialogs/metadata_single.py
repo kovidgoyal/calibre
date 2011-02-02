@@ -429,10 +429,12 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                 old_extensions.add(ext)
         for ext in new_extensions:
             self.db.add_format(self.row, ext, open(paths[ext], 'rb'), notify=False)
-        db_extensions = set([f.lower() for f in self.db.formats(self.row).split(',')])
+        dbfmts = self.db.formats(self.row)
+        db_extensions = set([f.lower() for f in (dbfmts.split(',') if dbfmts
+            else [])])
         extensions = new_extensions.union(old_extensions)
         for ext in db_extensions:
-            if ext not in extensions:
+            if ext not in extensions and ext in self.original_formats:
                 self.db.remove_format(self.row, ext, notify=False)
 
     def show_format(self, item, *args):
@@ -576,6 +578,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         self.orig_date = qt_to_dt(self.date.date())
 
         exts = self.db.formats(row)
+        self.original_formats = []
         if exts:
             exts = exts.split(',')
             for ext in exts:
@@ -586,6 +589,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                 if size is None:
                     continue
                 Format(self.formats, ext, size, timestamp=timestamp)
+                self.original_formats.append(ext.lower())
 
 
         self.initialize_combos()
@@ -735,6 +739,8 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         self.series.setSizeAdjustPolicy(self.series.AdjustToContentsOnFirstShow)
         all_series = self.db.all_series()
         all_series.sort(key=lambda x : sort_key(x[1]))
+        self.series.set_separator(None)
+        self.series.update_items_cache([x[1] for x in all_series])
         series_id = self.db.series_id(self.row)
         idx, c = None, 0
         for i in all_series:
@@ -752,6 +758,8 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
     def initialize_publisher(self):
         all_publishers = self.db.all_publishers()
         all_publishers.sort(key=lambda x : sort_key(x[1]))
+        self.publisher.set_separator(None)
+        self.publisher.update_items_cache([x[1] for x in all_publishers])
         publisher_id = self.db.publisher_id(self.row)
         idx, c = None, 0
         for i in all_publishers:
