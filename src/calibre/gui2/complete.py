@@ -176,7 +176,6 @@ class MultiCompleteLineEdit(QLineEdit):
         self._model = CompleteModel(parent=self)
         self.complete_window = CompleteWindow(self, self._model)
         self.textEdited.connect(self.text_edited)
-        self.cursorPositionChanged.connect(self.cursor_position_changed)
         self.complete_window.completion_selected.connect(self.completion_selected)
         self.installEventFilter(self)
 
@@ -200,9 +199,6 @@ class MultiCompleteLineEdit(QLineEdit):
 
 
     def text_edited(self, *args):
-        self.update_completions()
-
-    def cursor_position_changed(self, *args):
         self.update_completions()
 
     def update_completions(self):
