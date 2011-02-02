@@ -164,7 +164,10 @@
            </sizepolicy>
           </property>
           <property name="text">
-           <string>Replace soft scene breaks:</string>
+           <string>Replace soft scene &amp;breaks:</string>
+          </property>
+          <property name="buddy">
+           <cstring>opt_replace_scene_breaks</cstring>
           </property>
          </widget>
         </item>

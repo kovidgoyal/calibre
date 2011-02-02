@@ -585,7 +585,6 @@ application/vnd.osa.netdeploy
 application/vnd.osgi.bundle				
 application/vnd.osgi.dp				dp
 application/vnd.otps.ct-kip+xml				
-application/vnd.palm				oprc pdb pqa
 application/vnd.paos.xml				
 application/vnd.pg.format				str
 application/vnd.pg.osasli				ei6
@@ -1082,7 +1081,6 @@ chemical/x-ncbi-asn1				asn
 chemical/x-ncbi-asn1-ascii				ent prt
 chemical/x-ncbi-asn1-binary				aso val
 chemical/x-ncbi-asn1-spec				asn
-chemical/x-pdb				ent pdb
 chemical/x-rosdal				ros
 chemical/x-swissprot				sw
 chemical/x-vamas-iso14976				vms
@@ -1379,3 +1377,5 @@ application/x-cbr                          cbr
 application/x-cb7                          cb7
 application/x-koboreader-ebook             kobo
 image/wmf                                  wmf
+application/ereader                        pdb
+

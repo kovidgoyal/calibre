@@ -46,7 +46,8 @@ HEURISTIC_OPTIONS = ['markup_chapter_headings',
                       'italicize_common_cases', 'fix_indents',
                       'html_unwrap_factor', 'unwrap_lines',
                       'delete_blank_paragraphs', 'format_scene_breaks',
-                      'dehyphenate', 'renumber_headings']
+                      'dehyphenate', 'renumber_headings',
+                      'replace_scene_breaks']
 
 def print_help(parser, log):
     help = parser.format_help().encode(preferred_encoding, 'replace')
@@ -143,7 +144,7 @@ def add_pipeline_options(parser, plumber):
                      ' patterns. Disabled by default. Use %s to enable. '
                      ' Individual actions can be disabled with the %s options.')
                   % ('--enable-heuristics', '--disable-*'),
-                  ['enable_heuristics', 'replace_scene_breaks'] + HEURISTIC_OPTIONS
+                  ['enable_heuristics'] + HEURISTIC_OPTIONS
                   ),
 
               'SEARCH AND REPLACE' : (
