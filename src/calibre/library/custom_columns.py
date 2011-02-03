@@ -457,7 +457,7 @@ class CustomColumns(object):
         if num is not None:
             data = self.custom_column_num_map[num]
         if data['datatype'] == 'composite':
-            return set()
+            return set([])
         if not data['editable']:
             raise ValueError('Column %r is not editable'%data['label'])
         table, lt = self.custom_table_names(data['num'])
@@ -468,7 +468,7 @@ class CustomColumns(object):
         if data['datatype'] == 'series' and extra is None:
             (val, extra) = self._get_series_values(val)
 
-        books_to_refresh = set()
+        books_to_refresh = set([])
         if data['normalized']:
             if data['datatype'] == 'enumeration' and (
                     val and val not in data['display']['enum_values']):
@@ -497,7 +497,7 @@ class CustomColumns(object):
                     ex = existing[idx]
                     xid = self.conn.get(
                         'SELECT id FROM %s WHERE value=?'%table, (ex,), all=False)
-                    if ex != x:
+                    if allow_case_change and ex != x:
                         case_change = True
                         self.conn.execute(
                             'UPDATE %s SET value=? WHERE id=?'%table, (x, xid))

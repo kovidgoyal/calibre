@@ -492,8 +492,7 @@ title and author are swapped before the title case is set</string>
              <item>
               <widget class="QCheckBox" name="update_title_sort">
                <property name="toolTip">
-                <string>Recompute the title sort value and store it in title sort.
-This will happen after any title case changes</string>
+                <string>Update title sort based on the current title. This will be applied only after other changes to title.</string>
                </property>
                <property name="text">
                 <string>Update &amp;title sort</string>
