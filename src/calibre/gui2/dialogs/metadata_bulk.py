@@ -566,8 +566,6 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
                 self.destination_field.addItem(f if f != 'sort' else 'title_sort', f)
             self.search_field.blockSignals(False)
             self.destination_field.blockSignals(False)
-            for i in range(0, len(self.all_fields)):
-                print unicode(self.search_field.itemData(i).toString())
             self.destination_field.setVisible(True)
             self.destination_field_label.setVisible(True)
             self.replace_mode.setVisible(True)
