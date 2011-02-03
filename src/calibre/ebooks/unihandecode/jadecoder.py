@@ -21,7 +21,7 @@ import os, re
 from calibre.ebooks.unihandecode.unidecoder import Unidecoder
 from calibre.ebooks.unihandecode.unicodepoints import CODEPOINTS
 from calibre.ebooks.unihandecode.jacodepoints import CODEPOINTS as JACODES
-from calibre.ebooks.unihandecode.pykakasi import kakasi
+from calibre.ebooks.unihandecode.pykakasi.kakasi import kakasi
 
 class Jadecoder(Unidecoder):
     kakasi = None
