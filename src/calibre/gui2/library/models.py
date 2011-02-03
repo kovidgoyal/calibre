@@ -800,9 +800,10 @@ class BooksModel(QAbstractTableModel): # {{{
             return True
 
         id = self.db.id(row)
-        self.db.set_custom(id, val, extra=s_index,
+        books_to_refresh = set([id])
+        books_to_refresh |= self.db.set_custom(id, val, extra=s_index,
                            label=label, num=None, append=False, notify=True)
-        self.refresh_ids([id], current_row=row)
+        self.refresh_ids(list(books_to_refresh), current_row=row)
         return True
 
     def setData(self, index, value, role):
@@ -827,7 +828,8 @@ class BooksModel(QAbstractTableModel): # {{{
                 elif column == 'series':
                     val = val.strip()
                     if not val:
-                        self.db.set_series(id, val)
+                        books_to_refresh |= self.db.set_series(id, val,
+                                                        allow_case_change=True)
                         self.db.set_series_index(id, 1.0)
                     else:
                         pat = re.compile(r'\[([.0-9]+)\]')
@@ -841,7 +843,8 @@ class BooksModel(QAbstractTableModel): # {{{
                                 if ni != 1:
                                     self.db.set_series_index(id, ni)
                         if val:
-                            self.db.set_series(id, val)
+                            books_to_refresh |= self.db.set_series(id, val,
+                                                        allow_case_change=True)
                 elif column == 'timestamp':
                     if val.isNull() or not val.isValid():
                         return False
