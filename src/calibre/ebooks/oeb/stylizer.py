@@ -633,7 +633,7 @@ class Style(object):
     def lineHeight(self):
         if self._lineHeight is None:
             result = None
-            #parent = self._getparent()
+            parent = self._get_parent()
             if 'line-height' in self._style:
                 lineh = self._style['line-height']
                 if lineh == 'normal':
@@ -642,9 +642,9 @@ class Style(object):
                     result = float(lineh) * self.fontSize
                 except ValueError:
                     result = self._unit_convert(lineh, base=self.fontSize)
-            #elif parent is not None:
-            #    # TODO: proper inheritance
-            #    result = parent.lineHeight
+            elif parent is not None:
+                # TODO: proper inheritance
+                result = parent.lineHeight
             else:
                 result = 1.2 * self.fontSize
             self._lineHeight = result

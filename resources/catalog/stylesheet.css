@@ -52,6 +52,17 @@ p.formats {
 	text-indent: 0.0in;
 	}
 
+/*
+* 	Minimize widows and orphans by logically grouping chunks
+*   Some reports of problems with Sony (ADE) ereaders
+*	   ADE: page-break-inside:avoid;
+*	iBooks: display:inline-block;
+*		    width:100%;
+*/
+div.author_logical_group {
+	page-break-inside:avoid;
+	}
+
 div.description > p:first-child {
 	margin: 0 0 0 0;
 	text-indent: 0em;
@@ -62,27 +73,19 @@ div.description {
 	text-indent: 1em;
 	}
 
-/*
-* 	Attempt to minimize widows and orphans by logically grouping chunks
-* 	Recommend enabling for iPad
-*   Some reports of problems with Sony ereaders, presumably ADE engines
-*/
-/*
-div.logical_group {
-	display:inline-block;
-	width:100%;
+div.initial_letter {
+	page-break-before:always;
 	}
-*/
 
-p.date_index {
+p.author_title_letter_index {
 	font-size:x-large;
 	text-align:center;
 	font-weight:bold;
-	margin-top:1em;
+	margin-top:0px;
 	margin-bottom:0px;
 	}
 
-p.letter_index {
+p.date_index {
 	font-size:x-large;
 	text-align:center;
 	font-weight:bold;
@@ -97,6 +100,14 @@ p.series {
 	margin-left:2em;
 	text-align:left;
 	text-indent:-2em;
+	}
+
+p.series_letter_index {
+	font-size:x-large;
+	text-align:center;
+	font-weight:bold;
+	margin-top:1em;
+	margin-bottom:0px;
 	}
 
 p.read_book {

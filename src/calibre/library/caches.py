@@ -420,7 +420,8 @@ class ResultCache(SearchQueryParser): # {{{
             return candidates - res
         return res
 
-    def get_matches(self, location, query, allow_recursion=True, candidates=None):
+    def get_matches(self, location, query, candidates=None,
+            allow_recursion=True):
         matches = set([])
         if candidates is None:
             candidates = self.universal_set()
@@ -434,8 +435,8 @@ class ResultCache(SearchQueryParser): # {{{
             if isinstance(location, list):
                 if allow_recursion:
                     for loc in location:
-                        matches |= self.get_matches(loc, query, candidates,
-                                                    allow_recursion=False)
+                        matches |= self.get_matches(loc, query,
+                                candidates=candidates, allow_recursion=False)
                     return matches
                 raise ParseException(query, len(query), 'Recursive query group detected', self)
 

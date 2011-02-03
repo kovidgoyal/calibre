@@ -7,8 +7,8 @@ __license__   = 'GPL v3'
 from PyQt4.Qt import QDialog, QGridLayout, QLabel, QDialogButtonBox,  \
             QApplication, QSpinBox, QToolButton, QIcon
 from calibre.ebooks.metadata import authors_to_string, string_to_authors
-from calibre.gui2.widgets import CompleteComboBox
 from calibre.utils.icu import sort_key
+from calibre.gui2.complete import MultiCompleteComboBox
 
 class AddEmptyBookDialog(QDialog):
 
@@ -32,7 +32,7 @@ class AddEmptyBookDialog(QDialog):
         self.author_label = QLabel(_('Set the author of the new books to:'))
         self._layout.addWidget(self.author_label, 2, 0, 1, 2)
 
-        self.authors_combo = CompleteComboBox(self)
+        self.authors_combo = MultiCompleteComboBox(self)
         self.authors_combo.setSizeAdjustPolicy(
                 self.authors_combo.AdjustToMinimumContentsLengthWithIcon)
         self.authors_combo.setEditable(True)
