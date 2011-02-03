@@ -15,6 +15,14 @@ class jisyo (object):
     kanadict = None
     jisyo_table = {}
 
+# this class is Borg
+    _shared_state = {}
+
+    def __new__(cls, *p, **k):
+        self = object.__new__(cls, *p, **k)
+        self.__dict__ = cls._shared_state
+        return self
+
     def __init__(self):
         if self.kanwadict is None:
             dictpath = resources.get_path(os.path.join('localization','pykakasi','kanwadict2.db'))
