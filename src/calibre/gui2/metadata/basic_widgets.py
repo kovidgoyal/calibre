@@ -300,6 +300,7 @@ class SeriesEdit(MultiCompleteComboBox):
         self.setToolTip(self.TOOLTIP)
         self.setWhatsThis(self.TOOLTIP)
         self.setEditable(True)
+        self.books_to_refresh = set([])
 
     @dynamic_property
     def current_val(self):
@@ -316,6 +317,7 @@ class SeriesEdit(MultiCompleteComboBox):
         return property(fget=fget, fset=fset)
 
     def initialize(self, db, id_):
+        self.books_to_refresh = set([])
         all_series = db.all_series()
         all_series.sort(key=lambda x : sort_key(x[1]))
         self.update_items_cache([x[1] for x in all_series])
@@ -335,7 +337,8 @@ class SeriesEdit(MultiCompleteComboBox):
 
     def commit(self, db, id_):
         series = self.current_val
-        db.set_series(id_, series, notify=False, commit=True)
+        self.books_to_refresh |= db.set_series(id_, series, notify=False,
+                                            commit=True, allow_case_change=True)
         return True
 
 class SeriesIndexEdit(QDoubleSpinBox):
@@ -927,6 +930,7 @@ class PublisherEdit(MultiCompleteComboBox): # {{{
         self.set_separator(None)
         self.setSizeAdjustPolicy(
                 self.AdjustToMinimumContentsLengthWithIcon)
+        self.books_to_refresh = set([])
 
     @dynamic_property
     def current_val(self):
@@ -943,6 +947,7 @@ class PublisherEdit(MultiCompleteComboBox): # {{{
         return property(fget=fget, fset=fset)
 
     def initialize(self, db, id_):
+        self.books_to_refresh = set([])
         all_publishers = db.all_publishers()
         all_publishers.sort(key=lambda x : sort_key(x[1]))
         self.update_items_cache([x[1] for x in all_publishers])
@@ -960,7 +965,8 @@ class PublisherEdit(MultiCompleteComboBox): # {{{
             self.setCurrentIndex(idx)
 
     def commit(self, db, id_):
-        db.set_publisher(id_, self.current_val, notify=False, commit=False)
+        self.books_to_refresh |= db.set_publisher(id_, self.current_val,
+                            notify=False, commit=False, allow_case_change=True)
         return True
 
 # }}}
