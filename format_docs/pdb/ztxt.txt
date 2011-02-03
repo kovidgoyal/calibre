@@ -1,0 +1,226 @@
+The zTXT Format
+---------------
+
+The zTXT format is relatively straightforward. The simplest zTXT contains a
+Palm database header, followed by zTXT record #0, followed by the compressed
+data. The compressed data can be in one of two formats: one long data stream,
+or split into chunks for random access. If there are any bookmarks, they occupy
+the record immediately after the compressed data. If there are any annotations,
+the annotation index occupies the record immediately after the bookmarks with
+each annotation in the index having a record immediately after the annotation
+index. Here are diagrams of a simple zTXT and a full featured zTXT:
+
+    DB Header
+0   Record 0
+1
+2
+3
+... Compressed Data
+36
+37
+38
+
+    DB Header
+0   Record 0
+1
+2
+3
+... Compressed Data
+36
+37
+38
+39  Bookmarks
+40  Annotation Index
+41  Annotation 1
+42  Annotation 2
+43  Annotation 3
+
+
+Compression Modes
+-----------------
+
+zTXT version 1.40 and later supports two modes of compression. Mode 1 is a
+random access mode, and mode 2 consists of one long data stream. Both modes
+work on 8K (the default record size) blocks of text.
+
+Please note, however, that as of Weasel Reader version 1.60 the old style
+(mode 2) zTXT format is no longer supported. makeztxt and libztxt still support
+creating these documents for backwards compatibility, but you should not use
+mode 2 if possible.
+
+
+Mode 1
+------
+
+In mode one, 8K blocks of text are compressed into an equal number of blocks of
+compressed data. Using the Z_FULL_FLUSH flush mode with zLib allows for random
+access among the blocks of data. In order for this to function, the first block
+must be decompressed first, and after that any block in the file may be
+decompressed in any order. In mode 1, the blocks of compressed data will likely
+not all have the same size.
+
+
+Mode 2
+------
+
+In zTXT versions before 1.40, this was the only method of compression. This
+mode involves compressing the entire input buffer into a single output buffer
+and then splitting the resulting buffer into 8K segments. This mode requires
+that all of the compressed data be decompressed in one pass. Since there are no
+real 'blocks' of data, the resulting output can be of any blocksize, though
+typically the default of 8K should be fine. The advantage to mode 2 is that it
+will give about 10% - 15% more compression.
+
+
+zTXT Record #0 Definition (version 1.44)
+----------------------------------------
+
+Record 0 provides all of the information about the zTXT contents. Be sure it is
+correct, lest firey death rain down upon your program.
+
+typedef struct zTXT_record0Type {
+  UInt16        version;
+  UInt16        numRecords;
+  UInt32        size;
+  UInt16        recordSize;
+  UInt16        numBookmarks;
+  UInt16        bookmarkRecord;
+  UInt16        numAnnotations;
+  UInt16        annotationRecord;
+  UInt8         flags;
+  UInt8         reserved;
+  UInt32        crc32;
+  UInt8         padding[0x20 - 24];
+} zTXT_record0;
+
+
+Structure Elements
+------------------
+
+UInt16        version;
+
+This is mostly just informational. Your program can figure out what features
+might be available from the version. However, the remaining parts of the
+structure are designed such that their value will be 0 if that particular
+feature is not present, so that is the correct way to test. The version is
+stored as two 8 bit integers. For example, version 1.42 is 0x012A.
+
+UInt16        numRecords;
+
+This is the number of DATA records only and does not include record 0,
+bookmarks, or annotations. With compression mode 1, this is also the number of
+uncompressed text records. With mode 2, you must decompress the file to figure
+out how many text records there will be.
+
+UInt32        size;
+
+The size in bytes of the uncompressed data in the zTXT. Check this value with
+the amount of free storage memory on the Palm to make sure there's enough room
+to decompress the data in full or in part.
+
+UInt16        recordSize;
+
+recordSize is the size in bytes of a text record. This field is important, as
+the size of text and decompression buffers is based on this value. It is used
+by Weasel to navigate though the text so it can map absolute offsets to record
+numberss. 8192 is the default. With compression mode 1, this is the amount of
+data inside each compressed record (except maybe the last one), but the actual
+compressed records will likely have varying sizes. In mode 2, both compressed
+records and the resulting text records are all of this size (except, again, the
+last record).
+
+UInt16        numBookmarks;
+
+The definitive count of how many bookmarks are stored in the bookmark index
+record. See the section on bookmarks below.
+
+UInt16        bookmarkRecord;
+
+If there are any bookmarks, this is set to the record index number that
+contains the bookmark listing, otherwise it is 0.
+
+UInt16        numAnnotations;
+
+Like the bookmark count, this is the definitive count of how many annotations
+are in the annotation index and how many annotation records follow it. See the
+section on annotation below.
+
+UInt16        annotationRecord;
+
+If there are any annotations, this is set to the record index number that
+contains the annotation index, otherwise it is 0.
+
+UInt8         flags;
+
+These flags indicate various features of the zTXT database. flags is a bitmask
+and at present the only two defined bits are:
+
+ZTXT_RANDOMACCESS (0x01)
+    If the zTXT was compressed according to the method in mode 1, then it
+    supports random access and this should be set.
+ZTXT_NONUNIFORM (0x02)
+    Setting this bit indicates that the text records within the zTXT database
+    are not of uniform length. That is, when the blocks of text are
+    decompressed they will not have identical block sizes. If this is not set,
+    the compressed blocks are assumed to all have the same size when
+    decompressed (typically 8K) except for the last block which can be smaller.
+
+UInt32        crc32;
+
+A CRC32 value for checking data integrity. This value is computer over all text
+data record only and does not include record 0 nor any bookmark/annotation
+records. The current implementation in makeztxt/Weasel computes this value
+using the crc32 function in zLib which should be the standard CRC32 definition.
+
+UInt8         padding[0x20 - 24];
+
+zTXT record zero is 32 bytes in length, so the unused portion is padded.
+
+
+zTXT Bookmarks
+--------------
+
+zTXT bookmarks are stored in a simple array in a record at the end of a zTXT.
+The format is as follows:
+
+#define MAX_BMRK_LENGTH         20
+
+typedef struct GPlmMarkType {
+  UInt32        offset;
+  Char          title[MAX_BMRK_LENGTH];
+} GPlmMark;
+
+In the structure, offset is counted as an absolute offset into the text. The
+bookmarks must be sorted in ascending order.
+
+If there are no bookmarks, then the bookmark index does not exist. When the
+user creates the first bookmark, the record containing the index will then be
+created. If there are annotations, when the bookmark record is created it must
+go before the annotation index. This will require incrementing annotationRecord
+in record 0 to point to the new record index.
+
+Similarly, when all bookmarks are deleted the bookmark index record is also
+deleted. If there are annotations, annotationRecord in record 0 must be
+decremented to point to the new index.
+
+
+zTXT Annotations
+----------------
+
+zTXT annotations have a format almost identical to that of the bookmark index:
+
+typedef struct GPlmAnnotationType {
+  UInt32        offset;
+  Char          title[MAX_BMRK_LENGTH];
+} GPlmAnnotation;
+
+Like the bookmarks, offset is an absolute offset into the text. The annotation
+index is organized just as the bookmarks are, as a single array in a record.
+Note that this structure does NOT store the actual annotation text.
+
+The text of each annotation is stored in its own record immediately following
+the index. So, the first annotation in the index will occupy the first record
+following the index, and the second annotation will be in the second record
+following the index, and so on. The text of each annotation is limited to
+4096 bytes.
+

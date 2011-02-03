@@ -1,0 +1,303 @@
+Rocket eBook File Format
+------------------------
+
+from http://rbmake.sourceforge.net/rb_format.html
+
+
+Overview
+--------
+
+This document attempts to describe the format of a .rb file -- the book
+format that is downloaded into NuvoMedia's <http://www.nuvomedia.com>
+hand-held wonder, the Rocket eBook
+<http://www.rocket-ebook.com/enter.html>.
+
+*Note:* All multi-byte integers are stored in Vax/Intel order (the
+opposite of network byte order). Most integers are 4 bytes (an int32),
+but there are some minor exceptions (as detailed below).
+
+Also, the following document refers to the .rb file sections as "pages".
+
+
+Details
+-------
+
+The first 4 bytes of the file seem to be a magic number (in hex): B0 0C
+B0 0C. I like to think of this as a hexidecimal pun on the word "book"
+(repeated). [Matt Greenwood has reported seeing a magic number of "B0 0C
+F0 0D" in another type of ReB-related file -- i.e. "book food".]
+
+The next two bytes appear to be a version number, currently "02 00". I
+assume this means major version 2, minor version 0.
+
+The next 4 bytes are the string "NUVO", followed by 4 bytes of 00h. (I
+have also seen an old title that had 0s in place of the "NUVO".)
+
+This brings us up to offset 0Eh, at which point we have a 4-byte
+representation of the date the book was created (Matt Greenwood pointed
+this out to me -- thanks!). The year is encoded as an int16. On older
+version of the RocketLibrary was encoding the year's full value (e.g.
+1999 was "CF 07" and 2000 was "D0 07"), but a more recent version is now
+using the tm_year value verbatim -- i.e. it's storing 100 for the year
+2000 ("64 00"). The year is followed by an int8 for the 1-relative month
+number, and an int8 for the day of the month.
+
+After that is 6 bytes of 00h. These may be reserved for setting the time
+of creation (at a guess).
+
+Then, at offset 18h, we have an int32 that contains the absolute offset
+of the "Table of Contents" (the directory of the pages contained within
+this .rb file). In all of the .rb file's I've seen, this remains
+constant with a value of 128h. However, I have tested an atypical .rb
+file where I placed the ToC at the end of the file (after all the file
+contents), and it worked fine. (I've chosen not to build any books in
+such a non-standard format, however.)
+
+Immediately following this is an int32 with the length of the .rb file
+(so we can check if the file is complete or not).
+
+All the bytes from here (offset 20h) up to offset 128h appear to only be
+used by an encrypted title. In a non-encrypted title, they are always 0.
+
+The table of contents typically comes next (at offset 128h). It starts
+with an int32 count of the number of "page" entries (.rb-file sections)
+in the ToC. Each entry consists of a name (zero-padded to 32 bytes),
+followed by 3 int32s: the length of this entry's data segment, the
+absolute offset of the data in the .rb file, and a flag. The known flag
+values are: 1 (encrypted), 2 (info page), and 8 (deflated). The names
+are tweaked as needed to ensure that they are all unique. The current
+RocketWriter software uses a unique 6-digit number, a dash, up to 8
+characters from the filename, and then the re-mapped suffix for the data
+(.html, .hidx, .png, .info, etc.). My rbmake library simply ensures that
+the names are no longer than 15 characters (not counting the suffix) and
+are all unique.
+
+Often the first item in the ToC is the info page, but it doesn't have to
+be. This page of information contains NAME=VALUE pairs that note the
+author, title, what the root-page's name is, etc. (See appendix A). This
+data is never encrypted nor compressed, so this entry's flag value is
+always "2".
+
+An image page is always stored as a B&W image in PNG format. Since it
+has its own compression, it is stored without any additional attempt at
+deflation. I have also never seen an encrypted image, so its flag value
+is always 0.
+
+An HTML page contains the tags and text that were re-written into a
+consistent syntax (this presumably makes the HTML renderer in the ReB
+itself simpler). HTML pages are typically compressed (See appendix B).
+Every HTML page appears to use the suffix .html no matter what the file
+name was on import (but I have seen older files with .htm used as the
+suffix, so the rocket appears to support both).
+
+For every HTML page there is a corresponding .hidx page that contains a
+summary of the paragraph formatting and the position of the anchor names
+in the associated .html page (See appendix C). This page is sometimes
+compressed, depending on length (See appendix B).
+
+There are also reference titles that have a .hkey page that contains a
+list of words that can be looked up in the associated .html page (See
+appendix D).
+
+Immediately following the ToC is the data for each piece mentioned in
+the ToC, in the same order as it appeared in the ToC.
+
+Finally, the end of the file appears to be padded with 20 bytes of 01h.
+
+
+Appendix A: Info Page Format
+----------------------------
+
+The info page consists of a series of lines that contain "NAME=VALUE"
+strings. Each line is terminated by a single newline. Here are the
+values that the RocketWriter generates:
+
+    COMMENT=Info file for <title>
+    TYPE=2
+    TITLE=<title>
+    AUTHOR=<author>
+    URL=ebook:<long, unique string used for the file's name by the librarian>
+    GENERATOR=<e.g. RocketLibrarian 1.3.216>
+    PARSE=1
+    OUTPUT=1
+    BODY=<name of root HTML page (as it appears in the ToC)>
+    MENUMARK=menumark.html
+    SuggestedRetailPrice=<usually empty>
+
+Encrypted titles have a few more entries (including those listed above):
+
+    ISBN=<ISBN number, including dashes>
+    REVISION=<digits>
+    TITLE_LANGUAGE=<en-us>
+    PUB_NAME=<Publisher's name>
+    PUBSERVER_ID=<digits>
+    GENERATOR=<e.g. RocketPress 1.3.121>
+    VERSION=<digits>
+    USERNAME=<rocket-ID>
+    COPY_ID=<digits>
+    COPYRIGHT=<copyright>
+    COPYTITLE=<another copyright?>
+
+A reference title also has an indication that there is a .hkey page
+present, and may also have a GENRE of "Reference":
+
+    HKEY=1
+    GENRE=Reference
+
+
+Appendix B: The format of compressed data
+-----------------------------------------
+
+Compressed pages have a data section in the .rb file with the following
+format:
+
+The first int32 is a count of the number of 4096-byte chunks of data we
+broke the uncompressed page into (the last chunk can be shorter than
+4096 bytes, of course).
+
+This is immediately followed by an int32 with the length of the entire
+uncompressed data.
+
+After this there are <count> int32s that indicate the size of each
+chunk's compressed data.
+
+Following these length int32s is the output from a deflation (the
+algorithm used in gzip) for each 4096-byte chunk of the original data.
+It appears that you must use a window-bit size of 13 and a compression
+level of "best" to be compatible with the Rocket eBook's system software.
+
+
+Appendix C: HTML-index Page Format
+----------------------------------
+
+The .hidx page's purpose is to allow the renderer to quickly look up the
+format of each paragraph (useful for random access to the data), and the
+position of the anchor names.
+
+The first section lists the various paragraph-producing tags. It is
+headed by a line of "[tags <count>]", where <count> is the number of
+tags that follow this header. The tags are listed one per line, and have
+an implied enumeration from 0 to N-1 (which the other tags and the
+upcoming paragraph sections reference).
+
+The first tag is typically (always?) "<HTML> -1". The number trailing
+the tag indicates what other tag (or sequence of tags, one per line) in
+which we are nested. So, if we have a <BR> nested inside a <P
+ALIGN="center">, it would be listed separately from a <BR> that was
+nested inside a normal paragraph, and each one would have a different
+trailing index number.
+
+Following the tag section is the paragraph section. The heading is
+"[paragraphs <count>]", and is followed by a line for each paragraph.
+These lines consist of a character offset into the .html page for the
+start of the paragraph followed by a 0-relative offset into the tag
+section (indicating what kind of formatting to use for the indicated
+paragraph).
+
+The paragraph-section character offsets point to the first bit of text
+after the associated tag.
+
+The last section details the anchor names. The heading is
+"[names <count>]", and each item that follows is a quoted string of the
+anchor name, followed by a character offset into the .html page where
+we'll find that name. If there are no names in the associated HTML
+section, the heading is included with a 0 count (i.e. "[names 0]").
+
+The name-section character offsets point to the start of the anchor tag
+(not after the tag, like the offsets in the "paragraphs" section).
+
+The lines are terminated by newlines (in standard unix fashion).
+
+For example:
+
+    [tags 10]
+    <HTML> -1
+    <BODY> 0
+    <P ALIGN="right"> 1
+    <P ALIGN="left"> 1
+    <P> 1
+    <H3 ALIGN="center"> 1
+    <P ALIGN="center"> 1
+    <BR> 6
+    <H2 ALIGN="center"> 1
+    <BR> 1
+
+    [paragraphs 42]
+    160 9
+    164 9
+    184 8
+    220 8
+    261 6
+    316 5
+    359 1
+    379 6
+    410 6
+    460 7
+    511 7
+    564 7
+    616 7
+    668 7
+    720 7
+    773 7
+    827 7
+    880 7
+    933 7
+    988 7
+    1043 7
+    1100 7
+    1157 7
+    1214 7
+    1270 7
+    1328 7
+    1385 7
+    1442 7
+    1497 7
+    1556 7
+    1561 7
+    1635 1
+    1656 5
+    1690 6
+    1737 7
+    1773 5
+    1798 4
+    1826 3
+    2663 1
+    2668 4
+    2689 2
+    2730 8
+
+    [names 1]
+    "ch1" 2689
+
+
+Appendix D: HTML-key Page Format
+--------------------------------
+
+The .hkey page contains a list of words, one per line, sorted in a
+strict ASCII sequence, each one followed by a tab and the offset in the
+.html page of the word's data. I presume that the .hkey page must share
+the same name prefix as its related .html page.
+
+If the names contain high-bit characters, they are translated into
+regular ASCII in the .hkey file, since this allows the user to search
+for the words using unaccented characters.
+
+The lines are terminated with a newline (in standard unix fashion).
+
+An example:
+
+    a	5
+    apple	38
+    b	84
+    book	104
+
+Each of these offsets points to a paragraph tag in the associated .html
+page. I have only seen this sequence of tags used so far:
+
+    <P><BIG><B>word</B></BIG> other stuff</P>
+
+I have seen multiple <B>...</B> tags in the middle of the single set of
+<BIG>...</BIG> tags, but this is the basic tag format.
+
+The offset in the .hkey page points to the start of the <P> tag.
+

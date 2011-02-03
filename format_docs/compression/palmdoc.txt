@@ -1,0 +1,54 @@
+About
+-----
+
+PalmDOC uses LZ77 compression techniques. DOC files can contain only compressed
+text. The format does not allow for any text formatting. This keeps files
+small, in keeping with the Palm philosophy. However, extensions to the format
+can use tags, such as HTML or PML, to include formatting within text. These
+extensions to PalmDoc are not interchangeable and are the basis for most eBook
+Reader formats on Palm devices.
+
+LZ77 algorithms achieve compression by replacing portions of the data with
+references to matching data that has already passed through both encoder and
+decoder. A match is encoded by a pair of numbers called a length-distance pair,
+which is equivalent to the statement "each of the next length characters is
+equal to the character exactly distance characters behind it in the
+uncompressed stream." (The "distance" is sometimes called the "offset" instead.)
+
+In the PalmDoc format, a length-distance pair is always encoded by a two-byte
+sequence. Of the 16 bits that make up these two bytes, 11 bits go to encoding
+the distance, 3 go to encoding the length, and the remaining two are used to
+make sure the decoder can identify the first byte as the beginning of such a
+two-byte sequence.
+
+PalmDoc combines LZ77 with a simple kind of byte pair compression.
+
+
+PalmDoc files are decoded as follows:
+-------------------------------------
+
+Read a byte from the compressed stream. If the byte is
+
+0x00: "1 literal" copy that byte unmodified to the decompressed stream.
+
+0x09 to 0x7f: "1 literal" copy that byte unmodified to the decompressed stream.
+
+0x01 to 0x08: "literals": the byte is interpreted as a count from 1 to 8, and
+that many literals are copied unmodified from the compressed stream to the
+decompressed stream.
+
+0x80 to 0xbf: "length, distance" pair: the 2 leftmost bits of this byte ('10')
+are discarded, and the following 6 bits are combined with the 8 bits of the
+next byte to make a 14 bit "distance, length" item. Those 14 bits are broken
+into 11 bits of distance backwards from the current location in the
+uncompressed text, and 3 bits of length to copy from that point
+(copying n+3 bytes, 3 to 10 bytes).
+
+0xc0 to 0xff: "byte pair": this byte is decoded into 2 characters: a space
+character, and a letter formed from this byte XORed with 0x80.
+
+Repeat from the beginning until there is no more bytes in the compressed file.
+
+PalmDOC data is always divided into 4096 byte blocks and the blocks are acted
+upon independently. 
+

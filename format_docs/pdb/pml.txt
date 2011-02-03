@@ -1,0 +1,936 @@
+Palm Markup Language
+--------------------
+
+This page explains how to use the Palm Markup Language (PML) to specify
+formatting and other information in a text file for later reading using the
+eReader.
+
+PML commands start with a backslash, "\", and usually consist of a single
+character after that. Some PML commands are paired, such as those that specify
+italicized text. Other commands are directives, such as the "\p", which
+specifies a page break. PML is not meant to be an industrial-strength markup
+language, but it is easy to understand, easy to parse, and creates high-quality
+electronic books.
+
+Since PML and Palm DropBook are not without flaws, there is a page of Tips and
+Pitfalls.
+
+
+Let's Dive Right In
+-------------------
+
+palmsample.txt contains examples of formatting text, specifying chapters, etc.
+Use it to start from, or just as an example when making your own books.
+
+The following table specifies the Palm Markup Language commands, and what
+they do.
+
+\p                              New page
+\x                              New chapter; also causes a new page break.
+                                Enclose chapter title (and any style codes)
+                                with \x and \x
+\Xn                             New chapter, indented n levels (n between 0 and
+                                4 inclusive) in the Chapter dialog; doesn't
+                                cause a page break. Enclose chapter title (and
+                                any style codes) with \Xn and \Xn
+\Cn="Chapter title"             Insert "Chapter title" into the chapter
+                                listing, with level n (like \Xn). The text is
+                                not shown on the page and does not force a page
+                                break. This can sometimes be useful to insert a
+                                chapter mark at the beginning of an
+                                introduction to the chapter, for example.
+\c                              Center this block of text; close with \c on
+                                beginning of line
+\r                              Right justify text block; close with \r on
+                                beginning of line
+\i                              Italicize block; close with \i
+\u                              Underline block; close with \u
+\o                              Overstrike block; close with \o
+\v                              Invisible text; close with \v (can be used for
+                                comments)
+\t                              Indent block. Start at beginning of a line,
+                                close with \t at end of a line
+\T="50%"                        Indents the specified percentage of the screen
+                                width, 50% in this case. If the current drawing
+                                position is already past the specified screen
+                                location, this tag is ignored.
+\w="50%"                        Embed a horizontal rule of a given percentage
+                                width of the screen, in this case 50%. This tag
+                                causes a line break before and after it. The
+                                rule is centered. The percent sign is mandatory.
+\n                              Switch to the "normal" font, which is specified
+                                by the user
+\s                              Switch to stdFont; close with \s to revert to
+                                normal font
+\b                              Switch to boldFont; close with \b to revert to
+                                normal font (deprecated; use \B instead)
+\l                              Switch to largeFont; close with \l to revert to
+                                normal font
+\B                              Mark text as bold. Unlike the \b tag, \B
+                                doesn't change the font, so you can have large
+                                bold text. You cannot mix \b and \B in the same
+                                PML file.
+\Sp                             Mark text as superscript. Should not be mixed
+                                with other styles such as bold, italic, etc.
+                                Enclose superscripted text with \Sp.
+\Sb                             Mark text as subscript. Should not be mixed
+                                with other styles such as bold, italic, etc.
+                                Enclose subscripted text with \Sb.
+\k                              Make enclosed text into small-caps; close with
+                                \k. Any characters enclosed in \k tags
+                                (including those with accents) are made
+                                uppercase and are rendered at a smaller point
+                                size than a regular uppercase character.
+\\                              Represents a single backslash
+\aXXX                           Insert non-ASCII character whose Windows 1252
+                                code is decimal XXX. See the PML character
+                                table for details.
+\UXXXX                          Insert non-ASCII character whose Unicode code
+                                is hexidecimal XXXX. See the Extended PML
+                                character table for details.
+\m="imagename.png"              Insert the named image. See the section on
+                                Images below.
+\q="#linkanchor"Some text\q     Reference a link anchor which is at another
+                                spot in the document. The string after the
+                                anchor specification and before the trailing\q
+                                is underlined or otherwise shown to be a link
+                                when viewing the document.
+\Q="linkanchor"                 Specify a link anchor in the document.
+\-                              Insert a soft hyphen. A soft hyphen shows up
+                                only if it is necessary to break a word across
+                                a line.
+\Fn="footnote1"1\Fn             Link the "1" to a footnote whose name is
+                                footnote1, tagged at the end of the PML
+                                document. See the section on Footnotes and
+                                Sidebars below.
+\Sd="sidebar1"Sidebar\Sd        Link the "Sidebar" text to a sidebar whose name
+                                is sidebar1, tagged at the end of the PML
+                                document. See the section on Footnotes and
+                                Sidebars below.
+\I                              Mark as a reference index item. Enclose index
+                                item (and any style codes) with \I and \I. See
+                                Creating Dictionaries for more information.
+
+
+Examples
+--------
+
+\pThis is a new page
+
+\xChapter III\x
+
+\X1Chapter III, part A\X1
+
+\p\C="Introduction"The following story is one of my favorites...
+
+\cProperty of
+Gateway Senior High School
+\c
+
+\rJustify my love
+\r
+
+This stuff is \ireally\i cool.
+
+I just read \uMoby Dick.\u
+
+This is a \obig\o mistake.
+
+Copyright 1917\v Date of magazine serialization \v
+
+\tOnce upon a time
+there was a wicked queen
+called Esmerelda.\t
+
+Mammals:\T="40%"Lions
+\T="40%"Tigers
+\T="40%"Bears
+
+He walked away.
+\w="80%"
+Later that day, he ran into an old friend.
+
+\nIn the normal ways...
+
+The \stitle page\s should be formatted...
+
+I just \bcan't\b believe that you...
+
+This \lREALLY\l is a large tiger...
+
+This \Bbold\B text can be either \l\Blarge bold\B\l or \s\Bsmall bold\B\s.
+
+e\Spx + 2\Sp = 9
+
+C\Sb2\SbH\Sb3\SbO\Sb2\Sb should be used in moderation.
+
+See also \kanteater\k.
+
+The DOS prompt said "C:\\windows\\"
+
+The man said \a147Yeah.\a148
+
+Arrows can point \U2190 left or right \U2192.
+
+A Yield sign looks like this: \m="yieldsign.png".
+
+See the \q="#detailedinstructions"Detailed Instructions\q for how to install your eBook.
+
+\Q="detailedinstructions"\bDetailed Instructions\b - This section
+describes how to install an eBook to your handheld device.
+
+Very long words like anti\-dis\-establish\-ment\-arian\-ism may benefit from
+the use of soft hyphens.
+
+The Emerson case\Fn="emerson"[1]\Fn will be very important...
+
+For more information, see the \Sd="moreinfo"sidebar\Sd.
+
+\I\Baardvark\B\I \in.\i a large burrowing nocturnal mammal that feeds especially on termites and ants
+
+
+Footnotes and Sidebars
+----------------------
+
+Footnotes and Sidebars are specified with an XML-like syntax at the end of the
+PML document. For example,
+
+<sidebar id="sidebar1">
+Here's some \itext\i for a sidebar.
+</sidebar>
+
+would specify the sidebar to be displayed when the user taps on a sidebar link
+in the text that was specified using the \Sd tag.
+
+Any text or PML placed after the first footnote or sidebar is ignored as part
+of the book text.
+
+Sidebars and footnotes can include most PML features, but there are some PML
+tags that cannot be used inside of a sidebar or footnote.
+
+These include
+Chapters       \x, \X, \C
+Links       \q, \Q
+Footnotes           \Fn
+Sidebars    \Sd
+
+See the palmsample.txt file for examples of how to use many of the PML tags.
+
+
+Images
+------
+
+The following rules are intended to guarantee that images in your eBook will be
+viewable on all platforms that eReader runs on.
+
+On low-resolution Palm OS handhelds, an image wider than 158 pixels or taller
+than 148 pixels will be represented in the text by a thumbnail that the user
+can tap to view the entire image. Images smaller than 158 x 148 will be
+presented in-line with the text.
+
+On high-resolution Palm OS handhelds (those having screens of 320x320 pixels or
+more), images smaller than 158 by 148 pixels will be pixel-doubled. Images
+larger than 158x148 may be shown in-line with the text, if they will fit on
+the screen.
+
+On non-Palm OS platforms, small images will be scaled up appropriately. Large
+images will be scaled down to fit on the page; in this case the user can tap on
+the image to view the entire image and zoom in or out.
+
+For DropBook to find the image, it must be present in a directory whose name
+matches that of the PML text file. For example, if "pmlsample.txt" contains a
+reference to an image called "intro.png", then there must be a directory called
+"pmlsample_img" that contains intro.png. The directory's name is the name of
+the PML file (without the .txt extension) with "_img" appended.
+
+Images must be in PNG format and cannot be filtered or interlaced. Image depth
+must be 8 bits or less. Any color table may be used for color images.
+
+Image files must be less than or equal to 65505 bytes in size, since they are
+embedded into the .pdb format of the book; Palm database records are limited to
+65505 bytes in length. Since images are compressed, the actual image displayed
+by the reader may be much larger than 64K.
+
+Any or all of these restrictions may eventually be removed.
+
+
+Adding a Title, Cover Art, and Other Meta-information to Your eBook
+-------------------------------------------------------------------
+
+DropBook normally presents a dialog in which the title and other information
+for the eBook may be specified. This information may be embedded in the PML
+file instead.
+
+To specify the eBook title as it will appear in the Open dialog on the
+handheld, place a block of invisible comment text at the beginning of the file
+using \v tags. Inside this comment block, put the string TITLE="My eBook",
+where "My eBook" is replaced with the name of your eBook. It should look
+something like this:
+
+\vTITLE="Palm Sample Document"\v
+
+You can also specify the author using the AUTHOR meta-tag, the publisher with
+PUBLISHER, copyright information with COPYRIGHT, and the eBook ISBN with EISBN.
+A fully-specified set of meta-information might appear in PML as:
+
+\vTITLE="Palm Sample Document" AUTHOR="Sam Morgenstern" PUBLISHER="eReader.com"
+EISBN="X-XXXX-XXXX" COPYRIGHT="Copyright \a169 2004 by Sam Morgenstern"\v
+
+Cover art: If an image named "cover.png" is present in the eBook, it is assumed
+to be the cover art for the eBook. See the rules for images for sizing and
+other information.
+
+Some or all of this information may appear in the book information dialog in
+eReader, and may be used for other purposes in future products.
+
+
+Creating Dictionaries
+---------------------
+
+The \I PML tag is used to delimit an index item. Example: \Iaardvark\I
+
+Each entry must start in the normal font. If DropBook shows an error beginning
+with "No styles permitted before...", there is probably a missing end style tag
+before the text shown in the error message.
+
+Links, chapters and other PML structures are not permitted in dictionaries.
+Images, however, are.
+
+A special dictionary entry, "(Front matter)" is shown before other entries in
+the list of entries, and should be used to include pronunciation symbols and
+other front matter.
+
+Note that use of dictionaries requires eReader Pro.
+
+
+Tips and Pitfalls
+-----------------
+
+This page explains some common mistakes, some bugs in DropBook and/or the
+eReader, and some techniques that will allow you to create quality electronic
+books for the eReader.
+
+    * Check out the Converting to Palm eBooks page for some pointers on
+      converting text from various formats into the Palm Markup Language.
+    * Use a return at the end of each paragraph, not each line.
+    * Using an extra return between paragraphs reads easier than paragraph
+      indentation.
+    * The eReader doesn't display empty lines at the top of a page. If you need
+      to have some "empty" lines at the top of a page, put a space on each line.
+    * Don't use tables if you can possibly avoid it.
+
+      None of the fonts that the eReader supports are monospaced, so tables can
+      be difficult to represent. Break out the information in another way, or
+      use the \T tag, but beware of tables that look great on a Palm OS
+      handheld but not on a Pocket PC or vice versa.
+
+    * The Reader breaks lines on spaces, dashes or underscores. This has
+      several implications.
+
+         1. Don't fill more than a line with spaces, dashes or underscores.
+            There's a bug (which will be fixed in a future release) which
+            causes MakeBook to hang on such a line. Note that in the large
+            font, the number of spaces, dashes or underscores will be much
+            smaller than in the small font.
+         2. A string such as He shouted "Wait!--" may place the last quote on
+            the beginning of a line, since the line would break after the
+            second dash. Prevent this by using the PML string: He shouted
+            "Wait!\a150\a150". The non-breaking dash, code 150, will not break
+            a line. Use \a160 for a non-breaking space. Even better: use \a151,
+            a long dash, instead of two short dashes.
+
+    * The justification codes \c and \r (center and right justification) must
+      have closing codes on the beginning of the line following the justified
+      text.
+    * The indentation tag \t must have a closing tag at the end of a line of
+      the indented text.
+    * Use \s (small font) in the title page(s) of books to force the page(s) to
+      format nicely. Other than that, \n, \s and \l should rarely be necessary;
+      the font size used for most text display should be chosen by the user.
+
+
+Converting Uncommon Characters to PML
+-------------------------------------
+
+Use this chart to convert uncommon characters to their Palm Markup Language
+(PML) equivalent. Most characters are simply represented as themselves in PML
+and don't require this chart. But some uncommon characters can only be
+represented in PML by their "\aXXX" syntax. Use this chart to look up that
+"\aXXX" syntax.
+
+For Example, if you wanted to write the following phrase in PML:
+
+    Copyright © 1999 by Samuel Morgenstern
+
+In PML, you would write it as:
+
+    Copyright \a169 1999 by Samuel Morgenstern
+
+Char    HTML # Code HTML Char Code  PML Char Code  Description
+
+        &#32;       -               Normal space
+!       &#33;       -       !       Exclamation
+"       &#34;       &quot;  "       Double quote
+#       &#35;       -       #       Hash
+$       &#36;       -       $       Dollar
+%       &#37;       -       %       Percent
+&       &#38;       &amp;   &       Ampersand
+'       &#39;       -       '       Apostrophe
+(       &#40;       -       (       Open bracket
+)       &#41;       -       )       Close bracket
+*       &#42;       -       *       Asterisk
++       &#43;       -       +       Plus sign
+,       &#44;       -       ,       Comma
+-       &#45;       -       -       Minus sign
+.       &#46;       -       .       Period
+/       &#47;       -       /       Forward slash
+0       &#48;       -       0       Digit 0
+1       &#49;       -       1       Digit 1
+2       &#50;       -       2       Digit 2
+3       &#51;       -       3       Digit 3
+4       &#52;       -       4       Digit 4
+5       &#53;       -       5       Digit 5
+6       &#54;       -       6       Digit 6
+7       &#55;       -       7       Digit 7
+8       &#56;       -       8       Digit 8
+9       &#57;       -       9       Digit 9
+:       &#58;       -       :       Colon
+;       &#59;       -       ;       Semicolon
+        &#60;       &lt;    <       Less than
+=       &#61;       -       =       Equals
+        &#62;       &gt;    >       Greater than
+?       &#63;       -       ?       Question mark
+@       &#64;       -       @       At sign
+A       &#65;       -       A       A
+B       &#66;       -       B       B
+C       &#67;       -       C       C
+D       &#68;       -       D       D
+E       &#69;       -       E       E
+F       &#70;       -       F       F
+G       &#71;       -       G       G
+H       &#72;       -       H       H
+I       &#73;       -       I       I
+J       &#74;       -       J       J
+K       &#75;       -       K       K
+L       &#76;       -       L       L
+M       &#77;       -       M       M
+N       &#78;       -       N       N
+O       &#79;       -       O       O
+P       &#80;       -       P       P
+Q       &#81;       -       Q       Q
+R       &#82;       -       R       R
+S       &#83;       -       S       S
+T       &#84;       -       T       T
+U       &#85;       -       U       U
+V       &#86;       -       V       V
+W       &#87;       -       W       W
+X       &#88;       -       X       X
+Y       &#89;       -       Y       Y
+Z       &#90;       -       Z       Z
+[       &#91;       -       [       Open square bracket
+\       &#92;       -       \\       Backslash
+]       &#93;       -       ]       Close square bracket
+^       &#94;       -       ^       Caret
+_       &#95;       -       _       Underscore
+`       &#96;       -       `       Grave accent
+a       &#97;       -       a       a
+b       &#98;       -       b       b
+c       &#99;       -       c       c
+d       &#100;       -       d       d
+e       &#101;       -       e       e
+f       &#102;       -       f       f
+g       &#103;       -       g       g
+h       &#104;       -       h       h
+i       &#105;       -       i       i
+j       &#106;       -       j       j
+k       &#107;       -       k       k
+l       &#108;       -       l       l
+m       &#109;       -       m       m
+n       &#110;       -       n       n
+o       &#111;       -       o       o
+p       &#112;       -       p       p
+q       &#113;       -       q       q
+r       &#114;       -       r       r
+s       &#115;       -       s       s
+t       &#116;       -       t       t
+u       &#117;       -       u       u
+v       &#118;       -       v       v
+w       &#119;       -       w       w
+x       &#120;       -       x       x
+y       &#121;       -       y       y
+z       &#122;       -       z       z
+{       &#123;       -       {       Left brace
+|       &#124;       -       |       Vertical bar
+}       &#125;       -       }       Right brace
+~       &#126;       -       ~       Tilde
+
+        &#160;       &nbsp;     \a160       Non-breaking space
+        &#161;       &iexcl;    \a161       Inverted exclamation
+        &#162;       &cent;     \a162       Cent sign
+        &#163;       &pound;    \a163       Pound sign
+        &#164;       &curren;   \a164       Currency sign
+        &#165;       &yen;      \a165       Yen sign
+        &#166;       &brvbar;   \a166       Broken bar
+        &#167;       &sect;     \a167       Section sign
+        &#168;       &uml;      \a168       Umlaut or diaeresis
+        &#169;       &copy;     \a169       Copyright sign
+        &#170;       &ordf;     \a170       Feminine ordinal
+        &#171;       &laquo;    \a171       Left angle quotes
+        &#172;       &not;      \a172       Logical not sign
+        &#173;       &shy;      \a173       Soft hyphen
+        &#174;       &reg;      \a174       Registered trademark
+        &#175;       &macr;     \a175       Spacing macron
+        &#176;       &deg;      \a176       Degree sign
+        &#177;       &plusmn;   \a177       Plus-minus sign
+        &#178;       &sup2;     \a178       Superscript 2
+        &#179;       &sup3;     \a179       Superscript 3
+        &#180;       &acute;    \a180       Spacing acute
+        &#181;       &micro;    \a181       Micro sign
+        &#182;       &para;     \a182       Paragraph sign
+        &#183;       &middot;   \a183       Middle dot
+        &#184;       &cedil;    \a184       Spacing cedilla
+        &#185;       &sup1;     \a185       Superscript 1
+        &#186;       &ordm;     \a186       Masculine ordinal
+        &#187;       &raquo;    \a187       Right angle quotes
+        &#188;       &frac14;   \a188       One quarter
+        &#189;       &frac12;   \a189       One half
+        &#190;       &frac34;   \a190       Three quarters
+        &#191;       &iquest;   \a191       Inverted question mark
+        &#192;       &Agrave;   \a192       A grave
+        &#193;       &Aacute;   \a193       A acute
+        &#194;       &Acirc;    \a194       A circumflex
+        &#195;       &Atilde;   \a195       A tilde
+        &#196;       &Auml;     \a196       A diaeresis
+        &#197;       &Aring;    \a197       A ring
+        &#198;       &Aelig;    \a198       AE ligature
+        &#199;       &Ccedil;   \a199       C cedilla
+        &#200;       &Egrave;   \a200       E grave
+        &#201;       &Eacute;   \a201       E acute
+        &#202;       &Ecirc;    \a202       E circumflex
+        &#203;       &Euml;     \a203       E diaeresis
+        &#204;       &Igrave;   \a204       I grave
+        &#205;       &Iacute;   \a205       I acute
+        &#206;       &Icirc;    \a206       I circumflex
+        &#207;       &Iuml;     \a207       I diaeresis
+        &#208;       &ETH;      \a208       Eth
+        &#209;       &Ntilde;   \a209       N tilde
+        &#210;       &Ograve;   \a210       O grave
+        &#211;       &Oacute;   \a211       O acute
+        &#212;       &Ocirc;    \a212       O circumflex
+        &#213;       &Otilde;   \a213       O tilde
+        &#214;       &Ouml;     \a214       O diaeresis
+        &#215;       &times;    \a215       Multiplication sign
+        &#216;       &Oslash;   \a216       O slash
+        &#217;       &Ugrave;   \a217       U grave
+        &#218;       &Uacute;   \a218       U acute
+        &#219;       &Ucirc;    \a219       U circumflex
+        &#220;       &Uuml;     \a220       U diaeresis
+        &#221;       &Yacute;   \a221       Y acute
+        &#222;       &THORN;    \a222       THORN
+        &#223;       &szlig;    \a223       sharp s
+        &#224;       &agrave;   \a224       a grave
+        &#225;       &aacute;   \a225       a acute
+        &#226;       &acirc;    \a226       a circumflex
+        &#227;       &atilde;   \a227       a tilde
+        &#228;       &auml;     \a228       a diaeresis
+        &#229;       &aring;    \a229       a ring
+        &#230;       &aelig;    \a230       ae ligature
+        &#231;       &ccedil;   \a231       c cedilla
+        &#232;       &egrave;   \a232       e grave
+        &#233;       &eacute;   \a233       e acute
+        &#234;       &ecirc;    \a234       e circumflex
+        &#235;       &euml;     \a235       e diaeresis
+        &#236;       &igrave;   \a236       i grave
+        &#237;       &iacute;   \a237       i acute
+        &#238;       &icirc;    \a238       i circumflex
+        &#239;       &iuml;     \a239       i diaeresis
+        &#240;       &eth;      \a240       eth
+        &#241;       &ntilde;   \a241       n tilde
+        &#242;       &ograve;   \a242       o grave
+        &#243;       &oacute;   \a243       o acute
+        &#244;       &ocirc;    \a244       o circumflex
+        &#245;       &otilde;   \a245       o tilde
+        &#246;       &ouml;     \a246       o diaeresis
+        &#247;       &divide;   \a247       division sign
+        &#248;       &oslash;   \a248       o slash
+        &#249;       &ugrave;   \a249       u grave
+        &#250;       &uacute;   \a250       u acute
+        &#251;       &ucirc;    \a251       u circumflex
+        &#252;       &uuml;     \a252       u diaeresis
+        &#253;       &yacute;   \a253       y acute
+        &#254;       &thorn;    \a254       thorn
+        &#255;       &yuml;     \a255       y diaeresis
+,       &#8218;      &sbquo;    \a130       single low quote
+        &#402;       &fnof;     \a131       Scripted f
+        &#8222;      &bdquo;    \a132       low quote
+        &#8230;      &hellip;   \a133       Ellipsis
+        &#8224;      &dagger;   \a134       Dagger
+        &#8225;      &Dagger    \a135       Double dagger
+        &#352;       &Scaron;   \a138       Large S w/inverted caret
+<       &#8249;      &lsaquo;   \a139       single left angle quote
+        &#338;       &OElig;    \a140       Large combined oe
+        &#8216;      &lsquo;    \a145       Open single smart quote
+        &#8217;      &rsquo;    \a146       Close single smart quote
+        &#8220;      &ldquo;    \a147       Open double smart quote
+        &#8221;      &rdquo;    \a148       Close double smart quote
+        &#8226;      &bull;     \a149       Bullet
+        &#8211;      &ndash;    \a150       Small dash (en dash)
+        &#8212;      &mdash;    \a151       Large dash (em dash)
+        &#8482;      &trade;    \a153       Trademark
+        &#353;       &scaron;   \a154       Small S w/inverted caret
+>       &#8250;      &rsaquo;   \a155       single right angle quote
+        &#339;       &oelig;    \a156       Small combined oe
+        &#376;       &Yuml;     \a159       Large Y with diaeresis
+
+
+Extended Character Set
+----------------------
+
+In addition to the special characters supported by earlier versions of eReader
+(which can be accessed using the \a### tag), all versions of eReader Pro and
+eReader version 2.4 and later include support for additional special characters
+and symbols. These symbols can be accessed using the \U#### tag, where #### are
+four hexidecimal digits giving the Unicode encoding of the special character.
+
+Only the limited subset of Unicode characters given in the table below are
+supported. In addition, some of the characters that are included in the table
+are not present in eReader Pro versions prior to 2.4. To ensure that the
+characters are displayed correctly, books using these tags should be read using
+eReader or eReader Pro version 2.4 or later.
+
+On Palm OS handhelds these special symbols are only available in one size,
+matching the "Small" font. For best results on Palm OS handhelds the \U tag
+should only be used inside blocks set to the "Small" font by way of \s tags.
+On Palm OS handhelds these special characters are not affected by the font tags
+(\s, \l, \b and \n), the bold style tag (\B), or the small caps style tag (\k).
+
+If the \U characters are not showing up correctly using eReader on your Windows
+desktop or laptop this problem is a result of the fonts for eReader not being
+installed properly. The solution is to go to the directory C:\Windows\Fonts\
+and "double click" on each font that starts with "Maynard". This will open each
+font and allow the system to register it. Close the windows that were opened a
+result of the mouse clicks and the problem should be resolved.
+
+Char     HTML Code     PML Code     Description
+
+Latin Extended-A
+Ā     &#256;     \U0100     LATIN CAPITAL LETTER A WITH MACRON
+ā     &#257;     \U0101     LATIN SMALL LETTER A WITH MACRON
+Ă     &#258;     \U0102     LATIN CAPITAL LETTER A WITH BREVE
+ă     &#259;     \U0103     LATIN SMALL LETTER A WITH BREVE
+ą     &#261;     \U0105     LATIN SMALL LETTER A WITH OGONEK
+ć     &#263;     \U0107     LATIN SMALL LETTER C WITH ACUTE
+Č     &#268;     \U010C     LATIN CAPITAL LETTER C WITH CARON
+č     &#269;     \U010D     LATIN SMALL LETTER C WITH CARON
+Ē     &#274;     \U0112     LATIN CAPITAL LETTER E WITH MACRON
+ē     &#275;     \U0113     LATIN SMALL LETTER E WITH MACRON
+ĕ     &#277;     \U0115     LATIN SMALL LETTER E WITH BREVE
+ė     &#279;     \U0117     LATIN SMALL LETTER E WITH DOT ABOVE
+ę     &#281;     \U0119     LATIN SMALL LETTER E WITH OGONEK
+ě     &#283;     \U011B     LATIN SMALL LETTER E WITH CARON
+ĝ     &#285;     \U011D     LATIN SMALL LETTER G WITH CIRCUMFLEX
+ğ     &#287;     \U011F     LATIN SMALL LETTER G WITH BREVE
+Ī     &#298;     \U012A     LATIN CAPITAL LETTER I WITH MACRON
+ī     &#299;     \U012B     LATIN SMALL LETTER I WITH MACRON
+ĭ     &#301;     \U012D     LATIN SMALL LETTER I WITH BREVE
+į     &#303;     \U012F     LATIN SMALL LETTER I WITH OGONEK
+ı     &#305;     \U0131     LATIN SMALL LETTER DOTLESS I
+Ł     &#321;     \U0141     LATIN CAPITAL LETTER L WITH STROKE
+ł     &#322;     \U0142     LATIN SMALL LETTER L WITH STROKE
+ń     &#324;     \U0144     LATIN SMALL LETTER N WITH ACUTE
+ň     &#328;     \U0148     LATIN SMALL LETTER N WITH CARON
+ŋ     &#331;     \U014B     LATIN SMALL LETTER ENG
+Ō     &#332;     \U014C     LATIN CAPITAL LETTER O WITH MACRON
+ō     &#333;     \U014D     LATIN SMALL LETTER O WITH MACRON
+ŏ     &#335;     \U014F     LATIN SMALL LETTER O WITH BREVE
+ő     &#337;     \U0151     LATIN SMALL LETTER O WITH DOUBLE ACUTE
+ŕ     &#341;     \U0155     LATIN SMALL LETTER R WITH ACUTE
+ř     &#345;     \U0159     LATIN SMALL LETTER R WITH CARON
+Ś     &#346;     \U015A     LATIN CAPITAL LETTER S WITH ACUTE
+ś     &#347;     \U015B     LATIN SMALL LETTER S WITH ACUTE
+ş     &#351;     \U015F     LATIN SMALL LETTER S WITH CEDILLA
+ţ     &#355;     \U0163     LATIN SMALL LETTER T WITH CEDILLA
+ũ     &#361;     \U0169     LATIN SMALL LETTER U WITH TILDE
+ū     &#363;     \U016B     LATIN SMALL LETTER U WITH MACRON
+ŭ     &#365;     \U016D     LATIN SMALL LETTER U WITH BREVE
+ŷ     &#375;     \U0177     LATIN SMALL LETTER Y WITH CIRCUMFLEX
+ź     &#378;     \U017A     LATIN SMALL LETTER Z WITH ACUTE
+Ž     &#381;     \U017D     LATIN CAPITAL LETTER Z WITH CARON
+ž     &#382;     \U017E     LATIN SMALL LETTER Z WITH CARON
+Latin Extended-B
+    &#447;     \U01BF     LATIN LETTER WYNN
+    &#462;     \U01CE     LATIN SMALL LETTER A WITH CARON
+    &#464;     \U01D0     LATIN SMALL LETTER I WITH CARON
+    &#466;     \U01D2     LATIN SMALL LETTER O WITH CARON
+    &#468;     \U01D4     LATIN SMALL LETTER U WITH CARON
+    &#481;     \U01E1     LATIN SMALL LETTER A WITH DOT ABOVE AND MACRON
+    &#483;     \U01E3     LATIN SMALL LETTER AE WITH MACRON
+    &#487;     \U01E7     LATIN SMALL LETTER G WITH CARON
+    &#491;     \U01EB     LATIN SMALL LETTER O WITH OGONEK
+    &#496;     \U01F0     LATIN SMALL LETTER J WITH CARON
+    &#519;     \U0207     LATIN SMALL LETTER E WITH INVERTED BREVE
+    &#541;     \U021D     LATIN SMALL LETTER YOGH
+    &#551;     \U0227     LATIN SMALL LETTER A WITH DOT ABOVE
+    &#559;     \U022F     LATIN SMALL LETTER O WITH DOT ABOVE
+    &#563;     \U0233     LATIN SMALL LETTER Y WITH MACRON
+IPA Extensions
+    &#593;     \U0251     LATIN SMALL LETTER SCRIPT A
+    &#594;     \U0252     LATIN SMALL LETTER TURNED SCRIPT A
+    &#596;     \U0254     LATIN SMALL LETTER OPEN O
+    &#601;     \U0259     LATIN SMALL LETTER SCHWA
+    &#604;     \U025C     LATIN SMALL LETTER REVERSED OPEN E
+    &#613;     \U0265     LATIN LETTER SMALL LETTER TURNED H
+    &#618;     \U026A     LATIN LETTER SMALL CAPITAL I
+    &#626;     \U0272     LATIN SMALL LETTER N WITH LEFT HOOK
+    &#643;     \U0283     LATIN SMALL LETTER ESH
+    &#649;     \U0289     LATIN SMALL LETTER U BAR
+    &#650;     \U028A     LATIN SMALL LETTER UPSILON
+    &#652;     \U028C     LATIN SMALL LETTER TURNED V
+    &#655;     \U028F     LATIN LETTER SMALL CAPITAL Y
+    &#658;     \U0292     LATIN SMALL LETTER EZH
+    &#660;     \U0294     LATIN LETTER GLOTTAL STOP
+    &#668;     \U029C     LATIN LETTER SMALL CAPITAL H
+Spacing Modifier Letters
+    &#702;     \U02BE     MODIFIER LETTER RIGHT HALF RING
+    &#703;     \U02BF     MODIFIER LETTER LEFT HALF RING
+ˇ   &#711;     \U02C7     CARON
+    &#712;     \U02C8     MODIFIER LETTER VERTICAL LINE
+    &#716;     \U02CC     MODIFIER LETTER LOW VERTICAL LINE
+    &#720;     \U02D0     MODIFIER LETTER TRIANGULAR COLON
+˘   &#728;     \U02D8     BREVE
+˙   &#729;     \U02D9     DOT ABOVE
+Greek and Coptic
+Α     &#913;     \U0391     GREEK CAPTIAL LETTER ALPHA
+Β     &#914;     \U0392     GREEK CAPTIAL LETTER BETA
+Γ     &#915;     \U0393     GREEK CAPTIAL LETTER GAMMA
+Δ     &#917;     \U0394     GREEK CAPTIAL LETTER DELTA
+Ε     &#917;     \U0395     GREEK CAPTIAL LETTER EPSILON
+Ζ     &#918;     \U0396     GREEK CAPTIAL LETTER ZETA
+Η     &#919;     \U0397     GREEK CAPTIAL LETTER ETA
+Θ     &#920;     \U0398     GREEK CAPTIAL LETTER THETA
+Ι     &#921;     \U0399     GREEK CAPTIAL LETTER IOTA
+Κ     &#922;     \U039A     GREEK CAPTIAL LETTER KAPPA
+Λ     &#923;     \U039B     GREEK CAPTIAL LETTER LAMBDA
+Μ     &#924;     \U039C     GREEK CAPTIAL LETTER MU
+Ν     &#925;     \U039D     GREEK CAPTIAL LETTER NU
+Ξ     &#926;     \U039E     GREEK CAPTIAL LETTER XI
+Ο     &#927;     \U039F     GREEK CAPTIAL LETTER OMICRON
+Π     &#928;     \U03A0     GREEK CAPTIAL LETTER PI
+Ρ     &#929;     \U03A1     GREEK CAPTIAL LETTER RHO
+Σ     &#931;     \U03A3     GREEK CAPTIAL LETTER SIGMA
+Τ     &#932;     \U03A4     GREEK CAPTIAL LETTER TAU
+Υ     &#933;     \U03A5     GREEK CAPTIAL LETTER UPSILON
+Φ     &#934;     \U03A6     GREEK CAPTIAL LETTER PHI
+Χ     &#935;     \U03A7     GREEK CAPTIAL LETTER CHI
+Ψ     &#936;     \U03A8     GREEK CAPTIAL LETTER PSI
+Ω     &#937;     \U03A9     GREEK CAPTIAL LETTER OMEGA
+α     &#945;     \U03B1     GREEK SMALL LETTER ALPHA
+β     &#946;     \U03B2     GREEK SMALL LETTER BETA
+γ     &#947;     \U03B3     GREEK SMALL LETTER GAMMA
+δ     &#948;     \U03B4     GREEK SMALL LETTER DELTA
+ε     &#949;     \U03B5     GREEK SMALL LETTER EPSILON
+ζ     &#950;     \U03B6     GREEK SMALL LETTER ZETA
+η     &#951;     \U03B7     GREEK SMALL LETTER ETA
+θ     &#952;     \U03B8     GREEK SMALL LETTER THETA
+ι     &#953;     \U03B9     GREEK SMALL LETTER IOTA
+κ     &#954;     \U03BA     GREEK SMALL LETTER KAPPA
+λ     &#955;     \U03BB     GREEK SMALL LETTER LAMBDA
+μ     &#956;     \U03BC     GREEK SMALL LETTER MU
+ν     &#957;     \U03BD     GREEK SMALL LETTER NU
+ξ     &#958;     \U03BE     GREEK SMALL LETTER XI
+ο     &#959;     \U03BF     GREEK SMALL LETTER OMICRON
+π     &#960;     \U03C0     GREEK SMALL LETTER PI
+ρ     &#961;     \U03C1     GREEK SMALL LETTER RHO
+ς     &#962;     \U03C2     GREEK SMALL LETTER FINAL SIGMA
+σ     &#963;     \U03C3     GREEK SMALL LETTER SIGMA
+τ     &#964;     \U03C4     GREEK SMALL LETTER TAU
+υ     &#965;     \U03C5     GREEK SMALL LETTER UPSILON
+φ     &#966;     \U03C6     GREEK SMALL LETTER PHI
+χ     &#967;     \U03C7     GREEK SMALL LETTER CHI
+ψ     &#968;     \U03C8     GREEK SMALL LETTER PSI
+ω     &#969;     \U03C9     GREEK SMALL LETTER OMEGA
+      &#977;     \U03D1     GREEK THETA SYMBOL
+      &#989;     \U03DD     GREEK SMALL LETTER DIGAMMA
+Hebrew
+א     &#1488;     \U05D0     HEBREW LETTER ALEPH
+ב     &#1489;     \U05D1     HEBREW LETTER BET
+ג     &#1490;     \U05D2     HEBREW LETTER GIMEL
+ד     &#1491;     \U05D3     HEBREW LETTER DALET
+ה     &#1492;     \U05D4     HEBREW LETTER HE
+ו     &#1493;     \U05D5     HEBREW LETTER VAV
+ז     &#1494;     \U05D6     HEBREW LETTER ZAYIN
+ח     &#1495;     \U05D7     HEBREW LETTER HET
+ט     &#1496;     \U05D8     HEBREW LETTER TET
+י     &#1497;     \U05D9     HEBREW LETTER YOD
+ך     &#1498;     \U05DA     HEBREW LETTER FINAL KAF
+כ     &#1499;     \U05DB     HEBREW LETTER KAF
+ל     &#1500;     \U05DC     HEBREW LETTER LAMED
+ם     &#1501;     \U05DD     HEBREW LETTER FINAL MEM
+מ     &#1502;     \U05DE     HEBREW LETTER MEM
+ן     &#1503;     \U05DF     HEBREW LETTER FINAL NUN
+נ     &#1504;     \U05E0     HEBREW LETTER NUN
+ס     &#1505;     \U05E1     HEBREW LETTER SAMEKH
+ע     &#1506;     \U05E2     HEBREW LETTER AYIN
+ף     &#1507;     \U05E3     HEBREW LETTER FINAL PE
+פ     &#1508;     \U05E4     HEBREW LETTER PE
+ץ     &#1509;     \U05E5     HEBREW LETTER FINAL TSADI
+צ     &#1510;     \U05E6     HEBREW LETTER TSADI
+ק     &#1511;     \U05E7     HEBREW LETTER QOF
+ר     &#1512;     \U05E8     HEBREW LETTER RESH
+ת     &#1514;     \U05EA     HEBREW LETTER TAV
+Latin Extended Additional
+    &#7691;     \U1E0B     LATIN SMALL LETTER D WITH DOT ABOVE
+    &#7693;     \U1E0D     LATIN SMALL LETTER D WITH DOT BELOW
+    &#7703;     \U1E17     LATIN SMALL LETTER E WITH MACRON AND ACUTE
+    &#7714;     \U1E22     LATIN CAPITAL LETTER H WITH DOT ABOVE
+    &#7716;     \U1E24     LATIN CAPITAL LETTER H WITH DOT BELOW
+    &#7717;     \U1E25     LATIN SMALL LETTER H WITH DOT BELOW
+    &#7723;     \U1E2B     LATIN SMALL LETTER H WITH BREVE BELOW
+    &#7731;     \U1E33     LATIN SMALL LETTER K WITH DOT BELOW
+    &#7735;     \U1E37     LATIN SMALL LETTER L WITH DOT BELOW
+    &#7745;     \U1E41     LATIN SMALL LETTER M WITH DOT ABOVE
+    &#7747;     \U1E43     LATIN SMALL LETTER M WITH DOT BELOW
+    &#7749;     \U1E45     LATIN SMALL LETTER N WITH DOT ABOVE
+    &#7751;     \U1E47     LATIN SMALL LETTER N WITH DOT BELOW
+    &#7763;     \U1E53     LATIN SMALL LETTER O WITH MACRON AND ACUTE
+    &#7769;     \U1E59     LATIN SMALL LETTER R WITH DOT ABOVE
+    &#7770;     \U1E5A     LATIN CAPITAL LETTER R WITH DOT BELOW
+    &#7771;     \U1E5B     LATIN SMALL LETTER R WITH DOT BELOW
+    &#7777;     \U1E61     LATIN SMALL LETTER S WITH DOT ABOVE
+    &#7779;     \U1E63     LATIN SMALL LETTER S WITH DOT BELOW
+    &#7787;     \U1E6B     LATIN SMALL LETTER T WITH DOT ABOVE
+    &#7789;     \U1E6D     LATIN SMALL LETTER T WITH DOT BELOW
+    &#7791;     \U1E6F     LATIN SMALL LETTER T WITH LINE BELOW
+    &#7825;     \U1E91     LATIN SMALL LETTER Z WITH CIRCUMFLEX
+    &#7827;     \U1E93     LATIN SMALL LETTER Z WITH DOT BELOW
+    &#7830;     \U1E96     LATIN SMALL LETTER H WITH LINE BELOW
+    &#7841;     \U1EA1     LATIN SMALL LETTER A WITH DOT BELOW
+    &#7885;     \U1ECD     LATIN SMALL LETTER O WITH DOT BELOW
+    &#7929;     \U1EF9     LATIN SMALL LETTER Y WITH TILDE
+General Punctuation
+-   &#8209;     \U2011     NON-BREAKING HYPHEN
+    &#8248;     \U2038     CARET
+    &#8253;     \U203D     INTERROBANG
+    &#8258;     \U2042     ASTERISM
+Arrows
+←   &#8592;     \U2190     LEFTWARDS ARROW
+→   &#8594;     \U2192     RIGHTWARDS ARROW
+Mathematical Operators
+∂   &#8706;     \U2202     PARTIAL DIFFERENTIAL
+√   &#8730;     \U221A     SQUARE ROOT
+∞   &#8734;     \U221E     INFINITY
+∥   &#8741;     \U2225     PARALLEL TO
+∫   &#8747;     \U222B     INTEGRAL
+≠   &#8800;     \U2260     NOT EQUAL TO
+    &#8852;     \U2294     SQUARE CUP
+    &#8853;     \U2295     CIRCLED PLUS
+    &#8942;     \U22EE     VERTICAL ELLIPSIS
+Enclosed Alphanumerics
+    &#9418;     \U24CA     CIRCLED LATIN CAPITAL LETTER U
+Miscellaneous Symbols
+☜   &#9756;     \U261C     WHITE LEFT POINTING INDEX
+☞   &#9758;     \U261E     WHITE RIGHT POINTING INDEX
+    &#9791;     \U263F     MERCURY
+    &#9792;     \U2640     FEMALE SIGN
+    &#9794;     \U2642     MALE SIGN
+    &#9795;     \U2643     JUPITER
+    &#9796;     \U2644     SATURN
+    &#9797;     \U2645     URANUS
+    &#9798;     \U2646     NEPTUNE
+    &#9799;     \U2647     PLUTO
+    &#9824;     \U2660     BLACK SPADE SUIT
+    &#9825;     \U2661     WHITE HEART SUIT
+    &#9826;     \U2662     WHITE DIAMOND SUIT
+    &#9827;     \U2663     BLACK CLUB SUIT
+    &#9837;     \U266D     MUSIC FLAT SIGN
+    &#9838;     \U266E     MUSIC NATURAL SIGN
+    &#9839;     \U266F     MUSIC SHARP SIGN
+Dingbats
+    &#10003;     \U2713     CHECK MARK
+    &#10016;     \U2720     MALTESE CROSS
+Private Use Area
+    -     \UE000     LATIN SMALL LETTER A WITH MACRON AND ACUTE
+    -     \UE001     LATIN SMALL LETTER A WITH MACRON AND TILDE
+    -     \UE002     LATIN SMALL LETTER A WITH VERTICAL LINE ABOVE
+    -     \UE003     LATIN CAPITAL LETTER C WITH MACRON
+    -     \UE004     LATIN SMALL LETTER C WITH MACRON
+    -     \UE005     LATIN SMALL LETTER C WITH BREVE
+    -     \UE006     LATIN SMALL LETTER C WITH DOT BELOW
+    -     \UE007     LATIN SMALL LIGATURE CH
+    -     \UE008     LATIN CAPITAL LETTER D WITH MACRON
+    -     \UE009     LATIN SMALL LETTER E WITH BAR BELOW
+    -     \UE00A     LATIN SMALL LETTER E WITH TILDE
+    -     \UE00B     LATIN SMALL LETTER E WITH MACRON AND BREVE
+    -     \UE00C     LATIN SMALL LETTER E WITH TILDE AND DOT ABOVE
+    -     \UE00D     LATIN SMALL LETTER E WITH HOOK RIGHT BELOW
+    -     \UE00E     LATIN SMALL LETTER G WITH INVERTED BREVE
+    -     \UE00F     LATIN SMALL LETTER I WITH INVERTED BREVE BELOW
+    -     \UE010     LATIN SMALL LETTER I WITH MACRON AND ACUTE
+    -     \UE011     LATIN SMALL LETTER K WITH CIRCUMFLEX
+    -     \UE012     LATIN SMALL LETTER K WITH BREVE
+    -     \UE013     LATIN SMALL LETTER K WITH INVERTED BREVE
+    -     \UE014     LATIN SMALL LIGATURE KH
+    -     \UE015     LATIN CAPITAL LETTER L WITH MACRON
+    -     \UE016     LATIN SMALL LETTER L WITH TILDE
+    -     \UE017     LATIN SMALL LETTER L WITH INVERTED BREVE
+    -     \UE018     LATIN CAPITAL LETTER M WITH MACRON
+    -     \UE019     LATIN SMALL LETTER M WITH MACRON
+    -     \UE01A     LATIN SMALL LETTER M WITH TILDE
+    -     \UE01B     LATIN SMALL LETTER O WITH CEDILLA
+    -     \UE01C     LATIN SMALL LETTER O WITH MACRON AND CIRUMFLEX
+    -     \UE01E     LATIN SMALL LIGATURE OI
+    -     \UE01F     LATIN SMALL LIGATURE OO
+    -     \UE020     LATIN SMALL LIGATURE OO WITH MACRON
+    -     \UE021     LATIN SMALL LIGATURE OU
+    -     \UE022     LATIN SMALL LETTER OPEN O WITH ACUTE
+    -     \UE023     LATIN SMALL LETTER R WITH DIARESIS
+    -     \UE024     LATIN SMALL LETTER R WITH CIRCUMFLEX
+    -     \UE025     LATIN SMALL LETTER R WITH RING BELOW
+    -     \UE026     LATIN SMALL LETTER S WITH VERTICAL LINE ABOVE
+    -     \UE027     LATIN SMALL LETTER S WITH OGONEK
+    -     \UE028     LATIN SMALL LETTER S WITH COMMA
+    -     \UE02A     LATIN SMALL LETTER S WITH BREVE
+    -     \UE02B     LATIN SMALL LIGATURE SH
+    -     \UE02C     LATIN SMALL LIGATURE TH
+    -     \UE02D     LATIN SMALL LETTER U WITH MACRON AND ACUTE
+    -     \UE02E     LATIN CAPITAL LETTER V WITH MACRON
+    -     \UE02F     LATIN CAPITAL LETTER X WITH MACRON
+    -     \UE030     LATIN SMALL LETTER X WITH CIRCUMFLEX
+    -     \UE031     LATIN SMALL LETTER Y WITH BREVE
+    -     \UE032     LATIN SMALL LIGATURE ZH
+    -     \UE033     LATIN SMALL LETTER TURNED E WITH ACUTE
+    -     \UE034     LATIN SMALL LETTER TURNED E WITH CIRCUMFLEX
+    -     \UE035     GREEK SMALL LETTER ALPHA WITH GRAVE
+    -     \UE036     MUSICAL SYMBOL SEGNO
+    -     \UE037     MUSICAL SYMBOL FERMATA
+    -     \UE038     MUSICAL SYMBOL CRESCENDO
+    -     \UE039     MUSICAL SYMBOL DECRESCENDO
+    -     \UE03A     MUSICAL SYMBOL DOUBLE SHARP
+    -     \UE03B     MUSICAL SYMBOL BREVE
+    -     \UE03C     MUSICAL SYMBOL DOWN BOW
+    -     \UE03D     MUSICAL SYMBOL UP BOW
+    -     \UE03E     MUSICAL SYMBOL BREVE ALTERNATE
+    -     \UE03F     PRINTING SYMBOL DELE
+    -     \UE040     PRINTING SYMBOL FRACTIONAL EM
+    -     \UE041     INVERTED ASTERISM
+    -     \UE042     LATIN SMALL LETTER SCHWA SUPERSCRIPT
+    -     \UE043     LATIN SMALL LETTER TURNED Y
+    -     \UE044     LATIN SMALL LIGATURE OE WITH MACRON
+    -     \UE045     SQUARE ROOT WITH BAR
+    -     \UE046     LATIN SMALL LETTER U WITH DOT ABOVE
+    -     \UE047     LATIN SMALL LIGATURE UE
+    -     \UE048     LATIN SMALL LIGATURE UE WITH MACRON
+    -     \UE049     LATIN SMALL LETTER OPEN O WITH TILDE
+    -     \UE04A     LATIN SMALL LETTER T WITH CARON BELOW
+    -     \UE04B     LATIN SMALL LETTER SCRIPT A WITH TILDE
+    -     \UE04C     GREEK SMALL LETTER EPSILON WITH TILDE
+    -     \UE04D     LATIN SMALL LIGATURE OE WITH TILDE
+    -     \UE04E     MODIFIER LETTER DOUBLE VERTICAL LINE
+    -     \UE04F     DOUBLE HYPHEN
+    -     \UE050     LATIN SMALL LETTER SCHWA WITH DOT ABOVE
+    -     \UE051     LATIN SMALL LETTER SCHWA WITH MACRON
+Alphabetic Presentation Forms
+ﬂ     &#64258;     \UFB02     LATIN SMALL LIGATURE FL
+שׁ     &#64298;     \UFB2A     HEBREW LETTER SINH WITH SHIN DOT
+שׂ     &#64299;     \UFB2B     HEBREW LETTER SINH WITH SIN DOT
+

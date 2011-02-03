@@ -1,0 +1,414 @@
+// BEGINING OF FILE
+//   NOTES:
+//   1* Numeric data stored as big endian, 32 bits.
+//   2* Data padded to 16 bits limits. (Sometimes to 32 bits limits?)
+//   3* Text stored seems to be an 8 bit encoding padded to 16 bits
+//    (may be "ISO-8859-1"?, or may be just a local machine character set?)
+//   4* I initially used the term "MARK" where I should have used "HIGHLIGTH", 
+//     bear that in mind (it was a bad name election when I started reversing)
+
+<0x 31 bytes = book_title_PAR + 0x00 PAD if (book_title_PAR < 31) >
+<0x 00>
+<0x 00 00 00 00>
+...4
+...4
+<0x 00 00 00 00>
+<0x 00 00 00 00>
+<0x 00 00 00 00>
+<0x 00 00 00 00>
+BPAR
+MOBI
+<0x 4 bytes = Next free pointer identifier>
+	// Note: pointer identifiers aren't always consecutive,
+	// so this number is usually bigger than de # of index entries
+<0x 00 00>
+<0x 4 bytes = Number of index entries>
+<0x 4 bytes = Position of BPAR>
+<0x 00 00 00 00>	// BPAR pointer identifier = 0x0
+
+
+// INDEXES:
+// Order of Indexes: from the beginning of this MBP file, 
+// forward to the end of the file.
+// Nevertheless, see these comments for order relative to: 
+//   "BEGINING OF USER DATA": order of Data marks.
+//   "FINAL GROUP OF MARKS": order of final marks.
+[for each {NOTE,MARK,CORRECTION,DRAWING,BOOKMARK,
+		AUTHOR,TITLE,CATEGORY,GENRE,ABSTRACT,COVER,PUBLISHER,
+		...} 
+	  || "last DATA"]
+// Note: Pointer identifiers to DATA's assigned so the number
+// shrinks as the table grows down.
+[if NOTE || CORRECTION]
+	<0x 4 bytes = Position of DATA....EBVS>
+	<0x 4 bytes = Pointer identifier, used by BKMK blocks>
+[fi NOTE || CORRECTION]
+<0x 4 bytes = Position of DATA>
+<0x 4 bytes = Pointer identifier, used by BKMK blocks>
+[if NOTE || CORRECTION]
+	<0x 4 bytes = Position of DATA>
+	<0x 4 bytes = Pointer identifier, used by BKMK blocks>
+[fi NOTE || CORRECTION]
+[if MARK || DRAWING || BOOKMARK]
+	<0x 4 bytes = Position of DATA....EBVS>
+	<0x 4 bytes = Pointer identifier, used by BKMK blocks>
+[fi MARK || DRAWING || BOOKMARK]
+[if AUTHOR || TITLE || CATEGORY || GENRE || ABSTRACT || COVER || PUBLISHER]
+	<0x 4 bytes = Position of [AUTH || TITL || CATE || GENR || ABST || COVE || PUBL] >
+	<0x 4 bytes = Pointer identifier>
+[fi AUTHOR || TITLE || CATEGORY || GENRE || ABSTRACT || COVER || PUBLISHER]
+[if last DATA] // there's always a last piece of DATA (not user data?)
+	<0x 4 bytes = Position of last DATA>
+	<0x 4 bytes = Pointer identifier>	// usually <0x 00 00 00 01>
+[fi last DATA]
+[next {NOTE,MARK,CORRECTION,DRAWING,BOOKMARK,
+		AUTHOR,TITLE,CATEGORY,GENRE,ABSTRACT,COVER,PUBLISHER,
+		...} 
+      || "last DATA"]
+
+
+[for each {NOTE,MARK,CORRECTION,DRAWING}]
+<0x 4 bytes = Position of BKMK>
+<0x 4 bytes = Pointer identifier>
+	// Note: pointer identifiers for BKMK's are usually the minor
+	// of all the identifiers associated to an annotation. All
+	// other DATA references in INDEXES table associated to this
+	// BKMK, have bigger pointer identifiers.
+	// Note: Pointer identifiers to BKMK's assigned so the number
+	// grows as the table grows down.
+[next {NOTE,MARK,CORRECTION,DRAWING}]
+
+
+<0x 2 bytes random PAD>
+BPAR
+<0x 4 bytes = size of BPAR block>
+<0x FF FF FF FF>
+...4	<-- 'position of last read' related
+...4	<-- 'position of last read' related
+...4
+<0x FF FF FF FF>
+...4
+...4
+...4	<-- 'position of last read' related
+...(rest of size of BPAR block, if bigger than 0x20)
+[if (size of BPAR block) mod 32 != 0]
+<0x FF FF FF FF>
+[fi]
+
+// BEGINING OF USER DATA:
+// Order of {NOTE,MARK,CORRECTION,DRAWING} : 
+// starts with user data at the end of the file, 
+// going backwards to the begining of the file:
+//--------------------------------------------------------------------
+[for each {NOTE,MARK,CORRECTION,DRAWING}]
+//-------------------------------
+[if NOTE]
+DATA
+<0x 4 bytes = size of DATA block>
+[if EBAR]	// this block can appear, or not... ???
+	EBAR
+	...various {4 x byte} ???
+[fi EBAR]
+EBVS
+<0x 00 00 00 03> ???
+<0x 4 bytes = IDENTIFIER> ???
+[<0x 00 00 00 01>, or nothing at all] ???
+<0x 00 00 00 08>
+<0x FF FF FF FF>
+<0x 00 00 00 00>
+<0x 00 00 00 10>
+...(rest of size of DATA block)
+<0x FD EA = PAD? (ύκ)>
+DATA
+<0x 4 bytes = size of <marked text (see 3rd note)> >
+<marked text (see 3rd note)>
+[if (size of <marked text (see 3rd note)>) mod 4 !=0]
+<0x random PAD until (size of <marked text (see 3rd note)>) mod 4 ==0>
+[fi]
+DATA
+<0x 4 bytes = size of <note text (see 3rd note)> >
+<note text (see 3rd note)>
+[if (size of <note text (see 3rd note)>) mod 4 !=0]
+<0x random PAD until (size of <note text (see 3rd note)>) mod 4 ==0>
+[fi]
+[fi NOTE]
+//-------------------------------
+[if MARK || BOOKMARK]
+DATA
+<0x 4 bytes = size of <marked text (see 3rd note)> >
+<marked text (see 3rd note)>
+[if (size of <marked text (see 3rd note)>) mod 4 !=0]
+<0x random PAD until (size of <marked text (see 3rd note)>) mod 4 ==0>
+[fi]
+DATA
+<0x 4 bytes = size of DATA block>
+[if EBAR]	// this block can appear, or not... ???
+	EBAR
+	...various {4 x byte} ???
+[fi EBAR]
+EBVS
+<0x 00 00 00 03> ???
+<0x 4 bytes = IDENTIFIER> ???
+[<0x 00 00 00 01>, or nothing at all] ???
+<0x 00 00 00 08>
+<0x FF FF FF FF>
+<0x 00 00 00 00>
+<0x 00 00 00 10>
+...(rest of size of DATA block)
+<0x FD EA = PAD? (ύκ)>
+[fi MARK || BOOKMARK]
+//-------------------------------
+[if CORRECTION]
+DATA
+<0x 4 bytes = size of DATA block>
+[if EBAR]	// this block can appear, or not... ???
+	EBAR
+	...various {4 x byte} ???
+[fi EBAR]
+EBVS
+<0x 00 00 00 03> ???
+<0x 4 bytes = IDENTIFIER> ???
+[<0x 00 00 00 01>, or nothing at all] ???
+<0x 00 00 00 08>
+<0x FF FF FF FF>
+<0x 00 00 00 00>
+<0x 00 00 00 10>
+...(rest of size of DATA block)
+<0x FD EA = PAD? (ύκ)>
+DATA
+<0x 4 bytes = size of <marked text (see 3rd note)> >
+<marked text (see 3rd note)>
+[if (size of <marked text (see 3rd note)>) mod 4 !=0]
+<0x random PAD until (size of <marked text (see 3rd note)>) mod 4 ==0>
+[fi]
+DATA
+<0x 4 bytes = size of <note text (see 3rd note)> >
+<note text (see 3rd note)>
+[if (size of <note text (see 3rd note)>) mod 4 !=0]
+<0x random PAD until (size of <note text (see 3rd note)>) mod 4 ==0>
+[fi]
+[fi CORRECTION]
+//-------------------------------
+[if DRAWING]
+DATA
+<0x 4 bytes = size of raw data>
+ADQM
+	// NOTE: bakground color is stored in corresponding BKMK.
+	[begin DRAWING format]
+		...4 = <0x 00 00 00 01> ???
+		<0x 4 bytes = X POSITION OF UPPER LEFT CORNER??? > 
+		<0x 4 bytes = Y POSITION OF UPPER LEFT CORNER??? > 
+		<0x 4 bytes = X SIZE in pixels > 
+		<0x 4 bytes = Y SIZE in pixels > 
+		...4 = <0x 00 00 00 00> ???
+		<0x 4 bytes = number of STROKES>
+		[if "number of STROKES" == 0]
+			<0x 00 00 00 00>
+			[end DRAWING format]	
+		[fi]
+		[for each STROKE]
+			<0x 00 00 00 01> ???
+			<0x 4 bytes> = 
+				Stroke's beginning position in list of coordinates.
+			<0x 4 bytes> = 
+				Stroke's ending position in list of coordinates.
+			<0x 00 RR GG BB> = RRGGBB color of stroke.
+		[next STROKE]
+		<0x 4 bytes> = number of coordinate pairs in array of coordinates.
+		// NOTE: each stroke is formed out of at least three 
+		// coordinate pairs: begin, {next point}(1-n), end point.
+		[for each COORDINATE]
+			<0x 4 bytes> = X coordinate
+			<0x 4 bytes> = Y coordinate
+		[next COORDINATE]
+	[end DRAWING format]
+[if (size of <marked text (see 3rd note)>) mod 4 !=0]
+<0x random PAD until (size of <marked text (see 3rd note)>) mod 4 ==0>
+[fi]
+DATA
+<0x 4 bytes = size of <marked text (see 3rd note)> >
+<marked text (see 3rd note)>
+[if (size of <marked text (see 3rd note)>) mod 4 !=0]
+<0x random PAD until (size of <marked text (see 3rd note)>) mod 4 ==0>
+[fi]
+DATA
+<0x 4 bytes = size of DATA block>
+[if EBAR]	// this block can appear, or not... ???
+	EBAR
+	...various {4 x byte} ???
+[fi EBAR]
+EBVS
+<0x 00 00 00 03>
+<0x 4 bytes = IDENTIFIER>
+[<0x 00 00 00 01>, or nothing at all] ???
+<0x 00 00 00 08>
+<0x FF FF FF FF>
+<0x 00 00 00 00>
+<0x 00 00 00 10>
+...(size of DATA block - 30)
+<0x FD EA = PAD? (ύκ)>
+[fi DRAWING]
+//-------------------------------
+[next {NOTE,MARK,CORRECTION,DRAWING}]
+
+// AUTHOR (if any)
+//--------------------------------------------------------------------
+[if AUTHOR]
+AUTH
+<0x 4 bytes = size of AUTHOR block>
+<text (see 3rd note)>
+[fi AUTHOR]
+//--------------------------------------------------------------------
+// TITLE (if any)
+//--------------------------------------------------------------------
+[if TITLE]
+TITL
+<0x 4 bytes = size of TITLE block>
+<text (see 3rd note)>
+[fi TITLE]
+//--------------------------------------------------------------------
+// GENRE (if any)
+//--------------------------------------------------------------------
+[if GENRE]
+GENR
+<0x 4 bytes = size of GENRE block>
+<text (see 3rd note)>
+[fi GENRE]
+//--------------------------------------------------------------------
+// ABSTRACT (if any)
+//--------------------------------------------------------------------
+[if ABSTRACT]
+ABST
+<0x 4 bytes = size of ABSTRACT block>
+<text (see 3rd note)>
+[fi ABSTRACT]
+//--------------------------------------------------------------------
+
+// FINAL DATA
+// Note: 'FINAL DATA' can occur anytime between these marks: 
+//   AUTHOR,TITLE,CATEGORY,GENRE,ABSTRACT,COVER,PUBLISHER,...
+//--------------------------------------------------------------------
+DATA
+<0x 4 bytes = size of EBVS block>
+[if EBAR]	// this block can appear, or not... ???
+	EBAR
+	...various {4 x byte} ???
+[fi EBAR]
+EBVS
+<0x 00 00 00 03> || <0x 00 00 00 04> 
+<0x 4 bytes || 8 bytes = IDENTIFIER>
+<0x 00 00 00 08>
+<0x FF FF FF FF>
+<0x 00 00 00 00>
+<0x 00 00 00 10>
+...(size of EBVS block - 30) :
+	...4	<-- 'position of last read' related
+	...various {4 x byte} ???
+	...4	<-- 'position of last read' related
+	...4
+	...4
+	...4
+<0x FD EA = PAD? (ύκ)>
+//--------------------------------------------------------------------
+
+// CATEGORY (if any)
+//--------------------------------------------------------------------
+[if CATEGORY]
+CATE
+<0x 4 bytes = size of CATEGORY block>
+<text (see 3rd note)>
+[fi CATEGORY]
+//--------------------------------------------------------------------
+// COVER (if any)
+//--------------------------------------------------------------------
+[if COVER]
+COVE
+<0x 4 bytes = size of COVER block>
+<text (see 3rd note)>
+[fi COVER]
+//--------------------------------------------------------------------
+// PUBLISHER (if any)
+//--------------------------------------------------------------------
+[if PUBLISHER]
+PUBL
+<0x 4 bytes = size of PUBLISHER block>
+<text (see 3rd note)>
+[fi PUBLISHER]
+//--------------------------------------------------------------------
+
+
+// FINAL GROUP OF MARKS
+// Order of {NOTE,MARK,CORRECTION} : 
+// starts with user data at the begining of the file, 
+// going forwards to the end:
+//--------------------------------------------------------------------
+[for each {NOTE,MARK,CORRECTION,DRAWING,BOOKMARK}]
+BKMK
+<0x 4 bytes = size of BKMK>
+<0x 4 bytes = TEXT position of the beginning of {NOTE,MARK,CORRECTION,DRAWING,BOOKMARK}>
+//-------------------------------
+[if DRAWING]
+<0x FF FF FF FF>
+[else]
+<0x 4 bytes = TEXT position of the end of {NOTE,MARK,CORRECTION,BOOKMARK}>
+[fi DRAWING]
+...4
+...4
+//-------------------------------
+[if NOTE]
+	<0x xx xx xx (20)?>, xxxxxx=>RRGGBB color ???
+	<0x 00 00 00 02>
+[fi NOTE]
+[if MARK]
+	<0x xx xx xx (0F/00)??>, xxxxxx=>RRGGBB color ???
+	<0x 00 00 00 04>
+[fi MARK]
+[if CORRECTION]
+	<0x xx xx xx (6F)?>, xxxxxx=>RRGGBB color ???
+	<0x 00 00 00 02>
+[fi CORRECTION]
+[if DRAWING]
+	<0x xx xx xx (0F)?>, xxxxxx=>RRGGBB DRAWING's background color.
+	<0x 00 00 00 08>
+[fi DRAWING]
+[if BOOKMARK]
+	<0x xx xx xx 00>
+	<0x 00 00 00 01>
+[fi BOOKMARK]
+	// this one is a strange type of mark, of yet not identified use:
+	[if UNKNOWN_TYPE_YET_1]
+		<0x xx xx xx 00>
+		<0x 00 00 40 00>
+	[fi UNKNOWN_TYPE_YET_1]
+
+//-------------------------------
+[if BOOKMARK || (NOTE "without stored marked text")]
+	<0x FF FF FF FF>
+[else]
+	<0x 4 bytes = DATA pointer in INDEXES>
+[fi BOOKMARK]
+[if DRAWING || MARK]
+	<0x FF FF FF FF>
+[else]
+	<0x 4 bytes = DATA pointer in INDEXES>
+[fi]
+<0x 4 bytes = DATA pointer in INDEXES>
+[if DRAWING]
+	<0x 4 bytes = DATA pointer in INDEXES>
+[else]
+	<0x FF FF FF FF>
+[fi]
+//-------------------------------
+<0x FF FF FF FF>
+<0x FF FF FF FF>
+[next {NOTE,MARK,CORRECTION,DRAWING,BOOKMARK}]
+//--------------------------------------------------------------------
+
+[if length % 32 bit != 0] ???
+	<0x FF FF FF FF>
+[fi]
+
+// END OF FILE
+
+// by idleloop@yahoo.com, v0.2.e, 12/2009
+// http://www.angelfire.com/ego2/idleloop
