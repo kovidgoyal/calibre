@@ -67,10 +67,11 @@ class TXTMLizer(object):
         output.append(self.get_toc())
         for item in self.oeb_book.spine:
             self.log.debug('Converting %s to TXT...' % item.href)
-            stylizer = Stylizer(item.data, item.href, self.oeb_book, self.opts, self.opts.output_profile)
-            content = unicode(etree.tostring(item.data.find(XHTML('body')), encoding=unicode))
+            content = unicode(etree.tostring(item.data, encoding=unicode))
             content = self.remove_newlines(content)
-            output += self.dump_text(etree.fromstring(content), stylizer, item)
+            content = etree.fromstring(content)
+            stylizer = Stylizer(content, item.href, self.oeb_book, self.opts, self.opts.output_profile)
+            output += self.dump_text(content.find(XHTML('body')), stylizer, item)
             output += '\n\n\n\n\n\n'
         output = u''.join(output)
         output = u'\n'.join(l.rstrip() for l in output.splitlines())
@@ -219,11 +220,16 @@ class TXTMLizer(object):
         if tag in SPACE_TAGS:
             text.append(u' ')
 
-        # Scene breaks.
+        # Hard scene breaks.
         if tag == 'hr':
             text.append('\n\n* * *\n\n')
-        elif style['margin-top']:
-            text.append('\n\n' + '\n' * round(style['margin-top']))
+        # Soft scene breaks.
+        try:
+            ems = int(round((float(style.marginTop) / style.fontSize) - 1))
+            if ems:
+                text.append('\n' * ems)
+        except:
+            pass
 
         # Process tags that contain text.
         if hasattr(elem, 'text') and elem.text:
