@@ -1,0 +1,34 @@
+Palm Database File Code
+-----------------------
+
+Reader                      Type Code
+
+Adobe Reader                .pdfADBE
+PalmDOC                     TEXtREAd
+BDicty                      BVokBDIC
+DB (Database program)       DB99DBOS
+eReader                     PNRdPPrs
+eReader                     DataPPrs
+FireViewer (ImageViewer)    vIMGView
+HanDBase                    PmDBPmDB
+InfoView                    InfoINDB
+iSilo                       ToGoToGo
+iSilo 3                     SDocSilX
+JFile                       JbDbJBas
+JFile Pro                   JfDbJFil
+LIST                        DATALSdb
+MobileDB                    Mdb1Mdb1
+MobiPocket                  BOOKMOBI
+Plucker                     DataPlkr
+QuickSheet                  DataSprd
+SuperMemo                   SM01SMem
+TealDoc                     TEXtTlDc
+TealInfo                    InfoTlIf
+TealMeal                    DataTlMl
+TealPaint                   DataTlPt
+ThinkDB                     dataTDBP
+Tides                       TdatTide
+TomeRaider                  ToRaTRPW
+Weasel                      zTXTGPlm
+WordSmith                   BDOCWrdS 
+
