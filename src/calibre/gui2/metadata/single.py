@@ -311,7 +311,7 @@ class MetadataSingleDialogBase(ResizableDialog):
                     return False
                 raise
         for widget in getattr(self, 'custom_metadata_widgets', []):
-            widget.commit(self.book_id)
+            self.books_to_refresh |= widget.commit(self.book_id)
 
         self.db.commit()
         rows = self.db.refresh_ids(list(self.books_to_refresh))

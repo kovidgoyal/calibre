@@ -923,12 +923,12 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             self.db.set_rating(self.id, 2*self.rating.value(), notify=False,
                                commit=False)
             self.books_to_refresh |= self.apply_tags()
-            self.db.set_publisher(self.id,
-                    unicode(self.publisher.currentText()).strip(),
-                                  notify=False, commit=False)
-            self.db.set_series(self.id,
+            self.books_to_refresh |= self.db.set_publisher(self.id,
+                                unicode(self.publisher.currentText()).strip(),
+                                notify=False, commit=False, allow_case_change=True)
+            self.books_to_refresh |= self.db.set_series(self.id,
                     unicode(self.series.currentText()).strip(), notify=False,
-                    commit=False)
+                    commit=False, allow_case_change=True)
             self.db.set_series_index(self.id, self.series_index.value(),
                                      notify=False, commit=False)
             self.db.set_comment(self.id,
@@ -949,7 +949,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                 else:
                     self.db.remove_cover(self.id)
             for w in getattr(self, 'custom_column_widgets', []):
-                w.commit(self.id)
+                self.books_to_refresh |= w.commit(self.id)
             self.db.commit()
         except IOError, err:
             if err.errno == 13: # Permission denied

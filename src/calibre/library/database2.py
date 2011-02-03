@@ -1495,7 +1495,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         elif column == 'title':
             self.set_title(id, val, notify=False)
         elif column == 'publisher':
-            self.set_publisher(id, val, notify=False)
+            books_to_refresh |= self.set_publisher(id, val, notify=False,
+                                                   allow_case_change=allow_case_change)
         elif column == 'rating':
             self.set_rating(id, val, notify=False)
         elif column == 'tags':
@@ -1635,42 +1636,44 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if not authors:
             authors = [_('Unknown')]
         self.conn.execute('DELETE FROM books_authors_link WHERE book=?',(id,))
-        books_to_refresh = set()
+        books_to_refresh = set([])
+        final_authors = []
         for a in authors:
+            case_change = False
             if not a:
                 continue
             a = a.strip().replace(',', '|')
             if not isinstance(a, unicode):
                 a = a.decode(preferred_encoding, 'replace')
-            aus = self.conn.get('SELECT id, name from authors WHERE name=?', (a,))
+            aus = self.conn.get('SELECT id, name FROM authors WHERE name=?', (a,))
             if aus:
-                author_id, name = aus[0]
-            else:
-                author_id, name = (None, None)
-            if author_id:
-                aid = author_id
+                aid, name = aus[0]
                 # Handle change of case
-                if allow_case_change and name != a:
-                    self.conn.execute('UPDATE authors SET name=? WHERE id=?', (a, aid))
-                case_change = True
+                if name != a:
+                    if allow_case_change:
+                        self.conn.execute('''UPDATE authors
+                                            SET name=? WHERE id=?''', (a, aid))
+                        case_change = True
+                    else:
+                        a = name
             else:
-                aid = self.conn.execute('INSERT INTO authors(name) VALUES (?)', (a,)).lastrowid
-                case_change = False
+                aid = self.conn.execute('''INSERT INTO authors(name)
+                                           VALUES (?)''', (a,)).lastrowid
+            final_authors.append(a.replace('|', ','))
             try:
-                self.conn.execute('INSERT INTO books_authors_link(book, author) VALUES (?,?)',
-                                   (id, aid))
+                self.conn.execute('''INSERT INTO books_authors_link(book, author)
+                                     VALUES (?,?)''', (id, aid))
             except IntegrityError: # Sometimes books specify the same author twice in their metadata
                 pass
             if case_change:
-                bks = self.conn.get('SELECT book FROM books_authors_link WHERE author=?',
-                                        (aid,))
+                bks = self.conn.get('''SELECT book FROM books_authors_link
+                                       WHERE author=?''', (aid,))
                 books_to_refresh |= set([bk[0] for bk in bks])
-
         ss = self.author_sort_from_book(id, index_is_id=True)
         self.conn.execute('UPDATE books SET author_sort=? WHERE id=?',
                           (ss, id))
         self.data.set(id, self.FIELD_MAP['authors'],
-                      ','.join([a.replace(',', '|') for a in authors]),
+                      ','.join([a.replace(',', '|') for a in final_authors]),
                       row_is_id=True)
         self.data.set(id, self.FIELD_MAP['author_sort'], ss, row_is_id=True)
         aum = self.authors_with_sort_strings(id, index_is_id=True)
@@ -1718,10 +1721,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             title = title.decode(preferred_encoding, 'replace')
         self.conn.execute('UPDATE books SET title=? WHERE id=?', (title, id))
         self.data.set(id, self.FIELD_MAP['title'], title, row_is_id=True)
-        if tweaks['title_series_sorting'] == 'library_order':
-            self.data.set(id, self.FIELD_MAP['sort'], title_sort(title), row_is_id=True)
-        else:
-            self.data.set(id, self.FIELD_MAP['sort'], title, row_is_id=True)
+        ts = self.conn.get('SELECT sort FROM books WHERE id=?', (id,),
+                all=False)
+        if ts:
+            self.data.set(id, self.FIELD_MAP['sort'], ts, row_is_id=True)
         return True
 
     def set_title(self, id, title, notify=True, commit=True):
@@ -1759,24 +1762,44 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 self.notify('metadata', [id])
 
 
-    def set_publisher(self, id, publisher, notify=True, commit=True):
+    def set_publisher(self, id, publisher, notify=True, commit=True,
+                      allow_case_change=False):
         self.conn.execute('DELETE FROM books_publishers_link WHERE book=?',(id,))
-        self.conn.execute('DELETE FROM publishers WHERE (SELECT COUNT(id) FROM books_publishers_link WHERE publisher=publishers.id) < 1')
+        self.conn.execute('''DELETE FROM publishers WHERE (SELECT COUNT(id)
+                             FROM books_publishers_link
+                             WHERE publisher=publishers.id) < 1''')
+        books_to_refresh = set()
         if publisher:
+            case_change = False
             if not isinstance(publisher, unicode):
                 publisher = publisher.decode(preferred_encoding, 'replace')
-            pub = self.conn.get('SELECT id from publishers WHERE name=?', (publisher,), all=False)
-            if pub:
-                aid = pub
+            pubx = self.conn.get('''SELECT id,name from publishers
+                                    WHERE name=?''', (publisher,))
+            if pubx:
+                aid, cur_name = pubx[0]
+                if publisher != cur_name:
+                    if allow_case_change:
+                        self.conn.execute('''UPDATE publishers SET name=?
+                                         WHERE id=?''', (publisher, aid))
+                        case_change = True
+                    else:
+                        publisher = cur_name
             else:
-                aid = self.conn.execute('INSERT INTO publishers(name) VALUES (?)', (publisher,)).lastrowid
-            self.conn.execute('INSERT INTO books_publishers_link(book, publisher) VALUES (?,?)', (id, aid))
-            self.dirtied([id], commit=False)
-            if commit:
-                self.conn.commit()
-            self.data.set(id, self.FIELD_MAP['publisher'], publisher, row_is_id=True)
-            if notify:
-                self.notify('metadata', [id])
+                aid = self.conn.execute('''INSERT INTO publishers(name)
+                                           VALUES (?)''', (publisher,)).lastrowid
+            self.conn.execute('''INSERT INTO books_publishers_link(book, publisher)
+                                 VALUES (?,?)''', (id, aid))
+            if case_change:
+                bks = self.conn.get('''SELECT book FROM books_publishers_link
+                                       WHERE publisher=?''', (aid,))
+                books_to_refresh |= set([bk[0] for bk in bks])
+        self.dirtied([id], commit=False)
+        if commit:
+            self.conn.commit()
+        self.data.set(id, self.FIELD_MAP['publisher'], publisher, row_is_id=True)
+        if notify:
+            self.notify('metadata', [id])
+        return books_to_refresh
 
     def set_uuid(self, id, uuid, notify=True, commit=True):
         if uuid:
@@ -2148,10 +2171,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         '''
         if not append:
             self.conn.execute('DELETE FROM books_tags_link WHERE book=?', (id,))
-            self.conn.execute('DELETE FROM tags WHERE (SELECT COUNT(id) FROM books_tags_link WHERE tag=tags.id) < 1')
+            self.conn.execute('''DELETE FROM tags WHERE (SELECT COUNT(id)
+                                 FROM books_tags_link WHERE tag=tags.id) < 1''')
         otags = self.get_tags(id)
         tags = self.cleanup_tags(tags)
-        books_to_refresh = set()
+        books_to_refresh = set([])
         for tag in (set(tags)-otags):
             case_changed = False
             tag = tag.strip()
@@ -2174,10 +2198,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             else:
                 tid = self.conn.execute('INSERT INTO tags(name) VALUES(?)', (tag,)).lastrowid
 
-            if not self.conn.get('SELECT book FROM books_tags_link WHERE book=? AND tag=?',
-                                        (id, tid), all=False):
-                self.conn.execute('INSERT INTO books_tags_link(book, tag) VALUES (?,?)',
-                              (id, tid))
+            if not self.conn.get('''SELECT book FROM books_tags_link
+                                    WHERE book=? AND tag=?''', (id, tid), all=False):
+                self.conn.execute('''INSERT INTO books_tags_link(book, tag)
+                                     VALUES (?,?)''', (id, tid))
             if case_changed:
                 bks = self.conn.get('SELECT book FROM books_tags_link WHERE tag=?',
                                         (tid,))
@@ -2195,7 +2219,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         for tag in tags:
             id = self.conn.get('SELECT id FROM tags WHERE name=?', (tag,), all=False)
             if id:
-                self.conn.execute('DELETE FROM books_tags_link WHERE tag=? AND book=?', (id, book_id))
+                self.conn.execute('''DELETE FROM books_tags_link
+                                     WHERE tag=? AND book=?''', (id, book_id))
         self.conn.commit()
         self.data.refresh_ids(self, [book_id])
         if notify:
@@ -2239,31 +2264,44 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 pass
         return (val, None)
 
-    def set_series(self, id, series, notify=True, commit=True):
+    def set_series(self, id, series, notify=True, commit=True, allow_case_change=True):
         self.conn.execute('DELETE FROM books_series_link WHERE book=?',(id,))
         self.conn.execute('''DELETE FROM series
                              WHERE (SELECT COUNT(id) FROM books_series_link
                                     WHERE series=series.id) < 1''')
         (series, idx) = self._get_series_values(series)
+        books_to_refresh = set([])
         if series:
+            case_change = False
             if not isinstance(series, unicode):
                 series = series.decode(preferred_encoding, 'replace')
             series = series.strip()
             series = u' '.join(series.split())
-            s = self.conn.get('SELECT id from series WHERE name=?', (series,), all=False)
-            if s:
-                aid = s
+            sx = self.conn.get('SELECT id,name from series WHERE name=?', (series,))
+            if sx:
+                aid, cur_name = sx[0]
+                if cur_name != series:
+                    if allow_case_change:
+                        self.conn.execute('UPDATE series SET name=? WHERE id=?', (series, aid))
+                        case_change = True
+                    else:
+                        series = cur_name
             else:
                 aid = self.conn.execute('INSERT INTO series(name) VALUES (?)', (series,)).lastrowid
             self.conn.execute('INSERT INTO books_series_link(book, series) VALUES (?,?)', (id, aid))
             if idx:
                 self.set_series_index(id, idx, notify=notify, commit=commit)
+            if case_change:
+                bks = self.conn.get('SELECT book FROM books_series_link WHERE series=?',
+                                        (aid,))
+                books_to_refresh |= set([bk[0] for bk in bks])
         self.dirtied([id], commit=False)
         if commit:
             self.conn.commit()
         self.data.set(id, self.FIELD_MAP['series'], series, row_is_id=True)
         if notify:
             self.notify('metadata', [id])
+        return books_to_refresh
 
     def set_series_index(self, id, idx, notify=True, commit=True):
         if idx is None:
