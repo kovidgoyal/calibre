@@ -314,6 +314,10 @@ class MetadataSingleDialogBase(ResizableDialog):
             widget.commit(self.book_id)
 
         self.db.commit()
+        rows = self.db.refresh_ids(list(self.books_to_refresh))
+        if rows:
+            self.rows_to_refresh |= set(rows)
+
         return True
 
     def accept(self):
@@ -335,12 +339,14 @@ class MetadataSingleDialogBase(ResizableDialog):
         self.current_row = current_row
         if view_slot is not None:
             self.view_format.connect(view_slot)
-        self.do_one()
+        self.do_one(apply_changes=False)
         ret = self.exec_()
         self.break_cycles()
         return ret
 
-    def do_one(self, delta=0):
+    def do_one(self, delta=0, apply_changes=True):
+        if apply_changes:
+            self.apply_changes()
         self.current_row += delta
         prev = next_ = None
         if self.current_row > 0:
@@ -357,9 +363,7 @@ class MetadataSingleDialogBase(ResizableDialog):
             self.prev_button.setToolTip(tip)
         self.prev_button.setVisible(prev is not None)
         self(self.db.id(self.row_list[self.current_row]))
-        rows = self.db.refresh_ids(list(self.books_to_refresh))
-        if rows:
-            self.rows_to_refresh |= set(rows)
+
 
     def break_cycles(self):
         # Break any reference cycles that could prevent python
