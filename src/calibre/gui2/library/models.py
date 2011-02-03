@@ -819,6 +819,7 @@ class BooksModel(QAbstractTableModel): # {{{
                       value.toDate() if column in ('timestamp', 'pubdate') else \
                       unicode(value.toString())
                 id = self.db.id(row)
+                books_to_refresh = set([id])
                 if column == 'rating':
                     val = 0 if val < 0 else 5 if val > 5 else val
                     val *= 2
@@ -850,8 +851,9 @@ class BooksModel(QAbstractTableModel): # {{{
                         return False
                     self.db.set_pubdate(id, qt_to_dt(val, as_utc=False))
                 else:
-                    self.db.set(row, column, val)
-                self.refresh_ids([id], row)
+                    books_to_refresh |= self.db.set(row, column, val,
+                                                    allow_case_change=True)
+                self.refresh_ids(list(books_to_refresh), row)
             self.dataChanged.emit(index, index)
         return True
 
