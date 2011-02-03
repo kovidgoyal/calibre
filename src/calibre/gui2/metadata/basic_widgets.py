@@ -156,6 +156,7 @@ class AuthorsEdit(MultiCompleteComboBox):
 
     def __init__(self, parent):
         self.dialog = parent
+        self.books_to_refresh = set([])
         MultiCompleteComboBox.__init__(self, parent)
         self.setToolTip(self.TOOLTIP)
         self.setWhatsThis(self.TOOLTIP)
@@ -166,6 +167,7 @@ class AuthorsEdit(MultiCompleteComboBox):
         return _('Unknown')
 
     def initialize(self, db, id_):
+        self.books_to_refresh = set([])
         all_authors = db.all_authors()
         all_authors.sort(key=lambda x : sort_key(x[1]))
         for i in all_authors:
@@ -185,7 +187,8 @@ class AuthorsEdit(MultiCompleteComboBox):
 
     def commit(self, db, id_):
         authors = self.current_val
-        db.set_authors(id_, authors, notify=False)
+        self.books_to_refresh |= db.set_authors(id_, authors, notify=False,
+                allow_case_change=True)
         return True
 
     @dynamic_property
@@ -824,6 +827,7 @@ class TagsEdit(MultiCompleteLineEdit): # {{{
 
     def __init__(self, parent):
         MultiCompleteLineEdit.__init__(self, parent)
+        self.books_to_refresh = set([])
         self.setToolTip(self.TOOLTIP)
         self.setWhatsThis(self.TOOLTIP)
 
@@ -838,6 +842,7 @@ class TagsEdit(MultiCompleteLineEdit): # {{{
         return property(fget=fget, fset=fset)
 
     def initialize(self, db, id_):
+        self.books_to_refresh = set([])
         tags = db.tags(id_, index_is_id=True)
         tags = tags.split(',') if tags else []
         self.current_val = tags
@@ -866,7 +871,9 @@ class TagsEdit(MultiCompleteLineEdit): # {{{
 
 
     def commit(self, db, id_):
-        db.set_tags(id_, self.current_val, notify=False, commit=False)
+        self.books_to_refresh |= db.set_tags(
+                id_, self.current_val, notify=False, commit=False,
+                allow_case_change=True)
         return True
 
 # }}}

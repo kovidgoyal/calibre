@@ -31,6 +31,8 @@ class MetadataSingleDialogBase(ResizableDialog):
     def __init__(self, db, parent=None):
         self.db = db
         self.changed = set([])
+        self.books_to_refresh = set([])
+        self.rows_to_refresh = set([])
         ResizableDialog.__init__(self, parent)
 
     def setupUi(self, *args): # {{{
@@ -192,6 +194,7 @@ class MetadataSingleDialogBase(ResizableDialog):
 
     def __call__(self, id_):
         self.book_id = id_
+        self.books_to_refresh = set([])
         for widget in self.basic_metadata_widgets:
             widget.initialize(self.db, id_)
         for widget in self.custom_metadata_widgets:
@@ -295,6 +298,8 @@ class MetadataSingleDialogBase(ResizableDialog):
             try:
                 if not widget.commit(self.db, self.book_id):
                     return False
+                self.books_to_refresh |= getattr(widget, 'books_to_refresh',
+                        set([]))
             except IOError, err:
                 if err.errno == 13: # Permission denied
                     import traceback
@@ -309,6 +314,10 @@ class MetadataSingleDialogBase(ResizableDialog):
             widget.commit(self.book_id)
 
         self.db.commit()
+        rows = self.db.refresh_ids(list(self.books_to_refresh))
+        if rows:
+            self.rows_to_refresh |= set(rows)
+
         return True
 
     def accept(self):
@@ -330,12 +339,14 @@ class MetadataSingleDialogBase(ResizableDialog):
         self.current_row = current_row
         if view_slot is not None:
             self.view_format.connect(view_slot)
-        self.do_one()
+        self.do_one(apply_changes=False)
         ret = self.exec_()
         self.break_cycles()
         return ret
 
-    def do_one(self, delta=0):
+    def do_one(self, delta=0, apply_changes=True):
+        if apply_changes:
+            self.apply_changes()
         self.current_row += delta
         prev = next_ = None
         if self.current_row > 0:
@@ -352,6 +363,7 @@ class MetadataSingleDialogBase(ResizableDialog):
             self.prev_button.setToolTip(tip)
         self.prev_button.setVisible(prev is not None)
         self(self.db.id(self.row_list[self.current_row]))
+
 
     def break_cycles(self):
         # Break any reference cycles that could prevent python
@@ -618,7 +630,7 @@ class MetadataSingleDialogAlt(MetadataSingleDialogBase): # {{{
 def edit_metadata(db, row_list, current_row, parent=None, view_slot=None):
     d = MetadataSingleDialog(db, parent)
     d.start(row_list, current_row, view_slot=view_slot)
-    return d.changed
+    return d.changed, d.rows_to_refresh
 
 if __name__ == '__main__':
     from PyQt4.Qt import QApplication

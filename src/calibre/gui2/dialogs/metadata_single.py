@@ -740,6 +740,8 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         self.series.setSizeAdjustPolicy(self.series.AdjustToContentsOnFirstShow)
         all_series = self.db.all_series()
         all_series.sort(key=lambda x : sort_key(x[1]))
+        self.series.set_separator(None)
+        self.series.update_items_cache([x[1] for x in all_series])
         series_id = self.db.series_id(self.row)
         idx, c = None, 0
         for i in all_series:
@@ -757,6 +759,8 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
     def initialize_publisher(self):
         all_publishers = self.db.all_publishers()
         all_publishers.sort(key=lambda x : sort_key(x[1]))
+        self.publisher.set_separator(None)
+        self.publisher.update_items_cache([x[1] for x in all_publishers])
         publisher_id = self.db.publisher_id(self.row)
         idx, c = None, 0
         for i in all_publishers:

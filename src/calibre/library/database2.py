@@ -2153,6 +2153,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         tags = self.cleanup_tags(tags)
         books_to_refresh = set()
         for tag in (set(tags)-otags):
+            case_changed = False
             tag = tag.strip()
             if not tag:
                 continue
@@ -2170,8 +2171,6 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 if allow_case_change and etag != tag:
                     self.conn.execute('UPDATE tags SET name=? WHERE id=?', (tag, tid))
                     case_changed = True
-                else:
-                    case_changed = False
             else:
                 tid = self.conn.execute('INSERT INTO tags(name) VALUES(?)', (tag,)).lastrowid
 

@@ -64,8 +64,6 @@ class CompleteWindow(QListView): # {{{
 
     def do_selected(self, idx=None):
         idx = self.currentIndex() if idx is None else idx
-        #if not idx.isValid() and self.model().rowCount() > 0:
-        #    idx = self.model().index(0)
         if idx.isValid():
             data = unicode(self.model().data(idx, Qt.DisplayRole))
             self.completion_selected.emit(data)
@@ -81,6 +79,9 @@ class CompleteWindow(QListView): # {{{
                 self.hide()
                 return True
             elif key in (Qt.Key_Enter, Qt.Key_Return, Qt.Key_Tab):
+                if key == Qt.Key_Tab and not self.currentIndex().isValid():
+                    if self.model().rowCount() > 0:
+                        self.setCurrentIndex(self.model().index(0))
                 self.do_selected()
                 return True
             elif key in (Qt.Key_Up, Qt.Key_Down, Qt.Key_PageUp,
@@ -196,6 +197,9 @@ class MultiCompleteLineEdit(QLineEdit):
             if self.complete_window.isVisible():
                 return True # Filter this event since the cw is visible
         return QLineEdit.eventFilter(self, o, e)
+
+    def hide_completion_window(self):
+        self.complete_window.hide()
 
 
     def text_edited(self, *args):
