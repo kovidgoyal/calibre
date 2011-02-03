@@ -1718,10 +1718,6 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             title = title.decode(preferred_encoding, 'replace')
         self.conn.execute('UPDATE books SET title=? WHERE id=?', (title, id))
         self.data.set(id, self.FIELD_MAP['title'], title, row_is_id=True)
-        if tweaks['title_series_sorting'] == 'library_order':
-            self.data.set(id, self.FIELD_MAP['sort'], title_sort(title), row_is_id=True)
-        else:
-            self.data.set(id, self.FIELD_MAP['sort'], title, row_is_id=True)
         return True
 
     def set_title(self, id, title, notify=True, commit=True):

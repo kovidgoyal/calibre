@@ -490,6 +490,17 @@ title and author are swapped before the title case is set</string>
               </widget>
              </item>
              <item>
+              <widget class="QCheckBox" name="update_title_sort">
+               <property name="toolTip">
+                <string>Recompute the title sort value and store it in title sort.
+This will happen after any title case changes</string>
+               </property>
+               <property name="text">
+                <string>Update &amp;title sort</string>
+               </property>
+              </widget>
+             </item>
+             <item>
               <spacer name="horizontalSpacer">
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
