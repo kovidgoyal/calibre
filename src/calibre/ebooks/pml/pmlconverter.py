@@ -603,7 +603,7 @@ class PML_HTMLizer(object):
 
             if empty:
                 empty_count += 1
-                if empty_count == 3:
+                if empty_count == 2:
                     output.append('<p>&nbsp;</p>')
             else:
                 empty_count = 0

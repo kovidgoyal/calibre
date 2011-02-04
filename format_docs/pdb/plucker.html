@@ -1,0 +1,2122 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+<HEAD>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<TITLE>The Plucker Document Format</TITLE>
+</HEAD>
+<BODY>
+<H1>The Plucker Document Format</H1>
+
+<H2>Introduction</H2>
+
+<p>
+This document is the official description of the
+<a href="http://www.plkr.org/">Plucker</a> format.</p>
+
+<HR><H2>Overview</H2>
+<p>
+The Plucker document format supports a multi-page (in the Web sense of 'page') hyperlinked information structure containing both 'rich' text and images.  Links may be internal to the document or link to other documents. External links, in standard URL form, may be included and displayed, but not followed.  Images may either be embedded in a text page, as with HTML, or be included as separate stand-alone pages.</p>
+<p>
+Plucker documents are structured so that they can be used both with a file-system-oriented operating system such as Unix or Windows, and with the PalmOS, a non-file-system-oriented OS.  To this end, they always begin with a standard PalmOS record database prefix, which consists of four parts:  the <i><A HREF="#database_header">database header</a></i>, a <i><a href="#record_id_list">record-id list</a></i>, an <i><a href="#appinfo_block">AppInfo block</a></i>, and a <i>SortInfo block</i>.  The Plucker format does not use the SortInfo block, which is therefore null, and consequently occupies no space in the document prefix.</p>
+<p>
+The record database prefix is then followed by a sequence of application-specific records.  In a Plucker document, this sequence consists of one <a href="#index_record">index record</a>, followed by a series of <a href="#data_records">data records</a>.  The index record contains information about the data records, along with some global information, such as the type of compression used.  Each data record contains either a page, an image, or data about the document, such as bookmarks or URL data.</p>
+<p>
+The format is big-endian; any multi-byte numeric values specified in this document are big-endian.  Images are stored in the Palm image format; for more information on this format please consult <A HREF="http://www.palmos.com/dev/tech/docs">http://www.palmos.com/dev/tech/docs/</A>.</p>
+<HR><H2>The Database Prefix</H2>
+
+<H3><a name="database_header">The Database Header</a></H3>
+<p>
+The database header is a fixed-size structure of 72 bytes.  It contains the name of the database, the Plucker version number, various timestamps (creation, modification, last backup), and several flags.  All timestamps are given using the PalmOS standard, seconds since 12:00 AM on January 1, 1904.</p>
+<p>
+<table BORDER CELLSPACING=0 CELLPADDING=2 WIDTH="80%" >
+
+<tr BGCOLOR="#99CCCC">
+<td><b><font color="#000000">Field</font></b></td>
+<td align="center"><b><font color="#000000">Bytes</font></b></td>
+<td><b><font color="#000000">Type</font></b></td>
+<td><b><font color="#000000">Notes</font></b></td>
+</tr>
+
+<tr>
+<td><b>docName</b></td>
+<td align="center">32</td>
+<td>String</td>
+<td>Must contain a NUL-terminated 7-bit ASCII string (only character codes 0x20-0x7E are valid) giving the name of the document.  Because of the terminating NUL character at end, only 31 bytes can actually be used for the name of the document.  The first 26 bytes of this string are used by Plucker as a unique ID for the document; names should be unique in the first 26 characters.</td>
+</tr>
+
+<tr>
+<td><b>flags</b></td>
+<td align="center">2</td>
+<td>Bitfield</td>
+<td>Most bits in this field are unused.  Unused bits should be set to zero on document creation, but reader software should not expect them to stay at this value.
+
+<p>Valid bits are as follows.  All numeric values given are big-endian.</p>
+<table BORDER CELLSPACING=0 CELLPADDING=2 WIDTH="100%" >
+<tr BGCOLOR="#BBDDDD">
+<td><b><font color="#000000">Name</font></b></td>
+<td><b><font color="#000000">Value</font></b></td>
+<td><b><font color="#000000">Meaning</font></b></td>
+</tr>
+
+<tr>
+<td>CopyPrevention</td>
+<td>0x0040</td>
+<td>Indicates that system should not allow copying of this document.</td>
+</tr>
+
+<tr>
+<td>Launchable</td>
+<td>0x0200</td>
+<td>Indicates that this document should be presented as a first-class object on desktop renderings.  If this bit is set, an AppInfo block must be included.</td>
+</tr>
+
+<tr>
+<td>Backup</td>
+<td>0x0008</td>
+<td>Indicates that this document should be backed up, if the system includes such a capability.</td>
+</tr>
+
+</table>
+</td>
+</tr>
+
+<tr>
+<td><b>version</b></td>
+<td align="center">2</td>
+<td>Numeric</td>
+<td>Version of the Plucker format used in this document.  Must have the value 1.</td>
+</tr>
+
+<tr>
+<td><b>creationDate</b></td>
+<td align="center">4</td>
+<td>Timestamp</td>
+<td>Time of document creation</td>
+</tr>
+
+<tr>
+<td><b>modificationDate</b></td>
+<td align="center">4</td>
+<td>Timestamp</td>
+<td>Time document last modified</td>
+</tr>
+
+<tr>
+<td><b>unused1</b></td>
+<td align="center">8</td>
+<td>Numeric</td>
+<td>Must be zero at document creation, but any specific value should not be relied upon.</td>
+</tr>
+
+<tr>
+<td><b>appInfoOffset</b></td>
+<td align="center">4</td>
+<td>Numeric</td>
+<td>Either zero, if no appInfo is present, or the offset from the beginning of the document to the start of the appInfo block.
+</tr>
+
+<tr>
+<td><b>sortInfoId</b></td>
+<td align="center">4</td>
+<td>Numeric</td>
+<td>Must be zero.</td>
+</tr>
+
+<tr>
+<td><b>magic</b></td>
+<td align="center">8</td>
+<td>String</td>
+<td>Must be the 8 ISO Latin-1 characters "DataPlkr".  No terminating NUL character.</td>
+</tr>
+
+<tr>
+<td><b>unused2</b></td>
+<td align="center">4</td>
+<td>Numeric</td>
+<td>Must be zero at document creation, but any specific value should not be relied upon.</td>
+</tr>
+
+</table>
+
+<H3><a name="record_id_list">The Record-ID List</a></H3>
+<p>
+This list consists of a six-byte list header, followed by one ID entry for each data record in the document.  The list header has the structure:</p>
+<table BORDER CELLSPACING=0 CELLPADDING=2 WIDTH="80%" >
+<tr BGCOLOR="#99CCCC">
+<td><b><font color="#000000">Field</font></b></td>
+<td align="center"><b><font color="#000000">Bytes</font></b></td>
+<td><b><font color="#000000">Type</font></b></td>
+<td><b><font color="#000000">Notes</font></b></td>
+</tr>
+
+<tr>
+<td><b>nextRecordListID</b></td>
+<td align="center">4</td>
+<td>Numeric</td>
+<td>Must be zero.</td>
+</tr>
+
+<tr>
+<td><b>numRecords</b></td>
+<td align="center">2</td>
+<td>Numeric</td>
+<td>Number of records in the document, including the index record.</td>
+</tr>
+</table>
+
+<p>This is then followed by <b>numRecords</b> entries of the following structure:</p>
+<table BORDER CELLSPACING=0 CELLPADDING=2 WIDTH="80%" >
+<tr BGCOLOR="#99CCCC">
+<td><b><font color="#000000">Field</font></b></td>
+<td align="center"><b><font color="#000000">Bytes</font></b></td>
+<td><b><font color="#000000">Type</font></b></td>
+<td><b><font color="#000000">Notes</font></b></td>
+</tr>
+
+<tr>
+<td><b>recordOffset</b></td>
+<td align="center">4</td>
+<td>Numeric</td>
+<td>Number of bytes from the start of the document to the beginning of the record</td>
+</tr>
+
+<tr>
+<td><b>attributes</b></td>
+<td align="center">1</td>
+<td>Bitfield</td>
+<td>Record attributes -- should be zero.</td>
+</tr>
+
+<tr>
+<td><b>uniqueID</b></td>
+<td align="center">3</td>
+<td>Numeric</td>
+<td>A local (document-specific) unique ID for the record.  This is not used by Plucker (because it is not preserved by PalmOS through beaming of a document), but must still be different for each record.</td>
+</tr>
+</table>
+
+<p>
+Finally, there are two bytes of zero-padding to bring the structure alignment back to 4 bytes.</p>
+
+<H3><a name="appinfo_block">The AppInfo Block</a></H3>
+<p>
+Typically, this is only present when the <i>launchable</i> flag is set in the flags field of the database header.  No Plucker data aside from icon display information and a versioning string is stored in this block.  This block has the following structure:</p>
+<table BORDER CELLSPACING=0 CELLPADDING=2 WIDTH="80%" >
+<tr BGCOLOR="#99CCCC">
+<td><b><font color="#000000">Field</font></b></td>
+<td align="center"><b><font color="#000000">Bytes</font></b></td>
+<td><b><font color="#000000">Type</font></b></td>
+<td><b><font color="#000000">Notes</font></b></td>
+</tr>
+
+<tr>
+<td><b>signature</b></td>
+<td align="center">4</td>
+<td>Numeric</td>
+<td>Must contain the value 0x6C6E6368.</td>
+</tr>
+
+<tr>
+<td><b>hdrVersion</b></td>
+<td align="center">2</td>
+<td>Numeric</td>
+<td>Must have the value 3.</td>
+</tr>
+
+<tr>
+<td><b>hdrEncoding</b></td>
+<td align="center">2</td>
+<td>Numeric</td>
+<td>Must have the value 0.</td>
+</tr>
+
+<tr>
+<td><b>verStrWords</b></td>
+<td align="center">2</td>
+<td>Numeric</td>
+<td>The number of two-byte words following, containing the version string.</td>
+</tr>
+
+<tr>
+<td><b>verStr</b></td>
+<td align="center">2 * <b>verStrWords</b></td>
+<td>String</td>
+<td>NUL-terminated ISO Latin-1 string, padded at end if necessary with a zero byte to an even-byte boundary, containing a version string to display to the user containing version information for the document.</td>
+</tr>
+
+<tr>
+<td><b>pqaTitleWords</b></td>
+<td align="center">2</td>
+<td>Numeric</td>
+<td>The number of two-byte words in the following <b>pqaTitleStr</b>.</td>
+</tr>
+
+<tr>
+<td><b>pqaTitleStr</b></td>
+<td align="center">2 * <b>pqaTitleWords</b></td>
+<td>String</td>
+<td>NUL-terminated ISO Latin-1 string, padded at end if necessary with a zero byte to an even-byte boundary, containing a title string for iconic display of the document.</td>
+</tr>
+
+<tr>
+<td><b>iconWords</b></td>
+<td align="center">2</td>
+<td>Numeric</td>
+<td>Number of two-byte words in the following icon image.</td>
+</tr>
+
+<tr>
+<td><b>icon</b></td>
+<td align="center">2 * <b>iconWords</b></td>
+<td>Image</td>
+<td>Image (32x32) in Palm image format to be used as an icon to represent the document on a desktop-style display.  The image may not use a custom color map.</td>
+</tr>
+
+<tr>
+<td><b>smIconWords</b></td>
+<td align="center">2</td>
+<td>Numeric</td>
+<td>Number of two-byte words in the following icon image.</td>
+</tr>
+
+<tr>
+<td><b>smIcon</b></td>
+<td align="center">2 * <b>smIconWords</b></td>
+<td>Image</td>
+<td>Small image (15x9) in Palm image format to be used as an icon to represent the document on a desktop-style display.  The image may not use a custom color map.</td>
+</tr>
+</table>
+
+<HR><H2><a name="index_record">The Index Record</a></H2>
+<p>
+This record includes info about the compression type used
+for the Plucker document and also what IDs the reserved records use.
+The viewer will use this record to know where to look for the
+reserved records and whether it must have support for ZLib
+compression. This record should always be the first record in
+the Plucker document (i.e. at index 0).</p>
+
+<table BORDER CELLSPACING=0 CELLPADDING=2 WIDTH="80%" >
+<tr BGCOLOR="#99CCCC">
+<td><b><font color="#000000">Field</font></b></td>
+<td align="center"><b><font color="#000000">Bytes</font></b></td>
+<td><b><font color="#000000">Type</font></b></td>
+<td><b><font color="#000000">Notes</font></b></td>
+</tr>
+
+<tr>
+<td><b>uid</b></td>
+
+<td align="center">2</td>
+
+<td>Numeric</td>
+
+<td>unique ID for record, always 0x0001</td>
+</tr>
+
+<tr BGCOLOR="#F0F0F0">
+<td><b>version</b></td>
+
+<td align="center">2</td>
+
+<td>Numeric</td>
+
+<td>0x0002 if data is ZLib compressed, 0x0001 if DOC compressed</td>
+</tr>
+
+<tr>
+<td><b>records</b></td>
+
+<td align="center">2</td>
+
+<td>Numeric</td>
+
+<td>number of reserved records</td>
+</tr>
+
+<tr BGCOLOR="#F0F0F0">
+<td><b>reserved</b></td>
+
+<td align="center">4*records</td>
+
+<td>Numeric</td>
+
+<td>reserved ID array</td>
+</tr>
+</table>
+
+<p>
+The reserved ID array consists of a series of name/ID pairs,
+where the <strong>ID</strong> is the unique ID (2 bytes) for
+the record and the <strong>name</strong> is a value (2 bytes)
+from the following list.</p>
+
+<ul>
+<li>home.html = 0</li>
+<li>external bookmarks = 1</li>
+<li>URL handling = 2</li>
+<li>default category = 3</li>
+<li>additional metadata = 4</li>
+<li>page list metadata = 5</li>
+<li>sorted URL name data = 6</li>
+<li>external anchor name data = 7</li>
+
+</ul>
+
+<HR><H2><a name="data_records">The Data Records</a></H2>
+<p>
+There are several different types of data records.</p>
+
+<ul>
+<li><A HREF="#text_dr">text data (compressed/uncompressed)</A></li>
+<li><A HREF="#image_dr">image data (compressed/uncompressed)</A></li>
+<li><A HREF="#mailto_dr">mailto data</A></li>
+<li><A HREF="#url_handling_dr">URL handling data</A></li>
+<li><A HREF="#url_dr">URL data (compressed/uncompressed)</A></li>
+<li><A HREF="#external_bookmarks_dr">external bookmarks</A></li>
+<li><A HREF="#default_category_dr">default category</A></li>
+<li><a href="#index_extension_dr">metadata</a></li>
+<li><a href="#style_sheet_dr">style sheets (not yet implemented)</a></li>
+<li><a href="#font_page_dr">font pages (not yet implemented)</a></li>
+<li><a href="#table_dr">table data (compressed/uncompressed)</a></li>
+<li><a href="#pagelist_dr">page list metadata</a></li>
+<li><a href="#sorted_url_handling_dr">sorted URL handling data</a></li>
+<li><a href="#sorted_url_dr">sorted URL data (compressed/uncompressed)</a></li>
+<li><a href="#extanchor_handling_dr">external anchor name handling data</a></li>
+<li><a href="#extanchor_dr">external anchor name data (compressed/uncompressed)</a></li>
+
+</ul>
+
+
+<p>
+Each data record starts with a header, having the following structure:</p>
+
+<table BORDER CELLSPACING=0 CELLPADDING=2 WIDTH="80%" >
+<tr BGCOLOR="#99CCCC">
+<td><b><font color="#000000">Field</font></b></td>
+<td align="center"><b><font color="#000000">Bytes</font></b></td>
+<td><b><font color="#000000">Type</font></b></td>
+<td><b><font color="#000000">Notes</font></b></td>
+</tr>
+
+<tr>
+<td><b>uid</b></td>
+<td align="center">2</td>
+<td>Numeric</td>
+<td>Unique ID for record.  IDs must be sorted in increasing order.
+Currently the ID is not
+allowed to be 0xFFFF.  Moreover, some earlier versions of the viewer had a bug
+that crashed on records numbered 0x8000-0xFFFE.</td>
+</tr>
+
+<tr>
+<td><b>paragraphs</b></td>
+<td align="center">2</td>
+<td>Numeric</td>
+<td>number of paragraphs</td>
+</tr>
+
+<tr>
+<td><b>size</b></td>
+<td align="center">2</td>
+<td>Numeric</td>
+<td>total length of data before compression</td>
+</tr>
+
+<tr>
+<td><b>type</b></td>
+<td align="center">1</td>
+<td>Numeric</td>
+<td>Data type.  Must be one of the following:
+<table BORDER CELLSPACING=0 CELLPADDING=2 WIDTH="100%" >
+<tr BGCOLOR="#AADDDD">
+<td><b><font color="#000000">Data type</font></b></td>
+<td align="center"><b><font color="#000000">Value</font></b></td>
+</tr>
+
+<tr>
+<td><b>DATATYPE_PHTML</b></td>
+
+<td align="center">0</td>
+</tr>
+
+<tr BGCOLOR="#F0F0F0">
+<td><b>DATATYPE_PHTML_COMPRESSED</b></td>
+
+<td align="center">1</td>
+</tr>
+
+<tr>
+<td><b>DATATYPE_TBMP</b></td>
+
+<td align="center">2</td>
+</tr>
+
+<tr BGCOLOR="#F0F0F0">
+<td><b>DATATYPE_TBMP_COMPRESSED</b></td>
+
+<td align="center">3</td>
+</tr>
+
+<tr>
+<td><b>DATATYPE_MAILTO</b></td>
+
+<td align="center">4</td>
+</tr>
+
+<tr BGCOLOR="#F0F0F0">
+<td><b>DATATYPE_LINK_INDEX</b></td>
+
+<td align="center">5</td>
+</tr>
+
+<tr>
+<td><b>DATATYPE_LINKS</b></td>
+
+<td align="center">6</td>
+</tr>
+
+<tr BGCOLOR="#F0F0F0">
+<td><b>DATATYPE_LINKS_COMPRESSED</b></td>
+
+<td align="center">7</td>
+</tr>
+
+<tr>
+<td><b>DATATYPE_BOOKMARKS</b></td>
+
+<td align="center">8</td>
+</tr>
+
+<tr BGCOLOR="#F0F0F0">
+<td><b>DATATYPE_CATEGORY</b></td>
+
+<td align="center">9</td>
+</tr>
+
+<tr>
+<td><b>DATATYPE_METADATA</b></td>
+
+<td align="center">10</td>
+</tr>
+
+<tr BGCOLOR="#F0F0F0">
+<td><b>DATATYPE_STYLE_SHEET</b></td>
+
+<td align="center">11</td>
+</tr>
+
+<tr>
+<td><b>DATATYPE_FONT_PAGE</b></td>
+
+<td align="center">12</td>
+
+<tr BGCOLOR="#F0F0F0">
+<td><b>DATATYPE_TABLE</b></td>
+
+<td align="center">13</td>
+</tr>
+
+<tr>
+<td><b>DATATYPE_TABLE_COMPRESSED</b></td>
+
+<td align="center">14</td>
+</tr>
+
+<tr BGCOLOR="#F0F0F0">
+<td><b>DATATYPE_COMPOSITE_IMAGE</b></td>
+
+<td align="center">15</td>
+</tr>
+
+<tr>
+<td><b>DATATYPE_PAGELIST_METADATA</b></td>
+
+<td align="center">16</td>
+</tr>
+
+<tr BGCOLOR="#F0F0F0">
+<td><b>DATATYPE_SORTED_URL_INDEX</b></td>
+
+<td align="center">17</td>
+</tr>
+
+<tr>
+<td><b>DATATYPE_SORTED_URL</b></td>
+
+<td align="center">18</td>
+</tr>
+
+<tr BGCOLOR="#F0F0F0">
+<td><b>DATATYPE_SORTED_URL_COMPRESSED</b></td>
+
+<td align="center">19</td>
+</tr>
+
+<tr>
+<td><b>DATATYPE_EXT_ANCHOR_INDEX</b></td>
+
+<td align="center">20</td>
+</tr>
+
+<tr BGCOLOR="#F0F0F0">
+<td><b>DATATYPE_EXT_ANCHOR</b></td>
+
+<td align="center">21</td>
+</tr>
+
+<tr>
+<td><b>DATATYPE_EXT_ANCHOR_COMPRESSED</b></td>
+
+<td align="center">22</td>
+</tr>
+
+</table>
+</td>
+</tr>
+
+<tr>
+<td><b>flags</b></td>
+<td align="center">1</td>
+<td>Bitfield</td>
+<td>Bit-mapped record flags. Valid bits are as follows (all numeric values given are big-endian); unused bits should be set to zero.
+<table border="1" cellpadding="2" cellspacing="0" width="811">
+<tr bgcolor="#bbdddd">
+<td width="147"><b><font color="#000000">Name</font></b></td>
+<td width="39"><b><font color="#000000">Value</font></b></td>
+<td width="605"><b><font color="#000000">Meaning</font></b></td>
+</tr>
+
+<tr>
+<td bgcolor="#ffffff" width="147">Continued Record</td>
+<td bgcolor="#ffffff" width="39">&nbsp;0x01</td>
+<td bgcolor="#ffffff" width="605">A value of one indicates that the record is
+continued by the fragment in the next sequential record of the same type.
+This value is applicable to the following data types:
+<ul>
+  <li>DATATYPE_PHTML</li>
+  <li>DATATYPE_PHTML_COMPRESSED</li>
+</ul>
+<p>A value of zero indicates that the record is not to be continued (i.e. there are no fragments beyond this one, or this is the last one).</p>
+</td>
+</tr>
+
+<tr>
+<td bgcolor="#ffffff" width="147">Navigation Metadata</td>
+<td bgcolor="#ffffff" width="39">0x02</td>
+<td bgcolor="#ffffff" width="605">A value of one indicates that the text or image data in this record is followed by additional navigation metadata.</td>
+</tr>
+
+</table>
+</td>
+</tr>
+</table>
+
+<H3><a name="compression">Compression and the Owner-ID</a></H3>
+<p>This data format supports two forms of compression, DOC and ZLIB.  That part of a data record that occurs after the header is compressed as a single chunk.  All compressed records in a single document must use the same compression format.  Compressed records may be mixed with uncompressed records.  In a compressed record, the length of the compressed data <b>must</b> be less than its uncompressed length.</p>
+<p>DOC compression is the <A HREF="http://www.pyrite.org/doc_format.php">the format invented for early Palm usage</a>.</P>
+<p>ZLIB compression uses the ZLib format documented in Internet RFCs <a href="http://www.ietf.org/rfc/rfc1950.txt?number=1950">1950</a> and <a href="http://www.ietf.org/rfc/rfc1951.txt?number=1951">1951</a>.  See also <a href="http://www.gzip.org/zlib/manual.html">http://www.gzip.org/zlib/manual.html</a> for a description of the library used to perform the compression and decompression.</p>
+<p>Plucker documents may be keyed to a specific string of 40 or fewer ASCII characters, called the <i>owner-id</i>.  When such a key is specified, zlib compression must be used in the document.  When an owner-id is specified, the beginning of each zlib-compressed data segment is XOR'ed with a value derived from the key, after compression, and must be XOR'ed again with the derived value before being decompressed.  If an owner-id is specified for a document, the metadata record must exist, and must contain an <TT>OwnerID</TT> subrecord giving the CRC-32 of the owner-id string.</p>
+<p>The <i>derived value</i> mentioned above is a 40-byte value constructed by forming 10 strings by concatenating the owner-id string with itself 2, 3, 4, 5, 6, 7, 8, 9, 10, and 11 times, then taking the CRC-32 values of each of these concatenations, then packing those 32-bit values in big-endian order into a 40-byte buffer.
+<p></p>
+
+<p><HR width="60%" align=left><P>
+<H3><A NAME="text_dr">Text data records</A></H3>
+<p>
+For text data the data record header is followed by a series of paragraph
+headers, each representing a paragraph block in the text data.  This series of paragraph headers is then followed by the compressed or uncompressed text data.  Each paragraph header has the form:</p>
+
+<table BORDER CELLSPACING=0 CELLPADDING=2 WIDTH="80%" >
+<tr BGCOLOR="#99CCCC">
+<td><b><font color="#000000">Field</font></b></td>
+<td align="center"><b><font color="#000000">Bytes</font></b></td>
+<td><b><font color="#000000">Type</font></b></td>
+<td><b><font color="#000000">Notes</font></b></td>
+</tr>
+
+<tr>
+<td><b>size</b></td>
+
+<td align="center">2</td>
+
+<td>Numeric</td>
+
+<td>Total length of paragraph before compression. <font color="#FF0000">NOTE: No text data should be larger than 
+32k. If the original document is larger than 32k, then the 
+parser must split it into several records.</font>
+</td>
+</tr>
+
+<tr BGCOLOR="#F0F0F0">
+<td><b>attributes</b></td>
+
+<td align="center">2</td>
+
+<td>Bitfield</td>
+
+<td>Paragraph info.  The high-order 13 bits are reserved for future use and should be set to zero; the 3 low-order bits contain a numeric value in the range [0..7] giving the
+amount of extra paragraph spacing (2*value pixels).</td>
+</tr>
+</table>
+
+<p>
+The (uncompressed) text data contains a character stream of ISO Latin-1 characters, interspersed with 'functions'.</p>
+<P>
+A function is introduced in the text stream by a NULL character (0x00), followed by a one-byte function code
+and up to 7 bytes of data. The 3 LSB of the function code represent the
+remaining function data length; the 5 MSB denote the actual function
+code.  The following functions are valid:</p>
+
+<table BORDER CELLSPACING=0 CELLPADDING=2 WIDTH="80%" >
+<tr BGCOLOR="#99CCCC">
+<td><b><font color="#000000">Function Code</font></b></td>
+<td><b><font color="#000000">Description</font></b></td>
+<td align="center"><b><font color="#000000">Bytes</font></b></td>
+<td><b><font color="#000000">Arguments</font></b></td>
+</tr>
+
+<tr>
+<td><b>0x0A</b></td>
+<td>Page link begins</td>
+<td align="center">2</td>
+<td>record ID</td>
+</tr>
+
+<tr BGCOLOR="#F0F0F0">
+<td><b>0x0B</b></td>
+<td>Targeted page link begins</td>
+<td align="center">3</td>
+<td>record ID, target</td>
+</tr>
+
+<tr>
+<td><b>0x0C</b></td>
+<td>Paragraph link begins</td>
+<td align="center">4</td>
+<td>record ID, paragraph number</td>
+</tr>
+
+<tr BGCOLOR="#F0F0F0">
+<td><b>0x0D</b></td>
+<td>Targeted paragraph link begins</td>
+<td align="center">5</td>
+<td>record ID, paragraph number, target</td>
+</tr>
+
+<tr>
+<td><b>0x08</b></td>
+<td>Link ends</td>
+<td align="center">0</td>
+<td>no data</td>
+</tr>
+
+<tr BGCOLOR="#F0F0F0">
+<td><b>0x11</b></td>
+<td>Set font</td>
+<td align="center">1</td>
+<td>font specifier</td>
+</tr>
+
+<tr>
+<td><b>0x1A</b></td>
+<td>Embedded image</td>
+<td align="center">2</td>
+<td>image record ID</td>
+</tr>
+
+<tr BGCOLOR="#F0F0F0">
+<td><b>0x22</b></td>
+<td>Set margin</td>
+<td align="center">2</td>
+<td>left margin, right margin</td>
+</tr>
+
+<tr>
+<td><b>0x29</b></td>
+<td>Alignment of text</td>
+<td align="center">1</td>
+<td>alignment</td>
+</tr>
+
+<tr BGCOLOR="#F0F0F0">
+<td><b>0x33</b></td>
+<td>Horizontal rule</td>
+<td align="center">3</td>
+<td>8-bit height, 8-bit width (pixels), 8-bit width (%, 1-100)</td>
+</tr>
+
+<tr>
+<td><b>0x38</b></td>
+<td>New line</td>
+<td align="center">0</td>
+<td>no data</td>
+</tr>
+
+<tr BGCOLOR="#F0F0F0">
+<td><b>0x40</b></td>
+<td>Italic text begins</td>
+<td align="center">0</td>
+<td>no data</td>
+</tr>
+
+<tr>
+<td><b>0x48</b></td>
+<td>Italic text ends</td>
+<td align="center">0</td>
+<td>no data</td>
+</tr>
+
+<tr BGCOLOR="#F0F0F0">
+<td><b>0x53</b></td>
+<td>Set text color</td>
+<td align="center">3</td>
+<td>8-bit red, 8-bit green, 8-bit blue</td>
+</tr>
+
+<tr>
+<td><b>0x5C</b></td>
+<td>Multiple embedded image</td>
+<td align="center">4</td>
+<td>alternate image record ID, image record ID</td>
+</tr>
+
+<tr BGCOLOR="#F0F0F0">
+<td><b>0x60</b></td>
+<td>Underline text begins</td>
+<td align="center">0</td>
+<td>no data</td>
+</tr>
+
+<tr>
+<td><b>0x68</b></td>
+<td>Underline text ends</td>
+<td align="center">0</td>
+<td>no data</td>
+</tr>
+
+<tr BGCOLOR="#F0F0F0">
+<td><b>0x70</b></td>
+<td>Strike-through text begins</td>
+<td align="center">0</td>
+<td>no data</td>
+</tr>
+
+<tr>
+<td><b>0x78</b></td>
+<td>Strike-through text ends</td>
+<td align="center">0</td>
+<td>no data</td>
+</tr>
+
+<tr BGCOLOR="#F0F0F0">
+<td><b>0x83</b></td>
+<td>16-bit Unicode character</td>
+<td align="center">3</td>
+<td>alternate text length, 16-bit unicode character</td>
+</tr>
+
+<tr>
+<td><b>0x85</b></td>
+<td>32-bit Unicode character</td>
+<td align="center">5</td>
+<td>alternate text length, 32-bit unicode character</td>
+</tr>
+
+<tr BGCOLOR="#F0F0F0">
+<td><b>0x8E</b></td>
+<td>Begin custom font span</td>
+<td align="center">6</td>
+<td>font page record ID, X page position, Y page position</td>
+</tr>
+
+<tr>
+<td><b>0x8C</b></td>
+<td>Adjust custom font glyph position</td>
+<td align="center">4</td>
+<td>X page position, Y page position</td>
+</tr>
+
+<tr BGCOLOR="#F0F0F0">
+<td><b>0x8A</b></td>
+<td>Change font page</td>
+<td align="center">2</td>
+<td>font record ID</td>
+</tr>
+
+<tr>
+<td><b>0x88</b></td>
+<td>End custom font span</td>
+<td align="center">0</td>
+<td>no data</td>
+</tr>
+
+<tr BGCOLOR="#F0F0F0">
+<td><b>0x90</b></td>
+<td>Begin new table row</td>
+<td align="center">0</td>
+<td>no data</td>
+</tr>
+
+<tr>
+<td><b>0x92</b></td>
+<td>Insert table (or table link)</td>
+<td align="center">2</td>
+<td>table record ID</td>
+</tr>
+
+<tr BGCOLOR="#F0F0F0">
+<td><b>0x97</b></td>
+<td>Table cell data</td>
+<td align="center">7</td>
+<td>8-bit alignment, 16-bit image record ID, 8-bit columns, 8-bit rows, 16-bit text length</td>
+</tr>
+
+<tr>
+<td><b>0x9A</b></td>
+<td>Exact link modifier</td>
+<td align="center">2</td>
+<td>Paragraph Offset (The Exact Link Modifier modifies a Paragraph Link or Targeted Paragraph Link function to specify an exact byte offset within the paragraph. This function must be followed immediately by the function it modifies).</td>
+</tr>
+
+</table>
+<p>
+The function arguments have the following definitions:</p>
+
+<table BORDER CELLSPACING=0 CELLPADDING=2 WIDTH="80%" >
+<tr BGCOLOR="#99CCCC">
+<td><b><font color="#000000">Argument</font></b></td>
+<td align="center"><b><font color="#000000">Bytes</font></b></td>
+<td><b><font color="#000000">Notes</font></b></td>
+</tr>
+
+<tr>
+<td><b>record ID</b></td>
+
+<td align="center">2</td>
+
+<td>This is <em>either</em> a reference to a record in Plucker document (that is, a real record ID), or an index into the list of URLs, for URLs which have not been included in the document.</td>
+</tr>
+
+<tr BGCOLOR="#F0F0F0">
+<td><b>image record ID</b></td>
+
+<td align="center">2</td>
+
+<td>reference to image in Plucker document</td>
+</tr>
+
+<tr>
+<td><b>paragraph number</b></td>
+
+<td align="center">2</td>
+
+<td>paragraph number (starting from 0) to jump to or an index into the <a href="#extanchor_dr">external anchor name data</a> if the record ID is pseudo-Record ID for a URL which has not been included in the document.</td>
+</tr>
+
+<tr BGCOLOR="#F0F0F0">
+<td><b>font specifier</b></td>
+
+<td align="center">1</td>
+
+<td>
+The font concept used in Plucker is that of a 'standard' font, along with bold and italic versions of that font.  There is no font notion corresponding to HTML's &lt;BIG&gt; or &lt;SMALL&gt;.  In this markup, boldness and size are specified with a font specifier; italic is specified with a separate function code.  There are currently 11 font specification values, with the following meanings (the actual PalmOS fonts used by the Palm viewer are also given):
+<table BORDER=0 CELLSPACING=0 CELLPADDING=2 WIDTH="100%" >
+<tr>
+<td><b><font color="#000000">Value</font></b></td>
+<td><b><font color="#000000">Description</font></b></td>
+<td><b><font color="#000000">PalmOS 2.x</font></b></td>
+<td><b><font color="#000000">PalmOS 3.x</font></b></td>
+</tr>
+<tr>
+<td>0</td>
+<td>Regular text.</td>
+<td>stdFont</td>
+<td>stdFont</td>
+</tr>
+<tr>
+<td>1</td>
+<td>Suitable for &lt;H1&gt HTML tags.</td>
+<td>boldFont</td>
+<td>largeBoldFont</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Suitable for &lt;H2&gt HTML tags.</td>
+<td>boldFont</td>
+<td>largeBoldFont</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Suitable for &lt;H3&gt HTML tags.</td>
+<td>boldFont</td>
+<td>largeFont</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Suitable for &lt;H4&gt HTML tags.</td>
+<td>boldFont</td>
+<td>largeFont</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Suitable for &lt;H5&gt HTML tags.</td>
+<td>stdFont</td>
+<td>boldFont</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Suitable for &lt;H6&gt HTML tags.</td>
+<td>stdFont</td>
+<td>boldFont</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Regular text, but bold.</td>
+<td>stdFont</td>
+<td>boldFont</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Fixed-width text, suitable for &lt;TT&gt; HTML tags.</td>
+<td>stdFont</td>
+<td>fixedWidthFont</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Small normal text, suitable for &lt;SMALL&gt; HTML tags.</td>
+<td>stdFont</td>
+<td>stdFont</td>
+</tr>
+<tr>
+<td>10</td>
+<td>Small subscript text, suitable for &lt;SUB&gt; HTML tags.</td>
+<td>stdFont</td>
+<td>stdFont</td>
+</tr>
+<tr>
+<td>11</td>
+<td>Small superscript text, suitable for &lt;SUP&gt; HTML tags.</td>
+<td>stdFont</td>
+<td>stdFont</td>
+</tr>
+</table>
+</td>
+</tr>
+
+<tr>
+<td><b>left margin</b></td>
+
+<td align="center">1</td>
+
+<td>left margin in pixels</td>
+</tr>
+
+<tr BGCOLOR="#F0F0F0">
+<td><b>right margin</b></td>
+
+<td align="center">1</td>
+
+<td>right margin in pixels</td>
+</tr>
+
+<tr>
+<td><b>alignment</b></td>
+
+<td align="center">1</td>
+
+<td>alignment code (left = 0, right = 1, center = 2, justify = 3)</td>
+</tr>
+
+<tr BGCOLOR="#F0F0F0">
+<td><b>height</b></td>
+
+<td align="center">1</td>
+
+<td>height of horizontal rule in pixels, if not given a default value
+of 2 pixels will be used</td>
+</tr>
+
+<tr>
+<td><b>width (pixels)</b></td>
+
+<td align="center">1</td>
+
+<td>width in pixels, should be 0 if percentage value should be used</td>
+</tr>
+
+<tr BGCOLOR="#F0F0F0">
+<td><b>width (%)</b></td>
+
+<td align="center">1</td>
+
+<td>width as the percentage between the current left and right margins.
+The default is 100%</td>
+</tr>
+
+<tr>
+<td><b>alternate text length</b></td>
+
+<td align="center">1</td>
+
+<td>When a Unicode character not representable in ISO-Latin-1 is encountered in an HTML document, a Unicode-character function code is inserted, with the 16-bit or 32-bit value of the character.  This is followed by a "alternate representation" of the character in ISO-Latin-1 text.  This parameter gives the length, in bytes, of the alternate text span.  If the viewer can present the Unicode character directly, display of the alternate text should be suppressed.</td>
+
+<tr BGCOLOR="#F0F0F0">
+<td><b>16 or 32 bit Unicode character</b></td>
+
+<td align="center">2, 4</td>
+
+<td>When a Unicode character not representable in ISO-Latin-1 is encountered in an HTML document, a Unicode-character function code is inserted, with the 16-bit or 32-bit Unicode character code for the character, which this parameter supplies.  This is followed by a "alternate representation" of the character in ISO-Latin-1 text.  If the viewer can present the Unicode character directly, display of the alternate text should be suppressed.</td>
+</tr>
+
+<tr>
+<td><b>target</b></td>
+
+<td align="center">1</td>
+
+<td>The target parameter of a link function allows an alternate default target view for a link
+to be specified. By default, a link will always open in the same view as the current content
+location. Valid link targets are as follows:
+<table border="0" cellpadding="2" cellspacing="0" width="787">
+<tr>
+<td><b>Value</b></td>
+<td><b>Description</b></td>
+</tr>
+<tr>
+<td>0</td>
+<td>Default View. If specified, the link will be opened in the default view as
+determined by the reader. This value causes a Targeted Paragraph or Page
+Link to behave identical to a standard Paragraph or Page Link.</td>
+</tr>
+<tr>
+<td>1</td>
+<td>Primary View. Specifies that the link will be opened in the primary window
+regardless of current content location.</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Secondary View/Popup View. Specifies that the link will be opened in the
+secondary or popup view regardless of current content location.</td>
+</tr>
+</table>
+</td>
+</tr>
+
+<tr BGCOLOR="#F0F0F0">
+<td><b>Paragraph Offset</b></td>
+
+<td align="center">2</td>
+
+<td>specifies an exact byte offset within a paragraph relative to the beginning of the paragraph.</td>
+</tr>
+
+</table>
+
+<p><HR width="60%" align=left><P>
+<H3><A NAME="image_dr">Image data records</A></H3>
+<p>The image data consists of an image in Palm image format, compressed or uncompressed as specified in the document's index record.  The image may in addition be internally compressed, via any of the compression techniques allowed in the Palm image format.  The <i>fundamental size</i> of an image must be less than 480,000; this size is calculated by multiplying the width (in pixels) by the height (in pixels) by the depth (in bits).</p>
+
+<p>If the <i>fundamental size</i> is greater than 480,000, most parsers can be told to create a Multi-image group. This is a group of image records consisting of parts of the image which the viewer displays as one image. The parts are standard Image data records and the Multi-image record tells how many columns and rows the image has, and the record numbers of the parts.
+
+<table BORDER CELLSPACING=0 CELLPADDING=2 WIDTH="80%" >
+<tr BGCOLOR="#99CCCC">
+<td><b><font color="#000000">Field</font></b></td>
+<td align="center"><b><font color="#000000">Bytes</font></b></td>
+<td><b><font color="#000000">Type</font></b></td>
+<td><b><font color="#000000">Notes</font></b></td>
+</tr>
+
+<tr>
+<td><b>columns</b></td>
+
+<td align="center">2</td>
+
+<td>Numeric</td>
+
+<td>number of columns in this image</td>
+</tr>
+
+<tr BGCOLOR="#F0F0F0">
+<td><b>rows</b></td>
+
+<td align="center">2</td>
+
+<td>Numeric</td>
+
+<td>number of rows in this image</td>
+</tr>
+
+<tr>
+<td><b>image record IDs</b></td>
+
+<td align="center">2 * columns * rows</td>
+
+<td>Numeric</td>
+
+<td>References to images in Plucker document. There are (columns * rows) images listed here</td>
+</tr>
+
+</table>
+
+<br>
+<p><HR width="60%" align=left><P>
+
+<h3><a name="navigation_dr">Navigation metadata</a></h3>
+<p>This data is optionally appended to the end of a text or image data record based on the 
+setting of the Navigation Metadata flag in the record header. If the Navigation Metadata flag
+is set to one, the image or text data is immediately followed by the following data structures.
+</p>
+<p>
+<font color="#FF0000">NOTE: If navigation data is appended to a record then the last two bytes
+in the record shall contain the byte offset from the beginning of the record to the start of the
+navigation data.</font>
+</p>
+
+<table BORDER CELLSPACING=0 CELLPADDING=2 WIDTH="80%" >
+<tr BGCOLOR="#99CCCC">
+<td><b><font color="#000000">Field</font></b></td>
+<td align="center"><b><font color="#000000">Bytes</font></b></td>
+<td><b><font color="#000000">Type</font></b></td>
+<td><b><font color="#000000">Notes</font></b></td>
+</tr>
+
+<tr>
+<td><b>anchor name offset</b></td>
+
+<td align="center">2</td>
+
+<td>Numeric</td>
+
+<td>Byte offset from the beginning of the metadata to the anchor name table for this record or 0xffff if there is no anchor name data.</td>
+</tr>
+
+<tr bgcolor="#f0f0f0">
+<td><b>pagelist offset</b></td>
+
+<td align="center">2</td>
+
+<td>Numeric</td>
+
+<td>Byte offset from the beginning of the metadata to the page list table for this record or 0xffff if there is no page list data.</td>
+</tr>
+
+<tr>
+<td><b>hierarchy offset</b></td>
+
+<td align="center">2</td>
+
+<td>Numeric</td>
+
+<td>Byte offset from the beginning of the metadata to the hierarchy table for this record or 0xffff if there is no hierarchy data.</td>
+</tr>
+
+<tr bgcolor="#f0f0f0">
+<td><b>topic offset</b></td>
+
+<td align="center">2</td>
+
+<td>Numeric</span></font></td>
+
+<td>Byte offset from the beginning of the metadata to the list of topics associates with this record or 0xffff if there is no topic data .</td>
+</tr>
+
+<tr>
+<td><b>Title Strings</b></td>
+
+<td align="center">2+</td>
+
+<td>String sequence</td>
+
+<td>A series of concatenated NUL-terminated strings in the following order:
+<ol>
+  <li><b>Long Record Title - </b>The title of the record. This title should allow the record to be identified out of context.</li>
+  <li><b>Short Record Title - </b>A title string which allows the record to be identified in context.</li>
+</ol>
+<p>If a given string in the list is not defined, an empty string (NUL) must still be entered 
+in the appropriate location in the string sequence.</p></td>
+</tr>
+
+</table>
+
+<p>The offsets block and title strings are followed by a series of tables.</p>
+
+<p>The <b>anchor name table</b> specifies the offset of the anchor names within the text record.</p>
+
+<table BORDER CELLSPACING=0 CELLPADDING=2 WIDTH="80%" >
+<tr BGCOLOR="#99CCCC">
+<td><b><font color="#000000">Field</font></b></td>
+<td align="center"><b><font color="#000000">Bytes</font></b></td>
+<td><b><font color="#000000">Type</font></b></td>
+<td><b><font color="#000000">Notes</font></b></td>
+</tr>
+
+<tr bgcolor="#f0f0f0">
+<td><b>anchor names</b></td>
+
+<td align="center">2</td>
+
+<td>Numeric</td>
+
+<td>number of anchor names</td>
+</tr>
+
+<tr>
+<td><b>anchor name data</b></td>
+
+<td align="center">2*anchor names</td>
+
+<td>Numeric Array</td>
+
+<td>This field is an array of 2 byte offsets, each representing the corresponding 
+offset associated with an anchor name relative to the beginning of the text 
+record. The order of each offset corresponds to the order of the string for that anchor name 
+within the anchor name string sequence below.</td>
+</tr>
+
+<tr bgcolor="#f0f0f0">
+<td><b>anchor name strings</b></td>
+
+<td align="center">variable size</td>
+
+<td>String sequence</td>
+
+<td>A concatenated sequence of NUL-terminated strings, each an anchor name name. The relative
+location of an anchor name string in the string sequence represents its index into the anchor
+name data.</td>
+</tr>
+
+</table>
+
+<p>
+The <b>page list table</b> contains 
+the uid of the previous and next records relative to this record for one or more 
+page lists. Each page list, combined with the page lists from other 
+Incoming Navigation data records defines one of more unique a linear navigation 
+schemes for the document. The default scheme is always associated with a 
+list id of 0.</p>
+
+<table BORDER CELLSPACING=0 CELLPADDING=2 WIDTH="80%" >
+<tr BGCOLOR="#99CCCC">
+<td><b><font color="#000000">Field</font></b></td>
+<td align="center"><b><font color="#000000">Bytes</font></b></td>
+<td><b><font color="#000000">Type</font></b></td>
+<td><b><font color="#000000">Notes</font></b></td>
+</tr>
+
+<tr bgcolor="#f0f0f0">
+<td><b>pagelists</b></td>
+
+<td align="center">2</td>
+
+<td>Numeric</td>
+
+<td>number of page list entries for this record.</td>
+</tr>
+
+<tr>
+<td><b>pagelist data</b></td>
+
+<td align="center">6*pagelists</td>
+
+<td>Page List Data</td>
+
+<td>Block of data containing an array of Page List Data (described below).</td>
+</tr>
+
+</table>
+
+<p>
+The page list data consists of a series of structures containing a list id followed by the 
+unique ID of the previous and next records associated with that list id.</p>
+
+<table BORDER CELLSPACING=0 CELLPADDING=2 WIDTH="80%" >
+<tr BGCOLOR="#99CCCC">
+<td><b><font color="#000000">Field</font></b></td>
+<td align="center"><b><font color="#000000">Bytes</font></b></td>
+<td><b><font color="#000000">Type</font></b></td>
+<td><b><font color="#000000">Notes</font></b></td>
+</tr>
+
+<tr bgcolor="#f0f0f0">
+<td><b>list id</b></td>
+
+<td align="center">2</td>
+
+<td>Numeric</td>
+
+<td>the list id for this list. A list id of 0 should be used for the default linear ordering.</td>
+</tr>
+
+<tr>
+<td><b>prev uid</b></td>
+
+<td align="center">2</td>
+
+<td>Numeric</td>
+
+<td>the uid of the previous record in the series for this list id or 0xffff if this is the 
+first record in the series.</td>
+</tr>
+
+<tr bgcolor="#f0f0f0">
+<td><b>next uid</b></td>
+
+<td align="center">2</td>
+
+<td>Numeric</td>
+
+<td>the uid of the next record in the series for the list id or 0xffff if this is the 
+last record in the series.</td>
+</tr>
+
+</table>
+
+<p>The <b>hierarchy table</b> specifies unique ID of each text record above this record in
+the document hierarchy that serves as an index leading to the current record.</p>
+
+<table BORDER CELLSPACING=0 CELLPADDING=2 WIDTH="80%" >
+<tr BGCOLOR="#99CCCC">
+<td><b><font color="#000000">Field</font></b></td>
+<td align="center"><b><font color="#000000">Bytes</font></b></td>
+<td><b><font color="#000000">Type</font></b></td>
+<td><b><font color="#000000">Notes</font></b></td>
+</tr>
+
+<tr bgcolor="#f0f0f0">
+<td><b>levels</b></td>
+
+<td align="center">2</td>
+
+<td>Numeric</td>
+
+<td>number of levels above the current record in the hierarchy.</td>
+</tr>
+
+<tr>
+<td><b>hierarchy data</b></td>
+
+<td align="center">2*levels</td>
+
+<td>Numeric Array</td>
+
+<td>This field is an array of 2 byte uids, each corresponding to the text record 
+that serves as the index at a given level in the document hierarchy relative to 
+the current record. The order of each uid in the array corresponds to the 
+order of its corresponding string description in the string sequence below.</td>
+</tr>
+
+<tr bgcolor="#f0f0f0">
+<td><b>hierarchy strings</b></td>
+
+<td align="center">variable size</td>
+
+<td>String sequence</td>
+
+<td>An abbreviated string that identifies the level index. This string should be 
+as short as possible, ideally only a few characters.</td>
+</tr>
+
+</table>
+
+<p>The <b>topic table</b> provides a list of topics associated with the record.</p>
+
+<table BORDER CELLSPACING=0 CELLPADDING=2 WIDTH="80%" >
+<tr BGCOLOR="#99CCCC">
+<td><b><font color="#000000">Field</font></b></td>
+<td align="center"><b><font color="#000000">Bytes</font></b></td>
+<td><b><font color="#000000">Type</font></b></td>
+<td><b><font color="#000000">Notes</font></b></td>
+</tr>
+
+<tr bgcolor="#f0f0f0">
+<td><b>topics</b></td>
+
+<td align="center">2</td>
+
+<td>Numeric</td>
+
+<td>number of topics in the topic string sequence.</td>
+</tr>
+
+<tr>
+<td><b>topic strings</b></td>
+
+<td align="center">0+</td>
+
+<td>String sequence</td>
+
+<td>A concatenated sequence of one or more NUL-terminated 
+ISO Latin-1 strings. Each string represents a topic associated with this 
+text record.</td>
+</tr>
+
+</table>
+
+<p><HR width="60%" align=left><P>
+<H3><A NAME="mailto_dr">Mailto data records</A></H3>
+The mailto data contains info about e-mail addresses that are
+referenced by the mailto anchors. All the offsets are counting
+from the end of the header.
+
+<table BORDER CELLSPACING=0 CELLPADDING=2 WIDTH="80%" >
+<tr BGCOLOR="#99CCCC">
+<td><b><font color="#000000">Field</font></b></td>
+<td align="center"><b><font color="#000000">Bytes</font></b></td>
+<td><b><font color="#000000">Type</font></b></td>
+<td><b><font color="#000000">Notes</font></b></td>
+</tr>
+
+<tr>
+<td><b>to offset</b></td>
+
+<td align="center">2</td>
+
+<td>Numeric</td>
+
+<td>offset to TO string</td>
+</tr>
+
+<tr BGCOLOR="#F0F0F0">
+<td><b>cc offset</b></td>
+
+<td align="center">2</td>
+
+<td>Numeric</td>
+
+<td>offset to CC string</td>
+</tr>
+
+<tr>
+<td><b>subject offset</b></td>
+
+<td align="center">2</td>
+
+<td>Numeric</td>
+
+<td>offset to SUBJECT string</td>
+</tr>
+
+<tr BGCOLOR="#F0F0F0">
+<td><b>body offset</b></td>
+
+<td align="center">2</td>
+
+<td>Numeric</td>
+
+<td>offset to BODY string</td>
+</tr>
+
+<tr>
+<td><b>strings</b></td>
+
+<td align="center">0+</td>
+
+<td>String sequence</td>
+
+<td>A concatenated sequence of one or more NUL-terminated US-ASCII strings.  Each contains a header-value, which follows the contraints on header values laid down in IETF RFC 2822.  Header folding is not allowed.  Any of the four headers shown above may be absent; header values should be accessed via the above offsets.</td>
+</tr>
+
+</table>
+
+<p><HR width="60%" align=left><P>
+<H3><A NAME="url_handling_dr">URL handling data records</a></H3>
+Optionally, URL information for the records in the document may be stored.  This information includes URL strings both for the pages actually included in the document, and for those pages excluded from the document.  This information is conceptually stored as a sequence of strings, where the position of the URL in the sequence corresponds to the record ID of its page in the document.  In the case of a page which is not actually included in the document, a pseudo-record-ID is assigned, greater than any actual record IDs in the document, and the URL of that page is associated with that pseudo-record-ID.
+<p>
+In practice, there are two kinds of records used to store the URL strings, the <i>URL handling data record</i>, which serves as an index into the sequence of strings, and the <i>URL data record</i>, one or more of which contain the actual strings.  
+<p>
+<p>
+For cross-document linking support, the URL strings must be of the format "doc://[<i>external doc name</i>]:[<i>url</i>]" where <i>external doc name</i> is the name of the external document and <i>url</i> is the URL string associated with a given record.
+</p>
+The URL handling data is used to find the record ID of the record which contains the correct URL string. It
+contains a series of 2 byte number pairs.
+
+<table BORDER CELLSPACING=0 CELLPADDING=2 WIDTH="80%" >
+<tr BGCOLOR="#99CCCC">
+<td><b><font color="#000000">Field</font></b></td>
+<td align="center"><b><font color="#000000">Bytes</font></b></td>
+<td><b><font color="#000000">Type</font></b></td>
+<td><b><font color="#000000">Notes</font></b></td>
+</tr>
+
+<tr>
+<td><b>last url</b></td>
+
+<td align="center">2</td>
+
+<td>Numeric</td>
+
+<td>the ordinal number of the last URL in record</td>
+</tr>
+
+<tr BGCOLOR="#F0F0F0">
+<td><b>id</b></td>
+
+<td align="center">2</td>
+
+<td>Numeric</td>
+
+<td>record ID for record</td>
+</tr>
+
+</table>
+
+<p><HR width="60%" align=left><P>
+<H3><A NAME="url_dr">URL data records</A></h3>
+The URL data contains a list of the URLs. Additional records
+are created if needed and contain up to 200 URLs.
+
+<table BORDER CELLSPACING=0 CELLPADDING=2 WIDTH="80%" >
+<tr BGCOLOR="#99CCCC">
+<td><b><font color="#000000">Field</font></b></td>
+<td align="center"><b><font color="#000000">Bytes</font></b></td>
+<td><b><font color="#000000">Type</font></b></td>
+<td><b><font color="#000000">Notes</font></b></td>
+</tr>
+
+<tr>
+<td><b>URLs</b></td>
+
+<td align="center">1+</td>
+
+<td>String sequence</td>
+
+<td>a concatenated sequence of NUL-terminated URL strings following the constraints of IETF RFC 1738.  The list may contain up to 200 URLs (only text and image records are included,
+other records are represented only by the presence of a NUL; that is, by an empty string)</td>
+</tr>
+
+</table>
+<p>
+These records may or may not be compressed. This is indicated
+by the type in the header. These records are used by the Details
+form to display the URL of the current record and by the External
+Reference form to display the URL of not collected pages. From
+either form you can copy the URL to a Memo to remind you to pluck
+it at a later date.  For inter-document links, a paragraph link
+function may be specified to contain a pseudo-Record ID in place
+of an actual-Record ID, and an index into the
+<a href="#extanchor_handling_dr">external anchor names</a> record
+in place of the paragraph number.
+</p>
+
+<p><HR width="60%" align=left><P>
+<h3><A NAME="external_bookmarks_dr">External Bookmarks data records</A></h3>
+The external bookmarks data contains a list of bookmarks added by the
+parser. It will work similar to named anchors.
+
+<table BORDER CELLSPACING=0 CELLPADDING=2 WIDTH="80%" >
+<tr BGCOLOR="#99CCCC">
+<td><b><font color="#000000">Field</font></b></td>
+<td align="center"><b><font color="#000000">Bytes</font></b></td>
+<td><b><font color="#000000">Type</font></b></td>
+<td><b><font color="#000000">Notes</font></b></td>
+</tr>
+
+<tr BGCOLOR="#F0F0F0">
+<td><b>bookmarks</b></td>
+
+<td align="center">2</td>
+
+<td>Numeric</td>
+
+<td>number of bookmarks</td>
+</tr>
+
+<tr>
+<td><b>offset</b></td>
+
+<td align="center">2</td>
+
+<td>Numeric</td>
+
+<td>offset to the start of the bookmark data (counting from the beginning
+of the record)</td>
+</tr>
+
+<tr BGCOLOR="#F0F0F0">
+<td><b>names</b></td>
+
+<td align="center">variable size</td>
+
+<td>String sequence</td>
+
+<td>A concatenated sequence of NUL-terminated strings, each a bookmark name</td>
+</tr>
+
+<tr>
+<td><b>bookmark data</b></td>
+
+<td align="center">4*bookmarks</td>
+
+<td>Bookmark Data</td>
+
+<td>block of data for the location of the external bookmarks (see below)</td>
+</tr>
+
+</table>
+
+<p>
+The bookmark data is a series of uid/offset pairs.</p>
+
+<table BORDER CELLSPACING=0 CELLPADDING=2 WIDTH="80%" >
+<tr BGCOLOR="#99CCCC">
+<td><b><font color="#000000">Field</font></b></td>
+<td align="center"><b><font color="#000000">Bytes</font></b></td>
+<td><b><font color="#000000">Type</font></b></td>
+<td><b><font color="#000000">Notes</font></b></td>
+</tr>
+
+<tr>
+<td><b>uid</b></td>
+
+<td align="center">2</td>
+
+<td>Numeric</td>
+
+<td>unique ID for record</td>
+</tr>
+
+<tr BGCOLOR="#F0F0F0">
+<td><b>offset</b></td>
+
+<td align="center">2</td>
+
+<td>Numeric</td>
+
+<td>paragraph offset</td>
+</tr>
+
+</table>
+
+<p><HR width="60%" align=left><P>
+<H3><A NAME="default_category_dr">Default Category data records</A></h3>
+<p>Each Plucker document can be assigned to a number of named categories.  This record stores the names of default categories for the document.  The data consists of a concatenated series of NUL-terminated strings that
+should be used as the default category/categories for this document.</p>
+
+<p><HR width="60%" align=left><P>
+<H3><A NAME="index_extension_dr">Metadata data records</A></h3>
+<p>There should only be one of these per document.  This record begins with a two byte numeric value, giving the number of subrecords that follow, followed by that number of subrecords.  The subrecords are a sequence of tagged variable length items.  Each subrecord consists of three fields:
+
+<P>
+<P><table BORDER CELLSPACING=0 CELLPADDING=2 WIDTH="80%" >
+<tr BGCOLOR="#99CCCC">
+<td><b><font color="#000000">Field</font></b></td>
+<td align="center"><b><font color="#000000">Bytes</font></b></td>
+<td><b><font color="#000000">Type</font></b></td>
+<td><b><font color="#000000">Description</font></b></td>
+</tr>
+
+<tr>
+<td><b>type code</b></td>
+<td align="center">2</td>
+<td>Numeric</td>
+<td>Specifies what piece of extra information is in this subrecord</td>
+</tr>
+
+<tr>
+<td><b>length</b></td>
+<td align="center">2</td>
+<td>Numeric</td>
+<td>Number of 2-byte words in the <b>argument</b></td>
+</tr>
+
+<tr>
+<td><b>argument</b></td>
+<td align="center">2 * <b>length</b></td>
+<td>(type code specific)</td>
+<td>Data</td>
+</tr>
+
+</table>
+
+<P>The following table describes the valid subrecord type codes, and describes the structure of the associated data for each subrecord type.  Subrecords with unknown type codes should be ignored.
+
+<P><table BORDER CELLSPACING=0 CELLPADDING=2 WIDTH="80%" >
+<tr BGCOLOR="#99CCCC">
+<td><b><font color="#000000">Type code</font></b></td>
+<td><b><font color="#000000">Name</font></b></td>
+<td><b><font color="#000000">Description</font></b></td>
+<td><b><font color="#000000">Argument</font></b></td>
+</tr>
+
+<tr>
+<td align="center">1</td>
+<td><b>CharSet</b></td>
+<td>This is the character set and encoding used by text records in this document, unless otherwise specified for particular records.</td>
+<td>a two-byte numeric value, specifying the IETF IANA MIBenum value for the character set.  See <a href="http://www.iana.org/assignments/character-sets">the IANA registry of character sets</a> for valid values.</td>
+</tr>
+
+<tr>
+<td align="center">2</td>
+<td><b>ExceptionalCharSets</b></td>
+<td>This is a list of text records which use a charset other than that specified by the default CharSet.  Note that if no default CharSet is specified, the default charset should be thought of as "unknown".</td>
+<td>a sequence of (<b>length</b> / 2) record-ID, IANA-MIBenum pairs, where MIBenum values are as specified for <B>CharSet</B>.  The invalid MIBenum value of 0 (zero) is used for records which have an unknown charset, if necessary.<br>
+<table BORDER CELLSPACING=0 CELLPADDING=2 WIDTH="100%" >
+<tr BGCOLOR="#BBDDDD">
+<td><b><font color="#000000">Field</font></b></td>
+<td align="center"><b><font color="#000000">Bytes</font></b></td>
+<td><b><font color="#000000">Type</font></b></td>
+<td><b><font color="#000000">Notes</font></b></td>
+</tr>
+
+<tr>
+<td><b>record ID</b></td>
+
+<td align="center">2</td>
+
+<td>Numeric</td>
+
+<td>unique ID for record</td>
+</tr>
+
+<tr>
+<td><b>MIBenum</b></td>
+
+<td align="center">2</td>
+
+<td>Numeric</td>
+
+<td>IANA MIBenum for the character set used in this record</td>
+</tr>
+
+</table>
+</td>
+</tr>
+
+<tr>
+<td align="center">3</td>
+<td><b>OwnerID</b></td>
+<td>This is the CRC-32 of the specified owner-id for the document, if any.  Note that associating an owner-id with a document also affects the calculation of <a href="#compression">zlib compression</a>.</td>
+<td>a four-byte numeric value giving the CRC-32 of the owner-id string.</td>
+</tr>
+
+<tr>
+<td align="center">4</td>
+<td><b>Author</b></td>
+<td>The name of the author of the document.</td>
+<td>A string value in the document's default character set, padded at the end with NUL characters to an even number of bytes.</td>
+</tr>
+
+<tr>
+<td align="center">5</td>
+<td><b>Title</b></td>
+<td>The full title of the document.</td>
+<td>A string value in the document's default character set, padded at the end with NUL characters to an even number of bytes.</td>
+</tr>
+
+<tr>
+<td align="center">6</td>
+<td><b>PublicationDate</b></td>
+<td>The date and time this document was created.</td>
+<td>A 4-byte unsigned integer giving the number of seconds from 12:00 AM on January 1, 1904, to the time when this document was created.</td>
+</tr>
+
+<tr>
+<td align="center">7</td>
+<td><b>Linked Documents</b></td>
+<td>The list of external documents that this document links to.</td>
+<td>A concatenated sequence of NUL-terminated strings representing the document names for each external document linked to within this document. The string sequence should be padded at the end with NUL characters to an even number of bytes.</td>
+</tr>
+
+</table>
+
+<p><HR width="60%" align=left><P>
+<H3><A NAME="style_sheet_dr">Style Sheet data records</A></h3>
+<p>TBD</p>
+
+<p><HR width="60%" align=left><P>
+<H3><A NAME="font_page_dr">Font Page data records</A></h3>
+<p>TBD</p>
+
+<p><HR width="60%" align=left><P>
+<H3><A NAME="table_dr">Table data records</A></h3>
+<p>The Table Record describes an HTML table. It begins with a structure with the following format.</p>
+
+<P><table BORDER CELLSPACING=0 CELLPADDING=2 WIDTH="80%" >
+<tr BGCOLOR="#99CCCC">
+<td><b><font color="#000000">Field</font></b></td>
+<td align="center"><b><font color="#000000">Bytes</font></b></td>
+<td><b><font color="#000000">Type</font></b></td>
+<td><b><font color="#000000">Description</font></b></td>
+</tr>
+
+<tr>
+<td><b>size</b></td>
+<td align="center">2</td>
+<td>Numeric</td>
+<td>Size of the following data</td>
+</tr>
+
+<tr BGCOLOR="#F0F0F0">
+<td><b>columns</b></td>
+<td align="center">2</td>
+<td>Numeric</td>
+<td>Number of columns the table contains</td>
+</tr>
+
+<tr>
+<td><b>rows</b></td>
+<td align="center">2</td>
+<td>Numeric</td>
+<td>Number of rows the table contains</td>
+</tr>
+
+<tr BGCOLOR="#F0F0F0">
+<td><b>depth</b></td>
+<td align="center">1</td>
+<td>Numeric</td>
+<td>Bits per pixel (BPP) needed to render the table</td>
+</tr>
+
+<tr>
+<td><b>border</b></td>
+<td align="center">1</td>
+<td>Numeric</td>
+<td>Draw table borders (0 = no, any other value = yes, 1 pixel wide)</td>
+</tr>
+
+<tr BGCOLOR="#F0F0F0">
+<td><b>border color</b></td>
+<td align="center">4</td>
+<td>Numeric</td>
+<td>RGB value of border color</td>
+</tr>
+
+<tr>
+<td><b>link color</b></td>
+<td align="center">4</td>
+<td>Numeric</td>
+<td>RGB value of link color</td>
+</tr>
+
+</table>
+
+<p>This is followed by table row and table cell functions (their ends are implied). Each table cell function is followed by 'text length' (from the function) text, containing text and/or formatting functions. (Such as links, style, underline, strike through, italic, etc.)</p>
+
+<p><hr align="left" width="60%">
+<h3><a name="pagelist_dr">Page List Metadata data record</a></h3>
+<p>
+There should only be one of these per document. This record is used to assign the name and initial record associated with each page list in the document. Page lists are used to define the default ordering of pages within the document. More than one page list can be specified, which can be useful for defining tours through a document.
+</p>
+
+<P><table BORDER CELLSPACING=0 CELLPADDING=2 WIDTH="80%" >
+<tr BGCOLOR="#99CCCC">
+<td><b><font color="#000000">Field</font></b></td>
+<td align="center"><b><font color="#000000">Bytes</font></b></td>
+<td><b><font color="#000000">Type</font></b></td>
+<td><b><font color="#000000">Description</font></b></td>
+</tr>
+
+<tr>
+<td><b>lists</b></td>
+
+<td align="center">2</td>
+
+<td>Numeric</td>
+
+<td>The number of page lists or tours in the document.</td>
+</tr>
+
+<tr>
+<td><b>first record</b></td>
+
+<td align="center">2 * sequences</td>
+
+<td>Numeric Array</td>
+
+<td>An array of uids corresponding to the first record in each page sequence. The zero
+based index into this array represents the sequence id or tour id. The first entry should be
+considered the default page ordering for the document.</td>
+</tr>
+
+<tr>
+<td><b>list name</b></td>
+
+<td align="center">1+</td>
+
+<td>String sequence</td>
+
+<td>a concatenated sequence of NUL-terminated strings, each representing the name of a
+page list. The first entry in the list corresponds to the default page ordering. For
+unnamed page lists, a NUL charater should still be specified.</td>
+</tr>
+
+</table>
+
+<p>Page lists can be thought of as linked lists of records. The first record field in the
+Page List Metadata record is equivalent to the head pointer of the list.
+Each text record contains a previous/next record pointer within it's navigation
+metadata.</p>
+
+<p><hr align="left" width="60%">
+<h3><a name="sorted_url_handling_dr">Sorted URL Handling data record</a></h3>
+<p>
+The Sorted URL handling record is used to find the record ID of the Sorted URL data record
+containing data for a given URL string. It contains a series of 2 byte number pairs.
+</p>
+
+<P><table BORDER CELLSPACING=0 CELLPADDING=2 WIDTH="80%" >
+<tr BGCOLOR="#99CCCC">
+<td><b><font color="#000000">Field</font></b></td>
+<td align="center"><b><font color="#000000">Bytes</font></b></td>
+<td><b><font color="#000000">Type</font></b></td>
+<td><b><font color="#000000">Description</font></b></td>
+</tr>
+
+<tr>
+<td><b>last URL</b></td>
+
+<td align="center">2</td>
+
+<td>Numeric</td>
+
+<td>the ordinal number of the last URL in record</td>
+</tr>
+
+<tr bgcolor="#f0f0f0">
+<td><b>id</b></td>
+
+<td align="center">2</td>
+
+<td>Numeric</td>
+
+<td>record ID for record</td>
+</tr>
+
+</table>
+
+<p><hr align="left" width="60%">
+
+<h3><a name="sorted_url_dr">Sorted URL data records</a></h3>
+<p>The sorted URL data record contains a list of URL/UID pointers sorted according to the
+lexicographical order of the URL strings pointed to by the url uid and
+url offset fields. This data is used in cross-document linking to
+facilitate a binary search of the URL strings in order to lookup the record ID
+for an incoming URL string. Only URLs for records actually contained in the document
+should be included in the Sorted URL data records. URLs for external
+records should be omitted.</p>
+
+<P><table BORDER CELLSPACING=0 CELLPADDING=2 WIDTH="80%" >
+<tr BGCOLOR="#99CCCC">
+<td><b><font color="#000000">Field</font></b></td>
+<td align="center"><b><font color="#000000">Bytes</font></b></td>
+<td><b><font color="#000000">Type</font></b></td>
+<td><b><font color="#000000">Description</font></b></td>
+</tr>
+
+<tr>
+<td><b>url uid</b></td>
+
+<td align="center">2</td>
+
+<td>Numeric</td>
+
+<td>unique ID for URL data record that contains the sorted URL string.</td>
+</tr>
+
+<tr bgcolor="#f0f0f0">
+<td><b>url offset</b></td>
+
+<td align="center">2</td>
+
+<td>Numeric</td>
+
+<td>byte offset of the first character of the sorted URL string in the URL data record.</td>
+</tr>
+
+<tr>
+<td><b>record uid</b></td>
+
+<td align="center">2</td>
+
+<td>Numeric</td>
+
+<td>unique ID of the text or image record that pertains to the sorted URL string.</td>
+</tr>
+
+</table>
+
+<p><hr align="left" width="60%">
+
+<h3><a name="extanchor_handling_dr">External Anchor Name Handling data record</a></h3>
+<p>The External Anchor handling record is used to find the record ID of the External
+Anchor data record containing a given external anchor string. It contains a series of
+2 byte number pairs.
+</p>
+
+<P><table BORDER CELLSPACING=0 CELLPADDING=2 WIDTH="80%" >
+<tr BGCOLOR="#99CCCC">
+<td><b><font color="#000000">Field</font></b></td>
+<td align="center"><b><font color="#000000">Bytes</font></b></td>
+<td><b><font color="#000000">Type</font></b></td>
+<td><b><font color="#000000">Description</font></b></td>
+</tr>
+
+<tr>
+<td><b>last anchor</b></td>
+
+<td align="center">2</td>
+
+<td>Numeric</td>
+
+<td>the ordinal number of the last anchor in record</td>
+</tr>
+
+<tr bgcolor="#f0f0f0">
+<td><b>id</b></td>
+
+<td align="center">2</td>
+
+<td>Numeric</td>
+
+<td>record ID for record</td>
+</tr>
+
+</table>
+
+<p><hr align="left" width="60%">
+
+<h3><a name="extanchor_dr">External Anchor Name data record</a></h3>
+<p>The External Anchor data record is a string table containing the unique names for all
+external anchor name strings referenced in this document. These strings
+are used to query the record specific anchor name tables in a target book to
+determine a paragraph offset for cross-document linking. This information is
+conceptually stored as a sequence of strings, where the position of the anchor
+name in the sequence corresponds to it's index.</p>
+
+<P><table BORDER CELLSPACING=0 CELLPADDING=2 WIDTH="80%" >
+<tr BGCOLOR="#99CCCC">
+<td><b><font color="#000000">Field</font></b></td>
+<td align="center"><b><font color="#000000">Bytes</font></b></td>
+<td><b><font color="#000000">Type</font></b></td>
+<td><b><font color="#000000">Description</font></b></td>
+</tr>
+
+<tr>
+<td><b>anchor name list</b></td>
+
+<td align="center">1+</td>
+
+<td>String sequence</td>
+
+<td>a concatenated sequence of unique NUL-terminated strings, each representing an anchor
+name from an external link found within this document.</td>
+</tr>
+
+</table>
+
+<p>
+These records may or may not be compressed. This is indicated by the type in the header. These
+records are used in conjunction with the Sorted URL Data records and record specific anchor
+name tables to facilitate cross-document linking.</p>
+
+<p><HR><P>
+<table BORDER=0 CELLSPACING=0 CELLPADDING=2 WIDTH="100%" BGCOLOR="#EEEEEE" >
+<tr>
+<td BGCOLOR="#EEEEEE"><font size=-2>&copy; Copyright 2000 Michael
+Nordstr&ouml;m
+&lt;<a href="mailto:micke@sslug.dk">micke@sslug.dk</a>&gt; &middot; Copyright 2001 Bill Janssen &lt;<a href="mailto:bill@janssen.org">bill@janssen.org</a></font></td>
+
+<td ALIGN=RIGHT BGCOLOR="#EEEEEE"><font size=-2>$Id: DBFormat.html,v 1.27 2005/10/29 14:14:21 nordstrom Exp $</font></td>
+</tr>
+</table>
+</BODY>
+</HTML>

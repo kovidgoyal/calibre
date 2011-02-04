@@ -1041,23 +1041,28 @@ class TagsModel(QAbstractItemModel): # {{{
 
     def tokens(self):
         ans = []
+        # Tags can be in the news and the tags categories. However, because of
+        # the desire to use two different icons (tags and news), the nodes are
+        # not shared, which can lead to the possibility of searching twice for
+        # the same tag. The tags_seen set helps us prevent that
         tags_seen = set()
+        # Tag nodes are in their own category and possibly in user categories.
+        # They will be 'checked' in both places, but we want to put the node
+        # into the search string only once. The nodes_seen set helps us do that
+        nodes_seen = set()
         row_index = -1
 
         for i, key in enumerate(self.row_map):
             if self.hidden_categories and self.categories[i] in self.hidden_categories:
                 continue
             row_index += 1
-            if key.startswith('@'):
-                # User category, so skip it. The tag will be marked in its real category
-                continue
             category_item = self.root_item.children[row_index]
             for tag_item in category_item.child_tags():
                 tag = tag_item.tag
                 if tag.state != TAG_SEARCH_STATES['clear']:
                     prefix = ' not ' if tag.state == TAG_SEARCH_STATES['mark_minus'] \
                                      else ''
-                    category = key if key != 'news' else 'tag'
+                    category = tag.category if key != 'news' else 'tag'
                     if tag.name and tag.name[0] == u'\u2605': # char is a star. Assume rating
                         ans.append('%s%s:%s'%(prefix, category, len(tag.name)))
                     else:
@@ -1065,6 +1070,9 @@ class TagsModel(QAbstractItemModel): # {{{
                             if tag.name in tags_seen:
                                 continue
                             tags_seen.add(tag.name)
+                        if tag in nodes_seen:
+                            continue
+                        nodes_seen.add(tag)
                         ans.append('%s%s:"=%s"'%(prefix, category, tag.name))
         return ans
 

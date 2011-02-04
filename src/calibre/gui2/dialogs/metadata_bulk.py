@@ -11,7 +11,7 @@ from PyQt4.Qt import Qt, QDialog, QGridLayout, QVBoxLayout, QFont, QLabel, \
 
 from calibre.gui2.dialogs.metadata_bulk_ui import Ui_MetadataBulkDialog
 from calibre.gui2.dialogs.tag_editor import TagEditor
-from calibre.ebooks.metadata import string_to_authors, authors_to_string
+from calibre.ebooks.metadata import string_to_authors, authors_to_string, title_sort
 from calibre.ebooks.metadata.book.base import composite_formatter
 from calibre.ebooks.metadata.meta import get_metadata
 from calibre.gui2.custom_column_widgets import populate_metadata_page
@@ -134,7 +134,7 @@ class MyBlockingBusy(QDialog): # {{{
             do_autonumber, do_remove_format, remove_format, do_swap_ta, \
             do_remove_conv, do_auto_author, series, do_series_restart, \
             series_start_value, do_title_case, cover_action, clear_series, \
-            pubdate, adddate = self.args
+            pubdate, adddate, do_title_sort = self.args
 
 
         # first loop: do author and title. These will commit at the end of each
@@ -159,6 +159,9 @@ class MyBlockingBusy(QDialog): # {{{
             if do_title_case and not title_set:
                 title = self.db.title(id, index_is_id=True)
                 self.db.set_title(id, titlecase(title), notify=False)
+            if do_title_sort:
+                title = self.db.title(id, index_is_id=True)
+                self.db.set_title_sort(id, title_sort(title), notify=False)
             if au:
                 self.db.set_authors(id, string_to_authors(au), notify=False)
             if cover_action == 'remove':
@@ -360,11 +363,11 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
             if (f in ['author_sort'] or
                     (fm[f]['datatype'] in ['text', 'series', 'enumeration']
                      and fm[f].get('search_terms', None)
-                     and f not in ['formats', 'ondevice', 'sort']) or
+                     and f not in ['formats', 'ondevice']) or
                     fm[f]['datatype'] in ['int', 'float', 'bool'] ):
                 self.all_fields.append(f)
                 self.writable_fields.append(f)
-            if f in ['sort'] or fm[f]['datatype'] == 'composite':
+            if fm[f]['datatype'] == 'composite':
                 self.all_fields.append(f)
         self.all_fields.sort()
         self.all_fields.insert(1, '{template}')
@@ -437,7 +440,7 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         self.replace_func.addItems(sorted(self.s_r_functions.keys()))
         self.search_mode.currentIndexChanged[int].connect(self.s_r_search_mode_changed)
         self.search_field.currentIndexChanged[int].connect(self.s_r_search_field_changed)
-        self.destination_field.currentIndexChanged[str].connect(self.s_r_destination_field_changed)
+        self.destination_field.currentIndexChanged[int].connect(self.s_r_destination_field_changed)
 
         self.replace_mode.currentIndexChanged[int].connect(self.s_r_paint_results)
         self.replace_func.currentIndexChanged[str].connect(self.s_r_paint_results)
@@ -468,6 +471,16 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         self.query_field.addItems(sorted([q for q in self.queries], key=sort_key))
         self.query_field.currentIndexChanged[str].connect(self.s_r_query_change)
         self.query_field.setCurrentIndex(0)
+
+    def s_r_sf_itemdata(self, idx):
+        if idx is None:
+            idx = self.search_field.currentIndex()
+        return unicode(self.search_field.itemData(idx).toString())
+
+    def s_r_df_itemdata(self, idx):
+        if idx is None:
+            idx = self.destination_field.currentIndex()
+        return unicode(self.destination_field.itemData(idx).toString())
 
     def s_r_get_field(self, mi, field):
         if field:
@@ -508,7 +521,7 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         for i in range(0, self.s_r_number_of_books):
             w = getattr(self, 'book_%d_text'%(i+1))
             mi = self.db.get_metadata(self.ids[i], index_is_id=True)
-            src = unicode(self.search_field.currentText())
+            src = self.s_r_sf_itemdata(idx)
             t = self.s_r_get_field(mi, src)
             if len(t) > 1:
                 t = t[self.starting_from.value()-1:
@@ -518,13 +531,13 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         if self.search_mode.currentIndex() == 0:
             self.destination_field.setCurrentIndex(idx)
         else:
-            self.s_r_destination_field_changed(self.destination_field.currentText())
+            self.s_r_destination_field_changed(self.destination_field.currentIndex())
             self.s_r_paint_results(None)
 
-    def s_r_destination_field_changed(self, txt):
-        txt = unicode(txt)
+    def s_r_destination_field_changed(self, idx):
+        txt = self.s_r_df_itemdata(idx)
         if not txt:
-            txt = unicode(self.search_field.currentText())
+            txt = self.s_r_sf_itemdata(None)
         if txt and txt in self.writable_fields:
             self.destination_field_fm = self.db.metadata_for_field(txt)
         self.s_r_paint_results(None)
@@ -533,8 +546,9 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         self.search_field.clear()
         self.destination_field.clear()
         if val == 0:
-            self.search_field.addItems(self.writable_fields)
-            self.destination_field.addItems(self.writable_fields)
+            for f in self.writable_fields:
+                self.search_field.addItem(f if f != 'sort' else 'title_sort', f)
+                self.destination_field.addItem(f if f != 'sort' else 'title_sort', f)
             self.destination_field.setCurrentIndex(0)
             self.destination_field.setVisible(False)
             self.destination_field_label.setVisible(False)
@@ -544,8 +558,14 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
             self.comma_separated.setVisible(False)
             self.s_r_heading.setText('<p>'+self.main_heading + self.character_heading)
         else:
-            self.search_field.addItems(self.all_fields)
-            self.destination_field.addItems(self.writable_fields)
+            self.search_field.blockSignals(True)
+            self.destination_field.blockSignals(True)
+            for f in self.all_fields:
+                self.search_field.addItem(f if f != 'sort' else 'title_sort', f)
+            for f in self.writable_fields:
+                self.destination_field.addItem(f if f != 'sort' else 'title_sort', f)
+            self.search_field.blockSignals(False)
+            self.destination_field.blockSignals(False)
             self.destination_field.setVisible(True)
             self.destination_field_label.setVisible(True)
             self.replace_mode.setVisible(True)
@@ -575,7 +595,7 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         return rfunc(rtext)
 
     def s_r_do_regexp(self, mi):
-        src_field = unicode(self.search_field.currentText())
+        src_field = self.s_r_sf_itemdata(None)
         src = self.s_r_get_field(mi, src_field)
         result = []
         rfunc = self.s_r_functions[unicode(self.replace_func.currentText())]
@@ -587,10 +607,10 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         return result
 
     def s_r_do_destination(self, mi, val):
-        src = unicode(self.search_field.currentText())
+        src = self.s_r_sf_itemdata(None)
         if src == '':
             return ''
-        dest = unicode(self.destination_field.currentText())
+        dest = self.s_r_df_itemdata(None)
         if dest == '':
             if self.db.metadata_for_field(src)['datatype'] == 'composite':
                 raise Exception(_('You must specify a destination when source is a composite field'))
@@ -680,10 +700,10 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
                 break
 
     def do_search_replace(self, id):
-        source = unicode(self.search_field.currentText())
+        source = self.s_r_sf_itemdata(None)
         if not source or not self.s_r_obj:
             return
-        dest = unicode(self.destination_field.currentText())
+        dest = self.s_r_df_itemdata(None)
         if not dest:
             dest = source
         dfm = self.db.field_metadata[dest]
@@ -717,6 +737,8 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         else:
             if dest == 'comments':
                 setter = self.db.set_comment
+            elif dest == 'sort':
+                setter = self.db.set_title_sort
             else:
                 setter = getattr(self.db, 'set_'+dest)
             if dest in ['title', 'authors']:
@@ -844,6 +866,7 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         do_remove_conv = self.remove_conversion_settings.isChecked()
         do_auto_author = self.auto_author_sort.isChecked()
         do_title_case = self.change_title_to_title_case.isChecked()
+        do_title_sort = self.update_title_sort.isChecked()
         pubdate = adddate = None
         if self.apply_pubdate.isChecked():
             pubdate = qt_to_dt(self.pubdate.date())
@@ -862,7 +885,7 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
                 do_autonumber, do_remove_format, remove_format, do_swap_ta,
                 do_remove_conv, do_auto_author, series, do_series_restart,
                 series_start_value, do_title_case, cover_action, clear_series,
-                pubdate, adddate)
+                pubdate, adddate, do_title_sort)
 
         bb = MyBlockingBusy(_('Applying changes to %d books.\nPhase {0} {1}%%.')
                 %len(self.ids), args, self.db, self.ids,

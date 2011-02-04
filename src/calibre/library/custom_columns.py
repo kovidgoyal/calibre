@@ -440,22 +440,24 @@ class CustomColumns(object):
         self.dirtied(ids, commit=False)
         self.conn.commit()
 
-    def set_custom(self, id, val, label=None, num=None,
-                   append=False, notify=True, extra=None, commit=True):
-        self._set_custom(id, val, label=label, num=num, append=append,
-                         notify=notify, extra=extra)
-        self.dirtied([id], commit=False)
+    def set_custom(self, id, val, label=None, num=None, append=False,
+                   notify=True, extra=None, commit=True, allow_case_change=False):
+        rv = self._set_custom(id, val, label=label, num=num, append=append,
+                         notify=notify, extra=extra,
+                         allow_case_change=allow_case_change)
+        self.dirtied(set([id])|rv, commit=False)
         if commit:
             self.conn.commit()
+        return rv
 
-    def _set_custom(self, id_, val, label=None, num=None,
-                   append=False, notify=True, extra=None):
+    def _set_custom(self, id_, val, label=None, num=None, append=False,
+                    notify=True, extra=None, allow_case_change=False):
         if label is not None:
             data = self.custom_column_label_map[label]
         if num is not None:
             data = self.custom_column_num_map[num]
         if data['datatype'] == 'composite':
-            return None
+            return set([])
         if not data['editable']:
             raise ValueError('Column %r is not editable'%data['label'])
         table, lt = self.custom_table_names(data['num'])
@@ -466,10 +468,11 @@ class CustomColumns(object):
         if data['datatype'] == 'series' and extra is None:
             (val, extra) = self._get_series_values(val)
 
+        books_to_refresh = set([])
         if data['normalized']:
             if data['datatype'] == 'enumeration' and (
                     val and val not in data['display']['enum_values']):
-                return None
+                return books_to_refresh
             if not append or not data['is_multiple']:
                 self.conn.execute('DELETE FROM %s WHERE book=?'%lt, (id_,))
                 self.conn.execute(
@@ -483,6 +486,7 @@ class CustomColumns(object):
             for x in set(set_val) - set(existing):
                 if x is None:
                     continue
+                case_change = False
                 existing = list(self.all_custom(num=data['num']))
                 lx = [t.lower() if hasattr(t, 'lower') else t for t in existing]
                 try:
@@ -492,13 +496,14 @@ class CustomColumns(object):
                 if idx > -1:
                     ex = existing[idx]
                     xid = self.conn.get(
-                            'SELECT id FROM %s WHERE value=?'%table, (ex,), all=False)
-                    if ex != x:
+                        'SELECT id FROM %s WHERE value=?'%table, (ex,), all=False)
+                    if allow_case_change and ex != x:
+                        case_change = True
                         self.conn.execute(
-                                'UPDATE %s SET value=? WHERE id=?'%table, (x, xid))
+                            'UPDATE %s SET value=? WHERE id=?'%table, (x, xid))
                 else:
                     xid = self.conn.execute(
-                            'INSERT INTO %s(value) VALUES(?)'%table, (x,)).lastrowid
+                        'INSERT INTO %s(value) VALUES(?)'%table, (x,)).lastrowid
                 if not self.conn.get(
                     'SELECT book FROM %s WHERE book=? AND value=?'%lt,
                                                         (id_, xid), all=False):
@@ -512,6 +517,10 @@ class CustomColumns(object):
                         self.conn.execute(
                             '''INSERT INTO %s(book, value)
                                 VALUES (?,?)'''%lt, (id_, xid))
+                if case_change:
+                    bks = self.conn.get('SELECT book FROM %s WHERE value=?'%lt,
+                                        (xid,))
+                    books_to_refresh |= set([bk[0] for bk in bks])
             nval = self.conn.get(
                     'SELECT custom_%s FROM meta2 WHERE id=?'%data['num'],
                     (id_,), all=False)
@@ -530,7 +539,7 @@ class CustomColumns(object):
                     row_is_id=True)
         if notify:
             self.notify('metadata', [id_])
-        return nval
+        return books_to_refresh
 
     def clean_custom(self):
         st = ('DELETE FROM {table} WHERE (SELECT COUNT(id) FROM {lt} WHERE'

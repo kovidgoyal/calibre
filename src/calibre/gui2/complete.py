@@ -198,6 +198,9 @@ class MultiCompleteLineEdit(QLineEdit):
                 return True # Filter this event since the cw is visible
         return QLineEdit.eventFilter(self, o, e)
 
+    def hide_completion_window(self):
+        self.complete_window.hide()
+
 
     def text_edited(self, *args):
         self.update_completions()

@@ -1,0 +1,104 @@
+Format
+------
+
+A PDB file can be borken into multiple parts. The header, record 0 and data.
+values stored within the various parts are big-endian byte order. The data
+part is is broken down into multiple sections. The section count and offsets
+are referened in the PDB header. Sections can be no more than 65505 bytes in
+length.
+
+
+Layout
+------
+
+PDB files take the format: DB header followed by the record 0 which has
+contained format specific iformation followed by data.
+
+    DB Header
+0   Record 0
+.
+.   Data (borken down into sections)
+.
+
+
+Palm Database Header Format
+
+bytes   content             comments 
+
+32      name                database name. This name is 0 terminated in the
+                            field and will be used as the file name on a
+                            computer. For eBooks this usually contains the
+                            title and may have the author depending on the
+                            length available.
+
+2       attributes          bit field.
+                            0x0002 Read-Only
+                            0x0004 Dirty AppInfoArea
+                            0x0008 Backup this database (i.e. no conduit exists)
+                            0x0010 (16 decimal) Okay to install newer over
+                                    existing copy, if present on PalmPilot
+                            0x0020 (32 decimal) Force the PalmPilot to reset
+                                    after this database is installed
+                            0x0040 (64 decimal) Don't allow copy of file to be
+                                    beamed to other Pilot.
+
+2       version             file version
+
+4       creation date       No. of seconds since start of January 1, 1904.
+
+4       modification date   No. of seconds since start of January 1, 1904.
+
+4       last backup date    No. of seconds since start of January 1, 1904.
+
+4       modificationNumber
+
+4       appInfoID           offset to start of Application Info (if present)
+                            or null
+
+4       sortInfoID          offset to start of Sort Info (if present) or null
+
+4       type                See above table. (For Applications this data will
+                            be 'appl')
+
+4   	creator             See above table. This program will be launched if
+                            the file is tapped
+
+4       uniqueIDseed        used internally to identify record
+
+4       nextRecordListID    Only used when in-memory on Palm OS. Always set to
+                            zero in stored files.
+
+2       number of Records   number of records in the file - N
+
+8N      record Info List
+
+        start of record
+        info entry          Repeat N times to end of record info entry
+
+4       record Data Offset  the offset from the start of the PDB of this record
+
+1       record Attributes   bit field. The least significant four bits are used
+                            to represent the category values. These are the
+                            categories used to split the databases for viewing
+                            on the screen. A few of the 16 categories are
+                            pre-defined but the user can add their own. There
+                            is an undefined category for use if the user or
+                            programmer hasn't set this.
+                            0x10 (16 decimal) Secret record bit.
+                            0x20 (32 decimal) Record in use (busy bit).
+                            0x40 (64 decimal) Dirty record bit.
+                            0x80 (128, unsigned decimal) Delete record on
+                                  next HotSync.
+
+3       UniqueID            The unique ID for this record. Often just a
+                            sequential count from 0
+
+        end of record
+        info entry
+
+2?      Gap to data        traditionally 2 zero bytes to Info or raw data
+
+?       Records            The actual data in the file. AppInfoArea (if
+                           present), SortInfoArea (if present) and then
+                           records sequentially
+
