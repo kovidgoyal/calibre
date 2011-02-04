@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-01-30 19:51+0000\n"
-"PO-Revision-Date: 2011-02-03 04:16+0000\n"
+"PO-Revision-Date: 2011-02-03 06:39+0000\n"
 "Last-Translator: Hamm <Unknown>\n"
 "Language-Team: dev@gl.openoffice.org\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-02-03 04:42+0000\n"
+"X-Launchpad-Export-Date: 2011-02-04 04:43+0000\n"
 "X-Generator: Launchpad (build 12177)\n"
 "Language: gl\n"
 
@@ -3813,6 +3813,8 @@ msgid ""
 "Preserve the aspect ratio of the cover, instead of stretching it to fill the "
 "full first page of the generated pdf."
 msgstr ""
+"Manter a relación de aspecto da imaxe, no canto de facer que encha "
+"completamente a primeira páxina do pdf xerado."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/pdftohtml.py:55
 msgid "Could not find pdftohtml, check it is in your PATH"
@@ -4007,6 +4009,9 @@ msgid ""
 "with a txt-output-formatting option that is not none because links are "
 "always removed with plain text output."
 msgstr ""
+"Non eliminar ligazóns no documento. Esta opción só ten utilidade cando se "
+"combina cunha opción de formato de saída do texto diferente de \"ningún\", "
+"porque as ligazóns sempre se eliminan na saída de texto simple."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:60
 msgid ""
@@ -4014,6 +4019,10 @@ msgid ""
 "paired with a txt-output-formatting option that is not none because links "
 "are always removed with plain text output."
 msgstr ""
+"Non eliminar referencias a imaxes no documento. Esta opción só ten utilidade "
+"cando se combina cunha opción de formato de saída de texto diferente a "
+"\"ningún\", porque as referencias ás imaxes sempre se eliminan na saída de "
+"texto simple."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:70
 msgid "Send file to storage card instead of main memory by default"
@@ -4514,7 +4523,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:286
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:340
 msgid "Success"
-msgstr ""
+msgstr "Éxito."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:305
 msgid ""
@@ -4537,6 +4546,8 @@ msgstr "Produciuse un fallo"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:311
 msgid "Database integrity check failed, click Show details for details."
 msgstr ""
+"A comprobación da integridade da base de datos fallou. Pulse en \"Mostrar "
+"detalles\" para máis información."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:316
 msgid "No problems found"
@@ -6428,7 +6439,7 @@ msgstr "Poñer en cursiva palabras e patróns habituais"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:101
 msgid "Replace entity indents with CSS indents"
-msgstr ""
+msgstr "Substituír o sangrado con caracteres mediante sangrado CSS"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:16
 msgid "Look & Feel"
@@ -6906,7 +6917,7 @@ msgstr "Casos:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder_ui.py:94
 msgid "0"
-msgstr ""
+msgstr "0"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder_ui.py:95
 msgid "Goto:"
@@ -7777,6 +7788,70 @@ msgid ""
 "        category.</p>\n"
 "        "
 msgstr ""
+"        <h1>Axuda</h1>\n"
+"\n"
+"        <p>calibre garda a lista dos seus libros e os metadatos nunha base\n"
+"        de datos. Os ficheiros dos libros e portadas gárdanse como "
+"ficheiros\n"
+"        normais no directorio da biblioteca. A base de datos contén unha "
+"lista\n"
+"        cos ficheiros e portadas correspondentes a cada libro. Esta "
+"ferramenta\n"
+"        comproba que os ficheiros no directorio da biblioteca do ordenador\n"
+"        coinciden coa información na base de datos.</p>\n"
+"\n"
+"        <p>Os resultados de cada tipo de comprobación móstranse á\n"
+"        esquerda. Os tipos de comprobación son:\n"
+"        </p>\n"
+"        <ul>\n"
+"        <li><b>Títulos inválidos</b>: Son ficheiros e directorios que\n"
+"        están na biblioteca, onde se atopan os libros, pero non teñen\n"
+"        a forma correcta para un título de libro.</li>\n"
+"        <li><b>Títulos adicionais</b>: Son ficheiros extra na biblioteca\n"
+"        de calibre que parecen títulos correctos, pero non teñen unha\n"
+"        entrada correspondente na base de datos.</li>\n"
+"        <li><b>Autores inválidos</b>: Son ficheiros que aparecen na\n"
+"        biblioteca onde só deberían aparecer directorios de autores.</li>\n"
+"        <li><b>Autores adicionais</b>: Son directorios na librería de "
+"calibre\n"
+"        que parecen ser autores pero non teñen unha entrada na base de\n"
+"        datos</li>\n"
+"        <li><b>Formatos de libros perdidos</b>: Son formatos de libros que\n"
+"        existen na base de datos pero non no directorio do libro.\n"
+"        <li><b>Formatos de libros adicionais</b>: Formatos de libros\n"
+"        atopados no directorio pero non na base de datos.\n"
+"        <li><b>ficheiros descoñecidos</b>: ficheiros adicionais atopados\n"
+"        no directorio dun libro que non corresponden con ningún formato\n"
+"        ou portada.</li>\n"
+"        <li><b>ficheiros de portada perdidos</b>: Son libros para os que na\n"
+"        base de datos está marcada a existencia de portadas pero os "
+"ficheiros\n"
+"        reais non se atopan.</li>\n"
+"        <li><b>ficheiros de portada adicionais</b>: Son libros que teñen\n"
+"        ficheiros de portada que non están sinalados na base de datos.</li>\n"
+"        <li><b>Directorios que dan erro</b>: Son directorios na biblioteca\n"
+"        de calibre que non poden ser comprendidos ou procesados por esta\n"
+"        ferramenta.</li>\n"
+"        </ul>\n"
+"\n"
+"        <p>Hai dous tipos de reparacións automáticas posibles: <i>Eliminar\n"
+"        marcados</i> e <i>Reparar marcados</i>.</p>\n"
+"        <p><i>Eliminar marcados</i> é usado para eliminar ficheiros, "
+"directorios,\n"
+"        e portadas que non teñen entradas na base de datos. Marque a caixa o "
+"lado\n"
+"        do elemento que quere eliminar. Úseo con precaución.</p>\n"
+"        <p><i>Reparar marcados</i> é aplicable só a portadas (as dúas liñas\n"
+"        marcadas con \"reparable\"). No caso de portadas desaparecidas, ó "
+"marcar\n"
+"        a caixa de \"reparable\" e pulsar este botón eliminarase a "
+"asignación de\n"
+"        portada para todos os ficheiros desta categoría na base de datos. No "
+"caso\n"
+"        de portadas adicionais, ó marcar a caixa de \"reparable\" e pulsar "
+"este botón\n"
+"        asignarase a portada a tódolos ficheiros desta categoría.\n"
+"        "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:218
 msgid "&Run the check again"
@@ -8541,7 +8616,7 @@ msgstr "&Datos:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:529
 msgid "d MMM yyyy"
-msgstr ""
+msgstr "d MMM yyyy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:531
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:536
@@ -9220,6 +9295,8 @@ msgid ""
 "Restoring database from backups, do not interrupt, this will happen in three "
 "stages"
 msgstr ""
+"Restaurando a base de datos a partires da copia de seguridade. Non "
+"interrompa a operación, que se desenrolará en tres etapas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:25
 msgid "Restoring database"
@@ -9246,6 +9323,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:102
 msgid "Restoring database failed, click Show details to see details"
 msgstr ""
+"A restauración da base de datos fallou. Pulse \"Mostrar detalles\" para máis "
+"información"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:107
 msgid ""
@@ -13659,8 +13738,8 @@ msgstr ""
 "Campos dispoñibles: %s,\n"
 "máis os campos personalizados creados polo usuario.\n"
 "Exemplo: %s=title,authors,tags\n"
-"Valor predeterminado: '%%default'\n"
-"Aplícase a: formatos de saída CSV, XML"
+"Valor predeterminado: \"%%default\"\n"
+"Aplícase a: formatos de saída CSV e XML"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:65
 msgid ""
@@ -13688,7 +13767,7 @@ msgstr ""
 "Campos dispoñibles: %s,\n"
 "máis os campos personalizados creados polo usuario.\n"
 "Exemplo: %s=title,authors,tags\n"
-"Valor predeterminado: '%%default'\n"
+"Valor predeterminado: \"%%default\"\n"
 "Aplícase a: formato de saída BIBTEX"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:244
@@ -13725,7 +13804,7 @@ msgstr ""
 "Crear unha entrada para o ficheiro se os formatos están seleccionadas para "
 "as entradas BIBTEX.\n"
 "Valor booleano: True, False\n"
-"Valor predeterminado: '%default'\n"
+"Valor predeterminado: \"%default\"\n"
 "Aplícase a: formato de saída BIBTEX"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:271
@@ -13799,7 +13878,7 @@ msgstr ""
 "Garda a saída das distintas fases do proceso de conversión no directorio "
 "especificado. É útil se non está seguro de en que etapa do proceso ocorre un "
 "fallo.\n"
-"Valor predeterminado: '%default'\n"
+"Valor predeterminado: \"%default\"\n"
 "Aplícase a: formatos de saída ePub e MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:615
@@ -13811,8 +13890,8 @@ msgid ""
 msgstr ""
 "field:pattern especificando contidos/campos personalizables que indiquen "
 "libros deberán excluirse.\n"
-"Predeterminado: '%default'\n"
-"Aplícase a: formatos de saída ePub, MOBI"
+"Predeterminado: \"%default\"\n"
+"Aplícase a: formatos de saída ePub e MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:622
 msgid ""
@@ -13863,8 +13942,8 @@ msgid ""
 "Applies to: ePub, MOBI output formats"
 msgstr ""
 "Incluír a sección 'Xéneros' no catálogo.\n"
-"Predeterminado: '%default'\n"
-"Aplícase a: formatos de saída ePub, MOBI"
+"Predeterminado: \"%default\"\n"
+"Aplícase a: formatos de saída ePub e MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:657
 msgid ""
@@ -13904,8 +13983,8 @@ msgid ""
 msgstr ""
 "O campo personalizable que contén texto de notas a insertar no Encabezado "
 "descritivo.\n"
-"Predeterminado: '%default'\n"
-"Aplícase a: formatos de saída ePub, MOBI"
+"Predeterminado: \"%default\"\n"
+"Aplícase a: formatos de saída ePub e MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:685
 msgid ""
@@ -13922,8 +14001,8 @@ msgstr ""
 " [before|after] Posición das notas con respecto aos Comentarios\n"
 " [True|False] - Insírese unha liña horizontal entre as notas e os "
 "Comentarios\n"
-"Predeterminado: '%default'\n"
-"Aplícase a: formatos de saída ePub, MOBI"
+"Predeterminado: \"%default\"\n"
+"Aplícase a: formatos de saída ePub e MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:695
 msgid ""
@@ -13959,8 +14038,8 @@ msgid ""
 msgstr ""
 "Tamaño da indicación (en polgadas) para as portadas de libros no catálogo.\n"
 "Rango: 1.0 - 2.0\n"
-"Predeterminado: '%default'\n"
-"Aplícase a: formatos de saída ePub, MOBI"
+"Predeterminado: \"%default\"\n"
+"Aplícase a: formatos de saída ePub e MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:716
 msgid ""
@@ -15455,6 +15534,9 @@ msgid ""
 "test(val, text if not empty, text if empty) -- return `text if not empty` if "
 "the field is not empty, otherwise return `text if empty`"
 msgstr ""
+"test(val, texto_se_non_baleiro, texto_se_baleiro) -- devolve "
+"texto_se_non_baleiro se o campo non está baleiro, devolve texto_se_baleiro "
+"en caso contrario."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:288
 msgid ""
@@ -15462,6 +15544,10 @@ msgid ""
 "contains matches for the regular expression `pattern`. Returns `text if "
 "match` if matches are found, otherwise it returns `text if no match`"
 msgstr ""
+"contains(val, patrón, texto_se_coincide, texto_se_non_coincide) -- comproba "
+"se o campo contén coincidencias para a expresión regular patrón. Devolve "
+"texto_se_coincide se se encontran coincidencias, en caso contrario devolve "
+"texto_se_non_coincide."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:303
 msgid ""
@@ -15471,6 +15557,11 @@ msgid ""
 "else_value is returned. You can have as many `pattern, value` pairs as you "
 "want"
 msgstr ""
+"switch(val, patrón, valor, patrón, valor, ..., outro_valor) -- para cada "
+"parella \"patrón, valor\", comproba se o campo contén coincidencias para a "
+"expresión regular patrón e, en tal caso, devolve ese valor. Se non coincide "
+"ningún patrón, devolve outro_valor. Pode usar tantas parellas \"patrón, "
+"valor\" como desexe."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:311
 msgid "switch requires an odd number of arguments"
@@ -15482,12 +15573,18 @@ msgid ""
 "expression. All instances of `pattern` are replaced with `replacement`. As "
 "in all of calibre, these are python-compatible regular expressions"
 msgstr ""
+"re(val, patrón, substitución) -- devolve o campo despois de aplicar a "
+"expresión regular. Todas as veces que apareza patrón se substituirá por "
+"substitución. Como en todo calibre, trátase de expresións regulares "
+"compatibles con python."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:334
 msgid ""
 "ifempty(val, text if empty) -- return val if val is not empty, otherwise "
 "return `text if empty`"
 msgstr ""
+"ifempty(val, texto_se_baleiro) -- devolve val se non está baleiro, en caso "
+"contrario devolve texto_se_baleiro."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:346
 msgid ""
@@ -15502,6 +15599,16 @@ msgid ""
 "chars + the length of `middle text`, then the field will be used intact. For "
 "example, the title `The Dome` would not be changed."
 msgstr ""
+"shorten(val, car_esq, texto_medio, car_der) -- devolve unha versión "
+"abreviada do campo, consistente en car_esq caracteres dende o principio do "
+"campo, seguidos de texto_medio, seguidos de car_der caracteres dende o final "
+"do campo. car_esq e car_der deben ser números enteiros. Por exemplo, "
+"supoñamos que o título do noso libro é \"Memorias dun neno labrego\" e que "
+"quere que caiba nun espazo de 15 caracteres como máximo. Se usa "
+"{title:shorten(9,-,5)}, o resultado será \"Memorias -brego\". Se a lonxitude "
+"do campo é menor de car_esq + car_der + a lonxitude de texto_medio, "
+"devolverase o campo intacto. Por exemplo, o título \"Follas novas\" non se "
+"cambiaría."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:371
 msgid ""
@@ -15510,6 +15617,10 @@ msgid ""
 "comma as the separator, but authors uses an ampersand. Examples: "
 "{tags:count(,)}, {authors:count(&)}"
 msgstr ""
+"count(val, separador) -- interpreta o campo como unha lista de elementos "
+"separados por separador e devolve o número de elementos da lista. A maioría "
+"das listas usan unha coma como separador, pero \"authors\" usa un ampersand. "
+"Exemplos: {tags:count(,)}, {authors,count(&)}"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:382
 msgid ""
@@ -15519,22 +15630,30 @@ msgid ""
 "If the item is not in the list, then the empty value is returned. The "
 "separator has the same meaning as in the count function."
 msgstr ""
+"list_item(val, índice, separador) -- interpreta o campo como unha lista de "
+"elementos separados por separador e devolve o elemento número índice. O "
+"primeiro elemento é o número cero. O derradeiro elemento pode obterse con "
+"\"list_item(-1, separador)\". Se o elemento non está na lista devolve un "
+"valor baleiro. O separador ten o mesmo significado que en na función "
+"\"count\"."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:402
 msgid "uppercase(val) -- return value of the field in upper case"
-msgstr ""
+msgstr "uppercase(val) -- devolve o valor do campo en maiúsculas"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:410
 msgid "lowercase(val) -- return value of the field in lower case"
-msgstr ""
+msgstr "lowercase(val) -- devolve o valor do campo en minúsculas"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:418
 msgid "titlecase(val) -- return value of the field in title case"
 msgstr ""
+"titlecase(val) -- devolve o valor do campo coas iniciais en maiúscula"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:426
 msgid "capitalize(val) -- return value of the field capitalized"
 msgstr ""
+"capitalize(val) -- devolve o valor do campo coa primeira letra maiúscula"
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:43
 msgid "Waiting..."
@@ -15606,7 +15725,7 @@ msgstr "Inglés (Pakistán)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:108
 msgid "English (Croatia)"
-msgstr ""
+msgstr "Inglés (Croacia)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:109
 msgid "English (Israel)"
@@ -15634,43 +15753,43 @@ msgstr "Español (Paraguai)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:115
 msgid "Spanish (Uruguay)"
-msgstr ""
+msgstr "Español (Uruguai)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:116
 msgid "Spanish (Argentina)"
-msgstr ""
+msgstr "Español (Arxentina)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:117
 msgid "Spanish (Mexico)"
-msgstr ""
+msgstr "Español (México)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:118
 msgid "Spanish (Cuba)"
-msgstr ""
+msgstr "Español (Cuba)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:119
 msgid "Spanish (Chile)"
-msgstr ""
+msgstr "Español (Chile)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:120
 msgid "Spanish (Ecuador)"
-msgstr ""
+msgstr "Español (Ecuador)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:121
 msgid "Spanish (Honduras)"
-msgstr ""
+msgstr "Español (Honduras)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:122
 msgid "Spanish (Venezuela)"
-msgstr ""
+msgstr "Español (Venezuela)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:123
 msgid "Spanish (Bolivia)"
-msgstr ""
+msgstr "Español (Bolivia)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:124
 msgid "Spanish (Nicaragua)"
-msgstr ""
+msgstr "Español (Nicaragua)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:125
 msgid "German (AT)"
@@ -15824,15 +15943,16 @@ msgstr "\tLigazóns erradas:"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:842
 msgid "Could not fetch article."
-msgstr ""
+msgstr "Non se puido obter o artigo."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:844
 msgid "The debug traceback is available earlier in this log"
 msgstr ""
+"O resultado do rastreo de depuración aparece máis arriba neste rexistro"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:846
 msgid "Run with -vv to see the reason"
-msgstr ""
+msgstr "Execute co parámetro -vv para ver o motivo"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:869
 msgid "Fetching feeds..."
@@ -16018,6 +16138,11 @@ msgid ""
 "a link, it will be ignored.By default, no links are ignored. If both filter "
 "regexp and match regexp are specified, then filter regexp is applied first."
 msgstr ""
+"Omitirase calquera ligazón que coincida con esta expresión regular. Esta "
+"opción pode especificarse múltiples veces, o que fará que se omitan as "
+"ligazóns que coincidan con calquera das expresión. De maneira predeterminada "
+"non se omite ningún enlace. Se se especifica tanto filter-regexp como match-"
+"regexp, aplícase primeiro filter-regexp."
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:498
 msgid "Do not download CSS stylesheets."
