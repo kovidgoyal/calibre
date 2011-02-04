@@ -951,8 +951,8 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             for w in getattr(self, 'custom_column_widgets', []):
                 self.books_to_refresh |= w.commit(self.id)
             self.db.commit()
-        except IOError, err:
-            if err.errno == 13: # Permission denied
+        except (IOError, OSError) as err:
+            if getattr(err, 'errno', -1) == 13: # Permission denied
                 fname = err.filename if err.filename else 'file'
                 return error_dialog(self, _('Permission denied'),
                         _('Could not open %s. Is it being used by another'
