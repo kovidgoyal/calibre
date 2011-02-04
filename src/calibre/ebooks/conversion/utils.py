@@ -24,10 +24,16 @@ class HeuristicProcessor(object):
         self.chapters_no_title = 0
         self.chapters_with_title = 0
         self.blanks_deleted = False
+        self.blanks_between_paragraphs = False
         self.linereg = re.compile('(?<=<p).*?(?=</p>)', re.IGNORECASE|re.DOTALL)
-        self.blankreg = re.compile(r'\s*(?P<openline><p(?!\sclass=\"softbreak\")[^>]*>)\s*(?P<closeline></p>)', re.IGNORECASE)
-        self.softbreak = re.compile(r'\s*(?P<openline><p(?=\sclass=\"softbreak\")[^>]*>)\s*(?P<closeline></p>)', re.IGNORECASE)
-        self.multi_blank = re.compile(r'(\s*<p[^>]*>\s*</p>){2,}', re.IGNORECASE)
+        self.blankreg = re.compile(r'\s*(?P<openline><p(?!\sclass=\"(softbreak|whitespace)\")[^>]*>)\s*(?P<closeline></p>)', re.IGNORECASE)
+        self.anyblank = re.compile(r'\s*(?P<openline><p[^>]*>)\s*(?P<closeline></p>)', re.IGNORECASE)
+        self.multi_blank = re.compile(r'(\s*<p[^>]*>\s*</p>(\s*<div[^>]*>\s*</div>\s*)*){2,}(?!\s*<h\d)', re.IGNORECASE)
+        self.any_multi_blank = re.compile(r'(\s*<p[^>]*>\s*</p>(\s*<div[^>]*>\s*</div>\s*)*){2,}', re.IGNORECASE)
+        self.line_open = "<(?P<outer>p|div)[^>]*>\s*(<(?P<inner1>font|span|[ibu])[^>]*>)?\s*(<(?P<inner2>font|span|[ibu])[^>]*>)?\s*(<(?P<inner3>font|span|[ibu])[^>]*>)?\s*"
+        self.line_close = "(</(?P=inner3)>)?\s*(</(?P=inner2)>)?\s*(</(?P=inner1)>)?\s*</(?P=outer)>"
+        self.single_blank = re.compile(r'(\s*<p[^>]*>\s*</p>)', re.IGNORECASE)
+        self.scene_break_open = '<p class="scenebreak" style="text-align:center; text-indent:0%; margin-top:1em; margin-bottom:1em; page-break-before:avoid">'
 
     def is_pdftohtml(self, src):
         return '<!-- created by calibre\'s pdftohtml -->' in src[:1000]
@@ -42,8 +48,10 @@ class HeuristicProcessor(object):
                     " chapters. - " + unicode(chap))
             return '<h2>'+chap+'</h2>\n'
         else:
-            txt_chap = html2text(chap)
-            txt_title = html2text(title)
+            delete_whitespace = re.compile('^\s*(?P<c>.*?)\s*$')
+            delete_quotes = re.compile('\'\"')
+            txt_chap = delete_quotes.sub('', delete_whitespace.sub('\g<c>', html2text(chap)))
+            txt_title = delete_quotes.sub('', delete_whitespace.sub('\g<c>', html2text(title)))
             self.html_preprocess_sections = self.html_preprocess_sections + 1
             self.log.debug("marked " + unicode(self.html_preprocess_sections) +
                     " chapters & titles. - " + unicode(chap) + ", " + unicode(title))
@@ -184,19 +192,17 @@ class HeuristicProcessor(object):
 
         # Build the Regular Expressions in pieces
         init_lookahead = "(?=<(p|div))"
-        chapter_line_open = "<(?P<outer>p|div)[^>]*>\s*(<(?P<inner1>font|span|[ibu])[^>]*>)?\s*(<(?P<inner2>font|span|[ibu])[^>]*>)?\s*(<(?P<inner3>font|span|[ibu])[^>]*>)?\s*"
+        chapter_line_open = self.line_open
         title_line_open = "<(?P<outer2>p|div)[^>]*>\s*(<(?P<inner4>font|span|[ibu])[^>]*>)?\s*(<(?P<inner5>font|span|[ibu])[^>]*>)?\s*(<(?P<inner6>font|span|[ibu])[^>]*>)?\s*"
         chapter_header_open = r"(?P<chap>"
         title_header_open = r"(?P<title>"
         chapter_header_close = ")\s*"
         title_header_close = ")"
-        chapter_line_close = "(</(?P=inner3)>)?\s*(</(?P=inner2)>)?\s*(</(?P=inner1)>)?\s*</(?P=outer)>"
+        chapter_line_close = self.line_close
         title_line_close = "(</(?P=inner6)>)?\s*(</(?P=inner5)>)?\s*(</(?P=inner4)>)?\s*</(?P=outer2)>"
 
         is_pdftohtml = self.is_pdftohtml(html)
         if is_pdftohtml:
-            chapter_line_open = "<(?P<outer>p)[^>]*>(\s*<[ibu][^>]*>)?\s*"
-            chapter_line_close = "\s*(</[ibu][^>]*>\s*)?</(?P=outer)>"
             title_line_open = "<(?P<outer2>p)[^>]*>\s*"
             title_line_close = "\s*</(?P=outer2)>"
 
@@ -371,13 +377,17 @@ class HeuristicProcessor(object):
         html = re.sub(ur'\s*<o:p>\s*</o:p>', ' ', html)
         # Delete microsoft 'smart' tags
         html = re.sub('(?i)</?st1:\w+>', '', html)
-        # Delete self closing paragraph tags
-        html = re.sub('<p\s?/>', '', html)
+        # Re-open self closing paragraph tags
+        html = re.sub('<p[^>/]*/>', '<p> </p>', html)
         # Get rid of empty span, bold, font, em, & italics tags
         html = re.sub(r"\s*<span[^>]*>\s*(<span[^>]*>\s*</span>){0,2}\s*</span>\s*", " ", html)
-        html = re.sub(r"\s*<(font|[ibu]|em)[^>]*>\s*(<(font|[ibu]|em)[^>]*>\s*</(font|[ibu]|em)>\s*){0,2}\s*</(font|[ibu]|em)>", " ", html)
+        html = re.sub(r"\s*<(font|[ibu]|em|strong)[^>]*>\s*(<(font|[ibu]|em|strong)[^>]*>\s*</(font|[ibu]|em|strong)>\s*){0,2}\s*</(font|[ibu]|em|strong)>", " ", html)
         html = re.sub(r"\s*<span[^>]*>\s*(<span[^>]>\s*</span>){0,2}\s*</span>\s*", " ", html)
-        html = re.sub(r"\s*<(font|[ibu]|em)[^>]*>\s*(<(font|[ibu]|em)[^>]*>\s*</(font|[ibu]|em)>\s*){0,2}\s*</(font|[ibu]|em)>", " ", html)
+        html = re.sub(r"\s*<(font|[ibu]|em|strong)[^>]*>\s*(<(font|[ibu]|em|strong)[^>]*>\s*</(font|[ibu]|em|strong)>\s*){0,2}\s*</(font|[ibu]|em|strong)>", " ", html)
+        # delete surrounding divs from empty paragraphs
+        html = re.sub('<div[^>]*>\s*<p[^>]*>\s*</p>\s*</div>', '<p> </p>', html)
+        # Empty heading tags
+        html = re.sub(r'(?i)<h\d+>\s*</h\d+>', '', html)
         self.deleted_nbsps = True
         return html
 
@@ -416,10 +426,99 @@ class HeuristicProcessor(object):
                 return True
         return False
 
+    def merge_blanks(self, html, blanks_count=None):
+        base_em = .5 # Baseline is 1.5em per blank line, 1st line is .5 em css and 1em for the nbsp
+        em_per_line = 1.5 # Add another 1.5 em for each additional blank
+
+        def merge_matches(match):
+            to_merge = match.group(0)
+            lines = float(len(self.single_blank.findall(to_merge))) - 1.
+            em = base_em + (em_per_line * lines)
+            if to_merge.find('whitespace'):
+                newline = self.any_multi_blank.sub('\n<p class="whitespace'+str(int(em * 10))+'" style="text-align:center; margin-top:'+str(em)+'em"> </p>', match.group(0))
+            else:
+                newline = self.any_multi_blank.sub('\n<p class="softbreak'+str(int(em * 10))+'" style="text-align:center; margin-top:'+str(em)+'em"> </p>', match.group(0))
+            return newline
+
+        html = self.any_multi_blank.sub(merge_matches, html)
+        return html
+
+    def detect_whitespace(self, html):
+        blanks_around_headings = re.compile(r'(?P<initparas>(<p[^>]*>\s*</p>\s*){1,}\s*)?(?P<heading><h(?P<hnum>\d+)[^>]*>.*?</h(?P=hnum)>)(?P<endparas>\s*(<p[^>]*>\s*</p>\s*){1,})?', re.IGNORECASE)
+        blanks_n_nopunct = re.compile(r'(?P<initparas>(<p[^>]*>\s*</p>\s*){1,}\s*)?<p[^>]*>\s*(<(span|[ibu]|em|strong|font)[^>]*>\s*)*.{1,100}?[^\W](</(span|[ibu]|em|strong|font)>\s*)*</p>(?P<endparas>\s*(<p[^>]*>\s*</p>\s*){1,})?', re.IGNORECASE)
+
+        def merge_header_whitespace(match):
+            initblanks = match.group('initparas')
+            endblanks = match.group('initparas')
+            heading = match.group('heading')
+            top_margin = ''
+            bottom_margin = ''
+            if initblanks is not None:
+                top_margin = 'margin-top:'+str(len(self.single_blank.findall(initblanks)))+'em;'
+            if endblanks is not None:
+                bottom_margin = 'margin-bottom:'+str(len(self.single_blank.findall(initblanks)))+'em;'
+
+            if initblanks == None and endblanks == None:
+                return heading
+            else:
+                heading = re.sub('(?i)<h(?P<hnum>\d+)[^>]*>', '\n\n<h'+'\g<hnum>'+' style="'+top_margin+bottom_margin+'">', heading)
+            return heading
+
+        html = blanks_around_headings.sub(merge_header_whitespace, html)
+
+        def markup_whitespaces(match):
+            blanks = match.group(0)
+            blanks = self.blankreg.sub('\n<p class="whitespace" style="text-align:center; margin-top:0em; margin-bottom:0em"> </p>', blanks)
+            return blanks
+
+        html = blanks_n_nopunct.sub(markup_whitespaces, html)
+        if self.html_preprocess_sections > self.min_chapters:
+            html = re.sub('(?si)^.*?(?=<h\d)', markup_whitespaces, html)
+
+        return html
+
+    def detect_soft_breaks(self, html):
+        if not self.blanks_deleted and self.blanks_between_paragraphs:
+            html = self.multi_blank.sub('\n<p class="softbreak" style="margin-top:1em; page-break-before:avoid; text-align:center"> </p>', html)
+        else:
+            html = self.blankreg.sub('\n<p class="softbreak" style="margin-top:.5em; page-break-before:avoid; text-align:center"> </p>', html)
+        return html
+
+    def markup_user_break(self, replacement_break):
+        '''
+        Takes string a user supplies and wraps it in markup that will be centered with
+        appropriate margins.  <hr> and <img> tags are allowed.  If the user specifies
+        a style with width attributes in the <hr> tag then the appropriate margins are
+        applied to wrapping divs.  This is because many ebook devices don't support margin:auto
+        All other html is converted to text.
+        '''
+        hr_open = '<div id="scenebreak" style="margin-left: 45%; margin-right: 45%; margin-top:1.5em; margin-bottom:1.5em; page-break-before:avoid">'
+        if re.findall('(<|>)', replacement_break):
+            if re.match('^<hr', replacement_break):
+                if replacement_break.find('width') != -1:
+                   width = int(re.sub('.*?width(:|=)(?P<wnum>\d+).*', '\g<wnum>', replacement_break))
+                   replacement_break = re.sub('(?i)(width=\d+\%?|width:\s*\d+(\%|px|pt|em)?;?)', '', replacement_break)
+                   divpercent = (100 - width) / 2
+                   hr_open = re.sub('45', str(divpercent), hr_open)
+                   scene_break = hr_open+replacement_break+'</div>'
+                else:
+                   scene_break = hr_open+'<hr style="height: 3px; background:#505050" /></div>'
+            elif re.match('^<img', replacement_break):
+                scene_break = self.scene_break_open+replacement_break+'</p>'
+            else:
+                from calibre.utils.html2text import html2text
+                replacement_break = html2text(replacement_break)
+                replacement_break = re.sub('\s', '&nbsp;', replacement_break)
+                scene_break = self.scene_break_open+replacement_break+'</p>'
+        else:
+            replacement_break = re.sub('\s', '&nbsp;', replacement_break)
+            scene_break = self.scene_break_open+replacement_break+'</p>'
+
+        return scene_break
+
 
     def __call__(self, html):
         self.log.debug("*********  Heuristic processing HTML  *********")
-
         # Count the words in the document to estimate how many chapters to look for and whether
         # other types of processing are attempted
         try:
@@ -433,7 +532,7 @@ class HeuristicProcessor(object):
 
         # Arrange line feeds and </p> tags so the line_length and no_markup functions work correctly
         html = self.arrange_htm_line_endings(html)
-
+        #self.dump(html, 'after_arrange_line_endings')
         if self.cleanup_required():
             ###### Check Markup ######
             #
@@ -453,27 +552,32 @@ class HeuristicProcessor(object):
             # fix indents must run before this step, as it removes non-breaking spaces
             html = self.cleanup_markup(html)
 
+        is_pdftohtml = self.is_pdftohtml(html)
+        if is_pdftohtml:
+            self.line_open = "<(?P<outer>p)[^>]*>(\s*<[ibu][^>]*>)?\s*"
+            self.line_close = "\s*(</[ibu][^>]*>\s*)?</(?P=outer)>"
+
         # ADE doesn't render <br />, change to empty paragraphs
         #html = re.sub('<br[^>]*>', u'<p>\u00a0</p>', html)
 
         # Determine whether the document uses interleaved blank lines
-        blanks_between_paragraphs = self.analyze_blanks(html)
+        self.blanks_between_paragraphs = self.analyze_blanks(html)
 
-        #self.dump(html, 'before_chapter_markup')
         # detect chapters/sections to match xpath or splitting logic
 
         if getattr(self.extra_opts, 'markup_chapter_headings', False):
-            html = self.markup_chapters(html, self.totalwords, blanks_between_paragraphs)
+            html = self.markup_chapters(html, self.totalwords, self.blanks_between_paragraphs)
+        #self.dump(html, 'after_chapter_markup')
 
         if getattr(self.extra_opts, 'italicize_common_cases', False):
             html = self.markup_italicis(html)
 
         # If more than 40% of the lines are empty paragraphs and the user has enabled delete
         # blank paragraphs then delete blank lines to clean up spacing
-        if blanks_between_paragraphs and getattr(self.extra_opts, 'delete_blank_paragraphs', False):
+        if self.blanks_between_paragraphs and getattr(self.extra_opts, 'delete_blank_paragraphs', False):
             self.log.debug("deleting blank lines")
             self.blanks_deleted = True
-            html = self.multi_blank.sub('\n<p class="softbreak" style="margin-top:1.5em; margin-bottom:1.5em"> </p>', html)
+            html = self.multi_blank.sub('\n<p class="softbreak" style="margin-top:.5em; page-break-before:avoid; text-align:center"> </p>', html)
             html = self.blankreg.sub('', html)
 
         # Determine line ending type
@@ -514,7 +618,7 @@ class HeuristicProcessor(object):
         if self.html_preprocess_sections < self.min_chapters and getattr(self.extra_opts, 'markup_chapter_headings', False):
             self.log.debug("Looking for more split points based on punctuation,"
                     " currently have " + unicode(self.html_preprocess_sections))
-            chapdetect3 = re.compile(r'<(?P<styles>(p|div)[^>]*)>\s*(?P<section>(<span[^>]*>)?\s*(?!([*#•]+\s*)+)(<[ibu][^>]*>){0,2}\s*(<span[^>]*>)?\s*(<[ibu][^>]*>){0,2}\s*(<span[^>]*>)?\s*.?(?=[a-z#\-*\s]+<)([a-z#-*]+\s*){1,5}\s*\s*(</span>)?(</[ibu]>){0,2}\s*(</span>)?\s*(</[ibu]>){0,2}\s*(</span>)?\s*</(p|div)>)', re.IGNORECASE)
+            chapdetect3 = re.compile(r'<(?P<styles>(p|div)[^>]*)>\s*(?P<section>(<span[^>]*>)?\s*(?!([\W]+\s*)+)(<[ibu][^>]*>){0,2}\s*(<span[^>]*>)?\s*(<[ibu][^>]*>){0,2}\s*(<span[^>]*>)?\s*.?(?=[a-z#\-*\s]+<)([a-z#-*]+\s*){1,5}\s*\s*(</span>)?(</[ibu]>){0,2}\s*(</span>)?\s*(</[ibu]>){0,2}\s*(</span>)?\s*</(p|div)>)', re.IGNORECASE)
             html = chapdetect3.sub(self.chapter_break, html)
 
         if getattr(self.extra_opts, 'renumber_headings', False):
@@ -524,15 +628,32 @@ class HeuristicProcessor(object):
             doubleheading = re.compile(r'(?P<firsthead><h(1|2)[^>]*>.+?</h(1|2)>\s*(<(?!h\d)[^>]*>\s*)*)<h(1|2)(?P<secondhead>[^>]*>.+?)</h(1|2)>', re.IGNORECASE)
             html = doubleheading.sub('\g<firsthead>'+'\n<h3'+'\g<secondhead>'+'</h3>', html)
 
+        # If scene break formatting is enabled, find all blank paragraphs that definitely aren't scenebreaks,
+        # style it with the 'whitespace' class.  All remaining blank lines are styled as softbreaks.
+        # Multiple sequential blank paragraphs are merged with appropriate margins
+        # If non-blank scene breaks exist they are center aligned and styled with appropriate margins.
         if getattr(self.extra_opts, 'format_scene_breaks', False):
-            # Center separator lines
-            html = re.sub(u'<(?P<outer>p|div)[^>]*>\s*(<(?P<inner1>font|span|[ibu])[^>]*>)?\s*(<(?P<inner2>font|span|[ibu])[^>]*>)?\s*(<(?P<inner3>font|span|[ibu])[^>]*>)?\s*(?P<break>([*#•=✦]+\s*)+)\s*(</(?P=inner3)>)?\s*(</(?P=inner2)>)?\s*(</(?P=inner1)>)?\s*</(?P=outer)>', '<p style="text-align:center; margin-top:1.25em; margin-bottom:1.25em">' + '\g<break>' + '</p>', html)
-            if not self.blanks_deleted:
-                html = self.multi_blank.sub('\n<p class="softbreak" style="margin-top:1.5em; margin-bottom:1.5em"> </p>', html)
-            html = re.sub('<p\s+class="softbreak"[^>]*>\s*</p>', '<div id="softbreak" style="margin-left: 45%; margin-right: 45%; margin-top:1.5em; margin-bottom:1.5em"><hr style="height: 3px; background:#505050" /></div>', html)
+            html = self.detect_whitespace(html)
+            html = self.detect_soft_breaks(html)
+            blanks_count = len(self.any_multi_blank.findall(html))
+            if blanks_count >= 1:
+                html = self.merge_blanks(html, blanks_count)
+            scene_break_regex = self.line_open+'(?![\w\'\"])(?P<break>((?P<break_char>((?!\s)\W))\s*(?P=break_char)?)+)\s*'+self.line_close
+            scene_break = re.compile(r'%s' % scene_break_regex, re.IGNORECASE|re.UNICODE)
+            # If the user has enabled scene break replacement, then either softbreaks
+            # or 'hard' scene breaks are replaced, depending on which is in use
+            # Otherwise separator lines are centered, use a bit larger margin in this case
+            replacement_break = getattr(self.extra_opts, 'replace_scene_breaks', None)
+            if replacement_break:
+                replacement_break = self.markup_user_break(replacement_break)
+                if len(scene_break.findall(html)) >= 1:
+                    html = scene_break.sub(replacement_break, html)
+                else:
+                    html = re.sub('<p\s+class="softbreak"[^>]*>\s*</p>', replacement_break, html)
+            else:
+                html = scene_break.sub(self.scene_break_open+'\g<break>'+'</p>', html)
 
         if self.deleted_nbsps:
-            # put back non-breaking spaces in empty paragraphs to preserve original formatting
-            html = self.blankreg.sub('\n'+r'\g<openline>'+u'\u00a0'+r'\g<closeline>', html)
-            html = self.softbreak.sub('\n'+r'\g<openline>'+u'\u00a0'+r'\g<closeline>', html)
+            # put back non-breaking spaces in empty paragraphs so they render correctly
+            html = self.anyblank.sub('\n'+r'\g<openline>'+u'\u00a0'+r'\g<closeline>', html)
         return html

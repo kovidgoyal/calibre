@@ -311,10 +311,25 @@ remove all non-breaking-space entities, or may include false positive matches re
 
 :guilabel:`Ensure scene breaks are consistently formatted`
     With this option |app| will attempt to detect common scene-break markers and ensure that they are center aligned.  
-    It also attempts to detect scene breaks defined by white space and replace them with a horizontal rule 15% of the
-    page width.  Some readers may find this desirable as these 'soft' scene breaks often become page breaks on readers, and 
-    thus become difficult to distinguish.
+    'Soft' scene break markers, i.e. scene breaks only defined by extra white space, are styled to ensure that they 
+    will not be displayed in conjunction with page breaks.
 
+:guilabel:`Replace scene breaks`
+    If this option is configured then |app| will replace scene break markers it finds with the replacement text specified by the
+    user.  Please note that some ornamental characters may not be supported across all reading devices.
+    
+    In general you should avoid using html tags, |app| will discard any tags and use pre-defined markup.  <hr />
+    tags, i.e. horizontal rules, and <img> tags are exceptions.  Horizontal rules can optionally be specified with styles, if you 
+    choose to add your own style be sure to include the 'width' setting, otherwise the style information will be discarded.  Image 
+    tags can used, but |app| does not provide the ability to add the image during conversion, this must be done after the fact using 
+    the 'Tweak Epub' feature, or Sigil.
+        
+        Example image tag (place the image within an 'Images' folder inside the epub after conversion):
+            <img style="width:10%" src="../Images/scenebreak.png" />
+        
+        Example horizontal rule with styles:
+            <hr style="width:20%;padding-top: 1px;border-top: 2px ridge black;border-bottom: 2px groove black;"/>
+ 
 :guilabel:`Remove unnecessary hyphens`
     |app| will analyze all hyphenated content in the document when this option is enabled.  The document itself is used
     as a dictionary for analysis.  This allows |app| to accurately remove hyphens for any words in the document in any language, 
@@ -628,7 +643,7 @@ between 0 and 1. The default is 0.45, just under the median line length. Lower t
 text in the unwrapping. Increase to include less. You can adjust this value in the conversion settings under :guilabel:`PDF Input`.
 
 Also, they often have headers and footers as part of the document that will become included with the text.
-Use the options to remove headers and footers to mitigate this issue. If the headers and footers are not
+Use the Search and Replace panel to remove headers and footers to mitigate this issue. If the headers and footers are not
 removed from the text it can throw off the paragraph unwrapping. To learn how to use the header and footer removal options, read 
 :ref:`regexptutorial`.
 

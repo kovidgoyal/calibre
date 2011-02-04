@@ -295,7 +295,9 @@ e-ink screen :)
 Note that in the case of the Kindle, there is a way to manipulate collections via USB,
 but it requires that the Kindle be rebooted *every time* it is disconnected from the computer, for the
 changes to the collections to be recognized. As such, it is unlikely that
-any |app| developers will ever feel motivated enough to support it.
+any |app| developers will ever feel motivated enough to support it. There is however, a |app| plugin
+that allows you to create collections on your Kindle from the |app| metadata. It is available
+`here <http://www.mobileread.com/forums/showthread.php?t=118635>`_. 
 
 Library Management
 ------------------
@@ -388,6 +390,8 @@ Take your pick:
   * A high *calibre* product
   * A tribute to the SONY Librie which was the first e-ink based e-book reader
   * My wife chose it ;-)
+
+|app| is pronounced as cal-i-ber *not* ca-li-bre. If you're wondering, |app| is the British/commonwealth spelling for caliber. Being Indian, that's the natural spelling for me. 
 
 Why does |app| show only some of my fonts on OS X?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -22,13 +22,15 @@ Run an embedded python interpreter.
     parser.add_option('-d', '--debug-device-driver', default=False, action='store_true',
                       help='Debug the specified device driver.')
     parser.add_option('-g', '--gui',  default=False, action='store_true',
-                      help='Run the GUI',)
+                      help='Run the GUI with debugging enabled. Debug output is '
+                      'printed to stdout and stderr.')
     parser.add_option('--gui-debug',  default=None,
                       help='Run the GUI with a debug console, logging to the'
-                      ' specified path',)
+                      ' specified path. For internal use only, use the -g'
+                      ' option to run the GUI in debug mode',)
     parser.add_option('--show-gui-debug',  default=None,
-                      help='Display the specified log file.',)
-
+                      help='Display the specified log file. For internal use'
+                      ' only.',)
     parser.add_option('-w', '--viewer',  default=False, action='store_true',
                       help='Run the ebook viewer',)
     parser.add_option('--paths', default=False, action='store_true',

@@ -17,7 +17,7 @@ class ElUniverso_Ecuador(BasicNewsRecipe):
     no_stylesheets        = True
     encoding              = 'utf8'
     use_embedded_content  = False
-    language              = 'es'
+    language              = 'es_EC'
     remove_empty_feeds    = True
     publication_type      = 'newspaper'
     masthead_url          = 'http://servicios2.eluniverso.com/versiones/v1/img/Hd/lg_ElUniverso.gif'

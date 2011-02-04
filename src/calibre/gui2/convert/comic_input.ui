@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>599</width>
-    <height>345</height>
+    <height>398</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -37,70 +37,70 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="0">
+   <item row="4" column="0">
     <widget class="QCheckBox" name="opt_dont_normalize">
      <property name="text">
       <string>Disable &amp;normalize</string>
      </property>
     </widget>
    </item>
-   <item row="4" column="0">
+   <item row="5" column="0">
     <widget class="QCheckBox" name="opt_keep_aspect_ratio">
      <property name="text">
       <string>Keep &amp;aspect ratio</string>
      </property>
     </widget>
    </item>
-   <item row="5" column="0">
+   <item row="6" column="0">
     <widget class="QCheckBox" name="opt_dont_sharpen">
      <property name="text">
       <string>Disable &amp;Sharpening</string>
      </property>
     </widget>
    </item>
-   <item row="6" column="0">
+   <item row="7" column="0">
     <widget class="QCheckBox" name="opt_disable_trim">
      <property name="text">
       <string>Disable &amp;Trimming</string>
      </property>
     </widget>
    </item>
-   <item row="7" column="0">
+   <item row="8" column="0">
     <widget class="QCheckBox" name="opt_wide">
      <property name="text">
       <string>&amp;Wide</string>
      </property>
     </widget>
    </item>
-   <item row="8" column="0">
+   <item row="9" column="0">
     <widget class="QCheckBox" name="opt_landscape">
      <property name="text">
       <string>&amp;Landscape</string>
      </property>
     </widget>
    </item>
-   <item row="9" column="0">
+   <item row="10" column="0">
     <widget class="QCheckBox" name="opt_right2left">
      <property name="text">
       <string>&amp;Right to left</string>
      </property>
     </widget>
    </item>
-   <item row="10" column="0">
+   <item row="11" column="0">
     <widget class="QCheckBox" name="opt_no_sort">
      <property name="text">
       <string>Don't so&amp;rt</string>
      </property>
     </widget>
    </item>
-   <item row="11" column="0">
+   <item row="12" column="0">
     <widget class="QCheckBox" name="opt_despeckle">
      <property name="text">
       <string>De&amp;speckle</string>
      </property>
     </widget>
    </item>
-   <item row="13" column="0">
+   <item row="14" column="0">
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -120,7 +120,7 @@
      </property>
     </widget>
    </item>
-   <item row="12" column="0">
+   <item row="13" column="0">
     <widget class="QLabel" name="label">
      <property name="text">
       <string>&amp;Output format:</string>
@@ -130,7 +130,7 @@
      </property>
     </widget>
    </item>
-   <item row="12" column="1">
+   <item row="13" column="1">
     <widget class="QComboBox" name="opt_output_format"/>
    </item>
    <item row="1" column="0">
@@ -139,6 +139,19 @@
       <string>Disable conversion of images to &amp;black and white</string>
      </property>
     </widget>
+   </item>
+   <item row="3" column="0">
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>Override image  &amp;size:</string>
+     </property>
+     <property name="buddy">
+      <cstring>opt_comic_image_size</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1">
+    <widget class="QLineEdit" name="opt_comic_image_size"/>
    </item>
   </layout>
  </widget>

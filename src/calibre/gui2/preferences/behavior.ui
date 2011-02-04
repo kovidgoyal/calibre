@@ -164,20 +164,6 @@
        </property>
       </widget>
      </item>
-     <item row="4" column="1">
-      <widget class="QLineEdit" name="opt_new_book_tags">
-       <property name="toolTip">
-        <string>A comma-separated list of tags that will be applied to books added to the library</string>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="0">
-      <widget class="QLabel" name="label_230">
-       <property name="text">
-        <string>Tags to apply when adding a book:</string>
-       </property>
-      </widget>
-     </item>
     </layout>
    </item>
    <item row="6" column="0" colspan="2">

@@ -1,0 +1,53 @@
+__license__   = 'GPL v3'
+__author__    = 'Luis Hernandez'
+__copyright__ = 'Luis Hernandez<tolyluis@gmail.com>'
+__version__     = 'v1.0'
+__date__        = '29 January 2011'
+
+'''
+http://www.bbc.co.uk/mundo/
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1294946868(BasicNewsRecipe):
+
+    title          = u'BBC Mundo'
+    publisher      = u'BBC'
+
+    __author__            = 'Luis Hernandez'
+    description           = 'BBC World for spanish readers'
+
+    cover_url     = 'http://1.bp.blogspot.com/_NHiOjk_uZwU/TEYy7IJAdAI/AAAAAAAABP8/coAE-pJ7_5E/s1600/bbcmundo_h.png'
+    oldest_article = 2
+    max_articles_per_feed = 100
+
+    remove_javascript = True
+    no_stylesheets        = True
+    use_embedded_content  = False
+
+    language              = 'es'
+    remove_empty_feeds    = True
+    encoding               = 'UTF-8'
+    timefmt        = '[%a, %d %b, %Y]'
+
+    remove_tags_before = dict(name='div' , attrs={'class':['g-group']})
+    remove_tags_after = dict(name='div' , attrs={'class':[' g-w8']})
+
+    remove_tags = [
+                             dict(name='ul', attrs={'class':['document-tools blq-clearfix','blq-clearfix']})
+                            ,dict(name='div', attrs={'class':['box bx-quote-bubble','socialmedia-links','list li-carousel','list li-plain rolling-news','list li-plain','box bx-livestats','li-tab content','list li-relatedlinks','list li-relatedinternetlinks']})
+                         ]
+
+    feeds = [
+                  (u'Portada'               , u'http://www.bbc.co.uk/mundo/index.xml')
+                 ,(u'Ultimas Noticias'   , u'http://www.bbc.co.uk/mundo/ultimas_noticias/index.xml')
+                 ,(u'Internacional'       , u'http://www.bbc.co.uk/mundo/temas/internacional/index.xml')
+                 ,(u'Economia'            , u'http://www.bbc.co.uk/mundo/temas/economia/index.xml')
+                 ,(u'America Latina'     , u'http://www.bbc.co.uk/mundo/temas/america_latina/index.xml')
+                 ,(u'Ciencia'                , u'http://www.bbc.co.uk/mundo/temas/ciencia/index.xml')
+                 ,(u'Salud'                  , u'http://www.bbc.co.uk/mundo/temas/salud/index.xml')
+                 ,(u'Tecnologia'           , u'http://www.bbc.co.uk/mundo/temas/tecnologia/index.xml')
+                 ,(u'Cultura'                , u'http://www.bbc.co.uk/mundo/temas/cultura/index.xml')
+             ]
+

@@ -12,8 +12,8 @@ from PyQt4.Qt import Qt, QDateEdit, QDate, \
     QDoubleSpinBox, QListWidgetItem, QSize, QPixmap, \
     QPushButton, QSpinBox, QLineEdit
 
-from calibre.gui2.widgets import EnLineEdit, CompleteComboBox, \
-        EnComboBox, FormatList, ImageView, CompleteLineEdit
+from calibre.gui2.widgets import EnLineEdit, FormatList, ImageView
+from calibre.gui2.complete import MultiCompleteLineEdit, MultiCompleteComboBox
 from calibre.utils.icu import sort_key
 from calibre.utils.config import tweaks, prefs
 from calibre.ebooks.metadata import title_sort, authors_to_string, \
@@ -149,14 +149,15 @@ class TitleSortEdit(TitleEdit):
 # }}}
 
 # Authors {{{
-class AuthorsEdit(CompleteComboBox):
+class AuthorsEdit(MultiCompleteComboBox):
 
     TOOLTIP = ''
     LABEL = _('&Author(s):')
 
     def __init__(self, parent):
         self.dialog = parent
-        CompleteComboBox.__init__(self, parent)
+        self.books_to_refresh = set([])
+        MultiCompleteComboBox.__init__(self, parent)
         self.setToolTip(self.TOOLTIP)
         self.setWhatsThis(self.TOOLTIP)
         self.setEditable(True)
@@ -166,6 +167,7 @@ class AuthorsEdit(CompleteComboBox):
         return _('Unknown')
 
     def initialize(self, db, id_):
+        self.books_to_refresh = set([])
         all_authors = db.all_authors()
         all_authors.sort(key=lambda x : sort_key(x[1]))
         for i in all_authors:
@@ -185,7 +187,8 @@ class AuthorsEdit(CompleteComboBox):
 
     def commit(self, db, id_):
         authors = self.current_val
-        db.set_authors(id_, authors, notify=False)
+        self.books_to_refresh |= db.set_authors(id_, authors, notify=False,
+                allow_case_change=True)
         return True
 
     @dynamic_property
@@ -283,19 +286,21 @@ class AuthorSortEdit(EnLineEdit):
 # }}}
 
 # Series {{{
-class SeriesEdit(EnComboBox):
+class SeriesEdit(MultiCompleteComboBox):
 
     TOOLTIP = _('List of known series. You can add new series.')
     LABEL = _('&Series:')
 
     def __init__(self, parent):
-        EnComboBox.__init__(self, parent)
+        MultiCompleteComboBox.__init__(self, parent)
+        self.set_separator(None)
         self.dialog = parent
         self.setSizeAdjustPolicy(
                 self.AdjustToMinimumContentsLengthWithIcon)
         self.setToolTip(self.TOOLTIP)
         self.setWhatsThis(self.TOOLTIP)
         self.setEditable(True)
+        self.books_to_refresh = set([])
 
     @dynamic_property
     def current_val(self):
@@ -312,8 +317,10 @@ class SeriesEdit(EnComboBox):
         return property(fget=fget, fset=fset)
 
     def initialize(self, db, id_):
+        self.books_to_refresh = set([])
         all_series = db.all_series()
         all_series.sort(key=lambda x : sort_key(x[1]))
+        self.update_items_cache([x[1] for x in all_series])
         series_id = db.series_id(id_, index_is_id=True)
         idx, c = None, 0
         for i in all_series:
@@ -330,7 +337,8 @@ class SeriesEdit(EnComboBox):
 
     def commit(self, db, id_):
         series = self.current_val
-        db.set_series(id_, series, notify=False, commit=True)
+        self.books_to_refresh |= db.set_series(id_, series, notify=False,
+                                            commit=True, allow_case_change=True)
         return True
 
 class SeriesIndexEdit(QDoubleSpinBox):
@@ -472,6 +480,7 @@ class FormatsManager(QWidget): # {{{
     def initialize(self, db, id_):
         self.changed = False
         exts = db.formats(id_, index_is_id=True)
+        self.original_val = set([])
         if exts:
             exts = exts.split(',')
             for ext in exts:
@@ -482,6 +491,7 @@ class FormatsManager(QWidget): # {{{
                 if size is None:
                     continue
                 Format(self.formats, ext, size, timestamp=timestamp)
+                self.original_val.add(ext.lower())
 
     def commit(self, db, id_):
         if not self.changed:
@@ -500,11 +510,12 @@ class FormatsManager(QWidget): # {{{
         for ext in new_extensions:
             db.add_format(id_, ext, open(paths[ext], 'rb'), notify=False,
                     index_is_id=True)
-        db_extensions = set([f.lower() for f in db.formats(id_,
-            index_is_id=True).split(',')])
+        dbfmts = db.formats(id_, index_is_id=True)
+        db_extensions = set([f.lower() for f in (dbfmts.split(',') if dbfmts
+            else [])])
         extensions = new_extensions.union(old_extensions)
         for ext in db_extensions:
-            if ext not in extensions:
+            if ext not in extensions and ext in self.original_val:
                 db.remove_format(id_, ext, notify=False, index_is_id=True)
 
         self.changed = False
@@ -811,14 +822,15 @@ class RatingEdit(QSpinBox): # {{{
 
 # }}}
 
-class TagsEdit(CompleteLineEdit): # {{{
+class TagsEdit(MultiCompleteLineEdit): # {{{
     LABEL = _('Ta&gs:')
     TOOLTIP = '<p>'+_('Tags categorize the book. This is particularly '
             'useful while searching. <br><br>They can be any words'
             'or phrases, separated by commas.')
 
     def __init__(self, parent):
-        CompleteLineEdit.__init__(self, parent)
+        MultiCompleteLineEdit.__init__(self, parent)
+        self.books_to_refresh = set([])
         self.setToolTip(self.TOOLTIP)
         self.setWhatsThis(self.TOOLTIP)
 
@@ -833,10 +845,11 @@ class TagsEdit(CompleteLineEdit): # {{{
         return property(fget=fget, fset=fset)
 
     def initialize(self, db, id_):
+        self.books_to_refresh = set([])
         tags = db.tags(id_, index_is_id=True)
         tags = tags.split(',') if tags else []
         self.current_val = tags
-        self.update_items_cache(db.all_tags())
+        self.all_items = db.all_tags()
         self.original_val = self.current_val
 
     @property
@@ -857,11 +870,13 @@ class TagsEdit(CompleteLineEdit): # {{{
         d = TagEditor(self, db, id_)
         if d.exec_() == TagEditor.Accepted:
             self.current_val = d.tags
-            self.update_items_cache(db.all_tags())
+            self.all_items = db.all_tags()
 
 
     def commit(self, db, id_):
-        db.set_tags(id_, self.current_val, notify=False, commit=False)
+        self.books_to_refresh |= db.set_tags(
+                id_, self.current_val, notify=False, commit=False,
+                allow_case_change=True)
         return True
 
 # }}}
@@ -907,13 +922,15 @@ class ISBNEdit(QLineEdit): # {{{
 
 # }}}
 
-class PublisherEdit(EnComboBox): # {{{
+class PublisherEdit(MultiCompleteComboBox): # {{{
     LABEL = _('&Publisher:')
 
     def __init__(self, parent):
-        EnComboBox.__init__(self, parent)
+        MultiCompleteComboBox.__init__(self, parent)
+        self.set_separator(None)
         self.setSizeAdjustPolicy(
                 self.AdjustToMinimumContentsLengthWithIcon)
+        self.books_to_refresh = set([])
 
     @dynamic_property
     def current_val(self):
@@ -930,8 +947,10 @@ class PublisherEdit(EnComboBox): # {{{
         return property(fget=fget, fset=fset)
 
     def initialize(self, db, id_):
+        self.books_to_refresh = set([])
         all_publishers = db.all_publishers()
         all_publishers.sort(key=lambda x : sort_key(x[1]))
+        self.update_items_cache([x[1] for x in all_publishers])
         publisher_id = db.publisher_id(id_, index_is_id=True)
         idx, c = None, 0
         for i in all_publishers:
@@ -946,7 +965,8 @@ class PublisherEdit(EnComboBox): # {{{
             self.setCurrentIndex(idx)
 
     def commit(self, db, id_):
-        db.set_publisher(id_, self.current_val, notify=False, commit=False)
+        self.books_to_refresh |= db.set_publisher(id_, self.current_val,
+                            notify=False, commit=False, allow_case_change=True)
         return True
 
 # }}}
