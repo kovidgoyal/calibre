@@ -1,55 +1,8 @@
 body { background-color: white; }
 
-p.title  {
-	margin-top:0em;
-	margin-bottom:0em;
-	text-align:center;
-	font-style:italic;
-	font-size:xx-large;
-	}
-
-p.series_id {
-	margin-top:0em;
-	margin-bottom:0em;
-	text-align:center;
-	}
-
 a.series_id {
 	font-style:normal;
 	font-size:large;
-	}
-
-p.author {
-	font-size:large;
-	margin-top:0em;
-	margin-bottom:0em;
-	text-align: center;
-	text-indent: 0em;
-  	}
-
-p.author_index {
-	font-size:large;
-	font-weight:bold;
-	text-align:left;
-	margin-top:0px;
-	margin-bottom:-2px;
-	text-indent: 0em;
-	}
-
-p.genres {
-	font-style:normal;
-	margin-top:0.5em;
-	margin-bottom:0em;
-	text-align: left;
-	text-indent: 0.0in;
-	}
-
-p.formats {
-	font-size:90%;
-	margin-top:0em;
-	margin-bottom:0.5em;
-	text-align: left;
-	text-indent: 0.0in;
 	}
 
 /*
@@ -75,71 +28,6 @@ div.description {
 
 div.initial_letter {
 	page-break-before:always;
-	}
-
-p.author_title_letter_index {
-	font-size:x-large;
-	text-align:center;
-	font-weight:bold;
-	margin-top:0px;
-	margin-bottom:0px;
-	}
-
-p.date_index {
-	font-size:x-large;
-	text-align:center;
-	font-weight:bold;
-	margin-top:1em;
-	margin-bottom:0px;
-	}
-
-p.series {
-	font-style:italic;
-	margin-top:2px;
-	margin-bottom:0px;
-	margin-left:2em;
-	text-align:left;
-	text-indent:-2em;
-	}
-
-p.series_letter_index {
-	font-size:x-large;
-	text-align:center;
-	font-weight:bold;
-	margin-top:1em;
-	margin-bottom:0px;
-	}
-
-p.read_book {
-	text-align:left;
-	margin-top:0px;
-	margin-bottom:0px;
-	margin-left:2em;
-	text-indent:-2em;
-	}
-
-p.unread_book {
-	text-align:left;
-	margin-top:0px;
-	margin-bottom:0px;
-	margin-left:2em;
-	text-indent:-2em;
-	}
-
-p.wishlist_item {
-	text-align:left;
-	margin-top:0px;
-	margin-bottom:0px;
-	margin-left:2em;
-	text-indent:-2em;
-	}
-
-p.date_read {
-	text-align:left;
-	margin-top:0px;
-	margin-bottom:0px;
-	margin-left:6em;
-	text-indent:-6em;
 	}
 
 hr.annotations_divider {
@@ -173,6 +61,102 @@ hr.merged_comments_divider {
 	border-right: solid white 0px;
     border-bottom: dashed gray 2px;
     border-left: solid white 0px;
+	}
+
+p.date_read {
+	text-align:left;
+	margin-top:0px;
+	margin-bottom:0px;
+	margin-left:6em;
+	text-indent:-6em;
+	}
+
+p.author {
+	font-size:large;
+	margin-top:0em;
+	margin-bottom:0em;
+	text-align: center;
+	text-indent: 0em;
+  	}
+
+p.author_index {
+	font-size:large;
+	font-weight:bold;
+	text-align:left;
+	margin-top:0px;
+	margin-bottom:-2px;
+	text-indent: 0em;
+	}
+
+p.author_title_letter_index {
+	font-size:x-large;
+	text-align:center;
+	font-weight:bold;
+	margin-top:0px;
+	margin-bottom:0px;
+	}
+
+p.date_index {
+	font-size:x-large;
+	text-align:center;
+	font-weight:bold;
+	margin-top:1em;
+	margin-bottom:0px;
+	}
+
+p.formats {
+	font-size:90%;
+	margin-top:0em;
+	margin-bottom:0.5em;
+	text-align: left;
+	text-indent: 0.0in;
+	}
+
+p.genres {
+	font-style:normal;
+	margin-top:0.5em;
+	margin-bottom:0em;
+	text-align: left;
+	text-indent: 0.0in;
+	}
+
+p.series {
+	font-style:italic;
+	margin-top:0.25em;
+	margin-bottom:0em;
+	margin-left:2em;
+	text-align:left;
+	text-indent:-2em;
+	}
+
+p.series_id {
+	margin-top:0em;
+	margin-bottom:0em;
+	text-align:center;
+	}
+
+p.series_letter_index {
+	font-size:x-large;
+	text-align:center;
+	font-weight:bold;
+	margin-top:1em;
+	margin-bottom:0px;
+	}
+
+p.title  {
+	margin-top:0em;
+	margin-bottom:0em;
+	text-align:center;
+	font-style:italic;
+	font-size:xx-large;
+	}
+
+p.wishlist_item, p.unread_book, p.read_book {
+	text-align:left;
+	margin-top:0px;
+	margin-bottom:0px;
+	margin-left:2em;
+	text-indent:-2em;
 	}
 
 td.publisher, td.date {
