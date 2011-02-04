@@ -19,6 +19,124 @@
 #  new recipes:
 #    - title: 
 
+- version: 0.7.44
+  date: 2011-02-04
+
+  new features:
+    - title: "Nook Color driver: Send downloaded news to the My Files/Magazines folder on the Nook Color. Also when getting the list of books on the device look at all folders in My Files, not just My Files/Books."
+
+    - title: "MOBI Output: Use the book uuid as the ASIN field and set cdetype to EBOK to allow Amazon furthest read tracking to work with calibre generated MOBI files."
+      tickets: [8721]
+
+    - title: "Comic input: Add an option to override the image size in the generated comic. Useful if you have a device whose screen size is not coverred by one of the available output profiles."
+      tickets: [7837]
+
+    - title: "Add a restore database option to the Library maintenance menu in the GUI"
+
+    - title: "TXT Output: Allow output in the textile markup language"
+
+    - title: "PML Output: Create multi-level Table of Contents"
+
+    - title: "Driver for the Archos 7O"
+
+    - title: "Search and Replace in the Bulk metadata dialog can now operate on the title_sort field as well"
+      tickets: [8732]
+
+    - title: "Allow changing the case of authors/tags/series etc. via the edit metadata dialog"
+
+    - title: "Connect/share menu: Re-organize to make it a little less easy to select email and delete instead of just email by mistake"
+
+    - title: "Heuristics: Improved Scene break detection and add option to control what scene breaks are replaced by."
+
+    - title: "SONY driver: Add option to not preserve aspect ratio of cover thumbnails."
+
+    - title: "BiBTeX catalog: Add on device column when available"
+
+    - title: "Add search to the plugin preferences dialog"
+  
+  bug fixes:
+    - title: "Fix a bug that could cause fiels to be lost when changing metadata on east asian windows installs if the title and/or author is very long."
+      tickets: [8620]
+
+    - title: "Tag browser: Fix searching with items in a user category not owrking if the main category is hidden"
+      tickets: [8741]
+
+    - title: "Make completion for author/series/tags/etc. fields less disruptive"
+
+    - title: "Fix regression that broke the content server when user categories/custom columns are present"
+
+    - title: "Catalog generation: Handle user supplied templates more robustly"
+
+    - title: "Move the Tags to apply to newly added books option into Preferences->Adding books"
+      tickets: [8730]
+
+    - title: "Workaround for bug in Qt on OS X that caused crashes when reading metedata from two or more EPUB files with HTML covers that used embedded fonts. Now the embedded fonts are ignored on OS X."
+      tickets: [8643]
+
+    - title: "Fix regression that broke the use of the group searched terms tweak"
+      tickets: [8739]
+
+    - title: "Fix template program regression triggered by recursively calling the processor"
+
+    - title: "Fix mimetype sent by content server for PDB files"
+
+    - title: "OPF: Write title_sort as a calibre custom metadata field rather than as a file-as attribute on the title. This conforms to the OPF spec"
+      tickets: [7883]
+
+    - title: "SONY driver: Fix thumbnails being sent to SD card are sent to the wrong location. Also use correct thumbnail size so that the SONY does not regenerate the thumbnail on disconnect"
+
+    - title: "Do not discard the result of a conversion if the user opens the edit metadata dialog while the conversion is running"
+      tickets: [8672]
+
+    - title: "CHM Input: When the chm file lacks a hhc, lookf for index.html instead"
+      tickets: [8688]
+
+    - title: "EPUB Input: Filter some invalid media types from the spine"
+
+    - title: "RTF Input: More encoding handlig fixes."
+      tickets: [8678]
+
+    - title: "Linux binary build: Restore functioning of CALIBRE_DEVELOP_FROM, which was accidentally removed a few versions ago"
+
+    - title: "RTF Output: Retain html headings as rtf headings when converting to rtf. Also fix output of italics."
+      tickets: [8641, 8640]
+
+    - title: "LIT Input: Fix regression that broke handling of LIT files that contain txt data instead of html"
+
+    - title: "MOBI Input: Handle more non printing ASCII codes"
+      tickets: [8646]
+
+    - title: "Handle empty cover files more gracefully"
+      tickets: [8656]
+
+    - title: "Catalog geenration: Fix error when Pocketbook is connected and trying to geenrate catalog"
+      tickets: [8651]
+
+    - title: "Heuristics: Italicize common cases, reduce false positives."
+
+    - title: "Fix regression that caused reporting of device connection errors to break"
+
+  improved recipes:
+    - MSN Japan
+    - The Onion
+    - La Tribuna de
+    - Wall Street Journal
+    - "20 Minutos"
+    - LA Times
+    - Endgadget Japan
+    - Ledevoir
+    - Vijesti
+
+  new recipes:
+    - title: "Cinco Dias and BBC Mundo"
+      author: Luis Hernandez
+
+    - title: "Explosm"
+      author: Andromeda Rabbit
+
+    - title: "Cinco Dias"
+      author: Luis Hernandez
+
 
 - version: 0.7.43
   date: 2011-01-28
