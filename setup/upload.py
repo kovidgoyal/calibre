@@ -324,7 +324,7 @@ class UploadToServer(Command):
 
     def run(self, opts):
         check_call('ssh divok rm -f %s/calibre-\*.tar.gz'%DOWNLOADS, shell=True)
-        check_call('scp dist/calibre-*.tar.gz divok:%s/'%DOWNLOADS, shell=True)
+        #check_call('scp dist/calibre-*.tar.gz divok:%s/'%DOWNLOADS, shell=True)
         check_call('gpg --armor --detach-sign dist/calibre-*.tar.gz',
                 shell=True)
         check_call('scp dist/calibre-*.tar.gz.asc divok:%s/signatures/'%DOWNLOADS,
