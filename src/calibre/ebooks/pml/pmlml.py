@@ -16,7 +16,6 @@ from calibre.ebooks.oeb.base import XHTML, XHTML_NS, barename, namespace
 from calibre.ebooks.oeb.stylizer import Stylizer
 from calibre.ebooks.pdb.ereader import image_name
 from calibre.ebooks.pml import unipmlcode
-from calibre.utils.cleantext import clean_ascii_chars
 
 TAG_MAP = {
     'b'       : 'B',
@@ -196,7 +195,7 @@ class PMLMLizer(object):
 
         # Remove excessive spaces
         text = re.sub('[ ]{2,}', ' ', text)
-        
+
         # Condense excessive \c empty line sequences.
         text = re.sub('(\\c\s*\\c\s*){2,}', '\\c \n\\c\n', text)
 
@@ -252,7 +251,7 @@ class PMLMLizer(object):
             text.append(w)
         elif tag == 'br':
             text.append('\n\\c \n\\c\n')
-        
+
         # TOC markers.
         toc_name = elem.attrib.get('name', None)
         toc_id = elem.attrib.get('id', None)
@@ -304,7 +303,7 @@ class PMLMLizer(object):
             if style_tag and style_tag not in tag_stack+tags:
                 text.append('\\%s' % style_tag)
                 tags.append(style_tag)
-        
+
         # margin left
         try:
             mms = int(float(style['margin-left']) * 100 / style.height)
@@ -312,7 +311,7 @@ class PMLMLizer(object):
                 text.append('\\T="%s%%"' % mms)
         except:
             pass
-        
+
         # Soft scene breaks.
         try:
             ems = int(round((float(style.marginTop) / style.fontSize) - 1))
@@ -355,7 +354,7 @@ class PMLMLizer(object):
                 text.append('\n\n')
             else:
                 # closing \c and \r need to be placed
-                # on the next line per PML spec. 
+                # on the next line per PML spec.
                 if tag in ('c', 'r'):
                     text.append('\n\\%s' % tag)
                 else:

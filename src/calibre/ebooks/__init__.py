@@ -113,7 +113,7 @@ def render_html_svg_workaround(path_to_html, log, width=590, height=750):
 
 def render_html(path_to_html, width=590, height=750, as_xhtml=True):
     from PyQt4.QtWebKit import QWebPage
-    from PyQt4.Qt import QEventLoop, QPalette, Qt, SIGNAL, QUrl, QSize
+    from PyQt4.Qt import QEventLoop, QPalette, Qt, QUrl, QSize
     from calibre.gui2 import is_ok_to_use_qt
     if not is_ok_to_use_qt(): return None
     path_to_html = os.path.abspath(path_to_html)
@@ -127,8 +127,7 @@ def render_html(path_to_html, width=590, height=750, as_xhtml=True):
         page.mainFrame().setScrollBarPolicy(Qt.Horizontal, Qt.ScrollBarAlwaysOff)
         loop = QEventLoop()
         renderer = HTMLRenderer(page, loop)
-        page.connect(page, SIGNAL('loadFinished(bool)'), renderer,
-                Qt.QueuedConnection)
+        page.loadFinished.connect(renderer, type=Qt.QueuedConnection)
         if as_xhtml:
             page.mainFrame().setContent(open(path_to_html, 'rb').read(),
                     'application/xhtml+xml', QUrl.fromLocalFile(path_to_html))
@@ -136,6 +135,7 @@ def render_html(path_to_html, width=590, height=750, as_xhtml=True):
             page.mainFrame().load(QUrl.fromLocalFile(path_to_html))
         loop.exec_()
     renderer.loop = renderer.page = None
+    page.loadFinished.disconnect()
     del page
     del loop
     if isinstance(renderer.exception, ParserError) and as_xhtml:

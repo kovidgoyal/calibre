@@ -4456,20 +4456,32 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
                                             self.generateAuthorAnchor(book['author']))
 
             if publisher == ' ':
-                publisherTag = body.find('td', attrs={'class':'publisher'})
-                publisherTag.contents[0].replaceWith('&nbsp;')
+                try:
+                    publisherTag = body.find('td', attrs={'class':'publisher'})
+                    publisherTag.contents[0].replaceWith('&nbsp;')
+                except:
+                    pass
 
             if not genres:
-                genresTag = body.find('p',attrs={'class':'genres'})
-                genresTag.extract()
+                try:
+                    genresTag = body.find('p',attrs={'class':'genres'})
+                    genresTag.extract()
+                except:
+                    pass
 
             if not formats:
-                formatsTag = body.find('p',attrs={'class':'formats'})
-                formatsTag.extract()
+                try:
+                    formatsTag = body.find('p',attrs={'class':'formats'})
+                    formatsTag.extract()
+                except:
+                    pass
 
             if note_content == '':
-                tdTag = body.find('td', attrs={'class':'notes'})
-                tdTag.contents[0].replaceWith('&nbsp;')
+                try:
+                    tdTag = body.find('td', attrs={'class':'notes'})
+                    tdTag.contents[0].replaceWith('&nbsp;')
+                except:
+                    pass
 
             emptyTags = body.findAll('td', attrs={'class':'empty'})
             for mt in emptyTags:
