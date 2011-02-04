@@ -183,9 +183,8 @@ class BOOQ(EB600):
 
     FORMATS = ['epub', 'mobi', 'prc', 'fb2', 'pdf', 'doc', 'rtf', 'txt', 'html']
 
-    VENDOR_NAME = 'NETRONIX'
-    WINDOWS_MAIN_MEM = 'EB600'
-    WINDOWS_CARD_A_MEM = 'EB600'
+    VENDOR_NAME = ['NETRONIX', '36LBOOKS']
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['EB600', 'ELEQTOR']
 
 class MENTOR(EB600):
 
