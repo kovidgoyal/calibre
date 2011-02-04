@@ -181,17 +181,15 @@ class DBAdder(QObject): # {{{
             formats = [f for f in formats if not f.lower().endswith('.opf')]
             if prefs['add_formats_to_existing']: #automerge is on
                 identical_book_list = self.db.find_identical_books(mi)
-                print 'identical_book_list is: ', identical_book_list  #We are dealing with only one file of a specific format, and this is a list of matching db book records to the one file/format being processed
                 if identical_book_list: # books with same author and nearly same title exist in db for the one format being handled
                     self.merged_books.add(mi.title)
+                    a_new_record_has_been_created = False
                     for identical_book in identical_book_list: #this will add the new format to *each* matching entry in the db - Do we need to do this?
                         if gprefs['automerge'] == 'ignore':
                             self.add_formats(identical_book, formats, replace=False)
                         if gprefs['automerge'] == 'overwrite':
                             self.add_formats(identical_book, formats, replace=True)
-                            print 'inside overwrite'
-                        if gprefs['automerge'] == 'new record':
-                            print 'We are in new record'
+                        if gprefs['automerge'] == 'new record' and not a_new_record_has_been_created:
                             '''
                             We are here because we have at least one book record in the db that matches the one file/format being processed
                             We need to check if the file/format being processed matches a format in the matching book record.
@@ -205,6 +203,7 @@ class DBAdder(QObject): # {{{
                                     id = self.db.create_book_entry(mi, cover=cover, add_duplicates=True)    
                                     self.number_of_books_added += 1
                                     self.add_formats(id, formats)
+                                    a_new_record_has_been_created = True
                                    #If we created a new record, are we done - or should we go on and add to other existing records that don't have this format?
                                 else: #a new record is not required - the incoming format does not exist in the ib record
                                     self.add_formats(identical_book, formats, replace=False)
