@@ -11,6 +11,7 @@ from calibre.gui2.preferences import ConfigWidgetBase, test_widget
 from calibre.gui2.preferences.adding_ui import Ui_Form
 from calibre.utils.config import prefs
 from calibre.gui2.widgets import FilenamePattern
+from calibre.gui2 import gprefs
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
@@ -22,6 +23,10 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('read_file_metadata', prefs)
         r('swap_author_names', prefs)
         r('add_formats_to_existing', prefs)
+        choices = [(_('Ignore'), 'ignore'), (_('Overwrite'), 'overwrite'),
+            (_('New Record'), 'new record')]
+        r('automerge', gprefs, choices=choices)
+        #print 'The automerge setting is: ', gprefs['automerge']
 
         self.filename_pattern = FilenamePattern(self)
         self.metadata_box.layout().insertWidget(0, self.filename_pattern)

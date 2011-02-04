@@ -31,18 +31,23 @@
      </property>
     </widget>
    </item>
-   <item row="2" column="0" colspan="2">
+   <item row="2" column="0" colspan="1"> #MOD was colspan="2"
     <widget class="QCheckBox" name="opt_add_formats_to_existing">
      <property name="toolTip">
-      <string>If an existing book with a similar title and author is found that does not have the format being added, the format is added
-to the existing book, instead of creating a new entry. If the existing book already has the format, then it is silently ignored.
+      <string>If an existing book with a similar title and author is found, the incoming format will be added to the existing book record where possible. 
+If the existing book already has the incoming format, then the setting to the right controls and the new format will be ignored, it will overwrite the old format 
+or a new record will be created.
 
 Title match ignores leading indefinite articles (&quot;the&quot;, &quot;a&quot;, &quot;an&quot;), punctuation, case, etc. Author match is exact.</string>
      </property>
      <property name="text">
-      <string>If books with similar titles and authors found, &amp;merge the new files automatically</string>
+      <string>If books with similar titles and authors found, &amp;try to merge the new formats automatically
+and do this for duplicate formats: </string>
      </property>
     </widget>
+   </item>
+   <item row="2" column="1"> #MOD added as new item
+    <widget class="QComboBox" name="opt_automerge"/>
    </item>
    <item row="3" column="0" colspan="2">
     <widget class="QGroupBox" name="metadata_box">

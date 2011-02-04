@@ -8,7 +8,7 @@ from functools import partial
 from PyQt4.Qt import QThread, QObject, Qt, QProgressDialog, pyqtSignal, QTimer
 
 from calibre.gui2.dialogs.progress import ProgressDialog
-from calibre.gui2 import question_dialog, error_dialog, info_dialog
+from calibre.gui2 import question_dialog, error_dialog, info_dialog, gprefs
 from calibre.ebooks.metadata.opf2 import OPF
 from calibre.ebooks.metadata import MetaInformation
 from calibre.constants import preferred_encoding, filesystem_encoding, DEBUG
@@ -181,11 +181,21 @@ class DBAdder(QObject): # {{{
             formats = [f for f in formats if not f.lower().endswith('.opf')]
             if prefs['add_formats_to_existing']:
                 identical_book_list = self.db.find_identical_books(mi)
-
+                
                 if identical_book_list: # books with same author and nearly same title exist in db
                     self.merged_books.add(mi.title)
                     for identical_book in identical_book_list:
-                        self.add_formats(identical_book, formats, replace=False)
+                        if gprefs['automerge'] == 'ignore':
+                            self.add_formats(identical_book, formats, replace=False)
+                            print 'do something for ignore'
+                        if gprefs['automerge'] == 'overwrite':
+                            self.add_formats(identical_book, formats, replace=True)
+                            print 'do something for overwrite'
+                        if gprefs['automerge'] == 'new record':
+                            id = self.db.create_book_entry(mi, cover=cover, add_duplicates=True)
+                            self.number_of_books_added += 1
+                            self.add_formats(id, formats)
+                            print 'do something for new record'
                 else:
                     id = self.db.create_book_entry(mi, cover=cover, add_duplicates=True)
                     self.number_of_books_added += 1
