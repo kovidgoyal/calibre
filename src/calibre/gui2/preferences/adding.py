@@ -24,7 +24,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('read_file_metadata', prefs)
         r('swap_author_names', prefs)
         r('add_formats_to_existing', prefs)
-        choices = [(_('Ignore the incoming format'), 'ignore'), (_('Overwrite the existing format with the incoming format'), 'overwrite'), (_('Create a new book record for the incoming format'), 'new record')]
+        choices = [(_('Ignore incoming format'), 'ignore'), (_('Overwrite existing format'), 'overwrite'), (_('Create new record'), 'new record')]
         r('automerge', gprefs, choices=choices)
         r('new_book_tags', prefs, setting=CommaSeparatedList)
 

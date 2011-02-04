@@ -62,14 +62,13 @@
     <widget class="QCheckBox" name="opt_add_formats_to_existing">
      <property name="toolTip">
       <string>If an existing book with a similar title and author is found, the incoming format will be added to the existing book record, where possible. 
-If the existing book already has the incoming format, then the setting to the right controls and the new format will be ignored, it will overwrite the existing format 
-or a new book record will be created for the incoming format.
+If the existing book already has the incoming format, then the setting to the right controls whether the incoming format will be ignored, overwrite the existing format or a new book record will be created.
 
 Title match ignores leading indefinite articles (&quot;the&quot;, &quot;a&quot;, &quot;an&quot;), punctuation, case, etc. Author match is exact.</string>
      </property>
      <property name="text">
-      <string>Automerge: If books with similar titles and authors found, try to &amp;merge the incoming formats automatically
- into existing book records. The option to the right controls what happens when the existing record already has the incoming format: </string>
+      <string>Automerge: If books with similar titles and authors found, &amp;merge the incoming formats automatically into 
+existing book records. The ComboBox to the right controls what happens when an existing record already has the incoming format: </string>
      </property>
     </widget>
    </item>

@@ -181,10 +181,10 @@ class DBAdder(QObject): # {{{
             formats = [f for f in formats if not f.lower().endswith('.opf')]
             if prefs['add_formats_to_existing']: #automerge is on
                 identical_book_list = self.db.find_identical_books(mi)
-                if identical_book_list: # books with same author and nearly same title exist in db for the one format being handled
+                if identical_book_list:  # books with same author and nearly same title exist in db
                     self.merged_books.add(mi.title)
                     a_new_record_has_been_created = False
-                    for identical_book in identical_book_list: #this will add the new format to *each* matching entry in the db - Do we need to do this?
+                    for identical_book in identical_book_list: 
                         if gprefs['automerge'] == 'ignore':
                             self.add_formats(identical_book, formats, replace=False)
                         if gprefs['automerge'] == 'overwrite':
@@ -196,16 +196,15 @@ class DBAdder(QObject): # {{{
                             If so, create new record (as below), else, add to existing record, as above.
                             Test if format exists in matching record. identical_book is an id, formats is a FQPN path in a list
                             '''
-                            for path in formats: #I think there's always only one path in formats - Check
-                                fmt = os.path.splitext(path)[-1].replace('.', '').upper() #this is the format extension of the incoming file
-                                ib_fmts = self.db.formats(identical_book, index_is_id=True) #These are the formats in the record
-                                if fmt in ib_fmts: #Create a new record if the incoming format already exists in the identical book (ib) record
+                            for path in formats:
+                                fmt = os.path.splitext(path)[-1].replace('.', '').upper() 
+                                ib_fmts = self.db.formats(identical_book, index_is_id=True)
+                                if fmt in ib_fmts: #Create a new record 
                                     id = self.db.create_book_entry(mi, cover=cover, add_duplicates=True)    
                                     self.number_of_books_added += 1
                                     self.add_formats(id, formats)
                                     a_new_record_has_been_created = True
-                                   #If we created a new record, are we done - or should we go on and add to other existing records that don't have this format?
-                                else: #a new record is not required - the incoming format does not exist in the ib record
+                                else: #new record not required
                                     self.add_formats(identical_book, formats, replace=False)
 
                 else: # books with same author and nearly same title do not exist in db
@@ -213,7 +212,7 @@ class DBAdder(QObject): # {{{
                     self.number_of_books_added += 1
                     self.add_formats(id, formats)
 
-            else: #automerge is off -use legacy duplicates code
+            else: #automerge is off
                 id = self.db.create_book_entry(mi, cover=cover, add_duplicates=False)
                 if id is None:
                     self.duplicates.append((mi, cover, orig_formats))
@@ -227,7 +226,7 @@ class DBAdder(QObject): # {{{
         return mi.title
 
     def add_formats(self, id, formats, replace=True):
-        for path in formats: #path and formats will be the same fully qualified path and book filename when used by automerge
+        for path in formats:
             fmt = os.path.splitext(path)[-1].replace('.', '').upper()
             with open(path, 'rb') as f:
                 self.db.add_format(id, fmt, f, index_is_id=True,
