@@ -1412,7 +1412,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 icon = icon_map['search']
         for srch in saved_searches().names():
             items.append(Tag(srch, tooltip=saved_searches().lookup(srch),
-                             icon=icon, category='search'))
+                             sort=srch, icon=icon, category='search'))
         if len(items):
             if icon_map is not None:
                 icon_map['search'] = icon_map['search']
