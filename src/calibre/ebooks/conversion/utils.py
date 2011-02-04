@@ -379,13 +379,13 @@ class HeuristicProcessor(object):
         html = re.sub('(?i)</?st1:\w+>', '', html)
         # Re-open self closing paragraph tags
         html = re.sub('<p[^>/]*/>', '<p> </p>', html)
-        # delete surrounding divs from empty paragraphs
-        html = re.sub('<div[^>]*>\s*<p[^>]*>\s*</p>\s*</div>', '<p> </p>', html)
         # Get rid of empty span, bold, font, em, & italics tags
         html = re.sub(r"\s*<span[^>]*>\s*(<span[^>]*>\s*</span>){0,2}\s*</span>\s*", " ", html)
         html = re.sub(r"\s*<(font|[ibu]|em|strong)[^>]*>\s*(<(font|[ibu]|em|strong)[^>]*>\s*</(font|[ibu]|em|strong)>\s*){0,2}\s*</(font|[ibu]|em|strong)>", " ", html)
         html = re.sub(r"\s*<span[^>]*>\s*(<span[^>]>\s*</span>){0,2}\s*</span>\s*", " ", html)
         html = re.sub(r"\s*<(font|[ibu]|em|strong)[^>]*>\s*(<(font|[ibu]|em|strong)[^>]*>\s*</(font|[ibu]|em|strong)>\s*){0,2}\s*</(font|[ibu]|em|strong)>", " ", html)
+        # delete surrounding divs from empty paragraphs
+        html = re.sub('<div[^>]*>\s*<p[^>]*>\s*</p>\s*</div>', '<p> </p>', html)
         # Empty heading tags
         html = re.sub(r'(?i)<h\d+>\s*</h\d+>', '', html)
         self.deleted_nbsps = True
@@ -563,7 +563,6 @@ class HeuristicProcessor(object):
         # Determine whether the document uses interleaved blank lines
         self.blanks_between_paragraphs = self.analyze_blanks(html)
 
-        #self.dump(html, 'before_chapter_markup')
         # detect chapters/sections to match xpath or splitting logic
 
         if getattr(self.extra_opts, 'markup_chapter_headings', False):
@@ -639,7 +638,6 @@ class HeuristicProcessor(object):
             blanks_count = len(self.any_multi_blank.findall(html))
             if blanks_count >= 1:
                 html = self.merge_blanks(html, blanks_count)
-                self.dump(html, 'before_after_merge_blanks')
             scene_break_regex = self.line_open+'(?![\w\'\"])(?P<break>((?P<break_char>((?!\s)\W))\s*(?P=break_char)?)+)\s*'+self.line_close
             scene_break = re.compile(r'%s' % scene_break_regex, re.IGNORECASE|re.UNICODE)
             # If the user has enabled scene break replacement, then either softbreaks
