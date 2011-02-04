@@ -23,10 +23,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('read_file_metadata', prefs)
         r('swap_author_names', prefs)
         r('add_formats_to_existing', prefs)
-        choices = [(_('Ignore'), 'ignore'), (_('Overwrite'), 'overwrite'),
-            (_('New Record'), 'new record')]
+        choices = [(_('Ignore the incoming format'), 'ignore'), (_('Overwrite the existing format with the incoming format'), 'overwrite'), (_('Create a new book record for the incoming format'), 'new record')]
         r('automerge', gprefs, choices=choices)
-        #print 'The automerge setting is: ', gprefs['automerge']
 
         self.filename_pattern = FilenamePattern(self)
         self.metadata_box.layout().insertWidget(0, self.filename_pattern)
