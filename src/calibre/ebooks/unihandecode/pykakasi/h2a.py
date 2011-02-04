@@ -163,6 +163,14 @@ class H2a (object):
         u"\u3093\u304a":"n'o",
     }
 
+# this class is Borg
+    _shared_state = {}
+
+    def __new__(cls, *p, **k):
+        self = object.__new__(cls, *p, **k)
+        self.__dict__ = cls._shared_state
+        return self
+
     def isHiragana(self, char):
         return ( 0x3040 < ord(char) and ord(char) < 0x3094)
 
