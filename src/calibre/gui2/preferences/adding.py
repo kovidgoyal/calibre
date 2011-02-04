@@ -7,7 +7,8 @@ __docformat__ = 'restructuredtext en'
 
 
 
-from calibre.gui2.preferences import ConfigWidgetBase, test_widget
+from calibre.gui2.preferences import ConfigWidgetBase, test_widget, \
+    CommaSeparatedList
 from calibre.gui2.preferences.adding_ui import Ui_Form
 from calibre.utils.config import prefs
 from calibre.gui2.widgets import FilenamePattern
@@ -25,6 +26,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('add_formats_to_existing', prefs)
         choices = [(_('Ignore the incoming format'), 'ignore'), (_('Overwrite the existing format with the incoming format'), 'overwrite'), (_('Create a new book record for the incoming format'), 'new record')]
         r('automerge', gprefs, choices=choices)
+        r('new_book_tags', prefs, setting=CommaSeparatedList)
 
         self.filename_pattern = FilenamePattern(self)
         self.metadata_box.layout().insertWidget(0, self.filename_pattern)

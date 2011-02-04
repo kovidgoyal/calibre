@@ -81,12 +81,19 @@ class PRS505(USBMS):
                 _('Set this option to have separate book covers uploaded '
                   'every time you connect your device. Unset this option if '
                   'you have so many books on the reader that performance is '
-                  'unacceptable.')
+                  'unacceptable.'),
+            _('Preserve cover aspect ratio when building thumbnails') +
+                ':::' +
+                _('Set this option if you want the cover thumbnails to have '
+                  'the same aspect ratio (width to height) as the cover. '
+                  'Unset it if you want the thumbnail to be the maximum size, '
+                  'ignoring aspect ratio.')
     ]
     EXTRA_CUSTOMIZATION_DEFAULT = [
                 ', '.join(['series', 'tags']),
                 False,
-                False
+                False,
+                True
     ]
 
     OPT_COLLECTIONS    = 0
@@ -96,7 +103,10 @@ class PRS505(USBMS):
     plugboard = None
     plugboard_func = None
 
-    THUMBNAIL_HEIGHT = 200
+    THUMBNAIL_HEIGHT = 217
+
+    MAX_PATH_LEN = 201 # 250 - (max(len(CACHE_THUMBNAIL), len(MEDIA_THUMBNAIL)) +
+                       # len('main_thumbnail.jpg') + 1)
 
     def windows_filter_pnp_id(self, pnp_id):
         return '_LAUNCHER' in pnp_id
@@ -135,6 +145,13 @@ class PRS505(USBMS):
             if not write_cache(self._card_b_prefix):
                 self._card_b_prefix = None
         self.booklist_class.rebuild_collections = self.rebuild_collections
+        # Set the thumbnail width to the theoretical max if the user has asked
+        # that we do not preserve aspect ratio
+        if not self.settings().extra_customization[3]:
+            self.THUMBNAIL_WIDTH = 168
+        # Set WANTS_UPDATED_THUMBNAILS if the user has asked that thumbnails be
+        # updated on every connect
+        self.WANTS_UPDATED_THUMBNAILS = self.settings().extra_customization[2]
 
     def get_device_information(self, end_session=True):
         return (self.gui_name, '', '', '')
@@ -201,10 +218,13 @@ class PRS505(USBMS):
                                 self._card_b_prefix if idx == 2 \
                                     else self._main_prefix
                 for book in bl:
-                    p = os.path.join(prefix, book.lpath)
-                    self._upload_cover(os.path.dirname(p),
-                                      os.path.splitext(os.path.basename(p))[0],
-                                      book, p)
+                    try:
+                        p = os.path.join(prefix, book.lpath)
+                        self._upload_cover(os.path.dirname(p),
+                                          os.path.splitext(os.path.basename(p))[0],
+                                          book, p)
+                    except:
+                        debug_print('FAILED to upload cover', p)
         else:
             debug_print('PRS505: NOT uploading covers in sync_booklists')
 
@@ -229,7 +249,10 @@ class PRS505(USBMS):
             debug_print('PRS505: not uploading cover')
             return
         debug_print('PRS505: uploading cover')
-        self._upload_cover(path, filename, metadata, filepath)
+        try:
+            self._upload_cover(path, filename, metadata, filepath)
+        except:
+            debug_print('FAILED to upload cover', filepath)
 
     def _upload_cover(self, path, filename, metadata, filepath):
         if metadata.thumbnail and metadata.thumbnail[-1]:

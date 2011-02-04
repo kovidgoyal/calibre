@@ -18,16 +18,15 @@ from calibre.ebooks.chardet import substitute_entites
 from calibre.ebooks.oeb.base import XHTML_NS
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.config import config_dir
-from calibre.utils.date import format_date, isoformat, now as nowf
+from calibre.utils.date import format_date, isoformat, is_date_undefined, now as nowf
+from calibre.utils.icu import capitalize
 from calibre.utils.logging import default_log as log
 from calibre.utils.zipfile import ZipFile, ZipInfo
 from calibre.utils.magick.draw import thumbnail
 
-FIELDS = ['all', 'author_sort', 'authors', 'comments',
-          'cover', 'formats', 'id', 'isbn', 'ondevice', 'pubdate', 'publisher', 'rating',
-          'series_index', 'series', 'size', 'tags', 'timestamp', 'title',
-          'uuid']
-
+FIELDS = ['all', 'title', 'author_sort', 'authors', 'comments',
+          'cover', 'formats','id', 'isbn', 'ondevice', 'pubdate', 'publisher',
+          'rating', 'series_index', 'series', 'size', 'tags', 'timestamp', 'uuid']
 
 #Allowed fields for template
 TEMPLATE_ALLOWED_FIELDS = [ 'author_sort', 'authors', 'id', 'isbn', 'pubdate',
@@ -54,8 +53,10 @@ class CSV_XML(CatalogPlugin): # {{{
                     'database.  Should be a comma-separated list of fields.\n'
                     'Available fields: %s,\n'
                     'plus user-created custom fields.\n'
+                    'Example: %s=title,authors,tags\n'
                     "Default: '%%default'\n"
-                    "Applies to: CSV, XML output formats")%', '.join(FIELDS)),
+                    "Applies to: CSV, XML output formats")%(', '.join(FIELDS),
+                        '--fields')),
 
             Option('--sort-by',
                 default = 'id',
@@ -231,8 +232,11 @@ class BIBTEX(CatalogPlugin): # {{{
                 help = _('The fields to output when cataloging books in the '
                     'database.  Should be a comma-separated list of fields.\n'
                     'Available fields: %s.\n'
+                    'plus user-created custom fields.\n'
+                    'Example: %s=title,authors,tags\n'
                     "Default: '%%default'\n"
-                    "Applies to: BIBTEX output format")%', '.join(FIELDS)),
+                    "Applies to: BIBTEX output format")%(', '.join(FIELDS),
+                        '--fields')),
 
             Option('--sort-by',
                 default = 'id',
@@ -252,12 +256,21 @@ class BIBTEX(CatalogPlugin): # {{{
                 "Default: '%default'\n"
                 "Applies to: BIBTEX output format")),
 
+            Option('--add-files-path',
+                default = 'True',
+                dest = 'addfiles',
+                action = None,
+                help = _('Create a file entry if formats is selected for BibTeX entries.\n'
+                'Boolean value: True, False\n'
+                "Default: '%default'\n"
+                "Applies to: BIBTEX output format")),
+
             Option('--citation-template',
                 default = '{authors}{id}',
                 dest = 'bib_cit',
                 action = None,
                 help = _('The template for citation creation from database fields.\n'
-                    ' Should be a template with {} enclosed fields.\n'
+                    'Should be a template with {} enclosed fields.\n'
                     'Available fields: %s.\n'
                     "Default: '%%default'\n"
                     "Applies to: BIBTEX output format")%', '.join(TEMPLATE_ALLOWED_FIELDS)),
@@ -298,7 +311,7 @@ class BIBTEX(CatalogPlugin): # {{{
         from calibre.utils.bibtex import BibTeX
 
         def create_bibtex_entry(entry, fields, mode, template_citation,
-            bibtexdict, citation_bibtex = True):
+            bibtexdict, citation_bibtex=True, calibre_files=True):
 
             #Bibtex doesn't like UTF-8 but keep unicode until writing
             #Define starting chain or if book valid strict and not book return a Fail string
@@ -332,7 +345,7 @@ class BIBTEX(CatalogPlugin): # {{{
                 if field == 'authors' :
                     bibtex_entry.append(u'author = "%s"' % bibtexdict.bibtex_author_format(item))
 
-                elif field in ['title', 'publisher', 'cover', 'uuid',
+                elif field in ['title', 'publisher', 'cover', 'uuid', 'ondevice',
                         'author_sort', 'series'] :
                     bibtex_entry.append(u'%s = "%s"' % (field, bibtexdict.utf8ToBibtex(item)))
 
@@ -360,8 +373,13 @@ class BIBTEX(CatalogPlugin): # {{{
                     bibtex_entry.append(u'isbn = "%s"' % re.sub(u'[\D]', u'', item))
 
                 elif field == 'formats' :
-                    item = u', '.join([format.rpartition('.')[2].lower() for format in item])
-                    bibtex_entry.append(u'formats = "%s"' % item)
+                    #Add file path if format is selected
+                    formats = [format.rpartition('.')[2].lower() for format in item]
+                    bibtex_entry.append(u'formats = "%s"' % u', '.join(formats))
+                    if calibre_files:
+                        files = [u':%s:%s' % (format, format.rpartition('.')[2].upper())\
+                            for format in item]
+                        bibtex_entry.append(u'file = "%s"' % u', '.join(files))
 
                 elif field == 'series_index' :
                     bibtex_entry.append(u'volume = "%s"' % int(item))
@@ -457,6 +475,8 @@ class BIBTEX(CatalogPlugin): # {{{
         if opts.verbose:
             opts_dict = vars(opts)
             log("%s(): Generating %s" % (self.name,self.fmt))
+            if opts.connected_device['is_device_connected']:
+                log(" connected_device: %s" % opts.connected_device['name'])
             if opts_dict['search_text']:
                 log(" --search='%s'" % opts_dict['search_text'])
 
@@ -511,31 +531,46 @@ class BIBTEX(CatalogPlugin): # {{{
         else :
             citation_bibtex= opts.impcit
 
+        #Check add file entry and go to default in case of bad CLI
+        if isinstance(opts.addfiles, (StringType, UnicodeType)) :
+            if opts.addfiles == 'False' :
+                addfiles_bibtex = False
+            elif opts.addfiles == 'True' :
+                addfiles_bibtex = True
+            else :
+                log(" WARNING: incorrect --add-files-path, revert to default")
+                addfiles_bibtex= True
+        else :
+            addfiles_bibtex = opts.addfiles
+
         #Preprocess for error and light correction
         template_citation = preprocess_template(opts.bib_cit)
 
         #Open output and write entries
-        outfile = codecs.open(path_to_output, 'w', bibfile_enc, bibfile_enctag)
+        with codecs.open(path_to_output, 'w', bibfile_enc, bibfile_enctag)\
+            as outfile:
+            #File header
+            nb_entries = len(data)
 
-        #File header
-        nb_entries = len(data)
+            #check in book strict if all is ok else throw a warning into log
+            if bib_entry == 'book' :
+                nb_books = len(filter(check_entry_book_valid, data))
+                if nb_books < nb_entries :
+                    log(" WARNING: only %d entries in %d are book compatible" % (nb_books, nb_entries))
+                    nb_entries = nb_books
 
-        #check in book strict if all is ok else throw a warning into log
-        if bib_entry == 'book' :
-            nb_books = len(filter(check_entry_book_valid, data))
-            if nb_books < nb_entries :
-                log(" WARNING: only %d entries in %d are book compatible" % (nb_books, nb_entries))
-                nb_entries = nb_books
+            # If connected device, add 'On Device' values to data
+            if opts.connected_device['is_device_connected'] and 'ondevice' in fields:
+                for entry in data:
+                    entry['ondevice'] = db.catalog_plugin_on_device_temp_mapping[entry['id']]['ondevice']
 
-        outfile.write(u'%%%Calibre catalog\n%%%{0} entries in catalog\n\n'.format(nb_entries))
-        outfile.write(u'@preamble{"This catalog of %d entries was generated by calibre on %s"}\n\n'
-            % (nb_entries, nowf().strftime("%A, %d. %B %Y %H:%M").decode(preferred_encoding)))
+            outfile.write(u'%%%Calibre catalog\n%%%{0} entries in catalog\n\n'.format(nb_entries))
+            outfile.write(u'@preamble{"This catalog of %d entries was generated by calibre on %s"}\n\n'
+                % (nb_entries, nowf().strftime("%A, %d. %B %Y %H:%M").decode(preferred_encoding)))
 
-        for entry in data:
-            outfile.write(create_bibtex_entry(entry, fields, bib_entry, template_citation,
-                bibtexc, citation_bibtex))
-
-        outfile.close()
+            for entry in data:
+                outfile.write(create_bibtex_entry(entry, fields, bib_entry, template_citation,
+                    bibtexc, citation_bibtex, addfiles_bibtex))
 # }}}
 
 class EPUB_MOBI(CatalogPlugin):
@@ -580,7 +615,7 @@ class EPUB_MOBI(CatalogPlugin):
                            "pipeline to the specified "
                            "directory. Useful if you are unsure at which stage "
                            "of the conversion process a bug is occurring.\n"
-                           "Default: '%default'None\n"
+                           "Default: '%default'\n"
                            "Applies to: ePub, MOBI output formats")),
                    Option('--exclude-book-marker',
                           default=':',
@@ -604,43 +639,42 @@ class EPUB_MOBI(CatalogPlugin):
                               "Default: '%default'\n"
                               "Applies to: ePub, MOBI output formats")),
                    Option('--generate-authors',
-                          default=True,
+                          default=False,
                           dest='generate_authors',
                           action = 'store_true',
-                          help=_("Include 'Authors' section in catalog."
-                          "This switch is ignored - Books By Author section is always generated."
+                          help=_("Include 'Authors' section in catalog.\n"
                           "Default: '%default'\n"
                           "Applies to: ePub, MOBI output formats")),
                    Option('--generate-descriptions',
-                          default=True,
+                          default=False,
                           dest='generate_descriptions',
                           action = 'store_true',
-                          help=_("Include book descriptions in catalog.\n"
+                          help=_("Include 'Descriptions' section in catalog.\n"
                           "Default: '%default'\n"
                           "Applies to: ePub, MOBI output formats")),
                    Option('--generate-genres',
-                          default=True,
+                          default=False,
                           dest='generate_genres',
                           action = 'store_true',
                           help=_("Include 'Genres' section in catalog.\n"
                           "Default: '%default'\n"
                           "Applies to: ePub, MOBI output formats")),
                    Option('--generate-titles',
-                          default=True,
+                          default=False,
                           dest='generate_titles',
                           action = 'store_true',
                           help=_("Include 'Titles' section in catalog.\n"
                           "Default: '%default'\n"
                           "Applies to: ePub, MOBI output formats")),
                    Option('--generate-series',
-                          default=True,
+                          default=False,
                           dest='generate_series',
                           action = 'store_true',
                           help=_("Include 'Series' section in catalog.\n"
                           "Default: '%default'\n"
                           "Applies to: ePub, MOBI output formats")),
                    Option('--generate-recently-added',
-                          default=True,
+                          default=False,
                           dest='generate_recently_added',
                           action = 'store_true',
                           help=_("Include 'Recently Added' section in catalog.\n"
@@ -975,7 +1009,7 @@ class EPUB_MOBI(CatalogPlugin):
             self.__thumbWidth = 0
             self.__thumbHeight = 0
             self.__title = opts.catalog_title
-            self.__totalSteps = 8.0
+            self.__totalSteps = 6.0
             self.__useSeriesPrefixInTitlesSection = False
             self.__verbose = opts.verbose
 
@@ -1013,30 +1047,29 @@ class EPUB_MOBI(CatalogPlugin):
                                              (self.__archive_path, float(cached_thumb_width)))
 
             # Tweak build steps based on optional sections:  1 call for HTML, 1 for NCX
+            incremental_jobs = 0
+            if self.opts.generate_authors:
+                incremental_jobs += 2
             if self.opts.generate_titles:
-                self.__totalSteps += 2
+                incremental_jobs += 2
             if self.opts.generate_recently_added:
-                self.__totalSteps += 2
+                incremental_jobs += 2
                 if self.generateRecentlyRead:
-                    self.__totalSteps += 2
+                    incremental_jobs += 2
             if self.opts.generate_series:
-                self.__totalSteps += 2
+                incremental_jobs += 2
             if self.opts.generate_descriptions:
                 # +1 thumbs
-                self.__totalSteps += 3
+                incremental_jobs += 3
+            self.__totalSteps += incremental_jobs
 
             # Load section list templates
-            templates = ['by_authors_normal_title_template',
-                         'by_authors_series_title_template',
-                         'by_titles_normal_title_template',
-                         'by_titles_series_title_template',
-                         'by_series_title_template',
-                         'by_genres_normal_title_template',
-                         'by_genres_series_title_template',
-                         'by_recently_added_normal_title_template',
-                         'by_recently_added_series_title_template',
-                         'by_month_added_normal_title_template',
-                         'by_month_added_series_title_template']
+            templates = []
+            with open(P('catalog/section_list_templates.py'), 'r') as f:
+                for line in f:
+                    t = re.match("(by_.+_template)",line)
+                    if t:
+                        templates.append(t.group(1))
             execfile(P('catalog/section_list_templates.py'), locals())
             for t in templates:
                 setattr(self,t,eval(t))
@@ -1362,13 +1395,23 @@ class EPUB_MOBI(CatalogPlugin):
             if self.opts.generate_descriptions:
                 self.generateThumbnails()
                 self.generateHTMLDescriptions()
-            self.generateHTMLByAuthor()
+            if self.opts.generate_authors:
+                self.generateHTMLByAuthor()
             if self.opts.generate_titles:
                 self.generateHTMLByTitle()
             if self.opts.generate_series:
                 self.generateHTMLBySeries()
             if self.opts.generate_genres:
                 self.generateHTMLByTags()
+                # If this is the only Section, and there are no genres, bail
+                if self.opts.section_list == ['Genres'] and not self.genres:
+                    error_msg = _("No enabled genres found to catalog.\n")
+                    if not self.opts.cli_environment:
+                        error_msg += "Check 'Excluded genres'\nin E-book options.\n"
+                    self.opts.log.error(error_msg)
+                    self.error.append(_('No books available to catalog'))
+                    self.error.append(error_msg)
+                    return False
             if self.opts.generate_recently_added:
                 self.generateHTMLByDateAdded()
                 if self.generateRecentlyRead:
@@ -1376,7 +1419,8 @@ class EPUB_MOBI(CatalogPlugin):
 
             self.generateOPF()
             self.generateNCXHeader()
-            self.generateNCXByAuthor("Authors")
+            if self.opts.generate_authors:
+                self.generateNCXByAuthor("Authors")
             if self.opts.generate_titles:
                 self.generateNCXByTitle("Titles")
             if self.opts.generate_series:
@@ -1440,7 +1484,9 @@ class EPUB_MOBI(CatalogPlugin):
                     # Exit if author matches previous, but author_sort doesn't match
                     if author[0] == current_author[0]:
                         error_msg = _('''
-Inconsistent Author Sort values for Author '{0}' ('{1}' <> '{2}'), unable to build catalog.\n
+Inconsistent Author Sort values for Author '{0}':
+'{1}' <> '{2}',
+unable to build catalog.\n
 Select all books by '{0}', apply correct Author Sort value in Edit Metadata dialog,
 then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
                         self.opts.log.warn('\n*** Metadata error ***')
@@ -1449,17 +1495,13 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
                         self.error.append('Metadata error')
                         self.error.append(error_msg)
                         return False
+                    current_author = author
 
 
             self.booksByAuthor = sorted(self.booksByAuthor, key=self.booksByAuthorSorter_author_sort)
 
-#             for book in self.booksByAuthor:
-#                 print '{0:<10} {1:<5} {2:<20} {3:<20} {4:<20} {5:<20}'.format(book['series'], book['series_index'], book['title'],
-#                                                 book['author'], book['authors'],book['author_sort'])
-#             print
-
             # Build the unique_authors set from existing data
-            authors = [(record['author'], record['author_sort'].capitalize()) for record in self.booksByAuthor]
+            authors = [(record['author'], capitalize(record['author_sort'])) for record in self.booksByAuthor]
 
             # authors[] contains a list of all book authors, with multiple entries for multiple books by author
             #        authors[]: (([0]:friendly  [1]:sort))
@@ -1514,7 +1556,6 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
                 for tag in exclude_tags:
                     search_terms.append("tag:=%s" % tag)
                 search_phrase = "not (%s)" % " or ".join(search_terms)
-
             # If a list of ids are provided, don't use search_text
             if self.opts.ids:
                 self.opts.search_text = search_phrase
@@ -1565,7 +1606,7 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
 
                 this_title['rating'] = record['rating'] if record['rating'] else 0
 
-                if re.match('0100-01-01',str(record['pubdate'].date())):
+                if is_date_undefined(record['pubdate']):
                     this_title['date'] = None
                 else:
                     this_title['date'] = strftime(u'%B %Y', record['pubdate'].timetuple())
@@ -1800,8 +1841,6 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
                 body.insert(btc,pTag)
                 btc += 1
 
-            # <p class="letter_index">
-            # <p class="book_title">
             divTag = Tag(soup, "div")
             dtc = 0
             current_letter = ""
@@ -1814,6 +1853,9 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
                 self.booksByTitle_noSeriesPrefix = nspt
 
             # Loop through the books by title
+            # Generate one divRunningTag per initial letter for the purposes of
+            # minimizing widows and orphans on readers that can handle large
+            # <divs> styled as inline-block
             title_list = self.booksByTitle
             if not self.useSeriesPrefixInTitlesSection:
                 title_list = self.booksByTitle_noSeriesPrefix
@@ -1826,11 +1868,12 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
                         divTag.insert(dtc, divRunningTag)
                         dtc += 1
                     divRunningTag = Tag(soup, 'div')
-                    divRunningTag['style'] = 'display:inline-block;width:100%'
+                    if dtc > 0:
+                        divRunningTag['class'] = "initial_letter"
                     drtc = 0
                     current_letter = self.letter_or_symbol(book['title_sort'][0])
                     pIndexTag = Tag(soup, "p")
-                    pIndexTag['class'] = "letter_index"
+                    pIndexTag['class'] = "author_title_letter_index"
                     aTag = Tag(soup, "a")
                     aTag['name'] = "%s" % self.letter_or_symbol(book['title_sort'][0])
                     pIndexTag.insert(0,aTag)
@@ -1885,7 +1928,8 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
                 # Link to author
                 emTag = Tag(soup, "em")
                 aTag = Tag(soup, "a")
-                aTag['href'] = "%s.html#%s" % ("ByAlphaAuthor", self.generateAuthorAnchor(book['author']))
+                if self.opts.generate_authors:
+                    aTag['href'] = "%s.html#%s" % ("ByAlphaAuthor", self.generateAuthorAnchor(book['author']))
                 aTag.insert(0, NavigableString(book['author']))
                 emTag.insert(0,aTag)
                 pBookTag.insert(ptc, emTag)
@@ -1937,8 +1981,6 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
             body.insert(btc, aTag)
             btc += 1
 
-            # <p class="letter_index">
-            # <p class="author_index">
             divTag = Tag(soup, "div")
             dtc = 0
             divOpeningTag = None
@@ -1947,6 +1989,8 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
             drtc = 0
 
             # Loop through booksByAuthor
+            # Each author/books group goes in an openingTag div (first) or
+            # a runningTag div (subsequent)
             book_count = 0
             current_author = ''
             current_letter = ''
@@ -1970,10 +2014,11 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
                     current_letter = self.letter_or_symbol(book['author_sort'][0].upper())
                     author_count = 0
                     divOpeningTag = Tag(soup, 'div')
-                    divOpeningTag['style'] = 'display:inline-block;width:100%'
+                    if dtc > 0:
+                        divOpeningTag['class'] = "initial_letter"
                     dotc = 0
                     pIndexTag = Tag(soup, "p")
-                    pIndexTag['class'] = "letter_index"
+                    pIndexTag['class'] = "author_title_letter_index"
                     aTag = Tag(soup, "a")
                     aTag['name'] = "%sauthors" % self.letter_or_symbol(current_letter)
                     pIndexTag.insert(0,aTag)
@@ -1985,16 +2030,21 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
                     # Start a new author
                     current_author = book['author']
                     author_count += 1
-                    if author_count == 2:
+                    if author_count >= 2:
                         # Add divOpeningTag to divTag, kill divOpeningTag
-                        divTag.insert(dtc, divOpeningTag)
-                        dtc += 1
-                        divOpeningTag = None
-                        dotc = 0
+                        if divOpeningTag:
+                            divTag.insert(dtc, divOpeningTag)
+                            dtc += 1
+                            divOpeningTag = None
+                            dotc = 0
 
-                        # Create a divRunningTag for the rest of the authors in this letter
+                        # Create a divRunningTag for the next author
+                        if author_count > 2:
+                            divTag.insert(dtc, divRunningTag)
+                            dtc += 1
+
                         divRunningTag = Tag(soup, 'div')
-                        divRunningTag['style'] = 'display:inline-block;width:100%'
+                        divRunningTag['class'] = "author_logical_group"
                         drtc = 0
 
                     non_series_books = 0
@@ -2155,7 +2205,8 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
                             pAuthorTag = Tag(soup, "p")
                             pAuthorTag['class'] = "author_index"
                             aTag = Tag(soup, "a")
-                            aTag['name'] = "%s" % self.generateAuthorAnchor(current_author)
+                            if self.opts.generate_authors:
+                                aTag['name'] = "%s" % self.generateAuthorAnchor(current_author)
                             aTag.insert(0,NavigableString(current_author))
                             pAuthorTag.insert(0,aTag)
                             divTag.insert(dtc,pAuthorTag)
@@ -2282,7 +2333,8 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
                         # Link to author
                         emTag = Tag(soup, "em")
                         aTag = Tag(soup, "a")
-                        aTag['href'] = "%s.html#%s" % ("ByAlphaAuthor", self.generateAuthorAnchor(new_entry['author']))
+                        if self.opts.generate_authors:
+                            aTag['href'] = "%s.html#%s" % ("ByAlphaAuthor", self.generateAuthorAnchor(new_entry['author']))
                         aTag.insert(0, NavigableString(new_entry['author']))
                         emTag.insert(0,aTag)
                         pBookTag.insert(ptc, emTag)
@@ -2324,8 +2376,6 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
                 body.insert(btc,pTag)
                 btc += 1
 
-            # <p class="letter_index">
-            # <p class="author_index">
             divTag = Tag(soup, "div")
             dtc = 0
 
@@ -2431,7 +2481,8 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
                         # Link to author
                         emTag = Tag(soup, "em")
                         aTag = Tag(soup, "a")
-                        aTag['href'] = "%s.html#%s" % ("ByAlphaAuthor", self.generateAuthorAnchor(new_entry['author']))
+                        if self.opts.generate_authors:
+                            aTag['href'] = "%s.html#%s" % ("ByAlphaAuthor", self.generateAuthorAnchor(new_entry['author']))
                         aTag.insert(0, NavigableString(new_entry['author']))
                         emTag.insert(0,aTag)
                         pBookTag.insert(ptc, emTag)
@@ -2479,7 +2530,8 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
                         # Link to author
                         emTag = Tag(soup, "em")
                         aTag = Tag(soup, "a")
-                        aTag['href'] = "%s.html#%s" % ("ByAlphaAuthor", self.generateAuthorAnchor(new_entry['author']))
+                        if self.opts.generate_authors:
+                            aTag['href'] = "%s.html#%s" % ("ByAlphaAuthor", self.generateAuthorAnchor(new_entry['author']))
                         aTag.insert(0, NavigableString(new_entry['author']))
                         emTag.insert(0,aTag)
                         pBookTag.insert(ptc, emTag)
@@ -2507,8 +2559,6 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
             body.insert(btc, aTag)
             btc += 1
 
-            # <p class="letter_index">
-            # <p class="author_index">
             divTag = Tag(soup, "div")
             dtc = 0
 
@@ -2610,8 +2660,6 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
             body.insert(btc, aTag)
             btc += 1
 
-            # <p class="letter_index">
-            # <p class="author_index">
             divTag = Tag(soup, "div")
             dtc = 0
             current_letter = ""
@@ -2626,7 +2674,7 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
                     # Start a new letter with Index letter
                     current_letter = self.letter_or_symbol(sort_title[0].upper())
                     pIndexTag = Tag(soup, "p")
-                    pIndexTag['class'] = "letter_index"
+                    pIndexTag['class'] = "series_letter_index"
                     aTag = Tag(soup, "a")
                     aTag['name'] = "%s_series" % self.letter_or_symbol(current_letter)
                     pIndexTag.insert(0,aTag)
@@ -2681,8 +2729,7 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
                 # Use series, series index if avail else just title
                 #aTag.insert(0,'%d. %s &middot; %s' % (book['series_index'],escape(book['title']), ' & '.join(book['authors'])))
 
-                # Reassert 'date' since this is the result of a new search
-                if re.match('0100-01-01',str(book['pubdate'].date())):
+                if is_date_undefined(book['pubdate']):
                     book['date'] = None
                 else:
                     book['date'] = strftime(u'%B %Y', book['pubdate'].timetuple())
@@ -2699,7 +2746,8 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
 
                 # Link to author
                 aTag = Tag(soup, "a")
-                aTag['href'] = "%s.html#%s" % ("ByAlphaAuthor",
+                if self.opts.generate_authors:
+                    aTag['href'] = "%s.html#%s" % ("ByAlphaAuthor",
                                                 self.generateAuthorAnchor(escape(' & '.join(book['authors']))))
                 aTag.insert(0, NavigableString(' &amp; '.join(book['authors'])))
                 pBookTag.insert(ptc, aTag)
@@ -2756,7 +2804,7 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
                         this_book = {}
                         this_book['author'] = book['author']
                         this_book['title'] = book['title']
-                        this_book['author_sort'] = book['author_sort'].capitalize()
+                        this_book['author_sort'] = capitalize(book['author_sort'])
                         this_book['read'] = book['read']
                         this_book['tags'] = book['tags']
                         this_book['id'] = book['id']
@@ -2783,14 +2831,16 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
                             genre_list.append(tag_list)
 
             if self.opts.verbose:
-                self.opts.log.info("     Genre summary: %d active genre tags used in generating catalog with %d titles" %
+                if len(genre_list):
+                    self.opts.log.info("     Genre summary: %d active genre tags used in generating catalog with %d titles" %
                                     (len(genre_list), len(self.booksByTitle)))
 
-                for genre in genre_list:
-                    for key in genre:
-                        self.opts.log.info("      %s: %d %s" % (self.getFriendlyGenreTag(key),
-                                           len(genre[key]),
-                                           'titles' if len(genre[key]) > 1 else 'title'))
+                    for genre in genre_list:
+                        for key in genre:
+                            self.opts.log.info("      %s: %d %s" % (self.getFriendlyGenreTag(key),
+                                               len(genre[key]),
+                                               'titles' if len(genre[key]) > 1 else 'title'))
+
 
             # Write the results
             # genre_list = [ {friendly_tag:[{book},{book}]}, {friendly_tag:[{book},{book}]}, ...]
@@ -3081,10 +3131,36 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
             textTag.insert(0, NavigableString(self.title))
             navLabelTag.insert(0, textTag)
             navPointTag.insert(0, navLabelTag)
-            contentTag = Tag(soup, 'content')
-            #contentTag['src'] = "content/book_%d.html" % int(self.booksByTitle[0]['id'])
-            contentTag['src'] = "content/ByAlphaAuthor.html"
-            navPointTag.insert(1, contentTag)
+
+            if self.opts.generate_authors:
+                contentTag = Tag(soup, 'content')
+                contentTag['src'] = "content/ByAlphaAuthor.html"
+                navPointTag.insert(1, contentTag)
+            elif self.opts.generate_titles:
+                contentTag = Tag(soup, 'content')
+                contentTag['src'] = "content/ByAlphaTitle.html"
+                navPointTag.insert(1, contentTag)
+            elif self.opts.generate_series:
+                contentTag = Tag(soup, 'content')
+                contentTag['src'] = "content/BySeries.html"
+                navPointTag.insert(1, contentTag)
+            elif self.opts.generate_genres:
+                contentTag = Tag(soup, 'content')
+                #contentTag['src'] = "content/ByGenres.html"
+                contentTag['src'] = "%s" % self.genres[0]['file']
+                navPointTag.insert(1, contentTag)
+            elif self.opts.generate_recently_added:
+                contentTag = Tag(soup, 'content')
+                contentTag['src'] = "content/ByDateAdded.html"
+                navPointTag.insert(1, contentTag)
+            else:
+                # Descriptions only
+                sort_descriptions_by = self.booksByAuthor if self.opts.sort_descriptions_by_author \
+                                                          else self.booksByTitle
+                contentTag = Tag(soup, 'content')
+                contentTag['src'] = "content/book_%d.html" % int(sort_descriptions_by[0]['id'])
+                navPointTag.insert(1, contentTag)
+
             cmiTag = Tag(soup, '%s' % 'calibre:meta-img')
             cmiTag['name'] = "mastheadImage"
             cmiTag['src'] = "images/mastheadImage.gif"
@@ -3092,7 +3168,6 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
             navMapTag.insert(0,navPointTag)
 
             ncx.insert(0,navMapTag)
-
             self.ncxSoup = soup
 
         def generateNCXDescriptions(self, tocTitle):
@@ -3878,7 +3953,6 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
             # Add this section to the body
             body.insert(btc, navPointTag)
             btc += 1
-
             self.ncxSoup = ncx_soup
 
         def writeNCX(self):
@@ -3901,14 +3975,14 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
             Sort non-series books before series books
             '''
             if not book['series']:
-                key = '%s %s' % (book['author_sort'].capitalize(),
-                                 book['title_sort'].capitalize())
+                key = '%s %s' % (capitalize(book['author_sort']),
+                                 capitalize(book['title_sort']))
             else:
                 index = book['series_index']
                 integer = int(index)
                 fraction = index-integer
                 series_index = '%04d%s' % (integer, str('%0.4f' % fraction).lstrip('0'))
-                key = '%s ~%s %s' % (book['author_sort'].capitalize(),
+                key = '%s ~%s %s' % (capitalize(book['author_sort']),
                                      self.generateSortTitle(book['series']),
                                      series_index)
             return key
@@ -3919,7 +3993,7 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
             '''
             if not book['series']:
                 key = '%s %s' % (self.author_to_author_sort(book['author']),
-                                 book['title_sort'].capitalize())
+                                 capitalize(book['title_sort']))
             else:
                 index = book['series_index']
                 integer = int(index)
@@ -4022,12 +4096,34 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
             # Remove the special marker tags from the database's tag list,
             # return sorted list of normalized genre tags
 
+            def format_tag_list(tags, indent=5, line_break=70, header='Tag list'):
+                def next_tag(sorted_tags):
+                    for (i, tag) in enumerate(sorted_tags):
+                        if i < len(tags) - 1:
+                            yield tag + ", "
+                        else:
+                            yield tag
+
+                ans = '%s%d %s:\n' %  (' ' * indent, len(tags), header)
+                ans += ' ' * (indent + 1)
+                out_str = ''
+                sorted_tags = sorted(tags)
+                for tag in next_tag(sorted_tags):
+                    out_str += tag
+                    if len(out_str) >= line_break:
+                        ans += out_str + '\n'
+                        out_str = ' ' * (indent + 1)
+                return ans + out_str
+
             normalized_tags = []
             friendly_tags = []
+            excluded_tags = []
             for tag in tags:
-                if tag[0] in self.markerTags:
+                if tag in self.markerTags:
+                    excluded_tags.append(tag)
                     continue
                 if re.search(self.opts.exclude_genre, tag):
+                    excluded_tags.append(tag)
                     continue
                 if tag == ' ':
                     continue
@@ -4046,32 +4142,8 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
                         if genre_tags_dict[key] == normalized:
                             self.opts.log.warn("       %s" % key)
             if self.verbose:
-                def next_tag(tags):
-                    for (i, tag) in enumerate(tags):
-                        if i < len(tags) - 1:
-                            yield tag + ", "
-                        else:
-                            yield tag
-
-                self.opts.log.info(u'     %d genre tags in database (excluding genres matching %s):' % \
-                                     (len(genre_tags_dict), self.opts.exclude_genre))
-
-                # Display friendly/normalized genres
-                # friendly => normalized
-                if False:
-                    sorted_tags = ['%s => %s' % (key, genre_tags_dict[key]) for key in sorted(genre_tags_dict.keys())]
-                    for tag in next_tag(sorted_tags):
-                        self.opts.log(u'      %s' % tag)
-                else:
-                    sorted_tags = ['%s' % (key) for key in sorted(genre_tags_dict.keys())]
-                    out_str = ''
-                    line_break = 70
-                    for tag in next_tag(sorted_tags):
-                        out_str += tag
-                        if len(out_str) >= line_break:
-                            self.opts.log.info('      %s' % out_str)
-                            out_str = ''
-                    self.opts.log.info('      %s' % out_str)
+                self.opts.log.info('%s' % format_tag_list(genre_tags_dict, header="enabled genre tags in database"))
+                self.opts.log.info('%s' % format_tag_list(excluded_tags, header="excluded genre tags"))
 
             return genre_tags_dict
 
@@ -4147,7 +4219,8 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
                     pAuthorTag = Tag(soup, "p")
                     pAuthorTag['class'] = "author_index"
                     aTag = Tag(soup, "a")
-                    aTag['href'] = "%s.html#%s" % ("ByAlphaAuthor", self.generateAuthorAnchor(book['author']))
+                    if self.opts.generate_authors:
+                        aTag['href'] = "%s.html#%s" % ("ByAlphaAuthor", self.generateAuthorAnchor(book['author']))
                     aTag.insert(0, book['author'])
                     pAuthorTag.insert(0,aTag)
                     divTag.insert(dtc,pAuthorTag)
@@ -4313,10 +4386,11 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
                 formats = ' &middot; '.join(formats)
 
             # Date of publication
-            pubdate = book['date']
-            pubmonth, pubyear = pubdate.split()
-            if pubyear == '101':
-                pubdate = pubmonth = pubyear = ''
+            if book['date']:
+                pubdate = book['date']
+                pubmonth, pubyear = pubdate.split()
+            else:
+                pubdate = pubyear = pubmonth = ''
 
             # Thumb
             _soup = BeautifulSoup('<html>',selfClosingTags=['img'])
@@ -4377,24 +4451,37 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
 
             # Insert the author link (always)
             aTag = body.find('a', attrs={'class':'author'})
-            aTag['href'] = "%s.html#%s" % ("ByAlphaAuthor",
+            if self.opts.generate_authors:
+                aTag['href'] = "%s.html#%s" % ("ByAlphaAuthor",
                                             self.generateAuthorAnchor(book['author']))
 
             if publisher == ' ':
-                publisherTag = body.find('td', attrs={'class':'publisher'})
-                publisherTag.contents[0].replaceWith('&nbsp;')
+                try:
+                    publisherTag = body.find('td', attrs={'class':'publisher'})
+                    publisherTag.contents[0].replaceWith('&nbsp;')
+                except:
+                    pass
 
             if not genres:
-                genresTag = body.find('p',attrs={'class':'genres'})
-                genresTag.extract()
+                try:
+                    genresTag = body.find('p',attrs={'class':'genres'})
+                    genresTag.extract()
+                except:
+                    pass
 
             if not formats:
-                formatsTag = body.find('p',attrs={'class':'formats'})
-                formatsTag.extract()
+                try:
+                    formatsTag = body.find('p',attrs={'class':'formats'})
+                    formatsTag.extract()
+                except:
+                    pass
 
             if note_content == '':
-                tdTag = body.find('td', attrs={'class':'notes'})
-                tdTag.contents[0].replaceWith('&nbsp;')
+                try:
+                    tdTag = body.find('td', attrs={'class':'notes'})
+                    tdTag.contents[0].replaceWith('&nbsp;')
+                except:
+                    pass
 
             emptyTags = body.findAll('td', attrs={'class':'empty'})
             for mt in emptyTags:
@@ -4570,7 +4657,7 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
                         if self.letter_or_symbol(word[0]) != word[0]:
                             if word[0] > 'A' or (ord('9') < ord(word[0]) < ord('A')) :
                                 translated.append('/')
-                        translated.append(word.capitalize())
+                        translated.append(capitalize(word))
 
                 else:
                     if re.search('[0-9]+',word[0]):
@@ -4866,6 +4953,8 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
 
         opts.basename = "Catalog"
         opts.cli_environment = not hasattr(opts,'sync')
+
+        # Hard-wired to always sort descriptions by author, with series after non-series
         opts.sort_descriptions_by_author = True
 
         build_log = []
@@ -4904,14 +4993,13 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
         if opts_dict['ids']:
             build_log.append(" book count: %d" % len(opts_dict['ids']))
 
-        '''
         sections_list = []
         if opts.generate_authors:
             sections_list.append('Authors')
-        '''
-        sections_list = ['Authors']
         if opts.generate_titles:
             sections_list.append('Titles')
+        if opts.generate_series:
+            sections_list.append('Series')
         if opts.generate_genres:
             sections_list.append('Genres')
         if opts.generate_recently_added:
@@ -4919,7 +5007,27 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
         if opts.generate_descriptions:
             sections_list.append('Descriptions')
 
-        build_log.append(u" Sections: %s" % ', '.join(sections_list))
+        if not sections_list:
+            if opts.cli_environment:
+                opts.log.warn('*** No Section switches specified, enabling all Sections ***')
+                opts.generate_authors = True
+                opts.generate_titles = True
+                opts.generate_series = True
+                opts.generate_genres = True
+                opts.generate_recently_added = True
+                opts.generate_descriptions = True
+                sections_list = ['Authors','Titles','Series','Genres','Recently Added','Descriptions']
+            else:
+                opts.log.warn('\n*** No enabled Sections, terminating catalog generation ***')
+                return ["No Included Sections","No enabled Sections.\nCheck E-book options tab\n'Included sections'\n"]
+        if opts.fmt == 'mobi' and sections_list == ['Descriptions']:
+                warning = _("\n*** Adding 'By Authors' Section required for MOBI output ***")
+                opts.log.warn(warning)
+                sections_list.insert(0,'Authors')
+                opts.generate_authors = True
+
+        opts.log(u" Sections: %s" % ', '.join(sections_list))
+        opts.section_list = sections_list
 
         # Limit thumb_width to 1.0" - 2.0"
         try:
@@ -4954,6 +5062,7 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
 
         # Launch the Catalog builder
         catalog = self.CatalogBuilder(db, opts, self, report_progress=notification)
+
         if opts.verbose:
             log.info(" Begin catalog source generation")
         catalog.createDirectoryStructure()
@@ -4965,7 +5074,7 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
             if catalog_source_built:
                 log.info(" Completed catalog source generation\n")
             else:
-                log.warn(" *** Errors during catalog generation, check log for details ***")
+                log.error(" *** Terminated catalog generation, check log for details ***")
 
         if catalog_source_built:
             recommendations = []

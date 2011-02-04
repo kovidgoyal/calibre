@@ -1541,9 +1541,37 @@ class MobiWriter(object):
                 exth.write(data)
                 nrecs += 1
             if term == 'rights' :
-                rights = unicode(oeb.metadata.rights[0]).encode('utf-8')
+                try:
+                    rights = unicode(oeb.metadata.rights[0]).encode('utf-8')
+                except:
+                    rights = 'Unknown'
                 exth.write(pack('>II', EXTH_CODES['rights'], len(rights) + 8))
                 exth.write(rights)
+                nrecs += 1
+
+        # Write UUID as ASIN
+        uuid = None
+        from calibre.ebooks.oeb.base import OPF
+        for x in oeb.metadata['identifier']:
+            if x.get(OPF('scheme'), None).lower() == 'uuid' or unicode(x).startswith('urn:uuid:'):
+                uuid = unicode(x).split(':')[-1]
+                break
+        if uuid is None:
+            from uuid import uuid4
+            uuid = str(uuid4())
+
+        if isinstance(uuid, unicode):
+            uuid = uuid.encode('utf-8')
+        exth.write(pack('>II', 113, len(uuid) + 8))
+        exth.write(uuid)
+        nrecs += 1
+
+        # Write cdetype
+        if not self.opts.mobi_periodical:
+            data = 'EBOK'
+            exth.write(pack('>II', 501, len(data)+8))
+            exth.write(data)
+            nrecs += 1
 
         # Add a publication date entry
         if oeb.metadata['date'] != [] :

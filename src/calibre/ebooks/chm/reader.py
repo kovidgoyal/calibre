@@ -139,6 +139,13 @@ class CHMReader(CHMFile):
         if self.hhc_path not in files and files:
             self.hhc_path = files[0]
 
+        if self.hhc_path == '.hhc' and self.hhc_path not in files:
+            from calibre import walk
+            for x in walk(output_dir):
+                if os.path.basename(x).lower() in ('index.htm', 'index.html'):
+                    self.hhc_path = os.path.relpath(x, output_dir)
+                    break
+
     def _reformat(self, data, htmlpath):
         try:
             data = xml_to_unicode(data, strip_encoding_pats=True)[0]

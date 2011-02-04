@@ -8,11 +8,12 @@ __docformat__ = 'restructuredtext en'
 import os
 from functools import partial
 
-from PyQt4.Qt import QInputDialog, QPixmap, QMenu
+from PyQt4.Qt import QPixmap, QMenu
 
 
 from calibre.gui2 import error_dialog, choose_files, \
     choose_dir, warning_dialog, info_dialog
+from calibre.gui2.dialogs.add_empty_book import AddEmptyBookDialog
 from calibre.gui2.widgets import IMAGE_EXTENSIONS
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.utils.filenames import ascii_filename
@@ -42,7 +43,7 @@ class AddAction(InterfaceAction):
             'ebook file is a different book)'), self.add_recursive_multiple)
         self.add_menu.addSeparator()
         self.add_menu.addAction(_('Add Empty book. (Book entry with no '
-            'formats)'), self.add_empty)
+            'formats)'), self.add_empty, _('Shift+Ctrl+E'))
         self.add_menu.addAction(_('Add from ISBN'), self.add_from_isbn)
         self.qaction.setMenu(self.add_menu)
         self.qaction.triggered.connect(self.add_books)
@@ -83,13 +84,25 @@ class AddAction(InterfaceAction):
         Add an empty book item to the library. This does not import any formats
         from a book file.
         '''
-        num, ok = QInputDialog.getInt(self.gui, _('How many empty books?'),
-                _('How many empty books should be added?'), 1, 1, 100)
-        if ok:
+        author = None
+        index = self.gui.library_view.currentIndex()
+        if index.isValid():
+            raw = index.model().db.authors(index.row())
+            if raw:
+                authors = [a.strip().replace('|', ',') for a in raw.split(',')]
+                if authors:
+                    author = authors[0]
+        dlg = AddEmptyBookDialog(self.gui, self.gui.library_view.model().db, author)
+        if dlg.exec_() == dlg.Accepted:
+            num = dlg.qty_to_add
             from calibre.ebooks.metadata import MetaInformation
             for x in xrange(num):
-                self.gui.library_view.model().db.import_book(MetaInformation(None), [])
+                mi = MetaInformation(_('Unknown'), dlg.selected_authors)
+                self.gui.library_view.model().db.import_book(mi, [])
             self.gui.library_view.model().books_added(num)
+            if hasattr(self.gui, 'db_images'):
+                self.gui.db_images.reset()
+            self.gui.tags_view.recount()
 
     def add_isbns(self, books, add_tags=[]):
         from calibre.ebooks.metadata import MetaInformation

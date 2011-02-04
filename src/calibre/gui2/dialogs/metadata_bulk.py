@@ -6,18 +6,19 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import re, os
 
 from PyQt4.Qt import Qt, QDialog, QGridLayout, QVBoxLayout, QFont, QLabel, \
-                     pyqtSignal, QDialogButtonBox
-from PyQt4 import QtGui
+                     pyqtSignal, QDialogButtonBox, QInputDialog, QLineEdit, \
+                     QDate
 
 from calibre.gui2.dialogs.metadata_bulk_ui import Ui_MetadataBulkDialog
 from calibre.gui2.dialogs.tag_editor import TagEditor
-from calibre.ebooks.metadata import string_to_authors, authors_to_string
+from calibre.ebooks.metadata import string_to_authors, authors_to_string, title_sort
 from calibre.ebooks.metadata.book.base import composite_formatter
 from calibre.ebooks.metadata.meta import get_metadata
 from calibre.gui2.custom_column_widgets import populate_metadata_page
-from calibre.gui2 import error_dialog, ResizableDialog, UNDEFINED_QDATE
+from calibre.gui2 import error_dialog, ResizableDialog, UNDEFINED_QDATE, \
+    gprefs, question_dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
-from calibre.utils.config import dynamic
+from calibre.utils.config import dynamic, JSONConfig
 from calibre.utils.titlecase import titlecase
 from calibre.utils.icu import sort_key, capitalize
 from calibre.utils.config import prefs, tweaks
@@ -133,7 +134,7 @@ class MyBlockingBusy(QDialog): # {{{
             do_autonumber, do_remove_format, remove_format, do_swap_ta, \
             do_remove_conv, do_auto_author, series, do_series_restart, \
             series_start_value, do_title_case, cover_action, clear_series, \
-            pubdate, adddate = self.args
+            pubdate, adddate, do_title_sort = self.args
 
 
         # first loop: do author and title. These will commit at the end of each
@@ -158,6 +159,9 @@ class MyBlockingBusy(QDialog): # {{{
             if do_title_case and not title_set:
                 title = self.db.title(id, index_is_id=True)
                 self.db.set_title(id, titlecase(title), notify=False)
+            if do_title_sort:
+                title = self.db.title(id, index_is_id=True)
+                self.db.set_title_sort(id, title_sort(title), notify=False)
             if au:
                 self.db.set_authors(id, string_to_authors(au), notify=False)
             if cover_action == 'remove':
@@ -302,6 +306,7 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         self.pubdate.setSpecialValueText(_('Undefined'))
         self.clear_pubdate_button.clicked.connect(self.clear_pubdate)
         self.pubdate.dateChanged.connect(self.do_apply_pubdate)
+        self.adddate.setDate(QDate.currentDate())
         self.adddate.setMinimumDate(UNDEFINED_QDATE)
         self.adddate.setSpecialValueText(_('Undefined'))
         self.clear_adddate_button.clicked.connect(self.clear_adddate)
@@ -320,7 +325,14 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
             'This operation cannot be canceled or undone'))
         self.do_again = False
         self.central_widget.setCurrentIndex(tab)
+        geom = gprefs.get('bulk_metadata_window_geometry', None)
+        if geom is not None:
+            self.restoreGeometry(bytes(geom))
         self.exec_()
+
+    def save_state(self, *args):
+        gprefs['bulk_metadata_window_geometry'] = \
+            bytearray(self.saveGeometry())
 
     def do_apply_pubdate(self, *args):
         self.apply_pubdate.setChecked(True)
@@ -351,11 +363,11 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
             if (f in ['author_sort'] or
                     (fm[f]['datatype'] in ['text', 'series', 'enumeration']
                      and fm[f].get('search_terms', None)
-                     and f not in ['formats', 'ondevice', 'sort']) or
+                     and f not in ['formats', 'ondevice']) or
                     fm[f]['datatype'] in ['int', 'float', 'bool'] ):
                 self.all_fields.append(f)
                 self.writable_fields.append(f)
-            if f in ['sort'] or fm[f]['datatype'] == 'composite':
+            if fm[f]['datatype'] == 'composite':
                 self.all_fields.append(f)
         self.all_fields.sort()
         self.all_fields.insert(1, '{template}')
@@ -365,16 +377,16 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         offset = 10
         self.s_r_number_of_books = min(10, len(self.ids))
         for i in range(1,self.s_r_number_of_books+1):
-            w = QtGui.QLabel(self.tabWidgetPage3)
+            w = QLabel(self.tabWidgetPage3)
             w.setText(_('Book %d:')%i)
             self.testgrid.addWidget(w, i+offset, 0, 1, 1)
-            w = QtGui.QLineEdit(self.tabWidgetPage3)
+            w = QLineEdit(self.tabWidgetPage3)
             w.setReadOnly(True)
             name = 'book_%d_text'%i
             setattr(self, name, w)
             self.book_1_text.setObjectName(name)
             self.testgrid.addWidget(w, i+offset, 1, 1, 1)
-            w = QtGui.QLineEdit(self.tabWidgetPage3)
+            w = QLineEdit(self.tabWidgetPage3)
             w.setReadOnly(True)
             name = 'book_%d_result'%i
             setattr(self, name, w)
@@ -428,7 +440,7 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         self.replace_func.addItems(sorted(self.s_r_functions.keys()))
         self.search_mode.currentIndexChanged[int].connect(self.s_r_search_mode_changed)
         self.search_field.currentIndexChanged[int].connect(self.s_r_search_field_changed)
-        self.destination_field.currentIndexChanged[str].connect(self.s_r_destination_field_changed)
+        self.destination_field.currentIndexChanged[int].connect(self.s_r_destination_field_changed)
 
         self.replace_mode.currentIndexChanged[int].connect(self.s_r_paint_results)
         self.replace_func.currentIndexChanged[str].connect(self.s_r_paint_results)
@@ -450,6 +462,25 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         self.multiple_separator.textChanged.connect(self.s_r_separator_changed)
         self.results_count.valueChanged[int].connect(self.s_r_display_bounds_changed)
         self.starting_from.valueChanged[int].connect(self.s_r_display_bounds_changed)
+
+        self.save_button.clicked.connect(self.s_r_save_query)
+        self.remove_button.clicked.connect(self.s_r_remove_query)
+
+        self.queries = JSONConfig("search_replace_queries")
+        self.query_field.addItem("")
+        self.query_field.addItems(sorted([q for q in self.queries], key=sort_key))
+        self.query_field.currentIndexChanged[str].connect(self.s_r_query_change)
+        self.query_field.setCurrentIndex(0)
+
+    def s_r_sf_itemdata(self, idx):
+        if idx is None:
+            idx = self.search_field.currentIndex()
+        return unicode(self.search_field.itemData(idx).toString())
+
+    def s_r_df_itemdata(self, idx):
+        if idx is None:
+            idx = self.destination_field.currentIndex()
+        return unicode(self.destination_field.itemData(idx).toString())
 
     def s_r_get_field(self, mi, field):
         if field:
@@ -490,7 +521,7 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         for i in range(0, self.s_r_number_of_books):
             w = getattr(self, 'book_%d_text'%(i+1))
             mi = self.db.get_metadata(self.ids[i], index_is_id=True)
-            src = unicode(self.search_field.currentText())
+            src = self.s_r_sf_itemdata(idx)
             t = self.s_r_get_field(mi, src)
             if len(t) > 1:
                 t = t[self.starting_from.value()-1:
@@ -500,13 +531,13 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         if self.search_mode.currentIndex() == 0:
             self.destination_field.setCurrentIndex(idx)
         else:
-            self.s_r_destination_field_changed(self.destination_field.currentText())
+            self.s_r_destination_field_changed(self.destination_field.currentIndex())
             self.s_r_paint_results(None)
 
-    def s_r_destination_field_changed(self, txt):
-        txt = unicode(txt)
+    def s_r_destination_field_changed(self, idx):
+        txt = self.s_r_df_itemdata(idx)
         if not txt:
-            txt = unicode(self.search_field.currentText())
+            txt = self.s_r_sf_itemdata(None)
         if txt and txt in self.writable_fields:
             self.destination_field_fm = self.db.metadata_for_field(txt)
         self.s_r_paint_results(None)
@@ -515,8 +546,9 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         self.search_field.clear()
         self.destination_field.clear()
         if val == 0:
-            self.search_field.addItems(self.writable_fields)
-            self.destination_field.addItems(self.writable_fields)
+            for f in self.writable_fields:
+                self.search_field.addItem(f if f != 'sort' else 'title_sort', f)
+                self.destination_field.addItem(f if f != 'sort' else 'title_sort', f)
             self.destination_field.setCurrentIndex(0)
             self.destination_field.setVisible(False)
             self.destination_field_label.setVisible(False)
@@ -526,8 +558,14 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
             self.comma_separated.setVisible(False)
             self.s_r_heading.setText('<p>'+self.main_heading + self.character_heading)
         else:
-            self.search_field.addItems(self.all_fields)
-            self.destination_field.addItems(self.writable_fields)
+            self.search_field.blockSignals(True)
+            self.destination_field.blockSignals(True)
+            for f in self.all_fields:
+                self.search_field.addItem(f if f != 'sort' else 'title_sort', f)
+            for f in self.writable_fields:
+                self.destination_field.addItem(f if f != 'sort' else 'title_sort', f)
+            self.search_field.blockSignals(False)
+            self.destination_field.blockSignals(False)
             self.destination_field.setVisible(True)
             self.destination_field_label.setVisible(True)
             self.replace_mode.setVisible(True)
@@ -557,7 +595,7 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         return rfunc(rtext)
 
     def s_r_do_regexp(self, mi):
-        src_field = unicode(self.search_field.currentText())
+        src_field = self.s_r_sf_itemdata(None)
         src = self.s_r_get_field(mi, src_field)
         result = []
         rfunc = self.s_r_functions[unicode(self.replace_func.currentText())]
@@ -569,10 +607,10 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         return result
 
     def s_r_do_destination(self, mi, val):
-        src = unicode(self.search_field.currentText())
+        src = self.s_r_sf_itemdata(None)
         if src == '':
             return ''
-        dest = unicode(self.destination_field.currentText())
+        dest = self.s_r_df_itemdata(None)
         if dest == '':
             if self.db.metadata_for_field(src)['datatype'] == 'composite':
                 raise Exception(_('You must specify a destination when source is a composite field'))
@@ -662,10 +700,10 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
                 break
 
     def do_search_replace(self, id):
-        source = unicode(self.search_field.currentText())
+        source = self.s_r_sf_itemdata(None)
         if not source or not self.s_r_obj:
             return
-        dest = unicode(self.destination_field.currentText())
+        dest = self.s_r_df_itemdata(None)
         if not dest:
             dest = source
         dfm = self.db.field_metadata[dest]
@@ -699,6 +737,8 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         else:
             if dest == 'comments':
                 setter = self.db.set_comment
+            elif dest == 'sort':
+                setter = self.db.set_title_sort
             else:
                 setter = getattr(self.db, 'set_'+dest)
             if dest in ['title', 'authors']:
@@ -746,6 +786,8 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
     def initialize_series(self):
         all_series = self.db.all_series()
         all_series.sort(key=lambda x : sort_key(x[1]))
+        self.series.set_separator(None)
+        self.series.update_items_cache([x[1] for x in all_series])
 
         for i in all_series:
             id, name = i
@@ -755,6 +797,8 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
     def initialize_publisher(self):
         all_publishers = self.db.all_publishers()
         all_publishers.sort(key=lambda x : sort_key(x[1]))
+        self.publisher.set_separator(None)
+        self.publisher.update_items_cache([x[1] for x in all_publishers])
 
         for i in all_publishers:
             id, name = i
@@ -780,7 +824,12 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
             self.series_start_number.setEnabled(False)
             self.series_start_number.setValue(1)
 
+    def reject(self):
+        self.save_state()
+        ResizableDialog.reject(self)
+
     def accept(self):
+        self.save_state()
         if len(self.ids) < 1:
             return QDialog.accept(self)
 
@@ -817,6 +866,7 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         do_remove_conv = self.remove_conversion_settings.isChecked()
         do_auto_author = self.auto_author_sort.isChecked()
         do_title_case = self.change_title_to_title_case.isChecked()
+        do_title_sort = self.update_title_sort.isChecked()
         pubdate = adddate = None
         if self.apply_pubdate.isChecked():
             pubdate = qt_to_dt(self.pubdate.date())
@@ -835,7 +885,7 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
                 do_autonumber, do_remove_format, remove_format, do_swap_ta,
                 do_remove_conv, do_auto_author, series, do_series_restart,
                 series_start_value, do_title_case, cover_action, clear_series,
-                pubdate, adddate)
+                pubdate, adddate, do_title_sort)
 
         bb = MyBlockingBusy(_('Applying changes to %d books.\nPhase {0} {1}%%.')
                 %len(self.ids), args, self.db, self.ids,
@@ -861,4 +911,113 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
 
     def series_changed(self, *args):
         self.write_series = True
+
+    def s_r_remove_query(self, *args):
+        if self.query_field.currentIndex() == 0:
+            return
+
+        if not question_dialog(self, _("Delete saved search/replace"),
+                _("The selected saved search/replace will be deleted. "
+                    "Are you sure?")):
+            return
+
+        item_id = self.query_field.currentIndex()
+        item_name = unicode(self.query_field.currentText())
+
+        self.query_field.blockSignals(True)
+        self.query_field.removeItem(item_id)
+        self.query_field.blockSignals(False)
+        self.query_field.setCurrentIndex(0)
+
+        if item_name in self.queries.keys():
+            del(self.queries[item_name])
+            self.queries.commit()
+
+    def s_r_save_query(self, *args):
+        name, ok =  QInputDialog.getText(self, _('Save search/replace'),
+                _('Search/replace name:'))
+        if not ok:
+            return
+
+        new = True
+        name = unicode(name)
+        if name in self.queries.keys():
+            if not question_dialog(self, _("Save search/replace"),
+                    _("That saved search/replace already exists and will be overwritten. "
+                        "Are you sure?")):
+                return
+            new = False
+
+        query = {}
+        query['name'] = name
+        query['search_field'] = unicode(self.search_field.currentText())
+        query['search_mode'] = unicode(self.search_mode.currentText())
+        query['s_r_template'] = unicode(self.s_r_template.text())
+        query['search_for'] = unicode(self.search_for.text())
+        query['case_sensitive'] = self.case_sensitive.isChecked()
+        query['replace_with'] = unicode(self.replace_with.text())
+        query['replace_func'] = unicode(self.replace_func.currentText())
+        query['destination_field'] = unicode(self.destination_field.currentText())
+        query['replace_mode'] = unicode(self.replace_mode.currentText())
+        query['comma_separated'] = self.comma_separated.isChecked()
+        query['results_count'] = self.results_count.value()
+        query['starting_from'] = self.starting_from.value()
+        query['multiple_separator'] = unicode(self.multiple_separator.text())
+
+        self.queries[name] = query
+        self.queries.commit()
+
+        if new:
+            self.query_field.blockSignals(True)
+            self.query_field.clear()
+            self.query_field.addItem('')
+            self.query_field.addItems(sorted([q for q in self.queries], key=sort_key))
+            self.query_field.blockSignals(False)
+        self.query_field.setCurrentIndex(self.query_field.findText(name))
+
+    def s_r_query_change(self, item_name):
+        if not item_name:
+            self.s_r_reset_query_fields()
+            return
+        item = self.queries.get(unicode(item_name), None)
+        if item is None:
+            self.s_r_reset_query_fields()
+            return
+
+        def set_index(attr, txt):
+            try:
+                attr.setCurrentIndex(attr.findText(txt))
+            except:
+                attr.setCurrentIndex(0)
+
+        set_index(self.search_mode, item['search_mode'])
+        set_index(self.search_field, item['search_field'])
+        self.s_r_template.setText(item['s_r_template'])
+        self.s_r_template_changed() #simulate gain/loss of focus
+        self.search_for.setText(item['search_for'])
+        self.case_sensitive.setChecked(item['case_sensitive'])
+        self.replace_with.setText(item['replace_with'])
+        set_index(self.replace_func, item['replace_func'])
+        set_index(self.destination_field, item['destination_field'])
+        set_index(self.replace_mode, item['replace_mode'])
+        self.comma_separated.setChecked(item['comma_separated'])
+        self.results_count.setValue(int(item['results_count']))
+        self.starting_from.setValue(int(item['starting_from']))
+        self.multiple_separator.setText(item['multiple_separator'])
+
+    def s_r_reset_query_fields(self):
+        # Don't reset the search mode. The user will probably want to use it
+        # as it was
+        self.search_field.setCurrentIndex(0)
+        self.s_r_template.setText("")
+        self.search_for.setText("")
+        self.case_sensitive.setChecked(False)
+        self.replace_with.setText("")
+        self.replace_func.setCurrentIndex(0)
+        self.destination_field.setCurrentIndex(0)
+        self.replace_mode.setCurrentIndex(0)
+        self.comma_separated.setChecked(True)
+        self.results_count.setValue(999)
+        self.starting_from.setValue(1)
+        self.multiple_separator.setText(" ::: ")
 

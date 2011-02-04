@@ -75,7 +75,7 @@ class FormatterFunction(object):
             exc_type, exc_value, exc_traceback = sys.exc_info()
             info = ': '.join(traceback.format_exception(exc_type, exc_value,
                                         exc_traceback)[-2:]).replace('\n', '')
-            return _('Exception ' + info)
+            return _('Exception ') + info
 
 all_builtin_functions = []
 class BuiltinFormatterFunction(FormatterFunction):
@@ -186,7 +186,7 @@ class BuiltinTemplate(BuiltinFormatterFunction):
 
     def evaluate(self, formatter, kwargs, mi, locals, template):
         template = template.replace('[[', '{').replace(']]', '}')
-        return formatter.safe_format(template, kwargs, 'TEMPLATE', mi)
+        return formatter.__class__().safe_format(template, kwargs, 'TEMPLATE', mi)
 
 class BuiltinEval(BuiltinFormatterFunction):
     name = 'eval'

@@ -18,7 +18,7 @@ class iEco(BasicNewsRecipe):
     encoding              = 'utf-8'
     publisher             = 'Grupo Clarin'
     category              = 'news, economia, mercados, bolsa de valores, finanzas, empresas, negocios, empleos, emprendedores, marketinguniversidades, tecnologia, agronegocios, noticias, informacion'
-    language              = 'es'
+    language              = 'es_AR'
     cover_url             = 'http://www.ieco.clarin.com/static2/images/Tapa-PDF.gif'
     extra_css             = ' #bd{font-family: sans-serif} '
 

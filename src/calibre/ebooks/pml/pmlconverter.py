@@ -143,7 +143,9 @@ class PML_HTMLizer(object):
 
     def __init__(self):
         self.state = {}
-        self.toc = TOC()
+        # toc consists of a tuple
+        # (level, (href, id, text))
+        self.toc = []
         self.file_name = ''
 
     def prepare_pml(self, pml):
@@ -494,19 +496,20 @@ class PML_HTMLizer(object):
         output = []
 
         self.state = {}
-        self.toc = TOC()
+        self.toc = []
         self.file_name = file_name
 
         indent_state = {'t': False, 'T': False}
         adv_indent_val = ''
+        # Keep track of the number of empty lines
+        # between paragraphs. When we reach a set number
+        # we assume it's a soft scene break.
+        empty_count = 0
 
         for s in self.STATES:
             self.state[s] = [False, ''];
 
         for line in pml.splitlines():
-            if not line:
-                continue
-
             parsed = []
             empty = True
             basic_indent = indent_state['t']
@@ -541,6 +544,7 @@ class PML_HTMLizer(object):
                         # inside of ="" so we don't have do special processing
                         # for C.
                         t = ''
+                        level = 0
                         if c in 'XC':
                             level = line.read(1)
                         id = 'pml_toc-%s' % len(self.toc)
@@ -552,7 +556,7 @@ class PML_HTMLizer(object):
                         if not value or value == '':
                             text = t
                         else:
-                            self.toc.add_item(os.path.basename(self.file_name), id, value)
+                            self.toc.append((level, (os.path.basename(self.file_name), id, value)))
                             text = '%s<span id="%s"></span>' % (t, id)
                     elif c == 'm':
                         empty = False
@@ -575,10 +579,15 @@ class PML_HTMLizer(object):
                         if indent_state[c]:
                             basic_indent = True
                     elif c == 'T':
-                        indent_state[c] = not indent_state[c]
-                        if indent_state[c]:
+                        # Ensure we only store the value on the first T set for the line.
+                        if not indent_state['T']:
                             adv_indent = True
                             adv_indent_val = self.code_value(line)
+                        else:
+                            # We detected a T previously on this line.
+                            # Don't replace the first detected value.
+                            self.code_value(line)
+                        indent_state['T'] = True
                     elif c == '-':
                         empty = False
                         text = '&shy;'
@@ -592,7 +601,12 @@ class PML_HTMLizer(object):
                 parsed.append(text)
                 c = line.read(1)
 
-            if not empty:
+            if empty:
+                empty_count += 1
+                if empty_count == 2:
+                    output.append('<p>&nbsp;</p>')
+            else:
+                empty_count = 0
                 text = self.end_line()
                 parsed.append(text)
                 
@@ -613,7 +627,72 @@ class PML_HTMLizer(object):
         return output
 
     def get_toc(self):
-        return self.toc
+        '''
+        Toc can have up to 5 levels, 0 - 4 inclusive.
+        
+        This function will add items to their appropriate
+        depth in the TOC tree. If the specified depth is
+        invalid (item would not have a valid parent) add
+        it to the next valid level above the specified
+        level.
+        '''
+        # Base toc object all items will be added to.
+        n_toc = TOC()
+        # Used to track nodes in the toc so we can add
+        # sub items to the appropriate place in tree.
+        t_l0 = None
+        t_l1 = None
+        t_l2 = None
+        t_l3 = None
+
+        for level, (href, id, text) in self.toc:
+            if level == u'0':
+                t_l0 = n_toc.add_item(href, id, text)
+                t_l1 = None
+                t_l2 = None
+                t_l3 = None
+            elif level == u'1':
+                if t_l0 == None:
+                    t_l0 = n_toc
+                t_l1 = t_l0.add_item(href, id, text)
+                t_l2 = None
+                t_l3 = None
+            elif level == u'2':
+                if t_l1 == None:
+                    if t_l0 == None:
+                        t_l1 = n_toc
+                    else:
+                        t_l1 = t_l0
+                t_l2 = t_l1.add_item(href, id, text)
+                t_l3 = None
+            elif level == u'3':
+                if t_l2 == None:
+                    if t_l1 == None:
+                        if t_l0 == None:
+                            t_l2 = n_toc
+                        else:
+                            t_l2 = t_l0
+                    else:
+                        t_l2 = t_l1
+                t_l3 = t_l2.add_item(href, id, text)
+            # Level 4.
+            # Anything above 4 is invalid but we will count
+            # it as level 4.
+            else:
+                if t_l3 == None:
+                    if t_l2 == None:
+                        if t_l1 == None:
+                            if t_l0 == None:
+                                t_l3 = n_toc
+                            else:
+                                t_l3 = t_l0
+                        else:
+                            t_l3 = t_l1
+                    else:
+                        t_l3 = t_l2
+                t_l3.add_item(href, id, text)
+
+        return n_toc
 
 
 def pml_to_html(pml):

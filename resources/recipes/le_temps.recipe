@@ -15,12 +15,26 @@ class LeTemps(BasicNewsRecipe):
      oldest_article = 7
      max_articles_per_feed = 100
      __author__ = 'Sujata Raman'
+     description = 'French news. Needs a subscription from http://www.letemps.ch'
      no_stylesheets = True
      remove_javascript = True
      recursions = 1
      encoding = 'UTF-8'
      match_regexps = [r'http://www.letemps.ch/Page/Uuid/[-0-9a-f]+\|[1-9]']
      language = 'fr'
+     needs_subscription = True
+
+     def get_browser(self):
+         br = BasicNewsRecipe.get_browser(self)
+         br.open('http://www.letemps.ch/login')
+         br['username'] = self.username
+         br['password'] = self.password
+         raw = br.submit().read()
+         if '>Login' in raw:
+             raise ValueError('Failed to login to letemp.ch. Check '
+                     'your username and password')
+         return br
+
 
      keep_only_tags = [dict(name='div', attrs={'id':'content'}),
                         dict(name='div', attrs={'class':'story'})

@@ -20,8 +20,8 @@ class ElMercurio(BasicNewsRecipe):
     masthead_url          = 'http://www.emol.com/especiales/logo_emol/logo_emol.gif'
     remove_javascript     = True
     use_embedded_content  = False
-    language              = 'es'
-    
+    language              = 'es_CL'
+
 
     conversion_options = {
                           'comment'   : description
@@ -33,7 +33,7 @@ class ElMercurio(BasicNewsRecipe):
     keep_only_tags = [dict(name='div', attrs={'id':['cont_iz_titulobajada','cont_iz_creditos_1_a','cont_iz_cuerpo']})]
     remove_tags = [dict(name='div', attrs={'id':'cont_iz_cuerpo_relacionados'})]
     remove_attributes = ['height','width']
-    
+
     feeds = [
                (u'Noticias de ultima hora', u'http://rss.emol.com/rss.asp?canal=0')
               ,(u'Nacional', u'http://rss.emol.com/rss.asp?canal=1')

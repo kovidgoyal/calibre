@@ -12,11 +12,9 @@ __docformat__ = 'restructuredtext en'
 import collections, os, sys, textwrap, time
 from Queue import Queue, Empty
 from threading import Thread
-from PyQt4.Qt import Qt, SIGNAL, QTimer, \
-                     QPixmap, QMenu, QIcon, pyqtSignal, \
-                     QDialog, \
-                     QSystemTrayIcon, QApplication, QKeySequence, \
-                     QMessageBox, QHelpEvent
+from PyQt4.Qt import Qt, SIGNAL, QTimer, QHelpEvent, QAction, \
+                     QMenu, QIcon, pyqtSignal, \
+                     QDialog, QSystemTrayIcon, QApplication, QKeySequence
 
 from calibre import  prints
 from calibre.constants import __appname__, isosx
@@ -101,28 +99,40 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         self.opts = opts
         self.device_connected = None
         self.gui_debug = gui_debug
-        acmap = OrderedDict()
+        self.iactions = OrderedDict()
         for action in interface_actions():
             if opts.ignore_plugins and action.plugin_path is not None:
                 continue
             try:
-                ac = action.load_actual_plugin(self)
+                ac = self.init_iaction(action)
             except:
                 # Ignore errors in loading user supplied plugins
                 import traceback
                 traceback.print_exc()
-                if ac.plugin_path is None:
+                if action.plugin_path is None:
                     raise
+                continue
 
             ac.plugin_path = action.plugin_path
             ac.interface_action_base_plugin = action
-            if ac.name in acmap:
-                if ac.priority >= acmap[ac.name].priority:
-                    acmap[ac.name] = ac
-            else:
-                acmap[ac.name] = ac
 
-        self.iactions = acmap
+            self.add_iaction(ac)
+
+    def init_iaction(self, action):
+        ac = action.load_actual_plugin(self)
+        ac.plugin_path = action.plugin_path
+        ac.interface_action_base_plugin = action
+        action.actual_iaction_plugin_loaded = True
+        return ac
+
+    def add_iaction(self, ac):
+        acmap = self.iactions
+        if ac.name in acmap:
+            if ac.priority >= acmap[ac.name].priority:
+                acmap[ac.name] = ac
+        else:
+            acmap[ac.name] = ac
+
 
     def initialize(self, library_path, db, listener, actions, show_gui=True):
         opts = self.opts
@@ -198,6 +208,10 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         self.system_tray_icon.activated.connect(
             self.system_tray_icon_activated)
 
+        self.esc_action = QAction(self)
+        self.addAction(self.esc_action)
+        self.esc_action.setShortcut(QKeySequence(Qt.Key_Escape))
+        self.esc_action.triggered.connect(self.esc)
 
         ####################### Start spare job server ########################
         QTimer.singleShot(1000, self.add_spare_server)
@@ -294,6 +308,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
                         'the file: %s<p>The '
                         'log will be displayed automatically.')%self.gui_debug, show=True)
 
+    def esc(self, *args):
+        self.search.clear()
 
     def start_content_server(self):
         from calibre.library.server.main import start_threaded_server
@@ -304,7 +320,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
                 self.iactions['Connect Share'].content_server_state_changed)
         self.content_server.state_callback(True)
         self.test_server_timer = QTimer.singleShot(10000, self.test_server)
-
 
     def resizeEvent(self, ev):
         MainWindow.resizeEvent(self, ev)
@@ -340,11 +355,12 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
     def is_minimized_to_tray(self):
         return getattr(self, '__systray_minimized', False)
 
-    def ask_a_yes_no_question(self, title, msg, **kwargs):
-        awu = kwargs.pop('ans_when_user_unavailable', True)
+    def ask_a_yes_no_question(self, title, msg, det_msg='',
+            show_copy_button=False, ans_when_user_unavailable=True):
         if self.is_minimized_to_tray:
-            return awu
-        return question_dialog(self, title, msg, **kwargs)
+            return ans_when_user_unavailable
+        return question_dialog(self, title, msg, det_msg=det_msg,
+                show_copy_button=show_copy_button)
 
     def hide_windows(self):
         for window in QApplication.topLevelWidgets():
@@ -403,7 +419,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
     def booklists(self):
         return self.memory_view.model().db, self.card_a_view.model().db, self.card_b_view.model().db
 
-    def library_moved(self, newloc, copy_structure=False):
+    def library_moved(self, newloc, copy_structure=False, call_close=True):
         if newloc is None: return
         default_prefs = None
         try:
@@ -436,10 +452,12 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         self.apply_named_search_restriction(db.prefs['gui_restriction'])
         if olddb is not None:
             try:
-                olddb.conn.close()
+                if call_close:
+                    olddb.conn.close()
             except:
                 import traceback
                 traceback.print_exc()
+            olddb.break_cycles()
         if self.device_connected:
             self.set_books_in_library(self.booklists(), reset=True)
             self.refresh_ondevice()
@@ -449,7 +467,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
 
 
     def set_window_title(self):
-        self.setWindowTitle(__appname__ + u' - ||%s||'%self.iactions['Choose Library'].library_name())
+        self.setWindowTitle(__appname__ + u' - || %s ||'%self.iactions['Choose Library'].library_name())
 
     def location_selected(self, location):
         '''
@@ -582,11 +600,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
                       Quitting may cause corruption on the device.<br>
                       Are you sure you want to quit?''')+'</p>'
 
-            d = QMessageBox(QMessageBox.Warning, _('WARNING: Active jobs'), msg,
-                            QMessageBox.Yes|QMessageBox.No, self)
-            d.setIconPixmap(QPixmap(I('dialog_warning.png')))
-            d.setDefaultButton(QMessageBox.No)
-            if d.exec_() != QMessageBox.Yes:
+            if not question_dialog(self, _('Active jobs'), msg):
                 return False
         return True
 
@@ -632,8 +646,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         except KeyboardInterrupt:
             pass
         time.sleep(2)
-        if mb is not None:
-            mb.flush()
         self.hide_windows()
         return True
 

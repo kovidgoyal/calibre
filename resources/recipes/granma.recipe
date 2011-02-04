@@ -20,7 +20,7 @@ class Granma(BasicNewsRecipe):
     use_embedded_content  = False
     encoding              = 'cp1252'
     cover_url             = 'http://www.granma.cubaweb.cu/imagenes/granweb229d.jpg'
-    language = 'es'
+    language = 'es_CU'
 
     remove_javascript     = True
 

@@ -19,7 +19,7 @@ class LaJornada_mx(BasicNewsRecipe):
     no_stylesheets        = True
     encoding              = 'utf8'
     use_embedded_content  = False
-    language              = 'es'
+    language              = 'es_MX'
     remove_empty_feeds    = True
     cover_url             = strftime("http://www.jornada.unam.mx/%Y/%m/%d/portada.pdf")
     masthead_url          = 'http://www.jornada.unam.mx/v7.0/imagenes/la-jornada-trans.png'
@@ -34,8 +34,8 @@ class LaJornada_mx(BasicNewsRecipe):
                                 .credito{font-weight: bold; margin-left: 1em}
                                 .credito-autor{font-variant: small-caps; font-weight: bold }
                                 .credito-titulo{text-align: right}
-                                .hemero{text-align: right; font-size: 0.9em; margin-bottom: 0.5em } 
-                                .loc{font-weight: bold} 
+                                .hemero{text-align: right; font-size: 0.9em; margin-bottom: 0.5em }
+                                .loc{font-weight: bold}
                                 .carton{text-align: center}
                                 .credit{font-weight: bold}
                                 .sumario{font-weight: bold; text-align: center}
@@ -56,7 +56,7 @@ class LaJornada_mx(BasicNewsRecipe):
                                        ,re.DOTALL|re.IGNORECASE)
                                        ,lambda match: '<p class="inicial">' + match.group(1) + '</p><p class="s-s">')
                          ]
-                        
+
     keep_only_tags = [
                          dict(name='div', attrs={'class':['documentContent','cabeza','sumarios','credito-articulo','text','carton']})
                         ,dict(name='div', attrs={'id':'renderComments'})
@@ -88,4 +88,4 @@ class LaJornada_mx(BasicNewsRecipe):
     def get_article_url(self, article):
         rurl = article.get('link',  None)
         return rurl.rpartition('&partner=')[0]
-        
+

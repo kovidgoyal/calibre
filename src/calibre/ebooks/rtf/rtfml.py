@@ -24,14 +24,15 @@ from calibre.utils.magick.draw import save_cover_data_to, identify_data
 TAGS = {
     'b': '\\b',
     'del': '\\deleted',
-    'h1': '\\b \\par \\pard \\hyphpar',
-    'h2': '\\b \\par \\pard \\hyphpar',
-    'h3': '\\b \\par \\pard \\hyphpar',
-    'h4': '\\b \\par \\pard \\hyphpar',
-    'h5': '\\b \\par \\pard \\hyphpar',
-    'h6': '\\b \\par \\pard \\hyphpar',
-    'li': '\\par \\pard \\hyphpar \t',
-    'p': '\\par \\pard \\hyphpar \t',
+    'h1': '\\s1 \\afs32',
+    'h2': '\\s2 \\afs28',
+    'h3': '\\s3 \\afs28',
+    'h4': '\\s4 \\afs23',
+    'h5': '\\s5 \\afs23',
+    'h6': '\\s6 \\afs21',
+    'i': '\\i',
+    'li': '\t',
+    'p': '\t',
     'sub': '\\sub',
     'sup': '\\super',
     'u': '\\ul',
@@ -39,15 +40,9 @@ TAGS = {
 
 SINGLE_TAGS = {
     'br': '\n{\\line }\n',
-    'div': '\n{\\line }\n',
-}
-
-SINGLE_TAGS_END = {
-    'div': '\n{\\line }\n',
 }
 
 STYLES = [
-    ('display', {'block': '\\par \\pard \\hyphpar'}),
     ('font-weight', {'bold': '\\b', 'bolder': '\\b'}),
     ('font-style', {'italic': '\\i'}),
     ('text-align', {'center': '\\qc', 'left': '\\ql', 'right': '\\qr'}),
@@ -55,6 +50,7 @@ STYLES = [
 ]
 
 BLOCK_TAGS = [
+    'div',
     'p',
     'h1',
     'h2',
@@ -112,14 +108,16 @@ class RTFMLizer(object):
                 stylizer = Stylizer(item.data, item.href, self.oeb_book,
                         self.opts, self.opts.output_profile)
                 output += self.dump_text(item.data.find(XHTML('body')), stylizer)
-                output += '{\\page } '
+                output += '{\\page }'
         for item in self.oeb_book.spine:
             self.log.debug('Converting %s to RTF markup...' % item.href)
             content = unicode(etree.tostring(item.data, encoding=unicode))
             content = self.remove_newlines(content)
+            content = self.remove_tabs(content)
             content = etree.fromstring(content)
             stylizer = Stylizer(content, item.href, self.oeb_book, self.opts, self.opts.output_profile)
             output += self.dump_text(content.find(XHTML('body')), stylizer)
+            output += '{\\page }'
         output += self.footer()
         output = self.insert_images(output)
         output = self.clean_text(output)
@@ -134,8 +132,23 @@ class RTFMLizer(object):
 
         return text
 
+    def remove_tabs(self, text):
+        self.log.debug('\Replace tabs with space for processing...')
+        text = text.replace('\t', ' ')
+
+        return text
+
     def header(self):
-        return u'{\\rtf1{\\info{\\title %s}{\\author %s}}\\ansi\\ansicpg1252\\deff0\\deflang1033' % (self.oeb_book.metadata.title[0].value, authors_to_string([x.value for x in self.oeb_book.metadata.creator]))
+        header = u'{\\rtf1{\\info{\\title %s}{\\author %s}}\\ansi\\ansicpg1252\\deff0\\deflang1033\n' % (self.oeb_book.metadata.title[0].value, authors_to_string([x.value for x in self.oeb_book.metadata.creator]))
+        return header + \
+            '{\\fonttbl{\\f0\\froman\\fprq2\\fcharset128 Times New Roman;}{\\f1\\froman\\fprq2\\fcharset128 Times New Roman;}{\\f2\\fswiss\\fprq2\\fcharset128 Arial;}{\\f3\\fnil\\fprq2\\fcharset128 Arial;}{\\f4\\fnil\\fprq2\\fcharset128 MS Mincho;}{\\f5\\fnil\\fprq2\\fcharset128 Tahoma;}{\\f6\\fnil\\fprq0\\fcharset128 Tahoma;}}\n' \
+            '{\\stylesheet{\\ql \\li0\\ri0\\nowidctlpar\\wrapdefault\\faauto\\rin0\\lin0\\itap0 \\rtlch\\fcs1 \\af25\\afs24\\alang1033 \\ltrch\\fcs0 \\fs24\\lang1033\\langfe255\\cgrid\\langnp1033\\langfenp255 \\snext0 Normal;}\n' \
+            '{\\s1\\ql \\li0\\ri0\\sb240\\sa120\\keepn\\nowidctlpar\\wrapdefault\\faauto\\outlinelevel0\\rin0\\lin0\\itap0 \\rtlch\\fcs1 \\ab\\af0\\afs32\\alang1033 \\ltrch\\fcs0 \\b\\fs32\\lang1033\\langfe255\\loch\\f1\\hich\\af1\\dbch\\af26\\cgrid\\langnp1033\\langfenp255 \\sbasedon15 \\snext16 \\slink21 heading 1;}\n' \
+            '{\\s2\\ql \\li0\\ri0\\sb240\\sa120\\keepn\\nowidctlpar\\wrapdefault\\faauto\\outlinelevel1\\rin0\\lin0\\itap0 \\rtlch\\fcs1 \\ab\\ai\\af0\\afs28\\alang1033 \\ltrch\\fcs0 \\b\\i\\fs28\\lang1033\\langfe255\\loch\\f1\\hich\\af1\\dbch\\af26\\cgrid\\langnp1033\\langfenp255 \\sbasedon15 \\snext16 \\slink22 heading 2;}\n' \
+            '{\\s3\\ql \\li0\\ri0\\sb240\\sa120\\keepn\\nowidctlpar\\wrapdefault\\faauto\\outlinelevel2\\rin0\\lin0\\itap0 \\rtlch\\fcs1 \\ab\\af0\\afs28\\alang1033 \\ltrch\\fcs0 \\b\\fs28\\lang1033\\langfe255\\loch\\f1\\hich\\af1\\dbch\\af26\\cgrid\\langnp1033\\langfenp255 \\sbasedon15 \\snext16 \\slink23 heading 3;}\n' \
+            '{\\s4\\ql \\li0\\ri0\\sb240\\sa120\\keepn\\nowidctlpar\\wrapdefault\\faauto\\outlinelevel3\\rin0\\lin0\\itap0 \\rtlch\\fcs1 \\ab\\ai\\af0\\afs23\\alang1033 \\ltrch\\fcs0\\b\\i\\fs23\\lang1033\\langfe255\\loch\\f1\\hich\\af1\\dbch\\af26\\cgrid\\langnp1033\\langfenp255 \\sbasedon15 \\snext16 \\slink24 heading 4;}\n' \
+            '{\\s5\\ql \\li0\\ri0\\sb240\\sa120\\keepn\\nowidctlpar\\wrapdefault\\faauto\\outlinelevel4\\rin0\\lin0\\itap0 \\rtlch\\fcs1 \\ab\\af0\\afs23\\alang1033 \\ltrch\\fcs0 \\b\\fs23\\lang1033\\langfe255\\loch\\f1\\hich\\af1\\dbch\\af26\\cgrid\\langnp1033\\langfenp255 \\sbasedon15 \\snext16 \\slink25 heading 5;}\n' \
+            '{\\s6\\ql \\li0\\ri0\\sb240\\sa120\\keepn\\nowidctlpar\\wrapdefault\\faauto\\outlinelevel5\\rin0\\lin0\\itap0 \\rtlch\\fcs1 \\ab\\af0\\afs21\\alang1033 \\ltrch\\fcs0 \\b\\fs21\\lang1033\\langfe255\\loch\\f1\\hich\\af1\\dbch\\af26\\cgrid\\langnp1033\\langfenp255 \\sbasedon15 \\snext16 \\slink26 heading 6;}}\n'
 
     def footer(self):
         return ' }'
@@ -170,19 +183,16 @@ class RTFMLizer(object):
         return (hex_string, width, height)
 
     def clean_text(self, text):
-        # Remove excess spaces at beginning and end of lines
-        text = re.sub('(?m)^[ ]+', '', text)
-        text = re.sub('(?m)[ ]+$', '', text)
-
         # Remove excessive newlines
-        #text = re.sub('%s{1,1}' % os.linesep, '%s%s' % (os.linesep, os.linesep), text)
         text = re.sub('%s{3,}' % os.linesep, '%s%s' % (os.linesep, os.linesep), text)
 
         # Remove excessive spaces
         text = re.sub('[ ]{2,}', ' ', text)
+        text = re.sub('\t{2,}', '\t', text)
+        text = re.sub('\t ', '\t', text)
 
+        # Remove excessive line breaks
         text = re.sub(r'(\{\\line \}\s*){3,}', r'{\\line }{\\line }', text)
-        #text = re.compile(r'(\{\\line \}\s*)+(?P<brackets>}*)\s*\{\\par').sub(lambda mo: r'%s{\\par' % mo.group('brackets'), text)
 
         # Remove non-breaking spaces
         text = text.replace(u'\xa0', ' ')
@@ -222,7 +232,7 @@ class RTFMLizer(object):
             block_start = ''
             block_end = ''
             if 'block' not in tag_stack:
-                block_start = '{\\par \\pard \\hyphpar '
+                block_start = '{\\par\\pard\\hyphpar '
                 block_end = '}'
             text += '%s SPECIAL_IMAGE-%s-REPLACE_ME %s' % (block_start, src, block_end)
 
@@ -245,7 +255,7 @@ class RTFMLizer(object):
                 tag_stack.append(style_tag)
 
         # Proccess tags that contain text.
-        if hasattr(elem, 'text') and elem.text != None and elem.text.strip() != '':
+        if hasattr(elem, 'text') and elem.text:
             text += txt2rtf(elem.text)
 
         for item in elem:
@@ -254,16 +264,15 @@ class RTFMLizer(object):
         for i in range(0, tag_count):
             end_tag =  tag_stack.pop()
             if end_tag != 'block':
-                text += u'}'
+                if tag in BLOCK_TAGS:
+                    text += u'\\par\\pard\\plain\\hyphpar}'
+                else:
+                    text += u'}'
 
-        single_tag_end = SINGLE_TAGS_END.get(tag, None)
-        if single_tag_end:
-            text += single_tag_end
-
-        if hasattr(elem, 'tail') and elem.tail != None and elem.tail.strip() != '':
+        if hasattr(elem, 'tail') and elem.tail:
             if 'block' in tag_stack:
-                text += '%s ' % txt2rtf(elem.tail)
+                text += '%s' % txt2rtf(elem.tail)
             else:
-                text += '{\\par \\pard \\hyphpar %s}' % txt2rtf(elem.tail)
+                text += '{\\par\\pard\\hyphpar %s}' % txt2rtf(elem.tail)
 
         return text

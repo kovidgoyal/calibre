@@ -75,7 +75,7 @@ def convert_single_ebook(parent, db, book_ids, auto_conversion=False, out_format
                     temp_files.append(d.cover_file)
                 args = [in_file, out_file.name, recs]
                 temp_files.append(out_file)
-                jobs.append(('gui_convert', args, desc, d.output_format.upper(), book_id, temp_files))
+                jobs.append(('gui_convert_override', args, desc, d.output_format.upper(), book_id, temp_files))
 
                 changed = True
                 d.break_cycles()
@@ -185,7 +185,7 @@ class QueueBulk(QProgressDialog):
 
             args = [in_file, out_file.name, lrecs]
             temp_files.append(out_file)
-            self.jobs.append(('gui_convert', args, desc, self.output_format.upper(), book_id, temp_files))
+            self.jobs.append(('gui_convert_override', args, desc, self.output_format.upper(), book_id, temp_files))
 
             self.changed = True
             self.setValue(self.i)
@@ -275,7 +275,7 @@ def generate_catalog(parent, dbspec, ids, device_manager, db):
 
     if device_manager.is_device_connected:
         device = device_manager.device
-        connected_device['name'] = device.gui_name
+        connected_device['name'] = device.get_gui_name()
         try:
             storage = []
             if device._main_prefix:

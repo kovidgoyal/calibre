@@ -7,7 +7,6 @@ import os, glob, re, textwrap
 from lxml import etree
 
 from calibre.customize.conversion import InputFormatPlugin
-from calibre.ebooks.conversion.utils import PreProcessor
 
 border_style_map = {
         'single' : 'solid',
@@ -84,6 +83,7 @@ class RTFInput(InputFormatPlugin):
                 os.mkdir(debug_dir)
                 debug_dir = 'rtfdebug'
                 run_lev = 4
+                self.log('Running RTFParser in debug mode')
             except:
                 pass
         parser = ParseRtf(
@@ -231,22 +231,6 @@ class RTFInput(InputFormatPlugin):
         with open('styles.css', 'ab') as f:
             f.write(css)
 
-    # def preprocess(self, fname):
-        # self.log('\tPreprocessing to convert unicode characters')
-        # try:
-            # data = open(fname, 'rb').read()
-            # from calibre.ebooks.rtf.preprocess import RtfTokenizer, RtfTokenParser
-            # tokenizer = RtfTokenizer(data)
-            # tokens = RtfTokenParser(tokenizer.tokens)
-            # data = tokens.toRTF()
-            # fname = 'preprocessed.rtf'
-            # with open(fname, 'wb') as f:
-                # f.write(data)
-        # except:
-            # self.log.exception(
-            # 'Failed to preprocess RTF to convert unicode sequences, ignoring...')
-        # return fname
-
     def convert_borders(self, doc):
         border_styles = []
         style_map = {}
@@ -281,8 +265,6 @@ class RTFInput(InputFormatPlugin):
         self.opts = options
         self.log = log
         self.log('Converting RTF to XML...')
-        #Name of the preprocesssed RTF file
-        # fname = self.preprocess(stream.name)
         try:
             xml = self.generate_xml(stream.name)
         except RtfInvalidCodeException, e:
@@ -319,13 +301,9 @@ class RTFInput(InputFormatPlugin):
             res = transform.tostring(result)
             res = res[:100].replace('xmlns:html', 'xmlns') + res[100:]
             # Replace newlines inserted by the 'empty_paragraphs' option in rtf2xml with html blank lines
-            if not getattr(self.opts, 'remove_paragraph_spacing', False):
-                res = re.sub('\s*<body>', '<body>', res)
-                res = re.sub('(?<=\n)\n{2}',
-                        u'<p>\u00a0</p>\n'.encode('utf-8'), res)
-            if self.opts.preprocess_html:
-                preprocessor = PreProcessor(self.opts, log=getattr(self, 'log', None))
-                res = preprocessor(res.decode('utf-8')).encode('utf-8')
+            res = re.sub('\s*<body>', '<body>', res)
+            res = re.sub('(?<=\n)\n{2}',
+                    u'<p>\u00a0</p>\n'.encode('utf-8'), res)
             f.write(res)
         self.write_inline_css(inline_class, border_styles)
         stream.seek(0)
@@ -339,4 +317,5 @@ class RTFInput(InputFormatPlugin):
         opf.create_spine(['index.xhtml'])
         opf.render(open('metadata.opf', 'wb'))
         return os.path.abspath('metadata.opf')
+
 
