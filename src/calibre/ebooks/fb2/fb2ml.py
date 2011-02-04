@@ -398,7 +398,7 @@ class FB2MLizer(object):
                     tags += p_tag
                     fb2_out.append('<image xlink:href="#%s" />' % self.image_hrefs[page.abshref(elem_tree.attrib['src'])])
         if tag in ('br', 'hr') or ems:
-            if not ems:
+            if ems < 1:
                 multiplier = 1
             else:
                 multiplier = ems

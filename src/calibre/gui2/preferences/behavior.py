@@ -9,8 +9,7 @@ import re
 
 from PyQt4.Qt import Qt, QVariant, QListWidgetItem
 
-from calibre.gui2.preferences import ConfigWidgetBase, test_widget, \
-    CommaSeparatedList
+from calibre.gui2.preferences import ConfigWidgetBase, test_widget
 from calibre.gui2.preferences.behavior_ui import Ui_Form
 from calibre.gui2 import config, info_dialog, dynamic
 from calibre.utils.config import prefs
@@ -49,7 +48,6 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         restrictions = sorted(saved_searches().names(), key=sort_key)
         choices = [('', '')] + [(x, x) for x in restrictions]
         r('gui_restriction', db.prefs, choices=choices)
-        r('new_book_tags', prefs, setting=CommaSeparatedList)
         self.reset_confirmation_button.clicked.connect(self.reset_confirmation_dialogs)
 
         self.input_up_button.clicked.connect(self.up_input)
