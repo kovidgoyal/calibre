@@ -143,9 +143,10 @@ class WallStreetJournal(BasicNewsRecipe):
             title = self.tag_to_string(a).strip() + ' [%s]'%self.tag_to_string(meta)
             url = 'http://online.wsj.com'+a['href']
             desc = ''
-            p = container.find('p')
-            if p is not None:
+            for p in container.findAll('p'):
                 desc = self.tag_to_string(p)
+                if not 'Subscriber Content' in desc:
+                    break
 
             articles.append({'title':title, 'url':url,
                 'description':desc, 'date':''})
