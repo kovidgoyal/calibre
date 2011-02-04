@@ -1692,7 +1692,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         '''
         books_to_refresh = self._set_authors(id, authors,
                                              allow_case_change=allow_case_change)
-        self.dirtied([id], commit=False)
+        self.dirtied(set([id])|books_to_refresh, commit=False)
         if commit:
             self.conn.commit()
         self.set_path(id, index_is_id=True)
@@ -1768,7 +1768,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.conn.execute('''DELETE FROM publishers WHERE (SELECT COUNT(id)
                              FROM books_publishers_link
                              WHERE publisher=publishers.id) < 1''')
-        books_to_refresh = set()
+        books_to_refresh = set([])
         if publisher:
             case_change = False
             if not isinstance(publisher, unicode):
@@ -1793,7 +1793,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 bks = self.conn.get('''SELECT book FROM books_publishers_link
                                        WHERE publisher=?''', (aid,))
                 books_to_refresh |= set([bk[0] for bk in bks])
-        self.dirtied([id], commit=False)
+        self.dirtied(set([id])|books_to_refresh, commit=False)
         if commit:
             self.conn.commit()
         self.data.set(id, self.FIELD_MAP['publisher'], publisher, row_is_id=True)
@@ -2206,7 +2206,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 bks = self.conn.get('SELECT book FROM books_tags_link WHERE tag=?',
                                         (tid,))
                 books_to_refresh |= set([bk[0] for bk in bks])
-        self.dirtied([id], commit=False)
+        self.dirtied(set([id])|books_to_refresh, commit=False)
         if commit:
             self.conn.commit()
         tags = u','.join(self.get_tags(id))

@@ -445,7 +445,7 @@ class CustomColumns(object):
         rv = self._set_custom(id, val, label=label, num=num, append=append,
                          notify=notify, extra=extra,
                          allow_case_change=allow_case_change)
-        self.dirtied([id], commit=False)
+        self.dirtied(set([id])|rv, commit=False)
         if commit:
             self.conn.commit()
         return rv
