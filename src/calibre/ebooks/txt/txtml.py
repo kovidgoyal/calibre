@@ -226,7 +226,7 @@ class TXTMLizer(object):
         # Soft scene breaks.
         try:
             ems = int(round((float(style.marginTop) / style.fontSize) - 1))
-            if ems:
+            if ems >= 1:
                 text.append('\n' * ems)
         except:
             pass

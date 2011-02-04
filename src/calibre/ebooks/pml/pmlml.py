@@ -10,10 +10,13 @@ Transform OEB content into PML markup
 
 import re
 
+from lxml import etree
+
 from calibre.ebooks.oeb.base import XHTML, XHTML_NS, barename, namespace
 from calibre.ebooks.oeb.stylizer import Stylizer
 from calibre.ebooks.pdb.ereader import image_name
 from calibre.ebooks.pml import unipmlcode
+from calibre.utils.cleantext import clean_ascii_chars
 
 TAG_MAP = {
     'b'       : 'B',
@@ -64,8 +67,8 @@ SEPARATE_TAGS = [
     'h4',
     'h5',
     'h6',
-    'p',
-    'div',
+    'hr',
+    'img',
     'li',
     'tr',
 ]
@@ -122,9 +125,12 @@ class PMLMLizer(object):
         text = [u'']
         for item in self.oeb_book.spine:
             self.log.debug('Converting %s to PML markup...' % item.href)
-            stylizer = Stylizer(item.data, item.href, self.oeb_book, self.opts, self.opts.output_profile)
+            content = unicode(etree.tostring(item.data, encoding=unicode))
+            content = self.prepare_text(content)
+            content = etree.fromstring(content)
+            stylizer = Stylizer(content, item.href, self.oeb_book, self.opts, self.opts.output_profile)
             text.append(self.add_page_anchor(item))
-            text += self.dump_text(item.data.find(XHTML('body')), stylizer, item)
+            text += self.dump_text(content.find(XHTML('body')), stylizer, item)
         return ''.join(text)
 
     def add_page_anchor(self, page):
@@ -145,6 +151,21 @@ class PMLMLizer(object):
         text = text.replace('\r\n', ' ')
         text = text.replace('\n', ' ')
         text = text.replace('\r', ' ')
+        return text
+
+    def prepare_string_for_pml(self, text):
+        text = self.remove_newlines(text)
+        # Replace \ with \\ so \ in the text is not interperted as
+        # a pml code.
+        text = text.replace('\\', '\\\\')
+        # Replace sequences of \\c \\c with pml sequences denoting
+        # empty lines.
+        text = text.replace('\\\\c \\\\c', '\\c \n\\c\n')
+        return text
+
+    def prepare_text(self, text):
+        # Replace empty paragraphs with \c pml codes used to denote emtpy lines.
+        text = re.sub(ur'(?<=</p>)\s*<p[^>]*>[\xc2\xa0\s]*</p>', '\\c\n\\c', text)
         return text
 
     def clean_text(self, text):
@@ -171,15 +192,18 @@ class PMLMLizer(object):
 
         # Remove excessive spaces
         text = re.sub('[ ]{2,}', ' ', text)
+        
+        # Condense excessive \c empty line sequences.
+        text = re.sub('(\\c\s*\\c\s*){2,}', '\\c \n\\c\n', text)
 
         # Remove excessive newlines.
         text = re.sub('\n[ ]+\n', '\n\n', text)
         if self.opts.remove_paragraph_spacing:
             text = re.sub('\n{2,}', '\n', text)
-            text = re.sub('(?imu)^(?P<text>.+)$', lambda mo: mo.group('text') if re.search(r'\\[XxCm]', mo.group('text')) else '    %s' % mo.group('text'), text)
+            # Only indent lines that don't have special formatting
+            text = re.sub('(?imu)^(?P<text>.+)$', lambda mo: mo.group('text') if re.search(r'\\[XxCmrctTp]', mo.group('text')) else '        %s' % mo.group('text'), text)
         else:
             text = re.sub('\n{3,}', '\n\n', text)
-
 
         return text
 
@@ -203,7 +227,7 @@ class PMLMLizer(object):
             tags.append('block')
 
         # Process tags that need special processing and that do not have inner
-        # text. Usually these require an argument
+        # text. Usually these require an argument.
         if tag in IMAGE_TAGS:
             if elem.attrib.get('src', None):
                 if page.abshref(elem.attrib['src']) not in self.image_hrefs.keys():
@@ -212,7 +236,7 @@ class PMLMLizer(object):
                     else:
                         self.image_hrefs[page.abshref(elem.attrib['src'])] = image_name('%s.png' % len(self.image_hrefs.keys()), self.image_hrefs.keys()).strip('\x00')
                 text.append('\\m="%s"' % self.image_hrefs[page.abshref(elem.attrib['src'])])
-        if tag == 'hr':
+        elif tag == 'hr':
             w = '\\w'
             width = elem.get('width')
             if width:
@@ -222,6 +246,10 @@ class PMLMLizer(object):
             else:
                 w += '="50%"'
             text.append(w)
+        elif tag == 'br':
+            text.append('\n\\c \n\\c\n')
+        
+        # TOC markers.
         toc_name = elem.attrib.get('name', None)
         toc_id = elem.attrib.get('id', None)
         if (toc_id or toc_name) and tag  not in ('h1', 'h2','h3','h4','h5','h6',):
@@ -234,9 +262,10 @@ class PMLMLizer(object):
 
         # Process style information that needs holds a single tag
         # Commented out because every page in an OEB book starts with this style
-        #if style['page-break-before'] == 'always':
-        #    text.append('\\p')
+        if style['page-break-before'] == 'always':
+            text.append('\\p')
 
+        # Process basic PML tags.
         pml_tag = TAG_MAP.get(tag, None)
         if pml_tag and pml_tag not in tag_stack+tags:
             text.append('\\%s' % pml_tag)
@@ -270,34 +299,60 @@ class PMLMLizer(object):
             if style_tag and style_tag not in tag_stack+tags:
                 text.append('\\%s' % style_tag)
                 tags.append(style_tag)
-        # margin
+        
+        # margin left
+        try:
+            mms = int(float(style['margin-left']) * 100 / style.height)
+            if mms:
+                text.append('\\T="%s%%"' % mms)
+        except:
+            pass
+        
+        # Soft scene breaks.
+        try:
+            ems = int(round((float(style.marginTop) / style.fontSize) - 1))
+            if ems >= 1:
+                text.append('\n\\c \n\\c\n')
+        except:
+            pass
 
-        # Proccess tags that contain text.
+        # Proccess text within this tag.
         if hasattr(elem, 'text') and elem.text:
-            text.append(self.remove_newlines(elem.text))
+            text.append(self.prepare_string_for_pml(elem.text))
 
+        # Process inner tags
         for item in elem:
             text += self.dump_text(item, stylizer, page, tag_stack+tags)
 
+        # Close opened tags.
         tags.reverse()
         text += self.close_tags(tags)
 
-        if tag in SEPARATE_TAGS:
-            text.append('\n\n')
+        #if tag in SEPARATE_TAGS:
+        #    text.append('\n\n')
 
-        #if style['page-break-after'] == 'always':
-        #    text.append('\\p')
+        if style['page-break-after'] == 'always':
+            text.append('\\p')
 
+        # Process text after this tag but not within another.
         if hasattr(elem, 'tail') and elem.tail:
-            text.append(self.remove_newlines(elem.tail))
+            text.append(self.prepare_string_for_pml(elem.tail))
 
         return text
 
     def close_tags(self, tags):
         text = []
         for tag in tags:
+            # block isn't a real tag we just use
+            # it to determine when we need to start
+            # a new text block.
             if tag == 'block':
                 text.append('\n\n')
             else:
-                text.append('\\%s' % tag)
+                # closing \c and \r need to be placed
+                # on the next line per PML spec. 
+                if tag in ('c', 'r'):
+                    text.append('\n\\%s' % tag)
+                else:
+                    text.append('\\%s' % tag)
         return text
