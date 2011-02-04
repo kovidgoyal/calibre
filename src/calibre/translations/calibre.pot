@@ -4,9 +4,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: calibre 0.7.43\n"
-"POT-Creation-Date: 2011-02-03 22:52+MST\n"
-"PO-Revision-Date: 2011-02-03 22:52+MST\n"
+"Project-Id-Version: calibre 0.7.44\n"
+"POT-Creation-Date: 2011-02-04 11:04+MST\n"
+"PO-Revision-Date: 2011-02-04 11:04+MST\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: LANGUAGE\n"
 "MIME-Version: 1.0\n"
@@ -10663,11 +10663,11 @@ msgstr ""
 msgid "The saved search name %s is already used."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1313
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1321
 msgid "Find item in tag browser"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1316
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1324
 msgid ""
 "Search for items. This is a \"contains\" search; items containing the\n"
 "text anywhere in the name will be found. You can limit the search\n"
@@ -10677,59 +10677,59 @@ msgid ""
 "containing the text \"foo\""
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1325
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1333
 msgid "ALT+f"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1329
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1337
 msgid "F&ind"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1330
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1338
 msgid "Find the first/next matching item"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1337
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1345
 msgid "Collapse all categories"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1358
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1366
 msgid "No More Matches.</b><p> Click Find again to go to first match"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1371
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1379
 msgid "Sort by name"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1371
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1379
 msgid "Sort by popularity"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1372
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1380
 msgid "Sort by average rating"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1375
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1383
 msgid "Set the sort order for entries in the Tag Browser"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1381
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1389
 msgid "Match all"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1381
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1389
 msgid "Match any"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1386
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1394
 msgid "When selecting multiple entries in the Tag Browser match any or all of them"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1390
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1398
 msgid "Manage &user categories"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1393
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1401
 msgid "Add your own categories to the Tag Browser"
 msgstr ""
 
@@ -11905,7 +11905,7 @@ msgstr ""
 msgid "No books available to include in catalog"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:5012
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:5024
 msgid ""
 "\n"
 "*** Adding 'By Authors' Section required for MOBI output ***"
