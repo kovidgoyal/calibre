@@ -158,7 +158,11 @@ class WallStreetJournal(BasicNewsRecipe):
             meta = a.find(attrs={'class':'meta_sectionName'})
             if meta is not None:
                 meta.extract()
-            title = self.tag_to_string(a).strip() + ' [%s]'%self.tag_to_string(meta)
+                meta = self.tag_to_string(meta).strip()
+            if meta:
+                title = self.tag_to_string(a).strip() + ' [%s]'%meta
+            else:
+                title = self.tag_to_string(a).strip()
             url = 'http://online.wsj.com'+a['href']
             desc = ''
             for p in container.findAll('p'):
