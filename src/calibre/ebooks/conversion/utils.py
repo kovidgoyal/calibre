@@ -28,8 +28,8 @@ class HeuristicProcessor(object):
         self.linereg = re.compile('(?<=<p).*?(?=</p>)', re.IGNORECASE|re.DOTALL)
         self.blankreg = re.compile(r'\s*(?P<openline><p(?!\sclass=\"(softbreak|whitespace)\")[^>]*>)\s*(?P<closeline></p>)', re.IGNORECASE)
         self.anyblank = re.compile(r'\s*(?P<openline><p[^>]*>)\s*(?P<closeline></p>)', re.IGNORECASE)
-        self.multi_blank = re.compile(r'(\s*<p[^>]*>\s*</p>){2,}(?!\s*<h\d)', re.IGNORECASE)
-        self.any_multi_blank = re.compile(r'(\s*<p[^>]*>\s*</p>){2,}', re.IGNORECASE)
+        self.multi_blank = re.compile(r'(\s*(<div[^>]*>\s*)?<p[^>]*>\s*</p>(\s*</div>)?(\s*<div[^>]*>\s*</div>\s*)*){2,}(?!\s*<h\d)', re.IGNORECASE)
+        self.any_multi_blank = re.compile(r'(\s*(<div[^>]*>\s*)?<p[^>]*>\s*</p>(\s*</div>)?(\s*<div[^>]*>\s*</div>\s*)*){2,}', re.IGNORECASE)
         self.line_open = "<(?P<outer>p|div)[^>]*>\s*(<(?P<inner1>font|span|[ibu])[^>]*>)?\s*(<(?P<inner2>font|span|[ibu])[^>]*>)?\s*(<(?P<inner3>font|span|[ibu])[^>]*>)?\s*"
         self.line_close = "(</(?P=inner3)>)?\s*(</(?P=inner2)>)?\s*(</(?P=inner1)>)?\s*</(?P=outer)>"
         self.single_blank = re.compile(r'(\s*<p[^>]*>\s*</p>)', re.IGNORECASE)
