@@ -13490,7 +13490,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:839
 msgid "Error: You must specify an action (add|remove|list)"
-msgstr "Błąd: Musisz wybrać akcję (dodaj|usuń\\lista)"
+msgstr "Błąd: Musisz wybrać akcję (dodaj|usuń|lista)"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:847
 msgid "Name:"

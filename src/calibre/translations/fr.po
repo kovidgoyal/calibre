@@ -13936,7 +13936,7 @@ msgstr ""
 "Champs disponibles : %s,\n"
 "plus les champs personnalisés crées par l'utilisateur.\n"
 "Examples : %s=title,authors,tags\n"
-"Par défaut : '%default'\n"
+"Par défaut : '%%default'\n"
 "S'applique au formats : CSV, XML"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:65
@@ -13965,7 +13965,7 @@ msgstr ""
 "Champs disponibles : %s.\n"
 "plus les champs personnalisés crées par l'utilisateur.\n"
 "Examples : %s=title,authors,tags\n"
-"Par défaut : '%default'\n"
+"Par défaut : '%%default'\n"
 "S'applique au format : BIBTEX"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:244
