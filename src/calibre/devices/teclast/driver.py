@@ -41,6 +41,16 @@ class NEWSMY(TECLAST_K3):
     WINDOWS_MAIN_MEM = 'NEWSMY'
     WINDOWS_CARD_A_MEM = 'USBDISK____SD'
 
+class ARCHOS7O(TECLAST_K3):
+    name = 'Archos 7O device interface'
+    gui_name = 'Archos'
+    description    = _('Communicate with the Archos reader.')
+
+    FORMATS = ['epub', 'mobi', 'fb2', 'rtf', 'ap', 'html', 'pdf', 'txt']
+
+    VENDOR_NAME      = 'ARCHOS'
+    WINDOWS_MAIN_MEM = 'USB-MSC'
+
 class PICO(NEWSMY):
     name = 'Pico device interface'
     gui_name = 'Pico'
