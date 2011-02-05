@@ -88,12 +88,6 @@ class TXTInput(InputFormatPlugin):
                 options.paragraph_type = 'block'
             else:
                 log.debug('Auto detected paragraph type as %s' % options.paragraph_type)
-                
-        dehyphenate = False
-        if options.formatting_type in ('auto', 'heuristic'):
-            # Set this here because we want it to run over all
-            # formatting types if auto is used.
-            dehyphenate = True
 
         # Detect formatting
         if options.formatting_type == 'auto':
@@ -127,7 +121,7 @@ class TXTInput(InputFormatPlugin):
             preprocessor = HeuristicProcessor(options, log=getattr(self, 'log', None))
             txt = preprocessor.punctuation_unwrap(length, txt, 'txt')
 
-        if dehyphenate:
+        if getattr(options, 'enable_heuristics', False) and getattr(options, 'dehyphenate', False):
             docanalysis = DocAnalysis('txt', txt)
             length = docanalysis.line_length(.5)
             dehyphenator = Dehyphenator(options.verbose, log=self.log)
