@@ -210,7 +210,7 @@ class Colors:
             hex_num = self.__color_dict.get(num)
         if hex_num is None:
             hex_num = '0'
-            if self.__run_level > 5:
+            if self.__run_level > 3:
                 msg = 'no value in self.__color_dict' \
                 'for key %s at line %d\n' % (num, self.__line)
                 raise self.__bug_handler, msg
