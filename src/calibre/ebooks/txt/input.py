@@ -12,7 +12,7 @@ from calibre.ebooks.chardet import detect
 from calibre.ebooks.txt.processor import convert_basic, convert_markdown, \
     separate_paragraphs_single_line, separate_paragraphs_print_formatted, \
     preserve_spaces, detect_paragraph_type, detect_formatting_type, \
-    normalize_line_endings, convert_textile
+    normalize_line_endings, convert_textile, remove_indents
 from calibre import _ent_pat, xml_entity_to_unicode
 
 class TXTInput(InputFormatPlugin):
@@ -47,6 +47,9 @@ class TXTInput(InputFormatPlugin):
         OptionRecommendation(name='preserve_spaces', recommended_value=False,
             help=_('Normally extra spaces are condensed into a single space. '
                 'With this option all spaces will be displayed.')),
+        OptionRecommendation(name='txt_in_remove_indents', recommended_value=False,
+            help=_('Normally extra space at the beginning of lines is retained. '
+                   'With this option they will be removed.')),
         OptionRecommendation(name="markdown_disable_toc", recommended_value=False,
             help=_('Do not insert a Table of Contents into the output text.')),
     ])
@@ -100,6 +103,9 @@ class TXTInput(InputFormatPlugin):
         if options.formatting_type == 'heuristic':
             setattr(options, 'enable_heuristics', True)
             setattr(options, 'unwrap_lines', False)
+
+        if options.txt_in_remove_indents:
+            txt = remove_indents(txt)
 
         # Preserve spaces will replace multiple spaces to a space
         # followed by the &nbsp; entity.
