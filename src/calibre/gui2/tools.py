@@ -9,7 +9,7 @@ Logic for setting up conversion jobs
 
 import cPickle, os
 
-from PyQt4.Qt import QDialog, QProgressDialog, QString, QTimer, SIGNAL
+from PyQt4.Qt import QDialog, QProgressDialog, QString, QTimer
 
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.gui2 import warning_dialog, question_dialog
@@ -125,14 +125,11 @@ class QueueBulk(QProgressDialog):
         self.parent = parent
         self.use_saved_single_settings = use_saved_single_settings
         self.i, self.bad, self.jobs, self.changed = 0, [], [], False
-        self.timer = QTimer(self)
-        self.connect(self.timer, SIGNAL('timeout()'), self.do_book)
-        self.timer.start()
+        QTimer.singleShot(0, self.do_book)
         self.exec_()
 
     def do_book(self):
         if self.i >= len(self.book_ids):
-            self.timer.stop()
             return self.do_queue()
         book_id = self.book_ids[self.i]
         self.i += 1
@@ -191,6 +188,7 @@ class QueueBulk(QProgressDialog):
             self.setValue(self.i)
         except NoSupportedInputFormats:
             self.bad.append(book_id)
+        QTimer.singleShot(0, self.do_book)
 
     def do_queue(self):
         self.hide()
