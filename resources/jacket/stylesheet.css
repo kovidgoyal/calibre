@@ -113,8 +113,8 @@ table.cbj_header tr.cbj_series {
 	/* display:none; */
 	}
 
-table.cbj_header tr.cbj_pubdate {
-	/* Uncomment the next line to remove 'Published' from banner section */
+table.cbj_header tr.cbj_pubdata {
+	/* Uncomment the next line to remove 'Published (year of publication)' from banner section */
 	/* display:none; */
 	}
 
