@@ -53,7 +53,9 @@ class kakasi(object):
             if self.j2h.isKanji(text[i]):
                 (t, l) = self.j2h.convert(text[i:])
                 if l <= 0:
-                    break
+                    otext  = otext + text[i]
+                    i = i + 1
+                    continue
                 i = i + l
                 m = 0
                 tmptext = ""

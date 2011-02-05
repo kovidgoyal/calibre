@@ -34,7 +34,6 @@ class Jadecoder(Unidecoder):
 
     def decode(self, text):
         try:
-            dummy = text.encode("eucjp") # test if text contains only Japanese and ASCII characters.
             result=self.kakasi.do(text)
             return re.sub('[^\x00-\x7f]', lambda x: self.replace_point(x.group()),result)
         except:
