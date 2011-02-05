@@ -178,7 +178,8 @@ class MultiCompleteLineEdit(QLineEdit):
         self._model = CompleteModel(parent=self)
         self.complete_window = CompleteWindow(self, self._model)
         self.textEdited.connect(self.text_edited)
-        self.complete_window.completion_selected.connect(self.completion_selected)
+        self.complete_window.completion_selected.connect(self.completion_selected,
+                type=Qt.QueuedConnection)
         self.installEventFilter(self)
 
     # Interface {{{
