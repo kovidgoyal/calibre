@@ -24,14 +24,14 @@ def clean_txt(txt):
     # all line breaks with \n.
     txt = '\n'.join([line.rstrip() for line in txt.splitlines()])
     
-    # Replace whitespace at the beginning of the list with &nbsp;
-    txt = re.sub('(?m)(?P<space>[ ]+)', lambda mo: '&nbsp;' * mo.groups('space').count(' '), txt)
-    txt = re.sub('(?m)(?P<space>[\t]+)', lambda mo: '&nbsp;' * 4 * mo.groups('space').count('\t'), txt)
+    # Replace whitespace at the beginning of the line with &nbsp;
+    txt = re.sub('(?m)(?P<space>^[ ]+)(?=.)', lambda mo: '&nbsp;' * mo.groups('space').count(' '), txt)
+    txt = re.sub('(?m)(?P<space>^[\t]+)(?=.)', lambda mo: '&nbsp;' * 4 * mo.groups('space').count('\t'), txt)
 
     # Condense redundant spaces
     txt = re.sub('[ ]{2,}', ' ', txt)
 
-    # Remove blank lines from the beginning and end of the document.
+    # Remove blank space from the beginning and end of the document.
     txt = re.sub('^\s+(?=.)', '', txt)
     txt = re.sub('(?<=.)\s+$', '', txt)
     # Remove excessive line breaks.
@@ -105,6 +105,10 @@ def separate_paragraphs_print_formatted(txt):
 def preserve_spaces(txt):
     txt = re.sub('(?P<space>[ ]{2,})', lambda mo: ' ' + ('&nbsp;' * (len(mo.group('space')) - 1)), txt)
     txt = txt.replace('\t', '&nbsp;&nbsp;&nbsp;&nbsp;')
+    return txt
+
+def remove_indents(txt):
+    txt = re.sub('(?miu)^\s+', '', txt)
     return txt
 
 def opf_writer(path, opf_name, manifest, spine, mi):
