@@ -791,6 +791,16 @@ class BooksModel(QAbstractTableModel): # {{{
                 val = qt_to_dt(val, as_utc=False)
         elif typ == 'series':
             val = unicode(value.toString()).strip()
+            if val:
+                pat = re.compile(r'\[([.0-9]+)\]')
+                match = pat.search(val)
+                if match is not None:
+                    s_index = float(match.group(1))
+                    val = pat.sub('', val).strip()
+                elif val:
+                    if tweaks['series_index_auto_increment'] != 'const':
+                        s_index = self.db.get_next_cc_series_num_for(val,
+                                                        label=label, num=None)
         elif typ == 'composite':
             tmpl = unicode(value.toString()).strip()
             disp = cc['display']

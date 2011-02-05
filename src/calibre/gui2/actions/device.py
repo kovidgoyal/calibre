@@ -94,6 +94,7 @@ class ShareConnMenu(QMenu): # {{{
                             I('mail.png'), _('Email to') + ' ' +account)
                     self.addAction(ac)
                     self.email_actions.append(ac)
+                    ac.a_s.connect(sync_menu.action_triggered)
                 action1.a_s.connect(sync_menu.action_triggered)
                 action2.a_s.connect(sync_menu.action_triggered)
             ac = self.addMenu(self.email_to_and_delete_menu)
