@@ -1,0 +1,56 @@
+About
+-----
+
+Text compression format that can be decompressed starting at any point.
+Little-endian byte ordering is used.
+
+
+Header
+------
+
+TCR files always start with:
+
+!!8-Bit!!
+
+
+Layout
+------
+
+Header
+256 key dictionary
+compressed text
+
+
+Dictionary
+----------
+
+A dictionary of key and replacement string. There are a total of 256 keys,
+0 - 255. Each string is preceded with one byte that represents the length of
+the string.
+
+
+Compressed text
+---------------
+
+The compressed text is a series of values 0-255 which correspond to a key and
+thus a string. Reassembling is replacing each key in the compressed text with
+its corresponding string.
+
+
+Compressor
+-----------------
+
+From Andrew Giddings TCR.c (http://www.cix.co.uk/~gidds/Software/TCR.html):
+
+The TCR compression format is easy to describe: after the fixed header is a
+dictionary of 256 strings, each preceded by a length byte.  The rest of the
+file is a list of codes from this dictionary.
+
+The compressor works by starting with each code defined as itself.  While
+there's an unused code, it finds the most common two-code combination, and
+creates a new code for it, replacing all occurrences in the text with the
+new code.
+
+It also searches for codes that are always followed by another, which it can
+merge, possibly freeing up some.
+

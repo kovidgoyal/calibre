@@ -1,0 +1,309 @@
+About
+-----
+
+The eReader format has evolved and changed over time. Subsequently, there are
+multiple versions of the eReader format. There are also two different tools
+that can create eReader files. The official tools are Makebook and Dropbook.
+Dropbook is the newer official tool that has replaced Makebook. However,
+Makebook is still in wide use because it supports a wider range of platforms
+than Dropbook. Dropbook is a GUI application that only runs on Windows and
+Apple’s OS X.
+
+
+PDB Identiy
+-------
+
+PNRdPPrs
+
+
+202 and 132 headers
+-----------------------------------------
+
+Older files have a record 0 size of 202 and occasionally 116. Newer files have
+a record 0 size of 132. As of this writing the 202 files only support text and
+images. The image format in the 202 files is the same as the 132 files. The 132
+files support a number of additional features.
+
+
+Record 0, eReader header (202)
+------------------
+
+Note all values are in 2 byte increments. Like values are condensed into a
+range. The range can be borken into 2 byte sections which represent the actual
+stored values.
+
+bytes       content             comments
+
+0-2         Version             Non-DRM books 2 and 4.
+2-8         Garbage
+8-10        Non-Text Offset     Start of Non text area (images) will run to the
+                                end of the section list.
+10-14       Unknown
+14-24       Garbage
+24-28       Unknown
+28-98       Garbage
+98-100      Unknown
+100-110     Garbage
+110-114     Unknown
+114-116     Garbage
+116-202     Unknown
+
+* Garbage: Intentially random values.
+
+
+Text Records (202)
+------------------
+
+Text starts with section 1 and continues until the section indicated by the
+Non-Text Offset. All text records are PalmDoc compressed.
+
+Each character in the compressed data is xored with 0xA5.
+
+A decompression example in sudo Python:
+
+for num in range(1, Non-Text Offset):
+    text += decompress_pamldoc(''.join([chr(ord(x) ^ 0xA5) for x in section_data(num)])).decode('cp1252', 'replace')
+
+
+Dropbook 132 files
+------------------
+
+The following sections apply to the newer Dropbook created files.
+
+
+Record 0, eReader header (132)
+----------------------------
+
+This is only for 132 byte header files created by Dropbook.
+
+bytes   content                     comments
+
+0-2     compression                 Specifies compression and drm. 2 = palmdoc,
+                                    10 = zlib. 260 and 272 = DRM
+2-6     unknown                     Value of 0 is used
+6-8     encoding                    Always 25152 (0x6240). All text must be
+                                    encoded as Latin-1 cp1252
+8-10    Number of small pages       The number of small font pages. If page
+                                    index is not build in then 0.
+10-12   Number of large pages       The number of large font pages. If page
+                                    index is not build in then 0.
+12-14   Non-Text record start       The location of the first non text records.
+                                    record 1 to this value minus 1 are all text
+                                    records
+14-16   Number of chapters          The number of chapter index records
+                                    contained in the file
+16-18   Number of small index       The number of small font page index records
+                                    contained in the file
+18-20   Number of large index       The number of large font page index records
+                                    contained in the file
+20-22   Number of images            The number of images contained in the file
+22-24   Number of links             The number of links contained in the file
+24-26   Metadata avaliable          Is there a metadata record in the file?
+                                    0 = None, 1 = There is a metadata record
+26-28   Unknown                     Value of 0 is used
+28-30   Number of Footnotes         The number of footnote records in the file
+30-32   Number of Sidebars          The number of sidebar records in the file
+32-34   Chapter index record start  The location of chapter index records. If
+                                    there are no chapters use the value for the
+                                    Last data record.
+34-36   2560                        Magic value that must be set to 2560
+36-38   Small page index start      The location of small font page index
+                                    records. If page table is not built in use
+                                    the value for the Last data record.
+38-40   Large page index start      The location of large font page index
+                                    records. If page table is not built in use
+                                    the value for the Last data record.
+40-42   Image data record start     The location of the first image record. If
+                                    there are no images use the value for the
+                                    Last data record.
+42-44   Links record start          The location of the first link index
+                                    record. If there are no links use the value
+                                    for the Last data record.
+44-46   Metadata record start       The location of the metadata record. If
+                                    there is no metadata use the value for the
+                                    Last data record.
+46-48   Unknown                     Value of 0 is used
+48-50   Footnote record start       The location of the first footnote record.
+                                    If there are no footnotes use the value for
+                                    the Last data record.
+50-52   Sidebar record start        The location of the first sidebar record.
+                                    If there are no sidebars use the value for
+                                    the Last data record.
+52-54   Last data record            The location of the last data record
+54-132  Unknown                     Value of 0 is used
+
+Note: All values are in 2 byte increments. All bytes in the table that have a
+range larger than 2 can be broken into 2 byte segments and have different
+values set for each grouping.
+
+
+Records Order
+-------------
+
+Though the order of this sections is described in eReader header,
+DropBook makes the following order:
+
+   1. eReader Header
+   2. Compressed text
+   3. Small font page index
+   4. Large font page index
+   5. Chapter index
+   6. Links index
+   7. Images
+   8. (Extrapolation: there should be one more record type here though it has
+       not yet been uncovered what it might be).
+   9. Metadata
+  10. Sidebar records
+  11. Footnote records
+  12. Text block size record
+  13. "MeTaInFo\x00" word record 
+
+
+Text Records
+------------
+
+All text records use cp1252  encoding (although eReader documents talk about
+UTF-8 as well). Their total compressed size is unknown however, anything below
+3560 Bytes is known to work. The text will be either zlib or palmdoc
+compressed. Use the compression value from the eReader header to determine
+which. All text utalizes the Palm Markup Language (PML) for formatting.
+
+Starting with DropBook 1.6.0 text is divided into 8KB (8192 bytes) blocks
+trimming the end to the closest space character and then being compressed.
+Earlier version of DropBook 1.5.2 tries to behave the same way, though
+sometimes it trims the block in unexpected place.
+
+
+Chapter Index Records
+---------------------
+
+Each chapter record corresponds to 1 chapter and points at the place in the
+book. Chapter record takes a form of 'offset name\x00' First 4 bytes are offset
+of the original pml file where the chapter index points to (offset of
+the \x|\X?|\C? tags). Then without a space goes a name of a chapter in chapter
+index. It should contain only text, all formatting tags should be removed.
+\U and \a tags are not permitted in chapter name. To maintain sub-chapters
+4*n spaces (\x20) are added to the beginning of the name, where "n" is level of
+chapter: 0 for \x tag and N for \CN="" and \XN tags. And then an ending
+\x00 symbol.
+
+
+Image Records
+-------------
+
+Image records must be smaller than 65505 Bytes. They must also be 8bit PNG
+images.
+
+An image record takes the form 'PNG name\x00... image_data'
+
+bytes   content         comments
+
+0-4     PNG             There must be a space after PNG.
+4-36    image name.     The image name must be 32 exactly 32 Bytes long. Pad
+                        the right side of the name with \x00 characters for
+                        names shorter than 32 characters.
+36-58   Unknown	
+58-60   width           Width of an image
+60-62   height          Height of an image
+62-?    The image data  raw image data in 8 bit PNG format
+
+Note: DropBooks seems to change something in png raw data. Like reencoding or
+something, but plain insertion of png image there still works. 
+
+
+Links Records
+-------------
+
+Links records are constructed the same way as chapter ones. Each link anchor
+record corresponds to 1 link anchor and points at the place in the book. Link
+record takes a form of 'offset name\x00' First 4 bytes are offset of the
+original pml file where the link anchor points to (offset of the \Q tag). Then
+without a space goes a name of a link anchor. It should contain only text, all
+formatting tags should be removed. \U and \a tags are not permitted in link
+anchor name. And then an ending \x00 symbol.
+
+
+Footnote Records
+----------------
+
+The first footnote record is a \x00 separated list of footnote ids. All
+subsequent footnote records are the footnote text corresponding to the id's
+position in the list. Footnote text is compressed in the same manner as normal
+text records
+
+E.G.
+
+footnote section 1 = 'notice1\x00notice2\x00notice3\x00'
+footnote section 2 = 'Text for notice 1'
+footnote section 3 = 'Text for notice 2'
+footnote section 4 = 'Text for notice 3'
+
+Starting with Dropbook 1.5.2 first record looks a bit different. It is sequence
+of \x00\x01 then 1 byte of footnote id length, then footnote id then \x00.
+
+E.G.
+
+footnote section 1 = '\x00\x01\x07notice1\x00\x00\x01\x0Afootnote10\x00'
+
+
+Sidebar Records
+---------------
+
+The first sidebar record is a \x00 separated list of sidebar ids. All
+subsequent sidebar records are the sidebar text corresponding to the id's
+position in the list. Sidebar text is compressed in the same manner as normal
+text records
+
+E.G.
+
+sidebar section 1 = 'notice1\x00notice2\x00notice3\x00'
+sidebar section 2 = 'Text for notice 1'
+sidebar section 3 = 'Text for notice 2'
+sidebar section 4 = 'Text for notice 3'
+
+Starting with Dropbook 1.5.2 first record looks a bit different. It is sequence
+of \x00\x01 then 1 byte of sidebar's id length, then sidebar's id then \x00.
+
+E.G.
+
+sidebar section 1 = '\x00\x01\x07notice1\x00\x00\x01\x09sidebar10\x00'
+
+
+Metadata Record
+---------------
+
+\x00 separated list of string.
+
+Metadata takes the form:
+
+  title\x00
+  author\x00
+  copyright\x00
+  publisher\x00
+  isbn\x00
+
+E.G.
+
+Gibraltar Earth\x00Michael McCollum\x001999\x00Sci Fi Arizona\x001929381255\x00
+
+The metdata record is always followed by a record which contains 'MeTaInFo\x00'
+
+Note: Starting with DropBook 1.5.2 'MeTaInFo\x00' is not following Metadata
+Record. It is a separate record that ends the file and there are some more
+records between Metadata record and 'MeTaInFo\x00' record.
+
+
+Text Sizes Record
+-----------------
+
+There is a special record that contains the initial size of all text blocks
+before compression. It is just a sequence of 2-byte blocks which are containing
+the sizes.
+
+E.G.
+
+\x1F\xFB\x20\x00\x20\x00\x1F\xFE\x1F\xFD\x09\x46
+
+Note: By this we can judge that theoretical maximum of initial block size is
+65535 bytes. 
+

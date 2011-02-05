@@ -1841,8 +1841,6 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
                 body.insert(btc,pTag)
                 btc += 1
 
-            # <p class="letter_index">
-            # <p class="book_title">
             divTag = Tag(soup, "div")
             dtc = 0
             current_letter = ""
@@ -1870,11 +1868,12 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
                         divTag.insert(dtc, divRunningTag)
                         dtc += 1
                     divRunningTag = Tag(soup, 'div')
-                    divRunningTag['class'] = "logical_group"
+                    if dtc > 0:
+                        divRunningTag['class'] = "initial_letter"
                     drtc = 0
                     current_letter = self.letter_or_symbol(book['title_sort'][0])
                     pIndexTag = Tag(soup, "p")
-                    pIndexTag['class'] = "letter_index"
+                    pIndexTag['class'] = "author_title_letter_index"
                     aTag = Tag(soup, "a")
                     aTag['name'] = "%s" % self.letter_or_symbol(book['title_sort'][0])
                     pIndexTag.insert(0,aTag)
@@ -1982,8 +1981,6 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
             body.insert(btc, aTag)
             btc += 1
 
-            # <p class="letter_index">
-            # <p class="author_index">
             divTag = Tag(soup, "div")
             dtc = 0
             divOpeningTag = None
@@ -2017,10 +2014,11 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
                     current_letter = self.letter_or_symbol(book['author_sort'][0].upper())
                     author_count = 0
                     divOpeningTag = Tag(soup, 'div')
-                    divOpeningTag['class'] = "logical_group"
+                    if dtc > 0:
+                        divOpeningTag['class'] = "initial_letter"
                     dotc = 0
                     pIndexTag = Tag(soup, "p")
-                    pIndexTag['class'] = "letter_index"
+                    pIndexTag['class'] = "author_title_letter_index"
                     aTag = Tag(soup, "a")
                     aTag['name'] = "%sauthors" % self.letter_or_symbol(current_letter)
                     pIndexTag.insert(0,aTag)
@@ -2032,16 +2030,21 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
                     # Start a new author
                     current_author = book['author']
                     author_count += 1
-                    if author_count == 2:
+                    if author_count >= 2:
                         # Add divOpeningTag to divTag, kill divOpeningTag
-                        divTag.insert(dtc, divOpeningTag)
-                        dtc += 1
-                        divOpeningTag = None
-                        dotc = 0
+                        if divOpeningTag:
+                            divTag.insert(dtc, divOpeningTag)
+                            dtc += 1
+                            divOpeningTag = None
+                            dotc = 0
 
-                        # Create a divRunningTag for the rest of the authors in this letter
+                        # Create a divRunningTag for the next author
+                        if author_count > 2:
+                            divTag.insert(dtc, divRunningTag)
+                            dtc += 1
+
                         divRunningTag = Tag(soup, 'div')
-                        divRunningTag['class'] = "logical_group"
+                        divRunningTag['class'] = "author_logical_group"
                         drtc = 0
 
                     non_series_books = 0
@@ -2373,8 +2376,6 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
                 body.insert(btc,pTag)
                 btc += 1
 
-            # <p class="letter_index">
-            # <p class="author_index">
             divTag = Tag(soup, "div")
             dtc = 0
 
@@ -2558,8 +2559,6 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
             body.insert(btc, aTag)
             btc += 1
 
-            # <p class="letter_index">
-            # <p class="author_index">
             divTag = Tag(soup, "div")
             dtc = 0
 
@@ -2661,8 +2660,6 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
             body.insert(btc, aTag)
             btc += 1
 
-            # <p class="letter_index">
-            # <p class="author_index">
             divTag = Tag(soup, "div")
             dtc = 0
             current_letter = ""
@@ -2677,7 +2674,7 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
                     # Start a new letter with Index letter
                     current_letter = self.letter_or_symbol(sort_title[0].upper())
                     pIndexTag = Tag(soup, "p")
-                    pIndexTag['class'] = "letter_index"
+                    pIndexTag['class'] = "series_letter_index"
                     aTag = Tag(soup, "a")
                     aTag['name'] = "%s_series" % self.letter_or_symbol(current_letter)
                     pIndexTag.insert(0,aTag)
@@ -4459,20 +4456,32 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
                                             self.generateAuthorAnchor(book['author']))
 
             if publisher == ' ':
-                publisherTag = body.find('td', attrs={'class':'publisher'})
-                publisherTag.contents[0].replaceWith('&nbsp;')
+                try:
+                    publisherTag = body.find('td', attrs={'class':'publisher'})
+                    publisherTag.contents[0].replaceWith('&nbsp;')
+                except:
+                    pass
 
             if not genres:
-                genresTag = body.find('p',attrs={'class':'genres'})
-                genresTag.extract()
+                try:
+                    genresTag = body.find('p',attrs={'class':'genres'})
+                    genresTag.extract()
+                except:
+                    pass
 
             if not formats:
-                formatsTag = body.find('p',attrs={'class':'formats'})
-                formatsTag.extract()
+                try:
+                    formatsTag = body.find('p',attrs={'class':'formats'})
+                    formatsTag.extract()
+                except:
+                    pass
 
             if note_content == '':
-                tdTag = body.find('td', attrs={'class':'notes'})
-                tdTag.contents[0].replaceWith('&nbsp;')
+                try:
+                    tdTag = body.find('td', attrs={'class':'notes'})
+                    tdTag.contents[0].replaceWith('&nbsp;')
+                except:
+                    pass
 
             emptyTags = body.findAll('td', attrs={'class':'empty'})
             for mt in emptyTags:

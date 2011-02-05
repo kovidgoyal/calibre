@@ -140,12 +140,17 @@ class WallStreetJournal(BasicNewsRecipe):
             meta = a.find(attrs={'class':'meta_sectionName'})
             if meta is not None:
                 meta.extract()
-            title = self.tag_to_string(a).strip() + ' [%s]'%self.tag_to_string(meta)
+                meta = self.tag_to_string(meta).strip()
+            if meta:
+                title = self.tag_to_string(a).strip() + ' [%s]'%meta
+            else:
+                title = self.tag_to_string(a).strip()
             url = 'http://online.wsj.com'+a['href']
             desc = ''
-            p = container.find('p')
-            if p is not None:
+            for p in container.findAll('p'):
                 desc = self.tag_to_string(p)
+                if not 'Subscriber Content' in desc:
+                    break
 
             articles.append({'title':title, 'url':url,
                 'description':desc, 'date':''})

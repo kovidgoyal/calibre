@@ -633,7 +633,7 @@ class Style(object):
     def lineHeight(self):
         if self._lineHeight is None:
             result = None
-            parent = self._getparent()
+            parent = self._get_parent()
             if 'line-height' in self._style:
                 lineh = self._style['line-height']
                 if lineh == 'normal':

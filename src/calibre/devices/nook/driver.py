@@ -89,21 +89,21 @@ class NOOK_COLOR(NOOK):
     BCD         = [0x216]
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'EBOOK_DISK'
 
-    EBOOK_DIR_MAIN = 'My Files/Books'
+    EBOOK_DIR_MAIN = 'My Files'
 
-    '''
     def create_upload_path(self, path, mdata, fname, create_dirs=True):
         filepath = NOOK.create_upload_path(self, path, mdata, fname,
-                create_dirs=create_dirs)
-        edm = self.EBOOK_DIR_MAIN.replace('/', os.sep)
-        npath = os.path.join(edm, _('News')) + os.sep
-        if npath in filepath:
-            filepath = filepath.replace(npath, os.sep.join('My Files',
-                'Magazines')+os.sep)
-            filedir = os.path.dirname(filepath)
-            if create_dirs and not os.path.exists(filedir):
-                os.makedirs(filedir)
+                create_dirs=False)
+        edm = self.EBOOK_DIR_MAIN
+        subdir = 'Books'
+        if mdata.tags:
+            if _('News') in mdata.tags:
+                subdir = 'Magazines'
+        filepath = filepath.replace(os.sep+edm+os.sep,
+                os.sep+edm+os.sep+subdir+os.sep)
+        filedir = os.path.dirname(filepath)
+        if create_dirs and not os.path.exists(filedir):
+            os.makedirs(filedir)
 
         return filepath
-    '''
 

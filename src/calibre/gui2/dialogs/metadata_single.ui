@@ -240,7 +240,7 @@ Using this button to create author sort will change author sort from red to gree
                    </widget>
                   </item>
                   <item row="2" column="1">
-                   <widget class="CompleteComboBox" name="authors">
+                   <widget class="MultiCompleteComboBox" name="authors">
                     <property name="editable">
                      <bool>true</bool>
                     </property>
@@ -313,7 +313,7 @@ If the box is colored green, then text matches the individual author's sort stri
                    </widget>
                   </item>
                   <item row="5" column="1" colspan="2">
-                   <widget class="EnComboBox" name="publisher">
+                   <widget class="MultiCompleteComboBox" name="publisher">
                     <property name="editable">
                      <bool>true</bool>
                     </property>
@@ -335,7 +335,7 @@ If the box is colored green, then text matches the individual author's sort stri
                   <item row="6" column="1">
                    <layout class="QHBoxLayout" name="_2">
                     <item>
-                     <widget class="CompleteLineEdit" name="tags">
+                     <widget class="MultiCompleteLineEdit" name="tags">
                       <property name="toolTip">
                        <string>Tags categorize the book. This is particularly useful while searching. &lt;br&gt;&lt;br&gt;They can be any words or phrases, separated by commas.</string>
                       </property>
@@ -379,7 +379,7 @@ If the box is colored green, then text matches the individual author's sort stri
                      <number>5</number>
                     </property>
                     <item>
-                     <widget class="EnComboBox" name="series">
+                     <widget class="MultiCompleteComboBox" name="series">
                       <property name="toolTip">
                        <string>List of known series. You can add new series.</string>
                       </property>
@@ -837,19 +837,14 @@ If the box is colored green, then text matches the individual author's sort stri
    <header>widgets.h</header>
   </customwidget>
   <customwidget>
-   <class>EnComboBox</class>
-   <extends>QComboBox</extends>
-   <header>widgets.h</header>
-  </customwidget>
-  <customwidget>
-   <class>CompleteLineEdit</class>
+   <class>MultiCompleteLineEdit</class>
    <extends>QLineEdit</extends>
-   <header>widgets.h</header>
+   <header>calibre/gui2/complete.h</header>
   </customwidget>
   <customwidget>
-   <class>CompleteComboBox</class>
+   <class>MultiCompleteComboBox</class>
    <extends>QComboBox</extends>
-   <header>widgets.h</header>
+   <header>calibre/gui2/complete.h</header>
   </customwidget>
   <customwidget>
    <class>FormatList</class>

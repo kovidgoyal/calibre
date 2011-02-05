@@ -71,19 +71,28 @@ class FB2MLizer(object):
             return u'<?xml version="1.0" encoding="UTF-8"?>' + output
 
     def clean_text(self, text):
+        # Condense empty paragraphs into a line break. 
+        text = re.sub(r'(?miu)(<p>\s*</p>\s*){3,}', '<p><empty-line /></p>', text)
+        # Remove empty paragraphs.
         text = re.sub(r'(?miu)<p>\s*</p>', '', text)
+        # Clean up pargraph endings.
         text = re.sub(r'(?miu)\s*</p>', '</p>', text)
+        # Put paragraphs following a paragraph on a separate line.
         text = re.sub(r'(?miu)</p>\s*<p>', '</p>\n\n<p>', text)
 
+        # Remove empty title elements.
         text = re.sub(r'(?miu)<title>\s*</title>', '', text)
         text = re.sub(r'(?miu)\s+</title>', '</title>', text)
 
+        # Remove empty sections.
         text = re.sub(r'(?miu)<section>\s*</section>', '', text)
+        # Clean up sections start and ends.
         text = re.sub(r'(?miu)\s*</section>', '\n</section>', text)
         text = re.sub(r'(?miu)</section>\s*', '</section>\n\n', text)
         text = re.sub(r'(?miu)\s*<section>', '\n<section>', text)
         text = re.sub(r'(?miu)<section>\s*', '<section>\n', text)
-        text = re.sub(r'(?miu)</section><section>', '</section>\n\n<section>', text)
+        # Put sectnions followed by sections on a separate line.
+        text = re.sub(r'(?miu)</section>\s*<section>', '</section>\n\n<section>', text)
 
         if self.opts.insert_blank_line:
             text = re.sub(r'(?miu)</p>', '</p><empty-line />', text)
@@ -338,6 +347,11 @@ class FB2MLizer(object):
         tags = []
         # First tag in tree
         tag = barename(elem_tree.tag)
+        # Number of blank lines above tag
+        try:
+            ems = int(round((float(style.marginTop) / style.fontSize) - 1))
+        except:
+            ems = 0
 
         # Convert TOC entries to <title>s and add <section>s
         if self.opts.sectionize == 'toc':
@@ -370,7 +384,9 @@ class FB2MLizer(object):
                 fb2_out.append('<section>')
                 self.section_level += 1
 
-        # Process the XHTML tag if it needs to be converted to an FB2 tag.
+        # Process the XHTML tag and styles. Converted to an FB2 tag.
+        # Use individual if statement not if else. There can be
+        # only one XHTML tag but it can have multiple styles.
         if tag == 'img':
             if elem_tree.attrib.get('src', None):
                 # Only write the image tag if it is in the manifest.
@@ -381,7 +397,11 @@ class FB2MLizer(object):
                     fb2_out += p_txt
                     tags += p_tag
                     fb2_out.append('<image xlink:href="#%s" />' % self.image_hrefs[page.abshref(elem_tree.attrib['src'])])
-        elif tag == 'br':
+        if tag in ('br', 'hr') or ems:
+            if ems < 1:
+                multiplier = 1
+            else:
+                multiplier = ems
             if self.in_p:
                 closed_tags = []
                 open_tags = tag_stack+tags
@@ -391,49 +411,35 @@ class FB2MLizer(object):
                     closed_tags.append(t)
                     if t == 'p':
                         break
-                fb2_out.append('<empty-line />')
+                fb2_out.append('<empty-line />' * multiplier)
                 closed_tags.reverse()
                 for t in closed_tags:
                     fb2_out.append('<%s>' % t)
             else:
-                fb2_out.append('<empty-line />')
-        elif tag in ('div', 'li', 'p'):
+                fb2_out.append('<empty-line />' * multiplier)
+        if tag in ('div', 'li', 'p'):
             p_text, added_p = self.close_open_p(tag_stack+tags)
             fb2_out += p_text
             if added_p:
                 tags.append('p')
-        elif tag == 'b':
+        if tag == 'b' or style['font-weight'] in ('bold', 'bolder'):
             s_out, s_tags = self.handle_simple_tag('strong', tag_stack+tags)
             fb2_out += s_out
             tags += s_tags
-        elif tag == 'i':
+        if tag == 'i' or style['font-style'] == 'italic':
             s_out, s_tags = self.handle_simple_tag('emphasis', tag_stack+tags)
             fb2_out += s_out
             tags += s_tags
-        elif tag in ('del', 'strike'):
+        if tag in ('del', 'strike') or style['text-decoration'] == 'line-through':
             s_out, s_tags = self.handle_simple_tag('strikethrough', tag_stack+tags)
             fb2_out += s_out
             tags += s_tags
-        elif tag == 'sub':
+        if tag == 'sub':
             s_out, s_tags = self.handle_simple_tag('sub', tag_stack+tags)
             fb2_out += s_out
             tags += s_tags
-        elif tag == 'sup':
+        if tag == 'sup':
             s_out, s_tags = self.handle_simple_tag('sup', tag_stack+tags)
-            fb2_out += s_out
-            tags += s_tags
-
-        # Processes style information.
-        if style['font-style'] == 'italic':
-            s_out, s_tags = self.handle_simple_tag('emphasis', tag_stack+tags)
-            fb2_out += s_out
-            tags += s_tags
-        elif style['font-weight'] in ('bold', 'bolder'):
-            s_out, s_tags = self.handle_simple_tag('strong', tag_stack+tags)
-            fb2_out += s_out
-            tags += s_tags
-        elif style['text-decoration'] == 'line-through':
-            s_out, s_tags = self.handle_simple_tag('strikethrough', tag_stack+tags)
             fb2_out += s_out
             tags += s_tags
 

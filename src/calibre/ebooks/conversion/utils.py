@@ -644,7 +644,7 @@ class HeuristicProcessor(object):
             # or 'hard' scene breaks are replaced, depending on which is in use
             # Otherwise separator lines are centered, use a bit larger margin in this case
             replacement_break = getattr(self.extra_opts, 'replace_scene_breaks', None)
-            if replacement_break != '':
+            if replacement_break:
                 replacement_break = self.markup_user_break(replacement_break)
                 if len(scene_break.findall(html)) >= 1:
                     html = scene_break.sub(replacement_break, html)

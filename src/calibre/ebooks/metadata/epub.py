@@ -14,7 +14,8 @@ from calibre.ebooks.BeautifulSoup import BeautifulStoneSoup
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.metadata.opf2 import OPF
 from calibre.ptempfile import TemporaryDirectory, PersistentTemporaryFile
-from calibre import CurrentDir
+from calibre import CurrentDir, walk
+from calibre.constants import isosx
 
 class EPubException(Exception):
     pass
@@ -159,6 +160,13 @@ def get_cover(opf, opf_path, stream, reader=None):
     with TemporaryDirectory('_epub_meta') as tdir:
         with CurrentDir(tdir):
             zf.extractall()
+            if isosx:
+                # On OS X trying to render an HTML cover which uses embedded
+                # fonts more than once in the same process causes a crash in Qt
+                # so be safe and remove the fonts.
+                for f in walk('.'):
+                    if os.path.splitext(f)[1].lower() in ('.ttf', '.otf'):
+                        os.remove(f)
             opf_path = opf_path.replace('/', os.sep)
             cpage = os.path.join(tdir, os.path.dirname(opf_path), cpage)
             if not os.path.exists(cpage):

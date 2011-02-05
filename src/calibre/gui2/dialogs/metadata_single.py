@@ -622,6 +622,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
 
         self.original_author = unicode(self.authors.text()).strip()
         self.original_title = unicode(self.title.text()).strip()
+        self.books_to_refresh = set()
 
         self.show()
 
@@ -739,6 +740,8 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
         self.series.setSizeAdjustPolicy(self.series.AdjustToContentsOnFirstShow)
         all_series = self.db.all_series()
         all_series.sort(key=lambda x : sort_key(x[1]))
+        self.series.set_separator(None)
+        self.series.update_items_cache([x[1] for x in all_series])
         series_id = self.db.series_id(self.row)
         idx, c = None, 0
         for i in all_series:
@@ -756,6 +759,8 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
     def initialize_publisher(self):
         all_publishers = self.db.all_publishers()
         all_publishers.sort(key=lambda x : sort_key(x[1]))
+        self.publisher.set_separator(None)
+        self.publisher.update_items_cache([x[1] for x in all_publishers])
         publisher_id = self.db.publisher_id(self.row)
         idx, c = None, 0
         for i in all_publishers:
@@ -775,7 +780,8 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                     _('You have changed the tags. In order to use the tags'
                        ' editor, you must either discard or apply these '
                        'changes. Apply changes?'), show_copy_button=False):
-                self.apply_tags(commit=True, notify=True)
+                self.books_to_refresh |= self.apply_tags(commit=True, notify=True,
+                                                         allow_case_change=True)
                 self.original_tags = unicode(self.tags.text())
             else:
                 self.tags.setText(self.original_tags)
@@ -882,9 +888,9 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                     break
 
     def apply_tags(self, commit=False, notify=False):
-        self.db.set_tags(self.id, [x.strip() for x in
-            unicode(self.tags.text()).split(',')],
-                notify=notify, commit=commit)
+        return self.db.set_tags(self.id, [x.strip() for x in
+                        unicode(self.tags.text()).split(',')],
+                        notify=notify, commit=commit, allow_case_change=True)
 
     def next_triggered(self, row_delta, *args):
         self.row_delta = row_delta
@@ -903,7 +909,10 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                 self.db.set_title_sort(self.id, ts, notify=False, commit=False)
             au = unicode(self.authors.text()).strip()
             if au and au != self.original_author:
-                self.db.set_authors(self.id, string_to_authors(au), notify=False)
+                self.books_to_refresh |= self.db.set_authors(self.id,
+                                                        string_to_authors(au),
+                                                        notify=False,
+                                                        allow_case_change=True)
             aus = unicode(self.author_sort.text()).strip()
             if aus:
                 self.db.set_author_sort(self.id, aus, notify=False, commit=False)
@@ -913,13 +922,13 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                              notify=False, commit=False)
             self.db.set_rating(self.id, 2*self.rating.value(), notify=False,
                                commit=False)
-            self.apply_tags()
-            self.db.set_publisher(self.id,
-                    unicode(self.publisher.currentText()).strip(),
-                                  notify=False, commit=False)
-            self.db.set_series(self.id,
+            self.books_to_refresh |= self.apply_tags()
+            self.books_to_refresh |= self.db.set_publisher(self.id,
+                                unicode(self.publisher.currentText()).strip(),
+                                notify=False, commit=False, allow_case_change=True)
+            self.books_to_refresh |= self.db.set_series(self.id,
                     unicode(self.series.currentText()).strip(), notify=False,
-                    commit=False)
+                    commit=False, allow_case_change=True)
             self.db.set_series_index(self.id, self.series_index.value(),
                                      notify=False, commit=False)
             self.db.set_comment(self.id,
@@ -940,10 +949,10 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                 else:
                     self.db.remove_cover(self.id)
             for w in getattr(self, 'custom_column_widgets', []):
-                w.commit(self.id)
+                self.books_to_refresh |= w.commit(self.id)
             self.db.commit()
-        except IOError, err:
-            if err.errno == 13: # Permission denied
+        except (IOError, OSError) as err:
+            if getattr(err, 'errno', -1) == 13: # Permission denied
                 fname = err.filename if err.filename else 'file'
                 return error_dialog(self, _('Permission denied'),
                         _('Could not open %s. Is it being used by another'
