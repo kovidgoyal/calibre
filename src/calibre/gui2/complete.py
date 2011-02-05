@@ -10,6 +10,7 @@ from PyQt4.Qt import QLineEdit, QListView, QAbstractListModel, Qt, QTimer, \
         QApplication, QPoint, QItemDelegate, QStyleOptionViewItem, \
         QStyle, QEvent, pyqtSignal
 
+from calibre.utils.config import tweaks
 from calibre.utils.icu import sort_key, lower
 from calibre.gui2 import NONE
 from calibre.gui2.widgets import EnComboBox
@@ -231,12 +232,18 @@ class MultiCompleteLineEdit(QLineEdit):
             cursor_pos = self.cursorPosition()
             before_text = unicode(self.text())[:cursor_pos]
             after_text = unicode(self.text())[cursor_pos:]
-            after_parts = after_text.split(self.sep)
-            if len(after_parts) < 3 and not after_parts[-1].strip():
-                after_text = u''
             prefix_len = len(before_text.split(self.sep)[-1].lstrip())
-            return prefix_len, \
-                before_text[:cursor_pos - prefix_len] + text + after_text
+            if tweaks['completer_append_separator']:
+                prefix_len = len(before_text.split(self.sep)[-1].lstrip())
+                completed_text = before_text[:cursor_pos - prefix_len] + text + self.sep + ' ' + after_text
+                prefix_len = prefix_len - len(self.sep) - 1
+                if prefix_len < 0:
+                    prefix_len = 0
+            else:
+                prefix_len = len(before_text.split(self.sep)[-1].lstrip())
+                completed_text = before_text[:cursor_pos - prefix_len] + text + after_text
+            return prefix_len, completed_text 
+                
 
     def completion_selected(self, text):
         prefix_len, ctext = self.get_completed_text(text)
