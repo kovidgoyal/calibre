@@ -6,7 +6,7 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 
-from PyQt4.Qt import QLineEdit, QListView, QAbstractListModel, Qt, QTimer, \
+from PyQt4.Qt import QLineEdit, QListView, QAbstractListModel, Qt, \
         QApplication, QPoint, QItemDelegate, QStyleOptionViewItem, \
         QStyle, QEvent, pyqtSignal
 
@@ -242,8 +242,8 @@ class MultiCompleteLineEdit(QLineEdit):
             else:
                 prefix_len = len(before_text.split(self.sep)[-1].lstrip())
                 completed_text = before_text[:cursor_pos - prefix_len] + text + after_text
-            return prefix_len, completed_text 
-                
+            return prefix_len, completed_text
+
 
     def completion_selected(self, text):
         prefix_len, ctext = self.get_completed_text(text)
@@ -297,17 +297,6 @@ class MultiCompleteLineEdit(QLineEdit):
     def show_complete_window(self):
         self.position_complete_window()
         self.complete_window.show()
-
-    def moveEvent(self, ev):
-        ret = QLineEdit.moveEvent(self, ev)
-        QTimer.singleShot(0, self.position_complete_window)
-        return ret
-
-    def resizeEvent(self, ev):
-        ret = QLineEdit.resizeEvent(self, ev)
-        QTimer.singleShot(0, self.position_complete_window)
-        return ret
-
 
     @dynamic_property
     def all_items(self):
