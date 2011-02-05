@@ -117,6 +117,7 @@ class Tokenize:
         input_file = self.__replace_spchar.mreplace(input_file)
         # this is for older RTF
         input_file = self.__par_exp.sub('\n\\par \n', input_file)
+        input_file = self.__cwdigit_exp.sub("\g<1>\n\g<2>", input_file)
         input_file = self.__cs_ast.sub("\g<1>", input_file)
         input_file = self.__ms_hex_exp.sub("\\mshex0\g<1> ", input_file)
         input_file = self.__utf_ud.sub("\\{\\uc0 \g<1>\\}", input_file)
@@ -177,13 +178,6 @@ class Tokenize:
         #self.__remove_line = re.compile(r'\n+')
         ##self.num_exp = re.compile(r"(\*|:|[a-zA-Z]+)(.*)")
 
-    def __correct_spliting(self, token):
-        match_obj = re.search(self.__cwdigit_exp, token)
-        if match_obj is None:
-            return token
-        else:
-            return '%s\n%s' % (match_obj.group(1), match_obj.group(2))
-
     def tokenize(self):
         """Main class for handling other methods. Reads the file \
         , uses method self.sub_reg to make basic substitutions,\
@@ -199,8 +193,6 @@ class Tokenize:
         tokens = map(self.__unicode_process, tokens)
         #remove empty items created by removing \uc
         tokens = filter(lambda x: len(x) > 0, tokens)
-        #handles bothersome cases
-        tokens = map(self.__correct_spliting, tokens)
 
         #write
         with open(self.__write_to, 'wb') as write_obj:

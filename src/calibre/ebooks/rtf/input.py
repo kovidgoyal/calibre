@@ -321,6 +321,6 @@ class RTFInput(InputFormatPlugin):
         opf.render(open('metadata.opf', 'wb'))
         return os.path.abspath('metadata.opf')
 
-#ebook-convert "bad.rtf" test.epub -v -d "D:\Mes eBooks\Developpement\debug"
-# os.makedirs('D:\\Mes eBooks\\Developpement\\rtfdebug')
-# debug_dir = 'D:\\Mes eBooks\\Developpement\\rtfdebug'
+#ebook-convert "bad.rtf" test.epub -v -d "E:\Mes eBooks\Developpement\debug"
+# os.makedirs('E:\\Mes eBooks\\Developpement\\rtfdebug')
+# debug_dir = 'E:\\Mes eBooks\\Developpement\\rtfdebug'
