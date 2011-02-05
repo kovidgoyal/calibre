@@ -141,17 +141,17 @@ class Tokenize:
             "\\_": "\\_ ",
             "\\:": "\\: ",
             "\\-": "\\- ",
-            # turn into a generic token to eliminate special
-            # cases and make processing easier
+            #turn into a generic token to eliminate special
+            #cases and make processing easier
             "\\{": "\\ob ",
-            # turn into a generic token to eliminate special
-            # cases and make processing easier
+            #turn into a generic token to eliminate special
+            #cases and make processing easier
             "\\}": "\\cb ",
-            # put a backslash in front of to eliminate special cases and
-            # make processing easier
+            #put a backslash in front of to eliminate special cases and
+            #make processing easier
             "{": "\\{",
-            # put a backslash in front of to eliminate special cases and
-            # make processing easier
+            #put a backslash in front of to eliminate special cases and
+            #make processing easier
             "}": "\\}",
             }
         self.__replace_spchar = MReplace(SIMPLE_RPL)
@@ -167,16 +167,11 @@ class Tokenize:
         #remove \n from endline char
         self.__splitexp = re.compile(r"(\\[{}]|\n|\\[^\s\\{}&]+(?:[ \t\r\f\v])?)")
         #this is for old RTF
-        self.__par_exp = re.compile(r'\\\n+')
+        self.__par_exp = re.compile(r'(\\\n+|\\ )')
         #handle improper cs char-style with \* before without {
         self.__cs_ast = re.compile(r'\\\*([\n ]*\\cs\d+[\n \\]+)')
         #handle cw using a digit as argument and without space as delimiter
         self.__cwdigit_exp = re.compile(r"(\\[a-zA-Z]+[\-0-9]+)([^0-9 \\]+)")
-        #self.__bin_exp = re.compile(r"\\bin(-?\d{1,8}) {0,1}")
-        #self.__utf_exp = re.compile(r"^\\u(-?\d{3,6})")
-        #self.__splitexp = re.compile(r"(\\[\\{}]|{|}|\n|\\[^\s\\{}&]+(?:\s)?)")
-        #self.__remove_line = re.compile(r'\n+')
-        ##self.num_exp = re.compile(r"(\*|:|[a-zA-Z]+)(.*)")
 
     def tokenize(self):
         """Main class for handling other methods. Reads the file \

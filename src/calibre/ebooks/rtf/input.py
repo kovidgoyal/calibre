@@ -78,7 +78,6 @@ class RTFInput(InputFormatPlugin):
         from calibre.ebooks.rtf2xml.ParseRtf import ParseRtf
         ofile = 'dataxml.xml'
         run_lev, debug_dir, indent_out = 1, None, 0
-        #just to check if the debug process is lauched, no need of this directory in fact
         if getattr(self.opts, 'debug_pipeline', None) is not None:
             try:
                 os.mkdir('rtfdebug')
@@ -322,5 +321,5 @@ class RTFInput(InputFormatPlugin):
         return os.path.abspath('metadata.opf')
 
 #ebook-convert "bad.rtf" test.epub -v -d "E:\Mes eBooks\Developpement\debug"
-# os.makedirs('E:\\Mes eBooks\\Developpement\\rtfdebug')
-# debug_dir = 'E:\\Mes eBooks\\Developpement\\rtfdebug'
+# os.makedirs("E:\\Mes eBooks\\Developpement\\rtfdebug")
+# debug_dir = "E:\\Mes eBooks\\Developpement\\rtfdebug"

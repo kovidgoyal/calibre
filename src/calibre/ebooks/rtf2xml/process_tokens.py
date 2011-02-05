@@ -786,21 +786,23 @@ class ProcessTokens:
                     token = line.replace("\n","")
                     line_count += 1
                     if line_count == 1 and token != '\\{':
-                            msg = 'Invalid RTF: document doesn\'t start with {\n'
+                            msg = '\nInvalid RTF: document doesn\'t start with {\n'
                             raise self.__exception_handler, msg
                     elif line_count == 2 and token[0:4] != '\\rtf':
-                            msg = 'Invalid RTF: document doesn\'t start with \\rtf \n'
+                            msg = '\nInvalid RTF: document doesn\'t start with \\rtf \n'
                             raise self.__exception_handler, msg
 
                     the_index = token.find('\\ ')
                     if token is not None and the_index > -1:
-                        msg = 'Invalid RTF: token "\\ " not valid.\n'
+                        msg = '\nInvalid RTF: token "\\ " not valid.\nError at line %d'\
+                            % line_count
                         raise self.__exception_handler, msg
                     elif token[:1] == "\\":
                         try:
                             token.decode('us-ascii')
                         except UnicodeError, msg:
-                            msg = 'Invalid RTF: Tokens not ascii encoded.\n%s' % str(msg)
+                            msg = '\nInvalid RTF: Tokens not ascii encoded.\n%s\nError at line %d'\
+                                % (str(msg), line_count)
                             raise self.__exception_handler, msg
                         line = self.process_cw(token)
                         if line is not None:
@@ -816,7 +818,7 @@ class ProcessTokens:
                                 write_obj.write('tx<nu<__________<%s\n' % field)
 
         if not line_count:
-            msg = 'Invalid RTF: file appears to be empty.\n'
+            msg = '\nInvalid RTF: file appears to be empty.\n'
             raise self.__exception_handler, msg
 
         copy_obj = copy.Copy(bug_handler = self.__bug_handler)
@@ -827,7 +829,7 @@ class ProcessTokens:
 
         bad_brackets = self.__check_brackets(self.__file)
         if bad_brackets:
-            msg = 'Invalid RTF: document does not have matching brackets.\n'
+            msg = '\nInvalid RTF: document does not have matching brackets.\n'
             raise self.__exception_handler, msg
         else:
             return self.__return_code
