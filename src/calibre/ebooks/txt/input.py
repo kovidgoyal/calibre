@@ -77,20 +77,6 @@ class TXTInput(InputFormatPlugin):
         # Normalize line endings
         txt = normalize_line_endings(txt)
 
-        # Detect formatting
-        if options.formatting_type == 'auto':
-            options.formatting_type = detect_formatting_type(txt)
-            log.debug('Auto detected formatting as %s' % options.formatting_type)
-
-        if options.formatting_type == 'heuristic':
-            setattr(options, 'enable_heuristics', True)
-            setattr(options, 'markup_chapter_headings', True)
-            setattr(options, 'italicize_common_cases', True)
-            setattr(options, 'fix_indents', True)
-            setattr(options, 'delete_blank_paragraphs', True)
-            setattr(options, 'format_scene_breaks', True)
-            setattr(options, 'dehyphenate', True)
-
         # Determine the paragraph type of the document.
         if options.paragraph_type == 'auto':
             options.paragraph_type = detect_paragraph_type(txt)
@@ -99,15 +85,26 @@ class TXTInput(InputFormatPlugin):
                 options.paragraph_type = 'block'
             else:
                 log.debug('Auto detected paragraph type as %s' % options.paragraph_type)
+                
+        dehyphenate = False
+        if options.formatting_type in ('auto', 'heuristic'):
+            # Set this here because we want it to run over all
+            # formatting types if auto is used.
+            dehyphenate = True
+
+        # Detect formatting
+        if options.formatting_type == 'auto':
+            options.formatting_type = detect_formatting_type(txt)
+            log.debug('Auto detected formatting as %s' % options.formatting_type)
+
+        if options.formatting_type == 'heuristic':
+            setattr(options, 'enable_heuristics', True)
+            setattr(options, 'unwrap_lines', False)
 
         # Preserve spaces will replace multiple spaces to a space
         # followed by the &nbsp; entity.
         if options.preserve_spaces:
             txt = preserve_spaces(txt)
-
-        # Get length for hyphen removal and punctuation unwrap
-        docanalysis = DocAnalysis('txt', txt)
-        length = docanalysis.line_length(.5)
 
         # Reformat paragraphs to block formatting based on the detected type.
         # We don't check for block because the processor assumes block.
@@ -119,8 +116,16 @@ class TXTInput(InputFormatPlugin):
         elif options.paragraph_type == 'unformatted':
             from calibre.ebooks.conversion.utils import HeuristicProcessor
             # unwrap lines based on punctuation
+            docanalysis = DocAnalysis('txt', txt)
+            length = docanalysis.line_length(.5)
             preprocessor = HeuristicProcessor(options, log=getattr(self, 'log', None))
             txt = preprocessor.punctuation_unwrap(length, txt, 'txt')
+
+        if dehyphenate:
+            docanalysis = DocAnalysis('txt', txt)
+            length = docanalysis.line_length(.5)
+            dehyphenator = Dehyphenator(options.verbose, log=self.log)
+            txt = dehyphenator(txt,'txt', length)
 
         # Process the text using the appropriate text processor.
         html = ''
@@ -134,14 +139,8 @@ class TXTInput(InputFormatPlugin):
         elif options.formatting_type == 'textile':
             log.debug('Running text through textile conversion...')
             html = convert_textile(txt)
-
         else:
             log.debug('Running text through basic conversion...')
-            if options.formatting_type == 'heuristic':
-                # Dehyphenate
-                dehyphenator = Dehyphenator(options.verbose, log=self.log)
-                txt = dehyphenator(txt,'txt', length)
-
             flow_size = getattr(options, 'flow_size', 0)
             html = convert_basic(txt, epub_split_size_kb=flow_size)
 
