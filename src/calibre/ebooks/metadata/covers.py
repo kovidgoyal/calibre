@@ -145,12 +145,13 @@ class LibraryThingCovers(CoverDownload): # {{{
             return url
 
     def has_cover(self, mi, ans, timeout=5.):
-        if not mi.isbn or not self.site_customization:
+        # if not mi.isbn or not self.site_customization:
+        if not mi.isbn:
             return False
         from calibre.ebooks.metadata.library_thing import get_browser, login
         br = get_browser()
-        un, _, pw = self.site_customization.partition(':')
-        login(br, un, pw)
+        # un, _, pw = self.site_customization.partition(':')
+        # login(br, un, pw)
         try:
             self.get_cover_url(mi.isbn, br, timeout=timeout)
             self.debug('cover for', mi.isbn, 'found')
@@ -159,12 +160,13 @@ class LibraryThingCovers(CoverDownload): # {{{
             self.debug(e)
 
     def get_covers(self, mi, result_queue, abort, timeout=5.):
-        if not mi.isbn or not self.site_customization:
+        # if not mi.isbn or not self.site_customization:
+        if not mi.isbn:
             return
         from calibre.ebooks.metadata.library_thing import get_browser, login
         br = get_browser()
-        un, _, pw = self.site_customization.partition(':')
-        login(br, un, pw)
+        # un, _, pw = self.site_customization.partition(':')
+        # login(br, un, pw)
         try:
             url = self.get_cover_url(mi.isbn, br, timeout=timeout)
             cover_data = br.open_novisit(url).read()
