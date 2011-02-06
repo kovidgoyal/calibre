@@ -121,6 +121,7 @@ class TXTInput(InputFormatPlugin):
             length = docanalysis.line_length(.5)
             preprocessor = HeuristicProcessor(options, log=getattr(self, 'log', None))
             txt = preprocessor.punctuation_unwrap(length, txt, 'txt')
+            txt = separate_paragraphs_single_line(txt)
 
         if getattr(options, 'enable_heuristics', False) and getattr(options, 'dehyphenate', False):
             docanalysis = DocAnalysis('txt', txt)
