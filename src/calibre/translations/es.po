@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-02-04 19:12+0000\n"
-"PO-Revision-Date: 2011-01-31 19:22+0000\n"
+"PO-Revision-Date: 2011-02-05 11:58+0000\n"
 "Last-Translator: Jellby <Unknown>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-02-05 04:51+0000\n"
+"X-Launchpad-Export-Date: 2011-02-06 04:52+0000\n"
 "X-Generator: Launchpad (build 12177)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:527
@@ -1296,7 +1296,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:85
 msgid "Preserve cover aspect ratio when building thumbnails"
-msgstr ""
+msgstr "Mantener las proporciones de la portada al generar las miniaturas"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:87
 msgid ""
@@ -1304,6 +1304,10 @@ msgid ""
 "ratio (width to height) as the cover. Unset it if you want the thumbnail to "
 "be the maximum size, ignoring aspect ratio."
 msgstr ""
+"Active esta opción si quiere que las miniaturas de portadas tengan la misma "
+"proporción (relación entre altura y anchura) que la portada. Desactívela si "
+"quiere que las miniaturas tengan el tamaño máximo, independientemente de la "
+"proporción."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:190
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/structure.py:68
@@ -1324,7 +1328,7 @@ msgstr "Comunicarse con el lector Newsmy."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:47
 msgid "Communicate with the Archos reader."
-msgstr ""
+msgstr "Comunicar con el lector Archos."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:57
 msgid "Communicate with the Pico reader."
@@ -1552,6 +1556,9 @@ msgid ""
 "Specify the image size as widthxheight pixels. Normally, an image size is "
 "automatically calculated from the output profile, this option overrides it."
 msgstr ""
+"Especifique el tamaño de la imagen como anchuraxaltura en píxeles. "
+"Normalmente el tamaño de la imagen se calcula automáticamente según el "
+"perfil de salida, esta opción tienen prioridad."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:443
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:454
@@ -2197,6 +2204,8 @@ msgid ""
 "Replace scene breaks with the specified text. By default, the text from the "
 "input document is used."
 msgstr ""
+"Sustituir saltos de escena por el texto especificado. De manera "
+"predeterminada se usa el texto existente en el documento de entrada."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:541
 msgid ""
@@ -4871,11 +4880,11 @@ msgstr "Enviar por correo electrónico a"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:80
 msgid "Email to and delete from library"
-msgstr ""
+msgstr "Mandar por correo electrónico y borrar de la biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:88
 msgid "(delete from library)"
-msgstr ""
+msgstr "(borrar de la biblioteca)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:102
 msgid "Setup email based sharing of books"
@@ -6248,7 +6257,7 @@ msgstr "Deshabilitar la conversión de imagenes a &blanco y negro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:114
 msgid "Override image  &size:"
-msgstr ""
+msgstr "Forzar &tamaño de imagen:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug.py:19
 msgid "Debug"
@@ -6495,7 +6504,7 @@ msgstr "Asegurar que los saltos de escena tienen un formato consistente"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:122
 msgid "Replace soft scene &breaks:"
-msgstr ""
+msgstr "Sustituir &saltos de escena:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:123
 msgid "Remove unnecessary hyphens"
@@ -7159,6 +7168,12 @@ msgid ""
 "to use these options. Leave the replace field blank and enter your "
 "header/footer removal regexps into the search field."
 msgstr ""
+"Las opciones de eliminación de encabezados y pies de página se han "
+"sustituido por las opciones de búsqueda y sustitución. Pulse en la categoría "
+"«Búsqueda y sustitución» en la barra de la izquierda para usar estas "
+"opciones. Deje el campo de susticuión en blanco e introduzca las expresiones "
+"regulares de eliminación de encabezados y pies de página en el campo de "
+"búsqueda."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc.py:16
 msgid ""
@@ -7247,7 +7262,7 @@ msgstr "General"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:86
 msgid "Output &Encoding:"
-msgstr ""
+msgstr "&Codificación de salida:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:87
 msgid "&Line ending style:"
@@ -7255,11 +7270,11 @@ msgstr "&Final de línea:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:88
 msgid "&Formatting:"
-msgstr ""
+msgstr "&Formato:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:89
 msgid "Plain"
-msgstr ""
+msgstr "Simple"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:90
 msgid "&Maximum line length:"
@@ -7271,7 +7286,7 @@ msgstr "Forzar la longitud de línea máxima"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:93
 msgid "Markdown, Textile"
-msgstr ""
+msgstr "Markdown, Textile"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:94
 msgid "Do not remove links (<a> tags) before processing"
@@ -8739,10 +8754,12 @@ msgid ""
 "Update title sort based on the current title. This will be applied only "
 "after other changes to title."
 msgstr ""
+"Actualizar el orden de título según el título actual. Esto se realizará "
+"después del resto de cambios de título."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:545
 msgid "Update &title sort"
-msgstr ""
+msgstr "Actualizar orden de &título"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:546
 msgid ""
@@ -10311,6 +10328,16 @@ msgid ""
 "group names for the various metadata entries are documented in "
 "tooltips.</p></div>"
 msgstr ""
+"<div style=\"font-size:10pt;\">\n"
+"<p>Establezca un patrón de expresión regular para usar al tratar de "
+"determinar los metadatos de un libro a partir del nombre de fichero.</p>\n"
+"<p>Hay dispunible un <a href=\"http://calibre-"
+"ebook.com/user_manual/regexp.html\">tutorial</a> sobre el uso de expresiones "
+"regulares.</p>\n"
+"<p>Use la función <b>Prueba</b> para comprobar la expresión regular con "
+"algunos nombres ficheros de prueba (acuérdese de incluir la extensión). Los "
+"nombre de grupo para las distintas entradas de metadatos están documentados "
+"en las ayudas.</p></div>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:119
 msgid "Regular &expression"
@@ -11049,7 +11076,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:62
 msgid "Read &metadata from &file contents rather than file name"
-msgstr ""
+msgstr "Leer &metadatos del contenido del fichero en lugar del nombre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:63
 msgid ""
@@ -11093,7 +11120,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:70
 msgid "&Tags to apply when adding a book:"
-msgstr ""
+msgstr "&Etiquetas para aplicar al añadir un libro:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:71
 msgid ""
@@ -13904,6 +13931,13 @@ msgid ""
 "Default: '%%default'\n"
 "Applies to: BIBTEX output format"
 msgstr ""
+"Los campos para incluir en la salida cuando se crea un catálogo de los "
+"libros de la biblioteca. Debe ser una lista de campos separados por comas.\n"
+"Los campos disponibles son: %s,\n"
+"y cualquier campo personalizado creado por el usuario.\n"
+"Ejemlpo: %s=title,authors,tags\n"
+"Valor predeterminado: «%%default»\n"
+"Aplicable a: formato de salida BIBTEX"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:245
 msgid ""
@@ -13915,7 +13949,7 @@ msgstr ""
 "Campo de salida para ordenar.\n"
 "Los campos disponibles son: author_sort, id, rating, size, timestamp, "
 "title.\n"
-"Valor predeterminado: '%default'\n"
+"Valor predeterminado: «%default»\n"
 "Aplicable a: formato de salida BIBTEX"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:254
@@ -13927,7 +13961,7 @@ msgid ""
 msgstr ""
 "Crear una cita para entradas BibTex.\n"
 "Valor booleano: True, False\n"
-"Valor predeterminado: '%default'\n"
+"Valor predeterminado: «%default»\n"
 "Aplicable a: formato de salida BIBTEX"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:263
@@ -13951,6 +13985,12 @@ msgid ""
 "Default: '%%default'\n"
 "Applies to: BIBTEX output format"
 msgstr ""
+"La plantilla para la creación de citas a partir de los campos de la base de "
+"datos.\n"
+"Debe ser una plantilla con campos encerrados en {}.\n"
+"Campos disponibles: %s.\n"
+"Valor predeterminado: «%%default»\n"
+"Aplicable a: formato de salida BIBTEXT"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:282
 msgid ""
@@ -13961,7 +14001,7 @@ msgid ""
 msgstr ""
 "Codificación del fichero de salida BibTex.\n"
 "Tipos disponibles: utf8, cp1252, ascii.\n"
-"Valor predeterminado: '%default'\n"
+"Valor predeterminado: «%default»\n"
 "Aplicable a: formato de salida BIBTEX"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:291
@@ -13973,7 +14013,7 @@ msgid ""
 msgstr ""
 "Marca de codificación de BibTeX.\n"
 "Tipos disponibles: strict, replace, ignore, backslashreplace.\n"
-"Valor predeterminado: '%default'\n"
+"Valor predeterminado: «%default»\n"
 "Aplicable a: formato de salida BIBTEX"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:300
@@ -13985,7 +14025,7 @@ msgid ""
 msgstr ""
 "Tipo de entrada para el catálogo BibTeX.\n"
 "Tipos disponibles: book, misc, mixed.\n"
-"Valor predeterminado: '%default'\n"
+"Valor predeterminado: «%default»\n"
 "Aplicable a: formato de salida BIBTEX"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:607
@@ -14021,7 +14061,7 @@ msgid ""
 msgstr ""
 "campo:patrón que especifica el campo personalizado y contenido que indica "
 "que un libro debe excluirse.\n"
-"Valor predeterminado: '%default'\n"
+"Valor predeterminado: «%default»\n"
 "Se aplica a: formatos de salida ePub, MOB I"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:631
@@ -14075,7 +14115,7 @@ msgid ""
 "Applies to: ePub, MOBI output formats"
 msgstr ""
 "Incluir una sección Géneros en el catálogo.\n"
-"Valor predeterminado: '%default'\n"
+"Valor predeterminado: «%default»\n"
 "Se aplica a: formatos de salida ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:666
@@ -14116,7 +14156,7 @@ msgid ""
 msgstr ""
 "Campo personalizado que incluye el texto que se insertará en la cabecera de "
 "Descripción.\n"
-"Valor predeterminado: '%default'\n"
+"Valor predeterminado: «%default»\n"
 "Se aplica a: formatos de salida ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:694
@@ -14135,7 +14175,7 @@ msgstr ""
 "(before: antes, after: después)\n"
 " [True|False] Insertar (True) o no (False) una línea horizontal entre notas "
 "y Comentarios\n"
-"Valor predeterminado: '%default'\n"
+"Valor predeterminado: «%default»\n"
 "Se aplica a: formatos de salida ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:704
@@ -14160,7 +14200,7 @@ msgid ""
 "Applies to ePub, MOBI output formats"
 msgstr ""
 "campo:patrón que indica que un libro ya está leído.\n"
-"Valor predeterminado: '%default'\n"
+"Valor predeterminado: «%default»\n"
 "Se aplica a los formatos de salida ePub y MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:717
@@ -14172,7 +14212,7 @@ msgid ""
 msgstr ""
 "Tamaño preferido (en pulgadas) para las portadas en el catálogo.\n"
 "Rango: 1.0 - 2.0\n"
-"Valor predeterminado: '%default'\n"
+"Valor predeterminado: «%default»\n"
 "Se aplica a: formatos de salida ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:725
@@ -14182,7 +14222,7 @@ msgid ""
 "Applies to: ePub, MOBI output formats"
 msgstr ""
 "Etiqueta que indica que un libro se mostrará como deseado.\n"
-"Valor predeterminado: '%default'\n"
+"Valor predeterminado: «%default»\n"
 "Se aplica a: formatos de salida ePub y MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:1408

@@ -7,13 +7,13 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-02-04 19:12+0000\n"
-"PO-Revision-Date: 2011-01-30 22:53+0000\n"
-"Last-Translator: Mykola Pankiv <Unknown>\n"
+"PO-Revision-Date: 2011-02-05 18:17+0000\n"
+"Last-Translator: Konstantin <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-02-05 04:49+0000\n"
+"X-Launchpad-Export-Date: 2011-02-06 04:52+0000\n"
 "X-Generator: Launchpad (build 12177)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
@@ -10981,23 +10981,23 @@ msgstr "Показывать заставку при запуске"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:148
 msgid "Disable &notifications in system tray"
-msgstr ""
+msgstr "Запретить &уведомления в системном трее"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:149
 msgid "Use &Roman numerals for series"
-msgstr ""
+msgstr "Использовать &Римские цифры для серий"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:150
 msgid "Show cover &browser in a separate window (needs restart)"
-msgstr "Показывать обложку в отдельном окне (нужен перезапуск)"
+msgstr "Показывать &обложку в отдельном окне (нужен перезапуск)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:151
 msgid "Search as you type"
-msgstr "Поиск в процессе набора"
+msgstr "Искать в процессе набора"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:152
 msgid "Tags browser category partitioning method:"
-msgstr ""
+msgstr "Метод разделения категорий браузера тегов:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:153
 msgid ""
@@ -11007,10 +11007,15 @@ msgid ""
 "have a list of fixed-sized groups. Set to disabled\n"
 "if you never want subcategories"
 msgstr ""
+"Выберите как отображаются подкатегории браузера тегов когда\n"
+"количество элементов больше лимита. Отметьте \"по первой букве\"\n"
+"чтобы увидеть A, Б, В список. Выберите \"partitioned\" чтобы получить\n"
+"список групп фиксированного размера. Установите \"запрещено\",\n"
+"если вы никогда не хотите видеть подкатегории."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:158
 msgid "Collapse when more items than:"
-msgstr ""
+msgstr "Сворачивать если елементов больше чем:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:159
 msgid ""
@@ -11018,6 +11023,10 @@ msgid ""
 "up into sub-categories. If the partition method is set to disable, this "
 "value is ignored."
 msgstr ""
+"Если категория Браузера Тегов содержит элементов больше чем это число,\n"
+"то она будет разделена на подкатегории. Если метод разделения установлен в "
+"\"запрещено,\n"
+"то это значение будет игнорировано."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:161
 msgid "&Toolbar"
@@ -11025,35 +11034,35 @@ msgstr "&Панель инструментов"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:162
 msgid "&Icon size:"
-msgstr "Размер иконок:"
+msgstr "&Размер иконок:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:163
 msgid "Show &text under icons:"
-msgstr "Показывать текст под иконками:"
+msgstr "Показывать &текст под иконками:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:164
 msgid "&Split the toolbar into two toolbars"
-msgstr ""
+msgstr "Ра&зделить панель инструментов на две панели"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:165
 msgid "Interface font:"
-msgstr ""
+msgstr "Шрифт интерфейса:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:166
 msgid "Change &font (needs restart)"
-msgstr ""
+msgstr "Изменить &шрифт (необходим перезапуск)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:222
 msgid "&Apply"
-msgstr ""
+msgstr "&Применить"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:229
 msgid "Restore &defaults"
-msgstr ""
+msgstr "&Восстановить настройки по-умолчанию"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:230
 msgid "Save changes"
-msgstr ""
+msgstr "Сохранить изменения"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:231
 msgid "Cancel and return to overview"
@@ -11068,17 +11077,21 @@ msgid ""
 "Some of the changes you made require a restart. Please restart calibre as "
 "soon as possible."
 msgstr ""
+"Некоторые из сделанных вами измененией требуют перезапуска. Пожалуйста "
+"презапустите calibre как можно скорее."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:325
 msgid ""
 "The changes you have made require calibre be restarted immediately. You will "
 "not be allowed set any more preferences, until you restart."
 msgstr ""
+"Изменения которые вы сделали требют немедленного перезапуска calibre. Вам "
+"запрещено менять настройки, пока вы не перезапустите программу."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:330
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:120
 msgid "Restart needed"
-msgstr ""
+msgstr "Требуется перезапуска"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc.py:42
 msgid "Failed to install command line tools."
