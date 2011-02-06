@@ -109,7 +109,7 @@ def get_rating(rating, rchar, e_rchar):
 
 def render_jacket(mi, output_profile,
         alt_title=_('Unknown'), alt_tags=[], alt_comments='',
-        alt_publisher=('Unknown publisher')):
+        alt_publisher=('')):
     css = P('jacket/stylesheet.css', data=True).decode('utf-8')
 
     try:
@@ -127,7 +127,7 @@ def render_jacket(mi, output_profile,
     try:
         publisher = mi.publisher if mi.publisher else alt_publisher
     except:
-        publisher = _('Unknown publisher')
+        publisher = ''
 
     try:
         pubdate = strftime(u'%Y', mi.pubdate.timetuple())
