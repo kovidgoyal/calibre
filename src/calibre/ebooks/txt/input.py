@@ -12,7 +12,7 @@ from calibre.ebooks.chardet import detect
 from calibre.ebooks.txt.processor import convert_basic, convert_markdown, \
     separate_paragraphs_single_line, separate_paragraphs_print_formatted, \
     preserve_spaces, detect_paragraph_type, detect_formatting_type, \
-    normalize_line_endings, convert_textile, remove_indents
+    normalize_line_endings, convert_textile, remove_indents, block_to_single_line
 from calibre import _ent_pat, xml_entity_to_unicode
 
 class TXTInput(InputFormatPlugin):
@@ -106,6 +106,7 @@ class TXTInput(InputFormatPlugin):
             txt = separate_paragraphs_single_line(txt)
         elif options.paragraph_type == 'print':
             txt = separate_paragraphs_print_formatted(txt)
+            txt = block_to_single_line(txt)
         elif options.paragraph_type == 'unformatted':
             from calibre.ebooks.conversion.utils import HeuristicProcessor
             # unwrap lines based on punctuation
@@ -114,6 +115,8 @@ class TXTInput(InputFormatPlugin):
             preprocessor = HeuristicProcessor(options, log=getattr(self, 'log', None))
             txt = preprocessor.punctuation_unwrap(length, txt, 'txt')
             txt = separate_paragraphs_single_line(txt)
+        else:
+            txt = block_to_single_line(txt)
 
         if getattr(options, 'enable_heuristics', False) and getattr(options, 'dehyphenate', False):
             docanalysis = DocAnalysis('txt', txt)
