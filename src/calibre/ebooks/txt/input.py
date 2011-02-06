@@ -58,6 +58,7 @@ class TXTInput(InputFormatPlugin):
                 accelerators):
         self.log = log
         log.debug('Reading text from file...')
+        length = 0
 
         txt = stream.read()
 
@@ -109,7 +110,7 @@ class TXTInput(InputFormatPlugin):
         # Reformat paragraphs to block formatting based on the detected type.
         # We don't check for block because the processor assumes block.
         # single and print at transformed to block for processing.
-        if options.paragraph_type == 'single' or options.paragraph_type == 'unformatted':
+        if options.paragraph_type == 'single':
             txt = separate_paragraphs_single_line(txt)
         elif options.paragraph_type == 'print':
             txt = separate_paragraphs_print_formatted(txt)
@@ -120,10 +121,12 @@ class TXTInput(InputFormatPlugin):
             length = docanalysis.line_length(.5)
             preprocessor = HeuristicProcessor(options, log=getattr(self, 'log', None))
             txt = preprocessor.punctuation_unwrap(length, txt, 'txt')
+            txt = separate_paragraphs_single_line(txt)
 
         if getattr(options, 'enable_heuristics', False) and getattr(options, 'dehyphenate', False):
             docanalysis = DocAnalysis('txt', txt)
-            length = docanalysis.line_length(.5)
+            if not length:
+                length = docanalysis.line_length(.5)
             dehyphenator = Dehyphenator(options.verbose, log=self.log)
             txt = dehyphenator(txt,'txt', length)
 
