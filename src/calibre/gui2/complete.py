@@ -91,7 +91,7 @@ class MultiCompleteLineEdit(QLineEdit):
         self.current_prefix = prefix
         complete_prefix = prefix.lstrip()
         if self.sep:
-            complete_prefix = prefix = prefix.split(self.sep)[-1].lstrip()
+            complete_prefix = prefix.split(self.sep)[-1].lstrip()
         self._completer.setCompletionPrefix(complete_prefix)
 
     def get_completed_text(self, text):
