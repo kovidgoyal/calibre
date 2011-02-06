@@ -55,6 +55,7 @@ class TXTMLizer(object):
         self.log.info('Converting XHTML to TXT...')
         self.oeb_book = oeb_book
         self.opts = opts
+        self.toc_titles = []
         self.toc_ids = []
         self.last_was_heading = False
         
@@ -94,8 +95,8 @@ class TXTMLizer(object):
         if getattr(self.opts, 'inline_toc', None):
             self.log.debug('Generating table of contents...')
             toc.append(u'%s\n\n' % _(u'Table of Contents:'))
-            for item in self.oeb_book.toc:
-                toc.append(u'* %s\n\n' % item.title)
+            for item in self.toc_titles:
+                toc.append(u'* %s\n\n' % item)
         return ''.join(toc)
 
     def create_flat_toc(self, nodes):
@@ -103,6 +104,7 @@ class TXTMLizer(object):
         Turns a hierarchical list of TOC href's into a flat list.
         '''
         for item in nodes:
+            self.toc_titles.append(item.title)
             self.toc_ids.append(item.href)
             self.create_flat_toc(item.nodes)
 
