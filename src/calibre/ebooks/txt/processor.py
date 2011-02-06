@@ -99,7 +99,7 @@ def separate_paragraphs_single_line(txt):
     return txt
 
 def separate_paragraphs_print_formatted(txt):
-    txt = re.sub(u'(?miu)^(\t+|[ ]{2,})(?=.)', '\n\t', txt)
+    txt = re.sub(u'(?miu)^(?P<indent>\t+|[ ]{2,})(?=.)', lambda mo: '%s\n\t' % mo.group('indent'), txt)
     return txt
 
 def preserve_spaces(txt):

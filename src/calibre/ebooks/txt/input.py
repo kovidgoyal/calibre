@@ -99,14 +99,6 @@ class TXTInput(InputFormatPlugin):
             setattr(options, 'enable_heuristics', True)
             setattr(options, 'unwrap_lines', False)
 
-        if options.txt_in_remove_indents:
-            txt = remove_indents(txt)
-
-        # Preserve spaces will replace multiple spaces to a space
-        # followed by the &nbsp; entity.
-        if options.preserve_spaces:
-            txt = preserve_spaces(txt)
-
         # Reformat paragraphs to block formatting based on the detected type.
         # We don't check for block because the processor assumes block.
         # single and print at transformed to block for processing.
@@ -129,6 +121,15 @@ class TXTInput(InputFormatPlugin):
                 length = docanalysis.line_length(.5)
             dehyphenator = Dehyphenator(options.verbose, log=self.log)
             txt = dehyphenator(txt,'txt', length)
+
+        # User requested transformation on the text.
+        if options.txt_in_remove_indents:
+            txt = remove_indents(txt)
+
+        # Preserve spaces will replace multiple spaces to a space
+        # followed by the &nbsp; entity.
+        if options.preserve_spaces:
+            txt = preserve_spaces(txt)
 
         # Process the text using the appropriate text processor.
         html = ''
