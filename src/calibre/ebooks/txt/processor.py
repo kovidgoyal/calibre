@@ -59,6 +59,9 @@ def split_txt(txt, epub_split_size_kb=0):
     return txt
 
 def convert_basic(txt, title='', epub_split_size_kb=0):
+    '''
+    Requires paragraphs to be in single line format.
+    '''
     txt = clean_txt(txt)
     txt = split_txt(txt, epub_split_size_kb)
 
