@@ -5,9 +5,7 @@ __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
 import glob
-import mimetypes
 import os
-import shutil
 
 from calibre import _ent_pat, xml_entity_to_unicode
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
@@ -16,8 +14,7 @@ from calibre.ebooks.chardet import detect
 from calibre.ebooks.txt.processor import convert_basic, convert_markdown, \
     separate_paragraphs_single_line, separate_paragraphs_print_formatted, \
     preserve_spaces, detect_paragraph_type, detect_formatting_type, \
-    normalize_line_endings, convert_textile, remove_indents, block_to_single_line, \
-    image_list
+    normalize_line_endings, convert_textile, remove_indents, block_to_single_line
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.zipfile import ZipFile
 
