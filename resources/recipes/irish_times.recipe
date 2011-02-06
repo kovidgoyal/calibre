@@ -35,7 +35,7 @@ class IrishTimes(BasicNewsRecipe):
     def print_version(self, url):
          if url.count('rss.feedsportal.com'):
             u = 'http://www.irishtimes.com' + \
-                     (((url[69:].replace('0C','/')).replace('0A','0'))).replace('0Bhtml/story01.htm','_pf.html')
+                     (((url[70:].replace('0C','/')).replace('0A','0'))).replace('0Bhtml/story01.htm','_pf.html')
          else:
              u = url.replace('.html','_pf.html')
          return u

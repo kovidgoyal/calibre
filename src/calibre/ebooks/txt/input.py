@@ -57,8 +57,8 @@ class TXTInput(InputFormatPlugin):
     def convert(self, stream, options, file_ext, log,
                 accelerators):
         self.log = log
-        length = None
         log.debug('Reading text from file...')
+        length = 0
 
         txt = stream.read()
 

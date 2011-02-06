@@ -89,7 +89,8 @@ class MessageBox(QDialog, Ui_Dialog):
                 (__version__, unicode(self.windowTitle()),
                     unicode(self.msg.text()),
                     unicode(self.det_msg.toPlainText())))
-        self.ctc_button.setText(_('Copied'))
+        if hasattr(self, 'ctc_button'):
+            self.ctc_button.setText(_('Copied'))
 
     def showEvent(self, ev):
         ret = QDialog.showEvent(self, ev)
