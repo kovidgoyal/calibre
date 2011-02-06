@@ -63,6 +63,9 @@ class MultiCompleteLineEdit(QLineEdit):
         c.setCaseSensitivity(Qt.CaseInsensitive)
         c.setModelSorting(QCompleter.CaseInsensitivelySortedModel)
         c.setCompletionRole(Qt.DisplayRole)
+        p = c.popup()
+        p.setMouseTracking(True)
+        p.entered.connect(self.item_entered)
         c.popup().setAlternatingRowColors(True)
 
         c.activated.connect(self.completion_selected,
@@ -80,6 +83,9 @@ class MultiCompleteLineEdit(QLineEdit):
         self.space_before_sep = space_before
 
     # }}}
+
+    def item_entered(self, idx):
+        self._completer.popup().setCurrentIndex(idx)
 
     def text_edited(self, *args):
         self.update_completions()
