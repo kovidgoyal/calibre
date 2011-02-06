@@ -24,7 +24,8 @@ from calibre.ebooks.conversion.config import GuiRecommendations, \
     load_defaults, load_specifics, save_specifics
 from calibre.gui2.convert import bulk_defaults_for_input_format
 
-def convert_single_ebook(parent, db, book_ids, auto_conversion=False, out_format=None):
+def convert_single_ebook(parent, db, book_ids, auto_conversion=False, # {{{
+        out_format=None):
     changed = False
     jobs = []
     bad = []
@@ -95,7 +96,9 @@ def convert_single_ebook(parent, db, book_ids, auto_conversion=False, out_format
             msg).exec_()
 
     return jobs, changed, bad
+# }}}
 
+# Bulk convert {{{
 def convert_bulk_ebook(parent, queue, db, book_ids, out_format=None, args=[]):
     total = len(book_ids)
     if total == 0:
@@ -207,7 +210,9 @@ class QueueBulk(QProgressDialog):
         self.jobs.reverse()
         self.queue(self.jobs, self.changed, self.bad, *self.args)
 
-def fetch_scheduled_recipe(arg):
+# }}}
+
+def fetch_scheduled_recipe(arg): # {{{
     fmt = prefs['output_format'].lower()
     pt = PersistentTemporaryFile(suffix='_recipe_out.%s'%fmt.lower())
     pt.close()
@@ -248,7 +253,9 @@ def fetch_scheduled_recipe(arg):
 
     return 'gui_convert', args, _('Fetch news from ')+arg['title'], fmt.upper(), [pt]
 
-def generate_catalog(parent, dbspec, ids, device_manager, db):
+# }}}
+
+def generate_catalog(parent, dbspec, ids, device_manager, db): # {{{
     from calibre.gui2.dialogs.catalog import Catalog
 
     # Build the Catalog dialog in gui2.dialogs.catalog
@@ -306,8 +313,9 @@ def generate_catalog(parent, dbspec, ids, device_manager, db):
     # Which then calls gui2.convert.gui_conversion:gui_catalog() with the args inline
     return 'gui_catalog', args, _('Generate catalog'), out.name, d.catalog_sync, \
             d.catalog_title
+# }}}
 
-def convert_existing(parent, db, book_ids, output_format):
+def convert_existing(parent, db, book_ids, output_format): # {{{
     already_converted_ids = []
     already_converted_titles = []
     for book_id in book_ids:
@@ -323,3 +331,5 @@ def convert_existing(parent, db, book_ids, output_format):
             book_ids = [x for x in book_ids if x not in already_converted_ids]
 
     return book_ids
+# }}}
+
