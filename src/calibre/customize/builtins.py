@@ -325,6 +325,17 @@ class TXTMetadataReader(MetadataReaderPlugin):
         from calibre.ebooks.metadata.txt import get_metadata
         return get_metadata(stream)
 
+class TXTZMetadataReader(MetadataReaderPlugin):
+
+    name        = 'Read TXTZ metadata'
+    file_types  = set(['txtz'])
+    description = _('Read metadata from %s files') % 'TXTZ'
+    author      = 'John Schember'
+
+    def get_metadata(self, stream, ftype):
+        from calibre.ebooks.metadata.txtz import get_metadata
+        return get_metadata(stream)
+
 class ZipMetadataReader(MetadataReaderPlugin):
 
     name = 'Read ZIP metadata'
