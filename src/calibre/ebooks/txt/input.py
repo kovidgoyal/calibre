@@ -115,7 +115,6 @@ class TXTInput(InputFormatPlugin):
         elif options.paragraph_type == 'print':
             txt = separate_paragraphs_print_formatted(txt)
         elif options.paragraph_type == 'unformatted':
-            print "unwrapping lines using heuristics"
             from calibre.ebooks.conversion.utils import HeuristicProcessor
             # unwrap lines based on punctuation
             docanalysis = DocAnalysis('txt', txt)
