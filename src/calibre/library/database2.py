@@ -432,7 +432,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             authors = _('Unknown')
         author = ascii_filename(authors.split(',')[0])[:self.PATH_LIMIT].decode(filesystem_encoding, 'replace')
         title  = ascii_filename(self.title(id, index_is_id=True))[:self.PATH_LIMIT].decode(filesystem_encoding, 'replace')
-        path   = author + '/' + title + ' (%d)'%id
+        while author[-1] in (' ', '.'):
+            author = author[:-1]
+        if not author:
+            author = ascii_filename(_('Unknown')).decode(filesystem_encoding, 'replace')
+        path = author + '/' + title + ' (%d)'%id
         return path
 
     def construct_file_name(self, id):
