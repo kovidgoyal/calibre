@@ -191,4 +191,11 @@ class TXTInput(InputFormatPlugin):
                 {})
         options.debug_pipeline = odi
         os.remove(htmlfile.name)
+        
+        # Set metadata from file.
+        from calibre.customize.ui import get_file_type_metadata
+        from calibre.ebooks.oeb.transforms.metadata import meta_info_to_oeb_metadata
+        mi = get_file_type_metadata(stream, file_ext)
+        meta_info_to_oeb_metadata(mi, oeb.metadata, log)
+        
         return oeb
