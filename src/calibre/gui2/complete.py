@@ -18,8 +18,6 @@ class CompleteModel(QAbstractListModel):
 
     def __init__(self, parent=None):
         QAbstractListModel.__init__(self, parent)
-        self.sep = ','
-        self.space_before_sep = False
         self.items = []
 
     def set_items(self, items):
@@ -54,6 +52,10 @@ class MultiCompleteLineEdit(QLineEdit):
 
     def __init__(self, parent=None):
         QLineEdit.__init__(self, parent)
+
+        self.sep = ','
+        self.space_before_sep = False
+
         self._model = CompleteModel(parent=self)
         self._completer = c = QCompleter(self._model, self)
         c.setWidget(self)
@@ -134,22 +136,6 @@ class MultiCompleteLineEdit(QLineEdit):
             return self._model.items
         def fset(self, items):
             self._model.set_items(items)
-        return property(fget=fget, fset=fset)
-
-    @dynamic_property
-    def sep(self):
-        def fget(self):
-            return self._model.sep
-        def fset(self, val):
-            self._model.sep = val
-        return property(fget=fget, fset=fset)
-
-    @dynamic_property
-    def space_before_sep(self):
-        def fget(self):
-            return self._model.space_before_sep
-        def fset(self, val):
-            self._model.space_before_sep = val
         return property(fget=fget, fset=fset)
 
 class MultiCompleteComboBox(EnComboBox):
