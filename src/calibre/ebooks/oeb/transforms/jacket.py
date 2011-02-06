@@ -15,6 +15,7 @@ from calibre import guess_type, strftime
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.ebooks.oeb.base import XPath, XHTML_NS, XHTML
 from calibre.library.comments import comments_to_html
+from calibre.utils.date import is_date_undefined
 
 JACKET_XPATH = '//h:meta[@name="calibre-content" and @content="jacket"]'
 
@@ -130,7 +131,10 @@ def render_jacket(mi, output_profile,
         publisher = ''
 
     try:
-        pubdate = strftime(u'%Y', mi.pubdate.timetuple())
+        if is_date_undefined(mi.pubdate):
+            pubdate = ''
+        else:
+            pubdate = strftime(u'%Y', mi.pubdate.timetuple())
     except:
         pubdate = ''
 
@@ -175,19 +179,24 @@ def render_jacket(mi, output_profile,
         soup = BeautifulSoup(generated_html)
         if not series:
             series_tag = soup.find(attrs={'class':'cbj_series'})
-            series_tag.extract()
+            if series_tag is not None:
+                series_tag.extract()
         if not rating:
             rating_tag = soup.find(attrs={'class':'cbj_rating'})
-            rating_tag.extract()
+            if rating_tag is not None:
+                rating_tag.extract()
         if not tags:
             tags_tag = soup.find(attrs={'class':'cbj_tags'})
-            tags_tag.extract()
+            if tags_tag is not None:
+                tags_tag.extract()
         if not pubdate:
-            pubdate_tag = soup.find(attrs={'class':'cbj_pubdate'})
-            pubdate_tag.extract()
+            pubdate_tag = soup.find(attrs={'class':'cbj_pubdata'})
+            if pubdate_tag is not None:
+                pubdate_tag.extract()
         if output_profile.short_name != 'kindle':
             hr_tag = soup.find('hr', attrs={'class':'cbj_kindle_banner_hr'})
-            hr_tag.extract()
+            if hr_tag is not None:
+                hr_tag.extract()
 
         return soup.renderContents(None)
 
