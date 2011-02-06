@@ -468,6 +468,7 @@ from calibre.ebooks.rb.output import RBOutput
 from calibre.ebooks.rtf.output import RTFOutput
 from calibre.ebooks.tcr.output import TCROutput
 from calibre.ebooks.txt.output import TXTOutput
+from calibre.ebooks.txt.output import TXTZOutput
 from calibre.ebooks.html.output import HTMLOutput
 from calibre.ebooks.snb.output import SNBOutput
 
@@ -553,6 +554,7 @@ plugins += [
     RTFOutput,
     TCROutput,
     TXTOutput,
+    TXTZOutput,
     HTMLOutput,
     SNBOutput,
 ]

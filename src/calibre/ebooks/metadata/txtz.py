@@ -34,6 +34,5 @@ def get_metadata(stream, extract_cover=True):
     return mi
 
 def set_metadata(stream, mi):
-    stream.seek(0)
     opf = StringIO(metadata_to_opf(mi))
     safe_replace(stream, 'metadata.opf', opf)
