@@ -221,9 +221,9 @@ def detect_formatting_type(txt):
     markdown_count += len(re.findall('(?mu)^=+$', txt))
     markdown_count += len(re.findall('(?mu)^-+$', txt))
     # Images
-    markdown_count += len(re.findall('(?u)!\[.*?\]\(.+?\)', txt))
+    markdown_count += len(re.findall('(?u)!\[.*?\](\[|\()', txt))
     # Links
-    markdown_count += len(re.findall('(?u)(^|(?P<pre>[^!]))\[.*?\]\([^)]+\)', txt))
+    markdown_count += len(re.findall('(?u)^|[^!]\[.*?\](\[|\()', txt))
 
     # Check for textile
     # Headings
@@ -231,9 +231,9 @@ def detect_formatting_type(txt):
     # Block quote.
     textile_count += len(re.findall(r'(?mu)^bq\.', txt))
     # Images
-    textile_count += len(re.findall(r'\![^\s]+(?=.*?/)(:[^\s]+)*', txt))
+    textile_count += len(re.findall(r'(?mu)(?<=\!)\S+(?=\!)', txt))
     # Links
-    textile_count += len(re.findall(r'"(?=".*?\()(\(.+?\))*[^\(]+?(\(.+?\))*":[^\s]+', txt))
+    textile_count += len(re.findall(r'"[^"]*":\S+', txt))
 
     # Decide if either markdown or textile is used in the text
     # based on the number of unique formatting elements found.
