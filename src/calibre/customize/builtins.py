@@ -423,6 +423,17 @@ class TOPAZMetadataWriter(MetadataWriterPlugin):
         from calibre.ebooks.metadata.topaz import set_metadata
         set_metadata(stream, mi)
 
+class TXTZMetadataWriter(MetadataWriterPlugin):
+
+    name        = 'Set TXTZ metadata'
+    file_types  = set(['txtz'])
+    description = _('Set metadata from %s files') % 'TXTZ'
+    author      = 'John Schember'
+
+    def set_metadata(self, stream, mi, type):
+        from calibre.ebooks.metadata.txtz import set_metadata
+        set_metadata(stream, mi)
+
 # }}}
 
 from calibre.ebooks.comic.input import ComicInput

@@ -9,9 +9,12 @@ Read meta information from TXT files
 
 import os
 
+from cStringIO import StringIO
+
 from calibre.ebooks.metadata import MetaInformation
+from calibre.ebooks.metadata.opf2 import OPF, metadata_to_opf
 from calibre.ptempfile import TemporaryDirectory
-from calibre.utils.zipfile import ZipFile
+from calibre.utils.zipfile import ZipFile, safe_replace
 
 def get_metadata(stream, extract_cover=True):
     '''
@@ -24,11 +27,13 @@ def get_metadata(stream, extract_cover=True):
         try:
             zf = ZipFile(stream)
             zf.extract('metadata.opf', tdir)
-            
-            from calibre.ebooks.metadata.opf2 import OPF
             with open(os.path.join(tdir, 'metadata.opf'), 'rb') as opff:
                 mi = OPF(opff).to_book_metadata()
         except:
             return mi
-
     return mi
+
+def set_metadata(stream, mi):
+    stream.seek(0)
+    opf = StringIO(metadata_to_opf(mi))
+    safe_replace(stream, 'metadata.opf', opf)
