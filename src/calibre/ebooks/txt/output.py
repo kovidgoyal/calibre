@@ -15,6 +15,7 @@ from calibre.ebooks.oeb.base import OEB_IMAGES
 from calibre.ebooks.txt.txtml import TXTMLizer
 from calibre.ebooks.txt.newlines import TxtNewlines, specified_newlines
 from calibre.ptempfile import TemporaryDirectory, TemporaryFile
+from calibre.utils.cleantext import clean_ascii_chars
 from calibre.utils.zipfile import ZipFile
 
 class TXTOutput(OutputFormatPlugin):
@@ -79,6 +80,7 @@ class TXTOutput(OutputFormatPlugin):
             writer = TXTMLizer(log)
 
         txt = writer.extract_content(oeb_book, opts)
+        txt = clean_ascii_chars(txt)
 
         log.debug('\tReplacing newlines with selected type...')
         txt = specified_newlines(TxtNewlines(opts.newline).newline, txt)
