@@ -124,7 +124,6 @@ class ContentServer(object):
             cherrypy.request.headers.get('Want-OPDS-Catalog', 919) != 919 or \
             ua.startswith('Stanza')
 
-        # A better search would be great
         want_mobile = self.is_mobile_browser(ua)
         if self.opts.develop and not want_mobile:
             cherrypy.log('User agent: '+ua)

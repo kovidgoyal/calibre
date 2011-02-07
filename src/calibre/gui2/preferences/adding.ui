@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>750</width>
+    <width>753</width>
     <height>339</height>
    </rect>
   </property>
@@ -58,16 +58,33 @@
      </item>
     </layout>
    </item>
-   <item row="2" column="0" colspan="2">
+   <item row="2" column="0">
     <widget class="QCheckBox" name="opt_add_formats_to_existing">
      <property name="toolTip">
-      <string>If an existing book with a similar title and author is found that does not have the format being added, the format is added
-to the existing book, instead of creating a new entry. If the existing book already has the format, then it is silently ignored.
+      <string>Automerge: If books with similar titles and authors found, merge the incoming formats automatically into
+existing book records. The box to the right controls what happens when an existing record already has
+the incoming format. Note that this option also affects the Copy to library action.
 
 Title match ignores leading indefinite articles (&quot;the&quot;, &quot;a&quot;, &quot;an&quot;), punctuation, case, etc. Author match is exact.</string>
      </property>
      <property name="text">
-      <string>If books with similar titles and authors found, &amp;merge the new files automatically</string>
+      <string>&amp;Automerge added books if they already exist in the calibre library:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="QComboBox" name="opt_automerge">
+     <property name="toolTip">
+      <string>Automerge: If books with similar titles and authors found, merge the incoming formats automatically into
+existing book records. This box controls what happens when an existing record already has
+the incoming format: 
+
+Ignore duplicate incoming files - means that existing files in your calibre library will not be replaced
+Overwrite existing duplicate files - means that existing files in your calibre library will be replaced
+Create new record for each duplicate file - means that a new book entry will be created for each duplicate file
+
+Title matching ignores leading indefinite articles (&quot;the&quot;, &quot;a&quot;, &quot;an&quot;), punctuation, case, etc.
+Author matching is exact.</string>
      </property>
     </widget>
    </item>
@@ -113,5 +130,22 @@ Title match ignores leading indefinite articles (&quot;the&quot;, &quot;a&quot;,
   </layout>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>opt_add_formats_to_existing</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>opt_automerge</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>406</x>
+     <y>83</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>457</x>
+     <y>83</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

@@ -8,7 +8,7 @@ from functools import partial
 from PyQt4.Qt import QThread, QObject, Qt, QProgressDialog, pyqtSignal, QTimer
 
 from calibre.gui2.dialogs.progress import ProgressDialog
-from calibre.gui2 import question_dialog, error_dialog, info_dialog
+from calibre.gui2 import question_dialog, error_dialog, info_dialog, gprefs
 from calibre.ebooks.metadata.opf2 import OPF
 from calibre.ebooks.metadata import MetaInformation
 from calibre.constants import preferred_encoding, filesystem_encoding, DEBUG
@@ -179,23 +179,46 @@ class DBAdder(QObject): # {{{
                     cover = f.read()
             orig_formats = formats
             formats = [f for f in formats if not f.lower().endswith('.opf')]
-            if prefs['add_formats_to_existing']:
+            if prefs['add_formats_to_existing']: #automerge is on
                 identical_book_list = self.db.find_identical_books(mi)
-
-                if identical_book_list: # books with same author and nearly same title exist in db
+                if identical_book_list:  # books with same author and nearly same title exist in db
                     self.merged_books.add(mi.title)
+                    a_new_record_has_been_created = False
                     for identical_book in identical_book_list:
-                        self.add_formats(identical_book, formats, replace=False)
-                else:
-                    id = self.db.create_book_entry(mi, cover=cover, add_duplicates=True)
+                        if gprefs['automerge'] == 'ignore':
+                            self.add_formats(identical_book, formats, replace=False)
+                        if gprefs['automerge'] == 'overwrite':
+                            self.add_formats(identical_book, formats, replace=True)
+                        if gprefs['automerge'] == 'new record' and not a_new_record_has_been_created:
+                            '''
+                            We are here because we have at least one book record in the db that matches the one file/format being processed
+                            We need to check if the file/format being processed matches a format in the matching book record.
+                            If so, create new record (as below), else, add to existing record, as above.
+                            Test if format exists in matching record. identical_book is an id, formats is a FQPN path in a list
+                            '''
+                            for path in formats:
+                                fmt = os.path.splitext(path)[-1].replace('.', '').upper()
+                                ib_fmts = self.db.formats(identical_book, index_is_id=True)
+                                if ib_fmts and fmt in ib_fmts: # Create a new record
+                                    if not a_new_record_has_been_created:
+                                        id_ = self.db.create_book_entry(mi, cover=cover, add_duplicates=True)
+                                        self.number_of_books_added += 1
+                                        self.add_formats(id_, formats)
+                                        a_new_record_has_been_created = True
+                                else: #new record not required
+                                    self.add_formats(identical_book, formats, replace=False)
+
+                else: # books with same author and nearly same title do not exist in db
+                    id_ = self.db.create_book_entry(mi, cover=cover, add_duplicates=True)
                     self.number_of_books_added += 1
-                    self.add_formats(id, formats)
-            else:
-                id = self.db.create_book_entry(mi, cover=cover, add_duplicates=False)
-                if id is None:
+                    self.add_formats(id_, formats)
+
+            else: #automerge is off
+                id_ = self.db.create_book_entry(mi, cover=cover, add_duplicates=False)
+                if id_ is None:
                     self.duplicates.append((mi, cover, orig_formats))
                 else:
-                    self.add_formats(id, formats)
+                    self.add_formats(id_, formats)
                     self.number_of_books_added += 1
         else:
             self.names.append(name)
