@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-02-04 19:12+0000\n"
-"PO-Revision-Date: 2010-10-01 21:27+0000\n"
-"Last-Translator: Papp Bence <papp.bence89@gmail.com>\n"
+"PO-Revision-Date: 2011-02-06 23:42+0000\n"
+"Last-Translator: debsa <Unknown>\n"
 "Language-Team: Hungarian <hu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-02-05 04:45+0000\n"
+"X-Launchpad-Export-Date: 2011-02-07 05:18+0000\n"
 "X-Generator: Launchpad (build 12177)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -174,7 +174,7 @@ msgstr "Alap"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:130
 msgid "Customize"
-msgstr ""
+msgstr "Testreszabás"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:294
 msgid "File type"
@@ -3920,7 +3920,7 @@ msgstr "A"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:35
 msgid "Add books from a single directory"
-msgstr "Könyvek hozzáadása egy mappából"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:37
 msgid ""
@@ -4152,7 +4152,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:91
 msgid "Switch/create library..."
-msgstr ""
+msgstr "Könyvtár váltás / készítés"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:102
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:77
@@ -4175,7 +4175,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:128
 msgid "Library Maintenance"
-msgstr ""
+msgstr "Könyvtár karbantartás"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:129
 msgid "Library metadata backup status"
@@ -4322,7 +4322,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:386
 msgid "You cannot change libraries while jobs are running."
-msgstr ""
+msgstr "Művelet végrehajtása közben könyvtárváltás nem lehetséges"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:22
 msgid "C"
@@ -4560,11 +4560,11 @@ msgstr "Kapcsolat/megosztás"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_collections.py:13
 msgid "Manage collections"
-msgstr ""
+msgstr "Gyűjtemények kezelésese"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_collections.py:14
 msgid "Manage the collections on this device"
-msgstr ""
+msgstr "Gyűjtemények kezelése az eszközön"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:24
 msgid "E"
@@ -4827,7 +4827,7 @@ msgstr "Csak a(z) %s formátum mentése a lemezre"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:54
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:72
 msgid "Save only %s format to disk in a single directory"
-msgstr ""
+msgstr "Csak az %s formátum mentése a lemezre egy mappába"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:91
 msgid "Cannot save to disk"
@@ -5247,7 +5247,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:55
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:64
 msgid "Click to open"
-msgstr ""
+msgstr "Kattints a megnyitásért"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:56
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:370
@@ -5264,7 +5264,7 @@ msgstr "Nincs"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:433
 msgid "Double-click to open Book Details window"
-msgstr ""
+msgstr "Kattints duplán a könyv részleteinek megjelenítéséhez"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex.py:16
 msgid "BibTeX Options"
@@ -7102,7 +7102,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:489
 msgid "Send and delete from library"
-msgstr ""
+msgstr "Küldés és törlés a könyvtárból"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:532
 msgid "Eject device"
@@ -7693,7 +7693,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:72
 msgid "Sort by author"
-msgstr ""
+msgstr "Rendezés szerző alapján"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:73
 msgid "Sort by author sort"
@@ -7820,7 +7820,7 @@ msgstr "Műveletek részleteinek megjelenítése"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:52
 msgid "Stop &all non device jobs"
-msgstr ""
+msgstr "Összes nem eszközre vonatkozó művelet megállítása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:43
 msgid "&Copy to clipboard"
@@ -9782,7 +9782,7 @@ msgstr "Nem elérhető"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:294
 msgid "Jobs:"
-msgstr "Jobs:"
+msgstr "Műveletek száma:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:296
 msgid "Shift+Alt+J"
@@ -9790,7 +9790,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:313
 msgid "Click to see list of jobs"
-msgstr ""
+msgstr "Kattints a műveletek listájának megtekintéséhez"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:382
 msgid " - Jobs"
@@ -11190,6 +11190,8 @@ msgid ""
 "The template contains no {fields}, so all books will have the same name. Is "
 "this OK?"
 msgstr ""
+"A sablon nem tartalmaz oszlopokat, így az összes könyv azonos nevű lesz. "
+"Rendben van?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template_ui.py:47
 msgid "Save &template"
@@ -11282,6 +11284,14 @@ msgid ""
 "<li><b>Automatic management</b>: Calibre automatically keeps metadata on the "
 "device in sync with the calibre library, on every connect</li></ul>"
 msgstr ""
+"<li><b>Manuális kezelés</b>: Calibre frissíti a metaadatokat és a "
+"gyűjteményhez adja, ha a könyv el lett küldve. Ezzel a beállítással a "
+"calibre sohasem helyezi át a gyűjteményt</li>\n"
+"<li><b>Csak küldéskor</b>: Calibre frissíti a metaadatokat és a "
+"gyűjteményhez csak akkor adja/elveszi  a könyvet, ha az az eszközre lett "
+"küldve</li>\n"
+"<li><b>Automatikus kezeéás</b>: Calibre automatikusan szinkronizálja a "
+"metadatokat az eszközön minden kapcsolódáskor </li></ul>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:77
 msgid ""
@@ -11652,7 +11662,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:18
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:68
 msgid "(all books)"
-msgstr ""
+msgstr "(összes könyv)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:62
 msgid "({0} of {1})"
@@ -11830,11 +11840,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1379
 msgid "Sort by name"
-msgstr ""
+msgstr "Rendezés név szerint"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1379
 msgid "Sort by popularity"
-msgstr ""
+msgstr "Rendezés népszerűség szering"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1380
 msgid "Sort by average rating"
@@ -12026,7 +12036,7 @@ msgstr "Pickled Bookmarks (*.pickle)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager_ui.py:61
 msgid "Bookmark Manager"
-msgstr "Könyvjelzők kezelése"
+msgstr "Könyvjelzőkezelő"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager_ui.py:62
 msgid "Actions"
@@ -12621,6 +12631,8 @@ msgid ""
 "<h2>Demo videos</h2>Videos demonstrating the various features of calibre are "
 "available <a href=\"http://calibre-ebook.com/demo\">online</a>."
 msgstr ""
+"<h2>Demo videó</h2>A Calibre különböző funkcióról a videó bemutató <a "
+"href=\"http://calibre-ebook.com/demo\">online</a> elérhető."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/finish_ui.py:51
 msgid ""
@@ -13597,6 +13609,15 @@ msgid ""
 "    replaced.\n"
 "    "
 msgstr ""
+"\n"
+"    %prog elmentett_keresések [opciók] listája\n"
+"    %prog elmentett_keresések név hozzáadása keresés\n"
+"    %prog elmentett_keresések név elvétele\n"
+"\n"
+"    Elmentett és ebben az adatbázisban tárolt keresések kezelése\n"
+"    Ha megpróbálsz olyan nevet adni a lekérdezésnek, ami már szerepel,\n"
+"    akkor az le lesz cserélve\n"
+"    "
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:839
 msgid "Error: You must specify an action (add|remove|list)"
@@ -14009,7 +14030,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:272
 msgid "Sort by"
-msgstr ""
+msgstr "Rendezés ... szerint"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:275
 msgid "library"
@@ -14028,7 +14049,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:338
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:548
 msgid "All books"
-msgstr ""
+msgstr "Minden könyv"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:370
 msgid "Browse books by"
