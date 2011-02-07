@@ -57,7 +57,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         self.setWindowIcon(icon)
 
         self.to_rename = {}
-        self.to_delete = set()
+        self.to_delete = set([])
         self.all_tags = {}
 
         for k,v in data:
@@ -65,7 +65,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         for tag in sorted(self.all_tags.keys(), key=key):
             item = ListWidgetItem(tag)
             item.setData(Qt.UserRole, self.all_tags[tag])
-            item.setFlags (item.flags() | Qt.ItemIsEditable);
+            item.setFlags (item.flags() | Qt.ItemIsEditable)
             self.available_tags.addItem(item)
 
         if tag_to_match is not None:
