@@ -1,0 +1,43 @@
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1291540961(BasicNewsRecipe):
+
+    title          = u'Radio Praha'
+    __author__             = 'Francois Pellicaan'
+    description            = 'News and information from and about The Czech republic. '
+    oldest_article = 7
+    max_articles_per_feed = 100
+    no_stylesheets         = True
+    use_embedded_content   = False
+    remove_empty_feeds     = True
+    encoding               = 'utf8'
+    publisher              = 'Radio Prague'
+    category               = 'News'
+    language               = 'en_CZ'
+    publication_type       = 'newsportal'
+
+    extra_css = 'h1 .section { display: block; text-transform: uppercase; font-size: 10px; margin-top: 4em; } \n .title { font-size: 14px; margin-top: 4em; } \n a.photo { display: block; clear:both; }  \n .caption { font-size: 9px; display: block; clear:both; padding:0px 0px 20px 0px; } \n a { font-type: normal; }'
+
+
+    keep_only_tags = [
+                       dict(name='div', attrs={'class':['main']})
+                        ]
+    remove_tags = [
+                       dict(name='div', attrs={'class':['cleaner', 'options', 'toolsXXL']}),
+       dict(name='ul', attrs={'class':['tools']})
+                        ]
+    feeds = [
+                      (u'Current Affairs', 'http://www.radio.cz/feeds/rss/en/themes/curraffrs.xml'),
+                      (u'Society', 'http://www.radio.cz/feeds/rss/en/themes/society.xml'),
+                      (u'European Union', 'http:http://www.radio.cz/feeds/rss/en/themes/eu.xml'),
+                      (u'Foreign policy', 'http://www.radio.cz/feeds/rss/en/themes/foreignpolicy.xml'),
+                      (u'Business', 'http://www.radio.cz/feeds/rss/en/themes/business.xml'),
+                      (u'Culture', 'http://www.radio.cz/feeds/rss/en/themes/culture.xml'),
+                      (u'Czechs abroad', 'http://www.radio.cz/feeds/rss/en/themes/czechabroad.xml'),
+                      (u'History', 'http://www.radio.cz/feeds/rss/en/themes/history.xml'),
+                      (u'Nature', 'http://www.radio.cz/feeds/rss/en/themes/nature.xml'),
+                      (u'Science', 'http://www.radio.cz/feeds/rss/en/themes/science.xml'),
+                      (u'Sport', 'http://www.radio.cz/feeds/rss/en/themes/sport.xml'),
+                      (u'Travel', 'http://www.radio.cz/feeds/rss/en/themes/travel.xml'),
+                    ]
