@@ -34,7 +34,8 @@ class HeuristicProcessor(object):
         self.line_close = "(</(?P=inner3)>)?\s*(</(?P=inner2)>)?\s*(</(?P=inner1)>)?\s*</(?P=outer)>"
         self.single_blank = re.compile(r'(\s*<p[^>]*>\s*</p>)', re.IGNORECASE)
         self.scene_break_open = '<p class="scenebreak" style="text-align:center; text-indent:0%; margin-top:1em; margin-bottom:1em; page-break-before:avoid">'
-        self.common_in_text_endings = u'[\"\'—’”,\.!\?\…)\w]'
+        self.common_in_text_endings = u'[\"\'—’”,\.!\?\…\)„\w]'
+        self.common_in_text_beginnings = u'[\w\'\"“‘‛]'
 
     def is_pdftohtml(self, src):
         return '<!-- created by calibre\'s pdftohtml -->' in src[:1000]
@@ -639,7 +640,7 @@ class HeuristicProcessor(object):
             blanks_count = len(self.any_multi_blank.findall(html))
             if blanks_count >= 1:
                 html = self.merge_blanks(html, blanks_count)
-            scene_break_regex = self.line_open+'(?!([\w\'\"]|.*?'+self.common_in_text_endings+'<))(?P<break>((?P<break_char>((?!\s)\W))\s*(?P=break_char)?)+)\s*'+self.line_close
+            scene_break_regex = self.line_open+'(?!('+self.common_in_text_beginnings+'|.*?'+self.common_in_text_endings+'<))(?P<break>((?P<break_char>((?!\s)\W))\s*(?P=break_char)?)+)\s*'+self.line_close
             scene_break = re.compile(r'%s' % scene_break_regex, re.IGNORECASE|re.UNICODE)
             # If the user has enabled scene break replacement, then either softbreaks
             # or 'hard' scene breaks are replaced, depending on which is in use
