@@ -1,8 +1,8 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from PyQt4.QtCore import SIGNAL, Qt
-from PyQt4.QtGui import QDialog, QListWidgetItem, QListWidget
+from PyQt4.QtCore import Qt, QString
+from PyQt4.QtGui import QDialog, QListWidgetItem
 
 from calibre.gui2.dialogs.tag_list_editor_ui import Ui_TagListEditor
 from calibre.gui2 import question_dialog, error_dialog
@@ -11,9 +11,9 @@ class ListWidgetItem(QListWidgetItem):
 
     def __init__(self, txt):
         QListWidgetItem.__init__(self, txt)
-        self.initial_value = txt
-        self.current_value = txt
-        self.previous_value = txt
+        self.initial_value = QString(txt)
+        self.current_value = QString(txt)
+        self.previous_value = QString(txt)
 
     def data(self, role):
         if role == Qt.DisplayRole:
@@ -86,7 +86,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
                 return
         if item.text() != item.initial_text():
             id_ = item.data(Qt.UserRole).toInt()[0]
-            self.to_rename[id_] = item.text()
+            self.to_rename[id_] = unicode(item.text())
 
     def rename_tag(self):
         item = self.available_tags.currentItem()
