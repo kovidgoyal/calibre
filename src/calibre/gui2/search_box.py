@@ -16,7 +16,7 @@ from calibre.gui2 import config
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.saved_search_editor import SavedSearchEditor
 from calibre.gui2.dialogs.search import SearchDialog
-from calibre.utils.config import dynamic
+from calibre.utils.config import dynamic, prefs
 from calibre.utils.search_query_parser import saved_searches
 from calibre.utils.icu import sort_key
 
@@ -271,7 +271,7 @@ class SavedSearchBox(QComboBox): # {{{
     def initialize(self, _search_box, colorize=False, help_text=_('Search')):
         self.search_box = _search_box
         try:
-           self.line_edit.setPlaceholderText(help_text)
+            self.line_edit.setPlaceholderText(help_text)
         except:
             # Using Qt < 4.7
             pass
@@ -379,6 +379,12 @@ class SearchBoxMixin(object): # {{{
         self.search_highlight_only.stateChanged.connect(self.highlight_only_changed)
         self.search_highlight_only.setChecked(
                             dynamic.get('search_highlight_only', False))
+        self.search_limit_to.stateChanged.connect(self.search_limit_to_changed)
+        self.search_limit_to.setVisible(True)
+        chk = dynamic.get('use_search_box_limit', False)
+        self.search_limit_to.setChecked(chk)
+        prefs['use_search_box_limit'] = chk
+        self.search_limit_to.setEnabled(bool(prefs['search_box_limit_to']))
 
     def focus_search_box(self, *args):
         self.search.setFocus(Qt.OtherFocusReason)
@@ -409,6 +415,11 @@ class SearchBoxMixin(object): # {{{
         dynamic.set('search_highlight_only', toWhat)
         self.current_view().model().set_highlight_only(toWhat)
         self.focus_to_library()
+
+    def search_limit_to_changed(self, toWhat):
+        dynamic.set('use_search_box_limit', toWhat)
+        prefs['use_search_box_limit'] = toWhat
+        self.search.do_search()
 
     # }}}
 

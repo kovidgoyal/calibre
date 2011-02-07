@@ -202,6 +202,15 @@ class SearchBar(QWidget): # {{{
         l.addWidget(x)
         x.setVisible(False)
 
+        x = parent.search_limit_to = QCheckBox()
+        x.setText(_('&Limit'))
+        x.setToolTip('<p>'+_('When searching for text without using lookup '
+            'prefixes, as for example someword instead of title:someword, '
+            'limit the columns searched to those named in the option '
+            'Preferences -> Look and Feel -> Limit non-prefixed searches to columns.'))
+        x.setVisible(False)
+        l.addWidget(x)
+
         x = parent.saved_search = SavedSearchBox(self)
         x.setMaximumSize(QSize(150, 16777215))
         x.setMinimumContentsLength(15)

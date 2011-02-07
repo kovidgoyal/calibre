@@ -482,8 +482,10 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         for action in self.iactions.values():
             action.location_selected(location)
         if location == 'library':
+            self.search_limit_to.setVisible(True)
             self.search_restriction.setEnabled(True)
         else:
+            self.search_limit_to.setVisible(False)
             self.search_restriction.setEnabled(False)
             # Reset the view in case something changed while it was invisible
             self.current_view().reset()

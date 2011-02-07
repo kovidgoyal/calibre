@@ -729,6 +729,11 @@ def _prefs():
     c.add_opt('manage_device_metadata', default='manual',
         help=_('How and when calibre updates metadata on the device.'))
 
+    c.add_opt('search_box_limit_to', default='',
+              help=_('Comma-separated list of fields to search when no prefix'))
+    c.add_opt('use_search_box_limit', default=False,
+              help=_('Set to true to apply the search box limit'))
+
     c.add_opt('migrated', default=False, help='For Internal use. Don\'t modify.')
     return c
 
