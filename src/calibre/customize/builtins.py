@@ -325,6 +325,17 @@ class TXTMetadataReader(MetadataReaderPlugin):
         from calibre.ebooks.metadata.txt import get_metadata
         return get_metadata(stream)
 
+class TXTZMetadataReader(MetadataReaderPlugin):
+
+    name        = 'Read TXTZ metadata'
+    file_types  = set(['txtz'])
+    description = _('Read metadata from %s files') % 'TXTZ'
+    author      = 'John Schember'
+
+    def get_metadata(self, stream, ftype):
+        from calibre.ebooks.metadata.txtz import get_metadata
+        return get_metadata(stream)
+
 class ZipMetadataReader(MetadataReaderPlugin):
 
     name = 'Read ZIP metadata'
@@ -412,6 +423,17 @@ class TOPAZMetadataWriter(MetadataWriterPlugin):
         from calibre.ebooks.metadata.topaz import set_metadata
         set_metadata(stream, mi)
 
+class TXTZMetadataWriter(MetadataWriterPlugin):
+
+    name        = 'Set TXTZ metadata'
+    file_types  = set(['txtz'])
+    description = _('Set metadata from %s files') % 'TXTZ'
+    author      = 'John Schember'
+
+    def set_metadata(self, stream, mi, type):
+        from calibre.ebooks.metadata.txtz import set_metadata
+        set_metadata(stream, mi)
+
 # }}}
 
 from calibre.ebooks.comic.input import ComicInput
@@ -446,6 +468,7 @@ from calibre.ebooks.rb.output import RBOutput
 from calibre.ebooks.rtf.output import RTFOutput
 from calibre.ebooks.tcr.output import TCROutput
 from calibre.ebooks.txt.output import TXTOutput
+from calibre.ebooks.txt.output import TXTZOutput
 from calibre.ebooks.html.output import HTMLOutput
 from calibre.ebooks.snb.output import SNBOutput
 
@@ -531,6 +554,7 @@ plugins += [
     RTFOutput,
     TCROutput,
     TXTOutput,
+    TXTZOutput,
     HTMLOutput,
     SNBOutput,
 ]
