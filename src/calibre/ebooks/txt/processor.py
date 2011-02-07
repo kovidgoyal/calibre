@@ -29,8 +29,7 @@ def clean_txt(txt):
     txt = '\n'.join([line.rstrip() for line in txt.splitlines()])
     
     # Replace whitespace at the beginning of the line with &nbsp;
-    txt = re.sub('(?m)(?P<space>^[ ]+)(?=.)', lambda mo: '&nbsp;' * mo.groups('space').count(' '), txt)
-    txt = re.sub('(?m)(?P<space>^[\t]+)(?=.)', lambda mo: '&nbsp;' * 4 * mo.groups('space').count('\t'), txt)
+    txt = re.sub('(?m)(?<=^)([ ]{2,}|\t+)(?=.)', '&nbsp;' * 4, txt)
 
     # Condense redundant spaces
     txt = re.sub('[ ]{2,}', ' ', txt)
