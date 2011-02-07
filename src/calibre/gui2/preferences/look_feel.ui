@@ -211,7 +211,7 @@ up into sub-categories. If the partition method is set to disable, this value is
     </widget>
    </item>
    <item row="8" column="1">
-    <widget class="QLineEdit" name="opt_search_box_limit_to">
+    <widget class="MultiCompleteLineEdit" name="opt_search_box_limit_to">
      <property name="toolTip">
       <string>Choose columns to be searched when not using prefixes, as for
 example when searching for someword instead of title:someword.
@@ -305,6 +305,13 @@ must check the 'Limit' box on the GUI for this option to take effect.</string>
    </item>
   </layout>
  </widget>
+  <customwidgets>
+  <customwidget>
+   <class>MultiCompleteLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>calibre.gui2.complete.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

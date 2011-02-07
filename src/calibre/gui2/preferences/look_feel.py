@@ -63,6 +63,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('tags_browser_collapse_at', gprefs)
 
         r('search_box_limit_to', prefs)
+        self.opt_search_box_limit_to.set_separator(',')
+        self.opt_search_box_limit_to.update_items_cache(
+                self.gui.library_view.model().db.field_metadata.get_search_terms())
 
         self.current_font = None
         self.change_font_button.clicked.connect(self.change_font)
