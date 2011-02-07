@@ -329,7 +329,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                     return error_dialog(self, _('Must restart'),
                             _('You must restart calibre before you can'
                                 ' configure the <b>%s</b> plugin')%plugin.name, show=True)
-                if plugin.do_user_config():
+                if plugin.do_user_config(self.gui):
                     self._plugin_model.refresh_plugin(plugin)
             elif op == 'remove':
                 msg = _('Plugin <b>{0}</b> successfully removed').format(plugin.name)
