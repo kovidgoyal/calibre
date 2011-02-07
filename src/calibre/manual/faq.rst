@@ -324,15 +324,15 @@ Author names are complex, especially across cultures. |app| has a very flexible 
 Now coming to author name sorting:
 
     * When a new author is added to |app| (this happens whenever a book by a new author is added), |app| automatically computes a sort string for both the book and the author.
-    * By default, this sort string assumes that the author name is in ``First name Last name`` format and generates a ``Last name, First name`` sort string.
     * Authors in the Tag Browser are sorted by the sort value for the **authors**. Remember that this is different from the Author sort field for a book. 
+    * By default, this sort algorithm assumes that the author name is in ``First name Last name`` format and generates a ``Last name, First name`` sort value.
     * You can change this algorithm by going to Preferences->Tweaks and setting the :guilabel:`author_sort_copy_method` tweak.
     * You can force |app| to recalculate the author sort values for every author by right clicking on any author and selecting :guilabel:`Manage authors`
     * You can force |app| to recalculate the author sort values for all books by using the bulk metadata edit dialog (select all books and click edit metadata)
     * When recalculating the author sort values for books, |app| uses the author sort values for each individual author.
     * You can control whether the Tag Browser display authors using their names or their sort values by setting the :guilabel:`categories_use_field_for_author_name` tweak in Preferences->Tweaks
 
-    With all this flexibility, it is possible to have |app| manage your author names however you like. For example, one common request is to have |app| display author names LN, FN. To do this first set the ``author_sort_copy_method`` to ``copy``. Then change all author names to LN, FN via the Manage authors dialog. Then have |app| recalculate author sort values as described above.
+With all this flexibility, it is possible to have |app| manage your author names however you like. For example, one common request is to have |app| display author names LN, FN. To do this first set the ``author_sort_copy_method`` to ``copy``. Then change all author names to LN, FN via the Manage authors dialog. Then have |app| recalculate author sort values as described above.
 
 
 Why doesn't |app| let me store books in my own directory structure?
