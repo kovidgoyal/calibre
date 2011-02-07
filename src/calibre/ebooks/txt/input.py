@@ -14,7 +14,8 @@ from calibre.ebooks.chardet import detect
 from calibre.ebooks.txt.processor import convert_basic, convert_markdown, \
     separate_paragraphs_single_line, separate_paragraphs_print_formatted, \
     preserve_spaces, detect_paragraph_type, detect_formatting_type, \
-    normalize_line_endings, convert_textile, remove_indents, block_to_single_line
+    normalize_line_endings, convert_textile, remove_indents, block_to_single_line, \
+    separate_hard_scene_breaks
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.zipfile import ZipFile
 
@@ -114,6 +115,7 @@ class TXTInput(InputFormatPlugin):
         if options.formatting_type == 'heuristic':
             setattr(options, 'enable_heuristics', True)
             setattr(options, 'unwrap_lines', False)
+            setattr(options, 'smarten_punctuation', True)
 
         # Reformat paragraphs to block formatting based on the detected type.
         # We don't check for block because the processor assumes block.
@@ -121,6 +123,7 @@ class TXTInput(InputFormatPlugin):
         if options.paragraph_type == 'single':
             txt = separate_paragraphs_single_line(txt)
         elif options.paragraph_type == 'print':
+            txt = separate_hard_scene_breaks(txt)
             txt = separate_paragraphs_print_formatted(txt)
             txt = block_to_single_line(txt)
         elif options.paragraph_type == 'unformatted':
@@ -132,6 +135,7 @@ class TXTInput(InputFormatPlugin):
             txt = preprocessor.punctuation_unwrap(length, txt, 'txt')
             txt = separate_paragraphs_single_line(txt)
         else:
+            txt = separate_hard_scene_breaks(txt)
             txt = block_to_single_line(txt)
 
         if getattr(options, 'enable_heuristics', False) and getattr(options, 'dehyphenate', False):
