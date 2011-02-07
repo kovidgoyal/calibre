@@ -58,4 +58,4 @@ class Ambito(BasicNewsRecipe):
             del item['style']
         return soup
 
-    language = 'es'
+    language = 'es_AR'

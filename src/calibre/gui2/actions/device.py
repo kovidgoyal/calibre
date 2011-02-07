@@ -74,23 +74,30 @@ class ShareConnMenu(QMenu): # {{{
         opts = email_config().parse()
         if opts.accounts:
             self.email_to_menu = QMenu(_('Email to')+'...', self)
+            ac = self.addMenu(self.email_to_menu)
+            self.email_actions.append(ac)
+            self.email_to_and_delete_menu = QMenu(
+                    _('Email to and delete from library')+'...', self)
             keys = sorted(opts.accounts.keys())
             for account in keys:
                 formats, auto, default = opts.accounts[account]
                 dest = 'mail:'+account+';'+formats
                 action1 = DeviceAction(dest, False, False, I('mail.png'),
-                        _('Email to')+' '+account)
+                        account)
                 action2 = DeviceAction(dest, True, False, I('mail.png'),
-                        _('Email to')+' '+account+ _(' and delete from library'))
-                map(self.email_to_menu.addAction, (action1, action2))
+                        account + ' ' + _('(delete from library)'))
+                self.email_to_menu.addAction(action1)
+                self.email_to_and_delete_menu.addAction(action2)
                 map(self.memory.append, (action1, action2))
                 if default:
-                    map(self.addAction, (action1, action2))
-                    map(self.email_actions.append, (action1, action2))
-                self.email_to_menu.addSeparator()
+                    ac = DeviceAction(dest, False, False,
+                            I('mail.png'), _('Email to') + ' ' +account)
+                    self.addAction(ac)
+                    self.email_actions.append(ac)
+                    ac.a_s.connect(sync_menu.action_triggered)
                 action1.a_s.connect(sync_menu.action_triggered)
                 action2.a_s.connect(sync_menu.action_triggered)
-            ac = self.addMenu(self.email_to_menu)
+            ac = self.addMenu(self.email_to_and_delete_menu)
             self.email_actions.append(ac)
         else:
             ac = self.addAction(_('Setup email based sharing of books'))

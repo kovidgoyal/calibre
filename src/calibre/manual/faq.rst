@@ -107,6 +107,7 @@ My device is not being detected by |app|?
 Follow these steps to find the problem:
 
     * Make sure that you are connecting only a single device to your computer at a time. Do not have another |app| supported device like an iPhone/iPad etc. at the same time.
+    * If you are connecting an Apple iDevice (iPad, iPod Touch, iPhone), use the 'Connect to iTunes' method in the 'Getting started' instructions in `Calibre + Apple iDevices: Start here <http://www.mobileread.com/forums/showthread.php?t=118559>`_.
     * Make sure you are running the latest version of |app|. The latest version can always be downloaded from `the calibre website <http://calibre-ebook.com/download>`_.
     * Ensure your operating system is seeing the device. That is, the device should be mounted as a disk that you can access using Windows explorer or whatever the file management program on your computer is.
     * In calibre, go to Preferences->Plugins->Device Interface plugin and make sure the plugin for your device is enabled, the plugin icon next to it should be green when it is enabled.
@@ -216,7 +217,7 @@ Using iBooks
 **************
 
 Start the Safari browser and type in the IP address and port of the computer running the calibre server, like this::
-    
+
     http://192.168.1.2:8080/
 
 Replace ``192.168.1.2`` with the local IP address of the computer running |app|. If you have changed the port the |app| content server is running on, you will have to change ``8080`` as well to the new port. The local IP address is the IP address you computer is assigned on your home network. A quick Google search will tell you how to find out your local IP address.
@@ -224,13 +225,12 @@ Replace ``192.168.1.2`` with the local IP address of the computer running |app|.
 You wills ee a list of books in Safari, just click on the epub link for whichever book you want to read, Safari will then prompt you to open it with iBooks.
 
 
-With the USB cable
+With the USB cable + iTunes
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-As of |app| version 0.7.0, you can plug your iDevice into the computer using its charging cable, and |app| will detect it and show you a list of books on the device. You can then use the *Send to device button* to send books directly to iBooks on the device. Note that you must have at least iOS 4 installed on your iPhone/iTouch for this to work.
+Use the 'Connect to iTunes' method in the 'Getting started' instructions in `Calibre + Apple iDevices: Start here <http://www.mobileread.com/forums/showthread.php?t=118559>`_.
 
-This method only works on Windows XP and higher and OS X 10.5 and higher. Linux is not supported (iTunes is not available in linux) and OS X 10.4 is not supported.
-For more details on how this works, see `this forum post <http://www.mobileread.com/forums/showpost.php?p=944079&postcount=1>`_.
+This method only works on Windows XP and higher, and OS X 10.5 and higher. Linux is not supported (iTunes is not available in linux) and OS X 10.4 is not supported.
 
 How do I use |app| with my Android phone?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -288,14 +288,16 @@ Why does |app| not support collections on the Kindle or shelves on the Nook?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Neither the Kindle nor the Nook provide any way to manipulate collections over a USB connection.
-If you really care about using collections, I would urge you to sell your Kindle/Nook and get a SONY. 
+If you really care about using collections, I would urge you to sell your Kindle/Nook and get a SONY.
 Only SONY seems to understand that life is too short to be entering collections one by one on an
 e-ink screen :)
 
 Note that in the case of the Kindle, there is a way to manipulate collections via USB,
-but it requires that the Kindle be rebooted *every time* it is disconnected from the computer, for the 
+but it requires that the Kindle be rebooted *every time* it is disconnected from the computer, for the
 changes to the collections to be recognized. As such, it is unlikely that
-any |app| developers will ever feel motivated enough to support it.
+any |app| developers will ever feel motivated enough to support it. There is however, a |app| plugin
+that allows you to create collections on your Kindle from the |app| metadata. It is available
+`here <http://www.mobileread.com/forums/showthread.php?t=118635>`_. 
 
 Library Management
 ------------------
@@ -310,7 +312,9 @@ What formats does |app| read metadata from?
 
 Where are the book files stored?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-When you first run |app|, it will ask you for a folder in which to store your books. Whenever you add a book to |app|, it will copy the book into that folder. Books in the folder are nicely arranged into sub-folders by Author and Title. Metadata about the books is stored in the file ``metadata.db`` (which is a sqlite database).
+When you first run |app|, it will ask you for a folder in which to store your books. Whenever you add a book to |app|, it will copy the book into that folder. Books in the folder are nicely arranged into sub-folders by Author and Title. Note that the contents of this folder are automatically managed by |app|, **do not** add any files/folders manually to this folder, as they may be automatically deleted. If you want to add a file associated to a particular book, use the top right area of :guilabel:`Edit metadata` dialog to do so. Then, |app| will automatically put that file into the correct folder and move it around when the title/author changes.
+
+Metadata about the books is stored in the file ``metadata.db`` at the top level of the library folder This file is is a sqlite database. When backing up your library make sure you copy the entire folder and all its sub-folders.
 
 Why doesn't |app| let me store books in my own directory structure?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -335,7 +339,7 @@ You can also create "virtual columns" that contain combinations of the metadata 
 
 Can I have a column showing the formats or the ISBN?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Yes, you can. Follow the instructions in the answer above for adding custom columns. 
+Yes, you can. Follow the instructions in the answer above for adding custom columns.
 
 How do I move my |app| library from one computer to another?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -387,6 +391,8 @@ Take your pick:
   * A tribute to the SONY Librie which was the first e-ink based e-book reader
   * My wife chose it ;-)
 
+|app| is pronounced as cal-i-ber *not* ca-li-bre. If you're wondering, |app| is the British/commonwealth spelling for caliber. Being Indian, that's the natural spelling for me. 
+
 Why does |app| show only some of my fonts on OS X?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 |app| embeds fonts in ebook files it creates. E-book files support embedding only TrueType (.ttf) fonts. Most fonts on OS X systems are in .dfont format, thus they cannot be embedded. |app| shows only TrueType fonts found on your system. You can obtain many TrueType fonts on the web. Simply download the .ttf files and add them to the Library/Fonts directory in your home directory.
@@ -403,7 +409,7 @@ There can be several causes for this:
        * Temporarily disable your antivirus program (disconnect from the internet before doing so, to be safe)
        * Look inside the folder you chose for your calibre library. If you see a file named metadata.db, delete it.
        * Start calibre
-       * From now on you should be able to start calibre normally. 
+       * From now on you should be able to start calibre normally.
 
     * If you get an error about a Python function terminating unexpectedly after upgrading calibre, first uninstall calibre, then delete the folders (if they exists)
       :file:`C:\\Program Files\\Calibre` and :file:`C:\\Program Files\\Calibre2`. Now re-install and you should be fine.
@@ -451,9 +457,9 @@ Your antivirus program is wrong. |app| is a completely open source product. You 
 How do I backup |app|?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The most important thing to backup is the |app| library folder, that contains all your books and metadata. This is the folder you chose for your |app| library when you ran |app| for the first time. You can get the path to the library folder by clicking the |app| icon on the main toolbar. You must backup this complete folder with all its files and sub-folders. 
+The most important thing to backup is the |app| library folder, that contains all your books and metadata. This is the folder you chose for your |app| library when you ran |app| for the first time. You can get the path to the library folder by clicking the |app| icon on the main toolbar. You must backup this complete folder with all its files and sub-folders.
 
-You can switch |app| to using a backed up library folder by simply clicking the |app| icon on the toolbar and choosing your backup library folder. 
+You can switch |app| to using a backed up library folder by simply clicking the |app| icon on the toolbar and choosing your backup library folder.
 
 If you want to backup the |app| configuration/plugins, you have to backup the config directory. You can find this config directory via :guilabel:`Preferences->Miscellaneous`. Note that restoring configuration directories is not officially supported, but should work in most cases. Just copy the contents of the backup directory into the current configuration directory to restore.
 
@@ -469,9 +475,9 @@ A permission denied error can occur because of many possible reasons, none of th
 Can I have the comment metadata show up on my reader?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Most readers do not support this. You should complain to the manufacturer about it and hopefully if enough people complain, things will change. In the meantime, you can insert the metadata, including comments into a "Jacket page" at the start of the ebook, by using the option to "Insert metadata as page at start of book" during conversion. The option is found in the :guilabel:`Structure Detection` section of the conversion settings. Note that for this to have effect you have to *convert* the book. If your book is already in a format that does not need conversion, you can convert from that format to the same format. 
+Most readers do not support this. You should complain to the manufacturer about it and hopefully if enough people complain, things will change. In the meantime, you can insert the metadata, including comments into a "Jacket page" at the start of the ebook, by using the option to "Insert metadata as page at start of book" during conversion. The option is found in the :guilabel:`Structure Detection` section of the conversion settings. Note that for this to have effect you have to *convert* the book. If your book is already in a format that does not need conversion, you can convert from that format to the same format.
 
-Another alternative is to create a catalog in ebook form containing a listing of all the books in your calibre library, with their metadata. Click the arrow next to the convert button to access the catalog creation tool. And before you ask, no you cannot have the catalog "link directly to" books on your reader. 
+Another alternative is to create a catalog in ebook form containing a listing of all the books in your calibre library, with their metadata. Click the arrow next to the convert button to access the catalog creation tool. And before you ask, no you cannot have the catalog "link directly to" books on your reader.
 
 I want some feature added to |app|. What can I do?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -491,7 +497,7 @@ A portable version of calibre is available at: `portableapps.com <http://portabl
 Why are there so many calibre-parallel processes on my system?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-|app| maintains two separate worker process pools. One is used for adding books/saving to disk and the other for conversions. You can control the number of worker processes via :guilabel:`Preferences->Advanced->Miscellaneous`. So if you set it to 6 that means a maximum of 3 conversions will run simultaneously. And that is why you will see the number of worker processes changes by two when you use the up and down arrows. On windows, you can set the priority that these processes run with. This can be useful on older, single CPU machines, if you find them slowing down to a crawl when conversions are running. 
+|app| maintains two separate worker process pools. One is used for adding books/saving to disk and the other for conversions. You can control the number of worker processes via :guilabel:`Preferences->Advanced->Miscellaneous`. So if you set it to 6 that means a maximum of 3 conversions will run simultaneously. And that is why you will see the number of worker processes changes by two when you use the up and down arrows. On windows, you can set the priority that these processes run with. This can be useful on older, single CPU machines, if you find them slowing down to a crawl when conversions are running.
 
 In addition to this some conversion plugins run tasks in their own pool of processes, so for example if you bulk convert comics, each comic conversion will use three separate processes to render the images. The job manager knows this so it will run only a single comic conversion simultaneously.
 
@@ -504,7 +510,7 @@ How do I run parts of |app| like news download and the content server on my own 
 
 First, you must install |app| onto your linux server. If your server is using a modern linux distro, you should have no problems installing |app| onto it.
 
-.. note:: 
+.. note::
     If you bought into the notion that a real server must run a decade old version of Debian, then you will have to jump through a few hoops. First, compile a newer version of glibc (>= 2.10) on your server from source. Then get the |app| linux binary tarball from the |app| google code page for your server architecture. Extract it into :file:`/opt/calibre`. Put your previously compiled glibc into :file:`/opt/calibre` as :file:`libc.so.6`. You can now run the calibre binaries from :file:`/opt/calibre`.
 
 You can run the |app| server via the command::
@@ -515,10 +521,10 @@ You can download news and convert it into an ebook with the command::
 
    /opt/calibre/ebook-convert "Title of news source.recipe" outputfile.epub
 
-If you want to generate MOBI, use outputfile.mobi instead. 
+If you want to generate MOBI, use outputfile.mobi instead.
 
 You can email downloaded news with the command::
-    
+
     /opt/calibre/calibre-smtp
 
 I leave figuring out the exact command line as an exercise for the reader.

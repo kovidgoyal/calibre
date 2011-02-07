@@ -38,13 +38,16 @@ class LITInput(InputFormatPlugin):
                 if len(body) == 1 and body[0].tag == XHTML('pre'):
                     pre = body[0]
                     from calibre.ebooks.txt.processor import convert_basic, preserve_spaces, \
-                    separate_paragraphs_single_line
+                        separate_paragraphs_single_line
+                    from calibre.ebooks.chardet import xml_to_unicode
                     from lxml import etree
                     import copy
                     html = separate_paragraphs_single_line(pre.text)
                     html = preserve_spaces(html)
                     html = convert_basic(html).replace('<html>',
                             '<html xmlns="%s">'%XHTML_NS)
+                    html = xml_to_unicode(html, strip_encoding_pats=True,
+                            resolve_entities=True)[0]
                     root = etree.fromstring(html)
                     body = XPath('//h:body')(root)
                     pre.tag = XHTML('div')

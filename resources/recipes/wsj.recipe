@@ -35,7 +35,7 @@ class WallStreetJournal(BasicNewsRecipe):
 
     remove_tags_before = dict(name='h1')
     remove_tags = [
-                    dict(id=["articleTabs_tab_article", "articleTabs_tab_comments", "articleTabs_tab_interactive","articleTabs_tab_video","articleTabs_tab_map","articleTabs_tab_slideshow"]),
+                    dict(id=["articleTabs_tab_article", "articleTabs_tab_comments", "articleTabs_tab_interactive","articleTabs_tab_video","articleTabs_tab_map","articleTabs_tab_slideshow","articleTabs_tab_quotes","articleTabs_tab_document"]),
                     {'class':['footer_columns','network','insetCol3wide','interactive','video','slideshow','map','insettip','insetClose','more_in', "insetContent", 'articleTools_bottom', 'aTools', "tooltip", "adSummary", "nav-inline"]},
                     dict(rel='shortcut icon'),
                     ]
@@ -101,7 +101,7 @@ class WallStreetJournal(BasicNewsRecipe):
                title = 'Front Section'
                url = 'http://online.wsj.com' + a['href']
                feeds = self.wsj_add_feed(feeds,title,url)
-               title = 'What''s News'
+               title = "What's News"
                url = url.replace('pageone','whatsnews')
                feeds = self.wsj_add_feed(feeds,title,url)
             else:
@@ -131,6 +131,7 @@ class WallStreetJournal(BasicNewsRecipe):
                 'description':desc, 'date':''})
 
             self.log('\tFound WN article:', title)
+            self.log('\t\t', desc)
 
         return articles
 
@@ -157,17 +158,23 @@ class WallStreetJournal(BasicNewsRecipe):
             meta = a.find(attrs={'class':'meta_sectionName'})
             if meta is not None:
                 meta.extract()
-            title = self.tag_to_string(a).strip() + ' [%s]'%self.tag_to_string(meta)
+                meta = self.tag_to_string(meta).strip()
+            if meta:
+                title = self.tag_to_string(a).strip() + ' [%s]'%meta
+            else:
+                title = self.tag_to_string(a).strip()
             url = 'http://online.wsj.com'+a['href']
             desc = ''
-            p = container.find('p')
-            if p is not None:
+            for p in container.findAll('p'):
                 desc = self.tag_to_string(p)
+                if not 'Subscriber Content' in desc:
+                    break
 
             articles.append({'title':title, 'url':url,
                 'description':desc, 'date':''})
 
             self.log('\tFound article:', title)
+            self.log('\t\t', desc)
 
         return articles
 

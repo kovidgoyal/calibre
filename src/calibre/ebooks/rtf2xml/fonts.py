@@ -16,7 +16,9 @@
 #                                                                       #
 #########################################################################
 import sys, os, tempfile
+
 from calibre.ebooks.rtf2xml import copy
+
 class Fonts:
     """
     Change lines with font info from font numbers to the actual font names.
@@ -45,6 +47,7 @@ class Fonts:
         self.__default_font_num = default_font_num
         self.__write_to = tempfile.mktemp()
         self.__run_level = run_level
+
     def __initiate_values(self):
         """
         Initiate all values.
@@ -67,6 +70,7 @@ class Fonts:
         self.__font_table = {}
         # individual font written
         self.__wrote_ind_font = 0
+
     def __default_func(self, line):
         """
         Requires:
@@ -79,6 +83,7 @@ class Fonts:
         if self.__token_info == 'mi<mk<fonttb-beg':
             self.__state = 'font_table'
         self.__write_obj.write(line)
+
     def __font_table_func(self, line):
         """
         Requires:
@@ -101,6 +106,7 @@ class Fonts:
             self.__font_num = self.__default_font_num
             self.__text_line = ''
         ##self.__write_obj.write(line)
+
     def __font_in_table_func(self, line):
         """
         Requires:
@@ -138,6 +144,7 @@ class Fonts:
         elif self.__token_info == 'mi<mk<fonttb-end':
             self.__found_end_font_table_func()
             self.__state = 'after_font_table'
+
     def __found_end_font_table_func(self):
         """
         Required:
@@ -150,7 +157,8 @@ class Fonts:
         if not self.__wrote_ind_font:
             self.__write_obj.write(
             'mi<tg<empty-att_'
-            '<font-in-table<name>Times<num>0\n' )
+            '<font-in-table<name>Times<num>0\n')
+
     def __after_font_table_func(self, line):
         """
         Required:
@@ -169,7 +177,7 @@ class Fonts:
         if self.__token_info == 'cw<ci<font-style':
             font_num = line[20:-1]
             font_name = self.__font_table.get(font_num)
-            if font_name == None:
+            if font_name is None:
                 if self.__run_level > 3:
                     msg = 'no value for %s in self.__font_table\n' % font_num
                     raise self.__bug_handler, msg
@@ -182,6 +190,7 @@ class Fonts:
                 )
         else:
             self.__write_obj.write(line)
+
     def convert_fonts(self):
         """
         Required:
@@ -197,20 +206,15 @@ class Fonts:
             info. Substitute a font name for a font number.
             """
         self.__initiate_values()
-        read_obj = open(self.__file, 'r')
-        self.__write_obj = open(self.__write_to, 'w')
-        line_to_read = 1
-        while line_to_read:
-            line_to_read = read_obj.readline()
-            line = line_to_read
-            self.__token_info = line[:16]
-            action = self.__state_dict.get(self.__state)
-            if action == None:
-                sys.stderr.write('no no matching state in module fonts.py\n')
-                sys.stderr.write(self.__state + '\n')
-            action(line)
-        read_obj.close()
-        self.__write_obj.close()
+        with open(self.__file, 'r') as read_obj:
+            with open(self.__write_to, 'w') as self.__write_obj:
+                for line in read_obj:
+                    self.__token_info = line[:16]
+                    action = self.__state_dict.get(self.__state)
+                    if action is None:
+                        sys.stderr.write('no matching state in module fonts.py\n' \
+                                            + self.__state + '\n')
+                    action(line)
         default_font_name = self.__font_table.get(self.__default_font_num)
         if not default_font_name:
             default_font_name = 'Not Defined'

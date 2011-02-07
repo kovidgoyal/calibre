@@ -119,6 +119,12 @@ class SearchQueryParser(object):
         return failed
 
     def __init__(self, locations, test=False, optimize=False):
+        self.sqp_initialize(locations, test=test, optimize=optimize)
+
+    def sqp_change_locations(self, locations):
+        self.sqp_initialize(locations, optimize=self.optimize)
+
+    def sqp_initialize(self, locations, test=False, optimize=False):
         self._tests_failed = False
         self.optimize = optimize
         # Define a token
@@ -254,12 +260,12 @@ class SearchQueryParser(object):
         '''
         Should return the set of matches for :param:'location` and :param:`query`.
 
-        The search must be performed over all entries is :param:`candidates` is
+        The search must be performed over all entries if :param:`candidates` is
         None otherwise only over the items in candidates.
 
         :param:`location` is one of the items in :member:`SearchQueryParser.DEFAULT_LOCATIONS`.
         :param:`query` is a string literal.
-        :param: None or a subset of the set returned by :meth:`universal_set`.
+        :return: None or a subset of the set returned by :meth:`universal_set`.
         '''
         return set([])
 

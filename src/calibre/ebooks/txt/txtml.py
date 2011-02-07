@@ -55,6 +55,7 @@ class TXTMLizer(object):
         self.log.info('Converting XHTML to TXT...')
         self.oeb_book = oeb_book
         self.opts = opts
+        self.toc_titles = []
         self.toc_ids = []
         self.last_was_heading = False
         
@@ -67,10 +68,11 @@ class TXTMLizer(object):
         output.append(self.get_toc())
         for item in self.oeb_book.spine:
             self.log.debug('Converting %s to TXT...' % item.href)
-            stylizer = Stylizer(item.data, item.href, self.oeb_book, self.opts, self.opts.output_profile)
-            content = unicode(etree.tostring(item.data.find(XHTML('body')), encoding=unicode))
+            content = unicode(etree.tostring(item.data, encoding=unicode))
             content = self.remove_newlines(content)
-            output += self.dump_text(etree.fromstring(content), stylizer, item)
+            content = etree.fromstring(content)
+            stylizer = Stylizer(content, item.href, self.oeb_book, self.opts, self.opts.output_profile)
+            output += self.dump_text(content.find(XHTML('body')), stylizer, item)
             output += '\n\n\n\n\n\n'
         output = u''.join(output)
         output = u'\n'.join(l.rstrip() for l in output.splitlines())
@@ -93,8 +95,8 @@ class TXTMLizer(object):
         if getattr(self.opts, 'inline_toc', None):
             self.log.debug('Generating table of contents...')
             toc.append(u'%s\n\n' % _(u'Table of Contents:'))
-            for item in self.oeb_book.toc:
-                toc.append(u'* %s\n\n' % item.title)
+            for item in self.toc_titles:
+                toc.append(u'* %s\n\n' % item)
         return ''.join(toc)
 
     def create_flat_toc(self, nodes):
@@ -102,6 +104,7 @@ class TXTMLizer(object):
         Turns a hierarchical list of TOC href's into a flat list.
         '''
         for item in nodes:
+            self.toc_titles.append(item.title)
             self.toc_ids.append(item.href)
             self.create_flat_toc(item.nodes)
 
@@ -218,10 +221,17 @@ class TXTMLizer(object):
 
         if tag in SPACE_TAGS:
             text.append(u' ')
-            
-        # Scene breaks.
+
+        # Hard scene breaks.
         if tag == 'hr':
             text.append('\n\n* * *\n\n')
+        # Soft scene breaks.
+        try:
+            ems = int(round((float(style.marginTop) / style.fontSize) - 1))
+            if ems >= 1:
+                text.append('\n' * ems)
+        except:
+            pass
 
         # Process tags that contain text.
         if hasattr(elem, 'text') and elem.text:

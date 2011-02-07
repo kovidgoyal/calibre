@@ -1,0 +1,341 @@
+from (http://wiki.mobileread.com/wiki/MOBI)
+
+About
+-----
+
+MOBI is the format used by the the MobiPocket Reader. It may have a .mobi
+extension or it may have a .prc extension. The extension can be changed by the
+user to either of the accepted forms. In either case it may be DRM protected or
+non-DRM. The .prc extension is used because the PalmOS doesn't support any file
+extensions except .prc or .pdb. Note that Mobipocket prohibits their DRM format
+to be used on dedicated eBook readers that support other DRM formats.
+
+
+Description
+-----------
+
+MOBI format was originally an extension of the PalmDOC  format by adding
+certain HTML like tags to the data. Many MOBI formatted documents still use
+this form. However there is also a high compression version of this file format
+that compresses data to a larger degree in a proprietary manner. There are some
+third party programs that can read the eBooks in the original MOBI format but
+there are only a few third party program that can read the eBooks in the new
+compressed form. The higher compression mode is using a huffman coding scheme
+that has been called the Huff/cdic algorithm.
+
+From time to time features have been added to the format so new files may have
+problems if you try and read them with a down level reader. Currently the
+source files follow the guidelines in the Open eBook format.
+
+Note that AZW for the Amazon Kindle is the same format as MOBI except that it
+uses a slightly different DRM scheme.
+
+
+Format
+------
+
+Like PalmDOC, the Mobipocket file format is that of a standard Palm Database
+Format file. The header of that format includes the name of the database
+(usually the book title and sometimes a portion of the authors name) which is
+up to 31 bytes of data. The files are identified as Creator ID of MOBI and a
+Type of BOOK.
+
+
+PalmDOC Header
+--------------
+
+The first record in the Palm Database Format gives more information about the
+Mobipocket file. The first 16 bytes are almost identical to the first sixteen
+bytes of a PalmDOC format file.
+
+bytes   content             comments
+2       Compression         1 == no compression, 2 = PalmDOC compression,
+                            17480 = HUFF/CDIC compression.
+2       Unused              Always zero
+4       text length         Uncompressed length of the entire text of the book
+2       record count        Number of PDB records used for the text of the book.
+2       record size         Maximum size of each record containing text, always
+                            4096.
+4       Current Position    Current reading position, as an offset into the
+                            uncompressed text
+
+There are two differences from a Palm DOC file. There's an additional
+compression type (17480), and the Current Position bytes are used for a
+different purpose:
+
+bytes   content             comments
+2       Encryption Type     0 == no encryption, 1 = Old Mobipocket Encryption,
+                            2 = Mobipocket Encryption.
+2       Unknown             Usually zero
+
+The old Mobipocket Encryption scheme only allows the file to be registered
+with one PID, unlike the current encryption scheme that allows multiple PIDs to
+be used in a single file. Unless specifically mentioned, all the encryption
+information on this page refers to the current scheme.
+
+
+MOBI Header
+-----------
+
+Most Mobipocket file also have a MOBI header in record 0 that follows these
+16 bytes, and newer formats also have an EXTH header following the MOBI header,
+again all in record 0 of the PDB file format.
+
+The MOBI header is of variable length and is not documented. Some fields have
+been tentatively identified as follows:
+
+offset  bytes   content                 comments
+16      4       identifier              The characters M O B I
+20      4       header length           The length of the MOBI header, including
+                                        the previous 4 bytes
+24      4       Mobi type               The kind of Mobipocket file this is
+                                            2 Mobipocket Book
+                                            3 PalmDoc Book
+                                            4 Audio
+                                            257 News
+                                            258 News_Feed
+                                            259 News_Magazine
+                                            513 PICS
+                                            514 WORD
+                                            515 XLS
+                                            516 PPT
+                                            517 TEXT
+                                            518 HTML
+28      4       text Encoding           1252 = CP1252 (WinLatin1); 65001 = UTF-8
+32      4       Unique-ID               Some kind of unique ID number (random?)
+36      4       Generator version       Potentially the version of the
+                                        Mobipocket-generation tool. Always >=
+                                        the value of the "format version" field
+                                        and <= the version of mobigen used to
+                                        produce the file.
+40      40      Reserved                All 0xFF. In case of a dictionary, or
+                                        some newer file formats, a few bytes are
+                                        used from this range of 40 0xFFs
+80      4       First Non-book index?   First record number (starting with 0)
+                                        that's not the book's text
+84      4       Full Name Offset        Offset in record 0 (not from start of
+                                        file) of the full name of the book
+88      4       Full Name Length        Length in bytes of the full name of the
+                                        book
+92      4       Language                Book language code. Low byte is main
+                                        language 09= English, next byte is
+                                        dialect, 08 = British, 04 = US
+96      4       Input Language          Input language for a dictionary
+100     4       Output Language         Output language for a dictionary
+104     4       Format version          Potentially the version of the
+                                        Mobipocket format used in this file.
+                                        Always >= 1 and <= the value of the
+                                        "generator version" field.
+108     4       First Image record      First record number (starting with 0)
+                                        that contains an image. Image records
+                                        should be sequential. If there are
+                                        no images this will be 0xffffffff.
+112     4       HUFF record             Record containing Huff information
+                                        used in HUFF/CDIC decompression.
+116     4       HUFF count              Number of Huff records.
+122     4       DATP record             Unknown: Records starts with DATP.
+124     4       DATP count              Number of DATP records.
+128     4       EXTH flags              Bitfield. if bit 6, 0x40 is set, then
+                                        there's an EXTH record
+The following records are only present if the mobi header is long enough.
+132     36      ?                       32 unknown bytes, if MOBI is long enough
+168     4       DRM Offset              Offset to DRM key info in DRMed files.
+                                        0xFFFFFFFF if no DRM
+172     4       DRM Count               Number of entries in DRM info.
+174     4       DRM Size                Number of bytes in DRM info.
+176     4       DRM Flags               Some flags concerning the DRM info.
+180     6       ?
+186     2       Last Image record       Possible vaule with the last image
+                                        record. If there are no images in the
+                                        book this will be 0xffff.
+188     4       ?
+192     4       FCIS record             Unknown. Record starts with FCIS.
+196     4       ?
+200     4       FLIS record             Unknown. Records starts with FLIS.
+204     ?       ?                       Bytes to the end of the MOBI header,
+                                        including the following if the header
+                                        length >= 228. ( 244 from start of
+                                        record)
+242     2       Extra Data Flags        A set of binary flags, some of which
+                                        indicate extra data at the end of each
+                                        text block. This only seems to be valid
+                                        for Mobipocket format version 5 and 6
+                                        (and higher?), when the header length
+                                        is 228 (0xE4) or 232 (0xE8).
+
+
+EXTH Header
+-----------
+
+If the MOBI header indicates that there's an EXTH header, it follows immediately
+after the MOBI header. since the MOBI header is of variable length, this isn't
+at any fixed offset in record 0. Note that some readers will ignore any EXTH
+header info if the mobipocket version number specified in the MOBI header is 2
+or less (perhaps 3 or less).
+
+The EXTH header is also undocumented, so some of this is guesswork.
+
+bytes   content             comments
+4       identifier          the characters E X T H
+4       header length       the length of the EXTH header, including the previous 4 bytes
+4       record Count        The number of records in the EXTH header. the rest of the EXTH header consists of repeated EXTH records to the end of the EXTH length.
+        EXTH record start   Repeat until done.
+4       record type         Exth Record type. Just a number identifying what's stored in the record
+4       record length       length of EXTH record = L , including the 8 bytes in the type and length fields
+L-8     record data         Data.
+        EXTH record end     Repeat until done.
+
+There are lots of different EXTH Records types. Ones found so far in Mobipocket
+files are listed here, with possible meanings. Hopefully the table will be
+filled in as more information comes to light.
+
+record type    usual length     name             comments
+1                               drm_server_id
+2                               drm_commerce_id
+3                               drm_ebookbase_book_id
+100                             author
+101                             publisher
+102                             imprint
+103                             description
+104                             isbn
+105                             subject
+106                             publishingdate
+107                             review
+108                             contributor
+109                             rights
+110                             subjectcode
+111                             type
+112                             source
+113                             asin
+114                             versionnumber
+115                             sample
+116                             startreading
+118                             retail price (as text)
+119                             retail price currency (as text)
+201                             coveroffset
+202                             thumboffset
+203                             hasfakecover
+204                             204 Unknown
+205                             205 Unknown
+206                             206 Unknown
+207                             207 Unknown
+208                             208 Unknown
+300                             300 Unknown
+401                             clippinglimit
+402                             publisherlimit
+403                             403 Unknown
+404                             404 ttsflag
+501            4                cdetype          PDOC - Personal Doc;
+                                                 EBOK - ebook;
+502                             lastupdatetime
+503                             updatedtitle
+
+And now, at the end of Record 0 of the PDB file format, we usually get the full
+file name, the offset of which is given in the MOBI header.
+
+
+Variable-width integers
+-----------------------
+
+Some parts of the Mobipocket format encode data as variable-width integers.
+These integers are represented big-endian with 7 bits per byte in bits 1-7. They
+may be either forward-encoded, in which case only the LSB has bit 8 set, or
+backward-encoded, in which case only the MSB has bit 8 set. For example, the
+number 0x11111 would be represented forward-encoded as:
+
+    0x04 0x22 0x91
+
+And backward-encoded as: 
+
+    0x84 0x22 0x11
+
+
+Trailing entries
+----------------
+
+The Extra Data Flags field of the MOBI header indicates which, if any, trailing
+entries are appended to the end of each text record. Each set bit in the field
+indicates a trailing entry. The entries appear to occur in bit-order; e.g.,
+trailing entry 1 immediately follows the text content and entry 16 occurs at
+the very end of the record. The effect and exact details of most of these
+entries is unknown. The trailing entries indicated by bits 2-16 appear to
+follow a common format. That format is:
+
+    <data><size>
+
+Where <size> is the size of the entire trailing entry (including the size of
+<size>) as a backward-encoded Mobipocket variable-width integer.
+
+Only a few bits have been identified
+
+bit     Data at end of records
+0x0001  Multi-byte character overlaps
+0x0002  Some data to help with indexing
+0x0004  Some data about uncrossable breaks
+
+
+Multibyte character overlap
+---------------------------
+
+When bit 1 of the Extra Data Flags field is set, each record is followed by a
+trailing entry containing any extra bytes necessary to complete a multibyte
+character which crosses the record boundary. The bytes do not participate in
+compression regardless which compression scheme is used for the file. However,
+unlike the trailing data bytes, the multibytes (including the count byte) do
+get included in any encryption. The overlapping bytes then re-appear as normal
+content at the beginning of the following record. The trailing entry ends with
+a byte containing a count of the overlapping bytes plus additional flags.
+
+offset  bytes   content         comments
+0       0-3	N   terminal bytes
+                of a multibyte
+                character	
+N       1       Size & flags    bits 1-2 encode N, use of bits 3-8 is unknown 
+
+
+PalmDOC Compression
+-------------------
+
+PalmDOC uses LZ77 compression techniques. DOC files can contain only compressed
+text. The format does not allow for any text formatting. This keeps files small,
+in keeping with the Palm philosophy. However, extensions to the format can use
+tags, such as HTML or PML, to include formatting within text. These extensions
+to PalmDoc are not interchangeable and are the basis for most eBook Reader
+formats on Palm devices.
+
+LZ77 algorithms achieve compression by replacing portions of the data with
+references to matching data that has already passed through both encoder and
+decoder. A match is encoded by a pair of numbers called a length-distance pair,
+which is equivalent to the statement "each of the next length characters is
+equal to the character exactly distance characters behind it in the uncompressed
+stream." (The "distance" is sometimes called the "offset" instead.)
+
+In the PalmDoc format, a length-distance pair is always encoded by a two-byte
+sequence. Of the 16 bits that make up these two bytes, 11 bits go to encoding
+the distance, 3 go to encoding the length, and the remaining two are used to
+make sure the decoder can identify the first byte as the beginning of such a
+two-byte sequence. The exact alforithm needed to decode the compressed text can
+be found on the PalmDOC page.
+
+PalmDOC data is always divided into 4096 byte blocks and the blocks are acted
+upon independently.
+
+PalmDOC does have support for bookmarks. These pointers are named and refer to
+an offset location in a file. If the file is edited these locations may no
+longer refer to the correct locations. Some reading programs allow the user to
+enter or edit these bookmarks while others treat them as a TOC. Some reading
+programs may ignore them entirely. They are stored at the end of the file itself
+so the full file needs to be scanned when loaded to find them. 
+
+
+MBP
+---
+
+This is the extension used on a side file (auxiliary) for MOBI formatted eBooks.
+It is used to store metadata  used by the library software and also to store
+user entered data like bookmarks, annotations, last read position. This file is
+created automatically by the reader program when the eBook is first opened and
+has a .mbp extension. The Library management software in MobiPocket uses this
+file to get information displayed in the library window such as title and author
+so that it won't have to open the larger eBook file.
+

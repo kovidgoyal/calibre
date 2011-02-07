@@ -24,10 +24,9 @@ from calibre.utils.logging import default_log as log
 from calibre.utils.zipfile import ZipFile, ZipInfo
 from calibre.utils.magick.draw import thumbnail
 
-FIELDS = ['all', 'author_sort', 'authors', 'comments',
-          'cover', 'formats', 'id', 'isbn', 'ondevice', 'pubdate', 'publisher', 'rating',
-          'series_index', 'series', 'size', 'tags', 'timestamp', 'title',
-          'uuid']
+FIELDS = ['all', 'title', 'author_sort', 'authors', 'comments',
+          'cover', 'formats','id', 'isbn', 'ondevice', 'pubdate', 'publisher',
+          'rating', 'series_index', 'series', 'size', 'tags', 'timestamp', 'uuid']
 
 #Allowed fields for template
 TEMPLATE_ALLOWED_FIELDS = [ 'author_sort', 'authors', 'id', 'isbn', 'pubdate',
@@ -54,8 +53,10 @@ class CSV_XML(CatalogPlugin): # {{{
                     'database.  Should be a comma-separated list of fields.\n'
                     'Available fields: %s,\n'
                     'plus user-created custom fields.\n'
+                    'Example: %s=title,authors,tags\n'
                     "Default: '%%default'\n"
-                    "Applies to: CSV, XML output formats")%', '.join(FIELDS)),
+                    "Applies to: CSV, XML output formats")%(', '.join(FIELDS),
+                        '--fields')),
 
             Option('--sort-by',
                 default = 'id',
@@ -231,8 +232,11 @@ class BIBTEX(CatalogPlugin): # {{{
                 help = _('The fields to output when cataloging books in the '
                     'database.  Should be a comma-separated list of fields.\n'
                     'Available fields: %s.\n'
+                    'plus user-created custom fields.\n'
+                    'Example: %s=title,authors,tags\n'
                     "Default: '%%default'\n"
-                    "Applies to: BIBTEX output format")%', '.join(FIELDS)),
+                    "Applies to: BIBTEX output format")%(', '.join(FIELDS),
+                        '--fields')),
 
             Option('--sort-by',
                 default = 'id',
@@ -252,12 +256,21 @@ class BIBTEX(CatalogPlugin): # {{{
                 "Default: '%default'\n"
                 "Applies to: BIBTEX output format")),
 
+            Option('--add-files-path',
+                default = 'True',
+                dest = 'addfiles',
+                action = None,
+                help = _('Create a file entry if formats is selected for BibTeX entries.\n'
+                'Boolean value: True, False\n'
+                "Default: '%default'\n"
+                "Applies to: BIBTEX output format")),
+
             Option('--citation-template',
                 default = '{authors}{id}',
                 dest = 'bib_cit',
                 action = None,
                 help = _('The template for citation creation from database fields.\n'
-                    ' Should be a template with {} enclosed fields.\n'
+                    'Should be a template with {} enclosed fields.\n'
                     'Available fields: %s.\n'
                     "Default: '%%default'\n"
                     "Applies to: BIBTEX output format")%', '.join(TEMPLATE_ALLOWED_FIELDS)),
@@ -298,7 +311,7 @@ class BIBTEX(CatalogPlugin): # {{{
         from calibre.utils.bibtex import BibTeX
 
         def create_bibtex_entry(entry, fields, mode, template_citation,
-            bibtexdict, citation_bibtex = True):
+            bibtexdict, citation_bibtex=True, calibre_files=True):
 
             #Bibtex doesn't like UTF-8 but keep unicode until writing
             #Define starting chain or if book valid strict and not book return a Fail string
@@ -332,7 +345,7 @@ class BIBTEX(CatalogPlugin): # {{{
                 if field == 'authors' :
                     bibtex_entry.append(u'author = "%s"' % bibtexdict.bibtex_author_format(item))
 
-                elif field in ['title', 'publisher', 'cover', 'uuid',
+                elif field in ['title', 'publisher', 'cover', 'uuid', 'ondevice',
                         'author_sort', 'series'] :
                     bibtex_entry.append(u'%s = "%s"' % (field, bibtexdict.utf8ToBibtex(item)))
 
@@ -360,8 +373,13 @@ class BIBTEX(CatalogPlugin): # {{{
                     bibtex_entry.append(u'isbn = "%s"' % re.sub(u'[\D]', u'', item))
 
                 elif field == 'formats' :
-                    item = u', '.join([format.rpartition('.')[2].lower() for format in item])
-                    bibtex_entry.append(u'formats = "%s"' % item)
+                    #Add file path if format is selected
+                    formats = [format.rpartition('.')[2].lower() for format in item]
+                    bibtex_entry.append(u'formats = "%s"' % u', '.join(formats))
+                    if calibre_files:
+                        files = [u':%s:%s' % (format, format.rpartition('.')[2].upper())\
+                            for format in item]
+                        bibtex_entry.append(u'file = "%s"' % u', '.join(files))
 
                 elif field == 'series_index' :
                     bibtex_entry.append(u'volume = "%s"' % int(item))
@@ -457,6 +475,8 @@ class BIBTEX(CatalogPlugin): # {{{
         if opts.verbose:
             opts_dict = vars(opts)
             log("%s(): Generating %s" % (self.name,self.fmt))
+            if opts.connected_device['is_device_connected']:
+                log(" connected_device: %s" % opts.connected_device['name'])
             if opts_dict['search_text']:
                 log(" --search='%s'" % opts_dict['search_text'])
 
@@ -511,31 +531,46 @@ class BIBTEX(CatalogPlugin): # {{{
         else :
             citation_bibtex= opts.impcit
 
+        #Check add file entry and go to default in case of bad CLI
+        if isinstance(opts.addfiles, (StringType, UnicodeType)) :
+            if opts.addfiles == 'False' :
+                addfiles_bibtex = False
+            elif opts.addfiles == 'True' :
+                addfiles_bibtex = True
+            else :
+                log(" WARNING: incorrect --add-files-path, revert to default")
+                addfiles_bibtex= True
+        else :
+            addfiles_bibtex = opts.addfiles
+
         #Preprocess for error and light correction
         template_citation = preprocess_template(opts.bib_cit)
 
         #Open output and write entries
-        outfile = codecs.open(path_to_output, 'w', bibfile_enc, bibfile_enctag)
+        with codecs.open(path_to_output, 'w', bibfile_enc, bibfile_enctag)\
+            as outfile:
+            #File header
+            nb_entries = len(data)
 
-        #File header
-        nb_entries = len(data)
+            #check in book strict if all is ok else throw a warning into log
+            if bib_entry == 'book' :
+                nb_books = len(filter(check_entry_book_valid, data))
+                if nb_books < nb_entries :
+                    log(" WARNING: only %d entries in %d are book compatible" % (nb_books, nb_entries))
+                    nb_entries = nb_books
 
-        #check in book strict if all is ok else throw a warning into log
-        if bib_entry == 'book' :
-            nb_books = len(filter(check_entry_book_valid, data))
-            if nb_books < nb_entries :
-                log(" WARNING: only %d entries in %d are book compatible" % (nb_books, nb_entries))
-                nb_entries = nb_books
+            # If connected device, add 'On Device' values to data
+            if opts.connected_device['is_device_connected'] and 'ondevice' in fields:
+                for entry in data:
+                    entry['ondevice'] = db.catalog_plugin_on_device_temp_mapping[entry['id']]['ondevice']
 
-        outfile.write(u'%%%Calibre catalog\n%%%{0} entries in catalog\n\n'.format(nb_entries))
-        outfile.write(u'@preamble{"This catalog of %d entries was generated by calibre on %s"}\n\n'
-            % (nb_entries, nowf().strftime("%A, %d. %B %Y %H:%M").decode(preferred_encoding)))
+            outfile.write(u'%%%Calibre catalog\n%%%{0} entries in catalog\n\n'.format(nb_entries))
+            outfile.write(u'@preamble{"This catalog of %d entries was generated by calibre on %s"}\n\n'
+                % (nb_entries, nowf().strftime("%A, %d. %B %Y %H:%M").decode(preferred_encoding)))
 
-        for entry in data:
-            outfile.write(create_bibtex_entry(entry, fields, bib_entry, template_citation,
-                bibtexc, citation_bibtex))
-
-        outfile.close()
+            for entry in data:
+                outfile.write(create_bibtex_entry(entry, fields, bib_entry, template_citation,
+                    bibtexc, citation_bibtex, addfiles_bibtex))
 # }}}
 
 class EPUB_MOBI(CatalogPlugin):
@@ -1806,8 +1841,6 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
                 body.insert(btc,pTag)
                 btc += 1
 
-            # <p class="letter_index">
-            # <p class="book_title">
             divTag = Tag(soup, "div")
             dtc = 0
             current_letter = ""
@@ -1820,6 +1853,9 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
                 self.booksByTitle_noSeriesPrefix = nspt
 
             # Loop through the books by title
+            # Generate one divRunningTag per initial letter for the purposes of
+            # minimizing widows and orphans on readers that can handle large
+            # <divs> styled as inline-block
             title_list = self.booksByTitle
             if not self.useSeriesPrefixInTitlesSection:
                 title_list = self.booksByTitle_noSeriesPrefix
@@ -1832,11 +1868,12 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
                         divTag.insert(dtc, divRunningTag)
                         dtc += 1
                     divRunningTag = Tag(soup, 'div')
-                    divRunningTag['style'] = 'display:inline-block;width:100%'
+                    if dtc > 0:
+                        divRunningTag['class'] = "initial_letter"
                     drtc = 0
                     current_letter = self.letter_or_symbol(book['title_sort'][0])
                     pIndexTag = Tag(soup, "p")
-                    pIndexTag['class'] = "letter_index"
+                    pIndexTag['class'] = "author_title_letter_index"
                     aTag = Tag(soup, "a")
                     aTag['name'] = "%s" % self.letter_or_symbol(book['title_sort'][0])
                     pIndexTag.insert(0,aTag)
@@ -1944,8 +1981,6 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
             body.insert(btc, aTag)
             btc += 1
 
-            # <p class="letter_index">
-            # <p class="author_index">
             divTag = Tag(soup, "div")
             dtc = 0
             divOpeningTag = None
@@ -1954,6 +1989,8 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
             drtc = 0
 
             # Loop through booksByAuthor
+            # Each author/books group goes in an openingTag div (first) or
+            # a runningTag div (subsequent)
             book_count = 0
             current_author = ''
             current_letter = ''
@@ -1977,10 +2014,11 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
                     current_letter = self.letter_or_symbol(book['author_sort'][0].upper())
                     author_count = 0
                     divOpeningTag = Tag(soup, 'div')
-                    divOpeningTag['style'] = 'display:inline-block;width:100%'
+                    if dtc > 0:
+                        divOpeningTag['class'] = "initial_letter"
                     dotc = 0
                     pIndexTag = Tag(soup, "p")
-                    pIndexTag['class'] = "letter_index"
+                    pIndexTag['class'] = "author_title_letter_index"
                     aTag = Tag(soup, "a")
                     aTag['name'] = "%sauthors" % self.letter_or_symbol(current_letter)
                     pIndexTag.insert(0,aTag)
@@ -1992,16 +2030,21 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
                     # Start a new author
                     current_author = book['author']
                     author_count += 1
-                    if author_count == 2:
+                    if author_count >= 2:
                         # Add divOpeningTag to divTag, kill divOpeningTag
-                        divTag.insert(dtc, divOpeningTag)
-                        dtc += 1
-                        divOpeningTag = None
-                        dotc = 0
+                        if divOpeningTag:
+                            divTag.insert(dtc, divOpeningTag)
+                            dtc += 1
+                            divOpeningTag = None
+                            dotc = 0
 
-                        # Create a divRunningTag for the rest of the authors in this letter
+                        # Create a divRunningTag for the next author
+                        if author_count > 2:
+                            divTag.insert(dtc, divRunningTag)
+                            dtc += 1
+
                         divRunningTag = Tag(soup, 'div')
-                        divRunningTag['style'] = 'display:inline-block;width:100%'
+                        divRunningTag['class'] = "author_logical_group"
                         drtc = 0
 
                     non_series_books = 0
@@ -2333,8 +2376,6 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
                 body.insert(btc,pTag)
                 btc += 1
 
-            # <p class="letter_index">
-            # <p class="author_index">
             divTag = Tag(soup, "div")
             dtc = 0
 
@@ -2518,8 +2559,6 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
             body.insert(btc, aTag)
             btc += 1
 
-            # <p class="letter_index">
-            # <p class="author_index">
             divTag = Tag(soup, "div")
             dtc = 0
 
@@ -2621,8 +2660,6 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
             body.insert(btc, aTag)
             btc += 1
 
-            # <p class="letter_index">
-            # <p class="author_index">
             divTag = Tag(soup, "div")
             dtc = 0
             current_letter = ""
@@ -2637,7 +2674,7 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
                     # Start a new letter with Index letter
                     current_letter = self.letter_or_symbol(sort_title[0].upper())
                     pIndexTag = Tag(soup, "p")
-                    pIndexTag['class'] = "letter_index"
+                    pIndexTag['class'] = "series_letter_index"
                     aTag = Tag(soup, "a")
                     aTag['name'] = "%s_series" % self.letter_or_symbol(current_letter)
                     pIndexTag.insert(0,aTag)
@@ -4405,34 +4442,39 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
 
             # Insert the link to the series or remove <a class="series">
             aTag = body.find('a', attrs={'class':'series_id'})
-            if book['series']:
-                if self.opts.generate_series:
-                    aTag['href'] = "%s.html#%s_series" % ('BySeries',
-                                    re.sub('\W','',book['series']).lower())
-            else:
-                aTag.extract()
+            if aTag:
+                if book['series']:
+                    if self.opts.generate_series:
+                        aTag['href'] = "%s.html#%s_series" % ('BySeries',
+                                        re.sub('\W','',book['series']).lower())
+                else:
+                    aTag.extract()
 
-            # Insert the author link (always)
+            # Insert the author link
             aTag = body.find('a', attrs={'class':'author'})
-            if self.opts.generate_authors:
+            if self.opts.generate_authors and aTag:
                 aTag['href'] = "%s.html#%s" % ("ByAlphaAuthor",
                                             self.generateAuthorAnchor(book['author']))
 
             if publisher == ' ':
                 publisherTag = body.find('td', attrs={'class':'publisher'})
-                publisherTag.contents[0].replaceWith('&nbsp;')
+                if publisherTag:
+                    publisherTag.contents[0].replaceWith('&nbsp;')
 
             if not genres:
                 genresTag = body.find('p',attrs={'class':'genres'})
-                genresTag.extract()
+                if genresTag:
+                    genresTag.extract()
 
             if not formats:
                 formatsTag = body.find('p',attrs={'class':'formats'})
-                formatsTag.extract()
+                if formatsTag:
+                    formatsTag.extract()
 
             if note_content == '':
                 tdTag = body.find('td', attrs={'class':'notes'})
-                tdTag.contents[0].replaceWith('&nbsp;')
+                if tdTag:
+                    tdTag.contents[0].replaceWith('&nbsp;')
 
             emptyTags = body.findAll('td', attrs={'class':'empty'})
             for mt in emptyTags:

@@ -51,4 +51,4 @@ class LaNacionChile(BasicNewsRecipe):
             del item['style']
         return soup
 
-    language = 'es'
+    language = 'es_CL'

@@ -1,73 +1,92 @@
-#!/usr/bin/env  python
-
 __license__   = 'GPL v3'
-__copyright__ = '2008-2009, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2008-2011, Darko Miletic <darko.miletic at gmail.com>'
 '''
-latimes.com
+www.latimes.com
 '''
+
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class LATimes(BasicNewsRecipe):
-    title                 = u'The Los Angeles Times'
-    __author__            = u'Darko Miletic and Sujata Raman'
-    description           = u'News from Los Angeles'
-    oldest_article        = 7
-    max_articles_per_feed = 100
-    language              = 'en'
+    title                 = 'Los Angeles Times'
+    __author__            = 'Darko Miletic'
+    description           = 'The Los Angeles Times is a leading source of news on Southern California, entertainment, movies, television, music, politics, business, health, technology, travel, sports, environment, economics, autos, jobs, real estate and other topics affecting California'
+    publisher             = 'Tribune Company'
+    category              = 'news, politics, USA, Los Angeles, world'
+    oldest_article        = 2
+    max_articles_per_feed = 200
     no_stylesheets        = True
+    encoding              = 'utf8'
     use_embedded_content  = False
-    encoding              = 'utf-8'
-    lang                  = 'en-US'
+    language              = 'en'
+    remove_empty_feeds    = True
+    publication_type      = 'newspaper'
+    masthead_url          = 'http://www.latimes.com/images/logo.png'
+    cover_url             = 'http://www.latimes.com/includes/sectionfronts/A1.pdf'
+    extra_css             = """
+                               body{font-family: Georgia,"Times New Roman",Times,serif }
+                               img{margin-bottom: 0.4em; margin-top: 0.8em; display:block}
+                               h2{font-size: 1.1em}
+                               .deckhead{font-size: small; text-transform: uppercase}
+                               .small{color: gray; font-size: small}
+                               .date,.time,.copyright{font-size: x-small; color:gray; font-style:italic;}
+                            """
 
     conversion_options = {
-          'comment'          : description
-        , 'language'         : lang
-    }
+                          'comment'          : description
+                        , 'tags'             : category
+                        , 'publisher'        : publisher
+                        , 'language'         : language
+                        , 'linearize_tables' : 'Yes'
+                        }
 
-    extra_css = '''
-                h1{font-family :Georgia,"Times New Roman",Times,serif; font-size:large; }
-                h2{font-family :Georgia,"Times New Roman",Times,serif; font-size:x-small;}
-                .story{font-family :Georgia,"Times New Roman",Times,serif; font-size: x-small;}
-                .entry-body{font-family :Georgia,"Times New Roman",Times,serif; font-size: x-small;}
-                .entry-more{font-family :Georgia,"Times New Roman",Times,serif; font-size: x-small;}
-                .credit{color:#666666; font-family :Georgia,"Times New Roman",Times,serif; font-size: xx-small;}
-                .small{color:#666666; font-family :Georgia,"Times New Roman",Times,serif; font-size: xx-small;}
-                .byline{font-family :Georgia,"Times New Roman",Times,serif; font-size: xx-small;}
-                .date{font-family :Georgia,"Times New Roman",Times,serif; font-size: xx-small;color:#930000; font-style:italic;}
-                .time{font-family :Georgia,"Times New Roman",Times,serif; font-size: xx-small;color:#930000; font-style:italic;}
-                .copyright{font-family :Georgia,"Times New Roman",Times,serif; font-size: xx-small;color:#930000; }
-                .subhead{font-family :Georgia,"Times New Roman",Times,serif; font-size:x-small;}
-                '''
-
-   # recursions = 1
-   # match_regexps = [r'http://www.latimes.com/.*page=[2-9]']
-
-    keep_only_tags    = [dict(name='div', attrs={'class':["story"  ,"entry"] })]
+    keep_only_tags = [
+                        dict(name='div', attrs={'class':'story'})
+                       ,dict(attrs={'class':['entry-header','time','entry-content']})
+                     ]
+    remove_tags_after=dict(name='p', attrs={'class':'copyright'})
+    remove_tags = [
+                     dict(name=['meta','link','iframe','object','embed'])
+                    ,dict(attrs={'class':['toolSet','articlerail','googleAd','entry-footer-left','entry-footer-right','entry-footer-social','google-ad-story-bottom','sphereTools']})
+                    ,dict(attrs={'id':['article-promo','googleads','moduleArticleToolsContainer','gallery-subcontent']})
+                  ]
+    remove_attributes=['lang','xmlns:fb','xmlns:og','border','xtags','i','article_body']
 
 
-    remove_tags      = [   dict(name='div', attrs={'class':['articlerail',"sphereTools","tools","toppaginate","entry-footer-left","entry-footer-right"]}),
-                            dict(name='div', attrs={'id':["moduleArticleToolsContainer",]}),
-                            dict(name='p', attrs={'class':["entry-footer",]}),
-                           dict(name='ul', attrs={'class':"article-nav clearfix"}),
-                            dict(name=['iframe'])
-                        ]
-
-
-    feeds          = [(u'News', u'http://feeds.latimes.com/latimes/news')
-                      ,(u'Local','http://feeds.latimes.com/latimes/news/local')
-                      ,(u'MostEmailed','http://feeds.latimes.com/MostEmailed')
-                      ,(u'Politics','http://feeds.latimes.com/latimes/news/local/politics/cal/')
-                      ,('OrangeCounty','http://feeds.latimes.com/latimes/news/local/orange/')
-                      ,('National','http://feeds.latimes.com/latimes/news/nationworld/nation')
-                      ,('Politics','http://feeds.latimes.com/latimes/news/politics/')
-                      ,('Business','http://feeds.latimes.com/latimes/business')
-                      ,('Sports','http://feeds.latimes.com/latimes/sports/')
-                      ,('Entertainment','http://feeds.latimes.com/latimes/entertainment/')
-                      ]
-
+    feeds = [
+              (u'Top News'             , u'http://feeds.latimes.com/latimes/news'                           )
+             ,(u'Local News'           , u'http://feeds.latimes.com/latimes/news/local'                     )
+             ,(u'National'             , u'http://feeds.latimes.com/latimes/news/nationworld/nation'        )
+             ,(u'National Politics'    , u'http://feeds.latimes.com/latimes/news/politics/'                 )
+             ,(u'Business'             , u'http://feeds.latimes.com/latimes/business'                       )
+             ,(u'Education'            , u'http://feeds.latimes.com/latimes/news/education'                 )
+             ,(u'Environment'          , u'http://feeds.latimes.com/latimes/news/science/environment'       )
+             ,(u'Religion'             , u'http://feeds.latimes.com/latimes/features/religion'              )
+             ,(u'Science'              , u'http://feeds.latimes.com/latimes/news/science'                   )
+             ,(u'Technology'           , u'http://feeds.latimes.com/latimes/technology'                     )
+             ,(u'Africa'               , u'http://feeds.latimes.com/latimes/africa'                         )
+             ,(u'Asia'                 , u'http://feeds.latimes.com/latimes/asia'                           )
+             ,(u'Europe'               , u'http://feeds.latimes.com/latimes/europe'                         )
+             ,(u'Latin America'        , u'http://feeds.latimes.com/latimes/latinamerica'                   )
+             ,(u'Middle East'          , u'http://feeds.latimes.com/latimes/middleeast'                     )
+             ,(u'Arts&Culture'         , u'http://feeds.feedburner.com/latimes/entertainment/news/arts'     )
+             ,(u'Entertainment News'   , u'http://feeds.feedburner.com/latimes/entertainment/news/'         )
+             ,(u'Movie News'           , u'http://feeds.feedburner.com/latimes/entertainment/news/movies/'  )
+             ,(u'Movie Reviews'        , u'http://feeds.feedburner.com/movies/reviews/'                     )
+             ,(u'Music News'           , u'http://feeds.feedburner.com/latimes/entertainment/news/music/'   )
+             ,(u'Pop Album Reviews'    , u'http://feeds.feedburner.com/latimes/pop-album-reviews'           )
+             ,(u'Restaurant Reviews'   , u'http://feeds.feedburner.com/latimes/restaurant/reviews'          )
+             ,(u'Theatar and Dance'    , u'http://feeds.feedburner.com/latimes/theaterdance'                )
+             ,(u'Autos'                , u'http://feeds.latimes.com/latimes/classified/automotive/highway1/')
+             ,(u'Books'                , u'http://feeds.latimes.com/features/books'                         )
+             ,(u'Food'                 , u'http://feeds.latimes.com/latimes/features/food/'                 )
+             ,(u'Health'               , u'http://feeds.latimes.com/latimes/features/health/'               )
+             ,(u'Real Estate'          , u'http://feeds.latimes.com/latimes/classified/realestate/'         )
+             ,(u'Commentary'           , u'http://feeds2.feedburner.com/latimes/news/opinion/commentary/'   )
+             ,(u'Sports'               , u'http://feeds.latimes.com/latimes/sports/'                        )
+            ]
 
     def get_article_url(self, article):
-        ans = article.get('feedburner_origlink').rpartition('?')[0]
+        ans = BasicNewsRecipe.get_article_url(self, article).rpartition('?')[0]
 
         try:
             self.log('Looking for full story link in', ans)
@@ -83,4 +102,22 @@ class LATimes(BasicNewsRecipe):
             pass
         return ans
 
-
+    def preprocess_html(self, soup):
+        for item in soup.findAll(style=True):
+            del item['style']
+        for item in soup.findAll('img'):
+            if not item.has_key('alt'):
+               item['alt'] = 'image'
+        for item in soup.findAll('a'):
+            limg = item.find('img')
+            if item.string is not None:
+               str = item.string
+               item.replaceWith(str)
+            else:
+               if limg:
+                  item.name  ='div'
+                  item.attrs =[]
+               else:
+                   str = self.tag_to_string(item)
+                   item.replaceWith(str)
+        return soup

@@ -43,7 +43,7 @@
       <double>0.000000000000000</double>
      </property>
      <property name="maximum">
-      <double>30.000000000000000</double>
+      <double>50.000000000000000</double>
      </property>
      <property name="singleStep">
       <double>1.000000000000000</double>

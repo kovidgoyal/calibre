@@ -1,0 +1,36 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1295088390(BasicNewsRecipe):
+     title          = u'Everett Herald'
+     language = 'en'
+     __author__ = '77ja65'
+     oldest_article = 4
+     max_articles_per_feed = 50
+     no_stylesheets = True
+     masthead_url          = 'http://heraldnet.com/images/hnet/jQueryComponents/jQueryNavigation/heraldnet_logo.png'
+     extra_css      = '.headline {font-size: x-large;} \n .fact { padding-top: 10pt  }'
+
+     feeds          = [(u'Local News',
+ u'http://heraldnet.com/section/RSS02&mime=xml'),
+         (u'Sports', u'http://heraldnet.com/section/RSS04&mime=xml'),
+         (u'Entertainment',
+ u'http://heraldnet.com/section/RSS07&mime=xml'),
+         (u'Life', u'http://heraldnet.com/section/RSS03&mime=xml'),
+         (u'Breaking News',
+ u'http://heraldnet.com/section/RSS34&mime=xml'),
+         (u'Seahawks', u'http://heraldnet.com/section/RSS22&mime=xml'),
+         (u'HeraldNet', u'http://heraldnet.com/section/RSS01&mime=xml'),
+         (u'Inside Everett',
+ u'http://heraldnet.com/section/RSS26&mime=xml')
+         ]
+
+     def print_version(self, url):
+       return url + "&template=PrinterFriendly"
+
+     extra_css = '''
+                     h1{font-family:Arial,Helvetica,sans-serif; font-
+ weight:bold;font-size:large;}
+                     h2{font-family:Arial,Helvetica,sans-serif; font-
+ weight:normal;font-size:small;}
+                 '''
+

@@ -356,6 +356,13 @@ class %(classname)s(%(base_class)s):
         self.populate_options(AutomaticNewsRecipe)
         self.source_code.setText('')
 
+    def reject(self):
+        if question_dialog(self, _('Are you sure?'),
+                _('You will lose any unsaved changes. To save your'
+                    ' changes, click the Add/Update recipe button.'
+                    ' Continue?'), show_copy_button=False):
+            ResizableDialog.reject(self)
+
 if __name__ == '__main__':
     from calibre.gui2 import is_ok_to_use_qt
     is_ok_to_use_qt()

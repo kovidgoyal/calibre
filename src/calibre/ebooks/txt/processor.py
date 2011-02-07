@@ -18,26 +18,43 @@ from calibre.utils.cleantext import clean_ascii_chars
 HTML_TEMPLATE = u'<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>%s</title></head><body>\n%s\n</body></html>'
 
 def clean_txt(txt):
+    '''
+    Run transformations on the text to put it into
+    consistent state.
+    '''
     if isbytestring(txt):
         txt = txt.decode('utf-8', 'replace')
-    # Strip whitespace from the beginning and end of the line. Also replace
+    # Strip whitespace from the end of the line. Also replace
     # all line breaks with \n.
-    txt = '\n'.join([line.strip() for line in txt.splitlines()])
+    txt = '\n'.join([line.rstrip() for line in txt.splitlines()])
+    
+    # Replace whitespace at the beginning of the line with &nbsp;
+    txt = re.sub('(?m)(?P<space>^[ ]+)(?=.)', lambda mo: '&nbsp;' * mo.groups('space').count(' '), txt)
+    txt = re.sub('(?m)(?P<space>^[\t]+)(?=.)', lambda mo: '&nbsp;' * 4 * mo.groups('space').count('\t'), txt)
 
     # Condense redundant spaces
     txt = re.sub('[ ]{2,}', ' ', txt)
 
-    # Remove blank lines from the beginning and end of the document.
+    # Remove blank space from the beginning and end of the document.
     txt = re.sub('^\s+(?=.)', '', txt)
     txt = re.sub('(?<=.)\s+$', '', txt)
     # Remove excessive line breaks.
-    txt = re.sub('\n{3,}', '\n\n', txt)
+    txt = re.sub('\n{5,}', '\n\n\n\n', txt)
     #remove ASCII invalid chars : 0 to 8 and 11-14 to 24
     txt = clean_ascii_chars(txt)
 
     return txt
 
 def split_txt(txt, epub_split_size_kb=0):
+    '''
+    Ensure there are split points for converting
+    to EPUB. A misdetected paragraph type can
+    result in the entire document being one giant
+    paragraph. In this case the EPUB parser will not
+    be able to determine where to split the file
+    to accomidate the EPUB file size limitation
+    and will fail.
+    '''
     #Takes care if there is no point to split
     if epub_split_size_kb > 0:
         if isinstance(txt, unicode):
@@ -55,14 +72,26 @@ def split_txt(txt, epub_split_size_kb=0):
     return txt
 
 def convert_basic(txt, title='', epub_split_size_kb=0):
+    '''
+    Converts plain text to html by putting all paragraphs in
+    <p> tags. It condense and retains blank lines when necessary.
+    
+    Requires paragraphs to be in single line format.
+    '''
     txt = clean_txt(txt)
     txt = split_txt(txt, epub_split_size_kb)
 
     lines = []
+    blank_count = 0
     # Split into paragraphs based on having a blank line between text.
-    for line in txt.split('\n\n'):
+    for line in txt.split('\n'):
         if line.strip():
+            blank_count = 0
             lines.append(u'<p>%s</p>' % prepare_string_for_xml(line.replace('\n', ' ')))
+        else:
+            blank_count += 1
+            if blank_count == 2:
+                lines.append(u'<p>&nbsp;</p>')
 
     return HTML_TEMPLATE % (title, u'\n'.join(lines))
 
@@ -85,16 +114,30 @@ def normalize_line_endings(txt):
     return txt
 
 def separate_paragraphs_single_line(txt):
-    txt = re.sub(u'(?<=.)\n(?=.)', '\n\n', txt)
+    txt = txt.replace('\n', '\n\n')
     return txt
 
 def separate_paragraphs_print_formatted(txt):
-    txt = re.sub(u'(?miu)^(\t+|[ ]{2,})(?=.)', '\n\t', txt)
+    txt = re.sub(u'(?miu)^(?P<indent>\t+|[ ]{2,})(?=.)', lambda mo: '\n%s' % mo.group('indent'), txt)
+    return txt
+
+def block_to_single_line(txt):
+    txt = re.sub(r'(?<=.)\n(?=.)', ' ', txt)
     return txt
 
 def preserve_spaces(txt):
-    txt = txt.replace(' ', '&nbsp;')
+    '''
+    Replaces spaces multiple spaces with &nbsp; entities.
+    '''
+    txt = re.sub('(?P<space>[ ]{2,})', lambda mo: ' ' + ('&nbsp;' * (len(mo.group('space')) - 1)), txt)
     txt = txt.replace('\t', '&nbsp;&nbsp;&nbsp;&nbsp;')
+    return txt
+
+def remove_indents(txt):
+    '''
+    Remove whitespace at the beginning of each line.
+    '''
+    txt = re.sub('(?miu)^\s+', '', txt)
     return txt
 
 def opf_writer(path, opf_name, manifest, spine, mi):
@@ -104,7 +147,10 @@ def opf_writer(path, opf_name, manifest, spine, mi):
     with open(os.path.join(path, opf_name), 'wb') as opffile:
         opf.render(opffile)
 
-def split_string_separator(txt, size) :
+def split_string_separator(txt, size):
+    '''
+    Splits the text by putting \n\n at the point size.
+    '''
     if len(txt) > size:
         txt = ''.join([re.sub(u'\.(?P<ends>[^.]*)$', '.\n\n\g<ends>',
             txt[i:i+size], 1) for i in
@@ -113,7 +159,7 @@ def split_string_separator(txt, size) :
 
 def detect_paragraph_type(txt):
     '''
-    Tries to determine the formatting of the document.
+    Tries to determine the paragraph type of the document.
 
     block: Paragraphs are separated by a blank line.
     single: Each line is a paragraph.
@@ -156,6 +202,16 @@ def detect_paragraph_type(txt):
 
 
 def detect_formatting_type(txt):
+    '''
+    Tries to determine the formatting of the document.
+    
+    markdown: Markdown formatting is used.
+    textile: Textile formatting is used.
+    heuristic: When none of the above formatting types are
+               detected heuristic is returned.
+    '''
+    # Keep a count of the number of format specific object
+    # that are found in the text.
     markdown_count = 0
     textile_count = 0
 
@@ -179,6 +235,8 @@ def detect_formatting_type(txt):
     # Links
     textile_count += len(re.findall(r'"(?=".*?\()(\(.+?\))*[^\(]+?(\(.+?\))*":[^\s]+', txt))
 
+    # Decide if either markdown or textile is used in the text
+    # based on the number of unique formatting elements found.
     if markdown_count > 5 or textile_count > 5:
         if markdown_count > textile_count:
             return 'markdown'

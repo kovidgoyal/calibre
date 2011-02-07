@@ -17,7 +17,7 @@ class Perfil(BasicNewsRecipe):
     no_stylesheets        = True
     encoding              = 'cp1252'
     use_embedded_content  = False
-    language              = 'es'
+    language              = 'es_AR'
     remove_empty_feeds    = True
     masthead_url          = 'http://www.perfil.com/export/sites/diarioperfil/arte/10/logo_perfilcom_mm.gif'
     extra_css             = """

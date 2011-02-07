@@ -17,13 +17,10 @@
    <item>
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Candara'; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Set a regular expression pattern to use when trying to guess ebook metadata from filenames. &lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;A &lt;a href=&quot;http://docs.python.org/lib/re-syntax.html&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;reference&lt;/span&gt;&lt;/a&gt; on the syntax of regular expressions is available.&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Use the &lt;span style=&quot; font-weight:600;&quot;&gt;Test&lt;/span&gt; functionality below to test your regular expression on a few sample filenames. The group names for the various metadata entries are documented in tooltips.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;div style=&quot;font-size:10pt;&quot;&gt;
+&lt;p&gt;Set a regular expression pattern to use when trying to guess ebook metadata from filenames. &lt;/p&gt;
+&lt;p&gt;A &lt;a href=&quot;http://calibre-ebook.com/user_manual/regexp.html&quot;&gt;tutorial&lt;/a&gt; on using regular expressions is available.&lt;/p&gt;
+&lt;p&gt;Use the &lt;b&gt;Test&lt;/b&gt; functionality below to test your regular expression on a few sample filenames (remember to include the file extension). The group names for the various metadata entries are documented in tooltips.&lt;/p&gt;&lt;/div&gt;</string>
      </property>
      <property name="textFormat">
       <enum>Qt::RichText</enum>
@@ -43,7 +40,17 @@ p, li { white-space: pre-wrap; }
      </property>
      <layout class="QVBoxLayout">
       <item>
-       <widget class="QLineEdit" name="re"/>
+       <widget class="QComboBox" name="re">
+        <property name="editable">
+         <bool>true</bool>
+        </property>
+        <property name="maxCount">
+         <number>10</number>
+        </property>
+        <property name="insertPolicy">
+         <enum>QComboBox::InsertAtTop</enum>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>
@@ -94,8 +101,8 @@ p, li { white-space: pre-wrap; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>301</width>
-             <height>234</height>
+             <width>305</width>
+             <height>263</height>
             </rect>
            </property>
            <layout class="QGridLayout" name="gridLayout_2">

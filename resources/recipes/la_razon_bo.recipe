@@ -18,7 +18,7 @@ class LaRazon_Bol(BasicNewsRecipe):
     no_stylesheets        = True
     encoding              = 'cp1252'
     use_embedded_content  = False
-    language              = 'es'
+    language              = 'es_BO'
     publication_type      = 'newspaper'
     delay                 = 1
     remove_empty_feeds    = True

@@ -12,7 +12,7 @@ from calibre.ebooks.chardet import detect
 from calibre.ebooks.txt.processor import convert_basic, convert_markdown, \
     separate_paragraphs_single_line, separate_paragraphs_print_formatted, \
     preserve_spaces, detect_paragraph_type, detect_formatting_type, \
-    normalize_line_endings, convert_textile
+    normalize_line_endings, convert_textile, remove_indents, block_to_single_line
 from calibre import _ent_pat, xml_entity_to_unicode
 
 class TXTInput(InputFormatPlugin):
@@ -47,6 +47,9 @@ class TXTInput(InputFormatPlugin):
         OptionRecommendation(name='preserve_spaces', recommended_value=False,
             help=_('Normally extra spaces are condensed into a single space. '
                 'With this option all spaces will be displayed.')),
+        OptionRecommendation(name='txt_in_remove_indents', recommended_value=False,
+            help=_('Normally extra space at the beginning of lines is retained. '
+                   'With this option they will be removed.')),
         OptionRecommendation(name="markdown_disable_toc", recommended_value=False,
             help=_('Do not insert a Table of Contents into the output text.')),
     ])
@@ -55,8 +58,10 @@ class TXTInput(InputFormatPlugin):
                 accelerators):
         self.log = log
         log.debug('Reading text from file...')
+        length = 0
 
         txt = stream.read()
+
         # Get the encoding of the document.
         if options.input_encoding:
             ienc = options.input_encoding
@@ -70,23 +75,11 @@ class TXTInput(InputFormatPlugin):
             log.debug('No input encoding specified and could not auto detect using %s' % ienc)
         txt = txt.decode(ienc, 'replace')
 
+        # Replace entities
         txt = _ent_pat.sub(xml_entity_to_unicode, txt)
 
         # Normalize line endings
         txt = normalize_line_endings(txt)
-
-        if options.formatting_type == 'auto':
-            options.formatting_type = detect_formatting_type(txt)
-
-        if options.formatting_type == 'heuristic':
-            setattr(options, 'enable_heuristics', True)
-            setattr(options, 'markup_chapter_headings', True)
-            setattr(options, 'italicize_common_cases', True)
-            setattr(options, 'fix_indents', True)
-            setattr(options, 'preserve_spaces', True)
-            setattr(options, 'delete_blank_paragraphs', True)
-            setattr(options, 'format_scene_breaks', True)
-            setattr(options, 'dehyphenate', True)
 
         # Determine the paragraph type of the document.
         if options.paragraph_type == 'auto':
@@ -97,50 +90,68 @@ class TXTInput(InputFormatPlugin):
             else:
                 log.debug('Auto detected paragraph type as %s' % options.paragraph_type)
 
+        # Detect formatting
+        if options.formatting_type == 'auto':
+            options.formatting_type = detect_formatting_type(txt)
+            log.debug('Auto detected formatting as %s' % options.formatting_type)
+
+        if options.formatting_type == 'heuristic':
+            setattr(options, 'enable_heuristics', True)
+            setattr(options, 'unwrap_lines', False)
+
+        # Reformat paragraphs to block formatting based on the detected type.
+        # We don't check for block because the processor assumes block.
+        # single and print at transformed to block for processing.
+        if options.paragraph_type == 'single':
+            txt = separate_paragraphs_single_line(txt)
+        elif options.paragraph_type == 'print':
+            txt = separate_paragraphs_print_formatted(txt)
+            txt = block_to_single_line(txt)
+        elif options.paragraph_type == 'unformatted':
+            from calibre.ebooks.conversion.utils import HeuristicProcessor
+            # unwrap lines based on punctuation
+            docanalysis = DocAnalysis('txt', txt)
+            length = docanalysis.line_length(.5)
+            preprocessor = HeuristicProcessor(options, log=getattr(self, 'log', None))
+            txt = preprocessor.punctuation_unwrap(length, txt, 'txt')
+            txt = separate_paragraphs_single_line(txt)
+        else:
+            txt = block_to_single_line(txt)
+
+        if getattr(options, 'enable_heuristics', False) and getattr(options, 'dehyphenate', False):
+            docanalysis = DocAnalysis('txt', txt)
+            if not length:
+                length = docanalysis.line_length(.5)
+            dehyphenator = Dehyphenator(options.verbose, log=self.log)
+            txt = dehyphenator(txt,'txt', length)
+
+        # User requested transformation on the text.
+        if options.txt_in_remove_indents:
+            txt = remove_indents(txt)
+
         # Preserve spaces will replace multiple spaces to a space
         # followed by the &nbsp; entity.
         if options.preserve_spaces:
             txt = preserve_spaces(txt)
 
-        # Get length for hyphen removal and punctuation unwrap
-        docanalysis = DocAnalysis('txt', txt)
-        length = docanalysis.line_length(.5)
-
+        # Process the text using the appropriate text processor.
+        html = ''
         if options.formatting_type == 'markdown':
-            log.debug('Running text though markdown conversion...')
+            log.debug('Running text through markdown conversion...')
             try:
                 html = convert_markdown(txt, disable_toc=options.markdown_disable_toc)
             except RuntimeError:
                 raise ValueError('This txt file has malformed markup, it cannot be'
                     ' converted by calibre. See http://daringfireball.net/projects/markdown/syntax')
         elif options.formatting_type == 'textile':
-            log.debug('Running text though textile conversion...')
+            log.debug('Running text through textile conversion...')
             html = convert_textile(txt)
-
         else:
-            # Dehyphenate
-            dehyphenator = Dehyphenator(options.verbose, log=self.log)
-            txt = dehyphenator(txt,'txt', length)
-
-            # We don't check for block because the processor assumes block.
-            # single and print at transformed to block for processing.
-
-            if options.paragraph_type == 'single' or options.paragraph_type == 'unformatted':
-                txt = separate_paragraphs_single_line(txt)
-            elif options.paragraph_type == 'print':
-                txt = separate_paragraphs_print_formatted(txt)
-
-            if options.paragraph_type == 'unformatted':
-                from calibre.ebooks.conversion.utils import HeuristicProcessor
-                # get length
-
-                # unwrap lines based on punctuation
-                preprocessor = HeuristicProcessor(options, log=getattr(self, 'log', None))
-                txt = preprocessor.punctuation_unwrap(length, txt, 'txt')
-
+            log.debug('Running text through basic conversion...')
             flow_size = getattr(options, 'flow_size', 0)
             html = convert_basic(txt, epub_split_size_kb=flow_size)
 
+        # Run the HTMLized text through the html processing plugin.
         from calibre.customize.ui import plugin_for_input_format
         html_input = plugin_for_input_format('html')
         for opt in html_input.options:
@@ -159,6 +170,7 @@ class TXTInput(InputFormatPlugin):
             htmlfile.write(html.encode('utf-8'))
         odi = options.debug_pipeline
         options.debug_pipeline = None
+        # Generate oeb from htl conversion.
         oeb = html_input.convert(open(htmlfile.name, 'rb'), options, 'html', log,
                 {})
         options.debug_pipeline = odi

@@ -10,7 +10,6 @@ import re, itertools, time, traceback
 from itertools import repeat
 from datetime import timedelta
 from threading import Thread
-from Queue import Empty
 
 from calibre.utils.config import tweaks
 from calibre.utils.date import parse_date, now, UNDEFINED_DATE
@@ -38,41 +37,47 @@ class MetadataBackup(Thread): # {{{
         self.get_metadata_for_dump = FunctionDispatcher(db.get_metadata_for_dump)
         self.clear_dirtied = FunctionDispatcher(db.clear_dirtied)
         self.set_dirtied = FunctionDispatcher(db.dirtied)
-        self.in_limbo = None
 
     def stop(self):
         self.keep_running = False
 
+    def break_cycles(self):
+        # Break cycles so that this object doesn't hold references to db
+        self.do_write = self.get_metadata_for_dump = self.clear_dirtied = \
+            self.set_dirtied = self.db = None
+
     def run(self):
         while self.keep_running:
-            self.in_limbo = None
             try:
-                time.sleep(0.5) # Limit to two per second
-                id_ = self.db.dirtied_queue.get(True, 1.45)
-            except Empty:
-                continue
+                time.sleep(2) # Limit to one book per two seconds
+                (id_, sequence) = self.db.get_a_dirtied_book()
+                if id_ is None:
+                    continue
+                # print 'writer thread', id_, sequence
             except:
                 # Happens during interpreter shutdown
                 break
+            if not self.keep_running:
+                break
 
             try:
-                path, mi = self.get_metadata_for_dump(id_)
+                path, mi, sequence = self.get_metadata_for_dump(id_)
             except:
                 prints('Failed to get backup metadata for id:', id_, 'once')
                 traceback.print_exc()
                 time.sleep(2)
                 try:
-                    path, mi = self.get_metadata_for_dump(id_)
+                    path, mi, sequence = self.get_metadata_for_dump(id_)
                 except:
                     prints('Failed to get backup metadata for id:', id_, 'again, giving up')
                     traceback.print_exc()
                     continue
 
-            # at this point the dirty indication is off
-
             if mi is None:
+                self.clear_dirtied(id_, sequence)
                 continue
-            self.in_limbo = id_
+            if not self.keep_running:
+                break
 
             # Give the GUI thread a chance to do something. Python threads don't
             # have priorities, so this thread would naturally keep the processor
@@ -81,10 +86,12 @@ class MetadataBackup(Thread): # {{{
             try:
                 raw = metadata_to_opf(mi)
             except:
-                self.set_dirtied([id_])
                 prints('Failed to convert to opf for id:', id_)
                 traceback.print_exc()
                 continue
+
+            if not self.keep_running:
+                break
 
             time.sleep(0.1) # Give the GUI thread a chance to do something
             try:
@@ -95,19 +102,12 @@ class MetadataBackup(Thread): # {{{
                 try:
                     self.do_write(path, raw)
                 except:
-                    self.set_dirtied([id_])
                     prints('Failed to write backup metadata for id:', id_,
                             'again, giving up')
                     continue
-        self.in_limbo = None
 
-    def flush(self):
-        'Used during shutdown to ensure that a dirtied book is not missed'
-        if self.in_limbo is not None:
-            try:
-                self.db.dirtied([self.in_limbo])
-            except:
-                traceback.print_exc()
+            self.clear_dirtied(id_, sequence)
+        self.break_cycles()
 
     def write(self, path, raw):
         with lopen(path, 'wb') as f:
@@ -132,7 +132,7 @@ def _match(query, value, matchkind):
             pass
     return False
 
-class CacheRow(list):
+class CacheRow(list): # {{{
 
     def __init__(self, db, composites, val):
         self.db = db
@@ -163,14 +163,16 @@ class CacheRow(list):
     def __getslice__(self, i, j):
         return self.__getitem__(slice(i, j))
 
+# }}}
 
 class ResultCache(SearchQueryParser): # {{{
 
     '''
     Stores sorted and filtered metadata in memory.
     '''
-    def __init__(self, FIELD_MAP, field_metadata):
+    def __init__(self, FIELD_MAP, field_metadata, db_prefs=None):
         self.FIELD_MAP = FIELD_MAP
+        self.db_prefs = db_prefs
         self.composites = {}
         for key in field_metadata:
             if field_metadata[key]['datatype'] == 'composite':
@@ -180,10 +182,15 @@ class ResultCache(SearchQueryParser): # {{{
         self.first_sort = True
         self.search_restriction = ''
         self.field_metadata = field_metadata
-        self.all_search_locations = field_metadata.get_search_terms()
-        SearchQueryParser.__init__(self, self.all_search_locations, optimize=True)
+        all_search_locations = field_metadata.get_search_terms()
+        SearchQueryParser.__init__(self, all_search_locations, optimize=True)
         self.build_date_relop_dict()
         self.build_numeric_relop_dict()
+
+    def break_cycles(self):
+        self._data = self.field_metadata = self.FIELD_MAP = \
+            self.numeric_search_relops = self.date_search_relops = \
+            self.db_prefs = None
 
 
     def __getitem__(self, row):
@@ -397,7 +404,24 @@ class ResultCache(SearchQueryParser): # {{{
                 matches.add(item[0])
         return matches
 
-    def get_matches(self, location, query, allow_recursion=True, candidates=None):
+    def get_user_category_matches(self, location, query, candidates):
+        res = set([])
+        if self.db_prefs is None:
+            return  res
+        user_cats = self.db_prefs.get('user_categories', [])
+        if location not in user_cats:
+            return res
+        c = set(candidates)
+        for (item, category, ign) in user_cats[location]:
+            s = self.get_matches(category, '=' + item, candidates=c)
+            c -= s
+            res |= s
+        if query == 'false':
+            return candidates - res
+        return res
+
+    def get_matches(self, location, query, candidates=None,
+            allow_recursion=True):
         matches = set([])
         if candidates is None:
             candidates = self.universal_set()
@@ -407,12 +431,12 @@ class ResultCache(SearchQueryParser): # {{{
         if query and query.strip():
             # get metadata key associated with the search term. Eliminates
             # dealing with plurals and other aliases
-            location = self.field_metadata.search_term_to_field_key(location.lower().strip())
+            location = self.field_metadata.search_term_to_field_key(icu_lower(location.strip()))
             if isinstance(location, list):
                 if allow_recursion:
                     for loc in location:
-                        matches |= self.get_matches(loc, query, candidates,
-                                                    allow_recursion=False)
+                        matches |= self.get_matches(loc, query,
+                                candidates=candidates, allow_recursion=False)
                     return matches
                 raise ParseException(query, len(query), 'Recursive query group detected', self)
 
@@ -435,6 +459,10 @@ class ResultCache(SearchQueryParser): # {{{
                     return self.get_numeric_matches(location, query[1:],
                                                     candidates, val_func=vf)
 
+            # check for user categories
+            if len(location) >= 2 and location.startswith('@'):
+                return self.get_user_category_matches(location[1:], query.lower(),
+                                                      candidates)
             # everything else, or 'all' matches
             matchkind = CONTAINS_MATCH
             if (len(query) > 1):
@@ -460,6 +488,8 @@ class ResultCache(SearchQueryParser): # {{{
             for x in range(len(self.FIELD_MAP)):
                 col_datatype.append('')
             for x in self.field_metadata:
+                if x.startswith('@'):
+                    continue
                 if len(self.field_metadata[x]['search_terms']):
                     db_col[x] = self.field_metadata[x]['rec_index']
                     if self.field_metadata[x]['datatype'] not in \

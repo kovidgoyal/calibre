@@ -9,7 +9,7 @@ Logic for setting up conversion jobs
 
 import cPickle, os
 
-from PyQt4.Qt import QDialog, QProgressDialog, QString, QTimer, SIGNAL
+from PyQt4.Qt import QDialog, QProgressDialog, QString, QTimer
 
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.gui2 import warning_dialog, question_dialog
@@ -24,7 +24,8 @@ from calibre.ebooks.conversion.config import GuiRecommendations, \
     load_defaults, load_specifics, save_specifics
 from calibre.gui2.convert import bulk_defaults_for_input_format
 
-def convert_single_ebook(parent, db, book_ids, auto_conversion=False, out_format=None):
+def convert_single_ebook(parent, db, book_ids, auto_conversion=False, # {{{
+        out_format=None):
     changed = False
     jobs = []
     bad = []
@@ -75,7 +76,7 @@ def convert_single_ebook(parent, db, book_ids, auto_conversion=False, out_format
                     temp_files.append(d.cover_file)
                 args = [in_file, out_file.name, recs]
                 temp_files.append(out_file)
-                jobs.append(('gui_convert', args, desc, d.output_format.upper(), book_id, temp_files))
+                jobs.append(('gui_convert_override', args, desc, d.output_format.upper(), book_id, temp_files))
 
                 changed = True
                 d.break_cycles()
@@ -95,7 +96,9 @@ def convert_single_ebook(parent, db, book_ids, auto_conversion=False, out_format
             msg).exec_()
 
     return jobs, changed, bad
+# }}}
 
+# Bulk convert {{{
 def convert_bulk_ebook(parent, queue, db, book_ids, out_format=None, args=[]):
     total = len(book_ids)
     if total == 0:
@@ -125,14 +128,11 @@ class QueueBulk(QProgressDialog):
         self.parent = parent
         self.use_saved_single_settings = use_saved_single_settings
         self.i, self.bad, self.jobs, self.changed = 0, [], [], False
-        self.timer = QTimer(self)
-        self.connect(self.timer, SIGNAL('timeout()'), self.do_book)
-        self.timer.start()
+        QTimer.singleShot(0, self.do_book)
         self.exec_()
 
     def do_book(self):
         if self.i >= len(self.book_ids):
-            self.timer.stop()
             return self.do_queue()
         book_id = self.book_ids[self.i]
         self.i += 1
@@ -185,12 +185,13 @@ class QueueBulk(QProgressDialog):
 
             args = [in_file, out_file.name, lrecs]
             temp_files.append(out_file)
-            self.jobs.append(('gui_convert', args, desc, self.output_format.upper(), book_id, temp_files))
+            self.jobs.append(('gui_convert_override', args, desc, self.output_format.upper(), book_id, temp_files))
 
             self.changed = True
             self.setValue(self.i)
         except NoSupportedInputFormats:
             self.bad.append(book_id)
+        QTimer.singleShot(0, self.do_book)
 
     def do_queue(self):
         self.hide()
@@ -209,7 +210,9 @@ class QueueBulk(QProgressDialog):
         self.jobs.reverse()
         self.queue(self.jobs, self.changed, self.bad, *self.args)
 
-def fetch_scheduled_recipe(arg):
+# }}}
+
+def fetch_scheduled_recipe(arg): # {{{
     fmt = prefs['output_format'].lower()
     pt = PersistentTemporaryFile(suffix='_recipe_out.%s'%fmt.lower())
     pt.close()
@@ -250,7 +253,9 @@ def fetch_scheduled_recipe(arg):
 
     return 'gui_convert', args, _('Fetch news from ')+arg['title'], fmt.upper(), [pt]
 
-def generate_catalog(parent, dbspec, ids, device_manager, db):
+# }}}
+
+def generate_catalog(parent, dbspec, ids, device_manager, db): # {{{
     from calibre.gui2.dialogs.catalog import Catalog
 
     # Build the Catalog dialog in gui2.dialogs.catalog
@@ -275,7 +280,7 @@ def generate_catalog(parent, dbspec, ids, device_manager, db):
 
     if device_manager.is_device_connected:
         device = device_manager.device
-        connected_device['name'] = device.gui_name
+        connected_device['name'] = device.get_gui_name()
         try:
             storage = []
             if device._main_prefix:
@@ -308,8 +313,9 @@ def generate_catalog(parent, dbspec, ids, device_manager, db):
     # Which then calls gui2.convert.gui_conversion:gui_catalog() with the args inline
     return 'gui_catalog', args, _('Generate catalog'), out.name, d.catalog_sync, \
             d.catalog_title
+# }}}
 
-def convert_existing(parent, db, book_ids, output_format):
+def convert_existing(parent, db, book_ids, output_format): # {{{
     already_converted_ids = []
     already_converted_titles = []
     for book_id in book_ids:
@@ -325,3 +331,5 @@ def convert_existing(parent, db, book_ids, output_format):
             book_ids = [x for x in book_ids if x not in already_converted_ids]
 
     return book_ids
+# }}}
+

@@ -160,6 +160,7 @@ class EditMetadataAction(InterfaceAction):
                 break
 
             changed.add(d.id)
+            self.gui.library_view.model().refresh_ids(list(d.books_to_refresh))
             if d.row_delta == 0:
                 break
             current_row += d.row_delta

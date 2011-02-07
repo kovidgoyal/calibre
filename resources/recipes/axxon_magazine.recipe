@@ -17,7 +17,7 @@ class Axxon_news(BasicNewsRecipe):
     max_articles_per_feed = 100
     no_stylesheets        = False
     use_embedded_content  = False
-    language              = 'es'
+    language              = 'es_AR'
     encoding              = 'utf-8'
     publication_type      = 'magazine'
     INDEX                 = 'http://axxon.com.ar/rev/'

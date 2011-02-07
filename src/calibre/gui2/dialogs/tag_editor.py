@@ -16,7 +16,7 @@ class TagEditor(QDialog, Ui_TagEditor):
         self.setupUi(self)
 
         self.db = db
-        self.index = db.row(id_)
+        self.index = db.row(id_) if id_ is not None else None
         if self.index is not None:
             tags = self.db.tags(self.index)
         else:
@@ -79,6 +79,8 @@ class TagEditor(QDialog, Ui_TagEditor):
 
     def apply_tags(self, item=None):
         items = self.available_tags.selectedItems() if item is None else [item]
+        rows = [self.available_tags.row(i) for i in items]
+        row = max(rows)
         for item in items:
             tag = unicode(item.text())
             self.tags.append(tag)
@@ -89,6 +91,12 @@ class TagEditor(QDialog, Ui_TagEditor):
         for tag in self.tags:
             self.applied_tags.addItem(tag)
 
+        if row >= self.available_tags.count():
+            row = self.available_tags.count() - 1
+
+        if row > 2:
+            item = self.available_tags.item(row)
+            self.available_tags.scrollToItem(item)
 
 
     def unapply_tags(self, item=None):

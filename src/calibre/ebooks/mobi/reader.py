@@ -103,6 +103,8 @@ class EXTHHeader(object):
                 pass
         elif id == 108:
             pass # Producer
+        elif id == 113:
+            pass # ASIN or UUID
         #else:
         #    print 'unhandled metadata record', id, repr(content)
 
@@ -488,7 +490,7 @@ class MobiReader(object):
 
 
     def remove_random_bytes(self, html):
-        return re.sub('\x14|\x15|\x19|\x1c|\x1d|\xef|\x12|\x13|\xec|\x08',
+        return re.sub('\x14|\x15|\x19|\x1c|\x1d|\xef|\x12|\x13|\xec|\x08|\x01|\x02|\x03|\x04|\x05|\x06|\x07',
                     '', html)
 
     def ensure_unit(self, raw, unit='px'):

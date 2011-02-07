@@ -72,7 +72,8 @@ class Plumber(object):
         ]
 
     def __init__(self, input, output, log, report_progress=DummyReporter(),
-            dummy=False, merge_plugin_recs=True, abort_after_input_dump=False):
+            dummy=False, merge_plugin_recs=True, abort_after_input_dump=False,
+            override_input_metadata=False):
         '''
         :param input: Path to input file.
         :param output: Path to output file/directory
@@ -87,6 +88,7 @@ class Plumber(object):
         self.log = log
         self.ui_reporter = report_progress
         self.abort_after_input_dump = abort_after_input_dump
+        self.override_input_metadata = override_input_metadata
 
         # Pipeline options {{{
         # Initialize the conversion options that are independent of input and
@@ -529,6 +531,11 @@ OptionRecommendation(name='format_scene_breaks',
            'Replace soft scene breaks that use multiple blank lines with'
            'horizontal rules.')),
 
+OptionRecommendation(name='replace_scene_breaks',
+    recommended_value='', level=OptionRecommendation.LOW,
+    help=_('Replace scene breaks with the specified text. By default, the '
+        'text from the input document is used.')),
+
 OptionRecommendation(name='dehyphenate',
     recommended_value=True, level=OptionRecommendation.LOW,
     help=_('Analyze hyphenated words throughout the document.  The '
@@ -574,10 +581,12 @@ OptionRecommendation(name='sr3_replace',
         if not input_fmt:
             raise ValueError('Input file must have an extension')
         input_fmt = input_fmt[1:].lower()
+        self.archive_input_tdir = None
         if input_fmt in ('zip', 'rar', 'oebzip'):
             self.log('Processing archive...')
-            tdir = PersistentTemporaryDirectory('_plumber')
+            tdir = PersistentTemporaryDirectory('_plumber_archive')
             self.input, input_fmt = self.unarchive(self.input, tdir)
+            self.archive_input_tdir = tdir
         if os.access(self.input, os.R_OK):
             nfp = run_plugins_on_preprocess(self.input, input_fmt)
             if nfp != self.input:
@@ -924,7 +933,8 @@ OptionRecommendation(name='sr3_replace',
         self.opts.dest = self.opts.output_profile
 
         from calibre.ebooks.oeb.transforms.metadata import MergeMetadata
-        MergeMetadata()(self.oeb, self.user_metadata, self.opts)
+        MergeMetadata()(self.oeb, self.user_metadata, self.opts,
+                override_input_metadata=self.override_input_metadata)
         pr(0.2)
         self.flush()
 
