@@ -86,14 +86,18 @@ class PMLMLizer(object):
         # This is used for adding \CX tags chapter markers. This is separate
         # from the optional inline toc.
         self.toc = {}
-        for item in oeb_book.toc:
+        self.create_flat_toc(self.oeb_book.toc)
+
+        return self.pmlmlize_spine()
+
+    def create_flat_toc(self, nodes, level=0):
+        for item in nodes:
             href, mid, id = item.href.partition('#')
             self.get_anchor_id(href, id)
             if not self.toc.get(href, None):
                 self.toc[href] = {}
-            self.toc[href][id] = item.title
-
-        return self.pmlmlize_spine()
+            self.toc[href][id] = (item.title, level)
+            self.create_flat_toc(item.nodes, level + 1)
 
     def pmlmlize_spine(self):
         self.image_hrefs = {}
@@ -255,9 +259,10 @@ class PMLMLizer(object):
             toc_page = page.href
             if self.toc.get(toc_page, None):
                 for toc_x in (toc_name, toc_id):
-                    toc_title = self.toc[toc_page].get(toc_x, None)
+                    toc_title, toc_depth = self.toc[toc_page].get(toc_x, (None, 0))
                     if toc_title:
-                        text.append('\\C0="%s"' % toc_title)
+                        toc_depth = max(min(toc_depth, 4), 0)
+                        text.append('\\C%s="%s"' % (toc_depth, toc_title))
 
         # Process style information that needs holds a single tag
         # Commented out because every page in an OEB book starts with this style

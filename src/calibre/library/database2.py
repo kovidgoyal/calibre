@@ -414,14 +414,12 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         row = self.data._data[index] if index_is_id else self.data[index]
         return row[self.FIELD_MAP['path']].replace('/', os.sep)
 
-
     def abspath(self, index, index_is_id=False, create_dirs=True):
         'Return the absolute path to the directory containing this books files as a unicode string.'
         path = os.path.join(self.library_path, self.path(index, index_is_id=index_is_id))
         if create_dirs and not os.path.exists(path):
             os.makedirs(path)
         return path
-
 
     def construct_path_name(self, id):
         '''
@@ -432,7 +430,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             authors = _('Unknown')
         author = ascii_filename(authors.split(',')[0])[:self.PATH_LIMIT].decode(filesystem_encoding, 'replace')
         title  = ascii_filename(self.title(id, index_is_id=True))[:self.PATH_LIMIT].decode(filesystem_encoding, 'replace')
-        path   = author + '/' + title + ' (%d)'%id
+        while author[-1] in (' ', '.'):
+            author = author[:-1]
+        if not author:
+            author = ascii_filename(_('Unknown')).decode(filesystem_encoding, 'replace')
+        path = author + '/' + title + ' (%d)'%id
         return path
 
     def construct_file_name(self, id):
@@ -1692,7 +1694,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         '''
         books_to_refresh = self._set_authors(id, authors,
                                              allow_case_change=allow_case_change)
-        self.dirtied([id], commit=False)
+        self.dirtied(set([id])|books_to_refresh, commit=False)
         if commit:
             self.conn.commit()
         self.set_path(id, index_is_id=True)
@@ -1768,7 +1770,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.conn.execute('''DELETE FROM publishers WHERE (SELECT COUNT(id)
                              FROM books_publishers_link
                              WHERE publisher=publishers.id) < 1''')
-        books_to_refresh = set()
+        books_to_refresh = set([])
         if publisher:
             case_change = False
             if not isinstance(publisher, unicode):
@@ -1793,7 +1795,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 bks = self.conn.get('''SELECT book FROM books_publishers_link
                                        WHERE publisher=?''', (aid,))
                 books_to_refresh |= set([bk[0] for bk in bks])
-        self.dirtied([id], commit=False)
+        self.dirtied(set([id])|books_to_refresh, commit=False)
         if commit:
             self.conn.commit()
         self.data.set(id, self.FIELD_MAP['publisher'], publisher, row_is_id=True)
@@ -2206,7 +2208,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 bks = self.conn.get('SELECT book FROM books_tags_link WHERE tag=?',
                                         (tid,))
                 books_to_refresh |= set([bk[0] for bk in bks])
-        self.dirtied([id], commit=False)
+        self.dirtied(set([id])|books_to_refresh, commit=False)
         if commit:
             self.conn.commit()
         tags = u','.join(self.get_tags(id))

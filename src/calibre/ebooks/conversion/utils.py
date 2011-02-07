@@ -28,8 +28,8 @@ class HeuristicProcessor(object):
         self.linereg = re.compile('(?<=<p).*?(?=</p>)', re.IGNORECASE|re.DOTALL)
         self.blankreg = re.compile(r'\s*(?P<openline><p(?!\sclass=\"(softbreak|whitespace)\")[^>]*>)\s*(?P<closeline></p>)', re.IGNORECASE)
         self.anyblank = re.compile(r'\s*(?P<openline><p[^>]*>)\s*(?P<closeline></p>)', re.IGNORECASE)
-        self.multi_blank = re.compile(r'(\s*<p[^>]*>\s*</p>){2,}(?!\s*<h\d)', re.IGNORECASE)
-        self.any_multi_blank = re.compile(r'(\s*<p[^>]*>\s*</p>){2,}', re.IGNORECASE)
+        self.multi_blank = re.compile(r'(\s*<p[^>]*>\s*</p>(\s*<div[^>]*>\s*</div>\s*)*){2,}(?!\s*<h\d)', re.IGNORECASE)
+        self.any_multi_blank = re.compile(r'(\s*<p[^>]*>\s*</p>(\s*<div[^>]*>\s*</div>\s*)*){2,}', re.IGNORECASE)
         self.line_open = "<(?P<outer>p|div)[^>]*>\s*(<(?P<inner1>font|span|[ibu])[^>]*>)?\s*(<(?P<inner2>font|span|[ibu])[^>]*>)?\s*(<(?P<inner3>font|span|[ibu])[^>]*>)?\s*"
         self.line_close = "(</(?P=inner3)>)?\s*(</(?P=inner2)>)?\s*(</(?P=inner1)>)?\s*</(?P=outer)>"
         self.single_blank = re.compile(r'(\s*<p[^>]*>\s*</p>)', re.IGNORECASE)
@@ -149,17 +149,17 @@ class HeuristicProcessor(object):
         ]
 
         ITALICIZE_STYLE_PATS = [
-            r'(?msu)(?<=\s)_(?P<words>\S[^_]{0,40}?\S)?_(?=[\s\.,\!\?])',
-            r'(?msu)(?<=\s)/(?P<words>\S[^/]{0,40}?\S)?/(?=[\s\.,\!\?])',
-            r'(?msu)(?<=\s)~~(?P<words>\S[^~]{0,40}?\S)?~~(?=[\s\.,\!\?])',
-            r'(?msu)(?<=\s)\*(?P<words>\S[^\*]{0,40}?\S)?\*(?=[\s\.,\!\?])',
-            r'(?msu)(?<=\s)~(?P<words>\S[^~]{0,40}?\S)?~(?=[\s\.,\!\?])',
-            r'(?msu)(?<=\s)_/(?P<words>\S[^/_]{0,40}?\S)?/_(?=[\s\.,\!\?])',
-            r'(?msu)(?<=\s)_\*(?P<words>\S[^\*_]{0,40}?\S)?\*_(?=[\s\.,\!\?])',
-            r'(?msu)(?<=\s)\*/(?P<words>\S[^/\*]{0,40}?\S)?/\*(?=[\s\.,\!\?])',
-            r'(?msu)(?<=\s)_\*/(?P<words>\S[^\*_]{0,40}?\S)?/\*_(?=[\s\.,\!\?])',
-            r'(?msu)(?<=\s)/:(?P<words>\S[^:/]{0,40}?\S)?:/(?=[\s\.,\!\?])',
-            r'(?msu)(?<=\s)\|:(?P<words>\S[^:\|]{0,40}?\S)?:\|(?=[\s\.,\!\?])',
+            r'(?msu)(?<=[\s>])_(?P<words>[^_]+)?_',
+            r'(?msu)(?<=[\s>])/(?P<words>[^/]+)?/',
+            r'(?msu)(?<=[\s>])~~(?P<words>[^~]+)?~~',
+            r'(?msu)(?<=[\s>])\*(?P<words>[^\*]+)?\*',
+            r'(?msu)(?<=[\s>])~(?P<words>[^~]+)?~',
+            r'(?msu)(?<=[\s>])_/(?P<words>[^/_]+)?/_',
+            r'(?msu)(?<=[\s>])_\*(?P<words>[^\*_]+)?\*_',
+            r'(?msu)(?<=[\s>])\*/(?P<words>[^/\*]+)?/\*',
+            r'(?msu)(?<=[\s>])_\*/(?P<words>[^\*_]+)?/\*_',
+            r'(?msu)(?<=[\s>])/:(?P<words>[^:/]+)?:/',
+            r'(?msu)(?<=[\s>])\|:(?P<words>[^:\|]+)?:\|',
         ]
 
         for word in ITALICIZE_WORDS:
@@ -384,6 +384,8 @@ class HeuristicProcessor(object):
         html = re.sub(r"\s*<(font|[ibu]|em|strong)[^>]*>\s*(<(font|[ibu]|em|strong)[^>]*>\s*</(font|[ibu]|em|strong)>\s*){0,2}\s*</(font|[ibu]|em|strong)>", " ", html)
         html = re.sub(r"\s*<span[^>]*>\s*(<span[^>]>\s*</span>){0,2}\s*</span>\s*", " ", html)
         html = re.sub(r"\s*<(font|[ibu]|em|strong)[^>]*>\s*(<(font|[ibu]|em|strong)[^>]*>\s*</(font|[ibu]|em|strong)>\s*){0,2}\s*</(font|[ibu]|em|strong)>", " ", html)
+        # delete surrounding divs from empty paragraphs
+        html = re.sub('<div[^>]*>\s*<p[^>]*>\s*</p>\s*</div>', '<p> </p>', html)
         # Empty heading tags
         html = re.sub(r'(?i)<h\d+>\s*</h\d+>', '', html)
         self.deleted_nbsps = True
@@ -561,7 +563,6 @@ class HeuristicProcessor(object):
         # Determine whether the document uses interleaved blank lines
         self.blanks_between_paragraphs = self.analyze_blanks(html)
 
-        #self.dump(html, 'before_chapter_markup')
         # detect chapters/sections to match xpath or splitting logic
 
         if getattr(self.extra_opts, 'markup_chapter_headings', False):

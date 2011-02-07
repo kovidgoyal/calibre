@@ -4442,34 +4442,39 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
 
             # Insert the link to the series or remove <a class="series">
             aTag = body.find('a', attrs={'class':'series_id'})
-            if book['series']:
-                if self.opts.generate_series:
-                    aTag['href'] = "%s.html#%s_series" % ('BySeries',
-                                    re.sub('\W','',book['series']).lower())
-            else:
-                aTag.extract()
+            if aTag:
+                if book['series']:
+                    if self.opts.generate_series:
+                        aTag['href'] = "%s.html#%s_series" % ('BySeries',
+                                        re.sub('\W','',book['series']).lower())
+                else:
+                    aTag.extract()
 
-            # Insert the author link (always)
+            # Insert the author link
             aTag = body.find('a', attrs={'class':'author'})
-            if self.opts.generate_authors:
+            if self.opts.generate_authors and aTag:
                 aTag['href'] = "%s.html#%s" % ("ByAlphaAuthor",
                                             self.generateAuthorAnchor(book['author']))
 
             if publisher == ' ':
                 publisherTag = body.find('td', attrs={'class':'publisher'})
-                publisherTag.contents[0].replaceWith('&nbsp;')
+                if publisherTag:
+                    publisherTag.contents[0].replaceWith('&nbsp;')
 
             if not genres:
                 genresTag = body.find('p',attrs={'class':'genres'})
-                genresTag.extract()
+                if genresTag:
+                    genresTag.extract()
 
             if not formats:
                 formatsTag = body.find('p',attrs={'class':'formats'})
-                formatsTag.extract()
+                if formatsTag:
+                    formatsTag.extract()
 
             if note_content == '':
                 tdTag = body.find('td', attrs={'class':'notes'})
-                tdTag.contents[0].replaceWith('&nbsp;')
+                if tdTag:
+                    tdTag.contents[0].replaceWith('&nbsp;')
 
             emptyTags = body.findAll('td', attrs={'class':'empty'})
             for mt in emptyTags:
