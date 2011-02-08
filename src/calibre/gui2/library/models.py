@@ -238,8 +238,6 @@ class BooksModel(QAbstractTableModel): # {{{
 
     def set_highlight_only(self, toWhat):
         self.highlight_only = toWhat
-        if self.last_search:
-            self.research()
 
     def get_current_highlighted_id(self):
         if len(self.ids_to_highlight) == 0 or self.current_highlighted_idx is None:

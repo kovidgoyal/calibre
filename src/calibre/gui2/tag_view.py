@@ -1214,7 +1214,7 @@ class TagBrowserMixin(object): # {{{
             db.field_metadata.remove_user_categories()
             for k in d.categories:
                 db.field_metadata.add_user_category('@' + k, k)
-            db.data.sqp_change_locations(db.field_metadata.get_search_terms())
+            db.data.change_search_locations(db.field_metadata.get_search_terms())
             self.tags_view.set_new_model()
             self.tags_view.recount()
 
@@ -1259,9 +1259,8 @@ class TagBrowserMixin(object): # {{{
             if rename_func:
                 for item in to_delete:
                     delete_func(item)
-                for text in to_rename:
-                        for old_id in to_rename[text]:
-                            rename_func(old_id, new_name=unicode(text))
+                for old_id in to_rename:
+                    rename_func(old_id, new_name=unicode(to_rename[old_id]))
 
             # Clean up the library view
             self.do_tag_item_renamed()

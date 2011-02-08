@@ -39,7 +39,7 @@ completer_append_separator = False
 
 # The algorithm used to copy author to author_sort
 # Possible values are:
-#  invert: use "fn ln" -> "ln, fn" (the original algorithm)
+#  invert: use "fn ln" -> "ln, fn" (the default algorithm)
 #  copy  : copy author to author_sort without modification
 #  comma : use 'copy' if there is a ',' in the name, otherwise use 'invert'
 #  nocomma : "fn ln" -> "ln fn" (without the comma)

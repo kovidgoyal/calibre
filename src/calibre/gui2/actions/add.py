@@ -244,8 +244,8 @@ class AddAction(InterfaceAction):
                     x.decode(preferred_encoding, 'replace') for x in
                     self._adder.merged_books])
             info_dialog(self.gui, _('Merged some books'),
-                    _('Some duplicates were found and merged into the '
-                        'following existing books:'), det_msg=books, show=True)
+                    _('The following duplicate books were found and incoming book formats were '
+                        'processed and merged into your Calibre database according to your automerge settings:'), det_msg=books, show=True)
         if getattr(self._adder, 'critical', None):
             det_msg = []
             for name, log in self._adder.critical.items():

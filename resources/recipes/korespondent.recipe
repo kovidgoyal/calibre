@@ -1,0 +1,40 @@
+# -*- coding: utf-8 -*-
+
+__license__   = 'GPL v3'
+__copyright__ = '2011, Attis <attis@attis.one.pl>'
+__version__ = 'v. 0.1'
+
+import re
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+class KorespondentPL(BasicNewsRecipe):
+    title          = u'Korespondent.pl'
+    publisher      = u'Korespondent.pl'
+    description    = u'Centrum wolnorynkowe - serwis ludzi wolnych'
+    encoding       = 'utf-8'
+    __author__     = 'Attis'
+    language       = 'pl'
+    oldest_article = 15
+    max_articles_per_feed = 100
+    remove_javascript     = True
+    no_stylesheets        = True
+
+    keep_only_tags = [dict(name='div', attrs={'class':'publicystyka'})]
+    remove_tags    = [{'name': 'meta'}, {'name':'div', 'attrs': {'class': 'zdjecie'} }]
+    extra_css      = '.naglowek {font-size: small}\n .tytul {font-size: x-large; padding-bottom: 10px; padding-top: 30px} \n .external {font-size: small}'
+
+    preprocess_regexps = [
+			(re.compile(u'<a href="index\.php.*>(.*)</a>'),
+			lambda match: match.group(1) ),
+			(re.compile(u'<i>'),
+			lambda match:'<i class="external">' ),
+			(re.compile(u'<p></p>Więcej'),
+			lambda match:'Więcej' ),
+			(re.compile(u'target="_blank"'),
+			lambda match:'target="_blank" class="external"' ),
+			(re.compile(u'<p align="center">\nPoczytaj inne teksty w <a href="http://www.korespondent.pl">Serwisie wolnorynkowym Korespondent.pl</a>.*</body>', re.DOTALL|re.IGNORECASE),
+			lambda match: '</div></body>'),
+			]
+
+    feeds = [(u'Serwis informacyjny', u'http://korespondent.pl/rss.xml')]
+

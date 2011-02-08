@@ -325,6 +325,17 @@ class TXTMetadataReader(MetadataReaderPlugin):
         from calibre.ebooks.metadata.txt import get_metadata
         return get_metadata(stream)
 
+class TXTZMetadataReader(MetadataReaderPlugin):
+
+    name        = 'Read TXTZ metadata'
+    file_types  = set(['txtz'])
+    description = _('Read metadata from %s files') % 'TXTZ'
+    author      = 'John Schember'
+
+    def get_metadata(self, stream, ftype):
+        from calibre.ebooks.metadata.txtz import get_metadata
+        return get_metadata(stream)
+
 class ZipMetadataReader(MetadataReaderPlugin):
 
     name = 'Read ZIP metadata'
@@ -412,6 +423,17 @@ class TOPAZMetadataWriter(MetadataWriterPlugin):
         from calibre.ebooks.metadata.topaz import set_metadata
         set_metadata(stream, mi)
 
+class TXTZMetadataWriter(MetadataWriterPlugin):
+
+    name        = 'Set TXTZ metadata'
+    file_types  = set(['txtz'])
+    description = _('Set metadata from %s files') % 'TXTZ'
+    author      = 'John Schember'
+
+    def set_metadata(self, stream, mi, type):
+        from calibre.ebooks.metadata.txtz import set_metadata
+        set_metadata(stream, mi)
+
 # }}}
 
 from calibre.ebooks.comic.input import ComicInput
@@ -446,6 +468,7 @@ from calibre.ebooks.rb.output import RBOutput
 from calibre.ebooks.rtf.output import RTFOutput
 from calibre.ebooks.tcr.output import TCROutput
 from calibre.ebooks.txt.output import TXTOutput
+from calibre.ebooks.txt.output import TXTZOutput
 from calibre.ebooks.html.output import HTMLOutput
 from calibre.ebooks.snb.output import SNBOutput
 
@@ -534,6 +557,7 @@ plugins += [
     RTFOutput,
     TCROutput,
     TXTOutput,
+    TXTZOutput,
     HTMLOutput,
     SNBOutput,
 ]
@@ -770,6 +794,17 @@ class Toolbar(PreferencesPlugin):
     description = _('Customize the toolbars and context menus, changing which'
             ' actions are available in each')
 
+class Search(PreferencesPlugin):
+    name = 'Search'
+    icon = I('search.png')
+    gui_name = _('Customize searching')
+    category = 'Interface'
+    gui_category = _('Interface')
+    category_order = 1
+    name_order = 5
+    config_widget = 'calibre.gui2.preferences.search'
+    description = _('Customize the way searching for books works in calibre')
+
 class InputOptions(PreferencesPlugin):
     name = 'Input Options'
     icon = I('arrow-down.png')
@@ -920,7 +955,7 @@ class Misc(PreferencesPlugin):
     config_widget = 'calibre.gui2.preferences.misc'
     description = _('Miscellaneous advanced configuration')
 
-plugins += [LookAndFeel, Behavior, Columns, Toolbar, InputOptions,
+plugins += [LookAndFeel, Behavior, Columns, Toolbar, Search, InputOptions,
         CommonOptions, OutputOptions, Adding, Saving, Sending, Plugboard,
         Email, Server, Plugins, Tweaks, Misc, TemplateFunctions]
 

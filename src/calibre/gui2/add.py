@@ -8,7 +8,7 @@ from functools import partial
 from PyQt4.Qt import QThread, QObject, Qt, QProgressDialog, pyqtSignal, QTimer
 
 from calibre.gui2.dialogs.progress import ProgressDialog
-from calibre.gui2 import question_dialog, error_dialog, info_dialog
+from calibre.gui2 import question_dialog, error_dialog, info_dialog, gprefs
 from calibre.ebooks.metadata.opf2 import OPF
 from calibre.ebooks.metadata import MetaInformation
 from calibre.constants import preferred_encoding, filesystem_encoding, DEBUG
@@ -179,23 +179,47 @@ class DBAdder(QObject): # {{{
                     cover = f.read()
             orig_formats = formats
             formats = [f for f in formats if not f.lower().endswith('.opf')]
-            if prefs['add_formats_to_existing']:
+            if prefs['add_formats_to_existing']: #automerge is on
                 identical_book_list = self.db.find_identical_books(mi)
-
-                if identical_book_list: # books with same author and nearly same title exist in db
+                if identical_book_list:  # books with same author and nearly same title exist in db
                     self.merged_books.add(mi.title)
+                    seen_fmts = set([])
+
                     for identical_book in identical_book_list:
-                        self.add_formats(identical_book, formats, replace=False)
+                        ib_fmts = self.db.formats(identical_book, index_is_id=True)
+                        if ib_fmts:
+                            seen_fmts |= set(ib_fmts.split(','))
+                        replace = gprefs['automerge'] == 'overwrite'
+                        self.add_formats(identical_book, formats,
+                                replace=replace)
+                    if gprefs['automerge'] == 'new record':
+                        incoming_fmts = \
+                            set([os.path.splitext(path)[-1].replace('.',
+                                '').upper() for path in formats])
+                        if incoming_fmts.intersection(seen_fmts):
+                            # There was at least one duplicate format
+                            # so create a new record and put the
+                            # incoming formats into it
+                            # We should arguably put only the duplicate
+                            # formats, but no real harm is done by having
+                            # all formats
+                            id_ = self.db.create_book_entry(mi, cover=cover,
+                                    add_duplicates=True)
+                            self.number_of_books_added += 1
+                            self.add_formats(id_, formats)
+
                 else:
-                    id = self.db.create_book_entry(mi, cover=cover, add_duplicates=True)
+                    # books with same author and nearly same title do not exist in db
+                    id_ = self.db.create_book_entry(mi, cover=cover, add_duplicates=True)
                     self.number_of_books_added += 1
-                    self.add_formats(id, formats)
-            else:
-                id = self.db.create_book_entry(mi, cover=cover, add_duplicates=False)
-                if id is None:
+                    self.add_formats(id_, formats)
+
+            else: #automerge is off
+                id_ = self.db.create_book_entry(mi, cover=cover, add_duplicates=False)
+                if id_ is None:
                     self.duplicates.append((mi, cover, orig_formats))
                 else:
-                    self.add_formats(id, formats)
+                    self.add_formats(id_, formats)
                     self.number_of_books_added += 1
         else:
             self.names.append(name)

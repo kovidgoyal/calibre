@@ -1,0 +1,55 @@
+__license__   = 'GPL v3'
+__author__    = 'Luis Hernandez'
+__copyright__ = 'Luis Hernandez<tolyluis@gmail.com>'
+__version__     = 'v1.0'
+__date__        = '30 January 2011'
+
+'''
+www.europapress.es
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1294946868(BasicNewsRecipe):
+
+    title          = u'Europa Press'
+    author            = 'Luis Hernandez'
+    description           = 'spanish news agency'
+
+    oldest_article = 2
+    max_articles_per_feed = 100
+
+    remove_javascript = True
+    no_stylesheets        = True
+    use_embedded_content  = False
+
+    language              = 'es'
+    timefmt        = '[%a, %d %b, %Y]'
+
+    remove_tags_before = dict(name='div' , attrs={'class':['nivel1 bg_3col']})
+    remove_tags_after  = dict(name='div' , attrs={'id':['ImprimirEnviarNoticia']})
+
+    remove_tags = [
+                             dict(name='ul', attrs={'id':['entidadesNoticia','MenuSecciones']})
+                            ,dict(name='div', attrs={'id':['ImprimirEnviarNoticia','PublicidadSuperior','CabeceraDerecha','Comentarios','comentarios full fbConnectAPI','ComentarEstaNoticia','ctl00_Superior_Main_MasEnChance_cajamasnoticias','gl_chn','videos_portada_derecha','galeria_portada_central','galeria_portada_central_boxes']})
+                            ,dict(name='div', attrs={'class':['infoRelacionada','col_1','buscador','caja doblecolumna strong','CHANCE_EP_Encuesta_frontal text','seccionportada col_0','seccion header','text','pie caption_over']})
+                            ,dict(name='a', attrs={'class':['buscadorLabel']})
+                            ,dict(name='span', attrs={'class':['editado']})
+                            ,dict(name='table')
+                            ,dict(name='li')
+                        ]
+
+
+    feeds = [
+                 (u'Portada'              , u'http://www.europapress.es/rss/rss.aspx')
+                ,(u'Nacional'             , u'http://www.europapress.es/rss/rss.aspx?ch=66')
+                ,(u'Internacional'       , u'http://www.europapress.es/rss/rss.aspx?ch=69')
+                ,(u'Economia'           , u'http://www.europapress.es/rss/rss.aspx?ch=136')
+                ,(u'Deportes'            , u'http://www.europapress.es/rss/rss.aspx?ch=67')
+                ,(u'Cultura'               , u'http://www.europapress.es/rss/rss.aspx?ch=126')
+                ,(u'Sociedad'            , u'http://www.europapress.es/rss/rss.aspx?ch=73')
+                ,(u'Motor'                 , u'http://www.europapress.es/rss/rss.aspx?ch=435')
+                ,(u'CHANCE'             , u'http://www.europapress.es/rss/rss.aspx?ch=549')
+                ,(u'Comunicados'      , u'http://www.europapress.es/rss/rss.aspx?ch=137')
+             ]
+
