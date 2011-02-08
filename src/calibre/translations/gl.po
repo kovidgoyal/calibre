@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-02-04 19:12+0000\n"
-"PO-Revision-Date: 2011-02-03 06:39+0000\n"
-"Last-Translator: Hamm <Unknown>\n"
+"PO-Revision-Date: 2011-02-07 23:28+0000\n"
+"Last-Translator: Antón Méixome <meixome@gmail.com>\n"
 "Language-Team: dev@gl.openoffice.org\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-02-05 04:44+0000\n"
+"X-Launchpad-Export-Date: 2011-02-08 04:34+0000\n"
 "X-Generator: Launchpad (build 12177)\n"
 "Language: gl\n"
 
@@ -1290,7 +1290,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:85
 msgid "Preserve cover aspect ratio when building thumbnails"
-msgstr ""
+msgstr "Preservar as proporcións da portada ao xerar as miniaturas"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:87
 msgid ""
@@ -1298,6 +1298,10 @@ msgid ""
 "ratio (width to height) as the cover. Unset it if you want the thumbnail to "
 "be the maximum size, ignoring aspect ratio."
 msgstr ""
+"Active esta opción se quere que as miniaturas de portadas teñan a mesma "
+"proporción (relación entre altura e largura) que a portada. Desactívea se "
+"quere que as miniaturas teñan o tamaño máximo, independentemente da "
+"proporción."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:190
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/structure.py:68
@@ -1318,7 +1322,7 @@ msgstr "Comunicar co lector de Newsmy"
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:47
 msgid "Communicate with the Archos reader."
-msgstr ""
+msgstr "Comunicarse co lector Archos."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:57
 msgid "Communicate with the Pico reader."
@@ -1545,6 +1549,9 @@ msgid ""
 "Specify the image size as widthxheight pixels. Normally, an image size is "
 "automatically calculated from the output profile, this option overrides it."
 msgstr ""
+"Especifique o tamaño da imaxe como larguraxaltura en píxels. Normalmente, o "
+"tamaño da imaxe calcúlase automaticamente conforme o perfil de saída, esta "
+"opción ten sobrescríbea."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:443
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:454
@@ -2187,6 +2194,8 @@ msgid ""
 "Replace scene breaks with the specified text. By default, the text from the "
 "input document is used."
 msgstr ""
+"Substituír saltos de escea polo texto especificado. De maneira "
+"predeterminada úsase o texto existente no documento de entrada."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:541
 msgid ""
@@ -4470,7 +4479,7 @@ msgstr "Comprobar a biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:141
 msgid "Restore database"
-msgstr ""
+msgstr "Restaurar a base de datos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:216
 msgid "Rename"
@@ -4842,11 +4851,11 @@ msgstr "Correo a"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:80
 msgid "Email to and delete from library"
-msgstr ""
+msgstr "Mandar por correo electrónico e borrar da biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:88
 msgid "(delete from library)"
-msgstr ""
+msgstr "(borrar da biblioteca)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:102
 msgid "Setup email based sharing of books"
@@ -5760,7 +5769,7 @@ msgstr "Crear unha etiqueta de cita?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:103
 msgid "Add files path with formats?"
-msgstr ""
+msgstr "Engadir a ruta dos ficheiros xunto cos formatos?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:104
 msgid "Expression to form the BibTeX citation tag:"
@@ -6220,7 +6229,7 @@ msgstr "Desactivar a conversión de imaxes a &branco e negro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:114
 msgid "Override image  &size:"
-msgstr ""
+msgstr "Sobrescribir o &tamaño da imaxe:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug.py:19
 msgid "Debug"
@@ -6462,11 +6471,11 @@ msgstr "Borrar liñas en branco entre parágrafos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:121
 msgid "Ensure scene breaks are consistently formatted"
-msgstr ""
+msgstr "Asegurarse de que os saltos de escea teñen un formato consistente"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:122
 msgid "Replace soft scene &breaks:"
-msgstr ""
+msgstr "Substituír &saltos de escea:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:123
 msgid "Remove unnecessary hyphens"
@@ -7132,6 +7141,11 @@ msgid ""
 "to use these options. Leave the replace field blank and enter your "
 "header/footer removal regexps into the search field."
 msgstr ""
+"As opcións de eliminación de cabeceiras e rodapés substituíronse polas "
+"opcións de busca e substitución. Prema na categoría «Busca e substitución» "
+"na barra da esquerda para usar estas opcións. Deixe o campo de substicuión "
+"en branco e introduza as expresións regulares de eliminación de cabeceiras e "
+"rodapés de páxina no campo de busca."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc.py:16
 msgid ""
@@ -7195,7 +7209,7 @@ msgstr "Estilo de formato:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:62
 msgid "Markdown Options"
-msgstr ""
+msgstr "Opciones de markdown"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:63
 msgid ""
@@ -7222,7 +7236,7 @@ msgstr "Xeral"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:86
 msgid "Output &Encoding:"
-msgstr ""
+msgstr "&Codificación de saída:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:87
 msgid "&Line ending style:"
@@ -7230,11 +7244,11 @@ msgstr "Final de &liña:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:88
 msgid "&Formatting:"
-msgstr ""
+msgstr "&Formatado:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:89
 msgid "Plain"
-msgstr ""
+msgstr "Simple"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:90
 msgid "&Maximum line length:"
@@ -7246,7 +7260,7 @@ msgstr "Forzar a lonxitude máxima da liña"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:93
 msgid "Markdown, Textile"
-msgstr ""
+msgstr "Markdown, Téxtil"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:94
 msgid "Do not remove links (<a> tags) before processing"
@@ -7727,7 +7741,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_from_isbn_ui.py:69
 msgid "&Tags to set on created book entries:"
-msgstr ""
+msgstr "E&tiquetas que se deben poñer nos libros creados:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:80
 msgid "Fit &cover within view"
@@ -7917,7 +7931,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:218
 msgid "&Run the check again"
-msgstr ""
+msgstr "&Volver realizar a comprobación"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:221
 msgid "Copy &to clipboard"
@@ -8629,7 +8643,7 @@ msgstr "Marque esta caixa para retirar todas as etiquetas dos libros."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:516
 msgid "Remove &all"
-msgstr ""
+msgstr "Eliminar &todos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:520
 msgid "If checked, the series will be cleared"
@@ -8718,10 +8732,12 @@ msgid ""
 "Update title sort based on the current title. This will be applied only "
 "after other changes to title."
 msgstr ""
+"Actualizar a orde de título conforme o título actual. Isto realizarase "
+"despois do resto de cambios de título."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:545
 msgid "Update &title sort"
-msgstr ""
+msgstr "Actualizar orde de &título"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:546
 msgid ""
@@ -9802,6 +9818,8 @@ msgstr "BorEliminarrar esta categoría de etiquetas seleccionada"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:171
 msgid "Enter a category name, then use the add button or the rename button"
 msgstr ""
+"Introduza un nome de categoría, despois use o botón engadir ou o botón "
+"renomear"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:172
 msgid "Add a new category"
@@ -10277,6 +10295,16 @@ msgid ""
 "group names for the various metadata entries are documented in "
 "tooltips.</p></div>"
 msgstr ""
+"<div style=\"font-size:10pt;\">\n"
+"<p>Estabeleza un patrón de expresión regular para usar ao tratar de "
+"determinar os metadatos dun libro a partir do nome do ficheiro.</p>\n"
+"<p>Hai dispoñíbel un <a href=\"http://calibre-"
+"ebook.com/user_manual/regexp.html\">tutorial</a> sobre o uso de expresións "
+"regulares.</p>\n"
+"<p>Use a función <b>Proba</b> para comprobar a expresión regular con algúns "
+"nomes de ficheiros de proba (acórdese de incluír a extensión). Os nomes de "
+"grupo para as distintas entradas de metadatos están documentados nas "
+"axudas.</p></div>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:119
 msgid "Regular &expression"
@@ -10888,11 +10916,11 @@ msgstr "Excepción non controlada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:111
 msgid "Title &sort:"
-msgstr ""
+msgstr "&Ordenación por título:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:219
 msgid "Author s&ort:"
-msgstr ""
+msgstr "O&rdenación por autor:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:347
 msgid "&Number:"
@@ -10996,7 +11024,7 @@ msgstr "&Portada e formatos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:568
 msgid "C&ustom metadata"
-msgstr ""
+msgstr "Metadatos &personalizados"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/__init__.py:36
 msgid ""
@@ -11018,7 +11046,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:62
 msgid "Read &metadata from &file contents rather than file name"
-msgstr ""
+msgstr "Ler &metadatos do contido do ficheiro antes que do nome"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:63
 msgid ""
@@ -11060,7 +11088,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:70
 msgid "&Tags to apply when adding a book:"
-msgstr ""
+msgstr "&Etiquetas para aplicar ao engadir un libro:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:71
 msgid ""
@@ -11942,7 +11970,7 @@ msgstr "&Retirar engadido"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:93
 msgid "&Add a new plugin"
-msgstr ""
+msgstr "&Engadir un novo complemento"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:33
 msgid "Any custom field"
@@ -11955,13 +11983,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:57
 msgid "Constant template"
-msgstr ""
+msgstr "Modelo constante"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:58
 msgid ""
 "The template contains no {fields}, so all books will have the same name. Is "
 "this OK?"
 msgstr ""
+"Este modelo non contén {campos}, así que todos os libros terán o mesmo nome. "
+"É isto correcto?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template_ui.py:47
 msgid "Save &template"
@@ -12258,6 +12288,76 @@ msgid ""
 "        </p>\n"
 "        "
 msgstr ""
+"\n"
+"        <p>Aquí pode engadir e eliminar funcións usadas no procesado de "
+"modelos.\n"
+"        As funcións de modelos escríbense en Python. Estas toman "
+"información\n"
+"        do libro, procesada dalgún modo, e entón devolve unha cadea de "
+"resposta.\n"
+"        As funcións definidas aquí pódense usar do mesmo xeito que as "
+"incorporadas\n"
+"        orixinalmente co programa. A función debe ser nomeada "
+"<b>evaluate</b>,\n"
+"        e deben seguir a forma descrita máis abaixo.</p>\n"
+"        <p><code>evaluate(self, formatter, kwargs, mi, locals, "
+"os_seus_parámetros)\n"
+"        &rarr; devolve unha cadea de texto unicode</code></p>\n"
+"        <p>Os parámetros da función \"evaluate\" son:\n"
+"        <ul>\n"
+"        <li><b>formatter</b>: o formatador que se usa para avaliar o modelo\n"
+"        actual. Pode usalo para unha avaliación recursiva do modelo.</li>\n"
+"        <li><b>kwargs</b>: un dicionario de metadatos. Os valores dos "
+"campos\n"
+"        están neste dicionario.\n"
+"        <li><b>mi</b>: unha instancia de metadatos. Úsase para obter "
+"información\n"
+"        sobre os campos. Este parámetro pode ser \"None\" nalgúns casos, "
+"como cando\n"
+"        se avalían modelos non de libros.</li>\n"
+"        <li><b>locals</b>: as variables locais asignadas polo programa de\n"
+"        modelo actual.</li>\n"
+"        <li><b>os_seus_parámetros</b>: debe proporcionar un ou máis "
+"parámetros\n"
+"        formais. O número debe coincidir co cadro de número de parámetros, "
+"excepto\n"
+"        se este é -1 (número variable de parámetros): neste caso o último "
+"argumento\n"
+"        debe ser \"*args\". Como mínimo requírese un parámetro, que é "
+"normalmente o\n"
+"        campo sobre o que se actúa. Teña en conta que cando se escribe no "
+"modo de\n"
+"        modelo básico, o usuario non achega o primeiro argumento, senón que "
+"vén\n"
+"        dado polo formatador.</li>\n"
+"        </ul></p>\n"
+"        <p>\n"
+"        A seguinte función de exemplo comproba o valor do campo. Se o campo "
+"non\n"
+"        está baleiro, o valor do campo é devoltoe en caso contrario "
+"devólvese\n"
+"        o valor \"BALEIRO\".\n"
+"        <pre>\n"
+"        nome: my_ifempty\n"
+"        Número de parámetros: 1\n"
+"        Documentación: my_ifempty(val) -- devolve val se non está baleiro, e "
+"en\n"
+"        caso contrario devolve a cadea \"BALEIRO\".\n"
+"        Código de programación:\n"
+"        def evaluate(self, formatter, kwargs, mi, locals, val):\n"
+"            if val:\n"
+"                return val\n"
+"            else:\n"
+"                return 'BALEIRO'</pre>\n"
+"        Esta función pode ser chamada en calquera dos modos de programación\n"
+"        do modelo:\n"
+"        <ul>\n"
+"        <li>modo de función única: {tags:my_ifempty()}</li>\n"
+"        <li>modo de programación de modelo: {tags:'my_ifempty($)'}</li>\n"
+"        <li>modo de programación xeral: program: "
+"my_ifempty(field('tags'))</li>\n"
+"        </p>\n"
+"        "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:133
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:143
@@ -12265,7 +12365,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:154
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:165
 msgid "Template functions"
-msgstr ""
+msgstr "Funcións de modelo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:134
 msgid "You cannot delete a built-in function"
@@ -12305,11 +12405,11 @@ msgstr "Introduza -1 se a función toma un número variable de argumentos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:102
 msgid "&Delete"
-msgstr ""
+msgstr "&Borrar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:103
 msgid "&Replace"
-msgstr ""
+msgstr "&Substituír"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:104
 msgid "C&reate"
@@ -13803,6 +13903,13 @@ msgid ""
 "Default: '%%default'\n"
 "Applies to: BIBTEX output format"
 msgstr ""
+"Os campos para incluir na saída cando se crea un catálogo dos libros da "
+"biblioteca. Debe ser unha lista de campos separados por comas.\n"
+"Os campos dispoñíbeis son: %s,\n"
+"e calquera campo personalizado creado polo usuario.\n"
+"Exemplo: %s=title,authors,tags\n"
+"Valor predeterminado: «%%default»\n"
+"Aplicábel a: formato de saída BIBTEX"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:245
 msgid ""
@@ -13849,6 +13956,11 @@ msgid ""
 "Default: '%%default'\n"
 "Applies to: BIBTEX output format"
 msgstr ""
+"O modelo para a creación de citas a partir dos campos da base de datos.\n"
+"Debe ser un modelo con campos encerrados en {}.\n"
+"Campos dispoñíbeis: %s.\n"
+"Valor predeterminado: «%%default»\n"
+"Aplicábel a: formato de salida BIBTEXT"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:282
 msgid ""
@@ -14162,7 +14274,7 @@ msgstr "Portadas inexistentes"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:34
 msgid "Cover files not in database"
-msgstr ""
+msgstr "Cuberta que non están na base de datos"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:35
 msgid "Folders raising exception"
@@ -15500,6 +15612,12 @@ msgid ""
 "automatically. For example, template('[[title_sort]]') will evaluate the "
 "template {title_sort} and return its value."
 msgstr ""
+"template(x) -- avalía x como un modelo. A avaliación realízase no seu propio "
+"contexto, o que significa que as variables non se comparten entre o proceso "
+"que chama á función e a avaliación do modelo. Dado que os caracteres { e } "
+"teñen un uso especial, debe usar [[ en canto de { e ]] en canto de }; "
+"converteranse automaticamente. Por exemplo, template('[[orde_de_título]]') "
+"avaliará o modelo {orde_de_título} e devolverá o seu valor."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:194
 msgid ""
@@ -15507,6 +15625,10 @@ msgid ""
 "'assign'ed to) instead of the book metadata.  This permits using the "
 "template processor to construct complex results from local variables."
 msgstr ""
+"eval(modelo) -- avalía o modelo, pasando as variábeis locais (as definidas "
+"con \"assign\") no canto dos metadatos do libro. Isto permite usar o "
+"procesador de modelos para elaborar resultados complexos a partir de "
+"variábeis locais."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:207
 msgid ""
@@ -15553,6 +15675,12 @@ msgid ""
 "the value of some other composite field. This is extremely useful when "
 "constructing variable save paths"
 msgstr ""
+"lookup(val, patrón, campo, patrón, campo, ..., outro_campo) -- como "
+"\"switch\", pero os argumentos son nomes de campo (metadatos), non texto. "
+"Usarase o valor do campo apropiado. Teña en conta que posto que as columnas "
+"compostas son campos, pode usar esta función nun campo composto para usar o "
+"valor doutro campo composto. Isto é moi útil para construír rutas para  "
+"gardar variábeis."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:264
 msgid "lookup requires either 2 or an odd number of arguments"

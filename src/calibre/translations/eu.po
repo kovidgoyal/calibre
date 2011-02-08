@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-02-04 19:12+0000\n"
-"PO-Revision-Date: 2011-01-27 15:23+0000\n"
+"PO-Revision-Date: 2011-02-07 14:39+0000\n"
 "Last-Translator: gorkaazk <gorkaazkarate@euskalerria.org>\n"
 "Language-Team: Basque <eu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-02-05 04:40+0000\n"
+"X-Launchpad-Export-Date: 2011-02-08 04:34+0000\n"
 "X-Generator: Launchpad (build 12177)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -634,11 +634,13 @@ msgstr "Profil hau \"SONY PRS 300\" horretara zuzendurik dago."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:502
 msgid "Suitable for use with any e-ink device"
-msgstr ""
+msgstr "Tinta elektronikoa darabilen edozein gailurekin erabil daiteke"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:509
 msgid "Suitable for use with any large screen e-ink device"
 msgstr ""
+"Tinta elektronikoa darabilen eta pantaila handia duen edozein gailurekin "
+"erabil daiteke"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:518
 msgid "This profile is intended for the 5-inch JetBook."
@@ -1296,6 +1298,8 @@ msgstr ""
 msgid ""
 "Refresh separate covers when using automatic management (newer readers)"
 msgstr ""
+"Eguneratu liburu-azalak bereizirik kudeaketa automatikoa erabiltzerakoan "
+"(irakurle berriak)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:81
 msgid ""
@@ -1307,6 +1311,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:85
 msgid "Preserve cover aspect ratio when building thumbnails"
 msgstr ""
+"Aldaketarik ez ezarri liburu-azalen tamainen proportzioetan koadro txikiak "
+"sortzerakoan"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:87
 msgid ""
@@ -1337,7 +1343,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:47
 msgid "Communicate with the Archos reader."
-msgstr ""
+msgstr "Kontaktatu Archos reader enpresakoekin."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:57
 msgid "Communicate with the Pico reader."

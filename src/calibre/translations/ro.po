@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-02-04 19:12+0000\n"
-"PO-Revision-Date: 2010-12-17 00:09+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2011-02-07 22:49+0000\n"
+"Last-Translator: MLaudatu <Laudatti@gmail.com>\n"
 "Language-Team: Romanian <ro@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-02-05 04:49+0000\n"
+"X-Launchpad-Export-Date: 2011-02-08 04:35+0000\n"
 "X-Generator: Launchpad (build 12177)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -345,15 +345,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:784
 msgid "Common Options"
-msgstr "Opțiuni obișnuite"
+msgstr "Opţiuni comune"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:790
 msgid "Set conversion options common to all formats"
-msgstr "Precizează opțiunile obișnuite pentru toate formatele"
+msgstr "Precizează opțiuni comune pentru toate formatele"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:795
 msgid "Output Options"
-msgstr "Opțiuni pentru ieșire"
+msgstr "Opțiuni ieșire"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:801
 msgid "Set conversion options specific to each output format"
@@ -373,8 +373,8 @@ msgstr "Import/Export"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:812
 msgid "Control how calibre reads metadata from files when adding books"
 msgstr ""
-"Controlează modul cum Calibre citește metadatele din fișiere când adaugă "
-"cărți"
+"Controlează modalitatea de citire metadata din fișiere la adăugare cărți de "
+"către Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:818
 msgid "Saving books to disk"
@@ -385,8 +385,8 @@ msgid ""
 "Control how calibre exports files from its database to disk when using Save "
 "to disk"
 msgstr ""
-"Controlează cum Calibre exportă fișierele din baza sa de date spre disc când "
-"se folosește Salvează pe disc"
+"Controlează modalitatea de export a fișierelor din baza de date Calibre la "
+"utilizarea opțiunii Salvează pe disc"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:830
 msgid "Sending books to devices"
@@ -440,7 +440,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:876
 msgid "Sharing over the net"
-msgstr "Partajarea în Internet"
+msgstr "Partajare via Internet"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:882
 msgid ""
@@ -458,7 +458,7 @@ msgstr "Extensii"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:895
 msgid "Add/remove/customize various bits of calibre functionality"
-msgstr "Adauga/sterge/configureaza diferite functii ale lui Calibre"
+msgstr "Adaugă/şterge/configurează diferite funcţii ale Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:901
 msgid "Tweaks"
@@ -466,11 +466,12 @@ msgstr "Ajustări"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:907
 msgid "Fine tune how calibre behaves in various contexts"
-msgstr "Reglare fină a modului cum Calibre se comportă în diferite contexte"
+msgstr ""
+"Reglare fină a modului în care se comportă Calibre în diferite contexte"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:912
 msgid "Miscellaneous"
-msgstr "Altele"
+msgstr "Diverse"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:918
 msgid "Miscellaneous advanced configuration"
@@ -487,10 +488,10 @@ msgid ""
 "useful for documents that do not declare an encoding or that have erroneous "
 "encoding declarations."
 msgstr ""
-"Specifica codificarea caracterelor documentului sursa. Aceasta optiune "
-"selectata va suprascrie orice optiune de codificare prezenta in document. "
-"Este folosita in special pentru documente care ce nu au declarata o "
-"codificare sau care au codificari declarate eronat."
+"Precizarea codificării caracterelor documentului sursă. Selectarea acestei "
+"opţiuni va suprascrie orice opţiune de codificare prezentă in document. Este "
+"utilă în special pentru documente care nu declară o codificare sau care au "
+"declaraţii eronate de codare."
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:234
 msgid "Conversion Output"
@@ -501,9 +502,9 @@ msgid ""
 "If specified, the output plugin will try to create output that is as human "
 "readable as possible. May not have any effect for some output plugins."
 msgstr ""
-"In cazul selectarii, convertorul va incerca sa creeze un document cat mai "
-"usor de citit de catre utilizator. Poate sa nu aiba nici un efect asupra "
-"rezultatelor anumitor plugin-uri de conversie."
+"La selectare, conectorul va incerca să creeze un document cât mai uşor de "
+"citit de către utilizator. Posibil, fără niciun rezultat în cazul anumitor "
+"conectoare."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:49
 msgid "Input profile"
@@ -514,8 +515,8 @@ msgid ""
 "This profile tries to provide sane defaults and is useful if you know "
 "nothing about the input document."
 msgstr ""
-"Acest profil incearca sa ofere setari implicite sigure, si este folositor "
-"atunci cand nu se cunoaste nimic asupra documentului sursa"
+"Acest profil incearcă să ofere setări implicite sigure, fiind folositor "
+"atunci când nu se cunoaşte nimic desprea documentul sursă."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:61
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:453
@@ -545,12 +546,13 @@ msgstr "Acest profil este potrivit pentru Mobipocket."
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:114
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:562
 msgid "This profile is intended for the Hanlin V3 and its clones."
-msgstr "Acest profil este potrivit pentru Hanlin V3 si clone ale acestuia."
+msgstr "Acest profil este potrivit pentru Hanlin V3 şi clone ale acestuia."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:126
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:574
 msgid "This profile is intended for the Hanlin V5 and its clones."
-msgstr "Acest profil este potrivit pentru Hanlin V5 si clone ale acestuia."
+msgstr ""
+"Acest profil este potrivit pentru Hanlin V5 şi pentru clone ale acestuia."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:136
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:582
@@ -589,7 +591,7 @@ msgstr "Acest profil este destinat pentru B&N Nook."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:232
 msgid "Output profile"
-msgstr "Profil de iesire"
+msgstr "Profil de ieşire"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:236
 msgid ""
@@ -597,25 +599,27 @@ msgid ""
 "produce a document intended to be read at a computer or on a range of "
 "devices."
 msgstr ""
-"Acest profil incearca sa ofere setari sigure si este folositor daca se "
-"doreste generarea unui document ce va fi citit pe monitorul unui computer "
-"sau pe o gama larga de sisteme portabile."
+"Acest profil incearcă să ofere setări sigure şi este folositor dacă se "
+"doreşte generarea unui document ce va fi citit pe monitorul unui computer "
+"sau pe o gamă largă de dispozitive."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:278
 msgid ""
 "Intended for the iPad and similar devices with a resolution of 768x1024"
 msgstr ""
-"Destinat pentru iPad dispozitivelor similare cu o rezoluţie de 768x1024"
+"Destinate dispozitivelor iPad şi similare, cu o rezoluţie de 768x1024"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:437
 msgid "Intended for generic tablet devices, does no resizing of images"
-msgstr ""
+msgstr "Pentru tablete generice, fără redimensionarea imaginilor"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:445
 msgid ""
 "Intended for the Samsung Galaxy and similar tablet devices with a resolution "
 "of 600x1280"
 msgstr ""
+"Destinate pentru Samsung Galaxy şi alte dispozitive, cu o rezoluţie de "
+"600x1280"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:471
 msgid "This profile is intended for the Kobo Reader."
@@ -627,11 +631,12 @@ msgstr "Acest profil este destinat pentru SONY PRS-300."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:502
 msgid "Suitable for use with any e-ink device"
-msgstr ""
+msgstr "Utilizabil pentru orice dispozitiv e-ink"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:509
 msgid "Suitable for use with any large screen e-ink device"
 msgstr ""
+"Utilizabil pentru orice dispozitiv e-ink cu afişaj de dimensiuni nari"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:518
 msgid "This profile is intended for the 5-inch JetBook."
@@ -14469,7 +14474,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1213
 msgid "Untitled Article"
-msgstr ""
+msgstr "Articol fără titlu"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1284
 msgid "Article downloaded: %s"
@@ -14488,56 +14493,60 @@ msgid ""
 "Failed to log in, check your username and password for the calibre "
 "Periodicals service."
 msgstr ""
+"Conectare nereuşităi, verificaţi numele de utilizator şi parola pentru "
+"serviciul Calibre Periodica."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1474
 msgid ""
 "You do not have permission to download this issue. Either your subscription "
 "has expired or you have exceeded the maximum allowed downloads for today."
 msgstr ""
+"Nu aveţi permisiunea de a descărca acest exemplar. Fie abonamentul v-a "
+"expirat, fie aţi depăşit numărul maxim de descărcări permise zilnic."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:47
 msgid "You"
-msgstr ""
+msgstr "Tu"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/model.py:73
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/model.py:82
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/model.py:194
 msgid "Scheduled"
-msgstr ""
+msgstr "Programat"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/model.py:84
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/model.py:195
 msgid "Custom"
-msgstr ""
+msgstr "Particularizat"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:118
 msgid "Next section"
-msgstr ""
+msgstr "Secţiunea următoare"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:121
 msgid "Main menu"
-msgstr ""
+msgstr "Meniu principal"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:125
 msgid "Previous section"
-msgstr ""
+msgstr "Secţiunea precedentă"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:214
 msgid "Section Menu"
-msgstr ""
+msgstr "Secţiunea Meniu"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:217
 msgid "Main Menu"
-msgstr ""
+msgstr "Meniul principal"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:303
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:393
 msgid "Sections"
-msgstr ""
+msgstr "Secţiuni"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:390
 msgid "Articles"
-msgstr ""
+msgstr "Articole"
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:476
 msgid ""
@@ -14579,6 +14588,8 @@ msgid ""
 "The character encoding for the websites you are trying to download. The "
 "default is to try and guess the encoding."
 msgstr ""
+"Codificarea caracterelor pentru site-urile pe care încercaţi să descărcaţi. "
+"Valoarea implicită constă în încercarea şi intuirea codării."
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:494
 msgid ""
@@ -14586,6 +14597,10 @@ msgid ""
 "can be specified multiple times, in which case as long as a link matches any "
 "one regexp, it will be followed. By default all links are followed."
 msgstr ""
+"Doar legăturile care se potrivesc cu această expresie regulată vor fi "
+"urmate. Această opţiune poate fi specificată de mai multe ori, în care caz, "
+"atâta timp cât o legătură se potriveşte cu orice expresie regulată, acesta "
+"va fi urmat. În mod implicit toate link-urile sunt respectate."
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:496
 msgid ""
@@ -14594,6 +14609,12 @@ msgid ""
 "a link, it will be ignored.By default, no links are ignored. If both filter "
 "regexp and match regexp are specified, then filter regexp is applied first."
 msgstr ""
+"Orice legăatură asociată cu această expresie regulată va fi ignorată. "
+"Această opţiune poate fi specificată de mai multe ori, în care caz, atâta "
+"timp cât orice expresie regulată se asociază unei legături, aceasta va fi "
+"implicit ignorată. Implicit, legăturile nu sunt ignorate. Dacă ambele "
+"expresii regulate filtru şi potrivire sunt specificate, atunci expresia "
+"regulată filtru este aplicată prima."
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:498
 msgid "Do not download CSS stylesheets."

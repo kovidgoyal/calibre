@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-02-04 19:12+0000\n"
-"PO-Revision-Date: 2011-02-06 23:42+0000\n"
+"PO-Revision-Date: 2011-02-07 12:38+0000\n"
 "Last-Translator: debsa <Unknown>\n"
 "Language-Team: Hungarian <hu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-02-07 05:18+0000\n"
+"X-Launchpad-Export-Date: 2011-02-08 04:34+0000\n"
 "X-Generator: Launchpad (build 12177)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -445,7 +445,7 @@ msgstr "Hozzáad/eltávolít/beállít minden egyes bitet a calibre funkcióiná
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:901
 msgid "Tweaks"
-msgstr "Tweaks"
+msgstr "Finombeállításokás"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:907
 msgid "Fine tune how calibre behaves in various contexts"
@@ -2128,11 +2128,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/__init__.py:26
 msgid "ePub Fixer"
-msgstr ""
+msgstr "ePub helyreállító"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/epubcheck.py:18
 msgid "Workaround epubcheck bugs"
-msgstr ""
+msgstr "ePub ellenőrzési (epubcheck) hibák megoldása"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/epubcheck.py:22
 msgid ""
@@ -2141,6 +2141,11 @@ msgid ""
 "detect these and replace them with constructs that epubcheck likes. This may "
 "cause significant changes to your epub, complain to the epubcheck project."
 msgstr ""
+"Hibák megoldása a legutolsó ePub ellenőrzési (epubcheck) kiadásban. "
+"ePubcheck jelentésekben szereplő hibák nem mindig hibák. Az ePub "
+"helyreállító (epub-fix) megpróbálja helyreállítani ezeket és kicserélni "
+"azokra a megoldásokra, amit a epubcheck javasol. Ez néha jelentősen "
+"megváltoztatja az ePub-odat, amit az epubcheck project felé is jelent."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/main.py:21
 msgid ""
@@ -2152,10 +2157,18 @@ msgid ""
 "By default, no fixing is done and messages are printed out for each error "
 "detected. Use the options to control which errors are automatically fixed."
 msgstr ""
+"%prog [opciók] file.epub\n"
+"\n"
+"Javítja az alapvető hibákat az ePub file-ban, amelyeket a rosszul "
+"kivetelezett kiadási tervezések miatt kerül elutasításra.\n"
+"\n"
+"Alapesetben nincs javítás és az üzenet minden hiba esetén nyomtatásra kerül. "
+"Ezen opció használatával beállítható, hogy mely hibák legyenek automatikusan "
+"javítva."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/main.py:52
 msgid "You must specify an epub file"
-msgstr ""
+msgstr "Meg kell nevezned egy ePub file-t"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/unmanifested.py:17
 msgid "Fix unmanifested files"
@@ -2220,6 +2233,10 @@ msgid ""
 "JetBook Lite. Without this option, such devices will display the cover as a "
 "blank page."
 msgstr ""
+"Ne használj SVG-t borítónak. Ezzel az opcióval az ePub használható lesz "
+"olyan eszközökön, amelyek nem támogatják az SVG-t, mint a iPhone vagy "
+"JetBookLite. Enélkül az opció nélkül, az ilyen eszközök, egy üres lapot "
+"jelenítenek meg boríként."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:94
 msgid ""
@@ -2241,6 +2258,9 @@ msgid ""
 "will flatten the file system inside the EPUB, putting all files into the top "
 "level."
 msgstr ""
+"Ez az opciók csak akkor szükséges, ha ez ePub-ot FBReaderJ-vel szándékozik "
+"olvasni. Leegyszerűsíti az ePub felépíését, az összes file-t, a felső "
+"szintre helyezi"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:184
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:206
@@ -2313,7 +2333,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/from_any.py:47
 msgid "Creating LIT file from EPUB..."
-msgstr "LIT fájl létrehozása..."
+msgstr "LIT formátumot hoz létre ePub-ból..."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:320
 msgid "\tBook Designer file detected."
@@ -4917,11 +4937,11 @@ msgstr "Könyvek ugyanilyen cimkékkel"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:15
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:54
 msgid "Tweak ePub"
-msgstr ""
+msgstr "ePub finom hangolás (szerkesztés)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:16
 msgid "Make small changes to ePub format books"
-msgstr ""
+msgstr "Kissebb változtásokat hajt végre az ePub formátumo könyveken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:17
 msgid "T"
@@ -4930,11 +4950,11 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:27
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:39
 msgid "Cannot tweak ePub"
-msgstr ""
+msgstr "Az ePub nem beállítható (szerkeszthető)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:40
 msgid "No ePub available. First convert the book to ePub."
-msgstr ""
+msgstr "Nem érhető el ePub. Elősször alakítsd át a könyvet ePub formátumúra."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:24
 msgid "V"
@@ -5902,7 +5922,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output.py:15
 msgid "EPUB Output"
-msgstr "EPUB kimenet"
+msgstr "ePub formátum"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:57
 msgid "Do not &split on page breaks"
@@ -5930,7 +5950,7 @@ msgstr " KB"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:63
 msgid "&Flatten EPUB file structure"
-msgstr ""
+msgstr "ePub fájl struktúra egyszerűsítése"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_input.py:12
 msgid "FB2 Input"
@@ -7705,6 +7725,9 @@ msgid ""
 "author. Exactly how this value is automatically generated can be controlled "
 "via Preferences->Advanced->Tweaks"
 msgstr ""
+"Minden tulajdonos rendezői érték visszaállítása a szerző által beállított "
+"értékekre. Azt hogy hogyan generálja Beállítások->Haladó->Finom beállíások "
+"menüpontban kontrollálhatók."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:75
 msgid "Recalculate all author sort values"
@@ -9364,6 +9387,12 @@ msgid ""
 "windows you used to edit files in the epub</b>.</p><p>Rebuild the ePub, "
 "updating your calibre library.</p>"
 msgstr ""
+"<p>Megjeleníti az ePub tartalmát egy külön ablakban. Ez egyes fájlok "
+"szerkesztéséhez a jobb egérgomb helyi menüjéből a Nyitás, mint... (Társítás-"
+">ideiglenes társítás) menüponttal szerkesszük meg az editorunkban (Pl "
+"jegyzettömb) a tartalmat. Ha kész vagyunk, zárjuk be a mappa ablakát <b>és a "
+"szerkesztő ablakát is.</b></p><p>Kattintsunk az ePub újraépítése gombra, "
+"hogy frissítsük a könyv tartalmát.</p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:133
 msgid "No recipe selected"
@@ -11610,27 +11639,32 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:43
 msgid "Invalid tweaks"
-msgstr ""
+msgstr "Érvénytelen beállíás"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:44
 msgid ""
 "The tweaks you entered are invalid, try resetting the tweaks to default and "
 "changing them one by one until you find the invalid setting."
 msgstr ""
+"A kért beállítás érvénytelen, próbáld újra beállítani az alapértelmezett "
+"értékekre lépésenként, hogy megtaláld az érvénytelen beállítást."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:50
 msgid ""
 "Values for the tweaks are shown below. Edit them to change the behavior of "
 "calibre. Your changes will only take effect after a restart of calibre."
 msgstr ""
+"A beállítás értékei lentebb olvashatók. Szerkesztésük megváltoztathatod a "
+"Calibre viselkedését. A változtatások a Calibre újraindulása után lépnek "
+"érvénybe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:51
 msgid "All available tweaks"
-msgstr ""
+msgstr "Összes lehetséges finom beállíás"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:52
 msgid "&Current tweaks"
-msgstr ""
+msgstr "&Aktuális finombeállítás"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:94
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:271

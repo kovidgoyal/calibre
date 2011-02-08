@@ -9,13 +9,13 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-02-04 19:12+0000\n"
-"PO-Revision-Date: 2011-01-28 08:54+0000\n"
-"Last-Translator: meo bogliolo <Unknown>\n"
+"PO-Revision-Date: 2011-02-07 13:31+0000\n"
+"Last-Translator: MeltingShell <Unknown>\n"
 "Language-Team: italiano\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-02-05 04:46+0000\n"
+"X-Launchpad-Export-Date: 2011-02-08 04:35+0000\n"
 "X-Generator: Launchpad (build 12177)\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -631,11 +631,13 @@ msgstr "Questo profilo è adatto per il Sony PRS-300."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:502
 msgid "Suitable for use with any e-ink device"
-msgstr ""
+msgstr "Adatto per l'uso con qualsiasi dispositivo ad inchiostro elettronico"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:509
 msgid "Suitable for use with any large screen e-ink device"
 msgstr ""
+"Adatto per l'uso con qualsiasi schermo di grandi dimensioni per dispositivi "
+"ad inchiostro elettronico"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:518
 msgid "This profile is intended for the 5-inch JetBook."
@@ -1318,7 +1320,7 @@ msgstr "Comunica con il lettore Newsmy."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:47
 msgid "Communicate with the Archos reader."
-msgstr ""
+msgstr "Comunica con il lettore Archos."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:57
 msgid "Communicate with the Pico reader."
@@ -2164,6 +2166,8 @@ msgid ""
 "Remove empty paragraphs from the document when they exist between every "
 "other paragraph"
 msgstr ""
+"Rimuovere paragrafi vuoti dal documento quando sono presenti tra ogni altro "
+"paragrafo"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:530
 msgid ""
@@ -7587,7 +7591,7 @@ msgstr "quanti libri vuoti si desidera aggiungere?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_empty_book.py:32
 msgid "Set the author of the new books to:"
-msgstr ""
+msgstr "Imposta l'autore dei nuovi libri a:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_empty_book.py:44
 msgid "Reset author to Unknown"
@@ -7622,7 +7626,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_from_isbn_ui.py:69
 msgid "&Tags to set on created book entries:"
-msgstr ""
+msgstr "&Tag da impostare per i libri creati:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:80
 msgid "Fit &cover within view"
@@ -12326,7 +12330,7 @@ msgstr "&Cerca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1338
 msgid "Find the first/next matching item"
-msgstr ""
+msgstr "Trova il primo/prossimo elemento corrispondente"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1345
 msgid "Collapse all categories"
