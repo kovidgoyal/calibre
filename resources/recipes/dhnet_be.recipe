@@ -1,7 +1,7 @@
 #!/usr/bin/env  python
 
 __license__   = 'GPL v3'
-__copyright__ = '2008, Lionel Bergeret <lbergeret at gmail.com>'
+__copyright__ = '2008-2011, Lionel Bergeret <lbergeret at gmail.com>'
 '''
 dhnet.be
 '''
@@ -16,7 +16,8 @@ class DHNetBe(BasicNewsRecipe):
     publisher             = u'dhnet.be'
     category              = 'news, Belgium'
     oldest_article        = 3
-    language              = 'fr_BE'
+    language              = 'fr'
+    masthead_url          = 'http://www.dhnet.be/images/homepage_logo_dh.gif'
 
     max_articles_per_feed = 20
     no_stylesheets        = True
@@ -33,6 +34,13 @@ class DHNetBe(BasicNewsRecipe):
         ,(u'La Une Sports'  , u'http://www.dhnet.be/rss/dhsports/' )
         ,(u'La Une Info'    , u'http://www.dhnet.be/rss/dhinfos/' )
     ]
+
+    def preprocess_html(self, soup):
+        for alink in soup.findAll('a'):
+            if alink.string is not None:
+               tstr = alink.string
+               alink.replaceWith(tstr)
+        return soup
 
     def get_cover_url(self):
         cover_url = strftime('http://pdf-online.dhnet.be/pdfonline/image/%Y%m%d/dh_%Y%m%d_nam_infoge_001.pdf.L.jpg')
