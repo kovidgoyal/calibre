@@ -285,13 +285,6 @@ up into sub-categories. If the partition method is set to disable, this value is
    </item>
   </layout>
  </widget>
-  <customwidgets>
-  <customwidget>
-   <class>MultiCompleteLineEdit</class>
-   <extends>QLineEdit</extends>
-   <header>calibre.gui2.complete.h</header>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections/>
 </ui>

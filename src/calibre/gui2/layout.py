@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 from functools import partial
 
 from PyQt4.Qt import QIcon, Qt, QWidget, QToolBar, QSize, QDialogButtonBox, \
-    pyqtSignal, QToolButton, QMenu, QCheckBox, QDialog, QGridLayout, \
+    pyqtSignal, QToolButton, QMenu, QCheckBox, QDialog, QGridLayout, QFrame, \
     QObject, QVBoxLayout, QSizePolicy, QLabel, QHBoxLayout, QActionGroup
 
 
@@ -19,7 +19,6 @@ from calibre.gui2 import gprefs
 from calibre.gui2.widgets import ComboBoxWithHelp
 from calibre.gui2.complete import MultiCompleteLineEdit
 from calibre import human_readable
-from calibre.utils.config import prefs
 
 class LocationManager(QObject): # {{{
 
@@ -151,8 +150,6 @@ class SearchBar(QWidget): # {{{
 
     def __init__(self, parent):
         QWidget.__init__(self, parent)
-        self.parent = parent
-
         self._layout = l = QHBoxLayout()
         self.setLayout(self._layout)
         self._layout.setContentsMargins(0,5,0,0)
@@ -162,8 +159,8 @@ class SearchBar(QWidget): # {{{
         x.setObjectName("search_restriction")
         x.setToolTip(_('Books display will be restricted to those matching the '
                        'selected saved search'))
-        parent.search_restriction = x
         l.addWidget(x)
+        parent.search_restriction = x
 
         x = QLabel(self)
         x.setObjectName("search_count")
@@ -237,21 +234,26 @@ class SearchOptions(QDialog):
     def __init__(self, parent, limit_to_fields, limit_field_list,
                  limit_cbox, highlight_cbox):
         QDialog.__init__(self, parent=parent)
-#        self.search_limit_possible_fields = []
-#        self.search_limit_cbox_value = False
-#        self.search_highlight_cbox_value = False
-#        self.search_limit_list = ''
-#        self = self.search_popup = QDialog(self.parent)
         self.setWindowTitle(_('Search options'))
         l = QGridLayout()
         self.setLayout(l)
 
-        x = QLabel(_(' '), parent=self)
-        x.setBuddy(parent.search_restriction)
-        l.addWidget(x, 1, 0, 1, 1)
+        x = QLabel(_('Use this box to change search options related to how '
+                     'results are displayed and which fields are searched. '
+                     'Changes will be remembered across calibre restarts. '
+                     'When you press OK, the last search will be redone using '
+                     'the new option values.'),
+                     parent=self)
+        x.setWordWrap(True)
+        l.addWidget(x, 0, 0, 1, 2)
+
+        line = QFrame(self)
+        line.setFrameShape(QFrame.HLine)
+        line.setFrameShadow(QFrame.Sunken)
+        l.addWidget(line, 1, 0, 1, 2)
 
         x = self.search_highlight_only = QCheckBox(self)
-        x.setToolTip('<p>'+_('When searching, highlight matched books, instead '
+        x.setToolTip('<p>'+_('When searching, highlight matched books instead '
             'of restricting the book list to the matches.<p> You can use the '
             'N or F3 keys to go to the next match.'))
         x.setChecked(highlight_cbox)
@@ -268,8 +270,8 @@ class SearchOptions(QDialog):
             'Preferences -> Look and Feel -> Limit non-prefixed searches to columns.'))
         x.setChecked(limit_cbox)
         l.addWidget(x, 3, 1, 1, 1)
-        x = QLabel(_('Check this box if you want non-prefixed searches to be '
-                     '&limited to certain fields/lookup names'), parent=self)
+        x = QLabel(_('Check this box if you want non-&prefixed searches to be '
+                     'limited to certain fields/lookup names'), parent=self)
         x.setBuddy(self.search_limit_checkbox)
         l.addWidget(x, 3, 0, 1, 1)
 
@@ -284,15 +286,15 @@ class SearchOptions(QDialog):
         x.update_items_cache(limit_field_list)
         x.setText(limit_to_fields)
         l.addWidget(x, 4, 1, 1, 1)
-        x = QLabel(_('Enter the list of fields that non-prefixed searches '
-                     'are &limited to'), parent=self)
+        x = QLabel(_('Enter the list of &columns that non-prefixed searches '
+                     'are limited to'), parent=self)
         x.setBuddy(self.search_box_limit_to)
         l.addWidget(x, 4, 0, 1, 1)
 
         buttons = QDialogButtonBox()
         buttons.addButton(QDialogButtonBox.Ok)
         buttons.addButton(QDialogButtonBox.Cancel)
-        l.addWidget(buttons, 5, 0, 1, 1)
+        l.addWidget(buttons, 5, 0, 1, 2)
         buttons.accepted.connect(self.search_options_accepted)
         buttons.rejected.connect(self.search_options_rejected)
 
