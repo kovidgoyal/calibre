@@ -1030,6 +1030,7 @@ class DeviceMixin(object): # {{{
                     total_size = sum([os.stat(f).st_size for f in files])
                 except:
                     try:
+                        import traceback
                         traceback.print_exc()
                     except:
                         pass
