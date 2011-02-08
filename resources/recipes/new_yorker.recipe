@@ -54,10 +54,10 @@ class NewYorker(BasicNewsRecipe):
                         ,dict(attrs={'id':['show-header','show-footer'] })
                      ]
     remove_attributes = ['lang']
-    feeds             = [(u'The New Yorker', u'http://www.newyorker.com/services/rss/feeds/everything.xml')]
+    feeds             = [(u'The New Yorker', u'http://www.newyorker.com/services/mrss/feeds/everything.xml')]
 
     def print_version(self, url):
-        return 'http://www.newyorker.com' + url + '?printable=true'
+        return url + '?printable=true'
 
     def image_url_processor(self, baseurl, url):
         return url.strip()

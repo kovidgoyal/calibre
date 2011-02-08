@@ -50,6 +50,7 @@ gprefs.defaults['action-layout-context-menu-device'] = (
 
 gprefs.defaults['show_splash_screen'] = True
 gprefs.defaults['toolbar_icon_size'] = 'medium'
+gprefs.defaults['automerge'] = 'ignore'
 gprefs.defaults['toolbar_text'] = 'auto'
 gprefs.defaults['show_child_bar'] = False
 gprefs.defaults['font'] = None

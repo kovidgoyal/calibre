@@ -1259,9 +1259,8 @@ class TagBrowserMixin(object): # {{{
             if rename_func:
                 for item in to_delete:
                     delete_func(item)
-                for text in to_rename:
-                        for old_id in to_rename[text]:
-                            rename_func(old_id, new_name=unicode(text))
+                for old_id in to_rename:
+                    rename_func(old_id, new_name=unicode(to_rename[old_id]))
 
             # Clean up the library view
             self.do_tag_item_renamed()
