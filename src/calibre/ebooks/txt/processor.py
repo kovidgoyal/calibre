@@ -29,8 +29,7 @@ def clean_txt(txt):
     txt = '\n'.join([line.rstrip() for line in txt.splitlines()])
     
     # Replace whitespace at the beginning of the line with &nbsp;
-    txt = re.sub('(?m)(?P<space>^[ ]+)(?=.)', lambda mo: '&nbsp;' * mo.groups('space').count(' '), txt)
-    txt = re.sub('(?m)(?P<space>^[\t]+)(?=.)', lambda mo: '&nbsp;' * 4 * mo.groups('space').count('\t'), txt)
+    txt = re.sub('(?m)(?<=^)([ ]{2,}|\t+)(?=.)', '&nbsp;' * 4, txt)
 
     # Condense redundant spaces
     txt = re.sub('[ ]{2,}', ' ', txt)
@@ -119,6 +118,15 @@ def separate_paragraphs_single_line(txt):
 
 def separate_paragraphs_print_formatted(txt):
     txt = re.sub(u'(?miu)^(?P<indent>\t+|[ ]{2,})(?=.)', lambda mo: '\n%s' % mo.group('indent'), txt)
+    return txt
+
+def separate_hard_scene_breaks(txt):
+    def sep_break(line):
+        if len(line.strip()) > 0:
+            return '\n%s\n' % line
+        else:
+            return line
+    txt = re.sub(u'(?miu)^[ \t-=~\/]+$', lambda mo: sep_break(mo.group()), txt)
     return txt
 
 def block_to_single_line(txt):
@@ -221,9 +229,9 @@ def detect_formatting_type(txt):
     markdown_count += len(re.findall('(?mu)^=+$', txt))
     markdown_count += len(re.findall('(?mu)^-+$', txt))
     # Images
-    markdown_count += len(re.findall('(?u)!\[.*?\]\(.+?\)', txt))
+    markdown_count += len(re.findall('(?u)!\[.*?\](\[|\()', txt))
     # Links
-    markdown_count += len(re.findall('(?u)(^|(?P<pre>[^!]))\[.*?\]\([^)]+\)', txt))
+    markdown_count += len(re.findall('(?u)^|[^!]\[.*?\](\[|\()', txt))
 
     # Check for textile
     # Headings
@@ -231,9 +239,9 @@ def detect_formatting_type(txt):
     # Block quote.
     textile_count += len(re.findall(r'(?mu)^bq\.', txt))
     # Images
-    textile_count += len(re.findall(r'\![^\s]+(?=.*?/)(:[^\s]+)*', txt))
+    textile_count += len(re.findall(r'(?mu)(?<=\!)\S+(?=\!)', txt))
     # Links
-    textile_count += len(re.findall(r'"(?=".*?\()(\(.+?\))*[^\(]+?(\(.+?\))*":[^\s]+', txt))
+    textile_count += len(re.findall(r'"[^"]*":\S+', txt))
 
     # Decide if either markdown or textile is used in the text
     # based on the number of unique formatting elements found.

@@ -197,7 +197,7 @@ class MetadataSingleDialogBase(ResizableDialog):
         self.books_to_refresh = set([])
         for widget in self.basic_metadata_widgets:
             widget.initialize(self.db, id_)
-        for widget in self.custom_metadata_widgets:
+        for widget in getattr(self, 'custom_metadata_widgets', []):
             widget.initialize(id_)
         # Commented out as it doesn't play nice with Next, Prev buttons
         #self.fetch_metadata_button.setFocus(Qt.OtherFocusReason)
