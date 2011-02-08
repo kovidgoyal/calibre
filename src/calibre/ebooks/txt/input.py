@@ -4,23 +4,27 @@ __license__ = 'GPL 3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
+import glob
 import os
 
+from calibre import _ent_pat, xml_entity_to_unicode
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
 from calibre.ebooks.conversion.preprocess import DocAnalysis, Dehyphenator
 from calibre.ebooks.chardet import detect
 from calibre.ebooks.txt.processor import convert_basic, convert_markdown, \
     separate_paragraphs_single_line, separate_paragraphs_print_formatted, \
     preserve_spaces, detect_paragraph_type, detect_formatting_type, \
-    normalize_line_endings, convert_textile, remove_indents, block_to_single_line
-from calibre import _ent_pat, xml_entity_to_unicode
+    normalize_line_endings, convert_textile, remove_indents, block_to_single_line, \
+    separate_hard_scene_breaks
+from calibre.ptempfile import TemporaryDirectory
+from calibre.utils.zipfile import ZipFile
 
 class TXTInput(InputFormatPlugin):
 
     name        = 'TXT Input'
     author      = 'John Schember'
     description = 'Convert TXT files to HTML'
-    file_types  = set(['txt'])
+    file_types  = set(['txt', 'txtz'])
 
     options = set([
         OptionRecommendation(name='paragraph_type', recommended_value='auto',
@@ -57,10 +61,23 @@ class TXTInput(InputFormatPlugin):
     def convert(self, stream, options, file_ext, log,
                 accelerators):
         self.log = log
+        txt = ''
         log.debug('Reading text from file...')
         length = 0
 
-        txt = stream.read()
+        # Extract content from zip archive.
+        if file_ext == 'txtz':
+            log.debug('De-compressing content to temporary directory...')
+            with TemporaryDirectory('_untxtz') as tdir:
+                zf = ZipFile(stream)
+                zf.extractall(tdir)
+
+                txts = glob.glob(os.path.join(tdir, '*.txt'))
+                for t in txts:
+                    with open(t, 'rb') as tf:
+                        txt += tf.read()
+        else:
+            txt = stream.read()
 
         # Get the encoding of the document.
         if options.input_encoding:
@@ -98,6 +115,7 @@ class TXTInput(InputFormatPlugin):
         if options.formatting_type == 'heuristic':
             setattr(options, 'enable_heuristics', True)
             setattr(options, 'unwrap_lines', False)
+            setattr(options, 'smarten_punctuation', True)
 
         # Reformat paragraphs to block formatting based on the detected type.
         # We don't check for block because the processor assumes block.
@@ -105,6 +123,7 @@ class TXTInput(InputFormatPlugin):
         if options.paragraph_type == 'single':
             txt = separate_paragraphs_single_line(txt)
         elif options.paragraph_type == 'print':
+            txt = separate_hard_scene_breaks(txt)
             txt = separate_paragraphs_print_formatted(txt)
             txt = block_to_single_line(txt)
         elif options.paragraph_type == 'unformatted':
@@ -116,6 +135,7 @@ class TXTInput(InputFormatPlugin):
             txt = preprocessor.punctuation_unwrap(length, txt, 'txt')
             txt = separate_paragraphs_single_line(txt)
         else:
+            txt = separate_hard_scene_breaks(txt)
             txt = block_to_single_line(txt)
 
         if getattr(options, 'enable_heuristics', False) and getattr(options, 'dehyphenate', False):
@@ -175,4 +195,11 @@ class TXTInput(InputFormatPlugin):
                 {})
         options.debug_pipeline = odi
         os.remove(htmlfile.name)
+        
+        # Set metadata from file.
+        from calibre.customize.ui import get_file_type_metadata
+        from calibre.ebooks.oeb.transforms.metadata import meta_info_to_oeb_metadata
+        mi = get_file_type_metadata(stream, file_ext)
+        meta_info_to_oeb_metadata(mi, oeb.metadata, log)
+        
         return oeb

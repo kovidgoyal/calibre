@@ -36,13 +36,12 @@ class TextileMLizer(object):
             html = unicode(etree.tostring(item.data.find(XHTML('body')), encoding=unicode))
 
             if not self.opts.keep_links:
-                html = re.sub(r'<\s*a[^>]*>', '', html)
-                html = re.sub(r'<\s*/\s*a\s*>', '', html)
+                html = re.sub(r'<\s*/*\s*a[^>]*>', '', html)
             if not self.opts.keep_image_references:
                 html = re.sub(r'<\s*img[^>]*>', '', html)
-                html = re.sub(r'<\s*img\s*>', '', html)
 
             text = html2textile(html)
+            text = text.replace('%', '')
 
             # Ensure the section ends with at least two new line characters.
             # This is to prevent the last paragraph from a section being
