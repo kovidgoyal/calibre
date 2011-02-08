@@ -11,6 +11,7 @@ from calibre.ebooks.conversion.preprocess import DocAnalysis, Dehyphenator
 from calibre.utils.logging import default_log
 from calibre.utils.wordcount import get_wordcount_obj
 
+
 class HeuristicProcessor(object):
 
     def __init__(self, extra_opts=None, log=None):
@@ -39,6 +40,9 @@ class HeuristicProcessor(object):
 
     def is_pdftohtml(self, src):
         return '<!-- created by calibre\'s pdftohtml -->' in src[:1000]
+
+    def is_abbyy(self, src):
+        return '<meta name="generator" content="ABBYY FineReader' in src[:1000]
 
     def chapter_head(self, match):
         from calibre.utils.html2text import html2text
@@ -77,22 +81,23 @@ class HeuristicProcessor(object):
 
     def insert_indent(self, match):
         pstyle = match.group('formatting')
+        tag = match.group('tagtype')
         span = match.group('span')
         self.found_indents = self.found_indents + 1
         if pstyle:
-            if pstyle.lower().find('style'):
+            if pstyle.lower().find('style') != -1:
                 pstyle = re.sub(r'"$', '; text-indent:3%"', pstyle)
             else:
                 pstyle = pstyle+' style="text-indent:3%"'
             if not span:
-                return '<p '+pstyle+'>'
+                return '<'+tag+' '+pstyle+'>'
             else:
-                return '<p '+pstyle+'>'+span
+                return '<'+tag+' '+pstyle+'>'+span
         else:
             if not span:
-                return '<p style="text-indent:3%">'
+                return '<'+tag+' style="text-indent:3%">'
             else:
-                return '<p style="text-indent:3%">'+span
+                return '<'+tag+' style="text-indent:3%">'+span
 
     def no_markup(self, raw, percent):
         '''
@@ -365,7 +370,7 @@ class HeuristicProcessor(object):
         return html
 
     def fix_nbsp_indents(self, html):
-        txtindent = re.compile(ur'<p(?P<formatting>[^>]*)>\s*(?P<span>(<span[^>]*>\s*)+)?\s*(\u00a0){2,}', re.IGNORECASE)
+        txtindent = re.compile(ur'<(?P<tagtype>p|div)(?P<formatting>[^>]*)>\s*(?P<span>(<span[^>]*>\s*)+)?\s*(\u00a0){2,}', re.IGNORECASE)
         html = txtindent.sub(self.insert_indent, html)
         if self.found_indents > 1:
             self.log.debug("replaced "+unicode(self.found_indents)+ " nbsp indents with inline styles")
@@ -518,6 +523,111 @@ class HeuristicProcessor(object):
 
         return scene_break
 
+    def abbyy_processor(self, html):
+        abbyy_line = re.compile('((?P<linestart><p\sstyle="(?P<styles>[^\"]*?);?">)(?P<content>.*?)(?P<lineend></p>)|(?P<image><img[^>]*>))', re.IGNORECASE)
+        empty_paragraph = '\n<p> </p>\n'
+        self.in_blockquote = False
+        self.previous_was_paragraph = False
+        html = re.sub('</?a[^>]*>', '', html)
+
+        def check_paragraph(content):
+            content = re.sub('\s*</?span[^>]*>\s*', '', content)
+            if re.match('.*[\"\'.!?:]$', content):
+                #print "detected this as a paragraph"
+                return True
+            else:
+                return False
+
+        def convert_styles(match):
+            #print "raw styles are: "+match.group('styles')
+            content = match.group('content')
+            #print "raw content is: "+match.group('content')
+            image = match.group('image')
+
+            is_paragraph = False
+            text_align = ''
+            text_indent = ''
+            paragraph_before = ''
+            paragraph_after = ''
+            blockquote_open = '\n<blockquote>\n'
+            blockquote_close = '</blockquote>\n'
+            indented_text = 'text-indent:3%;'
+            blockquote_open_loop = ''
+            blockquote_close_loop = ''
+            debugabby = False
+
+            if image:
+                debugabby = True
+                if self.in_blockquote:
+                    self.in_blockquote = False
+                    blockquote_close_loop = blockquote_close
+                self.previous_was_paragraph = False
+                return blockquote_close_loop+'\n'+image+'\n'
+            else:
+                styles = match.group('styles').split(';')
+                is_paragraph = check_paragraph(content)
+                #print "styles for this line are: "+str(styles)
+                split_styles = []
+                for style in styles:
+                   #print "style is: "+str(style)
+                   newstyle = style.split(':')
+                   #print "newstyle is: "+str(newstyle)
+                   split_styles.append(newstyle)
+                styles = split_styles
+                for style, setting in styles:
+                    if style == 'text-align' and setting != 'left':
+                        text_align = style+':'+setting+';'
+                    if style == 'text-indent':
+                        setting = int(re.sub('\s*pt\s*', '', setting))
+                        if 9 < setting < 14:
+                            text_indent = indented_text
+                        else:
+                            text_indent = style+':'+str(setting)+'pt;'
+                    if style == 'padding':
+                        setting = re.sub('pt', '', setting).split(' ')
+                        if int(setting[1]) < 16 and int(setting[3]) < 16:
+                            if self.in_blockquote:
+                                debugabby = True
+                                if is_paragraph:
+                                    self.in_blockquote = False
+                                    blockquote_close_loop = blockquote_close
+                            if int(setting[3]) > 8 and text_indent == '':
+                                text_indent = indented_text
+                            if int(setting[0]) > 5:
+                                paragraph_before = empty_paragraph
+                            if int(setting[2]) > 5:
+                                paragraph_after = empty_paragraph
+                        elif not self.in_blockquote and self.previous_was_paragraph:
+                            debugabby = True
+                            self.in_blockquote = True
+                            blockquote_open_loop = blockquote_open
+                        if debugabby:
+                            self.log.debug('\n\n******\n')
+                            self.log.debug('padding top is: '+str(setting[0]))
+                            self.log.debug('padding right is:'
+                                    +str(setting[1]))
+                            self.log.debug('padding bottom is: ' +
+                                    str(setting[2]))
+                            self.log.debug('padding left is: '
+                                    +str(setting[3]))
+
+                #print "text-align is: "+str(text_align)
+                #print "\n***\nline is:\n     "+str(match.group(0))+'\n'
+                if debugabby:
+                    #print "this line is a paragraph = "+str(is_paragraph)+", previous line was "+str(self.previous_was_paragraph)
+                    self.log.debug("styles for this line were:", styles)
+                    self.log.debug('newline is:')
+                    self.log.debug(blockquote_open_loop+blockquote_close_loop+
+                            paragraph_before+'<p style="'+text_indent+text_align+
+                            '">'+content+'</p>'+paragraph_after+'\n\n\n\n\n')
+                #print "is_paragraph is "+str(is_paragraph)+", previous_was_paragraph is "+str(self.previous_was_paragraph)
+                self.previous_was_paragraph = is_paragraph
+                #print "previous_was_paragraph is now set to "+str(self.previous_was_paragraph)+"\n\n\n"
+                return blockquote_open_loop+blockquote_close_loop+paragraph_before+'<p style="'+text_indent+text_align+'">'+content+'</p>'+paragraph_after
+
+        html = abbyy_line.sub(convert_styles, html)
+        return html
+
 
     def __call__(self, html):
         self.log.debug("*********  Heuristic processing HTML  *********")
@@ -531,6 +641,10 @@ class HeuristicProcessor(object):
         if self.totalwords < 50:
             self.log.warn("flow is too short, not running heuristics")
             return html
+
+        is_abbyy = self.is_abbyy(html)
+        if is_abbyy:
+            html = self.abbyy_processor(html)
 
         # Arrange line feeds and </p> tags so the line_length and no_markup functions work correctly
         html = self.arrange_htm_line_endings(html)

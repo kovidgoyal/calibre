@@ -32,9 +32,10 @@ series_index_auto_increment = 'next'
 
 # Should the completion separator be append
 # to the end of the completed text to
-# automatically begin a new completion operation.
+# automatically begin a new completion operation
+# for authors.
 # Can be either True or False
-completer_append_separator = False
+authors_completer_append_separator = False
 
 
 # The algorithm used to copy author to author_sort
