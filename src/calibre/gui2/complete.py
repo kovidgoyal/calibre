@@ -11,7 +11,7 @@ from PyQt4.Qt import QLineEdit, QAbstractListModel, Qt, \
 
 from calibre.utils.icu import sort_key, lower
 from calibre.gui2 import NONE
-from calibre.gui2.widgets import EnComboBox
+from calibre.gui2.widgets import EnComboBox, LineEditECM
 
 class CompleteModel(QAbstractListModel):
 
@@ -38,7 +38,7 @@ class CompleteModel(QAbstractListModel):
         return NONE
 
 
-class MultiCompleteLineEdit(QLineEdit):
+class MultiCompleteLineEdit(QLineEdit, LineEditECM):
     '''
     A line edit that completes on multiple items separated by a
     separator. Use the :meth:`update_items_cache` to set the list of
