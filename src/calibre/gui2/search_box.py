@@ -376,15 +376,10 @@ class SearchBoxMixin(object): # {{{
             unicode(self.search.toolTip())))
         self.advanced_search_button.setStatusTip(self.advanced_search_button.toolTip())
         self.clear_button.setStatusTip(self.clear_button.toolTip())
-        self.search_highlight_only.stateChanged.connect(self.highlight_only_changed)
-        self.search_highlight_only.setChecked(
-                            dynamic.get('search_highlight_only', False))
-        self.search_limit_to.stateChanged.connect(self.search_limit_to_changed)
-        self.search_limit_to.setVisible(True)
-        chk = dynamic.get('use_search_box_limit', False)
-        self.search_limit_to.setChecked(chk)
-        prefs['use_search_box_limit'] = chk
-        self.search_limit_to.setEnabled(bool(prefs['search_box_limit_to']))
+
+        self.search_options_button.clicked.connect(self.search_options_button_clicked)
+        prefs['use_search_box_limit'] = dynamic.get('use_search_box_limit', False)
+        highlight_cbox=dynamic.get('search_highlight_only', False)
 
     def focus_search_box(self, *args):
         self.search.setFocus(Qt.OtherFocusReason)
@@ -408,6 +403,40 @@ class SearchBoxMixin(object): # {{{
         self.search.do_search()
         self.focus_to_library()
 
+    def search_options_button_clicked(self):
+        fm = self.library_view.model().db.field_metadata
+        ll = fm.get_search_terms()
+        ll = [l for l in ll if not l.startswith('@') and l not in fm.search_items]
+        print ll
+
+        from calibre.gui2.layout import SearchOptions
+        options_box = SearchOptions(self,
+                        limit_to_fields=prefs['search_box_limit_to'],
+                        limit_field_list=ll,
+                        limit_cbox=dynamic.get('use_search_box_limit', False),
+                        highlight_cbox=dynamic.get('search_highlight_only', False))
+        r = options_box.exec_()
+        if r:
+            limit_list, limit_cb, highlight_cb = options_box.values()
+            print limit_list, limit_cb, highlight_cb
+            prefs['search_box_limit_to'] = limit_list
+            dynamic.set('use_search_box_limit', limit_cb)
+            prefs['use_search_box_limit'] = limit_cb
+            dynamic.set('search_highlight_only', highlight_cb)
+            self.current_view().model().set_highlight_only(highlight_cb)
+            self.search.do_search()
+
+#        self.search_highlight_only.stateChanged.connect(self.highlight_only_changed)
+#        self.search_highlight_only.setChecked(
+#                            dynamic.get('search_highlight_only', False))
+#        self.search_limit_checkbox.stateChanged.connect(self.search_limit_checkbox_changed)
+#        self.search_limit_checkbox.setVisible(True)
+#        chk = dynamic.get('use_search_box_limit', False)
+#        self.search_limit_checkbox.setChecked(chk)
+#        prefs['use_search_box_limit'] = chk
+#        self.search_limit_checkbox.setEnabled(bool(prefs['search_box_limit_to']))
+
+
     def focus_to_library(self):
         self.current_view().setFocus(Qt.OtherFocusReason)
 
@@ -416,7 +445,8 @@ class SearchBoxMixin(object): # {{{
         self.current_view().model().set_highlight_only(toWhat)
         self.focus_to_library()
 
-    def search_limit_to_changed(self, toWhat):
+    def search_limit_checkbox_changed(self, toWhat):
+        toWhat = bool(toWhat)
         dynamic.set('use_search_box_limit', toWhat)
         prefs['use_search_box_limit'] = toWhat
         self.search.do_search()

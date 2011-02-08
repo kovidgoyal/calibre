@@ -62,11 +62,6 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('tags_browser_partition_method', gprefs, choices=choices)
         r('tags_browser_collapse_at', gprefs)
 
-        r('search_box_limit_to', prefs)
-        self.opt_search_box_limit_to.set_separator(',')
-        self.opt_search_box_limit_to.update_items_cache(
-                self.gui.library_view.model().db.field_metadata.get_search_terms())
-
         self.current_font = None
         self.change_font_button.clicked.connect(self.change_font)
 
@@ -124,7 +119,6 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         gui.search.search_as_you_type(config['search_as_you_type'])
         self.update_font_display()
         gui.tags_view.reread_collapse_parameters()
-        gui.search_limit_to.setEnabled(bool(prefs['search_box_limit_to']))
 
 if __name__ == '__main__':
     app = QApplication([])

@@ -7,8 +7,8 @@ __docformat__ = 'restructuredtext en'
 
 from functools import partial
 
-from PyQt4.Qt import QIcon, Qt, QWidget, QToolBar, QSize, \
-    pyqtSignal, QToolButton, QMenu, QCheckBox, \
+from PyQt4.Qt import QIcon, Qt, QWidget, QToolBar, QSize, QDialogButtonBox, \
+    pyqtSignal, QToolButton, QMenu, QCheckBox, QDialog, QGridLayout, \
     QObject, QVBoxLayout, QSizePolicy, QLabel, QHBoxLayout, QActionGroup
 
 
@@ -17,7 +17,9 @@ from calibre.gui2.search_box import SearchBox2, SavedSearchBox
 from calibre.gui2.throbber import ThrobbingButton
 from calibre.gui2 import gprefs
 from calibre.gui2.widgets import ComboBoxWithHelp
+from calibre.gui2.complete import MultiCompleteLineEdit
 from calibre import human_readable
+from calibre.utils.config import prefs
 
 class LocationManager(QObject): # {{{
 
@@ -149,6 +151,8 @@ class SearchBar(QWidget): # {{{
 
     def __init__(self, parent):
         QWidget.__init__(self, parent)
+        self.parent = parent
+
         self._layout = l = QHBoxLayout()
         self.setLayout(self._layout)
         self._layout.setContentsMargins(0,5,0,0)
@@ -156,9 +160,10 @@ class SearchBar(QWidget): # {{{
         x = ComboBoxWithHelp(self)
         x.setMaximumSize(QSize(150, 16777215))
         x.setObjectName("search_restriction")
-        x.setToolTip(_("Books display will be restricted to those matching the selected saved search"))
-        l.addWidget(x)
+        x.setToolTip(_('Books display will be restricted to those matching the '
+                       'selected saved search'))
         parent.search_restriction = x
+        l.addWidget(x)
 
         x = QLabel(self)
         x.setObjectName("search_count")
@@ -175,7 +180,8 @@ class SearchBar(QWidget): # {{{
         x = parent.search = SearchBox2(self)
         x.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
         x.setObjectName("search")
-        x.setToolTip(_("<p>Search the list of books by title, author, publisher, tags, comments, etc.<br><br>Words separated by spaces are ANDed"))
+        x.setToolTip(_("<p>Search the list of books by title, author, publisher, "
+                       "tags, comments, etc.<br><br>Words separated by spaces are ANDed"))
         l.addWidget(x)
 
         self.search_button = QToolButton()
@@ -194,22 +200,12 @@ class SearchBar(QWidget): # {{{
         l.addWidget(x)
         x.setToolTip(_("Reset Quick Search"))
 
-        x = parent.search_highlight_only = QCheckBox()
-        x.setText(_('&Highlight'))
-        x.setToolTip('<p>'+_('When searching, highlight matched books, instead '
-            'of restricting the book list to the matches.<p> You can use the '
-            'N or F3 keys to go to the next match.'))
+        x = parent.search_options_button = QToolButton(self)
+        x.setIcon(QIcon(I('config.png')))
+        x.setObjectName("search_option_button")
         l.addWidget(x)
+        x.setToolTip(_("Change search highlighting and field limit options"))
         x.setVisible(False)
-
-        x = parent.search_limit_to = QCheckBox()
-        x.setText(_('&Limit'))
-        x.setToolTip('<p>'+_('When searching for text without using lookup '
-            'prefixes, as for example someword instead of title:someword, '
-            'limit the columns searched to those named in the option '
-            'Preferences -> Look and Feel -> Limit non-prefixed searches to columns.'))
-        x.setVisible(False)
-        l.addWidget(x)
 
         x = parent.saved_search = SavedSearchBox(self)
         x.setMaximumSize(QSize(150, 16777215))
@@ -236,6 +232,80 @@ class SearchBar(QWidget): # {{{
         x.setToolTip(_("Delete current saved search"))
 
 
+class SearchOptions(QDialog):
+
+    def __init__(self, parent, limit_to_fields, limit_field_list,
+                 limit_cbox, highlight_cbox):
+        QDialog.__init__(self, parent=parent)
+#        self.search_limit_possible_fields = []
+#        self.search_limit_cbox_value = False
+#        self.search_highlight_cbox_value = False
+#        self.search_limit_list = ''
+#        self = self.search_popup = QDialog(self.parent)
+        self.setWindowTitle(_('Search options'))
+        l = QGridLayout()
+        self.setLayout(l)
+
+        x = QLabel(_(' '), parent=self)
+        x.setBuddy(parent.search_restriction)
+        l.addWidget(x, 1, 0, 1, 1)
+
+        x = self.search_highlight_only = QCheckBox(self)
+        x.setToolTip('<p>'+_('When searching, highlight matched books, instead '
+            'of restricting the book list to the matches.<p> You can use the '
+            'N or F3 keys to go to the next match.'))
+        x.setChecked(highlight_cbox)
+        l.addWidget(x, 2, 1, 1, 1)
+        x = QLabel(_('Check this box if you want to see all books with search '
+                     'results &highlighted'), parent=self)
+        x.setBuddy(self.search_highlight_only)
+        l.addWidget(x, 2, 0, 1, 1)
+
+        x = self.search_limit_checkbox = QCheckBox(self)
+        x.setToolTip('<p>'+_('When searching for text without using lookup '
+            'prefixes, as for example someword instead of title:someword, '
+            'limit the columns searched to those named in the option '
+            'Preferences -> Look and Feel -> Limit non-prefixed searches to columns.'))
+        x.setChecked(limit_cbox)
+        l.addWidget(x, 3, 1, 1, 1)
+        x = QLabel(_('Check this box if you want non-prefixed searches to be '
+                     '&limited to certain fields/lookup names'), parent=self)
+        x.setBuddy(self.search_limit_checkbox)
+        l.addWidget(x, 3, 0, 1, 1)
+
+        x = self.search_box_limit_to = MultiCompleteLineEdit(parent=self)
+        x.setToolTip(_('Choose columns to be searched when not using prefixes, '
+                       'as for example when searching for someword instead of '
+                       'title:someword. Enter a list of search/lookup names '
+                       'separated by commas. You must check the Limit box '
+                       'above for this option to take effect.'))
+        x.setMinimumWidth(200)
+        x.set_separator(',')
+        x.update_items_cache(limit_field_list)
+        x.setText(limit_to_fields)
+        l.addWidget(x, 4, 1, 1, 1)
+        x = QLabel(_('Enter the list of fields that non-prefixed searches '
+                     'are &limited to'), parent=self)
+        x.setBuddy(self.search_box_limit_to)
+        l.addWidget(x, 4, 0, 1, 1)
+
+        buttons = QDialogButtonBox()
+        buttons.addButton(QDialogButtonBox.Ok)
+        buttons.addButton(QDialogButtonBox.Cancel)
+        l.addWidget(buttons, 5, 0, 1, 1)
+        buttons.accepted.connect(self.search_options_accepted)
+        buttons.rejected.connect(self.search_options_rejected)
+
+    def search_options_accepted(self):
+        QDialog.accept(self)
+
+    def search_options_rejected(self):
+        QDialog.reject(self)
+
+    def values(self):
+        return (unicode(self.search_box_limit_to.text()),
+                bool(self.search_limit_checkbox.checkState()),
+                bool(self.search_highlight_only.checkState()))
 
 # }}}
 
