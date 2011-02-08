@@ -33,7 +33,8 @@ class PreferencesAction(InterfaceAction):
             x.triggered.connect(self.do_config)
 
 
-    def do_config(self, checked=False, initial_plugin=None):
+    def do_config(self, checked=False, initial_plugin=None,
+            close_after_initial=False):
         if self.gui.job_manager.has_jobs():
             d = error_dialog(self.gui, _('Cannot configure'),
                     _('Cannot configure while there are running jobs.'))
@@ -44,7 +45,8 @@ class PreferencesAction(InterfaceAction):
                     _('Cannot configure before calibre is restarted.'))
             d.exec_()
             return
-        d = Preferences(self.gui, initial_plugin=initial_plugin)
+        d = Preferences(self.gui, initial_plugin=initial_plugin,
+                close_after_initial=close_after_initial)
         d.show()
         d.run_wizard_requested.connect(self.gui.run_wizard,
                 type=Qt.QueuedConnection)

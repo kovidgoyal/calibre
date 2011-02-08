@@ -106,9 +106,13 @@ def _config():
                 'clicked'))
     c.add_opt('asked_library_thing_password', default=False,
             help='Asked library thing password at least once.')
-    c.add_opt('search_as_you_type', default=True,
-            help='Start searching as you type. If this is disabled then search will '
-            'only take place when the Enter or Return key is pressed.')
+    c.add_opt('search_as_you_type', default=False,
+            help=_('Start searching as you type. If this is disabled then search will '
+            'only take place when the Enter or Return key is pressed.'))
+    c.add_opt('highlight_search_matches', default=False,
+            help=_('When searching, show all books with search results '
+            'highlighted instead of showing only the matches. You can use the '
+            'N or F3 keys to go to the next match.'))
     c.add_opt('save_to_disk_template_history', default=[],
         help='Previously used Save to Disk templates')
     c.add_opt('send_to_device_template_history', default=[],

@@ -11,7 +11,7 @@ from itertools import repeat
 from datetime import timedelta
 from threading import Thread
 
-from calibre.utils.config import tweaks
+from calibre.utils.config import tweaks, prefs
 from calibre.utils.date import parse_date, now, UNDEFINED_DATE
 from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.utils.pyparsing import ParseException
@@ -182,15 +182,16 @@ class ResultCache(SearchQueryParser): # {{{
         self.first_sort = True
         self.search_restriction = ''
         self.field_metadata = field_metadata
-        all_search_locations = field_metadata.get_search_terms()
-        SearchQueryParser.__init__(self, all_search_locations, optimize=True)
+        self.all_search_locations = field_metadata.get_search_terms()
+        SearchQueryParser.__init__(self, self.all_search_locations, optimize=True)
         self.build_date_relop_dict()
         self.build_numeric_relop_dict()
 
     def break_cycles(self):
         self._data = self.field_metadata = self.FIELD_MAP = \
             self.numeric_search_relops = self.date_search_relops = \
-            self.db_prefs = None
+            self.db_prefs = self.all_search_locations = None
+        self.sqp_change_locations([])
 
 
     def __getitem__(self, row):
@@ -217,6 +218,10 @@ class ResultCache(SearchQueryParser): # {{{
 
     def universal_set(self):
         return set([i[0] for i in self._data if i is not None])
+
+    def change_search_locations(self, locations):
+        self.sqp_change_locations(locations)
+        self.all_search_locations = locations
 
     def build_date_relop_dict(self):
         '''
@@ -432,6 +437,7 @@ class ResultCache(SearchQueryParser): # {{{
             # get metadata key associated with the search term. Eliminates
             # dealing with plurals and other aliases
             location = self.field_metadata.search_term_to_field_key(icu_lower(location.strip()))
+            # grouped search terms
             if isinstance(location, list):
                 if allow_recursion:
                     for loc in location:
@@ -439,6 +445,20 @@ class ResultCache(SearchQueryParser): # {{{
                                 candidates=candidates, allow_recursion=False)
                     return matches
                 raise ParseException(query, len(query), 'Recursive query group detected', self)
+
+            # apply the limit if appropriate
+            if location == 'all' and prefs['limit_search_columns'] and \
+                            prefs['limit_search_columns_to']:
+                terms = set([])
+                for l in prefs['limit_search_columns_to']:
+                    l = icu_lower(l.strip())
+                    if l and l != 'all' and l in self.all_search_locations:
+                        terms.add(l)
+                if terms:
+                    for l in terms:
+                        matches |= self.get_matches(l, query,
+                            candidates=candidates, allow_recursion=allow_recursion)
+                    return matches
 
             if location in self.field_metadata:
                 fm = self.field_metadata[location]

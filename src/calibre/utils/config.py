@@ -728,6 +728,17 @@ def _prefs():
     c.add_opt('user_categories', default={}, help=_('User-created tag browser categories'))
     c.add_opt('manage_device_metadata', default='manual',
         help=_('How and when calibre updates metadata on the device.'))
+    c.add_opt('limit_search_columns', default=False,
+            help=_('When searching for text without using lookup '
+            'prefixes, as for example, Red instead of title:Red, '
+            'limit the columns searched to those named below.'))
+    c.add_opt('limit_search_columns_to',
+            default=['title', 'authors', 'tags', 'series'],
+            help=_('Choose columns to be searched when not using prefixes, '
+                'as for example, when searching for Redd instead of '
+                'title:Red. Enter a list of search/lookup names '
+                'separated by commas. Only takes effect if you set the option '
+                'to limit search columns above.'))
 
     c.add_opt('migrated', default=False, help='For Internal use. Don\'t modify.')
     return c
