@@ -1036,6 +1036,8 @@ class DeviceMixin(object): # {{{
                     total_size = self.location_manager.free[0]
                 if self.location_manager.free[0] > total_size + (1024**2):
                     # Send news to main memory if enough space available
+                    # as some devices like the Nook Color cannot handle
+                    # periodicals on SD cards properly
                     on_card = None
                 self.upload_books(files, names, metadata,
                         on_card=on_card,
