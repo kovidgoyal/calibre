@@ -201,7 +201,7 @@ class SearchBar(QWidget): # {{{
         x.setIcon(QIcon(I('config.png')))
         x.setObjectName("search_option_button")
         l.addWidget(x)
-        x.setToolTip(_("Change search highlighting and field limit options"))
+        x.setToolTip(_("Change search highlighting and column limit options"))
         x.setVisible(False)
 
         x = parent.saved_search = SavedSearchBox(self)
@@ -239,7 +239,7 @@ class SearchOptions(QDialog):
         self.setLayout(l)
 
         x = QLabel(_('Use this box to change search options related to how '
-                     'results are displayed and which fields are searched. '
+                     'results are displayed and which columns are searched. '
                      'Changes will be remembered across calibre restarts. '
                      'When you press OK, the last search will be redone using '
                      'the new option values.'),
@@ -253,25 +253,25 @@ class SearchOptions(QDialog):
         l.addWidget(line, 1, 0, 1, 2)
 
         x = self.search_highlight_only = QCheckBox(self)
-        x.setToolTip('<p>'+_('When searching, highlight matched books instead '
-            'of restricting the book list to the matches.<p> You can use the '
+        x.setToolTip('<p>'+_('When searching, show all books with search results '
+            'highlight instead of showing only the matches.<p> You can use the '
             'N or F3 keys to go to the next match.'))
         x.setChecked(highlight_cbox)
         l.addWidget(x, 2, 1, 1, 1)
         x = QLabel(_('Check this box if you want to see all books with search '
-                     'results &highlighted'), parent=self)
+                     'results &highlighted instead of only the matched books'),
+                     parent=self)
         x.setBuddy(self.search_highlight_only)
         l.addWidget(x, 2, 0, 1, 1)
 
         x = self.search_limit_checkbox = QCheckBox(self)
         x.setToolTip('<p>'+_('When searching for text without using lookup '
             'prefixes, as for example someword instead of title:someword, '
-            'limit the columns searched to those named in the option '
-            'Preferences -> Look and Feel -> Limit non-prefixed searches to columns.'))
+            'limit the columns searched to those named in the text box below.'))
         x.setChecked(limit_cbox)
         l.addWidget(x, 3, 1, 1, 1)
         x = QLabel(_('Check this box if you want non-&prefixed searches to be '
-                     'limited to certain fields/lookup names'), parent=self)
+                     'limited to certain columns/lookup names'), parent=self)
         x.setBuddy(self.search_limit_checkbox)
         l.addWidget(x, 3, 0, 1, 1)
 
