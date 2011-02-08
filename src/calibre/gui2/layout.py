@@ -238,11 +238,15 @@ class SearchOptions(QDialog):
         l = QGridLayout()
         self.setLayout(l)
 
-        x = QLabel(_('Use this box to change search options related to how '
+        x = QLabel('<p>'+_('Use this box to change search options related to how '
                      'results are displayed and which columns are searched. '
                      'Changes will be remembered across calibre restarts. '
                      'When you press OK, the last search will be redone using '
-                     'the new option values.'),
+                     'the new option values.')+'<p>'+_('Note: the limit option '
+                     'below affects all searches, including saved searches '
+                     'and, by extension, search restrictions. For this reason '
+                     'it is usually better to use prefixes in saved searches, '
+                     'for example series:someword instead of simply someword.'),
                      parent=self)
         x.setWordWrap(True)
         l.addWidget(x, 0, 0, 1, 2)
