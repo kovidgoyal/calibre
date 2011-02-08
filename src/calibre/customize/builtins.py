@@ -791,6 +791,17 @@ class Toolbar(PreferencesPlugin):
     description = _('Customize the toolbars and context menus, changing which'
             ' actions are available in each')
 
+class Search(PreferencesPlugin):
+    name = 'Search'
+    icon = I('search.png')
+    gui_name = _('Customize searching')
+    category = 'Interface'
+    gui_category = _('Interface')
+    category_order = 1
+    name_order = 5
+    config_widget = 'calibre.gui2.preferences.search'
+    description = _('Customize the way searching for books works in calibre')
+
 class InputOptions(PreferencesPlugin):
     name = 'Input Options'
     icon = I('arrow-down.png')
@@ -941,7 +952,7 @@ class Misc(PreferencesPlugin):
     config_widget = 'calibre.gui2.preferences.misc'
     description = _('Miscellaneous advanced configuration')
 
-plugins += [LookAndFeel, Behavior, Columns, Toolbar, InputOptions,
+plugins += [LookAndFeel, Behavior, Columns, Toolbar, Search, InputOptions,
         CommonOptions, OutputOptions, Adding, Saving, Sending, Plugboard,
         Email, Server, Plugins, Tweaks, Misc, TemplateFunctions]
 

@@ -16,7 +16,6 @@ from calibre.gui2 import config
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.saved_search_editor import SavedSearchEditor
 from calibre.gui2.dialogs.search import SearchDialog
-from calibre.utils.config import dynamic, prefs
 from calibre.utils.search_query_parser import saved_searches
 from calibre.utils.icu import sort_key
 
@@ -401,24 +400,8 @@ class SearchBoxMixin(object): # {{{
         self.focus_to_library()
 
     def search_options_button_clicked(self):
-        from calibre.gui2.layout import SearchOptions
-
-        fm = self.library_view.model().db.field_metadata
-        ll = fm.get_search_terms()
-        ll = [l for l in ll if not l.startswith('@') and l not in fm.search_items]
-        options_box = SearchOptions(parent=self,
-                    limit_to_fields=prefs['search_box_limit_to'],
-                    limit_field_list=ll,
-                    limit_cbox=prefs['use_search_box_limit'],
-                    highlight_cbox=dynamic.get('search_highlight_only', False))
-        r = options_box.exec_()
-        if r:
-            limit_list, limit_cbox, highlight_cbox = options_box.values()
-            prefs['search_box_limit_to'] = limit_list
-            prefs['use_search_box_limit'] = limit_cbox
-            dynamic.set('search_highlight_only', highlight_cbox)
-            self.current_view().model().set_highlight_only(highlight_cbox)
-            self.search.do_search()
+        self.iactions['Preferences'].do_config(initial_plugin=('Interface',
+            'Search'), close_after_initial=True)
 
     def focus_to_library(self):
         self.current_view().setFocus(Qt.OtherFocusReason)

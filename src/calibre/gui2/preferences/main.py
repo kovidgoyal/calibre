@@ -157,11 +157,12 @@ class Preferences(QMainWindow):
 
     run_wizard_requested = pyqtSignal()
 
-    def __init__(self, gui, initial_plugin=None):
+    def __init__(self, gui, initial_plugin=None, close_after_initial=False):
         QMainWindow.__init__(self, gui)
         self.gui = gui
         self.must_restart = False
         self.committed = False
+        self.close_after_initial = close_after_initial
 
         self.resize(900, 720)
         nh, nw = min_available_height()-25, available_width()-10
@@ -306,7 +307,7 @@ class Preferences(QMainWindow):
 
     def esc(self, *args):
         if self.stack.currentIndex() == 1:
-            self.hide_plugin()
+            self.cancel()
         elif self.stack.currentIndex() == 0:
             self.close()
 
@@ -331,12 +332,15 @@ class Preferences(QMainWindow):
                     show_copy_button=False)
         self.showing_widget.refresh_gui(self.gui)
         self.hide_plugin()
-        if must_restart and rc:
+        if self.close_after_initial or (must_restart and rc):
             self.close()
 
 
     def cancel(self, *args):
-        self.hide_plugin()
+        if self.close_after_initial:
+            self.close()
+        else:
+            self.hide_plugin()
 
     def restore_defaults(self, *args):
         self.showing_widget.restore_defaults()

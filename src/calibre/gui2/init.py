@@ -19,7 +19,6 @@ from calibre.gui2.widgets import Splitter
 from calibre.gui2.tag_view import TagBrowserWidget
 from calibre.gui2.book_details import BookDetails
 from calibre.gui2.notify import get_notifier
-from calibre.utils.config import dynamic
 
 _keep_refs = []
 
@@ -65,8 +64,7 @@ class LibraryViewMixin(object): # {{{
             view.verticalHeader().sectionDoubleClicked.connect(self.iactions['View'].view_specific_book)
 
         self.build_context_menus()
-        highlight_cbox=dynamic.get('search_highlight_only', False)
-        self.library_view.model().set_highlight_only(highlight_cbox)
+        self.library_view.model().set_highlight_only(config['highlight_search_matches'])
 
     def build_context_menus(self):
         lm = QMenu(self)

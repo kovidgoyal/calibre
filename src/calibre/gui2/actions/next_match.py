@@ -28,21 +28,12 @@ class NextMatchAction(InterfaceAction):
         self.gui.addAction(self.p_action)
         self.p_action.triggered.connect(self.move_backward)
 
-    def gui_layout_complete(self):
-        self.gui.search_options_button.setVisible(True)
-
     def location_selected(self, loc):
         self.can_move = loc == 'library'
-        try:
-            self.gui.search_options_button.setVisible(self.can_move)
-        except:
-            import traceback
-            traceback.print_exc()
 
     def move_forward(self):
         if self.can_move is None:
             self.can_move = self.gui.current_view() is self.gui.library_view
-            self.gui.search_options_button.setVisible(self.can_move)
 
         if self.can_move:
             self.gui.current_view().move_highlighted_row(forward=True)
@@ -50,7 +41,6 @@ class NextMatchAction(InterfaceAction):
     def move_backward(self):
         if self.can_move is None:
             self.can_move = self.gui.current_view() is self.gui.library_view
-            self.gui.search_options_button.setVisible(self.can_move)
 
         if self.can_move:
             self.gui.current_view().move_highlighted_row(forward=False)

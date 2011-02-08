@@ -7,8 +7,8 @@ __docformat__ = 'restructuredtext en'
 
 from functools import partial
 
-from PyQt4.Qt import QIcon, Qt, QWidget, QToolBar, QSize, QDialogButtonBox, \
-    pyqtSignal, QToolButton, QMenu, QCheckBox, QDialog, QGridLayout, QFrame, \
+from PyQt4.Qt import QIcon, Qt, QWidget, QToolBar, QSize, \
+    pyqtSignal, QToolButton, QMenu, \
     QObject, QVBoxLayout, QSizePolicy, QLabel, QHBoxLayout, QActionGroup
 
 
@@ -17,7 +17,6 @@ from calibre.gui2.search_box import SearchBox2, SavedSearchBox
 from calibre.gui2.throbber import ThrobbingButton
 from calibre.gui2 import gprefs
 from calibre.gui2.widgets import ComboBoxWithHelp
-from calibre.gui2.complete import MultiCompleteLineEdit
 from calibre import human_readable
 
 class LocationManager(QObject): # {{{
@@ -201,8 +200,7 @@ class SearchBar(QWidget): # {{{
         x.setIcon(QIcon(I('config.png')))
         x.setObjectName("search_option_button")
         l.addWidget(x)
-        x.setToolTip(_("Change search highlighting and column limit options"))
-        x.setVisible(False)
+        x.setToolTip(_("Change the way searching for books works"))
 
         x = parent.saved_search = SavedSearchBox(self)
         x.setMaximumSize(QSize(150, 16777215))
@@ -228,90 +226,6 @@ class SearchBar(QWidget): # {{{
         l.addWidget(x)
         x.setToolTip(_("Delete current saved search"))
 
-
-class SearchOptions(QDialog):
-
-    def __init__(self, parent, limit_to_fields, limit_field_list,
-                 limit_cbox, highlight_cbox):
-        QDialog.__init__(self, parent=parent)
-        self.setWindowTitle(_('Search options'))
-        l = QGridLayout()
-        self.setLayout(l)
-
-        x = QLabel('<p>'+_('Use this box to change search options related to how '
-                     'results are displayed and which columns are searched. '
-                     'Changes will be remembered across calibre restarts. '
-                     'When you press OK, the last search will be redone using '
-                     'the new option values.')+'<p>'+_('Note: the limit option '
-                     'below affects all searches, including saved searches '
-                     'and, by extension, search restrictions. For this reason '
-                     'it is usually better to use prefixes in saved searches, '
-                     'for example series:someword instead of simply someword.'),
-                     parent=self)
-        x.setWordWrap(True)
-        l.addWidget(x, 0, 0, 1, 2)
-
-        line = QFrame(self)
-        line.setFrameShape(QFrame.HLine)
-        line.setFrameShadow(QFrame.Sunken)
-        l.addWidget(line, 1, 0, 1, 2)
-
-        x = self.search_highlight_only = QCheckBox(self)
-        x.setToolTip('<p>'+_('When searching, show all books with search results '
-            'highlight instead of showing only the matches.<p> You can use the '
-            'N or F3 keys to go to the next match.'))
-        x.setChecked(highlight_cbox)
-        l.addWidget(x, 2, 1, 1, 1)
-        x = QLabel(_('Check this box if you want to see all books with search '
-                     'results &highlighted instead of only the matched books'),
-                     parent=self)
-        x.setBuddy(self.search_highlight_only)
-        l.addWidget(x, 2, 0, 1, 1)
-
-        x = self.search_limit_checkbox = QCheckBox(self)
-        x.setToolTip('<p>'+_('When searching for text without using lookup '
-            'prefixes, as for example someword instead of title:someword, '
-            'limit the columns searched to those named in the text box below.'))
-        x.setChecked(limit_cbox)
-        l.addWidget(x, 3, 1, 1, 1)
-        x = QLabel(_('Check this box if you want non-&prefixed searches to be '
-                     'limited to certain columns/lookup names'), parent=self)
-        x.setBuddy(self.search_limit_checkbox)
-        l.addWidget(x, 3, 0, 1, 1)
-
-        x = self.search_box_limit_to = MultiCompleteLineEdit(parent=self)
-        x.setToolTip(_('Choose columns to be searched when not using prefixes, '
-                       'as for example when searching for someword instead of '
-                       'title:someword. Enter a list of search/lookup names '
-                       'separated by commas. You must check the Limit box '
-                       'above for this option to take effect.'))
-        x.setMinimumWidth(200)
-        x.set_separator(',')
-        x.update_items_cache(limit_field_list)
-        x.setText(limit_to_fields)
-        l.addWidget(x, 4, 1, 1, 1)
-        x = QLabel(_('Enter the list of &columns that non-prefixed searches '
-                     'are limited to'), parent=self)
-        x.setBuddy(self.search_box_limit_to)
-        l.addWidget(x, 4, 0, 1, 1)
-
-        buttons = QDialogButtonBox()
-        buttons.addButton(QDialogButtonBox.Ok)
-        buttons.addButton(QDialogButtonBox.Cancel)
-        l.addWidget(buttons, 5, 0, 1, 2)
-        buttons.accepted.connect(self.search_options_accepted)
-        buttons.rejected.connect(self.search_options_rejected)
-
-    def search_options_accepted(self):
-        QDialog.accept(self)
-
-    def search_options_rejected(self):
-        QDialog.reject(self)
-
-    def values(self):
-        return (unicode(self.search_box_limit_to.text()),
-                bool(self.search_limit_checkbox.checkState()),
-                bool(self.search_highlight_only.checkState()))
 
 # }}}
 

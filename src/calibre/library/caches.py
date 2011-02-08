@@ -447,18 +447,18 @@ class ResultCache(SearchQueryParser): # {{{
                 raise ParseException(query, len(query), 'Recursive query group detected', self)
 
             # apply the limit if appropriate
-            if location == 'all' and prefs['use_search_box_limit'] and \
-                            prefs['search_box_limit_to']:
-                for l in prefs['search_box_limit_to'].split(','):
+            if location == 'all' and prefs['limit_search_columns'] and \
+                            prefs['limit_search_columns_to']:
+                terms = set([])
+                for l in prefs['limit_search_columns_to']:
                     l = icu_lower(l.strip())
-                    if not l or l == 'all':
-                        continue
-                    if l not in self.all_search_locations:
-                        raise ParseException(l, len(l),
-                            'Unknown field "%s" in search column limit'%l, self)
-                    matches |= self.get_matches(l, query,
-                        candidates=candidates, allow_recursion=allow_recursion)
-                return matches
+                    if l and l != 'all' and l in self.all_search_locations:
+                        terms.add(l)
+                if terms:
+                    for l in terms:
+                        matches |= self.get_matches(l, query,
+                            candidates=candidates, allow_recursion=allow_recursion)
+                    return matches
 
             if location in self.field_metadata:
                 fm = self.field_metadata[location]
