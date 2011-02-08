@@ -1,16 +1,20 @@
-'''Read meta information from TXT files'''
-
-from __future__ import with_statement
+# -*- coding: utf-8 -*-
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
+
+'''
+Read meta information from TXT files
+'''
 
 import re
 
 from calibre.ebooks.metadata import MetaInformation
 
 def get_metadata(stream, extract_cover=True):
-    """ Return metadata as a L{MetaInfo} object """
+    '''
+    Return metadata as a L{MetaInfo} object
+    '''
     mi = MetaInformation(_('Unknown'), [_('Unknown')])
     stream.seek(0)
 

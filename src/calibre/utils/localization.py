@@ -104,6 +104,7 @@ _extra_lang_codes = {
         'en_IN' : _('English (India)'),
         'en_TH' : _('English (Thailand)'),
         'en_CY' : _('English (Cyprus)'),
+        'en_CZ' : _('English (Czechoslovakia)'),
         'en_PK' : _('English (Pakistan)'),
         'en_HR' : _('English (Croatia)'),
         'en_IL' : _('English (Israel)'),

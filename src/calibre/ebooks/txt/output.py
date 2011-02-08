@@ -5,11 +5,18 @@ __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
 import os
+import shutil
+
+from lxml import etree
 
 from calibre.customize.conversion import OutputFormatPlugin, \
     OptionRecommendation
+from calibre.ebooks.oeb.base import OEB_IMAGES 
 from calibre.ebooks.txt.txtml import TXTMLizer
 from calibre.ebooks.txt.newlines import TxtNewlines, specified_newlines
+from calibre.ptempfile import TemporaryDirectory, TemporaryFile
+from calibre.utils.cleantext import clean_ascii_chars
+from calibre.utils.zipfile import ZipFile
 
 class TXTOutput(OutputFormatPlugin):
 
@@ -73,6 +80,7 @@ class TXTOutput(OutputFormatPlugin):
             writer = TXTMLizer(log)
 
         txt = writer.extract_content(oeb_book, opts)
+        txt = clean_ascii_chars(txt)
 
         log.debug('\tReplacing newlines with selected type...')
         txt = specified_newlines(TxtNewlines(opts.newline).newline, txt)
@@ -93,3 +101,32 @@ class TXTOutput(OutputFormatPlugin):
         if close:
             out_stream.close()
 
+
+class TXTZOutput(TXTOutput):
+    
+    name = 'TXTZ Output'
+    author = 'John Schember'
+    file_type = 'txtz'
+
+    def convert(self, oeb_book, output_path, input_plugin, opts, log):
+        with TemporaryDirectory('_txtz_output') as tdir:
+            # TXT
+            with TemporaryFile('index.txt') as tf:
+                TXTOutput.convert(self, oeb_book, tf, input_plugin, opts, log)
+                shutil.copy(tf, os.path.join(tdir, 'index.txt'))
+
+            # Images
+            for item in oeb_book.manifest:
+                if item.media_type in OEB_IMAGES:
+                    path = os.path.join(tdir, os.path.dirname(item.href))
+                    if not os.path.exists(path):
+                        os.makedirs(path)
+                    with open(os.path.join(tdir, item.href), 'wb') as imgf:
+                        imgf.write(item.data)
+            
+            # Metadata
+            with open(os.path.join(tdir, 'metadata.opf'), 'wb') as mdataf: 
+                mdataf.write(etree.tostring(oeb_book.metadata.to_opf1()))
+            
+            txtz = ZipFile(output_path, 'w')
+            txtz.add_dir(tdir)
