@@ -780,8 +780,8 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
                     _('You have changed the tags. In order to use the tags'
                        ' editor, you must either discard or apply these '
                        'changes. Apply changes?'), show_copy_button=False):
-                self.books_to_refresh |= self.apply_tags(commit=True, notify=True,
-                                                         allow_case_change=True)
+                self.books_to_refresh |= self.apply_tags(commit=True,
+                        notify=True)
                 self.original_tags = unicode(self.tags.text())
             else:
                 self.tags.setText(self.original_tags)
