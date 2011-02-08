@@ -41,7 +41,6 @@ class TextileMLizer(object):
                 html = re.sub(r'<\s*img[^>]*>', '', html)
 
             text = html2textile(html)
-            text = text.replace('%', '')
 
             # Ensure the section ends with at least two new line characters.
             # This is to prevent the last paragraph from a section being
