@@ -77,13 +77,13 @@ categories_use_field_for_author_name = 'author'
 # author category will be the name of the author. The sub-values available are:
 #  name: the printable name of the item
 #  count: the number of books that references this item
-#  avg_rating: the averate rating of all the books referencing this item
+#  avg_rating: the average rating of all the books referencing this item
 #  sort: the sort value. For authors, this is the author_sort for that author
 #  category: the category (e.g., authors, series) that the item is in.
 # Note that the "r'" in front of the { is necessary if there are backslashes
 # (\ characters) in the template. It doesn't hurt anything to leave it there
 # even if there aren't any backslashes.
-categories_collapsed_name_template = r'{first.sort:shorten(4,'',0)} - {last.sort:shorten(4,'',0)}'
+categories_collapsed_name_template = r'{first.sort:shorten(4,"",0)} - {last.sort:shorten(4,"",0)}'
 categories_collapsed_rating_template = r'{first.avg_rating:4.2f:ifempty(0)} - {last.avg_rating:4.2f:ifempty(0)}'
 categories_collapsed_popularity_template = r'{first.count:d} - {last.count:d}'
 
@@ -300,7 +300,7 @@ content_server_wont_display = []
 book_details_will_display = ['*']
 book_details_wont_display = []
 
-#: # Set the maximum number of sort 'levels'
+#: Set the maximum number of sort 'levels'
 # Set the maximum number of sort 'levels' that calibre will use to resort the
 # library after certain operations such as searches or device insertion. Each
 # sort level adds a performance penalty. If the database is large (thousands of
