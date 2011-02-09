@@ -1026,6 +1026,20 @@ class DeviceMixin(object): # {{{
                     self.location_manager.free[1] : 'carda',
                     self.location_manager.free[2] : 'cardb' }
                 on_card = space.get(sorted(space.keys(), reverse=True)[0], None)
+                try:
+                    total_size = sum([os.stat(f).st_size for f in files])
+                except:
+                    try:
+                        import traceback
+                        traceback.print_exc()
+                    except:
+                        pass
+                    total_size = self.location_manager.free[0]
+                if self.location_manager.free[0] > total_size + (1024**2):
+                    # Send news to main memory if enough space available
+                    # as some devices like the Nook Color cannot handle
+                    # periodicals on SD cards properly
+                    on_card = None
                 self.upload_books(files, names, metadata,
                         on_card=on_card,
                         memory=[files, remove])

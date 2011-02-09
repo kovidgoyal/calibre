@@ -177,6 +177,7 @@ class AuthorsEdit(MultiCompleteComboBox):
 
         self.set_separator('&')
         self.set_space_before_sep(True)
+        self.set_add_separator(tweaks['authors_completer_append_separator'])
         self.update_items_cache(db.all_author_names())
 
         au = db.authors(id_, index_is_id=True)

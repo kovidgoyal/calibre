@@ -177,6 +177,8 @@ class CompleteDelegate(QStyledItemDelegate): # {{{
             editor = MultiCompleteLineEdit(parent)
             editor.set_separator(self.sep)
             editor.set_space_before_sep(self.space_before_sep)
+            if self.sep == '&':
+                editor.set_add_separator(tweaks['authors_completer_append_separator'])
             if not index.model().is_custom_column(col):
                 all_items = getattr(self.db, self.items_func_name)()
             else:

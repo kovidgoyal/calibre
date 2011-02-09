@@ -81,22 +81,23 @@ class HeuristicProcessor(object):
 
     def insert_indent(self, match):
         pstyle = match.group('formatting')
+        tag = match.group('tagtype')
         span = match.group('span')
         self.found_indents = self.found_indents + 1
         if pstyle:
-            if pstyle.lower().find('style'):
+            if pstyle.lower().find('style') != -1:
                 pstyle = re.sub(r'"$', '; text-indent:3%"', pstyle)
             else:
                 pstyle = pstyle+' style="text-indent:3%"'
             if not span:
-                return '<p '+pstyle+'>'
+                return '<'+tag+' '+pstyle+'>'
             else:
-                return '<p '+pstyle+'>'+span
+                return '<'+tag+' '+pstyle+'>'+span
         else:
             if not span:
-                return '<p style="text-indent:3%">'
+                return '<'+tag+' style="text-indent:3%">'
             else:
-                return '<p style="text-indent:3%">'+span
+                return '<'+tag+' style="text-indent:3%">'+span
 
     def no_markup(self, raw, percent):
         '''
@@ -369,7 +370,7 @@ class HeuristicProcessor(object):
         return html
 
     def fix_nbsp_indents(self, html):
-        txtindent = re.compile(ur'<p(?P<formatting>[^>]*)>\s*(?P<span>(<span[^>]*>\s*)+)?\s*(\u00a0){2,}', re.IGNORECASE)
+        txtindent = re.compile(ur'<(?P<tagtype>p|div)(?P<formatting>[^>]*)>\s*(?P<span>(<span[^>]*>\s*)+)?\s*(\u00a0){2,}', re.IGNORECASE)
         html = txtindent.sub(self.insert_indent, html)
         if self.found_indents > 1:
             self.log.debug("replaced "+unicode(self.found_indents)+ " nbsp indents with inline styles")
