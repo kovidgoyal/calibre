@@ -65,6 +65,9 @@ class ANDROID(USBMS):
             # Huawei
             0x45e : { 0x00e1 : [0x007], },
 
+            # T-Mobile
+            0x0408 : { 0x03ba : [0x0109], },
+
             }
     EBOOK_DIR_MAIN = ['eBooks/import', 'wordplayer/calibretransfer', 'Books']
     EXTRA_CUSTOMIZATION_MESSAGE = _('Comma separated list of directories to '
@@ -74,13 +77,13 @@ class ANDROID(USBMS):
 
     VENDOR_NAME      = ['HTC', 'MOTOROLA', 'GOOGLE_', 'ANDROID', 'ACER',
             'GT-I5700', 'SAMSUNG', 'DELL', 'LINUX', 'GOOGLE', 'ARCHOS',
-            'TELECHIP', 'HUAWEI', ]
+            'TELECHIP', 'HUAWEI', 'T-MOBILE', ]
     WINDOWS_MAIN_MEM = ['ANDROID_PHONE', 'A855', 'A853', 'INC.NEXUS_ONE',
             '__UMS_COMPOSITE', '_MB200', 'MASS_STORAGE', '_-_CARD', 'SGH-I897',
             'GT-I9000', 'FILE-STOR_GADGET', 'SGH-T959', 'SAMSUNG_ANDROID',
             'SCH-I500_CARD', 'SPH-D700_CARD', 'MB810', 'GT-P1000', 'DESIRE',
             'SGH-T849', '_MB300', 'A70S', 'S_ANDROID', 'A101IT', 'A70H',
-            'IDEOS_TABLET']
+            'IDEOS_TABLET', 'MYTOUCH_4G']
     WINDOWS_CARD_A_MEM = ['ANDROID_PHONE', 'GT-I9000_CARD', 'SGH-I897',
             'FILE-STOR_GADGET', 'SGH-T959', 'SAMSUNG_ANDROID', 'GT-P1000_CARD',
             'A70S', 'A101IT']
