@@ -236,6 +236,7 @@ class PluginTweaks(QDialog): # {{{
         self.bb.accepted.connect(self.accept)
         self.bb.rejected.connect(self.reject)
         self.l.addWidget(self.bb)
+        self.resize(550, 300)
 
 # }}}
 
