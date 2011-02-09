@@ -1,0 +1,57 @@
+Amazon APNX file format
+
+bytes   content             comments 
+
+4       00010001            Format identifier.
+4       start of next       The offset after ending location of the first header.
+								Starts a new sequence of header info
+4       length              Length of first header
+N       first header        String containing content header
+Starts next sequence
+2       unknown				Always 1
+2		 length				Length of second header
+2		 page count			Total number of bytes after second header that
+								represent pages. This total includes bytes that
+								are ignored by the pageMap.
+2       unknown				Always 32
+N       second header       String containing the page mapping header
+N       padding             The first number given in the page mapping header indicates the number of 0 bytes.
+N       page list
+
+
+Content Header
+
+The content header is a string enclosed in {} containing key, value pairs.
+
+content             comments
+
+contentGuid         Guid
+asin                Amazon identifier for the Kindle version of the book
+cdeType             MOBI cdeType. Should always be EBOK for ebooks.
+fileRevisionId      Revision of this file
+
+Example:
+{"contentGuid":"d8c14b0","asin":"B000JML5VM","cdeType":"EBOK","fileRevisionId":"1296874359405"}
+
+
+Page Mapping Header
+
+The page mapping header is a string enclosed in {} containing key, value pairs.
+
+content             comments
+
+asin                The ISBN 10 for the paper book the pages correspond to
+pageMap             Three value tuple.
+                    1) Number of bytes after header that starts the page numbering sequence
+                    2) unknown
+                    3) unknown
+
+Example:
+{"asin":"1906694184","pageMap":"(4,a,1)"}
+
+
+Page List
+
+The page list is a sequence of offsets in the uncompressed HTML. Each
+value is the beginning of a new page. Each entry is a 4 byte big endian
+int. The list is ordered lowest to highest.
