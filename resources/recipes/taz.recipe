@@ -27,7 +27,7 @@ class TazDigiabo(BasicNewsRecipe):
     }
 
     def build_index(self):
-        domain = "http://www.taz.de"
+        domain = "http://dl.taz.de"
 
         url = domain + "/epub/"
 
