@@ -342,11 +342,9 @@ class HeuristicProcessor(object):
         return content
 
     def txt_process(self, match):
-        from calibre.ebooks.txt.processor import convert_basic, preserve_spaces, \
-        separate_paragraphs_single_line
+        from calibre.ebooks.txt.processor import convert_basic, separate_paragraphs_single_line
         content = match.group('text')
         content = separate_paragraphs_single_line(content)
-        content = preserve_spaces(content)
         content = convert_basic(content, epub_split_size_kb=0)
         return content
 
@@ -356,6 +354,8 @@ class HeuristicProcessor(object):
             self.log.debug("Running Text Processing")
             outerhtml = re.compile(r'.*?(?<=<pre>)(?P<text>.*?)</pre>', re.IGNORECASE|re.DOTALL)
             html = outerhtml.sub(self.txt_process, html)
+            from calibre.ebooks.conversion.preprocess import convert_entities
+            html = re.sub(r'&(\S+?);', convert_entities, html)
         else:
             # Add markup naively
             # TODO - find out if there are cases where there are more than one <pre> tag or

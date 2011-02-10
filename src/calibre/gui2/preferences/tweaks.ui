@@ -7,31 +7,73 @@
     <x>0</x>
     <y>0</y>
     <width>660</width>
-    <height>351</height>
+    <height>531</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
-   <item>
-    <widget class="QLabel" name="label_18">
-     <property name="text">
-      <string>Values for the tweaks are shown below. Edit them to change the behavior of calibre. Your changes will only take effect after a restart of calibre.</string>
-     </property>
-     <property name="wordWrap">
-      <bool>true</bool>
-     </property>
-    </widget>
+  <layout class="QGridLayout" name="gridLayout_2">
+   <item row="0" column="0" rowspan="2">
+    <layout class="QVBoxLayout" name="verticalLayout_2">
+     <item>
+      <widget class="QLabel" name="label_18">
+       <property name="text">
+        <string>Values for the tweaks are shown below. Edit them to change the behavior of calibre. Your changes will only take effect &lt;b&gt;after a restart&lt;/b&gt; of calibre.</string>
+       </property>
+       <property name="wordWrap">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QListView" name="tweaks_view">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>300</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="alternatingRowColors">
+        <bool>true</bool>
+       </property>
+       <property name="spacing">
+        <number>5</number>
+       </property>
+       <property name="uniformItemSizes">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="plugin_tweaks_button">
+       <property name="toolTip">
+        <string>Edit tweaks for any custom plugins you have installed</string>
+       </property>
+       <property name="text">
+        <string>&amp;Plugin tweaks</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
-   <item>
-    <widget class="QGroupBox" name="groupBox_6">
+   <item row="0" column="1">
+    <widget class="QGroupBox" name="groupBox">
      <property name="title">
-      <string>All available tweaks</string>
+      <string>Help</string>
      </property>
-     <layout class="QGridLayout" name="gridLayout_11">
-      <item row="0" column="0">
-       <widget class="QPlainTextEdit" name="default_tweaks">
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="QPlainTextEdit" name="help">
+        <property name="lineWrapMode">
+         <enum>QPlainTextEdit::NoWrap</enum>
+        </property>
         <property name="readOnly">
          <bool>true</bool>
         </property>
@@ -40,14 +82,38 @@
      </layout>
     </widget>
    </item>
-   <item>
-    <widget class="QGroupBox" name="groupBox_7">
+   <item row="1" column="1">
+    <widget class="QGroupBox" name="groupBox_2">
      <property name="title">
-      <string>&amp;Current tweaks</string>
+      <string>Edit tweak</string>
      </property>
-     <layout class="QGridLayout" name="gridLayout_10">
-      <item row="0" column="0">
-       <widget class="QPlainTextEdit" name="current_tweaks"/>
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="0" colspan="2">
+       <widget class="QPlainTextEdit" name="edit_tweak">
+        <property name="lineWrapMode">
+         <enum>QPlainTextEdit::NoWrap</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QPushButton" name="restore_default_button">
+        <property name="toolTip">
+         <string>Restore this tweak to its default value</string>
+        </property>
+        <property name="text">
+         <string>Restore &amp;default</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QPushButton" name="apply_button">
+        <property name="toolTip">
+         <string>Apply any changes you made to this tweak</string>
+        </property>
+        <property name="text">
+         <string>&amp;Apply</string>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>

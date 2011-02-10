@@ -92,3 +92,15 @@ class SUNSTECH_EB700(TECLAST_K3):
     VENDOR_NAME = 'SUNEB700'
     WINDOWS_MAIN_MEM = 'USB-MSC'
 
+class STASH(TECLAST_K3):
+
+    name = 'Stash device interface'
+    gui_name = 'Stash'
+    description    = _('Communicate with the Stash W950 reader.')
+
+    FORMATS = ['epub', 'fb2', 'lrc', 'pdb', 'html', 'fb2', 'wtxt',
+            'txt', 'pdf']
+
+    VENDOR_NAME = 'STASH'
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'W950'
+

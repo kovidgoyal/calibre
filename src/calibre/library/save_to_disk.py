@@ -142,11 +142,13 @@ class SafeFormat(TemplateFormatter):
 def get_components(template, mi, id, timefmt='%b %Y', length=250,
         sanitize_func=ascii_filename, replace_whitespace=False,
         to_lowercase=False):
-    tsfmt = partial(title_sort, order=tweaks['save_template_title_series_sorting'])
+
+    tsorder = tweaks['save_template_title_series_sorting']
     format_args = FORMAT_ARGS.copy()
     format_args.update(mi.all_non_none_fields())
     if mi.title:
-        format_args['title'] = tsfmt(mi.title)
+        format_args['title'] = mi.title if tsorder == 'strictly_alphabetic' \
+            else mi.get('title_sort', title_sort(mi.title, order='library_order'))
     if mi.authors:
         format_args['authors'] = mi.format_authors()
         format_args['author'] = format_args['authors']
@@ -157,7 +159,7 @@ def get_components(template, mi, id, timefmt='%b %Y', length=250,
     else:
         format_args['tags'] = ''
     if mi.series:
-        format_args['series'] = tsfmt(mi.series)
+        format_args['series'] = title_sort(mi.series, order=tsorder)
         if mi.series_index is not None:
             format_args['series_index'] = mi.format_series_index()
     else:
@@ -176,7 +178,7 @@ def get_components(template, mi, id, timefmt='%b %Y', length=250,
             cm = custom_metadata[key]
             ## TODO: NEWMETA: should ratings be divided by 2? The standard rating isn't...
             if cm['datatype'] == 'series':
-                format_args[key] = tsfmt(format_args[key])
+                format_args[key] = title_sort(format_args[key], order=tsorder)
                 if key+'_index' in format_args:
                     format_args[key+'_index'] = fmt_sidx(format_args[key+'_index'])
             elif cm['datatype'] == 'datetime':
