@@ -103,6 +103,8 @@ class OEBReader(object):
         data = self.oeb.container.read(None)
         data = self.oeb.decode(data)
         data = XMLDECL_RE.sub('', data)
+        data = data.replace('http://openebook.org/namespaces/oeb-package/1.0',
+                OPF1_NS)
         try:
             opf = etree.fromstring(data)
         except etree.XMLSyntaxError:

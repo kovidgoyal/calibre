@@ -117,6 +117,7 @@ class Tokenize:
         input_file = self.__replace_spchar.mreplace(input_file)
         # this is for older RTF
         input_file = self.__par_exp.sub('\n\\par \n', input_file)
+        input_file = self.__cwdigit_exp.sub("\g<1>\n\g<2>", input_file)
         input_file = self.__ms_hex_exp.sub("\\mshex0\g<1> ", input_file)
         input_file = self.__utf_ud.sub("\\{\\uc0 \g<1>\\}", input_file)
         #remove \n in bin data
@@ -139,17 +140,17 @@ class Tokenize:
             "\\_": "\\_ ",
             "\\:": "\\: ",
             "\\-": "\\- ",
-            # turn into a generic token to eliminate special
-            # cases and make processing easier
+            #turn into a generic token to eliminate special
+            #cases and make processing easier
             "\\{": "\\ob ",
-            # turn into a generic token to eliminate special
-            # cases and make processing easier
+            #turn into a generic token to eliminate special
+            #cases and make processing easier
             "\\}": "\\cb ",
-            # put a backslash in front of to eliminate special cases and
-            # make processing easier
+            #put a backslash in front of to eliminate special cases and
+            #make processing easier
             "{": "\\{",
-            # put a backslash in front of to eliminate special cases and
-            # make processing easier
+            #put a backslash in front of to eliminate special cases and
+            #make processing easier
             "}": "\\}",
             }
         self.__replace_spchar = MReplace(SIMPLE_RPL)
@@ -165,21 +166,9 @@ class Tokenize:
         #remove \n from endline char
         self.__splitexp = re.compile(r"(\\[{}]|\n|\\[^\s\\{}&]+(?:[ \t\r\f\v])?)")
         #this is for old RTF
-        self.__par_exp = re.compile(r'\\\n+')
+        self.__par_exp = re.compile(r'(\\\n+|\\ )')
         #handle cw using a digit as argument and without space as delimiter
         self.__cwdigit_exp = re.compile(r"(\\[a-zA-Z]+[\-0-9]+)([^0-9 \\]+)")
-        #self.__bin_exp = re.compile(r"\\bin(-?\d{1,8}) {0,1}")
-        #self.__utf_exp = re.compile(r"^\\u(-?\d{3,6})")
-        #self.__splitexp = re.compile(r"(\\[\\{}]|{|}|\n|\\[^\s\\{}&]+(?:\s)?)")
-        #self.__remove_line = re.compile(r'\n+')
-        ##self.num_exp = re.compile(r"(\*|:|[a-zA-Z]+)(.*)")
-
-    def __correct_spliting(self, token):
-        match_obj = re.search(self.__cwdigit_exp, token)
-        if match_obj is None:
-            return token
-        else:
-            return '%s\n%s' % (match_obj.group(1), match_obj.group(2))
 
     def tokenize(self):
         """Main class for handling other methods. Reads the file \
@@ -196,8 +185,6 @@ class Tokenize:
         tokens = map(self.__unicode_process, tokens)
         #remove empty items created by removing \uc
         tokens = filter(lambda x: len(x) > 0, tokens)
-        #handles bothersome cases
-        tokens = map(self.__correct_spliting, tokens)
 
         #write
         with open(self.__write_to, 'wb') as write_obj:

@@ -445,7 +445,7 @@ class CustomColumns(object):
         rv = self._set_custom(id, val, label=label, num=num, append=append,
                          notify=notify, extra=extra,
                          allow_case_change=allow_case_change)
-        self.dirtied([id], commit=False)
+        self.dirtied(set([id])|rv, commit=False)
         if commit:
             self.conn.commit()
         return rv
@@ -484,7 +484,9 @@ class CustomColumns(object):
             if not existing:
                 existing = []
             for x in set(set_val) - set(existing):
-                if x is None:
+                # normalized types are text and ratings, so we can do this check
+                # to see if we need to re-add the value
+                if not x:
                     continue
                 case_change = False
                 existing = list(self.all_custom(num=data['num']))

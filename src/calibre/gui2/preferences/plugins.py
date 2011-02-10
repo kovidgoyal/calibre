@@ -109,7 +109,7 @@ class PluginModel(QAbstractItemModel, SearchQueryParser): # {{{
         return self.index(ans[0], 0, QModelIndex()) if ans[1] < 0 else \
                 self.index(ans[1], 0, self.index(ans[0], 0, QModelIndex()))
 
-    def index(self, row, column, parent):
+    def index(self, row, column, parent=QModelIndex()):
         if not self.hasIndex(row, column, parent):
             return QModelIndex()
 
@@ -165,8 +165,6 @@ class PluginModel(QAbstractItemModel, SearchQueryParser): # {{{
     def flags(self, index):
         if not index.isValid():
             return 0
-        if index.internalId() == 0:
-            return Qt.ItemIsEnabled
         flags = Qt.ItemIsSelectable | Qt.ItemIsEnabled
         return flags
 
@@ -329,7 +327,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                     return error_dialog(self, _('Must restart'),
                             _('You must restart calibre before you can'
                                 ' configure the <b>%s</b> plugin')%plugin.name, show=True)
-                if plugin.do_user_config():
+                if plugin.do_user_config(self.gui):
                     self._plugin_model.refresh_plugin(plugin)
             elif op == 'remove':
                 msg = _('Plugin <b>{0}</b> successfully removed').format(plugin.name)

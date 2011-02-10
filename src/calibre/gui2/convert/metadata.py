@@ -19,6 +19,7 @@ from calibre.ptempfile import PersistentTemporaryFile
 from calibre.gui2.convert import Widget
 from calibre.utils.icu import sort_key
 from calibre.library.comments import comments_to_html
+from calibre.utils.config import tweaks
 
 def create_opf_file(db, book_id):
     mi = db.get_metadata(book_id, index_is_id=True)
@@ -108,6 +109,7 @@ class MetadataWidget(Widget, Ui_Form):
         all_authors.sort(key=lambda x : sort_key(x[1]))
         self.author.set_separator('&')
         self.author.set_space_before_sep(True)
+        self.author.set_add_separator(tweaks['authors_completer_append_separator'])
         self.author.update_items_cache(self.db.all_author_names())
 
         for i in all_authors:

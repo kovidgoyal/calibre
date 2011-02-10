@@ -64,6 +64,7 @@ class LibraryViewMixin(object): # {{{
             view.verticalHeader().sectionDoubleClicked.connect(self.iactions['View'].view_specific_book)
 
         self.build_context_menus()
+        self.library_view.model().set_highlight_only(config['highlight_search_matches'])
 
     def build_context_menus(self):
         lm = QMenu(self)

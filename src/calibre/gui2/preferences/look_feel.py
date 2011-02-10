@@ -46,7 +46,6 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('disable_tray_notification', config)
         r('use_roman_numerals_for_series_number', config)
         r('separate_cover_flow', config, restart_required=True)
-        r('search_as_you_type', config)
         r('show_child_bar', gprefs)
 
         choices = [(_('Small'), 'small'), (_('Medium'), 'medium'),
@@ -116,7 +115,6 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
 
     def refresh_gui(self, gui):
-        gui.search.search_as_you_type(config['search_as_you_type'])
         self.update_font_display()
         gui.tags_view.reread_collapse_parameters()
 

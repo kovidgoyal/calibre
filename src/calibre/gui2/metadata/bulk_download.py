@@ -11,7 +11,7 @@ from threading import Thread
 from Queue import Queue, Empty
 from functools import partial
 
-from PyQt4.Qt import QObject, Qt, pyqtSignal, QTimer, QDialog, \
+from PyQt4.Qt import QObject, QTimer, QDialog, \
         QVBoxLayout, QTextBrowser, QLabel, QGroupBox, QDialogButtonBox
 
 from calibre.ebooks.metadata.fetch import search, get_social_metadata
@@ -163,27 +163,23 @@ class DownloadMetadata(Thread):
 
 class DoDownload(QObject):
 
-    idle_process = pyqtSignal()
-
     def __init__(self, parent, title, db, ids, get_covers, set_metadata=True,
             get_social_metadata=True):
         QObject.__init__(self, parent)
         self.pd = ProgressDialog(title, min=0, max=0, parent=parent)
         self.pd.canceled_signal.connect(self.cancel)
-        self.idle_process.connect(self.do_one, type=Qt.QueuedConnection)
         self.downloader = None
         self.create = partial(DownloadMetadata, db, ids, get_covers,
                 set_metadata=set_metadata,
                 get_social_metadata=get_social_metadata)
-        self.timer = QTimer(self)
         self.get_covers = get_covers
-        self.timer.timeout.connect(self.do_one, type=Qt.QueuedConnection)
         self.db = db
         self.updated = set([])
         self.total = len(ids)
+        self.keep_going = True
 
     def exec_(self):
-        self.timer.start(50)
+        QTimer.singleShot(50, self.do_one)
         ret = self.pd.exec_()
         if getattr(self.downloader, 'exception', None) is not None and \
                 ret == self.pd.Accepted:
@@ -194,30 +190,37 @@ class DoDownload(QObject):
         return ret
 
     def cancel(self, *args):
-        self.timer.stop()
+        self.keep_going = False
         self.downloader.keep_going = False
         self.pd.reject()
 
     def do_one(self):
-        if self.downloader is None:
-            self.downloader = self.create()
-            self.downloader.start()
-            self.pd.set_min(0)
-            self.pd.set_max(self.downloader.total)
         try:
-            r = self.downloader.results.get_nowait()
-            self.handle_result(r)
-        except Empty:
-            pass
-        if not self.downloader.is_alive():
-            self.timer.stop()
-            while True:
-                try:
-                    r = self.downloader.results.get_nowait()
-                    self.handle_result(r)
-                except Empty:
-                    break
-            self.pd.accept()
+            if not self.keep_going:
+                return
+            if self.downloader is None:
+                self.downloader = self.create()
+                self.downloader.start()
+                self.pd.set_min(0)
+                self.pd.set_max(self.downloader.total)
+            try:
+                r = self.downloader.results.get_nowait()
+                self.handle_result(r)
+            except Empty:
+                pass
+            if not self.downloader.is_alive():
+                while True:
+                    try:
+                        r = self.downloader.results.get_nowait()
+                        self.handle_result(r)
+                    except Empty:
+                        break
+                self.pd.accept()
+                return
+        except:
+            self.cancel()
+            raise
+        QTimer.singleShot(50, self.do_one)
 
     def handle_result(self, r):
         id_, typ, ok, title = r

@@ -9,6 +9,7 @@ from PyQt4.Qt import QDialog, QGridLayout, QLabel, QDialogButtonBox,  \
 from calibre.ebooks.metadata import authors_to_string, string_to_authors
 from calibre.utils.icu import sort_key
 from calibre.gui2.complete import MultiCompleteComboBox
+from calibre.utils.config import tweaks
 
 class AddEmptyBookDialog(QDialog):
 
@@ -69,6 +70,7 @@ class AddEmptyBookDialog(QDialog):
 
         self.authors_combo.set_separator('&')
         self.authors_combo.set_space_before_sep(True)
+        self.authors_combo.set_add_separator(tweaks['authors_completer_append_separator'])
         self.authors_combo.update_items_cache(db.all_author_names())
 
     @property

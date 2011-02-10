@@ -55,7 +55,7 @@
     - title: "Add search to the plugin preferences dialog"
   
   bug fixes:
-    - title: "Fix a bug that could cause fiels to be lost when changing metadata on east asian windows installs if the title and/or author is very long."
+    - title: "Fix a bug that could cause files to be lost when changing metadata on east asian windows installs if the title and/or author is very long."
       tickets: [8620]
 
     - title: "Tag browser: Fix searching with items in a user category not owrking if the main category is hidden"
@@ -88,7 +88,7 @@
     - title: "Do not discard the result of a conversion if the user opens the edit metadata dialog while the conversion is running"
       tickets: [8672]
 
-    - title: "CHM Input: When the chm file lacks a hhc, lookf for index.html instead"
+    - title: "CHM Input: When the chm file lacks a hhc, look for index.html instead"
       tickets: [8688]
 
     - title: "EPUB Input: Filter some invalid media types from the spine"

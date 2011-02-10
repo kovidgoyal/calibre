@@ -10,7 +10,7 @@ you know what you are doing. If you delete this file, it will be recreated from
 defaults.
 '''
 
-
+#: Auto increment series index
 # The algorithm used to assign a new book in an existing series a series number.
 # New series numbers assigned using this tweak are always integer values, except
 # if a constant non-integer is specified.
@@ -29,10 +29,19 @@ defaults.
 # series_index_auto_increment = 16.5
 series_index_auto_increment = 'next'
 
+#: Add separator after completing an author name
+# Should the completion separator be append
+# to the end of the completed text to
+# automatically begin a new completion operation
+# for authors.
+# Can be either True or False
+authors_completer_append_separator = False
 
+
+#: Author sort name algorithm
 # The algorithm used to copy author to author_sort
 # Possible values are:
-#  invert: use "fn ln" -> "ln, fn" (the original algorithm)
+#  invert: use "fn ln" -> "ln, fn" (the default algorithm)
 #  copy  : copy author to author_sort without modification
 #  comma : use 'copy' if there is a ',' in the name, otherwise use 'invert'
 #  nocomma : "fn ln" -> "ln fn" (without the comma)
@@ -41,6 +50,7 @@ series_index_auto_increment = 'next'
 # selecting 'manage authors', and pressing 'Recalculate all author sort values'.
 author_sort_copy_method = 'invert'
 
+#: Use author sort in Tag Browser
 # Set which author field to display in the tags pane (the list of authors,
 # series, publishers etc on the left hand side). The choices are author and
 # author_sort. This tweak affects only what is displayed under the authors
@@ -55,6 +65,7 @@ author_sort_copy_method = 'invert'
 #   categories_use_field_for_author_name = 'author_sort'
 categories_use_field_for_author_name = 'author'
 
+#: Control partitioning of Tag Browser
 # When partitioning the tags browser, the format of the subcategory label is
 # controlled by a template: categories_collapsed_name_template if sorting by
 # name, categories_collapsed_rating_template if sorting by average rating, and
@@ -66,24 +77,25 @@ categories_use_field_for_author_name = 'author'
 # author category will be the name of the author. The sub-values available are:
 #  name: the printable name of the item
 #  count: the number of books that references this item
-#  avg_rating: the averate rating of all the books referencing this item
+#  avg_rating: the average rating of all the books referencing this item
 #  sort: the sort value. For authors, this is the author_sort for that author
 #  category: the category (e.g., authors, series) that the item is in.
 # Note that the "r'" in front of the { is necessary if there are backslashes
 # (\ characters) in the template. It doesn't hurt anything to leave it there
 # even if there aren't any backslashes.
-categories_collapsed_name_template = r'{first.sort:shorten(4,'',0)} - {last.sort:shorten(4,'',0)}'
+categories_collapsed_name_template = r'{first.sort:shorten(4,"",0)} - {last.sort:shorten(4,"",0)}'
 categories_collapsed_rating_template = r'{first.avg_rating:4.2f:ifempty(0)} - {last.avg_rating:4.2f:ifempty(0)}'
 categories_collapsed_popularity_template = r'{first.count:d} - {last.count:d}'
 
 
+#: Set boolean custom columns to be tristate
 # Set whether boolean custom columns are two- or three-valued.
 #  Two-values for true booleans
 #  three-values for yes/no/unknown
 # Set to 'yes' for three-values, 'no' for two-values
 bool_custom_columns_are_tristate = 'yes'
 
-
+#: Specify columns to sort the booklist by on startup
 # Provide a set of columns to be sorted on when calibre starts
 #  The argument is None if saved sort history is to be used
 #  otherwise it is a list of column,order pairs. Column is the
@@ -93,6 +105,7 @@ bool_custom_columns_are_tristate = 'yes'
 # title within authors.
 sort_columns_at_startup = None
 
+#; Control how dates are displayed
 # Format to be used for publication date and the timestamp (date).
 #  A string controlling how the publication date is displayed in the GUI
 #  d    the day as number without a leading zero (1 to 31)
@@ -113,6 +126,7 @@ sort_columns_at_startup = None
 gui_pubdate_display_format = 'MMM yyyy'
 gui_timestamp_display_format = 'dd MMM yyyy'
 
+#: Control sorting of titles and series in the display
 # Control title and series sorting in the library view.
 # If set to 'library_order', Leading articles such as The and A will be ignored.
 # If set to 'strictly_alphabetic', the titles will be sorted without processing
@@ -124,6 +138,7 @@ gui_timestamp_display_format = 'dd MMM yyyy'
 # without changing anything is sufficient to change the sort.
 title_series_sorting = 'library_order'
 
+#: Control formatting of title and series when used in templates
 # Control how title and series names are formatted when saving to disk/sending
 # to device. If set to library_order, leading articles such as The and A will
 # be put at the end
@@ -132,6 +147,7 @@ title_series_sorting = 'library_order'
 # strictly_alphabetic, it would remain "The Client".
 save_template_title_series_sorting = 'library_order'
 
+#: Set the list of words considered to be "articles" for sort strings
 # Set the list of words that are to be considered 'articles' when computing the
 # title sort strings. The list is a regular expression, with the articles
 # separated by 'or' bars. Comparisons are case insensitive, and that cannot be
@@ -141,7 +157,7 @@ save_template_title_series_sorting = 'library_order'
 # Default: '^(A|The|An)\s+'
 title_sort_articles=r'^(A|The|An)\s+'
 
-
+#: Specify a folder calibre should connect to at startup
 # Specify a folder that calibre should connect to at startup using
 # connect_to_folder. This must be a full path to the folder. If the folder does
 # not exist when calibre starts, it is ignored. If there are '\' characters in
@@ -151,7 +167,7 @@ title_sort_articles=r'^(A|The|An)\s+'
 #     auto_connect_to_folder = '/home/dropbox/My Dropbox/someone/library'
 auto_connect_to_folder = ''
 
-
+#: Specify renaming rules for SONY collections
 # Specify renaming rules for sony collections. This tweak is only applicable if
 # metadata management is set to automatic. Collections on Sonys are named
 # depending upon whether the field is standard or custom. A collection derived
@@ -204,7 +220,7 @@ auto_connect_to_folder = ''
 sony_collection_renaming_rules={}
 sony_collection_name_template='{value}{category:| (|)}'
 
-
+#: Specify how SONY collections are sorted
 # Specify how sony collections are sorted. This tweak is only applicable if
 # metadata management is set to automatic. You can indicate which metadata is to
 # be used to sort on a collection-by-collection basis. The format of the tweak
@@ -223,7 +239,7 @@ sony_collection_name_template='{value}{category:| (|)}'
 sony_collection_sorting_rules = []
 
 
-# Create search terms to apply a query across several built-in search terms.
+#: Create search terms to apply a query across several built-in search terms.
 # Syntax: {'new term':['existing term 1', 'term 2', ...], 'new':['old'...] ...}
 # Example: create the term 'myseries' that when used as myseries:foo would
 # search all of the search categories 'series', '#myseries', and '#myseries2':
@@ -236,15 +252,17 @@ sony_collection_sorting_rules = []
 grouped_search_terms = {}
 
 
-# Set this to True (not 'True') to ensure that tags in 'Tags to add when adding
+#: Control how tags are applied when copying books to another library
+# Set this to True to ensure that tags in 'Tags to add when adding
 # a book' are added when copying books to another library
 add_new_book_tags_when_importing_books = False
 
 
-# Set the maximum number of tags to show per book in the content server
+#: Set the maximum number of tags to show per book in the content server
 max_content_server_tags_shown=5
 
-# Set custom metadata fields that the content server will or will not display.
+
+#: Set custom metadata fields that the content server will or will not display.
 # content_server_will_display is a list of custom fields to be displayed.
 # content_server_wont_display is a list of custom fields not to be displayed.
 # wont_display has priority over will_display.
@@ -262,13 +280,27 @@ max_content_server_tags_shown=5
 content_server_will_display = ['*']
 content_server_wont_display = []
 
-# Same as above (content server) but for the book details pane. Same syntax.
+#: Set custom metadata fields that the book details panel will or will not display.
+# book_details_will_display is a list of custom fields to be displayed.
+# book_details_wont_display is a list of custom fields not to be displayed.
+# wont_display has priority over will_display.
+# The special value '*' means all custom fields. The value [] means no entries.
+# Defaults:
+#    book_details_will_display = ['*']
+#    book_details_wont_display = []
+# Examples:
+# To display only the custom fields #mytags and #genre:
+#   book_details_will_display = ['#mytags', '#genre']
+#   book_details_wont_display = []
+# To display all fields except #mycomments:
+#   book_details_will_display = ['*']
+#   book_details_wont_display['#mycomments']
 # As above, this tweak affects only display of custom fields. The standard
 # fields are not affected
 book_details_will_display = ['*']
 book_details_wont_display = []
 
-
+#: Set the maximum number of sort 'levels'
 # Set the maximum number of sort 'levels' that calibre will use to resort the
 # library after certain operations such as searches or device insertion. Each
 # sort level adds a performance penalty. If the database is large (thousands of
@@ -276,16 +308,14 @@ book_details_wont_display = []
 # level sorts, and if you are seeing a slowdown, reduce the value of this tweak.
 maximum_resort_levels = 5
 
-# Absolute path to a TTF font file to use as the font for the title and author
-# when generating a default cover. Useful if the default font (Liberation
+#: Specify which font to use when generating a default cover
+# Absolute path to .ttf font files to use as the fonts for the title, author
+# and footer when generating a default cover. Useful if the default font (Liberation
 # Serif) does not contain glyphs for the language of the books in your library.
 generate_cover_title_font = None
-
-# Absolute path to a TTF font file to use as the font for the footer in the
-# default cover
 generate_cover_foot_font = None
 
-
+#: Control behavior of double clicks on the book list
 # Behavior of doubleclick on the books list. Choices: open_viewer, do_nothing,
 # edit_cell, edit_metadata. Selecting edit_metadata has the side effect of
 # disabling editing a field using a single click.
@@ -294,7 +324,8 @@ generate_cover_foot_font = None
 doubleclick_on_library_view = 'open_viewer'
 
 
-# Language to use when sorting. Setting this tweak will force sorting to use the
+#: Language to use when sorting.
+# Setting this tweak will force sorting to use the
 # collating order for the specified language. This might be useful if you run
 # calibre in English but want sorting to work in the language where you live.
 # Set the tweak to the desired ISO 639-1 language code, in lower case.
@@ -305,16 +336,23 @@ doubleclick_on_library_view = 'open_viewer'
 # Example: locale_for_sorting = 'nb' -- sort using Norwegian rules.
 locale_for_sorting =  ''
 
-
+#: Number of columns for custom metadata in the edit metadata dialog
 # Set whether to use one or two columns for custom metadata when editing
 # metadata  one book at a time. If True, then the fields are laid out using two
 # columns. If False, one column is used.
 metadata_single_use_2_cols_for_custom_fields = True
 
+#: The number of seconds to wait before sending emails
 # The number of seconds to wait before sending emails when using a
 # public email server like gmail or hotmail. Default is: 5 minutes
 # Setting it to lower may cause the server's SPAM controls to kick in,
 # making email sending fail. Changes will take effect only after a restart of
 # calibre.
 public_smtp_relay_delay = 301
+
+#: Remove the bright yellow lines at the edges of the book list
+# Control whether the bright yellow lines at the edges of book list are drawn
+# when a section of the user interface is hidden. Changes will take effect
+# after a restart of calibre.
+draw_hidden_section_indicators = True
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env  python
 
 __license__   = 'GPL v3'
-__copyright__ = '2008, Lionel Bergeret <lbergeret at gmail.com>'
+__copyright__ = '2008-2011, Lionel Bergeret <lbergeret at gmail.com>'
 '''
 lesoir.be
 '''
@@ -16,7 +16,8 @@ class LeSoirBe(BasicNewsRecipe):
     publisher             = u'lesoir.be'
     category              = 'news, Belgium'
     oldest_article        = 3
-    language              = 'fr_BE'
+    language              = 'fr'
+    masthead_url          = 'http://pdf.lesoir.be/pdf/images/SOIR//logo.gif'
 
     max_articles_per_feed = 20
     no_stylesheets        = True
