@@ -39,6 +39,13 @@ def asfloat(value):
         return 0.0
     return float(value)
 
+def isspace(text):
+    if not text:
+        return True
+    if u'\xa0' in text:
+        return False
+    return text.isspace()
+
 class BlockState(object):
     def __init__(self, body):
         self.body = body
@@ -438,7 +445,7 @@ class MobiMLizer(object):
         if elem.text:
             if istate.preserve:
                 text = elem.text
-            elif len(elem) > 0 and elem.text.isspace():
+            elif len(elem) > 0 and isspace(elem.text):
                 text = None
             else:
                 text = COLLAPSE.sub(' ', elem.text)
@@ -481,7 +488,7 @@ class MobiMLizer(object):
             if child.tail:
                 if istate.preserve:
                     tail = child.tail
-                elif bstate.para is None and child.tail.isspace():
+                elif bstate.para is None and isspace(child.tail):
                     tail = None
                 else:
                     tail = COLLAPSE.sub(' ', child.tail)
