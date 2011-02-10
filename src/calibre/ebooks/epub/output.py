@@ -216,21 +216,22 @@ class EPUBOutput(OutputFormatPlugin):
                 encryption = self.encrypt_fonts(encrypted_fonts, tdir, uuid)
 
             from calibre.ebooks.epub import initialize_container
-            epub = initialize_container(output_path, os.path.basename(opf),
-                    extra_entries=extra_entries)
-            epub.add_dir(tdir)
-            if encryption is not None:
-                epub.writestr('META-INF/encryption.xml', encryption)
-            if metadata_xml is not None:
-                epub.writestr('META-INF/metadata.xml',
-                        metadata_xml.encode('utf-8'))
+            with initialize_container(output_path, os.path.basename(opf),
+                    extra_entries=extra_entries) as epub:
+                epub.add_dir(tdir)
+                if encryption is not None:
+                    epub.writestr('META-INF/encryption.xml', encryption)
+                if metadata_xml is not None:
+                    epub.writestr('META-INF/metadata.xml',
+                            metadata_xml.encode('utf-8'))
             if opts.extract_to is not None:
+                from calibre.utils.zipfile import ZipFile
                 if os.path.exists(opts.extract_to):
                     shutil.rmtree(opts.extract_to)
                 os.mkdir(opts.extract_to)
-                epub.extractall(path=opts.extract_to)
+                with ZipFile(output_path) as zf:
+                    zf.extractall(path=opts.extract_to)
                 self.log.info('EPUB extracted to', opts.extract_to)
-            epub.close()
 
     def encrypt_fonts(self, uris, tdir, uuid): # {{{
         from binascii import unhexlify
