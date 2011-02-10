@@ -218,7 +218,10 @@ class KINDLE2(KINDLE):
 
         apnx_path = '%s.apnx' % os.path.join(path, filename)
         apnx_builder = APNXBuilder()
-        apnx_builder.write_apnx(filepath, apnx_path)
+        try:
+            apnx_builder.write_apnx(filepath, apnx_path)
+        except:
+            pass
         
 
 class KINDLE_DX(KINDLE2):
