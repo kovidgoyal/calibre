@@ -46,6 +46,9 @@
        <property name="spacing">
         <number>5</number>
        </property>
+       <property name="uniformItemSizes">
+        <bool>true</bool>
+       </property>
       </widget>
      </item>
      <item>
