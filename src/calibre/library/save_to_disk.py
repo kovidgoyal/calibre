@@ -147,8 +147,14 @@ def get_components(template, mi, id, timefmt='%b %Y', length=250,
     format_args = FORMAT_ARGS.copy()
     format_args.update(mi.all_non_none_fields())
     if mi.title:
-        format_args['title'] = mi.title if tsorder == 'strictly_alphabetic' \
-            else mi.get('title_sort', title_sort(mi.title, order='library_order'))
+        if tsorder == 'strictly_alphabetic':
+            v = mi.title
+        else:
+            # title_sort might be missing or empty. Check both conditions
+            v = mi.get('title_sort', None)
+            if not v:
+                v = title_sort(mi.title, order=tsorder)
+        format_args['title'] = v
     if mi.authors:
         format_args['authors'] = mi.format_authors()
         format_args['author'] = format_args['authors']
