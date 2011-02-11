@@ -126,12 +126,14 @@ sort_columns_at_startup = None
 gui_pubdate_display_format = 'MMM yyyy'
 gui_timestamp_display_format = 'dd MMM yyyy'
 
-#: Control sorting of titles and series in the display
-# Control title and series sorting in the library view.
-# If set to 'library_order', Leading articles such as The and A will be ignored.
-# If set to 'strictly_alphabetic', the titles will be sorted without processing
-# For example, with library_order, The Client will sort under 'C'. With
-# strictly_alphabetic, the book will sort under 'T'.
+#: Control sorting of titles and series in the library display
+# Control title and series sorting in the library view. If set to
+# 'library_order', the title sort field will be used instead of the title.
+# Unless you have manually edited the title sort field, leading articles such as
+# The and A will be ignored. If set to 'strictly_alphabetic', the titles will be
+# sorted as-is (sort by title instead of title sort). For example, with
+# library_order, The Client will sort under 'C'. With strictly_alphabetic, the
+# book will sort under 'T'.
 # This flag affects Calibre's library display. It has no effect on devices. In
 # addition, titles for books added before changing the flag will retain their
 # order until the title is edited. Double-clicking on a title and hitting return
@@ -140,11 +142,15 @@ title_series_sorting = 'library_order'
 
 #: Control formatting of title and series when used in templates
 # Control how title and series names are formatted when saving to disk/sending
-# to device. If set to library_order, leading articles such as The and A will
-# be put at the end
-# If set to 'strictly_alphabetic', the titles will be sorted without processing
-# For example, with library_order, "The Client" will become "Client, The". With
-# strictly_alphabetic, it would remain "The Client".
+# to device. The behavior depends on the field being processed. If processing
+# title, then if this tweak is set to 'library_order', the title will be
+# replaced with title_sort. If it is set to 'strictly_alphabetic', then the
+# title will not be changed. If processing series, then if set to
+# 'library_order', articles such as 'The' and 'An' will be moved to the end. If
+# set to 'strictly_alphabetic', the series will be sent without change.
+# For example, if the tweak is set to library_order, "The Lord of the Rings"
+# will become "Lord of the Rings, The". If the tweak is set to
+# strictly_alphabetic, it would remain "The Lord of the Rings".
 save_template_title_series_sorting = 'library_order'
 
 #: Set the list of words considered to be "articles" for sort strings
