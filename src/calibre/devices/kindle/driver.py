@@ -13,7 +13,6 @@ import datetime, os, re, sys, json, hashlib
 from calibre.devices.kindle.apnx import APNXBuilder
 from calibre.devices.kindle.bookmark import Bookmark
 from calibre.devices.usbms.driver import USBMS
-from calibre.ebooks.oeb.base import OPF
 
 '''
 Notes on collections:
@@ -173,7 +172,7 @@ class KINDLE2(KINDLE):
 
     FORMATS        = KINDLE.FORMATS + ['pdf']
     DELETE_EXTS    = KINDLE.DELETE_EXTS + ['.apnx']
-    
+
     PRODUCT_ID = [0x0002, 0x0004]
     BCD        = [0x0100]
 
@@ -208,7 +207,7 @@ class KINDLE2(KINDLE):
                 h = hashlib.sha1(path).hexdigest()
                 if h in path_map:
                     book.device_collections = list(sorted(path_map[h]))
-                    
+
     def upload_cover(self, path, filename, metadata, filepath):
         '''
         Hijacking this function to write the apnx file.
@@ -221,8 +220,10 @@ class KINDLE2(KINDLE):
         try:
             apnx_builder.write_apnx(filepath, apnx_path)
         except:
-            pass
-        
+            print 'Failed to generate APNX'
+            import traceback
+            traceback.print_exc()
+
 
 class KINDLE_DX(KINDLE2):
 

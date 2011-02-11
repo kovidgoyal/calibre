@@ -561,9 +561,10 @@ format, whether input or output are available in the conversion dialog under the
 Convert Microsoft Word documents
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-|app| does not directly convert .doc files from Microsoft Word. However, in Word, you can save the document
+|app| does not directly convert .doc/.docx files from Microsoft Word. However, in Word, you can save the document
 as HTML and then convert the resulting HTML file with |app|. When saving as HTML, be sure to use the
-"Save as Web Page, Filtered" option as this will produce clean HTML that will convert well.
+"Save as Web Page, Filtered" option as this will produce clean HTML that will convert well. Note that Word
+produces really messy HTML, converting it can take a long time, so be patient.
 
 There is a Word macro package that can automate the conversion of Word documents using |app|. It also makes
 generating the Table of Contents much simpler. It is called BookCreator and is available for free

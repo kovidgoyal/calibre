@@ -237,6 +237,7 @@ class ChooseLibraryAction(InterfaceAction):
             return
         self.stats.rename(location, newloc)
         self.build_menus()
+        self.gui.iactions['Copy To Library'].build_menus()
 
     def delete_requested(self, name, location):
         loc = location.replace('/', os.sep)
@@ -253,6 +254,7 @@ class ChooseLibraryAction(InterfaceAction):
                 pass
         self.stats.remove(location)
         self.build_menus()
+        self.gui.iactions['Copy To Library'].build_menus()
 
     def backup_status(self, location):
         dirty_text = 'no'
@@ -329,6 +331,7 @@ class ChooseLibraryAction(InterfaceAction):
                     ' libraries.')%loc, show=True)
             self.stats.remove(location)
             self.build_menus()
+            self.gui.iactions['Copy To Library'].build_menus()
             return
 
         prefs['library_path'] = loc
@@ -371,9 +374,20 @@ class ChooseLibraryAction(InterfaceAction):
         if not self.change_library_allowed():
             return
         from calibre.gui2.dialogs.choose_library import ChooseLibrary
+        self.gui.library_view.save_state()
         db = self.gui.library_view.model().db
-        c = ChooseLibrary(db, self.gui.library_moved, self.gui)
+        location = self.stats.canonicalize_path(db.library_path)
+        self.pre_choose_dialog_location = location
+        c = ChooseLibrary(db, self.choose_library_callback, self.gui)
         c.exec_()
+        self.choose_dialog_library_renamed = getattr(c, 'library_renamed', False)
+
+    def choose_library_callback(self, newloc, copy_structure=False):
+        self.gui.library_moved(newloc, copy_structure=copy_structure)
+        if getattr(self, 'choose_dialog_library_renamed', False):
+            self.stats.rename(self.pre_choose_dialog_location, prefs['library_path'])
+        self.build_menus()
+        self.gui.iactions['Copy To Library'].build_menus()
 
     def change_library_allowed(self):
         if os.environ.get('CALIBRE_OVERRIDE_DATABASE_PATH', None):

@@ -182,11 +182,6 @@ If you don't want to uninstall it altogether, there are a couple of tricks you c
 simplest is to simply re-name the executable file that launches the library program. More detail
 `in the forums <http://www.mobileread.com/forums/showthread.php?t=65809>`_.
 
-Can I use the collections feature of the SONY reader?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-|app| has full support for collections. When you add tags to a book's metadata, those tags are turned into collections when you upload the book to the SONY reader. Also, the series information is automatically
-turned into a collection on the reader. Note that the PRS-500 does not support collections for books stored on the SD card. The PRS-505 does.
-
 How do I use |app| with my iPad/iPhone/iTouch?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -375,13 +370,6 @@ Content From The Web
   :depth: 1
   :local:
 
-My downloaded news content causes the reader to reset.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-This is a bug in the SONY firmware. The problem can be mitigated by switching the output format to EPUB
-in the configuration dialog. Alternatively, you can use the LRF output format and use the SONY software
-to transfer the files to the reader. The SONY software pre-paginates the LRF file,
-thereby reducing the number of resets.
-
 I obtained a recipe for a news site as a .py file from somewhere, how do I use it?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Start the :guilabel:`Add custom news sources` dialog (from the :guilabel:`Fetch news` menu) and click the :guilabel:`Switch to advanced mode` button. Delete everything in the box with the recipe source code and copy paste the contents of your .py file into the box. Click :guilabel:`Add/update recipe`.
@@ -391,7 +379,7 @@ I want |app| to download news from my favorite news website.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 If you are reasonably proficient with computers, you can teach |app| to download news from any website of your choosing. To learn how to do this see :ref:`news`.
 
-Otherwise, you can register a request for a particular news site by adding a comment `to this ticket <http://bugs.calibre-ebook.com/ticket/405>`_.
+Otherwise, you can request a particular news site by posting in the `calibre Recipes forum <http://www.mobileread.com/forums/forumdisplay.php?f=228>`_.
 
 Can I use web2disk to download an arbitrary website?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -480,7 +468,7 @@ How do I backup |app|?
 
 The most important thing to backup is the |app| library folder, that contains all your books and metadata. This is the folder you chose for your |app| library when you ran |app| for the first time. You can get the path to the library folder by clicking the |app| icon on the main toolbar. You must backup this complete folder with all its files and sub-folders.
 
-You can switch |app| to using a backed up library folder by simply clicking the |app| icon on the toolbar and choosing your backup library folder.
+You can switch |app| to using a backed up library folder by simply clicking the |app| icon on the toolbar and choosing your backup library folder. A backed up library folder backs up your custom columns and saved searches as well as all your books and metadata.
 
 If you want to backup the |app| configuration/plugins, you have to backup the config directory. You can find this config directory via :guilabel:`Preferences->Miscellaneous`. Note that restoring configuration directories is not officially supported, but should work in most cases. Just copy the contents of the backup directory into the current configuration directory to restore.
 
@@ -491,7 +479,7 @@ Most purchased EPUB books have `DRM <http://wiki.mobileread.com/wiki/DRM>`_. Thi
 I am getting a "Permission Denied" error?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-A permission denied error can occur because of many possible reasons, none of them having anything to do with |app|. You can get permission denied errors if you are using an SD card with write protect enabled. Or if you, or some program you used changed the file permissions of the files in question to read only. Or if there is a filesystem error on the device which caused your operating system to mount the filesystem in read only mode or mark a particular file as read only pending recovery. Or if the files have their owner set to a user other than you. You will need to fix the underlying cause of the permissions error before resuming to use |app|. Read the error message carefully, see what file it points to and fix the permissions on that file.
+A permission denied error can occur because of many possible reasons, none of them having anything to do with |app|. You can get permission denied errors if you are using an SD card with write protect enabled. Or if you, or some program you used changed the file permissions of the files in question to read only. Or if there is a filesystem error on the device which caused your operating system to mount the filesystem in read only mode or mark a particular file as read only pending recovery. Or if the files have their owner set to a user other than you. Or if your file is open in another program. You will need to fix the underlying cause of the permissions error before resuming to use |app|. Read the error message carefully, see what file it points to and fix the permissions on that file.
 
 Can I have the comment metadata show up on my reader?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -504,7 +492,7 @@ I want some feature added to |app|. What can I do?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 You have two choices:
  1. Create a patch by hacking on |app| and send it to me for review and inclusion. See `Development <http://calibre-ebook.com/get-involved>`_.
- 2. `Open a ticket <http://bugs.calibre-ebook.com/newticket>`_ (you have to register and login first) and hopefully I will find the time to implement your feature.
+ 2. `Open a ticket <http://bugs.calibre-ebook.com/newticket>`_ (you have to register and login first). Remember that |app| development is done by volunteers, so if you get no response to your feature request, it means no one feels like implementing it.
 
 Can I include |app| on a CD to be distributed with my product/magazine?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -522,7 +510,7 @@ Why are there so many calibre-parallel processes on my system?
 
 In addition to this some conversion plugins run tasks in their own pool of processes, so for example if you bulk convert comics, each comic conversion will use three separate processes to render the images. The job manager knows this so it will run only a single comic conversion simultaneously.
 
-And since I'm sure someone will ask: The reason adding/saving books are in separate processes is because of PDF. PDF processing libraries can crash on reading PDFs and I dont want the crash to take down all of calibre. Also when adding EPUB books, in order to extract the cover you have to sometimes render the HTML of the first page, which means that it either has to run the GUI thread of the main process or in a separate process.
+And since I'm sure someone will ask: The reason adding/saving books are in separate processes is because of PDF. PDF processing libraries can crash on reading PDFs and I dont want the crash to take down all of calibre. Also when adding EPUB books, in order to extract the cover you have to sometimes render the HTML of the first page, which means that it either has to run in the GUI thread of the main process or in a separate process.
 
 Finally, the reason calibre keep workers alive and idle instead of launching on demand is to workaround the slow startup time of python processes.
 

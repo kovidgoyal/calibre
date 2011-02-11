@@ -3,6 +3,7 @@
 __license__   = 'GPL v3'
 __docformat__ = 'restructuredtext en'
 
+import os
 from cStringIO import StringIO
 from struct import unpack
 
