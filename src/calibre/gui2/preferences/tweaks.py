@@ -111,7 +111,10 @@ class Tweaks(QAbstractListModel): # {{{
         if role == Qt.ToolTipRole:
             tt = _('This tweak has it default value')
             if tweak.is_customized:
-                tt = _('This tweak has been customized')
+                tt = '<p>'+_('This tweak has been customized')
+                tt += '<pre>'
+                for varn, val in tweak.custom_values.iteritems():
+                    tt += '%s = %r\n\n'%(varn, val)
             return tt
         if role == Qt.UserRole:
             return tweak
