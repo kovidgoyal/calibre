@@ -60,7 +60,10 @@ class Tweak(object): # {{{
         return ans
 
     def __cmp__(self, other):
-        return cmp(self.is_customized, getattr(other, 'is_customized', False))
+        if self.is_customized != getattr(other, 'is_customized', False):
+            return -1 * cmp(self.is_customized,
+                            getattr(other, 'is_customized', False))
+        return cmp(icu_lower(self.name), icu_lower(getattr(other, 'name', '')))
 
     @property
     def is_customized(self):
@@ -139,6 +142,7 @@ class Tweaks(QAbstractListModel): # {{{
                 pos = self.read_tweak(lines, pos, dl, l)
             pos += 1
 
+        self.tweaks.sort()
         default_keys = set(dl.iterkeys())
         custom_keys = set(l.iterkeys())
 
