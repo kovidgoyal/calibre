@@ -71,6 +71,8 @@ class ChooseLibrary(QDialog, Ui_Dialog):
             prefs['library_path'] = loc
             self.callback(loc, copy_structure=self.copy_structure.isChecked())
         else:
+            self.db.prefs.disable_setting = True
+            self.library_renamed = True
             move_library(self.db.library_path, loc, self.parent(),
                     self.callback)
 

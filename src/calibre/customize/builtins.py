@@ -507,7 +507,7 @@ from calibre.devices.kobo.driver import KOBO
 from calibre.devices.bambook.driver import BAMBOOK
 
 from calibre.ebooks.metadata.fetch import GoogleBooks, ISBNDB, Amazon, \
-    LibraryThing
+    KentDistrictLibrary
 from calibre.ebooks.metadata.douban import DoubanBooks
 from calibre.ebooks.metadata.nicebooks import NiceBooks, NiceBooksCovers
 from calibre.ebooks.metadata.covers import OpenLibraryCovers, \
@@ -517,7 +517,7 @@ from calibre.ebooks.epub.fix.unmanifested import Unmanifested
 from calibre.ebooks.epub.fix.epubcheck import Epubcheck
 
 plugins = [HTML2ZIP, PML2PMLZ, ArchiveExtract, GoogleBooks, ISBNDB, Amazon,
-        LibraryThing, DoubanBooks, NiceBooks, CSV_XML, EPUB_MOBI, BIBTEX, Unmanifested,
+        KentDistrictLibrary, DoubanBooks, NiceBooks, CSV_XML, EPUB_MOBI, BIBTEX, Unmanifested,
         Epubcheck, OpenLibraryCovers, LibraryThingCovers, DoubanCovers,
         NiceBooksCovers]
 plugins += [

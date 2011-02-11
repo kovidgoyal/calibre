@@ -13,6 +13,7 @@ from calibre.web.feeds.feedparser import parse
 from calibre.utils.logging import default_log
 from calibre import entity_to_unicode, strftime
 from calibre.utils.date import dt_factory, utcnow, local_tz
+from calibre.utils.cleantext import clean_ascii_chars
 
 class Article(object):
 
@@ -43,7 +44,7 @@ class Article(object):
                 print summary.encode('utf-8')
                 traceback.print_exc()
                 summary = u''
-        self.text_summary = summary
+        self.text_summary = clean_ascii_chars(summary)
         self.author = author
         self.content = content
         self.date = published
