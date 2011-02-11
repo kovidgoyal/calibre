@@ -227,8 +227,12 @@ class PluginTweaks(QDialog): # {{{
         self.highlighter = PythonHighlighter(self.edit.document())
         self.l = QVBoxLayout()
         self.setLayout(self.l)
-        self.l.addWidget(QLabel(
-            _('Add/edit tweaks for any custom plugins you have installed.')))
+        self.msg = QLabel(
+            _('Add/edit tweaks for any custom plugins you have installed. '
+                'Documentation for these tweaks should be available '
+                'on the website from where you downloaded the plugins.'))
+        self.msg.setWordWrap(True)
+        self.l.addWidget(self.msg)
         self.l.addWidget(self.edit)
         self.edit.setPlainText(raw)
         self.bb = QDialogButtonBox(QDialogButtonBox.Ok|QDialogButtonBox.Cancel,
