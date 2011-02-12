@@ -33,7 +33,7 @@ class APNXBuilder(object):
     method to calculate the page length would be to parse
     the uncompressed text. For each paragraph we would
     want to find how many lines it would occupy in a paper
-    back book. 70 charaters per line and 32 lines per page.
+    back book. 70 characters per line and 32 lines per page.
     So divide the number of characters (minus markup) in
     each paragraph by 70. If there are less than 70
     characters in the paragraph then it is 1 line. Then,
