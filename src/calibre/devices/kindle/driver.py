@@ -175,6 +175,27 @@ class KINDLE2(KINDLE):
 
     PRODUCT_ID = [0x0002, 0x0004]
     BCD        = [0x0100]
+    
+    EXTRA_CUSTOMIZATION_MESSAGE = [
+        _('Write page mapping (APNX) file when sending books') +
+            ':::' +
+            _('The APNX page mapping file is a new feature in the Kindle 3\'s '
+              '3.1 firmware. It allows for page numbers to that correspond to pages '
+              'in a print book. This will write an APNX file that uses pseudo page '
+              'numbers based on the the average page length in a paper back book.'),
+        _('Use slower but more accurate APNX generation') +
+            ':::' +
+            _('There are two ways to generate the APNX file. Using the more accurate '
+              'generator will produce pages that correspond better to a printed book. '
+              'However, this method is slower and more intensive. Unchecking this '
+              'option will default to using the faster but less accurate generator.'),
+    ]
+    EXTRA_CUSTOMIZATION_DEFAULT = [
+        True,
+        True,
+    ]
+    OPT_APNX           = 0
+    OPT_APNX_ACCURATE  = 1
 
     def books(self, oncard=None, end_session=True):
         bl = USBMS.books(self, oncard=oncard, end_session=end_session)
@@ -212,13 +233,17 @@ class KINDLE2(KINDLE):
         '''
         Hijacking this function to write the apnx file.
         '''
-        if not filepath.lower().endswith('.mobi'):
+        opts = self.settings()
+        if not opts.extra_customization[self.OPT_APNX]:
+            return
+        
+        if os.path.splitext(filepath.lower())[1] not in ('.azw', '.mobi', '.prc'):
             return
 
         apnx_path = '%s.apnx' % os.path.join(path, filename)
         apnx_builder = APNXBuilder()
         try:
-            apnx_builder.write_apnx(filepath, apnx_path)
+            apnx_builder.write_apnx(filepath, apnx_path, accurate=opts.extra_customization[self.OPT_APNX_ACCURATE])
         except:
             print 'Failed to generate APNX'
             import traceback
