@@ -1,0 +1,68 @@
+__license__   = 'GPL v3'
+__author__    = 'Ricardo Jurado'
+__copyright__ = 'Ricardo Jurado'
+__version__     = 'v0.4'
+__date__        = '11 February 2011'
+
+'''
+http://www.abc.es/
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1296604369(BasicNewsRecipe):
+
+    title          = u'ABC.es'
+    masthead_url   = 'http://www.abc.es/img/logo-abc.gif'
+    cover_url      = 'http://www.abc.es/img/logo-abc.gif'
+    publisher      = u'Grupo VOCENTO'
+
+    __author__            = 'Ricardo Jurado'
+    description           = 'Noticias de Spain y el mundo'
+    category              = 'News,Spain,National,International,Economy'
+    oldest_article = 2
+    max_articles_per_feed = 10
+
+    no_stylesheets = True
+    use_embedded_content = False
+    encoding = 'ISO-8859-1'
+    remove_javascript = True
+    language = 'es'
+
+    extra_css             = """
+                               p{text-align: justify; font-size: 100%}
+                               body{ text-align: left; font-size:100% }
+                               h3{font-family: sans-serif; font-size:120%; font-weight:bold; text-align: justify; }
+                               h2{font-family: sans-serif; font-size:100%; font-weight:bold; text-align: justify; }
+                               h1{font-family: sans-serif; font-size:150%; font-weight:bold; text-align: justify; }
+                                 """
+
+    keep_only_tags = [
+#                 dict(name='h2', attrs={'class':['logos']}),
+                 dict(name='h3', attrs={'class':['overhead']}),
+                 dict(name='h1', attrs={'class':'headline'}),
+                 dict(name='h3', attrs={'class':['subhead']}),
+                 dict(name='div', attrs={'class':'datosi'}),
+                 dict(name='div', attrs={'class':'photo-alt1'}),
+                 dict(name='div', attrs={'class':'text'})
+                 ]
+
+#    remove_tags_before = dict(name='div' , attrs={'id':['cabecera2']})
+
+    feeds          = [
+                     (u'PORTADA', u'http://www.abc.es/rss/feeds/abcPortada.xml')
+                    ,(u'ULTIMAS', u'http://www.abc.es/rss/feeds/abc_ultima.xml')
+                    ,(u'NACIONAL', u'http://www.abc.es/rss/feeds/abc_EspanaEspana.xml')
+                    ,(u'INTERNACIONAL', u'http://www.abc.es/rss/feeds/abc_Internacional.xml')
+                    ,(u'OPINION', u'http://www.abc.es/rss/feeds/abc_opinioncompleto.xml')
+                    ,(u'BLOGS ABC', u'http://www.abc.es/rss/feeds/blogs-abc.xml')
+                    ,(u'ECONOMIA', u'http://www.abc.es/rss/feeds/abc_Economia.xml')
+                    ,(u'CIENCIA Y TECNOLOGIA', u'http://www.abc.es/rss/feeds/abc_Ciencia_Tecnologia.xml')
+                    ,(u'CULTURA', u'http://www.abc.es/rss/feeds/abc_Cultura.xml')
+                    ,(u'LIBROS', u'http://www.abc.es/rss/feeds/abc_Libros.xml')
+                    ,(u'MEDIOS Y REDES', u'http://www.abc.es/rss/feeds/ABC_Medios_Redes.xml')
+                    ,(u'EVASION', u'http://www.abc.es/rss/feeds/abc_evasion.xml')
+                    ,(u'ESPECTACULOS', u'http://www.abc.es/rss/feeds/abc_Espectaculos.xml')
+                    ,(u'GENTE', u'http://www.abc.es/rss/feeds/abc_Gente.xml')
+                    ,(u'DEPORTES', u'http://www.abc.es/rss/feeds/abc_Deportes.xml')
+                     ]
