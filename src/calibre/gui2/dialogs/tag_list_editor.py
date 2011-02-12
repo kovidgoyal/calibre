@@ -99,8 +99,8 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             return
         self.available_tags.editItem(item)
 
-    def delete_tags(self, item=None):
-        deletes = self.available_tags.selectedItems() if item is None else [item]
+    def delete_tags(self):
+        deletes = self.available_tags.selectedItems()
         if not deletes:
             error_dialog(self, _('No items selected'),
                          _('You must select at least one items from the list.')).exec_()
