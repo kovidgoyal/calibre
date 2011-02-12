@@ -20,7 +20,7 @@ from calibre.gui2.filename_pattern_ui import Ui_Form
 from calibre import fit_image
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.metadata.meta import metadata_from_filename
-from calibre.utils.config import prefs, XMLConfig
+from calibre.utils.config import prefs, XMLConfig, tweaks
 from calibre.gui2.progress_indicator import ProgressIndicator as _ProgressIndicator
 
 history = XMLConfig('history')
@@ -932,7 +932,7 @@ class SplitterHandle(QSplitterHandle):
 
     def paintEvent(self, ev):
         QSplitterHandle.paintEvent(self, ev)
-        if self.highlight:
+        if self.highlight and tweaks['draw_hidden_section_indicators']:
             painter = QPainter(self)
             painter.setClipRect(ev.rect())
             painter.fillRect(self.rect(), Qt.yellow)

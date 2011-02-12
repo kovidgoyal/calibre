@@ -497,7 +497,7 @@ from calibre.devices.binatone.driver import README
 from calibre.devices.hanvon.driver import N516, EB511, ALEX, AZBOOKA, THEBOOK
 from calibre.devices.edge.driver import EDGE
 from calibre.devices.teclast.driver import TECLAST_K3, NEWSMY, IPAPYRUS, \
-        SOVOS, PICO, SUNSTECH_EB700, ARCHOS7O
+        SOVOS, PICO, SUNSTECH_EB700, ARCHOS7O, STASH
 from calibre.devices.sne.driver import SNE
 from calibre.devices.misc import PALMPRE, AVANT, SWEEX, PDNOVEL, KOGAN, \
         GEMEI, VELOCITYMICRO, PDNOVEL_KOBO, Q600, LUMIREAD, ALURATEK_COLOR, \
@@ -506,12 +506,12 @@ from calibre.devices.folder_device.driver import FOLDER_DEVICE_FOR_CONFIG
 from calibre.devices.kobo.driver import KOBO
 from calibre.devices.bambook.driver import BAMBOOK
 
-from calibre.ebooks.metadata.fetch import LibraryThing
-from calibre.ebooks.metadata.isbndb import ISBNDB
+from calibre.ebooks.metadata.fetch import GoogleBooks, ISBNDB, Amazon, \
+    KentDistrictLibrary
 from calibre.ebooks.metadata.douban import DoubanBooks
-from calibre.ebooks.metadata.google_books import GoogleBooks
+#from calibre.ebooks.metadata.google_books import GoogleBooks
 from calibre.ebooks.metadata.nicebooks import NiceBooks, NiceBooksCovers
-from calibre.ebooks.metadata.amazon import Amazon, AmazonSocial
+#from calibre.ebooks.metadata.amazon import Amazon, AmazonSocial
 from calibre.ebooks.metadata.fictionwise import Fictionwise
 from calibre.ebooks.metadata.covers import OpenLibraryCovers, \
         LibraryThingCovers, DoubanCovers
@@ -520,8 +520,8 @@ from calibre.ebooks.epub.fix.unmanifested import Unmanifested
 from calibre.ebooks.epub.fix.epubcheck import Epubcheck
 
 plugins = [HTML2ZIP, PML2PMLZ, ArchiveExtract, GoogleBooks, ISBNDB, Amazon, AmazonSocial,
-        LibraryThing, DoubanBooks, NiceBooks, Fictionwise, CSV_XML, EPUB_MOBI, BIBTEX,
-        Unmanifested, Epubcheck, OpenLibraryCovers, LibraryThingCovers, DoubanCovers,
+        KentDistrictLibrary, DoubanBooks, NiceBooks, Fictionwise, CSV_XML, EPUB_MOBI, BIBTEX, Unmanifested,
+        Epubcheck, OpenLibraryCovers, LibraryThingCovers, DoubanCovers,
         NiceBooksCovers]
 plugins += [
     ComicInput,
@@ -608,9 +608,8 @@ plugins += [
     ELONEX,
     TECLAST_K3,
     NEWSMY,
-    PICO, SUNSTECH_EB700, ARCHOS7O,
+    PICO, SUNSTECH_EB700, ARCHOS7O, SOVOS, STASH,
     IPAPYRUS,
-    SOVOS,
     EDGE,
     SNE,
     ALEX,

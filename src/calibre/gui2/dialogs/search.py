@@ -9,6 +9,7 @@ from calibre.gui2.dialogs.search_ui import Ui_Dialog
 from calibre.library.caches import CONTAINS_MATCH, EQUALS_MATCH
 from calibre.gui2 import gprefs
 from calibre.utils.icu import sort_key
+from calibre.utils.config import tweaks
 
 box_values = {}
 
@@ -31,6 +32,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.authors_box.setEditText('')
         self.authors_box.set_separator('&')
         self.authors_box.set_space_before_sep(True)
+        self.authors_box.set_add_separator(tweaks['authors_completer_append_separator'])
         self.authors_box.update_items_cache(db.all_author_names())
 
         all_series = db.all_series()

@@ -9,10 +9,9 @@ __docformat__ = 'restructuredtext en'
 from PyQt4.Qt import QLineEdit, QAbstractListModel, Qt, \
         QApplication, QCompleter
 
-from calibre.utils.config import tweaks
 from calibre.utils.icu import sort_key, lower
 from calibre.gui2 import NONE
-from calibre.gui2.widgets import EnComboBox
+from calibre.gui2.widgets import EnComboBox, LineEditECM
 
 class CompleteModel(QAbstractListModel):
 
@@ -39,7 +38,7 @@ class CompleteModel(QAbstractListModel):
         return NONE
 
 
-class MultiCompleteLineEdit(QLineEdit):
+class MultiCompleteLineEdit(QLineEdit, LineEditECM):
     '''
     A line edit that completes on multiple items separated by a
     separator. Use the :meth:`update_items_cache` to set the list of
@@ -55,6 +54,8 @@ class MultiCompleteLineEdit(QLineEdit):
 
         self.sep = ','
         self.space_before_sep = False
+        self.add_separator = True
+        self.original_cursor_pos = None
 
         self._model = CompleteModel(parent=self)
         self._completer = c = QCompleter(self._model, self)
@@ -82,6 +83,9 @@ class MultiCompleteLineEdit(QLineEdit):
     def set_space_before_sep(self, space_before):
         self.space_before_sep = space_before
 
+    def set_add_separator(self, what):
+        self.add_separator = bool(what)
+
     # }}}
 
     def item_entered(self, idx):
@@ -93,7 +97,7 @@ class MultiCompleteLineEdit(QLineEdit):
 
     def update_completions(self):
         ' Update the list of completions '
-        cpos = self.cursorPosition()
+        self.original_cursor_pos = cpos = self.cursorPosition()
         text = unicode(self.text())
         prefix = text[:cpos]
         self.current_prefix = prefix
@@ -103,38 +107,38 @@ class MultiCompleteLineEdit(QLineEdit):
         self._completer.setCompletionPrefix(complete_prefix)
 
     def get_completed_text(self, text):
-        '''
-        Get completed text from current cursor position and the completion
-        text
-        '''
+        'Get completed text in before and after parts'
         if self.sep is None:
-            return -1, text
+            return text, ''
         else:
-            cursor_pos = self.cursorPosition()
-            before_text = unicode(self.text())[:cursor_pos]
-            after_text = unicode(self.text())[cursor_pos:]
-            prefix_len = len(before_text.split(self.sep)[-1].lstrip())
-            if tweaks['completer_append_separator']:
-                prefix_len = len(before_text.split(self.sep)[-1].lstrip())
-                completed_text = before_text[:cursor_pos - prefix_len] + text + self.sep + ' ' + after_text
-                prefix_len = prefix_len - len(self.sep) - 1
-                if prefix_len < 0:
-                    prefix_len = 0
+            cursor_pos = self.original_cursor_pos
+            if cursor_pos is None:
+                cursor_pos = self.cursorPosition()
+            self.original_cursor_pos = None
+            # Split text
+            curtext = unicode(self.text())
+            before_text = curtext[:cursor_pos]
+            after_text = curtext[cursor_pos:].rstrip()
+            # Remove the completion prefix from the before text
+            before_text = self.sep.join(before_text.split(self.sep)[:-1]).rstrip()
+            if before_text:
+                # Add the separator to the end of before_text
+                if self.space_before_sep:
+                    before_text += ' '
+                before_text += self.sep + ' '
+            if self.add_separator or after_text:
+                # Add separator to the end of completed text
+                if self.space_before_sep:
+                    text = text.rstrip() + ' '
+                completed_text = text + self.sep + ' '
             else:
-                prefix_len = len(before_text.split(self.sep)[-1].lstrip())
-                completed_text = before_text[:cursor_pos - prefix_len] + text + after_text
-            return prefix_len, completed_text
-
+                completed_text = text
+            return before_text + completed_text, after_text
 
     def completion_selected(self, text):
-        prefix_len, ctext = self.get_completed_text(unicode(text))
-        if self.sep is None:
-            self.setText(ctext)
-            self.setCursorPosition(len(ctext))
-        else:
-            cursor_pos = self.cursorPosition()
-            self.setText(ctext)
-            self.setCursorPosition(cursor_pos - prefix_len + len(text))
+        before_text, after_text = self.get_completed_text(unicode(text))
+        self.setText(before_text + after_text)
+        self.setCursorPosition(len(before_text))
 
     @dynamic_property
     def all_items(self):
@@ -163,6 +167,9 @@ class MultiCompleteComboBox(EnComboBox):
 
     def set_space_before_sep(self, space_before):
         self.lineEdit().set_space_before_sep(space_before)
+
+    def set_add_separator(self, what):
+        self.lineEdit().set_add_separator(what)
 
 
 

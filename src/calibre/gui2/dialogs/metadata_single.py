@@ -735,6 +735,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
 
         self.authors.set_separator('&')
         self.authors.set_space_before_sep(True)
+        self.authors.set_add_separator(tweaks['authors_completer_append_separator'])
         self.authors.update_items_cache(self.db.all_author_names())
 
     def initialize_series(self):
