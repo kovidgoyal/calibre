@@ -247,29 +247,23 @@ class Amazon(MetadataSource): # {{{
 
     # }}}
 
-class LibraryThing(MetadataSource): # {{{
+class KentDistrictLibrary(MetadataSource): # {{{
 
-    name = 'LibraryThing'
+    name = 'Kent District Library'
     metadata_type = 'social'
-    description = _('Downloads series/covers/rating information from librarything.com')
+    description = _('Downloads series information from ww2.kdl.org')
 
     def fetch(self):
-        if not self.isbn or not self.site_customization:
+        if not self.title or not self.book_author:
             return
-        from calibre.ebooks.metadata.library_thing import get_social_metadata
-        un, _, pw = self.site_customization.partition(':')
+        from calibre.ebooks.metadata.kdl import get_series
         try:
-            self.results = get_social_metadata(self.title, self.book_author,
-                    self.publisher, self.isbn, username=un, password=pw)
+            self.results = get_series(self.title, self.book_author)
         except Exception, e:
+            import traceback
+            traceback.print_exc()
             self.exception = e
             self.tb = traceback.format_exc()
-
-    @property
-    def string_customization_help(self):
-        ans = _('To use librarything.com you must sign up for a %sfree account%s '
-                'and enter your username and password separated by a : below.')
-        return '<p>'+ans%('<a href="http://www.librarything.com">', '</a>')
 
     # }}}
 

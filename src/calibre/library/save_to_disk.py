@@ -7,7 +7,6 @@ __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os, traceback, cStringIO, re, shutil
-from functools import partial
 
 from calibre.constants import DEBUG
 from calibre.utils.config import Config, StringConfig, tweaks

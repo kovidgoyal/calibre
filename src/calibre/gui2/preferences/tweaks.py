@@ -60,10 +60,8 @@ class Tweak(object): # {{{
         return ans
 
     def __cmp__(self, other):
-        if self.is_customized != getattr(other, 'is_customized', False):
-            return -1 * cmp(self.is_customized,
+        return -1 * cmp(self.is_customized,
                             getattr(other, 'is_customized', False))
-        return cmp(icu_lower(self.name), icu_lower(getattr(other, 'name', '')))
 
     @property
     def is_customized(self):

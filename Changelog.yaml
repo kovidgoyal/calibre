@@ -19,6 +19,106 @@
 #  new recipes:
 #    - title: 
 
+- version: 0.7.45
+  date: 2011-02-11
+
+  new features:
+    - title: "Add plugin to download series information from the Kent District Library"
+
+    - title: "Kindle driver: When uploading MOBI files to the device, upload page number information as well (used by the not yet released Kindle 3.1 firmware)"
+
+    - title: "When automatically sending news to device, send to main memory preferentially, if it has enough space."
+      tickets: [8877]
+
+    - title: "Allow customization of which metadata fields are searched by default (click the preferences icon next to the search box)"
+
+    - title: "New format TXTZ: which is a zip file containing the TXT file and associated images + metadata. calibre can convert to and from this format and read/write metadata to it."
+
+    - title: "New option to control how automerge handles duplicate formats when adding books to your calibre library. See Preferences->Adding books"
+
+    - title: "Driver for Nokia X6, Nexus S, WiBook, MyTouch 4G and Huawei Ideos S7"
+
+    - title: "Nicer interface for editing tweaks"
+
+    - title: "Add tweak to remove yellow lines from edges of book list"
+
+    - title: "Completion: Restore adding of comma at end after completion for tags type fields. Add a tweak to control if an & is added after completion for author type fields"
+
+    - title: "Turn search as you type off by default for searching the book list. You can turn it on by clicking the preferences button next to the search bar."
+
+    - title: "TXT Input: Add option to remove indents and fix bug where spaces were not retained properly."
+  
+  bug fixes:
+    - title: "Fix a regression in 0.7.44 that could cause setting authors to fail in windows when the author name is very long"
+      tickets: [8797]
+
+    - title: "E-book viewer: Fix bug that could cause the bottom of chapters to get cut-off if the topmost element had a large top margin."
+      tickets: [8791]
+
+    - title: "Fix regression that caused a spurious error message after moving a library. Also ensure that the entries in the Copy to Library menu are updated after a library is moved/renamed/deleted."
+      tickets: [8905]
+
+    - title: "PML Input: New handling of t and T tags. T's that do not start the line are ignored. t's that start and end the line use a margin for the text block"
+
+    - title: "News download: Remove all invalid ASCII control characters from article descriptions as they cause XML parsing to fail"
+
+    - title: "MOBI Output: Fix bug that was discarding non breaking spaces at the start of a paragraph when they were followed immediately by a tag."
+      tickets: [4887]
+
+    - title: "LIT Input: Fix a regression in handling LIT files that contain txt rather than html data"
+      tickets: [8904]
+
+    - title: "Fix bug in search box in the plugins dialog"
+      tickets: [8882]
+
+    - title: "Fix renaming of categories via the Tag Browser"
+      tickets: [8807]
+
+    - title: "Content server: Do not send mobile version to iPad"
+      tickets: [8820]
+
+    - title: "Fix undefined publication date appearing in book jacket as 101"
+      tickets: [8799]
+
+    - title: "Heuristics: Fix issue with invalid markup from italicize patterns."
+
+    - title: "TXT Input: De-hyphenate textile and markdown inpu as well. Fix inline toc not showing all items."
+
+    - title: "RTF Input: More encoding token splitting fixes."
+
+    - title: "Fix regression that broke the convenience Email to xxx entry in the connect share menu."
+      tickets: [8775]
+
+    - title: "Fix editing of series type custom columns in the book list."
+      tickets: [8765]
+
+  improved recipes:
+    - El periodico de Aragon
+    - B92
+    - French Belgian news sources
+
+  new recipes:
+    - title: "ABC.es"
+      author: "Ricardo Jurado"
+
+    - title: "Korespondent and Kopalnia Wiedzy"
+      author: "Attis"
+
+    - title: "Radio Prague"
+      author: "Francois Pellicaan"
+
+    - title: "Europa Press"
+      author: "Luis Hernandez"
+
+    - title: "Interoperability Happens and njuz.net"
+      author: "Darko Miletic"
+
+    - title: "Weblogs SL"
+      author: "desUBIKado"
+
+    - title: "Kompas and Jakarta Post"
+      author: "Adrian Gunawan"
+
 - version: 0.7.44
   date: 2011-02-04
 
