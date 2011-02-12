@@ -38,10 +38,10 @@ class TXTInput(InputFormatPlugin):
                    'starts a paragraph.'
                    '* unformatted: Most lines have hard line breaks, few/no blank lines or indents.')),
         OptionRecommendation(name='formatting_type', recommended_value='auto',
-            choices=['auto', 'none', 'heuristic', 'textile', 'markdown'],
+            choices=['auto', 'plain', 'heuristic', 'textile', 'markdown'],
             help=_('Formatting used within the document.'
                    '* auto: Automatically decide which formatting processor to use.\n'
-                   '* none: Do not process the document formatting. Everything is a '
+                   '* plain: Do not process the document formatting. Everything is a '
                    'paragraph and no styling is applied.\n'
                    '* heuristic: Process using heuristics to determine formatting such '
                    'as chapter headings and italic text.\n'
