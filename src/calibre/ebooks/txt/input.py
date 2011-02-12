@@ -28,15 +28,18 @@ class TXTInput(InputFormatPlugin):
 
     options = set([
         OptionRecommendation(name='paragraph_type', recommended_value='auto',
-            choices=['auto', 'block', 'single', 'print', 'unformatted'],
+            choices=['auto', 'block', 'single', 'print', 'unformatted', 'off'],
             help=_('Paragraph structure.\n'
-                   'choices are [\'auto\', \'block\', \'single\', \'print\', \'unformatted\']\n'
+                   'choices are [\'auto\', \'block\', \'single\', \'print\', \'unformatted\', \'off\']\n'
                    '* auto: Try to auto detect paragraph type.\n'
                    '* block: Treat a blank line as a paragraph break.\n'
                    '* single: Assume every line is a paragraph.\n'
                    '* print:  Assume every line starting with 2+ spaces or a tab '
-                   'starts a paragraph.'
-                   '* unformatted: Most lines have hard line breaks, few/no blank lines or indents.')),
+                   'starts a paragraph.\n'
+                   '* unformatted: Most lines have hard line breaks, few/no blank lines or indents. '
+                   'Tries to determine structure and reformat the differentiate elements.\n'
+                   '* off: Don\'t modify the paragraph structure. This is useful when combined with '
+                   'Markdown or Textile formatting to ensure no formatting is lost.')),
         OptionRecommendation(name='formatting_type', recommended_value='auto',
             choices=['auto', 'plain', 'heuristic', 'textile', 'markdown'],
             help=_('Formatting used within the document.'
@@ -134,7 +137,7 @@ class TXTInput(InputFormatPlugin):
             preprocessor = HeuristicProcessor(options, log=getattr(self, 'log', None))
             txt = preprocessor.punctuation_unwrap(length, txt, 'txt')
             txt = separate_paragraphs_single_line(txt)
-        else:
+        elif options.paragraph_type == 'block':
             txt = separate_hard_scene_breaks(txt)
             txt = block_to_single_line(txt)
 
