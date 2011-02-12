@@ -7,15 +7,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2011-02-10 20:27+0000\n"
+"POT-Creation-Date: 2011-02-11 19:54+0000\n"
 "PO-Revision-Date: 2011-01-25 08:58+0000\n"
 "Last-Translator: Vladimir Oka <Unknown>\n"
 "Language-Team: Serbian <sr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-02-11 04:52+0000\n"
-"X-Generator: Launchpad (build 12177)\n"
+"X-Launchpad-Export-Date: 2011-02-12 04:54+0000\n"
+"X-Generator: Launchpad (build 12351)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
 msgid "Does absolutely nothing"
@@ -55,7 +55,7 @@ msgstr "Ne radi baš ništa"
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/ereader.py:36
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/ereader.py:61
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fb2.py:54
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:365
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:359
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/meta.py:36
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/meta.py:64
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/meta.py:66
@@ -3047,7 +3047,6 @@ msgid "LibraryThing.com server error. Try again later."
 msgstr "Greška na serveru LibraryThing.com. Pokušajte kasnije."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/covers.py:177
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:270
 msgid ""
 "To use librarything.com you must sign up for a %sfree account%s and enter "
 "your username and password separated by a : below."
@@ -3110,7 +3109,7 @@ msgid "Downloads social metadata from amazon.com"
 msgstr "Preuzmi društvene metapodatke s amazon.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:254
-msgid "Downloads series/covers/rating information from librarything.com"
+msgid "Downloads series information from ww2.kdl.org"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fictionwise.py:25
@@ -4511,8 +4510,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:905
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:101
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:186
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:268
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:308
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:273
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:313
 msgid "Failed"
 msgstr "Nije uspelo"
 
@@ -12222,33 +12221,33 @@ msgstr "Dodaj izabranu akciju na traku sa alatima"
 msgid "Remove selected actions from toolbar"
 msgstr "Ukloni izabranu akciju s trake sa alatima"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:112
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:113
 msgid "This tweak has it default value"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:114
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:115
 msgid "This tweak has been customized"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:231
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:236
 msgid ""
 "Add/edit tweaks for any custom plugins you have installed. Documentation for "
 "these tweaks should be available on the website from where you downloaded "
 "the plugins."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:269
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:309
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:274
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:314
 msgid ""
 "There was a syntax error in your tweak. Click the show details button for "
 "details."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:322
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:327
 msgid "Invalid tweaks"
 msgstr "Neispravna podešavanja"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:323
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:328
 msgid ""
 "The tweaks you entered are invalid, try resetting the tweaks to default and "
 "changing them one by one until you find the invalid setting."
@@ -13595,7 +13594,7 @@ msgstr "neobeleženo"
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:548
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:558
-#: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:185
+#: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:192
 msgid "no"
 msgstr "ne"
 
@@ -13606,7 +13605,7 @@ msgstr "obeleženo"
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:551
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:561
-#: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:185
+#: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:192
 msgid "yes"
 msgstr "da"
 
@@ -14698,15 +14697,15 @@ msgstr "Obrađeno"
 msgid "creating custom column "
 msgstr "kreiram korisničku kolonu "
 
-#: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:33
+#: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:32
 msgid "The title"
 msgstr "Naslov"
 
-#: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:34
+#: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:33
 msgid "The authors"
 msgstr "Autori"
 
-#: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:35
+#: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:34
 msgid ""
 "The author sort string. To use only the first letter of the name use "
 "{author_sort[0]}"
@@ -14714,15 +14713,15 @@ msgstr ""
 "Niz zankova za sortiranje po autoru. Da bi se koristilo samo prvo slovo "
 "navedite {author_sort[0]}"
 
-#: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:37
+#: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:36
 msgid "The tags"
 msgstr "Etikete"
 
-#: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:38
+#: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:37
 msgid "The series"
 msgstr "Serija"
 
-#: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:39
+#: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:38
 msgid ""
 "The series number. To get leading zeros use {series_index:0>3s} or "
 "{series_index:>3s} for leading spaces"
@@ -14730,35 +14729,35 @@ msgstr ""
 "Broj serije. Da biste dobili vodeće nule koristite {series_index:0>3s} ili "
 "{series_index:>3s} za vodeće praznine"
 
-#: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:42
+#: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:41
 msgid "The rating"
 msgstr "Ocena"
 
-#: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:43
+#: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:42
 msgid "The ISBN"
 msgstr "ISBN"
 
-#: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:44
+#: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:43
 msgid "The publisher"
 msgstr "Izdavač"
 
-#: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:45
+#: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:44
 msgid "The date"
 msgstr "Datum"
 
-#: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:46
+#: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:45
 msgid "The published date"
 msgstr "Datum izdavanja"
 
-#: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:47
+#: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:46
 msgid "The calibre internal id"
 msgstr "Interni calibre identifikator"
 
-#: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:57
+#: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:56
 msgid "Options to control saving to disk"
 msgstr "Opcije za kontrolu snimanja na disk"
 
-#: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:63
+#: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:62
 msgid ""
 "Normally, calibre will update the metadata in the saved files from what is "
 "in the calibre library. Makes saving to disk slower."
@@ -14766,7 +14765,7 @@ msgstr ""
 "Calibre će obično ažurirati metapodatke u snimljenim fajlovima koristeći "
 "podatke iz svoje biblioteke. Ovo usporava snimanje na disk."
 
-#: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:66
+#: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:65
 msgid ""
 "Normally, calibre will write the metadata into a separate OPF file along "
 "with the actual e-book files."
@@ -14774,7 +14773,7 @@ msgstr ""
 "Calibre će obično upisati metapodatke u poseban OPF fajl uz fajl koji sadrži "
 "e-knjigu."
 
-#: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:69
+#: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:68
 msgid ""
 "Normally, calibre will save the cover in a separate file along with the "
 "actual e-book file(s)."
@@ -14782,7 +14781,7 @@ msgstr ""
 "Calibre će obično snimiti naslovnu stranu u poseban fajl uz fajl koji sadrži "
 "e-knjigu."
 
-#: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:72
+#: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:71
 msgid ""
 "Comma separated list of formats to save for each book. By default all "
 "available formats are saved."
@@ -14790,7 +14789,7 @@ msgstr ""
 "Zarezima razdvojena lista formata koji će biti snimljeni za svaku od knjiga. "
 "Podrazumeva se da se snimaju svi raspoloživi formati."
 
-#: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:75
+#: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:74
 msgid ""
 "The template to control the filename and directory structure of the saved "
 "files. Default is \"%s\" which will save books into a per-author "
@@ -14802,7 +14801,7 @@ msgstr ""
 "zavisnosti od imena autora, sa imenima fajlova koji sadrže naslov i ime "
 "autora. Na raspolaganju su: {%s}"
 
-#: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:80
+#: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:79
 msgid ""
 "The template to control the filename and directory structure of files sent "
 "to the device. Default is \"%s\" which will save books into a per-author "
@@ -14814,7 +14813,7 @@ msgstr ""
 "u zavisnosti od imena autora, sa imenima fajlova koji sadrže naslov i ime "
 "autora. Na raspolaganju su: {%s}"
 
-#: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:87
+#: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:86
 msgid ""
 "Normally, calibre will convert all non English characters into English "
 "equivalents for the file names. WARNING: If you turn this off, you may "
@@ -14825,8 +14824,8 @@ msgstr ""
 "ekvivalente. UPOZORENJE: Ako isključite ovu opciju mogu se desiti greške pri "
 "snimanju ukoliko vaš fajl sistem ne podržava Unicode znake u imenu fajla."
 
-#: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:93
-#: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:96
+#: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:92
+#: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:95
 msgid ""
 "The format in which to display dates. %d - day, %b - month, %Y - year. "
 "Default is: %b, %Y"
@@ -14834,16 +14833,16 @@ msgstr ""
 "Format za prikazivanje datuma. %d - dan, %b - mesec, %Y - godina. "
 "Podrazumeva se: %b, %Y"
 
-#: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:99
+#: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:98
 msgid "Convert paths to lowercase."
 msgstr "Promeni putanje u mala slova."
 
-#: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:101
+#: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:100
 msgid "Replace whitespace with underscores."
 msgstr "Zameni razmake donjim crtama."
 
-#: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:354
-#: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:378
+#: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:361
+#: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:385
 msgid "Requested formats not available"
 msgstr "Traženi format nije na raspolaganju"
 
@@ -15668,16 +15667,16 @@ msgstr "Nije uspelo prijavljivanje na server: %s"
 msgid "Control email delivery"
 msgstr "Kontrola dostave elektronske pošte"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:118
+#: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:119
 msgid "Unknown section"
 msgstr "Nepoznat odeljak"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:140
+#: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:141
 msgid "Unknown feed"
 msgstr "Nepoznat izvor"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:158
-#: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:185
+#: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:159
+#: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:186
 msgid "Untitled article"
 msgstr "Članak bez imena"
 
