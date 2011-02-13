@@ -685,7 +685,7 @@ class BooksModel(QAbstractTableModel): # {{{
                 self.dc[col] = functools.partial(bool_type, idx=idx)
                 self.dc_decorator[col] = functools.partial(
                             bool_type_decorator, idx=idx,
-                            bool_cols_are_tristate=tweaks['bool_custom_columns_are_tristate'] == 'yes')
+                            bool_cols_are_tristate=tweaks['bool_custom_columns_are_tristate'] != 'no')
             elif datatype == 'rating':
                 self.dc[col] = functools.partial(rating_type, idx=idx)
             elif datatype == 'series':
