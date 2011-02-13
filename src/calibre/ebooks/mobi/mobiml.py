@@ -367,6 +367,9 @@ class MobiMLizer(object):
             istate.attrib['src'] = elem.attrib['src']
             istate.attrib['align'] = 'baseline'
             cssdict = style.cssdict()
+            valign = cssdict.get('vertical-align', None)
+            if valign in ('top', 'bottom', 'middle'):
+                istate.attrib['align'] = valign
             for prop in ('width', 'height'):
                 if cssdict[prop] != 'auto':
                     value = style[prop]
