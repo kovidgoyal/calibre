@@ -98,7 +98,6 @@ class KOBO(USBMS):
 
         def update_booklist(prefix, path, title, authors, mime, date, ContentType, ImageID, readstatus, MimeType):
             changed = False
-            # if path_to_ext(path) in self.FORMATS:
             try:
                 lpath = path.partition(self.normalize_path(prefix))[2]
                 if lpath.startswith(os.sep):
@@ -220,7 +219,7 @@ class KOBO(USBMS):
         #    2) volume_shorcover
         #    2) content
 
-        debug_print('delete_via_sql: ContentID: ', ContentID, 'ContentType: ', ContentType) 
+        debug_print('delete_via_sql: ContentID: ', ContentID, 'ContentType: ', ContentType)
         connection = sqlite.connect(self.normalize_path(self._main_prefix + '.kobo/KoboReader.sqlite'))
         cursor = connection.cursor()
         t = (ContentID,)
@@ -532,7 +531,7 @@ class KOBO(USBMS):
                         if result is None:
                             datelastread = '1970-01-01T00:00:00'
                         else:
-                            datelastread = result[0] if result[0] is not None else '1970-01-01T00:00:00' 
+                            datelastread = result[0] if result[0] is not None else '1970-01-01T00:00:00'
 
                         t = (datelastread,ContentID,)
 

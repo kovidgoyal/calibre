@@ -93,9 +93,11 @@ class USBMS(CLI, Device):
         for idx,b in enumerate(bl):
             bl_cache[b.lpath] = idx
 
+        all_formats = set(self.settings().format_map) | set(self.FORMATS)
+
         def update_booklist(filename, path, prefix):
             changed = False
-            if path_to_ext(filename) in self.FORMATS:
+            if path_to_ext(filename) in all_formats:
                 try:
                     lpath = os.path.join(path, filename).partition(self.normalize_path(prefix))[2]
                     if lpath.startswith(os.sep):
