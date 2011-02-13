@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-02-11 19:54+0000\n"
-"PO-Revision-Date: 2011-02-04 13:01+0000\n"
+"PO-Revision-Date: 2011-02-12 13:22+0000\n"
 "Last-Translator: FerranRius <frius64@hotmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-02-12 04:46+0000\n"
+"X-Launchpad-Export-Date: 2011-02-13 04:34+0000\n"
 "X-Generator: Launchpad (build 12351)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -336,11 +336,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:796
 msgid "Customize searching"
-msgstr ""
+msgstr "Personalitza les cerques"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:802
 msgid "Customize the way searching for books works in calibre"
-msgstr ""
+msgstr "Personalitza com funciona la cerca de llibres al calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:807
 msgid "Input Options"
@@ -826,7 +826,7 @@ msgid ""
 msgstr ""
 "No s'ha trobat alguns llibres a la base de dades de l'iTunes.\n"
 "Suprimiu-los amb l'aplicació de l'iBooks.\n"
-"Feu clic a «Veure detalls» per a la llista."
+"Feu clic a «Mostra detalls» per a la llista."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:911
 msgid ""
@@ -834,7 +834,7 @@ msgid ""
 "Click 'Show Details' for a list."
 msgstr ""
 "No s'ha pogut convertir algunes portades.\n"
-"Feu clic a «Veure detalls» per a la llista."
+"Feu clic a «Mostra detalls» per a la llista."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2553
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:100
@@ -1359,7 +1359,7 @@ msgstr "Comunica't amb un lector Sunstech EB700."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:99
 msgid "Communicate with the Stash W950 reader."
-msgstr ""
+msgstr "Comunica't amb un lector Stash W950."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:261
 msgid "Unable to detect the %s disk drive. Try rebooting."
@@ -3179,7 +3179,7 @@ msgstr "Descarrega metadades socials des d'amazon.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:254
 msgid "Downloads series information from ww2.kdl.org"
-msgstr ""
+msgstr "Descarrega informació de la sèrie de ww2.kdl.org"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fictionwise.py:25
 msgid "Downloads metadata from Fictionwise"
@@ -4030,6 +4030,8 @@ msgid ""
 "Normally extra space at the beginning of lines is retained. With this option "
 "they will be removed."
 msgstr ""
+"Normalment es conserva l'espai en blanc al començament de les línies. Amb "
+"aquest opció es suprimeixen."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/input.py:58
 msgid "Do not insert a Table of Contents into the output text."
@@ -4176,6 +4178,8 @@ msgid ""
 "Start searching as you type. If this is disabled then search will only take "
 "place when the Enter or Return key is pressed."
 msgstr ""
+"Comença la cerca mentre teclegeu. Si s'inhabilita la cerca començarà quan es "
+"premi la tecla de retorn."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:113
 msgid ""
@@ -4183,6 +4187,9 @@ msgid ""
 "showing only the matches. You can use the N or F3 keys to go to the next "
 "match."
 msgstr ""
+"En cercar, mostra realçats tots els llibres que estiguin al resultat de la "
+"cerca en lloc de mostrar només les coincidències. Premeu «N» o «F3» per anar "
+"a la coincidència següent."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:131
 msgid "Maximum number of waiting worker processes"
@@ -4342,6 +4349,9 @@ msgid ""
 "processed and merged into your Calibre database according to your automerge "
 "settings:"
 msgstr ""
+"S'ha trobat els següents llibres duplicats. Els formats de llibre entrants "
+"s'han processat i fusionat a la base de dades del calibre d'acord amb els "
+"paràmetres de fusió automàtica."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:256
 msgid "Failed to read metadata"
@@ -4625,7 +4635,7 @@ msgstr "Ha fallat"
 msgid "Database integrity check failed, click Show details for details."
 msgstr ""
 "Ha fallat la comprovació de la integritat de la base de dades, feu clic a "
-"«Veure detalls» per als detalls."
+"«Mostra detalls» per als detalls."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:318
 msgid "No problems found"
@@ -4759,7 +4769,7 @@ msgstr "No s'ha pogut suprimir"
 msgid ""
 "Failed to delete some books, click the Show Details button for details."
 msgstr ""
-"No s'ha pogut suprimir alguns llibres, feu clic a «Veure detalls» per als "
+"No s'ha pogut suprimir alguns llibres, feu clic a «Mostra detalls» per als "
 "detalls."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:73
@@ -7242,7 +7252,7 @@ msgstr "Entrada TXT"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:92
 msgid "Structure"
-msgstr ""
+msgstr "Estructura"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:93
 msgid "Paragraph style:"
@@ -7254,7 +7264,7 @@ msgstr "Estil del format:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:95
 msgid "Common"
-msgstr ""
+msgstr "Comú"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:96
 msgid "Preserve &spaces"
@@ -7262,11 +7272,11 @@ msgstr "Preserva &espais"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:97
 msgid "Remove indents at the beginning of lines"
-msgstr ""
+msgstr "Suprimeix el sagnat al començament de les línies"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:98
 msgid "Markdown"
-msgstr ""
+msgstr "Markdown"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:99
 msgid ""
@@ -7328,7 +7338,7 @@ msgstr "No suprimeixis les referències a imatges abans de processar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txtz_output.py:12
 msgid "TXTZ Output"
-msgstr ""
+msgstr "Sortida TXTZ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xexp_edit_ui.py:54
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:77
@@ -9101,8 +9111,8 @@ msgstr ""
 msgid ""
 "For the error message from each cover source, click Show details below."
 msgstr ""
-"Per als missatges d'error de cada font de portada feu clic a «Veure detalls» "
-"més avall."
+"Per als missatges d'error de cada font de portada feu clic a «Mostra "
+"detalls» més avall."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:287
 msgid "Bad cover"
@@ -10630,7 +10640,7 @@ msgstr "Reinicia la cerca ràpida"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:203
 msgid "Change the way searching for books works"
-msgstr ""
+msgstr "Canvia com funciona la cerca de llibres"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:215
 msgid "Copy current search text (instead of search name)"
@@ -11100,15 +11110,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding.py:28
 msgid "Ignore duplicate incoming formats"
-msgstr ""
+msgstr "Ignora els formats entrants duplicats"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding.py:29
 msgid "Overwrite existing duplicate formats"
-msgstr ""
+msgstr "Sobreescriu els formats existents"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding.py:30
 msgid "Create new record for each duplicate format"
-msgstr ""
+msgstr "Crea un registre nou per a cada format duplicat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:65
 msgid ""
@@ -11149,10 +11159,22 @@ msgid ""
 "Title match ignores leading indefinite articles (\"the\", \"a\", \"an\"), "
 "punctuation, case, etc. Author match is exact."
 msgstr ""
+"Fusió automàtica: Si es troba llibres amb títol i autor similars, fusiona "
+"automàticament els formats entrants\n"
+"en els registres de llibre existents. El quadre de la dreta controla què "
+"passa quan un registre existent ja està\n"
+"en el format entrant. Tingueu en compte que aquesta opció també afecta "
+"l'acció «Copia a la biblioteca».\n"
+"\n"
+"La coincidència de títols ignora els articles inicials («the», «a», «an»), "
+"la puntuació, majúscules... La\n"
+"coincidència d'autor és exacta."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:74
 msgid "&Automerge added books if they already exist in the calibre library:"
 msgstr ""
+"Fusiona &automàticament els llibres afegits si ja estan a la biblioteca del "
+"calibre."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:75
 msgid ""
@@ -11173,6 +11195,23 @@ msgid ""
 "punctuation, case, etc.\n"
 "Author matching is exact."
 msgstr ""
+"Fusió automàtica: Si es troba llibres amb títol i autor similars, fusiona "
+"automàticament els formats entrants\n"
+"en els registres de llibre existents. Aquest quadre controla què passa quan "
+"un registre existent ja està en\n"
+"el format entrant. \n"
+"\n"
+"Ignora els fitxers duplicats entrants - no es reemplaçaran els fitxers de la "
+"biblioteca del calibre\n"
+"Sobreescriu els fitxers duplicats existents - es reemplaçaran els fitxers de "
+"la biblioteca del calibre\n"
+"Crea un registre nou per a cada fitxer duplicat - es crea una entrada de "
+"llibre nova per a cada fitxer duplicat\n"
+"\n"
+"\n"
+"La coincidència de títols ignora els articles inicials («the», «a», «an»), "
+"la puntuació, majúscules...\n"
+"La coincidència d'autor és exacta."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:85
 msgid "&Tags to apply when adding a book:"
@@ -12145,16 +12184,18 @@ msgstr "Desa les metadades a un fitxer &OPF"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:60
 msgid "Search as you &type"
-msgstr ""
+msgstr "Cerca mentre es &tecleja"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:61
 msgid ""
 "&Highlight search results instead of restricting the book list to the results"
 msgstr ""
+"&Realça els resultats de la cerca en lloc de restringir la llista de llibres "
+"al resultat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:62
 msgid "What to search by default"
-msgstr ""
+msgstr "El que es cercarà per defecte"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:63
 msgid ""
@@ -12163,14 +12204,19 @@ msgid ""
 "search not just authors but title/tags/series/comments/etc. Use these "
 "options if you would like to change this behavior."
 msgstr ""
+"Quant s'introdueix un terme de cerca sense prefix, el calibre per defecte "
+"cercarà coincidències a totes les metadades. Per exemple, si introduïu "
+"«Espriu» no es cercarà només als autors, sinó a "
+"títol/etiquetes/sèrie/comentaris/... Aquestes opcions canvien aquest "
+"comportament."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:64
 msgid "&Limit the searched metadata"
-msgstr ""
+msgstr "&Limita les metadades que es cercaran"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:65
 msgid "&Columns that non-prefixed searches are limited to:"
-msgstr ""
+msgstr "&Columnes a les quals es limita les cerques sense prefix:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:66
 msgid ""
@@ -12179,6 +12225,11 @@ msgid ""
 "you always use prefixes in your saved searches. For example, use "
 "\"series:Foundation\" rather than just \"Foundation\" in  a saved search"
 msgstr ""
+"Tingueu en compte que aquesta opció afecta totes les cerques, incloent les "
+"cerques desades i les restriccions. Per tant, si voleu utilitzar aquesta "
+"opció, és millor que us assegureu que sempre utilitzeu prefixos a les "
+"cerques desades. Per exemple, utilitzeu «series:Fundació» en lloc de només "
+"«Fundació» a una cerca desada."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending.py:28
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:70
@@ -12621,11 +12672,11 @@ msgstr "Suprimeix les accions seleccionades de la barra d'eines"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:113
 msgid "This tweak has it default value"
-msgstr ""
+msgstr "Aquest ajustament té el seu valor per defecte"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:115
 msgid "This tweak has been customized"
-msgstr ""
+msgstr "Aquest ajustament s'ha personalitzat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:236
 msgid ""
@@ -12633,6 +12684,9 @@ msgid ""
 "these tweaks should be available on the website from where you downloaded "
 "the plugins."
 msgstr ""
+"Afegeix/edita els ajustaments per a tots els connectors personalitzats "
+"instal·lats. La documentació d'aquests ajustaments hauria d'estar disponible "
+"al lloc web d'on s'ha descarregat els connectors."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:274
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:314
@@ -12640,6 +12694,8 @@ msgid ""
 "There was a syntax error in your tweak. Click the show details button for "
 "details."
 msgstr ""
+"Hi ha un error de sintaxi a l'ajustament. Feu clic al botó «Mostra detalls» "
+"per als detalls."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:327
 msgid "Invalid tweaks"
@@ -12659,30 +12715,33 @@ msgid ""
 "calibre. Your changes will only take effect <b>after a restart</b> of "
 "calibre."
 msgstr ""
+"Els valors dels ajustaments es mostren a continuació. Editeu-los per canviar "
+"el comportament del calibre. Els canvis no s'aplicaran <b>fins que es "
+"reiniciï</b> el calibre."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:77
 msgid "Edit tweaks for any custom plugins you have installed"
-msgstr ""
+msgstr "Canvia els ajustaments dels connectors personalitats instal·lats"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:78
 msgid "&Plugin tweaks"
-msgstr ""
+msgstr "&Ajustaments dels connectors"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:80
 msgid "Edit tweak"
-msgstr ""
+msgstr "Canvia l'ajustament"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:81
 msgid "Restore this tweak to its default value"
-msgstr ""
+msgstr "Restaura aquest ajustament al seu valor per defecte"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:82
 msgid "Restore &default"
-msgstr ""
+msgstr "Restaura els valors per &defecte"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:83
 msgid "Apply any changes you made to this tweak"
-msgstr ""
+msgstr "Aplica els canvis que s'ha fet a l'ajustament"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:93
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:270
@@ -15678,6 +15737,8 @@ msgid ""
 "When searching for text without using lookup prefixes, as for example, Red "
 "instead of title:Red, limit the columns searched to those named below."
 msgstr ""
+"En cercar un text sense utilitzar prefixos, com «Vermell» en lloc de "
+"«tittle:Vermell», limita les columnes de cerca a les següents."
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:737
 msgid ""
@@ -15686,6 +15747,10 @@ msgid ""
 "separated by commas. Only takes effect if you set the option to limit search "
 "columns above."
 msgstr ""
+"Trieu les columnes que es cercaran quan no s'utilitzin prefixos, com "
+"«Vermell» en lloc de «tittle:Vermell». Introduïu una llista separada per "
+"comes de noms de cerca. Només s'aplica si activeu l'opció de limitar les "
+"columnes de cerca de més amunt."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:27
 msgid "failed to scan program. Invalid input {0}"
@@ -16072,7 +16137,7 @@ msgstr "Anglès (Xipre)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:107
 msgid "English (Czechoslovakia)"
-msgstr ""
+msgstr "Anglès (Txecoslovàquia)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:108
 msgid "English (Pakistan)"
@@ -16084,7 +16149,7 @@ msgstr "Anglès (Croàcia)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:110
 msgid "English (Indonesia)"
-msgstr ""
+msgstr "Anglès (Indonèsia)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:111
 msgid "English (Israel)"
@@ -16191,7 +16256,7 @@ msgid ""
 "Interpreter dies while excuting a command. To see the command, click Show "
 "details"
 msgstr ""
-"L'intèrpret falla en executar una ordre. Feu clic a «Veure detalls» per "
+"L'intèrpret falla en executar una ordre. Feu clic a «Mostra detalls» per "
 "veure-la"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/main.py:20

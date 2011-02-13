@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-02-11 19:54+0000\n"
-"PO-Revision-Date: 2011-02-12 03:42+0000\n"
+"PO-Revision-Date: 2011-02-13 00:20+0000\n"
 "Last-Translator: Chao-Hsiung Liao <j_h_liau@yahoo.com.tw>\n"
 "Language-Team: Chinese (traditional)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-02-12 04:58+0000\n"
+"X-Launchpad-Export-Date: 2011-02-13 04:36+0000\n"
 "X-Generator: Launchpad (build 12351)\n"
 "Language: zh_TW\n"
 
@@ -7728,15 +7728,15 @@ msgstr "複製到剪貼簿(&C)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:48
 msgid "Show &details"
-msgstr ""
+msgstr "顯示詳細資料(&D)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:49
 msgid "Hide &details"
-msgstr ""
+msgstr "隱藏詳細資料(&D)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:53
 msgid "Show detailed information about this error"
-msgstr ""
+msgstr "顯示關於這個錯誤的詳細資料"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:93
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:525
@@ -7855,7 +7855,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:489
 msgid "S/R TEMPLATE ERROR"
-msgstr ""
+msgstr "S/R 範本錯誤"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:616
 msgid "You must specify a destination when source is a composite field"
@@ -7885,30 +7885,32 @@ msgid ""
 "Applying changes to %d books.\n"
 "Phase {0} {1}%%."
 msgstr ""
+"套用變更至 %d 本書。\n"
+"階段 {0} {1}%%。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:920
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:560
 msgid "Delete saved search/replace"
-msgstr ""
+msgstr "刪除已儲存的搜尋/取代"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:921
 msgid "The selected saved search/replace will be deleted. Are you sure?"
-msgstr ""
+msgstr "選取的已儲存搜尋/取代會被刪除。您確定嗎？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:938
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:946
 msgid "Save search/replace"
-msgstr ""
+msgstr "儲存搜尋/取代"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:939
 msgid "Search/replace name:"
-msgstr ""
+msgstr "搜尋/取代名稱："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:947
 msgid ""
 "That saved search/replace already exists and will be overwritten. Are you "
 "sure?"
-msgstr ""
+msgstr "儲存搜尋/取代已存在，將會被覆蓋。您確定嗎？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:497
 msgid "Edit Meta information"
@@ -8064,11 +8066,11 @@ msgstr ""
 msgid ""
 "Update title sort based on the current title. This will be applied only "
 "after other changes to title."
-msgstr ""
+msgstr "以目前的書名為依據更新書名排序。這只有在對書名做了其他變更時才會套用。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:545
 msgid "Update &title sort"
-msgstr ""
+msgstr "更新書名排序(&T)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:546
 msgid ""
@@ -8115,19 +8117,19 @@ msgstr "自訂元數據(&C)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:556
 msgid "Load searc&h/replace:"
-msgstr ""
+msgstr "載入搜尋/取代(&H):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:557
 msgid "Select saved search/replace to load."
-msgstr ""
+msgstr "選擇要載入的已儲存搜尋/取代。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:558
 msgid "Save current search/replace"
-msgstr ""
+msgstr "儲存目前的搜尋/取代"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:559
 msgid "Sa&ve"
-msgstr ""
+msgstr "儲存(&S)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:561
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager_ui.py:64
@@ -8249,7 +8251,7 @@ msgstr "數值開始於(&T)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:588
 msgid "with values separated b&y"
-msgstr ""
+msgstr "數值分離為(&Y)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:589
 msgid ""
@@ -8457,7 +8459,7 @@ msgstr "標籤已變更"
 msgid ""
 "You have changed the tags. In order to use the tags editor, you must either "
 "discard or apply these changes. Apply changes?"
-msgstr ""
+msgstr "您已經改變標籤。為了能使用標籤瀏覽器，您必須放棄或套用這些變更。要套用變更嗎？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:817
 msgid "Timed out"
@@ -8673,11 +8675,11 @@ msgstr "正在中止..."
 msgid ""
 "Restoring database from backups, do not interrupt, this will happen in three "
 "stages"
-msgstr ""
+msgstr "從備份檔還原資料庫，請勿中斷，這會以三個階段完成"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:25
 msgid "Restoring database"
-msgstr ""
+msgstr "還原資料庫"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:79
 msgid ""
@@ -8692,17 +8694,17 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:102
 msgid "Restoring database failed, click Show details to see details"
-msgstr ""
+msgstr "還原資料庫失敗，請按顯示詳細資料來查看訊息"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:107
 msgid ""
 "Restoring the database succeeded with some warnings click Show details to "
 "see the details."
-msgstr ""
+msgstr "還原資料庫成功但有些警告訊息，請按顯示詳細資料以查閱訊息。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:112
 msgid "Restoring database was successful"
-msgstr ""
+msgstr "還原資料庫成功"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor.py:55
 msgid ""
@@ -8801,11 +8803,11 @@ msgstr "由於沒有網際網路連線可用所以無法下載新聞"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:198
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:321
 msgid "Recipes"
-msgstr ""
+msgstr "食譜"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:199
 msgid "Download all scheduled recipes at once"
-msgstr ""
+msgstr "一次下載所有排程的食譜"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:200
 msgid "Download &all scheduled"
@@ -8864,7 +8866,7 @@ msgstr "於"
 msgid ""
 "Interval at which to download this recipe. A value of zero means that the "
 "recipe will be downloaded every hour."
-msgstr ""
+msgstr "下載這個食譜的間隔。數值 0 表示這個食譜每個小時都要下載。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:215
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:227
@@ -9051,7 +9053,7 @@ msgstr "名稱已經使用了"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:176
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:198
 msgid "That name is already used, perhaps with different case."
-msgstr ""
+msgstr "那個名稱已經用過了，也許只是大小寫不同。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:211
 msgid ""
@@ -9076,15 +9078,15 @@ msgstr "删除這次選取的標籤分類"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:171
 msgid "Enter a category name, then use the add button or the rename button"
-msgstr ""
+msgstr "輸入分類名稱，然後使用加入按鈕或重新命名按鈕"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:172
 msgid "Add a new category"
-msgstr ""
+msgstr "加入新的分類"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:174
 msgid "Rename the current category to the what is in the box"
-msgstr ""
+msgstr "將目前的分類重新命名為方塊中輸入的名稱"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:176
 msgid "Category filter: "
@@ -9246,7 +9248,7 @@ msgstr "測試(&T)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:55
 msgid "Display contents of exploded ePub"
-msgstr ""
+msgstr "顯示分解的 ePub 內容"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:56
 msgid "&Explode ePub"

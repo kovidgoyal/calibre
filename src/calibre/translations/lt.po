@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-02-11 19:54+0000\n"
-"PO-Revision-Date: 2010-10-01 21:22+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2011-02-12 13:00+0000\n"
+"Last-Translator: Wa1DaS <Unknown>\n"
 "Language-Team: Lithuanian <lt@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-02-12 04:51+0000\n"
+"X-Launchpad-Export-Date: 2011-02-13 04:35+0000\n"
 "X-Generator: Launchpad (build 12351)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -168,7 +168,7 @@ msgstr "Nieko nedaro"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:47
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:55
 msgid "Unknown"
-msgstr "Nežinoma"
+msgstr "Nežinomas"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:64
 msgid "Base"
@@ -176,7 +176,7 @@ msgstr "Pagrindas"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:130
 msgid "Customize"
-msgstr ""
+msgstr "Adaptuoti"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:294
 msgid "File type"
@@ -289,7 +289,7 @@ msgstr "Išvaizda ir elgsena"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:786
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:798
 msgid "Interface"
-msgstr "Sąsaja"
+msgstr "Įrenginys"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:756
 msgid "Adjust the look and feel of the calibre interface to suit your tastes"
@@ -297,11 +297,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:762
 msgid "Behavior"
-msgstr "Elgsena"
+msgstr "Veikimas"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:768
 msgid "Change the way calibre behaves"
-msgstr "Pakeisti calibre elgseną"
+msgstr "Pakeisti calibre veikimą"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:773
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:217
@@ -310,7 +310,7 @@ msgstr "Pridėti savo stulpelių"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:779
 msgid "Add/remove your own columns to the calibre book list"
-msgstr ""
+msgstr "pridėti/šalinti savo stulpelius į calibre knygų sąrašą"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:784
 msgid "Customize the toolbar"
@@ -1452,7 +1452,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:443
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:454
 msgid "Page"
-msgstr ""
+msgstr "Puslapis"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:19
 msgid ""

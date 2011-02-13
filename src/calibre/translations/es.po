@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-02-11 19:54+0000\n"
-"PO-Revision-Date: 2011-02-11 15:53+0000\n"
-"Last-Translator: Calabacin <Unknown>\n"
+"PO-Revision-Date: 2011-02-12 12:44+0000\n"
+"Last-Translator: FerranRius <frius64@hotmail.com>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-02-12 04:55+0000\n"
+"X-Launchpad-Export-Date: 2011-02-13 04:36+0000\n"
 "X-Generator: Launchpad (build 12351)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:527
@@ -3188,7 +3188,7 @@ msgstr "Descarga metadatos sociales de amazon.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:254
 msgid "Downloads series information from ww2.kdl.org"
-msgstr ""
+msgstr "Descargar información de la serie de ww2.kdl.org"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fictionwise.py:25
 msgid "Downloads metadata from Fictionwise"
@@ -4046,6 +4046,8 @@ msgid ""
 "Normally extra space at the beginning of lines is retained. With this option "
 "they will be removed."
 msgstr ""
+"Generalmente se mantienen los espacios en blanco al principio de cada línea. "
+"Con esta opción se eliminan."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/input.py:58
 msgid "Do not insert a Table of Contents into the output text."
@@ -4194,6 +4196,8 @@ msgid ""
 "Start searching as you type. If this is disabled then search will only take "
 "place when the Enter or Return key is pressed."
 msgstr ""
+"Ir buscando según se teclea. Si se desactiva esta opción, la búsqueda sólo "
+"tendrá lugar cuando se pulse la tecla Intro."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:113
 msgid ""
@@ -4365,6 +4369,9 @@ msgid ""
 "processed and merged into your Calibre database according to your automerge "
 "settings:"
 msgstr ""
+"Se encontraron los siguientes libros duplicados, y los formatos entrantes se "
+"han procesado y unido a la base de datos de Calibre según las "
+"configuraciones de unión automática:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:256
 msgid "Failed to read metadata"
@@ -7274,7 +7281,7 @@ msgstr "Estilo de formato:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:95
 msgid "Common"
-msgstr ""
+msgstr "Común"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:96
 msgid "Preserve &spaces"
@@ -7282,11 +7289,11 @@ msgstr "Mantener &espacios"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:97
 msgid "Remove indents at the beginning of lines"
-msgstr "Eliminar el sangrado al principio de lína."
+msgstr "Eliminar el sangrado al principio de línea."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:98
 msgid "Markdown"
-msgstr ""
+msgstr "Markdown"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:99
 msgid ""
@@ -11112,15 +11119,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding.py:28
 msgid "Ignore duplicate incoming formats"
-msgstr ""
+msgstr "Ignorar los ficheros entrantes duplicados"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding.py:29
 msgid "Overwrite existing duplicate formats"
-msgstr "Sobreescribir los formatos entrantes duplicados"
+msgstr "Sobreescribir los ficheros existentes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding.py:30
 msgid "Create new record for each duplicate format"
-msgstr ""
+msgstr "Crear un nuevo registro para cada fichero duplicado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:65
 msgid ""
@@ -11160,10 +11167,22 @@ msgid ""
 "Title match ignores leading indefinite articles (\"the\", \"a\", \"an\"), "
 "punctuation, case, etc. Author match is exact."
 msgstr ""
+"Unión automática: Si se encuentran libros con títulos y autores iguales, "
+"unir los formatos entrantes automáticamente\n"
+"con los registros de libros existentes. El cuadro de la derecha controla lo "
+"que ocurre cuando un registro existente ya\n"
+"contiene el formato entrante. Tenga en cuenta que esta opción también afecta "
+"a la acción «Copiar a la biblioteca».\n"
+"\n"
+"La comparación de títulos omite artículos iniciales («the», «a», «an»), "
+"puntuación, mayúsculas, etc. La comparación\n"
+"de autores es exacta."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:74
 msgid "&Automerge added books if they already exist in the calibre library:"
 msgstr ""
+"&Unir automáticamente los libros añadidos si ya existen en la biblioteca de "
+"calibre:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:75
 msgid ""
@@ -11184,6 +11203,21 @@ msgid ""
 "punctuation, case, etc.\n"
 "Author matching is exact."
 msgstr ""
+"Unión automática: Si se encuentran libros con títulos y autores iguales, "
+"unir los formatos entrantes automáticamente\n"
+"con los registros de libros existentes. Este cuadro de la derecha controla "
+"lo que ocurre cuando un registro existente\n"
+"ya contiene el formato entrante:\n"
+"\n"
+"Ignorar los ficheros entrantes duplicados - significa que los ficheros que "
+"ya existan en la biblioteca de calibre no serán reemplazados\n"
+"Sobreescribir los ficheros existentes - significa que los que ficheros que "
+"ya existan en la biblioteca de calibre serán reemplazados\n"
+"Crear un nuevo registro para cada fichero duplicado - significa que se "
+"creará una nueva entrada para cada fichero duplicado\n"
+"\n"
+"La comparación de títulos omite artículos iniciales («the», «a», «an»), "
+"puntuación, mayúsculas, etc. La comparación de autores es exacta."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:85
 msgid "&Tags to apply when adding a book:"
@@ -12160,16 +12194,18 @@ msgstr "Guardar los metadatos en un fichero &OPF"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:60
 msgid "Search as you &type"
-msgstr ""
+msgstr "Buscar según se &teclea"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:61
 msgid ""
 "&Highlight search results instead of restricting the book list to the results"
 msgstr ""
+"&Resaltar los resultados de la búsqueda en lugar de limitar la lista de "
+"libros al resultado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:62
 msgid "What to search by default"
-msgstr ""
+msgstr "Dominio de la búsqueda predeterminado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:63
 msgid ""
@@ -12178,14 +12214,19 @@ msgid ""
 "search not just authors but title/tags/series/comments/etc. Use these "
 "options if you would like to change this behavior."
 msgstr ""
+"Cuando realiza una búsqueda sin prefijo, de manera predeterminada calibre "
+"buscará todos los metadatos para encontrar coincidencias. Por ejemplo, si "
+"introduce «asimov» se buscará no sólo en los autores sino también en "
+"títulos, etiquetas, series, comentarios, etc. Use estas opciones si desea "
+"cambiar este comportamiento."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:64
 msgid "&Limit the searched metadata"
-msgstr ""
+msgstr "&Limitar la búsqueda de metadatos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:65
 msgid "&Columns that non-prefixed searches are limited to:"
-msgstr ""
+msgstr "&Columnas a las que se limitan las búsquedas sin prefijo:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:66
 msgid ""
@@ -12194,6 +12235,11 @@ msgid ""
 "you always use prefixes in your saved searches. For example, use "
 "\"series:Foundation\" rather than just \"Foundation\" in  a saved search"
 msgstr ""
+"Tenga en cuenta que esta opción afecta a todas las búsquedas, incluidas las "
+"búsquedas guardadas y las restricciones. Por lo tanto, si se usa esta "
+"opción, es mejor asegurarse de que todas las búsquedas guardadas tengan "
+"prefijos. Por ejemplo, use «series:Fundación» en lugar de simplemente "
+"«Fundación» en una búsqueda guardada."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending.py:28
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:70
@@ -12615,11 +12661,11 @@ msgstr "Quitar las acciones seleccionadas de la barra de herramientas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:113
 msgid "This tweak has it default value"
-msgstr ""
+msgstr "Este ajuste tiene el valor predeterminado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:115
 msgid "This tweak has been customized"
-msgstr ""
+msgstr "Este ajuste ha sido personalizado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:236
 msgid ""
@@ -12627,6 +12673,9 @@ msgid ""
 "these tweaks should be available on the website from where you downloaded "
 "the plugins."
 msgstr ""
+"Añadir o modificar ajustes para los complementos personalizados que tenga "
+"instalados. La documentación de estos ajustes debería encontrarse en la "
+"página web de donde descargó los complementos."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:274
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:314
@@ -12634,6 +12683,8 @@ msgid ""
 "There was a syntax error in your tweak. Click the show details button for "
 "details."
 msgstr ""
+"Hay un error de sintaxis en el ajuste. Pulse el botón «Mostrar detalles» "
+"para más información."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:327
 msgid "Invalid tweaks"
@@ -12654,22 +12705,26 @@ msgid ""
 "calibre. Your changes will only take effect <b>after a restart</b> of "
 "calibre."
 msgstr ""
+"Los valores de los ajustes se muestran abajo. Modifíquelos para cambiar el "
+"comportamiento de calibre. Los cambios sólo tendrán efecto <b>después de "
+"reiniciar calibre</b>."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:77
 msgid "Edit tweaks for any custom plugins you have installed"
 msgstr ""
+"Modificar ajustes para los complementos personalizados que haya instalado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:78
 msgid "&Plugin tweaks"
-msgstr ""
+msgstr "&Ajustes de complementos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:80
 msgid "Edit tweak"
-msgstr ""
+msgstr "Modificar ajuste"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:81
 msgid "Restore this tweak to its default value"
-msgstr ""
+msgstr "Restaurar este ajuste a su valor predeterminado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:82
 msgid "Restore &default"
@@ -12677,7 +12732,7 @@ msgstr "Restablecer valores por &defecto"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:83
 msgid "Apply any changes you made to this tweak"
-msgstr ""
+msgstr "Aplicar los cambios realizados en este ajuste"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:93
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:270
@@ -15680,6 +15735,8 @@ msgid ""
 "When searching for text without using lookup prefixes, as for example, Red "
 "instead of title:Red, limit the columns searched to those named below."
 msgstr ""
+"Cuando se busque texto sin usar prefijos, como «Rojo» en lugar de "
+"«title:Rojo», limitar las columnas buscadas a las que se enumeran abajo."
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:737
 msgid ""
@@ -15688,6 +15745,10 @@ msgid ""
 "separated by commas. Only takes effect if you set the option to limit search "
 "columns above."
 msgstr ""
+"Elija las columnas en las que se buscara cuando no se usen prefijos, como "
+"cuando se busca «Rojo» en lugar de «title:Rojo». Introduzca una lista de "
+"nombres de búsqueda separados por comas. Sólo tiene efecto si activa la "
+"opción de limitar las columnas de búsqueda más arriba"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:27
 msgid "failed to scan program. Invalid input {0}"
@@ -16085,7 +16146,7 @@ msgstr "Inglés (Croacia)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:110
 msgid "English (Indonesia)"
-msgstr ""
+msgstr "Inglés (Indonesia)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:111
 msgid "English (Israel)"
