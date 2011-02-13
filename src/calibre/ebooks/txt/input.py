@@ -210,9 +210,11 @@ class TXTInput(InputFormatPlugin):
         oeb = html_input.convert(open(htmlfile.name, 'rb'), options, 'html', log,
                 {})
         # Add images from from txtz archive to oeb.
-        for image, mime in images:
-            id, href = oeb.manifest.generate(id='image', href=image)
-            oeb.manifest.add(id, href, mime)
+        # Disabled as the conversion pipeline adds unmanifested items that are
+        # referred to in the content automatically
+        #for image, mime in images:
+        #    id, href = oeb.manifest.generate(id='image', href=image)
+        #    oeb.manifest.add(id, href, mime)
         options.debug_pipeline = odi
         os.remove(htmlfile.name)
 
