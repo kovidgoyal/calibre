@@ -90,6 +90,16 @@
      </property>
     </spacer>
    </item>
+   <item row="4" column="0">
+    <widget class="QPushButton" name="clear_history_button">
+     <property name="toolTip">
+      <string>Clear search histories from all over calibre. Including the book list, e-book viewer, fetch news dialog, etc.</string>
+     </property>
+     <property name="text">
+      <string>Clear search &amp;histories</string>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
  <customwidgets>
