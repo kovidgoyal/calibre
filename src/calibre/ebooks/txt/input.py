@@ -4,13 +4,14 @@ __license__ = 'GPL 3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import glob
 import os
+import shutil
 
-from calibre import _ent_pat, xml_entity_to_unicode
+from calibre import _ent_pat, walk, xml_entity_to_unicode, guess_type
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
 from calibre.ebooks.conversion.preprocess import DocAnalysis, Dehyphenator
 from calibre.ebooks.chardet import detect
+from calibre.ebooks.oeb.base import OEB_IMAGES
 from calibre.ebooks.txt.processor import convert_basic, convert_markdown, \
     separate_paragraphs_single_line, separate_paragraphs_print_formatted, \
     preserve_spaces, detect_paragraph_type, detect_formatting_type, \
@@ -28,20 +29,23 @@ class TXTInput(InputFormatPlugin):
 
     options = set([
         OptionRecommendation(name='paragraph_type', recommended_value='auto',
-            choices=['auto', 'block', 'single', 'print', 'unformatted'],
+            choices=['auto', 'block', 'single', 'print', 'unformatted', 'off'],
             help=_('Paragraph structure.\n'
-                   'choices are [\'auto\', \'block\', \'single\', \'print\', \'unformatted\']\n'
+                   'choices are [\'auto\', \'block\', \'single\', \'print\', \'unformatted\', \'off\']\n'
                    '* auto: Try to auto detect paragraph type.\n'
                    '* block: Treat a blank line as a paragraph break.\n'
                    '* single: Assume every line is a paragraph.\n'
                    '* print:  Assume every line starting with 2+ spaces or a tab '
-                   'starts a paragraph.'
-                   '* unformatted: Most lines have hard line breaks, few/no blank lines or indents.')),
+                   'starts a paragraph.\n'
+                   '* unformatted: Most lines have hard line breaks, few/no blank lines or indents. '
+                   'Tries to determine structure and reformat the differentiate elements.\n'
+                   '* off: Don\'t modify the paragraph structure. This is useful when combined with '
+                   'Markdown or Textile formatting to ensure no formatting is lost.')),
         OptionRecommendation(name='formatting_type', recommended_value='auto',
-            choices=['auto', 'none', 'heuristic', 'textile', 'markdown'],
+            choices=['auto', 'plain', 'heuristic', 'textile', 'markdown'],
             help=_('Formatting used within the document.'
                    '* auto: Automatically decide which formatting processor to use.\n'
-                   '* none: Do not process the document formatting. Everything is a '
+                   '* plain: Do not process the document formatting. Everything is a '
                    'paragraph and no styling is applied.\n'
                    '* heuristic: Process using heuristics to determine formatting such '
                    'as chapter headings and italic text.\n'
@@ -64,6 +68,8 @@ class TXTInput(InputFormatPlugin):
         txt = ''
         log.debug('Reading text from file...')
         length = 0
+        # [(u'path', mime),]
+        images = []
 
         # Extract content from zip archive.
         if file_ext == 'txtz':
@@ -72,10 +78,20 @@ class TXTInput(InputFormatPlugin):
                 zf = ZipFile(stream)
                 zf.extractall(tdir)
 
-                txts = glob.glob(os.path.join(tdir, '*.txt'))
-                for t in txts:
-                    with open(t, 'rb') as tf:
-                        txt += tf.read()
+                for x in walk(tdir):
+                    if not os.path.isfile(x):
+                        continue
+                    if os.path.splitext(x)[1].lower() == '.txt':
+                        with open(x, 'rb') as tf:
+                            txt += tf.read() + '\n\n'
+                    mt = guess_type(x)[0]
+                    if mt in OEB_IMAGES:
+                        path = os.path.relpath(x, tdir)
+                        dir = os.path.join(os.getcwd(), os.path.dirname(path))
+                        if not os.path.exists(dir):
+                            os.makedirs(dir)
+                        shutil.copy(x, os.path.join(os.getcwd(), path))
+                        images.append((path, mt))
         else:
             txt = stream.read()
 
@@ -134,7 +150,7 @@ class TXTInput(InputFormatPlugin):
             preprocessor = HeuristicProcessor(options, log=getattr(self, 'log', None))
             txt = preprocessor.punctuation_unwrap(length, txt, 'txt')
             txt = separate_paragraphs_single_line(txt)
-        else:
+        elif options.paragraph_type == 'block':
             txt = separate_hard_scene_breaks(txt)
             txt = block_to_single_line(txt)
 
@@ -190,16 +206,20 @@ class TXTInput(InputFormatPlugin):
             htmlfile.write(html.encode('utf-8'))
         odi = options.debug_pipeline
         options.debug_pipeline = None
-        # Generate oeb from htl conversion.
+        # Generate oeb from html conversion.
         oeb = html_input.convert(open(htmlfile.name, 'rb'), options, 'html', log,
                 {})
+        # Add images from from txtz archive to oeb.
+        for image, mime in images:
+            id, href = oeb.manifest.generate(id='image', href=image)
+            oeb.manifest.add(id, href, mime)
         options.debug_pipeline = odi
         os.remove(htmlfile.name)
-        
+
         # Set metadata from file.
         from calibre.customize.ui import get_file_type_metadata
         from calibre.ebooks.oeb.transforms.metadata import meta_info_to_oeb_metadata
         mi = get_file_type_metadata(stream, file_ext)
         meta_info_to_oeb_metadata(mi, oeb.metadata, log)
-        
+
         return oeb
