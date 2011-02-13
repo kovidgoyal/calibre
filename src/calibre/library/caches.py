@@ -528,7 +528,7 @@ class ResultCache(SearchQueryParser): # {{{
                 location[i] = db_col[loc]
 
             # get the tweak here so that the string lookup and compare aren't in the loop
-            bools_are_tristate = tweaks['bool_custom_columns_are_tristate'] == 'yes'
+            bools_are_tristate = tweaks['bool_custom_columns_are_tristate'] != 'no'
 
             for loc in location: # location is now an array of field indices
                 if loc == db_col['authors']:
@@ -812,7 +812,10 @@ class SortKeyGenerator(object):
                 val = self.string_sort_key(val)
 
             elif dt == 'bool':
-                val = {True: 1, False: 2, None: 3}.get(val, 3)
+                if tweaks['bool_custom_columns_are_tristate'] == 'no':
+                    val = {True: 1, False: 2, None: 2}.get(val, 2)
+                else:
+                    val = {True: 1, False: 2, None: 3}.get(val, 3)
 
             yield val
 
