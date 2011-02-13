@@ -5,8 +5,8 @@ __license__     = 'GPL v3'
 __copyright__   = '04 December 2010, desUBIKado'
 __author__      = 'desUBIKado'
 __description__ = 'Daily newspaper from Aragon'
-__version__     = 'v0.05'
-__date__        = '07, December 2010'
+__version__     = 'v0.07'
+__date__        = '06, February 2011'
 '''
 elperiodicodearagon.com
 '''
@@ -38,22 +38,26 @@ class elperiodicodearagon(BasicNewsRecipe):
                             ,'publisher' : publisher
                          }
 
-    feeds              = [(u'Arag\xf3n', u'http://elperiodicodearagon.com/RSS/2.xml'),
-                          (u'Internacional', u'http://elperiodicodearagon.com/RSS/4.xml'),
-                          (u'Espa\xf1a', u'http://elperiodicodearagon.com/RSS/3.xml'),
-                          (u'Econom\xeda', u'http://elperiodicodearagon.com/RSS/5.xml'),
-                          (u'Deportes', u'http://elperiodicodearagon.com/RSS/7.xml'),
-                          (u'Real Zaragoza', u'http://elperiodicodearagon.com/RSS/10.xml'),
-                          (u'Opini\xf3n', u'http://elperiodicodearagon.com/RSS/103.xml'),
-                          (u'Escenarios', u'http://elperiodicodearagon.com/RSS/105.xml'),
-                          (u'Sociedad', u'http://elperiodicodearagon.com/RSS/104.xml'),
-                          (u'Gente', u'http://elperiodicodearagon.com/RSS/330.xml')]
+    feeds              = [
+                           (u'Arag\xf3n', u'http://elperiodicodearagon.com/RSS/2.xml'),
+                           (u'Internacional', u'http://elperiodicodearagon.com/RSS/4.xml'),
+                           (u'Espa\xf1a', u'http://elperiodicodearagon.com/RSS/3.xml'),
+                           (u'Econom\xeda', u'http://elperiodicodearagon.com/RSS/5.xml'),
+                           (u'Deportes', u'http://elperiodicodearagon.com/RSS/7.xml'),
+                           (u'Real Zaragoza', u'http://elperiodicodearagon.com/RSS/10.xml'),
+                           (u'Opini\xf3n', u'http://elperiodicodearagon.com/RSS/103.xml'),
+                           (u'Escenarios', u'http://elperiodicodearagon.com/RSS/105.xml'),
+                           (u'Sociedad', u'http://elperiodicodearagon.com/RSS/104.xml'),
+                           (u'Gente', u'http://elperiodicodearagon.com/RSS/330.xml')
+                         ]
 
 
     extra_css = '''
-                    h3{font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:xx-large;}
-                    h2{font-family:Arial,Helvetica,sans-serif; font-weight:normal;font-size:small;}
-                    dd{font-family:Arial,Helvetica,sans-serif; font-weight:normal;font-size:small;}
+                    h3 {font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:30px;}
+                    h2 {font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:18px;}
+                    h4 {font-family:Arial,Helvetica,sans-serif; font-style:italic; font-weight:normal;font-size:20px;}
+                    .columnaDeRecursosRelacionados {font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:14px;}
+                    img{margin-bottom: 0.4em}
 		'''
 
     remove_attributes = ['height','width']
@@ -82,6 +86,7 @@ class elperiodicodearagon(BasicNewsRecipe):
                           dict(name='a', attrs={'class':'AvisoComentario'}),
                           dict(name='div', attrs={'class':'CajaAvisoComentario'}),
                           dict(name='div', attrs={'class':'navegaNoticias'}),
+                          dict(name='div', attrs={'class':'Mensaje'}),
                           dict(name='div', attrs={'id':'PaginadorDiCom'}),
                           dict(name='div', attrs={'id':'CajaAccesoCuentaUsuario'}),
                           dict(name='div', attrs={'id':'CintilloComentario'}),
@@ -107,3 +112,15 @@ class elperiodicodearagon(BasicNewsRecipe):
         (re.compile(r'<p> </p>', re.DOTALL|re.IGNORECASE), lambda match: ''),
         (re.compile(r'<p id="">', re.DOTALL|re.IGNORECASE), lambda match: '<p>')
         ]
+
+    # Para sustituir el video incrustado de YouTube por una imagen
+
+    def preprocess_html(self, soup):
+        for video_yt in soup.findAll('iframe',{'title':'YouTube video player'}):
+            if video_yt:
+               video_yt.name = 'img'
+               fuente = video_yt['src']
+               fuente2 = fuente.replace('http://www.youtube.com/embed/','http://img.youtube.com/vi/')
+               video_yt['src'] = fuente2 + '/0.jpg'
+
+        return soup

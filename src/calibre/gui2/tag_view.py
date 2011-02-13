@@ -116,7 +116,14 @@ class TagsView(QTreeView): # {{{
         self.set_new_model(self._model.get_filter_categories_by())
 
     def set_database(self, db, tag_match, sort_by):
-        self.hidden_categories = config['tag_browser_hidden_categories']
+        self.hidden_categories = db.prefs.get('tag_browser_hidden_categories', None)
+        # migrate from config to db prefs
+        if self.hidden_categories is None:
+            self.hidden_categories = config['tag_browser_hidden_categories']
+            db.prefs.set('tag_browser_hidden_categories', list(self.hidden_categories))
+        else:
+            self.hidden_categories = set(self.hidden_categories)
+
         old = getattr(self, '_model', None)
         if old is not None:
             old.break_cycles()
@@ -234,7 +241,7 @@ class TagsView(QTreeView): # {{{
                     gprefs['tags_browser_partition_method'] = category
             elif action == 'defaults':
                 self.hidden_categories.clear()
-            config.set('tag_browser_hidden_categories', self.hidden_categories)
+            self.db.prefs.set('tag_browser_hidden_categories', list(self.hidden_categories))
             self.set_new_model()
         except:
             return
@@ -1214,7 +1221,7 @@ class TagBrowserMixin(object): # {{{
             db.field_metadata.remove_user_categories()
             for k in d.categories:
                 db.field_metadata.add_user_category('@' + k, k)
-            db.data.sqp_change_locations(db.field_metadata.get_search_terms())
+            db.data.change_search_locations(db.field_metadata.get_search_terms())
             self.tags_view.set_new_model()
             self.tags_view.recount()
 

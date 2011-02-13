@@ -440,16 +440,17 @@ class Document(QWebPage): # {{{
 
     @property
     def height(self):
-        j = self.javascript('document.body.offsetHeight', 'int')
+        # Note that document.body.offsetHeight does not include top and bottom
+        # margins on body and in some cases does not include the top margin on
+        # the first element inside body either. See ticket #8791 for an example
+        # of the latter.
         q = self.mainFrame().contentsSize().height()
-        if q == j:
-            return j
-        if min(j, q) <= 0:
-            return max(j, q)
-        window_height = self.window_height
-        if j == window_height:
-            return j if q < 1.2*j else q
-        return j
+        if q < 0:
+            # Don't know if this is still needed, but it can't hurt
+            j = self.javascript('document.body.offsetHeight', 'int')
+            if j >= 0:
+                q = j
+        return q
 
     @property
     def width(self):

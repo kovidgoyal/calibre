@@ -497,7 +497,7 @@ from calibre.devices.binatone.driver import README
 from calibre.devices.hanvon.driver import N516, EB511, ALEX, AZBOOKA, THEBOOK
 from calibre.devices.edge.driver import EDGE
 from calibre.devices.teclast.driver import TECLAST_K3, NEWSMY, IPAPYRUS, \
-        SOVOS, PICO, SUNSTECH_EB700, ARCHOS7O
+        SOVOS, PICO, SUNSTECH_EB700, ARCHOS7O, STASH
 from calibre.devices.sne.driver import SNE
 from calibre.devices.misc import PALMPRE, AVANT, SWEEX, PDNOVEL, KOGAN, \
         GEMEI, VELOCITYMICRO, PDNOVEL_KOBO, Q600, LUMIREAD, ALURATEK_COLOR, \
@@ -507,7 +507,7 @@ from calibre.devices.kobo.driver import KOBO
 from calibre.devices.bambook.driver import BAMBOOK
 
 from calibre.ebooks.metadata.fetch import GoogleBooks, ISBNDB, Amazon, \
-    LibraryThing
+    KentDistrictLibrary
 from calibre.ebooks.metadata.douban import DoubanBooks
 from calibre.ebooks.metadata.nicebooks import NiceBooks, NiceBooksCovers
 from calibre.ebooks.metadata.covers import OpenLibraryCovers, \
@@ -517,7 +517,7 @@ from calibre.ebooks.epub.fix.unmanifested import Unmanifested
 from calibre.ebooks.epub.fix.epubcheck import Epubcheck
 
 plugins = [HTML2ZIP, PML2PMLZ, ArchiveExtract, GoogleBooks, ISBNDB, Amazon,
-        LibraryThing, DoubanBooks, NiceBooks, CSV_XML, EPUB_MOBI, BIBTEX, Unmanifested,
+        KentDistrictLibrary, DoubanBooks, NiceBooks, CSV_XML, EPUB_MOBI, BIBTEX, Unmanifested,
         Epubcheck, OpenLibraryCovers, LibraryThingCovers, DoubanCovers,
         NiceBooksCovers]
 plugins += [
@@ -605,9 +605,8 @@ plugins += [
     ELONEX,
     TECLAST_K3,
     NEWSMY,
-    PICO, SUNSTECH_EB700, ARCHOS7O,
+    PICO, SUNSTECH_EB700, ARCHOS7O, SOVOS, STASH,
     IPAPYRUS,
-    SOVOS,
     EDGE,
     SNE,
     ALEX,
@@ -791,6 +790,17 @@ class Toolbar(PreferencesPlugin):
     description = _('Customize the toolbars and context menus, changing which'
             ' actions are available in each')
 
+class Search(PreferencesPlugin):
+    name = 'Search'
+    icon = I('search.png')
+    gui_name = _('Customize searching')
+    category = 'Interface'
+    gui_category = _('Interface')
+    category_order = 1
+    name_order = 5
+    config_widget = 'calibre.gui2.preferences.search'
+    description = _('Customize the way searching for books works in calibre')
+
 class InputOptions(PreferencesPlugin):
     name = 'Input Options'
     icon = I('arrow-down.png')
@@ -941,7 +951,7 @@ class Misc(PreferencesPlugin):
     config_widget = 'calibre.gui2.preferences.misc'
     description = _('Miscellaneous advanced configuration')
 
-plugins += [LookAndFeel, Behavior, Columns, Toolbar, InputOptions,
+plugins += [LookAndFeel, Behavior, Columns, Toolbar, Search, InputOptions,
         CommonOptions, OutputOptions, Adding, Saving, Sending, Plugboard,
         Email, Server, Plugins, Tweaks, Misc, TemplateFunctions]
 

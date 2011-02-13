@@ -182,6 +182,10 @@ class NYTimes(BasicNewsRecipe):
                             'mediaOverlay slideshow',
                             'headlinesOnly multiline flush',
                             'wideThumb',
+                            'video', #added 02-11-2011
+                            'videoHeader',#added 02-11-2011
+                            'articleInlineVideoHolder', #added 02-11-2011
+                            'assetCompanionAd',
                             re.compile('^subNavigation'),
                             re.compile('^leaderboard'),
                             re.compile('^module'),
@@ -664,11 +668,17 @@ class NYTimes(BasicNewsRecipe):
 
             try:
                 #remove "Related content" bar
-                runAroundsFound = soup.findAll('div',{'class':['articleInline runaroundLeft','articleInline doubleRule runaroundLeft','articleInline runaroundLeft firstArticleInline']})
+                runAroundsFound = soup.findAll('div',{'class':['articleInline runaroundLeft','articleInline doubleRule runaroundLeft','articleInline runaroundLeft firstArticleInline','articleInline runaroundLeft  ']})
                 if runAroundsFound:
                     for runAround in runAroundsFound:
                         #find all section headers
                         hlines = runAround.findAll(True ,{'class':['sectionHeader','sectionHeader flushBottom']})
+                        if hlines:
+                            for hline in hlines:
+                                hline.extract()
+                                
+                        #find all section headers
+                        hlines = runAround.findAll('h6')
                         if hlines:
                             for hline in hlines:
                                 hline.extract()

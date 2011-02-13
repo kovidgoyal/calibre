@@ -76,11 +76,11 @@ class E52(USBMS):
     supported_platforms = ['windows', 'linux', 'osx']
 
     VENDOR_ID = [0x421]
-    PRODUCT_ID = [0x1CD]
+    PRODUCT_ID = [0x1CD, 0x273]
     BCD = [0x100]
 
 
-    FORMATS = ['mobi', 'prc']
+    FORMATS = ['epub', 'fb2', 'mobi', 'prc', 'txt']
 
     EBOOK_DIR_MAIN = 'eBooks'
     SUPPORTS_SUB_DIRS = True

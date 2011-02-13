@@ -1,6 +1,6 @@
 
 __license__   = 'GPL v3'
-__copyright__ = '2008-2010, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2008-2011, Darko Miletic <darko.miletic at gmail.com>'
 '''
 b92.net
 '''
@@ -10,7 +10,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class B92(BasicNewsRecipe):
     title                 = 'B92'
     __author__            = 'Darko Miletic'
-    description           = 'B92 info, najnovije vesti iz Srbije, regiona i sveta'    
+    description           = 'Najnovije vesti iz Srbije, regiona i sveta, aktuelne teme iz sveta politike, ekonomije, drustva, foto galerija, kolumne'    
     publisher             = 'B92'
     category              = 'news, politics, Serbia'
     oldest_article        = 2
@@ -20,34 +20,44 @@ class B92(BasicNewsRecipe):
     encoding              = 'cp1250'
     language              = 'sr'
     publication_type      = 'newsportal'
-    extra_css             = ' @font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)} body{font-family: serif1, serif} .article_description{font-family: serif1, serif} '
+    masthead_url          = 'http://www.b92.net/images/fp/logo.gif'
+    extra_css             = """ 
+                                @font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)}
+                                @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)}
+                                body{font-family: Arial,Helvetica,sans1,sans-serif} 
+                                .articledescription{font-family: serif1, serif}
+                                .article-info2,.article-info1{text-transform: uppercase; font-size: small}
+                            """
     
     conversion_options = {
-                          'comment'          : description
-                        , 'tags'             : category
-                        , 'publisher'        : publisher
-                        , 'language'         : language
+                          'comment'  : description
+                        , 'tags'     : category
+                        , 'publisher': publisher
+                        , 'language' : language
                         , 'linearize_tables' : True
                         }
     
     preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
     
-    keep_only_tags     = [dict(name='table', attrs={'class':'maindocument'})]
-
-    remove_tags = [
-                     dict(name='ul', attrs={'class':'comment-nav'})
-                    ,dict(name=['embed','link','base']            )
-                    ,dict(name='div', attrs={'class':'udokum'}    )
-                  ]
+    keep_only_tags    = [dict(attrs={'class':['article-info1','article-text']})]
+    remove_attributes = ['width','height','align','hspace','vspace','border']
+    remove_tags       = [dict(name=['embed','link','base','meta'])]
 
     feeds          = [
-                        (u'Vesti', u'http://www.b92.net/info/rss/vesti.xml')
-                       ,(u'Biz'  , u'http://www.b92.net/info/rss/biz.xml'  )
+                        (u'Vesti'      , u'http://www.b92.net/info/rss/vesti.xml'     )
+                       ,(u'Biz'        , u'http://www.b92.net/info/rss/biz.xml'       )
+                       ,(u'Sport'      , u'http://www.b92.net/info/rss/sport.xml'     )
+                       ,(u'Zivot'      , u'http://www.b92.net/info/rss/zivot.xml'     )
+                       ,(u'Kultura'    , u'http://www.b92.net/info/rss/kultura.xml'   )
+                       ,(u'Automobili' , u'http://www.b92.net/info/rss/automobili.xml')
+                       ,(u'Tehnopolis' , u'http://www.b92.net/info/rss/tehnopolis.xml')
                      ]
 
-    def print_version(self, url):
-        return url + '&version=print'
-
     def preprocess_html(self, soup):
-        return self.adeify_images(soup)
-
+        for item in soup.findAll(style=True):
+            del item['style']
+        for alink in soup.findAll('a'):
+            if alink.string is not None:
+               tstr = alink.string
+               alink.replaceWith(tstr)            
+        return soup

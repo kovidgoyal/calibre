@@ -56,7 +56,7 @@ def add_options(parser):
     group = OptionGroup(parser, _('Merge Options:'), _('Options to control the transformation of pdf'))
     parser.add_option_group(group)
     add_option = group.add_option
-    
+
     for rec in OPTIONS:
         option_recommendation_to_cli_option(add_option, rec)
 
@@ -82,15 +82,15 @@ def main(args=sys.argv, name=''):
     log = Log()
     parser = option_parser(name)
     add_options(parser)
-    
+
     opts, args = parser.parse_args(args)
     args = args[1:]
-    
+
     if len(args) < 2:
         print 'Error: Two or more PDF files are required.\n'
         print_help(parser, log)
         return 1
-    
+
     bad_pdfs = is_valid_pdfs(args)
     if bad_pdfs != []:
         for pdf in bad_pdfs:
@@ -104,7 +104,7 @@ def main(args=sys.argv, name=''):
             print 'Error: file `%s` is encrypted.' % pdf
     if enc:
         return 1
-    
+
     mi = metadata_from_formats([args[0]])
 
     merge_files(args, opts.output, mi)

@@ -106,9 +106,13 @@ def _config():
                 'clicked'))
     c.add_opt('asked_library_thing_password', default=False,
             help='Asked library thing password at least once.')
-    c.add_opt('search_as_you_type', default=True,
-            help='Start searching as you type. If this is disabled then search will '
-            'only take place when the Enter or Return key is pressed.')
+    c.add_opt('search_as_you_type', default=False,
+            help=_('Start searching as you type. If this is disabled then search will '
+            'only take place when the Enter or Return key is pressed.'))
+    c.add_opt('highlight_search_matches', default=False,
+            help=_('When searching, show all books with search results '
+            'highlighted instead of showing only the matches. You can use the '
+            'N or F3 keys to go to the next match.'))
     c.add_opt('save_to_disk_template_history', default=[],
         help='Previously used Save to Disk templates')
     c.add_opt('send_to_device_template_history', default=[],
@@ -133,14 +137,18 @@ def _config():
             help=_('Automatically download the cover, if available'))
     c.add_opt('enforce_cpu_limit', default=True,
             help=_('Limit max simultaneous jobs to number of CPUs'))
-    c.add_opt('tag_browser_hidden_categories', default=set(),
-            help=_('tag browser categories not to display'))
     c.add_opt('gui_layout', choices=['wide', 'narrow'],
             help=_('The layout of the user interface'), default='wide')
     c.add_opt('show_avg_rating', default=True,
             help=_('Show the average rating per item indication in the tag browser'))
     c.add_opt('disable_animations', default=False,
             help=_('Disable UI animations'))
+
+    # This option is no longer used. It remains for compatibility with upgrades
+    # so the value can be migrated
+    c.add_opt('tag_browser_hidden_categories', default=set(),
+            help=_('tag browser categories not to display'))
+
     c.add_opt
     return ConfigProxy(c)
 

@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 from functools import partial
 
 from PyQt4.Qt import QIcon, Qt, QWidget, QToolBar, QSize, \
-    pyqtSignal, QToolButton, QMenu, QCheckBox, \
+    pyqtSignal, QToolButton, QMenu, \
     QObject, QVBoxLayout, QSizePolicy, QLabel, QHBoxLayout, QActionGroup
 
 
@@ -156,7 +156,8 @@ class SearchBar(QWidget): # {{{
         x = ComboBoxWithHelp(self)
         x.setMaximumSize(QSize(150, 16777215))
         x.setObjectName("search_restriction")
-        x.setToolTip(_("Books display will be restricted to those matching the selected saved search"))
+        x.setToolTip(_('Books display will be restricted to those matching the '
+                       'selected saved search'))
         l.addWidget(x)
         parent.search_restriction = x
 
@@ -175,7 +176,8 @@ class SearchBar(QWidget): # {{{
         x = parent.search = SearchBox2(self)
         x.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
         x.setObjectName("search")
-        x.setToolTip(_("<p>Search the list of books by title, author, publisher, tags, comments, etc.<br><br>Words separated by spaces are ANDed"))
+        x.setToolTip(_("<p>Search the list of books by title, author, publisher, "
+                       "tags, comments, etc.<br><br>Words separated by spaces are ANDed"))
         l.addWidget(x)
 
         self.search_button = QToolButton()
@@ -194,13 +196,11 @@ class SearchBar(QWidget): # {{{
         l.addWidget(x)
         x.setToolTip(_("Reset Quick Search"))
 
-        x = parent.search_highlight_only = QCheckBox()
-        x.setText(_('&Highlight'))
-        x.setToolTip('<p>'+_('When searching, highlight matched books, instead '
-            'of restricting the book list to the matches.<p> You can use the '
-            'N or F3 keys to go to the next match.'))
+        x = parent.search_options_button = QToolButton(self)
+        x.setIcon(QIcon(I('config.png')))
+        x.setObjectName("search_option_button")
         l.addWidget(x)
-        x.setVisible(False)
+        x.setToolTip(_("Change the way searching for books works"))
 
         x = parent.saved_search = SavedSearchBox(self)
         x.setMaximumSize(QSize(150, 16777215))
@@ -225,7 +225,6 @@ class SearchBar(QWidget): # {{{
         x.setObjectName("delete_search_button")
         l.addWidget(x)
         x.setToolTip(_("Delete current saved search"))
-
 
 
 # }}}

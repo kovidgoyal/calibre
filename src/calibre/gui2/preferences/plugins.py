@@ -109,7 +109,7 @@ class PluginModel(QAbstractItemModel, SearchQueryParser): # {{{
         return self.index(ans[0], 0, QModelIndex()) if ans[1] < 0 else \
                 self.index(ans[1], 0, self.index(ans[0], 0, QModelIndex()))
 
-    def index(self, row, column, parent):
+    def index(self, row, column, parent=QModelIndex()):
         if not self.hasIndex(row, column, parent):
             return QModelIndex()
 
@@ -165,8 +165,6 @@ class PluginModel(QAbstractItemModel, SearchQueryParser): # {{{
     def flags(self, index):
         if not index.isValid():
             return 0
-        if index.internalId() == 0:
-            return Qt.ItemIsEnabled
         flags = Qt.ItemIsSelectable | Qt.ItemIsEnabled
         return flags
 

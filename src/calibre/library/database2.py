@@ -787,7 +787,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         mi.id = id
         for key, meta in self.field_metadata.custom_iteritems():
             mi.set_user_metadata(key, meta)
-            mi.set(key, val=self.get_custom(idx, label=meta['label'],
+            if meta['datatype'] == 'composite':
+                mi.set(key, val=row[meta['rec_index']])
+            else:
+                mi.set(key, val=self.get_custom(idx, label=meta['label'],
                                             index_is_id=index_is_id),
                         extra=self.get_custom_extra(idx, label=meta['label'],
                                                     index_is_id=index_is_id))
