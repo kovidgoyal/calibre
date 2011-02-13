@@ -232,16 +232,37 @@ class Device(DeviceConfig, DevicePlugin):
 
         time.sleep(5)
         drives = {}
+        seen = set()
+        prod_pat = re.compile(r'PROD_(.+?)&')
+        dup_prod_id = False
+
+        def check_for_dups(pnp_id):
+            try:
+                match = prod_pat.search(pnp_id)
+                if match is not None:
+                    prodid = match.group(1)
+                    if prodid in seen:
+                        return True
+                    else:
+                        seen.add(prodid)
+            except:
+                pass
+            return False
+
+
         for drive, pnp_id in win_pnp_drives().items():
             if self.windows_match_device(pnp_id, 'WINDOWS_CARD_A_MEM') and \
                     not drives.get('carda', False):
                 drives['carda'] = drive
+                dup_prod_id |= check_for_dups(pnp_id)
             elif self.windows_match_device(pnp_id, 'WINDOWS_CARD_B_MEM') and \
                     not drives.get('cardb', False):
                 drives['cardb'] = drive
+                dup_prod_id |= check_for_dups(pnp_id)
             elif self.windows_match_device(pnp_id, 'WINDOWS_MAIN_MEM') and \
                     not drives.get('main', False):
                 drives['main'] = drive
+                dup_prod_id |= check_for_dups(pnp_id)
 
             if 'main' in drives.keys() and 'carda' in drives.keys() and \
                     'cardb' in drives.keys():
@@ -263,7 +284,8 @@ class Device(DeviceConfig, DevicePlugin):
 
         # Sort drives by their PNP drive numbers if the CARD and MAIN
         # MEM strings are identical
-        if self.WINDOWS_MAIN_MEM in (self.WINDOWS_CARD_A_MEM,
+        if dup_prod_id or \
+                self.WINDOWS_MAIN_MEM in (self.WINDOWS_CARD_A_MEM,
                 self.WINDOWS_CARD_B_MEM) or \
                 self.WINDOWS_CARD_A_MEM == self.WINDOWS_CARD_B_MEM:
             letters = sorted(drives.values(), cmp=drivecmp)

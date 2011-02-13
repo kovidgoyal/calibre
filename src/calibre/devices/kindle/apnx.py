@@ -15,7 +15,29 @@ from calibre.ebooks.pdb.header import PdbHeaderReader
 
 class APNXBuilder(object):
     '''
-    Currently uses the Adobe 1024 byte count equal one page formula.
+    2300 characters of uncompressed text per page. This is
+    not meant to map 1 to 1 to a print book but to be a
+    close enough measure.
+    
+    A test book was chosen and the characters were counted
+    on one page. This number was round to 2240 then 60
+    characters of markup were added to the total giving
+    2300.
+    
+    Uncompressed text length is used because it's easily
+    accessible in MOBI files (part of the header). Also,
+    It's faster to work off of the length then to
+    decompress and parse the actual text.
+    
+    A better but much more resource intensive and slower
+    method to calculate the page length would be to parse
+    the uncompressed text. For each paragraph we would
+    want to find how many lines it would occupy in a paper
+    back book. 70 characters per line and 32 lines per page.
+    So divide the number of characters (minus markup) in
+    each paragraph by 70. If there are less than 70
+    characters in the paragraph then it is 1 line. Then,
+    count every 32 lines and mark that location as a page.
     '''
 
     def write_apnx(self, mobi_file_path, apnx_path):
@@ -63,6 +85,6 @@ class APNXBuilder(object):
 
         while count < text_length:
             pages.append(count)
-            count += 1024
+            count += 2300
 
         return pages
