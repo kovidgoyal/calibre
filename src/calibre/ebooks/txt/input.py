@@ -4,11 +4,10 @@ __license__ = 'GPL 3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import mimetypes
 import os
 import shutil
 
-from calibre import _ent_pat, walk, xml_entity_to_unicode
+from calibre import _ent_pat, walk, xml_entity_to_unicode, guess_type
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
 from calibre.ebooks.conversion.preprocess import DocAnalysis, Dehyphenator
 from calibre.ebooks.chardet import detect
@@ -85,13 +84,14 @@ class TXTInput(InputFormatPlugin):
                     if os.path.splitext(x)[1].lower() == '.txt':
                         with open(x, 'rb') as tf:
                             txt += tf.read() + '\n\n'
-                    if mimetypes.guess_type(x)[0] in OEB_IMAGES:
+                    mt = guess_type(x)[0]
+                    if mt in OEB_IMAGES:
                         path = os.path.relpath(x, tdir)
                         dir = os.path.join(os.getcwd(), os.path.dirname(path))
                         if not os.path.exists(dir):
                             os.makedirs(dir)
                         shutil.copy(x, os.path.join(os.getcwd(), path))
-                        images.append((path, mimetypes.guess_type(x)[0]))
+                        images.append((path, mt))
         else:
             txt = stream.read()
 
@@ -210,16 +210,18 @@ class TXTInput(InputFormatPlugin):
         oeb = html_input.convert(open(htmlfile.name, 'rb'), options, 'html', log,
                 {})
         # Add images from from txtz archive to oeb.
-        for image, mime in images:
-            id, href = oeb.manifest.generate(id='image', href=image)
-            oeb.manifest.add(id, href, mime)
+        # Disabled as the conversion pipeline adds unmanifested items that are
+        # referred to in the content automatically
+        #for image, mime in images:
+        #    id, href = oeb.manifest.generate(id='image', href=image)
+        #    oeb.manifest.add(id, href, mime)
         options.debug_pipeline = odi
         os.remove(htmlfile.name)
-        
+
         # Set metadata from file.
         from calibre.customize.ui import get_file_type_metadata
         from calibre.ebooks.oeb.transforms.metadata import meta_info_to_oeb_metadata
         mi = get_file_type_metadata(stream, file_ext)
         meta_info_to_oeb_metadata(mi, oeb.metadata, log)
-        
+
         return oeb

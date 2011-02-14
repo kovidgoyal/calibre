@@ -114,6 +114,9 @@ class SearchBox2(QComboBox): # {{{
     def text(self):
         return self.currentText()
 
+    def clear_history(self, *args):
+        QComboBox.clear(self)
+
     def clear(self, emit_search=True):
         self.normalize_state()
         self.setEditText('')

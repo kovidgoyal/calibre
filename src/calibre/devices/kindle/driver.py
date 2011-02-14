@@ -175,24 +175,25 @@ class KINDLE2(KINDLE):
 
     PRODUCT_ID = [0x0002, 0x0004]
     BCD        = [0x0100]
-    
+
     EXTRA_CUSTOMIZATION_MESSAGE = [
-        _('Write page mapping (APNX) file when sending books') +
+        _('Send page number information when sending books') +
             ':::' +
-            _('The APNX page mapping file is a new feature in the Kindle 3\'s '
-              '3.1 firmware. It allows for page numbers to that correspond to pages '
-              'in a print book. This will write an APNX file that uses pseudo page '
-              'numbers based on the the average page length in a paper back book.'),
-        _('Use slower but more accurate APNX generation') +
+            _('The Kindle 3 and newer versions can use page number information '
+              'in MOBI files. With this option, calibre will calculate and send'
+              ' this information to the Kindle when uploading MOBI files by'
+              ' USB. Note that the page numbers do not correspond to any paper'
+              ' book.'),
+        _('Use slower but more accurate page number generation') +
             ':::' +
-            _('There are two ways to generate the APNX file. Using the more accurate '
+            _('There are two ways to generate the page number information. Using the more accurate '
               'generator will produce pages that correspond better to a printed book. '
-              'However, this method is slower and more intensive. Unchecking this '
-              'option will default to using the faster but less accurate generator.'),
+              'However, this method is slower and will slow down sending files '
+              'to the Kindle.'),
     ]
     EXTRA_CUSTOMIZATION_DEFAULT = [
         True,
-        True,
+        False,
     ]
     OPT_APNX           = 0
     OPT_APNX_ACCURATE  = 1
@@ -236,7 +237,7 @@ class KINDLE2(KINDLE):
         opts = self.settings()
         if not opts.extra_customization[self.OPT_APNX]:
             return
-        
+
         if os.path.splitext(filepath.lower())[1] not in ('.azw', '.mobi', '.prc'):
             return
 

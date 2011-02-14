@@ -1292,6 +1292,16 @@ class DeviceMixin(object): # {{{
         to both speed up matching and to count matches.
         '''
 
+        if not self.device_manager.is_device_connected:
+            return False
+
+        # It might be possible to get here without having initialized the
+        # library view. In this case, simply give up
+        try:
+            db = self.library_view.model().db
+        except:
+            return False
+
         string_pat = re.compile('(?u)\W|[_]')
         def clean_string(x):
             x = x.lower() if x else ''
@@ -1299,26 +1309,19 @@ class DeviceMixin(object): # {{{
 
         update_metadata = prefs['manage_device_metadata'] == 'on_connect'
 
+        get_covers = False
+        if update_metadata and self.device_manager.is_device_connected:
+            if self.device_manager.device.WANTS_UPDATED_THUMBNAILS:
+                get_covers = True
+
         # Force a reset if the caches are not initialized
         if reset or not hasattr(self, 'db_book_title_cache'):
             # Build a cache (map) of the library, so the search isn't On**2
             db_book_title_cache = {}
             db_book_uuid_cache = {}
-            # It might be possible to get here without having initialized the
-            # library view. In this case, simply give up
-            try:
-                db = self.library_view.model().db
-            except:
-                return False
 
-            get_covers = False
-            if update_metadata and self.device_manager.is_device_connected:
-                if self.device_manager.device.WANTS_UPDATED_THUMBNAILS:
-                    get_covers = True
-
-            for id in db.data.iterallids():
-                mi = db.get_metadata(id, index_is_id=True, get_cover=get_covers)
-                title = clean_string(mi.title)
+            for id_ in db.data.iterallids():
+                title = clean_string(db.title(id_, index_is_id=True))
                 if title not in db_book_title_cache:
                     db_book_title_cache[title] = \
                                 {'authors':{}, 'author_sort':{}, 'db_ids':{}}
@@ -1326,14 +1329,14 @@ class DeviceMixin(object): # {{{
                 # and author, then remember the last one. That is OK, because as
                 # we can't tell the difference between the books, one is as good
                 # as another.
-                if mi.authors:
-                    authors = clean_string(authors_to_string(mi.authors))
-                    db_book_title_cache[title]['authors'][authors] = mi
-                if mi.author_sort:
-                    aus = clean_string(mi.author_sort)
-                    db_book_title_cache[title]['author_sort'][aus] = mi
-                db_book_title_cache[title]['db_ids'][mi.application_id] = mi
-                db_book_uuid_cache[mi.uuid] = mi
+                authors = clean_string(db.authors(id_, index_is_id=True))
+                if authors:
+                    db_book_title_cache[title]['authors'][authors] = id_
+                if db.author_sort(id_, index_is_id=True):
+                    aus = clean_string(db.author_sort(id_, index_is_id=True))
+                    db_book_title_cache[title]['author_sort'][aus] = id_
+                db_book_title_cache[title]['db_ids'][id_] = id_
+                db_book_uuid_cache[db.uuid(id_, index_is_id=True)] = id_
             self.db_book_title_cache = db_book_title_cache
             self.db_book_uuid_cache = db_book_uuid_cache
 
@@ -1341,19 +1344,22 @@ class DeviceMixin(object): # {{{
         # in_library field. If the UUID matches a book in the library, then
         # do not consider that book for other matching. In all cases set
         # the application_id to the db_id of the matching book. This value
-        # will be used by books_on_device to indicate matches.
+        # will be used by books_on_device to indicate matches. While we are
+        # going by, update the metadata for a book if automatic management is on
 
         for booklist in booklists:
             for book in booklist:
                 book.in_library = None
                 if getattr(book, 'uuid', None) in self.db_book_uuid_cache:
+                    id_ = db_book_uuid_cache[book.uuid]
                     if update_metadata:
-                        book.smart_update(self.db_book_uuid_cache[book.uuid],
+                        book.smart_update(db.get_metadata(id_,
+                                                          index_is_id=True,
+                                                          get_cover=get_covers),
                                           replace_metadata=True)
                     book.in_library = 'UUID'
                     # ensure that the correct application_id is set
-                    book.application_id = \
-                        self.db_book_uuid_cache[book.uuid].application_id
+                    book.application_id = id_
                     continue
                 # No UUID exact match. Try metadata matching.
                 book_title = clean_string(book.title)
@@ -1363,21 +1369,25 @@ class DeviceMixin(object): # {{{
                     # will match if any of the db_id, author, or author_sort
                     # also match.
                     if getattr(book, 'application_id', None) in d['db_ids']:
-                        # app_id already matches a db_id. No need to set it.
                         if update_metadata:
-                            book.smart_update(d['db_ids'][book.application_id],
+                            id_ = getattr(book, 'application_id', None)
+                            book.smart_update(db.get_metadata(id_,
+                                                              index_is_id=True,
+                                                              get_cover=get_covers),
                                               replace_metadata=True)
                         book.in_library = 'APP_ID'
+                        # app_id already matches a db_id. No need to set it.
                         continue
                     # Sonys know their db_id independent of the application_id
                     # in the metadata cache. Check that as well.
                     if getattr(book, 'db_id', None) in d['db_ids']:
                         if update_metadata:
-                            book.smart_update(d['db_ids'][book.db_id],
+                            book.smart_update(db.get_metadata(book.db_id,
+                                                              index_is_id=True,
+                                                              get_cover=get_covers),
                                               replace_metadata=True)
                         book.in_library = 'DB_ID'
-                        book.application_id = \
-                                    d['db_ids'][book.db_id].application_id
+                        book.application_id = book.db_id
                         continue
                     # We now know that the application_id is not right. Set it
                     # to None to prevent book_on_device from accidentally
@@ -1389,19 +1399,23 @@ class DeviceMixin(object): # {{{
                         # either can appear as the author
                         book_authors = clean_string(authors_to_string(book.authors))
                         if book_authors in d['authors']:
+                            id_ = d['authors'][book_authors]
                             if update_metadata:
-                                book.smart_update(d['authors'][book_authors],
-                                                  replace_metadata=True)
+                                book.smart_update(db.get_metadata(id_,
+                                                              index_is_id=True,
+                                                              get_cover=get_covers),
+                                              replace_metadata=True)
                             book.in_library = 'AUTHOR'
-                            book.application_id = \
-                                    d['authors'][book_authors].application_id
+                            book.application_id = id_
                         elif book_authors in d['author_sort']:
+                            id_ = d['author_sort'][book_authors]
                             if update_metadata:
-                                book.smart_update(d['author_sort'][book_authors],
+                                book.smart_update(db.get_metadata(id_,
+                                                              index_is_id=True,
+                                                              get_cover=get_covers),
                                                   replace_metadata=True)
                             book.in_library = 'AUTH_SORT'
-                            book.application_id = \
-                                d['author_sort'][book_authors].application_id
+                            book.application_id = id_
                 else:
                     # Book definitely not matched. Clear its application ID
                     book.application_id = None

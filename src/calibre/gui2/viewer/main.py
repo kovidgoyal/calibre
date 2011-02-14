@@ -17,16 +17,16 @@ from calibre.gui2.viewer.bookmarkmanager import BookmarkManager
 from calibre.gui2.widgets import ProgressIndicator
 from calibre.gui2.main_window import MainWindow
 from calibre.gui2 import Application, ORG_NAME, APP_UID, choose_files, \
-                         info_dialog, error_dialog, open_url, available_height
+    info_dialog, error_dialog, open_url, available_height, gprefs
 from calibre.ebooks.oeb.iterator import EbookIterator
 from calibre.ebooks import DRMError
-from calibre.constants import islinux, isfreebsd, isosx
+from calibre.constants import islinux, isfreebsd, isosx, filesystem_encoding
 from calibre.utils.config import Config, StringConfig, dynamic
 from calibre.gui2.search_box import SearchBox2
 from calibre.ebooks.metadata import MetaInformation
 from calibre.customize.ui import available_input_formats
 from calibre.gui2.viewer.dictionary import Lookup
-from calibre import as_unicode
+from calibre import as_unicode, force_unicode, isbytestring
 
 class TOCItem(QStandardItem):
 
@@ -160,6 +160,12 @@ class HelpfulLineEdit(QLineEdit):
         self.setPalette(self.gray)
         self.setText(self.HELP_TEXT)
 
+class RecentAction(QAction):
+
+    def __init__(self, path, parent):
+        self.path = path
+        QAction.__init__(self, os.path.basename(path), parent)
+
 class EbookViewer(MainWindow, Ui_EbookViewer):
 
     STATE_VERSION = 1
@@ -284,7 +290,25 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         ca = self.view.copy_action
         ca.setShortcut(QKeySequence.Copy)
         self.addAction(ca)
+        self.open_history_menu = QMenu()
+        self.build_recent_menu()
+        self.action_open_ebook.setMenu(self.open_history_menu)
+        self.open_history_menu.triggered[QAction].connect(self.open_recent)
+        w = self.tool_bar.widgetForAction(self.action_open_ebook)
+        w.setPopupMode(QToolButton.MenuButtonPopup)
+
         self.restore_state()
+
+    def build_recent_menu(self):
+        m = self.open_history_menu
+        m.clear()
+        count = 0
+        for path in gprefs.get('viewer_open_history', []):
+            if count > 9:
+                break
+            if os.path.exists(path):
+                m.addAction(RecentAction(path, m))
+                count += 1
 
     def closeEvent(self, e):
         self.save_state()
@@ -424,6 +448,9 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
                      select_only_single_file=True)
         if files:
             self.load_ebook(files[0])
+
+    def open_recent(self, action):
+        self.load_ebook(action.path)
 
     def font_size_larger(self, checked):
         frac = self.view.magnify_fonts()
@@ -647,6 +674,17 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
                     self.action_table_of_contents.setChecked(True)
             else:
                 self.action_table_of_contents.setChecked(False)
+            if isbytestring(pathtoebook):
+                pathtoebook = force_unicode(pathtoebook, filesystem_encoding)
+            vh = gprefs.get('viewer_open_history', [])
+            try:
+                vh.remove(pathtoebook)
+            except:
+                pass
+            vh.insert(0, pathtoebook)
+            gprefs.set('viewer_open_history', vh[:50])
+            self.build_recent_menu()
+
             self.action_table_of_contents.setDisabled(not self.iterator.toc)
             self.current_book_has_toc = bool(self.iterator.toc)
             self.current_title = title

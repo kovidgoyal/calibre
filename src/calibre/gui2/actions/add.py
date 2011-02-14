@@ -204,7 +204,8 @@ class AddAction(InterfaceAction):
                         ]
         to_device = self.gui.stack.currentIndex() != 0
         if to_device:
-            filters = [(_('Supported books'), self.gui.device_manager.device.FORMATS)]
+            fmts = self.gui.device_manager.device.settings().format_map
+            filters = [(_('Supported books'), fmts)]
 
         books = choose_files(self.gui, 'add books dialog dir', 'Select books',
                              filters=filters)

@@ -207,7 +207,14 @@ class CSSFlattener(object):
             font_size = self.sbase if self.sbase is not None else \
                 self.context.source.fbase
         if 'align' in node.attrib:
-            cssdict['text-align'] = node.attrib['align']
+            if tag != 'img':
+                cssdict['text-align'] = node.attrib['align']
+            else:
+                val = node.attrib['align']
+                if val in ('middle', 'bottom', 'top'):
+                    cssdict['vertical-align'] = val
+                elif val in ('left', 'right'):
+                    cssdict['text-align'] = val
             del node.attrib['align']
         if node.tag == XHTML('font'):
             node.tag = XHTML('span')

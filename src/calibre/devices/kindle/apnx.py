@@ -11,7 +11,6 @@ Generates and writes an APNX page mapping file.
 import struct
 import uuid
 
-from calibre.ebooks import DRMError
 from calibre.ebooks.mobi.reader import MobiReader
 from calibre.ebooks.pdb.header import PdbHeaderReader
 from calibre.utils.logging import default_log
@@ -40,10 +39,10 @@ class APNXBuilder(object):
                 pages = self.get_pages_fast(mobi_file_path)
         else:
             pages = self.get_pages_fast(mobi_file_path)
-        
+
         if not pages:
             raise Exception(_('Could not generate page mapping.'))
-        
+
         # Generate the APNX file from the page mapping.
         apnx = self.generate_apnx(pages)
 
@@ -83,12 +82,12 @@ class APNXBuilder(object):
         2300 characters of uncompressed text per page. This is
         not meant to map 1 to 1 to a print book but to be a
         close enough measure.
-        
+
         A test book was chosen and the characters were counted
         on one page. This number was round to 2240 then 60
         characters of markup were added to the total giving
         2300.
-        
+
         Uncompressed text length is used because it's easily
         accessible in MOBI files (part of the header). Also,
         It's faster to work off of the length then to
@@ -97,7 +96,7 @@ class APNXBuilder(object):
         text_length = 0
         pages = []
         count = 0
-        
+
         with open(mobi_file_path, 'rb') as mf:
             phead = PdbHeaderReader(mf)
             r0 = phead.section_data(0)
@@ -108,40 +107,41 @@ class APNXBuilder(object):
             count += 2300
 
         return pages
-    
+
     def get_pages_accurate(self, mobi_file_path):
         '''
         A more accurate but much more resource intensive and slower
         method to calculate the page length.
-        
+
         Parses the uncompressed text. In an average paper back book
         There are 32 lines per page and a maximum of 70 characters
         per line.
-        
+
         Each paragraph starts a new line and every 70 characters
         (minus markup) in a paragraph starts a new line. The
         position after every 30 lines will be marked as a new
         page.
-        
+
         This can be make more accurate by accounting for
         <div class="mbp_pagebreak" /> as a new page marker.
         And <br> elements as an empty line.
         '''
         pages = []
-        
+
         # Get the MOBI html.
         mr = MobiReader(mobi_file_path, default_log)
         if mr.book_header.encryption_type != 0:
-            raise DRMError()
+            # DRMed book
+            return self.get_pages_fast(mobi_file_path)
         mr.extract_text()
-        
+
         # States
         in_tag = False
         in_p = False
         check_p = False
         closing = False
         p_char_count = 0
-        
+
         # Get positions of every line
         # A line is either a paragraph starting
         # or every 70 characters in a paragraph.
@@ -158,7 +158,7 @@ class APNXBuilder(object):
         # the position within the stream.
         for c in mr.mobi_html.lower():
             pos += 1
-            
+
             # Check if we are starting or stopping a p tag.
             if check_p:
                 if c == '/':
@@ -173,7 +173,7 @@ class APNXBuilder(object):
                 check_p = False
                 closing = False
                 continue
-            
+
             if c == '<':
                 in_tag = True
                 check_p = True
@@ -188,7 +188,7 @@ class APNXBuilder(object):
                 if p_char_count == 70:
                     lines.append(pos)
                     p_char_count = 0
-        
+
         # Every 30 lines is a new page
         for i in xrange(0, len(lines), 32):
             pages.append(lines[i])
