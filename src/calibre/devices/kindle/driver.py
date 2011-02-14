@@ -176,6 +176,28 @@ class KINDLE2(KINDLE):
     PRODUCT_ID = [0x0002, 0x0004]
     BCD        = [0x0100]
 
+    EXTRA_CUSTOMIZATION_MESSAGE = [
+        _('Send page number information when sending books') +
+            ':::' +
+            _('The Kindle 3 and newer versions can use page number information '
+              'in MOBI files. With this option, calibre will calculate and send'
+              ' this information to the Kindle when uploading MOBI files by'
+              ' USB. Note that the page numbers do not correspond to any paper'
+              ' book.'),
+        _('Use slower but more accurate page number generation') +
+            ':::' +
+            _('There are two ways to generate the page number information. Using the more accurate '
+              'generator will produce pages that correspond better to a printed book. '
+              'However, this method is slower and will slow down sending files '
+              'to the Kindle.'),
+    ]
+    EXTRA_CUSTOMIZATION_DEFAULT = [
+        True,
+        False,
+    ]
+    OPT_APNX           = 0
+    OPT_APNX_ACCURATE  = 1
+
     def books(self, oncard=None, end_session=True):
         bl = USBMS.books(self, oncard=oncard, end_session=end_session)
         # Read collections information
@@ -212,13 +234,17 @@ class KINDLE2(KINDLE):
         '''
         Hijacking this function to write the apnx file.
         '''
-        if not filepath.lower().endswith('.mobi'):
+        opts = self.settings()
+        if not opts.extra_customization[self.OPT_APNX]:
+            return
+
+        if os.path.splitext(filepath.lower())[1] not in ('.azw', '.mobi', '.prc'):
             return
 
         apnx_path = '%s.apnx' % os.path.join(path, filename)
         apnx_builder = APNXBuilder()
         try:
-            apnx_builder.write_apnx(filepath, apnx_path)
+            apnx_builder.write_apnx(filepath, apnx_path, accurate=opts.extra_customization[self.OPT_APNX_ACCURATE])
         except:
             print 'Failed to generate APNX'
             import traceback

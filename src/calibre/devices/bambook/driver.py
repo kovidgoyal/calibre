@@ -32,6 +32,7 @@ class BAMBOOK(DeviceConfig, DevicePlugin):
     ip = None
 
     FORMATS = [ "snb" ]
+    USER_CAN_ADD_NEW_FORMATS = False
     VENDOR_ID = 0x230b
     PRODUCT_ID = 0x0001
     BCD = None
@@ -421,7 +422,7 @@ class BAMBOOK(DeviceConfig, DevicePlugin):
         from calibre.gui2.device_drivers.configwidget import ConfigWidget
         cw = ConfigWidget(cls.settings(), cls.FORMATS, cls.SUPPORTS_SUB_DIRS,
             cls.MUST_READ_METADATA, cls.SUPPORTS_USE_AUTHOR_SORT,
-            cls.EXTRA_CUSTOMIZATION_MESSAGE)
+            cls.EXTRA_CUSTOMIZATION_MESSAGE, cls)
         # Turn off the Save template
         cw.opt_save_template.setVisible(False)
         cw.label.setVisible(False)

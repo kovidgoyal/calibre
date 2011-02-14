@@ -39,6 +39,7 @@ if iswindows:
 class DriverBase(DeviceConfig, DevicePlugin):
     # Needed for config_widget to work
     FORMATS = ['epub', 'pdf']
+    USER_CAN_ADD_NEW_FORMATS = False
     SUPPORTS_SUB_DIRS = True   # To enable second checkbox in customize widget
 
     @classmethod

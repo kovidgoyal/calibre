@@ -912,6 +912,7 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
 
     def series_changed(self, *args):
         self.write_series = True
+        self.autonumber_series.setEnabled(True)
 
     def s_r_remove_query(self, *args):
         if self.query_field.currentIndex() == 0:

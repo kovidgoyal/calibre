@@ -303,6 +303,9 @@
             <layout class="QHBoxLayout" name="HLayout_3">
              <item>
               <widget class="QCheckBox" name="autonumber_series">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
                <property name="toolTip">
                 <string>If not checked, the series number for the books will be set to 1.
 If checked, selected books will be automatically numbered, in the order
@@ -1006,8 +1009,8 @@ not multiple and the destination field is multiple</string>
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>938</width>
-                <height>268</height>
+                <width>197</width>
+                <height>60</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="testgrid">
