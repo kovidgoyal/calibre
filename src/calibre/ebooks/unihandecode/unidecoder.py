@@ -8,10 +8,9 @@ __docformat__ = 'restructuredtext en'
 Decode unicode text to an ASCII representation of the text in Chinese.
 Transliterate unicode characters to ASCII based on chinese pronounce.
 
-Derived from John Schember's unidecode library
-(https://code.launchpad.net/~user-none/+junk/unidecoder).
+derived from John's unidecode library.
 
-Copyright(c) 2009, John Schember <john@nachtimwald.com>
+Copyright(c) 2009, John Schember
 
 Based on the ruby unidecode gem (http://rubyforge.org/projects/unidecode/) which
 is based on the perl module Text::Unidecode
