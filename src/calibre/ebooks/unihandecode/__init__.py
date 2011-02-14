@@ -9,8 +9,10 @@ __all__ = ["Unihandecoder"]
 Decode unicode text to an ASCII representation of the text.
 Translate unicode characters to ASCII.
 
-inspired from John's unidecode library.
-Copyright(c) 2009, John Schember
+Inspired from John Schember's unidecode library
+(https://code.launchpad.net/~user-none/+junk/unidecoder).
+
+Copyright(c) 2009, John Schember <john@nachtimwald.com>
 
 Tranliterate the string from unicode characters to ASCII in Chinese and others.
 
