@@ -120,11 +120,10 @@ class BooksModel(QAbstractTableModel): # {{{
 
     def set_device_connected(self, is_connected):
         self.device_connected = is_connected
-        # self.refresh_ondevice()
 
     def refresh_ondevice(self):
         self.db.refresh_ondevice()
-        self.refresh() # does a resort()
+        self.resort() #self.refresh() # does a resort()
         self.research()
 
     def set_book_on_device_func(self, func):
