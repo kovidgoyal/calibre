@@ -213,6 +213,8 @@ class CheckLibraryDialog(QDialog):
 
         self.log = QTreeWidget(self)
         self.log.itemChanged.connect(self.item_changed)
+        self.log.itemExpanded.connect(self.item_expanded_or_collapsed)
+        self.log.itemCollapsed.connect(self.item_expanded_or_collapsed)
         self._layout.addWidget(self.log)
 
         self.check_button = QPushButton(_('&Run the check again'))
@@ -333,10 +335,14 @@ class CheckLibraryDialog(QDialog):
         for check in CHECKS:
             builder(t, checker, check)
 
-        t.setColumnWidth(0, 200)
-        t.setColumnWidth(1, 400)
+        t.resizeColumnToContents(0)
+        t.resizeColumnToContents(1)
         self.delete_button.setEnabled(False)
         self.text_results = '\n'.join(plaintext)
+
+    def item_expanded_or_collapsed(self, item):
+        self.log.resizeColumnToContents(0)
+        self.log.resizeColumnToContents(1)
 
     def item_changed(self, item, column):
         self.fix_button.setEnabled(False)
