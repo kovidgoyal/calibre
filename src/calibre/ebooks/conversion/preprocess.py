@@ -543,9 +543,9 @@ class HTMLPreProcessor(object):
         html = XMLDECL_RE.sub('', html)
 
         if getattr(self.extra_opts, 'asciiize', False):
-            from calibre.ebooks.unidecode.unidecoder import Unidecoder
-            unidecoder = Unidecoder()
-            html = unidecoder.decode(html)
+            from calibre.utils.localization import get_udc
+            unihandecoder = get_udc()
+            html = unihandecoder.decode(html)
 
         if getattr(self.extra_opts, 'enable_heuristics', False):
             from calibre.ebooks.conversion.utils import HeuristicProcessor
@@ -557,10 +557,10 @@ class HTMLPreProcessor(object):
 
         unsupported_unicode_chars = self.extra_opts.output_profile.unsupported_unicode_chars
         if unsupported_unicode_chars:
-            from calibre.ebooks.unidecode.unidecoder import Unidecoder
-            unidecoder = Unidecoder()
+            from calibre.utils.localization import get_udc
+            unihandecoder = get_udc()
             for char in unsupported_unicode_chars:
-                asciichar = unidecoder.decode(char)
+                asciichar = unihandecoder.decode(char)
                 html = html.replace(char, asciichar)
 
         return html
