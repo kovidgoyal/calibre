@@ -123,7 +123,7 @@ class BooksModel(QAbstractTableModel): # {{{
 
     def refresh_ondevice(self):
         self.db.refresh_ondevice()
-        self.resort() #self.refresh() # does a resort()
+        self.resort()
         self.research()
 
     def set_book_on_device_func(self, func):
