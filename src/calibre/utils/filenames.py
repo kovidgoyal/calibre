@@ -6,12 +6,12 @@ meaning as possible.
 import os
 from math import ceil
 
-from calibre.ebooks.unidecode.unidecoder import Unidecoder
 from calibre import sanitize_file_name
 from calibre.constants import preferred_encoding, iswindows
-udc = Unidecoder()
+from calibre.utils.localization import get_udc
 
 def ascii_text(orig):
+    udc = get_udc()
     try:
         ascii = udc.decode(orig)
     except:

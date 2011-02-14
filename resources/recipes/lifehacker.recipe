@@ -8,7 +8,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class Lifehacker(BasicNewsRecipe):
     title                 = 'Lifehacker'
-    __author__            = 'NA'
+    __author__            = 'Kovid Goyal'
     description           = "Computers make us more productive. Yeah, right. Lifehacker recommends the software downloads and web sites that actually save time. Don't live to geek; geek to live."
     publisher             = 'lifehacker.com'
     category              = 'news, IT, Internet, gadgets, tips and tricks, howto, diy'
@@ -32,14 +32,20 @@ class Lifehacker(BasicNewsRecipe):
                         , 'language'  : language
                         }
 
-    remove_attributes  = ['width','height']
-    keep_only_tags     = [dict(attrs={'class':'content permalink'})]
+    remove_attributes  = ['width', 'height', 'style']
     remove_tags_before = dict(name='h1')
-    remove_tags        = [dict(attrs={'class':'contactinfo'})]
-    remove_tags_after  = dict(attrs={'class':'contactinfo'})
+    keep_only_tags = [dict(id='container')]
+    remove_tags_after  = dict(attrs={'class':'post-body'})
+    remove_tags = [
+            dict(id="sharemenu"),
+            {'class': 'related'},
+    ]
 
     feeds = [(u'Articles', u'http://feeds.gawker.com/lifehacker/full')]
 
     def preprocess_html(self, soup):
         return self.adeify_images(soup)
+
+    def print_version(self, url):
+        return url.replace('#!', '?_escaped_fragment_=')
 
