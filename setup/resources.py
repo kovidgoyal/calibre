@@ -116,9 +116,7 @@ class Resources(Command):
         if not os.path.exists(base):
             os.makedirs(base)
 
-        if not self.newer(dest, src):
-            self.info('\tKanwadict is up to date')
-        else:
+        if self.newer(dest, src):
             self.info('\tGenerating Kanwadict')
 
             for line in open(src, "r"):
@@ -129,9 +127,7 @@ class Resources(Command):
         dest = self.j(self.RESOURCES, 'localization',
                 'pykakasi','itaijidict2.pickle')
 
-        if not self.newer(dest, src):
-            self.info('\tItaijidict is up to date')
-        else:
+        if self.newer(dest, src):
             self.info('\tGenerating Itaijidict')
             self.mkitaiji(src, dest)
 
@@ -139,9 +135,7 @@ class Resources(Command):
         dest = self.j(self.RESOURCES, 'localization',
                 'pykakasi','kanadict2.pickle')
 
-        if not self.newer(dest, src):
-            self.info('\tKanadict is up to date')
-        else:
+        if self.newer(dest, src):
             self.info('\tGenerating kanadict')
             self.mkkanadict(src, dest)
 
