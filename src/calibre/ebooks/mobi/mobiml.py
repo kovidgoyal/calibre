@@ -454,7 +454,8 @@ class MobiMLizer(object):
                 text = COLLAPSE.sub(' ', elem.text)
         valign = style['vertical-align']
         not_baseline = valign in ('super', 'sub', 'text-top',
-                'text-bottom') or isinstance(valign, (float, int))
+                'text-bottom') or (
+                isinstance(valign, (float, int)) and abs(valign) != 0)
         issup = valign in ('super', 'text-top') or (
             isinstance(valign, (float, int)) and valign > 0)
         vtag = 'sup' if issup else 'sub'
