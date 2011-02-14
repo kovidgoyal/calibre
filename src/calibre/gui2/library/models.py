@@ -120,7 +120,7 @@ class BooksModel(QAbstractTableModel): # {{{
 
     def set_device_connected(self, is_connected):
         self.device_connected = is_connected
-        self.refresh_ondevice()
+        # self.refresh_ondevice()
 
     def refresh_ondevice(self):
         self.db.refresh_ondevice()
