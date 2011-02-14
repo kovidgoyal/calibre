@@ -5,19 +5,16 @@ __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
 import os
-import shutil
 
-from calibre import _ent_pat, walk, xml_entity_to_unicode, guess_type
+from calibre import _ent_pat, walk, xml_entity_to_unicode
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
 from calibre.ebooks.conversion.preprocess import DocAnalysis, Dehyphenator
 from calibre.ebooks.chardet import detect
-from calibre.ebooks.oeb.base import OEB_IMAGES
 from calibre.ebooks.txt.processor import convert_basic, convert_markdown, \
     separate_paragraphs_single_line, separate_paragraphs_print_formatted, \
     preserve_spaces, detect_paragraph_type, detect_formatting_type, \
     normalize_line_endings, convert_textile, remove_indents, block_to_single_line, \
     separate_hard_scene_breaks
-from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.zipfile import ZipFile
 
 class TXTInput(InputFormatPlugin):
@@ -69,29 +66,16 @@ class TXTInput(InputFormatPlugin):
         log.debug('Reading text from file...')
         length = 0
         # [(u'path', mime),]
-        images = []
 
         # Extract content from zip archive.
         if file_ext == 'txtz':
-            log.debug('De-compressing content to temporary directory...')
-            with TemporaryDirectory('_untxtz') as tdir:
-                zf = ZipFile(stream)
-                zf.extractall(tdir)
+            zf = ZipFile(stream)
+            zf.extractall('.')
 
-                for x in walk(tdir):
-                    if not os.path.isfile(x):
-                        continue
-                    if os.path.splitext(x)[1].lower() == '.txt':
-                        with open(x, 'rb') as tf:
-                            txt += tf.read() + '\n\n'
-                    mt = guess_type(x)[0]
-                    if mt in OEB_IMAGES:
-                        path = os.path.relpath(x, tdir)
-                        dir = os.path.join(os.getcwd(), os.path.dirname(path))
-                        if not os.path.exists(dir):
-                            os.makedirs(dir)
-                        shutil.copy(x, os.path.join(os.getcwd(), path))
-                        images.append((path, mt))
+            for x in walk('.'):
+                if os.path.splitext(x)[1].lower() == '.txt':
+                    with open(x, 'rb') as tf:
+                        txt += tf.read() + '\n\n'
         else:
             txt = stream.read()
 
@@ -194,7 +178,7 @@ class TXTInput(InputFormatPlugin):
             setattr(options, opt.option.name, opt.recommended_value)
         options.input_encoding = 'utf-8'
         base = os.getcwdu()
-        if hasattr(stream, 'name'):
+        if file_ext != 'txtz' and hasattr(stream, 'name'):
             base = os.path.dirname(stream.name)
         fname = os.path.join(base, 'index.html')
         c = 0
@@ -209,12 +193,6 @@ class TXTInput(InputFormatPlugin):
         # Generate oeb from html conversion.
         oeb = html_input.convert(open(htmlfile.name, 'rb'), options, 'html', log,
                 {})
-        # Add images from from txtz archive to oeb.
-        # Disabled as the conversion pipeline adds unmanifested items that are
-        # referred to in the content automatically
-        #for image, mime in images:
-        #    id, href = oeb.manifest.generate(id='image', href=image)
-        #    oeb.manifest.add(id, href, mime)
         options.debug_pipeline = odi
         os.remove(htmlfile.name)
 
