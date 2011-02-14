@@ -152,8 +152,17 @@ def check_ebook_format(stream, current_guess):
         stream.seek(0)
     return ans
 
+def normalize(x):
+    if isinstance(x, unicode):
+        import unicodedata
+        x = unicodedata.normalize('NFKC', x)
+    return x
+
 def calibre_cover(title, author_string, series_string=None,
         output_format='jpg', title_size=46, author_size=36):
+    title = normalize(title)
+    author_string = normalize(author_string)
+    series_string = normalize(series_string)
     from calibre.utils.magick.draw import create_cover_page, TextLine
     lines = [TextLine(title, title_size), TextLine(author_string, author_size)]
     if series_string:
