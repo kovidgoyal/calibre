@@ -191,8 +191,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         # migrate grouped_search_terms
         if self.prefs.get('grouped_search_terms', None) is None:
             try:
-                ogst = tweaks['grouped_search_terms']
-                print 'migrating'
+                ogst = tweaks.get('grouped_search_terms', {})
                 ngst = {}
                 for t in ogst:
                     ngst[icu_lower(t)] = ogst[t]

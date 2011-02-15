@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>670</width>
-    <height>391</height>
+    <height>556</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -92,26 +92,16 @@
      <property name="title">
       <string>Grouped Search Terms</string>
      </property>
-     <layout class="QVBoxLayout">
-      <item>
-       <widget class="QLabel" name="gst_explanation">
-        <property name="text">
-         <string>TextLabel</string>
-        </property>
-        <property name="wordWrap">
-         <bool>true</bool>
-        </property>
-        <property name="textInteractionFlags">
-         <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
-        </property>
-       </widget>
-      </item>
-      <item>
+     <layout class="QGridLayout" name="gridLayout_3">
+      <item row="0" column="0">
        <layout class="QHBoxLayout" name="l12">
         <item>
          <widget class="QLabel" name="la10">
           <property name="text">
-           <string>Grouped search terms:</string>
+           <string>&amp;Grouped search terms:</string>
+          </property>
+          <property name="buddy">
+           <cstring>gst_names</cstring>
           </property>
          </widget>
         </item>
@@ -133,6 +123,10 @@
           <property name="text">
            <string>...</string>
           </property>
+          <property name="icon">
+           <iconset resource="../../../../resources/images.qrc">
+            <normaloff>:/images/trash.png</normaloff>:/images/trash.png</iconset>
+          </property>
          </widget>
         </item>
         <item>
@@ -146,31 +140,31 @@ changing the name then pressing Save. You can change the value
 of a search term by changing the value box then pressing Save.</string>
           </property>
           <property name="text">
-           <string>Save</string>
+           <string>&amp;Save</string>
           </property>
          </widget>
         </item>
        </layout>
       </item>
-      <item>
-       <widget class="QLabel" name="muc_explanation">
-        <property name="text">
-         <string>TextLabel</string>
-        </property>
-        <property name="wordWrap">
-         <bool>true</bool>
-        </property>
-        <property name="textInteractionFlags">
-         <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+      <item row="0" column="1" rowspan="3">
+       <widget class="QTextBrowser" name="gst_explanation">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>100</verstretch>
+         </sizepolicy>
         </property>
        </widget>
       </item>
-      <item>
+      <item row="1" column="0">
        <layout class="QHBoxLayout">
         <item>
          <widget class="QLabel" name="l11">
           <property name="text">
-           <string>Make user categories:</string>
+           <string>Make &amp;user categories:</string>
+          </property>
+          <property name="buddy">
+           <cstring>opt_grouped_search_make_user_categories</cstring>
           </property>
          </widget>
         </item>
@@ -179,21 +173,21 @@ of a search term by changing the value box then pressing Save.</string>
         </item>
        </layout>
       </item>
+      <item row="2" column="0">
+       <spacer name="verticalSpacer">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
      </layout>
     </widget>
-   </item>
-   <item row="5" column="0">
-    <spacer name="verticalSpacer">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>0</width>
-       <height>0</height>
-      </size>
-     </property>
-    </spacer>
    </item>
   </layout>
  </widget>
@@ -204,6 +198,8 @@ of a search term by changing the value box then pressing Save.</string>
    <header>calibre/gui2/complete.h</header>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="../../../../resources/images.qrc"/>
+ </resources>
  <connections/>
 </ui>

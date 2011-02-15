@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from PyQt4.Qt import QApplication, QIcon
+from PyQt4.Qt import QApplication
 
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget, \
         CommaSeparatedList
@@ -30,23 +30,31 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.opt_limit_search_columns_to.update_items_cache(fl)
         self.clear_history_button.clicked.connect(self.clear_histories)
 
-        self.gst_explanation.setText(_(
-    "Grouped search terms are search names that permit a query to automatically "
+        self.gst_explanation.setText('<p>' + _(
+    "<b>Grouped search terms</b> are search names that permit a query to automatically "
     "search across more than one column. For example, if you create a grouped "
-    "search term 'myseries' with the value 'series, #myseries, #myseries2', "
-    "the query 'myseries:adhoc' will find the string 'adhoc' in any of the "
-    "columns 'series', '#myseries', and '#myseries2'. Enter the name of the "
+    "search term <code>allseries</code> with the value "
+    "<code>series, #myseries, #myseries2</code>, then "
+    "the query <code>allseries:adhoc</code> will find 'adhoc' in any of the "
+    "columns 'series', '#myseries', and '#myseries2'.<p> Enter the name of the "
     "grouped search term in the drop-down box, enter the list of columns "
     "to search in the value box, then push the Save button. "
-    "Notes: You cannot create a search term that is a duplicate of an existing "
-    "term or user category. Search terms are forced to lower case; 'MySearch' "
-    "and 'mysearch' are the same term."))
-
+    "<p>Note: Search terms are forced to lower case; 'MySearch' "
+    "and 'mysearch' are the same term."
+    "<p>You can have your grouped search term show up as a user category in "
+    " the Tag Browser. Just add the grouped search term name to the user "
+    "category box. You can add multiple terms separated by commas. "
+    "The user category will be "
+    "populated with all the items in the categories included in the grouped "
+    "search term. <p>This permits you to see easily all the category items that "
+    "are in the fields contained in the grouped search term. Using the above "
+    "'myseries' example, the automatically-generated user category would contain "
+    "all the series mentioned in 'series', '#myseries1', and '#myseries2'. This "
+    "can be useful to check for duplicates or to find which column contains "
+    "a particular item."))
         self.gst = db.prefs.get('grouped_search_terms', {})
         self.orig_gst_keys = self.gst.keys()
 
-        del_icon = QIcon(I('trash.png'))
-        self.gst_delete_button.setIcon(del_icon)
         fl = []
         for f in db.all_field_keys():
             fm = db.metadata_for_field(f)
@@ -67,18 +75,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.gst_delete_button.clicked.connect(self.gst_delete_clicked)
         self.gst_changed = False
 
-        self.muc_explanation.setText(_(
-    "Add a grouped search term name to this box to automatically generate "
-    "a user category with the name of the search term. The user category will be "
-    "populated with all the items in the categories included in the grouped "
-    "search term. This permits you to see easily all the category items that "
-    "are in the fields contained in the grouped search term. Using the above "
-    "'myseries' example, the automatically-generated user category would contain "
-    "all the series mentioned in 'series', '#myseries1', and '#myseries2'. This "
-    "can be useful to check for duplications or to find which column contains "
-    "a particular item."))
-
-        if not db.prefs.get('grouped_search_make_user_categories', None):
+        if db.prefs.get('grouped_search_make_user_categories', None) is None:
             db.prefs.set('grouped_search_make_user_categories', [])
         r('grouped_search_make_user_categories', db.prefs, setting=CommaSeparatedList)
         self.muc_changed = False
