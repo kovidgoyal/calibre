@@ -158,6 +158,8 @@ class MultiCompleteComboBox(EnComboBox):
         # item that matches case insensitively
         c = self.lineEdit().completer()
         c.setCaseSensitivity(Qt.CaseSensitive)
+        self.dummy_model = CompleteModel(self)
+        c.setModel(self.dummy_model)
 
     def update_items_cache(self, complete_items):
         self.lineEdit().update_items_cache(complete_items)

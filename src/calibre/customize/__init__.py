@@ -90,6 +90,11 @@ class Plugin(object): # {{{
         an optional method validate() that takes no arguments and is called
         immediately after the user clicks OK. Changes are applied if and only
         if the method returns True.
+
+        If for some reason you cannot perform the configuration at this time,
+        return a tuple of two strings (message, details), these will be
+        displayed as a warning dialog to the user and the process will be
+        aborted.
         '''
         raise NotImplementedError()
 
@@ -132,6 +137,12 @@ class Plugin(object): # {{{
             config_widget = self.config_widget()
         except NotImplementedError:
             config_widget = None
+
+        if isinstance(config_widget, tuple):
+            from calibre.gui2 import warning_dialog
+            warning_dialog(parent, _('Cannot configure'), config_widget[0],
+                    det_msg=config_widget[1], show=True)
+            return False
 
         if config_widget is not None:
             v.addWidget(config_widget)

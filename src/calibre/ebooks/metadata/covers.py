@@ -145,6 +145,7 @@ class LibraryThingCovers(CoverDownload): # {{{
             return url
 
     def has_cover(self, mi, ans, timeout=5.):
+        return False
         if not mi.isbn or not self.site_customization:
             return False
         from calibre.ebooks.metadata.library_thing import get_browser, login

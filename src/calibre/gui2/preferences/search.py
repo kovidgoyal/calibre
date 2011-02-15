@@ -26,11 +26,18 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('limit_search_columns_to', prefs, setting=CommaSeparatedList)
         fl = gui.library_view.model().db.field_metadata.get_search_terms()
         self.opt_limit_search_columns_to.update_items_cache(fl)
+        self.clear_history_button.clicked.connect(self.clear_histories)
 
     def refresh_gui(self, gui):
         gui.search.search_as_you_type(config['search_as_you_type'])
         gui.library_view.model().set_highlight_only(config['highlight_search_matches'])
         gui.search.do_search()
+
+    def clear_histories(self, *args):
+        for key, val in config.defaults.iteritems():
+            if key.endswith('_search_history') and isinstance(val, list):
+                config[key] = []
+        self.gui.search.clear_history()
 
 if __name__ == '__main__':
     app = QApplication([])

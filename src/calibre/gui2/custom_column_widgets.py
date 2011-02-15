@@ -551,7 +551,11 @@ class BulkBool(BulkBase, Bool):
 
     def setup_ui(self, parent):
         self.make_widgets(parent, QComboBox)
-        items = [_('Yes'), _('No'), _('Undefined')]
+        items = [_('Yes'), _('No')]
+        if tweaks['bool_custom_columns_are_tristate'] == 'no':
+            items.append('')
+        else:
+            items.append(_('Undefined'))
         icons = [I('ok.png'), I('list_remove.png'), I('blank.png')]
         self.main_widget.blockSignals(True)
         for icon, text in zip(icons, items):
@@ -560,7 +564,10 @@ class BulkBool(BulkBase, Bool):
 
     def getter(self):
         val = self.main_widget.currentIndex()
-        return {2: None, 1: False, 0: True}[val]
+        if tweaks['bool_custom_columns_are_tristate'] == 'no':
+            return {2: False, 1: False, 0: True}[val]
+        else:
+            return {2: None, 1: False, 0: True}[val]
 
     def setter(self, val):
         val = {None: 2, False: 1, True: 0}[val]
@@ -575,6 +582,14 @@ class BulkBool(BulkBase, Bool):
         if tweaks['bool_custom_columns_are_tristate'] == 'no' and val is None:
             val = False
         self.db.set_custom_bulk(book_ids, val, num=self.col_id, notify=notify)
+
+    def a_c_checkbox_changed(self):
+        if not self.ignore_change_signals:
+            if tweaks['bool_custom_columns_are_tristate'] == 'no' and \
+                                    self.main_widget.currentIndex() == 2:
+                self.a_c_checkbox.setChecked(False)
+            else:
+                self.a_c_checkbox.setChecked(True)
 
 class BulkInt(BulkBase):
 

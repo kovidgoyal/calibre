@@ -9,15 +9,16 @@ import textwrap
 from PyQt4.Qt import QWidget, QListWidgetItem, Qt, QVariant, SIGNAL, \
                      QLabel, QLineEdit, QCheckBox
 
-from calibre.gui2 import error_dialog
+from calibre.gui2 import error_dialog, question_dialog
 from calibre.gui2.device_drivers.configwidget_ui import Ui_ConfigWidget
 from calibre.utils.formatter import validation_formatter
+from calibre.ebooks import BOOK_EXTENSIONS
 
 class ConfigWidget(QWidget, Ui_ConfigWidget):
 
     def __init__(self, settings, all_formats, supports_subdirs,
         must_read_metadata, supports_use_author_sort,
-        extra_customization_message):
+        extra_customization_message, device):
 
         QWidget.__init__(self)
         Ui_ConfigWidget.__init__(self)
@@ -25,9 +26,15 @@ class ConfigWidget(QWidget, Ui_ConfigWidget):
 
         self.settings = settings
 
+        all_formats = set(all_formats)
+        self.calibre_known_formats = device.FORMATS
+        self.device_name = device.get_gui_name()
+        if device.USER_CAN_ADD_NEW_FORMATS:
+            all_formats = set(all_formats) | set(BOOK_EXTENSIONS)
+
         format_map = settings.format_map
         disabled_formats = list(set(all_formats).difference(format_map))
-        for format in format_map + disabled_formats:
+        for format in format_map + list(sorted(disabled_formats)):
             item = QListWidgetItem(format, self.columns)
             item.setData(Qt.UserRole, QVariant(format))
             item.setFlags(Qt.ItemIsEnabled|Qt.ItemIsUserCheckable|Qt.ItemIsSelectable)
@@ -110,6 +117,18 @@ class ConfigWidget(QWidget, Ui_ConfigWidget):
         return self.opt_use_author_sort.isChecked()
 
     def validate(self):
+        formats = set(self.format_map())
+        extra = formats - set(self.calibre_known_formats)
+        if extra:
+            fmts = sorted([x.upper() for x in extra])
+            if not question_dialog(self, _('Unknown formats'),
+                    _('You have enabled the <b>{0}</b> formats for'
+                        ' your {1}. The {1} may not support them.'
+                        ' If you send these formats to your {1} they '
+                        'may not work. Are you sure?').format(
+                            (', '.join(fmts)), self.device_name)):
+                return False
+
         tmpl = unicode(self.opt_save_template.text())
         try:
             validation_formatter.validate(tmpl)
