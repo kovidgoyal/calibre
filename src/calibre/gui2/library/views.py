@@ -551,8 +551,10 @@ class BooksView(QTableView): # {{{
         return mods & Qt.ControlModifier or mods & Qt.ShiftModifier
 
     def mousePressEvent(self, event):
-        if event.button() == Qt.LeftButton and not self.event_has_mods():
-            self.drag_start_pos = event.pos()
+        ep = event.pos()
+        if self.indexAt(ep) in self.selectionModel().selectedIndexes() and \
+                event.button() == Qt.LeftButton and not self.event_has_mods():
+            self.drag_start_pos = ep
         return QTableView.mousePressEvent(self, event)
 
     def mouseMoveEvent(self, event):
