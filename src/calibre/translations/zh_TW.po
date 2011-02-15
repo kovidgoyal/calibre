@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-02-11 19:54+0000\n"
-"PO-Revision-Date: 2011-02-13 00:20+0000\n"
+"PO-Revision-Date: 2011-02-15 03:58+0000\n"
 "Last-Translator: Chao-Hsiung Liao <j_h_liau@yahoo.com.tw>\n"
 "Language-Team: Chinese (traditional)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-02-14 04:51+0000\n"
+"X-Launchpad-Export-Date: 2011-02-15 04:36+0000\n"
 "X-Generator: Launchpad (build 12351)\n"
 "Language: zh_TW\n"
 
@@ -1561,7 +1561,7 @@ msgstr "用來協助轉換程序除錯的選項"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:208
 msgid "List builtin recipes"
-msgstr ""
+msgstr "列出內建的食譜"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:281
 msgid "Output saved to"
@@ -5324,11 +5324,11 @@ msgstr "電子書選項"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:296
 msgid "Sections to include in catalog."
-msgstr ""
+msgstr "要包含在分類中的節。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:297
 msgid "Included sections"
-msgstr ""
+msgstr "包含節"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:298
 msgid "Books by &Genre"
@@ -5411,7 +5411,7 @@ msgstr "符合的書籍會以核取標記顯示"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:319
 msgid "Read books"
-msgstr ""
+msgstr "已讀書籍"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:321
 msgid "Column containing 'read' status"
@@ -6748,7 +6748,7 @@ msgstr "處理之前不要移除圖片參照"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txtz_output.py:12
 msgid "TXTZ Output"
-msgstr ""
+msgstr "TXTZ 輸出"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xexp_edit_ui.py:54
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:77
@@ -9252,11 +9252,11 @@ msgstr "顯示分解的 ePub 內容"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:56
 msgid "&Explode ePub"
-msgstr ""
+msgstr "分解 &ePub"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:57
 msgid "Rebuild ePub from exploded contents"
-msgstr ""
+msgstr "從分解的內容中重建 ePub"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:58
 msgid "&Rebuild ePub"
@@ -9277,15 +9277,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:133
 msgid "No recipe selected"
-msgstr ""
+msgstr "尚未選取食譜"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:138
 msgid "The attached file: %s is a recipe to download %s."
-msgstr ""
+msgstr "附加的檔案：%s 是一個食譜，用來下載 %s。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:139
 msgid "Recipe for "
-msgstr ""
+msgstr "食譜： "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:156
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:167
@@ -9316,7 +9316,7 @@ msgstr "餵送 %s 必須有 URL"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:192
 msgid "This feed has already been added to the recipe"
-msgstr ""
+msgstr "這個餵送已加入食譜"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:233
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:242
@@ -9328,23 +9328,23 @@ msgstr "無效的輸入"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:243
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:330
 msgid "<p>Could not create recipe. Error:<br>%s"
-msgstr ""
+msgstr "<p>無法建立食譜。錯誤：<br>%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:247
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:306
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:333
 msgid "Replace recipe?"
-msgstr ""
+msgstr "是否取代食譜？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:248
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:307
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:334
 msgid "A custom recipe named %s already exists. Do you want to replace it?"
-msgstr ""
+msgstr "名為 %s 的自訂食譜已存在。您想要取代它嗎？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:274
 msgid "Choose builtin recipe"
-msgstr ""
+msgstr "選擇內建的食譜"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:320
 msgid "Choose a recipe file"
