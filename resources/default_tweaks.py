@@ -105,7 +105,7 @@ bool_custom_columns_are_tristate = 'yes'
 # title within authors.
 sort_columns_at_startup = None
 
-#; Control how dates are displayed
+#: Control how dates are displayed
 # Format to be used for publication date and the timestamp (date).
 #  A string controlling how the publication date is displayed in the GUI
 #  d    the day as number without a leading zero (1 to 31)

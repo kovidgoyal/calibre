@@ -137,14 +137,18 @@ def _config():
             help=_('Automatically download the cover, if available'))
     c.add_opt('enforce_cpu_limit', default=True,
             help=_('Limit max simultaneous jobs to number of CPUs'))
-    c.add_opt('tag_browser_hidden_categories', default=set(),
-            help=_('tag browser categories not to display'))
     c.add_opt('gui_layout', choices=['wide', 'narrow'],
             help=_('The layout of the user interface'), default='wide')
     c.add_opt('show_avg_rating', default=True,
             help=_('Show the average rating per item indication in the tag browser'))
     c.add_opt('disable_animations', default=False,
             help=_('Disable UI animations'))
+
+    # This option is no longer used. It remains for compatibility with upgrades
+    # so the value can be migrated
+    c.add_opt('tag_browser_hidden_categories', default=set(),
+            help=_('tag browser categories not to display'))
+
     c.add_opt
     return ConfigProxy(c)
 

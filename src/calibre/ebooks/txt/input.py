@@ -4,10 +4,9 @@ __license__ = 'GPL 3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import glob
 import os
 
-from calibre import _ent_pat, xml_entity_to_unicode
+from calibre import _ent_pat, walk, xml_entity_to_unicode
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
 from calibre.ebooks.conversion.preprocess import DocAnalysis, Dehyphenator
 from calibre.ebooks.chardet import detect
@@ -16,7 +15,6 @@ from calibre.ebooks.txt.processor import convert_basic, convert_markdown, \
     preserve_spaces, detect_paragraph_type, detect_formatting_type, \
     normalize_line_endings, convert_textile, remove_indents, block_to_single_line, \
     separate_hard_scene_breaks
-from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.zipfile import ZipFile
 
 class TXTInput(InputFormatPlugin):
@@ -28,20 +26,23 @@ class TXTInput(InputFormatPlugin):
 
     options = set([
         OptionRecommendation(name='paragraph_type', recommended_value='auto',
-            choices=['auto', 'block', 'single', 'print', 'unformatted'],
+            choices=['auto', 'block', 'single', 'print', 'unformatted', 'off'],
             help=_('Paragraph structure.\n'
-                   'choices are [\'auto\', \'block\', \'single\', \'print\', \'unformatted\']\n'
+                   'choices are [\'auto\', \'block\', \'single\', \'print\', \'unformatted\', \'off\']\n'
                    '* auto: Try to auto detect paragraph type.\n'
                    '* block: Treat a blank line as a paragraph break.\n'
                    '* single: Assume every line is a paragraph.\n'
                    '* print:  Assume every line starting with 2+ spaces or a tab '
-                   'starts a paragraph.'
-                   '* unformatted: Most lines have hard line breaks, few/no blank lines or indents.')),
+                   'starts a paragraph.\n'
+                   '* unformatted: Most lines have hard line breaks, few/no blank lines or indents. '
+                   'Tries to determine structure and reformat the differentiate elements.\n'
+                   '* off: Don\'t modify the paragraph structure. This is useful when combined with '
+                   'Markdown or Textile formatting to ensure no formatting is lost.')),
         OptionRecommendation(name='formatting_type', recommended_value='auto',
-            choices=['auto', 'none', 'heuristic', 'textile', 'markdown'],
+            choices=['auto', 'plain', 'heuristic', 'textile', 'markdown'],
             help=_('Formatting used within the document.'
                    '* auto: Automatically decide which formatting processor to use.\n'
-                   '* none: Do not process the document formatting. Everything is a '
+                   '* plain: Do not process the document formatting. Everything is a '
                    'paragraph and no styling is applied.\n'
                    '* heuristic: Process using heuristics to determine formatting such '
                    'as chapter headings and italic text.\n'
@@ -64,18 +65,17 @@ class TXTInput(InputFormatPlugin):
         txt = ''
         log.debug('Reading text from file...')
         length = 0
+        # [(u'path', mime),]
 
         # Extract content from zip archive.
         if file_ext == 'txtz':
-            log.debug('De-compressing content to temporary directory...')
-            with TemporaryDirectory('_untxtz') as tdir:
-                zf = ZipFile(stream)
-                zf.extractall(tdir)
+            zf = ZipFile(stream)
+            zf.extractall('.')
 
-                txts = glob.glob(os.path.join(tdir, '*.txt'))
-                for t in txts:
-                    with open(t, 'rb') as tf:
-                        txt += tf.read()
+            for x in walk('.'):
+                if os.path.splitext(x)[1].lower() == '.txt':
+                    with open(x, 'rb') as tf:
+                        txt += tf.read() + '\n\n'
         else:
             txt = stream.read()
 
@@ -134,7 +134,7 @@ class TXTInput(InputFormatPlugin):
             preprocessor = HeuristicProcessor(options, log=getattr(self, 'log', None))
             txt = preprocessor.punctuation_unwrap(length, txt, 'txt')
             txt = separate_paragraphs_single_line(txt)
-        else:
+        elif options.paragraph_type == 'block':
             txt = separate_hard_scene_breaks(txt)
             txt = block_to_single_line(txt)
 
@@ -178,7 +178,7 @@ class TXTInput(InputFormatPlugin):
             setattr(options, opt.option.name, opt.recommended_value)
         options.input_encoding = 'utf-8'
         base = os.getcwdu()
-        if hasattr(stream, 'name'):
+        if file_ext != 'txtz' and hasattr(stream, 'name'):
             base = os.path.dirname(stream.name)
         fname = os.path.join(base, 'index.html')
         c = 0
@@ -190,16 +190,16 @@ class TXTInput(InputFormatPlugin):
             htmlfile.write(html.encode('utf-8'))
         odi = options.debug_pipeline
         options.debug_pipeline = None
-        # Generate oeb from htl conversion.
+        # Generate oeb from html conversion.
         oeb = html_input.convert(open(htmlfile.name, 'rb'), options, 'html', log,
                 {})
         options.debug_pipeline = odi
         os.remove(htmlfile.name)
-        
+
         # Set metadata from file.
         from calibre.customize.ui import get_file_type_metadata
         from calibre.ebooks.oeb.transforms.metadata import meta_info_to_oeb_metadata
         mi = get_file_type_metadata(stream, file_ext)
         meta_info_to_oeb_metadata(mi, oeb.metadata, log)
-        
+
         return oeb
