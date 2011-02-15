@@ -245,19 +245,6 @@ sony_collection_name_template='{value}{category:| (|)}'
 sony_collection_sorting_rules = []
 
 
-#: Create search terms to apply a query across several built-in search terms.
-# Syntax: {'new term':['existing term 1', 'term 2', ...], 'new':['old'...] ...}
-# Example: create the term 'myseries' that when used as myseries:foo would
-# search all of the search categories 'series', '#myseries', and '#myseries2':
-# grouped_search_terms={'myseries':['series','#myseries', '#myseries2']}
-# Example: two search terms 'a' and 'b' both that search 'tags' and '#mytags':
-# grouped_search_terms={'a':['tags','#mytags'], 'b':['tags','#mytags']}
-# Note: You cannot create a search term that is a duplicate of an existing term.
-# Such duplicates will be silently ignored. Also note that search terms ignore
-# case. 'MySearch' and 'mysearch' are the same term.
-grouped_search_terms = {}
-
-
 #: Control how tags are applied when copying books to another library
 # Set this to True to ensure that tags in 'Tags to add when adding
 # a book' are added when copying books to another library

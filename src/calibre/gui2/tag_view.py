@@ -466,10 +466,7 @@ class TagTreeItem(object): # {{{
             icon_map[0] = data.icon
             self.tag, self.icon_state_map = data, list(map(QVariant, icon_map))
         if tooltip:
-            if tooltip.endswith(':'):
-                self.tooltip = tooltip + ' '
-            else:
-                self.tooltip = tooltip + ': '
+            self.tooltip = tooltip + ' '
         else:
             self.tooltip = ''
 
@@ -589,11 +586,17 @@ class TagsModel(QAbstractItemModel): # {{{
 
         # get_node_tree cannot return None here, because row_map is empty
         data = self.get_node_tree(config['sort_tags_by'])
+        gst = db.prefs.get('grouped_search_terms', {})
         self.root_item = TagTreeItem()
         for i, r in enumerate(self.row_map):
             if self.hidden_categories and self.categories[i] in self.hidden_categories:
                 continue
-            tt = _(u'The lookup/search name is "{0}"').format(r)
+            if r.startswith('@') and r[1:] in gst:
+                tt = _(u'The grouped search term name is "{0}"').format(r[1:])
+            elif r == 'news':
+                tt = ''
+            else:
+                tt = _(u'The lookup/search name is "{0}"').format(r)
             TagTreeItem(parent=self.root_item,
                     data=self.categories[i],
                     category_icon=self.category_icon_map[r],
@@ -735,6 +738,14 @@ class TagsModel(QAbstractItemModel): # {{{
         self.row_map = []
         self.categories = []
 
+        # Get the categories
+        if self.search_restriction:
+            data = self.db.get_categories(sort=sort,
+                        icon_map=self.category_icon_map,
+                        ids=self.db.search('', return_matches=True))
+        else:
+            data = self.db.get_categories(sort=sort, icon_map=self.category_icon_map)
+
         # Reconstruct the user categories, putting them into metadata
         self.db.field_metadata.remove_dynamic_categories()
         tb_cats = self.db.field_metadata
@@ -746,16 +757,15 @@ class TagsModel(QAbstractItemModel): # {{{
             except ValueError:
                 import traceback
                 traceback.print_exc()
+
+        for cat in sorted(self.db.prefs.get('grouped_search_terms', {}),
+                          key=sort_key):
+            if (u'@' + cat) in data:
+                tb_cats.add_user_category(label=u'@' + cat, name=cat)
+        self.db.data.change_search_locations(self.db.field_metadata.get_search_terms())
+
         if len(saved_searches().names()):
             tb_cats.add_search_category(label='search', name=_('Searches'))
-
-        # Now get the categories
-        if self.search_restriction:
-            data = self.db.get_categories(sort=sort,
-                        icon_map=self.category_icon_map,
-                        ids=self.db.search('', return_matches=True))
-        else:
-            data = self.db.get_categories(sort=sort, icon_map=self.category_icon_map)
 
         if self.filter_categories_by:
             for category in data.keys():
@@ -767,6 +777,7 @@ class TagsModel(QAbstractItemModel): # {{{
             if category in data: # The search category can come and go
                 self.row_map.append(category)
                 self.categories.append(tb_categories[category]['name'])
+
         if len(old_row_map) != 0 and len(old_row_map) != len(self.row_map):
             # A category has been added or removed. We must force a rebuild of
             # the model
@@ -822,6 +833,7 @@ class TagsModel(QAbstractItemModel): # {{{
                                 not self.db.field_metadata[r]['is_custom'] and \
                                 not self.db.field_metadata[r]['kind'] == 'user' \
                             else False
+            tt = r if self.db.field_metadata[r]['kind'] == 'user' else None
             for idx,tag in enumerate(data[r]):
                 if clear_rating:
                     tag.avg_rating = None
@@ -861,10 +873,10 @@ class TagsModel(QAbstractItemModel): # {{{
                                      category_icon = category_node.icon,
                                      tooltip = None,
                                      category_key=category_node.category_key)
-                    t = TagTreeItem(parent=sub_cat, data=tag, tooltip=r,
+                    t = TagTreeItem(parent=sub_cat, data=tag, tooltip=tt,
                                         icon_map=self.icon_state_map)
                 else:
-                    t = TagTreeItem(parent=category, data=tag, tooltip=r,
+                    t = TagTreeItem(parent=category, data=tag, tooltip=tt,
                                     icon_map=self.icon_state_map)
             self.endInsertRows()
         return True
