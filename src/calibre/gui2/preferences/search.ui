@@ -98,7 +98,7 @@
         <item>
          <widget class="QLabel" name="la10">
           <property name="text">
-           <string>&amp;Grouped search terms:</string>
+           <string>&amp;Names:</string>
           </property>
           <property name="buddy">
            <cstring>gst_names</cstring>
@@ -112,6 +112,13 @@
           </property>
           <property name="minimumContentsLength">
            <number>10</number>
+          </property>
+          <property name="toolTip">
+           <string>Contains the names of the currently-defined group search terms.
+Create a new name by entering it into the empty box, then
+pressing Save. Rename a search term by selecting it then
+changing the name and pressing Save. Change the value of
+a search term by changing the value box then pressing Save.</string>
           </property>
          </widget>
         </item>
@@ -161,7 +168,7 @@ of a search term by changing the value box then pressing Save.</string>
         <item>
          <widget class="QLabel" name="l11">
           <property name="text">
-           <string>Make &amp;user categories:</string>
+           <string>Make &amp;user categories from:</string>
           </property>
           <property name="buddy">
            <cstring>opt_grouped_search_make_user_categories</cstring>
@@ -169,7 +176,12 @@ of a search term by changing the value box then pressing Save.</string>
          </widget>
         </item>
         <item>
-         <widget class="MultiCompleteLineEdit" name="opt_grouped_search_make_user_categories"/>
+         <widget class="MultiCompleteLineEdit" name="opt_grouped_search_make_user_categories">
+          <property name="toolTip">
+           <string>Enter the names of any grouped search terms you wish
+to be shown as user categories</string>
+          </property>
+         </widget>
         </item>
        </layout>
       </item>
