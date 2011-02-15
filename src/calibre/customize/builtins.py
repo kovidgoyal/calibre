@@ -137,7 +137,7 @@ class TXT2TXTZ(FileTypePlugin):
             txtz = zipfile.ZipFile(of.name, 'w')
             # Add selected TXT file to archive.
             txtz.write(path_to_ebook, os.path.basename(path_to_ebook), zipfile.ZIP_DEFLATED)
-            # metadat.opf
+            # metadata.opf
             if os.path.exists(os.path.join(base_dir, 'metadata.opf')):
                 txtz.write(os.path.join(base_dir, 'metadata.opf'), 'metadata.opf', zipfile.ZIP_DEFLATED)
             else:
