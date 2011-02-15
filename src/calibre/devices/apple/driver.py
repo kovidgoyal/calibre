@@ -24,6 +24,7 @@ from calibre.utils.logging import Log
 from calibre.utils.zipfile import ZipFile
 
 from PIL import Image as PILImage
+from lxml import etree
 
 if isosx:
     try:
@@ -2515,23 +2516,23 @@ class ITUNES(DriverBase):
             fnames = zf_opf.namelist()
             opf = [x for x in fnames if '.opf' in x][0]
             if opf:
-                opf_raw = cStringIO.StringIO(zf_opf.read(opf))
-                soup = BeautifulSoup(opf_raw.getvalue())
-                opf_raw.close()
-
-                # Touch existing calibre timestamp
-                md = soup.find('metadata')
-                if md:
-                    ts = md.find('meta',attrs={'name':'calibre:timestamp'})
-                    if ts:
-                        timestamp = ts['content']
-                        old_ts = parse_date(timestamp)
-                        metadata.timestamp = datetime.datetime(old_ts.year, old_ts.month, old_ts.day, old_ts.hour,
-                                                   old_ts.minute, old_ts.second, old_ts.microsecond+1, old_ts.tzinfo)
-                    else:
-                        metadata.timestamp = now()
-                        if DEBUG:
-                            self.log.info("   add timestamp: %s" % metadata.timestamp)
+                opf_tree = etree.fromstring(zf_opf.read(opf))
+                ns_map = opf_tree.nsmap.keys()
+                for item in ns_map:
+                    ns = opf_tree.nsmap[item]
+                    md_el = opf_tree.find(".//{%s}metadata" % ns)
+                    if md_el is not None:
+                        ts = md_el.find('.//{%s}meta[@name="calibre:timestamp"]')
+                        if ts:
+                            timestamp = ts.get('content')
+                            old_ts = parse_date(timestamp)
+                            metadata.timestamp = datetime.datetime(old_ts.year, old_ts.month, old_ts.day, old_ts.hour,
+                                                       old_ts.minute, old_ts.second, old_ts.microsecond+1, old_ts.tzinfo)
+                        else:
+                            metadata.timestamp = now()
+                            if DEBUG:
+                                self.log.info("   add timestamp: %s" % metadata.timestamp)
+                        break
                 else:
                     metadata.timestamp = now()
                     if DEBUG:
@@ -2839,7 +2840,7 @@ class ITUNES(DriverBase):
     def _xform_metadata_via_plugboard(self, book, format):
         ''' Transform book metadata from plugboard templates '''
         if DEBUG:
-            self.log.info("  ITUNES._update_metadata_from_plugboard()")
+            self.log.info("  ITUNES._xform_metadata_via_plugboard()")
 
         if self.plugboard_func:
             pb = self.plugboard_func(self.DEVICE_PLUGBOARD_NAME, format, self.plugboards)
