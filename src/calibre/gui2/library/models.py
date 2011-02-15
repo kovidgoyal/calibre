@@ -825,7 +825,7 @@ class BooksModel(QAbstractTableModel): # {{{
                     return False
                 val = int(value.toInt()[0]) if column == 'rating' else \
                       value.toDate() if column in ('timestamp', 'pubdate') else \
-                      unicode(value.toString())
+                      unicode(value.toString()).strip()
                 id = self.db.id(row)
                 books_to_refresh = set([id])
                 if column == 'rating':

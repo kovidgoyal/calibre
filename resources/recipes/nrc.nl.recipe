@@ -21,8 +21,8 @@ class Pagina12(BasicNewsRecipe):
     country               = 'NL'
     remove_empty_feeds    = True
     masthead_url          = 'http://www.nrc.nl/nrc.nl/images/logo_nrc.png'
-    extra_css             = """ 
-                                body{font-family: Georgia,serif } 
+    extra_css             = """
+                                body{font-family: Georgia,serif }
                                 img{margin-bottom: 0.4em; display: block}
                                 .bijschrift,.sectie{font-size: x-small}
                                 .sectie{color: gray}
@@ -38,10 +38,10 @@ class Pagina12(BasicNewsRecipe):
     keep_only_tags = [dict(attrs={'class':'uitstekendekeus'})]
     remove_tags    = [
                         dict(name=['meta','base','link','object','embed'])
-                       ,dict(attrs={'class':['reclamespace','tags-and-sharing']})
+                       ,dict(attrs={'class':['reclamespace','tags-and-sharing','sharing-is-caring']})
                      ]
     remove_attributes=['lang']
-    
+
     feeds = [
               (u'Voor nieuws', u'http://www.nrc.nl/nieuws/categorie/nieuws/rss.php'           )
              ,(u'Binnenland' , u'http://www.nrc.nl/nieuws/categorie/binnenland/rss.php'       )
@@ -69,8 +69,8 @@ class Pagina12(BasicNewsRecipe):
                          del item[atit]
                else:
                    str = self.tag_to_string(item)
-                   item.replaceWith(str)            
+                   item.replaceWith(str)
         for item in soup.findAll('img'):
             if not item.has_key('alt'):
-               item['alt'] = 'image'               
+               item['alt'] = 'image'
         return soup

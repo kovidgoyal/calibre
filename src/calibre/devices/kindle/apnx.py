@@ -25,7 +25,7 @@ class APNXBuilder(object):
         with open(mobi_file_path, 'rb') as mf:
             ident = PdbHeaderReader(mf).identity()
         if ident != 'BOOKMOBI':
-            raise Exception(_('Not a valid MOBI file. Reports identity of %s' % ident))
+            raise Exception(_('Not a valid MOBI file. Reports identity of %s') % ident)
 
         # Get the pages depending on the chosen parser
         pages = []

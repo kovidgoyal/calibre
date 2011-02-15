@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>670</width>
-    <height>392</height>
+    <height>556</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -77,19 +77,6 @@
      </layout>
     </widget>
    </item>
-   <item row="4" column="0">
-    <spacer name="verticalSpacer">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>0</width>
-       <height>0</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
    <item row="3" column="0">
     <widget class="QPushButton" name="clear_history_button">
      <property name="toolTip">
@@ -98,6 +85,120 @@
      <property name="text">
       <string>Clear search &amp;histories</string>
      </property>
+    </widget>
+   </item>
+   <item row="4" column="0">
+    <widget class="QGroupBox" name="groupBox_2">
+     <property name="title">
+      <string>Grouped Search Terms</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_3">
+      <item row="0" column="0">
+       <layout class="QHBoxLayout" name="l12">
+        <item>
+         <widget class="QLabel" name="la10">
+          <property name="text">
+           <string>&amp;Names:</string>
+          </property>
+          <property name="buddy">
+           <cstring>gst_names</cstring>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="gst_names">
+          <property name="editable">
+           <bool>true</bool>
+          </property>
+          <property name="minimumContentsLength">
+           <number>10</number>
+          </property>
+          <property name="toolTip">
+           <string>Contains the names of the currently-defined group search terms.
+Create a new name by entering it into the empty box, then
+pressing Save. Rename a search term by selecting it then
+changing the name and pressing Save. Change the value of
+a search term by changing the value box then pressing Save.</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QToolButton" name="gst_delete_button">
+          <property name="toolTip">
+           <string>Delete the current search term</string>
+          </property>
+          <property name="text">
+           <string>...</string>
+          </property>
+          <property name="icon">
+           <iconset resource="../../../../resources/images.qrc">
+            <normaloff>:/images/trash.png</normaloff>:/images/trash.png</iconset>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="MultiCompleteLineEdit" name="gst_value"/>
+        </item>
+        <item>
+         <widget class="QToolButton" name="gst_save_button">
+          <property name="toolTip">
+           <string>Save the current search term. You can rename a search term by
+changing the name then pressing Save. You can change the value
+of a search term by changing the value box then pressing Save.</string>
+          </property>
+          <property name="text">
+           <string>&amp;Save</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="0" column="1" rowspan="3">
+       <widget class="QTextBrowser" name="gst_explanation">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>100</verstretch>
+         </sizepolicy>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <layout class="QHBoxLayout">
+        <item>
+         <widget class="QLabel" name="l11">
+          <property name="text">
+           <string>Make &amp;user categories from:</string>
+          </property>
+          <property name="buddy">
+           <cstring>opt_grouped_search_make_user_categories</cstring>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="MultiCompleteLineEdit" name="opt_grouped_search_make_user_categories">
+          <property name="toolTip">
+           <string>Enter the names of any grouped search terms you wish
+to be shown as user categories</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="2" column="0">
+       <spacer name="verticalSpacer">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
     </widget>
    </item>
   </layout>
@@ -109,6 +210,8 @@
    <header>calibre/gui2/complete.h</header>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="../../../../resources/images.qrc"/>
+ </resources>
  <connections/>
 </ui>
