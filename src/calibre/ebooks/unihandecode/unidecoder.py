@@ -1,12 +1,17 @@
 # -*- coding: utf-8 -*-
 
 __license__ = 'GPL 3'
-__copyright__ = '2009, John Schember <john@nachtimwald.com>'
+__copyright__ = '2010, Hiroshi Miura <miurahr@linux.com>'
 __docformat__ = 'restructuredtext en'
 
 '''
-Decode unicode text to an ASCII representation of the text. Transliterate
-unicode characters to ASCII.
+Decode unicode text to an ASCII representation of the text in Chinese.
+Transliterate unicode characters to ASCII based on chinese pronounce.
+
+Derived from John Schember's unidecode library. Which was created
+as part of calibre.
+
+Copyright(c) 2009, John Schember <john@nachtimwald.com>
 
 Based on the ruby unidecode gem (http://rubyforge.org/projects/unidecode/) which
 is based on the perl module Text::Unidecode
@@ -55,29 +60,20 @@ it under the same terms as Perl itself.
 '''
 
 import re
-
-from calibre.ebooks.unidecode.unicodepoints import CODEPOINTS
-from calibre.constants import preferred_encoding
+from calibre.ebooks.unihandecode.unicodepoints import CODEPOINTS
+from calibre.ebooks.unihandecode.zhcodepoints import CODEPOINTS as HANCODES
 
 class Unidecoder(object):
 
+    codepoints = {}
+
+    def __init__(self):
+        self.codepoints = CODEPOINTS
+        self.codepoints.update(HANCODES)
+
     def decode(self, text):
-        '''
-        Tranliterate the string from unicode characters to ASCII.
-        '''
-        # The keys for CODEPOINTS is unicode characters, we want to be sure the
-        # input text is unicode.
-        if not isinstance(text, unicode):
-            try:
-                text = unicode(text)
-            except:
-                try:
-                    text = text.decode(preferred_encoding)
-                except:
-                    text = text.decode('utf-8', 'replace')
         # Replace characters larger than 127 with their ASCII equivelent.
-        return re.sub('[^\x00-\x7f]', lambda x: self.replace_point(x.group()),
-            text)
+        return re.sub('[^\x00-\x7f]',lambda x: self.replace_point(x.group()), text)
 
     def replace_point(self, codepoint):
         '''
@@ -87,7 +83,7 @@ class Unidecoder(object):
             # Split the unicode character xABCD into parts 0xAB and 0xCD.
             # 0xAB represents the group within CODEPOINTS to query and 0xCD
             # represents the position in the list of characters for the group.
-            return CODEPOINTS[self.code_group(codepoint)][self.grouped_point(
+            return self.codepoints[self.code_group(codepoint)][self.grouped_point(
                 codepoint)]
         except:
             return '?'
@@ -97,12 +93,18 @@ class Unidecoder(object):
         Find what group character is a part of.
         '''
         # Code groups withing CODEPOINTS take the form 'xAB'
-        return u'x%02x' % (ord(unicode(character)) >> 8)
+        try:#python2
+            return 'x%02x' % (ord(unicode(character)) >> 8)
+        except:
+            return 'x%02x' % (ord(character) >> 8)
 
     def grouped_point(self, character):
         '''
         Return the location the replacement character is in the list for a
         the group character is a part of.
         '''
-        return ord(unicode(character)) & 255
+        try:#python2
+            return ord(unicode(character)) & 255
+        except:
+            return ord(character) & 255
 

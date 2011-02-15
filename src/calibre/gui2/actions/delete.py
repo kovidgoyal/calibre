@@ -271,11 +271,6 @@ class DeleteAction(InterfaceAction):
                         partial(self.library_ids_deleted, current_row=row))
         # Device view is visible.
         else:
-            if not confirm('<p>'+_('The selected books will be '
-                                   '<b>permanently deleted</b> '
-                                   'from your device. Are you sure?')
-                                +'</p>', 'device_delete_books', self.gui):
-                return
             if self.gui.stack.currentIndex() == 1:
                 view = self.gui.memory_view
             elif self.gui.stack.currentIndex() == 2:
@@ -283,8 +278,14 @@ class DeleteAction(InterfaceAction):
             else:
                 view = self.gui.card_b_view
             paths = view.model().paths(rows)
+            ids = view.model().indices(rows)
+            if not confirm('<p>'+_('The selected books will be '
+                                   '<b>permanently deleted</b> '
+                                   'from your device. Are you sure?')
+                                +'</p>', 'device_delete_books', self.gui):
+                return
             job = self.gui.remove_paths(paths)
             self.delete_memory[job] = (paths, view.model())
-            view.model().mark_for_deletion(job, rows)
+            view.model().mark_for_deletion(job, ids, rows_are_ids=True)
             self.gui.status_bar.show_message(_('Deleting books from device.'), 1000)
 

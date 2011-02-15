@@ -1,5 +1,5 @@
 __license__   = 'GPL v3'
-__copyright__ = '2010, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2010-2011, Darko Miletic <darko.miletic at gmail.com>'
 '''
 smh.com.au
 '''
@@ -22,7 +22,11 @@ class Smh_au(BasicNewsRecipe):
     remove_empty_feeds    = True
     masthead_url          = 'http://images.smh.com.au/2010/02/02/1087188/smh-620.jpg'
     publication_type      = 'newspaper'
-    extra_css             = ' h1{font-family: Georgia,"Times New Roman",Times,serif } body{font-family: Arial,Helvetica,sans-serif} .cT-imageLandscape{font-size: x-small} '
+    extra_css             = """ 
+                                h1{font-family: Georgia,"Times New Roman",Times,serif } 
+                                body{font-family: Arial,Helvetica,sans-serif} 
+                                .cT-imageLandscape,.cT-imagePortrait{font-size: x-small} 
+                            """
 
     conversion_options = {
                           'comment'   : description
@@ -38,7 +42,11 @@ class Smh_au(BasicNewsRecipe):
                   ]
     remove_tags_after = [dict(name='div',attrs={'class':'articleBody'})]
     keep_only_tags    = [dict(name='div',attrs={'id':'content'})]
-    remove_attributes = ['width','height']
+    remove_tags       = [ 
+                          dict(attrs={'class':'hidden'}), 
+                          dict(name=['link','meta','base','embed','object','iframe'])
+                        ]
+    remove_attributes = ['width','height','lang']
 
     def parse_index(self):
         articles = []
@@ -66,3 +74,14 @@ class Smh_au(BasicNewsRecipe):
                                  ,'description':description
                                 })
         return [(self.tag_to_string(soup.find('title')), articles)]
+
+    def preprocess_html(self, soup):
+        for item in soup.findAll(style=True):
+            del item['style']
+        for item in soup.findAll('bod'):
+            item.name = 'div'
+        for item in soup.findAll('img'):
+            if not item.has_key('alt'):
+               item['alt'] = 'image'
+        return soup
+        

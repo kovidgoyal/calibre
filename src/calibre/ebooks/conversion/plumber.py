@@ -402,8 +402,8 @@ OptionRecommendation(name='asciiize',
             'with "Mikhail Gorbachiov". Also, note that in '
             'cases where there are multiple representations of a character '
             '(characters shared by Chinese and Japanese for instance) the '
-            'representation used by the largest number of people will be '
-            'used (Chinese in the previous example).')%\
+            'representation based on the current calibre interface language will be '
+            'used.')%\
             u'\u041c\u0438\u0445\u0430\u0438\u043b '
             u'\u0413\u043e\u0440\u0431\u0430\u0447\u0451\u0432'
 )
