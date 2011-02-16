@@ -690,8 +690,9 @@ class BrowseServer(object):
                 if m['is_custom'] and field not in displayed_custom_fields:
                     continue
                 if m['datatype'] == 'comments' or field == 'comments':
-                    comments.append((m['name'], comments_to_html(mi.get(field,
-                        ''))))
+                    val = mi.get(field, '')
+                    if val and val.strip():
+                        comments.append((m['name'], comments_to_html(val)))
                     continue
                 if field in ('title', 'formats') or not args.get(field, False) \
                         or not m['name']:
