@@ -10,17 +10,19 @@ INFO  = 1
 WARN  = 2
 ERROR = 3
 
-import sys, traceback
+import sys, traceback, cStringIO
 from functools import partial
-
+from threading import RLock
 
 
 
 class Stream(object):
 
-    def __init__(self, stream):
+    def __init__(self, stream=None):
         from calibre import prints
         self._prints = partial(prints, safe_encode=True)
+        if stream is None:
+            stream = cStringIO.StringIO()
         self.stream = stream
 
     def flush(self):
@@ -49,6 +51,15 @@ class ANSIStream(Stream):
 
     def flush(self):
         self.stream.flush()
+
+class FileStream(Stream):
+
+    def __init__(self, stream=None):
+        Stream.__init__(self, stream)
+
+    def prints(self, level, *args, **kwargs):
+        kwargs['file'] = self.stream
+        self._prints(*args, **kwargs)
 
 class HTMLStream(Stream):
 
@@ -102,5 +113,15 @@ class Log(object):
 
     def __call__(self, *args, **kwargs):
         self.prints(INFO, *args, **kwargs)
+
+class ThreadSafeLog(Log):
+
+    def __init__(self, level=Log.INFO):
+        Log.__init__(self, level=level)
+        self._lock = RLock()
+
+    def prints(self, *args, **kwargs):
+        with self._lock:
+            Log.prints(self, *args, **kwargs)
 
 default_log = Log()

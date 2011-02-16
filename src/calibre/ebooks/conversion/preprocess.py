@@ -568,11 +568,14 @@ class HTMLPreProcessor(object):
     def smarten_punctuation(self, html):
         from calibre.utils.smartypants import smartyPants
         from calibre.ebooks.chardet import substitute_entites
+        from calibre.ebooks.conversion.utils import HeuristicProcessor
+        preprocessor = HeuristicProcessor(self.extra_opts, self.log)
         from uuid import uuid4
         start = 'calibre-smartypants-'+str(uuid4())
         stop = 'calibre-smartypants-'+str(uuid4())
         html = html.replace('<!--', start)
         html = html.replace('-->', stop)
+        html = preprocessor.fix_nbsp_indents(html)
         html = smartyPants(html)
         html = html.replace(start, '<!--')
         html = html.replace(stop, '-->')

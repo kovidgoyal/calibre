@@ -2536,29 +2536,6 @@ class ITUNES(DriverBase):
                     if DEBUG:
                         self.log.warning("   missing <metadata> block in OPF file")
                         self.log.info("   add timestamp: %s" % metadata.timestamp)
-                '''
-                ns_map = opf_tree.nsmap.keys()
-                for item in ns_map:
-                    ns = opf_tree.nsmap[item]
-                    md_el = opf_tree.find(".//{%s}metadata" % ns)
-                    if md_el is not None:
-                        ts = md_el.find('.//{%s}meta[@name="calibre:timestamp"]')
-                        if ts:
-                            timestamp = ts.get('content')
-                            old_ts = parse_date(timestamp)
-                            metadata.timestamp = datetime.datetime(old_ts.year, old_ts.month, old_ts.day, old_ts.hour,
-                                                       old_ts.minute, old_ts.second, old_ts.microsecond+1, old_ts.tzinfo)
-                        else:
-                            metadata.timestamp = now()
-                            if DEBUG:
-                                self.log.info("   add timestamp: %s" % metadata.timestamp)
-                        break
-                else:
-                    metadata.timestamp = now()
-                    if DEBUG:
-                        self.log.warning("   missing <metadata> block in OPF file")
-                        self.log.info("   add timestamp: %s" % metadata.timestamp)
-                '''
                 # Force the language declaration for iBooks 1.1
                 #metadata.language = get_lang().replace('_', '-')
 

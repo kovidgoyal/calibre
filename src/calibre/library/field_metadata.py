@@ -3,7 +3,7 @@ Created on 25 May 2010
 
 @author: charles
 '''
-import copy
+import copy, traceback
 
 from calibre.utils.ordered_dict import OrderedDict
 from calibre.utils.config import tweaks
@@ -487,6 +487,20 @@ class FieldMetadata(dict):
                     if k in self._search_term_map:
                         del self._search_term_map[k]
                 del self._tb_cats[key]
+
+    def _remove_grouped_search_terms(self):
+        to_remove = [v for v in self._search_term_map
+                        if isinstance(self._search_term_map[v], list)]
+        for v in to_remove:
+            del self._search_term_map[v]
+
+    def add_grouped_search_terms(self, gst):
+        self._remove_grouped_search_terms()
+        for t in gst:
+            try:
+                self._add_search_terms_to_map(gst[t], [t])
+            except ValueError:
+                traceback.print_exc()
 
     def cc_series_index_column_for(self, key):
         return self._tb_cats[key]['rec_index'] + 1

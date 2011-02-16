@@ -433,6 +433,10 @@ class ResultCache(SearchQueryParser): # {{{
         if len(candidates) == 0:
             return matches
 
+        if len(location) > 2 and location.startswith('@') and \
+                    location[1:] in self.db_prefs['grouped_search_terms']:
+            location = location[1:]
+
         if query and query.strip():
             # get metadata key associated with the search term. Eliminates
             # dealing with plurals and other aliases
@@ -440,9 +444,16 @@ class ResultCache(SearchQueryParser): # {{{
             # grouped search terms
             if isinstance(location, list):
                 if allow_recursion:
+                    if query.lower() == 'false':
+                        invert = True
+                        query = 'true'
+                    else:
+                        invert = False
                     for loc in location:
                         matches |= self.get_matches(loc, query,
                                 candidates=candidates, allow_recursion=False)
+                    if invert:
+                        matches = self.universal_set() - matches
                     return matches
                 raise ParseException(query, len(query), 'Recursive query group detected', self)
 

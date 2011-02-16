@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import (unicode_literals, division, absolute_import,
+                        print_function)
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -12,8 +14,9 @@ from threading import Thread
 
 from lxml import etree
 
-from calibre.ebooks.metadata.sources import Source
+from calibre.ebooks.metadata.sources.base import Source
 from calibre.ebooks.metadata.book.base import Metadata
+from calibre.ebooks.chardet import xml_to_unicode
 from calibre.utils.date import parse_date, utcnow
 from calibre import browser, as_unicode
 
@@ -38,7 +41,18 @@ subject        = XPath('descendant::dc:subject')
 description    = XPath('descendant::dc:description')
 language       = XPath('descendant::dc:language')
 
+def get_details(browser, url):
+    try:
+        raw = browser.open_novisit(url).read()
+    except Exception as e:
+        gc = getattr(e, 'getcode', lambda : -1)
+        if gc() != 403:
+            raise
+        # Google is throttling us, wait a little
+        time.sleep(2)
+        raw = browser.open_novisit(url).read()
 
+    return raw
 
 def to_metadata(browser, log, entry_):
 
@@ -65,8 +79,8 @@ def to_metadata(browser, log, entry_):
 
     mi = Metadata(title_, authors)
     try:
-        raw = browser.open_novisit(id_url).read()
-        feed = etree.fromstring(raw)
+        raw = get_details(browser, id_url)
+        feed = etree.fromstring(xml_to_unicode(raw, strip_encoding_pats=True)[0])
         extra = entry(feed)[0]
     except:
         log.exception('Failed to get additional details for', mi.title)
@@ -142,6 +156,11 @@ class Worker(Thread):
 class GoogleBooks(Source):
 
     name = 'Google Books'
+    description = _('Downloads metadata from Google Books')
+
+    capabilities = frozenset(['identify'])
+    touched_fields = frozenset(['title', 'authors', 'isbn', 'tags', 'pubdate',
+        'comments', 'publisher', 'author_sort']) # language currently disabled
 
     def create_query(self, log, title=None, authors=None, identifiers={},
             start_index=1):
@@ -153,11 +172,14 @@ class GoogleBooks(Source):
         elif title or authors:
             def build_term(prefix, parts):
                 return ' '.join('in'+prefix + ':' + x for x in parts)
-            if title is not None:
-                q += build_term('title', title.split())
-            if authors:
-                q += ('+' if q else '')+build_term('author',
-                        self.get_author_tokens(authors))
+            title_tokens = list(self.get_title_tokens(title))
+            if title_tokens:
+                q += build_term('title', title_tokens)
+            author_tokens = self.get_author_tokens(authors,
+                    only_first_author=True)
+            if author_tokens:
+                q += ('+' if q else '') + build_term('author',
+                        author_tokens)
 
         if isinstance(q, unicode):
             q = q.encode('utf-8')
@@ -182,7 +204,8 @@ class GoogleBooks(Source):
 
         try:
             parser = etree.XMLParser(recover=True, no_network=True)
-            feed = etree.fromstring(raw, parser=parser)
+            feed = etree.fromstring(xml_to_unicode(raw,
+                strip_encoding_pats=True)[0], parser=parser)
             entries = entry(feed)
         except Exception, e:
             log.exception('Failed to parse identify results')
@@ -191,25 +214,33 @@ class GoogleBooks(Source):
 
         groups = self.split_jobs(entries, 5) # At most 5 threads
         if not groups:
-            return
+            return None
         workers = [Worker(log, entries, abort, result_queue) for entries in
                 groups]
 
         if abort.is_set():
-            return
+            return None
 
         for worker in workers: worker.start()
 
         has_alive_worker = True
         while has_alive_worker and not abort.is_set():
+            time.sleep(0.1)
             has_alive_worker = False
             for worker in workers:
                 if worker.is_alive():
                     has_alive_worker = True
-            time.sleep(0.1)
 
         return None
 
-
-
-
+if __name__ == '__main__':
+    # To run these test use: calibre-debug -e src/calibre/ebooks/metadata/sources/google.py
+    from calibre.ebooks.metadata.sources.test import (test_identify_plugin,
+            isbn_test)
+    test_identify_plugin(GoogleBooks.name,
+        [
+            (
+                {'title': 'Great Expectations', 'authors':['Charles Dickens']},
+                [isbn_test('9781607541592')]
+            ),
+    ])
