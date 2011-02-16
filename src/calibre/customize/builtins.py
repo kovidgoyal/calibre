@@ -8,6 +8,7 @@ from calibre.customize import FileTypePlugin, MetadataReaderPlugin, \
     MetadataWriterPlugin, PreferencesPlugin, InterfaceActionBase
 from calibre.constants import numeric_version
 from calibre.ebooks.metadata.archive import ArchiveExtract, get_cbz_metadata
+from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.ebooks.oeb.base import OEB_IMAGES
 
 # To archive plugins {{{
@@ -134,7 +135,18 @@ class TXT2TXTZ(FileTypePlugin):
             import zipfile
             of = self.temporary_file('_plugin_txt2txtz.txtz')
             txtz = zipfile.ZipFile(of.name, 'w')
+            # Add selected TXT file to archive.
             txtz.write(path_to_ebook, os.path.basename(path_to_ebook), zipfile.ZIP_DEFLATED)
+            # metadata.opf
+            if os.path.exists(os.path.join(base_dir, 'metadata.opf')):
+                txtz.write(os.path.join(base_dir, 'metadata.opf'), 'metadata.opf', zipfile.ZIP_DEFLATED)
+            else:
+                from calibre.ebooks.metadata.txt import get_metadata
+                with open(path_to_ebook, 'rb') as ebf:
+                    mi = get_metadata(ebf)
+                opf = metadata_to_opf(mi)
+                txtz.writestr('metadata.opf', opf, zipfile.ZIP_DEFLATED)
+            # images
             for image in images:
                 txtz.write(os.path.join(base_dir, image), image)
             txtz.close()
