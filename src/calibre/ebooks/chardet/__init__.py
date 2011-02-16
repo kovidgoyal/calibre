@@ -53,7 +53,7 @@ _CHARSET_ALIASES = { "macintosh" : "mac-roman",
 def force_encoding(raw, verbose, assume_utf8=False):
     from calibre.constants import preferred_encoding
     try:
-        chardet = detect(raw[:1024*10])
+        chardet = detect(raw[:1024*50])
     except:
         chardet = {'encoding':preferred_encoding, 'confidence':0}
     encoding = chardet['encoding']
