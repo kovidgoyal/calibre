@@ -87,5 +87,6 @@ def test_identify_plugin(name, tests):
             prints('Log saved to', lf)
             raise SystemExit(1)
 
-    prints('Log saved to', lf)
+    if os.stat(lf).st_size > 10:
+        prints('There were some errors, see log', lf)
 

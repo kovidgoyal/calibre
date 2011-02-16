@@ -162,8 +162,7 @@ class GoogleBooks(Source):
     touched_fields = frozenset(['title', 'authors', 'isbn', 'tags', 'pubdate',
         'comments', 'publisher', 'author_sort']) # language currently disabled
 
-    def create_query(self, log, title=None, authors=None, identifiers={},
-            start_index=1):
+    def create_query(self, log, title=None, authors=None, identifiers={}):
         BASE_URL = 'http://books.google.com/books/feeds/volumes?'
         isbn = identifiers.get('isbn', None)
         q = ''
@@ -188,7 +187,7 @@ class GoogleBooks(Source):
         return BASE_URL+urlencode({
             'q':q,
             'max-results':20,
-            'start-index':start_index,
+            'start-index':1,
             'min-viewability':'none',
             })
 
