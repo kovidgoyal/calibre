@@ -14,8 +14,9 @@ import re
 from struct import pack
 import time
 from urlparse import urldefrag
-
 from cStringIO import StringIO
+
+from calibre.ebooks import normalize
 from calibre.ebooks.mobi.langcodes import iana2mobi
 from calibre.ebooks.mobi.mobiml import MBP_NS
 from calibre.ebooks.oeb.base import OEB_DOCS
@@ -1365,7 +1366,7 @@ class MobiWriter(object):
             self._text_length,
             self._text_nrecords-1, RECORD_SIZE, 0, 0)) # 0 - 15 (0x0 - 0xf)
         uid = random.randint(0, 0xffffffff)
-        title = unicode(metadata.title[0]).encode('utf-8')
+        title = normalize(unicode(metadata.title[0])).encode('utf-8')
         # The MOBI Header
 
         # 0x0 - 0x3
@@ -1523,12 +1524,12 @@ class MobiWriter(object):
             items = oeb.metadata[term]
             if term == 'creator':
                 if self._prefer_author_sort:
-                    creators = [unicode(c.file_as or c) for c in items]
+                    creators = [normalize(unicode(c.file_as or c)) for c in items]
                 else:
-                    creators = [unicode(c) for c in items]
+                    creators = [normalize(unicode(c)) for c in items]
                 items = ['; '.join(creators)]
             for item in items:
-                data = self.COLLAPSE_RE.sub(' ', unicode(item))
+                data = self.COLLAPSE_RE.sub(' ', normalize(unicode(item)))
                 if term == 'identifier':
                     if data.lower().startswith('urn:isbn:'):
                         data = data[9:]
@@ -1542,7 +1543,7 @@ class MobiWriter(object):
                 nrecs += 1
             if term == 'rights' :
                 try:
-                    rights = unicode(oeb.metadata.rights[0]).encode('utf-8')
+                    rights = normalize(unicode(oeb.metadata.rights[0])).encode('utf-8')
                 except:
                     rights = 'Unknown'
                 exth.write(pack('>II', EXTH_CODES['rights'], len(rights) + 8))

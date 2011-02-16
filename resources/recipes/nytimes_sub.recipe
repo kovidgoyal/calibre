@@ -668,7 +668,7 @@ class NYTimes(BasicNewsRecipe):
 
             try:
                 #remove "Related content" bar
-                runAroundsFound = soup.findAll('div',{'class':['articleInline runaroundLeft','articleInline doubleRule runaroundLeft','articleInline runaroundLeft firstArticleInline','articleInline runaroundLeft  ']})
+                runAroundsFound = soup.findAll('div',{'class':['articleInline runaroundLeft','articleInline doubleRule runaroundLeft','articleInline runaroundLeft firstArticleInline','articleInline runaroundLeft  ','articleInline runaroundLeft  lastArticleInline']})
                 if runAroundsFound:
                     for runAround in runAroundsFound:
                         #find all section headers

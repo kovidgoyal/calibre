@@ -2,11 +2,14 @@ import os.path
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import textwrap, os, glob, functools
+import textwrap, os, glob, functools, re
+from calibre import guess_type
 from calibre.customize import FileTypePlugin, MetadataReaderPlugin, \
     MetadataWriterPlugin, PreferencesPlugin, InterfaceActionBase
 from calibre.constants import numeric_version
 from calibre.ebooks.metadata.archive import ArchiveExtract, get_cbz_metadata
+from calibre.ebooks.metadata.opf2 import metadata_to_opf
+from calibre.ebooks.oeb.base import OEB_IMAGES
 
 # To archive plugins {{{
 class HTML2ZIP(FileTypePlugin):
@@ -81,6 +84,77 @@ class PML2PMLZ(FileTypePlugin):
         pmlz.close()
 
         return of.name
+
+class TXT2TXTZ(FileTypePlugin):
+    name = 'TXT to TXTZ'
+    author = 'John Schember'
+    description = _('Create a TXTZ archive when a TXT file is imported '
+        'containing Markdown or Textile references to images. The referenced '
+        'images as well as the TXT file are added to the archive.')
+    version = numeric_version
+    file_types = set(['txt'])
+    supported_platforms = ['windows', 'osx', 'linux']
+    on_import = True
+    
+    def _get_image_references(self, txt, base_dir):
+        images = []
+        
+        # Textile
+        for m in re.finditer(ur'(?mu)(?:[\[{])?\!(?:\. )?(?P<path>[^\s(!]+)\s?(?:\(([^\)]+)\))?\!(?::(\S+))?(?:[\]}]|(?=\s|$))', txt):
+            path = m.group('path')
+            if path and not os.path.isabs(path) and guess_type(path)[0] in OEB_IMAGES and os.path.exists(os.path.join(base_dir, path)):
+                images.append(path)
+                
+        # Markdown inline        
+        for m in re.finditer(ur'(?mu)\!\[([^\]\[]*(\[[^\]\[]*(\[[^\]\[]*(\[[^\]\[]*(\[[^\]\[]*(\[[^\]\[]*(\[[^\]\[]*\])*[^\]\[]*\])*[^\]\[]*\])*[^\]\[]*\])*[^\]\[]*\])*[^\]\[]*\])*[^\]\[]*)\]\s*\((?P<path>[^\)]*)\)', txt):
+            path = m.group('path')
+            if path and not os.path.isabs(path) and guess_type(path)[0] in OEB_IMAGES and os.path.exists(os.path.join(base_dir, path)):
+                images.append(path)
+        
+        # Markdown reference
+        refs = {}
+        for m in re.finditer(ur'(?mu)^(\ ?\ ?\ ?)\[(?P<id>[^\]]*)\]:\s*(?P<path>[^\s]*)$', txt):
+            if m.group('id') and m.group('path'):
+                refs[m.group('id')] = m.group('path')
+        for m in re.finditer(ur'(?mu)\!\[([^\]\[]*(\[[^\]\[]*(\[[^\]\[]*(\[[^\]\[]*(\[[^\]\[]*(\[[^\]\[]*(\[[^\]\[]*\])*[^\]\[]*\])*[^\]\[]*\])*[^\]\[]*\])*[^\]\[]*\])*[^\]\[]*\])*[^\]\[]*)\]\s*\[(?P<id>[^\]]*)\]', txt):
+            path = refs.get(m.group('id'), None)
+            if path and not os.path.isabs(path) and guess_type(path)[0] in OEB_IMAGES and os.path.exists(os.path.join(base_dir, path)):
+                images.append(path)
+
+        # Remove duplicates
+        return list(set(images))
+    
+    def run(self, path_to_ebook):
+        with open(path_to_ebook, 'rb') as ebf:
+            txt = ebf.read()
+        base_dir = os.path.dirname(path_to_ebook)
+        images = self._get_image_references(txt, base_dir)
+        
+        if images:
+            # Create TXTZ and put file plus images inside of it.
+            import zipfile
+            of = self.temporary_file('_plugin_txt2txtz.txtz')
+            txtz = zipfile.ZipFile(of.name, 'w')
+            # Add selected TXT file to archive.
+            txtz.write(path_to_ebook, os.path.basename(path_to_ebook), zipfile.ZIP_DEFLATED)
+            # metadata.opf
+            if os.path.exists(os.path.join(base_dir, 'metadata.opf')):
+                txtz.write(os.path.join(base_dir, 'metadata.opf'), 'metadata.opf', zipfile.ZIP_DEFLATED)
+            else:
+                from calibre.ebooks.metadata.txt import get_metadata
+                with open(path_to_ebook, 'rb') as ebf:
+                    mi = get_metadata(ebf)
+                opf = metadata_to_opf(mi)
+                txtz.writestr('metadata.opf', opf, zipfile.ZIP_DEFLATED)
+            # images
+            for image in images:
+                txtz.write(os.path.join(base_dir, image), image)
+            txtz.close()
+
+            return of.name
+        else:
+            # No images so just import the TXT file.
+            return path_to_ebook
 
 # }}}
 
@@ -511,14 +585,14 @@ from calibre.ebooks.metadata.fetch import GoogleBooks, ISBNDB, Amazon, \
 from calibre.ebooks.metadata.douban import DoubanBooks
 from calibre.ebooks.metadata.nicebooks import NiceBooks, NiceBooksCovers
 from calibre.ebooks.metadata.covers import OpenLibraryCovers, \
-        LibraryThingCovers, DoubanCovers
+        AmazonCovers, DoubanCovers
 from calibre.library.catalog import CSV_XML, EPUB_MOBI, BIBTEX
 from calibre.ebooks.epub.fix.unmanifested import Unmanifested
 from calibre.ebooks.epub.fix.epubcheck import Epubcheck
 
-plugins = [HTML2ZIP, PML2PMLZ, ArchiveExtract, GoogleBooks, ISBNDB, Amazon,
+plugins = [HTML2ZIP, PML2PMLZ, TXT2TXTZ, ArchiveExtract, GoogleBooks, ISBNDB, Amazon,
         KentDistrictLibrary, DoubanBooks, NiceBooks, CSV_XML, EPUB_MOBI, BIBTEX, Unmanifested,
-        Epubcheck, OpenLibraryCovers, LibraryThingCovers, DoubanCovers,
+        Epubcheck, OpenLibraryCovers, AmazonCovers, DoubanCovers,
         NiceBooksCovers]
 plugins += [
     ComicInput,

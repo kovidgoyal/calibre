@@ -1481,22 +1481,35 @@ class EPUB_MOBI(CatalogPlugin):
             current_author = authors[0]
             for (i,author) in enumerate(authors):
                 if author != current_author and i:
-                    # Exit if author matches previous, but author_sort doesn't match
                     if author[0] == current_author[0]:
-                        error_msg = _('''
-Inconsistent Author Sort values for Author '{0}':
-'{1}' <> '{2}',
-unable to build catalog.\n
-Select all books by '{0}', apply correct Author Sort value in Edit Metadata dialog,
-then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
-                        self.opts.log.warn('\n*** Metadata error ***')
-                        self.opts.log.warn(error_msg)
+                        if self.opts.fmt == 'mobi':
+                            # Exit if building MOBI
+                            error_msg = _(
+'''Inconsistent Author Sort values for
+Author '{0}':
+'{1}' <> '{2}'
+Unable to build MOBI catalog.\n
+Select all books by '{0}', apply correct Author Sort value in Edit Metadata dialog, then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
+                            self.opts.log.warn('\n*** Metadata error ***')
+                            self.opts.log.warn(error_msg)
 
-                        self.error.append('Metadata error')
-                        self.error.append(error_msg)
-                        return False
+                            self.error.append('Author Sort mismatch')
+                            self.error.append(error_msg)
+                            return False
+                        else:
+                            # Warning if building non-MOBI
+                            if not self.error:
+                                self.error.append('Author Sort mismatch')
+
+                            error_msg = _(
+'''Warning: inconsistent Author Sort values for
+Author '{0}':
+'{1}' <> '{2}'\n''').format(author[0],author[1],current_author[1])
+                            self.opts.log.warn('\n*** Metadata warning ***')
+                            self.opts.log.warn(error_msg)
+                            self.error.append(error_msg)
+
                     current_author = author
-
 
             self.booksByAuthor = sorted(self.booksByAuthor, key=self.booksByAuthorSorter_author_sort)
 
@@ -2135,7 +2148,7 @@ then rebuild the catalog.\n''').format(author[0],author[1],current_author[1])
                 if author_count == 1:
                     divOpeningTag.insert(dotc, pBookTag)
                     dotc += 1
-                else:
+                elif divRunningTag:
                     divRunningTag.insert(drtc,pBookTag)
                     drtc += 1
 

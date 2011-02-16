@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import traceback, socket, re, sys
+import traceback, socket, sys
 from functools import partial
 from threading import Thread, Event
 from Queue import Queue, Empty
@@ -15,7 +15,6 @@ import mechanize
 
 from calibre.customize import Plugin
 from calibre import browser, prints
-from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.constants import preferred_encoding, DEBUG
 
 class CoverDownload(Plugin):
@@ -112,72 +111,37 @@ class OpenLibraryCovers(CoverDownload): # {{{
 
 # }}}
 
-class LibraryThingCovers(CoverDownload): # {{{
+class AmazonCovers(CoverDownload): # {{{
 
-    name = 'librarything.com covers'
-    description = _('Download covers from librarything.com')
+    name = 'amazon.com covers'
+    description = _('Download covers from amazon.com')
     author = 'Kovid Goyal'
 
-    LIBRARYTHING = 'http://www.librarything.com/isbn/'
-
-    def get_cover_url(self, isbn, br, timeout=5.):
-
-        try:
-            src = br.open_novisit('http://www.librarything.com/isbn/'+isbn,
-                    timeout=timeout).read().decode('utf-8', 'replace')
-        except Exception, err:
-            if isinstance(getattr(err, 'args', [None])[0], socket.timeout):
-                err = Exception(_('LibraryThing.com timed out. Try again later.'))
-            raise err
-        else:
-            if '/wiki/index.php/HelpThing:Verify' in src:
-                raise Exception('LibraryThing is blocking calibre.')
-            s = BeautifulSoup(src)
-            url = s.find('td', attrs={'class':'left'})
-            if url is None:
-                if s.find('div', attrs={'class':'highloadwarning'}) is not None:
-                    raise Exception(_('Could not fetch cover as server is experiencing high load. Please try again later.'))
-                raise Exception(_('ISBN: %s not found')%isbn)
-            url = url.find('img')
-            if url is None:
-                raise Exception(_('LibraryThing.com server error. Try again later.'))
-            url = re.sub(r'_S[XY]\d+', '', url['src'])
-            return url
 
     def has_cover(self, mi, ans, timeout=5.):
-        return False
-        if not mi.isbn or not self.site_customization:
+        if not mi.isbn:
             return False
-        from calibre.ebooks.metadata.library_thing import get_browser, login
-        br = get_browser()
-        un, _, pw = self.site_customization.partition(':')
-        login(br, un, pw)
+        from calibre.ebooks.metadata.amazon import get_cover_url
+        br = browser()
         try:
-            self.get_cover_url(mi.isbn, br, timeout=timeout)
+            get_cover_url(mi.isbn, br)
             self.debug('cover for', mi.isbn, 'found')
             ans.set()
         except Exception, e:
             self.debug(e)
 
     def get_covers(self, mi, result_queue, abort, timeout=5.):
-        if not mi.isbn or not self.site_customization:
+        if not mi.isbn:
             return
-        from calibre.ebooks.metadata.library_thing import get_browser, login
-        br = get_browser()
-        un, _, pw = self.site_customization.partition(':')
-        login(br, un, pw)
+        from calibre.ebooks.metadata.amazon import get_cover_url
+        br = browser()
         try:
-            url = self.get_cover_url(mi.isbn, br, timeout=timeout)
+            url = get_cover_url(mi.isbn, br)
             cover_data = br.open_novisit(url).read()
             result_queue.put((True, cover_data, 'jpg', self.name))
         except Exception, e:
             result_queue.put((False, self.exception_to_string(e),
                 traceback.format_exc(), self.name))
-
-    def customization_help(self, gui=False):
-        ans = _('To use librarything.com you must sign up for a %sfree account%s '
-                'and enter your username and password separated by a : below.')
-        return '<p>'+ans%('<a href="http://www.librarything.com">', '</a>')
 
 # }}}
 
