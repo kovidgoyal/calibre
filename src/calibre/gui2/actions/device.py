@@ -7,13 +7,14 @@ __docformat__ = 'restructuredtext en'
 
 from functools import partial
 
-from PyQt4.Qt import QToolButton, QMenu, pyqtSignal, QIcon
+from PyQt4.Qt import QToolButton, QMenu, pyqtSignal, QIcon, QTimer
 
 from calibre.gui2.actions import InterfaceAction
 from calibre.utils.smtp import config as email_config
 from calibre.constants import iswindows, isosx
 from calibre.customize.ui import is_disabled
 from calibre.devices.bambook.driver import BAMBOOK
+from calibre.gui2 import info_dialog
 
 class ShareConnMenu(QMenu): # {{{
 
@@ -169,5 +170,20 @@ class ConnectShareAction(InterfaceAction):
         if self.gui.content_server is None:
            self.gui.start_content_server()
         else:
-            self.gui.content_server.exit()
-            self.gui.content_server = None
+            self.gui.content_server.threaded_exit()
+            self.stopping_msg = info_dialog(self.gui, _('Stopping'),
+                    _('Stopping server, this could take upto a minute, please wait...'),
+                    show_copy_button=False)
+            QTimer.singleShot(1000, self.check_exited)
+
+    def check_exited(self):
+        if self.gui.content_server.is_running:
+            QTimer.singleShot(20, self.check_exited)
+            if not self.stopping_msg.isVisible():
+                self.stopping_msg.exec_()
+            return
+
+
+        self.gui.content_server = None
+        self.stopping_msg.accept()
+
