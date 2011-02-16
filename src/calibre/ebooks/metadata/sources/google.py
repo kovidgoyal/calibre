@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import (unicode_literals, division, absolute_import,
+                        print_function)
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -8,12 +10,13 @@ __docformat__ = 'restructuredtext en'
 import time
 from urllib import urlencode
 from functools import partial
-from threading import Thread, RLock
+from threading import Thread
 
 from lxml import etree
 
-from calibre.ebooks.metadata.sources import Source
+from calibre.ebooks.metadata.sources.base import Source
 from calibre.ebooks.metadata.book.base import Metadata
+from calibre.ebooks.chardet import xml_to_unicode
 from calibre.utils.date import parse_date, utcnow
 from calibre import browser, as_unicode
 
@@ -38,7 +41,18 @@ subject        = XPath('descendant::dc:subject')
 description    = XPath('descendant::dc:description')
 language       = XPath('descendant::dc:language')
 
-_log_lock = RLock()
+def get_details(browser, url):
+    try:
+        raw = browser.open_novisit(url).read()
+    except Exception as e:
+        gc = getattr(e, 'getcode', lambda : -1)
+        if gc() != 403:
+            raise
+        # Google is throttling us, wait a little
+        time.sleep(2)
+        raw = browser.open_novisit(url).read()
+
+    return raw
 
 def to_metadata(browser, log, entry_):
 
@@ -50,8 +64,7 @@ def to_metadata(browser, log, entry_):
                 if ans and ans.strip():
                     return ans.strip()
         except:
-            with _log_lock:
-                log.exception('Programming error:')
+            log.exception('Programming error:')
         return None
 
 
@@ -66,12 +79,11 @@ def to_metadata(browser, log, entry_):
 
     mi = Metadata(title_, authors)
     try:
-        raw = browser.open_novisit(id_url).read()
-        feed = etree.fromstring(raw)
+        raw = get_details(browser, id_url)
+        feed = etree.fromstring(xml_to_unicode(raw, strip_encoding_pats=True)[0])
         extra = entry(feed)[0]
     except:
-        with _log_lock:
-            log.exception('Failed to get additional details for', mi.title)
+        log.exception('Failed to get additional details for', mi.title)
         return mi
 
     mi.comments = get_text(extra, description)
@@ -102,8 +114,7 @@ def to_metadata(browser, log, entry_):
             tags.extend([y.strip() for y in t.split('/')])
         tags = list(sorted(list(set(tags))))
     except:
-        with _log_lock:
-            log.exception('Failed to parse tags:')
+        log.exception('Failed to parse tags:')
         tags = []
     if tags:
         mi.tags = [x.replace(',', ';') for x in tags]
@@ -115,8 +126,7 @@ def to_metadata(browser, log, entry_):
             default = utcnow().replace(day=15)
             mi.pubdate = parse_date(pubdate, assume_utc=True, default=default)
         except:
-            with _log_lock:
-                log.exception('Failed to parse pubdate')
+            log.exception('Failed to parse pubdate')
 
 
     return mi
@@ -136,10 +146,9 @@ class Worker(Thread):
                 if isinstance(ans, Metadata):
                     self.result_queue.put(ans)
             except:
-                with _log_lock:
-                    self.log.exception(
-                        'Failed to get metadata for identify entry:',
-                        etree.tostring(i))
+                self.log.exception(
+                    'Failed to get metadata for identify entry:',
+                    etree.tostring(i))
             if self.abort.is_set():
                 break
 
@@ -147,6 +156,11 @@ class Worker(Thread):
 class GoogleBooks(Source):
 
     name = 'Google Books'
+    description = _('Downloads metadata from Google Books')
+
+    capabilities = frozenset(['identify'])
+    touched_fields = frozenset(['title', 'authors', 'isbn', 'tags', 'pubdate',
+        'comments', 'publisher', 'author_sort']) # language currently disabled
 
     def create_query(self, log, title=None, authors=None, identifiers={},
             start_index=1):
@@ -158,7 +172,7 @@ class GoogleBooks(Source):
         elif title or authors:
             def build_term(prefix, parts):
                 return ' '.join('in'+prefix + ':' + x for x in parts)
-            title_tokens = list(self.get_title_tokens())
+            title_tokens = list(self.get_title_tokens(title))
             if title_tokens:
                 q += build_term('title', title_tokens)
             author_tokens = self.get_author_tokens(authors,
@@ -190,7 +204,8 @@ class GoogleBooks(Source):
 
         try:
             parser = etree.XMLParser(recover=True, no_network=True)
-            feed = etree.fromstring(raw, parser=parser)
+            feed = etree.fromstring(xml_to_unicode(raw,
+                strip_encoding_pats=True)[0], parser=parser)
             entries = entry(feed)
         except Exception, e:
             log.exception('Failed to parse identify results')
@@ -218,4 +233,14 @@ class GoogleBooks(Source):
 
         return None
 
-
+if __name__ == '__main__':
+    # To run these test use: calibre-debug -e src/calibre/ebooks/metadata/sources/google.py
+    from calibre.ebooks.metadata.sources.test import (test_identify_plugin,
+            isbn_test)
+    test_identify_plugin(GoogleBooks.name,
+        [
+            (
+                {'title': 'Great Expectations', 'authors':['Charles Dickens']},
+                [isbn_test('9781607541592')]
+            ),
+    ])

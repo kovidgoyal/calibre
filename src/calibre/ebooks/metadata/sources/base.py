@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import (unicode_literals, division, absolute_import,
+                        print_function)
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -8,6 +10,12 @@ __docformat__ = 'restructuredtext en'
 import re
 
 from calibre.customize import Plugin
+from calibre.utils.logging import ThreadSafeLog, FileStream
+
+def create_log(ostream=None):
+    log = ThreadSafeLog(level=ThreadSafeLog.DEBUG)
+    log.outputs = [FileStream(ostream)]
+    return log
 
 class Source(Plugin):
 
@@ -18,6 +26,11 @@ class Source(Plugin):
 
     result_of_identify_is_complete = True
 
+    capabilities = frozenset()
+
+    touched_fields = frozenset()
+
+    # Utility functions {{{
     def get_author_tokens(self, authors, only_first_author=True):
         '''
         Take a list of authors and return a list of tokens useful for an
@@ -68,6 +81,10 @@ class Source(Plugin):
                 gr.append(job)
         return [g for g in groups if g]
 
+    # }}}
+
+    # Metadata API {{{
+
     def identify(self, log, result_queue, abort, title=None, authors=None, identifiers={}):
         '''
         Identify a book by its title/author/isbn/etc.
@@ -86,4 +103,6 @@ class Source(Plugin):
 
         '''
         return None
+
+    # }}}
 
