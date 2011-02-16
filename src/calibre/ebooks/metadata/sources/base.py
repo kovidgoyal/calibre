@@ -18,14 +18,42 @@ class Source(Plugin):
 
     result_of_identify_is_complete = True
 
-    def get_author_tokens(self, authors):
-        'Take a list of authors and return a list of tokens useful for a '
-        'AND search query'
-        # Leave ' in there for Irish names
-        pat = re.compile(r'[-,:;+!@#$%^&*(){}.`~"\s\[\]/]')
-        for au in authors:
-            for tok in au.split():
-                yield pat.sub('', tok)
+    def get_author_tokens(self, authors, only_first_author=True):
+        '''
+        Take a list of authors and return a list of tokens useful for an
+        AND search query. This function tries to return tokens in
+        first name middle names last name order, by assuming that if a comma is
+        in the author name, the name is in lastname, other names form.
+        '''
+
+        if authors:
+            # Leave ' in there for Irish names
+            pat = re.compile(r'[-,:;+!@#$%^&*(){}.`~"\s\[\]/]')
+            if only_first_author:
+                authors = authors[:1]
+            for au in authors:
+                parts = au.split()
+                if ',' in au:
+                    # au probably in ln, fn form
+                    parts = parts[1:] + parts[:1]
+                for tok in parts:
+                    tok = pat.sub('', tok).strip()
+                    yield tok
+
+
+    def get_title_tokens(self, title):
+        '''
+        Take a title and return a list of tokens useful for an AND search query.
+        Excludes connectives and punctuation.
+        '''
+        if title:
+            pat = re.compile(r'''[-,:;+!@#$%^&*(){}.`~"'\s\[\]/]''')
+            title = pat.sub(' ', title)
+            tokens = title.split()
+            for token in tokens:
+                token = token.strip()
+                if token and token.lower() not in ('a', 'and', 'the'):
+                    yield token
 
     def split_jobs(self, jobs, num):
         'Split a list of jobs into at most num groups, as evenly as possible'

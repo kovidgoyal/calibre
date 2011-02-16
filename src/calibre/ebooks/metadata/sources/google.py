@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 import time
 from urllib import urlencode
 from functools import partial
-from threading import Thread
+from threading import Thread, RLock
 
 from lxml import etree
 
@@ -38,7 +38,7 @@ subject        = XPath('descendant::dc:subject')
 description    = XPath('descendant::dc:description')
 language       = XPath('descendant::dc:language')
 
-
+_log_lock = RLock()
 
 def to_metadata(browser, log, entry_):
 
@@ -50,7 +50,8 @@ def to_metadata(browser, log, entry_):
                 if ans and ans.strip():
                     return ans.strip()
         except:
-            log.exception('Programming error:')
+            with _log_lock:
+                log.exception('Programming error:')
         return None
 
 
@@ -69,7 +70,8 @@ def to_metadata(browser, log, entry_):
         feed = etree.fromstring(raw)
         extra = entry(feed)[0]
     except:
-        log.exception('Failed to get additional details for', mi.title)
+        with _log_lock:
+            log.exception('Failed to get additional details for', mi.title)
         return mi
 
     mi.comments = get_text(extra, description)
@@ -100,7 +102,8 @@ def to_metadata(browser, log, entry_):
             tags.extend([y.strip() for y in t.split('/')])
         tags = list(sorted(list(set(tags))))
     except:
-        log.exception('Failed to parse tags:')
+        with _log_lock:
+            log.exception('Failed to parse tags:')
         tags = []
     if tags:
         mi.tags = [x.replace(',', ';') for x in tags]
@@ -112,7 +115,8 @@ def to_metadata(browser, log, entry_):
             default = utcnow().replace(day=15)
             mi.pubdate = parse_date(pubdate, assume_utc=True, default=default)
         except:
-            log.exception('Failed to parse pubdate')
+            with _log_lock:
+                log.exception('Failed to parse pubdate')
 
 
     return mi
@@ -132,9 +136,10 @@ class Worker(Thread):
                 if isinstance(ans, Metadata):
                     self.result_queue.put(ans)
             except:
-                self.log.exception(
-                    'Failed to get metadata for identify entry:',
-                    etree.tostring(i))
+                with _log_lock:
+                    self.log.exception(
+                        'Failed to get metadata for identify entry:',
+                        etree.tostring(i))
             if self.abort.is_set():
                 break
 
@@ -153,11 +158,14 @@ class GoogleBooks(Source):
         elif title or authors:
             def build_term(prefix, parts):
                 return ' '.join('in'+prefix + ':' + x for x in parts)
-            if title is not None:
-                q += build_term('title', title.split())
-            if authors:
-                q += ('+' if q else '')+build_term('author',
-                        self.get_author_tokens(authors))
+            title_tokens = list(self.get_title_tokens())
+            if title_tokens:
+                q += build_term('title', title_tokens)
+            author_tokens = self.get_author_tokens(authors,
+                    only_first_author=True)
+            if author_tokens:
+                q += ('+' if q else '') + build_term('author',
+                        author_tokens)
 
         if isinstance(q, unicode):
             q = q.encode('utf-8')
@@ -191,25 +199,23 @@ class GoogleBooks(Source):
 
         groups = self.split_jobs(entries, 5) # At most 5 threads
         if not groups:
-            return
+            return None
         workers = [Worker(log, entries, abort, result_queue) for entries in
                 groups]
 
         if abort.is_set():
-            return
+            return None
 
         for worker in workers: worker.start()
 
         has_alive_worker = True
         while has_alive_worker and not abort.is_set():
+            time.sleep(0.1)
             has_alive_worker = False
             for worker in workers:
                 if worker.is_alive():
                     has_alive_worker = True
-            time.sleep(0.1)
 
         return None
-
-
 
 
