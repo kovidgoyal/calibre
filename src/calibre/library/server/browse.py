@@ -603,7 +603,9 @@ class BrowseServer(object):
                 val = ''
             if add_category_links:
                 added_key = False
-                if val and key in ('authors', 'publisher', 'series', 'tags'):
+                fm = mi.metadata_for_field(key)
+                if val and fm and fm['is_category'] and \
+                        key != 'formats' and fm['datatype'] not in ['rating']:
                     categories = mi.get(key)
                     if isinstance(categories, basestring):
                         categories = [categories]
