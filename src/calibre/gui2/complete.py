@@ -7,11 +7,12 @@ __docformat__ = 'restructuredtext en'
 
 
 from PyQt4.Qt import QLineEdit, QAbstractListModel, Qt, \
-        QApplication, QCompleter
+        QApplication, QCompleter, QPoint
 
 from calibre.utils.icu import sort_key, lower
 from calibre.gui2 import NONE
 from calibre.gui2.widgets import EnComboBox, LineEditECM
+from calibre.constants import iswindows
 
 class CompleteModel(QAbstractListModel):
 
@@ -93,7 +94,17 @@ class MultiCompleteLineEdit(QLineEdit, LineEditECM):
 
     def text_edited(self, *args):
         self.update_completions()
-        self._completer.complete()
+        # Calculating a manual rect is necessary as in windows 7
+        # in the edit metadata dialog, the completion window is
+        # too high and covers the bottom of the text in the edit field
+        rect = self.geometry()
+        ld = self.layoutDirection()
+        pos = QPoint(0, self.height() + (3 if iswindows else 0))
+        if ld == Qt.RightToLeft:
+            rect.moveBottomRight(pos)
+        else:
+            rect.moveBottomLeft(pos)
+        self._completer.complete(rect)
 
     def update_completions(self):
         ' Update the list of completions '
