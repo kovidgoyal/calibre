@@ -34,9 +34,13 @@ class SearchRestrictionMixin(object):
             restriction = 'search:"%s"'%(r)
         else:
             restriction = ''
-        self.library_view.model().db.data.set_search_restriction(restriction)
-        self.search.clear()
+
         self.saved_search.clear()
+        # The order below is important. Set the restriction, force a '' search
+        # to apply it, reset the tag browser to take it into account, then set
+        # the book count.
+        self.library_view.model().db.data.set_search_restriction(restriction)
+        self.search.clear(emit_search=True)
         self.tags_view.set_search_restriction(restriction)
         self.set_number_of_books_shown()
         self.current_view().setFocus(Qt.OtherFocusReason)
