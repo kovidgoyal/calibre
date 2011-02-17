@@ -8,18 +8,20 @@ __docformat__ = 'restructuredtext en'
 import os
 from functools import partial
 
-from PyQt4.Qt import QPixmap, QMenu
+from PyQt4.Qt import QPixmap, QMenu, QTimer
 
 
 from calibre.gui2 import error_dialog, choose_files, \
     choose_dir, warning_dialog, info_dialog
 from calibre.gui2.dialogs.add_empty_book import AddEmptyBookDialog
+from calibre.gui2.dialogs.progress import ProgressDialog
 from calibre.gui2.widgets import IMAGE_EXTENSIONS
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.utils.filenames import ascii_filename
 from calibre.constants import preferred_encoding, filesystem_encoding
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2 import config
+from calibre.ebooks.metadata import MetaInformation
 
 class AddAction(InterfaceAction):
 
@@ -95,7 +97,6 @@ class AddAction(InterfaceAction):
         dlg = AddEmptyBookDialog(self.gui, self.gui.library_view.model().db, author)
         if dlg.exec_() == dlg.Accepted:
             num = dlg.qty_to_add
-            from calibre.ebooks.metadata import MetaInformation
             for x in xrange(num):
                 mi = MetaInformation(_('Unknown'), dlg.selected_authors)
                 self.gui.library_view.model().db.import_book(mi, [])
@@ -105,27 +106,45 @@ class AddAction(InterfaceAction):
             self.gui.tags_view.recount()
 
     def add_isbns(self, books, add_tags=[]):
-        from calibre.ebooks.metadata import MetaInformation
-        ids = set([])
-        db = self.gui.library_view.model().db
+        self.isbn_books = list(books)
+        self.add_by_isbn_ids = set()
+        self.isbn_add_tags = add_tags
+        QTimer.singleShot(10, self.do_one_isbn_add)
+        self.isbn_add_dialog = ProgressDialog(_('Adding'),
+                _('Creating book records from ISBNs'), max=len(books),
+                cancelable=False, parent=self.gui)
+        self.isbn_add_dialog.exec_()
 
-        for x in books:
+    def do_one_isbn_add(self):
+        try:
+            db = self.gui.library_view.model().db
+
+            try:
+                x = self.isbn_books.pop(0)
+            except IndexError:
+                self.gui.library_view.model().books_added(self.isbn_add_dialog.value)
+                self.isbn_add_dialog.accept()
+                orig = config['overwrite_author_title_metadata']
+                config['overwrite_author_title_metadata'] = True
+                try:
+                    self.gui.iactions['Edit Metadata'].do_download_metadata(
+                            self.add_by_isbn_ids)
+                finally:
+                    config['overwrite_author_title_metadata'] = orig
+                return
+
+
             mi = MetaInformation(None)
             mi.isbn = x['isbn']
-            if x['path'] is not None:
-                ids.add(db.import_book(mi, [x['path']]))
-            else:
-                ids.add(db.import_book(mi, []))
-        self.gui.library_view.model().books_added(len(books))
-        orig = config['overwrite_author_title_metadata']
-        config['overwrite_author_title_metadata'] = True
-        try:
-            self.gui.iactions['Edit Metadata'].do_download_metadata(ids)
-        finally:
-            config['overwrite_author_title_metadata'] = orig
-        if add_tags and ids:
-            db.bulk_modify_tags(ids, add=add_tags)
-
+            if self.isbn_add_tags:
+                mi.tags = list(self.isbn_add_tags)
+            fmts = [] if x['path'] is None else [x['path']]
+            self.add_by_isbn_ids.add(db.import_book(mi, fmts))
+            self.isbn_add_dialog.value += 1
+            QTimer.singleShot(10, self.do_one_isbn_add)
+        except:
+            self.isbn_add_dialog.accept()
+            raise
 
     def files_dropped(self, paths):
         to_device = self.gui.stack.currentIndex() != 0
