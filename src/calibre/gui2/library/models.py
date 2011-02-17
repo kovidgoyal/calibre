@@ -867,11 +867,6 @@ class BooksModel(QAbstractTableModel): # {{{
             self.dataChanged.emit(index, index)
         return True
 
-    def set_search_restriction(self, s):
-        self.db.data.set_search_restriction(s)
-        self.search('')
-        return self.rowCount(None)
-
 # }}}
 
 class OnDeviceSearch(SearchQueryParser): # {{{
@@ -1340,9 +1335,6 @@ class DeviceBooksModel(BooksModel): # {{{
             self.editable = []
         if prefs['manage_device_metadata']=='on_connect':
             self.editable = []
-
-    def set_search_restriction(self, s):
-        pass
 
 # }}}
 
