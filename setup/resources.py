@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, cPickle, re, anydbm, shutil
+import os, cPickle, re, anydbm, shutil, marshal
 from zlib import compress
 
 from setup import Command, basenames, __appname__
@@ -194,7 +194,7 @@ class Resources(Command):
     def kanwaout(self, out):
         dic = anydbm.open(out, 'c')
         for (k, v) in self.records.iteritems():
-            dic[k] = compress(cPickle.dumps(v, -1))
+            dic[k] = compress(marshal.dumps(v))
         dic.close()
 
 
