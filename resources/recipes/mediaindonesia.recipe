@@ -1,0 +1,40 @@
+#!/usr/bin/env  python
+__license__ = 'GPL v3'
+__copyright__ = '2011, bakthariq AT gmail.com'
+'''
+m.mediaindonesia.com
+'''
+
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+
+class Media(BasicNewsRecipe):
+    title                 = u'Media Indonesia'
+    __author__            = 'bakthariq'
+    oldest_article        = 1
+    max_articles_per_feed = 500
+    timefmt               = ' [%a, %b %d, %Y]'
+    language              = 'id'
+    category              = 'News, Indonesia'
+    publisher             = 'Media Indonesia'
+    encoding              = 'utf-8'
+    no_stylesheets        = True
+    description           = 'Indonesian Media Indonesia newsportal'
+    cover_url             = 'http://m.mediaindonesia.com/public/img/logo.gif'
+    no_javascript         = True
+
+    remove_tags           = [dict(id=['atas','merah','putih']), dict(name='a')]
+    remove_tags_after     = [dict(id="putih")]
+
+    extra_css             = '''
+                            .judul {font-size: x-large;}
+                            .tgl {font-size: x-small;color:#333333;}
+                            .foto {font-size: x-small;}
+		            '''
+
+    feeds = [(u'Polhukam', u'http://www.mediaindonesia.com/rss/1/polhukam'), (u'Ekonomi dan Bisnis', u'http://www.mediaindonesia.com/rss/2/ekonomi-dan-bisnis'),
+(u'Internasional', u'http://www.mediaindonesia.com/rss/6/internasional'), (u'Olahraga', u'http://www.mediaindonesia.com/rss/3/olahraga'),(u'Sepakbola',
+u'http://www.mediaindonesia.com/rss/4/sepakbola'),(u'Megapolitan', u'http://www.mediaindonesia.com/rss/5/megapolitan'), (u'Sains dan Teknologi',
+u'http://www.mediaindonesia.com/rss/7/sains-dan-teknologi'), (u'Humaniora', u'http://www.mediaindonesia.com/rss/14/humaniora'), (u'Hiburan',
+u'http://www.mediaindonesia.com/rss/10/hiburan'), (u'Opini', u'http://www.mediaindonesia.com/rss/11/opini')]
+

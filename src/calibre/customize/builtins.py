@@ -8,6 +8,7 @@ from calibre.customize import FileTypePlugin, MetadataReaderPlugin, \
     MetadataWriterPlugin, PreferencesPlugin, InterfaceActionBase
 from calibre.constants import numeric_version
 from calibre.ebooks.metadata.archive import ArchiveExtract, get_cbz_metadata
+from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.ebooks.oeb.base import OEB_IMAGES
 
 # To archive plugins {{{
@@ -94,22 +95,22 @@ class TXT2TXTZ(FileTypePlugin):
     file_types = set(['txt'])
     supported_platforms = ['windows', 'osx', 'linux']
     on_import = True
-    
+
     def _get_image_references(self, txt, base_dir):
         images = []
-        
+
         # Textile
         for m in re.finditer(ur'(?mu)(?:[\[{])?\!(?:\. )?(?P<path>[^\s(!]+)\s?(?:\(([^\)]+)\))?\!(?::(\S+))?(?:[\]}]|(?=\s|$))', txt):
             path = m.group('path')
             if path and not os.path.isabs(path) and guess_type(path)[0] in OEB_IMAGES and os.path.exists(os.path.join(base_dir, path)):
                 images.append(path)
-                
-        # Markdown inline        
+
+        # Markdown inline
         for m in re.finditer(ur'(?mu)\!\[([^\]\[]*(\[[^\]\[]*(\[[^\]\[]*(\[[^\]\[]*(\[[^\]\[]*(\[[^\]\[]*(\[[^\]\[]*\])*[^\]\[]*\])*[^\]\[]*\])*[^\]\[]*\])*[^\]\[]*\])*[^\]\[]*\])*[^\]\[]*)\]\s*\((?P<path>[^\)]*)\)', txt):
             path = m.group('path')
             if path and not os.path.isabs(path) and guess_type(path)[0] in OEB_IMAGES and os.path.exists(os.path.join(base_dir, path)):
                 images.append(path)
-        
+
         # Markdown reference
         refs = {}
         for m in re.finditer(ur'(?mu)^(\ ?\ ?\ ?)\[(?P<id>[^\]]*)\]:\s*(?P<path>[^\s]*)$', txt):
@@ -122,19 +123,30 @@ class TXT2TXTZ(FileTypePlugin):
 
         # Remove duplicates
         return list(set(images))
-    
+
     def run(self, path_to_ebook):
         with open(path_to_ebook, 'rb') as ebf:
             txt = ebf.read()
         base_dir = os.path.dirname(path_to_ebook)
         images = self._get_image_references(txt, base_dir)
-        
+
         if images:
             # Create TXTZ and put file plus images inside of it.
             import zipfile
             of = self.temporary_file('_plugin_txt2txtz.txtz')
             txtz = zipfile.ZipFile(of.name, 'w')
+            # Add selected TXT file to archive.
             txtz.write(path_to_ebook, os.path.basename(path_to_ebook), zipfile.ZIP_DEFLATED)
+            # metadata.opf
+            if os.path.exists(os.path.join(base_dir, 'metadata.opf')):
+                txtz.write(os.path.join(base_dir, 'metadata.opf'), 'metadata.opf', zipfile.ZIP_DEFLATED)
+            else:
+                from calibre.ebooks.metadata.txt import get_metadata
+                with open(path_to_ebook, 'rb') as ebf:
+                    mi = get_metadata(ebf)
+                opf = metadata_to_opf(mi)
+                txtz.writestr('metadata.opf', opf, zipfile.ZIP_DEFLATED)
+            # images
             for image in images:
                 txtz.write(os.path.join(base_dir, image), image)
             txtz.close()
@@ -1018,3 +1030,10 @@ plugins += [LookAndFeel, Behavior, Columns, Toolbar, Search, InputOptions,
         Email, Server, Plugins, Tweaks, Misc, TemplateFunctions]
 
 #}}}
+
+# New metadata download plugins {{{
+from calibre.ebooks.metadata.sources.google import GoogleBooks
+
+plugins += [GoogleBooks]
+
+# }}}

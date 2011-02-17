@@ -151,8 +151,8 @@ class PML_HTMLizer(object):
     def prepare_pml(self, pml):
         # Give Chapters the form \\*='text'text\\*. This is used for generating
         # the TOC later.
-        pml = re.sub(r'(?<=\\x)(?P<text>.*?)(?=\\x)', lambda match: '="%s"%s' % (self.strip_pml(match.group('text')), match.group('text')), pml)
-        pml = re.sub(r'(?<=\\X[0-4])(?P<text>.*?)(?=\\X[0-4])', lambda match: '="%s"%s' % (self.strip_pml(match.group('text')), match.group('text')), pml)
+        pml = re.sub(r'(?msu)(?P<c>\\x)(?P<text>.*?)(?P=c)', lambda match: '%s="%s"%s%s' % (match.group('c'), self.strip_pml(match.group('text')), match.group('text'), match.group('c')), pml)
+        pml = re.sub(r'(?msu)(?P<c>\\X[0-4])(?P<text>.*?)(?P=c)', lambda match: '%s="%s"%s%s' % (match.group('c'), self.strip_pml(match.group('text')), match.group('text'), match.group('c')), pml)
 
         # Remove comments
         pml = re.sub(r'(?mus)\\v(?P<text>.*?)\\v', '', pml)
@@ -190,9 +190,10 @@ class PML_HTMLizer(object):
         pml = re.sub(r'\\a\d\d\d', '', pml)
         pml = re.sub(r'\\U\d\d\d\d', '', pml)
         pml = re.sub(r'\\.', '', pml)
-        pml.replace('\r\n', ' ')
-        pml.replace('\n', ' ')
-        pml.replace('\r', ' ')
+        pml = pml.replace('\r\n', ' ')
+        pml = pml.replace('\n', ' ')
+        pml = pml.replace('\r', ' ')
+        pml = pml.strip()
 
         return pml
 

@@ -584,7 +584,7 @@ class BrowseServer(object):
                 title=_('Books in') + " " +category_name,
                 script='booklist(%s);'%hide_sort, main=html)
 
-    def browse_get_book_args(self, mi, id_):
+    def browse_get_book_args(self, mi, id_, add_category_links=False):
         fmts = self.db.formats(id_, index_is_id=True)
         if not fmts:
             fmts = ''
@@ -596,11 +596,43 @@ class BrowseServer(object):
             fmt = None
         args = {'id':id_, 'mi':mi,
                 }
+        ccache = self.categories_cache() if add_category_links else {}
         for key in mi.all_field_keys():
             val = mi.format_field(key)[1]
             if not val:
                 val = ''
-            args[key] = xml(val, True)
+            if add_category_links:
+                added_key = False
+                if val and key in ('authors', 'publisher', 'series', 'tags'):
+                    categories = mi.get(key)
+                    if isinstance(categories, basestring):
+                        categories = [categories]
+                    dbtags = []
+                    for category in categories:
+                        dbtag = None
+                        for tag in ccache[key]:
+                            if tag.name == category:
+                                dbtag = tag
+                                break
+                        dbtags.append(dbtag)
+                    if None not in dbtags:
+                        vals = []
+                        for tag in dbtags:
+                            tval = ('<a title="Browse books by {3}: {0}"'
+                            ' href="{1}" class="details_category_link">{2}</a>')
+                            href='/browse/matches/%s/%s' % \
+                            (quote(tag.category), quote(str(tag.id)))
+                            vals.append(tval.format(xml(tag.name, True),
+                                xml(href, True),
+                                xml(val if len(dbtags) == 1 else tag.name),
+                                xml(key, True)))
+                        join = ' &amp; ' if key == 'authors' else ', '
+                        args[key] = join.join(vals)
+                        added_key = True
+                if not added_key:
+                    args[key] = xml(val, True)
+            else:
+                args[key] = xml(val, True)
         fname = quote(ascii_filename(args['title']) + ' - ' +
                 ascii_filename(args['authors']))
         return args, fmt, fmts, fname
@@ -674,7 +706,8 @@ class BrowseServer(object):
         except:
             return _('This book has been deleted')
         else:
-            args, fmt, fmts, fname = self.browse_get_book_args(mi, id_)
+            args, fmt, fmts, fname = self.browse_get_book_args(mi, id_,
+                    add_category_links=True)
             args['formats'] = ''
             if fmts:
                 ofmts = [u'<a href="{4}/get/{0}/{1}_{2}.{0}" title="{3}">{3}</a>'\
@@ -690,8 +723,9 @@ class BrowseServer(object):
                 if m['is_custom'] and field not in displayed_custom_fields:
                     continue
                 if m['datatype'] == 'comments' or field == 'comments':
-                    comments.append((m['name'], comments_to_html(mi.get(field,
-                        ''))))
+                    val = mi.get(field, '')
+                    if val and val.strip():
+                        comments.append((m['name'], comments_to_html(val)))
                     continue
                 if field in ('title', 'formats') or not args.get(field, False) \
                         or not m['name']:
