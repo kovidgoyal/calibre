@@ -265,7 +265,8 @@ class CSSPreProcessor(object):
 
     PAGE_PAT   = re.compile(r'@page[^{]*?{[^}]*?}')
     # Remove some of the broken CSS Microsoft products
-    # create
+    # create, slightly dangerous as it removes to end of line
+    # rather than semi-colon
     MS_PAT     = re.compile(r'^\s*(mso-|panose-).+?$',
             re.MULTILINE|re.IGNORECASE)
 
