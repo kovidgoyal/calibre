@@ -112,7 +112,7 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
             getattr(self, 'enum_'+x).setVisible(col_type == 'enumeration')
 
     def accept(self):
-        col = unicode(self.column_name_box.text())
+        col = unicode(self.column_name_box.text()).strip()
         if not col:
             return self.simple_error('', _('No lookup name was provided'))
         if re.match('^\w*$', col) is None or not col[0].isalpha() or col.lower() != col:
@@ -121,7 +121,7 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
         if col.endswith('_index'):
             return self.simple_error('', _('Lookup names cannot end with _index, '
                     'because these names are reserved for the index of a series column.'))
-        col_heading = unicode(self.column_heading_box.text())
+        col_heading = unicode(self.column_heading_box.text()).strip()
         col_type = self.column_types[self.column_type_box.currentIndex()]['datatype']
         if col_type == '*text':
             col_type='text'
@@ -153,23 +153,22 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
         display_dict = {}
 
         if col_type == 'datetime':
-            if self.date_format_box.text():
-                display_dict = {'date_format':unicode(self.date_format_box.text())}
+            if self.date_format_box.text().strip():
+                display_dict = {'date_format':unicode(self.date_format_box.text()).strip()}
             else:
                 display_dict = {'date_format': None}
         elif col_type == 'composite':
-            if not self.composite_box.text():
+            if not self.composite_box.text().strip():
                 return self.simple_error('', _('You must enter a template for'
                     ' composite columns'))
-            display_dict = {'composite_template':unicode(self.composite_box.text())}
+            display_dict = {'composite_template':unicode(self.composite_box.text()).strip()}
         elif col_type == 'enumeration':
             if not self.enum_box.text():
                 return self.simple_error('', _('You must enter at least one'
                     ' value for enumeration columns'))
             l = [v.strip() for v in unicode(self.enum_box.text()).split(',')]
-            for v in l:
-                if not v:
-                    return self.simple_error('', _('You cannot provide the empty '
+            if '' in l:
+                return self.simple_error('', _('You cannot provide the empty '
                     'value, as it is included by default'))
             for i in range(0, len(l)-1):
                 if l[i] in l[i+1:]:

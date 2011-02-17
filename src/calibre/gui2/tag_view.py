@@ -7,6 +7,8 @@ __docformat__ = 'restructuredtext en'
 Browsing book collection by tags.
 '''
 
+import traceback
+
 from itertools import izip
 from functools import partial
 
@@ -755,13 +757,15 @@ class TagsModel(QAbstractItemModel): # {{{
             try:
                 tb_cats.add_user_category(label=cat_name, name=user_cat)
             except ValueError:
-                import traceback
                 traceback.print_exc()
 
-        for cat in sorted(self.db.prefs.get('grouped_search_terms', {}),
+        for cat in sorted(self.db.prefs.get('grouped_search_terms', {}).keys(),
                           key=sort_key):
             if (u'@' + cat) in data:
-                tb_cats.add_user_category(label=u'@' + cat, name=cat)
+                try:
+                    tb_cats.add_user_category(label=u'@' + cat, name=cat)
+                except ValueError:
+                    traceback.print_exc()
         self.db.data.change_search_locations(self.db.field_metadata.get_search_terms())
 
         if len(saved_searches().names()):
