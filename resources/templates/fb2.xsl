@@ -256,14 +256,10 @@
 	</xsl:template>
     <!-- super/sub-scripts -->
     <xsl:template match="fb:sup">
-        <sup>
-            <xsl:apply-templates/>
-        </sup>
+        <sup><xsl:apply-templates/></sup>
     </xsl:template>
     <xsl:template match="fb:sub">
-        <sub>
-            <xsl:apply-templates/>
-        </sub>
+        <sub><xsl:apply-templates/></sub>
     </xsl:template>
 	<!-- link -->
 	<xsl:template match="fb:a">
