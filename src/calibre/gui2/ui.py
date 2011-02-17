@@ -166,10 +166,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         EmailMixin.__init__(self)
         DeviceMixin.__init__(self)
 
-        self.restriction_count_of_books_in_view = 0
-        self.restriction_count_of_books_in_library = 0
-        self.restriction_in_effect = False
-
         self.progress_indicator = ProgressIndicator(self)
         self.progress_indicator.pos = (0, 20)
         self.verbose = opts.verbose
