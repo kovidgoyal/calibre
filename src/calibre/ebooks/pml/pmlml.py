@@ -180,6 +180,9 @@ class PMLMLizer(object):
         links = set(re.findall(r'(?<=\\q="#).+?(?=")', text))
         for unused in anchors.difference(links):
             text = text.replace('\\Q="%s"' % unused, '')
+            
+        # Remove \Cn tags that are within \x and \Xn tags
+        text = re.sub(ur'(?msu)(?P<t>\\(x|X[0-4]))(?P<a>.*?)(?P<c>\\C[0-4]\s*=\s*"[^"]*")(?P<b>.*?)(?P=t)', '\g<t>\g<a>\g<b>\g<t>', text)
 
         # Replace bad characters.
         text = text.replace(u'\xc2', '')
