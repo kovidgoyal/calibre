@@ -13,7 +13,7 @@ from tempfile import NamedTemporaryFile
 from StringIO import StringIO
 
 from calibre import iswindows, load_library, CurrentDir
-from calibre.ptempfile import TemporaryDirectory
+from calibre.ptempfile import TemporaryDirectory, PersistentTemporaryFile
 
 _librar_name = 'libunrar'
 cdll = ctypes.cdll
@@ -272,13 +272,18 @@ def extract_member(path, match=re.compile(r'\.(jpg|jpeg|gif|png)\s*$', re.I),
 def extract_first_alphabetically(path):
     if hasattr(path, 'read'):
         data = path.read()
-        f = NamedTemporaryFile(suffix='.rar')
-        f.write(data)
-        f.flush()
+        with PersistentTemporaryFile('.rar') as f:
+            f.write(data)
         path = f.name
 
     names_ = [x for x in names(path) if os.path.splitext(x)[1][1:].lower() in
             ('png', 'jpg', 'jpeg', 'gif')]
     names_.sort()
-    return extract_member(path, name=names_[0], match=None)
+    ans = extract_member(path, name=names_[0], match=None)
+    try:
+        os.remove(path)
+    except:
+        pass
+    return ans
+
 
