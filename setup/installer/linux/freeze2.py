@@ -24,6 +24,7 @@ binary_includes = [
                 '/usr/bin/pdftohtml',
                 '/usr/lib/libwmflite-0.2.so.7',
                 '/usr/lib/liblcms.so.1',
+                '/usr/lib/liblzma.so.0',
                 '/usr/lib/libunrar.so',
                 '/usr/lib/libsqlite3.so.0',
                 '/usr/lib/libmng.so.1',
