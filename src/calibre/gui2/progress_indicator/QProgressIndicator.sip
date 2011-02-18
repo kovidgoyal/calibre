@@ -1,7 +1,7 @@
 //Define the SIP wrapper to the QProgressIndicator widget
 //Author - Kovid Goyal <kovid@kovidgoyal.net>
 
-%Module progress_indicator 1
+%Module(name=progress_indicator, version=1)
 
 %Import QtCore/QtCoremod.sip
 %Import QtGui/QtGuimod.sip

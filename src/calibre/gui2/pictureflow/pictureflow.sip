@@ -1,7 +1,7 @@
 //Define the SIP wrapper to the pictureflow widget
 //Author - Kovid Goyal <kovid@kovidgoyal.net>
 
-%Module pictureflow 1
+%Module(name=pictureflow, version=1)
 
 %Import QtCore/QtCoremod.sip
 %Import QtGui/QtGuimod.sip

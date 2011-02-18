@@ -1,20 +1,20 @@
-# English (Australia) translation for calibre
-# Copyright (c) 2010 Rosetta Contributors and Canonical Ltd 2010
+# Punjabi translation for calibre
+# Copyright (c) 2011 Rosetta Contributors and Canonical Ltd 2011
 # This file is distributed under the same license as the calibre package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2010.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2011.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-02-15 18:45+0000\n"
-"PO-Revision-Date: 2010-05-21 07:30+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
-"Language-Team: English (Australia) <en_AU@li.org>\n"
+"PO-Revision-Date: 2011-02-13 04:56+0000\n"
+"Last-Translator: Aalam Rangi <Unknown>\n"
+"Language-Team: Punjabi <pa@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-02-16 04:48+0000\n"
+"X-Launchpad-Export-Date: 2011-02-16 04:42+0000\n"
 "X-Generator: Launchpad (build 12351)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -168,7 +168,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:47
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:55
 msgid "Unknown"
-msgstr ""
+msgstr "ਅਗਿਆਤ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:64
 msgid "Base"
@@ -186,19 +186,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:305
 msgid "File type"
-msgstr ""
+msgstr "ਫਾਇਲ ਦੀ ਕਿਸਮ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:341
 msgid "Metadata reader"
-msgstr ""
+msgstr "ਮੈਟਾ-ਡਾਟਾ ਰੀਡਰ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:371
 msgid "Metadata writer"
-msgstr ""
+msgstr "ਮੈਟਾ-ਡਾਟਾ ਰਾਈਟਰ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:401
 msgid "Catalog generator"
-msgstr ""
+msgstr "ਕੈਟਾਲੌਗ ਜੈਨੇਰੇਟਰ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:510
 msgid "User Interface Action"
@@ -212,7 +212,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:302
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:206
 msgid "Preferences"
-msgstr ""
+msgstr "ਤਰਜੀਹਾਂ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:17
 msgid ""
@@ -266,7 +266,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:383
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:394
 msgid "Read metadata from %s files"
-msgstr ""
+msgstr "%s ਫਾਇਲਾਂ ਤੋਂ ਮੈਟਾ-ਡਾਟਾ ਪੜ੍ਹੋ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:331
 msgid "Read metadata from ebooks in RAR archives"
@@ -283,16 +283,16 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:471
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:481
 msgid "Set metadata in %s files"
-msgstr ""
+msgstr "%s ਫਾਇਲਾਂ ਦਾ ਮੈਟਾ-ਡਾਟਾ ਚੁਣੋ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:449
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:492
 msgid "Set metadata from %s files"
-msgstr ""
+msgstr "%s ਫਾਇਲਾਂ ਤੋਂ ਮੈਟਾ-ਡਾਟਾ ਚੁਣੋ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:812
 msgid "Look and Feel"
-msgstr ""
+msgstr "ਦਿੱਖ ਅਤੇ ਵਰਤੋਂ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:814
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:826
@@ -300,19 +300,19 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:848
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:860
 msgid "Interface"
-msgstr ""
+msgstr "ਇੰਟਰਫੇਸ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:818
 msgid "Adjust the look and feel of the calibre interface to suit your tastes"
-msgstr ""
+msgstr "Calibre ਦੀ ਦਿੱਖ ਅਤੇ ਵਰਤੋਂ ਨੂੰ ਆਪਣੀ ਪਸੰਦ ਮੁਤਾਬਿਕ ਬਦਲੋ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:824
 msgid "Behavior"
-msgstr ""
+msgstr "ਵਿਵਹਾਰ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:830
 msgid "Change the way calibre behaves"
-msgstr ""
+msgstr "Calibre ਦੇ ਵਿਵਹਾਰ ਨੂੰ ਬਦਲੋ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:835
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:217
@@ -325,7 +325,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:846
 msgid "Customize the toolbar"
-msgstr ""
+msgstr "ਟੂਲਬਾਰ ਨੂੰ ਆਪਣੀ ਪਸੰਦ ਮੁਤਾਬਿਕ ਬਦਲੋ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:852
 msgid ""
@@ -349,7 +349,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:882
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:893
 msgid "Conversion"
-msgstr ""
+msgstr "ਤਬਦੀਲੀ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:875
 msgid "Set conversion options specific to each input format"
@@ -373,14 +373,14 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:902
 msgid "Adding books"
-msgstr ""
+msgstr "ਕਿਤਾਬਾਂ ਸ਼ੁਮਾਰ ਕਰਨੀਆਂ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:904
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:916
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:928
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:940
 msgid "Import/Export"
-msgstr ""
+msgstr "ਇਮ੍ਪੋਰਟ / ਏਕ੍ਸ੍ਪੋਰਟ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:908
 msgid "Control how calibre reads metadata from files when adding books"
@@ -388,7 +388,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:914
 msgid "Saving books to disk"
-msgstr ""
+msgstr "ਕਿਤਾਬਾਂ ਨੂੰ disk ਤੇ save ਕਰਨਾ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:920
 msgid ""
@@ -398,7 +398,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:926
 msgid "Sending books to devices"
-msgstr ""
+msgstr "ਕਿਤਾਬਾਂ ਨੂੰ device ਤੇ ਭੇਜਣਾ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:932
 msgid "Control how calibre transfers files to your ebook reader"
@@ -410,7 +410,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:944
 msgid "Change metadata fields before saving/sending"
-msgstr ""
+msgstr "Save/Send ਕਰਨ ਤੋਂ ਪੈਹ੍ਲਾਂ ਮੈਟਾ-ਡਾਟਾ ਫ਼ੀਲਡ ਬਦਲੋ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:949
 msgid "Template Functions"
@@ -421,7 +421,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:999
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1010
 msgid "Advanced"
-msgstr ""
+msgstr "ਖਸੂਸੀ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:955
 msgid "Create your own template functions"
@@ -429,12 +429,12 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:960
 msgid "Sharing books by email"
-msgstr ""
+msgstr "Email ਰਾਹੀਂ ਕਿਤਾਬਾਂ ਸਾਂਝੀਆਂ ਕਰਨਾ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:962
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:974
 msgid "Sharing"
-msgstr ""
+msgstr "ਸਾਂਝਾ ਕਰਨਾ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:966
 msgid ""
@@ -444,7 +444,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:972
 msgid "Sharing over the net"
-msgstr ""
+msgstr "Internet ਉੱਤੇ ਸਾਂਝਾ ਕਰਨਾ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:978
 msgid ""
@@ -455,11 +455,11 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:985
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:267
 msgid "Plugins"
-msgstr ""
+msgstr "ਪਲੱਗ-ਇਨ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:991
 msgid "Add/remove/customize various bits of calibre functionality"
-msgstr ""
+msgstr "Calibre ਦੀ ਕਾਰਜ-ਪ੍ਰਣਾਲੀ ਵਿੱਚ ਇਜ਼ਾਫ਼ਾ/ਘਾਟਾ/ਬਦਲਾਓ ਕਰੋ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:997
 msgid "Tweaks"
@@ -517,67 +517,67 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:73
 msgid "This profile is intended for the SONY PRS 300."
-msgstr ""
+msgstr "ਇਹ ਪ੍ਰੋਫਾਇਲ SONY PRS 300 ਲਈ ਹੈ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:82
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:493
 msgid "This profile is intended for the SONY PRS-900."
-msgstr ""
+msgstr "ਇਹ ਪ੍ਰੋਫਾਇਲ SONY PRS-900 ਲਈ ਹੈ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:90
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:538
 msgid "This profile is intended for the Microsoft Reader."
-msgstr ""
+msgstr "ਇਹ ਪ੍ਰੋਫਾਇਲ Microsoft Reader ਲਈ ਹੈ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:101
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:549
 msgid "This profile is intended for the Mobipocket books."
-msgstr ""
+msgstr "ਇਹ ਪ੍ਰੋਫਾਇਲ Mobipocket ਕਿਤਾਬਾਂ ਲਈ ਹੈ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:114
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:562
 msgid "This profile is intended for the Hanlin V3 and its clones."
-msgstr ""
+msgstr "ਇਹ ਪ੍ਰੋਫਾਇਲ Hanlin V3 ਅਤੇ ਉਸ ਜਿਹੇ ਹੋਰਾਂ ਲਈ ਹੈ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:126
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:574
 msgid "This profile is intended for the Hanlin V5 and its clones."
-msgstr ""
+msgstr "ਇਹ ਪ੍ਰੋਫਾਇਲ Hanlin V5 ਅਤੇ ਉਸ ਜਿਹੇ ਹੋਰਾਂ ਲਈ ਹੈ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:136
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:582
 msgid "This profile is intended for the Cybook G3."
-msgstr ""
+msgstr "ਇਹ ਪ੍ਰੋਫਾਇਲ Cybook G3 ਲਈ ਹੈ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:149
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:596
 msgid "This profile is intended for the Cybook Opus."
-msgstr ""
+msgstr "ਇਹ ਪ੍ਰੋਫਾਇਲ Cybook Opus ਲਈ ਹੈ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:161
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:609
 msgid "This profile is intended for the Amazon Kindle."
-msgstr ""
+msgstr "ਇਹ ਪ੍ਰੋਫਾਇਲ Amazon Kindle ਲਈ ਹੈ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:173
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:659
 msgid "This profile is intended for the Irex Illiad."
-msgstr ""
+msgstr "ਇਹ ਪ੍ਰੋਫਾਇਲ Irex Illiad ਲਈ ਹੈ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:185
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:672
 msgid "This profile is intended for the IRex Digital Reader 1000."
-msgstr ""
+msgstr "ਇਹ ਪ੍ਰੋਫਾਇਲ IRex Digital Reader 1000 ਲਈ ਹੈ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:198
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:686
 msgid "This profile is intended for the IRex Digital Reader 800."
-msgstr ""
+msgstr "ਇਹ ਪ੍ਰੋਫਾਇਲ IRex Digital Reader 800 ਲਈ ਹੈ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:210
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:700
 msgid "This profile is intended for the B&N Nook."
-msgstr ""
+msgstr "ਇਹ ਪ੍ਰੋਫਾਇਲ B&N Nook ਲਈ ਹੈ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:232
 msgid "Output profile"
@@ -593,55 +593,62 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:278
 msgid ""
 "Intended for the iPad and similar devices with a resolution of 768x1024"
-msgstr ""
+msgstr "ਇਹ iPad ਅਤੇ ਉਸ ਜਿਹੇ ਹੋਰ 768x1024 resolution ਵਾਲੇ devices ਲਈ ਹੈ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:437
 msgid "Intended for generic tablet devices, does no resizing of images"
 msgstr ""
+"ਇਹ ਹਰ ਤਰ੍ਹਾਂ ਦੇ tablet device ਲਈ ਵਰਤਿਆ ਜਾ ਸਕਦਾ ਹੈ. ਫੋਟੋਆਂ ਦੇ ਆਕਾਰ ਵਿੱਚ ਬਦਲਾਓ "
+"ਨਹੀਂ ਕਰੇਗਾ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:445
 msgid ""
 "Intended for the Samsung Galaxy and similar tablet devices with a resolution "
 "of 600x1280"
 msgstr ""
+"ਇਹ Samsung Galaxy ਅਤੇ ਉਸ ਜਿਹੇ ਹੋਰ 600x1280 resolution ਵਾਲੇ tablet devices ਲਈ "
+"ਹੈ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:471
 msgid "This profile is intended for the Kobo Reader."
-msgstr ""
+msgstr "ਇਹ ਪ੍ਰੋਫਾਇਲ Kobo Reader ਲਈ ਹੈ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:484
 msgid "This profile is intended for the SONY PRS-300."
-msgstr ""
+msgstr "ਇਹ ਪ੍ਰੋਫਾਇਲ Sony PRS-300 ਲਈ ਹੈ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:502
 msgid "Suitable for use with any e-ink device"
-msgstr ""
+msgstr "ਹਰ ਤਰ੍ਹਾਂ ਦੇ e-ink device ਦੇ ਨਾਲ ਵਰਤੋਂ ਲਈ ਮੁਨਾਸਿਬ ਹੈ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:509
 msgid "Suitable for use with any large screen e-ink device"
 msgstr ""
+"ਹਰ ਤਰ੍ਹਾਂ ਦੇ ਵੱਡੇ ਸਕ੍ਰੀਨ ਵਾਲੇ e-ink device ਦੇ ਨਾਲ ਵਰਤੋਂ ਲਈ ਮੁਨਾਸਿਬ ਹੈ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:518
 msgid "This profile is intended for the 5-inch JetBook."
-msgstr ""
+msgstr "ਇਹ ਪ੍ਰੋਫਾਇਲ 5-ਇੰਚ JetBook ਲਈ ਹੈ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:527
 msgid ""
 "This profile is intended for the SONY PRS line. The 500/505/700 etc, in "
 "landscape mode. Mainly useful for comics."
 msgstr ""
+"ਇਹ ਪ੍ਰੋਫਾਇਲ Sony PRS ਲਾਇਨ ਲਈ ਹੈ. 500/505/700 ਵਗਹਿਰਾ, landscape ਮੋਡ ਵਿੱਚ. "
+"ਕੋਮਿਕਾਂ ਪੜ੍ਹਨ ਲਈ ਉਪਯੋਗੀ."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:635
 msgid "This profile is intended for the Amazon Kindle DX."
-msgstr ""
+msgstr "ਇਹ ਪ੍ਰੋਫਾਇਲ Amazon Kindle DX ਲਈ ਹੈ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:712
 msgid "This profile is intended for the B&N Nook Color."
-msgstr ""
+msgstr "ਇਹ ਪ੍ਰੋਫਾਇਲ B&N Nook Color ਲਈ ਹੈ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:723
 msgid "This profile is intended for the Sanda Bambook."
-msgstr ""
+msgstr "ਇਹ ਪ੍ਰੋਫਾਇਲ Sanda Bambook ਲਈ ਹੈ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:34
 msgid "Installed plugins"
@@ -14694,6 +14701,3 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:498
 msgid "Do not download CSS stylesheets."
 msgstr ""
-
-#~ msgid " "
-#~ msgstr " "
