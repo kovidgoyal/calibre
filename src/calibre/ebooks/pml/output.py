@@ -50,7 +50,10 @@ class PMLOutput(OutputFormatPlugin):
             with open(os.path.join(tdir, 'index.pml'), 'wb') as out:
                 out.write(pml.encode(opts.pml_output_encoding, 'replace'))
 
-            self.write_images(oeb_book.manifest, pmlmlizer.image_hrefs, tdir, opts)
+            img_path = os.path.join(tdir, 'index_img')
+            if not os.path.exists(img_path):
+                os.makedirs(img_path)
+            self.write_images(oeb_book.manifest, pmlmlizer.image_hrefs, img_path, opts)
 
             log.debug('Compressing output...')
             pmlz = ZipFile(output_path, 'w')

@@ -1,0 +1,39 @@
+#!/usr/bin/env  python
+__license__  = 'GPL v3'
+__copyright__ = '2011 zotzot'
+__docformat__ = 'PEP8'
+'''
+www.fangraphs.com
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class FanGraphs(BasicNewsRecipe):
+    title = u'FanGraphs'
+    oldest_article = 21
+    max_articles_per_feed = 100
+    no_stylesheets = True
+    #delay = 1
+    use_embedded_content = False
+    encoding = 'utf8'
+    publisher = 'Fangraphs'
+    category = 'Baseball'
+    language = 'en'
+    publication_type = 'Blog'
+
+    description = 'Baseball statistical analysis, graphs, and projections.'
+    __author__ = 'David Appelman'
+    cover_url = 'http://bit.ly/g0BTdQ'
+
+    feeds = [
+    (u'Fangraphs', u'http://feeds.feedburner.com/FanGraphs?format=xml'),
+    (u'Rotographs', u'http://www.wizardrss.com/feed/feeds.feedburner.com/RotoGraphs?format=xml'),
+    (u'Community', u'http://www.wizardrss.com/feed/www.fangraphs.com/community/?feed=rss2'),
+    (u'NotGraphs', u'http://www.wizardrss.com/feed/www.fangraphs.com/not/?feed=rss2')]
+
+    extra_css = '''
+                    h1{font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:large;}
+                    h2{font-family:Arial,Helvetica,sans-serif; font-weight:normal;font-size:small;}
+                    p{font-family:Arial,Helvetica,sans-serif;font-size:small;}
+                    body{font-family:Helvetica,Arial,sans-serif;font-size:small;}
+'''

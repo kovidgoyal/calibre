@@ -157,7 +157,7 @@ class HeuristicProcessor(object):
 
         ITALICIZE_STYLE_PATS = [
             r'(?msu)(?<=[\s>])_(?P<words>[^_]+)_',
-            r'(?msu)(?<=[\s>])/(?P<words>[^/]+)/',
+            r'(?msu)(?<=[\s>])/(?P<words>[^/\*>]+)/',
             r'(?msu)(?<=[\s>])~~(?P<words>[^~]+)~~',
             r'(?msu)(?<=[\s>])\*(?P<words>[^\*]+)\*',
             r'(?msu)(?<=[\s>])~(?P<words>[^~]+)~',

@@ -180,6 +180,9 @@ class PMLMLizer(object):
         links = set(re.findall(r'(?<=\\q="#).+?(?=")', text))
         for unused in anchors.difference(links):
             text = text.replace('\\Q="%s"' % unused, '')
+            
+        # Remove \Cn tags that are within \x and \Xn tags
+        text = re.sub(ur'(?msu)(?P<t>\\(x|X[0-4]))(?P<a>.*?)(?P<c>\\C[0-4]\s*=\s*"[^"]*")(?P<b>.*?)(?P=t)', '\g<t>\g<a>\g<b>\g<t>', text)
 
         # Replace bad characters.
         text = text.replace(u'\xc2', '')
@@ -255,7 +258,12 @@ class PMLMLizer(object):
         # TOC markers.
         toc_name = elem.attrib.get('name', None)
         toc_id = elem.attrib.get('id', None)
-        if (toc_id or toc_name) and tag  not in ('h1', 'h2','h3','h4','h5','h6',):
+        # Only write the TOC marker if the tag isn't a heading and we aren't in one.
+        if (toc_id or toc_name) and tag not in ('h1', 'h2','h3','h4','h5','h6') and \
+            'x' not in tag_stack+tags and 'X0' not in tag_stack+tags and \
+            'X1' not in tag_stack+tags and 'X2' not in tag_stack+tags and \
+            'X3' not in tag_stack+tags and 'X4' not in tag_stack+tags:
+
             toc_page = page.href
             if self.toc.get(toc_page, None):
                 for toc_x in (toc_name, toc_id):
@@ -264,8 +272,8 @@ class PMLMLizer(object):
                         toc_depth = max(min(toc_depth, 4), 0)
                         text.append('\\C%s="%s"' % (toc_depth, toc_title))
 
-        # Process style information that needs holds a single tag
-        # Commented out because every page in an OEB book starts with this style
+        # Process style information that needs holds a single tag.
+        # Commented out because every page in an OEB book starts with this style.
         if style['page-break-before'] == 'always':
             text.append('\\p')
 
