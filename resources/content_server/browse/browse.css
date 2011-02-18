@@ -464,5 +464,14 @@ h2.library_name {
     max-height: 50%;
 }
 
+.details a.details_category_link {
+    text-decoration: none;
+    color: blue
+}
+
+.details a.details_category_link:hover {
+    color: red
+}
+
 /* }}} */
 

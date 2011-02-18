@@ -166,10 +166,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         EmailMixin.__init__(self)
         DeviceMixin.__init__(self)
 
-        self.restriction_count_of_books_in_view = 0
-        self.restriction_count_of_books_in_library = 0
-        self.restriction_in_effect = False
-
         self.progress_indicator = ProgressIndicator(self)
         self.progress_indicator.pos = (0, 20)
         self.verbose = opts.verbose
@@ -311,7 +307,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
     def esc(self, *args):
         self.search.clear()
 
-    def start_content_server(self):
+    def start_content_server(self, check_started=True):
         from calibre.library.server.main import start_threaded_server
         from calibre.library.server import server_config
         self.content_server = start_threaded_server(
@@ -319,7 +315,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         self.content_server.state_callback = Dispatcher(
                 self.iactions['Connect Share'].content_server_state_changed)
         self.content_server.state_callback(True)
-        self.test_server_timer = QTimer.singleShot(10000, self.test_server)
+        if check_started:
+            QTimer.singleShot(10000, self.test_server)
 
     def resizeEvent(self, ev):
         MainWindow.resizeEvent(self, ev)

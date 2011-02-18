@@ -95,22 +95,22 @@ class TXT2TXTZ(FileTypePlugin):
     file_types = set(['txt'])
     supported_platforms = ['windows', 'osx', 'linux']
     on_import = True
-    
+
     def _get_image_references(self, txt, base_dir):
         images = []
-        
+
         # Textile
         for m in re.finditer(ur'(?mu)(?:[\[{])?\!(?:\. )?(?P<path>[^\s(!]+)\s?(?:\(([^\)]+)\))?\!(?::(\S+))?(?:[\]}]|(?=\s|$))', txt):
             path = m.group('path')
             if path and not os.path.isabs(path) and guess_type(path)[0] in OEB_IMAGES and os.path.exists(os.path.join(base_dir, path)):
                 images.append(path)
-                
-        # Markdown inline        
+
+        # Markdown inline
         for m in re.finditer(ur'(?mu)\!\[([^\]\[]*(\[[^\]\[]*(\[[^\]\[]*(\[[^\]\[]*(\[[^\]\[]*(\[[^\]\[]*(\[[^\]\[]*\])*[^\]\[]*\])*[^\]\[]*\])*[^\]\[]*\])*[^\]\[]*\])*[^\]\[]*\])*[^\]\[]*)\]\s*\((?P<path>[^\)]*)\)', txt):
             path = m.group('path')
             if path and not os.path.isabs(path) and guess_type(path)[0] in OEB_IMAGES and os.path.exists(os.path.join(base_dir, path)):
                 images.append(path)
-        
+
         # Markdown reference
         refs = {}
         for m in re.finditer(ur'(?mu)^(\ ?\ ?\ ?)\[(?P<id>[^\]]*)\]:\s*(?P<path>[^\s]*)$', txt):
@@ -123,13 +123,13 @@ class TXT2TXTZ(FileTypePlugin):
 
         # Remove duplicates
         return list(set(images))
-    
+
     def run(self, path_to_ebook):
         with open(path_to_ebook, 'rb') as ebf:
             txt = ebf.read()
         base_dir = os.path.dirname(path_to_ebook)
         images = self._get_image_references(txt, base_dir)
-        
+
         if images:
             # Create TXTZ and put file plus images inside of it.
             import zipfile
@@ -1030,3 +1030,10 @@ plugins += [LookAndFeel, Behavior, Columns, Toolbar, Search, InputOptions,
         Email, Server, Plugins, Tweaks, Misc, TemplateFunctions]
 
 #}}}
+
+# New metadata download plugins {{{
+from calibre.ebooks.metadata.sources.google import GoogleBooks
+
+plugins += [GoogleBooks]
+
+# }}}

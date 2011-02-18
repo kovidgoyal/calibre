@@ -1818,7 +1818,7 @@ class MobiWriter(object):
             text = text.strip()
             if not isinstance(text, unicode):
                 text = text.decode('utf-8', 'replace')
-            text = text.encode('utf-8')
+            text = normalize(text).encode('utf-8')
         else :
             text = "(none)".encode('utf-8')
         return text

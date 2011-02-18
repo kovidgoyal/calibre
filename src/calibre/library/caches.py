@@ -181,6 +181,7 @@ class ResultCache(SearchQueryParser): # {{{
         self._map = self._map_filtered = []
         self.first_sort = True
         self.search_restriction = ''
+        self.search_restriction_book_count = 0
         self.field_metadata = field_metadata
         self.all_search_locations = field_metadata.get_search_terms()
         SearchQueryParser.__init__(self, self.all_search_locations, optimize=True)
@@ -618,12 +619,14 @@ class ResultCache(SearchQueryParser): # {{{
         return matches
 
     def search(self, query, return_matches=False):
-        ans = self.search_getting_ids(query, self.search_restriction)
+        ans = self.search_getting_ids(query, self.search_restriction,
+                                      set_restriction_count=True)
         if return_matches:
             return ans
         self._map_filtered = ans
 
-    def search_getting_ids(self, query, search_restriction):
+    def search_getting_ids(self, query, search_restriction,
+                           set_restriction_count=False):
         q = ''
         if not query or not query.strip():
             q = search_restriction
@@ -632,15 +635,26 @@ class ResultCache(SearchQueryParser): # {{{
             if search_restriction:
                 q = u'%s (%s)' % (search_restriction, query)
         if not q:
+            if set_restriction_count:
+                self.search_restriction_book_count = len(self._map)
             return list(self._map)
         matches = self.parse(q)
         tmap = list(itertools.repeat(False, len(self._data)))
         for x in matches:
             tmap[x] = True
-        return [x for x in self._map if tmap[x]]
+        rv = [x for x in self._map if tmap[x]]
+        if set_restriction_count and q == search_restriction:
+            self.search_restriction_book_count = len(rv)
+        return rv
 
     def set_search_restriction(self, s):
         self.search_restriction = s
+
+    def search_restriction_applied(self):
+        return bool(self.search_restriction)
+
+    def get_search_restriction_book_count(self):
+        return self.search_restriction_book_count
 
     # }}}
 

@@ -160,6 +160,7 @@ class MultiCompleteComboBox(EnComboBox):
         c.setCaseSensitivity(Qt.CaseSensitive)
         self.dummy_model = CompleteModel(self)
         c.setModel(self.dummy_model)
+        self.lineEdit()._completer.setWidget(self)
 
     def update_items_cache(self, complete_items):
         self.lineEdit().update_items_cache(complete_items)

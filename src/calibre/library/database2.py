@@ -353,12 +353,23 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         # Reconstruct the user categories, putting them into field_metadata
         # Assumption is that someone else will fix them if they change.
         self.field_metadata.remove_dynamic_categories()
-        tb_cats = self.field_metadata
         for user_cat in sorted(self.prefs.get('user_categories', {}).keys(), key=sort_key):
             cat_name = '@' + user_cat # add the '@' to avoid name collision
-            tb_cats.add_user_category(label=cat_name, name=user_cat)
+            self.field_metadata.add_user_category(label=cat_name, name=user_cat)
+
+        # add grouped search term user categories
+        muc = self.prefs.get('grouped_search_make_user_categories', [])
+        for cat in sorted(self.prefs.get('grouped_search_terms', {}).keys(), key=sort_key):
+            if cat in muc:
+                # There is a chance that these can be duplicates of an existing
+                # user category. Print the exception and continue.
+                try:
+                    self.field_metadata.add_user_category(label=u'@' + cat, name=cat)
+                except:
+                    traceback.print_exc()
+
         if len(saved_searches().names()):
-            tb_cats.add_search_category(label='search', name=_('Searches'))
+            self.field_metadata.add_search_category(label='search', name=_('Searches'))
 
         self.field_metadata.add_grouped_search_terms(
                                     self.prefs.get('grouped_search_terms', {}))
