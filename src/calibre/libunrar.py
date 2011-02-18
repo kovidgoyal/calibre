@@ -270,18 +270,21 @@ def extract_member(path, match=re.compile(r'\.(jpg|jpeg|gif|png)\s*$', re.I),
                 return path, open(path, 'rb').read()
 
 def extract_first_alphabetically(path):
+    remove_path = False
     if hasattr(path, 'read'):
         data = path.read()
         with PersistentTemporaryFile('.rar') as f:
             f.write(data)
         path = f.name
+        remove_path = True
 
     names_ = [x for x in names(path) if os.path.splitext(x)[1][1:].lower() in
             ('png', 'jpg', 'jpeg', 'gif')]
     names_.sort()
     ans = extract_member(path, name=names_[0], match=None)
     try:
-        os.remove(path)
+        if remove_path:
+            os.remove(path)
     except:
         pass
     return ans
