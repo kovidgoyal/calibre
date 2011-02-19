@@ -50,7 +50,7 @@ def to_asin(br, isbn):
     else:
         asin = isbn
     with cache_lock:
-        asin_cache[isbn] = ans if ans else False
+        asin_cache[isbn] = asin if asin else False
     return asin
 
 
