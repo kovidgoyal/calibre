@@ -60,7 +60,9 @@ class USBMS(CLI, Device):
     def books(self, oncard=None, end_session=True):
         from calibre.ebooks.metadata.meta import path_to_ext
 
-        debug_print ('USBMS: Fetching list of books from device. oncard=', oncard)
+        debug_print ('USBMS: Fetching list of books from device. Device=',
+                     self.__class__.__name__,
+                     'oncard=', oncard)
 
         dummy_bl = self.booklist_class(None, None, None)
 
