@@ -62,7 +62,7 @@ class MultiCompleteLineEdit(QLineEdit, LineEditECM):
         c.setWidget(self)
         c.setCompletionMode(QCompleter.PopupCompletion)
         c.setCaseSensitivity(Qt.CaseInsensitive)
-        c.setModelSorting(QCompleter.CaseInsensitivelySortedModel)
+        c.setModelSorting(QCompleter.UnsortedModel)
         c.setCompletionRole(Qt.DisplayRole)
         p = c.popup()
         p.setMouseTracking(True)
