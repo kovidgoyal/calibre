@@ -75,6 +75,9 @@ class WinPNPScanner(object):
         return order
 
     def __call__(self, debug=False):
+        #import traceback
+        #traceback.print_stack()
+
         if self.scanner is None:
             return {}
         try:
