@@ -26,6 +26,17 @@ def isbn_test(isbn):
 
     return test
 
+def title_test(title, exact=False):
+
+    title = title.lower()
+
+    def test(mi):
+        mt = mi.title.lower()
+        return (exact and mt == title) or \
+                (not exact and title in mt)
+
+    return test
+
 def test_identify_plugin(name, tests):
     '''
     :param name: Plugin name
