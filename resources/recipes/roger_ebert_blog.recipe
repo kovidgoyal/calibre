@@ -1,35 +1,41 @@
 import re
+import urllib2
+import time
 from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import BeautifulSoup, SoupStrainer
+from calibre import strftime
 
-class EbertJournal(BasicNewsRecipe):
-    title                 = 'Roger Ebert Journal'
+'''
+      Help Needed:
+       Still can't figure out why I'm getting strange characters.  Esp. the Great Movies descriptions in the TOC.
+       Anyone help me figure that out?
+
+      Change Log:
+       2011-02-19:  Version 2:  Added "Oscars" section and fixed date problem
+'''
+
+class Ebert(BasicNewsRecipe):
+    title                 = 'Roger Ebert'
     __author__            = 'Shane Erstad'
-    description           = 'Roger Ebert Journal'
+    version               = 2
+    description           = 'Roger Ebert Movie Reviews'
     publisher             = 'Chicago Sun Times'
     category              = 'movies'
     oldest_article        = 8
     max_articles_per_feed = 100
     no_stylesheets        = True
     use_embedded_content  = False
-    encoding              = 'ISO-8859-1'
+    encoding              = 'UTF-8'
     masthead_url          = 'http://rogerebert.suntimes.com/graphics/global/roger.jpg'
     language              = 'en'
     remove_empty_feeds    = False
-    PREFIX                  = 'http://blogs.suntimes.com/ebert'
+    PREFIX                  = 'http://rogerebert.suntimes.com'
+    patternReviews                = r'<span class="*?movietitle"*?>(.*?)</span>.*?<div class="*?headline"*?>(.*?)</div>(.*?)</div>'
+    patternCommentary       = r'<div class="*?headline"*?>.*?(<a href="/apps/pbcs.dll/article\?AID=.*?COMMENTARY.*?" id="ltred">.*?</a>).*?<div class="blurb clear">(.*?)</div>'
+    patternPeople           = r'<div class="*?headline"*?>.*?(<a href="/apps/pbcs.dll/article\?AID=.*?PEOPLE.*?" id="ltred">.*?</a>).*?<div class="blurb clear">(.*?)</div>'
+    patternOscars           = r'<div class="*?headline"*?>.*?(<a href="/apps/pbcs.dll/article\?AID=.*?OSCARS.*?" id="ltred">.*?</a>).*?<div class="blurb clear">(.*?)</div>'
+    patternGlossary           = r'<div class="*?headline"*?>.*?(<a href="/apps/pbcs.dll/article\?AID=.*?GLOSSARY.*?" id="ltred">.*?</a>).*?<div class="blurb clear">(.*?)</div>'
 
-    remove_tags_before = dict(id='content')
-    remove_tags_after = dict(id='comments-open')
-
-
-
-
-
-    extra_css             = """
-                                @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)}
-                                .article_description,body{font-family: Arial,Helvetica,sans1,sans-serif}
-                                .color-2{display:block; margin-bottom: 10px; padding: 5px, 10px;
-                                border-left: 1px solid #D00000; color: #D00000}
-                                img{margin-bottom: 0.8em} """
 
 
     conversion_options = {
@@ -42,61 +48,89 @@ class EbertJournal(BasicNewsRecipe):
 
 
     feeds          = [
-                        (u'Roger Ebert Journal'   , u'http://blogs.suntimes.com/ebert/' )
+                        (u'Reviews'   , u'http://rogerebert.suntimes.com/apps/pbcs.dll/section?category=reviews' )
+                        ,(u'Commentary'   , u'http://rogerebert.suntimes.com/apps/pbcs.dll/section?category=COMMENTARY')
+                        ,(u'Great Movies'   , u'http://rogerebert.suntimes.com/apps/pbcs.dll/section?category=REVIEWS08')
+                        ,(u'People'   , u'http://rogerebert.suntimes.com/apps/pbcs.dll/section?category=PEOPLE')
+                        ,(u'Oscars'   , u'http://rogerebert.suntimes.com/apps/pbcs.dll/section?category=OSCARS')
+                        ,(u'Glossary'   , u'http://rogerebert.suntimes.com/apps/pbcs.dll/section?category=GLOSSARY')
+
                      ]
 
     preprocess_regexps = [
-
-        (re.compile(r'<span class="vcard author">Roger Ebert</span>', re.DOTALL|re.IGNORECASE),
-            lambda m: 'Roger Ebert'),
-
-        (re.compile(r'<span class="vcard author">', re.DOTALL|re.IGNORECASE),
-            lambda m: '<hr width="80%"><span class="vcard author">'),
-
-        (re.compile(r'<blockquote>', re.DOTALL|re.IGNORECASE),
-            lambda m: ''),
-
-        (re.compile(r'<a class="a2a_dd".*?</a>', re.DOTALL|re.IGNORECASE),
-            lambda m: ''),
-
-        (re.compile(r'<h2 class="comments-open-header">Leave a comment</h2>', re.DOTALL|re.IGNORECASE),
-            lambda m: ''),
-
-        (re.compile(r'a title="Reply".*?</a>', re.DOTALL|re.IGNORECASE),
+        (re.compile(r'<font.*?>.*?This is a printer friendly.*?</font>.*?<hr>', re.DOTALL|re.IGNORECASE),
             lambda m: '')
     ]
 
 
-    def parse_index(self):
 
+    def print_version(self, url):
+        return url + '&template=printart'
+
+    def parse_index(self):
         totalfeeds = []
         lfeeds = self.get_feeds()
         for feedobj in lfeeds:
             feedtitle, feedurl = feedobj
+            self.log('\tFeedurl: ', feedurl)
             self.report_progress(0, _('Fetching feed')+' %s...'%(feedtitle if feedtitle else feedurl))
             articles = []
-            soup = self.index_to_soup(feedurl)
-            for item in soup.findAll(attrs={'class':['entry-asset asset hentry']}):
+            page = urllib2.urlopen(feedurl).read()
 
-                item.find(attrs={'class':['mt-enclosure mt-enclosure-image']}).replaceWith('')
-                bodysection = item.find(attrs={'class':['asset-body']})
-                datesection = item.find(attrs={'class':['published']})
-                titlesection = item.find(attrs={'class':['asset-name entry-title']})
+            if feedtitle == 'Reviews' or feedtitle == 'Great Movies':
+                    pattern = self.patternReviews
+            elif feedtitle == 'Commentary':
+                    pattern = self.patternCommentary
+            elif feedtitle == 'People':
+                    pattern = self.patternPeople
+            elif feedtitle == 'Glossary':
+                    pattern = self.patternGlossary
+            elif feedtitle == 'Oscars':
+                    pattern = self.patternOscars
 
 
-                self.log(bodysection)
+            regex = re.compile(pattern, re.IGNORECASE|re.DOTALL)
 
-                link = titlesection.find('a')
-                url         = link['href']
-                title       = self.tag_to_string(link)
-                self.log(url)
-                self.log(title)
-                articles.append({
-                                      'title'      :title
-                                     ,'date'       :' [' + self.tag_to_string(datesection) + ']'
-                                     ,'url'        :url
-                                     ,'description':self.tag_to_string(bodysection)
+            for match in regex.finditer(page):
+                if feedtitle == 'Reviews' or feedtitle == 'Great Movies':
+                    movietitle = match.group(1)
+                    thislink = match.group(2)
+                    description = match.group(3)
+                elif feedtitle == 'Commentary' or feedtitle == 'People' or feedtitle == 'Glossary' or feedtitle == 'Oscars':
+                    thislink = match.group(1)
+                    description = match.group(2)
+
+                self.log(thislink)
+
+                for link in BeautifulSoup(thislink, parseOnlyThese=SoupStrainer('a')):
+                    thisurl = self.PREFIX + link['href']
+                    thislinktext = self.tag_to_string(link)
+
+                    if feedtitle == 'Reviews' or feedtitle == 'Great Movies':
+                        thistitle = movietitle
+                    elif feedtitle == 'Commentary' or feedtitle == 'People' or feedtitle == 'Glossary' or feedtitle == 'Oscars':
+                        thistitle = thislinktext
+
+                    if thistitle == '':
+                        continue
+
+
+                    pattern2 = r'AID=\/(.*?)\/'
+                    reg2 = re.compile(pattern2, re.IGNORECASE|re.DOTALL)
+                    match2 = reg2.search(thisurl)
+                    if match2:
+                        c = time.strptime(match2.group(1),"%Y%m%d")
+                        mydate=strftime("%A, %B %d, %Y", c)
+                    else:
+                        mydate = strftime("%A, %B %d, %Y")
+                    self.log(mydate)
+
+                    articles.append({
+                                      'title'      :thistitle
+                                     ,'date'       :'  [' + mydate + ']'
+                                     ,'url'        :thisurl
+                                     ,'description':description
                                     })
             totalfeeds.append((feedtitle, articles))
-        return totalfeeds
 
+        return totalfeeds
