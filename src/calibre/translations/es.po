@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-02-18 21:06+0000\n"
-"PO-Revision-Date: 2011-02-18 21:58+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2011-02-19 18:04+0000\n"
+"Last-Translator: Jellby <Unknown>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-02-19 05:00+0000\n"
+"X-Launchpad-Export-Date: 2011-02-20 04:34+0000\n"
 "X-Generator: Launchpad (build 12351)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:527
@@ -3446,7 +3446,7 @@ msgstr "Portada"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:16
 msgid "Downloads metadata from Amazon"
-msgstr ""
+msgstr "Descargar metadatos de Amazon"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/base.py:22
 msgid "Metadata source"
@@ -4349,11 +4349,11 @@ msgstr "Añadir a partir de ISBN"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:113
 msgid "Adding"
-msgstr ""
+msgstr "Añadiendo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:114
 msgid "Creating book records from ISBNs"
-msgstr ""
+msgstr "Creando registros de libros a partir de los ISBN"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:194
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:256
@@ -5002,12 +5002,14 @@ msgstr "Conectar/compartir"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:174
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:84
 msgid "Stopping"
-msgstr ""
+msgstr "Deteniendo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:175
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:85
 msgid "Stopping server, this could take upto a minute, please wait..."
 msgstr ""
+"Deteniendo el servidor, esto puede llevar hasta un minuto, haga el favor de "
+"esperar..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_collections.py:13
 msgid "Manage collections"
