@@ -267,6 +267,9 @@ class AddAction(InterfaceAction):
             info_dialog(self.gui, _('Merged some books'),
                     _('The following duplicate books were found and incoming book formats were '
                         'processed and merged into your Calibre database according to your automerge settings:'), det_msg=books, show=True)
+
+        if getattr(self._adder, 'number_of_books_added', 0) > 0 or \
+                getattr(self._adder, 'merged_books', False):
             # The formats of the current book could have changed if
             # automerge is enabled
             current_idx = self.gui.library_view.currentIndex()
