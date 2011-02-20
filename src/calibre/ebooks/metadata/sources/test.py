@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, tempfile
+import os, tempfile, time
 from Queue import Queue, Empty
 from threading import Event
 
@@ -48,11 +48,15 @@ def test_identify_plugin(name, tests):
     abort = Event()
     prints('Log saved to', lf)
 
+    times = []
     for kwargs, test_funcs in tests:
         prints('Running test with:', kwargs)
         rq = Queue()
         args = (log, rq, abort)
+        start_time = time.time()
         err = plugin.identify(*args, **kwargs)
+        total_time = time.time() - start_time
+        times.append(total_time)
         if err is not None:
             prints('identify returned an error for args', args)
             prints(err)
@@ -86,6 +90,8 @@ def test_identify_plugin(name, tests):
             prints('ERROR: No results that passed all tests were found')
             prints('Log saved to', lf)
             raise SystemExit(1)
+
+    prints('Average time per query', sum(times)/len(times))
 
     if os.stat(lf).st_size > 10:
         prints('There were some errors, see log', lf)
