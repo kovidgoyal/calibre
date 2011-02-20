@@ -1096,7 +1096,8 @@ class TagsModel(QAbstractItemModel): # {{{
                         if tag in nodes_seen:
                             continue
                         nodes_seen.add(tag)
-                        ans.append('%s%s:"=%s"'%(prefix, category, tag.name))
+                        ans.append('%s%s:"=%s"'%(prefix, category,
+                                                 tag.name.replace(r'"', r'\"')))
         return ans
 
     def find_item_node(self, key, txt, start_path):
