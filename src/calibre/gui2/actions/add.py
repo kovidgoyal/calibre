@@ -259,6 +259,13 @@ class AddAction(InterfaceAction):
             if hasattr(self.gui, 'db_images'):
                 self.gui.db_images.reset()
             self.gui.tags_view.recount()
+            # The formats of the current book could have changed if
+            # automerge is enabled
+            current_idx = self.gui.library_view.currentIndex()
+            if current_idx.isValid():
+                self.gui.library_view.model().current_changed(current_idx,
+                        current_idx)
+
         if getattr(self._adder, 'merged_books', False):
             books = u'\n'.join([x if isinstance(x, unicode) else
                     x.decode(preferred_encoding, 'replace') for x in
