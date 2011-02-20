@@ -19,7 +19,7 @@ URL = \
 
 _ignore_starts = u'\'"'+u''.join(unichr(x) for x in range(0x2018, 0x201e)+[0x2032, 0x2033])
 
-def get_series(title, authors, timeout=5):
+def get_series(title, authors, timeout=10):
     mi = Metadata(title, authors)
     if title and title[0] in _ignore_starts:
         title = title[1:]
