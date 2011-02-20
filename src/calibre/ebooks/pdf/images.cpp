@@ -301,7 +301,7 @@ void PNGWriter::write_splash_bitmap(SplashBitmap *bitmap) {
 
 void calibre_png_mem_write(png_structp png_ptr, png_bytep data, png_size_t length) {
     if (!png_ptr || length < 1) return;
-    vector<char> *buf = static_cast< vector<char>* >(png_ptr->io_ptr);
+    vector<char> *buf = static_cast< vector<char>* >(png_get_io_ptr(png_ptr));
     buf->reserve(buf->capacity() + length); 
     do {
         buf->push_back(static_cast<char>(*data));
