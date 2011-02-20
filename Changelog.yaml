@@ -60,6 +60,8 @@
     - title: "TXT Input: New paragraph-type option (off) to disable modifying the paragraph structure."
 
     - title: "Device driver for the Kendo/Yifang M7 and the Wolder Mibuk Life"
+    
+    - title: "For people building calibre from source, note that calibre now requires SIP >= 4.12 to build" 
   
   bug fixes:
     - title: "Fix main memory and storage card for Cybook Orizon being swapped with some firmwares"
