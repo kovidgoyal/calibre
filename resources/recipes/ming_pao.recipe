@@ -31,7 +31,9 @@ class MPHKRecipe(BasicNewsRecipe):
     oldest_article = 1
     max_articles_per_feed = 100
     __author__            = 'Eddie Lau'
-    description           = 'Hong Kong Chinese Newspaper (http://news.mingpao.com)'
+    description = ('Hong Kong Chinese Newspaper (http://news.mingpao.com). If'
+                  'you are using a Kindle with firmware < 3.1, customize the'
+                  'recipe')
     publisher             = 'MingPao'
     category              = 'Chinese, News, Hong Kong'
     remove_javascript = True
