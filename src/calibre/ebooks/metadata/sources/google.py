@@ -10,7 +10,6 @@ __docformat__ = 'restructuredtext en'
 import time
 from urllib import urlencode
 from functools import partial
-from threading import Thread
 
 from lxml import etree
 
@@ -18,6 +17,7 @@ from calibre.ebooks.metadata.sources.base import Source
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.utils.date import parse_date, utcnow
+from calibre.utils.cleantext import clean_ascii_chars
 from calibre import browser, as_unicode
 
 NAMESPACES = {
@@ -41,20 +41,20 @@ subject        = XPath('descendant::dc:subject')
 description    = XPath('descendant::dc:description')
 language       = XPath('descendant::dc:language')
 
-def get_details(browser, url):
+def get_details(browser, url, timeout):
     try:
-        raw = browser.open_novisit(url).read()
+        raw = browser.open_novisit(url, timeout=timeout).read()
     except Exception as e:
         gc = getattr(e, 'getcode', lambda : -1)
         if gc() != 403:
             raise
         # Google is throttling us, wait a little
-        time.sleep(2)
-        raw = browser.open_novisit(url).read()
+        time.sleep(1)
+        raw = browser.open_novisit(url, timeout=timeout).read()
 
     return raw
 
-def to_metadata(browser, log, entry_):
+def to_metadata(browser, log, entry_, timeout):
 
     def get_text(extra, x):
         try:
@@ -79,8 +79,9 @@ def to_metadata(browser, log, entry_):
 
     mi = Metadata(title_, authors)
     try:
-        raw = get_details(browser, id_url)
-        feed = etree.fromstring(xml_to_unicode(raw, strip_encoding_pats=True)[0])
+        raw = get_details(browser, id_url, timeout)
+        feed = etree.fromstring(xml_to_unicode(clean_ascii_chars(raw),
+            strip_encoding_pats=True)[0])
         extra = entry(feed)[0]
     except:
         log.exception('Failed to get additional details for', mi.title)
@@ -131,26 +132,19 @@ def to_metadata(browser, log, entry_):
 
     return mi
 
-class Worker(Thread):
 
-    def __init__(self, log, entries, abort, result_queue):
-        self.browser, self.log, self.entries = browser(), log, entries
-        self.abort, self.result_queue = abort, result_queue
-        Thread.__init__(self)
-        self.daemon = True
-
-    def run(self):
-        for i in self.entries:
-            try:
-                ans = to_metadata(self.browser, self.log, i)
-                if isinstance(ans, Metadata):
-                    self.result_queue.put(ans)
-            except:
-                self.log.exception(
-                    'Failed to get metadata for identify entry:',
-                    etree.tostring(i))
-            if self.abort.is_set():
-                break
+def get_all_details(br, log, entries, abort, result_queue, timeout):
+    for i in entries:
+        try:
+            ans = to_metadata(br, log, i, timeout)
+            if isinstance(ans, Metadata):
+                result_queue.put(ans)
+        except:
+            log.exception(
+                'Failed to get metadata for identify entry:',
+                etree.tostring(i))
+        if abort.is_set():
+            break
 
 
 class GoogleBooks(Source):
@@ -192,54 +186,40 @@ class GoogleBooks(Source):
             })
 
 
-    def identify(self, log, result_queue, abort, title=None, authors=None, identifiers={}):
+    def identify(self, log, result_queue, abort, title=None, authors=None,
+            identifiers={}, timeout=5):
         query = self.create_query(log, title=title, authors=authors,
                 identifiers=identifiers)
+        br = browser()
         try:
-            raw = browser().open_novisit(query).read()
+            raw = br.open_novisit(query, timeout=timeout).read()
         except Exception, e:
             log.exception('Failed to make identify query: %r'%query)
             return as_unicode(e)
 
         try:
             parser = etree.XMLParser(recover=True, no_network=True)
-            feed = etree.fromstring(xml_to_unicode(raw,
+            feed = etree.fromstring(xml_to_unicode(clean_ascii_chars(raw),
                 strip_encoding_pats=True)[0], parser=parser)
             entries = entry(feed)
         except Exception, e:
             log.exception('Failed to parse identify results')
             return as_unicode(e)
 
-
-        groups = self.split_jobs(entries, 5) # At most 5 threads
-        if not groups:
-            return None
-        workers = [Worker(log, entries, abort, result_queue) for entries in
-                groups]
-
-        if abort.is_set():
-            return None
-
-        for worker in workers: worker.start()
-
-        has_alive_worker = True
-        while has_alive_worker and not abort.is_set():
-            time.sleep(0.1)
-            has_alive_worker = False
-            for worker in workers:
-                if worker.is_alive():
-                    has_alive_worker = True
+        # There is no point running these queries in threads as google
+        # throttles requests returning Forbidden errors
+        get_all_details(br, log, entries, abort, result_queue, timeout)
 
         return None
 
 if __name__ == '__main__':
     # To run these test use: calibre-debug -e src/calibre/ebooks/metadata/sources/google.py
     from calibre.ebooks.metadata.sources.test import (test_identify_plugin,
-            isbn_test)
+            title_test)
     test_identify_plugin(GoogleBooks.name,
         [
             (
                 {'title': 'Great Expectations', 'authors':['Charles Dickens']},
-                [isbn_test('9781607541592')]
+                [title_test('Great Expectations', exact=True)]
             ),
     ])

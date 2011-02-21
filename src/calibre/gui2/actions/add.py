@@ -259,6 +259,7 @@ class AddAction(InterfaceAction):
             if hasattr(self.gui, 'db_images'):
                 self.gui.db_images.reset()
             self.gui.tags_view.recount()
+
         if getattr(self._adder, 'merged_books', False):
             books = u'\n'.join([x if isinstance(x, unicode) else
                     x.decode(preferred_encoding, 'replace') for x in
@@ -266,6 +267,17 @@ class AddAction(InterfaceAction):
             info_dialog(self.gui, _('Merged some books'),
                     _('The following duplicate books were found and incoming book formats were '
                         'processed and merged into your Calibre database according to your automerge settings:'), det_msg=books, show=True)
+
+        if getattr(self._adder, 'number_of_books_added', 0) > 0 or \
+                getattr(self._adder, 'merged_books', False):
+            # The formats of the current book could have changed if
+            # automerge is enabled
+            current_idx = self.gui.library_view.currentIndex()
+            if current_idx.isValid():
+                self.gui.library_view.model().current_changed(current_idx,
+                        current_idx)
+
+
         if getattr(self._adder, 'critical', None):
             det_msg = []
             for name, log in self._adder.critical.items():

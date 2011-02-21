@@ -5,7 +5,9 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re, urllib, urlparse
+import re, urllib, urlparse, socket
+
+from mechanize import URLError
 
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre import browser
@@ -17,7 +19,7 @@ URL = \
 
 _ignore_starts = u'\'"'+u''.join(unichr(x) for x in range(0x2018, 0x201e)+[0x2032, 0x2033])
 
-def get_series(title, authors):
+def get_series(title, authors, timeout=60):
     mi = Metadata(title, authors)
     if title and title[0] in _ignore_starts:
         title = title[1:]
@@ -39,7 +41,12 @@ def get_series(title, authors):
 
     url = URL.format(author, title)
     br = browser()
-    raw = br.open(url).read()
+    try:
+        raw = br.open_novisit(url, timeout=timeout).read()
+    except URLError, e:
+        if isinstance(e.reason, socket.timeout):
+            raise Exception('KDL Server busy, try again later')
+        raise
     if 'see the full results' not in raw:
         return mi
     raw = xml_to_unicode(raw)[0]
