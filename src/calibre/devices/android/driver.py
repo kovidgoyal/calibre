@@ -63,7 +63,8 @@ class ANDROID(USBMS):
             0x0e79 : { 0x1419: [0x0216], 0x1420 : [0x0216], 0x1422 : [0x0216]},
 
             # Huawei
-            0x45e : { 0x00e1 : [0x007], },
+            # Disabled as this USB id is used by various USB flash drives
+            #0x45e : { 0x00e1 : [0x007], },
 
             # T-Mobile
             0x0408 : { 0x03ba : [0x0109], },

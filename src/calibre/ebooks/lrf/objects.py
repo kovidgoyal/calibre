@@ -854,7 +854,8 @@ class Text(LRFStream):
                 if len(self.content) == 0:
                     current_style = style.copy()
                 name, val = action[0], LRFObject.tag_to_val(action, self, tag, None)
-                if name and current_style[name] != val:
+                if name and (name not in current_style or current_style[name]
+                        != val):
                     # No existing Span
                     if len(self.content) > 0 and isinstance(self.content[-1], self.__class__.Span):
                         self.content[-1].attrs[name] = val

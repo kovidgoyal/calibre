@@ -50,7 +50,7 @@ def to_asin(br, isbn):
     else:
         asin = isbn
     with cache_lock:
-        asin_cache[isbn] = ans if ans else False
+        asin_cache[isbn] = asin if asin else False
     return asin
 
 
@@ -205,7 +205,10 @@ def main(args=sys.argv):
             open(cpath, 'wb').write(br.open_novisit(curl).read())
             print 'Cover for', title, 'saved to', cpath
 
+        #import time
+        #st = time.time()
         print get_social_metadata(title, None, None, isbn)
+        #print '\n\n', time.time() - st, '\n\n'
 
     return 0
 

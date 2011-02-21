@@ -3,7 +3,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 '''Dialog to edit metadata in bulk'''
 
-import re, os
+import re, os, inspect
 
 from PyQt4.Qt import Qt, QDialog, QGridLayout, QVBoxLayout, QFont, QLabel, \
                      pyqtSignal, QDialogButtonBox, QInputDialog, QLineEdit, \
@@ -711,10 +711,6 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         val = self.s_r_do_regexp(mi)
         val = self.s_r_do_destination(mi, val)
         if dfm['is_multiple']:
-            if dfm['is_custom']:
-                # The standard tags and authors values want to be lists.
-                # All custom columns are to be strings
-                val = dfm['is_multiple'].join(val)
             if dest == 'authors' and len(val) == 0:
                 error_dialog(self, _('Search/replace invalid'),
                              _('Authors cannot be set to the empty string. '
@@ -732,8 +728,9 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
 
         if dfm['is_custom']:
             extra = self.db.get_custom_extra(id, label=dfm['label'], index_is_id=True)
-            self.db.set_custom(id, val, label=dfm['label'], extra=extra,
-                               commit=False)
+            books_to_refresh = self.db.set_custom(id, val, label=dfm['label'],
+                                                  extra=extra, commit=False,
+                                                  allow_case_change=True)
         else:
             if dest == 'comments':
                 setter = self.db.set_comment
@@ -741,10 +738,19 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
                 setter = self.db.set_title_sort
             else:
                 setter = getattr(self.db, 'set_'+dest)
-            if dest in ['title', 'authors']:
-                setter(id, val, notify=False)
+
+            args = inspect.getargspec(setter)
+            if args and 'allow_case_change' in args.args:
+                books_to_refresh = setter(id, val, notify=False, commit=False,
+                                          allow_case_change=True)
             else:
                 setter(id, val, notify=False, commit=False)
+                books_to_refresh = set([])
+        if books_to_refresh:
+            # Must commit here because we are telling the gui that the data is
+            # permanent. Make sure it really is.
+            self.db.commit()
+            self.model.refresh_ids(list(books_to_refresh))
 
     def create_custom_column_editors(self):
         w = self.central_widget.widget(1)

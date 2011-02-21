@@ -350,6 +350,8 @@ class FB2MLizer(object):
         # Number of blank lines above tag
         try:
             ems = int(round((float(style.marginTop) / style.fontSize) - 1))
+            if ems < 0:
+                ems = 0
         except:
             ems = 0
 
@@ -397,7 +399,7 @@ class FB2MLizer(object):
                     fb2_out += p_txt
                     tags += p_tag
                     fb2_out.append('<image xlink:href="#%s" />' % self.image_hrefs[page.abshref(elem_tree.attrib['src'])])
-        if tag in ('br', 'hr') or ems:
+        if tag in ('br', 'hr') or ems >= 1:
             if ems < 1:
                 multiplier = 1
             else:

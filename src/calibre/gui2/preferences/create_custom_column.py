@@ -153,17 +153,17 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
         display_dict = {}
 
         if col_type == 'datetime':
-            if self.date_format_box.text().strip():
+            if unicode(self.date_format_box.text()).strip():
                 display_dict = {'date_format':unicode(self.date_format_box.text()).strip()}
             else:
                 display_dict = {'date_format': None}
         elif col_type == 'composite':
-            if not self.composite_box.text().strip():
+            if not unicode(self.composite_box.text()).strip():
                 return self.simple_error('', _('You must enter a template for'
                     ' composite columns'))
             display_dict = {'composite_template':unicode(self.composite_box.text()).strip()}
         elif col_type == 'enumeration':
-            if not self.enum_box.text():
+            if not unicode(self.enum_box.text()).strip():
                 return self.simple_error('', _('You must enter at least one'
                     ' value for enumeration columns'))
             l = [v.strip() for v in unicode(self.enum_box.text()).split(',')]
