@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-02-18 21:06+0000\n"
-"PO-Revision-Date: 2011-02-13 21:30+0000\n"
-"Last-Translator: Tomas Latal <Unknown>\n"
+"PO-Revision-Date: 2011-02-20 22:29+0000\n"
+"Last-Translator: Marek Sušický <Unknown>\n"
 "Language-Team: Czech <cs@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-02-19 04:49+0000\n"
+"X-Launchpad-Export-Date: 2011-02-21 04:48+0000\n"
 "X-Generator: Launchpad (build 12351)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -1125,7 +1125,7 @@ msgstr "Komunikace se čtečkou Kindle 2/3."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:180
 msgid "Send page number information when sending books"
-msgstr ""
+msgstr "Odešli číslo stránky během odesílání knih"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:182
 msgid ""
@@ -3066,7 +3066,7 @@ msgstr "ISBN: %s nenalezeno"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/covers.py:117
 msgid "Download covers from amazon.com"
-msgstr ""
+msgstr "Stahovat obálky z amazon.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/covers.py:205
 msgid "Download covers from Douban.com"
@@ -3331,7 +3331,7 @@ msgstr "Obálka"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:16
 msgid "Downloads metadata from Amazon"
-msgstr ""
+msgstr "Stáhnout metadata z Amazonu"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/base.py:22
 msgid "Metadata source"
@@ -4171,11 +4171,11 @@ msgstr "Přidat z ISBN"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:113
 msgid "Adding"
-msgstr ""
+msgstr "Přidává se"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:114
 msgid "Creating book records from ISBNs"
-msgstr ""
+msgstr "Vytváření záznamů o knihách z ISBN"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:194
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:256
@@ -4497,7 +4497,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:284
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:338
 msgid "Success"
-msgstr ""
+msgstr "Úspěch"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:307
 msgid ""
@@ -4526,7 +4526,7 @@ msgstr "Nenalezen žádný problém"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:319
 msgid "The files in your library match the information in the database."
-msgstr ""
+msgstr "Soubory ve vaší knihovny souhlasí s informacemi z databáze."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:328
 msgid "No library found"
@@ -4759,7 +4759,7 @@ msgstr "Připojit k iTunes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:42
 msgid "Connect to Bambook"
-msgstr ""
+msgstr "Připojit k Bambook"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:56
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:64
@@ -4777,11 +4777,11 @@ msgstr "Zaslat e-mail do"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:81
 msgid "Email to and delete from library"
-msgstr ""
+msgstr "Odeslat emailem a smazat z knihovny"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:89
 msgid "(delete from library)"
-msgstr ""
+msgstr "(smazat z knihovny)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:104
 msgid "Setup email based sharing of books"
@@ -4802,12 +4802,12 @@ msgstr "Připojit/sdílet"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:174
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:84
 msgid "Stopping"
-msgstr ""
+msgstr "Zastavuji"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:175
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:85
 msgid "Stopping server, this could take upto a minute, please wait..."
-msgstr ""
+msgstr "Zastavuji server, to může trvat až minutu, prosím, čekejte..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_collections.py:13
 msgid "Manage collections"
@@ -4976,11 +4976,11 @@ msgstr "Nápověda"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/next_match.py:12
 msgid "Move to next match"
-msgstr ""
+msgstr "Posunout k další shodě"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/next_match.py:13
 msgid "Move to next highlighted match"
-msgstr ""
+msgstr "Posun k další označené shodě"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/next_match.py:13
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:355
@@ -4994,15 +4994,15 @@ msgstr "F3"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/next_match.py:25
 msgid "Move to previous item"
-msgstr ""
+msgstr "Posun k předchozí položce"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/next_match.py:26
 msgid "Move to previous highlighted item"
-msgstr ""
+msgstr "Posun k předchozí označené položce"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/next_match.py:26
 msgid "Shift+N"
-msgstr ""
+msgstr "Shift+N"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/next_match.py:27
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:213
@@ -5209,7 +5209,7 @@ msgstr "Nedostupný formát"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:99
 msgid "Selected books have no formats"
-msgstr ""
+msgstr "Označené knihy nemají formát"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:101
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:127
@@ -5718,31 +5718,31 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:297
 msgid "Included sections"
-msgstr ""
+msgstr "Zahrnuté sekce"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:298
 msgid "Books by &Genre"
-msgstr ""
+msgstr "Knihy podle &žánru"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:299
 msgid "Recently &Added"
-msgstr ""
+msgstr "Nedávno &přidané"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:300
 msgid "&Descriptions"
-msgstr ""
+msgstr "&Popisy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:301
 msgid "Books by &Series"
-msgstr ""
+msgstr "Knihy podle &série"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:302
 msgid "Books by &Title"
-msgstr ""
+msgstr "Knihy podle &titulu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:303
 msgid "Books by Author"
-msgstr ""
+msgstr "Knihy podle autora"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:304
 msgid ""
@@ -5754,7 +5754,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:308
 msgid "Excluded genres"
-msgstr ""
+msgstr "Vynechané žánry"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:309
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:312
@@ -5768,7 +5768,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:311
 msgid "Excluded books"
-msgstr ""
+msgstr "Vynechané knihy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:313
 msgid ""
@@ -5787,7 +5787,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:317
 msgid "Exclusion pattern"
-msgstr ""
+msgstr "Vynechaný vzor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:318
 msgid "Matching books will be displayed with a check mark"
@@ -5795,11 +5795,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:319
 msgid "Read books"
-msgstr ""
+msgstr "Číst knihy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:321
 msgid "Column containing 'read' status"
-msgstr ""
+msgstr "Knihy obsahující status 'čtené'"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:322
 msgid "'read book' pattern"
@@ -5807,7 +5807,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:323
 msgid "Other options"
-msgstr ""
+msgstr "Další volby"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:324
 msgid "&Wishlist tag"
@@ -5827,7 +5827,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:328
 msgid " inch"
-msgstr ""
+msgstr " palec"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:329
 msgid "&Description note"
@@ -5851,7 +5851,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:334
 msgid "&Before"
-msgstr ""
+msgstr "&Před"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:335
 msgid "Merge additional content after Comments"
@@ -5859,7 +5859,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:336
 msgid "&After"
-msgstr ""
+msgstr "&Po"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:337
 msgid "Separate Comments and additional content with horizontal rule"
@@ -5867,7 +5867,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:338
 msgid "&Separator"
-msgstr ""
+msgstr "&Oddělovač"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_tab_template_ui.py:33
 msgid "Tab template for catalog.ui"
@@ -5887,7 +5887,7 @@ msgstr "Podtrženo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:75
 msgid "Strikethrough"
-msgstr ""
+msgstr "Přeškrtnuté"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:77
 msgid "Superscript"
@@ -6002,7 +6002,7 @@ msgstr "Adresa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:141
 msgid "Insert link"
-msgstr ""
+msgstr "Vložit odkaz"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:143
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:79
@@ -6757,7 +6757,7 @@ msgstr "&Inline TOC"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_output_ui.py:50
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pmlz_output_ui.py:49
 msgid "Output Encoding:"
-msgstr ""
+msgstr "Výstupní kódování:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_input.py:12
 msgid "PDF Input"
@@ -6830,11 +6830,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder_ui.py:94
 msgid "0"
-msgstr ""
+msgstr "0"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder_ui.py:95
 msgid "Goto:"
-msgstr ""
+msgstr "Jdi na:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder_ui.py:96
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:81
@@ -6877,7 +6877,7 @@ msgstr "Neplatný regulární výraz: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:148
 msgid "First expression"
-msgstr ""
+msgstr "První výskyt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:149
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:151
@@ -6887,11 +6887,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:150
 msgid "Second Expression"
-msgstr ""
+msgstr "Druhý výraz"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:152
 msgid "Third expression"
-msgstr ""
+msgstr "Třetí výraz"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:154
 msgid ""
@@ -7047,7 +7047,7 @@ msgstr "TXT vstup"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:92
 msgid "Structure"
-msgstr ""
+msgstr "Struktura"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:93
 msgid "Paragraph style:"
@@ -7059,7 +7059,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:95
 msgid "Common"
-msgstr ""
+msgstr "Společné"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:96
 msgid "Preserve &spaces"
@@ -7097,7 +7097,7 @@ msgstr "Obecné"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:86
 msgid "Output &Encoding:"
-msgstr ""
+msgstr "Výstupní &kódování:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:87
 msgid "&Line ending style:"
@@ -10691,15 +10691,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding.py:28
 msgid "Ignore duplicate incoming formats"
-msgstr ""
+msgstr "Ignorovat existující duplicitní formáty"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding.py:29
 msgid "Overwrite existing duplicate formats"
-msgstr ""
+msgstr "Přepsat existující duplicitní formáty"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding.py:30
 msgid "Create new record for each duplicate format"
-msgstr ""
+msgstr "Vytvořit nový záznam pro každý duplicitní formát"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:65
 msgid ""
@@ -11207,15 +11207,15 @@ msgstr "Nikdy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:59
 msgid "By first letter"
-msgstr ""
+msgstr "Podle prvního písmena"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:59
 msgid "Disabled"
-msgstr ""
+msgstr "Deaktivováno"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:60
 msgid "Partitioned"
-msgstr ""
+msgstr "Rozděleno"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:136
 msgid "User Interface &layout (needs restart):"
@@ -11393,7 +11393,7 @@ msgstr "Instaluj nástroje příkazové řádky"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:31
 msgid "Open Editor"
-msgstr ""
+msgstr "Otevřít editor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:65
 msgid "Device currently connected: "
@@ -11493,11 +11493,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:216
 msgid "Search for plugin"
-msgstr ""
+msgstr "Hledat plugin"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:224
 msgid "No matches"
-msgstr ""
+msgstr "Žádné shody"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:225
 msgid "Could not find any matching plugins"
@@ -11505,7 +11505,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:266
 msgid "Add plugin"
-msgstr ""
+msgstr "Přidat plugin"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:274
 msgid ""
@@ -11550,7 +11550,7 @@ msgstr "Modul %s nevyžaduje žádné úpravy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:327
 msgid "Must restart"
-msgstr ""
+msgstr "Je třeba restartovat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:328
 msgid ""
@@ -11559,7 +11559,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:333
 msgid "Plugin <b>{0}</b> successfully removed"
-msgstr ""
+msgstr "Plugin <b>{0}</b> úspěšně odstraněn"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:341
 msgid "Cannot remove builtin plugin"
@@ -11592,7 +11592,7 @@ msgstr "&Odstranit modul"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:93
 msgid "&Add a new plugin"
-msgstr ""
+msgstr "&Přidat nový plugin"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:33
 msgid "Any custom field"
@@ -11604,7 +11604,7 @@ msgstr "Lookup name libovolného pole. Tato jména začínají s \"#\")"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:57
 msgid "Constant template"
-msgstr ""
+msgstr "Konstantní šablona"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:58
 msgid ""
@@ -11702,11 +11702,11 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:128
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:119
 msgid "Grouped Search Terms"
-msgstr ""
+msgstr "Seskupené hledané termíny"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:97
 msgid "The search term cannot be blank"
-msgstr ""
+msgstr "Hledaný výraz nemůže být prázdný"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:107
 msgid "That name is already used for a column or grouped search term"
@@ -11714,7 +11714,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:111
 msgid "That name is already used for user category"
-msgstr ""
+msgstr "Tento název již je použit pro tuto uživatelskou kategorii"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:117
 msgid "The value box cannot be empty"
@@ -11773,7 +11773,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:120
 msgid "&Names:"
-msgstr ""
+msgstr "&Jména:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:121
 msgid ""
@@ -11786,7 +11786,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:126
 msgid "Delete the current search term"
-msgstr ""
+msgstr "Smazat aktuální hledaný výraz"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:128
 msgid ""
@@ -11797,7 +11797,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:131
 msgid "&Save"
-msgstr ""
+msgstr "&Uložit"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:132
 msgid "Make &user categories from:"
@@ -12043,7 +12043,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:144
 msgid "Function not defined"
-msgstr ""
+msgstr "Funkce není definována"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:155
 msgid "Argument count must be -1 or greater than zero"
@@ -12051,7 +12051,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:166
 msgid "Exception while compiling function"
-msgstr ""
+msgstr "Výjimka během kompilování funkce"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:194
 msgid "function source code not available"
@@ -12059,7 +12059,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:96
 msgid "&Function:"
-msgstr ""
+msgstr "&Funkce:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:97
 msgid "Enter the name of the function to create."
@@ -12075,15 +12075,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:102
 msgid "&Delete"
-msgstr ""
+msgstr "&Smazat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:103
 msgid "&Replace"
-msgstr ""
+msgstr "&Nahradit"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:104
 msgid "C&reate"
-msgstr ""
+msgstr "V&ytvořit"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:105
 msgid "&Program Code: (be sure to follow python indenting rules)"
