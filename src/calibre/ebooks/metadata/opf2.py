@@ -524,6 +524,8 @@ class OPF(object): # {{{
     publication_type = MetadataField('publication_type', is_dc=False)
     timestamp       = MetadataField('timestamp', is_dc=False,
                                     formatter=parse_date, renderer=isoformat)
+    user_categories = MetadataField('user_categories', is_dc=False,
+                                    formatter=json.loads, renderer=json.dumps)
 
 
     def __init__(self, stream, basedir=os.getcwdu(), unquote_urls=True,
@@ -994,7 +996,7 @@ class OPF(object): # {{{
         for attr in ('title', 'authors', 'author_sort', 'title_sort',
                      'publisher', 'series', 'series_index', 'rating',
                      'isbn', 'tags', 'category', 'comments',
-                     'pubdate'):
+                     'pubdate', 'user_categories'):
             val = getattr(mi, attr, None)
             if val is not None and val != [] and val != (None, None):
                 setattr(self, attr, val)
@@ -1175,6 +1177,8 @@ class OPFCreator(Metadata):
             a(CAL_ELEM('calibre:timestamp', self.timestamp.isoformat()))
         if self.publication_type is not None:
             a(CAL_ELEM('calibre:publication_type', self.publication_type))
+        if self.user_categories is not None:
+            a(CAL_ELEM('calibre:user_categories', json.dumps(self.user_categories)))
         manifest = E.manifest()
         if self.manifest is not None:
             for ref in self.manifest:
@@ -1299,6 +1303,8 @@ def metadata_to_opf(mi, as_string=True):
         meta('publication_type', mi.publication_type)
     if mi.title_sort:
         meta('title_sort', mi.title_sort)
+    if mi.user_categories:
+        meta('user_categories', json.dumps(mi.user_categories))
 
     serialize_user_metadata(metadata, mi.get_all_user_metadata(False))
 

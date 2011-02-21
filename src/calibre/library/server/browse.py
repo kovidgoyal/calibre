@@ -168,7 +168,7 @@ def get_category_items(category, items, restriction, datatype, prefix): # {{{
         q = i.category
         if not q:
             q = category
-        href = '/browse/matches/%s/%s'%(quote(q), quote(id_))
+        href = '/browse/matches/%s/%s'%(quote(q.replace('/', '&#47;')), quote(id_))
         return templ.format(xml(name), rating,
                 xml(desc), xml(href, True), rstring, prefix)
 
@@ -367,7 +367,7 @@ class BrowseServer(object):
                  u'<img src="{3}{src}" alt="{0}" />'
                  u'<span class="label">{0}</span>'
                  u'</li>')
-                .format(xml(x, True), xml(quote(y)), xml(_('Browse books by')),
+                .format(xml(x, True), xml(quote(y.replace('/', '&#47;'))), xml(_('Browse books by')),
                     self.opts.url_prefix, src='/browse/icon/'+z)
                 for x, y, z in cats]
 
@@ -387,6 +387,7 @@ class BrowseServer(object):
         return sort
 
     def browse_category(self, category, sort):
+        category = category.replace('&#47;', '/')
         categories = self.categories_cache()
         if category not in categories:
             raise cherrypy.HTTPError(404, 'category not found')

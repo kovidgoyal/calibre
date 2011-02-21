@@ -415,13 +415,13 @@ class ResultCache(SearchQueryParser): # {{{
         if self.db_prefs is None:
             return  res
         user_cats = self.db_prefs.get('user_categories', [])
-        if location not in user_cats:
-            return res
         c = set(candidates)
-        for (item, category, ign) in user_cats[location]:
-            s = self.get_matches(category, '=' + item, candidates=c)
-            c -= s
-            res |= s
+        for key in user_cats:
+            if key == location or key.startswith(location + '/'):
+                for (item, category, ign) in user_cats[key]:
+                    s = self.get_matches(category, '=' + item, candidates=c)
+                    c -= s
+                    res |= s
         if query == 'false':
             return candidates - res
         return res

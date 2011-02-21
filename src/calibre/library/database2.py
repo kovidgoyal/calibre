@@ -812,6 +812,21 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                                             index_is_id=index_is_id),
                         extra=self.get_custom_extra(idx, label=meta['label'],
                                                     index_is_id=index_is_id))
+
+        user_cats = self.prefs['user_categories']
+        user_cat_vals = {}
+        for ucat in user_cats:
+            res = []
+            for name,cat,ign in user_cats[ucat]:
+                v = mi.get(cat, None)
+                if isinstance(v, list):
+                    if name in v:
+                        res.append([name,cat])
+                elif name == v:
+                    res.append([name,cat])
+            user_cat_vals[ucat] = res
+        mi.user_categories = user_cat_vals
+
         if get_cover:
             mi.cover = self.cover(id, index_is_id=True, as_path=True)
         return mi

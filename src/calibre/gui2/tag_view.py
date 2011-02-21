@@ -263,8 +263,9 @@ class TagsView(QTreeView): # {{{
                 item = item.parent
 
             if item.type == TagTreeItem.CATEGORY:
-                while item.parent != self._model.root_item:
-                    item = item.parent
+                if not item.category_key.startswith('@'):
+                    while item.parent != self._model.root_item:
+                        item = item.parent
                 category = unicode(item.name.toString())
                 key = item.category_key
                 # Verify that we are working with a field that we know something about
@@ -552,8 +553,7 @@ class TagTreeItem(object): # {{{
         res = []
         for t in self.children:
             if t.type == TagTreeItem.CATEGORY:
-                for c in t.children:
-                    res.append(c)
+                res.extend(t.child_tags())
             else:
                 res.append(t)
         return res
@@ -590,6 +590,10 @@ class TagsModel(QAbstractItemModel): # {{{
         data = self.get_node_tree(config['sort_tags_by'])
         gst = db.prefs.get('grouped_search_terms', {})
         self.root_item = TagTreeItem()
+        self.category_nodes = []
+
+        last_category_node = None
+        category_node_map = {}
         for i, r in enumerate(self.row_map):
             if self.hidden_categories and self.categories[i] in self.hidden_categories:
                 continue
@@ -599,10 +603,31 @@ class TagsModel(QAbstractItemModel): # {{{
                 tt = ''
             else:
                 tt = _(u'The lookup/search name is "{0}"').format(r)
-            TagTreeItem(parent=self.root_item,
-                    data=self.categories[i],
-                    category_icon=self.category_icon_map[r],
-                    tooltip=tt, category_key=r)
+            if r.startswith('@') and r.find('/') >= 0:
+                path_parts = [p.strip() for p in r.split('/') if p.strip()]
+                path = ''
+                for i,p in enumerate(path_parts):
+                    path += p
+                    if path not in category_node_map:
+                        node = TagTreeItem(parent=last_category_node,
+                                           data=p[1:] if i == 0 else p,
+                                           category_icon=self.category_icon_map[r],
+                                           tooltip=tt if path == r else path,
+                                           category_key=path)
+                        last_category_node = node
+                        category_node_map[path] = node
+                        self.category_nodes.append(node)
+                    else:
+                        last_category_node = category_node_map[path]
+                    path += '/'
+            else:
+                node = TagTreeItem(parent=self.root_item,
+                                   data=self.categories[i],
+                                   category_icon=self.category_icon_map[r],
+                                   tooltip=tt, category_key=r)
+                category_node_map[r] = node
+                last_category_node = node
+                self.category_nodes.append(node)
         self.refresh(data=data)
 
     def break_cycles(self):
@@ -754,10 +779,15 @@ class TagsModel(QAbstractItemModel): # {{{
         for user_cat in sorted(self.db.prefs.get('user_categories', {}).keys(),
                                key=sort_key):
             cat_name = '@' + user_cat # add the '@' to avoid name collision
-            try:
-                tb_cats.add_user_category(label=cat_name, name=user_cat)
-            except ValueError:
-                traceback.print_exc()
+            while True:
+                try:
+                    tb_cats.add_user_category(label=cat_name, name=user_cat)
+                    slash = cat_name.rfind('/')
+                    if slash < 0:
+                        break
+                    cat_name = cat_name[:slash]
+                except ValueError:
+                    break
 
         for cat in sorted(self.db.prefs.get('grouped_search_terms', {}).keys(),
                           key=sort_key):
@@ -794,7 +824,7 @@ class TagsModel(QAbstractItemModel): # {{{
             data = self.get_node_tree(sort_by) # get category data
         if data is None:
             return False
-        row_index = -1
+
         collapse = gprefs['tags_browser_collapse_at']
         collapse_model = self.collapse_model
         if collapse == 0:
@@ -810,35 +840,22 @@ class TagsModel(QAbstractItemModel): # {{{
                 collapse_template = tweaks['categories_collapsed_popularity_template']
         collapse_letter = collapse_letter_sk = None
 
-        for i, r in enumerate(self.row_map):
-            if self.hidden_categories and self.categories[i] in self.hidden_categories:
-                continue
-            row_index += 1
-            category = self.root_item.children[row_index]
-            names = []
-            states = []
-            children = category.child_tags()
-            states = [t.tag.state for t in children]
-            names = [t.tag.name for names in children]
-            state_map = dict(izip(names, states))
-            category_index = self.index(row_index, 0, QModelIndex())
+        def process_one_node(category, state_map, collapse_letter, collapse_letter_sk):
+            category_index = self.createIndex(category.row(), 0, category)
             category_node = category_index.internalPointer()
-            if len(category.children) > 0:
-                self.beginRemoveRows(category_index, 0,
-                        len(category.children)-1)
-                category.children = []
-                self.endRemoveRows()
-            cat_len = len(data[r])
+            key = category_node.category_key
+            if key not in data:
+                return ((collapse_letter, collapse_letter_sk))
+            cat_len = len(data[key])
             if cat_len <= 0:
-                continue
+                return ((collapse_letter, collapse_letter_sk))
 
-            self.beginInsertRows(category_index, 0, len(data[r])-1)
-            clear_rating = True if r not in self.categories_with_ratings and \
-                                not self.db.field_metadata[r]['is_custom'] and \
-                                not self.db.field_metadata[r]['kind'] == 'user' \
+            clear_rating = True if key not in self.categories_with_ratings and \
+                                not self.db.field_metadata[key]['is_custom'] and \
+                                not self.db.field_metadata[key]['kind'] == 'user' \
                             else False
-            tt = r if self.db.field_metadata[r]['kind'] == 'user' else None
-            for idx,tag in enumerate(data[r]):
+            tt = key if self.db.field_metadata[key]['kind'] == 'user' else None
+            for idx,tag in enumerate(data[key]):
                 if clear_rating:
                     tag.avg_rating = None
                 tag.state = state_map.get(tag.name, 0)
@@ -848,15 +865,18 @@ class TagsModel(QAbstractItemModel): # {{{
                         if (idx % collapse) == 0:
                             d = {'first': tag}
                             if cat_len > idx + collapse:
-                                d['last'] = data[r][idx+collapse-1]
+                                d['last'] = data[key][idx+collapse-1]
                             else:
-                                d['last'] = data[r][cat_len-1]
+                                d['last'] = data[key][cat_len-1]
                             name = eval_formatter.safe_format(collapse_template,
                                                               d, 'TAG_VIEW', None)
+                            self.beginInsertRows(category_index, 999999, 1) #len(data[key])-1)
                             sub_cat = TagTreeItem(parent=category,
                                      data = name, tooltip = None,
                                      category_icon = category_node.icon,
                                      category_key=category_node.category_key)
+                            sub_cat_index = self.createIndex(sub_cat.row(), 0, sub_cat)
+                            self.endInsertRows()
                     else:
                         ts = tag.sort
                         if not ts:
@@ -877,12 +897,34 @@ class TagsModel(QAbstractItemModel): # {{{
                                      category_icon = category_node.icon,
                                      tooltip = None,
                                      category_key=category_node.category_key)
-                    t = TagTreeItem(parent=sub_cat, data=tag, tooltip=tt,
+                            sub_cat_index = self.createIndex(sub_cat.row(), 0, sub_cat)
+                    self.beginInsertRows(sub_cat_index, 999999, 1)
+                    TagTreeItem(parent=sub_cat, data=tag, tooltip=tt,
                                         icon_map=self.icon_state_map)
                 else:
-                    t = TagTreeItem(parent=category, data=tag, tooltip=tt,
+                    self.beginInsertRows(category_index, 999999, 1)
+                    TagTreeItem(parent=category, data=tag, tooltip=tt,
                                     icon_map=self.icon_state_map)
-            self.endInsertRows()
+                self.endInsertRows()
+            return ((collapse_letter, collapse_letter_sk))
+
+        for category in self.category_nodes:
+            if len(category.children) > 0:
+                children = category.children
+                states = [c.tag.state for c in children if c.type != TagTreeItem.CATEGORY]
+                names = [c.tag.name for c in children if c.type != TagTreeItem.CATEGORY]
+                state_map = dict(izip(names, states))
+                ctags = [c for c in children if c.type == TagTreeItem.CATEGORY]
+                start = len(ctags)
+                self.beginRemoveRows(self.createIndex(category.row(), 0, category),
+                                     start, len(children)-1)
+                category.children = ctags
+                self.endRemoveRows()
+            else:
+                state_map = {}
+
+            collapse_letter, collapse_letter_sk = process_one_node(category,
+                                state_map, collapse_letter, collapse_letter_sk)
         return True
 
     def columnCount(self, parent):
@@ -1073,14 +1115,10 @@ class TagsModel(QAbstractItemModel): # {{{
         # They will be 'checked' in both places, but we want to put the node
         # into the search string only once. The nodes_seen set helps us do that
         nodes_seen = set()
-        row_index = -1
 
-        for i, key in enumerate(self.row_map):
-            if self.hidden_categories and self.categories[i] in self.hidden_categories:
-                continue
-            row_index += 1
-            category_item = self.root_item.children[row_index]
-            for tag_item in category_item.child_tags():
+        for node in self.category_nodes:
+            key = node.category_key
+            for tag_item in node.child_tags():
                 tag = tag_item.tag
                 if tag.state != TAG_SEARCH_STATES['clear']:
                     prefix = ' not ' if tag.state == TAG_SEARCH_STATES['mark_minus'] \
