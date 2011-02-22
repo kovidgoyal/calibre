@@ -1421,7 +1421,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         # temporarily duplicating the categories lists.
         taglist = {}
         for c in categories.keys():
-            taglist[c] = dict(map(lambda t:(t.name, t), categories[c]))
+            taglist[c] = dict(map(lambda t:(icu_lower(t.name), t), categories[c]))
 
         muc = self.prefs.get('grouped_search_make_user_categories', [])
         gst = self.prefs.get('grouped_search_terms', {})
@@ -1437,8 +1437,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         for user_cat in sorted(user_categories.keys(), key=sort_key):
             items = []
             for (name,label,ign) in user_categories[user_cat]:
-                if label in taglist and name in taglist[label]:
-                    items.append(taglist[label][name])
+                n = icu_lower(name)
+                if label in taglist and n in taglist[label]:
+                    items.append(taglist[label][n])
                 # else: do nothing, to not include nodes w zero counts
             cat_name = '@' + user_cat # add the '@' to avoid name collision
             # Not a problem if we accumulate entries in the icon map
