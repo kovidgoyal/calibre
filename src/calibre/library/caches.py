@@ -424,7 +424,7 @@ class ResultCache(SearchQueryParser): # {{{
         user_cats = self.db_prefs.get('user_categories', [])
         c = set(candidates)
         for key in user_cats:
-            if key == location or key.startswith(location + '/'):
+            if key == location or key.startswith(location + '.'):
                 for (item, category, ign) in user_cats[key]:
                     s = self.get_matches(category, '=' + item, candidates=c)
                     c -= s
