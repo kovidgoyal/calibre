@@ -423,12 +423,22 @@ class ResultCache(SearchQueryParser): # {{{
             return  res
         user_cats = self.db_prefs.get('user_categories', [])
         c = set(candidates)
+        l = location.rfind('.')
+        if l > 0:
+            alt_loc = location[0:l]
+            alt_item = location[l+1:]
         for key in user_cats:
             if key == location or key.startswith(location + '.'):
                 for (item, category, ign) in user_cats[key]:
                     s = self.get_matches(category, '=' + item, candidates=c)
                     c -= s
                     res |= s
+            elif key == alt_loc:
+                for (item, category, ign) in user_cats[key]:
+                    if item == alt_item:
+                        s = self.get_matches(category, '=' + item, candidates=c)
+                        c -= s
+                        res |= s
         if query == 'false':
             return candidates - res
         return res
