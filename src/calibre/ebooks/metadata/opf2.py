@@ -470,6 +470,10 @@ def serialize_user_metadata(metadata_elem, all_user_metadata, tail='\n'+(' '*8))
         metadata_elem.append(meta)
 
 
+def dump_user_categories(cats):
+    from calibre.ebooks.metadata.book.json_codec import object_to_unicode
+    return json.dumps(object_to_unicode(cats))
+
 class OPF(object): # {{{
 
     MIMETYPE         = 'application/oebps-package+xml'
@@ -525,7 +529,8 @@ class OPF(object): # {{{
     timestamp       = MetadataField('timestamp', is_dc=False,
                                     formatter=parse_date, renderer=isoformat)
     user_categories = MetadataField('user_categories', is_dc=False,
-                                    formatter=json.loads, renderer=json.dumps)
+                                    formatter=json.loads,
+                                    renderer=dump_user_categories)
 
 
     def __init__(self, stream, basedir=os.getcwdu(), unquote_urls=True,
@@ -1178,7 +1183,9 @@ class OPFCreator(Metadata):
         if self.publication_type is not None:
             a(CAL_ELEM('calibre:publication_type', self.publication_type))
         if self.user_categories is not None:
-            a(CAL_ELEM('calibre:user_categories', json.dumps(self.user_categories)))
+            from calibre.ebooks.metadata.book.json_codec import object_to_unicode
+            a(CAL_ELEM('calibre:user_categories',
+                       json.dumps(object_to_unicode(self.user_categories))))
         manifest = E.manifest()
         if self.manifest is not None:
             for ref in self.manifest:
