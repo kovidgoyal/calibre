@@ -914,7 +914,8 @@ class TagsModel(QAbstractItemModel): # {{{
                     node_parent = category
 
                 components = [t for t in tag.name.split('.')]
-                if key in ['authors', 'publisher', 'title'] or len(components) == 1 or \
+                if key not in self.db.prefs.get('categories_using_hierarchy', []) \
+                        or len(components) == 1 or \
                         self.db.field_metadata[key]['kind'] == 'user':
                     self.beginInsertRows(category_index, 999999, 1)
                     TagTreeItem(parent=node_parent, data=tag, tooltip=tt,
