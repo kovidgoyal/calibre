@@ -124,9 +124,16 @@ def _match(query, value, matchkind):
     for t in value:
         t = icu_lower(t)
         try:     ### ignore regexp exceptions, required because search-ahead tries before typing is finished
-            if ((matchkind == EQUALS_MATCH and query == t) or
-                (matchkind == REGEXP_MATCH and re.search(query, t, re.I)) or ### search unanchored
-                (matchkind == CONTAINS_MATCH and query in t)):
+            if (matchkind == EQUALS_MATCH):
+                if query[0] == '.':
+                    if t.startswith(query[1:]):
+                        ql = len(query) - 1
+                        print ql, t, query
+                        return (len(t) == ql) or (t[ql:ql+1] == '.')
+                elif query == t:
+                    return True
+            elif ((matchkind == REGEXP_MATCH and re.search(query, t, re.I)) or ### search unanchored
+                  (matchkind == CONTAINS_MATCH and query in t)):
                     return True
         except re.error:
             pass

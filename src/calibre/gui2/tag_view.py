@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 Browsing book collection by tags.
 '''
 
-import traceback
+import traceback, copy
 
 from itertools import izip
 from functools import partial
@@ -551,11 +551,12 @@ class TagTreeItem(object): # {{{
 
     def child_tags(self):
         res = []
-        for t in self.children:
-            if t.type == TagTreeItem.CATEGORY:
-                res.extend(t.child_tags())
-            else:
-                res.append(t)
+        def recurse(nodes, res):
+            for t in nodes:
+                if t.type != TagTreeItem.CATEGORY:
+                    res.append(t)
+                recurse(t.children, res)
+        recurse(self.children, res)
         return res
     # }}}
 
@@ -603,6 +604,7 @@ class TagsModel(QAbstractItemModel): # {{{
                 tt = ''
             else:
                 tt = _(u'The lookup/search name is "{0}"').format(r)
+
             if r.startswith('@') and r.find('/') >= 0:
                 path_parts = [p.strip() for p in r.split('/') if p.strip()]
                 path = ''
@@ -858,7 +860,7 @@ class TagsModel(QAbstractItemModel): # {{{
             for idx,tag in enumerate(data[key]):
                 if clear_rating:
                     tag.avg_rating = None
-                tag.state = state_map.get(tag.name, 0)
+                tag.state = state_map.get((tag.name, tag.category), 0)
 
                 if collapse_model != 'disable' and cat_len > collapse:
                     if collapse_model == 'partition':
@@ -875,7 +877,6 @@ class TagsModel(QAbstractItemModel): # {{{
                                      data = name, tooltip = None,
                                      category_icon = category_node.icon,
                                      category_key=category_node.category_key)
-                            sub_cat_index = self.createIndex(sub_cat.row(), 0, sub_cat)
                             self.endInsertRows()
                     else:
                         ts = tag.sort
@@ -897,22 +898,45 @@ class TagsModel(QAbstractItemModel): # {{{
                                      category_icon = category_node.icon,
                                      tooltip = None,
                                      category_key=category_node.category_key)
-                            sub_cat_index = self.createIndex(sub_cat.row(), 0, sub_cat)
-                    self.beginInsertRows(sub_cat_index, 999999, 1)
-                    TagTreeItem(parent=sub_cat, data=tag, tooltip=tt,
-                                        icon_map=self.icon_state_map)
+                    node_parent = sub_cat
                 else:
+                    node_parent = category
+
+                components = [t for t in tag.name.split('.')]
+                if key in ['authors', 'publisher', 'title'] or len(components) == 1:
                     self.beginInsertRows(category_index, 999999, 1)
-                    TagTreeItem(parent=category, data=tag, tooltip=tt,
+                    TagTreeItem(parent=node_parent, data=tag, tooltip=tt,
                                     icon_map=self.icon_state_map)
-                self.endInsertRows()
+                    self.endInsertRows()
+                else:
+                    print components
+                    for i,comp in enumerate(components):
+                        children = dict([(t.tag.name, t) for t in node_parent.children
+                                            if t.type != TagTreeItem.CATEGORY])
+                        if comp in children:
+                            node_parent = children[comp]
+                        else:
+                            if i < len(components)-1:
+                                t = copy.copy(tag)
+                                t.original_name = '.'.join(components[:i+1])
+                                t.use_prefix = True
+                            else:
+                                t = tag
+                                t.original_name = t.name
+                                t.use_prefix = False
+                            t.name = comp
+                            self.beginInsertRows(category_index, 999999, 1)
+                            node_parent = TagTreeItem(parent=node_parent, data=t,
+                                            tooltip=tt, icon_map=self.icon_state_map)
+                            self.endInsertRows()
+
             return ((collapse_letter, collapse_letter_sk))
 
         for category in self.category_nodes:
             if len(category.children) > 0:
                 children = category.children
-                states = [c.tag.state for c in children if c.type != TagTreeItem.CATEGORY]
-                names = [c.tag.name for c in children if c.type != TagTreeItem.CATEGORY]
+                states = [c.tag.state for c in category.child_tags()]
+                names = [(c.tag.name, c.tag.category) for c in category.child_tags()]
                 state_map = dict(izip(names, states))
                 ctags = [c for c in children if c.type == TagTreeItem.CATEGORY]
                 start = len(ctags)
@@ -1064,27 +1088,31 @@ class TagsModel(QAbstractItemModel): # {{{
 
     def reset_all_states(self, except_=None):
         update_list = []
-        def process_tag(tag_index, tag_item):
-            tag = tag_item.tag
-            if tag is except_:
-                self.dataChanged.emit(tag_index, tag_index)
-                return
-            if tag.state != 0 or tag in update_list:
-                tag.state = 0
-                update_list.append(tag)
-                self.dataChanged.emit(tag_index, tag_index)
+        def process_tag(tag_item):
+            if tag_item.type != TagTreeItem.CATEGORY:
+                tag = tag_item.tag
+                if tag is except_:
+                    tag_index = self.createIndex(tag_item.row(), 0, tag_item)
+                    self.dataChanged.emit(tag_index, tag_index)
+                elif tag.state != 0 or tag in update_list:
+                    tag_index = self.createIndex(tag_item.row(), 0, tag_item)
+                    tag.state = 0
+                    update_list.append(tag)
+                    self.dataChanged.emit(tag_index, tag_index)
+            for t in tag_item.children:
+                process_tag(t)
 
-        def process_level(category_index):
-            for j in xrange(self.rowCount(category_index)):
-                tag_index = self.index(j, 0, category_index)
-                tag_item = tag_index.internalPointer()
-                if tag_item.type == TagTreeItem.CATEGORY:
-                    process_level(tag_index)
-                else:
-                    process_tag(tag_index, tag_item)
+#        def process_level(category_index):
+#            for j in xrange(self.rowCount(category_index)):
+#                tag_index = self.index(j, 0, category_index)
+#                tag_item = tag_index.internalPointer()
+#                if tag_item.type == TagTreeItem.CATEGORY:
+#                    process_level(tag_index)
+#                else:
+#                    process_tag(tag_index, tag_item)
 
-        for i in xrange(self.rowCount(QModelIndex())):
-            process_level(self.index(i, 0, QModelIndex()))
+        for t in self.root_item.children:
+            process_tag(t)
 
     def clear_state(self):
         self.reset_all_states()
@@ -1127,15 +1155,18 @@ class TagsModel(QAbstractItemModel): # {{{
                     if tag.name and tag.name[0] == u'\u2605': # char is a star. Assume rating
                         ans.append('%s%s:%s'%(prefix, category, len(tag.name)))
                     else:
+                        name = getattr(tag, 'original_name', tag.name)
+                        use_prefix = getattr(tag, 'use_prefix', False)
                         if category == 'tags':
-                            if tag.name in tags_seen:
+                            if name in tags_seen:
                                 continue
-                            tags_seen.add(tag.name)
+                            tags_seen.add(name)
                         if tag in nodes_seen:
                             continue
                         nodes_seen.add(tag)
-                        ans.append('%s%s:"=%s"'%(prefix, category,
-                                                 tag.name.replace(r'"', r'\"')))
+                        ans.append('%s%s:"=%s%s"'%(prefix, category,
+                                                '.' if use_prefix else '',
+                                                 name.replace(r'"', r'\"')))
         return ans
 
     def find_item_node(self, key, txt, start_path):
