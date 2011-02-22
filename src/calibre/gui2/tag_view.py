@@ -605,8 +605,8 @@ class TagsModel(QAbstractItemModel): # {{{
             else:
                 tt = _(u'The lookup/search name is "{0}"').format(r)
 
-            if r.startswith('@') and r.find('/') >= 0:
-                path_parts = [p.strip() for p in r.split('/') if p.strip()]
+            if r.startswith('@') and r.find('.') >= 0:
+                path_parts = [p.strip() for p in r.split('.') if p.strip()]
                 path = ''
                 for i,p in enumerate(path_parts):
                     path += p
@@ -621,7 +621,7 @@ class TagsModel(QAbstractItemModel): # {{{
                         self.category_nodes.append(node)
                     else:
                         last_category_node = category_node_map[path]
-                    path += '/'
+                    path += '.'
             else:
                 node = TagTreeItem(parent=self.root_item,
                                    data=self.categories[i],
@@ -784,10 +784,10 @@ class TagsModel(QAbstractItemModel): # {{{
             while True:
                 try:
                     tb_cats.add_user_category(label=cat_name, name=user_cat)
-                    slash = cat_name.rfind('/')
-                    if slash < 0:
+                    dot = cat_name.rfind('.')
+                    if dot < 0:
                         break
-                    cat_name = cat_name[:slash]
+                    cat_name = cat_name[:dot]
                 except ValueError:
                     break
 
