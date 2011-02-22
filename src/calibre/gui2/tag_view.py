@@ -516,7 +516,13 @@ class TagTreeItem(object): # {{{
             name = tag.sort
             tt_author = True
         else:
-            name = tag.name
+            p = self
+            while p.parent.type != self.ROOT:
+                p = p.parent
+            if p.category_key.startswith('@'):
+                name = getattr(tag, 'original_name', tag.name)
+            else:
+                name = tag.name
             tt_author = False
         if role == Qt.DisplayRole:
             if tag.count == 0:
@@ -903,18 +909,19 @@ class TagsModel(QAbstractItemModel): # {{{
                     node_parent = category
 
                 components = [t for t in tag.name.split('.')]
-                if key in ['authors', 'publisher', 'title'] or len(components) == 1:
+                if key in ['authors', 'publisher', 'title'] or len(components) == 1 or \
+                        self.db.field_metadata[key]['kind'] == 'user':
                     self.beginInsertRows(category_index, 999999, 1)
                     TagTreeItem(parent=node_parent, data=tag, tooltip=tt,
                                     icon_map=self.icon_state_map)
                     self.endInsertRows()
                 else:
-                    print components
                     for i,comp in enumerate(components):
-                        children = dict([(t.tag.name, t) for t in node_parent.children
+                        child_map = dict([(t.tag.name, t) for t in node_parent.children
                                             if t.type != TagTreeItem.CATEGORY])
-                        if comp in children:
-                            node_parent = children[comp]
+                        if comp in child_map:
+                            node_parent = child_map[comp]
+                            node_parent.tag.count += tag.count
                         else:
                             if i < len(components)-1:
                                 t = copy.copy(tag)
@@ -934,14 +941,14 @@ class TagsModel(QAbstractItemModel): # {{{
 
         for category in self.category_nodes:
             if len(category.children) > 0:
-                children = category.children
+                child_map = category.children
                 states = [c.tag.state for c in category.child_tags()]
                 names = [(c.tag.name, c.tag.category) for c in category.child_tags()]
                 state_map = dict(izip(names, states))
-                ctags = [c for c in children if c.type == TagTreeItem.CATEGORY]
+                ctags = [c for c in child_map if c.type == TagTreeItem.CATEGORY]
                 start = len(ctags)
                 self.beginRemoveRows(self.createIndex(category.row(), 0, category),
-                                     start, len(children)-1)
+                                     start, len(child_map)-1)
                 category.children = ctags
                 self.endRemoveRows()
             else:
