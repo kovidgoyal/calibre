@@ -258,9 +258,13 @@ class TagsView(QTreeView): # {{{
 
             if item.type == TagTreeItem.TAG:
                 tag_item = item
-                tag_name = item.tag.name
-                tag_id = item.tag.id
-                item = item.parent
+                t = item.tag
+                tag_name = t.name
+                tag_id = t.id
+                can_edit = getattr(t, 'can_edit', True)
+                print can_edit, getattr(t, 'original_name', t.name), t.name
+                while item.type != TagTreeItem.CATEGORY:
+                    item = item.parent
 
             if item.type == TagTreeItem.CATEGORY:
                 if not item.category_key.startswith('@'):
@@ -276,13 +280,14 @@ class TagsView(QTreeView): # {{{
                 if tag_name:
                     # If the user right-clicked on an editable item, then offer
                     # the possibility of renaming that item.
-                    if key in ['authors', 'tags', 'series', 'publisher', 'search'] or \
+                    if can_edit and \
+                            key in ['authors', 'tags', 'series', 'publisher', 'search'] or \
                             (self.db.field_metadata[key]['is_custom'] and \
                              self.db.field_metadata[key]['datatype'] != 'rating'):
                         # Add the 'rename' items
                         self.context_menu.addAction(_('Rename %s')%tag_name,
-                                partial(self.context_menu_handler, action='edit_item',
-                                        category=tag_item, index=index))
+                            partial(self.context_menu_handler, action='edit_item',
+                                    category=tag_item, index=index))
                         if key == 'authors':
                             self.context_menu.addAction(_('Edit sort for %s')%tag_name,
                                     partial(self.context_menu_handler,
@@ -530,7 +535,7 @@ class TagTreeItem(object): # {{{
             else:
                 return QVariant('[%d] %s'%(tag.count, name))
         if role == Qt.EditRole:
-            return QVariant(tag.name)
+            return QVariant(getattr(tag, 'original_name', tag.name))
         if role == Qt.DecorationRole:
             return self.icon_state_map[tag.state]
         if role == Qt.ToolTipRole:
@@ -926,11 +931,12 @@ class TagsModel(QAbstractItemModel): # {{{
                             if i < len(components)-1:
                                 t = copy.copy(tag)
                                 t.original_name = '.'.join(components[:i+1])
-                                t.use_prefix = True
+                                t.can_edit = False
                             else:
                                 t = tag
                                 t.original_name = t.name
-                                t.use_prefix = False
+                                t.can_edit = True
+                            t.use_prefix = True
                             t.name = comp
                             self.beginInsertRows(category_index, 999999, 1)
                             node_parent = TagTreeItem(parent=node_parent, data=t,
@@ -980,7 +986,10 @@ class TagsModel(QAbstractItemModel): # {{{
                         _('An item cannot be set to nothing. Delete it instead.')).exec_()
             return False
         item = index.internalPointer()
-        key = item.parent.category_key
+        itm = item.parent
+        while itm.type != TagTreeItem.CATEGORY:
+            itm = itm.parent
+        key = itm.category_key
         # make certain we know about the item's category
         if key not in self.db.field_metadata:
             return False
