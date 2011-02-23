@@ -73,16 +73,17 @@ class TagCategories(QDialog, Ui_TagCategories):
             if idx == 0:
                 continue
             for n in category_values[idx]():
-                t = Item(name=n, label=label, index=len(self.all_items),icon=category_icons[idx], exists=True)
+                t = Item(name=n, label=label, index=len(self.all_items),
+                         icon=category_icons[idx], exists=True)
                 self.all_items.append(t)
-                self.all_items_dict[label+':'+n] = t
+                self.all_items_dict[icu_lower(label+':'+n)] = t
 
         self.categories = dict.copy(db.prefs.get('user_categories', {}))
         if self.categories is None:
             self.categories = {}
         for cat in self.categories:
             for item,l in enumerate(self.categories[cat]):
-                key = ':'.join([l[1], l[0]])
+                key = icu_lower(':'.join([l[1], l[0]]))
                 t = self.all_items_dict.get(key, None)
                 if l[1] in self.category_labels:
                     if t is None:
