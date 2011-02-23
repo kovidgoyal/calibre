@@ -413,6 +413,18 @@ The Book Details display shows you extra information and the cover for the curre
 
 .. _jobs:
 
+.. _tag_browser:
+
+Tag Browser
+-------------
+.. image:: images/tag_browser.png
+
+The Tag Browser allows you to easily browse your collection by Author/Tags/Series/etc. If you click on any Item in the Tag Browser, for example, the Author name, Isaac Asimov, then the list of books to the right is restricted to books by that author. Clicking once again on Isaac Asimov will restrict the list of books to books not by Isaac Asimov. A third click will remove the restriction. If you hold down the Ctrl or Shift keys and click on multiple items, then restrictions based on multiple items are created. For example you could Hold Ctrl and click on the tags History and Europe for find books on European history. The Tag Browser works by constructing search expressions that are automatically entered into the Search bar. It is a good way to learn how to construct basic search expressions. 
+
+There is a search bar at the top of the Tag Browser that allows you to easily find any item in the Tag Browser. In addition, you can right click on any item and choose to hide it or rename it or open a "Manage x" dialog that allows you to manage items of that kind. For example the "Manage Authors" dialog allows you to rename authors and control how their names are sorted. 
+
+For convenience, you can drag and drop books from the book list to items in the Tag Browser and that item will be automatically applied to the dropped books. For example, dragging a book to Isaac Asimov will set the author of that book to Isaac Asimov or dragging it to the tag History will add the tag History to its tags.
+
 Jobs
 -----
 .. image:: images/jobs.png
