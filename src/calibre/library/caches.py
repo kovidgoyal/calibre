@@ -426,6 +426,8 @@ class ResultCache(SearchQueryParser): # {{{
         if l > 0:
             alt_loc = location[0:l]
             alt_item = location[l+1:]
+        else:
+            alt_loc = None
         for key in user_cats:
             if key == location or key.startswith(location + '.'):
                 for (item, category, ign) in user_cats[key]:
