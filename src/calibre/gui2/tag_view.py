@@ -403,21 +403,27 @@ class TagsView(QTreeView): # {{{
         flags = self._model.flags(index)
         if item.type == TagTreeItem.TAG and flags & Qt.ItemIsDropEnabled:
             self.setDropIndicatorShown(not src_is_tb)
-        else:
-            if item.type == TagTreeItem.CATEGORY:
-                fm_dest = self.db.metadata_for_field(item.category_key)
-                if fm_dest['kind'] == 'user':
-                    if src_is_tb:
+            return
+        if item.type == TagTreeItem.CATEGORY:
+            fm_dest = self.db.metadata_for_field(item.category_key)
+            if fm_dest['kind'] == 'user':
+                if src_is_tb:
+                    if event.dropAction() == Qt.MoveAction:
+                        data = str(event.mimeData().data('application/calibre+from_tag_browser'))
+                        src = cPickle.loads(data)
+                        for s in src:
+                            if s[0] == TagTreeItem.TAG and not s[1].startswith('@'):
+                                return
+                    self.setDropIndicatorShown(True)
+                    return
+                md = event.mimeData()
+                if hasattr(md, 'column_name'):
+                    fm_src = self.db.metadata_for_field(md.column_name)
+                    if md.column_name in ['authors', 'publisher', 'series'] or \
+                            (fm_src['is_custom'] and
+                            fm_src['datatype'] in ['series', 'text'] and
+                            not fm_src['is_multiple']):
                         self.setDropIndicatorShown(True)
-                        return
-                    md = event.mimeData()
-                    if hasattr(md, 'column_name'):
-                        fm_src = self.db.metadata_for_field(md.column_name)
-                        if md.column_name in ['authors', 'publisher', 'series'] or \
-                                (fm_src['is_custom'] and
-                                fm_src['datatype'] in ['series', 'text'] and
-                                not fm_src['is_multiple']):
-                            self.setDropIndicatorShown(True)
 
     def clear(self):
         if self.model():
@@ -698,10 +704,11 @@ class TagsModel(QAbstractItemModel): # {{{
 
     def dropMimeData(self, md, action, row, column, parent):
         fmts = set([unicode(x) for x in md.formats()])
-        if not fmts.intersection(set(self.mimeTypes())) or \
-                action != Qt.CopyAction:
+        if not fmts.intersection(set(self.mimeTypes())):
             return False
         if "application/calibre+from_library" in fmts:
+            if action != Qt.CopyAction:
+                return False
             return self.do_drop_from_library(md, action, row, column, parent)
         elif 'application/calibre+from_tag_browser' in fmts:
             return self.do_drop_from_tag_browser(md, action, row, column, parent)
@@ -727,8 +734,8 @@ class TagsModel(QAbstractItemModel): # {{{
             if dest_key not in user_cats:
                 continue
             new_cat = []
-            # delete the item if the source is a user category
-            if src_parent in user_cats:
+            # delete the item if the source is a user category and action is move
+            if src_parent in user_cats and action == Qt.MoveAction:
                 for tup in user_cats[src_parent]:
                     if src_name == tup[0] and src_cat == tup[1]:
                         continue
@@ -742,9 +749,13 @@ class TagsModel(QAbstractItemModel): # {{{
             if add_it:
                 user_cats[dest_key].append([src_name, src_cat, 0])
         self.db.prefs.set('user_categories', user_cats)
-        path = self.path_for_index(parent)
         self.tags_view.set_new_model()
-        self.tags_view.model().show_item_at_path(path)
+        # Must work with the new model here
+        m = self.tags_view.model()
+        path = m.find_category_node('@' + src_parent)
+        idx = m.index_for_path(path)
+        self.tags_view.setExpanded(idx, True)
+        m.show_item_at_index(idx)
         return True
 
     def do_drop_from_library(self, md, action, row, column, parent):
@@ -1175,7 +1186,7 @@ class TagsModel(QAbstractItemModel): # {{{
         return ans
 
     def supportedDropActions(self):
-        return Qt.CopyAction
+        return Qt.CopyAction|Qt.MoveAction
 
     def path_for_index(self, index):
         ans = []

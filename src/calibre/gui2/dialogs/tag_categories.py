@@ -232,6 +232,12 @@ class TagCategories(QDialog, Ui_TagCategories):
 
     def accept(self):
         self.save_category()
+        for cat in sorted(self.categories.keys(), key=sort_key):
+            components = cat.split('.')
+            for i in range(0,len(components)):
+                c = '.'.join(components[0:i+1])
+                if c not in self.categories:
+                    self.categories[c] = []
         QDialog.accept(self)
 
     def save_category(self):
