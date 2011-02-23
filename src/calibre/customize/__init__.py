@@ -597,6 +597,17 @@ class StorePlugin(Plugin): # {{{
         raise NotImplementedError()
     
     def search(self, query, max_results=10, timeout=60):
+        '''
+        Searches the store for items matching query. This should
+        return items as a generator.
+        
+        :param query: The string query search with.
+        :param max_results: The maximum number of results to return.
+        :param timeout: The maximum amount of time in seconds to spend download the search results.
+        
+        :return: A tuple (cover_url, title, author, price, start_item). The start_item is plugin
+        specific and is used in :meth:`open` to open to a specifc place in the store.
+        '''
         raise NotImplementedError()
 
 # }}}
