@@ -39,6 +39,7 @@ class SearchDialog(QDialog, Ui_Dialog):
             
         self.search.clicked.connect(self.do_search)
         self.checker.timeout.connect(self.get_results)
+        self.results_view.activated.connect(self.open_store)
         
     def do_search(self, checked=False):
         # Stop all running threads.
@@ -84,6 +85,10 @@ class SearchDialog(QDialog, Ui_Dialog):
                 result.item_data = res[1][4]
                 
                 self.results_view.model().add_result(result)
+
+    def open_store(self, index):
+        result = self.results_view.model().get_result(index)
+        self.store_plugins[result.store].open(self, result.item_data)
 
 
 class SearchThread(Thread):
@@ -132,6 +137,13 @@ class Matches(QAbstractItemModel):
         self.matches.append(result)
         self.reset()
         #self.dataChanged.emit(self.createIndex(self.rowCount() - 1, 0), self.createIndex(self.rowCount() - 1, self.columnCount()))
+
+    def get_result(self, index):
+        row = index.row()
+        if row < len(self.matches):
+            return self.matches[row]
+        else:
+            return None
 
     def index(self, row, column, parent=QModelIndex()):
         return self.createIndex(row, column)
