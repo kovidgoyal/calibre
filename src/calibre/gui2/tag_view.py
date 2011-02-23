@@ -398,14 +398,18 @@ class TagsView(QTreeView): # {{{
         index = self.indexAt(event.pos())
         if not index.isValid():
             return
+        src_is_tb = event.mimeData().hasFormat('application/calibre+from_tag_browser')
         item = index.internalPointer()
         flags = self._model.flags(index)
         if item.type == TagTreeItem.TAG and flags & Qt.ItemIsDropEnabled:
-            self.setDropIndicatorShown(True)
+            self.setDropIndicatorShown(not src_is_tb)
         else:
             if item.type == TagTreeItem.CATEGORY:
                 fm_dest = self.db.metadata_for_field(item.category_key)
                 if fm_dest['kind'] == 'user':
+                    if src_is_tb:
+                        self.setDropIndicatorShown(True)
+                        return
                     md = event.mimeData()
                     if hasattr(md, 'column_name'):
                         fm_src = self.db.metadata_for_field(md.column_name)
@@ -674,8 +678,17 @@ class TagsModel(QAbstractItemModel): # {{{
         for idx in indexes:
             if idx.isValid():
                 # get some useful serializable data
-                name = unicode(self.data(idx, Qt.DisplayRole).toString())
-                data.append(name)
+                node = idx.internalPointer()
+                if node.type == TagTreeItem.CATEGORY:
+                    d = (node.type, node.py_name, node.category_key)
+                else:
+                    t = node.tag
+                    p = node
+                    while p.type != TagTreeItem.CATEGORY:
+                        p = p.parent
+                    d = (node.type, p.category_key,
+                         getattr(t, 'original_name', t.name), t.category, t.id)
+                data.append(d)
             else:
                 data.append(None)
         raw = bytearray(cPickle.dumps(data, -1))
@@ -688,6 +701,53 @@ class TagsModel(QAbstractItemModel): # {{{
         if not fmts.intersection(set(self.mimeTypes())) or \
                 action != Qt.CopyAction:
             return False
+        if "application/calibre+from_library" in fmts:
+            return self.do_drop_from_library(md, action, row, column, parent)
+        elif 'application/calibre+from_tag_browser' in fmts:
+            return self.do_drop_from_tag_browser(md, action, row, column, parent)
+
+    def do_drop_from_tag_browser(self, md, action, row, column, parent):
+        if not parent.isValid():
+            return False
+        dest = parent.internalPointer()
+        if dest.type != TagTreeItem.CATEGORY:
+            return False
+        if not md.hasFormat('application/calibre+from_tag_browser'):
+            return False
+        data = str(md.data('application/calibre+from_tag_browser'))
+        src = cPickle.loads(data)
+        for s in src:
+            if s[0] != TagTreeItem.TAG:
+                return False
+        user_cats = self.db.prefs.get('user_categories', {})
+        for s in src:
+            src_parent, src_name, src_cat = s[1:4]
+            src_parent = src_parent[1:]
+            dest_key = dest.category_key[1:]
+            if dest_key not in user_cats:
+                continue
+            new_cat = []
+            # delete the item if the source is a user category
+            if src_parent in user_cats:
+                for tup in user_cats[src_parent]:
+                    if src_name == tup[0] and src_cat == tup[1]:
+                        continue
+                    new_cat.append(list(tup))
+                user_cats[src_parent] = new_cat
+            # Now add the item to the destination user category
+            add_it = True
+            for tup in user_cats[dest_key]:
+                if src_name == tup[0] and src_cat == tup[1]:
+                    add_it = False
+            if add_it:
+                user_cats[dest_key].append([src_name, src_cat, 0])
+        self.db.prefs.set('user_categories', user_cats)
+        path = self.path_for_index(parent)
+        self.tags_view.set_new_model()
+        self.tags_view.model().show_item_at_path(path)
+        return True
+
+    def do_drop_from_library(self, md, action, row, column, parent):
         idx = parent
         if idx.isValid():
             node = self.data(idx, Qt.UserRole)
@@ -1102,7 +1162,8 @@ class TagsModel(QAbstractItemModel): # {{{
         if index.isValid():
             node = self.data(index, Qt.UserRole)
             if node.type == TagTreeItem.TAG:
-                ans |= Qt.ItemIsDragEnabled
+                if getattr(node.tag, 'can_edit', True):
+                    ans |= Qt.ItemIsDragEnabled
                 fm = self.db.metadata_for_field(node.tag.category)
                 if node.tag.category in \
                     ('tags', 'series', 'authors', 'rating', 'publisher') or \
