@@ -898,11 +898,12 @@ class TagsModel(QAbstractItemModel): # {{{
             if cat_len <= 0:
                 return ((collapse_letter, collapse_letter_sk))
 
+            fm = self.db.field_metadata[key]
             clear_rating = True if key not in self.categories_with_ratings and \
-                                not self.db.field_metadata[key]['is_custom'] and \
-                                not self.db.field_metadata[key]['kind'] == 'user' \
+                                not fm['is_custom'] and \
+                                not fm['kind'] == 'user' \
                             else False
-            tt = key if self.db.field_metadata[key]['kind'] == 'user' else None
+            tt = key if fm['kind'] == 'user' else None
             for idx,tag in enumerate(data[key]):
                 if clear_rating:
                     tag.avg_rating = None
@@ -949,9 +950,11 @@ class TagsModel(QAbstractItemModel): # {{{
                     node_parent = category
 
                 components = [t for t in tag.name.split('.')]
-                if key not in self.db.prefs.get('categories_using_hierarchy', []) \
-                        or len(components) == 1 or \
-                        self.db.field_metadata[key]['kind'] == 'user':
+                if key in ['authors', 'publisher', 'news', 'formats'] or \
+                        key not in self.db.prefs.get('categories_using_hierarchy', []) or\
+                        len(components) == 1 or \
+                        fm['kind'] == 'user' or \
+                        fm['datatype'] not in ['text', 'series', 'enumeration']:
                     self.beginInsertRows(category_index, 999999, 1)
                     TagTreeItem(parent=node_parent, data=tag, tooltip=tt,
                                     icon_map=self.icon_state_map)
@@ -1384,13 +1387,25 @@ class TagBrowserMixin(object): # {{{
     def do_add_subcategory(self, on_category=None):
         db = self.library_view.model().db
         user_cats = db.prefs.get('user_categories', {})
-        new_cat = on_category[1:] + '.' + _('New Category').replace('.', '')
+
+        # Ensure that the temporary name we will use is not already there
+        i = 0
+        new_name = _('New Category').replace('.', '')
+        n = new_name
+        while True:
+            new_cat = on_category[1:] + '.' + n
+            if new_cat not in user_cats:
+                break
+            i += 1
+            n = new_name + unicode(i)
+        # Add the new category
         user_cats[new_cat] = []
         db.prefs.set('user_categories', user_cats)
         self.tags_view.set_new_model()
         m = self.tags_view.model()
         idx = m.index_for_path(m.find_category_node('@' + new_cat))
         m.show_item_at_index(idx)
+        # Open the editor on the new item to rename it
         self.tags_view.edit(idx)
 
     def do_user_categories_edit(self, on_category=None):
