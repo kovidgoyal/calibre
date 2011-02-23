@@ -14,6 +14,9 @@ from calibre.gui2.store.search_ui import Ui_Dialog
 
 class SearchDialog(QDialog, Ui_Dialog):
 
+    HANG_TIME = 75000 # milliseconds seconds
+    TIMEOUT = 75 # seconds
+
     def __init__(self, *args):
         QDialog.__init__(self, *args)
         self.setupUi(self)
@@ -23,6 +26,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.results = Queue()
         self.abort = Event()
         self.checker = QTimer()
+        self.hang_check = 0
 
         for x in store_plugins():
             self.store_plugins[x.name] = x
@@ -38,19 +42,28 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.results = Queue()
         self.abort = Event()
         for n in self.store_plugins:
-            t = SearchThread(unicode(self.search_edit.text()), (n, self.store_plugins[n]), self.results, self.abort)
+            t = SearchThread(unicode(self.search_edit.text()), (n, self.store_plugins[n]), self.results, self.abort, self.TIMEOUT)
             self.running_threads.append(t)
             t.start()
         if self.running_threads:
+            self.hang_check = 0
             self.checker.start(100)
             
     def get_results(self):
-        running = False
-        for t in self.running_threads:
-            if t.is_alive():
-                running = True
-        if not running:
+        # We only want the search plugins to run
+        # a maximum set amount of time before giving up.
+        self.hang_check += 1
+        if self.hang_check >= self.HANG_TIME:
+            self.abort.set()
             self.checker.stop()
+        else:
+            # Stop the checker if not threads are running.
+            running = False
+            for t in self.running_threads:
+                if t.is_alive():
+                    running = True
+            if not running:
+                self.checker.stop()
         
         while not self.results.empty():
             print self.results.get_nowait()
@@ -58,7 +71,7 @@ class SearchDialog(QDialog, Ui_Dialog):
 
 class SearchThread(Thread):
     
-    def __init__(self, query, store, results, abort):
+    def __init__(self, query, store, results, abort, timeout):
         Thread.__init__(self)
         self.daemon = True
         self.query = query
@@ -66,9 +79,19 @@ class SearchThread(Thread):
         self.store_plugin = store[1]
         self.results = results
         self.abort = abort
+        self.timeout = timeout
     
     def run(self):
-        if self.abort.is_set():
-            return
-        for res in self.store_plugin.search(self.query):
+        for res in self.store_plugin.search(self.query, timeout=self.timeout):
+            if self.abort.is_set():
+                return
             self.results.put((self.store_name, res))
+
+class SearchResult(object):
+    
+    def __init__(self):
+        self.title = ''
+        self.author = ''
+        self.price = ''
+        self.item_data = ''
+        self.plugin_name = ''

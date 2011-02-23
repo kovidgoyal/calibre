@@ -596,7 +596,7 @@ class StorePlugin(Plugin): # {{{
         '''
         raise NotImplementedError()
     
-    def search(self, query, max_results=10):
+    def search(self, query, max_results=10, timeout=60):
         raise NotImplementedError()
 
 # }}}

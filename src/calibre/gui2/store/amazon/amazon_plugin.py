@@ -23,12 +23,12 @@ class AmazonKindleStore(StorePlugin):
         d = AmazonKindleDialog(parent, start_item)
         d = d.exec_()
 
-    def search(self, query, max_results=10):
+    def search(self, query, max_results=10, timeout=60):
         url = 'http://www.amazon.com/s/url=search-alias%3Ddigital-text&field-keywords=' + urllib2.quote(query)
         br = browser()
         
         counter = max_results
-        with closing(br.open(url)) as f:
+        with closing(br.open(url, timeout=timeout)) as f:
             doc = html.fromstring(f.read())
             for data in doc.xpath('//div[@class="productData"]'):
                 if counter <= 0:
