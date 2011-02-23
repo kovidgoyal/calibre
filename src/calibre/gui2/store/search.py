@@ -48,9 +48,16 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.running_threads = []
         self.results = Queue()
         self.abort = Event()
+        # Clear the visible results.
         self.results_view.model().clear_results()
+        
+        # Don't start a search if there is nothing to search for.
+        query = unicode(self.search_edit.text())
+        if not query.strip():
+            return
+        
         for n in self.store_plugins:
-            t = SearchThread(unicode(self.search_edit.text()), (n, self.store_plugins[n]), self.results, self.abort, self.TIMEOUT)
+            t = SearchThread(query, (n, self.store_plugins[n]), self.results, self.abort, self.TIMEOUT)
             self.running_threads.append(t)
             t.start()
         if self.running_threads:
