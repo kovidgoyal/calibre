@@ -581,3 +581,23 @@ class PreferencesPlugin(Plugin): # {{{
 
 # }}}
 
+
+class StorePlugin(Plugin): # {{{
+
+    supported_platforms = ['windows', 'osx', 'linux']
+    author         = 'John Schember'
+    type = _('Stores')
+    
+    def open(self, parent=None, start_item=None):
+        '''
+        Open a dialog for displaying the store.
+        start_item is a refernce unique to the store
+        plugin and opens to the item when specified.
+        '''
+        raise NotImplementedError()
+    
+    def search(self, query, max_results=10):
+        raise NotImplementedError()
+
+# }}}
+

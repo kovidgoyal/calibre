@@ -805,6 +805,10 @@ class ActionTweakEpub(InterfaceActionBase):
 class ActionNextMatch(InterfaceActionBase):
     name = 'Next Match'
     actual_plugin = 'calibre.gui2.actions.next_match:NextMatchAction'
+    
+class ActionStore(InterfaceActionBase):
+    name = 'Store'
+    actual_plugin = 'calibre.gui2.actions.store:StoreAction'
 
 plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,
         ActionConvert, ActionDelete, ActionEditMetadata, ActionView,
@@ -812,7 +816,7 @@ plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,
         ActionRestart, ActionOpenFolder, ActionConnectShare,
         ActionSendToDevice, ActionHelp, ActionPreferences, ActionSimilarBooks,
         ActionAddToLibrary, ActionEditCollections, ActionChooseLibrary,
-        ActionCopyToLibrary, ActionTweakEpub, ActionNextMatch]
+        ActionCopyToLibrary, ActionTweakEpub, ActionNextMatch, ActionStore]
 
 # }}}
 
@@ -1035,5 +1039,12 @@ plugins += [LookAndFeel, Behavior, Columns, Toolbar, Search, InputOptions,
 from calibre.ebooks.metadata.sources.google import GoogleBooks
 
 plugins += [GoogleBooks]
+
+# }}}
+
+# Store plugins {{{
+from calibre.gui2.store.amazon.amazon_plugin import AmazonKindleStore
+
+plugins += [AmazonKindleStore]
 
 # }}}
