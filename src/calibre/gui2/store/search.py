@@ -4,6 +4,7 @@ __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
+import re
 from threading import Event, Thread
 from Queue import Queue
 
@@ -202,6 +203,9 @@ class Matches(QAbstractItemModel):
             text = result.author
         elif col == 3:
             text = result.price
+            if len(text) < 3 or text[-3] not in ('.', ','):
+                text += '00' 
+            text = re.sub(r'\D', '', text)
         elif col == 4:
             text = result.store
         return text
