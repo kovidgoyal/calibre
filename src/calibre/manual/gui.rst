@@ -431,6 +431,8 @@ User categories can have sub-categories. For example, the user category Favorite
 
 It is also possible to create hierarchies inside some of the built-in categories (the text categories). These hierarchies show with the small triangle permitting the sub-items to be hidden. To use hierarchies in a category, you must first go to Preferences / Look & Feel and enter the category name(s) into the "Categories with hierarchical items" box. Once this is done, items in that category that contain periods will be shown using the small triangle. For example, assume you create a custom column called "Genre" and indicate that it contains hierarchical items. Once done, items such as Mystery.Thriller and Mystery.English will display as Mystery with the small triangle next to it. Clicking on the triangle will show Thriller and English as sub-items.
 
+You can drag and drop items in the Tag browser onto user categories to add them to that category.
+
 
 Jobs
 -----
