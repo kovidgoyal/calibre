@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re
+import re, threading
 
 from calibre.customize import Plugin
 from calibre.utils.logging import ThreadSafeLog, FileStream
@@ -30,7 +30,21 @@ class Source(Plugin):
 
     touched_fields = frozenset()
 
+    def __init__(self, *args, **kwargs):
+        Plugin.__init__(self, *args, **kwargs)
+        self._isbn_to_identifier_cache = {}
+        self.cache_lock = threading.RLock()
+
     # Utility functions {{{
+
+    def cache_isbn_to_identifier(self, isbn, identifier):
+        with self.cache_lock:
+            self._isbn_to_identifier_cache[isbn] = identifier
+
+    def cached_isbn_to_identifier(self, isbn):
+        with self.cache_lock:
+            return self._isbn_to_identifier_cache.get(isbn, None)
+
     def get_author_tokens(self, authors, only_first_author=True):
         '''
         Take a list of authors and return a list of tokens useful for an

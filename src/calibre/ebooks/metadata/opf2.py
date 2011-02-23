@@ -471,8 +471,11 @@ def serialize_user_metadata(metadata_elem, all_user_metadata, tail='\n'+(' '*8))
 
 
 def dump_user_categories(cats):
+    if not cats:
+        cats = {}
     from calibre.ebooks.metadata.book.json_codec import object_to_unicode
-    return json.dumps(object_to_unicode(cats))
+    return json.dumps(object_to_unicode(cats), ensure_ascii=False,
+            skipkeys=True)
 
 class OPF(object): # {{{
 
@@ -1182,7 +1185,7 @@ class OPFCreator(Metadata):
             a(CAL_ELEM('calibre:timestamp', self.timestamp.isoformat()))
         if self.publication_type is not None:
             a(CAL_ELEM('calibre:publication_type', self.publication_type))
-        if self.user_categories is not None:
+        if self.user_categories:
             from calibre.ebooks.metadata.book.json_codec import object_to_unicode
             a(CAL_ELEM('calibre:user_categories',
                        json.dumps(object_to_unicode(self.user_categories))))
@@ -1311,7 +1314,7 @@ def metadata_to_opf(mi, as_string=True):
     if mi.title_sort:
         meta('title_sort', mi.title_sort)
     if mi.user_categories:
-        meta('user_categories', json.dumps(mi.user_categories))
+        meta('user_categories', dump_user_categories(mi.user_categories))
 
     serialize_user_metadata(metadata, mi.get_all_user_metadata(False))
 

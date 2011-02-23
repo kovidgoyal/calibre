@@ -262,7 +262,6 @@ class TagsView(QTreeView): # {{{
                 tag_name = t.name
                 tag_id = t.id
                 can_edit = getattr(t, 'can_edit', True)
-                print can_edit, getattr(t, 'original_name', t.name), t.name
                 while item.type != TagTreeItem.CATEGORY:
                     item = item.parent
 

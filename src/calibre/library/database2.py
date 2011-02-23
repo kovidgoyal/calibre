@@ -174,7 +174,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.prefs = DBPrefs(self)
         defs = self.prefs.defaults
         defs['gui_restriction'] = defs['cs_restriction'] = ''
-        defs['categories_using_hierarchy'] = ''
+        defs['categories_using_hierarchy'] = []
 
         # Migrate saved search and user categories to db preference scheme
         def migrate_preference(key, default):

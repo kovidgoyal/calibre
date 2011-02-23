@@ -633,7 +633,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
             mb.stop()
 
         self.hide_windows()
-        self.emailer.stop()
+        if self.emailer.is_alive():
+            self.emailer.stop()
         try:
             try:
                 if self.content_server is not None:

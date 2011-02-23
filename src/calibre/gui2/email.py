@@ -209,7 +209,6 @@ class EmailMixin(object): # {{{
 
     def __init__(self):
         self.emailer = Emailer(self.job_manager)
-        self.emailer.start()
 
     def send_by_mail(self, to, fmts, delete_from_library, send_ids=None,
             do_auto_convert=True, specific_format=None):
@@ -255,6 +254,8 @@ class EmailMixin(object): # {{{
 
         to_s = list(repeat(to, len(attachments)))
         if attachments:
+            if not self.emailer.is_alive():
+                self.emailer.start()
             self.emailer.send_mails(jobnames,
                     Dispatcher(partial(self.email_sent, remove=remove)),
                     attachments, to_s, subjects, texts, attachment_names)
@@ -325,6 +326,8 @@ class EmailMixin(object): # {{{
             files, auto = self.library_view.model().\
                     get_preferred_formats_from_ids([id_], fmts)
             return files
+        if not self.emailer.is_alive():
+            self.emailer.start()
         sent_mails = self.emailer.email_news(mi, remove,
                 get_fmts, self.email_sent)
         if sent_mails:
