@@ -28,7 +28,23 @@
     </widget>
    </item>
    <item row="1" column="0" colspan="2">
-    <widget class="QTreeView" name="results"/>
+    <widget class="QTreeView" name="results_view">
+     <property name="alternatingRowColors">
+      <bool>true</bool>
+     </property>
+     <property name="rootIsDecorated">
+      <bool>false</bool>
+     </property>
+     <property name="itemsExpandable">
+      <bool>false</bool>
+     </property>
+     <property name="sortingEnabled">
+      <bool>true</bool>
+     </property>
+     <property name="expandsOnDoubleClick">
+      <bool>false</bool>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>

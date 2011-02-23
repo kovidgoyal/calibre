@@ -58,4 +58,4 @@ class AmazonKindleStore(StorePlugin):
                         continue
                     
                     counter -= 1
-                    yield (title.strip(), author.strip(), price.strip(), asin.strip())
+                    yield ('', title.strip(), author.strip(), price.strip(), asin.strip())

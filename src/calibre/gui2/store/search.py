@@ -7,10 +7,13 @@ __docformat__ = 'restructuredtext en'
 from threading import Event, Thread
 from Queue import Queue
 
-from PyQt4.Qt import QDialog, QTimer
+from PyQt4.Qt import Qt, QAbstractItemModel, QDialog, QTimer, QVariant, \
+    QModelIndex
 
 from calibre.customize.ui import store_plugins
+from calibre.gui2 import NONE
 from calibre.gui2.store.search_ui import Ui_Dialog
+from calibre.utils.icu import sort_key
 
 class SearchDialog(QDialog, Ui_Dialog):
 
@@ -27,6 +30,9 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.abort = Event()
         self.checker = QTimer()
         self.hang_check = 0
+        
+        self.model = Matches()
+        self.results_view.setModel(self.model)
 
         for x in store_plugins():
             self.store_plugins[x.name] = x
@@ -41,6 +47,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.running_threads = []
         self.results = Queue()
         self.abort = Event()
+        self.results_view.model().clear_results()
         for n in self.store_plugins:
             t = SearchThread(unicode(self.search_edit.text()), (n, self.store_plugins[n]), self.results, self.abort, self.TIMEOUT)
             self.running_threads.append(t)
@@ -66,7 +73,17 @@ class SearchDialog(QDialog, Ui_Dialog):
                 self.checker.stop()
         
         while not self.results.empty():
-            print self.results.get_nowait()
+            res = self.results.get_nowait()
+            if res:
+                result = SearchResult()
+                result.store = res[0]
+                result.cover_url = res[1][0]
+                result.title = res[1][1]
+                result.author = res[1][2]
+                result.price = res[1][3]
+                result.item_data = res[1][4]
+                
+                self.results_view.model().add_result(result)
 
 
 class SearchThread(Thread):
@@ -87,11 +104,95 @@ class SearchThread(Thread):
                 return
             self.results.put((self.store_name, res))
 
+
 class SearchResult(object):
     
     def __init__(self):
+        self.cover_url = ''
         self.title = ''
         self.author = ''
         self.price = ''
+        self.store = ''
         self.item_data = ''
-        self.plugin_name = ''
+
+
+class Matches(QAbstractItemModel):
+
+    HEADERS = [_('Cover'), _('Title'), _('Author(s)'), _('Price'), _('Store')]
+
+    def __init__(self):
+        QAbstractItemModel.__init__(self)
+        self.matches = []
+        
+    def clear_results(self):
+        self.matches = []
+        self.reset()
+    
+    def add_result(self, result):
+        self.matches.append(result)
+        self.reset()
+        #self.dataChanged.emit(self.createIndex(self.rowCount() - 1, 0), self.createIndex(self.rowCount() - 1, self.columnCount()))
+
+    def index(self, row, column, parent=QModelIndex()):
+        return self.createIndex(row, column)
+
+    def parent(self, index):
+        if not index.isValid() or index.internalId() == 0:
+            return QModelIndex()
+        return self.createIndex(0, 0)
+
+    def rowCount(self, *args):
+        return len(self.matches)
+
+    def columnCount(self, *args):
+        return 5
+    
+    def headerData(self, section, orientation, role):
+        if role != Qt.DisplayRole:
+            return NONE
+        text = ''
+        if orientation == Qt.Horizontal:
+            if section < len(self.HEADERS):
+                text = self.HEADERS[section]
+            return QVariant(text)
+        else:
+            return QVariant(section+1)
+
+    def data(self, index, role):
+        row, col = index.row(), index.column()
+        result = self.matches[row]
+        if role == Qt.DisplayRole:
+            if col == 1:
+                return QVariant(result.title)
+            elif col == 2:
+                return QVariant(result.author)
+            elif col == 3:
+                return QVariant(result.price)
+            elif col == 4:
+                return QVariant(result.store)
+            return NONE
+        elif role == Qt.DecorationRole:
+            pass
+        return NONE
+
+    def data_as_text(self, result, col):
+        text = ''
+        if col == 1:
+            text = result.title
+        elif col == 2:
+            text = result.author
+        elif col == 3:
+            text = result.price
+        elif col == 4:
+            text = result.store
+        return text
+
+    def sort(self, col, order, reset=True):
+        if not self.matches:
+            return
+        descending = order == Qt.DescendingOrder       
+        self.matches.sort(None,
+            lambda x: sort_key(unicode(self.data_as_text(x, col))),
+            descending)
+        if reset:
+            self.reset()
