@@ -1365,7 +1365,7 @@ class TagBrowserMixin(object): # {{{
     def do_add_subcategory(self, on_category=None):
         db = self.library_view.model().db
         user_cats = db.prefs.get('user_categories', {})
-        new_cat = on_category[1:] + '.New Category'
+        new_cat = on_category[1:] + '.' + _('New Category').replace('.', '')
         user_cats[new_cat] = []
         db.prefs.set('user_categories', user_cats)
         self.tags_view.set_new_model()
