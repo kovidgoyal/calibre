@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-02-18 21:06+0000\n"
-"PO-Revision-Date: 2011-02-07 22:49+0000\n"
-"Last-Translator: MLaudatu <Laudatti@gmail.com>\n"
+"PO-Revision-Date: 2011-02-22 12:12+0000\n"
+"Last-Translator: Andrei B <Unknown>\n"
 "Language-Team: Romanian <ro@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-02-19 04:58+0000\n"
+"X-Launchpad-Export-Date: 2011-02-23 04:36+0000\n"
 "X-Generator: Launchpad (build 12351)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -176,13 +176,13 @@ msgstr "Bază"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:135
 msgid "Customize"
-msgstr ""
+msgstr "Personalizează"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:143
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:39
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:44
 msgid "Cannot configure"
-msgstr ""
+msgstr "Nu se poate configura"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:305
 msgid "File type"
@@ -348,11 +348,12 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:870
 msgid "Customize searching"
-msgstr ""
+msgstr "Perzonalizează căutarea"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:876
 msgid "Customize the way searching for books works in calibre"
 msgstr ""
+"Personalizează modul în care căutarea cărților funcționează în calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:881
 msgid "Input Options"
@@ -430,11 +431,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:956
 msgid "Change metadata fields before saving/sending"
-msgstr ""
+msgstr "Schimbă câmpurile metadata înainte de salvare/trimitere"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:961
 msgid "Template Functions"
-msgstr ""
+msgstr "Funcții șablon"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:963
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:999
@@ -445,11 +446,11 @@ msgstr "Configurări avansate"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:967
 msgid "Create your own template functions"
-msgstr ""
+msgstr "Crează propriile funcții șablon"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:972
 msgid "Sharing books by email"
-msgstr ""
+msgstr "Partajare cărți prin email"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:974
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:986
@@ -682,7 +683,7 @@ msgstr "Acest profil este destinat pentru Amazon Kindle DX."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:712
 msgid "This profile is intended for the B&N Nook Color."
-msgstr ""
+msgstr "Acest profil este pentru B&N Nook Color"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:723
 msgid "This profile is intended for the Sanda Bambook."
@@ -872,21 +873,23 @@ msgstr "Comunica cu iTunes."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:24
 msgid "Communicate with the Sanda Bambook eBook reader."
-msgstr ""
+msgstr "Comunică cu cititor eBook Sanda Bambook."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:25
 msgid "Li Fanxi"
-msgstr ""
+msgstr "Li Fanxi"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:42
 msgid "Device IP Address (restart calibre after changing)"
-msgstr ""
+msgstr "Adresa IP a dispozitivului (reporniți calibre după modificare)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:47
 msgid ""
 "Unable to add book to library directly from Bambook. Please save the book to "
 "disk and add the file to library from disk."
 msgstr ""
+"Nu este posibilă adaugarea cărții în bibliotecă direct din Bambook. Vă rugăm "
+"să salvaţi cartea pe disc şi adăugaţi fişierul la biblioteca de pe disc."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:67
 msgid ""
@@ -902,7 +905,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:112
 msgid "Bambook"
-msgstr ""
+msgstr "Bambook"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:218
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:234
@@ -963,7 +966,7 @@ msgstr "Trimite metadate catre dispozitiv"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/libbambookcore.py:132
 msgid "Bambook SDK has not been installed."
-msgstr ""
+msgstr "Bambook SDK nu a fost instalat."
 
 #: /home/kovid/work/calibre/src/calibre/devices/binatone/driver.py:17
 msgid "Communicate with the Binatone Readme eBook reader."
@@ -1002,11 +1005,11 @@ msgstr "Comunica cu cititorul eBook PocketBook 301."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:233
 msgid "Communicate with the PocketBook 602/603/902/903 reader."
-msgstr ""
+msgstr "Comunică cu cititorul PocketBook 602/603/902/903."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:252
 msgid "Communicate with the PocketBook 701"
-msgstr ""
+msgstr "Comunică cu PocketBook 701"
 
 #: /home/kovid/work/calibre/src/calibre/devices/edge/driver.py:17
 msgid "Entourage Edge"
@@ -1114,7 +1117,7 @@ msgstr "Comunica cu JetBook Mini"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/apnx.py:28
 msgid "Not a valid MOBI file. Reports identity of %s"
-msgstr ""
+msgstr "Nu este un fișier MOBI valid. Raportează identitatea %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/apnx.py:44
 msgid "Could not generate page mapping."
@@ -1130,7 +1133,7 @@ msgstr "Conversează cu cititorul Kindle 2/3 eBook"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:180
 msgid "Send page number information when sending books"
-msgstr ""
+msgstr "Trimite informaţii despre numărul paginii atunci când trimit cărţi"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:182
 msgid ""
@@ -1142,7 +1145,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:187
 msgid "Use slower but more accurate page number generation"
-msgstr ""
+msgstr "Folosește o generare mai lentă dar mai precisă a numărului paginii"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:189
 msgid ""
@@ -1240,7 +1243,7 @@ msgstr "Comunica cu Nokia 770"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:40
 msgid "Communicate with the Nokia 810/900 internet tablet."
-msgstr ""
+msgstr "Comunică cu tableta internet Nokia 810/900"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:74
 msgid "Communicate with the Nokia E52"
