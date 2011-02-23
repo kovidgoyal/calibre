@@ -254,7 +254,8 @@ class EditorWidget(QWebView): # {{{
             f = QFontInfo(QApplication.font(self)).pixelSize()
             style = 'font-size: %dpx;' % (f,)
 
-            for body in self.page().mainFrame().documentElement().findAll('body'):
+            # toList() is needed because PyQt on Debian is old/broken
+            for body in self.page().mainFrame().documentElement().findAll('body').toList():
                 body.setAttribute('style', style)
             self.page().setContentEditable(True)
 

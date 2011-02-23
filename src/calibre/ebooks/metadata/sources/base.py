@@ -85,7 +85,8 @@ class Source(Plugin):
 
     # Metadata API {{{
 
-    def identify(self, log, result_queue, abort, title=None, authors=None, identifiers={}):
+    def identify(self, log, result_queue, abort, title=None, authors=None,
+            identifiers={}, timeout=5):
         '''
         Identify a book by its title/author/isbn/etc.
 
@@ -98,6 +99,8 @@ class Source(Plugin):
         :param authors: A list of authors of the book, can be None
         :param identifiers: A dictionary of other identifiers, most commonly
                             {'isbn':'1234...'}
+        :param timeout: Timeout in seconds, no network request should hang for
+                        longer than timeout.
         :return: None if no errors occurred, otherwise a unicode representation
                  of the error suitable for showing to the user
 
