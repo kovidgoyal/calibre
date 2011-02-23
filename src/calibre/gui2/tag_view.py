@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 Browsing book collection by tags.
 '''
 
-import traceback, copy
+import traceback, copy, cPickle
 
 from itertools import izip
 from functools import partial
@@ -16,7 +16,7 @@ from PyQt4.Qt import Qt, QTreeView, QApplication, pyqtSignal, QFont, QSize, \
                      QIcon, QPoint, QVBoxLayout, QHBoxLayout, QComboBox, QTimer,\
                      QAbstractItemModel, QVariant, QModelIndex, QMenu, QFrame,\
                      QPushButton, QWidget, QItemDelegate, QString, QLabel, \
-                     QShortcut, QKeySequence, SIGNAL
+                     QShortcut, QKeySequence, SIGNAL, QMimeData
 
 from calibre.ebooks.metadata import title_sort
 from calibre.gui2 import config, NONE, gprefs
@@ -95,7 +95,8 @@ class TagsView(QTreeView): # {{{
         self.setItemDelegate(TagDelegate(self))
         self.made_connections = False
         self.setAcceptDrops(True)
-        self.setDragDropMode(self.DropOnly)
+        self.setDragEnabled(True)
+        self.setDragDropMode(self.DragDrop)
         self.setDropIndicatorShown(True)
         self.setAutoExpandDelay(500)
         self.pane_is_visible = False
@@ -406,12 +407,13 @@ class TagsView(QTreeView): # {{{
                 fm_dest = self.db.metadata_for_field(item.category_key)
                 if fm_dest['kind'] == 'user':
                     md = event.mimeData()
-                    fm_src = self.db.metadata_for_field(md.column_name)
-                    if md.column_name in ['authors', 'publisher', 'series'] or \
-                            (fm_src['is_custom'] and
-                             fm_src['datatype'] in ['series', 'text'] and
-                             not fm_src['is_multiple']):
-                        self.setDropIndicatorShown(True)
+                    if hasattr(md, 'column_name'):
+                        fm_src = self.db.metadata_for_field(md.column_name)
+                        if md.column_name in ['authors', 'publisher', 'series'] or \
+                                (fm_src['is_custom'] and
+                                fm_src['datatype'] in ['series', 'text'] and
+                                not fm_src['is_multiple']):
+                            self.setDropIndicatorShown(True)
 
     def clear(self):
         if self.model():
@@ -664,10 +666,26 @@ class TagsModel(QAbstractItemModel): # {{{
         self.db = self.root_item = None
 
     def mimeTypes(self):
-        return ["application/calibre+from_library"]
+        return ["application/calibre+from_library",
+                'application/calibre+from_tag_browser']
+
+    def mimeData(self, indexes):
+        data = []
+        for idx in indexes:
+            if idx.isValid():
+                # get some useful serializable data
+                name = unicode(self.data(idx, Qt.DisplayRole).toString())
+                data.append(name)
+            else:
+                data.append(None)
+        raw = bytearray(cPickle.dumps(data, -1))
+        ans = QMimeData()
+        ans.setData('application/calibre+from_tag_browser', raw)
+        return ans
 
     def dropMimeData(self, md, action, row, column, parent):
-        if not md.hasFormat("application/calibre+from_library") or \
+        fmts = set([unicode(x) for x in md.formats()])
+        if not fmts.intersection(set(self.mimeTypes())) or \
                 action != Qt.CopyAction:
             return False
         idx = parent
@@ -1084,6 +1102,7 @@ class TagsModel(QAbstractItemModel): # {{{
         if index.isValid():
             node = self.data(index, Qt.UserRole)
             if node.type == TagTreeItem.TAG:
+                ans |= Qt.ItemIsDragEnabled
                 fm = self.db.metadata_for_field(node.tag.category)
                 if node.tag.category in \
                     ('tags', 'series', 'authors', 'rating', 'publisher') or \
