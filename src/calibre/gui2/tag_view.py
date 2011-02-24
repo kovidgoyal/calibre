@@ -356,10 +356,11 @@ class TagsView(QTreeView): # {{{
 
                 # Always show the user categories editor
                 self.context_menu.addSeparator()
-                if category in self.db.prefs.get('user_categories', {}).keys():
+                if key.startswith('@') and \
+                        key[1:] in self.db.prefs.get('user_categories', {}).keys():
                     self.context_menu.addAction(_('Manage User Categories'),
                             partial(self.context_menu_handler, action='manage_categories',
-                                    category=category))
+                                    category=key[1:]))
                 else:
                     self.context_menu.addAction(_('Manage User Categories'),
                             partial(self.context_menu_handler, action='manage_categories',
@@ -727,15 +728,21 @@ class TagsModel(QAbstractItemModel): # {{{
             if s[0] != TagTreeItem.TAG:
                 return False
         user_cats = self.db.prefs.get('user_categories', {})
+        parent_node = None
         for s in src:
             src_parent, src_name, src_cat = s[1:4]
-            src_parent = src_parent[1:]
+            parent_node = src_parent
+            if src_parent.startswith('@'):
+                is_uc = True
+                src_parent = src_parent[1:]
+            else:
+                is_uc = False
             dest_key = dest.category_key[1:]
             if dest_key not in user_cats:
                 continue
             new_cat = []
             # delete the item if the source is a user category and action is move
-            if src_parent in user_cats and action == Qt.MoveAction:
+            if is_uc and src_parent in user_cats and action == Qt.MoveAction:
                 for tup in user_cats[src_parent]:
                     if src_name == tup[0] and src_cat == tup[1]:
                         continue
@@ -743,6 +750,8 @@ class TagsModel(QAbstractItemModel): # {{{
                 user_cats[src_parent] = new_cat
             # Now add the item to the destination user category
             add_it = True
+            if not is_uc and src_cat == 'news':
+                src_cat = 'tags'
             for tup in user_cats[dest_key]:
                 if src_name == tup[0] and src_cat == tup[1]:
                     add_it = False
@@ -750,12 +759,13 @@ class TagsModel(QAbstractItemModel): # {{{
                 user_cats[dest_key].append([src_name, src_cat, 0])
         self.db.prefs.set('user_categories', user_cats)
         self.tags_view.set_new_model()
-        # Must work with the new model here
-        m = self.tags_view.model()
-        path = m.find_category_node('@' + src_parent)
-        idx = m.index_for_path(path)
-        self.tags_view.setExpanded(idx, True)
-        m.show_item_at_index(idx)
+        if parent_node is not None:
+            # Must work with the new model here
+            m = self.tags_view.model()
+            path = m.find_category_node(parent_node)
+            idx = m.index_for_path(path)
+            self.tags_view.setExpanded(idx, True)
+            m.show_item_at_index(idx)
         return True
 
     def do_drop_from_library(self, md, action, row, column, parent):
