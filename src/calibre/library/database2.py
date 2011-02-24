@@ -2451,6 +2451,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         stream.seek(0)
         mi = get_metadata(stream, format, use_libprs_metadata=False)
         stream.seek(0)
+        if not mi.series_index:
+            mi.series_index = 1.0
         mi.tags = [_('News')]
         if arg['add_title_tag']:
             mi.tags += [arg['title']]
