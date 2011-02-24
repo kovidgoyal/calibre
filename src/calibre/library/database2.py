@@ -51,6 +51,8 @@ class Tag(object):
         self.id = id
         self.count = count
         self.state = state
+        self.is_hierarchical = False
+        self.is_editable = True
         self.avg_rating = avg/2.0 if avg is not None else 0
         self.sort = sort
         if self.avg_rating > 0:
