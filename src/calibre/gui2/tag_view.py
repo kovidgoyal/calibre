@@ -236,7 +236,8 @@ class TagsView(QTreeView): # {{{
                 self.user_category_delete.emit(key)
                 return
             if action == 'delete_item_from_user_category':
-                self.del_user_cat_item.emit(key, index.name, index.category)
+                self.del_user_cat_item.emit(key,
+                    getattr(index, 'original_name', index.name), index.category)
                 return
             if action == 'manage_searches':
                 self.saved_search_edit.emit(category)
