@@ -1092,6 +1092,7 @@ class TagsModel(QAbstractItemModel): # {{{
                         if comp in child_map:
                             node_parent = child_map[comp]
                             node_parent.tag.count += tag.count
+                            node_parent.tag.use_prefix = True
                         else:
                             if i < len(components)-1:
                                 t = copy.copy(tag)
