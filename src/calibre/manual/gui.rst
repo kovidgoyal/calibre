@@ -413,6 +413,27 @@ The Book Details display shows you extra information and the cover for the curre
 
 .. _jobs:
 
+.. _tag_browser:
+
+Tag Browser
+-------------
+.. image:: images/tag_browser.png
+
+The Tag Browser allows you to easily browse your collection by Author/Tags/Series/etc. If you click on any Item in the Tag Browser, for example, the Author name, Isaac Asimov, then the list of books to the right is restricted to books by that author. Clicking once again on Isaac Asimov will restrict the list of books to books not by Isaac Asimov. A third click will remove the restriction. If you hold down the Ctrl or Shift keys and click on multiple items, then restrictions based on multiple items are created. For example you could Hold Ctrl and click on the tags History and Europe for find books on European history. The Tag Browser works by constructing search expressions that are automatically entered into the Search bar. It is a good way to learn how to construct basic search expressions. 
+
+There is a search bar at the top of the Tag Browser that allows you to easily find any item in the Tag Browser. In addition, you can right click on any item and choose to hide it or rename it or open a "Manage x" dialog that allows you to manage items of that kind. For example the "Manage Authors" dialog allows you to rename authors and control how their names are sorted. 
+
+For convenience, you can drag and drop books from the book list to items in the Tag Browser and that item will be automatically applied to the dropped books. For example, dragging a book to Isaac Asimov will set the author of that book to Isaac Asimov or dragging it to the tag History will add the tag History to its tags.
+
+The outer-level items in the tag browser such as Authors and Series are called categories. You can create your own categories, called User Categories, which are useful for organizing items. For example, you can use the user categories editor (push the Manage User Categories button) to create a user category called Favorite Authors, then put the items for your favorites into the category. User categories act like built-in categories; you can click on items to search for them. You can search for all items in a category by right-clicking on the category name and choosing "Search for books in ...".
+
+User categories can have sub-categories. For example, the user category Favorites.Authors is a sub-category of Favorites. You might also have Favorites.Series, in which case there will be two sub-categories under Favorites. Sub-categories can be created using Manage User Categories by entering names like the Favorites example. They can also be created by right-clicking on a user category, choosing "Add sub-category to ...", and entering the category name.
+
+It is also possible to create hierarchies inside some of the built-in categories (the text categories). These hierarchies show with the small triangle permitting the sub-items to be hidden. To use hierarchies in a category, you must first go to Preferences / Look & Feel and enter the category name(s) into the "Categories with hierarchical items" box. Once this is done, items in that category that contain periods will be shown using the small triangle. For example, assume you create a custom column called "Genre" and indicate that it contains hierarchical items. Once done, items such as Mystery.Thriller and Mystery.English will display as Mystery with the small triangle next to it. Clicking on the triangle will show Thriller and English as sub-items.
+
+You can drag and drop items in the Tag browser onto user categories to add them to that category.
+
+
 Jobs
 -----
 .. image:: images/jobs.png

@@ -174,6 +174,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.prefs = DBPrefs(self)
         defs = self.prefs.defaults
         defs['gui_restriction'] = defs['cs_restriction'] = ''
+        defs['categories_using_hierarchy'] = []
 
         # Migrate saved search and user categories to db preference scheme
         def migrate_preference(key, default):
@@ -812,6 +813,21 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                                             index_is_id=index_is_id),
                         extra=self.get_custom_extra(idx, label=meta['label'],
                                                     index_is_id=index_is_id))
+
+        user_cats = self.prefs['user_categories']
+        user_cat_vals = {}
+        for ucat in user_cats:
+            res = []
+            for name,cat,ign in user_cats[ucat]:
+                v = mi.get(cat, None)
+                if isinstance(v, list):
+                    if name in v:
+                        res.append([name,cat])
+                elif name == v:
+                    res.append([name,cat])
+            user_cat_vals[ucat] = res
+        mi.user_categories = user_cat_vals
+
         if get_cover:
             mi.cover = self.cover(id, index_is_id=True, as_path=True)
         return mi
@@ -1406,7 +1422,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         # temporarily duplicating the categories lists.
         taglist = {}
         for c in categories.keys():
-            taglist[c] = dict(map(lambda t:(t.name, t), categories[c]))
+            taglist[c] = dict(map(lambda t:(icu_lower(t.name), t), categories[c]))
 
         muc = self.prefs.get('grouped_search_make_user_categories', [])
         gst = self.prefs.get('grouped_search_terms', {})
@@ -1422,8 +1438,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         for user_cat in sorted(user_categories.keys(), key=sort_key):
             items = []
             for (name,label,ign) in user_categories[user_cat]:
-                if label in taglist and name in taglist[label]:
-                    items.append(taglist[label][name])
+                n = icu_lower(name)
+                if label in taglist and n in taglist[label]:
+                    items.append(taglist[label][n])
                 # else: do nothing, to not include nodes w zero counts
             cat_name = '@' + user_cat # add the '@' to avoid name collision
             # Not a problem if we accumulate entries in the icon map

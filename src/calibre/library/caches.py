@@ -124,9 +124,15 @@ def _match(query, value, matchkind):
     for t in value:
         t = icu_lower(t)
         try:     ### ignore regexp exceptions, required because search-ahead tries before typing is finished
-            if ((matchkind == EQUALS_MATCH and query == t) or
-                (matchkind == REGEXP_MATCH and re.search(query, t, re.I)) or ### search unanchored
-                (matchkind == CONTAINS_MATCH and query in t)):
+            if (matchkind == EQUALS_MATCH):
+                if query[0] == '.':
+                    if t.startswith(query[1:]):
+                        ql = len(query) - 1
+                        return (len(t) == ql) or (t[ql:ql+1] == '.')
+                elif query == t:
+                    return True
+            elif ((matchkind == REGEXP_MATCH and re.search(query, t, re.I)) or ### search unanchored
+                  (matchkind == CONTAINS_MATCH and query in t)):
                     return True
         except re.error:
             pass
@@ -415,13 +421,25 @@ class ResultCache(SearchQueryParser): # {{{
         if self.db_prefs is None:
             return  res
         user_cats = self.db_prefs.get('user_categories', [])
-        if location not in user_cats:
-            return res
         c = set(candidates)
-        for (item, category, ign) in user_cats[location]:
-            s = self.get_matches(category, '=' + item, candidates=c)
-            c -= s
-            res |= s
+        l = location.rfind('.')
+        if l > 0:
+            alt_loc = location[0:l]
+            alt_item = location[l+1:]
+        else:
+            alt_loc = None
+        for key in user_cats:
+            if key == location or key.startswith(location + '.'):
+                for (item, category, ign) in user_cats[key]:
+                    s = self.get_matches(category, '=' + item, candidates=c)
+                    c -= s
+                    res |= s
+            elif key == alt_loc:
+                for (item, category, ign) in user_cats[key]:
+                    if item == alt_item:
+                        s = self.get_matches(category, '=' + item, candidates=c)
+                        c -= s
+                        res |= s
         if query == 'false':
             return candidates - res
         return res

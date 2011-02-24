@@ -60,7 +60,12 @@ class ANDROID(USBMS):
             0x1004 : { 0x61cc : [0x100] },
 
             # Archos
-            0x0e79 : { 0x1419: [0x0216], 0x1420 : [0x0216], 0x1422 : [0x0216]},
+            0x0e79 : {
+                0x1400 : [0x0222, 0x0216],
+                0x1419 : [0x0216],
+                0x1420 : [0x0216],
+                0x1422 : [0x0216]
+            },
 
             # Huawei
             # Disabled as this USB id is used by various USB flash drives
@@ -68,6 +73,9 @@ class ANDROID(USBMS):
 
             # T-Mobile
             0x0408 : { 0x03ba : [0x0109], },
+
+            # Xperia
+            0x13d3 : { 0x3304 : [0x0001, 0x0002] },
 
             }
     EBOOK_DIR_MAIN = ['eBooks/import', 'wordplayer/calibretransfer', 'Books']
@@ -78,16 +86,16 @@ class ANDROID(USBMS):
 
     VENDOR_NAME      = ['HTC', 'MOTOROLA', 'GOOGLE_', 'ANDROID', 'ACER',
             'GT-I5700', 'SAMSUNG', 'DELL', 'LINUX', 'GOOGLE', 'ARCHOS',
-            'TELECHIP', 'HUAWEI', 'T-MOBILE', ]
+            'TELECHIP', 'HUAWEI', 'T-MOBILE', 'SEMC']
     WINDOWS_MAIN_MEM = ['ANDROID_PHONE', 'A855', 'A853', 'INC.NEXUS_ONE',
             '__UMS_COMPOSITE', '_MB200', 'MASS_STORAGE', '_-_CARD', 'SGH-I897',
             'GT-I9000', 'FILE-STOR_GADGET', 'SGH-T959', 'SAMSUNG_ANDROID',
             'SCH-I500_CARD', 'SPH-D700_CARD', 'MB810', 'GT-P1000', 'DESIRE',
             'SGH-T849', '_MB300', 'A70S', 'S_ANDROID', 'A101IT', 'A70H',
-            'IDEOS_TABLET', 'MYTOUCH_4G', 'UMS_COMPOSITE', 'SCH-I800_CARD']
+            'IDEOS_TABLET', 'MYTOUCH_4G', 'UMS_COMPOSITE', 'SCH-I800_CARD', '7']
     WINDOWS_CARD_A_MEM = ['ANDROID_PHONE', 'GT-I9000_CARD', 'SGH-I897',
             'FILE-STOR_GADGET', 'SGH-T959', 'SAMSUNG_ANDROID', 'GT-P1000_CARD',
-            'A70S', 'A101IT']
+            'A70S', 'A101IT', '7']
 
     OSX_MAIN_MEM = 'Android Device Main Memory'
 

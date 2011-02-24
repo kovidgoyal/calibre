@@ -489,7 +489,7 @@ class HeuristicProcessor(object):
         line_two = '(?P<line_two>'+re.sub('(ou|in|cha)', 'linetwo_', self.line_open)+'\s*(?P<line_two_content>.*?)'+re.sub('(ou|in|cha)', 'linetwo_', self.line_close)+')'
         div_break_candidate_pattern = line+'\s*<div[^>]*>\s*</div>\s*'+line_two
         div_break_candidate = re.compile(r'%s' % div_break_candidate_pattern, re.IGNORECASE|re.UNICODE)
-        
+
         def convert_div_softbreaks(match):
             init_is_paragraph = self.check_paragraph(match.group('init_content'))
             line_two_is_paragraph = self.check_paragraph(match.group('line_two_content'))
@@ -497,9 +497,9 @@ class HeuristicProcessor(object):
                 return match.group('initline')+'\n<p class="softbreak" style="margin-top:.5em; page-break-before:avoid; text-align:center"> </p>\n'+match.group('line_two')
             else:
                 return match.group(0)
-        
+
         html = div_break_candidate.sub(convert_div_softbreaks, html)
-        
+
         if not self.blanks_deleted and self.blanks_between_paragraphs:
             html = self.multi_blank.sub('\n<p class="softbreak" style="margin-top:1em; page-break-before:avoid; text-align:center"> </p>', html)
         else:

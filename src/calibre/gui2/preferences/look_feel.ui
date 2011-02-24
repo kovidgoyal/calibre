@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>670</width>
-    <height>392</height>
+    <height>422</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -136,7 +136,7 @@
      <item>
       <widget class="QLabel" name="label_6">
        <property name="text">
-        <string>Tags browser category partitioning method:</string>
+        <string>Tags browser category &amp;partitioning method:</string>
        </property>
        <property name="buddy">
         <cstring>opt_tags_browser_partition_method</cstring>
@@ -157,7 +157,7 @@ if you never want subcategories</string>
      <item>
       <widget class="QLabel" name="label_6">
        <property name="text">
-        <string>Collapse when more items than:</string>
+        <string>&amp;Collapse when more items than:</string>
        </property>
        <property name="buddy">
         <cstring>opt_tags_browser_collapse_at</cstring>
@@ -189,6 +189,28 @@ up into sub-categories. If the partition method is set to disable, this value is
       </spacer>
      </item>
     </layout>
+   </item>
+   <item row="8" column="0">
+    <widget class="QLabel" name="label_81">
+     <property name="text">
+      <string>Categories with &amp;hierarchical items:</string>
+     </property>
+     <property name="buddy">
+      <cstring>opt_categories_using_hierarchy</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="1">
+    <widget class="MultiCompleteLineEdit" name="opt_categories_using_hierarchy">
+     <property name="toolTip">
+      <string>A comma-separated list of columns in which items containing
+periods are displayed in the tag browser trees. For example, if
+this box contains 'tags' then tags of the form 'Mystery.English'
+and 'Mystery.Thriller' will be displayed with English and Thriller
+both under 'Mystery'. If 'tags' is not in this box,
+then the tags will be displayed each on their own line.</string>
+     </property>
+    </widget>
    </item>
    <item row="15" column="0" colspan="2">
     <widget class="QGroupBox" name="groupBox_2">
@@ -275,6 +297,13 @@ up into sub-categories. If the partition method is set to disable, this value is
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>MultiCompleteLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>calibre/gui2/complete.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>
