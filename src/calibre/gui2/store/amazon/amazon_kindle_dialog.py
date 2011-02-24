@@ -14,9 +14,11 @@ class AmazonKindleDialog(QDialog, Ui_Dialog):
 
     ASTORE_URL = 'http://astore.amazon.com/josbl0e-20/'
 
-    def __init__(self, parent=None, start_item=None):
+    def __init__(self, gui, parent=None, start_item=None):
         QDialog.__init__(self, parent=parent)
         self.setupUi(self)
+        
+        self.gui = gui
         
         self.view.loadStarted.connect(self.load_started)
         self.view.loadProgress.connect(self.load_progress)

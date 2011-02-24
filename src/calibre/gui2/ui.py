@@ -33,6 +33,7 @@ from calibre.gui2.main_window import MainWindow
 from calibre.gui2.layout import MainWindowMixin
 from calibre.gui2.device import DeviceMixin
 from calibre.gui2.email import EmailMixin
+from calibre.gui2.store_download import StoreDownloadMixin
 from calibre.gui2.jobs import JobManager, JobsDialog, JobsButton
 from calibre.gui2.init import LibraryViewMixin, LayoutMixin
 from calibre.gui2.search_box import SearchBoxMixin, SavedSearchBoxMixin
@@ -89,7 +90,8 @@ class SystemTrayIcon(QSystemTrayIcon): # {{{
 
 class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         TagBrowserMixin, CoverFlowMixin, LibraryViewMixin, SearchBoxMixin,
-        SavedSearchBoxMixin, SearchRestrictionMixin, LayoutMixin, UpdateMixin
+        SavedSearchBoxMixin, SearchRestrictionMixin, LayoutMixin, UpdateMixin,
+        StoreDownloadMixin
         ):
     'The main GUI'
 

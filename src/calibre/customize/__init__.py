@@ -588,7 +588,7 @@ class StorePlugin(Plugin): # {{{
     author         = 'John Schember'
     type = _('Stores')
     
-    def open(self, parent=None, start_item=None):
+    def open(self, gui, parent=None, start_item=None):
         '''
         Open a dialog for displaying the store.
         start_item is a refernce unique to the store

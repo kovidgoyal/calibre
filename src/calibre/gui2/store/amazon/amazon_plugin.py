@@ -18,9 +18,9 @@ class AmazonKindleStore(StorePlugin):
     name           = 'Amazon Kindle'
     description    = _('Buy Kindle books from Amazon')
     
-    def open(self, parent=None, start_item=None):
+    def open(self, gui, parent=None, start_item=None):
         from calibre.gui2.store.amazon.amazon_kindle_dialog import AmazonKindleDialog
-        d = AmazonKindleDialog(parent, start_item)
+        d = AmazonKindleDialog(gui, parent, start_item)
         d = d.exec_()
 
     def search(self, query, max_results=10, timeout=60):

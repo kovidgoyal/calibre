@@ -21,9 +21,11 @@ class SearchDialog(QDialog, Ui_Dialog):
     HANG_TIME = 75000 # milliseconds seconds
     TIMEOUT = 75 # seconds
 
-    def __init__(self, *args):
+    def __init__(self, gui, *args):
         QDialog.__init__(self, *args)
         self.setupUi(self)
+        
+        self.gui = gui
 
         self.store_plugins = {}
         self.running_threads = []
@@ -96,7 +98,7 @@ class SearchDialog(QDialog, Ui_Dialog):
 
     def open_store(self, index):
         result = self.results_view.model().get_result(index)
-        self.store_plugins[result.store].open(self, result.item_data)
+        self.store_plugins[result.store].open(self.gui, self, result.item_data)
 
 
 class SearchThread(Thread):

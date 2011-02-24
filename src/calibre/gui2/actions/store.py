@@ -27,8 +27,8 @@ class StoreAction(InterfaceAction):
     
     def search(self):
         from calibre.gui2.store.search import SearchDialog
-        sd = SearchDialog(self.gui)
+        sd = SearchDialog(self.gui, self.gui)
         sd.exec_()
         
     def open_store(self, store_plugin):
-        store_plugin.open(self.gui)
+        store_plugin.open(self.gui, self.gui)
