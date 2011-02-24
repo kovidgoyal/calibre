@@ -313,14 +313,15 @@ class TagsView(QTreeView): # {{{
                             p = path[:]
                             for k in sorted(tree_dict.keys(), key=sort_key):
                                 p.append(k)
-                                m.addAction(self.user_category_icon, k,
+                                n = k[1:] if k.startswith('@') else k
+                                m.addAction(self.user_category_icon, n,
                                     partial(self.context_menu_handler,
                                             'add_to_category',
                                             category='.'.join(p),
                                             index=tag))
                                 if len(tree_dict[k]):
                                     tm = m.addMenu(self.user_category_icon,
-                                                   _('Children of %s')%k)
+                                                   _('Children of %s')%n)
                                     add_node_tree(tree_dict[k], tm, p)
                                 p.pop()
                         add_node_tree(nt, m, [])
