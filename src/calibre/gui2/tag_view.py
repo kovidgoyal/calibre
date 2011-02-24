@@ -419,7 +419,7 @@ class TagsView(QTreeView): # {{{
         if item.type == TagTreeItem.TAG and flags & Qt.ItemIsDropEnabled:
             self.setDropIndicatorShown(not src_is_tb)
             return
-        if item.type == TagTreeItem.CATEGORY:
+        if item.type == TagTreeItem.CATEGORY and not item.is_gst:
             fm_dest = self.db.metadata_for_field(item.category_key)
             if fm_dest['kind'] == 'user':
                 if src_is_tb:
