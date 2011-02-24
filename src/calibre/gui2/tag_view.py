@@ -386,7 +386,8 @@ class TagsView(QTreeView): # {{{
                             self.db.field_metadata[key]['is_custom']:
                     self.context_menu.addAction(_('Manage %s')%category,
                             partial(self.context_menu_handler, action='open_editor',
-                                    category=tag.name if tag else None, key=key))
+                                    category=getattr(tag, 'original_name', tag.name)
+                                         if tag else None, key=key))
                 elif key == 'authors':
                     self.context_menu.addAction(_('Manage %s')%category,
                             partial(self.context_menu_handler, action='edit_author_sort'))
