@@ -659,7 +659,8 @@ class ODF2XHTML(handler.ContentHandler):
             self.opentag('style', {'type':"text/css"}, True)
             self.writeout('/*<![CDATA[*/\n')
             self.writeout('\nimg { width: 100%; height: 100%; }\n')
-            self.writeout('* { padding: 0; margin: 0;  background-color:white; }\n')
+            # background-color: white removed by Kovid for #9118
+            self.writeout('* { padding: 0; margin: 0; }\n')
             self.writeout('body { margin: 0 1em; }\n')
             self.writeout('ol, ul { padding-left: 2em; }\n')
             self.generate_stylesheet()
