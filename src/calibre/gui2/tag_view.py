@@ -1207,20 +1207,53 @@ class TagsModel(QAbstractItemModel): # {{{
                                     label=self.db.field_metadata[key]['label'])
             self.tags_view.tag_item_renamed.emit()
             item.tag.name = val
-            # rename the item in any user categories
-            user_cats = self.db.prefs.get('user_categories', {})
-            for k in user_cats.keys():
-                new_contents = []
-                for tup in user_cats[k]:
-                    if tup[0] == name and tup[1] == key:
-                        new_contents.append([val, key, 0])
-                    else:
-                        new_contents.append(tup)
-                user_cats[k] = new_contents
-            self.db.prefs.set('user_categories', user_cats)
+            self.rename_item_in_all_user_categories(name, key, val)
             self.refresh() # Should work, because no categories can have disappeared
         self.show_item_at_path(path)
         return True
+
+    def rename_item_in_all_user_categories(self, item_name, item_category, new_name):
+        '''
+        Search all user categories for items named item_name with category
+        item_category and rename them to new_name. The caller must arrange to
+        redisplay the tree as appropriate (recount or set_new_model)
+        '''
+        user_cats = self.db.prefs.get('user_categories', {})
+        for k in user_cats.keys():
+            new_contents = []
+            for tup in user_cats[k]:
+                if tup[0] == item_name and tup[1] == item_category:
+                    new_contents.append([new_name, item_category, 0])
+                else:
+                    new_contents.append(tup)
+            user_cats[k] = new_contents
+        self.db.prefs.set('user_categories', user_cats)
+
+    def delete_item_from_all_user_categories(self, item_name, item_category):
+        '''
+        Search all user categories for items named item_name with category
+        item_category and delete them. The caller must arrange to redisplay the
+        tree as appropriate (recount or set_new_model)
+        '''
+        user_cats = self.db.prefs.get('user_categories', {})
+        for cat in user_cats.keys():
+            self.delete_item_from_user_category(cat, item_name, item_category,
+                                                user_categories=user_cats)
+        self.db.prefs.set('user_categories', user_cats)
+
+    def delete_item_from_user_category(self, category, item_name, item_category,
+                                       user_categories=None):
+        if user_categories is not None:
+            user_cats = user_categories
+        else:
+            user_cats = self.db.prefs.get('user_categories', {})
+        new_contents = []
+        for tup in user_cats[category]:
+            if tup[0] != item_name or tup[1] != item_category:
+                new_contents.append(tup)
+        user_cats[category] = new_contents
+        if user_categories is None:
+            self.db.prefs.set('user_categories', user_cats)
 
     def headerData(self, *args):
         return NONE
@@ -1531,12 +1564,8 @@ class TagBrowserMixin(object): # {{{
                          _('User category %s does not exist')%user_cat,
                          show=True)
             return
-        new_contents = []
-        for tup in user_cats[user_cat]:
-            if tup[0] != item_name or tup[1] != item_category:
-                new_contents.append(tup)
-        user_cats[user_cat] = new_contents
-        db.prefs.set('user_categories', user_cats)
+        self.tags_view.model().delete_item_from_user_category(user_cat,
+                                                      item_name, item_category)
         self.tags_view.recount()
 
     def do_add_subcategory(self, on_category_key=None):
@@ -1632,6 +1661,8 @@ class TagBrowserMixin(object): # {{{
         if d.result() == d.Accepted:
             to_rename = d.to_rename # dict of new text to old id
             to_delete = d.to_delete # list of ids
+            orig_name = d.original_names # dict of id: name
+
             rename_func = None
             if category == 'tags':
                 rename_func = db.rename_tag
@@ -1645,15 +1676,19 @@ class TagBrowserMixin(object): # {{{
             else:
                 rename_func = partial(db.rename_custom_item, label=cc_label)
                 delete_func = partial(db.delete_custom_item_using_id, label=cc_label)
+            m = self.tags_view.model()
             if rename_func:
                 for item in to_delete:
                     delete_func(item)
+                    m.delete_item_from_all_user_categories(orig_name[item], category)
                 for old_id in to_rename:
                     rename_func(old_id, new_name=unicode(to_rename[old_id]))
+                    m.rename_item_in_all_user_categories(orig_name[old_id],
+                                            category, unicode(to_rename[old_id]))
 
             # Clean up the library view
             self.do_tag_item_renamed()
-            self.tags_view.set_new_model()
+            self.tags_view.recount()
 
     def do_tag_item_renamed(self):
         # Clean up library view and search
