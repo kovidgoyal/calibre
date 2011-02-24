@@ -128,7 +128,8 @@ def _match(query, value, matchkind):
                 if query[0] == '.':
                     if t.startswith(query[1:]):
                         ql = len(query) - 1
-                        return (len(t) == ql) or (t[ql:ql+1] == '.')
+                        if (len(t) == ql) or (t[ql:ql+1] == '.'):
+                            return True
                 elif query == t:
                     return True
             elif ((matchkind == REGEXP_MATCH and re.search(query, t, re.I)) or ### search unanchored
