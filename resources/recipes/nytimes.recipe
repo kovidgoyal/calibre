@@ -89,7 +89,7 @@ class NYTimes(BasicNewsRecipe):
     if headlinesOnly:
         title='New York Times Headlines'
         description = 'Headlines from the New York Times. Needs a subscription from http://www.nytimes.com'
-        needs_subscription = True
+        needs_subscription = 'optional'
     elif webEdition:
         title='New York Times (Web)'
         description = 'New York Times on the Web'
