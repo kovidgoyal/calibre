@@ -136,7 +136,7 @@ class FeedTemplate(Template):
             head.append(STYLE(style, type='text/css'))
         if extra_css:
             head.append(STYLE(extra_css, type='text/css'))
-        body = BODY(style='page-break-before:always')
+        body = BODY()
         body.append(self.get_navbar(f, feeds))
 
         div = DIV(
@@ -322,7 +322,7 @@ class TouchscreenFeedTemplate(Template):
             head.append(STYLE(style, type='text/css'))
         if extra_css:
             head.append(STYLE(extra_css, type='text/css'))
-        body = BODY(style='page-break-before:always')
+        body = BODY()
         div = DIV(
                 top_navbar,
                 H2(feed.title, CLASS('feed_title'))
