@@ -299,7 +299,7 @@ class TagsView(QTreeView): # {{{
                             self.context_menu.addAction(_('Edit sort for %s')%tag.name,
                                     partial(self.context_menu_handler,
                                             action='edit_author_sort', index=tag.id))
-                    if key.startswith('@'):
+                    if key.startswith('@') and not item.is_gst:
                         self.context_menu.addAction(self.user_category_icon,
                                 _('Remove %s from category %s')%(tag.name, item.py_name),
                                 partial(self.context_menu_handler,
@@ -317,7 +317,7 @@ class TagsView(QTreeView): # {{{
                                     search_state=TAG_SEARCH_STATES['mark_minus'],
                                     index=index))
                     self.context_menu.addSeparator()
-                elif key.startswith('@'):
+                elif key.startswith('@') and not item.is_gst:
                     if item.can_edit:
                         self.context_menu.addAction(self.user_category_icon,
                             _('Rename %s')%item.py_name,
@@ -427,7 +427,8 @@ class TagsView(QTreeView): # {{{
                         data = str(event.mimeData().data('application/calibre+from_tag_browser'))
                         src = cPickle.loads(data)
                         for s in src:
-                            if s[0] == TagTreeItem.TAG and not s[1].startswith('@'):
+                            if s[0] == TagTreeItem.TAG and \
+                                    (not s[1].startswith('@') or s[2]):
                                 return
                     self.setDropIndicatorShown(True)
                     return
@@ -653,8 +654,10 @@ class TagsModel(QAbstractItemModel): # {{{
         for i, r in enumerate(self.row_map):
             if self.hidden_categories and self.categories[i] in self.hidden_categories:
                 continue
+            is_gst = False
             if r.startswith('@') and r[1:] in gst:
                 tt = _(u'The grouped search term name is "{0}"').format(r[1:])
+                is_gst = True
             elif r == 'news':
                 tt = ''
             else:
@@ -675,7 +678,8 @@ class TagsModel(QAbstractItemModel): # {{{
                         last_category_node = node
                         category_node_map[path] = node
                         self.category_nodes.append(node)
-                        node.can_edit = i == (len(path_parts) - 1)
+                        node.can_edit = (not is_gst) and (i == (len(path_parts)-1))
+                        node.is_gst = is_gst
                     else:
                         last_category_node = category_node_map[path]
                     path += '.'
@@ -684,6 +688,7 @@ class TagsModel(QAbstractItemModel): # {{{
                                    data=self.categories[i],
                                    category_icon=self.category_icon_map[r],
                                    tooltip=tt, category_key=r)
+                node.is_gst = False
                 category_node_map[r] = node
                 last_category_node = node
                 self.category_nodes.append(node)
@@ -709,7 +714,7 @@ class TagsModel(QAbstractItemModel): # {{{
                     p = node
                     while p.type != TagTreeItem.CATEGORY:
                         p = p.parent
-                    d = (node.type, p.category_key,
+                    d = (node.type, p.category_key, p.is_gst,
                          getattr(t, 'original_name', t.name), t.category, t.id)
                 data.append(d)
             else:
@@ -748,7 +753,8 @@ class TagsModel(QAbstractItemModel): # {{{
     def move_or_copy_item_to_user_category(self, src, dest, action):
         '''
         src is a list of tuples representing items to copy. The tuple is
-        (type, containing category key, full name, category key, id)
+        (type, containing category key, category key is global search term,
+         full name, category key, id)
         The type must be TagTreeItem.TAG
         dest is the TagTreeItem node to receive the items
         action is Qt.CopyAction or Qt.MoveAction
@@ -757,7 +763,7 @@ class TagsModel(QAbstractItemModel): # {{{
         parent_node = None
         copied_node = None
         for s in src:
-            src_parent, src_name, src_cat = s[1:4]
+            src_parent, src_parent_is_gst, src_name, src_cat = s[1:5]
             parent_node = src_parent
             if src_parent.startswith('@'):
                 is_uc = True
@@ -769,7 +775,8 @@ class TagsModel(QAbstractItemModel): # {{{
                 continue
             new_cat = []
             # delete the item if the source is a user category and action is move
-            if is_uc and src_parent in user_cats and action == Qt.MoveAction:
+            if is_uc and not src_parent_is_gst and src_parent in user_cats and \
+                                    action == Qt.MoveAction:
                 for tup in user_cats[src_parent]:
                     if src_name == tup[0] and src_cat == tup[1]:
                         continue
@@ -1074,9 +1081,9 @@ class TagsModel(QAbstractItemModel): # {{{
                     TagTreeItem(parent=node_parent, data=tag, tooltip=tt,
                                     icon_map=self.icon_state_map)
                     self.endInsertRows()
-                    tag.can_edit = key != 'formats' and \
+                    tag.can_edit = key != 'formats' and (key == 'news' or \
                             self.db.field_metadata[tag.category]['datatype'] in \
-                                    ['text', 'series', 'enumeration']
+                                    ['text', 'series', 'enumeration'])
                 else:
                     for i,comp in enumerate(components):
                         child_map = dict([(t.tag.name, t) for t in node_parent.children
@@ -1176,7 +1183,7 @@ class TagsModel(QAbstractItemModel): # {{{
             return True
 
         key = item.tag.category
-        name = item.tag.name
+        name = getattr(item.tag, 'original_name', item.tag.name)
         # make certain we know about the item's category
         if key not in self.db.field_metadata:
             return False
