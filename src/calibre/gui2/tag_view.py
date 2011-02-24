@@ -25,7 +25,7 @@ from calibre.utils.config import tweaks
 from calibre.utils.icu import sort_key, upper, lower, strcmp
 from calibre.utils.search_query_parser import saved_searches
 from calibre.utils.formatter import eval_formatter
-from calibre.gui2 import error_dialog
+from calibre.gui2 import error_dialog, question_dialog
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.tag_categories import TagCategories
 from calibre.gui2.dialogs.tag_list_editor import TagListEditor
@@ -73,6 +73,8 @@ class TagsView(QTreeView): # {{{
     refresh_required    = pyqtSignal()
     tags_marked         = pyqtSignal(object)
     user_category_edit  = pyqtSignal(object)
+    user_category_delete= pyqtSignal(object)
+    del_user_cat_item   = pyqtSignal(object, object, object)
     add_subcategory     = pyqtSignal(object)
     tag_list_edit       = pyqtSignal(object, object)
     saved_search_edit   = pyqtSignal(object)
@@ -105,6 +107,7 @@ class TagsView(QTreeView): # {{{
         else:
             self.collapse_model = gprefs['tags_browser_partition_method']
         self.search_icon = QIcon(I('search.png'))
+        self.user_category_icon = QIcon(I('tb_folder.png'))
 
     def set_pane_is_visible(self, to_what):
         pv = self.pane_is_visible
@@ -220,14 +223,20 @@ class TagsView(QTreeView): # {{{
             if action == 'manage_categories':
                 self.user_category_edit.emit(category)
                 return
-            if action == 'add_subcategory':
-                self.add_subcategory.emit(category)
-                return
             if action == 'search':
                 self._toggle(index, set_to=search_state)
                 return
+            if action == 'add_subcategory':
+                self.add_subcategory.emit(key)
+                return
             if action == 'search_category':
                 self.tags_marked.emit(key + ':' + search_state)
+                return
+            if action == 'delete_user_category':
+                self.user_category_delete.emit(key)
+                return
+            if action == 'delete_item_from_user_category':
+                self.del_user_cat_item.emit(key, index.name, index.category)
                 return
             if action == 'manage_searches':
                 self.saved_search_edit.emit(category)
@@ -259,14 +268,11 @@ class TagsView(QTreeView): # {{{
 
         if index.isValid():
             item = index.internalPointer()
-            tag_name = ''
+            tag = None
 
             if item.type == TagTreeItem.TAG:
-                tag_item = item
-                t = item.tag
-                tag_name = t.name
-                tag_id = t.id
-                can_edit = getattr(t, 'can_edit', True)
+                tag = item.tag
+                can_edit = getattr(tag, 'can_edit', True)
                 while item.type != TagTreeItem.CATEGORY:
                     item = item.parent
 
@@ -281,42 +287,50 @@ class TagsView(QTreeView): # {{{
                     return True
 
                 # Did the user click on a leaf node?
-                if tag_name:
+                if tag:
                     # If the user right-clicked on an editable item, then offer
                     # the possibility of renaming that item.
-                    if can_edit and \
-                            key in ['authors', 'tags', 'series', 'publisher', 'search'] or \
-                            (self.db.field_metadata[key]['is_custom'] and \
-                             self.db.field_metadata[key]['datatype'] != 'rating'):
+                    if can_edit:
                         # Add the 'rename' items
-                        self.context_menu.addAction(_('Rename %s')%tag_name,
+                        self.context_menu.addAction(_('Rename %s')%tag.name,
                             partial(self.context_menu_handler, action='edit_item',
-                                    category=tag_item, index=index))
+                                    index=index))
                         if key == 'authors':
-                            self.context_menu.addAction(_('Edit sort for %s')%tag_name,
+                            self.context_menu.addAction(_('Edit sort for %s')%tag.name,
                                     partial(self.context_menu_handler,
-                                            action='edit_author_sort', index=tag_id))
+                                            action='edit_author_sort', index=tag.id))
+                    if key.startswith('@'):
+                        self.context_menu.addAction(self.user_category_icon,
+                                _('Remove %s from category %s')%(tag.name, item.py_name),
+                                partial(self.context_menu_handler,
+                                        action='delete_item_from_user_category',
+                                        key = key, index = tag))
                     # Add the search for value items
                     self.context_menu.addAction(self.search_icon,
-                            _('Search for %s')%tag_name,
+                            _('Search for %s')%tag.name,
                             partial(self.context_menu_handler, action='search',
                                     search_state=TAG_SEARCH_STATES['mark_plus'],
                                     index=index))
                     self.context_menu.addAction(self.search_icon,
-                            _('Search for everything but %s')%tag_name,
+                            _('Search for everything but %s')%tag.name,
                             partial(self.context_menu_handler, action='search',
                                     search_state=TAG_SEARCH_STATES['mark_minus'],
                                     index=index))
                     self.context_menu.addSeparator()
                 elif key.startswith('@'):
                     if item.can_edit:
-                        self.context_menu.addAction(_('Rename %s')%key[1:],
+                        self.context_menu.addAction(self.user_category_icon,
+                            _('Rename %s')%item.py_name,
                             partial(self.context_menu_handler, action='edit_item',
-                                    category=key, index=index))
-                    self.context_menu.addAction(self.search_icon,
-                            _('Add sub-category to %s')%key[1:],
+                                    index=index))
+                    self.context_menu.addAction(self.user_category_icon,
+                            _('Add sub-category to %s')%item.py_name,
                             partial(self.context_menu_handler,
-                                    action='add_subcategory', category=key))
+                                    action='add_subcategory', key=key))
+                    self.context_menu.addAction(self.user_category_icon,
+                            _('Delete user category %s')%item.py_name,
+                            partial(self.context_menu_handler,
+                                    action='delete_user_category', key=key))
                     self.context_menu.addSeparator()
                 # Hide/Show/Restore categories
                 if not key.startswith('@') or key.find('.') < 0:
@@ -345,14 +359,14 @@ class TagsView(QTreeView): # {{{
                             self.db.field_metadata[key]['is_custom']:
                     self.context_menu.addAction(_('Manage %s')%category,
                             partial(self.context_menu_handler, action='open_editor',
-                                    category=tag_name, key=key))
+                                    category=tag.name if tag else None, key=key))
                 elif key == 'authors':
                     self.context_menu.addAction(_('Manage %s')%category,
                             partial(self.context_menu_handler, action='edit_author_sort'))
                 elif key == 'search':
                     self.context_menu.addAction(_('Manage Saved Searches'),
                         partial(self.context_menu_handler, action='manage_searches',
-                                category=tag_name))
+                                category=tag.name if tag else None))
 
                 # Always show the user categories editor
                 self.context_menu.addSeparator()
@@ -534,6 +548,8 @@ class TagTreeItem(object): # {{{
     def category_data(self, role):
         if role == Qt.DisplayRole:
             return QVariant(self.py_name + ' [%d]'%len(self.child_tags()))
+        if role == Qt.EditRole:
+            return QVariant(self.py_name)
         if role == Qt.DecorationRole:
             return self.icon
         if role == Qt.FontRole:
@@ -727,8 +743,19 @@ class TagsModel(QAbstractItemModel): # {{{
         for s in src:
             if s[0] != TagTreeItem.TAG:
                 return False
+        return self.move_or_copy_item_to_user_category(src, dest, action)
+
+    def move_or_copy_item_to_user_category(self, src, dest, action):
+        '''
+        src is a list of tuples representing items to copy. The tuple is
+        (type, containing category key, full name, category key, id)
+        The type must be TagTreeItem.TAG
+        dest is the TagTreeItem node to receive the items
+        action is Qt.CopyAction or Qt.MoveAction
+        '''
         user_cats = self.db.prefs.get('user_categories', {})
         parent_node = None
+        copied_node = None
         for s in src:
             src_parent, src_name, src_cat = s[1:4]
             parent_node = src_parent
@@ -748,6 +775,9 @@ class TagsModel(QAbstractItemModel): # {{{
                         continue
                     new_cat.append(list(tup))
                 user_cats[src_parent] = new_cat
+            else:
+                copied_node = (src_parent, src_name)
+
             # Now add the item to the destination user category
             add_it = True
             if not is_uc and src_cat == 'news':
@@ -757,12 +787,17 @@ class TagsModel(QAbstractItemModel): # {{{
                     add_it = False
             if add_it:
                 user_cats[dest_key].append([src_name, src_cat, 0])
+
         self.db.prefs.set('user_categories', user_cats)
-        self.tags_view.set_new_model()
+        self.tags_view.recount()
+
         if parent_node is not None:
-            # Must work with the new model here
             m = self.tags_view.model()
-            path = m.find_category_node(parent_node)
+            if copied_node is not None:
+                path = m.find_item_node(parent_node, copied_node[1], None,
+                                        equals_match=True)
+            else:
+                path = m.find_category_node(parent_node)
             idx = m.index_for_path(path)
             self.tags_view.setExpanded(idx, True)
             m.show_item_at_index(idx)
@@ -1031,15 +1066,17 @@ class TagsModel(QAbstractItemModel): # {{{
                     node_parent = category
 
                 components = [t for t in tag.name.split('.')]
-                if key in ['authors', 'publisher', 'news', 'formats'] or \
+                if key in ['authors', 'publisher', 'news', 'formats', 'rating'] or \
                         key not in self.db.prefs.get('categories_using_hierarchy', []) or\
                         len(components) == 1 or \
-                        fm['kind'] == 'user' or \
-                        fm['datatype'] not in ['text', 'series', 'enumeration']:
+                        fm['kind'] == 'user':
                     self.beginInsertRows(category_index, 999999, 1)
                     TagTreeItem(parent=node_parent, data=tag, tooltip=tt,
                                     icon_map=self.icon_state_map)
                     self.endInsertRows()
+                    tag.can_edit = key != 'formats' and \
+                            self.db.field_metadata[tag.category]['datatype'] in \
+                                    ['text', 'series', 'enumeration']
                 else:
                     for i,comp in enumerate(components):
                         child_map = dict([(t.tag.name, t) for t in node_parent.children
@@ -1137,10 +1174,9 @@ class TagsModel(QAbstractItemModel): # {{{
             p = self.tags_view.model().find_category_node('@' + nkey)
             self.tags_view.model().show_item_at_path(p)
             return True
-        itm = item.parent
-        while itm.type != TagTreeItem.CATEGORY:
-            itm = itm.parent
-        key = itm.category_key
+
+        key = item.tag.category
+        name = item.tag.name
         # make certain we know about the item's category
         if key not in self.db.field_metadata:
             return False
@@ -1171,6 +1207,17 @@ class TagsModel(QAbstractItemModel): # {{{
                                     label=self.db.field_metadata[key]['label'])
             self.tags_view.tag_item_renamed.emit()
             item.tag.name = val
+            # rename the item in any user categories
+            user_cats = self.db.prefs.get('user_categories', {})
+            for k in user_cats.keys():
+                new_contents = []
+                for tup in user_cats[k]:
+                    if tup[0] == name and tup[1] == key:
+                        new_contents.append([val, key, 0])
+                    else:
+                        new_contents.append(tup)
+                user_cats[k] = new_contents
+            self.db.prefs.set('user_categories', user_cats)
             self.refresh() # Should work, because no categories can have disappeared
         self.show_item_at_path(path)
         return True
@@ -1329,19 +1376,20 @@ class TagsModel(QAbstractItemModel): # {{{
                                                  name.replace(r'"', r'\"')))
         return ans
 
-    def find_item_node(self, key, txt, start_path):
+    def find_item_node(self, key, txt, start_path, equals_match=False):
         '''
         Search for an item (a node) in the tags browser list that matches both
-        the key (exact case-insensitive match) and txt (contains case-
-        insensitive match). Returns the path to the node. Note that paths are to
-        a location (second item, fourth item, 25 item), not to a node. If
+        the key (exact case-insensitive match) and txt (not equals_match =>
+        case-insensitive contains match; equals_match => case_insensitive
+        equal match). Returns the path to the node. Note that paths are to a
+        location (second item, fourth item, 25 item), not to a node. If
         start_path is None, the search starts with the topmost node. If the tree
         is changed subsequent to calling this method, the path can easily refer
         to a different node or no node at all.
         '''
         if not txt:
             return None
-        txt = lower(txt)
+        txt = lower(txt) if not equals_match else txt
         self.path_found = None
         if start_path is None:
             start_path = []
@@ -1353,7 +1401,9 @@ class TagsModel(QAbstractItemModel): # {{{
             tag = tag_item.tag
             if tag is None:
                 return False
-            if lower(tag.name).find(txt) >= 0:
+            name = getattr(tag, 'original_name', tag.name)
+            if (equals_match and strcmp(name, txt) == 0) or \
+                    (not equals_match and lower(name).find(txt) >= 0):
                 self.path_found = path
                 return True
             return False
@@ -1365,15 +1415,14 @@ class TagsModel(QAbstractItemModel): # {{{
                     return False
                 if path[depth] > start_path[depth]:
                     start_path = path
-            if key and strcmp(category_index.internalPointer().category_key, key) != 0:
-                return False
+            my_key = category_index.internalPointer().category_key
             for j in xrange(self.rowCount(category_index)):
                 tag_index = self.index(j, 0, category_index)
                 tag_item = tag_index.internalPointer()
                 if tag_item.type == TagTreeItem.CATEGORY:
                     if process_level(depth+1, tag_index, start_path):
                         return True
-                else:
+                elif not key or strcmp(key, my_key) == 0:
                     if process_tag(depth+1, tag_index, tag_item, start_path):
                         return True
             return False
@@ -1457,6 +1506,8 @@ class TagBrowserMixin(object): # {{{
         self.tags_view.tags_marked.connect(self.search.set_search_string)
         self.tags_view.tag_list_edit.connect(self.do_tags_list_edit)
         self.tags_view.user_category_edit.connect(self.do_user_categories_edit)
+        self.tags_view.user_category_delete.connect(self.do_user_category_delete)
+        self.tags_view.del_user_cat_item.connect(self.do_del_user_cat_item)
         self.tags_view.add_subcategory.connect(self.do_add_subcategory)
         self.tags_view.saved_search_edit.connect(self.do_saved_search_edit)
         self.tags_view.author_sort_edit.connect(self.do_author_sort_edit)
@@ -1466,7 +1517,29 @@ class TagBrowserMixin(object): # {{{
         self.edit_categories.clicked.connect(lambda x:
                 self.do_user_categories_edit())
 
-    def do_add_subcategory(self, on_category=None):
+    def do_del_user_cat_item(self, user_cat, item_name, item_category):
+        '''
+        Delete the item (item_name, item_category) from the user category with
+        key user_cat. Any leading '@' characters are removed
+        '''
+        if user_cat.startswith('@'):
+            user_cat = user_cat[1:]
+        db = self.library_view.model().db
+        user_cats = db.prefs.get('user_categories', {})
+        if user_cat not in user_cats:
+            error_dialog(self.tags_view, _('Remove category'),
+                         _('User category %s does not exist')%user_cat,
+                         show=True)
+            return
+        new_contents = []
+        for tup in user_cats[user_cat]:
+            if tup[0] != item_name or tup[1] != item_category:
+                new_contents.append(tup)
+        user_cats[user_cat] = new_contents
+        db.prefs.set('user_categories', user_cats)
+        self.tags_view.recount()
+
+    def do_add_subcategory(self, on_category_key=None):
         db = self.library_view.model().db
         user_cats = db.prefs.get('user_categories', {})
 
@@ -1475,7 +1548,7 @@ class TagBrowserMixin(object): # {{{
         new_name = _('New Category').replace('.', '')
         n = new_name
         while True:
-            new_cat = on_category[1:] + '.' + n
+            new_cat = on_category_key[1:] + '.' + n
             if new_cat not in user_cats:
                 break
             i += 1
@@ -1500,7 +1573,39 @@ class TagBrowserMixin(object): # {{{
                 db.field_metadata.add_user_category('@' + k, k)
             db.data.change_search_locations(db.field_metadata.get_search_terms())
             self.tags_view.set_new_model()
-            self.tags_view.recount()
+
+    def do_user_category_delete(self, category_name):
+        '''
+        Delete the user category named category_name. Any leading '@' is removed
+        '''
+        if category_name.startswith('@'):
+            category_name = category_name[1:]
+        db = self.library_view.model().db
+        user_cats = db.prefs.get('user_categories', {})
+        cat_keys = sorted(user_cats.keys(), key=sort_key)
+        has_children = False
+        found = False
+        for k in cat_keys:
+            if k == category_name:
+                found = True
+                has_children = len(user_cats[k])
+            elif k.startswith(category_name + '.'):
+                has_children = True
+        if not found:
+            return error_dialog(self.tags_view, _('Delete user category'),
+                         _('%s is not a user category')%category_name, show=True)
+        if has_children:
+            if not question_dialog(self.tags_view, _('Delete user category'),
+                                   _('%s contains items. Do you really '
+                                     'want to delete it?')%category_name):
+                return
+        for k in cat_keys:
+            if k == category_name:
+                del user_cats[k]
+            elif k.startswith(category_name + '.'):
+                del user_cats[k]
+        db.prefs.set('user_categories', user_cats)
+        self.tags_view.set_new_model()
 
     def do_tags_list_edit(self, tag, category):
         db=self.library_view.model().db
@@ -1548,7 +1653,7 @@ class TagBrowserMixin(object): # {{{
 
             # Clean up the library view
             self.do_tag_item_renamed()
-            self.tags_view.set_new_model() # does a refresh for free
+            self.tags_view.set_new_model()
 
     def do_tag_item_renamed(self):
         # Clean up library view and search
