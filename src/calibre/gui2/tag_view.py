@@ -1446,6 +1446,9 @@ class TagsModel(QAbstractItemModel): # {{{
                     (not equals_match and lower(name).find(txt) >= 0):
                 self.path_found = path
                 return True
+            for i,c in enumerate(tag_item.children):
+                if process_tag(depth+1, self.createIndex(i, 0, c), c, start_path):
+                    return True
             return False
 
         def process_level(depth, category_index, start_path):
