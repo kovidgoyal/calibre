@@ -30,6 +30,7 @@ NULL_VALUES = {
                 'author_sort_map': {},
                 'authors'      : [_('Unknown')],
                 'title'        : _('Unknown'),
+                'user_categories' : {},
                 'language'     : 'und'
 }
 

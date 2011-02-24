@@ -32,7 +32,7 @@ category_icon_map = {
                     'news'      : 'news.png',
                     'tags'      : 'tags.png',
                     'custom:'   : 'column.png',
-                    'user:'     : 'drawer.png',
+                    'user:'     : 'tb_folder.png',
                     'search'    : 'search.png'
             }
 

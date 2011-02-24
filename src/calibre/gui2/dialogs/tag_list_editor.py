@@ -58,10 +58,12 @@ class TagListEditor(QDialog, Ui_TagListEditor):
 
         self.to_rename = {}
         self.to_delete = set([])
+        self.original_names = {}
         self.all_tags = {}
 
         for k,v in data:
             self.all_tags[v] = k
+            self.original_names[k] = v
         for tag in sorted(self.all_tags.keys(), key=key):
             item = ListWidgetItem(tag)
             item.setData(Qt.UserRole, self.all_tags[tag])

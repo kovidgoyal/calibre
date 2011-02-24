@@ -167,9 +167,10 @@ class StoreDownloadMixin(object):
     
     def __init__(self):
         self.store_downloader = StoreDownloader(self.job_manager)
-        self.store_downloader.start()
     
     def download_from_store(self, url='', save_as_loc='', add_to_lib=True):
+        if not self.store_downloader.is_alive():
+            self.store_downloader.start()
         self.store_downloader.download_from_store(Dispatcher(self.downloaded_from_store), self.library_view.model().db, url, save_as_loc, add_to_lib)
         self.status_bar.show_message(_('Downloading') + ' ' + url, 3000)
     

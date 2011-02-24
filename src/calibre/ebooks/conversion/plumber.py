@@ -984,7 +984,9 @@ OptionRecommendation(name='sr3_replace',
         flattener = CSSFlattener(fbase=fbase, fkey=fkey,
                 lineh=line_height,
                 untable=self.output_plugin.file_type in ('mobi','lit'),
-                unfloat=self.output_plugin.file_type in ('mobi', 'lit'))
+                unfloat=self.output_plugin.file_type in ('mobi', 'lit'),
+                page_break_on_body=self.output_plugin.file_type in ('mobi',
+                    'lit'))
         flattener(self.oeb, self.opts)
         self.opts.insert_blank_line = oibl
         self.opts.remove_paragraph_spacing = orps

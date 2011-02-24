@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Copyright (C) 2007-2008 Søren Roug, European Environment Agency
+# Copyright (C) 2007-2010 Søren Roug, European Environment Agency
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -112,6 +112,9 @@ class Node(xml.dom.Node):
             return self.childNodes[-1]
 
     def insertBefore(self, newChild, refChild):
+        """ Inserts the node newChild before the existing child node refChild.
+            If refChild is null, insert newChild at the end of the list of children.
+        """
         if newChild.nodeType not in self._child_node_types:
             raise IllegalChild, "%s cannot be child of %s" % (newChild.tagName, self.tagName)
         if newChild.parentNode is not None:
@@ -135,21 +138,26 @@ class Node(xml.dom.Node):
             newChild.parentNode = self
         return newChild
 
-    def appendChild(self, node):
-        if node.nodeType == self.DOCUMENT_FRAGMENT_NODE:
-            for c in tuple(node.childNodes):
+    def appendChild(self, newChild):
+        """ Adds the node newChild to the end of the list of children of this node.
+            If the newChild is already in the tree, it is first removed.
+        """
+        if newChild.nodeType == self.DOCUMENT_FRAGMENT_NODE:
+            for c in tuple(newChild.childNodes):
                 self.appendChild(c)
             ### The DOM does not clearly specify what to return in this case
-            return node
-        if node.nodeType not in self._child_node_types:
-            raise IllegalChild, "<%s> is not allowed in %s" % ( node.tagName, self.tagName)
-        if node.parentNode is not None:
-            node.parentNode.removeChild(node)
-        _append_child(self, node)
-        node.nextSibling = None
-        return node
+            return newChild
+        if newChild.nodeType not in self._child_node_types:
+            raise IllegalChild, "<%s> is not allowed in %s" % ( newChild.tagName, self.tagName)
+        if newChild.parentNode is not None:
+            newChild.parentNode.removeChild(newChild)
+        _append_child(self, newChild)
+        newChild.nextSibling = None
+        return newChild
 
     def removeChild(self, oldChild):
+        """ Removes the child node indicated by oldChild from the list of children, and returns it.
+        """
         #FIXME: update ownerDocument.element_dict or find other solution
         try:
             self.childNodes.remove(oldChild)
@@ -191,8 +199,8 @@ def _append_child(self, node):
     node.__dict__["parentNode"] = self
 
 class Childless:
-    """Mixin that makes childless-ness easy to implement and avoids
-    the complexity of the Node methods that deal with children.
+    """ Mixin that makes childless-ness easy to implement and avoids
+        the complexity of the Node methods that deal with children.
     """
 
     attributes = None
@@ -207,6 +215,7 @@ class Childless:
         return None
 
     def appendChild(self, node):
+        """ Raises an error """
         raise xml.dom.HierarchyRequestErr(
             self.tagName + " nodes cannot have children")
 
@@ -214,14 +223,17 @@ class Childless:
         return False
 
     def insertBefore(self, newChild, refChild):
+        """ Raises an error """
         raise xml.dom.HierarchyRequestErr(
             self.tagName + " nodes do not have children")
 
     def removeChild(self, oldChild):
+        """ Raises an error """
         raise xml.dom.NotFoundErr(
             self.tagName + " nodes do not have children")
 
     def replaceChild(self, newChild, oldChild):
+        """ Raises an error """
         raise xml.dom.HierarchyRequestErr(
             self.tagName + " nodes do not have children")
 
@@ -247,8 +259,12 @@ class CDATASection(Childless, Text):
     nodeType = Node.CDATA_SECTION_NODE
 
     def toXml(self,level,f):
+        """ Generate XML output of the node. If the text contains "]]>", then
+            escape it by going out of CDATA mode (]]>), then write the string
+            and then go into CDATA mode again. (<![CDATA[)
+        """
         if self.data:
-            f.write('<![CDATA[%s]]>' % self.data)
+            f.write('<![CDATA[%s]]>' % self.data.replace(']]>',']]>]]><![CDATA['))
 
 class Element(Node):
     """ Creates a arbitrary element and is intended to be subclassed not used on its own.
@@ -310,7 +326,19 @@ class Element(Node):
                 if self.getAttrNS(r[0],r[1]) is None:
                     raise AttributeError, "Required attribute missing: %s in <%s>" % (r[1].lower().replace('-',''), self.tagName)
 
+    def get_knownns(self, prefix):
+        """ Odfpy maintains a list of known namespaces. In some cases a prefix is used, and
+            we need to know which namespace it resolves to.
+        """
+        global nsdict
+        for ns,p in nsdict.items():
+            if p == prefix: return ns
+        return None
+        
     def get_nsprefix(self, namespace):
+        """ Odfpy maintains a list of known namespaces. In some cases we have a namespace URL,
+            and needs to look up or assign the prefix for it.
+        """
         if namespace is None: namespace = ""
         prefix = _nsassign(namespace)
         if not self.namespaces.has_key(namespace):
@@ -339,6 +367,9 @@ class Element(Node):
             self.ownerDocument.rebuild_caches(element)
 
     def addText(self, text, check_grammar=True):
+        """ Adds text to an element
+            Setting check_grammar=False turns off grammar checking
+        """
         if check_grammar and self.qname not in grammar.allows_text:
             raise IllegalText, "The <%s> element does not allow text" % self.tagName
         else:
@@ -346,6 +377,9 @@ class Element(Node):
                 self.appendChild(Text(text))
 
     def addCDATA(self, cdata, check_grammar=True):
+        """ Adds CDATA to an element
+            Setting check_grammar=False turns off grammar checking
+        """
         if check_grammar and self.qname not in grammar.allows_text:
             raise IllegalText, "The <%s> element does not allow text" % self.tagName
         else:
@@ -403,17 +437,18 @@ class Element(Node):
 #       if allowed_attrs and (namespace, localpart) not in allowed_attrs:
 #           raise AttributeError, "Attribute %s:%s is not allowed in element <%s>" % ( prefix, localpart, self.tagName)
         c = AttrConverters()
-        self.attributes[prefix + ":" + localpart] = c.convert((namespace, localpart), value, self.qname)
+        self.attributes[(namespace, localpart)] = c.convert((namespace, localpart), value, self)
 
     def getAttrNS(self, namespace, localpart):
         prefix = self.get_nsprefix(namespace)
-        return self.attributes.get(prefix + ":" + localpart)
+        return self.attributes.get((namespace, localpart))
 
     def removeAttrNS(self, namespace, localpart):
-        prefix = self.get_nsprefix(namespace)
-        del self.attributes[prefix + ":" + localpart]
+        del self.attributes[(namespace, localpart)]
 
     def getAttribute(self, attr):
+        """ Get an attribute value. The method knows which namespace the attribute is in
+        """
         allowed_attrs = self.allowed_attributes()
         if allowed_attrs is None:
             if type(attr) == type(()):
@@ -432,8 +467,9 @@ class Element(Node):
         if level == 0:
             for namespace, prefix in self.namespaces.items():
                 f.write(' xmlns:' + prefix + '="'+ _escape(str(namespace))+'"')
-        for attkey in self.attributes.keys():
-            f.write(' '+_escape(str(attkey))+'='+_quoteattr(unicode(self.attributes[attkey]).encode('utf-8')))
+        for qname in self.attributes.keys():
+            prefix = self.get_nsprefix(qname[0])
+            f.write(' '+_escape(str(prefix+':'+qname[1]))+'='+_quoteattr(unicode(self.attributes[qname]).encode('utf-8')))
         f.write('>')
 
     def write_close_tag(self, level, f):
@@ -445,8 +481,9 @@ class Element(Node):
         if level == 0:
             for namespace, prefix in self.namespaces.items():
                 f.write(' xmlns:' + prefix + '="'+ _escape(str(namespace))+'"')
-        for attkey in self.attributes.keys():
-            f.write(' '+_escape(str(attkey))+'='+_quoteattr(unicode(self.attributes[attkey]).encode('utf-8')))
+        for qname in self.attributes.keys():
+            prefix = self.get_nsprefix(qname[0])
+            f.write(' '+_escape(str(prefix+':'+qname[1]))+'='+_quoteattr(unicode(self.attributes[qname]).encode('utf-8')))
         if self.childNodes:
             f.write('>')
             for element in self.childNodes:
@@ -464,6 +501,7 @@ class Element(Node):
         return accumulator
 
     def getElementsByType(self, element):
+        """ Gets elements based on the type, which is function from text.py, draw.py etc. """
         obj = element(check_grammar=False)
         return self._getElementsByObj(obj,[])
 
