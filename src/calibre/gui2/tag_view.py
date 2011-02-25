@@ -1276,6 +1276,12 @@ class TagsModel(QAbstractItemModel): # {{{
             return False
         item = index.internalPointer()
         if item.type == TagTreeItem.CATEGORY and item.category_key.startswith('@'):
+            if val.find('.') >= 0:
+                error_dialog(self.tags_view, _('Rename user category'),
+                    _('You cannot use periods in the name when '
+                      'renaming user categories'), show=True)
+                return False
+
             user_cats = self.db.prefs.get('user_categories', {})
             ckey = item.category_key[1:]
             dotpos = ckey.rfind('.')
@@ -1288,7 +1294,7 @@ class TagsModel(QAbstractItemModel): # {{{
                     if len(c) == len(ckey):
                         if nkey in user_cats:
                             error_dialog(self.tags_view, _('Rename user category'),
-                                _('The name %s is already used'%nkey), show=True)
+                                _('The name %s is already used')%nkey, show=True)
                             return False
                         user_cats[nkey] = user_cats[ckey]
                         del user_cats[ckey]
