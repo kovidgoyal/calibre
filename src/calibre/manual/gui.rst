@@ -440,6 +440,8 @@ The Tag Browser allows you to easily browse your collection by Author/Tags/Serie
 
 There is a search bar at the top of the Tag Browser that allows you to easily find any item in the Tag Browser. In addition, you can right click on any item and choose to hide it or rename it or open a "Manage x" dialog that allows you to manage items of that kind. For example the "Manage Authors" dialog allows you to rename authors and control how their names are sorted. 
 
+Items in the Tag browser have their icons partially colored. The amount of color depends on the average rating of the books in that category. So for example if the books by Isaac Asimov have an average of four stars, the icon for Isaac Asimov in the Tag Browser will be 4/5th colored. You can hover your mouse over the icon to see the average rating.
+
 For convenience, you can drag and drop books from the book list to items in the Tag Browser and that item will be automatically applied to the dropped books. For example, dragging a book to Isaac Asimov will set the author of that book to Isaac Asimov or dragging it to the tag History will add the tag History to its tags.
 
 The outer-level items in the tag browser such as Authors and Series are called categories. You can create your own categories, called User Categories, which are useful for organizing items. For example, you can use the user categories editor (push the Manage User Categories button) to create a user category called Favorite Authors, then put the items for your favorites into the category. User categories act like built-in categories; you can click on items to search for them. You can search for all items in a category by right-clicking on the category name and choosing "Search for books in ...".
@@ -449,6 +451,8 @@ User categories can have sub-categories. For example, the user category Favorite
 It is also possible to create hierarchies inside some of the built-in categories (the text categories). These hierarchies show with the small triangle permitting the sub-items to be hidden. To use hierarchies in a category, you must first go to Preferences / Look & Feel and enter the category name(s) into the "Categories with hierarchical items" box. Once this is done, items in that category that contain periods will be shown using the small triangle. For example, assume you create a custom column called "Genre" and indicate that it contains hierarchical items. Once done, items such as Mystery.Thriller and Mystery.English will display as Mystery with the small triangle next to it. Clicking on the triangle will show Thriller and English as sub-items.
 
 You can drag and drop items in the Tag browser onto user categories to add them to that category.
+
+You can control how items are sorted in the Tag browser via the box at the bottom of the Tag Browser. You can choose to sort by name, average rating or popularity (popularity is the number of books with an item in your library; for example; the popularity of Isaac Asimov is the number of book sin your library by Isaac Asimov).
 
 
 Jobs

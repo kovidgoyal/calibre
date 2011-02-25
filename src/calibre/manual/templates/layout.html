@@ -24,6 +24,35 @@
 
 {% endblock %}
 
+{% block document %}
+      <div class="documentwrapper">
+      {%- if render_sidebar %}
+        <div class="bodywrapper">
+      {%- endif %}
+        <div class="body">
+            {% if not embedded %}
+            <div id="ad-container">
+                    <script type="text/javascript"><!--
+                        google_ad_client = "ca-pub-2595272032872519";
+                        /* User Manual horizontal */
+                        google_ad_slot = "3131592704";
+                        google_ad_width = 728;
+                        google_ad_height = 90;
+                        //-->
+                    </script>
+                    <script type="text/javascript"
+                        src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+                    </script>
+            </div>
+            {% endif %}
+            {% block body %} {% endblock %}
+        </div>
+      {%- if render_sidebar %}
+        </div>
+      {%- endif %}
+      </div>
+{% endblock %}
+
 {% block sidebarlogo %}
         <p class="logo">
             <a href="http://calibre-ebook.com"><img class="logo" src="{{ pathto('_static/' + logo, 1) }}" alt="Logo"/></a>
