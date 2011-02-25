@@ -19,7 +19,7 @@ SITE_PACKAGES = ['IPython', 'PIL', 'dateutil', 'dns', 'PyQt4', 'mechanize',
 
 QTDIR          = '/usr/lib/qt4'
 QTDLLS         = ('QtCore', 'QtGui', 'QtNetwork', 'QtSvg', 'QtXml', 'QtWebKit', 'QtDBus')
-
+MAGICK_PREFIX = '/usr'
 binary_includes = [
                 '/usr/bin/pdftohtml',
                 '/usr/lib/libwmflite-0.2.so.7',
@@ -41,8 +41,8 @@ binary_includes = [
                 '/usr/lib/libgthread-2.0.so.0',
                 '/usr/lib/libpng14.so.14',
                 '/usr/lib/libexslt.so.0',
-                '/usr/lib/libMagickWand.so.4',
-                '/usr/lib/libMagickCore.so.4',
+                MAGICK_PREFIX+'/lib/libMagickWand.so.4',
+                MAGICK_PREFIX+'/lib/libMagickCore.so.4',
                 '/usr/lib/libgcrypt.so.11',
                 '/usr/lib/libgpg-error.so.0',
                 '/usr/lib/libphonon.so.4',
@@ -116,8 +116,9 @@ class LinuxFreeze(Command):
             if x not in ('designer', 'sqldrivers', 'codecs'):
                 shutil.copytree(y, self.j(dest, x))
 
-        im = glob.glob('/usr/lib/ImageMagick-*')[0]
-        dest = self.j(self.lib_dir, 'ImageMagick')
+        im = glob.glob(MAGICK_PREFIX + '/lib/ImageMagick-*')[-1]
+        self.magick_base = os.path.basename(im)
+        dest = self.j(self.lib_dir, self.magick_base)
         shutil.copytree(im, dest, ignore=shutil.ignore_patterns('*.a'))
 
     def compile_mount_helper(self):
@@ -278,9 +279,10 @@ class LinuxFreeze(Command):
                 base=`dirname $path`
                 lib=$base/lib
                 export LD_LIBRARY_PATH=$lib:$LD_LIBRARY_PATH
-                export MAGICK_CONFIGURE_PATH=$lib/ImageMagick/config
-                export MAGICK_CODER_MODULE_PATH=$lib/ImageMagick/modules-Q16/coders
-                export MAGICK_CODER_FILTER_PATH=$lib/ImageMagick/modules-Q16/filters
+                export MAGICK_HOME=$base
+                export MAGICK_CONFIGURE_PATH=$lib/{1}/config
+                export MAGICK_CODER_MODULE_PATH=$lib/{1}/modules-Q16/coders
+                export MAGICK_CODER_FILTER_PATH=$lib/{1}/modules-Q16/filters
                 $base/bin/{0} "$@"
                 ''')
 
@@ -292,7 +294,7 @@ class LinuxFreeze(Command):
                 exe = self.j(self.bin_dir, bname)
                 sh = self.j(self.base, bname)
                 with open(sh, 'wb') as f:
-                    f.write(launcher.format(bname))
+                    f.write(launcher.format(bname, self.magick_base))
                 os.chmod(sh,
                     stat.S_IREAD|stat.S_IEXEC|stat.S_IWRITE|stat.S_IRGRP|stat.S_IXGRP|stat.S_IROTH|stat.S_IXOTH)
 
