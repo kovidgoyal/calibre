@@ -66,6 +66,7 @@ reference mode. You can turn it on by clicking the Reference Mode button |refmi|
 mouse over a paragraph, calibre will display a unique number made up of the section and paragraph numbers. 
 
 .. image:: images/ref_mode.png
+    :align: center
 
 You can use this number to unambiguously refer to parts of the books when discussing it with friends or referring to it
 in other works. You can enter these numbers in the box marked Go to at the top of the window to go to a particular
