@@ -407,6 +407,8 @@ class BrowseServer(object):
         category_name = category_meta[category]['name']
         datatype = category_meta[category]['datatype']
 
+        # See if we have any sub-categories to display. As we find them, add
+        # them to the displayed set to avoid showing the same item twice
         uc_displayed = set()
         cats = []
         for ucat in sorted(categories.keys(), key=sort_key):
@@ -422,16 +424,19 @@ class BrowseServer(object):
             cat_len = len(category)
             if not (len(ucat) > cat_len and ucat.startswith(category+'.')):
                 continue
-            cat_len += 1
             icon = category_icon_map['user:']
+            # we have a subcategory. Find any further dots (further subcats)
+            cat_len += 1
             cat = ucat[cat_len:]
             dot = cat.find('.')
             if dot > 0:
+                # More subcats
                 cat = cat[:dot]
                 if cat not in uc_displayed:
                     cats.append((cat, ucat[:cat_len+dot], icon))
                     uc_displayed.add(cat)
             else:
+                # This is the end of the chain
                 cats.append((cat, ucat, icon))
                 uc_displayed.add(cat)
 
@@ -450,6 +455,7 @@ class BrowseServer(object):
         else:
             script = 'true'
 
+        # Now do the category items
         items = categories[category]
         sort = self.browse_sort_categories(items, sort)
 
