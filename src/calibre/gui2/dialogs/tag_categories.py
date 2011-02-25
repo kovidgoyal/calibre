@@ -171,6 +171,13 @@ class TagCategories(QDialog, Ui_TagCategories):
         cat_name = unicode(self.input_box.text()).strip()
         if cat_name == '':
             return False
+        comps = [c.strip() for c in cat_name.split('.') if c.strip()]
+        if len(comps) == 0 or '.'.join(comps) != cat_name:
+            error_dialog(self, _('Invalid name'),
+                    _('That name contains leading or trailing periods, '
+                      'multiple periods in a row or spaces before '
+                      'or after periods.')).exec_()
+            return False
         for c in self.categories:
             if strcmp(c, cat_name) == 0:
                 error_dialog(self, _('Name already used'),
@@ -193,6 +200,14 @@ class TagCategories(QDialog, Ui_TagCategories):
             return False
         if not self.current_cat_name:
             return False
+        comps = [c.strip() for c in cat_name.split('.') if c.strip()]
+        if len(comps) == 0 or '.'.join(comps) != cat_name:
+            error_dialog(self, _('Invalid name'),
+                    _('That name contains leading or trailing periods, '
+                      'multiple periods in a row or spaces before '
+                      'or after periods.')).exec_()
+            return False
+
         for c in self.categories:
             if strcmp(c, cat_name) == 0:
                 error_dialog(self, _('Name already used'),

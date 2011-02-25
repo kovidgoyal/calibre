@@ -1181,6 +1181,22 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             return 'n=%s s=%s c=%d rt=%d rc=%d id=%s'%\
                             (self.n, self.s, self.c, self.rt, self.rc, self.id)
 
+    def clean_user_categories(self):
+        user_cats = self.prefs.get('user_categories', {})
+        new_cats = {}
+        for k in user_cats:
+            comps = [c.strip() for c in k.split('.') if c.strip()]
+            if len(comps) == 0:
+                i = 1
+                while True:
+                    if unicode(i) not in user_cats:
+                        new_cats[unicode(i)] = user_cats[k]
+                        break
+                    i += 1
+            else:
+                new_cats['.'.join(comps)] = user_cats[k]
+        self.prefs.set('user_categories', new_cats)
+        return new_cats
 
     def get_categories(self, sort='name', ids=None, icon_map=None):
         #start = last = time.clock()
@@ -1421,7 +1437,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             categories['formats'].sort(key = lambda x:x.name)
 
         #### Now do the user-defined categories. ####
-        user_categories = dict.copy(self.prefs['user_categories'])
+        user_categories = dict.copy(self.clean_user_categories())
 
         # We want to use same node in the user category as in the source
         # category. To do that, we need to find the original Tag node. There is

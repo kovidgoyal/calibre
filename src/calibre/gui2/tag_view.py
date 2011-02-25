@@ -685,7 +685,9 @@ class TagsModel(QAbstractItemModel): # {{{
         self.filter_categories_by = filter_categories_by
         self.collapse_model = collapse_model
 
-        # get_node_tree cannot return None here, because row_map is empty
+        # get_node_tree cannot return None here, because row_map is empty. Note
+        # that get_node_tree can indirectly change the user_categories dict.
+
         data = self.get_node_tree(config['sort_tags_by'])
         gst = db.prefs.get('grouped_search_terms', {})
         self.root_item = TagTreeItem()
@@ -707,7 +709,7 @@ class TagsModel(QAbstractItemModel): # {{{
                 tt = _(u'The lookup/search name is "{0}"').format(r)
 
             if r.startswith('@'):
-                path_parts = [p.strip() for p in r.split('.') if p.strip()]
+                path_parts = [p for p in r.split('.')]
                 path = ''
                 last_category_node = self.root_item
                 tree_root = self.category_node_tree
@@ -1178,7 +1180,10 @@ class TagsModel(QAbstractItemModel): # {{{
                 # category display order is important here. The following works
                 # only of all the non-user categories are displayed before the
                 # user categories
-                components = [t for t in original_name(tag).split('.')]
+                components = [t.strip() for t in original_name(tag).split('.')
+                              if t.strip()]
+                if len(components) == 0 or '.'.join(components) != original_name(tag):
+                    components = [original_name(tag)]
                 in_uc = fm['kind'] == 'user'
                 if (not tag.is_hierarchical) and (in_uc or
                         key in ['authors', 'publisher', 'news', 'formats', 'rating'] or
@@ -1264,7 +1269,7 @@ class TagsModel(QAbstractItemModel): # {{{
         # working with the last item and that item is deleted, in which case
         # we position at the parent label
         path = index.model().path_for_index(index)
-        val = unicode(value.toString())
+        val = unicode(value.toString()).strip()
         if not val:
             error_dialog(self.tags_view, _('Item is blank'),
                         _('An item cannot be set to nothing. Delete it instead.')).exec_()
