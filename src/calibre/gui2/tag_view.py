@@ -9,7 +9,7 @@ Browsing book collection by tags.
 
 import traceback, copy, cPickle
 
-from itertools import izip
+from itertools import izip, repeat
 from functools import partial
 
 from PyQt4.Qt import Qt, QTreeView, QApplication, pyqtSignal, QFont, QSize, \
@@ -534,7 +534,7 @@ class TagTreeItem(object): # {{{
     ROOT     = 2
 
     def __init__(self, data=None, category_icon=None, icon_map=None,
-                 parent=None, tooltip=None, category_key=None):
+                 parent=None, tooltip=None, category_key=None, temporary=False):
         self.parent = parent
         self.children = []
         self.id_set = set()
@@ -552,6 +552,7 @@ class TagTreeItem(object): # {{{
             self.bold_font.setBold(True)
             self.bold_font = QVariant(self.bold_font)
             self.category_key = category_key
+            self.temporary = temporary
         elif self.type == self.TAG:
             icon_map[0] = data.icon
             self.tag, self.icon_state_map = data, list(map(QVariant, icon_map))
@@ -1086,17 +1087,17 @@ class TagsModel(QAbstractItemModel): # {{{
             else:
                 collapse_model = 'partition'
                 collapse_template = tweaks['categories_collapsed_popularity_template']
-        collapse_letter = collapse_letter_sk = None
 
-        def process_one_node(category, state_map, collapse_letter, collapse_letter_sk):
+        def process_one_node(category, state_map):
+            collapse_letter = None
             category_index = self.createIndex(category.row(), 0, category)
             category_node = category_index.internalPointer()
             key = category_node.category_key
             if key not in data:
-                return ((collapse_letter, collapse_letter_sk))
+                return
             cat_len = len(data[key])
             if cat_len <= 0:
-                return ((collapse_letter, collapse_letter_sk))
+                return
 
             category_child_map = {}
             fm = self.db.field_metadata[key]
@@ -1105,6 +1106,41 @@ class TagsModel(QAbstractItemModel): # {{{
                                 not fm['kind'] == 'user' \
                             else False
             tt = key if fm['kind'] == 'user' else None
+
+            if collapse_model == 'first letter':
+                # Build a list of 'equal' first letters by looking for
+                # overlapping ranges. If a range overlaps another, then the
+                # letters are assumed to be equivalent. ICU collating is complex
+                # beyond belief. This mechanism lets us determine the logical
+                # first character from ICU's standpoint.
+                chardict = {}
+                for idx,tag in enumerate(data[key]):
+                    if not tag.sort:
+                        c = ' '
+                    else:
+                        c = icu_upper(tag.sort[0])
+                    if c not in chardict:
+                        chardict[c] = [idx, idx]
+                    else:
+                        chardict[c][1] = idx
+
+                # sort the ranges to facilitate detecting overlap
+                ranges = sorted([(v[0], v[1], c) for c,v in chardict.items()])
+
+                # Create a list of 'first letters' to use for each item in
+                # the category. The list is generated using the ranges. Overlaps
+                # are filled with the character that first occurs.
+                cl_list = list(repeat(None, len(data[key])))
+                for t in ranges:
+                    start = t[0]
+                    c = t[2]
+                    if cl_list[start] is None:
+                        nc = c
+                    else:
+                        nc = cl_list[start]
+                    for i in range(start, t[1]+1):
+                        cl_list[i] = nc
+
             for idx,tag in enumerate(data[key]):
                 if clear_rating:
                     tag.avg_rating = None
@@ -1121,30 +1157,19 @@ class TagsModel(QAbstractItemModel): # {{{
                             name = eval_formatter.safe_format(collapse_template,
                                                               d, 'TAG_VIEW', None)
                             self.beginInsertRows(category_index, 999999, 1) #len(data[key])-1)
-                            sub_cat = TagTreeItem(parent=category,
-                                     data = name, tooltip = None,
+                            sub_cat = TagTreeItem(parent=category, data = name,
+                                     tooltip = None, temporary=True,
                                      category_icon = category_node.icon,
                                      category_key=category_node.category_key)
                             self.endInsertRows()
                     else:
-                        ts = tag.sort
-                        if not ts:
-                            ts = ' '
-                        try:
-                            sk = sort_key(ts)[0]
-                        except:
-                            sk = ts[0]
-
-                        if sk != collapse_letter_sk:
-                            collapse_letter = upper(ts[0])
-                            try:
-                                collapse_letter_sk = sort_key(collapse_letter)[0]
-                            except:
-                                collapse_letter_sk = collapse_letter
+                        cl = cl_list[idx]
+                        if cl != collapse_letter:
+                            collapse_letter = cl
                             sub_cat = TagTreeItem(parent=category,
                                      data = collapse_letter,
                                      category_icon = category_node.icon,
-                                     tooltip = None,
+                                     tooltip = None, temporary=True,
                                      category_key=category_node.category_key)
                     node_parent = sub_cat
                 else:
@@ -1200,7 +1225,7 @@ class TagsModel(QAbstractItemModel): # {{{
                         # This id_set must not be None
                         node_parent.id_set |= tag.id_set
 
-            return ((collapse_letter, collapse_letter_sk))
+            return
 
         for category in self.category_nodes:
             if len(category.children) > 0:
@@ -1208,7 +1233,11 @@ class TagsModel(QAbstractItemModel): # {{{
                 states = [c.tag.state for c in category.child_tags()]
                 names = [(c.tag.name, c.tag.category) for c in category.child_tags()]
                 state_map = dict(izip(names, states))
-                ctags = [c for c in child_map if c.type == TagTreeItem.CATEGORY]
+                # temporary sub-categories (the partitioning ones) must follow
+                # the permanent sub-categories. This will happen naturally if
+                # the temp ones are added by process_node
+                ctags = [c for c in child_map if
+                         c.type == TagTreeItem.CATEGORY and not c.temporary]
                 start = len(ctags)
                 self.beginRemoveRows(self.createIndex(category.row(), 0, category),
                                      start, len(child_map)-1)
@@ -1217,8 +1246,7 @@ class TagsModel(QAbstractItemModel): # {{{
             else:
                 state_map = {}
 
-            collapse_letter, collapse_letter_sk = process_one_node(category,
-                                state_map, collapse_letter, collapse_letter_sk)
+            process_one_node(category, state_map)
         return True
 
     def columnCount(self, parent):
