@@ -7,7 +7,7 @@ __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import sys, os, shutil, platform, subprocess, stat, py_compile, glob, \
-        textwrap, tarfile
+        textwrap, tarfile, re
 
 from setup import Command, modules, basenames, functions, __version__, \
     __appname__
@@ -120,6 +120,21 @@ class LinuxFreeze(Command):
         self.magick_base = os.path.basename(im)
         dest = self.j(self.lib_dir, self.magick_base)
         shutil.copytree(im, dest, ignore=shutil.ignore_patterns('*.a'))
+        from calibre import walk
+        for x in walk(dest):
+            if x.endswith('.la'):
+                raw = open(x).read()
+                raw = re.sub('libdir=.*', '', raw)
+                open(x, 'wb').write(raw)
+
+        dest = self.j(dest, 'config')
+        src = self.j(MAGICK_PREFIX, 'share', self.magick_base, 'config')
+        for x in glob.glob(src+'/*'):
+            d = self.j(dest, os.path.basename(x))
+            if os.path.isdir(x):
+                shutil.copytree(x, d)
+            else:
+                shutil.copyfile(x, d)
 
     def compile_mount_helper(self):
         self.info('Compiling mount helper...')
