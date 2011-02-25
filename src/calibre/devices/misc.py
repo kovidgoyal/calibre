@@ -9,6 +9,8 @@ __docformat__ = 'restructuredtext en'
 import os
 
 from calibre.devices.usbms.driver import USBMS
+from calibre import prints
+prints
 
 class PALMPRE(USBMS):
 
@@ -270,4 +272,34 @@ class NEXTBOOK(USBMS):
     VENDOR_NAME = 'NEXT2'
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = '1.0.14'
     SUPPORTS_SUB_DIRS = True
+
+    '''
+    def upload_cover(self, path, filename, metadata, filepath):
+        if metadata.thumbnail and metadata.thumbnail[-1]:
+            path = path.replace('/', os.sep)
+            is_main = path.startswith(self._main_prefix)
+            prefix = None
+            if is_main:
+                prefix = self._main_prefix
+            else:
+                if self._card_a_prefix and \
+                    path.startswith(self._card_a_prefix):
+                    prefix = self._card_a_prefix
+                elif self._card_b_prefix and \
+                        path.startswith(self._card_b_prefix):
+                    prefix = self._card_b_prefix
+            if prefix is None:
+                prints('WARNING: Failed to find prefix for:', filepath)
+                return
+            thumbnail_dir = os.path.join(prefix, '.Cover')
+
+            relpath = os.path.relpath(filepath, prefix)
+            if relpath.startswith('..\\'):
+                relpath = relpath[3:]
+            thumbnail_dir = os.path.join(thumbnail_dir, relpath)
+            if not os.path.exists(thumbnail_dir):
+                os.makedirs(thumbnail_dir)
+            with open(os.path.join(thumbnail_dir, filename+'.jpg'), 'wb') as f:
+                f.write(metadata.thumbnail[-1])
+    '''
 
