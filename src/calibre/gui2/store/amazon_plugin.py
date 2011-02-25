@@ -18,9 +18,12 @@ class AmazonKindleStore(StorePlugin):
     name           = 'Amazon Kindle'
     description    = _('Buy Kindle books from Amazon')
     
+    ASTORE_URL = 'http://astore.amazon.com/josbl0e-20/'
+    
     def open(self, gui, parent=None, start_item=None):
-        from calibre.gui2.store.amazon.amazon_kindle_dialog import AmazonKindleDialog
-        d = AmazonKindleDialog(gui, parent, start_item)
+        from calibre.gui2.store.web_store_dialog import WebStoreDialog
+        d = WebStoreDialog(gui, self.ASTORE_URL, parent, start_item)
+        d.setWindowTitle('Amazon Kindle Store')
         d = d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
@@ -58,4 +61,4 @@ class AmazonKindleStore(StorePlugin):
                         continue
                     
                     counter -= 1
-                    yield ('', title.strip(), author.strip(), price.strip(), asin.strip())
+                    yield ('', title.strip(), author.strip(), price.strip(), '/detail/'+asin.strip())

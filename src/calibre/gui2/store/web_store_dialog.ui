@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Amazon Kindle Store</string>
+   <string/>
   </property>
   <property name="sizeGripEnabled">
    <bool>true</bool>

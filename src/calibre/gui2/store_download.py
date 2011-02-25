@@ -93,7 +93,6 @@ class StoreDownloader(Thread):
                 self._download(job)
                 self._add(job)
                 self._save_as(job)
-                break
             except Exception, e:
                 if not self._run:
                     return
@@ -125,13 +124,13 @@ class StoreDownloader(Thread):
 
         br = browser()
         
-        basename = br.geturl(url).split('/')[-1]
+        basename = br.open(url).geturl().split('/')[-1]
         ext = os.path.splitext(basename)[1][1:].lower()
         if ext not in BOOK_EXTENSIONS:
             raise Exception(_('Not a valid ebook format.'))
 
         tf = PersistentTemporaryFile(suffix=basename)
-        with closing(br.urlopen(url)) as f:
+        with closing(br.open(url)) as f:
             tf.write(f.read())
         tf.close()
         job.tmp_file_name = tf.name
@@ -141,7 +140,7 @@ class StoreDownloader(Thread):
         if not add_to_lib and job.tmp_file_name:
             return
         
-        ext = os.path.splitext(job.tmp_file_name)[1:]
+        ext = os.path.splitext(job.tmp_file_name)[1][1:]
         
         from calibre.ebooks.metadata.meta import get_metadata
         with open(job.tmp_file_name) as f:
@@ -151,14 +150,14 @@ class StoreDownloader(Thread):
     
     def _save_as(self, job):
         url, save_loc, add_to_lib = job.args
-        if not save_loc and job.tmp_fie_name:
+        if not save_loc and job.tmp_file_name:
             return
         
         shutil.copy(job.tmp_fie_name, save_loc)
         
     def download_from_store(self, callback, db, url='', save_as_loc='', add_to_lib=True):
         description = _('Downloading %s') % url
-        job = StoreDownloadJob(callback, description, job_manager, db, url, save_as_loc, add_to_lib)
+        job = StoreDownloadJob(callback, description, self.job_manager, db, url, save_as_loc, add_to_lib)
         self.job_manager.add_job(job)
         self.jobs.put(job)        
 

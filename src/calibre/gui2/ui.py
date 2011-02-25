@@ -166,6 +166,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
 
         LayoutMixin.__init__(self)
         EmailMixin.__init__(self)
+        StoreDownloadMixin.__init__(self)
         DeviceMixin.__init__(self)
 
         self.progress_indicator = ProgressIndicator(self)

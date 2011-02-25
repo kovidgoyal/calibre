@@ -8,39 +8,41 @@ import urllib
 
 from PyQt4.Qt import QDialog, QUrl
 
-from calibre.gui2.store.amazon.amazon_kindle_dialog_ui import Ui_Dialog
+from calibre.gui2.store.web_store_dialog_ui import Ui_Dialog
 
-class AmazonKindleDialog(QDialog, Ui_Dialog):
+class WebStoreDialog(QDialog, Ui_Dialog):
 
-    ASTORE_URL = 'http://astore.amazon.com/josbl0e-20/'
-
-    def __init__(self, gui, parent=None, start_item=None):
+    def __init__(self, gui, base_url, parent=None, detail_item=None):
         QDialog.__init__(self, parent=parent)
         self.setupUi(self)
         
         self.gui = gui
+        self.base_url = base_url
         
+        self.view.set_gui(self.gui)
         self.view.loadStarted.connect(self.load_started)
         self.view.loadProgress.connect(self.load_progress)
         self.view.loadFinished.connect(self.load_finished)
         self.home.clicked.connect(self.go_home)
         self.reload.clicked.connect(self.go_reload)
         
-        self.go_home(start_item=start_item)
-        
+        self.go_home(detail_item=detail_item)
+
     def load_started(self):
         self.progress.setValue(0)
     
     def load_progress(self, val):
         self.progress.setValue(val)
         
-    def load_finished(self):
+    def load_finished(self, ok=True):
         self.progress.setValue(100)
+        #if not ok:
+        #    print 'Error'
     
-    def go_home(self, checked=False, start_item=None):
-        url = self.ASTORE_URL
-        if start_item:
-            url += 'detail/' + urllib.quote(start_item)
+    def go_home(self, checked=False, detail_item=None):
+        url = self.base_url
+        if detail_item:
+            url += '/' + urllib.quote(detail_item)
         self.view.load(QUrl(url))
         
     def go_reload(self, checked=False):

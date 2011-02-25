@@ -1041,8 +1041,9 @@ plugins += [GoogleBooks]
 # }}}
 
 # Store plugins {{{
-from calibre.gui2.store.amazon.amazon_plugin import AmazonKindleStore
+from calibre.gui2.store.amazon_plugin import AmazonKindleStore
+from calibre.gui2.store.gutenberg_plugin import GutenbergStore
 
-plugins += [AmazonKindleStore]
+plugins += [AmazonKindleStore, GutenbergStore]
 
 # }}}
