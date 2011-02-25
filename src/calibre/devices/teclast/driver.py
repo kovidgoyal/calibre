@@ -104,3 +104,14 @@ class STASH(TECLAST_K3):
     VENDOR_NAME = 'STASH'
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'W950'
 
+class WEXLER(TECLAST_K3):
+
+    name = 'Wexler device interface'
+    gui_name = 'Wexler'
+    description    = _('Communicate with the Wexler reader.')
+
+    FORMATS = ['epub', 'fb2', 'pdf', 'txt']
+
+    VENDOR_NAME = 'WEXLER'
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'T7001'
+
