@@ -38,11 +38,12 @@ class SplitError(ValueError):
 class Split(object):
 
     def __init__(self, split_on_page_breaks=True, page_breaks_xpath=None,
-            max_flow_size=0):
+            max_flow_size=0, remove_css_pagebreaks=True):
         self.split_on_page_breaks = split_on_page_breaks
         self.page_breaks_xpath = page_breaks_xpath
         self.max_flow_size = max_flow_size
         self.page_break_selectors = None
+        self.remove_css_pagebreaks = remove_css_pagebreaks
         if self.page_breaks_xpath is not None:
             self.page_break_selectors = [(XPath(self.page_breaks_xpath), False)]
 
@@ -83,12 +84,16 @@ class Split(object):
                     if before and before != 'avoid':
                         self.page_break_selectors.add((CSSSelector(rule.selectorText),
                             True))
+                        if self.remove_css_pagebreaks:
+                            rule.style.removeProperty('page-break-before')
                 except:
                     pass
                 try:
                     if after and after != 'avoid':
                         self.page_break_selectors.add((CSSSelector(rule.selectorText),
                             False))
+                        if self.remove_css_pagebreaks:
+                            rule.style.removeProperty('page-break-after')
                 except:
                     pass
         page_breaks = set([])

@@ -62,6 +62,7 @@ class ANDROID(USBMS):
             # Archos
             0x0e79 : {
                 0x1400 : [0x0222, 0x0216],
+                0x1408 : [0x0222, 0x0216],
                 0x1419 : [0x0216],
                 0x1420 : [0x0216],
                 0x1422 : [0x0216]
@@ -74,6 +75,9 @@ class ANDROID(USBMS):
             # T-Mobile
             0x0408 : { 0x03ba : [0x0109], },
 
+            # Xperia
+            0x13d3 : { 0x3304 : [0x0001, 0x0002] },
+
             }
     EBOOK_DIR_MAIN = ['eBooks/import', 'wordplayer/calibretransfer', 'Books']
     EXTRA_CUSTOMIZATION_MESSAGE = _('Comma separated list of directories to '
@@ -83,7 +87,7 @@ class ANDROID(USBMS):
 
     VENDOR_NAME      = ['HTC', 'MOTOROLA', 'GOOGLE_', 'ANDROID', 'ACER',
             'GT-I5700', 'SAMSUNG', 'DELL', 'LINUX', 'GOOGLE', 'ARCHOS',
-            'TELECHIP', 'HUAWEI', 'T-MOBILE', ]
+            'TELECHIP', 'HUAWEI', 'T-MOBILE', 'SEMC']
     WINDOWS_MAIN_MEM = ['ANDROID_PHONE', 'A855', 'A853', 'INC.NEXUS_ONE',
             '__UMS_COMPOSITE', '_MB200', 'MASS_STORAGE', '_-_CARD', 'SGH-I897',
             'GT-I9000', 'FILE-STOR_GADGET', 'SGH-T959', 'SAMSUNG_ANDROID',

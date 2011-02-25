@@ -391,11 +391,6 @@ noembed, param, link {
    display: none;
 }
 
-/* Page breaks at body tags, to help out with LIT-generation */
-body {
-  page-break-before: always;
-}
-
 /* Explicit line-breaks are blocks, sure... */
 br {
   display: block;

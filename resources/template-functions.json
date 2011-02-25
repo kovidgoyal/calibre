@@ -15,6 +15,7 @@
     "template": "def evaluate(self, formatter, kwargs, mi, locals, template):\n    template = template.replace('[[', '{').replace(']]', '}')\n    return formatter.__class__().safe_format(template, kwargs, 'TEMPLATE', mi)\n", 
     "print": "def evaluate(self, formatter, kwargs, mi, locals, *args):\n    print args\n    return None\n", 
     "titlecase": "def evaluate(self, formatter, kwargs, mi, locals, val):\n    return titlecase(val)\n", 
+    "sublist": "def evaluate(self, formatter, kwargs, mi, locals, val, start_index, end_index, sep):\n    if not val:\n        return ''\n    si = int(start_index)\n    ei = int(end_index)\n    val = val.split(sep)\n    try:\n        if ei == 0:\n            return sep.join(val[si:])\n        else:\n            return sep.join(val[si:ei])\n    except:\n        return ''\n", 
     "test": "def evaluate(self, formatter, kwargs, mi, locals, val, value_if_set, value_not_set):\n    if val:\n        return value_if_set\n    else:\n        return value_not_set\n", 
     "eval": "def evaluate(self, formatter, kwargs, mi, locals, template):\n    from formatter import eval_formatter\n    template = template.replace('[[', '{').replace(']]', '}')\n    return eval_formatter.safe_format(template, locals, 'EVAL', None)\n", 
     "multiply": "def evaluate(self, formatter, kwargs, mi, locals, x, y):\n    x = float(x if x else 0)\n    y = float(y if y else 0)\n    return unicode(x * y)\n", 

@@ -33,6 +33,7 @@ Lets pick a couple of feeds that look interesting:
 I got the URLs by clicking the little orange RSS icon next to each feed name. To make |app| download the feeds and convert them into an e-book, you should click the :guilabel:`Fetch news` button and then the :guilabel:`Add a custom news source` menu item. A dialog similar to that shown below should open up.
 
 .. image:: images/custom_news.png
+    :align: center
 
 First enter ``Portfolio`` into the :guilabel:`Recipe title` field. This will be the title of the e-book that will be created from the articles in the above feeds. 
 
@@ -81,6 +82,7 @@ So it looks like to get the print version, we need to prefix every article URL w
 Now in the :guilabel:`Advanced Mode` of the Custom  news sources dialog, you should see something like (remember to select *The BBC* recipe before switching to advanced mode):
 
 .. image:: images/bbc_advanced.png
+    :align: center
 
 You can see that the fields from the :guilabel:`Basic mode` have been translated to python code in a straightforward manner. We need to add instructions to this recipe to use the print version of the articles. All that's needed is to add the following two lines:
 
@@ -92,6 +94,7 @@ You can see that the fields from the :guilabel:`Basic mode` have been translated
 This is python, so indentation is important. After you've added the lines, it should look like:
 
 .. image:: images/bbc_altered.png
+    :align: center
 
 In the above, ``def print_version(self, url)`` defines a *method* that is called by |app| for every article. ``url`` is the URL of the original article. What ``print_version`` does is take that url and replace it with the new URL that points to the print version of the article. To learn about `python <http://www.python.org>`_ see the `tutorial <http://docs.python.org/tut/>`_.
 
@@ -109,6 +112,7 @@ The recipe now looks like:
 .. _bbc1:
 
 .. image:: images/bbc_altered1.png
+    :align: center
 
 The new version looks pretty good. If you're a perfectionist, you'll want to read the next section, which deals with actually modifying the downloaded content.
 

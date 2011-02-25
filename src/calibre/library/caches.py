@@ -128,7 +128,8 @@ def _match(query, value, matchkind):
                 if query[0] == '.':
                     if t.startswith(query[1:]):
                         ql = len(query) - 1
-                        return (len(t) == ql) or (t[ql:ql+1] == '.')
+                        if (len(t) == ql) or (t[ql:ql+1] == '.'):
+                            return True
                 elif query == t:
                     return True
             elif ((matchkind == REGEXP_MATCH and re.search(query, t, re.I)) or ### search unanchored
@@ -426,6 +427,8 @@ class ResultCache(SearchQueryParser): # {{{
         if l > 0:
             alt_loc = location[0:l]
             alt_item = location[l+1:]
+        else:
+            alt_loc = None
         for key in user_cats:
             if key == location or key.startswith(location + '.'):
                 for (item, category, ign) in user_cats[key]:

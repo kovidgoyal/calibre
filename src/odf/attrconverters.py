@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2006-2008 Søren Roug, European Environment Agency
+# Copyright (C) 2006-2010 Søren Roug, European Environment Agency
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -40,6 +40,9 @@ def cnv_boolean(attribute, arg, element):
 
 # Potentially accept color values
 def cnv_color(attribute, arg, element):
+    """ A RGB color in conformance with §5.9.11 of [XSL], that is a RGB color in notation “#rrggbb”, where
+        rr, gg and bb are 8-bit hexadecimal digits.
+    """
     return str(arg)
 
 def cnv_configtype(attribute, arg, element):
@@ -55,9 +58,15 @@ def cnv_data_source_has_labels(attribute, arg, element):
 
 # Understand different date formats
 def cnv_date(attribute, arg, element):
+    """ A dateOrDateTime value is either an [xmlschema-2] date value or an [xmlschema-2] dateTime
+        value.
+    """
     return str(arg)
 
 def cnv_dateTime(attribute, arg, element):
+    """ A dateOrDateTime value is either an [xmlschema-2] date value or an [xmlschema-2] dateTime
+        value.
+    """
     return str(arg)
 
 def cnv_double(attribute, arg, element):
@@ -67,10 +76,30 @@ def cnv_duration(attribute, arg, element):
     return str(arg)
 
 def cnv_family(attribute, arg, element):
+    """ A style family """
     if str(arg) not in ("text", "paragraph", "section", "ruby", "table", "table-column", "table-row", "table-cell",
       "graphic", "presentation", "drawing-page", "chart"):
         raise ValueError, "'%s' not allowed" % str(arg)
     return str(arg)
+
+def __save_prefix(attribute, arg, element):
+    prefix = arg.split(':',1)[0]
+    if prefix == arg:
+        return unicode(arg)
+    namespace = element.get_knownns(prefix)
+    if namespace is None:
+        #raise ValueError, "'%s' is an unknown prefix" % str(prefix)
+        return unicode(arg)
+    p = element.get_nsprefix(namespace)
+    return unicode(arg)
+
+def cnv_formula(attribute, arg, element):
+    """ A string containing a formula. Formulas do not have a predefined syntax, but the string should
+        begin with a namespace prefix, followed by a “:” (COLON, U+003A) separator, followed by the text
+        of the formula. The namespace bound to the prefix determines the syntax and semantics of the
+        formula.
+    """
+    return __save_prefix(attribute, arg, element)
 
 def cnv_ID(attribute, arg, element):
     return str(arg)
@@ -89,6 +118,9 @@ def cnv_legend_position(attribute, arg, element):
 pattern_length = re.compile(r'-?([0-9]+(\.[0-9]*)?|\.[0-9]+)((cm)|(mm)|(in)|(pt)|(pc)|(px))')
 
 def cnv_length(attribute, arg, element):
+    """ A (positive or negative) physical length, consisting of magnitude and unit, in conformance with the
+        Units of Measure defined in §5.9.13 of [XSL].
+    """
     global pattern_length
     if not pattern_length.match(arg):
         raise ValueError, "'%s' is not a valid length" % arg
@@ -120,12 +152,12 @@ def cnv_namespacedToken(attribute, arg, element):
 
     if not pattern_namespacedToken.match(arg):
         raise ValueError, "'%s' is not a valid namespaced token" % arg
-    return arg
+    return __save_prefix(attribute, arg, element)
 
-# Must accept string as argument
-# NCName is defined in http://www.w3.org/TR/REC-xml-names/#NT-NCName
-# Essentially an XML name minus ':'
 def cnv_NCName(attribute, arg, element):
+    """ NCName is defined in http://www.w3.org/TR/REC-xml-names/#NT-NCName
+        Essentially an XML name minus ':'
+    """
     if type(arg) in types.StringTypes:
         return make_NCName(arg)
     else:
@@ -226,6 +258,7 @@ attrconverters = {
 	((ANIMNS,u'name'), None): cnv_string,
 	((ANIMNS,u'sub-item'), None): cnv_string,
 	((ANIMNS,u'value'), None): cnv_string,
+#	((DBNS,u'type'), None): cnv_namespacedToken,
 	((CHARTNS,u'attached-axis'), None): cnv_string,
 	((CHARTNS,u'class'), (CHARTNS,u'grid')): cnv_major_minor,
 	((CHARTNS,u'class'), None): cnv_namespacedToken,
@@ -288,7 +321,7 @@ attrconverters = {
 	((CHARTNS,u'values-cell-range-address'), None): cnv_string,
 	((CHARTNS,u'vertical'), None): cnv_boolean,
 	((CHARTNS,u'visible'), None): cnv_boolean,
-	((CONFIGNS,u'name'), None): cnv_string,
+	((CONFIGNS,u'name'), None): cnv_formula,
 	((CONFIGNS,u'type'), None): cnv_configtype,
 	((DR3DNS,u'ambient-color'), None): cnv_string,
 	((DR3DNS,u'back-scale'), None): cnv_string,
@@ -369,11 +402,11 @@ attrconverters = {
 	((DRAWNS,u'decimal-places'), None): cnv_string,
 	((DRAWNS,u'display'), None): cnv_string,
 	((DRAWNS,u'display-name'), None): cnv_string,
-	((DRAWNS,u'distance'), None): cnv_string,
+	((DRAWNS,u'distance'), None): cnv_lengthorpercent,
 	((DRAWNS,u'dots1'), None): cnv_integer,
-	((DRAWNS,u'dots1-length'), None): cnv_length,
+	((DRAWNS,u'dots1-length'), None): cnv_lengthorpercent,
 	((DRAWNS,u'dots2'), None): cnv_integer,
-	((DRAWNS,u'dots2-length'), None): cnv_length,
+	((DRAWNS,u'dots2-length'), None): cnv_lengthorpercent,
 	((DRAWNS,u'end-angle'), None): cnv_double,
 	((DRAWNS,u'end'), None): cnv_string,
 	((DRAWNS,u'end-color'), None): cnv_string,
@@ -383,7 +416,7 @@ attrconverters = {
 	((DRAWNS,u'end-line-spacing-horizontal'), None): cnv_string,
 	((DRAWNS,u'end-line-spacing-vertical'), None): cnv_string,
 	((DRAWNS,u'end-shape'), None): cnv_IDREF,
-	((DRAWNS,u'engine'), None): cnv_string,
+	((DRAWNS,u'engine'), None): cnv_namespacedToken,
 	((DRAWNS,u'enhanced-path'), None): cnv_string,
 	((DRAWNS,u'escape-direction'), None): cnv_string,
 	((DRAWNS,u'extrusion-allowed'), None): cnv_boolean,
@@ -604,7 +637,7 @@ attrconverters = {
 	((FORMNS,u'button-type'), None): cnv_string,
 	((FORMNS,u'command'), None): cnv_string,
 	((FORMNS,u'command-type'), None): cnv_string,
-	((FORMNS,u'control-implementation'), None): cnv_string,
+	((FORMNS,u'control-implementation'), None): cnv_namespacedToken,
 	((FORMNS,u'convert-empty-to-null'), None): cnv_boolean,
 	((FORMNS,u'current-selected'), None): cnv_boolean,
 	((FORMNS,u'current-state'), None): cnv_string,
@@ -800,8 +833,8 @@ attrconverters = {
 	((PRESENTATIONNS,u'user-transformed'), None): cnv_boolean,
 	((PRESENTATIONNS,u'verb'), None): cnv_nonNegativeInteger,
 	((PRESENTATIONNS,u'visibility'), None): cnv_string,
-	((SCRIPTNS,u'event-name'), None): cnv_string,
-	((SCRIPTNS,u'language'), None): cnv_string,
+	((SCRIPTNS,u'event-name'), None): cnv_formula,
+	((SCRIPTNS,u'language'), None): cnv_formula,
 	((SCRIPTNS,u'macro-name'), None): cnv_string,
 	((SMILNS,u'accelerate'), None): cnv_double,
 	((SMILNS,u'accumulate'), None): cnv_string,
@@ -1087,7 +1120,7 @@ attrconverters = {
 	((SVGNS,u'y2'), None): cnv_lengthorpercent,
 	((TABLENS,u'acceptance-state'), None): cnv_string,
 	((TABLENS,u'add-empty-lines'), None): cnv_boolean,
-	((TABLENS,u'algorithm'), None): cnv_string,
+	((TABLENS,u'algorithm'), None): cnv_formula,
 	((TABLENS,u'align'), None): cnv_string,
 	((TABLENS,u'allow-empty-cell'), None): cnv_boolean,
 	((TABLENS,u'application-data'), None): cnv_string,
@@ -1106,7 +1139,7 @@ attrconverters = {
 	((TABLENS,u'cell-range'), None): cnv_string,
 	((TABLENS,u'column'), None): cnv_integer,
 	((TABLENS,u'comment'), None): cnv_string,
-	((TABLENS,u'condition'), None): cnv_string,
+	((TABLENS,u'condition'), None): cnv_formula,
 	((TABLENS,u'condition-source'), None): cnv_string,
 	((TABLENS,u'condition-source-range-address'), None): cnv_string,
 	((TABLENS,u'contains-error'), None): cnv_boolean,
@@ -1144,13 +1177,13 @@ attrconverters = {
 	((TABLENS,u'end-x'), None): cnv_length,
 	((TABLENS,u'end-y'), None): cnv_length,
 	((TABLENS,u'execute'), None): cnv_boolean,
-	((TABLENS,u'expression'), None): cnv_string,
+	((TABLENS,u'expression'), None): cnv_formula,
 	((TABLENS,u'field-name'), None): cnv_string,
 	((TABLENS,u'field-number'), None): cnv_nonNegativeInteger,
 	((TABLENS,u'field-number'), None): cnv_string,
 	((TABLENS,u'filter-name'), None): cnv_string,
 	((TABLENS,u'filter-options'), None): cnv_string,
-	((TABLENS,u'formula'), None): cnv_string,
+	((TABLENS,u'formula'), None): cnv_formula,
 	((TABLENS,u'function'), None): cnv_string,
 	((TABLENS,u'function'), None): cnv_string,
 	((TABLENS,u'grand-total'), None): cnv_string,
@@ -1290,7 +1323,7 @@ attrconverters = {
 	((TEXTNS,u'combine-entries-with-pp'), None): cnv_boolean,
 	((TEXTNS,u'comma-separated'), None): cnv_boolean,
 	((TEXTNS,u'cond-style-name'), None): cnv_StyleNameRef,
-	((TEXTNS,u'condition'), None): cnv_string,
+	((TEXTNS,u'condition'), None): cnv_formula,
 	((TEXTNS,u'connection-name'), None): cnv_string,
 	((TEXTNS,u'consecutive-numbering'), None): cnv_boolean,
 	((TEXTNS,u'continue-numbering'), None): cnv_boolean,
@@ -1321,7 +1354,7 @@ attrconverters = {
 	((TEXTNS,u'first-row-start-column'), None): cnv_string,
 	((TEXTNS,u'fixed'), None): cnv_boolean,
 	((TEXTNS,u'footnotes-position'), None): cnv_string,
-	((TEXTNS,u'formula'), None): cnv_string,
+	((TEXTNS,u'formula'), None): cnv_formula,
 	((TEXTNS,u'global'), None): cnv_boolean,
 	((TEXTNS,u'howpublished'), None): cnv_string,
 	((TEXTNS,u'id'), None): cnv_ID,
@@ -1437,7 +1470,10 @@ attrconverters = {
 
 class AttrConverters:
     def convert(self, attribute, value, element):
-        conversion = attrconverters.get((attribute,element), None)
+        """ Based on the element, figures out how to check/convert the attribute value
+            All values are converted to string
+        """
+        conversion = attrconverters.get((attribute, element.qname), None)
         if conversion is not None:
             return conversion(attribute, value, element)
         else:

@@ -96,18 +96,18 @@ class NYTimes(BasicNewsRecipe):
     if headlinesOnly:
         title='New York Times Headlines'
         description = 'Headlines from the New York Times'
-        needs_subscription = False
+        needs_subscription = True
     elif webEdition:
         title='New York Times (Web)'
         description = 'New York Times on the Web'
         needs_subscription = True
     elif replaceKindleVersion:
-	title='The New York Times'
+        title='The New York Times'
         description = 'Today\'s New York Times'
         needs_subscription = True
     else:
         title='New York Times'
-        description = 'Today\'s New York Times'
+        description = 'Today\'s New York Times. Needs subscription from http://www.nytimes.com'
         needs_subscription = True
 
 
@@ -676,7 +676,7 @@ class NYTimes(BasicNewsRecipe):
                         if hlines:
                             for hline in hlines:
                                 hline.extract()
-                                
+
                         #find all section headers
                         hlines = runAround.findAll('h6')
                         if hlines:
