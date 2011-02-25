@@ -537,6 +537,7 @@ class TagTreeItem(object): # {{{
                  parent=None, tooltip=None, category_key=None):
         self.parent = parent
         self.children = []
+        self.id_set = set()
         self.boxed = False
         if self.parent is not None:
             self.parent.append(self)
@@ -613,10 +614,12 @@ class TagTreeItem(object): # {{{
                 name = tag.name
             tt_author = False
         if role == Qt.DisplayRole:
-            if tag.count == 0:
+            count = len(self.id_set)
+            count = count if count > 0 else tag.count
+            if count == 0:
                 return QVariant('%s'%(name))
             else:
-                return QVariant('[%d] %s'%(tag.count, name))
+                return QVariant('[%d] %s'%(count, name))
         if role == Qt.EditRole:
             return QVariant(original_name(tag))
         if role == Qt.DecorationRole:
@@ -751,6 +754,7 @@ class TagsModel(QAbstractItemModel): # {{{
             if idx.isValid():
                 # get some useful serializable data
                 node = idx.internalPointer()
+                path = self.path_for_index(idx)
                 if node.type == TagTreeItem.CATEGORY:
                     d = (node.type, node.py_name, node.category_key)
                 else:
@@ -759,7 +763,7 @@ class TagsModel(QAbstractItemModel): # {{{
                     while p.type != TagTreeItem.CATEGORY:
                         p = p.parent
                     d = (node.type, p.category_key, p.is_gst, original_name(t),
-                         t.category, t.id)
+                         t.category, path)
                 data.append(d)
             else:
                 data.append(None)
@@ -798,38 +802,30 @@ class TagsModel(QAbstractItemModel): # {{{
         '''
         src is a list of tuples representing items to copy. The tuple is
         (type, containing category key, category key is global search term,
-         full name, category key, id)
-        The 'id' member is ignored, and can be None.
+         full name, category key, path to node)
         The type must be TagTreeItem.TAG
         dest is the TagTreeItem node to receive the items
         action is Qt.CopyAction or Qt.MoveAction
         '''
-##### TODO: must handle children of item being copied
-        user_cats = self.db.prefs.get('user_categories', {})
-        parent_node = None
-        copied_node = None
-        for s in src:
-            src_parent, src_parent_is_gst, src_name, src_cat = s[1:5]
-            parent_node = src_parent
-            if src_parent.startswith('@'):
-                is_uc = True
-                src_parent = src_parent[1:]
-            else:
-                is_uc = False
-            dest_key = dest.category_key[1:]
-            if dest_key not in user_cats:
-                continue
-            new_cat = []
+        def process_source_node(user_cats, src_parent, src_parent_is_gst,
+                                is_uc, dest_key, node):
+            '''
+            Copy/move an item and all its children to the destination
+            '''
+            copied = False
+            src_name = original_name(node.tag)
+            src_cat = node.tag.category
             # delete the item if the source is a user category and action is move
             if is_uc and not src_parent_is_gst and src_parent in user_cats and \
                                     action == Qt.MoveAction:
+                new_cat = []
                 for tup in user_cats[src_parent]:
                     if src_name == tup[0] and src_cat == tup[1]:
                         continue
                     new_cat.append(list(tup))
                 user_cats[src_parent] = new_cat
             else:
-                copied_node = (src_parent, src_name)
+                copied = True
 
             # Now add the item to the destination user category
             add_it = True
@@ -841,19 +837,54 @@ class TagsModel(QAbstractItemModel): # {{{
             if add_it:
                 user_cats[dest_key].append([src_name, src_cat, 0])
 
+            for c in node.children:
+                copied = process_source_node(user_cats, src_parent, src_parent_is_gst,
+                                             is_uc, dest_key, c)
+            return copied
+
+        user_cats = self.db.prefs.get('user_categories', {})
+        parent_node = None
+        copied = False
+        path = None
+        for s in src:
+            src_parent, src_parent_is_gst = s[1:3]
+            path = s[5]
+            parent_node = src_parent
+
+            if src_parent.startswith('@'):
+                is_uc = True
+                src_parent = src_parent[1:]
+            else:
+                is_uc = False
+            dest_key = dest.category_key[1:]
+
+            if dest_key not in user_cats:
+                continue
+
+            node = self.index_for_path(path)
+            if node:
+                copied = process_source_node(user_cats, src_parent, src_parent_is_gst,
+                                             is_uc, dest_key, node.internalPointer())
+
         self.db.prefs.set('user_categories', user_cats)
         self.tags_view.recount()
 
+        # Scroll to the item copied. If it was moved, scroll to the parent
         if parent_node is not None:
+            self.clear_boxed()
             m = self.tags_view.model()
-            if copied_node is not None:
-                path = m.find_item_node(parent_node, copied_node[1], None,
-                                        equals_match=True)
-            else:
-                path = m.find_category_node(parent_node)
+            if not copied:
+                p = path[-1]
+                if p == 0:
+                    path = m.find_category_node(parent_node)
+                else:
+                    path[-1] = p - 1
             idx = m.index_for_path(path)
             self.tags_view.setExpanded(idx, True)
-            m.show_item_at_index(idx)
+            if idx.internalPointer().type == TagTreeItem.TAG:
+                m.show_item_at_index(idx, boxed=True)
+            else:
+                m.show_item_at_index(idx)
         return True
 
     def do_drop_from_library(self, md, action, row, column, parent):
@@ -1131,6 +1162,8 @@ class TagsModel(QAbstractItemModel): # {{{
                     self.beginInsertRows(category_index, 999999, 1)
                     n = TagTreeItem(parent=node_parent, data=tag, tooltip=tt,
                                     icon_map=self.icon_state_map)
+                    if tag.id_set is not None:
+                        n.id_set |= tag.id_set
                     category_child_map[tag.name, tag.category] = n
                     self.endInsertRows()
                     tag.is_editable = key != 'formats' and (key == 'news' or \
@@ -1146,8 +1179,6 @@ class TagsModel(QAbstractItemModel): # {{{
                                             if t.type != TagTreeItem.CATEGORY])
                         if (comp,tag.category) in child_map:
                             node_parent = child_map[(comp,tag.category)]
-                            if not in_uc:
-                                node_parent.tag.count += tag.count
                             node_parent.tag.is_hierarchical = True
                         else:
                             if i < len(components)-1:
@@ -1166,6 +1197,8 @@ class TagsModel(QAbstractItemModel): # {{{
                                             tooltip=tt, icon_map=self.icon_state_map)
                             child_map[(comp,tag.category)] = node_parent
                             self.endInsertRows()
+                        # This id_set must not be None
+                        node_parent.id_set |= tag.id_set
 
             return ((collapse_letter, collapse_letter_sk))
 
@@ -1583,11 +1616,16 @@ class TagsModel(QAbstractItemModel): # {{{
             if tag_item.boxed:
                 tag_item.boxed = False
                 self.dataChanged.emit(tag_index, tag_index)
+            for i,c in enumerate(tag_item.children):
+                process_tag(self.index(i, 0, tag_index), c)
 
         def process_level(category_index):
             for j in xrange(self.rowCount(category_index)):
                 tag_index = self.index(j, 0, category_index)
                 tag_item = tag_index.internalPointer()
+                if tag_item.boxed:
+                    tag_item.boxed = False
+                    self.dataChanged.emit(tag_index, tag_index)
                 if tag_item.type == TagTreeItem.CATEGORY:
                     process_level(tag_index)
                 else:

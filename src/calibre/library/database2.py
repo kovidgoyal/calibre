@@ -46,13 +46,14 @@ copyfile = os.link if hasattr(os, 'link') else shutil.copyfile
 class Tag(object):
 
     def __init__(self, name, id=None, count=0, state=0, avg=0, sort=None,
-                 tooltip=None, icon=None, category=None):
+                 tooltip=None, icon=None, category=None, id_set=None):
         self.name = name
         self.id = id
         self.count = count
         self.state = state
         self.is_hierarchical = False
         self.is_editable = True
+        self.id_set = id_set
         self.avg_rating = avg/2.0 if avg is not None else 0
         self.sort = sort
         if self.avg_rating > 0:
@@ -1162,6 +1163,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             self.n = name
             self.s = sort
             self.c  = 0
+            self.id_set = set()
             self.rt = 0
             self.rc = 0
             self.id = None
@@ -1266,6 +1268,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                             item = tag_class(val, sort_val)
                             tcategories[cat][val] = item
                         item.c += 1
+                        item.id_set.add(book[0])
                         item.id = item_id
                         if rating > 0:
                             item.rt += rating
@@ -1283,6 +1286,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                                 item = tag_class(val, sort_val)
                                 tcategories[cat][val] = item
                             item.c += 1
+                            item.id_set.add(book[0])
                             item.id = item_id
                             if rating > 0:
                                 item.rt += rating
@@ -1370,7 +1374,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
             categories[category] = [tag_class(formatter(r.n), count=r.c, id=r.id,
                                         avg=avgr(r), sort=r.s, icon=icon,
-                                        tooltip=tooltip, category=category)
+                                        tooltip=tooltip, category=category,
+                                        id_set=r.id_set)
                                     for r in items]
 
         #print 'end phase "tags list":', time.clock() - last, 'seconds'
@@ -1379,6 +1384,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         # Needed for legacy databases that have multiple ratings that
         # map to n stars
         for r in categories['rating']:
+            r.id_set = None
             for x in categories['rating']:
                 if r.name == x.name and r.id != x.id:
                     r.count = r.count + x.count
