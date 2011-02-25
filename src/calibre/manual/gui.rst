@@ -40,7 +40,7 @@ The actions toolbar provides convenient shortcuts to commonly used actions. Most
 Add books
 ~~~~~~~~~~~~~~~~~~
 .. |adbi| image:: images/add_books.png
-    :class: float-left-img
+    :class: float-right-img
 
 |adbi| The :guilabel:`Add books` action has five variations, accessed by the clicking the down arrow on the right side of the button.
 
@@ -65,7 +65,7 @@ To add an additional format for an existing book, use the :ref:`edit_meta_inform
 Edit metadata
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. |emii| image:: images/edit_meta_information.png
-    :class: float-left-img
+    :class: float-right-img
 
 |emii| The :guilabel:`Edit metadata` action has six variations, which can be accessed by clicking the down arrow on the right side of the button.
 
@@ -83,7 +83,7 @@ Edit metadata
 Convert e-books
 ~~~~~~~~~~~~~~~~~~~~~~
 .. |cei| image:: images/convert_ebooks.png
-    :class: float-left-img
+    :class: float-right-img
 
 |cei| Ebooks can be converted from a number of formats into whatever format your e-book reader prefers.
 Note that ebooks you purchase will typically have `Digital Rights Management <http://bugs.calibre-ebook.com/wiki/DRM>`_ *(DRM)*.
@@ -110,7 +110,7 @@ The :guilabel:`Convert E-books` action has three variations, accessed by the arr
 View
 ~~~~~~~~~~~
 .. |vi| image:: images/view.png
-    :class: float-left-img
+    :class: float-right-img
 
 |vi| The :guilabel:`View` action displays the book in an ebook viewer program. |app| has a builtin viewer for the most e-book formats.
 For other formats it uses the default operating system application. You can configure which formats should open with the internal viewer via
@@ -123,7 +123,7 @@ on the right of the :guilabel:`View` button.
 Send to device
 ~~~~~~~~~~~~~~~~~~~~~~~~
 .. |stdi| image:: images/send_to_device.png
-    :class: float-left-img
+    :class: float-right-img
 
 |stdi| The :guilabel:`Send to device` action has eight variations, accessed by clicking the down arrow on the right of the button.
 
@@ -144,7 +144,7 @@ You can control the file name and folder structure of files sent to the device b
 Fetch news
 ~~~~~~~~~~~~~~~~~
 .. |fni| image:: images/fetch_news.png
-    :class: float-left-img
+    :class: float-right-img
 
 |fni| The :guilabel:`Fetch news` action downloads news from various websites and converts it into an ebook that can be read on your ebook reader. Normally, the newly created ebook is added to your ebook library, but if an ebook reader is connected at the time the download finishes, the news is also uploaded to the reader automatically.
             
@@ -162,7 +162,7 @@ The :guilabel:`Fetch news` action has three variations, accessed by clicking the
 Library
 ~~~~~~~~~~~~~~~~~
 .. |lii| image:: images/library.png
-    :class: float-left-img
+    :class: float-right-img
 
 |lii| The :guilabel: `Library` action allows you to create, switch between, rename or delete a Library.  |app| allows you to create as many libraries as you wish. You coudl for instance create a fiction library, a non fiction library, a foreign language library a project library, basically any structure that suits your needs. Libraries are the highest organizational structure within |app|, each library has its own set of books, tags, categories and base storage location.
 
@@ -177,7 +177,7 @@ Library
 Device
 ~~~~~~~~~~~~~~~~~
 .. |dvi| image:: images/device.png
-    :class: float-left-img
+    :class: float-right-img
 
 |dvi| The :guilabel:`Device` action allows you to view the books in the main memory or storage cards of your device, or to eject the device (detach it from |app|).
 This icon shows up automatically on the main |app| toolbar when you connect a supported device. You can click on it to see the books on your device. You can also drag  and drop books from your |app| library onto the icon to transfer them to your device. Conversely, you can drag and drop books from your device onto the |app| icon on the toolbar to transfer books from your device to the |app| library. 
@@ -188,7 +188,7 @@ This icon shows up automatically on the main |app| toolbar when you connect a su
 Save to disk
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 .. |svdi| image:: images/save_to_disk.png
-    :class: float-left-img
+    :class: float-right-img
 
 |svdi| The :guilabel:`Save to disk` action has five variations, accessed by the arrow next to the button.
 
@@ -222,7 +222,7 @@ Save to disk
 Connect/Share
 ~~~~~~~~~~~~~~~~~
 .. |csi| image:: images/connect_share.png
-    :class: float-left-img
+    :class: float-right-img
 
 |csi| The :guilabel:`Connect/Share` action allows you to manually connect to a device or folder on your computer, it also allows you to set up you |app| library for access via a web browser, or email.
 
@@ -241,7 +241,7 @@ Connect/Share
 Remove books
 ~~~~~~~~~~~~~~~~~~~~~
 .. |rbi| image:: images/remove_books.png
-    :class: float-left-img
+    :class: float-right-img
 
 |rbi| The :guilabel:`Remove books` action **deletes books permanently**, so use it with care. It is *context sensitive*, i.e. it depends on which :ref:`catalog <catalogs>` you have selected. If you have selected the :guilabel:`Library`, books will be removed from the library. If you have selected the ebook reader device, the books will be removed from the device. To remove only a particular format for a given book use the :ref:`edit_meta_information` action.  Remove books also has five variations which can be accessed by clicking the down arrow on the right side of the button.
 
