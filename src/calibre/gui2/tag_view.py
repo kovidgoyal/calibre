@@ -1162,7 +1162,7 @@ class TagsModel(QAbstractItemModel): # {{{
                                      category_icon = category_node.icon,
                                      category_key=category_node.category_key)
                             self.endInsertRows()
-                    else:
+                    else: # by 'first letter'
                         cl = cl_list[idx]
                         if cl != collapse_letter:
                             collapse_letter = cl
@@ -1224,7 +1224,6 @@ class TagsModel(QAbstractItemModel): # {{{
                             self.endInsertRows()
                         # This id_set must not be None
                         node_parent.id_set |= tag.id_set
-
             return
 
         for category in self.category_nodes:
