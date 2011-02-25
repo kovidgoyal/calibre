@@ -25,6 +25,8 @@ class GutenbergStore(StorePlugin):
         d = d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
+        # Gutenberg's website does not allow searching both author and title.
+        # Using a google search so we can search on both fields at once.
         url = 'http://www.google.com/xhtml?q=site:gutenberg.org+' + urllib2.quote(query)
         
         br = browser()
