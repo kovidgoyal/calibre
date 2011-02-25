@@ -424,15 +424,16 @@ class BrowseServer(object):
                 continue
             cat_len += 1
             icon = category_icon_map['user:']
-            dot = ucat[cat_len:].find('.')
+            cat = ucat[cat_len:]
+            dot = cat.find('.')
             if dot > 0:
-                cat = ucat[cat_len:][:dot]
+                cat = cat[:dot]
                 if cat not in uc_displayed:
                     cats.append((cat, ucat[:cat_len+dot], icon))
                     uc_displayed.add(cat)
             else:
-                cats.append((meta['name'], ucat, icon))
-                uc_displayed.add(ucat)
+                cats.append((cat, ucat, icon))
+                uc_displayed.add(cat)
 
         cats = u'\n\n'.join(
                 [(u'<li><a title="{2} {0}" href="{3}/browse/category/{1}">&nbsp;</a>'
@@ -452,7 +453,7 @@ class BrowseServer(object):
         items = categories[category]
         sort = self.browse_sort_categories(items, sort)
 
-        if len(items) == 1:
+        if not cats and len(items) == 1:
             # Only one item in category, go directly to book list
             prefix = '' if self.is_wsgi else self.opts.url_prefix
             html = get_category_items(category, items,

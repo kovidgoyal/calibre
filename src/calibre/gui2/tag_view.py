@@ -882,7 +882,7 @@ class TagsModel(QAbstractItemModel): # {{{
             idx = m.index_for_path(path)
             self.tags_view.setExpanded(idx, True)
             if idx.internalPointer().type == TagTreeItem.TAG:
-                m.show_item_at_index(idx, boxed=True)
+                m.show_item_at_index(idx, box=True)
             else:
                 m.show_item_at_index(idx)
         return True
