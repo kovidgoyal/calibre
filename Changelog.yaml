@@ -19,6 +19,81 @@
 #  new recipes:
 #    - title: 
 
+- version: 0.7.47
+  date: 2011-02-25
+
+  new features:
+    - title: "Tag Browser: Support the creation of nested User Categories"
+      description: "See http://calibre-ebook.com/user_manual/gui.html#tag-browser for details"
+      type: major
+
+    - title: "Disable Kent District Library plugin to download series information. The website could not handle the load calibre's 2 million users put on it. You can manually re-enable it if you really want series information, but it is very slow"
+
+    - title: "Drivers for the Wexler T7001, Archos 7, Wink and Xperia X10"
+
+    - title: "Comic Input: Add option to not add links to individual pages to the Table of Contents when converting CBC files"
+
+    - title: "EPUB Output: Try to ensure that the cover image always has an id='cover' to workaround Nook cover reading bug."
+      tickets: [8182]
+
+    - title: "ODT input: Update odfpy library to latest version, adds support for bookmarks"
+
+    - title: "EPUB Output: Remove unnecessary CSS page breaks as they confuse the latest release of iBooks"
+  
+  bug fixes:
+    - title: "Fix regression in 0.7.46 that broke creating date and composite custom columns"
+
+    - title: "Linux binary build: Fix ImageMagick trying to load system modules instead of bundled modules"
+
+    - title: "Kobo driver: Handle missing firmware version file"
+
+    - title: "ODT Input: Do not force the background color to white."
+      tickets: [9118]
+
+    - title: "MOBI Input: Do not speciy text-align for every paragraph. Fixes text-align inheritance issues for newer MOBIs with nested divs."
+      tickets: [9098]
+
+    - title: "EPUB Output: Do not set the file-as attribute on title elements in the OPF as the current OPF spec does not support file-as. Instead use a calibre extension to OPF."
+      tickets: [9109]
+
+    - title: "Content server: Fix regression that broke browsing User Categories via OPDS"
+      tickets: [9090]
+
+    - title: "Update the book details panel after adding books incase automerge is turned on and the current book is affected"
+      tickets: [9073]
+
+    - title: "FB2 Output: Fix paragraph spacing sometime incorrect."
+      tickets: [8927]
+
+    - title: "Tag Browser: Fix generation of search query for authors with quote characters in their names"
+      tickets: [9071]
+
+    - title: "Fix bug that could cause download of cover/social metadata from Amazon to sometimes fail"
+
+    - title: "LRF Input: Workaround for broken LRF files from BookDesigner that have incomplete TextStyle elements"
+
+  improved recipes:
+    - Le Monde
+    - Gizmodo
+    - Lifehacker
+    - ESPN
+    - Adevarul
+    - gsp.ro
+    - Ming Pao
+
+  new recipes:
+    - title: "Flickr Blog"
+      author: Ricardo Jurado
+
+    - title: "Various Romanian news sources"
+      author: Silviu Coatara
+
+    - title: "Osnews.pl and SwiatKindle"
+      author: Mori
+
+    - title: "Roger Ebert Journal"
+      author: Shane Erstad
+
 - version: 0.7.46
   date: 2011-02-18
 
