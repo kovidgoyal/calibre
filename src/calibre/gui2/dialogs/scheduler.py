@@ -153,9 +153,10 @@ class SchedulerDialog(QDialog, Ui_Dialog):
             self.recipe_model.un_schedule_recipe(urn)
 
         add_title_tag = self.add_title_tag.isChecked()
+        keep_issues = unicode(self.keep_issues.text())
         custom_tags = unicode(self.custom_tags.text()).strip()
         custom_tags = [x.strip() for x in custom_tags.split(',')]
-        self.recipe_model.customize_recipe(urn, add_title_tag, custom_tags)
+        self.recipe_model.customize_recipe(urn, add_title_tag, custom_tags, keep_issues)
         return True
 
     def initialize_detail_box(self, urn):
@@ -215,9 +216,15 @@ class SchedulerDialog(QDialog, Ui_Dialog):
             if d < timedelta(days=366):
                 self.last_downloaded.setText(_('Last downloaded')+': '+tm)
 
-        add_title_tag, custom_tags = customize_info
+        add_title_tag, custom_tags, keep_issues = customize_info
         self.add_title_tag.setChecked(add_title_tag)
         self.custom_tags.setText(u', '.join(custom_tags))
+        try:
+            ikeep_issues = int(keep_issues)
+        except:
+            ikeep_issues = 0
+        self.keep_issues.setValue(ikeep_issues)
+
 
 
 class Scheduler(QObject):
@@ -299,7 +306,7 @@ class Scheduler(QObject):
             un = pw = None
             if account_info is not None:
                 un, pw = account_info
-            add_title_tag, custom_tags = customize_info
+            add_title_tag, custom_tags, keep_issues = customize_info
             script = self.recipe_model.get_recipe(urn)
             pt = PersistentTemporaryFile('_builtin.recipe')
             pt.write(script)
@@ -312,6 +319,7 @@ class Scheduler(QObject):
                     'recipe':pt.name,
                     'title':recipe.get('title',''),
                     'urn':urn,
+                    'keep_issues':keep_issues
                    }
             self.download_queue.add(urn)
             self.start_recipe_fetch.emit(arg)

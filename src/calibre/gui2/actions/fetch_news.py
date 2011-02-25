@@ -58,6 +58,16 @@ class FetchNewsAction(InterfaceAction):
             self.scheduler.recipe_download_failed(arg)
             return self.gui.job_exception(job)
         id = self.gui.library_view.model().add_news(pt.name, arg)
+
+        # Arg may contain a "keep_issues" variable.  if it is non-zer, delete all but newest x issues.
+        try:
+            ikeep_issues = int(arg['keep_issues'])
+        except:
+            ikeep_issues = 0
+        if ikeep_issues > 0:
+            ids2delete = self.gui.library_view.model().db.get_most_recent_by_tag(arg['keep_issues'], arg['title'])
+            self.gui.library_view.model().delete_books_by_id(ids2delete)
+                                                                                     
         self.gui.library_view.model().reset()
         sync = self.gui.news_to_be_synced
         sync.add(id)

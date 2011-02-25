@@ -1476,6 +1476,18 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     ############# End get_categories
 
+    def get_most_recent_by_tag(self, number_to_keep, tag):
+        #Based on tag and number passed in, create a list of books matching that tag, keeping only the newest X versions
+        tag = tag.lower().strip()
+        idlist = []
+        mycount = 0
+        for myid in (self.conn.get('select a.book id from books_tags_link a inner join books b on a.book = b.id where a.tag in (select tags.id from tags where tags.name = ?) order by b.timestamp desc', [tag])):
+            myid = myid[0]
+            mycount = mycount + 1
+            if mycount > int(number_to_keep):
+                idlist.append(myid)
+        return idlist
+
     def tags_older_than(self, tag, delta):
         tag = tag.lower().strip()
         now = nowf()

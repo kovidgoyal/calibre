@@ -354,9 +354,10 @@ class RecipeModel(QAbstractItemModel, SearchQueryParser):
         self.scheduler_config.schedule_recipe(self.recipe_from_urn(urn),
                 sched_type, schedule)
 
-    def customize_recipe(self, urn, add_title_tag, custom_tags):
+    # 'keep_issues' argument for recipe-specific number of copies to keep
+    def customize_recipe(self, urn, add_title_tag, custom_tags, keep_issues):
         self.scheduler_config.customize_recipe(urn, add_title_tag,
-                custom_tags)
+                custom_tags, keep_issues)
 
     def get_to_be_downloaded_recipes(self):
         ans = self.scheduler_config.get_to_be_downloaded_recipes()
