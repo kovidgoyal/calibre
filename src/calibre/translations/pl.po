@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-02-18 21:06+0000\n"
-"PO-Revision-Date: 2011-02-23 21:50+0000\n"
+"PO-Revision-Date: 2011-02-24 09:47+0000\n"
 "Last-Translator: Bartosz Kaszubowski <gosimek@gmail.com>\n"
 "Language-Team: Polish <pl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-02-24 04:35+0000\n"
+"X-Launchpad-Export-Date: 2011-02-25 04:38+0000\n"
 "X-Generator: Launchpad (build 12351)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -1864,7 +1864,7 @@ msgid ""
 "the Table of Contents. Default: %default"
 msgstr ""
 "Jeśli wykryto mniej niż tyle rozdziałów, odnośniki są dodawane do spisu "
-"treści (TOC). Domyślnie: %default"
+"treści. Domyślnie: %default"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:251
 msgid ""
@@ -1872,16 +1872,16 @@ msgid ""
 "is: %default. Links are only added to the TOC if less than the threshold "
 "number of chapters were detected."
 msgstr ""
-"Maksymalna ilość odnośników do wstawienia do TOC. Ustaw 0 aby wyłączyć. "
-"Domyślnie ustawienie: %default. Odnośniki są dodawane do TOC tylko jeśli "
-"odnaleziono mniej rozdziałów niż określony próg."
+"Maksymalna ilość odnośników do wstawienia do spisu treści. Ustaw 0 aby "
+"wyłączyć. Domyślnie ustawienie: %default. Odnośniki są dodawane do spisu "
+"treści tylko jeśli odnaleziono mniej rozdziałów niż określony próg."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:259
 msgid ""
 "Remove entries from the Table of Contents whose titles match the specified "
 "regular expression. Matching entries and all their children are removed."
 msgstr ""
-"Usuwa wpisy ze Spisu Treści, których tytuły pasują do określonego wyrażenia. "
+"Usuwa wpisy ze spisu treści, których tytuły pasują do określonego wyrażenia. "
 "Pasujące wpisy i wszystkie podrzędne zostaną usunięte."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:270
@@ -8260,12 +8260,12 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:536
 msgid "&Published:"
-msgstr ""
+msgstr "&Opublikowo:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:538
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:444
 msgid "Clear published date"
-msgstr ""
+msgstr "Wyczyść datę pbulikacji"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:541
 msgid "Remove &format:"
@@ -8305,11 +8305,11 @@ msgstr "Usuń zapi&sane ustawienia konwersji dla wybranych książek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:551
 msgid "Change &cover"
-msgstr ""
+msgstr "Zmień &okładkę"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:552
 msgid "&Generate default cover"
-msgstr ""
+msgstr "Wy&generuj domyślną okładkę"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:553
 msgid "&Remove cover"
@@ -8317,7 +8317,7 @@ msgstr "&Usuń okładkę"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:554
 msgid "Set from &ebook file(s)"
-msgstr ""
+msgstr "Ustaw z pliku(ów) &książki"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:555
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:465
@@ -8346,7 +8346,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:560
 msgid "Sa&ve"
-msgstr ""
+msgstr "&Zapisz"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:562
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager_ui.py:64
@@ -8355,7 +8355,7 @@ msgstr "Usuń"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:563
 msgid "Search &field:"
-msgstr ""
+msgstr "Pole &wyszukiwania:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:564
 msgid "The name of the field that you want to search"
@@ -8363,7 +8363,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:565
 msgid "Search &mode:"
-msgstr ""
+msgstr "&Tryb wyszukiwania:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:566
 msgid ""
@@ -8373,7 +8373,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:567
 msgid "Te&mplate:"
-msgstr ""
+msgstr "&Szablon:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:568
 msgid "Enter a template to be used as the source for the search/replace"
@@ -8381,7 +8381,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:569
 msgid "&Search for:"
-msgstr ""
+msgstr "&Znajdź:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:570
 msgid ""
@@ -8397,11 +8397,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:572
 msgid "Cas&e sensitive"
-msgstr ""
+msgstr "Uwzględniaj &rozmiar liter"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:573
 msgid "&Replace with:"
-msgstr ""
+msgstr "&Zastąp przez:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:574
 msgid ""
@@ -8423,7 +8423,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:578
 msgid "&Destination field:"
-msgstr ""
+msgstr "Pole &docelowe:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:579
 msgid ""
@@ -8433,11 +8433,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:581
 msgid "M&ode:"
-msgstr ""
+msgstr "&Tryb:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:582
 msgid "Specify how the text should be copied into the destination."
-msgstr ""
+msgstr "Określ w jaki sposób tekst ma być kopiowany do pola docelowego."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:583
 msgid ""
@@ -8471,19 +8471,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:591
 msgid "Test text"
-msgstr ""
+msgstr "Tekst testowy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:592
 msgid "Test result"
-msgstr ""
+msgstr "Wynik testu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:593
 msgid "Your test:"
-msgstr ""
+msgstr "Twój test:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:594
 msgid "&Search and replace"
-msgstr ""
+msgstr "Z&najdź i zastąp"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:98
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:429
@@ -8510,7 +8510,7 @@ msgstr "Okładka w formacie %s jest nieprawidłowa"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:158
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:746
 msgid "Cover size: %dx%d pixels"
-msgstr ""
+msgstr "Rozmiar okładki: %dx%d pikseli"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:195
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:670
@@ -8520,12 +8520,12 @@ msgstr "To nie jest działający obrazek"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:214
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:697
 msgid "Specify title and author"
-msgstr ""
+msgstr "Podaj tytuł i autora"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:215
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:698
 msgid "You must specify a title and author before generating a cover"
-msgstr ""
+msgstr "Musisz podać tytuł i autora przed generacją okładki"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:246
 msgid "Downloading cover..."
