@@ -198,7 +198,7 @@ def cli_docs(app):
     documented_cmds = []
     undocumented_cmds = []
 
-    for script in entry_points['console_scripts']:
+    for script in entry_points['console_scripts'] + entry_points['gui_scripts']:
         module = script[script.index('=')+1:script.index(':')].strip()
         cmd = script[:script.index('=')].strip()
         if cmd in ('calibre-complete', 'calibre-parallel'): continue
