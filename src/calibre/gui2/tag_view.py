@@ -85,7 +85,7 @@ class TagsView(QTreeView): # {{{
     author_sort_edit        = pyqtSignal(object, object)
     tag_item_renamed        = pyqtSignal()
     search_item_renamed     = pyqtSignal()
-    drag_drop_finished      = pyqtSignal(object, object)
+    drag_drop_finished      = pyqtSignal(object)
 
     def __init__(self, parent=None):
         QTreeView.__init__(self, parent=None)
@@ -921,7 +921,7 @@ class TagsModel(QAbstractItemModel): # {{{
 
     def handle_user_category_drop(self, on_node, ids, column):
         categories = self.db.prefs.get('user_categories', {})
-        category = categories.get(on_node.category_key[:-1], None)
+        category = categories.get(on_node.category_key[1:], None)
         if category is None:
             return
         fm_src = self.db.metadata_for_field(column)
@@ -955,9 +955,9 @@ class TagsModel(QAbstractItemModel): # {{{
                         break
                 else:
                     category.append([val, column, vmap[val]])
-            categories[on_node.category_key[:-1]] = category
+            categories[on_node.category_key[1:]] = category
             self.db.prefs.set('user_categories', categories)
-            self.drag_drop_finished.emit(None, True)
+            self.tags_view.recount()
 
     def handle_drop(self, on_node, ids):
         #print 'Dropped ids:', ids, on_node.tag
@@ -975,7 +975,7 @@ class TagsModel(QAbstractItemModel): # {{{
 
         fm = self.db.metadata_for_field(key)
         is_multiple = fm['is_multiple']
-        val = on_node.tag.name
+        val = original_name(on_node.tag)
         for id in ids:
             mi = self.db.get_metadata(id, index_is_id=True)
 
@@ -1007,7 +1007,7 @@ class TagsModel(QAbstractItemModel): # {{{
             self.db.set_metadata(id, mi, set_title=False,
                                  set_authors=set_authors, commit=False)
         self.db.commit()
-        self.drag_drop_finished.emit(ids, False)
+        self.drag_drop_finished.emit(ids)
 
     def set_search_restriction(self, s):
         self.search_restriction = s
@@ -1912,11 +1912,8 @@ class TagBrowserMixin(object): # {{{
             self.library_view.model().refresh()
             self.tags_view.recount()
 
-    def drag_drop_finished(self, ids, is_category):
-        if is_category:
-            self.tags_view.recount()
-        else:
-            self.library_view.model().refresh_ids(ids)
+    def drag_drop_finished(self, ids):
+        self.library_view.model().refresh_ids(ids)
 
 # }}}
 
