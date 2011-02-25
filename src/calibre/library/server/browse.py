@@ -342,6 +342,7 @@ class BrowseServer(object):
             return category_meta[x]['name'].lower()
 
         displayed_custom_fields = custom_fields_to_display(self.db)
+        uc_displayed = set()
         for category in sorted(categories, key=lambda x: sort_key(getter(x))):
             if len(categories[category]) == 0:
                 continue
@@ -361,7 +362,19 @@ class BrowseServer(object):
                 icon = category_icon_map['user:']
             else:
                 icon = 'blank.png'
-            cats.append((meta['name'], category, icon))
+
+            if meta['kind'] == 'user':
+                dot = category.find('.')
+                if dot > 0:
+                    cat = category[:dot]
+                    if cat not in uc_displayed:
+                        cats.append((meta['name'][:dot-1], cat, icon))
+                        uc_displayed.add(cat)
+                else:
+                    cats.append((meta['name'], category, icon))
+                    uc_displayed.add(category)
+            else:
+                cats.append((meta['name'], category, icon))
 
         cats = [(u'<li><a title="{2} {0}" href="{3}/browse/category/{1}">&nbsp;</a>'
                  u'<img src="{3}{src}" alt="{0}" />'
@@ -394,11 +407,50 @@ class BrowseServer(object):
         category_name = category_meta[category]['name']
         datatype = category_meta[category]['datatype']
 
+        uc_displayed = set()
+        cats = []
+        for ucat in sorted(categories.keys(), key=sort_key):
+            if len(categories[ucat]) == 0:
+                continue
+            if category == 'formats':
+                continue
+            meta = category_meta.get(ucat, None)
+            if meta is None:
+                continue
+            if meta['kind'] != 'user':
+                continue
+            cat_len = len(category)
+            if not (len(ucat) > cat_len and ucat.startswith(category+'.')):
+                continue
+            cat_len += 1
+            icon = category_icon_map['user:']
+            dot = ucat[cat_len:].find('.')
+            if dot > 0:
+                cat = ucat[cat_len:][:dot]
+                if cat not in uc_displayed:
+                    cats.append((cat, ucat[:cat_len+dot], icon))
+                    uc_displayed.add(cat)
+            else:
+                cats.append((meta['name'], ucat, icon))
+                uc_displayed.add(ucat)
+
+        cats = u'\n\n'.join(
+                [(u'<li><a title="{2} {0}" href="{3}/browse/category/{1}">&nbsp;</a>'
+                 u'<img src="{3}{src}" alt="{0}" />'
+                 u'<span class="label">{0}</span>'
+                 u'</li>')
+                .format(xml(x, True), xml(quote(y)), xml(_('Browse books by')),
+                    self.opts.url_prefix, src='/browse/icon/'+z)
+                for x, y, z in cats])
+        if cats:
+            cats = (u'\n<div class="toplevel">\n'
+                     '{0}</div>').format(cats)
+            script = 'toplevel();'
+        else:
+            script = 'true'
 
         items = categories[category]
         sort = self.browse_sort_categories(items, sort)
-
-        script = 'true'
 
         if len(items) == 1:
             # Only one item in category, go directly to book list
@@ -443,7 +495,10 @@ class BrowseServer(object):
 
 
 
-        script = 'category(%s);'%script
+        if cats:
+            script = 'toplevel();category(%s);'%script
+        else:
+            script = 'category(%s);'%script
 
         main = u'''
             <div class="category">
@@ -453,7 +508,7 @@ class BrowseServer(object):
                 {1}
             </div>
         '''.format(
-                xml(_('Browsing by')+': ' + category_name), items,
+                xml(_('Browsing by')+': ' + category_name), cats + items,
                 xml(_('Up'), True), self.opts.url_prefix)
 
         return self.browse_template(sort).format(title=category_name,
