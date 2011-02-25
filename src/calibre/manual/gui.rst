@@ -440,7 +440,7 @@ The Tag Browser allows you to easily browse your collection by Author/Tags/Serie
 
 There is a search bar at the top of the Tag Browser that allows you to easily find any item in the Tag Browser. In addition, you can right click on any item and choose to hide it or rename it or open a "Manage x" dialog that allows you to manage items of that kind. For example the "Manage Authors" dialog allows you to rename authors and control how their names are sorted. 
 
-Items in the Tag browser have their icons partially colored. The amount of color depends on the average rating of the books in that category. So for example if the books by Isaac Asimov have an average of four stars, the icon for ISaac Asimov in the Tag Browser will be 4/5th colored. You can hover your mouse over the icon to see the average rating.
+Items in the Tag browser have their icons partially colored. The amount of color depends on the average rating of the books in that category. So for example if the books by Isaac Asimov have an average of four stars, the icon for Isaac Asimov in the Tag Browser will be 4/5th colored. You can hover your mouse over the icon to see the average rating.
 
 For convenience, you can drag and drop books from the book list to items in the Tag Browser and that item will be automatically applied to the dropped books. For example, dragging a book to Isaac Asimov will set the author of that book to Isaac Asimov or dragging it to the tag History will add the tag History to its tags.
 
@@ -452,7 +452,7 @@ It is also possible to create hierarchies inside some of the built-in categories
 
 You can drag and drop items in the Tag browser onto user categories to add them to that category.
 
-You can control how items are sorted in the Tag browser via the box at the bottom of the Tag Browser. You can choose to sort by name, average rating or popularity (popularity is the number of books with an item in your library; for example; the popularity of Isaac Asimov is the number of book sin your library by Isacc Asimov).
+You can control how items are sorted in the Tag browser via the box at the bottom of the Tag Browser. You can choose to sort by name, average rating or popularity (popularity is the number of books with an item in your library; for example; the popularity of Isaac Asimov is the number of book sin your library by Isaac Asimov).
 
 
 Jobs
