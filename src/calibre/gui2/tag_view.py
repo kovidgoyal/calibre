@@ -22,7 +22,7 @@ from calibre.ebooks.metadata import title_sort
 from calibre.gui2 import config, NONE, gprefs
 from calibre.library.field_metadata import TagsIcons, category_icon_map
 from calibre.utils.config import tweaks
-from calibre.utils.icu import sort_key, upper, lower, strcmp
+from calibre.utils.icu import sort_key, lower, strcmp
 from calibre.utils.search_query_parser import saved_searches
 from calibre.utils.formatter import eval_formatter
 from calibre.gui2 import error_dialog, question_dialog
@@ -538,6 +538,7 @@ class TagTreeItem(object): # {{{
         self.parent = parent
         self.children = []
         self.id_set = set()
+        self.is_gst = False
         self.boxed = False
         if self.parent is not None:
             self.parent.append(self)
