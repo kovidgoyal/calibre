@@ -24,7 +24,8 @@ class WebStoreDialog(QDialog, Ui_Dialog):
         self.view.loadProgress.connect(self.load_progress)
         self.view.loadFinished.connect(self.load_finished)
         self.home.clicked.connect(self.go_home)
-        self.reload.clicked.connect(self.go_reload)
+        self.reload.clicked.connect(self.view.reload)
+        self.back.clicked.connect(self.view.back)
         
         self.go_home(detail_item=detail_item)
 
@@ -44,6 +45,3 @@ class WebStoreDialog(QDialog, Ui_Dialog):
         if detail_item:
             url += '/' + urllib.quote(detail_item)
         self.view.load(QUrl(url))
-        
-    def go_reload(self, checked=False):
-        self.view.reload()
