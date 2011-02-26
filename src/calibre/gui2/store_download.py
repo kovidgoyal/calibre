@@ -8,6 +8,7 @@ import cStringIO
 import os
 import shutil
 import time
+from cookielib import CookieJar
 from contextlib import closing
 from threading import Thread
 from Queue import Queue
@@ -20,11 +21,12 @@ from calibre.utils.ipc.job import BaseJob
 
 class StoreDownloadJob(BaseJob):
 
-    def __init__(self, callback, description, job_manager, db, url='', save_as_loc='', add_to_lib=True):
+    def __init__(self, callback, description, job_manager, db, cookie_jar, url='', save_as_loc='', add_to_lib=True):
         BaseJob.__init__(self, description)
         self.exception = None
         self.job_manager = job_manager
         self.db = db
+        self.cookie_jar = cookie_jar
         self.args = (url, save_as_loc, add_to_lib)
         self.tmp_file_name = ''
         self.callback = callback
@@ -123,6 +125,7 @@ class StoreDownloader(Thread):
             return
 
         br = browser()
+        br.set_cookiejar(job.cookie_jar)
         
         basename = br.open(url).geturl().split('/')[-1]
         ext = os.path.splitext(basename)[1][1:].lower()
@@ -155,9 +158,9 @@ class StoreDownloader(Thread):
         
         shutil.copy(job.tmp_fie_name, save_loc)
         
-    def download_from_store(self, callback, db, url='', save_as_loc='', add_to_lib=True):
+    def download_from_store(self, callback, db, cookie_jar, url='', save_as_loc='', add_to_lib=True):
         description = _('Downloading %s') % url
-        job = StoreDownloadJob(callback, description, self.job_manager, db, url, save_as_loc, add_to_lib)
+        job = StoreDownloadJob(callback, description, self.job_manager, db, cookie_jar, url, save_as_loc, add_to_lib)
         self.job_manager.add_job(job)
         self.jobs.put(job)        
 
@@ -167,10 +170,10 @@ class StoreDownloadMixin(object):
     def __init__(self):
         self.store_downloader = StoreDownloader(self.job_manager)
     
-    def download_from_store(self, url='', save_as_loc='', add_to_lib=True):
+    def download_from_store(self, url='', cookie_jar=CookieJar(), save_as_loc='', add_to_lib=True):
         if not self.store_downloader.is_alive():
             self.store_downloader.start()
-        self.store_downloader.download_from_store(Dispatcher(self.downloaded_from_store), self.library_view.model().db, url, save_as_loc, add_to_lib)
+        self.store_downloader.download_from_store(Dispatcher(self.downloaded_from_store), self.library_view.model().db, cookie_jar, url, save_as_loc, add_to_lib)
         self.status_bar.show_message(_('Downloading') + ' ' + url, 3000)
     
     def downloaded_from_store(self, job):
