@@ -21,7 +21,7 @@ class ManyBooksStore(StorePlugin):
     def open(self, gui, parent=None, start_item=None):
         from calibre.gui2.store.web_store_dialog import WebStoreDialog
         d = WebStoreDialog(gui, 'http://manybooks.net/', parent, start_item)
-        d.setWindowTitle('Ad-free eBooks for your eBook reader')
+        d.setWindowTitle('ManyBooks')
         d = d.exec_()
 
     def search(self, query, max_results=10, timeout=60):

@@ -4,6 +4,7 @@ __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
+import re
 import urllib
 
 from PyQt4.Qt import QDialog, QUrl
@@ -37,11 +38,13 @@ class WebStoreDialog(QDialog, Ui_Dialog):
         
     def load_finished(self, ok=True):
         self.progress.setValue(100)
-        #if not ok:
-        #    print 'Error'
     
     def go_home(self, checked=False, detail_item=None):
         url = self.base_url
         if detail_item:
             url += '/' + urllib.quote(detail_item)
+        # Reduce redundant /'s because some stores
+        # (Feedbooks) and server frameworks (cherrypy)
+        # choke on them. 
+        url = re.sub(r'(?<!http:)/{2,}', '/', url)
         self.view.load(QUrl(url))
