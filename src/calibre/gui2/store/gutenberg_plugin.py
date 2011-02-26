@@ -56,5 +56,3 @@ class GutenbergStore(StorePlugin):
                 
                 counter -= 1
                 yield ('', title.strip(), author.strip(), price.strip(), '/ebooks/' + id.strip())
-
-            

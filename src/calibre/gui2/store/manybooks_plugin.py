@@ -26,6 +26,8 @@ class ManyBooksStore(StorePlugin):
 
     def search(self, query, max_results=10, timeout=60):
         # ManyBooks website separates results for title and author.
+        # It also doesn't do a clear job of references authors and
+        # secondary titles. Google is also faster.
         # Using a google search so we can search on both fields at once.
         url = 'http://www.google.com/xhtml?q=site:manybooks.net+' + urllib2.quote(query)
         
@@ -56,5 +58,3 @@ class ManyBooksStore(StorePlugin):
                 
                 counter -= 1
                 yield ('', title.strip(), author.strip(), price.strip(), '/titles/' + id.strip())
-
-            
