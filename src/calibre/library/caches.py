@@ -419,28 +419,23 @@ class ResultCache(SearchQueryParser): # {{{
 
     def get_user_category_matches(self, location, query, candidates):
         res = set([])
-        if self.db_prefs is None:
+        if self.db_prefs is None or len(query) < 2:
             return  res
         user_cats = self.db_prefs.get('user_categories', [])
         c = set(candidates)
-        l = location.rfind('.')
-        if l > 0:
-            alt_loc = location[0:l]
-            alt_item = location[l+1:]
+
+        if query.startswith('.'):
+            check_subcats = True
+            query = query[1:]
         else:
-            alt_loc = None
+            check_subcats = False
+
         for key in user_cats:
-            if key == location or key.startswith(location + '.'):
+            if key == location or (check_subcats and key.startswith(location + '.')):
                 for (item, category, ign) in user_cats[key]:
                     s = self.get_matches(category, '=' + item, candidates=c)
                     c -= s
                     res |= s
-            elif key == alt_loc:
-                for (item, category, ign) in user_cats[key]:
-                    if item == alt_item:
-                        s = self.get_matches(category, '=' + item, candidates=c)
-                        c -= s
-                        res |= s
         if query == 'false':
             return candidates - res
         return res
