@@ -12,22 +12,22 @@ from lxml import html
 from calibre import browser
 from calibre.customize import StorePlugin
 
-class GutenbergStore(StorePlugin):
+class ManyBooksStore(StorePlugin):
     
-    name           = 'Project Gutenberg'
-    description    = _('The first producer of free ebooks.')
+    name           = 'ManyBooks'
+    description    = _('The best ebooks at the best price: free!.')
     
         
     def open(self, gui, parent=None, start_item=None):
         from calibre.gui2.store.web_store_dialog import WebStoreDialog
-        d = WebStoreDialog(gui, 'http://m.gutenberg.org/', parent, start_item)
-        d.setWindowTitle('Free eBooks by Project Gutenberg')
+        d = WebStoreDialog(gui, 'http://manybooks.net/', parent, start_item)
+        d.setWindowTitle('Ad-free eBooks for your eBook reader')
         d = d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
-        # Gutenberg's website does not allow searching both author and title.
+        # ManyBooks website separates results for title and author.
         # Using a google search so we can search on both fields at once.
-        url = 'http://www.google.com/xhtml?q=site:gutenberg.org+' + urllib2.quote(query)
+        url = 'http://www.google.com/xhtml?q=site:manybooks.net+' + urllib2.quote(query)
         
         br = browser()
         
@@ -44,8 +44,8 @@ class GutenbergStore(StorePlugin):
                     url_a = url_a[0]
                     url = url_a.get('href', None)
                 if url:
-                    url = url.split('u=')[-1].split('&')[0]
-                if '/ebooks/' not in url:
+                    url = url.split('u=')[-1][:-2]
+                if '/titles/' not in url:
                     continue
                 id = url.split('/')[-1]
                 
@@ -55,6 +55,6 @@ class GutenbergStore(StorePlugin):
                 price = '$0.00'
                 
                 counter -= 1
-                yield ('', title.strip(), author.strip(), price.strip(), '/ebooks/' + id.strip())
+                yield ('', title.strip(), author.strip(), price.strip(), '/titles/' + id.strip())
 
             
