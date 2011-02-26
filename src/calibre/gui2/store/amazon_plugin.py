@@ -12,6 +12,7 @@ from lxml import html
 
 from calibre import browser
 from calibre.customize import StorePlugin
+from calibre.gui2.store.search_result import SearchResult
 
 class AmazonKindleStore(StorePlugin):
     
@@ -20,9 +21,9 @@ class AmazonKindleStore(StorePlugin):
     
     ASTORE_URL = 'http://astore.amazon.com/josbl0e-20/'
     
-    def open(self, gui, parent=None, start_item=None):
+    def open(self, gui, parent=None, detail_item=None):
         from calibre.gui2.store.web_store_dialog import WebStoreDialog
-        d = WebStoreDialog(gui, self.ASTORE_URL, parent, start_item)
+        d = WebStoreDialog(gui, self.ASTORE_URL, parent, detail_item)
         d.setWindowTitle('Amazon Kindle Store')
         d = d.exec_()
 
@@ -47,6 +48,7 @@ class AmazonKindleStore(StorePlugin):
                 
                 title = ''.join(data.xpath('div[@class="productTitle"]/a/text()'))
                 author = ''.join(data.xpath('div[@class="productTitle"]/span[@class="ptBrand"]/text()'))
+                author = author.split('by')[-1]
                 price = ''.join(data.xpath('div[@class="newPrice"]/span/text()'))
                 
                 # We must have an asin otherwise we can't easily reference the
@@ -61,4 +63,12 @@ class AmazonKindleStore(StorePlugin):
                         continue
                     
                     counter -= 1
-                    yield ('', title.strip(), author.strip(), price.strip(), '/detail/'+asin.strip())
+                    
+                    s = SearchResult()
+                    s.cover_url = ''
+                    s.title = title.strip()
+                    s.author = author.strip()
+                    s.price = price.strip()
+                    s.detail_item = '/detail/' + asin.strip()
+                    
+                    yield s

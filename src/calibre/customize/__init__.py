@@ -588,7 +588,7 @@ class StorePlugin(Plugin): # {{{
     author         = 'John Schember'
     type = _('Stores')
     
-    def open(self, gui, parent=None, start_item=None):
+    def open(self, gui, parent=None, detail_item=None):
         '''
         Open a dialog for displaying the store.
         start_item is a refernce unique to the store
@@ -605,8 +605,8 @@ class StorePlugin(Plugin): # {{{
         :param max_results: The maximum number of results to return.
         :param timeout: The maximum amount of time in seconds to spend download the search results.
         
-        :return: A tuple (cover_url, title, author, price, start_item). The start_item is plugin
-        specific and is used in :meth:`open` to open to a specifc place in the store.
+        :return: calibre.gui2.store.search_result.SearchResult object
+        item_data is plugin specific and is used in :meth:`open` to open to a specifc place in the store.
         '''
         raise NotImplementedError()
 

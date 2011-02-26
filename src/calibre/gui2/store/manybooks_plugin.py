@@ -11,6 +11,7 @@ from lxml import html
 
 from calibre import browser
 from calibre.customize import StorePlugin
+from calibre.gui2.store.search_result import SearchResult
 
 class ManyBooksStore(StorePlugin):
     
@@ -18,9 +19,9 @@ class ManyBooksStore(StorePlugin):
     description    = _('The best ebooks at the best price: free!.')
     
         
-    def open(self, gui, parent=None, start_item=None):
+    def open(self, gui, parent=None, detail_item=None):
         from calibre.gui2.store.web_store_dialog import WebStoreDialog
-        d = WebStoreDialog(gui, 'http://manybooks.net/', parent, start_item)
+        d = WebStoreDialog(gui, 'http://manybooks.net/', parent, detail_item)
         d.setWindowTitle('ManyBooks')
         d = d.exec_()
 
@@ -57,4 +58,12 @@ class ManyBooksStore(StorePlugin):
                 price = '$0.00'
                 
                 counter -= 1
-                yield ('', title.strip(), author.strip(), price.strip(), '/titles/' + id.strip())
+                
+                s = SearchResult()
+                s.cover_url = ''
+                s.title = title.strip()
+                s.author = author.strip()
+                s.price = price.strip()
+                s.detail_item = '/titles/' + id.strip()
+                
+                yield s

@@ -86,14 +86,8 @@ class SearchDialog(QDialog, Ui_Dialog):
         while not self.results.empty():
             res = self.results.get_nowait()
             if res:
-                result = SearchResult()
+                result = res[1]
                 result.store = res[0]
-                result.cover_url = res[1][0]
-                result.title = res[1][1]
-                result.author = res[1][2]
-                result.price = res[1][3]
-                result.item_data = res[1][4]
-                
                 self.results_view.model().add_result(result)
 
     def open_store(self, index):
@@ -118,17 +112,6 @@ class SearchThread(Thread):
             if self.abort.is_set():
                 return
             self.results.put((self.store_name, res))
-
-
-class SearchResult(object):
-    
-    def __init__(self):
-        self.cover_url = ''
-        self.title = ''
-        self.author = ''
-        self.price = ''
-        self.store = ''
-        self.item_data = ''
 
 
 class Matches(QAbstractItemModel):

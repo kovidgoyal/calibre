@@ -11,6 +11,7 @@ from lxml import html
 
 from calibre import browser
 from calibre.customize import StorePlugin
+from calibre.gui2.store.search_result import SearchResult
 
 class FeedbooksStore(StorePlugin):
     
@@ -18,9 +19,9 @@ class FeedbooksStore(StorePlugin):
     description    = _('Read anywhere.')
     
         
-    def open(self, gui, parent=None, start_item=None):
+    def open(self, gui, parent=None, detail_item=None):
         from calibre.gui2.store.web_store_dialog import WebStoreDialog
-        d = WebStoreDialog(gui, 'http://m.feedbooks.com/', parent, start_item)
+        d = WebStoreDialog(gui, 'http://m.feedbooks.com/', parent, detail_item)
         d.setWindowTitle('Feedbooks')
         d = d.exec_()
 
@@ -60,4 +61,12 @@ class FeedbooksStore(StorePlugin):
                     price = '$0.00'
                 
                 counter -= 1
-                yield ('', title.strip(), author.strip(), price.replace(' ', '').strip(), id.strip())
+                
+                s = SearchResult()
+                s.cover_url = ''
+                s.title = title.strip()
+                s.author = author.strip()
+                s.price = price.replace(' ', '').strip()
+                s.detail_item = id.strip()
+                
+                yield s
