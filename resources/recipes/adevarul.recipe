@@ -32,16 +32,25 @@ class Adevarul(BasicNewsRecipe):
                          }
 
     keep_only_tags = [  dict(name='div', attrs={'class':'article_header'})
-                       ,dict(name='div', attrs={'class':'bd'})
+                       ,dict(name='div', attrs={'class':'bb-tu first-t bb-article-body'})
                      ]
 
 
-    remove_tags = [  dict(name='div', attrs={'class':'bb-wg-article_related_attachements'})
+    remove_tags = [ 
+					 dict(name='li', attrs={'class':'author'})
+					,dict(name='li', attrs={'class':'date'})
+					,dict(name='li', attrs={'class':'comments'})
+					,dict(name='div', attrs={'class':'bb-wg-article_related_attachements'})
                     ,dict(name='div', attrs={'class':'bb-md bb-md-article_comments'})
-                ,dict(name='form', attrs={'id':'bb-comment-create-form'})
-              ]
+                    ,dict(name='form', attrs={'id':'bb-comment-create-form'})
+				    ,dict(name='div', attrs={'id':'mediatag'})
+					,dict(name='div', attrs={'id':'ft'})	
+					,dict(name='div', attrs={'id':'comment_wrapper'})
+                 ]
 
-    remove_tags_after = [ dict(name='form', attrs={'id':'bb-comment-create-form'}) ]
+    remove_tags_after = [ 
+							dict(name='div', attrs={'id':'comment_wrapper'}),											
+						]
 
     feeds = [ (u'\u0218tiri', u'http://www.adevarul.ro/rss/latest') ]
 

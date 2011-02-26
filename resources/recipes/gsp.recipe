@@ -1,20 +1,43 @@
+# -*- coding: utf-8 -*-
+#!/usr/bin/env  python
+
+__license__   = 'GPL v3'
+__copyright__ = u'2011, Silviu Cotoar\u0103'
+'''
+gsp.ro
+'''
+
 from calibre.web.feeds.news import BasicNewsRecipe
 
-class AdvancedUserRecipe1286351181(BasicNewsRecipe):
-    title          = u'gsp.ro'
-    __author__   = 'bucsie'
-    oldest_article = 2
+class GSP(BasicNewsRecipe):
+    title                 = u'Gazeta Sporturilor'
+    language              = 'ro'
+    __author__            = u'Silviu Cotoar\u0103'
+    description           = u'Gazeta Sporturilor'
+    publisher             = u'Gazeta Sporturilor'
+    category              = 'Ziare,Sport,Stiri,Romania'
+    oldest_article        = 5
     max_articles_per_feed = 100
-    language='ro'
-    cover_url ='http://www.gsp.ro/images/sigla_rosu.jpg'
+    no_stylesheets        = True
+    use_embedded_content  = False
+    encoding              = 'utf-8'
+    remove_javascript     = True
+    cover_url             = 'http://www.gsp.ro/images/logo.jpg'
 
-    remove_tags = [
-                       dict(name='div', attrs={'class':['related_articles', 'articol_noteaza straight_line dotted_line_top', 'comentarii','mai_multe_articole']}),
-                       dict(name='div', attrs={'id':'icons'})
-                        ]
-    remove_tags_after = dict(name='div', attrs={'id':'adoceanintactrovccmgpmnyt'})
+    conversion_options = {
+                             'comments'   : description
+                            ,'tags'       : category
+                            ,'language'   : language
+							,'publisher'  : publisher
+                         }
 
-    feeds          = [(u'toate stirile', u'http://www.gsp.ro/index.php?section=section&screen=rss')]
+    keep_only_tags = [  dict(name='h1', attrs={'class':'serif title_2'})
+                       ,dict(name='div', attrs={'id':'only_text'})
+					   ,dict(name='span', attrs={'class':'block poza_principala'})
+                     ]
+					 
+    feeds = [ (u'\u0218tiri', u'http://www.gsp.ro/rss.xml') ]
 
-    def print_version(self, url):
-         return 'http://www1.gsp.ro/print/' + url[(url.rindex('/')+1):]
+    def preprocess_html(self, soup):
+        return self.adeify_images(soup)
+

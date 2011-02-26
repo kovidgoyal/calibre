@@ -304,6 +304,10 @@ class ComicInput(InputFormatPlugin):
             help=_('Specify the image size as widthxheight pixels. Normally,'
                 ' an image size is automatically calculated from the output '
                 'profile, this option overrides it.')),
+        OptionRecommendation(name='dont_add_comic_pages_to_toc', recommended_value=False,
+            help=_('When converting a CBC do not add links to each page to'
+                ' the TOC. Note this only applies if the TOC has more than one'
+                ' section')),
         ])
 
     recommendations = set([
@@ -449,10 +453,11 @@ class ComicInput(InputFormatPlugin):
                 wrappers = comic[2]
                 stoc = toc.add_item(href(wrappers[0]),
                         None, comic[0], play_order=po)
-                for i, x in enumerate(wrappers):
-                    stoc.add_item(href(x), None,
-                            _('Page')+' %d'%(i+1), play_order=po)
-                    po += 1
+                if not opts.dont_add_comic_pages_to_toc:
+                    for i, x in enumerate(wrappers):
+                        stoc.add_item(href(x), None,
+                                _('Page')+' %d'%(i+1), play_order=po)
+                        po += 1
         opf.set_toc(toc)
         m, n = open('metadata.opf', 'wb'), open('toc.ncx', 'wb')
         opf.render(m, n, 'toc.ncx')

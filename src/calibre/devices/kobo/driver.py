@@ -78,9 +78,13 @@ class KOBO(USBMS):
                  else self._main_prefix
 
         # Determine the firmware version
-        f = open(self.normalize_path(self._main_prefix + '.kobo/version'), 'r')
-        self.fwversion = f.readline().split(',')[2]
-        f.close()
+        try:
+            with open(self.normalize_path(self._main_prefix + '.kobo/version'),
+                    'rb') as f:
+                self.fwversion = f.readline().split(',')[2]
+        except:
+            self.fwversion = 'unknown'
+
         if self.fwversion != '1.0' and self.fwversion != '1.4':
             self.has_kepubs = True
         debug_print('Version of firmware: ', self.fwversion, 'Has kepubs:', self.has_kepubs)
@@ -161,7 +165,7 @@ class KOBO(USBMS):
             return changed
 
         connection = sqlite.connect(self.normalize_path(self._main_prefix + '.kobo/KoboReader.sqlite'))
-        
+
         # return bytestrings if the content cannot the decoded as unicode
         connection.text_factory = lambda x: unicode(x, "utf-8", "ignore")
 
@@ -234,7 +238,7 @@ class KOBO(USBMS):
 
         debug_print('delete_via_sql: ContentID: ', ContentID, 'ContentType: ', ContentType)
         connection = sqlite.connect(self.normalize_path(self._main_prefix + '.kobo/KoboReader.sqlite'))
-        
+
         # return bytestrings if the content cannot the decoded as unicode
         connection.text_factory = lambda x: unicode(x, "utf-8", "ignore")
 
@@ -511,7 +515,7 @@ class KOBO(USBMS):
         # the last book from the collection the list of books is empty
         # and the removal of the last book would not occur
         connection = sqlite.connect(self.normalize_path(self._main_prefix + '.kobo/KoboReader.sqlite'))
-        
+
         # return bytestrings if the content cannot the decoded as unicode
         connection.text_factory = lambda x: unicode(x, "utf-8", "ignore")
 

@@ -2256,22 +2256,22 @@ class MobiWriter(object):
         return sectionIndices, sectionParents
 
     def _generate_section_article_indices(self, i, section, entries, sectionIndices, sectionParents):
-                sectionArticles = list(section.iter())[1:]
-                # Iterate over the section's articles
+        sectionArticles = list(section.iter())[1:]
+        # Iterate over the section's articles
 
-                for (j, article) in enumerate(sectionArticles):
-                    # Recompute offset and length for each article
-                    offset, length = self._compute_offset_length(i, article, entries)
-                    if self.opts.verbose > 2 :
-                        self._oeb.logger.info( "article %02d: offset = 0x%06X length = 0x%06X" % (j, offset, length) )
+        for (j, article) in enumerate(sectionArticles):
+            # Recompute offset and length for each article
+            offset, length = self._compute_offset_length(i, article, entries)
+            if self.opts.verbose > 2 :
+                self._oeb.logger.info( "article %02d: offset = 0x%06X length = 0x%06X" % (j, offset, length) )
 
-                    ctoc_map_index = i + j + 1
+            ctoc_map_index = i + j + 1
 
-                    #hasAuthor = self._ctoc_map[ctoc_map_index].get('authorOffset')
-                    #hasDescription = self._ctoc_map[ctoc_map_index].get('descriptionOffset')
-                    mySectionParent = sectionParents[sectionIndices[i-1]]
-                    myNewArticle = MobiArticle(mySectionParent, offset, length, ctoc_map_index )
-                    mySectionParent.addArticle( myNewArticle )
+            #hasAuthor = self._ctoc_map[ctoc_map_index].get('authorOffset')
+            #hasDescription = self._ctoc_map[ctoc_map_index].get('descriptionOffset')
+            mySectionParent = sectionParents[sectionIndices[i-1]]
+            myNewArticle = MobiArticle(mySectionParent, offset, length, ctoc_map_index )
+            mySectionParent.addArticle( myNewArticle )
 
     def _add_book_chapters(self, myDoc, indxt, indices):
         chapterCount = myDoc.documentStructure.chapterCount()

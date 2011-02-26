@@ -1,4 +1,59 @@
 {% extends "!layout.html" %}
+
+{% block extrahead %}
+    {% if not embedded %}
+    <script type="text/javascript">
+
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-20736318-1']);
+        _gaq.push(['_setDomainName', '.calibre-ebook.com']);
+        _gaq.push(['_trackPageview']);
+
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+
+    </script>
+    {% endif %}
+
+    <style type="text/css">
+        .float-left-img { float: left; margin-right: 1em; margin-bottom: 1em }
+        .float-right-img { float: right; margin-left: 1em; margin-bottom: 1em }
+    </style>
+
+{% endblock %}
+
+{% block document %}
+      <div class="documentwrapper">
+      {%- if render_sidebar %}
+        <div class="bodywrapper">
+      {%- endif %}
+        <div class="body">
+            {% if not embedded %}
+            <div id="ad-container" style="text-align:center">
+                    <script type="text/javascript"><!--
+                        google_ad_client = "ca-pub-2595272032872519";
+                        /* User Manual horizontal */
+                        google_ad_slot = "3131592704";
+                        google_ad_width = 728;
+                        google_ad_height = 90;
+                        //-->
+                    </script>
+                    <script type="text/javascript"
+                        src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+                    </script>
+            </div>
+            {% endif %}
+            {% block body %} {% endblock %}
+        </div>
+      {%- if render_sidebar %}
+        </div>
+      {%- endif %}
+      </div>
+{% endblock %}
+
 {% block sidebarlogo %}
         <p class="logo">
             <a href="http://calibre-ebook.com"><img class="logo" src="{{ pathto('_static/' + logo, 1) }}" alt="Logo"/></a>
@@ -11,4 +66,5 @@
            </form>
            <hr/>
 {% endblock %}
+
 

@@ -63,8 +63,8 @@ class LoadParser(handler.ContentHandler):
 
         self.level = self.level + 1
         # Add any accumulated text content
-        content = ''.join(self.data).strip()
-        if len(content) > 0:
+        content = ''.join(self.data)
+        if len(content.strip()) > 0:
             self.parent.addText(content, check_grammar=False)
             self.data = []
         # Create the element
