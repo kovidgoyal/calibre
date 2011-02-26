@@ -3,22 +3,20 @@
 __license__   = 'GPL v3'
 __copyright__ = u'2011, Tomasz Dlugosz <tomek3d@gmail.com>'
 '''
-swiatkindle.pl
+swiatczytnikow.pl
 '''
 
 import re
 
-from calibre.web.feeds.news import BasicNewsRecipe
-
-class swiatkindle(BasicNewsRecipe):
-    title          = u'Swiat Kindle'
-    description    = u'Blog o czytniku Amazon Kindle. Wersje, ksi\u0105\u017cki, kupowanie i korzystanie w Polsce'
+class swiatczytnikow(BasicNewsRecipe):
+    title          = u'Swiat Czytnikow'
+    description    = u'Czytniki e-książek w Polsce. Jak wybrać, kupić i korzystać z Amazon Kindle i innych'
     language = 'pl'
     __author__ = u'Tomasz D\u0142ugosz'
     oldest_article = 7
     max_articles_per_feed = 100
 
-    feeds       = [(u'\u015awiat Kindle - wpisy', u'http://swiatkindle.pl/feed')]
+    feeds       = [(u'Świat Czytników - wpisy', u'http://swiatczytnikow.pl/feed')]
 
     remove_tags = [dict(name = 'ul', attrs = {'class' : 'similar-posts'})]
 
