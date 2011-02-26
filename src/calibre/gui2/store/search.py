@@ -191,6 +191,7 @@ class Matches(QAbstractItemModel):
             if len(text) < 3 or text[-3] not in ('.', ','):
                 text += '00' 
             text = re.sub(r'\D', '', text)
+            text = text.rjust(6, '0')
         elif col == 4:
             text = result.store
         return text
