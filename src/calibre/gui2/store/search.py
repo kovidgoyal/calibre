@@ -134,8 +134,8 @@ class SearchThread(Thread):
                 if self.abort.is_set():
                     return
                 self.results.put((self.store_name, res))
-        except:
-            pass
+        except Exception as e:
+            print e
 
 
 class CoverDownloadThread(Thread):

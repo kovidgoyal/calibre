@@ -42,7 +42,9 @@ class WebStoreDialog(QDialog, Ui_Dialog):
     def go_home(self, checked=False, detail_item=None):
         url = self.base_url
         if detail_item:
-            url += '/' + urllib.quote(detail_item)
+            url, q, ref = url.partition('?')
+            url = url + '/' + urllib.quote(detail_item) + q + ref
+            
         # Reduce redundant /'s because some stores
         # (Feedbooks) and server frameworks (cherrypy)
         # choke on them. 

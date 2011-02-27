@@ -17,7 +17,7 @@ from calibre.gui2.store.search_result import SearchResult
 class ManyBooksStore(StorePlugin):
     
     name           = 'ManyBooks'
-    description    = _('The best ebooks at the best price: free!.')
+    description    = _('The best ebooks at the best price: free!')
     
         
     def open(self, gui, parent=None, detail_item=None):
