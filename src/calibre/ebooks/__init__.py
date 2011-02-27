@@ -25,7 +25,7 @@ class DRMError(ValueError):
 class ParserError(ValueError):
     pass
 
-BOOK_EXTENSIONS = ['lrf', 'rar', 'zip', 'rtf', 'lit', 'txt', 'htm', 'xhtm',
+BOOK_EXTENSIONS = ['lrf', 'rar', 'zip', 'rtf', 'lit', 'txt', 'txtz', 'htm', 'xhtm',
                    'html', 'xhtml', 'pdf', 'pdb', 'pdr', 'prc', 'mobi', 'azw', 'doc',
                    'epub', 'fb2', 'djvu', 'lrx', 'cbr', 'cbz', 'cbc', 'oebzip',
                    'rb', 'imp', 'odt', 'chm', 'tpz', 'azw1', 'pml', 'mbp', 'tan', 'snb']
@@ -113,7 +113,7 @@ def render_html_svg_workaround(path_to_html, log, width=590, height=750):
 
 def render_html(path_to_html, width=590, height=750, as_xhtml=True):
     from PyQt4.QtWebKit import QWebPage
-    from PyQt4.Qt import QEventLoop, QPalette, Qt, SIGNAL, QUrl, QSize
+    from PyQt4.Qt import QEventLoop, QPalette, Qt, QUrl, QSize
     from calibre.gui2 import is_ok_to_use_qt
     if not is_ok_to_use_qt(): return None
     path_to_html = os.path.abspath(path_to_html)
@@ -127,8 +127,7 @@ def render_html(path_to_html, width=590, height=750, as_xhtml=True):
         page.mainFrame().setScrollBarPolicy(Qt.Horizontal, Qt.ScrollBarAlwaysOff)
         loop = QEventLoop()
         renderer = HTMLRenderer(page, loop)
-        page.connect(page, SIGNAL('loadFinished(bool)'), renderer,
-                Qt.QueuedConnection)
+        page.loadFinished.connect(renderer, type=Qt.QueuedConnection)
         if as_xhtml:
             page.mainFrame().setContent(open(path_to_html, 'rb').read(),
                     'application/xhtml+xml', QUrl.fromLocalFile(path_to_html))
@@ -136,6 +135,7 @@ def render_html(path_to_html, width=590, height=750, as_xhtml=True):
             page.mainFrame().load(QUrl.fromLocalFile(path_to_html))
         loop.exec_()
     renderer.loop = renderer.page = None
+    page.loadFinished.disconnect()
     del page
     del loop
     if isinstance(renderer.exception, ParserError) and as_xhtml:
@@ -152,8 +152,17 @@ def check_ebook_format(stream, current_guess):
         stream.seek(0)
     return ans
 
+def normalize(x):
+    if isinstance(x, unicode):
+        import unicodedata
+        x = unicodedata.normalize('NFKC', x)
+    return x
+
 def calibre_cover(title, author_string, series_string=None,
         output_format='jpg', title_size=46, author_size=36):
+    title = normalize(title)
+    author_string = normalize(author_string)
+    series_string = normalize(series_string)
     from calibre.utils.magick.draw import create_cover_page, TextLine
     lines = [TextLine(title, title_size), TextLine(author_string, author_size)]
     if series_string:

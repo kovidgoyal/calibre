@@ -41,6 +41,16 @@ class NEWSMY(TECLAST_K3):
     WINDOWS_MAIN_MEM = 'NEWSMY'
     WINDOWS_CARD_A_MEM = 'USBDISK____SD'
 
+class ARCHOS7O(TECLAST_K3):
+    name = 'Archos 7O device interface'
+    gui_name = 'Archos'
+    description    = _('Communicate with the Archos reader.')
+
+    FORMATS = ['epub', 'mobi', 'fb2', 'rtf', 'ap', 'html', 'pdf', 'txt']
+
+    VENDOR_NAME      = 'ARCHOS'
+    WINDOWS_MAIN_MEM = 'USB-MSC'
+
 class PICO(NEWSMY):
     name = 'Pico device interface'
     gui_name = 'Pico'
@@ -81,4 +91,27 @@ class SUNSTECH_EB700(TECLAST_K3):
 
     VENDOR_NAME = 'SUNEB700'
     WINDOWS_MAIN_MEM = 'USB-MSC'
+
+class STASH(TECLAST_K3):
+
+    name = 'Stash device interface'
+    gui_name = 'Stash'
+    description    = _('Communicate with the Stash W950 reader.')
+
+    FORMATS = ['epub', 'fb2', 'lrc', 'pdb', 'html', 'fb2', 'wtxt',
+            'txt', 'pdf']
+
+    VENDOR_NAME = 'STASH'
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'W950'
+
+class WEXLER(TECLAST_K3):
+
+    name = 'Wexler device interface'
+    gui_name = 'Wexler'
+    description    = _('Communicate with the Wexler reader.')
+
+    FORMATS = ['epub', 'fb2', 'pdf', 'txt']
+
+    VENDOR_NAME = 'WEXLER'
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'T7001'
 

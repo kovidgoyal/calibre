@@ -20,7 +20,7 @@ class ElUniversal(BasicNewsRecipe):
     remove_javascript     = True
     remove_empty_feeds    = True
     publication_type      = 'newspaper'
-    language              = 'es'
+    language              = 'es_MX'
 
     extra_css = '''
                     body{font-family:Arial,Helvetica,sans-serif}

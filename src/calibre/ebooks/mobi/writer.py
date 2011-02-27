@@ -14,8 +14,9 @@ import re
 from struct import pack
 import time
 from urlparse import urldefrag
-
 from cStringIO import StringIO
+
+from calibre.ebooks import normalize
 from calibre.ebooks.mobi.langcodes import iana2mobi
 from calibre.ebooks.mobi.mobiml import MBP_NS
 from calibre.ebooks.oeb.base import OEB_DOCS
@@ -1365,7 +1366,7 @@ class MobiWriter(object):
             self._text_length,
             self._text_nrecords-1, RECORD_SIZE, 0, 0)) # 0 - 15 (0x0 - 0xf)
         uid = random.randint(0, 0xffffffff)
-        title = unicode(metadata.title[0]).encode('utf-8')
+        title = normalize(unicode(metadata.title[0])).encode('utf-8')
         # The MOBI Header
 
         # 0x0 - 0x3
@@ -1523,12 +1524,12 @@ class MobiWriter(object):
             items = oeb.metadata[term]
             if term == 'creator':
                 if self._prefer_author_sort:
-                    creators = [unicode(c.file_as or c) for c in items]
+                    creators = [normalize(unicode(c.file_as or c)) for c in items]
                 else:
-                    creators = [unicode(c) for c in items]
+                    creators = [normalize(unicode(c)) for c in items]
                 items = ['; '.join(creators)]
             for item in items:
-                data = self.COLLAPSE_RE.sub(' ', unicode(item))
+                data = self.COLLAPSE_RE.sub(' ', normalize(unicode(item)))
                 if term == 'identifier':
                     if data.lower().startswith('urn:isbn:'):
                         data = data[9:]
@@ -1542,11 +1543,36 @@ class MobiWriter(object):
                 nrecs += 1
             if term == 'rights' :
                 try:
-                    rights = unicode(oeb.metadata.rights[0]).encode('utf-8')
+                    rights = normalize(unicode(oeb.metadata.rights[0])).encode('utf-8')
                 except:
                     rights = 'Unknown'
                 exth.write(pack('>II', EXTH_CODES['rights'], len(rights) + 8))
                 exth.write(rights)
+                nrecs += 1
+
+        # Write UUID as ASIN
+        uuid = None
+        from calibre.ebooks.oeb.base import OPF
+        for x in oeb.metadata['identifier']:
+            if x.get(OPF('scheme'), None).lower() == 'uuid' or unicode(x).startswith('urn:uuid:'):
+                uuid = unicode(x).split(':')[-1]
+                break
+        if uuid is None:
+            from uuid import uuid4
+            uuid = str(uuid4())
+
+        if isinstance(uuid, unicode):
+            uuid = uuid.encode('utf-8')
+        exth.write(pack('>II', 113, len(uuid) + 8))
+        exth.write(uuid)
+        nrecs += 1
+
+        # Write cdetype
+        if not self.opts.mobi_periodical:
+            data = 'EBOK'
+            exth.write(pack('>II', 501, len(data)+8))
+            exth.write(data)
+            nrecs += 1
 
         # Add a publication date entry
         if oeb.metadata['date'] != [] :
@@ -1792,7 +1818,7 @@ class MobiWriter(object):
             text = text.strip()
             if not isinstance(text, unicode):
                 text = text.decode('utf-8', 'replace')
-            text = text.encode('utf-8')
+            text = normalize(text).encode('utf-8')
         else :
             text = "(none)".encode('utf-8')
         return text
@@ -2230,22 +2256,22 @@ class MobiWriter(object):
         return sectionIndices, sectionParents
 
     def _generate_section_article_indices(self, i, section, entries, sectionIndices, sectionParents):
-                sectionArticles = list(section.iter())[1:]
-                # Iterate over the section's articles
+        sectionArticles = list(section.iter())[1:]
+        # Iterate over the section's articles
 
-                for (j, article) in enumerate(sectionArticles):
-                    # Recompute offset and length for each article
-                    offset, length = self._compute_offset_length(i, article, entries)
-                    if self.opts.verbose > 2 :
-                        self._oeb.logger.info( "article %02d: offset = 0x%06X length = 0x%06X" % (j, offset, length) )
+        for (j, article) in enumerate(sectionArticles):
+            # Recompute offset and length for each article
+            offset, length = self._compute_offset_length(i, article, entries)
+            if self.opts.verbose > 2 :
+                self._oeb.logger.info( "article %02d: offset = 0x%06X length = 0x%06X" % (j, offset, length) )
 
-                    ctoc_map_index = i + j + 1
+            ctoc_map_index = i + j + 1
 
-                    #hasAuthor = self._ctoc_map[ctoc_map_index].get('authorOffset')
-                    #hasDescription = self._ctoc_map[ctoc_map_index].get('descriptionOffset')
-                    mySectionParent = sectionParents[sectionIndices[i-1]]
-                    myNewArticle = MobiArticle(mySectionParent, offset, length, ctoc_map_index )
-                    mySectionParent.addArticle( myNewArticle )
+            #hasAuthor = self._ctoc_map[ctoc_map_index].get('authorOffset')
+            #hasDescription = self._ctoc_map[ctoc_map_index].get('descriptionOffset')
+            mySectionParent = sectionParents[sectionIndices[i-1]]
+            myNewArticle = MobiArticle(mySectionParent, offset, length, ctoc_map_index )
+            mySectionParent.addArticle( myNewArticle )
 
     def _add_book_chapters(self, myDoc, indxt, indices):
         chapterCount = myDoc.documentStructure.chapterCount()

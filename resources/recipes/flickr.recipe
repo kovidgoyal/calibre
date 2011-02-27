@@ -1,0 +1,48 @@
+__license__   = 'GPL v3'
+__author__    = 'Ricardo Jurado'
+__copyright__ = 'Ricardo Jurado'
+__version__     = 'v0.1'
+__date__        = '22 February 2011'
+
+'''
+http://blog.flickr.net/
+'''
+
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1297031650(BasicNewsRecipe):
+
+    title          = u'Flickr Blog'
+    masthead_url   = 'http://flickrtheblog.files.wordpress.com/2008/11/flickblog_logo.gif'
+    cover_url      = 'http://flickrtheblog.files.wordpress.com/2008/11/flickblog_logo.gif'
+    publisher      = u''
+
+    __author__            = 'Ricardo Jurado'
+    description           = 'Pictures Blog'
+    category              = 'Blog,Pictures'
+
+    oldest_article = 120
+    max_articles_per_feed = 10
+    no_stylesheets = True
+    use_embedded_content = False
+    encoding = 'UTF-8'
+    remove_javascript = True
+    language = 'en'
+
+    extra_css             = """
+                               p{text-align: justify; font-size: 100%}
+                               body{ text-align: left; font-size:100% }
+                               h2{font-family: sans-serif; font-size:130%; font-weight:bold; text-align: justify; }
+                               .published{font-family:Arial,Helvetica,sans-serif; font-size:80%; }
+                               .posted{font-family:Arial,Helvetica,sans-serif; font-size:80%; }
+                                 """
+
+    keep_only_tags = [
+                 dict(name='div', attrs={'class':'entry'})
+                 ]
+
+    feeds          = [
+                     (u'BLOG', u'http://feeds.feedburner.com/Flickrblog'),
+                     #(u'BLOG', u'http://blog.flickr.net/es/feed/atom/')
+                     ]

@@ -70,7 +70,7 @@ class PML_HTMLizer(object):
         'c': ('<div style="text-align: center; margin: auto;">', '</div>'),
         'r': ('<div style="text-align: right;">', '</div>'),
         't': ('<div style="margin-left: 5%;">', '</div>'),
-        'T': ('<div style="margin-left: %s;">', '</div>'),
+        'T': ('<div style="text-indent: %s;">', '</div>'),
         'i': ('<span style="font-style: italic;">', '</span>'),
         'u': ('<span style="text-decoration: underline;">', '</span>'),
         'd': ('<span style="text-decoration: line-through;">', '</span>'),
@@ -151,8 +151,8 @@ class PML_HTMLizer(object):
     def prepare_pml(self, pml):
         # Give Chapters the form \\*='text'text\\*. This is used for generating
         # the TOC later.
-        pml = re.sub(r'(?<=\\x)(?P<text>.*?)(?=\\x)', lambda match: '="%s"%s' % (self.strip_pml(match.group('text')), match.group('text')), pml)
-        pml = re.sub(r'(?<=\\X[0-4])(?P<text>.*?)(?=\\X[0-4])', lambda match: '="%s"%s' % (self.strip_pml(match.group('text')), match.group('text')), pml)
+        pml = re.sub(r'(?msu)(?P<c>\\x)(?P<text>.*?)(?P=c)', lambda match: '%s="%s"%s%s' % (match.group('c'), self.strip_pml(match.group('text')), match.group('text'), match.group('c')), pml)
+        pml = re.sub(r'(?msu)(?P<c>\\X[0-4])(?P<text>.*?)(?P=c)', lambda match: '%s="%s"%s%s' % (match.group('c'), self.strip_pml(match.group('text')), match.group('text'), match.group('c')), pml)
 
         # Remove comments
         pml = re.sub(r'(?mus)\\v(?P<text>.*?)\\v', '', pml)
@@ -190,9 +190,10 @@ class PML_HTMLizer(object):
         pml = re.sub(r'\\a\d\d\d', '', pml)
         pml = re.sub(r'\\U\d\d\d\d', '', pml)
         pml = re.sub(r'\\.', '', pml)
-        pml.replace('\r\n', ' ')
-        pml.replace('\n', ' ')
-        pml.replace('\r', ' ')
+        pml = pml.replace('\r\n', ' ')
+        pml = pml.replace('\n', ' ')
+        pml = pml.replace('\r', ' ')
+        pml = pml.strip()
 
         return pml
 
@@ -499,7 +500,13 @@ class PML_HTMLizer(object):
         self.toc = []
         self.file_name = file_name
 
-        indent_state = {'t': False, 'T': False}
+        # t: Are we in an open \t tag set?
+        # T: Are we in an open \T?
+        # st: Did the \t start the line?
+        # sT: Did the \T start the line?
+        # et: Did the \t end the line?
+        indent_state = {'t': False, 'T': False, 'st': False, 'sT': False, 'et': False}
+        basic_indent = False
         adv_indent_val = ''
         # Keep track of the number of empty lines
         # between paragraphs. When we reach a set number
@@ -512,8 +519,26 @@ class PML_HTMLizer(object):
         for line in pml.splitlines():
             parsed = []
             empty = True
+
             basic_indent = indent_state['t']
-            adv_indent = indent_state['T']
+            indent_state['T'] = False
+            # Determine if the \t starts the line or if we are
+            # in an open \t block.
+            if line.lstrip().startswith('\\t') or basic_indent:
+                basic_indent = True
+                indent_state['st'] = True
+            else:
+                indent_state['st'] = False
+            # Determine if the \T starts the line.
+            if line.lstrip().startswith('\\T'):
+                indent_state['sT'] = True
+            else:
+                indent_state['sT'] = False
+            # Determine if the \t ends the line.
+            if line.rstrip().endswith('\\t'):
+                indent_state['et'] = True
+            else:
+                indent_state['et'] = False
 
             # Must use StringIO, cStringIO does not support unicode
             line = StringIO.StringIO(line)
@@ -575,13 +600,10 @@ class PML_HTMLizer(object):
                         empty = False
                         text = '<hr width="%s" />' % self.code_value(line)
                     elif c == 't':
-                        indent_state[c] = not indent_state[c]
-                        if indent_state[c]:
-                            basic_indent = True
+                        indent_state['t'] = not indent_state['t']
                     elif c == 'T':
                         # Ensure we only store the value on the first T set for the line.
                         if not indent_state['T']:
-                            adv_indent = True
                             adv_indent_val = self.code_value(line)
                         else:
                             # We detected a T previously on this line.
@@ -603,17 +625,30 @@ class PML_HTMLizer(object):
 
             if empty:
                 empty_count += 1
-                if empty_count == 3:
+                if empty_count == 2:
                     output.append('<p>&nbsp;</p>')
             else:
                 empty_count = 0
                 text = self.end_line()
                 parsed.append(text)
                 
+                # Basic indent will be set if the \t starts the line or
+                # if we are in a continuing \t block.
                 if basic_indent:
-                    parsed.insert(0, self.STATES_TAGS['t'][0])
-                    parsed.append(self.STATES_TAGS['t'][1])
-                elif adv_indent:
+                    # if the \t started the line and either it ended the line or the \t
+                    # block is still open use a left margin.
+                    if indent_state['st'] and (indent_state['et'] or indent_state['t']):
+                        parsed.insert(0, self.STATES_TAGS['t'][0])
+                        parsed.append(self.STATES_TAGS['t'][1])
+                    # Use a text indent instead of a margin.
+                    # This handles cases such as:
+                    # \tO\tne upon a time...
+                    else:
+                        parsed.insert(0, self.STATES_TAGS['T'][0] % '5%')
+                        parsed.append(self.STATES_TAGS['T'][1])
+                # \t will override \T's on the line.
+                # We only handle \T's that started the line.
+                elif indent_state['T'] and indent_state['sT']:
                     parsed.insert(0, self.STATES_TAGS['T'][0] % adv_indent_val)
                     parsed.append(self.STATES_TAGS['T'][1])
                     indent_state['T'] = False

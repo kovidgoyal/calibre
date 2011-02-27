@@ -7,17 +7,19 @@ __docformat__ = 'restructuredtext en'
 
 from PyQt4.Qt import QApplication, QFont, QFontInfo, QFontDialog
 
-from calibre.gui2.preferences import ConfigWidgetBase, test_widget
+from calibre.gui2.preferences import ConfigWidgetBase, test_widget, CommaSeparatedList
 from calibre.gui2.preferences.look_feel_ui import Ui_Form
 from calibre.gui2 import config, gprefs, qt_app
 from calibre.utils.localization import available_translations, \
     get_language, get_lang
 from calibre.utils.config import prefs
+from calibre.utils.icu import sort_key
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def genesis(self, gui):
         self.gui = gui
+        db = gui.library_view.model().db
 
         r = self.register
 
@@ -46,7 +48,6 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('disable_tray_notification', config)
         r('use_roman_numerals_for_series_number', config)
         r('separate_cover_flow', config, restart_required=True)
-        r('search_as_you_type', config)
         r('show_child_bar', gprefs)
 
         choices = [(_('Small'), 'small'), (_('Medium'), 'medium'),
@@ -61,6 +62,15 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                    (_('Partitioned'), 'partition')]
         r('tags_browser_partition_method', gprefs, choices=choices)
         r('tags_browser_collapse_at', gprefs)
+
+        choices = set([k for k in db.field_metadata.all_field_keys()
+                    if db.field_metadata[k]['is_category'] and
+                       db.field_metadata[k]['datatype'] in ['text', 'series', 'enumeration']])
+        choices -= set(['authors', 'publisher', 'formats', 'news'])
+        self.opt_categories_using_hierarchy.update_items_cache(choices)
+        r('categories_using_hierarchy', db.prefs, setting=CommaSeparatedList,
+          choices=sorted(list(choices), key=sort_key))
+
 
         self.current_font = None
         self.change_font_button.clicked.connect(self.change_font)
@@ -116,7 +126,6 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
 
     def refresh_gui(self, gui):
-        gui.search.search_as_you_type(config['search_as_you_type'])
         self.update_font_display()
         gui.tags_view.reread_collapse_parameters()
 

@@ -186,7 +186,7 @@ class BuiltinTemplate(BuiltinFormatterFunction):
 
     def evaluate(self, formatter, kwargs, mi, locals, template):
         template = template.replace('[[', '{').replace(']]', '}')
-        return formatter.safe_format(template, kwargs, 'TEMPLATE', mi)
+        return formatter.__class__().safe_format(template, kwargs, 'TEMPLATE', mi)
 
 class BuiltinEval(BuiltinFormatterFunction):
     name = 'eval'
@@ -396,6 +396,34 @@ class BuiltinListitem(BuiltinFormatterFunction):
         except:
             return ''
 
+class BuiltinSublist(BuiltinFormatterFunction):
+    name = 'sublist'
+    arg_count = 4
+    doc = _('sublist(val, start_index, end_index, separator) -- interpret the '
+            ' value as a list of items separated by `separator`, returning a '
+            ' new list made from the `start_index`th to the `end_index`th item. '
+            'The first item is number zero. If an index is negative, then it '
+            'counts from the end of the list. As a special case, an end_index '
+            'of zero is assumed to be the length of the list. Examples using '
+            'basic template mode and assuming a #genre value if A.B.C: '
+            '{#genre:sublist(-1,0,.)} returns C<br/>'
+            '{#genre:sublist(0,1,.)} returns A<br/>'
+            '{#genre:sublist(0,-1,.)} returns A.B')
+
+    def evaluate(self, formatter, kwargs, mi, locals, val, start_index, end_index, sep):
+        if not val:
+            return ''
+        si = int(start_index)
+        ei = int(end_index)
+        val = val.split(sep)
+        try:
+            if ei == 0:
+                return sep.join(val[si:])
+            else:
+                return sep.join(val[si:ei])
+        except:
+            return ''
+
 class BuiltinUppercase(BuiltinFormatterFunction):
     name = 'uppercase'
     arg_count = 1
@@ -447,6 +475,7 @@ builtin_re          = BuiltinRe()
 builtin_shorten     = BuiltinShorten()
 builtin_strcat      = BuiltinStrcat()
 builtin_strcmp      = BuiltinStrcmp()
+builtin_sublist     = BuiltinSublist()
 builtin_substr      = BuiltinSubstr()
 builtin_subtract    = BuiltinSubtract()
 builtin_switch      = BuiltinSwitch()

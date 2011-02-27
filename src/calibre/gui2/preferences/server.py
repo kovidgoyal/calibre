@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 import time
 
 from PyQt4.Qt import Qt, QUrl, QDialog, QSize, QVBoxLayout, QLabel, \
-    QPlainTextEdit, QDialogButtonBox
+    QPlainTextEdit, QDialogButtonBox, QTimer
 
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget
 from calibre.gui2.preferences.server_ui import Ui_Form
@@ -16,7 +16,8 @@ from calibre.utils.search_query_parser import saved_searches
 from calibre.library.server import server_config
 from calibre.utils.config import ConfigProxy
 from calibre.gui2 import error_dialog, config, open_url, warning_dialog, \
-        Dispatcher
+        Dispatcher, info_dialog
+from calibre import as_unicode
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
@@ -67,25 +68,36 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def start_server(self):
         self.set_server_options()
-        from calibre.library.server.main import start_threaded_server
-        self.server = start_threaded_server(self.db, server_config().parse())
-        while not self.server.is_running and self.server.exception is None:
+        self.gui.start_content_server(check_started=False)
+        while not self.gui.content_server.is_running and self.gui.content_server.exception is None:
             time.sleep(1)
-        if self.server.exception is not None:
+        if self.gui.content_server.exception is not None:
             error_dialog(self, _('Failed to start content server'),
-                         unicode(self.server.exception)).exec_()
+                    as_unicode(self.gui.content_server.exception)).exec_()
             return
         self.start_button.setEnabled(False)
         self.test_button.setEnabled(True)
         self.stop_button.setEnabled(True)
 
     def stop_server(self):
-        from calibre.library.server.main import stop_threaded_server
-        stop_threaded_server(self.server)
-        self.server = None
+        self.gui.content_server.threaded_exit()
+        self.stopping_msg = info_dialog(self, _('Stopping'),
+                _('Stopping server, this could take upto a minute, please wait...'),
+                show_copy_button=False)
+        QTimer.singleShot(500, self.check_exited)
+
+    def check_exited(self):
+        if self.gui.content_server.is_running:
+            QTimer.singleShot(20, self.check_exited)
+            if not self.stopping_msg.isVisible():
+                self.stopping_msg.exec_()
+            return
+
+        self.gui.content_server = None
         self.start_button.setEnabled(True)
         self.test_button.setEnabled(False)
         self.stop_button.setEnabled(False)
+        self.stopping_msg.accept()
 
     def test_server(self):
         open_url(QUrl('http://127.0.0.1:'+str(self.opt_port.value())))

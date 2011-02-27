@@ -22,7 +22,8 @@ class PluginWidget(Widget, Ui_Form):
                 ['colors', 'dont_normalize', 'keep_aspect_ratio', 'right2left',
                     'despeckle', 'no_sort', 'no_process', 'landscape',
                     'dont_sharpen', 'disable_trim', 'wide', 'output_format',
-                    'dont_grayscale']
+                    'dont_grayscale', 'comic_image_size',
+                    'dont_add_comic_pages_to_toc']
                 )
         self.db, self.book_id = db, book_id
         for x in get_option('output_format').option.choices:

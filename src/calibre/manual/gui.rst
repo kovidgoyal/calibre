@@ -27,6 +27,7 @@ Actions
 
 .. image:: images/actions.png
     :alt: The Actions Toolbar
+    :align: center
 
 The actions toolbar provides convenient shortcuts to commonly used actions. Most of the action buttons have little arrows next to them. By clicking the arrows, you can perform variations on the default action. Please note that the actions toolbar will look slightly different depending on whether you have an ebook reader attached to your computer.
 
@@ -39,6 +40,7 @@ The actions toolbar provides convenient shortcuts to commonly used actions. Most
 Add books
 ~~~~~~~~~~~~~~~~~~
 .. |adbi| image:: images/add_books.png
+    :class: float-right-img
 
 |adbi| The :guilabel:`Add books` action has five variations, accessed by the clicking the down arrow on the right side of the button.
 
@@ -63,6 +65,7 @@ To add an additional format for an existing book, use the :ref:`edit_meta_inform
 Edit metadata
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. |emii| image:: images/edit_meta_information.png
+    :class: float-right-img
 
 |emii| The :guilabel:`Edit metadata` action has six variations, which can be accessed by clicking the down arrow on the right side of the button.
 
@@ -80,6 +83,7 @@ Edit metadata
 Convert e-books
 ~~~~~~~~~~~~~~~~~~~~~~
 .. |cei| image:: images/convert_ebooks.png
+    :class: float-right-img
 
 |cei| Ebooks can be converted from a number of formats into whatever format your e-book reader prefers.
 Note that ebooks you purchase will typically have `Digital Rights Management <http://bugs.calibre-ebook.com/wiki/DRM>`_ *(DRM)*.
@@ -106,6 +110,7 @@ The :guilabel:`Convert E-books` action has three variations, accessed by the arr
 View
 ~~~~~~~~~~~
 .. |vi| image:: images/view.png
+    :class: float-right-img
 
 |vi| The :guilabel:`View` action displays the book in an ebook viewer program. |app| has a builtin viewer for the most e-book formats.
 For other formats it uses the default operating system application. You can configure which formats should open with the internal viewer via
@@ -118,6 +123,7 @@ on the right of the :guilabel:`View` button.
 Send to device
 ~~~~~~~~~~~~~~~~~~~~~~~~
 .. |stdi| image:: images/send_to_device.png
+    :class: float-right-img
 
 |stdi| The :guilabel:`Send to device` action has eight variations, accessed by clicking the down arrow on the right of the button.
 
@@ -138,6 +144,7 @@ You can control the file name and folder structure of files sent to the device b
 Fetch news
 ~~~~~~~~~~~~~~~~~
 .. |fni| image:: images/fetch_news.png
+    :class: float-right-img
 
 |fni| The :guilabel:`Fetch news` action downloads news from various websites and converts it into an ebook that can be read on your ebook reader. Normally, the newly created ebook is added to your ebook library, but if an ebook reader is connected at the time the download finishes, the news is also uploaded to the reader automatically.
             
@@ -155,6 +162,7 @@ The :guilabel:`Fetch news` action has three variations, accessed by clicking the
 Library
 ~~~~~~~~~~~~~~~~~
 .. |lii| image:: images/library.png
+    :class: float-right-img
 
 |lii| The :guilabel: `Library` action allows you to create, switch between, rename or delete a Library.  |app| allows you to create as many libraries as you wish. You coudl for instance create a fiction library, a non fiction library, a foreign language library a project library, basically any structure that suits your needs. Libraries are the highest organizational structure within |app|, each library has its own set of books, tags, categories and base storage location.
 
@@ -169,6 +177,7 @@ Library
 Device
 ~~~~~~~~~~~~~~~~~
 .. |dvi| image:: images/device.png
+    :class: float-right-img
 
 |dvi| The :guilabel:`Device` action allows you to view the books in the main memory or storage cards of your device, or to eject the device (detach it from |app|).
 This icon shows up automatically on the main |app| toolbar when you connect a supported device. You can click on it to see the books on your device. You can also drag  and drop books from your |app| library onto the icon to transfer them to your device. Conversely, you can drag and drop books from your device onto the |app| icon on the toolbar to transfer books from your device to the |app| library. 
@@ -179,6 +188,7 @@ This icon shows up automatically on the main |app| toolbar when you connect a su
 Save to disk
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 .. |svdi| image:: images/save_to_disk.png
+    :class: float-right-img
 
 |svdi| The :guilabel:`Save to disk` action has five variations, accessed by the arrow next to the button.
 
@@ -212,6 +222,7 @@ Save to disk
 Connect/Share
 ~~~~~~~~~~~~~~~~~
 .. |csi| image:: images/connect_share.png
+    :class: float-right-img
 
 |csi| The :guilabel:`Connect/Share` action allows you to manually connect to a device or folder on your computer, it also allows you to set up you |app| library for access via a web browser, or email.
 
@@ -230,6 +241,7 @@ Connect/Share
 Remove books
 ~~~~~~~~~~~~~~~~~~~~~
 .. |rbi| image:: images/remove_books.png
+    :class: float-right-img
 
 |rbi| The :guilabel:`Remove books` action **deletes books permanently**, so use it with care. It is *context sensitive*, i.e. it depends on which :ref:`catalog <catalogs>` you have selected. If you have selected the :guilabel:`Library`, books will be removed from the library. If you have selected the ebook reader device, the books will be removed from the device. To remove only a particular format for a given book use the :ref:`edit_meta_information` action.  Remove books also has five variations which can be accessed by clicking the down arrow on the right side of the button.
 
@@ -259,6 +271,7 @@ The Preferences Action allows you to change the way various aspects of |app| wor
 Catalogs
 ----------
 .. image:: images/catalogs.png
+    :align: center
 
 A *catalog* is a collection of books. |app| can manage two types of different catalogs:
                 
@@ -274,6 +287,7 @@ Many operations, like Adding books, deleting, viewing, etc. are context sensitiv
 Search & Sort
 ---------------
 .. image:: images/search_sort.png
+    :align: center
 
 The Search & Sort section allows you to perform several powerful actions on your book collections.
 
@@ -375,6 +389,7 @@ Searching for ``no`` or ``unchecked`` will find all books with ``No`` in the col
     :align: middle
 
 .. figure:: images/search.png
+    :align: center
     
     :guilabel:`Advanced Search Dialog`
 
@@ -408,14 +423,42 @@ will be interpreted to have the title: Foundation and Earth and author: Isaac As
 Book Details
 -------------
 .. image:: images/book_details.png
+    :align: center
 
 The Book Details display shows you extra information and the cover for the currently selected book.
 
 .. _jobs:
 
+.. _tag_browser:
+
+Tag Browser
+-------------
+.. image:: images/tag_browser.png
+   :class: float-left-img
+
+The Tag Browser allows you to easily browse your collection by Author/Tags/Series/etc. If you click on any Item in the Tag Browser, for example, the Author name, Isaac Asimov, then the list of books to the right is restricted to books by that author. Clicking once again on Isaac Asimov will restrict the list of books to books not by Isaac Asimov. A third click will remove the restriction. If you hold down the Ctrl or Shift keys and click on multiple items, then restrictions based on multiple items are created. For example you could Hold Ctrl and click on the tags History and Europe for find books on European history. The Tag Browser works by constructing search expressions that are automatically entered into the Search bar. It is a good way to learn how to construct basic search expressions. 
+
+There is a search bar at the top of the Tag Browser that allows you to easily find any item in the Tag Browser. In addition, you can right click on any item and choose to hide it or rename it or open a "Manage x" dialog that allows you to manage items of that kind. For example the "Manage Authors" dialog allows you to rename authors and control how their names are sorted. 
+
+Items in the Tag browser have their icons partially colored. The amount of color depends on the average rating of the books in that category. So for example if the books by Isaac Asimov have an average of four stars, the icon for Isaac Asimov in the Tag Browser will be 4/5th colored. You can hover your mouse over the icon to see the average rating.
+
+For convenience, you can drag and drop books from the book list to items in the Tag Browser and that item will be automatically applied to the dropped books. For example, dragging a book to Isaac Asimov will set the author of that book to Isaac Asimov or dragging it to the tag History will add the tag History to its tags.
+
+The outer-level items in the tag browser such as Authors and Series are called categories. You can create your own categories, called User Categories, which are useful for organizing items. For example, you can use the user categories editor (push the Manage User Categories button) to create a user category called Favorite Authors, then put the items for your favorites into the category. User categories act like built-in categories; you can click on items to search for them. You can search for all items in a category by right-clicking on the category name and choosing "Search for books in ...".
+
+User categories can have sub-categories. For example, the user category Favorites.Authors is a sub-category of Favorites. You might also have Favorites.Series, in which case there will be two sub-categories under Favorites. Sub-categories can be created using Manage User Categories by entering names like the Favorites example. They can also be created by right-clicking on a user category, choosing "Add sub-category to ...", and entering the category name.
+
+It is also possible to create hierarchies inside some of the built-in categories (the text categories). These hierarchies show with the small triangle permitting the sub-items to be hidden. To use hierarchies in a category, you must first go to Preferences / Look & Feel and enter the category name(s) into the "Categories with hierarchical items" box. Once this is done, items in that category that contain periods will be shown using the small triangle. For example, assume you create a custom column called "Genre" and indicate that it contains hierarchical items. Once done, items such as Mystery.Thriller and Mystery.English will display as Mystery with the small triangle next to it. Clicking on the triangle will show Thriller and English as sub-items.
+
+You can drag and drop items in the Tag browser onto user categories to add them to that category.
+
+You can control how items are sorted in the Tag browser via the box at the bottom of the Tag Browser. You can choose to sort by name, average rating or popularity (popularity is the number of books with an item in your library; for example; the popularity of Isaac Asimov is the number of book sin your library by Isaac Asimov).
+
+
 Jobs
 -----
 .. image:: images/jobs.png
+    :class: float-left-img
 
 The Jobs panel shows you the number of currently running jobs. Jobs are tasks that run in a separate process, they include converting ebooks and talking to your reader device. You can click on the jobs panel to access the list of jobs. Once a job has completed, by double-clicking it in the list, you can see a detailed log from that job. This is useful to debug jobs that may not have completed successfully.
 

@@ -77,7 +77,7 @@ class EchoTarget:
             new_tag = '~'
             newline = ''
         elif tag == 'span':
-            new_tag = '%'
+            new_tag = ''
             newline = ''
         elif tag == 'a':
             self.block = True
@@ -147,7 +147,7 @@ class EchoTarget:
         elif tag == 'sub':
             self.final_output.append('~')
         elif tag == 'span':
-            self.final_output.append('%')
+            self.final_output.append('')
         elif tag == 'a':
             if self.a_part['title']:
                 textilized = ' "%s (%s)":%s ' % (

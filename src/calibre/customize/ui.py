@@ -20,6 +20,7 @@ from calibre.ebooks.metadata.fetch import MetadataSource
 from calibre.utils.config import make_config_dir, Config, ConfigProxy, \
                                  plugin_dir, OptionParser, prefs
 from calibre.ebooks.epub.fix import ePubFixer
+from calibre.ebooks.metadata.sources.base import Source
 
 platform = 'linux'
 if iswindows:
@@ -120,7 +121,8 @@ def enable_plugin(plugin_or_name):
     config['enabled_plugins'] = ep
 
 default_disabled_plugins = set([
-    'Douban Books', 'Douban.com covers', 'Nicebooks', 'Nicebooks covers'
+    'Douban Books', 'Douban.com covers', 'Nicebooks', 'Nicebooks covers',
+    'Kent District Library'
 ])
 
 def is_disabled(plugin):
@@ -493,6 +495,17 @@ def epub_fixers():
                     yield plugin
 # }}}
 
+# Metadata sources2 {{{
+def metadata_plugins(capabilities):
+    capabilities = frozenset(capabilities)
+    for plugin in _initialized_plugins:
+        if isinstance(plugin, Source) and \
+                plugin.capabilities.intersection(capabilities) and \
+                not is_disabled(plugin):
+            yield plugin
+
+# }}}
+
 # Initialize plugins {{{
 
 _initialized_plugins = []
@@ -570,7 +583,7 @@ def main(args=sys.argv):
         if remove_plugin(opts.remove_plugin):
             print 'Plugin removed'
         else:
-            print 'No custom pluginnamed', opts.remove_plugin
+            print 'No custom plugin named', opts.remove_plugin
     if opts.customize_plugin is not None:
         name, custom = opts.customize_plugin.split(',')
         plugin = find_plugin(name.strip())

@@ -13,15 +13,12 @@ class MSNSankeiNewsProduct(BasicNewsRecipe):
     description     = 'Products release from Japan'
     oldest_article = 7
     max_articles_per_feed = 100
-    encoding       = 'Shift_JIS'
+    encoding       = 'utf-8'
     language       = 'ja'
     cover_url       = 'http://sankei.jp.msn.com/images/common/sankeShinbunLogo.jpg'
     masthead_url = 'http://sankei.jp.msn.com/images/common/sankeiNewsLogo.gif'
 
     feeds          = [(u'\u65b0\u5546\u54c1', u'http://sankei.jp.msn.com/rss/news/release.xml')]
 
-    remove_tags_before = dict(id="__r_article_title__")
-    remove_tags_after  = dict(id="ajax_release_news")
-    remove_tags = [{'class':"parent chromeCustom6G"},
-                              dict(id="RelatedImg")
-                            ]
+    remove_tags_before = dict(id="NewsTitle")
+    remove_tags_after  = dict(id="RelatedTitle")

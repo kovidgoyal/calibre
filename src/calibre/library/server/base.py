@@ -120,6 +120,8 @@ class LibraryServer(ContentServer, MobileServer, XMLServer, OPDSServer, Cache,
 
         self.set_database(db)
 
+        st = 0.1 if opts.develop else 1
+
         cherrypy.config.update({
             'log.screen'             : opts.develop,
             'engine.autoreload_on'   : getattr(opts,
@@ -131,6 +133,7 @@ class LibraryServer(ContentServer, MobileServer, XMLServer, OPDSServer, Cache,
             'server.socket_port'     : opts.port,
             'server.socket_timeout'  : opts.timeout, #seconds
             'server.thread_pool'     : opts.thread_pool, # number of threads
+            'server.shutdown_timeout': st, # minutes
         })
         if embedded or wsgi:
             cherrypy.config.update({'engine.SIGHUP'          : None,
@@ -241,4 +244,9 @@ class LibraryServer(ContentServer, MobileServer, XMLServer, OPDSServer, Cache,
             except:
                 pass
 
+    def threaded_exit(self):
+        from threading import Thread
+        t = Thread(target=self.exit)
+        t.daemon = True
+        t.start()
 

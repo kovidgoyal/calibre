@@ -1,7 +1,7 @@
 #!/usr/bin/env  python
 
 __license__   = 'GPL v3'
-__copyright__ = '2008, Lionel Bergeret <lbergeret at gmail.com>'
+__copyright__ = '2008-2011, Lionel Bergeret <lbergeret at gmail.com>'
 '''
 lalibre.be
 '''
@@ -16,18 +16,18 @@ class LaLibre(BasicNewsRecipe):
     publisher             = u'lalibre.be'
     category              = 'news, Belgium'
     oldest_article        = 3
-    language              = 'fr_BE'
+    language              = 'fr'
+    masthead_url          = 'http://www.lalibre.be/img/logoLaLibre.gif'
 
     max_articles_per_feed = 20
     no_stylesheets        = True
     use_embedded_content  = False
     timefmt               = ' [%d %b %Y]'
 
-    keep_only_tags = [
-	 dict(name = 'div', attrs = {'id': 'articleHat'})
-	,dict(name = 'p', attrs = {'id': 'publicationDate'})
-        ,dict(name = 'div', attrs = {'id': 'articleText'})
-    ]
+    remove_tags_before = dict(name = 'div', attrs = {'class': 'extraMainContent'})
+    remove_tags_after  = dict(name = 'div', attrs = {'id': 'articleText'})
+
+    remove_tags = [dict(name = 'div', attrs = {'id': 'strongArticleLinks'})]
 
     feeds = [
          (u'L\'actu'           , u'http://www.lalibre.be/rss/?section=10' )
@@ -37,6 +37,13 @@ class LaLibre(BasicNewsRecipe):
         ,(u'Sports'            , u'http://www.lalibre.be/rss/?section=2' )
         ,(u'Societe'           , u'http://www.lalibre.be/rss/?section=12' )
     ]
+
+    def preprocess_html(self, soup):
+        for alink in soup.findAll('a'):
+            if alink.string is not None:
+               tstr = alink.string
+               alink.replaceWith(tstr)
+        return soup
 
     def get_cover_url(self):
         cover_url = strftime('http://pdf-online.lalibre.be/pdfonline/image/%Y%m%d/llb_%Y%m%d_nam_libre_001.pdf.L.jpg')

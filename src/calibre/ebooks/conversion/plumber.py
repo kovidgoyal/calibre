@@ -402,8 +402,8 @@ OptionRecommendation(name='asciiize',
             'with "Mikhail Gorbachiov". Also, note that in '
             'cases where there are multiple representations of a character '
             '(characters shared by Chinese and Japanese for instance) the '
-            'representation used by the largest number of people will be '
-            'used (Chinese in the previous example).')%\
+            'representation based on the current calibre interface language will be '
+            'used.')%\
             u'\u041c\u0438\u0445\u0430\u0438\u043b '
             u'\u0413\u043e\u0440\u0431\u0430\u0447\u0451\u0432'
 )
@@ -530,6 +530,11 @@ OptionRecommendation(name='format_scene_breaks',
     help=_('Left aligned scene break markers are center aligned. '
            'Replace soft scene breaks that use multiple blank lines with'
            'horizontal rules.')),
+
+OptionRecommendation(name='replace_scene_breaks',
+    recommended_value='', level=OptionRecommendation.LOW,
+    help=_('Replace scene breaks with the specified text. By default, the '
+        'text from the input document is used.')),
 
 OptionRecommendation(name='dehyphenate',
     recommended_value=True, level=OptionRecommendation.LOW,
@@ -979,7 +984,9 @@ OptionRecommendation(name='sr3_replace',
         flattener = CSSFlattener(fbase=fbase, fkey=fkey,
                 lineh=line_height,
                 untable=self.output_plugin.file_type in ('mobi','lit'),
-                unfloat=self.output_plugin.file_type in ('mobi', 'lit'))
+                unfloat=self.output_plugin.file_type in ('mobi', 'lit'),
+                page_break_on_body=self.output_plugin.file_type in ('mobi',
+                    'lit'))
         flattener(self.oeb, self.opts)
         self.opts.insert_blank_line = oibl
         self.opts.remove_paragraph_spacing = orps

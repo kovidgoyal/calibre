@@ -12,7 +12,7 @@ class Noticias(BasicNewsRecipe):
     title                 = 'Observa Digital'
     __author__ = '2010, Gustavo Azambuja <hola at gazambuja.com>'
     description           = 'Noticias desde Uruguay'
-    language       = 'es'
+    language       = 'es_UY'
     timefmt        = '[%a, %d %b, %Y]'
     use_embedded_content  = False
     recursion             = 5

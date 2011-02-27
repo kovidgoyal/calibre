@@ -12,7 +12,7 @@ class ElArgentino(BasicNewsRecipe):
     __author__            = 'Darko Miletic'
     description           = 'Informacion Libre las 24 horas'
     publisher             = 'ElArgentino.com'
-    category              = 'news, politics, Argentina'    
+    category              = 'news, politics, Argentina'
     oldest_article        = 2
     max_articles_per_feed = 100
     remove_javascript     = True
@@ -20,7 +20,7 @@ class ElArgentino(BasicNewsRecipe):
     use_embedded_content  = False
     encoding              = 'utf8'
     cover_url             = 'http://www.elargentino.com/TemplateWeb/MediosFooter/tapa_elargentino.png'
-    language = 'es'
+    language = 'es_AR'
 
 
     html2lrf_options = [
@@ -28,16 +28,16 @@ class ElArgentino(BasicNewsRecipe):
                         , '--category', category
                         , '--publisher', publisher
                         ]
-    
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"' 
+
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"'
 
     remove_tags = [
                      dict(name='div', attrs={'id':'noprint'              })
                     ,dict(name='div', attrs={'class':'encabezadoImprimir'})
                     ,dict(name='a'  , attrs={'target':'_blank'           })
                   ]
-    
-    feeds = [ 
+
+    feeds = [
               (u'Portada'     , u'http://www.elargentino.com/Highlights.aspx?Content-Type=text/xml&ChannelDesc=Home'                                             )
              ,(u'Pais'        , u'http://www.elargentino.com/Highlights.aspx?ParentType=Section&ParentId=112&Content-Type=text/xml&ChannelDesc=Pa%C3%ADs'        )
              ,(u'Economia'    , u'http://www.elargentino.com/Highlights.aspx?ParentType=Section&ParentId=107&Content-Type=text/xml&ChannelDesc=Econom%C3%ADa'    )
@@ -51,12 +51,12 @@ class ElArgentino(BasicNewsRecipe):
 
     def print_version(self, url):
         main, sep, article_part = url.partition('/nota-')
-        article_id, rsep, rrest = article_part.partition('-')    
+        article_id, rsep, rrest = article_part.partition('-')
         return u'http://www.elargentino.com/Impresion.aspx?Id=' + article_id
 
     def preprocess_html(self, soup):
         mtag = '<meta http-equiv="Content-Type" content="text/html; charset=utf-8">\n<meta http-equiv="Content-Language" content="es-AR"/>\n'
         soup.head.insert(0,mtag)
         for item in soup.findAll(style=True):
-            del item['style']        
+            del item['style']
         return soup

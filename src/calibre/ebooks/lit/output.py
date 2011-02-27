@@ -22,7 +22,8 @@ class LITOutput(OutputFormatPlugin):
         from calibre.ebooks.oeb.transforms.htmltoc import HTMLTOCAdder
         from calibre.ebooks.lit.writer import LitWriter
         from calibre.ebooks.oeb.transforms.split import Split
-        split = Split(split_on_page_breaks=True, max_flow_size=0)
+        split = Split(split_on_page_breaks=True, max_flow_size=0,
+                remove_css_pagebreaks=False)
         split(self.oeb, self.opts)
 
 

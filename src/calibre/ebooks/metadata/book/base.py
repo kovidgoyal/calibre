@@ -30,6 +30,7 @@ NULL_VALUES = {
                 'author_sort_map': {},
                 'authors'      : [_('Unknown')],
                 'title'        : _('Unknown'),
+                'user_categories' : {},
                 'language'     : 'und'
 }
 
@@ -129,10 +130,7 @@ class Metadata(object):
                 val = NULL_VALUES.get(field, None)
             _data[field] = val
         elif field in _data['user_metadata'].iterkeys():
-            if _data['user_metadata'][field]['datatype'] == 'composite':
-                _data['user_metadata'][field]['#value#'] = None
-            else:
-                _data['user_metadata'][field]['#value#'] = val
+            _data['user_metadata'][field]['#value#'] = val
             _data['user_metadata'][field]['#extra#'] = extra
         else:
             # You are allowed to stick arbitrary attributes onto this object as

@@ -104,14 +104,26 @@ _extra_lang_codes = {
         'en_IN' : _('English (India)'),
         'en_TH' : _('English (Thailand)'),
         'en_CY' : _('English (Cyprus)'),
+        'en_CZ' : _('English (Czechoslovakia)'),
         'en_PK' : _('English (Pakistan)'),
         'en_HR' : _('English (Croatia)'),
+        'en_ID' : _('English (Indonesia)'),
         'en_IL' : _('English (Israel)'),
         'en_SG' : _('English (Singapore)'),
         'en_YE' : _('English (Yemen)'),
         'en_IE' : _('English (Ireland)'),
         'en_CN' : _('English (China)'),
         'es_PY' : _('Spanish (Paraguay)'),
+        'es_UY' : _('Spanish (Uruguay)'),
+        'es_AR' : _('Spanish (Argentina)'),
+        'es_MX' : _('Spanish (Mexico)'),
+        'es_CU' : _('Spanish (Cuba)'),
+        'es_CL' : _('Spanish (Chile)'),
+        'es_EC' : _('Spanish (Ecuador)'),
+        'es_HN' : _('Spanish (Honduras)'),
+        'es_VE' : _('Spanish (Venezuela)'),
+        'es_BO' : _('Spanish (Bolivia)'),
+        'es_NI' : _('Spanish (Nicaragua)'),
         'de_AT' : _('German (AT)'),
         'fr_BE' : _('French (BE)'),
         'nl'    : _('Dutch (NL)'),
@@ -156,4 +168,14 @@ def set_qt_translator(translator):
             if os.path.exists(p):
                 return translator.load(p)
     return False
+
+_udc = None
+
+def get_udc():
+    global _udc
+    if _udc is None:
+        from calibre.ebooks.unihandecode import Unihandecoder
+        _udc = Unihandecoder(lang=get_lang())
+    return _udc
+
 

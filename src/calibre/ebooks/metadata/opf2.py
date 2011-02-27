@@ -422,6 +422,33 @@ class MetadataField(object):
             elem = obj.create_metadata_element(self.name, is_dc=self.is_dc)
         obj.set_text(elem, self.renderer(val))
 
+class TitleSortField(MetadataField):
+
+    def __get__(self, obj, type=None):
+        c = self.__real_get__(obj, type)
+        if c is None:
+            matches = obj.title_path(obj.metadata)
+            if matches:
+                for match in matches:
+                    ans = match.get('{%s}file-as'%obj.NAMESPACES['opf'], None)
+                    if not ans:
+                        ans = match.get('file-as', None)
+                    if ans:
+                        c = ans
+        if not c:
+            c = self.none_is
+        else:
+            c = c.strip()
+        return c
+
+    def __set__(self, obj, val):
+        MetadataField.__set__(self, obj, val)
+        matches = obj.title_path(obj.metadata)
+        if matches:
+            for match in matches:
+                for attr in list(match.attrib):
+                    if attr.endswith('file-as'):
+                        del match.attrib[attr]
 
 def serialize_user_metadata(metadata_elem, all_user_metadata, tail='\n'+(' '*8)):
     from calibre.utils.config import to_json
@@ -442,6 +469,13 @@ def serialize_user_metadata(metadata_elem, all_user_metadata, tail='\n'+(' '*8))
         meta.tail = tail
         metadata_elem.append(meta)
 
+
+def dump_user_categories(cats):
+    if not cats:
+        cats = {}
+    from calibre.ebooks.metadata.book.json_codec import object_to_unicode
+    return json.dumps(object_to_unicode(cats), ensure_ascii=False,
+            skipkeys=True)
 
 class OPF(object): # {{{
 
@@ -490,12 +524,16 @@ class OPF(object): # {{{
     rights          = MetadataField('rights')
     series          = MetadataField('series', is_dc=False)
     series_index    = MetadataField('series_index', is_dc=False, formatter=float, none_is=1)
+    title_sort      = TitleSortField('title_sort', is_dc=False)
     rating          = MetadataField('rating', is_dc=False, formatter=int)
     pubdate         = MetadataField('date', formatter=parse_date,
                                     renderer=isoformat)
     publication_type = MetadataField('publication_type', is_dc=False)
     timestamp       = MetadataField('timestamp', is_dc=False,
                                     formatter=parse_date, renderer=isoformat)
+    user_categories = MetadataField('user_categories', is_dc=False,
+                                    formatter=json.loads,
+                                    renderer=dump_user_categories)
 
 
     def __init__(self, stream, basedir=os.getcwdu(), unquote_urls=True,
@@ -777,30 +815,6 @@ class OPF(object): # {{{
         return property(fget=fget, fset=fset)
 
     @dynamic_property
-    def title_sort(self):
-
-        def fget(self):
-            matches = self.title_path(self.metadata)
-            if matches:
-                for match in matches:
-                    ans = match.get('{%s}file-as'%self.NAMESPACES['opf'], None)
-                    if not ans:
-                        ans = match.get('file-as', None)
-                    if ans:
-                        return ans
-
-        def fset(self, val):
-            matches = self.title_path(self.metadata)
-            if matches:
-                for key in matches[0].attrib:
-                    if key.endswith('file-as'):
-                        matches[0].attrib.pop(key)
-                matches[0].set('{%s}file-as'%self.NAMESPACES['opf'], unicode(val))
-
-        return property(fget=fget, fset=fset)
-
-
-    @dynamic_property
     def tags(self):
 
         def fget(self):
@@ -990,7 +1004,7 @@ class OPF(object): # {{{
         for attr in ('title', 'authors', 'author_sort', 'title_sort',
                      'publisher', 'series', 'series_index', 'rating',
                      'isbn', 'tags', 'category', 'comments',
-                     'pubdate'):
+                     'pubdate', 'user_categories'):
             val = getattr(mi, attr, None)
             if val is not None and val != [] and val != (None, None):
                 setattr(self, attr, val)
@@ -1129,8 +1143,6 @@ class OPFCreator(Metadata):
         metadata = M.metadata()
         a = metadata.append
         role = {}
-        if self.title_sort:
-            role = {'file-as':self.title_sort}
         a(DC_ELEM('title', self.title if self.title else _('Unknown'),
             opf_attrs=role))
         for i, author in enumerate(self.authors):
@@ -1165,12 +1177,18 @@ class OPFCreator(Metadata):
             a(CAL_ELEM('calibre:series', self.series))
             if self.series_index is not None:
                 a(CAL_ELEM('calibre:series_index', self.format_series_index()))
+        if self.title_sort:
+            a(CAL_ELEM('calibre:title_sort', self.title_sort))
         if self.rating is not None:
             a(CAL_ELEM('calibre:rating', str(self.rating)))
         if self.timestamp is not None:
             a(CAL_ELEM('calibre:timestamp', self.timestamp.isoformat()))
         if self.publication_type is not None:
             a(CAL_ELEM('calibre:publication_type', self.publication_type))
+        if self.user_categories:
+            from calibre.ebooks.metadata.book.json_codec import object_to_unicode
+            a(CAL_ELEM('calibre:user_categories',
+                       json.dumps(object_to_unicode(self.user_categories))))
         manifest = E.manifest()
         if self.manifest is not None:
             for ref in self.manifest:
@@ -1295,6 +1313,8 @@ def metadata_to_opf(mi, as_string=True):
         meta('publication_type', mi.publication_type)
     if mi.title_sort:
         meta('title_sort', mi.title_sort)
+    if mi.user_categories:
+        meta('user_categories', dump_user_categories(mi.user_categories))
 
     serialize_user_metadata(metadata, mi.get_all_user_metadata(False))
 
@@ -1320,7 +1340,6 @@ def test_m2o():
     mi.author_sort = 'author sort'
     mi.pubdate = nowf()
     mi.language = 'en'
-    mi.category = 'test'
     mi.comments = 'what a fun book\n\n'
     mi.publisher = 'publisher'
     mi.isbn = 'boooo'
@@ -1335,11 +1354,11 @@ def test_m2o():
     opf = metadata_to_opf(mi)
     print opf
     newmi = MetaInformation(OPF(StringIO(opf)))
-    for attr in ('author_sort', 'title_sort', 'comments', 'category',
+    for attr in ('author_sort', 'title_sort', 'comments',
                     'publisher', 'series', 'series_index', 'rating',
                     'isbn', 'tags', 'cover_data', 'application_id',
                     'language', 'cover',
-                    'book_producer', 'timestamp', 'lccn', 'lcc', 'ddc',
+                    'book_producer', 'timestamp',
                     'pubdate', 'rights', 'publication_type'):
         o, n = getattr(mi, attr), getattr(newmi, attr)
         if o != n and o.strip() != n.strip():
@@ -1441,4 +1460,6 @@ def test_user_metadata():
     print opf.render()
 
 if __name__ == '__main__':
-    test_user_metadata()
+    #test_user_metadata()
+    #test_m2o()
+    test()

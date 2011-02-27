@@ -39,6 +39,13 @@ def asfloat(value):
         return 0.0
     return float(value)
 
+def isspace(text):
+    if not text:
+        return True
+    if u'\xa0' in text:
+        return False
+    return text.isspace()
+
 class BlockState(object):
     def __init__(self, body):
         self.body = body
@@ -360,6 +367,9 @@ class MobiMLizer(object):
             istate.attrib['src'] = elem.attrib['src']
             istate.attrib['align'] = 'baseline'
             cssdict = style.cssdict()
+            valign = cssdict.get('vertical-align', None)
+            if valign in ('top', 'bottom', 'middle'):
+                istate.attrib['align'] = valign
             for prop in ('width', 'height'):
                 if cssdict[prop] != 'auto':
                     value = style[prop]
@@ -438,14 +448,17 @@ class MobiMLizer(object):
         if elem.text:
             if istate.preserve:
                 text = elem.text
-            elif len(elem) > 0 and elem.text.isspace():
+            elif len(elem) > 0 and isspace(elem.text):
                 text = None
             else:
                 text = COLLAPSE.sub(' ', elem.text)
         valign = style['vertical-align']
         not_baseline = valign in ('super', 'sub', 'text-top',
-                'text-bottom')
-        vtag = 'sup' if valign in ('super', 'text-top') else 'sub'
+                'text-bottom') or (
+                isinstance(valign, (float, int)) and abs(valign) != 0)
+        issup = valign in ('super', 'text-top') or (
+            isinstance(valign, (float, int)) and valign > 0)
+        vtag = 'sup' if issup else 'sub'
         if not_baseline and not ignore_valign and tag not in NOT_VTAGS and not isblock:
             nroot = etree.Element(XHTML('html'), nsmap=MOBI_NSMAP)
             vbstate = BlockState(etree.SubElement(nroot, XHTML('body')))
@@ -481,7 +494,7 @@ class MobiMLizer(object):
             if child.tail:
                 if istate.preserve:
                     tail = child.tail
-                elif bstate.para is None and child.tail.isspace():
+                elif bstate.para is None and isspace(child.tail):
                     tail = None
                 else:
                     tail = COLLAPSE.sub(' ', child.tail)

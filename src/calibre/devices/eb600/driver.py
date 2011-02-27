@@ -172,10 +172,10 @@ class INVESBOOK(EB600):
     gui_name = 'Inves Book 600'
 
     FORMATS = ['epub', 'mobi', 'prc', 'fb2', 'html', 'pdf', 'rtf', 'txt']
+    BCD         = [0x110, 0x323]
 
-    VENDOR_NAME = 'INVES_E6'
-    WINDOWS_MAIN_MEM = '00INVES_E600'
-    WINDOWS_CARD_A_MEM = '00INVES_E600'
+    VENDOR_NAME = ['INVES_E6', 'INVES-WI']
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['00INVES_E600', 'INVES-WIBOOK']
 
 class BOOQ(EB600):
     name = 'Booq Device Interface'
@@ -183,9 +183,8 @@ class BOOQ(EB600):
 
     FORMATS = ['epub', 'mobi', 'prc', 'fb2', 'pdf', 'doc', 'rtf', 'txt', 'html']
 
-    VENDOR_NAME = 'NETRONIX'
-    WINDOWS_MAIN_MEM = 'EB600'
-    WINDOWS_CARD_A_MEM = 'EB600'
+    VENDOR_NAME = ['NETRONIX', '36LBOOKS']
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['EB600', 'ELEQTOR']
 
 class MENTOR(EB600):
 

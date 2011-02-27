@@ -16,7 +16,6 @@ from calibre.gui2 import config
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.saved_search_editor import SavedSearchEditor
 from calibre.gui2.dialogs.search import SearchDialog
-from calibre.utils.config import dynamic
 from calibre.utils.search_query_parser import saved_searches
 from calibre.utils.icu import sort_key
 
@@ -114,6 +113,9 @@ class SearchBox2(QComboBox): # {{{
 
     def text(self):
         return self.currentText()
+
+    def clear_history(self, *args):
+        QComboBox.clear(self)
 
     def clear(self, emit_search=True):
         self.normalize_state()
@@ -271,7 +273,7 @@ class SavedSearchBox(QComboBox): # {{{
     def initialize(self, _search_box, colorize=False, help_text=_('Search')):
         self.search_box = _search_box
         try:
-           self.line_edit.setPlaceholderText(help_text)
+            self.line_edit.setPlaceholderText(help_text)
         except:
             # Using Qt < 4.7
             pass
@@ -376,9 +378,7 @@ class SearchBoxMixin(object): # {{{
             unicode(self.search.toolTip())))
         self.advanced_search_button.setStatusTip(self.advanced_search_button.toolTip())
         self.clear_button.setStatusTip(self.clear_button.toolTip())
-        self.search_highlight_only.stateChanged.connect(self.highlight_only_changed)
-        self.search_highlight_only.setChecked(
-                            dynamic.get('search_highlight_only', False))
+        self.search_options_button.clicked.connect(self.search_options_button_clicked)
 
     def focus_search_box(self, *args):
         self.search.setFocus(Qt.OtherFocusReason)
@@ -402,13 +402,12 @@ class SearchBoxMixin(object): # {{{
         self.search.do_search()
         self.focus_to_library()
 
+    def search_options_button_clicked(self):
+        self.iactions['Preferences'].do_config(initial_plugin=('Interface',
+            'Search'), close_after_initial=True)
+
     def focus_to_library(self):
         self.current_view().setFocus(Qt.OtherFocusReason)
-
-    def highlight_only_changed(self, toWhat):
-        dynamic.set('search_highlight_only', toWhat)
-        self.current_view().model().set_highlight_only(toWhat)
-        self.focus_to_library()
 
     # }}}
 

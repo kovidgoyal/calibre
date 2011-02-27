@@ -10,7 +10,10 @@ class WallStreetJournal(BasicNewsRecipe):
 
     title = 'Wall Street Journal (free)'
     __author__ = 'Kovid Goyal, Sujata Raman, Joshua Oster-Morris, Starson17'
-    description = 'News and current affairs'
+    description = '''News and current affairs. This recipe only fetches complete
+    versions of the articles that are available free on the wsj.com website.
+    To get the rest of the articles, subscribe to the WSJ and use the other WSJ
+    recipe.'''
     language = 'en'
     cover_url           = 'http://dealbreaker.com/images/thumbs/Wall%20Street%20Journal%20A1.JPG'
     max_articles_per_feed = 1000
@@ -137,12 +140,17 @@ class WallStreetJournal(BasicNewsRecipe):
             meta = a.find(attrs={'class':'meta_sectionName'})
             if meta is not None:
                 meta.extract()
-            title = self.tag_to_string(a).strip() + ' [%s]'%self.tag_to_string(meta)
+                meta = self.tag_to_string(meta).strip()
+            if meta:
+                title = self.tag_to_string(a).strip() + ' [%s]'%meta
+            else:
+                title = self.tag_to_string(a).strip()
             url = 'http://online.wsj.com'+a['href']
             desc = ''
-            p = container.find('p')
-            if p is not None:
+            for p in container.findAll('p'):
                 desc = self.tag_to_string(p)
+                if not 'Subscriber Content' in desc:
+                    break
 
             articles.append({'title':title, 'url':url,
                 'description':desc, 'date':''})
@@ -151,6 +159,4 @@ class WallStreetJournal(BasicNewsRecipe):
 
         return articles
 
-    def cleanup(self):
-        self.browser.open('http://online.wsj.com/logout?url=http://online.wsj.com')
 

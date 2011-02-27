@@ -27,7 +27,7 @@ class InterfaceAction(QObject):
     If two :class:`InterfaceAction` objects have the same name, the one with higher
     priority takes precedence.
 
-    Sub-classes should implement the :meth:`genesis`, :meth:`library_moved`,
+    Sub-classes should implement the :meth:`genesis`, :meth:`library_changed`,
     :meth:`location_selected` :meth:`shutting_down`
     and :meth:`initialization_complete` methods.
 

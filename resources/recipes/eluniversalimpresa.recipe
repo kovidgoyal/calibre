@@ -3,7 +3,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class ElUniversalImpresaRecipe(BasicNewsRecipe):
     __license__  = 'GPL v3'
     __author__ = 'kwetal'
-    language = 'es'
+    language = 'es_MX'
     version = 1
 
     title = u'El Universal (Edici\u00F3n Impresa)'

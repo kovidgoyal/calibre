@@ -100,12 +100,13 @@ def FontMapper(sbase=None, dbase=None, dkey=None):
 
 class CSSFlattener(object):
     def __init__(self, fbase=None, fkey=None, lineh=None, unfloat=False,
-                 untable=False):
+                 untable=False, page_break_on_body=False):
         self.fbase = fbase
         self.fkey = fkey
         self.lineh = lineh
         self.unfloat = unfloat
         self.untable = untable
+        self.page_break_on_body = page_break_on_body
 
     @classmethod
     def config(cls, cfg):
@@ -139,6 +140,8 @@ class CSSFlattener(object):
             bs.append('margin-right : %fpt'%\
                     float(self.context.margin_right))
             bs.extend(['padding-left: 0pt', 'padding-right: 0pt'])
+            if self.page_break_on_body:
+                bs.extend(['page-break-before: always'])
             if self.context.change_justification != 'original':
                 bs.append('text-align: '+ self.context.change_justification)
             body.set('style', '; '.join(bs))
@@ -207,7 +210,14 @@ class CSSFlattener(object):
             font_size = self.sbase if self.sbase is not None else \
                 self.context.source.fbase
         if 'align' in node.attrib:
-            cssdict['text-align'] = node.attrib['align']
+            if tag != 'img':
+                cssdict['text-align'] = node.attrib['align']
+            else:
+                val = node.attrib['align']
+                if val in ('middle', 'bottom', 'top'):
+                    cssdict['vertical-align'] = val
+                elif val in ('left', 'right'):
+                    cssdict['text-align'] = val
             del node.attrib['align']
         if node.tag == XHTML('font'):
             node.tag = XHTML('span')

@@ -103,6 +103,8 @@ class EXTHHeader(object):
                 pass
         elif id == 108:
             pass # Producer
+        elif id == 113:
+            pass # ASIN or UUID
         #else:
         #    print 'unhandled metadata record', id, repr(content)
 
@@ -240,9 +242,11 @@ class MobiReader(object):
         self.debug = debug
         self.embedded_mi = None
         self.base_css_rules = textwrap.dedent('''
-                blockquote { margin: 0em 0em 0em 2em; text-align: justify }
+                body { text-align: justify }
 
-                p { margin: 0em; text-align: justify; text-indent: 1.5em }
+                blockquote { margin: 0em 0em 0em 2em; }
+
+                p { margin: 0em; text-indent: 1.5em }
 
                 .bold { font-weight: bold }
 
@@ -483,8 +487,8 @@ class MobiReader(object):
         # - lxml and beautifulsoup expect/assume a specific order based on xhtml spec
         self.processed_html = re.sub(r'(?i)(?P<styletags>(<(h\d+|i|b|u|em|small|big|strong|tt)>\s*){1,})(?P<para><p[^>]*>)', '\g<para>'+'\g<styletags>', self.processed_html)
         self.processed_html = re.sub(r'(?i)(?P<para></p[^>]*>)\s*(?P<styletags>(</(h\d+|i|b|u|em|small|big|strong|tt)>\s*){1,})', '\g<styletags>'+'\g<para>', self.processed_html)
-        self.processed_html = re.sub(r'(?i)(?P<blockquote>(</blockquote[^>]*>\s*){1,})(?P<para></p[^>]*>)', '\g<para>'+'\g<blockquote>', self.processed_html)
-        self.processed_html = re.sub(r'(?i)(?P<para><p[^>]*>)\s*(?P<blockquote>(<blockquote[^>]*>\s*){1,})', '\g<blockquote>'+'\g<para>', self.processed_html)
+        self.processed_html = re.sub(r'(?i)(?P<blockquote>(</(blockquote|div)[^>]*>\s*){1,})(?P<para></p[^>]*>)', '\g<para>'+'\g<blockquote>', self.processed_html)
+        self.processed_html = re.sub(r'(?i)(?P<para><p[^>]*>)\s*(?P<blockquote>(<(blockquote|div)[^>]*>\s*){1,})', '\g<blockquote>'+'\g<para>', self.processed_html)
 
 
     def remove_random_bytes(self, html):

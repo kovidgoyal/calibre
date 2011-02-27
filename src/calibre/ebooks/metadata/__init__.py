@@ -271,6 +271,8 @@ def check_isbn13(isbn):
     return None
 
 def check_isbn(isbn):
+    if not isbn:
+        return None
     isbn = re.sub(r'[^0-9X]', '', isbn.upper())
     if len(isbn) == 10:
         return check_isbn10(isbn)

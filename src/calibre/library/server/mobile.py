@@ -169,6 +169,10 @@ class MobileServer(object):
 
     MOBILE_UA = re.compile('(?i)(?:iPhone|Opera Mini|NetFront|webOS|Mobile|Android|imode|DoCoMo|Minimo|Blackberry|MIDP|Symbian|HD2|Kindle)')
 
+    def is_mobile_browser(self, ua):
+        match = self.MOBILE_UA.search(ua)
+        return match is not None and 'iPad' not in ua
+
     def add_routes(self, connect):
         connect('mobile', '/mobile', self.mobile)
         connect('mobile_css', '/mobile/style.css', self.mobile_css)

@@ -11,6 +11,12 @@ from calibre import browser
 
 class xISBN(object):
 
+    '''
+    This class is used to find the ISBN numbers of "related" editions of a
+    book, given its ISBN. Useful when querying services for metadata by ISBN,
+    in case they do not have the ISBN for the particular edition.
+    '''
+
     QUERY = 'http://xisbn.worldcat.org/webservices/xid/isbn/%s?method=getEditions&format=json&fl=form,year,lang,ed'
 
     def __init__(self):

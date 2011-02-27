@@ -83,6 +83,10 @@ CALIBRE_METADATA_FIELDS = frozenset([
     'application_id',   # An application id, currently set to the db_id.
     'db_id',            # the calibre primary key of the item.
     'formats',          # list of formats (extensions) for this book
+    # a dict of user category names, where the value is a list of item names
+    # from the book that are in that category
+    'user_categories',
+
     ]
 )
 

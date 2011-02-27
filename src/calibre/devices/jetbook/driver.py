@@ -93,11 +93,11 @@ class MIBUK(USBMS):
 
     VENDOR_ID   = [0x0525]
     PRODUCT_ID  = [0xa4a5]
-    BCD         = [0x314]
+    BCD         = [0x314, 0x319]
     SUPPORTS_SUB_DIRS = True
 
-    VENDOR_NAME      = 'LINUX'
-    WINDOWS_MAIN_MEM = 'WOLDERMIBUK'
+    VENDOR_NAME      = ['LINUX', 'FILE_BAC']
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['WOLDERMIBUK', 'KED_STORAGE_GADG']
 
 class JETBOOK_MINI(USBMS):
 
