@@ -48,7 +48,7 @@ class NPWebView(QWebView):
         basename = br.open(url).geturl().split('/')[-1]
         ext = os.path.splitext(basename)[1][1:].lower()
         if ext not in BOOK_EXTENSIONS:
-            home = os.getenv('USERPROFILE') or os.getenv('HOME')
+            home = os.path.expanduser('~')
             name = QFileDialog.getSaveFileName(self,
                 _('File is not a supported ebook type. Save to disk?'),
                 os.path.join(home, basename),
