@@ -59,11 +59,16 @@ class FeedbooksStore(StorePlugin):
                 price = ''.join(data.xpath('//a[@class="buy"]/text()'))
                 if not price:
                     price = '$0.00'
+                cover_url = ''
+                cover_url_img =  data.xpath('//img')
+                if cover_url_img:
+                    cover_url = cover_url_img[0].get('src')
+                    cover_url.split('?')[0]
                 
                 counter -= 1
                 
                 s = SearchResult()
-                s.cover_url = ''
+                s.cover_url = cover_url
                 s.title = title.strip()
                 s.author = author.strip()
                 s.price = price.replace(' ', '').strip()

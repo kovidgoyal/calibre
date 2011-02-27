@@ -32,7 +32,16 @@
      <property name="alternatingRowColors">
       <bool>true</bool>
      </property>
+     <property name="iconSize">
+      <size>
+       <width>32</width>
+       <height>32</height>
+      </size>
+     </property>
      <property name="rootIsDecorated">
+      <bool>false</bool>
+     </property>
+     <property name="uniformRowHeights">
       <bool>false</bool>
      </property>
      <property name="itemsExpandable">

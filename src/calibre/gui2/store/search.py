@@ -5,12 +5,15 @@ __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
 import re
+import time
+from contextlib import closing
 from threading import Event, Thread
 from Queue import Queue
 
 from PyQt4.Qt import Qt, QAbstractItemModel, QDialog, QTimer, QVariant, \
-    QModelIndex
+    QModelIndex, QPixmap, QSize
 
+from calibre import browser
 from calibre.customize.ui import store_plugins
 from calibre.gui2 import NONE
 from calibre.gui2.store.search_ui import Ui_Dialog
@@ -88,11 +91,12 @@ class SearchDialog(QDialog, Ui_Dialog):
             if res:
                 result = res[1]
                 result.store = res[0]
+                
                 self.results_view.model().add_result(result)
 
     def open_store(self, index):
         result = self.results_view.model().get_result(index)
-        self.store_plugins[result.store].open(self.gui, self, result.item_data)
+        self.store_plugins[result.store].open(self.gui, self, result.detail_item)
 
 
 class SearchThread(Thread):
@@ -106,12 +110,52 @@ class SearchThread(Thread):
         self.results = results
         self.abort = abort
         self.timeout = timeout
+        self.br = browser()
     
     def run(self):
-        for res in self.store_plugin.search(self.query, timeout=self.timeout):
-            if self.abort.is_set():
-                return
-            self.results.put((self.store_name, res))
+        try:
+            for res in self.store_plugin.search(self.query, timeout=self.timeout):
+                if self.abort.is_set():
+                    return
+                #if res.cover_url:
+                #    with closing(self.br.open(res.cover_url, timeout=15)) as f:
+                #        res.cover_data = f.read()
+                self.results.put((self.store_name, res))
+        except:
+            pass
+
+
+class CoverDownloadThread(Thread):
+    
+    def __init__(self, items, update_callback, timeout=5):
+        Thread.__init__(self)
+        self.daemon = True
+        self.items = items
+        self.update_callback = update_callback
+        self.timeout = timeout
+        self.br = browser()
+        
+        self._run = True
+        
+    def abort(self):
+        self._run = False
+    
+    def is_running(self):
+        return self._run
+        
+    def run(self):
+        while self._run:
+            try:
+                time.sleep(.1)
+                if not self.items.empty():
+                    item = self.items.get_nowait()
+                    if item and item.cover_url:
+                        with closing(self.br.open(item.cover_url, timeout=self.timeout)) as f:
+                            item.cover_data = f.read()
+                        self.items.task_done()
+                        self.update_callback(item)
+            except:
+                continue
 
 
 class Matches(QAbstractItemModel):
@@ -121,15 +165,20 @@ class Matches(QAbstractItemModel):
     def __init__(self):
         QAbstractItemModel.__init__(self)
         self.matches = []
+        self.cover_download_queue = Queue()
+        self.cover_download_thread = CoverDownloadThread(self.cover_download_queue, self.update_result)
+        self.cover_download_thread.start()
         
     def clear_results(self):
         self.matches = []
+        #self.cover_download_queue.queue.clear()
         self.reset()
     
     def add_result(self, result):
+        self.layoutAboutToBeChanged.emit()
         self.matches.append(result)
-        self.reset()
-        #self.dataChanged.emit(self.createIndex(self.rowCount() - 1, 0), self.createIndex(self.rowCount() - 1, self.columnCount()))
+        self.cover_download_queue.put(result)
+        self.layoutChanged.emit()
 
     def get_result(self, index):
         row = index.row()
@@ -137,6 +186,12 @@ class Matches(QAbstractItemModel):
             return self.matches[row]
         else:
             return None
+
+    def update_result(self, result):
+        if not result in self.matches:
+            return
+        self.layoutAboutToBeChanged.emit()
+        self.layoutChanged.emit()
 
     def index(self, row, column, parent=QModelIndex()):
         return self.createIndex(row, column)
@@ -150,7 +205,7 @@ class Matches(QAbstractItemModel):
         return len(self.matches)
 
     def columnCount(self, *args):
-        return 5
+        return len(self.HEADERS)
     
     def headerData(self, section, orientation, role):
         if role != Qt.DisplayRole:
@@ -177,7 +232,10 @@ class Matches(QAbstractItemModel):
                 return QVariant(result.store)
             return NONE
         elif role == Qt.DecorationRole:
-            pass
+            if col == 0 and result.cover_data:
+                p = QPixmap()
+                p.loadFromData(result.cover_data)
+                return QVariant(p)
         return NONE
 
     def data_as_text(self, result, col):
@@ -205,3 +263,4 @@ class Matches(QAbstractItemModel):
             descending)
         if reset:
             self.reset()
+
