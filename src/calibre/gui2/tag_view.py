@@ -376,7 +376,7 @@ class TagsView(QTreeView): # {{{
                                     action='delete_user_category', key=key))
                     self.context_menu.addSeparator()
                 # Hide/Show/Restore categories
-#                if not key.startswith('@') or key.find('.') < 0:
+                #if not key.startswith('@') or key.find('.') < 0:
                 self.context_menu.addAction(_('Hide category %s') % category,
                     partial(self.context_menu_handler, action='hide',
                             category=key))

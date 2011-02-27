@@ -19,6 +19,10 @@
 #  new recipes:
 #    - title: 
 
+#    - title: "Launch of a new website that catalogues DRM free books. http://drmfree.calibre-ebook.com"
+#      description: "A growing catalogue of DRM free books. Books that you actually own after buying instead of renting."
+#      type: major
+
 - version: 0.7.47
   date: 2011-02-25
 
@@ -88,8 +92,8 @@
     - title: "Various Romanian news sources"
       author: Silviu Coatara
 
-    - title: "Osnews.pl and SwiatKindle"
-      author: Mori
+    - title: "Osnews.pl and SwiatCzytnikow"
+      author: Tomasz Dlugosz
 
     - title: "Roger Ebert Journal"
       author: Shane Erstad
