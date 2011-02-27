@@ -169,3 +169,13 @@ def set_qt_translator(translator):
                 return translator.load(p)
     return False
 
+_udc = None
+
+def get_udc():
+    global _udc
+    if _udc is None:
+        from calibre.ebooks.unihandecode import Unihandecoder
+        _udc = Unihandecoder(lang=get_lang())
+    return _udc
+
+

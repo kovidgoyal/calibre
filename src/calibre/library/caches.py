@@ -181,6 +181,7 @@ class ResultCache(SearchQueryParser): # {{{
         self._map = self._map_filtered = []
         self.first_sort = True
         self.search_restriction = ''
+        self.search_restriction_book_count = 0
         self.field_metadata = field_metadata
         self.all_search_locations = field_metadata.get_search_terms()
         SearchQueryParser.__init__(self, self.all_search_locations, optimize=True)
@@ -433,6 +434,10 @@ class ResultCache(SearchQueryParser): # {{{
         if len(candidates) == 0:
             return matches
 
+        if len(location) > 2 and location.startswith('@') and \
+                    location[1:] in self.db_prefs['grouped_search_terms']:
+            location = location[1:]
+
         if query and query.strip():
             # get metadata key associated with the search term. Eliminates
             # dealing with plurals and other aliases
@@ -440,9 +445,16 @@ class ResultCache(SearchQueryParser): # {{{
             # grouped search terms
             if isinstance(location, list):
                 if allow_recursion:
+                    if query.lower() == 'false':
+                        invert = True
+                        query = 'true'
+                    else:
+                        invert = False
                     for loc in location:
                         matches |= self.get_matches(loc, query,
                                 candidates=candidates, allow_recursion=False)
+                    if invert:
+                        matches = self.universal_set() - matches
                     return matches
                 raise ParseException(query, len(query), 'Recursive query group detected', self)
 
@@ -528,7 +540,7 @@ class ResultCache(SearchQueryParser): # {{{
                 location[i] = db_col[loc]
 
             # get the tweak here so that the string lookup and compare aren't in the loop
-            bools_are_tristate = tweaks['bool_custom_columns_are_tristate'] == 'yes'
+            bools_are_tristate = tweaks['bool_custom_columns_are_tristate'] != 'no'
 
             for loc in location: # location is now an array of field indices
                 if loc == db_col['authors']:
@@ -607,12 +619,14 @@ class ResultCache(SearchQueryParser): # {{{
         return matches
 
     def search(self, query, return_matches=False):
-        ans = self.search_getting_ids(query, self.search_restriction)
+        ans = self.search_getting_ids(query, self.search_restriction,
+                                      set_restriction_count=True)
         if return_matches:
             return ans
         self._map_filtered = ans
 
-    def search_getting_ids(self, query, search_restriction):
+    def search_getting_ids(self, query, search_restriction,
+                           set_restriction_count=False):
         q = ''
         if not query or not query.strip():
             q = search_restriction
@@ -621,15 +635,26 @@ class ResultCache(SearchQueryParser): # {{{
             if search_restriction:
                 q = u'%s (%s)' % (search_restriction, query)
         if not q:
+            if set_restriction_count:
+                self.search_restriction_book_count = len(self._map)
             return list(self._map)
         matches = self.parse(q)
         tmap = list(itertools.repeat(False, len(self._data)))
         for x in matches:
             tmap[x] = True
-        return [x for x in self._map if tmap[x]]
+        rv = [x for x in self._map if tmap[x]]
+        if set_restriction_count and q == search_restriction:
+            self.search_restriction_book_count = len(rv)
+        return rv
 
     def set_search_restriction(self, s):
         self.search_restriction = s
+
+    def search_restriction_applied(self):
+        return bool(self.search_restriction)
+
+    def get_search_restriction_book_count(self):
+        return self.search_restriction_book_count
 
     # }}}
 
@@ -812,7 +837,10 @@ class SortKeyGenerator(object):
                 val = self.string_sort_key(val)
 
             elif dt == 'bool':
-                val = {True: 1, False: 2, None: 3}.get(val, 3)
+                if tweaks['bool_custom_columns_are_tristate'] == 'no':
+                    val = {True: 1, False: 2, None: 2}.get(val, 2)
+                else:
+                    val = {True: 1, False: 2, None: 3}.get(val, 3)
 
             yield val
 

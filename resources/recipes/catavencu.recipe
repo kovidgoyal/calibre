@@ -1,0 +1,53 @@
+# -*- coding: utf-8 -*-
+#!/usr/bin/env  python
+
+__license__   = 'GPL v3'
+__copyright__ = u'2011, Silviu Cotoar\u0103'
+'''
+catavencu.ro
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class Catavencu(BasicNewsRecipe):
+    title                 = u'Academia Ca\u0163avencu'
+    __author__            = u'Silviu Cotoar\u0103'
+    description           = 'Tagma cum laude'
+    publisher             = 'Catavencu'
+    oldest_article        = 5
+    language              = 'ro'
+    max_articles_per_feed = 100
+    no_stylesheets        = True
+    use_embedded_content  = False
+    category              = 'Ziare'
+    encoding              = 'utf-8'
+    cover_url         = 'http://upload.wikimedia.org/wikipedia/en/1/1e/Academia_Catavencu.jpg'
+
+    conversion_options = {
+                             'comments'   : description
+                            ,'tags'       : category
+                            ,'language'   : language
+                ,'publisher'  : publisher
+                         }
+
+    keep_only_tags = [
+            dict(name='ul', attrs={'class':'articles'})
+                     ]
+
+    remove_tags = [
+             dict(name='div', attrs={'class':['tools']})
+           , dict(name='div', attrs={'class':['share']})
+           , dict(name='div', attrs={'class':['category']})
+           , dict(name='div', attrs={'id':['comments']})
+                  ]
+
+    remove_tags_after = [
+              dict(name='div', attrs={'id':'comments'})
+            ]
+
+    feeds          = [
+            (u'Feeds', u'http://catavencu.ro/feed/rss')
+                 ]
+
+    def preprocess_html(self, soup):
+        return self.adeify_images(soup)

@@ -188,6 +188,17 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         migrate_preference('saved_searches', {})
         set_saved_searches(self, 'saved_searches')
 
+        # migrate grouped_search_terms
+        if self.prefs.get('grouped_search_terms', None) is None:
+            try:
+                ogst = tweaks.get('grouped_search_terms', {})
+                ngst = {}
+                for t in ogst:
+                    ngst[icu_lower(t)] = ogst[t]
+                self.prefs.set('grouped_search_terms', ngst)
+            except:
+                pass
+
         # Rename any user categories with names that differ only in case
         user_cats = self.prefs.get('user_categories', [])
         catmap = {}
@@ -342,19 +353,26 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         # Reconstruct the user categories, putting them into field_metadata
         # Assumption is that someone else will fix them if they change.
         self.field_metadata.remove_dynamic_categories()
-        tb_cats = self.field_metadata
         for user_cat in sorted(self.prefs.get('user_categories', {}).keys(), key=sort_key):
             cat_name = '@' + user_cat # add the '@' to avoid name collision
-            tb_cats.add_user_category(label=cat_name, name=user_cat)
-        if len(saved_searches().names()):
-            tb_cats.add_search_category(label='search', name=_('Searches'))
+            self.field_metadata.add_user_category(label=cat_name, name=user_cat)
 
-        gst = tweaks['grouped_search_terms']
-        for t in gst:
-            try:
-                self.field_metadata._add_search_terms_to_map(gst[t], [t])
-            except ValueError:
-                traceback.print_exc()
+        # add grouped search term user categories
+        muc = self.prefs.get('grouped_search_make_user_categories', [])
+        for cat in sorted(self.prefs.get('grouped_search_terms', {}).keys(), key=sort_key):
+            if cat in muc:
+                # There is a chance that these can be duplicates of an existing
+                # user category. Print the exception and continue.
+                try:
+                    self.field_metadata.add_user_category(label=u'@' + cat, name=cat)
+                except:
+                    traceback.print_exc()
+
+        if len(saved_searches().names()):
+            self.field_metadata.add_search_category(label='search', name=_('Searches'))
+
+        self.field_metadata.add_grouped_search_terms(
+                                    self.prefs.get('grouped_search_terms', {}))
 
         self.book_on_device_func = None
         self.data    = ResultCache(self.FIELD_MAP, self.field_metadata, db_prefs=self.prefs)
@@ -1293,7 +1311,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             # icon_map is not None if get_categories is to store an icon and
             # possibly a tooltip in the tag structure.
             icon = None
-            tooltip = ''
+            tooltip = '(' + category + ')'
             label = tb_cats.key_to_label(category)
             if icon_map:
                 if not tb_cats.is_custom_field(category):
@@ -1379,7 +1397,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             categories['formats'].sort(key = lambda x:x.name)
 
         #### Now do the user-defined categories. ####
-        user_categories = self.prefs['user_categories']
+        user_categories = dict.copy(self.prefs['user_categories'])
 
         # We want to use same node in the user category as in the source
         # category. To do that, we need to find the original Tag node. There is
@@ -1389,6 +1407,17 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         taglist = {}
         for c in categories.keys():
             taglist[c] = dict(map(lambda t:(t.name, t), categories[c]))
+
+        muc = self.prefs.get('grouped_search_make_user_categories', [])
+        gst = self.prefs.get('grouped_search_terms', {})
+        for c in gst:
+            if c not in muc:
+                continue
+            user_categories[c] = []
+            for sc in gst[c]:
+                if sc in categories.keys():
+                    for t in categories[sc]:
+                        user_categories[c].append([t.name, sc, 0])
 
         for user_cat in sorted(user_categories.keys(), key=sort_key):
             items = []
@@ -2327,7 +2356,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         rating = int(rating)
         self.conn.execute('DELETE FROM books_ratings_link WHERE book=?',(id,))
         rat = self.conn.get('SELECT id FROM ratings WHERE rating=?', (rating,), all=False)
-        rat = rat if rat else self.conn.execute('INSERT INTO ratings(rating) VALUES (?)', (rating,)).lastrowid
+        rat = rat if rat is not None else self.conn.execute('INSERT INTO ratings(rating) VALUES (?)', (rating,)).lastrowid
         self.conn.execute('INSERT INTO books_ratings_link(book, rating) VALUES (?,?)', (id, rat))
         self.dirtied([id], commit=False)
         if commit:

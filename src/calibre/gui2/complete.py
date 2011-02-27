@@ -62,7 +62,7 @@ class MultiCompleteLineEdit(QLineEdit, LineEditECM):
         c.setWidget(self)
         c.setCompletionMode(QCompleter.PopupCompletion)
         c.setCaseSensitivity(Qt.CaseInsensitive)
-        c.setModelSorting(QCompleter.CaseInsensitivelySortedModel)
+        c.setModelSorting(QCompleter.UnsortedModel)
         c.setCompletionRole(Qt.DisplayRole)
         p = c.popup()
         p.setMouseTracking(True)
@@ -158,6 +158,9 @@ class MultiCompleteComboBox(EnComboBox):
         # item that matches case insensitively
         c = self.lineEdit().completer()
         c.setCaseSensitivity(Qt.CaseSensitive)
+        self.dummy_model = CompleteModel(self)
+        c.setModel(self.dummy_model)
+        self.lineEdit()._completer.setWidget(self)
 
     def update_items_cache(self, complete_items):
         self.lineEdit().update_items_cache(complete_items)

@@ -260,6 +260,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.restore_default_button.clicked.connect(self.restore_to_default)
         self.apply_button.clicked.connect(self.apply_tweak)
         self.plugin_tweaks_button.clicked.connect(self.plugin_tweaks)
+        self.splitter.setStretchFactor(0, 1)
+        self.splitter.setStretchFactor(1, 100)
+
 
     def plugin_tweaks(self):
         raw = self.tweaks.plugin_tweaks_string

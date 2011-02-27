@@ -127,7 +127,7 @@ def separate_hard_scene_breaks(txt):
             return '\n%s\n' % line
         else:
             return line
-    txt = re.sub(u'(?miu)^[ \t-=~\/]+$', lambda mo: sep_break(mo.group()), txt)
+    txt = re.sub(u'(?miu)^[ \t-=~\/_]+$', lambda mo: sep_break(mo.group()), txt)
     return txt
 
 def block_to_single_line(txt):

@@ -515,7 +515,7 @@ class Metadata(object):
                          'publisher', 'relation', 'rights', 'source',
                          'subject', 'title', 'type'])
     CALIBRE_TERMS = set(['series', 'series_index', 'rating', 'timestamp',
-                         'publication_type'])
+                         'publication_type', 'title_sort'])
     OPF_ATTRS     = {'role': OPF('role'), 'file-as': OPF('file-as'),
                      'scheme': OPF('scheme'), 'event': OPF('event'),
                      'type': XSI('type'), 'lang': XML('lang'), 'id': 'id'}

@@ -22,7 +22,7 @@ class KOBO(USBMS):
     gui_name = 'Kobo Reader'
     description = _('Communicate with the Kobo Reader')
     author = 'Timothy Legge and Kovid Goyal'
-    version = (1, 0, 7)
+    version = (1, 0, 9)
 
     dbversion = 0
     fwversion = 0
@@ -98,7 +98,6 @@ class KOBO(USBMS):
 
         def update_booklist(prefix, path, title, authors, mime, date, ContentType, ImageID, readstatus, MimeType):
             changed = False
-            # if path_to_ext(path) in self.FORMATS:
             try:
                 lpath = path.partition(self.normalize_path(prefix))[2]
                 if lpath.startswith(os.sep):
@@ -125,9 +124,12 @@ class KOBO(USBMS):
                         if imagename is not None:
                             bl[idx].thumbnail = ImageWrapper(imagename)
                     if (ContentType != '6' and MimeType != 'Shortcover'):
-                        if self.update_metadata_item(bl[idx]):
-                            # print 'update_metadata_item returned true'
-                            changed = True
+                        if os.path.exists(self.normalize_path(os.path.join(prefix, lpath))):
+                            if self.update_metadata_item(bl[idx]):
+                                # print 'update_metadata_item returned true'
+                                changed = True
+                        else:
+                             debug_print("    Strange:  The file: ", prefix, lpath, " does mot exist!")
                     if lpath in playlist_map and \
                         playlist_map[lpath] not in bl[idx].device_collections:
                             bl[idx].device_collections.append(playlist_map[lpath])
@@ -136,7 +138,13 @@ class KOBO(USBMS):
                         book =  Book(prefix, lpath, title, authors, mime, date, ContentType, ImageID, size=1048576)
                     else:
                         try:
-                            book = self.book_from_path(prefix, lpath, title, authors, mime, date, ContentType, ImageID)
+                            if os.path.exists(self.normalize_path(os.path.join(prefix, lpath))):
+                                book = self.book_from_path(prefix, lpath, title, authors, mime, date, ContentType, ImageID)
+                            else:
+                                debug_print("    Strange:  The file: ", prefix, lpath, " does mot exist!")
+                                title = "FILE MISSING: " + title
+                                book =  Book(prefix, lpath, title, authors, mime, date, ContentType, ImageID, size=1048576)
+
                         except:
                             debug_print("prefix: ", prefix, "lpath: ", lpath, "title: ", title, "authors: ", authors, \
                                         "mime: ", mime, "date: ", date, "ContentType: ", ContentType, "ImageID: ", ImageID)
@@ -153,6 +161,10 @@ class KOBO(USBMS):
             return changed
 
         connection = sqlite.connect(self.normalize_path(self._main_prefix + '.kobo/KoboReader.sqlite'))
+        
+        # return bytestrings if the content cannot the decoded as unicode
+        connection.text_factory = lambda x: unicode(x, "utf-8", "ignore")
+
         cursor = connection.cursor()
 
         #query = 'select count(distinct volumeId) from volume_shortcovers'
@@ -220,8 +232,12 @@ class KOBO(USBMS):
         #    2) volume_shorcover
         #    2) content
 
-        debug_print('delete_via_sql: ContentID: ', ContentID, 'ContentType: ', ContentType) 
+        debug_print('delete_via_sql: ContentID: ', ContentID, 'ContentType: ', ContentType)
         connection = sqlite.connect(self.normalize_path(self._main_prefix + '.kobo/KoboReader.sqlite'))
+        
+        # return bytestrings if the content cannot the decoded as unicode
+        connection.text_factory = lambda x: unicode(x, "utf-8", "ignore")
+
         cursor = connection.cursor()
         t = (ContentID,)
         cursor.execute('select ImageID from content where ContentID = ?', t)
@@ -495,6 +511,10 @@ class KOBO(USBMS):
         # the last book from the collection the list of books is empty
         # and the removal of the last book would not occur
         connection = sqlite.connect(self.normalize_path(self._main_prefix + '.kobo/KoboReader.sqlite'))
+        
+        # return bytestrings if the content cannot the decoded as unicode
+        connection.text_factory = lambda x: unicode(x, "utf-8", "ignore")
+
         cursor = connection.cursor()
 
 
@@ -532,7 +552,7 @@ class KOBO(USBMS):
                         if result is None:
                             datelastread = '1970-01-01T00:00:00'
                         else:
-                            datelastread = result[0] if result[0] is not None else '1970-01-01T00:00:00' 
+                            datelastread = result[0] if result[0] is not None else '1970-01-01T00:00:00'
 
                         t = (datelastread,ContentID,)
 

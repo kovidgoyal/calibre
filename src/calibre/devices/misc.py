@@ -54,41 +54,24 @@ class AVANT(USBMS):
 class SWEEX(USBMS):
     # Identical to the Promedia
     name           = 'Sweex Device Interface'
-    gui_name       = 'Sweex'
-    description    = _('Communicate with the Sweex MM300')
+    gui_name       = 'Sweex/Kogan/Q600/Wink'
+    description    = _('Communicate with the Sweex/Kogan/Q600/Wink')
     author         = 'Kovid Goyal'
     supported_platforms = ['windows', 'osx', 'linux']
 
     # Ordered list of supported formats
-    FORMATS     = ['epub', 'prc', 'fb2', 'html', 'rtf', 'chm', 'pdf', 'txt']
+    FORMATS     = ['epub', 'mobi', 'prc', 'fb2', 'html', 'rtf', 'chm', 'pdf', 'txt']
 
     VENDOR_ID   = [0x0525, 0x177f]
     PRODUCT_ID  = [0xa4a5, 0x300]
-    BCD         = [0x0319, 0x110]
+    BCD         = [0x0319, 0x110, 0x325]
 
-    VENDOR_NAME = 'SWEEX'
-    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'EBOOKREADER'
+    VENDOR_NAME = ['SWEEX', 'LINUX']
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['EBOOKREADER', 'FILE-STOR_GADGET']
 
     EBOOK_DIR_MAIN = ''
     SUPPORTS_SUB_DIRS = True
 
-class Q600(SWEEX):
-
-    name = 'Digma Q600 Device interface'
-    gui_name = 'Q600'
-    description    = _('Communicate with the Digma Q600')
-
-    BCD = [0x325]
-    FORMATS     = ['epub', 'fb2', 'mobi', 'prc', 'html', 'rtf', 'chm', 'pdf', 'txt']
-
-class KOGAN(SWEEX):
-
-    name           = 'Kogan Device Interface'
-    gui_name       = 'Kogan'
-    description    = _('Communicate with the Kogan')
-    VENDOR_NAME = 'LINUX'
-    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'FILE-STOR_GADGET'
-    EBOOK_DIR_MAIN = 'Kogan eBooks'
 
 class PDNOVEL(USBMS):
     name = 'Pandigital Novel device interface'

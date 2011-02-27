@@ -39,8 +39,22 @@ def installer_description(fname):
         return 'OS X dmg'
     return 'Unknown file'
 
+class ReUpload(Command): # {{{
 
-class UploadToGoogleCode(Command):
+    description = 'Re-uplaod any installers present in dist/'
+
+    sub_commands = ['upload_to_google_code', 'upload_to_sourceforge']
+
+    def pre_sub_commands(self, opts):
+        opts.re_upload = True
+
+    def run(self, opts):
+        for x in installers():
+            if os.path.exists(x):
+                os.remove(x)
+# }}}
+
+class UploadToGoogleCode(Command): # {{{
 
     USERNAME = 'kovidgoyal'
     # Password can be gotten by going to
@@ -52,21 +66,49 @@ class UploadToGoogleCode(Command):
     UPLOAD_HOST = 'calibre-ebook.googlecode.com'
     FILES_LIST = 'http://code.google.com/p/calibre-ebook/downloads/list'
 
+    def add_options(self, parser):
+        parser.add_option('--re-upload', default=False, action='store_true',
+                help='Re-upload all installers currently in dist/')
+
+    def re_upload(self):
+        fnames = set([os.path.basename(x) for x in installers() if not
+                x.endswith('.tar.gz') and os.path.exists(x)])
+        existing = set(self.old_files.keys()).intersection(fnames)
+        br = self.login_to_gmail()
+        for x in fnames:
+            src = os.path.join('dist', x)
+            if not os.access(src, os.R_OK):
+                continue
+            if x in existing:
+                self.info('Deleting', x)
+                br.open('http://code.google.com/p/calibre-ebook/downloads/delete?name=%s'%x)
+                br.select_form(predicate=lambda y: 'delete.do' in y.action)
+                br.form.find_control(name='delete')
+                br.submit(name='delete')
+            self.upload_one(src)
+
+    def upload_one(self, fname):
+        self.info('Uploading', fname)
+        typ = 'Type-Source' if fname.endswith('.gz') else 'Type-Installer'
+        ext = os.path.splitext(fname)[1][1:]
+        op  = 'OpSys-'+{'msi':'Windows','dmg':'OSX','bz2':'Linux','gz':'All'}[ext]
+        desc = installer_description(fname)
+        path = self.upload(os.path.abspath(fname), desc,
+                labels=[typ, op, 'Featured'])
+        self.info('\tUploaded to:', path)
+        return path
+
     def run(self, opts):
         self.opts = opts
         self.password = open(self.PASSWORD_FILE).read().strip()
         self.paths = {}
         self.old_files = self.get_files_hosted_by_google_code()
 
+        if opts.re_upload:
+            return self.re_upload()
+
         for fname in installers():
-            self.info('Uploading', fname)
-            typ = 'Type-Source' if fname.endswith('.gz') else 'Type-Installer'
-            ext = os.path.splitext(fname)[1][1:]
-            op  = 'OpSys-'+{'msi':'Windows','dmg':'OSX','bz2':'Linux','gz':'All'}[ext]
-            desc = installer_description(fname)
-            path = self.upload(os.path.abspath(fname), desc,
-                    labels=[typ, op, 'Featured'])
-            self.info('\tUploaded to:', path)
+            path = self.upload_one(fname)
             self.paths[os.path.basename(fname)] = path
         self.info('Updating path map')
         self.info(repr(self.paths))
@@ -189,11 +231,9 @@ class UploadToGoogleCode(Command):
             return self.upload(fname, desc, labels=labels, retry=retry+1)
         raise Exception('Failed to upload '+fname)
 
+# }}}
 
-
-
-
-class UploadToSourceForge(Command):
+class UploadToSourceForge(Command): # {{{
 
     description = 'Upload release files to sourceforge'
 
@@ -217,9 +257,10 @@ class UploadToSourceForge(Command):
         self.opts = opts
         self.upload_installers()
 
+# }}}
 
-class UploadInstallers(Command):
-    description = 'Upload any installers present in dist/'
+class UploadInstallers(Command): # {{{
+    description = 'Upload any installers present in dist/ to mobileread'
     def curl_list_dir(self, url=MOBILEREAD, listonly=1):
         import pycurl
         c = pycurl.Curl()
@@ -289,17 +330,18 @@ class UploadInstallers(Command):
         installers = list(map(installer_name, ('dmg', 'msi', 'tar.bz2')))
         installers.append(installer_name('tar.bz2', is64bit=True))
         map(self.upload_installer, installers)
+# }}}
 
-class UploadUserManual(Command):
+class UploadUserManual(Command): # {{{
     description = 'Build and upload the User Manual'
     sub_commands = ['manual']
 
     def run(self, opts):
         check_call(' '.join(['scp', '-r', 'src/calibre/manual/.build/html/*',
                     'divok:%s'%USER_MANUAL]), shell=True)
+# }}}
 
-
-class UploadDemo(Command):
+class UploadDemo(Command): # {{{
 
     description = 'Rebuild and upload various demos'
 
@@ -317,8 +359,9 @@ class UploadDemo(Command):
             'zip -j /tmp/html-demo.zip * /tmp/html2lrf.lrf', shell=True)
 
         check_call('scp /tmp/html-demo.zip divok:%s/'%(DOWNLOADS,), shell=True)
+# }}}
 
-class UploadToServer(Command):
+class UploadToServer(Command): # {{{
 
     description = 'Upload miscellaneous data to calibre server'
 
@@ -348,6 +391,6 @@ class UploadToServer(Command):
         check_call('scp %s/*.sha512 divok:%s/signatures/' % (tdir, DOWNLOADS),
                 shell=True)
         shutil.rmtree(tdir)
-
+# }}}
 
 

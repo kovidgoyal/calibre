@@ -264,10 +264,17 @@ class Dehyphenator(object):
 class CSSPreProcessor(object):
 
     PAGE_PAT   = re.compile(r'@page[^{]*?{[^}]*?}')
+    # Remove some of the broken CSS Microsoft products
+    # create, slightly dangerous as it removes to end of line
+    # rather than semi-colon
+    MS_PAT     = re.compile(r'^\s*(mso-|panose-).+?$',
+            re.MULTILINE|re.IGNORECASE)
 
     def __call__(self, data, add_namespace=False):
         from calibre.ebooks.oeb.base import XHTML_CSS_NAMESPACE
         data = self.PAGE_PAT.sub('', data)
+        if '\n' in data:
+            data = self.MS_PAT.sub('', data)
         if not add_namespace:
             return data
         ans, namespaced = [], False
@@ -543,9 +550,9 @@ class HTMLPreProcessor(object):
         html = XMLDECL_RE.sub('', html)
 
         if getattr(self.extra_opts, 'asciiize', False):
-            from calibre.ebooks.unidecode.unidecoder import Unidecoder
-            unidecoder = Unidecoder()
-            html = unidecoder.decode(html)
+            from calibre.utils.localization import get_udc
+            unihandecoder = get_udc()
+            html = unihandecoder.decode(html)
 
         if getattr(self.extra_opts, 'enable_heuristics', False):
             from calibre.ebooks.conversion.utils import HeuristicProcessor
@@ -557,10 +564,10 @@ class HTMLPreProcessor(object):
 
         unsupported_unicode_chars = self.extra_opts.output_profile.unsupported_unicode_chars
         if unsupported_unicode_chars:
-            from calibre.ebooks.unidecode.unidecoder import Unidecoder
-            unidecoder = Unidecoder()
+            from calibre.utils.localization import get_udc
+            unihandecoder = get_udc()
             for char in unsupported_unicode_chars:
-                asciichar = unidecoder.decode(char)
+                asciichar = unihandecoder.decode(char)
                 html = html.replace(char, asciichar)
 
         return html
@@ -568,11 +575,14 @@ class HTMLPreProcessor(object):
     def smarten_punctuation(self, html):
         from calibre.utils.smartypants import smartyPants
         from calibre.ebooks.chardet import substitute_entites
+        from calibre.ebooks.conversion.utils import HeuristicProcessor
+        preprocessor = HeuristicProcessor(self.extra_opts, self.log)
         from uuid import uuid4
         start = 'calibre-smartypants-'+str(uuid4())
         stop = 'calibre-smartypants-'+str(uuid4())
         html = html.replace('<!--', start)
         html = html.replace('-->', stop)
+        html = preprocessor.fix_nbsp_indents(html)
         html = smartyPants(html)
         html = html.replace(start, '<!--')
         html = html.replace(stop, '-->')

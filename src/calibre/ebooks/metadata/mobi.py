@@ -12,6 +12,7 @@ __docformat__ = 'restructuredtext en'
 from struct import pack, unpack
 from cStringIO import StringIO
 
+from calibre.ebooks import normalize
 from calibre.ebooks.mobi import MobiError
 from calibre.ebooks.mobi.writer import rescale_image, MAX_THUMB_DIMEN
 from calibre.ebooks.mobi.langcodes import iana2mobi
@@ -311,6 +312,7 @@ class MetadataUpdater(object):
         return StreamSlicer(self.stream, start, stop)
 
     def update(self, mi):
+        mi.title = normalize(mi.title)
         def update_exth_record(rec):
             recs.append(rec)
             if rec[0] in self.original_exth_records:
@@ -331,12 +333,12 @@ class MetadataUpdater(object):
             kindle_pdoc = None
         if mi.author_sort and pas:
             authors = mi.author_sort
-            update_exth_record((100, authors.encode(self.codec, 'replace')))
+            update_exth_record((100, normalize(authors).encode(self.codec, 'replace')))
         elif mi.authors:
             authors = ';'.join(mi.authors)
-            update_exth_record((100, authors.encode(self.codec, 'replace')))
+            update_exth_record((100, normalize(authors).encode(self.codec, 'replace')))
         if mi.publisher:
-            update_exth_record((101, mi.publisher.encode(self.codec, 'replace')))
+            update_exth_record((101, normalize(mi.publisher).encode(self.codec, 'replace')))
         if mi.comments:
             # Strip user annotations
             a_offset = mi.comments.find('<div class="user_annotations">')
@@ -345,12 +347,12 @@ class MetadataUpdater(object):
                 mi.comments = mi.comments[:a_offset]
             if ad_offset >= 0:
                 mi.comments = mi.comments[:ad_offset]
-            update_exth_record((103, mi.comments.encode(self.codec, 'replace')))
+            update_exth_record((103, normalize(mi.comments).encode(self.codec, 'replace')))
         if mi.isbn:
             update_exth_record((104, mi.isbn.encode(self.codec, 'replace')))
         if mi.tags:
             subjects = '; '.join(mi.tags)
-            update_exth_record((105, subjects.encode(self.codec, 'replace')))
+            update_exth_record((105, normalize(subjects).encode(self.codec, 'replace')))
 
             if kindle_pdoc and kindle_pdoc in mi.tags:
                 update_exth_record((501, str('PDOC')))

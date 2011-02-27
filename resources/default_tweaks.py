@@ -83,7 +83,7 @@ categories_use_field_for_author_name = 'author'
 # Note that the "r'" in front of the { is necessary if there are backslashes
 # (\ characters) in the template. It doesn't hurt anything to leave it there
 # even if there aren't any backslashes.
-categories_collapsed_name_template = r'{first.sort:shorten(4,"",0)} - {last.sort:shorten(4,"",0)}'
+categories_collapsed_name_template = r'{first.sort:shorten(4,,0)} - {last.sort:shorten(4,,0)}'
 categories_collapsed_rating_template = r'{first.avg_rating:4.2f:ifempty(0)} - {last.avg_rating:4.2f:ifempty(0)}'
 categories_collapsed_popularity_template = r'{first.count:d} - {last.count:d}'
 
@@ -105,7 +105,7 @@ bool_custom_columns_are_tristate = 'yes'
 # title within authors.
 sort_columns_at_startup = None
 
-#; Control how dates are displayed
+#: Control how dates are displayed
 # Format to be used for publication date and the timestamp (date).
 #  A string controlling how the publication date is displayed in the GUI
 #  d    the day as number without a leading zero (1 to 31)
@@ -243,19 +243,6 @@ sony_collection_name_template='{value}{category:| (|)}'
 # [ ( [list of fields], sort field ) , ( [ list of fields ] , sort field ) ]
 # Default: empty (no rules), so no collection attributes are named.
 sony_collection_sorting_rules = []
-
-
-#: Create search terms to apply a query across several built-in search terms.
-# Syntax: {'new term':['existing term 1', 'term 2', ...], 'new':['old'...] ...}
-# Example: create the term 'myseries' that when used as myseries:foo would
-# search all of the search categories 'series', '#myseries', and '#myseries2':
-# grouped_search_terms={'myseries':['series','#myseries', '#myseries2']}
-# Example: two search terms 'a' and 'b' both that search 'tags' and '#mytags':
-# grouped_search_terms={'a':['tags','#mytags'], 'b':['tags','#mytags']}
-# Note: You cannot create a search term that is a duplicate of an existing term.
-# Such duplicates will be silently ignored. Also note that search terms ignore
-# case. 'MySearch' and 'mysearch' are the same term.
-grouped_search_terms = {}
 
 
 #: Control how tags are applied when copying books to another library

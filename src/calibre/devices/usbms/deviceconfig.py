@@ -34,6 +34,10 @@ class DeviceConfig(object):
     #: If None the default is used
     SAVE_TEMPLATE = None
 
+    #: If True the user can add new formats to the driver
+    USER_CAN_ADD_NEW_FORMATS = True
+
+
     @classmethod
     def _default_save_template(cls):
         from calibre.library.save_to_disk import config
@@ -73,7 +77,7 @@ class DeviceConfig(object):
         from calibre.gui2.device_drivers.configwidget import ConfigWidget
         cw = ConfigWidget(cls.settings(), cls.FORMATS, cls.SUPPORTS_SUB_DIRS,
             cls.MUST_READ_METADATA, cls.SUPPORTS_USE_AUTHOR_SORT,
-            cls.EXTRA_CUSTOMIZATION_MESSAGE)
+            cls.EXTRA_CUSTOMIZATION_MESSAGE, cls)
         return cw
 
     @classmethod

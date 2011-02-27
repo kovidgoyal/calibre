@@ -120,11 +120,10 @@ class BooksModel(QAbstractTableModel): # {{{
 
     def set_device_connected(self, is_connected):
         self.device_connected = is_connected
-        self.refresh_ondevice()
 
     def refresh_ondevice(self):
         self.db.refresh_ondevice()
-        self.refresh() # does a resort()
+        self.resort()
         self.research()
 
     def set_book_on_device_func(self, func):
@@ -685,7 +684,7 @@ class BooksModel(QAbstractTableModel): # {{{
                 self.dc[col] = functools.partial(bool_type, idx=idx)
                 self.dc_decorator[col] = functools.partial(
                             bool_type_decorator, idx=idx,
-                            bool_cols_are_tristate=tweaks['bool_custom_columns_are_tristate'] == 'yes')
+                            bool_cols_are_tristate=tweaks['bool_custom_columns_are_tristate'] != 'no')
             elif datatype == 'rating':
                 self.dc[col] = functools.partial(rating_type, idx=idx)
             elif datatype == 'series':
@@ -826,7 +825,7 @@ class BooksModel(QAbstractTableModel): # {{{
                     return False
                 val = int(value.toInt()[0]) if column == 'rating' else \
                       value.toDate() if column in ('timestamp', 'pubdate') else \
-                      unicode(value.toString())
+                      unicode(value.toString()).strip()
                 id = self.db.id(row)
                 books_to_refresh = set([id])
                 if column == 'rating':
@@ -867,11 +866,6 @@ class BooksModel(QAbstractTableModel): # {{{
                 self.refresh_ids(list(books_to_refresh), row)
             self.dataChanged.emit(index, index)
         return True
-
-    def set_search_restriction(self, s):
-        self.db.data.set_search_restriction(s)
-        self.search('')
-        return self.rowCount(None)
 
 # }}}
 
@@ -1341,9 +1335,6 @@ class DeviceBooksModel(BooksModel): # {{{
             self.editable = []
         if prefs['manage_device_metadata']=='on_connect':
             self.editable = []
-
-    def set_search_restriction(self, s):
-        pass
 
 # }}}
 

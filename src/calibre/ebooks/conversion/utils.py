@@ -33,7 +33,7 @@ class HeuristicProcessor(object):
         self.any_multi_blank = re.compile(r'(\s*<p[^>]*>\s*</p>(\s*<div[^>]*>\s*</div>\s*)*){2,}', re.IGNORECASE)
         self.line_open = "<(?P<outer>p|div)[^>]*>\s*(<(?P<inner1>font|span|[ibu])[^>]*>)?\s*(<(?P<inner2>font|span|[ibu])[^>]*>)?\s*(<(?P<inner3>font|span|[ibu])[^>]*>)?\s*"
         self.line_close = "(</(?P=inner3)>)?\s*(</(?P=inner2)>)?\s*(</(?P=inner1)>)?\s*</(?P=outer)>"
-        self.single_blank = re.compile(r'(\s*<p[^>]*>\s*</p>)', re.IGNORECASE)
+        self.single_blank = re.compile(r'(\s*<(p|div)[^>]*>\s*</(p|div)>)', re.IGNORECASE)
         self.scene_break_open = '<p class="scenebreak" style="text-align:center; text-indent:0%; margin-top:1em; margin-bottom:1em; page-break-before:avoid">'
         self.common_in_text_endings = u'[\"\'—’”,\.!\?\…\)„\w]'
         self.common_in_text_beginnings = u'[\w\'\"“‘‛]'
@@ -156,17 +156,17 @@ class HeuristicProcessor(object):
         ]
 
         ITALICIZE_STYLE_PATS = [
-            r'(?msu)(?<=[\s>])_(?P<words>[^_]+)?_',
-            r'(?msu)(?<=[\s>])/(?P<words>[^/]+)?/',
-            r'(?msu)(?<=[\s>])~~(?P<words>[^~]+)?~~',
-            r'(?msu)(?<=[\s>])\*(?P<words>[^\*]+)?\*',
-            r'(?msu)(?<=[\s>])~(?P<words>[^~]+)?~',
-            r'(?msu)(?<=[\s>])_/(?P<words>[^/_]+)?/_',
-            r'(?msu)(?<=[\s>])_\*(?P<words>[^\*_]+)?\*_',
-            r'(?msu)(?<=[\s>])\*/(?P<words>[^/\*]+)?/\*',
-            r'(?msu)(?<=[\s>])_\*/(?P<words>[^\*_]+)?/\*_',
-            r'(?msu)(?<=[\s>])/:(?P<words>[^:/]+)?:/',
-            r'(?msu)(?<=[\s>])\|:(?P<words>[^:\|]+)?:\|',
+            r'(?msu)(?<=[\s>])_(?P<words>[^_]+)_',
+            r'(?msu)(?<=[\s>])/(?P<words>[^/\*>]+)/',
+            r'(?msu)(?<=[\s>])~~(?P<words>[^~]+)~~',
+            r'(?msu)(?<=[\s>])\*(?P<words>[^\*]+)\*',
+            r'(?msu)(?<=[\s>])~(?P<words>[^~]+)~',
+            r'(?msu)(?<=[\s>])_/(?P<words>[^/_]+)/_',
+            r'(?msu)(?<=[\s>])_\*(?P<words>[^\*_]+)\*_',
+            r'(?msu)(?<=[\s>])\*/(?P<words>[^/\*]+)/\*',
+            r'(?msu)(?<=[\s>])_\*/(?P<words>[^\*_]+)/\*_',
+            r'(?msu)(?<=[\s>])/:(?P<words>[^:/]+):/',
+            r'(?msu)(?<=[\s>])\|:(?P<words>[^:\|]+):\|',
         ]
 
         for word in ITALICIZE_WORDS:
@@ -451,8 +451,8 @@ class HeuristicProcessor(object):
         return html
 
     def detect_whitespace(self, html):
-        blanks_around_headings = re.compile(r'(?P<initparas>(<p[^>]*>\s*</p>\s*){1,}\s*)?(?P<heading><h(?P<hnum>\d+)[^>]*>.*?</h(?P=hnum)>)(?P<endparas>\s*(<p[^>]*>\s*</p>\s*){1,})?', re.IGNORECASE)
-        blanks_n_nopunct = re.compile(r'(?P<initparas>(<p[^>]*>\s*</p>\s*){1,}\s*)?<p[^>]*>\s*(<(span|[ibu]|em|strong|font)[^>]*>\s*)*.{1,100}?[^\W](</(span|[ibu]|em|strong|font)>\s*)*</p>(?P<endparas>\s*(<p[^>]*>\s*</p>\s*){1,})?', re.IGNORECASE)
+        blanks_around_headings = re.compile(r'(?P<initparas>(<(p|div)[^>]*>\s*</(p|div)>\s*){1,}\s*)?(?P<heading><h(?P<hnum>\d+)[^>]*>.*?</h(?P=hnum)>)(?P<endparas>\s*(<(p|div)[^>]*>\s*</(p|div)>\s*){1,})?', re.IGNORECASE|re.DOTALL)
+        blanks_n_nopunct = re.compile(r'(?P<initparas>(<p[^>]*>\s*</p>\s*){1,}\s*)?<p[^>]*>\s*(<(span|[ibu]|em|strong|font)[^>]*>\s*)*.{1,100}?[^\W](</(span|[ibu]|em|strong|font)>\s*)*</p>(?P<endparas>\s*(<p[^>]*>\s*</p>\s*){1,})?', re.IGNORECASE|re.DOTALL)
 
         def merge_header_whitespace(match):
             initblanks = match.group('initparas')
@@ -485,6 +485,21 @@ class HeuristicProcessor(object):
         return html
 
     def detect_soft_breaks(self, html):
+        line = '(?P<initline>'+self.line_open+'\s*(?P<init_content>.*?)'+self.line_close+')'
+        line_two = '(?P<line_two>'+re.sub('(ou|in|cha)', 'linetwo_', self.line_open)+'\s*(?P<line_two_content>.*?)'+re.sub('(ou|in|cha)', 'linetwo_', self.line_close)+')'
+        div_break_candidate_pattern = line+'\s*<div[^>]*>\s*</div>\s*'+line_two
+        div_break_candidate = re.compile(r'%s' % div_break_candidate_pattern, re.IGNORECASE|re.UNICODE)
+
+        def convert_div_softbreaks(match):
+            init_is_paragraph = self.check_paragraph(match.group('init_content'))
+            line_two_is_paragraph = self.check_paragraph(match.group('line_two_content'))
+            if init_is_paragraph and line_two_is_paragraph:
+                return match.group('initline')+'\n<p class="softbreak" style="margin-top:.5em; page-break-before:avoid; text-align:center"> </p>\n'+match.group('line_two')
+            else:
+                return match.group(0)
+
+        html = div_break_candidate.sub(convert_div_softbreaks, html)
+
         if not self.blanks_deleted and self.blanks_between_paragraphs:
             html = self.multi_blank.sub('\n<p class="softbreak" style="margin-top:1em; page-break-before:avoid; text-align:center"> </p>', html)
         else:
@@ -523,20 +538,20 @@ class HeuristicProcessor(object):
 
         return scene_break
 
+    def check_paragraph(self, content):
+        content = re.sub('\s*</?span[^>]*>\s*', '', content)
+        if re.match('.*[\"\'.!?:]$', content):
+            #print "detected this as a paragraph"
+            return True
+        else:
+            return False
+
     def abbyy_processor(self, html):
         abbyy_line = re.compile('((?P<linestart><p\sstyle="(?P<styles>[^\"]*?);?">)(?P<content>.*?)(?P<lineend></p>)|(?P<image><img[^>]*>))', re.IGNORECASE)
         empty_paragraph = '\n<p> </p>\n'
         self.in_blockquote = False
         self.previous_was_paragraph = False
         html = re.sub('</?a[^>]*>', '', html)
-
-        def check_paragraph(content):
-            content = re.sub('\s*</?span[^>]*>\s*', '', content)
-            if re.match('.*[\"\'.!?:]$', content):
-                #print "detected this as a paragraph"
-                return True
-            else:
-                return False
 
         def convert_styles(match):
             #print "raw styles are: "+match.group('styles')
@@ -565,7 +580,7 @@ class HeuristicProcessor(object):
                 return blockquote_close_loop+'\n'+image+'\n'
             else:
                 styles = match.group('styles').split(';')
-                is_paragraph = check_paragraph(content)
+                is_paragraph = self.check_paragraph(content)
                 #print "styles for this line are: "+str(styles)
                 split_styles = []
                 for style in styles:
