@@ -13,6 +13,7 @@ from functools import partial
 
 from lxml import etree
 
+from calibre.ebooks.metadata import check_isbn
 from calibre.ebooks.metadata.sources.base import Source
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.chardet import xml_to_unicode
@@ -69,6 +70,7 @@ def to_metadata(browser, log, entry_, timeout):
 
 
     id_url = entry_id(entry_)[0].text
+    google_id = id_url.split('/')[-1]
     title_ = ': '.join([x.text for x in title(entry_)]).strip()
     authors = [x.text.strip() for x in creator(entry_) if x.text]
     if not authors:
@@ -78,6 +80,7 @@ def to_metadata(browser, log, entry_, timeout):
         return None
 
     mi = Metadata(title_, authors)
+    mi.identifiers = {'google':google_id}
     try:
         raw = get_details(browser, id_url, timeout)
         feed = etree.fromstring(xml_to_unicode(clean_ascii_chars(raw),
@@ -103,9 +106,12 @@ def to_metadata(browser, log, entry_, timeout):
         t = str(x.text).strip()
         if t[:5].upper() in ('ISBN:', 'LCCN:', 'OCLC:'):
             if t[:5].upper() == 'ISBN:':
-                isbns.append(t[5:])
+                t = check_isbn(t[5:])
+                if t:
+                    isbns.append(t)
     if isbns:
         mi.isbn = sorted(isbns, key=len)[-1]
+    mi.all_isbns = isbns
 
     # Tags
     try:
@@ -131,20 +137,6 @@ def to_metadata(browser, log, entry_, timeout):
 
 
     return mi
-
-
-def get_all_details(br, log, entries, abort, result_queue, timeout):
-    for i in entries:
-        try:
-            ans = to_metadata(br, log, i, timeout)
-            if isinstance(ans, Metadata):
-                result_queue.put(ans)
-        except:
-            log.exception(
-                'Failed to get metadata for identify entry:',
-                etree.tostring(i))
-        if abort.is_set():
-            break
 
 
 class GoogleBooks(Source):
@@ -185,6 +177,36 @@ class GoogleBooks(Source):
             'min-viewability':'none',
             })
 
+    def cover_url_from_identifiers(self, identifiers):
+        goog = identifiers.get('google', None)
+        if goog is None:
+            isbn = identifiers.get('isbn', None)
+            goog = self.cached_isbn_to_identifier(isbn)
+        if goog is not None:
+            return ('http://books.google.com/books?id=%s&printsec=frontcover&img=1' %
+                goog)
+
+    def is_cover_image_valid(self, raw):
+        # When no cover is present, returns a PNG saying image not available
+        # Try for example google identifier llNqPwAACAAJ
+        # I have yet to see an actual cover in PNG format
+        return raw and len(raw) > 17000 and raw[1:4] != 'PNG'
+
+    def get_all_details(self, br, log, entries, abort, result_queue, timeout):
+        for i in entries:
+            try:
+                ans = to_metadata(br, log, i, timeout)
+                if isinstance(ans, Metadata):
+                    result_queue.put(ans)
+                    for isbn in ans.all_isbns:
+                        self.cache_isbn_to_identifier(isbn,
+                                ans.identifiers['google'])
+            except:
+                log.exception(
+                    'Failed to get metadata for identify entry:',
+                    etree.tostring(i))
+            if abort.is_set():
+                break
 
     def identify(self, log, result_queue, abort, title=None, authors=None,
             identifiers={}, timeout=5):
@@ -207,8 +229,8 @@ class GoogleBooks(Source):
             return as_unicode(e)
 
         # There is no point running these queries in threads as google
-        # throttles requests returning Forbidden errors
-        get_all_details(br, log, entries, abort, result_queue, timeout)
+        # throttles requests returning 403 Forbidden errors
+        self.get_all_details(br, log, entries, abort, result_queue, timeout)
 
         return None
 
@@ -218,8 +240,14 @@ if __name__ == '__main__':
             title_test)
     test_identify_plugin(GoogleBooks.name,
         [
+
             (
-                {'title': 'Great Expectations', 'authors':['Charles Dickens']},
-                [title_test('Great Expectations', exact=True)]
+                {'identifiers':{'isbn': '0743273567'}},
+                [title_test('The great gatsby', exact=True)]
             ),
+
+            #(
+            #    {'title': 'Great Expectations', 'authors':['Charles Dickens']},
+            #    [title_test('Great Expectations', exact=True)]
+            #),
     ])

@@ -217,11 +217,15 @@ class SearchBox2(QComboBox): # {{{
                 self.clear()
             else:
                 self.normalize_state()
+                self.lineEdit().setCompleter(None)
                 self.setEditText(txt)
                 self.line_edit.end(False)
                 if emit_changed:
                     self.changed.emit()
                 self._do_search(store_in_history=store_in_history)
+                c = QCompleter()
+                self.lineEdit().setCompleter(c)
+                c.setCompletionMode(c.PopupCompletion)
             self.focus_to_library.emit()
         finally:
             if not store_in_history:

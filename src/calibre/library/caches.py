@@ -124,9 +124,16 @@ def _match(query, value, matchkind):
     for t in value:
         t = icu_lower(t)
         try:     ### ignore regexp exceptions, required because search-ahead tries before typing is finished
-            if ((matchkind == EQUALS_MATCH and query == t) or
-                (matchkind == REGEXP_MATCH and re.search(query, t, re.I)) or ### search unanchored
-                (matchkind == CONTAINS_MATCH and query in t)):
+            if (matchkind == EQUALS_MATCH):
+                if query[0] == '.':
+                    if t.startswith(query[1:]):
+                        ql = len(query) - 1
+                        if (len(t) == ql) or (t[ql:ql+1] == '.'):
+                            return True
+                elif query == t:
+                    return True
+            elif ((matchkind == REGEXP_MATCH and re.search(query, t, re.I)) or ### search unanchored
+                  (matchkind == CONTAINS_MATCH and query in t)):
                     return True
         except re.error:
             pass
@@ -412,16 +419,23 @@ class ResultCache(SearchQueryParser): # {{{
 
     def get_user_category_matches(self, location, query, candidates):
         res = set([])
-        if self.db_prefs is None:
+        if self.db_prefs is None or len(query) < 2:
             return  res
         user_cats = self.db_prefs.get('user_categories', [])
-        if location not in user_cats:
-            return res
         c = set(candidates)
-        for (item, category, ign) in user_cats[location]:
-            s = self.get_matches(category, '=' + item, candidates=c)
-            c -= s
-            res |= s
+
+        if query.startswith('.'):
+            check_subcats = True
+            query = query[1:]
+        else:
+            check_subcats = False
+
+        for key in user_cats:
+            if key == location or (check_subcats and key.startswith(location + '.')):
+                for (item, category, ign) in user_cats[key]:
+                    s = self.get_matches(category, '=' + item, candidates=c)
+                    c -= s
+                    res |= s
         if query == 'false':
             return candidates - res
         return res

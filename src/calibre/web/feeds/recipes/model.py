@@ -196,6 +196,7 @@ class RecipeModel(QAbstractItemModel, SearchQueryParser):
         lang_map = {}
         self.all_urns = set([])
         self.showing_count = 0
+        self.builtin_count = 0
         for x in self.custom_recipe_collection:
             urn = x.get('id')
             self.all_urns.add(urn)
@@ -211,6 +212,7 @@ class RecipeModel(QAbstractItemModel, SearchQueryParser):
                     lang_map[lang] = factory(NewsCategory, new_root, lang)
                 factory(NewsItem, lang_map[lang], urn, x.get('title'))
                 self.showing_count += 1
+                self.builtin_count += 1
         for x in self.scheduler_config.iter_recipes():
             urn = x.get('id')
             if urn not in self.all_urns:
@@ -354,9 +356,9 @@ class RecipeModel(QAbstractItemModel, SearchQueryParser):
         self.scheduler_config.schedule_recipe(self.recipe_from_urn(urn),
                 sched_type, schedule)
 
-    def customize_recipe(self, urn, add_title_tag, custom_tags):
+    def customize_recipe(self, urn, add_title_tag, custom_tags, keep_issues):
         self.scheduler_config.customize_recipe(urn, add_title_tag,
-                custom_tags)
+                custom_tags, keep_issues)
 
     def get_to_be_downloaded_recipes(self):
         ans = self.scheduler_config.get_to_be_downloaded_recipes()

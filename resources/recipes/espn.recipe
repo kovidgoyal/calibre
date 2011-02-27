@@ -41,7 +41,8 @@ class ESPN(BasicNewsRecipe):
                 '''
 
 
-    feeds = [('Top Headlines', 'http://sports.espn.go.com/espn/rss/news'),
+    feeds = [
+            ('Top Headlines', 'http://sports.espn.go.com/espn/rss/news'),
              'http://sports.espn.go.com/espn/rss/nfl/news',
              'http://sports.espn.go.com/espn/rss/nba/news',
              'http://sports.espn.go.com/espn/rss/mlb/news',
@@ -107,10 +108,11 @@ class ESPN(BasicNewsRecipe):
         if match and 'soccernet'  not in url and 'bassmaster' not in url:
             return 'http://sports.espn.go.com/espn/print?'+match.group(1)+'&type=story'
         else:
-            if match and 'soccernet' in url:
-                splitlist = url.split("&", 5)
-                newurl =  'http://soccernet.espn.go.com/print?'+match.group(1)+'&type=story' + '&' + str(splitlist[2] )
-                return newurl
+            if 'soccernet' in url:
+                match = re.search(r'/id/(\d+)/', url)
+                if match:
+                    return \
+                        'http://soccernet.espn.go.com/print?id=%s&type=story' % match.group(1)
             #else:
             #    if 'bassmaster' in url:
             #        return url

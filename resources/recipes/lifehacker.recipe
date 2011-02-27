@@ -16,15 +16,9 @@ class Lifehacker(BasicNewsRecipe):
     max_articles_per_feed = 100
     no_stylesheets        = True
     encoding              = 'utf-8'
-    use_embedded_content  = False
+    use_embedded_content  = True
     language              = 'en'
     masthead_url          = 'http://cache.gawkerassets.com/assets/lifehacker.com/img/logo.png'
-    extra_css             = '''
-	body{font-family: "Lucida Grande",Helvetica,Arial,sans-serif}
-	img{margin-bottom: 1em}
-	h1{font-family :Arial,Helvetica,sans-serif; font-size:large}
-	h2{font-family :Arial,Helvetica,sans-serif; font-size:x-small}
-	              '''
     conversion_options = {
                           'comment'   : description
                         , 'tags'      : category
@@ -32,20 +26,12 @@ class Lifehacker(BasicNewsRecipe):
                         , 'language'  : language
                         }
 
-    remove_attributes  = ['width', 'height', 'style']
-    remove_tags_before = dict(name='h1')
-    keep_only_tags = [dict(id='container')]
-    remove_tags_after  = dict(attrs={'class':'post-body'})
     remove_tags = [
-            dict(id="sharemenu"),
-            {'class': 'related'},
+            {'class': 'feedflare'},
     ]
 
-    feeds = [(u'Articles', u'http://feeds.gawker.com/lifehacker/full')]
+    feeds = [(u'Articles', u'http://feeds.gawker.com/lifehacker/vip?format=xml')]
 
     def preprocess_html(self, soup):
         return self.adeify_images(soup)
-
-    def print_version(self, url):
-        return url.replace('#!', '?_escaped_fragment_=')
 

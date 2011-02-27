@@ -46,11 +46,14 @@ copyfile = os.link if hasattr(os, 'link') else shutil.copyfile
 class Tag(object):
 
     def __init__(self, name, id=None, count=0, state=0, avg=0, sort=None,
-                 tooltip=None, icon=None, category=None):
+                 tooltip=None, icon=None, category=None, id_set=None):
         self.name = name
         self.id = id
         self.count = count
         self.state = state
+        self.is_hierarchical = False
+        self.is_editable = True
+        self.id_set = id_set
         self.avg_rating = avg/2.0 if avg is not None else 0
         self.sort = sort
         if self.avg_rating > 0:
@@ -174,6 +177,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.prefs = DBPrefs(self)
         defs = self.prefs.defaults
         defs['gui_restriction'] = defs['cs_restriction'] = ''
+        defs['categories_using_hierarchy'] = []
 
         # Migrate saved search and user categories to db preference scheme
         def migrate_preference(key, default):
@@ -812,6 +816,21 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                                             index_is_id=index_is_id),
                         extra=self.get_custom_extra(idx, label=meta['label'],
                                                     index_is_id=index_is_id))
+
+        user_cats = self.prefs['user_categories']
+        user_cat_vals = {}
+        for ucat in user_cats:
+            res = []
+            for name,cat,ign in user_cats[ucat]:
+                v = mi.get(cat, None)
+                if isinstance(v, list):
+                    if name in v:
+                        res.append([name,cat])
+                elif name == v:
+                    res.append([name,cat])
+            user_cat_vals[ucat] = res
+        mi.user_categories = user_cat_vals
+
         if get_cover:
             mi.cover = self.cover(id, index_is_id=True, as_path=True)
         return mi
@@ -1144,6 +1163,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             self.n = name
             self.s = sort
             self.c  = 0
+            self.id_set = set()
             self.rt = 0
             self.rc = 0
             self.id = None
@@ -1161,6 +1181,22 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             return 'n=%s s=%s c=%d rt=%d rc=%d id=%s'%\
                             (self.n, self.s, self.c, self.rt, self.rc, self.id)
 
+    def clean_user_categories(self):
+        user_cats = self.prefs.get('user_categories', {})
+        new_cats = {}
+        for k in user_cats:
+            comps = [c.strip() for c in k.split('.') if c.strip()]
+            if len(comps) == 0:
+                i = 1
+                while True:
+                    if unicode(i) not in user_cats:
+                        new_cats[unicode(i)] = user_cats[k]
+                        break
+                    i += 1
+            else:
+                new_cats['.'.join(comps)] = user_cats[k]
+        self.prefs.set('user_categories', new_cats)
+        return new_cats
 
     def get_categories(self, sort='name', ids=None, icon_map=None):
         #start = last = time.clock()
@@ -1248,6 +1284,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                             item = tag_class(val, sort_val)
                             tcategories[cat][val] = item
                         item.c += 1
+                        item.id_set.add(book[0])
                         item.id = item_id
                         if rating > 0:
                             item.rt += rating
@@ -1265,6 +1302,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                                 item = tag_class(val, sort_val)
                                 tcategories[cat][val] = item
                             item.c += 1
+                            item.id_set.add(book[0])
                             item.id = item_id
                             if rating > 0:
                                 item.rt += rating
@@ -1352,7 +1390,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
             categories[category] = [tag_class(formatter(r.n), count=r.c, id=r.id,
                                         avg=avgr(r), sort=r.s, icon=icon,
-                                        tooltip=tooltip, category=category)
+                                        tooltip=tooltip, category=category,
+                                        id_set=r.id_set)
                                     for r in items]
 
         #print 'end phase "tags list":', time.clock() - last, 'seconds'
@@ -1361,6 +1400,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         # Needed for legacy databases that have multiple ratings that
         # map to n stars
         for r in categories['rating']:
+            r.id_set = None
             for x in categories['rating']:
                 if r.name == x.name and r.id != x.id:
                     r.count = r.count + x.count
@@ -1397,7 +1437,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             categories['formats'].sort(key = lambda x:x.name)
 
         #### Now do the user-defined categories. ####
-        user_categories = dict.copy(self.prefs['user_categories'])
+        user_categories = dict.copy(self.clean_user_categories())
 
         # We want to use same node in the user category as in the source
         # category. To do that, we need to find the original Tag node. There is
@@ -1406,7 +1446,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         # temporarily duplicating the categories lists.
         taglist = {}
         for c in categories.keys():
-            taglist[c] = dict(map(lambda t:(t.name, t), categories[c]))
+            taglist[c] = dict(map(lambda t:(icu_lower(t.name), t), categories[c]))
 
         muc = self.prefs.get('grouped_search_make_user_categories', [])
         gst = self.prefs.get('grouped_search_terms', {})
@@ -1422,8 +1462,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         for user_cat in sorted(user_categories.keys(), key=sort_key):
             items = []
             for (name,label,ign) in user_categories[user_cat]:
-                if label in taglist and name in taglist[label]:
-                    items.append(taglist[label][name])
+                n = icu_lower(name)
+                if label in taglist and n in taglist[label]:
+                    items.append(taglist[label][n])
                 # else: do nothing, to not include nodes w zero counts
             cat_name = '@' + user_cat # add the '@' to avoid name collision
             # Not a problem if we accumulate entries in the icon map
@@ -1460,13 +1501,20 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     ############# End get_categories
 
     def tags_older_than(self, tag, delta):
+        '''
+        Return the ids of all books having the tag ``tag`` that are older than
+        than the specified time. tag comparison is case insensitive.
+
+        :param delta: A timedelta object or None. If None, then all ids with
+        the tag are returned.
+        '''
         tag = tag.lower().strip()
         now = nowf()
         tindex = self.FIELD_MAP['timestamp']
         gindex = self.FIELD_MAP['tags']
         for r in self.data._data:
             if r is not None:
-                if (now - r[tindex]) > delta:
+                if delta is None or (now - r[tindex]) > delta:
                     tags = r[gindex]
                     if tags and tag in [x.strip() for x in
                             tags.lower().split(',')]:
@@ -2434,7 +2482,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         stream.seek(0)
         mi = get_metadata(stream, format, use_libprs_metadata=False)
         stream.seek(0)
-        mi.series_index = 1.0
+        if not mi.series_index:
+            mi.series_index = 1.0
         mi.tags = [_('News')]
         if arg['add_title_tag']:
             mi.tags += [arg['title']]
