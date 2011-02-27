@@ -21,13 +21,13 @@ from calibre.utils.ipc.job import BaseJob
 
 class StoreDownloadJob(BaseJob):
 
-    def __init__(self, callback, description, job_manager, db, cookie_jar, url='', save_as_loc='', add_to_lib=True):
+    def __init__(self, callback, description, job_manager, db, cookie_jar, url='', save_as_loc='', add_to_lib=True, tags=[]):
         BaseJob.__init__(self, description)
         self.exception = None
         self.job_manager = job_manager
         self.db = db
         self.cookie_jar = cookie_jar
-        self.args = (url, save_as_loc, add_to_lib)
+        self.args = (url, save_as_loc, add_to_lib, tags)
         self.tmp_file_name = ''
         self.callback = callback
         self.log_path = None
@@ -122,7 +122,7 @@ class StoreDownloader(Thread):
                 traceback.print_exc()
                 
     def _download(self, job):
-        url, save_loc, add_to_lib = job.args
+        url, save_loc, add_to_lib, tags = job.args
         if not url:
             raise Exception(_('No file specified to download.'))
         if not save_loc and not add_to_lib:
@@ -140,7 +140,7 @@ class StoreDownloader(Thread):
         job.tmp_file_name = tf.name
         
     def _add(self, job):
-        url, save_loc, add_to_lib = job.args
+        url, save_loc, add_to_lib, tags = job.args
         if not add_to_lib and job.tmp_file_name:
             return
         ext = os.path.splitext(job.tmp_file_name)[1][1:].lower()
@@ -152,19 +152,20 @@ class StoreDownloader(Thread):
         from calibre.ebooks.metadata.meta import get_metadata
         with open(job.tmp_file_name) as f:
             mi = get_metadata(f, ext)
+        mi.tags.extend(tags)
 
         job.db.add_books([job.tmp_file_name], [ext], [mi])
     
     def _save_as(self, job):
-        url, save_loc, add_to_lib = job.args
+        url, save_loc, add_to_lib, tags = job.args
         if not save_loc and job.tmp_file_name:
             return
         
         shutil.copy(job.tmp_file_name, save_loc)
         
-    def download_from_store(self, callback, db, cookie_jar, url='', save_as_loc='', add_to_lib=True):
+    def download_from_store(self, callback, db, cookie_jar, url='', save_as_loc='', add_to_lib=True, tags=[]):
         description = _('Downloading %s') % url
-        job = StoreDownloadJob(callback, description, self.job_manager, db, cookie_jar, url, save_as_loc, add_to_lib)
+        job = StoreDownloadJob(callback, description, self.job_manager, db, cookie_jar, url, save_as_loc, add_to_lib, tags)
         self.job_manager.add_job(job)
         self.jobs.put(job)        
 
@@ -174,10 +175,13 @@ class StoreDownloadMixin(object):
     def __init__(self):
         self.store_downloader = StoreDownloader(self.job_manager)
     
-    def download_from_store(self, url='', cookie_jar=CookieJar(), save_as_loc='', add_to_lib=True):
+    def download_from_store(self, url='', cookie_jar=CookieJar(), save_as_loc='', add_to_lib=True, tags=[]):
         if not self.store_downloader.is_alive():
             self.store_downloader.start()
-        self.store_downloader.download_from_store(Dispatcher(self.downloaded_from_store), self.library_view.model().db, cookie_jar, url, save_as_loc, add_to_lib)
+        if tags:
+            if isinstance(tags, basestring):
+                tags = tags.split(',')
+        self.store_downloader.download_from_store(Dispatcher(self.downloaded_from_store), self.library_view.model().db, cookie_jar, url, save_as_loc, add_to_lib, tags)
         self.status_bar.show_message(_('Downloading') + ' ' + url, 3000)
     
     def downloaded_from_store(self, job):

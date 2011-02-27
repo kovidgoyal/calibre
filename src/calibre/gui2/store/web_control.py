@@ -18,6 +18,7 @@ class NPWebView(QWebView):
     def __init__(self, *args):
         QWebView.__init__(self, *args)
         self.gui = None
+        self.tags = ''
 
         self.setPage(NPWebPage())
         self.page().networkAccessManager().setCookieJar(QNetworkCookieJar())
@@ -34,6 +35,9 @@ class NPWebView(QWebView):
 
     def set_gui(self, gui):
         self.gui = gui
+        
+    def set_tags(self, tags):
+        self.tags = tags
         
     def start_download(self, request):
         if not self.gui:
@@ -56,7 +60,7 @@ class NPWebView(QWebView):
             if name:
                 self.gui.download_from_store(url, cj, name, False)
         else:
-            self.gui.download_from_store(url, cj)
+            self.gui.download_from_store(url, cj, tags=self.tags)
 
     def ignore_ssl_errors(self, reply, errors):
         reply.ignoreSslErrors(errors)

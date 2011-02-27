@@ -30,6 +30,9 @@ class WebStoreDialog(QDialog, Ui_Dialog):
         
         self.go_home(detail_item=detail_item)
 
+    def set_tags(self, tags):
+        self.view.set_tags(tags)
+
     def load_started(self):
         self.progress.setValue(0)
     
