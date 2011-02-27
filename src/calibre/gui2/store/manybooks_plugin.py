@@ -57,10 +57,19 @@ class ManyBooksStore(StorePlugin):
                 author = author.split('-')[0]
                 price = '$0.00'
                 
+                cover_url = ''
+                with closing(br.open('http://manybooks.net/titles/%s' % id.strip(), timeout=timeout)) as f_i:
+                    doc_i = html.fromstring(f_i.read())
+                    for img in doc_i.xpath('//img'):
+                        src = img.get('src', None)
+                        if src and src.endswith('-thumb.jpg'):
+                            cover_url = src
+                            print cover_url
+                
                 counter -= 1
                 
                 s = SearchResult()
-                s.cover_url = ''
+                s.cover_url = cover_url
                 s.title = title.strip()
                 s.author = author.strip()
                 s.price = price.strip()
