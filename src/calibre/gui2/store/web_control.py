@@ -4,11 +4,14 @@ __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
+import os
 from cookielib import Cookie, CookieJar
 
-from PyQt4.Qt import QWebView, QWebPage, QNetworkCookieJar, QNetworkRequest, QString
+from PyQt4.Qt import QWebView, QWebPage, QNetworkCookieJar, QNetworkRequest, QString, \
+    QFileDialog
 
-from calibre import USER_AGENT
+from calibre import USER_AGENT, browser
+from calibre.ebooks import BOOK_EXTENSIONS
 
 class NPWebView(QWebView):
 
@@ -37,7 +40,23 @@ class NPWebView(QWebView):
             return
         
         url = unicode(request.url().toString())
-        self.gui.download_from_store(url, self.get_cookies())
+        cj = self.get_cookies()
+        
+        br = browser()
+        br.set_cookiejar(cj)
+
+        basename = br.open(url).geturl().split('/')[-1]
+        ext = os.path.splitext(basename)[1][1:].lower()
+        if ext not in BOOK_EXTENSIONS:
+            home = os.getenv('USERPROFILE') or os.getenv('HOME')
+            name = QFileDialog.getSaveFileName(self,
+                _('File is not a supported ebook type. Save to disk?'),
+                os.path.join(home, basename),
+                '*.*')
+            if name:
+                self.gui.download_from_store(url, cj, name, False)
+        else:
+            self.gui.download_from_store(url, cj)
 
     def ignore_ssl_errors(self, reply, errors):
         reply.ignoreSslErrors(errors)

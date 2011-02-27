@@ -55,6 +55,11 @@ class StoreDownloadJob(BaseJob):
         self._log_file.close()
         self._log_file = None
 
+        try:
+            os.remove(self.tmp_file_name)
+        except:
+            pass
+
         self.job_manager.changed_queue.put(self)
 
     def log_write(self, what):
@@ -126,12 +131,8 @@ class StoreDownloader(Thread):
 
         br = browser()
         br.set_cookiejar(job.cookie_jar)
-        
-        basename = br.open(url).geturl().split('/')[-1]
-        ext = os.path.splitext(basename)[1][1:].lower()
-        if ext not in BOOK_EXTENSIONS:
-            raise Exception(_('Not a valid ebook format.'))
 
+        basename = br.open(url).geturl().split('/')[-1]
         tf = PersistentTemporaryFile(suffix=basename)
         with closing(br.open(url)) as f:
             tf.write(f.read())
@@ -142,6 +143,9 @@ class StoreDownloader(Thread):
         url, save_loc, add_to_lib = job.args
         if not add_to_lib and job.tmp_file_name:
             return
+        ext = os.path.splitext(job.tmp_file_name)[1][1:].lower()
+        if ext not in BOOK_EXTENSIONS:
+            raise Exception(_('Not a support ebook format.'))
         
         ext = os.path.splitext(job.tmp_file_name)[1][1:]
         
@@ -156,7 +160,7 @@ class StoreDownloader(Thread):
         if not save_loc and job.tmp_file_name:
             return
         
-        shutil.copy(job.tmp_fie_name, save_loc)
+        shutil.copy(job.tmp_file_name, save_loc)
         
     def download_from_store(self, callback, db, cookie_jar, url='', save_as_loc='', add_to_lib=True):
         description = _('Downloading %s') % url
