@@ -18,6 +18,7 @@ from calibre.customize.ui import store_plugins
 from calibre.gui2 import NONE
 from calibre.gui2.store.search_ui import Ui_Dialog
 from calibre.utils.icu import sort_key
+from calibre.utils.magick.draw import thumbnail
 
 class SearchDialog(QDialog, Ui_Dialog):
 
@@ -134,8 +135,8 @@ class SearchThread(Thread):
                 if self.abort.is_set():
                     return
                 self.results.put((self.store_name, res))
-        except Exception as e:
-            print e
+        except:
+            pass
 
 
 class CoverDownloadThread(Thread):
@@ -160,11 +161,14 @@ class CoverDownloadThread(Thread):
         while self._run:
             try:
                 time.sleep(.1)
-                if not self.items.empty():
+                while not self.items.empty():
+                    if not self._run:
+                        break
                     item = self.items.get_nowait()
                     if item and item.cover_url:
                         with closing(self.br.open(item.cover_url, timeout=self.timeout)) as f:
                             item.cover_data = f.read()
+                        item.cover_data = thumbnail(item.cover_data, 64, 64)[2]
                         self.items.task_done()
                         self.update_callback(item)
             except:
@@ -250,6 +254,8 @@ class Matches(QAbstractItemModel):
                 p = QPixmap()
                 p.loadFromData(result.cover_data)
                 return QVariant(p)
+        elif role == Qt.SizeHintRole:
+            return QSize(64, 64)
         return NONE
 
     def data_as_text(self, result, col):
