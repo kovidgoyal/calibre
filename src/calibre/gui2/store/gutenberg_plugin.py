@@ -52,7 +52,7 @@ class GutenbergStore(StorePlugin):
                 id = url.split('/')[-1]
                 
                 heading = ''.join(url_a.xpath('text()'))
-                title, _, author = heading.partition('by')
+                title, _, author = heading.partition('by ')
                 author = author.split('-')[0]
                 price = '$0.00'
                 

@@ -4,6 +4,7 @@ __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
+import random
 import re
 import urllib2
 from contextlib import closing
@@ -22,7 +23,11 @@ class SmashwordsStore(StorePlugin):
         
     def open(self, gui, parent=None, detail_item=None):
         from calibre.gui2.store.web_store_dialog import WebStoreDialog
-        d = WebStoreDialog(gui, 'http://www.smashwords.com/?ref=usernone', parent, detail_item)
+        aff_id = 'usernone'
+        # Use Kovid's affiliate id 30% of the time.
+        if random.randint(1, 10) in (1, 2, 3):
+            aff_id = 'kovidgoyal'
+        d = WebStoreDialog(gui, 'http://www.smashwords.com/?ref=%s' % aff_id, parent, detail_item)
         d.setWindowTitle(self.name)
         d.set_tags(self.name + ',' + _('store'))
         d = d.exec_()

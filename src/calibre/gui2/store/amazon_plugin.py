@@ -47,29 +47,38 @@ class AmazonKindleStore(StorePlugin):
                 if 'kindle' not in type.lower():
                     continue
                 
-                title = ''.join(data.xpath('div[@class="productTitle"]/a/text()'))
-                author = ''.join(data.xpath('div[@class="productTitle"]/span[@class="ptBrand"]/text()'))
-                author = author.split('by')[-1]
-                price = ''.join(data.xpath('div[@class="newPrice"]/span/text()'))
-                
                 # We must have an asin otherwise we can't easily reference the
                 # book later.
-                asin = data.xpath('div[@class="productTitle"]/a[1]')
-                if asin:
-                    asin = asin[0].get('href', '')
-                    m = re.search(r'/dp/(?P<asin>.+?)(/|$)', asin)
+                asin_href = None
+                asin_a = data.xpath('div[@class="productTitle"]/a[1]')
+                if asin_a:
+                    asin_href = asin_a[0].get('href', '')
+                    m = re.search(r'/dp/(?P<asin>.+?)(/|$)', asin_href)
                     if m:
                         asin = m.group('asin')
                     else:
                         continue
+                else:
+                    continue
+                
+                cover_url = ''
+                if asin_href:
+                    cover_img = data.xpath('//div[@class="productImage"]/a[@href="%s"]/img/@src' % asin_href)
+                    if cover_img:
+                        cover_url = cover_img[0]
+                
+                title = ''.join(data.xpath('div[@class="productTitle"]/a/text()'))
+                author = ''.join(data.xpath('div[@class="productTitle"]/span[@class="ptBrand"]/text()'))
+                author = author.split('by')[-1]
+                price = ''.join(data.xpath('div[@class="newPrice"]/span/text()'))
                     
-                    counter -= 1
-                    
-                    s = SearchResult()
-                    s.cover_url = ''
-                    s.title = title.strip()
-                    s.author = author.strip()
-                    s.price = price.strip()
-                    s.detail_item = '/detail/' + asin.strip()
-                    
-                    yield s
+                counter -= 1
+                
+                s = SearchResult()
+                s.cover_url = cover_url
+                s.title = title.strip()
+                s.author = author.strip()
+                s.price = price.strip()
+                s.detail_item = '/detail/' + asin.strip()
+                
+                yield s
