@@ -1195,7 +1195,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     i += 1
             else:
                 new_cats['.'.join(comps)] = user_cats[k]
-        self.prefs.set('user_categories', new_cats)
+        try:
+            self.prefs.set('user_categories', new_cats)
+        except:
+            pass
         return new_cats
 
     def get_categories(self, sort='name', ids=None, icon_map=None):
