@@ -654,7 +654,6 @@ class TagTreeItem(object): # {{{
         '''
         set_to: None => advance the state, otherwise a value from TAG_SEARCH_STATES
         '''
-#        if self.type == self.TAG:
         if set_to is None:
             while True:
                 self.tag.state = (self.tag.state + 1)%5
@@ -1319,16 +1318,19 @@ class TagsModel(QAbstractItemModel): # {{{
                 return False
 
             user_cats = self.db.prefs.get('user_categories', {})
+            user_cat_keys_lower = [icu_lower(k) for k in user_cats]
             ckey = item.category_key[1:]
+            ckey_lower = icu_lower(ckey)
             dotpos = ckey.rfind('.')
             if dotpos < 0:
                 nkey = val
             else:
                 nkey = ckey[:dotpos+1] + val
-            for c in user_cats:
-                if c.startswith(ckey):
+            nkey_lower = icu_lower(nkey)
+            for c in sorted(user_cats.keys(), key=sort_key):
+                if icu_lower(c).startswith(ckey_lower):
                     if len(c) == len(ckey):
-                        if nkey in user_cats:
+                        if nkey_lower in user_cat_keys_lower:
                             error_dialog(self.tags_view, _('Rename user category'),
                                 _('The name %s is already used')%nkey, show=True)
                             return False
@@ -1336,7 +1338,7 @@ class TagsModel(QAbstractItemModel): # {{{
                         del user_cats[ckey]
                     elif c[len(ckey)] == '.':
                         rest = c[len(ckey):]
-                        if (nkey + rest) in user_cats:
+                        if icu_lower(nkey + rest) in user_cat_keys_lower:
                             error_dialog(self.tags_view, _('Rename user category'),
                                 _('The name %s is already used')%(nkey+rest), show=True)
                             return False
@@ -1512,7 +1514,6 @@ class TagsModel(QAbstractItemModel): # {{{
     def reset_all_states(self, except_=None):
         update_list = []
         def process_tag(tag_item):
-#            if tag_item.type != TagTreeItem.CATEGORY:
             tag = tag_item.tag
             if tag is except_:
                 tag_index = self.createIndex(tag_item.row(), 0, tag_item)
