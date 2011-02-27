@@ -10,6 +10,8 @@ from contextlib import closing
 
 from lxml import html
 
+from PyQt4.Qt import QUrl
+
 from calibre import browser
 from calibre.customize import StorePlugin
 from calibre.gui2.store.search_result import SearchResult
@@ -19,13 +21,12 @@ class AmazonKindleStore(StorePlugin):
     name           = 'Amazon Kindle'
     description    = _('Buy Kindle books from Amazon')
     
-    ASTORE_URL = 'http://astore.amazon.com/josbl0e-20/'
-    
     def open(self, gui, parent=None, detail_item=None):
-        from calibre.gui2.store.web_store_dialog import WebStoreDialog
-        d = WebStoreDialog(gui, self.ASTORE_URL, parent, detail_item)
-        d.setWindowTitle(self.name)
-        d = d.exec_()
+        from calibre.gui2 import open_url
+        astore_link = 'http://astore.amazon.com/josbl0e-20'
+        if detail_item:
+            astore_link += detail_item
+        open_url(QUrl(astore_link))
 
     def search(self, query, max_results=10, timeout=60):
         url = 'http://www.amazon.com/s/url=search-alias%3Ddigital-text&field-keywords=' + urllib2.quote(query)

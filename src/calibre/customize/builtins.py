@@ -1047,6 +1047,6 @@ from calibre.gui2.store.feedbooks_plugin import FeedbooksStore
 from calibre.gui2.store.manybooks_plugin import ManyBooksStore
 from calibre.gui2.store.smashwords_plugin import SmashwordsStore
 
-plugins += [GutenbergStore, FeedbooksStore, ManyBooksStore, SmashwordsStore]
+plugins += [AmazonKindleStore, GutenbergStore, FeedbooksStore, ManyBooksStore, SmashwordsStore]
 
 # }}}
