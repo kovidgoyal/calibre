@@ -10,11 +10,9 @@ Scheduler for automated recipe downloads
 from datetime import timedelta
 
 from PyQt4.Qt import QDialog, SIGNAL, Qt, QTime, QObject, QMenu, \
-        QAction, QIcon, QMutex, QTimer, pyqtSignal, QWidget, QHBoxLayout, \
-        QLabel
+        QAction, QIcon, QMutex, QTimer, pyqtSignal
 
 from calibre.gui2.dialogs.scheduler_ui import Ui_Dialog
-from calibre.gui2.search_box import SearchBox2
 from calibre.gui2 import config as gconf, error_dialog
 from calibre.web.feeds.recipes.model import RecipeModel
 from calibre.ptempfile import PersistentTemporaryFile
@@ -28,18 +26,12 @@ class SchedulerDialog(QDialog, Ui_Dialog):
         self.setupUi(self)
         self.recipe_model = recipe_model
         self.recipe_model.do_refresh()
+        self.count_label.setText(
+            _('%s news sources') %
+                self.recipe_model.showing_count)
 
-        self._cont = QWidget(self)
-        self._cont.l = QHBoxLayout()
-        self._cont.setLayout(self._cont.l)
-        self._cont.la = QLabel(_('&Search:'))
-        self._cont.l.addWidget(self._cont.la, 1)
-        self.search = SearchBox2(self)
-        self._cont.l.addWidget(self.search, 100)
-        self._cont.la.setBuddy(self.search)
-        self.search.setMinimumContentsLength(25)
         self.search.initialize('scheduler_search_history')
-        self.recipe_box.layout().insertWidget(0, self._cont)
+        self.search.setMinimumContentsLength(15)
         self.search.search.connect(self.recipe_model.search)
         self.recipe_model.searched.connect(self.search.search_done,
                 type=Qt.QueuedConnection)
@@ -153,9 +145,12 @@ class SchedulerDialog(QDialog, Ui_Dialog):
             self.recipe_model.un_schedule_recipe(urn)
 
         add_title_tag = self.add_title_tag.isChecked()
+        keep_issues = u'0'
+        if self.keep_issues.isEnabled():
+            keep_issues = unicode(self.keep_issues.value())
         custom_tags = unicode(self.custom_tags.text()).strip()
         custom_tags = [x.strip() for x in custom_tags.split(',')]
-        self.recipe_model.customize_recipe(urn, add_title_tag, custom_tags)
+        self.recipe_model.customize_recipe(urn, add_title_tag, custom_tags, keep_issues)
         return True
 
     def initialize_detail_box(self, urn):
@@ -215,9 +210,16 @@ class SchedulerDialog(QDialog, Ui_Dialog):
             if d < timedelta(days=366):
                 self.last_downloaded.setText(_('Last downloaded')+': '+tm)
 
-        add_title_tag, custom_tags = customize_info
+        add_title_tag, custom_tags, keep_issues = customize_info
         self.add_title_tag.setChecked(add_title_tag)
         self.custom_tags.setText(u', '.join(custom_tags))
+        try:
+            keep_issues = int(keep_issues)
+        except:
+            keep_issues = 0
+        self.keep_issues.setValue(keep_issues)
+        self.keep_issues.setEnabled(self.add_title_tag.isChecked())
+
 
 
 class Scheduler(QObject):
@@ -299,7 +301,7 @@ class Scheduler(QObject):
             un = pw = None
             if account_info is not None:
                 un, pw = account_info
-            add_title_tag, custom_tags = customize_info
+            add_title_tag, custom_tags, keep_issues = customize_info
             script = self.recipe_model.get_recipe(urn)
             pt = PersistentTemporaryFile('_builtin.recipe')
             pt.write(script)
@@ -312,6 +314,7 @@ class Scheduler(QObject):
                     'recipe':pt.name,
                     'title':recipe.get('title',''),
                     'urn':urn,
+                    'keep_issues':keep_issues
                    }
             self.download_queue.add(urn)
             self.start_recipe_fetch.emit(arg)

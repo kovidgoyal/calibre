@@ -178,8 +178,10 @@ class TagCategories(QDialog, Ui_TagCategories):
                       'multiple periods in a row or spaces before '
                       'or after periods.')).exec_()
             return False
-        for c in self.categories:
-            if strcmp(c, cat_name) == 0:
+        for c in sorted(self.categories.keys(), key=sort_key):
+            if strcmp(c, cat_name) == 0 or \
+                    (icu_lower(cat_name).startswith(icu_lower(c) + '.') and\
+                     not cat_name.startswith(c + '.')):
                 error_dialog(self, _('Name already used'),
                         _('That name is already used, perhaps with different case.')).exec_()
                 return False
