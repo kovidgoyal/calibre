@@ -240,6 +240,8 @@ def get_parsed_proxy(typ='http', debug=True):
                     prints('Using http proxy', str(ans))
                 return ans
 
+USER_AGENT = 'Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.9.2.13) Gecko/20101210 Gentoo Firefox/3.6.13'
+USER_AGENT_MOBILE = 'Mozilla/5.0 (Windows; U; Windows CE 5.1; rv:1.8.1a3) Gecko/20060610 Minimo/0.016'
 
 def browser(honor_time=True, max_time=2, mobile_browser=False, user_agent=None):
     '''
@@ -254,8 +256,7 @@ def browser(honor_time=True, max_time=2, mobile_browser=False, user_agent=None):
     opener.set_handle_refresh(True, max_time=max_time, honor_time=honor_time)
     opener.set_handle_robots(False)
     if user_agent is None:
-        user_agent = ' Mozilla/5.0 (Windows; U; Windows CE 5.1; rv:1.8.1a3) Gecko/20060610 Minimo/0.016' if mobile_browser else \
-                          'Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.9.2.13) Gecko/20101210 Gentoo Firefox/3.6.13'
+        user_agent = USER_AGENT_MOBILE if mobile_browser else USER_AGENT                          
     opener.addheaders = [('User-agent', user_agent)]
     http_proxy = get_proxies().get('http', None)
     if http_proxy:
