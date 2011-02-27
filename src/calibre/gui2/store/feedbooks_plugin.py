@@ -55,8 +55,8 @@ class FeedbooksStore(StorePlugin):
                 if not id:
                     continue
                 
-                title = ''.join(data.xpath('//h5/a/text()'))
-                author = ''.join(data.xpath('//h6/a/text()'))
+                title = ''.join(data.xpath('//h5//a/text()'))
+                author = ''.join(data.xpath('//h6//a/text()'))
                 price = ''.join(data.xpath('//a[@class="buy"]/text()'))
                 if not price:
                     price = '$0.00'
