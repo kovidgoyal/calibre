@@ -1503,25 +1503,30 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     ############# End get_categories
 
-    def tags_older_than(self, tag, delta):
+    def tags_older_than(self, tag, delta, must_have_tag=None):
         '''
         Return the ids of all books having the tag ``tag`` that are older than
         than the specified time. tag comparison is case insensitive.
 
         :param delta: A timedelta object or None. If None, then all ids with
         the tag are returned.
+        :param must_have_tag: If not None the list of matches will be
+        restricted to books that have this tag
         '''
         tag = tag.lower().strip()
+        mht = must_have_tag.lower().strip() if must_have_tag else None
         now = nowf()
         tindex = self.FIELD_MAP['timestamp']
         gindex = self.FIELD_MAP['tags']
+        iindex = self.FIELD_MAP['id']
         for r in self.data._data:
             if r is not None:
                 if delta is None or (now - r[tindex]) > delta:
                     tags = r[gindex]
-                    if tags and tag in [x.strip() for x in
-                            tags.lower().split(',')]:
-                        yield r[self.FIELD_MAP['id']]
+                    if tags:
+                        tags = [x.strip() for x in tags.lower().split(',')]
+                        if tag in tags and (mht is None or mht in tags):
+                            yield r[iindex]
 
     def get_next_series_num_for(self, series):
         series_id = self.conn.get('SELECT id from series WHERE name=?',
