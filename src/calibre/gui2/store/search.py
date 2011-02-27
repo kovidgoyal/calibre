@@ -47,6 +47,22 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.checker.timeout.connect(self.get_results)
         self.results_view.activated.connect(self.open_store)
         
+        self.resize_columns()
+        
+    def resize_columns(self):
+        total = 600
+        # Cover
+        self.results_view.setColumnWidth(0, 85)
+        total = total - 85
+        # Title
+        self.results_view.setColumnWidth(1,int(total*.35))
+        # Author
+        self.results_view.setColumnWidth(2,int(total*.35))
+        # Price
+        self.results_view.setColumnWidth(3, int(total*.10))
+        # Store
+        self.results_view.setColumnWidth(4, int(total*.20))
+        
     def do_search(self, checked=False):
         # Stop all running threads.
         self.checker.stop()
@@ -117,9 +133,6 @@ class SearchThread(Thread):
             for res in self.store_plugin.search(self.query, timeout=self.timeout):
                 if self.abort.is_set():
                     return
-                #if res.cover_url:
-                #    with closing(self.br.open(res.cover_url, timeout=15)) as f:
-                #        res.cover_data = f.read()
                 self.results.put((self.store_name, res))
         except:
             pass
@@ -171,12 +184,13 @@ class Matches(QAbstractItemModel):
         
     def clear_results(self):
         self.matches = []
-        #self.cover_download_queue.queue.clear()
+        self.cover_download_queue.queue.clear()
         self.reset()
     
     def add_result(self, result):
         self.layoutAboutToBeChanged.emit()
         self.matches.append(result)
+        
         self.cover_download_queue.put(result)
         self.layoutChanged.emit()
 
