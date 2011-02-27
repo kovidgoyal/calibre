@@ -4,6 +4,7 @@ __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
+import re
 import urllib2
 from contextlib import closing
 
@@ -22,7 +23,7 @@ class ManyBooksStore(StorePlugin):
     def open(self, gui, parent=None, detail_item=None):
         from calibre.gui2.store.web_store_dialog import WebStoreDialog
         d = WebStoreDialog(gui, 'http://manybooks.net/', parent, detail_item)
-        d.setWindowTitle('ManyBooks')
+        d.setWindowTitle(self.name)
         d = d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
@@ -51,6 +52,7 @@ class ManyBooksStore(StorePlugin):
                 if '/titles/' not in url:
                     continue
                 id = url.split('/')[-1]
+                id = id.strip()
                 
                 heading = ''.join(url_a.xpath('text()'))
                 title, _, author = heading.partition('by')
@@ -58,14 +60,13 @@ class ManyBooksStore(StorePlugin):
                 price = '$0.00'
                 
                 cover_url = ''
-                with closing(br.open('http://manybooks.net/titles/%s' % id.strip(), timeout=timeout)) as f_i:
-                    doc_i = html.fromstring(f_i.read())
-                    for img in doc_i.xpath('//img'):
-                        src = img.get('src', None)
-                        if src and src.endswith('-thumb.jpg'):
-                            cover_url = src
-                            print cover_url
-                
+                mo = re.match('^\D+', id)
+                if mo:
+                    cover_name = mo.group()
+                    cover_name = cover_name.replace('etext', '')
+                    cover_id = id.split('.')[0]
+                    cover_url = 'http://manybooks_images.s3.amazonaws.com/original_covers/' + id[0] + '/' + cover_name + '/' + cover_id + '-thumb.jpg' 
+
                 counter -= 1
                 
                 s = SearchResult()
@@ -73,6 +74,6 @@ class ManyBooksStore(StorePlugin):
                 s.title = title.strip()
                 s.author = author.strip()
                 s.price = price.strip()
-                s.detail_item = '/titles/' + id.strip()
+                s.detail_item = '/titles/' + id
                 
                 yield s

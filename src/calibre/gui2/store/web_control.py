@@ -11,7 +11,7 @@ from PyQt4.Qt import QWebView, QWebPage, QNetworkCookieJar, QNetworkRequest, QSt
 from calibre import USER_AGENT
 
 class NPWebView(QWebView):
-    
+
     def __init__(self, *args):
         QWebView.__init__(self, *args)
         self.gui = None

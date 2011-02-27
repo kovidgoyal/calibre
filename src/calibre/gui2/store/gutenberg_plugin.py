@@ -22,7 +22,7 @@ class GutenbergStore(StorePlugin):
     def open(self, gui, parent=None, detail_item=None):
         from calibre.gui2.store.web_store_dialog import WebStoreDialog
         d = WebStoreDialog(gui, 'http://m.gutenberg.org/', parent, detail_item)
-        d.setWindowTitle('Project Gutenberg')
+        d.setWindowTitle(self.name)
         d = d.exec_()
 
     def search(self, query, max_results=10, timeout=60):

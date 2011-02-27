@@ -24,7 +24,7 @@ class AmazonKindleStore(StorePlugin):
     def open(self, gui, parent=None, detail_item=None):
         from calibre.gui2.store.web_store_dialog import WebStoreDialog
         d = WebStoreDialog(gui, self.ASTORE_URL, parent, detail_item)
-        d.setWindowTitle('Amazon Kindle Store')
+        d.setWindowTitle(self.name)
         d = d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
