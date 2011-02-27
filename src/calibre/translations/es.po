@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-02-25 19:16+0000\n"
-"PO-Revision-Date: 2011-02-20 14:56+0000\n"
+"PO-Revision-Date: 2011-02-26 11:26+0000\n"
 "Last-Translator: Jellby <Unknown>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-02-26 04:55+0000\n"
+"X-Launchpad-Export-Date: 2011-02-27 04:38+0000\n"
 "X-Generator: Launchpad (build 12351)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:527
@@ -1223,7 +1223,7 @@ msgstr "Comunicar con el Bq Avant"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:60
 msgid "Communicate with the Sweex/Kogan/Q600/Wink"
-msgstr ""
+msgstr "Comunicar con el Sweex/Kogan/Q600/Wink"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:81
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:108
@@ -1417,7 +1417,7 @@ msgstr "Comunicar con el Stash W950 reader"
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:111
 msgid "Communicate with the Wexler reader."
-msgstr ""
+msgstr "Comunicar con el lector Wexler."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:282
 msgid "Unable to detect the %s disk drive. Try rebooting."
@@ -1638,6 +1638,8 @@ msgid ""
 "When converting a CBC do not add links to each page to the TOC. Note this "
 "only applies if the TOC has more than one section"
 msgstr ""
+"Al convertir un CBC no añadir enlaces a cada página en el Índice. Esto sólo "
+"se aplica si el Índice tiene más de una sección."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:447
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:459
@@ -3226,6 +3228,9 @@ msgid ""
 "Downloads series information from ww2.kdl.org. This website cannot handle "
 "large numbers of queries, so the plugin is disabled by default."
 msgstr ""
+"Descargar información de serie de ww2.kdl.org. Este sitio web no admite un "
+"gran número de conexiones, así que el complemento está desactivado de manera "
+"predeterminada."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fictionwise.py:25
 msgid "Downloads metadata from Fictionwise"
@@ -6374,7 +6379,7 @@ msgstr "Forzar &tamaño de imagen:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:118
 msgid "Don't add links to &pages to the Table of Contents for CBC files"
-msgstr ""
+msgstr "No añadir enlaces a &páginas en el Índice para ficheros CBC"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug.py:19
 msgid "Debug"
@@ -8363,6 +8368,11 @@ msgid ""
 "          available at <a href=\"http://drmfree.calibre-ebook.com\">Open "
 "Books</a>."
 msgstr ""
+"<p>Este libro está bloqueado con <b>DRM</b>. Para saber más sobre DRM y por "
+"qué no puede leer o convertir este libro con calibre, <a "
+"href=\"http://drmfree.calibre-ebook.com/about#drm\">pulse aquí</a>.\n"
+"<p>Puede encontrar novedades sin DRM en <a href=\"http://drmfree.calibre-"
+"ebook.com\">Open Books</a>."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:35
 msgid "Author sort"
@@ -9962,7 +9972,7 @@ msgstr " (en ningún libro)"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:176
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:205
 msgid "Invalid name"
-msgstr ""
+msgstr "Nombre no válido"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:177
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:206
@@ -9970,6 +9980,8 @@ msgid ""
 "That name contains leading or trailing periods, multiple periods in a row or "
 "spaces before or after periods."
 msgstr ""
+"El nombre contiene puntos al principio o al final, varios puntos seguidos o "
+"espacios antes o después de puntos."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:183
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:213
@@ -11840,7 +11852,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:154
 msgid "Tags browser category &partitioning method:"
-msgstr ""
+msgstr "Metodo de &división de categorías en el navegador de etiquetas:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:155
 msgid ""
@@ -11858,7 +11870,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:160
 msgid "&Collapse when more items than:"
-msgstr ""
+msgstr "&Contraer cuando el número de elementos sea mayor de:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:161
 msgid ""
@@ -11873,7 +11885,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:163
 msgid "Categories with &hierarchical items:"
-msgstr ""
+msgstr "Categorías con elementos &jerárquicos:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:164
 msgid ""
@@ -11884,6 +11896,13 @@ msgid ""
 "both under 'Mystery'. If 'tags' is not in this box,\n"
 "then the tags will be displayed each on their own line."
 msgstr ""
+"Una lista de columnas, separadas por comas, en las que los elementos\n"
+"con puntos se mostrarán en el árbol del explorador de etiquetas. Por "
+"ejemplo,\n"
+"si este cuadro contiene «tags», entonces las etiquetas «Intriga.Español» e\n"
+"«Intriga.Suspense» se mostrarán con «Español» y «Suspense» como\n"
+"subcategorías de «Intriga». Si el cuadro no contiene «tags», entonces las\n"
+"etiquetas se mostrarán cada una por su cuenta."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:170
 msgid "&Toolbar"
@@ -13096,15 +13115,15 @@ msgstr "Modificar orden para %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:321
 msgid "Add %s to user category"
-msgstr ""
+msgstr "Añadir %s a la categoría de usuario"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:334
 msgid "Children of %s"
-msgstr ""
+msgstr "Subcategorías de %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:341
 msgid "Remove %s from category %s"
-msgstr ""
+msgstr "Eliminar %s de la categoría %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:347
 msgid "Search for %s"
@@ -13116,11 +13135,11 @@ msgstr "Buscar todo menos %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:364
 msgid "Add sub-category to %s"
-msgstr ""
+msgstr "Añadir una subcategoría a %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:368
 msgid "Delete user category %s"
-msgstr ""
+msgstr "Eliminar la categoría de usuario %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:374
 msgid "Hide category %s"
@@ -13185,16 +13204,16 @@ msgstr "Búsquedas"
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1297
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1305
 msgid "Rename user category"
-msgstr ""
+msgstr "Cambiar el nombre a la categoría de usuario"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1282
 msgid "You cannot use periods in the name when renaming user categories"
-msgstr ""
+msgstr "No puede usar puntos en el nombre de las categorías de usuario"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1298
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1306
 msgid "The name %s is already used"
-msgstr ""
+msgstr "El nombre %s ya está en uso"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1329
 msgid "Duplicate search name"
@@ -13206,36 +13225,36 @@ msgstr "El nombre guardado buscado %s está en uso."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1715
 msgid "New Category"
-msgstr ""
+msgstr "Nueva categoría"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1766
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1769
 msgid "Delete user category"
-msgstr ""
+msgstr "Eliminar la categoría de usuario"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1767
 msgid "%s is not a user category"
-msgstr ""
+msgstr "%s no es una categoría de usuario"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1770
 msgid "%s contains items. Do you really want to delete it?"
-msgstr ""
+msgstr "%s contiene elementos. ¿Esta seguro de que quiere borrarla?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1791
 msgid "Remove category"
-msgstr ""
+msgstr "Eliminar categoría"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1792
 msgid "User category %s does not exist"
-msgstr ""
+msgstr "La categoría de usuario %s no existe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1811
 msgid "Add to user category"
-msgstr ""
+msgstr "Añadir a la categoría de usuario"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1812
 msgid "A user category %s does not exist"
-msgstr ""
+msgstr "No existe ninguna categoría de usuario llamada %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1935
 msgid "Find item in tag browser"
@@ -16399,6 +16418,16 @@ msgid ""
 "{#genre:sublist(-1,0,.)} returns C<br/>{#genre:sublist(0,1,.)} returns "
 "A<br/>{#genre:sublist(0,-1,.)} returns A.B"
 msgstr ""
+"sublist(val, índice_inicio, índice_fin, separador) -- interpreta el valor "
+"como una lista de elementos separados por «separador», y devuelve una nueva "
+"lista con los elementos entre el número índice_inicio y el número "
+"índice_fin. El primer elemento tiene índice cero. Si un índice es negativo, "
+"se cuenta desde el final de la lista. Como caso especial un índice_fin igual "
+"a cero se interpreta como el último de la lista. Ejemplos con el modo básico "
+"de plantilla y suponiendo que el valor de #genre es A.B.C:<br/>\r\n"
+"{#genre:sublist(-1,0,.)} devuelve «C»<br/>\r\n"
+"{#genre:sublist(0,1,.)} devuelve «A»<br/>\r\n"
+"{#genre:sublist(0,-1,.)} devuelve «A.B»"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:430
 msgid "uppercase(val) -- return value of the field in upper case"
