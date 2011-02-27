@@ -23,10 +23,12 @@ class AmazonKindleStore(StorePlugin):
     
     def open(self, gui, parent=None, detail_item=None):
         from calibre.gui2 import open_url
-        astore_link = 'http://astore.amazon.com/josbl0e-20'
+        aff_id = {'tag': 'josbl0e-cpb-20'}
+        store_link = 'http://www.amazon.com/Kindle-eBooks/b/?ie=UTF&node=1286228011&ref_=%(tag)s&ref=%(tag)s&tag=%(tag)s&linkCode=ur2&camp=1789&creative=390957' % aff_id
         if detail_item:
-            astore_link += detail_item
-        open_url(QUrl(astore_link))
+            aff_id['asin'] = detail_item
+            store_link = 'http://www.amazon.com/dp/%(asin)s/?tag=%(tag)s' % aff_id
+        open_url(QUrl(store_link))
 
     def search(self, query, max_results=10, timeout=60):
         url = 'http://www.amazon.com/s/url=search-alias%3Ddigital-text&field-keywords=' + urllib2.quote(query)
@@ -79,6 +81,6 @@ class AmazonKindleStore(StorePlugin):
                 s.title = title.strip()
                 s.author = author.strip()
                 s.price = price.strip()
-                s.detail_item = '/detail/' + asin.strip()
+                s.detail_item = asin.strip()
                 
                 yield s
