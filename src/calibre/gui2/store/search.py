@@ -51,6 +51,7 @@ class SearchDialog(QDialog, Ui_Dialog):
             stores_group_layout.addWidget(cbox)
             setattr(self, 'store_check_' + x.name, cbox)
         
+        stores_group_layout.addStretch()
         store_button_layout = QHBoxLayout()
         stores_group_layout.addLayout(store_button_layout)
         self.select_all_stores = QPushButton(_('All'))
