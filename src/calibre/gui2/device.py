@@ -430,6 +430,10 @@ class DeviceManager(Thread): # {{{
     def set_current_library_uuid(self, uuid):
         self.current_library_uuid = uuid
 
+    def set_driveinfo_name(self, location_code, name):
+        if self.connected_device:
+            self.connected_device.set_driveinfo_name(location_code, name)
+
     # }}}
 
 class DeviceAction(QAction): # {{{

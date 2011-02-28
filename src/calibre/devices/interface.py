@@ -447,6 +447,15 @@ class DevicePlugin(Plugin):
         '''
         pass
 
+    def set_driveinfo_name(self, location_code, name):
+        '''
+        Set the device name in the driveinfo file to 'name'. This setting will
+        persist until the file is re-created or the name is changed again.
+
+        Non-disk devices will ignore this request.
+        '''
+        pass
+
 class BookList(list):
     '''
     A list of books. Each Book object must have the fields

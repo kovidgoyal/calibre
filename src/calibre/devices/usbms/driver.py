@@ -55,29 +55,33 @@ class USBMS(CLI, Device):
     METADATA_CACHE = 'metadata.calibre'
     DRIVEINFO = 'driveinfo.calibre'
 
-    def _update_driveinfo_record(self, dinfo, prefix):
+    def _update_driveinfo_record(self, dinfo, prefix, name=None):
         if not isinstance(dinfo, dict):
             dinfo = {}
         if dinfo.get('device_store_uuid', None) is None:
             dinfo['device_store_uuid'] = unicode(uuid.uuid4())
+        if dinfo.get('device_name') is None:
+            dinfo['device_name'] = self.get_gui_name()
+        if name is not None:
+            dinfo['device_name'] = name
         dinfo['last_library_uuid'] = getattr(self, 'current_library_uuid', None)
         dinfo['calibre_version'] = '.'.join([unicode(i) for i in numeric_version])
         dinfo['date_last_connected'] = unicode(now())
         dinfo['prefix'] = prefix.replace('\\', '/')
         return dinfo
 
-    def _update_driveinfo_file(self, prefix):
+    def _update_driveinfo_file(self, prefix, name=None):
         if os.path.exists(os.path.join(prefix, self.DRIVEINFO)):
             with open(os.path.join(prefix, self.DRIVEINFO), 'rb') as f:
                 try:
                     driveinfo = json.loads(f.read(), object_hook=from_json)
                 except:
                     driveinfo = None
-                driveinfo = self._update_driveinfo_record(driveinfo, prefix)
+                driveinfo = self._update_driveinfo_record(driveinfo, prefix, name)
             with open(os.path.join(prefix, self.DRIVEINFO), 'wb') as f:
                 f.write(json.dumps(driveinfo, default=to_json))
         else:
-            driveinfo = self._update_driveinfo_record({}, prefix)
+            driveinfo = self._update_driveinfo_record({}, prefix, name)
             with open(os.path.join(prefix, self.DRIVEINFO), 'wb') as f:
                 f.write(json.dumps(driveinfo, default=to_json))
         return driveinfo
@@ -92,6 +96,14 @@ class USBMS(CLI, Device):
         if self._card_b_prefix is not None:
             self.driveinfo['B'] = self._update_driveinfo_file(self._card_b_prefix)
         return (self.get_gui_name(), '', '', '', self.driveinfo)
+
+    def set_driveinfo_name(self, location_code, name):
+        if location_code == 'main':
+            self._update_driveinfo_file(self._main_prefix, name)
+        elif location_code == 'A':
+            self._update_driveinfo_file(self._card_a_prefix, name)
+        elif location_code == 'B':
+            self._update_driveinfo_file(self._card_b_prefix, name)
 
     def books(self, oncard=None, end_session=True):
         from calibre.ebooks.metadata.meta import path_to_ext
