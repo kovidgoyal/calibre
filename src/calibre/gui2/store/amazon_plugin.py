@@ -19,7 +19,7 @@ from calibre.gui2.store.search_result import SearchResult
 class AmazonKindleStore(StorePlugin):
     
     name           = 'Amazon Kindle'
-    description    = _('Buy Kindle books from Amazon')
+    description    = _('Kindle books from Amazon')
     
     def open(self, gui, parent=None, detail_item=None):
         from calibre.gui2 import open_url
