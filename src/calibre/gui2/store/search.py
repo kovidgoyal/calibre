@@ -11,7 +11,8 @@ from threading import Event, Thread
 from Queue import Queue
 
 from PyQt4.Qt import Qt, QAbstractItemModel, QDialog, QTimer, QVariant, \
-    QModelIndex, QPixmap, QSize
+    QModelIndex, QPixmap, QSize, QCheckBox, QVBoxLayout, QHBoxLayout, \
+    QPushButton 
 
 from calibre import browser
 from calibre.customize.ui import store_plugins
@@ -41,12 +42,30 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.model = Matches()
         self.results_view.setModel(self.model)
 
+        stores_group_layout = QVBoxLayout()
+        self.stores_group.setLayout(stores_group_layout)
         for x in store_plugins():
             self.store_plugins[x.name] = x
-            
+            cbox = QCheckBox(x.name)
+            cbox.setChecked(True)
+            stores_group_layout.addWidget(cbox)
+            setattr(self, 'store_check_' + x.name, cbox)
+        
+        store_button_layout = QHBoxLayout()
+        stores_group_layout.addLayout(store_button_layout)
+        self.select_all_stores = QPushButton(_('All'))
+        self.select_invert_stores = QPushButton(_('Invert'))
+        self.select_none_stores = QPushButton(_('None'))
+        store_button_layout.addWidget(self.select_all_stores)
+        store_button_layout.addWidget(self.select_invert_stores)
+        store_button_layout.addWidget(self.select_none_stores)
+
         self.search.clicked.connect(self.do_search)
         self.checker.timeout.connect(self.get_results)
         self.results_view.activated.connect(self.open_store)
+        self.select_all_stores.clicked.connect(self.stores_select_all)
+        self.select_invert_stores.clicked.connect(self.stores_select_invert)
+        self.select_none_stores.clicked.connect(self.stores_select_none)
         
         self.resize_columns()
         
@@ -80,9 +99,10 @@ class SearchDialog(QDialog, Ui_Dialog):
             return
         
         for n in self.store_plugins:
-            t = SearchThread(query, (n, self.store_plugins[n]), self.results, self.abort, self.TIMEOUT)
-            self.running_threads.append(t)
-            t.start()
+            if getattr(self, 'store_check_' + n).isChecked():
+                t = SearchThread(query, (n, self.store_plugins[n]), self.results, self.abort, self.TIMEOUT)
+                self.running_threads.append(t)
+                t.start()
         if self.running_threads:
             self.hang_check = 0
             self.checker.start(100)
@@ -115,6 +135,25 @@ class SearchDialog(QDialog, Ui_Dialog):
         result = self.results_view.model().get_result(index)
         self.store_plugins[result.store].open(self.gui, self, result.detail_item)
 
+    def get_store_checks(self):
+        checks = []
+        for x in self.store_plugins:
+            check = getattr(self, 'store_check_' + x, None)
+            if check:
+                checks.append(check)
+        return checks
+
+    def stores_select_all(self):
+        for check in self.get_store_checks():
+            check.setChecked(True)
+    
+    def stores_select_invert(self):
+        for check in self.get_store_checks():
+            check.setChecked(not check.isChecked())
+    
+    def stores_select_none(self):
+        for check in self.get_store_checks():
+            check.setChecked(False)
 
 class SearchThread(Thread):
     
