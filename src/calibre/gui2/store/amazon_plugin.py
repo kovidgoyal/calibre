@@ -4,6 +4,7 @@ __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
+import random
 import re
 import urllib2
 from contextlib import closing
@@ -107,6 +108,9 @@ class AmazonKindleStore(StorePlugin):
         '''
         from calibre.gui2 import open_url
         aff_id = {'tag': 'josbl0e-cpb-20'}
+        # Use Kovid's affiliate id 30% of the time.
+        if random.randint(1, 10) in (1, 2, 3):
+            aff_id['tag'] = 'calibrebs-20'
         store_link = 'http://www.amazon.com/Kindle-eBooks/b/?ie=UTF&node=1286228011&ref_=%(tag)s&ref=%(tag)s&tag=%(tag)s&linkCode=ur2&camp=1789&creative=390957' % aff_id
         if detail_item:
             aff_id['asin'] = detail_item
