@@ -215,7 +215,7 @@ class DevicePlugin(Plugin):
 
         return True
 
-    def open(self):
+    def open(self, library_uuid):
         '''
         Perform any device specific initialization. Called after the device is
         detected but before any other functions that communicate with the device.

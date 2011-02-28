@@ -10,17 +10,18 @@ driver. It is intended to be subclassed with the relevant parts implemented
 for a particular device.
 '''
 
-import os
-import re
-import time
+import os, re, time, json, uuid
 from itertools import cycle
 
+from calibre.constants import numeric_version
 from calibre import prints, isbytestring
 from calibre.constants import filesystem_encoding, DEBUG
 from calibre.devices.usbms.cli import CLI
 from calibre.devices.usbms.device import Device
 from calibre.devices.usbms.books import BookList, Book
 from calibre.ebooks.metadata.book.json_codec import JsonCodec
+from calibre.utils.config import from_json, to_json
+from calibre.utils.date import now
 
 BASE_TIME = None
 def debug_print(*args):
@@ -52,10 +53,45 @@ class USBMS(CLI, Device):
     FORMATS = []
     CAN_SET_METADATA = []
     METADATA_CACHE = 'metadata.calibre'
+    DRIVEINFO = 'driveinfo.calibre'
+
+    def _update_driveinfo_record(self, dinfo, prefix):
+        if not isinstance(dinfo, dict):
+            dinfo = {}
+        if dinfo.get('device_store_uuid', None) is None:
+            dinfo['device_store_uuid'] = unicode(uuid.uuid4())
+        dinfo['last_library_uuid'] = getattr(self, 'current_library_uuid', None)
+        dinfo['calibre_version'] = '.'.join([unicode(i) for i in numeric_version])
+        dinfo['date_last_connected'] = unicode(now())
+        dinfo['prefix'] = prefix.replace('\\', '/')
+        return dinfo
+
+    def _update_driveinfo_file(self, prefix):
+        if os.path.exists(os.path.join(prefix, self.DRIVEINFO)):
+            with open(os.path.join(prefix, self.DRIVEINFO), 'rb') as f:
+                try:
+                    driveinfo = json.loads(f.read(), object_hook=from_json)
+                except:
+                    driveinfo = None
+                driveinfo = self._update_driveinfo_record(driveinfo, prefix)
+            with open(os.path.join(prefix, self.DRIVEINFO), 'wb') as f:
+                f.write(json.dumps(driveinfo, default=to_json))
+        else:
+            driveinfo = self._update_driveinfo_record({}, prefix)
+            with open(os.path.join(prefix, self.DRIVEINFO), 'wb') as f:
+                f.write(json.dumps(driveinfo, default=to_json))
+        return driveinfo
 
     def get_device_information(self, end_session=True):
         self.report_progress(1.0, _('Get device information...'))
-        return (self.get_gui_name(), '', '', '')
+        self.driveinfo = {}
+        if self._main_prefix is not None:
+            self.driveinfo['main'] = self._update_driveinfo_file(self._main_prefix)
+        if self._card_a_prefix is not None:
+            self.driveinfo['A'] = self._update_driveinfo_file(self._card_a_prefix)
+        if self._card_b_prefix is not None:
+            self.driveinfo['B'] = self._update_driveinfo_file(self._card_b_prefix)
+        return (self.get_gui_name(), '', '', '', self.driveinfo)
 
     def books(self, oncard=None, end_session=True):
         from calibre.ebooks.metadata.meta import path_to_ext
