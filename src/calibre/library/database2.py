@@ -1196,7 +1196,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             else:
                 new_cats['.'.join(comps)] = user_cats[k]
         try:
-            self.prefs.set('user_categories', new_cats)
+            if new_cats != user_cats:
+                self.prefs.set('user_categories', new_cats)
         except:
             pass
         return new_cats
