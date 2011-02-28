@@ -50,16 +50,7 @@ class SearchDialog(QDialog, Ui_Dialog):
             cbox.setChecked(True)
             stores_group_layout.addWidget(cbox)
             setattr(self, 'store_check_' + x.name, cbox)
-        
         stores_group_layout.addStretch()
-        store_button_layout = QHBoxLayout()
-        stores_group_layout.addLayout(store_button_layout)
-        self.select_all_stores = QPushButton(_('All'))
-        self.select_invert_stores = QPushButton(_('Invert'))
-        self.select_none_stores = QPushButton(_('None'))
-        store_button_layout.addWidget(self.select_all_stores)
-        store_button_layout.addWidget(self.select_invert_stores)
-        store_button_layout.addWidget(self.select_none_stores)
 
         self.search.clicked.connect(self.do_search)
         self.checker.timeout.connect(self.get_results)
