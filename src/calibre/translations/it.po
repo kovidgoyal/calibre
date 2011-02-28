@@ -9,13 +9,13 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-02-25 19:16+0000\n"
-"PO-Revision-Date: 2011-02-27 01:32+0000\n"
+"PO-Revision-Date: 2011-02-27 23:05+0000\n"
 "Last-Translator: Andrea Marenghi <Unknown>\n"
 "Language-Team: italiano\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-02-27 04:37+0000\n"
+"X-Launchpad-Export-Date: 2011-02-28 04:34+0000\n"
 "X-Generator: Launchpad (build 12351)\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -242,8 +242,8 @@ msgid ""
 "file to the library."
 msgstr ""
 "Crea un archivio PMLZ che contiene il documento PML e tutte le immagini "
-"nella cartella pmlname_img o in images. Questo plug-in  eseguito ogni volta "
-"che si aggiunge un documento PML alla biblioteca."
+"nella cartella pmlname_img o images. Questo plug-in è eseguito ogni volta "
+"viene aggiunto un documento PML alla biblioteca."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:91
 msgid ""
@@ -251,9 +251,9 @@ msgid ""
 "Textile references to images. The referenced images as well as the TXT file "
 "are added to the archive."
 msgstr ""
-"Crea un archivio TXTZ quando si importa un file che contiene riferimenti "
-"marcatori (Markdown o Textile) ad immagini. Le immagini referenziate, così "
-"come il file TXT, sono aggiunti all'archivio"
+"Crea un archivio TXTZ quando si importa un file TXT che contiene riferimenti "
+"(Markdown o Textile) ad immagini. Le immagini referenziate, così come il "
+"file TXT, sono aggiunti all'archivio"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:166
 msgid "Extract cover from comic files"
@@ -352,12 +352,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:868
 msgid "Customize searching"
-msgstr "Personalizza la ricerca"
+msgstr "Personalizzazione ricerche"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:874
 msgid "Customize the way searching for books works in calibre"
-msgstr ""
-"Personalizza le modalità con cui devono essere ricercati i libri in calibre"
+msgstr "Personalizza il funzionamento della modalità di ricerca"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:879
 msgid "Input Options"
@@ -405,7 +404,8 @@ msgstr "Importa/Esporta"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:918
 msgid "Control how calibre reads metadata from files when adding books"
 msgstr ""
-"Controlla come calibre legge i metadati dai libri quando vengono aggiunti"
+"Controlla come calibre legge i metadati dai files quando vengono aggiunti "
+"dei libri"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:924
 msgid "Saving books to disk"
@@ -433,7 +433,7 @@ msgstr "Pannello di controllo metadati"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:954
 msgid "Change metadata fields before saving/sending"
-msgstr "Cambiare i campi dei metadati prima di salvare/inviare"
+msgstr "Cambia i campi dei metadati prima di salvare/inviare"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:959
 msgid "Template Functions"
@@ -476,8 +476,8 @@ msgid ""
 "Setup the calibre Content Server which will give you access to your calibre "
 "library from anywhere, on any device, over the internet"
 msgstr ""
-"Imposta il Server di Contenuti calibre che vi da accesso alla vostra "
-"biblioteca da ogni luogo, su ogni dispositivo, atrraverso internet"
+"Imposta il Server di Contenuti calibre che vi darà accesso alla vostra "
+"biblioteca da ogni luogo, su ogni dispositivo, attraverso internet"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:995
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:267
@@ -503,7 +503,7 @@ msgstr "Varie"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1024
 msgid "Miscellaneous advanced configuration"
-msgstr "Configurazione avanzata varia"
+msgstr "Configurazione di altre opzioni"
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:102
 msgid "Conversion Input"
@@ -741,7 +741,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:562
 msgid "Remove a custom plugin by name. Has no effect on builtin plugins"
 msgstr ""
-"Rimuovi un plugin personalizzato dal nome. Non ha effetto sui plugin inclusi"
+"Rimuove un plugin scelto per nome. Non ha effetto sui plugin di sistema"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:564
 msgid ""
@@ -1129,7 +1129,7 @@ msgstr "Comunica con il lettore JetBook Mini."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/apnx.py:28
 msgid "Not a valid MOBI file. Reports identity of %s"
-msgstr ""
+msgstr "Non è un file MOBI valido. E' stato rilevato come: %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/apnx.py:44
 msgid "Could not generate page mapping."
@@ -1216,7 +1216,7 @@ msgstr "Comunica con il Bq Avant"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:60
 msgid "Communicate with the Sweex/Kogan/Q600/Wink"
-msgstr ""
+msgstr "Comunica con Sweex/Kogan/Q600/Wink"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:81
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:108
@@ -1409,11 +1409,11 @@ msgstr "Comunica con il lettore Sunstech EB700."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:99
 msgid "Communicate with the Stash W950 reader."
-msgstr "Comunicare con il lettore Stash W950"
+msgstr "Comunica con il lettore Stash W950"
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:111
 msgid "Communicate with the Wexler reader."
-msgstr ""
+msgstr "Comunicare con il lettore Wexler"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:282
 msgid "Unable to detect the %s disk drive. Try rebooting."
@@ -1421,12 +1421,11 @@ msgstr "Impossibile individuare il disco %s. Provare a riavviare."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:463
 msgid "Unable to detect the %s mount point. Try rebooting."
-msgstr ""
-"Impossibile individuare il %s mount Point. Provo ad effettuare un reboot"
+msgstr "Impossibile individuare il mount Point %s. Provare a riavviare."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:528
 msgid "Unable to detect the %s disk drive."
-msgstr "Impossibile rilevare il disco %s."
+msgstr "Impossibile individuare il disco %s."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:621
 msgid "Could not find mount helper: %s."
@@ -1493,7 +1492,7 @@ msgstr "Legge i metadati dai file sul dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:63
 msgid "Use author sort instead of author"
-msgstr "Usa classificazione autore invece dell'autore"
+msgstr "Usa ordinamento autore invece di autore"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:65
 msgid "Template to control how books are saved"
@@ -1505,7 +1504,7 @@ msgstr "Ulteriori personalizzazioni"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:41
 msgid "Communicate with an eBook reader."
-msgstr "Comunicare con un lettore di eBook."
+msgstr "Comunica con un lettore di eBook."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:57
 msgid "Get device information..."
@@ -1554,7 +1553,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:275
 msgid "Disable sharpening."
-msgstr "Disabilita maschera di nitidezza."
+msgstr "Disabilita contrasto."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:277
 msgid ""
@@ -1591,16 +1590,16 @@ msgid ""
 "Enable Despeckle. Reduces speckle noise. May greatly increase processing "
 "time."
 msgstr ""
-"Abilita Despeckle. Riduce il rumore speckle. Può aumentare di molto il tempo "
-"di elaborazione."
+"Abilita Despeckle. Tenta di ridurre le macchie nell'immagine. Può aumentare "
+"notevolmente il tempo di elaborazione."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:292
 msgid ""
 "Don't sort the files found in the comic alphabetically by name. Instead use "
 "the order they were added to the comic."
 msgstr ""
-"Non ordinare i file trovati nel fumetto alfabeticamente per nome. Usa invece "
-"l'ordine in cui sono stati aggiunti al fumetto."
+"Invece di ordinare i file del fumetto alfabeticamente, usa l'ordine con cui "
+"sono stati aggiunti al fumetto"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:296
 msgid ""
@@ -1618,7 +1617,7 @@ msgstr "Non applica alcuna elaborazione all'immagine"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:302
 msgid "Do not convert the image to grayscale (black and white)"
-msgstr "Non convertire l'immagine in scala di grigi (bianco e nero)"
+msgstr "Non convere l'immagine in scala di grigi (bianco e nero)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:304
 msgid ""
@@ -1635,6 +1634,8 @@ msgid ""
 "When converting a CBC do not add links to each page to the TOC. Note this "
 "only applies if the TOC has more than one section"
 msgstr ""
+"Durante la conversione a CBC non aggiunge i ling di ciascuna pagina alla "
+"TOC. Questa opzione ha effetto solo se la TOC ha più di una sezione."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:447
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:459
@@ -1749,7 +1750,7 @@ msgstr "Opzioni per aiutare a individuare problemi con la conversione"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:208
 msgid "List builtin recipes"
-msgstr "Creare lista delle formule del sistema"
+msgstr "Elenco delle formule di sistema"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:281
 msgid "Output saved to"
@@ -2286,26 +2287,29 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:553
 msgid "Search pattern (regular expression) to be replaced with sr1-replace."
 msgstr ""
+"Pattern di ricerca (regular expression) da sostituire con sr1-replace."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:558
 msgid "Replacement to replace the text found with sr1-search."
-msgstr ""
+msgstr "Elemento sostitutivo del testo trovato con sr1-search."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:562
 msgid "Search pattern (regular expression) to be replaced with sr2-replace."
 msgstr ""
+"attern di ricerca (regular expression) da sostituire con sr2-replace."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:567
 msgid "Replacement to replace the text found with sr2-search."
-msgstr ""
+msgstr "Elemento sostitutivo del testo trovato con sr2-search."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:571
 msgid "Search pattern (regular expression) to be replaced with sr3-replace."
 msgstr ""
+"Pattern di ricerca (regular expression) da sostituire con sr3-replace."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:576
 msgid "Replacement to replace the text found with sr3-search."
-msgstr ""
+msgstr "Elemento sostitutivo del testo trovato con sr3-search."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:678
 msgid "Could not find an ebook inside the archive"
@@ -2497,6 +2501,13 @@ msgid ""
 "\"Table of Contents\" settings (turn on \"Force use of auto-generated Table "
 "of Contents)."
 msgstr ""
+"Specifica la modalità di suddivisione degli elementi. Un valore \"Nulla\" "
+"genera un libro di una sola sezione. Un valore \"files\" trasforma ogni file "
+"in una sezione separata: usare questa modalità se il vostro dispositivo ha "
+"problemi. Il valore \"Indice\" (TOC) valuta le voci nell'indice e crea delle "
+"sezioni: se non funziona, occorre intervenire sulle opzioni \"Rilevamento "
+"della struttura\" e/o \"Indice\" (abilitare l'opzione \"Forza l'uso "
+"dell'indice generato automaticamente\")"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:248
 msgid ""
@@ -4023,6 +4034,19 @@ msgid ""
 "* off: Don't modify the paragraph structure. This is useful when combined "
 "with Markdown or Textile formatting to ensure no formatting is lost."
 msgstr ""
+"Struttura del paragrafo.\n"
+"Le scelte possibili sono ['auto', 'block', 'single', 'print', 'unformatted', "
+"'off']\n"
+"* auto: Cerca di identificare automaticamente il tipo di paragrafo.\n"
+"* block: Considera interruzione di paragrafo ogni linea vuota.\n"
+"* single: Considera paragrafo ogni linea.\n"
+"* print: Considera paragrafo ogni linea che inizia con 2 o più spazi, o un "
+"tab. \n"
+"* unformatted: Troppe riche hanno interruzioni, spazi, indentazione. Cerca "
+"di capire la struttura e differenziare i vari elementi.\n"
+"* off: Non modifica la struttura del paragrafo. Questo è utile in "
+"combinazione con la formattazione Markdown o Textile per assicurare che non "
+"venga persa la formattazione originale."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/input.py:43
 msgid ""
@@ -4036,6 +4060,15 @@ msgid ""
 "* markdown: Processing using markdown formatting. To learn more about "
 "markdown see"
 msgstr ""
+"Formattazione usata nel documento.* auto: decide automaticamente che "
+"formattazione utilizzare.\n"
+"* plain: Non processa la formattazione del documento. Tutto viene "
+"considerato paragrafo e non viene applicato alcuno stile.\n"
+"* heuristic: Processa usando tecniche euristiche per determinare la "
+"formattazione, ad esempio il titolo dei paragrafi o un testo in italico.\n"
+"* textile: Processa usando la formattazione Textile.\n"
+"* markdown: Processa usando la formattazione Markdown. Per avere maggiori "
+"informazioni vedi"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/input.py:53
 msgid ""
@@ -4084,6 +4117,10 @@ msgid ""
 "* markdown: Produce Markdown formatted text.\n"
 "* textile: Produce Textile formatted text."
 msgstr ""
+"Formattazione usata nel documento.\n"
+"* plain: Produce un testo semplice\n"
+"* markdown: Produce un testo formattato con Markdown.\n"
+"* textile: Produce un testo formattato con Textile."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:62
 msgid ""
@@ -4091,6 +4128,9 @@ msgid ""
 "with a txt-output-formatting option that is not none because links are "
 "always removed with plain text output."
 msgstr ""
+"Non rimuovere i link all'interno del documento. Questa opzione è utile solo "
+"se accompagnata ad un opzione di formattazione del testo diversa da "
+"\"plain\". L'uso dell'opzione \"plain\" rimuove sempre i link dai documenti"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:67
 msgid ""
@@ -4098,6 +4138,10 @@ msgid ""
 "paired with a txt-output-formatting option that is not none because links "
 "are always removed with plain text output."
 msgstr ""
+"Non rimuovere i riferimenti ad immagini all'interno del documento. Questa "
+"opzione è utile solo se accompagnata ad un opzione di formattazione del "
+"testo diversa da \"plain\". L'uso dell'opzione \"plain\" rimuove sempre i "
+"link dai documenti"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:71
 msgid "Send file to storage card instead of main memory by default"
@@ -4191,6 +4235,8 @@ msgid ""
 "Start searching as you type. If this is disabled then search will only take "
 "place when the Enter or Return key is pressed."
 msgstr ""
+"Inizia a cercare mentre scrivi. Se questa opzione è disabilitata, la ricerca "
+"inizierà solo dopo aver premuto Return o Enter."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:113
 msgid ""
@@ -4287,11 +4333,11 @@ msgstr "Aggiungi da ISBN"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:113
 msgid "Adding"
-msgstr ""
+msgstr "Sto aggiungendo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:114
 msgid "Creating book records from ISBNs"
-msgstr ""
+msgstr "Creazione di informazioni dai numeri ISBN"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:194
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:256
@@ -4362,6 +4408,9 @@ msgid ""
 "processed and merged into your Calibre database according to your automerge "
 "settings:"
 msgstr ""
+"Sono stati trovati i seguenti libri duplicati; I libri sono stati esaminati "
+"e aggiunti alla libreria di Calibre, secondo i vostri settaggi di gestione "
+"automatica:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:288
 msgid "Failed to read metadata"
@@ -4462,7 +4511,7 @@ msgstr "<b>Posizione %d &bull; %s</b><br />"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:20
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:34
 msgid "Create a catalog of the books in your calibre library"
-msgstr ""
+msgstr "Crea un catalogo di libri nella libreria calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:31
 msgid "No books selected for catalog generation"
@@ -4909,11 +4958,11 @@ msgstr "Invia messaggio elettronico a"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:81
 msgid "Email to and delete from library"
-msgstr ""
+msgstr "Spedisci per email e cancella dalla libreria"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:89
 msgid "(delete from library)"
-msgstr ""
+msgstr "(cancella dalla libreria)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:104
 msgid "Setup email based sharing of books"
@@ -4934,12 +4983,12 @@ msgstr "Connetti/condividi"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:174
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:84
 msgid "Stopping"
-msgstr ""
+msgstr "In arresto"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:175
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:85
 msgid "Stopping server, this could take upto a minute, please wait..."
-msgstr ""
+msgstr "Server in arresto. Attendere: potrebbe richiedere qualche minuto."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_collections.py:13
 msgid "Manage collections"
