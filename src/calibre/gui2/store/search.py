@@ -159,9 +159,9 @@ class GenericDownloadThreadPool(object):
     def abort(self):
         self.tasks = Queue()
         self.results = Queue()
-        self.threads = []
         for t in self.threads:
             t.abort()
+        self.threads = []
     
     def has_tasks(self):
         return not self.tasks.empty()
