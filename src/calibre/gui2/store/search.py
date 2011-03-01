@@ -7,7 +7,8 @@ __docformat__ = 'restructuredtext en'
 import re
 import time
 from contextlib import closing
-from threading import Event, Thread
+from random import shuffle
+from threading import Thread
 from Queue import Queue
 
 from PyQt4.Qt import Qt, QAbstractItemModel, QDialog, QTimer, QVariant, \
@@ -87,7 +88,11 @@ class SearchDialog(QDialog, Ui_Dialog):
         if not query.strip():
             return
         
-        for n in self.store_plugins:
+        store_names = self.store_plugins.keys()
+        if not store_names:
+            return
+        shuffle(store_names)
+        for n in store_names:
             if getattr(self, 'store_check_' + n).isChecked():
                 self.search_pool.add_task(query, n, self.store_plugins[n], TIMEOUT)
         if self.search_pool.has_tasks():
