@@ -806,6 +806,7 @@ class ActionNextMatch(InterfaceActionBase):
     
 class ActionStore(InterfaceActionBase):
     name = 'Store'
+    author = 'John Schember'
     actual_plugin = 'calibre.gui2.actions.store:StoreAction'
 
 plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,

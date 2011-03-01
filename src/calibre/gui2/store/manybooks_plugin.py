@@ -78,3 +78,22 @@ class ManyBooksStore(StorePlugin):
                 s.detail_item = '/titles/' + id
                 
                 yield s
+
+    def customization_help(self, gui=False):
+        return 'Customize the behavior of this store.'
+
+    def config_widget(self):
+        from calibre.gui2.store.basic_config_widget import BasicStoreConfigWidget
+        return BasicStoreConfigWidget(self)
+
+    def save_settings(self, config_widget):
+        from calibre.gui2.store.basic_config_widget import save_settings
+        save_settings(config_widget)
+
+    def get_settings(self):
+        from calibre.gui2 import gprefs
+        settings = {}
+        
+        settings[self.name + '_tags'] = gprefs.get(self.name + '_tags', self.name + ', store, download')
+        
+        return settings

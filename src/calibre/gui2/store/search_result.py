@@ -7,11 +7,10 @@ __docformat__ = 'restructuredtext en'
 class SearchResult(object):
     
     def __init__(self):
-        self.store = ''
+        self.store_name = ''
         self.cover_url = ''
         self.cover_data = None
         self.title = ''
         self.author = ''
         self.price = ''
-        self.store = ''
         self.detail_item = ''

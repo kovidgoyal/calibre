@@ -586,7 +586,9 @@ class StorePlugin(Plugin): # {{{
 
     supported_platforms = ['windows', 'osx', 'linux']
     author         = 'John Schember'
-    type = _('Stores')
+    type = _('Store')
+    # This needs to be changed to (0, 8, 0)
+    minimum_calibre_version = (0, 4, 118)
     
     def open(self, gui, parent=None, detail_item=None):
         '''
@@ -608,6 +610,9 @@ class StorePlugin(Plugin): # {{{
         :return: calibre.gui2.store.search_result.SearchResult object
         item_data is plugin specific and is used in :meth:`open` to open to a specifc place in the store.
         '''
+        raise NotImplementedError()
+    
+    def get_settings(self):
         raise NotImplementedError()
 
 # }}}

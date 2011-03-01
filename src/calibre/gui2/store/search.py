@@ -25,6 +25,8 @@ class SearchDialog(QDialog, Ui_Dialog):
 
     HANG_TIME = 75000 # milliseconds seconds
     TIMEOUT = 75 # seconds
+    SEARCH_THREAD_TOTAL = 4
+    COVER_DOWNLOAD_THREAD_TOTAL = 2
 
     def __init__(self, gui, *args):
         QDialog.__init__(self, *args)
@@ -33,9 +35,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.gui = gui
 
         self.store_plugins = {}
-        self.running_threads = []
-        self.results = Queue()
-        self.abort = Event()
+        self.search_thread_pool = SearchThreadPool(self.SEARCH_THREAD_TOTAL)
         self.checker = QTimer()
         self.hang_check = 0
         
@@ -78,10 +78,7 @@ class SearchDialog(QDialog, Ui_Dialog):
     def do_search(self, checked=False):
         # Stop all running threads.
         self.checker.stop()
-        self.abort.set()
-        self.running_threads = []
-        self.results = Queue()
-        self.abort = Event()
+        self.search_thread_pool.abort()
         # Clear the visible results.
         self.results_view.model().clear_results()
         
@@ -92,40 +89,32 @@ class SearchDialog(QDialog, Ui_Dialog):
         
         for n in self.store_plugins:
             if getattr(self, 'store_check_' + n).isChecked():
-                t = SearchThread(query, (n, self.store_plugins[n]), self.results, self.abort, self.TIMEOUT)
-                self.running_threads.append(t)
-                t.start()
-        if self.running_threads:
+                self.search_thread_pool.add_task(query, n, self.store_plugins[n], self.TIMEOUT)
+        if self.search_thread_pool.has_tasks():
             self.hang_check = 0
             self.checker.start(100)
+            self.search_thread_pool.start_threads()
             
     def get_results(self):
         # We only want the search plugins to run
         # a maximum set amount of time before giving up.
         self.hang_check += 1
         if self.hang_check >= self.HANG_TIME:
-            self.abort.set()
+            self.search_thread_pool.abort()
             self.checker.stop()
         else:
             # Stop the checker if not threads are running.
-            running = False
-            for t in self.running_threads:
-                if t.is_alive():
-                    running = True
-            if not running:
+            if not self.search_thread_pool.threads_running():
                 self.checker.stop()
         
-        while not self.results.empty():
-            res = self.results.get_nowait()
+        while self.search_thread_pool.has_results():
+            res = self.search_thread_pool.get_result_no_wait()
             if res:
-                result = res[1]
-                result.store = res[0]
-                
-                self.results_view.model().add_result(result)
+                self.results_view.model().add_result(res)
 
     def open_store(self, index):
         result = self.results_view.model().get_result(index)
-        self.store_plugins[result.store].open(self.gui, self, result.detail_item)
+        self.store_plugins[result.store_name].open(self.gui, self, result.detail_item)
 
     def get_store_checks(self):
         checks = []
@@ -147,27 +136,77 @@ class SearchDialog(QDialog, Ui_Dialog):
         for check in self.get_store_checks():
             check.setChecked(False)
 
+
+class SearchThreadPool(object):
+    
+    def __init__(self, thread_count):
+        self.tasks = Queue()
+        self.results = Queue()
+        self.threads = []
+        self.thread_count = thread_count
+        
+    def start_threads(self):
+        for i in range(self.thread_count):
+            t = SearchThread(self.tasks, self.results)
+            self.threads.append(t)
+            t.start()
+        
+    def abort(self):
+        self.tasks = Queue()
+        self.results = Queue()
+        self.threads = []
+        for t in self.threads:
+            t.abort()
+            
+    def add_task(self, query, store_name, store_plugin, timeout):
+        self.tasks.put((query, store_name, store_plugin, timeout))
+    
+    def has_tasks(self):
+        return not self.tasks.empty()
+    
+    def get_result(self):
+        return self.results.get()
+    
+    def get_result_no_wait(self):
+        return self.results.get_nowait()
+    
+    def result_count(self):
+        return len(self.results)
+    
+    def has_results(self):
+        return not self.results.empty()
+    
+    def threads_running(self):
+        for t in self.threads:
+            if t.is_alive():
+                return True
+        return False
+    
+
 class SearchThread(Thread):
     
-    def __init__(self, query, store, results, abort, timeout):
+    def __init__(self, tasks, results):
         Thread.__init__(self)
         self.daemon = True
-        self.query = query
-        self.store_name = store[0]
-        self.store_plugin = store[1]
+        self.tasks = tasks
         self.results = results
-        self.abort = abort
-        self.timeout = timeout
-        self.br = browser()
+        self._run = True
+
+    def abort(self):
+        self._run = False
     
     def run(self):
-        try:
-            for res in self.store_plugin.search(self.query, timeout=self.timeout):
-                if self.abort.is_set():
-                    return
-                self.results.put((self.store_name, res))
-        except:
-            pass
+        while self._run and not self.tasks.empty():
+            try:
+                query, store_name, store_plugin, timeout = self.tasks.get()
+                for res in store_plugin.search(query, timeout=timeout):
+                    if not self._run:
+                        return
+                    res.store_name = store_name
+                    self.results.put(res)
+                self.tasks.task_done()
+            except:
+                pass
 
 
 class CoverDownloadThread(Thread):
@@ -278,7 +317,7 @@ class Matches(QAbstractItemModel):
             elif col == 3:
                 return QVariant(result.price)
             elif col == 4:
-                return QVariant(result.store)
+                return QVariant(result.store_name)
             return NONE
         elif role == Qt.DecorationRole:
             if col == 0 and result.cover_data:
@@ -302,7 +341,7 @@ class Matches(QAbstractItemModel):
             text = re.sub(r'\D', '', text)
             text = text.rjust(6, '0')
         elif col == 4:
-            text = result.store
+            text = result.store_name
         return text
 
     def sort(self, col, order, reset=True):
