@@ -8,6 +8,7 @@ Wrapper for multi-threaded access to a single sqlite database connection. Serial
 all calls.
 '''
 import sqlite3 as sqlite, traceback, time, uuid, sys, os
+import repr as reprlib
 from sqlite3 import IntegrityError, OperationalError
 from threading import Thread
 from Queue import Queue
@@ -20,6 +21,7 @@ from calibre.utils.date import parse_date, isoformat
 from calibre import isbytestring, force_unicode
 from calibre.constants import iswindows, DEBUG
 from calibre.utils.icu import strcmp
+from calibre import prints
 
 global_lock = RLock()
 
@@ -228,9 +230,13 @@ class DBThread(Thread):
                                 break
                             except OperationalError, err:
                                 # Retry if unable to open db file
-                                if 'unable to open' not in str(err) or i == 2:
+                                e = str(err)
+                                if 'unable to open' not in e or i == 2:
+                                    if 'unable to open' in e:
+                                        prints('Unable to open database for func',
+                                            func, reprlib.repr(args),
+                                            reprlib.repr(kwargs))
                                     raise
-                                traceback.print_exc()
                             time.sleep(0.5)
                     except Exception, err:
                         ok, res = False, (err, traceback.format_exc())
