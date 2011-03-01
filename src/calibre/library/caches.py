@@ -457,8 +457,14 @@ class ResultCache(SearchQueryParser): # {{{
         loc = self.field_metadata[location]['rec_index']
         for id_ in candidates:
             item = self._data[id_]
-            if item is None or item[loc] is None:
+            if item is None:
                 continue
+
+            if item[loc] is None:
+                if valq == 'false':
+                    matches.add(id_)
+                continue
+
             pairs = [p.strip() for p in item[loc].split(',')]
             for pair in pairs:
                 parts = pair.split(':')
@@ -468,8 +474,15 @@ class ResultCache(SearchQueryParser): # {{{
                 v = parts[1:]
                 if keyq and not _match(keyq, k, keyq_mkind):
                     continue
-                if valq and not _match(valq, v, valq_mkind):
-                    continue
+                if valq:
+                    if valq == 'true':
+                        if not v:
+                            continue
+                    elif valq == 'false':
+                        if v:
+                            continue
+                    elif not _match(valq, v, valq_mkind):
+                        continue
                 matches.add(id_)
         return matches
 
@@ -484,6 +497,10 @@ class ResultCache(SearchQueryParser): # {{{
             elif query.startswith('~'):
                 matchkind = REGEXP_MATCH
                 query = query[1:]
+
+        if matchkind != REGEXP_MATCH:
+            # leave case in regexps because it can be significant e.g. \S \W \D
+            query = icu_lower(query)
         return matchkind, query
 
     def get_matches(self, location, query, candidates=None,
@@ -565,9 +582,6 @@ class ResultCache(SearchQueryParser): # {{{
                                                       candidates)
             # everything else, or 'all' matches
             matchkind, query = self._matchkind(query)
-            if matchkind != REGEXP_MATCH:
-                # leave case in regexps because it can be significant e.g. \S \W \D
-                query = icu_lower(query)
 
             if not isinstance(query, unicode):
                 query = query.decode('utf-8')

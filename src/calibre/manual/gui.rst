@@ -338,7 +338,7 @@ You can build advanced search queries easily using the :guilabel:`Advanced Searc
 clicking the button |sbi|.
 
 Available fields for searching are: ``tag, title, author, publisher, series, series_index, rating, cover,
-comments, format, isbn, date, pubdate, search, size`` and custom columns. If a device is plugged in, the
+comments, format, identifiers, date, pubdate, search, size`` and custom columns. If a device is plugged in, the
 ``ondevice`` field becomes available. To find the search name for a custom column, hover your mouse over the
 column header.
 
@@ -384,6 +384,21 @@ Yes/no custom columns are searchable. Searching for ``false``, ``empty``, or ``b
 with undefined values in the column. Searching for ``true`` will find all books that do not have undefined
 values in the column. Searching for ``yes`` or ``checked`` will find all books with ``Yes`` in the column.
 Searching for ``no`` or ``unchecked`` will find all books with ``No`` in the column.
+
+Hierarchical items (e.g. A.B.C) use an extended syntax to match initial parts of the hierarchy. This is done by adding a period between the exact match indicator (=) and the text. For example, the query ``tags:=.A`` will find the tags `A` and `A.B`, but will not find the tags `AA` or `AA.B`. The query ``tags:=.A.B`` will find the tags `A.B` and `A.C`, but not the tag `A`.
+
+Identifiers (e.g., isbn, doi, lccn etc) also use an extended syntax. First, note that an identifier has the form ``key:value``, as in ``isbn:123456789``. The extended syntax permits you to specify independently which key and value to search for. Both the key and the value parts of the query can use `equality`, `contains`, or `regular expression` matches. Examples:
+
+    * ``identifiers:true`` will find books with any identifier.
+    * ``identifiers:false`` will find books with no identifier.
+    * ``identifiers:123`` will search for books with any key having a value containing `123`.
+    * ``identifiers:=123456789`` will search for books with any key having a value equal to `123456789`.
+    * ``identifiers:=isbn:`` and ``identifiers:isbn:true`` will find books with a key equal to isbn having any value
+    * ``identifiers:=isbn:false`` will find books with no key equal to isbn.
+    * ``identifiers:=isbn:123`` will find books with a key equal to isbn having a value containing `123`.
+    * ``identifiers:=isbn:=123456789`` will find books with a key equal to isbn having a value equal to `123456789`.
+    * ``identifiers:i:1`` will find books with a key containing an `i` having a value containing a `1`.
+    
 
 .. |sbi| image:: images/search_button.png
     :align: middle
