@@ -418,9 +418,9 @@ class ResultCache(SearchQueryParser): # {{{
         return matches
 
     def get_user_category_matches(self, location, query, candidates):
-        res = set([])
+        matches = set([])
         if self.db_prefs is None or len(query) < 2:
-            return  res
+            return  matches
         user_cats = self.db_prefs.get('user_categories', [])
         c = set(candidates)
 
@@ -435,10 +435,56 @@ class ResultCache(SearchQueryParser): # {{{
                 for (item, category, ign) in user_cats[key]:
                     s = self.get_matches(category, '=' + item, candidates=c)
                     c -= s
-                    res |= s
+                    matches |= s
         if query == 'false':
-            return candidates - res
-        return res
+            return candidates - matches
+        return matches
+
+    def get_keypair_matches(self, location, query, candidates):
+        matches = set([])
+        if query.find(':') >= 0:
+            q = [q.strip() for q in query.split(':')]
+            if len(q) != 2:
+                raise ParseException(query, len(query),
+                        'Invalid query format for colon-separated search', self)
+            (keyq, valq) = q
+            keyq_mkind, keyq = self._matchkind(keyq)
+            valq_mkind, valq = self._matchkind(valq)
+        else:
+            keyq = keyq_mkind = ''
+            valq_mkind, valq = self._matchkind(query)
+
+        loc = self.field_metadata[location]['rec_index']
+        for id_ in candidates:
+            item = self._data[id_]
+            if item is None or item[loc] is None:
+                continue
+            pairs = [p.strip() for p in item[loc].split(',')]
+            for pair in pairs:
+                parts = pair.split(':')
+                if len(parts) != 2:
+                    continue
+                k = parts[:1]
+                v = parts[1:]
+                if keyq and not _match(keyq, k, keyq_mkind):
+                    continue
+                if valq and not _match(valq, v, valq_mkind):
+                    continue
+                matches.add(id_)
+        return matches
+
+    def _matchkind(self, query):
+        matchkind = CONTAINS_MATCH
+        if (len(query) > 1):
+            if query.startswith('\\'):
+                query = query[1:]
+            elif query.startswith('='):
+                matchkind = EQUALS_MATCH
+                query = query[1:]
+            elif query.startswith('~'):
+                matchkind = REGEXP_MATCH
+                query = query[1:]
+        return matchkind, query
 
     def get_matches(self, location, query, candidates=None,
             allow_recursion=True):
@@ -455,6 +501,7 @@ class ResultCache(SearchQueryParser): # {{{
         if query and query.strip():
             # get metadata key associated with the search term. Eliminates
             # dealing with plurals and other aliases
+            original_location = location
             location = self.field_metadata.search_term_to_field_key(icu_lower(location.strip()))
             # grouped search terms
             if isinstance(location, list):
@@ -505,21 +552,19 @@ class ResultCache(SearchQueryParser): # {{{
                     return self.get_numeric_matches(location, query[1:],
                                                     candidates, val_func=vf)
 
+            # special case: identifiers. isbn is a special case within the case
+            if location == 'identifiers':
+                if original_location == 'isbn':
+                    return self.get_keypair_matches('identifiers',
+                                                    '=isbn:'+query, candidates)
+                return self.get_keypair_matches(location, query, candidates)
+
             # check for user categories
             if len(location) >= 2 and location.startswith('@'):
                 return self.get_user_category_matches(location[1:], query.lower(),
                                                       candidates)
             # everything else, or 'all' matches
-            matchkind = CONTAINS_MATCH
-            if (len(query) > 1):
-                if query.startswith('\\'):
-                    query = query[1:]
-                elif query.startswith('='):
-                    matchkind = EQUALS_MATCH
-                    query = query[1:]
-                elif query.startswith('~'):
-                    matchkind = REGEXP_MATCH
-                    query = query[1:]
+            matchkind, query = self._matchkind(query)
             if matchkind != REGEXP_MATCH:
                 # leave case in regexps because it can be significant e.g. \S \W \D
                 query = icu_lower(query)
