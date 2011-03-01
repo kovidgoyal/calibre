@@ -13,11 +13,12 @@ from Queue import Queue
 
 from PyQt4.Qt import Qt, QAbstractItemModel, QDialog, QTimer, QVariant, \
     QModelIndex, QPixmap, QSize, QCheckBox, QVBoxLayout, QHBoxLayout, \
-    QPushButton 
+    QPushButton, QString, QByteArray
 
 from calibre import browser
 from calibre.gui2 import NONE
 from calibre.gui2.store.search_ui import Ui_Dialog
+from calibre.utils.config import DynamicConfig
 from calibre.utils.icu import sort_key
 from calibre.utils.magick.draw import thumbnail
 
@@ -31,6 +32,8 @@ class SearchDialog(QDialog, Ui_Dialog):
     def __init__(self, istores, *args):
         QDialog.__init__(self, *args)
         self.setupUi(self)
+        
+        self.config = DynamicConfig('store_search')
 
         # We keep a cache of store plugins and reference them by name.
         self.store_plugins = istores
@@ -60,8 +63,9 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.select_all_stores.clicked.connect(self.stores_select_all)
         self.select_invert_stores.clicked.connect(self.stores_select_invert)
         self.select_none_stores.clicked.connect(self.stores_select_none)
+        self.finished.connect(self.dialog_closed)
         
-        self.resize_columns()
+        self.restore_state()
         
     def resize_columns(self):
         total = 600
@@ -105,7 +109,30 @@ class SearchDialog(QDialog, Ui_Dialog):
             self.hang_check = 0
             self.checker.start(100)
             self.search_pool.start_threads()
+    
+    def save_state(self):
+        self.config['store_search_geometry'] = self.saveGeometry()
+        self.config['store_search_store_splitter_state'] = self.store_splitter.saveState()
+        self.config['store_search_results_view_column_width'] = [self.results_view.columnWidth(i) for i in range(self.model.columnCount())]
+    
+    def restore_state(self):
+        geometry = self.config['store_search_geometry']
+        if geometry:
+            self.restoreGeometry(geometry)
             
+        splitter_state = self.config['store_search_store_splitter_state']
+        if splitter_state:
+            self.store_splitter.restoreState(splitter_state)
+            
+        results_cwidth = self.config['store_search_results_view_column_width']
+        if results_cwidth:
+            for i, x in enumerate(results_cwidth):
+                if i >= self.model.columnCount():
+                    break
+                self.results_view.setColumnWidth(i, x)
+        else:
+            self.resize_columns()
+
     def get_results(self):
         # We only want the search plugins to run
         # a maximum set amount of time before giving up.
@@ -149,11 +176,11 @@ class SearchDialog(QDialog, Ui_Dialog):
     def stores_select_none(self):
         for check in self.get_store_checks():
             check.setChecked(False)
-            
-    def closeEvent(self, e):
+    
+    def dialog_closed(self, result):
         self.model.closing()
         self.search_pool.abort()
-        QDialog.closeEvent(self, e)
+        self.save_state()
 
 
 class GenericDownloadThreadPool(object):

@@ -39,7 +39,7 @@
     </layout>
    </item>
    <item>
-    <widget class="QSplitter" name="splitter_3">
+    <widget class="QSplitter" name="store_splitter">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
