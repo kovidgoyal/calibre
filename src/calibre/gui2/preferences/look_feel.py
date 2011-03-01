@@ -66,7 +66,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         choices = set([k for k in db.field_metadata.all_field_keys()
                     if db.field_metadata[k]['is_category'] and
                        db.field_metadata[k]['datatype'] in ['text', 'series', 'enumeration']])
-        choices -= set(['authors', 'publisher', 'formats', 'news'])
+        choices -= set(['authors', 'publisher', 'formats', 'news', 'identifiers'])
         self.opt_categories_using_hierarchy.update_items_cache(choices)
         r('categories_using_hierarchy', db.prefs, setting=CommaSeparatedList,
           choices=sorted(list(choices), key=sort_key))
