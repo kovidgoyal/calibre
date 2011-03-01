@@ -152,6 +152,7 @@ class SearchDialog(QDialog, Ui_Dialog):
             
     def closeEvent(self, e):
         self.model.closing()
+        self.search_pool.abort()
         QDialog.closeEvent(self, e)
 
 
