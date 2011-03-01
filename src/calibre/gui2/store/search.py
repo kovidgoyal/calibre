@@ -88,6 +88,10 @@ class SearchDialog(QDialog, Ui_Dialog):
         if not query.strip():
             return
         
+        # Plugins are in alphebetic order. Randomize the
+        # order of plugin names. This way plugins closer
+        # to a don't have an unfair advantage over
+        # plugins further from a.
         store_names = self.store_plugins.keys()
         if not store_names:
             return
