@@ -87,6 +87,18 @@ class SortedConcatenate(object):
 class SafeSortedConcatenate(SortedConcatenate):
     sep = '|'
 
+class IdentifiersConcat(object):
+    '''String concatenation aggregator for the identifiers map'''
+    def __init__(self):
+        self.ans = []
+
+    def step(self, key, val):
+        self.ans.append(u'%s:%s'%(key, val))
+
+    def finalize(self):
+        return ','.join(self.ans)
+
+
 class AumSortedConcatenate(object):
     '''String concatenation aggregator for the author sort map'''
     def __init__(self):
@@ -170,13 +182,13 @@ class DBThread(Thread):
                                    detect_types=sqlite.PARSE_DECLTYPES|sqlite.PARSE_COLNAMES)
         self.conn.execute('pragma cache_size=5000')
         encoding = self.conn.execute('pragma encoding').fetchone()[0]
-        c_ext_loaded = load_c_extensions(self.conn)
+        self.conn.create_aggregate('sortconcat', 2, SortedConcatenate)
+        self.conn.create_aggregate('sort_concat', 2, SafeSortedConcatenate)
+        self.conn.create_aggregate('identifiers_concat', 2, IdentifiersConcat)
+        load_c_extensions(self.conn)
         self.conn.row_factory = sqlite.Row if self.row_factory else  lambda cursor, row : list(row)
         self.conn.create_aggregate('concat', 1, Concatenate)
         self.conn.create_aggregate('aum_sortconcat', 3, AumSortedConcatenate)
-        if not c_ext_loaded:
-            self.conn.create_aggregate('sortconcat', 2, SortedConcatenate)
-            self.conn.create_aggregate('sort_concat', 2, SafeSortedConcatenate)
         self.conn.create_collation('PYNOCASE', partial(pynocase,
             encoding=encoding))
         self.conn.create_function('title_sort', 1, title_sort)

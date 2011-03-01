@@ -8,6 +8,8 @@ __docformat__ = 'restructuredtext en'
 
 import os
 
+from calibre.utils.date import isoformat, DEFAULT_DATE
+
 class SchemaUpgrade(object):
 
     def __init__(self):
@@ -466,6 +468,118 @@ class SchemaUpgrade(object):
                 DELETE FROM books_plugin_data WHERE book=OLD.id;
         END;
         '''
+        self.conn.executescript(script)
+
+    def upgrade_version_18(self):
+        '''
+        Add a library UUID.
+        Add an identifiers table.
+        Add a languages table.
+        Add a last_modified column.
+        NOTE: You cannot downgrade after this update, if you do
+        any changes you make to book isbns will be lost.
+        '''
+        script = '''
+        DROP TABLE IF EXISTS library_id;
+        CREATE TABLE library_id ( id   INTEGER PRIMARY KEY,
+                                  uuid TEXT NOT NULL,
+                                  UNIQUE(uuid)
+        );
+
+        DROP TABLE IF EXISTS identifiers;
+        CREATE TABLE identifiers  ( id     INTEGER PRIMARY KEY,
+                                    book   INTEGER NON NULL,
+                                    type   TEXT NON NULL DEFAULT "isbn" COLLATE NOCASE,
+                                    val    TEXT NON NULL COLLATE NOCASE,
+                                    UNIQUE(book, type)
+        );
+
+        DROP TABLE IF EXISTS languages;
+        CREATE TABLE languages    ( id        INTEGER PRIMARY KEY,
+                                    lang_code TEXT NON NULL COLLATE NOCASE,
+                                    UNIQUE(lang_code)
+        );
+
+        DROP TABLE IF EXISTS books_languages_link;
+        CREATE TABLE books_languages_link ( id INTEGER PRIMARY KEY,
+                                            book INTEGER NOT NULL,
+                                            lang_code INTEGER NOT NULL,
+                                            item_order INTEGER NOT NULL DEFAULT 0,
+                                            UNIQUE(book, lang_code)
+        );
+
+        DROP TRIGGER IF EXISTS fkc_delete_on_languages;
+        CREATE TRIGGER fkc_delete_on_languages
+        BEFORE DELETE ON languages
+        BEGIN
+            SELECT CASE
+                WHEN (SELECT COUNT(id) FROM books_languages_link WHERE lang_code=OLD.id) > 0
+                THEN RAISE(ABORT, 'Foreign key violation: language is still referenced')
+            END;
+        END;
+
+        DROP TRIGGER IF EXISTS fkc_delete_on_languages_link;
+        CREATE TRIGGER fkc_delete_on_languages_link
+        BEFORE INSERT ON books_languages_link
+        BEGIN
+          SELECT CASE
+              WHEN (SELECT id from books WHERE id=NEW.book) IS NULL
+              THEN RAISE(ABORT, 'Foreign key violation: book not in books')
+              WHEN (SELECT id from languages WHERE id=NEW.lang_code) IS NULL
+              THEN RAISE(ABORT, 'Foreign key violation: lang_code not in languages')
+          END;
+        END;
+
+        DROP TRIGGER IF EXISTS fkc_update_books_languages_link_a;
+        CREATE TRIGGER fkc_update_books_languages_link_a
+        BEFORE UPDATE OF book ON books_languages_link
+        BEGIN
+            SELECT CASE
+                WHEN (SELECT id from books WHERE id=NEW.book) IS NULL
+                THEN RAISE(ABORT, 'Foreign key violation: book not in books')
+            END;
+        END;
+        DROP TRIGGER IF EXISTS fkc_update_books_languages_link_b;
+        CREATE TRIGGER fkc_update_books_languages_link_b
+        BEFORE UPDATE OF lang_code ON books_languages_link
+        BEGIN
+            SELECT CASE
+                WHEN (SELECT id from languages WHERE id=NEW.lang_code) IS NULL
+                THEN RAISE(ABORT, 'Foreign key violation: lang_code not in languages')
+            END;
+        END;
+
+        DROP INDEX IF EXISTS books_languages_link_aidx;
+        CREATE INDEX books_languages_link_aidx ON books_languages_link (lang_code);
+        DROP INDEX IF EXISTS books_languages_link_bidx;
+        CREATE INDEX books_languages_link_bidx ON books_languages_link (book);
+        DROP INDEX IF EXISTS languages_idx;
+        CREATE INDEX languages_idx ON languages (lang_code COLLATE NOCASE);
+
+        DROP TRIGGER IF EXISTS books_delete_trg;
+        CREATE TRIGGER books_delete_trg
+            AFTER DELETE ON books
+            BEGIN
+                DELETE FROM books_authors_link WHERE book=OLD.id;
+                DELETE FROM books_publishers_link WHERE book=OLD.id;
+                DELETE FROM books_ratings_link WHERE book=OLD.id;
+                DELETE FROM books_series_link WHERE book=OLD.id;
+                DELETE FROM books_tags_link WHERE book=OLD.id;
+                DELETE FROM books_languages_link WHERE book=OLD.id;
+                DELETE FROM data WHERE book=OLD.id;
+                DELETE FROM comments WHERE book=OLD.id;
+                DELETE FROM conversion_options WHERE book=OLD.id;
+                DELETE FROM books_plugin_data WHERE book=OLD.id;
+                DELETE FROM identifiers WHERE book=OLD.id;
+        END;
+
+        INSERT INTO identifiers (book, val) SELECT id,isbn FROM books WHERE isbn;
+
+        ALTER TABLE books ADD COLUMN last_modified TIMESTAMP NOT NULL DEFAULT "%s";
+
+        '''%isoformat(DEFAULT_DATE, sep=' ')
+        # Sqlite does not support non constant default values in alter
+        # statements
         self.conn.executescript(script)
 
 
