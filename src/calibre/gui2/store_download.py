@@ -47,6 +47,13 @@ class StoreDownloadJob(BaseJob):
     def job_done(self):
         self.duration = time.time() - self.start_time
         self.percent = 1
+        
+        try:
+            os.remove(self.tmp_file_name)
+        except:
+            import traceback
+            self.log_write(traceback.format_exc())
+        
         # Dump log onto disk
         lf = PersistentTemporaryFile('store_log')
         lf.write(self._log_file.getvalue())
@@ -54,11 +61,6 @@ class StoreDownloadJob(BaseJob):
         self.log_path = lf.name
         self._log_file.close()
         self._log_file = None
-
-        try:
-            os.remove(self.tmp_file_name)
-        except:
-            pass
 
         self.job_manager.changed_queue.put(self)
 
@@ -97,8 +99,11 @@ class StoreDownloader(Thread):
                 continue
             
             try:
+                job.percent = .1
                 self._download(job)
+                job.percent = .7
                 self._add(job)
+                job.percent = .8
                 self._save_as(job)
             except Exception, e:
                 if not self._run:

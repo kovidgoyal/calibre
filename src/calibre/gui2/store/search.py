@@ -33,16 +33,24 @@ class SearchDialog(QDialog, Ui_Dialog):
         QDialog.__init__(self, *args)
         self.setupUi(self)
         
+        # We pass this on to the store plugins so they can
+        # tell the gui's job system to start downloading an
+        # item.
         self.gui = gui
 
+        # We keep a cache of store plugins and reference them by name.
         self.store_plugins = {}
         self.search_pool = SearchThreadPool(SearchThread, SEARCH_THREAD_TOTAL)
+        # Check for results and hung threads.
         self.checker = QTimer()
         self.hang_check = 0
         
         self.model = Matches()
         self.results_view.setModel(self.model)
 
+        # Add check boxes for each store so the user
+        # can disable searching specific stores on a
+        # per search basis.
         stores_group_layout = QVBoxLayout()
         self.stores_group.setLayout(stores_group_layout)
         for x in store_plugins():
@@ -96,6 +104,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         if not store_names:
             return
         shuffle(store_names)
+        # Add plugins that the user has checked to the search pool's work queue.
         for n in store_names:
             if getattr(self, 'store_check_' + n).isChecked():
                 self.search_pool.add_task(query, n, self.store_plugins[n], TIMEOUT)
@@ -117,7 +126,7 @@ class SearchDialog(QDialog, Ui_Dialog):
                 self.checker.stop()
         
         while self.search_pool.has_results():
-            res = self.search_pool.get_result_no_wait()
+            res = self.search_pool.get_result()
             if res:
                 self.results_view.model().add_result(res)
 
@@ -126,6 +135,9 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.store_plugins[result.store_name].open(self.gui, self, result.detail_item)
 
     def get_store_checks(self):
+        '''
+        Returns a list of QCheckBox's for each store.
+        '''
         checks = []
         for x in self.store_plugins:
             check = getattr(self, 'store_check_' + x, None)
@@ -158,6 +170,9 @@ class GenericDownloadThreadPool(object):
         self.tasks = Queue()
         self.results = Queue()
         self.threads = []
+    
+    def add_task(self):
+        raise NotImplementedError()
         
     def start_threads(self):
         for i in range(self.thread_count):

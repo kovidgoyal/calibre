@@ -590,11 +590,23 @@ class StorePlugin(Plugin): # {{{
     # This needs to be changed to (0, 8, 0)
     minimum_calibre_version = (0, 4, 118)
     
-    def open(self, gui, parent=None, detail_item=None):
+    def open(self, gui, parent=None, detail_item=None, external=False):
         '''
-        Open a dialog for displaying the store.
-        start_item is a refernce unique to the store
-        plugin and opens to the item when specified.
+        Open the store.
+        
+        :param gui: The main GUI. This will be used to have the job
+        system start downloading an item from the store.
+        
+        :param parent: The parent of the store dialog. This is used
+        to create modal dialogs.
+        
+        :param detail_item: A plugin specific reference to an item
+        in the store that the user should be shown.
+        
+        :param external: When False open an internal dialog with the
+        store. When True open the users default browser to the store's
+        web site. :param:`detail_item` should still be respected when external
+        is True.
         '''
         raise NotImplementedError()
     
@@ -607,12 +619,21 @@ class StorePlugin(Plugin): # {{{
         :param max_results: The maximum number of results to return.
         :param timeout: The maximum amount of time in seconds to spend download the search results.
         
-        :return: calibre.gui2.store.search_result.SearchResult object
+        :return: :class:`calibre.gui2.store.search_result.SearchResult` objects
         item_data is plugin specific and is used in :meth:`open` to open to a specifc place in the store.
         '''
         raise NotImplementedError()
     
     def get_settings(self):
+        '''
+        This is only useful for plugins that implement
+        :attr:`config_widget` that is the only way to save
+        settings. This is used by plugins to get the saved
+        settings and apply when necessary.
+        
+        :return: A dictionary filled with the settings used
+        by this plugin.
+        '''
         raise NotImplementedError()
 
 # }}}

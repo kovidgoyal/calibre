@@ -68,6 +68,7 @@ class NPWebView(QWebView):
     def get_cookies(self):
         cj = CookieJar()
         
+        # Translate Qt cookies to cookielib cookies for use by mechanize.
         for c in self.page().networkAccessManager().cookieJar().allCookies():
             version = 0
             name = unicode(QString(c.name()))
