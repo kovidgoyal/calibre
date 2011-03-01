@@ -2891,6 +2891,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             x['formats'] = []
             isbn = self.isbn(db_id, index_is_id=True)
             x['isbn'] = isbn if isbn else ''
+            x['identifiers'] = self.get_identifiers(db_id, index_is_id=True)
             if not x['authors']:
                 x['authors'] = _('Unknown')
             x['authors'] = [i.replace('|', ',') for i in x['authors'].split(',')]
