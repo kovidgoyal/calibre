@@ -267,7 +267,7 @@ class CoverThread(Thread):
                             result.cover_data = f.read()
                         result.cover_data = thumbnail(result.cover_data, 64, 64)[2]
                         callback()
-                        self.tasks.task_done()
+                    self.tasks.task_done()
             except:
                 continue
 
