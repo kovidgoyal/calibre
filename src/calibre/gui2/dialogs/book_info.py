@@ -55,6 +55,10 @@ class BookInfo(QDialog, Ui_BookInfo):
         ci = self.view.currentIndex()
         if ci.isValid():
             self.view.model().current_changed(ci, ci)
+        self.cover_pixmap = QPixmap()
+        self.cover_pixmap.loadFromData(data)
+        if self.fit_cover.isChecked():
+            self.resize_cover()
 
     def link_clicked(self, url):
         open_url(url)
