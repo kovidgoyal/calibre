@@ -14,15 +14,13 @@ from lxml import html
 from PyQt4.Qt import QUrl
 
 from calibre import browser
-from calibre.customize import StorePlugin
+from calibre.gui2 import open_url
+from calibre.gui2.store import StorePlugin
 from calibre.gui2.store.search_result import SearchResult
 
 class AmazonKindleStore(StorePlugin):
     
-    name           = 'Amazon Kindle'
-    description    = _('Kindle books from Amazon')
-    
-    def open(self, gui, parent=None, detail_item=None):
+    def open(self, parent=None, detail_item=None, external=False):
         '''
         Amazon comes with a number of difficulties.
         
@@ -106,7 +104,6 @@ class AmazonKindleStore(StorePlugin):
         The best (I use the term lightly here) solution is to open Amazon.com
         in the users default browser and set the affiliate id as part of the url.
         '''
-        from calibre.gui2 import open_url
         aff_id = {'tag': 'josbl0e-cpb-20'}
         # Use Kovid's affiliate id 30% of the time.
         if random.randint(1, 10) in (1, 2, 3):

@@ -22,7 +22,7 @@ from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import prefs, dynamic
 from calibre.utils.ipc.server import Server
 from calibre.library.database2 import LibraryDatabase2
-from calibre.customize.ui import interface_actions
+from calibre.customize.ui import interface_actions, store_plugins
 from calibre.gui2 import error_dialog, GetMetadata, open_local_file, \
         gprefs, max_available_height, config, info_dialog, Dispatcher, \
         question_dialog
@@ -102,6 +102,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         self.device_connected = None
         self.gui_debug = gui_debug
         self.iactions = OrderedDict()
+        # Actions
         for action in interface_actions():
             if opts.ignore_plugins and action.plugin_path is not None:
                 continue
@@ -114,11 +115,24 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
                 if action.plugin_path is None:
                     raise
                 continue
-
             ac.plugin_path = action.plugin_path
             ac.interface_action_base_plugin = action
-
             self.add_iaction(ac)
+        # Stores
+        self.istores = OrderedDict()
+        for store in store_plugins():
+            if opts.ignore_plugins and store.plugin_path is not None:
+                continue
+            try:
+                st = self.init_istore(store)
+                self.add_istore(st)
+            except:
+                # Ignore errors in loading user supplied plugins
+                import traceback
+                traceback.print_exc()
+                if store.plugin_path is None:
+                    raise
+                continue
 
     def init_iaction(self, action):
         ac = action.load_actual_plugin(self)
@@ -126,6 +140,13 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         ac.interface_action_base_plugin = action
         action.actual_iaction_plugin_loaded = True
         return ac
+    
+    def init_istore(self, store):
+        st = store.load_actual_plugin(self)
+        st.plugin_path = store.plugin_path
+        st.base_plugin = store
+        store.actual_istore_plugin_loaded = True
+        return st
 
     def add_iaction(self, ac):
         acmap = self.iactions
@@ -134,6 +155,14 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
                 acmap[ac.name] = ac
         else:
             acmap[ac.name] = ac
+            
+    def add_istore(self, st):
+        stmap = self.istores
+        if st.name in stmap:
+            if st.priority >= stmap[st.name].priority:
+                stmap[st.name] = st
+        else:
+            stmap[st.name] = st
 
 
     def initialize(self, library_path, db, listener, actions, show_gui=True):
@@ -155,6 +184,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
 
         for ac in self.iactions.values():
             ac.do_genesis()
+        for st in self.istores.values():
+            st.do_genesis()
         MainWindowMixin.__init__(self, db)
 
         # Jobs Button {{{

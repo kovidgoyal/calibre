@@ -581,60 +581,41 @@ class PreferencesPlugin(Plugin): # {{{
 
 # }}}
 
-
-class StorePlugin(Plugin): # {{{
-
+class StoreBase(Plugin): # {{{
+    
     supported_platforms = ['windows', 'osx', 'linux']
     author         = 'John Schember'
     type = _('Store')
     # This needs to be changed to (0, 8, 0)
     minimum_calibre_version = (0, 4, 118)
-    
-    def open(self, gui, parent=None, detail_item=None, external=False):
+
+    actual_plugin = None
+    actual_plugin_object = None
+
+    def load_actual_plugin(self, gui):
         '''
-        Open the store.
-        
-        :param gui: The main GUI. This will be used to have the job
-        system start downloading an item from the store.
-        
-        :param parent: The parent of the store dialog. This is used
-        to create modal dialogs.
-        
-        :param detail_item: A plugin specific reference to an item
-        in the store that the user should be shown.
-        
-        :param external: When False open an internal dialog with the
-        store. When True open the users default browser to the store's
-        web site. :param:`detail_item` should still be respected when external
-        is True.
+        This method must return the actual interface action plugin object.
         '''
-        raise NotImplementedError()
-    
-    def search(self, query, max_results=10, timeout=60):
-        '''
-        Searches the store for items matching query. This should
-        return items as a generator.
+        mod, cls = self.actual_plugin.split(':')
+        self.actual_plugin_object  = getattr(__import__(mod, fromlist=['1'], level=0), cls)(gui, self.name)
+        return self.actual_plugin_object
+
+    def customization_help(self, gui=False):
+        if self.actual_plugin_object:
+            return self.actual_plugin_object.customization_help(gui)
+        else:
+            raise NotImplementedError()
         
-        :param query: The string query search with.
-        :param max_results: The maximum number of results to return.
-        :param timeout: The maximum amount of time in seconds to spend download the search results.
-        
-        :return: :class:`calibre.gui2.store.search_result.SearchResult` objects
-        item_data is plugin specific and is used in :meth:`open` to open to a specifc place in the store.
-        '''
-        raise NotImplementedError()
-    
-    def get_settings(self):
-        '''
-        This is only useful for plugins that implement
-        :attr:`config_widget` that is the only way to save
-        settings. This is used by plugins to get the saved
-        settings and apply when necessary.
-        
-        :return: A dictionary filled with the settings used
-        by this plugin.
-        '''
-        raise NotImplementedError()
+    def config_widget(self):
+        if self.actual_plugin_object:
+            return self.actual_plugin_object.config_widget()
+        else:
+            raise NotImplementedError()
+
+    def save_settings(self, config_widget):
+        if self.actual_plugin_object:
+            return self.actual_plugin_object.save_settings(config_widget)
+        else:
+            raise NotImplementedError()
 
 # }}}
-

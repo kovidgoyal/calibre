@@ -16,7 +16,6 @@ from PyQt4.Qt import Qt, QAbstractItemModel, QDialog, QTimer, QVariant, \
     QPushButton 
 
 from calibre import browser
-from calibre.customize.ui import store_plugins
 from calibre.gui2 import NONE
 from calibre.gui2.store.search_ui import Ui_Dialog
 from calibre.utils.icu import sort_key
@@ -29,17 +28,12 @@ COVER_DOWNLOAD_THREAD_TOTAL = 2
 
 class SearchDialog(QDialog, Ui_Dialog):
 
-    def __init__(self, gui, *args):
+    def __init__(self, istores, *args):
         QDialog.__init__(self, *args)
         self.setupUi(self)
-        
-        # We pass this on to the store plugins so they can
-        # tell the gui's job system to start downloading an
-        # item.
-        self.gui = gui
 
         # We keep a cache of store plugins and reference them by name.
-        self.store_plugins = {}
+        self.store_plugins = istores
         self.search_pool = SearchThreadPool(SearchThread, SEARCH_THREAD_TOTAL)
         # Check for results and hung threads.
         self.checker = QTimer()
@@ -53,12 +47,11 @@ class SearchDialog(QDialog, Ui_Dialog):
         # per search basis.
         stores_group_layout = QVBoxLayout()
         self.stores_group.setLayout(stores_group_layout)
-        for x in store_plugins():
-            self.store_plugins[x.name] = x
-            cbox = QCheckBox(x.name)
+        for x in self.store_plugins:
+            cbox = QCheckBox(x)
             cbox.setChecked(True)
             stores_group_layout.addWidget(cbox)
-            setattr(self, 'store_check_' + x.name, cbox)
+            setattr(self, 'store_check_' + x, cbox)
         stores_group_layout.addStretch()
 
         self.search.clicked.connect(self.do_search)
@@ -122,7 +115,7 @@ class SearchDialog(QDialog, Ui_Dialog):
             self.checker.stop()
         else:
             # Stop the checker if not threads are running.
-            if not self.search_pool.threads_running():
+            if not self.search_pool.threads_running() and not self.search_pool.has_tasks():
                 self.checker.stop()
         
         while self.search_pool.has_results():
@@ -132,7 +125,7 @@ class SearchDialog(QDialog, Ui_Dialog):
 
     def open_store(self, index):
         result = self.results_view.model().get_result(index)
-        self.store_plugins[result.store_name].open(self.gui, self, result.detail_item)
+        self.store_plugins[result.store_name].open(self, result.detail_item)
 
     def get_store_checks(self):
         '''
@@ -156,6 +149,10 @@ class SearchDialog(QDialog, Ui_Dialog):
     def stores_select_none(self):
         for check in self.get_store_checks():
             check.setChecked(False)
+            
+    def closeEvent(self, e):
+        self.model.closing()
+        QDialog.closeEvent(self, e)
 
 
 class GenericDownloadThreadPool(object):
@@ -305,6 +302,9 @@ class Matches(QAbstractItemModel):
         self.matches = []
         self.cover_pool = CoverThreadPool(CoverThread, 2)
         self.cover_pool.start_threads()
+
+    def closing(self):
+        self.cover_pool.abort()
         
     def clear_results(self):
         self.matches = []
@@ -315,7 +315,6 @@ class Matches(QAbstractItemModel):
     def add_result(self, result):
         self.layoutAboutToBeChanged.emit()
         self.matches.append(result)
-        
         self.cover_pool.add_task(result, self.update_result)
         self.layoutChanged.emit()
 

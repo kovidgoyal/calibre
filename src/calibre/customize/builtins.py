@@ -5,7 +5,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import textwrap, os, glob, functools, re
 from calibre import guess_type
 from calibre.customize import FileTypePlugin, MetadataReaderPlugin, \
-    MetadataWriterPlugin, PreferencesPlugin, InterfaceActionBase
+    MetadataWriterPlugin, PreferencesPlugin, InterfaceActionBase, StoreBase
 from calibre.constants import numeric_version
 from calibre.ebooks.metadata.archive import ArchiveExtract, get_cbz_metadata
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
@@ -1042,12 +1042,32 @@ plugins += [GoogleBooks]
 # }}}
 
 # Store plugins {{{
-from calibre.gui2.store.amazon_plugin import AmazonKindleStore
-from calibre.gui2.store.gutenberg_plugin import GutenbergStore
-from calibre.gui2.store.feedbooks_plugin import FeedbooksStore
-from calibre.gui2.store.manybooks_plugin import ManyBooksStore
-from calibre.gui2.store.smashwords_plugin import SmashwordsStore
+class StoreAmazonKindleStore(StoreBase):
+    name = 'Amazon Kindle'
+    description = _('Kindle books from Amazon')
+    actual_plugin = 'calibre.gui2.store.amazon_plugin:AmazonKindleStore'
 
-plugins += [AmazonKindleStore, GutenbergStore, FeedbooksStore, ManyBooksStore, SmashwordsStore]
+
+class StoreGutenbergStore(StoreBase):
+    name = 'Project Gutenberg'
+    description = _('The first producer of free ebooks.')
+    actual_plugin = 'calibre.gui2.store.gutenberg_plugin:GutenbergStore'
+
+class StoreFeedbooksStore(StoreBase):    
+    name = 'Feedbooks'
+    description = _('Read anywhere.')
+    actual_plugin = 'calibre.gui2.store.feedbooks_plugin:FeedbooksStore'
+    
+class StoreManyBooksStore(StoreBase):
+    name = 'ManyBooks'
+    description = _('The best ebooks at the best price: free!')
+    actual_plugin = 'calibre.gui2.store.manybooks_plugin:ManyBooksStore'
+
+class StoreSmashwordsStore(StoreBase):
+    name = 'Smashwords'
+    description = _('Your ebook. Your way.')
+    actual_plugin = 'calibre.gui2.store.smashwords_plugin:SmashwordsStore'
+
+plugins += [StoreAmazonKindleStore, StoreGutenbergStore, StoreFeedbooksStore, StoreManyBooksStore, StoreSmashwordsStore]
 
 # }}}

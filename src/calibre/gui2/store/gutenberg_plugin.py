@@ -10,18 +10,16 @@ from contextlib import closing
 from lxml import html
 
 from calibre import browser
-from calibre.customize import StorePlugin
+from calibre.gui2.store import StorePlugin
+from calibre.gui2.store.basic_config import BasicStoreConfig
 from calibre.gui2.store.search_result import SearchResult
+from calibre.gui2.store.web_store_dialog import WebStoreDialog
 
-class GutenbergStore(StorePlugin):
-    
-    name           = 'Project Gutenberg'
-    description    = _('The first producer of free ebooks.')
+class GutenbergStore(BasicStoreConfig, StorePlugin):
         
-    def open(self, gui, parent=None, detail_item=None):
+    def open(self, parent=None, detail_item=None, external=False):
         settings = self.get_settings()
-        from calibre.gui2.store.web_store_dialog import WebStoreDialog
-        d = WebStoreDialog(gui, 'http://m.gutenberg.org/', parent, detail_item)
+        d = WebStoreDialog(self.gui, 'http://m.gutenberg.org/', parent, detail_item)
         d.setWindowTitle(self.name)
         d.set_tags(settings.get(self.name + '_tags', ''))
         d = d.exec_()
@@ -51,8 +49,9 @@ class GutenbergStore(StorePlugin):
                     continue
                 id = url.split('/')[-1]
                 
-                heading = ''.join(url_a.xpath('text()'))
-                title, _, author = heading.partition('by ')
+                url_a = html.fromstring(html.tostring(url_a))
+                heading = ''.join(url_a.xpath('//text()'))
+                title, _, author = heading.rpartition('by ')
                 author = author.split('-')[0]
                 price = '$0.00'
                 
@@ -66,22 +65,3 @@ class GutenbergStore(StorePlugin):
                 s.detail_item = '/ebooks/' + id.strip()
                 
                 yield s
-
-    def customization_help(self, gui=False):
-        return 'Customize the behavior of this store.'
-
-    def config_widget(self):
-        from calibre.gui2.store.basic_config_widget import BasicStoreConfigWidget
-        return BasicStoreConfigWidget(self)
-
-    def save_settings(self, config_widget):
-        from calibre.gui2.store.basic_config_widget import save_settings
-        save_settings(config_widget)
-
-    def get_settings(self):
-        from calibre.gui2 import gprefs
-        settings = {}
-        
-        settings[self.name + '_tags'] = gprefs.get(self.name + '_tags', self.name + ', store, download')
-        
-        return settings

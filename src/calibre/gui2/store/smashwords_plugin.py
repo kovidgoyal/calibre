@@ -12,22 +12,19 @@ from contextlib import closing
 from lxml import html
 
 from calibre import browser
-from calibre.customize import StorePlugin
+from calibre.gui2.store import StorePlugin
+from calibre.gui2.store.basic_config import BasicStoreConfig
 from calibre.gui2.store.search_result import SearchResult
+from calibre.gui2.store.web_store_dialog import WebStoreDialog
 
-class SmashwordsStore(StorePlugin):
-    
-    name           = 'Smashwords'
-    description    = _('Your ebook. Your way.')
-    
-        
-    def open(self, gui, parent=None, detail_item=None):
-        from calibre.gui2.store.web_store_dialog import WebStoreDialog
+class SmashwordsStore(BasicStoreConfig, StorePlugin):
+
+    def open(self, parent=None, detail_item=None, external=False):
         aff_id = 'usernone'
         # Use Kovid's affiliate id 30% of the time.
         if random.randint(1, 10) in (1, 2, 3):
             aff_id = 'kovidgoyal'
-        d = WebStoreDialog(gui, 'http://www.smashwords.com/?ref=%s' % aff_id, parent, detail_item)
+        d = WebStoreDialog(self.gui, 'http://www.smashwords.com/?ref=%s' % aff_id, parent, detail_item)
         d.setWindowTitle(self.name)
         d.set_tags(self.name + ',' + _('store'))
         d = d.exec_()
@@ -78,22 +75,3 @@ class SmashwordsStore(StorePlugin):
                 s.detail_item = '/books/view/' + id.strip()
                 
                 yield s
-
-    def customization_help(self, gui=False):
-        return 'Customize the behavior of this store.'
-
-    def config_widget(self):
-        from calibre.gui2.store.basic_config_widget import BasicStoreConfigWidget
-        return BasicStoreConfigWidget(self)
-
-    def save_settings(self, config_widget):
-        from calibre.gui2.store.basic_config_widget import save_settings
-        save_settings(config_widget)
-
-    def get_settings(self):
-        from calibre.gui2 import gprefs
-        settings = {}
-        
-        settings[self.name + '_tags'] = gprefs.get(self.name + '_tags', self.name + ', store, download')
-        
-        return settings
