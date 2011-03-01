@@ -114,7 +114,12 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.config['store_search_geometry'] = self.saveGeometry()
         self.config['store_search_store_splitter_state'] = self.store_splitter.saveState()
         self.config['store_search_results_view_column_width'] = [self.results_view.columnWidth(i) for i in range(self.model.columnCount())]
-    
+        
+        store_check = {}
+        for n in self.store_plugins:
+            store_check[n] = getattr(self, 'store_check_' + n).isChecked()
+        self.config['store_search_store_checked'] = store_check
+
     def restore_state(self):
         geometry = self.config['store_search_geometry']
         if geometry:
@@ -132,6 +137,12 @@ class SearchDialog(QDialog, Ui_Dialog):
                 self.results_view.setColumnWidth(i, x)
         else:
             self.resize_columns()
+            
+        store_check = self.config['store_search_store_checked']
+        if store_check:
+            for n in store_check:
+                if hasattr(self, 'store_check_' + n):
+                    getattr(self, 'store_check_' + n).setChecked(store_check[n])
 
     def get_results(self):
         # We only want the search plugins to run
