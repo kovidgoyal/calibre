@@ -124,7 +124,10 @@ class Metadata(object):
     def __setattr__(self, field, val, extra=None):
         _data = object.__getattribute__(self, '_data')
         if field in TOP_LEVEL_IDENTIFIERS:
+            field, val = self._clean_identifier(field, val)
             _data['identifiers'].update({field: val})
+        elif field == 'identifiers':
+            self.set_identifiers(val)
         elif field in STANDARD_METADATA_FIELDS:
             if val is None:
                 val = NULL_VALUES.get(field, None)
@@ -189,8 +192,35 @@ class Metadata(object):
             ans = {}
         return copy.deepcopy(ans)
 
+    def _clean_identifier(self, typ, val):
+        typ = icu_lower(typ).strip().replace(':', '').replace(',', '')
+        val = val.strip().replace(',', '|').replace(':', '|')
+        return typ, val
+
     def set_identifiers(self, identifiers):
-        object.__getattribute__(self, '_data')['identifiers'] = identifiers
+        '''
+        Set all identifiers. Note that if you previously set ISBN, calling
+        this method will delete it.
+        '''
+        cleaned = {}
+        for key, val in identifiers.iteritems():
+            key, val = self._clean_identifier(key, val)
+            if key and val:
+                cleaned[key] = val
+        object.__getattribute__(self, '_data')['identifiers'] = cleaned
+
+    def set_identifier(self, typ, val):
+        'If val is empty, deletes identifier of type typ'
+        typ, val = self._clean_identifier(typ, val)
+        if not typ:
+            return
+        identifiers = object.__getattribute__(self,
+            '_data')['identifiers']
+
+        if not val and typ in identifiers:
+            identifiers.pop(typ)
+        if val:
+            identifiers[typ] = val
 
     # field-oriented interface. Intended to be the same as in LibraryDatabase
 
