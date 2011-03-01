@@ -222,11 +222,11 @@ class DBThread(Thread):
                     except Exception, err:
                         ok, res = False, (err, traceback.format_exc())
                 else:
-                    func = getattr(self.conn, func)
+                    bfunc = getattr(self.conn, func)
                     try:
                         for i in range(3):
                             try:
-                                ok, res = True, func(*args, **kwargs)
+                                ok, res = True, bfunc(*args, **kwargs)
                                 break
                             except OperationalError, err:
                                 # Retry if unable to open db file
