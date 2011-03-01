@@ -45,6 +45,7 @@ utc_tz = _utc_tz = tzutc()
 local_tz = _local_tz = SafeLocalTimeZone()
 
 UNDEFINED_DATE = datetime(101,1,1, tzinfo=utc_tz)
+DEFAULT_DATE = datetime(2000,1,1, tzinfo=utc_tz)
 
 def is_date_undefined(qt_or_dt):
     d = qt_or_dt

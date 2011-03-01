@@ -21,7 +21,7 @@ from calibre.devices.usbms.device import Device
 from calibre.devices.usbms.books import BookList, Book
 from calibre.ebooks.metadata.book.json_codec import JsonCodec
 from calibre.utils.config import from_json, to_json
-from calibre.utils.date import now
+from calibre.utils.date import now, isoformat
 
 BASE_TIME = None
 def debug_print(*args):
@@ -61,12 +61,13 @@ class USBMS(CLI, Device):
         if dinfo.get('device_store_uuid', None) is None:
             dinfo['device_store_uuid'] = unicode(uuid.uuid4())
         if dinfo.get('device_name') is None:
-            dinfo['device_name'] = self.get_gui_name() + '_' + location_code
+            dinfo['device_name'] = self.get_gui_name()
         if name is not None:
             dinfo['device_name'] = name
+        dinfo['location_code'] = location_code
         dinfo['last_library_uuid'] = getattr(self, 'current_library_uuid', None)
         dinfo['calibre_version'] = '.'.join([unicode(i) for i in numeric_version])
-        dinfo['date_last_connected'] = unicode(now())
+        dinfo['date_last_connected'] = isoformat(now())
         dinfo['prefix'] = prefix.replace('\\', '/')
         return dinfo
 

@@ -119,6 +119,15 @@ class FieldMetadata(dict):
                            'search_terms':['formats', 'format'],
                            'is_custom':False,
                            'is_category':True}),
+            ('identifiers',   {'table':None,
+                           'column':None,
+                           'datatype':'text',
+                           'is_multiple':',',
+                           'kind':'field',
+                           'name':_('Identifiers'),
+                           'search_terms':['identifiers', 'identifier'],
+                           'is_custom':False,
+                           'is_category':True}),
             ('publisher', {'table':'publishers',
                            'column':'name',
                            'link_column':'publisher',
@@ -296,6 +305,15 @@ class FieldMetadata(dict):
                            'search_terms':['date'],
                            'is_custom':False,
                            'is_category':False}),
+            ('last_modified', {'table':None,
+                           'column':None,
+                           'datatype':'datetime',
+                           'is_multiple':None,
+                           'kind':'field',
+                           'name':_('Date'),
+                           'search_terms':['last_modified'],
+                           'is_custom':False,
+                           'is_category':False}),
             ('title',     {'table':None,
                            'column':None,
                            'datatype':'text',
@@ -335,7 +353,8 @@ class FieldMetadata(dict):
             self._tb_cats[k]['display'] = {}
             self._tb_cats[k]['is_editable'] = True
             self._add_search_terms_to_map(k, v['search_terms'])
-        self._tb_cats['timestamp']['display'] = {
+        for x in ('timestamp', 'last_modified'):
+            self._tb_cats[x]['display'] = {
                         'date_format': tweaks['gui_timestamp_display_format']}
         self._tb_cats['pubdate']['display'] = {
                         'date_format': tweaks['gui_pubdate_display_format']}

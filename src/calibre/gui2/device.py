@@ -296,7 +296,7 @@ class DeviceManager(Thread): # {{{
     def _get_device_information(self):
         info = self.device.get_device_information(end_session=False)
         if len(info) < 5:
-            list(info).append({})
+            info = tuple(list(info) + [{}])
         info = [i.replace('\x00', '').replace('\x01', '') if isinstance(i, basestring) else i
                  for i in info]
         cp = self.device.card_prefix(end_session=False)

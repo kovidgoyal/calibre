@@ -8,6 +8,7 @@ Wrapper for multi-threaded access to a single sqlite database connection. Serial
 all calls.
 '''
 import sqlite3 as sqlite, traceback, time, uuid, sys, os
+import repr as reprlib
 from sqlite3 import IntegrityError, OperationalError
 from threading import Thread
 from Queue import Queue
@@ -20,6 +21,7 @@ from calibre.utils.date import parse_date, isoformat
 from calibre import isbytestring, force_unicode
 from calibre.constants import iswindows, DEBUG
 from calibre.utils.icu import strcmp
+from calibre import prints
 
 global_lock = RLock()
 
@@ -86,6 +88,18 @@ class SortedConcatenate(object):
 
 class SafeSortedConcatenate(SortedConcatenate):
     sep = '|'
+
+class IdentifiersConcat(object):
+    '''String concatenation aggregator for the identifiers map'''
+    def __init__(self):
+        self.ans = []
+
+    def step(self, key, val):
+        self.ans.append(u'%s:%s'%(key, val))
+
+    def finalize(self):
+        return ','.join(self.ans)
+
 
 class AumSortedConcatenate(object):
     '''String concatenation aggregator for the author sort map'''
@@ -170,13 +184,13 @@ class DBThread(Thread):
                                    detect_types=sqlite.PARSE_DECLTYPES|sqlite.PARSE_COLNAMES)
         self.conn.execute('pragma cache_size=5000')
         encoding = self.conn.execute('pragma encoding').fetchone()[0]
-        c_ext_loaded = load_c_extensions(self.conn)
+        self.conn.create_aggregate('sortconcat', 2, SortedConcatenate)
+        self.conn.create_aggregate('sort_concat', 2, SafeSortedConcatenate)
+        self.conn.create_aggregate('identifiers_concat', 2, IdentifiersConcat)
+        load_c_extensions(self.conn)
         self.conn.row_factory = sqlite.Row if self.row_factory else  lambda cursor, row : list(row)
         self.conn.create_aggregate('concat', 1, Concatenate)
         self.conn.create_aggregate('aum_sortconcat', 3, AumSortedConcatenate)
-        if not c_ext_loaded:
-            self.conn.create_aggregate('sortconcat', 2, SortedConcatenate)
-            self.conn.create_aggregate('sort_concat', 2, SafeSortedConcatenate)
         self.conn.create_collation('PYNOCASE', partial(pynocase,
             encoding=encoding))
         self.conn.create_function('title_sort', 1, title_sort)
@@ -208,17 +222,21 @@ class DBThread(Thread):
                     except Exception, err:
                         ok, res = False, (err, traceback.format_exc())
                 else:
-                    func = getattr(self.conn, func)
+                    bfunc = getattr(self.conn, func)
                     try:
                         for i in range(3):
                             try:
-                                ok, res = True, func(*args, **kwargs)
+                                ok, res = True, bfunc(*args, **kwargs)
                                 break
                             except OperationalError, err:
                                 # Retry if unable to open db file
-                                if 'unable to open' not in str(err) or i == 2:
+                                e = str(err)
+                                if 'unable to open' not in e or i == 2:
+                                    if 'unable to open' in e:
+                                        prints('Unable to open database for func',
+                                            func, reprlib.repr(args),
+                                            reprlib.repr(kwargs))
                                     raise
-                                traceback.print_exc()
                             time.sleep(0.5)
                     except Exception, err:
                         ok, res = False, (err, traceback.format_exc())

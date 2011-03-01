@@ -13,7 +13,7 @@ from PyQt4.Qt import QIcon, QFont, QLabel, QListWidget, QAction, \
                         QRegExp, QSettings, QSize, QSplitter, \
                         QPainter, QLineEdit, QComboBox, QPen, \
                         QMenu, QStringListModel, QCompleter, QStringList, \
-                        QTimer, QRect
+                        QTimer, QRect, QFontDatabase
 
 from calibre.gui2 import NONE, error_dialog, pixmap_to_data, gprefs
 from calibre.gui2.filename_pattern_ui import Ui_Form
@@ -299,8 +299,6 @@ class ImageView(QWidget):
     # }}}
 
 
-
-
 class FontFamilyModel(QAbstractListModel):
 
     def __init__(self, *args):
@@ -312,6 +310,9 @@ class FontFamilyModel(QAbstractListModel):
             self.families = []
             print 'WARNING: Could not load fonts'
             traceback.print_exc()
+        # Restrict to Qt families as Qt tends to crash
+        qt_families = set([unicode(x) for x in QFontDatabase().families()])
+        self.families = list(qt_families.intersection(set(self.families)))
         self.families.sort()
         self.families[:0] = [_('None')]
 

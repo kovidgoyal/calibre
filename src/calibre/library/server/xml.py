@@ -90,7 +90,7 @@ class XMLServer(object):
                 kwargs[x] = serialize(record[FM[x]])
 
             for x in ('formats', 'series', 'tags', 'publisher',
-                    'comments'):
+                    'comments', 'identifiers'):
                 y = record[FM[x]]
                 if x == 'tags':
                     y = format_tag_string(y, ',', ignore_max=True)
