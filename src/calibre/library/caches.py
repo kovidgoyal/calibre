@@ -501,6 +501,7 @@ class ResultCache(SearchQueryParser): # {{{
         if query and query.strip():
             # get metadata key associated with the search term. Eliminates
             # dealing with plurals and other aliases
+            original_location = location
             location = self.field_metadata.search_term_to_field_key(icu_lower(location.strip()))
             # grouped search terms
             if isinstance(location, list):
@@ -550,11 +551,13 @@ class ResultCache(SearchQueryParser): # {{{
                             len(item[loc].split(ms)) if item[loc] is not None else 0
                     return self.get_numeric_matches(location, query[1:],
                                                     candidates, val_func=vf)
+
             # special case: identifiers. isbn is a special case within the case
             if location == 'identifiers':
+                if original_location == 'isbn':
+                    return self.get_keypair_matches('identifiers',
+                                                    '=isbn:'+query, candidates)
                 return self.get_keypair_matches(location, query, candidates)
-            if location == 'isbn':
-                return self.get_keypair_matches('identifiers', '=isbn:'+query, candidates)
 
             # check for user categories
             if len(location) >= 2 and location.startswith('@'):
