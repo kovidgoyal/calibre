@@ -423,6 +423,7 @@ class Stylizer(object):
 
 class Style(object):
     UNIT_RE = re.compile(r'^(-*[0-9]*[.]?[0-9]*)\s*(%|em|ex|en|px|mm|cm|in|pt|pc)$')
+    MS_PAT = re.compile(r'^\s*(mso-|panose-|text-underline|tab-interval)')
 
     def __init__(self, element, stylizer):
         self._element = element
@@ -447,6 +448,8 @@ class Style(object):
             return
         css = attrib['style'].split(';')
         css = filter(None, (x.strip() for x in css))
+        css = [x.strip() for x in css]
+        css = [x for x in css if self.MS_PAT.match(x) is None]
         try:
             style = CSSStyleDeclaration('; '.join(css))
         except CSSSyntaxError:

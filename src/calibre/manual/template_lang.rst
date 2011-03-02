@@ -217,16 +217,16 @@ The following functions are available in addition to those described in single-f
     * ``field(name)`` -- returns the metadata field named by ``name``.
     * ``format_date(x, date_format)`` -- format_date(val, format_string) -- format the value, which must be a date field, using the format_string, returning a string. The formatting codes are::
     
-    d    : the day as number without a leading zero (1 to 31)
-    dd   : the day as number with a leading zero (01 to 31) '
-    ddd  : the abbreviated localized day name (e.g. "Mon" to "Sun"). '
-    dddd : the long localized day name (e.g. "Monday" to "Sunday"). '
-    M    : the month as number without a leading zero (1 to 12). '
-    MM   : the month as number with a leading zero (01 to 12) '
-    MMM  : the abbreviated localized month name (e.g. "Jan" to "Dec"). '
-    MMMM : the long localized month name (e.g. "January" to "December"). '
-    yy   : the year as two digit number (00 to 99). '
-    yyyy : the year as four digit number.'
+        d    : the day as number without a leading zero (1 to 31)
+        dd   : the day as number with a leading zero (01 to 31) '
+        ddd  : the abbreviated localized day name (e.g. "Mon" to "Sun"). '
+        dddd : the long localized day name (e.g. "Monday" to "Sunday"). '
+        M    : the month as number without a leading zero (1 to 12). '
+        MM   : the month as number with a leading zero (01 to 12) '
+        MMM  : the abbreviated localized month name (e.g. "Jan" to "Dec"). '
+        MMMM : the long localized month name (e.g. "January" to "December"). '
+        yy   : the year as two digit number (00 to 99). '
+        yyyy : the year as four digit number.'
     
     * ``eval(string)`` -- evaluates the string as a program, passing the local variables (those ``assign`` ed to). This permits using the template processor to construct complex results from local variables.
     * ``multiply(x, y)`` -- returns x * y. Throws an exception if either x or y are not numbers.
