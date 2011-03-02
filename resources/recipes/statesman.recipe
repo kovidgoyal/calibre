@@ -10,12 +10,14 @@ class AdvancedUserRecipe1278049615(BasicNewsRecipe):
 
     max_articles_per_feed = 100
 
-    feeds          = [(u'News', u'http://www.statesman.com/section-rss.do?source=news&includeSubSections=true'),
-	(u'Business', u'http://www.statesman.com/section-rss.do?source=business&includeSubSections=true'),
-	(u'Life', u'http://www.statesman.com/section-rss.do?source=life&includesubsection=true'),
-	(u'Editorial', u'http://www.statesman.com/section-rss.do?source=opinion&includesubsections=true'),
-	(u'Sports', u'http://www.statesman.com/section-rss.do?source=sports&includeSubSections=true')
-	]
+    feeds          = [(u'News',
+        u'http://www.statesman.com/section-rss.do?source=news&includeSubSections=true'),
+    (u'Local', u'http://www.statesman.com/section-rss.do?source=local&includeSubSections=true'),
+    (u'Business', u'http://www.statesman.com/section-rss.do?source=business&includeSubSections=true'),
+    (u'Life', u'http://www.statesman.com/section-rss.do?source=life&includesubsection=true'),
+    (u'Editorial', u'http://www.statesman.com/section-rss.do?source=opinion&includesubsections=true'),
+    (u'Sports', u'http://www.statesman.com/section-rss.do?source=sports&includeSubSections=true')
+    ]
     masthead_url = "http://www.statesman.com/images/cmg-logo.gif"
     #temp_files = []
     #articles_are_obfuscated = True
@@ -28,8 +30,11 @@ class AdvancedUserRecipe1278049615(BasicNewsRecipe):
     conversion_options = {'linearize_tables':True}
     remove_tags = [
                     dict(name='div', attrs={'id':'cxArticleOptions'}),
+                    {'class':['perma', 'comments', 'trail', 'share-buttons',
+                        'toggle_show_on']},
                         ]
     keep_only_tags = [
-	 dict(name='div', attrs={'class':'cxArticleHeader'}),
-                     dict(name='div', attrs={'id':'cxArticleBodyText'}),
+     dict(name='div', attrs={'class':'cxArticleHeader'}),
+                     dict(name='div', attrs={'id':['cxArticleBodyText',
+                         'content']}),
                                ]
