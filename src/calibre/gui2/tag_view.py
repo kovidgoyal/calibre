@@ -565,7 +565,7 @@ class TagTreeItem(object): # {{{
             self.tag = Tag(data)
             self.tag.is_hierarchical = category_key.startswith('@')
         elif self.type == self.TAG:
-            icon_map[0] = data.icon
+            self.icon_state_map[0] = QVariant(data.icon)
             self.tag = data
         if tooltip:
             self.tooltip = tooltip + ' '
@@ -654,7 +654,8 @@ class TagTreeItem(object): # {{{
         '''
         set_to: None => advance the state, otherwise a value from TAG_SEARCH_STATES
         '''
-        basic_search_ok = self.tag.is_editable or self.tag.category == 'formats'
+        basic_search_ok = self.tag.is_editable or \
+                self.tag.category == 'formats' or self.tag.category == 'rating'
         if set_to is None:
             while True:
                 self.tag.state = (self.tag.state + 1)%5
