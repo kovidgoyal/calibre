@@ -22,8 +22,8 @@ class DieselEbooksStore(BasicStoreConfig, StorePlugin):
         settings = self.get_settings()
         aff_id = '2049'
         # Use Kovid's affiliate id 30% of the time.
-        #if random.randint(1, 10) in (1, 2, 3):
-            #aff_id = ''
+        if random.randint(1, 10) in (1, 2, 3):
+            aff_id = '2053'
         d = WebStoreDialog(self.gui, 'http://www.diesel-ebooks.com/?aid=%s' % aff_id, parent, detail_item)
         d.setWindowTitle(self.name)
         d.set_tags(settings.get(self.name + '_tags', ''))
