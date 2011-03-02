@@ -267,7 +267,7 @@ four values, the first of them being the empty value.</string>
      <item row="3" column="0">
       <widget class="QLabel" name="shortcuts">
        <property name="text">
-        <string>Quick create: &lt;a href=&quot;col:isbn&quot; title=&quot;Show the books' ISBN in the column&quot;&gt;ISBN&lt;/a&gt;, &lt;a href=&quot;col:formats&quot; title=&quot;Show the books' formats in the column&quot;&gt;Formats&lt;/a&gt;, &lt;a href=&quot;col:last_modified&quot; title=&quot;Show the date the books' metadata was last modified in the column&quot;&gt;Last Modified&lt;/a&gt;</string>
+        <string>Quick create: &lt;a href=&quot;col:isbn&quot; title=&quot;Show the books' ISBN in the column&quot;&gt;ISBN&lt;/a&gt;, &lt;a href=&quot;col:formats&quot; title=&quot;Show the books' formats in the column&quot;&gt;Formats&lt;/a&gt;, &lt;a href=&quot;col:last_modified&quot; title=&quot;Show the date the books' metadata was last modified in the column&quot;&gt;Last Modified&lt;/a&gt;, &lt;a href=&quot;col:yesno&quot;&gt;Yes/No&lt;/a&gt;, &lt;a href=&quot;col:tags&quot;&gt;Tags&lt;/a&gt;, &lt;a href=&quot;col:series&quot;&gt;Series&lt;/a&gt;</string>
        </property>
        <property name="wordWrap">
         <bool>true</bool>

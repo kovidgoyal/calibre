@@ -103,13 +103,21 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
 
     def shortcut_activated(self, url):
         which = unicode(url).split(':')[-1]
-        self.column_type_box.setCurrentIndex(10)
+        self.column_type_box.setCurrentIndex({
+            'yesno': 9,
+            'tags' : 1,
+            'series': 3,
+            }.get(which, 10))
         self.column_name_box.setText(which)
         self.column_heading_box.setText({
             'isbn':'ISBN',
             'formats':_('Formats'),
+            'yesno':_('Yes/No'),
+            'tags': _('My Tags'),
+            'series': _('My Series'),
             'last_modified':_('Last Modified')}[which])
-        self.composite_box.setText(
+        if self.composite_box.isVisible():
+            self.composite_box.setText(
                 {
                     'isbn': '{identifiers:select(isbn)}',
                     'formats': '{formats}',
