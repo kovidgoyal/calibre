@@ -833,6 +833,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         mi.pubdate     = row[fm['pubdate']]
         mi.uuid        = row[fm['uuid']]
         mi.title_sort  = row[fm['sort']]
+        mi.metadata_last_modified = row[fm['last_modified']]
         formats = row[fm['formats']]
         if not formats:
             formats = None

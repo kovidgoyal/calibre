@@ -574,8 +574,10 @@ class TagTreeItem(object): # {{{
 
     def break_cycles(self):
         for x in self.children:
-            if hasattr(x, 'break_cycles'):
+            try:
                 x.break_cycles()
+            except:
+                pass
         self.parent = self.icon_state_map = self.bold_font = self.tag = \
                 self.icon = self.children = None
 
