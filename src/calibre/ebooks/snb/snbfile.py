@@ -83,6 +83,8 @@ class SNBFile:
                             data = snbFile.read(bSize)
                             if len(data) < 32768:
                                 uncompressedData += bzdc.decompress(data)
+                            else:
+                                uncompressedData += data
                         except Exception, e:
                             print e
                 if len(uncompressedData) != self.plainStreamSizeUncompressed:
