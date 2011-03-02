@@ -121,11 +121,16 @@ CONTAINS_MATCH = 0
 EQUALS_MATCH   = 1
 REGEXP_MATCH   = 2
 def _match(query, value, matchkind):
+    if query.startswith('..'):
+        query = query[1:]
+        prefix_match_ok = False
+    else:
+        prefix_match_ok = True
     for t in value:
         t = icu_lower(t)
         try:     ### ignore regexp exceptions, required because search-ahead tries before typing is finished
             if (matchkind == EQUALS_MATCH):
-                if query[0] == '.':
+                if prefix_match_ok and query[0] == '.':
                     if t.startswith(query[1:]):
                         ql = len(query) - 1
                         if (len(t) == ql) or (t[ql:ql+1] == '.'):
