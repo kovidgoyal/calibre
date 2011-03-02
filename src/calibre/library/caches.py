@@ -578,7 +578,7 @@ class ResultCache(SearchQueryParser): # {{{
 
                 # special case: colon-separated fields such as identifiers. isbn
                 # is a special case within the case
-                if fm['is_csp']:
+                if fm.get('is_csp', False):
                     if location == 'identifiers' and original_location == 'isbn':
                         return self.get_keypair_matches('identifiers',
                                                    '=isbn:'+query, candidates)

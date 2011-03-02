@@ -272,6 +272,7 @@ class NEXTBOOK(USBMS):
     VENDOR_NAME = 'NEXT2'
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = '1.0.14'
     SUPPORTS_SUB_DIRS = True
+    THUMBNAIL_HEIGHT = 120
 
     '''
     def upload_cover(self, path, filename, metadata, filepath):

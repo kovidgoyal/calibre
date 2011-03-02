@@ -572,6 +572,13 @@ class TagTreeItem(object): # {{{
         else:
             self.tooltip = ''
 
+    def break_cycles(self):
+        for x in self.children:
+            if hasattr(x, 'break_cycles'):
+                x.break_cycles()
+        self.parent = self.icon_state_map = self.bold_font = self.tag = \
+                self.icon = self.children = None
+
     def __str__(self):
         if self.type == self.ROOT:
             return 'ROOT'
@@ -780,6 +787,7 @@ class TagsModel(QAbstractItemModel): # {{{
         self.refresh(data=data)
 
     def break_cycles(self):
+        self.root_item.break_cycles()
         self.db = self.root_item = None
 
     def mimeTypes(self):
