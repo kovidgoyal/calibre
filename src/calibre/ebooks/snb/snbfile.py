@@ -75,15 +75,18 @@ class SNBFile:
                     for i in range(self.plainBlock):
                         bzdc = bz2.BZ2Decompressor()
                         if (i < self.plainBlock - 1):
-                            bSize = self.blocks[self.binBlock + i + 1].Offset - self.blocks[self.binBlock + i].Offset;
+                            bSize = self.blocks[self.binBlock + i + 1].Offset - self.blocks[self.binBlock + i].Offset
                         else:
-                            bSize = self.tailOffset - self.blocks[self.binBlock + i].Offset;
-                        snbFile.seek(self.blocks[self.binBlock + i].Offset);
+                            bSize = self.tailOffset - self.blocks[self.binBlock + i].Offset
+                        snbFile.seek(self.blocks[self.binBlock + i].Offset)
                         try:
                             data = snbFile.read(bSize)
-                            uncompressedData += bzdc.decompress(data)
+                            if len(data) < 32768:
+                                uncompressedData += bzdc.decompress(data)
                         except Exception, e:
                             print e
+                if len(uncompressedData) != self.plainStreamSizeUncompressed:
+                    raise Exception()
                 f.fileBody = uncompressedData[plainPos:plainPos+f.fileSize]
                 plainPos += f.fileSize
             elif f.attr & 0x01000000 == 0x01000000:
