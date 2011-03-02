@@ -59,7 +59,7 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
         self.button_box.accepted.connect(self.accept)
         self.button_box.rejected.connect(self.reject)
         self.shortcuts.linkActivated.connect(self.shortcut_activated)
-        text = '<p>'+_('Quick create:') + ' '
+        text = '<p>'+_('Quick create:')
         for col, name in [('isbn', _('ISBN')), ('formats', _('Formats')),
                 ('last_modified', _('Modified Date')), ('yesno', _('Yes/No')),
                 ('tags', _('Tags')), ('series', _('Series')), ('rating',
