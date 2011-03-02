@@ -20,13 +20,14 @@ from calibre.gui2.store.web_store_dialog import WebStoreDialog
 class SmashwordsStore(BasicStoreConfig, StorePlugin):
 
     def open(self, parent=None, detail_item=None, external=False):
+        settings = self.get_settings()
         aff_id = 'usernone'
         # Use Kovid's affiliate id 30% of the time.
         if random.randint(1, 10) in (1, 2, 3):
             aff_id = 'kovidgoyal'
         d = WebStoreDialog(self.gui, 'http://www.smashwords.com/?ref=%s' % aff_id, parent, detail_item)
         d.setWindowTitle(self.name)
-        d.set_tags(self.name + ',' + _('store'))
+        d.set_tags(settings.get(self.name + '_tags', ''))
         d = d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
