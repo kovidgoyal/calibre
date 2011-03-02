@@ -9,7 +9,7 @@ import re
 
 from PyQt4.Qt import Qt, QVariant, QListWidgetItem
 
-from calibre.gui2.preferences import ConfigWidgetBase, test_widget
+from calibre.gui2.preferences import ConfigWidgetBase, test_widget, Setting
 from calibre.gui2.preferences.behavior_ui import Ui_Form
 from calibre.gui2 import config, info_dialog, dynamic
 from calibre.utils.config import prefs
@@ -19,6 +19,10 @@ from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.oeb.iterator import is_supported
 from calibre.constants import iswindows
 from calibre.utils.icu import sort_key
+
+class OutputFormatSetting(Setting):
+
+    CHOICES_SEARCH_FLAGS = Qt.MatchFixedString
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
@@ -43,7 +47,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         output_formats = list(sorted(available_output_formats()))
         output_formats.remove('oeb')
         choices = [(x.upper(), x) for x in output_formats]
-        r('output_format', prefs, choices=choices)
+        r('output_format', prefs, choices=choices, setting=OutputFormatSetting)
 
         restrictions = sorted(saved_searches().names(), key=sort_key)
         choices = [('', '')] + [(x, x) for x in restrictions]
