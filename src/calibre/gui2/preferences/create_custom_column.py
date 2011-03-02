@@ -107,6 +107,7 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
             'yesno': 9,
             'tags' : 1,
             'series': 3,
+            'rating': 8,
             }.get(which, 10))
         self.column_name_box.setText(which)
         self.column_heading_box.setText({
@@ -115,6 +116,7 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
             'yesno':_('Yes/No'),
             'tags': _('My Tags'),
             'series': _('My Series'),
+            'rating': _('My Rating'),
             'last_modified':_('Last Modified')}[which])
         if self.composite_box.isVisible():
             self.composite_box.setText(
