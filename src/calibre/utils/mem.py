@@ -5,6 +5,14 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+'''
+Measure memory usage of the current process.
+
+The key function is memory() which returns the current memory usage in bytes.
+You can pass a number to memory and it will be subtracted from the returned
+value.
+'''
+
 import gc, os
 
 from calibre.constants import iswindows, islinux
