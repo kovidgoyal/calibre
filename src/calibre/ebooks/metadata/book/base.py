@@ -595,6 +595,8 @@ class Metadata(object):
             elif key == 'series_index':
                 res = self.format_series_index(res)
             elif datatype == 'text' and fmeta['is_multiple']:
+                if isinstance(res, dict):
+                    res = [k + ':' + v for k,v in res.items()]
                 res = u', '.join(sorted(res, key=sort_key))
             elif datatype == 'series' and series_with_index:
                 res = res + ' [%s]'%self.format_series_index()
