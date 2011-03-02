@@ -455,6 +455,7 @@ class ResultCache(SearchQueryParser): # {{{
             valq_mkind, valq = self._matchkind(query)
 
         loc = self.field_metadata[location]['rec_index']
+        split_char = self.field_metadata[location]['is_multiple']
         for id_ in candidates:
             item = self._data[id_]
             if item is None:
@@ -465,7 +466,7 @@ class ResultCache(SearchQueryParser): # {{{
                     matches.add(id_)
                 continue
 
-            pairs = [p.strip() for p in item[loc].split(',')]
+            pairs = [p.strip() for p in item[loc].split(split_char)]
             for pair in pairs:
                 parts = pair.split(':')
                 if len(parts) != 2:
@@ -569,12 +570,13 @@ class ResultCache(SearchQueryParser): # {{{
                     return self.get_numeric_matches(location, query[1:],
                                                     candidates, val_func=vf)
 
-            # special case: identifiers. isbn is a special case within the case
-            if location == 'identifiers':
-                if original_location == 'isbn':
-                    return self.get_keypair_matches('identifiers',
-                                                    '=isbn:'+query, candidates)
-                return self.get_keypair_matches(location, query, candidates)
+                # special case: colon-separated fields such as identifiers. isbn
+                # is a special case within the case
+                if fm['is_csp']:
+                    if location == 'identifiers' and original_location == 'isbn':
+                        return self.get_keypair_matches('identifiers',
+                                                   '=isbn:'+query, candidates)
+                    return self.get_keypair_matches(location, query, candidates)
 
             # check for user categories
             if len(location) >= 2 and location.startswith('@'):

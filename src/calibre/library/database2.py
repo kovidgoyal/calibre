@@ -1273,7 +1273,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         for category in tb_cats.keys():
             cat = tb_cats[category]
             if not cat['is_category'] or cat['kind'] in ['user', 'search'] \
-                    or category in ['news', 'formats', 'identifiers']:
+                    or category in ['news', 'formats'] or cat['is_csp']:
                 continue
             # Get the ids for the item values
             if not cat['is_custom']:
