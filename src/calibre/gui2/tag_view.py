@@ -654,12 +654,13 @@ class TagTreeItem(object): # {{{
         '''
         set_to: None => advance the state, otherwise a value from TAG_SEARCH_STATES
         '''
+        basic_search_ok = self.tag.is_editable or self.tag.category == 'formats'
         if set_to is None:
             while True:
                 self.tag.state = (self.tag.state + 1)%5
                 if self.tag.state == TAG_SEARCH_STATES['mark_plus'] or \
                         self.tag.state == TAG_SEARCH_STATES['mark_minus']:
-                    if self.tag.is_editable:
+                    if basic_search_ok:
                         break
                 elif self.tag.state == TAG_SEARCH_STATES['mark_plusplus'] or\
                         self.tag.state == TAG_SEARCH_STATES['mark_minusminus']:
