@@ -6,7 +6,7 @@ __copyright__ = '2010, Kovid Goyal <kovid at kovidgoyal.net>'
 import re
 from functools import partial
 
-from PyQt4.Qt import QDialog, Qt, QListWidgetItem, QVariant, QIcon
+from PyQt4.Qt import QDialog, Qt, QListWidgetItem, QVariant
 
 from calibre.gui2.preferences.create_custom_column_ui import Ui_QCreateCustomColumn
 from calibre.gui2 import error_dialog
@@ -47,7 +47,8 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
         QDialog.__init__(self, parent)
         Ui_QCreateCustomColumn.__init__(self)
         self.setupUi(self)
-        self.setWindowIcon(QIcon(I('column.png')))
+        self.setWindowTitle(_('Create a custom column'))
+        self.heading_label.setText(_('Create a custom column'))
         # Remove help icon on title bar
         icon = self.windowIcon()
         self.setWindowFlags(self.windowFlags()&(~Qt.WindowContextHelpButtonHint))
@@ -79,6 +80,8 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
             self.datatype_changed()
             self.exec_()
             return
+        self.setWindowTitle(_('Edit a custom column'))
+        self.heading_label.setText(_('Edit a custom column'))
         self.shortcuts.setVisible(False)
         idx = parent.opt_columns.currentRow()
         if idx < 0:

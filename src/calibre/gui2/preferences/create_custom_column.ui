@@ -19,8 +19,9 @@
     <verstretch>0</verstretch>
    </sizepolicy>
   </property>
-  <property name="windowTitle">
-   <string>Create or edit custom columns</string>
+  <property name="windowIcon">
+   <iconset resource="../../../../resources/images.qrc">
+    <normaloff>:/images/column.png</normaloff>:/images/column.png</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -252,7 +253,7 @@ four values, the first of them being the empty value.</string>
       </widget>
      </item>
      <item row="1" column="0">
-      <widget class="QLabel" name="label_6">
+      <widget class="QLabel" name="heading_label">
        <property name="font">
         <font>
          <weight>75</weight>
@@ -260,7 +261,7 @@ four values, the first of them being the empty value.</string>
         </font>
        </property>
        <property name="text">
-        <string>Create or edit custom columns</string>
+        <string/>
        </property>
       </widget>
      </item>
@@ -300,6 +301,8 @@ four values, the first of them being the empty value.</string>
   <tabstop>composite_box</tabstop>
   <tabstop>button_box</tabstop>
  </tabstops>
- <resources/>
+ <resources>
+  <include location="../../../../resources/images.qrc"/>
+ </resources>
  <connections/>
 </ui>
