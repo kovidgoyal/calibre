@@ -6,8 +6,7 @@ __copyright__ = '2010, Kovid Goyal <kovid at kovidgoyal.net>'
 import re
 from functools import partial
 
-from PyQt4.QtCore import SIGNAL
-from PyQt4.Qt import QDialog, Qt, QListWidgetItem, QVariant
+from PyQt4.Qt import QDialog, Qt, QListWidgetItem, QVariant, QIcon
 
 from calibre.gui2.preferences.create_custom_column_ui import Ui_QCreateCustomColumn
 from calibre.gui2 import error_dialog
@@ -48,6 +47,7 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
         QDialog.__init__(self, parent)
         Ui_QCreateCustomColumn.__init__(self)
         self.setupUi(self)
+        self.setWindowIcon(QIcon(I('column.png')))
         # Remove help icon on title bar
         icon = self.windowIcon()
         self.setWindowFlags(self.windowFlags()&(~Qt.WindowContextHelpButtonHint))
@@ -55,8 +55,9 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
 
         self.simple_error = partial(error_dialog, self, show=True,
             show_copy_button=False)
-        self.connect(self.button_box, SIGNAL("accepted()"), self.accept)
-        self.connect(self.button_box, SIGNAL("rejected()"), self.reject)
+        self.button_box.accepted.connect(self.accept)
+        self.button_box.rejected.connect(self.reject)
+        self.shortcuts.linkActivated.connect(self.shortcut_activated)
         self.parent = parent
         self.editing_col = editing
         self.standard_colheads = standard_colheads
@@ -69,6 +70,7 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
             self.datatype_changed()
             self.exec_()
             return
+        self.shortcuts.setVisible(False)
         idx = parent.opt_columns.currentRow()
         if idx < 0:
             self.simple_error(_('No column selected'),
@@ -98,6 +100,22 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
             self.enum_box.setText(','.join(c['display'].get('enum_values', [])))
         self.datatype_changed()
         self.exec_()
+
+    def shortcut_activated(self, url):
+        which = unicode(url).split(':')[-1]
+        self.column_type_box.setCurrentIndex(10)
+        self.column_name_box.setText(which)
+        self.column_heading_box.setText({
+            'isbn':'ISBN',
+            'formats':_('Formats'),
+            'last_modified':_('Last Modified')}[which])
+        self.composite_box.setText(
+                {
+                    'isbn': '{identifiers:select(isbn)}',
+                    'formats': '{formats}',
+                    'last_modified':'''{last_modified:'format_date($, "%d %m, %Y")'}'''
+                    }[which])
+
 
     def datatype_changed(self, *args):
         try:

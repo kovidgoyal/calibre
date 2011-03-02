@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>528</width>
-    <height>212</height>
+    <width>603</width>
+    <height>292</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -24,14 +24,14 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <layout class="QGridLayout" name="gridLayout_2" rowstretch="0,0,0,0,0,0,0,0,0,0,0,0">
+    <layout class="QGridLayout" name="gridLayout_2" rowstretch="0,0,0,0,0,0,0,0,0,0,0,0,0,0,0">
      <property name="sizeConstraint">
       <enum>QLayout::SetDefaultConstraint</enum>
      </property>
      <property name="margin">
       <number>5</number>
      </property>
-     <item row="2" column="0">
+     <item row="5" column="0">
       <layout class="QGridLayout" name="gridLayout">
        <property name="margin">
         <number>0</number>
@@ -238,7 +238,7 @@ four values, the first of them being the empty value.</string>
        </item>
       </layout>
      </item>
-     <item row="11" column="0">
+     <item row="14" column="0">
       <widget class="QDialogButtonBox" name="button_box">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -261,6 +261,30 @@ four values, the first of them being the empty value.</string>
        </property>
        <property name="text">
         <string>Create or edit custom columns</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QLabel" name="shortcuts">
+       <property name="text">
+        <string>Quick create: &lt;a href=&quot;col:isbn&quot; title=&quot;Show the books' ISBN in the column&quot;&gt;ISBN&lt;/a&gt;, &lt;a href=&quot;col:formats&quot; title=&quot;Show the books' formats in the column&quot;&gt;Formats&lt;/a&gt;, &lt;a href=&quot;col:last_modified&quot; title=&quot;Show the date the books' metadata was last modified in the column&quot;&gt;Last Modified&lt;/a&gt;</string>
+       </property>
+       <property name="wordWrap">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="Line" name="line">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="0">
+      <widget class="Line" name="line_2">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
        </property>
       </widget>
      </item>
