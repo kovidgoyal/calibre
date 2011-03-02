@@ -58,6 +58,15 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
         self.button_box.accepted.connect(self.accept)
         self.button_box.rejected.connect(self.reject)
         self.shortcuts.linkActivated.connect(self.shortcut_activated)
+        text = '<p>'+_('Quick create:') + ' '
+        for col, name in [('isbn', _('ISBN')), ('formats', _('Formats')),
+                ('last_modified', _('Modified Date')), ('yesno', _('Yes/No')),
+                ('tags', _('Tags')), ('series', _('Series')), ('rating',
+                    _('Rating'))]:
+            text += ' <a href="col:%s">%s</a>,'%(col, name)
+        text = text[:-1]
+        self.shortcuts.setText(text)
+
         self.parent = parent
         self.editing_col = editing
         self.standard_colheads = standard_colheads
@@ -117,7 +126,7 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
             'tags': _('My Tags'),
             'series': _('My Series'),
             'rating': _('My Rating'),
-            'last_modified':_('Last Modified')}[which])
+            'last_modified':_('Modified Date')}[which])
         if self.composite_box.isVisible():
             self.composite_box.setText(
                 {
