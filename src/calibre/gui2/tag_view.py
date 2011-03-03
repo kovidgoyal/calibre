@@ -1588,6 +1588,9 @@ class TagsModel(QAbstractItemModel): # {{{
                     else:
                         prefix = ''
                     category = tag.category if key != 'news' else 'tag'
+                    if self.db.field_metadata[tag.category]['is_csp']:
+                        add_colon = True
+
                     if tag.name and tag.name[0] == u'\u2605': # char is a star. Assume rating
                         ans.append('%s%s:%s'%(prefix, category, len(tag.name)))
                     else:
@@ -1604,8 +1607,9 @@ class TagsModel(QAbstractItemModel): # {{{
                         n = name.replace(r'"', r'\"')
                         if name.startswith('.'):
                             n = '.' + n
-                        ans.append('%s%s:"=%s%s"'%(prefix, category,
-                                                '.' if use_prefix else '', n))
+                        ans.append('%s%s:"=%s%s%s"'%(prefix, category,
+                                                '.' if use_prefix else '', n,
+                                                ':' if add_colon else ''))
         return ans
 
     def find_item_node(self, key, txt, start_path, equals_match=False):
