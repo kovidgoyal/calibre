@@ -182,11 +182,12 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
         if not col_heading:
             return self.simple_error('', _('No column heading was provided'))
 
+        db = self.parent.gui.library_view.model().db
+        key = db.field_metadata.custom_field_prefix+col
         bad_col = False
-        colkey = '#' + col
-        if colkey in self.parent.custcols:
+        if key in self.parent.custcols:
             if not self.editing_col or \
-                    self.parent.custcols[colkey]['colnum'] != self.orig_column_number:
+                    self.parent.custcols[key]['colnum'] != self.orig_column_number:
                 bad_col = True
         if bad_col:
             return self.simple_error('', _('The lookup name %s is already used')%col)
@@ -232,8 +233,6 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
                     'list more than once').format(l[i]))
             display_dict = {'enum_values': l}
 
-        db = self.parent.gui.library_view.model().db
-        key = db.field_metadata.custom_field_prefix+col
         if not self.editing_col:
             db.field_metadata
             self.parent.custcols[key] = {
