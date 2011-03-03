@@ -181,10 +181,12 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
             is_multiple = False
         if not col_heading:
             return self.simple_error('', _('No column heading was provided'))
+
         bad_col = False
-        if col in self.parent.custcols:
+        colkey = '#' + col
+        if colkey in self.parent.custcols:
             if not self.editing_col or \
-                    self.parent.custcols[col]['colnum'] != self.orig_column_number:
+                    self.parent.custcols[colkey]['colnum'] != self.orig_column_number:
                 bad_col = True
         if bad_col:
             return self.simple_error('', _('The lookup name %s is already used')%col)
