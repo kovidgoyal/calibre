@@ -346,7 +346,7 @@ class BrowseServer(object):
         for category in sorted(categories, key=lambda x: sort_key(getter(x))):
             if len(categories[category]) == 0:
                 continue
-            if category == 'formats' or category == 'identifiers':
+            if category in ('formats', 'identifiers'):
                 continue
             meta = category_meta.get(category, None)
             if meta is None:
