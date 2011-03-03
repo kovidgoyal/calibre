@@ -341,7 +341,7 @@ from the value in the box</string>
                 <number>1</number>
                </property>
                <property name="maximum">
-                <number>990000</number>
+                <number>99000000</number>
                </property>
                <property name="value">
                 <number>1</number>

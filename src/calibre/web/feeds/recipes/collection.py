@@ -201,12 +201,14 @@ class SchedulerConfig(object):
             self.root.append(sr)
             self.write_scheduler_file()
 
-    def customize_recipe(self, urn, add_title_tag, custom_tags):
+    # 'keep_issues' argument for recipe-specific number of copies to keep
+    def customize_recipe(self, urn, add_title_tag, custom_tags, keep_issues):
         with self.lock:
             for x in list(self.iter_customization()):
                 if x.get('id') == urn:
                     self.root.remove(x)
             cs = E.recipe_customization({
+                'keep_issues' : keep_issues,
                 'id' : urn,
                 'add_title_tag' : 'yes' if add_title_tag else 'no',
                 'custom_tags' : ','.join(custom_tags),
@@ -317,16 +319,18 @@ class SchedulerConfig(object):
                     return x.get('username', ''), x.get('password', '')
 
     def get_customize_info(self, urn):
+        keep_issues = 0
         add_title_tag = True
         custom_tags = []
         with self.lock:
             for x in self.iter_customization():
                 if x.get('id', False) == urn:
+                    keep_issues = x.get('keep_issues', '0')
                     add_title_tag = x.get('add_title_tag', 'yes') == 'yes'
                     custom_tags = [i.strip() for i in x.get('custom_tags',
                         '').split(',')]
                     break
-        return add_title_tag, custom_tags
+        return add_title_tag, custom_tags, keep_issues
 
     def get_schedule_info(self, urn):
         with self.lock:

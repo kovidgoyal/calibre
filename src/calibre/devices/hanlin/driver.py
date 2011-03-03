@@ -116,6 +116,7 @@ class BOOX(HANLINV3):
     author         = 'Jesus Manuel Marinho Valcarce'
     supported_platforms = ['windows', 'osx', 'linux']
     METADATA_CACHE = '.metadata.calibre'
+    DRIVEINFO = '.driveinfo.calibre'
 
     # Ordered list of supported formats
     FORMATS     = ['epub', 'fb2', 'djvu', 'pdf', 'html', 'txt', 'rtf', 'mobi',

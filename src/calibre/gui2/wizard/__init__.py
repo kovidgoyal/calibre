@@ -51,7 +51,7 @@ class Device(object):
     @classmethod
     def set_output_format(cls):
         if cls.output_format:
-            prefs.set('output_format', cls.output_format)
+            prefs.set('output_format', cls.output_format.lower())
 
     @classmethod
     def commit(cls):

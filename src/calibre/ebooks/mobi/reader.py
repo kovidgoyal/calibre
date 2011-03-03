@@ -18,6 +18,7 @@ from calibre import xml_entity_to_unicode, CurrentDir, entity_to_unicode, \
     replace_entities
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.date import parse_date
+from calibre.utils.cleantext import clean_ascii_chars
 from calibre.ptempfile import TemporaryDirectory
 from calibre.ebooks import DRMError
 from calibre.ebooks.chardet import ENCODING_PATS
@@ -323,6 +324,7 @@ class MobiReader(object):
         self.cleanup_html()
 
         self.log.debug('Parsing HTML...')
+        self.processed_html = clean_ascii_chars(self.processed_html)
         try:
             root = html.fromstring(self.processed_html)
             if len(root.xpath('//html')) > 5:

@@ -673,6 +673,8 @@ class BrowseServer(object):
                         categories = [categories]
                     dbtags = []
                     for category in categories:
+                        if category not in ccache:
+                            continue
                         dbtag = None
                         for tag in ccache[key]:
                             if tag.name == category:

@@ -827,6 +827,24 @@ class Manifest(object):
                 return None
             return etree.fromstring(data, parser=RECOVER_PARSER)
 
+        def clean_word_doc(self, data):
+            prefixes = []
+            for match in re.finditer(r'xmlns:(\S+?)=".*?microsoft.*?"', data):
+                prefixes.append(match.group(1))
+            if prefixes:
+                self.oeb.log.warn('Found microsoft markup, cleaning...')
+                # Remove empty tags as they are not rendered by browsers
+                # but can become renderable HTML tags like <p/> if the
+                # document is parsed by an HTML parser
+                pat = re.compile(
+                        r'<(%s):([a-zA-Z0-9]+)[^>/]*?></\1:\2>'%('|'.join(prefixes)),
+                        re.DOTALL)
+                data = pat.sub('', data)
+                pat = re.compile(
+                        r'<(%s):([a-zA-Z0-9]+)[^>/]*?/>'%('|'.join(prefixes)))
+                data = pat.sub('', data)
+            return data
+
         def _parse_xhtml(self, data):
             self.oeb.log.debug('Parsing', self.href, '...')
             # Convert to Unicode and normalize line endings
@@ -884,6 +902,10 @@ class Manifest(object):
                         except etree.XMLSyntaxError:
                             data = etree.fromstring(data, parser=RECOVER_PARSER)
                 return data
+            try:
+                data = self.clean_word_doc(data)
+            except:
+                pass
             data = first_pass(data)
 
             # Handle weird (non-HTML/fragment) files
@@ -906,6 +928,7 @@ class Manifest(object):
                         oparent.remove(child)
                     parent.append(child)
                 data = nroot
+
 
             # Force into the XHTML namespace
             if not namespace(data.tag):

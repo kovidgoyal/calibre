@@ -700,7 +700,7 @@ class Device(DeviceConfig, DevicePlugin):
 
 
 
-    def open(self):
+    def open(self, library_uuid):
         time.sleep(5)
         self._main_prefix = self._card_a_prefix = self._card_b_prefix = None
         if islinux:
@@ -722,6 +722,7 @@ class Device(DeviceConfig, DevicePlugin):
                 time.sleep(7)
                 self.open_osx()
 
+        self.current_library_uuid = library_uuid
         self.post_open_callback()
 
     def post_open_callback(self):

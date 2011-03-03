@@ -81,7 +81,7 @@ Device Integration
 
 What devices does |app| support?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-At the moment |app| has full support for the SONY PRS line, Barnes & Noble Nook, Cybook Gen 3/Opus, Amazon Kindle line, Entourage Edge, Longshine ShineBook, Ectaco Jetbook, BeBook/BeBook Mini, Irex Illiad/DR1000, Foxit eSlick, PocketBook 360, Italica, eClicto, Iriver Story, Airis dBook, Hanvon N515, Binatone Readme, Teclast K3, SpringDesign Alex, Kobo Reader, various Android phones and the iPhone/iPad. In addition, using the :guilabel:`Save to disk` function you can use it with any ebook reader that exports itself as a USB disk.
+At the moment |app| has full support for the SONY PRS line, Barnes & Noble Nook line, Cybook Gen 3/Opus, Amazon Kindle line, Entourage Edge, Longshine ShineBook, Ectaco Jetbook, BeBook/BeBook Mini, Irex Illiad/DR1000, Foxit eSlick, PocketBook line, Italica, eClicto, Iriver Story, Airis dBook, Hanvon N515, Binatone Readme, Teclast K3 and clones, SpringDesign Alex, Kobo Reader, various Android phones and the iPhone/iPad. In addition, using the :guilabel:`Connect to folder` function you can use it with any ebook reader that exports itself as a USB disk.
 
 How can I help get my device supported in |app|?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -350,7 +350,7 @@ Why doesn't |app| have a column for foo?
 |app| is designed to have columns for the most frequently and widely used fields. In addition, you can add any columns you like. Columns can be added via :guilabel:`Preferences->Interface->Add your own columns`.
 Watch the tutorial `UI Power tips <http://calibre-ebook.com/demo#tutorials>`_ to learn how to create your own columns.
 
-You can also create "virtual columns" that contain combinations of the metadata from other columns. In the add column dialog choose the option "Column from other columns" and in the template enter the other column names. For example to create a virtual column containing formats or ISBN, enter ``{formats}`` for formats or ``{isbn}`` for ISBN. For more details, see :ref:`templatelangcalibre`.
+You can also create "virtual columns" that contain combinations of the metadata from other columns. In the add column dialog  use the :guilabel:`Quick create` links to easily create columns to show the book ISBN, formats or the time the book was last modified. For more details, see :ref:`templatelangcalibre`.
 
 
 Can I have a column showing the formats or the ISBN?

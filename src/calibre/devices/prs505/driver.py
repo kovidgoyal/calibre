@@ -153,9 +153,6 @@ class PRS505(USBMS):
         # updated on every connect
         self.WANTS_UPDATED_THUMBNAILS = self.settings().extra_customization[2]
 
-    def get_device_information(self, end_session=True):
-        return (self.gui_name, '', '', '')
-
     def filename_callback(self, fname, mi):
         if getattr(mi, 'application_id', None) is not None:
             base = fname.rpartition('.')[0]

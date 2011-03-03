@@ -338,7 +338,7 @@ You can build advanced search queries easily using the :guilabel:`Advanced Searc
 clicking the button |sbi|.
 
 Available fields for searching are: ``tag, title, author, publisher, series, series_index, rating, cover,
-comments, format, isbn, date, pubdate, search, size`` and custom columns. If a device is plugged in, the
+comments, format, identifiers, date, pubdate, search, size`` and custom columns. If a device is plugged in, the
 ``ondevice`` field becomes available. To find the search name for a custom column, hover your mouse over the
 column header.
 
@@ -384,6 +384,21 @@ Yes/no custom columns are searchable. Searching for ``false``, ``empty``, or ``b
 with undefined values in the column. Searching for ``true`` will find all books that do not have undefined
 values in the column. Searching for ``yes`` or ``checked`` will find all books with ``Yes`` in the column.
 Searching for ``no`` or ``unchecked`` will find all books with ``No`` in the column.
+
+Hierarchical items (e.g. A.B.C) use an extended syntax to match initial parts of the hierarchy. This is done by adding a period between the exact match indicator (=) and the text. For example, the query ``tags:=.A`` will find the tags `A` and `A.B`, but will not find the tags `AA` or `AA.B`. The query ``tags:=.A.B`` will find the tags `A.B` and `A.C`, but not the tag `A`.
+
+Identifiers (e.g., isbn, doi, lccn etc) also use an extended syntax. First, note that an identifier has the form ``key:value``, as in ``isbn:123456789``. The extended syntax permits you to specify independently which key and value to search for. Both the key and the value parts of the query can use `equality`, `contains`, or `regular expression` matches. Examples:
+
+    * ``identifiers:true`` will find books with any identifier.
+    * ``identifiers:false`` will find books with no identifier.
+    * ``identifiers:123`` will search for books with any key having a value containing `123`.
+    * ``identifiers:=123456789`` will search for books with any key having a value equal to `123456789`.
+    * ``identifiers:=isbn:`` and ``identifiers:isbn:true`` will find books with a key equal to isbn having any value
+    * ``identifiers:=isbn:false`` will find books with no key equal to isbn.
+    * ``identifiers:=isbn:123`` will find books with a key equal to isbn having a value containing `123`.
+    * ``identifiers:=isbn:=123456789`` will find books with a key equal to isbn having a value equal to `123456789`.
+    * ``identifiers:i:1`` will find books with a key containing an `i` having a value containing a `1`.
+    
 
 .. |sbi| image:: images/search_button.png
     :align: middle
@@ -436,24 +451,25 @@ Tag Browser
 .. image:: images/tag_browser.png
    :class: float-left-img
 
-The Tag Browser allows you to easily browse your collection by Author/Tags/Series/etc. If you click on any Item in the Tag Browser, for example, the Author name, Isaac Asimov, then the list of books to the right is restricted to books by that author. Clicking once again on Isaac Asimov will restrict the list of books to books not by Isaac Asimov. A third click will remove the restriction. If you hold down the Ctrl or Shift keys and click on multiple items, then restrictions based on multiple items are created. For example you could Hold Ctrl and click on the tags History and Europe for find books on European history. The Tag Browser works by constructing search expressions that are automatically entered into the Search bar. It is a good way to learn how to construct basic search expressions. 
+The Tag Browser allows you to easily browse your collection by Author/Tags/Series/etc. If you click on any item in the Tag Browser, for example the author name Isaac Asimov, then the list of books to the right is restricted to showing books by that author. You can click on category names as well. For example, clicking on "Series" will show you all books in any series.
 
-There is a search bar at the top of the Tag Browser that allows you to easily find any item in the Tag Browser. In addition, you can right click on any item and choose to hide it or rename it or open a "Manage x" dialog that allows you to manage items of that kind. For example the "Manage Authors" dialog allows you to rename authors and control how their names are sorted. 
+The first click on an item will restrict the list of books to those that contain/match the item. Continuing the above example, clicking on Isaac Asimov will show books by that author. Clicking again on the item will change what is shown, depending on whether the item has children (see sub-categories and hierarchical items below). Continuing the Isaac Asimov example, clicking again on Isaac Asimov will restrict the list of books to those not by Isaac Asimov. A third click will remove the restriction, showing all books. If you hold down the Ctrl or Shift keys and click on multiple items, then restrictions based on multiple items are created. For example you could hold Ctrl and click on the tags History and Europe for find books on European history. The Tag Browser works by constructing search expressions that are automatically entered into the Search bar. Looking at what the Tag Browser generates is a good way to learn how to construct basic search expressions. 
 
 Items in the Tag browser have their icons partially colored. The amount of color depends on the average rating of the books in that category. So for example if the books by Isaac Asimov have an average of four stars, the icon for Isaac Asimov in the Tag Browser will be 4/5th colored. You can hover your mouse over the icon to see the average rating.
 
-For convenience, you can drag and drop books from the book list to items in the Tag Browser and that item will be automatically applied to the dropped books. For example, dragging a book to Isaac Asimov will set the author of that book to Isaac Asimov or dragging it to the tag History will add the tag History to its tags.
+The outer-level items in the tag browser such as Authors and Series are called categories. You can create your own categories, called User Categories, which are useful for organizing items. For example, you can use the User Categories Editor (push the Manage User Categories button) to create a user category called Favorite Authors, then put the items for your favorites into the category. User categories can have sub-categories. For example, the user category Favorites.Authors is a sub-category of Favorites. You might also have Favorites.Series, in which case there will be two sub-categories under Favorites. Sub-categories can be created by right-clicking on a user category, choosing "Add sub-category to ...", and entering the sub-category name; or by using the User Categories Editor by entering names like the Favorites example above.
 
-The outer-level items in the tag browser such as Authors and Series are called categories. You can create your own categories, called User Categories, which are useful for organizing items. For example, you can use the user categories editor (push the Manage User Categories button) to create a user category called Favorite Authors, then put the items for your favorites into the category. User categories act like built-in categories; you can click on items to search for them. You can search for all items in a category by right-clicking on the category name and choosing "Search for books in ...".
+You can search user categories in the same way as built-in categories, by clicking on them. There are four different searches cycled through by clicking: "everything matching an item in the category" indicated by a single green plus sign, "everything matching an item in the category or its sub-categories" indicated by two green plus signs, "everything not matching an item in the category" shown by a single red minus sign, and "everything not matching an item in the category or its sub-categories" shown by two red minus signs.
 
-User categories can have sub-categories. For example, the user category Favorites.Authors is a sub-category of Favorites. You might also have Favorites.Series, in which case there will be two sub-categories under Favorites. Sub-categories can be created using Manage User Categories by entering names like the Favorites example. They can also be created by right-clicking on a user category, choosing "Add sub-category to ...", and entering the category name.
+It is also possible to create hierarchies inside some of the text categories such as tags, series, and custom columns. These hierarchies show with the small triangle, permitting the sub-items to be hidden. To use hierarchies of items in a category, you must first go to Preferences / Look & Feel and enter the category name(s) into the "Categories with hierarchical items" box. Once this is done, items in that category that contain periods will be shown using the small triangle. For example, assume you create a custom column called "Genre" and indicate that it contains hierarchical items. Once done, items such as Mystery.Thriller and Mystery.English will display as Mystery with the small triangle next to it. Clicking on the triangle will show Thriller and English as sub-items. 
 
-It is also possible to create hierarchies inside some of the built-in categories (the text categories). These hierarchies show with the small triangle permitting the sub-items to be hidden. To use hierarchies in a category, you must first go to Preferences / Look & Feel and enter the category name(s) into the "Categories with hierarchical items" box. Once this is done, items in that category that contain periods will be shown using the small triangle. For example, assume you create a custom column called "Genre" and indicate that it contains hierarchical items. Once done, items such as Mystery.Thriller and Mystery.English will display as Mystery with the small triangle next to it. Clicking on the triangle will show Thriller and English as sub-items.
+Hierarchical items (items with children) use the same four 'click-on' searches as user categories. Items that do not have children use two of the searches: "everything matching" and "everything not matching".
 
-You can drag and drop items in the Tag browser onto user categories to add them to that category.
+You can drag and drop items in the Tag browser onto user categories to add them to that category. If the source is a user category, holding the shift key while dragging will move the item to the new category. You can also drag and drop books from the book list onto items in the Tag Browser; dropping a book on an item causes that item to be automatically applied to the dropped books. For example, dragging a book onto Isaac Asimov will set the author of that book to Isaac Asimov. Dropping it onto the tag History will add the tag History to the book's tags.
+
+There is a search bar at the top of the Tag Browser that allows you to easily find any item in the Tag Browser. In addition, you can right click on any item and choose one of several operations. Some examples are to hide the it, rename it, or open a "Manage x" dialog that allows you to manage items of that kind. For example, the "Manage Authors" dialog allows you to rename authors and control how their names are sorted. 
 
 You can control how items are sorted in the Tag browser via the box at the bottom of the Tag Browser. You can choose to sort by name, average rating or popularity (popularity is the number of books with an item in your library; for example; the popularity of Isaac Asimov is the number of book sin your library by Isaac Asimov).
-
 
 Jobs
 -----
@@ -481,6 +497,8 @@ Calibre has several keyboard shortcuts to save you time and mouse movement. Thes
       - Edit the metadata of the currently selected field in the book list.
     * - :kbd:`A` 
       - Add Books
+    * - :kbd:`Shift+A` 
+      - Add Formats to the selected books
     * - :kbd:`C` 
       - Convert selected Books
     * - :kbd:`D` 

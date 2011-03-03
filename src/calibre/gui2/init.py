@@ -141,6 +141,15 @@ class Stack(QStackedWidget): # {{{
 
 # }}}
 
+class UpdateLabel(QLabel): # {{{
+
+    def __init__(self, *args, **kwargs):
+        QLabel.__init__(self, *args, **kwargs)
+
+    def contextMenuEvent(self, e):
+        pass
+# }}}
+
 class StatusBar(QStatusBar): # {{{
 
     def __init__(self, parent=None):
@@ -148,7 +157,7 @@ class StatusBar(QStatusBar): # {{{
         self.default_message = __appname__ + ' ' + _('version') + ' ' + \
                 self.get_version() + ' ' + _('created by Kovid Goyal')
         self.device_string = ''
-        self.update_label = QLabel('')
+        self.update_label = UpdateLabel('')
         self.addPermanentWidget(self.update_label)
         self.update_label.setVisible(False)
         self._font = QFont()

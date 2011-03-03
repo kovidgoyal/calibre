@@ -119,6 +119,8 @@ class JsonCodec(object):
             for item in js:
                 book = book_class(prefix, item.get('lpath', None))
                 for key in item.keys():
+                    if key == 'classifiers':
+                        key = 'identifiers'
                     meta = self.decode_metadata(key, item[key])
                     if key == 'user_metadata':
                         book.set_all_user_metadata(meta)
