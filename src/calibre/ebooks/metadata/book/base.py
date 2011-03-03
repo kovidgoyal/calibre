@@ -41,7 +41,7 @@ class SafeFormat(TemplateFormatter):
     def get_value(self, key, args, kwargs):
         try:
             key = key.lower()
-            if key != 'title_sort':
+            if key != 'title_sort' and key not in TOP_LEVEL_IDENTIFIERS:
                 key = field_metadata.search_term_to_field_key(key)
             b = self.book.get_user_metadata(key, False)
             if b and b['datatype'] == 'int' and self.book.get(key, 0) == 0:
@@ -49,7 +49,7 @@ class SafeFormat(TemplateFormatter):
             elif b and b['datatype'] == 'float' and self.book.get(key, 0.0) == 0.0:
                 v = ''
             else:
-                ign, v = self.book.format_field(key, series_with_index=False)
+                v = self.book.format_field(key, series_with_index=False)[1]
             if v is None:
                 return ''
             if v == '':
@@ -578,9 +578,15 @@ class Metadata(object):
                 res = res/2
             return (name, unicode(res), orig_res, cmeta)
 
+        # convert top-level ids into their value
+        if key in TOP_LEVEL_IDENTIFIERS:
+            fmeta = field_metadata['identifiers']
+            name = key
+            res = self.get(key, None)
+            return (name, res, res, fmeta)
+
         # Translate aliases into the standard field name
         fmkey = field_metadata.search_term_to_field_key(key)
-
         if fmkey in field_metadata and field_metadata[fmkey]['kind'] == 'field':
             res = self.get(key, None)
             fmeta = field_metadata[fmkey]
