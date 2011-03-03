@@ -11,7 +11,10 @@ from contextlib import closing
 
 from lxml import html
 
-from calibre import browser
+from PyQt4.Qt import QUrl
+
+from calibre import browser, http_url_slash_cleaner
+from calibre.gui2 import open_url
 from calibre.gui2.store import StorePlugin
 from calibre.gui2.store.basic_config import BasicStoreConfig
 from calibre.gui2.store.search_result import SearchResult
@@ -21,14 +24,22 @@ class SmashwordsStore(BasicStoreConfig, StorePlugin):
 
     def open(self, parent=None, detail_item=None, external=False):
         settings = self.get_settings()
-        aff_id = 'usernone'
+        url = 'http://www.smashwords.com/'
+
+        aff_id = '?ref=usernone'
         # Use Kovid's affiliate id 30% of the time.
         if random.randint(1, 10) in (1, 2, 3):
-            aff_id = 'kovidgoyal'
-        d = WebStoreDialog(self.gui, 'http://www.smashwords.com/?ref=%s' % aff_id, parent, detail_item)
-        d.setWindowTitle(self.name)
-        d.set_tags(settings.get(self.name + '_tags', ''))
-        d = d.exec_()
+            aff_id = '?ref=kovidgoyal'
+
+        if external or settings.get(self.name + '_open_external', False):
+            if detail_item:
+                url = url + detail_item
+            open_url(QUrl(http_url_slash_cleaner(url + aff_id)))
+        else:
+            d = WebStoreDialog(self.gui, url + aff_id, parent, detail_item)
+            d.setWindowTitle(self.name)
+            d.set_tags(settings.get(self.name + '_tags', ''))
+            d = d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
         url = 'http://www.smashwords.com/books/search?query=' + urllib2.quote(query)

@@ -10,7 +10,10 @@ from contextlib import closing
 
 from lxml import html
 
-from calibre import browser
+from PyQt4.Qt import QUrl
+
+from calibre import browser, http_url_slash_cleaner
+from calibre.gui2 import open_url
 from calibre.gui2.store import StorePlugin
 from calibre.gui2.store.basic_config import BasicStoreConfig
 from calibre.gui2.store.search_result import SearchResult
@@ -20,10 +23,17 @@ class ManyBooksStore(BasicStoreConfig, StorePlugin):
 
     def open(self, parent=None, detail_item=None, external=False):
         settings = self.get_settings()
-        d = WebStoreDialog(self.gui, 'http://manybooks.net/', parent, detail_item)
-        d.setWindowTitle(self.name)
-        d.set_tags(settings.get(self.name + '_tags', ''))
-        d = d.exec_()
+        url = 'http://manybooks.net/'
+        
+        if external or settings.get(self.name + '_open_external', False):
+            if detail_item:
+                url = url + detail_item
+            open_url(QUrl(http_url_slash_cleaner(url)))
+        else:
+            d = WebStoreDialog(self.gui, url, parent, detail_item)
+            d.setWindowTitle(self.name)
+            d.set_tags(settings.get(self.name + '_tags', ''))
+            d = d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
         # ManyBooks website separates results for title and author.

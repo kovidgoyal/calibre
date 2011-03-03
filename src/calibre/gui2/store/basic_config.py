@@ -10,6 +10,7 @@ from calibre.gui2 import gprefs
 from calibre.gui2.store.basic_config_widget_ui import Ui_Form
 
 def save_settings(config_widget):
+    gprefs[config_widget.store.name + '_open_external'] = config_widget.open_external.isChecked()
     tags = unicode(config_widget.tags.text())
     gprefs[config_widget.store.name + '_tags'] = tags
 
@@ -26,6 +27,7 @@ class BasicStoreConfigWidget(QWidget, Ui_Form):
     def load_setings(self):
         settings = self.store.get_settings()
         
+        self.open_external.setChecked(settings.get(self.store.name + '_open_external'))
         self.tags.setText(settings.get(self.store.name + '_tags', ''))
 
 class BasicStoreConfig(object):
@@ -42,6 +44,7 @@ class BasicStoreConfig(object):
     def get_settings(self):
         settings = {}
         
+        settings[self.name + '_open_external'] = gprefs.get(self.name + '_open_external', False)
         settings[self.name + '_tags'] = gprefs.get(self.name + '_tags', self.name + ', store, download')
         
         return settings

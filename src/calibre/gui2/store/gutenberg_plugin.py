@@ -9,7 +9,10 @@ from contextlib import closing
 
 from lxml import html
 
-from calibre import browser
+from PyQt4.Qt import QUrl
+
+from calibre import browser, http_url_slash_cleaner
+from calibre.gui2 import open_url
 from calibre.gui2.store import StorePlugin
 from calibre.gui2.store.basic_config import BasicStoreConfig
 from calibre.gui2.store.search_result import SearchResult
@@ -19,10 +22,18 @@ class GutenbergStore(BasicStoreConfig, StorePlugin):
         
     def open(self, parent=None, detail_item=None, external=False):
         settings = self.get_settings()
-        d = WebStoreDialog(self.gui, 'http://m.gutenberg.org/', parent, detail_item)
-        d.setWindowTitle(self.name)
-        d.set_tags(settings.get(self.name + '_tags', ''))
-        d = d.exec_()
+        url = 'http://m.gutenberg.org/'
+        ext_url = 'http://gutenberg.org/'
+
+        if external or settings.get(self.name + '_open_external', False):
+            if detail_item:
+                ext_url = ext_url + detail_item
+            open_url(QUrl(http_url_slash_cleaner(ext_url)))
+        else:
+            d = WebStoreDialog(self.gui, url, parent, detail_item)
+            d.setWindowTitle(self.name)
+            d.set_tags(settings.get(self.name + '_tags', ''))
+            d = d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
         # Gutenberg's website does not allow searching both author and title.
