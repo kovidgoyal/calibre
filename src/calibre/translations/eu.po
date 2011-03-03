@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-02-25 19:16+0000\n"
-"PO-Revision-Date: 2011-02-07 14:39+0000\n"
+"PO-Revision-Date: 2011-03-02 12:04+0000\n"
 "Last-Translator: gorkaazk <gorkaazkarate@euskalerria.org>\n"
 "Language-Team: Basque <eu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-02-26 04:46+0000\n"
+"X-Launchpad-Export-Date: 2011-03-03 04:36+0000\n"
 "X-Generator: Launchpad (build 12351)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -347,11 +347,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:868
 msgid "Customize searching"
-msgstr ""
+msgstr "Pertsonalizatu bilaketa"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:874
 msgid "Customize the way searching for books works in calibre"
-msgstr ""
+msgstr "Pertsonalizatu nola bilatu liburuak calibren"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:879
 msgid "Input Options"
@@ -1136,10 +1136,12 @@ msgstr "Komunikatu \"JetBook Mini reader\" enpresakoekin."
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/apnx.py:28
 msgid "Not a valid MOBI file. Reports identity of %s"
 msgstr ""
+"Ez da MOBI fitxategi baliagarria. Eman %s horren identitatearen abisua, "
+"mesedez."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/apnx.py:44
 msgid "Could not generate page mapping."
-msgstr ""
+msgstr "Ezin izan da orriaren mapa sortu."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:44
 msgid "Communicate with the Kindle eBook reader."
@@ -1151,7 +1153,7 @@ msgstr "Komunikatu \"Kindle 2/3 eBook reader\" enpresakoekin."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:180
 msgid "Send page number information when sending books"
-msgstr ""
+msgstr "Bidali orri kopuruaren informazioa liburuak bidaltzerakoan"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:182
 msgid ""
@@ -1164,6 +1166,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:187
 msgid "Use slower but more accurate page number generation"
 msgstr ""
+"Erabil ezazu orrialdeen zenbakiak sortzeko beste sistema motelago baina "
+"zehatzago bat"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:189
 msgid ""
@@ -1214,7 +1218,7 @@ msgstr "Jar zaitez Bq Avant horiekin kontaktuan"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:60
 msgid "Communicate with the Sweex/Kogan/Q600/Wink"
-msgstr ""
+msgstr "Kontaktatu Sweex/Kogan/Q600/Wink horrekin"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:81
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:108
@@ -1413,11 +1417,11 @@ msgstr "Komunikatu \"Sunstech EB700 reader\" enpresakoekin."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:99
 msgid "Communicate with the Stash W950 reader."
-msgstr ""
+msgstr "Kontaktatu Stash W950 reader enpresakoekin."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:111
 msgid "Communicate with the Wexler reader."
-msgstr ""
+msgstr "Kontaktatu with the Wexler reader enpresakoekin."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:282
 msgid "Unable to detect the %s disk drive. Try rebooting."

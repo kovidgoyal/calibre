@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-02-25 19:16+0000\n"
-"PO-Revision-Date: 2011-03-01 20:47+0000\n"
+"PO-Revision-Date: 2011-03-02 12:46+0000\n"
 "Last-Translator: Pieter Lexis <Unknown>\n"
 "Language-Team: Dutch <nl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-03-02 04:34+0000\n"
+"X-Launchpad-Export-Date: 2011-03-03 04:36+0000\n"
 "X-Generator: Launchpad (build 12351)\n"
 "X-Poedit-Country: NETHERLANDS\n"
 "X-Poedit-Language: Dutch\n"
@@ -227,9 +227,9 @@ msgid ""
 "linked files. This plugin is run every time you add an HTML file to the "
 "library."
 msgstr ""
-"Volg alle lokale links in een HTML-bestand en maak een ZIP-bestand met alle "
-"gelinkte bestanden. Deze plug-in wordt elke keer wanneer u een HTML-bestand "
-"aan de bibliotheek toevoegt uitgevoerd."
+"Loop alle links na in een HTML-bestand en maak een ZIP-bestand aan met alle "
+"gelinkte bestanden. Telkens wanneer U een HTML-bestand toevoegt aan de "
+"bibliotheek wordt deze plug-in geactiveerd."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:54
 msgid ""
@@ -1158,6 +1158,10 @@ msgid ""
 "book. However, this method is slower and will slow down sending files to the "
 "Kindle."
 msgstr ""
+"Paginanummering kan op twee manier gegenereerd worden. De betere generator "
+"maakt de paginanummering zoals deze in het geprinte boek opgenomen zijn, "
+"deze methode is echter langzamer en vertraagt het verzenden van bestanden "
+"naar de Kindle."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:257
 msgid "Communicate with the Kindle DX eBook reader."
@@ -1302,7 +1306,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:72
 msgid "Upload separate cover thumbnails for books (newer readers)"
-msgstr ""
+msgstr "Upload ikonen van boekomslagen afzonderlijk"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:73
 msgid ""
@@ -3378,11 +3382,11 @@ msgstr "Omslag"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:16
 msgid "Downloads metadata from Amazon"
-msgstr ""
+msgstr "Download metadata van Amazon"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/base.py:22
 msgid "Metadata source"
-msgstr ""
+msgstr "Metadata bron"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:22
 msgid "Modify images to meet Palm device size limitations."
@@ -4452,7 +4456,7 @@ msgstr "Verwijder bibliotheek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:109
 msgid "Pick a random book"
-msgstr ""
+msgstr "Kies een willekeurig boek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:128
 msgid "Library Maintenance"
@@ -4561,6 +4565,9 @@ msgid ""
 "Found no errors in your calibre library database. Do you want calibre to "
 "check if the files in your  library match the information in the database?"
 msgstr ""
+"Geen fouten gevonden in de calibre bibliotheek-database. Moet calibre "
+"controleren of de bestanden in de bibliotheek overeenkomen met informatie in "
+"de database?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:312
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:150
@@ -4584,6 +4591,7 @@ msgstr "Geen fouten gevonden"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:319
 msgid "The files in your library match the information in the database."
 msgstr ""
+"De bestanden in de bibliotheek komen overeen met de database-informatie."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:328
 msgid "No library found"
@@ -4610,6 +4618,8 @@ msgid ""
 "You cannot change libraries while using the environment variable "
 "CALIBRE_OVERRIDE_DATABASE_PATH."
 msgstr ""
+"Het is niet mogelijk van bibliotheek te veranderen wanneer de "
+"omgevingsvariabele CALIBRE_OVERRIDE_DATABASE_PATH in gebruik is."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:400
 msgid "You cannot change libraries while jobs are running."
@@ -4838,11 +4848,11 @@ msgstr "Email naar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:81
 msgid "Email to and delete from library"
-msgstr ""
+msgstr "Email naar en verwijder uit bibliotheek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:89
 msgid "(delete from library)"
-msgstr ""
+msgstr "(verwijder uit bibliotheek)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:104
 msgid "Setup email based sharing of books"
@@ -4949,7 +4959,7 @@ msgstr "metagegevens"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:102
 msgid "Downloading {0} for {1} book(s)"
-msgstr ""
+msgstr "Bezig met downloaden boek {0} van de {1} boek(en)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:126
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:187
@@ -5040,7 +5050,7 @@ msgstr "Hulp"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/next_match.py:12
 msgid "Move to next match"
-msgstr ""
+msgstr "Ga naar volgende overeenkomst"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/next_match.py:13
 msgid "Move to next highlighted match"
@@ -5863,11 +5873,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:319
 msgid "Read books"
-msgstr ""
+msgstr "Gelezen boeken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:321
 msgid "Column containing 'read' status"
-msgstr ""
+msgstr "Kolom met de 'gelezen' status"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:322
 msgid "'read book' pattern"
