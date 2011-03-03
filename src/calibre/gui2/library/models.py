@@ -616,6 +616,19 @@ class BooksModel(QAbstractTableModel): # {{{
 
         def bool_type_decorator(r, idx=-1, bool_cols_are_tristate=True):
             val = self.db.data[r][idx]
+            if isinstance(val, (str, unicode)):
+                try:
+                    val = icu_lower(val)
+                    if not val:
+                        val = None
+                    elif val in [_('yes'), _('checked'), 'true']:
+                        val = True
+                    elif val in [_('no'), _('unchecked'), 'false']:
+                        val = False
+                    else:
+                        val = bool(int(val))
+                except:
+                    val = None
             if not bool_cols_are_tristate:
                 if val is None or not val:
                     return self.bool_no_icon
@@ -676,6 +689,12 @@ class BooksModel(QAbstractTableModel): # {{{
             if datatype in ('text', 'comments', 'composite', 'enumeration'):
                 self.dc[col] = functools.partial(text_type, idx=idx,
                                                  mult=self.custom_columns[col]['is_multiple'])
+                if datatype == 'composite':
+                    csort = self.custom_columns[col]['display'].get('composite_sort', 'text')
+                    if csort == 'bool':
+                        self.dc_decorator[col] = functools.partial(
+                                    bool_type_decorator, idx=idx,
+                                    bool_cols_are_tristate=tweaks['bool_custom_columns_are_tristate'] != 'no')
             elif datatype in ('int', 'float'):
                 self.dc[col] = functools.partial(number_type, idx=idx)
             elif datatype == 'datetime':

@@ -71,6 +71,8 @@ def parse_date(date_string, assume_utc=False, as_utc=True, default=None):
     :param default: Missing fields are filled in from default. If None, the
     current date is used.
     '''
+    if not date_string:
+        return UNDEFINED_DATE
     if default is None:
         func = datetime.utcnow if assume_utc else datetime.now
         default = func().replace(hour=0, minute=0, second=0, microsecond=0,
