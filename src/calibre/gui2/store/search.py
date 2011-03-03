@@ -17,6 +17,7 @@ from PyQt4.Qt import Qt, QAbstractItemModel, QDialog, QTimer, QVariant, \
 
 from calibre import browser
 from calibre.gui2 import NONE
+from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.gui2.store.search_ui import Ui_Dialog
 from calibre.utils.config import DynamicConfig
 from calibre.utils.icu import sort_key
@@ -56,6 +57,10 @@ class SearchDialog(QDialog, Ui_Dialog):
             stores_group_layout.addWidget(cbox)
             setattr(self, 'store_check_' + x, cbox)
         stores_group_layout.addStretch()
+        
+        # Create and add the progress indicator
+        self.pi = ProgressIndicator(self, 24)
+        self.bottom_layout.insertWidget(0, self.pi)
 
         self.search.clicked.connect(self.do_search)
         self.checker.timeout.connect(self.get_results)
@@ -109,6 +114,7 @@ class SearchDialog(QDialog, Ui_Dialog):
             self.hang_check = 0
             self.checker.start(100)
             self.search_pool.start_threads()
+            self.pi.startAnimation()
     
     def save_state(self):
         self.config['store_search_geometry'] = self.saveGeometry()
@@ -151,10 +157,12 @@ class SearchDialog(QDialog, Ui_Dialog):
         if self.hang_check >= HANG_TIME:
             self.search_pool.abort()
             self.checker.stop()
+            self.pi.stopAnimation()
         else:
             # Stop the checker if not threads are running.
             if not self.search_pool.threads_running() and not self.search_pool.has_tasks():
                 self.checker.stop()
+                self.pi.stopAnimation()
         
         while self.search_pool.has_results():
             res = self.search_pool.get_result()
