@@ -459,7 +459,8 @@ class FieldMetadata(dict):
         return l
 
     def add_custom_field(self, label, table, column, datatype, colnum, name,
-                         display, is_editable, is_multiple, is_category, is_csp):
+                         display, is_editable, is_multiple, is_category,
+                         is_csp=False):
         key = self.custom_field_prefix + label
         if key in self._tb_cats:
             raise ValueError('Duplicate custom field [%s]'%(label))

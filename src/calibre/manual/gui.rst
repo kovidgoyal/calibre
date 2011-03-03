@@ -497,6 +497,8 @@ Calibre has several keyboard shortcuts to save you time and mouse movement. Thes
       - Edit the metadata of the currently selected field in the book list.
     * - :kbd:`A` 
       - Add Books
+    * - :kbd:`Shift+A` 
+      - Add Formats to the selected books
     * - :kbd:`C` 
       - Convert selected Books
     * - :kbd:`D` 

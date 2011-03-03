@@ -122,7 +122,6 @@ EQUALS_MATCH   = 1
 REGEXP_MATCH   = 2
 def _match(query, value, matchkind):
     if query.startswith('..'):
-        print 'here', query
         query = query[1:]
         prefix_match_ok = False
     else:
@@ -578,7 +577,7 @@ class ResultCache(SearchQueryParser): # {{{
 
                 # special case: colon-separated fields such as identifiers. isbn
                 # is a special case within the case
-                if fm['is_csp']:
+                if fm.get('is_csp', False):
                     if location == 'identifiers' and original_location == 'isbn':
                         return self.get_keypair_matches('identifiers',
                                                    '=isbn:'+query, candidates)

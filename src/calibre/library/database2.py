@@ -833,6 +833,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         mi.pubdate     = row[fm['pubdate']]
         mi.uuid        = row[fm['uuid']]
         mi.title_sort  = row[fm['sort']]
+        mi.metadata_last_modified = row[fm['last_modified']]
         formats = row[fm['formats']]
         if not formats:
             formats = None
@@ -1273,7 +1274,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         for category in tb_cats.keys():
             cat = tb_cats[category]
             if not cat['is_category'] or cat['kind'] in ['user', 'search'] \
-                    or category in ['news', 'formats'] or cat['is_csp']:
+                    or category in ['news', 'formats'] or cat.get('is_csp',
+                            False):
                 continue
             # Get the ids for the item values
             if not cat['is_custom']:
