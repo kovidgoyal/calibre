@@ -469,7 +469,6 @@ class BuiltinFormat_date(BuiltinFormatterFunction):
             'yyyy : the year as four digit number.')
 
     def evaluate(self, formatter, kwargs, mi, locals, val, format_string):
-        print val
         if not val:
             return ''
         try:
