@@ -54,8 +54,12 @@ class CHMReader(CHMFile):
         self._extracted = False
 
         # location of '.hhc' file, which is the CHM TOC.
-        self.root, ext = os.path.splitext(self.topics.lstrip('/'))
-        self.hhc_path = self.root + ".hhc"
+        if self.topics is None:
+            self.root, ext = os.path.splitext(self.home.lstrip('/'))
+            self.hhc_path = self.root + ".hhc"
+        else:
+            self.root, ext = os.path.splitext(self.topics.lstrip('/'))
+            self.hhc_path = self.root + ".hhc"
 
     def _parse_toc(self, ul, basedir=os.getcwdu()):
         toc = TOC(play_order=self._playorder, base_path=basedir, text='')
