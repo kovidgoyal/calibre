@@ -19,9 +19,93 @@
 #  new recipes:
 #    - title: 
 
-#    - title: "Launch of a new website that catalogues DRM free books. http://drmfree.calibre-ebook.com"
-#      description: "A growing catalogue of DRM free books. Books that you actually own after buying instead of renting."
-#      type: major
+- version: 0.7.48
+  date: 2011-03-04
+
+  new features:
+    - title: "Changes to the internal database structure used by calibre"
+      description: >
+        "These changes will allow calibre, in the future, to support book language, arbitrary book identifiers and keep track of when the metadata for a book was last modified. WARNING: Because of these changes, if you downgrade calibre versions after upgrading to 0.7.48, you will lose any changes you make to the ISBN of book entries in your calibre database, so do not downgrade unless you really have to. Also note that the first time you start calibre after this update, the startup will be slow as the database structure is being changed."
+
+    - title: "Launch of a new website that catalogues DRM free ebooks. http://drmfree.calibre-ebook.com"
+      description: "A growing catalogue of DRM free ebooks. Ebooks that you actually own after paying, instead of just renting."
+      type: major
+
+    - title: "News download: Add an option to keep at most x issues of a particular periodical in the calibre library. Use the Advanced tab in the Fetch news dialog for your news source to set this option."
+      tickets: [9168]
+
+    - title: "You can now right click on the cover in the book details panel to copy/paste a new cover."
+      tickets: [9255]
+
+    - title: "Add an entry to the add books drop down menu to easily add formats to an existing book record"
+
+    - title: "Tag browser: Clicking on a nested category now searches for the category alone. Clicking twice searches for the category and all its descendants and so on."
+      tickets: [9166, 9169]
+
+    - title: "Add a button to the Manage authors dialog to copy author sort values to author"
+
+    - title: "Decrease startup times on large libraries by using a faster algorithm to parse stored dates"
+
+    - title: "Add quick create links to easily create custom columns of commonly used types to the add custom column dialog"
+
+    - title: "Allow drag drop of images to change cover in book details window."
+      tickets: [9226]
+
+    - title: "Device susbsytem: Create a drive info file named driveinfo.calibre in the root of each device drive for USB connected devices. This file contains various useful data. API Change: The open method of the device plugins now accepts an extra parameter library_uuid which is the id of the calibre library connected tot eh device"
+
+  bug fixes:
+    - title: "Conversion pipeline: Fix regression in 0.7.46 that caused loss of some CSS information when converting HTML produced by Microsoft Word. Also remove empty tags from microsoft namespaces when parsing HTML"
+
+    - title: "Try harder to ensure that the worker log temporary files are deleted in windows"
+
+    - title: "CHM Input: Handle CHM files that dont specify a topics file."
+      tickets: [9253]
+
+    - title: "Fix regression that caused memory leak in Tag Browser. This would show up as the memory usage of calibre increasing when switching libraries."
+      tickets: [9246]
+
+    - title: "Fix bug that caused preferences->behavior to not show the output format set by the welcome wizard, and instead default to showing EPUB"
+
+    - title: "Fix bug that caused wrong books to be deleted from library if you choose 'delete from library and device' while the library is sorted by the On device column"
+
+    - title: "MOBI Input: Ignore all ASCII control codes except CR, NL and Tab."
+      tickets: [9219]
+
+  improved recipes:
+    - Credit Slips
+    - Seattle Times
+    - MacWorld
+    - Austin Statesman
+    - EPL Talk
+    - Gawker
+    - Deadspin
+
+  new recipes:
+    - title: "Thai Post Today and Daily Post"
+      author: "Chotechai P."
+
+    - title: "RBC.ru"
+      author: Chewi
+
+    - title: Helsingin Sanomat
+      author: oneillpt
+
+    - title: "LWN Weekly"
+      author: David Cavalca
+
+    - title: "New York Times Sports and Technology Blogs"
+      author: rylsfan
+
+    - title: "Historia and Buctaras"
+      author: Silviu Coatara
+
+    - title: "Buffalo News"
+      author: ChappyOnIce
+
+    - title: "Dotpod"
+      author: Federico Escalada
+
+
 
 - version: 0.7.47
   date: 2011-02-25

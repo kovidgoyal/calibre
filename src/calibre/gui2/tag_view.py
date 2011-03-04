@@ -1586,6 +1586,7 @@ class TagsModel(QAbstractItemModel): # {{{
                     else:
                         prefix = ''
                     category = tag.category if key != 'news' else 'tag'
+                    add_colon = False
                     if self.db.field_metadata[tag.category]['is_csp']:
                         add_colon = True
 

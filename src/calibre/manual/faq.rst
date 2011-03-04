@@ -336,12 +336,14 @@ With all this flexibility, it is possible to have |app| manage your author names
     * After you have changed all the authors, press the `Recalculate all author sort values` button.
     * Press OK, at which point |app| will change the authors in all your books. This can take a while.
     
-**Note**: when changing from FN LN to LN, FN, it is often the case that the values in author_sort are already in LN, FN format. If this is your case, then do the following:
-    * set the ``author_sort_copy_method`` tweak to ``copy`` as described above.
-    * restart calibre. Do not change any book metadata before doing the remaining steps.
-    * open the Manage authors dialog. Press the ``copy all author sort values to author`` button.
-    * Check through the authors to be sure you are happy. You can still press Cancel to abandon the changes. Once you press OK, there is no undo.
-    * Press OK, at which point |app| will change the authors in all your books. This can take a while.
+.. note::
+
+    When changing from FN LN to LN, FN, it is often the case that the values in author_sort are already in LN, FN format. If this is your case, then do the following:
+        * set the ``author_sort_copy_method`` tweak to ``copy`` as described above.
+        * restart calibre. Do not change any book metadata before doing the remaining steps.
+        * open the Manage authors dialog. Press the ``copy all author sort values to author`` button.
+        * Check through the authors to be sure you are happy. You can still press Cancel to abandon the changes. Once you press OK, there is no undo.
+        * Press OK, at which point |app| will change the authors in all your books. This can take a while.
 
 
 Why doesn't |app| let me store books in my own directory structure?
