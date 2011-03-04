@@ -38,17 +38,17 @@ def _c_convert_timestamp(val):
         ret = None
     if ret is None:
         return parse_date(val, as_utc=False)
-    year, month, day, hour, minutes, seconds, tzmins = ret
+    year, month, day, hour, minutes, seconds, tzsecs = ret
     return datetime(year, month, day, hour, minutes, seconds,
-                tzinfo=tzoffset(None, tzmins)).astimezone(local_tz)
+                tzinfo=tzoffset(None, tzsecs)).astimezone(local_tz)
 
 def _py_convert_timestamp(val):
     if val:
-        tzmins = 0
+        tzsecs = 0
         try:
             sign = {'+':1, '-':-1}.get(val[-6], None)
             if sign is not None:
-                tzmins = (int(val[-5:-3])*60 + int(val[-2:])) * sign
+                tzsecs = 60*((int(val[-5:-3])*60 + int(val[-2:])) * sign)
             year = int(val[0:4])
             month = int(val[5:7])
             day = int(val[8:10])
@@ -56,7 +56,7 @@ def _py_convert_timestamp(val):
             min = int(val[14:16])
             sec = int(val[17:19])
             return datetime(year, month, day, hour, min, sec,
-                    tzinfo=tzoffset(None, tzmins)).astimezone(local_tz)
+                    tzinfo=tzoffset(None, tzsecs))
         except:
             pass
         return parse_date(val, as_utc=False)

@@ -45,7 +45,7 @@ speedup_parse_date(PyObject *self, PyObject *args) {
 
     tz = orig + len - 6;
 
-    if (*tz == '+') sign = 1;
+    if (*tz == '+') sign = +1;
     if (*tz == '-') sign = -1;
     if (sign != 0) {
         // We have TZ info
@@ -60,7 +60,7 @@ speedup_parse_date(PyObject *self, PyObject *args) {
     }
 
     return Py_BuildValue("lllllll", year, month, day, hour, minute, second,
-            (tzh*60 + tzm)*sign);
+            (tzh*60 + tzm)*sign*60);
 }
 
 static PyMethodDef speedup_methods[] = {
