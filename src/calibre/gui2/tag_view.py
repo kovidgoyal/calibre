@@ -1236,8 +1236,8 @@ class TagsModel(QAbstractItemModel): # {{{
                     self.beginInsertRows(category_index, 999999, 1)
                     n = TagTreeItem(parent=node_parent, data=tag, tooltip=tt,
                                     icon_map=self.icon_state_map)
-#                    if tag.id_set is not None:
-#                        n.id_set |= tag.id_set
+                    if tag.id_set is not None:
+                        n.id_set |= tag.id_set
                     category_child_map[tag.name, tag.category] = n
                     self.endInsertRows()
                     tag.is_editable = key != 'formats' and (key == 'news' or \
