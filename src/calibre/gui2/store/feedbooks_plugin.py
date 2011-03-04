@@ -11,7 +11,7 @@ from lxml import html
 
 from PyQt4.Qt import QUrl
 
-from calibre import browser, http_url_slash_cleaner
+from calibre import browser, url_slash_cleaner
 from calibre.gui2 import open_url
 from calibre.gui2.store import StorePlugin
 from calibre.gui2.store.basic_config import BasicStoreConfig
@@ -28,7 +28,7 @@ class FeedbooksStore(BasicStoreConfig, StorePlugin):
         if external or settings.get(self.name + '_open_external', False):
             if detail_item:
                 ext_url = ext_url + detail_item
-            open_url(QUrl(http_url_slash_cleaner(ext_url)))
+            open_url(QUrl(url_slash_cleaner(ext_url)))
         else:
             d = WebStoreDialog(self.gui, url, parent, detail_item)
             d.setWindowTitle(self.name)

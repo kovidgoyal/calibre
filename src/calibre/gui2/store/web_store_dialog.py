@@ -9,7 +9,7 @@ import urllib
 
 from PyQt4.Qt import QDialog, QUrl
 
-from calibre import http_url_slash_cleaner
+from calibre import url_slash_cleaner
 from calibre.gui2.store.web_store_dialog_ui import Ui_Dialog
 
 class WebStoreDialog(QDialog, Ui_Dialog):
@@ -52,5 +52,5 @@ class WebStoreDialog(QDialog, Ui_Dialog):
         # Reduce redundant /'s because some stores
         # (Feedbooks) and server frameworks (cherrypy)
         # choke on them. 
-        url = http_url_slash_cleaner(url)
+        url = url_slash_cleaner(url)
         self.view.load(QUrl(url))

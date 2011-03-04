@@ -473,11 +473,11 @@ def as_unicode(obj, enc=preferred_encoding):
                 obj = repr(obj)
     return force_unicode(obj, enc=enc)
 
-def http_url_slash_cleaner(url):
+def url_slash_cleaner(url):
     '''
     Removes redundant /'s from url's.
     '''
-    return re.sub(r'(?<!http:)/{2,}', '/', url)
+    return re.sub(r'(?<!:)/{2,}', '/', url)
 
 def human_readable(size):
     """ Convert a size in bytes into a human readable form """
