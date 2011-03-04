@@ -65,7 +65,8 @@ class Source(Plugin):
                     parts = parts[1:] + parts[:1]
                 for tok in parts:
                     tok = pat.sub('', tok).strip()
-                    yield tok
+                    if len(tok) > 2 and tok.lower() not in ('von', ):
+                        yield tok
 
 
     def get_title_tokens(self, title):
