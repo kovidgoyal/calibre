@@ -66,8 +66,8 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         self.sort_by_author_sort.setChecked(True)
         self.author_sort_order = 1
 
-        # set up author sort calc button
         self.recalc_author_sort.clicked.connect(self.do_recalc_author_sort)
+        self.auth_sort_to_author.clicked.connect(self.do_auth_sort_to_author)
 
         if select_item is not None:
             self.table.setCurrentItem(select_item)
@@ -105,6 +105,17 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
             c = self.table.item(row, 1)
             # Sometimes trailing commas are left by changing between copy algs
             c.setText(author_to_author_sort(aut).rstrip(','))
+        self.table.setFocus(Qt.OtherFocusReason)
+        self.table.cellChanged.connect(self.cell_changed)
+
+    def do_auth_sort_to_author(self):
+        self.table.cellChanged.disconnect()
+        for row in range(0,self.table.rowCount()):
+            item = self.table.item(row, 1)
+            aus  = unicode(item.text()).strip()
+            c = self.table.item(row, 0)
+            # Sometimes trailing commas are left by changing between copy algs
+            c.setText(aus)
         self.table.setFocus(Qt.OtherFocusReason)
         self.table.cellChanged.connect(self.cell_changed)
 
