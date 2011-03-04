@@ -40,8 +40,6 @@ speedup_parse_date(PyObject *self, PyObject *args) {
 
     second = strtol(raw, &end, 10);
     if ((end - raw) != 2) Py_RETURN_NONE;
-    raw += 3;
-
 
     tz = orig + len - 6;
 
