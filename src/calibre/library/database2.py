@@ -48,7 +48,7 @@ class Tag(object):
 
     def __init__(self, name, id=None, count=0, state=0, avg=0, sort=None,
                  tooltip=None, icon=None, category=None, id_set=None):
-        self.name = name
+        self.name = self.original_name = name
         self.id = id
         self.count = count
         self.state = state
