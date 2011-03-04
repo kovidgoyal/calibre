@@ -23,10 +23,24 @@ from calibre.constants import iswindows, DEBUG
 from calibre.utils.icu import strcmp
 from calibre import prints
 
+from dateutil.tz import tzoffset
+
 global_lock = RLock()
 
 def convert_timestamp(val):
     if val:
+        try:
+            year = int(val[0:4])
+            month = int(val[5:7])
+            day = int(val[8:10])
+            hour = int(val[11:13])
+            min = int(val[14:16])
+            sec = int(val[17:19])
+            sign = val[19]
+            tzmins = (int(val[-5:-3])*60 + int(val[-2:])) * (1 if sign == '+' else -1)
+            return datetime(year, month, day, hour, min, sec, tzinfo=tzoffset(None, tzmins))
+        except:
+            pass
         return parse_date(val, as_utc=False)
     return None
 
