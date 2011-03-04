@@ -34,6 +34,7 @@ class ConnectedWorker(Thread):
         self.killed = False
         self.log_path = worker.log_path
         self.rfile = rfile
+        self.close_log_file = getattr(worker, 'close_log_file', None)
 
     def start_job(self, job):
         notification = PARALLEL_FUNCS[job.name][-1] is not None
@@ -185,6 +186,10 @@ class Server(Thread):
 
             # Remove finished jobs
             for worker in [w for w in self.workers if not w.is_alive]:
+                try:
+                    worker.close_log_file()
+                except:
+                    pass
                 self.workers.remove(worker)
                 job = worker.job
                 if worker.returncode != 0:
