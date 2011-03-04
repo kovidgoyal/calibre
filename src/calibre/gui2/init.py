@@ -262,6 +262,8 @@ class LayoutMixin(object): # {{{
         self.status_bar.initialize(self.system_tray_icon)
         self.book_details.show_book_info.connect(self.iactions['Show Book Details'].show_book_info)
         self.book_details.files_dropped.connect(self.iactions['Add Books'].files_dropped_on_book)
+        self.book_details.cover_changed.connect(self.bd_cover_changed,
+                type=Qt.QueuedConnection)
         self.book_details.open_containing_folder.connect(self.iactions['View'].view_folder_for_id)
         self.book_details.view_specific_format.connect(self.iactions['View'].view_format_by_id)
 
@@ -272,6 +274,10 @@ class LayoutMixin(object): # {{{
                     self.library_view.currentIndex())
         self.library_view.setFocus(Qt.OtherFocusReason)
 
+    def bd_cover_changed(self, id_, cdata):
+        self.library_view.model().db.set_cover(id_, cdata)
+        if self.cover_flow:
+            self.cover_flow.dataChanged()
 
     def save_layout_state(self):
         for x in ('library', 'memory', 'card_a', 'card_b'):

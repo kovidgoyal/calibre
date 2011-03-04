@@ -1135,7 +1135,7 @@ class TagsModel(QAbstractItemModel): # {{{
                 collapse_model = 'partition'
                 collapse_template = tweaks['categories_collapsed_popularity_template']
 
-        def process_one_node(category, state_map):
+        def process_one_node(category, state_map): # {{{
             collapse_letter = None
             category_index = self.createIndex(category.row(), 0, category)
             category_node = category_index.internalPointer()
@@ -1277,6 +1277,7 @@ class TagsModel(QAbstractItemModel): # {{{
                         # This id_set must not be None
                         node_parent.id_set |= tag.id_set
             return
+        # }}}
 
         for category in self.category_nodes:
             if len(category.children) > 0:
@@ -2079,6 +2080,10 @@ class TagBrowserWidget(QWidget): # {{{
                 _('Add your own categories to the Tag Browser'))
         parent.edit_categories.setStatusTip(parent.edit_categories.toolTip())
 
+        # self.leak_test_timer = QTimer(self)
+        # self.leak_test_timer.timeout.connect(self.test_for_leak)
+        # self.leak_test_timer.start(5000)
+
     def set_pane_is_visible(self, to_what):
         self.tags_view.set_pane_is_visible(to_what)
 
@@ -2139,6 +2144,14 @@ class TagBrowserWidget(QWidget): # {{{
 
     def not_found_label_timer_event(self):
         self.not_found_label.setVisible(False)
+
+    def test_for_leak(self):
+        from calibre.utils.mem import memory
+        import gc
+        before = memory()
+        self.tags_view.recount()
+        for i in xrange(3): gc.collect()
+        print 'Used memory:', memory(before)/(1024.), 'KB'
 
 # }}}
 

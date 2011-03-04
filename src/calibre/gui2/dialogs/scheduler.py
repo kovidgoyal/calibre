@@ -264,10 +264,8 @@ class Scheduler(QObject):
                 ids = list(self.recipe_model.db.tags_older_than(_('News'),
                     delta))
             except:
-                # Should never happen
+                # Happens if library is being switched
                 ids = []
-                import traceback
-                traceback.print_exc()
             if ids:
                 if ids:
                     self.delete_old_news.emit(ids)

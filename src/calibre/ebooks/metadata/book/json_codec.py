@@ -119,12 +119,12 @@ class JsonCodec(object):
             for item in js:
                 book = book_class(prefix, item.get('lpath', None))
                 for key in item.keys():
-                    if key == 'classifiers':
-                        key = 'identifiers'
                     meta = self.decode_metadata(key, item[key])
                     if key == 'user_metadata':
                         book.set_all_user_metadata(meta)
                     else:
+                        if key == 'classifiers':
+                            key = 'identifiers'
                         setattr(book, key, meta)
                 booklist.append(book)
         except:
@@ -132,6 +132,8 @@ class JsonCodec(object):
             traceback.print_exc()
 
     def decode_metadata(self, key, value):
+        if key == 'classifiers':
+            key = 'identifiers'
         if key == 'user_metadata':
             for k in value:
                 if value[k]['datatype'] == 'datetime':

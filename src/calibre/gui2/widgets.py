@@ -236,8 +236,8 @@ class ImageDropMixin(object): # {{{
 
     def contextMenuEvent(self, ev):
         cm = QMenu(self)
-        copy = cm.addAction(_('Copy Image'))
-        paste = cm.addAction(_('Paste Image'))
+        paste = cm.addAction(_('Paste Cover'))
+        copy = cm.addAction(_('Copy Cover'))
         if not QApplication.instance().clipboard().mimeData().hasImage():
             paste.setEnabled(False)
         copy.triggered.connect(self.copy_to_clipboard)
