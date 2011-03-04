@@ -69,6 +69,7 @@ if plugins is None:
                 'chmlib',
                 'chm_extra',
                 'icu',
+                'speedup',
             ] + \
                     (['winutil'] if iswindows else []) + \
                     (['usbobserver'] if isosx else []):

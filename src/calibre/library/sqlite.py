@@ -17,9 +17,9 @@ from datetime import datetime
 from functools import partial
 
 from calibre.ebooks.metadata import title_sort, author_to_author_sort
-from calibre.utils.date import parse_date, isoformat
+from calibre.utils.date import parse_date, isoformat, local_tz
 from calibre import isbytestring, force_unicode
-from calibre.constants import iswindows, DEBUG
+from calibre.constants import iswindows, DEBUG, plugins
 from calibre.utils.icu import strcmp
 from calibre import prints
 
@@ -27,22 +27,43 @@ from dateutil.tz import tzoffset
 
 global_lock = RLock()
 
-def convert_timestamp(val):
+_c_speedup = plugins['speedup'][0]
+
+def _c_convert_timestamp(val):
+    if not val:
+        return None
+    try:
+        ret = _c_speedup.parse_date(val.strip())
+    except:
+        ret = None
+    if ret is None:
+        return parse_date(val, as_utc=False)
+    year, month, day, hour, minutes, seconds, tzmins = ret
+    return datetime(year, month, day, hour, minutes, seconds,
+                tzinfo=tzoffset(None, tzmins)).astimezone(local_tz)
+
+def _py_convert_timestamp(val):
     if val:
+        tzmins = 0
         try:
+            sign = {'+':1, '-':-1}.get(val[-6], None)
+            if sign is not None:
+                tzmins = (int(val[-5:-3])*60 + int(val[-2:])) * sign
             year = int(val[0:4])
             month = int(val[5:7])
             day = int(val[8:10])
             hour = int(val[11:13])
             min = int(val[14:16])
             sec = int(val[17:19])
-            sign = val[19]
-            tzmins = (int(val[-5:-3])*60 + int(val[-2:])) * (1 if sign == '+' else -1)
-            return datetime(year, month, day, hour, min, sec, tzinfo=tzoffset(None, tzmins))
+            return datetime(year, month, day, hour, min, sec,
+                    tzinfo=tzoffset(None, tzmins)).astimezone(local_tz)
         except:
             pass
         return parse_date(val, as_utc=False)
     return None
+
+convert_timestamp = _py_convert_timestamp if _c_speedup is None else \
+                    _c_convert_timestamp
 
 def adapt_datetime(dt):
     return isoformat(dt, sep=' ')
