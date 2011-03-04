@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-02-25 19:16+0000\n"
-"PO-Revision-Date: 2011-02-17 22:33+0000\n"
+"PO-Revision-Date: 2011-03-04 02:19+0000\n"
 "Last-Translator: Chao-Hsiung Liao <j_h_liau@yahoo.com.tw>\n"
 "Language-Team: Chinese (traditional)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-02-26 04:58+0000\n"
+"X-Launchpad-Export-Date: 2011-03-04 04:43+0000\n"
 "X-Generator: Launchpad (build 12351)\n"
 "Language: zh_TW\n"
 
@@ -244,6 +244,7 @@ msgid ""
 "Textile references to images. The referenced images as well as the TXT file "
 "are added to the archive."
 msgstr ""
+"當匯入的 TXT 檔案包含 Markdown 或 Textile 參照到圖片時建立 TXTZ 壓縮檔。參照的圖片和 TXT 檔案都會加入到壓縮檔。"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:166
 msgid "Extract cover from comic files"
@@ -1066,11 +1067,11 @@ msgstr "與 JetBook Mini 閱讀器連接。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/apnx.py:28
 msgid "Not a valid MOBI file. Reports identity of %s"
-msgstr ""
+msgstr "不是有效的 MOBI 檔案。回報 %s 的識別"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/apnx.py:44
 msgid "Could not generate page mapping."
-msgstr ""
+msgstr "無法產生頁面對映。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:44
 msgid "Communicate with the Kindle eBook reader."
@@ -1082,7 +1083,7 @@ msgstr "與 Kindle 2/3 eBook 閱讀器連接。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:180
 msgid "Send page number information when sending books"
-msgstr ""
+msgstr "當傳送書籍時傳送頁碼資訊"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:182
 msgid ""
@@ -1094,7 +1095,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:187
 msgid "Use slower but more accurate page number generation"
-msgstr ""
+msgstr "使用較慢但較準確的頁碼產生方式"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:189
 msgid ""
@@ -1103,6 +1104,7 @@ msgid ""
 "book. However, this method is slower and will slow down sending files to the "
 "Kindle."
 msgstr ""
+"有兩種方式可以產生頁碼資訊。使用較準備的產生器會產生更類似紙本書籍的分頁。然而，這個方法速度較慢，並且會降低傳送檔案到 Kindle 的速度。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:257
 msgid "Communicate with the Kindle DX eBook reader."
@@ -1139,7 +1141,7 @@ msgstr "與 Bq Avant 連接"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:60
 msgid "Communicate with the Sweex/Kogan/Q600/Wink"
-msgstr ""
+msgstr "與 Sweex/Kogan/Q600/Wink 連接"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:81
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:108
@@ -1316,7 +1318,7 @@ msgstr "與 Stash W950 閱讀器連接。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:111
 msgid "Communicate with the Wexler reader."
-msgstr ""
+msgstr "與 Wexler 閱讀器連接。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:282
 msgid "Unable to detect the %s disk drive. Try rebooting."
@@ -1874,6 +1876,8 @@ msgid ""
 "by Chinese and Japanese for instance) the representation based on the "
 "current calibre interface language will be used."
 msgstr ""
+"將萬國碼字元轉譯成 ASCII 表示法。請小心使用，因為這會將萬國碼字元以 ASCII 取代。例如它會將「%s」以「Mikhail "
+"Gorbachiov」取代。同時請注意有多種表示法的字元（例如中文與日語共用的字元）會以目前的 calibre 介面語言來表示。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:414
 msgid ""
