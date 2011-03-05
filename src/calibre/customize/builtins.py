@@ -1077,11 +1077,18 @@ class StoreManyBooksStore(StoreBase):
     description = _('The best ebooks at the best price: free!')
     actual_plugin = 'calibre.gui2.store.manybooks_plugin:ManyBooksStore'
 
+class StoreOpenLibraryStore(StoreBase):
+    name = 'Open Library'
+    description = _('One web page for every book.')
+    actual_plugin = 'calibre.gui2.store.open_library_plugin:OpenLibraryStore'
+
 class StoreSmashwordsStore(StoreBase):
     name = 'Smashwords'
     description = _('Your ebook. Your way.')
     actual_plugin = 'calibre.gui2.store.smashwords_plugin:SmashwordsStore'
 
-plugins += [StoreAmazonKindleStore, StoreDieselEbooksStore, StoreEbookscomStore, StoreFeedbooksStore, StoreGutenbergStore, StoreKoboStore, StoreManyBooksStore, StoreSmashwordsStore]
+plugins += [StoreAmazonKindleStore, StoreDieselEbooksStore, StoreEbookscomStore,
+    StoreFeedbooksStore, StoreGutenbergStore, StoreKoboStore, StoreManyBooksStore,
+    StoreOpenLibraryStore, StoreSmashwordsStore]
 
 # }}}
