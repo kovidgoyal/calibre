@@ -13,7 +13,7 @@ from calibre.gui2.actions import InterfaceAction
 class StoreAction(InterfaceAction):
 
     name = 'Store'
-    action_spec = (_('Store'), None, None, None)
+    action_spec = (_('Store'), 'store.png', None, None)
     
     def genesis(self):
         self.qaction.triggered.connect(self.search)
