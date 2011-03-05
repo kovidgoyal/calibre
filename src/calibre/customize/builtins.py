@@ -1067,6 +1067,11 @@ class StoreGutenbergStore(StoreBase):
     description = _('The first producer of free ebooks.')
     actual_plugin = 'calibre.gui2.store.gutenberg_plugin:GutenbergStore'
 
+class StoreKoboStore(StoreBase):
+    name = 'Kobo'
+    description = _('eReading: anytime. anyplace.')
+    actual_plugin = 'calibre.gui2.store.kobo_plugin:KoboStore'
+
 class StoreManyBooksStore(StoreBase):
     name = 'ManyBooks'
     description = _('The best ebooks at the best price: free!')
@@ -1077,6 +1082,6 @@ class StoreSmashwordsStore(StoreBase):
     description = _('Your ebook. Your way.')
     actual_plugin = 'calibre.gui2.store.smashwords_plugin:SmashwordsStore'
 
-plugins += [StoreAmazonKindleStore, StoreDieselEbooksStore, StoreEbookscomStore, StoreFeedbooksStore, StoreGutenbergStore, StoreManyBooksStore, StoreSmashwordsStore]
+plugins += [StoreAmazonKindleStore, StoreDieselEbooksStore, StoreEbookscomStore, StoreFeedbooksStore, StoreGutenbergStore, StoreKoboStore, StoreManyBooksStore, StoreSmashwordsStore]
 
 # }}}
