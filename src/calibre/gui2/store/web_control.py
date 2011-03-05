@@ -6,11 +6,12 @@ __docformat__ = 'restructuredtext en'
 
 import os
 from cookielib import Cookie, CookieJar
+from urlparse import urlparse
 
 from PyQt4.Qt import QWebView, QWebPage, QNetworkCookieJar, QNetworkRequest, QString, \
-    QFileDialog
+    QFileDialog, QNetworkProxy
 
-from calibre import USER_AGENT, browser
+from calibre import USER_AGENT, browser, get_proxies
 from calibre.ebooks import BOOK_EXTENSIONS
 
 class NPWebView(QWebView):
@@ -22,6 +23,18 @@ class NPWebView(QWebView):
 
         self.setPage(NPWebPage())
         self.page().networkAccessManager().setCookieJar(QNetworkCookieJar())
+
+        http_proxy = get_proxies().get('http', None)
+        if http_proxy:
+            proxy_parts = urlparse(http_proxy)
+            proxy = QNetworkProxy()
+            proxy.setType(QNetworkProxy.HttpProxy)
+            proxy.setUser(proxy_parts.username)
+            proxy.setPassword(proxy_parts.password)
+            proxy.setHostName(proxy_parts.hostname)
+            proxy.setPort(proxy_parts.port)
+            self.page().networkAccessManager().setProxy(proxy)            
+        
         self.page().setForwardUnsupportedContent(True)
         self.page().unsupportedContent.connect(self.start_download)
         self.page().downloadRequested.connect(self.start_download)
