@@ -52,10 +52,23 @@
      <item>
       <widget class="QPushButton" name="recalc_author_sort">
        <property name="toolTip">
-        <string>Reset all the author sort values to a value automatically generated from the author. Exactly how this value is automatically generated can be controlled via Preferences-&gt;Advanced-&gt;Tweaks</string>
+        <string>Reset all the author sort values to a value automatically
+generated from the author. Exactly how this value is automatically
+generated can be controlled via Preferences-&gt;Advanced-&gt;Tweaks</string>
        </property>
        <property name="text">
         <string>Recalculate all author sort values</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="auth_sort_to_author">
+       <property name="toolTip">
+        <string>Copy author sort to author for every author. You typically use this button
+after changing Preferences-&gt;Advanced-&gt;Tweaks-&gt;Author sort name algorithm</string>
+       </property>
+       <property name="text">
+        <string>Copy all author sort values to author</string>
        </property>
       </widget>
      </item>

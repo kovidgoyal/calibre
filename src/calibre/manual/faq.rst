@@ -327,9 +327,23 @@ Now coming to author name sorting:
     * When recalculating the author sort values for books, |app| uses the author sort values for each individual author. Therefore, ensure that the individual author sort values are correct before recalculating the books' author sort values.
     * You can control whether the Tag Browser display authors using their names or their sort values by setting the :guilabel:`categories_use_field_for_author_name` tweak in Preferences->Tweaks
 
-With all this flexibility, it is possible to have |app| manage your author names however you like. For example, one common request is to have |app| display author names LN, FN. To do this first set the ``author_sort_copy_method`` to ``copy``. Then change all author names to LN, FN via the Manage authors dialog. Then have |app| recalculate author sort values for both authors and books as described above.
-
 Note that you can set an individual author's sort value to whatever you want using :guilabel:`Manage authors`. This is useful when dealing with names that |app| will not get right, such as complex multi-part names like Miguel de Cervantes Saavedra or when dealing with Asian names like Sun Tzu.
+
+With all this flexibility, it is possible to have |app| manage your author names however you like. For example, one common request is to have |app| display author names LN, FN. To do this, and if the note below does not apply to you, then:
+    * Set the ``author_sort_copy_method`` tweak to ``copy`` as described above.
+    * Restart calibre. Do not change any book metadata before doing the remaining steps.
+    * Change all author names to LN, FN using the Manage authors dialog.
+    * After you have changed all the authors, press the `Recalculate all author sort values` button.
+    * Press OK, at which point |app| will change the authors in all your books. This can take a while.
+    
+.. note::
+
+    When changing from FN LN to LN, FN, it is often the case that the values in author_sort are already in LN, FN format. If this is your case, then do the following:
+        * set the ``author_sort_copy_method`` tweak to ``copy`` as described above.
+        * restart calibre. Do not change any book metadata before doing the remaining steps.
+        * open the Manage authors dialog. Press the ``copy all author sort values to author`` button.
+        * Check through the authors to be sure you are happy. You can still press Cancel to abandon the changes. Once you press OK, there is no undo.
+        * Press OK, at which point |app| will change the authors in all your books. This can take a while.
 
 
 Why doesn't |app| let me store books in my own directory structure?

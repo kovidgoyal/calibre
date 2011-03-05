@@ -302,14 +302,20 @@ class ResultCache(SearchQueryParser): # {{{
             for id_ in candidates:
                 item = self._data[id_]
                 if item is None: continue
-                if item[loc] is None or item[loc] <= UNDEFINED_DATE:
+                v = item[loc]
+                if isinstance(v, (str, unicode)):
+                    v = parse_date(v)
+                if v is None or v <= UNDEFINED_DATE:
                     matches.add(item[0])
             return matches
         if query == 'true':
             for id_ in candidates:
                 item = self._data[id_]
                 if item is None: continue
-                if item[loc] is not None and item[loc] > UNDEFINED_DATE:
+                v = item[loc]
+                if isinstance(v, (str, unicode)):
+                    v = parse_date(v)
+                if v is not None and v > UNDEFINED_DATE:
                     matches.add(item[0])
             return matches
 
@@ -349,7 +355,10 @@ class ResultCache(SearchQueryParser): # {{{
         for id_ in candidates:
             item = self._data[id_]
             if item is None or item[loc] is None: continue
-            if relop(item[loc], qd, field_count):
+            v = item[loc]
+            if isinstance(v, (str, unicode)):
+                v = parse_date(v)
+            if relop(v, qd, field_count):
                 matches.add(item[0])
         return matches
 
@@ -390,7 +399,7 @@ class ResultCache(SearchQueryParser): # {{{
         elif  dt == 'rating':
             cast = (lambda x: int (x))
             adjust = lambda x: x/2
-        elif dt == 'float':
+        elif dt in ('float', 'composite'):
             cast = lambda x : float (x)
             adjust = lambda x: x
         else: # count operation
@@ -413,12 +422,15 @@ class ResultCache(SearchQueryParser): # {{{
             item = self._data[id_]
             if item is None:
                 continue
-            v = val_func(item)
+            try:
+                v = cast(val_func(item))
+            except:
+                v = 0
             if not v:
-                i = 0
+                v = 0
             else:
-                i = adjust(v)
-            if relop(i, q):
+                v = adjust(v)
+            if relop(v, q):
                 matches.add(item[0])
         return matches
 
@@ -509,6 +521,50 @@ class ResultCache(SearchQueryParser): # {{{
             query = icu_lower(query)
         return matchkind, query
 
+    def get_bool_matches(self, location, query, candidates):
+        bools_are_tristate = tweaks['bool_custom_columns_are_tristate'] != 'no'
+        loc = self.field_metadata[location]['rec_index']
+        matches = set()
+        query = icu_lower(query)
+        for id_ in candidates:
+            item = self._data[id_]
+            if item is None:
+                continue
+
+            val = item[loc]
+            if isinstance(val, (str, unicode)):
+                try:
+                    val = icu_lower(val)
+                    if not val:
+                        val = None
+                    elif val in [_('yes'), _('checked'), 'true']:
+                        val = True
+                    elif val in [_('no'), _('unchecked'), 'false']:
+                        val = False
+                    else:
+                        val = bool(int(val))
+                except:
+                    val = None
+
+            if not bools_are_tristate:
+                if val is None or not val: # item is None or set to false
+                    if query in [_('no'), _('unchecked'), 'false']:
+                        matches.add(item[0])
+                else: # item is explicitly set to true
+                    if query in [_('yes'), _('checked'), 'true']:
+                        matches.add(item[0])
+            else:
+                if val is None:
+                    if query in [_('empty'), _('blank'), 'false']:
+                        matches.add(item[0])
+                elif not val: # is not None and false
+                    if query in [_('no'), _('unchecked'), 'true']:
+                        matches.add(item[0])
+                else: # item is not None and true
+                    if query in [_('yes'), _('checked'), 'true']:
+                        matches.add(item[0])
+        return matches
+
     def get_matches(self, location, query, candidates=None,
             allow_recursion=True):
         matches = set([])
@@ -559,12 +615,19 @@ class ResultCache(SearchQueryParser): # {{{
             if location in self.field_metadata:
                 fm = self.field_metadata[location]
                 # take care of dates special case
-                if fm['datatype'] == 'datetime':
+                if fm['datatype'] == 'datetime' or \
+                        (fm['datatype'] == 'composite' and
+                         fm['display'].get('composite_sort', '') == 'date'):
                     return self.get_dates_matches(location, query.lower(), candidates)
 
                 # take care of numbers special case
-                if fm['datatype'] in ('rating', 'int', 'float'):
+                if fm['datatype'] in ('rating', 'int', 'float') or \
+                        (fm['datatype'] == 'composite' and
+                         fm['display'].get('composite_sort', '') == 'number'):
                     return self.get_numeric_matches(location, query.lower(), candidates)
+
+                if fm['datatype'] == 'bool':
+                    return self.get_bool_matches(location, query, candidates)
 
                 # take care of the 'count' operator for is_multiples
                 if fm['is_multiple'] and \
@@ -619,9 +682,6 @@ class ResultCache(SearchQueryParser): # {{{
             for i, loc in enumerate(location):
                 location[i] = db_col[loc]
 
-            # get the tweak here so that the string lookup and compare aren't in the loop
-            bools_are_tristate = tweaks['bool_custom_columns_are_tristate'] != 'no'
-
             for loc in location: # location is now an array of field indices
                 if loc == db_col['authors']:
                     ### DB stores authors with commas changed to bars, so change query
@@ -632,27 +692,6 @@ class ResultCache(SearchQueryParser): # {{{
                 for id_ in candidates:
                     item = self._data[id_]
                     if item is None: continue
-
-                    if col_datatype[loc] == 'bool': # complexity caused by the two-/three-value tweak
-                        v = item[loc]
-                        if not bools_are_tristate:
-                            if v is None or not v: # item is None or set to false
-                                if q in [_('no'), _('unchecked'), 'false']:
-                                    matches.add(item[0])
-                            else: # item is explicitly set to true
-                                if q in [_('yes'), _('checked'), 'true']:
-                                    matches.add(item[0])
-                        else:
-                            if v is None:
-                                if q in [_('empty'), _('blank'), 'false']:
-                                    matches.add(item[0])
-                            elif not v: # is not None and false
-                                if q in [_('no'), _('unchecked'), 'true']:
-                                    matches.add(item[0])
-                            else: # item is not None and true
-                                if q in [_('yes'), _('checked'), 'true']:
-                                    matches.add(item[0])
-                        continue
 
                     if not item[loc]:
                         if q == 'false':
@@ -893,6 +932,34 @@ class SortKeyGenerator(object):
         for name, fm in self.entries:
             dt = fm['datatype']
             val = record[fm['rec_index']]
+            if dt == 'composite':
+                sb = fm['display'].get('composite_sort', 'text')
+                if sb == 'date':
+                    try:
+                        val = parse_date(val)
+                        dt = 'datetime'
+                    except:
+                        pass
+                elif sb == 'number':
+                    try:
+                        val = float(val)
+                    except:
+                        val = 0.0
+                    dt = 'float'
+                elif sb == 'bool':
+                    try:
+                        v = icu_lower(val)
+                        if not val:
+                            val = None
+                        elif v in [_('yes'), _('checked'), 'true']:
+                            val = True
+                        elif v in [_('no'), _('unchecked'), 'false']:
+                            val = False
+                        else:
+                            val = bool(int(val))
+                    except:
+                        val = None
+                    dt = 'bool'
 
             if dt == 'datetime':
                 if val is None:

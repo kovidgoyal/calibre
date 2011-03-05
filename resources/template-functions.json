@@ -20,7 +20,7 @@
     "test": "def evaluate(self, formatter, kwargs, mi, locals, val, value_if_set, value_not_set):\n    if val:\n        return value_if_set\n    else:\n        return value_not_set\n", 
     "eval": "def evaluate(self, formatter, kwargs, mi, locals, template):\n    from formatter import eval_formatter\n    template = template.replace('[[', '{').replace(']]', '}')\n    return eval_formatter.safe_format(template, locals, 'EVAL', None)\n", 
     "multiply": "def evaluate(self, formatter, kwargs, mi, locals, x, y):\n    x = float(x if x else 0)\n    y = float(y if y else 0)\n    return unicode(x * y)\n", 
-    "format_date": "def evaluate(self, formatter, kwargs, mi, locals, val, format_string):\n    print val\n    if not val:\n        return ''\n    try:\n        dt = parse_date(val)\n        s = format_date(dt, format_string)\n    except:\n        s = 'BAD DATE'\n    return s\n", 
+    "format_date": "def evaluate(self, formatter, kwargs, mi, locals, val, format_string):\n    if not val:\n        return ''\n    try:\n        dt = parse_date(val)\n        s = format_date(dt, format_string)\n    except:\n        s = 'BAD DATE'\n    return s\n", 
     "capitalize": "def evaluate(self, formatter, kwargs, mi, locals, val):\n    return capitalize(val)\n", 
     "count": "def evaluate(self, formatter, kwargs, mi, locals, val, sep):\n    return unicode(len(val.split(sep)))\n", 
     "lowercase": "def evaluate(self, formatter, kwargs, mi, locals, val):\n    return val.lower()\n", 

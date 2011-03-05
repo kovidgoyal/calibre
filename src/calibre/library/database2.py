@@ -48,7 +48,7 @@ class Tag(object):
 
     def __init__(self, name, id=None, count=0, state=0, avg=0, sort=None,
                  tooltip=None, icon=None, category=None, id_set=None):
-        self.name = name
+        self.name = self.original_name = name
         self.id = id
         self.count = count
         self.state = state
@@ -833,7 +833,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         mi.pubdate     = row[fm['pubdate']]
         mi.uuid        = row[fm['uuid']]
         mi.title_sort  = row[fm['sort']]
-        mi.metadata_last_modified = row[fm['last_modified']]
+        mi.last_modified = row[fm['last_modified']]
         formats = row[fm['formats']]
         if not formats:
             formats = None
@@ -1492,6 +1492,34 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         else: # no ratings exist to sort on
             # No need for ICU here.
             categories['formats'].sort(key = lambda x:x.name)
+
+        # Now do identifiers. This works like formats
+        categories['identifiers'] = []
+        icon = None
+        if icon_map and 'identifiers' in icon_map:
+                icon = icon_map['identifiers']
+        for ident in self.conn.get('SELECT DISTINCT type FROM identifiers'):
+            ident = ident[0]
+            if ids is not None:
+                count = self.conn.get('''SELECT COUNT(book)
+                                       FROM identifiers
+                                       WHERE type="%s" AND
+                                       books_list_filter(book)'''%ident,
+                                       all=False)
+            else:
+                count = self.conn.get('''SELECT COUNT(id)
+                                       FROM identifiers
+                                       WHERE type="%s"'''%ident,
+                                       all=False)
+            if count > 0:
+                categories['identifiers'].append(Tag(ident, count=count, icon=icon,
+                                                 category='identifiers'))
+
+        if sort == 'popularity':
+            categories['identifiers'].sort(key=lambda x: x.count, reverse=True)
+        else: # no ratings exist to sort on
+            # No need for ICU here.
+            categories['identifiers'].sort(key = lambda x:x.name)
 
         #### Now do the user-defined categories. ####
         user_categories = dict.copy(self.clean_user_categories())

@@ -59,20 +59,34 @@ class OEBOutput(OutputFormatPlugin):
     def workaround_nook_cover_bug(self, root): # {{{
         cov = root.xpath('//*[local-name() = "meta" and @name="cover" and'
                 ' @content != "cover"]')
+
+        def manifest_items_with_id(id_):
+            return root.xpath('//*[local-name() = "manifest"]/*[local-name() = "item" '
+                ' and @id="%s"]'%id_)
+
         if len(cov) == 1:
-            manpath = ('//*[local-name() = "manifest"]/*[local-name() = "item" '
-                ' and @id="%s" and @media-type]')
             cov = cov[0]
-            covid = cov.get('content')
-            manifest_item = root.xpath(manpath%covid)
-            has_cover = root.xpath(manpath%'cover')
-            if len(manifest_item) == 1 and not has_cover and \
-                    manifest_item[0].get('media-type',
-                            '').startswith('image/'):
-                self.log.warn('The cover image has an id != "cover". Renaming'
-                        ' to work around Nook Color bug')
-                manifest_item = manifest_item[0]
-                manifest_item.set('id', 'cover')
-                cov.set('content', 'cover')
+            covid = cov.get('content', '')
+
+            if covid:
+                manifest_item = manifest_items_with_id(covid)
+                if len(manifest_item) == 1 and \
+                        manifest_item[0].get('media-type',
+                                '').startswith('image/'):
+                    self.log.warn('The cover image has an id != "cover". Renaming'
+                            ' to work around bug in Nook Color')
+
+                    import uuid
+                    newid = str(uuid.uuid4())
+
+                    for item in manifest_items_with_id('cover'):
+                        item.set('id', newid)
+
+                    for x in root.xpath('//*[@idref="cover"]'):
+                        x.set('idref', newid)
+
+                    manifest_item = manifest_item[0]
+                    manifest_item.set('id', 'cover')
+                    cov.set('content', 'cover')
     # }}}
 

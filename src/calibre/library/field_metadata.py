@@ -16,7 +16,8 @@ class TagsIcons(dict):
     '''
 
     category_icons = ['authors', 'series', 'formats', 'publisher', 'rating',
-                      'news',    'tags',   'custom:', 'user:',     'search',]
+                      'news',    'tags',   'custom:', 'user:',     'search',
+                      'identifiers']
     def __init__(self, icon_dict):
         for a in self.category_icons:
             if a not in icon_dict:
@@ -24,16 +25,17 @@ class TagsIcons(dict):
             self[a] = icon_dict[a]
 
 category_icon_map = {
-                    'authors'   : 'user_profile.png',
-                    'series'    : 'series.png',
-                    'formats'   : 'book.png',
-                    'publisher' : 'publisher.png',
-                    'rating'    : 'rating.png',
-                    'news'      : 'news.png',
-                    'tags'      : 'tags.png',
-                    'custom:'   : 'column.png',
-                    'user:'     : 'tb_folder.png',
-                    'search'    : 'search.png'
+                    'authors'    : 'user_profile.png',
+                    'series'     : 'series.png',
+                    'formats'    : 'book.png',
+                    'publisher'  : 'publisher.png',
+                    'rating'     : 'rating.png',
+                    'news'       : 'news.png',
+                    'tags'       : 'tags.png',
+                    'custom:'    : 'column.png',
+                    'user:'      : 'tb_folder.png',
+                    'search'     : 'search.png',
+                    'identifiers': 'id_card.png'
             }
 
 

@@ -94,7 +94,14 @@ class Worker(object):
         if not hasattr(self, 'child'): return None
         return getattr(self.child, 'pid', None)
 
+    def close_log_file(self):
+        try:
+            self._file.close()
+        except:
+            pass
+
     def kill(self):
+        self.close_log_file()
         try:
             if self.is_alive:
                 if iswindows:
