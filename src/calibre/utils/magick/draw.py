@@ -47,7 +47,7 @@ def normalize_format_name(fmt):
     return fmt
 
 def save_cover_data_to(data, path, bgcolor='#ffffff', resize_to=None,
-        return_data=False, compression_quality=90):
+        return_data=False, compression_quality=90, minify_to=None):
     '''
     Saves image in data to path, in the format specified by the path
     extension. Removes any transparency. If there is no transparency and no
@@ -60,6 +60,9 @@ def save_cover_data_to(data, path, bgcolor='#ffffff', resize_to=None,
         compression (lossless).
     :param bgcolor: The color for transparent pixels. Must be specified in hex.
     :param resize_to: A tuple (width, height) or None for no resizing
+    :param minify_to: A tuple (width, height) to specify target size. The image
+    will be resized to fit into this target size. If None the value from the
+    tweak is used.
 
     '''
     changed = False
@@ -71,11 +74,18 @@ def save_cover_data_to(data, path, bgcolor='#ffffff', resize_to=None,
     if resize_to is not None:
         img.size = (resize_to[0], resize_to[1])
         changed = True
+    owidth, oheight = img.size
+    nwidth, nheight = tweaks['maximum_cover_size'] if minify_to is None else minify_to
+    scaled, nwidth, nheight = fit_image(owidth, oheight, nwidth, nheight)
+    if scaled:
+        img.size = (nwidth, nheight)
+        changed = True
     if img.has_transparent_pixels():
         canvas = create_canvas(img.size[0], img.size[1], bgcolor)
         canvas.compose(img)
         img = canvas
         changed = True
+
     if not changed:
         changed = fmt != orig_fmt
 
