@@ -887,7 +887,7 @@ vector<char>* Reflow::render_first_page(bool use_crop_box, double x_res,
         }
 
         pg_w *= x_res/72.;
-        pg_h *= x_res/72.;
+        pg_h *= y_res/72.;
 
         int x=0, y=0;
         this->doc->displayPageSlice(out, pg, x_res, y_res, 0,
