@@ -14,7 +14,7 @@ from calibre.gui2.store.web_store_dialog_ui import Ui_Dialog
 
 class WebStoreDialog(QDialog, Ui_Dialog):
 
-    def __init__(self, gui, base_url, parent=None, detail_item=None):
+    def __init__(self, gui, base_url, parent=None, detail_url=None):
         QDialog.__init__(self, parent=parent)
         self.setupUi(self)
         
@@ -29,7 +29,7 @@ class WebStoreDialog(QDialog, Ui_Dialog):
         self.reload.clicked.connect(self.view.reload)
         self.back.clicked.connect(self.view.back)
         
-        self.go_home(detail_item=detail_item)
+        self.go_home(detail_url=detail_url)
 
     def set_tags(self, tags):
         self.view.set_tags(tags)
@@ -43,11 +43,11 @@ class WebStoreDialog(QDialog, Ui_Dialog):
     def load_finished(self, ok=True):
         self.progress.setValue(100)
     
-    def go_home(self, checked=False, detail_item=None):
-        url = self.base_url
-        if detail_item:
-            url, q, ref = url.partition('?')
-            url = url + '/' + urllib.quote(detail_item) + q + ref
+    def go_home(self, checked=False, detail_url=None):
+        if detail_url:
+            url = detail_url
+        else:
+            url = self.base_url
             
         # Reduce redundant /'s because some stores
         # (Feedbooks) and server frameworks (cherrypy)

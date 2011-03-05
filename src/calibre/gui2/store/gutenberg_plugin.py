@@ -30,7 +30,10 @@ class GutenbergStore(BasicStoreConfig, StorePlugin):
                 ext_url = ext_url + detail_item
             open_url(QUrl(url_slash_cleaner(ext_url)))
         else:
-            d = WebStoreDialog(self.gui, url, parent, detail_item)
+            detail_url = None
+            if detail_item:
+                detail_url = url + detail_item
+            d = WebStoreDialog(self.gui, url, parent, detail_url)
             d.setWindowTitle(self.name)
             d.set_tags(settings.get(self.name + '_tags', ''))
             d = d.exec_()

@@ -1052,6 +1052,11 @@ class StoreDieselEbooksStore(StoreBase):
     description = _('World Famous eBook Store.')
     actual_plugin = 'calibre.gui2.store.diesel_ebooks_plugin:DieselEbooksStore'
 
+class StoreEbookscomStore(StoreBase):
+    name = 'eBooks.com'
+    description = _('The digital bookstore.')
+    actual_plugin = 'calibre.gui2.store.ebooks_com_plugin:EbookscomStore'
+
 class StoreFeedbooksStore(StoreBase):    
     name = 'Feedbooks'
     description = _('Read anywhere.')
@@ -1072,6 +1077,6 @@ class StoreSmashwordsStore(StoreBase):
     description = _('Your ebook. Your way.')
     actual_plugin = 'calibre.gui2.store.smashwords_plugin:SmashwordsStore'
 
-plugins += [StoreAmazonKindleStore, StoreDieselEbooksStore, StoreFeedbooksStore, StoreGutenbergStore, StoreManyBooksStore, StoreSmashwordsStore]
+plugins += [StoreAmazonKindleStore, StoreDieselEbooksStore, StoreEbookscomStore, StoreFeedbooksStore, StoreGutenbergStore, StoreManyBooksStore, StoreSmashwordsStore]
 
 # }}}

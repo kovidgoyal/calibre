@@ -31,12 +31,16 @@ class SmashwordsStore(BasicStoreConfig, StorePlugin):
         if random.randint(1, 10) in (1, 2, 3):
             aff_id = '?ref=kovidgoyal'
 
+        detail_url = None
+        if detail_item:
+            detail_url = url + detail_item + aff_id
+        url = url + aff_id
+            
         if external or settings.get(self.name + '_open_external', False):
-            if detail_item:
-                url = url + detail_item
-            open_url(QUrl(url_slash_cleaner(url + aff_id)))
+            open_url(QUrl(url_slash_cleaner(detail_url if detail_url else url)))
         else:
-            d = WebStoreDialog(self.gui, url + aff_id, parent, detail_item)
+            print detail_url
+            d = WebStoreDialog(self.gui, url, parent, detail_url)
             d.setWindowTitle(self.name)
             d.set_tags(settings.get(self.name + '_tags', ''))
             d = d.exec_()

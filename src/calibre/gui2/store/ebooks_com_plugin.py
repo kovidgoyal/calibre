@@ -19,21 +19,24 @@ from calibre.gui2.store.basic_config import BasicStoreConfig
 from calibre.gui2.store.search_result import SearchResult
 from calibre.gui2.store.web_store_dialog import WebStoreDialog
 
-class DieselEbooksStore(BasicStoreConfig, StorePlugin):
-        
+class EbookscomStore(BasicStoreConfig, StorePlugin):
+
     def open(self, parent=None, detail_item=None, external=False):
         settings = self.get_settings()
-        url = 'http://www.diesel-ebooks.com/'
 
-        aff_id = '?aid=2049'
+        m_url = 'http://www.dpbolvw.net/'
+        h_click = 'click-4879827-10364500'
+        d_click = 'click-4879827-10281551'
         # Use Kovid's affiliate id 30% of the time.
         if random.randint(1, 10) in (1, 2, 3):
-            aff_id = '?aid=2053'
-
+            #h_click = ''
+            #d_click = ''
+            pass
+        
+        url = m_url + h_click
         detail_url = None
         if detail_item:
-            detail_url = url + detail_item + aff_id
-        url = url + aff_id
+            detail_url = m_url + d_click + detail_item
 
         if external or settings.get(self.name + '_open_external', False):
             open_url(QUrl(url_slash_cleaner(detail_url if detail_url else url)))
@@ -44,34 +47,40 @@ class DieselEbooksStore(BasicStoreConfig, StorePlugin):
             d = d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
-        url = 'http://www.diesel-ebooks.com/index.php?page=seek&id[m]=&id[c]=scope%253Dinventory&id[q]=' + urllib2.quote(query)
+        url = 'http://www.ebooks.com/SearchApp/SearchResults.net?term=' + urllib2.quote(query)
         
         br = browser()
         
         counter = max_results
         with closing(br.open(url, timeout=timeout)) as f:
             doc = html.fromstring(f.read())
-            for data in doc.xpath('//div[@class="item clearfix"]'):
-                data = html.fromstring(html.tostring(data))
+            for data in doc.xpath('//div[@class="book_a" or @class="book_b"]'):
                 if counter <= 0:
                     break
 
-                id = ''.join(data.xpath('div[@class="cover"]/a/@href'))
-                if not id or '/item/' not in id:
+                id = ''.join(data.xpath('.//a[1]/@href'))
+                id = id.split('=')[-1]
+                if not id:
                     continue
-                a, b, id = id.partition('/item/')
 
-                cover_url = ''.join(data.xpath('div[@class="cover"]//img/@src'))
-                if cover_url.startswith('/'):
-                    cover_url = cover_url[1:]
-                cover_url = 'http://www.diesel-ebooks.com/' + cover_url
-
-                title = ''.join(data.xpath('.//div[@class="content"]//h2/text()'))
-                author = ''.join(data.xpath('//div[@class="content"]//div[@class="author"]/a/text()'))
                 price = ''
-                price_elem = data.xpath('//td[@class="price"]/text()')
-                if price_elem:
-                    price = price_elem[0]
+                with closing(br.open('http://www.ebooks.com/ebooks/book_display.asp?IID=' + id.strip(), timeout=timeout)) as fp:
+                    pdoc = html.fromstring(fp.read())
+                    pdata = pdoc.xpath('//table[@class="price"]/tr/td/text()')
+                    if len(pdata) >= 2:
+                        price = pdata[1]
+                if not price:
+                    continue
+                
+                cover_url = ''.join(data.xpath('.//img[1]/@src'))
+                
+                title = ''
+                author = ''
+                heading_a = data.xpath('.//a[1]/text()')
+                if heading_a:
+                    title = heading_a[0]
+                if len(heading_a) >= 2:
+                    author = heading_a[1]
 
                 counter -= 1
                 
@@ -80,6 +89,6 @@ class DieselEbooksStore(BasicStoreConfig, StorePlugin):
                 s.title = title.strip()
                 s.author = author.strip()
                 s.price = price.strip()
-                s.detail_item = '/item/' + id.strip()
+                s.detail_item = '?url=http://www.ebooks.com/cj.asp?IID=' + id.strip() + '&cjsku=' + id.strip()
                 
                 yield s
