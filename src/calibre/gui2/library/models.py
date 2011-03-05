@@ -689,9 +689,8 @@ class BooksModel(QAbstractTableModel): # {{{
             if datatype in ('text', 'comments', 'composite', 'enumeration'):
                 self.dc[col] = functools.partial(text_type, idx=idx,
                                                  mult=self.custom_columns[col]['is_multiple'])
-                if datatype == 'composite':
-                    csort = self.custom_columns[col]['display'].get('composite_sort', 'text')
-                    if csort == 'bool':
+                if datatype in ['text', 'composite', 'enumeration']:
+                    if self.custom_columns[col]['display'].get('use_decorations', False):
                         self.dc_decorator[col] = functools.partial(
                                     bool_type_decorator, idx=idx,
                                     bool_cols_are_tristate=tweaks['bool_custom_columns_are_tristate'] != 'no')
