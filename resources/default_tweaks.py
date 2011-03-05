@@ -349,3 +349,9 @@ public_smtp_relay_delay = 301
 # after a restart of calibre.
 draw_hidden_section_indicators = True
 
+#: The maximum width and height for covers saved in the calibre library
+# All covers in the calibre library will be resized, preserving aspect ratio,
+# to fit within this size. This is to prevent slowdowns caused by extremely
+# large covers
+maximum_cover_size = (1200, 1600)
+
