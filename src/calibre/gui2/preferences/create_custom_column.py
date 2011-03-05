@@ -121,7 +121,7 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
         elif ct == 'enumeration':
             self.enum_box.setText(','.join(c['display'].get('enum_values', [])))
         self.datatype_changed()
-        if ct in ['text', '*text', 'composite', 'enumeration']:
+        if ct in ['text', 'composite', 'enumeration']:
             self.use_decorations.setChecked(c['display'].get('use_decorations', False))
         self.exec_()
 
@@ -163,11 +163,7 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
             getattr(self, 'composite_'+x).setVisible(col_type == 'composite')
         for x in ('box', 'default_label', 'label'):
             getattr(self, 'enum_'+x).setVisible(col_type == 'enumeration')
-        if col_type in ['text', '*text', 'composite', 'enumeration']:
-            self.use_decorations.setVisible(True)
-        else:
-            self.use_decorations.setVisible(False)
-        self.use_decorations.setChecked(False)
+        self.use_decorations.setVisible(col_type in ['text', 'composite', 'enumeration'])
 
     def accept(self):
         col = unicode(self.column_name_box.text()).strip()
@@ -240,7 +236,7 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
                     'list more than once').format(l[i]))
             display_dict = {'enum_values': l}
 
-        if col_type in ['text', '*text', 'composite', 'enumeration']:
+        if col_type in ['text', 'composite', 'enumeration']:
             display_dict['use_decorations'] = self.use_decorations.checkState()
 
         if not self.editing_col:
