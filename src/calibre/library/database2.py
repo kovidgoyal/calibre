@@ -37,7 +37,7 @@ from calibre.utils.config import prefs, tweaks, from_json, to_json
 from calibre.utils.icu import sort_key
 from calibre.utils.search_query_parser import saved_searches, set_saved_searches
 from calibre.ebooks import BOOK_EXTENSIONS, check_ebook_format
-from calibre.utils.magick.draw import minify_image, save_cover_data_to
+from calibre.utils.magick.draw import save_cover_data_to
 from calibre.utils.recycle_bin import delete_file, delete_tree
 from calibre.utils.formatter_functions import load_user_template_functions
 
@@ -951,7 +951,6 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             if callable(getattr(data, 'read', None)):
                 data = data.read()
             try:
-                data = minify_image(data, tweaks['maximum_cover_size'])
                 save_cover_data_to(data, path)
             except (IOError, OSError):
                 time.sleep(0.2)
@@ -1187,12 +1186,6 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 self.conn.execute('DELETE FROM tags WHERE id=?', (id_,))
         self.clean_custom()
         self.conn.commit()
-
-    def get_recipes(self):
-        return self.conn.get('SELECT id, script FROM feeds')
-
-    def get_recipe(self, id):
-        return self.conn.get('SELECT script FROM feeds WHERE id=?', (id,), all=False)
 
     def get_books_for_category(self, category, id_):
         ans = set([])
@@ -3113,9 +3106,5 @@ books_series_link      feeds
     def get_ids_for_custom_book_data(self, name):
         s = self.conn.get('''SELECT book FROM books_plugin_data WHERE name=?''', (name,))
         return [x[0] for x in s]
-
-    def get_custom_recipes(self):
-        for id, title, script in self.conn.get('SELECT id,title,script FROM feeds'):
-            yield id, title, script
 
 
