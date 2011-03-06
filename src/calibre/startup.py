@@ -72,47 +72,6 @@ if not _run_once:
             pass
 
     ################################################################################
-    # Improve builtin path functions to handle unicode sensibly
-
-    _abspath = os.path.abspath
-    def my_abspath(path, encoding=sys.getfilesystemencoding()):
-        '''
-        Work around for buggy os.path.abspath. This function accepts either byte strings,
-        in which it calls os.path.abspath, or unicode string, in which case it first converts
-        to byte strings using `encoding`, calls abspath and then decodes back to unicode.
-        '''
-        to_unicode = False
-        if encoding is None:
-            encoding = preferred_encoding
-        if isinstance(path, unicode):
-            path = path.encode(encoding)
-            to_unicode = True
-        res = _abspath(path)
-        if to_unicode:
-            res = res.decode(encoding)
-        return res
-
-    os.path.abspath = my_abspath
-
-    _join = os.path.join
-    def my_join(a, *p):
-        encoding=sys.getfilesystemencoding()
-        if not encoding:
-            encoding = preferred_encoding
-        p = [a] + list(p)
-        _unicode = False
-        for i in p:
-            if isinstance(i, unicode):
-                _unicode = True
-                break
-        p = [i.encode(encoding) if isinstance(i, unicode) else i for i in p]
-
-        res = _join(*p)
-        if _unicode:
-            res = res.decode(encoding)
-        return res
-
-    os.path.join = my_join
 
     def local_open(name, mode='r', bufsize=-1):
         '''

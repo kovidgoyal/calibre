@@ -12,13 +12,13 @@ from calibre.constants import DEBUG
 from calibre.utils.config import Config, StringConfig, tweaks
 from calibre.utils.formatter import TemplateFormatter
 from calibre.utils.filenames import shorten_components_to, supports_long_names, \
-                                    ascii_filename, sanitize_file_name
+                                    ascii_filename
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.ebooks.metadata.meta import set_metadata
-from calibre.constants import preferred_encoding, filesystem_encoding
+from calibre.constants import preferred_encoding
 from calibre.ebooks.metadata import fmt_sidx
 from calibre.ebooks.metadata import title_sort
-from calibre import strftime, prints
+from calibre import strftime, prints, sanitize_file_name_unicode
 
 plugboard_any_device_value = 'any device'
 plugboard_any_format_value = 'any format'
@@ -197,12 +197,10 @@ def get_components(template, mi, id, timefmt='%b %Y', length=250,
                     format_args[key] = ''
     components = SafeFormat().safe_format(template, format_args,
                                             'G_C-EXCEPTION!', mi)
-    components = [x.strip() for x in components.split('/') if x.strip()]
+    components = [x.strip() for x in components.split('/')]
     components = [sanitize_func(x) for x in components if x]
     if not components:
         components = [str(id)]
-    components = [x.encode(filesystem_encoding, 'replace') if isinstance(x,
-        unicode) else x for x in components]
     if to_lowercase:
         components = [x.lower() for x in components]
     if replace_whitespace:
@@ -247,7 +245,7 @@ def do_save_book_to_disk(id_, mi, cover, plugboards,
         return True, id_, mi.title
 
     components = get_components(opts.template, mi, id_, opts.timefmt, length,
-            ascii_filename if opts.asciiize else sanitize_file_name,
+            ascii_filename if opts.asciiize else sanitize_file_name_unicode,
             to_lowercase=opts.to_lowercase,
             replace_whitespace=opts.replace_whitespace)
     base_path = os.path.join(root, *components)
@@ -329,8 +327,6 @@ def do_save_book_to_disk(id_, mi, cover, plugboards,
 def _sanitize_args(root, opts):
     if opts is None:
         opts = config().parse()
-    if isinstance(root, unicode):
-        root = root.encode(filesystem_encoding)
     root = os.path.abspath(root)
 
     opts.template = preprocess_template(opts.template)
