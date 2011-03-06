@@ -1187,12 +1187,6 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.clean_custom()
         self.conn.commit()
 
-    def get_recipes(self):
-        return self.conn.get('SELECT id, script FROM feeds')
-
-    def get_recipe(self, id):
-        return self.conn.get('SELECT script FROM feeds WHERE id=?', (id,), all=False)
-
     def get_books_for_category(self, category, id_):
         ans = set([])
 
@@ -3112,9 +3106,5 @@ books_series_link      feeds
     def get_ids_for_custom_book_data(self, name):
         s = self.conn.get('''SELECT book FROM books_plugin_data WHERE name=?''', (name,))
         return [x[0] for x in s]
-
-    def get_custom_recipes(self):
-        for id, title, script in self.conn.get('SELECT id,title,script FROM feeds'):
-            yield id, title, script
 
 

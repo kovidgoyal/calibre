@@ -582,4 +582,22 @@ class SchemaUpgrade(object):
         # statements
         self.conn.executescript(script)
 
+    def upgrade_version_19(self):
+        recipes = self.conn.get('SELECT id,title,script FROM feeds')
+        if recipes:
+            from calibre.web.feeds.recipes import custom_recipes, \
+                    custom_recipe_filename
+            bdir = os.path.dirname(custom_recipes.file_path)
+            for id_, title, script in recipes:
+                existing = frozenset(map(int, custom_recipes.iterkeys()))
+                if id_ in existing:
+                    id_ = max(existing) + 1000
+                id_ = str(id_)
+                fname = custom_recipe_filename(id_, title)
+                custom_recipes[id_] = (title, fname)
+                if isinstance(script, unicode):
+                    script = script.encode('utf-8')
+                with open(os.path.join(bdir, fname), 'wb') as f:
+                    f.write(script)
+
 

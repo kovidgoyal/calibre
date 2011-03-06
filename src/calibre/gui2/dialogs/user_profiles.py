@@ -366,8 +366,7 @@ class %(classname)s(%(base_class)s):
 if __name__ == '__main__':
     from calibre.gui2 import is_ok_to_use_qt
     is_ok_to_use_qt()
-    from calibre.library.database2 import LibraryDatabase2
     from calibre.web.feeds.recipes.model import RecipeModel
-    d=UserProfiles(None, RecipeModel(LibraryDatabase2('/home/kovid/documents/library')))
+    d=UserProfiles(None, RecipeModel())
     d.exec_()
 

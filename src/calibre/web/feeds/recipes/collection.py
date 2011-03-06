@@ -88,18 +88,88 @@ def serialize_builtin_recipes():
 def get_builtin_recipe_collection():
     return etree.parse(P('builtin_recipes.xml')).getroot()
 
-def get_custom_recipe_collection(db):
-    from calibre.web.feeds.recipes import compile_recipe
+def get_custom_recipe_collection(*args):
+    from calibre.web.feeds.recipes import compile_recipe, \
+            custom_recipes
+    bdir = os.path.dirname(custom_recipes.file_path)
     rmap = {}
-    for id, title, recipe in db.get_custom_recipes():
+    for id_, x in custom_recipes.iteritems():
+        title, fname = x
+        recipe = os.path.join(bdir, fname)
         try:
+            recipe = open(recipe, 'rb').read().decode('utf-8')
             recipe_class = compile_recipe(recipe)
             if recipe_class is not None:
-                rmap['custom:%d'%id] = recipe_class
+                rmap['custom:%s'%id_] = recipe_class
         except:
+            import traceback
+            traceback.print_exc()
             continue
-
     return etree.fromstring(serialize_collection(rmap))
+
+
+def update_custom_recipe(id_, title, script):
+    from calibre.web.feeds.recipes import custom_recipes, \
+            custom_recipe_filename
+    id_ = str(int(id_))
+    existing = custom_recipes.get(id_, None)
+    bdir = os.path.dirname(custom_recipes.file_path)
+
+    if existing is None:
+        fname = custom_recipe_filename(id_, title)
+    else:
+        fname = existing[1]
+    if isinstance(script, unicode):
+        script = script.encode('utf-8')
+
+    custom_recipes[id_] = (title, fname)
+
+    with open(os.path.join(bdir, fname), 'wb') as f:
+        f.write(script)
+
+
+def add_custom_recipe(title, script):
+    from calibre.web.feeds.recipes import custom_recipes, \
+            custom_recipe_filename
+    id_ = 1000
+    keys = tuple(map(int, custom_recipes.iterkeys()))
+    if keys:
+        id_ = max(keys)+1
+    id_ = str(id_)
+    bdir = os.path.dirname(custom_recipes.file_path)
+
+    fname = custom_recipe_filename(id_, title)
+    if isinstance(script, unicode):
+        script = script.encode('utf-8')
+
+    custom_recipes[id_] = (title, fname)
+
+    with open(os.path.join(bdir, fname), 'wb') as f:
+        f.write(script)
+
+
+def remove_custom_recipe(id_):
+    from calibre.web.feeds.recipes import custom_recipes
+    id_ = str(int(id_))
+    existing = custom_recipes.get(id_, None)
+    if existing is not None:
+        bdir = os.path.dirname(custom_recipes.file_path)
+        fname = existing[1]
+        del custom_recipes[id_]
+        try:
+            os.remove(os.path.join(bdir, fname))
+        except:
+            pass
+
+def get_custom_recipe(id_):
+    from calibre.web.feeds.recipes import custom_recipes
+    id_ = str(int(id_))
+    existing = custom_recipes.get(id_, None)
+    if existing is not None:
+        bdir = os.path.dirname(custom_recipes.file_path)
+        fname = existing[1]
+        with open(os.path.join(bdir, fname), 'rb') as f:
+            return f.read().decode('utf-8')
 
 def get_builtin_recipe_titles():
     return [r.get('title') for r in get_builtin_recipe_collection()]

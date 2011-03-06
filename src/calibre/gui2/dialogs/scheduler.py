@@ -411,7 +411,8 @@ class Scheduler(QObject):
         QObject.__init__(self, parent)
         self.internet_connection_failed = False
         self._parent = parent
-        self.recipe_model = RecipeModel(db)
+        self.recipe_model = RecipeModel()
+        self.db = db
         self.lock = QMutex(QMutex.Recursive)
         self.download_queue = set([])
 
@@ -433,7 +434,9 @@ class Scheduler(QObject):
         self.timer.timeout.connect(self.check)
         self.oldest = gconf['oldest_news']
         QTimer.singleShot(5 * 1000, self.oldest_check)
-        self.database_changed = self.recipe_model.database_changed
+
+    def database_changed(self, db):
+        self.db = db
 
     def oldest_check(self):
         if self.oldest > 0:
@@ -549,7 +552,6 @@ class Scheduler(QObject):
 if __name__ == '__main__':
     from calibre.gui2 import is_ok_to_use_qt
     is_ok_to_use_qt()
-    from calibre.library.database2 import LibraryDatabase2
-    d = SchedulerDialog(RecipeModel(LibraryDatabase2('/home/kovid/documents/library')))
+    d = SchedulerDialog(RecipeModel())
     d.exec_()
 
