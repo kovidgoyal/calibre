@@ -21,6 +21,7 @@ from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.date import utcnow
 from calibre.utils.network import internet_connected
 from calibre.utils.ordered_dict import OrderedDict
+from calibre import force_unicode
 
 def convert_day_time_schedule(val):
     day_of_week, hour, minute = val
@@ -47,7 +48,8 @@ class DaysOfWeek(Base):
 
     def __init__(self, parent=None):
         Base.__init__(self, parent)
-        self.days = [QCheckBox(calendar.day_abbr[d], self) for d in xrange(7)]
+        self.days = [QCheckBox(force_unicode(calendar.day_abbr[d]),
+            self) for d in xrange(7)]
         for i, cb in enumerate(self.days):
             row = i % 2
             col = i // 2
