@@ -231,6 +231,7 @@ class SchedulerConfig(object):
                 if x.get('id', False) == recipe_id:
                     typ, sch, last_downloaded = self.un_serialize_schedule(x)
                     if typ == 'interval':
+                        # Prevent downloads more frequent than once an hour
                         actual_interval = now - last_downloaded
                         nominal_interval = timedelta(days=sch)
                         if abs(actual_interval - nominal_interval) < \
@@ -264,11 +265,16 @@ class SchedulerConfig(object):
     def serialize_schedule(self, typ, schedule):
         s = E.schedule({'type':typ})
         if typ == 'interval':
-            if schedule < 0.1:
-                schedule = 1/24.
+            if schedule < 0.04:
+                schedule = 0.04
             text = '%f'%schedule
         elif typ == 'day/time':
             text = '%d:%d:%d'%schedule
+        elif typ in ('days_of_week', 'days_of_month'):
+            dw = ','.join(map(str, map(int, schedule[0])))
+            text = '%s:%d:%d'%(dw, schedule[1], schedule[2])
+        else:
+            raise ValueError('Unknown schedule type: %r'%typ)
         s.text = text
         return s
 
@@ -280,6 +286,11 @@ class SchedulerConfig(object):
                     sch = float(sch)
                 elif typ == 'day/time':
                     sch = list(map(int, sch.split(':')))
+                elif typ in ('days_of_week', 'days_of_month'):
+                    parts = sch.split(':')
+                    days = list(map(int, [x.strip() for x in
+                        parts[0].split(',')]))
+                    sch = [days, int(parts[1]), int(parts[2])]
                 return typ, sch, parse_date(recipe.get('last_downloaded'))
 
     def recipe_needs_to_be_downloaded(self, recipe):
@@ -287,19 +298,48 @@ class SchedulerConfig(object):
             typ, sch, ld = self.un_serialize_schedule(recipe)
         except:
             return False
+
+        def is_time(now, hour, minute):
+            return now.hour > hour or \
+                    (now.hour == hour and now.minute >= minute)
+
+        def is_weekday(day, now):
+            return day < 0 or day > 6 or \
+                    day == calendar.weekday(now.year, now.month, now.day)
+
+        def was_downloaded_already_today(ld_local, now):
+            return ld_local.date() == now.date()
+
         if typ == 'interval':
             return utcnow() - ld > timedelta(sch)
         elif typ == 'day/time':
             now = nowf()
             ld_local = ld.astimezone(tzlocal())
             day, hour, minute = sch
+            return  is_weekday(day, now) and \
+                    not was_downloaded_already_today(ld_local, now) and \
+                    is_time(now, hour, minute)
+        elif typ == 'days_of_week':
+            now = nowf()
+            ld_local = ld.astimezone(tzlocal())
+            days, hour, minute = sch
+            have_day = False
+            for day in days:
+                if is_weekday(day, now):
+                    have_day = True
+                    break
+            return  have_day and \
+                    not was_downloaded_already_today(ld_local, now) and \
+                    is_time(now, hour, minute)
+        elif typ == 'days_of_month':
+            now = nowf()
+            ld_local = ld.astimezone(tzlocal())
+            days, hour, minute = sch
+            have_day = now.day in days
+            return  have_day and \
+                    not was_downloaded_already_today(ld_local, now) and \
+                    is_time(now, hour, minute)
 
-            is_today = day < 0 or day > 6 or \
-                    day == calendar.weekday(now.year, now.month, now.day)
-            is_time = now.hour > hour or \
-                    (now.hour == hour and now.minute >= minute)
-            was_downloaded_already_today = ld_local.date() == now.date()
-            return is_today and not was_downloaded_already_today and is_time
         return False
 
     def set_account_info(self, urn, un, pw):
