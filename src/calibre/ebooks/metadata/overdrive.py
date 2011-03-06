@@ -24,32 +24,29 @@ cover_url_cache = {}
 cache_lock = RLock()
 base_url = 'http://search.overdrive.com/'
 
-class ContentReserve(Source):
 
-    def create_query(self, title=None, authors=None, identifiers={}):
-        q = ''
-        if title or authors:
-            def build_term(prefix, parts):
-                return ' '.join('in'+prefix + ':' + x for x in parts)
-            title_tokens = list(self.get_title_tokens(title))
-            if title_tokens:
-                q += build_term('title', title_tokens)
-            author_tokens = self.get_author_tokens(authors,
-                    only_first_author=True)
-            if author_tokens:
-                q += ('+' if q else '') + build_term('author',
-                        author_tokens)
 
-        if isinstance(q, unicode):
-            q = q.encode('utf-8')
-        if not q:
-            return None
-        return BASE_URL+urlencode({
-            'q':q,
-            'max-results':20,
-            'start-index':1,
-            'min-viewability':'none',
-            })
+def create_query(self, title=None, authors=None, identifiers={}):
+    q = ''
+    if title or authors:
+        def build_term(prefix, parts):
+            return ' '.join('in'+prefix + ':' + x for x in parts)
+        title_tokens = list(self.get_title_tokens(title))
+        if title_tokens:
+            q += build_term('title', title_tokens)
+        author_tokens = self.get_author_tokens(authors,
+                only_first_author=True)
+        if author_tokens:
+            q += ('+' if q else '') + build_term('author',
+                    author_tokens)
+
+    if isinstance(q, unicode):
+        q = q.encode('utf-8')
+    if not q:
+        return None
+    return BASE_URL+urlencode({
+        'q':q,
+        })
 
 
 def get_base_referer():
@@ -82,9 +79,20 @@ def format_results(reserveid, od_title, subtitle, series, publisher, creators, t
 def overdrive_search(br, q, title, author):
     q_query = q+'default.aspx/SearchByKeyword'
     q_init_search = q+'SearchResults.aspx'
-
+    # get first author as string - convert this to a proper cleanup function later
+    s = Source(None)
+    print "printing list with string:"
+    print list(s.get_author_tokens(['J. R. R. Tolkien']))
+    print "printing list with author "+str(author)+":"
+    print list(s.get_author_tokens(author))
+    author = list(s.get_author_tokens(author))
+    for token in author:
+        print "cleaned up author is: "+str(token)
+    author_q = '+'.join(author)
+    #author_q = separator.join(for x in author)
     # query terms
-    author_q = re.sub('\s', '+', author)
+    #author_q = re.sub('\s', '+', author_q)
+    print "final author query is "+str(author_q)
     q_xref = q+'SearchResults.svc/GetResults?iDisplayLength=10&sSearch='+author_q
     query = '{"szKeyword":"'+title+'"}'
 
@@ -231,9 +239,6 @@ def get_cover_url(isbn, title, author, br):
     print "isbn is "+str(isbn)
     print "title is "+str(title)
     print "author is "+str(author[0])
-    cleanup = ContentReserve()
-    query = cleanup.create_query(author, title)
-    print "cleansed query is "+str(author)
 
     with cache_lock:
         ans = cover_url_cache.get(isbn, None)
@@ -386,8 +391,8 @@ def main(args=sys.argv):
     for isbn, title, author in [
             #('0899661343', 'On the Road', ['Jack Kerouac']), # basic test, no series, single author
             #('9780061952838', 'The Fellowship of the Ring', ['J. R. R. Tolkien']), # Series test, multi-author
-            #('9780061952838', 'The Two Towers', ['J. R. R. Tolkien']), # Series test, book 2
-            ('9780345505057', 'Deluge', ['Anne McCaffrey']) # Multiple authors
+            ('9780061952838', 'The Two Towers', ['J. R. R. Tolkien']), # Series test, book 2
+            #('9780345505057', 'Deluge', ['Anne McCaffrey']) # Multiple authors
             #('', 'Deluge', ['Anne McCaffrey']) # Empty ISBN
             #(None, 'On the Road', ['Jack Kerouac']) # Nonetype ISBN
             ]:
