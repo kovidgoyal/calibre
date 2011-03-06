@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-03-04 20:51+0000\n"
-"PO-Revision-Date: 2011-03-05 00:35+0000\n"
-"Last-Translator: Samuel Solorzano <Unknown>\n"
+"PO-Revision-Date: 2011-03-05 10:38+0000\n"
+"Last-Translator: Jellby <Unknown>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-03-05 04:47+0000\n"
+"X-Launchpad-Export-Date: 2011-03-06 04:48+0000\n"
 "X-Generator: Launchpad (build 12351)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:527
@@ -4412,25 +4412,27 @@ msgstr "Añadir a partir de ISBN"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:68
 msgid "Add files to selected book records"
-msgstr ""
+msgstr "Añadir ficheros a los registros de libros seleccionados"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:69
 msgid "Shift+A"
-msgstr ""
+msgstr "Mayús+A"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:89
 msgid "Are you sure"
-msgstr ""
+msgstr "¿Está seguro?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:90
 msgid ""
 "Are you sure you want to add the same files to all %d books? If the "
 "formatalready exists for a book, it will be replaced."
 msgstr ""
+"¿Está seguro de que desea agregar los mismos ficheros a todos los %d libros? "
+"Si el formato ya existe para algún libro, será reemplazado."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:96
 msgid "Select book files"
-msgstr ""
+msgstr "Seleccione los ficheros"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:167
 msgid "Adding"
@@ -4451,7 +4453,7 @@ msgstr "Libros soportados"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:271
 msgid "Select books"
-msgstr ""
+msgstr "Seleccione los libros"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:308
 msgid "Merged some books"
@@ -5794,12 +5796,12 @@ msgstr "Ninguno"
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:157
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:239
 msgid "Paste Cover"
-msgstr ""
+msgstr "Pegar portada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:158
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:240
 msgid "Copy Cover"
-msgstr ""
+msgstr "Copiar portada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:466
 msgid "Double-click to open Book Details window"
@@ -8450,6 +8452,10 @@ msgid ""
 "generated from the author. Exactly how this value is automatically\n"
 "generated can be controlled via Preferences->Advanced->Tweaks"
 msgstr ""
+"Restablecer todos los órdenes de autor al valor generado\n"
+"automáticamente a partir del autor. La manera precisa en\n"
+"que este valor se genera puede controlarse en\n"
+"Preferencias->Avanzada->Ajustes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:80
 msgid "Recalculate all author sort values"
@@ -8460,10 +8466,13 @@ msgid ""
 "Copy author sort to author for every author. You typically use this button\n"
 "after changing Preferences->Advanced->Tweaks->Author sort name algorithm"
 msgstr ""
+"Copiar el orden de autor en el autor para todos los autores.\n"
+"Lo normal es usar este botón después de modificar\n"
+"Preferencias->Avanzada->Ajustes->Algoritmo de orden de autor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:83
 msgid "Copy all author sort values to author"
-msgstr ""
+msgstr "Copiar todos valores de orden de autor a autor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:62
 msgid "Author Sort"
@@ -9855,10 +9864,12 @@ msgid ""
 "Maximum number of copies (issues) of this recipe to keep.  Set to 0 to keep "
 "all (disable)."
 msgstr ""
+"Máximo número de copias (ejemplares) de esta receta que desea mantener. "
+"Establezca el valor 0 para mantenerlos todos (desactivado)."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:241
 msgid "&Keep at most:"
-msgstr ""
+msgstr "&Conservar a lo sumo:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:242
 msgid ""
@@ -9870,14 +9881,22 @@ msgid ""
 "<p>Also, the setting for deleting periodicals older than a number of days, "
 "below, takes priority over this setting."
 msgstr ""
+"<p>Cuando se activa, esta opción hace que calibre mantenga, a lo sumo, el "
+"número especificado de ejemplares de esta publicación. Cada vez que se "
+"descarga un nuevo ejemplar, se borra el más antiguo si el número total es "
+"mayor de este número.\n"
+"<p>Tenga en cuenta que esta función sólo tiene efecto si ha marcado la "
+"opción de añadir el título como etiqueta.\n"
+"<p>Además, la opción para borrar publicaciones con cierta antigüedad tiene "
+"prioridad sobre esta función."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:245
 msgid "all issues"
-msgstr ""
+msgstr "todos los ejemplares"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:246
 msgid " issues"
-msgstr ""
+msgstr " ejemplares"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:247
 msgid "&Advanced"
@@ -9889,7 +9908,7 @@ msgstr "&Descargar ahora"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:249
 msgid "&Delete downloaded news older than:"
-msgstr ""
+msgstr "&Eliminar las noticias descargadas más antiguas que:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:250
 msgid ""
@@ -9899,10 +9918,15 @@ msgid ""
 "periodical that are kept by clicking the Advanced tab for that periodical "
 "above."
 msgstr ""
+"<p>Borrar las noticias descargadas con una antigüedad mayor que el número de "
+"días especificado. Establézcalo a 0 para desactivar la función.\n"
+"<p>También puede controlar el máximo número de ejemplares de una misma "
+"publicación que desea mantener, pulsando en la pestaña «Avanzada» para la "
+"publicación."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:252
 msgid "never delete"
-msgstr ""
+msgstr "No eliminar nunca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:254
 msgid "Download all scheduled news sources at once"
@@ -11665,11 +11689,11 @@ msgstr "Columna generada a partir de otras columnas"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:50
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:51
 msgid "Create a custom column"
-msgstr ""
+msgstr "Crear una columna personalizada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:62
 msgid "Quick create:"
-msgstr ""
+msgstr "Creación rápida:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:64
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:142
@@ -11687,7 +11711,7 @@ msgstr "Texto"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:86
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:87
 msgid "Edit a custom column"
-msgstr ""
+msgstr "Modificar una columna personalizada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:91
 msgid "No column selected"
@@ -11707,11 +11731,11 @@ msgstr "Mis etiquetas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:140
 msgid "My Series"
-msgstr ""
+msgstr "Mi serie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:141
 msgid "My Rating"
-msgstr ""
+msgstr "Mi calificación"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:168
 msgid "No lookup name was provided"
@@ -11787,7 +11811,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:180
 msgid "&Column type"
-msgstr ""
+msgstr "Tipo de &columna"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:181
 msgid "What kind of information will be kept in the column."
@@ -11844,11 +11868,11 @@ msgstr "Valor predeterminado: (nada)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:195
 msgid "&Sort/search column by"
-msgstr ""
+msgstr "&Buscar/ordenar columna por"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:196
 msgid "How this column should handled in the GUI when sorting and searching"
-msgstr ""
+msgstr "Cómo debe manejarse esta columna en la interfaz al ordenar o buscar."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:197
 msgid "Values"
@@ -16421,6 +16445,8 @@ msgid ""
 "raw_field(name) -- returns the metadata field named by name without applying "
 "any formatting."
 msgstr ""
+"raw_field(nombre) -- devuelve el campo de metadatos llamado «nombre» sin "
+"aplicar ningún formato."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:246
 msgid ""
@@ -16569,6 +16595,9 @@ msgid ""
 "with the items being \"id:value\". Find the pair with theid equal to key, "
 "and return the corresponding value."
 msgstr ""
+"select(val, clave) -- interpreta el valor como una lista de valores "
+"separados por comas, con los elementos de la forma «id:valor». Encuentra la "
+"pareja con «id» igual a «val» y devuelve el «valor» correspondiente."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:429
 msgid ""
@@ -16606,6 +16635,18 @@ msgid ""
 "\"December\"). yy   : the year as two digit number (00 to 99). yyyy : the "
 "year as four digit number."
 msgstr ""
+"format_date(val, texto_formato) -- da formato a un valor, que debe ser un "
+"campo de fecha, según «texto_formato» y devuelve un texto. Los códigos de "
+"formato son: «d»: el día como un número, sin cero inicial (de 1 a 31). «dd»: "
+"el día como un número, con un cero inicial si es necesario (de 01 a 31). "
+"«ddd»: el día de la semana abreviado según el idioma local (p. ej. de «lun» "
+"a «dom»). «dddd»: el nombre local completo del día de la semana (p. ej. de "
+"«lunes» a «domingo»). «M»: el mes como un número sin cero inicial (de 1 a "
+"12). «MM»: el mes como un número, con un cero inicial si es necesario (de 01 "
+"a 12). «MMM»: el mes abreviado según el idioma local (p. ej. de «ene» a "
+"«dic»). «MMMM»: el nombre local completo del mes (p. ej. de «enero» a "
+"«diciembre»). «yy»: el año como un número de dos cifras (de 00 a 99). "
+"«yyyy»: el año como un número de cuatro cifras."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:484
 msgid "uppercase(val) -- return value of the field in upper case"
