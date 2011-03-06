@@ -118,10 +118,27 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
             ac.plugin_path = action.plugin_path
             ac.interface_action_base_plugin = action
             self.add_iaction(ac)
-        # Stores
+        self.load_store_plugins()
+
+    def init_iaction(self, action):
+        ac = action.load_actual_plugin(self)
+        ac.plugin_path = action.plugin_path
+        ac.interface_action_base_plugin = action
+        action.actual_iaction_plugin_loaded = True
+        return ac
+    
+    def add_iaction(self, ac):
+        acmap = self.iactions
+        if ac.name in acmap:
+            if ac.priority >= acmap[ac.name].priority:
+                acmap[ac.name] = ac
+        else:
+            acmap[ac.name] = ac
+    
+    def load_store_plugins(self):
         self.istores = OrderedDict()
         for store in store_plugins():
-            if opts.ignore_plugins and store.plugin_path is not None:
+            if self.opts.ignore_plugins and store.plugin_path is not None:
                 continue
             try:
                 st = self.init_istore(store)
@@ -133,13 +150,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
                 if store.plugin_path is None:
                     raise
                 continue
-
-    def init_iaction(self, action):
-        ac = action.load_actual_plugin(self)
-        ac.plugin_path = action.plugin_path
-        ac.interface_action_base_plugin = action
-        action.actual_iaction_plugin_loaded = True
-        return ac
     
     def init_istore(self, store):
         st = store.load_actual_plugin(self)
@@ -147,15 +157,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         st.base_plugin = store
         store.actual_istore_plugin_loaded = True
         return st
-
-    def add_iaction(self, ac):
-        acmap = self.iactions
-        if ac.name in acmap:
-            if ac.priority >= acmap[ac.name].priority:
-                acmap[ac.name] = ac
-        else:
-            acmap[ac.name] = ac
-            
+        
     def add_istore(self, st):
         stmap = self.istores
         if st.name in stmap:

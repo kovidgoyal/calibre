@@ -18,6 +18,10 @@ class StoreAction(InterfaceAction):
     def genesis(self):
         self.qaction.triggered.connect(self.search)
         self.store_menu = QMenu()
+        self.load_menu()
+        
+    def load_menu(self):
+        self.store_menu.clear()
         self.store_menu.addAction(_('Search'), self.search)
         self.store_menu.addSeparator()
         for n, p in self.gui.istores.items():

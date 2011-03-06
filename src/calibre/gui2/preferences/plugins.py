@@ -217,6 +217,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.search.search.connect(self.find)
         self.next_button.clicked.connect(self.find_next)
         self.previous_button.clicked.connect(self.find_previous)
+        self.changed_signal.connect(self.reload_store_plugins)
 
     def find(self, query):
         idx = self._plugin_model.find(query)
@@ -341,6 +342,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                     error_dialog(self, _('Cannot remove builtin plugin'),
                          plugin.name + _(' cannot be removed. It is a '
                          'builtin plugin. Try disabling it instead.')).exec_()
+
+    def reload_store_plugins(self):
+        self.gui.load_store_plugins()
+        if self.gui.iactions.has_key('Store'):
+            self.gui.iactions['Store'].load_menu()
 
 
 if __name__ == '__main__':
