@@ -1340,7 +1340,8 @@ class TagsModel(QAbstractItemModel): # {{{
             for c in sorted(user_cats.keys(), key=sort_key):
                 if icu_lower(c).startswith(ckey_lower):
                     if len(c) == len(ckey):
-                        if nkey_lower in user_cat_keys_lower:
+                        if strcmp(ckey, nkey) != 0 and \
+                                nkey_lower in user_cat_keys_lower:
                             error_dialog(self.tags_view, _('Rename user category'),
                                 _('The name %s is already used')%nkey, show=True)
                             return False
@@ -1348,7 +1349,8 @@ class TagsModel(QAbstractItemModel): # {{{
                         del user_cats[ckey]
                     elif c[len(ckey)] == '.':
                         rest = c[len(ckey):]
-                        if icu_lower(nkey + rest) in user_cat_keys_lower:
+                        if strcmp(ckey, nkey) != 0 and \
+                                    icu_lower(nkey + rest) in user_cat_keys_lower:
                             error_dialog(self.tags_view, _('Rename user category'),
                                 _('The name %s is already used')%(nkey+rest), show=True)
                             return False
