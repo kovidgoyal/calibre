@@ -470,6 +470,13 @@ def serialize_user_metadata(metadata_elem, all_user_metadata, tail='\n'+(' '*8))
         metadata_elem.append(meta)
 
 
+def dump_user_categories(cats):
+    if not cats:
+        cats = {}
+    from calibre.ebooks.metadata.book.json_codec import object_to_unicode
+    return json.dumps(object_to_unicode(cats), ensure_ascii=False,
+            skipkeys=True)
+
 class OPF(object): # {{{
 
     MIMETYPE         = 'application/oebps-package+xml'
@@ -524,6 +531,9 @@ class OPF(object): # {{{
     publication_type = MetadataField('publication_type', is_dc=False)
     timestamp       = MetadataField('timestamp', is_dc=False,
                                     formatter=parse_date, renderer=isoformat)
+    user_categories = MetadataField('user_categories', is_dc=False,
+                                    formatter=json.loads,
+                                    renderer=dump_user_categories)
 
 
     def __init__(self, stream, basedir=os.getcwdu(), unquote_urls=True,
@@ -586,6 +596,9 @@ class OPF(object): # {{{
         ans = MetaInformation(self)
         for n, v in self._user_metadata_.items():
             ans.set_user_metadata(n, v)
+
+        ans.set_identifiers(self.get_identifiers())
+
         return ans
 
     def write_user_metadata(self):
@@ -845,6 +858,21 @@ class OPF(object): # {{{
 
         return property(fget=fget, fset=fset)
 
+    def get_identifiers(self):
+        identifiers = {}
+        for x in self.XPath(
+            'descendant::*[local-name() = "identifier" and text()]')(
+                    self.metadata):
+            for attr, val in x.attrib.iteritems():
+                if attr.endswith('scheme'):
+                    typ = icu_lower(val)
+                    val = etree.tostring(x, with_tail=False, encoding=unicode,
+                            method='text').strip()
+                    if val and typ not in ('calibre', 'uuid'):
+                        identifiers[typ] = val
+                    break
+        return identifiers
+
     @dynamic_property
     def application_id(self):
 
@@ -994,7 +1022,7 @@ class OPF(object): # {{{
         for attr in ('title', 'authors', 'author_sort', 'title_sort',
                      'publisher', 'series', 'series_index', 'rating',
                      'isbn', 'tags', 'category', 'comments',
-                     'pubdate'):
+                     'pubdate', 'user_categories'):
             val = getattr(mi, attr, None)
             if val is not None and val != [] and val != (None, None):
                 setattr(self, attr, val)
@@ -1156,8 +1184,8 @@ class OPFCreator(Metadata):
             a(DC_ELEM('description', self.comments))
         if self.publisher:
             a(DC_ELEM('publisher', self.publisher))
-        if self.isbn:
-            a(DC_ELEM('identifier', self.isbn, opf_attrs={'scheme':'ISBN'}))
+        for key, val in self.get_identifiers().iteritems():
+            a(DC_ELEM('identifier', val, opf_attrs={'scheme':icu_upper(key)}))
         if self.rights:
             a(DC_ELEM('rights', self.rights))
         if self.tags:
@@ -1175,6 +1203,10 @@ class OPFCreator(Metadata):
             a(CAL_ELEM('calibre:timestamp', self.timestamp.isoformat()))
         if self.publication_type is not None:
             a(CAL_ELEM('calibre:publication_type', self.publication_type))
+        if self.user_categories:
+            from calibre.ebooks.metadata.book.json_codec import object_to_unicode
+            a(CAL_ELEM('calibre:user_categories',
+                       json.dumps(object_to_unicode(self.user_categories))))
         manifest = E.manifest()
         if self.manifest is not None:
             for ref in self.manifest:
@@ -1277,8 +1309,8 @@ def metadata_to_opf(mi, as_string=True):
         factory(DC('description'), mi.comments)
     if mi.publisher:
         factory(DC('publisher'), mi.publisher)
-    if mi.isbn:
-        factory(DC('identifier'), mi.isbn, scheme='ISBN')
+    for key, val in mi.get_identifiers().iteritems():
+        factory(DC('identifier'), val, scheme=icu_upper(key))
     if mi.rights:
         factory(DC('rights'), mi.rights)
     factory(DC('language'), mi.language if mi.language and mi.language.lower()
@@ -1299,6 +1331,8 @@ def metadata_to_opf(mi, as_string=True):
         meta('publication_type', mi.publication_type)
     if mi.title_sort:
         meta('title_sort', mi.title_sort)
+    if mi.user_categories:
+        meta('user_categories', dump_user_categories(mi.user_categories))
 
     serialize_user_metadata(metadata, mi.get_all_user_metadata(False))
 
@@ -1326,7 +1360,7 @@ def test_m2o():
     mi.language = 'en'
     mi.comments = 'what a fun book\n\n'
     mi.publisher = 'publisher'
-    mi.isbn = 'boooo'
+    mi.set_identifiers({'isbn':'booo', 'dummy':'dummy'})
     mi.tags = ['a', 'b']
     mi.series = 's"c\'l&<>'
     mi.series_index = 3.34
@@ -1334,7 +1368,7 @@ def test_m2o():
     mi.timestamp = nowf()
     mi.publication_type = 'ooooo'
     mi.rights = 'yes'
-    mi.cover = 'asd.jpg'
+    mi.cover = os.path.abspath('asd.jpg')
     opf = metadata_to_opf(mi)
     print opf
     newmi = MetaInformation(OPF(StringIO(opf)))
@@ -1347,6 +1381,9 @@ def test_m2o():
         o, n = getattr(mi, attr), getattr(newmi, attr)
         if o != n and o.strip() != n.strip():
             print 'FAILED:', attr, getattr(mi, attr), '!=', getattr(newmi, attr)
+    if mi.get_identifiers() != newmi.get_identifiers():
+        print 'FAILED:', 'identifiers', mi.get_identifiers(),
+        print '!=', newmi.get_identifiers()
 
 
 class OPFTest(unittest.TestCase):
@@ -1362,6 +1399,7 @@ class OPFTest(unittest.TestCase):
     <creator opf:role="aut">Next</creator>
     <dc:subject>One</dc:subject><dc:subject>Two</dc:subject>
     <dc:identifier scheme="ISBN">123456789</dc:identifier>
+    <dc:identifier scheme="dummy">dummy</dc:identifier>
     <meta name="calibre:series" content="A one book series" />
     <meta name="calibre:rating" content="4"/>
     <meta name="calibre:publication_type" content="test"/>
@@ -1389,6 +1427,8 @@ class OPFTest(unittest.TestCase):
         self.assertEqual(opf.rating, 4)
         self.assertEqual(opf.publication_type, 'test')
         self.assertEqual(list(opf.itermanifest())[0].get('href'), 'a ~ b')
+        self.assertEqual(opf.get_identifiers(), {'isbn':'123456789',
+            'dummy':'dummy'})
 
     def testWriting(self):
         for test in [('title', 'New & Title'), ('authors', ['One', 'Two']),
@@ -1445,5 +1485,5 @@ def test_user_metadata():
 
 if __name__ == '__main__':
     #test_user_metadata()
-    #test_m2o()
+    test_m2o()
     test()

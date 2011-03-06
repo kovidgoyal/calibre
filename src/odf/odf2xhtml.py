@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Copyright (C) 2006-2007 Søren Roug, European Environment Agency
+# Copyright (C) 2006-2010 Søren Roug, European Environment Agency
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -20,15 +20,18 @@
 #
 #import pdb
 #pdb.set_trace()
-import zipfile
-from xml.sax import handler, expatreader
-from xml.sax.xmlreader import InputSource
+from xml.sax import handler
 from xml.sax.saxutils import escape, quoteattr
-from cStringIO import StringIO
+from xml.dom import Node
 
-from namespaces import DCNS, DRAWNS, FONS, \
-  METANS, NUMBERNS, OFFICENS, PRESENTATIONNS, \
-  STYLENS, SVGNS, TABLENS, TEXTNS, XLINKNS
+from opendocument import load
+
+from namespaces import ANIMNS, CHARTNS, CONFIGNS, DCNS, DR3DNS, DRAWNS, FONS, \
+  FORMNS, MATHNS, METANS, NUMBERNS, OFFICENS, PRESENTATIONNS, SCRIPTNS, \
+  SMILNS, STYLENS, SVGNS, TABLENS, TEXTNS, XLINKNS
+
+if False: # Added by Kovid
+    DR3DNS, MATHNS, CHARTNS, CONFIGNS, ANIMNS, FORMNS, SMILNS, SCRIPTNS
 
 # Handling of styles
 #
@@ -72,8 +75,8 @@ class StyleToCSS:
             (FONS,u"border-left"): self.c_fo,
             (FONS,u"border-right"): self.c_fo,
             (FONS,u"border-top"): self.c_fo,
-            (FONS,u"break-after"): self.c_break,
-            (FONS,u"break-before"): self.c_break,
+            (FONS,u"break-after"): self.c_break, # Added by Kovid
+            (FONS,u"break-before"): self.c_break,# Added by Kovid
             (FONS,u"color"): self.c_fo,
             (FONS,u"font-family"): self.c_fo,
             (FONS,u"font-size"): self.c_fo,
@@ -136,7 +139,7 @@ class StyleToCSS:
         selector = rule[1]
         sdict[selector] = val
 
-    def c_break(self, ruleset, sdict, rule, val):
+    def c_break(self, ruleset, sdict, rule, val): # Added by Kovid
         property = 'page-' + rule[1]
         values = {'auto': 'auto', 'column': 'always', 'page': 'always',
                   'even-page': 'left', 'odd-page': 'right',
@@ -346,13 +349,16 @@ class ODF2XHTML(handler.ContentHandler):
         self.elements = {
         (DCNS, 'title'): (self.s_processcont, self.e_dc_title),
         (DCNS, 'language'): (self.s_processcont, self.e_dc_contentlanguage),
-        (DCNS, 'creator'): (self.s_processcont, self.e_dc_metatag),
+        (DCNS, 'creator'): (self.s_processcont, self.e_dc_creator),
         (DCNS, 'description'): (self.s_processcont, self.e_dc_metatag),
         (DCNS, 'date'): (self.s_processcont, self.e_dc_metatag),
+        (DRAWNS, 'custom-shape'): (self.s_custom_shape, self.e_custom_shape),
         (DRAWNS, 'frame'): (self.s_draw_frame, self.e_draw_frame),
         (DRAWNS, 'image'): (self.s_draw_image, None),
         (DRAWNS, 'fill-image'): (self.s_draw_fill_image, None),
         (DRAWNS, "layer-set"):(self.s_ignorexml, None),
+        (DRAWNS, 'object'): (self.s_draw_object, None),
+        (DRAWNS, 'object-ole'): (self.s_draw_object_ole, None),
         (DRAWNS, 'page'): (self.s_draw_page, self.e_draw_page),
         (DRAWNS, 'text-box'): (self.s_draw_textbox, self.e_draw_textbox),
         (METANS, 'creation-date'):(self.s_processcont, self.e_dc_metatag),
@@ -364,7 +370,9 @@ class ODF2XHTML(handler.ContentHandler):
         (NUMBERNS, "date-style"):(self.s_ignorexml, None),
         (NUMBERNS, "number-style"):(self.s_ignorexml, None),
         (NUMBERNS, "text-style"):(self.s_ignorexml, None),
+        (OFFICENS, "annotation"):(self.s_ignorexml, None),
         (OFFICENS, "automatic-styles"):(self.s_office_automatic_styles, None),
+        (OFFICENS, "document"):(self.s_office_document_content, self.e_office_document_content),
         (OFFICENS, "document-content"):(self.s_office_document_content, self.e_office_document_content),
         (OFFICENS, "forms"):(self.s_ignorexml, None),
         (OFFICENS, "master-styles"):(self.s_office_master_styles, None),
@@ -374,6 +382,7 @@ class ODF2XHTML(handler.ContentHandler):
         (OFFICENS, "styles"):(self.s_office_styles, None),
         (OFFICENS, "text"):(self.s_office_text, self.e_office_text),
         (OFFICENS, "scripts"):(self.s_ignorexml, None),
+        (OFFICENS, "settings"):(self.s_ignorexml, None),
         (PRESENTATIONNS, "notes"):(self.s_ignorexml, None),
 #       (STYLENS, "default-page-layout"):(self.s_style_default_page_layout, self.e_style_page_layout),
         (STYLENS, "default-page-layout"):(self.s_ignorexml, None),
@@ -389,8 +398,8 @@ class ODF2XHTML(handler.ContentHandler):
 #       (STYLENS, "header-style"):(self.s_style_header_style, None),
         (STYLENS, "master-page"):(self.s_style_master_page, None),
         (STYLENS, "page-layout-properties"):(self.s_style_handle_properties, None),
-#       (STYLENS, "page-layout"):(self.s_style_page_layout, self.e_style_page_layout),
-        (STYLENS, "page-layout"):(self.s_ignorexml, None),
+        (STYLENS, "page-layout"):(self.s_style_page_layout, self.e_style_page_layout),
+#       (STYLENS, "page-layout"):(self.s_ignorexml, None),
         (STYLENS, "paragraph-properties"):(self.s_style_handle_properties, None),
         (STYLENS, "style"):(self.s_style_style, self.e_style_style),
         (STYLENS, "table-cell-properties"):(self.s_style_handle_properties, None),
@@ -407,6 +416,10 @@ class ODF2XHTML(handler.ContentHandler):
         (TEXTNS, "alphabetical-index-source"):(self.s_text_x_source, self.e_text_x_source),
         (TEXTNS, "bibliography-configuration"):(self.s_ignorexml, None),
         (TEXTNS, "bibliography-source"):(self.s_text_x_source, self.e_text_x_source),
+        (TEXTNS, 'bookmark'): (self.s_text_bookmark, None),
+        (TEXTNS, 'bookmark-start'): (self.s_text_bookmark, None),
+        (TEXTNS, 'bookmark-ref'): (self.s_text_bookmark_ref, self.e_text_a),
+        (TEXTNS, 'bookmark-ref-start'): (self.s_text_bookmark_ref, None),
         (TEXTNS, 'h'): (self.s_text_h, self.e_text_h),
         (TEXTNS, "illustration-index-source"):(self.s_text_x_source, self.e_text_x_source),
         (TEXTNS, 'line-break'):(self.s_text_line_break, None),
@@ -430,10 +443,66 @@ class ODF2XHTML(handler.ContentHandler):
         (TEXTNS, "user-index-source"):(self.s_text_x_source, self.e_text_x_source),
         }
         if embedable:
-            self.elements[(OFFICENS, u"text")] = (None,None)
-            self.elements[(OFFICENS, u"spreadsheet")] = (None,None)
-            self.elements[(OFFICENS, u"presentation")] = (None,None)
-            self.elements[(OFFICENS, u"document-content")] = (None,None)
+            self.make_embedable()
+        self._resetobject()
+
+    def set_plain(self):
+        """ Tell the parser to not generate CSS """
+        self.generate_css = False
+
+    def set_embedable(self):
+        """ Tells the converter to only output the parts inside the <body>"""
+        self.elements[(OFFICENS, u"text")] = (None,None)
+        self.elements[(OFFICENS, u"spreadsheet")] = (None,None)
+        self.elements[(OFFICENS, u"presentation")] = (None,None)
+        self.elements[(OFFICENS, u"document-content")] = (None,None)
+
+
+    def add_style_file(self, stylefilename, media=None):
+        """ Add a link to an external style file.
+            Also turns of the embedding of styles in the HTML
+        """
+        self.use_internal_css = False
+        self.stylefilename = stylefilename
+        if media:
+            self.metatags.append('<link rel="stylesheet" type="text/css" href="%s" media="%s"/>\n' % (stylefilename,media))
+        else:
+            self.metatags.append('<link rel="stylesheet" type="text/css" href="%s"/>\n' % (stylefilename))
+
+    def _resetfootnotes(self):
+        # Footnotes and endnotes
+        self.notedict = {}
+        self.currentnote = 0
+        self.notebody = ''
+
+    def _resetobject(self):
+        self.lines = []
+        self._wfunc = self._wlines
+        self.xmlfile = ''
+        self.title = ''
+        self.language = ''
+        self.creator = ''
+        self.data = []
+        self.tagstack = TagStack()
+        self.htmlstack = []
+        self.pstack = []
+        self.processelem = True
+        self.processcont = True
+        self.listtypes = {}
+        self.headinglevels = [0, 0,0,0,0,0, 0,0,0,0,0] # level 0 to 10
+        self.use_internal_css = True
+        self.cs = StyleToCSS()
+        self.anchors = {}
+
+        # Style declarations
+        self.stylestack = []
+        self.styledict = {}
+        self.currentstyle = None
+
+        self._resetfootnotes()
+
+        # Tags from meta.xml
+        self.metatags = []
 
 
     def writeout(self, s):
@@ -447,6 +516,7 @@ class ODF2XHTML(handler.ContentHandler):
 
     def opentag(self, tag, attrs={}, block=False):
         """ Create an open HTML tag """
+        self.htmlstack.append((tag,attrs,block))
         a = []
         for key,val in attrs.items():
             a.append('''%s=%s''' % (key, quoteattr(val)))
@@ -458,6 +528,8 @@ class ODF2XHTML(handler.ContentHandler):
             self.writeout("\n")
 
     def closetag(self, tag, block=True):
+        """ Close an open HTML tag """
+        self.htmlstack.pop()
         self.writeout("</%s>" % tag)
         if block == True:
             self.writeout("\n")
@@ -469,15 +541,11 @@ class ODF2XHTML(handler.ContentHandler):
         self.writeout("<%s %s/>\n" % (tag, " ".join(a)))
 
 #--------------------------------------------------
+# Interface to parser
+#--------------------------------------------------
     def characters(self, data):
         if self.processelem and self.processcont:
             self.data.append(data)
-
-    def handle_starttag(self, tag, method, attrs):
-        method(tag,attrs)
-
-    def handle_endtag(self, tag, attrs, method):
-        method(tag, attrs)
 
     def startElementNS(self, tag, qname, attrs):
         self.pstack.append( (self.processelem, self.processcont) )
@@ -499,6 +567,13 @@ class ODF2XHTML(handler.ContentHandler):
                 self.unknown_endtag(tag, attrs)
         self.processelem, self.processcont = self.pstack.pop()
 
+#--------------------------------------------------
+    def handle_starttag(self, tag, method, attrs):
+        method(tag,attrs)
+
+    def handle_endtag(self, tag, attrs, method):
+        method(tag, attrs)
+
     def unknown_starttag(self, tag, attrs):
         pass
 
@@ -512,18 +587,21 @@ class ODF2XHTML(handler.ContentHandler):
         self.processelem = False
 
     def s_ignorecont(self, tag, attrs):
+        """ Stop processing the text nodes """
         self.processcont = False
 
     def s_processcont(self, tag, attrs):
+        """ Start processing the text nodes """
         self.processcont = True
 
     def classname(self, attrs):
         """ Generate a class name from a style name """
-        c = attrs[(TEXTNS,'style-name')]
+        c = attrs.get((TEXTNS,'style-name'),'')
         c = c.replace(".","_")
         return c
 
     def get_anchor(self, name):
+        """ Create a unique anchor id for a href name """
         if not self.anchors.has_key(name):
             # Changed by Kovid
             self.anchors[name] = "anchor%d" % (len(self.anchors) + 1)
@@ -543,8 +621,8 @@ class ODF2XHTML(handler.ContentHandler):
     def e_dc_title(self, tag, attrs):
         """ Get the title from the meta data and create a HTML <title>
         """
-        self.metatags.append('<title>%s</title>\n' % escape(''.join(self.data)))
         self.title = ''.join(self.data)
+        #self.metatags.append('<title>%s</title>\n' % escape(self.title))
         self.data = []
 
     def e_dc_metatag(self, tag, attrs):
@@ -556,13 +634,57 @@ class ODF2XHTML(handler.ContentHandler):
     def e_dc_contentlanguage(self, tag, attrs):
         """ Set the content language. Identifies the targeted audience
         """
-        self.metatags.append('<meta http-equiv="content-language" content="%s"/>\n' % ''.join(self.data))
+        self.language = ''.join(self.data)
+        self.metatags.append('<meta http-equiv="content-language" content="%s"/>\n' % escape(self.language))
         self.data = []
+
+    def e_dc_creator(self, tag, attrs):
+        """ Set the content creator. Identifies the targeted audience
+        """
+        self.creator = ''.join(self.data)
+        self.metatags.append('<meta http-equiv="creator" content="%s"/>\n' % escape(self.creator))
+        self.data = []
+
+    def s_custom_shape(self, tag, attrs):
+        """ A <draw:custom-shape> is made into a <div> in HTML which is then styled
+        """
+        anchor_type = attrs.get((TEXTNS,'anchor-type'),'notfound')
+        htmltag = 'div'
+        name = "G-" + attrs.get( (DRAWNS,'style-name'), "")
+        if name == 'G-':
+            name = "PR-" + attrs.get( (PRESENTATIONNS,'style-name'), "")
+        name = name.replace(".","_")
+        if anchor_type == "paragraph":
+            style = 'position:absolute;'
+        elif anchor_type == 'char':
+            style = "position:absolute;"
+        elif anchor_type == 'as-char':
+            htmltag = 'div'
+            style = ''
+        else:
+            style = "position: absolute;"
+        if attrs.has_key( (SVGNS,"width") ):
+            style = style + "width:" + attrs[(SVGNS,"width")] + ";"
+        if attrs.has_key( (SVGNS,"height") ):
+            style = style + "height:" +  attrs[(SVGNS,"height")] + ";"
+        if attrs.has_key( (SVGNS,"x") ):
+            style = style + "left:" +  attrs[(SVGNS,"x")] + ";"
+        if attrs.has_key( (SVGNS,"y") ):
+            style = style + "top:" +  attrs[(SVGNS,"y")] + ";"
+        if self.generate_css:
+            self.opentag(htmltag, {'class': name, 'style': style})
+        else:
+            self.opentag(htmltag)
+
+    def e_custom_shape(self, tag, attrs):
+        """ End the <draw:frame>
+        """
+        self.closetag('div')
 
     def s_draw_frame(self, tag, attrs):
         """ A <draw:frame> is made into a <div> in HTML which is then styled
         """
-        anchor_type = attrs.get((TEXTNS,'anchor-type'),'char')
+        anchor_type = attrs.get((TEXTNS,'anchor-type'),'notfound')
         htmltag = 'div'
         name = "G-" + attrs.get( (DRAWNS,'style-name'), "")
         if name == 'G-':
@@ -576,7 +698,7 @@ class ODF2XHTML(handler.ContentHandler):
             htmltag = 'div'
             style = ''
         else:
-            style = "position: absolute;"
+            style = "position:absolute;"
         if attrs.has_key( (SVGNS,"width") ):
             style = style + "width:" + attrs[(SVGNS,"width")] + ";"
         if attrs.has_key( (SVGNS,"height") ):
@@ -620,6 +742,30 @@ class ODF2XHTML(handler.ContentHandler):
                 htmlattrs['style'] = "display: block;"
         self.emptytag('img', htmlattrs)
 
+    def s_draw_object(self, tag, attrs):
+        """ A <draw:object> is embedded object in the document (e.g. spreadsheet in presentation).
+        """
+        return # Added by Kovid
+        objhref = attrs[(XLINKNS,"href")]
+        # Remove leading "./": from "./Object 1" to "Object 1"
+#       objhref = objhref [2:]
+
+        # Not using os.path.join since it fails to find the file on Windows.
+#       objcontentpath = '/'.join([objhref, 'content.xml'])
+
+        for c in self.document.childnodes:
+            if c.folder == objhref:
+                self._walknode(c.topnode)
+
+    def s_draw_object_ole(self, tag, attrs):
+        """ A <draw:object-ole> is embedded OLE object in the document (e.g. MS Graph).
+        """
+        class_id = attrs[(DRAWNS,"class-id")]
+        if class_id and class_id.lower() == "00020803-0000-0000-c000-000000000046": ## Microsoft Graph 97 Chart
+            tagattrs = { 'name':'object_ole_graph', 'class':'ole-graph' }
+            self.opentag('a', tagattrs)
+            self.closetag('a', tagattrs)
+
     def s_draw_page(self, tag, attrs):
         """ A <draw:page> is a slide in a presentation. We use a <fieldset> element in HTML.
             Therefore if you convert a ODP file, you get a series of <fieldset>s.
@@ -655,19 +801,25 @@ class ODF2XHTML(handler.ContentHandler):
 
     def html_body(self, tag, attrs):
         self.writedata()
-        if self.generate_css:
+        if self.generate_css and self.use_internal_css:
             self.opentag('style', {'type':"text/css"}, True)
             self.writeout('/*<![CDATA[*/\n')
-            self.writeout('\nimg { width: 100%; height: 100%; }\n')
-            self.writeout('* { padding: 0; margin: 0;  background-color:white; }\n')
-            self.writeout('body { margin: 0 1em; }\n')
-            self.writeout('ol, ul { padding-left: 2em; }\n')
             self.generate_stylesheet()
             self.writeout('/*]]>*/\n')
             self.closetag('style')
         self.purgedata()
         self.closetag('head')
         self.opentag('body', block=True)
+
+    # background-color: white removed by Kovid for #9118
+    # Specifying an explicit bg color prevents ebook readers
+    # from successfully inverting colors
+    default_styles = """
+img { width: 100%; height: 100%; }
+* { padding: 0; margin: 0; }
+body { margin: 0 1em; }
+ol, ul { padding-left: 2em; }
+"""
 
     def generate_stylesheet(self):
         for name in self.stylestack:
@@ -688,6 +840,7 @@ class ODF2XHTML(handler.ContentHandler):
                 styles = parentstyle
             self.styledict[name] = styles
         # Write the styles to HTML
+        self.writeout(self.default_styles)
         for name in self.stylestack:
             styles = self.styledict.get(name)
             css2 = self.cs.convert_styles(styles)
@@ -729,6 +882,7 @@ class ODF2XHTML(handler.ContentHandler):
         self.emptytag('meta', { 'http-equiv':"Content-Type", 'content':"text/html;charset=UTF-8"})
         for metaline in self.metatags:
             self.writeout(metaline)
+        self.writeout('<title>%s</title>\n' % escape(self.title))
 
     def e_office_document_content(self, tag, attrs):
         """ Last tag """
@@ -773,7 +927,7 @@ class ODF2XHTML(handler.ContentHandler):
         """ Copy all attributes to a struct.
             We will later convert them to CSS2
         """
-        if self.currentstyle is None:
+        if self.currentstyle is None: # Added by Kovid
             return
         for key,attr in attrs.items():
             self.styledict[self.currentstyle][key] = attr
@@ -799,7 +953,7 @@ class ODF2XHTML(handler.ContentHandler):
     def s_style_font_face(self, tag, attrs):
         """ It is possible that the HTML browser doesn't know how to
             show a particular font. Luckily ODF provides generic fallbacks
-            Unluckily they are not the same as CSS2.
+            Unfortunately they are not the same as CSS2.
             CSS2: serif, sans-serif, cursive, fantasy, monospace
             ODF: roman, swiss, modern, decorative, script, system
         """
@@ -850,7 +1004,7 @@ class ODF2XHTML(handler.ContentHandler):
         """
         name = attrs[(STYLENS,'name')]
         name = name.replace(".","_")
-        self.currentstyle = "@page " + name
+        self.currentstyle = ".PL-" + name
         self.stylestack.append(self.currentstyle)
         self.styledict[self.currentstyle] = {}
 
@@ -881,7 +1035,7 @@ class ODF2XHTML(handler.ContentHandler):
         self.s_ignorexml(tag, attrs)
 
     # Short prefixes for class selectors
-    familyshort = {'drawing-page':'DP', 'paragraph':'P', 'presentation':'PR',
+    _familyshort = {'drawing-page':'DP', 'paragraph':'P', 'presentation':'PR',
         'text':'S', 'section':'D',
          'table':'T', 'table-cell':'TD', 'table-column':'TC',
          'table-row':'TR', 'graphic':'G' }
@@ -897,7 +1051,7 @@ class ODF2XHTML(handler.ContentHandler):
         name = name.replace(".","_")
         family = attrs[(STYLENS,'family')]
         htmlfamily = self.familymap.get(family,'unknown')
-        sfamily = self.familyshort.get(family,'X')
+        sfamily = self._familyshort.get(family,'X')
         name = "%s%s-%s" % (self.autoprefix, sfamily, name)
         parent = attrs.get( (STYLENS,'parent-style-name') )
         self.currentstyle = special_styles.get(name,"."+name)
@@ -942,6 +1096,7 @@ class ODF2XHTML(handler.ContentHandler):
         self.purgedata()
 
     def s_table_table_cell(self, tag, attrs):
+        """ Start a table cell """
         #FIXME: number-columns-repeated § 8.1.3
         #repeated = int(attrs.get( (TABLENS,'number-columns-repeated'), 1))
         htmlattrs = {}
@@ -959,11 +1114,13 @@ class ODF2XHTML(handler.ContentHandler):
         self.purgedata()
 
     def e_table_table_cell(self, tag, attrs):
+        """ End a table cell """
         self.writedata()
         self.closetag('td')
         self.purgedata()
 
     def s_table_table_column(self, tag, attrs):
+        """ Start a table column """
         c = attrs.get( (TABLENS,'style-name'), None)
         repeated = int(attrs.get( (TABLENS,'number-columns-repeated'), 1))
         htmlattrs = {}
@@ -974,6 +1131,7 @@ class ODF2XHTML(handler.ContentHandler):
         self.purgedata()
 
     def s_table_table_row(self, tag, attrs):
+        """ Start a table row """
         #FIXME: table:number-rows-repeated
         c = attrs.get( (TABLENS,'style-name'), None)
         htmlattrs = {}
@@ -983,6 +1141,7 @@ class ODF2XHTML(handler.ContentHandler):
         self.purgedata()
 
     def e_table_table_row(self, tag, attrs):
+        """ End a table row """
         self.writedata()
         self.closetag('tr')
         self.purgedata()
@@ -997,8 +1156,26 @@ class ODF2XHTML(handler.ContentHandler):
         self.purgedata()
 
     def e_text_a(self, tag, attrs):
+        """ End an anchor or bookmark reference """
         self.writedata()
         self.closetag('a', False)
+        self.purgedata()
+
+    def s_text_bookmark(self, tag, attrs):
+        """ Bookmark definition """
+        name = attrs[(TEXTNS,'name')]
+        html_id = self.get_anchor(name)
+        self.writedata()
+        self.opentag('span', {'id':html_id})
+        self.closetag('span', False)
+        self.purgedata()
+
+    def s_text_bookmark_ref(self, tag, attrs):
+        """ Bookmark reference """
+        name = attrs[(TEXTNS,'ref-name')]
+        html_id = "#" + self.get_anchor(name)
+        self.writedata()
+        self.opentag('a', {'href':html_id})
         self.purgedata()
 
     def s_text_h(self, tag, attrs):
@@ -1018,13 +1195,19 @@ class ODF2XHTML(handler.ContentHandler):
         self.purgedata()
 
     def e_text_h(self, tag, attrs):
-        """ Headings end """
+        """ Headings end
+            Side-effect: If there is no title in the metadata, then it is taken
+            from the first heading of any level.
+        """
         self.writedata()
         level = int(attrs[(TEXTNS,'outline-level')])
         if level > 6: level = 6 # Heading levels go only to 6 in XHTML
         if level < 1: level = 1
         lev = self.headinglevels[1:level+1]
         outline = '.'.join(map(str,lev) )
+        heading = ''.join(self.data)
+        if self.title == '': self.title = heading
+        # Changed by Kovid
         tail = ''.join(self.data)
         anchor = self.get_anchor("%s.%s" % ( outline, tail))
         anchor2 = self.get_anchor(tail) # Added by kovid to fix #7506
@@ -1036,12 +1219,14 @@ class ODF2XHTML(handler.ContentHandler):
         self.purgedata()
 
     def s_text_line_break(self, tag, attrs):
+        """ Force a line break (<br/>) """
         self.writedata()
         self.emptytag('br')
         self.purgedata()
 
     def s_text_list(self, tag, attrs):
-        """ To know which level we're at, we have to count the number
+        """ Start a list (<ul> or <ol>)
+            To know which level we're at, we have to count the number
             of <text:list> elements on the tagstack.
         """
         name = attrs.get( (TEXTNS,'style-name') )
@@ -1055,12 +1240,13 @@ class ODF2XHTML(handler.ContentHandler):
             name = self.tagstack.rfindattr( (TEXTNS,'style-name') )
         list_class = "%s_%d" % (name, level)
         if self.generate_css:
-            self.opentag('%s' % self.listtypes.get(list_class,'UL'), {'class': list_class })
+            self.opentag('%s' % self.listtypes.get(list_class,'ul'), {'class': list_class })
         else:
-            self.opentag('%s' % self.listtypes.get(list_class,'UL'))
+            self.opentag('%s' % self.listtypes.get(list_class,'ul'))
         self.purgedata()
 
     def e_text_list(self, tag, attrs):
+        """ End a list """
         self.writedata()
         name = attrs.get( (TEXTNS,'style-name') )
         level = self.tagstack.count_tags(tag) + 1
@@ -1072,14 +1258,16 @@ class ODF2XHTML(handler.ContentHandler):
             # textbox itself may be nested within another list.
             name = self.tagstack.rfindattr( (TEXTNS,'style-name') )
         list_class = "%s_%d" % (name, level)
-        self.closetag(self.listtypes.get(list_class,'UL'))
+        self.closetag(self.listtypes.get(list_class,'ul'))
         self.purgedata()
 
     def s_text_list_item(self, tag, attrs):
+        """ Start list item """
         self.opentag('li')
         self.purgedata()
 
     def e_text_list_item(self, tag, attrs):
+        """ End list item """
         self.writedata()
         self.closetag('li')
         self.purgedata()
@@ -1191,7 +1379,7 @@ class ODF2XHTML(handler.ContentHandler):
             if specialtag is None:
                 specialtag = 'p'
         self.writedata()
-        if not self.data:
+        if not self.data: # Added by Kovid
             # Give substance to empty paragraphs, as rendered by OOo
             self.writeout('&#160;')
         self.closetag(specialtag)
@@ -1254,55 +1442,30 @@ class ODF2XHTML(handler.ContentHandler):
 #-----------------------------------------------------------------------------
 
     def load(self, odffile):
-        self._odffile = odffile
+        """ Loads a document into the parser and parses it.
+            The argument can either be a filename or a document in memory.
+        """
+        self.lines = []
+        self._wfunc = self._wlines
+        if isinstance(odffile, basestring) \
+                or hasattr(odffile, 'read'): # Added by Kovid
+            self.document = load(odffile)
+        else:
+            self.document = odffile
+        self._walknode(self.document.topnode)
 
-    def parseodf(self):
-        self.xmlfile = ''
-        self.title = ''
-        self.data = []
-        self.tagstack = TagStack()
-        self.pstack = []
-        self.processelem = True
-        self.processcont = True
-        self.listtypes = {}
-        self.headinglevels = [0, 0,0,0,0,0, 0,0,0,0,0] # level 0 to 10
-        self.cs = StyleToCSS()
-        self.anchors = {}
+    def _walknode(self, node):
+        if node.nodeType == Node.ELEMENT_NODE:
+            self.startElementNS(node.qname, node.tagName, node.attributes)
+            for c in node.childNodes:
+                self._walknode(c)
+            self.endElementNS(node.qname, node.tagName)
+        if node.nodeType == Node.TEXT_NODE or node.nodeType == Node.CDATA_SECTION_NODE:
+            self.characters(unicode(node))
 
-        # Style declarations
-        self.stylestack = []
-        self.styledict = {}
-        self.currentstyle = None
-
-        # Footnotes and endnotes
-        self.notedict = {}
-        self.currentnote = 0
-        self.notebody = ''
-
-        # Tags from meta.xml
-        self.metatags = []
-
-        # Extract the interesting files
-        z = zipfile.ZipFile(self._odffile)
-
-        # For some reason Trac has trouble when xml.sax.make_parser() is used.
-        # Could it be because PyXML is installed, and therefore a different parser
-        # might be chosen? By calling expatreader directly we avoid this issue
-        parser = expatreader.create_parser()
-        parser.setFeature(handler.feature_namespaces, 1)
-        parser.setContentHandler(self)
-        parser.setErrorHandler(handler.ErrorHandler())
-        inpsrc = InputSource()
-
-        for xmlfile in ('meta.xml', 'styles.xml', 'content.xml'):
-            self.xmlfile = xmlfile
-            content = z.read(xmlfile)
-            inpsrc.setByteStream(StringIO(content))
-            parser.parse(inpsrc)
-        z.close()
 
     def odf2xhtml(self, odffile):
-        """ Load a file and return XHTML
+        """ Load a file and return the XHTML
         """
         self.load(odffile)
         return self.xhtml()
@@ -1311,9 +1474,8 @@ class ODF2XHTML(handler.ContentHandler):
         if s != '': self.lines.append(s)
 
     def xhtml(self):
-        self.lines = []
-        self._wfunc = self._wlines
-        self.parseodf()
+        """ Returns the xhtml
+        """
         return ''.join(self.lines)
 
     def _writecss(self, s):
@@ -1323,11 +1485,127 @@ class ODF2XHTML(handler.ContentHandler):
         pass
 
     def css(self):
-        self._wfunc = self._writenothing
-        self.parseodf()
+        """ Returns the CSS content """
         self._csslines = []
         self._wfunc = self._writecss
         self.generate_stylesheet()
         res = ''.join(self._csslines)
+        self._wfunc = self._wlines
         del self._csslines
         return res
+
+    def save(self, outputfile, addsuffix=False):
+        """ Save the HTML under the filename.
+            If the filename is '-' then save to stdout
+            We have the last style filename in self.stylefilename
+        """
+        if outputfile == '-':
+            import sys # Added by Kovid
+            outputfp = sys.stdout
+        else:
+            if addsuffix:
+                outputfile = outputfile + ".html"
+            outputfp = file(outputfile, "w")
+        outputfp.write(self.xhtml().encode('us-ascii','xmlcharrefreplace'))
+        outputfp.close()
+
+
+class ODF2XHTMLembedded(ODF2XHTML):
+    """ The ODF2XHTML parses an ODF file and produces XHTML"""
+
+    def __init__(self, lines, generate_css=True, embedable=False):
+        self._resetobject()
+        self.lines = lines
+
+        # Tags
+        self.generate_css = generate_css
+        self.elements = {
+#        (DCNS, 'title'): (self.s_processcont, self.e_dc_title),
+#        (DCNS, 'language'): (self.s_processcont, self.e_dc_contentlanguage),
+#        (DCNS, 'creator'): (self.s_processcont, self.e_dc_metatag),
+#        (DCNS, 'description'): (self.s_processcont, self.e_dc_metatag),
+#        (DCNS, 'date'): (self.s_processcont, self.e_dc_metatag),
+        (DRAWNS, 'frame'): (self.s_draw_frame, self.e_draw_frame),
+        (DRAWNS, 'image'): (self.s_draw_image, None),
+        (DRAWNS, 'fill-image'): (self.s_draw_fill_image, None),
+        (DRAWNS, "layer-set"):(self.s_ignorexml, None),
+        (DRAWNS, 'page'): (self.s_draw_page, self.e_draw_page),
+        (DRAWNS, 'object'): (self.s_draw_object, None),
+        (DRAWNS, 'object-ole'): (self.s_draw_object_ole, None),
+        (DRAWNS, 'text-box'): (self.s_draw_textbox, self.e_draw_textbox),
+#        (METANS, 'creation-date'):(self.s_processcont, self.e_dc_metatag),
+#        (METANS, 'generator'):(self.s_processcont, self.e_dc_metatag),
+#        (METANS, 'initial-creator'): (self.s_processcont, self.e_dc_metatag),
+#        (METANS, 'keyword'): (self.s_processcont, self.e_dc_metatag),
+        (NUMBERNS, "boolean-style"):(self.s_ignorexml, None),
+        (NUMBERNS, "currency-style"):(self.s_ignorexml, None),
+        (NUMBERNS, "date-style"):(self.s_ignorexml, None),
+        (NUMBERNS, "number-style"):(self.s_ignorexml, None),
+        (NUMBERNS, "text-style"):(self.s_ignorexml, None),
+#        (OFFICENS, "automatic-styles"):(self.s_office_automatic_styles, None),
+#        (OFFICENS, "document-content"):(self.s_office_document_content, self.e_office_document_content),
+        (OFFICENS, "forms"):(self.s_ignorexml, None),
+#        (OFFICENS, "master-styles"):(self.s_office_master_styles, None),
+        (OFFICENS, "meta"):(self.s_ignorecont, None),
+#        (OFFICENS, "presentation"):(self.s_office_presentation, self.e_office_presentation),
+#        (OFFICENS, "spreadsheet"):(self.s_office_spreadsheet, self.e_office_spreadsheet),
+#        (OFFICENS, "styles"):(self.s_office_styles, None),
+#        (OFFICENS, "text"):(self.s_office_text, self.e_office_text),
+        (OFFICENS, "scripts"):(self.s_ignorexml, None),
+        (PRESENTATIONNS, "notes"):(self.s_ignorexml, None),
+##       (STYLENS, "default-page-layout"):(self.s_style_default_page_layout, self.e_style_page_layout),
+#        (STYLENS, "default-page-layout"):(self.s_ignorexml, None),
+#        (STYLENS, "default-style"):(self.s_style_default_style, self.e_style_default_style),
+#        (STYLENS, "drawing-page-properties"):(self.s_style_handle_properties, None),
+#        (STYLENS, "font-face"):(self.s_style_font_face, None),
+##       (STYLENS, "footer"):(self.s_style_footer, self.e_style_footer),
+##       (STYLENS, "footer-style"):(self.s_style_footer_style, None),
+#        (STYLENS, "graphic-properties"):(self.s_style_handle_properties, None),
+#        (STYLENS, "handout-master"):(self.s_ignorexml, None),
+##       (STYLENS, "header"):(self.s_style_header, self.e_style_header),
+##       (STYLENS, "header-footer-properties"):(self.s_style_handle_properties, None),
+##       (STYLENS, "header-style"):(self.s_style_header_style, None),
+#        (STYLENS, "master-page"):(self.s_style_master_page, None),
+#        (STYLENS, "page-layout-properties"):(self.s_style_handle_properties, None),
+##       (STYLENS, "page-layout"):(self.s_style_page_layout, self.e_style_page_layout),
+#        (STYLENS, "page-layout"):(self.s_ignorexml, None),
+#        (STYLENS, "paragraph-properties"):(self.s_style_handle_properties, None),
+#        (STYLENS, "style"):(self.s_style_style, self.e_style_style),
+#        (STYLENS, "table-cell-properties"):(self.s_style_handle_properties, None),
+#        (STYLENS, "table-column-properties"):(self.s_style_handle_properties, None),
+#        (STYLENS, "table-properties"):(self.s_style_handle_properties, None),
+#        (STYLENS, "text-properties"):(self.s_style_handle_properties, None),
+        (SVGNS, 'desc'): (self.s_ignorexml, None),
+        (TABLENS, 'covered-table-cell'): (self.s_ignorexml, None),
+        (TABLENS, 'table-cell'): (self.s_table_table_cell, self.e_table_table_cell),
+        (TABLENS, 'table-column'): (self.s_table_table_column, None),
+        (TABLENS, 'table-row'): (self.s_table_table_row, self.e_table_table_row),
+        (TABLENS, 'table'): (self.s_table_table, self.e_table_table),
+        (TEXTNS, 'a'): (self.s_text_a, self.e_text_a),
+        (TEXTNS, "alphabetical-index-source"):(self.s_text_x_source, self.e_text_x_source),
+        (TEXTNS, "bibliography-configuration"):(self.s_ignorexml, None),
+        (TEXTNS, "bibliography-source"):(self.s_text_x_source, self.e_text_x_source),
+        (TEXTNS, 'h'): (self.s_text_h, self.e_text_h),
+        (TEXTNS, "illustration-index-source"):(self.s_text_x_source, self.e_text_x_source),
+        (TEXTNS, 'line-break'):(self.s_text_line_break, None),
+        (TEXTNS, "linenumbering-configuration"):(self.s_ignorexml, None),
+        (TEXTNS, "list"):(self.s_text_list, self.e_text_list),
+        (TEXTNS, "list-item"):(self.s_text_list_item, self.e_text_list_item),
+        (TEXTNS, "list-level-style-bullet"):(self.s_text_list_level_style_bullet, self.e_text_list_level_style_bullet),
+        (TEXTNS, "list-level-style-number"):(self.s_text_list_level_style_number, self.e_text_list_level_style_number),
+        (TEXTNS, "list-style"):(None, None),
+        (TEXTNS, "note"):(self.s_text_note, None),
+        (TEXTNS, "note-body"):(self.s_text_note_body, self.e_text_note_body),
+        (TEXTNS, "note-citation"):(None, self.e_text_note_citation),
+        (TEXTNS, "notes-configuration"):(self.s_ignorexml, None),
+        (TEXTNS, "object-index-source"):(self.s_text_x_source, self.e_text_x_source),
+        (TEXTNS, 'p'): (self.s_text_p, self.e_text_p),
+        (TEXTNS, 's'): (self.s_text_s, None),
+        (TEXTNS, 'span'): (self.s_text_span, self.e_text_span),
+        (TEXTNS, 'tab'): (self.s_text_tab, None),
+        (TEXTNS, "table-index-source"):(self.s_text_x_source, self.e_text_x_source),
+        (TEXTNS, "table-of-content-source"):(self.s_text_x_source, self.e_text_x_source),
+        (TEXTNS, "user-index-source"):(self.s_text_x_source, self.e_text_x_source),
+        (TEXTNS, "page-number"):(None, None),
+        }
+

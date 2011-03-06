@@ -351,7 +351,7 @@ class SeriesIndexEdit(QDoubleSpinBox):
         QDoubleSpinBox.__init__(self, parent)
         self.dialog = parent
         self.db = self.original_series_name = None
-        self.setMaximum(1000000)
+        self.setMaximum(10000000)
         self.series_edit = series_edit
         series_edit.currentIndexChanged.connect(self.enable)
         series_edit.editTextChanged.connect(self.enable)

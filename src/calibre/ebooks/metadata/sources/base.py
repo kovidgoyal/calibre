@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re
+import re, threading
 
 from calibre.customize import Plugin
 from calibre.utils.logging import ThreadSafeLog, FileStream
@@ -30,7 +30,21 @@ class Source(Plugin):
 
     touched_fields = frozenset()
 
+    def __init__(self, *args, **kwargs):
+        Plugin.__init__(self, *args, **kwargs)
+        self._isbn_to_identifier_cache = {}
+        self.cache_lock = threading.RLock()
+
     # Utility functions {{{
+
+    def cache_isbn_to_identifier(self, isbn, identifier):
+        with self.cache_lock:
+            self._isbn_to_identifier_cache[isbn] = identifier
+
+    def cached_isbn_to_identifier(self, isbn):
+        with self.cache_lock:
+            return self._isbn_to_identifier_cache.get(isbn, None)
+
     def get_author_tokens(self, authors, only_first_author=True):
         '''
         Take a list of authors and return a list of tokens useful for an
@@ -51,7 +65,8 @@ class Source(Plugin):
                     parts = parts[1:] + parts[:1]
                 for tok in parts:
                     tok = pat.sub('', tok).strip()
-                    yield tok
+                    if len(tok) > 2 and tok.lower() not in ('von', ):
+                        yield tok
 
 
     def get_title_tokens(self, title):
@@ -85,7 +100,8 @@ class Source(Plugin):
 
     # Metadata API {{{
 
-    def identify(self, log, result_queue, abort, title=None, authors=None, identifiers={}):
+    def identify(self, log, result_queue, abort, title=None, authors=None,
+            identifiers={}, timeout=5):
         '''
         Identify a book by its title/author/isbn/etc.
 
@@ -98,6 +114,8 @@ class Source(Plugin):
         :param authors: A list of authors of the book, can be None
         :param identifiers: A dictionary of other identifiers, most commonly
                             {'isbn':'1234...'}
+        :param timeout: Timeout in seconds, no network request should hang for
+                        longer than timeout.
         :return: None if no errors occurred, otherwise a unicode representation
                  of the error suitable for showing to the user
 

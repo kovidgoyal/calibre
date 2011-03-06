@@ -19,6 +19,169 @@
 #  new recipes:
 #    - title: 
 
+- version: 0.7.48
+  date: 2011-03-04
+
+  new features:
+    - title: "Changes to the internal database structure used by calibre"
+      description: >
+        "These changes will allow calibre, in the future, to support book language, arbitrary book identifiers and keep track of when the metadata for a book was last modified. WARNING: Because of these changes, if you downgrade calibre versions after upgrading to 0.7.48, you will lose any changes you make to the ISBN of book entries in your calibre database, so do not downgrade unless you really have to. Also note that the first time you start calibre after this update, the startup will be slow as the database structure is being changed."
+
+    - title: "Launch of a new website that catalogues DRM free ebooks. http://drmfree.calibre-ebook.com"
+      description: "A growing catalogue of DRM free ebooks. Ebooks that you actually own after paying, instead of just renting."
+      type: major
+
+    - title: "News download: Add an option to keep at most x issues of a particular periodical in the calibre library. Use the Advanced tab in the Fetch news dialog for your news source to set this option."
+      tickets: [9168]
+
+    - title: "You can now right click on the cover in the book details panel to copy/paste a new cover."
+      tickets: [9255]
+
+    - title: "Add an entry to the add books drop down menu to easily add formats to an existing book record"
+
+    - title: "Tag browser: Clicking on a nested category now searches for the category alone. Clicking twice searches for the category and all its descendants and so on."
+      tickets: [9166, 9169]
+
+    - title: "Add a button to the Manage authors dialog to copy author sort values to author"
+
+    - title: "Decrease startup times on large libraries by using a faster algorithm to parse stored dates"
+
+    - title: "Add quick create links to easily create custom columns of commonly used types to the add custom column dialog"
+
+    - title: "Allow drag drop of images to change cover in book details window."
+      tickets: [9226]
+
+    - title: "Device susbsytem: Create a drive info file named driveinfo.calibre in the root of each device drive for USB connected devices. This file contains various useful data. API Change: The open method of the device plugins now accepts an extra parameter library_uuid which is the id of the calibre library connected tot eh device"
+
+  bug fixes:
+    - title: "Conversion pipeline: Fix regression in 0.7.46 that caused loss of some CSS information when converting HTML produced by Microsoft Word. Also remove empty tags from microsoft namespaces when parsing HTML"
+
+    - title: "Try harder to ensure that the worker log temporary files are deleted in windows"
+
+    - title: "CHM Input: Handle CHM files that dont specify a topics file."
+      tickets: [9253]
+
+    - title: "Fix regression that caused memory leak in Tag Browser. This would show up as the memory usage of calibre increasing when switching libraries."
+      tickets: [9246]
+
+    - title: "Fix bug that caused preferences->behavior to not show the output format set by the welcome wizard, and instead default to showing EPUB"
+
+    - title: "Fix bug that caused wrong books to be deleted from library if you choose 'delete from library and device' while the library is sorted by the On device column"
+
+    - title: "MOBI Input: Ignore all ASCII control codes except CR, NL and Tab."
+      tickets: [9219]
+
+  improved recipes:
+    - Credit Slips
+    - Seattle Times
+    - MacWorld
+    - Austin Statesman
+    - EPL Talk
+    - Gawker
+    - Deadspin
+
+  new recipes:
+    - title: "Thai Post Today and Daily Post"
+      author: "Chotechai P."
+
+    - title: "RBC.ru"
+      author: Chewi
+
+    - title: Helsingin Sanomat
+      author: oneillpt
+
+    - title: "LWN Weekly"
+      author: David Cavalca
+
+    - title: "New York Times Sports and Technology Blogs"
+      author: rylsfan
+
+    - title: "Historia and Buctaras"
+      author: Silviu Cotoara
+
+    - title: "Buffalo News"
+      author: ChappyOnIce
+
+    - title: "Dotpod"
+      author: Federico Escalada
+
+
+
+- version: 0.7.47
+  date: 2011-02-25
+
+  new features:
+    - title: "Tag Browser: Support the creation of nested User Categories"
+      description: "See http://calibre-ebook.com/user_manual/gui.html#tag-browser for details"
+      type: major
+
+    - title: "Disable Kent District Library plugin to download series information. The website could not handle the load calibre's 2 million users put on it. You can manually re-enable it if you really want series information, but it is very slow"
+
+    - title: "Drivers for the Wexler T7001, Archos 7, Wink and Xperia X10"
+
+    - title: "Comic Input: Add option to not add links to individual pages to the Table of Contents when converting CBC files"
+
+    - title: "EPUB Output: Try to ensure that the cover image always has an id='cover' to workaround Nook cover reading bug."
+      tickets: [8182]
+
+    - title: "ODT input: Update odfpy library to latest version, adds support for bookmarks"
+
+    - title: "EPUB Output: Remove unnecessary CSS page breaks as they confuse the latest release of iBooks"
+  
+  bug fixes:
+    - title: "Fix regression in 0.7.46 that broke creating date and composite custom columns"
+
+    - title: "Linux binary build: Fix ImageMagick trying to load system modules instead of bundled modules"
+
+    - title: "Kobo driver: Handle missing firmware version file"
+
+    - title: "ODT Input: Do not force the background color to white."
+      tickets: [9118]
+
+    - title: "MOBI Input: Do not speciy text-align for every paragraph. Fixes text-align inheritance issues for newer MOBIs with nested divs."
+      tickets: [9098]
+
+    - title: "EPUB Output: Do not set the file-as attribute on title elements in the OPF as the current OPF spec does not support file-as. Instead use a calibre extension to OPF."
+      tickets: [9109]
+
+    - title: "Content server: Fix regression that broke browsing User Categories via OPDS"
+      tickets: [9090]
+
+    - title: "Update the book details panel after adding books incase automerge is turned on and the current book is affected"
+      tickets: [9073]
+
+    - title: "FB2 Output: Fix paragraph spacing sometime incorrect."
+      tickets: [8927]
+
+    - title: "Tag Browser: Fix generation of search query for authors with quote characters in their names"
+      tickets: [9071]
+
+    - title: "Fix bug that could cause download of cover/social metadata from Amazon to sometimes fail"
+
+    - title: "LRF Input: Workaround for broken LRF files from BookDesigner that have incomplete TextStyle elements"
+
+  improved recipes:
+    - Le Monde
+    - Gizmodo
+    - Lifehacker
+    - ESPN
+    - Adevarul
+    - gsp.ro
+    - Ming Pao
+
+  new recipes:
+    - title: "Flickr Blog"
+      author: Ricardo Jurado
+
+    - title: "Various Romanian news sources"
+      author: Silviu Cotoara
+
+    - title: "Osnews.pl and SwiatCzytnikow"
+      author: Tomasz Dlugosz
+
+    - title: "Roger Ebert Journal"
+      author: Shane Erstad
+
 - version: 0.7.46
   date: 2011-02-18
 
@@ -60,6 +223,8 @@
     - title: "TXT Input: New paragraph-type option (off) to disable modifying the paragraph structure."
 
     - title: "Device driver for the Kendo/Yifang M7 and the Wolder Mibuk Life"
+    
+    - title: "For people building calibre from source, note that calibre now requires SIP >= 4.12 to build" 
   
   bug fixes:
     - title: "Fix main memory and storage card for Cybook Orizon being swapped with some firmwares"

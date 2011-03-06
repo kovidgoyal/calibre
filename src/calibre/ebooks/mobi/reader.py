@@ -18,6 +18,7 @@ from calibre import xml_entity_to_unicode, CurrentDir, entity_to_unicode, \
     replace_entities
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.date import parse_date
+from calibre.utils.cleantext import clean_ascii_chars
 from calibre.ptempfile import TemporaryDirectory
 from calibre.ebooks import DRMError
 from calibre.ebooks.chardet import ENCODING_PATS
@@ -242,9 +243,11 @@ class MobiReader(object):
         self.debug = debug
         self.embedded_mi = None
         self.base_css_rules = textwrap.dedent('''
-                blockquote { margin: 0em 0em 0em 2em; text-align: justify }
+                body { text-align: justify }
 
-                p { margin: 0em; text-align: justify; text-indent: 1.5em }
+                blockquote { margin: 0em 0em 0em 2em; }
+
+                p { margin: 0em; text-indent: 1.5em }
 
                 .bold { font-weight: bold }
 
@@ -321,6 +324,7 @@ class MobiReader(object):
         self.cleanup_html()
 
         self.log.debug('Parsing HTML...')
+        self.processed_html = clean_ascii_chars(self.processed_html)
         try:
             root = html.fromstring(self.processed_html)
             if len(root.xpath('//html')) > 5:
@@ -485,8 +489,8 @@ class MobiReader(object):
         # - lxml and beautifulsoup expect/assume a specific order based on xhtml spec
         self.processed_html = re.sub(r'(?i)(?P<styletags>(<(h\d+|i|b|u|em|small|big|strong|tt)>\s*){1,})(?P<para><p[^>]*>)', '\g<para>'+'\g<styletags>', self.processed_html)
         self.processed_html = re.sub(r'(?i)(?P<para></p[^>]*>)\s*(?P<styletags>(</(h\d+|i|b|u|em|small|big|strong|tt)>\s*){1,})', '\g<styletags>'+'\g<para>', self.processed_html)
-        self.processed_html = re.sub(r'(?i)(?P<blockquote>(</blockquote[^>]*>\s*){1,})(?P<para></p[^>]*>)', '\g<para>'+'\g<blockquote>', self.processed_html)
-        self.processed_html = re.sub(r'(?i)(?P<para><p[^>]*>)\s*(?P<blockquote>(<blockquote[^>]*>\s*){1,})', '\g<blockquote>'+'\g<para>', self.processed_html)
+        self.processed_html = re.sub(r'(?i)(?P<blockquote>(</(blockquote|div)[^>]*>\s*){1,})(?P<para></p[^>]*>)', '\g<para>'+'\g<blockquote>', self.processed_html)
+        self.processed_html = re.sub(r'(?i)(?P<para><p[^>]*>)\s*(?P<blockquote>(<(blockquote|div)[^>]*>\s*){1,})', '\g<blockquote>'+'\g<para>', self.processed_html)
 
 
     def remove_random_bytes(self, html):

@@ -701,7 +701,7 @@ class ITUNES(DriverBase):
             self.log.info("ITUNES.get_file(): exporting '%s'" % path)
         outfile.write(open(self.cached_books[path]['lib_book'].location().path).read())
 
-    def open(self):
+    def open(self, library_uuid):
         '''
         Perform any device specific initialization. Called after the device is
         detected but before any other functions that communicate with the device.
@@ -2512,7 +2512,12 @@ class ITUNES(DriverBase):
         # Refresh epub metadata
         with open(fpath,'r+b') as zfo:
             # Touch the OPF timestamp
-            zf_opf = ZipFile(fpath,'r')
+            try:
+                zf_opf = ZipFile(fpath,'r')
+            except:
+                raise UserFeedback("'%s' is not a valid EPUB" % metadata.title,
+                                   None,
+                                   level=UserFeedback.WARN)
             fnames = zf_opf.namelist()
             opf = [x for x in fnames if '.opf' in x][0]
             if opf:

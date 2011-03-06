@@ -83,7 +83,7 @@ categories_use_field_for_author_name = 'author'
 # Note that the "r'" in front of the { is necessary if there are backslashes
 # (\ characters) in the template. It doesn't hurt anything to leave it there
 # even if there aren't any backslashes.
-categories_collapsed_name_template = r'{first.sort:shorten(4,"",0)} - {last.sort:shorten(4,"",0)}'
+categories_collapsed_name_template = r'{first.sort:shorten(4,,0)} - {last.sort:shorten(4,,0)}'
 categories_collapsed_rating_template = r'{first.avg_rating:4.2f:ifempty(0)} - {last.avg_rating:4.2f:ifempty(0)}'
 categories_collapsed_popularity_template = r'{first.count:d} - {last.count:d}'
 
@@ -348,4 +348,10 @@ public_smtp_relay_delay = 301
 # when a section of the user interface is hidden. Changes will take effect
 # after a restart of calibre.
 draw_hidden_section_indicators = True
+
+#: The maximum width and height for covers saved in the calibre library
+# All covers in the calibre library will be resized, preserving aspect ratio,
+# to fit within this size. This is to prevent slowdowns caused by extremely
+# large covers
+maximum_cover_size = (1200, 1600)
 

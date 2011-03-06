@@ -106,6 +106,9 @@ class MetadataSource(Plugin): # {{{
     def join(self):
         return self.worker.join()
 
+    def is_alive(self):
+        return self.worker.is_alive()
+
     def is_customizable(self):
         return True
 
@@ -251,7 +254,9 @@ class KentDistrictLibrary(MetadataSource): # {{{
 
     name = 'Kent District Library'
     metadata_type = 'social'
-    description = _('Downloads series information from ww2.kdl.org')
+    description = _('Downloads series information from ww2.kdl.org. '
+            'This website cannot handle large numbers of queries, '
+            'so the plugin is disabled by default.')
 
     def fetch(self):
         if not self.title or not self.book_author:

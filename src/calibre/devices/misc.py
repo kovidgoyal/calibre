@@ -9,6 +9,8 @@ __docformat__ = 'restructuredtext en'
 import os
 
 from calibre.devices.usbms.driver import USBMS
+from calibre import prints
+prints
 
 class PALMPRE(USBMS):
 
@@ -54,41 +56,24 @@ class AVANT(USBMS):
 class SWEEX(USBMS):
     # Identical to the Promedia
     name           = 'Sweex Device Interface'
-    gui_name       = 'Sweex'
-    description    = _('Communicate with the Sweex MM300')
+    gui_name       = 'Sweex/Kogan/Q600/Wink'
+    description    = _('Communicate with the Sweex/Kogan/Q600/Wink')
     author         = 'Kovid Goyal'
     supported_platforms = ['windows', 'osx', 'linux']
 
     # Ordered list of supported formats
-    FORMATS     = ['epub', 'prc', 'fb2', 'html', 'rtf', 'chm', 'pdf', 'txt']
+    FORMATS     = ['epub', 'mobi', 'prc', 'fb2', 'html', 'rtf', 'chm', 'pdf', 'txt']
 
     VENDOR_ID   = [0x0525, 0x177f]
     PRODUCT_ID  = [0xa4a5, 0x300]
-    BCD         = [0x0319, 0x110]
+    BCD         = [0x0319, 0x110, 0x325]
 
-    VENDOR_NAME = 'SWEEX'
-    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'EBOOKREADER'
+    VENDOR_NAME = ['SWEEX', 'LINUX']
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['EBOOKREADER', 'FILE-STOR_GADGET']
 
     EBOOK_DIR_MAIN = ''
     SUPPORTS_SUB_DIRS = True
 
-class Q600(SWEEX):
-
-    name = 'Digma Q600 Device interface'
-    gui_name = 'Q600'
-    description    = _('Communicate with the Digma Q600')
-
-    BCD = [0x325]
-    FORMATS     = ['epub', 'fb2', 'mobi', 'prc', 'html', 'rtf', 'chm', 'pdf', 'txt']
-
-class KOGAN(SWEEX):
-
-    name           = 'Kogan Device Interface'
-    gui_name       = 'Kogan'
-    description    = _('Communicate with the Kogan')
-    VENDOR_NAME = 'LINUX'
-    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'FILE-STOR_GADGET'
-    EBOOK_DIR_MAIN = 'Kogan eBooks'
 
 class PDNOVEL(USBMS):
     name = 'Pandigital Novel device interface'
@@ -285,5 +270,37 @@ class NEXTBOOK(USBMS):
     EBOOK_DIR_MAIN = ''
 
     VENDOR_NAME = 'NEXT2'
-    WINDOWS_MAIN_MEM = '1.0.14'
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = '1.0.14'
+    SUPPORTS_SUB_DIRS = True
+    THUMBNAIL_HEIGHT = 120
+
+    '''
+    def upload_cover(self, path, filename, metadata, filepath):
+        if metadata.thumbnail and metadata.thumbnail[-1]:
+            path = path.replace('/', os.sep)
+            is_main = path.startswith(self._main_prefix)
+            prefix = None
+            if is_main:
+                prefix = self._main_prefix
+            else:
+                if self._card_a_prefix and \
+                    path.startswith(self._card_a_prefix):
+                    prefix = self._card_a_prefix
+                elif self._card_b_prefix and \
+                        path.startswith(self._card_b_prefix):
+                    prefix = self._card_b_prefix
+            if prefix is None:
+                prints('WARNING: Failed to find prefix for:', filepath)
+                return
+            thumbnail_dir = os.path.join(prefix, '.Cover')
+
+            relpath = os.path.relpath(filepath, prefix)
+            if relpath.startswith('..\\'):
+                relpath = relpath[3:]
+            thumbnail_dir = os.path.join(thumbnail_dir, relpath)
+            if not os.path.exists(thumbnail_dir):
+                os.makedirs(thumbnail_dir)
+            with open(os.path.join(thumbnail_dir, filename+'.jpg'), 'wb') as f:
+                f.write(metadata.thumbnail[-1])
+    '''
 

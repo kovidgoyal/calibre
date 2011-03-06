@@ -11,9 +11,9 @@ from PyQt4.Qt import QIcon, QFont, QLabel, QListWidget, QAction, \
                         QPixmap, QSplitterHandle, QToolButton, \
                         QAbstractListModel, QVariant, Qt, SIGNAL, pyqtSignal, \
                         QRegExp, QSettings, QSize, QSplitter, \
-                        QPainter, QLineEdit, QComboBox, QPen, \
+                        QPainter, QLineEdit, QComboBox, QPen, QGraphicsScene, \
                         QMenu, QStringListModel, QCompleter, QStringList, \
-                        QTimer, QRect
+                        QTimer, QRect, QFontDatabase, QGraphicsView
 
 from calibre.gui2 import NONE, error_dialog, pixmap_to_data, gprefs
 from calibre.gui2.filename_pattern_ui import Ui_Form
@@ -181,21 +181,15 @@ class FormatList(QListWidget):
         else:
             return QListWidget.keyPressEvent(self, event)
 
-
-class ImageView(QWidget):
-
-    BORDER_WIDTH = 1
-    cover_changed = pyqtSignal(object)
-
-    def __init__(self, parent=None):
-        QWidget.__init__(self, parent)
-        self._pixmap = QPixmap(self)
-        self.setMinimumSize(QSize(150, 200))
-        self.setAcceptDrops(True)
-        self.draw_border = True
-
-    # Drag 'n drop {{{
+class ImageDropMixin(object): # {{{
+    '''
+    Adds support for dropping images onto widgets and a contect menu for
+    copy/pasting images.
+    '''
     DROPABBLE_EXTENSIONS = IMAGE_EXTENSIONS
+
+    def __init__(self):
+        self.setAcceptDrops(True)
 
     @classmethod
     def paths_from_event(cls, event):
@@ -223,14 +217,58 @@ class ImageView(QWidget):
             pmap = QPixmap()
             pmap.load(path)
             if not pmap.isNull():
-                self.setPixmap(pmap)
+                self.handle_image_drop(path, pmap)
                 event.accept()
-                self.cover_changed.emit(open(path, 'rb').read())
                 break
+
+    def handle_image_drop(self, path, pmap):
+        self.set_pixmap(pmap)
+        self.cover_changed.emit(open(path, 'rb').read())
 
     def dragMoveEvent(self, event):
         event.acceptProposedAction()
-    # }}}
+
+    def get_pixmap(self):
+        return self.pixmap()
+
+    def set_pixmap(self, pmap):
+        self.setPixmap(pmap)
+
+    def contextMenuEvent(self, ev):
+        cm = QMenu(self)
+        paste = cm.addAction(_('Paste Cover'))
+        copy = cm.addAction(_('Copy Cover'))
+        if not QApplication.instance().clipboard().mimeData().hasImage():
+            paste.setEnabled(False)
+        copy.triggered.connect(self.copy_to_clipboard)
+        paste.triggered.connect(self.paste_from_clipboard)
+        cm.exec_(ev.globalPos())
+
+    def copy_to_clipboard(self):
+        QApplication.instance().clipboard().setPixmap(self.get_pixmap())
+
+    def paste_from_clipboard(self):
+        cb = QApplication.instance().clipboard()
+        pmap = cb.pixmap()
+        if pmap.isNull() and cb.supportsSelection():
+            pmap = cb.pixmap(cb.Selection)
+        if not pmap.isNull():
+            self.set_pixmap(pmap)
+            self.cover_changed.emit(
+                    pixmap_to_data(pmap))
+# }}}
+
+class ImageView(QWidget, ImageDropMixin):
+
+    BORDER_WIDTH = 1
+    cover_changed = pyqtSignal(object)
+
+    def __init__(self, parent=None):
+        QWidget.__init__(self, parent)
+        self._pixmap = QPixmap(self)
+        self.setMinimumSize(QSize(150, 200))
+        ImageDropMixin.__init__(self)
+        self.draw_border = True
 
     def setPixmap(self, pixmap):
         if not isinstance(pixmap, QPixmap):
@@ -272,34 +310,23 @@ class ImageView(QWidget):
             p.drawRect(target)
         p.end()
 
+class CoverView(QGraphicsView, ImageDropMixin):
 
-    # Clipboard copy/paste # {{{
-    def contextMenuEvent(self, ev):
-        cm = QMenu(self)
-        copy = cm.addAction(_('Copy Image'))
-        paste = cm.addAction(_('Paste Image'))
-        if not QApplication.instance().clipboard().mimeData().hasImage():
-            paste.setEnabled(False)
-        copy.triggered.connect(self.copy_to_clipboard)
-        paste.triggered.connect(self.paste_from_clipboard)
-        cm.exec_(ev.globalPos())
+    cover_changed = pyqtSignal(object)
 
-    def copy_to_clipboard(self):
-        QApplication.instance().clipboard().setPixmap(self.pixmap())
+    def __init__(self, *args, **kwargs):
+        QGraphicsView.__init__(self, *args, **kwargs)
+        ImageDropMixin.__init__(self)
 
-    def paste_from_clipboard(self):
-        cb = QApplication.instance().clipboard()
-        pmap = cb.pixmap()
-        if pmap.isNull() and cb.supportsSelection():
-            pmap = cb.pixmap(cb.Selection)
-        if not pmap.isNull():
-            self.setPixmap(pmap)
-            self.cover_changed.emit(
-                    pixmap_to_data(pmap))
-    # }}}
+    def get_pixmap(self):
+        for item in self.scene().items():
+            if hasattr(item, 'pixmap'):
+                return item.pixmap()
 
-
-
+    def set_pixmap(self, pmap):
+        self.scene = QGraphicsScene()
+        self.scene.addPixmap(pmap)
+        self.setScene(self.scene)
 
 class FontFamilyModel(QAbstractListModel):
 
@@ -312,6 +339,9 @@ class FontFamilyModel(QAbstractListModel):
             self.families = []
             print 'WARNING: Could not load fonts'
             traceback.print_exc()
+        # Restrict to Qt families as Qt tends to crash
+        qt_families = set([unicode(x) for x in QFontDatabase().families()])
+        self.families = list(qt_families.intersection(set(self.families)))
         self.families.sort()
         self.families[:0] = [_('None')]
 

@@ -19,11 +19,11 @@ single_shot = partial(QTimer.singleShot, 10)
 
 class MultiDeleter(QObject):
 
-    def __init__(self, gui, rows, callback):
+    def __init__(self, gui, ids, callback):
         from calibre.gui2.dialogs.progress import ProgressDialog
         QObject.__init__(self, gui)
         self.model = gui.library_view.model()
-        self.ids = list(map(self.model.id, rows))
+        self.ids = ids
         self.gui = gui
         self.failures = []
         self.deleted_ids = []
@@ -231,6 +231,7 @@ class DeleteAction(InterfaceAction):
             return
         # Library view is visible.
         if self.gui.stack.currentIndex() == 0:
+            to_delete_ids = [view.model().id(r) for r in rows]
             # Ask the user if they want to delete the book from the library or device if it is in both.
             if self.gui.device_manager.is_device_connected:
                 on_device = False
@@ -264,10 +265,10 @@ class DeleteAction(InterfaceAction):
             if ci.isValid():
                 row = ci.row()
             if len(rows) < 5:
-                ids_deleted = view.model().delete_books(rows)
-                self.library_ids_deleted(ids_deleted, row)
+                view.model().delete_books_by_id(to_delete_ids)
+                self.library_ids_deleted(to_delete_ids, row)
             else:
-                self.__md = MultiDeleter(self.gui, rows,
+                self.__md = MultiDeleter(self.gui, to_delete_ids,
                         partial(self.library_ids_deleted, current_row=row))
         # Device view is visible.
         else:

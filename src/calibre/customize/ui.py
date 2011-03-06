@@ -121,7 +121,8 @@ def enable_plugin(plugin_or_name):
     config['enabled_plugins'] = ep
 
 default_disabled_plugins = set([
-    'Douban Books', 'Douban.com covers', 'Nicebooks', 'Nicebooks covers'
+    'Douban Books', 'Douban.com covers', 'Nicebooks', 'Nicebooks covers',
+    'Kent District Library'
 ])
 
 def is_disabled(plugin):
@@ -582,7 +583,7 @@ def main(args=sys.argv):
         if remove_plugin(opts.remove_plugin):
             print 'Plugin removed'
         else:
-            print 'No custom pluginnamed', opts.remove_plugin
+            print 'No custom plugin named', opts.remove_plugin
     if opts.customize_plugin is not None:
         name, custom = opts.customize_plugin.split(',')
         plugin = find_plugin(name.strip())

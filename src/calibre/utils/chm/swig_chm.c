@@ -164,36 +164,6 @@ SWIG_TypeCast(swig_type_info *ty, void *ptr)
   return (*ty->converter)(ptr);
 }
 
-/* Dynamic pointer casting. Down an inheritance hierarchy */
-SWIGRUNTIME(swig_type_info *) 
-SWIG_TypeDynamicCast(swig_type_info *ty, void **ptr) 
-{
-  swig_type_info *lastty = ty;
-  if (!ty || !ty->dcast) return ty;
-  while (ty && (ty->dcast)) {
-     ty = (*ty->dcast)(ptr);
-     if (ty) lastty = ty;
-  }
-  return lastty;
-}
-
-/* Return the name associated with this type */
-SWIGRUNTIME(const char *)
-SWIG_TypeName(const swig_type_info *ty) {
-  return ty->name;
-}
-
-/* Search for a swig_type_info structure */
-SWIGRUNTIME(swig_type_info *)
-SWIG_TypeQuery(const char *name) {
-  swig_type_info *ty = swig_type_list;
-  while (ty) {
-    if (ty->str && (strcmp(name,ty->str) == 0)) return ty;
-    if (ty->name && (strcmp(name,ty->name) == 0)) return ty;
-    ty = ty->prev;
-  }
-  return 0;
-}
 
 /* Set the clientdata field for a type */
 SWIGRUNTIME(void)
@@ -365,21 +335,6 @@ SWIG_newvarlink(void) {
   return ((PyObject*) result);
 }
 
-SWIGRUNTIME(void)
-SWIG_addvarlink(PyObject *p, char *name,
-	   PyObject *(*get_attr)(void), int (*set_attr)(PyObject *p)) {
-  swig_varlinkobject *v;
-  swig_globalvar *gv;
-  v= (swig_varlinkobject *) p;
-  gv = (swig_globalvar *) malloc(sizeof(swig_globalvar));
-  gv->name = (char *) malloc(strlen(name)+1);
-  strcpy(gv->name,name);
-  gv->get_attr = get_attr;
-  gv->set_attr = set_attr;
-  gv->next = v->vars;
-  v->vars = gv;
-}
-
 /* Pack binary data into a string */
 SWIGRUNTIME(char *)
 SWIG_PackData(char *c, void *ptr, int sz) {
@@ -391,29 +346,6 @@ SWIG_PackData(char *c, void *ptr, int sz) {
     uu = *u;
     *(c++) = hex[(uu & 0xf0) >> 4];
     *(c++) = hex[uu & 0xf];
-  }
-  return c;
-}
-
-/* Unpack binary data from a string */
-SWIGRUNTIME(char *)
-SWIG_UnpackData(char *c, void *ptr, int sz) {
-  register unsigned char uu = 0;
-  register int d;
-  unsigned char *u = (unsigned char *) ptr;
-  int i;
-  for (i = 0; i < sz; i++, u++) {
-    d = *(c++);
-    if ((d >= '0') && (d <= '9'))
-      uu = ((d - '0') << 4);
-    else if ((d >= 'a') && (d <= 'f'))
-      uu = ((d - ('a'-10)) << 4);
-    d = *(c++);
-    if ((d >= '0') && (d <= '9'))
-      uu |= (d - '0');
-    else if ((d >= 'a') && (d <= 'f'))
-      uu |= (d - ('a'-10));
-    *u = uu;
   }
   return c;
 }
@@ -498,39 +430,6 @@ cobject:
 
 type_error:
   if (flags & SWIG_POINTER_EXCEPTION) {
-    if (ty) {
-      char *temp = (char *) malloc(64+strlen(ty->name));
-      sprintf(temp,"Type error. Expected %s", ty->name);
-      PyErr_SetString(PyExc_TypeError, temp);
-      free((char *) temp);
-    } else {
-      PyErr_SetString(PyExc_TypeError,"Expected a pointer");
-    }
-  }
-  return -1;
-}
-
-/* Convert a packed value value */
-SWIGRUNTIME(int)
-SWIG_ConvertPacked(PyObject *obj, void *ptr, int sz, swig_type_info *ty, int flags) {
-  swig_type_info *tc;
-  char  *c;
-
-  if ((!obj) || (!PyString_Check(obj))) goto type_error;
-  c = PyString_AsString(obj);
-  /* Pointer values must start with leading underscore */
-  if (*c != '_') goto type_error;
-  c++;
-  c = SWIG_UnpackData(c,ptr,sz);
-  if (ty) {
-    tc = SWIG_TypeCheck(c,ty);
-    if (!tc) goto type_error;
-  }
-  return 0;
-
-type_error:
-
-  if (flags) {
     if (ty) {
       char *temp = (char *) malloc(64+strlen(ty->name));
       sprintf(temp,"Type error. Expected %s", ty->name);
@@ -1071,7 +970,7 @@ static PyObject *_wrap_chm_retrieve_object(PyObject *self, PyObject *args) {
     resultobj = PyLong_FromLongLong(result);
     {
         PyObject *o;
-        o = PyString_FromStringAndSize(arg3, arg5);
+        o = PyString_FromStringAndSize((const char *)arg3, arg5);
         resultobj = t_output_helper(resultobj,o);
         
         

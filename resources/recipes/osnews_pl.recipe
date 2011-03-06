@@ -1,0 +1,50 @@
+#!/usr/bin/env  python
+
+__license__ = 'GPL v3'
+'''
+OSNews.pl
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+import re
+
+class OSNewsRecipe(BasicNewsRecipe):
+    __author__ = u'Mori & Tomasz D\u0142ugosz'
+    language = 'pl'
+
+    title = u'OSnews.pl'
+    publisher = u'OSnews.pl'
+    description = u'OSnews.pl jest spo\u0142eczno\u015bciowym serwisem informacyjnym po\u015bwi\u0119conym oprogramowaniu, systemom operacyjnym i \u015bwiatowi IT'
+
+    no_stylesheets = True
+    remove_javascript = True
+    encoding = 'utf-8'
+    use_embedded_content = False;
+
+    oldest_article = 7
+    max_articles_per_feed = 100
+
+    extra_css = '''
+        .news-heading {font-size:150%}
+        .newsinformations li {display:inline;}
+        blockquote {border:2px solid #000; padding:5px;}
+    '''
+
+    feeds = [
+        (u'OSNews.pl', u'http://feeds.feedburner.com/OSnewspl')
+    ]
+
+    keep_only_tags = [
+        dict(name = 'a', attrs = {'class' : 'news-heading'}),
+        dict(name = 'div', attrs = {'class' : 'newsinformations'}),
+        dict(name = 'div', attrs = {'id' : 'news-content'})
+    ]
+
+    remove_tags = [
+        dict(name = 'div', attrs = {'class' : 'sociable'}),
+        dict(name = 'div', attrs = {'class' : 'post_prev'}),
+        dict(name = 'div', attrs = {'class' : 'post_next'}),
+        dict(name = 'div', attrs = {'class' : 'clr'})
+    ]
+
+    preprocess_regexps = [(re.compile(u'</span>Komentarze: \(?[0-9]+\)? ?<span'), lambda match: '</span><span')]

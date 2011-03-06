@@ -296,6 +296,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
                 traceback.print_exc()
                 if ac.plugin_path is None:
                     raise
+        self.device_manager.set_current_library_uuid(db.library_id)
 
         if show_gui and self.gui_debug is not None:
             info_dialog(self, _('Debug mode'), '<p>' +
@@ -461,6 +462,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
             self.memory_view.reset()
             self.card_a_view.reset()
             self.card_b_view.reset()
+        self.device_manager.set_current_library_uuid(db.library_id)
 
 
     def set_window_title(self):
@@ -633,7 +635,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
             mb.stop()
 
         self.hide_windows()
-        self.emailer.stop()
+        if self.emailer.is_alive():
+            self.emailer.stop()
         try:
             try:
                 if self.content_server is not None:

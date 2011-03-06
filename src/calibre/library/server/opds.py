@@ -313,24 +313,10 @@ class CategoryFeed(NavFeed):
         ignore_count = False
         if which == 'search':
             ignore_count = True
-        uc = None
-        if which.endswith(':'):
-            # We have a user category. Translate back to original categories
-            uc = {}
-            try:
-                ucs = db.prefs['user_categories']
-                ucs = ucs.get(which[:-1])
-                for name, category, index in ucs:
-                    uc[name] = category
-            except:
-                import traceback
-                traceback.print_exc()
-                uc = None
         for item in items:
-            if uc: which = uc.get(item.name, which)
-            self.root.append(CATALOG_ENTRY(item, which, base_href, version,
+            self.root.append(CATALOG_ENTRY(item, item.category, base_href, version,
                                            updated, ignore_count=ignore_count,
-                                           add_kind=uc is not None))
+                                           add_kind=which != item.category))
 
 class CategoryGroupFeed(NavFeed):
 
@@ -594,7 +580,7 @@ class OPDSServer(object):
         for category in sorted(categories, key=lambda x: sort_key(getter(x))):
             if len(categories[category]) == 0:
                 continue
-            if category == 'formats':
+            if category in ('formats', 'identifiers'):
                 continue
             meta = category_meta.get(category, None)
             if meta is None:

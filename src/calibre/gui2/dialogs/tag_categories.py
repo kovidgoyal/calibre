@@ -73,16 +73,17 @@ class TagCategories(QDialog, Ui_TagCategories):
             if idx == 0:
                 continue
             for n in category_values[idx]():
-                t = Item(name=n, label=label, index=len(self.all_items),icon=category_icons[idx], exists=True)
+                t = Item(name=n, label=label, index=len(self.all_items),
+                         icon=category_icons[idx], exists=True)
                 self.all_items.append(t)
-                self.all_items_dict[label+':'+n] = t
+                self.all_items_dict[icu_lower(label+':'+n)] = t
 
         self.categories = dict.copy(db.prefs.get('user_categories', {}))
         if self.categories is None:
             self.categories = {}
         for cat in self.categories:
             for item,l in enumerate(self.categories[cat]):
-                key = ':'.join([l[1], l[0]])
+                key = icu_lower(':'.join([l[1], l[0]]))
                 t = self.all_items_dict.get(key, None)
                 if l[1] in self.category_labels:
                     if t is None:
@@ -170,8 +171,17 @@ class TagCategories(QDialog, Ui_TagCategories):
         cat_name = unicode(self.input_box.text()).strip()
         if cat_name == '':
             return False
-        for c in self.categories:
-            if strcmp(c, cat_name) == 0:
+        comps = [c.strip() for c in cat_name.split('.') if c.strip()]
+        if len(comps) == 0 or '.'.join(comps) != cat_name:
+            error_dialog(self, _('Invalid name'),
+                    _('That name contains leading or trailing periods, '
+                      'multiple periods in a row or spaces before '
+                      'or after periods.')).exec_()
+            return False
+        for c in sorted(self.categories.keys(), key=sort_key):
+            if strcmp(c, cat_name) == 0 or \
+                    (icu_lower(cat_name).startswith(icu_lower(c) + '.') and\
+                     not cat_name.startswith(c + '.')):
                 error_dialog(self, _('Name already used'),
                         _('That name is already used, perhaps with different case.')).exec_()
                 return False
@@ -192,6 +202,14 @@ class TagCategories(QDialog, Ui_TagCategories):
             return False
         if not self.current_cat_name:
             return False
+        comps = [c.strip() for c in cat_name.split('.') if c.strip()]
+        if len(comps) == 0 or '.'.join(comps) != cat_name:
+            error_dialog(self, _('Invalid name'),
+                    _('That name contains leading or trailing periods, '
+                      'multiple periods in a row or spaces before '
+                      'or after periods.')).exec_()
+            return False
+
         for c in self.categories:
             if strcmp(c, cat_name) == 0:
                 error_dialog(self, _('Name already used'),
@@ -231,6 +249,12 @@ class TagCategories(QDialog, Ui_TagCategories):
 
     def accept(self):
         self.save_category()
+        for cat in sorted(self.categories.keys(), key=sort_key):
+            components = cat.split('.')
+            for i in range(0,len(components)):
+                c = '.'.join(components[0:i+1])
+                if c not in self.categories:
+                    self.categories[c] = []
         QDialog.accept(self)
 
     def save_category(self):
