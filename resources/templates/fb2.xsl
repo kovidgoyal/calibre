@@ -293,6 +293,23 @@
 		<h3>Annotation</h3>
 		<xsl:apply-templates/>
 	</xsl:template>
+	<!-- tables -->
+	<xsl:template match="fb:table">
+        <table>
+            <xsl:apply-templates/>
+        </table>
+	</xsl:template>
+	<xsl:template match="fb:tr">
+        <tr><xsl:apply-templates/></tr>
+	</xsl:template>
+	<xsl:template match="fb:td">
+        <xsl:element name="td">
+			<xsl:if test="@align">
+                <xsl:attribute name="align"><xsl:value-of select="@align"/></xsl:attribute>
+            </xsl:if>
+            <xsl:apply-templates/>
+        </xsl:element>
+	</xsl:template>
 	<!-- epigraph -->
 	<xsl:template match="fb:epigraph">
 		<blockquote class="epigraph">
