@@ -6,11 +6,11 @@ import time, os
 from PyQt4.Qt import SIGNAL, QUrl, QAbstractListModel, Qt, \
         QVariant
 
-from calibre.web.feeds.recipes import compile_recipe
+from calibre.web.feeds.recipes import compile_recipe, custom_recipes
 from calibre.web.feeds.news import AutomaticNewsRecipe
 from calibre.gui2.dialogs.user_profiles_ui import Ui_Dialog
 from calibre.gui2 import error_dialog, question_dialog, open_url, \
-                         choose_files, ResizableDialog, NONE
+                         choose_files, ResizableDialog, NONE, open_local_file
 from calibre.gui2.widgets import PythonHighlighter
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.icu import sort_key
@@ -93,6 +93,7 @@ class UserProfiles(ResizableDialog, Ui_Dialog):
         self.connect(self.load_button, SIGNAL('clicked()'), self.load)
         self.connect(self.builtin_recipe_button, SIGNAL('clicked()'), self.add_builtin_recipe)
         self.connect(self.share_button, SIGNAL('clicked()'), self.share)
+        self.show_recipe_files_button.clicked.connect(self.show_recipe_files)
         self.connect(self.down_button, SIGNAL('clicked()'), self.down)
         self.connect(self.up_button, SIGNAL('clicked()'), self.up)
         self.connect(self.add_profile_button, SIGNAL('clicked(bool)'),
@@ -101,6 +102,10 @@ class UserProfiles(ResizableDialog, Ui_Dialog):
         self.connect(self.feed_title, SIGNAL('returnPressed()'), self.add_feed)
         self.connect(self.toggle_mode_button, SIGNAL('clicked(bool)'), self.toggle_mode)
         self.clear()
+
+    def show_recipe_files(self, *args):
+        bdir = os.path.dirname(custom_recipes.file_path)
+        open_local_file(bdir)
 
     def break_cycles(self):
         self.recipe_model = self._model.recipe_model = None
