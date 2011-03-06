@@ -6,7 +6,7 @@ __docformat__ = 'restructuredtext en'
 import textwrap, os, re
 
 from PyQt4.Qt import QCoreApplication, SIGNAL, QModelIndex, QTimer, Qt, \
-    QDialog, QPixmap, QGraphicsScene, QIcon, QSize
+    QDialog, QPixmap, QIcon, QSize
 
 from calibre.gui2.dialogs.book_info_ui import Ui_BookInfo
 from calibre.gui2 import dynamic, open_local_file, open_url
@@ -14,12 +14,14 @@ from calibre import fit_image
 from calibre.library.comments import comments_to_html
 from calibre.utils.icu import sort_key
 
+
 class BookInfo(QDialog, Ui_BookInfo):
 
     def __init__(self, parent, view, row, view_func):
         QDialog.__init__(self, parent)
         Ui_BookInfo.__init__(self)
         self.setupUi(self)
+        self.gui = parent
         self.cover_pixmap = None
         self.comments.sizeHint = self.comments_size_hint
         self.comments.page().setLinkDelegationPolicy(self.comments.page().DelegateAllLinks)
@@ -38,10 +40,25 @@ class BookInfo(QDialog, Ui_BookInfo):
         self.connect(self.text, SIGNAL('linkActivated(QString)'), self.open_book_path)
         self.fit_cover.stateChanged.connect(self.toggle_cover_fit)
         self.cover.resizeEvent = self.cover_view_resized
+        self.cover.cover_changed.connect(self.cover_changed)
 
         desktop = QCoreApplication.instance().desktop()
         screen_height = desktop.availableGeometry().height() - 100
         self.resize(self.size().width(), screen_height)
+
+    def cover_changed(self, data):
+        if self.current_row is not None:
+            id_ = self.view.model().id(self.current_row)
+            self.view.model().db.set_cover(id_, data)
+        if self.gui.cover_flow:
+            self.gui.cover_flow.dataChanged()
+        ci = self.view.currentIndex()
+        if ci.isValid():
+            self.view.model().current_changed(ci, ci)
+        self.cover_pixmap = QPixmap()
+        self.cover_pixmap.loadFromData(data)
+        if self.fit_cover.isChecked():
+            self.resize_cover()
 
     def link_clicked(self, url):
         open_url(url)
@@ -83,7 +100,6 @@ class BookInfo(QDialog, Ui_BookInfo):
         if self.cover_pixmap is None:
             return
         self.setWindowIcon(QIcon(self.cover_pixmap))
-        self.scene = QGraphicsScene()
         pixmap = self.cover_pixmap
         if self.fit_cover.isChecked():
             scaled, new_width, new_height = fit_image(pixmap.width(),
@@ -92,8 +108,7 @@ class BookInfo(QDialog, Ui_BookInfo):
             if scaled:
                 pixmap = pixmap.scaled(new_width, new_height,
                         Qt.KeepAspectRatio, Qt.SmoothTransformation)
-        self.scene.addPixmap(pixmap)
-        self.cover.setScene(self.scene)
+        self.cover.set_pixmap(pixmap)
 
     def refresh(self, row):
         if isinstance(row, QModelIndex):

@@ -11,7 +11,6 @@ http://www.macworld.co.uk/
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ptempfile import PersistentTemporaryFile
 
 temp_files = []
 articles_are_obfuscated = True
@@ -36,26 +35,17 @@ class macWorld(BasicNewsRecipe):
     remove_javascript     = True
     no_stylesheets        = True
 
-    def get_obfuscated_article(self, url):
-        br = self.get_browser()
-        br.open(url+'&print')
-
-        response = br.follow_link(url, nr = 0)
-        html = response.read()
-
-        self.temp_files.append(PersistentTemporaryFile('_fa.html'))
-        self.temp_files[-1].write(html)
-        self.temp_files[-1].close()
-        return self.temp_files[-1].name
-
     keep_only_tags     = [
-                            dict(name='div', attrs={'id':'article'})
+                            dict(name='div', attrs={'id':'content'})
                         ]
 
     remove_tags        = [
-                            dict(name='div', attrs={'class':['toolBar','mac_tags','toolBar  btmTools','textAds']}),
+                            {'class':['toolBar','mac_tags','toolBar  btmTools','textAds']},
                             dict(name='p', attrs={'class':'breadcrumbs'}),
-                            dict(name='div', attrs={'id':['breadcrumb','sidebar','comments']})
+                            dict(id=['breadcrumb','sidebar','comments','topContentWrapper',
+                                    'rightColumn', 'aboveFootPromo', 'storyCarousel']),
+                            {'class':lambda x: x and ('tools' in x or 'toolBar'
+                                in x)}
 
                         ]
 

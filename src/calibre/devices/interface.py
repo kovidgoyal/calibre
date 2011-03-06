@@ -215,7 +215,7 @@ class DevicePlugin(Plugin):
 
         return True
 
-    def open(self):
+    def open(self, library_uuid):
         '''
         Perform any device specific initialization. Called after the device is
         detected but before any other functions that communicate with the device.
@@ -260,6 +260,8 @@ class DevicePlugin(Plugin):
         Ask device for device information. See L{DeviceInfoQuery}.
 
         :return: (device name, device version, software version on device, mime type)
+                 The tuple can optionally have a fifth element, which is a
+                 drive information diction. See usbms.driver for an example.
 
         """
         raise NotImplementedError()
@@ -444,6 +446,15 @@ class DevicePlugin(Plugin):
 
         :return: None or a single plugboard instance.
 
+        '''
+        pass
+
+    def set_driveinfo_name(self, location_code, name):
+        '''
+        Set the device name in the driveinfo file to 'name'. This setting will
+        persist until the file is re-created or the name is changed again.
+
+        Non-disk devices will ignore this request.
         '''
         pass
 

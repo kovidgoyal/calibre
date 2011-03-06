@@ -6,7 +6,8 @@ __docformat__ = 'restructuredtext en'
 '''
 The database used to store ebook metadata
 '''
-import os, sys, shutil, cStringIO, glob, time, functools, traceback, re, json
+import os, sys, shutil, cStringIO, glob, time, functools, traceback, re, \
+        json, uuid
 import threading, random
 from itertools import repeat
 from math import ceil
@@ -47,7 +48,7 @@ class Tag(object):
 
     def __init__(self, name, id=None, count=0, state=0, avg=0, sort=None,
                  tooltip=None, icon=None, category=None, id_set=None):
-        self.name = name
+        self.name = self.original_name = name
         self.id = id
         self.count = count
         self.state = state
@@ -94,6 +95,31 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
         return property(doc=doc, fget=fget, fset=fset)
 
+    @dynamic_property
+    def library_id(self):
+        doc = ('The UUID for this library. As long as the user only operates'
+                ' on libraries with calibre, it will be unique')
+
+        def fget(self):
+            if self._library_id_ is None:
+                ans = self.conn.get('SELECT uuid FROM library_id', all=False)
+                if ans is None:
+                    ans = str(uuid.uuid4())
+                    self.library_id = ans
+                else:
+                    self._library_id_ = ans
+            return self._library_id_
+
+        def fset(self, val):
+            self._library_id_ = unicode(val)
+            self.conn.executescript('''
+                    DELETE FROM library_id;
+                    INSERT INTO library_id (uuid) VALUES ("%s");
+                    '''%self._library_id_)
+            self.conn.commit()
+
+        return property(doc=doc, fget=fget, fset=fset)
+
     def connect(self):
         if 'win32' in sys.platform and len(self.library_path) + 4*self.PATH_LIMIT + 10 > 259:
             raise ValueError('Path to library too long. Must be less than %d characters.'%(259-4*self.PATH_LIMIT-10))
@@ -120,6 +146,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     def __init__(self, library_path, row_factory=False, default_prefs=None,
             read_only=False):
         self.field_metadata = FieldMetadata()
+        self._library_id_ = None
         # Create the lock to be used to guard access to the metadata writer
         # queues. This must be an RLock, not a Lock
         self.dirtied_lock = threading.RLock()
@@ -148,6 +175,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.is_case_sensitive = not iswindows and not isosx and \
             not os.path.exists(self.dbpath.replace('metadata.db', 'MeTAdAtA.dB'))
         SchemaUpgrade.__init__(self)
+        # Guarantee that the library_id is set
+        self.library_id
 
         # if we are to copy the prefs and structure from some other DB, then
         # we need to do it before we call initialize_dynamic
@@ -293,14 +322,14 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
              'sort',
              'author_sort',
              '(SELECT group_concat(format) FROM data WHERE data.book=books.id) formats',
-             'isbn',
              'path',
-             'lccn',
              'pubdate',
-             'flags',
              'uuid',
              'has_cover',
-            ('au_map', 'authors', 'author', 'aum_sortconcat(link.id, authors.name, authors.sort)')
+            ('au_map', 'authors', 'author',
+                'aum_sortconcat(link.id, authors.name, authors.sort)'),
+            'last_modified',
+            '(SELECT identifiers_concat(type, val) FROM identifiers WHERE identifiers.book=books.id) identifiers',
             ]
         lines = []
         for col in columns:
@@ -318,8 +347,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.FIELD_MAP = {'id':0, 'title':1, 'authors':2, 'timestamp':3,
              'size':4, 'rating':5, 'tags':6, 'comments':7, 'series':8,
              'publisher':9, 'series_index':10, 'sort':11, 'author_sort':12,
-             'formats':13, 'isbn':14, 'path':15, 'lccn':16, 'pubdate':17,
-             'flags':18, 'uuid':19, 'cover':20, 'au_map':21}
+             'formats':13, 'path':14, 'pubdate':15, 'uuid':16, 'cover':17,
+             'au_map':18, 'last_modified':19, 'identifiers':20}
 
         for k,v in self.FIELD_MAP.iteritems():
             self.field_metadata.set_field_record_index(k, v, prefer_custom=False)
@@ -391,11 +420,16 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.has_id  = self.data.has_id
         self.count   = self.data.count
 
-        for prop in ('author_sort', 'authors', 'comment', 'comments', 'isbn',
-                     'publisher', 'rating', 'series', 'series_index', 'tags',
-                     'title', 'timestamp', 'uuid', 'pubdate', 'ondevice'):
+        for prop in (
+                'author_sort', 'authors', 'comment', 'comments',
+                'publisher', 'rating', 'series', 'series_index', 'tags',
+                'title', 'timestamp', 'uuid', 'pubdate', 'ondevice',
+                'metadata_last_modified',
+                ):
+            fm = {'comment':'comments', 'metadata_last_modified':
+                    'last_modified'}.get(prop, prop)
             setattr(self, prop, functools.partial(self.get_property,
-                    loc=self.FIELD_MAP['comments' if prop == 'comment' else prop]))
+                    loc=self.FIELD_MAP[fm]))
         setattr(self, 'title_sort', functools.partial(self.get_property,
                 loc=self.FIELD_MAP['sort']))
 
@@ -681,8 +715,20 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if commit:
             self.conn.commit()
 
+    def update_last_modified(self, book_ids, commit=False, now=None):
+        if now is None:
+            now = nowf()
+        if book_ids:
+            self.conn.executemany(
+                'UPDATE books SET last_modified=? WHERE id=?',
+                [(now, book) for book in book_ids])
+            for book_id in book_ids:
+                self.data.set(book_id, self.FIELD_MAP['last_modified'], now, row_is_id=True)
+            if commit:
+                self.conn.commit()
+
     def dirtied(self, book_ids, commit=True):
-        changed = False
+        self.update_last_modified(book_ids)
         for book in book_ids:
             with self.dirtied_lock:
                 # print 'dirtied: check id', book
@@ -691,21 +737,18 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     self.dirtied_sequence += 1
                     continue
                 # print 'book not already dirty'
-                try:
-                    self.conn.execute(
-                        'INSERT INTO metadata_dirtied (book) VALUES (?)',
-                            (book,))
-                    changed = True
-                except IntegrityError:
-                    # Already in table
-                    pass
+
+                self.conn.execute(
+                    'INSERT OR IGNORE INTO metadata_dirtied (book) VALUES (?)',
+                    (book,))
                 self.dirtied_cache[book] = self.dirtied_sequence
                 self.dirtied_sequence += 1
+
         # If the commit doesn't happen, then the DB table will be wrong. This
         # could lead to a problem because on restart, we won't put the book back
         # into the dirtied_cache. We deal with this by writing the dirtied_cache
         # back to the table on GUI exit. Not perfect, but probably OK
-        if commit and changed:
+        if book_ids and commit:
             self.conn.commit()
 
     def get_a_dirtied_book(self):
@@ -790,6 +833,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         mi.pubdate     = row[fm['pubdate']]
         mi.uuid        = row[fm['uuid']]
         mi.title_sort  = row[fm['sort']]
+        mi.last_modified = row[fm['last_modified']]
         formats = row[fm['formats']]
         if not formats:
             formats = None
@@ -803,8 +847,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if mi.series:
             mi.series_index = row[fm['series_index']]
         mi.rating = row[fm['rating']]
-        mi.isbn = row[fm['isbn']]
         id = idx if index_is_id else self.id(idx)
+        mi.set_identifiers(self.get_identifiers(id, index_is_id=True))
         mi.application_id = id
         mi.id = id
         for key, meta in self.field_metadata.custom_iteritems():
@@ -911,10 +955,14 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             except (IOError, OSError):
                 time.sleep(0.2)
                 save_cover_data_to(data, path)
-        self.conn.execute('UPDATE books SET has_cover=1 WHERE id=?', (id,))
+        now = nowf()
+        self.conn.execute(
+            'UPDATE books SET has_cover=1,last_modified=? WHERE id=?',
+              (now, id))
         if commit:
             self.conn.commit()
         self.data.set(id, self.FIELD_MAP['cover'], True, row_is_id=True)
+        self.data.set(id, self.FIELD_MAP['last_modified'], now, row_is_id=True)
         if notify:
             self.notify('cover', [id])
 
@@ -923,8 +971,12 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     def set_has_cover(self, id, val):
         dval = 1 if val else 0
-        self.conn.execute('UPDATE books SET has_cover=? WHERE id=?', (dval, id,))
+        now = nowf()
+        self.conn.execute(
+                'UPDATE books SET has_cover=?,last_modified=? WHERE id=?',
+                (dval, now, id))
         self.data.set(id, self.FIELD_MAP['cover'], val, row_is_id=True)
+        self.data.set(id, self.FIELD_MAP['last_modified'], now, row_is_id=True)
 
     def book_on_device(self, id):
         if callable(self.book_on_device_func):
@@ -1135,12 +1187,6 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.clean_custom()
         self.conn.commit()
 
-    def get_recipes(self):
-        return self.conn.get('SELECT id, script FROM feeds')
-
-    def get_recipe(self, id):
-        return self.conn.get('SELECT script FROM feeds WHERE id=?', (id,), all=False)
-
     def get_books_for_category(self, category, id_):
         ans = set([])
 
@@ -1196,7 +1242,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             else:
                 new_cats['.'.join(comps)] = user_cats[k]
         try:
-            self.prefs.set('user_categories', new_cats)
+            if new_cats != user_cats:
+                self.prefs.set('user_categories', new_cats)
         except:
             pass
         return new_cats
@@ -1221,7 +1268,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         for category in tb_cats.keys():
             cat = tb_cats[category]
             if not cat['is_category'] or cat['kind'] in ['user', 'search'] \
-                    or category in ['news', 'formats']:
+                    or category in ['news', 'formats'] or cat.get('is_csp',
+                            False):
                 continue
             # Get the ids for the item values
             if not cat['is_custom']:
@@ -1439,6 +1487,34 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             # No need for ICU here.
             categories['formats'].sort(key = lambda x:x.name)
 
+        # Now do identifiers. This works like formats
+        categories['identifiers'] = []
+        icon = None
+        if icon_map and 'identifiers' in icon_map:
+                icon = icon_map['identifiers']
+        for ident in self.conn.get('SELECT DISTINCT type FROM identifiers'):
+            ident = ident[0]
+            if ids is not None:
+                count = self.conn.get('''SELECT COUNT(book)
+                                       FROM identifiers
+                                       WHERE type="%s" AND
+                                       books_list_filter(book)'''%ident,
+                                       all=False)
+            else:
+                count = self.conn.get('''SELECT COUNT(id)
+                                       FROM identifiers
+                                       WHERE type="%s"'''%ident,
+                                       all=False)
+            if count > 0:
+                categories['identifiers'].append(Tag(ident, count=count, icon=icon,
+                                                 category='identifiers'))
+
+        if sort == 'popularity':
+            categories['identifiers'].sort(key=lambda x: x.count, reverse=True)
+        else: # no ratings exist to sort on
+            # No need for ICU here.
+            categories['identifiers'].sort(key = lambda x:x.name)
+
         #### Now do the user-defined categories. ####
         user_categories = dict.copy(self.clean_user_categories())
 
@@ -1651,8 +1727,6 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             doit(self.set_tags, id, mi.tags, notify=False, commit=False)
         if mi.comments:
             doit(self.set_comment, id, mi.comments, notify=False, commit=False)
-        if mi.isbn and mi.isbn.strip():
-            doit(self.set_isbn, id, mi.isbn, notify=False, commit=False)
         if mi.series_index:
             doit(self.set_series_index, id, mi.series_index, notify=False,
                     commit=False)
@@ -1661,6 +1735,15 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if getattr(mi, 'timestamp', None) is not None:
             doit(self.set_timestamp, id, mi.timestamp, notify=False,
                     commit=False)
+
+        mi_idents = mi.get_identifiers()
+        if mi_idents:
+            identifiers = self.get_identifiers(id, index_is_id=True)
+            for key, val in mi_idents.iteritems():
+                if val and val.strip(): # Don't delete an existing identifier
+                    identifiers[icu_lower(key)] = val
+            self.set_identifiers(id, identifiers, notify=False, commit=False)
+
 
         user_mi = mi.get_all_user_metadata(make_copy=False)
         for key in user_mi.iterkeys():
@@ -2440,14 +2523,84 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if notify:
             self.notify('metadata', [id])
 
-    def set_isbn(self, id, isbn, notify=True, commit=True):
-        self.conn.execute('UPDATE books SET isbn=? WHERE id=?', (isbn, id))
-        self.dirtied([id], commit=False)
+    def isbn(self, idx, index_is_id=False):
+        row = self.data._data[idx] if index_is_id else self.data[idx]
+        if row is not None:
+            raw = row[self.FIELD_MAP['identifiers']]
+            if raw:
+                for x in raw.split(','):
+                    if x.startswith('isbn:'):
+                        return x[5:].strip()
+
+    def get_identifiers(self, idx, index_is_id=False):
+        ans = {}
+        row = self.data._data[idx] if index_is_id else self.data[idx]
+        if row is not None:
+            raw = row[self.FIELD_MAP['identifiers']]
+            if raw:
+                for x in raw.split(','):
+                    key, _, val = x.partition(':')
+                    key, val = key.strip(), val.strip()
+                    if key and val:
+                        ans[key] = val
+
+        return ans
+
+    def _clean_identifier(self, typ, val):
+        typ = icu_lower(typ).strip().replace(':', '').replace(',', '')
+        val = val.strip().replace(',', '|').replace(':', '|')
+        return typ, val
+
+    def set_identifier(self, id_, typ, val, notify=True, commit=True):
+        'If val is empty, deletes identifier of type typ'
+        typ, val = self._clean_identifier(typ, val)
+        identifiers = self.get_identifiers(id_, index_is_id=True)
+        if not typ:
+            return
+        changed = False
+        if not val and typ in identifiers:
+            identifiers.pop(typ)
+            changed = True
+            self.conn.execute(
+                'DELETE from identifiers WHERE book=? AND type=?',
+                    (id_, typ))
+        if val and identifiers.get(typ, None) != val:
+            changed = True
+            identifiers[typ] = val
+            self.conn.execute(
+                'INSERT OR REPLACE INTO identifiers (book, type, val) VALUES (?, ?, ?)',
+                    (id_, typ, val))
+        if changed:
+            raw = ','.join(['%s:%s'%(k, v) for k, v in
+                identifiers.iteritems()])
+            self.data.set(id_, self.FIELD_MAP['identifiers'], raw,
+                    row_is_id=True)
+            if commit:
+                self.conn.commit()
+            if notify:
+                self.notify('metadata', [id_])
+
+    def set_identifiers(self, id_, identifiers, notify=True, commit=True):
+        cleaned = {}
+        for typ, val in identifiers.iteritems():
+            typ, val = self._clean_identifier(typ, val)
+            if val:
+                cleaned[typ] = val
+        self.conn.execute('DELETE FROM identifiers WHERE book=?', (id_,))
+        self.conn.executemany(
+            'INSERT INTO identifiers (book, type, val) VALUES (?, ?, ?)',
+            [(id_, k, v) for k, v in cleaned.iteritems()])
+        raw = ','.join(['%s:%s'%(k, v) for k, v in
+                cleaned.iteritems()])
+        self.data.set(id_, self.FIELD_MAP['identifiers'], raw,
+                    row_is_id=True)
         if commit:
             self.conn.commit()
-        self.data.set(id, self.FIELD_MAP['isbn'], isbn, row_is_id=True)
         if notify:
-            self.notify('metadata', [id])
+            self.notify('metadata', [id_])
+
+    def set_isbn(self, id_, isbn, notify=True, commit=True):
+        self.set_identifier(id_, 'isbn', isbn, notify=notify, commit=commit)
 
     def add_catalog(self, path, title):
         format = os.path.splitext(path)[1][1:].lower()
@@ -2745,7 +2898,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             prefix = self.library_path
         FIELDS = set(['title', 'authors', 'author_sort', 'publisher', 'rating',
             'timestamp', 'size', 'tags', 'comments', 'series', 'series_index',
-            'isbn', 'uuid', 'pubdate'])
+            'uuid', 'pubdate', 'last_modified', 'identifiers'])
         for x in self.custom_column_num_map:
             FIELDS.add(x)
         data = []
@@ -2760,6 +2913,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             data.append(x)
             x['id'] = db_id
             x['formats'] = []
+            isbn = self.isbn(db_id, index_is_id=True)
+            x['isbn'] = isbn if isbn else ''
             if not x['authors']:
                 x['authors'] = _('Unknown')
             x['authors'] = [i.replace('|', ',') for i in x['authors'].split(',')]
@@ -2951,9 +3106,5 @@ books_series_link      feeds
     def get_ids_for_custom_book_data(self, name):
         s = self.conn.get('''SELECT book FROM books_plugin_data WHERE name=?''', (name,))
         return [x[0] for x in s]
-
-    def get_custom_recipes(self):
-        for id, title, script in self.conn.get('SELECT id,title,script FROM feeds'):
-            yield id, title, script
 
 

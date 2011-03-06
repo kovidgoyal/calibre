@@ -10,6 +10,7 @@ from calibre.web.feeds.news import BasicNewsRecipe, CustomIndexRecipe, \
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre import __appname__, english_sort
+from calibre.utils.config import JSONConfig
 
 BeautifulSoup, time, english_sort
 
@@ -17,6 +18,14 @@ basic_recipes = (BasicNewsRecipe, AutomaticNewsRecipe, CustomIndexRecipe,
         CalibrePeriodical)
 _tdir = None
 _crep = 0
+
+custom_recipes = JSONConfig('custom_recipes/index.json')
+
+def custom_recipe_filename(id_, title):
+    from calibre.utils.filenames import ascii_filename
+    return ascii_filename(title[:50]) + \
+                        ('_%s.recipe'%id_)
+
 def compile_recipe(src):
     '''
     Compile the code in src and return the first object that is a recipe or profile.

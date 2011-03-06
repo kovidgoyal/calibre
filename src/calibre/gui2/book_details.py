@@ -10,7 +10,7 @@ from Queue import Queue
 
 from PyQt4.Qt import QPixmap, QSize, QWidget, Qt, pyqtSignal, QUrl, \
     QPropertyAnimation, QEasingCurve, QThread, QApplication, QFontInfo, \
-    QSizePolicy, QPainter, QRect, pyqtProperty, QLayout, QPalette
+    QSizePolicy, QPainter, QRect, pyqtProperty, QLayout, QPalette, QMenu
 from PyQt4.QtWebKit import QWebView
 
 from calibre import fit_image, prepare_string_for_xml
@@ -18,7 +18,7 @@ from calibre.gui2.widgets import IMAGE_EXTENSIONS
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.constants import preferred_encoding
 from calibre.library.comments import comments_to_html
-from calibre.gui2 import config, open_local_file, open_url
+from calibre.gui2 import config, open_local_file, open_url, pixmap_to_data
 from calibre.utils.icu import sort_key
 
 # render_rows(data) {{{
@@ -70,6 +70,7 @@ def render_rows(data):
 
 class CoverView(QWidget): # {{{
 
+    cover_changed = pyqtSignal(object, object)
 
     def __init__(self, vertical, parent=None):
         QWidget.__init__(self, parent)
@@ -150,6 +151,35 @@ class CoverView(QWidget): # {{{
             fget=lambda self: self._current_pixmap_size,
             fset=setCurrentPixmapSize
             )
+
+    def contextMenuEvent(self, ev):
+        cm = QMenu(self)
+        paste = cm.addAction(_('Paste Cover'))
+        copy = cm.addAction(_('Copy Cover'))
+        if not QApplication.instance().clipboard().mimeData().hasImage():
+            paste.setEnabled(False)
+        copy.triggered.connect(self.copy_to_clipboard)
+        paste.triggered.connect(self.paste_from_clipboard)
+        cm.exec_(ev.globalPos())
+
+    def copy_to_clipboard(self):
+        QApplication.instance().clipboard().setPixmap(self.pixmap)
+
+    def paste_from_clipboard(self):
+        cb = QApplication.instance().clipboard()
+        pmap = cb.pixmap()
+        if pmap.isNull() and cb.supportsSelection():
+            pmap = cb.pixmap(cb.Selection)
+        if not pmap.isNull():
+            self.pixmap = pmap
+            self.do_layout()
+            self.update()
+            if not config['disable_animations']:
+                self.animation.start()
+            id_ = self.data.get('id', None)
+            if id_ is not None:
+                self.cover_changed.emit(id_,
+                    pixmap_to_data(pmap))
 
 
     # }}}
@@ -362,7 +392,9 @@ class BookDetails(QWidget): # {{{
     # Drag 'n drop {{{
     DROPABBLE_EXTENSIONS = IMAGE_EXTENSIONS+BOOK_EXTENSIONS
     files_dropped = pyqtSignal(object, object)
+    cover_changed = pyqtSignal(object, object)
 
+    # application/x-moz-file-promise-url
     @classmethod
     def paths_from_event(cls, event):
         '''
@@ -399,6 +431,7 @@ class BookDetails(QWidget): # {{{
         self.setLayout(self._layout)
 
         self.cover_view = CoverView(vertical, self)
+        self.cover_view.cover_changed.connect(self.cover_changed.emit)
         self._layout.addWidget(self.cover_view)
         self.book_info = BookInfo(vertical, self)
         self._layout.addWidget(self.book_info)

@@ -89,12 +89,15 @@ class XMLServer(object):
             for x in ('id', 'title', 'sort', 'author_sort', 'rating', 'size'):
                 kwargs[x] = serialize(record[FM[x]])
 
-            for x in ('isbn', 'formats', 'series', 'tags', 'publisher',
-                    'comments'):
+            for x in ('formats', 'series', 'tags', 'publisher',
+                    'comments', 'identifiers'):
                 y = record[FM[x]]
                 if x == 'tags':
                     y = format_tag_string(y, ',', ignore_max=True)
                 kwargs[x] = serialize(y) if y else ''
+
+            isbn = self.db.isbn(record[FM['id']], index_is_id=True)
+            kwargs['isbn'] = serialize(isbn if isbn else '')
 
             kwargs['safe_title'] = ascii_filename(kwargs['title'])
 

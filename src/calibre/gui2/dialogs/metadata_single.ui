@@ -419,7 +419,7 @@ If the box is colored green, then text matches the individual author's sort stri
                      <string>Book </string>
                     </property>
                     <property name="maximum">
-                     <double>9999.989999999999782</double>
+                     <double>99999999.989999994635582</double>
                     </property>
                    </widget>
                   </item>

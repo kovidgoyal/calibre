@@ -20,7 +20,8 @@ from calibre.utils.date import isoformat
 
 FIELDS = set(['title', 'authors', 'author_sort', 'publisher', 'rating',
     'timestamp', 'size', 'tags', 'comments', 'series', 'series_index',
-    'formats', 'isbn', 'uuid', 'pubdate', 'cover'])
+    'formats', 'isbn', 'uuid', 'pubdate', 'cover', 'last_modified',
+    'identifiers'])
 
 def send_message(msg=''):
     prints('Notifying calibre of the change')

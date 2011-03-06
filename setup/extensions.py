@@ -68,6 +68,10 @@ if isosx:
 
 extensions = [
 
+    Extension('speedup',
+        ['calibre/utils/speedup.c'],
+        ),
+
     Extension('icu',
         ['calibre/utils/icu.c'],
         libraries=icu_libs,

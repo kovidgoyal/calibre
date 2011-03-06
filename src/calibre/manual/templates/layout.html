@@ -1,23 +1,6 @@
 {% extends "!layout.html" %}
 
 {% block extrahead %}
-    {% if not embedded %}
-    <script type="text/javascript">
-
-        var _gaq = _gaq || [];
-        _gaq.push(['_setAccount', 'UA-20736318-1']);
-        _gaq.push(['_setDomainName', '.calibre-ebook.com']);
-        _gaq.push(['_trackPageview']);
-
-        (function() {
-            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-        })();
-
-    </script>
-    {% endif %}
-
     <style type="text/css">
         .float-left-img { float: left; margin-right: 1em; margin-bottom: 1em }
         .float-right-img { float: right; margin-left: 1em; margin-bottom: 1em }
@@ -52,6 +35,23 @@
         </div>
       {%- endif %}
       </div>
+        {% if not embedded %}
+            <script type="text/javascript">
+
+                var _gaq = _gaq || [];
+                _gaq.push(['_setAccount', 'UA-20736318-1']);
+                _gaq.push(['_setDomainName', '.calibre-ebook.com']);
+                _gaq.push(['_trackPageview']);
+
+                (function() {
+                    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+                    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+                    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+                })();
+
+            </script>
+        {%- endif %}
+
 {% endblock %}
 
 {% block sidebarlogo %}

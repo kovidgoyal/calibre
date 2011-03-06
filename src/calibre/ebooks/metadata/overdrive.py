@@ -4,7 +4,7 @@ __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 
 '''
-Fetch metadata using Adobe Overdrive
+Fetch metadata using Overdrive Content Reserve
 '''
 import sys, re, random, urllib, mechanize, copy
 from threading import RLock
@@ -23,6 +23,34 @@ ovrdrv_data_cache = {}
 cover_url_cache = {}
 cache_lock = RLock()
 base_url = 'http://search.overdrive.com/'
+
+class ContentReserve(Source):
+
+    def create_query(self, title=None, authors=None, identifiers={}):
+        q = ''
+        if title or authors:
+            def build_term(prefix, parts):
+                return ' '.join('in'+prefix + ':' + x for x in parts)
+            title_tokens = list(self.get_title_tokens(title))
+            if title_tokens:
+                q += build_term('title', title_tokens)
+            author_tokens = self.get_author_tokens(authors,
+                    only_first_author=True)
+            if author_tokens:
+                q += ('+' if q else '') + build_term('author',
+                        author_tokens)
+
+        if isinstance(q, unicode):
+            q = q.encode('utf-8')
+        if not q:
+            return None
+        return BASE_URL+urlencode({
+            'q':q,
+            'max-results':20,
+            'start-index':1,
+            'min-viewability':'none',
+            })
+
 
 def get_base_referer():
     choices = [
@@ -203,9 +231,9 @@ def get_cover_url(isbn, title, author, br):
     print "isbn is "+str(isbn)
     print "title is "+str(title)
     print "author is "+str(author[0])
-    cleanup = Source()
-    author = cleanup.get_author_tokens(author)
-    print "cleansed author is "+str(author)
+    cleanup = ContentReserve()
+    query = cleanup.create_query(author, title)
+    print "cleansed query is "+str(author)
 
     with cache_lock:
         ans = cover_url_cache.get(isbn, None)
