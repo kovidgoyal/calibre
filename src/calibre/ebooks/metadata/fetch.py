@@ -250,6 +250,27 @@ class Amazon(MetadataSource): # {{{
 
     # }}}
 
+class Overdrive(MetadataSource): # {{{
+
+    name = 'Overdrive'
+    metadata_type = 'social'
+    description = _('Downloads  metadata from the Overdrive library network')
+
+    has_html_comments = True
+
+    def fetch(self):
+        if not self.isbn:
+            return
+        from calibre.ebooks.metadata.overdrive import get_metadata
+        try:
+            self.results = get_metadata(self.title, self.book_author,
+                    self.publisher, self.isbn)
+        except Exception, e:
+            self.exception = e
+            self.tb = traceback.format_exc()
+
+    # }}}
+
 class KentDistrictLibrary(MetadataSource): # {{{
 
     name = 'Kent District Library'
