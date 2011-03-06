@@ -84,7 +84,7 @@ def sanitize_file_name(name, substitute='_', as_unicode=False):
         one = one.decode(filesystem_encoding)
     one = one.replace('..', substitute)
     # Windows doesn't like path components that end with a period
-    if one.endswith('.'):
+    if one and one[-1] in ('.', ' '):
         one = one[:-1]+'_'
     # Names starting with a period are hidden on Unix
     if one.startswith('.'):
