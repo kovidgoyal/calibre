@@ -1046,6 +1046,11 @@ class StoreAmazonKindleStore(StoreBase):
     name = 'Amazon Kindle'
     description = _('Kindle books from Amazon')
     actual_plugin = 'calibre.gui2.store.amazon_plugin:AmazonKindleStore'
+    
+class StoreBaenWebScriptionStore(StoreBase):
+    name = 'Baen WebScription'
+    description = _('Ebooks for readers.')
+    actual_plugin = 'calibre.gui2.store.baen_webscription_plugin:BaenWebScriptionStore'
 
 class StoreDieselEbooksStore(StoreBase):
     name = 'Diesel eBooks'
@@ -1087,7 +1092,7 @@ class StoreSmashwordsStore(StoreBase):
     description = _('Your ebook. Your way.')
     actual_plugin = 'calibre.gui2.store.smashwords_plugin:SmashwordsStore'
 
-plugins += [StoreAmazonKindleStore, StoreDieselEbooksStore, StoreEbookscomStore,
+plugins += [StoreAmazonKindleStore, StoreBaenWebScriptionStore, StoreDieselEbooksStore, StoreEbookscomStore,
     StoreFeedbooksStore, StoreGutenbergStore, StoreKoboStore, StoreManyBooksStore,
     StoreOpenLibraryStore, StoreSmashwordsStore]
 
