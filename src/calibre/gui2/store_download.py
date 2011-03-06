@@ -92,18 +92,25 @@ class StoreDownloader(Thread):
             failed, exc = False, None
             job.start_work()
             if job.kill_on_start:
-                job.log_write('Aborted\n')
-                job.failed = failed
-                job.killed = True
-                job.job_done()
+                self._abort_job(job)
                 continue
             
             try:
-                job.percent = .1
                 self._download(job)
-                job.percent = .7
-                self._add(job)
+                if not self._run:
+                    self._abort_job(job)
+                    return
+
                 job.percent = .8
+                self._add(job)
+                if not self._run:
+                    self._abort_job(job)
+                    return
+
+                job.percent = .9
+                if not self._run:
+                    self._abort_job(job)
+                    return
                 self._save_as(job)
             except Exception, e:
                 if not self._run:
@@ -125,7 +132,13 @@ class StoreDownloader(Thread):
             except:
                 import traceback
                 traceback.print_exc()
-                
+
+    def _abort_job(self, job):
+        job.log_write('Aborted\n')
+        job.failed = False
+        job.killed = True
+        job.job_done()
+
     def _download(self, job):
         url, save_loc, add_to_lib, tags = job.args
         if not url:
@@ -137,22 +150,19 @@ class StoreDownloader(Thread):
         br = browser()
         br.set_cookiejar(job.cookie_jar)
 
-        basename = br.open(url).geturl().split('/')[-1]
-        tf = PersistentTemporaryFile(suffix=basename)
-        with closing(br.open(url)) as f:
-            tf.write(f.read())
-        tf.close()
-        job.tmp_file_name = tf.name
+        with closing(br.open(url)) as r:
+            basename = r.geturl().split('/')[-1]
+            tf = PersistentTemporaryFile(suffix=basename)
+            tf.write(r.read())
+            job.tmp_file_name = tf.name
         
     def _add(self, job):
         url, save_loc, add_to_lib, tags = job.args
-        if not add_to_lib and job.tmp_file_name:
+        if not add_to_lib or not job.tmp_file_name:
             return
         ext = os.path.splitext(job.tmp_file_name)[1][1:].lower()
         if ext not in BOOK_EXTENSIONS:
             raise Exception(_('Not a support ebook format.'))
-        
-        ext = os.path.splitext(job.tmp_file_name)[1][1:]
         
         from calibre.ebooks.metadata.meta import get_metadata
         with open(job.tmp_file_name) as f:
@@ -164,7 +174,7 @@ class StoreDownloader(Thread):
     
     def _save_as(self, job):
         url, save_loc, add_to_lib, tags = job.args
-        if not save_loc and job.tmp_file_name:
+        if not save_loc or not job.tmp_file_name:
             return
         
         shutil.copy(job.tmp_file_name, save_loc)
