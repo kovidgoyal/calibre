@@ -121,6 +121,8 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
         elif ct == 'enumeration':
             self.enum_box.setText(','.join(c['display'].get('enum_values', [])))
         self.datatype_changed()
+        if ct in ['text', 'composite', 'enumeration']:
+            self.use_decorations.setChecked(c['display'].get('use_decorations', False))
         self.exec_()
 
     def shortcut_activated(self, url):
@@ -161,6 +163,7 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
             getattr(self, 'composite_'+x).setVisible(col_type == 'composite')
         for x in ('box', 'default_label', 'label'):
             getattr(self, 'enum_'+x).setVisible(col_type == 'enumeration')
+        self.use_decorations.setVisible(col_type in ['text', 'composite', 'enumeration'])
 
     def accept(self):
         col = unicode(self.column_name_box.text()).strip()
@@ -232,6 +235,9 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
                     return self.simple_error('', _('The value "{0}" is in the '
                     'list more than once').format(l[i]))
             display_dict = {'enum_values': l}
+
+        if col_type in ['text', 'composite', 'enumeration']:
+            display_dict['use_decorations'] = self.use_decorations.checkState()
 
         if not self.editing_col:
             db.field_metadata

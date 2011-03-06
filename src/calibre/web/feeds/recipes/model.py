@@ -9,14 +9,15 @@ __docformat__ = 'restructuredtext en'
 import os, copy
 
 from PyQt4.Qt import QAbstractItemModel, QVariant, Qt, QColor, QFont, QIcon, \
-        QModelIndex, QMetaObject, pyqtSlot, pyqtSignal
+        QModelIndex, pyqtSignal
 
 from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.gui2 import NONE
 from calibre.utils.localization import get_language
 from calibre.web.feeds.recipes.collection import \
         get_builtin_recipe_collection, get_custom_recipe_collection, \
-        SchedulerConfig, download_builtin_recipe
+        SchedulerConfig, download_builtin_recipe, update_custom_recipe, \
+        add_custom_recipe, remove_custom_recipe, get_custom_recipe
 from calibre.utils.pyparsing import ParseException
 
 class NewsTreeItem(object):
@@ -122,25 +123,14 @@ class RecipeModel(QAbstractItemModel, SearchQueryParser):
     LOCATIONS = ['all']
     searched = pyqtSignal(object)
 
-    def __init__(self, db, *args):
+    def __init__(self, *args):
         QAbstractItemModel.__init__(self, *args)
         SearchQueryParser.__init__(self, locations=['all'])
-        self.db = db
         self.default_icon = QVariant(QIcon(I('news.png')))
         self.custom_icon = QVariant(QIcon(I('user_profile.png')))
         self.builtin_recipe_collection = get_builtin_recipe_collection()
         self.scheduler_config = SchedulerConfig()
         self.do_refresh()
-
-    @pyqtSlot()
-    def do_database_change(self):
-        self.db = self.newdb
-        self.newdb = None
-        self.do_refresh()
-
-    def database_changed(self, db):
-        self.newdb = db
-        QMetaObject.invokeMethod(self, 'do_database_change', Qt.QueuedConnection)
 
     def get_builtin_recipe(self, urn, download=True):
         if download:
@@ -158,23 +148,24 @@ class RecipeModel(QAbstractItemModel, SearchQueryParser):
             if recipe.get('id', False) == urn:
                 if coll is self.builtin_recipe_collection:
                     return self.get_builtin_recipe(urn[8:], download=download)
-                return self.db.get_feed(int(urn[len('custom:'):]))
+                return get_custom_recipe(int(urn[len('custom:'):]))
 
     def update_custom_recipe(self, urn, title, script):
-        self.db.update_feed(int(urn[len('custom:'):]), script, title)
-        self.custom_recipe_collection = get_custom_recipe_collection(self.db)
+        id_ = int(urn[len('custom:'):])
+        update_custom_recipe(id_, title, script)
+        self.custom_recipe_collection = get_custom_recipe_collection()
 
     def add_custom_recipe(self, title, script):
-        self.db.add_feed(title, script)
-        self.custom_recipe_collection = get_custom_recipe_collection(self.db)
+        add_custom_recipe(title, script)
+        self.custom_recipe_collection = get_custom_recipe_collection()
 
     def remove_custom_recipes(self, urns):
         ids = [int(x[len('custom:'):]) for x in urns]
-        self.db.remove_feeds(ids)
-        self.custom_recipe_collection = get_custom_recipe_collection(self.db)
+        for id_ in ids: remove_custom_recipe(id_)
+        self.custom_recipe_collection = get_custom_recipe_collection()
 
     def do_refresh(self, restrict_to_urns=set([])):
-        self.custom_recipe_collection = get_custom_recipe_collection(self.db)
+        self.custom_recipe_collection = get_custom_recipe_collection()
 
         def factory(cls, parent, *args):
             args = list(args)

@@ -666,15 +666,13 @@ class BrowseServer(object):
             if add_category_links:
                 added_key = False
                 fm = mi.metadata_for_field(key)
-                if val and fm and fm['is_category'] and \
+                if val and fm and fm['is_category'] and not fm['is_csp'] and\
                         key != 'formats' and fm['datatype'] not in ['rating']:
                     categories = mi.get(key)
                     if isinstance(categories, basestring):
                         categories = [categories]
                     dbtags = []
                     for category in categories:
-                        if category not in ccache:
-                            continue
                         dbtag = None
                         for tag in ccache[key]:
                             if tag.name == category:

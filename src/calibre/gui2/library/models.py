@@ -687,14 +687,14 @@ class BooksModel(QAbstractTableModel): # {{{
             idx = self.custom_columns[col]['rec_index']
             datatype = self.custom_columns[col]['datatype']
             if datatype in ('text', 'comments', 'composite', 'enumeration'):
-                self.dc[col] = functools.partial(text_type, idx=idx,
-                                                 mult=self.custom_columns[col]['is_multiple'])
-                if datatype == 'composite':
-                    csort = self.custom_columns[col]['display'].get('composite_sort', 'text')
-                    if csort == 'bool':
+                mult=self.custom_columns[col]['is_multiple']
+                self.dc[col] = functools.partial(text_type, idx=idx, mult=mult)
+                if datatype in ['text', 'composite', 'enumeration'] and not mult:
+                    if self.custom_columns[col]['display'].get('use_decorations', False):
                         self.dc_decorator[col] = functools.partial(
-                                    bool_type_decorator, idx=idx,
-                                    bool_cols_are_tristate=tweaks['bool_custom_columns_are_tristate'] != 'no')
+                            bool_type_decorator, idx=idx,
+                            bool_cols_are_tristate=
+                                tweaks['bool_custom_columns_are_tristate'] != 'no')
             elif datatype in ('int', 'float'):
                 self.dc[col] = functools.partial(number_type, idx=idx)
             elif datatype == 'datetime':
@@ -703,7 +703,8 @@ class BooksModel(QAbstractTableModel): # {{{
                 self.dc[col] = functools.partial(bool_type, idx=idx)
                 self.dc_decorator[col] = functools.partial(
                             bool_type_decorator, idx=idx,
-                            bool_cols_are_tristate=tweaks['bool_custom_columns_are_tristate'] != 'no')
+                            bool_cols_are_tristate=
+                                tweaks['bool_custom_columns_are_tristate'] != 'no')
             elif datatype == 'rating':
                 self.dc[col] = functools.partial(rating_type, idx=idx)
             elif datatype == 'series':
