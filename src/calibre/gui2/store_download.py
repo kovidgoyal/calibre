@@ -159,7 +159,8 @@ class StoreDownloader(Thread):
             mi = get_metadata(f, ext)
         mi.tags.extend(tags)
 
-        job.db.add_books([job.tmp_file_name], [ext], [mi])
+        id = job.db.create_book_entry(mi)
+        job.db.add_format_with_hooks(id, ext.upper(), job.tmp_file_name, index_is_id=True)
     
     def _save_as(self, job):
         url, save_loc, add_to_lib, tags = job.args
