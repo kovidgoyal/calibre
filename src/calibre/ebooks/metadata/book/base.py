@@ -130,7 +130,7 @@ class Metadata(object):
             self.set_identifiers(val)
         elif field in STANDARD_METADATA_FIELDS:
             if val is None:
-                val = NULL_VALUES.get(field, None)
+                val = copy.copy(NULL_VALUES.get(field, None))
             _data[field] = val
         elif field in _data['user_metadata'].iterkeys():
             _data['user_metadata'][field]['#value#'] = val
