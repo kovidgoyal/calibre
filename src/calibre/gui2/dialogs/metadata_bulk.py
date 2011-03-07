@@ -495,6 +495,9 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
                 val = mi.get(field, None)
             if isinstance(val, (int, float, bool)):
                 val = str(val)
+            elif fm['is_csp']:
+                # convert the csp dict into a list
+                val = [u'%s:%s'%(t[0], t[1]) for t in val.iteritems()]
             if val is None:
                 val = [] if fm['is_multiple'] else ['']
             elif not fm['is_multiple']:
@@ -635,6 +638,9 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
 
         if dest_mode != 0:
             dest_val = mi.get(dest, '')
+            if self.db.metadata_for_field(dest)['is_csp']:
+                # convert the csp dict into a list
+                dest_val = [u'%s:%s'%(t[0], t[1]) for t in dest_val.iteritems()]
             if dest_val is None:
                 dest_val = []
             elif not isinstance(dest_val, list):
@@ -717,6 +723,10 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
                                'Book title %s not processed')%mi.title,
                              show=True)
                 return
+            # convert the colon-separated pair strings back into a dict, which
+            # is what set_identifiers wants
+            if dfm['is_csp']:
+                val = dict([(t.split(':')) for t in val])
         else:
             val = self.s_r_replace_mode_separator().join(val)
             if dest == 'title' and len(val) == 0:
