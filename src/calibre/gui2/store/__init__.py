@@ -33,6 +33,14 @@ class StorePlugin(object): # {{{
     :attr:`gui` member. You can access other plugins by name, for example::
 
         self.gui.istores['Amazon Kindle']
+        
+    Plugin authors can use affiliate programs within their plugin. The
+    distribution of money earned from a store plugin is 70/30. 70% going
+    to the pluin author / maintainer and 30% going to the calibre project.
+    
+    The easiest way to handle affiliate money payouts is to randomly select
+    between the author's affiliate id and calibre's affiliate id so that
+    70% of the time the author's id is used.
     '''
 
     def __init__(self, gui, name):
@@ -70,6 +78,13 @@ class StorePlugin(object): # {{{
         multiple pages to get all of the data then do so. However, if data (such as cover_url)
         isn't available because the store does not display cover images then it's okay to
         ignore it.
+        
+        Also, by default search results can only include ebooks. A plugin can offer users
+        an option to include physical books in the search results but this must be
+        disabled by default.
+        
+        If a store doesn't provide search on it's own use something like a site specific
+        google search to get search results for this funtion.
         
         :param query: The string query search with.
         :param max_results: The maximum number of results to return.
