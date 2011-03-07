@@ -1052,6 +1052,11 @@ class StoreBaenWebScriptionStore(StoreBase):
     description = _('Ebooks for readers.')
     actual_plugin = 'calibre.gui2.store.baen_webscription_plugin:BaenWebScriptionStore'
 
+class StoreBNStore(StoreBase):
+    name = 'Barnes and Noble'
+    description = _('Books, Textbooks, eBooks, Toys, Games and More.')
+    actual_plugin = 'calibre.gui2.store.bn_plugin:BNStore'
+
 class StoreDieselEbooksStore(StoreBase):
     name = 'Diesel eBooks'
     description = _('World Famous eBook Store.')
@@ -1092,8 +1097,9 @@ class StoreSmashwordsStore(StoreBase):
     description = _('Your ebook. Your way.')
     actual_plugin = 'calibre.gui2.store.smashwords_plugin:SmashwordsStore'
 
-plugins += [StoreAmazonKindleStore, StoreBaenWebScriptionStore, StoreDieselEbooksStore, StoreEbookscomStore,
-    StoreFeedbooksStore, StoreGutenbergStore, StoreKoboStore, StoreManyBooksStore,
+plugins += [StoreAmazonKindleStore, StoreBaenWebScriptionStore, StoreBNStore,
+    StoreDieselEbooksStore, StoreEbookscomStore, StoreFeedbooksStore,
+    StoreGutenbergStore, StoreKoboStore, StoreManyBooksStore,
     StoreOpenLibraryStore, StoreSmashwordsStore]
 
 # }}}
