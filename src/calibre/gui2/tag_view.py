@@ -246,7 +246,7 @@ class TagsView(QTreeView): # {{{
                 self.add_subcategory.emit(key)
                 return
             if action == 'search_category':
-                self.tags_marked.emit(key + ':' + search_state)
+                self._toggle(index, set_to=search_state)
                 return
             if action == 'delete_user_category':
                 self.delete_user_category.emit(key)
@@ -320,6 +320,9 @@ class TagsView(QTreeView): # {{{
                             self.context_menu.addAction(_('Edit sort for %s')%tag.name,
                                     partial(self.context_menu_handler,
                                             action='edit_author_sort', index=tag.id))
+
+                        # is_editable is also overloaded to mean 'can be added
+                        # to a user category'
                         m = self.context_menu.addMenu(self.user_category_icon,
                                         _('Add %s to user category')%tag.name)
                         nt = self.model().category_node_tree
@@ -345,7 +348,7 @@ class TagsView(QTreeView): # {{{
                                 partial(self.context_menu_handler,
                                         action='delete_item_from_user_category',
                                         key = key, index = tag_item))
-                    # Add the search for value items
+                    # Add the search for value items. All leaf nodes are searchable
                     self.context_menu.addAction(self.search_icon,
                             _('Search for %s')%tag.name,
                             partial(self.context_menu_handler, action='search',
@@ -373,7 +376,6 @@ class TagsView(QTreeView): # {{{
                                     action='delete_user_category', key=key))
                     self.context_menu.addSeparator()
                 # Hide/Show/Restore categories
-                #if not key.startswith('@') or key.find('.') < 0:
                 self.context_menu.addAction(_('Hide category %s') % category,
                     partial(self.context_menu_handler, action='hide',
                             category=key))
@@ -384,16 +386,21 @@ class TagsView(QTreeView): # {{{
                         m.addAction(self.db.field_metadata[col]['name'],
                             partial(self.context_menu_handler, action='show', category=col))
 
-                # search by category
-                if key != 'search':
+                # search by category. Some categories are not searchable, such
+                # as search and news
+                if item.tag.is_searchable:
                     self.context_menu.addAction(self.search_icon,
                             _('Search for books in category %s')%category,
-                            partial(self.context_menu_handler, action='search_category',
-                                    key=key, search_state='true'))
+                            partial(self.context_menu_handler,
+                                    action='search_category',
+                                    index=self._model.createIndex(item.row(), 0, item),
+                                    search_state=TAG_SEARCH_STATES['mark_plus']))
                     self.context_menu.addAction(self.search_icon,
                             _('Search for books not in category %s')%category,
-                            partial(self.context_menu_handler, action='search_category',
-                                    key=key, search_state='false'))
+                            partial(self.context_menu_handler,
+                                    action='search_category',
+                                    index=self._model.createIndex(item.row(), 0, item),
+                                    search_state=TAG_SEARCH_STATES['mark_minus']))
                 # Offer specific editors for tags/series/publishers/saved searches
                 self.context_menu.addSeparator()
                 if key in ['tags', 'publisher', 'series'] or \
@@ -559,8 +566,10 @@ class TagTreeItem(object): # {{{
             self.bold_font = QVariant(self.bold_font)
             self.category_key = category_key
             self.temporary = temporary
-            self.tag = Tag(data)
-            self.tag.is_hierarchical = category_key.startswith('@')
+            self.tag = Tag(data, category=category_key,
+                   is_editable=category_key not in ['news', 'search', 'identifiers'],
+                   is_searchable=category_key not in ['news', 'search'])
+
         elif self.type == self.TAG:
             self.icon_state_map[0] = QVariant(data.icon)
             self.tag = data
@@ -660,14 +669,12 @@ class TagTreeItem(object): # {{{
         '''
         set_to: None => advance the state, otherwise a value from TAG_SEARCH_STATES
         '''
-        basic_search_ok = self.tag.is_editable or \
-                self.tag.category == 'formats' or self.tag.category == 'rating'
         if set_to is None:
             while True:
                 self.tag.state = (self.tag.state + 1)%5
                 if self.tag.state == TAG_SEARCH_STATES['mark_plus'] or \
                         self.tag.state == TAG_SEARCH_STATES['mark_minus']:
-                    if basic_search_ok:
+                    if self.tag.is_searchable:
                         break
                 elif self.tag.state == TAG_SEARCH_STATES['mark_plusplus'] or\
                         self.tag.state == TAG_SEARCH_STATES['mark_minusminus']:
@@ -766,6 +773,7 @@ class TagsModel(QAbstractItemModel): # {{{
                         self.category_nodes.append(node)
                         node.can_be_edited = (not is_gst) and (i == (len(path_parts)-1))
                         node.is_gst = is_gst
+                        node.tag.is_hierarchical = not is_gst
                         if not is_gst:
                             tree_root[p] = {}
                             tree_root = tree_root[p]
@@ -1240,9 +1248,6 @@ class TagsModel(QAbstractItemModel): # {{{
                         n.id_set |= tag.id_set
                     category_child_map[tag.name, tag.category] = n
                     self.endInsertRows()
-                    tag.is_editable = key != 'formats' and (key == 'news' or \
-                            self.db.field_metadata[tag.category]['datatype'] in \
-                                    ['text', 'series', 'enumeration'])
                 else:
                     for i,comp in enumerate(components):
                         if i == 0:
@@ -1258,12 +1263,13 @@ class TagsModel(QAbstractItemModel): # {{{
                             if i < len(components)-1:
                                 t = copy.copy(tag)
                                 t.original_name = '.'.join(components[:i+1])
+                                # This 'manufactured' intermediate node can
+                                # be searched, but cannot be edited.
                                 t.is_editable = False
                             else:
                                 t = tag
                                 if not in_uc:
                                     t.original_name = t.name
-                                t.is_editable = True
                             t.is_hierarchical = True
                             t.name = comp
                             self.beginInsertRows(category_index, 999999, 1)
