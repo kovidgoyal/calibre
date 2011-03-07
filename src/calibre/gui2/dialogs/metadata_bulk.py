@@ -7,7 +7,7 @@ import re, os, inspect
 
 from PyQt4.Qt import Qt, QDialog, QGridLayout, QVBoxLayout, QFont, QLabel, \
                      pyqtSignal, QDialogButtonBox, QInputDialog, QLineEdit, \
-                     QDate
+                     QDate, QCompleter
 
 from calibre.gui2.dialogs.metadata_bulk_ui import Ui_MetadataBulkDialog
 from calibre.gui2.dialogs.tag_editor import TagEditor
@@ -363,7 +363,7 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
             if (f in ['author_sort'] or
                     (fm[f]['datatype'] in ['text', 'series', 'enumeration']
                      and fm[f].get('search_terms', None)
-                     and f not in ['formats', 'ondevice']) or
+                     and f not in ['formats', 'ondevice', 'id']) or
                     fm[f]['datatype'] in ['int', 'float', 'bool'] ):
                 self.all_fields.append(f)
                 self.writable_fields.append(f)
@@ -392,6 +392,11 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
             setattr(self, name, w)
             self.book_1_text.setObjectName(name)
             self.testgrid.addWidget(w, i+offset, 2, 1, 1)
+
+        ident_types = sorted(self.db.get_all_identifier_types(), key=sort_key)
+        self.s_r_dst_ident.setCompleter(QCompleter(ident_types))
+        ident_types.insert(0, '')
+        self.s_r_src_ident.addItems(ident_types)
 
         self.main_heading = _(
                  '<b>You can destroy your library using this feature.</b> '
@@ -449,6 +454,8 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         self.test_text.editTextChanged[str].connect(self.s_r_paint_results)
         self.comma_separated.stateChanged.connect(self.s_r_paint_results)
         self.case_sensitive.stateChanged.connect(self.s_r_paint_results)
+        self.s_r_src_ident.currentIndexChanged[int].connect(self.s_r_paint_results)
+        self.s_r_dst_ident.textChanged.connect(self.s_r_paint_results)
         self.s_r_template.lost_focus.connect(self.s_r_template_changed)
         self.central_widget.setCurrentIndex(0)
 
@@ -471,6 +478,8 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         self.query_field.addItems(sorted([q for q in self.queries], key=sort_key))
         self.query_field.currentIndexChanged[str].connect(self.s_r_query_change)
         self.query_field.setCurrentIndex(0)
+        self.search_field.setCurrentIndex(0)
+        self.s_r_search_field_changed(0)
 
     def s_r_sf_itemdata(self, idx):
         if idx is None:
@@ -497,7 +506,11 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
                 val = str(val)
             elif fm['is_csp']:
                 # convert the csp dict into a list
-                val = [u'%s:%s'%(t[0], t[1]) for t in val.iteritems()]
+                id_type = unicode(self.s_r_src_ident.currentText())
+                if id_type:
+                    val = [val.get(id_type, '')]
+                else:
+                    val = [u'%s:%s'%(t[0], t[1]) for t in val.iteritems()]
             if val is None:
                 val = [] if fm['is_multiple'] else ['']
             elif not fm['is_multiple']:
@@ -515,12 +528,17 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         self.s_r_search_field_changed(self.search_field.currentIndex())
 
     def s_r_search_field_changed(self, idx):
-        if self.search_mode.currentIndex() != 0 and idx == 1: # Template
+        self.s_r_template.setVisible(False)
+        self.template_label.setVisible(False)
+        self.s_r_src_ident_label.setVisible(False)
+        self.s_r_src_ident.setVisible(False)
+        if idx == 1: # Template
             self.s_r_template.setVisible(True)
             self.template_label.setVisible(True)
-        else:
-            self.s_r_template.setVisible(False)
-            self.template_label.setVisible(False)
+        elif self.s_r_sf_itemdata(idx) == 'identifiers':
+            self.s_r_src_ident_label.setVisible(True)
+            self.s_r_src_ident.setVisible(True)
+
         for i in range(0, self.s_r_number_of_books):
             w = getattr(self, 'book_%d_text'%(i+1))
             mi = self.db.get_metadata(self.ids[i], index_is_id=True)
@@ -538,10 +556,15 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
             self.s_r_paint_results(None)
 
     def s_r_destination_field_changed(self, idx):
+        self.s_r_dst_ident_label.setVisible(False)
+        self.s_r_dst_ident.setVisible(False)
         txt = self.s_r_df_itemdata(idx)
         if not txt:
             txt = self.s_r_sf_itemdata(None)
         if txt and txt in self.writable_fields:
+            if txt == 'identifiers':
+                self.s_r_dst_ident_label.setVisible(True)
+                self.s_r_dst_ident.setVisible(True)
             self.destination_field_fm = self.db.metadata_for_field(txt)
         self.s_r_paint_results(None)
 
@@ -639,8 +662,12 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         if dest_mode != 0:
             dest_val = mi.get(dest, '')
             if self.db.metadata_for_field(dest)['is_csp']:
-                # convert the csp dict into a list
-                dest_val = [u'%s:%s'%(t[0], t[1]) for t in dest_val.iteritems()]
+                dst_id_type = unicode(self.s_r_dst_ident.text())
+                if dst_id_type:
+                    dest_val = [dest_val.get(dst_id_type, '')]
+                else:
+                    # convert the csp dict into a list
+                    dest_val = [u'%s:%s'%(t[0], t[1]) for t in dest_val.iteritems()]
             if dest_val is None:
                 dest_val = []
             elif not isinstance(dest_val, list):
@@ -726,7 +753,14 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
             # convert the colon-separated pair strings back into a dict, which
             # is what set_identifiers wants
             if dfm['is_csp']:
-                val = dict([(t.split(':')) for t in val])
+                dst_id_type = unicode(self.s_r_dst_ident.text())
+                if dst_id_type:
+                    v = ''.join(val)
+                    ids = mi.get(dest)
+                    ids[dst_id_type] = v
+                    val = ids
+                else:
+                    val = dict([(t.split(':')) for t in val])
         else:
             val = self.s_r_replace_mode_separator().join(val)
             if dest == 'title' and len(val) == 0:

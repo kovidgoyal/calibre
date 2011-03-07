@@ -2551,6 +2551,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
         return ans
 
+    def get_all_identifier_types(self):
+        idents = self.conn.get('SELECT DISTINCT type FROM identifiers')
+        return [ident[0] for ident in idents]
+
     def _clean_identifier(self, typ, val):
         typ = icu_lower(typ).strip().replace(':', '').replace(',', '')
         val = val.strip().replace(',', '|').replace(':', '|')
