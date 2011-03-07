@@ -14,7 +14,7 @@ class NationalGeoRo(BasicNewsRecipe):
     __author__            = u'Silviu Cotoar\u0103'
     description           = u'S\u0103 avem grij\u0103 de planet\u0103'
     publisher             = 'National Geographic'
-    oldest_article        = 5
+    oldest_article        = 35
     language              = 'ro'
     max_articles_per_feed = 100
     no_stylesheets        = True
