@@ -27,13 +27,12 @@ class KoboStore(BasicStoreConfig, StorePlugin):
         settings = self.get_settings()
 
         m_url = 'http://www.dpbolvw.net/'
-        h_click = 'click-4879827-10755858'
+        h_click = 'click-4879827-10762497'
         d_click = 'click-4879827-10772898'
         # Use Kovid's affiliate id 30% of the time.
         if random.randint(1, 10) in (1, 2, 3):
-            #h_click = ''
-            #d_click = ''
-            pass
+            h_click = 'click-4913808-10762497'
+            d_click = 'click-4913808-10772898'
         
         url = m_url + h_click
         detail_url = None

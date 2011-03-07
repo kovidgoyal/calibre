@@ -31,9 +31,8 @@ class EbookscomStore(BasicStoreConfig, StorePlugin):
         d_click = 'click-4879827-10281551'
         # Use Kovid's affiliate id 30% of the time.
         if random.randint(1, 10) in (1, 2, 3):
-            #h_click = ''
-            #d_click = ''
-            pass
+            h_click = 'click-4913808-10364500'
+            d_click = 'click-4913808-10281551'
         
         url = m_url + h_click
         detail_url = None
