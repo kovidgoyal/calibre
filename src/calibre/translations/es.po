@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-03-04 20:51+0000\n"
-"PO-Revision-Date: 2011-03-05 10:38+0000\n"
+"PO-Revision-Date: 2011-03-06 12:27+0000\n"
 "Last-Translator: Jellby <Unknown>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-03-06 04:48+0000\n"
+"X-Launchpad-Export-Date: 2011-03-07 04:48+0000\n"
 "X-Generator: Launchpad (build 12351)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:527
@@ -239,16 +239,16 @@ msgid ""
 "linked files. This plugin is run every time you add an HTML file to the "
 "library."
 msgstr ""
-"Seguir todos los enlaces locales de un archivo HTML y crear un archivo ZIP "
-"con los archivos enlazados. Este complemento se ejecuta cada vez que se "
-"añade un archivo HTML a la biblioteca."
+"Seguir todos los enlaces locales de un fichero HTML y crear un archivo ZIP "
+"con los ficheros enlazados. Este complemento se ejecuta cada vez que se "
+"añade un fichero HTML a la biblioteca."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:54
 msgid ""
 "Character encoding for the input HTML files. Common choices include: cp1252, "
 "latin1, iso-8859-1 and utf-8."
 msgstr ""
-"Codificación de los archivos HTML de entrada. Las opciones comunes incluyen: "
+"Codificación de los ficheros HTML de entrada. Las opciones comunes incluyen: "
 "cp1252, latin1, iso-8859-1 y utf-8."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:61
@@ -257,9 +257,9 @@ msgid ""
 "directory pmlname_img or images. This plugin is run every time you add a PML "
 "file to the library."
 msgstr ""
-"Crear un archivo PMLZ que contenga el archivo PML y todas las imágenes en "
-"los directorios pmlname_img o imágenes. Este complemento se ejecutará cada "
-"vez que añada un archivo PML a la biblioteca"
+"Crear un archivo PMLZ que contenga el fichero PML y todas las imágenes en "
+"los directorios «pmlname_img» o «images». Este complemento se ejecutará cada "
+"vez que añada un fichero PML a la biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:91
 msgid ""
@@ -273,7 +273,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:166
 msgid "Extract cover from comic files"
-msgstr "Extraer la portada de los archivos de cómic"
+msgstr "Extraer la portada de los ficheros de cómic"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:195
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:206
@@ -313,12 +313,12 @@ msgstr "Leer metadatos de libros electrónicos en archivos ZIP"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:483
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:493
 msgid "Set metadata in %s files"
-msgstr "Asignar metadatos a los archivos %s"
+msgstr "Asignar metadatos a los ficheros %s"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:461
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:504
 msgid "Set metadata from %s files"
-msgstr "Asignar metadatos desde archivos %s"
+msgstr "Asignar metadatos desde ficheros %s"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:822
 msgid "Look and Feel"
@@ -423,7 +423,8 @@ msgstr "Importar/Exportar"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:918
 msgid "Control how calibre reads metadata from files when adding books"
 msgstr ""
-"Controla cuándo calibre lee los metadatos de los archivos al añadir libros"
+"Controla la manerera en que calibre lee los metadatos de los ficheros al "
+"añadir libros"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:924
 msgid "Saving books to disk"
@@ -434,8 +435,8 @@ msgid ""
 "Control how calibre exports files from its database to disk when using Save "
 "to disk"
 msgstr ""
-"Controla cuándo calibre exporta archivos de su base de datos al dicos al "
-"usar Guardar al disco"
+"Controla la manera en que calibre exporta ficheros de su base de datos al "
+"disco al usar «Guardar en el disco»"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:936
 msgid "Sending books to devices"
@@ -444,7 +445,8 @@ msgstr "Enviar libros a dispositivos"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:942
 msgid "Control how calibre transfers files to your ebook reader"
 msgstr ""
-"Controla cuándo calibre transfiere los archivos a su lector de libros"
+"Controla la manera en que calibre transfiere los ficheros a su lector de "
+"libros"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:948
 msgid "Metadata plugboards"
@@ -701,7 +703,7 @@ msgstr "Este perfil está pensado para el Sandra Bambook."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:36
 msgid "Mapping for filetype plugins"
-msgstr "Asociaciones para complementos por tipos de archivo"
+msgstr "Asociaciones para complementos por tipos de fichero"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:37
 msgid "Local plugin customization"
@@ -1210,9 +1212,9 @@ msgid ""
 "\".kobo\" files do not exist on the device as books instead, they are rows "
 "in the sqlite database. Currently they cannot be exported or viewed."
 msgstr ""
-"Los archivos «.kobo» no existen en el dispositivo como libros, sino que son "
-"filas en una base de datos sqlite. En la actualidad, no pueden exportarse o "
-"verse."
+"Los ficheros «.kobo» no existen en el dispositivo como libros, sino que son "
+"registros en una base de datos sqlite. En la actualidad, no pueden "
+"exportarse o verse."
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:19
 msgid "Communicate with the Palm Pre"
@@ -1490,12 +1492,12 @@ msgstr "Lista ordenada de formatos que el dispositivo aceptará"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:59
 msgid "Place files in sub directories if the device supports them"
-msgstr "Colocar los archivos en subdirectorios si el dispositivo los soporta"
+msgstr "Colocar los ficheros en subdirectorios si el dispositivo los soporta"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:61
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:81
 msgid "Read metadata from files on device"
-msgstr "Leer los metadatos de los archivos del dispositivo"
+msgstr "Leer los metadatos de los ficheros del dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:63
 msgid "Use author sort instead of author"
@@ -1604,7 +1606,7 @@ msgid ""
 "Don't sort the files found in the comic alphabetically by name. Instead use "
 "the order they were added to the comic."
 msgstr ""
-"No ordenar los archivos encontrados en el cómic por nombre alfabético. En su "
+"No ordenar los ficheros encontrados en el cómic por nombre alfabético. En su "
 "lugar usar el orden en el que fueron agregados al cómic."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:296
@@ -1672,27 +1674,27 @@ msgid ""
 "\n"
 "For full documentation of the conversion system see\n"
 msgstr ""
-"archivo_entrada archivo-salida [opciones]\n"
+"fichero_entrada fichero_salida [opciones]\n"
 "\n"
 "Convertir un libro electrónico de un formato a otro.\n"
 "\n"
-"archivo_entrada es la entrada y archivo_salida es la salida. Deben indicarse "
+"fichero_entrada es la entrada y fichero_salida es la salida. Deben indicarse "
 "ambos como los dos primeros argumentos de la orden.\n"
 "\n"
 "El formato del libro electrónico de salida se define a partir de la "
-"extensión de archivo_salida. archivo_salida puede también tener el formato "
-"especial .EXT, donde EXT es la extensión del archivo de salida. En este "
-"caso, el nombre del archivo de salida se obtiene a partir del nombre del "
-"archivo de entrada. Tenga en cuenta que los nombres de archivo no deben "
-"comenzar con guión. Por último, si archivo_salida no tiene extensión, se "
+"extensión de fichero_salida. fichero_salida puede también tener el formato "
+"especial .EXT, donde EXT es la extensión del fichero de salida. En este "
+"caso, el nombre del fichero de salida se obtiene a partir del nombre del "
+"fichero de entrada. Tenga en cuenta que los nombres de fichero no deben "
+"comenzar con guión. Por último, si fichero_salida no tiene extensión, se "
 "interpreta como un directorio y se generará un «open eBook» (OEB), formado "
-"por un conjunto de archivos HTML, en ese directorio. Estos archivos son los "
+"por un conjunto de ficheros HTML, en ese directorio. Estos ficheros son los "
 "que normalmente se habrían pasado al complemento de salida.\n"
 "\n"
-"Tras especificar los archivos de entrada y salida, se puede personalizar la "
+"Tras especificar los ficheros de entrada y salida, se puede personalizar la "
 "conversión indicando varias opciones. Las opciones disponibles dependen de "
-"los tipos de archivo de entrada y salida. Para obtener ayuda sobre estas "
-"opciones, utilice la opción -h después de los nombres de archivo de entrada "
+"los tipos de fichero de entrada y salida. Para obtener ayuda sobre estas "
+"opciones, utilice la opción -h después de los nombres de fichero de entrada "
 "y salida.\n"
 "\n"
 "Para una documentación completa del sistema de conversión, ver\n"
@@ -1703,7 +1705,7 @@ msgstr "OPCIONES DE ENTRADA"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:107
 msgid "Options to control the processing of the input %s file"
-msgstr "Opciones para controlar el procesamiento del archivo de entrada %s."
+msgstr "Opciones para controlar el procesamiento del fichero de entrada %s."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:113
 msgid "OUTPUT OPTIONS"
@@ -1745,7 +1747,7 @@ msgid ""
 "automatically generated one."
 msgstr ""
 "Controla la generación automática del Índice. De manera predeterminada, si "
-"el archivo de entrada tiene un Índice, se usará éste en lugar del generado "
+"el fichero de entrada tiene un Índice, se usará éste en lugar del generado "
 "automáticamente."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:179
@@ -1982,7 +1984,7 @@ msgid ""
 "rules."
 msgstr ""
 "La ruta a una hoja de estilo CSS o CSS en bruto. Este CSS se agregará a las "
-"reglas de estilo del archivo de origen, por lo que puede usarse para anular "
+"reglas de estilo del fichero de origen, por lo que puede usarse para anular "
 "dichas reglas."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:303
@@ -2031,8 +2033,8 @@ msgstr ""
 "Cambiar la justificación del texto. El valor «izquierda» hace que el texto "
 "justificado en la fuente quede alineado a la izquierda (no justificado). El "
 "valor «justificar» hace que el texto no justificado quede justificado. El "
-"valor «original» (el predeterminado) no altera la justificación del archivo "
-"fuente. Tenga en cuenta que no todos los formatos de salida admiten "
+"valor «original» (el predeterminado) no altera la justificación del fichero "
+"de origen. Tenga en cuenta que no todos los formatos de salida admiten "
 "justificación."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:340
@@ -2043,7 +2045,7 @@ msgid ""
 msgstr ""
 "Eliminar el espacio entre párrafos. También establece sangrado en la primera "
 "línea de cada párrafo de 1,5em. La eliminación del espacio no funciona si el "
-"archivo de origen no define párrafos (etiquetas <p> o <div>)."
+"fichero de origen no define párrafos (etiquetas <p> o <div>)."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:347
 msgid ""
@@ -2077,7 +2079,7 @@ msgid ""
 "the source file is a cover and you are specifying an external cover."
 msgstr ""
 "Eliminar la primera imagen del libro electrónico de entrada. Es útil si la "
-"primera imagen del archivo es una portada y se está especificando una "
+"primera imagen del fichero es una portada y se está especificando una "
 "portada externa."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:375
@@ -2102,8 +2104,8 @@ msgid ""
 "Read metadata from the specified OPF file. Metadata read from this file will "
 "override any metadata in the source file."
 msgstr ""
-"Leer metadatos del archivo OPF especificado. Los metadatos leídos de este "
-"archivo anularán cualquier metadato que haya en el archivo de origen."
+"Leer metadatos del fichero OPF especificado. Los metadatos leídos de este "
+"fichero anularán cualquier metadato que haya en el fichero de origen."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:399
 msgid ""
@@ -2158,7 +2160,7 @@ msgstr "Texto que se usará para ordenar por autor. "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:443
 msgid "Set the cover to the specified file or URL"
-msgstr "Establecer la portada desde el archivo o la URL especificada"
+msgstr "Establecer la portada desde el fichero o la URL especificados"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:447
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:54
@@ -2404,19 +2406,20 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/main.py:52
 msgid "You must specify an epub file"
-msgstr "Ha de especificar un archivo epub"
+msgstr "Ha de especificar un fichero epub"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/unmanifested.py:17
 msgid "Fix unmanifested files"
-msgstr "Corregir archivos sin manifiesto"
+msgstr "Corregir ficheros que no están en el manifiesto"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/unmanifested.py:21
 msgid ""
 "Fix unmanifested files. epub-fix can either add them to the manifest or "
 "delete them as specified by the delete unmanifested option."
 msgstr ""
-"Corregir archivos sin declarar. epub-fix puede tanto añadirlos al manifiesto "
-"o eliminarlos según especifique la opción \"sin declarar\"."
+"Corregir ficheros sin declarar. epub-fix puede tanto añadirlos al manifiesto "
+"como eliminarlos según especifique la opción de eliminar ficheros sin "
+"declarar."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/unmanifested.py:32
 msgid "Delete unmanifested files instead of adding them to the manifest"
@@ -2427,7 +2430,7 @@ msgid ""
 "Extract the contents of the generated EPUB file to the specified directory. "
 "The contents of the directory are first deleted, so be careful."
 msgstr ""
-"Extraer los contenidos del archivo EPUB generado al directorio especificado. "
+"Extraer los contenidos del fichero EPUB generado al directorio especificado. "
 "El contenido del directorio será borrado, así que tenga cuidado."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:62
@@ -2438,10 +2441,10 @@ msgid ""
 "if your source file contains a very large number of page breaks, you should "
 "turn off splitting on page breaks."
 msgstr ""
-"Desactivar la división en los saltos de página. Normalmente los archivos de "
-"entrada se dividen automáticamente en dos archivos en cada salto de página. "
+"Desactivar la división en los saltos de página. Normalmente los ficheros de "
+"entrada se dividen automáticamente en dos ficheros en cada salto de página. "
 "Esto genera un libro electrónico que se procesa más rápidamente y con menos "
-"recursos. Sin embargo, la división es un proceso lento y, si el archivo de "
+"recursos. Sin embargo, la división es un proceso lento y, si el fichero de "
 "entrada contiene muchos saltos de página, es mejor desactivar la división."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:73
@@ -2450,8 +2453,8 @@ msgid ""
 "most EPUB readers cannot handle large file sizes. The default of %defaultKB "
 "is the size required for Adobe Digital Editions."
 msgstr ""
-"Dividir todos los archivos HTML mayores de este tamaño (en kB). Esto es "
-"necesario porque algunos lectores ePub no pueden manejar archivos muy "
+"Dividir todos los ficheros HTML mayores de este tamaño (en kB). Esto es "
+"necesario porque algunos lectores ePub no pueden manejar ficheros muy "
 "grandes. El valor predeterminado de %defaultKB es el tamaño requerido por "
 "Adobe Digital Editions."
 
@@ -2461,7 +2464,7 @@ msgid ""
 "default cover is generated with the title, authors, etc. This option "
 "disables the generation of this cover."
 msgstr ""
-"Normalmente, si el archivo de entrada no tiene portada y no especifica una, "
+"Normalmente, si el fichero de entrada no tiene portada y no especifica una, "
 "se generará una portada con el título, autores, etc. Esta opción desactiva "
 "la generación de esta portada."
 
@@ -2534,7 +2537,7 @@ msgid ""
 "Traverse links in HTML files breadth first. Normally, they are traversed "
 "depth first."
 msgstr ""
-"Hacer una búsqueda en anchura de los enlaces en archivos HTML. Normalmente "
+"Hacer una búsqueda en anchura de los enlaces en ficheros HTML. Normalmente "
 "se hace una búsqueda en profundidad."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:255
@@ -2543,8 +2546,8 @@ msgid ""
 "negative. 0 implies that no links in the root HTML file are followed. "
 "Default is %default."
 msgstr ""
-"Nivel de recursión máximo para segir enlaces en archivos HTML. No debe ser "
-"negativo. El valor 0 implica que no se seguirá ningún enlace en el archivo "
+"Nivel de recursión máximo para segir enlaces en ficheros HTML. No debe ser "
+"negativo. El valor 0 implica que no se seguirá ningún enlace en el fichero "
 "HTML raíz. El valor predeterminado es %default."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:264
@@ -2554,7 +2557,7 @@ msgid ""
 "can result in various nasty side effects in the rest of of the conversion "
 "pipeline."
 msgstr ""
-"Normalmente este complemento de entrada recoloca todos los archivos de "
+"Normalmente este complemento de entrada recoloca todos los ficheros de "
 "entrada en un árbol de carpetas estándar. Use esta opción sólo si sabe lo "
 "que está haciendo, ya que puede ocasionar varios efectos desagradables en el "
 "resto del proceso de conversión."
@@ -2589,11 +2592,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/from_any.py:47
 msgid "Creating LIT file from EPUB..."
-msgstr "Creando archivo LIT a partir de EPUB..."
+msgstr "Creando fichero LIT a partir de EPUB..."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:320
 msgid "\tBook Designer file detected."
-msgstr "\tArchivo de Book Designer detectado."
+msgstr "\tFichero de Book Designer detectado."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:322
 msgid "\tParsing HTML..."
@@ -2601,7 +2604,7 @@ msgstr "\tAnalizando HTML..."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:345
 msgid "\tBaen file detected. Re-parsing..."
-msgstr "\tArchivo Baen detectado. Volviendo a analizar..."
+msgstr "\tFichero Baen detectado. Volviendo a analizar..."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:361
 msgid "Written preprocessed HTML to "
@@ -2622,7 +2625,7 @@ msgstr "No se pudo analizar el fichero: %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:544
 msgid "%s is an empty file"
-msgstr "%s es un archivo vacío"
+msgstr "%s es un fichero vacío"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:564
 msgid "Failed to parse link %s %s"
@@ -2676,7 +2679,7 @@ msgstr "No se pudo leer de: %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1994
 msgid "Failed to process opf file"
-msgstr "No se pudo procesar el archivo OPF"
+msgstr "No se pudo procesar el fichero OPF"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrfparser.py:136
 msgid ""
@@ -2684,7 +2687,7 @@ msgid ""
 "Convert an LRF file into an LRS (XML UTF-8 encoded) file"
 msgstr ""
 "%prog libro.lrf\n"
-"Convierte un archivo LRF en un archivo LRS (XML codificado en UTF-8)"
+"Convierte un fichero LRF en un fichero LRS (XML codificado en UTF-8)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrfparser.py:137
 msgid "Output LRS file"
@@ -2781,7 +2784,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:607
 msgid "Extract thumbnail from LRF file"
-msgstr "Extraer la miniatura del archivo LRF"
+msgstr "Extraer la miniatura del fichero LRF"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:608
 msgid "Set the publisher"
@@ -2804,7 +2807,7 @@ msgid ""
 "Extract cover from LRF file. Note that the LRF format has no defined cover, "
 "so we use some heuristics to guess the cover."
 msgstr ""
-"Extraer la portada de un archivo LRF. Nótese que el formato LRF no define "
+"Extraer la portada de un fichero LRF. Nótese que el formato LRF no define "
 "una portada, así que se usa heurística para encontrar la portada."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:615
@@ -4385,7 +4388,7 @@ msgid ""
 "Add books from directories, including sub-directories (One book per "
 "directory, assumes every ebook file is the same book in a different format)"
 msgstr ""
-"Añadir libros de directorios, incluyendo subdirectorios (Un libro por "
+"Añadir libros de directorios, incluyendo subdirectorios. (Un libro por "
 "directorio, se asume que cada fichero de libro electrónico es el mismo libro "
 "en diferente formato."
 
@@ -4394,7 +4397,7 @@ msgid ""
 "Add books from directories, including sub directories (Multiple books per "
 "directory, assumes every ebook file is a different book)"
 msgstr ""
-"Añadir libros de directorios, incluyendo subdirectorios (Múltiples libros "
+"Añadir libros de directorios, incluyendo subdirectorios. (Múltiples libros "
 "por directorio, se asume que cada fichero de libro electrónico es un libro "
 "diferente."
 
@@ -4500,7 +4503,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:375
 msgid "No book files found"
-msgstr "No se han encontrado archivos de libros"
+msgstr "No se han encontrado ficheros de libros"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add_to_library.py:13
 msgid "Add books to library"
@@ -4675,8 +4678,9 @@ msgid ""
 "Failed to rename the library at %s. The most common cause for this is if one "
 "of the files in the library is open in another program."
 msgstr ""
-"Falló el renombrado de la biblioteca en %s. La causa más común para esto es "
-"que uno de los archivos de la biblioteca está abierto en otro programa."
+"Falló el cambio de nombre de la biblioteca en %s. La causa más común para "
+"esto es que uno de los ficheros de la biblioteca está abierto en otro "
+"programa."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:244
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/confirm_delete_ui.py:53
@@ -4692,7 +4696,7 @@ msgstr "¿Está seguro?"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:245
 msgid "All files from %s will be <b>permanently deleted</b>. Are you sure?"
 msgstr ""
-"Todos los archivos de %s se <b>eliminarán permanentemente</b>. ¿Está seguro?"
+"Todos los ficheros de %s se <b>eliminarán permanentemente</b>. ¿Está seguro?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:265
 msgid "none"
@@ -4823,7 +4827,7 @@ msgstr "Iniciando la conversión de %d libro(s)"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:170
 msgid "Empty output file, probably the conversion process crashed"
 msgstr ""
-"Archivo de salida vacío, probablemente el proceso de conversión ha reventado"
+"Fichero de salida vacío, probablemente el proceso de conversión ha fallado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:83
 msgid "Copy to library"
@@ -4980,7 +4984,7 @@ msgid ""
 "from your calibre library. Are you sure?"
 msgstr ""
 "Los libros seleccionados serán <b>borrados permanentemente</b> y los "
-"archivos removidos de su biblioteca calibre. ¿Está seguro?"
+"ficheros eliminados de su biblioteca calibre. ¿Está seguro?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:283
 msgid ""
@@ -5349,9 +5353,9 @@ msgid ""
 "corruption of your library. Save to disk is meant to export files from your "
 "calibre library elsewhere."
 msgstr ""
-"Está intentando guardar los archivos de su biblioteca de calibre. Esto puede "
-"corromper su biblioteca. Guardar al disco tiene como objetivo exportar los "
-"archivos de su biblioteca de calibre a otro lugar."
+"Está intentando guardar los ficheros en su biblioteca de calibre. Esto puede "
+"corromper la biblioteca. Guardar en el disco tiene como objetivo exportar "
+"los archivos de su biblioteca de calibre a otro lugar."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:136
 msgid "Error while saving"
@@ -5590,7 +5594,7 @@ msgstr "Buscando libros"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/__init__.py:74
 msgid "Looking for duplicates based on file hash"
-msgstr "Buscando duplicados basándose en el hash del archivo"
+msgstr "Buscando duplicados basándose en las huellas de fichero"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/__init__.py:109
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:70
@@ -8166,7 +8170,7 @@ msgstr "Nombres a ignorar:"
 msgid ""
 "Enter comma-separated standard file name wildcards, such as synctoy*.dat"
 msgstr ""
-"Introduzca nombres de archivo estandard como comodín, separados por coma, "
+"Introduzca nombres de fichero estandard como comodín, separados por coma, "
 "tal como synctoy*.dat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:254
@@ -8200,7 +8204,7 @@ msgid ""
 "The marked files and folders will be <b>permanently deleted</b>. Are you "
 "sure?"
 msgstr ""
-"Los archivos y carpetas marcadas se <b>eliminarán permanentemente</b>. ¿Está "
+"Los ficheros y carpetas marcados se <b>eliminarán permanentemente</b>. ¿Está "
 "seguro?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_format_device_ui.py:48
@@ -15107,8 +15111,8 @@ msgid ""
 "The prefix for all file paths. Default is the absolute path to the library "
 "folder."
 msgstr ""
-"El prefijo para todas las rutas de fichero. Por defcto es la ruta absoluta "
-"de la carpeta de la biblioteca."
+"El prefijo para todas las rutas de fichero. El valor predeterminado es la "
+"ruta absoluta de la carpeta de la biblioteca."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:168
 msgid "Invalid fields. Available fields:"
@@ -15210,8 +15214,8 @@ msgstr ""
 "%prog add_format [opciones] ID fichero_libro\n"
 "\n"
 "Añadir el libro electrónico fichero_libro a los formatos disponibles para el "
-"libro identificado por ID. Se puede obtener el ID usando la orden \"list\". "
-"Si el formato ya existe, será reemplazado por el nuevo.\n"
+"libro identificado por ID. Se puede obtener el ID usando la orden «list». Si "
+"el formato ya existe, será reemplazado por el nuevo.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:384
 msgid "You must specify an id and an ebook file"
@@ -15234,7 +15238,7 @@ msgstr ""
 "%prog remove_format [options] ID fmt\n"
 "\n"
 "Eliminar el formato fmt del libro identificado por ID. Se puede obtener el "
-"ID usando la orden \"list\". fmt debe ser una extensión de fichero como LRF, "
+"ID usando la orden «list». fmt debe ser una extensión de fichero como LRF, "
 "TXT o EPUB. Si el libro no tiene el formato fmt disponible, no hace nada.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:414
@@ -15282,8 +15286,7 @@ msgstr ""
 "\n"
 "Asignar los metadatos del libro identificado por ID a partir del fichero "
 "OPF\n"
-"metadatos.opf. El ID es un identificador de orden \"list\". Puede ver en "
-"qué\n"
+"metadatos.opf. El ID es un identificador de orden «list». Puede ver en qué\n"
 "consiste el formato OPF usando la opción --as-opf en la orden "
 "show_metadata.\n"
 
@@ -15308,7 +15311,7 @@ msgstr ""
 "al sistema de ficheros. La operación de exportación guarda todos los "
 "formatos del libro, su portada\n"
 "y metadatos (en un fichero OPF). Se pueden obtener los identificadores con "
-"la orden \"list\".\n"
+"la orden «list».\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:508
 msgid "Export all books in database, ignoring the list of ids."
@@ -15878,7 +15881,7 @@ msgid ""
 "directory with filenames containing title and author. Available controls "
 "are: {%s}"
 msgstr ""
-"La plantilla para controlar el nombre de archivo y la estructura de "
+"La plantilla para controlar el nombre de fichero y la estructura de "
 "directorio de los archivos enviados al dispositivo. El valor predeterminado "
 "es «%s» lo que guardará los libros en un directorio por autor con el título "
 "y el nombre del autor en el nombre de cada archivo. Los controles "
@@ -16127,7 +16130,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/server/main.py:54
 msgid "Write process PID to the specified file"
-msgstr "Escribir PID del proceso al archivo especificado"
+msgstr "Escribir PID del proceso al fichero especificado"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/main.py:58
 msgid ""
