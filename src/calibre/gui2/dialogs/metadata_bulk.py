@@ -363,8 +363,9 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
             if (f in ['author_sort'] or
                     (fm[f]['datatype'] in ['text', 'series', 'enumeration']
                      and fm[f].get('search_terms', None)
-                     and f not in ['formats', 'ondevice', 'id']) or
-                    fm[f]['datatype'] in ['int', 'float', 'bool'] ):
+                     and f not in ['formats', 'ondevice']) or
+                    (fm[f]['datatype'] in ['int', 'float', 'bool'] and
+                     f not in ['id'])):
                 self.all_fields.append(f)
                 self.writable_fields.append(f)
             if fm[f]['datatype'] == 'composite':
