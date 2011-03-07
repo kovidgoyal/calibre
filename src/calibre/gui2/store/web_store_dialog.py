@@ -4,9 +4,6 @@ __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import re
-import urllib
-
 from PyQt4.Qt import QDialog, QUrl
 
 from calibre import url_slash_cleaner

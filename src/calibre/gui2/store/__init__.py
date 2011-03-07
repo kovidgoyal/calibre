@@ -5,6 +5,35 @@ __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
 class StorePlugin(object): # {{{
+    '''
+    A plugin representing an online ebook repository (store). The store can
+    be a comercial store that sells ebooks or a source of free downloadable
+    ebooks.
+
+    Note that this class is the base class for these plugins, however, to
+    integrate the plugin with calibre's plugin system, you have to make a
+    wrapper class that references the actual plugin. See the
+    :mod:`calibre.customize.builtins` module for examples.
+
+    If two :class:`StorePlugin` objects have the same name, the one with higher
+    priority takes precedence.
+    
+    Sub-classes must implement :meth:`open`, and :meth:`search`.
+    
+    Regarding :meth:`open`. Most stores only make themselves available
+    though a web site thus most store plugins will open using
+    :class:`calibre.gui2.store.web_store_dialog.WebStoreDialog`. This will
+    open a modal window and display the store website in a QWebView.
+    
+    Sub-classes should implement and use the :meth:`genesis` if they require
+    plugin specific initialization. They should not override or otherwise
+    reimplement :meth:`__init__`.
+    
+    Once initialized, this plugin has access to the main calibre GUI via the
+    :attr:`gui` member. You can access other plugins by name, for example::
+
+        self.gui.istores['Amazon Kindle']
+    '''
 
     def __init__(self, gui, name):
         self.gui = gui
@@ -36,12 +65,18 @@ class StorePlugin(object): # {{{
         Searches the store for items matching query. This should
         return items as a generator.
         
+        Don't be lazy with the search! Load as much data as possible in the
+        :class:`calibre.gui2.store.search_result.SearchResult` object. If you have to parse
+        multiple pages to get all of the data then do so. However, if data (such as cover_url)
+        isn't available because the store does not display cover images then it's okay to
+        ignore it.
+        
         :param query: The string query search with.
         :param max_results: The maximum number of results to return.
         :param timeout: The maximum amount of time in seconds to spend download the search results.
         
         :return: :class:`calibre.gui2.store.search_result.SearchResult` objects
-        item_data is plugin specific and is used in :meth:`open` to open to a specifc place in the store.
+        item_data is plugin specific and is used in :meth:`open` to open to a specifc place in the store. 
         '''
         raise NotImplementedError()
     
@@ -61,15 +96,27 @@ class StorePlugin(object): # {{{
         self.genesis()
 
     def genesis(self):
+        '''
+        Plugin specific initialization.
+        '''
         pass
     
     def config_widget(self):
+        '''
+        See :class:`calibre.customize.Plugin` for details.
+        '''
         raise NotImplementedError()
     
     def save_settings(self, config_widget):
+        '''
+        See :class:`calibre.customize.Plugin` for details.
+        '''
         raise NotImplementedError()
     
     def customization_help(self, gui=False):
+        '''
+        See :class:`calibre.customize.Plugin` for details.
+        '''
         raise NotImplementedError()
 
 # }}}
