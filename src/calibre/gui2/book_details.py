@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, collections, sys
+import collections, sys
 from Queue import Queue
 
 from PyQt4.Qt import QPixmap, QSize, QWidget, Qt, pyqtSignal, QUrl, \
@@ -14,7 +14,8 @@ from PyQt4.Qt import QPixmap, QSize, QWidget, Qt, pyqtSignal, QUrl, \
 from PyQt4.QtWebKit import QWebView
 
 from calibre import fit_image, prepare_string_for_xml
-from calibre.gui2.widgets import IMAGE_EXTENSIONS
+from calibre.gui2.dnd import dnd_has_image, dnd_get_image, dnd_get_files, \
+    IMAGE_EXTENSIONS, dnd_has_extension
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.constants import preferred_encoding
 from calibre.library.comments import comments_to_html
@@ -165,11 +166,12 @@ class CoverView(QWidget): # {{{
     def copy_to_clipboard(self):
         QApplication.instance().clipboard().setPixmap(self.pixmap)
 
-    def paste_from_clipboard(self):
-        cb = QApplication.instance().clipboard()
-        pmap = cb.pixmap()
-        if pmap.isNull() and cb.supportsSelection():
-            pmap = cb.pixmap(cb.Selection)
+    def paste_from_clipboard(self, pmap=None):
+        if not isinstance(pmap, QPixmap):
+            cb = QApplication.instance().clipboard()
+            pmap = cb.pixmap()
+            if pmap.isNull() and cb.supportsSelection():
+                pmap = cb.pixmap(cb.Selection)
         if not pmap.isNull():
             self.pixmap = pmap
             self.do_layout()
@@ -226,6 +228,7 @@ class BookInfo(QWebView):
         self._link_clicked = False
         self.setAttribute(Qt.WA_OpaquePaintEvent, False)
         palette = self.palette()
+        self.setAcceptDrops(False)
         palette.setBrush(QPalette.Base, Qt.transparent)
         self.page().setPalette(palette)
 
@@ -388,36 +391,50 @@ class BookDetails(QWidget): # {{{
     show_book_info = pyqtSignal()
     open_containing_folder = pyqtSignal(int)
     view_specific_format = pyqtSignal(int, object)
-
-    # Drag 'n drop {{{
-    DROPABBLE_EXTENSIONS = IMAGE_EXTENSIONS+BOOK_EXTENSIONS
+    remote_file_dropped = pyqtSignal(object, object)
     files_dropped = pyqtSignal(object, object)
     cover_changed = pyqtSignal(object, object)
 
-    # application/x-moz-file-promise-url
-    @classmethod
-    def paths_from_event(cls, event):
-        '''
-        Accept a drop event and return a list of paths that can be read from
-        and represent files with extensions.
-        '''
-        if event.mimeData().hasFormat('text/uri-list'):
-            urls = [unicode(u.toLocalFile()) for u in event.mimeData().urls()]
-            urls = [u for u in urls if os.path.splitext(u)[1] and os.access(u, os.R_OK)]
-            return [u for u in urls if os.path.splitext(u)[1][1:].lower() in cls.DROPABBLE_EXTENSIONS]
+    # Drag 'n drop {{{
+    DROPABBLE_EXTENSIONS = IMAGE_EXTENSIONS+BOOK_EXTENSIONS
 
     def dragEnterEvent(self, event):
-        if int(event.possibleActions() & Qt.CopyAction) + \
-           int(event.possibleActions() & Qt.MoveAction) == 0:
-            return
-        paths = self.paths_from_event(event)
-        if paths:
+        md = event.mimeData()
+        if dnd_has_extension(md, self.DROPABBLE_EXTENSIONS) or \
+                dnd_has_image(md):
             event.acceptProposedAction()
 
     def dropEvent(self, event):
-        paths = self.paths_from_event(event)
         event.setDropAction(Qt.CopyAction)
-        self.files_dropped.emit(event, paths)
+        md = event.mimeData()
+
+        x, y = dnd_get_image(md)
+        if x is not None:
+            # We have an image, set cover
+            event.accept()
+            if y is None:
+                # Local image
+                self.cover_view.paste_from_clipboard(x)
+            else:
+                self.remote_file_dropped.emit(x, y)
+                # We do not support setting cover *and* adding formats for
+                # a remote drop, anyway, so return
+                return
+
+        # Now look for ebook files
+        urls, filenames = dnd_get_files(md, BOOK_EXTENSIONS)
+        if not urls:
+            # Nothing found
+            return
+
+        if not filenames:
+            # Local files
+            self.files_dropped.emit(event, urls)
+        else:
+            # Remote files, use the first file
+            self.remote_file_dropped.emit(urls[0], filenames[0])
+        event.accept()
+
 
     def dragMoveEvent(self, event):
         event.acceptProposedAction()
