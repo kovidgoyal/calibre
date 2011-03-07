@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import (unicode_literals, division, absolute_import, print_function)
+
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
@@ -39,7 +41,6 @@ class SmashwordsStore(BasicStoreConfig, StorePlugin):
         if external or settings.get(self.name + '_open_external', False):
             open_url(QUrl(url_slash_cleaner(detail_url if detail_url else url)))
         else:
-            print detail_url
             d = WebStoreDialog(self.gui, url, parent, detail_url)
             d.setWindowTitle(self.name)
             d.set_tags(settings.get(self.name + '_tags', ''))
