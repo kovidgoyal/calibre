@@ -798,7 +798,10 @@ class ResultCache(SearchQueryParser): # {{{
 
         # Set the values in the cache
         marked_col = self.FIELD_MAP['marked']
-        for id_,val in self.marked_ids_dict.iteritems():
+        for id_ in self.iterallids():
+            self._data[id_][marked_col] = None
+
+        for id_, val in self.marked_ids_dict.iteritems():
             try:
                 self._data[id_][marked_col] = val
             except:
