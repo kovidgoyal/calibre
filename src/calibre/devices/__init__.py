@@ -30,6 +30,7 @@ def strftime(epoch, zone=time.gmtime):
 def get_connected_device():
     from calibre.customize.ui import device_plugins
     from calibre.devices.scanner import DeviceScanner
+    import uuid
     dev = None
     scanner = DeviceScanner()
     scanner.scan()
@@ -47,7 +48,7 @@ def get_connected_device():
 
     for d in connected_devices:
         try:
-            d.open()
+            d.open(str(uuid.uuid4()))
         except:
             continue
         else:
