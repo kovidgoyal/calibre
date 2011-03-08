@@ -78,6 +78,9 @@ class ANDROID(USBMS):
             # Xperia
             0x13d3 : { 0x3304 : [0x0001, 0x0002] },
 
+            # CREEL?? Also Nextbook
+            0x5e3 : { 0x726 : [0x222] },
+
             }
     EBOOK_DIR_MAIN = ['eBooks/import', 'wordplayer/calibretransfer', 'Books']
     EXTRA_CUSTOMIZATION_MESSAGE = _('Comma separated list of directories to '
