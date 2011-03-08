@@ -7,7 +7,7 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import re, itertools, time, traceback
-from itertools import repeat, izip
+from itertools import repeat
 from datetime import timedelta
 from threading import Thread
 
@@ -788,7 +788,7 @@ class ResultCache(SearchQueryParser): # {{{
         '''
         if not hasattr(id_dict, 'items'):
             # Simple list. Make it a dict of string 'true'
-            self.marked_ids_dict = dict(izip(id_dict, repeat(u'true')))
+            self.marked_ids_dict = dict.fromkeys(id_dict, u'true')
         else:
             self.marked_ids_dict = id_dict.copy()
             # Ensure that all the items in the dict are text
