@@ -40,13 +40,14 @@ class CHMError(Exception):
     pass
 
 class CHMReader(CHMFile):
-    def __init__(self, input, log):
+    def __init__(self, input, log, opts):
         CHMFile.__init__(self)
         if isinstance(input, unicode):
             input = input.encode(filesystem_encoding)
         if not self.LoadCHM(input):
             raise CHMError("Unable to open CHM file '%s'"%(input,))
         self.log = log
+        self.opts = opts
         self._sourcechm = input
         self._contents = None
         self._playorder = 0
@@ -151,6 +152,8 @@ class CHMReader(CHMFile):
                     break
 
     def _reformat(self, data, htmlpath):
+        if self.opts.input_encoding:
+            data = data.decode(self.opts.input_encoding)
         try:
             data = xml_to_unicode(data, strip_encoding_pats=True)[0]
             soup = BeautifulSoup(data)
