@@ -374,6 +374,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
         self.FIELD_MAP['ondevice'] = base = base+1
         self.field_metadata.set_field_record_index('ondevice', base, prefer_custom=False)
+        self.FIELD_MAP['marked'] = base = base+1
+        self.field_metadata.set_field_record_index('marked', base, prefer_custom=False)
 
         script = '''
         DROP VIEW IF EXISTS meta2;
@@ -421,6 +423,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.row     = self.data.row
         self.has_id  = self.data.has_id
         self.count   = self.data.count
+        self.set_marked_ids = self.data.set_marked_ids
 
         for prop in (
                 'author_sort', 'authors', 'comment', 'comments',
