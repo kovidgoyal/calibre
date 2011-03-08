@@ -17,16 +17,18 @@ from calibre.gui2.viewer.bookmarkmanager import BookmarkManager
 from calibre.gui2.widgets import ProgressIndicator
 from calibre.gui2.main_window import MainWindow
 from calibre.gui2 import Application, ORG_NAME, APP_UID, choose_files, \
-    info_dialog, error_dialog, open_url, available_height, gprefs
+    info_dialog, error_dialog, open_url, available_height
 from calibre.ebooks.oeb.iterator import EbookIterator
 from calibre.ebooks import DRMError
 from calibre.constants import islinux, isfreebsd, isosx, filesystem_encoding
-from calibre.utils.config import Config, StringConfig, dynamic
+from calibre.utils.config import Config, StringConfig, JSONConfig
 from calibre.gui2.search_box import SearchBox2
 from calibre.ebooks.metadata import MetaInformation
 from calibre.customize.ui import available_input_formats
 from calibre.gui2.viewer.dictionary import Lookup
 from calibre import as_unicode, force_unicode, isbytestring
+
+vprefs = JSONConfig('viewer')
 
 class TOCItem(QStandardItem):
 
@@ -303,7 +305,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         m = self.open_history_menu
         m.clear()
         count = 0
-        for path in gprefs.get('viewer_open_history', []):
+        for path in vprefs.get('viewer_open_history', []):
             if count > 9:
                 break
             if os.path.exists(path):
@@ -315,17 +317,17 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         return MainWindow.closeEvent(self, e)
 
     def save_state(self):
-        state = str(self.saveState(self.STATE_VERSION))
-        dynamic['viewer_toolbar_state'] = state
-        dynamic.set('viewer_window_geometry', self.saveGeometry())
+        state = bytearray(self.saveState(self.STATE_VERSION))
+        vprefs['viewer_toolbar_state'] = state
+        vprefs.set('viewer_window_geometry', bytearray(self.saveGeometry()))
         if self.current_book_has_toc:
-            dynamic.set('viewer_toc_isvisible', bool(self.toc.isVisible()))
+            vprefs.set('viewer_toc_isvisible', bool(self.toc.isVisible()))
         if self.toc.isVisible():
-            dynamic.set('viewer_splitter_state',
+            vprefs.set('viewer_splitter_state',
                 bytearray(self.splitter.saveState()))
 
     def restore_state(self):
-        state = dynamic.get('viewer_toolbar_state', None)
+        state = vprefs.get('viewer_toolbar_state', None)
         if state is not None:
             try:
                 state = QByteArray(state)
@@ -676,13 +678,13 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
                 self.action_table_of_contents.setChecked(False)
             if isbytestring(pathtoebook):
                 pathtoebook = force_unicode(pathtoebook, filesystem_encoding)
-            vh = gprefs.get('viewer_open_history', [])
+            vh = vprefs.get('viewer_open_history', [])
             try:
                 vh.remove(pathtoebook)
             except:
                 pass
             vh.insert(0, pathtoebook)
-            gprefs.set('viewer_open_history', vh[:50])
+            vprefs.set('viewer_open_history', vh[:50])
             self.build_recent_menu()
 
             self.action_table_of_contents.setDisabled(not self.iterator.toc)
@@ -739,13 +741,13 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         c = config().parse()
         self.splitter.setSizes([1, 300])
         if c.remember_window_size:
-            wg = dynamic.get('viewer_window_geometry', None)
+            wg = vprefs.get('viewer_window_geometry', None)
             if wg is not None:
                 self.restoreGeometry(wg)
-            ss = dynamic.get('viewer_splitter_state', None)
+            ss = vprefs.get('viewer_splitter_state', None)
             if ss is not None:
                 self.splitter.restoreState(ss)
-            self.show_toc_on_open = dynamic.get('viewer_toc_isvisible', False)
+            self.show_toc_on_open = vprefs.get('viewer_toc_isvisible', False)
         av = available_height() - 30
         if self.height() > av:
             self.resize(self.width(), av)
