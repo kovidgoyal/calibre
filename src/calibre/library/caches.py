@@ -6,8 +6,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re, itertools, time, traceback, copy
-from itertools import repeat
+import re, itertools, time, traceback
+from itertools import repeat, izip, imap
 from datetime import timedelta
 from threading import Thread
 
@@ -777,18 +777,30 @@ class ResultCache(SearchQueryParser): # {{{
         return self.search_restriction_book_count
 
     def set_marked_ids(self, id_dict):
-        if isinstance (id_dict, list):
+        '''
+        ids in id_dict are "marked". They can be searched for by
+        using the search term ``marked:true``. Pass in an empty dictionary or
+        set to clear marked ids.
+
+        :param id_dict: Either a dictionary mapping ids to values or a set
+        of ids. In the latter case, the value is set to 'true' for all ids. If
+        a mapping is provided, then the search can be used to search for
+        particular values: ``marked:value``
+        '''
+        if not hasattr(id_dict, 'items'):
             # Simple list. Make it a dict of string 'true'
-            self.marked_ids_dict = dict([(id, u'true') for id in id_dict])
+            self.marked_ids_dict = dict.fromkeys(id_dict, u'true')
         else:
-            self.marked_ids_dict = copy.copy(id_dict)
             # Ensure that all the items in the dict are text
-            for id_,val in self.marked_ids_dict.iteritems():
-                self.marked_ids_dict[id_] = unicode(val)
+            self.marked_ids_dict = dict(izip(id_dict.iterkeys(), imap(unicode,
+                id_dict.itervalues())))
 
         # Set the values in the cache
         marked_col = self.FIELD_MAP['marked']
-        for id_,val in self.marked_ids_dict.iteritems():
+        for r in self.iterall():
+            r[marked_col] = None
+
+        for id_, val in self.marked_ids_dict.iteritems():
             try:
                 self._data[id_][marked_col] = val
             except:
