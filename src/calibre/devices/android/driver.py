@@ -57,7 +57,7 @@ class ANDROID(USBMS):
             0x413c : { 0xb007 : [0x0100, 0x0224]},
 
             # LG
-            0x1004 : { 0x61cc : [0x100] },
+            0x1004 : { 0x61cc : [0x100], 0x61ce : [0x100] },
 
             # Archos
             0x0e79 : {
