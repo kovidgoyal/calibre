@@ -790,9 +790,9 @@ class ResultCache(SearchQueryParser): # {{{
             # Simple list. Make it a dict of string 'true'
             self.marked_ids_dict = dict.fromkeys(id_dict, u'true')
         else:
-            self.marked_ids_dict = id_dict.copy()
             # Ensure that all the items in the dict are text
-            for id_,val in self.marked_ids_dict.iteritems():
+            self.marked_ids_dict = {}
+            for id_, val in id_dict.iteritems():
                 self.marked_ids_dict[id_] = unicode(val)
 
         # Set the values in the cache
