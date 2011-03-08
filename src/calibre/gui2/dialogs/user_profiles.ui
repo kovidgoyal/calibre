@@ -410,11 +410,6 @@ p, li { white-space: pre-wrap; }
                         <verstretch>0</verstretch>
                        </sizepolicy>
                       </property>
-                      <property name="font">
-                       <font>
-                        <family>DejaVu Sans Mono</family>
-                       </font>
-                      </property>
                       <property name="lineWrapMode">
                        <enum>QTextEdit::NoWrap</enum>
                       </property>
