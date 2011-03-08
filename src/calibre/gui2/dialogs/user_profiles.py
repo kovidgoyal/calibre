@@ -4,7 +4,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import time, os
 
 from PyQt4.Qt import SIGNAL, QUrl, QAbstractListModel, Qt, \
-        QVariant
+        QVariant, QFont
 
 from calibre.web.feeds.recipes import compile_recipe, custom_recipes
 from calibre.web.feeds.news import AutomaticNewsRecipe
@@ -83,6 +83,9 @@ class UserProfiles(ResizableDialog, Ui_Dialog):
         self._model = self.model = CustomRecipeModel(recipe_model)
         self.available_profiles.setModel(self._model)
         self.available_profiles.currentChanged = self.current_changed
+        f = QFont()
+        f.setStyleHint(f.Monospace)
+        self.source_code.setFont(f)
 
         self.connect(self.remove_feed_button, SIGNAL('clicked(bool)'),
                      self.added_feeds.remove_selected_items)

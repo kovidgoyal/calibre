@@ -193,8 +193,8 @@ class RecursiveFetcher(object):
         data = None
         self.log.debug('Fetching', url)
         delta = time.time() - self.last_fetch_at
-        if  delta < self.delay:
-            time.sleep(delta)
+        if delta < self.delay:
+            time.sleep(self.delay - delta)
         if isinstance(url, unicode):
             url = url.encode('utf-8')
         # Not sure is this is really needed as I think mechanize
