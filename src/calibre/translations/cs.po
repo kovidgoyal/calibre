@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-03-04 20:51+0000\n"
-"PO-Revision-Date: 2011-02-25 14:11+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2011-03-07 22:20+0000\n"
+"Last-Translator: Marek Sušický <Unknown>\n"
 "Language-Team: Czech <cs@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-03-05 04:37+0000\n"
+"X-Launchpad-Export-Date: 2011-03-08 04:46+0000\n"
 "X-Generator: Launchpad (build 12351)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -1138,7 +1138,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:187
 msgid "Use slower but more accurate page number generation"
-msgstr ""
+msgstr "Použít pomalejší, ale přesnější generování čísel stránek"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:189
 msgid ""
@@ -1187,7 +1187,7 @@ msgstr "Komunikace s Bq Avant"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:60
 msgid "Communicate with the Sweex/Kogan/Q600/Wink"
-msgstr ""
+msgstr "Spojit se s Sweex/Kogan/Q600/Wink"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:81
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:108
@@ -1379,7 +1379,7 @@ msgstr "Komunikace se čtečkou Stash W950."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:111
 msgid "Communicate with the Wexler reader."
-msgstr ""
+msgstr "Spojit se s Wexler reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:282
 msgid "Unable to detect the %s disk drive. Try rebooting."
@@ -4229,15 +4229,15 @@ msgstr "Přidat z ISBN"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:68
 msgid "Add files to selected book records"
-msgstr ""
+msgstr "Přidat soubory k označeným knižním záznamům"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:69
 msgid "Shift+A"
-msgstr ""
+msgstr "Shift+A"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:89
 msgid "Are you sure"
-msgstr ""
+msgstr "Jste si jisti"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:90
 msgid ""
@@ -4247,7 +4247,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:96
 msgid "Select book files"
-msgstr ""
+msgstr "Označit soubory knih"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:167
 msgid "Adding"
@@ -4268,7 +4268,7 @@ msgstr "Podporované knihy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:271
 msgid "Select books"
-msgstr ""
+msgstr "Označit knihy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:308
 msgid "Merged some books"
@@ -5566,12 +5566,12 @@ msgstr "Žádné"
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:157
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:239
 msgid "Paste Cover"
-msgstr ""
+msgstr "Vložit obálku"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:158
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:240
 msgid "Copy Cover"
-msgstr ""
+msgstr "Kopírovat obálku"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:466
 msgid "Double-click to open Book Details window"
@@ -5887,7 +5887,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:331
 msgid "&Merge with Comments"
-msgstr ""
+msgstr "&Spojit s komentáři"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:332
 msgid "Additional content merged with Comments during catalog generation"
@@ -6015,11 +6015,11 @@ msgstr "Barva pozadí"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:118
 msgid "Style text block"
-msgstr ""
+msgstr "Nastyluj textové pole"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:120
 msgid "Style the selected text block"
-msgstr ""
+msgstr "Nastyluj označené textové pole"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:125
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:36
@@ -6076,7 +6076,7 @@ msgstr "Zadej URL"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:523
 msgid "Normal view"
-msgstr ""
+msgstr "Normální pohled"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:524
 msgid "HTML Source"
@@ -6272,7 +6272,7 @@ msgstr "FB2 Výstup"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_output_ui.py:39
 msgid "Sectionize:"
-msgstr ""
+msgstr "Rozdělit do sekcí:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:104
 msgid "Font rescaling wizard"
@@ -6348,6 +6348,8 @@ msgid ""
 "Heuristic\n"
 "Processing"
 msgstr ""
+"Heuristické\n"
+"Zpracování"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics.py:16
 msgid "Modify the document text and structure using common patterns."
@@ -6367,11 +6369,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:114
 msgid "Enable &heuristic processing"
-msgstr ""
+msgstr "Umožnit &heuristické zpracování"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:115
 msgid "Heuristic Processing"
-msgstr ""
+msgstr "Heurostické zpracování"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:116
 msgid "Unwrap lines"
@@ -6391,7 +6393,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:120
 msgid "Delete blank lines between paragraphs"
-msgstr ""
+msgstr "Smaž prázdné řádky mezi odstavci"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:121
 msgid "Ensure scene breaks are consistently formatted"
@@ -6505,7 +6507,7 @@ msgstr "Vylepšit &interpunkce"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:158
 msgid "Minimum &line height:"
-msgstr ""
+msgstr "Nejmenší výška řádku:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:159
 msgid " %"
@@ -6938,7 +6940,7 @@ msgstr "První výskyt"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:151
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:153
 msgid "&Replacement Text"
-msgstr ""
+msgstr "&Nahrazovací text"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:150
 msgid "Second Expression"
@@ -6999,7 +7001,7 @@ msgstr "Vlož prázdný řádek mezi odstavce"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/snb_output_ui.py:46
 msgid "Optimize for full-sceen view "
-msgstr ""
+msgstr "Optimalizovat pro full-sceen view "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:15
 msgid ""
@@ -7160,7 +7162,7 @@ msgstr "Styl konce řádku"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:88
 msgid "&Formatting:"
-msgstr ""
+msgstr "&Formátování:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:89
 msgid "Plain"
@@ -8380,7 +8382,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:927
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:561
 msgid "Delete saved search/replace"
-msgstr ""
+msgstr "Smazat uložené hledej/nahraď"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:928
 msgid "The selected saved search/replace will be deleted. Are you sure?"
@@ -8537,7 +8539,7 @@ msgstr "&Publikováno:"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:538
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:444
 msgid "Clear published date"
-msgstr ""
+msgstr "Vymaž datum vydání"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:541
 msgid "Remove &format:"
@@ -8641,7 +8643,7 @@ msgstr "Název pole, které chcete vyhledat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:565
 msgid "Search &mode:"
-msgstr ""
+msgstr "Vyhledávací mód:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:566
 msgid ""
@@ -8653,7 +8655,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:567
 msgid "Te&mplate:"
-msgstr ""
+msgstr "Š&ablona:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:568
 msgid "Enter a template to be used as the source for the search/replace"
