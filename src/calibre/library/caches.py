@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re, itertools, time, traceback
+import re, itertools, time, traceback, copy
 from itertools import repeat
 from datetime import timedelta
 from threading import Thread
@@ -194,6 +194,7 @@ class ResultCache(SearchQueryParser): # {{{
         self.first_sort = True
         self.search_restriction = ''
         self.search_restriction_book_count = 0
+        self.marked_ids_dict = {}
         self.field_metadata = field_metadata
         self.all_search_locations = field_metadata.get_search_terms()
         SearchQueryParser.__init__(self, self.all_search_locations, optimize=True)
@@ -775,6 +776,24 @@ class ResultCache(SearchQueryParser): # {{{
     def get_search_restriction_book_count(self):
         return self.search_restriction_book_count
 
+    def set_marked_ids(self, id_dict):
+        if isinstance (id_dict, list):
+            # Simple list. Make it a dict of string 'true'
+            self.marked_ids_dict = dict([(id, u'true') for id in id_dict])
+        else:
+            self.marked_ids_dict = copy.copy(id_dict)
+            # Ensure that all the items in the dict are text
+            for id_,val in self.marked_ids_dict.iteritems():
+                self.marked_ids_dict[id_] = unicode(val)
+
+        # Set the values in the cache
+        marked_col = self.FIELD_MAP['marked']
+        for id_,val in self.marked_ids_dict.iteritems():
+            try:
+                self._data[id_][marked_col] = val
+            except:
+                pass
+
     # }}}
 
     def remove(self, id):
@@ -824,6 +843,7 @@ class ResultCache(SearchQueryParser): # {{{
                 self._data[id] = CacheRow(db, self.composites,
                         db.conn.get('SELECT * from meta2 WHERE id=?', (id,))[0])
                 self._data[id].append(db.book_on_device_string(id))
+                self._data[id].append(self.marked_ids_dict.get(id, None))
             except IndexError:
                 return None
         try:
@@ -840,6 +860,7 @@ class ResultCache(SearchQueryParser): # {{{
             self._data[id] = CacheRow(db, self.composites,
                         db.conn.get('SELECT * from meta2 WHERE id=?', (id,))[0])
             self._data[id].append(db.book_on_device_string(id))
+            self._data[id].append(self.marked_ids_dict.get(id, None))
         self._map[0:0] = ids
         self._map_filtered[0:0] = ids
 
@@ -864,6 +885,15 @@ class ResultCache(SearchQueryParser): # {{{
         for item in self._data:
             if item is not None:
                 item.append(db.book_on_device_string(item[0]))
+                item.append(None)
+
+        marked_col = self.FIELD_MAP['marked']
+        for id_,val in self.marked_ids_dict.iteritems():
+            try:
+                self._data[id_][marked_col] = val
+            except:
+                pass
+
         self._map = [i[0] for i in self._data if i is not None]
         if field is not None:
             self.sort(field, ascending)
