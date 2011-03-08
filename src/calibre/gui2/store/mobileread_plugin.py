@@ -35,24 +35,29 @@ class MobileReadStore(StorePlugin):
     def search(self, query, max_results=10, timeout=60):
         books = self.get_book_list(timeout=timeout)
 
+        query = query.lower()
+        query_parts = query.split(' ')
         matches = []
-        s = difflib.SequenceMatcher(lambda x: x in ' \t,.')
-        s.set_seq2(query.lower())
+        s = difflib.SequenceMatcher()
         for x in books:
-            # Find the match ratio for each part of the book.
-            s.set_seq1(x.author.lower())
-            a_ratio = s.ratio()
-            s.set_seq1(x.title.lower())
-            t_ratio = s.ratio()
-            s.set_seq1(x.format.lower())
-            f_ratio = s.ratio()
-            ratio = sorted([a_ratio, t_ratio, f_ratio])[-1]
-            # Store the highest match ratio with the book.
-            matches.append((ratio, x))
+            ratio = 0
+            t_string = '%s %s' % (x.author.lower(), x.title.lower())
+            query_matches = []
+            for q in query_parts:
+                if q in t_string:
+                    query_matches.append(q)
+            for q in query_matches:
+                s.set_seq2(q)
+                for p in t_string.split(' '):
+                    s.set_seq1(p)
+                    ratio += s.ratio()
+            if ratio > 0:
+                matches.append((ratio, x))
         
         # Move the best scorers to head of list.
         matches = heapq.nlargest(max_results, matches)
         for score, book in matches:
+            print('%s %s' % (score, book.title))
             s = SearchResult()
             s.title = book.title
             s.author = book.author
