@@ -396,7 +396,10 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
 
         ident_types = sorted(self.db.get_all_identifier_types(), key=sort_key)
         self.s_r_dst_ident.setCompleter(QCompleter(ident_types))
-        ident_types.insert(0, '')
+        try:
+            self.s_r_dst_ident.setPlaceholderText(_('Enter an identifier type'))
+        except:
+            pass
         self.s_r_src_ident.addItems(ident_types)
 
         self.main_heading = _(
@@ -643,6 +646,10 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
                 raise Exception(_('You must specify a destination when source is a composite field'))
             dest = src
         dest_mode = self.replace_mode.currentIndex()
+
+        if self.destination_field_fm['is_csp']:
+            if not unicode(self.s_r_dst_ident.text()):
+                raise Exception(_('You must specify a destination identifier type'))
 
         if self.destination_field_fm['is_multiple']:
             if self.comma_separated.isChecked():

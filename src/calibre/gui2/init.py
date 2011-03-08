@@ -44,13 +44,13 @@ class LibraryViewMixin(object): # {{{
             for view in (self.library_view, self.memory_view, self.card_a_view, self.card_b_view):
                 getattr(view, func)(*args)
 
-        self.memory_view.connect_dirtied_signal(self.upload_booklists)
+        self.memory_view.connect_dirtied_signal(self.upload_dirtied_booklists)
         self.memory_view.connect_upload_collections_signal(
                                     func=self.upload_collections, oncard=None)
-        self.card_a_view.connect_dirtied_signal(self.upload_booklists)
+        self.card_a_view.connect_dirtied_signal(self.upload_dirtied_booklists)
         self.card_a_view.connect_upload_collections_signal(
                                     func=self.upload_collections, oncard='carda')
-        self.card_b_view.connect_dirtied_signal(self.upload_booklists)
+        self.card_b_view.connect_dirtied_signal(self.upload_dirtied_booklists)
         self.card_b_view.connect_upload_collections_signal(
                                     func=self.upload_collections, oncard='cardb')
         self.book_on_device(None, reset=True)
