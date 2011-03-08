@@ -735,7 +735,7 @@ Future conversion of these books will use the default settings.</string>
            <item row="5" column="0">
             <widget class="QLabel" name="s_r_src_ident_label">
              <property name="text">
-              <string>Identifier:</string>
+              <string>Identifier type:</string>
              </property>
              <property name="buddy">
               <cstring>s_r_src_ident</cstring>
@@ -751,7 +751,7 @@ Future conversion of these books will use the default settings.</string>
               </sizepolicy>
              </property>
              <property name="toolTip">
-              <string>Choose which identifier to operate upon</string>
+              <string>Choose which identifier type to operate upon</string>
              </property>
             </widget>
            </item>
@@ -936,7 +936,7 @@ not multiple and the destination field is multiple</string>
            <item row="9" column="0">
             <widget class="QLabel" name="s_r_dst_ident_label">
              <property name="text">
-              <string>Identifier:</string>
+              <string>Identifier type:</string>
              </property>
              <property name="buddy">
               <cstring>s_r_dst_ident</cstring>
@@ -952,7 +952,7 @@ not multiple and the destination field is multiple</string>
               </sizepolicy>
              </property>
              <property name="toolTip">
-              <string>Choose which identifier to operate upon</string>
+              <string>Choose which identifier type to operate upon</string>
              </property>
             </widget>
            </item>
