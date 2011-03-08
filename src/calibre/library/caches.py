@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re, itertools, time, traceback
+import re, itertools, time, traceback, copy
 from itertools import repeat, izip
 from datetime import timedelta
 from threading import Thread
@@ -788,10 +788,9 @@ class ResultCache(SearchQueryParser): # {{{
         '''
         if not hasattr(id_dict, 'items'):
             # Simple list. Make it a dict of string 'true'
-            self.marked_ids_dict = dict(izip(id_dict, repeat(u'true',
-                len(id_dict))))
+            self.marked_ids_dict = dict(izip(id_dict, repeat(u'true')))
         else:
-            self.marked_ids_dict = dict(**id_dict)
+            self.marked_ids_dict = copy.copy(id_dict)
             # Ensure that all the items in the dict are text
             for id_,val in self.marked_ids_dict.iteritems():
                 self.marked_ids_dict[id_] = unicode(val)
