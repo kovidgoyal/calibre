@@ -1160,6 +1160,14 @@ class DeviceMixin(object): # {{{
                 ), bad)
             d.exec_()
 
+    def upload_dirtied_booklists(self):
+        '''
+        Upload metadata to device.
+        '''
+        plugboards = self.library_view.model().db.prefs.get('plugboards', {})
+        self.device_manager.sync_booklists(Dispatcher(lambda x: x),
+                                           self.booklists(), plugboards)
+
     def upload_booklists(self):
         '''
         Upload metadata to device.
