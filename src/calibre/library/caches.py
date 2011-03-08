@@ -779,9 +779,10 @@ class ResultCache(SearchQueryParser): # {{{
     def set_marked_ids(self, id_dict):
         '''
         ids in id_dict are "marked". They can be searched for by
-        using the search term ``marked:true``
+        using the search term ``marked:true``. Pass in an empty dictionary or
+        set to clear marked ids.
 
-        :param id_dict: Either a dictionary mapping ids to values or a sequence
+        :param id_dict: Either a dictionary mapping ids to values or a set
         of ids. In the latter case, the value is set to 'true' for all ids. If
         a mapping is provided, then the search can be used to search for
         particular values: ``marked:value``
