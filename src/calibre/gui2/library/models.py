@@ -268,6 +268,15 @@ class BooksModel(QAbstractTableModel): # {{{
             return None
         return self.get_current_highlighted_id()
 
+    def highlight_ids(self, ids_to_highlight):
+        self.ids_to_highlight = ids_to_highlight
+        self.ids_to_highlight_set = set(self.ids_to_highlight)
+        if self.ids_to_highlight:
+            self.current_highlighted_idx = 0
+        else:
+            self.current_highlighted_idx = None
+        self.reset()
+
     def search(self, text, reset=True):
         try:
             if self.highlight_only:
