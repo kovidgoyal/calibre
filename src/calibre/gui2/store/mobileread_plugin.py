@@ -10,6 +10,7 @@ import difflib
 import heapq
 import time
 from contextlib import closing
+from threading import RLock
 
 from lxml import html
 
@@ -25,6 +26,7 @@ class MobileReadStore(StorePlugin):
     
     def genesis(self):
         self.config = DynamicConfig('store_' + self.name)
+        self.rlock = RLock()
     
     def open(self, parent=None, detail_item=None, external=False):
         url = 'http://www.mobileread.com/'
@@ -60,45 +62,46 @@ class MobileReadStore(StorePlugin):
             yield s
 
     def update_book_list(self, timeout=10):
-        url = 'http://www.mobileread.com/forums/ebooks.php?do=getlist&type=html'
+        with self.rlock:
+            url = 'http://www.mobileread.com/forums/ebooks.php?do=getlist&type=html'
+            
+            last_download = self.config.get(self.name + '_last_download', None)
+            # Don't update the book list if our cache is less than one week old.
+            if last_download and (time.time() - last_download) < 604800:
+                return
+            
+            # Download the book list HTML file from MobileRead.
+            br = browser()
+            raw_data = None
+            with closing(br.open(url, timeout=timeout)) as f:
+                raw_data = f.read()
+            
+            if not raw_data:
+                return
+            
+            # Turn books listed in the HTML file into BookRef's.
+            books = []
+            try:
+                data = html.fromstring(raw_data)
+                for book_data in data.xpath('//ul/li'):
+                    book = BookRef()
+                    book.url = ''.join(book_data.xpath('.//a/@href'))
+                    book.format = ''.join(book_data.xpath('.//i/text()'))
+                    book.format = book.format.strip()
         
-        last_download = self.config.get(self.name + '_last_download', None)
-        # Don't update the book list if our cache is less than one week old.
-        if last_download and (time.time() - last_download) < 604800:
-            return
-        
-        # Download the book list HTML file from MobileRead.
-        br = browser()
-        raw_data = None
-        with closing(br.open(url, timeout=timeout)) as f:
-            raw_data = f.read()
-        
-        if not raw_data:
-            return
-        
-        # Turn books listed in the HTML file into BookRef's.
-        books = []
-        try:
-            data = html.fromstring(raw_data)
-            for book_data in data.xpath('//ul/li'):
-                book = BookRef()
-                book.url = ''.join(book_data.xpath('.//a/@href'))
-                book.format = ''.join(book_data.xpath('.//i/text()'))
-                book.format = book.format.strip()
+                    text = ''.join(book_data.xpath('.//a/text()'))
+                    if ':' in text:
+                        book.author, q, text = text.partition(':')
+                    book.author = book.author.strip()
+                    book.title = text.strip()
+                    books.append(book)
+            except:
+                pass
     
-                text = ''.join(book_data.xpath('.//a/text()'))
-                if ':' in text:
-                    book.author, q, text = text.partition(':')
-                book.author = book.author.strip()
-                book.title = text.strip()
-                books.append(book)
-        except:
-            pass
-
-        # Save the book list and it's create time.
-        if books:
-            self.config[self.name + '_last_download'] = time.time()
-            self.config[self.name + '_book_list'] = books
+            # Save the book list and it's create time.
+            if books:
+                self.config[self.name + '_last_download'] = time.time()
+                self.config[self.name + '_book_list'] = books
 
     def get_book_list(self, timeout=10):
         self.update_book_list(timeout=timeout)
