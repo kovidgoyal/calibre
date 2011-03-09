@@ -551,20 +551,20 @@ class ResultCache(SearchQueryParser): # {{{
             val = force_to_bool(item[loc])
             if not bools_are_tristate:
                 if val is None or not val: # item is None or set to false
-                    if query in [_('no'), _('unchecked'), 'no', 'false']:
+                    if query in [_('no'), _('unchecked'), '_no', 'false']:
                         matches.add(item[0])
                 else: # item is explicitly set to true
-                    if query in [_('yes'), _('checked'), 'yes', 'true']:
+                    if query in [_('yes'), _('checked'), '_yes', 'true']:
                         matches.add(item[0])
             else:
                 if val is None:
-                    if query in [_('empty'), _('blank'), 'empty', 'false']:
+                    if query in [_('empty'), _('blank'), '_empty', 'false']:
                         matches.add(item[0])
                 elif not val: # is not None and false
-                    if query in [_('no'), _('unchecked'), 'no', 'true']:
+                    if query in [_('no'), _('unchecked'), '_no', 'true']:
                         matches.add(item[0])
                 else: # item is not None and true
-                    if query in [_('yes'), _('checked'), 'yes', 'true']:
+                    if query in [_('yes'), _('checked'), '_yes', 'true']:
                         matches.add(item[0])
         return matches
 
