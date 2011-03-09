@@ -6,7 +6,7 @@ Provides a command-line and optional graphical interface to the SONY Reader PRS-
 For usage information run the script.
 """
 
-import StringIO, sys, time, os
+import StringIO, sys, time, os, uuid
 from optparse import OptionParser
 
 from calibre import __version__, __appname__
@@ -213,7 +213,7 @@ def main():
 
     for d in connected_devices:
         try:
-            d.open()
+            d.open(str(uuid.uuid4()))
         except:
             continue
         else:
