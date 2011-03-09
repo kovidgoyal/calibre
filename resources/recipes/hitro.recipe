@@ -4,24 +4,24 @@
 __license__   = 'GPL v3'
 __copyright__ = u'2011, Silviu Cotoar\u0103'
 '''
-natgeo.ro
+hit.ro
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
-class NationalGeoRo(BasicNewsRecipe):
-    title                 = u'National Geographic RO'
+class Hit(BasicNewsRecipe):
+    title                 = u'HIT'
     __author__            = u'Silviu Cotoar\u0103'
-    description           = u'S\u0103 avem grij\u0103 de planet\u0103'
-    publisher             = 'National Geographic'
-    oldest_article        = 35
+    description           = 'IT'
+    publisher             = 'HIT'
+    oldest_article        = 5
     language              = 'ro'
     max_articles_per_feed = 100
     no_stylesheets        = True
     use_embedded_content  = False
-    category              = 'Reviste'
+    category              = 'Ziare,Reviste,IT'
     encoding              = 'utf-8'
-    cover_url             = 'http://wiki.benecke.com/images/c/c4/NatGeographic_Logo.jpg'
+    cover_url             = 'http://www.hit.ro/lib/images/frontend/hit_logo.png'
 
     conversion_options = {
                              'comments'   : description
@@ -31,18 +31,13 @@ class NationalGeoRo(BasicNewsRecipe):
                          }
 
     keep_only_tags = [
-                 dict(name='h2', attrs={'class':'contentheading clearfix'})
-                , dict(name='div', attrs={'class':'article-content'})
-
+                          dict(name='h1', attrs={'class':'art_titl'})
+                        , dict(name='div', attrs={'id':'continut_articol'})
                      ]
 
-    remove_tags = [
-                    dict(name='div', attrs={'class':['phocagallery']})
-                  ]
-
     feeds          = [
-            (u'Feeds', u'http://www.natgeo.ro/index.php?format=feed&type=rss')
-                 ]
+                        (u'Feeds', u'http://www.hit.ro/rss')
+                     ]
 
     def preprocess_html(self, soup):
         return self.adeify_images(soup)

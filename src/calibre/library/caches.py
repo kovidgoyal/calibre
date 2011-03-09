@@ -7,7 +7,7 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import re, itertools, time, traceback
-from itertools import repeat
+from itertools import repeat, izip, imap
 from datetime import timedelta
 from threading import Thread
 
@@ -194,6 +194,7 @@ class ResultCache(SearchQueryParser): # {{{
         self.first_sort = True
         self.search_restriction = ''
         self.search_restriction_book_count = 0
+        self.marked_ids_dict = {}
         self.field_metadata = field_metadata
         self.all_search_locations = field_metadata.get_search_terms()
         SearchQueryParser.__init__(self, self.all_search_locations, optimize=True)
@@ -775,6 +776,36 @@ class ResultCache(SearchQueryParser): # {{{
     def get_search_restriction_book_count(self):
         return self.search_restriction_book_count
 
+    def set_marked_ids(self, id_dict):
+        '''
+        ids in id_dict are "marked". They can be searched for by
+        using the search term ``marked:true``. Pass in an empty dictionary or
+        set to clear marked ids.
+
+        :param id_dict: Either a dictionary mapping ids to values or a set
+        of ids. In the latter case, the value is set to 'true' for all ids. If
+        a mapping is provided, then the search can be used to search for
+        particular values: ``marked:value``
+        '''
+        if not hasattr(id_dict, 'items'):
+            # Simple list. Make it a dict of string 'true'
+            self.marked_ids_dict = dict.fromkeys(id_dict, u'true')
+        else:
+            # Ensure that all the items in the dict are text
+            self.marked_ids_dict = dict(izip(id_dict.iterkeys(), imap(unicode,
+                id_dict.itervalues())))
+
+        # Set the values in the cache
+        marked_col = self.FIELD_MAP['marked']
+        for r in self.iterall():
+            r[marked_col] = None
+
+        for id_, val in self.marked_ids_dict.iteritems():
+            try:
+                self._data[id_][marked_col] = val
+            except:
+                pass
+
     # }}}
 
     def remove(self, id):
@@ -824,6 +855,7 @@ class ResultCache(SearchQueryParser): # {{{
                 self._data[id] = CacheRow(db, self.composites,
                         db.conn.get('SELECT * from meta2 WHERE id=?', (id,))[0])
                 self._data[id].append(db.book_on_device_string(id))
+                self._data[id].append(self.marked_ids_dict.get(id, None))
             except IndexError:
                 return None
         try:
@@ -840,6 +872,7 @@ class ResultCache(SearchQueryParser): # {{{
             self._data[id] = CacheRow(db, self.composites,
                         db.conn.get('SELECT * from meta2 WHERE id=?', (id,))[0])
             self._data[id].append(db.book_on_device_string(id))
+            self._data[id].append(self.marked_ids_dict.get(id, None))
         self._map[0:0] = ids
         self._map_filtered[0:0] = ids
 
@@ -864,6 +897,15 @@ class ResultCache(SearchQueryParser): # {{{
         for item in self._data:
             if item is not None:
                 item.append(db.book_on_device_string(item[0]))
+                item.append(None)
+
+        marked_col = self.FIELD_MAP['marked']
+        for id_,val in self.marked_ids_dict.iteritems():
+            try:
+                self._data[id_][marked_col] = val
+            except:
+                pass
+
         self._map = [i[0] for i in self._data if i is not None]
         if field is not None:
             self.sort(field, ascending)

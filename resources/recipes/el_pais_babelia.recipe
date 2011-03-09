@@ -1,0 +1,49 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class ElPaisBabelia(BasicNewsRecipe):
+
+    title      = 'El Pais Babelia'
+    __author__ = 'oneillpt'
+    description = 'El Pais Babelia'
+    INDEX = 'http://www.elpais.com/suple/babelia/'
+    language = 'es'
+
+    remove_tags_before = dict(name='div', attrs={'class':'estructura_2col'})
+    keep_tags = [dict(name='div', attrs={'class':'estructura_2col'})]
+    remove_tags = [dict(name='div', attrs={'class':'votos estirar'}),
+        dict(name='div', attrs={'id':'utilidades'}),
+        dict(name='div', attrs={'class':'info_relacionada'}),
+        dict(name='div', attrs={'class':'mod_apoyo'}),
+        dict(name='div', attrs={'class':'contorno_f'}),
+        dict(name='div', attrs={'class':'pestanias'}),
+        dict(name='div', attrs={'class':'otros_webs'}),
+        dict(name='div', attrs={'id':'pie'})
+        ]
+    #no_stylesheets = True
+    remove_javascript     = True
+
+    def parse_index(self):
+        articles = []
+        soup = self.index_to_soup(self.INDEX)
+        feeds = []
+        for section in soup.findAll('div', attrs={'class':'contenedor_nuevo'}):
+            section_title = self.tag_to_string(section.find('h1'))
+            articles = []
+            for post in section.findAll('a', href=True):
+                url = post['href']
+                if url.startswith('/'):
+                  url = 'http://www.elpais.es'+url
+                  title = self.tag_to_string(post)
+                  if str(post).find('class=') > 0:
+                    klass = post['class']
+                    if klass != "":
+                      self.log()
+                      self.log('--> post:  ', post)
+                      self.log('--> url:   ', url)
+                      self.log('--> title: ', title)
+                      self.log('--> class: ', klass)
+                      articles.append({'title':title, 'url':url})
+            if articles:
+                feeds.append((section_title, articles))
+        return feeds
+

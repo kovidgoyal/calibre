@@ -19,7 +19,7 @@ in the working tree you want to use it with::
     trac_reponame_password = <password>
 
 '''
-import os, re, xmlrpclib
+import os, re, xmlrpclib, subprocess
 from bzrlib.builtins import cmd_commit as _cmd_commit, tree_files
 from bzrlib import branch
 import bzrlib
@@ -115,5 +115,7 @@ class cmd_commit(_cmd_commit):
         server.ticket.update(int(bug), msg,
                              {'status':'closed', 'resolution':'fixed'},
                              True)
+        subprocess.Popen('/home/kovid/work/kde/mail.py -f --delay 10'.split())
+
 
 bzrlib.commands.register_command(cmd_commit)

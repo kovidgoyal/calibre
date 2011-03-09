@@ -4,24 +4,24 @@
 __license__   = 'GPL v3'
 __copyright__ = u'2011, Silviu Cotoar\u0103'
 '''
-evz.ro
+kamikazeonline.ro
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
-class EvenimentulZilei(BasicNewsRecipe):
-    title                 = u'Evenimentul Zilei'
+class Kamikaze(BasicNewsRecipe):
+    title                 = u'Kamikaze'
     __author__            = u'Silviu Cotoar\u0103'
-    description           = ''
-    publisher             = u'Evenimentul Zilei'
+    description           = u'S\u0103pt\u0103m\u00e2nal sc\u0103pat de sub control'
+    publisher             = 'Kamikaze'
     oldest_article        = 5
     language              = 'ro'
     max_articles_per_feed = 100
     no_stylesheets        = True
     use_embedded_content  = False
-    category              = 'Ziare,Stiri'
+    category              = 'Ziare,Reviste'
     encoding              = 'utf-8'
-    cover_url             = 'http://www.evz.ro/fileadmin/images/evzLogo.png'
+    cover_url             = 'http://www.kamikazeonline.ro/wp-content/themes/kamikaze/images/kamikazeonline_header.gif'
 
     conversion_options = {
                              'comments'   : description
@@ -31,23 +31,22 @@ class EvenimentulZilei(BasicNewsRecipe):
                          }
 
     keep_only_tags = [
-            dict(name='div', attrs={'class':'single'})
-            , dict(name='img', attrs={'id':'placeholder'})
-			, dict(name='a', attrs={'id':'holderlink'})			
+            dict(name='div', attrs={'id':'content'})
                      ]
 
     remove_tags = [
-             dict(name='p', attrs={'class':['articleInfo']})
-           , dict(name='div', attrs={'id':['bannerAddoceansArticleJos']})
-           , dict(name='div', attrs={'id':['bannerAddoceansArticle']})
+             dict(name='div', attrs={'class':['connect_confirmation_cell connect_confirmation_cell_no_like']})
+           , dict(name='h3', attrs={'id':['comments']})
+           , dict(name='ul', attrs={'class':['addtoany_list']})
+           , dict(name='p', attrs={'class':['postmetadata']})
                   ]
 
     remove_tags_after = [
-             dict(name='div', attrs={'id':['bannerAddoceansArticleJos']})			  			 
+             dict(name='p', attrs={'class':['postmetadata']})
             ]
 
     feeds          = [
-            (u'Feeds', u'http://www.evz.ro/rss.xml')
+            (u'Feeds', u'http://www.kamikazeonline.ro/feed/')
                  ]
 
     def preprocess_html(self, soup):

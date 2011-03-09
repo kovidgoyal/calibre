@@ -5,7 +5,6 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys
 from functools import partial
 
 from PyQt4.Qt import QComboBox, QLabel, QSpinBox, QDoubleSpinBox, QDateEdit, \
@@ -85,7 +84,7 @@ class Int(Base):
         self.widgets = [QLabel('&'+self.col_metadata['name']+':', parent),
                 QSpinBox(parent)]
         w = self.widgets[1]
-        w.setRange(-100, sys.maxint)
+        w.setRange(-100, 100000000)
         w.setSpecialValueText(_('Undefined'))
         w.setSingleStep(1)
 
@@ -108,7 +107,7 @@ class Float(Int):
         self.widgets = [QLabel('&'+self.col_metadata['name']+':', parent),
                 QDoubleSpinBox(parent)]
         w = self.widgets[1]
-        w.setRange(-100., float(sys.maxint))
+        w.setRange(-100., float(100000000))
         w.setDecimals(2)
         w.setSpecialValueText(_('Undefined'))
         w.setSingleStep(1)
@@ -289,7 +288,7 @@ class Series(Base):
 
         self.widgets.append(QLabel('&'+self.col_metadata['name']+_(' index:'), parent))
         w = QDoubleSpinBox(parent)
-        w.setRange(-100., float(sys.maxint))
+        w.setRange(-100., float(100000000))
         w.setDecimals(2)
         w.setSpecialValueText(_('Undefined'))
         w.setSingleStep(1)
@@ -595,7 +594,7 @@ class BulkInt(BulkBase):
 
     def setup_ui(self, parent):
         self.make_widgets(parent, QSpinBox)
-        self.main_widget.setRange(-100, sys.maxint)
+        self.main_widget.setRange(-100, 100000000)
         self.main_widget.setSpecialValueText(_('Undefined'))
         self.main_widget.setSingleStep(1)
 
@@ -617,7 +616,7 @@ class BulkFloat(BulkInt):
 
     def setup_ui(self, parent):
         self.make_widgets(parent, QDoubleSpinBox)
-        self.main_widget.setRange(-100., float(sys.maxint))
+        self.main_widget.setRange(-100., float(100000000))
         self.main_widget.setDecimals(2)
         self.main_widget.setSpecialValueText(_('Undefined'))
         self.main_widget.setSingleStep(1)
@@ -795,6 +794,7 @@ class BulkEnumeration(BulkBase, Enumeration):
         return value
 
     def setup_ui(self, parent):
+        self.parent = parent
         self.make_widgets(parent, QComboBox)
         vals = self.col_metadata['display']['enum_values']
         self.main_widget.blockSignals(True)

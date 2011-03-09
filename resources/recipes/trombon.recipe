@@ -4,24 +4,24 @@
 __license__   = 'GPL v3'
 __copyright__ = u'2011, Silviu Cotoar\u0103'
 '''
-evz.ro
+trombon.ro
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
-class EvenimentulZilei(BasicNewsRecipe):
-    title                 = u'Evenimentul Zilei'
+class Trombon(BasicNewsRecipe):
+    title                 = u'Trombon'
     __author__            = u'Silviu Cotoar\u0103'
-    description           = ''
-    publisher             = u'Evenimentul Zilei'
+    description           = u'Parodii si Pamflete'
+    publisher             = u'Trombon'
     oldest_article        = 5
     language              = 'ro'
     max_articles_per_feed = 100
     no_stylesheets        = True
     use_embedded_content  = False
-    category              = 'Ziare,Stiri'
+    category              = 'Ziare,Reviste,Fun'
     encoding              = 'utf-8'
-    cover_url             = 'http://www.evz.ro/fileadmin/images/evzLogo.png'
+    cover_url             = 'http://www.trombon.ro/i/trombon.gif'
 
     conversion_options = {
                              'comments'   : description
@@ -31,24 +31,21 @@ class EvenimentulZilei(BasicNewsRecipe):
                          }
 
     keep_only_tags = [
-            dict(name='div', attrs={'class':'single'})
-            , dict(name='img', attrs={'id':'placeholder'})
-			, dict(name='a', attrs={'id':'holderlink'})			
+                          dict(name='div', attrs={'class':'articol'})
                      ]
 
     remove_tags = [
-             dict(name='p', attrs={'class':['articleInfo']})
-           , dict(name='div', attrs={'id':['bannerAddoceansArticleJos']})
-           , dict(name='div', attrs={'id':['bannerAddoceansArticle']})
+                          dict(name='div', attrs={'class':['info_2']})
+                        , dict(name='iframe', attrs={'scrolling':['no']})
                   ]
 
     remove_tags_after = [
-             dict(name='div', attrs={'id':['bannerAddoceansArticleJos']})			  			 
-            ]
+                            dict(name='div', attrs={'id':'article_vote'})
+                        ]
 
     feeds          = [
-            (u'Feeds', u'http://www.evz.ro/rss.xml')
-                 ]
+                        (u'Feeds', u'http://feeds.feedburner.com/trombon/ABWb?format=xml')
+                     ]
 
     def preprocess_html(self, soup):
         return self.adeify_images(soup)

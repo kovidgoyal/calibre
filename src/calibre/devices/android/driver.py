@@ -57,7 +57,7 @@ class ANDROID(USBMS):
             0x413c : { 0xb007 : [0x0100, 0x0224]},
 
             # LG
-            0x1004 : { 0x61cc : [0x100] },
+            0x1004 : { 0x61cc : [0x100], 0x61ce : [0x100] },
 
             # Archos
             0x0e79 : {
@@ -77,6 +77,9 @@ class ANDROID(USBMS):
 
             # Xperia
             0x13d3 : { 0x3304 : [0x0001, 0x0002] },
+
+            # CREEL?? Also Nextbook
+            0x5e3 : { 0x726 : [0x222] },
 
             }
     EBOOK_DIR_MAIN = ['eBooks/import', 'wordplayer/calibretransfer', 'Books']
