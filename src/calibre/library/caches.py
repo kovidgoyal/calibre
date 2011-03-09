@@ -144,6 +144,22 @@ def _match(query, value, matchkind):
             pass
     return False
 
+def force_to_bool(self, val):
+    if isinstance(val, (str, unicode)):
+        try:
+            val = icu_lower(val)
+            if not val:
+                val = None
+            elif val in [_('yes'), _('checked'), 'true']:
+                val = True
+            elif val in [_('no'), _('unchecked'), 'false']:
+                val = False
+            else:
+                val = bool(int(val))
+        except:
+            val = None
+    return val
+
 class CacheRow(list): # {{{
 
     def __init__(self, db, composites, val):
@@ -532,37 +548,23 @@ class ResultCache(SearchQueryParser): # {{{
             if item is None:
                 continue
 
-            val = item[loc]
-            if isinstance(val, (str, unicode)):
-                try:
-                    val = icu_lower(val)
-                    if not val:
-                        val = None
-                    elif val in [_('yes'), _('checked'), 'true']:
-                        val = True
-                    elif val in [_('no'), _('unchecked'), 'false']:
-                        val = False
-                    else:
-                        val = bool(int(val))
-                except:
-                    val = None
-
+            val = force_to_bool(item[loc])
             if not bools_are_tristate:
                 if val is None or not val: # item is None or set to false
-                    if query in [_('no'), _('unchecked'), 'false']:
+                    if query in [_('no'), _('unchecked'), 'no', 'false']:
                         matches.add(item[0])
                 else: # item is explicitly set to true
-                    if query in [_('yes'), _('checked'), 'true']:
+                    if query in [_('yes'), _('checked'), 'yes', 'true']:
                         matches.add(item[0])
             else:
                 if val is None:
-                    if query in [_('empty'), _('blank'), 'false']:
+                    if query in [_('empty'), _('blank'), 'empty', 'false']:
                         matches.add(item[0])
                 elif not val: # is not None and false
-                    if query in [_('no'), _('unchecked'), 'true']:
+                    if query in [_('no'), _('unchecked'), 'no', 'true']:
                         matches.add(item[0])
                 else: # item is not None and true
-                    if query in [_('yes'), _('checked'), 'true']:
+                    if query in [_('yes'), _('checked'), 'yes', 'true']:
                         matches.add(item[0])
         return matches
 
@@ -695,13 +697,14 @@ class ResultCache(SearchQueryParser): # {{{
                     if item is None: continue
 
                     if not item[loc]:
-                        if q == 'false':
+                        if q == 'false' and matchkind == CONTAINS_MATCH:
                             matches.add(item[0])
                         continue     # item is empty. No possible matches below
-                    if q == 'false': # Field has something in it, so a false query does not match
+                    if q == 'false'and matchkind == CONTAINS_MATCH:
+                        # Field has something in it, so a false query does not match
                         continue
 
-                    if q == 'true':
+                    if q == 'true' and matchkind == CONTAINS_MATCH:
                         if isinstance(item[loc], basestring):
                             if item[loc].strip() == '':
                                 continue
@@ -989,18 +992,7 @@ class SortKeyGenerator(object):
                         val = 0.0
                     dt = 'float'
                 elif sb == 'bool':
-                    try:
-                        v = icu_lower(val)
-                        if not val:
-                            val = None
-                        elif v in [_('yes'), _('checked'), 'true']:
-                            val = True
-                        elif v in [_('no'), _('unchecked'), 'false']:
-                            val = False
-                        else:
-                            val = bool(int(val))
-                    except:
-                        val = None
+                    val = force_to_bool(val)
                     dt = 'bool'
 
             if dt == 'datetime':
