@@ -26,7 +26,7 @@ class ChoosePluginToolbarsDialog(QDialog):
         self.setLayout(self._layout)
 
         self._header_label = QLabel(
-                _('Select the toolbars and/or menus to add "%s" to:') %
+                _('Select the toolbars and/or menus to add <b>%s</b> to:') %
                 plugin.name)
         self._layout.addWidget(self._header_label)
 
