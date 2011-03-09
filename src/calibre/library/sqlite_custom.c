@@ -77,6 +77,7 @@ static void sort_concat_free(SortConcatList *list) {
         free(list->vals[i]->val);
         free(list->vals[i]);
     }
+    free(list->vals);
 }
 
 static int sort_concat_cmp(const void *a_, const void *b_) {
@@ -142,11 +143,102 @@ static void sort_concat_finalize2(sqlite3_context *context) {
 
 // }}}
 
+// identifiers_concat {{{
+
+typedef struct {
+    char *val;
+    size_t length;
+} IdentifiersConcatItem;
+
+typedef struct {
+    IdentifiersConcatItem **vals;
+    size_t count;
+    size_t length;
+} IdentifiersConcatList;
+
+static void identifiers_concat_step(sqlite3_context *context, int argc, sqlite3_value **argv) {
+    const char *key, *val;
+    size_t len = 0;
+    IdentifiersConcatList *list;
+
+    assert(argc == 2);
+
+    list = (IdentifiersConcatList*) sqlite3_aggregate_context(context, sizeof(*list));
+    if (list == NULL) return;
+
+    if (list->vals == NULL) {
+        list->vals = (IdentifiersConcatItem**)calloc(100, sizeof(IdentifiersConcatItem*));
+        if (list->vals == NULL) return;
+        list->length = 100;
+        list->count = 0;
+    }
+
+    if (list->count == list->length) {
+        list->vals = (IdentifiersConcatItem**)realloc(list->vals, list->length + 100);
+        if (list->vals == NULL) return;
+        list->length = list->length + 100;
+    }
+
+    list->vals[list->count] = (IdentifiersConcatItem*)calloc(1, sizeof(IdentifiersConcatItem));
+    if (list->vals[list->count] == NULL) return;
+
+    key = (char*) sqlite3_value_text(argv[0]);
+    val = (char*) sqlite3_value_text(argv[1]);
+    if (key == NULL || val == NULL) {return;}
+    len = strlen(key) + strlen(val) + 1;
+
+    list->vals[list->count]->val = (char*)calloc(len+1, sizeof(char));
+    if (list->vals[list->count]->val == NULL) return;
+    snprintf(list->vals[list->count]->val, len+1, "%s:%s", key, val);
+    list->vals[list->count]->length = len;
+
+    list->count = list->count + 1;
+
+}
+
+
+static void identifiers_concat_finalize(sqlite3_context *context) {
+    IdentifiersConcatList *list;
+    IdentifiersConcatItem *item;
+    char *ans, *pos;
+    size_t sz = 0, i;
+
+    list = (IdentifiersConcatList*) sqlite3_aggregate_context(context, sizeof(*list));
+    if (list == NULL || list->vals == NULL || list->count < 1) return;
+
+    for (i = 0; i < list->count; i++) { 
+        sz += list->vals[i]->length;
+    }
+    sz += list->count; // Space for commas
+    ans = (char*)calloc(sz+2, sizeof(char));
+    if (ans == NULL) return;
+
+    pos = ans;
+
+    for (i = 0; i < list->count; i++) {
+        item = list->vals[i];
+        if (item == NULL || item->val == NULL) continue;
+        memcpy(pos, item->val, item->length);
+        pos += item->length;
+        *pos = ',';
+        pos += 1;
+        free(item->val);
+        free(item);
+    }
+    *(pos-1) = 0; // Remove trailing comma
+    sqlite3_result_text(context, ans, -1, SQLITE_TRANSIENT);
+    free(ans);
+    free(list->vals);
+}
+
+// }}}
+
 MYEXPORT int sqlite3_extension_init(
     sqlite3 *db, char **pzErrMsg, const sqlite3_api_routines *pApi){
   SQLITE_EXTENSION_INIT2(pApi);
   sqlite3_create_function(db, "sortconcat", 2, SQLITE_UTF8, NULL, NULL, sort_concat_step, sort_concat_finalize);
   sqlite3_create_function(db, "sort_concat", 2, SQLITE_UTF8, NULL, NULL, sort_concat_step, sort_concat_finalize2);
+  sqlite3_create_function(db, "identifiers_concat", 2, SQLITE_UTF8, NULL, NULL, identifiers_concat_step, identifiers_concat_finalize);
   return 0;
 }
 

@@ -22,7 +22,7 @@ class CHMInput(InputFormatPlugin):
     def _chmtohtml(self, output_dir, chm_path, no_images, log):
         from calibre.ebooks.chm.reader import CHMReader
         log.debug('Opening CHM file')
-        rdr = CHMReader(chm_path, log)
+        rdr = CHMReader(chm_path, log, self.opts)
         log.debug('Extracting CHM to %s' % output_dir)
         rdr.extract_content(output_dir)
         self._chm_reader = rdr
@@ -32,13 +32,13 @@ class CHMInput(InputFormatPlugin):
     def convert(self, stream, options, file_ext, log, accelerators):
         from calibre.ebooks.chm.metadata import get_metadata_from_reader
         from calibre.customize.ui import plugin_for_input_format
+        self.opts = options
 
         log.debug('Processing CHM...')
         with TemporaryDirectory('_chm2oeb') as tdir:
             html_input = plugin_for_input_format('html')
             for opt in html_input.options:
                 setattr(options, opt.option.name, opt.recommended_value)
-            options.input_encoding = 'utf-8'
             no_images = False #options.no_images
             chm_name = stream.name
             #chm_data = stream.read()
@@ -54,6 +54,7 @@ class CHMInput(InputFormatPlugin):
 
             odi = options.debug_pipeline
             options.debug_pipeline = None
+            options.input_encoding = 'utf-8'
             # try a custom conversion:
             #oeb = self._create_oebbook(mainpath, tdir, options, log, metadata)
             # try using html converter:

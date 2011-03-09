@@ -88,18 +88,88 @@ def serialize_builtin_recipes():
 def get_builtin_recipe_collection():
     return etree.parse(P('builtin_recipes.xml')).getroot()
 
-def get_custom_recipe_collection(db):
-    from calibre.web.feeds.recipes import compile_recipe
+def get_custom_recipe_collection(*args):
+    from calibre.web.feeds.recipes import compile_recipe, \
+            custom_recipes
+    bdir = os.path.dirname(custom_recipes.file_path)
     rmap = {}
-    for id, title, recipe in db.get_custom_recipes():
+    for id_, x in custom_recipes.iteritems():
+        title, fname = x
+        recipe = os.path.join(bdir, fname)
         try:
+            recipe = open(recipe, 'rb').read().decode('utf-8')
             recipe_class = compile_recipe(recipe)
             if recipe_class is not None:
-                rmap['custom:%d'%id] = recipe_class
+                rmap['custom:%s'%id_] = recipe_class
         except:
+            import traceback
+            traceback.print_exc()
             continue
-
     return etree.fromstring(serialize_collection(rmap))
+
+
+def update_custom_recipe(id_, title, script):
+    from calibre.web.feeds.recipes import custom_recipes, \
+            custom_recipe_filename
+    id_ = str(int(id_))
+    existing = custom_recipes.get(id_, None)
+    bdir = os.path.dirname(custom_recipes.file_path)
+
+    if existing is None:
+        fname = custom_recipe_filename(id_, title)
+    else:
+        fname = existing[1]
+    if isinstance(script, unicode):
+        script = script.encode('utf-8')
+
+    custom_recipes[id_] = (title, fname)
+
+    with open(os.path.join(bdir, fname), 'wb') as f:
+        f.write(script)
+
+
+def add_custom_recipe(title, script):
+    from calibre.web.feeds.recipes import custom_recipes, \
+            custom_recipe_filename
+    id_ = 1000
+    keys = tuple(map(int, custom_recipes.iterkeys()))
+    if keys:
+        id_ = max(keys)+1
+    id_ = str(id_)
+    bdir = os.path.dirname(custom_recipes.file_path)
+
+    fname = custom_recipe_filename(id_, title)
+    if isinstance(script, unicode):
+        script = script.encode('utf-8')
+
+    custom_recipes[id_] = (title, fname)
+
+    with open(os.path.join(bdir, fname), 'wb') as f:
+        f.write(script)
+
+
+def remove_custom_recipe(id_):
+    from calibre.web.feeds.recipes import custom_recipes
+    id_ = str(int(id_))
+    existing = custom_recipes.get(id_, None)
+    if existing is not None:
+        bdir = os.path.dirname(custom_recipes.file_path)
+        fname = existing[1]
+        del custom_recipes[id_]
+        try:
+            os.remove(os.path.join(bdir, fname))
+        except:
+            pass
+
+def get_custom_recipe(id_):
+    from calibre.web.feeds.recipes import custom_recipes
+    id_ = str(int(id_))
+    existing = custom_recipes.get(id_, None)
+    if existing is not None:
+        bdir = os.path.dirname(custom_recipes.file_path)
+        fname = existing[1]
+        with open(os.path.join(bdir, fname), 'rb') as f:
+            return f.read().decode('utf-8')
 
 def get_builtin_recipe_titles():
     return [r.get('title') for r in get_builtin_recipe_collection()]
@@ -231,6 +301,7 @@ class SchedulerConfig(object):
                 if x.get('id', False) == recipe_id:
                     typ, sch, last_downloaded = self.un_serialize_schedule(x)
                     if typ == 'interval':
+                        # Prevent downloads more frequent than once an hour
                         actual_interval = now - last_downloaded
                         nominal_interval = timedelta(days=sch)
                         if abs(actual_interval - nominal_interval) < \
@@ -264,11 +335,16 @@ class SchedulerConfig(object):
     def serialize_schedule(self, typ, schedule):
         s = E.schedule({'type':typ})
         if typ == 'interval':
-            if schedule < 0.1:
-                schedule = 1/24.
+            if schedule < 0.04:
+                schedule = 0.04
             text = '%f'%schedule
         elif typ == 'day/time':
             text = '%d:%d:%d'%schedule
+        elif typ in ('days_of_week', 'days_of_month'):
+            dw = ','.join(map(str, map(int, schedule[0])))
+            text = '%s:%d:%d'%(dw, schedule[1], schedule[2])
+        else:
+            raise ValueError('Unknown schedule type: %r'%typ)
         s.text = text
         return s
 
@@ -280,6 +356,11 @@ class SchedulerConfig(object):
                     sch = float(sch)
                 elif typ == 'day/time':
                     sch = list(map(int, sch.split(':')))
+                elif typ in ('days_of_week', 'days_of_month'):
+                    parts = sch.split(':')
+                    days = list(map(int, [x.strip() for x in
+                        parts[0].split(',')]))
+                    sch = [days, int(parts[1]), int(parts[2])]
                 return typ, sch, parse_date(recipe.get('last_downloaded'))
 
     def recipe_needs_to_be_downloaded(self, recipe):
@@ -287,19 +368,48 @@ class SchedulerConfig(object):
             typ, sch, ld = self.un_serialize_schedule(recipe)
         except:
             return False
+
+        def is_time(now, hour, minute):
+            return now.hour > hour or \
+                    (now.hour == hour and now.minute >= minute)
+
+        def is_weekday(day, now):
+            return day < 0 or day > 6 or \
+                    day == calendar.weekday(now.year, now.month, now.day)
+
+        def was_downloaded_already_today(ld_local, now):
+            return ld_local.date() == now.date()
+
         if typ == 'interval':
             return utcnow() - ld > timedelta(sch)
         elif typ == 'day/time':
             now = nowf()
             ld_local = ld.astimezone(tzlocal())
             day, hour, minute = sch
+            return  is_weekday(day, now) and \
+                    not was_downloaded_already_today(ld_local, now) and \
+                    is_time(now, hour, minute)
+        elif typ == 'days_of_week':
+            now = nowf()
+            ld_local = ld.astimezone(tzlocal())
+            days, hour, minute = sch
+            have_day = False
+            for day in days:
+                if is_weekday(day, now):
+                    have_day = True
+                    break
+            return  have_day and \
+                    not was_downloaded_already_today(ld_local, now) and \
+                    is_time(now, hour, minute)
+        elif typ == 'days_of_month':
+            now = nowf()
+            ld_local = ld.astimezone(tzlocal())
+            days, hour, minute = sch
+            have_day = now.day in days
+            return  have_day and \
+                    not was_downloaded_already_today(ld_local, now) and \
+                    is_time(now, hour, minute)
 
-            is_today = day < 0 or day > 6 or \
-                    day == calendar.weekday(now.year, now.month, now.day)
-            is_time = now.hour > hour or \
-                    (now.hour == hour and now.minute >= minute)
-            was_downloaded_already_today = ld_local.date() == now.date()
-            return is_today and not was_downloaded_already_today and is_time
         return False
 
     def set_account_info(self, urn, un, pw):

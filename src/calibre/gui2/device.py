@@ -140,6 +140,8 @@ class DeviceManager(Thread): # {{{
         self.mount_connection_requests = Queue.Queue(0)
         self.open_feedback_slot = open_feedback_slot
         self.open_feedback_msg = open_feedback_msg
+        self._device_information = None
+        self.current_library_uuid = None
 
     def report_progress(self, *args):
         pass
@@ -159,7 +161,7 @@ class DeviceManager(Thread): # {{{
             try:
                 dev.reset(detected_device=detected_device,
                     report_progress=self.report_progress)
-                dev.open()
+                dev.open(self.current_library_uuid)
             except OpenFeedback, e:
                 if dev not in self.ejected_devices:
                     self.open_feedback_msg(dev.get_gui_name(), e.feedback_msg)
@@ -194,6 +196,7 @@ class DeviceManager(Thread): # {{{
         else:
             self.connected_slot(False, self.connected_device_kind)
         self.connected_device = None
+        self._device_information = None
 
     def detect_device(self):
         self.scanner.scan()
@@ -292,15 +295,22 @@ class DeviceManager(Thread): # {{{
 
     def _get_device_information(self):
         info = self.device.get_device_information(end_session=False)
-        info = [i.replace('\x00', '').replace('\x01', '') for i in info]
+        if len(info) < 5:
+            info = tuple(list(info) + [{}])
+        info = [i.replace('\x00', '').replace('\x01', '') if isinstance(i, basestring) else i
+                 for i in info]
         cp = self.device.card_prefix(end_session=False)
         fs = self.device.free_space()
+        self._device_information = {'info': info, 'prefixes': cp, 'freespace': fs}
         return info, cp, fs
 
     def get_device_information(self, done):
         '''Get device information and free space on device'''
         return self.create_job(self._get_device_information, done,
                     description=_('Get device information'))
+
+    def get_current_device_information(self):
+        return self._device_information
 
     def _books(self):
         '''Get metadata from device'''
@@ -416,6 +426,13 @@ class DeviceManager(Thread): # {{{
     def view_book(self, done, path, target):
         return self.create_job(self._view_book, done, args=[path, target],
                         description=_('View book on device'))
+
+    def set_current_library_uuid(self, uuid):
+        self.current_library_uuid = uuid
+
+    def set_driveinfo_name(self, location_code, name):
+        if self.connected_device:
+            self.connected_device.set_driveinfo_name(location_code, name)
 
     # }}}
 
@@ -1142,6 +1159,14 @@ class DeviceMixin(object): # {{{
                 'format supported by your device first.'
                 ), bad)
             d.exec_()
+
+    def upload_dirtied_booklists(self):
+        '''
+        Upload metadata to device.
+        '''
+        plugboards = self.library_view.model().db.prefs.get('plugboards', {})
+        self.device_manager.sync_booklists(Dispatcher(lambda x: x),
+                                           self.booklists(), plugboards)
 
     def upload_booklists(self):
         '''

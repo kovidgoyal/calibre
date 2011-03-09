@@ -188,7 +188,7 @@ class CustomColumns(object):
                     table=tn, column='value', datatype=v['datatype'],
                     colnum=v['num'], name=v['name'], display=v['display'],
                     is_multiple=is_m, is_category=is_category,
-                    is_editable=v['editable'])
+                    is_editable=v['editable'], is_csp=False)
 
     def get_custom(self, idx, label=None, num=None, index_is_id=False):
         if label is not None:

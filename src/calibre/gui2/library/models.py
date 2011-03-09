@@ -22,7 +22,7 @@ from calibre.utils.icu import sort_key, strcmp as icu_strcmp
 from calibre.ebooks.metadata.meta import set_metadata as _set_metadata
 from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.library.caches import _match, CONTAINS_MATCH, EQUALS_MATCH, \
-    REGEXP_MATCH, MetadataBackup
+    REGEXP_MATCH, MetadataBackup, force_to_bool
 from calibre import strftime, isbytestring, prepare_string_for_xml
 from calibre.constants import filesystem_encoding, DEBUG
 from calibre.gui2.library import DEFAULT_SORT
@@ -267,6 +267,15 @@ class BooksModel(QAbstractTableModel): # {{{
             # This shouldn't happen ...
             return None
         return self.get_current_highlighted_id()
+
+    def highlight_ids(self, ids_to_highlight):
+        self.ids_to_highlight = ids_to_highlight
+        self.ids_to_highlight_set = set(self.ids_to_highlight)
+        if self.ids_to_highlight:
+            self.current_highlighted_idx = 0
+        else:
+            self.current_highlighted_idx = None
+        self.reset()
 
     def search(self, text, reset=True):
         try:
@@ -615,7 +624,7 @@ class BooksModel(QAbstractTableModel): # {{{
             return None # displayed using a decorator
 
         def bool_type_decorator(r, idx=-1, bool_cols_are_tristate=True):
-            val = self.db.data[r][idx]
+            val = force_to_bool(self.db.data[r][idx])
             if not bool_cols_are_tristate:
                 if val is None or not val:
                     return self.bool_no_icon
@@ -674,8 +683,14 @@ class BooksModel(QAbstractTableModel): # {{{
             idx = self.custom_columns[col]['rec_index']
             datatype = self.custom_columns[col]['datatype']
             if datatype in ('text', 'comments', 'composite', 'enumeration'):
-                self.dc[col] = functools.partial(text_type, idx=idx,
-                                                 mult=self.custom_columns[col]['is_multiple'])
+                mult=self.custom_columns[col]['is_multiple']
+                self.dc[col] = functools.partial(text_type, idx=idx, mult=mult)
+                if datatype in ['text', 'composite', 'enumeration'] and not mult:
+                    if self.custom_columns[col]['display'].get('use_decorations', False):
+                        self.dc_decorator[col] = functools.partial(
+                            bool_type_decorator, idx=idx,
+                            bool_cols_are_tristate=
+                                tweaks['bool_custom_columns_are_tristate'] != 'no')
             elif datatype in ('int', 'float'):
                 self.dc[col] = functools.partial(number_type, idx=idx)
             elif datatype == 'datetime':
@@ -684,7 +699,8 @@ class BooksModel(QAbstractTableModel): # {{{
                 self.dc[col] = functools.partial(bool_type, idx=idx)
                 self.dc_decorator[col] = functools.partial(
                             bool_type_decorator, idx=idx,
-                            bool_cols_are_tristate=tweaks['bool_custom_columns_are_tristate'] != 'no')
+                            bool_cols_are_tristate=
+                                tweaks['bool_custom_columns_are_tristate'] != 'no')
             elif datatype == 'rating':
                 self.dc[col] = functools.partial(rating_type, idx=idx)
             elif datatype == 'series':

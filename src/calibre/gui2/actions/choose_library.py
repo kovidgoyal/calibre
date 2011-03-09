@@ -355,6 +355,7 @@ class ChooseLibraryAction(InterfaceAction):
                 print
         print 'before:', self.before_mem
         print 'after:', memory()/1024**2
+        print
         self.dbref = self.before_mem = None
 
 

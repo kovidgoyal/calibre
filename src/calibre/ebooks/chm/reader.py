@@ -40,13 +40,14 @@ class CHMError(Exception):
     pass
 
 class CHMReader(CHMFile):
-    def __init__(self, input, log):
+    def __init__(self, input, log, opts):
         CHMFile.__init__(self)
         if isinstance(input, unicode):
             input = input.encode(filesystem_encoding)
         if not self.LoadCHM(input):
             raise CHMError("Unable to open CHM file '%s'"%(input,))
         self.log = log
+        self.opts = opts
         self._sourcechm = input
         self._contents = None
         self._playorder = 0
@@ -54,8 +55,12 @@ class CHMReader(CHMFile):
         self._extracted = False
 
         # location of '.hhc' file, which is the CHM TOC.
-        self.root, ext = os.path.splitext(self.topics.lstrip('/'))
-        self.hhc_path = self.root + ".hhc"
+        if self.topics is None:
+            self.root, ext = os.path.splitext(self.home.lstrip('/'))
+            self.hhc_path = self.root + ".hhc"
+        else:
+            self.root, ext = os.path.splitext(self.topics.lstrip('/'))
+            self.hhc_path = self.root + ".hhc"
 
     def _parse_toc(self, ul, basedir=os.getcwdu()):
         toc = TOC(play_order=self._playorder, base_path=basedir, text='')
@@ -147,6 +152,8 @@ class CHMReader(CHMFile):
                     break
 
     def _reformat(self, data, htmlpath):
+        if self.opts.input_encoding:
+            data = data.decode(self.opts.input_encoding)
         try:
             data = xml_to_unicode(data, strip_encoding_pats=True)[0]
             soup = BeautifulSoup(data)

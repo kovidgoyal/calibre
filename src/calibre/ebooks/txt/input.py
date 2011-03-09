@@ -22,7 +22,7 @@ class TXTInput(InputFormatPlugin):
     name        = 'TXT Input'
     author      = 'John Schember'
     description = 'Convert TXT files to HTML'
-    file_types  = set(['txt', 'txtz'])
+    file_types  = set(['txt', 'txtz', 'text'])
 
     options = set([
         OptionRecommendation(name='paragraph_type', recommended_value='auto',

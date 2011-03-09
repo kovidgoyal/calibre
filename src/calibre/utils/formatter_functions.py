@@ -12,6 +12,7 @@ import inspect, re, traceback, sys
 
 from calibre.utils.titlecase import titlecase
 from calibre.utils.icu import capitalize, strcmp
+from calibre.utils.date import parse_date, format_date
 
 
 class FormatterFunctions(object):
@@ -230,6 +231,15 @@ class BuiltinField(BuiltinFormatterFunction):
     def evaluate(self, formatter, kwargs, mi, locals, name):
         return formatter.get_value(name, [], kwargs)
 
+class BuiltinRaw_field(BuiltinFormatterFunction):
+    name = 'raw_field'
+    arg_count = 1
+    doc = _('raw_field(name) -- returns the metadata field named by name '
+            'without applying any formatting.')
+
+    def evaluate(self, formatter, kwargs, mi, locals, name):
+        return unicode(getattr(mi, name, None))
+
 class BuiltinSubstr(BuiltinFormatterFunction):
     name = 'substr'
     arg_count = 3
@@ -396,6 +406,23 @@ class BuiltinListitem(BuiltinFormatterFunction):
         except:
             return ''
 
+class BuiltinSelect(BuiltinFormatterFunction):
+    name = 'select'
+    arg_count = 2
+    doc = _('select(val, key) -- interpret the value as a comma-separated list '
+            'of items, with the items being "id:value". Find the pair with the'
+            'id equal to key, and return the corresponding value.'
+            )
+
+    def evaluate(self, formatter, kwargs, mi, locals, val, key):
+        if not val:
+            return ''
+        vals = [v.strip() for v in val.split(',')]
+        for v in vals:
+            if v.startswith(key+':'):
+                return v[len(key)+1:]
+        return ''
+
 class BuiltinSublist(BuiltinFormatterFunction):
     name = 'sublist'
     arg_count = 4
@@ -423,6 +450,33 @@ class BuiltinSublist(BuiltinFormatterFunction):
                 return sep.join(val[si:ei])
         except:
             return ''
+
+class BuiltinFormat_date(BuiltinFormatterFunction):
+    name = 'format_date'
+    arg_count = 2
+    doc = _('format_date(val, format_string) -- format the value, which must '
+            'be a date field, using the format_string, returning a string. '
+            'The formatting codes are: '
+            'd    : the day as number without a leading zero (1 to 31) '
+            'dd   : the day as number with a leading zero (01 to 31) '
+            'ddd  : the abbreviated localized day name (e.g. "Mon" to "Sun"). '
+            'dddd : the long localized day name (e.g. "Monday" to "Sunday"). '
+            'M    : the month as number without a leading zero (1 to 12). '
+            'MM   : the month as number with a leading zero (01 to 12) '
+            'MMM  : the abbreviated localized month name (e.g. "Jan" to "Dec"). '
+            'MMMM : the long localized month name (e.g. "January" to "December"). '
+            'yy   : the year as two digit number (00 to 99). '
+            'yyyy : the year as four digit number.')
+
+    def evaluate(self, formatter, kwargs, mi, locals, val, format_string):
+        if not val:
+            return ''
+        try:
+            dt = parse_date(val)
+            s = format_date(dt, format_string)
+        except:
+            s = 'BAD DATE'
+        return s
 
 class BuiltinUppercase(BuiltinFormatterFunction):
     name = 'uppercase'
@@ -464,14 +518,17 @@ builtin_contains    = BuiltinContains()
 builtin_count       = BuiltinCount()
 builtin_divide      = BuiltinDivide()
 builtin_eval        = BuiltinEval()
-builtin_ifempty     = BuiltinIfempty()
+builtin_format_date = BuiltinFormat_date()
 builtin_field       = BuiltinField()
+builtin_ifempty     = BuiltinIfempty()
 builtin_list_item   = BuiltinListitem()
 builtin_lookup      = BuiltinLookup()
 builtin_lowercase   = BuiltinLowercase()
 builtin_multiply    = BuiltinMultiply()
 builtin_print       = BuiltinPrint()
+builtin_raw_field   = BuiltinRaw_field()
 builtin_re          = BuiltinRe()
+builtin_select      = BuiltinSelect()
 builtin_shorten     = BuiltinShorten()
 builtin_strcat      = BuiltinStrcat()
 builtin_strcmp      = BuiltinStrcmp()

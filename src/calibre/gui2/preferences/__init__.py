@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 import textwrap
 
 from PyQt4.Qt import QWidget, pyqtSignal, QCheckBox, QAbstractSpinBox, \
-    QLineEdit, QComboBox, QVariant
+    QLineEdit, QComboBox, QVariant, Qt
 
 from calibre.customize.ui import preferences_plugins
 from calibre.utils.config import ConfigProxy
@@ -81,6 +81,8 @@ class ConfigWidgetInterface(object):
         pass
 
 class Setting(object):
+
+    CHOICES_SEARCH_FLAGS = Qt.MatchExactly | Qt.MatchCaseSensitive
 
     def __init__(self, name, config_obj, widget, gui_name=None,
             empty_string_is_None=True, choices=None, restart_required=False):
@@ -168,7 +170,8 @@ class Setting(object):
         elif self.datatype == 'string':
             self.gui_obj.setText(val if val else '')
         elif self.datatype == 'choice':
-            idx = self.gui_obj.findData(QVariant(val))
+            idx = self.gui_obj.findData(QVariant(val), role=Qt.UserRole,
+                    flags=self.CHOICES_SEARCH_FLAGS)
             if idx == -1:
                 idx = 0
             self.gui_obj.setCurrentIndex(idx)

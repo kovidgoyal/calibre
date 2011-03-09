@@ -61,7 +61,7 @@
           <attribute name="title">
            <string>&amp;Schedule</string>
           </attribute>
-          <layout class="QVBoxLayout" name="verticalLayout_2">
+          <layout class="QVBoxLayout" name="verticalLayout">
            <item>
             <widget class="QLabel" name="blurb">
              <property name="text">
@@ -76,141 +76,94 @@
             </widget>
            </item>
            <item>
-            <widget class="QCheckBox" name="schedule">
-             <property name="text">
-              <string>&amp;Schedule for download:</string>
+            <spacer name="verticalSpacer_3">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
              </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QFrame" name="frame">
+             <property name="frameShape">
+              <enum>QFrame::StyledPanel</enum>
+             </property>
+             <property name="frameShadow">
+              <enum>QFrame::Raised</enum>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_2">
+              <item>
+               <widget class="QCheckBox" name="schedule">
+                <property name="text">
+                 <string>&amp;Schedule for download:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout">
+                <item>
+                 <widget class="QRadioButton" name="days_of_week">
+                  <property name="text">
+                   <string>Days of  week</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QRadioButton" name="days_of_month">
+                  <property name="text">
+                   <string>Days of month</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QRadioButton" name="every_x_days">
+                  <property name="text">
+                   <string>Every x days</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <widget class="QStackedWidget" name="schedule_stack">
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>75</height>
+                 </size>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="last_downloaded">
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="wordWrap">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </widget>
            </item>
            <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_2">
-             <item>
-              <widget class="QRadioButton" name="daily_button">
-               <property name="text">
-                <string>Every </string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QComboBox" name="day">
-               <item>
-                <property name="text">
-                 <string>day</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>Monday</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>Tuesday</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>Wednesday</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>Thursday</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>Friday</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>Saturday</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>Sunday</string>
-                </property>
-               </item>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLabel" name="label_4">
-               <property name="text">
-                <string>at</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QTimeEdit" name="time"/>
-             </item>
-             <item>
-              <spacer name="horizontalSpacer">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-            </layout>
-           </item>
-           <item>
-            <layout class="QHBoxLayout" name="horizontalLayout">
-             <item>
-              <widget class="QRadioButton" name="interval_button">
-               <property name="text">
-                <string>Every </string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QDoubleSpinBox" name="interval">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="toolTip">
-                <string>Interval at which to download this recipe. A value of zero means that the recipe will be downloaded every hour.</string>
-               </property>
-               <property name="suffix">
-                <string> days</string>
-               </property>
-               <property name="decimals">
-                <number>1</number>
-               </property>
-               <property name="minimum">
-                <double>0.000000000000000</double>
-               </property>
-               <property name="maximum">
-                <double>365.100000000000023</double>
-               </property>
-               <property name="singleStep">
-                <double>1.000000000000000</double>
-               </property>
-               <property name="value">
-                <double>1.000000000000000</double>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item>
-            <widget class="QLabel" name="last_downloaded">
-             <property name="text">
-              <string/>
+            <spacer name="verticalSpacer_4">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
              </property>
-             <property name="wordWrap">
-              <bool>true</bool>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
              </property>
-            </widget>
+            </spacer>
            </item>
            <item>
             <widget class="QGroupBox" name="account">
@@ -342,6 +295,19 @@
           </layout>
          </widget>
         </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
        </item>
        <item>
         <widget class="QPushButton" name="download_button">
@@ -482,54 +448,6 @@
     <hint type="destinationlabel">
      <x>286</x>
      <y>274</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>daily_button</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>day</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>458</x>
-     <y>155</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>573</x>
-     <y>158</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>daily_button</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>time</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>458</x>
-     <y>155</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>684</x>
-     <y>157</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>interval_button</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>interval</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>458</x>
-     <y>212</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>752</x>
-     <y>215</y>
     </hint>
    </hints>
   </connection>

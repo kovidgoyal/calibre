@@ -67,7 +67,8 @@ class FetchNewsAction(InterfaceAction):
             keep_issues = 0
         if keep_issues > 0:
             ids_with_tag = list(sorted(self.gui.library_view.model().
-                db.tags_older_than(arg['title'], None), reverse=True))
+                db.tags_older_than(arg['title'],
+                    None, must_have_tag=_('News')), reverse=True))
             ids_to_delete = ids_with_tag[keep_issues:]
             if ids_to_delete:
                 self.gui.library_view.model().delete_books_by_id(ids_to_delete)

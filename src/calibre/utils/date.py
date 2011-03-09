@@ -45,6 +45,7 @@ utc_tz = _utc_tz = tzutc()
 local_tz = _local_tz = SafeLocalTimeZone()
 
 UNDEFINED_DATE = datetime(101,1,1, tzinfo=utc_tz)
+DEFAULT_DATE = datetime(2000,1,1, tzinfo=utc_tz)
 
 def is_date_undefined(qt_or_dt):
     d = qt_or_dt
@@ -70,6 +71,8 @@ def parse_date(date_string, assume_utc=False, as_utc=True, default=None):
     :param default: Missing fields are filled in from default. If None, the
     current date is used.
     '''
+    if not date_string:
+        return UNDEFINED_DATE
     if default is None:
         func = datetime.utcnow if assume_utc else datetime.now
         default = func().replace(hour=0, minute=0, second=0, microsecond=0,

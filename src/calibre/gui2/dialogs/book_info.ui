@@ -25,7 +25,7 @@
     </widget>
    </item>
    <item row="1" column="0">
-    <widget class="QGraphicsView" name="cover"/>
+    <widget class="CoverView" name="cover"/>
    </item>
    <item row="1" column="1">
     <layout class="QVBoxLayout" name="verticalLayout">
@@ -114,6 +114,11 @@
    <class>QWebView</class>
    <extends>QWidget</extends>
    <header>QtWebKit/QWebView</header>
+  </customwidget>
+  <customwidget>
+   <class>CoverView</class>
+   <extends>QGraphicsView</extends>
+   <header>calibre/gui2/widgets.h</header>
   </customwidget>
  </customwidgets>
  <resources>

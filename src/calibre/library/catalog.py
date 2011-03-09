@@ -5103,6 +5103,19 @@ Author '{0}':
                 recommendations.append(('book_producer',opts.output_profile,
                     OptionRecommendation.HIGH))
 
+            # If cover exists, use it
+            try:
+                search_text = 'title:"%s" author:%s' % (
+                        opts.catalog_title.replace('"', '\\"'), 'calibre')
+                matches = db.search(search_text, return_matches=True)
+                if matches:
+                    cpath = db.cover(matches[0], index_is_id=True, as_path=True)
+                    if cpath and os.path.exists(cpath):
+                        recommendations.append(('cover', cpath,
+                            OptionRecommendation.HIGH))
+            except:
+                pass
+
             # Run ebook-convert
             from calibre.ebooks.conversion.plumber import Plumber
             plumber = Plumber(os.path.join(catalog.catalogPath,

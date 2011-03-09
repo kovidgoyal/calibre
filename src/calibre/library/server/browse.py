@@ -346,7 +346,7 @@ class BrowseServer(object):
         for category in sorted(categories, key=lambda x: sort_key(getter(x))):
             if len(categories[category]) == 0:
                 continue
-            if category == 'formats':
+            if category in ('formats', 'identifiers'):
                 continue
             meta = category_meta.get(category, None)
             if meta is None:
@@ -666,7 +666,7 @@ class BrowseServer(object):
             if add_category_links:
                 added_key = False
                 fm = mi.metadata_for_field(key)
-                if val and fm and fm['is_category'] and \
+                if val and fm and fm['is_category'] and not fm['is_csp'] and\
                         key != 'formats' and fm['datatype'] not in ['rating']:
                     categories = mi.get(key)
                     if isinstance(categories, basestring):
