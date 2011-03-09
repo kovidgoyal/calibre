@@ -7,6 +7,7 @@ __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
 import os
+import urllib2
 from cookielib import Cookie, CookieJar
 from urlparse import urlparse
 
@@ -63,8 +64,19 @@ class NPWebView(QWebView):
         
         br = browser()
         br.set_cookiejar(cj)
+        r = br.open(url)
 
-        basename = br.open(url).geturl().split('/')[-1]
+        basename = ''
+        disposition = r.info().get('Content-disposition', '')
+        if 'filename' in disposition:
+            if 'filename*=' in disposition:
+                basename = disposition.split('filename*=')[-1].split('\'\'')[-1]
+            else:
+                basename = disposition.split('filename=')[-1]
+            basename = urllib2.unquote(basename)
+        if not basename:
+            basename = r.geturl().split('/')[-1]
+
         ext = os.path.splitext(basename)[1][1:].lower()
         if ext not in BOOK_EXTENSIONS:
             home = os.path.expanduser('~')

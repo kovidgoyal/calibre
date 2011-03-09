@@ -19,18 +19,28 @@ from PyQt4.Qt import QUrl
 from calibre import browser
 from calibre.gui2 import open_url
 from calibre.gui2.store import StorePlugin
+from calibre.gui2.store.basic_config import BasicStoreConfig
 from calibre.gui2.store.search_result import SearchResult
+from calibre.gui2.store.web_store_dialog import WebStoreDialog
 from calibre.utils.config import DynamicConfig
 
-class MobileReadStore(StorePlugin):
+class MobileReadStore(BasicStoreConfig, StorePlugin):
     
     def genesis(self):
         self.config = DynamicConfig('store_' + self.name)
         self.rlock = RLock()
     
     def open(self, parent=None, detail_item=None, external=False):
+        settings = self.get_settings()
         url = 'http://www.mobileread.com/'
-        open_url(QUrl(detail_item if detail_item else url))
+        
+        if external or settings.get(self.name + '_open_external', False):
+            open_url(QUrl(detail_item if detail_item else url))
+        else:
+            d = WebStoreDialog(self.gui, url, parent, detail_item)
+            d.setWindowTitle(self.name)
+            d.set_tags(settings.get(self.name + '_tags', ''))
+            d = d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
         books = self.get_book_list(timeout=timeout)

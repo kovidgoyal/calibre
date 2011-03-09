@@ -10,6 +10,7 @@ import cStringIO
 import os
 import shutil
 import time
+import urllib2
 from cookielib import CookieJar
 from contextlib import closing
 from threading import Thread
@@ -153,7 +154,17 @@ class StoreDownloader(Thread):
         br.set_cookiejar(job.cookie_jar)
 
         with closing(br.open(url)) as r:
-            basename = r.geturl().split('/')[-1]
+            basename = ''
+            disposition = r.info().get('Content-disposition', '')
+            if 'filename' in disposition:
+                if 'filename*=' in disposition:
+                    basename = disposition.split('filename*=')[-1].split('\'\'')[-1]
+                else:
+                    basename = disposition.split('filename=')[-1]
+                basename = urllib2.unquote(basename)
+            if not basename:
+                basename = r.geturl().split('/')[-1]
+
             tf = PersistentTemporaryFile(suffix=basename)
             tf.write(r.read())
             job.tmp_file_name = tf.name
