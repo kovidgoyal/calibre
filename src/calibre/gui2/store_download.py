@@ -16,7 +16,7 @@ from contextlib import closing
 from threading import Thread
 from Queue import Queue
 
-from calibre import browser
+from calibre import browser, get_download_filename
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.gui2 import Dispatcher
 from calibre.ptempfile import PersistentTemporaryFile
@@ -24,13 +24,13 @@ from calibre.utils.ipc.job import BaseJob
 
 class StoreDownloadJob(BaseJob):
 
-    def __init__(self, callback, description, job_manager, db, cookie_jar, url='', save_as_loc='', add_to_lib=True, tags=[]):
+    def __init__(self, callback, description, job_manager, db, cookie_jar, url='', filename='', save_as_loc='', add_to_lib=True, tags=[]):
         BaseJob.__init__(self, description)
         self.exception = None
         self.job_manager = job_manager
         self.db = db
         self.cookie_jar = cookie_jar
-        self.args = (url, save_as_loc, add_to_lib, tags)
+        self.args = (url, filename, save_as_loc, add_to_lib, tags)
         self.tmp_file_name = ''
         self.callback = callback
         self.log_path = None
@@ -143,40 +143,31 @@ class StoreDownloader(Thread):
         job.job_done()
 
     def _download(self, job):
-        url, save_loc, add_to_lib, tags = job.args
+        url, filename, save_loc, add_to_lib, tags = job.args
         if not url:
             raise Exception(_('No file specified to download.'))
         if not save_loc and not add_to_lib:
             # Nothing to do.
             return
 
+        if not filename:
+            filename = get_download_filename(url, job.cookie_jar)
+        
         br = browser()
         br.set_cookiejar(job.cookie_jar)
-
         with closing(br.open(url)) as r:
-            basename = ''
-            disposition = r.info().get('Content-disposition', '')
-            if 'filename' in disposition:
-                if 'filename*=' in disposition:
-                    basename = disposition.split('filename*=')[-1].split('\'\'')[-1]
-                else:
-                    basename = disposition.split('filename=')[-1]
-                basename = urllib2.unquote(basename)
-            if not basename:
-                basename = r.geturl().split('/')[-1]
-
-            tf = PersistentTemporaryFile(suffix=basename)
+            tf = PersistentTemporaryFile(suffix=filename)
             tf.write(r.read())
             job.tmp_file_name = tf.name
         
     def _add(self, job):
-        url, save_loc, add_to_lib, tags = job.args
+        url, filename, save_loc, add_to_lib, tags = job.args
         if not add_to_lib or not job.tmp_file_name:
             return
         ext = os.path.splitext(job.tmp_file_name)[1][1:].lower()
         if ext not in BOOK_EXTENSIONS:
             raise Exception(_('Not a support ebook format.'))
-        
+
         from calibre.ebooks.metadata.meta import get_metadata
         with open(job.tmp_file_name) as f:
             mi = get_metadata(f, ext)
@@ -186,17 +177,17 @@ class StoreDownloader(Thread):
         job.db.add_format_with_hooks(id, ext.upper(), job.tmp_file_name, index_is_id=True)
     
     def _save_as(self, job):
-        url, save_loc, add_to_lib, tags = job.args
+        url, filename, save_loc, add_to_lib, tags = job.args
         if not save_loc or not job.tmp_file_name:
             return
         
         shutil.copy(job.tmp_file_name, save_loc)
         
-    def download_from_store(self, callback, db, cookie_jar, url='', save_as_loc='', add_to_lib=True, tags=[]):
-        description = _('Downloading %s') % url
-        job = StoreDownloadJob(callback, description, self.job_manager, db, cookie_jar, url, save_as_loc, add_to_lib, tags)
+    def download_from_store(self, callback, db, cookie_jar, url='', filename='', save_as_loc='', add_to_lib=True, tags=[]):
+        description = _('Downloading %s') % filename if filename else url
+        job = StoreDownloadJob(callback, description, self.job_manager, db, cookie_jar, url, filename, save_as_loc, add_to_lib, tags)
         self.job_manager.add_job(job)
-        self.jobs.put(job)        
+        self.jobs.put(job)
 
 
 class StoreDownloadMixin(object):
@@ -204,14 +195,14 @@ class StoreDownloadMixin(object):
     def __init__(self):
         self.store_downloader = StoreDownloader(self.job_manager)
     
-    def download_from_store(self, url='', cookie_jar=CookieJar(), save_as_loc='', add_to_lib=True, tags=[]):
+    def download_from_store(self, url='', cookie_jar=CookieJar(), filename='', save_as_loc='', add_to_lib=True, tags=[]):
         if not self.store_downloader.is_alive():
             self.store_downloader.start()
         if tags:
             if isinstance(tags, basestring):
                 tags = tags.split(',')
-        self.store_downloader.download_from_store(Dispatcher(self.downloaded_from_store), self.library_view.model().db, cookie_jar, url, save_as_loc, add_to_lib, tags)
-        self.status_bar.show_message(_('Downloading') + ' ' + url, 3000)
+        self.store_downloader.download_from_store(Dispatcher(self.downloaded_from_store), self.library_view.model().db, cookie_jar, url, filename, save_as_loc, add_to_lib, tags)
+        self.status_bar.show_message(_('Downloading') + ' ' + filename if filename else url, 3000)
     
     def downloaded_from_store(self, job):
         if job.failed:

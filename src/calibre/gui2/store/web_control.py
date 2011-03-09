@@ -14,7 +14,7 @@ from urlparse import urlparse
 from PyQt4.Qt import QWebView, QWebPage, QNetworkCookieJar, QNetworkRequest, QString, \
     QFileDialog, QNetworkProxy
 
-from calibre import USER_AGENT, browser, get_proxies
+from calibre import USER_AGENT, browser, get_proxies, get_download_filename
 from calibre.ebooks import BOOK_EXTENSIONS
 
 class NPWebView(QWebView):
@@ -62,32 +62,18 @@ class NPWebView(QWebView):
         url = unicode(request.url().toString())
         cj = self.get_cookies()
         
-        br = browser()
-        br.set_cookiejar(cj)
-        r = br.open(url)
-
-        basename = ''
-        disposition = r.info().get('Content-disposition', '')
-        if 'filename' in disposition:
-            if 'filename*=' in disposition:
-                basename = disposition.split('filename*=')[-1].split('\'\'')[-1]
-            else:
-                basename = disposition.split('filename=')[-1]
-            basename = urllib2.unquote(basename)
-        if not basename:
-            basename = r.geturl().split('/')[-1]
-
-        ext = os.path.splitext(basename)[1][1:].lower()
+        filename = get_download_filename(url, cj)
+        ext = os.path.splitext(filename)[1][1:].lower()
         if ext not in BOOK_EXTENSIONS:
             home = os.path.expanduser('~')
             name = QFileDialog.getSaveFileName(self,
                 _('File is not a supported ebook type. Save to disk?'),
-                os.path.join(home, basename),
+                os.path.join(home, filename),
                 '*.*')
             if name:
-                self.gui.download_from_store(url, cj, name, False)
+                self.gui.download_from_store(url, cj, name, name, False)
         else:
-            self.gui.download_from_store(url, cj, tags=self.tags)
+            self.gui.download_from_store(url, cj, filename, tags=self.tags)
 
     def ignore_ssl_errors(self, reply, errors):
         reply.ignoreSslErrors(errors)

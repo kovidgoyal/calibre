@@ -5,7 +5,9 @@ __docformat__ = 'restructuredtext en'
 
 import uuid, sys, os, re, logging, time, \
        __builtin__, warnings, multiprocessing
+from contextlib import closing
 from urllib import getproxies
+from urllib2 import unquote as urllib2_unquote
 __builtin__.__dict__['dynamic_property'] = lambda(func): func(None)
 from htmlentitydefs import name2codepoint
 from math import floor
@@ -478,6 +480,33 @@ def url_slash_cleaner(url):
     Removes redundant /'s from url's.
     '''
     return re.sub(r'(?<!:)/{2,}', '/', url)
+
+def get_download_filename(url, cookie_jar=None):
+    filename = ''
+    
+    br = browser()
+    if cookie_jar:
+        br.set_cookiejar(cookie_jar)
+    
+    with closing(br.open(url)) as r:
+        disposition = r.info().get('Content-disposition', '')
+        for p in disposition.split(';'):
+            if 'filename' in p:
+                if '*=' in disposition:
+                    parts = disposition.split('*=')[-1]
+                    filename = parts.split('\'')[-1]
+                else:
+                    filename = disposition.split('=')[-1]
+                if filename[0] in ('\'', '"'):
+                    filename = filename[1:]
+                if filename[-1] in ('\'', '"'):
+                    filename = filename[:-1]
+                filename = urllib2_unquote(filename)
+                break
+        if not filename:
+            filename = r.geturl().split('/')[-1]
+
+    return filename
 
 def human_readable(size):
     """ Convert a size in bytes into a human readable form """
