@@ -372,7 +372,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         d = ChoosePluginToolbarsDialog(self, plugin_action, allowed_locations)
         if d.exec_() == d.Accepted:
             for key, text in d.selected_locations():
-                installed_actions = list(gprefs['action-layout-'+key])
+                installed_actions = list(gprefs.get('action-layout-'+key, []))
                 installed_actions.append(plugin_action.name)
                 gprefs['action-layout-'+key] = tuple(installed_actions)
 
