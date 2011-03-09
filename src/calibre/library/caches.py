@@ -144,7 +144,7 @@ def _match(query, value, matchkind):
             pass
     return False
 
-def force_to_bool(self, val):
+def force_to_bool(val):
     if isinstance(val, (str, unicode)):
         try:
             val = icu_lower(val)
