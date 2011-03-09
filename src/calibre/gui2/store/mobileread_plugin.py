@@ -57,14 +57,8 @@ class MobileReadStore(StorePlugin):
         # Move the best scorers to head of list.
         matches = heapq.nlargest(max_results, matches)
         for score, book in matches:
-            print('%s %s' % (score, book.title))
-            s = SearchResult()
-            s.title = book.title
-            s.author = book.author
-            s.price = '$0.00'
-            s.detail_item = book.url
-        
-            yield s
+            book.price = '$0.00'
+            yield book
 
     def update_book_list(self, timeout=10):
         with self.rlock:
@@ -90,7 +84,7 @@ class MobileReadStore(StorePlugin):
                 data = html.fromstring(raw_data)
                 for book_data in data.xpath('//ul/li'):
                     book = BookRef()
-                    book.url = ''.join(book_data.xpath('.//a/@href'))
+                    book.detail_item = ''.join(book_data.xpath('.//a/@href'))
                     book.format = ''.join(book_data.xpath('.//i/text()'))
                     book.format = book.format.strip()
         
@@ -113,10 +107,9 @@ class MobileReadStore(StorePlugin):
         return self.config.get(self.name + '_book_list', [])
 
 
-class BookRef(object):
+class BookRef(SearchResult):
     
     def __init__(self):
-        self.author = ''
-        self.title = ''
+        SearchResult.__init__(self)
+        
         self.format = ''
-        self.url = ''
