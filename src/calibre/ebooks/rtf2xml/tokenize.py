@@ -46,7 +46,8 @@ class Tokenize:
 
     def __remove_uc_chars(self, startchar, token):
         for i in xrange(startchar, len(token)):
-            if token[i] == " ":
+            #handle the case of an uc char with a terminating blank before ansi char
+            if token[i] == " " and self.__uc_char:
                 continue
             elif self.__uc_char:
                 self.__uc_char -= 1
