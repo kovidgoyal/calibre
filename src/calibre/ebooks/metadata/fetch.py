@@ -212,6 +212,27 @@ class MetadataSource(Plugin): # {{{
 
     # }}}
 
+class Amazon(MetadataSource): # {{{
+
+    name = 'Amazon'
+    metadata_type = 'social'
+    description = _('Downloads social metadata from amazon.com')
+
+    has_html_comments = True
+
+    def fetch(self):
+        if not self.isbn:
+            return
+        from calibre.ebooks.metadata.amazon import get_social_metadata
+        try:
+            self.results = get_social_metadata(self.title, self.book_author,
+                    self.publisher, self.isbn)
+        except Exception, e:
+            self.exception = e
+            self.tb = traceback.format_exc()
+
+    # }}}
+
 class KentDistrictLibrary(MetadataSource): # {{{
 
     name = 'Kent District Library'
