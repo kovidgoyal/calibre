@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-03-04 20:51+0000\n"
-"PO-Revision-Date: 2011-03-06 12:27+0000\n"
+"PO-Revision-Date: 2011-03-09 20:51+0000\n"
 "Last-Translator: Jellby <Unknown>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-03-07 04:48+0000\n"
+"X-Launchpad-Export-Date: 2011-03-10 04:44+0000\n"
 "X-Generator: Launchpad (build 12351)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:527
@@ -12167,9 +12167,9 @@ msgid ""
 "The changes you have made require calibre be restarted immediately. You will "
 "not be allowed set any more preferences, until you restart."
 msgstr ""
-"Los cambios que Vd. realizó requieren reiniciar calibre inmediatamente. Vd. "
-"no podrá realizar ningún otro ajuste ni podrá elegir sus preferencias hasta "
-"que la operación de reinicio concluya."
+"Los cambios que ha realizado requieren reiniciar calibre inmediatamente. No "
+"podrá hacer ningún otro cambio en las preferencias hasta después del "
+"reinicio."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:331
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:132
@@ -15759,7 +15759,7 @@ msgstr "Identificadores"
 
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:291
 msgid "Title Sort"
-msgstr "Ordenar por títulos"
+msgstr "Orden de título"
 
 #: /home/kovid/work/calibre/src/calibre/library/restore.py:126
 msgid "Processed"

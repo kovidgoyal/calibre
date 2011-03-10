@@ -7,13 +7,13 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-03-04 20:51+0000\n"
-"PO-Revision-Date: 2011-03-03 16:29+0000\n"
-"Last-Translator: Anton <Unknown>\n"
+"PO-Revision-Date: 2011-03-09 12:20+0000\n"
+"Last-Translator: Ivan <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-03-05 04:45+0000\n"
+"X-Launchpad-Export-Date: 2011-03-10 04:43+0000\n"
 "X-Generator: Launchpad (build 12351)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
@@ -889,6 +889,7 @@ msgstr ""
 msgid ""
 "Unable to connect to Bambook, you need to install Bambook library first."
 msgstr ""
+"Не получается соедениться с устройством Bambook. Надо установить драйвера."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:75
 msgid ""
@@ -3138,7 +3139,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fictionwise.py:316
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fictionwise.py:333
 msgid "Failed to get all details for an entry"
-msgstr ""
+msgstr "Невозможно получить все подробности для этой записи"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fictionwise.py:354
 msgid ""
@@ -12637,7 +12638,7 @@ msgid ""
 "found."
 msgstr ""
 "Невозможно сконвертировать %d из %d книг(и), потому что не было найдено "
-"походящего формата источника."
+"подходящего формата источника."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:125
 msgid "Queueing books for bulk conversion"
