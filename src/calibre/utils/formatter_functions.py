@@ -457,7 +457,7 @@ class BuiltinSubitems(BuiltinFormatterFunction):
     doc = _('subitems(val, start_index, end_index) -- This function is used to '
             'break apart lists of items such as genres. It interprets the value '
             'as a comma-separated list of items, where each item is a period-'
-            'separated list. Returns a new list made by first finding all the'
+            'separated list. Returns a new list made by first finding all the '
             'period-separated items, then for each such item extracting the '
             'start_index`th to the `end_index`th components, then combining '
             'the results back together. The first component in a period-'
@@ -465,10 +465,10 @@ class BuiltinSubitems(BuiltinFormatterFunction):
             'then it counts from the end of the list. As a special case, an '
             'end_index of zero is assumed to be the length of the list. '
             'Example using basic template mode and assuming a #genre value of '
-            '"A.B.C": {#genre:subgroup(0,1)} returns A. '
-            '{#genre:sublist(0,2)} returns A.B. {#genre:subgroup(1,0)} returns '
-            'C. Assuming a #genre value of "A.B.C,D.E.F", {#genre:subgroup(0,1)} '
-            'returns A,D. {#genre:sublist(0,2)} returns A.B,D.E')
+            '"A.B.C": {#genre:subitems(0,1)} returns A. {#genre:subitems(0,2)} '
+            'returns A.B. {#genre:subitems(1,0)} returns B.C. Assuming a #genre '
+            'value of "A.B.C, D.E.F", {#genre:subitems(0,1)} returns A, D. '
+            '{#genre:subitems(0,2)} returns A.B, D.E')
 
     def evaluate(self, formatter, kwargs, mi, locals, val, start_index, end_index):
         if not val:

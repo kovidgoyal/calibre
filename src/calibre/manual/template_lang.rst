@@ -112,6 +112,8 @@ Functions are always applied before format specifications. See further down for 
 
 The syntax for using functions is ``{field:function(arguments)}``, or ``{field:function(arguments)|prefix|suffix}``. Arguments are separated by commas. Commas inside arguments must be preceeded by a backslash ( '\\' ). The last (or only) argument cannot contain a closing parenthesis ( ')' ). Functions return the value of the field used in the template, suitably modified.
 
+If you have programming experience, please note that the syntax in this mode (single function) is not what you might expect. Strings are not quoted. Spaces are significant. All arguments must be constants; there is no sub-evaluation. Use :ref:`template program mode <template_mode>` and :ref:`general program mode <general_mode>` to avoid these differences.
+
 The functions available are:
 
     * ``lowercase()``	-- return value of the field in lower case.
@@ -127,10 +129,25 @@ The functions available are:
     * ``switch(pattern, value, pattern, value, ..., else_value)`` -- for each ``pattern, value`` pair, checks if the field matches the regular expression ``pattern`` and if so, returns that ``value``. If no ``pattern`` matches, then ``else_value`` is returned. You can have as many ``pattern, value`` pairs as you want.
     * ``lookup(pattern, field, pattern, field, ..., else_field)`` -- like switch, except the arguments are field (metadata) names, not text. The value of the appropriate field will be fetched and used. Note that because composite columns are fields, you can use this function in one composite field to use the value of some other composite field. This is extremely useful when constructing variable save paths (more later).
     * ``select(key)`` -- interpret the field as a comma-separated list of items, with the items being of the form "id:value". Find the pair with the id equal to key, and return the corresponding value. This function is particularly useful for extracting a value such as an isbn from the set of identifiers for a book.
+    * ``subitems(val, start_index, end_index)`` -- This function is used to break apart lists of tag-like hierarchical items such as genres. It interprets the value as a comma-separated list of tag-like items, where each item is a period-separated list. Returns a new list made by first finding all the period-separated tag-like items, then for each such item extracting the start_index`th to the `end_index`th components, then combining the results back together. The first component in a period-separated list has an index of zero. If an index is negative, then it counts from the end of the list. As a special case, an end_index of zero is assumed to be the length of the list. Examples::
+
+    Assuming a #genre column containing "A.B.C":    
+        {#genre:subitems(0,1)} returns A
+        {#genre:subitems(0,2)} returns A.B
+        {#genre:subitems(1,0)} returns B.C
+    Assuming a #genre column containing "A.B.C, D.E":
+        {#genre:subitems(0,1)} returns A, D
+        {#genre:subitems(0,2)} returns A.B, D.E
+
+    * ``sublist(val, start_index, end_index, separator)`` -- interpret the value as a list of items separated by `separator`, returning a new list made from the `start_index`th to the `end_index`th item. The first item is number zero. If an index is negative, then it counts from the end of the list. As a special case, an end_index of zero is assumed to be the length of the list. Examples assuming that the tags column (which is comma-separated) contains "A, B ,C"::
+    
+        {tags:sublist(0,1,\,)} returns A
+        {tags:sublist(-1,0,\,)} returns C
+        {tags:sublist(0,-1,\,)} returns A, B
+        
     * ``test(text if not empty, text if empty)`` -- return `text if not empty` if the field is not empty, otherwise return `text if empty`.
 
-
-Now, about using functions and formatting in the same field. Suppose you have an integer custom column called ``#myint`` that you want to see with leading zeros, as in ``003``. To do this, you would use a format of ``0>3s``. However, by default, if a number (integer or float) equals zero then the field produces the empty value, so zero values will produce nothing, not ``000``. If you really want to see ``000`` values, then you use both the format string and the ``ifempty`` function to change the empty value back to a zero. The field reference would be::
+Now, what about using functions and formatting in the same field. Suppose you have an integer custom column called ``#myint`` that you want to see with leading zeros, as in ``003``. To do this, you would use a format of ``0>3s``. However, by default, if a number (integer or float) equals zero then the field produces the empty value, so zero values will produce nothing, not ``000``. If you really want to see ``000`` values, then you use both the format string and the ``ifempty`` function to change the empty value back to a zero. The field reference would be::
 
     {#myint:0>3s:ifempty(0)}
     
@@ -138,6 +155,7 @@ Note that you can use the prefix and suffix as well. If you want the number to a
 
     {#myint:0>3s:ifempty(0)|[|]}
     
+.. _template_mode:
 
 Using functions in templates - template program mode
 ----------------------------------------------------
@@ -237,6 +255,8 @@ The following functions are available in addition to those described in single-f
     * ``substr(str, start, end)`` -- returns the ``start``'th through the ``end``'th characters of ``str``. The first character in ``str`` is the zero'th character. If end is negative, then it indicates that many characters counting from the right. If end is zero, then it indicates the last character. For example, ``substr('12345', 1, 0)`` returns ``'2345'``, and ``substr('12345', 1, -1)`` returns ``'234'``.
     * ``subtract(x, y)`` -- returns x - y. Throws an exception if either x or y are not numbers.
     * ``template(x)`` -- evaluates x as a template. The evaluation is done in its own context, meaning that variables are not shared between the caller and the template evaluation. Because the `{` and `}` characters are special, you must use `[[` for the `{` character and `]]` for the '}' character; they are converted automatically. For example, ``template('[[title_sort]]') will evaluate the template ``{title_sort}`` and return its value.
+
+.. _general_mode:
 
 Using general program mode
 -----------------------------------
