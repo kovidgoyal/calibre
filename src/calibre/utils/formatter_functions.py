@@ -432,10 +432,11 @@ class BuiltinSublist(BuiltinFormatterFunction):
             'The first item is number zero. If an index is negative, then it '
             'counts from the end of the list. As a special case, an end_index '
             'of zero is assumed to be the length of the list. Examples using '
-            'basic template mode and assuming a #genre value if A.B.C: '
-            '{#genre:sublist(-1,0,.)} returns C<br/>'
-            '{#genre:sublist(0,1,.)} returns A<br/>'
-            '{#genre:sublist(0,-1,.)} returns A.B')
+            'basic template mode and assuming that the tags column (which is '
+            'comma-separated) contains "A, B, C": '
+            '{tags:sublist(0,1,\,)} returns "A". '
+            '{tags:sublist(-1,0,\,)} returns "C". '
+            '{tags:sublist(0,-1,\,)} returns "A, B".')
 
     def evaluate(self, formatter, kwargs, mi, locals, val, start_index, end_index, sep):
         if not val:
@@ -465,10 +466,10 @@ class BuiltinSubitems(BuiltinFormatterFunction):
             'then it counts from the end of the list. As a special case, an '
             'end_index of zero is assumed to be the length of the list. '
             'Example using basic template mode and assuming a #genre value of '
-            '"A.B.C": {#genre:subitems(0,1)} returns A. {#genre:subitems(0,2)} '
-            'returns A.B. {#genre:subitems(1,0)} returns B.C. Assuming a #genre '
-            'value of "A.B.C, D.E.F", {#genre:subitems(0,1)} returns A, D. '
-            '{#genre:subitems(0,2)} returns A.B, D.E')
+            '"A.B.C": {#genre:subitems(0,1)} returns "A". {#genre:subitems(0,2)} '
+            'returns "A.B". {#genre:subitems(1,0)} returns "B.C". Assuming a #genre '
+            'value of "A.B.C, D.E.F", {#genre:subitems(0,1)} returns "A, D". '
+            '{#genre:subitems(0,2)} returns "A.B, D.E"')
 
     def evaluate(self, formatter, kwargs, mi, locals, val, start_index, end_index):
         if not val:
