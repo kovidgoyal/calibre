@@ -61,7 +61,7 @@ Your question by now might be "how did I set all of this up?". There are three s
 
 I created the custom column in the usual way, using Preferences -> Add your own columns. I used "genre" as the lookup name and "Genre" as the column heading. The column type is "Comma-separated text, like tags, shown in the tag browser." 
 
-.. image:: images/sg_tree.jpg
+.. image:: images/sg_cc.jpg
     :align: center
 
 Then after restarting calibre, I told calibre that the column is to be treated as a hierarchy. I went to Preferences -> Look and Feel and entered the lookup name "#genre" into the "Categories with hierarchical items" box. I pressed Apply and was done with setting up.
