@@ -72,7 +72,7 @@ class FB2MLizer(object):
 
     def clean_text(self, text):
         # Condense empty paragraphs into a line break. 
-        text = re.sub(r'(?miu)(<p>\s*</p>\s*){3,}', '<p><empty-line /></p>', text)
+        text = re.sub(r'(?miu)(<p>\s*</p>\s*){3,}', '<empty-line />', text)
         # Remove empty paragraphs.
         text = re.sub(r'(?miu)<p>\s*</p>', '', text)
         # Clean up pargraph endings.
