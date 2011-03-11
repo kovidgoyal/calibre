@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-03-04 20:51+0000\n"
-"PO-Revision-Date: 2011-02-22 12:12+0000\n"
+"PO-Revision-Date: 2011-03-10 11:29+0000\n"
 "Last-Translator: Andrei B <Unknown>\n"
 "Language-Team: Romanian <ro@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-03-05 04:45+0000\n"
-"X-Generator: Launchpad (build 12351)\n"
+"X-Launchpad-Export-Date: 2011-03-11 04:44+0000\n"
+"X-Generator: Launchpad (build 12559)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
 msgid "Does absolutely nothing"
@@ -762,7 +762,7 @@ msgstr "Dezactivează plugin-ul specificat prin nume"
 
 #: /home/kovid/work/calibre/src/calibre/debug.py:150
 msgid "Debug log"
-msgstr ""
+msgstr "Registrul pentru depanare"
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:13
 msgid "Communicate with Android phones."
@@ -797,6 +797,8 @@ msgid ""
 "Cannot copy books directly from iDevice. Drag from iTunes Library to "
 "desktop, then add to calibre's Library window."
 msgstr ""
+"Nu se pot copia cărți direct din iDevice. Trage din iTunes Library în "
+"Desktop, apoi adaugă la fereastra Library a lui Calibre."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:262
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:265
@@ -896,6 +898,8 @@ msgstr ""
 msgid ""
 "Unable to connect to Bambook, you need to install Bambook library first."
 msgstr ""
+"Nu este posibilă conectarea la Bambook. Prima dată trebuie să instalați "
+"biblioteca Bambook."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:75
 msgid ""
