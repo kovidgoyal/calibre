@@ -147,8 +147,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     def __init__(self, library_path, row_factory=False, default_prefs=None,
             read_only=False):
-        if isbytestring(library_path):
-            library_path = library_path.decode(filesystem_encoding)
+        try:
+            if isbytestring(library_path):
+                library_path = library_path.decode(filesystem_encoding)
+        except:
+            traceback.print_exc()
         self.field_metadata = FieldMetadata()
         self._library_id_ = None
         # Create the lock to be used to guard access to the metadata writer
