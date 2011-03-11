@@ -92,7 +92,8 @@ class SendEmail(QWidget, Ui_Form):
         pa = self.preferred_to_address()
         to_set = pa is not None
         if self.set_email_settings(to_set):
-            if question_dialog(self, _('OK to proceed?'),
+            opts = smtp_prefs().parse()
+            if not opts.relay_password or question_dialog(self, _('OK to proceed?'),
                     _('This will display your email password on the screen'
                     '. Is it OK to proceed?'), show_copy_button=False):
                 TestEmail(pa, self).exec_()
@@ -204,11 +205,19 @@ class SendEmail(QWidget, Ui_Form):
         username = unicode(self.relay_username.text()).strip()
         password = unicode(self.relay_password.text()).strip()
         host = unicode(self.relay_host.text()).strip()
-        if host and not (username and password):
+        if host and ((username and not password) or (not username and password)):
             error_dialog(self, _('Bad configuration'),
-                         _('You must set the username and password for '
-                           'the mail server.')).exec_()
+                         _('You must either set the username and password for '
+                           'the mail server or no username and no password at all.')).exec_()
             return False
+        elif host and not (username and password) and self.relay_ssl.isChecked():
+            error_dialog(self, _('Bad configuration'),
+                         _('Please enter username and password for SSL encryption. ')).exec_()
+            return False            
+        elif host and not (username and password) and not question_dialog(self,
+                _('Are you sure?'),
+            _('No username and password set for mailserver. Continue anyways?')):
+                return False
         conf = smtp_prefs()
         conf.set('from_', from_)
         conf.set('relay_host', host if host else None)
