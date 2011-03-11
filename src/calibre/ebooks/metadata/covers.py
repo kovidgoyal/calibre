@@ -137,6 +137,8 @@ class AmazonCovers(CoverDownload): # {{{
         br = browser()
         try:
             url = get_cover_url(mi.isbn, br)
+            if url is None:
+                raise ValueError('No cover found for ISBN: %s'%mi.isbn)
             cover_data = br.open_novisit(url).read()
             result_queue.put((True, cover_data, 'jpg', self.name))
         except Exception, e:
