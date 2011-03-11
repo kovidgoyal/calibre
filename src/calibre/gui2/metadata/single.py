@@ -358,11 +358,13 @@ class MetadataSingleDialogBase(ResizableDialog):
             next_ = self.db.title(self.row_list[self.current_row+1])
 
         if next_ is not None:
-            tip = _('Save changes and edit the metadata of %s')%next_
+            tip = (_('Save changes and edit the metadata of %s')+
+                    ' [Alt+Right]')%next_
             self.next_button.setToolTip(tip)
         self.next_button.setVisible(next_ is not None)
         if prev is not None:
-            tip = _('Save changes and edit the metadata of %s')%prev
+            tip = (_('Save changes and edit the metadata of %s')+
+                    ' [Alt+Left]')%prev
             self.prev_button.setToolTip(tip)
         self.prev_button.setVisible(prev is not None)
         self(self.db.id(self.row_list[self.current_row]))
