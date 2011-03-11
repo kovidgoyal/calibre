@@ -385,17 +385,17 @@ Searching for ``no`` or ``unchecked`` will find all books with ``No`` in the col
 
 Hierarchical items (e.g. A.B.C) use an extended syntax to match initial parts of the hierarchy. This is done by adding a period between the exact match indicator (=) and the text. For example, the query ``tags:=.A`` will find the tags `A` and `A.B`, but will not find the tags `AA` or `AA.B`. The query ``tags:=.A.B`` will find the tags `A.B` and `A.C`, but not the tag `A`.
 
-Identifiers (e.g., isbn, doi, lccn etc) also use an extended syntax. First, note that an identifier has the form ``key:value``, as in ``isbn:123456789``. The extended syntax permits you to specify independently which key and value to search for. Both the key and the value parts of the query can use `equality`, `contains`, or `regular expression` matches. Examples:
+Identifiers (e.g., isbn, doi, lccn etc) also use an extended syntax. First, note that an identifier has the form ``type:value``, as in ``isbn:123456789``. The extended syntax permits you to specify independently which type and value to search for. Both the type and the value parts of the query can use `equality`, `contains`, or `regular expression` matches. Examples:
 
     * ``identifiers:true`` will find books with any identifier.
     * ``identifiers:false`` will find books with no identifier.
-    * ``identifiers:123`` will search for books with any key having a value containing `123`.
-    * ``identifiers:=123456789`` will search for books with any key having a value equal to `123456789`.
-    * ``identifiers:=isbn:`` and ``identifiers:isbn:true`` will find books with a key equal to isbn having any value
-    * ``identifiers:=isbn:false`` will find books with no key equal to isbn.
-    * ``identifiers:=isbn:123`` will find books with a key equal to isbn having a value containing `123`.
-    * ``identifiers:=isbn:=123456789`` will find books with a key equal to isbn having a value equal to `123456789`.
-    * ``identifiers:i:1`` will find books with a key containing an `i` having a value containing a `1`.
+    * ``identifiers:123`` will search for books with any type having a value containing `123`.
+    * ``identifiers:=123456789`` will search for books with any type having a value equal to `123456789`.
+    * ``identifiers:=isbn:`` and ``identifiers:isbn:true`` will find books with a type equal to isbn having any value
+    * ``identifiers:=isbn:false`` will find books with no type equal to isbn.
+    * ``identifiers:=isbn:123`` will find books with a type equal to isbn having a value containing `123`.
+    * ``identifiers:=isbn:=123456789`` will find books with a type equal to isbn having a value equal to `123456789`.
+    * ``identifiers:i:1`` will find books with a type containing an `i` having a value containing a `1`.
 
 
 .. |sbi| image:: images/search_button.png

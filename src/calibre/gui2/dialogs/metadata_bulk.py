@@ -1013,11 +1013,13 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         query['search_field'] = unicode(self.search_field.currentText())
         query['search_mode'] = unicode(self.search_mode.currentText())
         query['s_r_template'] = unicode(self.s_r_template.text())
+        query['s_r_src_ident'] = unicode(self.s_r_src_ident.currentText())
         query['search_for'] = unicode(self.search_for.text())
         query['case_sensitive'] = self.case_sensitive.isChecked()
         query['replace_with'] = unicode(self.replace_with.text())
         query['replace_func'] = unicode(self.replace_func.currentText())
         query['destination_field'] = unicode(self.destination_field.currentText())
+        query['s_r_dst_ident'] = unicode(self.s_r_dst_ident.text())
         query['replace_mode'] = unicode(self.replace_mode.currentText())
         query['comma_separated'] = self.comma_separated.isChecked()
         query['results_count'] = self.results_count.value()
@@ -1044,37 +1046,61 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
             self.s_r_reset_query_fields()
             return
 
-        def set_index(attr, txt):
+        def set_text(attr, key):
             try:
-                attr.setCurrentIndex(attr.findText(txt))
+                attr.setText(item[key])
+            except:
+                pass
+
+        def set_checked(attr, key):
+            try:
+                attr.setChecked(item[key])
+            except:
+                attr.setChecked(False)
+
+        def set_value(attr, key):
+            try:
+                attr.setValue(int(item[key]))
+            except:
+                attr.setValue(0)
+
+        def set_index(attr, key):
+            try:
+                attr.setCurrentIndex(attr.findText(item[key]))
             except:
                 attr.setCurrentIndex(0)
 
-        set_index(self.search_mode, item['search_mode'])
-        set_index(self.search_field, item['search_field'])
-        self.s_r_template.setText(item['s_r_template'])
+        set_index(self.search_mode, 'search_mode')
+        set_index(self.search_field, 'search_field')
+        set_text(self.s_r_template, 's_r_template')
+
         self.s_r_template_changed() #simulate gain/loss of focus
-        self.search_for.setText(item['search_for'])
-        self.case_sensitive.setChecked(item['case_sensitive'])
-        self.replace_with.setText(item['replace_with'])
-        set_index(self.replace_func, item['replace_func'])
-        set_index(self.destination_field, item['destination_field'])
-        set_index(self.replace_mode, item['replace_mode'])
-        self.comma_separated.setChecked(item['comma_separated'])
-        self.results_count.setValue(int(item['results_count']))
-        self.starting_from.setValue(int(item['starting_from']))
-        self.multiple_separator.setText(item['multiple_separator'])
+
+        set_index(self.s_r_src_ident, 's_r_src_ident');
+        set_text(self.s_r_dst_ident, 's_r_dst_ident')
+        set_text(self.search_for, 'search_for')
+        set_checked(self.case_sensitive, 'case_sensitive')
+        set_text(self.replace_with, 'replace_with')
+        set_index(self.replace_func, 'replace_func')
+        set_index(self.destination_field, 'destination_field')
+        set_index(self.replace_mode, 'replace_mode')
+        set_checked(self.comma_separated, 'comma_separated')
+        set_value(self.results_count, 'results_count')
+        set_value(self.starting_from, 'starting_from')
+        set_text(self.multiple_separator, 'multiple_separator')
 
     def s_r_reset_query_fields(self):
         # Don't reset the search mode. The user will probably want to use it
         # as it was
         self.search_field.setCurrentIndex(0)
+        self.s_r_src_ident.setCurrentIndex(0)
         self.s_r_template.setText("")
         self.search_for.setText("")
         self.case_sensitive.setChecked(False)
         self.replace_with.setText("")
         self.replace_func.setCurrentIndex(0)
         self.destination_field.setCurrentIndex(0)
+        self.s_r_dst_ident.setText('')
         self.replace_mode.setCurrentIndex(0)
         self.comma_separated.setChecked(True)
         self.results_count.setValue(999)
