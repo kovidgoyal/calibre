@@ -6,6 +6,7 @@ __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
+import random
 import re
 import urllib2
 from contextlib import closing
@@ -25,13 +26,19 @@ class BNStore(BasicStoreConfig, StorePlugin):
     
     def open(self, parent=None, detail_item=None, external=False):
         settings = self.get_settings()
-        url = 'http://gan.doubleclick.net/gan_click?lid=41000000028437369&pubid=21000000000352219'
+
+        pub_id = '21000000000352219'
+        # Use Kovid's affiliate id 30% of the time.
+        if random.randint(1, 10) in (1, 2, 3):
+            pub_id = '21000000000352583'
+        
+        url = 'http://gan.doubleclick.net/gan_click?lid=41000000028437369&pubid=' + pub_id
 
         if detail_item:
             mo = re.search(r'(?<=/)(?P<isbn>\d+)(?=/|$)', detail_item)
             if mo:
                 isbn = mo.group('isbn')
-                detail_item = 'http://gan.doubleclick.net/gan_click?lid=41000000012871747&pid=' + isbn + '&adurl=' + detail_item + '&pubid=21000000000352219'
+                detail_item = 'http://gan.doubleclick.net/gan_click?lid=41000000012871747&pid=' + isbn + '&adurl=' + detail_item + '&pubid=' + pub_id
 
         if external or settings.get(self.name + '_open_external', False):
             open_url(QUrl(url_slash_cleaner(detail_item if detail_item else url)))
