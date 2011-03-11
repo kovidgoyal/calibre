@@ -55,6 +55,8 @@ Add books
 
     5. **Add by ISBN**: Allows you to add one or more books by entering just their ISBN into a list or pasting the list of ISBNs from your clipboard.
 
+    6. **Add files to selected book records**: Allows you to add or update the files associated with an existing book in your library.
+
 The :guilabel:`Add books` action can read metadata from a wide variety of e-book formats. In addition it tries to guess metadata from the filename.
 See the :ref:`config_filename_metadata` section, to learn how to configure this.
 

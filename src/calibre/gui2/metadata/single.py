@@ -43,11 +43,11 @@ class MetadataSingleDialogBase(ResizableDialog):
                 self)
         self.button_box.accepted.connect(self.accept)
         self.button_box.rejected.connect(self.reject)
-        self.next_button = QPushButton(QIcon(I('forward.png')), _('&Next'),
+        self.next_button = QPushButton(QIcon(I('forward.png')), _('Next'),
                 self)
         self.next_button.setShortcut(QKeySequence('Alt+Right'))
         self.next_button.clicked.connect(partial(self.do_one, delta=1))
-        self.prev_button = QPushButton(QIcon(I('back.png')), _('&Previous'),
+        self.prev_button = QPushButton(QIcon(I('back.png')), _('Previous'),
                 self)
         self.prev_button.setShortcut(QKeySequence('Alt+Left'))
 
