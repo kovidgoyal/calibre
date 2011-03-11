@@ -908,6 +908,19 @@ class Manifest(object):
                 pass
             data = first_pass(data)
 
+            if data.tag == 'HTML':
+                # Lower case all tag and attribute names
+                data.tag = data.tag.lower()
+                for x in data.iterdescendants():
+                    try:
+                        x.tag = x.tag.lower()
+                        for key, val in list(x.attrib.iteritems()):
+                            del x.attrib[key]
+                            key = key.lower()
+                            x.attrib[key] = val
+                    except:
+                        pass
+
             # Handle weird (non-HTML/fragment) files
             if barename(data.tag) != 'html':
                 self.oeb.log.warn('File %r does not appear to be (X)HTML'%self.href)
