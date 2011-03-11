@@ -129,17 +129,17 @@ The functions available are:
     * ``switch(pattern, value, pattern, value, ..., else_value)`` -- for each ``pattern, value`` pair, checks if the field matches the regular expression ``pattern`` and if so, returns that ``value``. If no ``pattern`` matches, then ``else_value`` is returned. You can have as many ``pattern, value`` pairs as you want.
     * ``lookup(pattern, field, pattern, field, ..., else_field)`` -- like switch, except the arguments are field (metadata) names, not text. The value of the appropriate field will be fetched and used. Note that because composite columns are fields, you can use this function in one composite field to use the value of some other composite field. This is extremely useful when constructing variable save paths (more later).
     * ``select(key)`` -- interpret the field as a comma-separated list of items, with the items being of the form "id:value". Find the pair with the id equal to key, and return the corresponding value. This function is particularly useful for extracting a value such as an isbn from the set of identifiers for a book.
-    * ``subitems(val, start_index, end_index)`` -- This function is used to break apart lists of tag-like hierarchical items such as genres. It interprets the value as a comma-separated list of tag-like items, where each item is a period-separated list. Returns a new list made by first finding all the period-separated tag-like items, then for each such item extracting the start_index`th to the `end_index`th components, then combining the results back together. The first component in a period-separated list has an index of zero. If an index is negative, then it counts from the end of the list. As a special case, an end_index of zero is assumed to be the length of the list. Examples::
+    * ``subitems(val, start_index, end_index)`` -- This function is used to break apart lists of tag-like hierarchical items such as genres. It interprets the value as a comma-separated list of tag-like items, where each item is a period-separated list. Returns a new list made by first finding all the period-separated tag-like items, then for each such item extracting the `start_index` th to the `end_index` th components, then combining the results back together. The first component in a period-separated list has an index of zero. If an index is negative, then it counts from the end of the list. As a special case, an end_index of zero is assumed to be the length of the list. Examples::
 
-    Assuming a #genre column containing "A.B.C":    
-        {#genre:subitems(0,1)} returns "A"
-        {#genre:subitems(0,2)} returns "A.B"
-        {#genre:subitems(1,0)} returns "B.C"
-    Assuming a #genre column containing "A.B.C, D.E":
-        {#genre:subitems(0,1)} returns "A, D"
-        {#genre:subitems(0,2)} returns "A.B, D.E"
+        Assuming a #genre column containing "A.B.C":    
+            {#genre:subitems(0,1)} returns "A"
+            {#genre:subitems(0,2)} returns "A.B"
+            {#genre:subitems(1,0)} returns "B.C"
+        Assuming a #genre column containing "A.B.C, D.E":
+            {#genre:subitems(0,1)} returns "A, D"
+            {#genre:subitems(0,2)} returns "A.B, D.E"
 
-    * ``sublist(val, start_index, end_index, separator)`` -- interpret the value as a list of items separated by `separator`, returning a new list made from the `start_index`th to the `end_index`th item. The first item is number zero. If an index is negative, then it counts from the end of the list. As a special case, an end_index of zero is assumed to be the length of the list. Examples assuming that the tags column (which is comma-separated) contains "A, B ,C"::
+    * ``sublist(val, start_index, end_index, separator)`` -- interpret the value as a list of items separated by `separator`, returning a new list made from the `start_index` th to the `end_index` th item. The first item is number zero. If an index is negative, then it counts from the end of the list. As a special case, an end_index of zero is assumed to be the length of the list. Examples assuming that the tags column (which is comma-separated) contains "A, B ,C"::
     
         {tags:sublist(0,1,\,)} returns "A"
         {tags:sublist(-1,0,\,)} returns "C"

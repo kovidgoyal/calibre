@@ -1,0 +1,42 @@
+import urllib2
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class JBPress(BasicNewsRecipe):
+    title          = u'JBPress'
+    language = 'ja'
+    description = u'Japan Business Press New articles (using small print version)'
+    __author__	= 'Ado Nishimura'
+    needs_subscription = True
+    oldest_article = 7
+    max_articles_per_feed = 100
+    remove_tags_before = dict(id='wrapper')
+    no_stylesheets         = True
+
+    feeds = [('JBPress new article', 'http://feed.ismedia.jp/rss/jbpress/all.rdf')]
+
+
+    def get_cover_url(self):
+        return 'http://www.jbpress.co.jp/common/images/v1/jpn/common/logo.gif'
+
+    def get_browser(self):
+        html = '''<form action="https://jbpress.ismedia.jp/auth/dologin/http://jbpress.ismedia.jp/articles/print/5549" method="post">
+<input id="login" name="login" type="text"/>
+<input id="password" name="password" type="password"/>
+<input id="rememberme" name="rememberme" type="checkbox"/>
+</form>
+'''
+        br = BasicNewsRecipe.get_browser()
+        if self.username is not None and self.password is not None:
+            br.open('http://jbpress.ismedia.jp/articles/print/5549')
+            response = br.response()
+            response.set_data(html)
+            br.set_response(response)
+            br.select_form(nr=0)
+            br["login"]   = self.username
+            br['password'] = self.password
+            br.submit()
+        return br
+
+    def print_version(self, url):
+        url = urllib2.urlopen(url).geturl() # resolve redirect.
+        return url.replace('/-/', '/print/')

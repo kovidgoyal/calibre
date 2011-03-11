@@ -23,8 +23,9 @@ cover_url_cache = {}
 cache_lock = RLock()
 
 def find_asin(br, isbn):
-    q = 'http://www.amazon.com/s?field-keywords='+isbn
-    raw = br.open_novisit(q).read()
+    q = 'http://www.amazon.com/s/?search-alias=aps&field-keywords='+isbn
+    res = br.open_novisit(q)
+    raw = res.read()
     raw = xml_to_unicode(raw, strip_encoding_pats=True,
             resolve_entities=True)[0]
     root = html.fromstring(raw)
@@ -151,6 +152,8 @@ def get_metadata(br, asin, mi):
         root = soupparser.fromstring(raw)
     except:
         return False
+    if root.xpath('//*[@id="errorMessage"]'):
+        return False
     ratings = root.xpath('//form[@id="handleBuy"]/descendant::*[@class="asinReviewsSummary"]')
     if ratings:
         pat = re.compile(r'([0-9.]+) out of (\d+) stars')
@@ -191,6 +194,7 @@ def main(args=sys.argv):
     tdir = tempfile.gettempdir()
     br = browser()
     for title, isbn in [
+            ('The Heroes', '9780316044981'), # Test find_asin
             ('Learning Python', '8324616489'), # Test xisbn
             ('Angels & Demons', '9781416580829'), # Test sophisticated comment formatting
             # Random tests
@@ -207,8 +211,12 @@ def main(args=sys.argv):
 
         #import time
         #st = time.time()
-        print get_social_metadata(title, None, None, isbn)
+        mi = get_social_metadata(title, None, None, isbn)
+        if not mi.comments:
+            print 'Failed to downlaod social metadata for', title
+            return 1
         #print '\n\n', time.time() - st, '\n\n'
+        print '\n'
 
     return 0
 
