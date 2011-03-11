@@ -11,7 +11,7 @@ from functools import partial
 from PyQt4.Qt import Qt, QVBoxLayout, QHBoxLayout, QWidget, QPushButton, \
         QGridLayout, pyqtSignal, QDialogButtonBox, QScrollArea, QFont, \
         QTabWidget, QIcon, QToolButton, QSplitter, QGroupBox, QSpacerItem, \
-        QSizePolicy, QPalette, QFrame, QSize
+        QSizePolicy, QPalette, QFrame, QSize, QKeySequence
 
 from calibre.ebooks.metadata import authors_to_string, string_to_authors
 from calibre.gui2 import ResizableDialog, error_dialog, gprefs
@@ -43,11 +43,14 @@ class MetadataSingleDialogBase(ResizableDialog):
                 self)
         self.button_box.accepted.connect(self.accept)
         self.button_box.rejected.connect(self.reject)
-        self.next_button = QPushButton(QIcon(I('forward.png')), _('Next'),
+        self.next_button = QPushButton(QIcon(I('forward.png')), _('&Next'),
                 self)
+        self.next_button.setShortcut(QKeySequence('Alt+Right'))
         self.next_button.clicked.connect(partial(self.do_one, delta=1))
-        self.prev_button = QPushButton(QIcon(I('back.png')), _('Previous'),
+        self.prev_button = QPushButton(QIcon(I('back.png')), _('&Previous'),
                 self)
+        self.prev_button.setShortcut(QKeySequence('Alt+Left'))
+
         self.button_box.addButton(self.prev_button, self.button_box.ActionRole)
         self.button_box.addButton(self.next_button, self.button_box.ActionRole)
         self.prev_button.clicked.connect(partial(self.do_one, delta=-1))
