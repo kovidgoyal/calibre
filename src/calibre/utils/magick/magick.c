@@ -266,9 +266,11 @@ magick_DrawingWand_fontsize_setter(magick_DrawingWand *self, PyObject *val, void
 // DrawingWand.stroke_color {{{
 static PyObject *
 magick_DrawingWand_stroke_color_getter(magick_DrawingWand *self, void *closure) {
-    NULL_CHECK(NULL)
     magick_PixelWand *pw;
-    PixelWand *wand = NewPixelWand();
+    PixelWand *wand;
+
+    NULL_CHECK(NULL)
+    wand = NewPixelWand();
 
     if (wand == NULL) return PyErr_NoMemory();
     DrawGetStrokeColor(self->wand, wand);
@@ -281,13 +283,14 @@ magick_DrawingWand_stroke_color_getter(magick_DrawingWand *self, void *closure) 
 
 static int
 magick_DrawingWand_stroke_color_setter(magick_DrawingWand *self, PyObject *val, void *closure) {
+    magick_PixelWand *pw;
+
     NULL_CHECK(-1)
     if (val == NULL) {
         PyErr_SetString(PyExc_TypeError, "Cannot delete DrawingWand stroke color");
         return -1;
     }
 
-    magick_PixelWand *pw;
     
     pw = (magick_PixelWand*)val;
     if (!IsPixelWand(pw->wand)) { PyErr_SetString(PyExc_TypeError, "Invalid PixelWand"); return -1; }
@@ -302,9 +305,11 @@ magick_DrawingWand_stroke_color_setter(magick_DrawingWand *self, PyObject *val, 
 // DrawingWand.fill_color {{{
 static PyObject *
 magick_DrawingWand_fill_color_getter(magick_DrawingWand *self, void *closure) {
-    NULL_CHECK(NULL)
     magick_PixelWand *pw;
-    PixelWand *wand = NewPixelWand();
+    PixelWand *wand;
+
+    NULL_CHECK(NULL)
+    wand = NewPixelWand();
 
     if (wand == NULL) return PyErr_NoMemory();
     DrawGetFillColor(self->wand, wand);
@@ -317,13 +322,14 @@ magick_DrawingWand_fill_color_getter(magick_DrawingWand *self, void *closure) {
 
 static int
 magick_DrawingWand_fill_color_setter(magick_DrawingWand *self, PyObject *val, void *closure) {
+    magick_PixelWand *pw;
+
     NULL_CHECK(-1)
     if (val == NULL) {
         PyErr_SetString(PyExc_TypeError, "Cannot delete DrawingWand fill color");
         return -1;
     }
 
-    magick_PixelWand *pw;
     
     pw = (magick_PixelWand*)val;
     if (!IsPixelWand(pw->wand)) { PyErr_SetString(PyExc_TypeError, "Invalid PixelWand"); return -1; }
