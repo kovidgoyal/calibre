@@ -55,6 +55,10 @@ class BaseModel(QAbstractListModel):
                 text = _('Choose library')
             return QVariant(text)
         if role == Qt.DecorationRole:
+            if hasattr(self._data[row], 'qaction'):
+                icon = self._data[row].qaction.icon()
+                if not icon.isNull():
+                    return QVariant(icon)
             ic = action[1]
             if ic is None:
                 ic = 'blank.png'
