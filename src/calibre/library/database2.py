@@ -2360,7 +2360,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         @param tags: list of strings
         @param append: If True existing tags are not removed
         '''
-        if tags is None:
+        if not tags:
             tags = []
         if not append:
             self.conn.execute('DELETE FROM books_tags_link WHERE book=?', (id,))
@@ -2512,7 +2512,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             self.notify('metadata', [id])
 
     def set_rating(self, id, rating, notify=True, commit=True):
-        if rating is None:
+        if not rating:
             rating = 0
         rating = int(rating)
         self.conn.execute('DELETE FROM books_ratings_link WHERE book=?',(id,))
@@ -2540,7 +2540,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             self.notify('metadata', [id])
 
     def set_author_sort(self, id, sort, notify=True, commit=True):
-        if sort is None:
+        if not sort:
             sort = ''
         self.conn.execute('UPDATE books SET author_sort=? WHERE id=?', (sort, id))
         self.dirtied([id], commit=False)
@@ -2613,7 +2613,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     def set_identifiers(self, id_, identifiers, notify=True, commit=True):
         cleaned = {}
-        if identifiers is None:
+        if not identifiers:
             identifiers = {}
         for typ, val in identifiers.iteritems():
             typ, val = self._clean_identifier(typ, val)
