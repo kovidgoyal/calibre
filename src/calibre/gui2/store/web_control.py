@@ -7,14 +7,12 @@ __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
 import os
-import urllib2
-from cookielib import Cookie, CookieJar
 from urlparse import urlparse
 
 from PyQt4.Qt import QWebView, QWebPage, QNetworkCookieJar, QNetworkRequest, QString, \
     QFileDialog, QNetworkProxy
 
-from calibre import USER_AGENT, browser, get_proxies, get_download_filename
+from calibre import USER_AGENT, get_proxies, get_download_filename
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ptempfile import PersistentTemporaryFile
 
@@ -106,56 +104,6 @@ class NPWebView(QWebView):
         
         cf.close()
         return cf.name
-    
-    '''
-    def get_cookies(self):
-        cj = CookieJar()
-        
-        # Translate Qt cookies to cookielib cookies for use by mechanize.
-        for c in self.page().networkAccessManager().cookieJar().allCookies():
-            version = 0
-            name = unicode(QString(c.name()))
-            value = unicode(QString(c.value()))
-            port = None
-            port_specified = False
-            domain = unicode(c.domain())
-            if domain:
-                domain_specified = True
-                if domain.startswith('.'):
-                    domain_initial_dot = True
-                else:
-                    domain_initial_dot = False
-            else:
-                domain = None
-                domain_specified = False
-            path = unicode(c.path())
-            if path:
-                path_specified = True
-            else:
-                path = None
-                path_specified = False
-            secure = c.isSecure()
-            expires = c.expirationDate().toMSecsSinceEpoch() / 1000
-            discard = c.isSessionCookie()
-            comment = None
-            comment_url = None
-            rest = None
-            
-            cookie = Cookie(version, name, value,
-                 port, port_specified,
-                 domain, domain_specified, domain_initial_dot,
-                 path, path_specified,
-                 secure,
-                 expires,
-                 discard,
-                 comment,
-                 comment_url,
-                 rest) 
-            
-            cj.set_cookie(cookie)
-            
-        return cj
-    '''
 
 
 class NPWebPage(QWebPage):
