@@ -16,6 +16,7 @@ from PyQt4.Qt import QWebView, QWebPage, QNetworkCookieJar, QNetworkRequest, QSt
 
 from calibre import USER_AGENT, browser, get_proxies, get_download_filename
 from calibre.ebooks import BOOK_EXTENSIONS
+from calibre.ptempfile import PersistentTemporaryFile
 
 class NPWebView(QWebView):
 
@@ -60,9 +61,9 @@ class NPWebView(QWebView):
             return
         
         url = unicode(request.url().toString())
-        cj = self.get_cookies()
+        cf = self.get_cookies()
         
-        filename = get_download_filename(url, cj)
+        filename = get_download_filename(url, cf)
         ext = os.path.splitext(filename)[1][1:].lower()
         if ext not in BOOK_EXTENSIONS:
             home = os.path.expanduser('~')
@@ -71,13 +72,42 @@ class NPWebView(QWebView):
                 os.path.join(home, filename),
                 '*.*')
             if name:
-                self.gui.download_from_store(url, cj, name, name, False)
+                self.gui.download_from_store(url, cf, name, name, False)
         else:
-            self.gui.download_from_store(url, cj, filename, tags=self.tags)
+            self.gui.download_from_store(url, cf, filename, tags=self.tags)
 
     def ignore_ssl_errors(self, reply, errors):
         reply.ignoreSslErrors(errors)
     
+    def get_cookies(self):
+        '''
+        Writes QNetworkCookies to Mozilla cookie .txt file.
+        
+        :return: The file path to the cookie file.
+        '''
+        cf = PersistentTemporaryFile(suffix='.txt')
+        
+        cf.write('# Netscape HTTP Cookie File\n\n')
+        
+        for c in self.page().networkAccessManager().cookieJar().allCookies():
+            cookie = []
+            domain = unicode(c.domain())
+            
+            cookie.append(domain)
+            cookie.append('TRUE' if domain.startswith('.') else 'FALSE')
+            cookie.append(unicode(c.path()))
+            cookie.append('TRUE' if c.isSecure() else 'FALSE')
+            cookie.append(unicode(c.expirationDate().toTime_t()))
+            cookie.append(unicode(c.name()))
+            cookie.append(unicode(c.value()))
+            
+            cf.write('\t'.join(cookie))
+            cf.write('\n')
+        
+        cf.close()
+        return cf.name
+    
+    '''
     def get_cookies(self):
         cj = CookieJar()
         
@@ -125,6 +155,7 @@ class NPWebView(QWebView):
             cj.set_cookie(cookie)
             
         return cj
+    '''
 
 
 class NPWebPage(QWebPage):

@@ -10,9 +10,8 @@ import cStringIO
 import os
 import shutil
 import time
-import urllib2
-from cookielib import CookieJar
 from contextlib import closing
+from mechanize import MozillaCookieJar
 from threading import Thread
 from Queue import Queue
 
@@ -24,12 +23,12 @@ from calibre.utils.ipc.job import BaseJob
 
 class StoreDownloadJob(BaseJob):
 
-    def __init__(self, callback, description, job_manager, db, cookie_jar, url='', filename='', save_as_loc='', add_to_lib=True, tags=[]):
+    def __init__(self, callback, description, job_manager, db, cookie_file=None, url='', filename='', save_as_loc='', add_to_lib=True, tags=[]):
         BaseJob.__init__(self, description)
         self.exception = None
         self.job_manager = job_manager
         self.db = db
-        self.cookie_jar = cookie_jar
+        self.cookie_file = cookie_file
         self.args = (url, filename, save_as_loc, add_to_lib, tags)
         self.tmp_file_name = ''
         self.callback = callback
@@ -151,10 +150,13 @@ class StoreDownloader(Thread):
             return
 
         if not filename:
-            filename = get_download_filename(url, job.cookie_jar)
+            filename = get_download_filename(url, job.cookie_file)
         
         br = browser()
-        br.set_cookiejar(job.cookie_jar)
+        if job.cookie_file:
+            cj = MozillaCookieJar()
+            cj.load(job.cookie_file)
+            br.set_cookiejar(cj)
         with closing(br.open(url)) as r:
             tf = PersistentTemporaryFile(suffix=filename)
             tf.write(r.read())
@@ -183,9 +185,9 @@ class StoreDownloader(Thread):
         
         shutil.copy(job.tmp_file_name, save_loc)
         
-    def download_from_store(self, callback, db, cookie_jar, url='', filename='', save_as_loc='', add_to_lib=True, tags=[]):
+    def download_from_store(self, callback, db, cookie_file=None, url='', filename='', save_as_loc='', add_to_lib=True, tags=[]):
         description = _('Downloading %s') % filename if filename else url
-        job = StoreDownloadJob(callback, description, self.job_manager, db, cookie_jar, url, filename, save_as_loc, add_to_lib, tags)
+        job = StoreDownloadJob(callback, description, self.job_manager, db, cookie_file, url, filename, save_as_loc, add_to_lib, tags)
         self.job_manager.add_job(job)
         self.jobs.put(job)
 
@@ -195,13 +197,13 @@ class StoreDownloadMixin(object):
     def __init__(self):
         self.store_downloader = StoreDownloader(self.job_manager)
     
-    def download_from_store(self, url='', cookie_jar=CookieJar(), filename='', save_as_loc='', add_to_lib=True, tags=[]):
+    def download_from_store(self, url='', cookie_file=None, filename='', save_as_loc='', add_to_lib=True, tags=[]):
         if not self.store_downloader.is_alive():
             self.store_downloader.start()
         if tags:
             if isinstance(tags, basestring):
                 tags = tags.split(',')
-        self.store_downloader.download_from_store(Dispatcher(self.downloaded_from_store), self.library_view.model().db, cookie_jar, url, filename, save_as_loc, add_to_lib, tags)
+        self.store_downloader.download_from_store(Dispatcher(self.downloaded_from_store), self.library_view.model().db, cookie_file, url, filename, save_as_loc, add_to_lib, tags)
         self.status_bar.show_message(_('Downloading') + ' ' + filename if filename else url, 3000)
     
     def downloaded_from_store(self, job):

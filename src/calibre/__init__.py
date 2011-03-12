@@ -481,13 +481,16 @@ def url_slash_cleaner(url):
     '''
     return re.sub(r'(?<!:)/{2,}', '/', url)
 
-def get_download_filename(url, cookie_jar=None):
+def get_download_filename(url, cookie_file=None):
     filename = ''
     
     br = browser()
-    if cookie_jar:
-        br.set_cookiejar(cookie_jar)
-    
+    if cookie_file:
+        from mechanize import MozillaCookieJar
+        cj = MozillaCookieJar()
+        cj.load(cookie_file)
+        br.set_cookiejar(cj)
+
     with closing(br.open(url)) as r:
         disposition = r.info().get('Content-disposition', '')
         for p in disposition.split(';'):
