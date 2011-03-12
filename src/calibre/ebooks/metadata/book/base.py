@@ -169,10 +169,13 @@ class Metadata(object):
                     pass
             return default
 
-    def get_extra(self, field):
+    def get_extra(self, field, default=None):
         _data = object.__getattribute__(self, '_data')
         if field in _data['user_metadata'].iterkeys():
-            return _data['user_metadata'][field]['#extra#']
+            try:
+                return _data['user_metadata'][field]['#extra#']
+            except:
+                return default
         raise AttributeError(
                 'Metadata object has no attribute named: '+ repr(field))
 

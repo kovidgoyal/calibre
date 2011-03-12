@@ -1690,8 +1690,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.notify('metadata', [id])
         return books_to_refresh
 
-    def set_metadata(self, id, mi, ignore_errors=False,
-                     set_title=True, set_authors=True, commit=True):
+    def set_metadata(self, id, mi, ignore_errors=False, set_title=True,
+                     set_authors=True, commit=True, force_changes=False):
         '''
         Set metadata for the book `id` from the `Metadata` object `mi`
         '''
@@ -1707,6 +1707,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     traceback.print_exc()
                 else:
                     raise
+        # force_changes has no role to play in setting title or author
         path_changed = False
         if set_title and mi.title:
             self._set_title(id, mi.title)
@@ -1721,16 +1722,18 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             path_changed = True
         if path_changed:
             self.set_path(id, index_is_id=True)
-        if mi.author_sort:
+
+        if force_changes or mi.author_sort:
             doit(self.set_author_sort, id, mi.author_sort, notify=False,
                     commit=False)
-        if mi.publisher:
+        if force_changes or mi.publisher:
             doit(self.set_publisher, id, mi.publisher, notify=False,
                     commit=False)
-        if mi.rating:
+        if force_changes or mi.rating:
             doit(self.set_rating, id, mi.rating, notify=False, commit=False)
-        if mi.series:
+        if force_changes or mi.series:
             doit(self.set_series, id, mi.series, notify=False, commit=False)
+
         if mi.cover_data[1] is not None:
             doit(self.set_cover, id, mi.cover_data[1], commit=False)
         elif mi.cover is not None:
@@ -1739,13 +1742,18 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     raw = f.read()
                 if raw:
                     doit(self.set_cover, id, raw, commit=False)
-        if mi.tags:
+        elif force_changes:
+            doit(self.remove_cover, id, notify=False, commit=False)
+
+        if force_changes or mi.tags:
             doit(self.set_tags, id, mi.tags, notify=False, commit=False)
-        if mi.comments:
+        if force_changes or mi.comments:
             doit(self.set_comment, id, mi.comments, notify=False, commit=False)
-        if mi.series_index:
+        if force_changes or mi.series_index:
             doit(self.set_series_index, id, mi.series_index, notify=False,
                     commit=False)
+
+        # force_changes would have no effect on the next two.
         if mi.pubdate:
             doit(self.set_pubdate, id, mi.pubdate, notify=False, commit=False)
         if getattr(mi, 'timestamp', None) is not None:
@@ -1756,7 +1764,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if mi_idents:
             identifiers = self.get_identifiers(id, index_is_id=True)
             for key, val in mi_idents.iteritems():
-                if val and val.strip(): # Don't delete an existing identifier
+                if force_changes or (val and val.strip()):
                     identifiers[icu_lower(key)] = val
             self.set_identifiers(id, identifiers, notify=False, commit=False)
 
@@ -1765,10 +1773,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         for key in user_mi.iterkeys():
             if key in self.field_metadata and \
                     user_mi[key]['datatype'] == self.field_metadata[key]['datatype']:
-                doit(self.set_custom, id,
-                     val=mi.get(key),
-                     extra=mi.get_extra(key),
-                     label=user_mi[key]['label'], commit=False)
+                val = mi.get(key, None)
+                if force_changes or val:
+                    doit(self.set_custom, id, val=val, extra=mi.get_extra(key),
+                         label=user_mi[key]['label'], commit=False)
         if commit:
             self.conn.commit()
         self.notify('metadata', [id])
