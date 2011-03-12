@@ -21,7 +21,7 @@ from calibre.gui2 import Dispatcher
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.ipc.job import BaseJob
 
-class StoreDownloadJob(BaseJob):
+class EbookDownloadJob(BaseJob):
 
     def __init__(self, callback, description, job_manager, db, cookie_file=None, url='', filename='', save_as_loc='', add_to_lib=True, tags=[]):
         BaseJob.__init__(self, description)
@@ -57,7 +57,7 @@ class StoreDownloadJob(BaseJob):
             self.log_write(traceback.format_exc())
         
         # Dump log onto disk
-        lf = PersistentTemporaryFile('store_log')
+        lf = PersistentTemporaryFile('ebook_download_log')
         lf.write(self._log_file.getvalue())
         lf.close()
         self.log_path = lf.name
@@ -69,7 +69,7 @@ class StoreDownloadJob(BaseJob):
     def log_write(self, what):
         self._log_file.write(what)
 
-class StoreDownloader(Thread):
+class EbookDownloader(Thread):
     
     def __init__(self, job_manager):
         Thread.__init__(self)
@@ -120,7 +120,7 @@ class StoreDownloader(Thread):
                 import traceback
                 failed = True
                 exc = e
-                job.log_write('\nSending failed...\n')
+                job.log_write('\nDownloading failed...\n')
                 job.log_write(traceback.format_exc())
 
             if not self._run:
@@ -185,32 +185,31 @@ class StoreDownloader(Thread):
         
         shutil.copy(job.tmp_file_name, save_loc)
         
-    def download_from_store(self, callback, db, cookie_file=None, url='', filename='', save_as_loc='', add_to_lib=True, tags=[]):
+    def download_ebook(self, callback, db, cookie_file=None, url='', filename='', save_as_loc='', add_to_lib=True, tags=[]):
         description = _('Downloading %s') % filename if filename else url
-        job = StoreDownloadJob(callback, description, self.job_manager, db, cookie_file, url, filename, save_as_loc, add_to_lib, tags)
+        job = EbookDownloadJob(callback, description, self.job_manager, db, cookie_file, url, filename, save_as_loc, add_to_lib, tags)
         self.job_manager.add_job(job)
         self.jobs.put(job)
 
 
-class StoreDownloadMixin(object):
+class EbookDownloadMixin(object):
     
     def __init__(self):
-        self.store_downloader = StoreDownloader(self.job_manager)
+        self.ebook_downloader = EbookDownloader(self.job_manager)
     
-    def download_from_store(self, url='', cookie_file=None, filename='', save_as_loc='', add_to_lib=True, tags=[]):
-        if not self.store_downloader.is_alive():
-            self.store_downloader.start()
+    def download_ebook(self, url='', cookie_file=None, filename='', save_as_loc='', add_to_lib=True, tags=[]):
+        if not self.ebook_downloader.is_alive():
+            self.ebook_downloader.start()
         if tags:
             if isinstance(tags, basestring):
                 tags = tags.split(',')
-        self.store_downloader.download_from_store(Dispatcher(self.downloaded_from_store), self.library_view.model().db, cookie_file, url, filename, save_as_loc, add_to_lib, tags)
+        self.ebook_downloader.download_ebook(Dispatcher(self.downloaded_ebook), self.library_view.model().db, cookie_file, url, filename, save_as_loc, add_to_lib, tags)
         self.status_bar.show_message(_('Downloading') + ' ' + filename if filename else url, 3000)
     
-    def downloaded_from_store(self, job):
+    def downloaded_ebook(self, job):
         if job.failed:
-            self.job_exception(job, dialog_title=_('Failed to download book'))
+            self.job_exception(job, dialog_title=_('Failed to download ebook'))
             return
         
         self.status_bar.show_message(job.description + ' ' + _('finished'), 5000)
-
 

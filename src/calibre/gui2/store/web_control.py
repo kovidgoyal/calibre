@@ -70,9 +70,9 @@ class NPWebView(QWebView):
                 os.path.join(home, filename),
                 '*.*')
             if name:
-                self.gui.download_from_store(url, cf, name, name, False)
+                self.gui.download_ebook(url, cf, name, name, False)
         else:
-            self.gui.download_from_store(url, cf, filename, tags=self.tags)
+            self.gui.download_ebook(url, cf, filename, tags=self.tags)
 
     def ignore_ssl_errors(self, reply, errors):
         reply.ignoreSslErrors(errors)
