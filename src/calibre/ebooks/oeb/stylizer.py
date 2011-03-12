@@ -8,11 +8,7 @@ from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
-import os
-import itertools
-import re
-import logging
-import copy
+import os, itertools, re, logging, copy, unicodedata
 from weakref import WeakKeyDictionary
 from xml.dom import SyntaxErr as CSSSyntaxError
 import cssutils
@@ -234,8 +230,18 @@ class Stylizer(object):
                 for elem in matches:
                     for x in elem.iter():
                         if x.text:
-                            span = E.span(x.text[0])
-                            span.tail = x.text[1:]
+                            punctuation_chars = []
+                            text = unicode(x.text)
+                            while text:
+                                if not unicodedata.category(text[0]).startswith('P'):
+                                    break
+                                punctuation_chars.append(text[0])
+                                text = text[1:]
+
+                            special_text = u''.join(punctuation_chars) + \
+                                    (text[0] if text else u'')
+                            span = E.span(special_text)
+                            span.tail = text[1:]
                             x.text = None
                             x.insert(0, span)
                             self.style(span)._update_cssdict(cssdict)

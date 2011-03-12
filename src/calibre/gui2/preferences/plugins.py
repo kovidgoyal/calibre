@@ -16,9 +16,10 @@ from calibre.customize.ui import initialized_plugins, is_disabled, enable_plugin
                                  disable_plugin, plugin_customization, add_plugin, \
                                  remove_plugin
 from calibre.gui2 import NONE, error_dialog, info_dialog, choose_files, \
-        question_dialog
+        question_dialog, gprefs
 from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.utils.icu import lower
+from calibre.utils.ordered_dict import OrderedDict
 
 class PluginModel(QAbstractItemModel, SearchQueryParser): # {{{
 
@@ -282,6 +283,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self._plugin_model.populate()
             self._plugin_model.reset()
             self.changed_signal.emit()
+            self.check_for_add_to_toolbars(plugin)
             info_dialog(self, _('Success'),
                     _('Plugin <b>{0}</b> successfully installed under <b>'
                         ' {1} plugins</b>. You may have to restart calibre '
@@ -347,6 +349,38 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.gui.load_store_plugins()
         if self.gui.iactions.has_key('Store'):
             self.gui.iactions['Store'].load_menu()
+
+    def check_for_add_to_toolbars(self, plugin):
+        from calibre.gui2.preferences.toolbar import ConfigWidget
+        from calibre.customize import InterfaceActionBase
+
+        if not isinstance(plugin, InterfaceActionBase):
+            return
+
+        all_locations = OrderedDict(ConfigWidget.LOCATIONS)
+        plugin_action = plugin.load_actual_plugin(self.gui)
+        installed_actions = OrderedDict([
+            (key, list(gprefs.get('action-layout-'+key, [])))
+            for key in all_locations])
+
+        # If already installed in a GUI container, do nothing
+        for action_names in installed_actions.itervalues():
+            if plugin_action.name in action_names:
+                return
+
+        allowed_locations = [(key, text) for key, text in
+                all_locations.iteritems() if key
+                not in plugin_action.dont_add_to]
+        if not allowed_locations:
+            return # This plugin doesn't want to live in the GUI
+
+        from calibre.gui2.dialogs.choose_plugin_toolbars import ChoosePluginToolbarsDialog
+        d = ChoosePluginToolbarsDialog(self, plugin_action, allowed_locations)
+        if d.exec_() == d.Accepted:
+            for key, text in d.selected_locations():
+                installed_actions = list(gprefs.get('action-layout-'+key, []))
+                installed_actions.append(plugin_action.name)
+                gprefs['action-layout-'+key] = tuple(installed_actions)
 
 
 if __name__ == '__main__':

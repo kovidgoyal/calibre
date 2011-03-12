@@ -11,7 +11,7 @@ __docformat__ = 'restructuredtext en'
 import inspect, re, traceback, sys
 
 from calibre.utils.titlecase import titlecase
-from calibre.utils.icu import capitalize, strcmp
+from calibre.utils.icu import capitalize, strcmp, sort_key
 from calibre.utils.date import parse_date, format_date
 
 
@@ -427,15 +427,16 @@ class BuiltinSublist(BuiltinFormatterFunction):
     name = 'sublist'
     arg_count = 4
     doc = _('sublist(val, start_index, end_index, separator) -- interpret the '
-            ' value as a list of items separated by `separator`, returning a '
-            ' new list made from the `start_index`th to the `end_index`th item. '
+            'value as a list of items separated by `separator`, returning a '
+            'new list made from the `start_index`th to the `end_index`th item. '
             'The first item is number zero. If an index is negative, then it '
             'counts from the end of the list. As a special case, an end_index '
             'of zero is assumed to be the length of the list. Examples using '
-            'basic template mode and assuming a #genre value if A.B.C: '
-            '{#genre:sublist(-1,0,.)} returns C<br/>'
-            '{#genre:sublist(0,1,.)} returns A<br/>'
-            '{#genre:sublist(0,-1,.)} returns A.B')
+            'basic template mode and assuming that the tags column (which is '
+            'comma-separated) contains "A, B, C": '
+            '{tags:sublist(0,1,\,)} returns "A". '
+            '{tags:sublist(-1,0,\,)} returns "C". '
+            '{tags:sublist(0,-1,\,)} returns "A, B".')
 
     def evaluate(self, formatter, kwargs, mi, locals, val, start_index, end_index, sep):
         if not val:
@@ -450,6 +451,43 @@ class BuiltinSublist(BuiltinFormatterFunction):
                 return sep.join(val[si:ei])
         except:
             return ''
+
+class BuiltinSubitems(BuiltinFormatterFunction):
+    name = 'subitems'
+    arg_count = 3
+    doc = _('subitems(val, start_index, end_index) -- This function is used to '
+            'break apart lists of items such as genres. It interprets the value '
+            'as a comma-separated list of items, where each item is a period-'
+            'separated list. Returns a new list made by first finding all the '
+            'period-separated items, then for each such item extracting the '
+            'start_index`th to the `end_index`th components, then combining '
+            'the results back together. The first component in a period-'
+            'separated list has an index of zero. If an index is negative, '
+            'then it counts from the end of the list. As a special case, an '
+            'end_index of zero is assumed to be the length of the list. '
+            'Example using basic template mode and assuming a #genre value of '
+            '"A.B.C": {#genre:subitems(0,1)} returns "A". {#genre:subitems(0,2)} '
+            'returns "A.B". {#genre:subitems(1,0)} returns "B.C". Assuming a #genre '
+            'value of "A.B.C, D.E.F", {#genre:subitems(0,1)} returns "A, D". '
+            '{#genre:subitems(0,2)} returns "A.B, D.E"')
+
+    def evaluate(self, formatter, kwargs, mi, locals, val, start_index, end_index):
+        if not val:
+            return ''
+        si = int(start_index)
+        ei = int(end_index)
+        items = [v.strip() for v in val.split(',')]
+        rv = set()
+        for item in items:
+            component = item.split('.')
+            try:
+                if ei == 0:
+                    rv.add('.'.join(component[si:]))
+                else:
+                    rv.add('.'.join(component[si:ei]))
+            except:
+                pass
+        return ', '.join(sorted(rv, key=sort_key))
 
 class BuiltinFormat_date(BuiltinFormatterFunction):
     name = 'format_date'
@@ -532,6 +570,7 @@ builtin_select      = BuiltinSelect()
 builtin_shorten     = BuiltinShorten()
 builtin_strcat      = BuiltinStrcat()
 builtin_strcmp      = BuiltinStrcmp()
+builtin_subitems    = BuiltinSubitems()
 builtin_sublist     = BuiltinSublist()
 builtin_substr      = BuiltinSubstr()
 builtin_subtract    = BuiltinSubtract()

@@ -63,8 +63,9 @@ def osx_version():
         if m:
             return int(m.group(1)), int(m.group(2)), int(m.group(3))
 
-
 _filename_sanitize = re.compile(r'[\xae\0\\|\?\*<":>\+/]')
+_filename_sanitize_unicode = frozenset([u'\\', u'|', u'?', u'*', u'<',
+    u'"', u':', u'>', u'+', u'/'] + list(map(unichr, xrange(32))))
 
 def sanitize_file_name(name, substitute='_', as_unicode=False):
     '''
@@ -85,8 +86,35 @@ def sanitize_file_name(name, substitute='_', as_unicode=False):
         one = one.decode(filesystem_encoding)
     one = one.replace('..', substitute)
     # Windows doesn't like path components that end with a period
-    if one.endswith('.'):
+    if one and one[-1] in ('.', ' '):
         one = one[:-1]+'_'
+    # Names starting with a period are hidden on Unix
+    if one.startswith('.'):
+        one = '_' + one[1:]
+    return one
+
+def sanitize_file_name_unicode(name, substitute='_'):
+    '''
+    Sanitize the filename `name`. All invalid characters are replaced by `substitute`.
+    The set of invalid characters is the union of the invalid characters in Windows,
+    OS X and Linux. Also removes leading and trailing whitespace.
+    **WARNING:** This function also replaces path separators, so only pass file names
+    and not full paths to it.
+    '''
+    if not isinstance(name, unicode):
+        return sanitize_file_name(name, substitute=substitute, as_unicode=True)
+    chars = [substitute if c in _filename_sanitize_unicode else c for c in
+            name]
+    one = u''.join(chars)
+    one = re.sub(r'\s', ' ', one).strip()
+    one = re.sub(r'^\.+$', '_', one)
+    one = one.replace('..', substitute)
+    # Windows doesn't like path components that end with a period or space
+    if one and one[-1] in ('.', ' '):
+        one = one[:-1]+'_'
+    # Names starting with a period are hidden on Unix
+    if one.startswith('.'):
+        one = '_' + one[1:]
     return one
 
 

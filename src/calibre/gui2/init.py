@@ -44,13 +44,13 @@ class LibraryViewMixin(object): # {{{
             for view in (self.library_view, self.memory_view, self.card_a_view, self.card_b_view):
                 getattr(view, func)(*args)
 
-        self.memory_view.connect_dirtied_signal(self.upload_booklists)
+        self.memory_view.connect_dirtied_signal(self.upload_dirtied_booklists)
         self.memory_view.connect_upload_collections_signal(
                                     func=self.upload_collections, oncard=None)
-        self.card_a_view.connect_dirtied_signal(self.upload_booklists)
+        self.card_a_view.connect_dirtied_signal(self.upload_dirtied_booklists)
         self.card_a_view.connect_upload_collections_signal(
                                     func=self.upload_collections, oncard='carda')
-        self.card_b_view.connect_dirtied_signal(self.upload_booklists)
+        self.card_b_view.connect_dirtied_signal(self.upload_dirtied_booklists)
         self.card_b_view.connect_upload_collections_signal(
                                     func=self.upload_collections, oncard='cardb')
         self.book_on_device(None, reset=True)
@@ -263,6 +263,9 @@ class LayoutMixin(object): # {{{
         self.book_details.show_book_info.connect(self.iactions['Show Book Details'].show_book_info)
         self.book_details.files_dropped.connect(self.iactions['Add Books'].files_dropped_on_book)
         self.book_details.cover_changed.connect(self.bd_cover_changed,
+                type=Qt.QueuedConnection)
+        self.book_details.remote_file_dropped.connect(
+                self.iactions['Add Books'].remote_file_dropped_on_book,
                 type=Qt.QueuedConnection)
         self.book_details.open_containing_folder.connect(self.iactions['View'].view_folder_for_id)
         self.book_details.view_specific_format.connect(self.iactions['View'].view_format_by_id)

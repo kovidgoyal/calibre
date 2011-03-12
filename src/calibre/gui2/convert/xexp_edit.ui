@@ -43,6 +43,9 @@
          <height>0</height>
         </size>
        </property>
+       <property name="sizeAdjustPolicy">
+        <enum>QComboBox::AdjustToMinimumContentsLengthWithIcon</enum>
+       </property>
        <property name="minimumContentsLength">
         <number>30</number>
        </property>

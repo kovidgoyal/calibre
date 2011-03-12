@@ -47,13 +47,15 @@ copyfile = os.link if hasattr(os, 'link') else shutil.copyfile
 class Tag(object):
 
     def __init__(self, name, id=None, count=0, state=0, avg=0, sort=None,
-                 tooltip=None, icon=None, category=None, id_set=None):
+                 tooltip=None, icon=None, category=None, id_set=None,
+                 is_editable = True, is_searchable=True):
         self.name = self.original_name = name
         self.id = id
         self.count = count
         self.state = state
         self.is_hierarchical = False
-        self.is_editable = True
+        self.is_editable = is_editable
+        self.is_searchable = is_searchable
         self.id_set = id_set
         self.avg_rating = avg/2.0 if avg is not None else 0
         self.sort = sort
@@ -145,6 +147,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     def __init__(self, library_path, row_factory=False, default_prefs=None,
             read_only=False):
+        try:
+            if isbytestring(library_path):
+                library_path = library_path.decode(filesystem_encoding)
+        except:
+            traceback.print_exc()
         self.field_metadata = FieldMetadata()
         self._library_id_ = None
         # Create the lock to be used to guard access to the metadata writer
@@ -158,8 +165,6 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.dbpath = os.path.join(library_path, 'metadata.db')
         self.dbpath = os.environ.get('CALIBRE_OVERRIDE_DATABASE_PATH',
                 self.dbpath)
-        if isinstance(self.dbpath, unicode) and not iswindows:
-            self.dbpath = self.dbpath.encode(filesystem_encoding)
 
         if read_only and os.path.exists(self.dbpath):
             # Work on only a copy of metadata.db to ensure that
@@ -372,6 +377,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
         self.FIELD_MAP['ondevice'] = base = base+1
         self.field_metadata.set_field_record_index('ondevice', base, prefer_custom=False)
+        self.FIELD_MAP['marked'] = base = base+1
+        self.field_metadata.set_field_record_index('marked', base, prefer_custom=False)
 
         script = '''
         DROP VIEW IF EXISTS meta2;
@@ -419,6 +426,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.row     = self.data.row
         self.has_id  = self.data.has_id
         self.count   = self.data.count
+        self.set_marked_ids = self.data.set_marked_ids
 
         for prop in (
                 'author_sort', 'authors', 'comment', 'comments',
@@ -484,12 +492,15 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         authors = self.authors(id, index_is_id=True)
         if not authors:
             authors = _('Unknown')
-        author = ascii_filename(authors.split(',')[0])[:self.PATH_LIMIT].decode(filesystem_encoding, 'replace')
-        title  = ascii_filename(self.title(id, index_is_id=True))[:self.PATH_LIMIT].decode(filesystem_encoding, 'replace')
+        author = ascii_filename(authors.split(',')[0]
+                    )[:self.PATH_LIMIT].decode('ascii', 'replace')
+        title  = ascii_filename(self.title(id, index_is_id=True)
+                    )[:self.PATH_LIMIT].decode('ascii', 'replace')
         while author[-1] in (' ', '.'):
             author = author[:-1]
         if not author:
-            author = ascii_filename(_('Unknown')).decode(filesystem_encoding, 'replace')
+            author = ascii_filename(_('Unknown')).decode(
+                    'ascii', 'replace')
         path = author + '/' + title + ' (%d)'%id
         return path
 
@@ -500,8 +511,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         authors = self.authors(id, index_is_id=True)
         if not authors:
             authors = _('Unknown')
-        author = ascii_filename(authors.split(',')[0])[:self.PATH_LIMIT].decode(filesystem_encoding, 'replace')
-        title  = ascii_filename(self.title(id, index_is_id=True))[:self.PATH_LIMIT].decode(filesystem_encoding, 'replace')
+        author = ascii_filename(authors.split(',')[0]
+                    )[:self.PATH_LIMIT].decode('ascii', 'replace')
+        title  = ascii_filename(self.title(id, index_is_id=True)
+                    )[:self.PATH_LIMIT].decode('ascii', 'replace')
         name   = title + ' - ' + author
         while name.endswith('.'):
             name = name[:-1]
@@ -1439,10 +1452,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 reverse=True
             items.sort(key=kf, reverse=reverse)
 
+            is_editable = category not in ['news', 'rating']
             categories[category] = [tag_class(formatter(r.n), count=r.c, id=r.id,
                                         avg=avgr(r), sort=r.s, icon=icon,
                                         tooltip=tooltip, category=category,
-                                        id_set=r.id_set)
+                                        id_set=r.id_set, is_editable=is_editable)
                                     for r in items]
 
         #print 'end phase "tags list":', time.clock() - last, 'seconds'
@@ -1479,7 +1493,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                                        all=False)
             if count > 0:
                 categories['formats'].append(Tag(fmt, count=count, icon=icon,
-                                                 category='formats'))
+                                                 category='formats', is_editable=False))
 
         if sort == 'popularity':
             categories['formats'].sort(key=lambda x: x.count, reverse=True)
@@ -1507,7 +1521,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                                        all=False)
             if count > 0:
                 categories['identifiers'].append(Tag(ident, count=count, icon=icon,
-                                                 category='identifiers'))
+                                                 category='identifiers',
+                                                 is_editable=False))
 
         if sort == 'popularity':
             categories['identifiers'].sort(key=lambda x: x.count, reverse=True)
@@ -1566,7 +1581,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 icon = icon_map['search']
         for srch in saved_searches().names():
             items.append(Tag(srch, tooltip=saved_searches().lookup(srch),
-                             sort=srch, icon=icon, category='search'))
+                             sort=srch, icon=icon, category='search',
+                             is_editable=False))
         if len(items):
             if icon_map is not None:
                 icon_map['search'] = icon_map['search']
@@ -2545,6 +2561,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                         ans[key] = val
 
         return ans
+
+    def get_all_identifier_types(self):
+        idents = self.conn.get('SELECT DISTINCT type FROM identifiers')
+        return [ident[0] for ident in idents]
 
     def _clean_identifier(self, typ, val):
         typ = icu_lower(typ).strip().replace(':', '').replace(',', '')
