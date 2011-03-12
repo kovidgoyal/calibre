@@ -92,7 +92,7 @@ class Metadata(object):
     def is_null(self, field):
         null_val = NULL_VALUES.get(field, None)
         val = getattr(self, field, None)
-        return not val or val == null_val
+        return val is None or val == null_val
 
     def __getattribute__(self, field):
         _data = object.__getattribute__(self, '_data')
