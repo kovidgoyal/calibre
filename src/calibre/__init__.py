@@ -520,7 +520,6 @@ def get_download_filename(url, cookie_file=None):
         br.set_cookiejar(cj)
 
     with closing(br.open(url)) as r:
-        filename = ''
         disposition = r.info().get('Content-disposition', '')
         for p in disposition.split(';'):
             if 'filename' in p:
