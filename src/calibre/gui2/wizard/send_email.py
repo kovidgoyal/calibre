@@ -92,7 +92,8 @@ class SendEmail(QWidget, Ui_Form):
         pa = self.preferred_to_address()
         to_set = pa is not None
         if self.set_email_settings(to_set):
-            if question_dialog(self, _('OK to proceed?'),
+            opts = smtp_prefs().parse()
+            if not opts.relay_password or question_dialog(self, _('OK to proceed?'),
                     _('This will display your email password on the screen'
                     '. Is it OK to proceed?'), show_copy_button=False):
                 TestEmail(pa, self).exec_()
@@ -204,19 +205,32 @@ class SendEmail(QWidget, Ui_Form):
         username = unicode(self.relay_username.text()).strip()
         password = unicode(self.relay_password.text()).strip()
         host = unicode(self.relay_host.text()).strip()
-        if host and not (username and password):
-            error_dialog(self, _('Bad configuration'),
-                         _('You must set the username and password for '
-                           'the mail server.')).exec_()
-            return False
+        enc_method = ('TLS' if self.relay_tls.isChecked() else 'SSL'
+                if self.relay_ssl.isChecked() else 'NONE')
+        if host:
+            # Validate input
+            if ((username and not password) or (not username and password)):
+                error_dialog(self, _('Bad configuration'),
+                            _('You must either set both the username <b>and</b> password for '
+                            'the mail server or no username and no password at all.')).exec_()
+                return False
+            if not username and not password and enc_method != 'NONE':
+                error_dialog(self, _('Bad configuration'),
+                            _('Please enter a username and password or set'
+                               ' encryption to None ')).exec_()
+                return False
+            if not (username and password) and not question_dialog(self,
+                    _('Are you sure?'),
+                _('No username and password set for mailserver. Most '
+                    ' mailservers need a username and password. Are you sure?')):
+                    return False
         conf = smtp_prefs()
         conf.set('from_', from_)
         conf.set('relay_host', host if host else None)
         conf.set('relay_port', self.relay_port.value())
         conf.set('relay_username', username if username else None)
         conf.set('relay_password', hexlify(password))
-        conf.set('encryption', 'TLS' if self.relay_tls.isChecked() else 'SSL'
-                if self.relay_ssl.isChecked() else 'NONE')
+        conf.set('encryption', enc_method)
         return True
 
 
