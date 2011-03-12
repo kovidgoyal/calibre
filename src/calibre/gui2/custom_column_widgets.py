@@ -795,6 +795,7 @@ class BulkEnumeration(BulkBase, Enumeration):
         return value
 
     def setup_ui(self, parent):
+        self.parent = parent
         self.make_widgets(parent, QComboBox)
         vals = self.col_metadata['display']['enum_values']
         self.main_widget.blockSignals(True)
