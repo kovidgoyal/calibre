@@ -23,11 +23,11 @@ from calibre.utils.ipc.job import BaseJob
 
 class EbookDownloadJob(BaseJob):
 
-    def __init__(self, callback, description, job_manager, db, cookie_file=None, url='', filename='', save_as_loc='', add_to_lib=True, tags=[]):
+    def __init__(self, callback, description, job_manager, model, cookie_file=None, url='', filename='', save_as_loc='', add_to_lib=True, tags=[]):
         BaseJob.__init__(self, description)
         self.exception = None
         self.job_manager = job_manager
-        self.db = db
+        self.model = model
         self.cookie_file = cookie_file
         self.args = (url, filename, save_as_loc, add_to_lib, tags)
         self.tmp_file_name = ''
@@ -175,8 +175,10 @@ class EbookDownloader(Thread):
             mi = get_metadata(f, ext)
         mi.tags.extend(tags)
 
-        id = job.db.create_book_entry(mi)
-        job.db.add_format_with_hooks(id, ext.upper(), job.tmp_file_name, index_is_id=True)
+        id = job.model.db.create_book_entry(mi)
+        job.model.db.add_format_with_hooks(id, ext.upper(), job.tmp_file_name, index_is_id=True)
+        job.model.books_added(1)
+        job.model.count_changed()
     
     def _save_as(self, job):
         url, filename, save_loc, add_to_lib, tags = job.args
@@ -185,9 +187,9 @@ class EbookDownloader(Thread):
         
         shutil.copy(job.tmp_file_name, save_loc)
         
-    def download_ebook(self, callback, db, cookie_file=None, url='', filename='', save_as_loc='', add_to_lib=True, tags=[]):
+    def download_ebook(self, callback, model, cookie_file=None, url='', filename='', save_as_loc='', add_to_lib=True, tags=[]):
         description = _('Downloading %s') % filename if filename else url
-        job = EbookDownloadJob(callback, description, self.job_manager, db, cookie_file, url, filename, save_as_loc, add_to_lib, tags)
+        job = EbookDownloadJob(callback, description, self.job_manager, model, cookie_file, url, filename, save_as_loc, add_to_lib, tags)
         self.job_manager.add_job(job)
         self.jobs.put(job)
 
@@ -203,7 +205,7 @@ class EbookDownloadMixin(object):
         if tags:
             if isinstance(tags, basestring):
                 tags = tags.split(',')
-        self.ebook_downloader.download_ebook(Dispatcher(self.downloaded_ebook), self.library_view.model().db, cookie_file, url, filename, save_as_loc, add_to_lib, tags)
+        self.ebook_downloader.download_ebook(Dispatcher(self.downloaded_ebook), self.library_view.model(), cookie_file, url, filename, save_as_loc, add_to_lib, tags)
         self.status_bar.show_message(_('Downloading') + ' ' + filename if filename else url, 3000)
     
     def downloaded_ebook(self, job):
