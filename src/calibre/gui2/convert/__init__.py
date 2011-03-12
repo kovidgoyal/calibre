@@ -136,7 +136,7 @@ class Widget(QWidget):
             return g.value()
         elif isinstance(g, (QLineEdit, QTextEdit)):
             func = getattr(g, 'toPlainText', getattr(g, 'text', None))()
-            ans = unicode(func)
+            ans = unicode(func).strip()
             if not ans:
                 ans = None
             return ans
