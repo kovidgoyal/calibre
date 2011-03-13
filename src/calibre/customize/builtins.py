@@ -92,7 +92,7 @@ class TXT2TXTZ(FileTypePlugin):
         'containing Markdown or Textile references to images. The referenced '
         'images as well as the TXT file are added to the archive.')
     version = numeric_version
-    file_types = set(['txt'])
+    file_types = set(['txt', 'text'])
     supported_platforms = ['windows', 'osx', 'linux']
     on_import = True
 

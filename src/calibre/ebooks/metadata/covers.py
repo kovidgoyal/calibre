@@ -74,6 +74,8 @@ class HeadRequest(mechanize.Request):
 class OpenLibraryCovers(CoverDownload): # {{{
     'Download covers from openlibrary.org'
 
+    # See http://openlibrary.org/dev/docs/api/covers
+
     OPENLIBRARY = 'http://covers.openlibrary.org/b/isbn/%s-L.jpg?default=false'
     name = 'openlibrary.org covers'
     description = _('Download covers from openlibrary.org')
@@ -82,7 +84,8 @@ class OpenLibraryCovers(CoverDownload): # {{{
     def has_cover(self, mi, ans, timeout=5.):
         if not mi.isbn:
             return False
-        br = browser()
+        from calibre.ebooks.metadata.library_thing import get_browser
+        br = get_browser()
         br.set_handle_redirect(False)
         try:
             br.open_novisit(HeadRequest(self.OPENLIBRARY%mi.isbn), timeout=timeout)
@@ -98,7 +101,8 @@ class OpenLibraryCovers(CoverDownload): # {{{
     def get_covers(self, mi, result_queue, abort, timeout=5.):
         if not mi.isbn:
             return
-        br = browser()
+        from calibre.ebooks.metadata.library_thing import get_browser
+        br = get_browser()
         try:
             ans = br.open(self.OPENLIBRARY%mi.isbn, timeout=timeout).read()
             result_queue.put((True, ans, 'jpg', self.name))
@@ -137,6 +141,8 @@ class AmazonCovers(CoverDownload): # {{{
         br = browser()
         try:
             url = get_cover_url(mi.isbn, br)
+            if url is None:
+                raise ValueError('No cover found for ISBN: %s'%mi.isbn)
             cover_data = br.open_novisit(url).read()
             result_queue.put((True, cover_data, 'jpg', self.name))
         except Exception, e:

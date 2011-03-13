@@ -11,7 +11,6 @@ from PyQt4.Qt import QWizard, QWizardPage, QIcon, QPixmap, Qt, QThread, \
         pyqtSignal
 
 from calibre.gui2 import error_dialog, choose_dir, gprefs
-from calibre.constants import filesystem_encoding
 from calibre.library.add_to_library import find_folders_under, \
     find_books_in_folder, hash_merge_format_collections
 
@@ -122,20 +121,19 @@ class WelcomePage(WizardPage, WelcomeWidget):
         x = unicode(self.opt_root_folder.text()).strip()
         if not x:
             return None
-        return os.path.abspath(x.encode(filesystem_encoding))
+        return os.path.abspath(x)
 
     def get_one_per_folder(self):
         return self.opt_one_per_folder.isChecked()
 
     def validatePage(self):
         x = self.get_root_folder()
-        xu = x.decode(filesystem_encoding)
         if x and os.access(x, os.R_OK) and os.path.isdir(x):
-            gprefs['add wizard root folder'] = xu
+            gprefs['add wizard root folder'] = x
             gprefs['add wizard one per folder'] = self.get_one_per_folder()
             return True
         error_dialog(self, _('Invalid root folder'),
-                xu + _('is not a valid root folder'), show=True)
+                x + _('is not a valid root folder'), show=True)
         return False
 
 # }}}

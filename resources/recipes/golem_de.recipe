@@ -1,17 +1,83 @@
-from calibre.web.feeds.news import BasicNewsRecipe
+#!/usr/bin/env  python
 
-class AdvancedUserRecipe1257093338(BasicNewsRecipe):
+from calibre.web.feeds.news import BasicNewsRecipe
+class golem_ger(BasicNewsRecipe):
     title          = u'Golem.de'
     language = 'de'
     __author__ = 'Kovid Goyal'
     oldest_article = 7
     max_articles_per_feed = 100
+    language              = 'de'
+    lang                  = 'de-DE'
+    no_stylesheets        = True
+    encoding              = 'iso-8859-1'
+    recursions = 1
+    match_regexps = [r'http://www.golem.de/.*.html']
 
-    feeds          = [(u'Golem.de', u'http://rss.golem.de/rss.php?feed=ATOM1.0')]
+    keep_only_tags     = [
+                               dict(name='h1', attrs={'class':'artikelhead'}),
+                               dict(name='p', attrs={'class':'teaser'}),
+                               dict(name='div', attrs={'class':'artikeltext'}),
+                               dict(name='h2', attrs={'id':'artikelhead'}),
+                            ]
 
-    def print_version(self, url):
-        murxb = url.rfind('/') + 1
-        murxc = url[murxb :-5]
-        murxa = 'http://www.golem.de/' + 'print.php?a=' + murxc
-        return murxa
 
+
+    remove_tags = [
+                    dict(name='div', attrs={'id':['similarContent','topContentWrapper','storycarousel','aboveFootPromo','comments','toolbar','breadcrumbs','commentlink','sidebar','rightColumn']}),
+                    dict(name='div', attrs={'class':['gg_embeddedSubText','gg_embeddedIndex gg_solid','gg_toOldGallery','golemGallery']}),
+                    dict(name='img', attrs={'class':['gg_embedded','gg_embeddedIconRight gg_embeddedIconFS gg_cursorpointer']}),
+                    dict(name='td', attrs={'class':['xsmall']}),
+                    ]
+
+
+    # remove_tags_after  = [
+      #                      dict(name='div', attrs={'id':['contentad2']})
+       #                 ]
+
+
+    feeds          = [
+                      (u'Golem.de', u'http://rss.golem.de/rss.php?feed=ATOM1.0'),
+                      (u'Audio/Video', u'http://rss.golem.de/rss.php?tp=av&feed=RSS2.0'),
+                      (u'Foto', u'http://rss.golem.de/rss.php?tp=foto&feed=RSS2.0'),
+                      (u'Games', u'http://rss.golem.de/rss.php?tp=games&feed=RSS2.0'),
+                      (u'Internet', u'http://rss.golem.de/rss.php?tp=inet&feed=RSS1.0'),
+                      (u'Mobil', u'http://rss.golem.de/rss.php?tp=mc&feed=ATOM1.0'),
+                      (u'Internet', u'http://rss.golem.de/rss.php?tp=inet&feed=RSS1.0'),
+                      (u'Politik/Recht', u'http://rss.golem.de/rss.php?tp=pol&feed=ATOM1.0'),
+                      (u'Desktop-Applikationen', u'http://rss.golem.de/rss.php?tp=apps&feed=RSS2.0'),
+                      (u'Software-Entwicklung', u'http://rss.golem.de/rss.php?tp=dev&feed=RSS2.0'),
+                      (u'Wirtschaft', u'http://rss.golem.de/rss.php?tp=wirtschaft&feed=RSS2.0'),
+                      (u'Hardware', u'http://rss.golem.de/rss.php?r=hw&feed=RSS2.0'),
+                      (u'Software', u'http://rss.golem.de/rss.php?r=sw&feed=RSS2.0'),
+                      (u'Networld', u'http://rss.golem.de/rss.php?r=nw&feed=RSS2.0'),
+                      (u'Entertainment', u'http://rss.golem.de/rss.php?r=et&feed=RSS2.0'),
+                      (u'TK', u'http://rss.golem.de/rss.php?r=tk&feed=RSS2.0'),
+                      (u'E-Commerce', u'http://rss.golem.de/rss.php?r=ec&feed=RSS2.0'),
+                      (u'Unternehmen/Maerkte', u'http://rss.golem.de/rss.php?r=wi&feed=RSS2.0')
+                      ]
+
+
+
+
+    feeds          = [
+                      (u'Golem.de', u'http://rss.golem.de/rss.php?feed=ATOM1.0'),
+                      (u'Mobil', u'http://rss.golem.de/rss.php?tp=mc&feed=feed=RSS2.0'),
+                      (u'OSS', u'http://rss.golem.de/rss.php?tp=oss&feed=RSS2.0'),
+                      (u'Politik/Recht', u'http://rss.golem.de/rss.php?tp=pol&feed=RSS2.0'),
+                      (u'Desktop-Applikationen', u'http://rss.golem.de/rss.php?tp=apps&feed=RSS2.0'),
+                      (u'Software-Entwicklung', u'http://rss.golem.de/rss.php?tp=dev&feed=RSS2.0'),
+                      ]
+
+
+    extra_css = '''
+                h1 {color:#0066CC;font-family:Arial,Helvetica,sans-serif; font-size:30px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:bold; line-height:20px;margin-bottom:2 em;}
+                h2 {color:#4D4D4D;font-family:Arial,Helvetica,sans-serif; font-size:22px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:bold; line-height:16px; }
+                h3 {color:#4D4D4D;font-family:Arial,Helvetica,sans-serif; font-size:x-small; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:normal; line-height:5px;}
+                h4 {color:#333333; font-family:Arial,Helvetica,sans-serif;font-size:13px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:bold; line-height:13px; }
+                h5 {color:#333333; font-family:Arial,Helvetica,sans-serif; font-size:11px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:bold; line-height:11px; text-transform:uppercase;}
+                .teaser {font-style:italic;font-size:12pt;margin-bottom:15pt;}
+                .xsmall{font-style:italic;font-size:x-small;}
+                .td{font-style:italic;font-size:x-small;}
+                img {align:left;}
+                '''

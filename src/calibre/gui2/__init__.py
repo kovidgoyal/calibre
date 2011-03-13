@@ -340,6 +340,7 @@ class FileIconProvider(QFileIconProvider):
              'rar'     : 'rar',
              'zip'     : 'zip',
              'txt'     : 'txt',
+             'text'    : 'txt',
              'prc'     : 'mobi',
              'azw'     : 'mobi',
              'mobi'    : 'mobi',
