@@ -92,8 +92,6 @@ class Metadata(object):
     def is_null(self, field):
         null_val = NULL_VALUES.get(field, None)
         val = getattr(self, field, None)
-        if val is False or val in (0, 0.0):
-            return True
         return not val or val == null_val
 
     def __getattribute__(self, field):
@@ -129,6 +127,8 @@ class Metadata(object):
             field, val = self._clean_identifier(field, val)
             _data['identifiers'].update({field: val})
         elif field == 'identifiers':
+            if not val:
+                val = copy.copy(NULL_VALUES.get('identifiers', None))
             self.set_identifiers(val)
         elif field in STANDARD_METADATA_FIELDS:
             if val is None:
