@@ -204,15 +204,29 @@ class AddAction(InterfaceAction):
         to_device = self.gui.stack.currentIndex() != 0
         self._add_books(paths, to_device)
 
-    def files_dropped_on_book(self, event, paths):
+    def remote_file_dropped_on_book(self, url, fname):
+        if self.gui.current_view() is not self.gui.library_view:
+            return
+        db = self.gui.library_view.model().db
+        current_idx = self.gui.library_view.currentIndex()
+        if not current_idx.isValid(): return
+        cid = db.id(current_idx.row())
+        from calibre.gui2.dnd import DownloadDialog
+        d = DownloadDialog(url, fname, self.gui)
+        d.start_download()
+        if d.err is None:
+            self.files_dropped_on_book(None, [d.fpath], cid=cid)
+
+    def files_dropped_on_book(self, event, paths, cid=None):
         accept = False
         if self.gui.current_view() is not self.gui.library_view:
             return
         db = self.gui.library_view.model().db
         cover_changed = False
         current_idx = self.gui.library_view.currentIndex()
-        if not current_idx.isValid(): return
-        cid = db.id(current_idx.row())
+        if cid is None:
+            if not current_idx.isValid(): return
+            cid = db.id(current_idx.row()) if cid is None else cid
         for path in paths:
             ext = os.path.splitext(path)[1].lower()
             if ext:
@@ -227,8 +241,9 @@ class AddAction(InterfaceAction):
             elif ext in BOOK_EXTENSIONS:
                 db.add_format_with_hooks(cid, ext, path, index_is_id=True)
                 accept = True
-        if accept:
+        if accept and event is not None:
             event.accept()
+        if current_idx.isValid():
             self.gui.library_view.model().current_changed(current_idx, current_idx)
         if cover_changed:
             if self.gui.cover_flow:

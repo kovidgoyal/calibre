@@ -12,7 +12,7 @@ from threading import Thread
 
 from PyQt4.Qt import SIGNAL, QObject, Qt, QTimer, QDate, \
     QPixmap, QListWidgetItem, QDialog, pyqtSignal, QIcon, \
-    QPushButton
+    QPushButton, QKeySequence
 
 from calibre.gui2 import error_dialog, file_icon_provider, dynamic, \
                            choose_files, choose_images, ResizableDialog, \
@@ -472,17 +472,19 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             self.prev_button = QPushButton(QIcon(I('back.png')), _('Previous'),
                     self)
             self.button_box.addButton(self.prev_button, self.button_box.ActionRole)
-            tip = _('Save changes and edit the metadata of %s')%prev
+            tip = (_('Save changes and edit the metadata of %s')+' [Alt+Left]')%prev
             self.prev_button.setToolTip(tip)
             self.prev_button.clicked.connect(partial(self.next_triggered,
                 -1))
+            self.prev_button.setShortcut(QKeySequence('Alt+Left'))
         if next_:
             self.next_button = QPushButton(QIcon(I('forward.png')), _('Next'),
                     self)
             self.button_box.addButton(self.next_button, self.button_box.ActionRole)
-            tip = _('Save changes and edit the metadata of %s')%next_
+            tip = (_('Save changes and edit the metadata of %s')+' [Alt+Right]')%next_
             self.next_button.setToolTip(tip)
             self.next_button.clicked.connect(partial(self.next_triggered, 1))
+            self.next_button.setShortcut(QKeySequence('Alt+Right'))
 
         self.splitter.setStretchFactor(100, 1)
         self.read_state()

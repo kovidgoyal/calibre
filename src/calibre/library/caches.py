@@ -7,7 +7,7 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import re, itertools, time, traceback
-from itertools import repeat
+from itertools import repeat, izip, imap
 from datetime import timedelta
 from threading import Thread
 
@@ -144,6 +144,22 @@ def _match(query, value, matchkind):
             pass
     return False
 
+def force_to_bool(val):
+    if isinstance(val, (str, unicode)):
+        try:
+            val = icu_lower(val)
+            if not val:
+                val = None
+            elif val in [_('yes'), _('checked'), 'true']:
+                val = True
+            elif val in [_('no'), _('unchecked'), 'false']:
+                val = False
+            else:
+                val = bool(int(val))
+        except:
+            val = None
+    return val
+
 class CacheRow(list): # {{{
 
     def __init__(self, db, composites, val):
@@ -194,6 +210,7 @@ class ResultCache(SearchQueryParser): # {{{
         self.first_sort = True
         self.search_restriction = ''
         self.search_restriction_book_count = 0
+        self.marked_ids_dict = {}
         self.field_metadata = field_metadata
         self.all_search_locations = field_metadata.get_search_terms()
         SearchQueryParser.__init__(self, self.all_search_locations, optimize=True)
@@ -531,37 +548,23 @@ class ResultCache(SearchQueryParser): # {{{
             if item is None:
                 continue
 
-            val = item[loc]
-            if isinstance(val, (str, unicode)):
-                try:
-                    val = icu_lower(val)
-                    if not val:
-                        val = None
-                    elif val in [_('yes'), _('checked'), 'true']:
-                        val = True
-                    elif val in [_('no'), _('unchecked'), 'false']:
-                        val = False
-                    else:
-                        val = bool(int(val))
-                except:
-                    val = None
-
+            val = force_to_bool(item[loc])
             if not bools_are_tristate:
                 if val is None or not val: # item is None or set to false
-                    if query in [_('no'), _('unchecked'), 'false']:
+                    if query in [_('no'), _('unchecked'), '_no', 'false']:
                         matches.add(item[0])
                 else: # item is explicitly set to true
-                    if query in [_('yes'), _('checked'), 'true']:
+                    if query in [_('yes'), _('checked'), '_yes', 'true']:
                         matches.add(item[0])
             else:
                 if val is None:
-                    if query in [_('empty'), _('blank'), 'false']:
+                    if query in [_('empty'), _('blank'), '_empty', 'false']:
                         matches.add(item[0])
                 elif not val: # is not None and false
-                    if query in [_('no'), _('unchecked'), 'true']:
+                    if query in [_('no'), _('unchecked'), '_no', 'true']:
                         matches.add(item[0])
                 else: # item is not None and true
-                    if query in [_('yes'), _('checked'), 'true']:
+                    if query in [_('yes'), _('checked'), '_yes', 'true']:
                         matches.add(item[0])
         return matches
 
@@ -694,13 +697,14 @@ class ResultCache(SearchQueryParser): # {{{
                     if item is None: continue
 
                     if not item[loc]:
-                        if q == 'false':
+                        if q == 'false' and matchkind == CONTAINS_MATCH:
                             matches.add(item[0])
                         continue     # item is empty. No possible matches below
-                    if q == 'false': # Field has something in it, so a false query does not match
+                    if q == 'false'and matchkind == CONTAINS_MATCH:
+                        # Field has something in it, so a false query does not match
                         continue
 
-                    if q == 'true':
+                    if q == 'true' and matchkind == CONTAINS_MATCH:
                         if isinstance(item[loc], basestring):
                             if item[loc].strip() == '':
                                 continue
@@ -775,6 +779,36 @@ class ResultCache(SearchQueryParser): # {{{
     def get_search_restriction_book_count(self):
         return self.search_restriction_book_count
 
+    def set_marked_ids(self, id_dict):
+        '''
+        ids in id_dict are "marked". They can be searched for by
+        using the search term ``marked:true``. Pass in an empty dictionary or
+        set to clear marked ids.
+
+        :param id_dict: Either a dictionary mapping ids to values or a set
+        of ids. In the latter case, the value is set to 'true' for all ids. If
+        a mapping is provided, then the search can be used to search for
+        particular values: ``marked:value``
+        '''
+        if not hasattr(id_dict, 'items'):
+            # Simple list. Make it a dict of string 'true'
+            self.marked_ids_dict = dict.fromkeys(id_dict, u'true')
+        else:
+            # Ensure that all the items in the dict are text
+            self.marked_ids_dict = dict(izip(id_dict.iterkeys(), imap(unicode,
+                id_dict.itervalues())))
+
+        # Set the values in the cache
+        marked_col = self.FIELD_MAP['marked']
+        for r in self.iterall():
+            r[marked_col] = None
+
+        for id_, val in self.marked_ids_dict.iteritems():
+            try:
+                self._data[id_][marked_col] = val
+            except:
+                pass
+
     # }}}
 
     def remove(self, id):
@@ -824,6 +858,7 @@ class ResultCache(SearchQueryParser): # {{{
                 self._data[id] = CacheRow(db, self.composites,
                         db.conn.get('SELECT * from meta2 WHERE id=?', (id,))[0])
                 self._data[id].append(db.book_on_device_string(id))
+                self._data[id].append(self.marked_ids_dict.get(id, None))
             except IndexError:
                 return None
         try:
@@ -840,6 +875,7 @@ class ResultCache(SearchQueryParser): # {{{
             self._data[id] = CacheRow(db, self.composites,
                         db.conn.get('SELECT * from meta2 WHERE id=?', (id,))[0])
             self._data[id].append(db.book_on_device_string(id))
+            self._data[id].append(self.marked_ids_dict.get(id, None))
         self._map[0:0] = ids
         self._map_filtered[0:0] = ids
 
@@ -864,6 +900,15 @@ class ResultCache(SearchQueryParser): # {{{
         for item in self._data:
             if item is not None:
                 item.append(db.book_on_device_string(item[0]))
+                item.append(None)
+
+        marked_col = self.FIELD_MAP['marked']
+        for id_,val in self.marked_ids_dict.iteritems():
+            try:
+                self._data[id_][marked_col] = val
+            except:
+                pass
+
         self._map = [i[0] for i in self._data if i is not None]
         if field is not None:
             self.sort(field, ascending)
@@ -947,18 +992,7 @@ class SortKeyGenerator(object):
                         val = 0.0
                     dt = 'float'
                 elif sb == 'bool':
-                    try:
-                        v = icu_lower(val)
-                        if not val:
-                            val = None
-                        elif v in [_('yes'), _('checked'), 'true']:
-                            val = True
-                        elif v in [_('no'), _('unchecked'), 'false']:
-                            val = False
-                        else:
-                            val = bool(int(val))
-                    except:
-                        val = None
+                    val = force_to_bool(val)
                     dt = 'bool'
 
             if dt == 'datetime':

@@ -5,7 +5,6 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys
 from math import cos, sin, pi
 
 from PyQt4.Qt import QColor, Qt, QModelIndex, QSize, \
@@ -245,13 +244,13 @@ class CcTextDelegate(QStyledItemDelegate): # {{{
         typ = m.custom_columns[col]['datatype']
         if typ == 'int':
             editor = QSpinBox(parent)
-            editor.setRange(-100, sys.maxint)
+            editor.setRange(-100, 100000000)
             editor.setSpecialValueText(_('Undefined'))
             editor.setSingleStep(1)
         elif typ == 'float':
             editor = QDoubleSpinBox(parent)
             editor.setSpecialValueText(_('Undefined'))
-            editor.setRange(-100., float(sys.maxint))
+            editor.setRange(-100., 100000000)
             editor.setDecimals(2)
         else:
             editor = MultiCompleteLineEdit(parent)

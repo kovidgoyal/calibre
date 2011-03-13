@@ -72,7 +72,7 @@ class FB2MLizer(object):
 
     def clean_text(self, text):
         # Condense empty paragraphs into a line break. 
-        text = re.sub(r'(?miu)(<p>\s*</p>\s*){3,}', '<p><empty-line /></p>', text)
+        text = re.sub(r'(?miu)(<p>\s*</p>\s*){3,}', '<empty-line />', text)
         # Remove empty paragraphs.
         text = re.sub(r'(?miu)<p>\s*</p>', '', text)
         # Clean up pargraph endings.
@@ -101,9 +101,6 @@ class FB2MLizer(object):
 
     def fb2_header(self):
         metadata = {}
-        metadata['author_first'] = u''
-        metadata['author_middle'] = u''
-        metadata['author_last'] = u''
         metadata['title'] = self.oeb_book.metadata.title[0].value
         metadata['appname'] = __appname__
         metadata['version'] = __version__
@@ -115,16 +112,36 @@ class FB2MLizer(object):
         metadata['id'] = None
         metadata['cover'] = self.get_cover()
 
-        author_parts = self.oeb_book.metadata.creator[0].value.split(' ')
-        if len(author_parts) == 1:
-            metadata['author_last'] = author_parts[0]
-        elif len(author_parts) == 2:
-            metadata['author_first'] = author_parts[0]
-            metadata['author_last'] = author_parts[1]
-        else:
-            metadata['author_first'] = author_parts[0]
-            metadata['author_middle'] = ' '.join(author_parts[1:-2])
-            metadata['author_last'] = author_parts[-1]
+        metadata['author'] = u''
+        for auth in self.oeb_book.metadata.creator:
+            author_first = u''
+            author_middle = u''
+            author_last = u''
+            author_parts = auth.value.split(' ')
+            if len(author_parts) == 1:
+                author_last = author_parts[0]
+            elif len(author_parts) == 2:
+                author_first = author_parts[0]
+                author_last = author_parts[1]
+            else:
+                author_first = author_parts[0]
+                author_middle = ' '.join(author_parts[1:-1])
+                author_last = author_parts[-1]
+            metadata['author'] += '<author>'
+            metadata['author'] += '<first-name>%s</first-name>' % prepare_string_for_xml(author_first)
+            if author_middle:
+                metadata['author'] += '<middle-name>%s</middle-name>' % prepare_string_for_xml(author_middle)
+            metadata['author'] += '<last-name>%s</last-name>' % prepare_string_for_xml(author_last)
+            metadata['author'] += '</author>'
+        if not metadata['author']:
+            metadata['author'] = u'<author><first-name></first-name><last-name><last-name></author>'
+
+        metadata['sequence'] = u''
+        if self.oeb_book.metadata.series:
+            index = '1'
+            if self.oeb_book.metadata.series_index:
+                index = self.oeb_book.metadata.series_index[0]
+            metadata['sequence'] = u'<sequence name="%s" number="%s" />' % (prepare_string_for_xml(u'%s' % self.oeb_book.metadata.series[0]), index)
 
         identifiers = self.oeb_book.metadata['identifier']
         for x in identifiers:
@@ -136,28 +153,21 @@ class FB2MLizer(object):
             metadata['id'] = str(uuid.uuid4())
 
         for key, value in metadata.items():
-            if not key == 'cover':
+            if key not in ('author', 'cover', 'sequence'):
                 metadata[key] = prepare_string_for_xml(value)
 
         return u'<FictionBook xmlns="http://www.gribuser.ru/xml/fictionbook/2.0" xmlns:xlink="http://www.w3.org/1999/xlink">' \
                 '<description>' \
                     '<title-info>' \
                         '<genre>antique</genre>' \
-                        '<author>' \
-                            '<first-name>%(author_first)s</first-name>' \
-                            '<middle-name>%(author_middle)s</middle-name>' \
-                            '<last-name>%(author_last)s</last-name>' \
-                        '</author>' \
+                            '%(author)s' \
                         '<book-title>%(title)s</book-title>' \
                         '%(cover)s' \
                         '<lang>%(lang)s</lang>' \
+                        '%(sequence)s' \
                     '</title-info>' \
                     '<document-info>' \
-                        '<author>' \
-                            '<first-name></first-name>' \
-                            '<middle-name></middle-name>' \
-                            '<last-name></last-name>' \
-                        '</author>' \
+                        '%(author)s' \
                         '<program-used>%(appname)s %(version)s</program-used>' \
                         '<date>%(date)s</date>' \
                         '<id>%(id)s</id>' \

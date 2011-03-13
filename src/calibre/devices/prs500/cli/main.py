@@ -213,7 +213,7 @@ def main():
 
     for d in connected_devices:
         try:
-            d.open()
+            d.open(None)
         except:
             continue
         else:

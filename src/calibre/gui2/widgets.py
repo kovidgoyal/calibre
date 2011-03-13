@@ -3,7 +3,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
 Miscellaneous widgets used in the GUI
 '''
-import re, os, traceback
+import re, traceback
 
 from PyQt4.Qt import QIcon, QFont, QLabel, QListWidget, QAction, \
                         QListWidgetItem, QTextCharFormat, QApplication, \
@@ -22,6 +22,8 @@ from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.metadata.meta import metadata_from_filename
 from calibre.utils.config import prefs, XMLConfig, tweaks
 from calibre.gui2.progress_indicator import ProgressIndicator as _ProgressIndicator
+from calibre.gui2.dnd import dnd_has_image, dnd_get_image, dnd_get_files, \
+    IMAGE_EXTENSIONS, dnd_has_extension, DownloadDialog
 
 history = XMLConfig('history')
 
@@ -141,36 +143,35 @@ class FilenamePattern(QWidget, Ui_Form):
         return pat
 
 
-IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'gif', 'png', 'bmp']
-
 class FormatList(QListWidget):
     DROPABBLE_EXTENSIONS = BOOK_EXTENSIONS
     formats_dropped = pyqtSignal(object, object)
     delete_format = pyqtSignal()
 
-    @classmethod
-    def paths_from_event(cls, event):
-        '''
-        Accept a drop event and return a list of paths that can be read from
-        and represent files with extensions.
-        '''
-        if event.mimeData().hasFormat('text/uri-list'):
-            urls = [unicode(u.toLocalFile()) for u in event.mimeData().urls()]
-            urls = [u for u in urls if os.path.splitext(u)[1] and os.access(u, os.R_OK)]
-            return [u for u in urls if os.path.splitext(u)[1][1:].lower() in cls.DROPABBLE_EXTENSIONS]
-
     def dragEnterEvent(self, event):
-        if int(event.possibleActions() & Qt.CopyAction) + \
-           int(event.possibleActions() & Qt.MoveAction) == 0:
-            return
-        paths = self.paths_from_event(event)
-        if paths:
+        md = event.mimeData()
+        if dnd_has_extension(md, self.DROPABBLE_EXTENSIONS):
             event.acceptProposedAction()
 
     def dropEvent(self, event):
-        paths = self.paths_from_event(event)
         event.setDropAction(Qt.CopyAction)
-        self.formats_dropped.emit(event, paths)
+        md = event.mimeData()
+        # Now look for ebook files
+        urls, filenames = dnd_get_files(md, self.DROPABBLE_EXTENSIONS)
+        if not urls:
+            # Nothing found
+            return
+
+        if not filenames:
+            # Local files
+            self.formats_dropped.emit(event, urls)
+        else:
+            # Remote files, use the first file
+            d = DownloadDialog(urls[0], filenames[0], self)
+            d.start_download()
+            if d.err is None:
+                self.formats_dropped.emit(event, [d.fpath])
+
 
     def dragMoveEvent(self, event):
         event.acceptProposedAction()
@@ -183,7 +184,7 @@ class FormatList(QListWidget):
 
 class ImageDropMixin(object): # {{{
     '''
-    Adds support for dropping images onto widgets and a contect menu for
+    Adds support for dropping images onto widgets and a context menu for
     copy/pasting images.
     '''
     DROPABBLE_EXTENSIONS = IMAGE_EXTENSIONS
@@ -191,39 +192,36 @@ class ImageDropMixin(object): # {{{
     def __init__(self):
         self.setAcceptDrops(True)
 
-    @classmethod
-    def paths_from_event(cls, event):
-        '''
-        Accept a drop event and return a list of paths that can be read from
-        and represent files with extensions.
-        '''
-        if event.mimeData().hasFormat('text/uri-list'):
-            urls = [unicode(u.toLocalFile()) for u in event.mimeData().urls()]
-            urls = [u for u in urls if os.path.splitext(u)[1] and os.access(u, os.R_OK)]
-            return [u for u in urls if os.path.splitext(u)[1][1:].lower() in cls.DROPABBLE_EXTENSIONS]
-
     def dragEnterEvent(self, event):
-        if int(event.possibleActions() & Qt.CopyAction) + \
-           int(event.possibleActions() & Qt.MoveAction) == 0:
-            return
-        paths = self.paths_from_event(event)
-        if paths:
+        md = event.mimeData()
+        if dnd_has_extension(md, self.DROPABBLE_EXTENSIONS) or \
+                dnd_has_image(md):
             event.acceptProposedAction()
 
     def dropEvent(self, event):
-        paths = self.paths_from_event(event)
         event.setDropAction(Qt.CopyAction)
-        for path in paths:
-            pmap = QPixmap()
-            pmap.load(path)
-            if not pmap.isNull():
-                self.handle_image_drop(path, pmap)
-                event.accept()
-                break
+        md = event.mimeData()
 
-    def handle_image_drop(self, path, pmap):
+        x, y = dnd_get_image(md)
+        if x is not None:
+            # We have an image, set cover
+            event.accept()
+            if y is None:
+                # Local image
+                self.handle_image_drop(x)
+            else:
+                # Remote files, use the first file
+                d = DownloadDialog(x, y, self)
+                d.start_download()
+                if d.err is None:
+                    pmap = QPixmap()
+                    pmap.loadFromData(open(d.fpath, 'rb').read())
+                    if not pmap.isNull():
+                        self.handle_image_drop(pmap)
+
+    def handle_image_drop(self, pmap):
         self.set_pixmap(pmap)
-        self.cover_changed.emit(open(path, 'rb').read())
+        self.cover_changed.emit(pixmap_to_data(pmap))
 
     def dragMoveEvent(self, event):
         event.acceptProposedAction()

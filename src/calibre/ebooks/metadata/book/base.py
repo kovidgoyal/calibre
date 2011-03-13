@@ -92,6 +92,8 @@ class Metadata(object):
     def is_null(self, field):
         null_val = NULL_VALUES.get(field, None)
         val = getattr(self, field, None)
+        if val is False or val in (0, 0.0):
+            return True
         return not val or val == null_val
 
     def __getattribute__(self, field):
@@ -130,7 +132,7 @@ class Metadata(object):
             self.set_identifiers(val)
         elif field in STANDARD_METADATA_FIELDS:
             if val is None:
-                val = NULL_VALUES.get(field, None)
+                val = copy.copy(NULL_VALUES.get(field, None))
             _data[field] = val
         elif field in _data['user_metadata'].iterkeys():
             _data['user_metadata'][field]['#value#'] = val
@@ -169,10 +171,13 @@ class Metadata(object):
                     pass
             return default
 
-    def get_extra(self, field):
+    def get_extra(self, field, default=None):
         _data = object.__getattribute__(self, '_data')
         if field in _data['user_metadata'].iterkeys():
-            return _data['user_metadata'][field]['#extra#']
+            try:
+                return _data['user_metadata'][field]['#extra#']
+            except:
+                return default
         raise AttributeError(
                 'Metadata object has no attribute named: '+ repr(field))
 

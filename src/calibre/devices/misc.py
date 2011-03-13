@@ -224,7 +224,7 @@ class TREKSTOR(USBMS):
     FORMATS     = ['epub', 'txt', 'pdf']
 
     VENDOR_ID   = [0x1e68]
-    PRODUCT_ID  = [0x0041]
+    PRODUCT_ID  = [0x0041, 0x0042]
     BCD         = [0x0002]
 
     EBOOK_DIR_MAIN = 'Ebooks'
