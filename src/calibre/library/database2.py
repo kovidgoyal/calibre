@@ -56,7 +56,7 @@ class Tag(object):
         self.is_hierarchical = False
         self.is_editable = is_editable
         self.is_searchable = is_searchable
-        self.id_set = id_set
+        self.id_set = id_set if id_set is not None else set([])
         self.avg_rating = avg/2.0 if avg is not None else 0
         self.sort = sort
         if self.avg_rating > 0:

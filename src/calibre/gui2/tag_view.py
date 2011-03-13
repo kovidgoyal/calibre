@@ -533,7 +533,9 @@ class TagsView(QTreeView): # {{{
             self.setModel(self._model)
         except:
             # The DB must be gone. Set the model to None and hope that someone
-            # will call set_database later. I don't know if this in fact works
+            # will call set_database later. I don't know if this in fact works.
+            # But perhaps a Bad Thing Happened, so print the exception
+            traceback.print_exc()
             self._model = None
             self.setModel(None)
     # }}}
@@ -678,7 +680,8 @@ class TagTreeItem(object): # {{{
                         break
                 elif self.tag.state == TAG_SEARCH_STATES['mark_plusplus'] or\
                         self.tag.state == TAG_SEARCH_STATES['mark_minusminus']:
-                    if self.tag.is_hierarchical and len(self.children):
+                    if self.tag.is_searchable and self.tag.is_hierarchical \
+                                and len(self.children):
                         break
                 else:
                     break
@@ -1258,19 +1261,22 @@ class TagsModel(QAbstractItemModel): # {{{
                                             if t.type != TagTreeItem.CATEGORY])
                         if (comp,tag.category) in child_map:
                             node_parent = child_map[(comp,tag.category)]
-                            node_parent.tag.is_hierarchical = True
+                            node_parent.tag.is_hierarchical = key != 'search'
                         else:
                             if i < len(components)-1:
                                 t = copy.copy(tag)
                                 t.original_name = '.'.join(components[:i+1])
-                                # This 'manufactured' intermediate node can
-                                # be searched, but cannot be edited.
-                                t.is_editable = False
+                                if key != 'search':
+                                    # This 'manufactured' intermediate node can
+                                    # be searched, but cannot be edited.
+                                    t.is_editable = False
+                                else:
+                                    t.is_searchable = t.is_editable = False
                             else:
                                 t = tag
                                 if not in_uc:
                                     t.original_name = t.name
-                            t.is_hierarchical = True
+                            t.is_hierarchical = key != 'search'
                             t.name = comp
                             self.beginInsertRows(category_index, 999999, 1)
                             node_parent = TagTreeItem(parent=node_parent, data=t,
