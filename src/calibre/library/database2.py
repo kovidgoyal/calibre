@@ -1691,10 +1691,19 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         return books_to_refresh
 
     def set_metadata(self, id, mi, ignore_errors=False, set_title=True,
-                     set_authors=True, commit=True, force_cover=False,
-                     force_tags=False):
+                     set_authors=True, commit=True, force_changes=False):
         '''
         Set metadata for the book `id` from the `Metadata` object `mi`
+
+        Setting force_changes=True will force set_metadata to update fields even
+        if mi contains empty values. In this case, 'None' is distinguished from
+        'empty'. If mi.XXX is None, the XXX is not replaced, otherwise it is.
+        The tags, identifiers, and cover attributes are special cases. Tags and
+        identifiers cannot be set to None so then will always be replaced if
+        force_changes is true. You must ensure that mi contains the values you
+        want the book to have. Covers are always changed if a new cover is
+        provided, but are never deleted. Also note that force_changes has no
+        effect on setting title or authors.
         '''
         if callable(getattr(mi, 'to_book_metadata', None)):
             # Handle code passing in a OPF object instead of a Metadata object
@@ -1708,12 +1717,18 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     traceback.print_exc()
                 else:
                     raise
-        # force_changes has no role to play in setting title or author
+
+        def should_replace_field(attr):
+            return (force_changes and (mi.get(attr, None) is not None)) or \
+                    not mi.is_null(attr)
+
         path_changed = False
-        if set_title and not mi.is_null('title'):
+        if set_title and mi.title:
             self._set_title(id, mi.title)
             path_changed = True
-        if set_authors and not mi.is_null('authors'):
+        if set_authors:
+            if not mi.authors:
+                    mi.authors = [_('Unknown')]
             authors = []
             for a in mi.authors:
                 authors += string_to_authors(a)
@@ -1722,17 +1737,20 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if path_changed:
             self.set_path(id, index_is_id=True)
 
-        if not mi.is_null('author_sort'):
+        if should_replace_field('author_sort'):
             doit(self.set_author_sort, id, mi.author_sort, notify=False,
                     commit=False)
-        if not mi.is_null('publisher'):
+        if should_replace_field('publisher'):
             doit(self.set_publisher, id, mi.publisher, notify=False,
                     commit=False)
-        if not mi.is_null('rating'):
+
+        # Setting rating to zero is acceptable.
+        if mi.rating is not None:
             doit(self.set_rating, id, mi.rating, notify=False, commit=False)
-        if not mi.is_null('series'):
+        if should_replace_field('series'):
             doit(self.set_series, id, mi.series, notify=False, commit=False)
 
+        # force_changes has no effect on cover manipulation
         if mi.cover_data[1] is not None:
             doit(self.set_cover, id, mi.cover_data[1], commit=False)
         elif mi.cover is not None:
@@ -1741,36 +1759,45 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     raw = f.read()
                 if raw:
                     doit(self.set_cover, id, raw, commit=False)
-        elif force_cover:
-            doit(self.remove_cover, id, notify=False, commit=False)
 
-        if force_tags or not mi.is_null('tags'):
+        # if force_changes is true, tags are always replaced because the
+        # attribute cannot be set to None.
+        if should_replace_field('tags'):
             doit(self.set_tags, id, mi.tags, notify=False, commit=False)
-        if not mi.is_null('comments'):
+
+        if should_replace_field('comments'):
             doit(self.set_comment, id, mi.comments, notify=False, commit=False)
-        if not mi.is_null('series_index'):
+
+        # Setting series_index to zero is acceptable
+        if mi.series_index is not None:
             doit(self.set_series_index, id, mi.series_index, notify=False,
                     commit=False)
-        if not mi.is_null('pubdate'):
+        if should_replace_field('pubdate'):
             doit(self.set_pubdate, id, mi.pubdate, notify=False, commit=False)
         if getattr(mi, 'timestamp', None) is not None:
             doit(self.set_timestamp, id, mi.timestamp, notify=False,
                     commit=False)
 
+        # identifiers will always be replaced if force_changes is True
         mi_idents = mi.get_identifiers()
-        if mi_idents:
+        if force_changes:
+            self.set_identifiers(id, mi_idents, notify=False, commit=False)
+        elif mi_idents:
             identifiers = self.get_identifiers(id, index_is_id=True)
             for key, val in mi_idents.iteritems():
-                if val and val.strip():
+                if val and val.strip(): # Don't delete an existing identifier
                     identifiers[icu_lower(key)] = val
             self.set_identifiers(id, identifiers, notify=False, commit=False)
+
 
         user_mi = mi.get_all_user_metadata(make_copy=False)
         for key in user_mi.iterkeys():
             if key in self.field_metadata and \
                     user_mi[key]['datatype'] == self.field_metadata[key]['datatype']:
-                doit(self.set_custom, id, val=mi.get(key), commit=False,
-                     extra=mi.get_extra(key), label=user_mi[key]['label'])
+                val = mi.get(key, None)
+                if force_changes or val is not None:
+                    doit(self.set_custom, id, val=val, extra=mi.get_extra(key),
+                         label=user_mi[key]['label'], commit=False)
         if commit:
             self.conn.commit()
         self.notify('metadata', [id])
