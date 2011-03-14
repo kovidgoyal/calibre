@@ -132,7 +132,6 @@ def _match(query, value, matchkind):
         try:     ### ignore regexp exceptions, required because search-ahead tries before typing is finished
             if (matchkind == EQUALS_MATCH):
                 if internal_match_ok:
-                    print query, t
                     if query == t:
                         return True
                     comps = [c.strip() for c in t.split('.') if c.strip()]
