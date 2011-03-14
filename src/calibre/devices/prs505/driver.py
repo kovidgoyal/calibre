@@ -221,7 +221,8 @@ class PRS505(USBMS):
                                           os.path.splitext(os.path.basename(p))[0],
                                           book, p)
                     except:
-                        debug_print('FAILED to upload cover', p)
+                        debug_print('FAILED to upload cover',
+                                prefix, book.lpath)
         else:
             debug_print('PRS505: NOT uploading covers in sync_booklists')
 
