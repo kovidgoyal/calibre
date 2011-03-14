@@ -47,7 +47,7 @@ def get_connected_device():
 
     for d in connected_devices:
         try:
-            d.open()
+            d.open(None)
         except:
             continue
         else:
@@ -121,7 +121,7 @@ def debug(ioreg_to_tmp=False, buf=None):
             out('Trying to open', dev.name, '...', end=' ')
             try:
                 dev.reset(detected_device=det)
-                dev.open()
+                dev.open(None)
                 out('OK')
             except:
                 import traceback
