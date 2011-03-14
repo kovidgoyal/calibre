@@ -123,14 +123,23 @@ REGEXP_MATCH   = 2
 def _match(query, value, matchkind):
     if query.startswith('..'):
         query = query[1:]
-        prefix_match_ok = False
+        sq = query[1:]
+        internal_match_ok = True
     else:
-        prefix_match_ok = True
+        internal_match_ok = False
     for t in value:
         t = icu_lower(t)
         try:     ### ignore regexp exceptions, required because search-ahead tries before typing is finished
             if (matchkind == EQUALS_MATCH):
-                if prefix_match_ok and query[0] == '.':
+                if internal_match_ok:
+                    print query, t
+                    if query == t:
+                        return True
+                    comps = [c.strip() for c in t.split('.') if c.strip()]
+                    for comp in comps:
+                        if sq == comp:
+                            return True
+                elif query[0] == '.':
                     if t.startswith(query[1:]):
                         ql = len(query) - 1
                         if (len(t) == ql) or (t[ql:ql+1] == '.'):
