@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-03-11 20:33+0000\n"
-"PO-Revision-Date: 2011-03-11 18:28+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2011-03-13 11:28+0000\n"
+"Last-Translator: FerranRius <frius64@hotmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-03-12 04:45+0000\n"
+"X-Launchpad-Export-Date: 2011-03-14 04:44+0000\n"
 "X-Generator: Launchpad (build 12559)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -8303,17 +8303,20 @@ msgstr "&Mou la biblioteca actual a la nova ubicació"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_plugin_toolbars.py:23
 msgid "Add \"%s\" to toolbars or menus"
-msgstr ""
+msgstr "Afegeix «%s» a les barres d'eines o als menús"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_plugin_toolbars.py:29
 msgid "Select the toolbars and/or menus to add <b>%s</b> to:"
 msgstr ""
+"Seleccioneu les barres d'eines i/o menús als que s'afegirà <b>%s</b>:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_plugin_toolbars.py:45
 msgid ""
 "You can also customise the plugin locations using <b>Preferences -> "
 "Customise the toolbar</b>"
 msgstr ""
+"També podeu personalitzar les ubicacions dels connectors si utilitzeu "
+"<b>Preferències -> Personalitza la barra d'eines</b>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf.py:33
 msgid "Set defaults for conversion of comics (CBR/CBZ files)"
@@ -8699,7 +8702,7 @@ msgstr "Llibre %d:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:400
 msgid "Enter an identifier type"
-msgstr ""
+msgstr "Introduïu un tipus d'identificador"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:405
 msgid ""
@@ -8766,7 +8769,7 @@ msgstr "Heu d'especificar una destinació quant la font és un camp compost"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:652
 msgid "You must specify a destination identifier type"
-msgstr ""
+msgstr "Heu d'especificar un tipus d'identificador de destí"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:756
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:775
@@ -9082,12 +9085,12 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:593
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:615
 msgid "Identifier type:"
-msgstr ""
+msgstr "Tipus d'identificador:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:594
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:616
 msgid "Choose which identifier type to operate upon"
-msgstr ""
+msgstr "Trieu sobre quin tipus d'identificador s'intervindrà"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:595
 msgid "Te&mplate:"
@@ -9736,10 +9739,18 @@ msgid ""
 "                soon after 9:00 AM as possible.\n"
 "            "
 msgstr ""
+"                Descarrega aquesta publicació cada setmana, els dies "
+"especificats, després\n"
+"                de l'hora especificada. Per exemple, si trieu «Dilluns "
+"després de les 9:00\n"
+"                AM», la publicació es descarregarà cada dilluns després de "
+"les 9:00 AM,\n"
+"                tan aviat com sigui possible.\n"
+"            "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:61
 msgid "&Download after:"
-msgstr ""
+msgstr "&Descarrega després de:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:91
 msgid ""
@@ -9753,18 +9764,30 @@ msgid ""
 "                month, as soon after 9:00 AM as possible.\n"
 "            "
 msgstr ""
+"                Descarrega aquesta publicació cada mes, els dies "
+"especificats. La\n"
+"                descàrrega es farà tan aviat com sigui possible després de "
+"l'hora\n"
+"                especificada els dies especificats de cada pes. Per exemple, "
+"si trieu\n"
+"                els dies 1 i 15 després de les 9:00 AM, la publicació es "
+"descarregarà\n"
+"                els dies 1 i 15 de cada mes tan aviat com sigui possible "
+"després de\n"
+"                les 9:00 AM.\n"
+"            "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:103
 msgid "&Days of the month:"
-msgstr ""
+msgstr "&Dies del mes:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:105
 msgid "Comma separated list of days of the month. For example: 1, 15"
-msgstr ""
+msgstr "Llista separada per comes dels dies del mes. Per exemple: 1, 15"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:109
 msgid "Download &after:"
-msgstr ""
+msgstr "Desc&arrega després de:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:142
 msgid ""
@@ -9775,23 +9798,33 @@ msgid ""
 "                0.1 days to download a periodical more than once a day.\n"
 "            "
 msgstr ""
+"                Descarrega aquesta publicació cada x dies. Per exemple, si "
+"trieu 30 dies\n"
+"                la publicació es descarregarà cada 30 dies. Podeu establir "
+"intervals de\n"
+"                menys d'un dia, com 0.1 dies, per descarregar una publicació "
+"més d'un\n"
+"                cop al dia.\n"
+"            "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:151
 msgid "&Download every:"
-msgstr ""
+msgstr "&Descarrega cada:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:154
 msgid "every hour"
-msgstr ""
+msgstr "cada hora"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:157
 msgid "days"
-msgstr ""
+msgstr "dies"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:161
 msgid ""
 "Note: You can set intervals of less than a day, by typing the value manually."
 msgstr ""
+"Nota: Podeu establir intervals de menys d'un dia, introduint el valor "
+"manualment."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:196
 msgid "%s news sources"
@@ -9829,7 +9862,7 @@ msgstr "Darrera descàrrega: mai"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:373
 msgid "never"
-msgstr ""
+msgstr "mai"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:379
 msgid "%d days, %d hours and %d minutes ago"
@@ -9837,7 +9870,7 @@ msgstr "Fa %d dies, %d hores i %d minuts"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:393
 msgid "Last downloaded:"
-msgstr ""
+msgstr "Darrer cop que s'ha descarregat:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:421
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:197
@@ -9875,15 +9908,15 @@ msgstr "Planifica la de&scàrrega:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:201
 msgid "Days of  week"
-msgstr ""
+msgstr "Dies de la setmana"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:202
 msgid "Days of month"
-msgstr ""
+msgstr "Dies del mes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:203
 msgid "Every x days"
-msgstr ""
+msgstr "Cada x dies"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:204
 msgid "&Account"
@@ -10503,7 +10536,7 @@ msgstr "&Comparteix la recepta"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:262
 msgid "S&how recipe files"
-msgstr ""
+msgstr "&Mostra els fitxers de recepta"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:263
 msgid "Customize &builtin recipe"
@@ -10596,19 +10629,19 @@ msgstr "Codi font de la recepta (python)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dnd.py:51
 msgid "Download %s"
-msgstr ""
+msgstr "Descarrega %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dnd.py:54
 msgid "Downloading <b>%s</b> from %s"
-msgstr ""
+msgstr "S'està descarregant <b>%s</b> de %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dnd.py:84
 msgid "Download failed"
-msgstr ""
+msgstr "No s'ha pogut descarregar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dnd.py:85
 msgid "Failed to download from %r with error: %s"
-msgstr ""
+msgstr "No s'ha pogut descarregar de %r. Hi ha hagut l'error: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:146
 msgid "Email %s to %s"
@@ -11858,7 +11891,7 @@ msgstr "Tipus d'informació que hi haurà a la columna."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:190
 msgid "Show checkmarks"
-msgstr ""
+msgstr "Mostra les marques de verificació"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:191
 msgid ""
@@ -11867,6 +11900,11 @@ msgid ""
 "a red X.\n"
 "Everything else will show nothing."
 msgstr ""
+"Mostra les marques de verificació a la interfície gràfica. Els valors «yes», "
+"«checked» i «true»\n"
+"es veuran amb una marca verda. El valors «no», «unchecked» i «false» es "
+"veuran amb una X vermella.\n"
+"Amb qualsevol altra cosa no es mostrarà res."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:194
 msgid ""
@@ -16426,7 +16464,7 @@ msgid ""
 "strings. Returns lt if x < y. Returns eq if x == y. Otherwise returns gt."
 msgstr ""
 "strcmp(x, y, lt, eq, gt) -- fa una comparació, sense distinció de majúscules "
-"i minúscules, de x i y com a cadenes.  if x < y. S'obté «eq» si x == y. En "
+"i minúscules, de x i y com a cadenes.  Si x < y. s'obté «eq» si x == y. En "
 "cas contrari s'obté «gt»."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:112
@@ -16692,6 +16730,15 @@ msgid ""
 "{tags:sublist(-1,0,\\,)} returns \"C\". {tags:sublist(0,-1,\\,)} returns "
 "\"A, B\"."
 msgstr ""
+"sublist(val, inici_índex, final_índex, separador) -- interpreta el valor com "
+"una llista d'elements separats per un «separador» i s'obté una llista nova "
+"des l'element al lloc «inici_índex» fins a l'element al lloc «final_índex». "
+"El primer element està a la posició zero. Si un índex és negatiu, es compta "
+"des del final de la llista. Com a cas particular, s'assumeix que un "
+"«final_índex» de zero és la longitud de la llista. Exemples utilitzant el "
+"mode bàsic de plantilla, assumint que la columna d'etiquetes (valors "
+"separats per comes) conté «A, B, C»: {tags:sublist(0,1,\\,)} dóna «A». "
+"{tags:sublist(-1,0,\\,)} dóna «C». {tags:sublist(0,-1,\\,)} dóna «A, B»."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:458
 msgid ""
@@ -16710,6 +16757,21 @@ msgid ""
 "{#genre:subitems(0,1)} returns \"A, D\". {#genre:subitems(0,2)} returns "
 "\"A.B, D.E\""
 msgstr ""
+"subitems(val, inici_índex, final_índex) -- aquesta funció es fa servir per "
+"separar llistes d'elements com gèneres. Interpreta el valor com una llista "
+"d'elements separats per comes i cada element és una llista separada per "
+"punts. S'obté una llista nova formada primer cercant als elements separats "
+"per punts i després, per cada element d'aquests se'n treu els components des "
+"del que hi ha al lloc «inici_índex» fin al del lloc «final_índex» i després "
+"es tornen a combinar els resultats. El primer component d'una llista "
+"separada per punts té la posició zero. Si un índex es negatiu, es compta des "
+"del final de la llista. Com a cas particular, s'assumeix que un "
+"«final_índex» de zero és la longitud de la llista. Exemples utilitzant el "
+"mode bàsic de plantilla, assumint un valor de «#gènere» de «A.B.C»: "
+"{#gènere:subitems(0,1)} dóna «A». {#gènere:subitems(0,2)} dóna «A.B». "
+"{#gènere:subitems(1,0)} dóna «B.C». Assumint un valor de «#gènere» de "
+"«A.B.C, D.E.F», {#gènere:subitems(0,1)} dóna «A, D». {#gènere:subitems(0,2)} "
+"dóna «A.B, D.E»"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:495
 msgid ""
