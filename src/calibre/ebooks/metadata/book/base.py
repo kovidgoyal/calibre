@@ -127,7 +127,7 @@ class Metadata(object):
             field, val = self._clean_identifier(field, val)
             _data['identifiers'].update({field: val})
         elif field == 'identifiers':
-            if val is None:
+            if not val:
                 val = copy.copy(NULL_VALUES.get('identifiers', None))
             self.set_identifiers(val)
         elif field in STANDARD_METADATA_FIELDS:
