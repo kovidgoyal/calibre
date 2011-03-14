@@ -38,7 +38,7 @@ class GutenbergStore(BasicStoreConfig, StorePlugin):
             d = WebStoreDialog(self.gui, url, parent, detail_url)
             d.setWindowTitle(self.name)
             d.set_tags(settings.get(self.name + '_tags', ''))
-            d = d.exec_()
+            d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
         # Gutenberg's website does not allow searching both author and title.

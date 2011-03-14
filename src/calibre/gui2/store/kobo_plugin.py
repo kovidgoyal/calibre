@@ -45,7 +45,7 @@ class KoboStore(BasicStoreConfig, StorePlugin):
             d = WebStoreDialog(self.gui, url, parent, detail_url)
             d.setWindowTitle(self.name)
             d.set_tags(settings.get(self.name + '_tags', ''))
-            d = d.exec_()
+            d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
         url = 'http://www.kobobooks.com/search/search.html?q=' + urllib2.quote(query)

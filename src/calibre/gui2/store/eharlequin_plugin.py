@@ -50,7 +50,7 @@ class EHarlequinStore(BasicStoreConfig, StorePlugin):
             d = WebStoreDialog(self.gui, url, parent, detail_url)
             d.setWindowTitle(self.name)
             d.set_tags(settings.get(self.name + '_tags', ''))
-            d = d.exec_()
+            d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
         url = 'http://ebooks.eharlequin.com/BANGSearch.dll?Type=FullText&FullTextField=All&FullTextCriteria=' + urllib2.quote(query)

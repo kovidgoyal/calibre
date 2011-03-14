@@ -43,7 +43,7 @@ class DieselEbooksStore(BasicStoreConfig, StorePlugin):
             d = WebStoreDialog(self.gui, url, parent, detail_url)
             d.setWindowTitle(self.name)
             d.set_tags(settings.get(self.name + '_tags', ''))
-            d = d.exec_()
+            d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
         url = 'http://www.diesel-ebooks.com/index.php?page=seek&id[m]=&id[c]=scope%253Dinventory&id[q]=' + urllib2.quote(query)
