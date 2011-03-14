@@ -26,19 +26,14 @@ class EHarlequinStore(BasicStoreConfig, StorePlugin):
     def open(self, parent=None, detail_item=None, external=False):
         settings = self.get_settings()
 
-        '''
         m_url = 'http://www.dpbolvw.net/'
-        h_click = 'click-4879827-10762497'
-        d_click = 'click-4879827-10772898'
+        h_click = 'click-4879827-534091'
+        d_click = 'click-4879827-10375439'
         # Use Kovid's affiliate id 30% of the time.
         if random.randint(1, 10) in (1, 2, 3):
-            h_click = 'click-4913808-10762497'
-            d_click = 'click-4913808-10772898'
-        '''
-        m_url = 'http://ebooks.eharlequin.com/'
-        h_click = ''
-        d_click = ''
-        
+            h_click = 'click-4913808-534091'
+            d_click = 'click-4913808-10375439'
+
         url = m_url + h_click
         detail_url = None
         if detail_item:
@@ -80,7 +75,6 @@ class EHarlequinStore(BasicStoreConfig, StorePlugin):
                 s.title = title.strip()
                 s.author = author.strip()
                 s.price = price.strip()
-                s.detail_item = id.strip()
-                #s.detail_item = '?url=http://www.kobobooks.com/' + id.strip()
+                s.detail_item = '?url=http://ebooks.eharlequin.com/' + id.strip()
                 
                 yield s
