@@ -176,6 +176,7 @@ class MobeReadStoreDialog(QDialog, Ui_Dialog):
         self.results_view.model().sort_col = self.plugin.config.get('store_mobileread_dialog_sort_col', 0)
         self.results_view.model().sort_order = self.plugin.config.get('store_mobileread_dialog_sort_order', Qt.AscendingOrder)
         self.results_view.model().sort(self.results_view.model().sort_col, self.results_view.model().sort_order)
+        self.results_view.header().setSortIndicator(self.results_view.model().sort_col, self.results_view.model().sort_order)
 
     def save_state(self):
         self.plugin.config['store_mobileread_dialog_geometry'] = self.saveGeometry()
