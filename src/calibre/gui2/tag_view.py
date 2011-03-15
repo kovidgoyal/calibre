@@ -291,6 +291,14 @@ class TagsView(QTreeView): # {{{
             return
 
     def show_context_menu(self, point):
+        def display_name( tag):
+            if tag.category == 'search':
+                n = tag.name
+                if len(n) > 45:
+                    n = n[:45] + '...'
+                return "'" + n + "'"
+            return tag.name
+
         index = self.indexAt(point)
         self.context_menu = QMenu(self)
 
@@ -321,18 +329,18 @@ class TagsView(QTreeView): # {{{
                     if tag.is_editable:
                         # Add the 'rename' items
                         self.context_menu.addAction(self.rename_icon,
-                                                    _('Rename %s')%tag.name,
+                                                    _('Rename %s')%display_name(tag),
                             partial(self.context_menu_handler, action='edit_item',
                                     index=index))
                         if key == 'authors':
-                            self.context_menu.addAction(_('Edit sort for %s')%tag.name,
+                            self.context_menu.addAction(_('Edit sort for %s')%display_name(tag),
                                     partial(self.context_menu_handler,
                                             action='edit_author_sort', index=tag.id))
 
                         # is_editable is also overloaded to mean 'can be added
                         # to a user category'
                         m = self.context_menu.addMenu(self.user_category_icon,
-                                        _('Add %s to user category')%tag.name)
+                                        _('Add %s to user category')%display_name(tag))
                         nt = self.model().category_node_tree
                         def add_node_tree(tree_dict, m, path):
                             p = path[:]
@@ -351,27 +359,28 @@ class TagsView(QTreeView): # {{{
                         add_node_tree(nt, m, [])
                     elif key == 'search':
                         self.context_menu.addAction(self.rename_icon,
-                                                    _('Rename %s')%tag.name,
+                                                    _('Rename %s')%display_name(tag),
                             partial(self.context_menu_handler, action='edit_item',
                                     index=index))
                         self.context_menu.addAction(self.delete_icon,
-                                _('Delete search %s')%tag.name,
+                                _('Delete search %s')%display_name(tag),
                                 partial(self.context_menu_handler,
                                         action='delete_search', key=tag.name))
                     if key.startswith('@') and not item.is_gst:
                         self.context_menu.addAction(self.user_category_icon,
-                                _('Remove %s from category %s')%(tag.name, item.py_name),
+                                _('Remove %s from category %s')%
+                                            (display_name(tag), item.py_name),
                                 partial(self.context_menu_handler,
                                         action='delete_item_from_user_category',
                                         key = key, index = tag_item))
                     # Add the search for value items. All leaf nodes are searchable
                     self.context_menu.addAction(self.search_icon,
-                            _('Search for %s')%tag.name,
+                            _('Search for %s')%display_name(tag),
                             partial(self.context_menu_handler, action='search',
                                     search_state=TAG_SEARCH_STATES['mark_plus'],
                                     index=index))
                     self.context_menu.addAction(self.search_icon,
-                            _('Search for everything but %s')%tag.name,
+                            _('Search for everything but %s')%display_name(tag),
                             partial(self.context_menu_handler, action='search',
                                     search_state=TAG_SEARCH_STATES['mark_minus'],
                                     index=index))
