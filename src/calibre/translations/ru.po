@@ -7,13 +7,13 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-03-11 20:33+0000\n"
-"PO-Revision-Date: 2011-03-14 02:34+0000\n"
+"PO-Revision-Date: 2011-03-14 18:01+0000\n"
 "Last-Translator: Andrey Olykainen <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-03-14 04:45+0000\n"
+"X-Launchpad-Export-Date: 2011-03-15 04:54+0000\n"
 "X-Generator: Launchpad (build 12559)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
@@ -15509,23 +15509,23 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:122
 msgid "Spanish (Ecuador)"
-msgstr ""
+msgstr "Испанский (Эквадор)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:123
 msgid "Spanish (Honduras)"
-msgstr ""
+msgstr "Испанский (Гондурас)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:124
 msgid "Spanish (Venezuela)"
-msgstr ""
+msgstr "Испанский (Венесуэла)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:125
 msgid "Spanish (Bolivia)"
-msgstr ""
+msgstr "Испанский (Боливия)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:126
 msgid "Spanish (Nicaragua)"
-msgstr ""
+msgstr "Испанский (Никарагуа)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:127
 msgid "German (AT)"
