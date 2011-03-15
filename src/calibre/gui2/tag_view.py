@@ -81,6 +81,7 @@ class TagsView(QTreeView): # {{{
     add_subcategory         = pyqtSignal(object)
     tag_list_edit           = pyqtSignal(object, object)
     saved_search_edit       = pyqtSignal(object)
+    rebuild_saved_searches  = pyqtSignal()
     author_sort_edit        = pyqtSignal(object, object)
     tag_item_renamed        = pyqtSignal()
     search_item_renamed     = pyqtSignal()
@@ -111,6 +112,8 @@ class TagsView(QTreeView): # {{{
             self.collapse_model = gprefs['tags_browser_partition_method']
         self.search_icon = QIcon(I('search.png'))
         self.user_category_icon = QIcon(I('tb_folder.png'))
+        self.delete_icon = QIcon(I('list_remove.png'))
+        self.rename_icon = QIcon(I('edit-undo.png'))
 
     def set_pane_is_visible(self, to_what):
         pv = self.pane_is_visible
@@ -251,6 +254,10 @@ class TagsView(QTreeView): # {{{
             if action == 'delete_user_category':
                 self.delete_user_category.emit(key)
                 return
+            if action == 'delete_search':
+                saved_searches().delete(key)
+                self.rebuild_saved_searches.emit()
+                return
             if action == 'delete_item_from_user_category':
                 tag = index.tag
                 if len(index.children) > 0:
@@ -313,7 +320,8 @@ class TagsView(QTreeView): # {{{
                     # the possibility of renaming that item.
                     if tag.is_editable:
                         # Add the 'rename' items
-                        self.context_menu.addAction(_('Rename %s')%tag.name,
+                        self.context_menu.addAction(self.rename_icon,
+                                                    _('Rename %s')%tag.name,
                             partial(self.context_menu_handler, action='edit_item',
                                     index=index))
                         if key == 'authors':
@@ -341,7 +349,15 @@ class TagsView(QTreeView): # {{{
                                     add_node_tree(tree_dict[k], tm, p)
                                 p.pop()
                         add_node_tree(nt, m, [])
-
+                    elif key == 'search':
+                        self.context_menu.addAction(self.rename_icon,
+                                                    _('Rename %s')%tag.name,
+                            partial(self.context_menu_handler, action='edit_item',
+                                    index=index))
+                        self.context_menu.addAction(self.delete_icon,
+                                _('Delete search %s')%tag.name,
+                                partial(self.context_menu_handler,
+                                        action='delete_search', key=tag.name))
                     if key.startswith('@') and not item.is_gst:
                         self.context_menu.addAction(self.user_category_icon,
                                 _('Remove %s from category %s')%(tag.name, item.py_name),
@@ -362,7 +378,7 @@ class TagsView(QTreeView): # {{{
                     self.context_menu.addSeparator()
                 elif key.startswith('@') and not item.is_gst:
                     if item.can_be_edited:
-                        self.context_menu.addAction(self.user_category_icon,
+                        self.context_menu.addAction(self.rename_icon,
                             _('Rename %s')%item.py_name,
                             partial(self.context_menu_handler, action='edit_item',
                                     index=index))
@@ -370,7 +386,7 @@ class TagsView(QTreeView): # {{{
                             _('Add sub-category to %s')%item.py_name,
                             partial(self.context_menu_handler,
                                     action='add_subcategory', key=key))
-                    self.context_menu.addAction(self.user_category_icon,
+                    self.context_menu.addAction(self.delete_icon,
                             _('Delete user category %s')%item.py_name,
                             partial(self.context_menu_handler,
                                     action='delete_user_category', key=key))
@@ -1768,6 +1784,7 @@ class TagBrowserMixin(object): # {{{
         self.tags_view.add_subcategory.connect(self.do_add_subcategory)
         self.tags_view.add_item_to_user_cat.connect(self.do_add_item_to_user_cat)
         self.tags_view.saved_search_edit.connect(self.do_saved_search_edit)
+        self.tags_view.rebuild_saved_searches.connect(self.do_rebuild_saved_searches)
         self.tags_view.author_sort_edit.connect(self.do_author_sort_edit)
         self.tags_view.tag_item_renamed.connect(self.do_tag_item_renamed)
         self.tags_view.search_item_renamed.connect(self.saved_searches_changed)
