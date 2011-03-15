@@ -1251,6 +1251,7 @@ def metadata_to_opf(mi, as_string=True):
     from lxml import etree
     import textwrap
     from calibre.ebooks.oeb.base import OPF, DC
+    from calibre.utils.cleantext import clean_ascii_chars
 
     if not mi.application_id:
         mi.application_id = str(uuid.uuid4())
@@ -1306,7 +1307,7 @@ def metadata_to_opf(mi, as_string=True):
     if hasattr(mi, 'category') and mi.category:
         factory(DC('type'), mi.category)
     if mi.comments:
-        factory(DC('description'), mi.comments)
+        factory(DC('description'), clean_ascii_chars(mi.comments))
     if mi.publisher:
         factory(DC('publisher'), mi.publisher)
     for key, val in mi.get_identifiers().iteritems():
