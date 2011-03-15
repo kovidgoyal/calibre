@@ -453,8 +453,11 @@ class SavedSearchBoxMixin(object): # {{{
         d = SavedSearchEditor(self, search)
         d.exec_()
         if d.result() == d.Accepted:
-            self.saved_searches_changed()
-            self.saved_search.clear()
+            self.do_rebuild_saved_searches()
+
+    def do_rebuild_saved_searches(self):
+        self.saved_searches_changed()
+        self.saved_search.clear()
 
     # }}}
 
