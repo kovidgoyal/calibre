@@ -7,13 +7,13 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-03-11 20:33+0000\n"
-"PO-Revision-Date: 2011-03-14 18:01+0000\n"
+"PO-Revision-Date: 2011-03-15 18:12+0000\n"
 "Last-Translator: Andrey Olykainen <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-03-15 04:54+0000\n"
+"X-Launchpad-Export-Date: 2011-03-16 04:46+0000\n"
 "X-Generator: Launchpad (build 12559)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
@@ -8704,7 +8704,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:98
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:429
 msgid "Last modified: %s"
-msgstr ""
+msgstr "Последняя модификация: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:122
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:128
@@ -8794,7 +8794,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:339
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:560
 msgid "You do not have permission to read the following files:"
-msgstr ""
+msgstr "Нет разрешений для чтения следующих файлов:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:366
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:367
@@ -8989,7 +8989,7 @@ msgstr "ISBN"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:441
 msgid "dd MMM yyyy"
-msgstr ""
+msgstr "дд МММ гггг"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:442
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1029
@@ -9101,7 +9101,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:25
 msgid "Restoring database"
-msgstr ""
+msgstr "Восстановление базы данных"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:79
 msgid ""
@@ -9126,7 +9126,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:112
 msgid "Restoring database was successful"
-msgstr ""
+msgstr "Восстановление базы данных прошло успешно"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor.py:55
 msgid ""
@@ -9218,11 +9218,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:154
 msgid "every hour"
-msgstr ""
+msgstr "каждый час"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:157
 msgid "days"
-msgstr ""
+msgstr "дня(ей)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:161
 msgid ""
@@ -9245,15 +9245,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:346
 msgid "Account"
-msgstr ""
+msgstr "Учётная запись"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:347
 msgid "(optional)"
-msgstr ""
+msgstr "(опционально)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:348
 msgid "(required)"
-msgstr ""
+msgstr "(необходимо)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:365
 msgid "Created by: "
@@ -9265,7 +9265,7 @@ msgstr "Последняя загрузка: никогда"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:373
 msgid "never"
-msgstr ""
+msgstr "никогда"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:379
 msgid "%d days, %d hours and %d minutes ago"
@@ -9290,7 +9290,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:534
 msgid "No internet connection"
-msgstr ""
+msgstr "Нет соединения с интернетом"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:535
 msgid "Cannot download news as no internet connection is active"
@@ -9557,7 +9557,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:215
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:151
 msgid "Name already used"
-msgstr ""
+msgstr "Имя уже используется"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:186
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:216
@@ -9575,7 +9575,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:167
 msgid "Category name: "
-msgstr ""
+msgstr "Название категории: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:168
 msgid "Select a category to edit"
@@ -9591,7 +9591,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:172
 msgid "Add a new category"
-msgstr ""
+msgstr "Добавить новую категорию"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:174
 msgid "Rename the current category to the what is in the box"
@@ -9680,7 +9680,7 @@ msgstr "Добавить тег к существующим и применит�
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:21
 msgid "%s (was %s)"
-msgstr ""
+msgstr "%s (было %s)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:85
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1325
@@ -9694,7 +9694,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:99
 msgid "No item selected"
-msgstr ""
+msgstr "Ничего не выбрано"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:100
 msgid "You must select one item from the list of Available items."
@@ -10529,7 +10529,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:61
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:678
 msgid "Calibre Library"
-msgstr ""
+msgstr "Библиотека Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:89
 msgid "Choose a location for your calibre e-book library"
@@ -10571,7 +10571,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:210
 msgid "Corrupted database"
-msgstr ""
+msgstr "Поврежденная база данных"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:211
 msgid ""
@@ -15461,7 +15461,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:110
 msgid "English (Indonesia)"
-msgstr ""
+msgstr "Английский (Индонезия)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:111
 msgid "English (Israel)"
@@ -15489,23 +15489,23 @@ msgstr "Испанский язык (Парагвай)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:117
 msgid "Spanish (Uruguay)"
-msgstr ""
+msgstr "Испанский (Уругвай)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:118
 msgid "Spanish (Argentina)"
-msgstr ""
+msgstr "Испанский (Аргентина)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:119
 msgid "Spanish (Mexico)"
-msgstr ""
+msgstr "Испанский (Мексика)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:120
 msgid "Spanish (Cuba)"
-msgstr ""
+msgstr "Испанский (Куба)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:121
 msgid "Spanish (Chile)"
-msgstr ""
+msgstr "Испанский (Чили)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:122
 msgid "Spanish (Ecuador)"
