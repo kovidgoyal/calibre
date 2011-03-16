@@ -202,13 +202,19 @@ class CheckLibraryDialog(QDialog):
         <p><i>Delete marked</i> is used to remove extra files/folders/covers that
         have no entries in the database. Check the box next to the item you want
         to delete. Use with caution.</p>
-        <p><i>Fix marked</i> is applicable only to covers (the two lines marked
-        'fixable'). In the case of missing cover files, checking the fixable
-        box and pushing this button will remove the cover mark from the
-        database for all the files in that category. In the case of extra
-        cover files, checking the fixable box and pushing this button will
-        add the cover mark to the database for all the files in that
-        category.</p>
+
+        <p><i>Fix marked</i> is applicable only to covers and missing formats
+        (the three lines marked 'fixable'). In the case of missing cover files,
+        checking the fixable box and pushing this button will tell calibre that
+        there is no cover for all of the books listed. Use this option if you
+        are not going to restore the covers from a backup. In the case of extra
+        cover files, checking the fixable box and pushing this button will tell
+        calibre that the cover files it found are correct for all the books
+        listed. Use this when you are not going to delete the file(s). In the
+        case of missing formats, checking the fixable box and pushing this
+        button will tell calibre that the formats are really gone. Use this if
+        you are not going to restore the formats from a backup.</p>
+
         '''))
 
         self.log = QTreeWidget(self)
@@ -380,6 +386,19 @@ class CheckLibraryDialog(QDialog):
                             os.path.join(self.db.library_path,
                                 unicode(it.text(1))))
         self.run_the_check()
+
+    def fix_missing_formats(self):
+        tl = self.top_level_items['missing_formats']
+        child_count = tl.childCount()
+        for i in range(0, child_count):
+            item = tl.child(i);
+            id = item.data(0, Qt.UserRole).toInt()[0]
+            all = self.db.formats(id, index_is_id=True, verify_formats=False)
+            all = set([f.strip() for f in all.split(',')]) if all else set()
+            valid = self.db.formats(id, index_is_id=True, verify_formats=True)
+            valid = set([f.strip() for f in valid.split(',')]) if valid else set()
+            for fmt in all-valid:
+                self.db.remove_format(id, fmt, index_is_id=True, db_only=True)
 
     def fix_missing_covers(self):
         tl = self.top_level_items['missing_covers']
