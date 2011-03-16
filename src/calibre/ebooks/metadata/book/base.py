@@ -127,6 +127,8 @@ class Metadata(object):
             field, val = self._clean_identifier(field, val)
             _data['identifiers'].update({field: val})
         elif field == 'identifiers':
+            if not val:
+                val = copy.copy(NULL_VALUES.get('identifiers', None))
             self.set_identifiers(val)
         elif field in STANDARD_METADATA_FIELDS:
             if val is None:
@@ -169,10 +171,13 @@ class Metadata(object):
                     pass
             return default
 
-    def get_extra(self, field):
+    def get_extra(self, field, default=None):
         _data = object.__getattribute__(self, '_data')
         if field in _data['user_metadata'].iterkeys():
-            return _data['user_metadata'][field]['#extra#']
+            try:
+                return _data['user_metadata'][field]['#extra#']
+            except:
+                return default
         raise AttributeError(
                 'Metadata object has no attribute named: '+ repr(field))
 
@@ -646,6 +651,9 @@ class Metadata(object):
             fmt('Published', isoformat(self.pubdate))
         if self.rights is not None:
             fmt('Rights', unicode(self.rights))
+        if self.identifiers:
+            fmt('Identifiers', u', '.join(['%s:%s'%(k, v) for k, v in
+                self.identifiers.iteritems()]))
         for key in self.custom_field_keys():
             val = self.get(key, None)
             if val:

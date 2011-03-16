@@ -225,6 +225,12 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.action_quit.setShortcuts(qs)
         self.connect(self.action_quit, SIGNAL('triggered(bool)'),
                      lambda x:QApplication.instance().quit())
+        self.action_focus_search = QAction(self)
+        self.addAction(self.action_focus_search)
+        self.action_focus_search.setShortcuts([Qt.Key_Slash,
+            QKeySequence(QKeySequence.Find)])
+        self.action_focus_search.triggered.connect(lambda x:
+                self.search.setFocus(Qt.OtherFocusReason))
         self.action_copy.setDisabled(True)
         self.action_metadata.setCheckable(True)
         self.action_metadata.setShortcut(Qt.CTRL+Qt.Key_I)
@@ -293,6 +299,9 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         ca.setShortcut(QKeySequence.Copy)
         self.addAction(ca)
         self.open_history_menu = QMenu()
+        self.clear_recent_history_action = QAction(
+                _('Clear list of recently opened books'), self)
+        self.clear_recent_history_action.triggered.connect(self.clear_recent_history)
         self.build_recent_menu()
         self.action_open_ebook.setMenu(self.open_history_menu)
         self.open_history_menu.triggered[QAction].connect(self.open_recent)
@@ -301,11 +310,19 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
 
         self.restore_state()
 
+    def clear_recent_history(self, *args):
+        vprefs.set('viewer_open_history', [])
+        self.build_recent_menu()
+
     def build_recent_menu(self):
         m = self.open_history_menu
         m.clear()
+        recent = vprefs.get('viewer_open_history', [])
+        if recent:
+            m.addAction(self.clear_recent_history_action)
+            m.addSeparator()
         count = 0
-        for path in vprefs.get('viewer_open_history', []):
+        for path in recent:
             if count > 9:
                 break
             if os.path.exists(path):
@@ -493,12 +510,6 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.pending_search_dir = None
         if self.view.search(text, backwards=backwards):
             self.scrolled(self.view.scroll_fraction)
-
-    def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Slash:
-            self.search.setFocus(Qt.OtherFocusReason)
-        else:
-            return MainWindow.keyPressEvent(self, event)
 
     def internal_link_clicked(self, frac):
         self.history.add(self.pos.value())

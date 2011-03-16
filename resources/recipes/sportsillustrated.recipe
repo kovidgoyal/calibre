@@ -1,6 +1,7 @@
 from calibre.web.feeds.recipes import BasicNewsRecipe
 #from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from urllib import quote
+import re
 
 class SportsIllustratedRecipe(BasicNewsRecipe) :
     __author__  = 'kwetal'
@@ -15,65 +16,52 @@ class SportsIllustratedRecipe(BasicNewsRecipe) :
     remove_javascript = True
     use_embedded_content   = False
 
-    INDEX = 'http://sportsillustrated.cnn.com/'
+    INDEX = 'http://sportsillustrated.cnn.com/vault/cover/home/index.htm'
 
     def parse_index(self):
         answer = []
         soup = self.index_to_soup(self.INDEX)
-        # Find the link to the current issue on the front page. SI Cover
-        cover = soup.find('img', attrs = {'alt' : 'Read All Articles', 'style' : 'vertical-align:bottom;'})
-        if cover:
-            currentIssue = cover.parent['href']
-            if currentIssue:
-                # Open the index of current issue
 
-                index = self.index_to_soup(currentIssue)
-                self.log('\tLooking for current issue in: ' + currentIssue)
-                # Now let us see if they updated their frontpage
-                nav = index.find('div', attrs = {'class': 'siv_trav_top'})
-                if nav:
-                    img = nav.find('img', attrs = {'src': 'http://i.cdn.turner.com/sivault/.element/img/1.0/btn_next_v2.jpg'})
-                    if img:
-                        parent = img.parent
-                        if parent.name == 'a':
-                            # They didn't update their frontpage; Load the next issue from here
-                            href = self.INDEX + parent['href']
-                            index = self.index_to_soup(href)
-                            self.log('\tLooking for current issue in: ' + href)
+        #Loop through all of the "latest" covers until we find one that actually has articles
+        for item in soup.findAll('div', attrs={'id': re.compile("ecomthumb_latest_*")}):
+            regex = re.compile('ecomthumb_latest_(\d*)')
+            result = regex.search(str(item))
+            current_issue_number = str(result.group(1))
+            current_issue_link = 'http://sportsillustrated.cnn.com/vault/cover/toc/' + current_issue_number + '/index.htm'
+            self.log('Checking this link for a TOC:  ', current_issue_link)
 
+            index = self.index_to_soup(current_issue_link)
+            if index:
                 if index.find('div', 'siv_noArticleMessage'):
-                    nav = index.find('div', attrs = {'class': 'siv_trav_top'})
-                    if nav:
-                    # Their frontpage points to an issue without any articles; Use the previous issue
-                        img = nav.find('img', attrs = {'src': 'http://i.cdn.turner.com/sivault/.element/img/1.0/btn_previous_v2.jpg'})
-                        if img:
-                            parent = img.parent
-                            if parent.name == 'a':
-                                href = self.INDEX + parent['href']
-                                index = self.index_to_soup(href)
-                                self.log('\tLooking for current issue in: ' + href)
+                    self.log('No TOC for this one.  Skipping...')
+                else:
+                    self.log('Found a TOC...  Using this link')
+                    break
 
+        # Find all articles.
+        list = index.find('div', attrs = {'class' : 'siv_artList'})
+        if list:
+            self.log ('found siv_artList')
+            articles = []
+            # Get all the artcles ready for calibre.
+            counter = 0
+            for headline in list.findAll('div', attrs = {'class' : 'headline'}):
+                counter = counter + 1
+                title = self.tag_to_string(headline.a) + '\n' + self.tag_to_string(headline.findNextSibling('div', attrs = {'class' : 'info'}))
+                url = self.INDEX + headline.a['href']
+                description = self.tag_to_string(headline.findNextSibling('a').div)
+                article = {'title' : title, 'date' : u'', 'url'  : url, 'description' : description}
+                articles.append(article)
+                if counter > 5:
+                    break
 
-                # Find all articles.
-                list = index.find('div', attrs = {'class' : 'siv_artList'})
-                if list:
-                    articles = []
-                    # Get all the artcles ready for calibre.
-                    for headline in list.findAll('div', attrs = {'class' : 'headline'}):
-                        title = self.tag_to_string(headline.a) + '\n' + self.tag_to_string(headline.findNextSibling('div', attrs = {'class' : 'info'}))
-                        url = self.INDEX + headline.a['href']
-                        description = self.tag_to_string(headline.findNextSibling('a').div)
-                        article = {'title' : title, 'date' : u'', 'url'  : url, 'description' : description}
+            # See if we can find a meaningfull title
+            feedTitle = 'Current Issue'
+            hasTitle = index.find('div', attrs = {'class' : 'siv_imageText_head'})
+            if hasTitle :
+                feedTitle = self.tag_to_string(hasTitle.h1)
 
-                        articles.append(article)
-
-                    # See if we can find a meaningfull title
-                    feedTitle = 'Current Issue'
-                    hasTitle = index.find('div', attrs = {'class' : 'siv_imageText_head'})
-                    if hasTitle :
-                        feedTitle = self.tag_to_string(hasTitle.h1)
-
-                    answer.append([feedTitle, articles])
+            answer.append([feedTitle, articles])
 
         return answer
 
@@ -82,6 +70,7 @@ class SportsIllustratedRecipe(BasicNewsRecipe) :
         # This is the url and the parameters that work to get the print version.
         printUrl = 'http://si.printthis.clickability.com/pt/printThis?clickMap=printThis'
         printUrl += '&fb=Y&partnerID=2356&url=' + quote(url)
+        self.log('PrintURL: ' , printUrl)
 
         return printUrl
 
@@ -116,4 +105,3 @@ class SportsIllustratedRecipe(BasicNewsRecipe) :
 
         return homeMadeSoup
         '''
-
