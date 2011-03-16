@@ -1154,15 +1154,18 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if notify:
             self.notify('delete', [id])
 
-    def remove_format(self, index, format, index_is_id=False, notify=True, commit=True):
+    def remove_format(self, index, format, index_is_id=False, notify=True,
+                      commit=True, db_only=False):
         id = index if index_is_id else self.id(index)
         name = self.conn.get('SELECT name FROM data WHERE book=? AND format=?', (id, format), all=False)
         if name:
-            path = self.format_abspath(id, format, index_is_id=True)
-            try:
-                delete_file(path)
-            except:
-                traceback.print_exc()
+            if not db_only:
+                try:
+                    path = self.format_abspath(id, format, index_is_id=True)
+                    if path:
+                        delete_file(path)
+                except:
+                    traceback.print_exc()
             self.conn.execute('DELETE FROM data WHERE book=? AND format=?', (id, format.upper()))
             if commit:
                 self.conn.commit()
