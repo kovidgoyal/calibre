@@ -19,7 +19,7 @@ from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.utils.date import parse_date, utcnow
 from calibre.utils.cleantext import clean_ascii_chars
-from calibre import browser, as_unicode
+from calibre import as_unicode
 
 NAMESPACES = {
               'openSearch':'http://a9.com/-/spec/opensearchrss/1.0/',
@@ -150,7 +150,7 @@ class GoogleBooks(Source):
 
     def create_query(self, log, title=None, authors=None, identifiers={}):
         BASE_URL = 'http://books.google.com/books/feeds/volumes?'
-        isbn = identifiers.get('isbn', None)
+        isbn = check_isbn(identifiers.get('isbn', None))
         q = ''
         if isbn is not None:
             q += 'isbn:'+isbn
@@ -209,10 +209,10 @@ class GoogleBooks(Source):
                 break
 
     def identify(self, log, result_queue, abort, title=None, authors=None,
-            identifiers={}, timeout=5):
+            identifiers={}, timeout=20):
         query = self.create_query(log, title=title, authors=authors,
                 identifiers=identifiers)
-        br = browser()
+        br = self.browser()
         try:
             raw = br.open_novisit(query, timeout=timeout).read()
         except Exception, e:
