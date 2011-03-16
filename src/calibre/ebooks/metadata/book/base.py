@@ -651,6 +651,9 @@ class Metadata(object):
             fmt('Published', isoformat(self.pubdate))
         if self.rights is not None:
             fmt('Rights', unicode(self.rights))
+        if self.identifiers:
+            fmt('Identifiers', u', '.join(['%s:%s'%(k, v) for k, v in
+                self.identifiers.iteritems()]))
         for key in self.custom_field_keys():
             val = self.get(key, None)
             if val:
