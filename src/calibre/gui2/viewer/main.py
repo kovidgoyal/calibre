@@ -225,6 +225,12 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.action_quit.setShortcuts(qs)
         self.connect(self.action_quit, SIGNAL('triggered(bool)'),
                      lambda x:QApplication.instance().quit())
+        self.action_focus_search = QAction(self)
+        self.addAction(self.action_focus_search)
+        self.action_focus_search.setShortcuts([Qt.Key_Slash,
+            QKeySequence(QKeySequence.Find)])
+        self.action_focus_search.triggered.connect(lambda x:
+                self.search.setFocus(Qt.OtherFocusReason))
         self.action_copy.setDisabled(True)
         self.action_metadata.setCheckable(True)
         self.action_metadata.setShortcut(Qt.CTRL+Qt.Key_I)
@@ -493,12 +499,6 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.pending_search_dir = None
         if self.view.search(text, backwards=backwards):
             self.scrolled(self.view.scroll_fraction)
-
-    def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Slash:
-            self.search.setFocus(Qt.OtherFocusReason)
-        else:
-            return MainWindow.keyPressEvent(self, event)
 
     def internal_link_clicked(self, frac):
         self.history.add(self.pos.value())
