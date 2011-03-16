@@ -154,17 +154,16 @@ def get_metadata(br, asin, mi):
         return False
     if root.xpath('//*[@id="errorMessage"]'):
         return False
-    ratings = root.xpath('//form[@id="handleBuy"]/descendant::*[@class="asinReviewsSummary"]')
+
+    ratings = root.xpath('//div[@class="jumpBar"]/descendant::span[@class="asinReviewsSummary"]')
+    pat = re.compile(r'([0-9.]+) out of (\d+) stars')
     if ratings:
-        pat = re.compile(r'([0-9.]+) out of (\d+) stars')
-        r = ratings[0]
-        for elem in r.xpath('descendant::*[@title]'):
-            t = elem.get('title')
+        for elem in ratings[0].xpath('descendant::*[@title]'):
+            t = elem.get('title').strip()
             m = pat.match(t)
             if m is not None:
                 try:
                     mi.rating = float(m.group(1))/float(m.group(2)) * 5
-                    break
                 except:
                     pass
 
@@ -216,6 +215,7 @@ def main(args=sys.argv):
             print 'Failed to downlaod social metadata for', title
             return 1
         #print '\n\n', time.time() - st, '\n\n'
+        print mi
         print '\n'
 
     return 0
