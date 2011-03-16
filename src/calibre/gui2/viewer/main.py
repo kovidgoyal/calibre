@@ -299,6 +299,9 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         ca.setShortcut(QKeySequence.Copy)
         self.addAction(ca)
         self.open_history_menu = QMenu()
+        self.clear_recent_history_action = QAction(
+                _('Clear list of recently opened books'), self)
+        self.clear_recent_history_action.triggered.connect(self.clear_recent_history)
         self.build_recent_menu()
         self.action_open_ebook.setMenu(self.open_history_menu)
         self.open_history_menu.triggered[QAction].connect(self.open_recent)
@@ -307,11 +310,19 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
 
         self.restore_state()
 
+    def clear_recent_history(self, *args):
+        vprefs.set('viewer_open_history', [])
+        self.build_recent_menu()
+
     def build_recent_menu(self):
         m = self.open_history_menu
         m.clear()
+        recent = vprefs.get('viewer_open_history', [])
+        if recent:
+            m.addAction(self.clear_recent_history_action)
+            m.addSeparator()
         count = 0
-        for path in vprefs.get('viewer_open_history', []):
+        for path in recent:
             if count > 9:
                 break
             if os.path.exists(path):
