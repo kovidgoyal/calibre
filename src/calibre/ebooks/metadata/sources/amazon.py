@@ -21,7 +21,7 @@ from calibre.ebooks.chardet import xml_to_unicode
 
 class Worker(Thread):
 
-    def __init__(self, url, result_queue, browser, log, timeout=10):
+    def __init__(self, url, result_queue, browser, log, timeout=20):
         self.url, self.result_queue = url, result_queue
         self.log, self.timeout = log, timeout
         self.browser = browser.clone_browser()
@@ -137,7 +137,7 @@ class Amazon(Source):
 
 
     def identify(self, log, result_queue, abort, title=None, authors=None,
-            identifiers={}, timeout=10):
+            identifiers={}, timeout=20):
         query = self.create_query(log, title=title, authors=authors,
                 identifiers=identifiers)
         if query is None:

@@ -209,7 +209,7 @@ class GoogleBooks(Source):
                 break
 
     def identify(self, log, result_queue, abort, title=None, authors=None,
-            identifiers={}, timeout=5):
+            identifiers={}, timeout=20):
         query = self.create_query(log, title=title, authors=authors,
                 identifiers=identifiers)
         br = self.browser()
