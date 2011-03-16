@@ -145,8 +145,9 @@ class GoogleBooks(Source):
     description = _('Downloads metadata from Google Books')
 
     capabilities = frozenset(['identify'])
-    touched_fields = frozenset(['title', 'authors', 'isbn', 'tags', 'pubdate',
-        'comments', 'publisher', 'author_sort']) # language currently disabled
+    touched_fields = frozenset(['title', 'authors', 'tags', 'pubdate',
+        'comments', 'publisher', 'author_sort', 'identifier:isbn',
+        'identifier:google']) # language currently disabled
 
     def create_query(self, log, title=None, authors=None, identifiers={}):
         BASE_URL = 'http://books.google.com/books/feeds/volumes?'
