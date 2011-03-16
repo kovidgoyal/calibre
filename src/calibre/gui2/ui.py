@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 '''The main GUI'''
 
-import collections, os, sys, textwrap, time
+import collections, os, sys, textwrap, time, gc
 from Queue import Queue, Empty
 from threading import Thread
 from PyQt4.Qt import Qt, SIGNAL, QTimer, QHelpEvent, QAction, \
@@ -95,7 +95,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
 
 
     def __init__(self, opts, parent=None, gui_debug=None):
-        MainWindow.__init__(self, opts, parent)
+        MainWindow.__init__(self, opts, parent=parent, disable_automatic_gc=True)
         self.opts = opts
         self.device_connected = None
         self.gui_debug = gui_debug
@@ -298,6 +298,9 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
                     raise
         self.device_manager.set_current_library_uuid(db.library_id)
 
+        # Collect cycles now
+        gc.collect()
+
         if show_gui and self.gui_debug is not None:
             info_dialog(self, _('Debug mode'), '<p>' +
                     _('You have started calibre in debug mode. After you '
@@ -399,6 +402,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         elif msg.startswith('refreshdb:'):
             self.library_view.model().refresh()
             self.library_view.model().research()
+            self.tags_view.recount()
         else:
             print msg
 
@@ -465,7 +469,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         self.device_manager.set_current_library_uuid(db.library_id)
         # Run a garbage collection now so that it does not freeze the
         # interface later
-        import gc
         gc.collect()
 
 
