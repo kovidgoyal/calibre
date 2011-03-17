@@ -229,7 +229,11 @@ def rewrite_links(root, link_repl_func, resolve_base_href=False):
         if 'style' in el.attrib:
             text = el.attrib['style']
             if _css_url_re.search(text) is not None:
-                stext = parseStyle(text)
+                try:
+                    stext = parseStyle(text)
+                except:
+                    # Parsing errors are raised by cssutils
+                    continue
                 for p in stext.getProperties(all=True):
                     v = p.cssValue
                     if v.CSS_VALUE_LIST == v.cssValueType:

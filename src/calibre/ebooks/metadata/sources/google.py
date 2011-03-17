@@ -50,7 +50,7 @@ def get_details(browser, url, timeout): # {{{
         if gc() != 403:
             raise
         # Google is throttling us, wait a little
-        time.sleep(1)
+        time.sleep(2)
         raw = browser.open_novisit(url, timeout=timeout).read()
 
     return raw
