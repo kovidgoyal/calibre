@@ -62,6 +62,7 @@ class Worker(Thread): # {{{
 
         raw = xml_to_unicode(raw, strip_encoding_pats=True,
                 resolve_entities=True)[0]
+        # open('/t/t.html', 'wb').write(raw)
 
         if '<title>404 - ' in raw:
             self.log.error('URL malformed: %r'%self.url)
@@ -127,6 +128,7 @@ class Worker(Thread): # {{{
             self.cover_url = self.parse_cover(root)
         except:
             self.log.exception('Error parsing cover for url: %r'%self.url)
+        mi.has_cover = bool(self.cover_url)
 
         pd = root.xpath('//h2[text()="Product Details"]/../div[@class="content"]')
         if pd:
@@ -177,7 +179,10 @@ class Worker(Thread): # {{{
         return re.sub(r'[(\[].*[)\]]', '', title).strip()
 
     def parse_authors(self, root):
-        aname = root.xpath('//span[@class="contributorNameTrigger"]')
+        x = '//h1[@class="parseasinTitle"]/following-sibling::span/*[(name()="a" and @href) or (name()="span" and @class="contributorNameTrigger")]'
+        aname = root.xpath(x)
+        for x in aname:
+            x.tail = ''
         authors = [tostring(x, encoding=unicode, method='text').strip() for x
                 in aname]
         return authors
@@ -215,13 +220,14 @@ class Worker(Thread): # {{{
         imgs = root.xpath('//img[@id="prodImage" and @src]')
         if imgs:
             src = imgs[0].get('src')
-            parts = src.split('/')
-            if len(parts) > 3:
-                bn = parts[-1]
-                sparts = bn.split('_')
-                if len(sparts) > 2:
-                    bn = sparts[0] + sparts[-1]
-                    return ('/'.join(parts[:-1]))+'/'+bn
+            if '/no-image-avail' not in src:
+                parts = src.split('/')
+                if len(parts) > 3:
+                    bn = parts[-1]
+                    sparts = bn.split('_')
+                    if len(sparts) > 2:
+                        bn = sparts[0] + sparts[-1]
+                        return ('/'.join(parts[:-1]))+'/'+bn
 
     def parse_isbn(self, pd):
         for x in reversed(pd.xpath(
@@ -424,30 +430,44 @@ if __name__ == '__main__':
     # To run these test use: calibre-debug -e
     # src/calibre/ebooks/metadata/sources/amazon.py
     from calibre.ebooks.metadata.sources.test import (test_identify_plugin,
-            title_test)
+            title_test, authors_test)
     test_identify_plugin(Amazon.name,
         [
+
+            ( # An e-book ISBN not on Amazon, one of the authors is
+              # unknown to Amazon, so no popup wrapper
+                {'identifiers':{'isbn': '0307459671'},
+                    'title':'Invisible Gorilla', 'authors':['Christopher Chabris']},
+                [title_test('The Invisible Gorilla: And Other Ways Our Intuitions Deceive Us',
+                    exact=True), authors_test(['Christopher Chabris', 'Daniel Simons'])]
+
+            ),
 
             (  # This isbn not on amazon
                 {'identifiers':{'isbn': '8324616489'}, 'title':'Learning Python',
                     'authors':['Lutz']},
-                [title_test('Learning Python: Powerful Object-Oriented Programming', exact=True)]
+                [title_test('Learning Python: Powerful Object-Oriented Programming',
+                    exact=True), authors_test(['Mark Lutz'])
+                 ]
 
             ),
 
             ( # Sophisticated comment formatting
                 {'identifiers':{'isbn': '9781416580829'}},
-                [title_test('Angels & Demons - Movie Tie-In: A Novel', exact=True)]
+                [title_test('Angels & Demons - Movie Tie-In: A Novel',
+                    exact=True), authors_test(['Dan Brown'])]
             ),
 
             ( # No specific problems
                 {'identifiers':{'isbn': '0743273567'}},
-                [title_test('The great gatsby', exact=True)]
+                [title_test('The great gatsby', exact=True),
+                    authors_test(['F. Scott Fitzgerald'])]
             ),
 
             (  # A newer book
                 {'identifiers':{'isbn': '9780316044981'}},
-                [title_test('The Heroes', exact=True)]
+                [title_test('The Heroes', exact=True),
+                    authors_test(['Joe Abercrombie'])]
 
             ),
 

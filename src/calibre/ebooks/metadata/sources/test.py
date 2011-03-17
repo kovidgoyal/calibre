@@ -37,6 +37,15 @@ def title_test(title, exact=False):
 
     return test
 
+def authors_test(authors):
+    authors = set([x.lower() for x in authors])
+
+    def test(mi):
+        au = set([x.lower() for x in mi.authors])
+        return au == authors
+
+    return test
+
 def test_identify_plugin(name, tests):
     '''
     :param name: Plugin name
