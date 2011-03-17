@@ -71,7 +71,7 @@ class Customize(QFrame, Ui_Frame):
         button = getattr(self, 'button%d'%which)
         font = QFont()
         button.setFont(font)
-        sequence = QKeySequence(code|int(ev.modifiers()))
+        sequence = QKeySequence(code|(int(ev.modifiers())&~Qt.KeypadModifier))
         button.setText(sequence.toString())
         self.capture = 0
         setattr(self, 'shortcut%d'%which, sequence)
@@ -195,7 +195,7 @@ class Shortcuts(QAbstractListModel):
     def get_match(self, event_or_sequence, ignore=tuple()):
         q = event_or_sequence
         if isinstance(q, QKeyEvent):
-            q = QKeySequence(q.key()|int(q.modifiers()))
+            q = QKeySequence(q.key()|(int(q.modifiers())&~Qt.KeypadModifier))
         for key in self.order:
             if key not in ignore:
                 for seq in self.get_sequences(key):
