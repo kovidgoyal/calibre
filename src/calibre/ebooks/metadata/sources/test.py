@@ -46,6 +46,16 @@ def authors_test(authors):
 
     return test
 
+def _test_fields(touched_fields, mi):
+    for key in touched_fields:
+        if key.startswith('identifier:'):
+            key = key.partition(':')[-1]
+            if not mi.has_identifier(key):
+                return 'identifier: ' + key
+        elif mi.is_null(key):
+            return key
+
+
 def test_identify_plugin(name, tests):
     '''
     :param name: Plugin name
@@ -95,7 +105,7 @@ def test_identify_plugin(name, tests):
             prints(mi)
             prints('\n\n')
 
-        match_found = None
+        possibles = []
         for mi in results:
             test_failed = False
             for tfunc in test_funcs:
@@ -103,26 +113,23 @@ def test_identify_plugin(name, tests):
                     test_failed = True
                     break
             if not test_failed:
-                match_found = mi
-                break
+                possibles.append(mi)
 
-        if match_found is None:
+        if not possibles:
             prints('ERROR: No results that passed all tests were found')
             prints('Log saved to', lf)
             raise SystemExit(1)
 
-    for key in plugin.touched_fields:
-        if key.startswith('identifier:'):
-            key = key.partition(':')[-1]
-            if not match_found.has_identifier(key):
-                prints('Failed to find identifier:', key)
-                raise SystemExit(1)
-        elif match_found.is_null(key):
-            prints('Failed to find', key)
+        good = [x for x in possibles if _test_fields(plugin.touched_fields, x) is
+                None]
+        if not good:
+            prints('Failed to find', _test_fields(plugin.touched_fields,
+                possibles[0]))
             raise SystemExit(1)
+
 
     prints('Average time per query', sum(times)/len(times))
 
     if os.stat(lf).st_size > 10:
-        prints('There were some errors, see log', lf)
+        prints('There were some errors/warnings, see log', lf)
 

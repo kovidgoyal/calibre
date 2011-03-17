@@ -137,6 +137,16 @@ class Source(Plugin):
         '''
         Identify a book by its title/author/isbn/etc.
 
+        If identifiers(s) are specified and no match is found and this metadata
+        source does not store all related identifiers (for example, all ISBNs
+        of a book), this method should retry with just the title and author
+        (assuming they were specified).
+
+        If this metadata source also provides covers, the URL to the cover
+        should be cached so that a subsequent call to the get covers API with
+        the same ISBN/special identifier does not need to get the cover URL
+        again. Use the caching API for this.
+
         :param log: A log object, use it to output debugging information/errors
         :param result_queue: A result Queue, results should be put into it.
                             Each result is a Metadata object

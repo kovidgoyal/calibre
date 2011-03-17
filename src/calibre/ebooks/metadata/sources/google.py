@@ -206,7 +206,7 @@ class GoogleBooks(Source):
                 break
 
     def identify(self, log, result_queue, abort, title=None, authors=None, # {{{
-            identifiers={}, timeout=20):
+            identifiers={}, timeout=30):
         query = self.create_query(log, title=title, authors=authors,
                 identifiers=identifiers)
         br = self.browser
@@ -225,6 +225,11 @@ class GoogleBooks(Source):
             log.exception('Failed to parse identify results')
             return as_unicode(e)
 
+        if not entries and identifiers and title and authors and \
+                not abort.is_set():
+            return self.identify(log, result_queue, abort, title=title,
+                    authors=authors, timeout=timeout)
+
         # There is no point running these queries in threads as google
         # throttles requests returning 403 Forbidden errors
         self.get_all_details(br, log, entries, abort, result_queue, timeout)
@@ -235,13 +240,16 @@ class GoogleBooks(Source):
 if __name__ == '__main__':
     # To run these test use: calibre-debug -e src/calibre/ebooks/metadata/sources/google.py
     from calibre.ebooks.metadata.sources.test import (test_identify_plugin,
-            title_test)
+            title_test, authors_test)
     test_identify_plugin(GoogleBooks.name,
         [
 
+
             (
-                {'identifiers':{'isbn': '0743273567'}},
-                [title_test('The great gatsby', exact=True)]
+                {'identifiers':{'isbn': '0743273567'}, 'title':'Great Gatsby',
+                    'authors':['Fitzgerald']},
+                [title_test('The great gatsby', exact=True),
+                    authors_test(['Francis Scott Fitzgerald'])]
             ),
 
             #(
