@@ -195,7 +195,7 @@ class GoogleBooks(Source):
                 ans = to_metadata(br, log, i, timeout)
                 if isinstance(ans, Metadata):
                     result_queue.put(ans)
-                    for isbn in ans.all_isbns:
+                    for isbn in getattr(ans, 'all_isbns', []):
                         self.cache_isbn_to_identifier(isbn,
                                 ans.identifiers['google'])
             except:
