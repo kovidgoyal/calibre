@@ -7,13 +7,13 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-03-11 20:33+0000\n"
-"PO-Revision-Date: 2011-03-15 18:12+0000\n"
+"PO-Revision-Date: 2011-03-16 10:22+0000\n"
 "Last-Translator: Andrey Olykainen <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-03-16 04:46+0000\n"
+"X-Launchpad-Export-Date: 2011-03-17 04:34+0000\n"
 "X-Generator: Launchpad (build 12559)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
@@ -9779,7 +9779,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:59
 msgid "Discard changes"
-msgstr ""
+msgstr "Отменить изменения"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:61
 msgid ""
@@ -9987,7 +9987,7 @@ msgstr "Параметр кода источника (python)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dnd.py:51
 msgid "Download %s"
-msgstr ""
+msgstr "Загрузка %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dnd.py:54
 msgid "Downloading <b>%s</b> from %s"
@@ -10136,7 +10136,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:110
 msgid "Shift+Alt+B"
-msgstr ""
+msgstr "Shift+Alt+B"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:124
 msgid "Tag Browser"
@@ -10144,17 +10144,17 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:126
 msgid "Shift+Alt+T"
-msgstr ""
+msgstr "Shift+Alt+T"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:157
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:29
 msgid "version"
-msgstr ""
+msgstr "версия"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:158
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:30
 msgid "created by Kovid Goyal"
-msgstr ""
+msgstr "создано Ковидом Гойал"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:175
 msgid "Connected "
@@ -10162,20 +10162,20 @@ msgstr "Подключено "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:188
 msgid "Update found"
-msgstr ""
+msgstr "Найдено обновление"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:223
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:233
 msgid "Book Details"
-msgstr ""
+msgstr "Детали книги"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:225
 msgid "Alt+D"
-msgstr ""
+msgstr "Alt+D"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:235
 msgid "Shift+Alt+D"
-msgstr ""
+msgstr "Shift+Alt+D"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:61
 msgid "Job"
@@ -10230,7 +10230,7 @@ msgstr "Работы:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:296
 msgid "Shift+Alt+J"
-msgstr ""
+msgstr "Shift+Alt+J"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:313
 msgid "Click to see list of jobs"
@@ -10250,15 +10250,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:53
 msgid "Eject this device"
-msgstr ""
+msgstr "Извлечь устройство"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:64
 msgid "Show books in calibre library"
-msgstr ""
+msgstr "Показать книги в библиотеке calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:66
 msgid "Show books in the main memory of the device"
-msgstr ""
+msgstr "Показать книги в основной памяти устройства"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:67
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1008
@@ -10267,7 +10267,7 @@ msgstr "Карта 1"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:68
 msgid "Show books in storage card A"
-msgstr ""
+msgstr "Показать книги на карте памяти А"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:69
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1010
@@ -10276,7 +10276,7 @@ msgstr "Карта 2"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:70
 msgid "Show books in storage card B"
-msgstr ""
+msgstr "Показать книги на карте памяти В"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:128
 msgid "available"
@@ -10289,7 +10289,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:171
 msgid "Shift+Ctrl+F"
-msgstr ""
+msgstr "Shift+Ctrl+F"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:174
 msgid "Advanced search"
@@ -10335,7 +10335,7 @@ msgstr "Д"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:389
 msgid "Edit template"
-msgstr ""
+msgstr "Изменить шаблон"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:66
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:251
@@ -10349,7 +10349,7 @@ msgstr "Размер (МБ)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:395
 msgid "Book %s of %s."
-msgstr ""
+msgstr "Книга %s из %s."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:751
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1305
@@ -10376,7 +10376,7 @@ msgstr "Книга <font face=\"serif\">%s</font> из %s."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1285
 msgid "Marked for deletion"
-msgstr ""
+msgstr "Отмечено для удаления"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1288
 msgid "Double click to <b>edit</b> me<br><br>"
@@ -10550,7 +10550,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:157
 msgid "Initializing user interface..."
-msgstr ""
+msgstr "Инициализация пользовательского интерфейса..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:182
 msgid "Repairing failed"
@@ -10674,7 +10674,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:794
 msgid "stars"
-msgstr ""
+msgstr "звезды"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:828
 msgid ""
@@ -10704,11 +10704,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:227
 msgid "cover"
-msgstr ""
+msgstr "обложка"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:228
 msgid "Downloaded"
-msgstr ""
+msgstr "Загружено"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:228
 msgid "Failed to get"
@@ -10721,7 +10721,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:291
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:164
 msgid "Done"
-msgstr ""
+msgstr "Выполнено"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:292
 msgid "Successfully downloaded metadata for %d out of %d books"
@@ -10730,7 +10730,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:294
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:757
 msgid "Details"
-msgstr ""
+msgstr "Детали"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:71
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:214
@@ -10740,7 +10740,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:443
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:604
 msgid "Change cover"
-msgstr ""
+msgstr "Изменить обложку"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:491
 msgid "Co&mments"
@@ -11023,7 +11023,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:38
 msgid "Ratings, shown with stars"
-msgstr ""
+msgstr "Рейтинг, отображается звездами"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:41
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:64
@@ -11048,11 +11048,11 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:64
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:144
 msgid "Modified Date"
-msgstr ""
+msgstr "Дата изменения"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:71
 msgid "Number"
-msgstr ""
+msgstr "Номер"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:71
 msgid "Text"
@@ -11077,7 +11077,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:141
 msgid "My Tags"
-msgstr ""
+msgstr "Мои метки"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:142
 msgid "My Series"
@@ -11085,7 +11085,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:143
 msgid "My Rating"
-msgstr ""
+msgstr "Мой рейтинг"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:171
 msgid "No lookup name was provided"
@@ -11220,7 +11220,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:209
 msgid "Values"
-msgstr ""
+msgstr "Значения"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:210
 msgid ""
@@ -11332,11 +11332,11 @@ msgstr "Никогда"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:61
 msgid "By first letter"
-msgstr ""
+msgstr "По первой букве"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:61
 msgid "Disabled"
-msgstr ""
+msgstr "Отключено"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:62
 msgid "Partitioned"
@@ -11545,15 +11545,15 @@ msgstr "&Установить инструменты командной стро
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:31
 msgid "Open Editor"
-msgstr ""
+msgstr "Открыть редактор"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:65
 msgid "Device currently connected: "
-msgstr ""
+msgstr "Подключенное устройство: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:68
 msgid "Device currently connected: None"
-msgstr ""
+msgstr "Подлюченное устройство: нет"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:228
 msgid ""
@@ -11645,7 +11645,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:225
 msgid "No matches"
-msgstr ""
+msgstr "Нет совпадений"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:226
 msgid "Could not find any matching plugins"
@@ -11653,7 +11653,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:267
 msgid "Add plugin"
-msgstr ""
+msgstr "Добавить плагин"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:275
 msgid ""
@@ -11703,11 +11703,11 @@ msgstr "Требуется перезапуск"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:330
 msgid ""
 "You must restart calibre before you can configure the <b>%s</b> plugin"
-msgstr ""
+msgstr "Необходимо перезапустить calibre перед настройкой плагина <b>%s</b>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:335
 msgid "Plugin <b>{0}</b> successfully removed"
-msgstr ""
+msgstr "Плагин <b>{0}</b> успешно удален"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:343
 msgid "Cannot remove builtin plugin"
@@ -12239,7 +12239,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:39
 msgid "Separator"
-msgstr ""
+msgstr "Разделитель"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:55
 msgid "Choose library"
@@ -12404,11 +12404,11 @@ msgstr "(все книги)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:54
 msgid "({0} of {1})"
-msgstr ""
+msgstr "({0} из {1})"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:61
 msgid "({0} of all)"
-msgstr ""
+msgstr "({0} из всех)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:59
 msgid "Press a key..."
@@ -12442,7 +12442,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:225
 msgid "Double click to change"
-msgstr ""
+msgstr "Двойной щелчек для изменения"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:73
 msgid "Frame"
@@ -12459,7 +12459,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:77
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:82
 msgid "Click to change"
-msgstr ""
+msgstr "Щёлкните для изменения"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:81
 msgid "&Alternate shortcut:"
@@ -12468,7 +12468,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:316
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:366
 msgid "Rename %s"
-msgstr ""
+msgstr "Переименовать %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:320
 msgid "Edit sort for %s"
@@ -12508,7 +12508,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:383
 msgid "Show category"
-msgstr ""
+msgstr "Показать категорию"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:393
 msgid "Search for books in category %s"
@@ -12534,7 +12534,7 @@ msgstr "Управлять пользовательскими категория
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:435
 msgid "Show all categories"
-msgstr ""
+msgstr "Показать все категории"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:438
 msgid "Change sub-categorization scheme"
@@ -12584,7 +12584,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1786
 msgid "New Category"
-msgstr ""
+msgstr "Новая категория"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1837
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1840
@@ -12601,7 +12601,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1862
 msgid "Remove category"
-msgstr ""
+msgstr "Удалить категорию"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1863
 msgid "User category %s does not exist"
@@ -12631,7 +12631,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:2018
 msgid "ALT+f"
-msgstr ""
+msgstr "ALT+f"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:2022
 msgid "F&ind"
@@ -12643,7 +12643,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:2030
 msgid "Collapse all categories"
-msgstr ""
+msgstr "Свернуть все категории"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:2051
 msgid "No More Matches.</b><p> Click Find again to go to first match"
@@ -12812,7 +12812,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:58
 msgid "Update available!"
-msgstr ""
+msgstr "Доступно обновление!"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:63
 msgid "Show this notification for future updates"
@@ -13261,7 +13261,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:190
 msgid "Close dictionary"
-msgstr ""
+msgstr "Закрыть словарь"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:192
 msgid "toolBar"
@@ -13387,7 +13387,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:745
 msgid "welcome wizard"
-msgstr ""
+msgstr "Мастер приветствия"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/device_ui.py:54
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/device_ui.py:55
@@ -13523,7 +13523,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:161
 msgid "Your %s &password:"
-msgstr ""
+msgstr "Ваш %s &пароль:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:179
 msgid ""
@@ -13534,7 +13534,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:186
 msgid "Setup"
-msgstr ""
+msgstr "Установка"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:201
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:208
@@ -13666,7 +13666,7 @@ msgstr "Включить &сервер информационного напол
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:557
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:567
 msgid "checked"
-msgstr ""
+msgstr "отмечено"
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:153
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:557
@@ -13679,7 +13679,7 @@ msgstr "да"
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:554
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:564
 msgid "unchecked"
-msgstr ""
+msgstr "не отмечено"
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:155
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:554
