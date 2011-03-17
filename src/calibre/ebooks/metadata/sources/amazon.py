@@ -22,7 +22,7 @@ from calibre.ebooks.metadata.book.base import Metadata
 from calibre.library.comments import sanitize_comments_html
 from calibre.utils.date import parse_date
 
-class Worker(Thread):
+class Worker(Thread): # {{{
 
     '''
     Get book details from amazons book page in a separate thread
@@ -253,7 +253,7 @@ class Worker(Thread):
                 ans = x.tail.strip()
                 if ans == 'English':
                     return 'en'
-
+# }}}
 
 class Amazon(Source):
 
@@ -270,7 +270,7 @@ class Amazon(Source):
             'de' : _('Germany'),
     }
 
-    def create_query(self, log, title=None, authors=None, identifiers={}):
+    def create_query(self, log, title=None, authors=None, identifiers={}): # {{{
         domain = self.prefs.get('domain', 'com')
 
         # See the amazon detailed search page to get all options
@@ -313,8 +313,9 @@ class Amazon(Source):
         url = 'http://www.amazon.%s/s/?'%domain + urlencode(utf8q)
         return url
 
+    # }}}
 
-    def identify(self, log, result_queue, abort, title=None, authors=None,
+    def identify(self, log, result_queue, abort, title=None, authors=None, # {{{
             identifiers={}, timeout=20):
         '''
         Note this method will retry without identifiers automatically if no
@@ -416,6 +417,7 @@ class Amazon(Source):
                             w.cover_url)
 
         return None
+    # }}}
 
 
 if __name__ == '__main__':

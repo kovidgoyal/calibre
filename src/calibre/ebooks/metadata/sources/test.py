@@ -102,6 +102,16 @@ def test_identify_plugin(name, tests):
             prints('Log saved to', lf)
             raise SystemExit(1)
 
+    for key in plugin.touched_fields:
+        if key.startswith('identifier:'):
+            key = key.partition(':')[-1]
+            if not match_found.has_identifier(key):
+                prints('Failed to find identifier:', key)
+                raise SystemExit(1)
+        elif match_found.is_null(key):
+            prints('Failed to find', key)
+            raise SystemExit(1)
+
     prints('Average time per query', sum(times)/len(times))
 
     if os.stat(lf).st_size > 10:

@@ -227,6 +227,11 @@ class Metadata(object):
         if val:
             identifiers[typ] = val
 
+    def has_identifier(self, typ):
+        identifiers = object.__getattribute__(self,
+            '_data')['identifiers']
+        return typ in identifiers
+
     # field-oriented interface. Intended to be the same as in LibraryDatabase
 
     def standard_field_keys(self):
