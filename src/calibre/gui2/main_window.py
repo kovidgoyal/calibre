@@ -20,7 +20,8 @@ Usage: %prog [options]
 Launch the Graphical User Interface
 '''):
     parser = OptionParser(usage)
-    parser.add_option('--redirect-console-output', default=False, action='store_true', dest='redirect',
+    # The b is required because of a regression in optparse.py in python 2.7.0
+    parser.add_option(b'--redirect-console-output', default=False, action='store_true', dest='redirect',
                       help=_('Redirect console output to a dialog window (both stdout and stderr). Useful on windows where GUI apps do not have a output streams.'))
     return parser
 

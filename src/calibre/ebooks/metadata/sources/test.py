@@ -37,6 +37,15 @@ def title_test(title, exact=False):
 
     return test
 
+def authors_test(authors):
+    authors = set([x.lower() for x in authors])
+
+    def test(mi):
+        au = set([x.lower() for x in mi.authors])
+        return au == authors
+
+    return test
+
 def test_identify_plugin(name, tests):
     '''
     :param name: Plugin name
@@ -100,6 +109,16 @@ def test_identify_plugin(name, tests):
         if match_found is None:
             prints('ERROR: No results that passed all tests were found')
             prints('Log saved to', lf)
+            raise SystemExit(1)
+
+    for key in plugin.touched_fields:
+        if key.startswith('identifier:'):
+            key = key.partition(':')[-1]
+            if not match_found.has_identifier(key):
+                prints('Failed to find identifier:', key)
+                raise SystemExit(1)
+        elif match_found.is_null(key):
+            prints('Failed to find', key)
             raise SystemExit(1)
 
     prints('Average time per query', sum(times)/len(times))

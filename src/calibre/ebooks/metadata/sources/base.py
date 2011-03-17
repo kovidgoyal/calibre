@@ -35,6 +35,7 @@ class Source(Plugin):
     def __init__(self, *args, **kwargs):
         Plugin.__init__(self, *args, **kwargs)
         self._isbn_to_identifier_cache = {}
+        self._identifier_to_cover_url_cache = {}
         self.cache_lock = threading.RLock()
         self._config_obj = None
         self._browser = None
@@ -67,6 +68,14 @@ class Source(Plugin):
     def cached_isbn_to_identifier(self, isbn):
         with self.cache_lock:
             return self._isbn_to_identifier_cache.get(isbn, None)
+
+    def cache_identifier_to_cover_url(self, id_, url):
+        with self.cache_lock:
+            self._identifier_to_cover_url_cache[id_] = url
+
+    def cached_identifier_to_cover_url(self, id_):
+        with self.cache_lock:
+            return self._identifier_to_cover_url_cache.get(id_, None)
 
     def get_author_tokens(self, authors, only_first_author=True):
         '''
