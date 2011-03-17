@@ -383,7 +383,7 @@ class Amazon(Source):
 
         if not matches:
             if identifiers and title and authors:
-                self.log('No matches found with identifiers, retrying using only'
+                log('No matches found with identifiers, retrying using only'
                         ' title and authors')
                 return self.identify(log, result_queue, abort, title=title,
                         authors=authors, timeout=timeout)
@@ -428,10 +428,29 @@ if __name__ == '__main__':
     test_identify_plugin(Amazon.name,
         [
 
-            (
+            (  # This isbn not on amazon
+                {'identifiers':{'isbn': '8324616489'}, 'title':'Learning Python',
+                    'authors':['Lutz']},
+                [title_test('Learning Python: Powerful Object-Oriented Programming', exact=True)]
+
+            ),
+
+            ( # Sophisticated comment formatting
+                {'identifiers':{'isbn': '9781416580829'}},
+                [title_test('Angels & Demons - Movie Tie-In: A Novel', exact=True)]
+            ),
+
+            ( # No specific problems
                 {'identifiers':{'isbn': '0743273567'}},
                 [title_test('The great gatsby', exact=True)]
             ),
+
+            (  # A newer book
+                {'identifiers':{'isbn': '9780316044981'}},
+                [title_test('The Heroes', exact=True)]
+
+            ),
+
         ])
 
 
