@@ -1010,7 +1010,6 @@ class TagsModel(QAbstractItemModel): # {{{
             return
         fm_src = self.db.metadata_for_field(column)
         for id in ids:
-            vmap = {}
             label = fm_src['label']
             if not fm_src['is_custom']:
                 if label == 'authors':
