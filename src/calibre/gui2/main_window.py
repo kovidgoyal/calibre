@@ -1,10 +1,14 @@
+from __future__ import (unicode_literals, division, absolute_import,
+                        print_function)
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import StringIO, traceback, sys
 
-from PyQt4.Qt import QMainWindow, QString, Qt, QFont, QCoreApplication, SIGNAL,\
-                     QAction, QMenu, QMenuBar, QIcon, pyqtSignal
+import StringIO, traceback, sys, gc
+
+from PyQt4.Qt import QMainWindow, QString, Qt, QFont, QTimer, \
+                     QAction, QMenu, QMenuBar, QIcon, pyqtSignal, QObject
 from calibre.gui2.dialogs.conversion_error import ConversionErrorDialog
 from calibre.utils.config import OptionParser
 from calibre.gui2 import error_dialog
@@ -16,7 +20,8 @@ Usage: %prog [options]
 Launch the Graphical User Interface
 '''):
     parser = OptionParser(usage)
-    parser.add_option('--redirect-console-output', default=False, action='store_true', dest='redirect',
+    # The b is required because of a regression in optparse.py in python 2.7.0
+    parser.add_option(b'--redirect-console-output', default=False, action='store_true', dest='redirect',
                       help=_('Redirect console output to a dialog window (both stdout and stderr). Useful on windows where GUI apps do not have a output streams.'))
     return parser
 
@@ -34,6 +39,53 @@ class DebugWindow(ConversionErrorDialog):
 
     def flush(self):
         pass
+
+class GarbageCollector(QObject):
+
+    '''
+    Disable automatic garbage collection and instead collect manually
+    every INTERVAL milliseconds.
+
+    This is done to ensure that garbage collection only happens in the GUI
+    thread, as otherwise Qt can crash.
+    '''
+
+    INTERVAL = 5000
+
+    def __init__(self, parent, debug=False):
+        QObject.__init__(self, parent)
+        self.debug = debug
+
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.check)
+
+        self.threshold = gc.get_threshold()
+        gc.disable()
+        self.timer.start(self.INTERVAL)
+        #gc.set_debug(gc.DEBUG_SAVEALL)
+
+    def check(self):
+        #return self.debug_cycles()
+        l0, l1, l2 = gc.get_count()
+        if self.debug:
+            print ('gc_check called:', l0, l1, l2)
+        if l0 > self.threshold[0]:
+            num = gc.collect(0)
+            if self.debug:
+                print ('collecting gen 0, found:', num, 'unreachable')
+            if l1 > self.threshold[1]:
+                num = gc.collect(1)
+                if self.debug:
+                    print ('collecting gen 1, found:', num, 'unreachable')
+                if l2 > self.threshold[2]:
+                    num = gc.collect(2)
+                    if self.debug:
+                        print ('collecting gen 2, found:', num, 'unreachable')
+
+    def debug_cycles(self):
+        gc.collect()
+        for obj in gc.garbage:
+            print (obj, repr(obj), type(obj))
 
 class MainWindow(QMainWindow):
 
@@ -64,18 +116,14 @@ class MainWindow(QMainWindow):
         quit_action.setMenuRole(QAction.QuitRole)
         return preferences_action, quit_action
 
-    def __init__(self, opts, parent=None):
+    def __init__(self, opts, parent=None, disable_automatic_gc=False):
         QMainWindow.__init__(self, parent)
-        app = QCoreApplication.instance()
-        if app is not None:
-            self.connect(app, SIGNAL('unixSignal(int)'), self.unix_signal)
+        if disable_automatic_gc:
+            self._gc = GarbageCollector(self, debug=False)
         if getattr(opts, 'redirect', False):
             self.__console_redirect = DebugWindow(self)
             sys.stdout = sys.stderr = self.__console_redirect
             self.__console_redirect.show()
-
-    def unix_signal(self, signal):
-        print 'Received signal:', repr(signal)
 
     def unhandled_exception(self, type, value, tb):
         if type == KeyboardInterrupt:

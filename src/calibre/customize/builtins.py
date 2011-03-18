@@ -1036,8 +1036,9 @@ plugins += [LookAndFeel, Behavior, Columns, Toolbar, Search, InputOptions,
 
 # New metadata download plugins {{{
 from calibre.ebooks.metadata.sources.google import GoogleBooks
+from calibre.ebooks.metadata.sources.amazon import Amazon
 
-plugins += [GoogleBooks]
+plugins += [GoogleBooks, Amazon]
 
 # }}}
 

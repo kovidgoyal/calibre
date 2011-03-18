@@ -12,7 +12,7 @@ import cherrypy
 
 from calibre.constants import filesystem_encoding
 from calibre import isbytestring, force_unicode, fit_image, \
-        prepare_string_for_xml as xml
+        prepare_string_for_xml
 from calibre.utils.ordered_dict import OrderedDict
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.config import prefs, tweaks
@@ -22,6 +22,10 @@ from calibre.library.comments import comments_to_html
 from calibre.library.server import custom_fields_to_display
 from calibre.library.field_metadata import category_icon_map
 from calibre.library.server.utils import quote, unquote
+
+def xml(*args, **kwargs):
+    ans = prepare_string_for_xml(*args, **kwargs)
+    return ans.replace('&apos;', '&#39;')
 
 def render_book_list(ids, prefix, suffix=''): # {{{
     pages = []
@@ -626,6 +630,8 @@ class BrowseServer(object):
             elif category == 'allbooks':
                 ids = all_ids
             else:
+                if fm.get(category, {'datatype':None})['datatype'] == 'composite':
+                    cid = cid.decode('utf-8')
                 q = category
                 if q == 'news':
                     q = 'tags'

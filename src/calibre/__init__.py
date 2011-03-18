@@ -3,7 +3,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import uuid, sys, os, re, logging, time, \
+import uuid, sys, os, re, logging, time, random, \
        __builtin__, warnings, multiprocessing
 from contextlib import closing
 from urllib import getproxies
@@ -272,6 +272,17 @@ def get_parsed_proxy(typ='http', debug=True):
 
 USER_AGENT = 'Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.9.2.13) Gecko/20101210 Gentoo Firefox/3.6.13'
 USER_AGENT_MOBILE = 'Mozilla/5.0 (Windows; U; Windows CE 5.1; rv:1.8.1a3) Gecko/20060610 Minimo/0.016'
+
+def random_user_agent():
+    choices = [
+        'Mozilla/5.0 (Windows; U; Windows NT 6.0; en-US; rv:1.9.2.11) Gecko/20101012 Firefox/3.6.11'
+        'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)'
+        'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0)'
+        'Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1)'
+        'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/525.19 (KHTML, like Gecko) Chrome/0.2.153.1 Safari/525.19'
+        'Mozilla/5.0 (Windows; U; Windows NT 6.0; en-US; rv:1.9.2.11) Gecko/20101012 Firefox/3.6.11'
+    ]
+    return choices[random.randint(0, len(choices)-1)]
 
 def browser(honor_time=True, max_time=2, mobile_browser=False, user_agent=None):
     '''

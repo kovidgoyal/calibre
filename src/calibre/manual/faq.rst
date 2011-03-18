@@ -508,9 +508,9 @@ You have two choices:
  1. Create a patch by hacking on |app| and send it to me for review and inclusion. See `Development <http://calibre-ebook.com/get-involved>`_.
  2. `Open a ticket <http://bugs.calibre-ebook.com/newticket>`_ (you have to register and login first). Remember that |app| development is done by volunteers, so if you get no response to your feature request, it means no one feels like implementing it.
 
-Can I include |app| on a CD to be distributed with my product/magazine?
+How is |app| licensed?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-|app| is licensed under the GNU General Public License v3 (an open source license). This means that you are free to redistribute |app| as long as you make the source code available. So if you want to put |app| on a CD with your product, you must also put the |app| source code on the CD. The source code is available for download `from googlecode <http://code.google.com/p/calibre-ebook/downloads/list>`_.
+|app| is licensed under the GNU General Public License v3 (an open source license). This means that you are free to redistribute |app| as long as you make the source code available. So if you want to put |app| on a CD with your product, you must also put the |app| source code on the CD. The source code is available for download `from googlecode <http://code.google.com/p/calibre-ebook/downloads/list>`_. You are free to use the results of conversions from |app| however you want. You cannot use code, libraries from |app| in your software without maing your software open source. For details, see `The GNU GPL v3 http://www.gnu.org/licenses/gpl.html`_.
 
 How do I run calibre from my USB stick?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -783,6 +783,12 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
             books_to_refresh = self.db.set_custom(id, val, label=dfm['label'],
                                                   extra=extra, commit=False,
                                                   allow_case_change=True)
+        elif dest.startswith('#') and dest.endswith('_index'):
+            label = self.db.field_metadata[dest[:-6]]['label']
+            series = self.db.get_custom(id, label=label, index_is_id=True)
+            books_to_refresh = self.db.set_custom(id, series, label=label,
+                                                  extra=val, commit=False,
+                                                  allow_case_change=True)
         else:
             if dest == 'comments':
                 setter = self.db.set_comment

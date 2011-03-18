@@ -1,23 +1,12 @@
-__license__   = 'GPL v3'
-__copyright__ = '2009-2010, Darko Miletic <darko.miletic at gmail.com>'
-'''
-www.instapaper.com
-'''
-
-import urllib
 from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
 
-class Instapaper(BasicNewsRecipe):
-    title                 = 'Instapaper.com'
+class AdvancedUserRecipe1299694372(BasicNewsRecipe):
+    title          = u'Instapaper'
     __author__            = 'Darko Miletic'
-    description           = '''Personalized news feeds. Go to instapaper.com to
-                               setup up your news. Fill in your instapaper
-                               username, and leave the password field
-                               below blank.'''
     publisher             = 'Instapaper.com'
-    category              = 'news, custom'
-    oldest_article        = 7
+    category              = 'info, custom, Instapaper'
+    oldest_article = 365
     max_articles_per_feed = 100
     no_stylesheets        = True
     use_embedded_content  = False
@@ -25,16 +14,9 @@ class Instapaper(BasicNewsRecipe):
     INDEX                 = u'http://www.instapaper.com'
     LOGIN                 = INDEX + u'/user/login'
 
-    conversion_options = {
-                          'comment'   : description
-                        , 'tags'      : category
-                        , 'publisher' : publisher
-                        }
 
-    feeds = [
-              (u'Unread articles' , INDEX + u'/u'      )
-             ,(u'Starred articles', INDEX + u'/starred')
-            ]
+
+    feeds          = [(u'Instapaper Unread', u'http://www.instapaper.com/u'), (u'Instapaper Starred', u'http://www.instapaper.com/starred')]
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser()
@@ -70,7 +52,3 @@ class Instapaper(BasicNewsRecipe):
                                     })
             totalfeeds.append((feedtitle, articles))
         return totalfeeds
-
-    def print_version(self, url):
-        return self.INDEX + '/text?u=' + urllib.quote(url)
-

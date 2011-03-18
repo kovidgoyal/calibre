@@ -56,7 +56,7 @@ class Tag(object):
         self.is_hierarchical = False
         self.is_editable = is_editable
         self.is_searchable = is_searchable
-        self.id_set = id_set
+        self.id_set = id_set if id_set is not None else set([])
         self.avg_rating = avg/2.0 if avg is not None else 0
         self.sort = sort
         if self.avg_rating > 0:
@@ -1154,15 +1154,18 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if notify:
             self.notify('delete', [id])
 
-    def remove_format(self, index, format, index_is_id=False, notify=True, commit=True):
+    def remove_format(self, index, format, index_is_id=False, notify=True,
+                      commit=True, db_only=False):
         id = index if index_is_id else self.id(index)
         name = self.conn.get('SELECT name FROM data WHERE book=? AND format=?', (id, format), all=False)
         if name:
-            path = self.format_abspath(id, format, index_is_id=True)
-            try:
-                delete_file(path)
-            except:
-                traceback.print_exc()
+            if not db_only:
+                try:
+                    path = self.format_abspath(id, format, index_is_id=True)
+                    if path:
+                        delete_file(path)
+                except:
+                    traceback.print_exc()
             self.conn.execute('DELETE FROM data WHERE book=? AND format=?', (id, format.upper()))
             if commit:
                 self.conn.commit()
@@ -1207,6 +1210,13 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             return ans
 
         field = self.field_metadata[category]
+        if field['datatype'] == 'composite':
+            dex = field['rec_index']
+            for book in self.data.iterall():
+                if book[dex] == id_:
+                    ans.add(book[0])
+            return ans
+
         ans = self.conn.get(
                 'SELECT book FROM books_{tn}_link WHERE {col}=?'.format(
                     tn=field['table'], col=field['link_column']), (id_,))
@@ -1278,7 +1288,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
         # First, build the maps. We need a category->items map and an
         # item -> (item_id, sort_val) map to use in the books loop
-        for category in tb_cats.keys():
+        for category in tb_cats.iterkeys():
             cat = tb_cats[category]
             if not cat['is_category'] or cat['kind'] in ['user', 'search'] \
                     or category in ['news', 'formats'] or cat.get('is_csp',
@@ -1321,8 +1331,15 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             tcategories[category] = {}
             # create a list of category/field_index for the books scan to use.
             # This saves iterating through field_metadata for each book
-            md.append((category, cat['rec_index'], cat['is_multiple']))
+            md.append((category, cat['rec_index'], cat['is_multiple'], False))
 
+        for category in tb_cats.iterkeys():
+            cat = tb_cats[category]
+            if cat['datatype'] == 'composite' and \
+                                cat['display'].get('make_category', False):
+                tcategories[category] = {}
+                md.append((category, cat['rec_index'], cat['is_multiple'],
+                           cat['datatype'] == 'composite'))
         #print 'end phase "collection":', time.clock() - last, 'seconds'
         #last = time.clock()
 
@@ -1336,11 +1353,22 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 continue
             rating = book[rating_dex]
             # We kept track of all possible category field_map positions above
-            for (cat, dex, mult) in md:
-                if book[dex] is None:
+            for (cat, dex, mult, is_comp) in md:
+                if not book[dex]:
                     continue
                 if not mult:
                     val = book[dex]
+                    if is_comp:
+                        item = tcategories[cat].get(val, None)
+                        if not item:
+                            item = tag_class(val, val)
+                            tcategories[cat][val] = item
+                        item.c += 1
+                        item.id = val
+                        if rating > 0:
+                            item.rt += rating
+                            item.rc += 1
+                        continue
                     try:
                         (item_id, sort_val) = tids[cat][val] # let exceptions fly
                         item = tcategories[cat].get(val, None)
@@ -1402,7 +1430,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         # and building the Tag instances.
         categories = {}
         tag_class = Tag
-        for category in tb_cats.keys():
+        for category in tb_cats.iterkeys():
             if category not in tcategories:
                 continue
             cat = tb_cats[category]
@@ -1690,10 +1718,20 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.notify('metadata', [id])
         return books_to_refresh
 
-    def set_metadata(self, id, mi, ignore_errors=False,
-                     set_title=True, set_authors=True, commit=True):
+    def set_metadata(self, id, mi, ignore_errors=False, set_title=True,
+                     set_authors=True, commit=True, force_changes=False):
         '''
         Set metadata for the book `id` from the `Metadata` object `mi`
+
+        Setting force_changes=True will force set_metadata to update fields even
+        if mi contains empty values. In this case, 'None' is distinguished from
+        'empty'. If mi.XXX is None, the XXX is not replaced, otherwise it is.
+        The tags, identifiers, and cover attributes are special cases. Tags and
+        identifiers cannot be set to None so then will always be replaced if
+        force_changes is true. You must ensure that mi contains the values you
+        want the book to have. Covers are always changed if a new cover is
+        provided, but are never deleted. Also note that force_changes has no
+        effect on setting title or authors.
         '''
         if callable(getattr(mi, 'to_book_metadata', None)):
             # Handle code passing in a OPF object instead of a Metadata object
@@ -1707,6 +1745,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     traceback.print_exc()
                 else:
                     raise
+
+        def should_replace_field(attr):
+            return (force_changes and (mi.get(attr, None) is not None)) or \
+                    not mi.is_null(attr)
+
         path_changed = False
         if set_title and mi.title:
             self._set_title(id, mi.title)
@@ -1721,16 +1764,21 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             path_changed = True
         if path_changed:
             self.set_path(id, index_is_id=True)
-        if mi.author_sort:
+
+        if should_replace_field('author_sort'):
             doit(self.set_author_sort, id, mi.author_sort, notify=False,
                     commit=False)
-        if mi.publisher:
+        if should_replace_field('publisher'):
             doit(self.set_publisher, id, mi.publisher, notify=False,
                     commit=False)
-        if mi.rating:
+
+        # Setting rating to zero is acceptable.
+        if mi.rating is not None:
             doit(self.set_rating, id, mi.rating, notify=False, commit=False)
-        if mi.series:
+        if should_replace_field('series'):
             doit(self.set_series, id, mi.series, notify=False, commit=False)
+
+        # force_changes has no effect on cover manipulation
         if mi.cover_data[1] is not None:
             doit(self.set_cover, id, mi.cover_data[1], commit=False)
         elif mi.cover is not None:
@@ -1739,21 +1787,30 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     raw = f.read()
                 if raw:
                     doit(self.set_cover, id, raw, commit=False)
-        if mi.tags:
+
+        # if force_changes is true, tags are always replaced because the
+        # attribute cannot be set to None.
+        if should_replace_field('tags'):
             doit(self.set_tags, id, mi.tags, notify=False, commit=False)
-        if mi.comments:
+
+        if should_replace_field('comments'):
             doit(self.set_comment, id, mi.comments, notify=False, commit=False)
-        if mi.series_index:
+
+        # Setting series_index to zero is acceptable
+        if mi.series_index is not None:
             doit(self.set_series_index, id, mi.series_index, notify=False,
                     commit=False)
-        if mi.pubdate:
+        if should_replace_field('pubdate'):
             doit(self.set_pubdate, id, mi.pubdate, notify=False, commit=False)
         if getattr(mi, 'timestamp', None) is not None:
             doit(self.set_timestamp, id, mi.timestamp, notify=False,
                     commit=False)
 
+        # identifiers will always be replaced if force_changes is True
         mi_idents = mi.get_identifiers()
-        if mi_idents:
+        if force_changes:
+            self.set_identifiers(id, mi_idents, notify=False, commit=False)
+        elif mi_idents:
             identifiers = self.get_identifiers(id, index_is_id=True)
             for key, val in mi_idents.iteritems():
                 if val and val.strip(): # Don't delete an existing identifier
@@ -1765,10 +1822,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         for key in user_mi.iterkeys():
             if key in self.field_metadata and \
                     user_mi[key]['datatype'] == self.field_metadata[key]['datatype']:
-                doit(self.set_custom, id,
-                     val=mi.get(key),
-                     extra=mi.get_extra(key),
-                     label=user_mi[key]['label'], commit=False)
+                val = mi.get(key, None)
+                if force_changes or val is not None:
+                    doit(self.set_custom, id, val=val, extra=mi.get_extra(key),
+                         label=user_mi[key]['label'], commit=False)
         if commit:
             self.conn.commit()
         self.notify('metadata', [id])
@@ -2358,6 +2415,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         @param tags: list of strings
         @param append: If True existing tags are not removed
         '''
+        if not tags:
+            tags = []
         if not append:
             self.conn.execute('DELETE FROM books_tags_link WHERE book=?', (id,))
             self.conn.execute('''DELETE FROM tags WHERE (SELECT COUNT(id)
@@ -2508,6 +2567,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             self.notify('metadata', [id])
 
     def set_rating(self, id, rating, notify=True, commit=True):
+        if not rating:
+            rating = 0
         rating = int(rating)
         self.conn.execute('DELETE FROM books_ratings_link WHERE book=?',(id,))
         rat = self.conn.get('SELECT id FROM ratings WHERE rating=?', (rating,), all=False)
@@ -2522,7 +2583,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     def set_comment(self, id, text, notify=True, commit=True):
         self.conn.execute('DELETE FROM comments WHERE book=?', (id,))
-        self.conn.execute('INSERT INTO comments(book,text) VALUES (?,?)', (id, text))
+        if text:
+            self.conn.execute('INSERT INTO comments(book,text) VALUES (?,?)', (id, text))
+        else:
+            text = ''
         if commit:
             self.conn.commit()
         self.data.set(id, self.FIELD_MAP['comments'], text, row_is_id=True)
@@ -2531,6 +2595,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             self.notify('metadata', [id])
 
     def set_author_sort(self, id, sort, notify=True, commit=True):
+        if not sort:
+            sort = ''
         self.conn.execute('UPDATE books SET author_sort=? WHERE id=?', (sort, id))
         self.dirtied([id], commit=False)
         if commit:
@@ -2602,6 +2668,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     def set_identifiers(self, id_, identifiers, notify=True, commit=True):
         cleaned = {}
+        if not identifiers:
+            identifiers = {}
         for typ, val in identifiers.iteritems():
             typ, val = self._clean_identifier(typ, val)
             if val:
