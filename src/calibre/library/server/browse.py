@@ -623,7 +623,7 @@ class BrowseServer(object):
             except:
                 raise cherrypy.HTTPError(404, 'Search: %r not understood'%which)
         else:
-            if fm[category]['datatype'] == 'composite':
+            if fm.get(category, {'datatype':None})['datatype'] == 'composite':
                 cid = cid.decode('utf-8')
             all_ids = self.search_cache('')
             if category == 'newest':
