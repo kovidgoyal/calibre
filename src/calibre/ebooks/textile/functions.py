@@ -5,9 +5,9 @@ PyTextile
 A Humane Web Text Generator
 """
 
-__version__ = '2.1.4'
-
-__date__ = '2009/12/04'
+# Last upstream version basis
+# __version__ = '2.1.4'
+#__date__ = '2009/12/04'
 
 __copyright__ = """
 Copyright (c) 2011, Leigh Parry
