@@ -850,6 +850,7 @@ class Manifest(object):
             return data
 
         def _parse_xhtml(self, data):
+            orig_data = data
             self.oeb.log.debug('Parsing', self.href, '...')
             # Convert to Unicode and normalize line endings
             data = self.oeb.decode(data)
@@ -927,6 +928,8 @@ class Manifest(object):
 
             # Handle weird (non-HTML/fragment) files
             if barename(data.tag) != 'html':
+                if self.href.endswith('.ncx'):
+                    return self._parse_xml(orig_data)
                 self.oeb.log.warn('File %r does not appear to be (X)HTML'%self.href)
                 nroot = etree.fromstring('<html></html>')
                 has_body = False
