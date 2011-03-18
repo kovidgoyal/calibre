@@ -928,7 +928,7 @@ class Manifest(object):
 
             # Handle weird (non-HTML/fragment) files
             if barename(data.tag) != 'html':
-                if self.href.endswith('.ncx'):
+                if barename(data.tag) == 'ncx':
                     return self._parse_xml(orig_data)
                 self.oeb.log.warn('File %r does not appear to be (X)HTML'%self.href)
                 nroot = etree.fromstring('<html></html>')
