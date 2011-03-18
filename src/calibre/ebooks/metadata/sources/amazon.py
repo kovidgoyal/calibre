@@ -322,7 +322,7 @@ class Amazon(Source):
     # }}}
 
     def identify(self, log, result_queue, abort, title=None, authors=None, # {{{
-            identifiers={}, timeout=20):
+            identifiers={}, timeout=30):
         '''
         Note this method will retry without identifiers automatically if no
         match is found with identifiers.
@@ -436,7 +436,7 @@ if __name__ == '__main__':
 
             ( # An e-book ISBN not on Amazon, one of the authors is
               # unknown to Amazon, so no popup wrapper
-                {'identifiers':{'isbn': '0307459671'},
+                {'identifiers':{'isbn': '9780307459671'},
                     'title':'Invisible Gorilla', 'authors':['Christopher Chabris']},
                 [title_test('The Invisible Gorilla: And Other Ways Our Intuitions Deceive Us',
                     exact=True), authors_test(['Christopher Chabris', 'Daniel Simons'])]

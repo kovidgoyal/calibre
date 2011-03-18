@@ -1052,11 +1052,13 @@ class DeviceMixin(object): # {{{
                     except:
                         pass
                     total_size = self.location_manager.free[0]
-                if self.location_manager.free[0] > total_size + (1024**2):
+                loc = tweaks['send_news_to_device_location']
+                loc_index = {"carda": 1, "cardb": 2}.get(loc, 0)
+                if self.location_manager.free[loc_index] > total_size + (1024**2):
                     # Send news to main memory if enough space available
                     # as some devices like the Nook Color cannot handle
                     # periodicals on SD cards properly
-                    on_card = None
+                    on_card = loc if loc in ('carda', 'cardb') else None
                 self.upload_books(files, names, metadata,
                         on_card=on_card,
                         memory=[files, remove])

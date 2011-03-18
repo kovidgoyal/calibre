@@ -16,7 +16,7 @@ from lxml import etree
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.constants import __appname__, __version__, filesystem_encoding
 from calibre.ebooks.metadata.toc import TOC
-from calibre.ebooks.metadata import string_to_authors, MetaInformation
+from calibre.ebooks.metadata import string_to_authors, MetaInformation, check_isbn
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.utils.date import parse_date, isoformat
 from calibre.utils.localization import get_lang
@@ -863,6 +863,7 @@ class OPF(object): # {{{
         for x in self.XPath(
             'descendant::*[local-name() = "identifier" and text()]')(
                     self.metadata):
+            found_scheme = False
             for attr, val in x.attrib.iteritems():
                 if attr.endswith('scheme'):
                     typ = icu_lower(val)
@@ -870,7 +871,15 @@ class OPF(object): # {{{
                             method='text').strip()
                     if val and typ not in ('calibre', 'uuid'):
                         identifiers[typ] = val
+                    found_scheme = True
                     break
+            if not found_scheme:
+                val = etree.tostring(x, with_tail=False, encoding=unicode,
+                            method='text').strip()
+                if val.lower().startswith('urn:isbn:'):
+                    val = check_isbn(val.split(':')[-1])
+                    if val is not None:
+                        identifiers['isbn'] = val
         return identifiers
 
     @dynamic_property
