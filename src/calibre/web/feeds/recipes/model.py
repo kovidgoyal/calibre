@@ -143,7 +143,7 @@ class RecipeModel(QAbstractItemModel, SearchQueryParser):
                 self.favicons = dict([(x, zf.getinfo(x)) for x in zf.namelist() if
                     x.endswith('.png')])
         except:
-            self.favicons = frozenset()
+            self.favicons = {}
         self.do_refresh()
 
     def get_builtin_recipe(self, urn, download=True):
