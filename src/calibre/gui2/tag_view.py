@@ -16,7 +16,8 @@ from PyQt4.Qt import Qt, QTreeView, QApplication, pyqtSignal, QFont, QSize, \
                      QIcon, QPoint, QVBoxLayout, QHBoxLayout, QComboBox, QTimer,\
                      QAbstractItemModel, QVariant, QModelIndex, QMenu, QFrame,\
                      QPushButton, QWidget, QItemDelegate, QString, QLabel, \
-                     QShortcut, QKeySequence, SIGNAL, QMimeData, QSizePolicy
+                     QShortcut, QKeySequence, SIGNAL, QMimeData, QSizePolicy,\
+                     QToolButton
 
 from calibre.ebooks.metadata import title_sort
 from calibre.gui2 import config, NONE, gprefs
@@ -2061,16 +2062,13 @@ class TagBrowserWidget(QWidget): # {{{
         sc = QShortcut(QKeySequence(_('ALT+f')), parent)
         sc.connect(sc, SIGNAL('activated()'), self.set_focus_to_find_box)
 
-        self.search_button = QPushButton()
+        self.search_button = QToolButton()
         self.search_button.setText(_('F&ind'))
         self.search_button.setToolTip(_('Find the first/next matching item'))
-        self.search_button.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,
-            QSizePolicy.Minimum))
         search_layout.addWidget(self.search_button)
 
-        self.expand_button = QPushButton()
+        self.expand_button = QToolButton()
         self.expand_button.setText('-')
-        self.expand_button.setFixedWidth(20)
         self.expand_button.setToolTip(_('Collapse all categories'))
         search_layout.addWidget(self.expand_button)
         search_layout.setStretch(0, 10)
