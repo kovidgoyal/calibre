@@ -140,8 +140,8 @@ class RecipeModel(QAbstractItemModel, SearchQueryParser):
         self.scheduler_config = SchedulerConfig()
         try:
             with zipfile.ZipFile(P('builtin_recipes.zip'), 'r') as zf:
-                self.favicons = dict([(x, zf.getinfo(x)) for x in zf.namelist() if
-                    x.endswith('.png')])
+                self.favicons = dict([(x.filename, x) for x in zf.infolist() if
+                    x.filename.endswith('.png')])
         except:
             self.favicons = {}
         self.do_refresh()
