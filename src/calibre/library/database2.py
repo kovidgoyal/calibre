@@ -53,7 +53,7 @@ class Tag(object):
         self.id = id
         self.count = count
         self.state = state
-        self.is_hierarchical = False
+        self.is_hierarchical = ''
         self.is_editable = is_editable
         self.is_searchable = is_searchable
         self.id_set = id_set if id_set is not None else set([])
