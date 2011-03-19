@@ -707,8 +707,8 @@ class TagTreeItem(object): # {{{
                         break
                 elif self.tag.state == TAG_SEARCH_STATES['mark_plusplus'] or\
                         self.tag.state == TAG_SEARCH_STATES['mark_minusminus']:
-                    if self.tag.is_searchable and self.tag.is_hierarchical \
-                                and len(self.children):
+                    if self.tag.is_searchable and len(self.children) and \
+                                    self.tag.is_hierarchical == '5state':
                         break
                 else:
                     break
@@ -803,7 +803,8 @@ class TagsModel(QAbstractItemModel): # {{{
                         self.category_nodes.append(node)
                         node.can_be_edited = (not is_gst) and (i == (len(path_parts)-1))
                         node.is_gst = is_gst
-                        node.tag.is_hierarchical = not is_gst
+                        if not is_gst:
+                            node.tag.is_hierarchical = '5state'
                         if not is_gst:
                             tree_root[p] = {}
                             tree_root = tree_root[p]
@@ -1294,7 +1295,8 @@ class TagsModel(QAbstractItemModel): # {{{
                                             if t.type != TagTreeItem.CATEGORY])
                         if (comp,tag.category) in child_map:
                             node_parent = child_map[(comp,tag.category)]
-                            node_parent.tag.is_hierarchical = key != 'search'
+                            node_parent.tag.is_hierarchical = \
+                                '5state' if tag.category != 'search' else '3state'
                         else:
                             if i < len(components)-1:
                                 t = copy.copy(tag)
@@ -1309,7 +1311,8 @@ class TagsModel(QAbstractItemModel): # {{{
                                 t = tag
                                 if not in_uc:
                                     t.original_name = t.name
-                            t.is_hierarchical = key != 'search'
+                            t.is_hierarchical = \
+                                '5state' if t.category != 'search' else '3state'
                             t.name = comp
                             self.beginInsertRows(category_index, 999999, 1)
                             node_parent = TagTreeItem(parent=node_parent, data=t,
