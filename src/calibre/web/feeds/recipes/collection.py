@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, calendar
+import os, calendar, zipfile
 from threading import RLock
 from datetime import timedelta
 
@@ -24,7 +24,7 @@ def iterate_over_builtin_recipe_files():
     exclude = ['craigslist', 'iht', 'outlook_india', 'toronto_sun',
             'indian_express', 'india_today', 'livemint']
     d = os.path.dirname
-    base = os.path.join(d(d(d(d(d(d(os.path.abspath(__file__))))))), 'resources', 'recipes')
+    base = os.path.join(d(d(d(d(d(d(os.path.abspath(__file__))))))), 'recipes')
     for x in os.walk(base):
         for f in x[-1]:
             fbase, ext = os.path.splitext(f)
@@ -33,7 +33,7 @@ def iterate_over_builtin_recipe_files():
             f = os.path.join(x[0], f)
             rid = os.path.splitext(os.path.relpath(f, base).replace(os.sep,
                 '/'))[0]
-            yield rid, os.path.join(x[0], f)
+            yield rid, f
 
 
 def serialize_recipe(urn, recipe_class):
@@ -178,6 +178,10 @@ def download_builtin_recipe(urn):
     br = browser()
     return br.open_novisit('http://status.calibre-ebook.com/recipe/'+urn).read()
 
+def get_builtin_recipe(urn):
+    with zipfile.ZipFile(P('builtin_recipes.zip'), 'r') as zf:
+        return zf.read(urn+'.recipe')
+
 def get_builtin_recipe_by_title(title, log=None, download_recipe=False):
     for x in get_builtin_recipe_collection():
         if x.get('title') == title:
@@ -194,7 +198,7 @@ def get_builtin_recipe_by_title(title, log=None, download_recipe=False):
                     else:
                         log.exception(
                         'Failed to download recipe, using builtin version')
-            return P('recipes/%s.recipe'%urn, data=True)
+            return get_builtin_recipe(urn)
 
 def get_builtin_recipe_by_id(id_, log=None, download_recipe=False):
     for x in get_builtin_recipe_collection():
@@ -212,7 +216,7 @@ def get_builtin_recipe_by_id(id_, log=None, download_recipe=False):
                     else:
                         log.exception(
                         'Failed to download recipe, using builtin version')
-            return P('recipes/%s.recipe'%urn, data=True)
+            return get_builtin_recipe(urn)
 
 class SchedulerConfig(object):
 
