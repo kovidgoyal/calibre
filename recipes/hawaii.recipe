@@ -1,0 +1,21 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1282101454(BasicNewsRecipe):
+    title = 'West Hawaii Today'
+    __author__ = 'Tony Stegall'
+    language = 'en'
+    description = 'Westhawaiitoday.com'
+    publisher = 'West Hawaii '
+    category = 'news,Hawaii,USA'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    no_stylesheets = True
+    remove_javascript = True
+    use_embedded_content = True
+
+    masthead_url = 'http://images.townnews.com/westhawaiitoday.com/art/whttoplogo.gif'
+
+
+    feeds          = [ 'http://www.westhawaiitoday.com/rss.xml']
+
+
