@@ -216,7 +216,7 @@ class Textile(object):
         (re.compile(r'(\S)\'(?=\s|\'|<|$)'),                           r'\1&#8217;'),                          #  single closing
         (re.compile(r'\'/'),                                           r'&#8216;'),                            #  single opening
         (re.compile(r'(\")\"'),                                        r'\1&#8221;'),                          #  double closing - following another
-        (re.compile(r'(\S)\"(?=\s|\"|<|$)'),                           r'\1&#8221;'),                          #  double closing
+        (re.compile(r'(\S)\"(?=\s|&#8221;|<|$)'),                      r'\1&#8221;'),                          #  double closing
         (re.compile(r'"'),                                             r'&#8220;'),                            #  double opening
         (re.compile(r'\b([A-Z][A-Z0-9]{2,})\b(?:[(]([^)]*)[)])'),      r'<acronym title="\2">\1</acronym>'),   #  3+ uppercase acronym
         (re.compile(r'\b([A-Z][A-Z\'\-]+[A-Z])(?=[\s.,\)>])'),         r'<span class="caps">\1</span>'),       #  3+ uppercase
