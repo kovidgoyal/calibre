@@ -656,6 +656,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
             pass
         time.sleep(2)
         self.hide_windows()
+        # Do not report any errors that happen after the shutdown
+        sys.excepthook = sys.__excepthook__
         return True
 
     def run_wizard(self, *args):

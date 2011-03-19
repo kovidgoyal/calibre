@@ -6,10 +6,10 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, copy
+import copy, zipfile
 
 from PyQt4.Qt import QAbstractItemModel, QVariant, Qt, QColor, QFont, QIcon, \
-        QModelIndex, pyqtSignal
+        QModelIndex, pyqtSignal, QPixmap
 
 from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.gui2 import NONE
@@ -93,12 +93,13 @@ class NewsCategory(NewsTreeItem):
 
 class NewsItem(NewsTreeItem):
 
-    def __init__(self, urn, title, default_icon, custom_icon,
+    def __init__(self, urn, title, default_icon, custom_icon, favicons, zf,
             builtin, custom, scheduler_config, parent):
         NewsTreeItem.__init__(self, builtin, custom, scheduler_config, parent)
         self.urn, self.title = urn, title
         self.icon = self.default_icon = None
         self.default_icon = default_icon
+        self.favicons, self.zf = favicons, zf
         if 'custom:' in self.urn:
             self.icon = custom_icon
 
@@ -107,9 +108,16 @@ class NewsItem(NewsTreeItem):
             return QVariant(self.title)
         if role == Qt.DecorationRole:
             if self.icon is None:
-                icon = I('news/%s.png'%self.urn[8:])
-                if os.path.exists(icon):
-                    self.icon = QVariant(QIcon(icon))
+                icon = '%s.png'%self.urn[8:]
+                p = QPixmap()
+                if icon in self.favicons:
+                    try:
+                        with zipfile.ZipFile(self.zf, 'r') as zf:
+                            p.loadFromData(zf.read(self.favicons[icon]))
+                    except:
+                        pass
+                if not p.isNull():
+                    self.icon = QVariant(QIcon(p))
                 else:
                     self.icon = self.default_icon
             return self.icon
@@ -130,6 +138,12 @@ class RecipeModel(QAbstractItemModel, SearchQueryParser):
         self.custom_icon = QVariant(QIcon(I('user_profile.png')))
         self.builtin_recipe_collection = get_builtin_recipe_collection()
         self.scheduler_config = SchedulerConfig()
+        try:
+            with zipfile.ZipFile(P('builtin_recipes.zip'), 'r') as zf:
+                self.favicons = dict([(x, zf.getinfo(x)) for x in zf.namelist() if
+                    x.endswith('.png')])
+        except:
+            self.favicons = {}
         self.do_refresh()
 
     def get_builtin_recipe(self, urn, download=True):
@@ -166,11 +180,13 @@ class RecipeModel(QAbstractItemModel, SearchQueryParser):
 
     def do_refresh(self, restrict_to_urns=set([])):
         self.custom_recipe_collection = get_custom_recipe_collection()
+        zf = P('builtin_recipes.zip')
 
         def factory(cls, parent, *args):
             args = list(args)
             if cls is NewsItem:
-                args.extend([self.default_icon, self.custom_icon])
+                args.extend([self.default_icon, self.custom_icon,
+                    self.favicons, zf])
             args += [self.builtin_recipe_collection,
                      self.custom_recipe_collection, self.scheduler_config,
                      parent]

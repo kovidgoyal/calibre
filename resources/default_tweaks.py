@@ -355,3 +355,11 @@ draw_hidden_section_indicators = True
 # large covers
 maximum_cover_size = (1200, 1600)
 
+#: Where to send downloaded news
+# When automatically sending downloaded news to a connected device, calibre
+# will by default send it to the main memory. By changing this tweak, you can
+# control where it is sent. Valid values are "main", "carda", "cardb". Note
+# that if there isn't enough free space available on the location you choose,
+# the files will be sent to the location with the most free space.
+send_news_to_device_location = "main"
+

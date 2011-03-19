@@ -20,18 +20,21 @@ from calibre.utils.cleantext import clean_ascii_chars
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.library.comments import sanitize_comments_html
+from calibre.utils.date import parse_date
 
-class Worker(Thread):
+class Worker(Thread): # {{{
 
     '''
     Get book details from amazons book page in a separate thread
     '''
 
     def __init__(self, url, result_queue, browser, log, timeout=20):
+        Thread.__init__(self)
+        self.daemon = True
         self.url, self.result_queue = url, result_queue
         self.log, self.timeout = log, timeout
         self.browser = browser.clone_browser()
-        self.cover_url = self.amazon_id = None
+        self.cover_url = self.amazon_id = self.isbn = None
 
     def run(self):
         try:
@@ -59,6 +62,7 @@ class Worker(Thread):
 
         raw = xml_to_unicode(raw, strip_encoding_pats=True,
                 resolve_entities=True)[0]
+        # open('/t/t.html', 'wb').write(raw)
 
         if '<title>404 - ' in raw:
             self.log.error('URL malformed: %r'%self.url)
@@ -111,7 +115,7 @@ class Worker(Thread):
         self.amazon_id = asin
 
         try:
-            mi.rating = self.parse_ratings(root)
+            mi.rating = self.parse_rating(root)
         except:
             self.log.exception('Error parsing ratings for url: %r'%self.url)
 
@@ -124,6 +128,38 @@ class Worker(Thread):
             self.cover_url = self.parse_cover(root)
         except:
             self.log.exception('Error parsing cover for url: %r'%self.url)
+        mi.has_cover = bool(self.cover_url)
+
+        pd = root.xpath('//h2[text()="Product Details"]/../div[@class="content"]')
+        if pd:
+            pd = pd[0]
+
+            try:
+                isbn = self.parse_isbn(pd)
+                if isbn:
+                    self.isbn = mi.isbn = isbn
+            except:
+                self.log.exception('Error parsing ISBN for url: %r'%self.url)
+
+            try:
+                mi.publisher = self.parse_publisher(pd)
+            except:
+                self.log.exception('Error parsing publisher for url: %r'%self.url)
+
+            try:
+                mi.pubdate = self.parse_pubdate(pd)
+            except:
+                self.log.exception('Error parsing publish date for url: %r'%self.url)
+
+            try:
+                lang = self.parse_language(pd)
+                if lang:
+                    mi.language = lang
+            except:
+                self.log.exception('Error parsing language for url: %r'%self.url)
+
+        else:
+            self.log.warning('Failed to find product description for url: %r'%self.url)
 
         self.result_queue.put(mi)
 
@@ -140,27 +176,26 @@ class Worker(Thread):
                     method='text').strip()
         else:
             title = tostring(tdiv, encoding=unicode, method='text').strip()
-        return re.sub(r'[([].*[)]]', '', title).strip()
+        return re.sub(r'[(\[].*[)\]]', '', title).strip()
 
     def parse_authors(self, root):
-        bdiv = root.xpath('//div[@class="buying"]')[0]
-        aname = bdiv.xpath('descendant::span[@class="contributorNameTrigger"]')
+        x = '//h1[@class="parseasinTitle"]/following-sibling::span/*[(name()="a" and @href) or (name()="span" and @class="contributorNameTrigger")]'
+        aname = root.xpath(x)
+        for x in aname:
+            x.tail = ''
         authors = [tostring(x, encoding=unicode, method='text').strip() for x
                 in aname]
         return authors
 
-    def parse_ratings(self, root):
-        ratings = root.xpath('//form[@id="handleBuy"]/descendant::*[@class="asinReviewsSummary"]')
+    def parse_rating(self, root):
+        ratings = root.xpath('//div[@class="jumpBar"]/descendant::span[@class="asinReviewsSummary"]')
         pat = re.compile(r'([0-9.]+) out of (\d+) stars')
         if ratings:
             for elem in ratings[0].xpath('descendant::*[@title]'):
-                t = elem.get('title')
+                t = elem.get('title').strip()
                 m = pat.match(t)
                 if m is not None:
-                    try:
-                        return float(m.group(1))/float(m.group(2)) * 5
-                    except:
-                        pass
+                    return float(m.group(1))/float(m.group(2)) * 5
 
     def parse_comments(self, root):
         desc = root.xpath('//div[@id="productDescription"]/*[@class="content"]')
@@ -185,14 +220,46 @@ class Worker(Thread):
         imgs = root.xpath('//img[@id="prodImage" and @src]')
         if imgs:
             src = imgs[0].get('src')
-            parts = src.split('/')
-            if len(parts) > 3:
-                bn = parts[-1]
-                sparts = bn.split('_')
-                if len(sparts) > 2:
-                    bn = sparts[0] + sparts[-1]
-                    return ('/'.join(parts[:-1]))+'/'+bn
+            if '/no-image-avail' not in src:
+                parts = src.split('/')
+                if len(parts) > 3:
+                    bn = parts[-1]
+                    sparts = bn.split('_')
+                    if len(sparts) > 2:
+                        bn = sparts[0] + sparts[-1]
+                        return ('/'.join(parts[:-1]))+'/'+bn
 
+    def parse_isbn(self, pd):
+        for x in reversed(pd.xpath(
+            'descendant::*[starts-with(text(), "ISBN")]')):
+            if x.tail:
+                ans = check_isbn(x.tail.strip())
+                if ans:
+                    return ans
+
+    def parse_publisher(self, pd):
+        for x in reversed(pd.xpath(
+            'descendant::*[starts-with(text(), "Publisher:")]')):
+            if x.tail:
+                ans = x.tail.partition(';')[0]
+                return ans.partition('(')[0].strip()
+
+    def parse_pubdate(self, pd):
+        for x in reversed(pd.xpath(
+            'descendant::*[starts-with(text(), "Publisher:")]')):
+            if x.tail:
+                ans = x.tail
+                date = ans.partition('(')[-1].replace(')', '').strip()
+                return parse_date(date, assume_utc=True)
+
+    def parse_language(self, pd):
+        for x in reversed(pd.xpath(
+            'descendant::*[starts-with(text(), "Language:")]')):
+            if x.tail:
+                ans = x.tail.strip()
+                if ans == 'English':
+                    return 'en'
+# }}}
 
 class Amazon(Source):
 
@@ -200,7 +267,8 @@ class Amazon(Source):
     description = _('Downloads metadata from Amazon')
 
     capabilities = frozenset(['identify'])
-    touched_fields = frozenset(['title', 'authors', 'isbn', 'pubdate', 'comments'])
+    touched_fields = frozenset(['title', 'authors', 'identifier:amazon',
+        'identifier:isbn', 'rating', 'comments', 'publisher', 'pubdate'])
 
     AMAZON_DOMAINS = {
             'com': _('US'),
@@ -208,7 +276,7 @@ class Amazon(Source):
             'de' : _('Germany'),
     }
 
-    def create_query(self, log, title=None, authors=None, identifiers={}):
+    def create_query(self, log, title=None, authors=None, identifiers={}): # {{{
         domain = self.prefs.get('domain', 'com')
 
         # See the amazon detailed search page to get all options
@@ -251,9 +319,14 @@ class Amazon(Source):
         url = 'http://www.amazon.%s/s/?'%domain + urlencode(utf8q)
         return url
 
+    # }}}
 
-    def identify(self, log, result_queue, abort, title=None, authors=None,
-            identifiers={}, timeout=20):
+    def identify(self, log, result_queue, abort, title=None, authors=None, # {{{
+            identifiers={}, timeout=30):
+        '''
+        Note this method will retry without identifiers automatically if no
+        match is found with identifiers.
+        '''
         query = self.create_query(log, title=title, authors=authors,
                 identifiers=identifiers)
         if query is None:
@@ -281,37 +354,45 @@ class Amazon(Source):
         raw = xml_to_unicode(raw, strip_encoding_pats=True,
                 resolve_entities=True)[0]
 
-        if '<title>404 - ' in raw:
-            log.error('No matches found for query: %r'%query)
-            return
-
-        try:
-            root = soupparser.fromstring(clean_ascii_chars(raw))
-        except:
-            msg = 'Failed to parse amazon page for query: %r'%query
-            log.exception(msg)
-            return msg
-
-        errmsg = root.xpath('//*[@id="errorMessage"]')
-        if errmsg:
-            msg = tostring(errmsg, method='text', encoding=unicode).strip()
-            log.error(msg)
-            # The error is almost always a not found error
-            return
-
         matches = []
-        for div in root.xpath(r'//div[starts-with(@id, "result_")]'):
-            for a in div.xpath(r'descendant::a[@class="title" and @href]'):
-                title = tostring(a, method='text', encoding=unicode).lower()
-                if 'bulk pack' not in title:
-                    matches.append(a.get('href'))
-                break
+        found = '<title>404 - ' not in raw
+
+        if found:
+            try:
+                root = soupparser.fromstring(clean_ascii_chars(raw))
+            except:
+                msg = 'Failed to parse amazon page for query: %r'%query
+                log.exception(msg)
+                return msg
+
+                errmsg = root.xpath('//*[@id="errorMessage"]')
+                if errmsg:
+                    msg = tostring(errmsg, method='text', encoding=unicode).strip()
+                    log.error(msg)
+                    # The error is almost always a not found error
+                    found = False
+
+        if found:
+            for div in root.xpath(r'//div[starts-with(@id, "result_")]'):
+                for a in div.xpath(r'descendant::a[@class="title" and @href]'):
+                    title = tostring(a, method='text', encoding=unicode).lower()
+                    if 'bulk pack' not in title:
+                        matches.append(a.get('href'))
+                    break
 
         # Keep only the top 5 matches as the matches are sorted by relevance by
         # Amazon so lower matches are not likely to be very relevant
         matches = matches[:5]
 
+        if abort.is_set():
+            return
+
         if not matches:
+            if identifiers and title and authors:
+                log('No matches found with identifiers, retrying using only'
+                        ' title and authors')
+                return self.identify(log, result_queue, abort, title=title,
+                        authors=authors, timeout=timeout)
             log.error('No matches found with query: %r'%query)
             return
 
@@ -333,21 +414,63 @@ class Amazon(Source):
             if not a_worker_is_alive:
                 break
 
+        for w in workers:
+            if w.amazon_id:
+                if w.isbn:
+                    self.cache_isbn_to_identifier(w.isbn, w.amazon_id)
+                if w.cover_url:
+                    self.cache_identifier_to_cover_url(w.amazon_id,
+                            w.cover_url)
+
         return None
+    # }}}
 
 
 if __name__ == '__main__':
     # To run these test use: calibre-debug -e
     # src/calibre/ebooks/metadata/sources/amazon.py
     from calibre.ebooks.metadata.sources.test import (test_identify_plugin,
-            title_test)
+            title_test, authors_test)
     test_identify_plugin(Amazon.name,
         [
 
-            (
-                {'identifiers':{'isbn': '0743273567'}},
-                [title_test('The great gatsby', exact=True)]
+            ( # An e-book ISBN not on Amazon, one of the authors is
+              # unknown to Amazon, so no popup wrapper
+                {'identifiers':{'isbn': '9780307459671'},
+                    'title':'Invisible Gorilla', 'authors':['Christopher Chabris']},
+                [title_test('The Invisible Gorilla: And Other Ways Our Intuitions Deceive Us',
+                    exact=True), authors_test(['Christopher Chabris', 'Daniel Simons'])]
+
             ),
+
+            (  # This isbn not on amazon
+                {'identifiers':{'isbn': '8324616489'}, 'title':'Learning Python',
+                    'authors':['Lutz']},
+                [title_test('Learning Python: Powerful Object-Oriented Programming',
+                    exact=True), authors_test(['Mark Lutz'])
+                 ]
+
+            ),
+
+            ( # Sophisticated comment formatting
+                {'identifiers':{'isbn': '9781416580829'}},
+                [title_test('Angels & Demons - Movie Tie-In: A Novel',
+                    exact=True), authors_test(['Dan Brown'])]
+            ),
+
+            ( # No specific problems
+                {'identifiers':{'isbn': '0743273567'}},
+                [title_test('The great gatsby', exact=True),
+                    authors_test(['F. Scott Fitzgerald'])]
+            ),
+
+            (  # A newer book
+                {'identifiers':{'isbn': '9780316044981'}},
+                [title_test('The Heroes', exact=True),
+                    authors_test(['Joe Abercrombie'])]
+
+            ),
+
         ])
 
 

@@ -510,9 +510,11 @@ class TagsView(QTreeView): # {{{
                 if hasattr(md, 'column_name'):
                     fm_src = self.db.metadata_for_field(md.column_name)
                     if md.column_name in ['authors', 'publisher', 'series'] or \
-                            (fm_src['is_custom'] and
-                            fm_src['datatype'] in ['series', 'text'] and
-                            not fm_src['is_multiple']):
+                            (fm_src['is_custom'] and (
+                             (fm_src['datatype'] in ['series', 'text', 'enumeration'] and
+                              not fm_src['is_multiple']) or
+                             (fm_src['datatype'] == 'composite' and
+                              fm_src['display'].get('make_category', False)))):
                         self.setDropIndicatorShown(True)
 
     def clear(self):
@@ -976,8 +978,11 @@ class TagsModel(QAbstractItemModel): # {{{
                 fm = self.db.metadata_for_field(node.tag.category)
                 if node.tag.category in \
                     ('tags', 'series', 'authors', 'rating', 'publisher') or \
-                    (fm['is_custom'] and \
-                        fm['datatype'] in ['text', 'rating', 'series']):
+                    (fm['is_custom'] and (
+                            fm['datatype'] in ['text', 'rating', 'series',
+                                               'enumeration'] or
+                                (fm['datatype'] == 'composite' and
+                                 fm['display'].get('make_category', False)))):
                     mime = 'application/calibre+from_library'
                     ids = list(map(int, str(md.data(mime)).split()))
                     self.handle_drop(node, ids)
@@ -987,9 +992,11 @@ class TagsModel(QAbstractItemModel): # {{{
                 if fm_dest['kind'] == 'user':
                     fm_src = self.db.metadata_for_field(md.column_name)
                     if md.column_name in ['authors', 'publisher', 'series'] or \
-                            (fm_src['is_custom'] and
-                             fm_src['datatype'] in ['series', 'text'] and
-                             not fm_src['is_multiple']):
+                            (fm_src['is_custom'] and (
+                             (fm_src['datatype'] in ['series', 'text', 'enumeration'] and
+                              not fm_src['is_multiple']))or
+                             (fm_src['datatype'] == 'composite' and
+                              fm_src['display'].get('make_category', False))):
                         mime = 'application/calibre+from_library'
                         ids = list(map(int, str(md.data(mime)).split()))
                         self.handle_user_category_drop(node, ids, md.column_name)
@@ -1003,7 +1010,6 @@ class TagsModel(QAbstractItemModel): # {{{
             return
         fm_src = self.db.metadata_for_field(column)
         for id in ids:
-            vmap = {}
             label = fm_src['label']
             if not fm_src['is_custom']:
                 if label == 'authors':
@@ -1019,19 +1025,21 @@ class TagsModel(QAbstractItemModel): # {{{
                     value = self.db.series(id, index_is_id=True)
             else:
                 items = self.db.get_custom_items_with_ids(label=label)
-                value = self.db.get_custom(id, label=label, index_is_id=True)
+                if fm_src['datatype'] != 'composite':
+                    value = self.db.get_custom(id, label=label, index_is_id=True)
+                else:
+                    value = self.db.get_property(id, loc=fm_src['rec_index'],
+                                                 index_is_id=True)
             if value is None:
                 return
             if not isinstance(value, list):
                 value = [value]
-            for v in items:
-                vmap[v[1]] = v[0]
             for val in value:
                 for (v, c, id) in category:
                     if v == val and c == column:
                         break
                 else:
-                    category.append([val, column, vmap[val]])
+                    category.append([val, column, 0])
             categories[on_node.category_key[1:]] = category
             self.db.prefs.set('user_categories', categories)
             self.tags_view.recount()

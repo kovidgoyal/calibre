@@ -227,6 +227,11 @@ class Metadata(object):
         if val:
             identifiers[typ] = val
 
+    def has_identifier(self, typ):
+        identifiers = object.__getattribute__(self,
+            '_data')['identifiers']
+        return typ in identifiers
+
     # field-oriented interface. Intended to be the same as in LibraryDatabase
 
     def standard_field_keys(self):
@@ -633,10 +638,6 @@ class Metadata(object):
             fmt('Publisher', self.publisher)
         if getattr(self, 'book_producer', False):
             fmt('Book Producer', self.book_producer)
-        if self.comments:
-            fmt('Comments', self.comments)
-        if self.isbn:
-            fmt('ISBN', self.isbn)
         if self.tags:
             fmt('Tags', u', '.join([unicode(t) for t in self.tags]))
         if self.series:
@@ -654,6 +655,9 @@ class Metadata(object):
         if self.identifiers:
             fmt('Identifiers', u', '.join(['%s:%s'%(k, v) for k, v in
                 self.identifiers.iteritems()]))
+        if self.comments:
+            fmt('Comments', self.comments)
+
         for key in self.custom_field_keys():
             val = self.get(key, None)
             if val:

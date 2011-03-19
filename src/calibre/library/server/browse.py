@@ -630,6 +630,8 @@ class BrowseServer(object):
             elif category == 'allbooks':
                 ids = all_ids
             else:
+                if fm.get(category, {'datatype':None})['datatype'] == 'composite':
+                    cid = cid.decode('utf-8')
                 q = category
                 if q == 'news':
                     q = 'tags'
