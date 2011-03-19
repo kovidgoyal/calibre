@@ -113,7 +113,7 @@ class NewsItem(NewsTreeItem):
                 if icon in self.favicons:
                     try:
                         with zipfile.ZipFile(self.zf, 'r') as zf:
-                            p.loadFromData(zf.read(icon))
+                            p.loadFromData(zf.read(self.favicons[icon]))
                     except:
                         pass
                 if not p.isNull():
@@ -140,7 +140,7 @@ class RecipeModel(QAbstractItemModel, SearchQueryParser):
         self.scheduler_config = SchedulerConfig()
         try:
             with zipfile.ZipFile(P('builtin_recipes.zip'), 'r') as zf:
-                self.favicons = frozenset([x for x in zf.namelist() if
+                self.favicons = dict([(x, zf.getinfo(x)) for x in zf.namelist() if
                     x.endswith('.png')])
         except:
             self.favicons = frozenset()
