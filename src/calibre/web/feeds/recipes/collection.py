@@ -25,15 +25,14 @@ def iterate_over_builtin_recipe_files():
             'indian_express', 'india_today', 'livemint']
     d = os.path.dirname
     base = os.path.join(d(d(d(d(d(d(os.path.abspath(__file__))))))), 'recipes')
-    for x in os.walk(base):
-        for f in x[-1]:
-            fbase, ext = os.path.splitext(f)
-            if ext != '.recipe' or fbase in exclude:
-                continue
-            f = os.path.join(x[0], f)
-            rid = os.path.splitext(os.path.relpath(f, base).replace(os.sep,
-                '/'))[0]
-            yield rid, f
+    for f in os.listdir(base):
+        fbase, ext = os.path.splitext(f)
+        if ext != '.recipe' or fbase in exclude:
+            continue
+        f = os.path.join(base, f)
+        rid = os.path.splitext(os.path.relpath(f, base).replace(os.sep,
+            '/'))[0]
+        yield rid, f
 
 
 def serialize_recipe(urn, recipe_class):
