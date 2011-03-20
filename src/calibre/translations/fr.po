@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-03-18 19:01+0000\n"
-"PO-Revision-Date: 2011-03-19 00:28+0000\n"
-"Last-Translator: viktor <Unknown>\n"
+"PO-Revision-Date: 2011-03-19 21:22+0000\n"
+"Last-Translator: sengian <Unknown>\n"
 "Language-Team: Français <kde-i18n-doc@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-03-19 05:04+0000\n"
+"X-Launchpad-Export-Date: 2011-03-20 04:43+0000\n"
 "X-Generator: Launchpad (build 12559)\n"
 "X-Poedit-Bookmarks: 1177,1104,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -1136,7 +1136,7 @@ msgstr "Fichier MOBI non valide. Renvoie la référence de %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/apnx.py:44
 msgid "Could not generate page mapping."
-msgstr ""
+msgstr "Impossible de générer une carte de la page."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:44
 msgid "Communicate with the Kindle eBook reader."
@@ -1642,6 +1642,9 @@ msgid ""
 "When converting a CBC do not add links to each page to the TOC. Note this "
 "only applies if the TOC has more than one section"
 msgstr ""
+"Lors de la conversion d'un CBC n'ajoute pas de liens pour chaque page à la "
+"table des matières. Notez que ceci ne s'applique que si la table des "
+"matières comporte plus d'une section"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:454
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:466
@@ -4108,6 +4111,20 @@ msgid ""
 "* off: Don't modify the paragraph structure. This is useful when combined "
 "with Markdown or Textile formatting to ensure no formatting is lost."
 msgstr ""
+"Structure de paragraphe.\n"
+"les choix sont ['auto', 'bloc', 'simple', 'livre', 'non-formaté', "
+"'désactivé']\n"
+"* auto : Essaie de détecter automatiquement le type de paragraphe.\n"
+"* bloc : Interprète une ligne vierge comme un saut de paragraph.\n"
+"* simple : Suppose que chaque ligne est un nouveau paragraphe.\n"
+"* livre :  Suppose que chaque ligne commençant par au moins 2 espaces ou une "
+"tabulation débute un paragraphe.\n"
+"* non-formaté : Retours à la ligne très fréquents, peu ou pas de lignes "
+"vierges ou d'alinéas. Essaie de déterminer la structure et de reformater les "
+"éléments distingués.\n"
+"* désactivé : Ne modifie pas la structure du paragraphe. Utile en "
+"combinaison avec le formatage Markdown ou Textile pour s'assurer qu'aucun "
+"format n'est perdu."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/input.py:43
 msgid ""
@@ -4121,6 +4138,14 @@ msgid ""
 "* markdown: Processing using markdown formatting. To learn more about "
 "markdown see"
 msgstr ""
+"Formatage utilisé dans le document.\n"
+"* auto : Décide automatiquement quel traitement de formatage utiliser.\n"
+"* brut : Ne pas traiter le formatage du document. Tout est un seul "
+"paragraphe et aucun style n'est appliqué.\n"
+"* heuristique : Traitement heuristique afin de déterminer les formats comme "
+"des entêtes de chapitre ou du texte en italique.\n"
+"* textile : Traitement utilisant le formatage textile.\n"
+"* markdown : Traitement utilisant le formatage markdown  voir"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/input.py:53
 msgid ""
@@ -4135,6 +4160,8 @@ msgid ""
 "Normally extra space at the beginning of lines is retained. With this option "
 "they will be removed."
 msgstr ""
+"Normalement les espaces en début de ligne sont conservés. Avec cette option, "
+"ils seront supprimés."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/input.py:59
 msgid "Do not insert a Table of Contents into the output text."
@@ -4295,6 +4322,10 @@ msgid ""
 "showing only the matches. You can use the N or F3 keys to go to the next "
 "match."
 msgstr ""
+"Lors d'une recherche, montrer tous les livres avec les résultats de la "
+"recherche mis en évidence au lieu de montrer uniquement les résultats. Vous "
+"pouvez utiliser N ou la touche F3 pour vous déplacer jusqu'au résultat "
+"suivant."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:131
 msgid "Maximum number of waiting worker processes"
@@ -4598,7 +4629,7 @@ msgstr "<b>Position %d &bull; %s</b><br />"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:20
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:34
 msgid "Create a catalog of the books in your calibre library"
-msgstr "Créer un catalogue des livres de votre librairie calibre"
+msgstr "Créer un catalogue des livres de votre bibliothèque Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:31
 msgid "No books selected for catalog generation"
@@ -4763,9 +4794,9 @@ msgid ""
 "Found no errors in your calibre library database. Do you want calibre to "
 "check if the files in your  library match the information in the database?"
 msgstr ""
-"Aucune erreur trouvée dans la base de données de votre librairie calibre. "
-"Voulez-vous que calibre vérifie si les fichiers dans votre librairie "
-"correspondent bien aux informations dans la base de données?"
+"Aucune erreur n'a été trouvée dans la base de données de votre bibliothèque "
+"Calibre. Voulez-vous que calibre vérifie si les fichiers de votre "
+"bibliothèque correspondent bien aux informations de la base de données?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:312
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:150
@@ -8084,7 +8115,7 @@ msgstr "Chargement de la base de données à partir de SQL"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:148
 msgid "Check Library -- Problems Found"
-msgstr "Vérification Librairie -- Problèmes Trouvés"
+msgstr "Vérification de la bibliothèque -- Problèmes rencontrés"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:158
 msgid ""
@@ -9953,7 +9984,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:151
 msgid "&Download every:"
-msgstr ""
+msgstr "&Télécharger :"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:154
 msgid "every hour"
@@ -10089,10 +10120,12 @@ msgid ""
 "Maximum number of copies (issues) of this recipe to keep.  Set to 0 to keep "
 "all (disable)."
 msgstr ""
+"Nombre maximum de numéros de cette recette à conserver. Mettre 0 pour tout "
+"conserver (désactiver)."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:213
 msgid "&Keep at most:"
-msgstr ""
+msgstr "&Conserver au plus :"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:214
 msgid ""
@@ -11643,8 +11676,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:74
 msgid "&Automerge added books if they already exist in the calibre library:"
 msgstr ""
-"Fusionner automatiquement les livres ajoutés s'ils existent déjà dans la "
-"librairie calibre:"
+"Fusionner &automatiquement les livres ajoutés s'ils existent déjà dans la "
+"bibliothèque Calibre :"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:75
 msgid ""
@@ -11719,8 +11752,8 @@ msgstr "Envoyer automatiquement les i&nformations vers le lecteur d'ebook"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:135
 msgid "&Delete news from library when it is automatically sent to reader"
 msgstr ""
-"&Supprimer les News de la bibliothèque lorsque l'envoi est automatique vers "
-"l'appareil"
+"&Supprimer les News de la bibliothèque lors d'un envoi automatique vers le "
+"support de lecture"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:136
 msgid "Default network &timeout:"

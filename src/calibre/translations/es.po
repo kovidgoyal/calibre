@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-03-18 19:01+0000\n"
-"PO-Revision-Date: 2011-03-12 15:13+0000\n"
-"Last-Translator: Jellby <Unknown>\n"
+"PO-Revision-Date: 2011-03-19 22:46+0000\n"
+"Last-Translator: Benjamín Valero Espinosa <benjavalero@gmail.com>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-03-19 05:12+0000\n"
+"X-Launchpad-Export-Date: 2011-03-20 04:45+0000\n"
 "X-Generator: Launchpad (build 12559)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:527
@@ -454,7 +454,7 @@ msgstr "Control de metadatos"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:954
 msgid "Change metadata fields before saving/sending"
-msgstr "Cambiar los cambpos de metadatos antes de guardar/enviar"
+msgstr "Cambiar los campos de metadatos antes de guardar/enviar"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:959
 msgid "Template Functions"
@@ -3465,19 +3465,20 @@ msgstr "Descargar metadatos de Amazon"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:274
 msgid "US"
-msgstr ""
+msgstr "EE. UU."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:275
 msgid "France"
-msgstr ""
+msgstr "Francia"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:276
 msgid "Germany"
-msgstr ""
+msgstr "Alemania"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:346
 msgid "Amazon timed out. Try again later."
 msgstr ""
+"El tiempo de espera de Amazon ha expirado. Vuelva a intentarlo más tarde"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/base.py:26
 msgid "Metadata source"
@@ -5199,7 +5200,7 @@ msgid ""
 "and subsequently selected books will be permanently <b>deleted</b> from your "
 "calibre library.<br><br>  Are you <b>sure</b> you want to proceed?"
 msgstr ""
-"Los foramtos de los libros seleccionados se combinarán en el <b>primer libro "
+"Los formatos de los libros seleccionados se combinarán en el <b>primer libro "
 "seleccionado</b> (%s). Los metadatos del primer libro seleccionado no se "
 "cambiarán. El autor, título, ISBN y el resto de metadatos <i>no</i> se "
 "combinarán.<br><br>Tras combinar el segundo y sucesivos libros "
@@ -5207,7 +5208,7 @@ msgstr ""
 "<br><br>Todos los formatos del primer libro seleccionado se mantendrán y "
 "cualquier formato duplicado en el segundo y siguiente libros seleccionados "
 "se <b>borrará<b/> permanentemente de tu libreria de Calibre.<br><br/> ¿Estas "
-"<b>seguro<b/> que quieres continual?"
+"<b>seguro<b/> de que quieres continuar?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:267
 msgid ""
@@ -5219,13 +5220,13 @@ msgid ""
 "books will be permanently <b>deleted</b> from your calibre library.<br><br>  "
 "Are you <b>sure</b> you want to proceed?"
 msgstr ""
-"Los foramtos de los libros seleccionados se combinarán en el <b>primer libro "
+"Los formatos de los libros seleccionados se combinarán en el <b>primer libro "
 "seleccionado</b> (%s). El ISBN <i>no</i> se combinará.<br><br>Tras combinar "
 "el segundo y sucesivos libros seleccionados serán <b>borrados</b>. "
 "<br><br>Todos los formatos del primer libro seleccionado se mantendrán y "
 "cualquier formato duplicado en el segundo y siguiente libros seleccionados "
 "se <b>borrará<b/> permanentemente de tu libreria de Calibre.<br><br/> ¿Estas "
-"<b>seguro<b/> que quieres continual?"
+"<b>seguro<b/> de que quieres continuar?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/fetch_news.py:17
 msgid "F"
@@ -5482,7 +5483,7 @@ msgstr "Mostrar un formato específico"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:38
 msgid "Read a random book"
-msgstr ""
+msgstr "Leer un libro al azar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:92
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:181
@@ -8128,6 +8129,62 @@ msgid ""
 "\n"
 "        "
 msgstr ""
+"        <h1>Ayuda</h1>\n"
+"<p>calibre almacena la lista de libros y sus metadatos en una base de datos. "
+"Los ficheros de los libros y las portadas se guardan como ficheros normales "
+"en la carpeta de la biblioteca de calibre. La base de datos contiene una "
+"lista de los ficheros y portadas correspondientes a cada libro. Esta "
+"utilidad comprueba que los ficheros realmente presentes en la carpeta de la "
+"biblioteca de su ordenador se corresponden con la información de la base de "
+"datos.</p>\n"
+"<p>El resultado de cada comprobación se muestra a la izquierda. Las "
+"distintas comprobaciones son:</p>\n"
+"<ul>\n"
+"<li><b>Títulos no válidos</b>: Son ficheros y carpetas que están en la "
+"biblioteca, donde se encuentran los libros, pero que no tienen la forma "
+"correcta para ser un título de libro.</li>\n"
+"<li><b>Títulos adicionales</b>: Son ficheros adicionales en la biblioteca de "
+"calibre que parecen títulos correctos, pero que no tienen una entrada "
+"correspondiente en la base de datos.</li>\n"
+"<li><b>Autores no válidos</b>: Son ficheros que están en la biblioteca, "
+"donde sólo deberían estar las carpetas de los autores.</li>\n"
+"<li><b>Autores adicionales</b>: Son carpetas en la biblioteca de calibre que "
+"parecen autores, pero que no tienen entrada en la base de datos.</li>\n"
+"<li><b>Formatos de libro inexistentes</b>: Son formatos de libro que "
+"aparecen en la base de datos, pero que no tienen su correspondiente fichero "
+"en la carpeta del libro.</li>\n"
+"<li><b>Formatos de libro adicionales</b>: Son ficheros de libro que están en "
+"la carpeta del libro pero no en la base de datos.</li>\n"
+"<li><b>Ficheros desconocidos</b>: Son ficheros adicionales en la carpeta del "
+"libro que no corresponden a ningún formato conocido ni a la portada.</li>\n"
+"<li><b>Portadas inexistentes</b>: Son libros que en la base de datos tienen "
+"una portada asignada, pero cuyo fichero de la portada no existe "
+"realmente.</li>\n"
+"<li><b>Portadas que no están en la base de datos</b>: Son libros que tienen "
+"sus ficheros de portadas, pero que no tienen ninguna portada asignada en la "
+"base de datos.</li>\n"
+"<li><b>Carpetas que dan error</b>: Son carpetas en la biblioteca de calibre "
+"que esta utilidad no ha podido procesar o interpretar.</li>\n"
+"</ul>\n"
+"<p>Hay dos tipos de corrección automática posibles: <i>Borrar marcados</i> y "
+"<i>Reparar marcados</i>.</p>\n"
+"<p><i>Borrar marcados</i> se usa para eliminar los ficheros, carpetas o "
+"portadas adicionales que no tienen entrada en la base de datos. Marque la "
+"casilla junto al elemento que desee borrar. Utilícelo con precaución.</p>\n"
+"<p><i>Reparar marcados</i> se aplica sólo a las portadas y a los formatos "
+"inexistentes (las tres líneas marcadas con «reparable»). En el caso de "
+"portadas inexistentes, al marcar la casilla de «reparable» y pulsar este "
+"botón se eliminará la asignación de portada de la base de datos para todos "
+"los ficheros de esa categoría. Use esta opción si no va a recuperar las "
+"portadas de una copia de seguridad. En el caso de portadas adicionales, al "
+"marcar la casilla de «reparable» y pulsar este botón se asignará la portada "
+"a todos los ficheros de esta categoría. Use esta opción cuando no vaya a "
+"borrar los ficheros. En el caso de formatos inexistentes, al marcar la "
+"casilla de «reparable» y pulsar este botón se eliminará la información de "
+"estos formatos. Use esta opción si no va a recuperar los formatos de una "
+"copia de seguridad.</p>\n"
+"\n"
+"        "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:226
 msgid "&Run the check again"
@@ -9697,12 +9754,14 @@ msgstr "La restauración de la base de datos ha terminado satisfactoriamente"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor.py:48
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor.py:75
 msgid "Saved search already exists"
-msgstr ""
+msgstr "La búsqueda guardada ya existe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor.py:49
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor.py:76
 msgid "The saved search %s already exists, perhaps with different case"
 msgstr ""
+"La búsqueda guardada %s ya existe, quizá con diferente combinación de "
+"mayúsculas y minúsculas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor.py:62
 msgid ""
@@ -9737,6 +9796,7 @@ msgstr "Añadir la nueva búsqueda guardada"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:102
 msgid "Rename the current search to what is in the box"
 msgstr ""
+"Cambiar el nombre de la búsqueda actual a lo que aparece en el cuadro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:104
 msgid "Change the contents of the saved search"
@@ -10172,7 +10232,7 @@ msgstr " (en ningún libro)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:146
 msgid "Category lookup name: "
-msgstr ""
+msgstr "Nombre de búsqueda de la categoría: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:191
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:222
@@ -11973,11 +12033,13 @@ msgstr "Cómo debe manejarse esta columna en la interfaz al ordenar o buscar."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:212
 msgid "Show in tags browser"
-msgstr ""
+msgstr "Mostrar en el explorador de etiquetas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:213
 msgid "If checked, this column will appear in the tags browser as a category"
 msgstr ""
+"Si se marca, esta columna aparecerá en el explorador de etiquetas como una "
+"categoría"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:214
 msgid "Values"
@@ -12099,7 +12161,7 @@ msgstr "Nunca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:61
 msgid "By first letter"
-msgstr "Pôr la primera letra"
+msgstr "Por la primera letra"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:61
 msgid "Disabled"
@@ -13429,7 +13491,7 @@ msgstr "Subcategorías de %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:366
 msgid "Delete search %s"
-msgstr ""
+msgstr "Borrar la búsqueda %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:371
 msgid "Remove %s from category %s"
@@ -14166,7 +14228,7 @@ msgstr "Previsualización de impresión"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:303
 msgid "Clear list of recently opened books"
-msgstr ""
+msgstr "Limpiar la lista de los libros abiertos recientemente"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:358
 msgid "Connecting to dict.org to lookup: <b>%s</b>&hellip;"
@@ -14565,16 +14627,21 @@ msgid ""
 "You must either set both the username <b>and</b> password for the mail "
 "server or no username and no password at all."
 msgstr ""
+"Debe especificar tanto el usuario como la contraseña para el servidor de "
+"correo, o bien no especificar ninguno de los dos."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:219
 msgid "Please enter a username and password or set encryption to None "
 msgstr ""
+"Introduzca el usuario y la contraseña, o establezca el cifrado en «Ninguno» "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:224
 msgid ""
 "No username and password set for mailserver. Most  mailservers need a "
 "username and password. Are you sure?"
 msgstr ""
+"No se han especificado usuario y contraseña para el servidor de correo. La "
+"mayoría de los servidores necesitan un usuario y contraseña. ¿Está seguro?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:124
 msgid "Send email &from:"

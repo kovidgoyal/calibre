@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-03-18 19:01+0000\n"
-"PO-Revision-Date: 2011-03-13 11:28+0000\n"
+"PO-Revision-Date: 2011-03-19 14:09+0000\n"
 "Last-Translator: FerranRius <frius64@hotmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-03-19 05:02+0000\n"
+"X-Launchpad-Export-Date: 2011-03-20 04:43+0000\n"
 "X-Generator: Launchpad (build 12559)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -3452,19 +3452,19 @@ msgstr "Descarrega les metadades d'Amazon"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:274
 msgid "US"
-msgstr ""
+msgstr "Estats Units"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:275
 msgid "France"
-msgstr ""
+msgstr "França"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:276
 msgid "Germany"
-msgstr ""
+msgstr "Alemanya"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:346
 msgid "Amazon timed out. Try again later."
-msgstr ""
+msgstr "El temps d'espera d'Amazon s'ha esgotat. Intenteu-ho més tard."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/base.py:26
 msgid "Metadata source"
@@ -5454,7 +5454,7 @@ msgstr "Visualitza un format concret"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:38
 msgid "Read a random book"
-msgstr ""
+msgstr "Llegir un llibre a l'atzar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:92
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:181
@@ -8094,6 +8094,102 @@ msgid ""
 "\n"
 "        "
 msgstr ""
+"        <h1>Ajuda</h1>\n"
+"\n"
+"        <p>El calibre desa la llista i les metadades dels llibres a una base "
+"de\n"
+"        dades. Els fitxers de llibre i les portades es desen com a fitxers "
+"normals\n"
+"        a la carpeta de la biblioteca del calibre. La base de dades conté "
+"una llista\n"
+"        dels fitxers i portades corresponents a cada entrada de llibre. "
+"Aquesta\n"
+"        eina comprova que els fitxers de la carpeta de la biblioteca de "
+"l'ordinador\n"
+"        coincideixen amb la informació de la base de dades.</p>\n"
+"\n"
+"        <p>A l'esquerra es mostra el resultat de cada tipus de comprovació. "
+"Les\n"
+"        diferents comprovacions són:\n"
+"        </p>\n"
+"        <ul>\n"
+"        <li><b>Títols no vàlids</b>: Són fitxers i carpetes que estan a la "
+"biblioteca\n"
+"        al lloc que correspon als títols de llibre però no tenen la forma "
+"correcta per\n"
+"        poder ser un títol de llibre.</li>\n"
+"        <li><b>Títols addicionals</b>: Són fitxers addicionals de la "
+"biblioteca del\n"
+"        calibre, amb la forma correcta per ser un títol de llibre, però no "
+"tenen una\n"
+"        entrada corresponent a la base de dades.</li>\n"
+"        <li><b>Autors no vàlids</b>: Són fitxers que estan a la biblioteca a "
+"un lloc\n"
+"        on només hi hauria d'haver carpetes d'autors.</li>\n"
+"        <li><b>Autors addicionals</b>: Són carpetes a la biblioteca del "
+"calibre que\n"
+"        semblen autors però no tenen entrades a la base de dades.</li>\n"
+"        <li><b>Formats de llibre que no es troben</b>: Són formats de llibre "
+"que\n"
+"        estan a la base de dades però no hi ha el fitxer en el format "
+"corresponent a\n"
+"        la carpeta del llibre.</li>\n"
+"        <li><b>Formats de llibre addicionals</b>: Són fitxers de format de "
+"llibre a\n"
+"        la carpeta d'un llibre que no estan a la base de dades.</li>\n"
+"        <li><b>Fitxers desconeguts als llibres</b>: Són fitxers addicionals "
+"a la\n"
+"        carpeta de cada llibre que no es corresponen a un format conegut ni "
+"a un\n"
+"        fitxer de portada.</li>\n"
+"        <li><b>Fitxers de portada que no es troben</b>: Són llibres que a la "
+"base de\n"
+"        dades estan marcats com si tinguessin portada però no es troben els "
+"fitxers\n"
+"        de portada.</li>\n"
+"        <li><b>Fitxers de portada que no són a la base de dades</b>: Són "
+"llibres que\n"
+"        tenen fitxers de portada però a la base de dades estan marcats com "
+"si no en\n"
+"        tinguessin.</li>\n"
+"        <li><b>Carpetes que donen errors</b>: Són carpetes a la biblioteca "
+"del\n"
+"        calibre que aquesta eina no ha pogut processar/entendre.</li>\n"
+"        </ul>\n"
+"\n"
+"        <p>Hi ha dos tipus de solucions possibles: <i>Suprimeix els "
+"marcats</i> i\n"
+"        <i>Corregeix els marcats</i>.</p>\n"
+"        <p><i>Suprimeix els marcats</i> s'utilitza per suprimir els "
+"fitxers/carpetes/\n"
+"        portades que no tenen entrades a la base de dades. Marqueu la "
+"casella al\n"
+"        costat de l'element que voleu suprimir. Feu-ho amb compte</p>\n"
+"        <p><i>Corregeix els marcats</i> es pot aplicar només a les portades "
+"i formats\n"
+"        que no es troben (amb les tres línies marcades com a «corregible»). "
+"En el cas\n"
+"        dels fitxers de portada que no es troben, si marqueu la casella "
+"«corregible» i\n"
+"        premeu aquest botó li direu al calibre que no hi ha portada per a "
+"tots els\n"
+"        llibres de la llista. Trieu aquesta opció si no restaurareu les "
+"portades des d'una\n"
+"        còpia de seguretat. Si es tracta de fitxers de portada addicionals, "
+"en marcar la\n"
+"        casella «corregible» i prémer aquest botó li direu al calibre que "
+"els fitxers de\n"
+"        portada que ha trobat són correctes per a tots els llibres de la "
+"llista. Trieu\n"
+"        aquesta opció si no penseu suprimir el(s) fitxer(s). Si són formats "
+"que no es\n"
+"        troben, en marcar la casella «corregible» i prémer aquest botó li "
+"direu al calibre\n"
+"        que els formats realment han desaparegut. Trieu aquesta opció si no "
+"penseu\n"
+"        restaurar els formats des d'una còpia de seguretat.</p>\n"
+"\n"
+"        "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:226
 msgid "&Run the check again"
@@ -9654,12 +9750,13 @@ msgstr "S'ha aconseguit restaurar la base de dades"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor.py:48
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor.py:75
 msgid "Saved search already exists"
-msgstr ""
+msgstr "Aquesta cerca desada ja existeix"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor.py:49
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor.py:76
 msgid "The saved search %s already exists, perhaps with different case"
 msgstr ""
+"La cerca desada %s ja existeix, potser amb majúscules/minúscules canviades"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor.py:62
 msgid ""
@@ -9693,7 +9790,7 @@ msgstr "Afegeix un cerca desada nova"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:102
 msgid "Rename the current search to what is in the box"
-msgstr ""
+msgstr "Canvia en nom de la cerca actual pel que hi ha al quadre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:104
 msgid "Change the contents of the saved search"
@@ -10134,7 +10231,7 @@ msgstr " (a cap llibre)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:146
 msgid "Category lookup name: "
-msgstr ""
+msgstr "Nom de la cerca de categoria: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:191
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:222
@@ -11941,11 +12038,12 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:212
 msgid "Show in tags browser"
-msgstr ""
+msgstr "Mostra-ho al navegador d'etiquetes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:213
 msgid "If checked, this column will appear in the tags browser as a category"
 msgstr ""
+"Si es marca, aquesta columna sortirà al navegador d'etiquetes com a categoria"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:214
 msgid "Values"
@@ -13407,7 +13505,7 @@ msgstr "Fill de %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:366
 msgid "Delete search %s"
-msgstr ""
+msgstr "Suprimeix la cerca %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:371
 msgid "Remove %s from category %s"
@@ -14148,7 +14246,7 @@ msgstr "Vista prèvia de la impressió"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:303
 msgid "Clear list of recently opened books"
-msgstr ""
+msgstr "Suprimeix la llista de llibres oberts recentment"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:358
 msgid "Connecting to dict.org to lookup: <b>%s</b>&hellip;"
@@ -14552,16 +14650,22 @@ msgid ""
 "You must either set both the username <b>and</b> password for the mail "
 "server or no username and no password at all."
 msgstr ""
+"Heu d'establir tant l'usuari <b>i</b> com la contrasenya del servidor de "
+"correu o no posar ni l'usuari ni la contrasenya."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:219
 msgid "Please enter a username and password or set encryption to None "
 msgstr ""
+"Introduïu l'usuari i la contrasenya o establiu l'encriptatge a «Cap» "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:224
 msgid ""
 "No username and password set for mailserver. Most  mailservers need a "
 "username and password. Are you sure?"
 msgstr ""
+"No s'ha establert usuari ni contrasenya per al servidor de correu. La "
+"majoria dels servidors de correu necessiten usuari i contrasenya. N'esteu "
+"segur?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:124
 msgid "Send email &from:"
@@ -15142,7 +15246,7 @@ msgstr "Autors addicionals"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:30
 msgid "Missing book formats"
-msgstr "Manquen formats de llibre"
+msgstr "Formats de llibre que no es troben"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:31
 msgid "Extra book formats"
@@ -15154,15 +15258,15 @@ msgstr "Hi ha fitxers desconeguts als llibres"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:33
 msgid "Missing covers files"
-msgstr "Falten fitxers de portada"
+msgstr "Fitxers de portada que no es troben"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:34
 msgid "Cover files not in database"
-msgstr "Els fitxers de portada no són a la base de dades"
+msgstr "Fitxers de portada que no són a la base de dades"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:35
 msgid "Folders raising exception"
-msgstr "Hi ha carpetes que donen errors"
+msgstr "Carpetes que donen errors"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:44
 msgid ""
