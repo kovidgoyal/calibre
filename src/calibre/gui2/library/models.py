@@ -428,7 +428,7 @@ class BooksModel(QAbstractTableModel): # {{{
         au = self.db.authors(row)
         if not au:
             au = _('Unknown')
-        au = ', '.join([a.strip() for a in au.split(',')])
+        au = authors_to_string([a.strip().replace('|', ',') for a in au.split(',')])
         data[_('Author(s)')] = au
         return data
 
@@ -646,6 +646,14 @@ class BooksModel(QAbstractTableModel): # {{{
                 return QVariant(', '.join(sorted(text.split('|'),key=sort_key)))
             return QVariant(text)
 
+        def decorated_text_type(r, mult=False, idx=-1):
+            text = self.db.data[r][idx]
+            if force_to_bool(text) is not None:
+                return None
+            if text and mult:
+                return QVariant(', '.join(sorted(text.split('|'),key=sort_key)))
+            return QVariant(text)
+
         def number_type(r, idx=-1):
             return QVariant(self.db.data[r][idx])
 
@@ -687,6 +695,8 @@ class BooksModel(QAbstractTableModel): # {{{
                 self.dc[col] = functools.partial(text_type, idx=idx, mult=mult)
                 if datatype in ['text', 'composite', 'enumeration'] and not mult:
                     if self.custom_columns[col]['display'].get('use_decorations', False):
+                        self.dc[col] = functools.partial(decorated_text_type,
+                                                         idx=idx, mult=mult)
                         self.dc_decorator[col] = functools.partial(
                             bool_type_decorator, idx=idx,
                             bool_cols_are_tristate=

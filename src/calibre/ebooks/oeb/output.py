@@ -38,6 +38,11 @@ class OEBOutput(OutputFormatPlugin):
                         except:
                             self.log.exception('Something went wrong while trying to'
                                     ' workaround Nook cover bug, ignoring')
+                        try:
+                            self.workaround_pocketbook_cover_bug(root)
+                        except:
+                            self.log.exception('Something went wrong while trying to'
+                                    ' workaround Pocketbook cover bug, ignoring')
                     raw = etree.tostring(root, pretty_print=True,
                             encoding='utf-8', xml_declaration=True)
                     if key == OPF_MIME:
@@ -90,3 +95,12 @@ class OEBOutput(OutputFormatPlugin):
                     cov.set('content', 'cover')
     # }}}
 
+    def workaround_pocketbook_cover_bug(self, root): # {{{
+        m = root.xpath('//*[local-name() = "manifest"]/*[local-name() = "item" '
+                ' and @id="cover"]')
+        if len(m) == 1:
+            m = m[0]
+            p = m.getparent()
+            p.remove(m)
+            p.insert(0, m)
+    # }}}

@@ -342,6 +342,7 @@ class FontFamilyModel(QAbstractListModel):
         self.families = list(qt_families.intersection(set(self.families)))
         self.families.sort()
         self.families[:0] = [_('None')]
+        self.font = QFont('sansserif')
 
     def rowCount(self, *args):
         return len(self.families)
@@ -354,10 +355,11 @@ class FontFamilyModel(QAbstractListModel):
             return NONE
         if role == Qt.DisplayRole:
             return QVariant(family)
-        if False and role == Qt.FontRole:
-            # Causes a Qt crash with some fonts
-            # so disabled.
-            return QVariant(QFont(family))
+        if role == Qt.FontRole:
+            # If a user chooses some non standard font as the interface font,
+            # rendering some font names causes Qt to crash, so return what is
+            # hopefully a "safe" font
+            return QVariant(self.font)
         return NONE
 
     def index_of(self, family):

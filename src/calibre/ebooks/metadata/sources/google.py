@@ -19,7 +19,7 @@ from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.utils.date import parse_date, utcnow
 from calibre.utils.cleantext import clean_ascii_chars
-from calibre import browser, as_unicode
+from calibre import as_unicode
 
 NAMESPACES = {
               'openSearch':'http://a9.com/-/spec/opensearchrss/1.0/',
@@ -42,7 +42,7 @@ subject        = XPath('descendant::dc:subject')
 description    = XPath('descendant::dc:description')
 language       = XPath('descendant::dc:language')
 
-def get_details(browser, url, timeout):
+def get_details(browser, url, timeout): # {{{
     try:
         raw = browser.open_novisit(url, timeout=timeout).read()
     except Exception as e:
@@ -50,12 +50,13 @@ def get_details(browser, url, timeout):
         if gc() != 403:
             raise
         # Google is throttling us, wait a little
-        time.sleep(1)
+        time.sleep(2)
         raw = browser.open_novisit(url, timeout=timeout).read()
 
     return raw
+# }}}
 
-def to_metadata(browser, log, entry_, timeout):
+def to_metadata(browser, log, entry_, timeout): # {{{
 
     def get_text(extra, x):
         try:
@@ -94,12 +95,6 @@ def to_metadata(browser, log, entry_, timeout):
     #mi.language = get_text(extra, language)
     mi.publisher = get_text(extra, publisher)
 
-    # Author sort
-    for x in creator(extra):
-        for key, val in x.attrib.items():
-            if key.endswith('file-as') and val and val.strip():
-                mi.author_sort = val
-                break
     # ISBN
     isbns = []
     for x in identifier(extra):
@@ -137,7 +132,7 @@ def to_metadata(browser, log, entry_, timeout):
 
 
     return mi
-
+# }}}
 
 class GoogleBooks(Source):
 
@@ -145,12 +140,13 @@ class GoogleBooks(Source):
     description = _('Downloads metadata from Google Books')
 
     capabilities = frozenset(['identify'])
-    touched_fields = frozenset(['title', 'authors', 'isbn', 'tags', 'pubdate',
-        'comments', 'publisher', 'author_sort']) # language currently disabled
+    touched_fields = frozenset(['title', 'authors', 'tags', 'pubdate',
+        'comments', 'publisher', 'identifier:isbn',
+        'identifier:google']) # language currently disabled
 
-    def create_query(self, log, title=None, authors=None, identifiers={}):
+    def create_query(self, log, title=None, authors=None, identifiers={}): # {{{
         BASE_URL = 'http://books.google.com/books/feeds/volumes?'
-        isbn = identifiers.get('isbn', None)
+        isbn = check_isbn(identifiers.get('isbn', None))
         q = ''
         if isbn is not None:
             q += 'isbn:'+isbn
@@ -176,6 +172,7 @@ class GoogleBooks(Source):
             'start-index':1,
             'min-viewability':'none',
             })
+    # }}}
 
     def cover_url_from_identifiers(self, identifiers):
         goog = identifiers.get('google', None)
@@ -198,7 +195,7 @@ class GoogleBooks(Source):
                 ans = to_metadata(br, log, i, timeout)
                 if isinstance(ans, Metadata):
                     result_queue.put(ans)
-                    for isbn in ans.all_isbns:
+                    for isbn in getattr(ans, 'all_isbns', []):
                         self.cache_isbn_to_identifier(isbn,
                                 ans.identifiers['google'])
             except:
@@ -208,11 +205,11 @@ class GoogleBooks(Source):
             if abort.is_set():
                 break
 
-    def identify(self, log, result_queue, abort, title=None, authors=None,
-            identifiers={}, timeout=5):
+    def identify(self, log, result_queue, abort, title=None, authors=None, # {{{
+            identifiers={}, timeout=30):
         query = self.create_query(log, title=title, authors=authors,
                 identifiers=identifiers)
-        br = browser()
+        br = self.browser
         try:
             raw = br.open_novisit(query, timeout=timeout).read()
         except Exception, e:
@@ -228,22 +225,31 @@ class GoogleBooks(Source):
             log.exception('Failed to parse identify results')
             return as_unicode(e)
 
+        if not entries and identifiers and title and authors and \
+                not abort.is_set():
+            return self.identify(log, result_queue, abort, title=title,
+                    authors=authors, timeout=timeout)
+
         # There is no point running these queries in threads as google
         # throttles requests returning 403 Forbidden errors
         self.get_all_details(br, log, entries, abort, result_queue, timeout)
 
         return None
+    # }}}
 
 if __name__ == '__main__':
     # To run these test use: calibre-debug -e src/calibre/ebooks/metadata/sources/google.py
     from calibre.ebooks.metadata.sources.test import (test_identify_plugin,
-            title_test)
+            title_test, authors_test)
     test_identify_plugin(GoogleBooks.name,
         [
 
+
             (
-                {'identifiers':{'isbn': '0743273567'}},
-                [title_test('The great gatsby', exact=True)]
+                {'identifiers':{'isbn': '0743273567'}, 'title':'Great Gatsby',
+                    'authors':['Fitzgerald']},
+                [title_test('The great gatsby', exact=True),
+                    authors_test(['Francis Scott Fitzgerald'])]
             ),
 
             #(

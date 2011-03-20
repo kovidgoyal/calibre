@@ -442,7 +442,7 @@ class Scheduler(QObject):
         if self.oldest > 0:
             delta = timedelta(days=self.oldest)
             try:
-                ids = list(self.recipe_model.db.tags_older_than(_('News'),
+                ids = list(self.db.tags_older_than(_('News'),
                     delta))
             except:
                 # Happens if library is being switched

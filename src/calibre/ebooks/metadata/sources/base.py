@@ -9,8 +9,12 @@ __docformat__ = 'restructuredtext en'
 
 import re, threading
 
+from calibre import browser, random_user_agent
 from calibre.customize import Plugin
 from calibre.utils.logging import ThreadSafeLog, FileStream
+from calibre.utils.config import JSONConfig
+
+msprefs = JSONConfig('metadata_sources.json')
 
 def create_log(ostream=None):
     log = ThreadSafeLog(level=ThreadSafeLog.DEBUG)
@@ -24,8 +28,6 @@ class Source(Plugin):
 
     supported_platforms = ['windows', 'osx', 'linux']
 
-    result_of_identify_is_complete = True
-
     capabilities = frozenset()
 
     touched_fields = frozenset()
@@ -33,7 +35,29 @@ class Source(Plugin):
     def __init__(self, *args, **kwargs):
         Plugin.__init__(self, *args, **kwargs)
         self._isbn_to_identifier_cache = {}
+        self._identifier_to_cover_url_cache = {}
         self.cache_lock = threading.RLock()
+        self._config_obj = None
+        self._browser = None
+
+    # Configuration {{{
+
+    @property
+    def prefs(self):
+        if self._config_obj is None:
+            self._config_obj = JSONConfig('metadata_sources/%s.json'%self.name)
+        return self._config_obj
+    # }}}
+
+    # Browser {{{
+
+    @property
+    def browser(self):
+        if self._browser is None:
+            self._browser = browser(user_agent=random_user_agent())
+        return self._browser
+
+    # }}}
 
     # Utility functions {{{
 
@@ -44,6 +68,14 @@ class Source(Plugin):
     def cached_isbn_to_identifier(self, isbn):
         with self.cache_lock:
             return self._isbn_to_identifier_cache.get(isbn, None)
+
+    def cache_identifier_to_cover_url(self, id_, url):
+        with self.cache_lock:
+            self._identifier_to_cover_url_cache[id_] = url
+
+    def cached_identifier_to_cover_url(self, id_):
+        with self.cache_lock:
+            return self._identifier_to_cover_url_cache.get(id_, None)
 
     def get_author_tokens(self, authors, only_first_author=True):
         '''
@@ -104,6 +136,16 @@ class Source(Plugin):
             identifiers={}, timeout=5):
         '''
         Identify a book by its title/author/isbn/etc.
+
+        If identifiers(s) are specified and no match is found and this metadata
+        source does not store all related identifiers (for example, all ISBNs
+        of a book), this method should retry with just the title and author
+        (assuming they were specified).
+
+        If this metadata source also provides covers, the URL to the cover
+        should be cached so that a subsequent call to the get covers API with
+        the same ISBN/special identifier does not need to get the cover URL
+        again. Use the caching API for this.
 
         :param log: A log object, use it to output debugging information/errors
         :param result_queue: A result Queue, results should be put into it.

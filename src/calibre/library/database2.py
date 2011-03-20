@@ -53,7 +53,7 @@ class Tag(object):
         self.id = id
         self.count = count
         self.state = state
-        self.is_hierarchical = False
+        self.is_hierarchical = ''
         self.is_editable = is_editable
         self.is_searchable = is_searchable
         self.id_set = id_set if id_set is not None else set([])
@@ -1154,15 +1154,18 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if notify:
             self.notify('delete', [id])
 
-    def remove_format(self, index, format, index_is_id=False, notify=True, commit=True):
+    def remove_format(self, index, format, index_is_id=False, notify=True,
+                      commit=True, db_only=False):
         id = index if index_is_id else self.id(index)
         name = self.conn.get('SELECT name FROM data WHERE book=? AND format=?', (id, format), all=False)
         if name:
-            path = self.format_abspath(id, format, index_is_id=True)
-            try:
-                delete_file(path)
-            except:
-                traceback.print_exc()
+            if not db_only:
+                try:
+                    path = self.format_abspath(id, format, index_is_id=True)
+                    if path:
+                        delete_file(path)
+                except:
+                    traceback.print_exc()
             self.conn.execute('DELETE FROM data WHERE book=? AND format=?', (id, format.upper()))
             if commit:
                 self.conn.commit()
@@ -1207,6 +1210,13 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             return ans
 
         field = self.field_metadata[category]
+        if field['datatype'] == 'composite':
+            dex = field['rec_index']
+            for book in self.data.iterall():
+                if book[dex] == id_:
+                    ans.add(book[0])
+            return ans
+
         ans = self.conn.get(
                 'SELECT book FROM books_{tn}_link WHERE {col}=?'.format(
                     tn=field['table'], col=field['link_column']), (id_,))
@@ -1278,7 +1288,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
         # First, build the maps. We need a category->items map and an
         # item -> (item_id, sort_val) map to use in the books loop
-        for category in tb_cats.keys():
+        for category in tb_cats.iterkeys():
             cat = tb_cats[category]
             if not cat['is_category'] or cat['kind'] in ['user', 'search'] \
                     or category in ['news', 'formats'] or cat.get('is_csp',
@@ -1321,8 +1331,15 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             tcategories[category] = {}
             # create a list of category/field_index for the books scan to use.
             # This saves iterating through field_metadata for each book
-            md.append((category, cat['rec_index'], cat['is_multiple']))
+            md.append((category, cat['rec_index'], cat['is_multiple'], False))
 
+        for category in tb_cats.iterkeys():
+            cat = tb_cats[category]
+            if cat['datatype'] == 'composite' and \
+                                cat['display'].get('make_category', False):
+                tcategories[category] = {}
+                md.append((category, cat['rec_index'], cat['is_multiple'],
+                           cat['datatype'] == 'composite'))
         #print 'end phase "collection":', time.clock() - last, 'seconds'
         #last = time.clock()
 
@@ -1336,11 +1353,22 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 continue
             rating = book[rating_dex]
             # We kept track of all possible category field_map positions above
-            for (cat, dex, mult) in md:
-                if book[dex] is None:
+            for (cat, dex, mult, is_comp) in md:
+                if not book[dex]:
                     continue
                 if not mult:
                     val = book[dex]
+                    if is_comp:
+                        item = tcategories[cat].get(val, None)
+                        if not item:
+                            item = tag_class(val, val)
+                            tcategories[cat][val] = item
+                        item.c += 1
+                        item.id = val
+                        if rating > 0:
+                            item.rt += rating
+                            item.rc += 1
+                        continue
                     try:
                         (item_id, sort_val) = tids[cat][val] # let exceptions fly
                         item = tcategories[cat].get(val, None)
@@ -1402,7 +1430,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         # and building the Tag instances.
         categories = {}
         tag_class = Tag
-        for category in tb_cats.keys():
+        for category in tb_cats.iterkeys():
             if category not in tcategories:
                 continue
             cat = tb_cats[category]
