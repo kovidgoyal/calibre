@@ -428,7 +428,7 @@ class BooksModel(QAbstractTableModel): # {{{
         au = self.db.authors(row)
         if not au:
             au = _('Unknown')
-        au = ', '.join([a.strip() for a in au.split(',')])
+        au = authors_to_string([a.strip().replace('|', ',') for a in au.split(',')])
         data[_('Author(s)')] = au
         return data
 

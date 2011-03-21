@@ -16,7 +16,7 @@ from PyQt4.Qt import Qt, QTreeView, QApplication, pyqtSignal, QFont, QSize, \
                      QIcon, QPoint, QVBoxLayout, QHBoxLayout, QComboBox, QTimer,\
                      QAbstractItemModel, QVariant, QModelIndex, QMenu, QFrame,\
                      QPushButton, QWidget, QItemDelegate, QString, QLabel, \
-                     QShortcut, QKeySequence, SIGNAL, QMimeData
+                     QShortcut, QKeySequence, SIGNAL, QMimeData, QToolButton
 
 from calibre.ebooks.metadata import title_sort
 from calibre.gui2 import config, NONE, gprefs
@@ -707,8 +707,8 @@ class TagTreeItem(object): # {{{
                         break
                 elif self.tag.state == TAG_SEARCH_STATES['mark_plusplus'] or\
                         self.tag.state == TAG_SEARCH_STATES['mark_minusminus']:
-                    if self.tag.is_searchable and self.tag.is_hierarchical \
-                                and len(self.children):
+                    if self.tag.is_searchable and len(self.children) and \
+                                    self.tag.is_hierarchical == '5state':
                         break
                 else:
                     break
@@ -803,7 +803,8 @@ class TagsModel(QAbstractItemModel): # {{{
                         self.category_nodes.append(node)
                         node.can_be_edited = (not is_gst) and (i == (len(path_parts)-1))
                         node.is_gst = is_gst
-                        node.tag.is_hierarchical = not is_gst
+                        if not is_gst:
+                            node.tag.is_hierarchical = '5state'
                         if not is_gst:
                             tree_root[p] = {}
                             tree_root = tree_root[p]
@@ -1050,12 +1051,12 @@ class TagsModel(QAbstractItemModel): # {{{
         if (key == 'authors' and len(ids) >= 5):
             if not confirm('<p>'+_('Changing the authors for several books can '
                            'take a while. Are you sure?')
-                        +'</p>', 'tag_browser_drop_authors', self.parent()):
+                        +'</p>', 'tag_browser_drop_authors', self.tags_view):
                 return
         elif len(ids) > 15:
             if not confirm('<p>'+_('Changing the metadata for that many books '
                            'can take a while. Are you sure?')
-                        +'</p>', 'tag_browser_many_changes', self.parent()):
+                        +'</p>', 'tag_browser_many_changes', self.tags_view):
                 return
 
         fm = self.db.metadata_for_field(key)
@@ -1294,7 +1295,8 @@ class TagsModel(QAbstractItemModel): # {{{
                                             if t.type != TagTreeItem.CATEGORY])
                         if (comp,tag.category) in child_map:
                             node_parent = child_map[(comp,tag.category)]
-                            node_parent.tag.is_hierarchical = key != 'search'
+                            node_parent.tag.is_hierarchical = \
+                                '5state' if tag.category != 'search' else '3state'
                         else:
                             if i < len(components)-1:
                                 t = copy.copy(tag)
@@ -1309,7 +1311,8 @@ class TagsModel(QAbstractItemModel): # {{{
                                 t = tag
                                 if not in_uc:
                                     t.original_name = t.name
-                            t.is_hierarchical = key != 'search'
+                            t.is_hierarchical = \
+                                '5state' if t.category != 'search' else '3state'
                             t.name = comp
                             self.beginInsertRows(category_index, 999999, 1)
                             node_parent = TagTreeItem(parent=node_parent, data=t,
@@ -2058,17 +2061,18 @@ class TagBrowserWidget(QWidget): # {{{
         sc = QShortcut(QKeySequence(_('ALT+f')), parent)
         sc.connect(sc, SIGNAL('activated()'), self.set_focus_to_find_box)
 
-        self.search_button = QPushButton()
+        self.search_button = QToolButton()
         self.search_button.setText(_('F&ind'))
         self.search_button.setToolTip(_('Find the first/next matching item'))
-        self.search_button.setFixedWidth(40)
         search_layout.addWidget(self.search_button)
 
-        self.expand_button = QPushButton()
+        self.expand_button = QToolButton()
         self.expand_button.setText('-')
-        self.expand_button.setFixedWidth(20)
         self.expand_button.setToolTip(_('Collapse all categories'))
         search_layout.addWidget(self.expand_button)
+        search_layout.setStretch(0, 10)
+        search_layout.setStretch(1, 1)
+        search_layout.setStretch(2, 1)
 
         self.current_find_position = None
         self.search_button.clicked.connect(self.find)

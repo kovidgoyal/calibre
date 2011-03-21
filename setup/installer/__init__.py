@@ -14,9 +14,9 @@ from setup.build_environment import HOST, PROJECT
 BASE_RSYNC = ['rsync', '-avz', '--delete']
 EXCLUDES = []
 for x in [
-    'src/calibre/plugins', 'src/calibre/manual', 'src/calibre/trac',
+    'src/calibre/plugins', 'src/calibre/manual', 'src/calibre/trac', 'recipes',
     '.bzr', '.build', '.svn', 'build', 'dist', 'imgsrc', '*.pyc', '*.pyo', '*.swp',
-    '*.swo']:
+    '*.swo', 'format_docs']:
     EXCLUDES.extend(['--exclude', x])
 SAFE_EXCLUDES = ['"%s"'%x if '*' in x else x for x in EXCLUDES]
 
@@ -138,7 +138,7 @@ class VMInstaller(Command):
             self.vm = self.VM
         if not self.vmware_started():
             self.start_vmware()
-        subprocess.call(['chmod', '-R', '+r', 'resources/recipes'])
+        subprocess.call(['chmod', '-R', '+r', 'recipes'])
         self.start_vm()
         self.download_installer()
         if not self.dont_shutdown:

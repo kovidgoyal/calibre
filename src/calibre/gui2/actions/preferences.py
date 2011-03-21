@@ -25,8 +25,11 @@ class PreferencesAction(InterfaceAction):
                 self.gui.run_wizard)
         if not DEBUG:
             pm.addSeparator()
-            pm.addAction(QIcon(I('debug.png')), _('Restart in debug mode'),
+            ac = pm.addAction(QIcon(I('debug.png')), _('Restart in debug mode'),
                 self.debug_restart)
+            ac.setShortcut('Ctrl+Shift+R')
+            self.gui.addAction(ac)
+
         self.qaction.setMenu(pm)
         self.preferences_menu = pm
         for x in (self.gui.preferences_action, self.qaction):
