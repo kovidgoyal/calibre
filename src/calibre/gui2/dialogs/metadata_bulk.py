@@ -653,7 +653,10 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
 
         if self.destination_field_fm['is_multiple']:
             if self.comma_separated.isChecked():
-                if dest == 'authors':
+                if dest == 'authors' or \
+                        (self.destination_field_fm['is_custom'] and
+                         self.destination_field_fm['datatype'] == 'text' and
+                         self.destination_field_fm['display'].get('is_names', False)):
                     splitter = ' & '
                 else:
                     splitter = ','

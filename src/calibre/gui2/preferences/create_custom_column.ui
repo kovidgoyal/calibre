@@ -121,6 +121,17 @@ Everything else will show nothing.</string>
           </widget>
          </item>
          <item>
+          <widget class="QCheckBox" name="is_names">
+           <property name="text">
+            <string>Contains names</string>
+           </property>
+           <property name="toolTip">
+            <string>Check this box if the field contains names that are
+to be separated by ampersands instead of commas.</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <spacer name="horizontalSpacer_27">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>

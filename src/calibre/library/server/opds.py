@@ -126,8 +126,7 @@ def CATALOG_ENTRY(item, item_kind, base_href, version, updated,
     count = (_('%d books') if item.count > 1 else _('%d book'))%item.count
     if ignore_count:
         count = ''
-    if item.category == 'authors' and \
-            tweaks['categories_use_field_for_author_name'] == 'author_sort':
+    if item.use_sort_as_name:
         name = item.sort
     else:
         name = item.name

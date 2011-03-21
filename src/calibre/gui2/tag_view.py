@@ -659,8 +659,7 @@ class TagTreeItem(object): # {{{
 
     def tag_data(self, role):
         tag = self.tag
-        if tag.category == 'authors' and \
-                tweaks['categories_use_field_for_author_name'] == 'author_sort':
+        if tag.use_sort_as_name:
             name = tag.sort
             tt_author = True
         else:

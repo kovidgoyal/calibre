@@ -575,7 +575,10 @@ class Metadata(object):
             orig_res = res
             datatype = cmeta['datatype']
             if datatype == 'text' and cmeta['is_multiple']:
-                res = u', '.join(sorted(res, key=sort_key))
+                if cmeta['display'].get('is_names', False):
+                    res = u' & '.join(res)
+                else:
+                    res = u', '.join(sorted(res, key=sort_key))
             elif datatype == 'series' and series_with_index:
                 if self.get_extra(key) is not None:
                     res = res + \

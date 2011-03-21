@@ -155,8 +155,7 @@ def get_category_items(category, items, restriction, datatype, prefix): # {{{
                 '<div>{1}</div>'
                 '<div>{2}</div></div>')
         rating, rstring = render_rating(i.avg_rating, prefix)
-        if i.category == 'authors' and \
-                tweaks['categories_use_field_for_author_name'] == 'author_sort':
+        if i.use_sort_as_name:
             name = xml(i.sort)
         else:
             name = xml(i.name)
@@ -696,7 +695,9 @@ class BrowseServer(object):
                                 xml(href, True),
                                 xml(val if len(dbtags) == 1 else tag.name),
                                 xml(key, True)))
-                        join = ' &amp; ' if key == 'authors' else ', '
+                        join = ' &amp; ' if key == 'authors' or \
+                                            fm['display'].get('is_names', False) \
+                                        else ', '
                         args[key] = join.join(vals)
                         added_key = True
                 if not added_key:
