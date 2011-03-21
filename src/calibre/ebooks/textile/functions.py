@@ -211,16 +211,6 @@ class Textile(object):
         (re.compile(r'(\d+\'?\"?)( ?)x( ?)(?=\d+)'),                   r'\1\2&#215;\3'),                       #  dimension sign
         (re.compile(r'(\d+)\'', re.I),                                 r'\1&#8242;'),                          #  prime
         (re.compile(r'(\d+)\"', re.I),                                 r'\1&#8243;'),                          #  prime-double
-        (re.compile(r'(\')\''),                                        r'\1&#8217;'),                          #  single closing - following another
-        (re.compile(r"(\w)\'(\w)"),                                    r'\1&#8217;\2'),                        #  apostrophe's
-        (re.compile(r'(\s)\'(\d+\w?)\b(?!\')'),                        r'\1&#8217;\2'),                        #  back in '88
-        (re.compile(r'(\s\[)\''),                                      r'\1&#8216;'),                          #  single opening - following ws+[
-        (re.compile(r'(\S)\'(?=\s|'+pnct+'|<|$)', re.M),               r'\1&#8217;'),                          #  single closing
-        (re.compile(r'\''),                                            r'&#8216;'),                            #  single opening
-        (re.compile(r'(\")\"'),                                        r'\1&#8221;'),                          #  double closing - following another
-        (re.compile(r'(\s\[)\"'),                                      r'\1&#8220;'),                          #  double opening - following whitespace+[
-        (re.compile(r'(\S)\"(?=\s|'+pnct+'|<|$)', re.M),               r'\1&#8221;'),                          #  double closing
-        (re.compile(r'"'),                                             r'&#8220;'),                            #  double opening
         (re.compile(r'\b([A-Z][A-Z0-9]{2,})\b(?:[(]([^)]*)[)])'),      r'<acronym title="\2">\1</acronym>'),   #  3+ uppercase acronym
         (re.compile(r'\b([A-Z][A-Z\'\-]+[A-Z])(?=[\s.,\)>])'),         r'<span class="caps">\1</span>'),       #  3+ uppercase
         (re.compile(r'\b(\s{0,1})?\.{3}'),                             r'\1&#8230;'),                          #  ellipsis
@@ -870,11 +860,11 @@ class Textile(object):
         'hello <span class="bob">span <strong>strong</strong> and <b>bold</b></span> goodbye'
         """
         qtags = (r'\*\*', r'\*', r'\?\?', r'\-', r'__', r'_', r'%', r'\+', r'~', r'\^')
-        pnct = ".,\"'?!;:()"
+        pnct = ".,\"'?!;:"
 
         for qtag in qtags:
             pattern = re.compile(r"""
-                (?:^|(?<=[\s>%(pnct)s])|\[|([\]}]))
+                (?:^|(?<=[\s>%(pnct)s\(])|\[|([\]}]))
                 (%(qtag)s)(?!%(qtag)s)
                 (%(c)s)
                 (?::(\S+))?
