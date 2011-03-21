@@ -26,7 +26,7 @@ class cmd_commit(_cmd_commit):
         close_bug_pat = re.compile(close_bug, re.IGNORECASE)
         match = close_bug_pat.search(msg)
         if not match:
-            return msg, None, None, None
+            return msg, None, None
         action, bug = match.group(1), match.group(2)
         summary = ''
         raw = urllib.urlopen('https://bugs.launchpad.net/calibre/+bug/' +
