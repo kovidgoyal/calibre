@@ -121,6 +121,16 @@ Everything else will show nothing.</string>
           </widget>
          </item>
          <item>
+          <widget class="QCheckBox" name="is_names">
+           <property name="text">
+            <string>Contains names</string>
+           </property>
+           <property name="toolTip">
+            <string>Check this box if this column contains names, like the authors column.</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <spacer name="horizontalSpacer_27">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
