@@ -46,15 +46,6 @@ def authors_test(authors):
 
     return test
 
-def _test_fields(touched_fields, mi):
-    for key in touched_fields:
-        if key.startswith('identifier:'):
-            key = key.partition(':')[-1]
-            if not mi.has_identifier(key):
-                return 'identifier: ' + key
-        elif mi.is_null(key):
-            return key
-
 
 def test_identify_plugin(name, tests):
     '''
@@ -120,11 +111,10 @@ def test_identify_plugin(name, tests):
             prints('Log saved to', lf)
             raise SystemExit(1)
 
-        good = [x for x in possibles if _test_fields(plugin.touched_fields, x) is
+        good = [x for x in possibles if plugin.test_fields(x) is
                 None]
         if not good:
-            prints('Failed to find', _test_fields(plugin.touched_fields,
-                possibles[0]))
+            prints('Failed to find', plugin.test_fields(possibles[0]))
             raise SystemExit(1)
 
 
