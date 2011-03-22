@@ -227,14 +227,17 @@ class Text(Base):
 
     def setup_ui(self, parent):
         if self.col_metadata['display'].get('is_names', False):
-            self.sep = u'&'
+            self.sep = u' & '
         else:
-            self.sep = u','
+            self.sep = u', '
         values = self.all_values = list(self.db.all_custom(num=self.col_id))
         values.sort(key=sort_key)
         if self.col_metadata['is_multiple']:
             w = MultiCompleteLineEdit(parent)
-            w.set_separator(self.sep)
+            w.set_separator(self.sep.strip())
+            if self.sep == u' & ':
+                w.set_space_before_sep(True)
+                w.set_add_separator(tweaks['authors_completer_append_separator'])
             w.update_items_cache(values)
             w.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
         else:
@@ -271,7 +274,7 @@ class Text(Base):
     def getter(self):
         if self.col_metadata['is_multiple']:
             val = unicode(self.widgets[1].text()).strip()
-            ans = [x.strip() for x in val.split(self.sep) if x.strip()]
+            ans = [x.strip() for x in val.split(self.sep.strip()) if x.strip()]
             if not ans:
                 ans = None
             return ans
@@ -844,17 +847,12 @@ class RemoveTags(QWidget):
 class BulkText(BulkBase):
 
     def setup_ui(self, parent):
-        if self.col_metadata['display'].get('is_names', False):
-            self.sep = u'&'
-        else:
-            self.sep = u','
         values = self.all_values = list(self.db.all_custom(num=self.col_id))
         values.sort(key=sort_key)
         if self.col_metadata['is_multiple']:
             self.make_widgets(parent, MultiCompleteLineEdit,
                               extra_label_text=_('tags to add'))
             self.main_widget.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
-            self.main_widget.set_separator(self.sep)
             self.adding_widget = self.main_widget
 
             if not self.col_metadata['display'].get('is_names', False):
@@ -863,8 +861,14 @@ class BulkText(BulkBase):
                                            _('tags to remove'), parent))
                 self.widgets.append(w)
                 self.removing_widget = w
+                self.main_widget.set_separator(',')
                 w.tags_box.textChanged.connect(self.a_c_checkbox_changed)
                 w.checkbox.stateChanged.connect(self.a_c_checkbox_changed)
+            else:
+                self.main_widget.set_separator('&')
+                self.main_widget.set_space_before_sep(True)
+                self.main_widget.set_add_separator(
+                                tweaks['authors_completer_append_separator'])
         else:
             self.make_widgets(parent, MultiCompleteComboBox)
             self.main_widget.set_separator(None)
@@ -895,7 +899,7 @@ class BulkText(BulkBase):
         if self.col_metadata['is_multiple']:
             if self.col_metadata['display'].get('is_names', False):
                 val = self.gui_val
-                add = set([v.strip() for v in val.split('&')])
+                add = [v.strip() for v in val.split('&') if v.strip()]
                 self.db.set_custom_bulk(book_ids, add, num=self.col_id)
             else:
                 remove_all, adding, rtext = self.gui_val

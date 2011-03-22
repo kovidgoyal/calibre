@@ -1274,6 +1274,7 @@ class TagsModel(QAbstractItemModel): # {{{
                 if len(components) == 0 or '.'.join(components) != tag.original_name:
                     components = [tag.original_name]
                 if (not tag.is_hierarchical) and (in_uc or
+                        (fm['is_custom'] and fm['display'].get('is_names', False)) or
                         key in ['authors', 'publisher', 'news', 'formats', 'rating'] or
                         key not in self.db.prefs.get('categories_using_hierarchy', []) or
                         len(components) == 1):
