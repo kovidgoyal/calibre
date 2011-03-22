@@ -63,7 +63,7 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
         for col, name in [('isbn', _('ISBN')), ('formats', _('Formats')),
                 ('last_modified', _('Modified Date')), ('yesno', _('Yes/No')),
                 ('tags', _('Tags')), ('series', _('Series')), ('rating',
-                    _('Rating'))]:
+                    _('Rating')), ('people', _("People's names"))]:
             text += ' <a href="col:%s">%s</a>,'%(col, name)
         text = text[:-1]
         self.shortcuts.setText(text)
@@ -136,6 +136,7 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
             'tags' : 1,
             'series': 3,
             'rating': 8,
+            'people': 1,
             }.get(which, 10))
         self.column_name_box.setText(which)
         self.column_heading_box.setText({
@@ -145,7 +146,9 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
             'tags': _('My Tags'),
             'series': _('My Series'),
             'rating': _('My Rating'),
-            'last_modified':_('Modified Date')}[which])
+            'last_modified':_('Modified Date'),
+            'people': _('People')}[which])
+        self.is_names.setChecked(which == 'people')
         if self.composite_box.isVisible():
             self.composite_box.setText(
                 {
@@ -154,7 +157,6 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
                     'last_modified':'''{last_modified:'format_date($, "dd MMM yy")'}'''
                     }[which])
             self.composite_sort_by.setCurrentIndex(2 if which == 'last_modified' else 0)
-
 
     def datatype_changed(self, *args):
         try:
