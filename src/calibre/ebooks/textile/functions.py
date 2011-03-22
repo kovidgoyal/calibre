@@ -202,26 +202,21 @@ class Textile(object):
         (re.compile(r'{Rs}'),            r'&#8360;'),  #  Rupee
         (re.compile(r'{(C=|=C)}'),       r'&#8364;'),  #  euro
         (re.compile(r'{tm}'),            r'&#8482;'),  #  trademark
-        (re.compile(r'{spade}'),         r'&#9824;'),  #  spade
-        (re.compile(r'{club}'),          r'&#9827;'),  #  club
-        (re.compile(r'{heart}'),         r'&#9829;'),  #  heart
-        (re.compile(r'{diamond}'),       r'&#9830;'),  #  diamond
+        (re.compile(r'{spades?}'),       r'&#9824;'),  #  spade
+        (re.compile(r'{clubs?}'),        r'&#9827;'),  #  club
+        (re.compile(r'{hearts?}'),       r'&#9829;'),  #  heart
+        (re.compile(r'{diam(onds?|s)}'), r'&#9830;'),  #  diamond
     ]
     glyph_defaults = [
         (re.compile(r'(\d+\'?\"?)( ?)x( ?)(?=\d+)'),                   r'\1\2&#215;\3'),                       #  dimension sign
         (re.compile(r'(\d+)\'', re.I),                                 r'\1&#8242;'),                          #  prime
         (re.compile(r'(\d+)\"', re.I),                                 r'\1&#8243;'),                          #  prime-double
-        (re.compile(r"(\w)\'(\w)"),                                    r'\1&#8217;\2'),                        #  apostrophe's
-        (re.compile(r'(\s)\'(\d+\w?)\b(?!\')'),                        r'\1&#8217;\2'),                        #  back in '88
-        (re.compile(r'(\S)\'(?=\s|\'|<|$)'),                           r'\1&#8217;'),                          #  single closing
-        (re.compile(r'\'/'),                                           r'&#8216;'),                            #  single opening
-        (re.compile(r'(\")\"'),                                        r'\1&#8221;'),                          #  double closing - following another
-        (re.compile(r'(\S)\"(?=\s|&#8221;|<|$)'),                      r'\1&#8221;'),                          #  double closing
-        (re.compile(r'"'),                                             r'&#8220;'),                            #  double opening
         (re.compile(r'\b([A-Z][A-Z0-9]{2,})\b(?:[(]([^)]*)[)])'),      r'<acronym title="\2">\1</acronym>'),   #  3+ uppercase acronym
         (re.compile(r'\b([A-Z][A-Z\'\-]+[A-Z])(?=[\s.,\)>])'),         r'<span class="caps">\1</span>'),       #  3+ uppercase
-        (re.compile(r'\b(\s{0,1})?\.{3}'),                             r'\1&#8260;'),                          #  ellipsis
-        (re.compile(r'(\s?)--(\s?)'),                                  r'\1&#8212;\2'),                        #  em dash
+        (re.compile(r'\b(\s{0,1})?\.{3}'),                             r'\1&#8230;'),                          #  ellipsis
+        (re.compile(r'^[\*_-]{3,}$', re.M),                            r'<hr />'),                             #  <hr> scene-break
+        (re.compile(r'\b--\b'),                                        r'&#8212;'),                            #  em dash
+        (re.compile(r'(\s)--(\s)'),                                    r'\1&#8212;\2'),                        #  em dash
         (re.compile(r'\s-(?:\s|$)'),                                   r' &#8211; '),                          #  en dash
         (re.compile(r'\b( ?)[([]TM[])]', re.I),                        r'\1&#8482;'),                          #  trademark
         (re.compile(r'\b( ?)[([]R[])]', re.I),                         r'\1&#174;'),                           #  registered
@@ -747,7 +742,7 @@ class Textile(object):
         return url
 
     def shelve(self, text):
-        id = str(uuid.uuid4())
+        id = str(uuid.uuid4()) + 'c'
         self.shelf[id] = text
         return id
 
@@ -865,11 +860,11 @@ class Textile(object):
         'hello <span class="bob">span <strong>strong</strong> and <b>bold</b></span> goodbye'
         """
         qtags = (r'\*\*', r'\*', r'\?\?', r'\-', r'__', r'_', r'%', r'\+', r'~', r'\^')
-        pnct = ".,\"'?!;:()"
+        pnct = ".,\"'?!;:"
 
         for qtag in qtags:
             pattern = re.compile(r"""
-                (?:^|(?<=[\s>%(pnct)s])|\[|([\]}]))
+                (?:^|(?<=[\s>%(pnct)s\(])|\[|([\]}]))
                 (%(qtag)s)(?!%(qtag)s)
                 (%(c)s)
                 (?::(\S+))?
