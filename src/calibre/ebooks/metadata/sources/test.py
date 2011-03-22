@@ -10,7 +10,7 @@ __docformat__ = 'restructuredtext en'
 import os, tempfile, time
 from Queue import Queue, Empty
 from threading import Event
-
+from functools import partial
 
 from calibre.customize.ui import metadata_plugins
 from calibre import prints
@@ -90,11 +90,17 @@ def test_identify_plugin(name, tests):
             except Empty:
                 break
 
-        prints('Found', len(results), 'matches:')
+        prints('Found', len(results), 'matches:', end=' ')
+        prints('Smaller relevance means better match')
 
-        for mi in results:
+        results.sort(cmp=partial(plugin.compare_identify_results,
+            title=kwargs.get('title', None), authors=kwargs.get('authors',
+                None), identifiers=kwargs.get('identifiers', {})))
+
+        for i, mi in enumerate(results):
+            prints('*'*30, 'Relevance:', i, '*'*30)
             prints(mi)
-            prints('\n\n')
+            prints('*'*75, '\n\n')
 
         possibles = []
         for mi in results:
@@ -116,6 +122,9 @@ def test_identify_plugin(name, tests):
         if not good:
             prints('Failed to find', plugin.test_fields(possibles[0]))
             raise SystemExit(1)
+
+        if results[0] is not possibles[0]:
+            prints('Most relevant result failed the tests')
 
 
     prints('Average time per query', sum(times)/len(times))

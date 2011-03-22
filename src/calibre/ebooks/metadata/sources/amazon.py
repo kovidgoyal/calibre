@@ -41,7 +41,7 @@ class Worker(Thread): # {{{
         try:
             self.get_details()
         except:
-            self.log.error('get_details failed for url: %r'%self.url)
+            self.log.exception('get_details failed for url: %r'%self.url)
 
     def get_details(self):
         try:
@@ -168,7 +168,7 @@ class Worker(Thread): # {{{
             if self.isbn:
                 self.plugin.cache_isbn_to_identifier(self.isbn, self.amazon_id)
             if self.cover_url:
-                self.cache_identifier_to_cover_url(self.amazon_id,
+                self.plugin.cache_identifier_to_cover_url(self.amazon_id,
                         self.cover_url)
 
         self.result_queue.put(mi)
