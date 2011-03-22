@@ -22,6 +22,7 @@ border_style_map = {
         'dot-dot-dash': 'dotted',
         'outset': 'outset',
         'tripple': 'double',
+        'triple': 'double',
         'thick-thin-small': 'solid',
         'thin-thick-small': 'solid',
         'thin-thick-thin-small': 'solid',

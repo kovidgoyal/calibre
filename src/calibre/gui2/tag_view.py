@@ -16,8 +16,7 @@ from PyQt4.Qt import Qt, QTreeView, QApplication, pyqtSignal, QFont, QSize, \
                      QIcon, QPoint, QVBoxLayout, QHBoxLayout, QComboBox, QTimer,\
                      QAbstractItemModel, QVariant, QModelIndex, QMenu, QFrame,\
                      QPushButton, QWidget, QItemDelegate, QString, QLabel, \
-                     QShortcut, QKeySequence, SIGNAL, QMimeData, QSizePolicy,\
-                     QToolButton
+                     QShortcut, QKeySequence, SIGNAL, QMimeData, QToolButton
 
 from calibre.ebooks.metadata import title_sort
 from calibre.gui2 import config, NONE, gprefs
@@ -1051,12 +1050,12 @@ class TagsModel(QAbstractItemModel): # {{{
         if (key == 'authors' and len(ids) >= 5):
             if not confirm('<p>'+_('Changing the authors for several books can '
                            'take a while. Are you sure?')
-                        +'</p>', 'tag_browser_drop_authors', self.parent()):
+                        +'</p>', 'tag_browser_drop_authors', self.tags_view):
                 return
         elif len(ids) > 15:
             if not confirm('<p>'+_('Changing the metadata for that many books '
                            'can take a while. Are you sure?')
-                        +'</p>', 'tag_browser_many_changes', self.parent()):
+                        +'</p>', 'tag_browser_many_changes', self.tags_view):
                 return
 
         fm = self.db.metadata_for_field(key)

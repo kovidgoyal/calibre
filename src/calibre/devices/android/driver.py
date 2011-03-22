@@ -58,12 +58,14 @@ class ANDROID(USBMS):
             0x413c : { 0xb007 : [0x0100, 0x0224]},
 
             # LG
-            0x1004 : { 0x61cc : [0x100], 0x61ce : [0x100] },
+            0x1004 : { 0x61cc : [0x100], 0x61ce : [0x100], 0x618e : [0x226] },
 
             # Archos
             0x0e79 : {
                 0x1400 : [0x0222, 0x0216],
                 0x1408 : [0x0222, 0x0216],
+                0x1411 : [0x216],
+                0x1417 : [0x0216],
                 0x1419 : [0x0216],
                 0x1420 : [0x0216],
                 0x1422 : [0x0216]
@@ -91,14 +93,14 @@ class ANDROID(USBMS):
 
     VENDOR_NAME      = ['HTC', 'MOTOROLA', 'GOOGLE_', 'ANDROID', 'ACER',
             'GT-I5700', 'SAMSUNG', 'DELL', 'LINUX', 'GOOGLE', 'ARCHOS',
-            'TELECHIP', 'HUAWEI', 'T-MOBILE', 'SEMC']
+            'TELECHIP', 'HUAWEI', 'T-MOBILE', 'SEMC', 'LGE']
     WINDOWS_MAIN_MEM = ['ANDROID_PHONE', 'A855', 'A853', 'INC.NEXUS_ONE',
             '__UMS_COMPOSITE', '_MB200', 'MASS_STORAGE', '_-_CARD', 'SGH-I897',
             'GT-I9000', 'FILE-STOR_GADGET', 'SGH-T959', 'SAMSUNG_ANDROID',
             'SCH-I500_CARD', 'SPH-D700_CARD', 'MB810', 'GT-P1000', 'DESIRE',
             'SGH-T849', '_MB300', 'A70S', 'S_ANDROID', 'A101IT', 'A70H',
             'IDEOS_TABLET', 'MYTOUCH_4G', 'UMS_COMPOSITE', 'SCH-I800_CARD',
-            '7', 'A956', 'A955']
+            '7', 'A956', 'A955', 'A43', 'ANDROID_PLATFORM']
     WINDOWS_CARD_A_MEM = ['ANDROID_PHONE', 'GT-I9000_CARD', 'SGH-I897',
             'FILE-STOR_GADGET', 'SGH-T959', 'SAMSUNG_ANDROID', 'GT-P1000_CARD',
             'A70S', 'A101IT', '7']

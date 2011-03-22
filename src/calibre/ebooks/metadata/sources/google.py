@@ -190,14 +190,15 @@ class GoogleBooks(Source):
         return raw and len(raw) > 17000 and raw[1:4] != 'PNG'
 
     def get_all_details(self, br, log, entries, abort, result_queue, timeout):
-        for i in entries:
+        for relevance, i in enumerate(entries):
             try:
                 ans = to_metadata(br, log, i, timeout)
                 if isinstance(ans, Metadata):
-                    result_queue.put(ans)
+                    ans.source_relevance = relevance
                     for isbn in getattr(ans, 'all_isbns', []):
                         self.cache_isbn_to_identifier(isbn,
                                 ans.identifiers['google'])
+                    result_queue.put(ans)
             except:
                 log.exception(
                     'Failed to get metadata for identify entry:',

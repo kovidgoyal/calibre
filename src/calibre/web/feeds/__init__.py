@@ -28,6 +28,7 @@ class Article(object):
             pass
         if not isinstance(self._title, unicode):
             self._title = self._title.decode('utf-8', 'replace')
+        self._title = clean_ascii_chars(self._title)
         self.url = url
         self.author = author
         if author and not isinstance(author, unicode):
@@ -75,7 +76,7 @@ class Article(object):
                 t = t.decode('utf-8', 'replace')
             return t
         def fset(self, val):
-            self._title = val
+            self._title = clean_ascii_chars(val)
         return property(fget=fget, fset=fset)
 
 

@@ -28,11 +28,12 @@ class Worker(Thread): # {{{
     Get book details from amazons book page in a separate thread
     '''
 
-    def __init__(self, url, result_queue, browser, log, timeout=20):
+    def __init__(self, url, result_queue, browser, log, relevance, plugin, timeout=20):
         Thread.__init__(self)
         self.daemon = True
         self.url, self.result_queue = url, result_queue
         self.log, self.timeout = log, timeout
+        self.relevance, self.plugin = relevance, plugin
         self.browser = browser.clone_browser()
         self.cover_url = self.amazon_id = self.isbn = None
 
@@ -160,6 +161,15 @@ class Worker(Thread): # {{{
 
         else:
             self.log.warning('Failed to find product description for url: %r'%self.url)
+
+        mi.source_relevance = self.relevance
+
+        if self.amazon_id:
+            if self.isbn:
+                self.plugin.cache_isbn_to_identifier(self.isbn, self.amazon_id)
+            if self.cover_url:
+                self.cache_identifier_to_cover_url(self.amazon_id,
+                        self.cover_url)
 
         self.result_queue.put(mi)
 
@@ -321,6 +331,20 @@ class Amazon(Source):
 
     # }}}
 
+    def get_cached_cover_url(self, identifiers):
+        url = None
+        asin = identifiers.get('amazon', None)
+        if asin is None:
+            asin = identifiers.get('asin', None)
+        if asin is None:
+            isbn = identifiers.get('isbn', None)
+            if isbn is not None:
+                asin = self.cached_isbn_to_identifier(isbn)
+        if asin is not None:
+            url = self.cached_identifier_to_cover_url(asin)
+
+        return url
+
     def identify(self, log, result_queue, abort, title=None, authors=None, # {{{
             identifiers={}, timeout=30):
         '''
@@ -396,7 +420,8 @@ class Amazon(Source):
             log.error('No matches found with query: %r'%query)
             return
 
-        workers = [Worker(url, result_queue, br, log) for url in matches]
+        workers = [Worker(url, result_queue, br, log, i, self) for i, url in
+                enumerate(matches)]
 
         for w in workers:
             w.start()
@@ -413,14 +438,6 @@ class Amazon(Source):
                     a_worker_is_alive = True
             if not a_worker_is_alive:
                 break
-
-        for w in workers:
-            if w.amazon_id:
-                if w.isbn:
-                    self.cache_isbn_to_identifier(w.isbn, w.amazon_id)
-                if w.cover_url:
-                    self.cache_identifier_to_cover_url(w.amazon_id,
-                            w.cover_url)
 
         return None
     # }}}
