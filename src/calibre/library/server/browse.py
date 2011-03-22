@@ -696,8 +696,9 @@ class BrowseServer(object):
                                 xml(val if len(dbtags) == 1 else tag.name),
                                 xml(key, True)))
                         join = ' &amp; ' if key == 'authors' or \
-                                            fm['display'].get('is_names', False) \
-                                        else ', '
+                                            (fm['is_custom'] and
+                                             fm['display'].get('is_names', False)) \
+                                         else ', '
                         args[key] = join.join(vals)
                         added_key = True
                 if not added_key:
