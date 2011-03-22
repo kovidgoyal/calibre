@@ -15,7 +15,7 @@ from calibre import isbytestring, force_unicode, fit_image, \
         prepare_string_for_xml
 from calibre.utils.ordered_dict import OrderedDict
 from calibre.utils.filenames import ascii_filename
-from calibre.utils.config import prefs, tweaks
+from calibre.utils.config import prefs
 from calibre.utils.icu import sort_key
 from calibre.utils.magick import Image
 from calibre.library.comments import comments_to_html

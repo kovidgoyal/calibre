@@ -126,8 +126,7 @@ Everything else will show nothing.</string>
             <string>Contains names</string>
            </property>
            <property name="toolTip">
-            <string>Check this box if the field contains names that are
-to be separated by ampersands instead of commas.</string>
+            <string>Check this box if this column contains names, like the authors column.</string>
            </property>
           </widget>
          </item>
