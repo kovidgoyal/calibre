@@ -124,7 +124,7 @@ class Device(DeviceConfig, DevicePlugin):
         if not prefix:
             return 0, 0
         prefix = prefix[:-1]
-        win32file = __import__('win32file', globals(), locals(), [], -1)
+        import win32file
         try:
             sectors_per_cluster, bytes_per_sector, free_clusters, total_clusters = \
                 win32file.GetDiskFreeSpace(prefix)
