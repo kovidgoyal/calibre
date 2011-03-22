@@ -87,32 +87,40 @@ class Source(Plugin):
 
         if authors:
             # Leave ' in there for Irish names
-            pat = re.compile(r'[-,:;+!@#$%^&*(){}.`~"\s\[\]/]')
+            remove_pat = re.compile(r'[,:;!@#$%^&*(){}.`~"\s\[\]/]')
+            replace_pat = re.compile(r'-+')
             if only_first_author:
                 authors = authors[:1]
             for au in authors:
+                au = replace_pat.sub(' ', au)
                 parts = au.split()
                 if ',' in au:
                     # au probably in ln, fn form
                     parts = parts[1:] + parts[:1]
                 for tok in parts:
-                    tok = pat.sub('', tok).strip()
+                    tok = remove_pat.sub('', tok).strip()
                     if len(tok) > 2 and tok.lower() not in ('von', ):
                         yield tok
 
 
-    def get_title_tokens(self, title):
+    def get_title_tokens(self, title, strip_joiners=True):
         '''
         Take a title and return a list of tokens useful for an AND search query.
         Excludes connectives and punctuation.
         '''
         if title:
-            pat = re.compile(r'''[-,:;+!@#$%^&*(){}.`~"'\s\[\]/]''')
+            # strip sub-titles
+            subtitle = re.compile(r'([\(\[\{].*?[\)\]\}]|[/:\\].*$)')
+            if len(subtitle.sub('', title)) > 1:
+                title = subtitle.sub('', title)
+            pat = re.compile(r'''([-,:;+!@#$%^&*(){}.`~"\s\[\]/]|'(?!s))''')
             title = pat.sub(' ', title)
             tokens = title.split()
             for token in tokens:
                 token = token.strip()
-                if token and token.lower() not in ('a', 'and', 'the'):
+                if token and token.lower() not in ('a', 'and', 'the') and strip_joiners:
+                    yield token
+                elif token:
                     yield token
 
     def split_jobs(self, jobs, num):

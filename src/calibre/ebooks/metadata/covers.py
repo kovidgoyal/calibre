@@ -161,14 +161,7 @@ class OverdriveCovers(CoverDownload): # {{{
     def has_cover(self, mi, ans, timeout=5.):
         if not mi.authors or not mi.title:
             return False
-        from calibre.ebooks.metadata.overdrive import get_cover_url
-        br = browser()
-        try:
-            get_cover_url(mi.isbn, mi.title, mi.authors, br)
-            self.debug('cover for', mi.isbn, 'found')
-            ans.set()
-        except Exception, e:
-            self.debug(e)
+        return True
 
     def get_covers(self, mi, result_queue, abort, timeout=5.):
         if not mi.isbn:

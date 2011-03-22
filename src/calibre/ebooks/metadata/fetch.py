@@ -261,10 +261,10 @@ class Overdrive(MetadataSource): # {{{
     def fetch(self):
         if not self.isbn:
             return
-        from calibre.ebooks.metadata.overdrive import get_metadata
+        from calibre.ebooks.metadata.overdrive import get_social_metadata
         try:
-            self.results = get_metadata(self.title, self.book_author,
-                    self.publisher, self.isbn)
+            self.results = get_social_metadata(self.title, self.book_author, self.isbn)
+            
         except Exception, e:
             self.exception = e
             self.tb = traceback.format_exc()
