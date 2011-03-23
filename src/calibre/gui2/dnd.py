@@ -195,8 +195,9 @@ def dnd_get_image(md, image_exts=IMAGE_EXTENSIONS):
                 md.urls()]
         purls = [urlparse(u) for u in urls]
         # First look for a local file
-        images = [u2p(x) for x in purls if x.scheme in ('', 'file') and
-                posixpath.splitext(urllib.unquote(x.path))[1][1:].lower() in
+        images = [u2p(x) for x in purls if x.scheme in ('', 'file')]
+        images = [x for x in images if
+                posixpath.splitext(urllib.unquote(x))[1][1:].lower() in
                 image_exts]
         images = [x for x in images if os.path.exists(x)]
         p = QPixmap()
@@ -241,8 +242,9 @@ def dnd_get_files(md, exts):
                 md.urls()]
         purls = [urlparse(u) for u in urls]
         # First look for a local file
-        local_files = [u2p(x) for x in purls if x.scheme in ('', 'file') and
-                posixpath.splitext(urllib.unquote(x.path))[1][1:].lower() in
+        local_files = [u2p(x) for x in purls if x.scheme in ('', 'file')]
+        local_files = [ p for p in local_files if
+                posixpath.splitext(urllib.unquote(p))[1][1:].lower() in
                 exts]
         local_files = [x for x in local_files if os.path.exists(x)]
         if local_files:
