@@ -284,6 +284,7 @@ class Amazon(Source):
             'com': _('US'),
             'fr' : _('France'),
             'de' : _('Germany'),
+            'uk' : _('UK'),
     }
 
     def create_query(self, log, title=None, authors=None, identifiers={}): # {{{
@@ -331,7 +332,7 @@ class Amazon(Source):
 
     # }}}
 
-    def get_cached_cover_url(self, identifiers):
+    def get_cached_cover_url(self, identifiers): # {{{
         url = None
         asin = identifiers.get('amazon', None)
         if asin is None:
@@ -344,6 +345,7 @@ class Amazon(Source):
             url = self.cached_identifier_to_cover_url(asin)
 
         return url
+    # }}}
 
     def identify(self, log, result_queue, abort, title=None, authors=None, # {{{
             identifiers={}, timeout=30):
@@ -442,8 +444,7 @@ class Amazon(Source):
         return None
     # }}}
 
-
-if __name__ == '__main__':
+if __name__ == '__main__': # tests {{{
     # To run these test use: calibre-debug -e
     # src/calibre/ebooks/metadata/sources/amazon.py
     from calibre.ebooks.metadata.sources.test import (test_identify_plugin,
@@ -489,5 +490,5 @@ if __name__ == '__main__':
             ),
 
         ])
-
+# }}}
 
