@@ -143,21 +143,27 @@ def dnd_has_extension(md, extensions):
         urls = [unicode(u.toString()) for u in
                 md.urls()]
         purls = [urlparse(u) for u in urls]
+        paths = [u2p(x) for x in purls]
         if DEBUG:
             prints('URLS:', urls)
-            prints('Paths:', [u2p(x) for x in purls])
+            prints('Paths:', paths)
 
-        exts = frozenset([posixpath.splitext(u.path)[1][1:].lower() for u in
-            purls])
+        exts = frozenset([posixpath.splitext(u)[1][1:].lower() for u in
+            paths])
         return bool(exts.intersection(frozenset(extensions)))
     return False
 
+def _u2p(raw):
+    path = raw
+    if iswindows and path.startswith('/'):
+        path = path[1:]
+    return path.replace('/', os.sep)
+
 def u2p(url):
     path = url.path
-    if iswindows:
-        if path.startswith('/'):
-            path = path[1:]
-    ans = path.replace('/', os.sep)
+    ans = _u2p(path)
+    if not os.path.exists(ans):
+        ans = _u2p(url.path + '#' + url.fragment)
     if os.path.exists(ans):
         return ans
     # Try unquoting the URL
