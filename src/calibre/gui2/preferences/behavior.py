@@ -31,9 +31,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         db = gui.library_view.model().db
 
         r = self.register
-
-        r('worker_process_priority', prefs, choices=
-                [(_('Low'), 'low'), (_('Normal'), 'normal'), (_('High'), 'high')])
+        choices = [(_('Low'), 'low'), (_('Normal'), 'normal'), (_('High'),
+            'high')] if iswindows else \
+                    [(_('Normal'), 'normal'), (_('Low'), 'low'), (_('Very low'),
+                        'high')]
+        r('worker_process_priority', prefs, choices=choices)
 
         r('network_timeout', prefs)
 
@@ -59,9 +61,6 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         for signal in ('Activated', 'Changed', 'DoubleClicked', 'Clicked'):
             signal = getattr(self.opt_internally_viewed_formats, 'item'+signal)
             signal.connect(self.internally_viewed_formats_changed)
-
-        self.settings['worker_process_priority'].gui_obj.setVisible(iswindows)
-        self.priority_label.setVisible(iswindows)
 
 
     def initialize(self):
