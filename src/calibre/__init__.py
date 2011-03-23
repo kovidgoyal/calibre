@@ -99,7 +99,7 @@ def sanitize_file_name_unicode(name, substitute='_'):
     **WARNING:** This function also replaces path separators, so only pass file names
     and not full paths to it.
     '''
-    if not isinstance(name, unicode):
+    if isbytestring(name):
         return sanitize_file_name(name, substitute=substitute, as_unicode=True)
     chars = [substitute if c in _filename_sanitize_unicode else c for c in
             name]
@@ -115,6 +115,14 @@ def sanitize_file_name_unicode(name, substitute='_'):
         one = '_' + one[1:]
     return one
 
+def sanitize_file_name2(name, substitute='_'):
+    '''
+    Sanitize filenames removing invalid chars. Keeps unicode names as unicode
+    and bytestrings as bytestrings
+    '''
+    if isbytestring(name):
+        return sanitize_file_name(name, substitute=substitute)
+    return sanitize_file_name_unicode(name, substitute=substitute)
 
 def prints(*args, **kwargs):
     '''

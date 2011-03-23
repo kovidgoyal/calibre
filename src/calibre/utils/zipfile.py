@@ -1,14 +1,13 @@
 """
 Read and write ZIP files. Modified by Kovid Goyal to support replacing files in
-a zip archive.
+a zip archive, detecting filename encoding, updating zip files, etc.
 """
-from __future__ import with_statement
-import struct, os, time, sys, shutil
+import struct, os, time, sys, shutil, stat
 import binascii, cStringIO
 from contextlib import closing
 from tempfile import SpooledTemporaryFile
 
-from calibre import sanitize_file_name
+from calibre import sanitize_file_name2
 from calibre.constants import filesystem_encoding
 from calibre.ebooks.chardet import detect
 
@@ -34,7 +33,7 @@ class LargeZipFile(Exception):
 
 error = BadZipfile      # The exception raised by this module
 
-ZIP64_LIMIT= (1 << 31) - 1
+ZIP64_LIMIT = (1 << 31) - 1
 ZIP_FILECOUNT_LIMIT = 1 << 16
 ZIP_MAX_COMMENT = (1 << 16) - 1
 
@@ -150,23 +149,41 @@ def decode_arcname(name):
     return name
 
 
-def is_zipfile(filename):
-    """Quickly see if file is a ZIP file by checking the magic number."""
+def _check_zipfile(fp):
     try:
-        fpin = open(filename, "rb")
-        endrec = _EndRecData(fpin)
-        fpin.close()
-        if endrec:
-            return True                 # file has correct magic number
+        if _EndRecData(fp):
+            return True         # file has correct magic number
     except IOError:
         pass
     return False
+
+def is_zipfile(filename):
+    """Quickly see if a file is a ZIP file by checking the magic number.
+
+    The filename argument may be a file or file-like object too.
+    """
+    result = False
+    try:
+        if hasattr(filename, "read"):
+            result = _check_zipfile(filename)
+        else:
+            with open(filename, "rb") as fp:
+                result = _check_zipfile(fp)
+    except IOError:
+        pass
+    return result
 
 def _EndRecData64(fpin, offset, endrec):
     """
     Read the ZIP64 end-of-archive records and use that to update endrec
     """
-    fpin.seek(offset - sizeEndCentDir64Locator, 2)
+    try:
+        fpin.seek(offset - sizeEndCentDir64Locator, 2)
+    except IOError:
+        # If the seek fails, the file is not large enough to contain a ZIP64
+        # end-of-archive record, so just return the end record we were given.
+        return endrec
+
     data = fpin.read(sizeEndCentDir64Locator)
     sig, diskno, reloff, disks = struct.unpack(structEndArchive64Locator, data)
     if sig != stringEndArchive64Locator:
@@ -185,6 +202,7 @@ def _EndRecData64(fpin, offset, endrec):
         return endrec
 
     # Update the original endrec using data from the ZIP64 record
+    endrec[_ECD_SIGNATURE] = sig
     endrec[_ECD_DISK_NUMBER] = disk_num
     endrec[_ECD_DISK_START] = disk_dir
     endrec[_ECD_ENTRIES_THIS_DISK] = dircount
@@ -207,7 +225,10 @@ def _EndRecData(fpin):
     # Check to see if this is ZIP file with no archive comment (the
     # "end of central directory" structure should be the last item in the
     # file if this is the case).
-    fpin.seek(-sizeEndCentDir, 2)
+    try:
+        fpin.seek(-sizeEndCentDir, 2)
+    except IOError:
+        return None
     data = fpin.read()
     if data[0:4] == stringEndArchive and data[-2:] == "\000\000":
         # the signature is correct and there's no comment, unpack structure
@@ -217,13 +238,9 @@ def _EndRecData(fpin):
         # Append a blank comment and record start offset
         endrec.append("")
         endrec.append(filesize - sizeEndCentDir)
-        if endrec[_ECD_OFFSET] == 0xffffffff:
-            # the value for the "offset of the start of the central directory"
-            # indicates that there is a "Zip64 end of central directory"
-            # structure present, so go look for it
-            return _EndRecData64(fpin, -sizeEndCentDir, endrec)
 
-        return endrec
+        # Try to read the "Zip64 end of central directory" structure
+        return _EndRecData64(fpin, -sizeEndCentDir, endrec)
 
     # Either this is not a ZIP file, or it is a ZIP file with an archive
     # comment.  Search the end of the file for the "end of central directory"
@@ -245,11 +262,10 @@ def _EndRecData(fpin):
             # Append the archive comment and start offset
             endrec.append(comment)
             endrec.append(maxCommentStart + start)
-            if endrec[_ECD_OFFSET] == 0xffffffff:
-                # There is apparently a "Zip64 end of central directory"
-                # structure present, so go look for it
-                return _EndRecData64(fpin, start - filesize, endrec)
-            return endrec
+
+            # Try to read the "Zip64 end of central directory" structure
+            return _EndRecData64(fpin, maxCommentStart + start - filesize,
+                                 endrec)
 
     # Unable to find a valid end of central directory structure
     return
@@ -733,20 +749,34 @@ class ZipFile:
         if key == 'r':
             self._GetContents()
         elif key == 'w':
-            pass
+            # set the modified flag so central directory gets written
+            # even if no files are added to the archive
+            self._didModify = True
         elif key == 'a':
-            try:                        # See if file is a zip file
+            try:
+                # See if file is a zip file
                 self._RealGetContents()
                 self._calculate_file_offsets()
                 # seek to start of directory and overwrite
                 self.fp.seek(self.start_dir, 0)
-            except BadZipfile:          # file is not a zip file, just append
+            except BadZipfile:
+                # file is not a zip file, just append
                 self.fp.seek(0, 2)
+
+                # set the modified flag so central directory gets written
+                # even if no files are added to the archive
+                self._didModify = True
         else:
             if not self._filePassed:
                 self.fp.close()
                 self.fp = None
             raise RuntimeError, 'Mode must be "r", "w" or "a"'
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        self.close()
 
     def _GetContents(self):
         """Read the directory, making sure we close the file if the format
@@ -762,9 +792,12 @@ class ZipFile:
     def _RealGetContents(self):
         """Read in the table of contents for the ZIP file."""
         fp = self.fp
-        endrec = _EndRecData(fp)
+        try:
+            endrec = _EndRecData(fp)
+        except IOError:
+            raise BadZipfile("File is not a zip file")
         if not endrec:
-            raise BadZipfile, "File is not a zip file"
+            raise BadZipfile("File is not a zip file")
         if self.debug > 1:
             print endrec
         size_cd = endrec[_ECD_SIZE]             # bytes in central directory
@@ -773,9 +806,8 @@ class ZipFile:
 
         # "concat" is zero, unless zip was concatenated to another file
         concat = endrec[_ECD_LOCATION] - size_cd - offset_cd
-        if endrec[_ECD_LOCATION] > ZIP64_LIMIT:
-            # If the offset of the "End of Central Dir" record requires Zip64
-            # extension structures, account for them
+        if endrec[_ECD_SIGNATURE] == stringEndArchive64:
+            # If Zip64 extension structures are present, account for them
             concat -= (sizeEndCentDir64 + sizeEndCentDir64Locator)
 
         if self.debug > 2:
@@ -918,9 +950,14 @@ class ZipFile:
 
     def testzip(self):
         """Read all the files and check the CRC."""
+        chunk_size = 2 ** 20
         for zinfo in self.filelist:
             try:
-                self.read(zinfo.filename)       # Check CRC-32
+                # Read by chunks, to avoid an OverflowError or a
+                # MemoryError with very large embedded files.
+                f = self.open(zinfo.filename, "r")
+                while f.read(chunk_size):     # Check CRC-32
+                    pass
             except BadZipfile:
                 return zinfo.filename
 
@@ -982,9 +1019,9 @@ class ZipFile:
             zef_file.read(fheader[_FH_EXTRA_FIELD_LENGTH])
 
         if fname != zinfo.orig_filename:
-            print ('WARNING: Header (%r) and directory (%r) filenames do not'
-                    ' match inside ZipFile')%(fname, zinfo.orig_filename)
-            print 'Using directory filename %r'%zinfo.orig_filename
+            print (('WARNING: Header (%r) and directory (%r) filenames do not'
+                    ' match inside ZipFile')%(fname, zinfo.orig_filename))
+            print ('Using directory filename %r'%zinfo.orig_filename)
             #raise BadZipfile, \
             #          'File name in directory "%r" and header "%r" differ.' % (
             #              zinfo.orig_filename, fname)
@@ -1059,13 +1096,13 @@ class ZipFile:
         """
         # build the destination pathname, replacing
         # forward slashes to platform specific separators.
-        if targetpath[-1:] == "/":
+        # Strip trailing path separator, unless it represents the root.
+        if (targetpath[-1:] in (os.path.sep, os.path.altsep)
+            and len(os.path.splitdrive(targetpath)[1]) > 1):
             targetpath = targetpath[:-1]
 
         # don't include leading "/" from file name if present
         fname = member.filename
-        if isinstance(fname, unicode):
-            fname = fname.encode(filesystem_encoding, 'replace')
         if fname.startswith('/'):
             fname = fname[1:]
         targetpath = os.path.join(targetpath, fname)
@@ -1073,13 +1110,6 @@ class ZipFile:
         targetpath = os.path.normpath(targetpath)
 
         # Create all upper directories if necessary.
-        upperdirs = os.path.dirname(targetpath)
-        while upperdirs:
-            if os.path.exists(upperdirs):
-                if os.path.isdir(upperdirs):
-                    break
-                os.remove(upperdirs)
-            upperdirs = os.path.dirname(upperdirs)
         upperdirs = os.path.dirname(targetpath)
         if upperdirs and not os.path.exists(upperdirs):
             os.makedirs(upperdirs)
@@ -1090,8 +1120,9 @@ class ZipFile:
                     with open(targetpath, 'wb') as target:
                         shutil.copyfileobj(source, target)
                 except:
+                    # Try sanitizing the file name to remove invalid characters
                     components = list(os.path.split(targetpath))
-                    components[-1] = sanitize_file_name(components[-1])
+                    components[-1] = sanitize_file_name2(components[-1])
                     targetpath = os.sep.join(components)
                     with open(targetpath, 'wb') as target:
                         shutil.copyfileobj(source, target)
@@ -1129,6 +1160,7 @@ class ZipFile:
                   "Attempt to write to ZIP archive that was already closed")
 
         st = os.stat(filename)
+        isdir = stat.S_ISDIR(st.st_mode)
         mtime = time.localtime(st.st_mtime)
         date_time = mtime[0:6]
         # Create ZipInfo instance to store file information
@@ -1139,6 +1171,8 @@ class ZipFile:
             arcname = arcname[1:]
         if not isinstance(arcname, unicode):
             arcname = arcname.decode(filesystem_encoding)
+        if isdir and not arcname.endswith('/'):
+            arcname += '/'
         zinfo = ZipInfo(arcname, date_time)
         zinfo.external_attr = (st[0] & 0xFFFF) << 16L      # Unix attributes
         if compress_type is None:
@@ -1152,6 +1186,16 @@ class ZipFile:
 
         self._writecheck(zinfo)
         self._didModify = True
+
+        if isdir:
+            zinfo.file_size = 0
+            zinfo.compress_size = 0
+            zinfo.CRC = 0
+            self.filelist.append(zinfo)
+            self.NameToInfo[zinfo.filename] = zinfo
+            self.fp.write(zinfo.FileHeader())
+            return
+
         with open(filename, "rb") as fp:
             # Must overwrite CRC and sizes with correct data later
             zinfo.CRC = CRC = 0
@@ -1261,12 +1305,6 @@ class ZipFile:
         """Call the "close()" method in case the user forgot."""
         self.close()
 
-    def __enter__(self):
-        return self
-
-    def __exit__(self, typ, value, traceback):
-        self.close()
-
     def close(self):
         """Close the file, and for mode "w" and "a" write the ending
         records."""
@@ -1338,19 +1376,26 @@ class ZipFile:
 
             pos2 = self.fp.tell()
             # Write end-of-zip-archive record
+            centDirCount = count
+            centDirSize = pos2 - pos1
             centDirOffset = pos1
-            if pos1 > ZIP64_LIMIT:
+            if (centDirCount >= ZIP_FILECOUNT_LIMIT or
+                centDirOffset > ZIP64_LIMIT or
+                centDirSize > ZIP64_LIMIT):
                 # Need to write the ZIP64 end-of-archive records
                 zip64endrec = struct.pack(
                         structEndArchive64, stringEndArchive64,
-                        44, 45, 45, 0, 0, count, count, pos2 - pos1, pos1)
+                        44, 45, 45, 0, 0, centDirCount, centDirCount,
+                        centDirSize, centDirOffset)
                 self.fp.write(zip64endrec)
 
                 zip64locrec = struct.pack(
                         structEndArchive64Locator,
                         stringEndArchive64Locator, 0, pos2, 1)
                 self.fp.write(zip64locrec)
-                centDirOffset = 0xFFFFFFFF
+                centDirCount = min(centDirCount, 0xFFFF)
+                centDirSize = min(centDirSize, 0xFFFFFFFF)
+                centDirOffset = min(centDirOffset, 0xFFFFFFFF)
 
             # check for valid comment length
             if len(self.comment) >= ZIP_MAX_COMMENT:
@@ -1361,9 +1406,8 @@ class ZipFile:
                 self.comment = self.comment[:ZIP_MAX_COMMENT]
 
             endrec = struct.pack(structEndArchive, stringEndArchive,
-                                 0, 0, count % ZIP_FILECOUNT_LIMIT,
-                                 count % ZIP_FILECOUNT_LIMIT, pos2 - pos1,
-                                 centDirOffset, len(self.comment))
+                                 0, 0, centDirCount, centDirCount,
+                                 centDirSize, centDirOffset, len(self.comment))
             self.fp.write(endrec)
             self.fp.write(self.comment)
             self.fp.flush()
@@ -1544,7 +1588,9 @@ def main(args = None):
             print USAGE
             sys.exit(1)
         zf = ZipFile(args[1], 'r')
-        zf.testzip()
+        badfile = zf.testzip()
+        if badfile:
+            print("The following enclosed file is corrupted: {!r}".format(badfile))
         print "Done testing"
 
     elif args[0] == '-e':
@@ -1563,9 +1609,8 @@ def main(args = None):
             tgtdir = os.path.dirname(tgt)
             if not os.path.exists(tgtdir):
                 os.makedirs(tgtdir)
-            fp = open(tgt, 'wb')
-            fp.write(zf.read(path))
-            fp.close()
+            with open(tgt, 'wb') as fp:
+                fp.write(zf.read(path))
         zf.close()
 
     elif args[0] == '-c':
