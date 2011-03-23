@@ -75,7 +75,7 @@ if plugins is None:
                     (['usbobserver'] if isosx else []):
             try:
                 p, err = importlib.import_module(plugin), ''
-            except Exception, err:
+            except Exception as err:
                 p = None
                 err = str(err)
             plugins[plugin] = (p, err)
