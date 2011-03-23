@@ -102,8 +102,8 @@ class Source(Plugin):
 
         if authors:
             # Leave ' in there for Irish names
-            remove_pat = re.compile(r'[,:;!@#$%^&*(){}.`~"\s\[\]/]')
-            replace_pat = re.compile(r'-+')
+            remove_pat = re.compile(r'[,!@#$%^&*(){}`~"\s\[\]/]')
+            replace_pat = re.compile(r'[-+.:;]')
             if only_first_author:
                 authors = authors[:1]
             for au in authors:
@@ -128,12 +128,12 @@ class Source(Plugin):
             subtitle = re.compile(r'([\(\[\{].*?[\)\]\}]|[/:\\].*$)')
             if len(subtitle.sub('', title)) > 1:
                 title = subtitle.sub('', title)
-            pat = re.compile(r'''([-,:;+!@#$%^&*(){}.`~"\s\[\]/]|'(?!s))''')
+            pat = re.compile(r'''([-,:;+!@#$%^*(){}.`~"\s\[\]/]|'(?!s))''')
             title = pat.sub(' ', title)
             tokens = title.split()
             for token in tokens:
                 token = token.strip()
-                if token and token.lower() not in ('a', 'and', 'the') and strip_joiners:
+                if token and token.lower() not in ('a', 'and', 'the', '&') and strip_joiners:
                     yield token
                 elif token:
                     yield token

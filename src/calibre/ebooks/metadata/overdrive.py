@@ -120,7 +120,7 @@ def overdrive_search(br, q, title, author):
     #author_q = re.sub('\s', '+', author_q)
     print "final author query is "+str(author_q)
     print "final title query is "+str(title_q)
-    q_xref = q+'SearchResults.svc/GetResults?iDisplayLength=20&sSearch='+title_q
+    q_xref = q+'SearchResults.svc/GetResults?iDisplayLength=50&sSearch='+title_q
     query = '{"szKeyword":"'+author_q+'"}'
 
     # main query, requires specific Content Type header
@@ -152,11 +152,11 @@ def sort_ovrdrv_results(raw, title=None, title_tokens=None, author=None, author_
     #print results
     # The search results are either from a keyword search or a multi-format list from a single ID,
     # sort through the results for closest match/format
-    for result in results:
-        print "\n\n\nthis result is "+str(result)
+    if results:
         for reserveid, od_title, subtitle, edition, series, publisher, format, formatid, creators, \
                 thumbimage, shortdescription, worldcatlink, excerptlink, creatorfile, sorttitle, \
                 availabletolibrary, availabletoretailer, relevancyrank, unknown1, unknown2, unknown3 in results:
+            print "this record's title is "+od_title+", subtitle is "+subtitle+", author[s] are "+creators+", series is "+series
             if ovrdrv_id is not None and int(formatid) in [1, 50, 410, 900]:
                 print "overdrive id is not None, searching based on format type priority"
                 return format_results(reserveid, od_title, subtitle, series, publisher, creators, thumbimage, worldcatlink, formatid)            
@@ -183,11 +183,16 @@ def sort_ovrdrv_results(raw, title=None, title_tokens=None, author=None, author_
                             close_author_match = False
                             break
                     if close_title_match and close_author_match and int(formatid) in [1, 50, 410, 900]:
-                        close_matches.append(format_results(reserveid, od_title, subtitle, series, publisher, creators, thumbimage, worldcatlink, formatid))
+                        if subtitle and series:
+                            close_matches.insert(0, format_results(reserveid, od_title, subtitle, series, publisher, creators, thumbimage, worldcatlink, formatid))
+                        else:
+                            close_matches.append(format_results(reserveid, od_title, subtitle, series, publisher, creators, thumbimage, worldcatlink, formatid))
         if close_matches:
             return close_matches[0]
         else:
-            return None
+            return ''
+    else:
+        return ''
 
 
 
@@ -394,7 +399,8 @@ def main(args=sys.argv):
     for ovrdrv_id, isbn, title, author in [
             #(None, '0899661343', 'On the Road', ['Jack Kerouac']), # basic test, no series, single author
             #(None, '9780061952838', 'The Fellowship of the Ring', ['J. R. R. Tolkien']), # Series test, multi-author
-            #(None, '9780061952838', 'The Two Towers', ['J. R. R. Tolkien']), # Series test, book 2
+            #(None, '9780061952838', 'The Two Towers (The Lord of the Rings, Book II)', ['J. R. R. Tolkien']), # Series test, book 2
+            #(None, '9780618153985', 'The Fellowship of the Ring (The Lord of the Rings, Part 1)', ['J.R.R. Tolkien']),
             #('57844706-20fa-4ace-b5ee-3470b1b52173', None, 'The Two Towers', ['J. R. R. Tolkien']), # Series test, w/ ovrdrv id
             #(None, '9780345505057', 'Deluge', ['Anne McCaffrey']) # Multiple authors
             #(None, None, 'Deluge', ['Anne McCaffrey']) # Empty ISBN
@@ -405,6 +411,7 @@ def main(args=sys.argv):
             #(None, '9781400050802', 'The Zombie Survival Guide', ['Max Brooks']), # Two books with this title by this author
             #(None, '9781775414315', 'The Worst Journey in the World / Antarctic 1910-1913', ['Apsley Cherry-Garrard']), # Garbage sub-title
             (None, '9780440335160', 'Outlander', ['Diana Gabaldon']), # Returns lots of results to sort through to get the best match
+            (None, '9780345509741', 'The Horror Stories of Robert E. Howard', ['Robert E. Howard']), # Complex title with initials/dots stripped, some results don't have a cover
             ]:
         cpath = os.path.join(tdir, title+'.jpg')
         print "cpath is "+cpath
