@@ -10,7 +10,6 @@ __docformat__ = 'restructuredtext en'
 import os, tempfile, time
 from Queue import Queue, Empty
 from threading import Event
-from functools import partial
 
 from calibre.customize.ui import metadata_plugins
 from calibre import prints
@@ -93,7 +92,7 @@ def test_identify_plugin(name, tests):
         prints('Found', len(results), 'matches:', end=' ')
         prints('Smaller relevance means better match')
 
-        results.sort(cmp=partial(plugin.compare_identify_results,
+        results.sort(key=plugin.identify_results_keygen(
             title=kwargs.get('title', None), authors=kwargs.get('authors',
                 None), identifiers=kwargs.get('identifiers', {})))
 
