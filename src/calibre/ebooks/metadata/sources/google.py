@@ -230,7 +230,7 @@ class GoogleBooks(Source):
         # When no cover is present, returns a PNG saying image not available
         # Try for example google identifier llNqPwAACAAJ
         # I have yet to see an actual cover in PNG format
-        return raw and len(raw) > 17000 and raw[1:4] != 'PNG'
+        return raw and len(raw) > 17000 and raw[1:4] != b'PNG'
 
     def get_all_details(self, br, log, entries, abort, result_queue, timeout):
         for relevance, i in enumerate(entries):

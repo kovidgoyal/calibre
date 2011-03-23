@@ -12,7 +12,7 @@ from Queue import Queue, Empty
 from threading import Event
 
 from calibre.customize.ui import metadata_plugins
-from calibre import prints
+from calibre import prints, sanitize_file_name2
 from calibre.ebooks.metadata import check_isbn
 from calibre.ebooks.metadata.sources.base import create_log
 
@@ -124,7 +124,34 @@ def test_identify_plugin(name, tests):
 
         if results[0] is not possibles[0]:
             prints('Most relevant result failed the tests')
+            raise SystemExit(1)
 
+        if 'cover' in plugin.capabilities:
+            rq = Queue()
+            mi = results[0]
+            plugin.download_cover(log, rq, abort, title=mi.title,
+                    authors=mi.authors, identifiers=mi.identifiers)
+            results = []
+            while True:
+                try:
+                    results.append(rq.get_nowait())
+                except Empty:
+                    break
+            if not results:
+                prints('Cover download failed')
+                raise SystemExit(1)
+            cdata = results[0]
+            cover = os.path.join(tdir, plugin.name.replace(' ',
+                '')+'-%s-cover.jpg'%sanitize_file_name2(mi.title.replace(' ',
+                    '_')))
+            with open(cover, 'wb') as f:
+                f.write(cdata)
+
+            prints('Cover downloaded to:', cover)
+
+            if len(cdata) < 10240:
+                prints('Downloaded cover too small')
+                raise SystemExit(1)
 
     prints('Average time per query', sum(times)/len(times))
 
