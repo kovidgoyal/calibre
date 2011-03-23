@@ -93,8 +93,12 @@ class Source(Plugin):
 
     supported_platforms = ['windows', 'osx', 'linux']
 
+    #: Set of capabilites supported by this plugin.
+    #: Useful capabilities are: 'identify', 'cover'
     capabilities = frozenset()
 
+    #: List of metadata fields that can potentially be download by this plugin
+    #: during the identify phase
     touched_fields = frozenset()
 
     def __init__(self, *args, **kwargs):
@@ -240,7 +244,7 @@ class Source(Plugin):
         return keygen
 
     def identify(self, log, result_queue, abort, title=None, authors=None,
-            identifiers={}, timeout=5):
+            identifiers={}, timeout=30):
         '''
         Identify a book by its title/author/isbn/etc.
 
@@ -279,6 +283,18 @@ class Source(Plugin):
 
         '''
         return None
+
+    def download_cover(self, log, result_queue, abort,
+            title=None, authors=None, identifiers={}, timeout=30):
+        '''
+        Download a cover and put it into result_queue. The parameters all have
+        the same meaning as for :meth:`identify`.
+
+        This method should use cached cover URLs for efficiency whenever
+        possible. When cached data is not present, most plugins simply call
+        identify and use its results.
+        '''
+        pass
 
     # }}}
 

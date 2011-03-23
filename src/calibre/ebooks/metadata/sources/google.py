@@ -10,6 +10,7 @@ __docformat__ = 'restructuredtext en'
 import time
 from urllib import urlencode
 from functools import partial
+from Queue import Queue, Empty
 
 from lxml import etree
 
@@ -139,7 +140,7 @@ class GoogleBooks(Source):
     name = 'Google Books'
     description = _('Downloads metadata from Google Books')
 
-    capabilities = frozenset(['identify'])
+    capabilities = frozenset(['identify', 'cover'])
     touched_fields = frozenset(['title', 'authors', 'tags', 'pubdate',
         'comments', 'publisher', 'identifier:isbn',
         'identifier:google']) # language currently disabled
@@ -182,6 +183,48 @@ class GoogleBooks(Source):
         if goog is not None:
             return ('http://books.google.com/books?id=%s&printsec=frontcover&img=1' %
                 goog)
+
+    def download_cover(self, log, result_queue, abort, # {{{
+            title=None, authors=None, identifiers={}, timeout=30):
+        cached_url = self.cover_url_from_identifiers(identifiers)
+        if cached_url is None:
+            log.info('No cached cover found, running identify')
+            rq = Queue()
+            self.identify(log, rq, abort, title=title, authors=authors,
+                    identifiers=identifiers)
+            if abort.is_set():
+                return
+            results = []
+            while True:
+                try:
+                    results.append(rq.get_nowait())
+                except Empty:
+                    break
+            results.sort(key=self.identify_results_keygen(
+                title=title, authors=authors, identifiers=identifiers))
+            for mi in results:
+                cached_url = self.cover_url_from_identifiers(mi.identifiers)
+                if cached_url is not None:
+                    break
+        if cached_url is None:
+            log.info('No cover found')
+            return
+
+        if abort.is_set():
+            return
+        br = self.browser
+        try:
+            cdata = br.open_novisit(cached_url, timeout=timeout).read()
+            if self.is_cover_image_valid(cdata):
+                result_queue.put(cdata)
+            else:
+                log.error('No cover found for %r'%identifiers)
+        except:
+            log.exception('Failed to download cover from:', cached_url)
+
+
+    # }}}
+
 
     def is_cover_image_valid(self, raw):
         # When no cover is present, returns a PNG saying image not available
