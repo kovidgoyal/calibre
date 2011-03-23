@@ -268,7 +268,7 @@ class RTFInput(InputFormatPlugin):
         self.log('Converting RTF to XML...')
         try:
             xml = self.generate_xml(stream.name)
-        except RtfInvalidCodeException, e:
+        except RtfInvalidCodeException as e:
             raise ValueError(_('This RTF file has a feature calibre does not '
             'support. Convert it to HTML first and then try it.\n%s')%e)
 

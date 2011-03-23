@@ -147,7 +147,7 @@ class TOC(list):
                 if path and os.access(path, os.R_OK):
                     try:
                         self.read_ncx_toc(path)
-                    except Exception, err:
+                    except Exception as err:
                         print 'WARNING: Invalid NCX file:', err
                     return
                 cwd = os.path.abspath(self.base_path)

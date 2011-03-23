@@ -59,7 +59,7 @@ for x in {manifest!r}:
             shutil.rmtree(x)
         else:
             os.unlink(x)
-    except Exception, e:
+    except Exception as e:
         print 'Failed to delete', x
         print '\t', e
 
@@ -285,7 +285,7 @@ class PostInstall:
 
                 complete -o nospace -C calibre-complete ebook-convert
                 '''))
-        except TypeError, err:
+        except TypeError as err:
             if 'resolve_entities' in str(err):
                 print 'You need python-lxml >= 2.0.5 for calibre'
                 sys.exit(1)

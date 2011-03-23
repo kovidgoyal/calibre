@@ -46,7 +46,7 @@ class Worker(Thread): # {{{
     def get_details(self):
         try:
             raw = self.browser.open_novisit(self.url, timeout=self.timeout).read().strip()
-        except Exception, e:
+        except Exception as e:
             if callable(getattr(e, 'getcode', None)) and \
                     e.getcode() == 404:
                 self.log.error('URL malformed: %r'%self.url)
@@ -359,7 +359,7 @@ class Amazon(Source):
         br = self.browser
         try:
             raw = br.open_novisit(query, timeout=timeout).read().strip()
-        except Exception, e:
+        except Exception as e:
             if callable(getattr(e, 'getcode', None)) and \
                     e.getcode() == 404:
                 log.error('Query malformed: %r'%query)

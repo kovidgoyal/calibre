@@ -33,7 +33,7 @@ class AmazonFr(MetadataSource):
         try:
             self.results = search(self.title, self.book_author, self.publisher,
                                   self.isbn, max_results=10, verbose=self.verbose, lang='fr')
-        except Exception, e:
+        except Exception as e:
             self.exception = e
             self.tb = traceback.format_exc()
 
@@ -50,7 +50,7 @@ class AmazonEs(MetadataSource):
         try:
             self.results = search(self.title, self.book_author, self.publisher,
                                   self.isbn, max_results=10, verbose=self.verbose, lang='es')
-        except Exception, e:
+        except Exception as e:
             self.exception = e
             self.tb = traceback.format_exc()
 
@@ -67,7 +67,7 @@ class AmazonEn(MetadataSource):
         try:
             self.results = search(self.title, self.book_author, self.publisher,
                                   self.isbn, max_results=10, verbose=self.verbose, lang='en')
-        except Exception, e:
+        except Exception as e:
             self.exception = e
             self.tb = traceback.format_exc()
 
@@ -84,7 +84,7 @@ class AmazonDe(MetadataSource):
         try:
             self.results = search(self.title, self.book_author, self.publisher,
                                   self.isbn, max_results=10, verbose=self.verbose, lang='de')
-        except Exception, e:
+        except Exception as e:
             self.exception = e
             self.tb = traceback.format_exc()
 
@@ -103,7 +103,7 @@ class Amazon(MetadataSource):
         try:
             self.results = search(self.title, self.book_author, self.publisher,
                                   self.isbn, max_results=10, verbose=self.verbose, lang='all')
-        except Exception, e:
+        except Exception as e:
             self.exception = e
             self.tb = traceback.format_exc()
 
@@ -193,7 +193,7 @@ class Query(object):
 
         try:
             raw = browser.open_novisit(self.urldata, timeout=timeout).read()
-        except Exception, e:
+        except Exception as e:
             report(verbose)
             if callable(getattr(e, 'getcode', None)) and \
                     e.getcode() == 404:
@@ -226,7 +226,7 @@ class Query(object):
                 try:
                     urldata = self.urldata + '&page=' + str(i)
                     raw = browser.open_novisit(urldata, timeout=timeout).read()
-                except Exception, e:
+                except Exception as e:
                     continue
                 if '<title>404 - ' in raw:
                     continue
@@ -413,7 +413,7 @@ class ResultList(list):
     def get_individual_metadata(self, browser, linkdata, verbose):
         try:
             raw = browser.open_novisit(linkdata).read()
-        except Exception, e:
+        except Exception as e:
             report(verbose)
             if callable(getattr(e, 'getcode', None)) and \
                     e.getcode() == 404:
@@ -445,7 +445,7 @@ class ResultList(list):
                 # self.clean_entry(entry, invalid_id=inv_ids)
                 title = self.get_title(entry)
                 authors = self.get_authors(entry)
-            except Exception, e:
+            except Exception as e:
                 if verbose:
                     print 'Failed to get all details for an entry'
                     print e

@@ -35,7 +35,7 @@ class Worker(Thread): # {{{
         try:
             br = browser()
             br.retrieve(self.url, self.fpath, self.callback)
-        except Exception, e:
+        except Exception as e:
             self.err = as_unicode(e)
             import traceback
             self.tb = traceback.format_exc()

@@ -213,7 +213,7 @@ class GoogleBooks(Source):
         br = self.browser
         try:
             raw = br.open_novisit(query, timeout=timeout).read()
-        except Exception, e:
+        except Exception as e:
             log.exception('Failed to make identify query: %r'%query)
             return as_unicode(e)
 
@@ -222,7 +222,7 @@ class GoogleBooks(Source):
             feed = etree.fromstring(xml_to_unicode(clean_ascii_chars(raw),
                 strip_encoding_pats=True)[0], parser=parser)
             entries = entry(feed)
-        except Exception, e:
+        except Exception as e:
             log.exception('Failed to parse identify results')
             return as_unicode(e)
 

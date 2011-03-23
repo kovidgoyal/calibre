@@ -36,7 +36,7 @@ class Lookup(QThread):
     def run(self):
         try:
             self.define()
-        except Exception, e:
+        except Exception as e:
             import traceback
             self.exception = e
             self.traceback = traceback.format_exc()

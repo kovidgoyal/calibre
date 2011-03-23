@@ -128,7 +128,7 @@ class Device(DeviceConfig, DevicePlugin):
         try:
             sectors_per_cluster, bytes_per_sector, free_clusters, total_clusters = \
                 win32file.GetDiskFreeSpace(prefix)
-        except Exception, err:
+        except Exception as err:
             if getattr(err, 'args', [None])[0] == 21: # Disk not ready
                 time.sleep(3)
                 sectors_per_cluster, bytes_per_sector, free_clusters, total_clusters = \
@@ -771,7 +771,7 @@ class Device(DeviceConfig, DevicePlugin):
         for d in drives:
             try:
                 eject(d)
-            except Exception, e:
+            except Exception as e:
                 print 'Udisks eject call for:', d, 'failed:'
                 print '\t', e
                 failures = True

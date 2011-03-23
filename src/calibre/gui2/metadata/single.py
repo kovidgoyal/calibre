@@ -303,7 +303,7 @@ class MetadataSingleDialogBase(ResizableDialog):
                     return False
                 self.books_to_refresh |= getattr(widget, 'books_to_refresh',
                         set([]))
-            except IOError, err:
+            except IOError as err:
                 if err.errno == 13: # Permission denied
                     import traceback
                     fname = err.filename if err.filename else 'file'

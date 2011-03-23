@@ -332,7 +332,7 @@ class HTMLConverter(object):
             soup = BeautifulSoup(raw,
                          convertEntities=BeautifulSoup.XHTML_ENTITIES,
                          markupMassage=nmassage)
-        except ConversionError, err:
+        except ConversionError as err:
             if 'Failed to coerce to unicode' in str(err):
                 raw = unicode(raw, 'utf8', 'replace')
                 soup = BeautifulSoup(raw,
@@ -935,7 +935,7 @@ class HTMLConverter(object):
 
         try:
             im = PILImage.open(path)
-        except IOError, err:
+        except IOError as err:
             self.log.warning('Unable to process image: %s\n%s'%( original_path, err))
             return
         encoding = detect_encoding(im)
@@ -953,7 +953,7 @@ class HTMLConverter(object):
                 pt.close()
                 self.scaled_images[path] = pt
                 return pt.name
-            except (IOError, SystemError), err: # PIL chokes on interlaced PNG images as well a some GIF images
+            except (IOError, SystemError) as err: # PIL chokes on interlaced PNG images as well a some GIF images
                 self.log.warning(_('Unable to process image %s. Error: %s')%(path, err))
 
         if width == None or height == None:
@@ -1013,7 +1013,7 @@ class HTMLConverter(object):
         if not self.images.has_key(path):
             try:
                 self.images[path] = ImageStream(path, encoding=encoding)
-            except LrsError, err:
+            except LrsError as err:
                 self.log.warning(_('Could not process image: %s\n%s')%(
                     original_path, err))
                 return
@@ -1768,7 +1768,7 @@ class HTMLConverter(object):
                     tag_css = self.tag_css(tag)[0] # Table should not inherit CSS
                     try:
                         self.process_table(tag, tag_css)
-                    except Exception, err:
+                    except Exception as err:
                         self.log.warning(_('An error occurred while processing a table: %s. Ignoring table markup.')%repr(err))
                         self.log.exception('')
                         self.log.debug(_('Bad table:\n%s')%unicode(tag)[:300])
@@ -1858,7 +1858,7 @@ def process_file(path, options, logger):
                 tf.close()
                 tim.save(tf.name)
                 tpath = tf.name
-            except IOError, err: # PIL sometimes fails, for example on interlaced PNG files
+            except IOError as err: # PIL sometimes fails, for example on interlaced PNG files
                 logger.warn(_('Could not read cover image: %s'), err)
                 options.cover = None
         else:

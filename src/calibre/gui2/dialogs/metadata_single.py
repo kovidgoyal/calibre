@@ -76,7 +76,7 @@ class CoverFetcher(Thread): # {{{
 
             self.cover_data, self.errors = download_cover(mi,
                     timeout=self.timeout)
-        except Exception, e:
+        except Exception as e:
             self.exception = e
             self.traceback = traceback.format_exc()
             print self.traceback
@@ -183,7 +183,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             try:
                 cf = open(_file, "rb")
                 cover = cf.read()
-            except IOError, e:
+            except IOError as e:
                 d = error_dialog(self, _('Error reading file'),
                         _("<p>There was an error reading from file: <br /><b>") + _file + "</b></p><br />"+str(e))
                 d.exec_()
