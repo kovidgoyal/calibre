@@ -769,7 +769,8 @@ class MobiReader(object):
 
     def extract_text(self):
         self.log.debug('Extracting text...')
-        text_sections = [self.text_section(i) for i in range(1, self.book_header.records + 1)]
+        text_sections = [self.text_section(i) for i in range(1,
+            min(self.book_header.records + 1, len(self.sections)))]
         processed_records = list(range(0, self.book_header.records + 1))
 
         self.mobi_html = ''

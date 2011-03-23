@@ -2,7 +2,7 @@ from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, sys, zipfile
+import os, sys, zipfile, importlib
 
 from calibre.constants import numeric_version
 from calibre.ptempfile import PersistentTemporaryFile
@@ -517,7 +517,7 @@ class InterfaceActionBase(Plugin): # {{{
         This method must return the actual interface action plugin object.
         '''
         mod, cls = self.actual_plugin.split(':')
-        return getattr(__import__(mod, fromlist=['1'], level=0), cls)(gui,
+        return getattr(importlib.import_module(mod), cls)(gui,
                 self.site_customization)
 
 # }}}
@@ -575,7 +575,7 @@ class PreferencesPlugin(Plugin): # {{{
         base, _, wc = self.config_widget.partition(':')
         if not wc:
             wc = 'ConfigWidget'
-        base = __import__(base, fromlist=[1])
+        base = importlib.import_module(base)
         widget = getattr(base, wc)
         return widget(parent)
 

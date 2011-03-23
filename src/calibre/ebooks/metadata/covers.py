@@ -91,7 +91,7 @@ class OpenLibraryCovers(CoverDownload): # {{{
             br.open_novisit(HeadRequest(self.OPENLIBRARY%mi.isbn), timeout=timeout)
             self.debug('cover for', mi.isbn, 'found')
             ans.set()
-        except Exception, e:
+        except Exception as e:
             if callable(getattr(e, 'getcode', None)) and e.getcode() == 302:
                 self.debug('cover for', mi.isbn, 'found')
                 ans.set()
@@ -106,7 +106,7 @@ class OpenLibraryCovers(CoverDownload): # {{{
         try:
             ans = br.open(self.OPENLIBRARY%mi.isbn, timeout=timeout).read()
             result_queue.put((True, ans, 'jpg', self.name))
-        except Exception, e:
+        except Exception as e:
             if callable(getattr(e, 'getcode', None)) and e.getcode() == 404:
                 result_queue.put((False, _('ISBN: %s not found')%mi.isbn, '', self.name))
             else:
@@ -131,7 +131,7 @@ class AmazonCovers(CoverDownload): # {{{
             get_cover_url(mi.isbn, br)
             self.debug('cover for', mi.isbn, 'found')
             ans.set()
-        except Exception, e:
+        except Exception as e:
             self.debug(e)
 
     def get_covers(self, mi, result_queue, abort, timeout=5.):
@@ -145,7 +145,7 @@ class AmazonCovers(CoverDownload): # {{{
                 raise ValueError('No cover found for ISBN: %s'%mi.isbn)
             cover_data = br.open_novisit(url).read()
             result_queue.put((True, cover_data, 'jpg', self.name))
-        except Exception, e:
+        except Exception as e:
             result_queue.put((False, self.exception_to_string(e),
                 traceback.format_exc(), self.name))
 
@@ -242,7 +242,7 @@ class DoubanCovers(CoverDownload): # {{{
         try:
             url = self.DOUBAN_ISBN_URL + isbn + "?apikey=" + self.CALIBRE_DOUBAN_API_KEY
             src = br.open(url, timeout=timeout).read()
-        except Exception, err:
+        except Exception as err:
             if isinstance(getattr(err, 'args', [None])[0], socket.timeout):
                 err = Exception(_('Douban.com API timed out. Try again later.'))
             raise err
@@ -275,7 +275,7 @@ class DoubanCovers(CoverDownload): # {{{
             if self.get_cover_url(mi.isbn, br, timeout=timeout) != None:
                 self.debug('cover for', mi.isbn, 'found')
                 ans.set()
-        except Exception, e:
+        except Exception as e:
             self.debug(e)
 
     def get_covers(self, mi, result_queue, abort, timeout=5.):
@@ -286,7 +286,7 @@ class DoubanCovers(CoverDownload): # {{{
             url = self.get_cover_url(mi.isbn, br, timeout=timeout)
             cover_data = br.open_novisit(url).read()
             result_queue.put((True, cover_data, 'jpg', self.name))
-        except Exception, e:
+        except Exception as e:
             result_queue.put((False, self.exception_to_string(e),
                 traceback.format_exc(), self.name))
 # }}}

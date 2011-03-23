@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 """
 PyTextile
 
@@ -206,6 +208,12 @@ class Textile(object):
         (re.compile(r'{clubs?}'),        r'&#9827;'),  #  club
         (re.compile(r'{hearts?}'),       r'&#9829;'),  #  heart
         (re.compile(r'{diam(onds?|s)}'), r'&#9830;'),  #  diamond
+        (re.compile(r'{"}'),             r'&#34;'),    #  double-quote
+        (re.compile(r"{'}"),             r'&#39;'),    #  single-quote
+        (re.compile(r"{(’|'/|/')}"),     r'&#8217;'),  #  closing-single-quote - apostrophe
+        (re.compile(r"{(‘|\\'|'\\)}"),   r'&#8216;'),  #  opening-single-quote
+        (re.compile(r'{(”|"/|/")}'),     r'&#8221;'),  #  closing-double-quote
+        (re.compile(r'{(“|\\"|"\\)}'),   r'&#8220;'),  #  opening-double-quote        
     ]
     glyph_defaults = [
         (re.compile(r'(\d+\'?\"?)( ?)x( ?)(?=\d+)'),                   r'\1\2&#215;\3'),                       #  dimension sign

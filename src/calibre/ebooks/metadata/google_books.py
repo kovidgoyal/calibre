@@ -176,7 +176,7 @@ class ResultList(list):
                 raw = browser.open(id_url).read()
                 feed = etree.fromstring(raw)
                 x = entry(feed)[0]
-            except Exception, e:
+            except Exception as e:
                 if verbose:
                     print 'Failed to get all details for an entry'
                     print e

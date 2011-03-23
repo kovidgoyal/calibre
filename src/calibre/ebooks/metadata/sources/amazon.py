@@ -41,12 +41,12 @@ class Worker(Thread): # {{{
         try:
             self.get_details()
         except:
-            self.log.error('get_details failed for url: %r'%self.url)
+            self.log.exception('get_details failed for url: %r'%self.url)
 
     def get_details(self):
         try:
             raw = self.browser.open_novisit(self.url, timeout=self.timeout).read().strip()
-        except Exception, e:
+        except Exception as e:
             if callable(getattr(e, 'getcode', None)) and \
                     e.getcode() == 404:
                 self.log.error('URL malformed: %r'%self.url)
@@ -168,7 +168,7 @@ class Worker(Thread): # {{{
             if self.isbn:
                 self.plugin.cache_isbn_to_identifier(self.isbn, self.amazon_id)
             if self.cover_url:
-                self.cache_identifier_to_cover_url(self.amazon_id,
+                self.plugin.cache_identifier_to_cover_url(self.amazon_id,
                         self.cover_url)
 
         self.result_queue.put(mi)
@@ -359,7 +359,7 @@ class Amazon(Source):
         br = self.browser
         try:
             raw = br.open_novisit(query, timeout=timeout).read().strip()
-        except Exception, e:
+        except Exception as e:
             if callable(getattr(e, 'getcode', None)) and \
                     e.getcode() == 404:
                 log.error('Query malformed: %r'%query)

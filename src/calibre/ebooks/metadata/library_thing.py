@@ -45,7 +45,7 @@ def check_for_cover(isbn, timeout=5.):
     try:
         br.open_novisit(HeadRequest(OPENLIBRARY%isbn), timeout=timeout)
         return True
-    except Exception, e:
+    except Exception as e:
         if callable(getattr(e, 'getcode', None)) and e.getcode() == 302:
             return True
     return False

@@ -222,7 +222,7 @@ class LibraryServer(ContentServer, MobileServer, XMLServer, OPDSServer, Cache,
             #    cherrypy.engine.signal_handler.subscribe()
 
             cherrypy.engine.block()
-        except Exception, e:
+        except Exception as e:
             self.exception = e
         finally:
             self.is_running = False

@@ -116,7 +116,7 @@ class Emailer(Thread): # {{{
                 try:
                     self.sendmail(job)
                     break
-                except Exception, e:
+                except Exception as e:
                     if not self._run:
                         return
                     import traceback

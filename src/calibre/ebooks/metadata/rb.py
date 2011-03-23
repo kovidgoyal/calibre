@@ -43,7 +43,7 @@ def get_metadata(stream):
             elif key.strip() == 'AUTHOR':
                 mi.author = value
                 mi.authors = string_to_authors(value)
-    except Exception, err:
+    except Exception as err:
         msg = u'Couldn\'t read metadata from rb: %s with error %s'%(mi.title, unicode(err))
         print >>sys.stderr, msg.encode('utf8')
         raise
