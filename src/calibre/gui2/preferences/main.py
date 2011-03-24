@@ -7,6 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import textwrap
 from functools import partial
+from collections import OrderedDict
 
 from PyQt4.Qt import QMainWindow, Qt, QIcon, QStatusBar, QFont, QWidget, \
         QScrollArea, QStackedWidget, QVBoxLayout, QLabel, QFrame, QKeySequence, \
@@ -18,7 +19,6 @@ from calibre.gui2 import gprefs, min_available_height, available_width, \
     warning_dialog
 from calibre.gui2.preferences import init_gui, AbortCommit, get_plugin
 from calibre.customize.ui import preferences_plugins
-from calibre.utils.ordered_dict import OrderedDict
 
 ICON_SIZE = 32
 

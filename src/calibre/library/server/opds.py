@@ -8,6 +8,7 @@ __docformat__ = 'restructuredtext en'
 import hashlib, binascii
 from functools import partial
 from itertools import repeat
+from collections import OrderedDict
 
 from lxml import etree, html
 from lxml.builder import ElementMaker
@@ -21,7 +22,6 @@ from calibre.library.server import custom_fields_to_display
 from calibre.library.server.utils import format_tag_string, Offsets
 from calibre import guess_type, prepare_string_for_xml as xml
 from calibre.utils.icu import sort_key
-from calibre.utils.ordered_dict import OrderedDict
 
 BASE_HREFS = {
         0 : '/stanza',

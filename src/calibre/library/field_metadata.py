@@ -4,8 +4,8 @@ Created on 25 May 2010
 @author: charles
 '''
 import copy, traceback
+from collections import OrderedDict
 
-from calibre.utils.ordered_dict import OrderedDict
 from calibre.utils.config import tweaks
 
 class TagsIcons(dict):

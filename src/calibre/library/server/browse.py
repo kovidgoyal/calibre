@@ -7,13 +7,13 @@ __docformat__ = 'restructuredtext en'
 
 import operator, os, json, re
 from binascii import hexlify, unhexlify
+from collections import OrderedDict
 
 import cherrypy
 
 from calibre.constants import filesystem_encoding
 from calibre import isbytestring, force_unicode, fit_image, \
         prepare_string_for_xml
-from calibre.utils.ordered_dict import OrderedDict
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.config import prefs
 from calibre.utils.icu import sort_key
