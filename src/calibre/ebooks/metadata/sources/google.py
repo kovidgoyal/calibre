@@ -256,6 +256,7 @@ class GoogleBooks(Source):
                         if ans.has_google_cover:
                             self.cache_identifier_to_cover_url(goog,
                                     self.GOOGLE_COVER%goog)
+                    self.clean_downloaded_metadata(ans)
                     result_queue.put(ans)
             except:
                 log.exception(

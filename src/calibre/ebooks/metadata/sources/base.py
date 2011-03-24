@@ -13,6 +13,7 @@ from calibre import browser, random_user_agent
 from calibre.customize import Plugin
 from calibre.utils.logging import ThreadSafeLog, FileStream
 from calibre.utils.config import JSONConfig
+from calibre.utils.titlecase import titlecase
 
 msprefs = JSONConfig('metadata_sources.json')
 
@@ -128,7 +129,7 @@ class Source(Plugin):
 
     # }}}
 
-    # Utility functions {{{
+    # Caching {{{
 
     def get_related_isbns(self, id_):
         with self.cache_lock:
@@ -151,6 +152,10 @@ class Source(Plugin):
     def cached_identifier_to_cover_url(self, id_):
         with self.cache_lock:
             return self._identifier_to_cover_url_cache.get(id_, None)
+
+    # }}}
+
+    # Utility functions {{{
 
     def get_author_tokens(self, authors, only_first_author=True):
         '''
@@ -216,6 +221,20 @@ class Source(Plugin):
             elif mi.is_null(key):
                 return key
 
+    def clean_downloaded_metadata(self, mi):
+        '''
+        Call this method in your plugin's identify method to normalize metadata
+        before putting the Metadata object into result_queue. You can of
+        course, use a custom algorithm suited to your metadata source.
+        '''
+        def fixcase(x):
+            if x:
+                x = titlecase(x)
+            return x
+        if mi.title:
+            mi.title = fixcase(mi.title)
+        mi.authors = list(map(fixcase, mi.authors))
+        mi.tags = list(map(fixcase, mi.tags))
 
     # }}}
 

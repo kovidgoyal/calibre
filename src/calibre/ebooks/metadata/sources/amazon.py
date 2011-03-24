@@ -172,6 +172,8 @@ class Worker(Thread): # {{{
                 self.plugin.cache_identifier_to_cover_url(self.amazon_id,
                         self.cover_url)
 
+        self.plugin.clean_downloaded_metadata(mi)
+
         self.result_queue.put(mi)
 
     def parse_asin(self, root):
