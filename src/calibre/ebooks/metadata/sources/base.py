@@ -47,12 +47,12 @@ class InternalMetadataCompareKeyGen(object):
 
     The algorithm is:
 
-        1. Prefer results that have the same ISBN as specified in the query
-        2. Prefer results with all available fields filled in
-        3. Prefer results that are an exact title match to the query
-        4. Prefer results with longer comments (greater than 10 % longer)
-        5. Prefer results with a cached cover URL
-        6. Use the relevance of the result as reported by the metadata source's search
+        * Prefer results that have the same ISBN as specified in the query
+        * Prefer results with all available fields filled in
+        * Prefer results that are an exact title match to the query
+        * Prefer results with a cached cover URL
+        * Prefer results with longer comments (greater than 10 % longer)
+        * Use the relevance of the result as reported by the metadata source's search
            engine
     '''
 
@@ -67,9 +67,9 @@ class InternalMetadataCompareKeyGen(object):
         has_cover = 2 if source_plugin.get_cached_cover_url(mi.identifiers)\
                 is None else 1
 
-        self.base = (isbn, all_fields, exact_title)
+        self.base = (isbn, all_fields, exact_title, has_cover)
         self.comments_len = len(mi.comments.strip() if mi.comments else '')
-        self.extra = (has_cover, getattr(mi, 'source_relevance', 0))
+        self.extra = (getattr(mi, 'source_relevance', 0), )
 
     def __cmp__(self, other):
         result = cmp(self.base, other.base)
@@ -129,6 +129,12 @@ class Source(Plugin):
     # }}}
 
     # Utility functions {{{
+
+    def get_related_isbns(self, id_):
+        with self.cache_lock:
+            for isbn, q in self._isbn_to_identifier_cache.iteritems():
+                if q == id_:
+                    yield isbn
 
     def cache_isbn_to_identifier(self, isbn, identifier):
         with self.cache_lock:

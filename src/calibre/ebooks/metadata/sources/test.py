@@ -99,6 +99,8 @@ def test_identify_plugin(name, tests):
         for i, mi in enumerate(results):
             prints('*'*30, 'Relevance:', i, '*'*30)
             prints(mi)
+            prints('\nCached cover URL    :',
+                    plugin.get_cached_cover_url(mi.identifiers))
             prints('*'*75, '\n\n')
 
         possibles = []

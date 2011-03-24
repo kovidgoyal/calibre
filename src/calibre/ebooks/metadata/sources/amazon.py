@@ -468,7 +468,7 @@ class Amazon(Source):
                 if cached_url is not None:
                     break
         if cached_url is None:
-            log.info('No cover found for')
+            log.info('No cover found')
             return
 
         if abort.is_set():
