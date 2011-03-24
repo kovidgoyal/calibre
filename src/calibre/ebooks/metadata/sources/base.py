@@ -95,7 +95,7 @@ class Source(Plugin):
 
     supported_platforms = ['windows', 'osx', 'linux']
 
-    #: Set of capabilites supported by this plugin.
+    #: Set of capabilities supported by this plugin.
     #: Useful capabilities are: 'identify', 'cover'
     capabilities = frozenset()
 
