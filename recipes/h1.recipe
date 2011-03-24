@@ -16,11 +16,18 @@ class hu168ora(BasicNewsRecipe):
     encoding              = 'utf8'
     publisher             = u'Telegráf Kiadó'
     category              = u'news, hírek, 168'
-    extra_css             = 'body{ font-family: Verdana,Helvetica,Arial,sans-serif } .lead{font-weight: bold} h2{text-align: center; text-transform: uppercase} '
+    extra_css             = 'body{ font-family: Verdana,Helvetica,Arial,sans-serif }'
     preprocess_regexps    = [(re.compile(r'<!--.*?-->', re.DOTALL), lambda m: '')]
-    remove_tags_before    = dict(id='cikk_fejlec')
-    remove_tags_after     = dict(id='szoveg')
-    remove_tags           = [dict(id='box_toolbar')]
+    keep_only_tags        = [
+                              dict(id='cikk_fejlec')
+                             ,dict(id='cikk_torzs')
+                            ]
+#    remove_tags_before    = dict(id='cikk_fejlec')
+#    remove_tags_after     = dict(id='szoveg')
+    remove_tags           = [
+                              dict(id='box_toolbar')
+                             ,dict(id='text')
+                            ]
     remove_javascript     = True
     remove_empty_feeds    = True
 
@@ -36,10 +43,9 @@ class hu168ora(BasicNewsRecipe):
              ,(u'Sport', u'http://www.168ora.hu/static/rss/cikkek_sport.xml')
              ,(u'Vélemény', u'http://www.168ora.hu/static/rss/cikkek_velemeny.xml')
              ,(u'Dolce Vita', u'http://www.168ora.hu/static/rss/cikkek_dolcevita.xml')
-             ,(u'Rádió', u'http://www.168ora.hu/static/rss/radio.xml')
+#             ,(u'Rádió', u'http://www.168ora.hu/static/rss/radio.xml')
             ]
 
     def print_version(self, url):
         url += '?print=1'
         return url
-
