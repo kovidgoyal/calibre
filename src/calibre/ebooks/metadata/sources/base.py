@@ -48,10 +48,10 @@ class InternalMetadataCompareKeyGen(object):
     The algorithm is:
 
         * Prefer results that have the same ISBN as specified in the query
+        * Prefer results with a cached cover URL
         * Prefer results with all available fields filled in
         * Prefer results that are an exact title match to the query
-        * Prefer results with a cached cover URL
-        * Prefer results with longer comments (greater than 10 % longer)
+        * Prefer results with longer comments (greater than 10% longer)
         * Use the relevance of the result as reported by the metadata source's search
            engine
     '''
@@ -67,7 +67,7 @@ class InternalMetadataCompareKeyGen(object):
         has_cover = 2 if source_plugin.get_cached_cover_url(mi.identifiers)\
                 is None else 1
 
-        self.base = (isbn, all_fields, exact_title, has_cover)
+        self.base = (isbn, has_cover, all_fields, exact_title)
         self.comments_len = len(mi.comments.strip() if mi.comments else '')
         self.extra = (getattr(mi, 'source_relevance', 0), )
 
