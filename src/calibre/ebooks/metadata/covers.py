@@ -302,4 +302,16 @@ def test(isbns): # {{{
 
 if __name__ == '__main__':
     isbns = sys.argv[1:] + ['9781591025412', '9780307272119']
-    test(isbns)
+    #test(isbns)
+
+    from calibre.ebooks.metadata import MetaInformation
+    oc = OpenLibraryCovers(None)
+    for isbn in isbns:
+        mi = MetaInformation('xx', ['yy'])
+        mi.isbn = isbn
+        rq = Queue()
+        oc.get_covers(mi, rq, Event())
+        result = rq.get_nowait()
+        if not result[0]:
+            print 'Failed for ISBN:', isbn
+            print result
