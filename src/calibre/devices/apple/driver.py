@@ -746,7 +746,7 @@ class ITUNES(DriverBase):
         if not self.settings().extra_customization[self.SKIP_CONNECT_TO_ITUNES_DIALOG]:
             raise OpenFeedback('<p>' + _('Click the "Connect/Share" button and choose'
                 ' "Connect to iTunes" to send books from your calibre library'
-                ' to your Apple iDevice.<p>For more information, see'
+                ' to your Apple iDevice.<p>For more information, see '
                 '<a href="http://www.mobileread.com/forums/showthread.php?t=118559">'
                 'Calibre + Apple iDevices FAQ</a>.<p>'
                 'After following the Quick Start steps outlined in the FAQ, '
