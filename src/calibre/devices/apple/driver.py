@@ -586,10 +586,6 @@ class ITUNES(DriverBase):
         # Turn off the Save template
         cw.opt_save_template.setVisible(False)
         cw.label.setVisible(False)
-        # Repurpose the metadata checkbox
-        cw.opt_read_metadata.setText(_("Use Series as Category in iTunes/iBooks"))
-        # Repurpose the use_subdirs checkbox
-        cw.opt_use_subdirs.setText(_("Cache covers from iTunes/iBooks"))
         return cw
 
     def delete_books(self, paths, end_session=True):
