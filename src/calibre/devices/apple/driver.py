@@ -586,10 +586,6 @@ class ITUNES(DriverBase):
         # Turn off the Save template
         cw.opt_save_template.setVisible(False)
         cw.label.setVisible(False)
-        # Repurpose the metadata checkbox
-        cw.opt_read_metadata.setText(_("Use Series as Category in iTunes/iBooks"))
-        # Repurpose the use_subdirs checkbox
-        cw.opt_use_subdirs.setText(_("Cache covers from iTunes/iBooks"))
         return cw
 
     def delete_books(self, paths, end_session=True):
@@ -750,11 +746,14 @@ class ITUNES(DriverBase):
         if not self.settings().extra_customization[self.SKIP_CONNECT_TO_ITUNES_DIALOG]:
             raise OpenFeedback('<p>' + _('Click the "Connect/Share" button and choose'
                 ' "Connect to iTunes" to send books from your calibre library'
-                ' to your Apple iDevice.<p>For more information, see'
+                ' to your Apple iDevice.<p>For more information, see '
                 '<a href="http://www.mobileread.com/forums/showthread.php?t=118559">'
                 'Calibre + Apple iDevices FAQ</a>.<p>'
                 'After following the Quick Start steps outlined in the FAQ, '
                 'restart calibre.'))
+
+        if DEBUG:
+            self.log.info(" advanced user mode, directly connecting to iDevice")
 
         # Confirm/create thumbs archive
         if not os.path.exists(self.cache_dir):
