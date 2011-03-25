@@ -752,6 +752,9 @@ class ITUNES(DriverBase):
                 'After following the Quick Start steps outlined in the FAQ, '
                 'restart calibre.'))
 
+        if DEBUG:
+            self.log.info(" advanced user mode, directly connecting to iDevice")
+
         # Confirm/create thumbs archive
         if not os.path.exists(self.cache_dir):
             if DEBUG:
