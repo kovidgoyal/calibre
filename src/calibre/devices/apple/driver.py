@@ -748,11 +748,13 @@ class ITUNES(DriverBase):
 
         # Display a dialog recommending using 'Connect to iTunes'
         if not self.settings().extra_customization[self.SKIP_CONNECT_TO_ITUNES_DIALOG]:
-            raise OpenFeedback("The recommended connection method for Apple iDevices " +\
-                               "is to use the 'Connect to iTunes' method described in the <br />" +\
-                               '<a href="http://www.mobileread.com/forums/showthread.php?t=118559">Calibre + Apple iDevices FAQ</a>.<br />' +\
-                               'After following the Quick Start steps outlined in the FAQ, restart calibre.')
-
+            raise OpenFeedback('<p>' + _('Click the "Connect/Share" button and choose'
+                ' "Connect to iTunes" to send books from your calibre library'
+                ' to your Apple iDevice.<p>For more information, see'
+                '<a href="http://www.mobileread.com/forums/showthread.php?t=118559">'
+                'Calibre + Apple iDevices FAQ</a>.<p>'
+                'After following the Quick Start steps outlined in the FAQ, '
+                'restart calibre.'))
 
         # Confirm/create thumbs archive
         if not os.path.exists(self.cache_dir):

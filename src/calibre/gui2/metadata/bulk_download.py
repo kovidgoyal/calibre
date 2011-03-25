@@ -88,7 +88,7 @@ class DownloadMetadata(Thread):
     def run(self):
         try:
             self._run()
-        except Exception, e:
+        except Exception as e:
             self.exception = e
             self.tb = traceback.format_exc()
 

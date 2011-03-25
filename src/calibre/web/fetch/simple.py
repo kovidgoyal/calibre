@@ -210,7 +210,7 @@ class RecursiveFetcher(object):
             with closing(open_func(url, timeout=self.timeout)) as f:
                 data = response(f.read()+f.read())
                 data.newurl = f.geturl()
-        except urllib2.URLError, err:
+        except urllib2.URLError as err:
             if hasattr(err, 'code') and responses.has_key(err.code):
                 raise FetchError, responses[err.code]
             if getattr(err, 'reason', [0])[0] == 104 or \

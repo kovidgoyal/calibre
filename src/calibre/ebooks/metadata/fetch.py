@@ -93,7 +93,7 @@ class MetadataSource(Plugin): # {{{
                             traceback.print_exc()
                             mi.comments = None
 
-        except Exception, e:
+        except Exception as e:
             self.exception = e
             self.tb = traceback.format_exc()
 
@@ -186,7 +186,7 @@ class GoogleBooks(MetadataSource): # {{{
             self.results = search(self.title, self.book_author, self.publisher,
                                   self.isbn, max_results=10,
                                   verbose=self.verbose)
-        except Exception, e:
+        except Exception as e:
             self.exception = e
             self.tb = traceback.format_exc()
 
@@ -217,7 +217,7 @@ class ISBNDB(MetadataSource): # {{{
         try:
             opts, args = option_parser().parse_args(args)
             self.results = create_books(opts, args)
-        except Exception, e:
+        except Exception as e:
             self.exception = e
             self.tb = traceback.format_exc()
 
@@ -244,7 +244,7 @@ class Amazon(MetadataSource): # {{{
         try:
             self.results = get_social_metadata(self.title, self.book_author,
                     self.publisher, self.isbn)
-        except Exception, e:
+        except Exception as e:
             self.exception = e
             self.tb = traceback.format_exc()
 
@@ -264,7 +264,7 @@ class KentDistrictLibrary(MetadataSource): # {{{
         from calibre.ebooks.metadata.kdl import get_series
         try:
             self.results = get_series(self.title, self.book_author)
-        except Exception, e:
+        except Exception as e:
             import traceback
             traceback.print_exc()
             self.exception = e

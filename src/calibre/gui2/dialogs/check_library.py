@@ -68,7 +68,7 @@ class DBCheck(QDialog): # {{{
                 self.start_load()
                 return
             QTimer.singleShot(0, self.do_one_dump)
-        except Exception, e:
+        except Exception as e:
             import traceback
             self.error = (as_unicode(e), traceback.format_exc())
             self.reject()
@@ -90,7 +90,7 @@ class DBCheck(QDialog): # {{{
             self.conn.commit()
 
             QTimer.singleShot(0, self.do_one_load)
-        except Exception, e:
+        except Exception as e:
             import traceback
             self.error = (as_unicode(e), traceback.format_exc())
             self.reject()
@@ -111,7 +111,7 @@ class DBCheck(QDialog): # {{{
                 self.pb.setValue(self.pb.value() + 1)
                 self.count -= 1
                 QTimer.singleShot(0, self.do_one_load)
-            except Exception, e:
+            except Exception as e:
                 import traceback
                 self.error = (as_unicode(e), traceback.format_exc())
                 self.reject()

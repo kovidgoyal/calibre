@@ -110,7 +110,7 @@ class HTMLFile(object):
         try:
             with open(self.path, 'rb') as f:
                 src = f.read()
-        except IOError, err:
+        except IOError as err:
             msg = 'Could not read from file: %s with error: %s'%(self.path, as_unicode(err))
             if level == 0:
                 raise IOError(msg)
@@ -202,7 +202,7 @@ def traverse(path_to_html_file, max_levels=sys.maxint, verbose=0, encoding=None)
                         raise IgnoreFile('%s is a binary file'%nf.path, -1)
                     nl.append(nf)
                     flat.append(nf)
-                except IgnoreFile, err:
+                except IgnoreFile as err:
                     rejects.append(link)
                     if not err.doesnt_exist or verbose > 1:
                         print repr(err)

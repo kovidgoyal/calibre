@@ -32,7 +32,7 @@ class WindowsExclFile(object):
                     None, #No template file
                 )
                 break
-            except pywintypes.error, err:
+            except pywintypes.error as err:
                 if getattr(err, 'args', [-1])[0] in (0x20, 0x21):
                     time.sleep(1)
                     continue

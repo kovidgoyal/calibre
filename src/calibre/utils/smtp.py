@@ -76,7 +76,7 @@ def sendmail_direct(from_, to, msg, timeout, localhost, verbose,
             s.connect(host, 25)
             s.sendmail(from_, [to], msg)
             return s.quit()
-        except Exception, e:
+        except Exception as e:
             last_error, last_traceback = e, traceback.format_exc()
     if last_error is not None:
         print last_traceback

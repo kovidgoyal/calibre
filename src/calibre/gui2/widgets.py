@@ -97,7 +97,7 @@ class FilenamePattern(QWidget, Ui_Form):
     def do_test(self):
         try:
             pat = self.pattern()
-        except Exception, err:
+        except Exception as err:
             error_dialog(self, _('Invalid regular expression'),
                          _('Invalid regular expression: %s')%err).exec_()
             return
@@ -317,7 +317,7 @@ class CoverView(QGraphicsView, ImageDropMixin):
         ImageDropMixin.__init__(self)
 
     def get_pixmap(self):
-        for item in self.scene().items():
+        for item in self.scene.items():
             if hasattr(item, 'pixmap'):
                 return item.pixmap()
 

@@ -35,7 +35,7 @@ class RenderWorker(QThread):
             self.stream = None
             if self.aborted:
                 self.lrf = None
-        except Exception, err:
+        except Exception as err:
             self.lrf, self.stream = None, None
             self.exception = err
             self.formatted_traceback = traceback.format_exc()

@@ -17,7 +17,8 @@ from calibre.utils.localization import get_language
 from calibre.web.feeds.recipes.collection import \
         get_builtin_recipe_collection, get_custom_recipe_collection, \
         SchedulerConfig, download_builtin_recipe, update_custom_recipe, \
-        add_custom_recipe, remove_custom_recipe, get_custom_recipe
+        add_custom_recipe, remove_custom_recipe, get_custom_recipe, \
+        get_builtin_recipe
 from calibre.utils.pyparsing import ParseException
 
 class NewsTreeItem(object):
@@ -153,7 +154,7 @@ class RecipeModel(QAbstractItemModel, SearchQueryParser):
             except:
                 import traceback
                 traceback.print_exc()
-        return P('recipes/%s.recipe'%urn, data=True)
+        return get_builtin_recipe(urn)
 
     def get_recipe(self, urn, download=True):
         coll = self.custom_recipe_collection if urn.startswith('custom:') \

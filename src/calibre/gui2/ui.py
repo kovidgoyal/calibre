@@ -12,18 +12,19 @@ __docformat__ = 'restructuredtext en'
 import collections, os, sys, textwrap, time, gc
 from Queue import Queue, Empty
 from threading import Thread
-from PyQt4.Qt import Qt, SIGNAL, QTimer, QHelpEvent, QAction, \
-                     QMenu, QIcon, pyqtSignal, \
-                     QDialog, QSystemTrayIcon, QApplication, QKeySequence
+from collections import OrderedDict
+
+from PyQt4.Qt import (Qt, SIGNAL, QTimer, QHelpEvent, QAction,
+                     QMenu, QIcon, pyqtSignal, QUrl,
+                     QDialog, QSystemTrayIcon, QApplication, QKeySequence)
 
 from calibre import  prints
 from calibre.constants import __appname__, isosx
-from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import prefs, dynamic
 from calibre.utils.ipc.server import Server
 from calibre.library.database2 import LibraryDatabase2
 from calibre.customize.ui import interface_actions
-from calibre.gui2 import error_dialog, GetMetadata, open_local_file, \
+from calibre.gui2 import error_dialog, GetMetadata, open_url, \
         gprefs, max_available_height, config, info_dialog, Dispatcher, \
         question_dialog
 from calibre.gui2.cover_flow import CoverFlowMixin
@@ -38,7 +39,6 @@ from calibre.gui2.init import LibraryViewMixin, LayoutMixin
 from calibre.gui2.search_box import SearchBoxMixin, SavedSearchBoxMixin
 from calibre.gui2.search_restriction_mixin import SearchRestrictionMixin
 from calibre.gui2.tag_view import TagBrowserMixin
-from calibre.utils.ordered_dict import OrderedDict
 
 
 class Listener(Thread): # {{{
@@ -567,37 +567,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         QApplication.instance().quit()
 
     def donate(self, *args):
-        BUTTON = '''
-        <form action="https://www.paypal.com/cgi-bin/webscr" method="post">
-            <input type="hidden" name="cmd" value="_s-xclick" />
-            <input type="hidden" name="hosted_button_id" value="3029467" />
-            <input type="image" src="https://www.paypal.com/en_US/i/btn/btn_donateCC_LG.gif" border="0" name="submit" alt="Donate to support calibre development" />
-            <img alt="" border="0" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1" />
-        </form>
-        '''
-        MSG = _('is the result of the efforts of many volunteers from all '
-                'over the world. If you find it useful, please consider '
-                'donating to support its development. Your donation helps '
-                'keep calibre development going.')
-        HTML = u'''
-        <html>
-            <head>
-                <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
-                <title>Donate to support calibre</title>
-            </head>
-            <body style="background:white">
-                <div><a href="http://calibre-ebook.com"><img style="border:0px"
-                src="file://%s" alt="calibre" /></a></div>
-                <p>Calibre %s</p>
-                %s
-            </body>
-        </html>
-        '''%(P('content_server/calibre_banner.png').replace(os.sep, '/'), MSG, BUTTON)
-        pt = PersistentTemporaryFile('_donate.htm')
-        pt.write(HTML.encode('utf-8'))
-        pt.close()
-        open_local_file(pt.name)
-
+        open_url(QUrl('http://calibre-ebook.com/donate'))
 
     def confirm_quit(self):
         if self.job_manager.has_jobs():

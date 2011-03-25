@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, sys
+import os, sys, importlib
 
 from calibre.customize.ui import config
 from calibre.gui2.dialogs.catalog_ui import Ui_Dialog
@@ -43,8 +43,7 @@ class Catalog(ResizableDialog, Ui_Dialog):
             name = plugin.name.lower().replace(' ', '_')
             if type(plugin) in builtin_plugins:
                 try:
-                    catalog_widget = __import__('calibre.gui2.catalog.'+name,
-                            fromlist=[1])
+                    catalog_widget = importlib.import_module('calibre.gui2.catalog.'+name)
                     pw = catalog_widget.PluginWidget()
                     pw.initialize(name, db)
                     pw.ICON = I('forward.png')
@@ -75,7 +74,7 @@ class Catalog(ResizableDialog, Ui_Dialog):
                     # Import the dynamic PluginWidget() from .py file provided in plugin.zip
                     try:
                         sys.path.insert(0, plugin.resources_path)
-                        catalog_widget = __import__(name, fromlist=[1])
+                        catalog_widget = importlib.import_module(name)
                         pw = catalog_widget.PluginWidget()
                         pw.initialize(name)
                         pw.ICON = I('forward.png')

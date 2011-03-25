@@ -237,7 +237,7 @@ class %(classname)s(%(base_class)s):
 
             try:
                 compile_recipe(src)
-            except Exception, err:
+            except Exception as err:
                 error_dialog(self, _('Invalid input'),
                         _('<p>Could not create recipe. Error:<br>%s')%str(err)).exec_()
                 return
@@ -246,7 +246,7 @@ class %(classname)s(%(base_class)s):
             src = unicode(self.source_code.toPlainText())
             try:
                 title = compile_recipe(src).title
-            except Exception, err:
+            except Exception as err:
                 error_dialog(self, _('Invalid input'),
                         _('<p>Could not create recipe. Error:<br>%s')%str(err)).exec_()
                 return
@@ -333,7 +333,7 @@ class %(classname)s(%(base_class)s):
             try:
                 profile = open(file, 'rb').read().decode('utf-8')
                 title = compile_recipe(profile).title
-            except Exception, err:
+            except Exception as err:
                 error_dialog(self, _('Invalid input'),
                         _('<p>Could not create recipe. Error:<br>%s')%str(err)).exec_()
                 return

@@ -316,7 +316,7 @@ class TemplateFormatter(string.Formatter):
         self.locals = {}
         try:
             ans = self.vformat(fmt, [], kwargs).strip()
-        except Exception, e:
+        except Exception as e:
             if DEBUG:
                 traceback.print_exc()
             ans = error_value + ' ' + e.message

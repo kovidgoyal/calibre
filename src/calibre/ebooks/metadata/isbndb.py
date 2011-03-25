@@ -25,7 +25,7 @@ def fetch_metadata(url, max=3, timeout=5.):
     while len(books) < total_results and max > 0:
         try:
             raw = br.open(url, timeout=timeout).read()
-        except Exception, err:
+        except Exception as err:
             raise ISBNDBError('Could not fetch ISBNDB metadata. Error: '+str(err))
         soup = BeautifulStoneSoup(raw,
                 convertEntities=BeautifulStoneSoup.XML_ENTITIES)

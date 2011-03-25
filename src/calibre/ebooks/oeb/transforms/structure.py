@@ -10,10 +10,10 @@ import re
 
 from lxml import etree
 from urlparse import urlparse
+from collections import OrderedDict
 
 from calibre.ebooks.oeb.base import XPNSMAP, TOC, XHTML, xml2text
 from calibre.ebooks import ConversionError
-from calibre.utils.ordered_dict import OrderedDict
 
 def XPath(x):
     try:

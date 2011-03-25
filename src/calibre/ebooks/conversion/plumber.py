@@ -304,6 +304,17 @@ OptionRecommendation(name='page_breaks_before',
             'before the specified elements.')
         ),
 
+OptionRecommendation(name='remove_fake_margins',
+            recommended_value=True, level=OptionRecommendation.LOW,
+            help=_('Some documents specify page margins by '
+                'specifying a left and right margin on each individual '
+                'paragraph. calibre will try to detect and remove these '
+                'margins. Sometimes, this can cause the removal of '
+                'margins that should not have been removed. In this '
+                'case you can disable the removal.')
+        ),
+
+
 OptionRecommendation(name='margin_top',
         recommended_value=5.0, level=OptionRecommendation.LOW,
         help=_('Set the top margin in pts. Default is %default. '
@@ -988,8 +999,12 @@ OptionRecommendation(name='sr3_replace',
                 page_break_on_body=self.output_plugin.file_type in ('mobi',
                     'lit'))
         flattener(self.oeb, self.opts)
+
         self.opts.insert_blank_line = oibl
         self.opts.remove_paragraph_spacing = orps
+
+        from calibre.ebooks.oeb.transforms.page_margin import RemoveFakeMargins
+        RemoveFakeMargins()(self.oeb, self.log, self.opts)
 
         pr(0.9)
         self.flush()

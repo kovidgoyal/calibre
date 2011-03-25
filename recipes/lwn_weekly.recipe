@@ -23,6 +23,11 @@ class WeeklyLWN(BasicNewsRecipe):
     remove_tags_after = dict(attrs={'class':'ArticleText'})
     remove_tags = [dict(name=['h2', 'form'])]
 
+    preprocess_regexps = [
+        # Remove the <hr> and "Log in to post comments"
+        (re.compile(r'<hr.*?comments[)]', re.DOTALL), lambda m: ''),
+    ]
+
     conversion_options = { 'linearize_tables' : True }
 
     oldest_article = 7.0
@@ -40,15 +45,15 @@ class WeeklyLWN(BasicNewsRecipe):
 
     def parse_index(self):
         if self.username is not None and self.password is not None:
-            index_url = 'http://lwn.net/current/bigpage'
+            index_url = 'http://lwn.net/current/bigpage?format=printable'
         else:
-            index_url = 'http://lwn.net/free/bigpage'
+            index_url = 'http://lwn.net/free/bigpage?format=printable'
         soup = self.index_to_soup(index_url)
         body = soup.body
 
         articles = {}
         ans = []
-        url_re = re.compile('^http://lwn.net/Articles/')
+        url_re = re.compile('^/Articles/')
 
         while True:
             tag_title = body.findNext(name='p', attrs={'class':'SummaryHL'})
@@ -91,7 +96,7 @@ class WeeklyLWN(BasicNewsRecipe):
 
             article = dict(
                 title=tag_title.string,
-                url=tag_url['href'].split('#')[0],
+                url= 'http://lwn.net' + tag_url['href'].split('#')[0] + '?format=printable',
                 description='', content='', date='')
             articles[section].append(article)
 
