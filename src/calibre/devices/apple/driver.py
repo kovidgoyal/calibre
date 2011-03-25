@@ -743,7 +743,7 @@ class ITUNES(DriverBase):
             self.log.info("ITUNES.open()")
 
         # Display a dialog recommending using 'Connect to iTunes'
-        if not self.settings().extra_customization[self.SKIP_CONNECT_TO_ITUNES_DIALOG]:
+        if False and not self.settings().extra_customization[self.SKIP_CONNECT_TO_ITUNES_DIALOG]:
             raise OpenFeedback('<p>' + _('Click the "Connect/Share" button and choose'
                 ' "Connect to iTunes" to send books from your calibre library'
                 ' to your Apple iDevice.<p>For more information, see '
