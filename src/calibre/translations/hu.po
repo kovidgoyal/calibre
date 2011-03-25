@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-03-18 19:01+0000\n"
-"PO-Revision-Date: 2011-03-23 06:41+0000\n"
-"Last-Translator: Devilinside <Unknown>\n"
+"PO-Revision-Date: 2011-03-24 13:11+0000\n"
+"Last-Translator: Roadside <roadside@freemail.hu>\n"
 "Language-Team: Hungarian <hu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-03-24 04:47+0000\n"
+"X-Launchpad-Export-Date: 2011-03-25 04:38+0000\n"
 "X-Generator: Launchpad (build 12559)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -4744,7 +4744,7 @@ msgstr "(törlés könyvtárból)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:104
 msgid "Setup email based sharing of books"
-msgstr "Könyvek email alapú megosztásának beállítása"
+msgstr "Könyvek e-mail alapú megosztásának beállítása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:122
 msgid "D"
@@ -6426,7 +6426,7 @@ msgstr "&Elegánsabb írásjelek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:158
 msgid "Minimum &line height:"
-msgstr "M&inimum sormagasság"
+msgstr "M&inimum sormagasság:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:159
 msgid " %"
@@ -6568,7 +6568,7 @@ msgstr "Könyv címének megadása"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:525
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:420
 msgid "&Author(s): "
-msgstr "Szerző(k) "
+msgstr "Szerző(k) : "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:167
 msgid "Author So&rt:"
@@ -7393,7 +7393,7 @@ msgstr "Nincs megfelelő formátum"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:644
 msgid "Select folder to open as device"
-msgstr ""
+msgstr "Mappa eszközként való megnyitása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:695
 msgid "Error talking to device"
@@ -7841,15 +7841,15 @@ msgstr "Új &hely:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:80
 msgid "Use &existing library at the new location"
-msgstr ""
+msgstr "Létező könyvtár használata egy új helyen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:81
 msgid "&Create an empty library at the new location"
-msgstr ""
+msgstr "Üres könyvtár létrehozása egy új helyen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:82
 msgid "&Copy structure from the current library"
-msgstr ""
+msgstr "A jelenlegi könyvtár szerkezetének másolása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:83
 msgid ""
@@ -7859,7 +7859,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:85
 msgid "&Move current library to new location"
-msgstr ""
+msgstr "A jelenlegi könyvtár átmozgatása egy új helyre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_plugin_toolbars.py:23
 msgid "Add \"%s\" to toolbars or menus"
@@ -7892,7 +7892,7 @@ msgstr "&Cím:"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:98
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:155
 msgid "&Author(s):"
-msgstr "Szerző(k)"
+msgstr "Szerző(k):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:100
 msgid "&Profile:"
@@ -8039,11 +8039,11 @@ msgstr "ISBN"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:66
 msgid "Has Cover"
-msgstr ""
+msgstr "Van borító"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:67
 msgid "Has Summary"
-msgstr ""
+msgstr "Összegzés van"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:192
 msgid "Finding metadata..."
@@ -8954,7 +8954,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:418
 msgid "Title &sort: "
-msgstr ""
+msgstr "Cimke röviden: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:419
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:109
@@ -9278,7 +9278,7 @@ msgstr "Még nem lett letöltve"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:373
 msgid "never"
-msgstr ""
+msgstr "soha"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:379
 msgid "%d days, %d hours and %d minutes ago"
@@ -9299,7 +9299,7 @@ msgstr "Felhasználói hírforrás hozzáadása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:429
 msgid "Download all scheduled new sources"
-msgstr ""
+msgstr "Az összes ütemezett hírforrás letöltése"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:534
 msgid "No internet connection"
@@ -9358,6 +9358,8 @@ msgid ""
 "Maximum number of copies (issues) of this recipe to keep.  Set to 0 to keep "
 "all (disable)."
 msgstr ""
+"A másolatok maximális száma, amit megtart ettől a küldőtől. 0-ra állítva "
+"mindet megtartja (letiltva)."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:213
 msgid "&Keep at most:"
@@ -9402,10 +9404,14 @@ msgid ""
 "periodical that are kept by clicking the Advanced tab for that periodical "
 "above."
 msgstr ""
+"<p>A letöltött hírek törlése, ha régebbiek bizonyos napnál. 0-ra állítva "
+"letiltja ezt a funkciót.\n"
+"<p>Egy konkrét kiadvány maximálisan megtartott számít is meghatározhatja, ha "
+"rendszeresen a fenti Speciális fülre kattint."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:224
 msgid "never delete"
-msgstr ""
+msgstr "sose törölje"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:225
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:273
@@ -10579,11 +10585,11 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:102
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:188
 msgid "Choose a location for your new calibre e-book library"
-msgstr ""
+msgstr "Válasszon egy helyet az új calibre e-book könyvtárának"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:157
 msgid "Initializing user interface..."
-msgstr ""
+msgstr "Kezelőfelület előkészítése..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:182
 msgid "Repairing failed"
@@ -10683,7 +10689,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:111
 msgid "Title &sort:"
-msgstr ""
+msgstr "Cimke röviden:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:220
 msgid "Author s&ort:"
@@ -11285,6 +11291,9 @@ msgid ""
 "automatically sent for downloaded news to all email addresses that have Auto-"
 "send checked."
 msgstr ""
+"A calibre könyveket tud továbbítani Önnek e-mailen keresztül. Ha bejelöli az "
+"Automatikus küldést, akkor az e-mailek a letöltött hírekkel együtt "
+"postázódnak az összes címre."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/email_ui.py:67
 msgid "Add an email address to which to send books"
@@ -11330,11 +11339,11 @@ msgstr "új email cím"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:27
 msgid "Narrow"
-msgstr ""
+msgstr "Keskeny"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:27
 msgid "Wide"
-msgstr ""
+msgstr "Széles"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:53
 msgid "Medium"
@@ -11350,7 +11359,7 @@ msgstr "Nagy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:57
 msgid "Always"
-msgstr ""
+msgstr "Mindig"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:57
 msgid "Automatic"
@@ -11358,7 +11367,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:58
 msgid "Never"
-msgstr ""
+msgstr "Soha"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:61
 msgid "By first letter"
@@ -11374,7 +11383,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:143
 msgid "User Interface &layout (needs restart):"
-msgstr ""
+msgstr "Felhasználói felület elrendezése (újraindítás szükséges)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:144
 msgid "&Number of covers to show in browse mode (needs restart):"
@@ -11404,11 +11413,11 @@ msgstr "Ikon megjelenítése a tálcán (újraindítás szükséges)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:150
 msgid "Show &splash screen at startup"
-msgstr ""
+msgstr "Üdvözlő képernyő indításkor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:151
 msgid "Disable &notifications in system tray"
-msgstr ""
+msgstr "Értesítések letiltása az értesítési területen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:152
 msgid "Use &Roman numerals for series"
@@ -11459,15 +11468,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:170
 msgid "&Toolbar"
-msgstr ""
+msgstr "&Eszköztár"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:171
 msgid "&Icon size:"
-msgstr ""
+msgstr "Ikonméret:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:172
 msgid "Show &text under icons:"
-msgstr ""
+msgstr "Feliratok az ikonok alatt:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:173
 msgid "&Split the toolbar into two toolbars"
@@ -11475,7 +11484,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:174
 msgid "Interface font:"
-msgstr ""
+msgstr "Betűtípus:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:175
 msgid "Change &font (needs restart)"
@@ -11936,6 +11945,8 @@ msgid ""
 "Clear search histories from all over calibre. Including the book list, e-"
 "book viewer, fetch news dialog, etc."
 msgstr ""
+"A calibre összes keresési előzményeinek törlése. Beleértve a könyvlistákat, "
+"az e-book olvasót, stb."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:118
 msgid "Clear search &histories"
@@ -12735,8 +12746,7 @@ msgstr "Néhány könyvet nem sikerült konvertálni"
 msgid ""
 "Could not convert %d of %d books, because no suitable source format was "
 "found."
-msgstr ""
-"Nem lehet %d / %d könyvet konvertálni, mert nincs megfelelő formátumú."
+msgstr "Nem lehet %d / %d könyvet konvertálni, mert nem megfelelő formátumú."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:125
 msgid "Queueing books for bulk conversion"
@@ -12802,7 +12812,7 @@ msgstr "Konvertálási hiba"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:525
 msgid "Recipe Disabled"
-msgstr ""
+msgstr "Címzett tiltása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:541
 msgid "<b>Failed</b>"
@@ -12986,6 +12996,8 @@ msgstr "Alapértelmezett elválasztási nyelv."
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:196
 msgid "&Resize images larger than the viewer window (needs restart)"
 msgstr ""
+"Az átméretezendő képek nagyobbak, mint a nézőke ablaka (újraindítás "
+"szükséges)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:197
 msgid "Page flip &duration:"
@@ -12993,7 +13005,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:198
 msgid "disabled"
-msgstr ""
+msgstr "letiltva"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:199
 msgid " secs"
@@ -13306,7 +13318,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:189
 msgid "E-book Viewer"
-msgstr ""
+msgstr "E-booik olvasó"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:190
 msgid "Close dictionary"
@@ -13401,6 +13413,8 @@ msgid ""
 "Choose you e-book device. If your device is not in the list, choose a \"%s\" "
 "device."
 msgstr ""
+"Válassza ki az e-book eszközét. Ha nem található a listán akkor válassza "
+"ezt: \"%s\""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:499
 msgid "Moving library..."
@@ -13486,6 +13500,8 @@ msgid ""
 "<h2>User Manual</h2>A User Manual is also available <a href=\"http://calibre-"
 "ebook.com/user_manual\">online</a>."
 msgstr ""
+"<h2>Felhasználói Kézikönyv</h2>A Felhasználó kézikönyv online megtekinthető "
+"<a href=\"http://calibre-ebook.com/user_manual\">ide kattintva</a>."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/kindle_ui.py:49
 msgid ""
@@ -13514,6 +13530,9 @@ msgid ""
 "<p>Choose a location for your books. When you add books to calibre, they "
 "will be copied here. Use an <b>empty folder</b> for a new calibre library:"
 msgstr ""
+"<p>Válasszon egy helyet a könyvei számára. Mikor hozzáad egy könyvet a "
+"calibre-be, az ide fog másolódni. Használjon <b>üres mappát</b> az új "
+"könyvtárához:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:59
 msgid "&Change"
@@ -13555,6 +13574,8 @@ msgid ""
 "If you are setting up a new hotmail account, you must log in to it  once "
 "before you will be able to send mails."
 msgstr ""
+"Ha egy új hotmail hozzáférést állít be, először lépjen be előtte egyszer, "
+"hogy leveleket küldhessen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:151
 msgid "Setup sending email using"
@@ -13703,7 +13724,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:144
 msgid "&None"
-msgstr ""
+msgstr "Nincs"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:145
 msgid "Use Gmail"
@@ -13711,7 +13732,7 @@ msgstr "Gmail használata"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:146
 msgid "Use Hotmail"
-msgstr ""
+msgstr "Hotmail használata"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:147
 msgid "&Test email"
@@ -14667,7 +14688,7 @@ msgstr "Azonosítók"
 
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:301
 msgid "Title Sort"
-msgstr ""
+msgstr "Cimke röviden"
 
 #: /home/kovid/work/calibre/src/calibre/library/restore.py:126
 msgid "Processed"

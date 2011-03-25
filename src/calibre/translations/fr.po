@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-03-18 19:01+0000\n"
-"PO-Revision-Date: 2011-03-19 21:22+0000\n"
-"Last-Translator: sengian <Unknown>\n"
+"PO-Revision-Date: 2011-03-24 22:35+0000\n"
+"Last-Translator: Vincent Coiffier <Unknown>\n"
 "Language-Team: Français <kde-i18n-doc@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-03-20 04:43+0000\n"
+"X-Launchpad-Export-Date: 2011-03-25 04:38+0000\n"
 "X-Generator: Launchpad (build 12559)\n"
 "X-Poedit-Bookmarks: 1177,1104,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -7508,7 +7508,7 @@ msgstr "Ôter les alinéas en début de ligne"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:98
 msgid "Markdown"
-msgstr ""
+msgstr "Markdown"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:99
 msgid ""
@@ -9944,7 +9944,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:61
 msgid "&Download after:"
-msgstr ""
+msgstr "Télécharger après:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:91
 msgid ""
@@ -10707,7 +10707,7 @@ msgstr "&Partager une recette"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:262
 msgid "S&how recipe files"
-msgstr ""
+msgstr "Afficher les fichiers recettes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:263
 msgid "Customize &builtin recipe"
@@ -10801,7 +10801,7 @@ msgstr "Code source de la recette (python)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dnd.py:51
 msgid "Download %s"
-msgstr ""
+msgstr "Télécharge %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dnd.py:54
 msgid "Downloading <b>%s</b> from %s"
@@ -11957,11 +11957,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:143
 msgid "My Tags"
-msgstr ""
+msgstr "Mes Étiquettes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:144
 msgid "My Series"
-msgstr ""
+msgstr "Mes Séries"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:145
 msgid "My Rating"
@@ -12043,7 +12043,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:191
 msgid "&Column type"
-msgstr ""
+msgstr "Type de &colonne"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:192
 msgid "What kind of information will be kept in the column."
@@ -12110,7 +12110,7 @@ msgstr "Par défaut : (rien)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:210
 msgid "&Sort/search column by"
-msgstr ""
+msgstr "Trier/chercher colonne par"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:211
 msgid "How this column should handled in the GUI when sorting and searching"
@@ -12120,11 +12120,13 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:212
 msgid "Show in tags browser"
-msgstr ""
+msgstr "Afficher dans le navigateur d'étiquettes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:213
 msgid "If checked, this column will appear in the tags browser as a category"
 msgstr ""
+"Si coché, cette colonne apparaitra dans le navigateur d'étiquette comme une "
+"catégorie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:214
 msgid "Values"
@@ -12340,7 +12342,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:163
 msgid "Categories with &hierarchical items:"
-msgstr ""
+msgstr "Catégories avec des articles hiérarchiques:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:164
 msgid ""
@@ -12851,10 +12853,15 @@ msgid ""
 "search not just authors but title/tags/series/comments/etc. Use these "
 "options if you would like to change this behavior."
 msgstr ""
+"Quand vous saisirez un terme de recherche sans préfixe, par défaut calibre "
+"recherchera toutes les métadonnées qui correspondront. Par exemple saisir "
+"\"asimov\" ne recherchera pas seulement les auteurs mais aussi les "
+"titres/étiquettes/commentaires/etc. Utiliser ces options si vous souhaitez "
+"modifier ce comportement."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:114
 msgid "&Limit the searched metadata"
-msgstr ""
+msgstr "&Limiter les métadonnées recherchées"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:115
 msgid "&Columns that non-prefixed searches are limited to:"
@@ -14703,6 +14710,9 @@ msgid ""
 "No username and password set for mailserver. Most  mailservers need a "
 "username and password. Are you sure?"
 msgstr ""
+"Aucun nom d'utilisateur et de mot de passe indiqués pour le serveur de mail. "
+"La plupart des serveurs de mails ont besoin d'un nom d'utilisateur et d'un "
+"mot de passe. Etes-vous sûr?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:124
 msgid "Send email &from:"
