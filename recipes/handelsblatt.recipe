@@ -1,4 +1,3 @@
-import re
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
@@ -40,6 +39,6 @@ class Handelsblatt(BasicNewsRecipe):
         .hcf-article-date{font-size:x-small;}
         .hcf-caption {font-style:italic;font-size:small;}
         img {align:left;}
-        '''     
+        '''
 
 
