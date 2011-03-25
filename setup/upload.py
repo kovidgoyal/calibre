@@ -93,9 +93,11 @@ class UploadToGoogleCode(Command): # {{{
         ext = os.path.splitext(fname)[1][1:]
         op  = 'OpSys-'+{'msi':'Windows','dmg':'OSX','bz2':'Linux','gz':'All'}[ext]
         desc = installer_description(fname)
+        start = time.time()
         path = self.upload(os.path.abspath(fname), desc,
                 labels=[typ, op, 'Featured'])
-        self.info('\tUploaded to:', path)
+        self.info('\tUploaded to:', path, 'in', int(time.time() - start),
+                'seconds')
         return path
 
     def run(self, opts):
@@ -248,10 +250,13 @@ class UploadToSourceForge(Command): # {{{
     def upload_installers(self):
         for x in installers():
             if not os.path.exists(x): continue
+            start = time.time()
             self.info('Uploading', x)
             check_call(['rsync', '-v', '-e', 'ssh -x', x,
                 '%s,%s@frs.sourceforge.net:%s'%(self.USERNAME, self.PROJECT,
                     self.rdir+'/')])
+            print 'Uploaded in', int(time.time() - start), 'seconds'
+            print ('\n')
 
     def run(self, opts):
         self.opts = opts
