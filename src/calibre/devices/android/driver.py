@@ -27,6 +27,7 @@ class ANDROID(USBMS):
                        0xc97  : [0x226],
                        0xc99  : [0x0100],
                        0xca3  : [0x100],
+                       0xca4  : [0x226],
             },
 
             # Eken
