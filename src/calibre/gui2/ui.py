@@ -12,6 +12,8 @@ __docformat__ = 'restructuredtext en'
 import collections, os, sys, textwrap, time, gc
 from Queue import Queue, Empty
 from threading import Thread
+from collections import OrderedDict
+
 from PyQt4.Qt import (Qt, SIGNAL, QTimer, QHelpEvent, QAction,
                      QMenu, QIcon, pyqtSignal, QUrl,
                      QDialog, QSystemTrayIcon, QApplication, QKeySequence)
@@ -37,7 +39,6 @@ from calibre.gui2.init import LibraryViewMixin, LayoutMixin
 from calibre.gui2.search_box import SearchBoxMixin, SavedSearchBoxMixin
 from calibre.gui2.search_restriction_mixin import SearchRestrictionMixin
 from calibre.gui2.tag_view import TagBrowserMixin
-from calibre.utils.ordered_dict import OrderedDict
 
 
 class Listener(Thread): # {{{

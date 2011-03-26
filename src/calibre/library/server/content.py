@@ -169,7 +169,7 @@ class ContentServer(object):
                 return cover
             return save_cover_data_to(img, 'img.jpg', return_data=True,
                     resize_to=(width, height))
-        except Exception, err:
+        except Exception as err:
             import traceback
             cherrypy.log.error('Failed to generate cover:')
             cherrypy.log.error(traceback.print_exc())

@@ -19,6 +19,73 @@
 #  new recipes:
 #    - title: 
 
+- version: 0.7.51
+  date: 2011-03-25
+
+  new features:
+    - title: "Conversion: Detect and remove fake page margins that are specified as a margin on (nearly) every paragraph."
+      description: "This can be turned off via an option under Structure Detection, in case it removes margins that should have been kept."
+
+    - title: "Windows build: All the python code and recipes are now put into zip files. This should decrease the amount of time the windows installer spends 'calculating free space'"
+
+    - title: "OSX and Linux: Add a setting in Preferences->Behavior to control the priority with which calibre worker processes run. This setting was already available on windows."
+      tickets: [741231]
+
+    - title: "Driver for HTC Thunderbolt, T-Mobile Optimus, Archos 43 and Blackberry OS6"
+
+    - title: "A new 'authors type' custom column"
+
+    - title: "When building calibre from source note that calibre now absolutely requires python >= 2.7"
+
+    - title: "Add the keyboard shortcut: Ctrl+Shift+R to restart calibre in debug mode"
+
+  bug fixes:
+    - title: "Fix dragging and dropping lots of books from the book list to the Tag Browser was broken"
+
+    - title: "Change the shebang in the calibre launcher script on linux to explicitly use python2 rather than python"
+
+    - title: "When adding formats do not corrupt the added file if the user tries to add an existing format to itself"
+
+    - title: "Fix drag and drop to add files that contain the # character in the filename"
+
+    - title: "Tag editor shouldn't add empty tags"
+      tickets: [740890]
+
+    - title: "MOBI Input: Handle MOBI files that have a too large 'number of records' field in their headers."
+      tickets: [740713]
+
+    - title: "News download: Update RSS feedparser module to latest version"
+
+    - title: "Various fixes to the zipfile module in calibre to handle 64 bit zipfiles and bring it up to date with the zip file module in the python stdlib"
+
+    - title: "News download: Handle titles with ASCII control codes in them."
+      tickets: [739322]
+
+    - title: "Make search hierarchies show simple names instead of compound ones."
+
+    - title: "Fix commas in author names being converted to pipe symbols in the book details window"
+
+    - title: "Fix PocketBook can't always find epub cover image to create thumbnail"
+      tickets: [9445]
+
+  improved recipes:
+    - "168 ora"
+    - "LWN weekly"
+    - Christian Science Monitor
+    - Washington Post
+    - West Hawaii Today
+
+  new recipes:
+    - title: "Planet KDE"
+      author: Riccardo Iaconelli
+
+    - title: "HVG"
+      author: Istvan Papp
+
+    - title: "Caijing Magazine"
+      auhtor: Eric Chen
+
+
 - version: 0.7.50
   date: 2011-03-18
 

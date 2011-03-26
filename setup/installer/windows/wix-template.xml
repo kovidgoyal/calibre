@@ -154,9 +154,9 @@
                 <CustomAction Id="LaunchApplication" BinaryKey="WixCA"
                     DllEntry="WixShellExec" Impersonate="yes"/>
 
-                <!--<InstallUISequence>
+                <InstallUISequence>
                     <FileCost Suppress="yes" />
-                </InstallUISequence>-->
+                </InstallUISequence>
 
 		</Product>
 </Wix>

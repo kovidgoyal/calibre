@@ -32,7 +32,7 @@ class NiceBooks(MetadataSource):
         try:
             self.results = search(self.title, self.book_author, self.publisher,
                                   self.isbn, max_results=10, verbose=self.verbose)
-        except Exception, e:
+        except Exception as e:
             self.exception = e
             self.tb = traceback.format_exc()
 
@@ -54,7 +54,7 @@ class NiceBooksCovers(CoverDownload):
             if Covers(mi.isbn)(entry).check_cover():
                 self.debug('cover for', mi.isbn, 'found')
                 ans.set()
-        except Exception, e:
+        except Exception as e:
             self.debug(e)
 
     def get_covers(self, mi, result_queue, abort, timeout=5.):
@@ -67,7 +67,7 @@ class NiceBooksCovers(CoverDownload):
             if not ext:
                 ext = 'jpg'
             result_queue.put((True, cover_data, ext, self.name))
-        except Exception, e:
+        except Exception as e:
             result_queue.put((False, self.exception_to_string(e),
                 traceback.format_exc(), self.name))
 
@@ -109,7 +109,7 @@ class Query(object):
 
         try:
             raw = browser.open_novisit(self.BASE_URL+self.urldata, timeout=timeout).read()
-        except Exception, e:
+        except Exception as e:
             report(verbose)
             if callable(getattr(e, 'getcode', None)) and \
                     e.getcode() == 404:
@@ -144,7 +144,7 @@ class Query(object):
                 try:
                     urldata = self.urldata + '&p=' + str(i)
                     raw = browser.open_novisit(self.BASE_URL+urldata, timeout=timeout).read()
-                except Exception, e:
+                except Exception as e:
                     continue
                 if '<title>404 - ' in raw:
                     continue
@@ -233,7 +233,7 @@ class ResultList(list):
     def get_individual_metadata(self, browser, linkdata, verbose):
         try:
             raw = browser.open_novisit(self.BASE_URL + linkdata).read()
-        except Exception, e:
+        except Exception as e:
             report(verbose)
             if callable(getattr(e, 'getcode', None)) and \
                     e.getcode() == 404:
@@ -266,7 +266,7 @@ class ResultList(list):
                 entry = entry.find("div[@id='book-info']")
                 title = self.get_title(entry)
                 authors = self.get_authors(entry)
-            except Exception, e:
+            except Exception as e:
                 if verbose:
                     print 'Failed to get all details for an entry'
                     print e
@@ -280,7 +280,7 @@ class ResultList(list):
                     entry = entry.find("div[@id='book-info']")
                     title = self.get_title(entry)
                     authors = self.get_authors(entry)
-                except Exception, e:
+                except Exception as e:
                     if verbose:
                         print 'Failed to get all details for an entry'
                         print e
@@ -315,7 +315,7 @@ class Covers(object):
             cover, ext = browser.open_novisit(self.urlimg, timeout=timeout).read(), \
                 self.urlimg.rpartition('.')[-1]
             return cover, ext if ext else 'jpg'
-        except Exception, err:
+        except Exception as err:
             if isinstance(getattr(err, 'args', [None])[0], socket.timeout):
                 raise NiceBooksError(_('Nicebooks timed out. Try again later.'))
             if not len(self.urlimg):

@@ -48,7 +48,7 @@ class Tag(object):
 
     def __init__(self, name, id=None, count=0, state=0, avg=0, sort=None,
                  tooltip=None, icon=None, category=None, id_set=None,
-                 is_editable = True, is_searchable=True):
+                 is_editable = True, is_searchable=True, use_sort_as_name=False):
         self.name = self.original_name = name
         self.id = id
         self.count = count
@@ -59,6 +59,7 @@ class Tag(object):
         self.id_set = id_set if id_set is not None else set([])
         self.avg_rating = avg/2.0 if avg is not None else 0
         self.sort = sort
+        self.use_sort_as_name = use_sort_as_name
         if self.avg_rating > 0:
             if tooltip:
                 tooltip = tooltip + ': '
@@ -1120,8 +1121,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         pdir = os.path.dirname(dest)
         if not os.path.exists(pdir):
             os.makedirs(pdir)
-        with lopen(dest, 'wb') as f:
-            shutil.copyfileobj(stream, f)
+        if not getattr(stream, 'name', False) or \
+                os.path.abspath(dest) != os.path.abspath(stream.name):
+            with lopen(dest, 'wb') as f:
+                shutil.copyfileobj(stream, f)
         stream.seek(0, 2)
         size=stream.tell()
         self.conn.execute('INSERT INTO data (book,format,uncompressed_size,name) VALUES (?,?,?,?)',
@@ -1323,6 +1326,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 for l in list:
                     (id, val) = (l[0], l[1])
                     tids[category][val] = (id, '{0:05.2f}'.format(val))
+            elif cat['datatype'] == 'text' and cat['is_multiple'] and \
+                            cat['display'].get('is_names', False):
+                    for l in list:
+                        (id, val) = (l[0], l[1])
+                        tids[category][val] = (id, author_to_author_sort(val))
             else:
                 for l in list:
                     (id, val) = (l[0], l[1])
@@ -1480,11 +1488,20 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 reverse=True
             items.sort(key=kf, reverse=reverse)
 
+            if tweaks['categories_use_field_for_author_name'] == 'author_sort' and\
+                    (category == 'authors' or
+                     (cat['display'].get('is_names', False) and
+                      cat['is_custom'] and cat['is_multiple'] and
+                      cat['datatype'] == 'text')):
+                use_sort_as_name = True
+            else:
+                use_sort_as_name = False
             is_editable = category not in ['news', 'rating']
             categories[category] = [tag_class(formatter(r.n), count=r.c, id=r.id,
                                         avg=avgr(r), sort=r.s, icon=icon,
                                         tooltip=tooltip, category=category,
-                                        id_set=r.id_set, is_editable=is_editable)
+                                        id_set=r.id_set, is_editable=is_editable,
+                                        use_sort_as_name=use_sort_as_name)
                                     for r in items]
 
         #print 'end phase "tags list":', time.clock() - last, 'seconds'

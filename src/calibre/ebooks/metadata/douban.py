@@ -49,7 +49,7 @@ class DoubanBooks(MetadataSource):
             self.results = search(self.title, self.book_author, self.publisher,
                                   self.isbn, max_results=10,
                                   verbose=self.verbose)
-        except Exception, e:
+        except Exception as e:
             self.exception = e
             self.tb = traceback.format_exc()
 
@@ -192,7 +192,7 @@ class ResultList(list):
                 raw = browser.open(id_url).read()
                 feed = etree.fromstring(raw)
                 x = entry(feed)[0]
-            except Exception, e:
+            except Exception as e:
                 if verbose:
                     print 'Failed to get all details for an entry'
                     print e
@@ -212,7 +212,7 @@ def search(title=None, author=None, publisher=None, isbn=None,
         api_key = CALIBRE_DOUBAN_API_KEY
 
     while start > 0 and len(entries) <= max_results:
-        new, start = Query(title=title, author=author, publisher=publisher, 
+        new, start = Query(title=title, author=author, publisher=publisher,
                        isbn=isbn, max_results=max_results, start_index=start, api_key=api_key)(br, verbose)
         if not new:
             break

@@ -108,7 +108,7 @@ def _get_cover_url(br, asin):
     q = 'http://amzn.com/'+asin
     try:
         raw = br.open_novisit(q).read()
-    except Exception, e:
+    except Exception as e:
         if callable(getattr(e, 'getcode', None)) and \
                 e.getcode() == 404:
             return None
@@ -139,7 +139,7 @@ def get_metadata(br, asin, mi):
     q = 'http://amzn.com/'+asin
     try:
         raw = br.open_novisit(q).read()
-    except Exception, e:
+    except Exception as e:
         if callable(getattr(e, 'getcode', None)) and \
                 e.getcode() == 404:
             return False

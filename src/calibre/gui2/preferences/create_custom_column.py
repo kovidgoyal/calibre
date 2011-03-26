@@ -63,7 +63,7 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
         for col, name in [('isbn', _('ISBN')), ('formats', _('Formats')),
                 ('last_modified', _('Modified Date')), ('yesno', _('Yes/No')),
                 ('tags', _('Tags')), ('series', _('Series')), ('rating',
-                    _('Rating'))]:
+                    _('Rating')), ('people', _("People's names"))]:
             text += ' <a href="col:%s">%s</a>,'%(col, name)
         text = text[:-1]
         self.shortcuts.setText(text)
@@ -125,6 +125,8 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
         self.datatype_changed()
         if ct in ['text', 'composite', 'enumeration']:
             self.use_decorations.setChecked(c['display'].get('use_decorations', False))
+        elif ct == '*text':
+            self.is_names.setChecked(c['display'].get('is_names', False))
         self.exec_()
 
     def shortcut_activated(self, url):
@@ -134,6 +136,7 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
             'tags' : 1,
             'series': 3,
             'rating': 8,
+            'people': 1,
             }.get(which, 10))
         self.column_name_box.setText(which)
         self.column_heading_box.setText({
@@ -143,7 +146,9 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
             'tags': _('My Tags'),
             'series': _('My Series'),
             'rating': _('My Rating'),
-            'last_modified':_('Modified Date')}[which])
+            'last_modified':_('Modified Date'),
+            'people': _('People')}[which])
+        self.is_names.setChecked(which == 'people')
         if self.composite_box.isVisible():
             self.composite_box.setText(
                 {
@@ -152,7 +157,6 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
                     'last_modified':'''{last_modified:'format_date($, "dd MMM yy")'}'''
                     }[which])
             self.composite_sort_by.setCurrentIndex(2 if which == 'last_modified' else 0)
-
 
     def datatype_changed(self, *args):
         try:
@@ -167,6 +171,7 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
         for x in ('box', 'default_label', 'label'):
             getattr(self, 'enum_'+x).setVisible(col_type == 'enumeration')
         self.use_decorations.setVisible(col_type in ['text', 'composite', 'enumeration'])
+        self.is_names.setVisible(col_type == '*text')
 
     def accept(self):
         col = unicode(self.column_name_box.text()).strip()
@@ -241,6 +246,8 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
                     return self.simple_error('', _('The value "{0}" is in the '
                     'list more than once').format(l[i]))
             display_dict = {'enum_values': l}
+        elif col_type == 'text' and is_multiple:
+            display_dict = {'is_names': self.is_names.isChecked()}
 
         if col_type in ['text', 'composite', 'enumeration']:
             display_dict['use_decorations'] = self.use_decorations.checkState()

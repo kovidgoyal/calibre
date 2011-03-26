@@ -12,7 +12,7 @@ from setup import Command, islinux, isfreebsd, basenames, modules, functions, \
         __appname__, __version__
 
 HEADER = '''\
-#!/usr/bin/env python
+#!/usr/bin/env python2
 
 """
 This is the standard runscript for all of calibre's tools.

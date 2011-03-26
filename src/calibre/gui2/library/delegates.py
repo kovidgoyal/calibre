@@ -398,7 +398,7 @@ class CcTemplateDelegate(QStyledItemDelegate): # {{{
         val = unicode(editor.textbox.toPlainText())
         try:
             validation_formatter.validate(val)
-        except Exception, err:
+        except Exception as err:
             error_dialog(self.parent(), _('Invalid template'),
                     '<p>'+_('The template %s is invalid:')%val + \
                     '<br>'+str(err), show=True)

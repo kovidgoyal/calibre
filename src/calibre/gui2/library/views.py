@@ -78,6 +78,7 @@ class BooksView(QTableView): # {{{
         self.pubdate_delegate = PubDateDelegate(self)
         self.tags_delegate = CompleteDelegate(self, ',', 'all_tags')
         self.authors_delegate = CompleteDelegate(self, '&', 'all_author_names', True)
+        self.cc_names_delegate = CompleteDelegate(self, '&', 'all_custom', True)
         self.series_delegate = TextDelegate(self)
         self.publisher_delegate = TextDelegate(self)
         self.text_delegate = TextDelegate(self)
@@ -410,6 +411,7 @@ class BooksView(QTableView): # {{{
         self.save_state()
         self._model.set_database(db)
         self.tags_delegate.set_database(db)
+        self.cc_names_delegate.set_database(db)
         self.authors_delegate.set_database(db)
         self.series_delegate.set_auto_complete_function(db.all_series)
         self.publisher_delegate.set_auto_complete_function(db.all_publishers)
@@ -431,12 +433,17 @@ class BooksView(QTableView): # {{{
                     self.setItemDelegateForColumn(cm.index(colhead), delegate)
                 elif cc['datatype'] == 'comments':
                     self.setItemDelegateForColumn(cm.index(colhead), self.cc_comments_delegate)
-                elif cc['datatype'] in ('text', 'series'):
+                elif cc['datatype'] == 'text':
                     if cc['is_multiple']:
-                        self.setItemDelegateForColumn(cm.index(colhead), self.tags_delegate)
+                        if cc['display'].get('is_names', False):
+                            self.setItemDelegateForColumn(cm.index(colhead),
+                                                          self.cc_names_delegate)
+                        else:
+                            self.setItemDelegateForColumn(cm.index(colhead),
+                                                          self.tags_delegate)
                     else:
                         self.setItemDelegateForColumn(cm.index(colhead), self.cc_text_delegate)
-                elif cc['datatype'] in ('int', 'float'):
+                elif cc['datatype'] in ('series', 'int', 'float'):
                     self.setItemDelegateForColumn(cm.index(colhead), self.cc_text_delegate)
                 elif cc['datatype'] == 'bool':
                     self.setItemDelegateForColumn(cm.index(colhead), self.cc_bool_delegate)

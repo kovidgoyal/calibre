@@ -3,7 +3,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 ''' Post installation script for linux '''
 
-import sys, os, cPickle, textwrap, stat
+import sys, os, cPickle, textwrap, stat, importlib
 from subprocess import check_call
 
 from calibre import  __appname__, prints, guess_type
@@ -59,7 +59,7 @@ for x in {manifest!r}:
             shutil.rmtree(x)
         else:
             os.unlink(x)
-    except Exception, e:
+    except Exception as e:
         print 'Failed to delete', x
         print '\t', e
 
@@ -285,7 +285,7 @@ class PostInstall:
 
                 complete -o nospace -C calibre-complete ebook-convert
                 '''))
-        except TypeError, err:
+        except TypeError as err:
             if 'resolve_entities' in str(err):
                 print 'You need python-lxml >= 2.0.5 for calibre'
                 sys.exit(1)
@@ -309,7 +309,7 @@ class PostInstall:
             for src in entry_points['console_scripts']:
                 prog, right = src.split('=')
                 prog = prog.strip()
-                module = __import__(right.split(':')[0].strip(), fromlist=['a'])
+                module = importlib.import_module(right.split(':')[0].strip())
                 parser = getattr(module, 'option_parser', None)
                 if parser is None:
                     continue

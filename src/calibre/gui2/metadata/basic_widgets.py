@@ -656,7 +656,7 @@ class Cover(ImageView): # {{{
             try:
                 cf = open(_file, "rb")
                 cover = cf.read()
-            except IOError, e:
+            except IOError as e:
                 d = error_dialog(self, _('Error reading file'),
                         _("<p>There was an error reading from file: <br /><b>")
                         + _file + "</b></p><br />"+str(e))

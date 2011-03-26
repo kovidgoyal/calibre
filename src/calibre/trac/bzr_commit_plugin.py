@@ -60,7 +60,7 @@ class cmd_commit(_cmd_commit):
     def close_bug(self, bug, action):
         print 'Closing bug #%s'% bug
         #nick = config.get_nickname()
-        suffix = ('The fix will be in the next release.'
+        suffix = ('The fix will be in the next release. '
                 'calibre is usually released every Friday.')
         action = action+'ed'
         msg = '%s in branch %s. %s'%(action, 'lp:calibre', suffix)
@@ -72,7 +72,7 @@ class cmd_commit(_cmd_commit):
         sendmail = importlib.import_module(SENDMAIL[1])
 
         to = bug+'@bugs.launchpad.net'
-        sendmail.sendmail(msg, to, 'Re: calibre bug '+bug)
+        sendmail.sendmail(msg, to, 'Fixed in lp:calibre')
 
 
 bzrlib.commands.register_command(cmd_commit)
