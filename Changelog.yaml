@@ -19,6 +19,13 @@
 #  new recipes:
 #    - title: 
 
+- version: 0.7.52
+  date: 2011-03-25
+
+  bug fixes:
+    - title: "Fixes a typo in 0.7.51 that broke the downloading of some news. Apologies."
+      tickets: [742840]
+
 - version: 0.7.51
   date: 2011-03-25
 
