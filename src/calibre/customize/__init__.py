@@ -4,8 +4,21 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os, sys, zipfile, importlib
 
-from calibre.constants import numeric_version
+from calibre.constants import numeric_version, iswindows, isosx
 from calibre.ptempfile import PersistentTemporaryFile
+
+platform = 'linux'
+if iswindows:
+    platform = 'windows'
+elif isosx:
+    platform = 'osx'
+
+
+class PluginNotFound(ValueError):
+    pass
+
+class InvalidPlugin(ValueError):
+    pass
 
 
 class Plugin(object): # {{{
