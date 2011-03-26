@@ -29,6 +29,8 @@ gprefs.defaults['action-layout-toolbar'] = (
         'Connect Share', None, 'Remove Books', None, 'Help', 'Preferences',
         )
 
+gprefs.defaults['action-layout-toolbar-child'] = ()
+
 gprefs.defaults['action-layout-toolbar-device'] = (
         'Add Books', 'Edit Metadata', None, 'Convert Books', 'View',
         'Send To Device', None, None, 'Location Manager', None, None,

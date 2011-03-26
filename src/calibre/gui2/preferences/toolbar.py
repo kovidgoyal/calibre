@@ -208,6 +208,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     LOCATIONS = [
             ('toolbar', _('The main toolbar')),
+            ('toolbar-child', _('The second toolbar')),
             ('toolbar-device', _('The main toolbar when a device is connected')),
             ('context-menu', _('The context menu for the books in the '
                 'calibre library')),
