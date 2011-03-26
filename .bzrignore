@@ -11,7 +11,8 @@ resources/localization
 resources/images.qrc
 resources/scripts.pickle
 resources/ebook-convert-complete.pickle
-resources/builtin_recipes.*
+resources/builtin_recipes.xml
+resources/builtin_recipes.zip
 setup/installer/windows/calibre/build.log
 src/calibre/translations/.errors
 src/cssutils/.svn/

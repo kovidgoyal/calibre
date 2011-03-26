@@ -14,7 +14,7 @@ from setup.build_environment import HOST, PROJECT
 BASE_RSYNC = ['rsync', '-avz', '--delete']
 EXCLUDES = []
 for x in [
-    'src/calibre/plugins', 'src/calibre/manual', 'src/calibre/trac', 'recipes',
+    'src/calibre/plugins', 'src/calibre/manual', 'src/calibre/trac',
     '.bzr', '.build', '.svn', 'build', 'dist', 'imgsrc', '*.pyc', '*.pyo', '*.swp',
     '*.swo', 'format_docs']:
     EXCLUDES.extend(['--exclude', x])
