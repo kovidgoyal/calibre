@@ -2,12 +2,13 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from future_builtins import map
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, zipfile, posixpath, importlib, threading, re
+import os, zipfile, posixpath, importlib, threading, re, imp, sys
 from collections import OrderedDict
 
 from calibre.customize import (Plugin, numeric_version, platform,
@@ -20,27 +21,66 @@ from calibre.customize import (Plugin, numeric_version, platform,
 
 class PluginLoader(object):
 
-    '''
-    The restrictions that a zip file must obey to be a valid calibre plugin
-    are:
-
-        * The .py file that defines the main plugin class must have a name
-          that:
-              * Ends in plugin.py
-              * Is a valid python identifier (contains only English alphabets,
-                underscores and numbers and starts with an alphabet). This
-                applies to the file name minus the .py extension, obviously.
-              * Try to make this name as distinct as possible, as it will be
-                put into a global namespace of all plugins.
-        * The zip file must contain a .py file that defines the main plugin
-          class at the top level. That is, it must not be in a subdirectory.
-          The filename must follow the restrictions outlined above.
-    '''
-
     def __init__(self):
         self.loaded_plugins = {}
         self._lock = threading.RLock()
         self._identifier_pat = re.compile(r'[a-zA-Z][_0-9a-zA-Z]*')
+
+    def _get_actual_fullname(self, fullname):
+        parts = fullname.split('.')
+        if parts[0] == 'calibre_plugins':
+            if len(parts) == 1:
+                return parts[0], None
+            plugin_name = parts[1]
+            with self._lock:
+                names = self.loaded_plugins.get(plugin_name, None)[1]
+                if names is None:
+                    raise ImportError('No plugin named %r loaded'%plugin_name)
+                fullname = '.'.join(parts[2:])
+                if not fullname:
+                    fullname = '__init__'
+                if fullname in names:
+                    return fullname, plugin_name
+                if fullname+'.__init__' in names:
+                    return fullname+'.__init__', plugin_name
+        return None, None
+
+    def find_module(self, fullname, path=None):
+        fullname, plugin_name = self._get_actual_fullname(fullname)
+        if fullname is None and plugin_name is None:
+            return None
+        return self
+
+    def load_module(self, fullname):
+        import_name, plugin_name = self._get_actual_fullname(fullname)
+        if import_name is None and plugin_name is None:
+            raise ImportError('No plugin named %r is loaded'%fullname)
+        mod = sys.modules.setdefault(fullname, imp.new_module(fullname))
+        mod.__file__ = "<calibre Plugin Loader>"
+        mod.__loader__ = self
+
+        if import_name.endswith('.__init__') or import_name in ('__init__',
+                'calibre_plugins'):
+            # We have a package
+            mod.__path__ = []
+
+        if plugin_name is not None:
+            # We have some actual code to load
+            with self._lock:
+                zfp, names = self.loaded_plugins.get(plugin_name, (None, None))
+            if names is None:
+                raise ImportError('No plugin named %r loaded'%plugin_name)
+            zinfo = names.get(import_name, None)
+            if zinfo is None:
+                raise ImportError('Plugin %r has no module named %r' %
+                        (plugin_name, import_name))
+            with zipfile.ZipFile(zfp) as zf:
+                code = zf.read(zinfo)
+            compiled = compile(code, 'import_name', 'exec', dont_inherit=True)
+            exec compiled in mod.__dict__
+
+        return mod
+
 
     def load(self, path_to_zip_file):
         if not os.access(path_to_zip_file, os.R_OK):
@@ -52,7 +92,7 @@ class PluginLoader(object):
         try:
             ans = None
             m = importlib.import_module(
-                    'calibre_plugins.%s.__init__'%plugin_name)
+                    'calibre_plugins.%s'%plugin_name)
             for obj in m.__dict__.itervalues():
                 if isinstance(obj, type) and issubclass(obj, Plugin) and \
                         obj.name != 'Trivial Plugin':
@@ -62,10 +102,11 @@ class PluginLoader(object):
                 raise InvalidPlugin('No plugin class found in %r:%r'%(
                     path_to_zip_file, plugin_name))
 
-            if ans.minimum_calibre_version < numeric_version:
+            if ans.minimum_calibre_version > numeric_version:
                 raise InvalidPlugin(
                     'The plugin at %r needs a version of calibre >= %r' %
-                    (path_to_zip_file, '.'.join(ans.minimum_calibre_version)))
+                    (path_to_zip_file, '.'.join(map(str,
+                        ans.minimum_calibre_version))))
 
             if platform not in ans.supported_platforms:
                 raise InvalidPlugin(
@@ -123,7 +164,7 @@ class PluginLoader(object):
 
         names = OrderedDict()
 
-        for candidate in names:
+        for candidate in pynames:
             parts = posixpath.splitext(candidate)[0].split('/')
             package = '.'.join(parts[:-1])
             if package and package not in valid_packages:
@@ -150,5 +191,6 @@ class PluginLoader(object):
 
 
 loader = PluginLoader()
+sys.meta_path.insert(0, loader)
 
 
