@@ -29,6 +29,8 @@ gprefs.defaults['action-layout-toolbar'] = (
         'Connect Share', None, 'Remove Books', None, 'Help', 'Preferences',
         )
 
+gprefs.defaults['action-layout-toolbar-child'] = ()
+
 gprefs.defaults['action-layout-toolbar-device'] = (
         'Add Books', 'Edit Metadata', None, 'Convert Books', 'View',
         'Send To Device', None, None, 'Location Manager', None, None,
@@ -52,7 +54,6 @@ gprefs.defaults['show_splash_screen'] = True
 gprefs.defaults['toolbar_icon_size'] = 'medium'
 gprefs.defaults['automerge'] = 'ignore'
 gprefs.defaults['toolbar_text'] = 'auto'
-gprefs.defaults['show_child_bar'] = False
 gprefs.defaults['font'] = None
 gprefs.defaults['tags_browser_partition_method'] = 'first letter'
 gprefs.defaults['tags_browser_collapse_at'] = 100
