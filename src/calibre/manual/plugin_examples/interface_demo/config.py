@@ -12,11 +12,10 @@ from PyQt4.Qt import QWidget, QHBoxLayout, QLabel, QLineEdit
 from calibre.utils.config import JSONConfig
 
 # This is where all preferences for this plugin will be stored
-# Remember that this name is also ina  global namespace, so make it as uniqie
+# Remember that this name is also in a global namespace, so make it as unique
 # as possible.
-# It is good etiquette, though not strictly required to always prefix your
-# config file name with plugins/, so as to ensure you dont accidentally clobber
-# a calibre config file
+# You should always prefix your config file name with plugins/,
+# so as to ensure you dont accidentally clobber a calibre config file
 prefs = JSONConfig('plugins/interface_demo')
 
 # Set defaults

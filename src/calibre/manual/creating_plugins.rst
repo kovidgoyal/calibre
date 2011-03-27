@@ -105,6 +105,7 @@ in a GUI context.
 Remember that for this to work, you must have a plugin-import-name-some_name.txt file in your plugin zip file,
 as discussed above.
 
+Also there are a couple of methods for enabling user configuration of the plugin. These are discussed below. 
 
 ui.py
 ^^^^^^^^
@@ -137,6 +138,34 @@ Getting resources from the plugin zip file
     **get_icons(name_or_list_of_names)**
         A convenience wrapper for get_resources() that creates QIcon objects from the raw bytes returned by get_resources.
         If a name is not found in the zip file the corresponding QIcon will be null.
+
+Enabling user configuration of your plugin
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+To allow users to configure your plugin, you must define a couple of methods in your base plugin class, **config_widget** and **save_settings** as shown below:
+
+.. literalinclude:: plugin_examples/interface_demo/__init__.py
+  :pyobject: InterfacePluginDemo.config_widget
+
+.. literalinclude:: plugin_examples/interface_demo/__init__.py
+  :pyobject: InterfacePluginDemo.save_settings
+
+|app| has many different ways to store configuration data (a legacy of its long history). The recommended way is to use the **JSONConfig** class, which stores your configuration information in a .json file. 
+
+The code to manage configuration data in the demo plugin is in config.py:
+
+.. literalinclude:: plugin_examples/interface_demo/config.py
+    :lines: 10-
+
+The ``prefs`` object is now available throughout the plugin code by a simple::
+
+    from calibre_plugins.interface_demo.config import prefs
+
+
+You can see the ``prefs`` object being used in main.py:
+
+.. literalinclude:: plugin_examples/interface_demo/main.py
+    :pyobject: DemoDialog.config
 
 
 The different types of plugins
