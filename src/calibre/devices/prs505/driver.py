@@ -57,6 +57,7 @@ class PRS505(USBMS):
     MUST_READ_METADATA = True
     SUPPORTS_USE_AUTHOR_SORT = True
     EBOOK_DIR_MAIN = 'database/media/books'
+    SCAN_FROM_ROOT = True
 
     ALL_BY_TITLE  = _('All by title')
     ALL_BY_AUTHOR = _('All by author')

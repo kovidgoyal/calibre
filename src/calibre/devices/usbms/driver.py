@@ -55,6 +55,8 @@ class USBMS(CLI, Device):
     METADATA_CACHE = 'metadata.calibre'
     DRIVEINFO = 'driveinfo.calibre'
 
+    SCAN_FROM_ROOT = False
+
     def _update_driveinfo_record(self, dinfo, prefix, location_code, name=None):
         if not isinstance(dinfo, dict):
             dinfo = {}
@@ -173,7 +175,10 @@ class USBMS(CLI, Device):
             ebook_dirs = [ebook_dirs]
         for ebook_dir in ebook_dirs:
             ebook_dir = self.path_to_unicode(ebook_dir)
-            ebook_dir = self.normalize_path( \
+            if self.SCAN_FROM_ROOT:
+                ebook_dir = self.normalize_path(prefix)
+            else:
+                ebook_dir = self.normalize_path( \
                             os.path.join(prefix, *(ebook_dir.split('/'))) \
                                     if ebook_dir else prefix)
             if not os.path.exists(ebook_dir): continue
