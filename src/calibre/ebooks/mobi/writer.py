@@ -1188,7 +1188,7 @@ class MobiWriter(object):
         toc = self._oeb.toc
         nodes = list(toc.iter())[1:]
         toc_conforms = True
-        for (i, child) in enumerate(nodes) :
+        for child in nodes:
             if child.klass == "periodical" and child.depth() != 3 or    \
                child.klass == "section" and child.depth() != 2 or       \
                child.klass == "article" and child.depth() != 1 :
