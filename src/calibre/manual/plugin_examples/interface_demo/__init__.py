@@ -32,6 +32,13 @@ class InterfacePluginDemo(InterfaceActionBase):
     #: The specified class must be defined in the specified module.
     actual_plugin       = 'calibre_plugins.interface_demo.ui:InterfacePlugin'
 
+    def is_customizable(self):
+        '''
+        This method must return True to enable customization via
+        Preferences->Plugins
+        '''
+        return True
+
     def config_widget(self):
         '''
         Implement this method and :meth:`save_settings` in your plugin to
