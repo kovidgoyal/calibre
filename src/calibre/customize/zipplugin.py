@@ -40,7 +40,8 @@ def get_resources(zfp, name_or_list_of_names):
             try:
                 ans[name] = zf.read(name)
             except:
-                pass
+                import traceback
+                traceback.print_exc()
     if len(names) == 1:
         ans = ans.pop(names[0], None)
 
@@ -71,7 +72,7 @@ def get_icons(zfp, name_or_list_of_names):
     ians = {}
     for name in names:
         p = QPixmap()
-        raw = ans.get('name', None)
+        raw = ans.get(name, None)
         if raw:
             p.loadFromData(raw)
         ians[name] = QIcon(p)
@@ -136,8 +137,13 @@ class PluginLoader(object):
                 raise ImportError('Plugin %r has no module named %r' %
                         (plugin_name, import_name))
             with zipfile.ZipFile(zfp) as zf:
-                code = zf.read(zinfo)
-            compiled = compile(code, 'import_name', 'exec', dont_inherit=True)
+                try:
+                    code = zf.read(zinfo)
+                except:
+                    # Maybe the zip file changed from under us
+                    code = zf.read(zinfo.filename)
+            compiled = compile(code, 'calibre_plugins.%s.%s'%(plugin_name,
+                import_name), 'exec', dont_inherit=True)
             mod.__dict__['get_resources'] = partial(get_resources, zfp)
             mod.__dict__['get_icons'] = partial(get_icons, zfp)
             exec compiled in mod.__dict__
@@ -265,6 +271,9 @@ if __name__ == '__main__':
                     if x[0] != '.':
                         print ('Adding', x)
                     zf.write(x)
+                    if os.path.isdir(x):
+                        for y in os.listdir(x):
+                            zf.write(os.path.join(x, y))
         add_plugin(f.name)
         print ('Added plugin from', sys.argv[-1])
 

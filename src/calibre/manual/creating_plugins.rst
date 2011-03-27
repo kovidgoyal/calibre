@@ -48,13 +48,111 @@ a more complex example that actually adds a component to the user interface.
 A User Interface plugin
 -------------------------
 
-This plugin will be spread over a couple of files (to keep the code clean). It will show you how to get resources
+This plugin will be spread over a few files (to keep the code clean). It will show you how to get resources
 (images or data files) from the plugin zip file, how to create elements in the |app| user interface and how to access
 and query the books database in |app|. 
+
+You can download this plugin from `interface_demo_plugin.zip <http://calibre-ebook.com/downloads/interface_demo_plugin.zip>`_
+
+The first thing to note is that this zip file has a lot more files in it, explained below, pay particular attention to
+``plugin-import-name-interface_demo.txt``.
+
+    **plugin-import-name-interface_demo.txt**
+        An empty text file used to enable the multi-file plugin magic. This file must be present in all plugins that use
+        more than one .py file. It should be empty and its filename must be of the form: plugin-import-name-**some_name**.txt
+        The presence of this file allows you to import code from the .py files present inside the zip file, using a statement like::
+         
+            from calibre_plugins.some_name.some_module import some_object
+
+        The prefix ``calibre_plugins`` must always be present. ``some_name`` comes from the filename of the empty text file.
+        ``some_module`` refers to  :file:`some_module.py` file inside the zip file. Note that this importing is just as
+        powerful as regular python imports. You can create packages and subpackages of .py modules inside the zip file,
+        just like you would normally (by defining __init__.py in each sub directory), and everything should Just Work.
+
+        The name you use for ``some_name`` enters a global namespace shared by all plugins, **so make it as unique as possible**.
+        But remember that it must be a valid python identifier (only alphabets, numbers and the underscore).
+
+    **__init__.py**
+        As before, the file that defines the plugin class
+
+    **main.py**
+        This file contains the actual code that does something useful
+
+    **ui.py**
+        This file defines the interface part of the plugin
+
+    **images/icon.png**
+        The icon for this plugin
+
+    **about.txt**
+        A text file with information about the plugin
+
+Now let's look at the code.
+
+__init__.py
+^^^^^^^^^^^^^
+
+First, the obligatory ``__init__.py`` to define the plugin metadata:
+
+.. literalinclude:: plugin_examples/interface_demo/__init__.py
+    :lines: 10-
+
+The only noteworthy feature is the field :attr:`actual_plugin`. Since |app| has both command line and GUI interfaces,
+GUI plugins like this one should not load any GUI libraries in __init__.py. The actual_plugin field does this for you,
+by telling |app| that the actual plugin is to be found in another file inside your zip archive, which will only be loaded
+in a GUI context. 
+
+Remember that for this to work, you must have a plugin-import-name-some_name.txt file in your plugin zip file,
+as discussed above.
+
+
+ui.py
+^^^^^^^^
+
+Now let's look at ui.py which defines the actual GUI plugin. The source code is heavily commented and should be self explanatory:
+
+.. literalinclude:: plugin_examples/interface_demo/ui.py
+    :lines: 10-
+
+main.py
+^^^^^^^^^
+
+The actual logic to implement the Interface Plugin Demo dialog.
+
+.. literalinclude:: plugin_examples/interface_demo/main.py
+    :lines: 10-
+
+Getting resources from the plugin zip file
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+|app|'s plugin loading system defines a couple of builtin functions that allow you to conveniently get files from the plugin zip file.
+
+    **get_resources(name_or_list_of_names)**
+        This function should be called with a list of paths to files inside the zip file. For example to access the file icon.png in
+        the directory images in the zip file, you would use: ``images/icon.png``. Always use a forward slash as the path separator,
+        even on windows. When you pass in a single name, the function will return the raw bytes of that file or None if the name
+        was not found in the zip file. If you pass in more than one name then it returns a dict mapping the names to bytes.
+        If a name is not found, it will not be present in the returned dict.
+
+    **get_icons(name_or_list_of_names)**
+        A convenience wrapper for get_resources() that creates QIcon objects from the raw bytes returned by get_resources.
+        If a name is not found in the zip file the corresponding QIcon will be null.
+
 
 The different types of plugins
 --------------------------------
 
 As you may have noticed above, a plugin in |app| is a class. There are different classes for the different types of plugins in |app|.
 Details on each class, including the base class of all plugins can be found in :ref:`plugins`.
+
+More plugin examples
+----------------------
+
+You can find a list of many, sophisticated |app| plugins `here <http://www.mobileread.com/forums/showthread.php?t=118764>`_.
+
+Sharing your plugins with others
+----------------------------------
+
+If you would like to share the plugins you have created with other users of |app|, post your plugin in a new thread in the
+`calibre plugins forum <http://www.mobileread.com/forums/forumdisplay.php?f=237>`_.
 

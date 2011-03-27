@@ -27,7 +27,8 @@ class InterfacePluginDemo(InterfaceActionBase):
     version             = (1, 0, 0)
     minimum_calibre_version = (0, 7, 51)
 
-    #: This field defines the plugin class that contains all the code
-    #: that actually does something.
-    actual_plugin       = 'calibre_plugins.interface.ui:InterfacePlugin'
+    #: This field defines the GUI plugin class that contains all the code
+    #: that actually does something. Its format is module_path:class_name
+    #: The specified class must be defined in the specified module.
+    actual_plugin       = 'calibre_plugins.interface_demo.ui:InterfacePlugin'
 

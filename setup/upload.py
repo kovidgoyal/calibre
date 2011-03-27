@@ -348,6 +348,9 @@ class UploadUserManual(Command): # {{{
                 with ZipFile(f, 'w') as zf:
                     for x in os.listdir('.'):
                         zf.write(x)
+                        if os.path.isdir(x):
+                            for y in os.listdir(x):
+                                zf.write(os.path.join(x, y))
             bname = self.b(path) + '_plugin.zip'
             subprocess.check_call(['scp', f.name, 'divok:%s/%s'%(DOWNLOADS,
                 bname)])
