@@ -225,7 +225,7 @@ record type    usual length     name             comments
 300                             fontsignature
 401            1                clippinglimit
 402                             publisherlimit
-403                             403 Unknown
+403                             403 Unknown      1 - Text to Speech disabled; 0 - Text to Speech enabled
 404            1                404 ttsflag
 501            4                cdetype          PDOC - Personal Doc;
                                                  EBOK - ebook;
