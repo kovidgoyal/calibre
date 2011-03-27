@@ -17,7 +17,6 @@ if False:
 from calibre.gui2.actions import InterfaceAction
 from calibre_plugins.interface_demo.main import DemoDialog
 
-
 class InterfacePlugin(InterfaceAction):
 
     name = 'Interface Plugin Demo'
@@ -64,4 +63,9 @@ class InterfacePlugin(InterfaceAction):
         d = DemoDialog(self.gui, self.qaction.icon(), do_user_config)
         d.show()
 
+    def apply_settings(self):
+        from calibre_plugins.interface_demo.config import prefs
+        # In an actual non trivial plugin, you would probably need to
+        # do something based on the settings in prefs
+        prefs
 

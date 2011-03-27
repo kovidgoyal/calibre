@@ -72,4 +72,9 @@ class InterfacePluginDemo(InterfaceActionBase):
         '''
         config_widget.save_settings()
 
+        # Apply the changes
+        ac = self.actual_plugin_
+        if ac is not None:
+            ac.apply_settings()
+
 
