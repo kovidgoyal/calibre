@@ -158,11 +158,14 @@ class TagsView(QTreeView): # {{{
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         pop = config['sort_tags_by']
         self.sort_by.setCurrentIndex(self.db.CATEGORY_SORTS.index(pop))
+        match_pop = config['match_tags_type']
+        self.tag_match.setCurrentIndex(self.db.MATCH_TYPE.index(match_pop))
         if not self.made_connections:
             self.clicked.connect(self.toggle)
             self.customContextMenuRequested.connect(self.show_context_menu)
             self.refresh_required.connect(self.recount, type=Qt.QueuedConnection)
             self.sort_by.currentIndexChanged.connect(self.sort_changed)
+            self.tag_match.currentIndexChanged.connect(self.match_changed)
             self.made_connections = True
         self.refresh_signal_processed = True
         db.add_listener(self.database_changed)
@@ -179,6 +182,9 @@ class TagsView(QTreeView): # {{{
     def sort_changed(self, pop):
         config.set('sort_tags_by', self.db.CATEGORY_SORTS[pop])
         self.recount()
+        
+    def match_changed(self, pop):
+        config.set('match_tags_type', self.db.MATCH_TYPE[pop])
 
     def set_search_restriction(self, s):
         if s:
@@ -2114,6 +2120,7 @@ class TagBrowserWidget(QWidget): # {{{
         parent.sort_by.setCurrentIndex(0)
         self._layout.addWidget(parent.sort_by)
 
+        # Must be in the same order as db2.MATCH_TYPE
         parent.tag_match = QComboBox(parent)
         for x in (_('Match any'), _('Match all')):
             parent.tag_match.addItem(x)

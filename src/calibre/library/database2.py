@@ -1228,6 +1228,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 ########## data structures for get_categories
 
     CATEGORY_SORTS = ('name', 'popularity', 'rating')
+    MATCH_TYPE = ('any', 'all')
 
     class TCat_Tag(object):
 
