@@ -271,11 +271,11 @@ class MetadataUpdater(object):
         FILTER=''.join([(len(repr(chr(x)))==3) and chr(x) or '.' for x in range(256)])
         N=0; result=''
         while src:
-           s,src = src[:length],src[length:]
-           hexa = ' '.join(["%02X"%ord(x) for x in s])
-           s = s.translate(FILTER)
-           result += "%04X   %-*s   %s\n" % (N, length*3, hexa, s)
-           N+=length
+            s,src = src[:length],src[length:]
+            hexa = ' '.join(["%02X"%ord(x) for x in s])
+            s = s.translate(FILTER)
+            result += "%04X   %-*s   %s\n" % (N, length*3, hexa, s)
+            N+=length
         print result
 
     def get_pdbrecords(self):
@@ -370,6 +370,9 @@ class MetadataUpdater(object):
             update_exth_record((203, pack('>I', 0)))
         if self.thumbnail_record is not None:
             update_exth_record((202, pack('>I', self.thumbnail_rindex)))
+        if 113 not in self.original_exth_records and 501 in self.original_exth_records and self.original_exth_records[501] == 'EBOK' and not recs.has_key(501):
+            from uuid import uuid4
+            update_exth_record((113, str(uuid4())))
         if 503 in self.original_exth_records:
             update_exth_record((503, mi.title.encode(self.codec, 'replace')))
 
