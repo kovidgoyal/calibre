@@ -15,7 +15,7 @@ Here, we will teach you how to create your own plugins to add new features to |a
   :depth: 2
   :local:
 
-.. note:: This only applies to calibre releases >= 0.7.52
+.. note:: This only applies to calibre releases >= 0.7.53
 
 Anatomy of a |app| plugin
 ---------------------------
