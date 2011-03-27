@@ -111,6 +111,7 @@ class FB2MLizer(object):
             metadata['lang'] = u'en'
         metadata['id'] = None
         metadata['cover'] = self.get_cover()
+        metadata['genre'] = self.opts.fb2_genre
 
         metadata['author'] = u''
         for auth in self.oeb_book.metadata.creator:
@@ -159,7 +160,7 @@ class FB2MLizer(object):
         return u'<FictionBook xmlns="http://www.gribuser.ru/xml/fictionbook/2.0" xmlns:xlink="http://www.w3.org/1999/xlink">' \
                 '<description>' \
                     '<title-info>' \
-                        '<genre>antique</genre>' \
+                        '<genre>%(genre)s</genre>' \
                             '%(author)s' \
                         '<book-title>%(title)s</book-title>' \
                         '%(cover)s' \

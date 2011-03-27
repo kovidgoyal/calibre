@@ -148,8 +148,7 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
             'rating': _('My Rating'),
             'last_modified':_('Modified Date'),
             'people': _('People')}[which])
-        if which == 'people':
-            self.is_names.setChecked(True)
+        self.is_names.setChecked(which == 'people')
         if self.composite_box.isVisible():
             self.composite_box.setText(
                 {

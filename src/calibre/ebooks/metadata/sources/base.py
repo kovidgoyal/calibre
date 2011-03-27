@@ -8,11 +8,13 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import re, threading
+from future_builtins import map
 
 from calibre import browser, random_user_agent
 from calibre.customize import Plugin
 from calibre.utils.logging import ThreadSafeLog, FileStream
 from calibre.utils.config import JSONConfig
+from calibre.utils.titlecase import titlecase
 
 msprefs = JSONConfig('metadata_sources.json')
 
@@ -21,6 +23,7 @@ def create_log(ostream=None):
     log.outputs = [FileStream(ostream)]
     return log
 
+# Comparing Metadata objects for relevance {{{
 words = ("the", "a", "an", "of", "and")
 prefix_pat = re.compile(r'^(%s)\s+'%("|".join(words)))
 trailing_paren_pat = re.compile(r'\(.*\)$')
@@ -35,6 +38,55 @@ def cleanup_title(s):
     s = whitespace_pat.sub(' ', s)
     return s.strip()
 
+class InternalMetadataCompareKeyGen(object):
+
+    '''
+    Generate a sort key for comparison of the relevance of Metadata objects,
+    given a search query.
+
+    The sort key ensures that an ascending order sort is a sort by order of
+    decreasing relevance.
+
+    The algorithm is:
+
+        * Prefer results that have the same ISBN as specified in the query
+        * Prefer results with a cached cover URL
+        * Prefer results with all available fields filled in
+        * Prefer results that are an exact title match to the query
+        * Prefer results with longer comments (greater than 10% longer)
+        * Use the relevance of the result as reported by the metadata source's search
+           engine
+    '''
+
+    def __init__(self, mi, source_plugin, title, authors, identifiers):
+        isbn = 1 if mi.isbn and mi.isbn == identifiers.get('isbn', None) else 2
+
+        all_fields = 1 if source_plugin.test_fields(mi) is None else 2
+
+        exact_title = 1 if title and \
+                cleanup_title(title) == cleanup_title(mi.title) else 2
+
+        has_cover = 2 if source_plugin.get_cached_cover_url(mi.identifiers)\
+                is None else 1
+
+        self.base = (isbn, has_cover, all_fields, exact_title)
+        self.comments_len = len(mi.comments.strip() if mi.comments else '')
+        self.extra = (getattr(mi, 'source_relevance', 0), )
+
+    def __cmp__(self, other):
+        result = cmp(self.base, other.base)
+        if result == 0:
+            # Now prefer results with the longer comments, within 10%
+            cx, cy = self.comments_len, other.comments_len
+            t = (cx + cy) / 20
+            delta = cy - cx
+            if abs(delta) > t:
+                result = delta
+            else:
+                result = cmp(self.extra, other.extra)
+        return result
+
+# }}}
 
 class Source(Plugin):
 
@@ -43,8 +95,12 @@ class Source(Plugin):
 
     supported_platforms = ['windows', 'osx', 'linux']
 
+    #: Set of capabilities supported by this plugin.
+    #: Useful capabilities are: 'identify', 'cover'
     capabilities = frozenset()
 
+    #: List of metadata fields that can potentially be download by this plugin
+    #: during the identify phase
     touched_fields = frozenset()
 
     def __init__(self, *args, **kwargs):
@@ -70,11 +126,17 @@ class Source(Plugin):
     def browser(self):
         if self._browser is None:
             self._browser = browser(user_agent=random_user_agent())
-        return self._browser
+        return self._browser.clone_browser()
 
     # }}}
 
-    # Utility functions {{{
+    # Caching {{{
+
+    def get_related_isbns(self, id_):
+        with self.cache_lock:
+            for isbn, q in self._isbn_to_identifier_cache.iteritems():
+                if q == id_:
+                    yield isbn
 
     def cache_isbn_to_identifier(self, isbn, identifier):
         with self.cache_lock:
@@ -91,6 +153,10 @@ class Source(Plugin):
     def cached_identifier_to_cover_url(self, id_):
         with self.cache_lock:
             return self._identifier_to_cover_url_cache.get(id_, None)
+
+    # }}}
+
+    # Utility functions {{{
 
     def get_author_tokens(self, authors, only_first_author=True):
         '''
@@ -156,6 +222,20 @@ class Source(Plugin):
             elif mi.is_null(key):
                 return key
 
+    def clean_downloaded_metadata(self, mi):
+        '''
+        Call this method in your plugin's identify method to normalize metadata
+        before putting the Metadata object into result_queue. You can of
+        course, use a custom algorithm suited to your metadata source.
+        '''
+        def fixcase(x):
+            if x:
+                x = titlecase(x)
+            return x
+        if mi.title:
+            mi.title = fixcase(mi.title)
+        mi.authors = list(map(fixcase, mi.authors))
+        mi.tags = list(map(fixcase, mi.tags))
 
     # }}}
 
@@ -164,72 +244,33 @@ class Source(Plugin):
     def get_cached_cover_url(self, identifiers):
         '''
         Return cached cover URL for the book identified by
-        the identifiers dict or Noneif no such URL exists
+        the identifiers dict or None if no such URL exists.
+
+        Note that this method must only return validated URLs, i.e. not URLS
+        that could result in a generic cover image or a not found error.
         '''
         return None
 
-    def compare_identify_results(self, x, y, title=None, authors=None,
+    def identify_results_keygen(self, title=None, authors=None,
             identifiers={}):
         '''
-        Method used to sort the results from a call to identify by relevance.
-        Uses the actual query and various heuristics to rank results.
-        Re-implement in your plugin if this generic algorithm is not suitable.
-        Note that this method assumes x and y have a source_relevance
-        attribute.
+        Return a function that is used to generate a key that can sort Metadata
+        objects by their relevance given a search query (title, authors,
+        identifiers).
 
-        one < two iff one is more relevant than two
+        These keys are used to sort the results of a call to :meth:`identify`.
+
+        For details on the default algorithm see
+        :class:`InternalMetadataCompareKeyGen`. Re-implement this function in
+        your plugin if the default algorithm is not suitable.
         '''
-        # First, guarantee that if the query specifies an ISBN, the result with
-        # the same isbn is the most relevant
-        def isbn_test(mi):
-            return mi.isbn and mi.isbn == identifiers.get('isbn', None)
-
-        def boolcmp(a, b):
-            return -1 if a and not b else 1 if not a and b else 0
-
-        x_has_isbn, y_has_isbn = isbn_test(x), isbn_test(y)
-        result = boolcmp(x_has_isbn, y_has_isbn)
-        if result != 0:
-            return result
-
-        # Now prefer results that have complete metadata over those that don't
-        x_has_all_fields = self.test_fields(x) is None
-        y_has_all_fields = self.test_fields(y) is None
-
-        result = boolcmp(x_has_all_fields, y_has_all_fields)
-        if result != 0:
-            return result
-
-        # Now prefer results whose title matches the search query
-        if title:
-            x_title = cleanup_title(x.title)
-            y_title = cleanup_title(y.title)
-            t = cleanup_title(title)
-            x_has_title, y_has_title = x_title == t, y_title == t
-            result = boolcmp(x_has_title, y_has_title)
-            if result != 0:
-                return result
-
-        # Now prefer results with the longer comments, within 10%
-        cx = len(x.comments.strip() if x.comments else '')
-        cy = len(y.comments.strip() if y.comments else '')
-        t = (cx + cy) / 20
-        result = cy - cx
-        if result != 0 and abs(cx - cy) > t:
-            return result
-
-        # Now prefer results with cached cover URLs
-        x_has_cover = self.get_cached_cover_url(x.identifiers) is not None
-        y_has_cover = self.get_cached_cover_url(y.identifiers) is not None
-        result = boolcmp(x_has_cover, y_has_cover)
-        if result != 0:
-            return result
-
-        # Now use the relevance reported by the remote search engine
-        return x.source_relevance - y.source_relevance
+        def keygen(mi):
+            return InternalMetadataCompareKeyGen(mi, self, title, authors,
+                identifiers)
+        return keygen
 
     def identify(self, log, result_queue, abort, title=None, authors=None,
-            identifiers={}, timeout=5):
+            identifiers={}, timeout=30):
         '''
         Identify a book by its title/author/isbn/etc.
 
@@ -268,6 +309,18 @@ class Source(Plugin):
 
         '''
         return None
+
+    def download_cover(self, log, result_queue, abort,
+            title=None, authors=None, identifiers={}, timeout=30):
+        '''
+        Download a cover and put it into result_queue. The parameters all have
+        the same meaning as for :meth:`identify`.
+
+        This method should use cached cover URLs for efficiency whenever
+        possible. When cached data is not present, most plugins simply call
+        identify and use its results.
+        '''
+        pass
 
     # }}}
 

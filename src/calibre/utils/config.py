@@ -714,7 +714,10 @@ def _prefs():
     c.add_opt('read_file_metadata', default=True,
               help=_('Read metadata from files'))
     c.add_opt('worker_process_priority', default='normal',
-              help=_('The priority of worker processes'))
+              help=_('The priority of worker processes. A higher priority '
+                  'means they run faster and consume more resources. '
+                  'Most tasks like conversion/news download/adding books/etc. '
+                  'are affected by this setting.'))
     c.add_opt('swap_author_names', default=False,
             help=_('Swap author first and last names when reading metadata'))
     c.add_opt('add_formats_to_existing', default=False,

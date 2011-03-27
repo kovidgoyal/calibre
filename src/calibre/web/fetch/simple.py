@@ -210,7 +210,7 @@ class RecursiveFetcher(object):
             with closing(open_func(url, timeout=self.timeout)) as f:
                 data = response(f.read()+f.read())
                 data.newurl = f.geturl()
-        except urllib2.URLError, err:
+        except urllib2.URLError as err:
             if hasattr(err, 'code') and responses.has_key(err.code):
                 raise FetchError, responses[err.code]
             if getattr(err, 'reason', [0])[0] == 104 or \
@@ -486,7 +486,7 @@ def option_parser(usage=_('%prog URL\n\nWhere URL is for example http://google.c
                       type='int', dest='max_recursions')
     parser.add_option('-n', '--max-files', default=sys.maxint, type='int', dest='max_files',
                       help=_('The maximum number of files to download. This only applies to files from <a href> tags. Default is %default'))
-    parser.add_option('--delay', default=0, dest='delay', type='int',
+    parser.add_option('--delay', default=0, dest='delay', type='float',
                       help=_('Minimum interval in seconds between consecutive fetches. Default is %default s'))
     parser.add_option('--encoding', default=None,
                       help=_('The character encoding for the websites you are trying to download. The default is to try and guess the encoding.'))

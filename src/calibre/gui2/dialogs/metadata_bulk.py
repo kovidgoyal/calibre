@@ -120,7 +120,7 @@ class MyBlockingBusy(QDialog): # {{{
             self.msg.setText(self.msg_text.format(self.phases[self.current_phase],
                                         percent))
             self.do_one(id)
-        except Exception, err:
+        except Exception as err:
             import traceback
             try:
                 err = unicode(err)

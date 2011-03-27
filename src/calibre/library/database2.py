@@ -1121,8 +1121,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         pdir = os.path.dirname(dest)
         if not os.path.exists(pdir):
             os.makedirs(pdir)
-        with lopen(dest, 'wb') as f:
-            shutil.copyfileobj(stream, f)
+        if not getattr(stream, 'name', False) or \
+                os.path.abspath(dest) != os.path.abspath(stream.name):
+            with lopen(dest, 'wb') as f:
+                shutil.copyfileobj(stream, f)
         stream.seek(0, 2)
         size=stream.tell()
         self.conn.execute('INSERT INTO data (book,format,uncompressed_size,name) VALUES (?,?,?,?)',

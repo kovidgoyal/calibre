@@ -38,7 +38,7 @@ def get_metadata(stream):
             mi.author = author
         if category:
             mi.category = category
-    except Exception, err:
+    except Exception as err:
         msg = u'Couldn\'t read metadata from imp: %s with error %s'%(mi.title, unicode(err))
         print >>sys.stderr, msg.encode('utf8')
     return mi

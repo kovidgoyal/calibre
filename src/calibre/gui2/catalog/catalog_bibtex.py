@@ -46,6 +46,13 @@ class PluginWidget(QWidget, Ui_Form):
         for x in xrange(self.db_fields.count()):
             item = self.db_fields.item(x)
             item.setSelected(unicode(item.text()) in fields)
+        self.bibfile_enc.clear()
+        self.bibfile_enc.addItems(['utf-8', 'cp1252', 'ascii/LaTeX'])
+        self.bibfile_enctag.clear()
+        self.bibfile_enctag.addItems(['strict', 'replace', 'ignore',
+            'backslashreplace'])
+        self.bib_entry.clear()
+        self.bib_entry.addItems(['mixed', 'misc', 'book'])
         # Update dialog fields from stored options
         for opt in self.OPTION_FIELDS:
             opt_value = gprefs.get(self.name + '_' + opt[0], opt[1])

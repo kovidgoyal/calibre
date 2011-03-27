@@ -35,7 +35,7 @@ class Worker(Thread): # {{{
         try:
             br = browser()
             br.retrieve(self.url, self.fpath, self.callback)
-        except Exception, e:
+        except Exception as e:
             self.err = as_unicode(e)
             import traceback
             self.tb = traceback.format_exc()
@@ -143,21 +143,27 @@ def dnd_has_extension(md, extensions):
         urls = [unicode(u.toString()) for u in
                 md.urls()]
         purls = [urlparse(u) for u in urls]
+        paths = [u2p(x) for x in purls]
         if DEBUG:
             prints('URLS:', urls)
-            prints('Paths:', [u2p(x) for x in purls])
+            prints('Paths:', paths)
 
-        exts = frozenset([posixpath.splitext(u.path)[1][1:].lower() for u in
-            purls])
+        exts = frozenset([posixpath.splitext(u)[1][1:].lower() for u in
+            paths])
         return bool(exts.intersection(frozenset(extensions)))
     return False
 
+def _u2p(raw):
+    path = raw
+    if iswindows and path.startswith('/'):
+        path = path[1:]
+    return path.replace('/', os.sep)
+
 def u2p(url):
     path = url.path
-    if iswindows:
-        if path.startswith('/'):
-            path = path[1:]
-    ans = path.replace('/', os.sep)
+    ans = _u2p(path)
+    if not os.path.exists(ans):
+        ans = _u2p(url.path + '#' + url.fragment)
     if os.path.exists(ans):
         return ans
     # Try unquoting the URL
@@ -189,8 +195,9 @@ def dnd_get_image(md, image_exts=IMAGE_EXTENSIONS):
                 md.urls()]
         purls = [urlparse(u) for u in urls]
         # First look for a local file
-        images = [u2p(x) for x in purls if x.scheme in ('', 'file') and
-                posixpath.splitext(urllib.unquote(x.path))[1][1:].lower() in
+        images = [u2p(x) for x in purls if x.scheme in ('', 'file')]
+        images = [x for x in images if
+                posixpath.splitext(urllib.unquote(x))[1][1:].lower() in
                 image_exts]
         images = [x for x in images if os.path.exists(x)]
         p = QPixmap()
@@ -235,8 +242,9 @@ def dnd_get_files(md, exts):
                 md.urls()]
         purls = [urlparse(u) for u in urls]
         # First look for a local file
-        local_files = [u2p(x) for x in purls if x.scheme in ('', 'file') and
-                posixpath.splitext(urllib.unquote(x.path))[1][1:].lower() in
+        local_files = [u2p(x) for x in purls if x.scheme in ('', 'file')]
+        local_files = [ p for p in local_files if
+                posixpath.splitext(urllib.unquote(p))[1][1:].lower() in
                 exts]
         local_files = [x for x in local_files if os.path.exists(x)]
         if local_files:

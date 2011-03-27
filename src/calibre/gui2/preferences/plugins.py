@@ -6,6 +6,7 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import textwrap, os
+from collections import OrderedDict
 
 from PyQt4.Qt import Qt, QModelIndex, QAbstractItemModel, QVariant, QIcon, \
         QBrush
@@ -19,7 +20,6 @@ from calibre.gui2 import NONE, error_dialog, info_dialog, choose_files, \
         question_dialog, gprefs
 from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.utils.icu import lower
-from calibre.utils.ordered_dict import OrderedDict
 
 class PluginModel(QAbstractItemModel, SearchQueryParser): # {{{
 

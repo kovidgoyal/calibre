@@ -863,7 +863,7 @@ class Engine(threading.Thread):
                     for socket in rr:
                         try:
                             self.readers[socket].handle_read()
-                        except NonLocalNameException, err:
+                        except NonLocalNameException as err:
                             print err
                         except UnicodeDecodeError:
                             if DEBUG:

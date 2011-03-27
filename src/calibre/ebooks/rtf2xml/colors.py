@@ -245,8 +245,11 @@ class Colors:
                     self.__token_info = line[:16]
                     action = self.__state_dict.get(self.__state)
                     if action is None:
-                        sys.stderr.write('no matching state in module fonts.py\n')
-                        sys.stderr.write(self.__state + '\n')
+                        try:
+                            sys.stderr.write('no matching state in module fonts.py\n')
+                            sys.stderr.write(self.__state + '\n')
+                        except:
+                            pass
                     action(line)
         copy_obj = copy.Copy(bug_handler = self.__bug_handler)
         if self.__copy:

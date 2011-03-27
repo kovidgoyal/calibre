@@ -10,6 +10,7 @@ __docformat__ = 'restructuredtext en'
 import socket, time, re
 from urllib import urlencode
 from threading import Thread
+from Queue import Queue, Empty
 
 from lxml.html import soupparser, tostring
 
@@ -41,12 +42,12 @@ class Worker(Thread): # {{{
         try:
             self.get_details()
         except:
-            self.log.error('get_details failed for url: %r'%self.url)
+            self.log.exception('get_details failed for url: %r'%self.url)
 
     def get_details(self):
         try:
             raw = self.browser.open_novisit(self.url, timeout=self.timeout).read().strip()
-        except Exception, e:
+        except Exception as e:
             if callable(getattr(e, 'getcode', None)) and \
                     e.getcode() == 404:
                 self.log.error('URL malformed: %r'%self.url)
@@ -168,8 +169,10 @@ class Worker(Thread): # {{{
             if self.isbn:
                 self.plugin.cache_isbn_to_identifier(self.isbn, self.amazon_id)
             if self.cover_url:
-                self.cache_identifier_to_cover_url(self.amazon_id,
+                self.plugin.cache_identifier_to_cover_url(self.amazon_id,
                         self.cover_url)
+
+        self.plugin.clean_downloaded_metadata(mi)
 
         self.result_queue.put(mi)
 
@@ -276,7 +279,7 @@ class Amazon(Source):
     name = 'Amazon'
     description = _('Downloads metadata from Amazon')
 
-    capabilities = frozenset(['identify'])
+    capabilities = frozenset(['identify', 'cover'])
     touched_fields = frozenset(['title', 'authors', 'identifier:amazon',
         'identifier:isbn', 'rating', 'comments', 'publisher', 'pubdate'])
 
@@ -284,6 +287,7 @@ class Amazon(Source):
             'com': _('US'),
             'fr' : _('France'),
             'de' : _('Germany'),
+            'uk' : _('UK'),
     }
 
     def create_query(self, log, title=None, authors=None, identifiers={}): # {{{
@@ -331,7 +335,7 @@ class Amazon(Source):
 
     # }}}
 
-    def get_cached_cover_url(self, identifiers):
+    def get_cached_cover_url(self, identifiers): # {{{
         url = None
         asin = identifiers.get('amazon', None)
         if asin is None:
@@ -344,6 +348,7 @@ class Amazon(Source):
             url = self.cached_identifier_to_cover_url(asin)
 
         return url
+    # }}}
 
     def identify(self, log, result_queue, abort, title=None, authors=None, # {{{
             identifiers={}, timeout=30):
@@ -359,7 +364,7 @@ class Amazon(Source):
         br = self.browser
         try:
             raw = br.open_novisit(query, timeout=timeout).read().strip()
-        except Exception, e:
+        except Exception as e:
             if callable(getattr(e, 'getcode', None)) and \
                     e.getcode() == 404:
                 log.error('Query malformed: %r'%query)
@@ -442,8 +447,44 @@ class Amazon(Source):
         return None
     # }}}
 
+    def download_cover(self, log, result_queue, abort, # {{{
+            title=None, authors=None, identifiers={}, timeout=30):
+        cached_url = self.get_cached_cover_url(identifiers)
+        if cached_url is None:
+            log.info('No cached cover found, running identify')
+            rq = Queue()
+            self.identify(log, rq, abort, title=title, authors=authors,
+                    identifiers=identifiers)
+            if abort.is_set():
+                return
+            results = []
+            while True:
+                try:
+                    results.append(rq.get_nowait())
+                except Empty:
+                    break
+            results.sort(key=self.identify_results_keygen(
+                title=title, authors=authors, identifiers=identifiers))
+            for mi in results:
+                cached_url = self.get_cached_cover_url(mi.identifiers)
+                if cached_url is not None:
+                    break
+        if cached_url is None:
+            log.info('No cover found')
+            return
 
-if __name__ == '__main__':
+        if abort.is_set():
+            return
+        br = self.browser
+        try:
+            cdata = br.open_novisit(cached_url, timeout=timeout).read()
+            result_queue.put(cdata)
+        except:
+            log.exception('Failed to download cover from:', cached_url)
+    # }}}
+
+
+if __name__ == '__main__': # tests {{{
     # To run these test use: calibre-debug -e
     # src/calibre/ebooks/metadata/sources/amazon.py
     from calibre.ebooks.metadata.sources.test import (test_identify_plugin,
@@ -489,5 +530,5 @@ if __name__ == '__main__':
             ),
 
         ])
-
+# }}}
 
