@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-03-26 02:12+0000\n"
-"PO-Revision-Date: 2011-03-19 22:46+0000\n"
-"Last-Translator: Benjamín Valero Espinosa <benjavalero@gmail.com>\n"
+"PO-Revision-Date: 2011-03-26 10:12+0000\n"
+"Last-Translator: Jellby <Unknown>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-03-26 04:55+0000\n"
+"X-Launchpad-Export-Date: 2011-03-27 04:47+0000\n"
 "X-Generator: Launchpad (build 12559)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:527
@@ -797,6 +797,8 @@ msgstr "Usar la serie como categoría en iTunes/iBooks"
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:53
 msgid "Enable to use the series name as the iTunes Genre, iBooks Category"
 msgstr ""
+"Actívelo para usar el nombre de la serie como género de iTunes o categoría "
+"de iBooks"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:55
 msgid "Cache covers from iTunes/iBooks"
@@ -805,14 +807,17 @@ msgstr "Guardar las portadas de iTunes/iBooks en caché"
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:57
 msgid "Enable to cache and display covers from iTunes/iBooks"
 msgstr ""
+"Actívelo para mostrar y guardar en caché las portadas de iTunes o iBooks"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:58
 msgid "Skip 'Connect to iTunes' recommendation"
-msgstr ""
+msgstr "Omitir la recomendación para «Conectar con iTunes»"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:60
 msgid "Enable to skip the 'Connect to iTunes' recommendation dialog"
 msgstr ""
+"Actívelo para no mostrar el diálogo de recomendación para «Conectar con "
+"iTunes»"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:115
 msgid "Apple device"
@@ -2018,6 +2023,11 @@ msgid ""
 "margins. Sometimes, this can cause the removal of margins that should not "
 "have been removed. In this case you can disable the removal."
 msgstr ""
+"Algunos documentos especificas los márgenes de página añadiendo márgenes a "
+"la izquierda y derecha de cada párrafo, calibre intentará detectar y "
+"eliminar estos márgenes. A veces esto puede ocasionar que se eliminen "
+"márgenes que deberían mantenerse. En tal caso, puede desactivar la "
+"eliminación."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:320
 msgid ""
@@ -3502,7 +3512,7 @@ msgstr "Alemania"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:290
 msgid "UK"
-msgstr ""
+msgstr "Reino Unido"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:375
 msgid "Amazon timed out. Try again later."
@@ -3515,7 +3525,7 @@ msgstr "Fuente de metadatos"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/openlibrary.py:15
 msgid "Downloads metadata from The Open Library"
-msgstr ""
+msgstr "Descarga metadatos de The Open Library"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:22
 msgid "Modify images to meet Palm device size limitations."
@@ -7372,7 +7382,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:64
 msgid "Remove &fake margins"
-msgstr ""
+msgstr "Eliminar márgenes &falsos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc.py:16
 msgid ""
@@ -11651,7 +11661,7 @@ msgstr "Alta"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:36
 msgid "Very low"
-msgstr ""
+msgstr "Muy baja"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:164
 msgid "Confirmation dialogs have all been reset"
@@ -11854,7 +11864,7 @@ msgstr "Fecha de modificación"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:66
 msgid "People's names"
-msgstr ""
+msgstr "Nombres de personas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:71
 msgid "Number"
@@ -11895,7 +11905,7 @@ msgstr "Mi calificación"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:150
 msgid "People"
-msgstr ""
+msgstr "Personas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:179
 msgid "No lookup name was provided"
@@ -11997,10 +12007,12 @@ msgstr "Mostrar marcas de verificación"
 msgid ""
 "Check this box if this column contains names, like the authors column."
 msgstr ""
+"Marque esta casilla si la columna contiene nombres, como la columna de "
+"autores."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:201
 msgid "Contains names"
-msgstr ""
+msgstr "Contiene nombres"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:202
 msgid ""
@@ -16471,6 +16483,10 @@ msgid ""
 "and consume more resources. Most tasks like conversion/news download/adding "
 "books/etc. are affected by this setting."
 msgstr ""
+"La prioridad de los procesos en ejecución. Una prioridad más alta significa "
+"que se ejecutan más rápidamente y consumen más recursos. La mayoría de las "
+"tareas, como la conversión, descarga de noticias, adición de libros, etc., "
+"se ven afectadas por esta configuración."
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:722
 msgid "Swap author first and last names when reading metadata"
