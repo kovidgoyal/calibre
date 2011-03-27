@@ -7,15 +7,16 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+if False:
+    # This is here to keep my python error checker from complaining about
+    # the builtin functions that will be defined by the plugin loading system
+    # You do not need this code in your plugins
+    get_icons = get_resources = None
 
 # The class that all interface action plugins must inherit from
 from calibre.gui2.actions import InterfaceAction
 from calibre_plugins.interface_demo.main import DemoDialog
 
-if False:
-    # This is here to keep my python error checker from complaining about
-    # the builtin functions that will be defined by the plugin loading system
-    get_icons = get_resources = None
 
 class InterfacePlugin(InterfaceAction):
 

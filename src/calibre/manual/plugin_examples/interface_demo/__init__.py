@@ -25,7 +25,7 @@ class InterfacePluginDemo(InterfaceActionBase):
     supported_platforms = ['windows', 'osx', 'linux']
     author              = 'Kovid Goyal'
     version             = (1, 0, 0)
-    minimum_calibre_version = (0, 7, 51)
+    minimum_calibre_version = (0, 7, 52)
 
     #: This field defines the GUI plugin class that contains all the code
     #: that actually does something. Its format is module_path:class_name

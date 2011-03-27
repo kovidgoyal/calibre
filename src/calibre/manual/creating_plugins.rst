@@ -112,7 +112,7 @@ ui.py
 Now let's look at ui.py which defines the actual GUI plugin. The source code is heavily commented and should be self explanatory:
 
 .. literalinclude:: plugin_examples/interface_demo/ui.py
-    :lines: 10-
+    :lines: 16-
 
 main.py
 ^^^^^^^^^
@@ -120,7 +120,7 @@ main.py
 The actual logic to implement the Interface Plugin Demo dialog.
 
 .. literalinclude:: plugin_examples/interface_demo/main.py
-    :lines: 10-
+    :lines: 16-
 
 Getting resources from the plugin zip file
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

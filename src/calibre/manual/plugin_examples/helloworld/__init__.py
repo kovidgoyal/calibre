@@ -19,7 +19,7 @@ class HelloWorld(FileTypePlugin):
     version             = (1, 0, 0)   # The version number of this plugin
     file_types          = set(['epub', 'mobi']) # The file types that this plugin will be applied to
     on_postprocess      = True # Run this plugin after conversion is complete
-    minimum_calibre_version = (0, 7, 51)
+    minimum_calibre_version = (0, 7, 52)
 
     def run(self, path_to_ebook):
         from calibre.ebooks.metadata.meta import get_metadata, set_metadata

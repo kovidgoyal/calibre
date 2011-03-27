@@ -7,13 +7,13 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-
-from PyQt4.Qt import QDialog, QVBoxLayout, QPushButton, QMessageBox
-
 if False:
     # This is here to keep my python error checker from complaining about
     # the builtin functions that will be defined by the plugin loading system
+    # You do not need this code in your plugins
     get_icons = get_resources = None
+
+from PyQt4.Qt import QDialog, QVBoxLayout, QPushButton, QMessageBox
 
 class DemoDialog(QDialog):
 
