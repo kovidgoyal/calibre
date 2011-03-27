@@ -529,9 +529,13 @@ class InterfaceActionBase(Plugin): # {{{
         '''
         This method must return the actual interface action plugin object.
         '''
-        mod, cls = self.actual_plugin.split(':')
-        return getattr(importlib.import_module(mod), cls)(gui,
-                self.site_customization)
+        ac = getattr(self, 'actual_plugin_', None)
+        if ac is None:
+            mod, cls = self.actual_plugin.split(':')
+            ac = getattr(importlib.import_module(mod), cls)(gui,
+                    self.site_customization)
+            self.actual_plugin_ = ac
+        return ac
 
 # }}}
 
