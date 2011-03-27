@@ -1098,7 +1098,7 @@ class MobiWriter(object):
                         nodeCountValue = 0x80 if nodeCountValue == 0 else nodeCountValue
                         tbSequence += chr(nodeCountValue)
                     else :
-                         tbSequence += decint(0x00, DECINT_FORWARD)                              # arg1 = 0x80
+                        tbSequence += decint(0x00, DECINT_FORWARD)                              # arg1 = 0x80
 
                     tbSequence += decint(len(tbSequence) + 1, DECINT_FORWARD)               # len
 
@@ -1644,14 +1644,14 @@ class MobiWriter(object):
         self._oeb.log('Generating INDX ...')
         self._primary_index_record = None
 
-		# Build the NCXEntries and INDX
+        # Build the NCXEntries and INDX
         indxt, indxt_count, indices, last_name = self._generate_indxt()
 
         if last_name is None:
             self._oeb.log.warn('Input document has no TOC. No index generated.')
             return
 
-		# Assemble the INDX0[0] and INDX1[0] output streams
+        # Assemble the INDX0[0] and INDX1[0] output streams
         indx1 = StringIO()
         indx1.write('INDX'+pack('>I', 0xc0)) # header length
 
@@ -2310,10 +2310,8 @@ class MobiWriter(object):
         parentIndex = sectionParent.parentIndex
         self._write_section_node(indxt, indices, sectionParent.myCtocMapIndex, index, offset, length, c, firstArticle, lastArticle, parentIndex)
 
-        last_name = "%04X"%c
-
         # articles
-        for (i, article) in enumerate(list(sectionParent.articles)) :
+        for article in list(sectionParent.articles):
             index = article.myCtocMapIndex
             offset = article.startAddress
             length = article.articleLength
@@ -2413,7 +2411,6 @@ class MobiWriter(object):
         #	 <navPoint> Article(s)	child.depth() = 1
         #   <navpoint>	Section 2
 
-        documentType = "unknown"
         sectionIndices = []
         sectionParents = []
         currentSection = 0      # Starting section number
@@ -2421,7 +2418,6 @@ class MobiWriter(object):
         indxt, indices, c = StringIO(), StringIO(), 0
 
         indices.write('IDXT')
-        c = 0
         last_name = None
 
         # 'book', 'periodical' or None
@@ -2449,8 +2445,8 @@ class MobiWriter(object):
                 if self.opts.verbose > 3 :
                     self._oeb.logger.info("unknown document type %12.12s \tdepth:%d" % (child.title, child.depth()) )
 
-		# Original code starts here
-		# test first node for depth/class
+        # Original code starts here
+        # test first node for depth/class
         entries = list(toc.iter())[1:]
         for (i, child) in enumerate(entries):
             if not child.title or not child.title.strip():
