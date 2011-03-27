@@ -80,6 +80,8 @@ def _config():
               help=_('Use Roman numerals for series number'))
     c.add_opt('sort_tags_by', default='name',
               help=_('Sort tags list by name, popularity, or rating'))
+    c.add_opt('match_tags_type', default='any',
+              help=_('Match tags by any or all.'))
     c.add_opt('cover_flow_queue_length', default=6,
               help=_('Number of covers to show in the cover browsing mode'))
     c.add_opt('LRF_conversion_defaults', default=[],
