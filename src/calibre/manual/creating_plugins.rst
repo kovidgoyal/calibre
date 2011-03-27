@@ -174,6 +174,27 @@ The different types of plugins
 As you may have noticed above, a plugin in |app| is a class. There are different classes for the different types of plugins in |app|.
 Details on each class, including the base class of all plugins can be found in :ref:`plugins`.
 
+Debugging plugins
+-------------------
+
+The first, most important step is to run |app| in debug mode. You can do this from the command line with::
+
+    calibre-debug -g
+
+Or from within calibre by clicking the arrow next to the preferences button or using the `Ctrl+Shift+R` keyboard shortcut.
+
+When running from the command line, debug output will be printed to the console, when running from within |app| the output will go to a txt file.
+
+You can insert print statements anywhere in your plugin code, they will be output in debug mode. Remember, this is python, you really shouldn't need anything more than print statements to debug ;) I developed all of |app| using just this debugging technique.
+
+It can get tiresome to keep re-adding a plugin to calibre to test small changes. The plugin zip files are stored in the calibre config directory in plugins/ (goto Preferences->Misc and click open config directory to see the config directory). 
+
+Once you've located the zip file of your plugin you can then directly update it with your changes instead of re-adding it each time. To do so from the command line, in the directory that contains your plugin source code, use::
+
+    zip -R /path/to/plugin/zip/file.zip *
+
+This will automatically update all changed files. It relies on the freely available zip command line tool.
+
 More plugin examples
 ----------------------
 
