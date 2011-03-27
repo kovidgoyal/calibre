@@ -13,13 +13,16 @@ if False:
     # You do not need this code in your plugins
     get_icons = get_resources = None
 
-from PyQt4.Qt import QDialog, QVBoxLayout, QPushButton, QMessageBox
+from PyQt4.Qt import QDialog, QVBoxLayout, QPushButton, QMessageBox, QLabel
+
+from calibre_plugins.interface_demo.config import prefs
 
 class DemoDialog(QDialog):
 
-    def __init__(self, gui, icon):
+    def __init__(self, gui, icon, do_user_config):
         QDialog.__init__(self, gui)
         self.gui = gui
+        self.do_user_config = do_user_config
 
         # The current database shown in the GUI
         # db is an instance of the class LibraryDatabase2 from database.py
@@ -30,6 +33,8 @@ class DemoDialog(QDialog):
         self.l = QVBoxLayout()
         self.setLayout(self.l)
 
+        self.label = QLabel(prefs['hello_world_msg'])
+        self.l.addWidget(self.label)
 
         self.setWindowTitle('Interface Plugin Demo')
         self.setWindowIcon(icon)
@@ -47,6 +52,11 @@ class DemoDialog(QDialog):
             'View the most recently added book', self)
         self.view_button.clicked.connect(self.view)
         self.l.addWidget(self.view_button)
+
+        self.conf_button = QPushButton(
+                'Configure this plugin', self)
+        self.conf_button.clicked.connect(self.config)
+        self.l.addWidget(self.conf_button)
 
         self.resize(self.sizeHint())
 
@@ -99,4 +109,8 @@ class DemoDialog(QDialog):
             # Ask the view plugin to launch the viewer for row_number
             view_plugin._view_books([row_number])
 
+    def config(self):
+        self.do_user_config(parent=self)
+        # Apply the changes
+        self.label.setText(prefs['hello_world_msg'])
 

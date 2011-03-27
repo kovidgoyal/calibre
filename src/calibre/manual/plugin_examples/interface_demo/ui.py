@@ -50,10 +50,18 @@ class InterfacePlugin(InterfaceAction):
         self.qaction.triggered.connect(self.show_dialog)
 
     def show_dialog(self):
+        # The base plugin object defined in __init__.py
+        base_plugin_object = self.interface_action_base_plugin
+        # Show the config dialog
+        # The config dialog can also be shown from within
+        # Preferences->Plugins, which is why the do_user_config
+        # method is defined on the base plugin class
+        do_user_config = base_plugin_object.do_user_config
+
         # self.gui is the main calibre GUI. It acts as the gateway to access
         # all the elements of the calibre user interface, it should also be the
         # parent of the dialog
-        d = DemoDialog(self.gui, self.qaction.icon())
+        d = DemoDialog(self.gui, self.qaction.icon(), do_user_config)
         d.show()
 
 
