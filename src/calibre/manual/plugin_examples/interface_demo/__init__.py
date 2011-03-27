@@ -25,7 +25,7 @@ class InterfacePluginDemo(InterfaceActionBase):
     supported_platforms = ['windows', 'osx', 'linux']
     author              = 'Kovid Goyal'
     version             = (1, 0, 0)
-    minimum_calibre_version = (0, 7, 52)
+    minimum_calibre_version = (0, 7, 53)
 
     #: This field defines the GUI plugin class that contains all the code
     #: that actually does something. Its format is module_path:class_name
@@ -57,6 +57,10 @@ class InterfacePluginDemo(InterfaceActionBase):
         The base class implementation of this method raises NotImplementedError
         so by default no user configuration is possible.
         '''
+        # It is important to put this import statement here rather than at the
+        # top of the module as importing the config class will also cause the
+        # GUI libraries to be loaded, which we do not want when using calibre
+        # from the command line
         from calibre_plugins.interface_demo.config import ConfigWidget
         return ConfigWidget()
 

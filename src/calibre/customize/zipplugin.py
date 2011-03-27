@@ -12,6 +12,7 @@ import os, zipfile, posixpath, importlib, threading, re, imp, sys
 from collections import OrderedDict
 from functools import partial
 
+from calibre import as_unicode
 from calibre.customize import (Plugin, numeric_version, platform,
         InvalidPlugin, PluginNotFound)
 
@@ -160,27 +161,31 @@ class PluginLoader(object):
 
         try:
             ans = None
-            m = importlib.import_module(
-                    'calibre_plugins.%s'%plugin_name)
+            plugin_module = 'calibre_plugins.%s'%plugin_name
+            m = sys.modules.get(plugin_module, None)
+            if m is not None:
+                reload(m)
+            else:
+                m = importlib.import_module(plugin_module)
             for obj in m.__dict__.itervalues():
                 if isinstance(obj, type) and issubclass(obj, Plugin) and \
                         obj.name != 'Trivial Plugin':
                     ans = obj
                     break
             if ans is None:
-                raise InvalidPlugin('No plugin class found in %r:%r'%(
-                    path_to_zip_file, plugin_name))
+                raise InvalidPlugin('No plugin class found in %s:%s'%(
+                    as_unicode(path_to_zip_file), plugin_name))
 
             if ans.minimum_calibre_version > numeric_version:
                 raise InvalidPlugin(
-                    'The plugin at %r needs a version of calibre >= %r' %
-                    (path_to_zip_file, '.'.join(map(str,
+                    'The plugin at %s needs a version of calibre >= %s' %
+                    (as_unicode(path_to_zip_file), '.'.join(map(unicode,
                         ans.minimum_calibre_version))))
 
             if platform not in ans.supported_platforms:
                 raise InvalidPlugin(
-                    'The plugin at %r cannot be used on %s' %
-                    (path_to_zip_file, platform))
+                    'The plugin at %s cannot be used on %s' %
+                    (as_unicode(path_to_zip_file), platform))
 
             return ans
         except:
