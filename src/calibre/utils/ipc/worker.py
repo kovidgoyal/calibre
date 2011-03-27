@@ -12,6 +12,8 @@ from threading import Thread
 from Queue import Queue
 from contextlib import closing
 from binascii import unhexlify
+from zipimport import ZipImportError
+
 from calibre import prints
 from calibre.constants import iswindows, isosx
 
@@ -75,7 +77,14 @@ class Progress(Thread):
 
 def get_func(name):
     module, func, notification = PARALLEL_FUNCS[name]
-    module = importlib.import_module(module)
+    try:
+        module = importlib.import_module(module)
+    except ZipImportError:
+        # Something windows weird happened, try clearing the zip import cache
+        # incase the zipfile was changed from under us
+        from zipimport import _zip_directory_cache as zdc
+        zdc.clear()
+        module = importlib.import_module(module)
     func = getattr(module, func)
     return func, notification
 
