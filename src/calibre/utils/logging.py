@@ -36,12 +36,12 @@ class ANSIStream(Stream):
         from calibre.utils.terminfo import TerminalController
         tc = TerminalController(stream)
         self.color = {
-                      DEBUG: tc.GREEN,
-                      INFO:'',
-                      WARN: tc.YELLOW,
-                      ERROR: tc.RED
+                      DEBUG: bytes(tc.GREEN),
+                      INFO: bytes(''),
+                      WARN: bytes(tc.YELLOW),
+                      ERROR: bytes(tc.RED)
                       }
-        self.normal = tc.NORMAL
+        self.normal = bytes(tc.NORMAL)
 
     def prints(self, level, *args, **kwargs):
         self.stream.write(self.color[level])

@@ -4,8 +4,21 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os, sys, zipfile, importlib
 
-from calibre.constants import numeric_version
+from calibre.constants import numeric_version, iswindows, isosx
 from calibre.ptempfile import PersistentTemporaryFile
+
+platform = 'linux'
+if iswindows:
+    platform = 'windows'
+elif isosx:
+    platform = 'osx'
+
+
+class PluginNotFound(ValueError):
+    pass
+
+class InvalidPlugin(ValueError):
+    pass
 
 
 class Plugin(object): # {{{
@@ -512,13 +525,21 @@ class InterfaceActionBase(Plugin): # {{{
 
     actual_plugin = None
 
+    def __init__(self, *args, **kwargs):
+        Plugin.__init__(self, *args, **kwargs)
+        self.actual_plugin_ = None
+
     def load_actual_plugin(self, gui):
         '''
         This method must return the actual interface action plugin object.
         '''
-        mod, cls = self.actual_plugin.split(':')
-        return getattr(importlib.import_module(mod), cls)(gui,
-                self.site_customization)
+        ac = self.actual_plugin_
+        if ac is None:
+            mod, cls = self.actual_plugin.split(':')
+            ac = getattr(importlib.import_module(mod), cls)(gui,
+                    self.site_customization)
+            self.actual_plugin_ = ac
+        return ac
 
 # }}}
 

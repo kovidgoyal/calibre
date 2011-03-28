@@ -8,11 +8,13 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import re, threading
+from future_builtins import map
 
 from calibre import browser, random_user_agent
 from calibre.customize import Plugin
 from calibre.utils.logging import ThreadSafeLog, FileStream
 from calibre.utils.config import JSONConfig
+from calibre.utils.titlecase import titlecase
 
 msprefs = JSONConfig('metadata_sources.json')
 
@@ -47,12 +49,12 @@ class InternalMetadataCompareKeyGen(object):
 
     The algorithm is:
 
-        1. Prefer results that have the same ISBN as specified in the query
-        2. Prefer results with all available fields filled in
-        3. Prefer results that are an exact title match to the query
-        4. Prefer results with longer comments (greater than 10 % longer)
-        5. Prefer results with a cached cover URL
-        6. Use the relevance of the result as reported by the metadata source's search
+        * Prefer results that have the same ISBN as specified in the query
+        * Prefer results with a cached cover URL
+        * Prefer results with all available fields filled in
+        * Prefer results that are an exact title match to the query
+        * Prefer results with longer comments (greater than 10% longer)
+        * Use the relevance of the result as reported by the metadata source's search
            engine
     '''
 
@@ -67,9 +69,9 @@ class InternalMetadataCompareKeyGen(object):
         has_cover = 2 if source_plugin.get_cached_cover_url(mi.identifiers)\
                 is None else 1
 
-        self.base = (isbn, all_fields, exact_title)
+        self.base = (isbn, has_cover, all_fields, exact_title)
         self.comments_len = len(mi.comments.strip() if mi.comments else '')
-        self.extra = (has_cover, getattr(mi, 'source_relevance', 0))
+        self.extra = (getattr(mi, 'source_relevance', 0), )
 
     def __cmp__(self, other):
         result = cmp(self.base, other.base)
@@ -93,8 +95,12 @@ class Source(Plugin):
 
     supported_platforms = ['windows', 'osx', 'linux']
 
+    #: Set of capabilities supported by this plugin.
+    #: Useful capabilities are: 'identify', 'cover'
     capabilities = frozenset()
 
+    #: List of metadata fields that can potentially be download by this plugin
+    #: during the identify phase
     touched_fields = frozenset()
 
     def __init__(self, *args, **kwargs):
@@ -124,7 +130,13 @@ class Source(Plugin):
 
     # }}}
 
-    # Utility functions {{{
+    # Caching {{{
+
+    def get_related_isbns(self, id_):
+        with self.cache_lock:
+            for isbn, q in self._isbn_to_identifier_cache.iteritems():
+                if q == id_:
+                    yield isbn
 
     def cache_isbn_to_identifier(self, isbn, identifier):
         with self.cache_lock:
@@ -141,6 +153,10 @@ class Source(Plugin):
     def cached_identifier_to_cover_url(self, id_):
         with self.cache_lock:
             return self._identifier_to_cover_url_cache.get(id_, None)
+
+    # }}}
+
+    # Utility functions {{{
 
     def get_author_tokens(self, authors, only_first_author=True):
         '''
@@ -214,6 +230,20 @@ class Source(Plugin):
             elif mi.is_null(key):
                 return key
 
+    def clean_downloaded_metadata(self, mi):
+        '''
+        Call this method in your plugin's identify method to normalize metadata
+        before putting the Metadata object into result_queue. You can of
+        course, use a custom algorithm suited to your metadata source.
+        '''
+        def fixcase(x):
+            if x:
+                x = titlecase(x)
+            return x
+        if mi.title:
+            mi.title = fixcase(mi.title)
+        mi.authors = list(map(fixcase, mi.authors))
+        mi.tags = list(map(fixcase, mi.tags))
 
     # }}}
 
@@ -248,7 +278,7 @@ class Source(Plugin):
         return keygen
 
     def identify(self, log, result_queue, abort, title=None, authors=None,
-            identifiers={}, timeout=5):
+            identifiers={}, timeout=30):
         '''
         Identify a book by its title/author/isbn/etc.
 
@@ -287,6 +317,18 @@ class Source(Plugin):
 
         '''
         return None
+
+    def download_cover(self, log, result_queue, abort,
+            title=None, authors=None, identifiers={}, timeout=30):
+        '''
+        Download a cover and put it into result_queue. The parameters all have
+        the same meaning as for :meth:`identify`.
+
+        This method should use cached cover URLs for efficiency whenever
+        possible. When cached data is not present, most plugins simply call
+        identify and use its results.
+        '''
+        pass
 
     # }}}
 

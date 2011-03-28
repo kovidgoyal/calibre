@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, re, cStringIO, base64, httplib, subprocess, hashlib, shutil, time
+import os, re, cStringIO, base64, httplib, subprocess, hashlib, shutil, time, glob
 from subprocess import check_call
 from tempfile import NamedTemporaryFile, mkdtemp
+from zipfile import ZipFile
 
 from setup import Command, __version__, installer_name, __appname__
 
@@ -93,9 +93,11 @@ class UploadToGoogleCode(Command): # {{{
         ext = os.path.splitext(fname)[1][1:]
         op  = 'OpSys-'+{'msi':'Windows','dmg':'OSX','bz2':'Linux','gz':'All'}[ext]
         desc = installer_description(fname)
+        start = time.time()
         path = self.upload(os.path.abspath(fname), desc,
                 labels=[typ, op, 'Featured'])
-        self.info('\tUploaded to:', path)
+        self.info('\tUploaded to:', path, 'in', int(time.time() - start),
+                'seconds')
         return path
 
     def run(self, opts):
@@ -248,10 +250,13 @@ class UploadToSourceForge(Command): # {{{
     def upload_installers(self):
         for x in installers():
             if not os.path.exists(x): continue
+            start = time.time()
             self.info('Uploading', x)
             check_call(['rsync', '-v', '-e', 'ssh -x', x,
                 '%s,%s@frs.sourceforge.net:%s'%(self.USERNAME, self.PROJECT,
                     self.rdir+'/')])
+            print 'Uploaded in', int(time.time() - start), 'seconds'
+            print ('\n')
 
     def run(self, opts):
         self.opts = opts
@@ -336,7 +341,25 @@ class UploadUserManual(Command): # {{{
     description = 'Build and upload the User Manual'
     sub_commands = ['manual']
 
+    def build_plugin_example(self, path):
+        from calibre import CurrentDir
+        with NamedTemporaryFile(suffix='.zip') as f:
+            with CurrentDir(self.d(path)):
+                with ZipFile(f, 'w') as zf:
+                    for x in os.listdir('.'):
+                        zf.write(x)
+                        if os.path.isdir(x):
+                            for y in os.listdir(x):
+                                zf.write(os.path.join(x, y))
+            bname = self.b(path) + '_plugin.zip'
+            subprocess.check_call(['scp', f.name, 'divok:%s/%s'%(DOWNLOADS,
+                bname)])
+
     def run(self, opts):
+        path = self.j(self.SRC, 'calibre', 'manual', 'plugin_examples')
+        for x in glob.glob(self.j(path, '*')):
+            self.build_plugin_example(x)
+
         check_call(' '.join(['scp', '-r', 'src/calibre/manual/.build/html/*',
                     'divok:%s'%USER_MANUAL]), shell=True)
 # }}}

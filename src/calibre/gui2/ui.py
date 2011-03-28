@@ -12,6 +12,8 @@ __docformat__ = 'restructuredtext en'
 import collections, os, sys, textwrap, time, gc
 from Queue import Queue, Empty
 from threading import Thread
+from collections import OrderedDict
+
 from PyQt4.Qt import (Qt, SIGNAL, QTimer, QHelpEvent, QAction,
                      QMenu, QIcon, pyqtSignal, QUrl,
                      QDialog, QSystemTrayIcon, QApplication, QKeySequence)
@@ -37,7 +39,6 @@ from calibre.gui2.init import LibraryViewMixin, LayoutMixin
 from calibre.gui2.search_box import SearchBoxMixin, SavedSearchBoxMixin
 from calibre.gui2.search_restriction_mixin import SearchRestrictionMixin
 from calibre.gui2.tag_view import TagBrowserMixin
-from calibre.utils.ordered_dict import OrderedDict
 
 
 class Listener(Thread): # {{{
@@ -381,6 +382,9 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
             error_dialog(self, _('Failed to start content server'),
                          unicode(self.content_server.exception)).exec_()
 
+    @property
+    def current_db(self):
+        return self.library_view.model().db
 
     def another_instance_wants_to_talk(self):
         try:

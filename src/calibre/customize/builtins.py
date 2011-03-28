@@ -853,7 +853,7 @@ class Columns(PreferencesPlugin):
 class Toolbar(PreferencesPlugin):
     name = 'Toolbar'
     icon = I('wizard.png')
-    gui_name = _('Customize the toolbar')
+    gui_name = _('Toolbar')
     category = 'Interface'
     gui_category = _('Interface')
     category_order = 1
@@ -865,7 +865,7 @@ class Toolbar(PreferencesPlugin):
 class Search(PreferencesPlugin):
     name = 'Search'
     icon = I('search.png')
-    gui_name = _('Customize searching')
+    gui_name = _('Searching')
     category = 'Interface'
     gui_category = _('Interface')
     category_order = 1
@@ -1032,7 +1032,8 @@ plugins += [LookAndFeel, Behavior, Columns, Toolbar, Search, InputOptions,
 # New metadata download plugins {{{
 from calibre.ebooks.metadata.sources.google import GoogleBooks
 from calibre.ebooks.metadata.sources.amazon import Amazon
+from calibre.ebooks.metadata.sources.openlibrary import OpenLibrary
 
-plugins += [GoogleBooks, Amazon]
+plugins += [GoogleBooks, Amazon, OpenLibrary]
 
 # }}}

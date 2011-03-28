@@ -99,7 +99,7 @@ def sanitize_file_name_unicode(name, substitute='_'):
     **WARNING:** This function also replaces path separators, so only pass file names
     and not full paths to it.
     '''
-    if not isinstance(name, unicode):
+    if isbytestring(name):
         return sanitize_file_name(name, substitute=substitute, as_unicode=True)
     chars = [substitute if c in _filename_sanitize_unicode else c for c in
             name]
@@ -115,6 +115,14 @@ def sanitize_file_name_unicode(name, substitute='_'):
         one = '_' + one[1:]
     return one
 
+def sanitize_file_name2(name, substitute='_'):
+    '''
+    Sanitize filenames removing invalid chars. Keeps unicode names as unicode
+    and bytestrings as bytestrings
+    '''
+    if isbytestring(name):
+        return sanitize_file_name(name, substitute=substitute)
+    return sanitize_file_name_unicode(name, substitute=substitute)
 
 def prints(*args, **kwargs):
     '''
@@ -162,8 +170,8 @@ def prints(*args, **kwargs):
         except:
             file.write(repr(arg))
         if i != len(args)-1:
-            file.write(sep)
-    file.write(end)
+            file.write(bytes(sep))
+    file.write(bytes(end))
 
 class CommandLineError(Exception):
     pass
@@ -270,12 +278,15 @@ def get_parsed_proxy(typ='http', debug=True):
 
 def random_user_agent():
     choices = [
-        'Mozilla/5.0 (Windows; U; Windows NT 6.0; en-US; rv:1.9.2.11) Gecko/20101012 Firefox/3.6.11'
-        'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)'
-        'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0)'
-        'Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1)'
-        'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/525.19 (KHTML, like Gecko) Chrome/0.2.153.1 Safari/525.19'
-        'Mozilla/5.0 (Windows; U; Windows NT 6.0; en-US; rv:1.9.2.11) Gecko/20101012 Firefox/3.6.11'
+        'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/523.15 (KHTML, like Gecko, Safari/419.3) Arora/0.3 (Change: 287 c9dfb30)',
+        'Mozilla/5.0 (Windows; U; Windows NT 6.0; en-US; rv:1.9.2.11) Gecko/20101012 Firefox/3.6.11',
+        'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/525.19 (KHTML, like Gecko) Chrome/0.2.153.1 Safari/525.19',
+        'Mozilla/5.0 (Windows; U; Windows NT 6.0; en-US; rv:1.9.2.11) Gecko/20101012 Firefox/3.6.11',
+        'Mozilla/5.0 (Macintosh; U; Intel Mac OS X; en; rv:1.8.1.14) Gecko/20080409 Camino/1.6 (like Firefox/2.0.0.14)',
+        'Mozilla/5.0 (Macintosh; U; Intel Mac OS X; en-US; rv:1.8.0.1) Gecko/20060118 Camino/1.0b2+',
+        'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/534.3 (KHTML, like Gecko) Chrome/6.0.472.63 Safari/534.3',
+        'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US) AppleWebKit/532.5 (KHTML, like Gecko) Chrome/4.0.249.78 Safari/532.5',
+        'Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; WOW64; Trident/5.0)',
     ]
     return choices[random.randint(0, len(choices)-1)]
 

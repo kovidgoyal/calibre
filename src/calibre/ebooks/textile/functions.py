@@ -64,6 +64,8 @@ import re
 import uuid
 from urlparse import urlparse
 
+from calibre.utils.smartypants import smartyPants
+
 def _normalize_newlines(string):
     out = re.sub(r'\r\n', '\n', string)
     out = re.sub(r'\n{3,}', '\n\n', out)
@@ -262,10 +264,9 @@ class Textile(object):
             self.rel = ' rel="%s"' % rel
 
         text = self.getRefs(text)
-
         text = self.block(text, int(head_offset))
-
         text = self.retrieve(text)
+        text = smartyPants(text, 'q')
 
         return text
 

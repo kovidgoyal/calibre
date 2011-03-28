@@ -1,0 +1,7 @@
+The Interface Plugin Demo
+===========================
+
+Created by Kovid Goyal
+
+Requires calibre >= 0.7.53
+
