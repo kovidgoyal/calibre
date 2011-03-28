@@ -1003,8 +1003,10 @@ OptionRecommendation(name='sr3_replace',
         self.opts.insert_blank_line = oibl
         self.opts.remove_paragraph_spacing = orps
 
-        from calibre.ebooks.oeb.transforms.page_margin import RemoveFakeMargins
+        from calibre.ebooks.oeb.transforms.page_margin import \
+            RemoveFakeMargins, RemoveAdobeMargins
         RemoveFakeMargins()(self.oeb, self.log, self.opts)
+        RemoveAdobeMargins()(self.oeb, self.log, self.opts)
 
         pr(0.9)
         self.flush()
