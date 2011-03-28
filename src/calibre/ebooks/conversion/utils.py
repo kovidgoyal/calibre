@@ -764,6 +764,7 @@ class HeuristicProcessor(object):
         # Multiple sequential blank paragraphs are merged with appropriate margins
         # If non-blank scene breaks exist they are center aligned and styled with appropriate margins.
         if getattr(self.extra_opts, 'format_scene_breaks', False):
+            html = re.sub('(?i)<div[^>]*>\s*<br(\s?/)?>\s*</div>', '<p></p>', html)
             html = self.detect_whitespace(html)
             html = self.detect_soft_breaks(html)
             blanks_count = len(self.any_multi_blank.findall(html))
