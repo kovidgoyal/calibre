@@ -278,11 +278,14 @@ class ToolBar(QToolBar): # {{{
         pass
 
     def build_bar(self):
-        self.child_bar.setVisible(gprefs['show_child_bar'])
         self.showing_donate = False
         showing_device = self.location_manager.has_device
-        actions = '-device' if showing_device else ''
-        actions = gprefs['action-layout-toolbar'+actions]
+        mactions = '-device' if showing_device else ''
+        mactions = gprefs['action-layout-toolbar'+mactions]
+        cactions = gprefs['action-layout-toolbar-child']
+
+        show_child = len(cactions) > 0
+        self.child_bar.setVisible(show_child)
 
         for ac in self.added_actions:
             m = ac.menu()
@@ -292,44 +295,30 @@ class ToolBar(QToolBar): # {{{
         self.clear()
         self.child_bar.clear()
         self.added_actions = []
-        self.spacers = [Spacer(self.child_bar), Spacer(self.child_bar),
-                Spacer(self), Spacer(self)]
-        self.child_bar.addWidget(self.spacers[0])
-        if gprefs['show_child_bar']:
-            self.addWidget(self.spacers[2])
 
-        for what in actions:
-            if what is None and not gprefs['show_child_bar']:
-                self.addSeparator()
-            elif what == 'Location Manager':
-                for ac in self.location_manager.available_actions:
-                    self.addAction(ac)
-                    self.added_actions.append(ac)
-                    self.setup_tool_button(ac, QToolButton.MenuButtonPopup)
-            elif what == 'Donate':
-                self.d_widget = QWidget()
-                self.d_widget.setLayout(QVBoxLayout())
-                self.d_widget.layout().addWidget(self.donate_button)
-                self.addWidget(self.d_widget)
-                self.showing_donate = True
-            elif what in self.gui.iactions:
-                action = self.gui.iactions[what]
-                bar = self
-                if action.action_type == 'current' and gprefs['show_child_bar']:
-                    bar = self.child_bar
-                bar.addAction(action.qaction)
-                self.added_actions.append(action.qaction)
-                self.setup_tool_button(action.qaction, action.popup_type)
+        for bar, actions in ((self, mactions), (self.child_bar, cactions)):
+            for what in actions:
+                if what is None:
+                    bar.addSeparator()
+                elif what == 'Location Manager':
+                    for ac in self.location_manager.available_actions:
+                        bar.addAction(ac)
+                        bar.added_actions.append(ac)
+                        bar.setup_tool_button(bar, ac, QToolButton.MenuButtonPopup)
+                elif what == 'Donate':
+                    self.d_widget = QWidget()
+                    self.d_widget.setLayout(QVBoxLayout())
+                    self.d_widget.layout().addWidget(self.donate_button)
+                    bar.addWidget(self.d_widget)
+                    self.showing_donate = True
+                elif what in self.gui.iactions:
+                    action = self.gui.iactions[what]
+                    bar.addAction(action.qaction)
+                    self.added_actions.append(action.qaction)
+                    self.setup_tool_button(bar, action.qaction, action.popup_type)
 
-        self.child_bar.addWidget(self.spacers[1])
-        if gprefs['show_child_bar']:
-            self.addWidget(self.spacers[3])
-        else:
-            for s in self.spacers[2:]:
-                s.setVisible(False)
-
-    def setup_tool_button(self, ac, menu_mode=None):
-        ch = self.widgetForAction(ac)
+    def setup_tool_button(self, bar, ac, menu_mode=None):
+        ch = bar.widgetForAction(ac)
         if ch is None:
             ch = self.child_bar.widgetForAction(ac)
         ch.setCursor(Qt.PointingHandCursor)
@@ -345,7 +334,7 @@ class ToolBar(QToolBar): # {{{
             style = Qt.ToolButtonIconOnly
 
         if p == 'auto' and self.preferred_width > self.width()+35 and \
-                not gprefs['show_child_bar']:
+                not gprefs['action-layout-toolbar-child']:
             style = Qt.ToolButtonIconOnly
 
         self.setToolButtonStyle(style)

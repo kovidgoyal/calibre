@@ -71,7 +71,8 @@ class BasicNewsRecipe(Recipe):
     #: Number of levels of links to follow on article webpages
     recursions             = 0
 
-    #: Delay between consecutive downloads in seconds
+    #: Delay between consecutive downloads in seconds. The argument may be a
+    #: floating point number to indicate a more precise time.
     delay                  = 0
 
     #: Publication type

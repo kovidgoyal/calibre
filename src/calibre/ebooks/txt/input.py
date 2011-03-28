@@ -165,7 +165,6 @@ class TXTInput(InputFormatPlugin):
         elif options.formatting_type == 'textile':
             log.debug('Running text through textile conversion...')
             html = convert_textile(txt)
-            #setattr(options, 'smarten_punctuation', True)
         else:
             log.debug('Running text through basic conversion...')
             flow_size = getattr(options, 'flow_size', 0)

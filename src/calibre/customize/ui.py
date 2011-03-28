@@ -2,17 +2,16 @@ from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, shutil, traceback, functools, sys, re
-from contextlib import closing
+import os, shutil, traceback, functools, sys
 
-from calibre.customize import Plugin, CatalogPlugin, FileTypePlugin, \
-                              MetadataReaderPlugin, MetadataWriterPlugin, \
-                              InterfaceActionBase as InterfaceAction, \
-                              PreferencesPlugin
+from calibre.customize import (CatalogPlugin, FileTypePlugin, PluginNotFound,
+                              MetadataReaderPlugin, MetadataWriterPlugin,
+                              InterfaceActionBase as InterfaceAction,
+                              PreferencesPlugin, platform, InvalidPlugin)
 from calibre.customize.conversion import InputFormatPlugin, OutputFormatPlugin
+from calibre.customize.zipplugin import loader
 from calibre.customize.profiles import InputProfile, OutputProfile
 from calibre.customize.builtins import plugins as builtin_plugins
-from calibre.constants import numeric_version as version, iswindows, isosx
 from calibre.devices.interface import DevicePlugin
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.metadata.covers import CoverDownload
@@ -21,14 +20,6 @@ from calibre.utils.config import make_config_dir, Config, ConfigProxy, \
                                  plugin_dir, OptionParser, prefs
 from calibre.ebooks.epub.fix import ePubFixer
 from calibre.ebooks.metadata.sources.base import Source
-
-platform = 'linux'
-if iswindows:
-    platform = 'windows'
-elif isosx:
-    platform = 'osx'
-
-from zipfile import ZipFile
 
 def _config():
     c = Config('customize')
@@ -42,11 +33,6 @@ def _config():
 
 config = _config()
 
-class InvalidPlugin(ValueError):
-    pass
-
-class PluginNotFound(ValueError):
-    pass
 
 def find_plugin(name):
     for plugin in _initialized_plugins:
@@ -60,38 +46,7 @@ def load_plugin(path_to_zip_file): # {{{
 
     :return: A :class:`Plugin` instance.
     '''
-    #print 'Loading plugin from', path_to_zip_file
-    if not os.access(path_to_zip_file, os.R_OK):
-        raise PluginNotFound
-    with closing(ZipFile(path_to_zip_file)) as zf:
-        for name in zf.namelist():
-            if name.lower().endswith('plugin.py'):
-                locals = {}
-                raw = zf.read(name)
-                lines, encoding = raw.splitlines(), 'utf-8'
-                cr = re.compile(r'coding[:=]\s*([-\w.]+)')
-                raw = []
-                for l in lines[:2]:
-                    match = cr.search(l)
-                    if match is not None:
-                        encoding = match.group(1)
-                    else:
-                        raw.append(l)
-                raw += lines[2:]
-                raw = '\n'.join(raw)
-                raw = raw.decode(encoding)
-                raw = re.sub('\r\n', '\n', raw)
-                exec raw in locals
-                for x in locals.values():
-                    if isinstance(x, type) and issubclass(x, Plugin) and \
-                            x.name != 'Trivial Plugin':
-                        if x.minimum_calibre_version > version or \
-                            platform not in x.supported_platforms:
-                            continue
-
-                        return x
-
-    raise InvalidPlugin(_('No valid plugin found in ')+path_to_zip_file)
+    return loader.load(path_to_zip_file)
 
 # }}}
 

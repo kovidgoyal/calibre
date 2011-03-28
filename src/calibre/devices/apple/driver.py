@@ -24,6 +24,29 @@ from calibre.utils.logging import Log
 from calibre.utils.zipfile import ZipFile
 
 
+
+class AppleOpenFeedback(OpenFeedback):
+
+    def __init__(self):
+        OpenFeedback.__init__(self, u'')
+
+    def custom_dialog(self, parent):
+        from PyQt4.Qt import (QDialog, QVBoxLayout, QLabel, QDialogButtonBox)
+
+        class Dialog(QDialog):
+
+            def __init__(self, p):
+                QDialog.__init__(self, p)
+                self.l = l = QVBoxLayout()
+                self.setLayout(l)
+                l.addWidget(QLabel('test'))
+                self.bb = QDialogButtonBox(QDialogButtonBox.OK)
+                l.addWidget(self.bb)
+                self.bb.accepted.connect(self.accept)
+                self.bb.rejected.connect(self.reject)
+
+        return Dialog(parent)
+
 from PIL import Image as PILImage
 from lxml import etree
 
@@ -743,14 +766,8 @@ class ITUNES(DriverBase):
             self.log.info("ITUNES.open()")
 
         # Display a dialog recommending using 'Connect to iTunes'
-        if False and not self.settings().extra_customization[self.SKIP_CONNECT_TO_ITUNES_DIALOG]:
-            raise OpenFeedback('<p>' + ('Click the "Connect/Share" button and choose'
-                ' "Connect to iTunes" to send books from your calibre library'
-                ' to your Apple iDevice.<p>For more information, see '
-                '<a href="http://www.mobileread.com/forums/showthread.php?t=118559">'
-                'Calibre + Apple iDevices FAQ</a>.<p>'
-                'After following the Quick Start steps outlined in the FAQ, '
-                'restart calibre.'))
+        if not self.settings().extra_customization[self.SKIP_CONNECT_TO_ITUNES_DIALOG]:
+            raise AppleOpenFeedback()
 
         if DEBUG:
             self.log.info(" advanced user mode, directly connecting to iDevice")
