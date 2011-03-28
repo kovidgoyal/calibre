@@ -43,8 +43,8 @@ class OpenFeedback(DeviceError):
 
     def custom_dialog(self, parent):
         '''
-        If you need to show the user a custom dialog, create and
-        run it from a custom_dialog() method in your subclass.
+        If you need to show the user a custom dialog, instead if just
+        displaying the feedback_msg, create and return it here.
         '''
         raise NotImplementedError
 

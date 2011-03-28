@@ -17,9 +17,9 @@ from calibre.ebooks.metadata import authors_to_string, MetaInformation, \
     title_sort
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.epub import set_metadata
-from calibre.gui2.dialogs.confirm_delete import _config_name
+from calibre.gui2.dialogs.confirm_delete import config_name
 from calibre.library.server.utils import strftime
-from calibre.utils.config import config_dir, dynamic, DynamicConfig, prefs
+from calibre.utils.config import config_dir, dynamic, prefs
 from calibre.utils.date import now, parse_date
 from calibre.utils.logging import Log
 from calibre.utils.zipfile import ZipFile
@@ -33,8 +33,8 @@ class AppleOpenFeedback(OpenFeedback):
         self.plugin = plugin
 
     def custom_dialog(self, parent):
-        from PyQt4.Qt import (QCheckBox, QDialog, QDialogButtonBox, QIcon,
-                              QLabel,  QPixmap, QPushButton, QSize, QVBoxLayout)
+        from PyQt4.Qt import (QDialog, QDialogButtonBox, QIcon,
+                              QLabel, QPushButton, QVBoxLayout)
 
         class Dialog(QDialog):
 
@@ -45,19 +45,20 @@ class AppleOpenFeedback(OpenFeedback):
                 self.l = l = QVBoxLayout()
                 self.setLayout(l)
                 msg = QLabel()
-                msg.setText(
+                msg.setText(_(
                             '<p>If you do not want calibre to recognize your Apple iDevice '
                             'when it is connected to your computer, '
                             'click <b>Disable Apple Driver</b>.</p>'
                             '<p>To transfer books to your iDevice, '
                             'click <b>Disable Apple Driver</b>, '
                             "then use the 'Connect to iTunes' method recommended in the "
-                            '<a href=\"http://www.mobileread.com/forums/showthread.php?t=118559\">Calibre + iDevices FAQ</a>, '
+                            '<a href="http://www.mobileread.com/forums/showthread.php?t=118559">Calibre + iDevices FAQ</a>, '
                             'using the <em>Connect/Share</em>|<em>Connect to iTunes</em> menu item.</p>'
                             '<p>Enabling the Apple driver for direct connection to iDevices '
                             'is an unsupported advanced user mode.</p>'
                             '<p></p>'
-                            )
+                            ))
+                msg.setOpenExternalLinks(True)
                 msg.setWordWrap(True)
                 l.addWidget(msg)
 
@@ -75,16 +76,18 @@ class AppleOpenFeedback(OpenFeedback):
                 self.setWindowIcon(QIcon(I(pixmap)))
                 self.resize(self.sizeHint())
 
-        if Dialog(parent).exec_():
-            # Enable Apple driver, inhibit future display of dialog
-            # Reset dialog with Preferences|Behavior|Reset all disabled confirmation dialogs
-            self.log.info(" Apple driver ENABLED")
-            dynamic[_config_name(self.plugin.DISPLAY_DISABLE_DIALOG)] = False
-        else:
-            # Disable Apple driver
-            from calibre.customize.ui import disable_plugin
-            self.log.info(" Apple driver DISABLED")
-            disable_plugin(self.plugin)
+                self.finished.connect(self.do_it)
+
+            def do_it(self, return_code):
+                if return_code == self.Accepted:
+                    self.log.info(" Apple driver ENABLED")
+                    dynamic[config_name(self.plugin.DISPLAY_DISABLE_DIALOG)] = False
+                else:
+                    from calibre.customize.ui import disable_plugin
+                    self.log.info(" Apple driver DISABLED")
+                    disable_plugin(self.plugin)
+
+        return Dialog(parent)
 
 
 from PIL import Image as PILImage
@@ -179,7 +182,7 @@ class ITUNES(DriverBase):
     #: The version of this plugin as a 3-tuple (major, minor, revision)
     version        = (1,0,0)
 
-    DISPLAY_DISABLE_DIALOG = "display_disable_dialog"
+    DISPLAY_DISABLE_DIALOG = "display_disable_apple_driver_dialog"
 
     # EXTRA_CUSTOMIZATION_MESSAGE indexes
     USE_SERIES_AS_CATEGORY = 0
@@ -805,7 +808,7 @@ class ITUNES(DriverBase):
 
         # Display a dialog recommending using 'Connect to iTunes' if user hasn't
         # previously disabled the dialog
-        if dynamic.get(_config_name(self.DISPLAY_DISABLE_DIALOG),True):
+        if dynamic.get(config_name(self.DISPLAY_DISABLE_DIALOG),True):
             raise AppleOpenFeedback(self)
         else:
             if DEBUG:

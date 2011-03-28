@@ -623,7 +623,7 @@ class DeviceMixin(object): # {{{
             self.__of_dev_mem__ = d = e.custom_dialog(self)
         except NotImplementedError:
             self.__of_dev_mem__ = d = info_dialog(self, devname, e.feedback_msg)
-            d.show()
+        d.show()
 
     def auto_convert_question(self, msg, autos):
         autos = u'\n'.join(map(unicode, map(force_unicode, autos)))
