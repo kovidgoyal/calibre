@@ -7,7 +7,7 @@ from calibre.gui2 import dynamic
 from calibre.gui2.dialogs.confirm_delete_ui import Ui_Dialog
 from PyQt4.Qt import QDialog, Qt, QPixmap, QIcon
 
-def _config_name(name):
+def config_name(name):
     return name + '_again'
 
 class Dialog(QDialog, Ui_Dialog):
@@ -22,11 +22,11 @@ class Dialog(QDialog, Ui_Dialog):
         self.buttonBox.setFocus(Qt.OtherFocusReason)
 
     def toggle(self, *args):
-        dynamic[_config_name(self.name)] = self.again.isChecked()
+        dynamic[config_name(self.name)] = self.again.isChecked()
 
 
 def confirm(msg, name, parent=None, pixmap='dialog_warning.png'):
-    if not dynamic.get(_config_name(name), True):
+    if not dynamic.get(config_name(name), True):
         return True
     d = Dialog(msg, name, parent)
     d.label.setPixmap(QPixmap(I(pixmap)))
