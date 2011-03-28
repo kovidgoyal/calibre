@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import cStringIO, ctypes, datetime, os, re, shutil, subprocess, sys, tempfile, time
 from calibre.constants import __appname__, __version__, DEBUG
-from calibre import fit_image
+from calibre import fit_image, confirm_config_name
 from calibre.constants import isosx, iswindows
 from calibre.devices.errors import OpenFeedback, UserFeedback
 from calibre.devices.usbms.deviceconfig import DeviceConfig
@@ -17,7 +17,6 @@ from calibre.ebooks.metadata import authors_to_string, MetaInformation, \
     title_sort
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.epub import set_metadata
-from calibre.gui2.dialogs.confirm_delete import config_name
 from calibre.library.server.utils import strftime
 from calibre.utils.config import config_dir, dynamic, prefs
 from calibre.utils.date import now, parse_date
@@ -81,7 +80,7 @@ class AppleOpenFeedback(OpenFeedback):
             def do_it(self, return_code):
                 if return_code == self.Accepted:
                     self.cd.log.info(" Apple driver ENABLED")
-                    dynamic[config_name(self.cd.plugin.DISPLAY_DISABLE_DIALOG)] = False
+                    dynamic[confirm_config_name(self.cd.plugin.DISPLAY_DISABLE_DIALOG)] = False
                 else:
                     from calibre.customize.ui import disable_plugin
                     self.cd.log.info(" Apple driver DISABLED")
@@ -808,7 +807,7 @@ class ITUNES(DriverBase):
 
         # Display a dialog recommending using 'Connect to iTunes' if user hasn't
         # previously disabled the dialog
-        if dynamic.get(config_name(self.DISPLAY_DISABLE_DIALOG),True):
+        if dynamic.get(confirm_config_name(self.DISPLAY_DISABLE_DIALOG),True):
             raise AppleOpenFeedback(self)
         else:
             if DEBUG:
