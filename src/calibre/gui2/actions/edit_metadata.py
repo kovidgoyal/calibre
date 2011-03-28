@@ -164,6 +164,8 @@ class EditMetadataAction(InterfaceAction):
             if d.row_delta == 0:
                 break
             current_row += d.row_delta
+            self.gui.library_view.set_current_row(current_row)
+            self.gui.library_view.scroll_to_row(current_row)
 
 
         if changed:

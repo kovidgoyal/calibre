@@ -89,7 +89,7 @@ class PRS505(USBMS):
                   'the same aspect ratio (width to height) as the cover. '
                   'Unset it if you want the thumbnail to be the maximum size, '
                   'ignoring aspect ratio.'),
-            _('Scan for books in all folders') +
+            _('Search for books in all folders') +
                 ':::' +
                 _('Setting this option tells calibre to look for books in all '
                   'folders on the device and its cards. This permits calibre to '

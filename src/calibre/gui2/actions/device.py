@@ -121,7 +121,7 @@ class SendToDeviceAction(InterfaceAction):
     name = 'Send To Device'
     action_spec = (_('Send to device'), 'sync.png', None, _('D'))
     dont_remove_from = frozenset(['toolbar-device'])
-    dont_add_to = frozenset(['toolbar', 'context-menu'])
+    dont_add_to = frozenset(['toolbar', 'context-menu', 'toolbar-child'])
 
     def genesis(self):
         self.qaction.triggered.connect(self.do_sync)
