@@ -38,9 +38,9 @@ class AppleOpenFeedback(OpenFeedback):
 
         class Dialog(QDialog):
 
-            def __init__(self, p, pixmap='dialog_information.png'):
+            def __init__(self, p, cd, pixmap='dialog_information.png'):
                 QDialog.__init__(self, p)
-
+                self.cd = cd
                 self.setWindowTitle("Apple iDevice detected")
                 self.l = l = QVBoxLayout()
                 self.setLayout(l)
@@ -80,14 +80,14 @@ class AppleOpenFeedback(OpenFeedback):
 
             def do_it(self, return_code):
                 if return_code == self.Accepted:
-                    self.log.info(" Apple driver ENABLED")
-                    dynamic[config_name(self.plugin.DISPLAY_DISABLE_DIALOG)] = False
+                    self.cd.log.info(" Apple driver ENABLED")
+                    dynamic[config_name(self.cd.plugin.DISPLAY_DISABLE_DIALOG)] = False
                 else:
                     from calibre.customize.ui import disable_plugin
-                    self.log.info(" Apple driver DISABLED")
-                    disable_plugin(self.plugin)
+                    self.cd.log.info(" Apple driver DISABLED")
+                    disable_plugin(self.cd.plugin)
 
-        return Dialog(parent)
+        return Dialog(parent, self)
 
 
 from PIL import Image as PILImage
