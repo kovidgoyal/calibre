@@ -206,7 +206,11 @@ class MobiMLizer(object):
             vspace = bstate.vpadding + bstate.vmargin
             bstate.vpadding = bstate.vmargin = 0
             if tag not in TABLE_TAGS:
-                wrapper.attrib['height'] = self.mobimlize_measure(vspace)
+                if tag in ('ul', 'ol') and vspace > 0:
+                    wrapper.addprevious(etree.Element(XHTML('div'),
+                        height=self.mobimlize_measure(vspace)))
+                else:
+                    wrapper.attrib['height'] = self.mobimlize_measure(vspace)
                 para.attrib['width'] = self.mobimlize_measure(indent)
             elif tag == 'table' and vspace > 0:
                 vspace = int(round(vspace / self.profile.fbase))
