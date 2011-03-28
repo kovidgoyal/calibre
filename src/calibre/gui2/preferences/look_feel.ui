@@ -244,13 +244,6 @@ then the tags will be displayed each on their own line.</string>
         </property>
        </widget>
       </item>
-      <item row="2" column="0" colspan="2">
-       <widget class="QCheckBox" name="opt_show_child_bar">
-        <property name="text">
-         <string>Add a &amp;second toolbar</string>
-        </property>
-       </widget>
-      </item>
      </layout>
     </widget>
    </item>

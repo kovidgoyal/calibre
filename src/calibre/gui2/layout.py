@@ -284,9 +284,7 @@ class ToolBar(QToolBar): # {{{
         mactions = gprefs['action-layout-toolbar'+mactions]
         cactions = gprefs['action-layout-toolbar-child']
 
-        show_child = gprefs['show_child_bar']
-        if not len(cactions):
-            show_child = False
+        show_child = len(cactions) > 0
         self.child_bar.setVisible(show_child)
 
         for ac in self.added_actions:
@@ -306,7 +304,7 @@ class ToolBar(QToolBar): # {{{
                     for ac in self.location_manager.available_actions:
                         bar.addAction(ac)
                         bar.added_actions.append(ac)
-                        bar.setup_tool_button(ac, QToolButton.MenuButtonPopup)
+                        bar.setup_tool_button(bar, ac, QToolButton.MenuButtonPopup)
                 elif what == 'Donate':
                     self.d_widget = QWidget()
                     self.d_widget.setLayout(QVBoxLayout())
@@ -317,10 +315,10 @@ class ToolBar(QToolBar): # {{{
                     action = self.gui.iactions[what]
                     bar.addAction(action.qaction)
                     self.added_actions.append(action.qaction)
-                    self.setup_tool_button(action.qaction, action.popup_type)
+                    self.setup_tool_button(bar, action.qaction, action.popup_type)
 
-    def setup_tool_button(self, ac, menu_mode=None):
-        ch = self.widgetForAction(ac)
+    def setup_tool_button(self, bar, ac, menu_mode=None):
+        ch = bar.widgetForAction(ac)
         if ch is None:
             ch = self.child_bar.widgetForAction(ac)
         ch.setCursor(Qt.PointingHandCursor)
@@ -336,7 +334,7 @@ class ToolBar(QToolBar): # {{{
             style = Qt.ToolButtonIconOnly
 
         if p == 'auto' and self.preferred_width > self.width()+35 and \
-                not gprefs['show_child_bar']:
+                not gprefs['action-layout-toolbar-child']:
             style = Qt.ToolButtonIconOnly
 
         self.setToolButtonStyle(style)

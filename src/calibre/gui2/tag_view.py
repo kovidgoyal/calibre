@@ -158,8 +158,11 @@ class TagsView(QTreeView): # {{{
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         pop = config['sort_tags_by']
         self.sort_by.setCurrentIndex(self.db.CATEGORY_SORTS.index(pop))
-        match_pop = config['match_tags_type']
-        self.tag_match.setCurrentIndex(self.db.MATCH_TYPE.index(match_pop))
+        try:
+            match_pop = self.db.MATCH_TYPE.index(config['match_tags_type'])
+        except ValueError:
+            match_pop = 0
+        self.tag_match.setCurrentIndex(match_pop)
         if not self.made_connections:
             self.clicked.connect(self.toggle)
             self.customContextMenuRequested.connect(self.show_context_menu)
@@ -182,9 +185,12 @@ class TagsView(QTreeView): # {{{
     def sort_changed(self, pop):
         config.set('sort_tags_by', self.db.CATEGORY_SORTS[pop])
         self.recount()
-        
+
     def match_changed(self, pop):
-        config.set('match_tags_type', self.db.MATCH_TYPE[pop])
+        try:
+            config.set('match_tags_type', self.db.MATCH_TYPE[pop])
+        except:
+            pass
 
     def set_search_restriction(self, s):
         if s:

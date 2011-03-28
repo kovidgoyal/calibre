@@ -76,6 +76,8 @@ class CustomColumns(object):
                     'num':record[6],
                     'is_multiple':record[7],
                     }
+            if data['display'] is None:
+                data['display'] = {}
             table, lt = self.custom_table_names(data['num'])
             if table not in custom_tables or (data['normalized'] and lt not in
                     custom_tables):

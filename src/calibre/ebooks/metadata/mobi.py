@@ -323,6 +323,7 @@ class MetadataUpdater(object):
                                 "\tThis is a '%s' file of type '%s'" % (self.type[0:4], self.type[4:8]))
 
         recs = []
+        added_501 = False
         try:
             from calibre.ebooks.conversion.config import load_defaults
             prefs = load_defaults('mobi_output')
@@ -355,6 +356,7 @@ class MetadataUpdater(object):
             update_exth_record((105, normalize(subjects).encode(self.codec, 'replace')))
 
             if kindle_pdoc and kindle_pdoc in mi.tags:
+                added_501 = True
                 update_exth_record((501, str('PDOC')))
 
         if mi.pubdate:
@@ -370,7 +372,10 @@ class MetadataUpdater(object):
             update_exth_record((203, pack('>I', 0)))
         if self.thumbnail_record is not None:
             update_exth_record((202, pack('>I', self.thumbnail_rindex)))
-        if 113 not in self.original_exth_records and 501 in self.original_exth_records and self.original_exth_records[501] == 'EBOK' and not recs.has_key(501):
+        # Add a 113 record if not present to allow Amazon syncing
+        if (113 not in self.original_exth_records and
+                self.original_exth_records.get(501, None) == 'EBOK' and
+                not added_501):
             from uuid import uuid4
             update_exth_record((113, str(uuid4())))
         if 503 in self.original_exth_records:

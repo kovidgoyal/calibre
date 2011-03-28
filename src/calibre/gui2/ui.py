@@ -382,6 +382,9 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
             error_dialog(self, _('Failed to start content server'),
                          unicode(self.content_server.exception)).exec_()
 
+    @property
+    def current_db(self):
+        return self.library_view.model().db
 
     def another_instance_wants_to_talk(self):
         try:

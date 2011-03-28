@@ -79,7 +79,7 @@ def identify(log, abort, title=None, authors=None, identifiers=[], timeout=30):
         time.sleep(0.2)
 
         if get_results() and first_result_at is None:
-                first_result_at = time.time()
+            first_result_at = time.time()
 
         if not is_worker_alive(workers):
             break

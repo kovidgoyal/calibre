@@ -39,14 +39,26 @@ class WashingtonPost(BasicNewsRecipe):
             {'class':lambda x: x and 'also-read' in x.split()},
             {'class':lambda x: x and 'partners-content' in x.split()},
             {'class':['module share', 'module ads', 'comment-vars', 'hidden',
-                'share-icons-wrap', 'comments']},
-            {'id':['right-rail']},
+                'share-icons-wrap', 'comments', 'flipper']},
+            {'id':['right-rail', 'save-and-share']},
+            {'width':'1', 'height':'1'},
 
-            ]
+    ]
+
     keep_only_tags = dict(id=['content', 'article'])
+
+    def get_article_url(self, *args):
+        ans = BasicNewsRecipe.get_article_url(self, *args)
+        ans = ans.rpartition('?')[0]
+        if ans.endswith('_video.html'):
+            return None
+        if 'ads.pheedo.com' in ans:
+            return None
+        #if not ans.endswith('_blog.html'):
+        #    return None
+        return ans
 
 
     def print_version(self, url):
-        url = url.rpartition('?')[0]
         return url.replace('_story.html', '_singlePage.html')
 
