@@ -49,7 +49,8 @@ A User Interface plugin
 -------------------------
 
 This plugin will be spread over a few files (to keep the code clean). It will show you how to get resources
-(images or data files) from the plugin zip file, how to create elements in the |app| user interface and how to access
+(images or data files) from the plugin zip file, allow users to configure your plugin, 
+how to create elements in the |app| user interface and how to access
 and query the books database in |app|. 
 
 You can download this plugin from `interface_demo_plugin.zip <http://calibre-ebook.com/downloads/interface_demo_plugin.zip>`_
