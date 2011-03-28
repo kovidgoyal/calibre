@@ -164,7 +164,7 @@ class DeviceManager(Thread): # {{{
                 dev.open(self.current_library_uuid)
             except OpenFeedback as e:
                 if dev not in self.ejected_devices:
-                    self.open_feedback_msg(dev.get_gui_name(), e.feedback_msg)
+                    self.open_feedback_msg(dev.get_gui_name(), e)
                     self.ejected_devices.add(dev)
                 continue
             except:
@@ -618,8 +618,11 @@ class DeviceMixin(object): # {{{
         if tweaks['auto_connect_to_folder']:
             self.connect_to_folder_named(tweaks['auto_connect_to_folder'])
 
-    def show_open_feedback(self, devname, msg):
-        self.__of_dev_mem__ = d = info_dialog(self, devname, msg)
+    def show_open_feedback(self, devname, e):
+        try:
+            self.__of_dev_mem__ = d = e.custom_dialog(self)
+        except NotImplementedError:
+            self.__of_dev_mem__ = d = info_dialog(self, devname, e.feedback_msg)
         d.show()
 
     def auto_convert_question(self, msg, autos):
