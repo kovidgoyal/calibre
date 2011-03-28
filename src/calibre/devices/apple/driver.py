@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import cStringIO, ctypes, datetime, os, re, shutil, subprocess, sys, tempfile, time
 from calibre.constants import __appname__, __version__, DEBUG
-from calibre import fit_image
+from calibre import fit_image, confirm_config_name
 from calibre.constants import isosx, iswindows
 from calibre.devices.errors import OpenFeedback, UserFeedback
 from calibre.devices.usbms.deviceconfig import DeviceConfig
@@ -18,34 +18,76 @@ from calibre.ebooks.metadata import authors_to_string, MetaInformation, \
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.epub import set_metadata
 from calibre.library.server.utils import strftime
-from calibre.utils.config import config_dir, prefs
+from calibre.utils.config import config_dir, dynamic, prefs
 from calibre.utils.date import now, parse_date
 from calibre.utils.logging import Log
 from calibre.utils.zipfile import ZipFile
 
 
-
 class AppleOpenFeedback(OpenFeedback):
 
-    def __init__(self):
+    def __init__(self, plugin):
         OpenFeedback.__init__(self, u'')
+        self.log = plugin.log
+        self.plugin = plugin
 
     def custom_dialog(self, parent):
-        from PyQt4.Qt import (QDialog, QVBoxLayout, QLabel, QDialogButtonBox)
+        from PyQt4.Qt import (QDialog, QDialogButtonBox, QIcon,
+                              QLabel, QPushButton, QVBoxLayout)
 
         class Dialog(QDialog):
 
-            def __init__(self, p):
+            def __init__(self, p, cd, pixmap='dialog_information.png'):
                 QDialog.__init__(self, p)
+                self.cd = cd
+                self.setWindowTitle("Apple iDevice detected")
                 self.l = l = QVBoxLayout()
                 self.setLayout(l)
-                l.addWidget(QLabel('test'))
-                self.bb = QDialogButtonBox(QDialogButtonBox.OK)
+                msg = QLabel()
+                msg.setText(_(
+                            '<p>If you do not want calibre to recognize your Apple iDevice '
+                            'when it is connected to your computer, '
+                            'click <b>Disable Apple Driver</b>.</p>'
+                            '<p>To transfer books to your iDevice, '
+                            'click <b>Disable Apple Driver</b>, '
+                            "then use the 'Connect to iTunes' method recommended in the "
+                            '<a href="http://www.mobileread.com/forums/showthread.php?t=118559">Calibre + iDevices FAQ</a>, '
+                            'using the <em>Connect/Share</em>|<em>Connect to iTunes</em> menu item.</p>'
+                            '<p>Enabling the Apple driver for direct connection to iDevices '
+                            'is an unsupported advanced user mode.</p>'
+                            '<p></p>'
+                            ))
+                msg.setOpenExternalLinks(True)
+                msg.setWordWrap(True)
+                l.addWidget(msg)
+
+                self.bb = QDialogButtonBox()
+                disable_driver = QPushButton(_("Disable Apple driver"))
+                disable_driver.setDefault(True)
+                self.bb.addButton(disable_driver, QDialogButtonBox.RejectRole)
+
+                enable_driver = QPushButton(_("Enable Apple driver"))
+                self.bb.addButton(enable_driver, QDialogButtonBox.AcceptRole)
                 l.addWidget(self.bb)
                 self.bb.accepted.connect(self.accept)
                 self.bb.rejected.connect(self.reject)
 
-        return Dialog(parent)
+                self.setWindowIcon(QIcon(I(pixmap)))
+                self.resize(self.sizeHint())
+
+                self.finished.connect(self.do_it)
+
+            def do_it(self, return_code):
+                if return_code == self.Accepted:
+                    self.cd.log.info(" Apple driver ENABLED")
+                    dynamic[confirm_config_name(self.cd.plugin.DISPLAY_DISABLE_DIALOG)] = False
+                else:
+                    from calibre.customize.ui import disable_plugin
+                    self.cd.log.info(" Apple driver DISABLED")
+                    disable_plugin(self.cd.plugin)
+
+        return Dialog(parent, self)
+
 
 from PIL import Image as PILImage
 from lxml import etree
@@ -77,15 +119,11 @@ class DriverBase(DeviceConfig, DevicePlugin):
                     'iBooks Category'),
             _('Cache covers from iTunes/iBooks') +
                 ':::' +
-                _('Enable to cache and display covers from iTunes/iBooks'),
-            _("Skip 'Connect to iTunes' recommendation") +
-                ':::' +
-                _("Enable to skip the 'Connect to iTunes' recommendation dialog")
+                _('Enable to cache and display covers from iTunes/iBooks')
     ]
     EXTRA_CUSTOMIZATION_DEFAULT = [
                 True,
                 True,
-                False,
     ]
 
 
@@ -141,12 +179,13 @@ class ITUNES(DriverBase):
     supported_platforms = ['osx','windows']
     author = 'GRiker'
     #: The version of this plugin as a 3-tuple (major, minor, revision)
-    version        = (0,9,0)
+    version        = (1,0,0)
+
+    DISPLAY_DISABLE_DIALOG = "display_disable_apple_driver_dialog"
 
     # EXTRA_CUSTOMIZATION_MESSAGE indexes
     USE_SERIES_AS_CATEGORY = 0
     CACHE_COVERS = 1
-    SKIP_CONNECT_TO_ITUNES_DIALOG = 2
 
     OPEN_FEEDBACK_MESSAGE = _(
         'Apple device detected, launching iTunes, please wait ...')
@@ -762,15 +801,17 @@ class ITUNES(DriverBase):
         Note that most of the initialization is necessarily performed in can_handle(), as
         we need to talk to iTunes to discover if there's a connected iPod
         '''
+
         if DEBUG:
             self.log.info("ITUNES.open()")
 
-        # Display a dialog recommending using 'Connect to iTunes'
-        if False and not self.settings().extra_customization[self.SKIP_CONNECT_TO_ITUNES_DIALOG]:
-            raise AppleOpenFeedback()
-
-        if DEBUG:
-            self.log.info(" advanced user mode, directly connecting to iDevice")
+        # Display a dialog recommending using 'Connect to iTunes' if user hasn't
+        # previously disabled the dialog
+        if dynamic.get(confirm_config_name(self.DISPLAY_DISABLE_DIALOG),True):
+            raise AppleOpenFeedback(self)
+        else:
+            if DEBUG:
+                self.log.info(" advanced user mode, directly connecting to iDevice")
 
         # Confirm/create thumbs archive
         if not os.path.exists(self.cache_dir):

@@ -61,6 +61,9 @@ def osx_version():
         if m:
             return int(m.group(1)), int(m.group(2)), int(m.group(3))
 
+def confirm_config_name(name):
+    return name + '_again'
+
 _filename_sanitize = re.compile(r'[\xae\0\\|\?\*<":>\+/]')
 _filename_sanitize_unicode = frozenset([u'\\', u'|', u'?', u'*', u'<',
     u'"', u':', u'>', u'+', u'/'] + list(map(unichr, xrange(32))))

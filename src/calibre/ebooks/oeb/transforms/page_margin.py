@@ -11,6 +11,26 @@ from collections import Counter
 
 from calibre.ebooks.oeb.base import OEB_STYLES, barename, XPath
 
+class RemoveAdobeMargins(object):
+    '''
+    Remove margins specified in Adobe's page templates.
+    '''
+
+    def __call__(self, oeb, log, opts):
+        self.oeb, self.opts, self.log = oeb, opts, log
+
+        for item in self.oeb.manifest:
+            if item.media_type == 'application/vnd.adobe-page-template+xml':
+                self.log('Removing page margins specified in the'
+                        ' Adobe page template')
+                for elem in item.data.xpath(
+                        '//*[@margin-bottom or @margin-top '
+                        'or @margin-left or @margin-right]'):
+                    for margin in ('left', 'right', 'top', 'bottom'):
+                        attr = 'margin-'+margin
+                        elem.attrib.pop(attr, None)
+
+
 class RemoveFakeMargins(object):
 
     '''
