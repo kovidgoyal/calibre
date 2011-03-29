@@ -483,7 +483,6 @@ class Amazon(Source):
             log.exception('Failed to download cover from:', cached_url)
     # }}}
 
-
 if __name__ == '__main__': # tests {{{
     # To run these test use: calibre-debug -e
     # src/calibre/ebooks/metadata/sources/amazon.py
