@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-03-26 02:12+0000\n"
-"PO-Revision-Date: 2011-03-25 13:37+0000\n"
+"PO-Revision-Date: 2011-03-28 08:30+0000\n"
 "Last-Translator: Roadside <roadside@freemail.hu>\n"
 "Language-Team: Hungarian <hu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-03-27 04:41+0000\n"
+"X-Launchpad-Export-Date: 2011-03-29 04:38+0000\n"
 "X-Generator: Launchpad (build 12559)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -673,7 +673,7 @@ msgstr "A B&N Nook Color olvasó profilja"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:723
 msgid "This profile is intended for the Sanda Bambook."
-msgstr ""
+msgstr "Ez a Sanda Bambook profilbeállítása."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:35
 msgid "Installed plugins"
@@ -870,7 +870,7 @@ msgstr "Kommunikáció az iTunes-al."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:24
 msgid "Communicate with the Sanda Bambook eBook reader."
-msgstr ""
+msgstr "Kapcsolat  a Sanda Bambook eBook olvasóval."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:25
 msgid "Li Fanxi"
@@ -6092,6 +6092,7 @@ msgstr "Kép &méret felülbírálása:"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:118
 msgid "Don't add links to &pages to the Table of Contents for CBC files"
 msgstr ""
+"A CBC fájlok tartalomjegyzékének oldalaihoz ne adjon hozzá hivatkozásokat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug.py:19
 msgid "Debug"
@@ -6465,7 +6466,7 @@ msgstr "Betűtípusok beágyazása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:133
 msgid "&Serif font family:"
-msgstr "Serif('talpas') betűkészlet"
+msgstr "Serif ('talpas') betűkészlet"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:134
 msgid "S&ans-serif font family:"
@@ -6473,7 +6474,7 @@ msgstr "Sans-serif ('talp nélküli') betűkészlet"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:135
 msgid "&Monospaced font family:"
-msgstr "Monospace('rögzített szélességű') betűkészlet"
+msgstr "Monospace ('rögzített szélességű') betűkészlet"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:47
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:117
@@ -6968,7 +6969,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:64
 msgid "Remove &fake margins"
-msgstr ""
+msgstr "&Hamis margók eltávolítása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc.py:16
 msgid ""
@@ -7281,7 +7282,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:834
 msgid "Remove all tags"
-msgstr ""
+msgstr "Minden cimke eltávolítása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:854
 msgid "tags to add"
@@ -10821,7 +10822,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:66
 msgid "Read &metadata from &file contents rather than file name"
-msgstr ""
+msgstr "Metaadatok olvasása a fájlösszetevőkből a fájlnév helyett"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:67
 msgid ""
@@ -10872,7 +10873,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:85
 msgid "&Tags to apply when adding a book:"
-msgstr ""
+msgstr "A következő cimkék érvényesítése egy könyv hozzáadásakor:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:86
 msgid ""
@@ -11001,7 +11002,7 @@ msgstr "Oszlop mozgatása felfelé"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns_ui.py:90
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/custom_columns_ui.py:84
 msgid "Remove a user-defined column"
-msgstr ""
+msgstr "Egy felhasználó által létrehozott oszlop törlése"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns_ui.py:92
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/custom_columns_ui.py:86
@@ -11050,15 +11051,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:34
 msgid "Floating point numbers"
-msgstr ""
+msgstr "Lebegőpontos számok"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:36
 msgid "Integers"
-msgstr ""
+msgstr "Egész számok"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:38
 msgid "Ratings, shown with stars"
-msgstr ""
+msgstr "Értékelések csillagokkal mutatva"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:41
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:64
@@ -11928,7 +11929,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:110
 msgid "Search as you &type"
-msgstr ""
+msgstr "A keresés elkezdődik, ahogy beírja a szöveget"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:111
 msgid ""
@@ -11949,7 +11950,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:114
 msgid "&Limit the searched metadata"
-msgstr ""
+msgstr "A keresett metaadatok számának korlátozása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:115
 msgid "&Columns that non-prefixed searches are limited to:"
@@ -11973,7 +11974,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:118
 msgid "Clear search &histories"
-msgstr ""
+msgstr "A keresési előzmények &törlése"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:120
 msgid "&Names:"
@@ -12061,7 +12062,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:75
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:382
 msgid "Failed to start content server"
-msgstr "A tartalomkiszolgáló indítása nem sikerült"
+msgstr "A szerver indítása nem sikerült"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:111
 msgid "Error log:"
@@ -12099,11 +12100,11 @@ msgstr "Max. borító méret:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:131
 msgid "Max. &OPDS items per query:"
-msgstr ""
+msgstr "Max. &OPDS elemszám kérésenként:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:132
 msgid "Max. OPDS &ungrouped items:"
-msgstr ""
+msgstr "Max. OPDS &nem csoportosított elemek száma:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:133
 msgid "Restriction (saved search) to apply:"
@@ -12953,7 +12954,7 @@ msgstr "Sans ('talp nélküli') betűkészlet:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:182
 msgid "&Monospace family:"
-msgstr "Monospace(rögzített szélességű) betűkészlet"
+msgstr "Monospace (rögzített szélességű) betűkészlet"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:183
 msgid "&Default font size:"
@@ -12967,7 +12968,7 @@ msgstr " képpont"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:185
 msgid "Monospace &font size:"
-msgstr "Monospace(rögzített szélességű) betűméret"
+msgstr "Monospace (rögzített szélességű) betűméret"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:187
 msgid "S&tandard font:"
@@ -12975,7 +12976,7 @@ msgstr "&Alap betűtípus:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:188
 msgid "Serif"
-msgstr "Serif(talpas)"
+msgstr "Serif (talpas)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:189
 msgid "Sans-serif"
@@ -12983,7 +12984,7 @@ msgstr "Sans-serif ('talp nélküli')"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:190
 msgid "Monospace"
-msgstr "Monospace(rögzített szélességű)"
+msgstr "Monospace (rögzített szélességű)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:191
 msgid "Remember last used &window size"
@@ -13115,7 +13116,7 @@ msgstr "Betűbeállítások"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:67
 msgid "The serif font family"
-msgstr "Serif(talpas) betűkészlet"
+msgstr "Serif (talpas) betűkészlet"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:69
 msgid "The sans-serif font family"
@@ -13123,7 +13124,7 @@ msgstr "Sans-serif ('talp nélküli') betűkészlet"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:71
 msgid "The monospaced font family"
-msgstr "Monospace(rögzített szélességű) betűkészlet"
+msgstr "Monospace (rögzített szélességű) betűkészlet"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:72
 msgid "The standard font size in px"
@@ -13131,7 +13132,7 @@ msgstr "Az alap betűméret pixelben"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:73
 msgid "The monospaced font size in px"
-msgstr "Monospace(rögzített szélességű) betűméret pixelben"
+msgstr "Monospace (rögzített szélességű) betűméret pixelben"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:74
 msgid "The standard font type"
@@ -14576,6 +14577,8 @@ msgid ""
 "Comma-separated list of reports.\n"
 "Default: all"
 msgstr ""
+"A naplók vesszővel elválasztott listája.\n"
+"Alapértelmezés: mind"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:892
 msgid ""
@@ -14591,7 +14594,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:926
 msgid "Unknown report check"
-msgstr ""
+msgstr "Ismeretlen riportellenőrzés"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:959
 msgid ""
@@ -14696,7 +14699,7 @@ msgstr "Adatbázis tömörítése"
 
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:148
 msgid "Ratings"
-msgstr ""
+msgstr "Értékelések"
 
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:181
 msgid "Identifiers"
@@ -15153,7 +15156,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:726
 msgid "Tags to apply to books added to the library"
-msgstr ""
+msgstr "A következő cimkék adódnak a könyvhöz, ha a könyvtárhoz hozzáadjuk"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:730
 msgid "List of named saved searches"
