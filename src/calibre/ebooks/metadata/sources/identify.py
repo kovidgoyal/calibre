@@ -42,6 +42,7 @@ def is_worker_alive(workers):
     return False
 
 def identify(log, abort, title=None, authors=None, identifiers=[], timeout=30):
+    start_time = time.time()
     plugins = list(metadata_plugins['identify'])
 
     kwargs = {
@@ -104,4 +105,22 @@ def identify(log, abort, title=None, authors=None, identifiers=[], timeout=30):
             log('Found %d results'%len(results))
             log(plog)
             log('\n'+'*'*80)
+
+        for i, result in enumerate(results):
+            result.relevance_in_source = i
+            result.has_cached_cover_url = \
+                plugin.get_cached_cover_url(result.identifiers) is not None
+            result.identify_plugin = plugin
+
+    log('The identify phase took %.2f seconds'%(time.time() - start_time))
+    log('Merging results from different sources and finding earliest',
+            'publication dates')
+    start_time = time.time()
+    merged_results = merge_identify_results(results, log)
+    log('We have %d merged results, merging took: %.2f seconds' %
+            (len(merged_results), time.time() - start_time))
+
+def merge_identify_results(result_map, log):
+    pass
+
 
