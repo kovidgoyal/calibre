@@ -887,9 +887,9 @@ class DeviceMixin(object): # {{{
                 on_card = dest
             self.sync_to_device(on_card, delete, fmt)
         elif dest == 'mail':
-            to, fmts = sub_dest.split(';')
+            to, fmts, subject = sub_dest.split(';')
             fmts = [x.strip().lower() for x in fmts.split(',')]
-            self.send_by_mail(to, fmts, delete)
+            self.send_by_mail(to, fmts, delete, subject=subject)
 
     def cover_to_thumbnail(self, data):
         if self.device_manager.device and \

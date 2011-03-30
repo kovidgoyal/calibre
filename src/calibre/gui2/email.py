@@ -210,7 +210,7 @@ class EmailMixin(object): # {{{
     def __init__(self):
         self.emailer = Emailer(self.job_manager)
 
-    def send_by_mail(self, to, fmts, delete_from_library, send_ids=None,
+    def send_by_mail(self, to, fmts, delete_from_library, subject='', send_ids=None,
             do_auto_convert=True, specific_format=None):
         ids = [self.library_view.model().id(r) for r in self.library_view.selectionModel().selectedRows()] if send_ids is None else send_ids
         if not ids or len(ids) == 0:
@@ -239,7 +239,10 @@ class EmailMixin(object): # {{{
                 remove_ids.append(id)
                 jobnames.append(t)
                 attachments.append(f)
-                subjects.append(_('E-book:')+ ' '+t)
+                if not subject:
+                    subjects.append(_('E-book:')+ ' '+t)
+                else:
+                    subjects.append(subject)
                 a = authors_to_string(mi.authors if mi.authors else \
                         [_('Unknown')])
                 texts.append(_('Attached, you will find the e-book') + \
@@ -292,7 +295,7 @@ class EmailMixin(object): # {{{
                 if self.auto_convert_question(
                     _('Auto convert the following books before sending via '
                         'email?'), autos):
-                    self.iactions['Convert Books'].auto_convert_mail(to, fmts, delete_from_library, auto, format)
+                    self.iactions['Convert Books'].auto_convert_mail(to, fmts, delete_from_library, auto, format, subject)
 
         if bad:
             bad = '\n'.join('%s'%(i,) for i in bad)
