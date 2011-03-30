@@ -29,7 +29,9 @@ class EmailAccounts(QAbstractTableModel): # {{{
         self.tooltips =[NONE] + map(QVariant,
             [_('Formats to email. The first matching format will be sent.'),
              _('Subject of the email to use when sending. When left blank '
-               'the title will be used for the subject.'),
+               'the title will be used for the subject. Also, the same ' 
+               'templates used for "Save to disk" such as {title} and '
+               '{author_sort} can be used here.'),
              '<p>'+_('If checked, downloaded news will be automatically '
                      'mailed <br>to this email address '
                      '(provided it is in one of the listed formats).')])

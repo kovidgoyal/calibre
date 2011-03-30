@@ -22,6 +22,7 @@ from calibre.customize.ui import available_input_formats, available_output_forma
 from calibre.ebooks.metadata import authors_to_string
 from calibre.constants import preferred_encoding
 from calibre.gui2 import config, Dispatcher, warning_dialog
+from calibre.library.save_to_disk import get_components
 from calibre.utils.config import tweaks
 
 class EmailJob(BaseJob): # {{{
@@ -242,6 +243,10 @@ class EmailMixin(object): # {{{
                 if not subject:
                     subjects.append(_('E-book:')+ ' '+t)
                 else:
+                    components = get_components(subject, mi, id)
+                    if not components:
+                        components = [mi.title]
+                    subject = os.path.join(*components)
                     subjects.append(subject)
                 a = authors_to_string(mi.authors if mi.authors else \
                         [_('Unknown')])
