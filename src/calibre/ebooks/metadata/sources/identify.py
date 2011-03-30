@@ -14,6 +14,7 @@ from io import BytesIO
 
 from calibre.customize.ui import metadata_plugins
 from calibre.ebooks.metadata.sources.base import create_log
+from calibre.ebooks.metadata.xisbn import xisbn
 
 # How long to wait for more results after first result is found
 WAIT_AFTER_FIRST_RESULT = 30 # seconds
@@ -120,7 +121,41 @@ def identify(log, abort, title=None, authors=None, identifiers=[], timeout=30):
     log('We have %d merged results, merging took: %.2f seconds' %
             (len(merged_results), time.time() - start_time))
 
+class ISBNMerge(object):
+
+    def __init__(self):
+        self.pools = {}
+
+    def isbn_in_pool(self, isbn):
+        if isbn:
+            for p in self.pools:
+                if isbn in p:
+                    return p
+        return None
+
+    def pool_has_result_from_same_source(self, pool, result):
+        results = self.pools[pool][1]
+        for r in results:
+            if r.identify_plugin is result.identify_plugin:
+                return True
+        return False
+
+    def add_result(self, result, isbn):
+        pool = self.isbn_in_pool(isbn)
+        if pool is None:
+            isbns, min_year = xisbn.get_isbn_pool(isbn)
+            if not isbns:
+                isbns = frozenset([isbn])
+            self.pool[isbns] = pool = (min_year, [])
+
+        if not self.pool_has_result_from_same_source(pool, result):
+            pool[1].append(result)
+
 def merge_identify_results(result_map, log):
-    pass
+    for plugin, results in result_map.iteritems():
+        for result in results:
+            isbn = result.isbn
+            if isbn:
+                isbns, min_year = xisbn.get_isbn_pool(isbn)
 
 
