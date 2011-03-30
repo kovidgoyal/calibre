@@ -34,7 +34,7 @@ class PDFInput(InputFormatPlugin):
         from calibre.ebooks.pdf.reflow import PDFDocument
         if pdfreflow_err:
             raise RuntimeError('Failed to load pdfreflow: ' + pdfreflow_err)
-        pdfreflow.reflow(stream.read())
+        pdfreflow.reflow(stream.read(), 1, -1)
         xml = open('index.xml', 'rb').read()
         PDFDocument(xml, self.opts, self.log)
         return os.path.join(os.getcwd(), 'metadata.opf')

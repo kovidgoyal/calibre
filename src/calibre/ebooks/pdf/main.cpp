@@ -24,13 +24,14 @@ extern "C" {
     pdfreflow_reflow(PyObject *self, PyObject *args) {
         char *pdfdata;
         Py_ssize_t size;
+        int first_page, last_page;
 
-        if (!PyArg_ParseTuple(args, "s#", &pdfdata, &size))
+        if (!PyArg_ParseTuple(args, "s#ii", &pdfdata, &size, &first_page, &last_page))
             return NULL;
 
         try {
             Reflow reflow(pdfdata, static_cast<std::ifstream::pos_type>(size));
-            reflow.render();
+            reflow.render(first_page, last_page);
         } catch (std::exception &e) {
             PyErr_SetString(PyExc_RuntimeError, e.what()); return NULL;
         } catch (...) {
@@ -166,7 +167,7 @@ extern "C" {
     static 
     PyMethodDef pdfreflow_methods[] = {
         {"reflow", pdfreflow_reflow, METH_VARARGS,
-        "reflow(pdf_data)\n\n"
+        "reflow(pdf_data, first_page, last_page)\n\n"
                 "Reflow the specified PDF."
         },
         {"get_metadata", pdfreflow_get_metadata, METH_VARARGS,
