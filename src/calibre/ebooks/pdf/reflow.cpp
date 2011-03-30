@@ -712,7 +712,7 @@ Reflow::Reflow(char *pdfdata, size_t sz) :
 
 }
 
-void
+int
 Reflow::render(int first_page, int last_page) {
 
     if (!this->doc->okToCopy()) 
@@ -739,6 +739,8 @@ Reflow::render(int first_page, int last_page) {
         this->dump_outline();
 
     delete xml_out;
+
+    return doc_pages;
 }
 
 void Reflow::dump_outline() {
