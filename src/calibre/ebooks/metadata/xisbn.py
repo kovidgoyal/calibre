@@ -71,6 +71,20 @@ class xISBN(object):
                 ans.add(i)
         return ans
 
+    def get_isbn_pool(self, isbn):
+        data = self.get_data(isbn)
+        isbns = frozenset([x.get('isbn') for x in data if 'isbn' in x])
+        min_year = 100000
+        for x in data:
+            try:
+                year = int(x['year'])
+                if year < min_year:
+                    min_year = year
+            except:
+                continue
+        if min_year == 100000:
+            min_year = None
+        return isbns, min_year
 
 
 xisbn = xISBN()
