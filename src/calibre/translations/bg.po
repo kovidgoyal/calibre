@@ -7,13 +7,13 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.51\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-03-26 02:12+0000\n"
-"PO-Revision-Date: 2011-01-29 00:02+0000\n"
-"Last-Translator: Rocky Stone <Unknown>\n"
+"PO-Revision-Date: 2011-03-30 01:18+0000\n"
+"Last-Translator: Yassen Nikolov <Unknown>\n"
 "Language-Team: bg\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-03-27 04:37+0000\n"
+"X-Launchpad-Export-Date: 2011-03-30 04:35+0000\n"
 "X-Generator: Launchpad (build 12559)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -401,17 +401,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:924
 msgid "Saving books to disk"
-msgstr ""
+msgstr "Запазване на книги на диск"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:930
 msgid ""
 "Control how calibre exports files from its database to disk when using Save "
 "to disk"
 msgstr ""
+"Определя как Калибър експортира файлове от неговата база данни към диск, "
+"когато използвате Запази на диск"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:936
 msgid "Sending books to devices"
-msgstr ""
+msgstr "Качване на книги към устройства"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:942
 msgid "Control how calibre transfers files to your ebook reader"
@@ -457,7 +459,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:982
 msgid "Sharing over the net"
-msgstr ""
+msgstr "Споделяне през интернет"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:988
 msgid ""
@@ -473,14 +475,15 @@ msgstr "Добавки"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1001
 msgid "Add/remove/customize various bits of calibre functionality"
 msgstr ""
+"Добавяне/премахване/настройване на различни части от функциите на Калибър"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1007
 msgid "Tweaks"
-msgstr ""
+msgstr "Подобрения"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1013
 msgid "Fine tune how calibre behaves in various contexts"
-msgstr ""
+msgstr "Фина настройка на действието на Калибър в различни контексти"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1018
 msgid "Miscellaneous"
@@ -492,7 +495,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:102
 msgid "Conversion Input"
-msgstr ""
+msgstr "Входен формат за конвертиране"
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:134
 msgid ""
@@ -504,7 +507,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:234
 msgid "Conversion Output"
-msgstr ""
+msgstr "Изходен формат за конвертиране"
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:248
 msgid ""
@@ -626,6 +629,7 @@ msgid ""
 "Intended for the Samsung Galaxy and similar tablet devices with a resolution "
 "of 600x1280"
 msgstr ""
+"Предназначен за Samsung Galaxy и подобни таблети с резолюция 600x1280"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:471
 msgid "This profile is intended for the Kobo Reader."
@@ -661,11 +665,11 @@ msgstr "Този профил е предназначен за Amazon Kindle DX.
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:712
 msgid "This profile is intended for the B&N Nook Color."
-msgstr ""
+msgstr "Този профил е предназначен за B&N Nook Color."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:723
 msgid "This profile is intended for the Sanda Bambook."
-msgstr ""
+msgstr "Този профил е предназначен за Sanda Bambook."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:35
 msgid "Installed plugins"
@@ -757,11 +761,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:55
 msgid "Cache covers from iTunes/iBooks"
-msgstr ""
+msgstr "Кеширай обложки от iTunes/iBooks"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:57
 msgid "Enable to cache and display covers from iTunes/iBooks"
-msgstr ""
+msgstr "Разреши кеширане и показване на обложки от iTunes/iBooks"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:58
 msgid "Skip 'Connect to iTunes' recommendation"
@@ -773,15 +777,16 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:115
 msgid "Apple device"
-msgstr ""
+msgstr "Apple устройство"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:117
 msgid "Communicate with iTunes/iBooks."
-msgstr ""
+msgstr "Комуникирай с iTunes/iBooks."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:128
 msgid "Apple device detected, launching iTunes, please wait ..."
 msgstr ""
+"Apple устройство разпознато, стартиране на iTunes, моля изчакайте ..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:130
 msgid ""
@@ -856,11 +861,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:25
 msgid "Li Fanxi"
-msgstr ""
+msgstr "Li Fanxi"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:42
 msgid "Device IP Address (restart calibre after changing)"
-msgstr ""
+msgstr "IP адрес на устройството (рестартирайте Калибър след промяна)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:47
 msgid ""
@@ -1501,6 +1506,8 @@ msgid ""
 "Don't sort the files found in the comic alphabetically by name. Instead use "
 "the order they were added to the comic."
 msgstr ""
+"Не сортирайте файловете в комикса по азбучен ред на имената. Вместо това "
+"използвайте реда, по който са били добавени в комикса."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:303
 msgid ""
@@ -15165,18 +15172,18 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:46
 msgid "You"
-msgstr ""
+msgstr "Вие"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/model.py:75
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/model.py:84
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/model.py:202
 msgid "Scheduled"
-msgstr ""
+msgstr "Планирано"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/model.py:86
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/model.py:203
 msgid "Custom"
-msgstr ""
+msgstr "Персонализиран"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:118
 msgid "Next section"
@@ -15184,7 +15191,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:121
 msgid "Main menu"
-msgstr ""
+msgstr "Главно меню"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:125
 msgid "Previous section"
@@ -15196,7 +15203,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:217
 msgid "Main Menu"
-msgstr ""
+msgstr "Главно меню"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:303
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:393
@@ -15205,7 +15212,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:390
 msgid "Articles"
-msgstr ""
+msgstr "Статии"
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:476
 msgid ""

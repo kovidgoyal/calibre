@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-03-26 02:12+0000\n"
-"PO-Revision-Date: 2011-03-28 08:30+0000\n"
+"PO-Revision-Date: 2011-03-29 11:20+0000\n"
 "Last-Translator: Roadside <roadside@freemail.hu>\n"
 "Language-Team: Hungarian <hu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-03-29 04:38+0000\n"
+"X-Launchpad-Export-Date: 2011-03-30 04:36+0000\n"
 "X-Generator: Launchpad (build 12559)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -1049,7 +1049,7 @@ msgstr "A Hanlin V5 eBook olvasókkal kommunikál."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanlin/driver.py:115
 msgid "Communicate with the BOOX eBook reader."
-msgstr "Kapcsolódás BOOX eBook olvasóhoz"
+msgstr "Kapcsolódás BOOX eBook olvasóhoz."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanlin/driver.py:133
 msgid ""
@@ -1067,7 +1067,7 @@ msgstr "Kommunikáció a The Book olvasóval."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:59
 msgid "Communicate with the SpringDesign Alex eBook reader."
-msgstr "Kapcsolódás SpringDesign Alex eBook olvasóhoz"
+msgstr "Kapcsolódás SpringDesign Alex eBook olvasóhoz."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:119
 msgid "Communicate with the Azbooka"
@@ -8325,7 +8325,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1007
 msgid "Search/replace name:"
-msgstr ""
+msgstr "Keresés/csere név:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1015
 msgid ""
@@ -9282,7 +9282,7 @@ msgstr "%d nappal, %d órával és %d perccel ezelőtt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:393
 msgid "Last downloaded:"
-msgstr ""
+msgstr "Utoljára letöltve:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:421
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:197
@@ -9594,7 +9594,7 @@ msgstr "Felhasználói kategória-szerkesztő"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:167
 msgid "Category name: "
-msgstr ""
+msgstr "Kategória neve: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:168
 msgid "Select a category to edit"
@@ -9758,7 +9758,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:71
 msgid "Function &name:"
-msgstr ""
+msgstr "Funkció neve:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:72
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:100
@@ -10681,7 +10681,7 @@ msgstr "&Kilépés"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_window.py:138
 msgid "Unhandled exception"
-msgstr ""
+msgstr "Ismeretlen hiba történt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:111
 msgid "Title &sort:"
@@ -10829,6 +10829,8 @@ msgid ""
 "Swap the firstname and lastname of the author. This affects only metadata "
 "read from file names."
 msgstr ""
+"Az író kereszt- és családnevének felcserélése. Ez csak a fájlnévből kinyert "
+"metaadatokra van hatással."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:68
 msgid "&Swap author firstname and lastname"
@@ -11729,6 +11731,7 @@ msgstr "Nem érvényes plugin elérési út: %s"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:305
 msgid "Select an actual plugin under <b>%s</b> to customize"
 msgstr ""
+"Válassza ki az aktuális beépülő modult a(z) <b>%s</b> alatt a szerkesztéshez"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:311
 msgid "Plugin cannot be disabled"
@@ -12992,7 +12995,7 @@ msgstr "Az utoljára használt ablakméret megjegyzése"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:192
 msgid "Remember the &current page when quitting"
-msgstr ""
+msgstr "Kilépéskor a jelenlegi oldal megjegyzése"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:193
 msgid "H&yphenate (break line in the middle of large words)"
@@ -13610,7 +13613,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:161
 msgid "Your %s &username:"
-msgstr ""
+msgstr "Felhasználóneve:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:162
 msgid "Your %s &password:"
@@ -14110,7 +14113,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:33
 msgid "Missing covers files"
-msgstr ""
+msgstr "Hiányzó borítófájlok"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:34
 msgid "Cover files not in database"
@@ -14503,7 +14506,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:812
 msgid "Error: You must specify a column label"
-msgstr ""
+msgstr "Hiba: Meg kell adnia az oszlop nevét"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:822
 msgid ""
@@ -14533,7 +14536,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:848
 msgid "Name:"
-msgstr ""
+msgstr "Név:"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:849
 msgid "Search string:"
@@ -14541,7 +14544,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:855
 msgid "Error: You must specify a name and a search string"
-msgstr ""
+msgstr "Hiba: Meg kell adnia egy nevet és egy keresési szót"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:858
 msgid "added"
@@ -14549,7 +14552,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:863
 msgid "Error: You must specify a name"
-msgstr ""
+msgstr "Hiba: Meg kell adnia egy nevet"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:866
 msgid "removed"
@@ -14906,7 +14909,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:64
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:498
 msgid "Loading, please wait"
-msgstr ""
+msgstr "Betöltés, kérjük várjon"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:90
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:111
@@ -14915,15 +14918,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:106
 msgid "First"
-msgstr ""
+msgstr "Első"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:106
 msgid "Last"
-msgstr ""
+msgstr "Utolsó"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:109
 msgid "Browsing %d books"
-msgstr ""
+msgstr "%d könyv böngészése"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:126
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:255
@@ -14940,7 +14943,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:256
 msgid "Popularity"
-msgstr ""
+msgstr "Népszerűség"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:275
 msgid "Sort by"
@@ -14958,7 +14961,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:612
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:573
 msgid "Newest"
-msgstr ""
+msgstr "Legújabb"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:341
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:613
@@ -15012,7 +15015,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:779
 msgid "This book has been deleted"
-msgstr ""
+msgstr "Ezt a könyvet törölték"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:865
 msgid "in search"
@@ -15057,7 +15060,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:125
 msgid "%d book"
-msgstr ""
+msgstr "%d könyv"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:148
 msgid "%d items"
@@ -15065,19 +15068,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:166
 msgid "RATING: %s<br />"
-msgstr ""
+msgstr "ÉRTÉKELÉS: %s<br />"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:169
 msgid "TAGS: %s<br />"
-msgstr ""
+msgstr "CIMKÉK: %s<br />"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:174
 msgid "SERIES: %s [%s]<br />"
-msgstr ""
+msgstr "SOROZAT: %s [%s]<br />"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:267
 msgid "Books in your library"
-msgstr ""
+msgstr "A könyvtárában lévő könyvek"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:273
 msgid "By "
@@ -15085,7 +15088,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:274
 msgid "Books sorted by "
-msgstr ""
+msgstr "A könyvek rendezve: "
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:32
 msgid "%sUsage%s: %s\n"
@@ -15194,7 +15197,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:38
 msgid "end of program"
-msgstr ""
+msgstr "program vége"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:75
 msgid "syntax error - program ends before EOF"
@@ -15234,7 +15237,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:58
 msgid "No documentation provided"
-msgstr ""
+msgstr "Nincs közzétett dokumentáció"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:79
 msgid "Exception "
@@ -15647,7 +15650,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/console.py:56
 msgid "Choose theme (needs restart)"
-msgstr ""
+msgstr "Válasszon témát (újraindítás szükséges)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/console.py:109
 msgid "ERROR: Unhandled exception"
@@ -15659,21 +15662,23 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/console.py:189
 msgid "No active interpreter found. Try restarting the console"
-msgstr ""
+msgstr "Nem található aktív fordító. Próbálja meg újraindítani a konzolt."
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/console.py:203
 msgid "Interpreter died"
-msgstr ""
+msgstr "A fordító lefagyott"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/console.py:204
 msgid ""
 "Interpreter dies while excuting a command. To see the command, click Show "
 "details"
 msgstr ""
+"A fordító parancsfuttatás közben lefagyott. További információért kattintson "
+"a Részletek gombra."
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/main.py:20
 msgid "Welcome to"
-msgstr ""
+msgstr "Üdvözlünk a(z)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/main.py:41
 msgid " console "
@@ -15681,11 +15686,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/main.py:51
 msgid "Code is running"
-msgstr ""
+msgstr "A kód jelenleg fut"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/main.py:58
 msgid "Restart console"
-msgstr ""
+msgstr "Konzol újraindítása"
 
 #: /home/kovid/work/calibre/src/calibre/utils/sftp.py:53
 msgid "URL must have the scheme sftp"

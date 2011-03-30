@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-03-26 02:12+0000\n"
-"PO-Revision-Date: 2011-03-28 13:59+0000\n"
+"PO-Revision-Date: 2011-03-29 10:16+0000\n"
 "Last-Translator: Johnny J <Unknown>\n"
 "Language-Team: Polish <pl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-03-29 04:39+0000\n"
+"X-Launchpad-Export-Date: 2011-03-30 04:36+0000\n"
 "X-Generator: Launchpad (build 12559)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -249,6 +249,9 @@ msgid ""
 "Textile references to images. The referenced images as well as the TXT file "
 "are added to the archive."
 msgstr ""
+"Stwórz archiwum TXTZ, gdy importowany jest plik TXT z referencjami do "
+"obrazków Markdown lub Textile. Zarówno referencjonowane obrazki jak i plik "
+"TXT są dodawane do archiwum."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:166
 msgid "Extract cover from comic files"
@@ -778,7 +781,7 @@ msgstr "Używaj cyklu jako kategorii w iTunes/iBooks"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:53
 msgid "Enable to use the series name as the iTunes Genre, iBooks Category"
-msgstr ""
+msgstr "Włącz używanie nazwę cykli tak jak iTunes Genre, iBooks Category"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:55
 msgid "Cache covers from iTunes/iBooks"
@@ -786,15 +789,15 @@ msgstr "Przechowuj okładki z iTunes/iBooks"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:57
 msgid "Enable to cache and display covers from iTunes/iBooks"
-msgstr ""
+msgstr "Włącz cache'owanie i wyświetlanie okładek z iTunes/iBooks"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:58
 msgid "Skip 'Connect to iTunes' recommendation"
-msgstr ""
+msgstr "Pomiń rekomendację 'Podłącz do iTunes'"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:60
 msgid "Enable to skip the 'Connect to iTunes' recommendation dialog"
-msgstr ""
+msgstr "Włącz pomijanie okna rekomendacji 'Podłącz do iTunes'"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:115
 msgid "Apple device"
@@ -1992,6 +1995,11 @@ msgid ""
 "margins. Sometimes, this can cause the removal of margins that should not "
 "have been removed. In this case you can disable the removal."
 msgstr ""
+"Niektóre dokumenty określają marginesy strony poprzez określenie lewego i "
+"prawego marginesu dla każdego paragrafu indywidualnie. calibre spróbuje "
+"wykryć i usunąć te marginesy. Czasami może to spowodować usunięcie "
+"marginesów, które nie powinny zostać usunięte. W takim wypadku możesz "
+"wyłączyć usuwanie."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:320
 msgid ""
@@ -3456,11 +3464,11 @@ msgstr "Francja"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:289
 msgid "Germany"
-msgstr ""
+msgstr "Niemcy"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:290
 msgid "UK"
-msgstr ""
+msgstr "UK"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:375
 msgid "Amazon timed out. Try again later."
@@ -3472,7 +3480,7 @@ msgstr "Źródło metadanych"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/openlibrary.py:15
 msgid "Downloads metadata from The Open Library"
-msgstr ""
+msgstr "Pobierz metadane z Open Library"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:22
 msgid "Modify images to meet Palm device size limitations."
@@ -7281,7 +7289,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:64
 msgid "Remove &fake margins"
-msgstr ""
+msgstr "Usuń &fałszywe marginesy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc.py:16
 msgid ""
@@ -8934,7 +8942,7 @@ msgstr "d MMM rrrr"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:561
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:566
 msgid "&Apply date"
-msgstr ""
+msgstr "Z&astosuj datę"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:562
 msgid "&Published:"
@@ -11559,7 +11567,7 @@ msgstr "Wysoki"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:36
 msgid "Very low"
-msgstr ""
+msgstr "Bardzo niski"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:164
 msgid "Confirmation dialogs have all been reset"
@@ -11939,7 +11947,7 @@ msgstr "&Szablon"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:212
 msgid "Field template. Uses the same syntax as save templates."
-msgstr ""
+msgstr "Szablona pola. Używa takiej samej składni jak zapisane szablony."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:213
 msgid "Similar to save templates. For example, {title} {isbn}"
@@ -16479,30 +16487,40 @@ msgid ""
 "strcat(a, b, ...) -- can take any number of arguments. Returns a string "
 "formed by concatenating all the arguments"
 msgstr ""
+"strcat(a, b, ...) -- może pobrać jakąkolwiek ilość argumentów. Zwraca ciąg "
+"znaków połączonych z wszystkich argumentów"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:140
 msgid ""
 "add(x, y) -- returns x + y. Throws an exception if either x or y are not "
 "numbers."
 msgstr ""
+"add(x, y) -- zwraca x + y. Wyrzuca wyjątek jeśli albo x albo y nie są "
+"numerami."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:150
 msgid ""
 "subtract(x, y) -- returns x - y. Throws an exception if either x or y are "
 "not numbers."
 msgstr ""
+"subtract(x, y) -- zwraca x - y. Wyrzuca wyjątek jeśli albo x albo y nie są "
+"numerami."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:160
 msgid ""
 "multiply(x, y) -- returns x * y. Throws an exception if either x or y are "
 "not numbers."
 msgstr ""
+"multiply(x, y) -- zwraca x * y. Wyrzuca wyjątek jeśli albo x albo y nie są "
+"numerami."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:170
 msgid ""
 "divide(x, y) -- returns x / y. Throws an exception if either x or y are not "
 "numbers."
 msgstr ""
+"divide(x, y) -- zwraca x / y. Wyrzuca wyjątek jeśli albo x albo y nie są "
+"numerami."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:180
 msgid ""
@@ -16513,6 +16531,12 @@ msgid ""
 "automatically. For example, template('[[title_sort]]') will evaluate the "
 "template {title_sort} and return its value."
 msgstr ""
+"template(x) -- określa x jako szablon. Określanie dokonuje się we własnym "
+"kontekście, co oznacza, że zmienne nie są oduostępniane pomiędzy wywołującym "
+"a określoeniem szablonu. Ponieważ znaki { and } są specjalne, musisz użyć [[ "
+"dla { znaków i ]] dla } znaków; są konwertowane automatycznie. Na przykład, "
+"template('[[title_sort]]') określi wzorzec {title_sort} i zwróci jego "
+"wartość."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:195
 msgid ""
@@ -16520,12 +16544,17 @@ msgid ""
 "'assign'ed to) instead of the book metadata.  This permits using the "
 "template processor to construct complex results from local variables."
 msgstr ""
+"eval(template) -- określa szablon, przekazując lokalne zmienne (te "
+"'przypisane' do) zamiast z książki metadanych.  To pozwala wykorzystać "
+"procesor szablonów do konstrukcji złożonych wyników z lokalnych zmiennych."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:208
 msgid ""
 "assign(id, val) -- assigns val to id, then returns val. id must be an "
 "identifier, not an expression"
 msgstr ""
+"assign(id, val) -- przypisuje val do id, a następnie zwraca val. id musi być "
+"identyfikatorem, nie wyrażeniem"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:218
 msgid ""
@@ -16533,16 +16562,21 @@ msgid ""
 "start calibre from the command line (calibre-debug -g), the output will go "
 "to a black hole."
 msgstr ""
+"print(a, b, ...) -- drukuje argumenty do standardowego profilu wynikowego. "
+"Jeśli nie uruchomisz calibre z linii komend (calibre-debug -g), wynik "
+"pójdzie do czarnej dziury."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:229
 msgid "field(name) -- returns the metadata field named by name"
-msgstr ""
+msgstr "field(name) -- zwraca pole metadanych nazwane po nazwie"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:237
 msgid ""
 "raw_field(name) -- returns the metadata field named by name without applying "
 "any formatting."
 msgstr ""
+"raw_field(name) -- zwraca metadane pola nazwanego po nazwie bez zastosowania "
+"jakiegokolwiek formatowania."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:246
 msgid ""
@@ -16553,6 +16587,11 @@ msgid ""
 "substr('12345', 1, 0) returns '2345', and substr('12345', 1, -1) returns "
 "'234'."
 msgstr ""
+"substr(str, startowy, końcowy) -- zwraca startowy poprzez końcowy znak "
+"ciągu. Pierwszy znak str to zerowy znak. Jeśli końcowy jest ujemny, wówczas "
+"wskazuje tylko znaków licząc od prawej. Jeśli końcowy jest zerem, wówczas "
+"wskazuje ostatni znak. Na przykład, substr('12345', 1, 0) zwraca '2345', a "
+"substr('12345', 1, -1) zwraca '234'."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:259
 msgid ""
@@ -16563,16 +16602,25 @@ msgid ""
 "the value of some other composite field. This is extremely useful when "
 "constructing variable save paths"
 msgstr ""
+"lookup(val, pattern, field, pattern, field, ..., else_field) -- tak jak "
+"switch, z wyjątkiem że argumentami są nazwy pola (metadane), nie tekst. "
+"Wartość odpowiedniego pola zostanie pobrana i użyta. Zwróć uwagę, złożone "
+"kolumny to pola, możesz użyć tej funkcji w jednym złożonym polu, aby użyć "
+"wartości z jakiegoś innego złożonego pola. Jest to nadzwyczaj użyteczne "
+"podczas konstruowania zmiennych ścieżek zapisu"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:274
 msgid "lookup requires either 2 or an odd number of arguments"
-msgstr ""
+msgstr "lookup wymaga albo 2 albo nieparzystej liczby argumentów"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:286
 msgid ""
 "test(val, text if not empty, text if empty) -- return `text if not empty` if "
 "the field is not empty, otherwise return `text if empty`"
 msgstr ""
+"test(val, tekst gdy niepusty, tekst gdy pusty) -- zwraca `tekst gdy "
+"niepusty` gdy pole nie jest puste, w przeciwnym wypadku zwraca `tekst gdy "
+"pusty`"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:298
 msgid ""
@@ -16580,6 +16628,10 @@ msgid ""
 "contains matches for the regular expression `pattern`. Returns `text if "
 "match` if matches are found, otherwise it returns `text if no match`"
 msgstr ""
+"contains(val, pattern, tekst gdy pasuje, tekst gdy nie pasuje) -- sprawdza "
+"czy pole zawiera dopasowania dla regularnego wyrażenia `pattern` (wzorzec). "
+"Zwraca ` tekst gdy pasuje` jeśli znajdzie dopasowania, w przeciwnym wypadku "
+"zwraca `tekst gdy nie pasuje`"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:313
 msgid ""
@@ -16589,10 +16641,15 @@ msgid ""
 "else_value is returned. You can have as many `pattern, value` pairs as you "
 "want"
 msgstr ""
+"switch(val, pattern, value, pattern, value, ..., else_value) -- dla każdej "
+"pary `pattern, value`, sprawdza czy pole pasuje do regularnego wyrażnenia "
+"`pattern` (wzorzec) a jeśli tak, to zwraca ta `value` (wartość). Jeśli żaden "
+"wzorzec nie pasuje, wówczas zwracana jest else_value. Możesz zadeklarować "
+"tyle par `pattern, value` ile chcesz"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:321
 msgid "switch requires an odd number of arguments"
-msgstr ""
+msgstr "switch wymaga nieparzystej ilości argumentów"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:333
 msgid ""
@@ -16600,12 +16657,17 @@ msgid ""
 "expression. All instances of `pattern` are replaced with `replacement`. As "
 "in all of calibre, these are python-compatible regular expressions"
 msgstr ""
+"re(val, wzorzec, zamiana) -- zwraca pole po zastosowaniu regularnego "
+"wyrażenia. Wszystkie wypadki `wzorca` są zastąpione `zamianą`. Tak jak w "
+"całym calibre, są to kompatybilne z pythonem regularne wyrażenia"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:344
 msgid ""
 "ifempty(val, text if empty) -- return val if val is not empty, otherwise "
 "return `text if empty`"
 msgstr ""
+"ifempty(val, tekst jeśli pusty) -- zwraca val jeśli val nie jest pusty, w "
+"przeciwnym wypadku zwraca `tekst jeśli pusty`"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:356
 msgid ""
@@ -16620,6 +16682,16 @@ msgid ""
 "chars + the length of `middle text`, then the field will be used intact. For "
 "example, the title `The Dome` would not be changed."
 msgstr ""
+"shorten(val, left chars, middle text, right chars) -- zwraca skróconą wersję "
+"pola, składająca się ze znaków `left chars` z początku pola, następnie "
+"`middle text`, a następnie `right chars` z końca ciągu. `Left chars` i "
+"`right chars` muszą być liczbami całkowitymi. Na przykład, załóżmy, że tytuł "
+"książki to `Ancient English Laws in the Times of Ivanhoe`, a ty chcesz "
+"zmieścić się w przestrzeni najwyżej 15 znaków. Jeśli użyjesz "
+"{title:shorten(9,-,5)}, wynikiem będzie `Ancient E-nhoe`. Jeśli długośc pola "
+"jest mniejsza niż left chars + right chars + długość `middle text`, wówczas "
+"pole pozostanie nienaruszone. Na przykład tytuł `The Dome` nie ulegnie "
+"zmianie."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:381
 msgid ""
@@ -16628,6 +16700,10 @@ msgid ""
 "comma as the separator, but authors uses an ampersand. Examples: "
 "{tags:count(,)}, {authors:count(&)}"
 msgstr ""
+"count(val, separator) -- interpretuje wartość jako listę elementów "
+"oddzielonych `separatorem`, zwraca liczbę elementów w liście. Większośc list "
+"używa przecinka jako separatora, ale autorzy używa znak &. Przykłady: "
+"{tags:count(,)}, {authors:count(&)}"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:392
 msgid ""
@@ -16637,6 +16713,11 @@ msgid ""
 "If the item is not in the list, then the empty value is returned. The "
 "separator has the same meaning as in the count function."
 msgstr ""
+"list_item(val, index, separator) -- interpretuje wartość jako listę "
+"oddzielaną `separatorem`, zwraca `index` elementu. Pierwszy element to numer "
+"zero. Ostatni element może zostać zwrócony przy użyciu `list_item(-"
+"1,separator)`. Jeśli element nie jest w liście, wówczas zwrócona zostaje "
+"pusta wartość. Separator ma takie samo znaczenie jak w funkcji count."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:412
 msgid ""
@@ -16644,6 +16725,9 @@ msgid ""
 "with the items being \"id:value\". Find the pair with theid equal to key, "
 "and return the corresponding value."
 msgstr ""
+"select(val, key) -- interpretuje wartość jako oddzielaną przecinkami listę "
+"elementów, z elementami będącymi \"id:value\". Znajduje parę z id równym "
+"key, a potem zwraca odpowiadającą jej wartość."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:429
 msgid ""
@@ -16657,6 +16741,15 @@ msgid ""
 "{tags:sublist(-1,0,\\,)} returns \"C\". {tags:sublist(0,-1,\\,)} returns "
 "\"A, B\"."
 msgstr ""
+"sublist(val, start_index, end_index, separator) -- interpretuje wartość jako "
+"listę elementów oddzielonych `separatorem`, zwracając nową listę stworzoną "
+"od elementu `start_index` do elementu `end_index`. Pierwszy element jest "
+"numerem zero. Jeśli indeks jest ujemny, wówczas liczy od końca listy. W "
+"szczególnym wypadku, end_index zera zakłada się, że jest długością listy. "
+"Przykłady wykorzystujące prosty tryb szablonu przy założeniu, że kolumny "
+"etykiet (które sa oddzielane przecinkiem) zawierają \"A, B, C\": "
+"{tags:sublist(0,1,\\,)} zwraca \"A\". {tags:sublist(-1,0,\\,)} zwraca \"C\". "
+"{tags:sublist(0,-1,\\,)} zwraca \"A, B\"."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:458
 msgid ""
@@ -16675,6 +16768,21 @@ msgid ""
 "{#genre:subitems(0,1)} returns \"A, D\". {#genre:subitems(0,2)} returns "
 "\"A.B, D.E\""
 msgstr ""
+"subitems(val, start_index, end_index) -- Ta funkcja używana jest do "
+"rozdzielania listy elementów takich jak gatunki. Interpretuje wartość jako "
+"oddzielaną przecinkami listę elementów, gdzie każdy element jest listą "
+"oddzielaną kropką. Zwraca nową listę stworzoną przez pierwsze znalezienie "
+"wszystkich elementów oddzielanych kropką, wtedy dla każdego takiego elementu "
+"wyciąga komponenty od `start_index` do `end_index`, potem łączy wyniki z "
+"powrotem w całość. Pierwszy komponent w liście oddzielanej kropkami ma "
+"indeks zero. Jeśli indeks jest ujemny, wówczas liczy od końca listy. W "
+"szczególnym przypadku, end_index zera zakłada się, że jest długością "
+"listy.Przykłady wykorzystujące prosty tryb szablonu przy założeniu, że "
+"wartość #genre z \"A.B.C\": {#genre:subitems(0,1)} zwraca \"A\". "
+"{#genre:subitems(0,2)} zwraca \"A.B\". {#genre:subitems(1,0)} zwraca "
+"\"B.C\". Zakłądając, że wartość #genre z \"A.B.C, D.E.F\", "
+"{#genre:subitems(0,1)} zwraca \"A, D\". {#genre:subitems(0,2)} zwraca \"A.B, "
+"D.E\""
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:495
 msgid ""
@@ -16690,22 +16798,34 @@ msgid ""
 "\"December\"). yy   : the year as two digit number (00 to 99). yyyy : the "
 "year as four digit number."
 msgstr ""
+"format_date(val, format_string) -- formatuje wartość, która musi być polem "
+"daty, używając format_string, zwraca tekst. Kody formatowania: d    : dzień "
+"jako liczba bez zera poprzedzającego (1 do 31) dd   : dzień jako liczba z "
+"zerem poprzedzającym (01 do 31) ddd  : skrócona lokalna nazwa dnia (np. "
+"\"Pon\" do \"Nie\"). dddd : długa nazwa lokalna dnia (np. \"Poniedziałek\" "
+"do \"Niedziela\"). M    : miesiąc jako liczba bez zera poprzedzającego (1 do "
+"12). MM   : miesiąc jako liczba z zerem poprzedzającym (01 do 12) MMM  : "
+"skrócona lokalna nazwa miesiąca (np. \"Sty\" do \"Gru\"). MMMM : długa nazwa "
+"lokalna miesiąca (np. \"Styczeń\" do \"Grudzień\"). yy   : rok jako "
+"dwucyfrowy numer (00 do 99). yyyy : rok jako czterocyfrowy numer."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:522
 msgid "uppercase(val) -- return value of the field in upper case"
-msgstr ""
+msgstr "uppercase(val) -- zwraca wartość pola w dużych literach"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:530
 msgid "lowercase(val) -- return value of the field in lower case"
-msgstr ""
+msgstr "lowercase(val) -- zwraca wartość pola w małych literach"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:538
 msgid "titlecase(val) -- return value of the field in title case"
 msgstr ""
+"titlecase(val) -- zwraca wartość pola w tytulikach (każdy wyraz z wielkiej "
+"litery)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:546
 msgid "capitalize(val) -- return value of the field capitalized"
-msgstr ""
+msgstr "capitalize(val) -- zwraca wartość pola napisaną dużymi literami"
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:43
 msgid "Waiting..."
@@ -16729,7 +16849,7 @@ msgstr "brazylijsko-portugalski"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:96
 msgid "English (UK)"
-msgstr "Angielski (Wielka Brytania)"
+msgstr "angielski (Wielka Brytania)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:97
 msgid "Simplified Chinese"
@@ -16749,15 +16869,15 @@ msgstr "angielski"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:101
 msgid "English (Australia)"
-msgstr "Angielski (Australia)"
+msgstr "angielski (Australia)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:102
 msgid "English (New Zealand)"
-msgstr "Angielski (Nowa Zelandia)"
+msgstr "angielski (Nowa Zelandia)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:103
 msgid "English (Canada)"
-msgstr "Angielski (Kanada)"
+msgstr "angielski (Kanada)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:104
 msgid "English (India)"
@@ -16765,31 +16885,31 @@ msgstr "Angielski (Indie)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:105
 msgid "English (Thailand)"
-msgstr "Angielski (Tajlandia)"
+msgstr "angielski (Tajlandia)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:106
 msgid "English (Cyprus)"
-msgstr "Angielski (Cypr)"
+msgstr "angielski (Cypr)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:107
 msgid "English (Czechoslovakia)"
-msgstr "Angielski (Czechosłowacja)"
+msgstr "angielski (Czechosłowacja)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:108
 msgid "English (Pakistan)"
-msgstr "Angielski (Pakistan)"
+msgstr "angielski (Pakistan)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:109
 msgid "English (Croatia)"
-msgstr "Angielski (Chorwacja)"
+msgstr "angielski (Chorwacja)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:110
 msgid "English (Indonesia)"
-msgstr "Angielski (Indonezja)"
+msgstr "angielski (Indonezja)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:111
 msgid "English (Israel)"
-msgstr "Angielski (Izrael)"
+msgstr "angielski (Izrael)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:112
 msgid "English (Singapore)"
@@ -16797,47 +16917,47 @@ msgstr "Angielski (Singapur)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:113
 msgid "English (Yemen)"
-msgstr "Angielski (Jemen)"
+msgstr "angielski (Jemen)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:114
 msgid "English (Ireland)"
-msgstr "Angielski (Irlandia)"
+msgstr "angielski (Irlandia)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:115
 msgid "English (China)"
-msgstr "Angielski (Chiny)"
+msgstr "angielski (Chiny)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:116
 msgid "Spanish (Paraguay)"
-msgstr "Hiszpański (Paragwaj)"
+msgstr "hiszpański (Paragwaj)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:117
 msgid "Spanish (Uruguay)"
-msgstr "Hiszpański (Urugwaj)"
+msgstr "hiszpański (Urugwaj)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:118
 msgid "Spanish (Argentina)"
-msgstr "Hiszpański (Argentyna)"
+msgstr "hiszpański (Argentyna)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:119
 msgid "Spanish (Mexico)"
-msgstr "Hiszpański (Meksyk)"
+msgstr "hiszpański (Meksyk)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:120
 msgid "Spanish (Cuba)"
-msgstr "Hiszpański (Kuba)"
+msgstr "hiszpański (Kuba)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:121
 msgid "Spanish (Chile)"
-msgstr "Hiszpański (Chile)"
+msgstr "hiszpański (Chile)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:122
 msgid "Spanish (Ecuador)"
-msgstr "Hiszpański (Ekwador)"
+msgstr "hiszpański (Ekwador)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:123
 msgid "Spanish (Honduras)"
-msgstr "Hiszpański (Honduras)"
+msgstr "hiszpański (Honduras)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:124
 msgid "Spanish (Venezuela)"
@@ -16845,7 +16965,7 @@ msgstr "Hiszpański (Wenezuela)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:125
 msgid "Spanish (Bolivia)"
-msgstr "Hiszpański (Boliwia)"
+msgstr "hiszpański (Boliwia)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:126
 msgid "Spanish (Nicaragua)"
@@ -16853,19 +16973,19 @@ msgstr "Hiszpański (Nikaragua)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:127
 msgid "German (AT)"
-msgstr "Niemiecki (Austria)"
+msgstr "niemiecki (Austria)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:128
 msgid "French (BE)"
-msgstr "Francuski (Belgia)"
+msgstr "francuski (Belgia)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:129
 msgid "Dutch (NL)"
-msgstr "Niderlandzki (Holandia)"
+msgstr "niderlandzki (Holandia)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:130
 msgid "Dutch (BE)"
-msgstr "Niderlandzki (Belgia)"
+msgstr "niderlandzki (Belgia)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/console.py:56
 msgid "Choose theme (needs restart)"
@@ -17148,6 +17268,8 @@ msgid ""
 "Maximum number of levels to recurse i.e. depth of links to follow. Default "
 "%default"
 msgstr ""
+"Maksymalna ilość poziomów do rekursji np. najdalsza ilość linków do "
+"śledzenia. Domyślnie %default"
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:488
 msgid ""
@@ -17191,6 +17313,11 @@ msgid ""
 "a link, it will be ignored.By default, no links are ignored. If both filter "
 "regexp and match regexp are specified, then filter regexp is applied first."
 msgstr ""
+"Jakikolwiek link który pasuje do tego regularnego wyrażenia zostanie "
+"zignorowany. Ta opcja może być określona wiele razy, w takim wypadku dopóki "
+"jakiekolwiek regexp pasuje do linka, zostanie zignorowane. Domyślnie żadne "
+"linki nie są ignorowane. Jeśli oba filtry regesp i match regexp są "
+"okreslone, wówczas filtr regexp jest wpierw stosowany."
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:498
 msgid "Do not download CSS stylesheets."
