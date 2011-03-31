@@ -198,8 +198,10 @@ class Metadata(object):
         return copy.deepcopy(ans)
 
     def _clean_identifier(self, typ, val):
-        typ = icu_lower(typ).strip().replace(':', '').replace(',', '')
-        val = val.strip().replace(',', '|').replace(':', '|')
+        if typ:
+            typ = icu_lower(typ).strip().replace(':', '').replace(',', '')
+        if val:
+            val = val.strip().replace(',', '|').replace(':', '|')
         return typ, val
 
     def set_identifiers(self, identifiers):
