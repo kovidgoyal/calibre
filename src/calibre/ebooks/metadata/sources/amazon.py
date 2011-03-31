@@ -503,7 +503,7 @@ if __name__ == '__main__': # tests {{{
             (  # This isbn not on amazon
                 {'identifiers':{'isbn': '8324616489'}, 'title':'Learning Python',
                     'authors':['Lutz']},
-                [title_test('Learning Python: Powerful Object-Oriented Programming',
+                [title_test('Learning Python, 3rd Edition',
                     exact=True), authors_test(['Mark Lutz'])
                  ]
 

@@ -1,8 +1,14 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 """html2text: Turn HTML into equivalent Markdown-structured text."""
-__version__ = "2.39"
-__author__ = "Aaron Swartz (me@aaronsw.com)"
-__copyright__ = "(C) 2004-2008 Aaron Swartz. GNU GPL 3."
+# Last upstream version before changes
+#__version__ = "2.39"
+__license__ = 'GPL 3'
+__copyright__ = '''
+Copyright (c) 2011, John Schember <john@nachtimwald.com>
+(C) 2004-2008 Aaron Swartz <me@aaronsw.com>
+'''
 __contributors__ = ["Martin 'Joey' Schulze", "Ricardo Reyes", "Kevin Jay North"]
 
 # TODO:
@@ -11,7 +17,6 @@ __contributors__ = ["Martin 'Joey' Schulze", "Ricardo Reyes", "Kevin Jay North"]
 if not hasattr(__builtins__, 'True'): True, False = 1, 0
 import re, sys, urllib, htmlentitydefs, codecs
 import sgmllib
-import urlparse
 sgmllib.charref = re.compile('&#([xX]?[0-9a-fA-F]+)[^0-9a-fA-F]')
 
 try: from textwrap import wrap
@@ -145,9 +150,7 @@ class _html2text(sgmllib.SGMLParser):
         self.outcount = 0
         self.start = 1
         self.space = 0
-        self.a = []
         self.astack = []
-        self.acount = 0
         self.list = []
         self.blockquote = 0
         self.pre = 0
@@ -180,29 +183,6 @@ class _html2text(sgmllib.SGMLParser):
 
     def unknown_endtag(self, tag):
         self.handle_tag(tag, None, 0)
-
-    def previousIndex(self, attrs):
-        """ returns the index of certain set of attributes (of a link) in the
-            self.a list
-
-            If the set of attributes is not found, returns None
-        """
-        if not attrs.has_key('href'): return None
-
-        i = -1
-        for a in self.a:
-            i += 1
-            match = 0
-
-            if a.has_key('href') and a['href'] == attrs['href']:
-                if a.has_key('title') or attrs.has_key('title'):
-                        if (a.has_key('title') and attrs.has_key('title') and
-                            a['title'] == attrs['title']):
-                            match = True
-                else:
-                    match = True
-
-            if match: return i
 
     def handle_tag(self, tag, attrs, start):
         attrs = fixattrs(attrs)
@@ -268,34 +248,23 @@ class _html2text(sgmllib.SGMLParser):
                 if self.astack:
                     a = self.astack.pop()
                     if a:
-                        i = self.previousIndex(a)
-                        if i is not None:
-                            a = self.a[i]
-                        else:
-                            self.acount += 1
-                            a['count'] = self.acount
-                            a['outcount'] = self.outcount
-                            self.a.append(a)
-                        self.o("][" + `a['count']` + "]")
+                        title = ''
+                        if a.has_key('title'):
+                            title = ' "%s"' % a['title']
+                        self.o('](%s%s)' % (a['href'], title))
 
         if tag == "img" and start:
             attrsD = {}
             for (x, y) in attrs: attrsD[x] = y
             attrs = attrsD
             if attrs.has_key('src'):
-                attrs['href'] = attrs['src']
                 alt = attrs.get('alt', '')
-                i = self.previousIndex(attrs)
-                if i is not None:
-                    attrs = self.a[i]
-                else:
-                    self.acount += 1
-                    attrs['count'] = self.acount
-                    attrs['outcount'] = self.outcount
-                    self.a.append(attrs)
                 self.o("![")
                 self.o(alt)
-                self.o("]["+`attrs['count']`+"]")
+                title = ''
+                if attrs.has_key('title'):
+                    title = ' "%s"' % attrs['title']
+                self.o('](%s%s)' % (attrs['src'], title))
 
         if tag == 'dl' and start: self.p()
         if tag == 'dt' and not start: self.pbr()
@@ -373,7 +342,6 @@ class _html2text(sgmllib.SGMLParser):
                 self.out("\n")
                 self.space = 0
 
-
             if self.p_p:
                 self.out(('\n'+bq)*self.p_p)
                 self.space = 0
@@ -381,22 +349,6 @@ class _html2text(sgmllib.SGMLParser):
             if self.space:
                 if not self.lastWasNL: self.out(' ')
                 self.space = 0
-
-            if self.a and ((self.p_p == 2 and LINKS_EACH_PARAGRAPH) or force == "end"):
-                if force == "end": self.out("\n")
-
-                newa = []
-                for link in self.a:
-                    if self.outcount > link['outcount']:
-                        self.out("   ["+`link['count']`+"]: " + urlparse.urljoin(self.baseurl, link['href']))
-                        if link.has_key('title'): self.out(" ("+link['title']+")")
-                        self.out("\n")
-                    else:
-                        newa.append(link)
-
-                if self.a != newa: self.out("\n") # Don't need an extra line when nothing was done.
-
-                self.a = newa
 
             if self.abbr_list and force == "end":
                 for abbr, definition in self.abbr_list.items():
