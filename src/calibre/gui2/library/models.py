@@ -1132,7 +1132,7 @@ class DeviceBooksModel(BooksModel): # {{{
             self.sorted_map = list(self.map)
         else:
             self.sorted_map = list(range(len(self.db)))
-            self.sorted_map.sort(cmp=keygen, reverse=descending)
+            self.sorted_map.sort(key=keygen, reverse=descending)
         self.sorted_on = (self.column_map[col], order)
         self.sort_history.insert(0, self.sorted_on)
         if hasattr(keygen, 'db'):
