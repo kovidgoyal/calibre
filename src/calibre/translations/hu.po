@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-03-26 02:12+0000\n"
-"PO-Revision-Date: 2011-03-29 11:20+0000\n"
+"PO-Revision-Date: 2011-03-30 06:19+0000\n"
 "Last-Translator: Roadside <roadside@freemail.hu>\n"
 "Language-Team: Hungarian <hu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-03-30 04:36+0000\n"
+"X-Launchpad-Export-Date: 2011-03-31 04:34+0000\n"
 "X-Generator: Launchpad (build 12559)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:43
@@ -4904,6 +4904,10 @@ msgid ""
 "second and subsequently selected books will not be deleted or "
 "changed.<br><br>Please confirm you want to proceed."
 msgstr ""
+"A kiválasztott könyvek  formátuma és metaadata hozzáadódik az első "
+"kiválasztott könyvhöz</b> (%s). Az ISBN <i>nem</i> lesz egyesítve.<br><br> A "
+"második és az ezután következő kiválasztott könyveket sem törölni, sem "
+"megváltoztatni nem lehet.<br><br>Valóban folytatni szeretné?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:251
 msgid ""
@@ -4916,6 +4920,14 @@ msgid ""
 "and subsequently selected books will be permanently <b>deleted</b> from your "
 "calibre library.<br><br>  Are you <b>sure</b> you want to proceed?"
 msgstr ""
+"A kiválasztott könyvek  formátumát és metaadatait az <b>első kiválasztott "
+"könyvben</b> egyesítjük (%s). Az első kiválasztott könyv metaadata nem fog "
+"változni. Az író, a cím, az ISBN és egyéb metaadatok <i>nem</i> lesznek "
+"egyesítve.<br><br> Az egyesítés után a második és az ezután következő "
+"kiválasztott könyvek metaadatai <b>törlődni</b> fognak. <br><br>Az első "
+"kiválasztott könyv összes könyvformátuma megmarad, a második és az ezután "
+"következő könyvek minden duplikált formátuma véglegesen <b>törlődni</b> fog "
+"a calibre könyvtárából.  <br><br>Valóban folytatni szeretné?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:267
 msgid ""
@@ -4927,6 +4939,13 @@ msgid ""
 "books will be permanently <b>deleted</b> from your calibre library.<br><br>  "
 "Are you <b>sure</b> you want to proceed?"
 msgstr ""
+"A kiválasztott könyvek formátumát és metaadatait az <b>első kiválasztott "
+"könyvben</b> egyesítjük (%s). Az ISBN <i>nem</i> lesz egyesítve.<br><br>Az "
+"egyesítés után a második és az ezután következő kiválasztott könyvek "
+"<b>törlődni</b> fognak. <br><br>Az első kiválasztott könyv összes "
+"könyvformátuma megmarad, a második és az ezután következő könyvek minden "
+"duplikált formátuma véglegesen <b>törlődni</b> fog a calibre könyvtárából.  "
+"<br><br>Valóban folytatni szeretné?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/fetch_news.py:17
 msgid "F"
@@ -5205,6 +5224,7 @@ msgid ""
 "Not all the selected books were available in the %s format. You should "
 "convert them first."
 msgstr ""
+"Nem minden kiválasztott könyv formátuma %s. Először konvertálja át őket."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:127
 msgid "Multiple Books Selected"
@@ -7932,7 +7952,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/confirm_delete_ui.py:55
 msgid "&Show this warning again"
-msgstr "Mindig mutassam ezt a figyelmeztetést"
+msgstr "Mindig mutassa ezt a figyelmeztetést"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/conversion_error_ui.py:47
 msgid "ERROR"
@@ -8316,7 +8336,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:989
 msgid "The selected saved search/replace will be deleted. Are you sure?"
-msgstr ""
+msgstr "A kiválasztott keresés/csere törlődni fog. Valóban ezt szeretné?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1006
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1014
@@ -8494,10 +8514,14 @@ msgid ""
 "\n"
 "Future conversion of these books will use the default settings."
 msgstr ""
+"A kiválasztott könyvek tárolt konverziós beállításai eltávolításra "
+"kerülnek.\n"
+"\n"
+"Ezen könyvek a jövőben az alapértelmezett konverziós beállítást használják."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:576
 msgid "Remove &stored conversion settings for the selected books"
-msgstr ""
+msgstr "A kiválasztott könyvek tárolt konverziós beállításainak eltávolítása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:577
 msgid "Change &cover"
@@ -9382,7 +9406,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:219
 msgid "&Advanced"
-msgstr ""
+msgstr "&Haladó"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:220
 msgid "&Download now"
@@ -10274,7 +10298,7 @@ msgstr " - Műveletek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:424
 msgid "Do you really want to stop the selected job?"
-msgstr ""
+msgstr "Valóban le akarja állítani a kiválasztott műveletet?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:430
 msgid "Do you really want to stop all non-device jobs?"
@@ -10342,7 +10366,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:191
 msgid "Do Quick Search (you can also press the Enter key)"
-msgstr ""
+msgstr "Gyorskeresés indítása (az Enter billentyű megnyomása után)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:197
 msgid "Reset Quick Search"
@@ -10980,7 +11004,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns.py:101
 msgid "The selected column is not a custom column"
-msgstr ""
+msgstr "A kiválasztott oszlop nem egy egyéni oszlop"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns.py:103
 msgid "Do you really want to delete column %s and all its data?"
@@ -12444,7 +12468,7 @@ msgstr "Keresés"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:321
 msgid "The selected search will be <b>permanently deleted</b>. Are you sure?"
-msgstr ""
+msgstr "A kiválasztott keresés <b>véglegesen törlődik</b>. Folytatja?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:364
 msgid "Search (For Advanced Search click the button to the left)"
