@@ -588,14 +588,14 @@ from calibre.ebooks.metadata.nicebooks import NiceBooks, NiceBooksCovers
 # from calibre.ebooks.metadata.amazon import Amazon , AmazonSocial
 from calibre.ebooks.metadata.fictionwise import Fictionwise
 from calibre.ebooks.metadata.covers import OpenLibraryCovers, \
-        AmazonCovers, DoubanCovers, LibrarythingCovers
+        AmazonCovers, DoubanCovers #, LibrarythingCovers
 from calibre.library.catalog import CSV_XML, EPUB_MOBI, BIBTEX
 from calibre.ebooks.epub.fix.unmanifested import Unmanifested
 from calibre.ebooks.epub.fix.epubcheck import Epubcheck
 
 plugins = [HTML2ZIP, PML2PMLZ, TXT2TXTZ, ArchiveExtract, GoogleBooks, ISBNDB, Amazon, #AmazonSocial,
         KentDistrictLibrary, DoubanBooks, NiceBooks, CSV_XML, EPUB_MOBI, BIBTEX, Unmanifested,
-        Epubcheck, OpenLibraryCovers, AmazonCovers, DoubanCovers, LibrarythingCovers,
+        Epubcheck, OpenLibraryCovers, AmazonCovers, DoubanCovers, #LibrarythingCovers,
         NiceBooksCovers]
 plugins += [
     ComicInput,
