@@ -5,7 +5,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, re, cStringIO, base64, httplib, subprocess, hashlib, shutil, time, glob
+import os, re, cStringIO, base64, httplib, subprocess, hashlib, shutil, time, \
+    glob, stat
 from subprocess import check_call
 from tempfile import NamedTemporaryFile, mkdtemp
 from zipfile import ZipFile
@@ -344,6 +345,8 @@ class UploadUserManual(Command): # {{{
     def build_plugin_example(self, path):
         from calibre import CurrentDir
         with NamedTemporaryFile(suffix='.zip') as f:
+            os.fchmod(f.fileno(),
+                stat.S_IRUSR|stat.S_IRGRP|stat.S_IROTH|stat.S_IWRITE)
             with CurrentDir(self.d(path)):
                 with ZipFile(f, 'w') as zf:
                     for x in os.listdir('.'):
@@ -352,8 +355,8 @@ class UploadUserManual(Command): # {{{
                             for y in os.listdir(x):
                                 zf.write(os.path.join(x, y))
             bname = self.b(path) + '_plugin.zip'
-            subprocess.check_call(['scp', f.name, 'divok:%s/%s'%(DOWNLOADS,
-                bname)])
+            dest = '%s/%s'%(DOWNLOADS, bname)
+            subprocess.check_call(['scp', f.name, 'divok:'+dest])
 
     def run(self, opts):
         path = self.j(self.SRC, 'calibre', 'manual', 'plugin_examples')

@@ -1,4 +1,3 @@
-#!/usr/bin/env  python
 from calibre.web.feeds.news import BasicNewsRecipe
 from datetime import datetime, timedelta
 from calibre.ebooks.BeautifulSoup import Tag,BeautifulSoup
@@ -6,18 +5,17 @@ from calibre.utils.magick import Image, PixelWand
 from urllib2 import Request, urlopen, URLError
 
 class Estadao(BasicNewsRecipe):
-    THUMBALIZR_API        = "0123456789abcdef01234567890" # ---->Get your at http://www.thumbalizr.com/
+    THUMBALIZR_API        = '' # ---->Get your at http://www.thumbalizr.com/ and put here
     LANGUAGE              = 'pt_br'
-    language              = 'pt'
+    language = 'pt'
     LANGHTM               = 'pt-br'
     ENCODING              = 'utf'
     ENCHTM                = 'utf-8'
     directionhtm          = 'ltr'
-    requires_version      = (0,8,47)
+    requires_version      = (0,7,47)
     news                  = True
-    publication_type      = 'newsportal'
 
-    title                 = u'Estadao'
+    title                 = u'Estad\xe3o'
     __author__            = 'Euler Alves'
     description           = u'Brazilian news from Estad\xe3o'
     publisher             = u'Estad\xe3o'
@@ -32,14 +30,6 @@ class Estadao(BasicNewsRecipe):
     use_embedded_content  = False
     remove_empty_feeds    = True
     timefmt               = ' [%d %b %Y (%a)]'
-
-    html2lrf_options      = [
-                            '--comment', description
-                            ,'--category', category
-                            ,'--publisher', publisher
-    ]
-
-    html2epub_options     = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"'
 
     hoje                  = datetime.now()-timedelta(days=2)
     pubdate               = hoje.strftime('%a, %d %b')
@@ -68,6 +58,7 @@ class Estadao(BasicNewsRecipe):
                     ,dict(name='link')
                     ,dict(name='script')
     ]
+
 
     feeds = [
     (u'\xDAltimas Not\xEDcias', u'http://www.estadao.com.br/rss/ultimas.xml')
@@ -109,6 +100,8 @@ class Estadao(BasicNewsRecipe):
             img.open(iurl)
             width, height = img.size
             print 'img is: ', iurl, 'width is: ', width, 'height is: ', height
+            if img < 0:
+                raise RuntimeError('Out of memory')
             pw = PixelWand()
             if( width > height and width > 590) :
                 print 'Rotate image'
@@ -117,18 +110,20 @@ class Estadao(BasicNewsRecipe):
         return soup
 
     def get_cover_url(self):
-        cover_url      = self.CAPA
-        pedido         = Request(self.CAPA)
-        pedido.add_header('User-agent','Mozilla/5.0 (Windows; U; Windows NT 5.1; '+self.LANGHTM+'; userid='+self.THUMBALIZR_API+') Calibre/0.8.47 (like Gecko)')
-        pedido.add_header('Accept-Charset',self.ENCHTM)
-        pedido.add_header('Referer',self.SCREENSHOT)
-        try:
-            resposta   = urlopen(pedido)
-            soup       = BeautifulSoup(resposta)
-            cover_item = soup.find('body')
-            if cover_item:
+        if self.THUMBALIZR_API:
+            cover_url      = self.CAPA
+            pedido         = Request(self.CAPA)
+            pedido.add_header('User-agent','Mozilla/5.0 (Windows; U; Windows NT 5.1; '+self.LANGHTM+'; userid='+self.THUMBALIZR_API+') Calibre/0.8.47 (like Gecko)')
+            pedido.add_header('Accept-Charset',self.ENCHTM)
+            pedido.add_header('Referer',self.SCREENSHOT)
+            try:
+                resposta   = urlopen(pedido)
+                soup       = BeautifulSoup(resposta)
+                cover_item = soup.find('body')
+                if cover_item:
+                    cover_url='http://api.thumbalizr.com/?api_key='+self.THUMBALIZR_API+'&url='+self.SCREENSHOT+'&width=600&quality=90'
+                return cover_url
+            except URLError:
                 cover_url='http://api.thumbalizr.com/?api_key='+self.THUMBALIZR_API+'&url='+self.SCREENSHOT+'&width=600&quality=90'
-            return cover_url
-        except URLError:
-            cover_url='http://api.thumbalizr.com/?api_key='+self.THUMBALIZR_API+'&url='+self.SCREENSHOT+'&width=600&quality=90'
-            return cover_url
+                return cover_url
+

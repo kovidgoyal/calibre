@@ -110,4 +110,11 @@ def xml_to_unicode(raw, verbose=False, strip_encoding_pats=False,
     if resolve_entities:
         raw = substitute_entites(raw)
 
+    if encoding and encoding.lower().replace('_', '-').strip() in (
+            'gb2312', 'chinese', 'csiso58gb231280', 'euc-cn', 'euccn',
+            'eucgb2312-cn', 'gb2312-1980', 'gb2312-80', 'iso-ir-58'):
+        # Microsoft Word exports to HTML with encoding incorrectly set to
+        # gb2312 instead of gbk. gbk is a superset of gb2312, anyway.
+        encoding = 'gbk'
+
     return raw, encoding

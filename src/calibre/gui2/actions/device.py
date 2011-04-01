@@ -82,7 +82,8 @@ class ShareConnMenu(QMenu): # {{{
             keys = sorted(opts.accounts.keys())
             for account in keys:
                 formats, auto, default = opts.accounts[account]
-                dest = 'mail:'+account+';'+formats
+                subject = opts.subjects.get(account, '')
+                dest = 'mail:'+account+';'+formats+';'+subject
                 action1 = DeviceAction(dest, False, False, I('mail.png'),
                         account)
                 action2 = DeviceAction(dest, True, False, I('mail.png'),
