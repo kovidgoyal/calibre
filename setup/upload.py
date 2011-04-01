@@ -356,7 +356,7 @@ class UploadUserManual(Command): # {{{
                                 zf.write(os.path.join(x, y))
             bname = self.b(path) + '_plugin.zip'
             dest = '%s/%s'%(DOWNLOADS, bname)
-            subprocess.check_call(['scp', f.name, dest])
+            subprocess.check_call(['scp', f.name, 'divok:'+dest])
 
     def run(self, opts):
         path = self.j(self.SRC, 'calibre', 'manual', 'plugin_examples')

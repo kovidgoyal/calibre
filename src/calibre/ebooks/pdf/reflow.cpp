@@ -721,7 +721,7 @@ Reflow::render(int first_page, int last_page) {
     globalParams->setTextEncoding(encoding);
 
     int doc_pages = doc->getNumPages();
-    if (last_page < 1 or last_page > doc_pages) last_page = doc_pages;
+    if (last_page < 1 || last_page > doc_pages) last_page = doc_pages;
     if (first_page < 1) first_page = 1;
     if (first_page > last_page) first_page = last_page;
 
