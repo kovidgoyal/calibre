@@ -107,21 +107,27 @@ def overdrive_search(br, q, title, author):
     print "printing list with author "+str(author)+":"
     print list(s.get_author_tokens(author))
     author_tokens = list(s.get_author_tokens(author))
+    print "there are "+str(len(author_tokens))+" author tokens"
     for token in author_tokens:
         print "cleaned up author token is: "+str(token)
-    author_q = ' '.join(author_tokens)
+
 
     title_tokens = list(s.get_title_tokens(title))
+    print "there are "+str(len(title_tokens))+" title tokens"
     for token in title_tokens:
         print "cleaned up title token is: "+str(token)
-    title_q = '+'.join(title_tokens)
-    #author_q = separator.join(for x in author)
-    # query terms
-    #author_q = re.sub('\s', '+', author_q)
-    print "final author query is "+str(author_q)
-    print "final title query is "+str(title_q)
-    q_xref = q+'SearchResults.svc/GetResults?iDisplayLength=50&sSearch='+title_q
-    query = '{"szKeyword":"'+author_q+'"}'
+
+    if len(title_tokens) >= len(author_tokens):
+        initial_q = ' '.join(title_tokens)
+        xref_q = '+'.join(author_tokens)
+    else:
+        initial_q = ' '.join(author_tokens)
+        xref_q = '+'.join(title_tokens)
+
+    print "initial query is "+str(initial_q)
+    print "cross reference query is "+str(xref_q)
+    q_xref = q+'SearchResults.svc/GetResults?iDisplayLength=50&sSearch='+xref_q
+    query = '{"szKeyword":"'+initial_q+'"}'
 
     # main query, requires specific Content Type header
     req = mechanize.Request(q_query)
@@ -133,12 +139,21 @@ def overdrive_search(br, q, title, author):
     safe_query(br, q_init_search)
 
     # get the search results object
-    xreq = mechanize.Request(q_xref)
-    xreq.add_header('X-Requested-With', 'XMLHttpRequest')
-    xreq.add_header('Referer', q_init_search)
-    xreq.add_header('Accept', 'application/json, text/javascript, */*')
-    raw = br.open_novisit(xreq).read()
-    print "overdrive search result is:\n"+raw
+    results = False
+    while results == False:
+        xreq = mechanize.Request(q_xref)
+        xreq.add_header('X-Requested-With', 'XMLHttpRequest')
+        xreq.add_header('Referer', q_init_search)
+        xreq.add_header('Accept', 'application/json, text/javascript, */*')
+        raw = br.open_novisit(xreq).read()
+        print "overdrive search result is:\n"+raw
+        for m in re.finditer(ur'"iTotalDisplayRecords":(?P<displayrecords>\d+).*?"iTotalRecords":(?P<totalrecords>\d+)', raw):
+            if int(m.group('displayrecords')) >= 1:
+                results = True
+            elif int(m.group('totalrecords')) >= 1:
+                xref_q = ''
+                q_xref = q+'SearchResults.svc/GetResults?iDisplayLength=50&sSearch='+xref_q
+        
     print "\n\nsorting results"
     return sort_ovrdrv_results(raw, title, title_tokens, author, author_tokens)
 
@@ -162,7 +177,7 @@ def sort_ovrdrv_results(raw, title=None, title_tokens=None, author=None, author_
                 return format_results(reserveid, od_title, subtitle, series, publisher, creators, thumbimage, worldcatlink, formatid)            
             else:
                 creators = creators.split(', ')
-                print "fixed creators are: "+str(creators)
+                print "split creators from results are: "+str(creators)
                 # if an exact match in a preferred format occurs
                 if creators[0] == author[0] and od_title == title and int(formatid) in [1, 50, 410, 900]:
                     print "Got Exact Match!!!"
@@ -275,9 +290,10 @@ def get_social_metadata(title, authors, isbn, ovrdrv_id=None):
         ovrdrv_id = ovrdrv_data[7]
     mi.set_identifier('overdrive', ovrdrv_id)
     mi.title = ovrdrv_data[8]
-
+    print "populated basic social metadata, getting detailed metadata"
     if ovrdrv_data and get_metadata_detail(br, ovrdrv_data[1], mi, isbn):
         return mi
+    print "failed to get detailed metadata, returning basic info"
     return mi
 
 def get_cover_url(isbn, title, author, br, ovrdrv_id=None):
@@ -378,7 +394,7 @@ def get_metadata_detail(br, metadata_url, mi, isbn=None):
     #elif isbn is not None:
     #    mi.set_identifier('isbn', isbn)
     if subjects:
-        mi.tags = subjects
+        mi.tags = [tag.strip() for tag in subjects[0].split(',')]
         print "tags are "+str(mi.tags)
     if desc:
         desc = desc[0]
@@ -410,7 +426,7 @@ def main(args=sys.argv):
             #(None, '9780061747649', 'Mental_Floss Presents: Condensed Knowledge', ['Will Pearson', 'Mangesh Hattikudur']),
             #(None, '9781400050802', 'The Zombie Survival Guide', ['Max Brooks']), # Two books with this title by this author
             #(None, '9781775414315', 'The Worst Journey in the World / Antarctic 1910-1913', ['Apsley Cherry-Garrard']), # Garbage sub-title
-            (None, '9780440335160', 'Outlander', ['Diana Gabaldon']), # Returns lots of results to sort through to get the best match
+            #(None, '9780440335160', 'Outlander', ['Diana Gabaldon']), # Returns lots of results to sort through to get the best match
             (None, '9780345509741', 'The Horror Stories of Robert E. Howard', ['Robert E. Howard']), # Complex title with initials/dots stripped, some results don't have a cover
             ]:
         cpath = os.path.join(tdir, title+'.jpg')
@@ -424,9 +440,9 @@ def main(args=sys.argv):
             print "curl is "+curl
             #open(cpath, 'wb').write(br.open_novisit(curl).read())
             #print 'Cover for', title, 'saved to', cpath
-
+        st = time.time()
         print get_social_metadata(title, author, isbn, ovrdrv_id)
-        #print '\n\n', time.time() - st, '\n\n'
+        print '\n\n Took ', time.time() - st, ' to get detailed metadata\n\n'
 
     return 0
 
