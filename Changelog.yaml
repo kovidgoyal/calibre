@@ -23,14 +23,14 @@
   date: 2011-04-01
 
   new features:
-    - title: "Email delivery: You can now specify a subject that calibre will use when sending emails per email account, configured in Preferences->Sending by email. The subject is a template of the same kind used in Save to Disk, etc. So youcan specift the title/authors/series/whatever in the template."
+    - title: "Email delivery: You can now specify a subject that calibre will use when sending emails per email account, configured in Preferences->Sending by email. The subject is a template of the same kind used in Save to Disk, etc. So you can specift the title/authors/series/whatever in the template."
       tickets: [743535]
 
     - title: "Apple driver: When an iDevice is detected, inform the user about the Connect to iTunes method instead of trying to connect directly to the device, as the latter can be buggy. See http://www.mobileread.com/forums/showthread.php?t=127883 for details"
 
     - title: "SONY driver: Search for books on the device in all directories not just database/media/books. This can be turned off by customizing the SONY plugin in Preferences->Plugins"
 
-    - title: "EPUB Output: Remove any margins specified via an Adobe page template in the input document. This means that the margins psecified in calibre are more likely to be the actual margins used."
+    - title: "EPUB Output: Remove any margins specified via an Adobe page template in the input document. This means that the margins specified in calibre are more likely to be the actual margins used."
 
     - title: "When reading metadata from filenames, allow publisher and published date to be read from the filename"
       tickets: [744020]
@@ -49,6 +49,8 @@
 
     - title: "FB2 Output: Option to set the FB2 genre explicitly."
       tickets: [743178]
+
+    - title: "Plugin developers: calibre now has a new plugin API, see http://calibre-ebook.com/user_manual/creating_plugins.html. Your existing plugins should continue to work, but it would be good to test them to make sure."
   
   bug fixes:
     - title: "Fix text color in the search bar set to black instead of the system font color"
