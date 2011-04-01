@@ -11318,11 +11318,11 @@ msgstr "Nieznany wyjątek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:111
 msgid "Title &sort:"
-msgstr "%Sortowanie według tytułu:"
+msgstr "Sortowanie według &tytułu:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:220
 msgid "Author s&ort:"
-msgstr "%Sortowanie według autora:"
+msgstr "S&ortowanie według autora:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:348
 msgid "&Number:"
@@ -14842,7 +14842,7 @@ msgstr ""
 "Szablon dla tworzenia cytatów z pól bazy danych.\n"
 "Powinien być szablon z {} zamkniętymi polami.\n"
 "Dostępne pola: %s.\n"
-"Domyślnie: '%default'\n"
+"Domyślnie: '%%default'\n"
 "Odnosi się do: formatu wyjściowego BIBTEX"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:282

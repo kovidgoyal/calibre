@@ -13247,7 +13247,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:160
 msgid "Your %s &email address:"
-msgstr "Vaš e-poštni naslov:"
+msgstr "Vaš %s &e-poštni naslov:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:161
 msgid "Your %s &username:"
