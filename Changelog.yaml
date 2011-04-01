@@ -19,6 +19,77 @@
 #  new recipes:
 #    - title: 
 
+- version: 0.7.53
+  date: 2011-04-01
+
+  new features:
+    - title: "Email delivery: You can now specify a subject that calibre will use when sending emails per email account, configured in Preferences->Sending by email. The subject is a template of the same kind used in Save to Disk, etc. So you can specift the title/authors/series/whatever in the template."
+      tickets: [743535]
+
+    - title: "Apple driver: When an iDevice is detected, inform the user about the Connect to iTunes method instead of trying to connect directly to the device, as the latter can be buggy. See http://www.mobileread.com/forums/showthread.php?t=127883 for details"
+
+    - title: "SONY driver: Search for books on the device in all directories not just database/media/books. This can be turned off by customizing the SONY plugin in Preferences->Plugins"
+
+    - title: "EPUB Output: Remove any margins specified via an Adobe page template in the input document. This means that the margins specified in calibre are more likely to be the actual margins used."
+
+    - title: "When reading metadata from filenames, allow publisher and published date to be read from the filename"
+      tickets: [744020]
+
+    - title: "Remove the option to show a second tool bar from Preferences->Look & Feel. Instead go to Preferences->Toolbars and add items to the second toolbar to control exactly what is visible there."
+      tickets: [742686]
+
+    - title: "Add a tweak that can be used to have the calibre content server listen for IPv6 connections."
+      tickets: [743486]
+
+    - title: "When clicking Next or Previous in the edit metadata dialog, then active book in the main book list is also changed"
+      tickets: [743533]
+
+    - title: "Remember the previously used setting for Match all/Match any under the Tag Browser when calibre restarts"
+      tickets: [743645]
+
+    - title: "FB2 Output: Option to set the FB2 genre explicitly."
+      tickets: [743178]
+
+    - title: "Plugin developers: calibre now has a new plugin API, see http://calibre-ebook.com/user_manual/creating_plugins.html. Your existing plugins should continue to work, but it would be good to test them to make sure."
+  
+  bug fixes:
+    - title: "Fix text color in the search bar set to black instead of the system font color"
+      tickets: [746846]
+
+    - title: "Workaround for Word bug where Word uses gb2312 as the encoding when exporting CHinese docs to HTML istead of gbk"
+      tickets: [745428]
+
+    - title: "Make sorting on the device view faster and more robust."
+      tickets: [742626]
+
+    - title: "E-book viewer: Fix viewer losing place in very long single file documents when window resized."
+      tickets: [745001]
+
+    - title: "MOBI Output: Workaround for Amazon's MOBI renderer not rendering top margins on ul and ol tags."
+      tickets: [744365]
+
+    - title: "EPUB Input: Workaround for invalid EPUBs produced by someone named 'ibooks, Inc.'."
+      tickets: [744122]
+
+    - title: "RTF Input: Handle RTF files with too many levels of list nesting."
+      tickets: [743243]
+
+  improved recipes:
+    - Irish Times
+    - LifeHacker
+    - Estadao
+    - Folha de Sao Paulo
+
+  new recipes:
+    - title: Financieele Dagblad
+      author: marvin_2
+
+    - title: "Prost Amerika, WV Hooligan and SB Nation"
+      author: rylsfan
+
+    - title: "Cracked.com"
+      author: Nudgenudge
+
 - version: 0.7.52
   date: 2011-03-25
 
