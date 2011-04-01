@@ -121,6 +121,12 @@ class FilenamePattern(QWidget, Ui_Form):
         else:
             self.series_index.setText(_('No match'))
 
+        if mi.publisher:
+            self.publisher.setText(mi.publisher)
+
+        if mi.pubdate:
+            self.pubdate.setText(mi.pubdate.strftime('%Y-%m-%d'))
+
         self.isbn.setText(_('No match') if mi.isbn is None else str(mi.isbn))
 
 

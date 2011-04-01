@@ -31,8 +31,11 @@ class cmd_commit(_cmd_commit):
         summary = ''
         raw = urllib.urlopen('https://bugs.launchpad.net/calibre/+bug/' +
                 bug).read()
-        h1 = html.fromstring(raw).xpath('//h1[@id="edit-title"]')[0]
-        summary = html.tostring(h1, method='text', encoding=unicode).strip()
+        try:
+            h1 = html.fromstring(raw).xpath('//h1[@id="edit-title"]')[0]
+            summary = html.tostring(h1, method='text', encoding=unicode).strip()
+        except:
+            summary = 'Private bug'
         print 'Working on bug:', summary
         if summary:
             msg = msg.replace('#%s'%bug, '#%s (%s)'%(bug, summary))

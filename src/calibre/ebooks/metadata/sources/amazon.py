@@ -483,7 +483,6 @@ class Amazon(Source):
             log.exception('Failed to download cover from:', cached_url)
     # }}}
 
-
 if __name__ == '__main__': # tests {{{
     # To run these test use: calibre-debug -e
     # src/calibre/ebooks/metadata/sources/amazon.py
@@ -504,7 +503,7 @@ if __name__ == '__main__': # tests {{{
             (  # This isbn not on amazon
                 {'identifiers':{'isbn': '8324616489'}, 'title':'Learning Python',
                     'authors':['Lutz']},
-                [title_test('Learning Python: Powerful Object-Oriented Programming',
+                [title_test('Learning Python, 3rd Edition',
                     exact=True), authors_test(['Mark Lutz'])
                  ]
 

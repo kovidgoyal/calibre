@@ -15,6 +15,7 @@ from calibre.customize import Plugin
 from calibre.utils.logging import ThreadSafeLog, FileStream
 from calibre.utils.config import JSONConfig
 from calibre.utils.titlecase import titlecase
+from calibre.ebooks.metadata import check_isbn
 
 msprefs = JSONConfig('metadata_sources.json')
 
@@ -244,6 +245,7 @@ class Source(Plugin):
             mi.title = fixcase(mi.title)
         mi.authors = list(map(fixcase, mi.authors))
         mi.tags = list(map(fixcase, mi.tags))
+        mi.isbn = check_isbn(mi.isbn)
 
     # }}}
 
