@@ -34,7 +34,7 @@ class iHeuteRecipe(BasicNewsRecipe):
                    dict(name='table', attrs={'class':['video-16ku9']})]
     remove_tags_after  = [dict(name='div',attrs={'id':['related','related2']})]
 
-    keep_only_tags = [dict(name='div', attrs={'class':['art-full adwords-text','dil-day']})
+    keep_only_tags = [dict(name='div', attrs={'class':['art-full adwords-text','dil-day','art-full']})
                       ,dict(name='table',attrs={'class':['kemel-box']})]
 
     def print_version(self, url):
