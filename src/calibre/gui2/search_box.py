@@ -109,7 +109,7 @@ class SearchBox2(QComboBox): # {{{
     def normalize_state(self):
         self.setToolTip(self.tool_tip_text)
         self.line_edit.setStyleSheet(
-            'QLineEdit{color:inherit;background-color:%s;}' % self.normal_background)
+            'QLineEdit{color:none;background-color:%s;}' % self.normal_background)
 
     def text(self):
         return self.currentText()
