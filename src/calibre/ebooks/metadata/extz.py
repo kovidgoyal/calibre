@@ -4,7 +4,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 
 '''
-Read meta information from TXT files
+Read meta information from extZ (TXTZ, HTMLZ...) files.
 '''
 
 import os
