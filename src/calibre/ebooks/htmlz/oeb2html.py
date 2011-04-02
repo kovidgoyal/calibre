@@ -26,15 +26,15 @@ class OEB2HTML(object):
     links and images can be retrieved after calling oeb2html to get the mapping
     of OEB links and images to the new names used in the html returned by oeb2html.
     Images will always be referenced as if they are in an images directory.
-    
+
     Use get_css to get the CSS classes for the OEB document as a string.
     '''
-    
+
     def __init__(self, log=None):
         self.log = default_log if log is None else log
         self.links = {}
         self.images = {}
-        
+
     def oeb2html(self, oeb_book, opts):
         self.log.info('Converting OEB book to HTML...')
         self.opts = opts
@@ -52,7 +52,7 @@ class OEB2HTML(object):
             output.append('\n\n')
         output.append('</body></html>')
         return ''.join(output)
-    
+
     def dump_text(self, elem, stylizer, page):
         raise NotImplementedError
 
@@ -78,7 +78,7 @@ class OEB2HTML(object):
                 href = '#%s' % self.links[href]
             attribs['href'] = href
         return attribs
-    
+
     def rewrite_images(self, tag, attribs, page):
         if tag == 'img':
             src = attribs.get('src', None)
@@ -102,14 +102,14 @@ class OEB2HTML(object):
             if item.media_type == 'text/css':
                 css = item.data.cssText
                 break
-        return css    
+        return css
 
 
 class OEB2HTMLNoCSSizer(OEB2HTML):
     '''
     This will remap a small number of CSS styles to equivalent HTML tags.
     '''
-    
+
     def dump_text(self, elem, stylizer, page):
         '''
         @elem: The element in the etree that we are working on.
@@ -218,7 +218,7 @@ class OEB2HTMLInlineCSSizer(OEB2HTML):
         tags = []
         tag = barename(elem.tag)
         attribs = elem.attrib
-        
+
         style_a = '%s' % style
         if tag == 'body':
             tag = 'div'
@@ -226,7 +226,7 @@ class OEB2HTMLInlineCSSizer(OEB2HTML):
             if not style['page-break-before'] == 'always':
                 style_a = 'page-break-before: always;' + ' ' if style_a else '' + style_a
         tags.append(tag)
-        
+
         # Remove attributes we won't want.
         if 'class' in attribs:
             del attribs['class']
@@ -275,7 +275,7 @@ class OEB2HTMLClassCSSizer(OEB2HTML):
     inline classes (style tag in the head) or reference an external
     CSS file called style.css.
     '''
-    
+
     def mlize_spine(self, oeb_book):
         output = []
         for item in oeb_book.spine:
@@ -283,7 +283,7 @@ class OEB2HTMLClassCSSizer(OEB2HTML):
             stylizer = Stylizer(item.data, item.href, oeb_book, self.opts)
             output += self.dump_text(item.data.find(XHTML('body')), stylizer, item)
             output.append('\n\n')
-        if self.opts.class_style == 'external':
+        if self.opts.htmlz_class_style == 'external':
             css = u'<link href="style.css" rel="stylesheet" type="text/css" />'
         else:
             css =  u'<style type="text/css">' + self.get_css(oeb_book) + u'</style>'
@@ -307,16 +307,16 @@ class OEB2HTMLClassCSSizer(OEB2HTML):
 
         # Setup our variables.
         text = ['']
-        style = stylizer.style(elem)
+        #style = stylizer.style(elem)
         tags = []
         tag = barename(elem.tag)
         attribs = elem.attrib
-        
+
         if tag == 'body':
             tag = 'div'
             attribs['id'] = self.get_link_id(page.href, '')
         tags.append(tag)
-        
+
         # Remove attributes we won't want.
         if 'style' in attribs:
             del attribs['style']

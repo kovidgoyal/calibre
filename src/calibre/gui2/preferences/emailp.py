@@ -5,6 +5,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import textwrap
+
 from PyQt4.Qt import QAbstractTableModel, QVariant, QFont, Qt
 
 
@@ -26,15 +28,15 @@ class EmailAccounts(QAbstractTableModel): # {{{
         self.default_font = QFont()
         self.default_font.setBold(True)
         self.default_font = QVariant(self.default_font)
-        self.tooltips =[NONE] + map(QVariant,
+        self.tooltips =[NONE] + list(map(QVariant, map(textwrap.fill,
             [_('Formats to email. The first matching format will be sent.'),
              _('Subject of the email to use when sending. When left blank '
-               'the title will be used for the subject. Also, the same ' 
+               'the title will be used for the subject. Also, the same '
                'templates used for "Save to disk" such as {title} and '
                '{author_sort} can be used here.'),
              '<p>'+_('If checked, downloaded news will be automatically '
                      'mailed <br>to this email address '
-                     '(provided it is in one of the listed formats).')])
+                     '(provided it is in one of the listed formats).')])))
 
     def rowCount(self, *args):
         return len(self.account_order)

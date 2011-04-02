@@ -147,7 +147,8 @@ class ConvertAction(InterfaceAction):
     def book_auto_converted_mail(self, job):
         temp_files, fmt, book_id, delete_from_library, to, fmts, subject = self.conversion_jobs[job]
         self.book_converted(job)
-        self.gui.send_by_mail(to, fmts, delete_from_library, subject, specific_format=fmt, send_ids=[book_id], do_auto_convert=False)
+        self.gui.send_by_mail(to, fmts, delete_from_library, subject=subject,
+                specific_format=fmt, send_ids=[book_id], do_auto_convert=False)
 
     def book_auto_converted_news(self, job):
         temp_files, fmt, book_id = self.conversion_jobs[job]
