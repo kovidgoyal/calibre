@@ -52,8 +52,7 @@ class HTMLZOutput(OutputFormatPlugin):
         else:
             from calibre.ebooks.htmlz.oeb2html import OEB2HTMLClassCSSizer as OEB2HTMLizer
 
-
-        with TemporaryDirectory('_txtz_output') as tdir:
+        with TemporaryDirectory('_htmlz_output') as tdir:
             htmlizer = OEB2HTMLizer(log)
             html = htmlizer.oeb2html(oeb_book, opts)
 
