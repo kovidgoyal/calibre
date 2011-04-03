@@ -136,17 +136,17 @@ class PostInstall:
         self.icon_resources = []
         self.menu_resources = []
         self.mime_resources = []
-        if islinux:
+        if islinux or isfreebsd:
             self.setup_completion()
         self.install_man_pages()
-        if islinux:
+        if islinux or isfreebsd:
             self.setup_desktop_integration()
         self.create_uninstaller()
 
         from calibre.utils.config import config_dir
         if os.path.exists(config_dir):
             os.chdir(config_dir)
-            if islinux:
+            if islinux or isfreebsd:
                 for f in os.listdir('.'):
                     if os.stat(f).st_uid == 0:
                         os.rmdir(f) if os.path.isdir(f) else os.unlink(f)
