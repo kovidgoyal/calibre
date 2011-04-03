@@ -1386,12 +1386,19 @@ ol, ul { padding-left: 2em; }
         self.purgedata()
 
     def s_text_s(self, tag, attrs):
-        """ Generate a number of spaces. ODF has an element; HTML uses &nbsp;
-            We use &#160; so we can send the output through an XML parser if we desire to
+        # Changed by Kovid to fix non breaking spaces being prepended to
+        # element instead of being part of the text flow.
+        # We don't use an entity for the nbsp as the contents of self.data will
+        # be escaped on writeout.
+        """ Generate a number of spaces. We use the non breaking space for
+        the text:s ODF element.
         """
-        c = attrs.get( (TEXTNS,'c'),"1")
-        for x in xrange(int(c)):
-            self.writeout('&#160;')
+        try:
+            c = int(attrs.get((TEXTNS, 'c'), 1))
+        except:
+            c = 0
+        if c > 0:
+            self.data.append(u'\u00a0'*c)
 
     def s_text_span(self, tag, attrs):
         """ The <text:span> element matches the <span> element in HTML. It is
