@@ -7,6 +7,7 @@ class SmithsonianMagazine(BasicNewsRecipe):
     __author__     = 'Krittika Goyal'
     oldest_article = 31#days
     max_articles_per_feed = 50
+    use_embedded_content = False
     #encoding = 'latin1'
     recursions = 1
     match_regexps = ['&page=[2-9]$']

@@ -15,10 +15,10 @@ class InternationalHeraldTribune(BasicNewsRecipe):
     language = 'en'
 
     oldest_article = 1
-    max_articles_per_feed = 10
+    max_articles_per_feed = 30
     no_stylesheets = True
 
-    remove_tags    = [dict(name='div', attrs={'class':'footer'}),
+    remove_tags    = [dict(name='div', attrs={'class':['footer','header']}),
                       dict(name=['form'])]
     preprocess_regexps = [
             (re.compile(r'<!-- webtrends.*', re.DOTALL),
@@ -26,6 +26,8 @@ class InternationalHeraldTribune(BasicNewsRecipe):
                           ]
     extra_css      = '.headline {font-size: x-large;} \n .fact { padding-top: 10pt  }'
 
+    remove_empty_feeds = True
+    
     feeds          = [
                       (u'Frontpage', u'http://www.iht.com/rss/frontpage.xml'),
                       (u'Business', u'http://www.iht.com/rss/business.xml'),
@@ -46,13 +48,15 @@ class InternationalHeraldTribune(BasicNewsRecipe):
                     ]
     temp_files = []
     articles_are_obfuscated = True
-
-    def get_obfuscated_article(self, url, logger):
+    
+    masthead_url = 'http://graphics8.nytimes.com/images/misc/iht-masthead-logo.gif'
+    
+    def get_obfuscated_article(self, url):
         br = self.get_browser()
         br.open(url)
-        br.select_form(name='printFriendly')
-        res = br.submit()
-        html = res.read()
+        response1 = br.follow_link(url_regex=re.compile(r'.*pagewanted=print.*'))
+        html = response1.read()
+        
         self.temp_files.append(PersistentTemporaryFile('_iht.html'))
         self.temp_files[-1].write(html)
         self.temp_files[-1].close()
