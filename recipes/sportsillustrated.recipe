@@ -1,0 +1,106 @@
+from calibre.web.feeds.recipes import BasicNewsRecipe
+#from calibre.ebooks.BeautifulSoup import BeautifulSoup
+from urllib import quote
+import re
+
+class SportsIllustratedRecipe(BasicNewsRecipe) :
+    __author__  = 'kwetal'
+    __copyright__ = 'kwetal'
+    __license__ = 'GPL v3'
+    language = 'en'
+    description = 'Sports Illustrated'
+    version = 3
+    title          = u'Sports Illustrated'
+
+    no_stylesheets = True
+    remove_javascript = True
+    use_embedded_content   = False
+
+    INDEX = 'http://sportsillustrated.cnn.com/'
+    INDEX2 = 'http://sportsillustrated.cnn.com/vault/cover/home/index.htm'
+
+    def parse_index(self):
+        answer = []
+        soup = self.index_to_soup(self.INDEX2)
+
+        #Loop through all of the "latest" covers until we find one that actually has articles
+        for item in soup.findAll('div', attrs={'id': re.compile("ecomthumb_latest_*")}):
+            regex = re.compile('ecomthumb_latest_(\d*)')
+            result = regex.search(str(item))
+            current_issue_number = str(result.group(1))
+            current_issue_link = 'http://sportsillustrated.cnn.com/vault/cover/toc/' + current_issue_number + '/index.htm'
+            self.log('Checking this link for a TOC:  ', current_issue_link)
+
+            index = self.index_to_soup(current_issue_link)
+            if index:
+                if index.find('div', 'siv_noArticleMessage'):
+                    self.log('No TOC for this one.  Skipping...')
+                else:
+                    self.log('Found a TOC...  Using this link')
+                    break
+
+        # Find all articles.
+        list = index.find('div', attrs = {'class' : 'siv_artList'})
+        if list:
+            self.log ('found siv_artList')
+            articles = []
+            # Get all the artcles ready for calibre.
+            counter = 0
+            for headline in list.findAll('div', attrs = {'class' : 'headline'}):
+                counter = counter + 1
+                title = self.tag_to_string(headline.a) + '\n' + self.tag_to_string(headline.findNextSibling('div', attrs = {'class' : 'info'}))
+                url = self.INDEX + headline.a['href']
+                description = self.tag_to_string(headline.findNextSibling('a').div)
+                article = {'title' : title, 'date' : u'', 'url'  : url, 'description' : description}
+                articles.append(article)
+                #if counter > 5:
+                    #break
+
+            # See if we can find a meaningfull title
+            feedTitle = 'Current Issue'
+            hasTitle = index.find('div', attrs = {'class' : 'siv_imageText_head'})
+            if hasTitle :
+                feedTitle = self.tag_to_string(hasTitle.h1)
+
+            answer.append([feedTitle, articles])
+
+        return answer
+
+
+    def print_version(self, url) :
+        # This is the url and the parameters that work to get the print version.
+        printUrl = 'http://si.printthis.clickability.com/pt/printThis?clickMap=printThis'
+        printUrl += '&fb=Y&partnerID=2356&url=' + quote(url)
+        return printUrl
+
+        # However the original javascript also uses the following parameters, but they can be left out:
+        #   title : can be some random string
+        #   random : some random number, but I think the number of digits is important
+        #   expire : no idea what value to use
+        # All this comes from the Javascript function that redirects to the print version. It's called PT() and is defined in the file 48.js
+
+    '''def preprocess_html(self, soup):
+        header = soup.find('div', attrs = {'class' : 'siv_artheader'})
+        homeMadeSoup = BeautifulSoup('<html><head></head><body></body></html>')
+        body = homeMadeSoup.body
+
+        # Find the date, title and byline
+        temp = header.find('td', attrs = {'class' : 'title'})
+        if temp :
+            date = temp.find('div', attrs = {'class' : 'date'})
+            if date:
+                body.append(date)
+            if temp.h1:
+                body.append(temp.h1)
+            if temp.h2 :
+                body.append(temp.h2)
+            byline = temp.find('div', attrs = {'class' : 'byline'})
+            if byline:
+                body.append(byline)
+
+        # Find the content
+        for para in soup.findAll('div', attrs = {'class' : 'siv_artpara'}) :
+            body.append(para)
+
+        return homeMadeSoup
+        '''

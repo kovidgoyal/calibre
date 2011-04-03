@@ -92,8 +92,6 @@ class Metadata(object):
     def is_null(self, field):
         null_val = NULL_VALUES.get(field, None)
         val = getattr(self, field, None)
-        if val is False or val in (0, 0.0):
-            return True
         return not val or val == null_val
 
     def __getattribute__(self, field):
@@ -129,6 +127,8 @@ class Metadata(object):
             field, val = self._clean_identifier(field, val)
             _data['identifiers'].update({field: val})
         elif field == 'identifiers':
+            if not val:
+                val = copy.copy(NULL_VALUES.get('identifiers', None))
             self.set_identifiers(val)
         elif field in STANDARD_METADATA_FIELDS:
             if val is None:
@@ -198,8 +198,10 @@ class Metadata(object):
         return copy.deepcopy(ans)
 
     def _clean_identifier(self, typ, val):
-        typ = icu_lower(typ).strip().replace(':', '').replace(',', '')
-        val = val.strip().replace(',', '|').replace(':', '|')
+        if typ:
+            typ = icu_lower(typ).strip().replace(':', '').replace(',', '')
+        if val:
+            val = val.strip().replace(',', '|').replace(':', '|')
         return typ, val
 
     def set_identifiers(self, identifiers):
@@ -226,6 +228,11 @@ class Metadata(object):
             identifiers.pop(typ)
         if val:
             identifiers[typ] = val
+
+    def has_identifier(self, typ):
+        identifiers = object.__getattribute__(self,
+            '_data')['identifiers']
+        return typ in identifiers
 
     # field-oriented interface. Intended to be the same as in LibraryDatabase
 
@@ -570,7 +577,10 @@ class Metadata(object):
             orig_res = res
             datatype = cmeta['datatype']
             if datatype == 'text' and cmeta['is_multiple']:
-                res = u', '.join(sorted(res, key=sort_key))
+                if cmeta['display'].get('is_names', False):
+                    res = u' & '.join(res)
+                else:
+                    res = u', '.join(sorted(res, key=sort_key))
             elif datatype == 'series' and series_with_index:
                 if self.get_extra(key) is not None:
                     res = res + \
@@ -633,10 +643,6 @@ class Metadata(object):
             fmt('Publisher', self.publisher)
         if getattr(self, 'book_producer', False):
             fmt('Book Producer', self.book_producer)
-        if self.comments:
-            fmt('Comments', self.comments)
-        if self.isbn:
-            fmt('ISBN', self.isbn)
         if self.tags:
             fmt('Tags', u', '.join([unicode(t) for t in self.tags]))
         if self.series:
@@ -651,6 +657,12 @@ class Metadata(object):
             fmt('Published', isoformat(self.pubdate))
         if self.rights is not None:
             fmt('Rights', unicode(self.rights))
+        if self.identifiers:
+            fmt('Identifiers', u', '.join(['%s:%s'%(k, v) for k, v in
+                self.identifiers.iteritems()]))
+        if self.comments:
+            fmt('Comments', self.comments)
+
         for key in self.custom_field_keys():
             val = self.get(key, None)
             if val:

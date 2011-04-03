@@ -7,7 +7,6 @@ __docformat__ = 'restructuredtext en'
 
 import shutil, functools, re, os, traceback
 from contextlib import closing
-from operator import attrgetter
 
 from PyQt4.Qt import QAbstractTableModel, Qt, pyqtSignal, QIcon, QImage, \
         QModelIndex, QVariant, QDate, QColor
@@ -18,7 +17,7 @@ from calibre.ebooks.metadata import fmt_sidx, authors_to_string, string_to_autho
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import tweaks, prefs
 from calibre.utils.date import dt_factory, qt_to_dt, isoformat
-from calibre.utils.icu import sort_key, strcmp as icu_strcmp
+from calibre.utils.icu import sort_key
 from calibre.ebooks.metadata.meta import set_metadata as _set_metadata
 from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.library.caches import _match, CONTAINS_MATCH, EQUALS_MATCH, \
@@ -428,7 +427,7 @@ class BooksModel(QAbstractTableModel): # {{{
         au = self.db.authors(row)
         if not au:
             au = _('Unknown')
-        au = ', '.join([a.strip() for a in au.split(',')])
+        au = authors_to_string([a.strip().replace('|', ',') for a in au.split(',')])
         data[_('Author(s)')] = au
         return data
 
@@ -640,10 +639,18 @@ class BooksModel(QAbstractTableModel): # {{{
                 return self.bool_yes_icon
             return self.bool_blank_icon
 
-        def text_type(r, mult=False, idx=-1):
+        def text_type(r, mult=None, idx=-1):
             text = self.db.data[r][idx]
-            if text and mult:
-                return QVariant(', '.join(sorted(text.split('|'),key=sort_key)))
+            if text and mult is not None:
+                if mult:
+                    return QVariant(u' & '.join(text.split('|')))
+                return QVariant(u', '.join(sorted(text.split('|'),key=sort_key)))
+            return QVariant(text)
+
+        def decorated_text_type(r, idx=-1):
+            text = self.db.data[r][idx]
+            if force_to_bool(text) is not None:
+                return None
             return QVariant(text)
 
         def number_type(r, idx=-1):
@@ -651,7 +658,7 @@ class BooksModel(QAbstractTableModel): # {{{
 
         self.dc = {
                    'title'    : functools.partial(text_type,
-                                idx=self.db.field_metadata['title']['rec_index'], mult=False),
+                                idx=self.db.field_metadata['title']['rec_index'], mult=None),
                    'authors'  : functools.partial(authors,
                                 idx=self.db.field_metadata['authors']['rec_index']),
                    'size'     : functools.partial(size,
@@ -663,14 +670,14 @@ class BooksModel(QAbstractTableModel): # {{{
                    'rating'   : functools.partial(rating_type,
                                 idx=self.db.field_metadata['rating']['rec_index']),
                    'publisher': functools.partial(text_type,
-                                idx=self.db.field_metadata['publisher']['rec_index'], mult=False),
+                                idx=self.db.field_metadata['publisher']['rec_index'], mult=None),
                    'tags'     : functools.partial(tags,
                                 idx=self.db.field_metadata['tags']['rec_index']),
                    'series'   : functools.partial(series_type,
                                 idx=self.db.field_metadata['series']['rec_index'],
                                 siix=self.db.field_metadata['series_index']['rec_index']),
                    'ondevice' : functools.partial(text_type,
-                                idx=self.db.field_metadata['ondevice']['rec_index'], mult=False),
+                                idx=self.db.field_metadata['ondevice']['rec_index'], mult=None),
                    }
 
         self.dc_decorator = {
@@ -684,9 +691,12 @@ class BooksModel(QAbstractTableModel): # {{{
             datatype = self.custom_columns[col]['datatype']
             if datatype in ('text', 'comments', 'composite', 'enumeration'):
                 mult=self.custom_columns[col]['is_multiple']
+                if mult is not None:
+                    mult = self.custom_columns[col]['display'].get('is_names', False)
                 self.dc[col] = functools.partial(text_type, idx=idx, mult=mult)
                 if datatype in ['text', 'composite', 'enumeration'] and not mult:
                     if self.custom_columns[col]['display'].get('use_decorations', False):
+                        self.dc[col] = functools.partial(decorated_text_type, idx=idx)
                         self.dc_decorator[col] = functools.partial(
                             bool_type_decorator, idx=idx,
                             bool_cols_are_tristate=
@@ -973,6 +983,21 @@ class OnDeviceSearch(SearchQueryParser): # {{{
 
 # }}}
 
+class DeviceDBSortKeyGen(object): # {{{
+
+    def __init__(self, attr, keyfunc, db):
+        self.attr = attr
+        self.db = db
+        self.keyfunc = keyfunc
+
+    def __call__(self, x):
+        try:
+            ans = self.keyfunc(getattr(self.db[x], self.attr))
+        except:
+            ans = None
+        return ans
+# }}}
+
 class DeviceBooksModel(BooksModel): # {{{
 
     booklist_dirtied = pyqtSignal()
@@ -1078,59 +1103,40 @@ class DeviceBooksModel(BooksModel): # {{{
 
     def sort(self, col, order, reset=True):
         descending = order != Qt.AscendingOrder
-        def strcmp(attr):
-            ag = attrgetter(attr)
-            def _strcmp(x, y):
-                x = ag(self.db[x])
-                y = ag(self.db[y])
-                if x == None:
-                    x = ''
-                if y == None:
-                    y = ''
-                return icu_strcmp(x.strip(), y.strip())
-            return _strcmp
-        def datecmp(x, y):
-            x = self.db[x].datetime
-            y = self.db[y].datetime
-            return cmp(dt_factory(x, assume_utc=True), dt_factory(y,
-                assume_utc=True))
-        def sizecmp(x, y):
-            x, y = int(self.db[x].size), int(self.db[y].size)
-            return cmp(x, y)
-        def tagscmp(x, y):
-            x = ','.join(sorted(getattr(self.db[x], 'device_collections', []),key=sort_key))
-            y = ','.join(sorted(getattr(self.db[y], 'device_collections', []),key=sort_key))
-            return cmp(x, y)
-        def libcmp(x, y):
-            x, y = self.db[x].in_library, self.db[y].in_library
-            return cmp(x, y)
-        def authorcmp(x, y):
-            ax = getattr(self.db[x], 'author_sort', None)
-            ay = getattr(self.db[y], 'author_sort', None)
-            if ax and ay:
-                x = ax
-                y = ay
-            else:
-                x, y = authors_to_string(self.db[x].authors), \
-                                authors_to_string(self.db[y].authors)
-            return cmp(x, y)
         cname = self.column_map[col]
-        fcmp = {
-                'title': strcmp('title_sorter'),
-                'authors' : authorcmp,
-                'size' : sizecmp,
-                'timestamp': datecmp,
-                'collections': tagscmp,
-                'inlibrary': libcmp,
+        def author_key(x):
+            try:
+                ax = self.db[x].author_sort
+                if not ax:
+                    raise Exception('')
+            except:
+                try:
+                    ax = authors_to_string(self.db[x].authors)
+                except:
+                    ax = ''
+            return ax
+
+        keygen = {
+                'title': ('title_sorter', lambda x: sort_key(x) if x else ''),
+                'authors' : author_key,
+                'size' : ('size', int),
+                'timestamp': ('datetime', functools.partial(dt_factory, assume_utc=True)),
+                'collections': ('device_collections', lambda x:sorted(x,
+                    key=sort_key)),
+                'inlibrary': ('in_library', lambda x: x),
                 }[cname]
-        self.map.sort(cmp=fcmp, reverse=descending)
+        keygen = keygen if callable(keygen) else DeviceDBSortKeyGen(
+            keygen[0], keygen[1], self.db)
+        self.map.sort(key=keygen, reverse=descending)
         if len(self.map) == len(self.db):
             self.sorted_map = list(self.map)
         else:
             self.sorted_map = list(range(len(self.db)))
-            self.sorted_map.sort(cmp=fcmp, reverse=descending)
+            self.sorted_map.sort(key=keygen, reverse=descending)
         self.sorted_on = (self.column_map[col], order)
         self.sort_history.insert(0, self.sorted_on)
+        if hasattr(keygen, 'db'):
+            keygen.db = None
         if reset:
             self.reset()
 

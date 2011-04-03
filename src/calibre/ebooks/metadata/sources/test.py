@@ -11,9 +11,8 @@ import os, tempfile, time
 from Queue import Queue, Empty
 from threading import Event
 
-
 from calibre.customize.ui import metadata_plugins
-from calibre import prints
+from calibre import prints, sanitize_file_name2
 from calibre.ebooks.metadata import check_isbn
 from calibre.ebooks.metadata.sources.base import create_log
 
@@ -36,6 +35,16 @@ def title_test(title, exact=False):
                 (not exact and title in mt)
 
     return test
+
+def authors_test(authors):
+    authors = set([x.lower() for x in authors])
+
+    def test(mi):
+        au = set([x.lower() for x in mi.authors])
+        return au == authors
+
+    return test
+
 
 def test_identify_plugin(name, tests):
     '''
@@ -80,13 +89,21 @@ def test_identify_plugin(name, tests):
             except Empty:
                 break
 
-        prints('Found', len(results), 'matches:')
+        prints('Found', len(results), 'matches:', end=' ')
+        prints('Smaller relevance means better match')
 
-        for mi in results:
+        results.sort(key=plugin.identify_results_keygen(
+            title=kwargs.get('title', None), authors=kwargs.get('authors',
+                None), identifiers=kwargs.get('identifiers', {})))
+
+        for i, mi in enumerate(results):
+            prints('*'*30, 'Relevance:', i, '*'*30)
             prints(mi)
-            prints('\n\n')
+            prints('\nCached cover URL    :',
+                    plugin.get_cached_cover_url(mi.identifiers))
+            prints('*'*75, '\n\n')
 
-        match_found = None
+        possibles = []
         for mi in results:
             test_failed = False
             for tfunc in test_funcs:
@@ -94,16 +111,52 @@ def test_identify_plugin(name, tests):
                     test_failed = True
                     break
             if not test_failed:
-                match_found = mi
-                break
+                possibles.append(mi)
 
-        if match_found is None:
+        if not possibles:
             prints('ERROR: No results that passed all tests were found')
             prints('Log saved to', lf)
             raise SystemExit(1)
 
+        good = [x for x in possibles if plugin.test_fields(x) is
+                None]
+        if not good:
+            prints('Failed to find', plugin.test_fields(possibles[0]))
+            raise SystemExit(1)
+
+        if results[0] is not possibles[0]:
+            prints('Most relevant result failed the tests')
+            raise SystemExit(1)
+
+        if 'cover' in plugin.capabilities:
+            rq = Queue()
+            mi = results[0]
+            plugin.download_cover(log, rq, abort, title=mi.title,
+                    authors=mi.authors, identifiers=mi.identifiers)
+            results = []
+            while True:
+                try:
+                    results.append(rq.get_nowait())
+                except Empty:
+                    break
+            if not results:
+                prints('Cover download failed')
+                raise SystemExit(1)
+            cdata = results[0]
+            cover = os.path.join(tdir, plugin.name.replace(' ',
+                '')+'-%s-cover.jpg'%sanitize_file_name2(mi.title.replace(' ',
+                    '_')))
+            with open(cover, 'wb') as f:
+                f.write(cdata)
+
+            prints('Cover downloaded to:', cover)
+
+            if len(cdata) < 10240:
+                prints('Downloaded cover too small')
+                raise SystemExit(1)
+
     prints('Average time per query', sum(times)/len(times))
 
     if os.stat(lf).st_size > 10:
-        prints('There were some errors, see log', lf)
+        prints('There were some errors/warnings, see log', lf)
 

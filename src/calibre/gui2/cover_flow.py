@@ -53,7 +53,7 @@ if pictureflow is not None:
         def __init__(self, model, buffer=20):
             pictureflow.FlowImages.__init__(self)
             self.model = model
-            self.model.modelReset.connect(self.reset)
+            self.model.modelReset.connect(self.reset, type=Qt.QueuedConnection)
 
         def count(self):
             return self.model.count()
@@ -83,6 +83,8 @@ if pictureflow is not None:
 
     class CoverFlow(pictureflow.PictureFlow):
 
+        dc_signal = pyqtSignal()
+
         def __init__(self, parent=None):
             pictureflow.PictureFlow.__init__(self, parent,
                                 config['cover_flow_queue_length']+1)
@@ -90,6 +92,8 @@ if pictureflow is not None:
             self.setFocusPolicy(Qt.WheelFocus)
             self.setSizePolicy(QSizePolicy(QSizePolicy.Expanding,
                 QSizePolicy.Expanding))
+            self.dc_signal.connect(self._data_changed,
+                    type=Qt.QueuedConnection)
 
         def sizeHint(self):
             return self.minimumSize()
@@ -100,6 +104,12 @@ if pictureflow is not None:
                 self.showNext()
             elif ev.delta() > 0:
                 self.showPrevious()
+
+        def dataChanged(self):
+            self.dc_signal.emit()
+
+        def _data_changed(self):
+            pictureflow.PictureFlow.dataChanged(self)
 
 
 else:
@@ -135,8 +145,7 @@ class CoverFlowMixin(object):
         self.cover_flow = None
         if CoverFlow is not None:
             self.cf_last_updated_at = None
-            self.cover_flow_sync_timer = QTimer(self)
-            self.cover_flow_sync_timer.timeout.connect(self.cover_flow_do_sync)
+            self.cover_flow_syncing_enabled = False
             self.cover_flow_sync_flag = True
             self.cover_flow = CoverFlow(parent=self)
             self.cover_flow.currentChanged.connect(self.sync_listview_to_cf)
@@ -179,14 +188,15 @@ class CoverFlowMixin(object):
         self.cover_flow.setFocus(Qt.OtherFocusReason)
         if CoverFlow is not None:
             self.cover_flow.setCurrentSlide(self.library_view.currentIndex().row())
-            self.cover_flow_sync_timer.start(500)
+            self.cover_flow_syncing_enabled = True
+            QTimer.singleShot(500, self.cover_flow_do_sync)
         self.library_view.setCurrentIndex(
                 self.library_view.currentIndex())
         self.library_view.scroll_to_row(self.library_view.currentIndex().row())
 
     def cover_browser_hidden(self):
         if CoverFlow is not None:
-            self.cover_flow_sync_timer.stop()
+            self.cover_flow_syncing_enabled = False
             idx = self.library_view.model().index(self.cover_flow.currentSlide(), 0)
             if idx.isValid():
                 sm = self.library_view.selectionModel()
@@ -242,6 +252,8 @@ class CoverFlowMixin(object):
         except:
             import traceback
             traceback.print_exc()
+        if self.cover_flow_syncing_enabled:
+            QTimer.singleShot(500, self.cover_flow_do_sync)
 
     def sync_listview_to_cf(self, row):
         self.cf_last_updated_at = time.time()

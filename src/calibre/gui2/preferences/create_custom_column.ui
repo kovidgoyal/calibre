@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>603</width>
+    <width>831</width>
     <height>344</height>
    </rect>
   </property>
@@ -110,26 +110,36 @@
          </item>
          <item>
           <widget class="QCheckBox" name="use_decorations">
-           <property name="text">
-            <string>Show checkmarks</string>
-           </property>
            <property name="toolTip">
             <string>Show check marks in the GUI. Values of 'yes', 'checked', and 'true'
 will show a green check. Values of 'no', 'unchecked', and 'false' will show a red X.
 Everything else will show nothing.</string>
            </property>
+           <property name="text">
+            <string>Show checkmarks</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="is_names">
+           <property name="toolTip">
+            <string>Check this box if this column contains names, like the authors column.</string>
+           </property>
+           <property name="text">
+            <string>Contains names</string>
+           </property>
           </widget>
          </item>
          <item>
           <spacer name="horizontalSpacer_27">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
              <horstretch>10</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>
@@ -220,18 +230,18 @@ Everything else will show nothing.</string>
          </item>
         </layout>
        </item>
-       <item row="6" column="0">
-        <widget class="QLabel" name="composite_sort_by_label">
-         <property name="text">
-          <string>&amp;Sort/search column by</string>
-         </property>
-         <property name="buddy">
-          <cstring>composite_sort_by</cstring>
-         </property>
-        </widget>
-       </item>
        <item row="6" column="2">
-        <layout class="QHBoxLayout" name="horizontalLayout_4">
+        <layout class="QHBoxLayout" name="composite_layout">
+         <item>
+          <widget class="QLabel" name="composite_sort_by_label">
+           <property name="text">
+            <string>&amp;Sort/search column by</string>
+           </property>
+           <property name="buddy">
+            <cstring>composite_sort_by</cstring>
+           </property>
+          </widget>
+         </item>
          <item>
           <widget class="QComboBox" name="composite_sort_by">
            <property name="toolTip">
@@ -240,15 +250,25 @@ Everything else will show nothing.</string>
           </widget>
          </item>
          <item>
-          <spacer name="horizontalSpacer_24">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
+          <widget class="QCheckBox" name="composite_make_category">
+           <property name="toolTip">
+            <string>If checked, this column will appear in the tags browser as a category</string>
            </property>
+           <property name="text">
+            <string>Show in tags browser</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_24">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
              <horstretch>10</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>

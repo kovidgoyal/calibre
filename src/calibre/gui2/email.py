@@ -22,6 +22,7 @@ from calibre.customize.ui import available_input_formats, available_output_forma
 from calibre.ebooks.metadata import authors_to_string
 from calibre.constants import preferred_encoding
 from calibre.gui2 import config, Dispatcher, warning_dialog
+from calibre.library.save_to_disk import get_components
 from calibre.utils.config import tweaks
 
 class EmailJob(BaseJob): # {{{
@@ -116,7 +117,7 @@ class Emailer(Thread): # {{{
                 try:
                     self.sendmail(job)
                     break
-                except Exception, e:
+                except Exception as e:
                     if not self._run:
                         return
                     import traceback
@@ -210,7 +211,7 @@ class EmailMixin(object): # {{{
     def __init__(self):
         self.emailer = Emailer(self.job_manager)
 
-    def send_by_mail(self, to, fmts, delete_from_library, send_ids=None,
+    def send_by_mail(self, to, fmts, delete_from_library, subject='', send_ids=None,
             do_auto_convert=True, specific_format=None):
         ids = [self.library_view.model().id(r) for r in self.library_view.selectionModel().selectedRows()] if send_ids is None else send_ids
         if not ids or len(ids) == 0:
@@ -239,7 +240,14 @@ class EmailMixin(object): # {{{
                 remove_ids.append(id)
                 jobnames.append(t)
                 attachments.append(f)
-                subjects.append(_('E-book:')+ ' '+t)
+                if not subject:
+                    subjects.append(_('E-book:')+ ' '+t)
+                else:
+                    components = get_components(subject, mi, id)
+                    if not components:
+                        components = [mi.title]
+                    subject = os.path.join(*components)
+                    subjects.append(subject)
                 a = authors_to_string(mi.authors if mi.authors else \
                         [_('Unknown')])
                 texts.append(_('Attached, you will find the e-book') + \
@@ -292,7 +300,7 @@ class EmailMixin(object): # {{{
                 if self.auto_convert_question(
                     _('Auto convert the following books before sending via '
                         'email?'), autos):
-                    self.iactions['Convert Books'].auto_convert_mail(to, fmts, delete_from_library, auto, format)
+                    self.iactions['Convert Books'].auto_convert_mail(to, fmts, delete_from_library, auto, format, subject)
 
         if bad:
             bad = '\n'.join('%s'%(i,) for i in bad)

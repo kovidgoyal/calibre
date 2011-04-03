@@ -10,7 +10,7 @@ driver. It is intended to be subclassed with the relevant parts implemented
 for a particular device.
 '''
 
-import os, re, time, json, uuid
+import os, re, time, json, uuid, functools
 from itertools import cycle
 
 from calibre.constants import numeric_version
@@ -54,6 +54,8 @@ class USBMS(CLI, Device):
     CAN_SET_METADATA = []
     METADATA_CACHE = 'metadata.calibre'
     DRIVEINFO = 'driveinfo.calibre'
+
+    SCAN_FROM_ROOT = False
 
     def _update_driveinfo_record(self, dinfo, prefix, location_code, name=None):
         if not isinstance(dinfo, dict):
@@ -173,9 +175,13 @@ class USBMS(CLI, Device):
             ebook_dirs = [ebook_dirs]
         for ebook_dir in ebook_dirs:
             ebook_dir = self.path_to_unicode(ebook_dir)
-            ebook_dir = self.normalize_path( \
+            if self.SCAN_FROM_ROOT:
+                ebook_dir = self.normalize_path(prefix)
+            else:
+                ebook_dir = self.normalize_path( \
                             os.path.join(prefix, *(ebook_dir.split('/'))) \
                                     if ebook_dir else prefix)
+            debug_print('USBMS: scan from root', self.SCAN_FROM_ROOT, ebook_dir)
             if not os.path.exists(ebook_dir): continue
             # Get all books in the ebook_dir directory
             if self.SUPPORTS_SUB_DIRS:
@@ -372,15 +378,21 @@ class USBMS(CLI, Device):
 
     @classmethod
     def build_template_regexp(cls):
-        def replfunc(match):
-            if match.group(1) in ['title', 'series', 'series_index', 'isbn']:
-                return '(?P<' + match.group(1) + '>.+?)'
-            elif match.group(1) in ['authors', 'author_sort']:
-                return '(?P<author>.+?)'
-            else:
-                return '(.+?)'
+        def replfunc(match, seen=None):
+            v = match.group(1)
+            if v in ['title', 'series', 'series_index', 'isbn']:
+                if v not in seen:
+                    seen |= set([v])
+                    return '(?P<' + v + '>.+?)'
+            elif v in ['authors', 'author_sort']:
+                if v not in seen:
+                    seen |= set([v])
+                    return '(?P<author>.+?)'
+            return '(.+?)'
+        s = set()
+        f = functools.partial(replfunc, seen=s)
         template = cls.save_template().rpartition('/')[2]
-        return re.compile(re.sub('{([^}]*)}', replfunc, template) + '([_\d]*$)')
+        return re.compile(re.sub('{([^}]*)}', f, template) + '([_\d]*$)')
 
     @classmethod
     def path_to_unicode(cls, path):

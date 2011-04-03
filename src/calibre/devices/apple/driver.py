@@ -7,9 +7,9 @@ __docformat__ = 'restructuredtext en'
 
 import cStringIO, ctypes, datetime, os, re, shutil, subprocess, sys, tempfile, time
 from calibre.constants import __appname__, __version__, DEBUG
-from calibre import fit_image
+from calibre import fit_image, confirm_config_name
 from calibre.constants import isosx, iswindows
-from calibre.devices.errors import UserFeedback
+from calibre.devices.errors import OpenFeedback, UserFeedback
 from calibre.devices.usbms.deviceconfig import DeviceConfig
 from calibre.devices.interface import DevicePlugin
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
@@ -18,10 +18,76 @@ from calibre.ebooks.metadata import authors_to_string, MetaInformation, \
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.epub import set_metadata
 from calibre.library.server.utils import strftime
-from calibre.utils.config import config_dir, prefs
+from calibre.utils.config import config_dir, dynamic, prefs
 from calibre.utils.date import now, parse_date
 from calibre.utils.logging import Log
 from calibre.utils.zipfile import ZipFile
+
+
+class AppleOpenFeedback(OpenFeedback):
+
+    def __init__(self, plugin):
+        OpenFeedback.__init__(self, u'')
+        self.log = plugin.log
+        self.plugin = plugin
+
+    def custom_dialog(self, parent):
+        from PyQt4.Qt import (QDialog, QDialogButtonBox, QIcon,
+                              QLabel, QPushButton, QVBoxLayout)
+
+        class Dialog(QDialog):
+
+            def __init__(self, p, cd, pixmap='dialog_information.png'):
+                QDialog.__init__(self, p)
+                self.cd = cd
+                self.setWindowTitle("Apple iDevice detected")
+                self.l = l = QVBoxLayout()
+                self.setLayout(l)
+                msg = QLabel()
+                msg.setText(_(
+                            '<p>If you do not want calibre to recognize your Apple iDevice '
+                            'when it is connected to your computer, '
+                            'click <b>Disable Apple Driver</b>.</p>'
+                            '<p>To transfer books to your iDevice, '
+                            'click <b>Disable Apple Driver</b>, '
+                            "then use the 'Connect to iTunes' method recommended in the "
+                            '<a href="http://www.mobileread.com/forums/showthread.php?t=118559">Calibre + iDevices FAQ</a>, '
+                            'using the <em>Connect/Share</em>|<em>Connect to iTunes</em> menu item.</p>'
+                            '<p>Enabling the Apple driver for direct connection to iDevices '
+                            'is an unsupported advanced user mode.</p>'
+                            '<p></p>'
+                            ))
+                msg.setOpenExternalLinks(True)
+                msg.setWordWrap(True)
+                l.addWidget(msg)
+
+                self.bb = QDialogButtonBox()
+                disable_driver = QPushButton(_("Disable Apple driver"))
+                disable_driver.setDefault(True)
+                self.bb.addButton(disable_driver, QDialogButtonBox.RejectRole)
+
+                enable_driver = QPushButton(_("Enable Apple driver"))
+                self.bb.addButton(enable_driver, QDialogButtonBox.AcceptRole)
+                l.addWidget(self.bb)
+                self.bb.accepted.connect(self.accept)
+                self.bb.rejected.connect(self.reject)
+
+                self.setWindowIcon(QIcon(I(pixmap)))
+                self.resize(self.sizeHint())
+
+                self.finished.connect(self.do_it)
+
+            def do_it(self, return_code):
+                if return_code == self.Accepted:
+                    self.cd.log.info(" Apple driver ENABLED")
+                    dynamic[confirm_config_name(self.cd.plugin.DISPLAY_DISABLE_DIALOG)] = False
+                else:
+                    from calibre.customize.ui import disable_plugin
+                    self.cd.log.info(" Apple driver DISABLED")
+                    disable_plugin(self.cd.plugin)
+
+        return Dialog(parent, self)
+
 
 from PIL import Image as PILImage
 from lxml import etree
@@ -41,7 +107,25 @@ class DriverBase(DeviceConfig, DevicePlugin):
     # Needed for config_widget to work
     FORMATS = ['epub', 'pdf']
     USER_CAN_ADD_NEW_FORMATS = False
-    SUPPORTS_SUB_DIRS = True   # To enable second checkbox in customize widget
+
+    # Hide the standard customization widgets
+    SUPPORTS_SUB_DIRS = False
+    MUST_READ_METADATA = True
+    SUPPORTS_USE_AUTHOR_SORT = False
+
+    EXTRA_CUSTOMIZATION_MESSAGE = [
+            _('Use Series as Category in iTunes/iBooks') +
+            ':::'+_('Enable to use the series name as the iTunes Genre, '
+                    'iBooks Category'),
+            _('Cache covers from iTunes/iBooks') +
+                ':::' +
+                _('Enable to cache and display covers from iTunes/iBooks')
+    ]
+    EXTRA_CUSTOMIZATION_DEFAULT = [
+                True,
+                True,
+    ]
+
 
     @classmethod
     def _config_base_name(cls):
@@ -95,7 +179,13 @@ class ITUNES(DriverBase):
     supported_platforms = ['osx','windows']
     author = 'GRiker'
     #: The version of this plugin as a 3-tuple (major, minor, revision)
-    version        = (0,9,0)
+    version        = (1,0,0)
+
+    DISPLAY_DISABLE_DIALOG = "display_disable_apple_driver_dialog"
+
+    # EXTRA_CUSTOMIZATION_MESSAGE indexes
+    USE_SERIES_AS_CATEGORY = 0
+    CACHE_COVERS = 1
 
     OPEN_FEEDBACK_MESSAGE = _(
         'Apple device detected, launching iTunes, please wait ...')
@@ -295,7 +385,7 @@ class ITUNES(DriverBase):
         if not oncard:
             if DEBUG:
                 self.log.info("ITUNES:books():")
-                if self.settings().use_subdirs:
+                if self.settings().extra_customization[self.CACHE_COVERS]:
                     self.log.info(" Cover fetching/caching enabled")
                 else:
                     self.log.info(" Cover fetching/caching disabled")
@@ -558,10 +648,6 @@ class ITUNES(DriverBase):
         # Turn off the Save template
         cw.opt_save_template.setVisible(False)
         cw.label.setVisible(False)
-        # Repurpose the metadata checkbox
-        cw.opt_read_metadata.setText(_("Use Series as Category in iTunes/iBooks"))
-        # Repurpose the use_subdirs checkbox
-        cw.opt_use_subdirs.setText(_("Cache covers from iTunes/iBooks"))
         return cw
 
     def delete_books(self, paths, end_session=True):
@@ -715,8 +801,17 @@ class ITUNES(DriverBase):
         Note that most of the initialization is necessarily performed in can_handle(), as
         we need to talk to iTunes to discover if there's a connected iPod
         '''
+
         if DEBUG:
             self.log.info("ITUNES.open()")
+
+        # Display a dialog recommending using 'Connect to iTunes' if user hasn't
+        # previously disabled the dialog
+        if dynamic.get(confirm_config_name(self.DISPLAY_DISABLE_DIALOG),True):
+            raise AppleOpenFeedback(self)
+        else:
+            if DEBUG:
+                self.log.info(" advanced user mode, directly connecting to iDevice")
 
         # Confirm/create thumbs archive
         if not os.path.exists(self.cache_dir):
@@ -1787,9 +1882,7 @@ class ITUNES(DriverBase):
         as of iTunes 9.2, iBooks 1.1, can't set artwork for PDF files via automation
         '''
 
-        # self.settings().use_subdirs is a repurposed DeviceConfig field
-        # We're using it to skip fetching/caching covers to speed things up
-        if not self.settings().use_subdirs:
+        if not self.settings().extra_customization[self.CACHE_COVERS]:
             thumb_data = None
             return thumb_data
 
@@ -2673,8 +2766,7 @@ class ITUNES(DriverBase):
 
             # Set genre from series if available, else first alpha tag
             # Otherwise iTunes grabs the first dc:subject from the opf metadata
-            # self.settings().read_metadata is used as a surrogate for "Use Series name as Genre"
-            if metadata_x.series and self.settings().read_metadata:
+            if metadata_x.series and self.settings().extra_customization[self.USE_SERIES_AS_CATEGORY]:
                 if DEBUG:
                     self.log.info(" ITUNES._update_iTunes_metadata()")
                     self.log.info("   using Series name as Genre")
@@ -2716,7 +2808,7 @@ class ITUNES(DriverBase):
             elif metadata_x.tags is not None:
                 if DEBUG:
                     self.log.info("   %susing Tag as Genre" %
-                                  "no Series name available, " if self.settings().read_metadata else '')
+                     "no Series name available, " if self.settings().extra_customization[self.USE_SERIES_AS_CATEGORY] else '')
                 for tag in metadata_x.tags:
                     if self._is_alpha(tag[0]):
                         if lb_added:
@@ -2768,7 +2860,7 @@ class ITUNES(DriverBase):
             # Otherwise iBooks uses first <dc:subject> from opf
             # iTunes balks on setting EpisodeNumber, but it sticks (9.1.1.12)
 
-            if metadata_x.series and self.settings().read_metadata:
+            if metadata_x.series and self.settings().extra_customization[self.USE_SERIES_AS_CATEGORY]:
                 if DEBUG:
                     self.log.info("   using Series name as Genre")
                 # Format the index as a sort key
@@ -2927,7 +3019,7 @@ class ITUNES_ASYNC(ITUNES):
         if not oncard:
             if DEBUG:
                 self.log.info("ITUNES_ASYNC:books()")
-                if self.settings().use_subdirs:
+                if self.settings().extra_customization[self.CACHE_COVERS]:
                     self.log.info(" Cover fetching/caching enabled")
                 else:
                     self.log.info(" Cover fetching/caching disabled")
@@ -3074,6 +3166,38 @@ class ITUNES_ASYNC(ITUNES):
     def is_usb_connected(self, devices_on_system, debug=False,
             only_presence=False):
         return self.connected, self
+
+    def open(self, library_uuid):
+        '''
+        Perform any device specific initialization. Called after the device is
+        detected but before any other functions that communicate with the device.
+        For example: For devices that present themselves as USB Mass storage
+        devices, this method would be responsible for mounting the device or
+        if the device has been automounted, for finding out where it has been
+        mounted. The base class within USBMS device.py has a implementation of
+        this function that should serve as a good example for USB Mass storage
+        devices.
+
+        Note that most of the initialization is necessarily performed in can_handle(), as
+        we need to talk to iTunes to discover if there's a connected iPod
+        '''
+        if DEBUG:
+            self.log.info("ITUNES_ASYNC.open()")
+
+        # Confirm/create thumbs archive
+        if not os.path.exists(self.cache_dir):
+            if DEBUG:
+                self.log.info(" creating thumb cache '%s'" % self.cache_dir)
+            os.makedirs(self.cache_dir)
+
+        if not os.path.exists(self.archive_path):
+            self.log.info(" creating zip archive")
+            zfw = ZipFile(self.archive_path, mode='w')
+            zfw.writestr("iTunes Thumbs Archive",'')
+            zfw.close()
+        else:
+            if DEBUG:
+                self.log.info(" existing thumb cache at '%s'" % self.archive_path)
 
     def sync_booklists(self, booklists, end_session=True):
         '''

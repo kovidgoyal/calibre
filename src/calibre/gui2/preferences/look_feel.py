@@ -48,7 +48,6 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('disable_tray_notification', config)
         r('use_roman_numerals_for_series_number', config)
         r('separate_cover_flow', config, restart_required=True)
-        r('show_child_bar', gprefs)
 
         choices = [(_('Small'), 'small'), (_('Medium'), 'medium'),
             (_('Large'), 'large')]
@@ -64,9 +63,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('tags_browser_collapse_at', gprefs)
 
         choices = set([k for k in db.field_metadata.all_field_keys()
-                    if db.field_metadata[k]['is_category'] and
-                       db.field_metadata[k]['datatype'] in ['text', 'series', 'enumeration']])
+                if db.field_metadata[k]['is_category'] and
+                   (db.field_metadata[k]['datatype'] in ['text', 'series', 'enumeration']) and
+                   not db.field_metadata[k]['display'].get('is_names', False)])
         choices -= set(['authors', 'publisher', 'formats', 'news', 'identifiers'])
+        choices |= set(['search'])
         self.opt_categories_using_hierarchy.update_items_cache(choices)
         r('categories_using_hierarchy', db.prefs, setting=CommaSeparatedList,
           choices=sorted(list(choices), key=sort_key))

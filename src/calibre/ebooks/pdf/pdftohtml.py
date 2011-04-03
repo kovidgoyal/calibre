@@ -50,7 +50,7 @@ def pdftohtml(output_dir, pdf_path, no_images):
         try:
             p = popen(cmd, stderr=logf._fd, stdout=logf._fd,
                     stdin=subprocess.PIPE)
-        except OSError, err:
+        except OSError as err:
             if err.errno == 2:
                 raise ConversionError(_('Could not find pdftohtml, check it is in your PATH'))
             else:
@@ -60,7 +60,7 @@ def pdftohtml(output_dir, pdf_path, no_images):
             try:
                 ret = p.wait()
                 break
-            except OSError, e:
+            except OSError as e:
                 if e.errno == errno.EINTR:
                     continue
                 else:

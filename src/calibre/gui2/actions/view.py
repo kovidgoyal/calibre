@@ -34,6 +34,13 @@ class ViewAction(InterfaceAction):
         self.qaction.setMenu(self.view_menu)
         ac.triggered.connect(self.view_specific_format, type=Qt.QueuedConnection)
 
+        self.view_menu.addSeparator()
+        ac = self.create_action(spec=(_('Read a random book'), 'catalog.png',
+            None, None), attr='action_pick_random')
+        ac.triggered.connect(self.view_random)
+        self.view_menu.addAction(ac)
+
+
     def location_selected(self, loc):
         enabled = loc == 'library'
         for action in list(self.view_menu.actions())[1:]:
@@ -150,6 +157,10 @@ class ViewAction(InterfaceAction):
 
     def view_specific_book(self, index):
         self._view_books([index])
+
+    def view_random(self, *args):
+        self.gui.iactions['Choose Library'].pick_random()
+        self._view_books([self.gui.library_view.currentIndex()])
 
     def _view_books(self, rows):
         if not rows or len(rows) == 0:

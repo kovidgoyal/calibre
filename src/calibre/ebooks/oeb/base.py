@@ -229,7 +229,11 @@ def rewrite_links(root, link_repl_func, resolve_base_href=False):
         if 'style' in el.attrib:
             text = el.attrib['style']
             if _css_url_re.search(text) is not None:
-                stext = parseStyle(text)
+                try:
+                    stext = parseStyle(text)
+                except:
+                    # Parsing errors are raised by cssutils
+                    continue
                 for p in stext.getProperties(all=True):
                     v = p.cssValue
                     if v.CSS_VALUE_LIST == v.cssValueType:
@@ -846,6 +850,7 @@ class Manifest(object):
             return data
 
         def _parse_xhtml(self, data):
+            orig_data = data
             self.oeb.log.debug('Parsing', self.href, '...')
             # Convert to Unicode and normalize line endings
             data = self.oeb.decode(data)
@@ -879,13 +884,13 @@ class Manifest(object):
             def first_pass(data):
                 try:
                     data = etree.fromstring(data, parser=parser)
-                except etree.XMLSyntaxError, err:
+                except etree.XMLSyntaxError as err:
                     self.oeb.log.exception('Initial parse failed:')
                     repl = lambda m: ENTITYDEFS.get(m.group(1), m.group(0))
                     data = ENTITY_RE.sub(repl, data)
                     try:
                         data = etree.fromstring(data, parser=parser)
-                    except etree.XMLSyntaxError, err:
+                    except etree.XMLSyntaxError as err:
                         self.oeb.logger.warn('Parsing file %r as HTML' % self.href)
                         if err.args and err.args[0].startswith('Excessive depth'):
                             from lxml.html import soupparser
@@ -923,6 +928,8 @@ class Manifest(object):
 
             # Handle weird (non-HTML/fragment) files
             if barename(data.tag) != 'html':
+                if barename(data.tag) == 'ncx':
+                    return self._parse_xml(orig_data)
                 self.oeb.log.warn('File %r does not appear to be (X)HTML'%self.href)
                 nroot = etree.fromstring('<html></html>')
                 has_body = False

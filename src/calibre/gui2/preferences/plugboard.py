@@ -251,7 +251,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 if d != 0:
                     try:
                         validation_formatter.validate(s)
-                    except Exception, err:
+                    except Exception as err:
                         error_dialog(self, _('Invalid template'),
                                 '<p>'+_('The template %s is invalid:')%s + \
                                 '<br>'+str(err), show=True)

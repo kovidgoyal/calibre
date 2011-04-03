@@ -8,15 +8,18 @@ import re, htmlentitydefs
 _ascii_pat = None
 
 def clean_ascii_chars(txt, charlist=None):
-    '''
-    Remove ASCII control chars: 0 to 8 and 11, 12, 14-31 by default
-    This is all control chars except \\t,\\n and \\r
+    r'''
+    Remove ASCII control chars.
+    This is all control chars except \t, \n and \r
     '''
     if not txt:
         return ''
     global _ascii_pat
     if _ascii_pat is None:
-        chars = list(range(8)) + [0x0B, 0x0C] + list(range(0x0E, 0x1F))
+        chars = set(xrange(32))
+        chars.add(127)
+        for x in (9, 10, 13):
+            chars.remove(x)
         _ascii_pat = re.compile(u'|'.join(map(unichr, chars)))
 
     if charlist is None:

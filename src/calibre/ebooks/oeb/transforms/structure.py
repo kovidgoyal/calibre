@@ -10,10 +10,10 @@ import re
 
 from lxml import etree
 from urlparse import urlparse
+from collections import OrderedDict
 
 from calibre.ebooks.oeb.base import XPNSMAP, TOC, XHTML, xml2text
 from calibre.ebooks import ConversionError
-from calibre.utils.ordered_dict import OrderedDict
 
 def XPath(x):
     try:
@@ -81,6 +81,7 @@ class DetectStructure(object):
             page_break_after = 'display: block; page-break-after: always'
             for item, elem in self.detected_chapters:
                 text = xml2text(elem).strip()
+                text = re.sub(r'\s+', ' ', text.strip())
                 self.log('\tDetected chapter:', text[:50])
                 if chapter_mark == 'none':
                     continue
@@ -137,7 +138,8 @@ class DetectStructure(object):
             text = elem.get('title', '')
         if not text:
             text = elem.get('alt', '')
-        text = text[:100].strip()
+        text = re.sub(r'\s+', ' ', text.strip())
+        text = text[:1000].strip()
         id = elem.get('id', 'calibre_toc_%d'%counter)
         elem.set('id', id)
         href = '#'.join((item.href, id))

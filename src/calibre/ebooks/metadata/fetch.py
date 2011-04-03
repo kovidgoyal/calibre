@@ -93,7 +93,7 @@ class MetadataSource(Plugin): # {{{
                             traceback.print_exc()
                             mi.comments = None
 
-        except Exception, e:
+        except Exception as e:
             self.exception = e
             self.tb = traceback.format_exc()
 
@@ -171,7 +171,22 @@ class MetadataSource(Plugin): # {{{
             customize_plugin(self, sc)
 
     def customization_help(self):
-        return _('This plugin can only be customized using the GUI')
+        return 'This plugin can only be customized using the GUI'
+
+# class GoogleBooks(MetadataSource): # {{{
+
+    # name = 'Google Books'
+    # description = _('Downloads metadata from Google Books')
+
+    # def fetch(self):
+        # from calibre.ebooks.metadata.google_books import search
+        # try:
+            # self.results = search(self.title, self.book_author, self.publisher,
+                                  # self.isbn, max_results=10,
+                                  # verbose=self.verbose)
+        # except Exception as e:
+            # self.exception = e
+            # self.tb = traceback.format_exc()
 
     # }}}
 
@@ -200,7 +215,7 @@ class MetadataSource(Plugin): # {{{
         # try:
             # opts, args = option_parser().parse_args(args)
             # self.results = create_books(opts, args)
-        # except Exception, e:
+        # except Exception as e:
             # self.exception = e
             # self.tb = traceback.format_exc()
 
@@ -227,7 +242,7 @@ class Amazon(MetadataSource): # {{{
         try:
             self.results = get_social_metadata(self.title, self.book_author,
                     self.publisher, self.isbn)
-        except Exception, e:
+        except Exception as e:
             self.exception = e
             self.tb = traceback.format_exc()
 
@@ -247,7 +262,7 @@ class KentDistrictLibrary(MetadataSource): # {{{
         from calibre.ebooks.metadata.kdl import get_series
         try:
             self.results = get_series(self.title, self.book_author)
-        except Exception, e:
+        except Exception as e:
             import traceback
             traceback.print_exc()
             self.exception = e

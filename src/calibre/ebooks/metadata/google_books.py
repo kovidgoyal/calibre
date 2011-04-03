@@ -1,4 +1,3 @@
-from __future__ import with_statement
 __license__ = 'GPL 3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>, 2010, sengian <sengian1@gmail.com>'
 __docformat__ = 'restructuredtext en'
@@ -119,9 +118,7 @@ class Query(object):
             if callable(getattr(e, 'getcode', None)) and \
                     e.getcode() == 404:
                 return None
-            attr = getattr(e, 'args', [None])
-            attr = attr if attr else [None]
-            if isinstance(attr[0], socket.timeout):
+            if isinstance(getattr(e, 'args', [None])[0], socket.timeout):
                 raise GoogleBooksError(_('GoogleBooks timed out. Try again later.'))
             raise GoogleBooksError(_('GoogleBooks encountered an error.'))
         if '<title>404 - ' in raw:
@@ -143,11 +140,11 @@ class Query(object):
         feed = self.brcall(browser, url, verbose, timeout)
         if feed is None:
             return None
-        
+
         # print etree.tostring(feed, pretty_print=True)
         total = int(total_results(feed)[0].text)
         nbresultstoget = total if total < self.maxresults else self.maxresults
-        
+
         start = int(start_index(feed)[0].text)
         entries = entry(feed)
         while len(entries) < nbresultstoget:
@@ -236,7 +233,7 @@ class ResultList(list):
         try:
             title = self.get_title(x)
             x = entry(data)[0]
-        except Exception, e:
+        except Exception as e:
             if verbose:
                 print _('Failed to get all details for an entry')
                 print e
@@ -264,9 +261,7 @@ class ResultList(list):
             if callable(getattr(e, 'getcode', None)) and \
                     e.getcode() == 404:
                 return None
-            attr = getattr(e, 'args', [None])
-            attr = attr if attr else [None]
-            if isinstance(attr[0], socket.timeout):
+            if isinstance(getattr(e, 'args', [None])[0], socket.timeout):
                 raise GoogleBooksError(_('GoogleBooks timed out. Try again later.'))
             raise GoogleBooksError(_('GoogleBooks encountered an error.'))
         if '<title>404 - ' in raw:
@@ -328,7 +323,6 @@ class ResultList(list):
         cons_thread.start()
         prod_thread.join()
         cons_thread.join()
-
 
 def search(title=None, author=None, publisher=None, isbn=None,
            min_viewability='none', verbose=False, max_results=40):

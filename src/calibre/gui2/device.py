@@ -64,7 +64,7 @@ class DeviceJob(BaseJob): # {{{
             self.result = self.func(*self.args, **self.kwargs)
             if self._aborted:
                 return
-        except (Exception, SystemExit), err:
+        except (Exception, SystemExit) as err:
             if self._aborted:
                 return
             self.failed = True
@@ -162,9 +162,9 @@ class DeviceManager(Thread): # {{{
                 dev.reset(detected_device=detected_device,
                     report_progress=self.report_progress)
                 dev.open(self.current_library_uuid)
-            except OpenFeedback, e:
+            except OpenFeedback as e:
                 if dev not in self.ejected_devices:
-                    self.open_feedback_msg(dev.get_gui_name(), e.feedback_msg)
+                    self.open_feedback_msg(dev.get_gui_name(), e)
                     self.ejected_devices.add(dev)
                 continue
             except:
@@ -618,8 +618,11 @@ class DeviceMixin(object): # {{{
         if tweaks['auto_connect_to_folder']:
             self.connect_to_folder_named(tweaks['auto_connect_to_folder'])
 
-    def show_open_feedback(self, devname, msg):
-        self.__of_dev_mem__ = d = info_dialog(self, devname, msg)
+    def show_open_feedback(self, devname, e):
+        try:
+            self.__of_dev_mem__ = d = e.custom_dialog(self)
+        except NotImplementedError:
+            self.__of_dev_mem__ = d = info_dialog(self, devname, e.feedback_msg)
         d.show()
 
     def auto_convert_question(self, msg, autos):
@@ -884,9 +887,14 @@ class DeviceMixin(object): # {{{
                 on_card = dest
             self.sync_to_device(on_card, delete, fmt)
         elif dest == 'mail':
-            to, fmts = sub_dest.split(';')
+            sub_dest_parts = sub_dest.split(';')
+            while len(sub_dest_parts) < 3:
+                sub_dest_parts.append('')
+            to = sub_dest_parts[0]
+            fmts = sub_dest_parts[1]
+            subject = ';'.join(sub_dest_parts[2:]) 
             fmts = [x.strip().lower() for x in fmts.split(',')]
-            self.send_by_mail(to, fmts, delete)
+            self.send_by_mail(to, fmts, delete, subject=subject)
 
     def cover_to_thumbnail(self, data):
         if self.device_manager.device and \
@@ -1052,11 +1060,13 @@ class DeviceMixin(object): # {{{
                     except:
                         pass
                     total_size = self.location_manager.free[0]
-                if self.location_manager.free[0] > total_size + (1024**2):
+                loc = tweaks['send_news_to_device_location']
+                loc_index = {"carda": 1, "cardb": 2}.get(loc, 0)
+                if self.location_manager.free[loc_index] > total_size + (1024**2):
                     # Send news to main memory if enough space available
                     # as some devices like the Nook Color cannot handle
                     # periodicals on SD cards properly
-                    on_card = None
+                    on_card = loc if loc in ('carda', 'cardb') else None
                 self.upload_books(files, names, metadata,
                         on_card=on_card,
                         memory=[files, remove])

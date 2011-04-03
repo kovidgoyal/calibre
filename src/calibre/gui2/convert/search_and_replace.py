@@ -69,7 +69,7 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
             try:
                 pat = unicode(x.regex)
                 re.compile(pat)
-            except Exception, err:
+            except Exception as err:
                 error_dialog(self, _('Invalid regular expression'),
                              _('Invalid regular expression: %s')%err, show=True)
                 return False

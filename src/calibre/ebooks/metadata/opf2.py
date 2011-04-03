@@ -16,11 +16,12 @@ from lxml import etree
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.constants import __appname__, __version__, filesystem_encoding
 from calibre.ebooks.metadata.toc import TOC
-from calibre.ebooks.metadata import string_to_authors, MetaInformation
+from calibre.ebooks.metadata import string_to_authors, MetaInformation, check_isbn
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.utils.date import parse_date, isoformat
 from calibre.utils.localization import get_lang
 from calibre import prints
+from calibre.utils.cleantext import clean_ascii_chars
 
 class Resource(object): # {{{
     '''
@@ -863,6 +864,7 @@ class OPF(object): # {{{
         for x in self.XPath(
             'descendant::*[local-name() = "identifier" and text()]')(
                     self.metadata):
+            found_scheme = False
             for attr, val in x.attrib.iteritems():
                 if attr.endswith('scheme'):
                     typ = icu_lower(val)
@@ -870,7 +872,15 @@ class OPF(object): # {{{
                             method='text').strip()
                     if val and typ not in ('calibre', 'uuid'):
                         identifiers[typ] = val
+                    found_scheme = True
                     break
+            if not found_scheme:
+                val = etree.tostring(x, with_tail=False, encoding=unicode,
+                            method='text').strip()
+                if val.lower().startswith('urn:isbn:'):
+                    val = check_isbn(val.split(':')[-1])
+                    if val is not None:
+                        identifiers['isbn'] = val
         return identifiers
 
     @dynamic_property
@@ -1148,7 +1158,7 @@ class OPFCreator(Metadata):
 
         def DC_ELEM(tag, text, dc_attrs={}, opf_attrs={}):
             if text:
-                elem = getattr(DC, tag)(text, **dc_attrs)
+                elem = getattr(DC, tag)(clean_ascii_chars(text), **dc_attrs)
             else:
                 elem = getattr(DC, tag)(**dc_attrs)
             for k, v in opf_attrs.items():
@@ -1306,7 +1316,7 @@ def metadata_to_opf(mi, as_string=True):
     if hasattr(mi, 'category') and mi.category:
         factory(DC('type'), mi.category)
     if mi.comments:
-        factory(DC('description'), mi.comments)
+        factory(DC('description'), clean_ascii_chars(mi.comments))
     if mi.publisher:
         factory(DC('publisher'), mi.publisher)
     for key, val in mi.get_identifiers().iteritems():

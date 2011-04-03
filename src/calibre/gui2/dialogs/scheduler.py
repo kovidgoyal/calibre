@@ -9,6 +9,7 @@ Scheduler for automated recipe downloads
 
 from datetime import timedelta
 import calendar, textwrap
+from collections import OrderedDict
 
 from PyQt4.Qt import QDialog, Qt, QTime, QObject, QMenu, QHBoxLayout, \
         QAction, QIcon, QMutex, QTimer, pyqtSignal, QWidget, QGridLayout, \
@@ -20,7 +21,6 @@ from calibre.web.feeds.recipes.model import RecipeModel
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.date import utcnow
 from calibre.utils.network import internet_connected
-from calibre.utils.ordered_dict import OrderedDict
 from calibre import force_unicode
 
 def convert_day_time_schedule(val):
@@ -442,7 +442,7 @@ class Scheduler(QObject):
         if self.oldest > 0:
             delta = timedelta(days=self.oldest)
             try:
-                ids = list(self.recipe_model.db.tags_older_than(_('News'),
+                ids = list(self.db.tags_older_than(_('News'),
                     delta))
             except:
                 # Happens if library is being switched

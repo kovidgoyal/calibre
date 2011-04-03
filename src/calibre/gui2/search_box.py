@@ -109,7 +109,7 @@ class SearchBox2(QComboBox): # {{{
     def normalize_state(self):
         self.setToolTip(self.tool_tip_text)
         self.line_edit.setStyleSheet(
-            'QLineEdit{color:black;background-color:%s;}' % self.normal_background)
+            'QLineEdit{color:none;background-color:%s;}' % self.normal_background)
 
     def text(self):
         return self.currentText()
@@ -453,8 +453,11 @@ class SavedSearchBoxMixin(object): # {{{
         d = SavedSearchEditor(self, search)
         d.exec_()
         if d.result() == d.Accepted:
-            self.saved_searches_changed()
-            self.saved_search.clear()
+            self.do_rebuild_saved_searches()
+
+    def do_rebuild_saved_searches(self):
+        self.saved_searches_changed()
+        self.saved_search.clear()
 
     # }}}
 

@@ -32,7 +32,7 @@ class Worker(Thread):
     def run(self):
         try:
             self.doit()
-        except Exception, err:
+        except Exception as err:
             import traceback
             try:
                 err = unicode(err)

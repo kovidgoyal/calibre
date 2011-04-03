@@ -70,7 +70,7 @@ Then after restarting |app|, you must tell |app| that the column is to be treate
 
 At the point there are no genres in the column. We are left with the last step: how to apply a genre to a book. A genre does not exist in |app| until it appears on at least one book. To learn how to apply a genre for the first time, we must go into some detail about what a genre looks like in the metadata for a book.
 
-A hierarchy of 'things' is built by creating an item consisting of phrases separated by periods. Continuing the genre example, these items would "History.Military", "Mysteries.Vampire", "Science Fiction.Space Opera", etc. Thus to create a new genre, you pick a book that should have that genre, edit its metadata, and enter the new genre into the column you created. Continuing our example, if you want to assign a new genre "Comics" with a sub-genre "Superheros" to a book, you would 'edit metadata' for that (comic) book, choose the Custom metadata tab, and then enter "Comics.Superheros" as shown in the following (ignore the other custom columns):
+A hierarchy of 'things' is built by creating an item consisting of phrases separated by periods. Continuing the genre example, these items would "History.Military", "Mysteries.Vampire", "Science Fiction.Space Opera", etc. Thus to create a new genre, you pick a book that should have that genre, edit its metadata, and enter the new genre into the column you created. Continuing our example, if you want to assign a new genre "Comics" with a sub-genre "Superheroes" to a book, you would 'edit metadata' for that (comic) book, choose the Custom metadata tab, and then enter "Comics.Superheroes" as shown in the following (ignore the other custom columns):
 
 .. image:: images/sg_genre.jpg
     :align: center
@@ -105,8 +105,8 @@ After creating the saved search, you can use it as a restriction.
 .. image:: images/sg_restrict2.jpg
     :align: center
 
- Useful Template Functions
- -------------------------
+Useful Template Functions
+-------------------------
  
  You might want to use the genre information in a template, such as with save to disk or send to device. The question might then be "How do I get the outermost genre name or names?" An |app| template function, subitems, is provided to make doing this easier.
  

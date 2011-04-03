@@ -15,7 +15,7 @@ from calibre.utils.config import tweaks, prefs
 from calibre.utils.date import parse_date, now, UNDEFINED_DATE
 from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.utils.pyparsing import ParseException
-from calibre.ebooks.metadata import title_sort
+from calibre.ebooks.metadata import title_sort, author_to_author_sort
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre import prints
 
@@ -123,14 +123,22 @@ REGEXP_MATCH   = 2
 def _match(query, value, matchkind):
     if query.startswith('..'):
         query = query[1:]
-        prefix_match_ok = False
+        sq = query[1:]
+        internal_match_ok = True
     else:
-        prefix_match_ok = True
+        internal_match_ok = False
     for t in value:
         t = icu_lower(t)
         try:     ### ignore regexp exceptions, required because search-ahead tries before typing is finished
             if (matchkind == EQUALS_MATCH):
-                if prefix_match_ok and query[0] == '.':
+                if internal_match_ok:
+                    if query == t:
+                        return True
+                    comps = [c.strip() for c in t.split('.') if c.strip()]
+                    for comp in comps:
+                        if sq == comp:
+                            return True
+                elif query[0] == '.':
                     if t.startswith(query[1:]):
                         ql = len(query) - 1
                         if (len(t) == ql) or (t[ql:ql+1] == '.'):
@@ -575,6 +583,8 @@ class ResultCache(SearchQueryParser): # {{{
             candidates = self.universal_set()
         if len(candidates) == 0:
             return matches
+        if location not in self.all_search_locations:
+            return matches
 
         if len(location) > 2 and location.startswith('@') and \
                     location[1:] in self.db_prefs['grouped_search_terms']:
@@ -1013,7 +1023,11 @@ class SortKeyGenerator(object):
                 if val:
                     sep = fm['is_multiple']
                     if sep:
-                        val = sep.join(sorted(val.split(sep),
+                        if fm['display'].get('is_names', False):
+                            val = sep.join(
+                                [author_to_author_sort(v) for v in val.split(sep)])
+                        else:
+                            val = sep.join(sorted(val.split(sep),
                                               key=self.string_sort_key))
                 val = self.string_sort_key(val)
 

@@ -21,7 +21,7 @@ class StructureDetectionWidget(Widget, Ui_Form):
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
         Widget.__init__(self, parent,
                 ['chapter', 'chapter_mark',
-                'remove_first_image',
+                'remove_first_image', 'remove_fake_margins',
                 'insert_metadata', 'page_breaks_before']
                 )
         self.db, self.book_id = db, book_id

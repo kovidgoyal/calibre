@@ -182,6 +182,19 @@ def metadata_from_filename(name, pat=None):
             mi.isbn = si
         except (IndexError, ValueError):
             pass
+        try:
+            publisher = match.group('publisher')
+            mi.publisher = publisher
+        except (IndexError, ValueError):
+            pass
+        try:
+            pubdate = match.group('published')
+            if pubdate:
+                from calibre.utils.date import parse_date
+                mi.pubdate = parse_date(pubdate)
+        except:
+            pass
+
     if mi.is_null('title'):
         mi.title = name
     return mi

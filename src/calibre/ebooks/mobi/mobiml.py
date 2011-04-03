@@ -102,6 +102,7 @@ class MobiMLizer(object):
     def __call__(self, oeb, context):
         oeb.logger.info('Converting XHTML to Mobipocket markup...')
         self.oeb = oeb
+        self.log = self.oeb.logger
         self.opts = context
         self.profile = profile = context.dest
         self.fnums = fnums = dict((v, k) for k, v in profile.fnums.items())
@@ -118,6 +119,10 @@ class MobiMLizer(object):
         del oeb.guide['cover']
         item = oeb.manifest.hrefs[href]
         if item.spine_position is not None:
+            self.log.warn('Found an HTML cover,', item.href, 'removing it.',
+                    'If you find some content missing from the output MOBI, it '
+                    'is because you misidentified the HTML cover in the input '
+                    'document')
             oeb.spine.remove(item)
             if item.media_type in OEB_DOCS:
                 self.oeb.manifest.remove(item)
@@ -206,7 +211,11 @@ class MobiMLizer(object):
             vspace = bstate.vpadding + bstate.vmargin
             bstate.vpadding = bstate.vmargin = 0
             if tag not in TABLE_TAGS:
-                wrapper.attrib['height'] = self.mobimlize_measure(vspace)
+                if tag in ('ul', 'ol') and vspace > 0:
+                    wrapper.addprevious(etree.Element(XHTML('div'),
+                        height=self.mobimlize_measure(vspace)))
+                else:
+                    wrapper.attrib['height'] = self.mobimlize_measure(vspace)
                 para.attrib['width'] = self.mobimlize_measure(indent)
             elif tag == 'table' and vspace > 0:
                 vspace = int(round(vspace / self.profile.fbase))

@@ -29,7 +29,7 @@ class ISBNDB(MetadataSource):
         try:
             self.results = search(self.title, self.book_author, self.publisher, self.isbn,
                                    max_results=10, verbose=self.verbose, key=self.site_customization)
-        except Exception, e:
+        except Exception as e:
             import traceback
             self.exception = e
             self.tb = traceback.format_exc()
@@ -97,15 +97,13 @@ class Query(object):
         
         try:
             raw = browser.open_novisit(url, timeout=timeout).read()
-        except Exception, e:
+        except Exception as e:
             import socket
             report(verbose)
             if callable(getattr(e, 'getcode', None)) and \
                     e.getcode() == 404:
                 return None
-            attr = getattr(e, 'args', [None])
-            attr = attr if attr else [None]
-            if isinstance(attr[0], socket.timeout):
+            if isinstance(getattr(e, 'args', [None])[0], socket.timeout):
                 raise ISBNDBError(_('ISBNDB timed out. Try again later.'))
             raise ISBNDBError(_('ISBNDB encountered an error.'))
         if '<title>404 - ' in raw:
@@ -203,7 +201,7 @@ class ResultList(list):
             try:
                 title = self.get_title(x)
                 authors = self.get_authors(x)
-            except Exception, e:
+            except Exception as e:
                 if verbose:
                     print _('Failed to get all details for an entry')
                     print e

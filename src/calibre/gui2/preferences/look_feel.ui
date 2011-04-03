@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>670</width>
-    <height>422</height>
+    <width>717</width>
+    <height>444</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -241,13 +241,6 @@ then the tags will be displayed each on their own line.</string>
         </property>
         <property name="buddy">
          <cstring>opt_toolbar_text</cstring>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0" colspan="2">
-       <widget class="QCheckBox" name="opt_show_child_bar">
-        <property name="text">
-         <string>&amp;Split the toolbar into two toolbars</string>
         </property>
        </widget>
       </item>

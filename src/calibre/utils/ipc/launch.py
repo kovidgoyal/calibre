@@ -7,6 +7,7 @@ __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import subprocess, os, sys, time, binascii, cPickle
+from functools import partial
 
 from calibre.constants import iswindows, isosx, isfrozen
 from calibre.utils.config import prefs
@@ -18,6 +19,12 @@ if iswindows:
         _windows_null_file = open(os.devnull, 'wb')
     except:
         raise RuntimeError('NUL %r file missing in windows'%os.devnull)
+
+def renice(niceness):
+    try:
+        os.nice(niceness)
+    except:
+        pass
 
 class Worker(object):
     '''
@@ -144,6 +151,13 @@ class Worker(object):
                     'normal' : win32process.NORMAL_PRIORITY_CLASS,
                     'low'    : win32process.IDLE_PRIORITY_CLASS}[priority]
             args['creationflags'] = win32process.CREATE_NO_WINDOW|priority
+        else:
+            niceness = {
+                    'normal' : 0,
+                    'low'    : 10,
+                    'high'   : 20,
+            }[priority]
+            args['preexec_fn'] = partial(renice, niceness)
         ret = None
         if redirect_output:
             self._file = PersistentTemporaryFile('_worker_redirect.log')

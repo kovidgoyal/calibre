@@ -1,0 +1,64 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class WashingtonPost(BasicNewsRecipe):
+
+    title = 'Washington Post'
+    description = 'US political news'
+    __author__ = 'Kovid Goyal'
+    use_embedded_content   = False
+    max_articles_per_feed = 20
+    language = 'en'
+    encoding = 'utf-8'
+
+
+    remove_javascript = True
+    no_stylesheets = True
+
+    feeds = [
+            ('Politics', 'http://www.washingtonpost.com/rss/politics'),
+            ('Nation', 'http://www.washingtonpost.com/rss/national'),
+            ('World', 'http://www.washingtonpost.com/rss/world'),
+            ('Business', 'http://www.washingtonpost.com/rss/business'),
+            ('Lifestyle', 'http://www.washingtonpost.com/rss/lifestyle'),
+            ('Sports', 'http://www.washingtonpost.com/rss/sports'),
+            ('Redskins', 'http://www.washingtonpost.com/rss/sports/redskins'),
+            ('Opinions', 'http://www.washingtonpost.com/rss/opinions'),
+            ('Entertainment', 'http://www.washingtonpost.com/rss/entertainment'),
+            ('Local', 'http://www.washingtonpost.com/rss/local'),
+            ('Investigations',
+                'http://www.washingtonpost.com/rss/investigations'),
+    ]
+
+    remove_tags = [
+            {'class':lambda x: x and 'article-toolbar' in x},
+            {'class':lambda x: x and 'quick-comments' in x},
+            {'class':lambda x: x and 'tweet' in x},
+            {'class':lambda x: x and 'article-related' in x},
+            {'class':lambda x: x and 'hidden' in x.split()},
+            {'class':lambda x: x and 'also-read' in x.split()},
+            {'class':lambda x: x and 'partners-content' in x.split()},
+            {'class':['module share', 'module ads', 'comment-vars', 'hidden',
+                'share-icons-wrap', 'comments', 'flipper']},
+            {'id':['right-rail', 'save-and-share']},
+            {'width':'1', 'height':'1'},
+
+    ]
+
+    keep_only_tags = dict(id=['content', 'article'])
+
+    def get_article_url(self, *args):
+        ans = BasicNewsRecipe.get_article_url(self, *args)
+        ans = ans.rpartition('?')[0]
+        if ans.endswith('_video.html'):
+            return None
+        if 'ads.pheedo.com' in ans:
+            return None
+        #if not ans.endswith('_blog.html'):
+        #    return None
+        return ans
+
+
+    def print_version(self, url):
+        return url.replace('_story.html', '_singlePage.html')
+

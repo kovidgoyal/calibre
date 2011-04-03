@@ -32,7 +32,7 @@ class Fictionwise(MetadataSource):
         try:
             self.results = search(self.title, self.book_author, self.publisher,
                 self.isbn, max_results=10, verbose=self.verbose)
-        except Exception, e:
+        except Exception as e:
             import traceback
             self.exception = e
             self.tb = traceback.format_exc()
@@ -101,15 +101,13 @@ class Query(object):
 
         try:
             raw = browser.open_novisit(self.BASE_URL, self.urldata, timeout=timeout).read()
-        except Exception, e:
+        except Exception as e:
             import socket
             report(verbose)
             if callable(getattr(e, 'getcode', None)) and \
                     e.getcode() == 404:
                 return None
-            attr = getattr(e, 'args', [None])
-            attr = attr if attr else [None]
-            if isinstance(attr[0], socket.timeout):
+            if isinstance(getattr(e, 'args', [None])[0], socket.timeout):
                 raise FictionwiseError(_('Fictionwise timed out. Try again later.'))
             raise FictionwiseError(_('Fictionwise encountered an error.'))
         if '<title>404 - ' in raw:
@@ -288,7 +286,7 @@ class ResultList(list):
             self.clean_entry(entry, invalid_tags=inv_tags, invalid_xpath=inv_xpath)
             title = self.get_title(entry)
             authors = self.get_authors(entry)
-        except Exception, e:
+        except Exception as e:
             if verbose:
                 print _('Failed to get all details for an entry')
                 print e
@@ -311,15 +309,13 @@ class ResultList(list):
     def get_individual_metadata(self, url, br, verbose):
         try:
             raw = br.open_novisit(url).read()
-        except Exception, e:
+        except Exception as e:
             import socket
             report(verbose)
             if callable(getattr(e, 'getcode', None)) and \
                     e.getcode() == 404:
                 return None
-            attr = getattr(e, 'args', [None])
-            attr = attr if attr else [None]
-            if isinstance(attr[0], socket.timeout):
+            if isinstance(getattr(e, 'args', [None])[0], socket.timeout):
                 raise FictionwiseError(_('Fictionwise timed out. Try again later.'))
             raise FictionwiseError(_('Fictionwise encountered an error.'))
         if '<title>404 - ' in raw:
@@ -380,7 +376,6 @@ class ResultList(list):
             cons_thread.start()
             prod_thread.join()
             cons_thread.join()
-
 
 def search(title=None, author=None, publisher=None, isbn=None,
            min_viewability='none', verbose=False, max_results=5,

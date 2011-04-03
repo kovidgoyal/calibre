@@ -7,6 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import textwrap
 from functools import partial
+from collections import OrderedDict
 
 from PyQt4.Qt import QMainWindow, Qt, QIcon, QStatusBar, QFont, QWidget, \
         QScrollArea, QStackedWidget, QVBoxLayout, QLabel, QFrame, QKeySequence, \
@@ -18,7 +19,6 @@ from calibre.gui2 import gprefs, min_available_height, available_width, \
     warning_dialog
 from calibre.gui2.preferences import init_gui, AbortCommit, get_plugin
 from calibre.customize.ui import preferences_plugins
-from calibre.utils.ordered_dict import OrderedDict
 
 ICON_SIZE = 32
 
@@ -71,11 +71,11 @@ class Category(QWidget): # {{{
 
     plugin_activated = pyqtSignal(object)
 
-    def __init__(self, name, plugins, parent=None):
+    def __init__(self, name, plugins, gui_name, parent=None):
         QWidget.__init__(self, parent)
         self._layout = QVBoxLayout()
         self.setLayout(self._layout)
-        self.label = QLabel(name)
+        self.label = QLabel(gui_name)
         self.sep = QFrame(self)
         self.bf = QFont()
         self.bf.setBold(True)
@@ -118,12 +118,17 @@ class Browser(QScrollArea): # {{{
         QScrollArea.__init__(self, parent)
         self.setWidgetResizable(True)
 
-        category_map = {}
+        category_map, category_names = {}, {}
         for plugin in preferences_plugins():
             if plugin.category not in category_map:
                 category_map[plugin.category] = plugin.category_order
             if category_map[plugin.category] < plugin.category_order:
                 category_map[plugin.category] = plugin.category_order
+            if plugin.category not in category_names:
+                category_names[plugin.category] = (plugin.gui_category if
+                    plugin.gui_category else plugin.category)
+
+        self.category_names = category_names
 
         categories = list(category_map.keys())
         categories.sort(cmp=lambda x, y: cmp(category_map[x], category_map[y]))
@@ -145,7 +150,7 @@ class Browser(QScrollArea): # {{{
         self.setWidget(self.container)
 
         for name, plugins in self.category_map.items():
-            w = Category(name, plugins, self)
+            w = Category(name, plugins, self.category_names[name], parent=self)
             self.widgets.append(w)
             self._layout.addWidget(w)
             w.plugin_activated.connect(self.show_plugin.emit)

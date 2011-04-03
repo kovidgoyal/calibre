@@ -2,10 +2,10 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 __appname__   = 'calibre'
-__version__   = '0.7.49'
+__version__   = '0.7.53'
 __author__    = "Kovid Goyal <kovid@kovidgoyal.net>"
 
-import re
+import re, importlib
 _ver = __version__.split('.')
 _ver = [int(re.search(r'(\d+)', x).group(1)) for x in _ver]
 numeric_version = tuple(_ver)
@@ -33,10 +33,10 @@ try:
 except:
     preferred_encoding = 'utf-8'
 
-win32event = __import__('win32event') if iswindows else None
-winerror   = __import__('winerror') if iswindows else None
-win32api   = __import__('win32api') if iswindows else None
-fcntl      = None if iswindows else __import__('fcntl')
+win32event = importlib.import_module('win32event') if iswindows else None
+winerror   = importlib.import_module('winerror') if iswindows else None
+win32api   = importlib.import_module('win32api') if iswindows else None
+fcntl      = None if iswindows else importlib.import_module('fcntl')
 
 filesystem_encoding = sys.getfilesystemencoding()
 if filesystem_encoding is None: filesystem_encoding = 'utf-8'
@@ -74,8 +74,8 @@ if plugins is None:
                     (['winutil'] if iswindows else []) + \
                     (['usbobserver'] if isosx else []):
             try:
-                p, err = __import__(plugin), ''
-            except Exception, err:
+                p, err = importlib.import_module(plugin), ''
+            except Exception as err:
                 p = None
                 err = str(err)
             plugins[plugin] = (p, err)
