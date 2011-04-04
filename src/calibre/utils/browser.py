@@ -39,7 +39,7 @@ class Browser(B):
                 args, kwargs)
 
     def set_handle_gzip(self, handle):
-        self._set_handler('_gzip', handle)
+        B._set_handler(self, '_gzip', handle)
         self._clone_actions['set_handle_gzip'] = ('set_handle_gzip',
                 (handle,), {})
 
