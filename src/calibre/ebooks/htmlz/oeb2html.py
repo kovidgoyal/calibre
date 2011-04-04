@@ -62,24 +62,22 @@ class OEB2HTML(object):
             self.links[aid] = 'calibre_link-%s' % len(self.links.keys())
         return self.links[aid]
 
-    def rewrite_links(self, tag, attribs, page):
+    def rewrite_link(self, tag, attribs, page):
         # Rewrite ids.
         if 'id' in attribs:
             attribs['id'] = self.get_link_id(page.href, attribs['id'])
         # Rewrite links.
         if tag == 'a':
-            href = attribs['href']
-            href = page.abshref(href)
+            href = page.abshref(attribs['href'])
             if self.url_is_relative(href):
-                if '#' not in href:
-                    href += '#'
-                if href not in self.links:
-                    self.links[href] = 'calibre_link-%s' % len(self.links.keys())
-                href = '#%s' % self.links[href]
-            attribs['href'] = href
+                id = ''
+                if '#' in href:
+                    href, n, id = href.partition('#')
+                href = '#%s' % self.get_link_id(href, id)
+                attribs['href'] = href
         return attribs
 
-    def rewrite_images(self, tag, attribs, page):
+    def rewrite_image(self, tag, attribs, page):
         if tag == 'img':
             src = attribs.get('src', None)
             if src:
@@ -131,6 +129,10 @@ class OEB2HTMLNoCSSizer(OEB2HTML):
         tags = []
         tag = barename(elem.tag)
         attribs = elem.attrib
+        
+        attribs = self.rewrite_link(tag, attribs, page)
+        attribs = self.rewrite_image(tag, attribs, page)
+        
         if tag == 'body':
             tag = 'div'
             attribs['id'] = self.get_link_id(page.href, '')
@@ -146,9 +148,6 @@ class OEB2HTMLNoCSSizer(OEB2HTML):
             del attribs['class']
         if 'style' in attribs:
             del attribs['style']
-
-        attribs = self.rewrite_links(tag, attribs, page)
-        attribs = self.rewrite_images(tag, attribs, page)
 
         # Turn the rest of the attributes into a string we can write with the tag.
         at = ''
@@ -218,6 +217,9 @@ class OEB2HTMLInlineCSSizer(OEB2HTML):
         tags = []
         tag = barename(elem.tag)
         attribs = elem.attrib
+        
+        attribs = self.rewrite_link(tag, attribs, page)
+        attribs = self.rewrite_image(tag, attribs, page)
 
         style_a = '%s' % style
         if tag == 'body':
@@ -232,9 +234,6 @@ class OEB2HTMLInlineCSSizer(OEB2HTML):
             del attribs['class']
         if 'style' in attribs:
             del attribs['style']
-
-        attribs = self.rewrite_links(tag, attribs, page)
-        attribs = self.rewrite_images(tag, attribs, page)
 
         # Turn the rest of the attributes into a string we can write with the tag.
         at = ''
@@ -312,6 +311,9 @@ class OEB2HTMLClassCSSizer(OEB2HTML):
         tag = barename(elem.tag)
         attribs = elem.attrib
 
+        attribs = self.rewrite_link(tag, attribs, page)
+        attribs = self.rewrite_image(tag, attribs, page)
+
         if tag == 'body':
             tag = 'div'
             attribs['id'] = self.get_link_id(page.href, '')
@@ -320,9 +322,6 @@ class OEB2HTMLClassCSSizer(OEB2HTML):
         # Remove attributes we won't want.
         if 'style' in attribs:
             del attribs['style']
-
-        attribs = self.rewrite_links(tag, attribs, page)
-        attribs = self.rewrite_images(tag, attribs, page)
 
         # Turn the rest of the attributes into a string we can write with the tag.
         at = ''
