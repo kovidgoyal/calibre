@@ -12,7 +12,7 @@ Transform OEB content into a single (more or less) HTML file.
 
 import os
 
-from urlparse import urlparse
+from urlparse import urlparse, urldefrag
 
 from calibre import prepare_string_for_xml
 from calibre.ebooks.oeb.base import XHTML, XHTML_NS, barename, namespace
@@ -70,9 +70,7 @@ class OEB2HTML(object):
         if tag == 'a':
             href = page.abshref(attribs['href'])
             if self.url_is_relative(href):
-                id = ''
-                if '#' in href:
-                    href, n, id = href.partition('#')
+                href, id = urldefrag(href)
                 href = '#%s' % self.get_link_id(href, id)
                 attribs['href'] = href
         return attribs
