@@ -1,3 +1,4 @@
+import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class TimesOfIndia(BasicNewsRecipe):
@@ -8,10 +9,10 @@ class TimesOfIndia(BasicNewsRecipe):
     max_articles_per_feed = 25
 
     no_stylesheets = True
-    keep_only_tags = [dict(attrs={'class':'maintable12'})]
+    keep_only_tags = [{'class':['maintable12', 'prttabl']}]
     remove_tags = [
             dict(style=lambda x: x and 'float' in x),
-            dict(attrs={'class':'prvnxtbg'}),
+            {'class':['prvnxtbg', 'footbdrin', 'bcclftr']},
     ]
 
     feeds          = [
@@ -38,8 +39,28 @@ class TimesOfIndia(BasicNewsRecipe):
 ('Most Read',
  'http://timesofindia.indiatimes.com/rssfeedmostread.cms')
 ]
-    def print_version(self, url):
-        return url + '?prtpage=1'
+
+    def get_article_url(self, article):
+        url = BasicNewsRecipe.get_article_url(self, article)
+        if '/0Ltimesofindia' in url:
+            url = url.partition('/0L')[-1]
+            url = url.replace('0B', '.').replace('0N', '.com').replace('0C',
+                    '/').replace('0E', '-')
+            url = 'http://' + url.rpartition('/')[0]
+            match = re.search(r'/([0-9a-zA-Z]+?)\.cms', url)
+            if match is not None:
+                num = match.group(1)
+                num = re.sub(r'[^0-9]', '', num)
+                return ('http://timesofindia.indiatimes.com/articleshow/%s.cms?prtpage=1' %
+                    num)
+        else:
+            cms = re.search(r'/(\d+)\.cms', url)
+            if cms is not None:
+                return ('http://timesofindia.indiatimes.com/articleshow/%s.cms?prtpage=1' %
+                    cms.group(1))
+
+        return url
+
 
     def preprocess_html(self, soup):
         return soup
