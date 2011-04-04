@@ -17,6 +17,8 @@ from cssutils.css import CSSStyleRule, CSSPageRule, CSSStyleDeclaration, \
 from cssutils import profile as cssprofiles
 from lxml import etree
 from lxml.cssselect import css_to_xpath, ExpressionError, SelectorSyntaxError
+
+from calibre import force_unicode
 from calibre.ebooks.oeb.base import XHTML, XHTML_NS, CSS_MIME, OEB_STYLES
 from calibre.ebooks.oeb.base import XPNSMAP, xpath, urlnormalize
 from calibre.ebooks.oeb.profile import PROFILES
@@ -140,13 +142,22 @@ class Stylizer(object):
                 log=logging.getLogger('calibre.css'))
         self.font_face_rules = []
         for elem in head:
-            if elem.tag == XHTML('style') and elem.text \
-               and elem.get('type', CSS_MIME) in OEB_STYLES:
-                text = XHTML_CSS_NAMESPACE + elem.text
-                text = oeb.css_preprocessor(text)
-                stylesheet = parser.parseString(text, href=cssname)
-                stylesheet.namespaces['h'] = XHTML_NS
-                stylesheets.append(stylesheet)
+            if (elem.tag == XHTML('style') and
+                elem.get('type', CSS_MIME) in OEB_STYLES):
+                text = elem.text if elem.text else u''
+                for x in elem:
+                    t = getattr(x, 'text', None)
+                    if t:
+                        text += u'\n\n' + force_unicode(t, u'utf-8')
+                    t = getattr(x, 'tail', None)
+                    if t:
+                        text += u'\n\n' + force_unicode(t, u'utf-8')
+                if text:
+                    text = XHTML_CSS_NAMESPACE + elem.text
+                    text = oeb.css_preprocessor(text)
+                    stylesheet = parser.parseString(text, href=cssname)
+                    stylesheet.namespaces['h'] = XHTML_NS
+                    stylesheets.append(stylesheet)
             elif elem.tag == XHTML('link') and elem.get('href') \
                  and elem.get('rel', 'stylesheet').lower() == 'stylesheet' \
                  and elem.get('type', CSS_MIME).lower() in OEB_STYLES:
