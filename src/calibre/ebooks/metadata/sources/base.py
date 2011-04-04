@@ -21,6 +21,7 @@ msprefs = JSONConfig('metadata_sources.json')
 msprefs.defaults['txt_comments'] = False
 msprefs.defaults['ignore_fields'] = []
 msprefs.defaults['max_tags'] = 10
+msprefs.defaults['wait_after_first_identify_result'] = 30 # seconds
 
 def create_log(ostream=None):
     log = ThreadSafeLog(level=ThreadSafeLog.DEBUG)
