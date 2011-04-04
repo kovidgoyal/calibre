@@ -14,7 +14,8 @@ from threading import Event
 from calibre.customize.ui import metadata_plugins
 from calibre import prints, sanitize_file_name2
 from calibre.ebooks.metadata import check_isbn
-from calibre.ebooks.metadata.sources.base import create_log
+from calibre.ebooks.metadata.sources.base import (create_log,
+        get_cached_cover_urls)
 
 def isbn_test(isbn):
     isbn_ = check_isbn(isbn)
@@ -45,8 +46,75 @@ def authors_test(authors):
 
     return test
 
+def init_test(tdir_name):
+    tdir = tempfile.gettempdir()
+    lf = os.path.join(tdir, tdir_name.replace(' ', '')+'_identify_test.txt')
+    log = create_log(open(lf, 'wb'))
+    abort = Event()
+    return tdir, lf, log, abort
 
-def test_identify_plugin(name, tests):
+def test_identify(tests): # {{{
+    '''
+    :param tests: List of 2-tuples. Each two tuple is of the form (args,
+                  test_funcs). args is a dict of keyword arguments to pass to
+                  the identify method. test_funcs are callables that accept a
+                  Metadata object and return True iff the object passes the
+                  test.
+    '''
+    from calibre.ebooks.metadata.sources.identify import identify
+
+    tdir, lf, log, abort = init_test('Full Identify')
+
+    times = []
+
+    for kwargs, test_funcs in tests:
+        prints('Running test with:', kwargs)
+        args = (log, abort)
+        start_time = time.time()
+        results = identify(*args, **kwargs)
+        total_time = time.time() - start_time
+        times.append(total_time)
+        if not results:
+            prints('identify failed to find any results')
+            break
+
+        prints('Found', len(results), 'matches:', end=' ')
+        prints('Smaller relevance means better match')
+
+        for i, mi in enumerate(results):
+            prints('*'*30, 'Relevance:', i, '*'*30)
+            prints(mi)
+            prints('\nCached cover URLs    :',
+                    [x[0].name for x in get_cached_cover_urls(mi)])
+            prints('*'*75, '\n\n')
+
+        possibles = []
+        for mi in results:
+            test_failed = False
+            for tfunc in test_funcs:
+                if not tfunc(mi):
+                    test_failed = True
+                    break
+            if not test_failed:
+                possibles.append(mi)
+
+        if not possibles:
+            prints('ERROR: No results that passed all tests were found')
+            prints('Log saved to', lf)
+            raise SystemExit(1)
+
+        if results[0] is not possibles[0]:
+            prints('Most relevant result failed the tests')
+            raise SystemExit(1)
+
+    prints('Average time per query', sum(times)/len(times))
+
+    if os.stat(lf).st_size > 10:
+        prints('There were some errors/warnings, see log', lf)
+
+# }}}
+
+def test_identify_plugin(name, tests): # {{{
     '''
     :param name: Plugin name
     :param tests: List of 2-tuples. Each two tuple is of the form (args,
@@ -62,10 +130,7 @@ def test_identify_plugin(name, tests):
             break
     prints('Testing the identify function of', plugin.name)
 
-    tdir = tempfile.gettempdir()
-    lf = os.path.join(tdir, plugin.name.replace(' ', '')+'_identify_test.txt')
-    log = create_log(open(lf, 'wb'))
-    abort = Event()
+    tdir, lf, log, abort = init_test(plugin.name)
     prints('Log saved to', lf)
 
     times = []
@@ -159,4 +224,5 @@ def test_identify_plugin(name, tests):
 
     if os.stat(lf).st_size > 10:
         prints('There were some errors/warnings, see log', lf)
+# }}}
 

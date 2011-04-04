@@ -302,6 +302,51 @@ def identify(log, abort, title=None, authors=None, identifiers=[], timeout=30):
 
     return results
 
+if __name__ == '__main__': # tests {{{
+    # To run these test use: calibre-debug -e
+    # src/calibre/ebooks/metadata/sources/identify.py
+    from calibre.ebooks.metadata.sources.test import (test_identify,
+            title_test, authors_test)
+    test_identify(
+        [
 
+            ( # An e-book ISBN not on Amazon, one of the authors is
+              # unknown to Amazon
+                {'identifiers':{'isbn': '9780307459671'},
+                    'title':'Invisible Gorilla', 'authors':['Christopher Chabris']},
+                [title_test('The Invisible Gorilla: And Other Ways Our Intuitions Deceive Us',
+                    exact=True), authors_test(['Christopher Chabris', 'Daniel Simons'])]
 
+            ),
+
+            (  # This isbn not on amazon
+                {'identifiers':{'isbn': '8324616489'}, 'title':'Learning Python',
+                    'authors':['Lutz']},
+                [title_test('Learning Python, 3rd Edition',
+                    exact=True), authors_test(['Mark Lutz'])
+                 ]
+
+            ),
+
+            ( # Sophisticated comment formatting
+                {'identifiers':{'isbn': '9781416580829'}},
+                [title_test('Angels & Demons - Movie Tie-In: A Novel',
+                    exact=True), authors_test(['Dan Brown'])]
+            ),
+
+            ( # No specific problems
+                {'identifiers':{'isbn': '0743273567'}},
+                [title_test('The great gatsby', exact=True),
+                    authors_test(['F. Scott Fitzgerald'])]
+            ),
+
+            (  # A newer book
+                {'identifiers':{'isbn': '9780316044981'}},
+                [title_test('The Heroes', exact=True),
+                    authors_test(['Joe Abercrombie'])]
+
+            ),
+
+        ])
+# }}}
 

@@ -93,6 +93,15 @@ class InternalMetadataCompareKeyGen(object):
 
 # }}}
 
+def get_cached_cover_urls(mi):
+    from calibre.customize.ui import metadata_plugins
+    plugins = list(metadata_plugins['identify'])
+    for p in plugins:
+        url = p.get_cached_cover_url(mi.identifiers)
+        if url:
+            yield (p, url)
+
+
 class Source(Plugin):
 
     type = _('Metadata source')
