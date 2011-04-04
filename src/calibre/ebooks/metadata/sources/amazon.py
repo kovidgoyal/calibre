@@ -282,6 +282,7 @@ class Amazon(Source):
     capabilities = frozenset(['identify', 'cover'])
     touched_fields = frozenset(['title', 'authors', 'identifier:amazon',
         'identifier:isbn', 'rating', 'comments', 'publisher', 'pubdate'])
+    has_html_comments = True
 
     AMAZON_DOMAINS = {
             'com': _('US'),
