@@ -23,7 +23,7 @@ from calibre.ebooks.metadata.book.base import Metadata
 from calibre.library.comments import sanitize_comments_html
 from calibre.utils.date import parse_date
 
-class Worker(Thread): # {{{
+class Worker(Thread): # Get details {{{
 
     '''
     Get book details from amazons book page in a separate thread
@@ -283,6 +283,7 @@ class Amazon(Source):
     touched_fields = frozenset(['title', 'authors', 'identifier:amazon',
         'identifier:isbn', 'rating', 'comments', 'publisher', 'pubdate'])
     has_html_comments = True
+    supports_gzip_transfer_encoding = True
 
     AMAZON_DOMAINS = {
             'com': _('US'),

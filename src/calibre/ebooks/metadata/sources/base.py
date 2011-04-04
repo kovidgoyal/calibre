@@ -21,6 +21,7 @@ msprefs = JSONConfig('metadata_sources.json')
 msprefs.defaults['txt_comments'] = False
 msprefs.defaults['ignore_fields'] = []
 msprefs.defaults['max_tags'] = 10
+msprefs.defaults['wait_after_first_identify_result'] = 30 # seconds
 
 def create_log(ostream=None):
     log = ThreadSafeLog(level=ThreadSafeLog.DEBUG)
@@ -92,6 +93,15 @@ class InternalMetadataCompareKeyGen(object):
 
 # }}}
 
+def get_cached_cover_urls(mi):
+    from calibre.customize.ui import metadata_plugins
+    plugins = list(metadata_plugins['identify'])
+    for p in plugins:
+        url = p.get_cached_cover_url(mi.identifiers)
+        if url:
+            yield (p, url)
+
+
 class Source(Plugin):
 
     type = _('Metadata source')
@@ -109,6 +119,12 @@ class Source(Plugin):
 
     #: Set this to True if your plugin return HTML formatted comments
     has_html_comments = False
+
+    #: Setting this to True means that the browser object will add
+    #: Accept-Encoding: gzip to all requests. This can speedup downloads
+    #: but make sure that the source actually supports gzip transfer encoding
+    #: correctly first
+    supports_gzip_transfer_encoding = False
 
     def __init__(self, *args, **kwargs):
         Plugin.__init__(self, *args, **kwargs)
@@ -133,6 +149,8 @@ class Source(Plugin):
     def browser(self):
         if self._browser is None:
             self._browser = browser(user_agent=random_user_agent())
+            if self.supports_gzip_transfer_encoding:
+                self._browser.set_handle_gzip(True)
         return self._browser.clone_browser()
 
     # }}}
