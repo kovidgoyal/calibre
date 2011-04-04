@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-04-01 19:21+0000\n"
-"PO-Revision-Date: 2011-03-26 15:50+0000\n"
+"PO-Revision-Date: 2011-04-04 00:02+0000\n"
 "Last-Translator: sengian <Unknown>\n"
 "Language-Team: Français <kde-i18n-doc@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-04-02 04:43+0000\n"
+"X-Launchpad-Export-Date: 2011-04-04 04:45+0000\n"
 "X-Generator: Launchpad (build 12559)\n"
 "X-Poedit-Bookmarks: 1177,1104,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -224,7 +224,7 @@ msgid ""
 "library."
 msgstr ""
 "Suit tous les liens locaux d'un fichier HTML et crée une archive ZIP "
-"contenant tous les fichiers liés. Ce plug-in est lancé chaque fois que vous "
+"contenant tous les fichiers liés. Ce plugin est lancé chaque fois que vous "
 "ajoutez un fichier HTML à la bibliothèque."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:54
@@ -354,7 +354,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:868
 msgid "Searching"
-msgstr ""
+msgstr "Recherche en cours"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:874
 msgid "Customize the way searching for books works in calibre"
@@ -495,7 +495,7 @@ msgstr "Ajouter/Retirer/Modifier diverses fonctionalités de Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1007
 msgid "Tweaks"
-msgstr "Ajustements"
+msgstr "Réglages"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1013
 msgid "Fine tune how calibre behaves in various contexts"
@@ -536,7 +536,7 @@ msgid ""
 "readable as possible. May not have any effect for some output plugins."
 msgstr ""
 "Si spécifié, le plugin de sortie essaiera de créer une sortie qui sera aussi "
-"lisible que possible par l'humain. Peut être sans effet pour quelques "
+"lisible que possible pour un être humain. Peut être sans effet pour quelques "
 "plugins de sortie."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:49
@@ -717,7 +717,8 @@ msgstr "Plugins activés"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:476
 msgid "Initialization of plugin %s failed with traceback:"
-msgstr "L'initialisation du plugin %s a échoué en laissant une trace :"
+msgstr ""
+"L'initialisation du plugin %s a échoué avec l'erreur suivante (traceback) :"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:509
 msgid ""
@@ -793,14 +794,24 @@ msgid ""
 "iTunes</em> menu item.</p><p>Enabling the Apple driver for direct connection "
 "to iDevices is an unsupported advanced user mode.</p><p></p>"
 msgstr ""
+"<p>Si vous ne voulez pas que Calibre reconaisse votre iAppareil Apple quand "
+"il est connecté à l'ordinateur, cliquez sur <b>Désactiver le driver "
+"Apple</b>.</p><p>Pour transférer les livres sur votre iAppareil, cliquez sur "
+"<b>Désactiver le driver Apple</b>, puis utilisez la méthode 'Connecter à "
+"iTunes' recommandée dans la <a "
+"href=\"http://www.mobileread.com/forums/showthread.php?t=118559\">FAQ "
+"Calibre + iAppareils</a>, en utilisant l'entrée de menu "
+"<em>Connecter/Partager</em>|<em>Connecter à iTunes</em>.</p><p>Activer les "
+"driver Apple pour une connection directe aux iAppareils est une mode pour "
+"utilisateur avancé non supporté.</p><p></p>"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:65
 msgid "Disable Apple driver"
-msgstr ""
+msgstr "Désactiver le pilote de périphériques Apple"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:69
 msgid "Enable Apple driver"
-msgstr ""
+msgstr "Activer le pilote de périphériques Apple"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:117
 msgid "Use Series as Category in iTunes/iBooks"
@@ -809,6 +820,8 @@ msgstr "Utiliser Séries comme Catégorie dans iTunes/iBooks"
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:118
 msgid "Enable to use the series name as the iTunes Genre, iBooks Category"
 msgstr ""
+"Activer l'utilisation du nom des séries en tant que genre iTunes et "
+"catégorie iBooks"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:120
 msgid "Cache covers from iTunes/iBooks"
@@ -817,6 +830,8 @@ msgstr "Mettre en cache les couvertures provenant d'iTunes/iBooks"
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:122
 msgid "Enable to cache and display covers from iTunes/iBooks"
 msgstr ""
+"Activer la mise en cache et l'affichage des couvertures provenant de "
+"iTunes/iBooks"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:176
 msgid "Apple device"
@@ -1403,7 +1418,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:92
 msgid "Search for books in all folders"
-msgstr ""
+msgstr "Rechercher les livres dans tous les dossiers"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:94
 msgid ""
@@ -2607,7 +2622,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/output.py:159
 msgid "for a complete list with descriptions."
-msgstr ""
+msgstr "pour une liste compléte avec les descriptions."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:248
 msgid ""
@@ -3576,7 +3591,7 @@ msgstr "Source de métadonnées"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/openlibrary.py:15
 msgid "Downloads metadata from The Open Library"
-msgstr ""
+msgstr "Télécharge les metadonnées à partir de The Open Library"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:22
 msgid "Modify images to meet Palm device size limitations."
@@ -4306,7 +4321,7 @@ msgstr "Trier la liste d'étiquettes par nom, popularité ou note (classement)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:84
 msgid "Match tags by any or all."
-msgstr ""
+msgstr "Faire correspondre les étiquettes par n'importe laquelle ou toutes."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:86
 msgid "Number of covers to show in the cover browsing mode"
@@ -6637,7 +6652,7 @@ msgstr "Diviser en sections :"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_output_ui.py:46
 msgid "Genre"
-msgstr ""
+msgstr "Genre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:104
 msgid "Font rescaling wizard"
@@ -7470,7 +7485,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:64
 msgid "Remove &fake margins"
-msgstr ""
+msgstr "Supprimer les &fausses marges"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc.py:16
 msgid ""
@@ -10365,7 +10380,7 @@ msgstr " (n'est sur aucun livre)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:146
 msgid "Category lookup name: "
-msgstr ""
+msgstr "Nom de recherche de la catégorie : "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:191
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:222
@@ -10378,6 +10393,8 @@ msgid ""
 "That name contains leading or trailing periods, multiple periods in a row or "
 "spaces before or after periods."
 msgstr ""
+"Le nom contient des points avant ou après le nom, plusieurs point à la suite "
+"ou des espaces avant ou après les points."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:200
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:230
@@ -11001,19 +11018,19 @@ msgstr "Expression régulière (?P<isbn>)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:152
 msgid "Publisher:"
-msgstr ""
+msgstr "Maison d'edition :"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:153
 msgid "Regular expression (?P<publisher>)"
-msgstr ""
+msgstr "Expression régulière (?P<publisher>) (Maison d'édition)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:155
 msgid "Published:"
-msgstr ""
+msgstr "Publié :"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:156
 msgid "Regular expression (?P<published>)"
-msgstr ""
+msgstr "Expression régulière (?P<published>) (publié)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:105
 msgid "Cover Browser"
@@ -11784,7 +11801,7 @@ msgstr "Haute"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:36
 msgid "Very low"
-msgstr ""
+msgstr "Très faible"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:164
 msgid "Confirmation dialogs have all been reset"
@@ -11992,7 +12009,7 @@ msgstr "Modifier la date"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:66
 msgid "People's names"
-msgstr ""
+msgstr "Le nom des gens"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:71
 msgid "Number"
@@ -12034,7 +12051,7 @@ msgstr "Ma note"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:150
 msgid "People"
-msgstr ""
+msgstr "Les gens"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:179
 msgid "No lookup name was provided"
@@ -12128,16 +12145,18 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:199
 msgid "Show checkmarks"
-msgstr ""
+msgstr "Montrer les marques cochées"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:200
 msgid ""
 "Check this box if this column contains names, like the authors column."
 msgstr ""
+"Cocher cette case si cette colonne contient des noms, comme la colonne des "
+"auteurs"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:201
 msgid "Contains names"
-msgstr ""
+msgstr "Contiens les noms"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:202
 msgid ""
@@ -12283,6 +12302,10 @@ msgid ""
 "used for the subject. Also, the same templates used for \"Save to disk\" "
 "such as {title} and {author_sort} can be used here."
 msgstr ""
+"Sujet du mél à utiliser lors de l'envoi. Quand celui-ci est laissé blanc, le "
+"titre sera utilisé comme sujet. Les modèles utilisés pour \"Sauvegarder sur "
+"le disque\" comme {title} et {author_sort} peuvent également être utilisés "
+"ici."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/emailp.py:37
 msgid ""
@@ -12394,7 +12417,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:151
 msgid "Tags browser category &partitioning method:"
-msgstr ""
+msgstr "Méthode de division des catégories du navigateur d'étiquettes :"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:152
 msgid ""
@@ -12912,16 +12935,18 @@ msgstr "Le champ de valeur ne peut pas être vide"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:129
 msgid "The empty grouped search term cannot be deleted"
-msgstr ""
+msgstr "Une recherche groupée vide ne peut être effacée"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:110
 msgid "Search as you &type"
-msgstr ""
+msgstr "Rechercher en même temps que vous &tapez"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:111
 msgid ""
 "&Highlight search results instead of restricting the book list to the results"
 msgstr ""
+"&Surligner les livres correspondants aux résultats de la recherche au lieu "
+"de restreindre la liste aux résultats"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:112
 msgid "What to search by default"
@@ -12946,7 +12971,7 @@ msgstr "&Limiter les métadonnées recherchées"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:115
 msgid "&Columns that non-prefixed searches are limited to:"
-msgstr ""
+msgstr "Les &colonnes permettant une recherche groupée sans préfixe :"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:116
 msgid ""
@@ -12961,6 +12986,8 @@ msgid ""
 "Clear search histories from all over calibre. Including the book list, e-"
 "book viewer, fetch news dialog, etc."
 msgstr ""
+"Vide les historiques de recherche de Calibre. Sont inclus la liste des "
+"livres, le visualisateur d'ebooks, le dialogue de récupération des news, etc."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:118
 msgid "Clear search &histories"
@@ -12996,13 +13023,15 @@ msgstr "&Sauvegarder"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:132
 msgid "Make &user categories from:"
-msgstr ""
+msgstr "Créer les catégories &utilisateur à partir de :"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:133
 msgid ""
 "Enter the names of any grouped search terms you wish\n"
 "to be shown as user categories"
 msgstr ""
+"Entrez les noms de n'importe quelle recherche groupée que vous souhaitez\n"
+"afficher comme catégories utilisateur"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending.py:28
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:70
@@ -13389,7 +13418,7 @@ msgstr "La barre d'outils principale"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:211
 msgid "The optional second toolbar"
-msgstr ""
+msgstr "La seconde barre d'outils optionelle"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:212
 msgid "The main toolbar when a device is connected"
@@ -13449,11 +13478,11 @@ msgstr "Supprimer les actions sélectionnées de la barre d'outils"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:113
 msgid "This tweak has it default value"
-msgstr ""
+msgstr "Ce réglage posséde sa valeur par défaut"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:115
 msgid "This tweak has been customized"
-msgstr ""
+msgstr "Ce réglage a été personnalisé"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:236
 msgid ""
@@ -13468,6 +13497,8 @@ msgid ""
 "There was a syntax error in your tweak. Click the show details button for "
 "details."
 msgstr ""
+"Il y a eu une erreur de syntaxe dans votre réglage. Appuyez sur le bouton "
+"afficher les détails pour obtenir les détails."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:330
 msgid "Invalid tweaks"
@@ -13492,26 +13523,28 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:89
 msgid "Edit tweaks for any custom plugins you have installed"
 msgstr ""
+"Editer les réglages pour n'importe lequels des plugins personnalisés que "
+"vous avez installlé"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:90
 msgid "&Plugin tweaks"
-msgstr ""
+msgstr "Réglages du &plugin"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:92
 msgid "Edit tweak"
-msgstr ""
+msgstr "Editer les réglages"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:93
 msgid "Restore this tweak to its default value"
-msgstr ""
+msgstr "Restaurer ce réglage à sa valeur par défaut"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:94
 msgid "Restore &default"
-msgstr ""
+msgstr "Restaurer la valeur par &défaut"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:95
 msgid "Apply any changes you made to this tweak"
-msgstr ""
+msgstr "Appliquer les changements que vous avez effectués à ce réglage"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:93
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:277
@@ -14773,6 +14806,8 @@ msgid ""
 "You must either set both the username <b>and</b> password for the mail "
 "server or no username and no password at all."
 msgstr ""
+"Vous devez soit entrer à la fois les valeurs pour le nom d'utilisateur "
+"<b>et</b> le mot de passe du serveur de courrier soit aucun des deux."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:219
 msgid "Please enter a username and password or set encryption to None "
@@ -15315,6 +15350,14 @@ msgid ""
 "Select all books by '{0}', apply correct Author Sort value in Edit Metadata "
 "dialog, then rebuild the catalog.\n"
 msgstr ""
+"Les valeurs des clés de Tri par auteur sont incohérentes pour\n"
+"Auteur '{0}':\n"
+"'{1}' <> '{2}'\n"
+"Impossible de créer le catalogue MOBI.\n"
+"\n"
+"Sélectionnez tous les livre de  '{0}', appliquez une valeur correcte pour la "
+"clé de Tri par auteur dans le dialogue d'édition des métadonnées, puis "
+"recréez le catalogue.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:1504
 msgid ""
@@ -15322,6 +15365,9 @@ msgid ""
 "Author '{0}':\n"
 "'{1}' <> '{2}'\n"
 msgstr ""
+"Attention : les valeurs des clés de Tri par auteur sont incohérentes pour\n"
+"Auteur '{0}':\n"
+"'{1}' <> '{2}'\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:1700
 msgid ""
@@ -16600,6 +16646,10 @@ msgid ""
 "and consume more resources. Most tasks like conversion/news download/adding "
 "books/etc. are affected by this setting."
 msgstr ""
+"La priorité des processus de travail autonomes. Une priorité supérieure "
+"siginifie qu'ils fonctionnent plus vite et consomment plus de ressources. La "
+"plupart des taches commme la conversion/le téléchargement des news/l'ajout "
+"des livres/etc sont affectées par ce réglage."
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:722
 msgid "Swap author first and last names when reading metadata"
@@ -16631,6 +16681,9 @@ msgid ""
 "When searching for text without using lookup prefixes, as for example, Red "
 "instead of title:Red, limit the columns searched to those named below."
 msgstr ""
+"Quand vous recherchez du texte sans utiliser de préfixe de recherche, comme "
+"par exemple, Rouge au lieu de titre:Rouge, les colonnes recherchées sont "
+"limitées à celles nommées ci-dessous."
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:740
 msgid ""
@@ -16809,6 +16862,8 @@ msgid ""
 "raw_field(name) -- returns the metadata field named by name without applying "
 "any formatting."
 msgstr ""
+"raw_field(nom) -- renvoie le champ de métadonnées nom sans appliquer aucune "
+"mise en forme."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:246
 msgid ""
@@ -16962,6 +17017,9 @@ msgid ""
 "with the items being \"id:value\". Find the pair with theid equal to key, "
 "and return the corresponding value."
 msgstr ""
+"select(valeur, clé) -- interpréte valeur comme une liste d'items séparés par "
+"des virgules, les items étant de la forme \"id:value\". Trouve la paire dont "
+"l'id est égale à la clé, et retourne la valeur correspondante."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:429
 msgid ""

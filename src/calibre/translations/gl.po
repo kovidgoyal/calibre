@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-04-01 19:21+0000\n"
-"PO-Revision-Date: 2011-03-25 21:37+0000\n"
-"Last-Translator: Miguel Anxo Bouzada <mbouzada@gmail.com>\n"
+"PO-Revision-Date: 2011-04-03 20:53+0000\n"
+"Last-Translator: Antón Méixome <meixome@gmail.com>\n"
 "Language-Team: dev@gl.openoffice.org\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-04-02 04:44+0000\n"
+"X-Launchpad-Export-Date: 2011-04-04 04:45+0000\n"
 "X-Generator: Launchpad (build 12559)\n"
 "Language: gl\n"
 
@@ -250,6 +250,9 @@ msgid ""
 "Textile references to images. The referenced images as well as the TXT file "
 "are added to the archive."
 msgstr ""
+"Crear un arquivo TXTZ cando se importa un ficheiro TXT que contén "
+"referencias a imaxes con Markdown ou Textile. O arquivo inclúe tanto as "
+"imaxes como o ficheiro TXT."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:166
 msgid "Extract cover from comic files"
@@ -337,7 +340,7 @@ msgstr "Engadir/retirar as columnas propias da lista de libros do Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:856
 msgid "Toolbar"
-msgstr ""
+msgstr "Barra de ferramentas"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:862
 msgid ""
@@ -349,7 +352,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:868
 msgid "Searching"
-msgstr ""
+msgstr "Busca"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:874
 msgid "Customize the way searching for books works in calibre"
@@ -786,14 +789,26 @@ msgid ""
 "iTunes</em> menu item.</p><p>Enabling the Apple driver for direct connection "
 "to iDevices is an unsupported advanced user mode.</p><p></p>"
 msgstr ""
+"<p>Se non quere que Calibre recoñeza o seu dispositivo Apple ao conectalo ao "
+"computador, prema en «<b>Desactivar o controlador de Apple</b>».</p>\r\n"
+"<p>Para transferirlle libros ao dispositivo, prema en «<b>Desactivar o "
+"controlador de Apple</b>» e logo use o método de «Conexión con iTunes» "
+"recomendado na <a "
+"href=\"http://www.mobileread.com/forums/showthread.php?t=118559\">Calibre + "
+"iDevices FAQ</a>, usando o menú «<em>Conectar/compartir</em>|<em>Conectar a "
+"iTunes</em>».</p>\r\n"
+"<p>A activación do controlador de Apple para conectar directamente cos "
+"dispositivos de Apple é unha opción avanzada e sen asistencia "
+"técnica.</p>\r\n"
+"<p></p>"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:65
 msgid "Disable Apple driver"
-msgstr ""
+msgstr "Desactivar o controlador de Apple"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:69
 msgid "Enable Apple driver"
-msgstr ""
+msgstr "Activar o controlador de Apple"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:117
 msgid "Use Series as Category in iTunes/iBooks"
@@ -802,6 +817,8 @@ msgstr "Usar Serie como categoría en iTunes/iBooks"
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:118
 msgid "Enable to use the series name as the iTunes Genre, iBooks Category"
 msgstr ""
+"Actíveo para usar o nome da serie como xénero de iTunes ou categoría de "
+"iBooks"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:120
 msgid "Cache covers from iTunes/iBooks"
@@ -810,6 +827,7 @@ msgstr "Gardar as cubertas de iTunes/iBooks en caché"
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:122
 msgid "Enable to cache and display covers from iTunes/iBooks"
 msgstr ""
+"Actíveo para amosar e gardar en caché as portadas de iTunes ou iBooks"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:176
 msgid "Apple device"
@@ -1174,6 +1192,10 @@ msgid ""
 "the Kindle when uploading MOBI files by USB. Note that the page numbers do "
 "not correspond to any paper book."
 msgstr ""
+"O Kindle 3 e versións máis recentes poden usar información sobre números de "
+"páxinas en ficheiros MOBI. Con esta opción, Calibre calculará e enviaralle "
+"esta información ao Kindle ao copiar ficheiros MOBI a través de USB. Teña en "
+"conta que os números de páxina non se corresponden con ningún libro en papel."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:187
 msgid "Use slower but more accurate page number generation"
@@ -1188,6 +1210,10 @@ msgid ""
 "book. However, this method is slower and will slow down sending files to the "
 "Kindle."
 msgstr ""
+"Hai dúas maneiras de xerar a información de números de páxinas. O uso do "
+"algoritmo máis preciso xera números que resultan máis parecidos aos que "
+"tería o libro impreso. Non obstante, este método é máis lento e ralentiza o "
+"envío de ficheiros ao Kindle"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:257
 msgid "Communicate with the Kindle DX eBook reader."
@@ -1383,7 +1409,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:92
 msgid "Search for books in all folders"
-msgstr ""
+msgstr "Buscar libros en todos os cartafoles"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:94
 msgid ""
@@ -1391,6 +1417,9 @@ msgid ""
 "device and its cards. This permits calibre to find books put on the device "
 "by other software and by wireless download."
 msgstr ""
+"Se se activa esta opción, Calibre buscará libros en todos os cartafoles do "
+"dispositivo e as súas tarxetas. Isto permítelle ao Calibre atopar libros que "
+"se almacenasen no dispositivo con outros programas ou por descarga sen fíos."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:190
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/structure.py:69
@@ -2016,6 +2045,10 @@ msgid ""
 "margins. Sometimes, this can cause the removal of margins that should not "
 "have been removed. In this case you can disable the removal."
 msgstr ""
+"Algúns documentos especifican as marxes de páxina engadindo marxes á "
+"esquerda e dereita de cada parágrafo, Calibre intentará detectar e eliminar "
+"estas marxes. Ás veces isto pode ocasionar que se eliminen marxes que "
+"deberían manterse. En tal caso, pode desactivar a eliminación."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:320
 msgid ""
@@ -2138,6 +2171,12 @@ msgid ""
 "by Chinese and Japanese for instance) the representation based on the "
 "current calibre interface language will be used."
 msgstr ""
+"Transliterar caracteres unicode á representación ASCII. Teña tino ao emprega "
+"esta opción, xa que substituirá os caracteres unicode con ASCII. Por "
+"exemplo, substituirá «%s» por «Mikhail Gorbachiov». Teña en conta tamén que "
+"nos casos nos que existen múltiples representacións para un carácter "
+"(caracteres compartidos pola escritura china e xaponesa, por exemplo) "
+"empregarase a representación baseada no idioma dla interface do Calibre."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:425
 msgid ""
@@ -2546,7 +2585,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/output.py:159
 msgid "for a complete list with descriptions."
-msgstr ""
+msgstr "para una lista completa con descricións."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:248
 msgid ""
@@ -3248,6 +3287,9 @@ msgid ""
 "Downloads series information from ww2.kdl.org. This website cannot handle "
 "large numbers of queries, so the plugin is disabled by default."
 msgstr ""
+"Descargar información de serie de ww2.kdl.org. Este sitio web non admite un "
+"gran número de conexións, así que o complemento está desactivado de maneira "
+"predeterminada."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fictionwise.py:25
 msgid "Downloads metadata from Fictionwise"
@@ -3498,7 +3540,7 @@ msgstr "Fonte de metadatos"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/openlibrary.py:15
 msgid "Downloads metadata from The Open Library"
-msgstr ""
+msgstr "Descarga metadatos de The Open Library"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:22
 msgid "Modify images to meet Palm device size limitations."
@@ -4084,6 +4126,19 @@ msgid ""
 "* off: Don't modify the paragraph structure. This is useful when combined "
 "with Markdown or Textile formatting to ensure no formatting is lost."
 msgstr ""
+"Estrutura de parágrafos.\n"
+"as opcións son [«auto», «block», «single», «print», «unformatted», «off»]\n"
+"* auto: Intenta detectar automaticamente o tipo de parágrafo.\n"
+"* block: Considera cada liña en branco como un salto de parágrafo.\n"
+"* single: Considera cada liña como un parágrafo distinto.\n"
+"* print: Considera que cada liña que comeza con dúa ou máis espazos ou unha "
+"tabulación empeza un parágrafo.\n"
+"* unformatted: Casi todas as liñas teñen saltos forzados, con pouca ou "
+"ningunha sangría. Intenta determinar a estrutura e aplicarlle formato aos "
+"distintos elementos.\n"
+"* off: Non se modifica a estrutura de parágrafos. Esta opción é útil "
+"combinada co formato Markdown ou Textile, para asegurarse de que non se "
+"perde o formato."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/input.py:43
 msgid ""
@@ -4097,6 +4152,15 @@ msgid ""
 "* markdown: Processing using markdown formatting. To learn more about "
 "markdown see"
 msgstr ""
+"Formato usado no documento.\n"
+"* auto: Decide automaticamente o procesador de formato que se emprega.\n"
+"* plain: Non procesa o formato do documento. Todo é un parágrafo e non se "
+"lle aplica ningún estilo.\n"
+"* heuristic: Procesa o texto con heurística para determinar formatos como "
+"títulos de capítulo ou cursivas.\n"
+"* textile: Procesa o text con formato textile.\n"
+"* markdown: Procesa o texto con formato markdown. Para aprender máis sobre "
+"markdown véxase"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/input.py:53
 msgid ""
@@ -4198,7 +4262,7 @@ msgstr "Ordenar as listas de etiquetas por nome, popularidade ou puntuación"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:84
 msgid "Match tags by any or all."
-msgstr ""
+msgstr "Buscar etiquetas por un término ou por todos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:86
 msgid "Number of covers to show in the cover browsing mode"
@@ -4273,6 +4337,9 @@ msgid ""
 "showing only the matches. You can use the N or F3 keys to go to the next "
 "match."
 msgstr ""
+"Ao buscar, amosar todos os libros, realzando os resultados da busca, en "
+"lugar de amosar só as coincidencias. Pode premer a tecla N ou a tecla F3 "
+"para ir ao seguinte resultado."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:134
 msgid "Maximum number of waiting worker processes"
@@ -4469,6 +4536,9 @@ msgid ""
 "processed and merged into your Calibre database according to your automerge "
 "settings:"
 msgstr ""
+"Atopáronse os seguintes libros duplicados, e os formatos entrantes "
+"procesáronse e uníronse á base de datos do Calibre segundo a configuración "
+"de unión automática:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:344
 msgid "Failed to read metadata"
@@ -6492,7 +6562,7 @@ msgstr "Dividir en seccións:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_output_ui.py:46
 msgid "Genre"
-msgstr ""
+msgstr "Xénero"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:104
 msgid "Font rescaling wizard"
@@ -7320,7 +7390,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:64
 msgid "Remove &fake margins"
-msgstr ""
+msgstr "Eliminar marxes &falsas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc.py:16
 msgid ""
@@ -7858,6 +7928,9 @@ msgid ""
 "support them. If you send these formats to your {1} they may not work. Are "
 "you sure?"
 msgstr ""
+"Activáronse os formatos <b>{0}</b> para o seu {1}. Pode que o {1} non os "
+"admita. Se envia estes formatos ao {1} é posíbel que non funcionen. Está "
+"seguro?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget.py:137
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:402
@@ -8256,6 +8329,8 @@ msgid ""
 "You can also customise the plugin locations using <b>Preferences -> "
 "Customise the toolbar</b>"
 msgstr ""
+"Tamén pode personalizar as localizacións de complementos en <b>Preferencias -"
+"> Personalizar a barra de ferramentas</b>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf.py:33
 msgid "Set defaults for conversion of comics (CBR/CBZ files)"
@@ -8364,6 +8439,11 @@ msgid ""
 "          available at <a href=\"http://drmfree.calibre-ebook.com\">Open "
 "Books</a>."
 msgstr ""
+"<p>Este libro está bloqueado con <b>DRM</b>. Para saber máis sobre DRM e por "
+"qué non pode ler o converter este libro co Calibre, <a "
+"href=\"http://drmfree.calibre-ebook.com/about#drm\">prema aquí</a>.\n"
+"<p>Pode atopar novidades sen DRM en <a href=\"http://drmfree.calibre-"
+"ebook.com\">Open Books</a>."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:35
 msgid "Author sort"
@@ -8397,6 +8477,9 @@ msgid ""
 "generated from the author. Exactly how this value is automatically\n"
 "generated can be controlled via Preferences->Advanced->Tweaks"
 msgstr ""
+"Restabelecer todos os valores de ordenación por autor ao valor xerado\n"
+"automaticamente a partir do autor. Pode controlarse a maneira precisa en\n"
+"que este valor se xera en Preferencias->Avanzado->Axustes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:80
 msgid "Recalculate all author sort values"
