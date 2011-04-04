@@ -283,6 +283,7 @@ class Amazon(Source):
     touched_fields = frozenset(['title', 'authors', 'identifier:amazon',
         'identifier:isbn', 'rating', 'comments', 'publisher', 'pubdate'])
     has_html_comments = True
+    supports_gzip_transfer_encoding = True
 
     AMAZON_DOMAINS = {
             'com': _('US'),

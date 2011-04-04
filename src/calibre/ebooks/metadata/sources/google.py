@@ -160,6 +160,7 @@ class GoogleBooks(Source):
     touched_fields = frozenset(['title', 'authors', 'tags', 'pubdate',
         'comments', 'publisher', 'identifier:isbn', 'rating',
         'identifier:google']) # language currently disabled
+    supports_gzip_transfer_encoding = True
 
     GOOGLE_COVER = 'http://books.google.com/books?id=%s&printsec=frontcover&img=1'
 
