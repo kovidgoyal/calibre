@@ -136,13 +136,9 @@ Fonts::size_type Fonts::add_font(XMLFont *f) {
 
 Fonts::size_type Fonts::add_font(string* font_name, double size, GfxRGB rgb) {
     XMLFont *f = NULL;
-    if (font_name == NULL) {
-        string *fn = new string("Unknown");
-        f = new XMLFont(fn, size, rgb);
-        // fn must not be deleted
-    } else {
-        f = new XMLFont(font_name, size, rgb);
-    }
+    if (font_name == NULL) 
+        font_name = new string("Unknown");
+    f = new XMLFont(font_name, size, rgb);
 
     return this->add_font(f);
 }
