@@ -270,6 +270,8 @@ class BookInfo(QWebView):
             <style type="text/css">
                 body, td {background-color: transparent; font-size: %dpx; color: %s }
                 a { text-decoration: none; color: blue }
+                div.description { margin-top: 0; padding-top: 0; text-indent: 0 }
+                table { margin-bottom: 0; padding-bottom: 0; }
             </style>
             </head>
             <body>
@@ -278,9 +280,10 @@ class BookInfo(QWebView):
         <html>
         '''%(f, c)
         if self.vertical:
+            extra = ''
             if comments:
-                rows += u'<tr><td colspan="2">%s</td></tr>'%comments
-            self.setHtml(templ%(u'<table>%s</table>'%rows))
+                extra = u'<div class="description">%s</div>'%comments
+            self.setHtml(templ%(u'<table>%s</table>%s'%(rows, extra)))
         else:
             left_pane = u'<table>%s</table>'%rows
             right_pane = u'<div>%s</div>'%comments

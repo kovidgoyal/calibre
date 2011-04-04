@@ -20,7 +20,8 @@ class RemoveAdobeMargins(object):
         self.oeb, self.opts, self.log = oeb, opts, log
 
         for item in self.oeb.manifest:
-            if item.media_type == 'application/vnd.adobe-page-template+xml':
+            if item.media_type in ('application/vnd.adobe-page-template+xml',
+                    'application/vnd.adobe.page-template+xml'):
                 self.log('Removing page margins specified in the'
                         ' Adobe page template')
                 for elem in item.data.xpath(
@@ -35,7 +36,7 @@ class RemoveFakeMargins(object):
 
     '''
     Remove left and right margins from paragraph/divs if the same margin is specified
-    on almost all the elements of at that level.
+    on almost all the elements at that level.
 
     Must be called only after CSS flattening
     '''

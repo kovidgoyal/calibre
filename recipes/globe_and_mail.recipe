@@ -35,8 +35,8 @@ class AdvancedUserRecipe1287083651(BasicNewsRecipe):
       (u'Arts', u'http://www.theglobeandmail.com/news/arts/?service=rss'),
       (u'Life', u'http://www.theglobeandmail.com/life/?service=rss'),
       (u'Real Estate', u'http://www.theglobeandmail.com/real-estate/?service=rss'),
-      (u'Auto', u'http://www.theglobeandmail.com/sports/?service=rss'),
-      (u'Sports', u'http://www.theglobeandmail.com/auto/?service=rss')
+      (u'Sports', u'http://www.theglobeandmail.com/sports/?service=rss'),
+      (u'Drive', u'http://www.theglobeandmail.com/auto/?service=rss')
     ]
 
     preprocess_regexps = [
