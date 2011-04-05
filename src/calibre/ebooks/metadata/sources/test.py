@@ -64,6 +64,7 @@ def test_identify(tests): # {{{
     from calibre.ebooks.metadata.sources.identify import identify
 
     tdir, lf, log, abort = init_test('Full Identify')
+    prints('Log saved to', lf)
 
     times = []
 
@@ -129,6 +130,7 @@ def test_identify_plugin(name, tests): # {{{
             plugin = x
             break
     prints('Testing the identify function of', plugin.name)
+    prints('Using extra headers:', plugin.browser.addheaders)
 
     tdir, lf, log, abort = init_test(plugin.name)
     prints('Log saved to', lf)

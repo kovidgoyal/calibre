@@ -57,13 +57,13 @@ class ISBNMerge(object):
 
     def isbn_in_pool(self, isbn):
         if isbn:
-            for p in self.pools:
-                if isbn in p:
-                    return p
+            for isbns, pool in self.pools.iteritems():
+                if isbn in isbns:
+                    return pool
         return None
 
     def pool_has_result_from_same_source(self, pool, result):
-        results = self.pools[pool][1]
+        results = pool[1]
         for r in results:
             if r.identify_plugin is result.identify_plugin:
                 return True
@@ -77,7 +77,7 @@ class ISBNMerge(object):
                 isbns, min_year = xisbn.get_isbn_pool(isbn)
                 if not isbns:
                     isbns = frozenset([isbn])
-                self.pool[isbns] = pool = (min_year, [])
+                self.pools[isbns] = pool = (min_year, [])
 
             if not self.pool_has_result_from_same_source(pool, result):
                 pool[1].append(result)
@@ -102,7 +102,7 @@ class ISBNMerge(object):
 
     def merge_isbn_results(self):
         self.results = []
-        for min_year, results in self.pool.itervalues():
+        for min_year, results in self.pools.itervalues():
             if results:
                 self.results.append(self.merge(results, min_year))
 
@@ -169,11 +169,11 @@ class ISBNMerge(object):
             min_date = datetime(min_year, 1, 2, tzinfo=utc_tz)
             ans.pubdate = min_date
         else:
-            min_date = datetime(10000, 1, 1, tzinfo=utc_tz)
+            min_date = datetime(3001, 1, 1, tzinfo=utc_tz)
             for r in results:
                 if r.pubdate is not None and r.pubdate < min_date:
                     min_date = r.pubdate
-            if min_date.year < 10000:
+            if min_date.year < 3000:
                 ans.pubdate = min_date
 
         # Identifiers
@@ -183,7 +183,7 @@ class ISBNMerge(object):
         # Merge any other fields with no special handling (random merge)
         touched_fields = set()
         for r in results:
-            touched_fields |= r.plugin.touched_fields
+            touched_fields |= r.identify_plugin.touched_fields
 
         for f in touched_fields:
             if f.startswith('identifier:') or not ans.is_null(f):
@@ -210,7 +210,7 @@ def merge_identify_results(result_map, log):
 
 def identify(log, abort, title=None, authors=None, identifiers=[], timeout=30):
     start_time = time.time()
-    plugins = list(metadata_plugins['identify'])
+    plugins = list(metadata_plugins(['identify']))
 
     kwargs = {
             'title': title,
@@ -229,7 +229,10 @@ def identify(log, abort, title=None, authors=None, identifiers=[], timeout=30):
         w.start()
 
     first_result_at = None
-    results = dict.fromkeys(plugins, [])
+    results = {}
+    for p in plugins:
+        results[p] = []
+    logs = dict([(w.plugin, w.buf) for w in workers])
 
     def get_results():
         found = False
@@ -253,28 +256,31 @@ def identify(log, abort, title=None, authors=None, identifiers=[], timeout=30):
         if not is_worker_alive(workers):
             break
 
-        if (first_result_at is not None and time.time() - first_result_at <
+        if (first_result_at is not None and time.time() - first_result_at >
                 wait_time):
             log('Not waiting any longer for more results')
             abort.set()
             break
 
-    get_results()
+    while not abort.is_set() and get_results():
+        pass
+
     sort_kwargs = dict(kwargs)
     for k in list(sort_kwargs.iterkeys()):
         if k not in ('title', 'authors', 'identifiers'):
             sort_kwargs.pop(k)
 
-    for plugin, results in results.iteritems():
-        results.sort(key=plugin.identify_results_keygen(**sort_kwargs))
-        plog = plugin.buf.getvalue().strip()
+    for plugin, presults in results.iteritems():
+        presults.sort(key=plugin.identify_results_keygen(**sort_kwargs))
+        plog = logs[plugin].getvalue().strip()
+        log('\n'+'*'*35, plugin.name, '*'*35)
+        log('Request extra headers:', plugin.browser.addheaders)
+        log('Found %d results'%len(presults))
         if plog:
-            log('\n'+'*'*35, plugin.name, '*'*35)
-            log('Found %d results'%len(results))
             log(plog)
-            log('\n'+'*'*80)
+        log('\n'+'*'*80)
 
-        for i, result in enumerate(results):
+        for i, result in enumerate(presults):
             result.relevance_in_source = i
             result.has_cached_cover_url = \
                 plugin.get_cached_cover_url(result.identifiers) is not None
@@ -295,10 +301,10 @@ def identify(log, abort, title=None, authors=None, identifiers=[], timeout=30):
 
     dummy = Metadata(_('Unknown'))
     max_tags = msprefs['max_tags']
-    for f in msprefs['ignore_fields']:
-        for r in results:
+    for r in results:
+        for f in msprefs['ignore_fields']:
             setattr(r, f, getattr(dummy, f))
-            r.tags = r.tags[:max_tags]
+        r.tags = r.tags[:max_tags]
 
     return results
 
@@ -307,8 +313,7 @@ if __name__ == '__main__': # tests {{{
     # src/calibre/ebooks/metadata/sources/identify.py
     from calibre.ebooks.metadata.sources.test import (test_identify,
             title_test, authors_test)
-    test_identify(
-        [
+    tests = [
 
             ( # An e-book ISBN not on Amazon, one of the authors is
               # unknown to Amazon
@@ -330,14 +335,14 @@ if __name__ == '__main__': # tests {{{
 
             ( # Sophisticated comment formatting
                 {'identifiers':{'isbn': '9781416580829'}},
-                [title_test('Angels & Demons - Movie Tie-In: A Novel',
+                [title_test('Angels & Demons',
                     exact=True), authors_test(['Dan Brown'])]
             ),
 
             ( # No specific problems
                 {'identifiers':{'isbn': '0743273567'}},
                 [title_test('The great gatsby', exact=True),
-                    authors_test(['F. Scott Fitzgerald'])]
+                    authors_test(['Francis Scott Fitzgerald'])]
             ),
 
             (  # A newer book
@@ -347,6 +352,7 @@ if __name__ == '__main__': # tests {{{
 
             ),
 
-        ])
+        ]
+    test_identify(tests[4:5])
 # }}}
 
