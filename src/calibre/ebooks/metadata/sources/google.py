@@ -271,6 +271,9 @@ class GoogleBooks(Source):
             identifiers={}, timeout=30):
         query = self.create_query(log, title=title, authors=authors,
                 identifiers=identifiers)
+        if not query:
+            log.error('Insufficient metadata to construct query')
+            return
         br = self.browser
         try:
             raw = br.open_novisit(query, timeout=timeout).read()
