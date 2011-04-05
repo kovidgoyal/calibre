@@ -902,8 +902,11 @@ class TagsEdit(MultiCompleteLineEdit): # {{{
 
 # }}}
 
-class ISBNEdit(QLineEdit): # {{{
-    LABEL = _('IS&BN:')
+class IdentifiersEdit(QLineEdit): # {{{
+    LABEL = _('I&ds:')
+    BASE_TT = _('Edit the identifiers for this book. '
+            'For example: \n\n%s')%(
+            'isbn:1565927249, doi:10.1000/182, amazon:1565927249')
 
     def __init__(self, parent):
         QLineEdit.__init__(self, parent)
@@ -913,32 +916,44 @@ class ISBNEdit(QLineEdit): # {{{
     @dynamic_property
     def current_val(self):
         def fget(self):
-            return self.pat.sub('', unicode(self.text()).strip())
+            raw = unicode(self.text()).strip()
+            parts = [x.strip() for x in raw.split(',')]
+            ans = {}
+            for x in parts:
+                c = x.split(':')
+                if len(c) == 2:
+                    ans[c[0]] = c[1]
+            return ans
         def fset(self, val):
             if not val:
-                val = ''
-            self.setText(val.strip())
+                val = {}
+            txt = ', '.join(['%s:%s'%(k, v) for k, v in val.iteritems()])
+            self.setText(txt.strip())
         return property(fget=fget, fset=fset)
 
     def initialize(self, db, id_):
-        self.current_val = db.isbn(id_, index_is_id=True)
+        self.current_val = db.get_identifiers(id_, index_is_id=True)
         self.original_val = self.current_val
 
     def commit(self, db, id_):
-        db.set_isbn(id_, self.current_val, notify=False, commit=False)
+        if self.original_val != self.current_val:
+            db.set_identifiers(id_, self.current_val, notify=False, commit=False)
         return True
 
     def validate(self, *args):
-        isbn = self.current_val
-        tt = _('This ISBN number is valid')
+        identifiers = self.current_val
+        isbn = identifiers.get('isbn', '')
+        tt = self.BASE_TT
+        extra = ''
         if not isbn:
             col = 'rgba(0,255,0,0%)'
         elif check_isbn(isbn) is not None:
             col = 'rgba(0,255,0,20%)'
+            extra = '\n\n'+_('This ISBN number is valid')
         else:
             col = 'rgba(255,0,0,20%)'
-            tt = _('This ISBN number is invalid')
-        self.setToolTip(tt)
+            extra = '\n\n' + _('This ISBN number is invalid')
+        self.setToolTip(tt+extra)
         self.setStyleSheet('QLineEdit { background-color: %s }'%col)
 
 # }}}
