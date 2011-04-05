@@ -17,7 +17,7 @@ from calibre.utils.config import JSONConfig
 from calibre.utils.titlecase import titlecase
 from calibre.ebooks.metadata import check_isbn
 
-msprefs = JSONConfig('metadata_sources.json')
+msprefs = JSONConfig('metadata_sources/global.json')
 msprefs.defaults['txt_comments'] = False
 msprefs.defaults['ignore_fields'] = []
 msprefs.defaults['max_tags'] = 20

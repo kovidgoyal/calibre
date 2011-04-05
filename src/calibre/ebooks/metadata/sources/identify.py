@@ -272,6 +272,7 @@ def identify(log, abort, title=None, authors=None, identifiers={}, timeout=30):
         if k not in ('title', 'authors', 'identifiers'):
             sort_kwargs.pop(k)
 
+    longest, lp = -1, ''
     for plugin, presults in results.iteritems():
         presults.sort(key=plugin.identify_results_keygen(**sort_kwargs))
         plog = logs[plugin].getvalue().strip()
@@ -281,8 +282,11 @@ def identify(log, abort, title=None, authors=None, identifiers={}, timeout=30):
         time_spent = getattr(plugin, 'dl_time_spent', None)
         if time_spent is None:
             log('Downloading was aborted')
+            longest, lp = -1, plugin.name
         else:
             log('Downloading from', plugin.name, 'took', time_spent)
+            if time_spent > longest:
+                longest, lp = time_spent, plugin.name
         for r in presults:
             log('\n\n---')
             log(unicode(r))
@@ -297,6 +301,7 @@ def identify(log, abort, title=None, authors=None, identifiers={}, timeout=30):
             result.identify_plugin = plugin
 
     log('The identify phase took %.2f seconds'%(time.time() - start_time))
+    log('The longest time (%f) was taken by:'%longest, lp)
     log('Merging results from different sources and finding earliest',
             'publication dates')
     start_time = time.time()
