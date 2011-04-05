@@ -1,5 +1,5 @@
 __license__   = 'GPL v3'
-__copyright__ = '2010, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2010-2011, Darko Miletic <darko.miletic at gmail.com>'
 '''
 perfil.com
 '''
@@ -39,9 +39,9 @@ class Perfil(BasicNewsRecipe):
                       dict(name=['iframe','embed','object','base','meta','link'])
                      ,dict(name='a', attrs={'href':'#comentarios'})
                      ,dict(name='div', attrs={'class':'foto3'})
-                     ,dict(name='img', attrs={'alt':'ampliar'})
+                     ,dict(name='img', attrs={'alt':['ampliar','Ampliar']})
                     ]
-    keep_only_tags=[dict(attrs={'class':['bd468a','cuerpoSuperior']})]
+    keep_only_tags=[dict(attrs={'class':['articulo','cuerpoSuperior']})]
     remove_attributes=['onload','lang','width','height','border']
 
     feeds = [
