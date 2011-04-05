@@ -17,10 +17,10 @@ from calibre.utils.config import JSONConfig
 from calibre.utils.titlecase import titlecase
 from calibre.ebooks.metadata import check_isbn
 
-msprefs = JSONConfig('metadata_sources.json')
+msprefs = JSONConfig('metadata_sources/global.json')
 msprefs.defaults['txt_comments'] = False
 msprefs.defaults['ignore_fields'] = []
-msprefs.defaults['max_tags'] = 10
+msprefs.defaults['max_tags'] = 20
 msprefs.defaults['wait_after_first_identify_result'] = 30 # seconds
 
 def create_log(ostream=None):
@@ -95,7 +95,7 @@ class InternalMetadataCompareKeyGen(object):
 
 def get_cached_cover_urls(mi):
     from calibre.customize.ui import metadata_plugins
-    plugins = list(metadata_plugins['identify'])
+    plugins = list(metadata_plugins(['identify']))
     for p in plugins:
         url = p.get_cached_cover_url(mi.identifiers)
         if url:
