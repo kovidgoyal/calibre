@@ -64,7 +64,7 @@ class Worker(Thread): # Get details {{{
 
         raw = xml_to_unicode(raw, strip_encoding_pats=True,
                 resolve_entities=True)[0]
-        # open('/t/t.html', 'wb').write(raw)
+        #open('/t/t.html', 'wb').write(raw)
 
         if '<title>404 - ' in raw:
             self.log.error('URL malformed: %r'%self.url)
@@ -218,6 +218,9 @@ class Worker(Thread): # Get details {{{
                     ' @class="emptyClear" or @href]'):
                 c.getparent().remove(c)
             desc = tostring(desc, method='html', encoding=unicode).strip()
+            # Encoding bug in Amazon data U+fffd (replacement char)
+            # in some examples it is present in place of '
+            desc = desc.replace('\ufffd', "'")
             # remove all attributes from tags
             desc = re.sub(r'<([a-zA-Z0-9]+)\s[^>]+>', r'<\1>', desc)
             # Collapse whitespace
@@ -410,6 +413,18 @@ class Amazon(Source):
                     if 'bulk pack' not in title:
                         matches.append(a.get('href'))
                     break
+            if not matches:
+                # This can happen for some user agents that Amazon thinks are
+                # mobile/less capable
+                log('Trying alternate results page markup')
+                for td in root.xpath(
+                    r'//div[@id="Results"]/descendant::td[starts-with(@id, "search:Td:")]'):
+                    for a in td.xpath(r'descendant::td[@class="dataColumn"]/descendant::a[@href]/span[@class="srTitle"]/..'):
+                        title = tostring(a, method='text', encoding=unicode).lower()
+                        if 'bulk pack' not in title:
+                            matches.append(a.get('href'))
+                        break
+
 
         # Keep only the top 5 matches as the matches are sorted by relevance by
         # Amazon so lower matches are not likely to be very relevant
