@@ -34,10 +34,12 @@ class Worker(Thread):
         self.log = create_log(self.buf)
 
     def run(self):
+        start = time.time()
         try:
             self.plugin.identify(self.log, self.rq, self.abort, **self.kwargs)
         except:
             self.log.exception('Plugin', self.plugin.name, 'failed')
+        self.plugin.dl_time_spent = time.time() - start
 
 def is_worker_alive(workers):
     for w in workers:
@@ -276,6 +278,14 @@ def identify(log, abort, title=None, authors=None, identifiers={}, timeout=30):
         log('\n'+'*'*30, plugin.name, '*'*30)
         log('Request extra headers:', plugin.browser.addheaders)
         log('Found %d results'%len(presults))
+        time_spent = getattr(plugin, 'dl_time_spent', None)
+        if time_spent is None:
+            log('Downloading was aborted')
+        else:
+            log('Downloading from', plugin.name, 'took', time_spent)
+        for r in presults:
+            log('\n\n---')
+            log(unicode(r))
         if plog:
             log(plog)
         log('\n'+'*'*80)
