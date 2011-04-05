@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import (unicode_literals, division, absolute_import,
+                        print_function)
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -7,10 +9,10 @@ __docformat__ = 'restructuredtext en'
 
 import textwrap, re, os
 
-from PyQt4.Qt import Qt, QDateEdit, QDate, \
-    QIcon, QToolButton, QWidget, QLabel, QGridLayout, \
-    QDoubleSpinBox, QListWidgetItem, QSize, QPixmap, \
-    QPushButton, QSpinBox, QLineEdit
+from PyQt4.Qt import (Qt, QDateEdit, QDate,
+    QIcon, QToolButton, QWidget, QLabel, QGridLayout,
+    QDoubleSpinBox, QListWidgetItem, QSize, QPixmap,
+    QPushButton, QSpinBox, QLineEdit, QSizePolicy)
 
 from calibre.gui2.widgets import EnLineEdit, FormatList, ImageView
 from calibre.gui2.complete import MultiCompleteLineEdit, MultiCompleteComboBox
@@ -22,7 +24,7 @@ from calibre.ebooks.metadata.meta import get_metadata
 from calibre.gui2 import file_icon_provider, UNDEFINED_QDATE, UNDEFINED_DATE, \
         choose_files, error_dialog, choose_images, question_dialog
 from calibre.utils.date import local_tz, qt_to_dt
-from calibre import strftime
+from calibre import strftime, fit_image
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.customize.ui import run_plugins_on_import
 from calibre.utils.date import utcfromtimestamp
@@ -480,6 +482,7 @@ class FormatsManager(QWidget): # {{{
 
     def initialize(self, db, id_):
         self.changed = False
+        self.formats.clear()
         exts = db.formats(id_, index_is_id=True)
         self.original_val = set([])
         if exts:
@@ -637,6 +640,23 @@ class Cover(ImageView): # {{{
         self.buttons = [self.select_cover_button, self.remove_cover_button,
                 self.trim_cover_button, self.download_cover_button,
                 self.generate_cover_button]
+
+        self.frame_size = (300, 400)
+        self.setSizePolicy(QSizePolicy(QSizePolicy.Preferred,
+            QSizePolicy.Preferred))
+
+    def frame_resized(self, ev):
+        sz = ev.size()
+        self.frame_size = (sz.width()//3, sz.height())
+
+    def sizeHint(self):
+        sz = ImageView.sizeHint(self)
+        w, h = sz.width(), sz.height()
+        resized, nw, nh = fit_image(w, h, self.frame_size[0],
+                self.frame_size[1])
+        if resized:
+            sz = QSize(nw, nh)
+        return sz
 
     def select_cover(self, *args):
         files = choose_images(self, 'change cover dialog',

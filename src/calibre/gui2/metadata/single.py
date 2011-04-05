@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import (unicode_literals, division, absolute_import,
+                        print_function)
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -8,10 +10,10 @@ __docformat__ = 'restructuredtext en'
 import os
 from functools import partial
 
-from PyQt4.Qt import Qt, QVBoxLayout, QHBoxLayout, QWidget, QPushButton, \
-        QGridLayout, pyqtSignal, QDialogButtonBox, QScrollArea, QFont, \
-        QTabWidget, QIcon, QToolButton, QSplitter, QGroupBox, QSpacerItem, \
-        QSizePolicy, QPalette, QFrame, QSize, QKeySequence
+from PyQt4.Qt import (Qt, QVBoxLayout, QHBoxLayout, QWidget, QPushButton,
+        QGridLayout, pyqtSignal, QDialogButtonBox, QScrollArea, QFont,
+        QTabWidget, QIcon, QToolButton, QSplitter, QGroupBox, QSpacerItem,
+        QSizePolicy, QPalette, QFrame, QSize, QKeySequence)
 
 from calibre.ebooks.metadata import authors_to_string, string_to_authors
 from calibre.gui2 import ResizableDialog, error_dialog, gprefs
@@ -385,6 +387,14 @@ class MetadataSingleDialogBase(ResizableDialog):
                 disconnect(x.clicked)
     # }}}
 
+class Splitter(QSplitter):
+
+    frame_resized = pyqtSignal(object)
+
+    def resizeEvent(self, ev):
+        self.frame_resized.emit(ev)
+        return QSplitter.resizeEvent(self, ev)
+
 class MetadataSingleDialog(MetadataSingleDialogBase): # {{{
 
     def do_layout(self):
@@ -437,8 +447,9 @@ class MetadataSingleDialog(MetadataSingleDialogBase): # {{{
 
         tl.addWidget(self.formats_manager, 0, 6, 3, 1)
 
-        self.splitter = QSplitter(Qt.Horizontal, self)
+        self.splitter = Splitter(Qt.Horizontal, self)
         self.splitter.addWidget(self.cover)
+        self.splitter.frame_resized.connect(self.cover.frame_resized)
         l.addWidget(self.splitter)
         self.tabs[0].gb = gb = QGroupBox(_('Change cover'), self)
         gb.l = l = QGridLayout()
