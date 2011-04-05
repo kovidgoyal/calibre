@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-04-01 19:21+0000\n"
-"PO-Revision-Date: 2011-04-03 20:53+0000\n"
+"PO-Revision-Date: 2011-04-04 20:56+0000\n"
 "Last-Translator: Antón Méixome <meixome@gmail.com>\n"
 "Language-Team: dev@gl.openoffice.org\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-04-04 04:45+0000\n"
+"X-Launchpad-Export-Date: 2011-04-05 04:46+0000\n"
 "X-Generator: Launchpad (build 12559)\n"
 "Language: gl\n"
 
@@ -7466,7 +7466,7 @@ msgstr "Eliminar o sangrado no principio da liña."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:98
 msgid "Markdown"
-msgstr ""
+msgstr "Linguaxe Markdown"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:99
 msgid ""
@@ -8151,6 +8151,59 @@ msgid ""
 "\n"
 "        "
 msgstr ""
+"        <h1>Axuda</h1>\n"
+"<p>Calibre almacena a lista de libros e os seus metadatos nunha base de "
+"datos. Os ficheiros dos libros e as cubertas gárdanse como ficheiros normais "
+"no cartafol da biblioteca do Calibre. A base de datos contén unha lista dos "
+"ficheiros e cubertas correspondentes a cada libro. Esta utilidade comproba "
+"que os ficheiros realmente presentes no cartafol da biblioteca do seu "
+"computador se correspondan coa información da base de datos.</p>\n"
+"<p>O resultado de cada comprobación amósase á esquerda. As distintas "
+"comprobacións son:</p>\n"
+"<ul>\n"
+"<li><b>Títulos incorrectos</b>: Son ficheiros e cartafoles que están na "
+"biblioteca, onde se atopan os libros, pero que non teñen a forma correcta "
+"para ser un título de libro.</li>\n"
+"<li><b>Títulos adicionais</b>: Son ficheiros adicionais na biblioteca do "
+"Calibre que parecen títulos correctos, pero que non teñen unha entrada "
+"correspondente na base de datos.</li>\n"
+"<li><b>Autores incorrectos</b>: Son ficheiros que están na biblioteca, onde "
+"só deberían estar os cartafoles dos autores.</li>\n"
+"<li><b>Autores adicionais</b>: Son cartafoles na biblioteca do Calibre que "
+"parecen autores, pero que non teñen entrada na base de datos.</li>\n"
+"<li><b>Formatos de libro inexistentes</b>: Son formatos de libro que "
+"aparecen na base de datos, pero que non teñen o seu correspondente ficheiro "
+"no cartafol do libro.</li>\n"
+"<li><b>Formatos de libro adicionais</b>: Son ficheiros de libro que están no "
+"cartafol do libro pero non na base de datos.</li>\n"
+"<li><b>Ficheiros descoñecidos</b>: Son ficheiros adicionais no cartafol do "
+"libro que non corresponden a ningún formato coñecido nin á portada.</li>\n"
+"<li><b>Portadas inexistentes</b>: Son libros que na base de datos teñen unha "
+"portada asignada, pero cuxo ficheiro da portada non existe realmente.</li>\n"
+"<li><b>Portadas que non están na base de datos</b>: Son libros que teñen os "
+"seus ficheiros de cubertas, pero que non teñen ningunha cuberta asignada na "
+"base de datos.</li>\n"
+"<li><b>Cartafol que dá erro</b>: Son cartafoles na biblioteca do Calibre que "
+"esta utilidade non puido procesar ou interpretar.</li>\n"
+"</ul>\n"
+"<p>Hai dous tipos de corrección automática posíbel: <i>Borrar marcados</i> e "
+"<i>Reparar marcados</i>.</p>\n"
+"<p><i>Borrar marcados</i> úsase para eliminar os ficheiros, cartafoles ou "
+"cubertas adicionais que non teñen entrada na base de datos. Marque a caixa "
+"que está xunta o elemento que desexe borrar. Utilíceo con precaución.</p>\n"
+"<p><i>Reparar marcados</i> aplícase só ás portadas e aos formatos "
+"inexistentes (as tres liñas marcadas con «reparábel»). No caso de portadas "
+"inexistentes, ao marcar a caixa de «reparábel» e premer este botón "
+"eliminarase a asignación de cuberta da base de datos para todos os ficheiros "
+"desa categoría. Use esta opción se non vai recuperar as cubertas dunha copia "
+"de seguranza. No caso de cubertas adicionais, ao marcar a casa de "
+"«reparábel» e premer este botón asignarase a cuberta a todos os ficheiros "
+"desta categoría. Use esta opción cando non vaia a borrar os ficheiros. No "
+"caso de formatos inexistentes, ao marcar a caixa de «reparábel» e premer "
+"este botón eliminarase a información destes formatos. Use esta opción se non "
+"vai recuperar os formatos dunha copia de seguranza.</p>\n"
+"\n"
+"        "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:226
 msgid "&Run the check again"
@@ -8490,6 +8543,9 @@ msgid ""
 "Copy author sort to author for every author. You typically use this button\n"
 "after changing Preferences->Advanced->Tweaks->Author sort name algorithm"
 msgstr ""
+"Copiar a ordenación de autor no autor para cadanseu autor.\n"
+"Normalmente, emprégase este botón tras o cambio de\n"
+"Preferencias->Avanzada->Axustes->Algoritmo de ordenación de autor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:83
 msgid "Copy all author sort values to author"
@@ -9705,12 +9761,14 @@ msgstr "A restauración da base de datos rematou satisfactoriamente"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor.py:48
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor.py:75
 msgid "Saved search already exists"
-msgstr ""
+msgstr "A busca gardada xa existe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor.py:49
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor.py:76
 msgid "The saved search %s already exists, perhaps with different case"
 msgstr ""
+"A busca gardada %s xa existe, quizais con diferente combinación de "
+"maiúsculas e minúsculas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor.py:62
 msgid ""
@@ -9744,7 +9802,7 @@ msgstr "Engadir a nova busca gardada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:102
 msgid "Rename the current search to what is in the box"
-msgstr ""
+msgstr "Cambiar o nome da busca actual ao que aparece no cadro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:104
 msgid "Change the contents of the saved search"
@@ -9761,6 +9819,12 @@ msgid ""
 "                soon after 9:00 AM as possible.\n"
 "            "
 msgstr ""
+"                Descargar esta publicación todas as semanas, nos días "
+"especificados,\n"
+"tras a hora especificada. Por exemplo, se escolle «Luns despois\n"
+"das 9:00 AM», a publicación descargarase todos os luns, tan pronto\n"
+"como sexa posíbel, pero sempre despois das 9:00 AM.\n"
+"            "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:61
 msgid "&Download after:"
@@ -9778,6 +9842,13 @@ msgid ""
 "                month, as soon after 9:00 AM as possible.\n"
 "            "
 msgstr ""
+"                Descargar esta publicación todos os meses, nos días "
+"especificados.\n"
+"A descarga terá lugar tan pronto como sexa posíbel, pero sempre\n"
+"despois da hora especificada. Por exemplo, se escolle os días 1 e 15\n"
+"despois das 9:00 AM, a publicación descargarase os días 1 e 15 de\n"
+"cada mes, despois das 9:00 AM.\n"
+"            "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:103
 msgid "&Days of the month:"
@@ -9785,7 +9856,7 @@ msgstr "&Días do mes:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:105
 msgid "Comma separated list of days of the month. For example: 1, 15"
-msgstr ""
+msgstr "Lista de días do mes, separados por comas. Por exemplo: 1, 15"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:109
 msgid "Download &after:"
@@ -9800,6 +9871,12 @@ msgid ""
 "                0.1 days to download a periodical more than once a day.\n"
 "            "
 msgstr ""
+"                Descargar esta publicación cada x días. Por exemplo, se "
+"escolle 30 días,\n"
+"a publicación descargarase cada 30 días. É posíbel especificar intervalos\n"
+"menores dun día, como 0.1 días, para descargar unha publicación varias\n"
+"veces ao día.\n"
+"            "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:151
 msgid "&Download every:"
@@ -9817,10 +9894,12 @@ msgstr "días"
 msgid ""
 "Note: You can set intervals of less than a day, by typing the value manually."
 msgstr ""
+"Nota: Pode especificar intervalos menores dun día, tecleando o valor "
+"manualmente."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:196
 msgid "%s news sources"
-msgstr ""
+msgstr "%s Fontes de novas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:311
 msgid "Need username and password"
@@ -9937,10 +10016,12 @@ msgid ""
 "Maximum number of copies (issues) of this recipe to keep.  Set to 0 to keep "
 "all (disable)."
 msgstr ""
+"Máximo número de copias (exemplares) desta receita que desexa manter. "
+"Estabeleza o valor 0 para mantenlos todos (desactivado)."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:213
 msgid "&Keep at most:"
-msgstr ""
+msgstr "&Conservar cando moito:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:214
 msgid ""
@@ -9952,6 +10033,14 @@ msgid ""
 "<p>Also, the setting for deleting periodicals older than a number of days, "
 "below, takes priority over this setting."
 msgstr ""
+"<p>Cando se activa, esta opción fai que o Calibre manteña, cando moito, o "
+"número especificado de exemplares desta publicación. Cada vez que se "
+"descarga un novo exemplar, bórrase o máis antigo se o número total es maior "
+"ca este número.\n"
+"<p>Teña en conta que esta función só ten efecto se marcou a opción de "
+"engadirlle  o título como etiqueta.\n"
+"<p>Ademais, a opción para borrar publicacións con certa antigüidade ten "
+"prioridade sobre esta función."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:217
 msgid "all issues"
@@ -9971,7 +10060,7 @@ msgstr "&Descargar agora"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:221
 msgid "&Delete downloaded news older than:"
-msgstr ""
+msgstr "&Eliminar as novas descargadas máis antigas que:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:222
 msgid ""
@@ -9981,10 +10070,14 @@ msgid ""
 "periodical that are kept by clicking the Advanced tab for that periodical "
 "above."
 msgstr ""
+"<p>Borrar as novas descargadas cunha antigüidade maior que o número de días "
+"especificado. Estabelézao en 0 para desactivar a función.\n"
+"<p>Tamén pode controlar o máximo número de exemplares duna mesma publicación "
+"que desexa manter, premendo na lapela «Avanzada» para a publicación."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:224
 msgid "never delete"
-msgstr ""
+msgstr "Non eliminar nunca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:225
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:273
@@ -9993,7 +10086,7 @@ msgstr " días"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:226
 msgid "Download all scheduled news sources at once"
-msgstr ""
+msgstr "Descargar todas as fontes de novas programadas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:227
 msgid "Download &all scheduled"
@@ -10142,7 +10235,7 @@ msgstr " (non en calquera libro)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:146
 msgid "Category lookup name: "
-msgstr ""
+msgstr "Nome de busca da categoría: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:191
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:222
@@ -10155,6 +10248,8 @@ msgid ""
 "That name contains leading or trailing periods, multiple periods in a row or "
 "spaces before or after periods."
 msgstr ""
+"O nome contén puntos ao principio ou ao final, varios puntos seguidos ou "
+"espazos antes ou despois de puntos."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:200
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:230
@@ -10513,7 +10608,7 @@ msgstr "&Compartir receita"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:262
 msgid "S&how recipe files"
-msgstr ""
+msgstr "A&mosar os ficheiros de receita"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:263
 msgid "Customize &builtin recipe"
@@ -10619,7 +10714,7 @@ msgstr "Produciuse un fallo na descarga"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dnd.py:85
 msgid "Failed to download from %r with error: %s"
-msgstr ""
+msgstr "Fallou a descarga de %r co erro: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:147
 msgid "Email %s to %s"
@@ -10768,19 +10863,19 @@ msgstr "Expresión regular (?P<isbn>)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:152
 msgid "Publisher:"
-msgstr ""
+msgstr "Editor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:153
 msgid "Regular expression (?P<publisher>)"
-msgstr ""
+msgstr "Expresión regular (?P<publisher>)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:155
 msgid "Published:"
-msgstr ""
+msgstr "Publicado:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:156
 msgid "Regular expression (?P<published>)"
-msgstr ""
+msgstr "Expresión regular (?P<published>)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:105
 msgid "Cover Browser"
@@ -10972,7 +11067,7 @@ msgstr "Restabelecer a busca rápida"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:203
 msgid "Change the way searching for books works"
-msgstr ""
+msgstr "Modificar a forma na que se realizan as buscas de libros"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:215
 msgid "Copy current search text (instead of search name)"
@@ -11442,15 +11537,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding.py:28
 msgid "Ignore duplicate incoming formats"
-msgstr ""
+msgstr "Ignorar os ficheiros entrantes duplicados"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding.py:29
 msgid "Overwrite existing duplicate formats"
-msgstr ""
+msgstr "Sobreescribir os ficheiros existentes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding.py:30
 msgid "Create new record for each duplicate format"
-msgstr ""
+msgstr "Crear un rexistro novo para cada ficheiro duplicado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:65
 msgid ""
@@ -11490,10 +11585,21 @@ msgid ""
 "Title match ignores leading indefinite articles (\"the\", \"a\", \"an\"), "
 "punctuation, case, etc. Author match is exact."
 msgstr ""
+"Fusión automática: Se se encontran libros con títulos e autores iguais, "
+"fusionar os formatos entrantes automaticamente cos rexistros de libros "
+"existentes. O cadro da dereita controla o que ocorre cando un rexistro "
+"existente xa contén o formato entrante. Teña en conta que esta opción tamén "
+"lle afecta á acción «Copiar na biblioteca».\n"
+"\n"
+"A comparación de títulos omite artigos iniciais («the», «a», «an»), "
+"puntuación, maiúsculas, etc. A comparación\n"
+"de autores é exacta."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:74
 msgid "&Automerge added books if they already exist in the calibre library:"
 msgstr ""
+"F&usionar automaticamente os libros engadidos se xa existen na biblioteca do "
+"Calibre:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:75
 msgid ""
@@ -11514,6 +11620,21 @@ msgid ""
 "punctuation, case, etc.\n"
 "Author matching is exact."
 msgstr ""
+"Fusión automática: Se se encontran libros con títulos e autores iguais, unir "
+"os formatos entrantes automaticamente\n"
+"cos rexistros de libros existentes. Este cadro da dereita controla o que "
+"ocorre cando un rexistro existente\n"
+"xa contén o formato entrante:\n"
+"\n"
+"Ignorar os ficheiros entrantes duplicados - significa que os ficheiros que "
+"xa existan na biblioteca do Calibre no se substituirán\n"
+"Sobreescribir os ficheiros existentes - significa que os que ficheiros que "
+"xa existan na biblioteca do Calibre se substituirán\n"
+"Crear un novo rexistro para cada ficheiro duplicado - significa que se "
+"creará unha nova entrada para cada ficheiro duplicado\n"
+"\n"
+"A comparación de títulos omite os artigos iniciais («the», «a», «an»), "
+"puntuación, maiúsculas, etc. A comparación de autores é exacta."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:85
 msgid "&Tags to apply when adding a book:"
@@ -11544,7 +11665,7 @@ msgstr "Alto"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:36
 msgid "Very low"
-msgstr ""
+msgstr "Moi baixa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:164
 msgid "Confirmation dialogs have all been reset"
@@ -11650,7 +11771,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns_ui.py:88
 msgid "Move column up"
-msgstr ""
+msgstr "Subir a columna"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns_ui.py:90
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/custom_columns_ui.py:84
@@ -11669,7 +11790,7 @@ msgstr "Editar as configuracións dunha columna definida polo usuario"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns_ui.py:96
 msgid "Move column down"
-msgstr ""
+msgstr "Baixar a columna"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns_ui.py:98
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/custom_columns_ui.py:91
@@ -11733,20 +11854,20 @@ msgstr "Columna construída a partir doutras columnas"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:50
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:51
 msgid "Create a custom column"
-msgstr ""
+msgstr "Crear una columna personalizada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:62
 msgid "Quick create:"
-msgstr ""
+msgstr "Creación rápida:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:64
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:149
 msgid "Modified Date"
-msgstr ""
+msgstr "Data de modificación"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:66
 msgid "People's names"
-msgstr ""
+msgstr "Nomes de persoas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:71
 msgid "Number"
@@ -11759,7 +11880,7 @@ msgstr "Texto"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:86
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:87
 msgid "Edit a custom column"
-msgstr ""
+msgstr "Modificar unha columna personalizada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:91
 msgid "No column selected"
@@ -11775,19 +11896,19 @@ msgstr "A columna que escolleu non é unha columna definida polo usuario"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:146
 msgid "My Tags"
-msgstr ""
+msgstr "As miñas etiquetas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:147
 msgid "My Series"
-msgstr ""
+msgstr "As miñas series"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:148
 msgid "My Rating"
-msgstr ""
+msgstr "A miña puntuación"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:150
 msgid "People"
-msgstr ""
+msgstr "Persoas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:179
 msgid "No lookup name was provided"
@@ -11864,7 +11985,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:194
 msgid "&Column type"
-msgstr ""
+msgstr "Tipo de &columna"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:195
 msgid "What kind of information will be kept in the column."
@@ -11877,19 +11998,23 @@ msgid ""
 "a red X.\n"
 "Everything else will show nothing."
 msgstr ""
+"As marcas de comprobación na interface gráfica. Os valores «yes», «checked» "
+"e «true» amósanse cunha marca verde. Os valores «no», «unchecked» e «false»  "
+"amósanse cunha cruz vermella. Con calquera outro valor non se amosa nada."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:199
 msgid "Show checkmarks"
-msgstr ""
+msgstr "Mostrar marcas de comprobación"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:200
 msgid ""
 "Check this box if this column contains names, like the authors column."
 msgstr ""
+"Marque esta caixa se a columna contén nomes, como a columna de autores."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:201
 msgid "Contains names"
-msgstr ""
+msgstr "Contén nomes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:202
 msgid ""
@@ -11940,19 +12065,21 @@ msgstr "Valor predeterminado: (nada)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:215
 msgid "&Sort/search column by"
-msgstr ""
+msgstr "&Buscar/ordenar columna por"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:216
 msgid "How this column should handled in the GUI when sorting and searching"
-msgstr ""
+msgstr "Como se debe manexar esta columna na interface ao ordenar ou buscar."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:217
 msgid "If checked, this column will appear in the tags browser as a category"
 msgstr ""
+"Se se marca, esta columna aparecerá no explorador de etiquetas coma unha "
+"categoría"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:218
 msgid "Show in tags browser"
-msgstr ""
+msgstr "Amosar no explorador de etiquetas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:219
 msgid "Values"
@@ -12029,6 +12156,9 @@ msgid ""
 "used for the subject. Also, the same templates used for \"Save to disk\" "
 "such as {title} and {author_sort} can be used here."
 msgstr ""
+"Asunto da mensaxe que se usará ao enviar. Se se deixa en branco, o asunto "
+"será o título. Ademais, os mesmos modelos que se usan para «Gardar no "
+"disco», como {title} e {author_sort}, poden usarse aquí."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/emailp.py:37
 msgid ""
@@ -12136,7 +12266,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:151
 msgid "Tags browser category &partitioning method:"
-msgstr ""
+msgstr "Método de &división de categorías no navegador de etiquetas:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:152
 msgid ""
@@ -12154,7 +12284,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:157
 msgid "&Collapse when more items than:"
-msgstr ""
+msgstr "&Contraer cando o número de elementos sexa maior ca:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:158
 msgid ""
@@ -12169,7 +12299,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:160
 msgid "Categories with &hierarchical items:"
-msgstr ""
+msgstr "Categorías con elementos &xerárquicos:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:161
 msgid ""
@@ -12180,6 +12310,12 @@ msgid ""
 "both under 'Mystery'. If 'tags' is not in this box,\n"
 "then the tags will be displayed each on their own line."
 msgstr ""
+"Unha lista de columnas, separadas por comas, nas que os elementos\n"
+"con puntos se amosarán na árbore do explorador de etiquetas. Por exemplo,\n"
+"se este cadro contén «tags», daquela as etiquetas «Misterio.Galego» e\n"
+"«Misterio.Crime» amosaranse con «Galego» e «Crime» como\n"
+"subcategorías de «Misterio». Se o cadro non contén «tags», daquela as\n"
+"etiquetas amosaranse cada unha pola súa conta."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:167
 msgid "&Toolbar"
@@ -12618,6 +12754,32 @@ msgid ""
 "check for duplicates, to find which column contains a particular item, or to "
 "have hierarchical categories (categories that contain categories)."
 msgstr ""
+"Os <b>termos agrupados de busca</b> son nomes de busca que permiten "
+"consultar automaticamente en máis dunha columna. Por exemplo, créase un "
+"termo agrupado de busca <code>todasasseries</code> co valor <code>series, "
+"#asmiñasseries, #asmiñasseries</code>, entón a busca "
+"<code>todasasseries:adhoc</code> buscará «adhoc» en calquera das columnas "
+"<code>series</code>, <code>#asmiñasseries</code> e "
+"<code>#asmiñasseries2</code>.\r\n"
+"<p>Introduza o nome do termo agrupado de busca no cadro despregábel, "
+"introduza a lista de columnas nas que buscar no cadro de valor, logo prema o "
+"botón «Gardar».\r\n"
+"<p>Nota: Os nomes pásanse sempre a minúsculas: <code>AMiñaBusca</code> e "
+"<code>amiñabusca</code> son equivalentes.\r\n"
+"<p>Pode facer que un termo agrupado de busca se amose como categoría de "
+"usuario no explorador de etiquetas. Simplemente engada o termo agrupado de "
+"busca no cadro «Crear categorías de usuario a partir de». Pode engadir "
+"varios termos separados por comas. As novas categorías de usuario contarán "
+"automaticamente con todos os elementos nas categorías incluídas nos termos "
+"agrupados de busca.\r\n"
+"<p>As categorías de usuario automáticas permítenlle ver facilmente todos os "
+"elementos que están nas columnas contidas no termo agrupado de busca. Usando "
+"o exemplo anterior de <code>todoseries</code>, a categoría de usuario xerada "
+"automaticamente conterá todas as series que aparezan en <code>series</code>, "
+"<code>#miserie</code> e <code>#miserie2</code>. Isto pode resultar útil para "
+"comprobar duplicados, atopar que columna contén un elemento en particular ou "
+"para establecer unha xerarquía de categorías (categorías que conteñen outras "
+"categorías)."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:96
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:106
@@ -12626,40 +12788,43 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:128
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:119
 msgid "Grouped Search Terms"
-msgstr ""
+msgstr "Termos de busca agrupados"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:97
 msgid "The search term cannot be blank"
-msgstr ""
+msgstr "O termo de busca non pode quedar en branco"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:107
 msgid "That name is already used for a column or grouped search term"
 msgstr ""
+"Ese nome xa se está a usar para unha columna ou termo de busca agrupado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:111
 msgid "That name is already used for user category"
-msgstr ""
+msgstr "Ese nome xa se está a usar para a categoría usuario"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:117
 msgid "The value box cannot be empty"
-msgstr ""
+msgstr "A caixa de valor non pode quedar baleira"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:129
 msgid "The empty grouped search term cannot be deleted"
-msgstr ""
+msgstr "O termo de busca agrupado non se pode eliminar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:110
 msgid "Search as you &type"
-msgstr ""
+msgstr "Buscar conforme se &teclea"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:111
 msgid ""
 "&Highlight search results instead of restricting the book list to the results"
 msgstr ""
+"&Realzar os resultados da busca en lugar de limitar a lista de libros aos "
+"resultados"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:112
 msgid "What to search by default"
-msgstr ""
+msgstr "Que buscar de modo predeterminado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:113
 msgid ""
@@ -12668,14 +12833,19 @@ msgid ""
 "search not just authors but title/tags/series/comments/etc. Use these "
 "options if you would like to change this behavior."
 msgstr ""
+"Cando realiza unha busca sen prefixo, de maneira predeterminada Calibre "
+"buscará todos os metadatos para encontrar coincidencias. Por exemplo, se "
+"introduce «asimov» buscarase non só nos autores senón tamén en títulos, "
+"etiquetas, series, comentarios, etc. Use estas opcións se desexa cambiar "
+"este comportamento."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:114
 msgid "&Limit the searched metadata"
-msgstr ""
+msgstr "&Limitar a busca de metadatos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:115
 msgid "&Columns that non-prefixed searches are limited to:"
-msgstr ""
+msgstr "&Columnas á que se limitan as buscas sen prefixo:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:116
 msgid ""
@@ -12684,20 +12854,26 @@ msgid ""
 "you always use prefixes in your saved searches. For example, use "
 "\"series:Foundation\" rather than just \"Foundation\" in  a saved search"
 msgstr ""
+"Teña en conta que esta opción afecta a todas as buscas, incluídas as buscas "
+"gardadas e as restricións. Daquela, se se emprega esta opción, é mellor "
+"asegurarse de que todas as buscas gardadas teñan prefixos. Por exemplo, use "
+"«series:Fundación» en lugar de simplemente «Fundación» nunha busca gardada."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:117
 msgid ""
 "Clear search histories from all over calibre. Including the book list, e-"
 "book viewer, fetch news dialog, etc."
 msgstr ""
+"Limpar os historiais de busca de todo o Calibre. Inclúe a lista de libros, o "
+"visor de libros, o diálogo de adquisición de novas, etc."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:118
 msgid "Clear search &histories"
-msgstr ""
+msgstr "Despexa &historiais de busca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:120
 msgid "&Names:"
-msgstr ""
+msgstr "&Nomes:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:121
 msgid ""
@@ -12707,10 +12883,15 @@ msgid ""
 "changing the name and pressing Save. Change the value of\n"
 "a search term by changing the value box then pressing Save."
 msgstr ""
+"Contén os nomes dos termos agrupados de busca definidos actualmente.\n"
+"Para crear un nono nome introdúzao no cadro baleiro e prema «Gardar» "
+"despois.\n"
+"Para cambiar o nome dun termo seleccióneo, cambie o nome e prema «Gardar».\n"
+"Para cambiar o valor dun termo modifique o cadro de valor e prema «Gardar»."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:126
 msgid "Delete the current search term"
-msgstr ""
+msgstr "Borrar o termo de busca actual"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:128
 msgid ""
@@ -12718,20 +12899,25 @@ msgid ""
 "changing the name then pressing Save. You can change the value\n"
 "of a search term by changing the value box then pressing Save."
 msgstr ""
+"Gardar o termo de busca actual. Pode cambiar o nome dun\n"
+"termo de busca modificando o nome e premendo «Gardar». Pode\n"
+"cambiar o valor modificando o valor e logo premendo «Gardar»."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:131
 msgid "&Save"
-msgstr ""
+msgstr "&Gardar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:132
 msgid "Make &user categories from:"
-msgstr ""
+msgstr "Crear categorías de &usuario a partir de:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:133
 msgid ""
 "Enter the names of any grouped search terms you wish\n"
 "to be shown as user categories"
 msgstr ""
+"Introduza os nomes dos termos agrupados de busca\n"
+"que quere amosar como categorías de usuario"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending.py:28
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:70
@@ -13115,7 +13301,7 @@ msgstr "A barra principal de ferramentas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:211
 msgid "The optional second toolbar"
-msgstr ""
+msgstr "A segunda barra de ferramentas opcional"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:212
 msgid "The main toolbar when a device is connected"
@@ -13175,11 +13361,11 @@ msgstr "Retirar as accións seleccionadas da barra de ferramentas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:113
 msgid "This tweak has it default value"
-msgstr ""
+msgstr "Este axuste ten o valor predeterminado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:115
 msgid "This tweak has been customized"
-msgstr ""
+msgstr "Este axuste foi personalizado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:236
 msgid ""
@@ -13187,6 +13373,9 @@ msgid ""
 "these tweaks should be available on the website from where you downloaded "
 "the plugins."
 msgstr ""
+"Engadir ou modificar axustes para os complementos personalizados que teña "
+"instalados. A documentación destes axustes debería encontrarse na páxina web "
+"de onde descargou os complementos."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:277
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:317
@@ -13194,6 +13383,8 @@ msgid ""
 "There was a syntax error in your tweak. Click the show details button for "
 "details."
 msgstr ""
+"Hai un erro de sintaxe no axuste. Prema o botón «Amosar detalles» para máis "
+"información."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:330
 msgid "Invalid tweaks"
@@ -13213,30 +13404,35 @@ msgid ""
 "calibre. Your changes will only take effect <b>after a restart</b> of "
 "calibre."
 msgstr ""
+"Os valores dos axustes amósanse abaixo. Modifíqueos para cambiar o "
+"comportamento do Calibre. Os cambios só terán efecto <b>despois de reiniciar "
+"Calibre</b>."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:89
 msgid "Edit tweaks for any custom plugins you have installed"
 msgstr ""
+"Modificar os axustes para calquera dos complementos personalizados que teña "
+"instalados"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:90
 msgid "&Plugin tweaks"
-msgstr ""
+msgstr "&Axustes de complementos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:92
 msgid "Edit tweak"
-msgstr ""
+msgstr "Modificar axuste"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:93
 msgid "Restore this tweak to its default value"
-msgstr ""
+msgstr "Restaurar este axuste ao seu valor predeterminado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:94
 msgid "Restore &default"
-msgstr ""
+msgstr "Restabelecer valor pre&determinado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:95
 msgid "Apply any changes you made to this tweak"
-msgstr ""
+msgstr "Aplicar os cambios realizados neste axuste"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:93
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:277
@@ -13346,19 +13542,19 @@ msgstr "Modificar orde para %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:355
 msgid "Add %s to user category"
-msgstr ""
+msgstr "Engadir %s á categoría de usuario"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:368
 msgid "Children of %s"
-msgstr ""
+msgstr "Subcategorías de %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:378
 msgid "Delete search %s"
-msgstr ""
+msgstr "Borrar a busca %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:383
 msgid "Remove %s from category %s"
-msgstr ""
+msgstr "Eliminar %s da categoría %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:390
 msgid "Search for %s"
@@ -13370,11 +13566,11 @@ msgstr "Buscar todo menos %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:407
 msgid "Add sub-category to %s"
-msgstr ""
+msgstr "Engadir unha subcategoría a %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:411
 msgid "Delete user category %s"
-msgstr ""
+msgstr "Eliminar a categoría de usuario %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:416
 msgid "Hide category %s"
@@ -13416,7 +13612,7 @@ msgstr "Cambiar o esquema de subcategorización"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:791
 msgid "The grouped search term name is \"{0}\""
-msgstr ""
+msgstr "O nome do termo de busca agrupado é «{0}»"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1063
 msgid ""
@@ -13439,16 +13635,16 @@ msgstr "Buscas"
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1405
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1414
 msgid "Rename user category"
-msgstr ""
+msgstr "Cambiarlle o nome á categoría de usuario"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1386
 msgid "You cannot use periods in the name when renaming user categories"
-msgstr ""
+msgstr "Non se poden usar puntos no nome das categorías de usuario"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1406
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1415
 msgid "The name %s is already used"
-msgstr ""
+msgstr "O nome %s xa se está a usar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1438
 msgid "Duplicate search name"
@@ -13460,36 +13656,36 @@ msgstr "El nome de busca gardado %s xa está en uso."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1841
 msgid "New Category"
-msgstr ""
+msgstr "Nova categoría"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1892
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1895
 msgid "Delete user category"
-msgstr ""
+msgstr "Eliminar a categoría de usuario"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1893
 msgid "%s is not a user category"
-msgstr ""
+msgstr "%s non é unha categoría de usuario"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1896
 msgid "%s contains items. Do you really want to delete it?"
-msgstr ""
+msgstr "%s contén elementos. Esta seguro de que quere borrala?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1917
 msgid "Remove category"
-msgstr ""
+msgstr "Eliminar a categoría"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1918
 msgid "User category %s does not exist"
-msgstr ""
+msgstr "A categoría de usuario %s non existe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1937
 msgid "Add to user category"
-msgstr ""
+msgstr "Engadir á categoría de usuario"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1938
 msgid "A user category %s does not exist"
-msgstr ""
+msgstr "Non existe ningunha categoría de usuario chamada %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:2061
 msgid "Find item in tag browser"
@@ -14081,7 +14277,7 @@ msgstr "Previsualización da impresión"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:303
 msgid "Clear list of recently opened books"
-msgstr ""
+msgstr "Limpar a lista dos libros abertos recentemente"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:361
 msgid "Connecting to dict.org to lookup: <b>%s</b>&hellip;"
@@ -14477,16 +14673,21 @@ msgid ""
 "You must either set both the username <b>and</b> password for the mail "
 "server or no username and no password at all."
 msgstr ""
+"Debe especificar o usuario <b>e</b> o contrasinal para o servidor de correo, "
+"ou ben non especificar ningún dos dous."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:219
 msgid "Please enter a username and password or set encryption to None "
 msgstr ""
+"Introduza o usuario e o constrasinal, ou estabeleza o cifrado en «Ningún» "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:224
 msgid ""
 "No username and password set for mailserver. Most  mailservers need a "
 "username and password. Are you sure?"
 msgstr ""
+"No se especificou usuario e contrasial do servidor de correo. A maioría dos "
+"servidores necesitan un usuario e contrasinal. Está seguro?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:124
 msgid "Send email &from:"
@@ -15007,6 +15208,13 @@ msgid ""
 "Select all books by '{0}', apply correct Author Sort value in Edit Metadata "
 "dialog, then rebuild the catalog.\n"
 msgstr ""
+"Valores de ordenación de autor inconsistentes para\n"
+"Autor «{0}»:\n"
+"«{1}» <> «{2}»\n"
+"Non se pode xerar o catálogo MOBI.\n"
+"\n"
+"Seleccione todos os libros de «{0}» e estabeleza a orde de autor correcta\n"
+"no cadro de edición de metadatos, despois volva a xerar o catálogo.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:1504
 msgid ""
@@ -15014,6 +15222,9 @@ msgid ""
 "Author '{0}':\n"
 "'{1}' <> '{2}'\n"
 msgstr ""
+"Aviso: valores de orde de autor inconsistentes para\n"
+"Autor «{0}»:\n"
+"«{1}» <> «{2}»\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:1700
 msgid ""
@@ -15792,7 +16003,7 @@ msgstr "Valoracións"
 
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:181
 msgid "Identifiers"
-msgstr ""
+msgstr "Identificadores"
 
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:301
 msgid "Title Sort"
@@ -16272,6 +16483,10 @@ msgid ""
 "and consume more resources. Most tasks like conversion/news download/adding "
 "books/etc. are affected by this setting."
 msgstr ""
+"A prioridade dos procesos en execución. Unha prioridade máis alta significa "
+"que se executan más rápidamente e consomen máis recursos. A maioría das "
+"tarefas, como a conversión, descarga de noticias, adición de libros, etc., "
+"vense afectadas por esta configuración."
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:722
 msgid "Swap author first and last names when reading metadata"
@@ -16303,6 +16518,9 @@ msgid ""
 "When searching for text without using lookup prefixes, as for example, Red "
 "instead of title:Red, limit the columns searched to those named below."
 msgstr ""
+"Cando se busque texto sen usar prefixos, como «Vermello» en lugar de "
+"«title:Vermello», limitar as columnas buscadas a aquelas que se enumeran a "
+"seguir."
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:740
 msgid ""
@@ -16311,6 +16529,10 @@ msgid ""
 "separated by commas. Only takes effect if you set the option to limit search "
 "columns above."
 msgstr ""
+"Escolla as columnas nas que se buscará cando non se usen prefixos, como "
+"cando se busca «Vermello» en lugar de «title:Vermello». Introduza unha lista "
+"de nomes de busca separados por comas. Só ten efecto se activa a opción de "
+"limitar as columnas de busca máis arriba."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:27
 msgid "failed to scan program. Invalid input {0}"
@@ -16474,6 +16696,8 @@ msgid ""
 "raw_field(name) -- returns the metadata field named by name without applying "
 "any formatting."
 msgstr ""
+"raw_field(nome) -- devolve o campo de metadatos chamado «nome» sen aplicar "
+"ningún formato."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:246
 msgid ""
@@ -16624,6 +16848,9 @@ msgid ""
 "with the items being \"id:value\". Find the pair with theid equal to key, "
 "and return the corresponding value."
 msgstr ""
+"select(val, clave) -- interpreta o valor como unha lista de valores "
+"separados por comas, cos elementos da forma «id:valor». Encontra a parella "
+"con «id» igual a «val» e devolve o «valor» correspondente."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:429
 msgid ""
@@ -16637,6 +16864,16 @@ msgid ""
 "{tags:sublist(-1,0,\\,)} returns \"C\". {tags:sublist(0,-1,\\,)} returns "
 "\"A, B\"."
 msgstr ""
+"sublist(val, índice_inicio, índice_fin, separador) -- interpreta o valor "
+"como unha lista de elementos separados por «separador» e devolve unha nova "
+"lista cos elementos comprendidos entre a posición «índice_inicio» e "
+"«índice_fin». O primeiro elemento ocupa a posición cero. Se un índice é "
+"negativo, cóntase desde o final da lista. Como caso especial, se "
+"«índice_fin» é cero, considérase como final da lista. Exemplos no modo "
+"básico de modelo e supoñendo que a columna de etiquetas (definida como "
+"valores separados por comas) contén «A, B, C»: {tags:sublist{0,1,\\,)} "
+"devolve «A», {tags:sublist(-1,0,\\,)} devolve «C», {tags:sublist(0,-1,\\,)} "
+"devolve «A, B»."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:458
 msgid ""
@@ -16655,6 +16892,20 @@ msgid ""
 "{#genre:subitems(0,1)} returns \"A, D\". {#genre:subitems(0,2)} returns "
 "\"A.B, D.E\""
 msgstr ""
+"subitems(val, índice_inicio, índice_fin) -- Esta función úsase para separar "
+"listas de elementos tales como os xéneros. Interpreta o valor como unha "
+"lista de elementos separados por comas, onde cada elemento é á súa vez unha "
+"lista de elementos separados por puntos. Devolve unha nova lista formada "
+"tomando, de cada lista de elementos separados por puntos, os elementos "
+"situados entre as posicións «índice_inicio» e «índice_fin» e combinando os "
+"resultados. O primeiro elemento de cada lista separada por puntos ocupa a "
+"posición cero. Se un índice é negativo, cóntase desde o final da lista. Como "
+"caso especial, se «índice_fin» é cero, considérase como final da lista. "
+"Exemplos no modo básico de modelo e supoñendo que a columna #genre contén o "
+"valor «A.B.C»: {#genre:subitems(0,1)} devolve «A», {#genre:subitems(0,2)} "
+"devolve «A.B», {#genre:subitems(1,0)} devolve «B.C». Supoñendo que #genre "
+"contén o valor «A.B.C, D.E.F»: {#genre:subitems(0,1)} devolve «A, D», "
+"{#genre:subitems(0,2)} devolve «A.B, D.E»."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:495
 msgid ""
@@ -16670,6 +16921,18 @@ msgid ""
 "\"December\"). yy   : the year as two digit number (00 to 99). yyyy : the "
 "year as four digit number."
 msgstr ""
+"format_date(val, texto_formato) -- dá formato a un valor, que debe ser un "
+"campo de data, segundo «texto_formato» e devolve un texto. Os códigos de "
+"formato son: «d»: o día como un número, sen cero inicial (de 1 a 31). «dd»: "
+"o día como un número, cun cero inicial se é necesario (de 01 a 31). «ddd»: o "
+"día da semana abreviado segundo o idioma local (p. ex. de «lun» a «dom»). "
+"«dddd»: o nome local completo do día da semana (p. ex. de «luns» a "
+"«domingo»). «M»: o mes como un número sen cero inicial (de 1 a 12). «MM»: o "
+"mes como un número, cun cero inicial se é necesario (de 01 a 12). «MMM»: o "
+"mes abreviado segundo o idioma local (p. ex. de «xan» a «dic»). «MMMM»: o "
+"nome local completo do mes (p. ex. de «xaneiro» a «decembro»). «yy»: o ano "
+"como un número de dúas cifras (de 00 a 99). «yyyy»: o ano como un número de "
+"catro cifras."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:522
 msgid "uppercase(val) -- return value of the field in upper case"
@@ -16755,7 +17018,7 @@ msgstr "Inglés (Chipre)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:107
 msgid "English (Czechoslovakia)"
-msgstr ""
+msgstr "Inglés (Checoslovaquia)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:108
 msgid "English (Pakistan)"
@@ -16767,7 +17030,7 @@ msgstr "Inglés (Croacia)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:110
 msgid "English (Indonesia)"
-msgstr ""
+msgstr "Inglés (Indonesia)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:111
 msgid "English (Israel)"

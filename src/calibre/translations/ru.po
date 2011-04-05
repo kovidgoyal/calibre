@@ -7,13 +7,13 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-04-01 19:21+0000\n"
-"PO-Revision-Date: 2011-03-23 17:04+0000\n"
-"Last-Translator: Andrey Olykainen <Unknown>\n"
+"PO-Revision-Date: 2011-04-04 06:46+0000\n"
+"Last-Translator: Konstantin <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-04-02 04:49+0000\n"
+"X-Launchpad-Export-Date: 2011-04-05 04:46+0000\n"
 "X-Generator: Launchpad (build 12559)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
@@ -659,6 +659,7 @@ msgstr "Подходит для использования с любым уст�
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:509
 msgid "Suitable for use with any large screen e-ink device"
 msgstr ""
+"Подходить для использования на любых e-ink устройствах с большим экраном"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:518
 msgid "This profile is intended for the 5-inch JetBook."
@@ -781,11 +782,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:65
 msgid "Disable Apple driver"
-msgstr ""
+msgstr "Запретить драйвер Apple"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:69
 msgid "Enable Apple driver"
-msgstr ""
+msgstr "Разрешить драйвер Apple"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:117
 msgid "Use Series as Category in iTunes/iBooks"
