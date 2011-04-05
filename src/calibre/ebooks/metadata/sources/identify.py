@@ -208,7 +208,7 @@ def merge_identify_results(result_map, log):
 
 # }}}
 
-def identify(log, abort, title=None, authors=None, identifiers=[], timeout=30):
+def identify(log, abort, title=None, authors=None, identifiers={}, timeout=30):
     start_time = time.time()
     plugins = list(metadata_plugins(['identify']))
 
@@ -222,7 +222,7 @@ def identify(log, abort, title=None, authors=None, identifiers=[], timeout=30):
     log('Running identify query with parameters:')
     log(kwargs)
     log('Using plugins:', ', '.join([p.name for p in plugins]))
-    log('The log (if any) from individual plugins is below')
+    log('The log from individual plugins is below')
 
     workers = [Worker(p, kwargs, abort) for p in plugins]
     for w in workers:
@@ -273,7 +273,7 @@ def identify(log, abort, title=None, authors=None, identifiers=[], timeout=30):
     for plugin, presults in results.iteritems():
         presults.sort(key=plugin.identify_results_keygen(**sort_kwargs))
         plog = logs[plugin].getvalue().strip()
-        log('\n'+'*'*35, plugin.name, '*'*35)
+        log('\n'+'*'*30, plugin.name, '*'*30)
         log('Request extra headers:', plugin.browser.addheaders)
         log('Found %d results'%len(presults))
         if plog:
@@ -324,10 +324,10 @@ if __name__ == '__main__': # tests {{{
 
             ),
 
-            (  # This isbn not on amazon
-                {'identifiers':{'isbn': '8324616489'}, 'title':'Learning Python',
+            (  # Test absence of identifiers
+                {'title':'Learning Python',
                     'authors':['Lutz']},
-                [title_test('Learning Python, 3rd Edition',
+                [title_test('Learning Python',
                     exact=True), authors_test(['Mark Lutz'])
                  ]
 
@@ -353,6 +353,7 @@ if __name__ == '__main__': # tests {{{
             ),
 
         ]
-    test_identify(tests[4:5])
+    #test_identify(tests[1:2])
+    test_identify(tests)
 # }}}
 

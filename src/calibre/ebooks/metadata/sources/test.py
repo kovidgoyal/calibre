@@ -69,6 +69,9 @@ def test_identify(tests): # {{{
     times = []
 
     for kwargs, test_funcs in tests:
+        log('#'*80)
+        log('### Running test with:', kwargs)
+        log('#'*80)
         prints('Running test with:', kwargs)
         args = (log, abort)
         start_time = time.time()
@@ -108,10 +111,11 @@ def test_identify(tests): # {{{
             prints('Most relevant result failed the tests')
             raise SystemExit(1)
 
+        log('\n\n')
+
     prints('Average time per query', sum(times)/len(times))
 
-    if os.stat(lf).st_size > 10:
-        prints('There were some errors/warnings, see log', lf)
+    prints('Full log is at:', lf)
 
 # }}}
 
