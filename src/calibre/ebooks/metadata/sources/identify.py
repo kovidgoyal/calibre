@@ -354,10 +354,10 @@ if __name__ == '__main__': # tests {{{
                     exact=True), authors_test(['Dan Brown'])]
             ),
 
-            ( # No specific problems
-                {'identifiers':{'isbn': '0743273567'}},
-                [title_test('The great gatsby', exact=True),
-                    authors_test(['Francis Scott Fitzgerald'])]
+            ( # No ISBN
+                {'title':'Justine', 'authors':['Durrel']},
+                [title_test('Justine', exact=True),
+                    authors_test(['Lawrence Durrel'])]
             ),
 
             (  # A newer book
