@@ -109,7 +109,7 @@ def get_cached_cover_urls(mi):
             yield (p, url)
 
 def cap_author_token(token):
-    if lower(token) in ('von', 'de', 'el', 'van'):
+    if lower(token) in ('von', 'de', 'el', 'van', 'le'):
         return lower(token)
     return capitalize(token)
 
