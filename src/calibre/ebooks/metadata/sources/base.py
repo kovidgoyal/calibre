@@ -109,8 +109,12 @@ def get_cached_cover_urls(mi):
             yield (p, url)
 
 def cap_author_token(token):
-    if lower(token) in ('von', 'de', 'el', 'van', 'le'):
-        return lower(token)
+    lt = lower(token)
+    if lt in ('von', 'de', 'el', 'van', 'le'):
+        return lt
+    if re.match(r'([a-z]\.){2,}$', lt) is not None:
+        parts = token.split('.')
+        return '. '.join(map(capitalize, parts)).strip()
     return capitalize(token)
 
 def fixauthors(authors):
