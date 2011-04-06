@@ -620,7 +620,16 @@ from calibre.ebooks.epub.fix.epubcheck import Epubcheck
 plugins = [HTML2ZIP, PML2PMLZ, TXT2TXTZ, ArchiveExtract, CSV_XML, EPUB_MOBI, BIBTEX, Unmanifested,
         Epubcheck, ]
 
-if not test_eight_code:
+if test_eight_code:
+# New metadata download plugins {{{
+    from calibre.ebooks.metadata.sources.google import GoogleBooks
+    from calibre.ebooks.metadata.sources.amazon import Amazon
+    from calibre.ebooks.metadata.sources.openlibrary import OpenLibrary
+
+    plugins += [GoogleBooks, Amazon, OpenLibrary]
+
+# }}}
+else:
     from calibre.ebooks.metadata.fetch import GoogleBooks, ISBNDB, Amazon, \
         KentDistrictLibrary
     from calibre.ebooks.metadata.douban import DoubanBooks
@@ -1069,11 +1078,4 @@ plugins += [LookAndFeel, Behavior, Columns, Toolbar, Search, InputOptions,
 
 #}}}
 
-# New metadata download plugins {{{
-from calibre.ebooks.metadata.sources.google import GoogleBooks
-from calibre.ebooks.metadata.sources.amazon import Amazon
-from calibre.ebooks.metadata.sources.openlibrary import OpenLibrary
 
-plugins += [GoogleBooks, Amazon, OpenLibrary]
-
-# }}}
