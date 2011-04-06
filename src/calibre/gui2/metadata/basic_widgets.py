@@ -428,7 +428,7 @@ class Format(QListWidgetItem): # {{{
         if timestamp is not None:
             ts = timestamp.astimezone(local_tz)
             t = strftime('%a, %d %b %Y [%H:%M:%S]', ts.timetuple())
-            text = _('Last modified: %s')%t
+            text = _('Last modified: %s\n\nDouble click to view')%t
             self.setToolTip(text)
             self.setStatusTip(text)
 
@@ -577,8 +577,7 @@ class FormatsManager(QWidget): # {{{
             self.changed = True
 
     def show_format(self, item, *args):
-        fmt = item.ext
-        self.dialog.view_format.emit(fmt)
+        self.dialog.do_view_format.emit(item.path, item.ext)
 
     def get_selected_format_metadata(self, db, id_):
         old = prefs['read_file_metadata']

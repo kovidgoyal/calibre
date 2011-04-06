@@ -26,7 +26,7 @@ from calibre.utils.config import tweaks
 
 class MetadataSingleDialogBase(ResizableDialog):
 
-    view_format = pyqtSignal(object)
+    view_format = pyqtSignal(object, object)
     cc_two_column = tweaks['metadata_single_use_2_cols_for_custom_fields']
     one_line_comments_toolbar = False
 
@@ -194,6 +194,13 @@ class MetadataSingleDialogBase(ResizableDialog):
                 pass # Do something
     # }}}
 
+    def do_view_format(self, path, fmt):
+        if path:
+            self.view_format.emit(None, path)
+        else:
+            self.view_format.emit(self.book_id, fmt)
+
+
     def do_layout(self):
         raise NotImplementedError()
 
@@ -204,6 +211,8 @@ class MetadataSingleDialogBase(ResizableDialog):
             widget.initialize(self.db, id_)
         for widget in getattr(self, 'custom_metadata_widgets', []):
             widget.initialize(id_)
+        if callable(self.set_current_callback):
+            self.set_current_callback(id_)
         # Commented out as it doesn't play nice with Next, Prev buttons
         #self.fetch_metadata_button.setFocus(Qt.OtherFocusReason)
 
@@ -339,11 +348,13 @@ class MetadataSingleDialogBase(ResizableDialog):
         gprefs['metasingle_window_geometry3'] = bytearray(self.saveGeometry())
 
     # Dialog use methods {{{
-    def start(self, row_list, current_row, view_slot=None):
+    def start(self, row_list, current_row, view_slot=None,
+            set_current_callback=None):
         self.row_list = row_list
         self.current_row = current_row
         if view_slot is not None:
             self.view_format.connect(view_slot)
+        self.set_current_callback = set_current_callback
         self.do_one(apply_changes=False)
         ret = self.exec_()
         self.break_cycles()
@@ -375,6 +386,7 @@ class MetadataSingleDialogBase(ResizableDialog):
     def break_cycles(self):
         # Break any reference cycles that could prevent python
         # from garbage collecting this dialog
+        self.set_current_callback = None
         def disconnect(signal):
             try:
                 signal.disconnect()
@@ -643,9 +655,11 @@ class MetadataSingleDialogAlt(MetadataSingleDialogBase): # {{{
 # }}}
 
 
-def edit_metadata(db, row_list, current_row, parent=None, view_slot=None):
+def edit_metadata(db, row_list, current_row, parent=None, view_slot=None,
+        set_current_callback=None):
     d = MetadataSingleDialog(db, parent)
-    d.start(row_list, current_row, view_slot=view_slot)
+    d.start(row_list, current_row, view_slot=view_slot,
+            set_current_callback=set_current_callback)
     return d.changed, d.rows_to_refresh
 
 if __name__ == '__main__':

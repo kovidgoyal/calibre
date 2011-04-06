@@ -17,6 +17,7 @@ from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.tag_list_editor import TagListEditor
 from calibre.gui2.actions import InterfaceAction
 from calibre.utils.icu import sort_key
+from calibre.utils.config import test_eight_code
 
 class EditMetadataAction(InterfaceAction):
 
@@ -133,14 +134,30 @@ class EditMetadataAction(InterfaceAction):
 
         row_list = [r.row() for r in rows]
         current_row = 0
-        changed = set([])
-        db = self.gui.library_view.model().db
 
         if len(row_list) == 1:
             cr = row_list[0]
             row_list = \
                 list(range(self.gui.library_view.model().rowCount(QModelIndex())))
             current_row = row_list.index(cr)
+
+        if test_eight_code:
+            changed = self.do_edit_metadata(row_list, current_row)
+        else:
+            changed = self.do_edit_metadata_old(row_list, current_row)
+
+        if changed:
+            self.gui.library_view.model().refresh_ids(list(changed))
+            current = self.gui.library_view.currentIndex()
+            m = self.gui.library_view.model()
+            if self.gui.cover_flow:
+                self.gui.cover_flow.dataChanged()
+            m.current_changed(current, previous)
+            self.gui.tags_view.recount()
+
+    def do_edit_metadata_old(self, row_list, current_row):
+        changed = set([])
+        db = self.gui.library_view.model().db
 
         while True:
             prev = next_ = None
@@ -167,15 +184,28 @@ class EditMetadataAction(InterfaceAction):
             self.gui.library_view.set_current_row(current_row)
             self.gui.library_view.scroll_to_row(current_row)
 
+    def do_edit_metadata(self, row_list, current_row):
+        from calibre.gui2.metadata.single import edit_metadata
+        db = self.gui.library_view.model().db
+        changed, rows_to_refresh = edit_metadata(db, row_list, current_row,
+                parent=self.gui, view_slot=self.view_format_callback,
+                set_current_callback=self.set_current_callback)
+        return changed
 
-        if changed:
-            self.gui.library_view.model().refresh_ids(list(changed))
-            current = self.gui.library_view.currentIndex()
-            m = self.gui.library_view.model()
-            if self.gui.cover_flow:
-                self.gui.cover_flow.dataChanged()
-            m.current_changed(current, previous)
-            self.gui.tags_view.recount()
+    def set_current_callback(self, id_):
+        db = self.gui.library_view.model().db
+        current_row = db.row(id_)
+        self.gui.library_view.set_current_row(current_row)
+        self.gui.library_view.scroll_to_row(current_row)
+
+    def view_format_callback(self, id_, fmt):
+        view = self.gui.iactions['View']
+        if id_ is None:
+            view._view_file(fmt)
+        else:
+            db = self.gui.library_view.model().db
+            view.view_format(db.row(id_), fmt)
+
 
     def edit_bulk_metadata(self, checked):
         '''
