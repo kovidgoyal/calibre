@@ -15,6 +15,7 @@ from calibre.customize import Plugin
 from calibre.utils.logging import ThreadSafeLog, FileStream
 from calibre.utils.config import JSONConfig
 from calibre.utils.titlecase import titlecase
+from calibre.utils.icu import capitalize, lower
 from calibre.ebooks.metadata import check_isbn
 
 msprefs = JSONConfig('metadata_sources/global.json')
@@ -106,6 +107,25 @@ def get_cached_cover_urls(mi):
         url = p.get_cached_cover_url(mi.identifiers)
         if url:
             yield (p, url)
+
+def cap_author_token(token):
+    if lower(token) in ('von', 'de', 'el', 'van'):
+        return lower(token)
+    return capitalize(token)
+
+def fixauthors(authors):
+    if not authors:
+        return authors
+    ans = []
+    for x in authors:
+        ans.append(' '.join(map(cap_author_token, x.split())))
+    return ans
+
+def fixcase(x):
+    if x:
+        x = titlecase(x)
+    return x
+
 
 
 class Source(Plugin):
@@ -259,13 +279,9 @@ class Source(Plugin):
         before putting the Metadata object into result_queue. You can of
         course, use a custom algorithm suited to your metadata source.
         '''
-        def fixcase(x):
-            if x:
-                x = titlecase(x)
-            return x
         if mi.title:
             mi.title = fixcase(mi.title)
-        mi.authors = list(map(fixcase, mi.authors))
+        mi.authors = fixauthors(mi.authors)
         mi.tags = list(map(fixcase, mi.tags))
         mi.isbn = check_isbn(mi.isbn)
 
