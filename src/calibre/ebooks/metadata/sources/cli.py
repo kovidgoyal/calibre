@@ -89,7 +89,7 @@ def main(args=sys.argv):
         print (log, file=sys.stderr)
 
     print (result)
-    if not opts.opf:
+    if not opts.opf and opts.cover:
         prints('Cover               :', cf)
 
     return 0
