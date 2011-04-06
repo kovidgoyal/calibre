@@ -217,14 +217,25 @@ def filename_to_utf8(name):
     return name.decode(codec, 'replace').encode('utf8')
 
 def extract(path, dir):
-    ext = os.path.splitext(path)[1][1:].lower()
     extractor = None
-    if ext in ['zip', 'cbz', 'epub', 'oebzip']:
-        from calibre.libunzip import extract as zipextract
-        extractor = zipextract
-    elif ext in ['cbr', 'rar']:
+    # First use the file header to identify its type
+    with open(path, 'rb') as f:
+        id_ = f.read(3)
+    if id_ == b'Rar':
         from calibre.libunrar import extract as rarextract
         extractor = rarextract
+    elif id_.startswith(b'PK'):
+        from calibre.libunzip import extract as zipextract
+        extractor = zipextract
+    if extractor is None:
+        # Fallback to file extension
+        ext = os.path.splitext(path)[1][1:].lower()
+        if ext in ['zip', 'cbz', 'epub', 'oebzip']:
+            from calibre.libunzip import extract as zipextract
+            extractor = zipextract
+        elif ext in ['cbr', 'rar']:
+            from calibre.libunrar import extract as rarextract
+            extractor = rarextract
     if extractor is None:
         raise Exception('Unknown archive type')
     extractor(path, dir)
@@ -281,16 +292,17 @@ def get_parsed_proxy(typ='http', debug=True):
 
 def random_user_agent():
     choices = [
-        'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/523.15 (KHTML, like Gecko, Safari/419.3) Arora/0.3 (Change: 287 c9dfb30)',
+        'Mozilla/5.0 (Windows NT 5.2; rv:2.0.1) Gecko/20100101 Firefox/4.0.1',
+        'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:2.0.1) Gecko/20100101 Firefox/4.0.1',
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.6; rv:2.0.1) Gecko/20100101 Firefox/4.0.1',
         'Mozilla/5.0 (Windows; U; Windows NT 6.0; en-US; rv:1.9.2.11) Gecko/20101012 Firefox/3.6.11',
         'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/525.19 (KHTML, like Gecko) Chrome/0.2.153.1 Safari/525.19',
         'Mozilla/5.0 (Windows; U; Windows NT 6.0; en-US; rv:1.9.2.11) Gecko/20101012 Firefox/3.6.11',
-        'Mozilla/5.0 (Macintosh; U; Intel Mac OS X; en; rv:1.8.1.14) Gecko/20080409 Camino/1.6 (like Firefox/2.0.0.14)',
-        'Mozilla/5.0 (Macintosh; U; Intel Mac OS X; en-US; rv:1.8.0.1) Gecko/20060118 Camino/1.0b2+',
         'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/534.3 (KHTML, like Gecko) Chrome/6.0.472.63 Safari/534.3',
         'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US) AppleWebKit/532.5 (KHTML, like Gecko) Chrome/4.0.249.78 Safari/532.5',
         'Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; WOW64; Trident/5.0)',
     ]
+    #return choices[-1]
     return choices[random.randint(0, len(choices)-1)]
 
 

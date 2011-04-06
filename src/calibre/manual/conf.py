@@ -126,7 +126,7 @@ html_use_modindex = False
 html_use_index = False
 
 # If true, the reST sources are included in the HTML build as _sources/<name>.
-html_copy_source = False
+html_copy_source = True
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'calibredoc'

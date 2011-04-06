@@ -30,7 +30,7 @@ entry_points = {
              'calibre-customize  = calibre.customize.ui:main',
              'calibre-complete   = calibre.utils.complete:main',
              'pdfmanipulate      = calibre.ebooks.pdf.manipulate.cli:main',
-             'fetch-ebook-metadata = calibre.ebooks.metadata.fetch:main',
+             'fetch-ebook-metadata = calibre.ebooks.metadata.sources.cli:main',
              'epub-fix           = calibre.ebooks.epub.fix.main:main',
              'calibre-smtp = calibre.utils.smtp:main',
         ],
@@ -183,7 +183,7 @@ class PostInstall:
             from calibre.ebooks.lrf.lrfparser import option_parser as lrf2lrsop
             from calibre.gui2.lrf_renderer.main import option_parser as lrfviewerop
             from calibre.gui2.viewer.main import option_parser as viewer_op
-            from calibre.ebooks.metadata.fetch import option_parser as fem_op
+            from calibre.ebooks.metadata.sources.cli import option_parser as fem_op
             from calibre.gui2.main import option_parser as guiop
             from calibre.utils.smtp import option_parser as smtp_op
             from calibre.library.server.main import option_parser as serv_op

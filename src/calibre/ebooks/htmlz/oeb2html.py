@@ -96,7 +96,7 @@ class OEB2HTML(object):
                             href, id = urldefrag(href)
                             if href in self.base_hrefs:
                                 self.get_link_id(href, id)
-    
+
     def rewrite_link(self, url, page=None):
         if not page:
             return url
@@ -106,7 +106,7 @@ class OEB2HTML(object):
         if abs_url in self.links:
             return self.links[abs_url]
         return url
-    
+
     def rewrite_ids(self, root, page):
         for el in root.iter():
             try:

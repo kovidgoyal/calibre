@@ -23,7 +23,7 @@ from calibre.ebooks.metadata.book.base import Metadata
 from calibre.library.comments import sanitize_comments_html
 from calibre.utils.date import parse_date
 
-class Worker(Thread): # {{{
+class Worker(Thread): # Get details {{{
 
     '''
     Get book details from amazons book page in a separate thread
@@ -64,7 +64,7 @@ class Worker(Thread): # {{{
 
         raw = xml_to_unicode(raw, strip_encoding_pats=True,
                 resolve_entities=True)[0]
-        # open('/t/t.html', 'wb').write(raw)
+        #open('/t/t.html', 'wb').write(raw)
 
         if '<title>404 - ' in raw:
             self.log.error('URL malformed: %r'%self.url)
@@ -218,6 +218,9 @@ class Worker(Thread): # {{{
                     ' @class="emptyClear" or @href]'):
                 c.getparent().remove(c)
             desc = tostring(desc, method='html', encoding=unicode).strip()
+            # Encoding bug in Amazon data U+fffd (replacement char)
+            # in some examples it is present in place of '
+            desc = desc.replace('\ufffd', "'")
             # remove all attributes from tags
             desc = re.sub(r'<([a-zA-Z0-9]+)\s[^>]+>', r'<\1>', desc)
             # Collapse whitespace
@@ -276,12 +279,14 @@ class Worker(Thread): # {{{
 
 class Amazon(Source):
 
-    name = 'Amazon'
+    name = 'Amazon Metadata'
     description = _('Downloads metadata from Amazon')
 
     capabilities = frozenset(['identify', 'cover'])
     touched_fields = frozenset(['title', 'authors', 'identifier:amazon',
         'identifier:isbn', 'rating', 'comments', 'publisher', 'pubdate'])
+    has_html_comments = True
+    supports_gzip_transfer_encoding = True
 
     AMAZON_DOMAINS = {
             'com': _('US'),
@@ -408,6 +413,18 @@ class Amazon(Source):
                     if 'bulk pack' not in title:
                         matches.append(a.get('href'))
                     break
+            if not matches:
+                # This can happen for some user agents that Amazon thinks are
+                # mobile/less capable
+                log('Trying alternate results page markup')
+                for td in root.xpath(
+                    r'//div[@id="Results"]/descendant::td[starts-with(@id, "search:Td:")]'):
+                    for a in td.xpath(r'descendant::td[@class="dataColumn"]/descendant::a[@href]/span[@class="srTitle"]/..'):
+                        title = tostring(a, method='text', encoding=unicode).lower()
+                        if 'bulk pack' not in title:
+                            matches.append(a.get('href'))
+                        break
+
 
         # Keep only the top 5 matches as the matches are sorted by relevance by
         # Amazon so lower matches are not likely to be very relevant
@@ -476,9 +493,10 @@ class Amazon(Source):
         if abort.is_set():
             return
         br = self.browser
+        log('Downloading cover from:', cached_url)
         try:
             cdata = br.open_novisit(cached_url, timeout=timeout).read()
-            result_queue.put(cdata)
+            result_queue.put((self, cdata))
         except:
             log.exception('Failed to download cover from:', cached_url)
     # }}}
