@@ -166,6 +166,14 @@ class ComicMetadataReader(MetadataReaderPlugin):
     description = _('Extract cover from comic files')
 
     def get_metadata(self, stream, ftype):
+        if hasattr(stream, 'seek') and hasattr(stream, 'tell'):
+            pos = stream.tell()
+            id_ = stream.read(3)
+            stream.seek(pos)
+            if id_ == b'Rar':
+                ftype = 'cbr'
+            elif id.startswith(b'PK'):
+                ftype = 'cbz'
         if ftype == 'cbr':
             from calibre.libunrar import extract_first_alphabetically as extract_first
             extract_first
