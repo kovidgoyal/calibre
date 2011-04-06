@@ -577,7 +577,7 @@ class FormatsManager(QWidget): # {{{
             self.changed = True
 
     def show_format(self, item, *args):
-        self.dialog.do_view_format.emit(item.path, item.ext)
+        self.dialog.do_view_format(item.path, item.ext)
 
     def get_selected_format_metadata(self, db, id_):
         old = prefs['read_file_metadata']
