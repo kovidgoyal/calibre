@@ -88,7 +88,7 @@ class OEB2HTML(object):
                     try:
                         if not isinstance(el.tag, basestring):
                             continue
-                    except UnicodeDecodeError:
+                    except:
                         continue
                     for attr in attribs:
                         if attr in link_attrs:
