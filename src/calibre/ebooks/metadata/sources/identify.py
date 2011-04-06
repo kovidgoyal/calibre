@@ -20,6 +20,7 @@ from calibre.ebooks.metadata.xisbn import xisbn
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.utils.date import utc_tz
 from calibre.utils.html2text import html2text
+from calibre.utils.icu import lower
 
 # Download worker {{{
 class Worker(Thread):
@@ -97,10 +98,44 @@ class ISBNMerge(object):
         if has_isbn_result:
             self.merge_isbn_results()
         else:
-            self.results = sorted(self.isbnless_results,
+            results = sorted(self.isbnless_results,
                     key=attrgetter('relevance_in_source'))
+            # Pick only the most relevant result from each source
+            self.results = []
+            seen = set()
+            for result in results:
+                if result.identify_plugin not in seen:
+                    seen.add(result.identify_plugin)
+                    self.results.append(result)
+                    result.average_source_relevance = \
+                        result.relevance_in_source
+
+        self.merge_metadata_results()
 
         return self.results
+
+    def merge_metadata_results(self):
+        ' Merge results with identical title and authors '
+        groups = {}
+        for result in self.results:
+            title = lower(result.title if result.title else '')
+            key = (title, tuple([lower(x) for x in result.authors]))
+            if key not in groups:
+                groups[key] = []
+            groups[key].append(result)
+
+        if len(groups) != len(self.results):
+            self.results = []
+            for rgroup in groups.itervalues():
+                rel = [r.average_source_relevance for r in rgroup]
+                if len(rgroup) > 1:
+                    result = self.merge(rgroup, None, do_asr=False)
+                    result.average_source_relevance = sum(rel)/len(rel)
+                else:
+                    result = rgroup[0]
+                self.results.append(result)
+
+        self.results.sort(key=attrgetter('average_source_relevance'))
 
     def merge_isbn_results(self):
         self.results = []
@@ -122,7 +157,7 @@ class ISBNMerge(object):
         values = [getattr(x, attr) for x in results if not x.is_null(attr)]
         return values[0] if values else null_value
 
-    def merge(self, results, min_year):
+    def merge(self, results, min_year, do_asr=True):
         ans = Metadata(_('Unknown'))
 
         # We assume the shortest title has the least cruft in it
@@ -185,7 +220,8 @@ class ISBNMerge(object):
         # Merge any other fields with no special handling (random merge)
         touched_fields = set()
         for r in results:
-            touched_fields |= r.identify_plugin.touched_fields
+            if hasattr(r, 'identify_plugin'):
+                touched_fields |= r.identify_plugin.touched_fields
 
         for f in touched_fields:
             if f.startswith('identifier:') or not ans.is_null(f):
@@ -193,9 +229,10 @@ class ISBNMerge(object):
             setattr(ans, f, self.random_merge(f, results,
                 null_value=getattr(ans, f)))
 
-        avg = [x.relevance_in_source for x in results]
-        avg = sum(avg)/len(avg)
-        ans.average_source_relevance = avg
+        if do_asr:
+            avg = [x.relevance_in_source for x in results]
+            avg = sum(avg)/len(avg)
+            ans.average_source_relevance = avg
 
         return ans
 
@@ -210,7 +247,8 @@ def merge_identify_results(result_map, log):
 
 # }}}
 
-def identify(log, abort, title=None, authors=None, identifiers={}, timeout=30):
+def identify(log, abort, # {{{
+        title=None, authors=None, identifiers={}, timeout=30):
     start_time = time.time()
     plugins = list(metadata_plugins(['identify']))
 
@@ -322,6 +360,7 @@ def identify(log, abort, title=None, authors=None, identifiers={}, timeout=30):
         r.tags = r.tags[:max_tags]
 
     return results
+# }}}
 
 if __name__ == '__main__': # tests {{{
     # To run these test use: calibre-debug -e
@@ -354,10 +393,10 @@ if __name__ == '__main__': # tests {{{
                     exact=True), authors_test(['Dan Brown'])]
             ),
 
-            ( # No specific problems
-                {'identifiers':{'isbn': '0743273567'}},
-                [title_test('The great gatsby', exact=True),
-                    authors_test(['Francis Scott Fitzgerald'])]
+            ( # No ISBN
+                {'title':'Justine', 'authors':['Durrel']},
+                [title_test('Justine', exact=True),
+                    authors_test(['Lawrence Durrel'])]
             ),
 
             (  # A newer book

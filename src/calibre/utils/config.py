@@ -784,6 +784,7 @@ def write_tweaks(raw):
 
 
 tweaks = read_tweaks()
+test_eight_code = tweaks.get('test_eight_code', False)
 
 def migrate():
     if hasattr(os, 'geteuid') and os.geteuid() == 0:
