@@ -102,6 +102,7 @@ class MobiMLizer(object):
     def __call__(self, oeb, context):
         oeb.logger.info('Converting XHTML to Mobipocket markup...')
         self.oeb = oeb
+        self.log = self.oeb.logger
         self.opts = context
         self.profile = profile = context.dest
         self.fnums = fnums = dict((v, k) for k, v in profile.fnums.items())
@@ -118,6 +119,10 @@ class MobiMLizer(object):
         del oeb.guide['cover']
         item = oeb.manifest.hrefs[href]
         if item.spine_position is not None:
+            self.log.warn('Found an HTML cover,', item.href, 'removing it.',
+                    'If you find some content missing from the output MOBI, it '
+                    'is because you misidentified the HTML cover in the input '
+                    'document')
             oeb.spine.remove(item)
             if item.media_type in OEB_DOCS:
                 self.oeb.manifest.remove(item)

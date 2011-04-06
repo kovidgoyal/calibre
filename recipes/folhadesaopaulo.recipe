@@ -5,16 +5,15 @@ from calibre.utils.magick import Image, PixelWand
 from urllib2 import Request, urlopen, URLError
 
 class FolhaOnline(BasicNewsRecipe):
-    THUMBALIZR_API        = "0123456789abcdef01234567890" # ---->Get your at http://www.thumbalizr.com/
+    THUMBALIZR_API        = '' # ---->Get your at http://www.thumbalizr.com/ and put here
     LANGUAGE              = 'pt_br'
     language = 'pt'
     LANGHTM               = 'pt-br'
     ENCODING              = 'cp1252'
     ENCHTM                = 'iso-8859-1'
     directionhtm          = 'ltr'
-    requires_version      = (0,8,47)
+    requires_version      = (0,7,47)
     news                  = True
-    publication_type      = 'newsportal'
 
     title                 = u'Folha de S\xE3o Paulo'
     __author__            = 'Euler Alves'
@@ -96,6 +95,7 @@ class FolhaOnline(BasicNewsRecipe):
     ,(u'Valdo Cruz', u'http://http://feeds.folha.uol.com.br/folha/pensata/valdocruz/rss091.xml')
     ]
 
+
     conversion_options = {
     'title'            : title
     ,'comments'        : description
@@ -124,6 +124,8 @@ class FolhaOnline(BasicNewsRecipe):
             img.open(iurl)
             width, height = img.size
             print 'img is: ', iurl, 'width is: ', width, 'height is: ', height
+            if img < 0:
+                raise RuntimeError('Out of memory')
             pw = PixelWand()
             if( width > height and width > 590) :
                 print 'Rotate image'

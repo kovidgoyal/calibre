@@ -231,6 +231,17 @@ class HTMLMetadataReader(MetadataReaderPlugin):
         from calibre.ebooks.metadata.html import get_metadata
         return get_metadata(stream)
 
+class HTMLZMetadataReader(MetadataReaderPlugin):
+
+    name        = 'Read HTMLZ metadata'
+    file_types  = set(['htmlz'])
+    description = _('Read metadata from %s files') % 'HTMLZ'
+    author      = 'John Schember'
+
+    def get_metadata(self, stream, ftype):
+        from calibre.ebooks.metadata.extz import get_metadata
+        return get_metadata(stream)
+
 class IMPMetadataReader(MetadataReaderPlugin):
 
     name        = 'Read IMP metadata'
@@ -407,7 +418,7 @@ class TXTZMetadataReader(MetadataReaderPlugin):
     author      = 'John Schember'
 
     def get_metadata(self, stream, ftype):
-        from calibre.ebooks.metadata.txtz import get_metadata
+        from calibre.ebooks.metadata.extz import get_metadata
         return get_metadata(stream)
 
 class ZipMetadataReader(MetadataReaderPlugin):
@@ -432,6 +443,17 @@ class EPUBMetadataWriter(MetadataWriterPlugin):
     def set_metadata(self, stream, mi, type):
         from calibre.ebooks.metadata.epub import set_metadata
         set_metadata(stream, mi, apply_null=self.apply_null)
+
+class HTMLZMetadataWriter(MetadataWriterPlugin):
+
+    name        = 'Set HTMLZ metadata'
+    file_types  = set(['htmlz'])
+    description = _('Set metadata from %s files') % 'HTMLZ'
+    author      = 'John Schember'
+
+    def set_metadata(self, stream, mi, type):
+        from calibre.ebooks.metadata.extz import set_metadata
+        set_metadata(stream, mi)
 
 class LRFMetadataWriter(MetadataWriterPlugin):
 
@@ -505,7 +527,7 @@ class TXTZMetadataWriter(MetadataWriterPlugin):
     author      = 'John Schember'
 
     def set_metadata(self, stream, mi, type):
-        from calibre.ebooks.metadata.txtz import set_metadata
+        from calibre.ebooks.metadata.extz import set_metadata
         set_metadata(stream, mi)
 
 # }}}
@@ -514,6 +536,7 @@ from calibre.ebooks.comic.input import ComicInput
 from calibre.ebooks.epub.input import EPUBInput
 from calibre.ebooks.fb2.input import FB2Input
 from calibre.ebooks.html.input import HTMLInput
+from calibre.ebooks.htmlz.input import HTMLZInput
 from calibre.ebooks.lit.input import LITInput
 from calibre.ebooks.mobi.input import MOBIInput
 from calibre.ebooks.odt.input import ODTInput
@@ -544,6 +567,7 @@ from calibre.ebooks.tcr.output import TCROutput
 from calibre.ebooks.txt.output import TXTOutput
 from calibre.ebooks.txt.output import TXTZOutput
 from calibre.ebooks.html.output import HTMLOutput
+from calibre.ebooks.htmlz.output import HTMLZOutput
 from calibre.ebooks.snb.output import SNBOutput
 
 from calibre.customize.profiles import input_profiles, output_profiles
@@ -599,6 +623,7 @@ plugins += [
     EPUBInput,
     FB2Input,
     HTMLInput,
+    HTMLZInput,
     LITInput,
     MOBIInput,
     ODTInput,
@@ -630,6 +655,7 @@ plugins += [
     TXTOutput,
     TXTZOutput,
     HTMLOutput,
+    HTMLZOutput,
     SNBOutput,
 ]
 # Order here matters. The first matched device is the one used.

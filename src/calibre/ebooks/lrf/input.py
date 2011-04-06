@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, textwrap
+import os, textwrap, sys
 from copy import deepcopy
 
 from lxml import etree
@@ -413,7 +413,12 @@ class LRFInput(InputFormatPlugin):
                 ('calibre', 'image-block'): image_block,
                 }
         transform = etree.XSLT(styledoc, extensions=extensions)
-        result = transform(doc)
+        try:
+            result = transform(doc)
+        except RuntimeError:
+            sys.setrecursionlimit(5000)
+            result = transform(doc)
+
         with open('content.opf', 'wb') as f:
             f.write(result)
         styles.write()

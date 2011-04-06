@@ -125,7 +125,10 @@ class Metadata(object):
         _data = object.__getattribute__(self, '_data')
         if field in TOP_LEVEL_IDENTIFIERS:
             field, val = self._clean_identifier(field, val)
-            _data['identifiers'].update({field: val})
+            identifiers = _data['identifiers']
+            identifiers.pop(field, None)
+            if val:
+                identifiers[field] = val
         elif field == 'identifiers':
             if not val:
                 val = copy.copy(NULL_VALUES.get('identifiers', None))
@@ -198,8 +201,10 @@ class Metadata(object):
         return copy.deepcopy(ans)
 
     def _clean_identifier(self, typ, val):
-        typ = icu_lower(typ).strip().replace(':', '').replace(',', '')
-        val = val.strip().replace(',', '|').replace(':', '|')
+        if typ:
+            typ = icu_lower(typ).strip().replace(':', '').replace(',', '')
+        if val:
+            val = val.strip().replace(',', '|').replace(':', '|')
         return typ, val
 
     def set_identifiers(self, identifiers):
@@ -222,8 +227,7 @@ class Metadata(object):
         identifiers = object.__getattribute__(self,
             '_data')['identifiers']
 
-        if not val and typ in identifiers:
-            identifiers.pop(typ)
+        identifiers.pop(typ, None)
         if val:
             identifiers[typ] = val
 
@@ -645,7 +649,7 @@ class Metadata(object):
             fmt('Tags', u', '.join([unicode(t) for t in self.tags]))
         if self.series:
             fmt('Series', self.series + ' #%s'%self.format_series_index())
-        if self.language:
+        if not self.is_null('language'):
             fmt('Language', self.language)
         if self.rating is not None:
             fmt('Rating', self.rating)
