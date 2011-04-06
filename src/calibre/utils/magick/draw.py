@@ -92,12 +92,12 @@ def save_cover_data_to(data, path, bgcolor='#ffffff', resize_to=None,
     ret = None
     if return_data:
         ret = data
-        if changed:
+        if changed or isinstance(ret, Image):
             if hasattr(img, 'set_compression_quality') and fmt == 'jpg':
                 img.set_compression_quality(compression_quality)
             ret = img.export(fmt)
     else:
-        if changed:
+        if changed or isinstance(ret, Image):
             if hasattr(img, 'set_compression_quality') and fmt == 'jpg':
                 img.set_compression_quality(compression_quality)
             img.save(path)
