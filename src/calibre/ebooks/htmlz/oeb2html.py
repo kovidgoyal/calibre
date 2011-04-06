@@ -12,10 +12,13 @@ Transform OEB content into a single (more or less) HTML file.
 
 import os
 
-from urlparse import urlparse, urldefrag
+from functools import partial
+from lxml import html
+from urlparse import urldefrag
 
 from calibre import prepare_string_for_xml
-from calibre.ebooks.oeb.base import XHTML, XHTML_NS, barename, namespace
+from calibre.ebooks.oeb.base import XHTML, XHTML_NS, barename, namespace,\
+    OEB_IMAGES, XLINK, rewrite_links
 from calibre.ebooks.oeb.stylizer import Stylizer
 from calibre.utils.logging import default_log
 
@@ -40,6 +43,8 @@ class OEB2HTML(object):
         self.opts = opts
         self.links = {}
         self.images = {}
+        self.base_hrefs = [item.href for item in oeb_book.spine]
+        self.map_resources(oeb_book)
 
         return self.mlize_spine(oeb_book)
 
@@ -47,6 +52,8 @@ class OEB2HTML(object):
         output = [u'<html><body><head><meta http-equiv="Content-Type" content="text/html;charset=utf-8" /></head>']
         for item in oeb_book.spine:
             self.log.debug('Converting %s to HTML...' % item.href)
+            self.rewrite_ids(item.data, item)
+            rewrite_links(item.data, partial(self.rewrite_link, page=item))
             stylizer = Stylizer(item.data, item.href, oeb_book, self.opts)
             output += self.dump_text(item.data.find(XHTML('body')), stylizer, item)
             output.append('\n\n')
@@ -56,41 +63,61 @@ class OEB2HTML(object):
     def dump_text(self, elem, stylizer, page):
         raise NotImplementedError
 
-    def get_link_id(self, href, aid):
-        aid = '%s#%s' % (href, aid)
-        if aid not in self.links:
-            self.links[aid] = 'calibre_link-%s' % len(self.links.keys())
-        return self.links[aid]
+    def get_link_id(self, href, id=''):
+        if id:
+            href += '#%s' % id
+        if href not in self.links:
+            self.links[href] = '#calibre_link-%s' % len(self.links.keys())
+        return self.links[href]
 
-    def rewrite_link(self, tag, attribs, page):
-        # Rewrite ids.
-        if 'id' in attribs:
-            attribs['id'] = self.get_link_id(page.href, attribs['id'])
-        # Rewrite links.
-        if tag == 'a':
-            href = page.abshref(attribs['href'])
-            if self.url_is_relative(href):
-                href, id = urldefrag(href)
-                href = '#%s' % self.get_link_id(href, id)
-                attribs['href'] = href
-        return attribs
-
-    def rewrite_image(self, tag, attribs, page):
-        if tag == 'img':
-            src = attribs.get('src', None)
-            if src:
-                src = page.abshref(src)
-                if src not in self.images:
-                    ext = os.path.splitext(src)[1]
+    def map_resources(self, oeb_book):
+        for item in oeb_book.manifest:
+            if item.media_type in OEB_IMAGES:
+                if item.href not in self.images:
+                    ext = os.path.splitext(item.href)[1]
                     fname = '%s%s' % (len(self.images), ext)
                     fname = fname.zfill(10)
-                    self.images[src] = fname
-                attribs['src'] = 'images/%s' % self.images[src]
-        return attribs
-
-    def url_is_relative(self, url):
-        o = urlparse(url)
-        return False if o.scheme else True
+                    self.images[item.href] = fname
+            if item in oeb_book.spine:
+                self.get_link_id(item.href)
+                root = item.data.find(XHTML('body'))
+                link_attrs = set(html.defs.link_attrs)
+                link_attrs.add(XLINK('href'))
+                for el in root.iter():
+                    attribs = el.attrib
+                    try:
+                        if not isinstance(el.tag, basestring):
+                            continue
+                    except UnicodeDecodeError:
+                        continue
+                    for attr in attribs:
+                        if attr in link_attrs:
+                            href = item.abshref(attribs[attr])
+                            href, id = urldefrag(href)
+                            if href in self.base_hrefs:
+                                self.get_link_id(href, id)
+    
+    def rewrite_link(self, url, page=None):
+        if not page:
+            return url
+        abs_url = page.abshref(url)
+        if abs_url in self.images:
+            return 'images/%s' % self.images[abs_url]
+        if abs_url in self.links:
+            return self.links[abs_url]
+        return url
+    
+    def rewrite_ids(self, root, page):
+        for el in root.iter():
+            try:
+                tag = el.tag
+            except UnicodeDecodeError:
+                continue
+            if tag == XHTML('body'):
+                el.attrib['id'] = self.get_link_id(page.href)[1:]
+                continue
+            if 'id' in el.attrib:
+                el.attrib['id'] = self.get_link_id(page.href, el.attrib['id'])[1:]
 
     def get_css(self, oeb_book):
         css = u''
@@ -127,13 +154,9 @@ class OEB2HTMLNoCSSizer(OEB2HTML):
         tags = []
         tag = barename(elem.tag)
         attribs = elem.attrib
-        
-        attribs = self.rewrite_link(tag, attribs, page)
-        attribs = self.rewrite_image(tag, attribs, page)
-        
+
         if tag == 'body':
             tag = 'div'
-            attribs['id'] = self.get_link_id(page.href, '')
         tags.append(tag)
 
         # Ignore anything that is set to not be displayed.
@@ -215,14 +238,10 @@ class OEB2HTMLInlineCSSizer(OEB2HTML):
         tags = []
         tag = barename(elem.tag)
         attribs = elem.attrib
-        
-        attribs = self.rewrite_link(tag, attribs, page)
-        attribs = self.rewrite_image(tag, attribs, page)
 
         style_a = '%s' % style
         if tag == 'body':
             tag = 'div'
-            attribs['id'] = self.get_link_id(page.href, '')
             if not style['page-break-before'] == 'always':
                 style_a = 'page-break-before: always;' + ' ' if style_a else '' + style_a
         tags.append(tag)
@@ -277,6 +296,8 @@ class OEB2HTMLClassCSSizer(OEB2HTML):
         output = []
         for item in oeb_book.spine:
             self.log.debug('Converting %s to HTML...' % item.href)
+            self.rewrite_ids(item.data, item)
+            rewrite_links(item.data, partial(self.rewrite_link, page=item))
             stylizer = Stylizer(item.data, item.href, oeb_book, self.opts)
             output += self.dump_text(item.data.find(XHTML('body')), stylizer, item)
             output.append('\n\n')
@@ -304,17 +325,12 @@ class OEB2HTMLClassCSSizer(OEB2HTML):
 
         # Setup our variables.
         text = ['']
-        #style = stylizer.style(elem)
         tags = []
         tag = barename(elem.tag)
         attribs = elem.attrib
 
-        attribs = self.rewrite_link(tag, attribs, page)
-        attribs = self.rewrite_image(tag, attribs, page)
-
         if tag == 'body':
             tag = 'div'
-            attribs['id'] = self.get_link_id(page.href, '')
         tags.append(tag)
 
         # Remove attributes we won't want.
