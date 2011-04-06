@@ -10,6 +10,7 @@ from calibre.constants import numeric_version
 from calibre.ebooks.metadata.archive import ArchiveExtract, get_cbz_metadata
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.ebooks.oeb.base import OEB_IMAGES
+from calibre.utils.config import test_eight_code
 
 # To archive plugins {{{
 class HTML2ZIP(FileTypePlugin):
@@ -612,20 +613,25 @@ from calibre.devices.folder_device.driver import FOLDER_DEVICE_FOR_CONFIG
 from calibre.devices.kobo.driver import KOBO
 from calibre.devices.bambook.driver import BAMBOOK
 
-from calibre.ebooks.metadata.fetch import GoogleBooks, ISBNDB, Amazon, \
-    KentDistrictLibrary
-from calibre.ebooks.metadata.douban import DoubanBooks
-from calibre.ebooks.metadata.nicebooks import NiceBooks, NiceBooksCovers
-from calibre.ebooks.metadata.covers import OpenLibraryCovers, \
-        AmazonCovers, DoubanCovers
 from calibre.library.catalog import CSV_XML, EPUB_MOBI, BIBTEX
 from calibre.ebooks.epub.fix.unmanifested import Unmanifested
 from calibre.ebooks.epub.fix.epubcheck import Epubcheck
 
-plugins = [HTML2ZIP, PML2PMLZ, TXT2TXTZ, ArchiveExtract, GoogleBooks, ISBNDB, Amazon,
-        KentDistrictLibrary, DoubanBooks, NiceBooks, CSV_XML, EPUB_MOBI, BIBTEX, Unmanifested,
-        Epubcheck, OpenLibraryCovers, AmazonCovers, DoubanCovers,
-        NiceBooksCovers]
+plugins = [HTML2ZIP, PML2PMLZ, TXT2TXTZ, ArchiveExtract, CSV_XML, EPUB_MOBI, BIBTEX, Unmanifested,
+        Epubcheck, ]
+
+if not test_eight_code:
+    from calibre.ebooks.metadata.fetch import GoogleBooks, ISBNDB, Amazon, \
+        KentDistrictLibrary
+    from calibre.ebooks.metadata.douban import DoubanBooks
+    from calibre.ebooks.metadata.nicebooks import NiceBooks, NiceBooksCovers
+    from calibre.ebooks.metadata.covers import OpenLibraryCovers, \
+            AmazonCovers, DoubanCovers
+
+    plugins += [GoogleBooks, ISBNDB, Amazon,
+        OpenLibraryCovers, AmazonCovers, DoubanCovers,
+        NiceBooksCovers, KentDistrictLibrary, DoubanBooks, NiceBooks]
+
 plugins += [
     ComicInput,
     EPUBInput,
