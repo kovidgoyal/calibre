@@ -100,7 +100,7 @@ We just need some information from you:
 
 Once you send us the output for a particular operating system, support for the device in that operating system
 will appear in the next release of |app|. To send us the output, open a bug report and attach the output to it.
-See `http://calibre-ebook.com/bugs`_.
+See `calibre bugs <http://calibre-ebook.com/bugs>`_.
 
 My device is not being detected by |app|?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
