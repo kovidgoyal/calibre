@@ -22,6 +22,12 @@ msprefs.defaults['txt_comments'] = False
 msprefs.defaults['ignore_fields'] = []
 msprefs.defaults['max_tags'] = 20
 msprefs.defaults['wait_after_first_identify_result'] = 30 # seconds
+msprefs.defaults['wait_after_first_cover_result'] = 60 # seconds
+
+# Google covers are often poor quality (scans/errors) but they have high
+# resolution, so they trump covers from better sources. So make sure they
+# are only used if no other covers are found.
+msprefs.defaults['cover_priorities'] = {'Google':2}
 
 def create_log(ostream=None):
     log = ThreadSafeLog(level=ThreadSafeLog.DEBUG)
@@ -340,7 +346,8 @@ class Source(Plugin):
             title=None, authors=None, identifiers={}, timeout=30):
         '''
         Download a cover and put it into result_queue. The parameters all have
-        the same meaning as for :meth:`identify`.
+        the same meaning as for :meth:`identify`. Put (self, cover_data) into
+        result_queue.
 
         This method should use cached cover URLs for efficiency whenever
         possible. When cached data is not present, most plugins simply call

@@ -13,10 +13,13 @@ from threading import Event
 
 from calibre import prints
 from calibre.utils.config import OptionParser
+from calibre.utils.magick.draw import save_cover_data_to
 from calibre.ebooks.metadata import string_to_authors
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.ebooks.metadata.sources.base import create_log
 from calibre.ebooks.metadata.sources.identify import identify
+from calibre.ebooks.metadata.sources.covers import download_cover
+
 
 def option_parser():
     parser = OptionParser(textwrap.dedent(
@@ -33,6 +36,8 @@ def option_parser():
     parser.add_option('-v', '--verbose', default=False, action='store_true',
                       help='Print the log to the console (stderr)')
     parser.add_option('-o', '--opf', help='Output the metadata in OPF format')
+    parser.add_option('-c', '--cover',
+            help='Specify a filename. The cover, if available, will be saved to it')
     parser.add_option('-d', '--timeout', default='30',
             help='Timeout in seconds. Default is 30')
 
@@ -57,14 +62,26 @@ def main(args=sys.argv):
     results = identify(log, abort, title=opts.title, authors=authors,
             identifiers=identifiers, timeout=int(opts.timeout))
 
-    log = buf.getvalue()
-
     if not results:
         print (log, file=sys.stderr)
         prints('No results found', file=sys.stderr)
         raise SystemExit(1)
-
     result = results[0]
+
+    cf = None
+    if opts.cover and results:
+        cover = download_cover(log, title=opts.title, authors=authors,
+                identifiers=result.identifiers, timeout=int(opts.timeout))
+        if cover is None:
+            prints('No cover found', file=sys.stderr)
+        else:
+            save_cover_data_to(cover[-1], opts.cover)
+            result.cover = cf = opts.cover
+
+
+    log = buf.getvalue()
+
+
     result = (metadata_to_opf(result) if opts.opf else
                     unicode(result).encode('utf-8'))
 
@@ -72,6 +89,8 @@ def main(args=sys.argv):
         print (log, file=sys.stderr)
 
     print (result)
+    if not opts.opf:
+        prints('Cover               :', cf)
 
     return 0
 

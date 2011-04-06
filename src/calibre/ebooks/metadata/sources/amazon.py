@@ -279,7 +279,7 @@ class Worker(Thread): # Get details {{{
 
 class Amazon(Source):
 
-    name = 'Amazon'
+    name = 'Amazon Metadata'
     description = _('Downloads metadata from Amazon')
 
     capabilities = frozenset(['identify', 'cover'])
@@ -493,9 +493,10 @@ class Amazon(Source):
         if abort.is_set():
             return
         br = self.browser
+        log('Downloading cover from:', cached_url)
         try:
             cdata = br.open_novisit(cached_url, timeout=timeout).read()
-            result_queue.put(cdata)
+            result_queue.put((self, cdata))
         except:
             log.exception('Failed to download cover from:', cached_url)
     # }}}
