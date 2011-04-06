@@ -32,9 +32,9 @@ class MetadataSingleDialogBase(ResizableDialog):
 
     def __init__(self, db, parent=None):
         self.db = db
-        self.changed = set([])
-        self.books_to_refresh = set([])
-        self.rows_to_refresh = set([])
+        self.changed = set()
+        self.books_to_refresh = set()
+        self.rows_to_refresh = set()
         ResizableDialog.__init__(self, parent)
 
     def setupUi(self, *args): # {{{
@@ -386,7 +386,7 @@ class MetadataSingleDialogBase(ResizableDialog):
     def break_cycles(self):
         # Break any reference cycles that could prevent python
         # from garbage collecting this dialog
-        self.set_current_callback = None
+        self.set_current_callback = self.db = None
         def disconnect(signal):
             try:
                 signal.disconnect()
