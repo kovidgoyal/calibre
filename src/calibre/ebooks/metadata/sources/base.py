@@ -113,6 +113,7 @@ def cap_author_token(token):
     if lt in ('von', 'de', 'el', 'van', 'le'):
         return lt
     if re.match(r'([a-z]\.){2,}$', lt) is not None:
+        # Normalize tokens of the form J.K. to J. K.
         parts = token.split('.')
         return '. '.join(map(capitalize, parts)).strip()
     return capitalize(token)
