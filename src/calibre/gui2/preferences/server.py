@@ -57,17 +57,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
         r('autolaunch_server', config)
 
-    def set_server_options(self):
-        c = self.proxy
-        c.set('port', self.opt_port.value())
-        c.set('username', unicode(self.opt_username.text()).strip())
-        p = unicode(self.opt_password.text()).strip()
-        if not p:
-            p = None
-        c.set('password', p)
-
     def start_server(self):
-        self.set_server_options()
+        ConfigWidgetBase.commit(self)
         self.gui.start_content_server(check_started=False)
         while not self.gui.content_server.is_running and self.gui.content_server.exception is None:
             time.sleep(1)

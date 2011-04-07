@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import (unicode_literals, division, absolute_import,
+                        print_function)
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -7,10 +9,10 @@ __docformat__ = 'restructuredtext en'
 
 import textwrap, re, os
 
-from PyQt4.Qt import Qt, QDateEdit, QDate, \
-    QIcon, QToolButton, QWidget, QLabel, QGridLayout, \
-    QDoubleSpinBox, QListWidgetItem, QSize, QPixmap, \
-    QPushButton, QSpinBox, QLineEdit
+from PyQt4.Qt import (Qt, QDateEdit, QDate,
+    QIcon, QToolButton, QWidget, QLabel, QGridLayout,
+    QDoubleSpinBox, QListWidgetItem, QSize, QPixmap,
+    QPushButton, QSpinBox, QLineEdit, QSizePolicy)
 
 from calibre.gui2.widgets import EnLineEdit, FormatList, ImageView
 from calibre.gui2.complete import MultiCompleteLineEdit, MultiCompleteComboBox
@@ -22,7 +24,7 @@ from calibre.ebooks.metadata.meta import get_metadata
 from calibre.gui2 import file_icon_provider, UNDEFINED_QDATE, UNDEFINED_DATE, \
         choose_files, error_dialog, choose_images, question_dialog
 from calibre.utils.date import local_tz, qt_to_dt
-from calibre import strftime
+from calibre import strftime, fit_image
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.customize.ui import run_plugins_on_import
 from calibre.utils.date import utcfromtimestamp
@@ -426,7 +428,7 @@ class Format(QListWidgetItem): # {{{
         if timestamp is not None:
             ts = timestamp.astimezone(local_tz)
             t = strftime('%a, %d %b %Y [%H:%M:%S]', ts.timetuple())
-            text = _('Last modified: %s')%t
+            text = _('Last modified: %s\n\nDouble click to view')%t
             self.setToolTip(text)
             self.setStatusTip(text)
 
@@ -480,6 +482,7 @@ class FormatsManager(QWidget): # {{{
 
     def initialize(self, db, id_):
         self.changed = False
+        self.formats.clear()
         exts = db.formats(id_, index_is_id=True)
         self.original_val = set([])
         if exts:
@@ -574,8 +577,7 @@ class FormatsManager(QWidget): # {{{
             self.changed = True
 
     def show_format(self, item, *args):
-        fmt = item.ext
-        self.dialog.view_format.emit(fmt)
+        self.dialog.do_view_format(item.path, item.ext)
 
     def get_selected_format_metadata(self, db, id_):
         old = prefs['read_file_metadata']
@@ -637,6 +639,23 @@ class Cover(ImageView): # {{{
         self.buttons = [self.select_cover_button, self.remove_cover_button,
                 self.trim_cover_button, self.download_cover_button,
                 self.generate_cover_button]
+
+        self.frame_size = (300, 400)
+        self.setSizePolicy(QSizePolicy(QSizePolicy.Preferred,
+            QSizePolicy.Preferred))
+
+    def frame_resized(self, ev):
+        sz = ev.size()
+        self.frame_size = (sz.width()//3, sz.height())
+
+    def sizeHint(self):
+        sz = ImageView.sizeHint(self)
+        w, h = sz.width(), sz.height()
+        resized, nw, nh = fit_image(w, h, self.frame_size[0],
+                self.frame_size[1])
+        if resized:
+            sz = QSize(nw, nh)
+        return sz
 
     def select_cover(self, *args):
         files = choose_images(self, 'change cover dialog',
@@ -882,8 +901,11 @@ class TagsEdit(MultiCompleteLineEdit): # {{{
 
 # }}}
 
-class ISBNEdit(QLineEdit): # {{{
-    LABEL = _('IS&BN:')
+class IdentifiersEdit(QLineEdit): # {{{
+    LABEL = _('I&ds:')
+    BASE_TT = _('Edit the identifiers for this book. '
+            'For example: \n\n%s')%(
+            'isbn:1565927249, doi:10.1000/182, amazon:1565927249')
 
     def __init__(self, parent):
         QLineEdit.__init__(self, parent)
@@ -893,32 +915,44 @@ class ISBNEdit(QLineEdit): # {{{
     @dynamic_property
     def current_val(self):
         def fget(self):
-            return self.pat.sub('', unicode(self.text()).strip())
+            raw = unicode(self.text()).strip()
+            parts = [x.strip() for x in raw.split(',')]
+            ans = {}
+            for x in parts:
+                c = x.split(':')
+                if len(c) == 2:
+                    ans[c[0]] = c[1]
+            return ans
         def fset(self, val):
             if not val:
-                val = ''
-            self.setText(val.strip())
+                val = {}
+            txt = ', '.join(['%s:%s'%(k, v) for k, v in val.iteritems()])
+            self.setText(txt.strip())
         return property(fget=fget, fset=fset)
 
     def initialize(self, db, id_):
-        self.current_val = db.isbn(id_, index_is_id=True)
+        self.current_val = db.get_identifiers(id_, index_is_id=True)
         self.original_val = self.current_val
 
     def commit(self, db, id_):
-        db.set_isbn(id_, self.current_val, notify=False, commit=False)
+        if self.original_val != self.current_val:
+            db.set_identifiers(id_, self.current_val, notify=False, commit=False)
         return True
 
     def validate(self, *args):
-        isbn = self.current_val
-        tt = _('This ISBN number is valid')
+        identifiers = self.current_val
+        isbn = identifiers.get('isbn', '')
+        tt = self.BASE_TT
+        extra = ''
         if not isbn:
             col = 'rgba(0,255,0,0%)'
         elif check_isbn(isbn) is not None:
             col = 'rgba(0,255,0,20%)'
+            extra = '\n\n'+_('This ISBN number is valid')
         else:
             col = 'rgba(255,0,0,20%)'
-            tt = _('This ISBN number is invalid')
-        self.setToolTip(tt)
+            extra = '\n\n' + _('This ISBN number is invalid')
+        self.setToolTip(tt+extra)
         self.setStyleSheet('QLineEdit { background-color: %s }'%col)
 
 # }}}

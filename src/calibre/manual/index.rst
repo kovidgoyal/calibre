@@ -70,7 +70,7 @@ Customizing |app|'s e-book conversion
 .. toctree::
    :maxdepth: 2
 
-   viewer
+   conversion
 
 Editing e-book metadata
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -78,7 +78,7 @@ Editing e-book metadata
 .. toctree::
    :maxdepth: 2
 
-   viewer
+   metadata
 
 Frequently Asked Questions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^

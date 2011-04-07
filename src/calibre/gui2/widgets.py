@@ -312,6 +312,7 @@ class ImageView(QWidget, ImageDropMixin):
         p.setPen(pen)
         if self.draw_border:
             p.drawRect(target)
+        #p.drawRect(self.rect())
         p.end()
 
 class CoverView(QGraphicsView, ImageDropMixin):

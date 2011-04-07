@@ -1,5 +1,5 @@
 __license__   = 'GPL v3'
-__copyright__ = '2010, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2010-2011, Darko Miletic <darko.miletic at gmail.com>'
 '''
 www.kommersant.ru
 '''
@@ -20,7 +20,13 @@ class Kommersant_ru(BasicNewsRecipe):
     language              = 'ru'
     publication_type      = 'newspaper'
     masthead_url          = 'http://www.kommersant.ru/CorpPics/logo_daily_1.gif'
-    extra_css             = ' @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)} body{font-family: Arial, sans1, sans-serif} span#ctl00_ContentPlaceHolderStyle_LabelSubTitle{margin-bottom: 1em; display: block} .author{margin-bottom: 1em; display: block} .paragraph{margin-bottom: 1em; display: block} .vvodka{font-weight: bold; margin-bottom: 1em} '
+    extra_css             = """ 
+	                          @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)}
+	                          body{font-family: Tahoma, Arial, Helvetica, sans1, sans-serif}
+							  .title{font-size: x-large; font-weight: bold; margin-bottom: 1em}
+							  .subtitle{font-size: large; margin-bottom: 1em}
+							  .document_vvodka{font-weight: bold; margin-bottom: 1em}
+							"""
 
     conversion_options = {
                           'comment'          : description
@@ -29,14 +35,11 @@ class Kommersant_ru(BasicNewsRecipe):
                         , 'language'         : language
                         }
 
-    keep_only_tags = [
-                         dict(attrs={'id':'ctl00_ContentPlaceHolderStyle_PanelHeader'})
-                        ,dict(attrs={'class':['vvodka','paragraph','author']})
-                     ]
-    remove_tags        = [dict(name=['iframe','object','link','img','base'])]
+    keep_only_tags = [dict(attrs={'class':['document','document_vvodka','document_text','document_authors vblock']})]
+    remove_tags    = [dict(name=['iframe','object','link','img','base','meta'])]
 
     feeds       = [(u'Articles', u'http://feeds.kommersant.ru/RSS_Export/RU/daily.xml')]
 
-    def print_version(self, url):
-        return url.replace('doc-rss.aspx','doc.aspx') + '&print=true'
-
+    def print_version(self, url):	    
+        return url.replace('/doc-rss/','/Doc/') + '/Print'
+		

@@ -604,20 +604,34 @@ from calibre.devices.folder_device.driver import FOLDER_DEVICE_FOR_CONFIG
 from calibre.devices.kobo.driver import KOBO
 from calibre.devices.bambook.driver import BAMBOOK
 
-from calibre.ebooks.metadata.fetch import GoogleBooks, ISBNDB, Amazon, \
-    KentDistrictLibrary, Overdrive
-from calibre.ebooks.metadata.douban import DoubanBooks
-from calibre.ebooks.metadata.nicebooks import NiceBooks, NiceBooksCovers
-from calibre.ebooks.metadata.covers import OpenLibraryCovers, \
-        AmazonCovers, DoubanCovers, OverdriveCovers
 from calibre.library.catalog import CSV_XML, EPUB_MOBI, BIBTEX
 from calibre.ebooks.epub.fix.unmanifested import Unmanifested
 from calibre.ebooks.epub.fix.epubcheck import Epubcheck
 
-plugins = [HTML2ZIP, PML2PMLZ, TXT2TXTZ, ArchiveExtract, GoogleBooks, ISBNDB, Amazon, Overdrive,
-        KentDistrictLibrary, DoubanBooks, NiceBooks, CSV_XML, EPUB_MOBI, BIBTEX, Unmanifested,
-        Epubcheck, OpenLibraryCovers, AmazonCovers, DoubanCovers,
-        NiceBooksCovers, OverdriveCovers]
+plugins = [HTML2ZIP, PML2PMLZ, TXT2TXTZ, ArchiveExtract, CSV_XML, EPUB_MOBI, BIBTEX, Unmanifested,
+        Epubcheck, ]
+
+if test_eight_code:
+# New metadata download plugins {{{
+    from calibre.ebooks.metadata.sources.google import GoogleBooks
+    from calibre.ebooks.metadata.sources.amazon import Amazon
+    from calibre.ebooks.metadata.sources.openlibrary import OpenLibrary
+
+    plugins += [GoogleBooks, Amazon, OpenLibrary]
+
+# }}}
+else:
+    from calibre.ebooks.metadata.fetch import GoogleBooks, ISBNDB, Amazon, \
+        KentDistrictLibrary, Overdrive
+    from calibre.ebooks.metadata.douban import DoubanBooks
+    from calibre.ebooks.metadata.nicebooks import NiceBooks, NiceBooksCovers
+    from calibre.ebooks.metadata.covers import OpenLibraryCovers, \
+            AmazonCovers, DoubanCovers, OverdriveCovers
+
+    plugins += [GoogleBooks, ISBNDB, Amazon,
+        OpenLibraryCovers, AmazonCovers, DoubanCovers, OverdriveCovers,
+        NiceBooksCovers, KentDistrictLibrary, DoubanBooks, NiceBooks]
+
 plugins += [
     ComicInput,
     EPUBInput,
