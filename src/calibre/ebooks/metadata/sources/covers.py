@@ -76,7 +76,7 @@ def run_download(log, results, abort,
         (plugin, width, height, fmt, bytes)
 
     '''
-    plugins = list(metadata_plugins(['cover']))
+    plugins = [p for p in metadata_plugins(['cover']) if p.is_configured()]
 
     rq = Queue()
     workers = [Worker(p, abort, title, authors, identifiers, timeout, rq) for p
