@@ -116,7 +116,7 @@ class IdentifyWorker(Thread):
         self.daemon = True
 
         self.log, self.abort = log, abort
-        self.title, self.authors, self.identifiers = (title, authors.
+        self.title, self.authors, self.identifiers = (title, authors,
                 identifiers)
 
         self.results = []
@@ -194,8 +194,8 @@ class IdentifyWidget(QWidget):
         self.query.setText(_('Query: ')+'; '.join(parts))
         self.log(unicode(self.query.text()))
 
-        self.worker = IdentifyWorker(self.log, self.abort, self.title,
-                self.authors, self.identifiers)
+        self.worker = IdentifyWorker(self.log, self.abort, title,
+                authors, identifiers)
 
         # self.worker.start()
 
