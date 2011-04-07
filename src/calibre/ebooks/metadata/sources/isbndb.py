@@ -37,4 +37,7 @@ class ISBNDB(Source):
 
         self.isbndb_key = prefs['isbndb_key']
 
+    def is_configured(self):
+        return self.isbndb_key is not None
+
 

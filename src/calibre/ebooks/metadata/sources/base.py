@@ -167,6 +167,13 @@ class Source(Plugin):
 
     # Configuration {{{
 
+    def is_configured(self):
+        '''
+        Return False if your plugin needs to be configured before it can be
+        used. For example, it might need a username/password/API key.
+        '''
+        return True
+
     @property
     def prefs(self):
         if self._config_obj is None:

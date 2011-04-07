@@ -250,7 +250,7 @@ def merge_identify_results(result_map, log):
 def identify(log, abort, # {{{
         title=None, authors=None, identifiers={}, timeout=30):
     start_time = time.time()
-    plugins = list(metadata_plugins(['identify']))
+    plugins = [p for p in metadata_plugins(['identify']) if p.is_configured()]
 
     kwargs = {
             'title': title,
