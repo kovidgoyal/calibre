@@ -153,6 +153,8 @@ def overdrive_search(br, q, title, author):
             elif int(m.group('totalrecords')) >= 1:
                 xref_q = ''
                 q_xref = q+'SearchResults.svc/GetResults?iDisplayLength=50&sSearch='+xref_q
+            elif int(m.group('totalrecords')) == 0:
+                return ''
         
     print "\n\nsorting results"
     return sort_ovrdrv_results(raw, title, title_tokens, author, author_tokens)
@@ -185,16 +187,23 @@ def sort_ovrdrv_results(raw, title=None, title_tokens=None, author=None, author_
                 else:
                     close_title_match = False
                     close_author_match = False
+                    print "format id is "+str(formatid)
                     for token in title_tokens:
+                        print "attempting to find "+str(token)+" title token"
                         if od_title.lower().find(token.lower()) != -1:
+                            print "matched token"
                             close_title_match = True
                         else:
+                            print "token didn't match"
                             close_title_match = False
                             break
                     for token in author_tokens:
+                        print "attempting to find "+str(token)+" author token"
                         if creators[0].lower().find(token.lower()) != -1:
+                            print "matched token"
                             close_author_match = True
                         else:
+                            print "token didn't match"
                             close_author_match = False
                             break
                     if close_title_match and close_author_match and int(formatid) in [1, 50, 410, 900]:
