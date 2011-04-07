@@ -7,6 +7,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+from threading import Thread, Event
+
 from PyQt4.Qt import (QStyledItemDelegate, QTextDocument, QRectF, QIcon, Qt,
         QStyle, QApplication, QDialog, QVBoxLayout, QLabel, QDialogButtonBox,
         QStackedWidget, QWidget, QTableView, QGridLayout, QFontInfo, QPalette)
@@ -14,6 +16,18 @@ from PyQt4.QtWebKit import QWebView
 
 from calibre.customize.ui import metadata_plugins
 from calibre.ebooks.metadata import authors_to_string
+from calibre.utils.logging import ThreadSafeLog, UnicodeHTMLStream
+from calibre.ebooks.metadata.sources.identify import identify
+
+class Log(ThreadSafeLog): # {{{
+
+    def __init__(self):
+        ThreadSafeLog.__init__(self, level=self.DEBUG)
+        self.outputs = [UnicodeHTMLStream()]
+
+    def clear(self):
+        self.outputs[0].clear()
+# }}}
 
 class RichTextDelegate(QStyledItemDelegate): # {{{
 
@@ -95,10 +109,35 @@ class Comments(QWebView): # {{{
         self.setHtml(templ%html)
 # }}}
 
+class IdentifyWorker(Thread):
+
+    def __init__(self, log, abort, title, authors, identifiers):
+        Thread.__init__(self)
+        self.daemon = True
+
+        self.log, self.abort = log, abort
+        self.title, self.authors, self.identifiers = (title, authors.
+                identifiers)
+
+        self.results = []
+        self.error = None
+
+    def run(self):
+        try:
+            self.results = identify(self.log, self.abort, title=self.title,
+                    authors=self.authors, identifiers=self.identifiers)
+            for i, result in enumerate(self.results):
+                result.gui_rank = i
+        except:
+            import traceback
+            self.error = traceback.format_exc()
+
 class IdentifyWidget(QWidget):
 
-    def __init__(self, parent=None):
+    def __init__(self, log, parent=None):
         QWidget.__init__(self, parent)
+        self.log = log
+        self.abort = Event()
 
         self.l = l = QGridLayout()
         self.setLayout(l)
@@ -123,7 +162,27 @@ class IdentifyWidget(QWidget):
         self.query.setWordWrap(True)
         l.addWidget(self.query, 2, 0, 1, 2)
 
+        self.comments_view.show_data('<h2>'+_('Downloading')+
+                '<br><span id="dots">.</span></h2>'+
+                '''
+                <script type="text/javascript">
+                window.onload=function(){
+                    var dotspan = document.getElementById('dots');
+                    window.setInterval(function(){
+                        if(dotspan.textContent == '............'){
+                        dotspan.textContent = '.';
+                        }
+                        else{
+                        dotspan.textContent += '.';
+                        }
+                    }, 400);
+                }
+                </script>
+                ''')
+
     def start(self, title=None, authors=None, identifiers={}):
+        self.log.clear()
+        self.log('Starting download')
         parts = []
         if title:
             parts.append('title:'+title)
@@ -133,28 +192,18 @@ class IdentifyWidget(QWidget):
             x = ', '.join('%s:%s'%(k, v) for k, v in identifiers)
             parts.append(x)
         self.query.setText(_('Query: ')+'; '.join(parts))
-        self.comments_view.show_data('<h2>'+_('Downloading, please wait')+
-                '<span id="dots">.</span></h2>'+
-                '''
-                <script type="text/javascript">
-                window.onload=function(){
-                    var dotspan = document.getElementById('dots');
-                    window.setInterval(function(){
-                        if(dotspan.textContent == '...'){
-                        dotspan.textContent = '.';
-                        }
-                        else{
-                        dotspan.textContent += '.';
-                        }
-                    }, 500);
-                }
-                </script>
-                ''')
+        self.log(unicode(self.query.text()))
+
+        self.worker = IdentifyWorker(self.log, self.abort, self.title,
+                self.authors, self.identifiers)
+
+        # self.worker.start()
 
 class FullFetch(QDialog): # {{{
 
-    def __init__(self, parent=None):
+    def __init__(self, log, parent=None):
         QDialog.__init__(self, parent)
+        self.log = log
 
         self.setWindowTitle(_('Downloading metadata...'))
         self.setWindowIcon(QIcon(I('metadata.png')))
@@ -168,7 +217,7 @@ class FullFetch(QDialog): # {{{
         l.addWidget(self.bb)
         self.bb.rejected.connect(self.reject)
 
-        self.identify_widget = IdentifyWidget(self)
+        self.identify_widget = IdentifyWidget(log, self)
         self.stack.addWidget(self.identify_widget)
         self.resize(850, 500)
 
@@ -184,6 +233,6 @@ class FullFetch(QDialog): # {{{
 
 if __name__ == '__main__':
     app = QApplication([])
-    d = FullFetch()
+    d = FullFetch(Log())
     d.start(title='great gatsby', authors=['Fitzgerald'])
 
