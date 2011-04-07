@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-04-01 19:21+0000\n"
-"PO-Revision-Date: 2011-04-03 13:17+0000\n"
+"PO-Revision-Date: 2011-04-06 09:49+0000\n"
 "Last-Translator: Sebastian Pućko <Unknown>\n"
 "Language-Team: Polish <pl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-04-04 04:46+0000\n"
-"X-Generator: Launchpad (build 12559)\n"
+"X-Launchpad-Export-Date: 2011-04-07 04:35+0000\n"
+"X-Generator: Launchpad (build 12735)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -1391,6 +1391,10 @@ msgid ""
 "device and its cards. This permits calibre to find books put on the device "
 "by other software and by wireless download."
 msgstr ""
+"Ustawienie tej opcji pozwoli Calibre na szukanie książek we wszystkich "
+"folderach na urządzeniu i jego karcie pamięci. Pozwala to Calibre znaleźć "
+"książki wprowadzone do urządzenia przez inne oprogramowanie oraz pobrane "
+"bezprzewodowo."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:190
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/structure.py:69
@@ -11368,7 +11372,7 @@ msgstr "Nieznany wyjątek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:111
 msgid "Title &sort:"
-msgstr "&Sortowanie według tytułu:"
+msgstr "Sortowanie według &tytułu:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:220
 msgid "Author s&ort:"

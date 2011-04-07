@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-04-01 19:21+0000\n"
-"PO-Revision-Date: 2011-03-11 21:15+0000\n"
-"Last-Translator: Merarom <Unknown>\n"
+"PO-Revision-Date: 2011-04-06 15:13+0000\n"
+"Last-Translator: Daniel Nylander <yeager@ubuntu.com>\n"
 "Language-Team: Swedish <sv@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-04-02 04:51+0000\n"
-"X-Generator: Launchpad (build 12559)\n"
+"X-Launchpad-Export-Date: 2011-04-07 04:35+0000\n"
+"X-Generator: Launchpad (build 12735)\n"
 "X-Poedit-Country: SWEDEN\n"
 "X-Poedit-Language: Swedish\n"
 
@@ -353,7 +353,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:868
 msgid "Searching"
-msgstr ""
+msgstr "Sökning"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:874
 msgid "Customize the way searching for books works in calibre"
@@ -784,11 +784,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:65
 msgid "Disable Apple driver"
-msgstr ""
+msgstr "Inaktivera Apple-drivrutin"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:69
 msgid "Enable Apple driver"
-msgstr ""
+msgstr "Aktivera Apple-drivrutin"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:117
 msgid "Use Series as Category in iTunes/iBooks"
@@ -1379,7 +1379,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:92
 msgid "Search for books in all folders"
-msgstr ""
+msgstr "Sök efter böcker i alla mappar"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:94
 msgid ""
@@ -2526,7 +2526,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/output.py:159
 msgid "for a complete list with descriptions."
-msgstr ""
+msgstr "för en komplett lista med beskrivningar."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:248
 msgid ""
@@ -3454,19 +3454,19 @@ msgstr "Laddar ner metadata från Amazon"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:287
 msgid "US"
-msgstr ""
+msgstr "USA"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:288
 msgid "France"
-msgstr ""
+msgstr "Frankrike"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:289
 msgid "Germany"
-msgstr ""
+msgstr "Tyskland"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:290
 msgid "UK"
-msgstr ""
+msgstr "Storbritannien"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:375
 msgid "Amazon timed out. Try again later."
@@ -3478,7 +3478,7 @@ msgstr "Metadatakälla"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/openlibrary.py:15
 msgid "Downloads metadata from The Open Library"
-msgstr ""
+msgstr "Hämtar metadata från The Open Library"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:22
 msgid "Modify images to meet Palm device size limitations."
@@ -5446,7 +5446,7 @@ msgstr "Visa specifikt format"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:38
 msgid "Read a random book"
-msgstr ""
+msgstr "Läs en slumpmässig bok"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:92
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:181
@@ -6475,7 +6475,7 @@ msgstr "Sektionerad:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_output_ui.py:46
 msgid "Genre"
-msgstr ""
+msgstr "Genre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:104
 msgid "Font rescaling wizard"
@@ -10681,19 +10681,19 @@ msgstr "Reguljärt uttryck (?P<isbn>)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:152
 msgid "Publisher:"
-msgstr ""
+msgstr "Utgivare:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:153
 msgid "Regular expression (?P<publisher>)"
-msgstr ""
+msgstr "Reguljärt uttryck (?P<publisher>)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:155
 msgid "Published:"
-msgstr ""
+msgstr "Publicerad:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:156
 msgid "Regular expression (?P<published>)"
-msgstr ""
+msgstr "Reguljärt uttryck (?P<published>)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:105
 msgid "Cover Browser"
@@ -11472,7 +11472,7 @@ msgstr "Hög"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:36
 msgid "Very low"
-msgstr ""
+msgstr "Mycket lågt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:164
 msgid "Confirmation dialogs have all been reset"
@@ -11667,7 +11667,7 @@ msgstr "Ändrat datum"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:66
 msgid "People's names"
-msgstr ""
+msgstr "Personers namn"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:71
 msgid "Number"
@@ -11708,7 +11708,7 @@ msgstr "Mitt betyg"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:150
 msgid "People"
-msgstr ""
+msgstr "Personer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:179
 msgid "No lookup name was provided"
@@ -11811,7 +11811,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:201
 msgid "Contains names"
-msgstr ""
+msgstr "Innehåller namn"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:202
 msgid ""
@@ -13323,7 +13323,7 @@ msgstr "Barn till %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:378
 msgid "Delete search %s"
-msgstr ""
+msgstr "Ta bort sökningen %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:383
 msgid "Remove %s from category %s"
@@ -14293,8 +14293,8 @@ msgid ""
 "<h2>Congratulations!</h2> You have successfully setup calibre. Press the %s "
 "button to apply your settings."
 msgstr ""
-"<h2>Grattis!</h2> Du har framgångsrikt installerat Calibre. Tryck på %s-"
-"knappen för att tillämpa inställningarna."
+"<h2>Gratulerar!</h2> Du har nu konfigurerat Calibre. Tryck på %s-knappen för "
+"att tillämpa dina inställningar."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/finish_ui.py:50
 msgid ""
@@ -14444,6 +14444,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:219
 msgid "Please enter a username and password or set encryption to None "
 msgstr ""
+"Ange ett användarnamn och lösenord eller ställ in kryptering till Ingen "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:224
 msgid ""
@@ -14567,7 +14568,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/stanza_ui.py:50
 msgid "Turn on the &content server"
-msgstr "Slå på och medieservern"
+msgstr "Aktivera &medieservern"
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:161
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:565

@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-04-01 19:21+0000\n"
-"PO-Revision-Date: 2011-01-31 19:51+0000\n"
-"Last-Translator: Santoso Wijaya <Unknown>\n"
+"PO-Revision-Date: 2011-04-06 16:58+0000\n"
+"Last-Translator: Aryo Sanjaya <Unknown>\n"
 "Language-Team: Indonesian <id@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-04-02 04:45+0000\n"
-"X-Generator: Launchpad (build 12559)\n"
+"X-Launchpad-Export-Date: 2011-04-07 04:34+0000\n"
+"X-Generator: Launchpad (build 12735)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -169,7 +169,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:46
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:54
 msgid "Unknown"
-msgstr "Tidak Dikenal"
+msgstr "Tidak Diketahui"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:77
 msgid "Base"
@@ -183,7 +183,7 @@ msgstr "Sesuaikan"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:42
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:47
 msgid "Cannot configure"
-msgstr ""
+msgstr "Tidak dapat mengkonfigurasi"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:318
 msgid "File type"
@@ -213,7 +213,7 @@ msgstr "Aksi Antar Muka"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:307
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:206
 msgid "Preferences"
-msgstr "Preferensi"
+msgstr "Pengaturan"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:18
 msgid ""
@@ -221,9 +221,9 @@ msgid ""
 "linked files. This plugin is run every time you add an HTML file to the "
 "library."
 msgstr ""
-"Ikuti semua link local di dalam file HTML dan membuat ZIP file yang berisi "
-"semua file yang ditunjuk oleh link-link tersebut. Plugin ini akan dijalankan "
-"setiap kali sebuah file HTML dimasukan di dalam library."
+"Ikuti semua link lokal dalam file HTML kemudian buat file ZIP berisi semua "
+"file yang terkait tersebut. Plugin ini dijalankan setiap kali anda "
+"menambahkan file HTML ke library."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:54
 msgid ""
