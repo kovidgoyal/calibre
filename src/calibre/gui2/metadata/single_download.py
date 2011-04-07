@@ -11,23 +11,16 @@ from threading import Thread, Event
 
 from PyQt4.Qt import (QStyledItemDelegate, QTextDocument, QRectF, QIcon, Qt,
         QStyle, QApplication, QDialog, QVBoxLayout, QLabel, QDialogButtonBox,
-        QStackedWidget, QWidget, QTableView, QGridLayout, QFontInfo, QPalette)
+        QStackedWidget, QWidget, QTableView, QGridLayout, QFontInfo, QPalette,
+        QTimer, pyqtSignal)
 from PyQt4.QtWebKit import QWebView
 
 from calibre.customize.ui import metadata_plugins
 from calibre.ebooks.metadata import authors_to_string
-from calibre.utils.logging import ThreadSafeLog, UnicodeHTMLStream
+from calibre.utils.logging import GUILog as Log
 from calibre.ebooks.metadata.sources.identify import identify
+from calibre.gui2 import error_dialog
 
-class Log(ThreadSafeLog): # {{{
-
-    def __init__(self):
-        ThreadSafeLog.__init__(self, level=self.DEBUG)
-        self.outputs = [UnicodeHTMLStream()]
-
-    def clear(self):
-        self.outputs[0].clear()
-# }}}
 
 class RichTextDelegate(QStyledItemDelegate): # {{{
 
@@ -56,10 +49,11 @@ class RichTextDelegate(QStyledItemDelegate): # {{{
         painter.restore()
 # }}}
 
-class ResultsView(QTableView):
+class ResultsView(QTableView): # {{{
 
     def __init__(self, parent=None):
         QTableView.__init__(self, parent)
+# }}}
 
 class Comments(QWebView): # {{{
 
@@ -109,7 +103,7 @@ class Comments(QWebView): # {{{
         self.setHtml(templ%html)
 # }}}
 
-class IdentifyWorker(Thread):
+class IdentifyWorker(Thread): # {{{
 
     def __init__(self, log, abort, title, authors, identifiers):
         Thread.__init__(self)
@@ -131,8 +125,11 @@ class IdentifyWorker(Thread):
         except:
             import traceback
             self.error = traceback.format_exc()
+# }}}
 
-class IdentifyWidget(QWidget):
+class IdentifyWidget(QWidget): # {{{
+
+    rejected = pyqtSignal()
 
     def __init__(self, log, parent=None):
         QWidget.__init__(self, parent)
@@ -199,6 +196,40 @@ class IdentifyWidget(QWidget):
 
         # self.worker.start()
 
+        QTimer.singleShot(50, self.update)
+
+    def update(self):
+        if self.worker.is_alive():
+            QTimer.singleShot(50, self.update)
+            return
+        self.process_results()
+
+    def process_results(self):
+        if self.worker.error is not None:
+            error_dialog(self, _('Download failed'),
+                    _('Failed to download metadata. Click '
+                        'Show Details to see details'),
+                    show=True, det_msg=self.wroker.error)
+            self.rejected.emit()
+            return
+
+        if not self.worker.results:
+            log = ''.join(self.log.plain_text)
+            error_dialog(self, _('No matches found'), '<p>' +
+                    _('Failed to find any books that '
+                        'match your search. Try making the search <b>less '
+                        'specific</b>. For example, use only the author\'s '
+                        'last name and a single distinctive word from '
+                        'the title.<p>To see the full log, click Show Details.'),
+                    show=True, det_msg=log)
+            self.rejected.emit()
+            return
+
+
+    def cancel(self):
+        self.abort.set()
+# }}}
+
 class FullFetch(QDialog): # {{{
 
     def __init__(self, log, parent=None):
@@ -218,12 +249,17 @@ class FullFetch(QDialog): # {{{
         self.bb.rejected.connect(self.reject)
 
         self.identify_widget = IdentifyWidget(log, self)
+        self.identify_widget.rejected.connect(self.reject)
         self.stack.addWidget(self.identify_widget)
         self.resize(850, 500)
 
     def accept(self):
         # Prevent pressing Enter from closing the dialog
         pass
+
+    def reject(self):
+        self.identify_widget.cancel()
+        return QDialog.reject(self)
 
     def start(self, title=None, authors=None, identifiers={}):
         self.identify_widget.start(title=title, authors=authors,

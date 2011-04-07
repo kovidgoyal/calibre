@@ -253,10 +253,10 @@ def identify(log, abort, # {{{
     plugins = [p for p in metadata_plugins(['identify']) if p.is_configured()]
 
     kwargs = {
-            'title': title,
-            'authors': authors,
-            'identifiers': identifiers,
-            'timeout': timeout,
+        'title': title,
+        'authors': authors,
+        'identifiers': identifiers,
+        'timeout': timeout,
     }
 
     log('Running identify query with parameters:')
