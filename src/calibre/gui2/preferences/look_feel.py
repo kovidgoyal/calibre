@@ -49,8 +49,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('use_roman_numerals_for_series_number', config)
         r('separate_cover_flow', config, restart_required=True)
 
-        choices = [(_('Small'), 'small'), (_('Medium'), 'medium'),
-            (_('Large'), 'large')]
+        choices = [(_('Off'), 'off'), (_('Small'), 'small'),
+            (_('Medium'), 'medium'), (_('Large'), 'large')]
         r('toolbar_icon_size', gprefs, choices=choices)
 
         choices = [(_('Automatic'), 'auto'), (_('Always'), 'always'),
