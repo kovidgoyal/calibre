@@ -217,6 +217,10 @@ class ISBNMerge(object):
         for r in results:
             ans.identifiers.update(r.identifiers)
 
+        # Cover URL
+        ans.has_cached_cover_url = bool([r for r in results if
+            getattr(r, 'has_cached_cover_url', False)])
+
         # Merge any other fields with no special handling (random merge)
         touched_fields = set()
         for r in results:

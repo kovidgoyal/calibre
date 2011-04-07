@@ -12,14 +12,16 @@ from threading import Thread, Event
 from PyQt4.Qt import (QStyledItemDelegate, QTextDocument, QRectF, QIcon, Qt,
         QStyle, QApplication, QDialog, QVBoxLayout, QLabel, QDialogButtonBox,
         QStackedWidget, QWidget, QTableView, QGridLayout, QFontInfo, QPalette,
-        QTimer, pyqtSignal)
+        QTimer, pyqtSignal, QAbstractTableModel, QVariant, QSize)
 from PyQt4.QtWebKit import QWebView
 
 from calibre.customize.ui import metadata_plugins
 from calibre.ebooks.metadata import authors_to_string
 from calibre.utils.logging import GUILog as Log
 from calibre.ebooks.metadata.sources.identify import identify
-from calibre.gui2 import error_dialog
+from calibre.ebooks.metadata.book.base import Metadata
+from calibre.gui2 import error_dialog, NONE
+from calibre.utils.date import utcnow, fromordinal, format_date
 
 
 class RichTextDelegate(QStyledItemDelegate): # {{{
@@ -49,10 +51,85 @@ class RichTextDelegate(QStyledItemDelegate): # {{{
         painter.restore()
 # }}}
 
+class ResultsModel(QAbstractTableModel):
+
+    COLUMNS = (
+            '#', _('Title'), _('Published'), _('Has cover'), _('Has summary')
+            )
+    HTML_COLS = (1, 2)
+    ICON_COLS = (3, 4)
+
+    def __init__(self, results, parent=None):
+        QAbstractTableModel.__init__(self, parent)
+        self.results = results
+        self.yes_icon = QVariant(QIcon(I('ok.png')))
+
+    def rowCount(self, parent=None):
+        return len(self.results)
+
+    def columnCount(self, parent=None):
+        return len(self.COLUMNS)
+
+    def headerData(self, section, orientation, role):
+        if role != Qt.DisplayRole:
+            return NONE
+        if orientation == Qt.Horizontal:
+            try:
+                return QVariant(self.COLUMNS[section])
+            except:
+                return NONE
+        else:
+            return QVariant(unicode(section+1))
+
+    def data_as_text(self, book, col):
+        if col == 0:
+            return unicode(book.gui_rank+1)
+        if col == 1:
+            t = book.title if book.title else _('Unknown')
+            a = authors_to_string(book.authors) if book.authors else ''
+            return '<b>%s</b><br><i>%s</i>' % (t, a)
+        if col == 2:
+            d = format_date(book.pubdate, 'yyyy') if book.pubdate else _('Unknown')
+            p = book.publisher if book.publisher else ''
+            return '<b>%s</b><br><i>%s</i>' % (d, p)
+
+
+    def data(self, index, role):
+        row, col = index.row(), index.column()
+        try:
+            book = self.results[row]
+        except:
+            return NONE
+        if role == Qt.DisplayRole and col not in self.ICON_COLS:
+            res = self.data_as_text(book, col)
+            if res:
+                return QVariant(res)
+            return NONE
+        elif role == Qt.DecorationRole and col in self.ICON_COLS:
+            if col == 3 and getattr(book, 'has_cached_cover_url', False):
+                return self.yes_icon
+            if col == 4 and book.comments:
+                return self.yes_icon
+        return NONE
+
 class ResultsView(QTableView): # {{{
 
     def __init__(self, parent=None):
         QTableView.__init__(self, parent)
+        self.rt_delegate = RichTextDelegate(self)
+        self.setSelectionMode(self.SingleSelection)
+        self.setAlternatingRowColors(True)
+        self.setSelectionBehavior(self.SelectRows)
+        self.setIconSize(QSize(24, 24))
+
+    def show_results(self, results):
+        self._model = ResultsModel(results, self)
+        self.setModel(self._model)
+        for i in self._model.HTML_COLS:
+            self.setItemDelegateForColumn(i, self.rt_delegate)
+        self.resizeRowsToContents()
+        self.resizeColumnsToContents()
+
 # }}}
 
 class Comments(QWebView): # {{{
@@ -60,8 +137,8 @@ class Comments(QWebView): # {{{
     def __init__(self, parent=None):
         QWebView.__init__(self, parent)
         self.setAcceptDrops(False)
-        self.setMaximumWidth(270)
-        self.setMinimumWidth(270)
+        self.setMaximumWidth(300)
+        self.setMinimumWidth(300)
 
         palette = self.palette()
         palette.setBrush(QPalette.Base, Qt.transparent)
@@ -116,10 +193,30 @@ class IdentifyWorker(Thread): # {{{
         self.results = []
         self.error = None
 
+    def sample_results(self):
+        m1 = Metadata('The Great Gatsby', ['Francis Scott Fitzgerald'])
+        m2 = Metadata('The Great Gatsby', ['F. Scott Fitzgerald'])
+        m1.has_cached_cover_url = True
+        m2.has_cached_cover_url = False
+        m1.comments  = 'Some comments '*10
+        m1.tags = ['tag%d'%i for i in range(20)]
+        m1.rating = 4.4
+        m1.language = 'en'
+        m2.language = 'fr'
+        m1.pubdate = utcnow()
+        m2.pubdate = fromordinal(1000000)
+        m1.publisher = 'Publisher 1'
+        m2.publisher = 'Publisher 2'
+
+        return [m1, m2]
+
     def run(self):
         try:
-            self.results = identify(self.log, self.abort, title=self.title,
-                    authors=self.authors, identifiers=self.identifiers)
+            if True:
+                self.results = self.sample_results()
+            else:
+                self.results = identify(self.log, self.abort, title=self.title,
+                        authors=self.authors, identifiers=self.identifiers)
             for i, result in enumerate(self.results):
                 result.gui_rank = i
         except:
@@ -194,22 +291,22 @@ class IdentifyWidget(QWidget): # {{{
         self.worker = IdentifyWorker(self.log, self.abort, title,
                 authors, identifiers)
 
-        # self.worker.start()
+        self.worker.start()
 
         QTimer.singleShot(50, self.update)
 
     def update(self):
         if self.worker.is_alive():
             QTimer.singleShot(50, self.update)
-            return
-        self.process_results()
+        else:
+            self.process_results()
 
     def process_results(self):
         if self.worker.error is not None:
             error_dialog(self, _('Download failed'),
                     _('Failed to download metadata. Click '
                         'Show Details to see details'),
-                    show=True, det_msg=self.wroker.error)
+                    show=True, det_msg=self.worker.error)
             self.rejected.emit()
             return
 
@@ -224,6 +321,8 @@ class IdentifyWidget(QWidget): # {{{
                     show=True, det_msg=log)
             self.rejected.emit()
             return
+
+        self.results_view.show_results(self.worker.results)
 
 
     def cancel(self):
