@@ -28,7 +28,7 @@ class Guardian(BasicNewsRecipe):
     # List of section titles to ignore
     # For example: ['Sport']
     ignore_sections = []
-
+    
     timefmt = ' [%a, %d %b %Y]'
     keep_only_tags = [
                       dict(name='div', attrs={'id':["content","article_header","main-article-info",]}),
@@ -87,8 +87,14 @@ class Guardian(BasicNewsRecipe):
         idx = soup.find('div', id='book-index')
         for s in idx.findAll('strong', attrs={'class':'book'}):
             a = s.find('a', href=True)
-            yield (self.tag_to_string(a), a['href'])
-
+            section_title = self.tag_to_string(a)
+            if not section_title in self.ignore_sections:
+                prefix = ''
+                if section_title != 'Main section':
+                    prefix = section_title + ': '
+                for subsection in s.parent.findAll('a', attrs={'class':'book-section'}):
+                    yield (prefix + self.tag_to_string(subsection), subsection['href'])
+    
     def find_articles(self, url):
         soup = self.index_to_soup(url)
         div = soup.find('div', attrs={'class':'book-index'})
@@ -109,15 +115,12 @@ class Guardian(BasicNewsRecipe):
                         'title': title, 'url':url, 'description':desc,
                         'date' : strftime('%a, %d %b'),
                         }
-
+    
     def parse_index(self):
         try:
             feeds = []
             for title, href in self.find_sections():
-                if not title in self.ignore_sections:
-                    feeds.append((title, list(self.find_articles(href))))
+                feeds.append((title, list(self.find_articles(href))))
             return feeds
         except:
             raise NotImplementedError
-
-
