@@ -217,6 +217,10 @@ class ISBNMerge(object):
         for r in results:
             ans.identifiers.update(r.identifiers)
 
+        # Cover URL
+        ans.has_cached_cover_url = bool([r for r in results if
+            getattr(r, 'has_cached_cover_url', False)])
+
         # Merge any other fields with no special handling (random merge)
         touched_fields = set()
         for r in results:
@@ -250,13 +254,13 @@ def merge_identify_results(result_map, log):
 def identify(log, abort, # {{{
         title=None, authors=None, identifiers={}, timeout=30):
     start_time = time.time()
-    plugins = list(metadata_plugins(['identify']))
+    plugins = [p for p in metadata_plugins(['identify']) if p.is_configured()]
 
     kwargs = {
-            'title': title,
-            'authors': authors,
-            'identifiers': identifiers,
-            'timeout': timeout,
+        'title': title,
+        'authors': authors,
+        'identifiers': identifiers,
+        'timeout': timeout,
     }
 
     log('Running identify query with parameters:')
