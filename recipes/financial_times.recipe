@@ -11,7 +11,8 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class FinancialTimes(BasicNewsRecipe):
     title                 = u'Financial Times'
     __author__            = 'Darko Miletic and Sujata Raman'
-    description           = 'Financial world news'
+    description           = ('Financial world news. Available after 5AM '
+                                'GMT, daily.')
     oldest_article        = 2
     language = 'en'
 
