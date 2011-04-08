@@ -7,9 +7,9 @@ __docformat__ = 'restructuredtext en'
 
 from functools import partial
 
-from PyQt4.Qt import QIcon, Qt, QWidget, QToolBar, QSize, \
-    pyqtSignal, QToolButton, QMenu, \
-    QObject, QVBoxLayout, QSizePolicy, QLabel, QHBoxLayout, QActionGroup
+from PyQt4.Qt import (QIcon, Qt, QWidget, QToolBar, QSize,
+    pyqtSignal, QToolButton, QMenu,
+    QObject, QVBoxLayout, QSizePolicy, QLabel, QHBoxLayout, QActionGroup)
 
 
 from calibre.constants import __appname__
@@ -264,11 +264,11 @@ class ToolBar(QToolBar): # {{{
 
     def apply_settings(self):
         sz = gprefs['toolbar_icon_size']
-        sz = {'small':24, 'medium':48, 'large':64}[sz]
+        sz = {'off':0, 'small':24, 'medium':48, 'large':64}[sz]
         self.setIconSize(QSize(sz, sz))
         self.child_bar.setIconSize(QSize(sz, sz))
         style = Qt.ToolButtonTextUnderIcon
-        if gprefs['toolbar_text'] == 'never':
+        if sz > 0 and gprefs['toolbar_text'] == 'never':
             style = Qt.ToolButtonIconOnly
         self.setToolButtonStyle(style)
         self.child_bar.setToolButtonStyle(style)

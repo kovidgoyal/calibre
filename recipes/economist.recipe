@@ -18,7 +18,8 @@ class Economist(BasicNewsRecipe):
 
     __author__ = "Kovid Goyal"
     INDEX = 'http://www.economist.com/printedition'
-    description = 'Global news and current affairs from a European perspective.'
+    description = ('Global news and current affairs from a European'
+            ' perspective. Best downloaded on Friday mornings (GMT)')
 
     oldest_article = 7.0
     cover_url = 'http://www.economist.com/images/covers/currentcoverus_large.jpg'
