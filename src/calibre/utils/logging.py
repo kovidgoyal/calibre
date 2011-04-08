@@ -108,10 +108,13 @@ class UnicodeHTMLStream(HTMLStream):
             elif not isinstance(arg, unicode):
                 arg = as_unicode(arg)
             self.data.append(arg+sep)
+            self.plain_text.append(arg+sep)
         self.data.append(end)
+        self.plain_text.append(end)
 
     def clear(self):
         self.data = []
+        self.plain_text = []
         self.last_col = self.color[INFO]
 
     @property
@@ -161,5 +164,26 @@ class ThreadSafeLog(Log):
     def prints(self, *args, **kwargs):
         with self._lock:
             Log.prints(self, *args, **kwargs)
+
+class GUILog(ThreadSafeLog):
+
+    '''
+    Logs in HTML and plain text as unicode. Ideal for display in a GUI context.
+    '''
+
+    def __init__(self):
+        ThreadSafeLog.__init__(self, level=self.DEBUG)
+        self.outputs = [UnicodeHTMLStream()]
+
+    def clear(self):
+        self.outputs[0].clear()
+
+    @property
+    def html(self):
+        return self.outputs[0].html
+
+    @property
+    def plain_text(self):
+        return u''.join(self.outputs[0].plain_text)
 
 default_log = Log()

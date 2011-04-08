@@ -141,15 +141,18 @@ class EditMetadataAction(InterfaceAction):
                 list(range(self.gui.library_view.model().rowCount(QModelIndex())))
             current_row = row_list.index(cr)
 
-        if test_eight_code:
-            changed = self.do_edit_metadata(row_list, current_row)
-        else:
-            changed = self.do_edit_metadata_old(row_list, current_row)
+        func = (self.do_edit_metadata if test_eight_code else
+                    self.do_edit_metadata_old)
+        changed, rows_to_refresh = func(row_list, current_row)
+
+        m = self.gui.library_view.model()
+
+        if rows_to_refresh:
+            m.refresh_rows(rows_to_refresh)
 
         if changed:
-            self.gui.library_view.model().refresh_ids(list(changed))
+            m.refresh_ids(list(changed))
             current = self.gui.library_view.currentIndex()
-            m = self.gui.library_view.model()
             if self.gui.cover_flow:
                 self.gui.cover_flow.dataChanged()
             m.current_changed(current, previous)
@@ -183,6 +186,7 @@ class EditMetadataAction(InterfaceAction):
             current_row += d.row_delta
             self.gui.library_view.set_current_row(current_row)
             self.gui.library_view.scroll_to_row(current_row)
+        return changed, set()
 
     def do_edit_metadata(self, row_list, current_row):
         from calibre.gui2.metadata.single import edit_metadata
@@ -190,7 +194,7 @@ class EditMetadataAction(InterfaceAction):
         changed, rows_to_refresh = edit_metadata(db, row_list, current_row,
                 parent=self.gui, view_slot=self.view_format_callback,
                 set_current_callback=self.set_current_callback)
-        return changed
+        return changed, rows_to_refresh
 
     def set_current_callback(self, id_):
         db = self.gui.library_view.model().db
