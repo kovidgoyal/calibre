@@ -11,7 +11,7 @@ from lxml import etree
 
 from calibre.customize.conversion import OutputFormatPlugin, \
     OptionRecommendation
-from calibre.ebooks.oeb.base import OEB_IMAGES 
+from calibre.ebooks.oeb.base import OEB_IMAGES
 from calibre.ebooks.txt.txtml import TXTMLizer
 from calibre.ebooks.txt.newlines import TxtNewlines, specified_newlines
 from calibre.ptempfile import TemporaryDirectory, TemporaryFile

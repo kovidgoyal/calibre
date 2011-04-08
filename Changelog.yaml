@@ -19,18 +19,77 @@
 #  new recipes:
 #    - title: 
 
+
+- version: 0.7.54
+  date: 2011-04-08
+
+  new features:
+    - title: "New output format, HTMLZ which is a single HTML file with its associated images/stylesheets in a zipped up file"
+      description: "Useful when you want to convert your ebook into a single HTML file for easy editing. Note that this output plugin is still new and needs testing"
+
+    - title: "When dealing with ZIP/RAR archives, use the file header rather than the file extension to detrmine the file type, when possible. This fixes the common case of CBZ files being actually cbr files and vice versa"
+
+    - title: "Support for the Motorola Atrix"
+
+    - title: "Allow the icons in the toolbar to be turned off completely via Preferences->Look & Feel"
+
+    - title: "When downloading metadata use the gzip transfer encoding when possible for a speedup."
+      tickets: [749304]
+  
+  bug fixes:
+    - title: "Conversion pipeline: Workaround for bug in lxml that causes a massive mem leak on windows and OS X when the input document contains non ASCII CSS selectors."
+      tickets: [754555]
+
+    - title: "Conversion pipeline: Handle inline <style> tags that put all the actual CSS inside an XML comment."
+      tickets: [750063]
+
+    - title: "The 'Choose Library' button now shows its popup menu when you already have more than one library instead of the dialog to create a new library"
+      tickets: [754154]
+
+    - title: "Apply all content server setting when clicking the Start Server button in Preferences->Sharing over the net"
+      tickets: [753122]
+
+    - title: "Fix content server breaking if its restriction is set to a saved search that was deleted"
+      tickets: [751950]
+
+    - title: "Fix detection of PocketBook with 2.0.6 firmware on windows"
+      tickets: [750336]
+
+    - title: "ODT Input: Fix handling of the <text:s> element."
+      tickets: [749655]
+
+    - title: "MOBI Output: Don't use self closed tags"
+
+    - title: "Fix book details popup becoming too tall if there is a lot of metadata"
+
+    - title: "Fix new PDF engine crashing on PDF files with embedded fonts with null names"
+
+  improved recipes:
+    - Kommersant
+    - Perfil
+    - Times of India
+    - IHT
+    - Guardian
+
+  new recipes:
+    - title: "Al Ahram"
+      authors: Hassan Williamson
+
+    - title: "F-Secure and developpez.com"
+      authors: louhike
+
 - version: 0.7.53
   date: 2011-04-01
 
   new features:
-    - title: "Email delivery: You can now specify a subject that calibre will use when sending emails per email account, configured in Preferences->Sending by email. The subject is a template of the same kind used in Save to Disk, etc. So youcan specift the title/authors/series/whatever in the template."
+    - title: "Email delivery: You can now specify a subject that calibre will use when sending emails per email account, configured in Preferences->Sending by email. The subject is a template of the same kind used in Save to Disk, etc. So you can specift the title/authors/series/whatever in the template."
       tickets: [743535]
 
     - title: "Apple driver: When an iDevice is detected, inform the user about the Connect to iTunes method instead of trying to connect directly to the device, as the latter can be buggy. See http://www.mobileread.com/forums/showthread.php?t=127883 for details"
 
     - title: "SONY driver: Search for books on the device in all directories not just database/media/books. This can be turned off by customizing the SONY plugin in Preferences->Plugins"
 
-    - title: "EPUB Output: Remove any margins specified via an Adobe page template in the input document. This means that the margins psecified in calibre are more likely to be the actual margins used."
+    - title: "EPUB Output: Remove any margins specified via an Adobe page template in the input document. This means that the margins specified in calibre are more likely to be the actual margins used."
 
     - title: "When reading metadata from filenames, allow publisher and published date to be read from the filename"
       tickets: [744020]
@@ -49,6 +108,8 @@
 
     - title: "FB2 Output: Option to set the FB2 genre explicitly."
       tickets: [743178]
+
+    - title: "Plugin developers: calibre now has a new plugin API, see http://calibre-ebook.com/user_manual/creating_plugins.html. Your existing plugins should continue to work, but it would be good to test them to make sure."
   
   bug fixes:
     - title: "Fix text color in the search bar set to black instead of the system font color"

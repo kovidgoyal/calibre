@@ -471,8 +471,8 @@ class KoboReaderOutput(OutputProfile):
 
     description = _('This profile is intended for the Kobo Reader.')
 
-    screen_size               = (540, 718)
-    comic_screen_size         = (540, 718)
+    screen_size               = (536, 710)
+    comic_screen_size         = (536, 710)
     dpi                       = 168.451
     fbase                     = 12
     fsizes                    = [7.5, 9, 10, 12, 15.5, 20, 22, 24]

@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 import os, shutil
 from functools import partial
 
-from PyQt4.Qt import QMenu, Qt, QInputDialog
+from PyQt4.Qt import QMenu, Qt, QInputDialog, QToolButton
 
 from calibre import isbytestring
 from calibre.constants import filesystem_encoding
@@ -88,6 +88,9 @@ class ChooseLibraryAction(InterfaceAction):
                 type=Qt.QueuedConnection)
 
         self.stats = LibraryUsageStats()
+        self.popup_type = (QToolButton.InstantPopup if len(self.stats.stats) > 1 else
+                QToolButton.MenuButtonPopup)
+
         self.create_action(spec=(_('Switch/create library...'), 'lt.png', None,
             None), attr='action_choose')
         self.action_choose.triggered.connect(self.choose_library,
@@ -122,6 +125,7 @@ class ChooseLibraryAction(InterfaceAction):
             ac.triggered.connect(partial(self.qs_requested, i),
                     type=Qt.QueuedConnection)
             self.choose_menu.addAction(ac)
+
 
         self.rename_separator = self.choose_menu.addSeparator()
 
@@ -172,6 +176,7 @@ class ChooseLibraryAction(InterfaceAction):
             return
         db = self.gui.library_view.model().db
         locations = list(self.stats.locations(db))
+
         for ac in self.switch_actions:
             ac.setVisible(False)
         self.quick_menu.clear()

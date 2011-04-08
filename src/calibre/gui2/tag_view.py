@@ -985,6 +985,7 @@ class TagsModel(QAbstractItemModel): # {{{
     def do_drop_from_library(self, md, action, row, column, parent):
         idx = parent
         if idx.isValid():
+            self.tags_view.setCurrentIndex(idx)
             node = self.data(idx, Qt.UserRole)
             if node.type == TagTreeItem.TAG:
                 fm = self.db.metadata_for_field(node.tag.category)

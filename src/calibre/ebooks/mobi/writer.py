@@ -282,8 +282,8 @@ class Serializer(object):
                 buffer.write('="')
                 self.serialize_text(val, quot=True)
                 buffer.write('"')
+        buffer.write('>')
         if elem.text or len(elem) > 0:
-            buffer.write('>')
             if elem.text:
                 self.anchor_offset = None
                 self.serialize_text(elem.text)
@@ -292,9 +292,7 @@ class Serializer(object):
                 if child.tail:
                     self.anchor_offset = None
                     self.serialize_text(child.tail)
-            buffer.write('</%s>' % tag)
-        else:
-            buffer.write('/>')
+        buffer.write('</%s>' % tag)
 
     def serialize_text(self, text, quot=False):
         text = text.replace('&', '&amp;')
