@@ -38,7 +38,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             r = self.register
             choices = [(_('Default'), 'default'), (_('Compact Metadata'), 'alt1')]
             r('edit_metadata_single_layout', db.prefs, choices=choices)
-            r('bools_are_tristate', db.prefs)
+            r('bools_are_tristate', db.prefs, restart_required=True)
         else:
             self.items_in_v_eight.setVisible(False)
 
@@ -177,6 +177,10 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 if '*must_restart' in self.custcols[c]:
                     must_restart = True
         return must_restart
+
+    def refresh_gui(self, gui):
+        gui.library_view.reset()
+
 
 
 if __name__ == '__main__':
