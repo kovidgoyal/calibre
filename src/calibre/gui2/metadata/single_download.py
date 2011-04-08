@@ -71,15 +71,12 @@ class ResultsModel(QAbstractTableModel):
         return len(self.COLUMNS)
 
     def headerData(self, section, orientation, role):
-        if role != Qt.DisplayRole:
-            return NONE
-        if orientation == Qt.Horizontal:
+        if orientation == Qt.Horizontal and role == Qt.DisplayRole:
             try:
                 return QVariant(self.COLUMNS[section])
             except:
                 return NONE
-        else:
-            return QVariant(unicode(section+1))
+        return NONE
 
     def data_as_text(self, book, col):
         if col == 0:
@@ -323,6 +320,11 @@ class IdentifyWidget(QWidget): # {{{
             return
 
         self.results_view.show_results(self.worker.results)
+
+        self.comments_view.show_data('''
+            <div style="margin-bottom:2ex">Found <b>%d</b> results</div>
+            <div>To see <b>details</b>, click on any result</div>''' %
+                len(self.worker.results))
 
 
     def cancel(self):
