@@ -637,7 +637,7 @@ else:
     from calibre.ebooks.metadata.covers import OpenLibraryCovers, \
             AmazonCovers, DoubanCovers, OverdriveCovers
 
-    plugins += [GoogleBooks, ISBNDB, Amazon,
+    plugins += [GoogleBooks, ISBNDB, Amazon, Overdrive,
         OpenLibraryCovers, AmazonCovers, DoubanCovers, OverdriveCovers,
         NiceBooksCovers, KentDistrictLibrary, DoubanBooks, NiceBooks]
 
