@@ -13,6 +13,7 @@ from calibre.gui2.preferences import ConfigWidgetBase, test_widget
 from calibre.gui2.preferences.columns_ui import Ui_Form
 from calibre.gui2.preferences.create_custom_column import CreateCustomColumn
 from calibre.gui2 import error_dialog, question_dialog, ALL_COLUMNS
+from calibre.utils.config import test_eight_code
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
@@ -32,6 +33,14 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         for signal in ('Activated', 'Changed', 'DoubleClicked', 'Clicked'):
             signal = getattr(self.opt_columns, 'item'+signal)
             signal.connect(self.columns_changed)
+
+        if test_eight_code:
+            r = self.register
+            choices = [(_('Default'), 'default'), (_('Compact Metadata'), 'alt1')]
+            r('edit_metadata_single_layout', db.prefs, choices=choices)
+            r('bools_are_tristate', db.prefs)
+        else:
+            self.items_in_v_eight.setVisible(False)
 
     def initialize(self):
         ConfigWidgetBase.initialize(self)

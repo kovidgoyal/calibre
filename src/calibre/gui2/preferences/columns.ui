@@ -197,6 +197,67 @@
      </property>
     </widget>
    </item>
+   <item row="1" column="2">
+    <layout class="QVBoxLayout">
+     <item>
+      <widget class="QGroupBox" name="items_in_v_eight">
+       <property name="title">
+        <string>Related Options</string>
+       </property>
+       <layout class="QGridLayout" name="gridLayout">
+        <item row="0" column="0">
+         <widget class="QLabel">
+          <property name="text">
+           <string>Edit metadata layout:</string>
+          </property>
+          <property name="buddy">
+           <cstring>opt_edit_metadata_single_layout</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QComboBox" name="opt_edit_metadata_single_layout">
+          <property name="toolTip">
+           <string>Choose varying layouts in the Edit Metadata Single dialog.</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel">
+          <property name="text">
+           <string>Boolean columns are tristate:</string>
+          </property>
+          <property name="buddy">
+           <cstring>opt_bools_are_tristate</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+        <widget class="QCheckBox" name="opt_bools_are_tristate">
+          <property name="toolTip">
+           <string>If checked, boolean columns values can be Yes, No, and Unknown.
+If not checked, the values can be Yes and No.</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <spacer name="verticalSpacer_5">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>40</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
   </layout>
  </widget>
  <resources>

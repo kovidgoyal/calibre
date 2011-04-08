@@ -213,6 +213,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         defs = self.prefs.defaults
         defs['gui_restriction'] = defs['cs_restriction'] = ''
         defs['categories_using_hierarchy'] = []
+        defs['edit_metadata_single_layout'] = 'default'
+        defs['bools_are_tristate'] = tweaks['bool_custom_columns_are_tristate']
 
         # Migrate saved search and user categories to db preference scheme
         def migrate_preference(key, default):
