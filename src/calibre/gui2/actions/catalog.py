@@ -18,7 +18,7 @@ class GenerateCatalogAction(InterfaceAction):
 
     name = 'Generate Catalog'
     action_spec = (_('Create a catalog of the books in your calibre library'), None, None, None)
-    dont_add_to = frozenset(['toolbar-device', 'context-menu-device'])
+    dont_add_to = frozenset(['menubar-device', 'toolbar-device', 'context-menu-device'])
 
     def generate_catalog(self):
         rows = self.gui.library_view.selectionModel().selectedRows()

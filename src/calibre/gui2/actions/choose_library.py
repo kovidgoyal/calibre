@@ -80,7 +80,7 @@ class ChooseLibraryAction(InterfaceAction):
     name = 'Choose Library'
     action_spec = (_('%d books'), 'lt.png',
             _('Choose calibre library to work with'), None)
-    dont_add_to = frozenset(['toolbar-device', 'context-menu-device'])
+    dont_add_to = frozenset(['menubar-device', 'toolbar-device', 'context-menu-device'])
 
     def genesis(self):
         self.count_changed(0)
@@ -209,7 +209,6 @@ class ChooseLibraryAction(InterfaceAction):
         self.gui.location_manager.set_switch_actions(quick_actions,
                 rename_actions, delete_actions, qs_actions,
                 self.action_choose)
-
 
     def location_selected(self, loc):
         enabled = loc == 'library'

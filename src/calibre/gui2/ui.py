@@ -153,6 +153,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
 
         for ac in self.iactions.values():
             ac.do_genesis()
+        self.donate_action = QAction(QIcon(I('donate.png')), _('&Donate to support calibre'), self)
         MainWindowMixin.__init__(self, db)
 
         # Jobs Button {{{
@@ -186,8 +187,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         self.system_tray_menu = QMenu(self)
         self.restore_action = self.system_tray_menu.addAction(
                 QIcon(I('page.png')), _('&Restore'))
-        self.donate_action  = self.system_tray_menu.addAction(
-                QIcon(I('donate.png')), _('&Donate to support calibre'))
+        self.system_tray_menu.addAction(self.donate_action)
         self.donate_button.setDefaultAction(self.donate_action)
         self.donate_button.setStatusTip(self.donate_button.toolTip())
         self.eject_action = self.system_tray_menu.addAction(
