@@ -145,7 +145,6 @@ class InterfaceAction(QObject):
                     ans[candidate] = zf.read(candidate)
         return ans
 
-
     def genesis(self):
         '''
         Setup this plugin. Only called once during initialization. self.gui is

@@ -7,9 +7,9 @@ __docformat__ = 'restructuredtext en'
 
 from functools import partial
 
-from PyQt4.Qt import QIcon, Qt, QWidget, QToolBar, QSize, \
-    pyqtSignal, QToolButton, QMenu, \
-    QObject, QVBoxLayout, QSizePolicy, QLabel, QHBoxLayout, QActionGroup
+from PyQt4.Qt import (QIcon, Qt, QWidget, QToolBar, QSize,
+    pyqtSignal, QToolButton, QMenu,
+    QObject, QVBoxLayout, QSizePolicy, QLabel, QHBoxLayout, QActionGroup)
 
 
 from calibre.constants import __appname__
