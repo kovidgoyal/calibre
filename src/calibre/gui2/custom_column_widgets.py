@@ -62,7 +62,7 @@ class Bool(Base):
         w = self.widgets[1]
         items = [_('Yes'), _('No'), _('Undefined')]
         icons = [I('ok.png'), I('list_remove.png'), I('blank.png')]
-        if tweaks['bool_custom_columns_are_tristate'] == 'no':
+        if not self.db.prefs.get('bools_are_tristate'):
             items = items[:-1]
             icons = icons[:-1]
         for icon, text in zip(icons, items):
@@ -70,7 +70,7 @@ class Bool(Base):
 
     def setter(self, val):
         val = {None: 2, False: 1, True: 0}[val]
-        if tweaks['bool_custom_columns_are_tristate'] == 'no' and val == 2:
+        if not self.db.prefs.get('bools_are_tristate') and val == 2:
             val = 1
         self.widgets[1].setCurrentIndex(val)
 
@@ -549,7 +549,7 @@ class BulkBool(BulkBase, Bool):
         value = None
         for book_id in book_ids:
             val = self.db.get_custom(book_id, num=self.col_id, index_is_id=True)
-            if tweaks['bool_custom_columns_are_tristate'] == 'no' and val is None:
+            if not self.db.prefs.get('bools_are_tristate') and val is None:
                 val = False
             if value is not None and value != val:
                 return None
@@ -559,7 +559,7 @@ class BulkBool(BulkBase, Bool):
     def setup_ui(self, parent):
         self.make_widgets(parent, QComboBox)
         items = [_('Yes'), _('No')]
-        if tweaks['bool_custom_columns_are_tristate'] == 'no':
+        if not self.db.prefs.get('bools_are_tristate'):
             items.append('')
         else:
             items.append(_('Undefined'))
@@ -571,7 +571,7 @@ class BulkBool(BulkBase, Bool):
 
     def getter(self):
         val = self.main_widget.currentIndex()
-        if tweaks['bool_custom_columns_are_tristate'] == 'no':
+        if not self.db.prefs.get('bools_are_tristate'):
             return {2: False, 1: False, 0: True}[val]
         else:
             return {2: None, 1: False, 0: True}[val]
@@ -586,13 +586,13 @@ class BulkBool(BulkBase, Bool):
             return
         val = self.gui_val
         val = self.normalize_ui_val(val)
-        if tweaks['bool_custom_columns_are_tristate'] == 'no' and val is None:
+        if not self.db.prefs.get('bools_are_tristate') and val is None:
             val = False
         self.db.set_custom_bulk(book_ids, val, num=self.col_id, notify=notify)
 
     def a_c_checkbox_changed(self):
         if not self.ignore_change_signals:
-            if tweaks['bool_custom_columns_are_tristate'] == 'no' and \
+            if not self.db.prefs.get('bools_are_tristate') and \
                                     self.main_widget.currentIndex() == 2:
                 self.a_c_checkbox.setChecked(False)
             else:

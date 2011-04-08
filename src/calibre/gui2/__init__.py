@@ -23,6 +23,10 @@ from calibre.utils.date import UNDEFINED_DATE
 # Setup gprefs {{{
 gprefs = JSONConfig('gui')
 
+gprefs.defaults['action-layout-menubar'] = ()
+
+gprefs.defaults['action-layout-menubar-device'] = ()
+
 gprefs.defaults['action-layout-toolbar'] = (
         'Add Books', 'Edit Metadata', None, 'Convert Books', 'View', None,
         'Choose Library', 'Donate', None, 'Fetch News', 'Save To Disk',

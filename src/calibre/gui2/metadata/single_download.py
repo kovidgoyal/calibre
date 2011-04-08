@@ -8,6 +8,7 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from threading import Thread, Event
+from operator import attrgetter
 
 from PyQt4.Qt import (QStyledItemDelegate, QTextDocument, QRectF, QIcon, Qt,
         QStyle, QApplication, QDialog, QVBoxLayout, QLabel, QDialogButtonBox,
@@ -22,7 +23,7 @@ from calibre.ebooks.metadata.sources.identify import identify
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.gui2 import error_dialog, NONE
 from calibre.utils.date import utcnow, fromordinal, format_date
-
+from calibre.library.comments import comments_to_html
 
 class RichTextDelegate(QStyledItemDelegate): # {{{
 
@@ -51,7 +52,7 @@ class RichTextDelegate(QStyledItemDelegate): # {{{
         painter.restore()
 # }}}
 
-class ResultsModel(QAbstractTableModel):
+class ResultsModel(QAbstractTableModel): # {{{
 
     COLUMNS = (
             '#', _('Title'), _('Published'), _('Has cover'), _('Has summary')
@@ -71,15 +72,12 @@ class ResultsModel(QAbstractTableModel):
         return len(self.COLUMNS)
 
     def headerData(self, section, orientation, role):
-        if role != Qt.DisplayRole:
-            return NONE
-        if orientation == Qt.Horizontal:
+        if orientation == Qt.Horizontal and role == Qt.DisplayRole:
             try:
                 return QVariant(self.COLUMNS[section])
             except:
                 return NONE
-        else:
-            return QVariant(unicode(section+1))
+        return NONE
 
     def data_as_text(self, book, col):
         if col == 0:
@@ -110,9 +108,32 @@ class ResultsModel(QAbstractTableModel):
                 return self.yes_icon
             if col == 4 and book.comments:
                 return self.yes_icon
+        elif role == Qt.UserRole:
+            return book
         return NONE
 
+    def sort(self, col, order=Qt.AscendingOrder):
+        key = lambda x: x
+        if col == 0:
+            key = attrgetter('gui_rank')
+        elif col == 1:
+            key = attrgetter('title')
+        elif col == 2:
+            key = attrgetter('authors')
+        elif col == 3:
+            key = attrgetter('has_cached_cover_url')
+        elif key == 4:
+            key = lambda x: bool(x.comments)
+
+        self.results.sort(key=key, reverse=order==Qt.AscendingOrder)
+        self.reset()
+
+# }}}
+
 class ResultsView(QTableView): # {{{
+
+    show_details_signal = pyqtSignal(object)
+    book_selected = pyqtSignal(object)
 
     def __init__(self, parent=None):
         QTableView.__init__(self, parent)
@@ -121,6 +142,9 @@ class ResultsView(QTableView): # {{{
         self.setAlternatingRowColors(True)
         self.setSelectionBehavior(self.SelectRows)
         self.setIconSize(QSize(24, 24))
+        self.clicked.connect(self.show_details)
+        self.doubleClicked.connect(self.select_index)
+        self.setSortingEnabled(True)
 
     def show_results(self, results):
         self._model = ResultsModel(results, self)
@@ -129,6 +153,38 @@ class ResultsView(QTableView): # {{{
             self.setItemDelegateForColumn(i, self.rt_delegate)
         self.resizeRowsToContents()
         self.resizeColumnsToContents()
+        self.setFocus(Qt.OtherFocusReason)
+
+    def currentChanged(self, current, previous):
+        ret = QTableView.currentChanged(self, current, previous)
+        self.show_details(current)
+        return ret
+
+    def show_details(self, index):
+        book = self.model().data(index, Qt.UserRole)
+        parts = [
+            '<center>',
+            '<h2>%s</h2>'%book.title,
+            '<div><i>%s</i></div>'%authors_to_string(book.authors),
+        ]
+        if not book.is_null('rating'):
+            parts.append('<div>%s</div>'%('\u2605'*int(book.rating)))
+        parts.append('</center>')
+        if book.tags:
+            parts.append('<div>%s</div><div>\u00a0</div>'%', '.join(book.tags))
+        if book.comments:
+            parts.append(comments_to_html(book.comments))
+
+        self.show_details_signal.emit(''.join(parts))
+
+    def select_index(self, index):
+        if not index.isValid():
+            index = self.model().index(0, 0)
+        book = self.model().data(index, Qt.UserRole)
+        self.book_selected.emit(book)
+
+    def get_result(self):
+        self.select_index(self.currentIndex())
 
 # }}}
 
@@ -227,6 +283,8 @@ class IdentifyWorker(Thread): # {{{
 class IdentifyWidget(QWidget): # {{{
 
     rejected = pyqtSignal()
+    results_found = pyqtSignal()
+    book_selected = pyqtSignal(object)
 
     def __init__(self, log, parent=None):
         QWidget.__init__(self, parent)
@@ -244,10 +302,14 @@ class IdentifyWidget(QWidget): # {{{
         l.addWidget(self.top, 0, 0)
 
         self.results_view = ResultsView(self)
+        self.results_view.book_selected.connect(self.book_selected.emit)
+        self.get_result = self.results_view.get_result
         l.addWidget(self.results_view, 1, 0)
 
         self.comments_view = Comments(self)
         l.addWidget(self.comments_view, 1, 1)
+
+        self.results_view.show_details_signal.connect(self.comments_view.show_data)
 
         self.query = QLabel('download starting...')
         f = self.query.font()
@@ -324,6 +386,13 @@ class IdentifyWidget(QWidget): # {{{
 
         self.results_view.show_results(self.worker.results)
 
+        self.comments_view.show_data('''
+            <div style="margin-bottom:2ex">Found <b>%d</b> results</div>
+            <div>To see <b>details</b>, click on any result</div>''' %
+                len(self.worker.results))
+
+        self.results_found.emit()
+
 
     def cancel(self):
         self.abort.set()
@@ -343,22 +412,45 @@ class FullFetch(QDialog): # {{{
         self.setLayout(l)
         l.addWidget(self.stack)
 
-        self.bb = QDialogButtonBox(QDialogButtonBox.Cancel)
+        self.bb = QDialogButtonBox(QDialogButtonBox.Cancel|QDialogButtonBox.Ok)
         l.addWidget(self.bb)
         self.bb.rejected.connect(self.reject)
+        self.next_button = self.bb.addButton(_('Next'), self.bb.AcceptRole)
+        self.next_button.setDefault(True)
+        self.next_button.setEnabled(False)
+        self.next_button.clicked.connect(self.next_clicked)
+        self.ok_button = self.bb.button(self.bb.Ok)
+        self.ok_button.setVisible(False)
+        self.ok_button.clicked.connect(self.ok_clicked)
 
         self.identify_widget = IdentifyWidget(log, self)
         self.identify_widget.rejected.connect(self.reject)
+        self.identify_widget.results_found.connect(self.identify_results_found)
+        self.identify_widget.book_selected.connect(self.book_selected)
         self.stack.addWidget(self.identify_widget)
         self.resize(850, 500)
 
+    def book_selected(self, book):
+        print (book)
+        self.next_button.setVisible(False)
+        self.ok_button.setVisible(True)
+
     def accept(self):
-        # Prevent pressing Enter from closing the dialog
+        # Prevent the usual dialog accept mechanisms from working
         pass
 
     def reject(self):
         self.identify_widget.cancel()
         return QDialog.reject(self)
+
+    def identify_results_found(self):
+        self.next_button.setEnabled(True)
+
+    def next_clicked(self, *args):
+        self.identify_widget.get_result()
+
+    def ok_clicked(self, *args):
+        pass
 
     def start(self, title=None, authors=None, identifiers={}):
         self.identify_widget.start(title=title, authors=authors,

@@ -17,8 +17,8 @@ from calibre.utils.magick.draw import save_cover_data_to, Image, \
 
 class CSSortKeyGenerator(SortKeyGenerator):
 
-    def __init__(self, fields, fm):
-        SortKeyGenerator.__init__(self, fields, fm, None)
+    def __init__(self, fields, fm, db_prefs):
+        SortKeyGenerator.__init__(self, fields, fm, None, db_prefs)
 
     def __call__(self, record):
         return self.itervals(record).next()
@@ -56,7 +56,8 @@ class ContentServer(object):
         field = self.db.data.sanitize_sort_field_name(field)
         if field not in self.db.field_metadata.sortable_field_keys():
             raise cherrypy.HTTPError(400, '%s is not a valid sort field'%field)
-        keyg = CSSortKeyGenerator([(field, order)], self.db.field_metadata)
+        keyg = CSSortKeyGenerator([(field, order)], self.db.field_metadata,
+                                  self.db.prefs)
         items.sort(key=keyg, reverse=not order)
 
     # }}}

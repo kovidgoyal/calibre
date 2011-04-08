@@ -700,7 +700,7 @@ class BooksModel(QAbstractTableModel): # {{{
                         self.dc_decorator[col] = functools.partial(
                             bool_type_decorator, idx=idx,
                             bool_cols_are_tristate=
-                                tweaks['bool_custom_columns_are_tristate'] != 'no')
+                                self.db.prefs.get('bools_are_tristate'))
             elif datatype in ('int', 'float'):
                 self.dc[col] = functools.partial(number_type, idx=idx)
             elif datatype == 'datetime':
@@ -710,7 +710,7 @@ class BooksModel(QAbstractTableModel): # {{{
                 self.dc_decorator[col] = functools.partial(
                             bool_type_decorator, idx=idx,
                             bool_cols_are_tristate=
-                                tweaks['bool_custom_columns_are_tristate'] != 'no')
+                                self.db.prefs.get('bools_are_tristate'))
             elif datatype == 'rating':
                 self.dc[col] = functools.partial(rating_type, idx=idx)
             elif datatype == 'series':

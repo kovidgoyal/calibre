@@ -7,12 +7,12 @@ __docformat__ = 'restructuredtext en'
 
 from functools import partial
 
-from PyQt4.Qt import QIcon, Qt, QWidget, QToolBar, QSize, \
-    pyqtSignal, QToolButton, QMenu, \
-    QObject, QVBoxLayout, QSizePolicy, QLabel, QHBoxLayout, QActionGroup
+from PyQt4.Qt import (QIcon, Qt, QWidget, QToolBar, QSize,
+    pyqtSignal, QToolButton, QMenu, QMenuBar, QAction,
+    QObject, QVBoxLayout, QSizePolicy, QLabel, QHBoxLayout, QActionGroup)
 
 
-from calibre.constants import __appname__
+from calibre.constants import __appname__, isosx
 from calibre.gui2.search_box import SearchBox2, SavedSearchBox
 from calibre.gui2.throbber import ThrobbingButton
 from calibre.gui2 import gprefs
@@ -238,6 +238,80 @@ class Spacer(QWidget): # {{{
         self.l.addStretch(10)
 # }}}
 
+class MenuAction(QAction):
+
+    def __init__(self, clone, parent):
+        QAction.__init__(self, clone.text(), parent)
+        self.clone = clone
+        clone.changed.connect(self.clone_changed)
+
+    def clone_changed(self):
+        self.setText(self.clone.text())
+
+
+class MenuBar(QMenuBar): # {{{
+
+    def __init__(self, location_manager, parent):
+        QMenuBar.__init__(self, parent)
+        self.gui = parent
+        self.setNativeMenuBar(True)
+
+        self.location_manager = location_manager
+        self.location_manager.locations_changed.connect(self.build_bar)
+        self.added_actions = []
+
+        self.donate_action = QAction(_('Donate'), self)
+        self.donate_menu = QMenu()
+        self.donate_menu.addAction(self.gui.donate_action)
+        self.donate_action.setMenu(self.donate_menu)
+        self.build_bar()
+
+    def build_bar(self, changed_action=None):
+        showing_device = self.location_manager.has_device
+        actions = '-device' if showing_device else ''
+        actions = gprefs['action-layout-menubar'+actions]
+
+        show_main = len(actions) > 0
+        self.setVisible(show_main)
+
+        for ac in self.added_actions:
+            m = ac.menu()
+            if m is not None:
+                m.setVisible(False)
+
+        self.clear()
+        self.added_actions = []
+        self.action_map = {}
+
+        for what in actions:
+            if what is None:
+                continue
+            elif what == 'Location Manager':
+                for ac in self.location_manager.available_actions:
+                    ac = self.build_menu(ac)
+                    self.addAction(ac)
+                    self.added_actions.append(ac)
+            elif what == 'Donate':
+                self.addAction(self.donate_action)
+            elif what in self.gui.iactions:
+                action = self.gui.iactions[what]
+                ac = self.build_menu(action.qaction)
+                self.addAction(ac)
+                self.added_actions.append(ac)
+
+    def build_menu(self, action):
+        m = action.menu()
+        ac = MenuAction(action, self)
+        if m is None:
+            m = QMenu()
+            m.addAction(action)
+        ac.setMenu(m)
+        return ac
+
+
+
+# }}}
+
 class ToolBar(QToolBar): # {{{
 
     def __init__(self, donate, location_manager, child_bar, parent):
@@ -284,6 +358,8 @@ class ToolBar(QToolBar): # {{{
         mactions = gprefs['action-layout-toolbar'+mactions]
         cactions = gprefs['action-layout-toolbar-child']
 
+        show_main = len(mactions) > 0
+        self.setVisible(show_main)
         show_child = len(cactions) > 0
         self.child_bar.setVisible(show_child)
 
@@ -306,11 +382,16 @@ class ToolBar(QToolBar): # {{{
                         bar.added_actions.append(ac)
                         bar.setup_tool_button(bar, ac, QToolButton.MenuButtonPopup)
                 elif what == 'Donate':
-                    self.d_widget = QWidget()
-                    self.d_widget.setLayout(QVBoxLayout())
-                    self.d_widget.layout().addWidget(self.donate_button)
-                    bar.addWidget(self.d_widget)
-                    self.showing_donate = True
+                    if isosx:
+                        bar.addAction(self.gui.donate_action)
+                        ch = self.setup_tool_button(bar, self.gui.donate_action)
+                        ch.setText(_('Donate'))
+                    else:
+                        self.d_widget = QWidget()
+                        self.d_widget.setLayout(QVBoxLayout())
+                        self.d_widget.layout().addWidget(self.donate_button)
+                        bar.addWidget(self.d_widget)
+                        self.showing_donate = True
                 elif what in self.gui.iactions:
                     action = self.gui.iactions[what]
                     bar.addAction(action.qaction)
@@ -325,17 +406,20 @@ class ToolBar(QToolBar): # {{{
         ch.setAutoRaise(True)
         if ac.menu() is not None and menu_mode is not None:
             ch.setPopupMode(menu_mode)
+        return ch
 
     def resizeEvent(self, ev):
         QToolBar.resizeEvent(self, ev)
         style = Qt.ToolButtonTextUnderIcon
-        p = gprefs['toolbar_text']
-        if p == 'never':
-            style = Qt.ToolButtonIconOnly
+        s = gprefs['toolbar_icon_size']
+        if s != 'off':
+            p = gprefs['toolbar_text']
+            if p == 'never':
+                style = Qt.ToolButtonIconOnly
 
-        if p == 'auto' and self.preferred_width > self.width()+35 and \
-                not gprefs['action-layout-toolbar-child']:
-            style = Qt.ToolButtonIconOnly
+            if p == 'auto' and self.preferred_width > self.width()+35 and \
+                    not gprefs['action-layout-toolbar-child']:
+                style = Qt.ToolButtonIconOnly
 
         self.setToolButtonStyle(style)
 
@@ -421,6 +505,9 @@ class MainWindowMixin(object): # {{{
                 self.location_manager, self.child_bar, self)
         self.addToolBar(Qt.TopToolBarArea, self.tool_bar)
         self.addToolBar(Qt.BottomToolBarArea, self.child_bar)
+        self.menu_bar = MenuBar(self.location_manager, self)
+        self.setMenuBar(self.menu_bar)
+        self.setUnifiedTitleAndToolBarOnMac(True)
 
         l = self.centralwidget.layout()
         l.addWidget(self.search_bar)

@@ -34,9 +34,12 @@ class BaseModel(QAbstractListModel):
         if name == 'Location Manager':
             return FakeAction(name, None,
                     _('Switch between library and device views'),
-                    dont_remove_from=set(['toolbar-device']))
+                    dont_add_to=frozenset(['menubar', 'toolbar',
+                        'toolbar-child', 'context-menu',
+                        'context-menu-device']))
         if name is None:
-            return FakeAction('--- '+_('Separator')+' ---', None)
+            return FakeAction('--- '+_('Separator')+' ---', None,
+                    dont_add_to=frozenset(['menubar', 'menubar-device']))
         try:
             return gui.iactions[name]
         except:
@@ -89,7 +92,7 @@ class AllModel(BaseModel):
         self._data = self.get_all_actions(current)
 
     def get_all_actions(self, current):
-        all = list(self.gui.iactions.keys()) + ['Donate']
+        all = list(self.gui.iactions.keys()) + ['Donate', 'Location Manager']
         all = [x for x in all if x not in current] + [None]
         all = [self.name_to_action(x, self.gui) for x in all]
         all = [x for x in all if self.key not in x.dont_add_to]
@@ -208,12 +211,14 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     LOCATIONS = [
             ('toolbar', _('The main toolbar')),
-            ('toolbar-child', _('The optional second toolbar')),
             ('toolbar-device', _('The main toolbar when a device is connected')),
+            ('toolbar-child', _('The optional second toolbar')),
+            ('menubar', _('The menubar')),
+            ('menubar-device', _('The menubar when a device is connected')),
             ('context-menu', _('The context menu for the books in the '
                 'calibre library')),
             ('context-menu-device', _('The context menu for the books on '
-                'the device'))
+                'the device')),
             ]
 
     def genesis(self, gui):
@@ -284,6 +289,21 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 self.changed_signal.emit()
 
     def commit(self):
+        # Ensure preferences are showing in either the toolbar or
+        # the menubar.
+        pref_in_toolbar = lm_in_toolbar = False
+        cm = self.models['toolbar']
+        for x in cm[1]._data:
+            if x.name == 'Preferences':
+                pref_in_toolbar = True
+            if x.name == 'Location Manager':
+                lm_in_toolbar = True
+        if not pref_in_toolbar:
+            self.models['menubar'][1].add(['Preferences'])
+        if not lm_in_toolbar:
+            self.models['menubar-device'][1].add(['Location Manager'])
+
+        # Save data.
         for am, cm in self.models.values():
             cm.commit()
         return False

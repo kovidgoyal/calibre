@@ -547,7 +547,7 @@ class ResultCache(SearchQueryParser): # {{{
         return matchkind, query
 
     def get_bool_matches(self, location, query, candidates):
-        bools_are_tristate = tweaks['bool_custom_columns_are_tristate'] != 'no'
+        bools_are_tristate = not self.db_prefs.get('bools_are_tristate')
         loc = self.field_metadata[location]['rec_index']
         matches = set()
         query = icu_lower(query)
@@ -947,7 +947,7 @@ class ResultCache(SearchQueryParser): # {{{
         if not fields:
             fields = [('timestamp', False)]
 
-        keyg = SortKeyGenerator(fields, self.field_metadata, self._data)
+        keyg = SortKeyGenerator(fields, self.field_metadata, self._data, self.db_prefs)
         self._map.sort(key=keyg)
 
         tmap = list(itertools.repeat(False, len(self._data)))
@@ -970,9 +970,10 @@ class SortKey(object):
 
 class SortKeyGenerator(object):
 
-    def __init__(self, fields, field_metadata, data):
+    def __init__(self, fields, field_metadata, data, db_prefs):
         from calibre.utils.icu import sort_key
         self.field_metadata = field_metadata
+        self.db_prefs = db_prefs
         self.orders = [1 if x[1] else -1 for x in fields]
         self.entries = [(x[0], field_metadata[x[0]]) for x in fields]
         self.library_order = tweaks['title_series_sorting'] == 'library_order'
@@ -1032,7 +1033,7 @@ class SortKeyGenerator(object):
                 val = self.string_sort_key(val)
 
             elif dt == 'bool':
-                if tweaks['bool_custom_columns_are_tristate'] == 'no':
+                if not self.db_prefs.get('bools_are_tristate'):
                     val = {True: 1, False: 2, None: 2}.get(val, 2)
                 else:
                     val = {True: 1, False: 2, None: 3}.get(val, 3)
