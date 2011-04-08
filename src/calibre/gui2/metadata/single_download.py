@@ -52,7 +52,7 @@ class RichTextDelegate(QStyledItemDelegate): # {{{
         painter.restore()
 # }}}
 
-class ResultsModel(QAbstractTableModel):
+class ResultsModel(QAbstractTableModel): # {{{
 
     COLUMNS = (
             '#', _('Title'), _('Published'), _('Has cover'), _('Has summary')
@@ -128,7 +128,7 @@ class ResultsModel(QAbstractTableModel):
         self.results.sort(key=key, reverse=order==Qt.AscendingOrder)
         self.reset()
 
-
+# }}}
 
 class ResultsView(QTableView): # {{{
 

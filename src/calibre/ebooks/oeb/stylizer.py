@@ -97,6 +97,10 @@ class CSSSelector(etree.XPath):
 
     def __init__(self, css, namespaces=XPNSMAP):
         css = self.MIN_SPACE_RE.sub(r'\1', css)
+        if isinstance(css, unicode):
+            # Workaround for bug in lxml on windows/OS X that causes a massive
+            # memory leak with non ASCII selectors
+            css = css.encode('ascii', 'ignore').decode('ascii')
         try:
             path = css_to_xpath(css)
         except UnicodeEncodeError: # Bug in css_to_xpath
