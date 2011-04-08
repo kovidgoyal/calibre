@@ -183,6 +183,7 @@ class EditMetadataAction(InterfaceAction):
             current_row += d.row_delta
             self.gui.library_view.set_current_row(current_row)
             self.gui.library_view.scroll_to_row(current_row)
+        return changed
 
     def do_edit_metadata(self, row_list, current_row):
         from calibre.gui2.metadata.single import edit_metadata
