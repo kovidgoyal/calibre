@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-04-01 19:21+0000\n"
-"PO-Revision-Date: 2011-04-04 20:56+0000\n"
-"Last-Translator: Antón Méixome <meixome@gmail.com>\n"
+"PO-Revision-Date: 2011-04-07 18:57+0000\n"
+"Last-Translator: Miguel Anxo Bouzada <mbouzada@gmail.com>\n"
 "Language-Team: dev@gl.openoffice.org\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-04-05 04:46+0000\n"
-"X-Generator: Launchpad (build 12559)\n"
+"X-Launchpad-Export-Date: 2011-04-08 04:43+0000\n"
+"X-Generator: Launchpad (build 12735)\n"
 "Language: gl\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -1353,7 +1353,7 @@ msgid ""
 msgstr ""
 ". Hai dúas coleccións especiais dispoñibeis: %s:%s e %s:%s. Engada estes "
 "valores á lista para activalas. Ás coleccións asignaráselles o nome "
-"fornecido que vai tras do carácter \":\"."
+"fornecido que vai tras do carácter «:»."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:73
 msgid "Upload separate cover thumbnails for books (newer readers)"
@@ -1892,8 +1892,8 @@ msgstr ""
 "liña como mínimo, malia o que indique o documento de entrada. Asignar 0 para "
 "desactivar. De modo predeterminado é 120%. Utiliza esta opción "
 "preferentemente á especificación directa da altura de liña, non sendo que "
-"saiba o que está a facer. Por exemplo, pode conseguir texto con \"dobre "
-"espazo\" asignándolle un valor de 240."
+"saiba o que está a facer. Por exemplo, pode conseguir texto con «dobre "
+"espazo» asignándolle un valor de 240."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:183
 msgid ""
@@ -2575,13 +2575,13 @@ msgid ""
 "\"Table of Contents\" settings (turn on \"Force use of auto-generated Table "
 "of Contents)."
 msgstr ""
-"Especifique cómo se dividirá o libro en seccións. Un valor de \"ningún\" "
+"Especifique como se dividirá o libro en seccións. Un valor de «ningún» "
 "converte o libro nunha única sección. Un valor de \"ficheiros\" converte "
 "cada ficheiro nunha sección; úseo se o seu dispositivo ten problemas co "
-"libro. Un valor de \"Índice de contidos\" converte as entradas do Índice en "
-"títulos e crea seccións; se falla, axuste as configuración de \"Detección de "
-"estrutura\" ou \"Índice\" (active \"Forzar o uso do Índice xerado "
-"automaticamente\")."
+"libro. Un valor de «Índice de contidos» converte as entradas do Índice en "
+"títulos e crea seccións; se falla, axuste as configuración de «Detección de "
+"estrutura» ou «Índice» (active «Forzar o uso do Índice xerado "
+"automaticamente»)."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/output.py:159
 msgid "for a complete list with descriptions."
@@ -3536,7 +3536,7 @@ msgstr "O tempo de espera de Amazon expirou. Volva a tentalo máis tarde"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/base.py:94
 msgid "Metadata source"
-msgstr "Fonte de metadatos"
+msgstr "Orixe de metadatos"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/openlibrary.py:15
 msgid "Downloads metadata from The Open Library"
@@ -4220,7 +4220,7 @@ msgid ""
 "always removed with plain text output."
 msgstr ""
 "Non eliminar ligazóns no documento. Esta opción só ten utilidade cando se "
-"combina cunha opción de formato de saída do texto diferente de \"ningún\", "
+"combina cunha opción de formato de saída do texto diferente de «ningún», "
 "porque as ligazóns sempre se eliminan na saída de texto simple."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:67
@@ -4231,7 +4231,7 @@ msgid ""
 msgstr ""
 "Non eliminar referencias a imaxes no documento. Esta opción só ten utilidade "
 "cando se combina cunha opción de formato de saída de texto diferente a "
-"\"ningún\", porque as referencias ás imaxes sempre se eliminan na saída de "
+"«ningún», porque as referencias ás imaxes sempre se eliminan na saída de "
 "texto simple."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:72
@@ -4786,7 +4786,7 @@ msgid ""
 "Metadata will be backed up while calibre is running, at the rate of "
 "approximately 1 book every three seconds."
 msgstr ""
-"Farase unha copia de seguridade dos metadatos mentres calibre está en "
+"Farase unha copia de seguranza dos metadatos mentres calibre está en "
 "execución, a un ritmo aproximado dun libro cada tres segundos."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:306
@@ -4795,7 +4795,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:286
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:340
 msgid "Success"
-msgstr "Éxito."
+msgstr "Correcto"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:307
 msgid ""
@@ -4820,8 +4820,8 @@ msgstr "Produciuse un fallo"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:313
 msgid "Database integrity check failed, click Show details for details."
 msgstr ""
-"A comprobación da integridade da base de datos fallou. Pulse en \"Mostrar "
-"detalles\" para máis información."
+"A comprobación da integridade da base de datos fallou. Pulse en «Mostrar "
+"detalles» para máis información."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:318
 msgid "No problems found"
@@ -6700,7 +6700,7 @@ msgstr "&Factor de unión de liñas:"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:118
 msgid "Detect and markup unformatted chapter headings and sub headings"
 msgstr ""
-"Detectar e marcar cabeceiras e subcabeceiras de capítules sen formato"
+"Detectar e marcar cabeceiras e subcabeceiras de capítulos sen formato"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:119
 msgid "Renumber sequences of <h1> or <h2> tags to prevent splitting"
@@ -7693,7 +7693,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:520
 msgid "Apply changes"
-msgstr "Aplicar os trocos"
+msgstr "Aplicar os cambios"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:713
 msgid "Remove series"
@@ -8060,7 +8060,7 @@ msgstr "Comprobando a integridade da base de datos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:55
 msgid "Dumping database to SQL"
-msgstr "Volcando base de datos a SQL"
+msgstr "Envorcando a base de datos a SQL"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:81
 msgid "Loading database from SQL"
@@ -8283,7 +8283,7 @@ msgstr "Existente"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_format_device_ui.py:51
 msgid "Convertible"
-msgstr "Convertible"
+msgstr "Convertíbel"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:43
 msgid "Choose location for calibre library"
@@ -8869,11 +8869,12 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:988
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:587
 msgid "Delete saved search/replace"
-msgstr "Borrar a busca/substitución gardada"
+msgstr "Eliminar a busca/substitución gardada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:989
 msgid "The selected saved search/replace will be deleted. Are you sure?"
-msgstr "A busca/substitución gardada seleccionada se borrará. Está seguro?"
+msgstr ""
+"A busca/substitución gardada seleccionada vai ser eliminada. Está seguro?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1006
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1014
@@ -8889,7 +8890,7 @@ msgid ""
 "That saved search/replace already exists and will be overwritten. Are you "
 "sure?"
 msgstr ""
-"Esa busca/substitución gardada xa existe e será sobrescrita. Desexa "
+"Esa busca/substitución gardada xa existe e vai ser sobrescrita. Desexa "
 "continuar?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:524
@@ -8973,7 +8974,7 @@ msgstr "Se está marcado, as series serán desbotadas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:548
 msgid "&Clear series"
-msgstr "&Borrar a serie"
+msgstr "&Limpar a serie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:549
 msgid ""
@@ -9004,7 +9005,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:557
 msgid "&Force numbers to start with:"
-msgstr "&Obrigar a que los números comecen por:"
+msgstr "&Forzar que os números comecen por:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:558
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:440
@@ -9028,7 +9029,7 @@ msgstr "&Publicado:"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:564
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:444
 msgid "Clear published date"
-msgstr "Borrar a data de publicación"
+msgstr "Limpar a data de publicación"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:567
 msgid "Remove &format:"
@@ -9107,7 +9108,7 @@ msgstr "Metadatos &personalizados"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:583
 msgid "Load searc&h/replace:"
-msgstr "Cargar &busca/substitución:"
+msgstr "Cargar a &busca/substitución:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:584
 msgid "Select saved search/replace to load."
@@ -9743,8 +9744,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:102
 msgid "Restoring database failed, click Show details to see details"
 msgstr ""
-"A restauración da base de datos fallou. Pulse \"Mostrar detalles\" para máis "
-"información"
+"A restauración da base de datos fallou. Prema «Mostrar detalles» para obter "
+"máis información"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:107
 msgid ""
@@ -9752,7 +9753,7 @@ msgid ""
 "see the details."
 msgstr ""
 "A restauración da base de datos rematou satisfactoriamente, con algúns "
-"avisos. Pulse \"Mostrar detalles\" para máis información"
+"avisos. Prema «Mostrar detalles» para máis información"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:112
 msgid "Restoring database was successful"
@@ -13166,7 +13167,7 @@ msgstr ""
 "        <p><code>evaluate(self, formatter, kwargs, mi, locals, "
 "os_seus_parámetros)\n"
 "        &rarr; devolve unha cadea de texto unicode</code></p>\n"
-"        <p>Os parámetros da función \"evaluate\" son:\n"
+"        <p>Os parámetros da función «evaluate» son:\n"
 "        <ul>\n"
 "        <li><b>formatter</b>: o formatador que se usa para avaliar o modelo\n"
 "        actual. Pode usalo para unha avaliación recursiva do modelo.</li>\n"
@@ -13175,10 +13176,10 @@ msgstr ""
 "        están neste dicionario.\n"
 "        <li><b>mi</b>: unha instancia de metadatos. Úsase para obter "
 "información\n"
-"        sobre os campos. Este parámetro pode ser \"None\" nalgúns casos, "
-"como cando\n"
+"        sobre os campos. Este parámetro pode ser «None» nalgúns casos, como "
+"cando\n"
 "        se avalían modelos non de libros.</li>\n"
-"        <li><b>locals</b>: as variables locais asignadas polo programa de\n"
+"        <li><b>locals</b>: as variábeis locais asignadas polo programa de\n"
 "        modelo actual.</li>\n"
 "        <li><b>os_seus_parámetros</b>: debe proporcionar un ou máis "
 "parámetros\n"
@@ -13186,7 +13187,7 @@ msgstr ""
 "excepto\n"
 "        se este é -1 (número variable de parámetros): neste caso o último "
 "argumento\n"
-"        debe ser \"*args\". Como mínimo requírese un parámetro, que é "
+"        debe ser «*args». Como mínimo requírese un parámetro, que é "
 "normalmente o\n"
 "        campo sobre o que se actúa. Teña en conta que cando se escribe no "
 "modo de\n"
@@ -13197,15 +13198,15 @@ msgstr ""
 "        <p>\n"
 "        A seguinte función de exemplo comproba o valor do campo. Se o campo "
 "non\n"
-"        está baleiro, o valor do campo é devoltoe en caso contrario "
+"        está baleiro, o valor do campo é devolto en caso contrario "
 "devólvese\n"
-"        o valor \"BALEIRO\".\n"
+"        o valor «BALEIRO».\n"
 "        <pre>\n"
 "        nome: my_ifempty\n"
 "        Número de parámetros: 1\n"
 "        Documentación: my_ifempty(val) -- devolve val se non está baleiro, e "
 "en\n"
-"        caso contrario devolve a cadea \"BALEIRO\".\n"
+"        caso contrario devolve a cadea «BALEIRO».\n"
 "        Código de programación:\n"
 "        def evaluate(self, formatter, kwargs, mi, locals, val):\n"
 "            if val:\n"
@@ -13700,13 +13701,13 @@ msgid ""
 "*foo will filter all categories at once, showing only those items\n"
 "containing the text \"foo\""
 msgstr ""
-"Busca de ítems. Esta é unha busca de \"contidos\"; atoparanse os ítems\n"
+"Busca de ítems. Esta é unha busca de «contidos»; atoparanse os ítems\n"
 "que conteñan o texto en calquera parte do nome. Podes limitar a busca\n"
 "a categorías particulares usando a sintaxe de busca apropiada. Por exemplo,\n"
 "tags:foo atopará fou en calquera etiqueta, pero non en autores etc. "
 "Introducindo\n"
 "*fou filtraranse todas as categorías á vez, amosando só aqueles ítems que\n"
-"conteñan o texto \"fou\"."
+"conteñan o texto «fou»."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:2073
 msgid "ALT+f"
@@ -14876,7 +14877,7 @@ msgstr ""
 "Campos dispoñibles: %s,\n"
 "máis os campos personalizados creados polo usuario.\n"
 "Exemplo: %s=title,authors,tags\n"
-"Valor predeterminado: \"%%default\"\n"
+"Valor predeterminado: «%%default»\n"
 "Aplícase a: formatos de saída CSV e XML"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:65
@@ -14943,7 +14944,7 @@ msgstr ""
 "Crear unha entrada para o ficheiro se os formatos están seleccionadas para "
 "as entradas BIBTEX.\n"
 "Valor booleano: True, False\n"
-"Valor predeterminado: \"%default\"\n"
+"Valor predeterminado: «%default»\n"
 "Aplícase a: formato de saída BIBTEX"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:272
@@ -15017,7 +15018,7 @@ msgstr ""
 "Garda a saída das distintas fases do proceso de conversión no directorio "
 "especificado. É útil se non está seguro de en que etapa do proceso ocorre un "
 "fallo.\n"
-"Valor predeterminado: \"%default\"\n"
+"Valor predeterminado: «%default»\n"
 "Aplícase a: formatos de saída ePub e MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:624
@@ -15027,9 +15028,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to ePub, MOBI output formats"
 msgstr ""
-"field:pattern especificando contidos/campos personalizables que indiquen "
-"libros deberán excluirse.\n"
-"Predeterminado: \"%default\"\n"
+"field:pattern especificando contidos/campos personalizábeis que indiquen "
+"libros deberán excluírse.\n"
+"Predeterminado: «%default»\n"
 "Aplícase a: formatos de saída ePub e MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:631
@@ -15050,8 +15051,8 @@ msgid ""
 "Applies to: ePub, MOBI output formats"
 msgstr ""
 "Lista de etiquetas que indican que debe excluírse un libro da saída, "
-"separadas por comas. Por exemplo, \"salta\" coincide con \"salta este "
-"libro\" e con \"folclore de Salta\". Valor predeterminado: '%default'\n"
+"separadas por comas. Por exemplo, «salta« coincide con «salta este libro» e "
+"con «folclore de Salta». Valor predeterminado: «%default»\n"
 "Aplicase a: formatos de saída ePub e MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:645
@@ -15060,8 +15061,8 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
-"Inclúe unha sección \"Autores\" no catálogo.\n"
-"Valor predeterminado: \"%default\"\n"
+"Inclúe unha sección «Autores» no catálogo.\n"
+"Valor predeterminado: «%default»\n"
 "Aplícase a: formatos de saída ePub e MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:652
@@ -15070,8 +15071,8 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
-"Inclúe unha sección \"Descripcións\" no catálogo.\n"
-"Valor predeterminado: \"%default\"\n"
+"Inclúe unha sección «Descricións» no catálogo.\n"
+"Valor predeterminado: «%default»\n"
 "Aplícase a: formatos de saída ePub e MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:659
@@ -15080,8 +15081,8 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
-"Incluír a sección 'Xéneros' no catálogo.\n"
-"Predeterminado: \"%default\"\n"
+"Incluír a sección «Xéneros» no catálogo.\n"
+"Predeterminado: «%default»\n"
 "Aplícase a: formatos de saída ePub e MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:666
@@ -15120,9 +15121,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
-"O campo personalizable que contén texto de notas a insertar no Encabezado "
-"descritivo.\n"
-"Predeterminado: \"%default\"\n"
+"O campo personalizabel que contén texto de notas a inserir na cabeceira "
+"descritiva.\n"
+"Predeterminado: «%default»\n"
 "Aplícase a: formatos de saída ePub e MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:694
@@ -15134,13 +15135,13 @@ msgid ""
 "Default: '%default'\n"
 "Applies to ePub, MOBI output formats"
 msgstr ""
-"<custom field>:[before|after]:[True|False] specificando:\n"
-" <custom field> Campo personalizable que contén as notas a fundir cos "
-"Comentarios\n"
-" [before|after] Posición das notas con respecto aos Comentarios\n"
+"<custom field>:[before|after]:[True|False] especificando:\n"
+" <custom field> Campo personalizabel que contén as notas a mesturar cos "
+"comentarios\n"
+" [before|after] Posición das notas con respecto aos comentarios\n"
 " [True|False] - Insírese unha liña horizontal entre as notas e os "
-"Comentarios\n"
-"Predeterminado: \"%default\"\n"
+"comentarios\n"
+"Predeterminado: «%default»\n"
 "Aplícase a: formatos de saída ePub e MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:704
@@ -15177,7 +15178,7 @@ msgid ""
 msgstr ""
 "Tamaño da indicación (en polgadas) para as portadas de libros no catálogo.\n"
 "Rango: 1.0 - 2.0\n"
-"Predeterminado: \"%default\"\n"
+"Predeterminado: «%default»\n"
 "Aplícase a: formatos de saída ePub e MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:725
@@ -15232,7 +15233,7 @@ msgid ""
 "Check 'Excluded books' criteria in E-book options.\n"
 msgstr ""
 "Non se atoparon libros para catalogar.\n"
-"Comprobe os criterios de \"Libros excluídos\" nas opcións de libro "
+"Comprobe os criterios de «Libros excluídos» nas opcións de libro "
 "electrónico.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:1702
@@ -15245,7 +15246,7 @@ msgid ""
 "*** Adding 'By Authors' Section required for MOBI output ***"
 msgstr ""
 "\n"
-"*** A sección \"Por autor\" é necesaria para a saída MOBI ***"
+"*** A sección «Por autor» é necesaria para a saída MOBI ***"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:26
 msgid "Invalid titles"
@@ -15316,7 +15317,7 @@ msgstr ""
 "Os campos para mostrar cando se listan libros na base de datos. Deberían ser "
 "unha lista de campos separados por vírgulas.\n"
 "Campos dispoñíbeis: %s\n"
-"Predeterminado: %%default. O campo especial \"todo\" pode usarse para "
+"Predeterminado: %%default. O campo especial «todo» pode usarse para "
 "seleccionar todos os campos. Soamente ten efecto no formato de texto de "
 "saída."
 
@@ -16117,8 +16118,8 @@ msgid ""
 "subdirectory with filenames containing title and author. Available controls "
 "are: {%s}"
 msgstr ""
-"O modelo para controlar o nome e a estrutura de cartafafoles dos ficheiros "
-"gardados. O valor predeterminado é \"%s\", o que gardará os libros nun "
+"O modelo para controlar o nome e a estrutura de cartafoles dos ficheiros "
+"gardados. O valor predeterminado é «%s», o que gardará os libros nun "
 "subcartafol por autor con nomes de ficheiro que conteñen o título e o autor. "
 "As variábeis de control dispoñíbeis son: {%s}"
 
@@ -16130,7 +16131,7 @@ msgid ""
 "are: {%s}"
 msgstr ""
 "O modelo para controlar o nome do ficheiro e a estrutura do cartafol  dos "
-"ficheiros enviados ao dispositivo. De modo predeterminado é \"%s\" o que "
+"ficheiros enviados ao dispositivo. De modo predeterminado é «%s» o que "
 "gardará os libros nun cartafol por autor co título e o nome do autor no nome "
 "de cada ficheiro. Os controis dispoñíbeis son: {%s}"
 
@@ -16223,7 +16224,7 @@ msgid ""
 "Prefix to prepend to all URLs. Useful for reverseproxying to this server "
 "from Apache/nginx/etc."
 msgstr ""
-"Prefixo para antepor a todos os URL. Útil para \"reverseproxying\" a este "
+"Prefixo para antepor a todos os URL. Útil para «reverseproxying» a este "
 "servidor Apache/nginx/etc."
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:64
@@ -16666,7 +16667,7 @@ msgid ""
 "template processor to construct complex results from local variables."
 msgstr ""
 "eval(modelo) -- avalía o modelo, pasando as variábeis locais (as definidas "
-"con \"assign\") no canto dos metadatos do libro. Isto permite usar o "
+"con «assign») no canto dos metadatos do libro. Isto permite usar o "
 "procesador de modelos para elaborar resultados complexos a partir de "
 "variábeis locais."
 
@@ -16724,7 +16725,7 @@ msgid ""
 "constructing variable save paths"
 msgstr ""
 "lookup(val, patrón, campo, patrón, campo, ..., outro_campo) -- como "
-"\"switch\", pero os argumentos son nomes de campo (metadatos), non texto. "
+"«switch», pero os argumentos son nomes de campo (metadatos), non texto. "
 "Usarase o valor do campo apropiado. Teña en conta que posto que as columnas "
 "compostas son campos, pode usar esta función nun campo composto para usar o "
 "valor doutro campo composto. Isto é moi útil para construír rutas para  "
@@ -17224,7 +17225,7 @@ msgstr "Fonte de novas descoñecida"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:630
 msgid "The \"%s\" recipe needs a username and password."
-msgstr "A receita \"%s\" necesita un nome de usuario e un contrasinal."
+msgstr "A receita «%s» necesita un nome de usuario e un contrasinal."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:736
 msgid "Download finished"
