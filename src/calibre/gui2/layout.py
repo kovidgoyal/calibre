@@ -320,6 +320,7 @@ class BaseToolBar(QToolBar): # {{{
         self.setOrientation(Qt.Horizontal)
         self.setAllowedAreas(Qt.TopToolBarArea|Qt.BottomToolBarArea)
         self.setStyleSheet('QToolButton:checked { font-weight: bold }')
+        self.preferred_width = self.sizeHint().width()
 
     def resizeEvent(self, ev):
         QToolBar.resizeEvent(self, ev)
@@ -333,7 +334,7 @@ class BaseToolBar(QToolBar): # {{{
             p = gprefs['toolbar_text']
             if p == 'never':
                 style = Qt.ToolButtonIconOnly
-            elif p == 'auto' and self.sizeHint().width() > self.width()+35:
+            elif p == 'auto' and self.preferred_width > self.width()+35:
                 style = Qt.ToolButtonIconOnly
         return style
 
@@ -414,6 +415,8 @@ class ToolBar(BaseToolBar): # {{{
                     bar.addAction(action.qaction)
                     self.added_actions.append(action.qaction)
                     self.setup_tool_button(bar, action.qaction, action.popup_type)
+        self.preferred_width = self.sizeHint().width()
+        self.child_bar.preferred_width = self.child_bar.sizeHint().width()
 
     def setup_tool_button(self, bar, ac, menu_mode=None):
         ch = bar.widgetForAction(ac)
