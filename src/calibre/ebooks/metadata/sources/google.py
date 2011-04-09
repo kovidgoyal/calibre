@@ -167,6 +167,12 @@ class GoogleBooks(Source):
 
     GOOGLE_COVER = 'http://books.google.com/books?id=%s&printsec=frontcover&img=1'
 
+    def get_book_url(self, identifiers): # {{{
+        goog = identifiers.get('google', None)
+        if goog is not None:
+            return 'http://books.google.com/books?id=%s'%goog
+    # }}}
+
     def create_query(self, log, title=None, authors=None, identifiers={}): # {{{
         BASE_URL = 'http://books.google.com/books/feeds/volumes?'
         isbn = check_isbn(identifiers.get('isbn', None))

@@ -7,6 +7,9 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+DEBUG_DIALOG = False
+
+# Imports {{{
 from threading import Thread, Event
 from operator import attrgetter
 from Queue import Queue, Empty
@@ -21,14 +24,14 @@ from PyQt4.QtWebKit import QWebView
 from calibre.customize.ui import metadata_plugins
 from calibre.ebooks.metadata import authors_to_string
 from calibre.utils.logging import GUILog as Log
-from calibre.ebooks.metadata.sources.identify import identify
+from calibre.ebooks.metadata.sources.identify import (identify,
+        urls_from_identifiers)
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.gui2 import error_dialog, NONE
 from calibre.utils.date import utcnow, fromordinal, format_date
 from calibre.library.comments import comments_to_html
 from calibre import force_unicode
-
-DEBUG_DIALOG = False
+# }}}
 
 class RichTextDelegate(QStyledItemDelegate): # {{{
 
@@ -41,7 +44,11 @@ class RichTextDelegate(QStyledItemDelegate): # {{{
         return doc
 
     def sizeHint(self, option, index):
-        ans = self.to_doc(index).size().toSize()
+        doc = self.to_doc(index)
+        ans = doc.size().toSize()
+        if ans.width() > 250:
+            doc.setTextWidth(250)
+            ans = doc.size().toSize()
         ans.setHeight(ans.height()+10)
         return ans
 
@@ -234,6 +241,11 @@ class ResultsView(QTableView): # {{{
         if not book.is_null('rating'):
             parts.append('<div>%s</div>'%('\u2605'*int(book.rating)))
         parts.append('</center>')
+        if book.identifiers:
+            urls = urls_from_identifiers(book.identifiers)
+            ids = ['<a href="%s">%s</a>'%(url, name) for name, url in urls]
+            if ids:
+                parts.append('<div><b>%s:</b> %s</div><br>'%(_('See at'), ', '.join(ids)))
         if book.tags:
             parts.append('<div>%s</div><div>\u00a0</div>'%', '.join(book.tags))
         if book.comments:
@@ -264,6 +276,14 @@ class Comments(QWebView): # {{{
         palette.setBrush(QPalette.Base, Qt.transparent)
         self.page().setPalette(palette)
         self.setAttribute(Qt.WA_OpaquePaintEvent, False)
+
+        self.page().setLinkDelegationPolicy(self.page().DelegateAllLinks)
+        self.linkClicked.connect(self.link_clicked)
+
+    def link_clicked(self, url):
+        from calibre.gui2 import open_url
+        if unicode(url.toString()).startswith('http://'):
+            open_url(url)
 
     def turnoff_scrollbar(self, *args):
         self.page().mainFrame().setScrollBarPolicy(Qt.Horizontal, Qt.ScrollBarAlwaysOff)
@@ -382,7 +402,7 @@ class IdentifyWidget(QWidget): # {{{
         self.query.setWordWrap(True)
         l.addWidget(self.query, 2, 0, 1, 2)
 
-        self.comments_view.show_data('<h2>'+_('Downloading')+
+        self.comments_view.show_data('<h2>'+_('Please wait')+
                 '<br><span id="dots">.</span></h2>'+
                 '''
                 <script type="text/javascript">
@@ -848,7 +868,7 @@ class FullFetch(QDialog): # {{{
 # }}}
 
 if __name__ == '__main__':
-    DEBUG_DIALOG = True
+    #DEBUG_DIALOG = True
     app = QApplication([])
     d = FullFetch(Log())
     d.start(title='great gatsby', authors=['Fitzgerald'])

@@ -14,7 +14,7 @@ from threading import Thread
 from io import BytesIO
 from operator import attrgetter
 
-from calibre.customize.ui import metadata_plugins
+from calibre.customize.ui import metadata_plugins, all_metadata_plugins
 from calibre.ebooks.metadata.sources.base import create_log, msprefs
 from calibre.ebooks.metadata.xisbn import xisbn
 from calibre.ebooks.metadata.book.base import Metadata
@@ -364,6 +364,18 @@ def identify(log, abort, # {{{
         r.tags = r.tags[:max_tags]
 
     return results
+# }}}
+
+def urls_from_identifiers(identifiers): # {{{
+    ans = []
+    for plugin in all_metadata_plugins():
+        try:
+            url = plugin.get_book_url(identifiers)
+            if url is not None:
+                ans.append((plugin.name, url))
+        except:
+            pass
+    return ans
 # }}}
 
 if __name__ == '__main__': # tests {{{
