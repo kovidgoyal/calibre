@@ -80,6 +80,12 @@ class BaseModel(QAbstractListModel):
             ans.append(n)
         return ans
 
+    def has_action(self, name):
+        for a in self._data:
+            if a.name == name:
+                return True
+        return False
+
 
 class AllModel(BaseModel):
 
@@ -291,16 +297,13 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
     def commit(self):
         # Ensure preferences are showing in either the toolbar or
         # the menubar.
-        pref_in_toolbar = lm_in_toolbar = False
-        cm = self.models['toolbar']
-        for x in cm[1]._data:
-            if x.name == 'Preferences':
-                pref_in_toolbar = True
-            if x.name == 'Location Manager':
-                lm_in_toolbar = True
-        if not pref_in_toolbar:
+        pref_in_toolbar = self.models['toolbar'][1].has_action('Preferences')
+        pref_in_menubar = self.models['menubar'][1].has_action('Preferences')
+        lm_in_toolbar = self.models['toolbar-device'][1].has_action('Location Manager')
+        lm_in_menubar = self.models['menubar-device'][1].has_action('Location Manager')
+        if not pref_in_toolbar and not pref_in_menubar:
             self.models['menubar'][1].add(['Preferences'])
-        if not lm_in_toolbar:
+        if not lm_in_toolbar and not lm_in_menubar:
             self.models['menubar-device'][1].add(['Location Manager'])
 
         # Save data.
