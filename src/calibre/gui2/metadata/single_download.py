@@ -14,7 +14,7 @@ from PyQt4.Qt import (QStyledItemDelegate, QTextDocument, QRectF, QIcon, Qt,
         QStyle, QApplication, QDialog, QVBoxLayout, QLabel, QDialogButtonBox,
         QStackedWidget, QWidget, QTableView, QGridLayout, QFontInfo, QPalette,
         QTimer, pyqtSignal, QAbstractTableModel, QVariant, QSize, QListView,
-        QPixmap, QAbstractListModel)
+        QPixmap, QAbstractListModel, QMovie)
 from PyQt4.QtWebKit import QWebView
 
 from calibre.customize.ui import metadata_plugins
@@ -407,32 +407,65 @@ class CoversModel(QAbstractListModel): # {{{
         if current_cover is None:
             current_cover = QPixmap(I('default_cover.png'))
 
-        self.covers = [self.get_item(_('Current cover'), current_cover)]
-        for i in range(10):
-           self.covers.append(self.covers[0])
+        self.blank = QPixmap(I('blank.png')).scaled(150, 200)
+
+        self.covers = [self.get_item(_('Current cover'), current_cover, False)]
+        for plugin in metadata_plugins(['cover']):
+            self.covers.append((plugin.name+'\n'+_('Searching...'),
+                QVariant(self.blank), None, True))
         self.log = log
 
-    def get_item(self, src, pmap):
+    def get_item(self, src, pmap, waiting=True):
         sz = '%dx%d'%(pmap.width(), pmap.height())
         text = QVariant(src + '\n' + sz)
         scaled = pmap.scaled(150, 200, Qt.IgnoreAspectRatio,
                 Qt.SmoothTransformation)
-        return (text, QVariant(scaled), pmap)
+        return (text, QVariant(scaled), pmap, waiting)
 
     def rowCount(self, parent=None):
         return len(self.covers)
 
     def data(self, index, role):
         try:
-            text, pmap = self.covers[index.row()][:2]
+            text, pmap, cover, waiting = self.covers[index.row()]
         except:
-            return None
+            return NONE
         if role == Qt.DecorationRole:
             return pmap
         if role == Qt.DisplayRole:
             return text
+        if role == Qt.UserRole:
+            return waiting
         return NONE
 # }}}
+
+class CoverDelegate(QStyledItemDelegate):
+
+    needs_redraw = pyqtSignal()
+
+    def __init__(self, parent=None):
+        QStyledItemDelegate.__init__(self, parent)
+
+        self.movie = QMovie(I('spinner.gif'))
+        self.movie.frameChanged.connect(self.frame_changed)
+
+    def frame_changed(self, *args):
+        self.needs_redraw.emit()
+
+    def start_movie(self):
+        self.movie.start()
+
+    def stop_movie(self):
+        self.movie.stop()
+
+    def paint(self, painter, option, index):
+        waiting = index.data(Qt.UserRole).toBool()
+        if waiting:
+            pixmap = self.movie.currentPixmap()
+            prect = pixmap.rect()
+            prect.moveCenter(option.rect.center())
+            painter.drawPixmap(prect, pixmap, pixmap.rect())
+        QStyledItemDelegate.paint(self, painter, option, index)
 
 class CoversView(QListView): # {{{
 
@@ -449,10 +482,19 @@ class CoversView(QListView): # {{{
         self.setSelectionMode(self.SingleSelection)
         self.setViewMode(self.IconMode)
 
+        self.delegate = CoverDelegate(self)
+        self.setItemDelegate(self.delegate)
+        self.delegate.needs_redraw.connect(self.viewport().update,
+                type=Qt.QueuedConnection)
+
     def select(self, num):
         current = self.model().index(num)
         sm = self.selectionModel()
         sm.select(current, sm.SelectCurrent)
+
+    def start(self):
+        self.select(0)
+        self.delegate.start_movie()
 
 # }}}
 
@@ -476,8 +518,9 @@ class CoverWidget(QWidget): # {{{
         self.book, self.current_cover = book, current_cover
         self.title, self.authors = title, authors
         self.log('\n\nStarting cover download for:', book.title)
-        self.msg.setText(_('Downloading covers for %s, please wait...')%book.title)
-        self.covers_view.select(0)
+        self.msg.setText('<p>'+_('Downloading covers for <b>%s</b>, please wait...')%book.title)
+        self.covers_view.start()
+
 # }}}
 
 class FullFetch(QDialog): # {{{
@@ -514,7 +557,7 @@ class FullFetch(QDialog): # {{{
         self.cover_widget = CoverWidget(self.log, self.current_cover, parent=self)
         self.stack.addWidget(self.cover_widget)
 
-        self.resize(850, 500)
+        self.resize(850, 550)
 
     def book_selected(self, book):
         self.next_button.setVisible(False)
