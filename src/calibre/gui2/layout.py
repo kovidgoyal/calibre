@@ -308,22 +308,44 @@ class MenuBar(QMenuBar): # {{{
         ac.setMenu(m)
         return ac
 
-
-
 # }}}
 
-class ToolBar(QToolBar): # {{{
+class BaseToolBar(QToolBar): # {{{
 
-    def __init__(self, donate, location_manager, child_bar, parent):
+    def __init__(self, parent):
         QToolBar.__init__(self, parent)
-        self.gui = parent
-        self.child_bar = child_bar
         self.setContextMenuPolicy(Qt.PreventContextMenu)
         self.setMovable(False)
         self.setFloatable(False)
         self.setOrientation(Qt.Horizontal)
         self.setAllowedAreas(Qt.TopToolBarArea|Qt.BottomToolBarArea)
         self.setStyleSheet('QToolButton:checked { font-weight: bold }')
+        self.preferred_width = self.sizeHint().width()
+    
+    def resizeEvent(self, ev):
+        QToolBar.resizeEvent(self, ev)
+        style = self.get_text_style()
+        self.setToolButtonStyle(style)
+
+    def get_text_style(self):
+        style = Qt.ToolButtonTextUnderIcon
+        s = gprefs['toolbar_icon_size']
+        if s != 'off':
+            p = gprefs['toolbar_text']
+            if p == 'never':
+                style = Qt.ToolButtonIconOnly
+            elif p == 'auto' and self.preferred_width > self.width()+35:
+                style = Qt.ToolButtonIconOnly
+        return style
+
+# }}}
+
+class ToolBar(BaseToolBar): # {{{
+
+    def __init__(self, donate, location_manager, child_bar, parent):
+        BaseToolBar.__init__(self, parent)
+        self.gui = parent
+        self.child_bar = child_bar
         self.donate_button = donate
         self.apply_settings()
 
@@ -333,7 +355,6 @@ class ToolBar(QToolBar): # {{{
         donate.setCursor(Qt.PointingHandCursor)
         self.added_actions = []
         self.build_bar()
-        self.preferred_width = self.sizeHint().width()
         self.setAcceptDrops(True)
 
     def apply_settings(self):
@@ -403,21 +424,6 @@ class ToolBar(QToolBar): # {{{
         if ac.menu() is not None and menu_mode is not None:
             ch.setPopupMode(menu_mode)
         return ch
-
-    def resizeEvent(self, ev):
-        QToolBar.resizeEvent(self, ev)
-        style = Qt.ToolButtonTextUnderIcon
-        s = gprefs['toolbar_icon_size']
-        if s != 'off':
-            p = gprefs['toolbar_text']
-            if p == 'never':
-                style = Qt.ToolButtonIconOnly
-
-            if p == 'auto' and self.preferred_width > self.width()+35 and \
-                    not gprefs['action-layout-toolbar-child']:
-                style = Qt.ToolButtonIconOnly
-
-        self.setToolButtonStyle(style)
 
     def database_changed(self, db):
         pass
@@ -496,7 +502,7 @@ class MainWindowMixin(object): # {{{
         self.iactions['Fetch News'].init_scheduler(db)
 
         self.search_bar = SearchBar(self)
-        self.child_bar = QToolBar(self)
+        self.child_bar = BaseToolBar(self)
         self.tool_bar = ToolBar(self.donate_button,
                 self.location_manager, self.child_bar, self)
         self.addToolBar(Qt.TopToolBarArea, self.tool_bar)
