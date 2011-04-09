@@ -18,6 +18,7 @@ class FetchAnnotationsAction(InterfaceAction):
 
     name = 'Fetch Annotations'
     action_spec = (_('Fetch annotations (experimental)'), None, None, None)
+    dont_add_to = frozenset(['menubar', 'toolbar', 'context-menu', 'toolbar-child'])
     action_type = 'current'
 
     def genesis(self):

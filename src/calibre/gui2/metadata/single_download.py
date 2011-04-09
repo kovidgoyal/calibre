@@ -52,7 +52,7 @@ class RichTextDelegate(QStyledItemDelegate): # {{{
         painter.restore()
 # }}}
 
-class ResultsModel(QAbstractTableModel):
+class ResultsModel(QAbstractTableModel): # {{{
 
     COLUMNS = (
             '#', _('Title'), _('Published'), _('Has cover'), _('Has summary')
@@ -128,7 +128,7 @@ class ResultsModel(QAbstractTableModel):
         self.results.sort(key=key, reverse=order==Qt.AscendingOrder)
         self.reset()
 
-
+# }}}
 
 class ResultsView(QTableView): # {{{
 
@@ -398,11 +398,23 @@ class IdentifyWidget(QWidget): # {{{
         self.abort.set()
 # }}}
 
-class FullFetch(QDialog): # {{{
+class CoverWidget(QWidget): # {{{
 
     def __init__(self, log, parent=None):
-        QDialog.__init__(self, parent)
+        QWidget.__init__(self, parent)
         self.log = log
+
+    def start(self, book, current_cover, title, authors):
+        self.book, self.current_cover = book, current_cover
+        self.title, self.authors = title, authors
+        self.log('\n\nStarting cover download for:', book.title)
+# }}}
+
+class FullFetch(QDialog): # {{{
+
+    def __init__(self, log, current_cover=None, parent=None):
+        QDialog.__init__(self, parent)
+        self.log, self.current_cover = log, current_cover
 
         self.setWindowTitle(_('Downloading metadata...'))
         self.setWindowIcon(QIcon(I('metadata.png')))
@@ -428,12 +440,19 @@ class FullFetch(QDialog): # {{{
         self.identify_widget.results_found.connect(self.identify_results_found)
         self.identify_widget.book_selected.connect(self.book_selected)
         self.stack.addWidget(self.identify_widget)
+
+        self.cover_widget = CoverWidget(self.log, parent=self)
+        self.stack.addWidget(self.cover_widget)
+
         self.resize(850, 500)
 
     def book_selected(self, book):
-        print (book)
         self.next_button.setVisible(False)
         self.ok_button.setVisible(True)
+        self.book = book
+        self.stack.setCurrentIndex(1)
+        self.cover_widget.start(book, self.current_cover,
+                self.title, self.authors)
 
     def accept(self):
         # Prevent the usual dialog accept mechanisms from working
@@ -453,6 +472,7 @@ class FullFetch(QDialog): # {{{
         pass
 
     def start(self, title=None, authors=None, identifiers={}):
+        self.title, self.authors = title, authors
         self.identify_widget.start(title=title, authors=authors,
                 identifiers=identifiers)
         self.exec_()
