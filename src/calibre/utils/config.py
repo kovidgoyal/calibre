@@ -785,6 +785,9 @@ def write_tweaks(raw):
 
 tweaks = read_tweaks()
 test_eight_code = tweaks.get('test_eight_code', False)
+# test_eight_code notes
+# Change documentation of bool columns are tristate to indicate that it can be
+# overridden on a per library basis via Preferences->Custom columns
 
 def migrate():
     if hasattr(os, 'geteuid') and os.geteuid() == 0:

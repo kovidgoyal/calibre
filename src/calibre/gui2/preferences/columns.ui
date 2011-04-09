@@ -218,7 +218,7 @@
         <item row="0" column="1">
          <widget class="QComboBox" name="opt_edit_metadata_single_layout">
           <property name="toolTip">
-           <string>Choose varying layouts in the Edit Metadata Single dialog.</string>
+           <string>Choose a different layout for the Edit Metadata dialog. Alternate layouts make it easier to edit custom columns.</string>
           </property>
          </widget>
         </item>
