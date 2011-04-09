@@ -165,6 +165,10 @@ class ConnectShareAction(InterfaceAction):
 
     def content_server_state_changed(self, running):
         self.share_conn_menu.server_state_changed(running)
+        if running:
+            self.qaction.setIcon(QIcon(I('connect_share_on.png')))
+        else:
+            self.qaction.setIcon(QIcon(I('connect_share.png')))
 
     def toggle_content_server(self):
         if self.gui.content_server is None:
