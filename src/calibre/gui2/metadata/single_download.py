@@ -15,7 +15,7 @@ from PyQt4.Qt import (QStyledItemDelegate, QTextDocument, QRectF, QIcon, Qt,
         QStyle, QApplication, QDialog, QVBoxLayout, QLabel, QDialogButtonBox,
         QStackedWidget, QWidget, QTableView, QGridLayout, QFontInfo, QPalette,
         QTimer, pyqtSignal, QAbstractTableModel, QVariant, QSize, QListView,
-        QPixmap, QAbstractListModel, QColor, QRect)
+        QPixmap, QAbstractListModel, QColor, QRect, QTextBrowser)
 from PyQt4.QtWebKit import QWebView
 
 from calibre.customize.ui import metadata_plugins
@@ -28,7 +28,7 @@ from calibre.utils.date import utcnow, fromordinal, format_date
 from calibre.library.comments import comments_to_html
 from calibre import force_unicode
 
-DEVELOP_DIALOG = False
+DEBUG_DIALOG = False
 
 class RichTextDelegate(QStyledItemDelegate): # {{{
 
@@ -55,6 +55,65 @@ class RichTextDelegate(QStyledItemDelegate): # {{{
         painter.translate(option.rect.topLeft())
         self.to_doc(index).drawContents(painter)
         painter.restore()
+# }}}
+
+class CoverDelegate(QStyledItemDelegate): # {{{
+
+    needs_redraw = pyqtSignal()
+
+    def __init__(self, parent):
+        QStyledItemDelegate.__init__(self, parent)
+
+        self.angle = 0
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.frame_changed)
+        self.color = parent.palette().color(QPalette.WindowText)
+        self.spinner_width = 64
+
+    def frame_changed(self, *args):
+        self.angle = (self.angle+30)%360
+        self.needs_redraw.emit()
+
+    def start_animation(self):
+        self.angle = 0
+        self.timer.start(200)
+
+    def stop_animation(self):
+        self.timer.stop()
+
+    def draw_spinner(self, painter, rect):
+        width = rect.width()
+
+        outer_radius = (width-1)*0.5
+        inner_radius = (width-1)*0.5*0.38
+
+        capsule_height = outer_radius - inner_radius
+        capsule_width  = int(capsule_height * (0.23 if width > 32 else 0.35))
+        capsule_radius = capsule_width//2
+
+        painter.save()
+        painter.setRenderHint(painter.Antialiasing)
+
+        for i in xrange(12):
+            color = QColor(self.color)
+            color.setAlphaF(1.0 - (i/12.0))
+            painter.setPen(Qt.NoPen)
+            painter.setBrush(color)
+            painter.save()
+            painter.translate(rect.center())
+            painter.rotate(self.angle - i*30.0)
+            painter.drawRoundedRect(-capsule_width*0.5,
+                    -(inner_radius+capsule_height), capsule_width,
+                    capsule_height, capsule_radius, capsule_radius)
+            painter.restore()
+        painter.restore()
+
+    def paint(self, painter, option, index):
+        QStyledItemDelegate.paint(self, painter, option, index)
+        if self.timer.isActive() and index.data(Qt.UserRole).toBool():
+            rect = QRect(0, 0, self.spinner_width, self.spinner_width)
+            rect.moveCenter(option.rect.center())
+            self.draw_spinner(painter, rect)
 # }}}
 
 class ResultsModel(QAbstractTableModel): # {{{
@@ -273,7 +332,7 @@ class IdentifyWorker(Thread): # {{{
 
     def run(self):
         try:
-            if DEVELOP_DIALOG:
+            if DEBUG_DIALOG:
                 self.results = self.sample_results()
             else:
                 self.results = identify(self.log, self.abort, title=self.title,
@@ -425,7 +484,7 @@ class CoverWorker(Thread): # {{{
 
     def run(self):
         try:
-            if DEVELOP_DIALOG:
+            if DEBUG_DIALOG:
                 self.fake_run()
             else:
                 from calibre.ebooks.metadata.sources.covers import run_download
@@ -519,65 +578,6 @@ class CoversModel(QAbstractListModel): # {{{
             if pmap is not None and not pmap.isNull():
                 return pmap
 
-# }}}
-
-class CoverDelegate(QStyledItemDelegate): # {{{
-
-    needs_redraw = pyqtSignal()
-
-    def __init__(self, parent):
-        QStyledItemDelegate.__init__(self, parent)
-
-        self.angle = 0
-        self.timer = QTimer(self)
-        self.timer.timeout.connect(self.frame_changed)
-        self.color = parent.palette().color(QPalette.WindowText)
-        self.spinner_width = 64
-
-    def frame_changed(self, *args):
-        self.angle = (self.angle+30)%360
-        self.needs_redraw.emit()
-
-    def start_animation(self):
-        self.angle = 0
-        self.timer.start(200)
-
-    def stop_animation(self):
-        self.timer.stop()
-
-    def draw_spinner(self, painter, rect):
-        width = rect.width()
-
-        outer_radius = (width-1)*0.5
-        inner_radius = (width-1)*0.5*0.38
-
-        capsule_height = outer_radius - inner_radius
-        capsule_width  = int(capsule_height * (0.23 if width > 32 else 0.35))
-        capsule_radius = capsule_width//2
-
-        painter.save()
-        painter.setRenderHint(painter.Antialiasing)
-
-        for i in xrange(12):
-            color = QColor(self.color)
-            color.setAlphaF(1.0 - (i/12.0))
-            painter.setPen(Qt.NoPen)
-            painter.setBrush(color)
-            painter.save()
-            painter.translate(rect.center())
-            painter.rotate(self.angle - i*30.0)
-            painter.drawRoundedRect(-capsule_width*0.5,
-                    -(inner_radius+capsule_height), capsule_width,
-                    capsule_height, capsule_radius, capsule_radius)
-            painter.restore()
-        painter.restore()
-
-    def paint(self, painter, option, index):
-        QStyledItemDelegate.paint(self, painter, option, index)
-        if self.timer.isActive() and index.data(Qt.UserRole).toBool():
-            rect = QRect(0, 0, self.spinner_width, self.spinner_width)
-            rect.moveCenter(option.rect.center())
-            self.draw_spinner(painter, rect)
 # }}}
 
 class CoversView(QListView): # {{{
@@ -714,6 +714,46 @@ class CoversWidget(QWidget): # {{{
             idx = self.covers_view.currentIndex()
         return self.covers_view.model().cover_pixmap(idx)
 
+# }}}
+
+class LogViewer(QDialog): # {{{
+
+    def __init__(self, log, parent=None):
+        QDialog.__init__(self, parent)
+        self.log = log
+        self.l = l = QVBoxLayout()
+        self.setLayout(l)
+
+        self.tb = QTextBrowser(self)
+        l.addWidget(self.tb)
+
+        self.bb = QDialogButtonBox(QDialogButtonBox.Close)
+        l.addWidget(self.bb)
+        self.bb.rejected.connect(self.reject)
+        self.bb.accepted.connect(self.accept)
+
+        self.setWindowTitle(_('Download log'))
+        self.setWindowIcon(QIcon(I('debug.png')))
+        self.resize(QSize(800, 400))
+
+        self.keep_updating = True
+        self.last_html = None
+        self.finished.connect(self.stop)
+        QTimer.singleShot(1000, self.update_log)
+
+        self.show()
+
+    def stop(self, *args):
+        self.keep_updating = False
+
+    def update_log(self):
+        if not self.keep_updating:
+            return
+        html = self.log.html
+        if html != self.last_html:
+            self.last_html = html
+            self.tb.setHtml('<pre>%s</pre>'%html)
+        QTimer.singleShot(1000, self.update_log)
 
 # }}}
 
@@ -738,10 +778,14 @@ class FullFetch(QDialog): # {{{
         self.next_button = self.bb.addButton(_('Next'), self.bb.AcceptRole)
         self.next_button.setDefault(True)
         self.next_button.setEnabled(False)
+        self.next_button.setIcon(QIcon(I('ok.png')))
         self.next_button.clicked.connect(self.next_clicked)
         self.ok_button = self.bb.button(self.bb.Ok)
-        self.ok_button.setVisible(False)
         self.ok_button.clicked.connect(self.ok_clicked)
+        self.log_button = self.bb.addButton(_('View log'), self.bb.ActionRole)
+        self.log_button.clicked.connect(self.view_log)
+        self.log_button.setIcon(QIcon(I('debug.png')))
+        self.ok_button.setVisible(False)
 
         self.identify_widget = IdentifyWidget(log, self)
         self.identify_widget.rejected.connect(self.reject)
@@ -756,6 +800,9 @@ class FullFetch(QDialog): # {{{
         self.resize(850, 550)
 
         self.finished.connect(self.cleanup)
+
+    def view_log(self):
+        self._lv = LogViewer(self.log, self)
 
     def book_selected(self, book):
         self.next_button.setVisible(False)
@@ -784,7 +831,7 @@ class FullFetch(QDialog): # {{{
 
     def ok_clicked(self, *args):
         self.cover_pixmap = self.covers_widget.cover_pixmap()
-        if DEVELOP_DIALOG:
+        if DEBUG_DIALOG:
             if self.cover_pixmap is not None:
                 self.w = QLabel()
                 self.w.setPixmap(self.cover_pixmap)
@@ -801,7 +848,7 @@ class FullFetch(QDialog): # {{{
 # }}}
 
 if __name__ == '__main__':
-    DEVELOP_DIALOG = True
+    DEBUG_DIALOG = True
     app = QApplication([])
     d = FullFetch(Log())
     d.start(title='great gatsby', authors=['Fitzgerald'])
