@@ -705,8 +705,15 @@ class CoversWidget(QWidget): # {{{
         self.abort.set()
 
     def cover_pixmap(self):
-        return self.covers_view.model().cover_pixmap(
-                self.covers_view.currentIndex())
+        idx = None
+        for i in self.covers_view.selectionModel().selectedIndexes():
+            if i.isValid():
+                idx = i
+                break
+        if idx is None:
+            idx = self.covers_view.currentIndex()
+        return self.covers_view.model().cover_pixmap(idx)
+
 
 # }}}
 
