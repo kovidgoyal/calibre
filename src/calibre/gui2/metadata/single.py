@@ -658,7 +658,7 @@ editors = {'default': MetadataSingleDialog, 'alt1': MetadataSingleDialogAlt1}
 
 def edit_metadata(db, row_list, current_row, parent=None, view_slot=None,
         set_current_callback=None):
-    cls = db.prefs.get('edit_metadata_single_layout', '')
+    cls = gprefs.get('edit_metadata_single_layout', '')
     if cls not in editors:
         cls = 'default'
     d = editors[cls](db, parent)

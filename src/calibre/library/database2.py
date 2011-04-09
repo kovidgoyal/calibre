@@ -40,7 +40,6 @@ from calibre.ebooks import BOOK_EXTENSIONS, check_ebook_format
 from calibre.utils.magick.draw import save_cover_data_to
 from calibre.utils.recycle_bin import delete_file, delete_tree
 from calibre.utils.formatter_functions import load_user_template_functions
-from calibre.utils.config import test_eight_code
 
 copyfile = os.link if hasattr(os, 'link') else shutil.copyfile
 
@@ -213,11 +212,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         defs = self.prefs.defaults
         defs['gui_restriction'] = defs['cs_restriction'] = ''
         defs['categories_using_hierarchy'] = []
-        defs['edit_metadata_single_layout'] = 'default'
 
         defs['bools_are_tristate'] = \
                 tweaks.get('bool_custom_columns_are_tristate', 'yes') == 'yes'
-        if self.prefs.get('bools_are_tristate') is None or not test_eight_code:
+        if self.prefs.get('bools_are_tristate') is None:
             self.prefs.set('bools_are_tristate', defs['bools_are_tristate'])
 
         # Migrate saved search and user categories to db preference scheme
