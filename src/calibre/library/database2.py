@@ -213,6 +213,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         defs['gui_restriction'] = defs['cs_restriction'] = ''
         defs['categories_using_hierarchy'] = []
 
+        # Migrate the bool tristate tweak
         defs['bools_are_tristate'] = \
                 tweaks.get('bool_custom_columns_are_tristate', 'yes') == 'yes'
         if self.prefs.get('bools_are_tristate') is None:
