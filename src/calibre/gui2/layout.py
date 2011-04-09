@@ -382,16 +382,12 @@ class ToolBar(QToolBar): # {{{
                         bar.added_actions.append(ac)
                         bar.setup_tool_button(bar, ac, QToolButton.MenuButtonPopup)
                 elif what == 'Donate':
-                    if isosx:
-                        bar.addAction(self.gui.donate_action)
-                        ch = self.setup_tool_button(bar, self.gui.donate_action)
-                        ch.setText(_('Donate'))
-                    else:
-                        self.d_widget = QWidget()
-                        self.d_widget.setLayout(QVBoxLayout())
-                        self.d_widget.layout().addWidget(self.donate_button)
-                        bar.addWidget(self.d_widget)
-                        self.showing_donate = True
+                    self.d_widget = QWidget()
+                    self.d_widget.setLayout(QVBoxLayout())
+                    self.d_widget.layout().addWidget(self.donate_button)
+                    self.d_widget.setStyleSheet('QWidget, QToolButton {background-color: none; border: none; }')
+                    bar.addWidget(self.d_widget)
+                    self.showing_donate = True
                 elif what in self.gui.iactions:
                     action = self.gui.iactions[what]
                     bar.addAction(action.qaction)
