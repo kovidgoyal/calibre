@@ -238,7 +238,7 @@ class Spacer(QWidget): # {{{
         self.l.addStretch(10)
 # }}}
 
-class MenuAction(QAction):
+class MenuAction(QAction): # {{{
 
     def __init__(self, clone, parent):
         QAction.__init__(self, clone.text(), parent)
@@ -247,7 +247,7 @@ class MenuAction(QAction):
 
     def clone_changed(self):
         self.setText(self.clone.text())
-
+# }}}
 
 class MenuBar(QMenuBar): # {{{
 
