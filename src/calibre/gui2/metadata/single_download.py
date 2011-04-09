@@ -13,7 +13,8 @@ from operator import attrgetter
 from PyQt4.Qt import (QStyledItemDelegate, QTextDocument, QRectF, QIcon, Qt,
         QStyle, QApplication, QDialog, QVBoxLayout, QLabel, QDialogButtonBox,
         QStackedWidget, QWidget, QTableView, QGridLayout, QFontInfo, QPalette,
-        QTimer, pyqtSignal, QAbstractTableModel, QVariant, QSize)
+        QTimer, pyqtSignal, QAbstractTableModel, QVariant, QSize, QListView,
+        QPixmap, QAbstractListModel)
 from PyQt4.QtWebKit import QWebView
 
 from calibre.customize.ui import metadata_plugins
@@ -398,16 +399,85 @@ class IdentifyWidget(QWidget): # {{{
         self.abort.set()
 # }}}
 
+class CoversModel(QAbstractListModel): # {{{
+
+    def __init__(self, log, current_cover, parent=None):
+        QAbstractListModel.__init__(self, parent)
+
+        if current_cover is None:
+            current_cover = QPixmap(I('default_cover.png'))
+
+        self.covers = [self.get_item(_('Current cover'), current_cover)]
+        for i in range(10):
+           self.covers.append(self.covers[0])
+        self.log = log
+
+    def get_item(self, src, pmap):
+        sz = '%dx%d'%(pmap.width(), pmap.height())
+        text = QVariant(src + '\n' + sz)
+        scaled = pmap.scaled(150, 200, Qt.IgnoreAspectRatio,
+                Qt.SmoothTransformation)
+        return (text, QVariant(scaled), pmap)
+
+    def rowCount(self, parent=None):
+        return len(self.covers)
+
+    def data(self, index, role):
+        try:
+            text, pmap = self.covers[index.row()][:2]
+        except:
+            return None
+        if role == Qt.DecorationRole:
+            return pmap
+        if role == Qt.DisplayRole:
+            return text
+        return NONE
+# }}}
+
+class CoversView(QListView): # {{{
+
+    def __init__(self, log, current_cover, parent=None):
+        QListView.__init__(self, parent)
+        self.m = CoversModel(log, current_cover, self)
+        self.setModel(self.m)
+
+        self.setFlow(self.LeftToRight)
+        self.setWrapping(True)
+        self.setResizeMode(self.Adjust)
+        self.setGridSize(QSize(190, 260))
+        self.setIconSize(QSize(150, 200))
+        self.setSelectionMode(self.SingleSelection)
+        self.setViewMode(self.IconMode)
+
+    def select(self, num):
+        current = self.model().index(num)
+        sm = self.selectionModel()
+        sm.select(current, sm.SelectCurrent)
+
+# }}}
+
 class CoverWidget(QWidget): # {{{
 
-    def __init__(self, log, parent=None):
+    def __init__(self, log, current_cover, parent=None):
         QWidget.__init__(self, parent)
         self.log = log
+
+        self.l = l = QGridLayout()
+        self.setLayout(l)
+
+        self.msg = QLabel()
+        self.msg.setWordWrap(True)
+        l.addWidget(self.msg, 0, 0)
+
+        self.covers_view = CoversView(log, current_cover, self)
+        l.addWidget(self.covers_view, 1, 0)
 
     def start(self, book, current_cover, title, authors):
         self.book, self.current_cover = book, current_cover
         self.title, self.authors = title, authors
         self.log('\n\nStarting cover download for:', book.title)
+        self.msg.setText(_('Downloading covers for %s, please wait...')%book.title)
+        self.covers_view.select(0)
 # }}}
 
 class FullFetch(QDialog): # {{{
@@ -441,7 +511,7 @@ class FullFetch(QDialog): # {{{
         self.identify_widget.book_selected.connect(self.book_selected)
         self.stack.addWidget(self.identify_widget)
 
-        self.cover_widget = CoverWidget(self.log, parent=self)
+        self.cover_widget = CoverWidget(self.log, self.current_cover, parent=self)
         self.stack.addWidget(self.cover_widget)
 
         self.resize(850, 500)
