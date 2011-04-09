@@ -417,8 +417,11 @@ class CoverWorker(Thread): # {{{
         self.error = None
 
     def fake_run(self):
+        images = ['donate.png', 'config.png', 'column.png', 'eject.png', ]
         import time
         time.sleep(2)
+        for pl, im in zip(metadata_plugins(['cover']), images):
+            self.rq.put((pl, 1, 1, 'png', I(im, data=True)))
 
     def run(self):
         try:
@@ -509,10 +512,10 @@ class CoversModel(QAbstractListModel): # {{{
         self.covers[idx] = self.get_item(plugin.name, pmap, waiting=False)
         self.dataChanged.emit(self.index(idx), self.index(idx))
 
-    def cover_pmap(self, index):
+    def cover_pixmap(self, index):
         row = index.row()
         if row > 0 and row < len(self.covers):
-            pmap = self.books[row][2]
+            pmap = self.covers[row][2]
             if pmap is not None and not pmap.isNull():
                 return pmap
 
@@ -682,7 +685,7 @@ class CoversWidget(QWidget): # {{{
             txt = _('Could not find any covers for <b>%s</b>')%self.book.title
         else:
             txt = _('Found <b>%d</b> covers of %s. Pick the one you like'
-                    ' best.')%(num, self.title)
+                    ' best.')%(num-1, self.title)
         self.msg.setText(txt)
 
         self.finished.emit()
@@ -701,9 +704,8 @@ class CoversWidget(QWidget): # {{{
         self.continue_processing = False
         self.abort.set()
 
-    @property
-    def cover_pmap(self):
-        return self.covers_view.model().cover_pmap(
+    def cover_pixmap(self):
+        return self.covers_view.model().cover_pixmap(
                 self.covers_view.currentIndex())
 
 # }}}
@@ -713,7 +715,7 @@ class FullFetch(QDialog): # {{{
     def __init__(self, log, current_cover=None, parent=None):
         QDialog.__init__(self, parent)
         self.log, self.current_cover = log, current_cover
-        self.book = self.cover_pmap = None
+        self.book = self.cover_pixmap = None
 
         self.setWindowTitle(_('Downloading metadata...'))
         self.setWindowIcon(QIcon(I('metadata.png')))
@@ -774,8 +776,15 @@ class FullFetch(QDialog): # {{{
         self.identify_widget.get_result()
 
     def ok_clicked(self, *args):
-        self.cover_pmap = self.covers_widget.cover_pmap
-        QDialog.accept(self)
+        self.cover_pixmap = self.covers_widget.cover_pixmap()
+        if DEVELOP_DIALOG:
+            if self.cover_pixmap is not None:
+                self.w = QLabel()
+                self.w.setPixmap(self.cover_pixmap)
+                self.stack.addWidget(self.w)
+                self.stack.setCurrentIndex(2)
+        else:
+            QDialog.accept(self)
 
     def start(self, title=None, authors=None, identifiers={}):
         self.title, self.authors = title, authors
