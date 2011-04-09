@@ -31,8 +31,8 @@ if isosx:
         )
     gprefs.defaults['action-layout-menubar-device'] = (
         'Add Books', 'Edit Metadata', 'Convert Books',
-        'Location Manager', 'Location Manager',
-        'Send To Device', 'Preferences', 'Help',
+        'Location Manager', 'Send To Device',
+        'Save To Disk', 'Preferences', 'Help',
         )
     gprefs.defaults['action-layout-toolbar'] = (
         'Add Books', 'Edit Metadata', None, 'Convert Books', 'View', None,
