@@ -604,7 +604,10 @@ class BooksModel(QAbstractTableModel): # {{{
         def size(r, idx=-1):
             size = self.db.data[r][idx]
             if size:
-                return QVariant('%.1f'%(float(size)/(1024*1024)))
+                ans = '%.1f'%(float(size)/(1024*1024))
+                if ans == '0.0':
+                    ans = '<0.1'
+                return QVariant(ans)
             return None
 
         def rating_type(r, idx=-1):
