@@ -341,7 +341,8 @@ class Amazon(Source):
             # Insufficient metadata to make an identify query
             return None
 
-        latin1q = dict([(x.encode('latin1'), y.encode('latin1')) for x, y in
+        latin1q = dict([(x.encode('latin1', 'ignore'), y.encode('latin1',
+            'ignore')) for x, y in
             q.iteritems()])
         url = 'http://www.amazon.%s/s/?'%domain + urlencode(latin1q)
         return url
