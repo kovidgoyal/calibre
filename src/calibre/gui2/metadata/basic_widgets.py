@@ -172,6 +172,7 @@ class AuthorsEdit(MultiCompleteComboBox):
         self.books_to_refresh = set([])
         all_authors = db.all_authors()
         all_authors.sort(key=lambda x : sort_key(x[1]))
+        self.clear()
         for i in all_authors:
             id, name = i
             name = [name.strip().replace('|', ',') for n in name.split(',')]
@@ -326,6 +327,7 @@ class SeriesEdit(MultiCompleteComboBox):
         self.update_items_cache([x[1] for x in all_series])
         series_id = db.series_id(id_, index_is_id=True)
         idx, c = None, 0
+        self.clear()
         for i in all_series:
             id, name = i
             if id == series_id:
