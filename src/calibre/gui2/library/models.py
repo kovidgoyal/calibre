@@ -605,7 +605,7 @@ class BooksModel(QAbstractTableModel): # {{{
             size = self.db.data[r][idx]
             if size:
                 ans = '%.1f'%(float(size)/(1024*1024))
-                if ans == '0.0':
+                if size > 0 and ans == '0.0':
                     ans = '<0.1'
                 return QVariant(ans)
             return None
