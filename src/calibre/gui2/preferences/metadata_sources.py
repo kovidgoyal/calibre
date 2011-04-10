@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 from operator import attrgetter
 
-from PyQt4.Qt import (QAbstractTableModel, Qt)
+from PyQt4.Qt import (QAbstractTableModel, Qt, QAbstractListModel)
 
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget
 from calibre.gui2.preferences.metadata_sources_ui import Ui_Form
@@ -125,6 +125,29 @@ class SourcesModel(QAbstractTableModel): # {{{
 
 # }}}
 
+class FieldsModel(QAbstractListModel): # {{{
+
+    def __init__(self, parent=None):
+        QAbstractTableModel.__init__(self, parent)
+
+        self.fields = []
+
+    def rowCount(self, parent=None):
+        return len(self.fields)
+
+    def initialize(self):
+        fields = set()
+        for p in all_metadata_plugins():
+            fields |= p.touched_fields
+        self.fields = []
+        for x in fields:
+            if not x.startswith('identifiers:'):
+                self.fields.append(x)
+        self.reset()
+
+
+# }}}
+
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def genesis(self, gui):
@@ -138,6 +161,10 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.sources_model = SourcesModel(self)
         self.sources_view.setModel(self.sources_model)
         self.sources_model.dataChanged.connect(self.changed_signal)
+
+        self.fields_model = FieldsModel(self)
+        self.fields_view.setModel(self.fields_model)
+        self.fields_model.dataChanged.connect(self.changed_signal)
 
     def configure_plugin(self):
         pass
