@@ -988,13 +988,13 @@ class PublisherEdit(MultiCompleteComboBox): # {{{
         all_publishers.sort(key=lambda x : sort_key(x[1]))
         self.update_items_cache([x[1] for x in all_publishers])
         publisher_id = db.publisher_id(id_, index_is_id=True)
-        idx, c = None, 0
-        for i in all_publishers:
-            id, name = i
-            if id == publisher_id:
-                idx = c
+        idx = None
+        self.clear()
+        for i, x in enumerate(all_publishers):
+            id_, name = x
+            if id_ == publisher_id:
+                idx = i
             self.addItem(name)
-            c += 1
 
         self.setEditText('')
         if idx is not None:
