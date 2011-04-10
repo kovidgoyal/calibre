@@ -542,10 +542,26 @@ class MetadataSingleDialog(MetadataSingleDialogBase): # {{{
 
 # }}}
 
+class DragTrackingWidget(QWidget): # {{{
+
+    def __init__(self, parent, on_drag_enter):
+        QWidget.__init__(self, parent)
+        self.on_drag_enter = on_drag_enter
+
+    def dragEnterEvent(self, ev):
+        self.on_drag_enter.emit()
+
+# }}}
+
 class MetadataSingleDialogAlt1(MetadataSingleDialogBase): # {{{
 
     cc_two_column = False
     one_line_comments_toolbar = True
+
+    on_drag_enter = pyqtSignal()
+
+    def handle_drag_enter(self):
+        self.central_widget.setCurrentIndex(1)
 
     def do_layout(self):
         self.central_widget.clear()
@@ -553,7 +569,8 @@ class MetadataSingleDialogAlt1(MetadataSingleDialogBase): # {{{
         self.labels = []
         sto = QWidget.setTabOrder
 
-        self.tabs.append(QWidget(self))
+        self.on_drag_enter.connect(self.handle_drag_enter)
+        self.tabs.append(DragTrackingWidget(self, self.on_drag_enter))
         self.central_widget.addTab(self.tabs[0], _("&Metadata"))
         self.tabs[0].l = QGridLayout()
         self.tabs[0].setLayout(self.tabs[0].l)
@@ -563,6 +580,10 @@ class MetadataSingleDialogAlt1(MetadataSingleDialogBase): # {{{
         self.tabs[1].l = QGridLayout()
         self.tabs[1].setLayout(self.tabs[1].l)
 
+        # accept drop events so we can automatically switch to the second tab to
+        # drop covers and formats
+        self.tabs[0].setAcceptDrops(True)
+
         # Tab 0
         tab0 = self.tabs[0]
 
@@ -571,6 +592,8 @@ class MetadataSingleDialogAlt1(MetadataSingleDialogBase): # {{{
         self.tabs[0].l.addWidget(gb, 0, 0, 1, 1)
         gb.setLayout(tl)
 
+        self.button_box.addButton(self.fetch_metadata_button,
+                                  QDialogButtonBox.ActionRole)
         sto(self.button_box, self.title)
 
         def create_row(row, widget, tab_to, button=None, icon=None, span=1):
@@ -660,7 +683,6 @@ class MetadataSingleDialogAlt1(MetadataSingleDialogBase): # {{{
         wgl.addWidget(gb)
         wgl.addItem(QSpacerItem(10, 10, QSizePolicy.Expanding,
             QSizePolicy.Expanding))
-        wgl.addWidget(self.fetch_metadata_button)
         wgl.addItem(QSpacerItem(10, 10, QSizePolicy.Expanding,
             QSizePolicy.Expanding))
         wgl.addWidget(self.formats_manager)
