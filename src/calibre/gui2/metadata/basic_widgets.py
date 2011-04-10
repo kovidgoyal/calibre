@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 import textwrap, re, os
 
-from PyQt4.Qt import (Qt, QDateEdit, QDate,
+from PyQt4.Qt import (Qt, QDateEdit, QDate, pyqtSignal,
     QIcon, QToolButton, QWidget, QLabel, QGridLayout,
     QDoubleSpinBox, QListWidgetItem, QSize, QPixmap,
     QPushButton, QSpinBox, QLineEdit, QSizePolicy)
@@ -613,6 +613,8 @@ class FormatsManager(QWidget): # {{{
 
 class Cover(ImageView): # {{{
 
+    download_cover = pyqtSignal()
+
     def __init__(self, parent):
         ImageView.__init__(self, parent)
         self.dialog = parent
@@ -702,9 +704,6 @@ class Cover(ImageView): # {{{
         im.trim(10)
         cdata = im.export('png')
         self.current_val = cdata
-
-    def download_cover(self, *args):
-        pass # TODO: Implement this
 
     def generate_cover(self, *args):
         from calibre.ebooks import calibre_cover

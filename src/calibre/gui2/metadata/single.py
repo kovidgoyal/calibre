@@ -133,6 +133,7 @@ class MetadataSingleDialogBase(ResizableDialog):
         self.formats_manager.cover_from_format_button.clicked.connect(
                 self.cover_from_format)
         self.cover = Cover(self)
+        self.cover.download_cover.connect(self.download_cover)
         self.basic_metadata_widgets.append(self.cover)
 
         self.comments = CommentsEdit(self, self.one_line_comments_toolbar)
@@ -159,7 +160,7 @@ class MetadataSingleDialogBase(ResizableDialog):
         self.basic_metadata_widgets.extend([self.timestamp, self.pubdate])
 
         self.fetch_metadata_button = QPushButton(
-                _('&Fetch metadata from server'), self)
+                _('&Download metadata'), self)
         self.fetch_metadata_button.clicked.connect(self.fetch_metadata)
         font = self.fmb_font = QFont()
         font.setBold(True)
@@ -313,6 +314,17 @@ class MetadataSingleDialogBase(ResizableDialog):
                 self.update_from_mi(mi)
             if d.cover_pixmap is not None:
                 self.cover.current_val = pixmap_to_data(d.cover_pixmap)
+
+    def download_cover(self, *args):
+        from calibre.gui2.metadata.single_download import CoverFetch
+        d = CoverFetch(self.cover.pixmap(), self)
+        ret = d.start(self.title.current_val, self.authors.current_val,
+                self.identifiers.current_val)
+        if ret == d.Accepted:
+            if d.cover_pixmap is not None:
+                self.cover.current_val = pixmap_to_data(d.cover_pixmap)
+
+
     # }}}
 
     def apply_changes(self):

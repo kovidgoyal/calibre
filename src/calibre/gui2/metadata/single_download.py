@@ -678,7 +678,8 @@ class CoversWidget(QWidget): # {{{
     def start(self, book, current_cover, title, authors):
         self.book, self.current_cover = book, current_cover
         self.title, self.authors = title, authors
-        self.log('\n\nStarting cover download for:', book.title)
+        self.log('Starting cover download for:', book.title)
+        self.log('Query:', title, authors, self.book.identifiers)
         self.msg.setText('<p>'+_('Downloading covers for <b>%s</b>, please wait...')%book.title)
         self.covers_view.start()
 
@@ -850,6 +851,7 @@ class FullFetch(QDialog): # {{{
         self.ok_button.setVisible(True)
         self.book = book
         self.stack.setCurrentIndex(1)
+        self.log('\n\n')
         self.covers_widget.start(book, self.current_cover,
                 self.title, self.authors)
 
@@ -859,6 +861,7 @@ class FullFetch(QDialog): # {{{
 
     def reject(self):
         self.identify_widget.cancel()
+        self.covers_widget.cancel()
         return QDialog.reject(self)
 
     def cleanup(self):
@@ -886,6 +889,59 @@ class FullFetch(QDialog): # {{{
         self.identify_widget.start(title=title, authors=authors,
                 identifiers=identifiers)
         return self.exec_()
+# }}}
+
+class CoverFetch(QDialog): # {{{
+
+    def __init__(self, current_cover=None, parent=None):
+        QDialog.__init__(self, parent)
+        self.current_cover = current_cover
+        self.log = Log()
+        self.cover_pixmap = None
+
+        self.setWindowTitle(_('Downloading cover...'))
+        self.setWindowIcon(QIcon(I('book.png')))
+
+        self.l = l = QVBoxLayout()
+        self.setLayout(l)
+
+        self.covers_widget = CoversWidget(self.log, self.current_cover, parent=self)
+        self.covers_widget.chosen.connect(self.accept)
+        l.addWidget(self.covers_widget)
+
+        self.resize(850, 550)
+
+        self.finished.connect(self.cleanup)
+
+        self.bb = QDialogButtonBox(QDialogButtonBox.Cancel|QDialogButtonBox.Ok)
+        l.addWidget(self.bb)
+        self.log_button = self.bb.addButton(_('View log'), self.bb.ActionRole)
+        self.log_button.clicked.connect(self.view_log)
+        self.log_button.setIcon(QIcon(I('debug.png')))
+        self.bb.rejected.connect(self.reject)
+        self.bb.accepted.connect(self.accept)
+
+    def cleanup(self):
+        self.covers_widget.cleanup()
+
+    def reject(self):
+        self.covers_widget.cancel()
+        return QDialog.reject(self)
+
+    def accept(self, *args):
+        self.cover_pixmap = self.covers_widget.cover_pixmap()
+        QDialog.accept(self)
+
+    def start(self, title, authors, identifiers):
+        book = Metadata(title, authors)
+        book.identifiers = identifiers
+        self.covers_widget.start(book, self.current_cover,
+                title, authors)
+        return self.exec_()
+
+    def view_log(self):
+        self._lv = LogViewer(self.log, self)
+
 # }}}
 
 if __name__ == '__main__':
