@@ -46,9 +46,8 @@ class RichTextDelegate(QStyledItemDelegate): # {{{
     def sizeHint(self, option, index):
         doc = self.to_doc(index)
         ans = doc.size().toSize()
-        if ans.width() > 250:
-            doc.setTextWidth(250)
-            ans = doc.size().toSize()
+        if ans.width() > 150:
+            ans.setWidth(160)
         ans.setHeight(ans.height()+10)
         return ans
 
@@ -190,7 +189,7 @@ class ResultsModel(QAbstractTableModel): # {{{
         elif col == 1:
             key = attrgetter('title')
         elif col == 2:
-            key = attrgetter('authors')
+            key = attrgetter('pubdate')
         elif col == 3:
             key = attrgetter('has_cached_cover_url')
         elif key == 4:
@@ -561,16 +560,23 @@ class CoversModel(QAbstractListModel): # {{{
             if v == row:
                 return k
 
+    def cover_keygen(self, x):
+        pmap = x[2]
+        if pmap is None:
+            return 1
+        return pmap.width()*pmap.height()
+
+
     def clear_failed(self):
         good = []
         pmap = {}
-        for i, x in enumerate(self.covers):
+        dcovers = sorted(self.covers[1:], key=self.cover_keygen, reverse=True)
+        for i, x in enumerate(self.covers[0:1] + dcovers):
             if not x[-1]:
                 good.append(x)
                 if i > 0:
                     plugin = self.plugin_for_index(i)
                     pmap[plugin] = len(good) - 1
-        good = [x for x in self.covers if not x[-1]]
         self.covers = good
         self.plugin_map = pmap
         self.reset()
@@ -871,5 +877,5 @@ if __name__ == '__main__':
     #DEBUG_DIALOG = True
     app = QApplication([])
     d = FullFetch(Log())
-    d.start(title='great gatsby', authors=['Fitzgerald'])
+    d.start(title='jurassic', authors=['crichton'])
 

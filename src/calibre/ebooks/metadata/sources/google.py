@@ -133,7 +133,7 @@ def to_metadata(browser, log, entry_, timeout): # {{{
             default = utcnow().replace(day=15)
             mi.pubdate = parse_date(pubdate, assume_utc=True, default=default)
         except:
-            log.exception('Failed to parse pubdate')
+            log.error('Failed to parse pubdate %r'%pubdate)
 
     # Ratings
     for x in rating(extra):

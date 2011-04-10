@@ -375,6 +375,10 @@ def urls_from_identifiers(identifiers): # {{{
                 ans.append((plugin.name, url))
         except:
             pass
+    isbn = identifiers.get('isbn', None)
+    if isbn:
+        ans.append(('ISBN',
+            'http://www.worldcat.org/search?q=bn%%3A%s&qt=advanced'%isbn))
     return ans
 # }}}
 
