@@ -43,6 +43,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
         r('overwrite_author_title_metadata', config)
         r('get_social_metadata', config)
+        if test_eight_code:
+            self.opt_overwrite_author_title_metadata.setVisible(False)
+            self.opt_get_social_metadata.setVisible(False)
         r('new_version_notification', config)
         r('upload_news_to_device', config)
         r('delete_news_from_library_on_upload', config)
