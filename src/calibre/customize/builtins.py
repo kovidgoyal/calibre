@@ -173,7 +173,7 @@ class ComicMetadataReader(MetadataReaderPlugin):
             stream.seek(pos)
             if id_ == b'Rar':
                 ftype = 'cbr'
-            elif id.startswith(b'PK'):
+            elif id_.startswith(b'PK'):
                 ftype = 'cbz'
         if ftype == 'cbr':
             from calibre.libunrar import extract_first_alphabetically as extract_first
