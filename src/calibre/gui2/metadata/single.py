@@ -24,6 +24,7 @@ from calibre.gui2.metadata.basic_widgets import (TitleEdit, AuthorsEdit,
 from calibre.gui2.metadata.single_download import FullFetch
 from calibre.gui2.custom_column_widgets import populate_metadata_page
 from calibre.utils.config import tweaks
+from calibre.ebooks.metadata.book.base import Metadata
 
 class MetadataSingleDialogBase(ResizableDialog):
 
@@ -314,7 +315,11 @@ class MetadataSingleDialogBase(ResizableDialog):
         ret = d.start(title=self.title.current_val, authors=self.authors.current_val,
                 identifiers=self.identifiers.current_val)
         if ret == d.Accepted:
+            from calibre.ebooks.metadata.sources.base import msprefs
             mi = d.book
+            dummy = Metadata(_('Unknown'))
+            for f in msprefs['ignore_fields']:
+                setattr(mi, f, getattr(dummy, f))
             if mi is not None:
                 self.update_from_mi(mi)
             if d.cover_pixmap is not None:
