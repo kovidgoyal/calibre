@@ -21,7 +21,7 @@ class ConfigWidgetInterface(object):
     '''
     This class defines the interface that all widgets displayed in the
     Preferences dialog must implement. See :class:`ConfigWidgetBase` for
-    a base class that implements this interface and defines various conveninece
+    a base class that implements this interface and defines various convenience
     methods as well.
     '''
 

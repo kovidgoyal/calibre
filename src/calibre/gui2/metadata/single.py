@@ -16,11 +16,12 @@ from PyQt4.Qt import (Qt, QVBoxLayout, QHBoxLayout, QWidget, QPushButton,
         QSizePolicy, QPalette, QFrame, QSize, QKeySequence)
 
 from calibre.ebooks.metadata import authors_to_string, string_to_authors
-from calibre.gui2 import ResizableDialog, error_dialog, gprefs
+from calibre.gui2 import ResizableDialog, error_dialog, gprefs, pixmap_to_data
 from calibre.gui2.metadata.basic_widgets import (TitleEdit, AuthorsEdit,
     AuthorSortEdit, TitleSortEdit, SeriesEdit, SeriesIndexEdit, IdentifiersEdit,
     RatingEdit, PublisherEdit, TagsEdit, FormatsManager, Cover, CommentsEdit,
     BuddyLabel, DateEdit, PubdateEdit)
+from calibre.gui2.metadata.single_download import FullFetch
 from calibre.gui2.custom_column_widgets import populate_metadata_page
 from calibre.utils.config import tweaks
 
@@ -132,6 +133,7 @@ class MetadataSingleDialogBase(ResizableDialog):
         self.formats_manager.cover_from_format_button.clicked.connect(
                 self.cover_from_format)
         self.cover = Cover(self)
+        self.cover.download_cover.connect(self.download_cover)
         self.basic_metadata_widgets.append(self.cover)
 
         self.comments = CommentsEdit(self, self.one_line_comments_toolbar)
@@ -158,7 +160,7 @@ class MetadataSingleDialogBase(ResizableDialog):
         self.basic_metadata_widgets.extend([self.timestamp, self.pubdate])
 
         self.fetch_metadata_button = QPushButton(
-                _('&Fetch metadata from server'), self)
+                _('&Download metadata'), self)
         self.fetch_metadata_button.clicked.connect(self.fetch_metadata)
         font = self.fmb_font = QFont()
         font.setBold(True)
@@ -303,7 +305,26 @@ class MetadataSingleDialogBase(ResizableDialog):
             self.comments.current_val = mi.comments
 
     def fetch_metadata(self, *args):
-        pass # TODO: fetch metadata
+        d = FullFetch(self.cover.pixmap(), self)
+        ret = d.start(title=self.title.current_val, authors=self.authors.current_val,
+                identifiers=self.identifiers.current_val)
+        if ret == d.Accepted:
+            mi = d.book
+            if mi is not None:
+                self.update_from_mi(mi)
+            if d.cover_pixmap is not None:
+                self.cover.current_val = pixmap_to_data(d.cover_pixmap)
+
+    def download_cover(self, *args):
+        from calibre.gui2.metadata.single_download import CoverFetch
+        d = CoverFetch(self.cover.pixmap(), self)
+        ret = d.start(self.title.current_val, self.authors.current_val,
+                self.identifiers.current_val)
+        if ret == d.Accepted:
+            if d.cover_pixmap is not None:
+                self.cover.current_val = pixmap_to_data(d.cover_pixmap)
+
+
     # }}}
 
     def apply_changes(self):
@@ -521,10 +542,26 @@ class MetadataSingleDialog(MetadataSingleDialogBase): # {{{
 
 # }}}
 
+class DragTrackingWidget(QWidget): # {{{
+
+    def __init__(self, parent, on_drag_enter):
+        QWidget.__init__(self, parent)
+        self.on_drag_enter = on_drag_enter
+
+    def dragEnterEvent(self, ev):
+        self.on_drag_enter.emit()
+
+# }}}
+
 class MetadataSingleDialogAlt1(MetadataSingleDialogBase): # {{{
 
     cc_two_column = False
     one_line_comments_toolbar = True
+
+    on_drag_enter = pyqtSignal()
+
+    def handle_drag_enter(self):
+        self.central_widget.setCurrentIndex(1)
 
     def do_layout(self):
         self.central_widget.clear()
@@ -532,7 +569,8 @@ class MetadataSingleDialogAlt1(MetadataSingleDialogBase): # {{{
         self.labels = []
         sto = QWidget.setTabOrder
 
-        self.tabs.append(QWidget(self))
+        self.on_drag_enter.connect(self.handle_drag_enter)
+        self.tabs.append(DragTrackingWidget(self, self.on_drag_enter))
         self.central_widget.addTab(self.tabs[0], _("&Metadata"))
         self.tabs[0].l = QGridLayout()
         self.tabs[0].setLayout(self.tabs[0].l)
@@ -542,6 +580,10 @@ class MetadataSingleDialogAlt1(MetadataSingleDialogBase): # {{{
         self.tabs[1].l = QGridLayout()
         self.tabs[1].setLayout(self.tabs[1].l)
 
+        # accept drop events so we can automatically switch to the second tab to
+        # drop covers and formats
+        self.tabs[0].setAcceptDrops(True)
+
         # Tab 0
         tab0 = self.tabs[0]
 
@@ -550,6 +592,8 @@ class MetadataSingleDialogAlt1(MetadataSingleDialogBase): # {{{
         self.tabs[0].l.addWidget(gb, 0, 0, 1, 1)
         gb.setLayout(tl)
 
+        self.button_box.addButton(self.fetch_metadata_button,
+                                  QDialogButtonBox.ActionRole)
         sto(self.button_box, self.title)
 
         def create_row(row, widget, tab_to, button=None, icon=None, span=1):
@@ -639,7 +683,6 @@ class MetadataSingleDialogAlt1(MetadataSingleDialogBase): # {{{
         wgl.addWidget(gb)
         wgl.addItem(QSpacerItem(10, 10, QSizePolicy.Expanding,
             QSizePolicy.Expanding))
-        wgl.addWidget(self.fetch_metadata_button)
         wgl.addItem(QSpacerItem(10, 10, QSizePolicy.Expanding,
             QSizePolicy.Expanding))
         wgl.addWidget(self.formats_manager)

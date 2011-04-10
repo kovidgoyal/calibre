@@ -78,8 +78,8 @@ class InternalMetadataCompareKeyGen(object):
         exact_title = 1 if title and \
                 cleanup_title(title) == cleanup_title(mi.title) else 2
 
-        has_cover = 2 if source_plugin.get_cached_cover_url(mi.identifiers)\
-                is None else 1
+        has_cover = 2 if (not source_plugin.cached_cover_url_is_reliable or
+                source_plugin.get_cached_cover_url(mi.identifiers) is None) else 1
 
         self.base = (isbn, has_cover, all_fields, exact_title)
         self.comments_len = len(mi.comments.strip() if mi.comments else '')
@@ -156,6 +156,12 @@ class Source(Plugin):
     #: but make sure that the source actually supports gzip transfer encoding
     #: correctly first
     supports_gzip_transfer_encoding = False
+
+    #: Cached cover URLs can sometimes be unreliable (i.e. the download could
+    #: fail or the returned image could be bogus. If that is the case set this to
+    #: False
+    cached_cover_url_is_reliable = True
+
 
     def __init__(self, *args, **kwargs):
         Plugin.__init__(self, *args, **kwargs)
@@ -300,6 +306,13 @@ class Source(Plugin):
     # }}}
 
     # Metadata API {{{
+
+    def get_book_url(self, identifiers):
+        '''
+        Return the URL for the book identified by identifiers at this source.
+        If no URL is found, return None.
+        '''
+        return None
 
     def get_cached_cover_url(self, identifiers):
         '''
