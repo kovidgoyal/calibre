@@ -51,7 +51,7 @@
    <item row="2" column="2">
     <widget class="QCheckBox" name="opt_bools_are_tristate">
      <property name="text">
-      <string>Custom Yes/No columns have three values (Requires restart):</string>
+      <string>Yes/No columns have three values (Requires restart)</string>
      </property>
      <property name="toolTip">
       <string>If checked, Yes/No custom columns values can be Yes, No, or Unknown.

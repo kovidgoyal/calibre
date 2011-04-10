@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 import textwrap, re, os
 
-from PyQt4.Qt import (Qt, QDateEdit, QDate,
+from PyQt4.Qt import (Qt, QDateEdit, QDate, pyqtSignal,
     QIcon, QToolButton, QWidget, QLabel, QGridLayout,
     QDoubleSpinBox, QListWidgetItem, QSize, QPixmap,
     QPushButton, QSpinBox, QLineEdit, QSizePolicy)
@@ -315,7 +315,7 @@ class SeriesEdit(MultiCompleteComboBox):
             if not val:
                 val = ''
             self.setEditText(val.strip())
-            self.setCursorPosition(0)
+            self.lineEdit().setCursorPosition(0)
 
         return property(fget=fget, fset=fset)
 
@@ -613,6 +613,8 @@ class FormatsManager(QWidget): # {{{
 
 class Cover(ImageView): # {{{
 
+    download_cover = pyqtSignal()
+
     def __init__(self, parent):
         ImageView.__init__(self, parent)
         self.dialog = parent
@@ -702,9 +704,6 @@ class Cover(ImageView): # {{{
         im.trim(10)
         cdata = im.export('png')
         self.current_val = cdata
-
-    def download_cover(self, *args):
-        pass # TODO: Implement this
 
     def generate_cover(self, *args):
         from calibre.ebooks import calibre_cover
@@ -862,6 +861,7 @@ class TagsEdit(MultiCompleteLineEdit): # {{{
             if not val:
                 val = []
             self.setText(', '.join([x.strip() for x in val]))
+            self.setCursorPosition(0)
         return property(fget=fget, fset=fset)
 
     def initialize(self, db, id_):
@@ -928,6 +928,7 @@ class IdentifiersEdit(QLineEdit): # {{{
                 val = {}
             txt = ', '.join(['%s:%s'%(k, v) for k, v in val.iteritems()])
             self.setText(txt.strip())
+            self.setCursorPosition(0)
         return property(fget=fget, fset=fset)
 
     def initialize(self, db, id_):
@@ -977,7 +978,7 @@ class PublisherEdit(MultiCompleteComboBox): # {{{
             if not val:
                 val = ''
             self.setEditText(val.strip())
-            self.setCursorPosition(0)
+            self.lineEdit().setCursorPosition(0)
 
         return property(fget=fget, fset=fset)
 

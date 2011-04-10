@@ -453,12 +453,15 @@ def epub_fixers():
 # Metadata sources2 {{{
 def metadata_plugins(capabilities):
     capabilities = frozenset(capabilities)
-    for plugin in _initialized_plugins:
-        if isinstance(plugin, Source) and \
-                plugin.capabilities.intersection(capabilities) and \
+    for plugin in all_metadata_plugins():
+        if plugin.capabilities.intersection(capabilities) and \
                 not is_disabled(plugin):
             yield plugin
 
+def all_metadata_plugins():
+    for plugin in _initialized_plugins:
+        if isinstance(plugin, Source):
+            yield plugin
 # }}}
 
 # Initialize plugins {{{

@@ -279,7 +279,7 @@ class Worker(Thread): # Get details {{{
 
 class Amazon(Source):
 
-    name = 'Amazon Store'
+    name = 'Amazon Web'
     description = _('Downloads metadata from Amazon')
 
     capabilities = frozenset(['identify', 'cover'])
@@ -294,6 +294,14 @@ class Amazon(Source):
             'de' : _('Germany'),
             'uk' : _('UK'),
     }
+
+    def get_book_url(self, identifiers): # {{{
+        asin = identifiers.get('amazon', None)
+        if asin is None:
+            asin = identifiers.get('asin', None)
+        if asin:
+            return 'http://amzn.com/%s'%asin
+    # }}}
 
     def create_query(self, log, title=None, authors=None, identifiers={}): # {{{
         domain = self.prefs.get('domain', 'com')
