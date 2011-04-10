@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-04-08 18:06+0000\n"
-"PO-Revision-Date: 2011-04-01 20:05+0000\n"
+"PO-Revision-Date: 2011-04-09 16:22+0000\n"
 "Last-Translator: FerranRius <frius64@hotmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-04-09 04:35+0000\n"
+"X-Launchpad-Export-Date: 2011-04-10 04:48+0000\n"
 "X-Generator: Launchpad (build 12735)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -472,7 +472,7 @@ msgid ""
 "downloaded news to your devices"
 msgstr ""
 "Configura la compartició de llibres per correu electrònic. Es pot utilitzar "
-"per enviar notícies descarregades als vostres dispositius"
+"per enviar notícies baixades als vostres dispositius"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1031
 msgid "Sharing over the net"
@@ -1427,7 +1427,7 @@ msgid ""
 msgstr ""
 "Aquesta opció fa que el calibre cerqui llibres a totes les carpetes del "
 "dispositiu i les seves targetes. Permet que el calibre trobi llibres que ha "
-"posat al dispositiu un altre programari o per descàrrega sense fils."
+"posat al dispositiu un altre programari o per baixada sense fils."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:190
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/structure.py:69
@@ -2662,6 +2662,10 @@ msgid ""
 "inline: Write the CSS as an inline style attribute.\n"
 "tag: Turn as many CSS styles as possible into HTML tags."
 msgstr ""
+"Especifica com es gestionen els CSS. Per defecte és «class».\n"
+"«class»: Utilitza les classes CSS i fa que els elements els referenciïn.\n"
+"«incline»: Escriu el CSS com un atribut d'estil en línia.\n"
+"«tag»: Converteix a etiquetes HTML tots els estils CSS que pot."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/htmlz/output.py:37
 msgid ""
@@ -2670,6 +2674,10 @@ msgid ""
 "external: Use an external CSS file that is linked in the document.\n"
 "inline: Place the CSS in the head section of the document."
 msgstr ""
+"Com es gestionen els CSS quan s'utilitza el tipus de CSS «class».\n"
+"Per defecte és «external».\n"
+"«external»: Utilitza un fitxer CSS extern al qual s'enllaça en el document.\n"
+"«inline»: Col·loca el CSS a la secció de la capçalera del document."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/from_any.py:47
 msgid "Creating LIT file from EPUB..."
@@ -2964,23 +2972,23 @@ msgstr "Còmic"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/amazonfr.py:26
 msgid "Downloads metadata from amazon.fr"
-msgstr "Descarrega les metadades des d'amazon.fr"
+msgstr "Baixa les metadades des d'amazon.fr"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/amazonfr.py:43
 msgid "Downloads metadata from amazon.com in spanish"
-msgstr "Descarrega les metadades des d'amazon.com en espanyol"
+msgstr "Baixa les metadades des d'amazon.com en espanyol"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/amazonfr.py:60
 msgid "Downloads metadata from amazon.com in english"
-msgstr "Descarrega les metadades des d'amazon.com en anglès"
+msgstr "Baixa les metadades des d'amazon.com en anglès"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/amazonfr.py:77
 msgid "Downloads metadata from amazon.de"
-msgstr "Descarrega les metadades des d'amazon.de"
+msgstr "Baixa les metadades des d'amazon.de"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/amazonfr.py:94
 msgid "Downloads metadata from amazon.com"
-msgstr "Descarrega les metadades des d'amazon.com"
+msgstr "Baixa les metadades des d'amazon.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/amazonfr.py:474
 msgid ""
@@ -3237,11 +3245,11 @@ msgstr "No s'ha trobat cap portada"
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/covers.py:27
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:45
 msgid "Cover download"
-msgstr "Descàrrega de portades"
+msgstr "Baixada de portades"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/covers.py:81
 msgid "Download covers from openlibrary.org"
-msgstr "Descarrega portades des d'openlibrary.org"
+msgstr "Baixa portades des d'openlibrary.org"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/covers.py:111
 msgid "ISBN: %s not found"
@@ -3249,11 +3257,11 @@ msgstr "ISBN: no s'ha trobat %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/covers.py:121
 msgid "Download covers from amazon.com"
-msgstr "Descarrega portades des d'amazon.com"
+msgstr "Baixa portades des d'amazon.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/covers.py:211
 msgid "Download covers from Douban.com"
-msgstr "Descarrega portades de Douban.com"
+msgstr "Baixa portades de Douban.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/covers.py:220
 msgid "Douban.com API timed out. Try again later."
@@ -3262,11 +3270,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/douban.py:42
 msgid "Downloads metadata from Douban.com"
-msgstr "Descarrega les metadades des de Douban.com"
+msgstr "Baixa les metadades des de Douban.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:57
 msgid "Metadata download"
-msgstr "Descàrrega de metadades"
+msgstr "Baixada de metadades"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:144
 msgid "ratings"
@@ -3282,21 +3290,21 @@ msgstr "descripció/ressenyes"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:146
 msgid "Download %s from %s"
-msgstr "Descarrega %s des de %s"
+msgstr "Baixa %s des de %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:153
 msgid "Convert comments downloaded from %s to plain text"
-msgstr "Converteix a text net els comentaris descarregats de %s"
+msgstr "Converteix a text net els comentaris baixats de %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:181
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google.py:160
 msgid "Downloads metadata from Google Books"
-msgstr "Descarrega les metadades des de Google Books."
+msgstr "Baixa les metadades des de Google Books."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:198
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/isbndb.py:15
 msgid "Downloads metadata from isbndb.com"
-msgstr "Descarrega les metadades des d'isbndb.com"
+msgstr "Baixa les metadades des d'isbndb.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:226
 msgid ""
@@ -3308,20 +3316,20 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:236
 msgid "Downloads social metadata from amazon.com"
-msgstr "Descarrega metadades socials des d'amazon.com"
+msgstr "Baixa metadades socials des d'amazon.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:257
 msgid ""
 "Downloads series information from ww2.kdl.org. This website cannot handle "
 "large numbers of queries, so the plugin is disabled by default."
 msgstr ""
-"Descarrega informació de les sèries de ww2.kdl.org. Aquest web no pot "
-"gestionar un nombre gran de consultes, de manera que el connector està "
-"inhabilitat per defecte."
+"Baixa informació de les sèries de ww2.kdl.org. Aquest web no pot gestionar "
+"un nombre gran de consultes, de manera que el connector està inhabilitat per "
+"defecte."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fictionwise.py:25
 msgid "Downloads metadata from Fictionwise"
-msgstr "Descarrega les metadades des de Fictionwise"
+msgstr "Baixa les metadades des de Fictionwise"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fictionwise.py:90
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:108
@@ -3465,11 +3473,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:26
 msgid "Downloads metadata from french Nicebooks"
-msgstr "Descarrega les metadades des del Nicebooks francès"
+msgstr "Baixa les metadades des del Nicebooks francès"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:42
 msgid "Downloads covers from french Nicebooks"
-msgstr "Descarrega portades del Nicebooks francès"
+msgstr "Baixa portades del Nicebooks francès"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:118
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:242
@@ -3517,7 +3525,7 @@ msgstr "ISBN del llibre"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:369
 msgid "Covers: 1-Check/ 2-Download"
-msgstr "Portades: 1-Verifica/ 2-Descarrega"
+msgstr "Portades: 1-Verifica/ 2-Baixa"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:371
 msgid "Covers files path"
@@ -3542,7 +3550,7 @@ msgstr "Portada"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:283
 msgid "Downloads metadata from Amazon"
-msgstr "Descarrega les metadades d'Amazon"
+msgstr "Baixa les metadades d'Amazon"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:292
 msgid "US"
@@ -3570,7 +3578,7 @@ msgstr "Origen de les metadades"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/openlibrary.py:15
 msgid "Downloads metadata from The Open Library"
-msgstr "Descarrega metadades des de «The Open Library»"
+msgstr "Baixa metadades des de «The Open Library»"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:22
 msgid "Modify images to meet Palm device size limitations."
@@ -4329,7 +4337,7 @@ msgstr "Mostra la icona a la safata del sistema"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:100
 msgid "Upload downloaded news to device"
-msgstr "Carrega al dispositiu les notícies que s'ha descarregat"
+msgstr "Carrega al dispositiu les notícies que s'ha baixat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:102
 msgid "Delete books from library after uploading to device"
@@ -4376,7 +4384,7 @@ msgstr "Nombre màxim de processos en espera"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:136
 msgid "Download social metadata (tags/rating/etc.)"
-msgstr "Descarrega metadades socials (etiquetes, valoració...)"
+msgstr "Baixa metadades socials (etiquetes, valoració...)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:138
 msgid "Overwrite author and title with new metadata"
@@ -4385,7 +4393,7 @@ msgstr "Sobreescriu l'autor i el títol amb les noves metadades"
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:140
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata_ui.py:101
 msgid "Automatically download the cover, if available"
-msgstr "Si n'hi ha, descarrega la portada automàticament"
+msgstr "Si n'hi ha, baixa la portada automàticament"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:142
 msgid "Limit max simultaneous jobs to number of CPUs"
@@ -5184,19 +5192,19 @@ msgstr "Edita metadades en massa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:38
 msgid "Download metadata and covers"
-msgstr "Descarrega metadades i portades"
+msgstr "Baixa metadades i portades"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:41
 msgid "Download only metadata"
-msgstr "Descarrega només les metadades"
+msgstr "Baixa només les metadades"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:43
 msgid "Download only covers"
-msgstr "Descarrega només les portades"
+msgstr "Baixa només les portades"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:46
 msgid "Download only social metadata"
-msgstr "Descarrega només les metadades socials"
+msgstr "Baixa només les metadades socials"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:52
 msgid "Merge into first selected book - delete others"
@@ -5214,7 +5222,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:80
 msgid "Cannot download metadata"
-msgstr "No es poden descarregar les metadades"
+msgstr "No es poden baixar les metadades"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:100
 msgid "social metadata"
@@ -5231,7 +5239,7 @@ msgstr "metadades"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:103
 msgid "Downloading {0} for {1} book(s)"
-msgstr "S'està descarregant {0} per a {1} llibre(s)"
+msgstr "Baixada de {0} per a {1} llibre(s)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:127
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:223
@@ -5468,7 +5476,7 @@ msgstr "No s'ha pogut desar alguns llibres"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:146
 msgid "Click the show details button to see which ones."
-msgstr "Feu clic a «Veure detalls» per saber quins són."
+msgstr "Feu clic a «Mostra detalls» per saber quins són."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/show_book_details.py:16
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:766
@@ -6767,15 +6775,15 @@ msgstr "Reemplaça els sagnats amb caràctes per sagnats CSS"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/htmlz_output.py:14
 msgid "HTMLZ Output"
-msgstr ""
+msgstr "Sortida HTLMZ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/htmlz_output_ui.py:45
 msgid "How to handle CSS"
-msgstr ""
+msgstr "Com es gestionen el CSS"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/htmlz_output_ui.py:46
 msgid "How to handle class based CSS"
-msgstr ""
+msgstr "Com es gestionen els CSS basats en classes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:16
 msgid "Look & Feel"
@@ -7807,7 +7815,7 @@ msgstr "Suprimeix llibres del dispositiu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:418
 msgid "Download books from device"
-msgstr "Descarrega llibres del dispositiu"
+msgstr "Baixa llibres del dispositiu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:428
 msgid "View book on device"
@@ -8050,7 +8058,7 @@ msgid ""
 msgstr ""
 "<p>Introduïu una llista d'ISBNs al quadre de l'esquerra, un per línia. El "
 "calibre crearà entrades per als llibres automàticament basant-se en l'ISBN i "
-"en descarregarà les metadades i portades.</p>\n"
+"en baixarà les metadades i portades.</p>\n"
 "<p>S'ignora qualsevol ISBN de la llista no vàlid.</p>\n"
 "<p>També podeu indicar un fitxer per afegir amb cada ISBN. Introduïu el camí "
 "complert del fitxer després de <code>>></code> per fer-ho. Exemple:</p>\n"
@@ -8668,7 +8676,7 @@ msgstr "No s'ha trobat metadades"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:207
 msgid "The metadata download seems to have stalled. Try again later."
 msgstr ""
-"La descàrrega de metadades s'ha encallat. Torneu a intentar-ho més tard."
+"La baixada de metadades s'ha encallat. Torneu a intentar-ho més tard."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:216
 msgid "Warning"
@@ -8731,7 +8739,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata_ui.py:100
 msgid "Download &social metadata (tags/rating/etc.) for the selected book"
 msgstr ""
-"Descarrega les metadades &socials (etiquetes, valoracions...) per al llibre "
+"Baixa les metadades &socials (etiquetes, valoracions...) per al llibre "
 "seleccionat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/job_view_ui.py:42
@@ -9420,7 +9428,7 @@ msgstr "Heu d'indicar un títol i un autor abans de generar una portada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:246
 msgid "Downloading cover..."
-msgstr "S'està descarregant la portada..."
+msgstr "Baixada de la portada..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:262
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:267
@@ -9437,7 +9445,7 @@ msgstr "<b>No s'ha pogut aconseguir la portada.</b><br/>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:264
 msgid "The download timed out."
-msgstr "S'ha esgotat el temps de descàrrega."
+msgstr "S'ha esgotat el temps de baixada."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:268
 msgid "Could not find cover for this book. Try specifying the ISBN first."
@@ -9584,7 +9592,7 @@ msgid ""
 "The download of social metadata timed out, the servers are probably busy. "
 "Try again later."
 msgstr ""
-"El temps d'espera de la descàrrega de metadades socials s'ha esgotat, "
+"El temps d'espera de la baixada de metadades socials s'ha esgotat, "
 "probablement els servidors estan ocupats. Intenteu-ho més tard."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:827
@@ -9593,7 +9601,7 @@ msgstr "Hi ha hagut errors"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:828
 msgid "There were errors downloading social metadata"
-msgstr "Hi ha hagut errors descarregant les metadades socials"
+msgstr "Hi ha hagut errors baixant les metadades socials"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:862
 msgid "Cannot fetch metadata"
@@ -9730,7 +9738,7 @@ msgstr "Sup&rimeix"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:453
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:633
 msgid "Download co&ver"
-msgstr "Descarrega la &portada"
+msgstr "Baixa la &portada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:454
 msgid "Generate a default cover based on the title and author"
@@ -9905,18 +9913,18 @@ msgid ""
 "                soon after 9:00 AM as possible.\n"
 "            "
 msgstr ""
-"                Descarrega aquesta publicació cada setmana, els dies "
+"                Baixa aquesta publicació cada setmana, els dies "
 "especificats, després\n"
 "                de l'hora especificada. Per exemple, si trieu «Dilluns "
 "després de les 9:00\n"
-"                AM», la publicació es descarregarà cada dilluns després de "
-"les 9:00 AM,\n"
-"                tan aviat com sigui possible.\n"
+"                AM», la publicació es baixarà cada dilluns després de les "
+"9:00 AM, tan\n"
+"                aviat com sigui possible.\n"
 "            "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:61
 msgid "&Download after:"
-msgstr "&Descarrega després de:"
+msgstr "&Baixa després de:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:91
 msgid ""
@@ -9930,17 +9938,17 @@ msgid ""
 "                month, as soon after 9:00 AM as possible.\n"
 "            "
 msgstr ""
-"                Descarrega aquesta publicació cada mes, els dies "
-"especificats. La\n"
-"                descàrrega es farà tan aviat com sigui possible després de "
+"                Baixa aquesta publicació cada mes, els dies especificats. "
+"La\n"
+"                baixada es farà tan aviat com sigui possible després de "
 "l'hora\n"
 "                especificada els dies especificats de cada pes. Per exemple, "
-"si trieu\n"
-"                els dies 1 i 15 després de les 9:00 AM, la publicació es "
-"descarregarà\n"
-"                els dies 1 i 15 de cada mes tan aviat com sigui possible "
-"després de\n"
-"                les 9:00 AM.\n"
+"si\n"
+"                trieu els dies 1 i 15 després de les 9:00 AM, la publicació "
+"es\n"
+"                baixarà els dies 1 i 15 de cada mes tan aviat com sigui "
+"possible\n"
+"                després de les 9:00 AM.\n"
 "            "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:103
@@ -9953,7 +9961,7 @@ msgstr "Llista separada per comes dels dies del mes. Per exemple: 1, 15"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:109
 msgid "Download &after:"
-msgstr "Desc&arrega després de:"
+msgstr "B&aixa després de:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:142
 msgid ""
@@ -9964,18 +9972,18 @@ msgid ""
 "                0.1 days to download a periodical more than once a day.\n"
 "            "
 msgstr ""
-"                Descarrega aquesta publicació cada x dies. Per exemple, si "
-"trieu 30 dies\n"
-"                la publicació es descarregarà cada 30 dies. Podeu establir "
+"                Baixa aquesta publicació cada x dies. Per exemple, si trieu "
+"30 dies\n"
+"                la publicació es baixarà cada 30 dies. Podeu establir "
 "intervals de\n"
 "                menys d'un dia, com 0.1 dies, per descarregar una publicació "
-"més d'un\n"
-"                cop al dia.\n"
+"més\n"
+"                d'un cop al dia.\n"
 "            "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:151
 msgid "&Download every:"
-msgstr "&Descarrega cada:"
+msgstr "&Baixa cada:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:154
 msgid "every hour"
@@ -10024,7 +10032,7 @@ msgstr "Creat per: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:372
 msgid "Last downloaded: never"
-msgstr "Darrera descàrrega: mai"
+msgstr "Darrera baixada: mai"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:373
 msgid "never"
@@ -10036,12 +10044,12 @@ msgstr "Fa %d dies, %d hores i %d minuts"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:393
 msgid "Last downloaded:"
-msgstr "Darrer cop que s'ha descarregat:"
+msgstr "Darrer cop que s'ha baixar:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:421
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:197
 msgid "Schedule news download"
-msgstr "Planifica la descàrrega de notícies"
+msgstr "Planifica la baixada de notícies"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:424
 msgid "Add a custom news source"
@@ -10049,7 +10057,7 @@ msgstr "Afegeix una font nova de notícies"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:429
 msgid "Download all scheduled new sources"
-msgstr "Descarrega totes les fonts de notícies planificades"
+msgstr "Baixa totes les fonts de notícies planificades"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:534
 msgid "No internet connection"
@@ -10070,7 +10078,7 @@ msgstr "publicitat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:200
 msgid "&Schedule for download:"
-msgstr "Planifica la de&scàrrega:"
+msgstr "Planifica la bai&xada:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:201
 msgid "Days of  week"
@@ -10128,9 +10136,9 @@ msgid ""
 "below, takes priority over this setting."
 msgstr ""
 "<p>Si s'activa, aquesta opció fa que el calibre conservi com a màxim el "
-"nombre d'exemplars que s'especifiqui de la publicació. Cada cop que es "
-"descarregui un exemplar nou el més vell se suprimeix, si el total és més "
-"gran que aquest número.\n"
+"nombre d'exemplars que s'especifiqui de la publicació. Cada cop que es baixi "
+"un exemplar nou el més vell se suprimeix, si el total és més gran que aquest "
+"número.\n"
 "<p>Aquesta característica només funciona si heu activat l'opció d'afegir el "
 "títol com a etiqueta, més amunt.\n"
 "<p>A més, l'opció de suprimir publicacions més antigues d'un nombre de dies, "
@@ -10150,11 +10158,11 @@ msgstr "&Avançat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:220
 msgid "&Download now"
-msgstr "&Descarrega-ho ara"
+msgstr "&Baixa-ho ara"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:221
 msgid "&Delete downloaded news older than:"
-msgstr "&Suprimeix les notícies descarregades anteriors a:"
+msgstr "&Suprimeix les notícies baixades anteriors a:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:222
 msgid ""
@@ -10164,7 +10172,7 @@ msgid ""
 "periodical that are kept by clicking the Advanced tab for that periodical "
 "above."
 msgstr ""
-"<p>Suprimeix les notícies descarregades més antigues al nombre de dies que "
+"<p>Suprimeix les notícies baixades més antigues al nombre de dies que "
 "s'especifica. Establiu-ho a zero per a inhabilitar-ho.\n"
 "<p>També podeu controlar el número màxim d'exemplars que es conserva d'una "
 "publicació concreta fent clic a la pestanya «Avançat» per a la publicació."
@@ -10180,11 +10188,11 @@ msgstr " dies"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:226
 msgid "Download all scheduled news sources at once"
-msgstr "Descarrega totes les fonts de notícies programades alhora"
+msgstr "Baixa totes les fonts de notícies programades alhora"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:227
 msgid "Download &all scheduled"
-msgstr "Descarrega &totes les que s'ha planificat"
+msgstr "Baixa &totes les que s'ha planificat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_item_ui.py:41
 msgid "contains"
@@ -10602,7 +10610,7 @@ msgstr "No s'ha seleccionat cap recepta"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:146
 msgid "The attached file: %s is a recipe to download %s."
-msgstr "El fitxer adjunt %s és una recepta per descarregar %s."
+msgstr "El fitxer adjunt %s és una recepta per baixar %s."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:147
 msgid "Recipe for "
@@ -10750,7 +10758,7 @@ msgstr "&Article més antic:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:272
 msgid "The oldest article to download"
-msgstr "L'article més antic que es descarregarà"
+msgstr "L'article més antic que es baixarà"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:274
 msgid "&Max. number of articles per feed:"
@@ -10758,7 +10766,7 @@ msgstr "Nombre &màxim d'articles per canal:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:275
 msgid "Maximum number of articles to download per feed."
-msgstr "Nombre màxim d'articles que es descarregaran per canal."
+msgstr "Nombre màxim d'articles que es baixaran per canal."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:276
 msgid "Feeds in recipe"
@@ -10799,20 +10807,20 @@ msgstr "Codi font de la recepta (python)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dnd.py:51
 msgid "Download %s"
-msgstr "Descarrega %s"
+msgstr "Baixa %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dnd.py:54
 msgid "Downloading <b>%s</b> from %s"
-msgstr "S'està descarregant <b>%s</b> de %s"
+msgstr "Baixada de <b>%s</b> de %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dnd.py:84
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:368
 msgid "Download failed"
-msgstr "No s'ha pogut descarregar"
+msgstr "No s'ha pogut baixar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dnd.py:85
 msgid "Failed to download from %r with error: %s"
-msgstr "No s'ha pogut descarregar de %r. Hi ha hagut l'error: %s"
+msgstr "No s'ha pogut baixar de %r. Hi ha hagut l'error: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:147
 msgid "Email %s to %s"
@@ -10824,7 +10832,7 @@ msgstr "Notícies:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:191
 msgid "Attached is the %s periodical downloaded by calibre."
-msgstr "S'adjunta el diari %s descarregat pel calibre."
+msgstr "S'adjunta el diari %s baixat pel calibre."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:244
 msgid "E-book:"
@@ -11531,6 +11539,9 @@ msgid ""
 "\n"
 "Double click to view"
 msgstr ""
+"Darrera modificació: %s\n"
+"\n"
+"Feu doble clic per visualitzar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:735
 msgid "Invalid cover"
@@ -11558,7 +11569,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:905
 msgid "I&ds:"
-msgstr ""
+msgstr "I&ds:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:906
 msgid ""
@@ -11566,6 +11577,9 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
+"Edita els identificadors d'aquest llibre. Per exemple: \n"
+"\n"
+"%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:961
 msgid "&Publisher:"
@@ -11585,7 +11599,7 @@ msgstr "No s'ha trobat cap coincidència d'aquest llibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:187
 msgid "Failed to download metadata"
-msgstr "No s'ha pogut descarregar les metadades"
+msgstr "No s'ha pogut baixar les metadades"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:227
 msgid "cover"
@@ -11593,7 +11607,7 @@ msgstr "portada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:228
 msgid "Downloaded"
-msgstr "Descarregat"
+msgstr "Baixat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:228
 msgid "Failed to get"
@@ -11610,7 +11624,7 @@ msgstr "Acabat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:292
 msgid "Successfully downloaded metadata for %d out of %d books"
-msgstr "S'ha descarregat amb èxit les metadades de %d de %d llibres"
+msgstr "S'ha baixat amb èxit les metadades de %d de %d llibres"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:294
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:765
@@ -11645,27 +11659,29 @@ msgstr "Metadades &personalitzades"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:58
 msgid "Has cover"
-msgstr ""
+msgstr "Té portada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:58
 msgid "Has summary"
-msgstr ""
+msgstr "Té resum"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:299
 msgid "calibre is downloading metadata from: "
-msgstr ""
+msgstr "El calibre està baixant les metadades des de: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:321
 msgid "Downloading"
-msgstr ""
+msgstr "Baixada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:350
 msgid "Query: "
-msgstr ""
+msgstr "Consulta: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:369
 msgid "Failed to download metadata. Click Show Details to see details"
 msgstr ""
+"No s'ha pogut baixar les metadades. Feu clic a «Mostra detalls» per a més "
+"informació"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:378
 msgid ""
@@ -11674,10 +11690,14 @@ msgid ""
 "single distinctive word from the title.<p>To see the full log, click Show "
 "Details."
 msgstr ""
+"No s'ha trobat cap llibre que coincideixi amb la cerca. Intenteu fer la "
+"cerca <b>menys expecífica</b>. Per exemple, utilitzeu només el cognom de "
+"l'autor i una sola paraula per identificar el títol.<p>Feu clic a «Mostra "
+"detalls» per veure tot el registre."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:407
 msgid "Downloading metadata..."
-msgstr ""
+msgstr "Descàrrega de les metadades..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/__init__.py:36
 msgid ""
@@ -11835,7 +11855,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:132
 msgid "Download &social metadata (tags/ratings/etc.) by default"
 msgstr ""
-"Per defecte, &descarrega les metadades socials (etiquetes, valoracions...)"
+"Per defecte, &baixa les metadades socials (etiquetes, valoracions...)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:133
 msgid "Show notification when &new version is available"
@@ -11844,7 +11864,7 @@ msgstr "Mostra un avís quan hi hagi una &nova versió disponible"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:134
 msgid "Automatically send downloaded &news to ebook reader"
 msgstr ""
-"Envia &automàticament les notícies que es descarreguin al lector de llibres"
+"Envia &automàticament les notícies que es baixin al lector de llibres"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:135
 msgid "&Delete news from library when it is automatically sent to reader"
@@ -12278,8 +12298,8 @@ msgid ""
 "send checked."
 msgstr ""
 "El calibre pot enviar-vos llibres (a vós o al vostre lector) per correu "
-"electrònic. S'enviaran automàticament correus amb les notícies que es "
-"descarreguin a totes les adreces que tinguin activat l'enviament automàtic."
+"electrònic. S'enviaran automàticament correus amb les notícies que es baixin "
+"a totes les adreces que tinguin activat l'enviament automàtic."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/email_ui.py:67
 msgid "Add an email address to which to send books"
@@ -12324,8 +12344,8 @@ msgid ""
 "If checked, downloaded news will be automatically mailed <br>to this email "
 "address (provided it is in one of the listed formats)."
 msgstr ""
-"Si es selecciona, les notícies que es descarreguin s'enviaran automàticament "
-"<br>a aquesta adreça de correu electrònic (si està en un dels formats de la "
+"Si es selecciona, les notícies que es baixin s'enviaran automàticament <br>a "
+"aquesta adreça de correu electrònic (si està en un dels formats de la "
 "llista)."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/emailp.py:115
@@ -12342,7 +12362,7 @@ msgstr "Ampla"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:52
 msgid "Off"
-msgstr ""
+msgstr "Desactivat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:52
 msgid "Small"
@@ -13245,7 +13265,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/social.py:39
 msgid "Downloading social metadata, please wait..."
-msgstr "S'està descarregant les metadades socials, espereu..."
+msgstr "Baixada de les metadades socials, espereu..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:23
 msgid ""
@@ -13540,7 +13560,7 @@ msgid ""
 msgstr ""
 "Afegeix/edita els ajustaments per a tots els connectors personalitzats "
 "instal·lats. La documentació d'aquests ajustaments hauria d'estar disponible "
-"al lloc web d'on s'ha descarregat els connectors."
+"al lloc web d'on s'ha baixat els connectors."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:277
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:317
@@ -16666,7 +16686,7 @@ msgid ""
 msgstr ""
 "La prioritat dels processos de treball. Una prioritat més alta significa que "
 "s'executa més ràpid i consumeix més recursos. Afecta la majoria de tasques "
-"com conversions, descàrrega de notícies, addició de llibres..."
+"com conversions, baixada de notícies, addició de llibres..."
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:722
 msgid "Swap author first and last names when reading metadata"
@@ -17370,15 +17390,15 @@ msgstr "Article sense títol"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/input.py:22
 msgid "Download periodical content from the internet"
-msgstr "Descarrega continguts periòdics des d'internet"
+msgstr "Baixa continguts periòdics des d'internet"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/input.py:37
 msgid ""
 "Useful for recipe development. Forces max_articles_per_feed to 2 and "
 "downloads at most 2 feeds."
 msgstr ""
-"Útil per crear receptes. Força max_articles_per_feed a 2 i descarrega 2 "
-"canals com a màxim."
+"Útil per crear receptes. Força max_articles_per_feed a 2 i baixa 2 canals "
+"com a màxim."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/input.py:40
 msgid "Username for sites that require a login to access content."
@@ -17396,8 +17416,8 @@ msgstr ""
 msgid ""
 "Do not download latest version of builtin recipes from the calibre server"
 msgstr ""
-"No descarreguis la darrera versió de les receptes integrades des del "
-"servidor del calibre"
+"No baixis la darrera versió de les receptes integrades des del servidor del "
+"calibre"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:47
 msgid "Unknown News Source"
@@ -17413,11 +17433,11 @@ msgstr "S'ha finalitzat la baixada"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:738
 msgid "Failed to download the following articles:"
-msgstr "No s'ha pogut descarregar aquests articles:"
+msgstr "No s'ha pogut baixar aquests articles:"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:744
 msgid "Failed to download parts of the following articles:"
-msgstr "No s'ha pogut descarregar part d'aquests articles:"
+msgstr "No s'ha pogut baixar part d'aquests articles:"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:746
 msgid " from "
@@ -17449,7 +17469,7 @@ msgstr "S'ha aconseguit canals des de la pàgina principal"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:884
 msgid "Trying to download cover..."
-msgstr "S'està intentant descarregar la portada..."
+msgstr "S'està intentant baixar la portada..."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:886
 msgid "Generating masthead..."
@@ -17457,23 +17477,23 @@ msgstr "S'està generant l'encapçalament..."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:966
 msgid "Starting download [%d thread(s)]..."
-msgstr "S'està iniciant la descàrrega [%d fils]"
+msgstr "S'està iniciant la baixada [%d fils]"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:982
 msgid "Feeds downloaded to %s"
-msgstr "S'ha descarregat els canals a %s"
+msgstr "S'ha baixat els canals a %s"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:991
 msgid "Could not download cover: %s"
-msgstr "No s'ha pogut descarregar la portada: %s"
+msgstr "No s'ha pogut baixar la portada: %s"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1000
 msgid "Downloading cover from %s"
-msgstr "S'està descarregant la portada de %s"
+msgstr "Baixada de la portada de %s"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1046
 msgid "Masthead image downloaded"
-msgstr "S'ha descarregat la imatge de capçalera"
+msgstr "S'ha baixat la imatge de capçalera"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1214
 msgid "Untitled Article"
@@ -17481,11 +17501,11 @@ msgstr "Article sense títol"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1285
 msgid "Article downloaded: %s"
-msgstr "Article descarregat: %s"
+msgstr "Article baixat: %s"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1296
 msgid "Article download failed: %s"
-msgstr "Ha fallat la descàrrega de l'article: %s"
+msgstr "Ha fallat la baixada de l'article: %s"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1313
 msgid "Fetching feed"
@@ -17504,9 +17524,8 @@ msgid ""
 "You do not have permission to download this issue. Either your subscription "
 "has expired or you have exceeded the maximum allowed downloads for today."
 msgstr ""
-"No teniu permís per descarregar aquest exemplar. Pot ser que us hagi caducat "
-"la subscripció o heu excedit el límit màxim de descàrregues permeses per "
-"avui."
+"No teniu permís per baixar aquest exemplar. Pot ser que us hagi caducat la "
+"subscripció o heu excedit el límit màxim de baixades permeses per avui."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:46
 msgid "You"
@@ -17587,7 +17606,7 @@ msgid ""
 "The maximum number of files to download. This only applies to files from <a "
 "href> tags. Default is %default"
 msgstr ""
-"Número màxim de fitxers que es descarregaran. Només s'aplica a fitxers amb "
+"Número màxim de fitxers que es baixaran. Només s'aplica a fitxers amb "
 "etiquetes <a href>. Per defecte %default"
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:490
@@ -17601,8 +17620,8 @@ msgid ""
 "The character encoding for the websites you are trying to download. The "
 "default is to try and guess the encoding."
 msgstr ""
-"La codificació de caràcters de les pàgines web que esteu intentant "
-"descarregar. Per defecte s'intenta endevinar la codificació."
+"La codificació de caràcters de les pàgines web que esteu intentant baixar. "
+"Per defecte s'intenta endevinar la codificació."
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:494
 msgid ""
@@ -17630,7 +17649,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:498
 msgid "Do not download CSS stylesheets."
-msgstr "No descarreguis els fulls d'estil CSS"
+msgstr "No baixis els fulls d'estil CSS"
 
 #~ msgid "Set the title. Default: filename."
 #~ msgstr "Indique el títol. Per defecte: nom_del_fitxer."
