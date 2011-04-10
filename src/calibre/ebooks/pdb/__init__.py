@@ -12,6 +12,7 @@ from calibre.ebooks.pdb.ereader.reader import Reader as ereader_reader
 from calibre.ebooks.pdb.palmdoc.reader import Reader as palmdoc_reader
 from calibre.ebooks.pdb.ztxt.reader import Reader as ztxt_reader
 from calibre.ebooks.pdb.pdf.reader import Reader as pdf_reader
+from calibre.ebooks.pdb.plucker.reader import Reader as plucker_reader
 
 FORMAT_READERS = {
     'PNPdPPrs': ereader_reader,
@@ -19,6 +20,7 @@ FORMAT_READERS = {
     'zTXTGPlm': ztxt_reader,
     'TEXtREAd': palmdoc_reader,
     '.pdfADBE': pdf_reader,
+    'DataPlkr': plucker_reader,
 }
 
 from calibre.ebooks.pdb.palmdoc.writer import Writer as palmdoc_writer
@@ -37,6 +39,7 @@ IDENTITY_TO_NAME = {
     'zTXTGPlm': 'zTXT',
     'TEXtREAd': 'PalmDOC',
     '.pdfADBE': 'Adobe Reader',
+    'DataPlkr': 'Plucker',
 
     'BVokBDIC': 'BDicty',
     'DB99DBOS': 'DB (Database program)',
@@ -50,7 +53,6 @@ IDENTITY_TO_NAME = {
     'DATALSdb': 'LIST',
     'Mdb1Mdb1': 'MobileDB',
     'BOOKMOBI': 'MobiPocket',
-    'DataPlkr': 'Plucker',
     'DataSprd': 'QuickSheet',
     'SM01SMem': 'SuperMemo',
     'TEXtTlDc': 'TealDoc',
