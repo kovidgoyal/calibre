@@ -338,8 +338,9 @@ def identify(log, abort, # {{{
 
         for i, result in enumerate(presults):
             result.relevance_in_source = i
-            result.has_cached_cover_url = \
-                plugin.get_cached_cover_url(result.identifiers) is not None
+            result.has_cached_cover_url = (plugin.cached_cover_url_is_reliable
+                    and plugin.get_cached_cover_url(result.identifiers) is not
+                    None)
             result.identify_plugin = plugin
 
     log('The identify phase took %.2f seconds'%(time.time() - start_time))

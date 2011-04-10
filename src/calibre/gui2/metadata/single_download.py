@@ -180,6 +180,13 @@ class ResultsModel(QAbstractTableModel): # {{{
                 return self.yes_icon
         elif role == Qt.UserRole:
             return book
+        elif role == Qt.ToolTipRole and col == 3:
+            return QVariant(
+                _('The has cover indication is not fully\n'
+                    'reliable. Sometimes results marked as not\n'
+                    'having a cover will find a cover in the download\n'
+                    'cover stage, and vice versa.'))
+
         return NONE
 
     def sort(self, col, order=Qt.AscendingOrder):
@@ -769,7 +776,7 @@ class LogViewer(QDialog): # {{{
         self.keep_updating = True
         self.last_html = None
         self.finished.connect(self.stop)
-        QTimer.singleShot(1000, self.update_log)
+        QTimer.singleShot(100, self.update_log)
 
         self.show()
 
@@ -785,7 +792,7 @@ class LogViewer(QDialog): # {{{
         html = self.log.html
         if html != self.last_html:
             self.last_html = html
-            self.tb.setHtml('<pre>%s</pre>'%html)
+            self.tb.setHtml('<pre style="font-family:monospace">%s</pre>'%html)
         QTimer.singleShot(1000, self.update_log)
 
 # }}}
@@ -885,5 +892,5 @@ if __name__ == '__main__':
     #DEBUG_DIALOG = True
     app = QApplication([])
     d = FullFetch()
-    d.start(title='jurassic', authors=['crichton'])
+    d.start(title='great gatsby', authors=['fitzgerald'])
 

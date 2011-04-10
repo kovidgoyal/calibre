@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import time
+import time, hashlib
 from urllib import urlencode
 from functools import partial
 from Queue import Queue, Empty
@@ -164,8 +164,11 @@ class GoogleBooks(Source):
         'comments', 'publisher', 'identifier:isbn', 'rating',
         'identifier:google']) # language currently disabled
     supports_gzip_transfer_encoding = True
+    cached_cover_url_is_reliable = False
 
     GOOGLE_COVER = 'http://books.google.com/books?id=%s&printsec=frontcover&img=1'
+
+    DUMMY_IMAGE_MD5 = frozenset(['0de4383ebad0adad5eeb8975cd796657'])
 
     def get_book_url(self, identifiers): # {{{
         goog = identifiers.get('google', None)
@@ -235,7 +238,11 @@ class GoogleBooks(Source):
         log('Downloading cover from:', cached_url)
         try:
             cdata = br.open_novisit(cached_url, timeout=timeout).read()
-            result_queue.put((self, cdata))
+            if cdata:
+                if hashlib.md5(cdata).hexdigest() in self.DUMMY_IMAGE_MD5:
+                    log.warning('Google returned a dummy image, ignoring')
+                else:
+                    result_queue.put((self, cdata))
         except:
             log.exception('Failed to download cover from:', cached_url)
 
