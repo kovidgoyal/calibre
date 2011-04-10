@@ -1518,7 +1518,7 @@ class TagsModel(QAbstractItemModel): # {{{
                 if node.tag.category in \
                     ('tags', 'series', 'authors', 'rating', 'publisher') or \
                     (fm['is_custom'] and \
-                        fm['datatype'] in ['text', 'rating', 'series']):
+                        fm['datatype'] in ['text', 'rating', 'series', 'enumeration']):
                     ans |= Qt.ItemIsDropEnabled
             else:
                 ans |= Qt.ItemIsDropEnabled
