@@ -170,8 +170,8 @@ from setup import __appname__, __version__ as version
 # there.
 pot_header = '''\
 # Translation template file..
-# Copyright (C) 2007 Kovid Goyal
-# Kovid Goyal <kovid@kovidgoyal.net>, 2007.
+# Copyright (C) %(year)s Kovid Goyal
+# Kovid Goyal <kovid@kovidgoyal.net>, %(year)s.
 #
 msgid ""
 msgstr ""
@@ -185,7 +185,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\\n"
 "Generated-By: pygettext.py %%(version)s\\n"
 
-'''%dict(appname=__appname__, version=version)
+'''%dict(appname=__appname__, version=version, year=time.strftime('%Y'))
 
 
 def usage(code, msg=''):

@@ -28,7 +28,7 @@ class FB2Output(OutputFormatPlugin):
             'sf_horror', # Horror & mystic
             'sf_humor', # Humor
             'sf_fantasy', # Fantasy
-            'sf', # Science Fiction 
+            'sf', # Science Fiction
         # Detectives & Thrillers
             'det_classic', # Classical detectives
             'det_police', # Police Stories
@@ -41,20 +41,20 @@ class FB2Output(OutputFormatPlugin):
             'det_maniac', # Maniacs
             'det_hard', # Hard#boiled
             'thriller', # Thrillers
-            'detective', # Detectives 
+            'detective', # Detectives
         # Prose
             'prose_classic', # Classics prose
             'prose_history', # Historical prose
             'prose_contemporary', # Contemporary prose
             'prose_counter', # Counterculture
             'prose_rus_classic', # Russial classics prose
-            'prose_su_classics', # Soviet classics prose 
+            'prose_su_classics', # Soviet classics prose
         # Romance
             'love_contemporary', # Contemporary Romance
             'love_history', # Historical Romance
             'love_detective', # Detective Romance
             'love_short', # Short Romance
-            'love_erotica', # Erotica 
+            'love_erotica', # Erotica
         # Adventure
             'adv_western', # Western
             'adv_history', # History
@@ -62,7 +62,7 @@ class FB2Output(OutputFormatPlugin):
             'adv_maritime', # Maritime Fiction
             'adv_geo', # Travel & geography
             'adv_animal', # Nature & animals
-            'adventure', # Other 
+            'adventure', # Other
         # Children's
             'child_tale', # Fairy Tales
             'child_verse', # Verses
@@ -71,17 +71,17 @@ class FB2Output(OutputFormatPlugin):
             'child_det', # Detectives & Thrillers
             'child_adv', # Adventures
             'child_education', # Educational
-            'children', # Other 
+            'children', # Other
         # Poetry & Dramaturgy
             'poetry', # Poetry
-            'dramaturgy', # Dramaturgy 
+            'dramaturgy', # Dramaturgy
         # Antique literature
             'antique_ant', # Antique
             'antique_european', # European
             'antique_russian', # Old russian
             'antique_east', # Old east
             'antique_myths', # Myths. Legends. Epos
-            'antique', # Other 
+            'antique', # Other
         # Scientific#educational
             'sci_history', # History
             'sci_psychology', # Psychology
@@ -98,7 +98,7 @@ class FB2Output(OutputFormatPlugin):
             'sci_chem', # Chemistry
             'sci_biology', # Biology
             'sci_tech', # Technical
-            'science', # Other 
+            'science', # Other
         # Computers & Internet
             'comp_www', # Internet
             'comp_programming', # Programming
@@ -106,29 +106,29 @@ class FB2Output(OutputFormatPlugin):
             'comp_soft', # Software
             'comp_db', # Databases
             'comp_osnet', # OS & Networking
-            'computers', # Other 
+            'computers', # Other
         # Reference
             'ref_encyc', # Encyclopedias
             'ref_dict', # Dictionaries
             'ref_ref', # Reference
             'ref_guide', # Guidebooks
-            'reference', # Other 
+            'reference', # Other
         # Nonfiction
             'nonf_biography', # Biography & Memoirs
             'nonf_publicism', # Publicism
             'nonf_criticism', # Criticism
             'design', # Art & design
-            'nonfiction', # Other 
+            'nonfiction', # Other
         # Religion & Inspiration
             'religion_rel', # Religion
             'religion_esoterics', # Esoterics
             'religion_self', # Self#improvement
-            'religion', # Other 
+            'religion', # Other
         # Humor
             'humor_anecdote', # Anecdote (funny stories)
             'humor_prose', # Prose
             'humor_verse', # Verses
-            'humor', # Other 
+            'humor', # Other
         # Home & Family
             'home_cooking', # Cooking
             'home_pets', # Pets
@@ -155,14 +155,14 @@ class FB2Output(OutputFormatPlugin):
         OptionRecommendation(name='fb2_genre',
             recommended_value='antique', level=OptionRecommendation.LOW,
             choices=FB2_GENRES,
-            help=_('Genre for the book. Choices: %s\n\n See: ' % FB2_GENRES) + 'http://www.fictionbook.org/index.php/Eng:FictionBook_2.1_genres ' \
+            help=(_('Genre for the book. Choices: %s\n\n See: ') % FB2_GENRES) + 'http://www.fictionbook.org/index.php/Eng:FictionBook_2.1_genres ' \
                 + _('for a complete list with descriptions.')),
     ])
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
         from calibre.ebooks.oeb.transforms.jacket import linearize_jacket
         from calibre.ebooks.oeb.transforms.rasterize import SVGRasterizer, Unavailable
-        
+
         try:
             rasterizer = SVGRasterizer()
             rasterizer(oeb_book, opts)
