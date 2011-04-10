@@ -73,6 +73,9 @@
             <property name="toolTip">
              <string>If you uncheck any fields, metadata for those fields will not be downloaded</string>
             </property>
+            <property name="selectionMode">
+             <enum>QAbstractItemView::NoSelection</enum>
+            </property>
            </widget>
           </item>
          </layout>

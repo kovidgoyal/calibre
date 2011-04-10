@@ -284,7 +284,8 @@ class Amazon(Source):
 
     capabilities = frozenset(['identify', 'cover'])
     touched_fields = frozenset(['title', 'authors', 'identifier:amazon',
-        'identifier:isbn', 'rating', 'comments', 'publisher', 'pubdate'])
+        'identifier:isbn', 'rating', 'comments', 'publisher', 'pubdate',
+        'language'])
     has_html_comments = True
     supports_gzip_transfer_encoding = True
 

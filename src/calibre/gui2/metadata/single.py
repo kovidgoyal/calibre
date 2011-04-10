@@ -166,6 +166,11 @@ class MetadataSingleDialogBase(ResizableDialog):
         font.setBold(True)
         self.fetch_metadata_button.setFont(font)
 
+        self.config_metadata_button = QToolButton(self)
+        self.config_metadata_button.setIcon(QIcon(I('config.png')))
+        self.config_metadata_button.clicked.connect(self.configure_metadata)
+        self.config_metadata_button.setToolTip(
+            _('Change how calibre downloads metadata'))
 
     # }}}
 
@@ -315,6 +320,12 @@ class MetadataSingleDialogBase(ResizableDialog):
             if d.cover_pixmap is not None:
                 self.cover.current_val = pixmap_to_data(d.cover_pixmap)
 
+    def configure_metadata(self):
+        from calibre.gui2.preferences import show_config_widget
+        gui = self.parent()
+        show_config_widget('Sharing', 'Metadata download', parent=self,
+                gui=gui, never_shutdown=True)
+
     def download_cover(self, *args):
         from calibre.gui2.metadata.single_download import CoverFetch
         d = CoverFetch(self.cover.pixmap(), self)
@@ -451,7 +462,8 @@ class MetadataSingleDialog(MetadataSingleDialogBase): # {{{
 
         sto = QWidget.setTabOrder
         sto(self.button_box, self.fetch_metadata_button)
-        sto(self.fetch_metadata_button, self.title)
+        sto(self.fetch_metadata_button, self.config_metadata_button)
+        sto(self.config_metadata_button, self.title)
 
         def create_row(row, one, two, three, col=1, icon='forward.png'):
             ql = BuddyLabel(one)
@@ -530,7 +542,8 @@ class MetadataSingleDialog(MetadataSingleDialogBase): # {{{
         self.tabs[0].spc_two = QSpacerItem(10, 10, QSizePolicy.Expanding,
                 QSizePolicy.Expanding)
         l.addItem(self.tabs[0].spc_two, 8, 0, 1, 3)
-        l.addWidget(self.fetch_metadata_button, 9, 0, 1, 3)
+        l.addWidget(self.fetch_metadata_button, 9, 0, 1, 2)
+        l.addWidget(self.config_metadata_button, 9, 2, 1, 1)
 
         self.tabs[0].gb2 = gb = QGroupBox(_('Co&mments'), self)
         gb.l = l = QVBoxLayout()
