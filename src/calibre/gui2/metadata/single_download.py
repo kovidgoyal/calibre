@@ -428,7 +428,7 @@ class IdentifyWidget(QWidget): # {{{
         if authors:
             parts.append('authors:'+authors_to_string(authors))
         if identifiers:
-            x = ', '.join('%s:%s'%(k, v) for k, v in identifiers)
+            x = ', '.join('%s:%s'%(k, v) for k, v in identifiers.iteritems())
             parts.append(x)
         self.query.setText(_('Query: ')+'; '.join(parts))
         self.log(unicode(self.query.text()))
@@ -755,6 +755,10 @@ class LogViewer(QDialog): # {{{
 
         self.bb = QDialogButtonBox(QDialogButtonBox.Close)
         l.addWidget(self.bb)
+        self.copy_button = self.bb.addButton(_('Copy to clipboard'),
+                self.bb.ActionRole)
+        self.copy_button.clicked.connect(self.copy_to_clipboard)
+        self.copy_button.setIcon(QIcon(I('edit-copy.png')))
         self.bb.rejected.connect(self.reject)
         self.bb.accepted.connect(self.accept)
 
@@ -768,6 +772,9 @@ class LogViewer(QDialog): # {{{
         QTimer.singleShot(1000, self.update_log)
 
         self.show()
+
+    def copy_to_clipboard(self):
+        QApplication.clipboard().setText(''.join(self.log.plain_text))
 
     def stop(self, *args):
         self.keep_updating = False
@@ -785,9 +792,10 @@ class LogViewer(QDialog): # {{{
 
 class FullFetch(QDialog): # {{{
 
-    def __init__(self, log, current_cover=None, parent=None):
+    def __init__(self, current_cover=None, parent=None):
         QDialog.__init__(self, parent)
-        self.log, self.current_cover = log, current_cover
+        self.current_cover = current_cover
+        self.log = Log()
         self.book = self.cover_pixmap = None
 
         self.setWindowTitle(_('Downloading metadata...'))
@@ -813,7 +821,7 @@ class FullFetch(QDialog): # {{{
         self.log_button.setIcon(QIcon(I('debug.png')))
         self.ok_button.setVisible(False)
 
-        self.identify_widget = IdentifyWidget(log, self)
+        self.identify_widget = IdentifyWidget(self.log, self)
         self.identify_widget.rejected.connect(self.reject)
         self.identify_widget.results_found.connect(self.identify_results_found)
         self.identify_widget.book_selected.connect(self.book_selected)
@@ -870,12 +878,12 @@ class FullFetch(QDialog): # {{{
         self.title, self.authors = title, authors
         self.identify_widget.start(title=title, authors=authors,
                 identifiers=identifiers)
-        self.exec_()
+        return self.exec_()
 # }}}
 
 if __name__ == '__main__':
     #DEBUG_DIALOG = True
     app = QApplication([])
-    d = FullFetch(Log())
+    d = FullFetch()
     d.start(title='jurassic', authors=['crichton'])
 

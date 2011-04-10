@@ -315,7 +315,7 @@ class SeriesEdit(MultiCompleteComboBox):
             if not val:
                 val = ''
             self.setEditText(val.strip())
-            self.setCursorPosition(0)
+            self.lineEdit().setCursorPosition(0)
 
         return property(fget=fget, fset=fset)
 
@@ -862,6 +862,7 @@ class TagsEdit(MultiCompleteLineEdit): # {{{
             if not val:
                 val = []
             self.setText(', '.join([x.strip() for x in val]))
+            self.setCursorPosition(0)
         return property(fget=fget, fset=fset)
 
     def initialize(self, db, id_):
@@ -928,6 +929,7 @@ class IdentifiersEdit(QLineEdit): # {{{
                 val = {}
             txt = ', '.join(['%s:%s'%(k, v) for k, v in val.iteritems()])
             self.setText(txt.strip())
+            self.setCursorPosition(0)
         return property(fget=fget, fset=fset)
 
     def initialize(self, db, id_):
@@ -977,7 +979,7 @@ class PublisherEdit(MultiCompleteComboBox): # {{{
             if not val:
                 val = ''
             self.setEditText(val.strip())
-            self.setCursorPosition(0)
+            self.lineEdit().setCursorPosition(0)
 
         return property(fget=fget, fset=fset)
 
