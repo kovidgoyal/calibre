@@ -19,6 +19,65 @@
 #  new recipes:
 #    - title: 
 
+
+- version: 0.7.54
+  date: 2011-04-08
+
+  new features:
+    - title: "New output format, HTMLZ which is a single HTML file with its associated images/stylesheets in a zipped up file"
+      description: "Useful when you want to convert your ebook into a single HTML file for easy editing. Note that this output plugin is still new and needs testing"
+
+    - title: "When dealing with ZIP/RAR archives, use the file header rather than the file extension to detrmine the file type, when possible. This fixes the common case of CBZ files being actually cbr files and vice versa"
+
+    - title: "Support for the Motorola Atrix"
+
+    - title: "Allow the icons in the toolbar to be turned off completely via Preferences->Look & Feel"
+
+    - title: "When downloading metadata use the gzip transfer encoding when possible for a speedup."
+      tickets: [749304]
+  
+  bug fixes:
+    - title: "Conversion pipeline: Workaround for bug in lxml that causes a massive mem leak on windows and OS X when the input document contains non ASCII CSS selectors."
+      tickets: [754555]
+
+    - title: "Conversion pipeline: Handle inline <style> tags that put all the actual CSS inside an XML comment."
+      tickets: [750063]
+
+    - title: "The 'Choose Library' button now shows its popup menu when you already have more than one library instead of the dialog to create a new library"
+      tickets: [754154]
+
+    - title: "Apply all content server setting when clicking the Start Server button in Preferences->Sharing over the net"
+      tickets: [753122]
+
+    - title: "Fix content server breaking if its restriction is set to a saved search that was deleted"
+      tickets: [751950]
+
+    - title: "Fix detection of PocketBook with 2.0.6 firmware on windows"
+      tickets: [750336]
+
+    - title: "ODT Input: Fix handling of the <text:s> element."
+      tickets: [749655]
+
+    - title: "MOBI Output: Don't use self closed tags"
+
+    - title: "Fix book details popup becoming too tall if there is a lot of metadata"
+
+    - title: "Fix new PDF engine crashing on PDF files with embedded fonts with null names"
+
+  improved recipes:
+    - Kommersant
+    - Perfil
+    - Times of India
+    - IHT
+    - Guardian
+
+  new recipes:
+    - title: "Al Ahram"
+      authors: Hassan Williamson
+
+    - title: "F-Secure and developpez.com"
+      authors: louhike
+
 - version: 0.7.53
   date: 2011-04-01
 

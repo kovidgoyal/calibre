@@ -301,6 +301,13 @@ class Source(Plugin):
 
     # Metadata API {{{
 
+    def get_book_url(self, identifiers):
+        '''
+        Return the URL for the book identified by identifiers at this source.
+        If no URL is found, return None.
+        '''
+        return None
+
     def get_cached_cover_url(self, identifiers):
         '''
         Return cached cover URL for the book identified by

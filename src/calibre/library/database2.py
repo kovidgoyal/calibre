@@ -41,7 +41,6 @@ from calibre.utils.magick.draw import save_cover_data_to
 from calibre.utils.recycle_bin import delete_file, delete_tree
 from calibre.utils.formatter_functions import load_user_template_functions
 
-
 copyfile = os.link if hasattr(os, 'link') else shutil.copyfile
 
 class Tag(object):
@@ -213,6 +212,12 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         defs = self.prefs.defaults
         defs['gui_restriction'] = defs['cs_restriction'] = ''
         defs['categories_using_hierarchy'] = []
+
+        # Migrate the bool tristate tweak
+        defs['bools_are_tristate'] = \
+                tweaks.get('bool_custom_columns_are_tristate', 'yes') == 'yes'
+        if self.prefs.get('bools_are_tristate') is None:
+            self.prefs.set('bools_are_tristate', defs['bools_are_tristate'])
 
         # Migrate saved search and user categories to db preference scheme
         def migrate_preference(key, default):

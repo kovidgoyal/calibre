@@ -785,6 +785,8 @@ def write_tweaks(raw):
 
 tweaks = read_tweaks()
 test_eight_code = tweaks.get('test_eight_code', False)
+# test_eight_code notes
+# Change Amazon plugin name to just Amazon
 
 def migrate():
     if hasattr(os, 'geteuid') and os.geteuid() == 0:

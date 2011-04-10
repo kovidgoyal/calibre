@@ -18,6 +18,7 @@ from calibre.utils.config import ConfigProxy
 from calibre.gui2 import error_dialog, config, open_url, warning_dialog, \
         Dispatcher, info_dialog
 from calibre import as_unicode
+from calibre.utils.icu import sort_key
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
@@ -42,8 +43,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                          else self.opt_password.Password))
         self.opt_password.setEchoMode(self.opt_password.Password)
 
-        restrictions = sorted(saved_searches().names(),
-                              cmp=lambda x,y: cmp(x.lower(), y.lower()))
+        restrictions = sorted(saved_searches().names(), key=sort_key)
+        # verify that the current restriction still exists. If not, clear it.
+        csr = db.prefs.get('cs_restriction', None)
+        if csr and csr not in restrictions:
+            db.prefs.set('cs_restriction', '')
         choices = [('', '')] + [(x, x) for x in restrictions]
         r('cs_restriction', db.prefs, choices=choices)
 

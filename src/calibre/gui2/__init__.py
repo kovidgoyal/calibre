@@ -13,7 +13,7 @@ from PyQt4.Qt import QVariant, QFileInfo, QObject, SIGNAL, QBuffer, Qt, \
 
 ORG_NAME = 'KovidsBrain'
 APP_UID  = 'libprs500'
-from calibre.constants import islinux, iswindows, isfreebsd, isfrozen
+from calibre.constants import islinux, iswindows, isfreebsd, isfrozen, isosx
 from calibre.utils.config import Config, ConfigProxy, dynamic, JSONConfig
 from calibre.utils.localization import set_qt_translator
 from calibre.ebooks.metadata.meta import get_metadata, metadata_from_formats
@@ -23,20 +23,44 @@ from calibre.utils.date import UNDEFINED_DATE
 # Setup gprefs {{{
 gprefs = JSONConfig('gui')
 
-gprefs.defaults['action-layout-toolbar'] = (
+if isosx:
+    gprefs.defaults['action-layout-menubar'] = (
+        'Add Books', 'Edit Metadata', 'Convert Books',
+        'Choose Library', 'Save To Disk', 'Preferences',
+        'Help',
+        )
+    gprefs.defaults['action-layout-menubar-device'] = (
+        'Add Books', 'Edit Metadata', 'Convert Books',
+        'Location Manager', 'Send To Device',
+        'Save To Disk', 'Preferences', 'Help',
+        )
+    gprefs.defaults['action-layout-toolbar'] = (
+        'Add Books', 'Edit Metadata', None, 'Convert Books', 'View', None,
+        'Choose Library', 'Donate', None, 'Fetch News', 'Save To Disk',
+        'Connect Share', None, 'Remove Books',
+        )
+    gprefs.defaults['action-layout-toolbar-device'] = (
+        'Add Books', 'Edit Metadata', None, 'Convert Books', 'View',
+        'Send To Device', None, None, 'Location Manager', None, None,
+        'Fetch News', 'Save To Disk', 'Connect Share', None,
+        'Remove Books',
+        )
+else:
+    gprefs.defaults['action-layout-menubar'] = ()
+    gprefs.defaults['action-layout-menubar-device'] = ()
+    gprefs.defaults['action-layout-toolbar'] = (
         'Add Books', 'Edit Metadata', None, 'Convert Books', 'View', None,
         'Choose Library', 'Donate', None, 'Fetch News', 'Save To Disk',
         'Connect Share', None, 'Remove Books', None, 'Help', 'Preferences',
         )
-
-gprefs.defaults['action-layout-toolbar-child'] = ()
-
-gprefs.defaults['action-layout-toolbar-device'] = (
+    gprefs.defaults['action-layout-toolbar-device'] = (
         'Add Books', 'Edit Metadata', None, 'Convert Books', 'View',
         'Send To Device', None, None, 'Location Manager', None, None,
         'Fetch News', 'Save To Disk', 'Connect Share', None,
         'Remove Books', None, 'Help', 'Preferences',
         )
+
+gprefs.defaults['action-layout-toolbar-child'] = ()
 
 gprefs.defaults['action-layout-context-menu'] = (
         'Edit Metadata', 'Send To Device', 'Save To Disk',
@@ -57,6 +81,7 @@ gprefs.defaults['toolbar_text'] = 'auto'
 gprefs.defaults['font'] = None
 gprefs.defaults['tags_browser_partition_method'] = 'first letter'
 gprefs.defaults['tags_browser_collapse_at'] = 100
+gprefs.defaults['edit_metadata_single_layout'] = 'default'
 
 # }}}
 

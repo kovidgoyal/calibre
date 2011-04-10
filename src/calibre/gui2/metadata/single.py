@@ -521,7 +521,7 @@ class MetadataSingleDialog(MetadataSingleDialogBase): # {{{
 
 # }}}
 
-class MetadataSingleDialogAlt(MetadataSingleDialogBase): # {{{
+class MetadataSingleDialogAlt1(MetadataSingleDialogBase): # {{{
 
     cc_two_column = False
     one_line_comments_toolbar = True
@@ -654,10 +654,14 @@ class MetadataSingleDialogAlt(MetadataSingleDialogBase): # {{{
 
 # }}}
 
+editors = {'default': MetadataSingleDialog, 'alt1': MetadataSingleDialogAlt1}
 
 def edit_metadata(db, row_list, current_row, parent=None, view_slot=None,
         set_current_callback=None):
-    d = MetadataSingleDialog(db, parent)
+    cls = gprefs.get('edit_metadata_single_layout', '')
+    if cls not in editors:
+        cls = 'default'
+    d = editors[cls](db, parent)
     d.start(row_list, current_row, view_slot=view_slot,
             set_current_callback=set_current_callback)
     return d.changed, d.rows_to_refresh
