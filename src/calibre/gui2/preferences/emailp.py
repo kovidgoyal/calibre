@@ -84,7 +84,7 @@ class EmailAccounts(QAbstractTableModel): # {{{
         account = self.account_order[row]
         if col == 3:
             self.accounts[account][1] ^= True
-        if col == 2:
+        elif col == 2:
             self.subjects[account] = unicode(value.toString())
         elif col == 1:
             self.accounts[account][0] = unicode(value.toString()).upper()
