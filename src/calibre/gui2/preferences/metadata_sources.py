@@ -9,14 +9,15 @@ __docformat__ = 'restructuredtext en'
 
 from operator import attrgetter
 
-from PyQt4.Qt import (QAbstractTableModel, Qt, QAbstractListModel)
+from PyQt4.Qt import (QAbstractTableModel, Qt, QAbstractListModel, QWidget,
+        pyqtSignal, QVBoxLayout, QDialogButtonBox, QFrame, QLabel)
 
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget
 from calibre.gui2.preferences.metadata_sources_ui import Ui_Form
 from calibre.ebooks.metadata.sources.base import msprefs
 from calibre.customize.ui import (all_metadata_plugins, is_disabled,
         enable_plugin, disable_plugin, default_disabled_plugins)
-from calibre.gui2 import NONE
+from calibre.gui2 import NONE, error_dialog
 
 class SourcesModel(QAbstractTableModel): # {{{
 
@@ -64,7 +65,8 @@ class SourcesModel(QAbstractTableModel): # {{{
         elif role == Qt.CheckStateRole and col == 0:
             orig = Qt.Unchecked if is_disabled(plugin) else Qt.Checked
             return self.enabled_overrides.get(plugin, orig)
-
+        elif role == Qt.UserRole:
+            return plugin
         return NONE
 
     def setData(self, index, val, role):
@@ -127,6 +129,7 @@ class SourcesModel(QAbstractTableModel): # {{{
 
 class FieldsModel(QAbstractListModel): # {{{
 
+
     def __init__(self, parent=None):
         QAbstractTableModel.__init__(self, parent)
 
@@ -143,6 +146,7 @@ class FieldsModel(QAbstractListModel): # {{{
                 'language': _('Language'),
         }
         self.overrides = {}
+        self.exclude = frozenset(['series_index'])
 
     def rowCount(self, parent=None):
         return len(self.fields)
@@ -153,7 +157,7 @@ class FieldsModel(QAbstractListModel): # {{{
             fields |= p.touched_fields
         self.fields = []
         for x in fields:
-            if not x.startswith('identifier:') and x not in ('series_index',):
+            if not x.startswith('identifier:') and x not in self.exclude:
                 self.fields.append(x)
         self.fields.sort(key=lambda x:self.descs.get(x, x))
         self.reset()
@@ -204,6 +208,41 @@ class FieldsModel(QAbstractListModel): # {{{
 
 # }}}
 
+class PluginConfig(QWidget): # {{{
+
+    finished = pyqtSignal()
+
+    def __init__(self, plugin, parent):
+        QWidget.__init__(self, parent)
+
+        self.plugin = plugin
+
+        self.l = l = QVBoxLayout()
+        self.setLayout(l)
+        self.c = c = QLabel(_('<b>Configure %s</b><br>%s') % (plugin.name,
+            plugin.description))
+        c.setAlignment(Qt.AlignHCenter)
+        l.addWidget(c)
+
+        self.config_widget = plugin.config_widget()
+        self.l.addWidget(self.config_widget)
+
+        self.bb = QDialogButtonBox(
+                QDialogButtonBox.Save|QDialogButtonBox.Cancel,
+                parent=self)
+        self.bb.accepted.connect(self.finished)
+        self.bb.rejected.connect(self.finished)
+        self.bb.accepted.connect(self.commit)
+        l.addWidget(self.bb)
+
+        self.f = QFrame(self)
+        self.f.setFrameShape(QFrame.HLine)
+        l.addWidget(self.f)
+
+    def commit(self):
+        self.plugin.save_settings(self.config_widget)
+# }}}
+
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def genesis(self, gui):
@@ -223,7 +262,27 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.fields_model.dataChanged.connect(self.changed_signal)
 
     def configure_plugin(self):
-        pass
+        for index in self.sources_view.selectionModel().selectedRows():
+            plugin = self.sources_model.data(index, Qt.UserRole)
+            if plugin is not NONE:
+                return self.do_config(plugin)
+        error_dialog(self, _('No source selected'),
+                _('No source selected, cannot configure.'), show=True)
+
+    def do_config(self, plugin):
+        self.pc = PluginConfig(plugin, self)
+        self.stack.insertWidget(1, self.pc)
+        self.stack.setCurrentIndex(1)
+        self.pc.finished.connect(self.pc_finished)
+
+    def pc_finished(self):
+        try:
+            self.pc.finished.diconnect()
+        except:
+            pass
+        self.stack.setCurrentIndex(0)
+        self.stack.removeWidget(self.pc)
+        self.pc = None
 
     def initialize(self):
         ConfigWidgetBase.initialize(self)
