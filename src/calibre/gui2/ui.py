@@ -446,15 +446,16 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         self.search.clear()
         self.saved_search.clear()
         self.book_details.reset_info()
-        self.library_view.model().count_changed()
         prefs['library_path'] = self.library_path
+        #self.library_view.model().count_changed()
         db = self.library_view.model().db
-        for action in self.iactions.values():
-            action.library_changed(db)
+        self.iactions['Choose Library'].count_changed(db.count())
         self.set_window_title()
         self.apply_named_search_restriction('') # reset restriction to null
-        self.saved_searches_changed() # reload the search restrictions combo box
+        self.saved_searches_changed(recount=False) # reload the search restrictions combo box
         self.apply_named_search_restriction(db.prefs['gui_restriction'])
+        for action in self.iactions.values():
+            action.library_changed(db)
         if olddb is not None:
             try:
                 if call_close:
@@ -607,6 +608,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         self.update_checker.terminate()
         self.listener.close()
         self.job_manager.server.close()
+        self.job_manager.threaded_server.close()
         while self.spare_servers:
             self.spare_servers.pop().close()
         self.device_manager.keep_going = False
@@ -615,8 +617,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
             mb.stop()
 
         self.hide_windows()
-        if self.emailer.is_alive():
-            self.emailer.stop()
         try:
             try:
                 if self.content_server is not None:

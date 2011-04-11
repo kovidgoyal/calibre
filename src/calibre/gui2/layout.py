@@ -320,7 +320,8 @@ class BaseToolBar(QToolBar): # {{{
         self.setOrientation(Qt.Horizontal)
         self.setAllowedAreas(Qt.TopToolBarArea|Qt.BottomToolBarArea)
         self.setStyleSheet('QToolButton:checked { font-weight: bold }')
-    
+        self.preferred_width = self.sizeHint().width()
+
     def resizeEvent(self, ev):
         QToolBar.resizeEvent(self, ev)
         style = self.get_text_style()
@@ -333,9 +334,12 @@ class BaseToolBar(QToolBar): # {{{
             p = gprefs['toolbar_text']
             if p == 'never':
                 style = Qt.ToolButtonIconOnly
-            elif p == 'auto' and self.sizeHint().width() > self.width()+35:
+            elif p == 'auto' and self.preferred_width > self.width()+35:
                 style = Qt.ToolButtonIconOnly
         return style
+
+    def contextMenuEvent(self, *args):
+        pass
 
 # }}}
 
@@ -367,9 +371,6 @@ class ToolBar(BaseToolBar): # {{{
         self.setToolButtonStyle(style)
         self.child_bar.setToolButtonStyle(style)
         self.donate_button.set_normal_icon_size(sz, sz)
-
-    def contextMenuEvent(self, *args):
-        pass
 
     def build_bar(self):
         self.showing_donate = False
@@ -405,7 +406,8 @@ class ToolBar(BaseToolBar): # {{{
                     self.d_widget = QWidget()
                     self.d_widget.setLayout(QVBoxLayout())
                     self.d_widget.layout().addWidget(self.donate_button)
-                    self.d_widget.setStyleSheet('QWidget, QToolButton {background-color: none; border: none; }')
+                    if isosx:
+                        self.d_widget.setStyleSheet('QWidget, QToolButton {background-color: none; border: none; }')
                     bar.addWidget(self.d_widget)
                     self.showing_donate = True
                 elif what in self.gui.iactions:
@@ -413,6 +415,8 @@ class ToolBar(BaseToolBar): # {{{
                     bar.addAction(action.qaction)
                     self.added_actions.append(action.qaction)
                     self.setup_tool_button(bar, action.qaction, action.popup_type)
+        self.preferred_width = self.sizeHint().width()
+        self.child_bar.preferred_width = self.child_bar.sizeHint().width()
 
     def setup_tool_button(self, bar, ac, menu_mode=None):
         ch = bar.widgetForAction(ac)

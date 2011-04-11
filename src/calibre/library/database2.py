@@ -40,7 +40,6 @@ from calibre.ebooks import BOOK_EXTENSIONS, check_ebook_format
 from calibre.utils.magick.draw import save_cover_data_to
 from calibre.utils.recycle_bin import delete_file, delete_tree
 from calibre.utils.formatter_functions import load_user_template_functions
-from calibre.utils.config import test_eight_code
 
 copyfile = os.link if hasattr(os, 'link') else shutil.copyfile
 
@@ -213,11 +212,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         defs = self.prefs.defaults
         defs['gui_restriction'] = defs['cs_restriction'] = ''
         defs['categories_using_hierarchy'] = []
-        defs['edit_metadata_single_layout'] = 'default'
 
+        # Migrate the bool tristate tweak
         defs['bools_are_tristate'] = \
                 tweaks.get('bool_custom_columns_are_tristate', 'yes') == 'yes'
-        if self.prefs.get('bools_are_tristate') is None or not test_eight_code:
+        if self.prefs.get('bools_are_tristate') is None:
             self.prefs.set('bools_are_tristate', defs['bools_are_tristate'])
 
         # Migrate saved search and user categories to db preference scheme
@@ -824,7 +823,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             pass
         return (path, mi, sequence)
 
-    def get_metadata(self, idx, index_is_id=False, get_cover=False):
+    def get_metadata(self, idx, index_is_id=False, get_cover=False,
+                     get_user_categories=True):
         '''
         Convenience method to return metadata as a :class:`Metadata` object.
         Note that the list of formats is not verified.
@@ -883,16 +883,17 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
         user_cats = self.prefs['user_categories']
         user_cat_vals = {}
-        for ucat in user_cats:
-            res = []
-            for name,cat,ign in user_cats[ucat]:
-                v = mi.get(cat, None)
-                if isinstance(v, list):
-                    if name in v:
+        if get_user_categories:
+            for ucat in user_cats:
+                res = []
+                for name,cat,ign in user_cats[ucat]:
+                    v = mi.get(cat, None)
+                    if isinstance(v, list):
+                        if name in v:
+                            res.append([name,cat])
+                    elif name == v:
                         res.append([name,cat])
-                elif name == v:
-                    res.append([name,cat])
-            user_cat_vals[ucat] = res
+                user_cat_vals[ucat] = res
         mi.user_categories = user_cat_vals
 
         if get_cover:

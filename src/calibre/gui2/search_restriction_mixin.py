@@ -25,8 +25,9 @@ class SearchRestrictionMixin(object):
             r = self.search_restriction.findText(name)
             if r < 0:
                 r = 0
-        self.search_restriction.setCurrentIndex(r)
-        self.apply_search_restriction(r)
+        if r != self.search_restriction.currentIndex():
+            self.search_restriction.setCurrentIndex(r)
+            self.apply_search_restriction(r)
 
     def apply_search_restriction(self, i):
         r = unicode(self.search_restriction.currentText())

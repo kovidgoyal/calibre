@@ -173,7 +173,7 @@ class ComicMetadataReader(MetadataReaderPlugin):
             stream.seek(pos)
             if id_ == b'Rar':
                 ftype = 'cbr'
-            elif id.startswith(b'PK'):
+            elif id_.startswith(b'PK'):
                 ftype = 'cbz'
         if ftype == 'cbr':
             from calibre.libunrar import extract_first_alphabetically as extract_first
@@ -1038,6 +1038,17 @@ class Server(PreferencesPlugin):
             'give you access to your calibre library from anywhere, '
             'on any device, over the internet')
 
+class MetadataSources(PreferencesPlugin):
+    name = 'Metadata download'
+    icon = I('metadata.png')
+    gui_name = _('Metadata download')
+    category = 'Sharing'
+    gui_category = _('Sharing')
+    category_order = 4
+    name_order = 3
+    config_widget = 'calibre.gui2.preferences.metadata_sources'
+    description = _('Control how calibre downloads ebook metadata from the net')
+
 class Plugins(PreferencesPlugin):
     name = 'Plugins'
     icon = I('plugins.png')
@@ -1075,6 +1086,9 @@ class Misc(PreferencesPlugin):
 plugins += [LookAndFeel, Behavior, Columns, Toolbar, Search, InputOptions,
         CommonOptions, OutputOptions, Adding, Saving, Sending, Plugboard,
         Email, Server, Plugins, Tweaks, Misc, TemplateFunctions]
+
+if test_eight_code:
+    plugins.append(MetadataSources)
 
 #}}}
 
