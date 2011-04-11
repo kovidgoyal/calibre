@@ -7,8 +7,11 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import textwrap
 
-from PyQt4.Qt import (QWidget, QGridLayout, QGroupBox, QListView, Qt)
+from PyQt4.Qt import (QWidget, QGridLayout, QGroupBox, QListView, Qt, QSpinBox,
+        QDoubleSpinBox, QCheckBox, QLineEdit, QComboBox, QLabel)
+
 from calibre.gui2.preferences.metadata_sources import FieldsModel as FM
 
 class FieldsModel(FM): # {{{
@@ -53,7 +56,7 @@ class ConfigWidget(QWidget):
         self.setLayout(l)
 
         self.gb = QGroupBox(_('Downloaded metadata fields'), self)
-        l.addWidget(self.gb, 0, 0)
+        l.addWidget(self.gb, 0, 0, 1, 2)
         self.gb.l = QGridLayout()
         self.gb.setLayout(self.gb.l)
         self.fields_view = v = QListView(self)
@@ -65,6 +68,55 @@ class ConfigWidget(QWidget):
         self.fields_model.initialize()
         v.setModel(self.fields_model)
 
+        self.memory = []
+        self.widgets = []
+        for opt in plugin.options:
+            self.create_widgets(opt)
+
+    def create_widgets(self, opt):
+        val = self.plugin.prefs[opt.name]
+        if opt.type == 'number':
+            c = QSpinBox if isinstance(opt.default, int) else QDoubleSpinBox
+            widget = c(self)
+            widget.setValue(val)
+        elif opt.type == 'string':
+            widget = QLineEdit(self)
+            widget.setText(val)
+        elif opt.type == 'bool':
+            widget = QCheckBox(opt.label, self)
+            widget.setChecked(bool(val))
+        elif opt.type == 'choices':
+            widget = QComboBox(self)
+            for x in opt.choices:
+                widget.addItem(x)
+            idx = opt.choices.index(val)
+            widget.setCurrentIndex(idx)
+        widget.opt = opt
+        widget.setToolTip(textwrap.fill(opt.desc))
+        self.widgets.append(widget)
+        r = self.l.rowCount()
+        if opt.type == 'bool':
+            self.l.addWidget(widget, r, 0, 1, self.l.columnCount())
+        else:
+            l = QLabel(opt.label)
+            l.setToolTip(widget.toolTip())
+            self.memory.append(l)
+            l.setBuddy(widget)
+            self.l.addWidget(l, r, 0, 1, 1)
+            self.l.addWidget(widget, r, 1, 1, 1)
+
+
     def commit(self):
         self.fields_model.commit()
+        for w in self.widgets:
+            if isinstance(w, (QSpinBox, QDoubleSpinBox)):
+                val = w.value()
+            elif isinstance(w, QLineEdit):
+                val = unicode(w.text())
+            elif isinstance(w, QCheckBox):
+                val = w.isChecked()
+            elif isinstance(w, QComboBox):
+                val = unicode(w.currentText())
+            self.plugin.prefs[w.opt.name] = val
+
 
