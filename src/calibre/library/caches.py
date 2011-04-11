@@ -191,7 +191,8 @@ class CacheRow(list): # {{{
             if is_comp:
                 id = list.__getitem__(self, 0)
                 self._must_do = False
-                mi = self.db.get_metadata(id, index_is_id=True)
+                mi = self.db.get_metadata(id, index_is_id=True,
+                                          get_user_categories=False)
                 for c in self._composites:
                     self[c] =  mi.get(self._composites[c])
         return list.__getitem__(self, col)
