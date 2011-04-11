@@ -357,11 +357,8 @@ def identify(log, abort, # {{{
             if r.plugin.has_html_comments and r.comments:
                 r.comments = html2text(r.comments)
 
-    dummy = Metadata(_('Unknown'))
     max_tags = msprefs['max_tags']
     for r in results:
-        for f in msprefs['ignore_fields']:
-            setattr(r, f, getattr(dummy, f))
         r.tags = r.tags[:max_tags]
 
     return results

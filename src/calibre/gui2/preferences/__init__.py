@@ -7,8 +7,9 @@ __docformat__ = 'restructuredtext en'
 
 import textwrap
 
-from PyQt4.Qt import QWidget, pyqtSignal, QCheckBox, QAbstractSpinBox, \
-    QLineEdit, QComboBox, QVariant, Qt
+from PyQt4.Qt import (QWidget, pyqtSignal, QCheckBox, QAbstractSpinBox,
+    QLineEdit, QComboBox, QVariant, Qt, QIcon, QDialog, QVBoxLayout,
+    QDialogButtonBox)
 
 from calibre.customize.ui import preferences_plugins
 from calibre.utils.config import ConfigProxy
@@ -284,7 +285,14 @@ def get_plugin(category, name):
             'No Preferences Plugin with category: %s and name: %s found' %
             (category, name))
 
-# Testing {{{
+class ConfigDialog(QDialog):
+    def set_widget(self, w): self.w = w
+    def accept(self):
+        try:
+            self.restart_required = self.w.commit()
+        except AbortCommit:
+            return
+        QDialog.accept(self)
 
 def init_gui():
     from calibre.gui2.ui import Main
@@ -298,21 +306,24 @@ def init_gui():
     gui.initialize(db.library_path, db, None, actions, show_gui=False)
     return gui
 
-def test_widget(category, name, gui=None):
-    from PyQt4.Qt import QDialog, QVBoxLayout, QDialogButtonBox
-    class Dialog(QDialog):
-        def set_widget(self, w): self.w = w
-        def accept(self):
-            try:
-                self.restart_required = self.w.commit()
-            except AbortCommit:
-                return
-            QDialog.accept(self)
+def show_config_widget(category, name, gui=None, show_restart_msg=False,
+        parent=None, never_shutdown=False):
+    '''
+    Show the preferences plugin identified by category and name
 
+    :param gui: gui instance, if None a hidden gui is created
+    :param show_restart_msg: If True and the preferences plugin indicates a
+    restart is required, show a message box telling the user to restart
+    :param parent: The parent of the displayed dialog
+
+    :return: True iff a restart is required for the changes made by the user to
+    take effect
+    '''
     pl = get_plugin(category, name)
-    d = Dialog()
+    d = ConfigDialog(parent)
     d.resize(750, 550)
-    d.setWindowTitle(category + " - " + name)
+    d.setWindowTitle(_('Configure ') + name)
+    d.setWindowIcon(QIcon(I('config.png')))
     bb = QDialogButtonBox(d)
     bb.setStandardButtons(bb.Apply|bb.Cancel|bb.RestoreDefaults)
     bb.accepted.connect(d.accept)
@@ -335,11 +346,18 @@ def test_widget(category, name, gui=None):
     w.genesis(gui)
     w.initialize()
     d.exec_()
-    if getattr(d, 'restart_required', False):
+    rr = getattr(d, 'restart_required', False)
+    if show_restart_msg and rr:
         from calibre.gui2 import warning_dialog
         warning_dialog(gui, 'Restart required', 'Restart required', show=True)
-    if mygui:
+    if mygui and not never_shutdown:
         gui.shutdown()
+    return rr
+
+# Testing {{{
+
+def test_widget(category, name, gui=None):
+    show_config_widget(category, name, gui=gui, show_restart_msg=True)
 
 def test_all():
     from PyQt4.Qt import QApplication

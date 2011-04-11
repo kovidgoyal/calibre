@@ -823,7 +823,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             pass
         return (path, mi, sequence)
 
-    def get_metadata(self, idx, index_is_id=False, get_cover=False):
+    def get_metadata(self, idx, index_is_id=False, get_cover=False,
+                     get_user_categories=True):
         '''
         Convenience method to return metadata as a :class:`Metadata` object.
         Note that the list of formats is not verified.
@@ -882,16 +883,17 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
         user_cats = self.prefs['user_categories']
         user_cat_vals = {}
-        for ucat in user_cats:
-            res = []
-            for name,cat,ign in user_cats[ucat]:
-                v = mi.get(cat, None)
-                if isinstance(v, list):
-                    if name in v:
+        if get_user_categories:
+            for ucat in user_cats:
+                res = []
+                for name,cat,ign in user_cats[ucat]:
+                    v = mi.get(cat, None)
+                    if isinstance(v, list):
+                        if name in v:
+                            res.append([name,cat])
+                    elif name == v:
                         res.append([name,cat])
-                elif name == v:
-                    res.append([name,cat])
-            user_cat_vals[ucat] = res
+                user_cat_vals[ucat] = res
         mi.user_categories = user_cat_vals
 
         if get_cover:

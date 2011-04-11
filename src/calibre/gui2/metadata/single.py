@@ -24,6 +24,7 @@ from calibre.gui2.metadata.basic_widgets import (TitleEdit, AuthorsEdit,
 from calibre.gui2.metadata.single_download import FullFetch
 from calibre.gui2.custom_column_widgets import populate_metadata_page
 from calibre.utils.config import tweaks
+from calibre.ebooks.metadata.book.base import Metadata
 
 class MetadataSingleDialogBase(ResizableDialog):
 
@@ -166,6 +167,11 @@ class MetadataSingleDialogBase(ResizableDialog):
         font.setBold(True)
         self.fetch_metadata_button.setFont(font)
 
+        self.config_metadata_button = QToolButton(self)
+        self.config_metadata_button.setIcon(QIcon(I('config.png')))
+        self.config_metadata_button.clicked.connect(self.configure_metadata)
+        self.config_metadata_button.setToolTip(
+            _('Change how calibre downloads metadata'))
 
     # }}}
 
@@ -309,11 +315,21 @@ class MetadataSingleDialogBase(ResizableDialog):
         ret = d.start(title=self.title.current_val, authors=self.authors.current_val,
                 identifiers=self.identifiers.current_val)
         if ret == d.Accepted:
+            from calibre.ebooks.metadata.sources.base import msprefs
             mi = d.book
+            dummy = Metadata(_('Unknown'))
+            for f in msprefs['ignore_fields']:
+                setattr(mi, f, getattr(dummy, f))
             if mi is not None:
                 self.update_from_mi(mi)
             if d.cover_pixmap is not None:
                 self.cover.current_val = pixmap_to_data(d.cover_pixmap)
+
+    def configure_metadata(self):
+        from calibre.gui2.preferences import show_config_widget
+        gui = self.parent()
+        show_config_widget('Sharing', 'Metadata download', parent=self,
+                gui=gui, never_shutdown=True)
 
     def download_cover(self, *args):
         from calibre.gui2.metadata.single_download import CoverFetch
@@ -451,7 +467,8 @@ class MetadataSingleDialog(MetadataSingleDialogBase): # {{{
 
         sto = QWidget.setTabOrder
         sto(self.button_box, self.fetch_metadata_button)
-        sto(self.fetch_metadata_button, self.title)
+        sto(self.fetch_metadata_button, self.config_metadata_button)
+        sto(self.config_metadata_button, self.title)
 
         def create_row(row, one, two, three, col=1, icon='forward.png'):
             ql = BuddyLabel(one)
@@ -530,7 +547,8 @@ class MetadataSingleDialog(MetadataSingleDialogBase): # {{{
         self.tabs[0].spc_two = QSpacerItem(10, 10, QSizePolicy.Expanding,
                 QSizePolicy.Expanding)
         l.addItem(self.tabs[0].spc_two, 8, 0, 1, 3)
-        l.addWidget(self.fetch_metadata_button, 9, 0, 1, 3)
+        l.addWidget(self.fetch_metadata_button, 9, 0, 1, 2)
+        l.addWidget(self.config_metadata_button, 9, 2, 1, 1)
 
         self.tabs[0].gb2 = gb = QGroupBox(_('Co&mments'), self)
         gb.l = l = QVBoxLayout()
@@ -593,6 +611,10 @@ class MetadataSingleDialogAlt1(MetadataSingleDialogBase): # {{{
         gb.setLayout(tl)
 
         self.button_box.addButton(self.fetch_metadata_button,
+                                  QDialogButtonBox.ActionRole)
+        self.config_metadata_button.setToolButtonStyle(Qt.ToolButtonTextOnly)
+        self.config_metadata_button.setText(_('Configure metadata downloading'))
+        self.button_box.addButton(self.config_metadata_button,
                                   QDialogButtonBox.ActionRole)
         sto(self.button_box, self.title)
 

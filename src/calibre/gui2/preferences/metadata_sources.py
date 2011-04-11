@@ -9,14 +9,15 @@ __docformat__ = 'restructuredtext en'
 
 from operator import attrgetter
 
-from PyQt4.Qt import (QAbstractTableModel, Qt, QAbstractListModel)
+from PyQt4.Qt import (QAbstractTableModel, Qt, QAbstractListModel, QWidget,
+        pyqtSignal, QVBoxLayout, QDialogButtonBox, QFrame, QLabel)
 
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget
 from calibre.gui2.preferences.metadata_sources_ui import Ui_Form
 from calibre.ebooks.metadata.sources.base import msprefs
 from calibre.customize.ui import (all_metadata_plugins, is_disabled,
-        enable_plugin, disable_plugin, restore_plugin_state_to_default)
-from calibre.gui2 import NONE
+        enable_plugin, disable_plugin, default_disabled_plugins)
+from calibre.gui2 import NONE, error_dialog
 
 class SourcesModel(QAbstractTableModel): # {{{
 
@@ -64,7 +65,8 @@ class SourcesModel(QAbstractTableModel): # {{{
         elif role == Qt.CheckStateRole and col == 0:
             orig = Qt.Unchecked if is_disabled(plugin) else Qt.Checked
             return self.enabled_overrides.get(plugin, orig)
-
+        elif role == Qt.UserRole:
+            return plugin
         return NONE
 
     def setData(self, index, val, role):
@@ -116,21 +118,35 @@ class SourcesModel(QAbstractTableModel): # {{{
         self.cover_overrides = {}
 
     def restore_defaults(self):
-        del msprefs['cover_priorities']
-        self.enabled_overrides = {}
-        self.cover_overrides = {}
-        for plugin in self.plugins:
-            restore_plugin_state_to_default(plugin)
+        self.enabled_overrides = dict([(p, (Qt.Unchecked if p.name in
+            default_disabled_plugins else Qt.Checked)) for p in self.plugins])
+        self.cover_overrides = dict([(p,
+            msprefs.defaults['cover_priorities'].get(p.name, 1))
+                for p in self.plugins])
         self.reset()
 
 # }}}
 
 class FieldsModel(QAbstractListModel): # {{{
 
+
     def __init__(self, parent=None):
         QAbstractTableModel.__init__(self, parent)
 
         self.fields = []
+        self.descs = {
+                'authors': _('Authors'),
+                'comments': _('Comments'),
+                'pubdate': _('Published date'),
+                'publisher': _('Publisher'),
+                'rating' : _('Rating'),
+                'tags' : _('Tags'),
+                'title': _('Title'),
+                'series': _('Series'),
+                'language': _('Language'),
+        }
+        self.overrides = {}
+        self.exclude = frozenset(['series_index'])
 
     def rowCount(self, parent=None):
         return len(self.fields)
@@ -141,11 +157,90 @@ class FieldsModel(QAbstractListModel): # {{{
             fields |= p.touched_fields
         self.fields = []
         for x in fields:
-            if not x.startswith('identifiers:'):
+            if not x.startswith('identifier:') and x not in self.exclude:
                 self.fields.append(x)
+        self.fields.sort(key=lambda x:self.descs.get(x, x))
         self.reset()
 
+    def state(self, field, defaults=False):
+        src = msprefs.defaults if defaults else msprefs
+        return (Qt.Unchecked if field in src['ignore_fields']
+                    else Qt.Checked)
 
+    def data(self, index, role):
+        try:
+            field = self.fields[index.row()]
+        except:
+            return None
+        if role == Qt.DisplayRole:
+            return self.descs.get(field, field)
+        if role == Qt.CheckStateRole:
+            return self.overrides.get(field, self.state(field))
+        return NONE
+
+    def flags(self, index):
+        ans = QAbstractTableModel.flags(self, index)
+        return ans | Qt.ItemIsUserCheckable
+
+    def restore_defaults(self):
+        self.overrides = dict([(f, self.state(f, True)) for f in self.fields])
+        self.reset()
+
+    def setData(self, index, val, role):
+        try:
+            field = self.fields[index.row()]
+        except:
+            return False
+        ret = False
+        if role == Qt.CheckStateRole:
+            val, ok = val.toInt()
+            if ok:
+                self.overrides[field] = val
+                ret = True
+        if ret:
+            self.dataChanged.emit(index, index)
+        return ret
+
+    def commit(self):
+        val = [k for k, v in self.overrides.iteritems() if v == Qt.Unchecked]
+        msprefs['ignore_fields'] = val
+
+
+# }}}
+
+class PluginConfig(QWidget): # {{{
+
+    finished = pyqtSignal()
+
+    def __init__(self, plugin, parent):
+        QWidget.__init__(self, parent)
+
+        self.plugin = plugin
+
+        self.l = l = QVBoxLayout()
+        self.setLayout(l)
+        self.c = c = QLabel(_('<b>Configure %s</b><br>%s') % (plugin.name,
+            plugin.description))
+        c.setAlignment(Qt.AlignHCenter)
+        l.addWidget(c)
+
+        self.config_widget = plugin.config_widget()
+        self.l.addWidget(self.config_widget)
+
+        self.bb = QDialogButtonBox(
+                QDialogButtonBox.Save|QDialogButtonBox.Cancel,
+                parent=self)
+        self.bb.accepted.connect(self.finished)
+        self.bb.rejected.connect(self.finished)
+        self.bb.accepted.connect(self.commit)
+        l.addWidget(self.bb)
+
+        self.f = QFrame(self)
+        self.f.setFrameShape(QFrame.HLine)
+        l.addWidget(self.f)
+
+    def commit(self):
+        self.plugin.save_settings(self.config_widget)
 # }}}
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
@@ -167,20 +262,43 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.fields_model.dataChanged.connect(self.changed_signal)
 
     def configure_plugin(self):
-        pass
+        for index in self.sources_view.selectionModel().selectedRows():
+            plugin = self.sources_model.data(index, Qt.UserRole)
+            if plugin is not NONE:
+                return self.do_config(plugin)
+        error_dialog(self, _('No source selected'),
+                _('No source selected, cannot configure.'), show=True)
+
+    def do_config(self, plugin):
+        self.pc = PluginConfig(plugin, self)
+        self.stack.insertWidget(1, self.pc)
+        self.stack.setCurrentIndex(1)
+        self.pc.finished.connect(self.pc_finished)
+
+    def pc_finished(self):
+        try:
+            self.pc.finished.diconnect()
+        except:
+            pass
+        self.stack.setCurrentIndex(0)
+        self.stack.removeWidget(self.pc)
+        self.pc = None
 
     def initialize(self):
         ConfigWidgetBase.initialize(self)
         self.sources_model.initialize()
         self.sources_view.resizeColumnsToContents()
+        self.fields_model.initialize()
 
     def restore_defaults(self):
         ConfigWidgetBase.restore_defaults(self)
         self.sources_model.restore_defaults()
+        self.fields_model.restore_defaults()
         self.changed_signal.emit()
 
     def commit(self):
         self.sources_model.commit()
+        self.fields_model.commit()
         return ConfigWidgetBase.commit(self)
 
 if __name__ == '__main__':
