@@ -81,6 +81,7 @@ gprefs.defaults['toolbar_text'] = 'auto'
 gprefs.defaults['font'] = None
 gprefs.defaults['tags_browser_partition_method'] = 'first letter'
 gprefs.defaults['tags_browser_collapse_at'] = 100
+gprefs.defaults['edit_metadata_single_layout'] = 'default'
 
 # }}}
 

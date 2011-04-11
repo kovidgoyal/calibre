@@ -78,8 +78,8 @@ class InternalMetadataCompareKeyGen(object):
         exact_title = 1 if title and \
                 cleanup_title(title) == cleanup_title(mi.title) else 2
 
-        has_cover = 2 if source_plugin.get_cached_cover_url(mi.identifiers)\
-                is None else 1
+        has_cover = 2 if (not source_plugin.cached_cover_url_is_reliable or
+                source_plugin.get_cached_cover_url(mi.identifiers) is None) else 1
 
         self.base = (isbn, has_cover, all_fields, exact_title)
         self.comments_len = len(mi.comments.strip() if mi.comments else '')
@@ -131,7 +131,22 @@ def fixcase(x):
         x = titlecase(x)
     return x
 
+class Option(object):
+    __slots__ = ['type', 'default', 'label', 'desc', 'name', 'choices']
 
+    def __init__(self, name, type_, default, label, desc, choices=None):
+        '''
+        :param name: The name of this option. Must be a valid python identifier
+        :param type_: The type of this option, one of ('number', 'string',
+                        'bool', 'choices')
+        :param default: The default value for this option
+        :param label: A short (few words) description of this option
+        :param desc: A longer description of this option
+        :param choices: A list of possible values, used only if type='choices'
+        '''
+        self.name, self.type, self.default, self.label, self.desc = (name,
+                type_, default, label, desc)
+        self.choices = choices
 
 class Source(Plugin):
 
@@ -157,6 +172,16 @@ class Source(Plugin):
     #: correctly first
     supports_gzip_transfer_encoding = False
 
+    #: Cached cover URLs can sometimes be unreliable (i.e. the download could
+    #: fail or the returned image could be bogus. If that is often the case
+    #: with this source set to False
+    cached_cover_url_is_reliable = True
+
+    #: A list of :class:`Option` objects. They will be used to automatically
+    #: construct the configuration widget for this plugin
+    options = ()
+
+
     def __init__(self, *args, **kwargs):
         Plugin.__init__(self, *args, **kwargs)
         self._isbn_to_identifier_cache = {}
@@ -164,6 +189,9 @@ class Source(Plugin):
         self.cache_lock = threading.RLock()
         self._config_obj = None
         self._browser = None
+        self.prefs.defaults['ignore_fields'] = []
+        for opt in self.options:
+            self.prefs.defaults[opt.name] = opt.default
 
     # Configuration {{{
 
@@ -173,6 +201,16 @@ class Source(Plugin):
         used. For example, it might need a username/password/API key.
         '''
         return True
+
+    def is_customizable(self):
+        return True
+
+    def config_widget(self):
+        from calibre.gui2.metadata.config import ConfigWidget
+        return ConfigWidget(self)
+
+    def save_settings(self, config_widget):
+        config_widget.commit()
 
     @property
     def prefs(self):
@@ -308,6 +346,13 @@ class Source(Plugin):
     # }}}
 
     # Metadata API {{{
+
+    def get_book_url(self, identifiers):
+        '''
+        Return the URL for the book identified by identifiers at this source.
+        If no URL is found, return None.
+        '''
+        return None
 
     def get_cached_cover_url(self, identifiers):
         '''

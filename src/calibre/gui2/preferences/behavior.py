@@ -11,7 +11,7 @@ from PyQt4.Qt import Qt, QVariant, QListWidgetItem
 
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget, Setting
 from calibre.gui2.preferences.behavior_ui import Ui_Form
-from calibre.gui2 import config, info_dialog, dynamic
+from calibre.gui2 import config, info_dialog, dynamic, gprefs
 from calibre.utils.config import prefs
 from calibre.customize.ui import available_output_formats, all_input_formats
 from calibre.utils.search_query_parser import saved_searches
@@ -19,6 +19,7 @@ from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.oeb.iterator import is_supported
 from calibre.constants import iswindows
 from calibre.utils.icu import sort_key
+from calibre.utils.config import test_eight_code
 
 class OutputFormatSetting(Setting):
 
@@ -42,6 +43,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
         r('overwrite_author_title_metadata', config)
         r('get_social_metadata', config)
+        if test_eight_code:
+            self.opt_overwrite_author_title_metadata.setVisible(False)
+            self.opt_get_social_metadata.setVisible(False)
         r('new_version_notification', config)
         r('upload_news_to_device', config)
         r('delete_news_from_library_on_upload', config)
@@ -62,6 +66,14 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             signal = getattr(self.opt_internally_viewed_formats, 'item'+signal)
             signal.connect(self.internally_viewed_formats_changed)
 
+        r('bools_are_tristate', db.prefs, restart_required=True)
+        if test_eight_code:
+            r = self.register
+            choices = [(_('Default'), 'default'), (_('Compact Metadata'), 'alt1')]
+            r('edit_metadata_single_layout', gprefs, choices=choices)
+        else:
+            self.opt_edit_metadata_single_layout.setVisible(False)
+            self.edit_metadata_single_label.setVisible(False)
 
     def initialize(self):
         ConfigWidgetBase.initialize(self)

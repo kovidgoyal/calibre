@@ -14,7 +14,7 @@ from threading import Thread
 from io import BytesIO
 from operator import attrgetter
 
-from calibre.customize.ui import metadata_plugins
+from calibre.customize.ui import metadata_plugins, all_metadata_plugins
 from calibre.ebooks.metadata.sources.base import create_log, msprefs
 from calibre.ebooks.metadata.xisbn import xisbn
 from calibre.ebooks.metadata.book.base import Metadata
@@ -338,8 +338,9 @@ def identify(log, abort, # {{{
 
         for i, result in enumerate(presults):
             result.relevance_in_source = i
-            result.has_cached_cover_url = \
-                plugin.get_cached_cover_url(result.identifiers) is not None
+            result.has_cached_cover_url = (plugin.cached_cover_url_is_reliable
+                    and plugin.get_cached_cover_url(result.identifiers) is not
+                    None)
             result.identify_plugin = plugin
 
     log('The identify phase took %.2f seconds'%(time.time() - start_time))
@@ -356,14 +357,27 @@ def identify(log, abort, # {{{
             if r.plugin.has_html_comments and r.comments:
                 r.comments = html2text(r.comments)
 
-    dummy = Metadata(_('Unknown'))
     max_tags = msprefs['max_tags']
     for r in results:
-        for f in msprefs['ignore_fields']:
-            setattr(r, f, getattr(dummy, f))
         r.tags = r.tags[:max_tags]
 
     return results
+# }}}
+
+def urls_from_identifiers(identifiers): # {{{
+    ans = []
+    for plugin in all_metadata_plugins():
+        try:
+            url = plugin.get_book_url(identifiers)
+            if url is not None:
+                ans.append((plugin.name, url))
+        except:
+            pass
+    isbn = identifiers.get('isbn', None)
+    if isbn:
+        ans.append(('ISBN',
+            'http://www.worldcat.org/search?q=bn%%3A%s&qt=advanced'%isbn))
+    return ans
 # }}}
 
 if __name__ == '__main__': # tests {{{
