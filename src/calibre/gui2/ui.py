@@ -446,12 +446,13 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         self.search.clear()
         self.saved_search.clear()
         self.book_details.reset_info()
-        self.library_view.model().count_changed()
         prefs['library_path'] = self.library_path
+        #self.library_view.model().count_changed()
         db = self.library_view.model().db
+        self.iactions['Choose Library'].count_changed(db.count())
         self.set_window_title()
         self.apply_named_search_restriction('') # reset restriction to null
-        self.saved_searches_changed() # reload the search restrictions combo box
+        self.saved_searches_changed(recount=False) # reload the search restrictions combo box
         self.apply_named_search_restriction(db.prefs['gui_restriction'])
         for action in self.iactions.values():
             action.library_changed(db)
