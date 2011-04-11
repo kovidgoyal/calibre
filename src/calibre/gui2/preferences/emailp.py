@@ -88,7 +88,7 @@ class EmailAccounts(QAbstractTableModel): # {{{
             self.subjects[account] = unicode(value.toString())
         elif col == 1:
             self.accounts[account][0] = unicode(value.toString()).upper()
-        else:
+        elif col == 0:
             na = unicode(value.toString())
             from email.utils import parseaddr
             addr = parseaddr(na)[-1]
@@ -100,7 +100,7 @@ class EmailAccounts(QAbstractTableModel): # {{{
                 self.accounts[na][0] = 'AZW, MOBI, TPZ, PRC, AZW1'
 
         self.dataChanged.emit(
-                self.index(index.row(), 0), self.index(index.row(), 2))
+                self.index(index.row(), 0), self.index(index.row(), 3))
         return True
 
     def make_default(self, index):
