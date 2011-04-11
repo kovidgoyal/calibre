@@ -612,6 +612,10 @@ class MetadataSingleDialogAlt1(MetadataSingleDialogBase): # {{{
 
         self.button_box.addButton(self.fetch_metadata_button,
                                   QDialogButtonBox.ActionRole)
+        self.config_metadata_button.setToolButtonStyle(Qt.ToolButtonTextOnly)
+        self.config_metadata_button.setText(_('Configure metadata downloading'))
+        self.button_box.addButton(self.config_metadata_button,
+                                  QDialogButtonBox.ActionRole)
         sto(self.button_box, self.title)
 
         def create_row(row, widget, tab_to, button=None, icon=None, span=1):
