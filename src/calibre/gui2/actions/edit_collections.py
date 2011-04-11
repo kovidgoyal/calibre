@@ -12,7 +12,7 @@ class EditCollectionsAction(InterfaceAction):
     name = 'Edit Collections'
     action_spec = (_('Manage collections'), None,
             _('Manage the collections on this device'), None)
-    dont_add_to = frozenset(['toolbar', 'context-menu'])
+    dont_add_to = frozenset(['menubar', 'toolbar', 'context-menu', 'toolbar-child'])
     action_type = 'current'
 
     def genesis(self):

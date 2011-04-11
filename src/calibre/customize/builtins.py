@@ -10,6 +10,7 @@ from calibre.constants import numeric_version
 from calibre.ebooks.metadata.archive import ArchiveExtract, get_cbz_metadata
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.ebooks.oeb.base import OEB_IMAGES
+from calibre.utils.config import test_eight_code
 
 # To archive plugins {{{
 class HTML2ZIP(FileTypePlugin):
@@ -166,6 +167,14 @@ class ComicMetadataReader(MetadataReaderPlugin):
     description = _('Extract cover from comic files')
 
     def get_metadata(self, stream, ftype):
+        if hasattr(stream, 'seek') and hasattr(stream, 'tell'):
+            pos = stream.tell()
+            id_ = stream.read(3)
+            stream.seek(pos)
+            if id_ == b'Rar':
+                ftype = 'cbr'
+            elif id_.startswith(b'PK'):
+                ftype = 'cbz'
         if ftype == 'cbr':
             from calibre.libunrar import extract_first_alphabetically as extract_first
             extract_first
@@ -229,6 +238,17 @@ class HTMLMetadataReader(MetadataReaderPlugin):
 
     def get_metadata(self, stream, ftype):
         from calibre.ebooks.metadata.html import get_metadata
+        return get_metadata(stream)
+
+class HTMLZMetadataReader(MetadataReaderPlugin):
+
+    name        = 'Read HTMLZ metadata'
+    file_types  = set(['htmlz'])
+    description = _('Read metadata from %s files') % 'HTMLZ'
+    author      = 'John Schember'
+
+    def get_metadata(self, stream, ftype):
+        from calibre.ebooks.metadata.extz import get_metadata
         return get_metadata(stream)
 
 class IMPMetadataReader(MetadataReaderPlugin):
@@ -407,7 +427,7 @@ class TXTZMetadataReader(MetadataReaderPlugin):
     author      = 'John Schember'
 
     def get_metadata(self, stream, ftype):
-        from calibre.ebooks.metadata.txtz import get_metadata
+        from calibre.ebooks.metadata.extz import get_metadata
         return get_metadata(stream)
 
 class ZipMetadataReader(MetadataReaderPlugin):
@@ -432,6 +452,17 @@ class EPUBMetadataWriter(MetadataWriterPlugin):
     def set_metadata(self, stream, mi, type):
         from calibre.ebooks.metadata.epub import set_metadata
         set_metadata(stream, mi, apply_null=self.apply_null)
+
+class HTMLZMetadataWriter(MetadataWriterPlugin):
+
+    name        = 'Set HTMLZ metadata'
+    file_types  = set(['htmlz'])
+    description = _('Set metadata from %s files') % 'HTMLZ'
+    author      = 'John Schember'
+
+    def set_metadata(self, stream, mi, type):
+        from calibre.ebooks.metadata.extz import set_metadata
+        set_metadata(stream, mi)
 
 class LRFMetadataWriter(MetadataWriterPlugin):
 
@@ -505,7 +536,7 @@ class TXTZMetadataWriter(MetadataWriterPlugin):
     author      = 'John Schember'
 
     def set_metadata(self, stream, mi, type):
-        from calibre.ebooks.metadata.txtz import set_metadata
+        from calibre.ebooks.metadata.extz import set_metadata
         set_metadata(stream, mi)
 
 # }}}
@@ -514,6 +545,7 @@ from calibre.ebooks.comic.input import ComicInput
 from calibre.ebooks.epub.input import EPUBInput
 from calibre.ebooks.fb2.input import FB2Input
 from calibre.ebooks.html.input import HTMLInput
+from calibre.ebooks.htmlz.input import HTMLZInput
 from calibre.ebooks.lit.input import LITInput
 from calibre.ebooks.mobi.input import MOBIInput
 from calibre.ebooks.odt.input import ODTInput
@@ -544,6 +576,7 @@ from calibre.ebooks.tcr.output import TCROutput
 from calibre.ebooks.txt.output import TXTOutput
 from calibre.ebooks.txt.output import TXTZOutput
 from calibre.ebooks.html.output import HTMLOutput
+from calibre.ebooks.htmlz.output import HTMLZOutput
 from calibre.ebooks.snb.output import SNBOutput
 
 from calibre.customize.profiles import input_profiles, output_profiles
@@ -580,25 +613,40 @@ from calibre.devices.folder_device.driver import FOLDER_DEVICE_FOR_CONFIG
 from calibre.devices.kobo.driver import KOBO
 from calibre.devices.bambook.driver import BAMBOOK
 
-from calibre.ebooks.metadata.fetch import GoogleBooks, ISBNDB, Amazon, \
-    KentDistrictLibrary
-from calibre.ebooks.metadata.douban import DoubanBooks
-from calibre.ebooks.metadata.nicebooks import NiceBooks, NiceBooksCovers
-from calibre.ebooks.metadata.covers import OpenLibraryCovers, \
-        AmazonCovers, DoubanCovers
 from calibre.library.catalog import CSV_XML, EPUB_MOBI, BIBTEX
 from calibre.ebooks.epub.fix.unmanifested import Unmanifested
 from calibre.ebooks.epub.fix.epubcheck import Epubcheck
 
-plugins = [HTML2ZIP, PML2PMLZ, TXT2TXTZ, ArchiveExtract, GoogleBooks, ISBNDB, Amazon,
-        KentDistrictLibrary, DoubanBooks, NiceBooks, CSV_XML, EPUB_MOBI, BIBTEX, Unmanifested,
-        Epubcheck, OpenLibraryCovers, AmazonCovers, DoubanCovers,
-        NiceBooksCovers]
+plugins = [HTML2ZIP, PML2PMLZ, TXT2TXTZ, ArchiveExtract, CSV_XML, EPUB_MOBI, BIBTEX, Unmanifested,
+        Epubcheck, ]
+
+if test_eight_code:
+# New metadata download plugins {{{
+    from calibre.ebooks.metadata.sources.google import GoogleBooks
+    from calibre.ebooks.metadata.sources.amazon import Amazon
+    from calibre.ebooks.metadata.sources.openlibrary import OpenLibrary
+
+    plugins += [GoogleBooks, Amazon, OpenLibrary]
+
+# }}}
+else:
+    from calibre.ebooks.metadata.fetch import GoogleBooks, ISBNDB, Amazon, \
+        KentDistrictLibrary
+    from calibre.ebooks.metadata.douban import DoubanBooks
+    from calibre.ebooks.metadata.nicebooks import NiceBooks, NiceBooksCovers
+    from calibre.ebooks.metadata.covers import OpenLibraryCovers, \
+            AmazonCovers, DoubanCovers
+
+    plugins += [GoogleBooks, ISBNDB, Amazon,
+        OpenLibraryCovers, AmazonCovers, DoubanCovers,
+        NiceBooksCovers, KentDistrictLibrary, DoubanBooks, NiceBooks]
+
 plugins += [
     ComicInput,
     EPUBInput,
     FB2Input,
     HTMLInput,
+    HTMLZInput,
     LITInput,
     MOBIInput,
     ODTInput,
@@ -630,6 +678,7 @@ plugins += [
     TXTOutput,
     TXTZOutput,
     HTMLOutput,
+    HTMLZOutput,
     SNBOutput,
 ]
 # Order here matters. The first matched device is the one used.
@@ -858,7 +907,7 @@ class Columns(PreferencesPlugin):
 class Toolbar(PreferencesPlugin):
     name = 'Toolbar'
     icon = I('wizard.png')
-    gui_name = _('Customize the toolbar')
+    gui_name = _('Toolbar')
     category = 'Interface'
     gui_category = _('Interface')
     category_order = 1
@@ -870,7 +919,7 @@ class Toolbar(PreferencesPlugin):
 class Search(PreferencesPlugin):
     name = 'Search'
     icon = I('search.png')
-    gui_name = _('Customize searching')
+    gui_name = _('Searching')
     category = 'Interface'
     gui_category = _('Interface')
     category_order = 1
@@ -994,6 +1043,17 @@ class Server(PreferencesPlugin):
             'give you access to your calibre library from anywhere, '
             'on any device, over the internet')
 
+class MetadataSources(PreferencesPlugin):
+    name = 'Metadata download'
+    icon = I('metadata.png')
+    gui_name = _('Metadata download')
+    category = 'Sharing'
+    gui_category = _('Sharing')
+    category_order = 4
+    name_order = 3
+    config_widget = 'calibre.gui2.preferences.metadata_sources'
+    description = _('Control how calibre downloads ebook metadata from the net')
+
 class Plugins(PreferencesPlugin):
     name = 'Plugins'
     icon = I('plugins.png')
@@ -1031,6 +1091,9 @@ class Misc(PreferencesPlugin):
 plugins += [LookAndFeel, Behavior, Columns, Toolbar, Search, InputOptions,
         CommonOptions, OutputOptions, Adding, Saving, Sending, Plugboard,
         Email, Server, Plugins, Tweaks, Misc, TemplateFunctions]
+
+if test_eight_code:
+    plugins.append(MetadataSources)
 
 #}}}
 

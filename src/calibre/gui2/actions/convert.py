@@ -20,7 +20,7 @@ class ConvertAction(InterfaceAction):
 
     name = 'Convert Books'
     action_spec = (_('Convert books'), 'convert.png', None, _('C'))
-    dont_add_to = frozenset(['toolbar-device', 'context-menu-device'])
+    dont_add_to = frozenset(['menubar-device', 'toolbar-device', 'context-menu-device'])
     action_type = 'current'
 
     def genesis(self):
@@ -51,7 +51,7 @@ class ConvertAction(InterfaceAction):
         self.queue_convert_jobs(jobs, changed, bad, rows, previous,
                 self.book_auto_converted, extra_job_args=[on_card])
 
-    def auto_convert_mail(self, to, fmts, delete_from_library, book_ids, format):
+    def auto_convert_mail(self, to, fmts, delete_from_library, book_ids, format, subject):
         previous = self.gui.library_view.currentIndex()
         rows = [x.row() for x in \
                 self.gui.library_view.selectionModel().selectedRows()]
@@ -59,7 +59,7 @@ class ConvertAction(InterfaceAction):
         if jobs == []: return
         self.queue_convert_jobs(jobs, changed, bad, rows, previous,
                 self.book_auto_converted_mail,
-                extra_job_args=[delete_from_library, to, fmts])
+                extra_job_args=[delete_from_library, to, fmts, subject])
 
     def auto_convert_news(self, book_ids, format):
         previous = self.gui.library_view.currentIndex()
@@ -145,9 +145,10 @@ class ConvertAction(InterfaceAction):
         self.gui.sync_to_device(on_card, False, specific_format=fmt, send_ids=[book_id], do_auto_convert=False)
 
     def book_auto_converted_mail(self, job):
-        temp_files, fmt, book_id, delete_from_library, to, fmts = self.conversion_jobs[job]
+        temp_files, fmt, book_id, delete_from_library, to, fmts, subject = self.conversion_jobs[job]
         self.book_converted(job)
-        self.gui.send_by_mail(to, fmts, delete_from_library, specific_format=fmt, send_ids=[book_id], do_auto_convert=False)
+        self.gui.send_by_mail(to, fmts, delete_from_library, subject=subject,
+                specific_format=fmt, send_ids=[book_id], do_auto_convert=False)
 
     def book_auto_converted_news(self, job):
         temp_files, fmt, book_id = self.conversion_jobs[job]

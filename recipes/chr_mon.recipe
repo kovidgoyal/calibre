@@ -1,0 +1,134 @@
+#!/usr/bin/env  python
+__license__     = 'GPL v3'
+__author__      = 'Kovid Goyal and Sujata Raman, Lorenzo Vigentini'
+__copyright__   = '2009, Kovid Goyal and Sujata Raman'
+__version__     = 'v1.02'
+__date__        = '10, January 2010'
+__description__ = 'Providing context and clarity on national and international news, peoples and cultures'
+
+'''csmonitor.com'''
+
+import re
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class ChristianScienceMonitor(BasicNewsRecipe):
+
+    __author__    = 'Kovid Goyal'
+    description   = 'Providing context and clarity on national and international news, peoples and cultures'
+
+    cover_url      = 'http://www.csmonitor.com/extension/csm_base/design/csm_design/images/csmlogo_179x46.gif'
+    title          = 'Christian Science Monitor'
+    publisher      = 'The Christian Science Monitor'
+    category       = 'News, politics, culture, economy, general interest'
+
+    language = 'en'
+    encoding = 'utf-8'
+    timefmt        = '[%a, %d %b, %Y]'
+
+    oldest_article        = 16
+    max_articles_per_feed = 20
+    use_embedded_content  = False
+    recursion             = 10
+
+    remove_javascript     = True
+    no_stylesheets = True
+
+    def append_page(self, soup, appendtag, position):
+        nav = soup.find('div',attrs={'class':'navigation'})
+        if nav:
+            pager = nav.findAll('a')
+            for part in pager:
+                if 'Next' in part:
+                    nexturl = ('http://www.csmonitor.com' +
+                           re.findall(r'href="(.*?)"', str(part))[0])
+                    soup2 = self.index_to_soup(nexturl)
+                    texttag = soup2.find('div',
+                                 attrs={'class': re.compile('list-article-.*')})
+                    trash_c = soup2.findAll(attrs={'class': 'list-description'})
+                    trash_h = soup2.h1
+                    for tc in trash_c: tc.extract()
+                    trash_h.extract()
+
+                    newpos = len(texttag.contents)
+                    self.append_page(soup2, texttag, newpos)
+                    texttag.extract()
+                    appendtag.insert(position, texttag)
+
+    def preprocess_html(self, soup):
+        PRINT_RE = re.compile(r'/layout/set/print/content/view/print/[0-9]*')
+        html = str(soup)
+        try:
+            print_found = PRINT_RE.findall(html)
+        except Exception:
+            pass
+        if print_found:
+            print_url = 'http://www.csmonitor.com' + print_found[0]
+            print_soup = self.index_to_soup(print_url)
+        else:
+            self.append_page(soup, soup.body, 3)
+
+            trash_a = soup.findAll(attrs={'class': re.compile('navigation.*')})
+            trash_b = soup.findAll(attrs={'style': re.compile('.*')})
+            trash_d = soup.findAll(attrs={'class': 'sByline'})
+            for ta in trash_a: ta.extract()
+            for tb in trash_b: tb.extract()
+            for td in trash_d: td.extract()
+
+            print_soup = soup
+        return print_soup
+
+    preprocess_regexps = [ (re.compile(i[0], re.IGNORECASE | re.DOTALL), i[1]) for i in
+        [
+            (r'<!--.*?-->', lambda match : ''),
+        (r'<body.*?<div id="story"', lambda match : '<body><div id="story"'),
+        (r'<div class="pubdate">.*?</div>', lambda m: ''),
+        (r'Full HTML version of this story which may include photos, graphics, and related links.*</body>',
+              lambda match : '</body>'),
+        ]]
+    extra_css      = '''
+                        h1{ color:#000000;font-family: Georgia,Times,"Times New Roman",serif; font-size: large}
+                        .sub{ color:#000000;font-family: Georgia,Times,"Times New Roman",serif; font-size: small;}
+                        .byline{ font-family:Arial,Helvetica,sans-serif ; color:#999999; font-size: x-small;}
+                        .postdate{color:#999999 ;  font-family:Arial,Helvetica,sans-serif ; font-size: x-small; }
+                        h3{color:#999999 ;  font-family:Arial,Helvetica,sans-serif ; font-size: x-small; }
+                        .photoCutline{ color:#333333 ; font-family:Arial,Helvetica,sans-serif ; font-size: x-small; }
+                        .photoCredit{ color:#999999 ; font-family:Arial,Helvetica,sans-serif ; font-size: x-small; }
+                        #story{font-family:Arial,Tahoma,Verdana,Helvetica,sans-serif ; font-size: small; }
+                        #main{font-family:Arial,Tahoma,Verdana,Helvetica,sans-serif ; font-size: small; }
+                        #photo-details{ font-family:Arial,Helvetica,sans-serif ; color:#999999; font-size: x-small;}
+                        span.name{color:#205B87;font-family: Georgia,Times,"Times New Roman",serif; font-size: x-small}
+                        p#dateline{color:#444444 ;  font-family:Arial,Helvetica,sans-serif ; font-style:italic;} '''
+
+    feeds          = [(u'Top Stories', u'http://rss.csmonitor.com/feeds/top'),
+                        (u'World' , u'http://rss.csmonitor.com/feeds/world'),
+                        (u'USA' , u'http://rss.csmonitor.com/feeds/usa'),
+                        (u'Commentary' , u'http://rss.csmonitor.com/feeds/commentary'),
+                        (u'Money' , u'http://rss.csmonitor.com/feeds/wam'),
+                        (u'Learning' , u'http://rss.csmonitor.com/feeds/learning'),
+                        (u'Living', u'http://rss.csmonitor.com/feeds/living'),
+                        (u'Innovation', u'http://rss.csmonitor.com/feeds/scitech'),
+                        (u'Gardening', u'http://rss.csmonitor.com/feeds/gardening'),
+                        (u'Environment',u'http://rss.csmonitor.com/feeds/environment'),
+                        (u'Arts', u'http://rss.csmonitor.com/feeds/arts'),
+                        (u'Books', u'http://rss.csmonitor.com/feeds/books'),
+                        (u'Home Forum' , u'http://rss.csmonitor.com/feeds/homeforum')
+                     ]
+
+    keep_only_tags = [dict(name='div', attrs={'id':'mainColumn'}), ]
+
+    remove_tags    = [
+                        dict(name='div', attrs={'id':['story-tools','videoPlayer','storyRelatedBottom','enlarge-photo','photo-paginate']}),
+                        dict(name=['div','a'], attrs={'class':
+                            ['storyToolbar cfx','podStoryRel','spacer3',
+                                'divvy spacer7','comment','storyIncludeBottom',
+                                'hide', 'podBrdr']}),
+                        dict(name='ul', attrs={'class':[ 'centerliststories']}) ,
+                        dict(name='form', attrs={'id':[ 'commentform']}) ,
+          dict(name='div', attrs={'class': ['ui-comments']})
+                    ]
+
+    remove_tags_after = [ dict(name='div', attrs={'class':[ 'ad csmAd']}),
+              dict(name='div', attrs={'class': [re.compile('navigation.*')]}),
+              dict(name='div', attrs={'style': [re.compile('.*')]})
+                        ]

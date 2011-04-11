@@ -584,6 +584,12 @@ def educateQuotes(str):
 	#   <p>He said, "'Quoted' words in a larger quote."</p>
 	str = re.sub(r""""'(?=\w)""", """&#8220;&#8216;""", str)
 	str = re.sub(r"""'"(?=\w)""", """&#8216;&#8220;""", str)
+	str = re.sub(r'''""(?=\w)''', """&#8220;&#8220;""", str)
+	str = re.sub(r"""''(?=\w)""", """&#8216;&#8216;""", str)
+	str = re.sub(r'''\"\'''',     """&#8221;&#8217;""", str)
+	str = re.sub(r'''\'\"''',     """&#8217;&#8221;""", str)
+	str = re.sub(r'''""''',       """&#8221;&#8221;""", str)
+	str = re.sub(r"""''""",       """&#8217;&#8217;""", str)
 
 	# Special case for decade abbreviations (the '80s):
 	str = re.sub(r"""\b'(?=\d{2}s)""", r"""&#8217;""", str)

@@ -198,7 +198,7 @@ void initialize_interpreter(wchar_t *outr, wchar_t *errr,
     buf[strlen(buf)-1] = '\0';
 
     _snprintf_s(python_home, MAX_PATH, _TRUNCATE, "%s", buf);
-    _snprintf_s(path, 3*MAX_PATH, _TRUNCATE, "%s\\DLLs;%s\\Lib;%s\\Lib\\site-packages",
+    _snprintf_s(path, 3*MAX_PATH, _TRUNCATE, "%s\\pylib.zip;%s\\pydlib;%s\\DLLs",
             buf, buf, buf);
     free(buf);
 

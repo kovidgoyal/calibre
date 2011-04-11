@@ -884,13 +884,13 @@ class Manifest(object):
             def first_pass(data):
                 try:
                     data = etree.fromstring(data, parser=parser)
-                except etree.XMLSyntaxError, err:
+                except etree.XMLSyntaxError as err:
                     self.oeb.log.exception('Initial parse failed:')
                     repl = lambda m: ENTITYDEFS.get(m.group(1), m.group(0))
                     data = ENTITY_RE.sub(repl, data)
                     try:
                         data = etree.fromstring(data, parser=parser)
-                    except etree.XMLSyntaxError, err:
+                    except etree.XMLSyntaxError as err:
                         self.oeb.logger.warn('Parsing file %r as HTML' % self.href)
                         if err.args and err.args[0].startswith('Excessive depth'):
                             from lxml.html import soupparser

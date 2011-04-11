@@ -353,7 +353,7 @@ class CcBoolDelegate(QStyledItemDelegate): # {{{
         editor = DelegateCB(parent)
         items = [_('Y'), _('N'), ' ']
         icons = [I('ok.png'), I('list_remove.png'), I('blank.png')]
-        if tweaks['bool_custom_columns_are_tristate'] == 'no':
+        if not index.model().db.prefs.get('bools_are_tristate'):
             items = items[:-1]
             icons = icons[:-1]
         for icon, text in zip(icons, items):
@@ -367,7 +367,7 @@ class CcBoolDelegate(QStyledItemDelegate): # {{{
     def setEditorData(self, editor, index):
         m = index.model()
         val = m.db.data[index.row()][m.custom_columns[m.column_map[index.column()]]['rec_index']]
-        if tweaks['bool_custom_columns_are_tristate'] == 'no':
+        if not m.db.prefs.get('bools_are_tristate'):
             val = 1 if not val else 0
         else:
             val = 2 if val is None else 1 if not val else 0
@@ -398,7 +398,7 @@ class CcTemplateDelegate(QStyledItemDelegate): # {{{
         val = unicode(editor.textbox.toPlainText())
         try:
             validation_formatter.validate(val)
-        except Exception, err:
+        except Exception as err:
             error_dialog(self.parent(), _('Invalid template'),
                     '<p>'+_('The template %s is invalid:')%val + \
                     '<br>'+str(err), show=True)

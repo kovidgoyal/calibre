@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, os, shutil, glob, py_compile, subprocess, re
+import sys, os, shutil, glob, py_compile, subprocess, re, zipfile, time
 
 from setup import Command, modules, functions, basenames, __version__, \
     __appname__
@@ -40,6 +40,13 @@ DESCRIPTIONS = {
         'calibre-smtp' : 'Command line interface for sending books via email',
 }
 
+def walk(dir):
+    ''' A nice interface to os.walk '''
+    for record in os.walk(dir):
+        for f in record[-1]:
+            yield os.path.join(record[0], f)
+
+
 class Win32Freeze(Command, WixMixIn):
 
     description = 'Free windows calibre installation'
@@ -63,12 +70,15 @@ class Win32Freeze(Command, WixMixIn):
         self.rc_template = self.j(self.d(self.a(__file__)), 'template.rc')
         self.py_ver = ''.join(map(str, sys.version_info[:2]))
         self.lib_dir = self.j(self.base, 'Lib')
+        self.pydlib = self.j(self.base, 'pydlib')
+        self.pylib = self.j(self.base, 'pylib.zip')
 
         self.initbase()
         self.build_launchers()
         self.freeze()
         self.embed_manifests()
         self.install_site_py()
+        self.archive_lib_dir()
         self.create_installer()
 
     def initbase(self):
@@ -355,5 +365,109 @@ class Win32Freeze(Command, WixMixIn):
                             '/OUT:'+exe, self.embed_resources(exe),
                             dest, lib]
                     self.run_builder(cmd)
+
+    def archive_lib_dir(self):
+        self.info('Putting all python code into a zip file for performance')
+        if os.path.exists(self.pydlib):
+            shutil.rmtree(self.pydlib)
+        os.makedirs(self.pydlib)
+        self.zf_timestamp = time.localtime(time.time())[:6]
+        self.zf_names = set()
+        with zipfile.ZipFile(self.pylib, 'w', zipfile.ZIP_STORED) as zf:
+            for x in os.listdir(self.lib_dir):
+                if x == 'site-packages':
+                    continue
+                self.add_to_zipfile(zf, x, self.lib_dir)
+
+            sp = self.j(self.lib_dir, 'site-packages')
+            handled = set(['site.pyo'])
+            for pth in ('PIL.pth', 'pywin32.pth'):
+                handled.add(pth)
+                shutil.copyfile(self.j(sp, pth), self.j(self.pydlib, pth))
+                for d in self.get_pth_dirs(self.j(sp, pth)):
+                    shutil.copytree(d, self.j(self.pydlib, self.b(d)), True)
+                    handled.add(self.b(d))
+
+            handled.add('easy-install.pth')
+            for d in self.get_pth_dirs(self.j(sp, 'easy-install.pth')):
+                handled.add(self.b(d))
+                zip_safe = self.is_zip_safe(d)
+                for x in os.listdir(d):
+                    if x == 'EGG-INFO':
+                        continue
+                    if zip_safe:
+                        self.add_to_zipfile(zf, x, d)
+                    else:
+                        absp = self.j(d, x)
+                        dest = self.j(self.pydlib, x)
+                        if os.path.isdir(absp):
+                            shutil.copytree(absp, dest, True)
+                        else:
+                            shutil.copy2(absp, dest)
+
+            for x in os.listdir(sp):
+                if x in handled or x.endswith('.egg-info'):
+                    continue
+                absp = self.j(sp, x)
+                if os.path.isdir(absp):
+                    if not os.listdir(absp):
+                        continue
+                    if self.is_zip_safe(absp):
+                        self.add_to_zipfile(zf, x, sp)
+                    else:
+                        shutil.copytree(absp, self.j(self.pydlib, x), True)
+                else:
+                    if x.endswith('.pyd'):
+                        shutil.copy2(absp, self.j(self.pydlib, x))
+                    else:
+                        self.add_to_zipfile(zf, x, sp)
+
+        shutil.rmtree(self.lib_dir)
+
+    def is_zip_safe(self, path):
+        for f in walk(path):
+            ext = os.path.splitext(f)[1].lower()
+            if ext in ('.pyd', '.dll', '.exe'):
+                return False
+        return True
+
+    def get_pth_dirs(self, pth):
+        base = os.path.dirname(pth)
+        for line in open(pth).readlines():
+            line = line.strip()
+            if not line or line.startswith('#') or line.startswith('import'):
+                continue
+            if line == 'win32\\lib':
+                continue
+            candidate = self.j(base, line)
+            if os.path.exists(candidate):
+                yield candidate
+
+    def add_to_zipfile(self, zf, name, base, exclude=frozenset()):
+        abspath = self.j(base, name)
+        name = name.replace(os.sep, '/')
+        if name in self.zf_names:
+            raise ValueError('Already added %r to zipfile [%r]'%(name, abspath))
+        zinfo = zipfile.ZipInfo(filename=name, date_time=self.zf_timestamp)
+
+        if os.path.isdir(abspath):
+            if not os.listdir(abspath):
+                return
+            zinfo.external_attr = 0700 << 16
+            zf.writestr(zinfo, '')
+            for x in os.listdir(abspath):
+                if x not in exclude:
+                    self.add_to_zipfile(zf, name + os.sep + x, base)
+        else:
+            ext = os.path.splitext(name)[1].lower()
+            if ext in ('.pyd', '.dll', '.exe'):
+                raise ValueError('Cannot add %r to zipfile'%abspath)
+            zinfo.external_attr = 0600 << 16
+            if ext in ('.py', '.pyc', '.pyo'):
+                with open(abspath, 'rb') as f:
+                    zf.writestr(zinfo, f.read())
+
+        self.zf_names.add(name)
+
 
 

@@ -176,7 +176,7 @@ class ResultList(list):
                 raw = browser.open(id_url).read()
                 feed = etree.fromstring(raw)
                 x = entry(feed)[0]
-            except Exception, e:
+            except Exception as e:
                 if verbose:
                     print 'Failed to get all details for an entry'
                     print e
@@ -193,6 +193,7 @@ class ResultList(list):
 def search(title=None, author=None, publisher=None, isbn=None,
            min_viewability='none', verbose=False, max_results=40):
     br   = browser()
+    br.set_handle_gzip(True)
     start, entries = 1, []
     while start > 0 and len(entries) <= max_results:
         new, start = Query(title=title, author=author, publisher=publisher,

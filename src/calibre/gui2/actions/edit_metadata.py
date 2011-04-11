@@ -17,6 +17,7 @@ from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.tag_list_editor import TagListEditor
 from calibre.gui2.actions import InterfaceAction
 from calibre.utils.icu import sort_key
+from calibre.utils.config import test_eight_code
 
 class EditMetadataAction(InterfaceAction):
 
@@ -34,16 +35,23 @@ class EditMetadataAction(InterfaceAction):
         md.addAction(_('Edit metadata in bulk'),
                 partial(self.edit_metadata, False, bulk=True))
         md.addSeparator()
-        md.addAction(_('Download metadata and covers'),
-                partial(self.download_metadata, False, covers=True),
+        if test_eight_code:
+            dall = self.download_metadata
+            dident = partial(self.download_metadata, covers=False)
+            dcovers = partial(self.download_metadata, identify=False)
+        else:
+            dall = partial(self.download_metadata_old, False, covers=True)
+            dident = partial(self.download_metadata_old, False, covers=False)
+            dcovers = partial(self.download_metadata_old, False, covers=True,
+                    set_metadata=False, set_social_metadata=False)
+
+        md.addAction(_('Download metadata and covers'), dall,
                 Qt.ControlModifier+Qt.Key_D)
-        md.addAction(_('Download only metadata'),
-                partial(self.download_metadata, False, covers=False))
-        md.addAction(_('Download only covers'),
-                partial(self.download_metadata, False, covers=True,
-                    set_metadata=False, set_social_metadata=False))
-        md.addAction(_('Download only social metadata'),
-                partial(self.download_metadata, False, covers=False,
+        md.addAction(_('Download only metadata'), dident)
+        md.addAction(_('Download only covers'), dcovers)
+        if not test_eight_code:
+            md.addAction(_('Download only social metadata'),
+                partial(self.download_metadata_old, False, covers=False,
                     set_metadata=False, set_social_metadata=True))
         self.metadata_menu = md
 
@@ -72,7 +80,16 @@ class EditMetadataAction(InterfaceAction):
         self.qaction.setEnabled(enabled)
         self.action_merge.setEnabled(enabled)
 
-    def download_metadata(self, checked, covers=True, set_metadata=True,
+    def download_metadata(self, identify=True, covers=True, ids=None):
+        if ids is None:
+            rows = self.gui.library_view.selectionModel().selectedRows()
+            if not rows or len(rows) == 0:
+                return error_dialog(self.gui, _('Cannot download metadata'),
+                            _('No books selected'), show=True)
+            db = self.gui.library_view.model().db
+            ids = [db.id(row.row()) for row in rows]
+
+    def download_metadata_old(self, checked, covers=True, set_metadata=True,
             set_social_metadata=None):
         rows = self.gui.library_view.selectionModel().selectedRows()
         if not rows or len(rows) == 0:
@@ -133,14 +150,33 @@ class EditMetadataAction(InterfaceAction):
 
         row_list = [r.row() for r in rows]
         current_row = 0
-        changed = set([])
-        db = self.gui.library_view.model().db
 
         if len(row_list) == 1:
             cr = row_list[0]
             row_list = \
                 list(range(self.gui.library_view.model().rowCount(QModelIndex())))
             current_row = row_list.index(cr)
+
+        func = (self.do_edit_metadata if test_eight_code else
+                    self.do_edit_metadata_old)
+        changed, rows_to_refresh = func(row_list, current_row)
+
+        m = self.gui.library_view.model()
+
+        if rows_to_refresh:
+            m.refresh_rows(rows_to_refresh)
+
+        if changed:
+            m.refresh_ids(list(changed))
+            current = self.gui.library_view.currentIndex()
+            if self.gui.cover_flow:
+                self.gui.cover_flow.dataChanged()
+            m.current_changed(current, previous)
+            self.gui.tags_view.recount()
+
+    def do_edit_metadata_old(self, row_list, current_row):
+        changed = set([])
+        db = self.gui.library_view.model().db
 
         while True:
             prev = next_ = None
@@ -164,16 +200,32 @@ class EditMetadataAction(InterfaceAction):
             if d.row_delta == 0:
                 break
             current_row += d.row_delta
+            self.gui.library_view.set_current_row(current_row)
+            self.gui.library_view.scroll_to_row(current_row)
+        return changed, set()
 
+    def do_edit_metadata(self, row_list, current_row):
+        from calibre.gui2.metadata.single import edit_metadata
+        db = self.gui.library_view.model().db
+        changed, rows_to_refresh = edit_metadata(db, row_list, current_row,
+                parent=self.gui, view_slot=self.view_format_callback,
+                set_current_callback=self.set_current_callback)
+        return changed, rows_to_refresh
 
-        if changed:
-            self.gui.library_view.model().refresh_ids(list(changed))
-            current = self.gui.library_view.currentIndex()
-            m = self.gui.library_view.model()
-            if self.gui.cover_flow:
-                self.gui.cover_flow.dataChanged()
-            m.current_changed(current, previous)
-            self.gui.tags_view.recount()
+    def set_current_callback(self, id_):
+        db = self.gui.library_view.model().db
+        current_row = db.row(id_)
+        self.gui.library_view.set_current_row(current_row)
+        self.gui.library_view.scroll_to_row(current_row)
+
+    def view_format_callback(self, id_, fmt):
+        view = self.gui.iactions['View']
+        if id_ is None:
+            view._view_file(fmt)
+        else:
+            db = self.gui.library_view.model().db
+            view.view_format(db.row(id_), fmt)
+
 
     def edit_bulk_metadata(self, checked):
         '''

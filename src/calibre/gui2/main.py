@@ -399,7 +399,7 @@ def main(args=sys.argv):
 if __name__ == '__main__':
     try:
         sys.exit(main())
-    except Exception, err:
+    except Exception as err:
         if not iswindows: raise
         tb = traceback.format_exc()
         from PyQt4.QtGui import QErrorMessage

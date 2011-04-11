@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 """
 PyTextile
 
@@ -62,6 +64,8 @@ import re
 import uuid
 from urlparse import urlparse
 
+from calibre.utils.smartypants import smartyPants
+
 def _normalize_newlines(string):
     out = re.sub(r'\r\n', '\n', string)
     out = re.sub(r'\n{3,}', '\n\n', out)
@@ -121,97 +125,114 @@ class Textile(object):
     btag = ('bq', 'bc', 'notextile', 'pre', 'h[1-6]', 'fn\d+', 'p')
     btag_lite = ('bq', 'bc', 'p')
 
-    glyph_defaults = (
-        ('mac_cent',               '&#162;'),
-        ('mac_pound',              '&#163;'),
-        ('mac_yen',                '&#165;'),
-        ('mac_quarter',            '&#188;'),
-        ('mac_half',               '&#189;'),
-        ('mac_three-quarter',      '&#190;'),
-        ('mac_cA-grave',           '&#192;'),
-        ('mac_cA-acute',           '&#193;'),
-        ('mac_cA-circumflex',      '&#194;'),
-        ('mac_cA-tilde',           '&#195;'),
-        ('mac_cA-diaeresis',       '&#196;'),
-        ('mac_cA-ring',            '&#197;'),
-        ('mac_cAE',                '&#198;'),
-        ('mac_cC-cedilla',         '&#199;'),
-        ('mac_cE-grave',           '&#200;'),
-        ('mac_cE-acute',           '&#201;'),
-        ('mac_cE-circumflex',      '&#202;'),
-        ('mac_cE-diaeresis',       '&#203;'),
-        ('mac_cI-grave',           '&#204;'),
-        ('mac_cI-acute',           '&#205;'),
-        ('mac_cI-circumflex',      '&#206;'),
-        ('mac_cI-diaeresis',       '&#207;'),
-        ('mac_cEth',               '&#208;'),
-        ('mac_cN-tilde',           '&#209;'),
-        ('mac_cO-grave',           '&#210;'),
-        ('mac_cO-acute',           '&#211;'),
-        ('mac_cO-circumflex',      '&#212;'),
-        ('mac_cO-tilde',           '&#213;'),
-        ('mac_cO-diaeresis',       '&#214;'),
-        ('mac_cO-stroke',          '&#216;'),
-        ('mac_cU-grave',           '&#217;'),
-        ('mac_cU-acute',           '&#218;'),
-        ('mac_cU-circumflex',      '&#219;'),
-        ('mac_cU-diaeresis',       '&#220;'),
-        ('mac_cY-acute',           '&#221;'),
-        ('mac_sa-grave',           '&#224;'),
-        ('mac_sa-acute',           '&#225;'),
-        ('mac_sa-circumflex',      '&#226;'),
-        ('mac_sa-tilde',           '&#227;'),
-        ('mac_sa-diaeresis',       '&#228;'),
-        ('mac_sa-ring',            '&#229;'),
-        ('mac_sae',                '&#230;'),
-        ('mac_sc-cedilla',         '&#231;'),
-        ('mac_se-grave',           '&#232;'),
-        ('mac_se-acute',           '&#233;'),
-        ('mac_se-circumflex',      '&#234;'),
-        ('mac_se-diaeresis',       '&#235;'),
-        ('mac_si-grave',           '&#236;'),
-        ('mac_si-acute',           '&#237;'),
-        ('mac_si-circumflex',      '&#238;'),
-        ('mac_si-diaeresis',       '&#239;'),
-        ('mac_sn-tilde',           '&#241;'),
-        ('mac_so-grave',           '&#242;'),
-        ('mac_so-acute',           '&#243;'),
-        ('mac_so-circumflex',      '&#244;'),
-        ('mac_so-tilde',           '&#245;'),
-        ('mac_so-diaeresis',       '&#246;'),
-        ('mac_so-stroke',          '&#248;'),
-        ('mac_su-grave',           '&#249;'),
-        ('mac_su-acute',           '&#250;'),
-        ('mac_su-circumflex',      '&#251;'),
-        ('mac_su-diaeresis',       '&#252;'),
-        ('mac_sy-acute',           '&#253;'),
-        ('mac_sy-diaeresis',       '&#255;'),
-        ('mac_cOE',                '&#338;'),
-        ('mac_soe',                '&#339;'),
-        ('mac_bullet',             '&#8226;'),
-        ('mac_franc',              '&#8355;'),
-        ('mac_lira',               '&#8356;'),
-        ('mac_rupee',              '&#8360;'),
-        ('mac_euro',               '&#8364;'),
-        ('mac_spade',              '&#9824;'),
-        ('mac_club',               '&#9827;'),
-        ('mac_heart',              '&#9829;'),
-        ('mac_diamond',            '&#9830;'),
-        ('txt_dimension',          '&#215;'),
-        ('txt_quote_single_open',  '&#8216;'),
-        ('txt_quote_single_close', '&#8217;'),
-        ('txt_quote_double_open',  '&#8220;'),
-        ('txt_quote_double_close', '&#8221;'),
-        ('txt_apostrophe',         '&#8217;'),
-        ('txt_prime',              '&#8242;'),
-        ('txt_prime_double',       '&#8243;'),
-        ('txt_ellipsis',           '&#8230;'),
-        ('txt_emdash',             '&#8212;'),
-        ('txt_endash',             '&#8211;'),
-        ('txt_trademark',          '&#8482;'),
-        ('txt_registered',         '&#174;'),
-        ('txt_copyright',          '&#169;'),
-    )
+    macro_defaults = [
+        (re.compile(r'{(c\||\|c)}'),     r'&#162;'),   #  cent
+        (re.compile(r'{(L-|-L)}'),       r'&#163;'),   #  pound
+        (re.compile(r'{(Y=|=Y)}'),       r'&#165;'),   #  yen
+        (re.compile(r'{\(c\)}'),         r'&#169;'),   #  copyright
+        (re.compile(r'{\(r\)}'),         r'&#174;'),   #  registered
+        (re.compile(r'{(\+_|_\+)}'),     r'&#177;'),   #  plus-minus
+        (re.compile(r'{1/4}'),           r'&#188;'),   #  quarter
+        (re.compile(r'{1/2}'),           r'&#189;'),   #  half
+        (re.compile(r'{3/4}'),           r'&#190;'),   #  three-quarter
+        (re.compile(r'{(A`|`A)}'),       r'&#192;'),   #  A-acute
+        (re.compile(r'{(A\'|\'A)}'),     r'&#193;'),   #  A-grave
+        (re.compile(r'{(A\^|\^A)}'),     r'&#194;'),   #  A-circumflex
+        (re.compile(r'{(A~|~A)}'),       r'&#195;'),   #  A-tilde
+        (re.compile(r'{(A\"|\"A)}'),     r'&#196;'),   #  A-diaeresis
+        (re.compile(r'{(Ao|oA)}'),       r'&#197;'),   #  A-ring
+        (re.compile(r'{(AE)}'),          r'&#198;'),   #  AE
+        (re.compile(r'{(C,|,C)}'),       r'&#199;'),   #  C-cedilla
+        (re.compile(r'{(E`|`E)}'),       r'&#200;'),   #  E-acute
+        (re.compile(r'{(E\'|\'E)}'),     r'&#201;'),   #  E-grave
+        (re.compile(r'{(E\^|\^E)}'),     r'&#202;'),   #  E-circumflex
+        (re.compile(r'{(E\"|\"E)}'),     r'&#203;'),   #  E-diaeresis
+        (re.compile(r'{(I`|`I)}'),       r'&#204;'),   #  I-acute
+        (re.compile(r'{(I\'|\'I)}'),     r'&#205;'),   #  I-grave
+        (re.compile(r'{(I\^|\^I)}'),     r'&#206;'),   #  I-circumflex
+        (re.compile(r'{(I\"|\"I)}'),     r'&#207;'),   #  I-diaeresis
+        (re.compile(r'{(D-|-D)}'),       r'&#208;'),   #  ETH
+        (re.compile(r'{(N~|~N)}'),       r'&#209;'),   #  N-tilde
+        (re.compile(r'{(O`|`O)}'),       r'&#210;'),   #  O-acute
+        (re.compile(r'{(O\'|\'O)}'),     r'&#211;'),   #  O-grave
+        (re.compile(r'{(O\^|\^O)}'),     r'&#212;'),   #  O-circumflex
+        (re.compile(r'{(O~|~O)}'),       r'&#213;'),   #  O-tilde
+        (re.compile(r'{(O\"|\"O)}'),     r'&#214;'),   #  O-diaeresis
+        (re.compile(r'{x}'),             r'&#215;'),   #  dimension
+        (re.compile(r'{(O\/|\/O)}'),     r'&#216;'),   #  O-slash
+        (re.compile(r'{(U`|`U)}'),       r'&#217;'),   #  U-acute
+        (re.compile(r'{(U\'|\'U)}'),     r'&#218;'),   #  U-grave
+        (re.compile(r'{(U\^|\^U)}'),     r'&#219;'),   #  U-circumflex
+        (re.compile(r'{(U\"|\"U)}'),     r'&#220;'),   #  U-diaeresis
+        (re.compile(r'{(Y\'|\'Y)}'),     r'&#221;'),   #  Y-grave
+        (re.compile(r'{sz}'),            r'&szlig;'),  #  sharp-s
+        (re.compile(r'{(a`|`a)}'),       r'&#224;'),   #  a-grave
+        (re.compile(r'{(a\'|\'a)}'),     r'&#225;'),   #  a-acute
+        (re.compile(r'{(a\^|\^a)}'),     r'&#226;'),   #  a-circumflex
+        (re.compile(r'{(a~|~a)}'),       r'&#227;'),   #  a-tilde
+        (re.compile(r'{(a\"|\"a)}'),     r'&#228;'),   #  a-diaeresis
+        (re.compile(r'{(ao|oa)}'),       r'&#229;'),   #  a-ring
+        (re.compile(r'{ae}'),            r'&#230;'),   #  ae
+        (re.compile(r'{(c,|,c)}'),       r'&#231;'),   #  c-cedilla
+        (re.compile(r'{(e`|`e)}'),       r'&#232;'),   #  e-grave
+        (re.compile(r'{(e\'|\'e)}'),     r'&#233;'),   #  e-acute
+        (re.compile(r'{(e\^|\^e)}'),     r'&#234;'),   #  e-circumflex
+        (re.compile(r'{(e\"|\"e)}'),     r'&#235;'),   #  e-diaeresis
+        (re.compile(r'{(i`|`i)}'),       r'&#236;'),   #  i-grave
+        (re.compile(r'{(i\'|\'i)}'),     r'&#237;'),   #  i-acute
+        (re.compile(r'{(i\^|\^i)}'),     r'&#238;'),   #  i-circumflex
+        (re.compile(r'{(i\"|\"i)}'),     r'&#239;'),   #  i-diaeresis
+        (re.compile(r'{(d-|-d)}'),       r'&#240;'),   #  eth
+        (re.compile(r'{(n~|~n)}'),       r'&#241;'),   #  n-tilde
+        (re.compile(r'{(o`|`o)}'),       r'&#242;'),   #  o-grave
+        (re.compile(r'{(o\'|\'o)}'),     r'&#243;'),   #  o-acute
+        (re.compile(r'{(o\^|\^o)}'),     r'&#244;'),   #  o-circumflex
+        (re.compile(r'{(o~|~o)}'),       r'&#245;'),   #  o-tilde
+        (re.compile(r'{(o\"|\"o)}'),     r'&#246;'),   #  o-diaeresis
+        (re.compile(r'{(o\/|\/o)}'),     r'&#248;'),   #  o-stroke
+        (re.compile(r'{(u`|`u)}'),       r'&#249;'),   #  u-grave
+        (re.compile(r'{(u\'|\'u)}'),     r'&#250;'),   #  u-acute
+        (re.compile(r'{(u\^|\^u)}'),     r'&#251;'),   #  u-circumflex
+        (re.compile(r'{(u\"|\"u)}'),     r'&#252;'),   #  u-diaeresis
+        (re.compile(r'{(y\'|\'y)}'),     r'&#253;'),   #  y-acute
+        (re.compile(r'{(y\"|\"y)}'),     r'&#255;'),   #  y-diaeresis
+        (re.compile(r'{OE}'),            r'&#338;'),   #  OE
+        (re.compile(r'{oe}'),            r'&#339;'),   #  oe
+        (re.compile(r'{(S\^|\^S)}'),     r'&Scaron;'), #  Scaron
+        (re.compile(r'{(s\^|\^s)}'),     r'&scaron;'), #  scaron
+        (re.compile(r'{\*}'),            r'&#8226;'),  #  bullet
+        (re.compile(r'{Fr}'),            r'&#8355;'),  #  Franc
+        (re.compile(r'{(L=|=L)}'),       r'&#8356;'),  #  Lira
+        (re.compile(r'{Rs}'),            r'&#8360;'),  #  Rupee
+        (re.compile(r'{(C=|=C)}'),       r'&#8364;'),  #  euro
+        (re.compile(r'{tm}'),            r'&#8482;'),  #  trademark
+        (re.compile(r'{spades?}'),       r'&#9824;'),  #  spade
+        (re.compile(r'{clubs?}'),        r'&#9827;'),  #  club
+        (re.compile(r'{hearts?}'),       r'&#9829;'),  #  heart
+        (re.compile(r'{diam(onds?|s)}'), r'&#9830;'),  #  diamond
+        (re.compile(r'{"}'),             r'&#34;'),    #  double-quote
+        (re.compile(r"{'}"),             r'&#39;'),    #  single-quote
+        (re.compile(r"{(’|'/|/')}"),     r'&#8217;'),  #  closing-single-quote - apostrophe
+        (re.compile(r"{(‘|\\'|'\\)}"),   r'&#8216;'),  #  opening-single-quote
+        (re.compile(r'{(”|"/|/")}'),     r'&#8221;'),  #  closing-double-quote
+        (re.compile(r'{(“|\\"|"\\)}'),   r'&#8220;'),  #  opening-double-quote        
+    ]
+    glyph_defaults = [
+        (re.compile(r'(\d+\'?\"?)( ?)x( ?)(?=\d+)'),                   r'\1\2&#215;\3'),                       #  dimension sign
+        (re.compile(r'(\d+)\'', re.I),                                 r'\1&#8242;'),                          #  prime
+        (re.compile(r'(\d+)\"', re.I),                                 r'\1&#8243;'),                          #  prime-double
+        (re.compile(r'\b([A-Z][A-Z0-9]{2,})\b(?:[(]([^)]*)[)])'),      r'<acronym title="\2">\1</acronym>'),   #  3+ uppercase acronym
+        (re.compile(r'\b([A-Z][A-Z\'\-]+[A-Z])(?=[\s.,\)>])'),         r'<span class="caps">\1</span>'),       #  3+ uppercase
+        (re.compile(r'\b(\s{0,1})?\.{3}'),                             r'\1&#8230;'),                          #  ellipsis
+        (re.compile(r'^[\*_-]{3,}$', re.M),                            r'<hr />'),                             #  <hr> scene-break
+        (re.compile(r'\b--\b'),                                        r'&#8212;'),                            #  em dash
+        (re.compile(r'(\s)--(\s)'),                                    r'\1&#8212;\2'),                        #  em dash
+        (re.compile(r'\s-(?:\s|$)'),                                   r' &#8211; '),                          #  en dash
+        (re.compile(r'\b( ?)[([]TM[])]', re.I),                        r'\1&#8482;'),                          #  trademark
+        (re.compile(r'\b( ?)[([]R[])]', re.I),                         r'\1&#174;'),                           #  registered
+        (re.compile(r'\b( ?)[([]C[])]', re.I),                         r'\1&#169;'),                           #  copyright
+    ]
+
 
     def __init__(self, restricted=False, lite=False, noimage=False):
         """docstring for __init__"""
@@ -243,10 +264,9 @@ class Textile(object):
             self.rel = ' rel="%s"' % rel
 
         text = self.getRefs(text)
-
         text = self.block(text, int(head_offset))
-
         text = self.retrieve(text)
+        text = smartyPants(text, 'q')
 
         return text
 
@@ -673,211 +693,15 @@ class Textile(object):
         # fix: hackish
         text = re.sub(r'"\Z', '\" ', text)
 
-        glyph_search = (
-            re.compile(r'(\d+\'?\"?)( ?)x( ?)(?=\d+)'),                     #  dimension sign
-            re.compile(r"(\w)\'(\w)"),                                      #  apostrophe's
-            re.compile(r'(\s)\'(\d+\w?)\b(?!\')'),                          #  back in '88
-            re.compile(r'(\S)\'(?=\s|'+self.pnct+'|<|$)'),                  #  single closing
-            re.compile(r'\'/'),                                             #  single opening
-            re.compile(r'(\")\"'),                                          #  double closing - following another
-            re.compile(r'(\S)\"(?=\s|'+self.pnct+'|<|$)'),                  #  double closing
-            re.compile(r'"'),                                               #  double opening
-            re.compile(r'\b([A-Z][A-Z0-9]{2,})\b(?:[(]([^)]*)[)])'),        #  3+ uppercase acronym
-            re.compile(r'\b([A-Z][A-Z\'\-]+[A-Z])(?=[\s.,\)>])'),           #  3+ uppercase
-            re.compile(r'\b(\s{0,1})?\.{3}'),                               #  ellipsis
-            re.compile(r'(\s?)--(\s?)'),                                    #  em dash
-            re.compile(r'\s-(?:\s|$)'),                                     #  en dash
-            re.compile(r'\b( ?)[([]TM[])]', re.I),                            #  trademark
-            re.compile(r'\b( ?)[([]R[])]', re.I),                             #  registered
-            re.compile(r'\b( ?)[([]C[])]', re.I)                              #  copyright
-         )
-
-        glyph_replace = [x % dict(self.glyph_defaults) for x in (
-            r'\1\2%(txt_dimension)s\3',          #  dimension sign
-            r'\1%(txt_apostrophe)s\2',           #  apostrophe's
-            r'\1%(txt_apostrophe)s\2',           #  back in '88
-            r'\1%(txt_quote_single_close)s',     #  single closing
-            r'%(txt_quote_single_open)s',        #  single opening
-            r'\1%(txt_quote_double_close)s',     #  double closing - following another
-            r'\1%(txt_quote_double_close)s',     #  double closing
-            r'%(txt_quote_double_open)s',        #  double opening
-            r'<acronym title="\2">\1</acronym>', #  3+ uppercase acronym
-            r'<span class="caps">\1</span>',     #  3+ uppercase
-            r'\1%(txt_ellipsis)s',               #  ellipsis
-            r'\1%(txt_emdash)s\2',               #  em dash
-            r' %(txt_endash)s ',                 #  en dash
-            r'\1%(txt_trademark)s',              #  trademark
-            r'\1%(txt_registered)s',             #  registered
-            r'\1%(txt_copyright)s'               #  copyright
-        )]
-
-        if re.search(r'{.+?}', text):
-            glyph_search += (
-                re.compile(r'{(c\||\|c)}'),                               #  cent
-                re.compile(r'{(L-|-L)}'),                                 #  pound
-                re.compile(r'{(Y=|=Y)}'),                                 #  yen
-                re.compile(r'{\(c\)}'),                                   #  copyright
-                re.compile(r'{\(r\)}'),                                   #  registered
-                re.compile(r'{1/4}'),                                     #  quarter
-                re.compile(r'{1/2}'),                                     #  half
-                re.compile(r'{3/4}'),                                     #  three-quarter
-                re.compile(r'{(A`|`A)}'),                                 #  192;
-                re.compile(r'{(A\'|\'A)}'),                               #  193;
-                re.compile(r'{(A\^|\^A)}'),                               #  194;
-                re.compile(r'{(A~|~A)}'),                                 #  195;
-                re.compile(r'{(A\"|\"A)}'),                               #  196;
-                re.compile(r'{(Ao|oA)}'),                                 #  197;
-                re.compile(r'{(AE)}'),                                    #  198;
-                re.compile(r'{(C,|,C)}'),                                 #  199;
-                re.compile(r'{(E`|`E)}'),                                 #  200;
-                re.compile(r'{(E\'|\'E)}'),                               #  201;
-                re.compile(r'{(E\^|\^E)}'),                               #  202;
-                re.compile(r'{(E\"|\"E)}'),                               #  203;
-                re.compile(r'{(I`|`I)}'),                                 #  204;
-                re.compile(r'{(I\'|\'I)}'),                               #  205;
-                re.compile(r'{(I\^|\^I)}'),                               #  206;
-                re.compile(r'{(I\"|\"I)}'),                               #  207;
-                re.compile(r'{(D-|-D)}'),                                 #  208;
-                re.compile(r'{(N~|~N)}'),                                 #  209;
-                re.compile(r'{(O`|`O)}'),                                 #  210;
-                re.compile(r'{(O\'|\'O)}'),                               #  211;
-                re.compile(r'{(O\^|\^O)}'),                               #  212;
-                re.compile(r'{(O~|~O)}'),                                 #  213;
-                re.compile(r'{(O\"|\"O)}'),                               #  214;
-                re.compile(r'{(O\/|\/O)}'),                               #  215;
-                re.compile(r'{(U`|`U)}'),                                 #  216;
-                re.compile(r'{(U\'|\'U)}'),                               #  217;
-                re.compile(r'{(U\^|\^U)}'),                               #  218;
-                re.compile(r'{(U\"|\"U)}'),                               #  219;
-                re.compile(r'{(Y\'|\'Y)}'),                               #  220;
-                re.compile(r'{(a`|`a)}'),                                 #  a-grace
-                re.compile(r'{(a\'|\'a)}'),                               #  a-acute
-                re.compile(r'{(a\^|\^a)}'),                               #  a-circumflex
-                re.compile(r'{(a~|~a)}'),                                 #  a-tilde
-                re.compile(r'{(a\"|\"a)}'),                               #  a-diaeresis
-                re.compile(r'{(ao|oa)}'),                                 #  a-ring
-                re.compile(r'{ae}'),                                      #  ae
-                re.compile(r'{(c,|,c)}'),                                 #  c-cedilla
-                re.compile(r'{(e`|`e)}'),                                 #  e-grace
-                re.compile(r'{(e\'|\'e)}'),                               #  e-acute
-                re.compile(r'{(e\^|\^e)}'),                               #  e-circumflex
-                re.compile(r'{(e\"|\"e)}'),                               #  e-diaeresis
-                re.compile(r'{(i`|`i)}'),                                 #  i-grace
-                re.compile(r'{(i\'|\'i)}'),                               #  i-acute
-                re.compile(r'{(i\^|\^i)}'),                               #  i-circumflex
-                re.compile(r'{(i\"|\"i)}'),                               #  i-diaeresis
-                re.compile(r'{(n~|~n)}'),                                 #  n-tilde
-                re.compile(r'{(o`|`o)}'),                                 #  o-grace
-                re.compile(r'{(o\'|\'o)}'),                               #  o-acute
-                re.compile(r'{(o\^|\^o)}'),                               #  o-circumflex
-                re.compile(r'{(o~|~o)}'),                                 #  o-tilde
-                re.compile(r'{(o\"|\"o)}'),                               #  o-diaeresis
-                re.compile(r'{(o\/|\/o)}'),                               #  o-stroke
-                re.compile(r'{(u`|`u)}'),                                 #  u-grace
-                re.compile(r'{(u\'|\'u)}'),                               #  u-acute
-                re.compile(r'{(u\^|\^u)}'),                               #  u-circumflex
-                re.compile(r'{(u\"|\"u)}'),                               #  u-diaeresis
-                re.compile(r'{(y\'|\'y)}'),                               #  y-acute
-                re.compile(r'{(y\"|\"y)}'),                               #  y-diaeresis
-                re.compile(r'{OE}'),                                      #  y-diaeresis
-                re.compile(r'{oe}'),                                      #  y-diaeresis
-                re.compile(r'{\*}'),                                      #  bullet
-                re.compile(r'{Fr}'),                                      #  Franc
-                re.compile(r'{(L=|=L)}'),                                 #  Lira
-                re.compile(r'{Rs}'),                                      #  Rupee
-                re.compile(r'{(C=|=C)}'),                                 #  euro
-                re.compile(r'{tm}'),                                      #  euro
-                re.compile(r'{spade}'),                                   #  spade
-                re.compile(r'{club}'),                                    #  club
-                re.compile(r'{heart}'),                                   #  heart
-                re.compile(r'{diamond}')                                  #  diamond
-             )
-    
-            glyph_replace += [x % dict(self.glyph_defaults) for x in (
-                r'%(mac_cent)s',                     #  cent
-                r'%(mac_pound)s',                    #  pound
-                r'%(mac_yen)s',                      #  yen
-                r'%(txt_copyright)s',                #  copyright
-                r'%(txt_registered)s',               #  registered
-                r'%(mac_quarter)s',                  #  quarter
-                r'%(mac_half)s',                     #  half
-                r'%(mac_three-quarter)s',            #  three-quarter
-                r'%(mac_cA-grave)s',                 #  192;
-                r'%(mac_cA-acute)s',                 #  193;
-                r'%(mac_cA-circumflex)s',            #  194;
-                r'%(mac_cA-tilde)s',                 #  195;
-                r'%(mac_cA-diaeresis)s',             #  196;
-                r'%(mac_cA-ring)s',                  #  197;
-                r'%(mac_cAE)s',                      #  198;
-                r'%(mac_cC-cedilla)s',               #  199;
-                r'%(mac_cE-grave)s',                 #  200;
-                r'%(mac_cE-acute)s',                 #  201;
-                r'%(mac_cE-circumflex)s',            #  202;
-                r'%(mac_cE-diaeresis)s',             #  203;
-                r'%(mac_cI-grave)s',                 #  204;
-                r'%(mac_cI-acute)s',                 #  205;
-                r'%(mac_cI-circumflex)s',            #  206;
-                r'%(mac_cI-diaeresis)s',             #  207;
-                r'%(mac_cEth)s',                     #  208;
-                r'%(mac_cN-tilde)s',                 #  209;
-                r'%(mac_cO-grave)s',                 #  210;
-                r'%(mac_cO-acute)s',                 #  211;
-                r'%(mac_cO-circumflex)s',            #  212;
-                r'%(mac_cO-tilde)s',                 #  213;
-                r'%(mac_cO-diaeresis)s',             #  214;
-                r'%(mac_cO-stroke)s',                #  216;
-                r'%(mac_cU-grave)s',                 #  217;
-                r'%(mac_cU-acute)s',                 #  218;
-                r'%(mac_cU-circumflex)s',            #  219;
-                r'%(mac_cU-diaeresis)s',             #  220;
-                r'%(mac_cY-acute)s',                 #  221;
-                r'%(mac_sa-grave)s',                 #  224;
-                r'%(mac_sa-acute)s',                 #  225;
-                r'%(mac_sa-circumflex)s',            #  226;
-                r'%(mac_sa-tilde)s',                 #  227;
-                r'%(mac_sa-diaeresis)s',             #  228;
-                r'%(mac_sa-ring)s',                  #  229;
-                r'%(mac_sae)s',                      #  230;
-                r'%(mac_sc-cedilla)s',               #  231;
-                r'%(mac_se-grave)s',                 #  232;
-                r'%(mac_se-acute)s',                 #  233;
-                r'%(mac_se-circumflex)s',            #  234;
-                r'%(mac_se-diaeresis)s',             #  235;
-                r'%(mac_si-grave)s',                 #  236;
-                r'%(mac_si-acute)s',                 #  237;
-                r'%(mac_si-circumflex)s',            #  238;
-                r'%(mac_si-diaeresis)s',             #  239;
-                r'%(mac_sn-tilde)s',                 #  241;
-                r'%(mac_so-grave)s',                 #  242;
-                r'%(mac_so-acute)s',                 #  243;
-                r'%(mac_so-circumflex)s',            #  244;
-                r'%(mac_so-tilde)s',                 #  245;
-                r'%(mac_so-diaeresis)s',             #  246;
-                r'%(mac_so-stroke)s',                #  248;
-                r'%(mac_su-grave)s',                 #  249;
-                r'%(mac_su-acute)s',                 #  250;
-                r'%(mac_su-circumflex)s',            #  251;
-                r'%(mac_su-diaeresis)s',             #  252;
-                r'%(mac_sy-acute)s',                 #  253;
-                r'%(mac_sy-diaeresis)s',             #  255;
-                r'%(mac_cOE)s',                      #  338;
-                r'%(mac_soe)s',                      #  339;
-                r'%(mac_bullet)s',                   #  bullet
-                r'%(mac_franc)s',                    #  franc
-                r'%(mac_lira)s',                     #  lira
-                r'%(mac_rupee)s',                    #  rupee
-                r'%(mac_euro)s',                     #  euro
-                r'%(txt_trademark)s',                #  trademark
-                r'%(mac_spade)s',                    #  spade
-                r'%(mac_club)s',                     #  club
-                r'%(mac_heart)s',                    #  heart
-                r'%(mac_diamond)s'                   #  diamond
-            )]
-
         result = []
         for line in re.compile(r'(<.*?>)', re.U).split(text):
             if not re.search(r'<.*>', line):
-                for s, r in zip(glyph_search, glyph_replace):
+                rules = []
+                if re.search(r'{.+?}', line):
+                    rules = self.macro_defaults + self.glyph_defaults
+                else:
+                    rules = self.glyph_defaults
+                for s, r in rules:
                     line = s.sub(r, line)
             result.append(line)
         return ''.join(result)
@@ -927,7 +751,7 @@ class Textile(object):
         return url
 
     def shelve(self, text):
-        id = str(uuid.uuid4())
+        id = str(uuid.uuid4()) + 'c'
         self.shelf[id] = text
         return id
 
@@ -1049,7 +873,7 @@ class Textile(object):
 
         for qtag in qtags:
             pattern = re.compile(r"""
-                (?:^|(?<=[\s>%(pnct)s])|\[|([\]}]))
+                (?:^|(?<=[\s>%(pnct)s\(])|\[|([\]}]))
                 (%(qtag)s)(?!%(qtag)s)
                 (%(c)s)
                 (?::(\S+))?

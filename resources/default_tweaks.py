@@ -88,13 +88,6 @@ categories_collapsed_rating_template = r'{first.avg_rating:4.2f:ifempty(0)} - {l
 categories_collapsed_popularity_template = r'{first.count:d} - {last.count:d}'
 
 
-#: Set boolean custom columns to be tristate
-# Set whether boolean custom columns are two- or three-valued.
-#  Two-values for true booleans
-#  three-values for yes/no/unknown
-# Set to 'yes' for three-values, 'no' for two-values
-bool_custom_columns_are_tristate = 'yes'
-
 #: Specify columns to sort the booklist by on startup
 # Provide a set of columns to be sorted on when calibre starts
 #  The argument is None if saved sort history is to be used
@@ -362,4 +355,12 @@ maximum_cover_size = (1200, 1600)
 # that if there isn't enough free space available on the location you choose,
 # the files will be sent to the location with the most free space.
 send_news_to_device_location = "main"
+
+#: What interfaces should the content server listen on
+# By default, the calibre content server listens on '0.0.0.0' which means that it
+# accepts IPv4 connections on all interfaces. You can change this to, for
+# example, '127.0.0.1' to only listen for connections from the local machine, or
+# to '::' to listen to all incoming IPv6 and IPv4 connections (this may not
+# work on all operating systems)
+server_listen_on = '0.0.0.0'
 

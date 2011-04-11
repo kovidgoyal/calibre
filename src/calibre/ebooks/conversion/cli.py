@@ -49,6 +49,8 @@ HEURISTIC_OPTIONS = ['markup_chapter_headings',
                       'dehyphenate', 'renumber_headings',
                       'replace_scene_breaks']
 
+DEFAULT_TRUE_OPTIONS = HEURISTIC_OPTIONS + ['remove_fake_margins']
+
 def print_help(parser, log):
     help = parser.format_help().encode(preferred_encoding, 'replace')
     log(help)
@@ -90,7 +92,7 @@ def option_recommendation_to_cli_option(add_option, rec):
     if opt.long_switch == 'verbose':
         attrs['action'] = 'count'
         attrs.pop('type', '')
-    if opt.name in HEURISTIC_OPTIONS and rec.recommended_value is True:
+    if opt.name in DEFAULT_TRUE_OPTIONS and rec.recommended_value is True:
         switches = ['--disable-'+opt.long_switch]
     add_option(Option(*switches, **attrs))
 
@@ -162,6 +164,7 @@ def add_pipeline_options(parser, plumber):
                       'chapter', 'chapter_mark',
                       'prefer_metadata_cover', 'remove_first_image',
                       'insert_metadata', 'page_breaks_before',
+                      'remove_fake_margins',
                   ]
                   ),
 

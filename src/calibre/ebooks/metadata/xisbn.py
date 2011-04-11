@@ -71,14 +71,32 @@ class xISBN(object):
                 ans.add(i)
         return ans
 
+    def get_isbn_pool(self, isbn):
+        data = self.get_data(isbn)
+        raw = tuple(x.get('isbn') for x in data if 'isbn' in x)
+        isbns = []
+        for x in raw:
+            isbns += x
+        isbns = frozenset(isbns)
+        min_year = 100000
+        for x in data:
+            try:
+                year = int(x['year'])
+                if year < min_year:
+                    min_year = year
+            except:
+                continue
+        if min_year == 100000:
+            min_year = None
+        return isbns, min_year
 
 
 xisbn = xISBN()
 
 if __name__ == '__main__':
-    import sys
+    import sys, pprint
     isbn = sys.argv[-1]
-    print xisbn.get_data(isbn)
+    print pprint.pprint(xisbn.get_data(isbn))
     print
     print xisbn.get_associated_isbns(isbn)
 

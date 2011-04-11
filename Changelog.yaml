@@ -19,6 +19,210 @@
 #  new recipes:
 #    - title: 
 
+
+- version: 0.7.54
+  date: 2011-04-08
+
+  new features:
+    - title: "New output format, HTMLZ which is a single HTML file with its associated images/stylesheets in a zipped up file"
+      description: "Useful when you want to convert your ebook into a single HTML file for easy editing. Note that this output plugin is still new and needs testing"
+
+    - title: "When dealing with ZIP/RAR archives, use the file header rather than the file extension to detrmine the file type, when possible. This fixes the common case of CBZ files being actually cbr files and vice versa"
+
+    - title: "Support for the Motorola Atrix"
+
+    - title: "Allow the icons in the toolbar to be turned off completely via Preferences->Look & Feel"
+
+    - title: "When downloading metadata use the gzip transfer encoding when possible for a speedup."
+      tickets: [749304]
+  
+  bug fixes:
+    - title: "Conversion pipeline: Workaround for bug in lxml that causes a massive mem leak on windows and OS X when the input document contains non ASCII CSS selectors."
+      tickets: [754555]
+
+    - title: "Conversion pipeline: Handle inline <style> tags that put all the actual CSS inside an XML comment."
+      tickets: [750063]
+
+    - title: "The 'Choose Library' button now shows its popup menu when you already have more than one library instead of the dialog to create a new library"
+      tickets: [754154]
+
+    - title: "Apply all content server setting when clicking the Start Server button in Preferences->Sharing over the net"
+      tickets: [753122]
+
+    - title: "Fix content server breaking if its restriction is set to a saved search that was deleted"
+      tickets: [751950]
+
+    - title: "Fix detection of PocketBook with 2.0.6 firmware on windows"
+      tickets: [750336]
+
+    - title: "ODT Input: Fix handling of the <text:s> element."
+      tickets: [749655]
+
+    - title: "MOBI Output: Don't use self closed tags"
+
+    - title: "Fix book details popup becoming too tall if there is a lot of metadata"
+
+    - title: "Fix new PDF engine crashing on PDF files with embedded fonts with null names"
+
+  improved recipes:
+    - Kommersant
+    - Perfil
+    - Times of India
+    - IHT
+    - Guardian
+
+  new recipes:
+    - title: "Al Ahram"
+      authors: Hassan Williamson
+
+    - title: "F-Secure and developpez.com"
+      authors: louhike
+
+- version: 0.7.53
+  date: 2011-04-01
+
+  new features:
+    - title: "Email delivery: You can now specify a subject that calibre will use when sending emails per email account, configured in Preferences->Sending by email. The subject is a template of the same kind used in Save to Disk, etc. So you can specift the title/authors/series/whatever in the template."
+      tickets: [743535]
+
+    - title: "Apple driver: When an iDevice is detected, inform the user about the Connect to iTunes method instead of trying to connect directly to the device, as the latter can be buggy. See http://www.mobileread.com/forums/showthread.php?t=127883 for details"
+
+    - title: "SONY driver: Search for books on the device in all directories not just database/media/books. This can be turned off by customizing the SONY plugin in Preferences->Plugins"
+
+    - title: "EPUB Output: Remove any margins specified via an Adobe page template in the input document. This means that the margins specified in calibre are more likely to be the actual margins used."
+
+    - title: "When reading metadata from filenames, allow publisher and published date to be read from the filename"
+      tickets: [744020]
+
+    - title: "Remove the option to show a second tool bar from Preferences->Look & Feel. Instead go to Preferences->Toolbars and add items to the second toolbar to control exactly what is visible there."
+      tickets: [742686]
+
+    - title: "Add a tweak that can be used to have the calibre content server listen for IPv6 connections."
+      tickets: [743486]
+
+    - title: "When clicking Next or Previous in the edit metadata dialog, then active book in the main book list is also changed"
+      tickets: [743533]
+
+    - title: "Remember the previously used setting for Match all/Match any under the Tag Browser when calibre restarts"
+      tickets: [743645]
+
+    - title: "FB2 Output: Option to set the FB2 genre explicitly."
+      tickets: [743178]
+
+    - title: "Plugin developers: calibre now has a new plugin API, see http://calibre-ebook.com/user_manual/creating_plugins.html. Your existing plugins should continue to work, but it would be good to test them to make sure."
+  
+  bug fixes:
+    - title: "Fix text color in the search bar set to black instead of the system font color"
+      tickets: [746846]
+
+    - title: "Workaround for Word bug where Word uses gb2312 as the encoding when exporting CHinese docs to HTML istead of gbk"
+      tickets: [745428]
+
+    - title: "Make sorting on the device view faster and more robust."
+      tickets: [742626]
+
+    - title: "E-book viewer: Fix viewer losing place in very long single file documents when window resized."
+      tickets: [745001]
+
+    - title: "MOBI Output: Workaround for Amazon's MOBI renderer not rendering top margins on ul and ol tags."
+      tickets: [744365]
+
+    - title: "EPUB Input: Workaround for invalid EPUBs produced by someone named 'ibooks, Inc.'."
+      tickets: [744122]
+
+    - title: "RTF Input: Handle RTF files with too many levels of list nesting."
+      tickets: [743243]
+
+  improved recipes:
+    - Irish Times
+    - LifeHacker
+    - Estadao
+    - Folha de Sao Paulo
+
+  new recipes:
+    - title: Financieele Dagblad
+      author: marvin_2
+
+    - title: "Prost Amerika, WV Hooligan and SB Nation"
+      author: rylsfan
+
+    - title: "Cracked.com"
+      author: Nudgenudge
+
+- version: 0.7.52
+  date: 2011-03-25
+
+  bug fixes:
+    - title: "Fixes a typo in 0.7.51 that broke the downloading of some news. Apologies."
+      tickets: [742840]
+
+- version: 0.7.51
+  date: 2011-03-25
+
+  new features:
+    - title: "Conversion: Detect and remove fake page margins that are specified as a margin on (nearly) every paragraph."
+      description: "This can be turned off via an option under Structure Detection, in case it removes margins that should have been kept."
+
+    - title: "Windows build: All the python code and recipes are now put into zip files. This should decrease the amount of time the windows installer spends 'calculating free space'"
+
+    - title: "OSX and Linux: Add a setting in Preferences->Behavior to control the priority with which calibre worker processes run. This setting was already available on windows."
+      tickets: [741231]
+
+    - title: "Driver for HTC Thunderbolt, T-Mobile Optimus, Archos 43 and Blackberry OS6"
+
+    - title: "A new 'authors type' custom column"
+
+    - title: "When building calibre from source note that calibre now absolutely requires python >= 2.7"
+
+    - title: "Add the keyboard shortcut: Ctrl+Shift+R to restart calibre in debug mode"
+
+  bug fixes:
+    - title: "Fix dragging and dropping lots of books from the book list to the Tag Browser was broken"
+
+    - title: "Change the shebang in the calibre launcher script on linux to explicitly use python2 rather than python"
+
+    - title: "When adding formats do not corrupt the added file if the user tries to add an existing format to itself"
+
+    - title: "Fix drag and drop to add files that contain the # character in the filename"
+
+    - title: "Tag editor shouldn't add empty tags"
+      tickets: [740890]
+
+    - title: "MOBI Input: Handle MOBI files that have a too large 'number of records' field in their headers."
+      tickets: [740713]
+
+    - title: "News download: Update RSS feedparser module to latest version"
+
+    - title: "Various fixes to the zipfile module in calibre to handle 64 bit zipfiles and bring it up to date with the zip file module in the python stdlib"
+
+    - title: "News download: Handle titles with ASCII control codes in them."
+      tickets: [739322]
+
+    - title: "Make search hierarchies show simple names instead of compound ones."
+
+    - title: "Fix commas in author names being converted to pipe symbols in the book details window"
+
+    - title: "Fix PocketBook can't always find epub cover image to create thumbnail"
+      tickets: [9445]
+
+  improved recipes:
+    - "168 ora"
+    - "LWN weekly"
+    - Christian Science Monitor
+    - Washington Post
+    - West Hawaii Today
+
+  new recipes:
+    - title: "Planet KDE"
+      author: Riccardo Iaconelli
+
+    - title: "HVG"
+      author: Istvan Papp
+
+    - title: "Caijing Magazine"
+      auhtor: Eric Chen
+
+
 - version: 0.7.50
   date: 2011-03-18
 

@@ -1,0 +1,123 @@
+#!/usr/bin/env  python
+__license__   = 'GPL v3'
+__copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
+__docformat__ = 'restructuredtext en'
+
+'''
+www.guardian.co.uk
+'''
+from calibre import strftime
+from calibre.web.feeds.news import BasicNewsRecipe
+from datetime import date
+
+class Guardian(BasicNewsRecipe):
+
+    title = u'The Guardian / The Observer'
+    if date.today().weekday() == 6:
+        base_url = "http://www.guardian.co.uk/theobserver"
+    else:
+        base_url = "http://www.guardian.co.uk/theguardian"
+
+    __author__ = 'Seabound and Sujata Raman'
+    language = 'en_GB'
+
+    oldest_article = 7
+    max_articles_per_feed = 100
+    remove_javascript = True
+
+    # List of section titles to ignore
+    # For example: ['Sport']
+    ignore_sections = []
+
+    timefmt = ' [%a, %d %b %Y]'
+    keep_only_tags = [
+                      dict(name='div', attrs={'id':["content","article_header","main-article-info",]}),
+                           ]
+    remove_tags = [
+                        dict(name='div', attrs={'class':["video-content","videos-third-column"]}),
+                        dict(name='div', attrs={'id':["article-toolbox","subscribe-feeds",]}),
+                        dict(name='div', attrs={'class':["guardian-tickets promo-component",]}),
+                        dict(name='ul', attrs={'class':["pagination"]}),
+                        dict(name='ul', attrs={'id':["content-actions"]}),
+                        #dict(name='img'),
+                        ]
+    use_embedded_content    = False
+
+    no_stylesheets = True
+    extra_css = '''
+                    .article-attributes{font-size: x-small; font-family:Arial,Helvetica,sans-serif;}
+                    .h1{font-size: large ;font-family:georgia,serif; font-weight:bold;}
+                    .stand-first-alone{color:#666666; font-size:small; font-family:Arial,Helvetica,sans-serif;}
+                    .caption{color:#666666; font-size:x-small; font-family:Arial,Helvetica,sans-serif;}
+                    #article-wrapper{font-size:small; font-family:Arial,Helvetica,sans-serif;font-weight:normal;}
+                    .main-article-info{font-family:Arial,Helvetica,sans-serif;}
+                    #full-contents{font-size:small; font-family:Arial,Helvetica,sans-serif;font-weight:normal;}
+                    #match-stats-summary{font-size:small; font-family:Arial,Helvetica,sans-serif;font-weight:normal;}
+                '''
+
+    def get_article_url(self, article):
+          url = article.get('guid', None)
+          if '/video/' in url or '/flyer/' in url or '/quiz/' in url or \
+              '/gallery/' in url  or 'ivebeenthere' in url or \
+              'pickthescore' in url or 'audioslideshow' in url :
+              url = None
+          return url
+
+    def preprocess_html(self, soup):
+
+          for item in soup.findAll(style=True):
+              del item['style']
+
+          for item in soup.findAll(face=True):
+              del item['face']
+          for tag in soup.findAll(name=['ul','li']):
+                tag.name = 'div'
+
+          return soup
+
+    def find_sections(self):
+        # soup = self.index_to_soup("http://www.guardian.co.uk/theobserver")
+        soup = self.index_to_soup(self.base_url)
+        # find cover pic
+        img = soup.find( 'img',attrs ={'alt':'Guardian digital edition'})
+        if img is not None:
+            self.cover_url = img['src']
+        # end find cover pic
+
+        idx = soup.find('div', id='book-index')
+        for s in idx.findAll('strong', attrs={'class':'book'}):
+            a = s.find('a', href=True)
+            yield (self.tag_to_string(a), a['href'])
+
+    def find_articles(self, url):
+        soup = self.index_to_soup(url)
+        div = soup.find('div', attrs={'class':'book-index'})
+        for ul in div.findAll('ul', attrs={'class':'trailblock'}):
+            for li in ul.findAll('li'):
+                a = li.find(href=True)
+                if not a:
+                    continue
+                title = self.tag_to_string(a)
+                url = a['href']
+                if not title or not url:
+                    continue
+                tt = li.find('div', attrs={'class':'trailtext'})
+                if tt is not None:
+                    for da in tt.findAll('a'): da.extract()
+                    desc = self.tag_to_string(tt).strip()
+                yield {
+                        'title': title, 'url':url, 'description':desc,
+                        'date' : strftime('%a, %d %b'),
+                        }
+
+    def parse_index(self):
+        try:
+            feeds = []
+            for title, href in self.find_sections():
+                if not title in self.ignore_sections:
+                    feeds.append((title, list(self.find_articles(href))))
+            return feeds
+        except:
+            raise NotImplementedError
+
+

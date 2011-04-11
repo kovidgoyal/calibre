@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, cPickle, re, anydbm, shutil, marshal
+import os, cPickle, re, anydbm, shutil, marshal, zipfile, glob
 from zlib import compress
 
 from setup import Command, basenames, __appname__
@@ -55,6 +55,18 @@ class Resources(Command):
             xml = serialize_builtin_recipes()
             with open(dest, 'wb') as f:
                 f.write(xml)
+
+        recipe_icon_dir = self.a(self.j(self.RESOURCES, '..', 'recipes',
+            'icons'))
+        dest = os.path.splitext(dest)[0] + '.zip'
+        files += glob.glob(self.j(recipe_icon_dir, '*.png'))
+        if self.newer(dest, files):
+            self.info('\tCreating builtin_recipes.zip')
+            with zipfile.ZipFile(dest, 'w', zipfile.ZIP_STORED) as zf:
+                for n in sorted(files, key=self.b):
+                    with open(n, 'rb') as f:
+                        zf.writestr(os.path.basename(n), f.read())
+
 
         dest = self.j(self.RESOURCES, 'ebook-convert-complete.pickle')
         files = []

@@ -565,7 +565,7 @@ def move_library(oldloc, newloc, parent, callback_on_complete):
         # Try to load existing library at new location
         try:
             LibraryDatabase2(newloc)
-        except Exception, err:
+        except Exception as err:
             det = traceback.format_exc()
             error_dialog(parent, _('Invalid database'),
                 _('<p>An invalid library already exists at '
@@ -577,7 +577,7 @@ def move_library(oldloc, newloc, parent, callback_on_complete):
         else:
             callback(newloc)
             return
-    except Exception, err:
+    except Exception as err:
         det = traceback.format_exc()
         error_dialog(parent, _('Could not move library'),
                 unicode(err), det, show=True)

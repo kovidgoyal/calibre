@@ -10,6 +10,7 @@ __docformat__ = 'restructuredtext en'
 import socket, time, re
 from urllib import urlencode
 from threading import Thread
+from Queue import Queue, Empty
 
 from lxml.html import soupparser, tostring
 
@@ -22,17 +23,18 @@ from calibre.ebooks.metadata.book.base import Metadata
 from calibre.library.comments import sanitize_comments_html
 from calibre.utils.date import parse_date
 
-class Worker(Thread): # {{{
+class Worker(Thread): # Get details {{{
 
     '''
     Get book details from amazons book page in a separate thread
     '''
 
-    def __init__(self, url, result_queue, browser, log, timeout=20):
+    def __init__(self, url, result_queue, browser, log, relevance, plugin, timeout=20):
         Thread.__init__(self)
         self.daemon = True
         self.url, self.result_queue = url, result_queue
         self.log, self.timeout = log, timeout
+        self.relevance, self.plugin = relevance, plugin
         self.browser = browser.clone_browser()
         self.cover_url = self.amazon_id = self.isbn = None
 
@@ -40,12 +42,12 @@ class Worker(Thread): # {{{
         try:
             self.get_details()
         except:
-            self.log.error('get_details failed for url: %r'%self.url)
+            self.log.exception('get_details failed for url: %r'%self.url)
 
     def get_details(self):
         try:
             raw = self.browser.open_novisit(self.url, timeout=self.timeout).read().strip()
-        except Exception, e:
+        except Exception as e:
             if callable(getattr(e, 'getcode', None)) and \
                     e.getcode() == 404:
                 self.log.error('URL malformed: %r'%self.url)
@@ -62,7 +64,7 @@ class Worker(Thread): # {{{
 
         raw = xml_to_unicode(raw, strip_encoding_pats=True,
                 resolve_entities=True)[0]
-        # open('/t/t.html', 'wb').write(raw)
+        #open('/t/t.html', 'wb').write(raw)
 
         if '<title>404 - ' in raw:
             self.log.error('URL malformed: %r'%self.url)
@@ -161,6 +163,17 @@ class Worker(Thread): # {{{
         else:
             self.log.warning('Failed to find product description for url: %r'%self.url)
 
+        mi.source_relevance = self.relevance
+
+        if self.amazon_id:
+            if self.isbn:
+                self.plugin.cache_isbn_to_identifier(self.isbn, self.amazon_id)
+            if self.cover_url:
+                self.plugin.cache_identifier_to_cover_url(self.amazon_id,
+                        self.cover_url)
+
+        self.plugin.clean_downloaded_metadata(mi)
+
         self.result_queue.put(mi)
 
     def parse_asin(self, root):
@@ -205,6 +218,9 @@ class Worker(Thread): # {{{
                     ' @class="emptyClear" or @href]'):
                 c.getparent().remove(c)
             desc = tostring(desc, method='html', encoding=unicode).strip()
+            # Encoding bug in Amazon data U+fffd (replacement char)
+            # in some examples it is present in place of '
+            desc = desc.replace('\ufffd', "'")
             # remove all attributes from tags
             desc = re.sub(r'<([a-zA-Z0-9]+)\s[^>]+>', r'<\1>', desc)
             # Collapse whitespace
@@ -263,18 +279,30 @@ class Worker(Thread): # {{{
 
 class Amazon(Source):
 
-    name = 'Amazon'
+    name = 'Amazon.com'
     description = _('Downloads metadata from Amazon')
 
-    capabilities = frozenset(['identify'])
+    capabilities = frozenset(['identify', 'cover'])
     touched_fields = frozenset(['title', 'authors', 'identifier:amazon',
-        'identifier:isbn', 'rating', 'comments', 'publisher', 'pubdate'])
+        'identifier:isbn', 'rating', 'comments', 'publisher', 'pubdate',
+        'language'])
+    has_html_comments = True
+    supports_gzip_transfer_encoding = True
 
     AMAZON_DOMAINS = {
             'com': _('US'),
             'fr' : _('France'),
             'de' : _('Germany'),
+            'uk' : _('UK'),
     }
+
+    def get_book_url(self, identifiers): # {{{
+        asin = identifiers.get('amazon', None)
+        if asin is None:
+            asin = identifiers.get('asin', None)
+        if asin:
+            return 'http://amzn.com/%s'%asin
+    # }}}
 
     def create_query(self, log, title=None, authors=None, identifiers={}): # {{{
         domain = self.prefs.get('domain', 'com')
@@ -314,11 +342,27 @@ class Amazon(Source):
             # Insufficient metadata to make an identify query
             return None
 
-        utf8q = dict([(x.encode('utf-8'), y.encode('utf-8')) for x, y in
+        latin1q = dict([(x.encode('latin1', 'ignore'), y.encode('latin1',
+            'ignore')) for x, y in
             q.iteritems()])
-        url = 'http://www.amazon.%s/s/?'%domain + urlencode(utf8q)
+        url = 'http://www.amazon.%s/s/?'%domain + urlencode(latin1q)
         return url
 
+    # }}}
+
+    def get_cached_cover_url(self, identifiers): # {{{
+        url = None
+        asin = identifiers.get('amazon', None)
+        if asin is None:
+            asin = identifiers.get('asin', None)
+        if asin is None:
+            isbn = identifiers.get('isbn', None)
+            if isbn is not None:
+                asin = self.cached_isbn_to_identifier(isbn)
+        if asin is not None:
+            url = self.cached_identifier_to_cover_url(asin)
+
+        return url
     # }}}
 
     def identify(self, log, result_queue, abort, title=None, authors=None, # {{{
@@ -335,7 +379,7 @@ class Amazon(Source):
         br = self.browser
         try:
             raw = br.open_novisit(query, timeout=timeout).read().strip()
-        except Exception, e:
+        except Exception as e:
             if callable(getattr(e, 'getcode', None)) and \
                     e.getcode() == 404:
                 log.error('Query malformed: %r'%query)
@@ -379,6 +423,18 @@ class Amazon(Source):
                     if 'bulk pack' not in title:
                         matches.append(a.get('href'))
                     break
+            if not matches:
+                # This can happen for some user agents that Amazon thinks are
+                # mobile/less capable
+                log('Trying alternate results page markup')
+                for td in root.xpath(
+                    r'//div[@id="Results"]/descendant::td[starts-with(@id, "search:Td:")]'):
+                    for a in td.xpath(r'descendant::td[@class="dataColumn"]/descendant::a[@href]/span[@class="srTitle"]/..'):
+                        title = tostring(a, method='text', encoding=unicode).lower()
+                        if 'bulk pack' not in title:
+                            matches.append(a.get('href'))
+                        break
+
 
         # Keep only the top 5 matches as the matches are sorted by relevance by
         # Amazon so lower matches are not likely to be very relevant
@@ -396,7 +452,8 @@ class Amazon(Source):
             log.error('No matches found with query: %r'%query)
             return
 
-        workers = [Worker(url, result_queue, br, log) for url in matches]
+        workers = [Worker(url, result_queue, br, log, i, self) for i, url in
+                enumerate(matches)]
 
         for w in workers:
             w.start()
@@ -414,19 +471,47 @@ class Amazon(Source):
             if not a_worker_is_alive:
                 break
 
-        for w in workers:
-            if w.amazon_id:
-                if w.isbn:
-                    self.cache_isbn_to_identifier(w.isbn, w.amazon_id)
-                if w.cover_url:
-                    self.cache_identifier_to_cover_url(w.amazon_id,
-                            w.cover_url)
-
         return None
     # }}}
 
+    def download_cover(self, log, result_queue, abort, # {{{
+            title=None, authors=None, identifiers={}, timeout=30):
+        cached_url = self.get_cached_cover_url(identifiers)
+        if cached_url is None:
+            log.info('No cached cover found, running identify')
+            rq = Queue()
+            self.identify(log, rq, abort, title=title, authors=authors,
+                    identifiers=identifiers)
+            if abort.is_set():
+                return
+            results = []
+            while True:
+                try:
+                    results.append(rq.get_nowait())
+                except Empty:
+                    break
+            results.sort(key=self.identify_results_keygen(
+                title=title, authors=authors, identifiers=identifiers))
+            for mi in results:
+                cached_url = self.get_cached_cover_url(mi.identifiers)
+                if cached_url is not None:
+                    break
+        if cached_url is None:
+            log.info('No cover found')
+            return
 
-if __name__ == '__main__':
+        if abort.is_set():
+            return
+        br = self.browser
+        log('Downloading cover from:', cached_url)
+        try:
+            cdata = br.open_novisit(cached_url, timeout=timeout).read()
+            result_queue.put((self, cdata))
+        except:
+            log.exception('Failed to download cover from:', cached_url)
+    # }}}
+
+if __name__ == '__main__': # tests {{{
     # To run these test use: calibre-debug -e
     # src/calibre/ebooks/metadata/sources/amazon.py
     from calibre.ebooks.metadata.sources.test import (test_identify_plugin,
@@ -446,7 +531,7 @@ if __name__ == '__main__':
             (  # This isbn not on amazon
                 {'identifiers':{'isbn': '8324616489'}, 'title':'Learning Python',
                     'authors':['Lutz']},
-                [title_test('Learning Python: Powerful Object-Oriented Programming',
+                [title_test('Learning Python, 3rd Edition',
                     exact=True), authors_test(['Mark Lutz'])
                  ]
 
@@ -472,5 +557,5 @@ if __name__ == '__main__':
             ),
 
         ])
-
+# }}}
 

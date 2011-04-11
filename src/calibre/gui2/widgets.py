@@ -97,7 +97,7 @@ class FilenamePattern(QWidget, Ui_Form):
     def do_test(self):
         try:
             pat = self.pattern()
-        except Exception, err:
+        except Exception as err:
             error_dialog(self, _('Invalid regular expression'),
                          _('Invalid regular expression: %s')%err).exec_()
             return
@@ -120,6 +120,12 @@ class FilenamePattern(QWidget, Ui_Form):
             self.series_index.setText(str(mi.series_index))
         else:
             self.series_index.setText(_('No match'))
+
+        if mi.publisher:
+            self.publisher.setText(mi.publisher)
+
+        if mi.pubdate:
+            self.pubdate.setText(mi.pubdate.strftime('%Y-%m-%d'))
 
         self.isbn.setText(_('No match') if mi.isbn is None else str(mi.isbn))
 
@@ -306,6 +312,7 @@ class ImageView(QWidget, ImageDropMixin):
         p.setPen(pen)
         if self.draw_border:
             p.drawRect(target)
+        #p.drawRect(self.rect())
         p.end()
 
 class CoverView(QGraphicsView, ImageDropMixin):
@@ -317,7 +324,7 @@ class CoverView(QGraphicsView, ImageDropMixin):
         ImageDropMixin.__init__(self)
 
     def get_pixmap(self):
-        for item in self.scene().items():
+        for item in self.scene.items():
             if hasattr(item, 'pixmap'):
                 return item.pixmap()
 
@@ -342,6 +349,7 @@ class FontFamilyModel(QAbstractListModel):
         self.families = list(qt_families.intersection(set(self.families)))
         self.families.sort()
         self.families[:0] = [_('None')]
+        self.font = QFont('sansserif')
 
     def rowCount(self, *args):
         return len(self.families)
@@ -354,10 +362,11 @@ class FontFamilyModel(QAbstractListModel):
             return NONE
         if role == Qt.DisplayRole:
             return QVariant(family)
-        if False and role == Qt.FontRole:
-            # Causes a Qt crash with some fonts
-            # so disabled.
-            return QVariant(QFont(family))
+        if role == Qt.FontRole:
+            # If a user chooses some non standard font as the interface font,
+            # rendering some font names causes Qt to crash, so return what is
+            # hopefully a "safe" font
+            return QVariant(self.font)
         return NONE
 
     def index_of(self, family):

@@ -240,7 +240,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.connect(self.action_reference_mode, SIGNAL('triggered(bool)'),
                      lambda x: self.view.reference_mode(x))
         self.connect(self.action_metadata, SIGNAL('triggered(bool)'), lambda x:self.metadata.setVisible(x))
-        self.connect(self.action_table_of_contents, SIGNAL('toggled(bool)'), lambda x:self.toc.setVisible(x))
+        self.action_table_of_contents.toggled[bool].connect(self.set_toc_visible)
         self.connect(self.action_copy, SIGNAL('triggered(bool)'), self.copy)
         self.connect(self.action_font_size_larger, SIGNAL('triggered(bool)'),
                      self.font_size_larger)
@@ -309,6 +309,9 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         w.setPopupMode(QToolButton.MenuButtonPopup)
 
         self.restore_state()
+
+    def set_toc_visible(self, yes):
+        self.toc.setVisible(yes)
 
     def clear_recent_history(self, *args):
         vprefs.set('viewer_open_history', [])

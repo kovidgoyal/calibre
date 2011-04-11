@@ -7,15 +7,15 @@ __docformat__ = 'restructuredtext en'
 
 import operator, os, json, re
 from binascii import hexlify, unhexlify
+from collections import OrderedDict
 
 import cherrypy
 
 from calibre.constants import filesystem_encoding
 from calibre import isbytestring, force_unicode, fit_image, \
         prepare_string_for_xml
-from calibre.utils.ordered_dict import OrderedDict
 from calibre.utils.filenames import ascii_filename
-from calibre.utils.config import prefs, tweaks
+from calibre.utils.config import prefs
 from calibre.utils.icu import sort_key
 from calibre.utils.magick import Image
 from calibre.library.comments import comments_to_html
@@ -155,8 +155,7 @@ def get_category_items(category, items, restriction, datatype, prefix): # {{{
                 '<div>{1}</div>'
                 '<div>{2}</div></div>')
         rating, rstring = render_rating(i.avg_rating, prefix)
-        if i.category == 'authors' and \
-                tweaks['categories_use_field_for_author_name'] == 'author_sort':
+        if i.use_sort_as_name:
             name = xml(i.sort)
         else:
             name = xml(i.name)
@@ -696,7 +695,10 @@ class BrowseServer(object):
                                 xml(href, True),
                                 xml(val if len(dbtags) == 1 else tag.name),
                                 xml(key, True)))
-                        join = ' &amp; ' if key == 'authors' else ', '
+                        join = ' &amp; ' if key == 'authors' or \
+                                            (fm['is_custom'] and
+                                             fm['display'].get('is_names', False)) \
+                                         else ', '
                         args[key] = join.join(vals)
                         added_key = True
                 if not added_key:

@@ -41,24 +41,24 @@ from calibre.utils.magick.draw import save_cover_data_to
 from calibre.utils.recycle_bin import delete_file, delete_tree
 from calibre.utils.formatter_functions import load_user_template_functions
 
-
 copyfile = os.link if hasattr(os, 'link') else shutil.copyfile
 
 class Tag(object):
 
     def __init__(self, name, id=None, count=0, state=0, avg=0, sort=None,
                  tooltip=None, icon=None, category=None, id_set=None,
-                 is_editable = True, is_searchable=True):
+                 is_editable = True, is_searchable=True, use_sort_as_name=False):
         self.name = self.original_name = name
         self.id = id
         self.count = count
         self.state = state
-        self.is_hierarchical = False
+        self.is_hierarchical = ''
         self.is_editable = is_editable
         self.is_searchable = is_searchable
         self.id_set = id_set if id_set is not None else set([])
         self.avg_rating = avg/2.0 if avg is not None else 0
         self.sort = sort
+        self.use_sort_as_name = use_sort_as_name
         if self.avg_rating > 0:
             if tooltip:
                 tooltip = tooltip + ': '
@@ -212,6 +212,12 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         defs = self.prefs.defaults
         defs['gui_restriction'] = defs['cs_restriction'] = ''
         defs['categories_using_hierarchy'] = []
+
+        # Migrate the bool tristate tweak
+        defs['bools_are_tristate'] = \
+                tweaks.get('bool_custom_columns_are_tristate', 'yes') == 'yes'
+        if self.prefs.get('bools_are_tristate') is None:
+            self.prefs.set('bools_are_tristate', defs['bools_are_tristate'])
 
         # Migrate saved search and user categories to db preference scheme
         def migrate_preference(key, default):
@@ -817,7 +823,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             pass
         return (path, mi, sequence)
 
-    def get_metadata(self, idx, index_is_id=False, get_cover=False):
+    def get_metadata(self, idx, index_is_id=False, get_cover=False,
+                     get_user_categories=True):
         '''
         Convenience method to return metadata as a :class:`Metadata` object.
         Note that the list of formats is not verified.
@@ -876,16 +883,17 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
         user_cats = self.prefs['user_categories']
         user_cat_vals = {}
-        for ucat in user_cats:
-            res = []
-            for name,cat,ign in user_cats[ucat]:
-                v = mi.get(cat, None)
-                if isinstance(v, list):
-                    if name in v:
+        if get_user_categories:
+            for ucat in user_cats:
+                res = []
+                for name,cat,ign in user_cats[ucat]:
+                    v = mi.get(cat, None)
+                    if isinstance(v, list):
+                        if name in v:
+                            res.append([name,cat])
+                    elif name == v:
                         res.append([name,cat])
-                elif name == v:
-                    res.append([name,cat])
-            user_cat_vals[ucat] = res
+                user_cat_vals[ucat] = res
         mi.user_categories = user_cat_vals
 
         if get_cover:
@@ -1120,8 +1128,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         pdir = os.path.dirname(dest)
         if not os.path.exists(pdir):
             os.makedirs(pdir)
-        with lopen(dest, 'wb') as f:
-            shutil.copyfileobj(stream, f)
+        if not getattr(stream, 'name', False) or \
+                os.path.abspath(dest) != os.path.abspath(stream.name):
+            with lopen(dest, 'wb') as f:
+                shutil.copyfileobj(stream, f)
         stream.seek(0, 2)
         size=stream.tell()
         self.conn.execute('INSERT INTO data (book,format,uncompressed_size,name) VALUES (?,?,?,?)',
@@ -1225,6 +1235,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 ########## data structures for get_categories
 
     CATEGORY_SORTS = ('name', 'popularity', 'rating')
+    MATCH_TYPE = ('any', 'all')
 
     class TCat_Tag(object):
 
@@ -1323,6 +1334,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 for l in list:
                     (id, val) = (l[0], l[1])
                     tids[category][val] = (id, '{0:05.2f}'.format(val))
+            elif cat['datatype'] == 'text' and cat['is_multiple'] and \
+                            cat['display'].get('is_names', False):
+                    for l in list:
+                        (id, val) = (l[0], l[1])
+                        tids[category][val] = (id, author_to_author_sort(val))
             else:
                 for l in list:
                     (id, val) = (l[0], l[1])
@@ -1480,11 +1496,20 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 reverse=True
             items.sort(key=kf, reverse=reverse)
 
+            if tweaks['categories_use_field_for_author_name'] == 'author_sort' and\
+                    (category == 'authors' or
+                     (cat['display'].get('is_names', False) and
+                      cat['is_custom'] and cat['is_multiple'] and
+                      cat['datatype'] == 'text')):
+                use_sort_as_name = True
+            else:
+                use_sort_as_name = False
             is_editable = category not in ['news', 'rating']
             categories[category] = [tag_class(formatter(r.n), count=r.c, id=r.id,
                                         avg=avgr(r), sort=r.s, icon=icon,
                                         tooltip=tooltip, category=category,
-                                        id_set=r.id_set, is_editable=is_editable)
+                                        id_set=r.id_set, is_editable=is_editable,
+                                        use_sort_as_name=use_sort_as_name)
                                     for r in items]
 
         #print 'end phase "tags list":', time.clock() - last, 'seconds'

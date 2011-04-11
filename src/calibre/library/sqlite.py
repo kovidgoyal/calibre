@@ -193,7 +193,7 @@ def load_c_extensions(conn, debug=DEBUG):
         conn.load_extension(ext_path)
         conn.enable_load_extension(False)
         return True
-    except Exception, e:
+    except Exception as e:
         if debug:
             print 'Failed to load high performance sqlite C extension'
             print e
@@ -247,14 +247,14 @@ class DBThread(Thread):
                 if func == 'dump':
                     try:
                         ok, res = True, tuple(self.conn.iterdump())
-                    except Exception, err:
+                    except Exception as err:
                         ok, res = False, (err, traceback.format_exc())
                 elif func == 'create_dynamic_filter':
                     try:
                         f = DynamicFilter(args[0])
                         self.conn.create_function(args[0], 1, f)
                         ok, res = True, f
-                    except Exception, err:
+                    except Exception as err:
                         ok, res = False, (err, traceback.format_exc())
                 else:
                     bfunc = getattr(self.conn, func)
@@ -263,7 +263,7 @@ class DBThread(Thread):
                             try:
                                 ok, res = True, bfunc(*args, **kwargs)
                                 break
-                            except OperationalError, err:
+                            except OperationalError as err:
                                 # Retry if unable to open db file
                                 e = str(err)
                                 if 'unable to open' not in e or i == 2:
@@ -273,10 +273,10 @@ class DBThread(Thread):
                                             reprlib.repr(kwargs))
                                     raise
                             time.sleep(0.5)
-                    except Exception, err:
+                    except Exception as err:
                         ok, res = False, (err, traceback.format_exc())
                 self.results.put((ok, res))
-        except Exception, err:
+        except Exception as err:
             self.unhandled_error = (err, traceback.format_exc())
 
 class DatabaseException(Exception):

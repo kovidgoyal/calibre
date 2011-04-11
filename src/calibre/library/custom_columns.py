@@ -76,6 +76,8 @@ class CustomColumns(object):
                     'num':record[6],
                     'is_multiple':record[7],
                     }
+            if data['display'] is None:
+                data['display'] = {}
             table, lt = self.custom_table_names(data['num'])
             if table not in custom_tables or (data['normalized'] and lt not in
                     custom_tables):
@@ -117,7 +119,7 @@ class CustomColumns(object):
                 if x is None:
                     return []
                 if isinstance(x, (str, unicode, bytes)):
-                    x = x.split(',')
+                    x = x.split('&' if d['display'].get('is_names', False) else',')
                 x = [y.strip() for y in x if y.strip()]
                 x = [y.decode(preferred_encoding, 'replace') if not isinstance(y,
                     unicode) else y for y in x]
@@ -482,8 +484,11 @@ class CustomColumns(object):
             set_val = val if data['is_multiple'] else [val]
             existing = getter()
             if not existing:
-                existing = []
-            for x in set(set_val) - set(existing):
+                existing = set([])
+            else:
+                existing = set(existing)
+            # preserve the order in set_val
+            for x in [v for v in set_val if v not in existing]:
                 # normalized types are text and ratings, so we can do this check
                 # to see if we need to re-add the value
                 if not x:

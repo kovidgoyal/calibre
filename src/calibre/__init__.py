@@ -63,6 +63,9 @@ def osx_version():
         if m:
             return int(m.group(1)), int(m.group(2)), int(m.group(3))
 
+def confirm_config_name(name):
+    return name + '_again'
+
 _filename_sanitize = re.compile(r'[\xae\0\\|\?\*<":>\+/]')
 _filename_sanitize_unicode = frozenset([u'\\', u'|', u'?', u'*', u'<',
     u'"', u':', u'>', u'+', u'/'] + list(map(unichr, xrange(32))))
@@ -101,7 +104,7 @@ def sanitize_file_name_unicode(name, substitute='_'):
     **WARNING:** This function also replaces path separators, so only pass file names
     and not full paths to it.
     '''
-    if not isinstance(name, unicode):
+    if isbytestring(name):
         return sanitize_file_name(name, substitute=substitute, as_unicode=True)
     chars = [substitute if c in _filename_sanitize_unicode else c for c in
             name]
@@ -117,6 +120,14 @@ def sanitize_file_name_unicode(name, substitute='_'):
         one = '_' + one[1:]
     return one
 
+def sanitize_file_name2(name, substitute='_'):
+    '''
+    Sanitize filenames removing invalid chars. Keeps unicode names as unicode
+    and bytestrings as bytestrings
+    '''
+    if isbytestring(name):
+        return sanitize_file_name(name, substitute=substitute)
+    return sanitize_file_name_unicode(name, substitute=substitute)
 
 def prints(*args, **kwargs):
     '''
@@ -164,8 +175,8 @@ def prints(*args, **kwargs):
         except:
             file.write(repr(arg))
         if i != len(args)-1:
-            file.write(sep)
-    file.write(end)
+            file.write(bytes(sep))
+    file.write(bytes(end))
 
 class CommandLineError(Exception):
     pass
@@ -208,14 +219,25 @@ def filename_to_utf8(name):
     return name.decode(codec, 'replace').encode('utf8')
 
 def extract(path, dir):
-    ext = os.path.splitext(path)[1][1:].lower()
     extractor = None
-    if ext in ['zip', 'cbz', 'epub', 'oebzip']:
-        from calibre.libunzip import extract as zipextract
-        extractor = zipextract
-    elif ext in ['cbr', 'rar']:
+    # First use the file header to identify its type
+    with open(path, 'rb') as f:
+        id_ = f.read(3)
+    if id_ == b'Rar':
         from calibre.libunrar import extract as rarextract
         extractor = rarextract
+    elif id_.startswith(b'PK'):
+        from calibre.libunzip import extract as zipextract
+        extractor = zipextract
+    if extractor is None:
+        # Fallback to file extension
+        ext = os.path.splitext(path)[1][1:].lower()
+        if ext in ['zip', 'cbz', 'epub', 'oebzip']:
+            from calibre.libunzip import extract as zipextract
+            extractor = zipextract
+        elif ext in ['cbr', 'rar']:
+            from calibre.libunrar import extract as rarextract
+            extractor = rarextract
     if extractor is None:
         raise Exception('Unknown archive type')
     extractor(path, dir)
@@ -275,13 +297,17 @@ USER_AGENT_MOBILE = 'Mozilla/5.0 (Windows; U; Windows CE 5.1; rv:1.8.1a3) Gecko/
 
 def random_user_agent():
     choices = [
-        'Mozilla/5.0 (Windows; U; Windows NT 6.0; en-US; rv:1.9.2.11) Gecko/20101012 Firefox/3.6.11'
-        'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)'
-        'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0)'
-        'Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1)'
-        'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/525.19 (KHTML, like Gecko) Chrome/0.2.153.1 Safari/525.19'
-        'Mozilla/5.0 (Windows; U; Windows NT 6.0; en-US; rv:1.9.2.11) Gecko/20101012 Firefox/3.6.11'
+        'Mozilla/5.0 (Windows NT 5.2; rv:2.0.1) Gecko/20100101 Firefox/4.0.1',
+        'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:2.0.1) Gecko/20100101 Firefox/4.0.1',
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.6; rv:2.0.1) Gecko/20100101 Firefox/4.0.1',
+        'Mozilla/5.0 (Windows; U; Windows NT 6.0; en-US; rv:1.9.2.11) Gecko/20101012 Firefox/3.6.11',
+        'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/525.19 (KHTML, like Gecko) Chrome/0.2.153.1 Safari/525.19',
+        'Mozilla/5.0 (Windows; U; Windows NT 6.0; en-US; rv:1.9.2.11) Gecko/20101012 Firefox/3.6.11',
+        'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/534.3 (KHTML, like Gecko) Chrome/6.0.472.63 Safari/534.3',
+        'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US) AppleWebKit/532.5 (KHTML, like Gecko) Chrome/4.0.249.78 Safari/532.5',
+        'Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; WOW64; Trident/5.0)',
     ]
+    #return choices[-1]
     return choices[random.randint(0, len(choices)-1)]
 
 def browser(honor_time=True, max_time=2, mobile_browser=False, user_agent=None):

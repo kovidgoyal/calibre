@@ -30,7 +30,7 @@ class Fictionwise(MetadataSource): # {{{
         try:
             self.results = search(self.title, self.book_author, self.publisher,
                 self.isbn, max_results=10, verbose=self.verbose)
-        except Exception, e:
+        except Exception as e:
             self.exception = e
             self.tb = traceback.format_exc()
 
@@ -91,7 +91,7 @@ class Query(object):
 
         try:
             raw = browser.open_novisit(self.BASE_URL, self.urldata, timeout=timeout).read()
-        except Exception, e:
+        except Exception as e:
             report(verbose)
             if callable(getattr(e, 'getcode', None)) and \
                     e.getcode() == 404:
@@ -276,7 +276,7 @@ class ResultList(list):
     def get_individual_metadata(self, browser, linkdata, verbose):
         try:
             raw = browser.open_novisit(self.BASE_URL + linkdata).read()
-        except Exception, e:
+        except Exception as e:
             report(verbose)
             if callable(getattr(e, 'getcode', None)) and \
                     e.getcode() == 404:
@@ -311,7 +311,7 @@ class ResultList(list):
                 #maybe strenghten the search
                 ratings =  self.get_rating(entry.xpath("./p/table")[1], verbose)
                 authors = self.get_authors(entry)
-            except Exception, e:
+            except Exception as e:
                 if verbose:
                     print _('Failed to get all details for an entry')
                     print e
@@ -328,7 +328,7 @@ class ResultList(list):
                     #maybe strenghten the search
                     ratings =  self.get_rating(entry.xpath("./p/table")[1], verbose)
                     authors = self.get_authors(entry)
-                except Exception, e:
+                except Exception as e:
                     if verbose:
                         print _('Failed to get all details for an entry')
                         print e

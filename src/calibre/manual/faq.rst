@@ -65,6 +65,22 @@ There are two aspects to this problem:
   2. When adding HTML files to |app|, you may need to tell |app| what encoding the files are in. To do this go to :guilabel:`Preferences->Advanced->Plugins->File Type plugins` and customize the HTML2Zip plugin, telling it what encoding your HTML files are in. Now when you add HTML files to |app| they will be correctly processed. HTML files from different sources often have different encodings, so you may have to change this setting repeatedly. A common encoding for many files from the web is ``cp1252`` and I would suggest you try that first. Note that when converting HTML files, leave the input encoding setting mentioned above blank. This is because the HTML2ZIP plugin automatically converts the HTML files to a standard encoding (utf-8).
   3. Embedding fonts: If you are generating an LRF file to read on your SONY Reader, you are limited by the fact that the Reader only supports a few non-English characters in the fonts it comes pre-loaded with. You can work around this problem by embedding a unicode-aware font that supports the character set your file uses into the LRF file. You should embed atleast a serif and a sans-serif font. Be aware that embedding fonts significantly slows down page-turn speed on the reader.
 
+What's the deal with Table of Contents in MOBI files?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The first thing to realize is that most ebooks have two tables of contents. One is the traditional Table of Contents, like the TOC you find in paper books. This Table of Contents is part of the main document flow and can be styled however you like. This TOC is called the *content TOC*.
+
+Then there is the *metadata TOC*. A metadata TOC is a TOC that is not part of the book text and is typically accessed by some special button on a reader. For example, in the calibre viewer, you use the Show Table of Contents button to see this TOC. This TOC cannot be styled by the book creator. How it is represented is up to the viewer program.
+
+In the MOBI format, the situation is a little confused. This is because the MOBI format, alone amongst mainstream ebook formats, *does not* have decent support for a metadata TOC. A MOBI book simulates the presence of a metadata TOC by putting an *extra* content TOC at the end of the book. When you click Goto Table of Contents on your Kindle, it is to this extra content TOC that the Kindle takes you. 
+
+Now it might well seem to you that the MOBI book has two identical TOCs. Remember that one is semantically a content TOC and the other is a metadata TOC, even though both might have exactly the same entries and look the same. One can be accessed directly from the Kindle's menus, the other cannot. 
+
+When converting to MOBI, calibre detects the *metadata TOC* in the input document and generates an end-of-file TOC in the output MOBI file. You can turn this off by an option in the MOBI Output settings. You cannot control where this generated TOC will go. Remember this TOC is semantically a *metadata TOC*, in any format other than MOBI it *cannot not be part of the text*. The fact that it is part of the text in MOBI is an accident caused by the limitations of MOBI. If you want a TOC at a particular location in your document text, create one by hand. 
+
+If you have a hand edited TOC in the input document, you can use the TOC detection options in calibre to automatically generate the metadata TOC from it. See the conversion section of the User Manual for more details on how to use these options.
+
+Finally, I encourage you to ditch the content TOC and only have a metadata TOC in your ebooks. Metadata TOCs will give the people reading your ebooks a much superior navigation experience (except on the Kindle, where they are essentially the same as a content TOC).
 
 How do I use some of the advanced features of the conversion tools?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -99,7 +115,8 @@ We just need some information from you:
     device.
 
 Once you send us the output for a particular operating system, support for the device in that operating system
-will appear in the next release of |app|.
+will appear in the next release of |app|. To send us the output, open a bug report and attach the output to it.
+See `calibre bugs <http://calibre-ebook.com/bugs>`_.
 
 My device is not being detected by |app|?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -493,7 +510,16 @@ Most purchased EPUB books have `DRM <http://wiki.mobileread.com/wiki/DRM>`_. Thi
 I am getting a "Permission Denied" error?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-A permission denied error can occur because of many possible reasons, none of them having anything to do with |app|. You can get permission denied errors if you are using an SD card with write protect enabled. Or if you, or some program you used changed the file permissions of the files in question to read only. Or if there is a filesystem error on the device which caused your operating system to mount the filesystem in read only mode or mark a particular file as read only pending recovery. Or if the files have their owner set to a user other than you. Or if your file is open in another program. You will need to fix the underlying cause of the permissions error before resuming to use |app|. Read the error message carefully, see what file it points to and fix the permissions on that file.
+A permission denied error can occur because of many possible reasons, none of them having anything to do with |app|. 
+
+  * You can get permission denied errors if you are using an SD card with write protect enabled. 
+  * If you, or some program you used changed the file permissions of the files in question to read only. 
+  * If there is a filesystem error on the device which caused your operating system to mount the filesystem in read only mode or mark a particular file as read only pending recovery.
+  * If the files have their owner set to a user other than you.
+  * If your file is open in another program.
+  * If the file resides on a device, you may have reached the limit of a maximum of 256 files in the root of the device. In this case you need to reformat the device/sd card referered to in the error message with a FAT32 filesystem, or delete some files from the SD card/device memory.
+    
+You will need to fix the underlying cause of the permissions error before resuming to use |app|. Read the error message carefully, see what file it points to and fix the permissions on that file.
 
 Can I have the comment metadata show up on my reader?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -510,7 +536,7 @@ You have two choices:
 
 How is |app| licensed?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-|app| is licensed under the GNU General Public License v3 (an open source license). This means that you are free to redistribute |app| as long as you make the source code available. So if you want to put |app| on a CD with your product, you must also put the |app| source code on the CD. The source code is available for download `from googlecode <http://code.google.com/p/calibre-ebook/downloads/list>`_. You are free to use the results of conversions from |app| however you want. You cannot use code, libraries from |app| in your software without maing your software open source. For details, see `The GNU GPL v3 http://www.gnu.org/licenses/gpl.html`_.
+|app| is licensed under the GNU General Public License v3 (an open source license). This means that you are free to redistribute |app| as long as you make the source code available. So if you want to put |app| on a CD with your product, you must also put the |app| source code on the CD. The source code is available for download `from googlecode <http://code.google.com/p/calibre-ebook/downloads/list>`_. You are free to use the results of conversions from |app| however you want. You cannot use code, libraries from |app| in your software without maing your software open source. For details, see `The GNU GPL v3 <http://www.gnu.org/licenses/gpl.html>`_.
 
 How do I run calibre from my USB stick?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

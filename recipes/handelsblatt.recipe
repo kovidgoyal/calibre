@@ -1,0 +1,44 @@
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class Handelsblatt(BasicNewsRecipe):
+    title          = u'Handelsblatt'
+    __author__ = 'malfi'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    no_stylesheets = True
+    cover_url = 'http://www.handelsblatt.com/images/logo/logo_handelsblatt.com.png'
+    language = 'de'
+  #  keep_only_tags = []
+    keep_only_tags = (dict(name = 'div', attrs = {'class': ['hcf-detail-abstract hcf-teaser ajaxify','hcf-detail','hcf-author-wrapper']}))
+   # keep_only_tags.append(dict(name = 'div', attrs = {'id': 'fullText'}))
+    remove_tags    = [dict(name='img', attrs = {'src': 'http://www.handelsblatt.com/images/icon/loading.gif'})
+                      ,dict(name='ul' , attrs={'class':['hcf-detail-tools']})
+    									]
+
+    feeds          = [
+                        (u'Handelsblatt Exklusiv',u'http://www.handelsblatt.com/rss/exklusiv'),
+                        (u'Handelsblatt Top-Themen',u'http://www.handelsblatt.com/rss/top-themen'),
+                        (u'Handelsblatt Schlagzeilen',u'http://www.handelsblatt.com/rss/ticker/'),
+                        (u'Handelsblatt Finanzen',u'http://www.handelsblatt.com/rss/finanzen/'),
+                        (u'Handelsblatt Unternehmen',u'http://www.handelsblatt.com/rss/unternehmen/'),
+                        (u'Handelsblatt Politik',u'http://www.handelsblatt.com/rss/politik/'),
+                        (u'Handelsblatt Technologie',u'http://www.handelsblatt.com/rss/technologie/'),
+                        (u'Handelsblatt Meinung',u'http://www.handelsblatt.com/rss/meinung'),
+                        (u'Handelsblatt Magazin',u'http://www.handelsblatt.com/rss/magazin/'),
+                        (u'Handelsblatt Weblogs',u'http://www.handelsblatt.com/rss/blogs')
+                     ]
+    extra_css = '''
+        .hcf-headline {font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:x-large;}
+        .hcf-overline {font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:x-large;}
+        .hcf-exclusive {font-family:Arial,Helvetica,sans-serif; font-style:italic;font-weight:bold; margin-right:5pt;}
+        p{font-family:Arial,Helvetica,sans-serif;}
+        .hcf-location-mark{font-weight:bold; margin-right:5pt;}
+        .MsoNormal{font-family:Helvetica,Arial,sans-serif;}
+        .hcf-author-wrapper{font-style:italic;}
+        .hcf-article-date{font-size:x-small;}
+        .hcf-caption {font-style:italic;font-size:small;}
+        img {align:left;}
+        '''
+
+

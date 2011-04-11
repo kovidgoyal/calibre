@@ -14,7 +14,7 @@ from contextlib import nested, closing
 
 
 from calibre import browser, __appname__, iswindows, \
-                    strftime, preferred_encoding
+                    strftime, preferred_encoding, as_unicode
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, NavigableString, CData, Tag
 from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre import entity_to_unicode
@@ -71,7 +71,8 @@ class BasicNewsRecipe(Recipe):
     #: Number of levels of links to follow on article webpages
     recursions             = 0
 
-    #: Delay between consecutive downloads in seconds
+    #: Delay between consecutive downloads in seconds. The argument may be a
+    #: floating point number to indicate a more precise time.
     delay                  = 0
 
     #: Publication type
@@ -986,8 +987,8 @@ class BasicNewsRecipe(Recipe):
         self.cover_path = None
         try:
             cu = self.get_cover_url()
-        except Exception, err:
-            self.log.error(_('Could not download cover: %s')%str(err))
+        except Exception as err:
+            self.log.error(_('Could not download cover: %s')%as_unicode(err))
             self.log.debug(traceback.format_exc())
         else:
             if not cu:
@@ -1318,11 +1319,11 @@ class BasicNewsRecipe(Recipe):
                                           oldest_article=self.oldest_article,
                                           max_articles_per_feed=self.max_articles_per_feed,
                                           get_article_url=self.get_article_url))
-            except Exception, err:
+            except Exception as err:
                 feed = Feed()
                 msg = 'Failed feed: %s'%(title if title else url)
                 feed.populate_from_preparsed_feed(msg, [])
-                feed.description = repr(err)
+                feed.description = as_unicode(err)
                 parsed_feeds.append(feed)
                 self.log.exception(msg)
 
@@ -1468,7 +1469,7 @@ class CalibrePeriodical(BasicNewsRecipe):
                 'http://news.calibre-ebook.com/subscribed_files/%s/0/temp.downloaded_recipe'
                 % self.calibre_periodicals_slug
                     ).read()
-        except Exception, e:
+        except Exception as e:
             if hasattr(e, 'getcode') and e.getcode() == 403:
                 raise DownloadDenied(
                         _('You do not have permission to download this issue.'

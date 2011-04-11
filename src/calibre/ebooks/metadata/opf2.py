@@ -21,6 +21,7 @@ from calibre.ebooks.metadata.book.base import Metadata
 from calibre.utils.date import parse_date, isoformat
 from calibre.utils.localization import get_lang
 from calibre import prints
+from calibre.utils.cleantext import clean_ascii_chars
 
 class Resource(object): # {{{
     '''
@@ -1157,7 +1158,7 @@ class OPFCreator(Metadata):
 
         def DC_ELEM(tag, text, dc_attrs={}, opf_attrs={}):
             if text:
-                elem = getattr(DC, tag)(text, **dc_attrs)
+                elem = getattr(DC, tag)(clean_ascii_chars(text), **dc_attrs)
             else:
                 elem = getattr(DC, tag)(**dc_attrs)
             for k, v in opf_attrs.items():
@@ -1260,7 +1261,6 @@ def metadata_to_opf(mi, as_string=True):
     from lxml import etree
     import textwrap
     from calibre.ebooks.oeb.base import OPF, DC
-    from calibre.utils.cleantext import clean_ascii_chars
 
     if not mi.application_id:
         mi.application_id = str(uuid.uuid4())

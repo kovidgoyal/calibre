@@ -16,7 +16,7 @@ from PyQt4.Qt import Qt, QTreeView, QApplication, pyqtSignal, QFont, QSize, \
                      QIcon, QPoint, QVBoxLayout, QHBoxLayout, QComboBox, QTimer,\
                      QAbstractItemModel, QVariant, QModelIndex, QMenu, QFrame,\
                      QPushButton, QWidget, QItemDelegate, QString, QLabel, \
-                     QShortcut, QKeySequence, SIGNAL, QMimeData
+                     QShortcut, QKeySequence, SIGNAL, QMimeData, QToolButton
 
 from calibre.ebooks.metadata import title_sort
 from calibre.gui2 import config, NONE, gprefs
@@ -158,11 +158,17 @@ class TagsView(QTreeView): # {{{
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         pop = config['sort_tags_by']
         self.sort_by.setCurrentIndex(self.db.CATEGORY_SORTS.index(pop))
+        try:
+            match_pop = self.db.MATCH_TYPE.index(config['match_tags_type'])
+        except ValueError:
+            match_pop = 0
+        self.tag_match.setCurrentIndex(match_pop)
         if not self.made_connections:
             self.clicked.connect(self.toggle)
             self.customContextMenuRequested.connect(self.show_context_menu)
             self.refresh_required.connect(self.recount, type=Qt.QueuedConnection)
             self.sort_by.currentIndexChanged.connect(self.sort_changed)
+            self.tag_match.currentIndexChanged.connect(self.match_changed)
             self.made_connections = True
         self.refresh_signal_processed = True
         db.add_listener(self.database_changed)
@@ -179,6 +185,12 @@ class TagsView(QTreeView): # {{{
     def sort_changed(self, pop):
         config.set('sort_tags_by', self.db.CATEGORY_SORTS[pop])
         self.recount()
+
+    def match_changed(self, pop):
+        try:
+            config.set('match_tags_type', self.db.MATCH_TYPE[pop])
+        except:
+            pass
 
     def set_search_restriction(self, s):
         if s:
@@ -658,8 +670,7 @@ class TagTreeItem(object): # {{{
 
     def tag_data(self, role):
         tag = self.tag
-        if tag.category == 'authors' and \
-                tweaks['categories_use_field_for_author_name'] == 'author_sort':
+        if tag.use_sort_as_name:
             name = tag.sort
             tt_author = True
         else:
@@ -707,8 +718,8 @@ class TagTreeItem(object): # {{{
                         break
                 elif self.tag.state == TAG_SEARCH_STATES['mark_plusplus'] or\
                         self.tag.state == TAG_SEARCH_STATES['mark_minusminus']:
-                    if self.tag.is_searchable and self.tag.is_hierarchical \
-                                and len(self.children):
+                    if self.tag.is_searchable and len(self.children) and \
+                                    self.tag.is_hierarchical == '5state':
                         break
                 else:
                     break
@@ -803,7 +814,8 @@ class TagsModel(QAbstractItemModel): # {{{
                         self.category_nodes.append(node)
                         node.can_be_edited = (not is_gst) and (i == (len(path_parts)-1))
                         node.is_gst = is_gst
-                        node.tag.is_hierarchical = not is_gst
+                        if not is_gst:
+                            node.tag.is_hierarchical = '5state'
                         if not is_gst:
                             tree_root[p] = {}
                             tree_root = tree_root[p]
@@ -973,6 +985,7 @@ class TagsModel(QAbstractItemModel): # {{{
     def do_drop_from_library(self, md, action, row, column, parent):
         idx = parent
         if idx.isValid():
+            self.tags_view.setCurrentIndex(idx)
             node = self.data(idx, Qt.UserRole)
             if node.type == TagTreeItem.TAG:
                 fm = self.db.metadata_for_field(node.tag.category)
@@ -1050,12 +1063,12 @@ class TagsModel(QAbstractItemModel): # {{{
         if (key == 'authors' and len(ids) >= 5):
             if not confirm('<p>'+_('Changing the authors for several books can '
                            'take a while. Are you sure?')
-                        +'</p>', 'tag_browser_drop_authors', self.parent()):
+                        +'</p>', 'tag_browser_drop_authors', self.tags_view):
                 return
         elif len(ids) > 15:
             if not confirm('<p>'+_('Changing the metadata for that many books '
                            'can take a while. Are you sure?')
-                        +'</p>', 'tag_browser_many_changes', self.parent()):
+                        +'</p>', 'tag_browser_many_changes', self.tags_view):
                 return
 
         fm = self.db.metadata_for_field(key)
@@ -1274,6 +1287,7 @@ class TagsModel(QAbstractItemModel): # {{{
                 if len(components) == 0 or '.'.join(components) != tag.original_name:
                     components = [tag.original_name]
                 if (not tag.is_hierarchical) and (in_uc or
+                        (fm['is_custom'] and fm['display'].get('is_names', False)) or
                         key in ['authors', 'publisher', 'news', 'formats', 'rating'] or
                         key not in self.db.prefs.get('categories_using_hierarchy', []) or
                         len(components) == 1):
@@ -1294,7 +1308,8 @@ class TagsModel(QAbstractItemModel): # {{{
                                             if t.type != TagTreeItem.CATEGORY])
                         if (comp,tag.category) in child_map:
                             node_parent = child_map[(comp,tag.category)]
-                            node_parent.tag.is_hierarchical = key != 'search'
+                            node_parent.tag.is_hierarchical = \
+                                '5state' if tag.category != 'search' else '3state'
                         else:
                             if i < len(components)-1:
                                 t = copy.copy(tag)
@@ -1309,7 +1324,8 @@ class TagsModel(QAbstractItemModel): # {{{
                                 t = tag
                                 if not in_uc:
                                     t.original_name = t.name
-                            t.is_hierarchical = key != 'search'
+                            t.is_hierarchical = \
+                                '5state' if t.category != 'search' else '3state'
                             t.name = comp
                             self.beginInsertRows(category_index, 999999, 1)
                             node_parent = TagTreeItem(parent=node_parent, data=t,
@@ -1502,7 +1518,7 @@ class TagsModel(QAbstractItemModel): # {{{
                 if node.tag.category in \
                     ('tags', 'series', 'authors', 'rating', 'publisher') or \
                     (fm['is_custom'] and \
-                        fm['datatype'] in ['text', 'rating', 'series']):
+                        fm['datatype'] in ['text', 'rating', 'series', 'enumeration']):
                     ans |= Qt.ItemIsDropEnabled
             else:
                 ans |= Qt.ItemIsDropEnabled
@@ -2058,17 +2074,18 @@ class TagBrowserWidget(QWidget): # {{{
         sc = QShortcut(QKeySequence(_('ALT+f')), parent)
         sc.connect(sc, SIGNAL('activated()'), self.set_focus_to_find_box)
 
-        self.search_button = QPushButton()
+        self.search_button = QToolButton()
         self.search_button.setText(_('F&ind'))
         self.search_button.setToolTip(_('Find the first/next matching item'))
-        self.search_button.setFixedWidth(40)
         search_layout.addWidget(self.search_button)
 
-        self.expand_button = QPushButton()
+        self.expand_button = QToolButton()
         self.expand_button.setText('-')
-        self.expand_button.setFixedWidth(20)
         self.expand_button.setToolTip(_('Collapse all categories'))
         search_layout.addWidget(self.expand_button)
+        search_layout.setStretch(0, 10)
+        search_layout.setStretch(1, 1)
+        search_layout.setStretch(2, 1)
 
         self.current_find_position = None
         self.search_button.clicked.connect(self.find)
@@ -2110,6 +2127,7 @@ class TagBrowserWidget(QWidget): # {{{
         parent.sort_by.setCurrentIndex(0)
         self._layout.addWidget(parent.sort_by)
 
+        # Must be in the same order as db2.MATCH_TYPE
         parent.tag_match = QComboBox(parent)
         for x in (_('Match any'), _('Match all')):
             parent.tag_match.addItem(x)

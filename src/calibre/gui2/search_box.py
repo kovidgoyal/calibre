@@ -109,7 +109,7 @@ class SearchBox2(QComboBox): # {{{
     def normalize_state(self):
         self.setToolTip(self.tool_tip_text)
         self.line_edit.setStyleSheet(
-            'QLineEdit{color:black;background-color:%s;}' % self.normal_background)
+            'QLineEdit{color:none;background-color:%s;}' % self.normal_background)
 
     def text(self):
         return self.currentText()
@@ -436,14 +436,15 @@ class SavedSearchBoxMixin(object): # {{{
             b = getattr(self, x+'_search_button')
             b.setStatusTip(b.toolTip())
 
-    def saved_searches_changed(self, set_restriction=None):
+    def saved_searches_changed(self, set_restriction=None, recount=True):
         p = sorted(saved_searches().names(), key=sort_key)
         if set_restriction is None:
             set_restriction = unicode(self.search_restriction.currentText())
         # rebuild the restrictions combobox using current saved searches
         self.search_restriction.clear()
         self.search_restriction.addItem('')
-        self.tags_view.recount()
+        if recount:
+            self.tags_view.recount()
         for s in p:
             self.search_restriction.addItem(s)
         if set_restriction: # redo the search restriction if there was one

@@ -71,7 +71,7 @@ Edit metadata
 
 |emii| The :guilabel:`Edit metadata` action has six variations, which can be accessed by clicking the down arrow on the right side of the button.
 
-    1. **Edit metadata individually**: This allows you to edit the metadata of books one-by-one, with the option of fetching metadata, including covers from the internet. It also allows you to add/remove particular ebook formats from a book. For more detail see :ref:`metadata`.
+    1. **Edit metadata individually**: This allows you to edit the metadata of books one-by-one, with the option of fetching metadata, including covers from the internet. It also allows you to add/remove particular ebook formats from a book. 
     2. **Edit metadata in bulk**: This allows you to edit common metadata fields for large numbers of books simulataneously. It operates on all the books you have selected in the :ref:`Library view <search_sort>`.
     3. **Download metadata and covers**: Downloads metadata and covers (if available), for the books that are selected in the book list.
     4. **Download only metadata**: Downloads only metadata (if available), for the books that are selected in the book list.
@@ -79,6 +79,7 @@ Edit metadata
     6. **Download only social metadata**: Downloads only social metadata such as tags and reviews (if available), for the books that are selected in the book list.
     7. **Merge Book Records**: Gives you the capability of merging the metadata and formats of two or more book records together. You can choose to either delete or keep the records that were not clicked first.
 
+For more details see :ref:`metadata`.
 
 .. _convert_ebooks:
 
@@ -166,7 +167,7 @@ Library
 .. |lii| image:: images/library.png
     :class: float-right-img
 
-|lii| The :guilabel: `Library` action allows you to create, switch between, rename or delete a Library.  |app| allows you to create as many libraries as you wish. You coudl for instance create a fiction library, a non fiction library, a foreign language library a project library, basically any structure that suits your needs. Libraries are the highest organizational structure within |app|, each library has its own set of books, tags, categories and base storage location.
+|lii| The :guilabel: `Library` action allows you to create, switch between, rename or delete a Library.  |app| allows you to create as many libraries as you wish. You could for instance create a fiction library, a non fiction library, a foreign language library a project library, basically any structure that suits your needs. Libraries are the highest organizational structure within |app|, each library has its own set of books, tags, categories and base storage location.
 
     1. **Switch\Create library..**: This action allows you to; a) connect to a pre-existing |app| library at another location from your currently open library, b) Create and empty library at a nw location or, c) Move the current Library to a newly specified location.
     2. **Quick Switch>**: This action allows you to switch between libraries that have been registered or created within |app|.
@@ -549,6 +550,8 @@ Calibre has several keyboard shortcuts to save you time and mouse movement. Thes
       - Download metadata and shortcuts
     * - :kbd:`Ctrl+R`
       - Restart calibre
+    * - :kbd:`Ctrl+Shift+R`
+      - Restart calibre in debug mode
     * - :kbd:`Shift+Ctrl+E`
       - Add empty books to calibre
     * - :kbd:`Ctrl+Q`
