@@ -75,6 +75,17 @@ def enable_plugin(plugin_or_name):
     ep.add(x)
     config['enabled_plugins'] = ep
 
+def restore_plugin_state_to_default(plugin_or_name):
+    x = getattr(plugin_or_name, 'name', plugin_or_name)
+    dp = config['disabled_plugins']
+    if x in dp:
+        dp.remove(x)
+    config['disabled_plugins'] = dp
+    ep = config['enabled_plugins']
+    if x in ep:
+        ep.remove(x)
+    config['enabled_plugins'] = ep
+
 default_disabled_plugins = set([
     'Douban Books', 'Douban.com covers', 'Nicebooks', 'Nicebooks covers',
     'Kent District Library'
