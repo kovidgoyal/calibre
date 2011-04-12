@@ -91,7 +91,8 @@ class ThreadedJob(BaseJob):
         try:
             self.callback(self)
         except:
-            pass
+            import traceback
+            traceback.print_exc()
         self._cleanup()
 
     def _cleanup(self):
@@ -103,6 +104,8 @@ class ThreadedJob(BaseJob):
 
         # No need to keep references to these around anymore
         self.func = self.args = self.kwargs = self.notifications = None
+        # We can't delete self.callback as it might be a Dispatch object and if
+        # it is garbage collected it won't work
 
     def kill(self):
         if self.start_time is None:

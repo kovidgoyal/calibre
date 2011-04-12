@@ -1781,7 +1781,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             path_changed = True
         if set_authors:
             if not mi.authors:
-                    mi.authors = [_('Unknown')]
+                mi.authors = [_('Unknown')]
             authors = []
             for a in mi.authors:
                 authors += string_to_authors(a)
