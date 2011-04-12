@@ -608,6 +608,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         self.update_checker.terminate()
         self.listener.close()
         self.job_manager.server.close()
+        self.job_manager.threaded_server.close()
         while self.spare_servers:
             self.spare_servers.pop().close()
         self.device_manager.keep_going = False
@@ -616,8 +617,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
             mb.stop()
 
         self.hide_windows()
-        if self.emailer.is_alive():
-            self.emailer.stop()
         try:
             try:
                 if self.content_server is not None:

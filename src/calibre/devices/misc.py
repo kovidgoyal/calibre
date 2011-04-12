@@ -244,7 +244,7 @@ class EEEREADER(USBMS):
     FORMATS     = ['epub', 'fb2', 'txt', 'pdf']
 
     VENDOR_ID   = [0x0b05]
-    PRODUCT_ID  = [0x178f]
+    PRODUCT_ID  = [0x178f, 0x17a1]
     BCD         = [0x0319]
 
     EBOOK_DIR_MAIN = EBOOK_DIR_CARD_A = 'Book'

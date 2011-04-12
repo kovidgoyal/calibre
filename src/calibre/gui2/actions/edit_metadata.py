@@ -10,7 +10,7 @@ from functools import partial
 
 from PyQt4.Qt import Qt, QMenu, QModelIndex
 
-from calibre.gui2 import error_dialog, config
+from calibre.gui2 import error_dialog, config, Dispatcher
 from calibre.gui2.dialogs.metadata_single import MetadataSingleDialog
 from calibre.gui2.dialogs.metadata_bulk import MetadataBulkDialog
 from calibre.gui2.dialogs.confirm_delete import confirm
@@ -88,6 +88,16 @@ class EditMetadataAction(InterfaceAction):
                             _('No books selected'), show=True)
             db = self.gui.library_view.model().db
             ids = [db.id(row.row()) for row in rows]
+        from calibre.gui2.metadata.bulk_download2 import start_download
+        start_download(self.gui, ids,
+                Dispatcher(self.bulk_metadata_downloaded), identify, covers)
+
+    def bulk_metadata_downloaded(self, job):
+        if job.failed:
+            self.job_exception(job, dialog_title=_('Failed to download metadata'))
+            return
+        from calibre.gui2.metadata.bulk_download2 import proceed
+        proceed(self.gui, job)
 
     def download_metadata_old(self, checked, covers=True, set_metadata=True,
             set_social_metadata=None):

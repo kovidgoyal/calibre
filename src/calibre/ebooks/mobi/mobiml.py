@@ -495,6 +495,10 @@ class MobiMLizer(object):
                         vtag.append(child)
                 return
 
+        if tag == 'blockquote':
+            old_mim = self.opts.mobi_ignore_margins
+            self.opts.mobi_ignore_margins = False
+
         if text or tag in CONTENT_TAGS or tag in NESTABLE_TAGS:
             self.mobimlize_content(tag, text, bstate, istates)
         for child in elem:
@@ -510,6 +514,8 @@ class MobiMLizer(object):
             if tail:
                 self.mobimlize_content(tag, tail, bstate, istates)
 
+        if tag == 'blockquote':
+            self.opts.mobi_ignore_margins = old_mim
 
         if bstate.content and style['page-break-after'] in PAGE_BREAKS:
             bstate.pbreak = True
