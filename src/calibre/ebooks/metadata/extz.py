@@ -25,14 +25,30 @@ def get_metadata(stream, extract_cover=True):
 
     with TemporaryDirectory('_untxtz_mdata') as tdir:
         try:
-            zf = ZipFile(stream)
-            zf.extract('metadata.opf', tdir)
-            with open(os.path.join(tdir, 'metadata.opf'), 'rb') as opff:
-                mi = OPF(opff).to_book_metadata()
+            with ZipFile(stream) as zf:
+                opf_name = get_first_opf_name(stream)
+                opf_stream = StringIO(zf.read(opf_name))
+                mi = OPF(opf_stream).to_book_metadata()
         except:
             return mi
     return mi
 
 def set_metadata(stream, mi):
     opf = StringIO(metadata_to_opf(mi))
-    safe_replace(stream, 'metadata.opf', opf)
+    try:
+        opf_name = get_first_opf_name(stream)
+    except:
+        opf_name = 'metadata.opf'
+    safe_replace(stream, opf_name, opf)
+
+def get_first_opf_name(stream):
+    with ZipFile(stream) as zf:
+        names = zf.namelist()
+        opfs = []
+        for n in names:
+            if n.endswith('.opf') and '/' not in n:
+                opfs.append(n)
+        if not opfs:
+            raise Exception('No OPF found')
+        opfs.sort()
+        return opfs[0]
