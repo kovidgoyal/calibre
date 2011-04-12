@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-04-10 22:01+0000\n"
-"PO-Revision-Date: 2011-04-10 17:50+0000\n"
+"PO-Revision-Date: 2011-04-11 10:16+0000\n"
 "Last-Translator: Jellby <Unknown>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-04-11 04:48+0000\n"
+"X-Launchpad-Export-Date: 2011-04-12 04:34+0000\n"
 "X-Generator: Launchpad (build 12735)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:527
@@ -516,7 +516,7 @@ msgstr "Descarga de metadatos"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1050
 msgid "Control how calibre downloads ebook metadata from the net"
-msgstr ""
+msgstr "Controle cómo descarga calibre los metadatos de la red"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1055
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:268
@@ -2621,6 +2621,9 @@ msgid ""
 "\n"
 " See: "
 msgstr ""
+"Género para el libro. Las opciones son: %s\n"
+"\n"
+" Vea: "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/output.py:159
 msgid "for a complete list with descriptions."
@@ -11208,7 +11211,7 @@ msgstr "Borrar la búsqueda guardada actual"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:263
 msgid "Donate"
-msgstr ""
+msgstr "Hacer una donación"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:354
 msgid "Y"
@@ -11562,7 +11565,7 @@ msgid ""
 msgstr ""
 "Última modificación: %s\n"
 "\n"
-"Doble click para ver"
+"Doble clic para ver"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:736
 msgid "Invalid cover"
@@ -11659,7 +11662,7 @@ msgstr "Modificar metadatos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:163
 msgid "&Download metadata"
-msgstr ""
+msgstr "&Descargar metadatos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:487
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:671
@@ -11697,10 +11700,14 @@ msgid ""
 "having a cover will find a cover in the download\n"
 "cover stage, and vice versa."
 msgstr ""
+"La indicación «tiene portada» no es completamente\n"
+"fiable. A veces, para los resultados marcados sin portada\n"
+"se encontrará una en la fase de descargar portadas, o\n"
+"al contrario."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:254
 msgid "See at"
-msgstr ""
+msgstr "Vea en"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:389
 msgid "calibre is downloading metadata from: "
@@ -11708,7 +11715,7 @@ msgstr "calibre está descargando metadatos desde: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:411
 msgid "Please wait"
-msgstr ""
+msgstr "Por favor, espere"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:440
 msgid "Query: "
@@ -11734,27 +11741,30 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:534
 msgid "Current cover"
-msgstr ""
+msgstr "Portada actual"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:537
 msgid "Searching..."
-msgstr ""
+msgstr "Buscando..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:683
 msgid "Downloading covers for <b>%s</b>, please wait..."
-msgstr ""
+msgstr "Descargando portadas para <b>%s</b>, espere..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:713
 msgid "Failed to download any covers, click \"Show details\" for details."
 msgstr ""
+"No se pudo descargar ninguna portada, pulse en «Mostrar detalles» para más "
+"información."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:719
 msgid "Could not find any covers for <b>%s</b>"
-msgstr ""
+msgstr "No se encontró ninguna portada para <b>%s</b>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:721
 msgid "Found <b>%d</b> covers of %s. Pick the one you like best."
 msgstr ""
+"Se encontraron <b>%d</b> portadas para %s. Escoja la que más le guste."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:766
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:205
@@ -11763,7 +11773,7 @@ msgstr "Copiar al portapapeles"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:773
 msgid "Download log"
-msgstr ""
+msgstr "Registro de descargas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:809
 msgid "Downloading metadata..."
@@ -11772,7 +11782,7 @@ msgstr "Descargando metadatos..."
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:827
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:918
 msgid "View log"
-msgstr ""
+msgstr "Ver registro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/__init__.py:36
 msgid ""
@@ -11917,7 +11927,7 @@ msgstr "Muy baja"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:72
 msgid "Compact Metadata"
-msgstr ""
+msgstr "Metadatos compactos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:176
 msgid "Confirmation dialogs have all been reset"
@@ -11939,13 +11949,16 @@ msgstr "Mostrar un aviso cuando haya una &nueva versión disponible"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:158
 msgid "Yes/No columns have three values (Requires restart)"
-msgstr ""
+msgstr "Las columnas de Sí/No tienen tres valores (requiere reinicio)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:159
 msgid ""
 "If checked, Yes/No custom columns values can be Yes, No, or Unknown.\n"
 "If not checked, the values can be Yes or No."
 msgstr ""
+"Si se activa, las columnas personalizadas de Sí/No, pueden tener los valores "
+"«Sí», «No» o «Desconocido».\n"
+"Si no se activa, los valores pueden ser «Sí» o «No»."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:161
 msgid "Automatically send downloaded &news to ebook reader"
@@ -11998,13 +12011,16 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:173
 msgid "Edit metadata (single) layout:"
-msgstr ""
+msgstr "Distribución de «Editar metadatos» (único)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:174
 msgid ""
 "Choose a different layout for the Edit Metadata dialog. The compact metadata "
 "layout favors editing custom metadata over changing covers and formats."
 msgstr ""
+"Elija una distribución diferente para el diálogo «Editar metadatos». La "
+"distribución compacta de metadatos favorece la edición de metadatos "
+"personalizados sobre el cambio de formatos y portadas."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:175
 msgid "Preferred &input format order:"
@@ -12667,15 +12683,15 @@ msgstr "Se requiere reiniciar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:46
 msgid "Source"
-msgstr ""
+msgstr "Origen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:48
 msgid "Cover priority"
-msgstr ""
+msgstr "Prioridad de la portada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:93
 msgid "Metadata sources"
-msgstr ""
+msgstr "Orígenes de metadatos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:94
 msgid ""
@@ -12683,31 +12699,36 @@ msgid ""
 "also set the cover priority. Covers from sources that have a higher "
 "(smaller) priority will be preferred when bulk downloading metadata.\n"
 msgstr ""
+"Desactive los orígenes de metadatos que no quiera desmarcando la casilla. "
+"También puede establecer la prioridad de la portada. Las portadas "
+"procedentes de orígenes con mayor prioridad (números más pequeños) tendrán "
+"preferencia cuando se descarguen metadatos en masa.\n"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:96
 msgid "Configure selected source"
-msgstr ""
+msgstr "Configurar el origen seleccionado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:97
 msgid "Downloaded metadata fields"
-msgstr ""
+msgstr "Campos de metadatos descargados"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:98
 msgid ""
 "If you uncheck any fields, metadata for those fields will not be downloaded"
 msgstr ""
+"Si desactiva algún campo, los metadatos de ese campo no se descargarán"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:99
 msgid "Convert all downloaded comments to plain &text"
-msgstr ""
+msgstr "Convertir todos los comentarios descargados a &texto simple"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:100
 msgid "Max. number of &tags to download:"
-msgstr ""
+msgstr "Número máximo de &etiquetas para descargar:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:101
 msgid "Max. &time to wait after first match is found:"
-msgstr ""
+msgstr "Tiempo &máximo de espera después de la primera coincidencia:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:102
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:104
@@ -12717,7 +12738,7 @@ msgstr " segundos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:103
 msgid "Max. time to wait after first &cover is found:"
-msgstr ""
+msgstr "Tiempo máximo de espera después de la primera &portada:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc.py:42
 msgid "Failed to install command line tools."
@@ -13633,11 +13654,11 @@ msgstr "La segunda barra de herramientas opcional"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:222
 msgid "The menubar"
-msgstr ""
+msgstr "La barra de menú"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:223
 msgid "The menubar when a device is connected"
-msgstr ""
+msgstr "La barra de menú cuando se conecta un dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:224
 msgid "The context menu for the books in the calibre library"
@@ -17803,7 +17824,7 @@ msgstr "No descargar estilos CSS."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:12
 msgid "Auto increment series index"
-msgstr ""
+msgstr "Incremento automático del índice de serie"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:13
 msgid ""
@@ -17829,10 +17850,31 @@ msgid ""
 "series_index_auto_increment = 'next_free'\n"
 "series_index_auto_increment = 16.5"
 msgstr ""
+"El algoritmo usado para asignar un número dentro de una serie existente a un "
+"nuevo libro.\n"
+"Los nuevos números asignados con ejeste ajuste son siempre enteros, excepto "
+"si se\n"
+"especifica un número constante que no sea entero.\n"
+"Los valores posibles son:\n"
+"next: El primer entero disponible mayor que el mayor de los números en uso\n"
+"first_free: El primer entero disponible mayor que 0\n"
+"next_free: El primer entero disponible mayor que el menor de los números en "
+"uso\n"
+"last_free: El primer entero disponible menor que el mayor de los números en "
+"uso.\n"
+"Devuelve el mayor en uso + 1 si no hay otro disponible\n"
+"const: Asigna siempre el número 1\n"
+"un número: Asigna siempre ese número. El número no está entre comillas. Se "
+"puede\n"
+"usar 0.0 aquí\n"
+"Ejemplos:\n"
+"series_index_auto_increment = 'next'\n"
+"series_index_auto_increment = 'next_free'\n"
+"series_index_auto_increment = 16.5"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:31
 msgid "Add separator after completing an author name"
-msgstr ""
+msgstr "Añadir separador después de completar un nombre de autor"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:32
 msgid ""
@@ -17842,10 +17884,15 @@ msgid ""
 "for authors.\n"
 "Can be either True or False"
 msgstr ""
+"Establece si se añade un separador al final\n"
+"del texto completado para comenzar automáticamente\n"
+"una nueva operación de completado para\n"
+"los autores.\n"
+"Puede ser «True» (sí) o «False» (no)"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:40
 msgid "Author sort name algorithm"
-msgstr ""
+msgstr "Algoritmo de orden de autor"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:41
 msgid ""
@@ -17861,10 +17908,22 @@ msgid ""
 "selecting 'manage authors', and pressing 'Recalculate all author sort "
 "values'."
 msgstr ""
+"El algoritmo usado para copiar el autor en el orden de autor\n"
+"Los valores posibles son:\n"
+"invert: Transforma «nom ape» en «ape, nom» (el algoritmo predeterminado)\n"
+"copy: Copia author en author_sort sin modificaciones\n"
+"comma: Usa «copy» si hay una coma en el nombre, si no usa «invert»\n"
+"nocomma: «nom ape» -> «ape nom» (sin coma)\n"
+"Al cambiar este ajuste, el orden de autor almacenado para cada autor debe\n"
+"recalcularse pulsando con el botón derecho en un autor del panel de "
+"etiquetas\n"
+"de la izquierda, seleccionando «Administrar autores» y pulsando «Recalcular "
+"todos\n"
+"los valores de orden de autor»."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:52
 msgid "Use author sort in Tag Browser"
-msgstr ""
+msgstr "Usar el orden de autor en el explorador de etiquetas"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:53
 msgid ""
@@ -17887,7 +17946,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:67
 msgid "Control partitioning of Tag Browser"
-msgstr ""
+msgstr "División del explorador de etiquetas"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:68
 msgid ""
@@ -17919,7 +17978,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:90
 msgid "Specify columns to sort the booklist by on startup"
-msgstr ""
+msgstr "Orden inicial de la lista de libros"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:91
 msgid ""
@@ -17934,7 +17993,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:100
 msgid "Control how dates are displayed"
-msgstr ""
+msgstr "Formato de fechas"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:101
 msgid ""
@@ -17959,7 +18018,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:121
 msgid "Control sorting of titles and series in the library display"
-msgstr ""
+msgstr "Orden de títulos y series en la biblioteca"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:122
 msgid ""
@@ -17983,7 +18042,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:135
 msgid "Control formatting of title and series when used in templates"
-msgstr ""
+msgstr "Formato de títulos y series en las plantillas"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:136
 msgid ""
@@ -18004,7 +18063,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:148
 msgid "Set the list of words considered to be \"articles\" for sort strings"
-msgstr ""
+msgstr "Lista de palabras consideradas como «artículos» para ordenar texto"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:149
 msgid ""
@@ -18022,7 +18081,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:158
 msgid "Specify a folder calibre should connect to at startup"
-msgstr ""
+msgstr "Carpeta a la que calibre se conecta en el inicio"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:159
 msgid ""
@@ -18039,7 +18098,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:168
 msgid "Specify renaming rules for SONY collections"
-msgstr ""
+msgstr "Reglas de renombrado para las colecciones SONY"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:169
 msgid ""
@@ -18114,7 +18173,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:221
 msgid "Specify how SONY collections are sorted"
-msgstr ""
+msgstr "Orden de las colecciones SONY"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:222
 msgid ""
@@ -18145,22 +18204,30 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:240
 msgid "Control how tags are applied when copying books to another library"
-msgstr ""
+msgstr "Aplicación de etiquetas al copiar libros a otra biblioteca"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:241
 msgid ""
 "Set this to True to ensure that tags in 'Tags to add when adding\n"
 "a book' are added when copying books to another library"
 msgstr ""
+"Establezca este ajuste en «True» (sí) para asegurarse de que las etiquetas\n"
+"en «Etiquetas a añadir al añadir un libro» se añaden tambin al copiar "
+"libros\n"
+"a otra biblioteca"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:246
 msgid "Set the maximum number of tags to show per book in the content server"
 msgstr ""
+"Número máximo de etiquetas por libro que se muestran en el servidor de "
+"contenidos"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:250
 msgid ""
 "Set custom metadata fields that the content server will or will not display."
 msgstr ""
+"Campos personalizados de metadatos que se muestran o no en el servidor de "
+"contenidos"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:251
 msgid ""
@@ -18186,6 +18253,8 @@ msgid ""
 "Set custom metadata fields that the book details panel will or will not "
 "display."
 msgstr ""
+"Campos personalizados de metadatos que se muestran o no en el panel de "
+"detalles del libro"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:269
 msgid ""
@@ -18210,7 +18279,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:288
 msgid "Set the maximum number of sort 'levels'"
-msgstr ""
+msgstr "Número máximo de «niveles» de ordenación"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:289
 msgid ""
@@ -18223,10 +18292,20 @@ msgid ""
 "level sorts, and if you are seeing a slowdown, reduce the value of this "
 "tweak."
 msgstr ""
+"Establece el número máximo de «niveles» de ordenación que usará al "
+"reordenar\n"
+"la biblioteca después de ciertas operaciones como búsquedas on inserción de\n"
+"dispositivos. Cada nivel de ordenación disminuye el rendimiento. Si la base "
+"de\n"
+"datos es grande (miles de libros), la disminución puede ser notable. Si no "
+"está\n"
+"interesado en ordenaciones con varios niveles y experimenta una "
+"ralentización,\n"
+"reduzca el valor de este ajuste."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:296
 msgid "Specify which font to use when generating a default cover"
-msgstr ""
+msgstr "Tipo de letra usado al generar la portada predeterminada"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:297
 msgid ""
@@ -18235,10 +18314,17 @@ msgid ""
 "(Liberation\n"
 "Serif) does not contain glyphs for the language of the books in your library."
 msgstr ""
+"Ruta absoluta a los ficheros .ttf que se usan como tipos de letra para el "
+"título,\n"
+"autor y pie de página al generar una portada predeterminada. Resulta útil "
+"si\n"
+"el tipo de letra predeterminado (Liberation Serif) no contiene todos los "
+"caracteres\n"
+"del idioma de los libros en la biblioteca"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:303
 msgid "Control behavior of double clicks on the book list"
-msgstr ""
+msgstr "Doble clic en la lista de libros"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:304
 msgid ""
@@ -18252,7 +18338,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:312
 msgid "Language to use when sorting."
-msgstr ""
+msgstr "Idioma para usar al ordenar"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:313
 msgid ""
@@ -18271,6 +18357,8 @@ msgstr ""
 #: /home/kovid/work/calibre/resources/default_tweaks.py:324
 msgid "Number of columns for custom metadata in the edit metadata dialog"
 msgstr ""
+"Número de columnas para metadatos personalizados en el diálogo de edición de "
+"metadatos"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:325
 msgid ""
@@ -18279,10 +18367,13 @@ msgid ""
 "two\n"
 "columns. If False, one column is used."
 msgstr ""
+"Establece si se usan una o dos columnas para los metadatos personalizados\n"
+"al editar los metadatos de un solo libro. Si es «True» (sí), los campos se\n"
+"distribuyen en dos columnas. Si es «False» (no), se usa sólo una columna."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:330
 msgid "The number of seconds to wait before sending emails"
-msgstr ""
+msgstr "Número de segundos de espera antes de mandar correos electrónicos"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:331
 msgid ""
@@ -18292,10 +18383,16 @@ msgid ""
 "making email sending fail. Changes will take effect only after a restart of\n"
 "calibre."
 msgstr ""
+"El número de segundos que se espera antes de enviar correos electrónicos\n"
+"usando un servidor público como gmail o hotmail. El valor predeterminado es\n"
+"5 minutos. Si se usa un valor más pequeño puede que se active la protección\n"
+"antispam del servidor, haciendo que falle el envio. Los cambios sólo "
+"tendrán\n"
+"efecto tras el reinicio de calibre."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:338
 msgid "Remove the bright yellow lines at the edges of the book list"
-msgstr ""
+msgstr "Eliminar las líneas amarillas en los bordes de la lista de libros"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:339
 msgid ""
@@ -18303,10 +18400,16 @@ msgid ""
 "when a section of the user interface is hidden. Changes will take effect\n"
 "after a restart of calibre."
 msgstr ""
+"Define si se dibujan las líneas amarillas en los bordes de la lista de "
+"libros\n"
+"cuando se oculta una sección de la interfaz. Los cambios tendrán\n"
+"efecto tras el reinicio de calibre."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:344
 msgid "The maximum width and height for covers saved in the calibre library"
 msgstr ""
+"Anchura y altura máximas de las portadas guardadas en la biblioteca de "
+"calibre"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:345
 msgid ""
@@ -18314,10 +18417,13 @@ msgid ""
 "to fit within this size. This is to prevent slowdowns caused by extremely\n"
 "large covers"
 msgstr ""
+"Todas las portadas de la biblioteca de calibre se redimensionarán,\n"
+"manteniendo las proporciones, para ajustarse a este tamaño. Así\n"
+"se evita la ralentización debida a portadas extremadamante grandes."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:350
 msgid "Where to send downloaded news"
-msgstr ""
+msgstr "Dónde enviar las noticias descargadas"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:351
 msgid ""
@@ -18331,7 +18437,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:358
 msgid "What interfaces should the content server listen on"
-msgstr ""
+msgstr "En qué interfaces debe escuchar el servidor de contenidos"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:359
 msgid ""
