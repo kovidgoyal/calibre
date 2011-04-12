@@ -7,6 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import os
 from functools import partial
 from itertools import izip
 
@@ -18,6 +19,11 @@ from calibre.gui2.threaded_jobs import ThreadedJob
 from calibre.utils.icu import lower
 from calibre.ebooks.metadata import authors_to_string
 from calibre.gui2 import question_dialog, error_dialog
+from calibre.ebooks.metadata.sources.identify import identify, msprefs
+from calibre.ebooks.metadata.sources.covers import download_cover
+from calibre.ebooks.metadata.book.base import Metadata
+from calibre.customize.ui import metadata_plugins
+from calibre.ptempfile import PersistentTemporaryFile
 
 def show_config(gui, parent):
     from calibre.gui2.preferences import show_config_widget
@@ -127,6 +133,12 @@ class ApplyDialog(QDialog):
             import traceback
             self.failures.append((i, traceback.format_exc()))
 
+        try:
+            if mi.cover:
+                os.remove(mi.cover)
+        except:
+            pass
+
         self.pb.setValue(self.pb.value()+1)
 
         if self.current_idx >= len(self.id_map) - 1:
@@ -216,8 +228,21 @@ def proceed(gui, job):
     q.show()
     q.finished.connect(partial(apply_metadata, job, gui, q))
 
+def merge_result(oldmi, newmi):
+    dummy = Metadata(_('Unknown'))
+    for f in msprefs['ignore_fields']:
+        setattr(newmi, f, getattr(dummy, f))
+    fields = set()
+    for plugin in metadata_plugins(['identify']):
+        fields |= plugin.touched_fields
 
-def download(ids, db, identify, covers,
+    for f in fields:
+        # Optimize so that set_metadata does not have to do extra work later
+        if not f.startswith('identifier:'):
+            if (not newmi.is_null(f) and getattr(newmi, f) == getattr(oldmi, f)):
+                setattr(newmi, f, getattr(dummy, f))
+
+def download(ids, db, do_identify, covers,
         log=None, abort=None, notifications=None):
     ids = list(ids)
     metadata = [db.get_metadata(i, index_is_id=True, get_user_categories=False)
@@ -229,7 +254,27 @@ def download(ids, db, identify, covers,
         if abort.is_set():
             log.error('Aborting...')
             break
-        # TODO: Apply ignore_fields and set unchanged values to null values
+        title, authors, identifiers = mi.title, mi.authors, mi.identifiers
+        if do_identify:
+            results = []
+            try:
+                results = identify(log, abort, title=title, authors=authors,
+                    identifiers=identifiers)
+            except:
+                pass
+            if results:
+                mi = merge_result(mi, results[0])
+                identifiers = mi.identifiers
+            else:
+                log.error('Failed to download metadata for', title)
+                failed_ids.add(mi)
+        if covers:
+            cdata = download_cover(log, title=title, authors=authors,
+                    identifiers=identifiers)
+            if cdata:
+                with PersistentTemporaryFile('.jpg', 'downloaded-cover-') as f:
+                    f.write(cdata)
+                    mi.cover = f.name
         ans[i] = mi
         count += 1
         notifications.put((count/len(ids),
