@@ -89,7 +89,8 @@ class EditMetadataAction(InterfaceAction):
             db = self.gui.library_view.model().db
             ids = [db.id(row.row()) for row in rows]
         from calibre.gui2.metadata.bulk_download2 import start_download
-        start_download(self.gui, ids, Dispatcher(self.bulk_metadata_downloaded))
+        start_download(self.gui, ids,
+                Dispatcher(self.bulk_metadata_downloaded), identify, covers)
 
     def bulk_metadata_downloaded(self, job):
         if job.failed:
