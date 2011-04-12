@@ -402,47 +402,55 @@ class ResultCache(SearchQueryParser): # {{{
         matches = set([])
         if len(query) == 0:
             return matches
-        if query == 'false':
-            query = '0'
-        elif query == 'true':
-            query = '!=0'
-        relop = None
-        for k in self.numeric_search_relops.keys():
-            if query.startswith(k):
-                (p, relop) = self.numeric_search_relops[k]
-                query = query[p:]
-        if relop is None:
-                (p, relop) = self.numeric_search_relops['=']
 
         if val_func is None:
             loc = self.field_metadata[location]['rec_index']
             val_func = lambda item, loc=loc: item[loc]
 
-        dt = self.field_metadata[location]['datatype']
-        if dt == 'int':
-            cast = (lambda x: int (x))
-            adjust = lambda x: x
-        elif  dt == 'rating':
-            cast = (lambda x: int (x))
-            adjust = lambda x: x/2
-        elif dt in ('float', 'composite'):
-            cast = lambda x : float (x)
-            adjust = lambda x: x
-        else: # count operation
-            cast = (lambda x: int (x))
-            adjust = lambda x: x
-
-        if len(query) > 1:
-            mult = query[-1:].lower()
-            mult = {'k':1024.,'m': 1024.**2, 'g': 1024.**3}.get(mult, 1.0)
-            if mult != 1.0:
-                query = query[:-1]
+        if query == 'false':
+            q = ''
+            relop = lambda x,y: x is None
+            val_func = lambda item, loc=loc: item[loc]
+            cast = adjust = lambda x: x
+        elif query == 'true':
+            q = ''
+            relop = lambda x,y: x is not None
+            val_func = lambda item, loc=loc: item[loc]
+            cast = adjust = lambda x: x
         else:
-            mult = 1.0
-        try:
-            q = cast(query) * mult
-        except:
-            return matches
+            relop = None
+            for k in self.numeric_search_relops.keys():
+                if query.startswith(k):
+                    (p, relop) = self.numeric_search_relops[k]
+                    query = query[p:]
+            if relop is None:
+                    (p, relop) = self.numeric_search_relops['=']
+
+            dt = self.field_metadata[location]['datatype']
+            if dt == 'int':
+                cast = lambda x: int (x)  if x is not None else None
+                adjust = lambda x: x
+            elif  dt == 'rating':
+                cast = lambda x: int (x)
+                adjust = lambda x: x/2
+            elif dt in ('float', 'composite'):
+                cast = lambda x : float (x) if x is not None else None
+                adjust = lambda x: x
+            else: # count operation
+                cast = (lambda x: int (x))
+                adjust = lambda x: x
+
+            if len(query) > 1:
+                mult = query[-1:].lower()
+                mult = {'k':1024.,'m': 1024.**2, 'g': 1024.**3}.get(mult, 1.0)
+                if mult != 1.0:
+                    query = query[:-1]
+            else:
+                mult = 1.0
+            try:
+                q = cast(query) * mult
+            except:
+                return matches
 
         for id_ in candidates:
             item = self._data[id_]
@@ -452,9 +460,7 @@ class ResultCache(SearchQueryParser): # {{{
                 v = cast(val_func(item))
             except:
                 v = 0
-            if not v:
-                v = 0
-            else:
+            if v:
                 v = adjust(v)
             if relop(v, q):
                 matches.add(item[0])
