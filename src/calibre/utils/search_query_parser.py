@@ -129,7 +129,7 @@ class SearchQueryParser(object):
         self.optimize = optimize
         # Define a token
         self.standard_locations = locations
-        location     = Optional(Word(alphas+'#', bodyChars=alphanums)+Suppress(':'),
+        location     = Optional(Word(alphas+'#', bodyChars=alphanums+'_')+Suppress(':'),
                                 default='all')
         word_query   = CharsNotIn(string.whitespace + '()')
         #quoted_query = Suppress('"')+CharsNotIn('"')+Suppress('"')
