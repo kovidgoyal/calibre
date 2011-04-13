@@ -19,8 +19,8 @@ If this module is run, it will perform a series of unit tests.
 import sys, string, operator
 
 from calibre.utils.pyparsing import CaselessKeyword, Group, Forward, \
-        CharsNotIn, Suppress, OneOrMore, MatchFirst, CaselessLiteral, \
-        Optional, NoMatch, ParseException, QuotedString, Word
+        CharsNotIn, Suppress, OneOrMore, MatchFirst, alphas, alphanums, \
+        Optional, ParseException, QuotedString, Word
 from calibre.constants import preferred_encoding
 from calibre.utils.icu import sort_key
 
@@ -129,7 +129,8 @@ class SearchQueryParser(object):
         self.optimize = optimize
         # Define a token
         self.standard_locations = locations
-        location     = Optional(Word(string.ascii_letters+'#')+Suppress(':'), default='all')
+        location     = Optional(Word(alphas+'#', bodyChars=alphanums)+Suppress(':'),
+                                default='all')
         word_query   = CharsNotIn(string.whitespace + '()')
         #quoted_query = Suppress('"')+CharsNotIn('"')+Suppress('"')
         quoted_query = QuotedString('"', escChar='\\')
