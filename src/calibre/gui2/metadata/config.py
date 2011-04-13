@@ -56,7 +56,12 @@ class ConfigWidget(QWidget):
         self.setLayout(l)
 
         self.gb = QGroupBox(_('Downloaded metadata fields'), self)
-        l.addWidget(self.gb, 0, 0, 1, 2)
+        if plugin.config_help_message:
+            self.pchm = QLabel(plugin.config_help_message)
+            self.pchm.setWordWrap(True)
+            self.pchm.setOpenExternalLinks(True)
+            l.addWidget(self.pchm, 0, 0, 1, 2)
+        l.addWidget(self.gb, l.rowCount(), 0, 1, 2)
         self.gb.l = QGridLayout()
         self.gb.setLayout(self.gb.l)
         self.fields_view = v = QListView(self)
@@ -81,7 +86,7 @@ class ConfigWidget(QWidget):
             widget.setValue(val)
         elif opt.type == 'string':
             widget = QLineEdit(self)
-            widget.setText(val)
+            widget.setText(val if val else '')
         elif opt.type == 'bool':
             widget = QCheckBox(opt.label, self)
             widget.setChecked(bool(val))
