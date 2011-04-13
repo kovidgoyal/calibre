@@ -464,9 +464,10 @@ class MobiMLizer(object):
         valign = style['vertical-align']
         not_baseline = valign in ('super', 'sub', 'text-top',
                 'text-bottom') or (
-                isinstance(valign, (float, int)) and abs(valign) != 0)
+                isinstance(valign, (float, int)) and abs(valign) != 0) or (
+                tag in ('sup', 'sub'))
         issup = valign in ('super', 'text-top') or (
-            isinstance(valign, (float, int)) and valign > 0)
+            isinstance(valign, (float, int)) and valign > 0) or tag == 'sup'
         vtag = 'sup' if issup else 'sub'
         if not_baseline and not ignore_valign and tag not in NOT_VTAGS and not isblock:
             nroot = etree.Element(XHTML('html'), nsmap=MOBI_NSMAP)
