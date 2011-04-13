@@ -443,6 +443,7 @@ class SavedSearchBoxMixin(object): # {{{
         # rebuild the restrictions combobox using current saved searches
         self.search_restriction.clear()
         self.search_restriction.addItem('')
+        self.search_restriction.addItem(_('*Current search'))
         if recount:
             self.tags_view.recount()
         for s in p:
