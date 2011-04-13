@@ -310,7 +310,7 @@ class Serializer(object):
             if href not in id_offsets:
                 self.logger.warn('Hyperlink target %r not found' % href)
                 href, _ = urldefrag(href)
-            else:
+            if href in self.id_offsets:
                 ioff = self.id_offsets[href]
                 for hoff in hoffs:
                     buffer.seek(hoff)
