@@ -169,6 +169,11 @@ class ISBNDB(Source):
                 authors.append(au)
             if not authors:
                 continue
+            comments = tostring(bd.find('Summary'))
+            if not comments:
+                # Require comments, since without them the result is useless
+                # anyway
+                continue
             id_ = (title, tuple(authors))
             if id_ in seen:
                 continue
@@ -177,8 +182,6 @@ class ISBNDB(Source):
                 continue
             publisher = tostring(bd.find('PublisherText'))
             if not publisher: publisher = None
-            comments = tostring(bd.find('Summary'))
-            if not comments: comments = None
             mi = Metadata(title, authors)
             mi.isbn = isbn
             mi.publisher = publisher
@@ -213,7 +216,8 @@ class ISBNDB(Source):
     # }}}
 
 if __name__ == '__main__':
+    from threading import Event
     s = ISBNDB(None)
     t, a = 'great gatsby', ['fitzgerald']
     q = s.create_query(title=t, authors=a)
-    s.make_query(q, title=t, authors=a)
+    s.make_query(q, Event(), title=t, authors=a)
