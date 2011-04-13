@@ -9,8 +9,14 @@ __docformat__ = 'restructuredtext en'
 
 from urllib import quote
 
+from lxml import etree
+
 from calibre.ebooks.metadata import check_isbn
 from calibre.ebooks.metadata.sources.base import Source, Option
+from calibre.ebooks.chardet import xml_to_unicode
+from calibre.utils.cleantext import clean_ascii_chars
+from calibre.utils.icu import lower
+from calibre.ebooks.metadata.book.base import Metadata
 
 BASE_URL = 'http://isbndb.com/api/books.xml?access_key=%s&page_number=1&results=subjects,authors,texts&'
 
@@ -56,7 +62,7 @@ class ISBNDB(Source):
     def is_configured(self):
         return self.isbndb_key is not None
 
-    def create_query(self, log, title=None, authors=None, identifiers={}): # {{{
+    def create_query(self, title=None, authors=None, identifiers={}): # {{{
         base_url = BASE_URL%self.isbndb_key
         isbn = check_isbn(identifiers.get('isbn', None))
         q = ''
@@ -78,4 +84,136 @@ class ISBNDB(Source):
         if isinstance(q, unicode):
             q = q.encode('utf-8')
         return base_url + q
+    # }}}
 
+    def identify(self, log, result_queue, abort, title=None, authors=None, # {{{
+            identifiers={}, timeout=30):
+        if not self.is_configured():
+            return
+        query = self.create_query(title=title, authors=authors,
+                identifiers=identifiers)
+        if not query:
+            err = 'Insufficient metadata to construct query'
+            log.error(err)
+            return err
+
+        results = []
+        try:
+            results = self.make_query(query, abort, title=title, authors=authors,
+                    identifiers=identifiers, timeout=timeout)
+        except:
+            err = 'Failed to make query to ISBNDb, aborting.'
+            log.exception(err)
+            return err
+
+        if not results and identifiers.get('isbn', False) and title and authors and \
+                not abort.is_set():
+            return self.identify(log, result_queue, abort, title=title,
+                    authors=authors, timeout=timeout)
+
+        for result in results:
+            self.clean_downloaded_metadata(result)
+            result_queue.put(result)
+
+    def parse_feed(self, feed, seen, orig_title, orig_authors, identifiers):
+
+        def tostring(x):
+            if x is None:
+                return ''
+            return etree.tostring(x, method='text', encoding=unicode).strip()
+
+        orig_isbn = identifiers.get('isbn', None)
+        title_tokens = self.get_title_tokens(orig_title)
+        author_tokens = self.get_author_tokens(orig_authors)
+        results = []
+
+        def ismatch(title, authors):
+            authors = lower(' '.join(authors))
+            title = lower(title)
+            match = False
+            for t in title_tokens:
+                if lower(t) in title:
+                    match = True
+                    break
+            if not title_tokens: match = True
+            amatch = False
+            for a in author_tokens:
+                if a in authors:
+                    amatch = True
+                    break
+            if not author_tokens: amatch = True
+            return match and amatch
+
+        bl = feed.find('BookList')
+        if bl is None:
+            err = tostring(etree.find('errormessage'))
+            raise ValueError('ISBNDb query failed:' + err)
+        total_results = int(bl.get('total_results'))
+        shown_results = int(bl.get('shown_results'))
+        for bd in bl.xpath('.//BookData'):
+            isbn = check_isbn(bd.get('isbn13', bd.get('isbn', None)))
+            if not isbn:
+                continue
+            if orig_isbn and isbn != orig_isbn:
+                continue
+            title = tostring(bd.find('Title'))
+            if not title:
+                continue
+            authors = []
+            for au in bd.xpath('.//Authors/Person'):
+                au = tostring(au)
+                if au:
+                    if ',' in au:
+                        ln, _, fn = au.partition(',')
+                        au = fn.strip() + ' ' + ln.strip()
+                authors.append(au)
+            if not authors:
+                continue
+            id_ = (title, tuple(authors))
+            if id_ in seen:
+                continue
+            seen.add(id_)
+            if not ismatch(title, authors):
+                continue
+            publisher = tostring(bd.find('PublisherText'))
+            if not publisher: publisher = None
+            comments = tostring(bd.find('Summary'))
+            if not comments: comments = None
+            mi = Metadata(title, authors)
+            mi.isbn = isbn
+            mi.publisher = publisher
+            mi.comments = comments
+            results.append(mi)
+        return total_results, shown_results, results
+
+    def make_query(self, q, abort, title=None, authors=None, identifiers={},
+            max_pages=10, timeout=30):
+        page_num = 1
+        parser = etree.XMLParser(recover=True, no_network=True)
+        br = self.browser
+
+        seen = set()
+
+        candidates = []
+        total_found = 0
+        while page_num <= max_pages and not abort.is_set():
+            url = q.replace('&page_number=1&', '&page_number=%d&'%page_num)
+            page_num += 1
+            raw = br.open_novisit(url, timeout=timeout).read()
+            feed = etree.fromstring(xml_to_unicode(clean_ascii_chars(raw),
+                strip_encoding_pats=True)[0], parser=parser)
+            total, found, results = self.parse_feed(
+                    feed, seen, title, authors, identifiers)
+            total_found += found
+            if results or total_found >= total:
+                candidates += results
+                break
+
+        return candidates
+    # }}}
+
+if __name__ == '__main__':
+    s = ISBNDB(None)
+    t, a = 'great gatsby', ['fitzgerald']
+    q = s.create_query(title=t, authors=a)
+    s.make_query(q, title=t, authors=a)
