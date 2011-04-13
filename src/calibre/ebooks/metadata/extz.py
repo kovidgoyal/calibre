@@ -83,7 +83,6 @@ def set_metadata(stream, mi):
     except:
         pass
 
-
 def get_first_opf_name(stream):
     with ZipFile(stream) as zf:
         names = zf.namelist()
