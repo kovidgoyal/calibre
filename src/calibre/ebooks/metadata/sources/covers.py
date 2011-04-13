@@ -76,6 +76,11 @@ def run_download(log, results, abort,
         (plugin, width, height, fmt, bytes)
 
     '''
+    if title == _('Unknown'):
+        title = None
+    if authors == [_('Unknown')]:
+        authors = None
+
     plugins = [p for p in metadata_plugins(['cover']) if p.is_configured()]
 
     rq = Queue()
