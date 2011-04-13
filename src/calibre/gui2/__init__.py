@@ -357,6 +357,7 @@ class FileIconProvider(QFileIconProvider):
              'bmp'     : 'bmp',
              'svg'     : 'svg',
              'html'    : 'html',
+             'htmlz'   : 'html',
              'htm'     : 'html',
              'xhtml'   : 'html',
              'xhtm'    : 'html',

@@ -310,10 +310,11 @@ class Serializer(object):
             if href not in id_offsets:
                 self.logger.warn('Hyperlink target %r not found' % href)
                 href, _ = urldefrag(href)
-            ioff = self.id_offsets[href]
-            for hoff in hoffs:
-                buffer.seek(hoff)
-                buffer.write('%010d' % ioff)
+            if href in self.id_offsets:
+                ioff = self.id_offsets[href]
+                for hoff in hoffs:
+                    buffer.seek(hoff)
+                    buffer.write('%010d' % ioff)
 
 class MobiWriter(object):
     COLLAPSE_RE = re.compile(r'[ \t\r\n\v]+')

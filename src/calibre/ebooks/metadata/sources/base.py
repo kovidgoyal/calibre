@@ -181,6 +181,10 @@ class Source(Plugin):
     #: construct the configuration widget for this plugin
     options = ()
 
+    #: A string that is displayed at the top of the config widget for this
+    #: plugin
+    config_help_message = None
+
 
     def __init__(self, *args, **kwargs):
         Plugin.__init__(self, *args, **kwargs)

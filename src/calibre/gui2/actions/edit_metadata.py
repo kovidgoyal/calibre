@@ -10,7 +10,7 @@ from functools import partial
 
 from PyQt4.Qt import Qt, QMenu, QModelIndex
 
-from calibre.gui2 import error_dialog, config
+from calibre.gui2 import error_dialog, config, Dispatcher
 from calibre.gui2.dialogs.metadata_single import MetadataSingleDialog
 from calibre.gui2.dialogs.metadata_bulk import MetadataBulkDialog
 from calibre.gui2.dialogs.confirm_delete import confirm
@@ -35,16 +35,23 @@ class EditMetadataAction(InterfaceAction):
         md.addAction(_('Edit metadata in bulk'),
                 partial(self.edit_metadata, False, bulk=True))
         md.addSeparator()
-        md.addAction(_('Download metadata and covers'),
-                partial(self.download_metadata, False, covers=True),
+        if test_eight_code:
+            dall = self.download_metadata
+            dident = partial(self.download_metadata, covers=False)
+            dcovers = partial(self.download_metadata, identify=False)
+        else:
+            dall = partial(self.download_metadata_old, False, covers=True)
+            dident = partial(self.download_metadata_old, False, covers=False)
+            dcovers = partial(self.download_metadata_old, False, covers=True,
+                    set_metadata=False, set_social_metadata=False)
+
+        md.addAction(_('Download metadata and covers'), dall,
                 Qt.ControlModifier+Qt.Key_D)
-        md.addAction(_('Download only metadata'),
-                partial(self.download_metadata, False, covers=False))
-        md.addAction(_('Download only covers'),
-                partial(self.download_metadata, False, covers=True,
-                    set_metadata=False, set_social_metadata=False))
-        md.addAction(_('Download only social metadata'),
-                partial(self.download_metadata, False, covers=False,
+        md.addAction(_('Download only metadata'), dident)
+        md.addAction(_('Download only covers'), dcovers)
+        if not test_eight_code:
+            md.addAction(_('Download only social metadata'),
+                partial(self.download_metadata_old, False, covers=False,
                     set_metadata=False, set_social_metadata=True))
         self.metadata_menu = md
 
@@ -73,7 +80,26 @@ class EditMetadataAction(InterfaceAction):
         self.qaction.setEnabled(enabled)
         self.action_merge.setEnabled(enabled)
 
-    def download_metadata(self, checked, covers=True, set_metadata=True,
+    def download_metadata(self, identify=True, covers=True, ids=None):
+        if ids is None:
+            rows = self.gui.library_view.selectionModel().selectedRows()
+            if not rows or len(rows) == 0:
+                return error_dialog(self.gui, _('Cannot download metadata'),
+                            _('No books selected'), show=True)
+            db = self.gui.library_view.model().db
+            ids = [db.id(row.row()) for row in rows]
+        from calibre.gui2.metadata.bulk_download2 import start_download
+        start_download(self.gui, ids,
+                Dispatcher(self.bulk_metadata_downloaded), identify, covers)
+
+    def bulk_metadata_downloaded(self, job):
+        if job.failed:
+            self.gui.job_exception(job, dialog_title=_('Failed to download metadata'))
+            return
+        from calibre.gui2.metadata.bulk_download2 import proceed
+        proceed(self.gui, job)
+
+    def download_metadata_old(self, checked, covers=True, set_metadata=True,
             set_social_metadata=None):
         rows = self.gui.library_view.selectionModel().selectedRows()
         if not rows or len(rows) == 0:

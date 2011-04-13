@@ -625,8 +625,9 @@ if test_eight_code:
     from calibre.ebooks.metadata.sources.google import GoogleBooks
     from calibre.ebooks.metadata.sources.amazon import Amazon
     from calibre.ebooks.metadata.sources.openlibrary import OpenLibrary
+    from calibre.ebooks.metadata.sources.isbndb import ISBNDB
 
-    plugins += [GoogleBooks, Amazon, OpenLibrary]
+    plugins += [GoogleBooks, Amazon, OpenLibrary, ISBNDB]
 
 # }}}
 else:
