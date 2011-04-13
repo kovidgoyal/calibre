@@ -54,6 +54,8 @@ def start_download(gui, ids, callback, identify, covers):
             _('Download metadata for %d books')%len(ids),
             download, (ids, gui.current_db, identify, covers), {}, callback)
     gui.job_manager.run_threaded_job(job)
+    gui.status_bar.show_message(_('Metadata download started'), 3000)
+
 
 class ViewLog(QDialog): # {{{
 
@@ -110,11 +112,12 @@ class ApplyDialog(QDialog):
         self.bb.accepted.connect(self.accept)
         l.addWidget(self.bb)
 
-        self.db = gui.current_db
+        self.gui = gui
         self.id_map = list(id_map.iteritems())
         self.current_idx = 0
 
         self.failures = []
+        self.ids = []
         self.canceled = False
 
         QTimer.singleShot(20, self.do_one)
@@ -124,11 +127,13 @@ class ApplyDialog(QDialog):
         if self.canceled:
             return
         i, mi = self.id_map[self.current_idx]
+        db = self.gui.current_db
         try:
             set_title = not mi.is_null('title')
             set_authors = not mi.is_null('authors')
-            self.db.set_metadata(i, mi, commit=False, set_title=set_title,
+            db.set_metadata(i, mi, commit=False, set_title=set_title,
                     set_authors=set_authors)
+            self.ids.append(i)
         except:
             import traceback
             self.failures.append((i, traceback.format_exc()))
@@ -156,9 +161,10 @@ class ApplyDialog(QDialog):
             return
         if self.failures:
             msg = []
+            db = self.gui.current_db
             for i, tb in self.failures:
-                title = self.db.title(i, index_is_id=True)
-                authors = self.db.authors(i, index_is_id=True)
+                title = db.title(i, index_is_id=True)
+                authors = db.authors(i, index_is_id=True)
                 if authors:
                     authors = [x.replace('|', ',') for x in authors.split(',')]
                     title += ' - ' + authors_to_string(authors)
@@ -169,6 +175,12 @@ class ApplyDialog(QDialog):
                     ' in your library. Click "Show Details" to see '
                     'details.'), det_msg='\n\n'.join(msg), show=True)
         self.accept()
+        if self.ids:
+            cr = self.gui.library_view.currentIndex().row()
+            self.gui.library_view.model().refresh_ids(
+                self.ids, cr)
+            if self.gui.cover_flow:
+                self.gui.cover_flow.dataChanged()
 
 _amd = None
 def apply_metadata(job, gui, q, result):
@@ -209,6 +221,7 @@ def apply_metadata(job, gui, q, result):
     _amd = ApplyDialog(id_map, gui)
 
 def proceed(gui, job):
+    gui.status_bar.show_message(_('Metadata download completed'), 3000)
     id_map, failed_ids = job.result
     fmsg = det_msg = ''
     if failed_ids:
@@ -242,6 +255,10 @@ def merge_result(oldmi, newmi):
             if (not newmi.is_null(f) and getattr(newmi, f) == getattr(oldmi, f)):
                 setattr(newmi, f, getattr(dummy, f))
 
+    newmi.last_modified = oldmi.last_modified
+
+    return newmi
+
 def download(ids, db, do_identify, covers,
         log=None, abort=None, notifications=None):
     ids = list(ids)
@@ -271,9 +288,9 @@ def download(ids, db, do_identify, covers,
         if covers:
             cdata = download_cover(log, title=title, authors=authors,
                     identifiers=identifiers)
-            if cdata:
+            if cdata is not None:
                 with PersistentTemporaryFile('.jpg', 'downloaded-cover-') as f:
-                    f.write(cdata)
+                    f.write(cdata[-1])
                     mi.cover = f.name
         ans[i] = mi
         count += 1
