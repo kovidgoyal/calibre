@@ -466,9 +466,6 @@ class ResultCache(SearchQueryParser): # {{{
                 v = adjust(v)
             if relop(v, q):
                 matches.add(item[0])
-                print v, q, 'YES'
-            else:
-                print v, q, 'NO'
         return matches
 
     def get_user_category_matches(self, location, query, candidates):
