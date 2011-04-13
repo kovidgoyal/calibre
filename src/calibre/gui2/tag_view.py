@@ -86,6 +86,7 @@ class TagsView(QTreeView): # {{{
     tag_item_renamed        = pyqtSignal()
     search_item_renamed     = pyqtSignal()
     drag_drop_finished      = pyqtSignal(object)
+    restriction_error       = pyqtSignal()
 
     def __init__(self, parent=None):
         QTreeView.__init__(self, parent=None)
@@ -1117,9 +1118,13 @@ class TagsModel(QAbstractItemModel): # {{{
 
         # Get the categories
         if self.search_restriction:
-            data = self.db.get_categories(sort=sort,
+            try:
+                data = self.db.get_categories(sort=sort,
                         icon_map=self.category_icon_map,
                         ids=self.db.search('', return_matches=True))
+            except:
+                data = self.db.get_categories(sort=sort, icon_map=self.category_icon_map)
+                self.tags_view.restriction_error.emit()
         else:
             data = self.db.get_categories(sort=sort, icon_map=self.category_icon_map)
 
@@ -1822,8 +1827,14 @@ class TagBrowserMixin(object): # {{{
         self.tags_view.tag_item_renamed.connect(self.do_tag_item_renamed)
         self.tags_view.search_item_renamed.connect(self.saved_searches_changed)
         self.tags_view.drag_drop_finished.connect(self.drag_drop_finished)
+        self.tags_view.restriction_error.connect(self.do_restriction_error,
+                                                 type=Qt.QueuedConnection)
         self.edit_categories.clicked.connect(lambda x:
                 self.do_edit_user_categories())
+
+    def do_restriction_error(self):
+        error_dialog(self.tags_view, _('Invalid search restriction'),
+                         _('The current search restriction is invalid'), show=True)
 
     def do_add_subcategory(self, on_category_key, new_category_name=None):
         '''
