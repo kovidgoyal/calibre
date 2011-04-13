@@ -123,22 +123,21 @@ class ISBNDB(Source):
             return etree.tostring(x, method='text', encoding=unicode).strip()
 
         orig_isbn = identifiers.get('isbn', None)
-        title_tokens = self.get_title_tokens(orig_title)
-        author_tokens = self.get_author_tokens(orig_authors)
+        title_tokens = list(self.get_title_tokens(orig_title))
+        author_tokens = list(self.get_author_tokens(orig_authors))
         results = []
 
         def ismatch(title, authors):
             authors = lower(' '.join(authors))
             title = lower(title)
-            match = False
+            match = not title_tokens
             for t in title_tokens:
                 if lower(t) in title:
                     match = True
                     break
-            if not title_tokens: match = True
-            amatch = False
+            amatch = not author_tokens
             for a in author_tokens:
-                if a in authors:
+                if lower(a) in authors:
                     amatch = True
                     break
             if not author_tokens: amatch = True
@@ -182,6 +181,8 @@ class ISBNDB(Source):
                 continue
             publisher = tostring(bd.find('PublisherText'))
             if not publisher: publisher = None
+            if publisher and 'audio' in publisher.lower():
+                continue
             mi = Metadata(title, authors)
             mi.isbn = isbn
             mi.publisher = publisher
@@ -208,16 +209,32 @@ class ISBNDB(Source):
             total, found, results = self.parse_feed(
                     feed, seen, title, authors, identifiers)
             total_found += found
-            if results or total_found >= total:
-                candidates += results
+            candidates += results
+            if total_found >= total or len(candidates) > 9:
                 break
 
         return candidates
     # }}}
 
 if __name__ == '__main__':
-    from threading import Event
-    s = ISBNDB(None)
-    t, a = 'great gatsby', ['fitzgerald']
-    q = s.create_query(title=t, authors=a)
-    s.make_query(q, Event(), title=t, authors=a)
+    # To run these test use:
+    # calibre-debug -e src/calibre/ebooks/metadata/sources/isbndb.py
+    from calibre.ebooks.metadata.sources.test import (test_identify_plugin,
+            title_test, authors_test)
+    test_identify_plugin(ISBNDB.name,
+        [
+
+
+            (
+                {'title':'Great Gatsby',
+                    'authors':['Fitzgerald']},
+                [title_test('The great gatsby', exact=True),
+                    authors_test(['F. Scott Fitzgerald'])]
+            ),
+
+            (
+                {'title': 'Flatland', 'authors':['Abbott']},
+                [title_test('Flatland', exact=False)]
+            ),
+    ])
+
