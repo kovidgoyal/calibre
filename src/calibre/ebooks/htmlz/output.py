@@ -12,7 +12,7 @@ from lxml import etree
 
 from calibre.customize.conversion import OutputFormatPlugin, \
     OptionRecommendation
-from calibre.ebooks.oeb.base import OEB_IMAGES
+from calibre.ebooks.oeb.base import OEB_IMAGES, SVG_MIME
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.zipfile import ZipFile
 
@@ -71,9 +71,13 @@ class HTMLZOutput(OutputFormatPlugin):
                     os.makedirs(os.path.join(tdir, 'images'))
                 for item in oeb_book.manifest:
                     if item.media_type in OEB_IMAGES and item.href in images:
+                        if item.media_type == SVG_MIME:
+                            data = unicode(etree.tostring(item.data, encoding=unicode)) 
+                        else:
+                            data = item.data
                         fname = os.path.join(tdir, 'images', images[item.href])
                         with open(fname, 'wb') as img:
-                            img.write(item.data)
+                            img.write(data)
 
             # Metadata
             with open(os.path.join(tdir, 'metadata.opf'), 'wb') as mdataf:
