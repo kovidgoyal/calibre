@@ -846,7 +846,7 @@ class RatingEdit(QSpinBox): # {{{
 class TagsEdit(MultiCompleteLineEdit): # {{{
     LABEL = _('Ta&gs:')
     TOOLTIP = '<p>'+_('Tags categorize the book. This is particularly '
-            'useful while searching. <br><br>They can be any words'
+            'useful while searching. <br><br>They can be any words '
             'or phrases, separated by commas.')
 
     def __init__(self, parent):
