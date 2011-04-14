@@ -51,6 +51,9 @@ class ViewAction(InterfaceAction):
         ac = self.create_action(spec=(_('Read a random book'), 'catalog.png',
             None, None), attr='action_pick_random')
         ac.triggered.connect(self.view_random)
+        ac = self.clear_history_action = QAction(
+                _('Clear recently viewed list'), self.gui)
+        ac.triggered.connect(self.clear_history)
 
     def initialization_complete(self):
         self.build_menus(self.gui.current_db)
@@ -65,10 +68,17 @@ class ViewAction(InterfaceAction):
         history = db.prefs.get('gui_view_history', [])
         if history:
             self.view_menu.addSeparator()
-        for id_, title in history:
-            ac = HistoryAction(id_, title, self.view_menu)
-            self.view_menu.addAction(ac)
-            ac.view_historical.connect(self.view_historical)
+            for id_, title in history:
+                ac = HistoryAction(id_, title, self.view_menu)
+                self.view_menu.addAction(ac)
+                ac.view_historical.connect(self.view_historical)
+            self.view_menu.addSeparator()
+            self.view_menu.addAction(self.clear_history_action)
+
+    def clear_history(self):
+        db = self.gui.current_db
+        db.prefs['gui_view_history'] = []
+        self.build_menus(db)
 
     def view_historical(self, id_):
         self._view_calibre_books([id_])
