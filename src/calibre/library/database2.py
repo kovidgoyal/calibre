@@ -1354,6 +1354,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             cat = tb_cats[category]
             if cat['datatype'] == 'composite' and \
                                 cat['display'].get('make_category', False):
+                tids[category] = {}
                 tcategories[category] = {}
                 md.append((category, cat['rec_index'], cat['is_multiple'],
                            cat['datatype'] == 'composite'))
@@ -1401,9 +1402,18 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     except:
                         prints('get_categories: item', val, 'is not in', cat, 'list!')
                 else:
-                    vals = book[dex].split(mult)
+                    vals = [v.strip() for v in book[dex].split(mult) if v]
+                    if is_comp:
+                        for val in vals:
+                            if val not in tids:
+                                tids[cat][val] = (0, val)
+                            item = tcategories[cat].get(val, None)
+                            if not item:
+                                item = tag_class(val, val)
+                                tcategories[cat][val] = item
+                            item.c += 1
+                            item.id = val
                     for val in vals:
-                        if not val: continue
                         try:
                             (item_id, sort_val) = tids[cat][val] # let exceptions fly
                             item = tcategories[cat].get(val, None)
