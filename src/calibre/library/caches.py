@@ -751,7 +751,7 @@ class ResultCache(SearchQueryParser): # {{{
 
                     if loc not in exclude_fields: # time for text matching
                         if is_multiple_cols[loc] is not None:
-                            vals = item[loc].split(is_multiple_cols[loc])
+                            vals = [v.strip() for v in item[loc].split(is_multiple_cols[loc])]
                         else:
                             vals = [item[loc]] ### make into list to make _match happy
                         if _match(q, vals, matchkind):

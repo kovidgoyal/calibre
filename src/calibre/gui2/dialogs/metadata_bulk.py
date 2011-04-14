@@ -519,6 +519,8 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
                 val = [] if fm['is_multiple'] else ['']
             elif not fm['is_multiple']:
                 val = [val]
+            elif fm['datatype'] == 'composite':
+                val = [v.strip() for v in val.split(fm['is_multiple'])]
             elif field == 'authors':
                 val = [v.replace('|', ',') for v in val]
         else:
