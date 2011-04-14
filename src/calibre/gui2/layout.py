@@ -196,6 +196,10 @@ class SearchBar(QWidget): # {{{
         l.addWidget(x)
         x.setToolTip(_("Reset Quick Search"))
 
+        x = parent.highlight_only_button = QToolButton(self)
+        x.setIcon(QIcon(I('arrow-down.png')))
+        l.addWidget(x)
+
         x = parent.search_options_button = QToolButton(self)
         x.setIcon(QIcon(I('config.png')))
         x.setObjectName("search_option_button")
