@@ -316,7 +316,7 @@ class BooksModel(QAbstractTableModel): # {{{
         label = self.column_map[col]
         self._sort(label, order, reset)
 
-    def sort_by_named_column(self, field, order, reset=True):
+    def sort_by_named_field(self, field, order, reset=True):
         if field in self.db.field_metadata.keys():
             self._sort(field, order, reset)
 

@@ -237,7 +237,7 @@ class BooksView(QTableView): # {{{
             self.scroll_to_row(indices[0].row())
         self.selected_ids = []
 
-    def sort_by_named_column(self, field, order, reset=True):
+    def sort_by_named_field(self, field, order, reset=True):
         if field in self.column_map:
             idx = self.column_map.index(field)
             if order:
