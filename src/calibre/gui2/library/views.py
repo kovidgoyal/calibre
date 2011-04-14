@@ -245,7 +245,7 @@ class BooksView(QTableView): # {{{
             else:
                 self.sortByColumn(idx, Qt.DescendingOrder)
         else:
-            self._model.sort_by_named_column(field, order, reset)
+            self._model.sort_by_named_field(field, order, reset)
     # }}}
 
     # Ondevice column {{{
