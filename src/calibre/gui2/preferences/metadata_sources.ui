@@ -49,6 +49,16 @@
            </widget>
           </item>
           <item>
+           <widget class="QLabel" name="label_5">
+            <property name="text">
+             <string>Sources with a red X next to their names must be configured before they will be used. </string>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="QPushButton" name="configure_plugin_button">
             <property name="text">
              <string>Configure selected source</string>

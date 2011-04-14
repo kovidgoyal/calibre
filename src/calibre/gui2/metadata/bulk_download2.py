@@ -54,6 +54,8 @@ def start_download(gui, ids, callback, identify, covers):
             _('Download metadata for %d books')%len(ids),
             download, (ids, gui.current_db, identify, covers), {}, callback)
     gui.job_manager.run_threaded_job(job)
+    gui.status_bar.show_message(_('Metadata download started'), 3000)
+
 
 class ViewLog(QDialog): # {{{
 
@@ -75,7 +77,7 @@ class ViewLog(QDialog): # {{{
         self.copy_button.clicked.connect(self.copy_to_clipboard)
         l.addWidget(self.bb)
         self.setModal(False)
-        self.resize(QSize(500, 400))
+        self.resize(QSize(700, 500))
         self.setWindowTitle(_('Download log'))
         self.setWindowIcon(QIcon(I('debug.png')))
         self.show()
@@ -110,25 +112,27 @@ class ApplyDialog(QDialog):
         self.bb.accepted.connect(self.accept)
         l.addWidget(self.bb)
 
-        self.db = gui.current_db
+        self.gui = gui
         self.id_map = list(id_map.iteritems())
         self.current_idx = 0
 
         self.failures = []
+        self.ids = []
         self.canceled = False
 
         QTimer.singleShot(20, self.do_one)
-        self.exec_()
 
     def do_one(self):
         if self.canceled:
             return
         i, mi = self.id_map[self.current_idx]
+        db = self.gui.current_db
         try:
             set_title = not mi.is_null('title')
             set_authors = not mi.is_null('authors')
-            self.db.set_metadata(i, mi, commit=False, set_title=set_title,
+            db.set_metadata(i, mi, commit=False, set_title=set_title,
                     set_authors=set_authors)
+            self.ids.append(i)
         except:
             import traceback
             self.failures.append((i, traceback.format_exc()))
@@ -156,9 +160,10 @@ class ApplyDialog(QDialog):
             return
         if self.failures:
             msg = []
+            db = self.gui.current_db
             for i, tb in self.failures:
-                title = self.db.title(i, index_is_id=True)
-                authors = self.db.authors(i, index_is_id=True)
+                title = db.title(i, index_is_id=True)
+                authors = db.authors(i, index_is_id=True)
                 if authors:
                     authors = [x.replace('|', ',') for x in authors.split(',')]
                     title += ' - ' + authors_to_string(authors)
@@ -169,6 +174,12 @@ class ApplyDialog(QDialog):
                     ' in your library. Click "Show Details" to see '
                     'details.'), det_msg='\n\n'.join(msg), show=True)
         self.accept()
+        if self.ids:
+            cr = self.gui.library_view.currentIndex().row()
+            self.gui.library_view.model().refresh_ids(
+                self.ids, cr)
+            if self.gui.cover_flow:
+                self.gui.cover_flow.dataChanged()
 
 _amd = None
 def apply_metadata(job, gui, q, result):
@@ -177,7 +188,7 @@ def apply_metadata(job, gui, q, result):
     q.finished.disconnect()
     if result != q.Accepted:
         return
-    id_map, failed_ids = job.result
+    id_map, failed_ids, failed_covers, title_map = job.result
     id_map = dict([(k, v) for k, v in id_map.iteritems() if k not in
         failed_ids])
     if not id_map:
@@ -207,23 +218,32 @@ def apply_metadata(job, gui, q, result):
             return
 
     _amd = ApplyDialog(id_map, gui)
+    _amd.exec_()
 
 def proceed(gui, job):
-    id_map, failed_ids = job.result
+    gui.status_bar.show_message(_('Metadata download completed'), 3000)
+    id_map, failed_ids, failed_covers, title_map = job.result
     fmsg = det_msg = ''
-    if failed_ids:
-        fmsg = _('Could not download metadata for %d of the books. Click'
+    if failed_ids or failed_covers:
+        fmsg = '<p>'+_('Could not download metadata and/or covers for %d of the books. Click'
                 ' "Show details" to see which books.')%len(failed_ids)
-        det_msg = '\n'.join([id_map[i].title for i in failed_ids])
+        det_msg = []
+        for i in failed_ids | failed_covers:
+            title = title_map[i]
+            if i in failed_ids:
+                title += (' ' + _('(Failed metadata)'))
+            if i in failed_covers:
+                title += (' ' + _('(Failed cover)'))
+            det_msg.append(title)
     msg = '<p>' + _('Finished downloading metadata for <b>%d book(s)</b>. '
         'Proceed with updating the metadata in your library?')%len(id_map)
     q = MessageBox(MessageBox.QUESTION, _('Download complete'),
-            msg + fmsg, det_msg=det_msg, show_copy_button=bool(failed_ids),
+            msg + fmsg, det_msg='\n'.join(det_msg), show_copy_button=bool(failed_ids),
             parent=gui)
     q.vlb = q.bb.addButton(_('View log'), q.bb.ActionRole)
     q.vlb.setIcon(QIcon(I('debug.png')))
     q.vlb.clicked.connect(partial(view_log, job, q))
-    q.det_msg_toggle.setVisible(bool(failed_ids))
+    q.det_msg_toggle.setVisible(bool(failed_ids | failed_covers))
     q.setModal(False)
     q.show()
     q.finished.connect(partial(apply_metadata, job, gui, q))
@@ -242,12 +262,18 @@ def merge_result(oldmi, newmi):
             if (not newmi.is_null(f) and getattr(newmi, f) == getattr(oldmi, f)):
                 setattr(newmi, f, getattr(dummy, f))
 
+    newmi.last_modified = oldmi.last_modified
+
+    return newmi
+
 def download(ids, db, do_identify, covers,
         log=None, abort=None, notifications=None):
     ids = list(ids)
     metadata = [db.get_metadata(i, index_is_id=True, get_user_categories=False)
         for i in ids]
     failed_ids = set()
+    failed_covers = set()
+    title_map = {}
     ans = {}
     count = 0
     for i, mi in izip(ids, metadata):
@@ -255,6 +281,7 @@ def download(ids, db, do_identify, covers,
             log.error('Aborting...')
             break
         title, authors, identifiers = mi.title, mi.authors, mi.identifiers
+        title_map[i] = title
         if do_identify:
             results = []
             try:
@@ -265,22 +292,29 @@ def download(ids, db, do_identify, covers,
             if results:
                 mi = merge_result(mi, results[0])
                 identifiers = mi.identifiers
+                if not mi.is_null('rating'):
+                    # set_metadata expects a rating out of 10
+                    mi.rating *= 2
             else:
                 log.error('Failed to download metadata for', title)
-                failed_ids.add(mi)
+                failed_ids.add(i)
+                # We don't want set_metadata operating on anything but covers
+                mi = merge_result(mi, mi)
         if covers:
             cdata = download_cover(log, title=title, authors=authors,
                     identifiers=identifiers)
-            if cdata:
+            if cdata is not None:
                 with PersistentTemporaryFile('.jpg', 'downloaded-cover-') as f:
-                    f.write(cdata)
+                    f.write(cdata[-1])
                     mi.cover = f.name
+            else:
+                failed_covers.add(i)
         ans[i] = mi
         count += 1
         notifications.put((count/len(ids),
             _('Downloaded %d of %d')%(count, len(ids))))
     log('Download complete, with %d failures'%len(failed_ids))
-    return (ans, failed_ids)
+    return (ans, failed_ids, failed_covers, title_map)
 
 
 

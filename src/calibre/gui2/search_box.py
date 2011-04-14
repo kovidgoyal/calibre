@@ -10,7 +10,7 @@ import re
 
 from PyQt4.Qt import QComboBox, Qt, QLineEdit, QStringList, pyqtSlot, QDialog, \
                      pyqtSignal, QCompleter, QAction, QKeySequence, QTimer, \
-                     QString
+                     QString, QIcon
 
 from calibre.gui2 import config
 from calibre.gui2.dialogs.confirm_delete import confirm
@@ -383,6 +383,22 @@ class SearchBoxMixin(object): # {{{
         self.advanced_search_button.setStatusTip(self.advanced_search_button.toolTip())
         self.clear_button.setStatusTip(self.clear_button.toolTip())
         self.search_options_button.clicked.connect(self.search_options_button_clicked)
+        self.set_highlight_only_button_icon()
+        self.highlight_only_button.clicked.connect(self.highlight_only_clicked)
+        tt = _('Enable or disable search highlighting.') + '<br><br>'
+        tt += config.help('highlight_search_matches')
+        self.highlight_only_button.setToolTip(tt)
+
+    def highlight_only_clicked(self, state):
+        config['highlight_search_matches'] = not config['highlight_search_matches']
+        self.set_highlight_only_button_icon()
+
+    def set_highlight_only_button_icon(self):
+        if config['highlight_search_matches']:
+            self.highlight_only_button.setIcon(QIcon(I('highlight_only_on.png')))
+        else:
+            self.highlight_only_button.setIcon(QIcon(I('highlight_only_off.png')))
+        self.library_view.model().set_highlight_only(config['highlight_search_matches'])
 
     def focus_search_box(self, *args):
         self.search.setFocus(Qt.OtherFocusReason)
@@ -443,6 +459,7 @@ class SavedSearchBoxMixin(object): # {{{
         # rebuild the restrictions combobox using current saved searches
         self.search_restriction.clear()
         self.search_restriction.addItem('')
+        self.search_restriction.addItem(_('*Current search'))
         if recount:
             self.tags_view.recount()
         for s in p:

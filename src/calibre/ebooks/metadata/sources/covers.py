@@ -76,6 +76,11 @@ def run_download(log, results, abort,
         (plugin, width, height, fmt, bytes)
 
     '''
+    if title == _('Unknown'):
+        title = None
+    if authors == [_('Unknown')]:
+        authors = None
+
     plugins = [p for p in metadata_plugins(['cover']) if p.is_configured()]
 
     rq = Queue()
@@ -145,7 +150,7 @@ def download_cover(log,
     Synchronous cover download. Returns the "best" cover as per user
     prefs/cover resolution.
 
-    Return cover is a tuple: (plugin, width, height, fmt, data)
+    Returned cover is a tuple: (plugin, width, height, fmt, data)
 
     Returns None if no cover is found.
     '''

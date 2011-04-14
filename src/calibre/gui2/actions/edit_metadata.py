@@ -94,7 +94,7 @@ class EditMetadataAction(InterfaceAction):
 
     def bulk_metadata_downloaded(self, job):
         if job.failed:
-            self.job_exception(job, dialog_title=_('Failed to download metadata'))
+            self.gui.job_exception(job, dialog_title=_('Failed to download metadata'))
             return
         from calibre.gui2.metadata.bulk_download2 import proceed
         proceed(self.gui, job)

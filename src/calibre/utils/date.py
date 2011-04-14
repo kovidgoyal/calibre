@@ -142,6 +142,10 @@ def format_date(dt, format, assume_utc=False, as_utc=False):
             dt = dt.replace(tzinfo=_utc_tz if assume_utc else
                     _local_tz)
         dt = dt.astimezone(_utc_tz if as_utc else _local_tz)
+
+    if format == 'iso':
+        return isoformat(dt, assume_utc=assume_utc, as_utc=as_utc)
+
     strf = partial(strftime, t=dt.timetuple())
 
     def format_day(mo):

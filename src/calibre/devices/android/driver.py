@@ -54,6 +54,9 @@ class ANDROID(USBMS):
                        0x6877 : [0x0400],
                      },
 
+            # Viewsonic
+            0x0489 : { 0xc001 : [0x0226] },
+
             # Acer
             0x502 : { 0x3203 : [0x0100]},
 
