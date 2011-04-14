@@ -349,7 +349,7 @@ class ITUNES(DriverBase):
                                         break
                             break
                 if self.report_progress is not None:
-                    self.report_progress(j+1/task_count, _('Updating device metadata listing...'))
+                    self.report_progress((j+1)/task_count, _('Updating device metadata listing...'))
 
             if self.report_progress is not None:
                 self.report_progress(1.0, _('Updating device metadata listing...'))
@@ -428,7 +428,7 @@ class ITUNES(DriverBase):
                          }
 
                         if self.report_progress is not None:
-                            self.report_progress(i+1/book_count, _('%d of %d') % (i+1, book_count))
+                            self.report_progress((i+1)/book_count, _('%d of %d') % (i+1, book_count))
                     self._purge_orphans(library_books, cached_books)
 
                 elif iswindows:
@@ -466,7 +466,7 @@ class ITUNES(DriverBase):
                              }
 
                             if self.report_progress is not None:
-                                self.report_progress(i+1/book_count,
+                                self.report_progress((i+1)/book_count,
                                         _('%d of %d') % (i+1, book_count))
                         self._purge_orphans(library_books, cached_books)
 
@@ -916,6 +916,8 @@ class ITUNES(DriverBase):
         """
         if DEBUG:
             self.log.info("ITUNES.reset()")
+        if report_progress:
+            self.set_progress_reporter(report_progress)
 
     def set_progress_reporter(self, report_progress):
         '''
@@ -924,6 +926,9 @@ class ITUNES(DriverBase):
                                 If it is called with -1 that means that the
                                 task does not have any progress information
         '''
+        if DEBUG:
+            self.log.info("ITUNES.set_progress_reporter()")
+
         self.report_progress = report_progress
 
     def set_plugboards(self, plugboards, pb_func):
@@ -1041,7 +1046,7 @@ class ITUNES(DriverBase):
 
                 # Report progress
                 if self.report_progress is not None:
-                    self.report_progress(i+1/file_count, _('%d of %d') % (i+1, file_count))
+                    self.report_progress((i+1)/file_count, _('%d of %d') % (i+1, file_count))
 
         elif iswindows:
             try:
@@ -1081,7 +1086,7 @@ class ITUNES(DriverBase):
 
                     # Report progress
                     if self.report_progress is not None:
-                        self.report_progress(i+1/file_count, _('%d of %d') % (i+1, file_count))
+                        self.report_progress((i+1)/file_count, _('%d of %d') % (i+1, file_count))
             finally:
                 pythoncom.CoUninitialize()
 
@@ -3065,7 +3070,7 @@ class ITUNES_ASYNC(ITUNES):
                      }
 
                     if self.report_progress is not None:
-                        self.report_progress(i+1/book_count, _('%d of %d') % (i+1, book_count))
+                        self.report_progress((i+1)/book_count, _('%d of %d') % (i+1, book_count))
 
             elif iswindows:
                 try:
@@ -3104,7 +3109,7 @@ class ITUNES_ASYNC(ITUNES):
                          }
 
                         if self.report_progress is not None:
-                            self.report_progress(i+1/book_count,
+                            self.report_progress((i+1)/book_count,
                                     _('%d of %d') % (i+1, book_count))
 
                 finally:
