@@ -236,6 +236,16 @@ class BooksView(QTableView): # {{{
                 sm.select(idx, sm.Select|sm.Rows)
             self.scroll_to_row(indices[0].row())
         self.selected_ids = []
+
+    def sort_by_named_column(self, field, order, reset=True):
+        if field in self.column_map:
+            idx = self.column_map.index(field)
+            if order:
+                self.sortByColumn(idx, Qt.AscendingOrder)
+            else:
+                self.sortByColumn(idx, Qt.DescendingOrder)
+        else:
+            self._model.sort_by_named_column(field, order, reset)
     # }}}
 
     # Ondevice column {{{
