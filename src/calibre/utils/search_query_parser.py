@@ -19,8 +19,8 @@ If this module is run, it will perform a series of unit tests.
 import sys, string, operator
 
 from calibre.utils.pyparsing import CaselessKeyword, Group, Forward, \
-        CharsNotIn, Suppress, OneOrMore, MatchFirst, alphas, alphanums, \
-        Optional, ParseException, QuotedString, Word
+        CharsNotIn, Suppress, OneOrMore, MatchFirst, CaselessLiteral, \
+        Optional, NoMatch, ParseException, QuotedString
 from calibre.constants import preferred_encoding
 from calibre.utils.icu import sort_key
 
@@ -128,9 +128,12 @@ class SearchQueryParser(object):
         self._tests_failed = False
         self.optimize = optimize
         # Define a token
-        self.standard_locations = locations
-        location     = Optional(Word(alphas+'#', bodyChars=alphanums+'_')+Suppress(':'),
-                                default='all')
+        standard_locations = map(lambda x : CaselessLiteral(x)+Suppress(':'),
+                locations)
+        location = NoMatch()
+        for l in standard_locations:
+            location |= l
+        location     = Optional(location, default='all')
         word_query   = CharsNotIn(string.whitespace + '()')
         #quoted_query = Suppress('"')+CharsNotIn('"')+Suppress('"')
         quoted_query = QuotedString('"', escChar='\\')
@@ -247,14 +250,7 @@ class SearchQueryParser(object):
                 raise ParseException(query, len(query), 'undefined saved search', self)
         return self._get_matches(location, query, candidates)
 
-    def test_location_is_valid(self, location, query):
-        if location not in self.standard_locations:
-            raise ParseException(query, len(query),
-                    _('No column exists with lookup name ') + location, self)
-
     def _get_matches(self, location, query, candidates):
-        location = location.lower()
-        self.test_location_is_valid(location, query)
         if self.optimize:
             return self.get_matches(location, query, candidates=candidates)
         else:

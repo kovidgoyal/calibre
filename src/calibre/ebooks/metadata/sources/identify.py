@@ -365,6 +365,18 @@ def identify(log, abort, # {{{
     for r in results:
         r.tags = r.tags[:max_tags]
 
+    if msprefs['swap_author_names']:
+        for r in results:
+            def swap_to_ln_fn(a):
+                if ',' in a:
+                    return a
+                parts = a.split(None)
+                if len(parts) <= 1:
+                    return a
+                surname = parts[-1]
+                return '%s, %s' % (surname, ' '.join(parts[:-1]))
+            r.authors = [swap_to_ln_fn(a) for a in r.authors]
+
     return results
 # }}}
 

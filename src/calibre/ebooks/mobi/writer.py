@@ -1511,7 +1511,7 @@ class MobiWriter(object):
         record0.write(exth)
         record0.write(title)
         record0 = record0.getvalue()
-        self._records[0] = record0 + ('\0' * (2452 - len(record0)))
+        self._records[0] = record0 + ('\0' * (1024*8))
 
     def _build_exth(self):
         oeb = self._oeb
