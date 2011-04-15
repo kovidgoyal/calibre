@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-04-10 22:01+0000\n"
-"PO-Revision-Date: 2011-03-04 14:25+0000\n"
-"Last-Translator: miwie <Unknown>\n"
+"PO-Revision-Date: 2011-04-14 08:41+0000\n"
+"Last-Translator: Rudolf Metz <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-04-11 04:40+0000\n"
+"X-Launchpad-Export-Date: 2011-04-15 05:01+0000\n"
 "X-Generator: Launchpad (build 12735)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -254,6 +254,10 @@ msgid ""
 "Textile references to images. The referenced images as well as the TXT file "
 "are added to the archive."
 msgstr ""
+"Erstellt ein TXTZ-Archiv, falls eine TXT-Datei importiert wurde, die "
+"Markdown oder Textile Referenzierungen zu Abbildungen enthält. Sowohl die "
+"referenzierten Abbildungen als auch die TXT-Datei werden dem Archiv "
+"hinzugefügt."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:167
 msgid "Extract cover from comic files"
@@ -351,11 +355,11 @@ msgstr "Passt individuell Werkzeugleiste und Kontextmenus an."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:917
 msgid "Searching"
-msgstr ""
+msgstr "Suche..."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:923
 msgid "Customize the way searching for books works in calibre"
-msgstr ""
+msgstr "Einstellung der calibre-Vorgehensweise bei der Büchersuche"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:928
 msgid "Input Options"
@@ -486,6 +490,8 @@ msgstr "Metadaten laden"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1050
 msgid "Control how calibre downloads ebook metadata from the net"
 msgstr ""
+"Kontrolle der calibre-Vorhehensweise beim Herunterladen von E-Book-Metadaten "
+"aus dem Netz"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1055
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:268
@@ -669,11 +675,11 @@ msgstr "Dieses Profil ist geeignet für das SONY PRS-300."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:502
 msgid "Suitable for use with any e-ink device"
-msgstr ""
+msgstr "Verwendbar bei jedem E-Ink-Gerät"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:509
 msgid "Suitable for use with any large screen e-ink device"
-msgstr ""
+msgstr "Verwendbar bei jedem großformatigem E-ink-Gerät"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:518
 msgid "This profile is intended for the 5-inch JetBook."
@@ -801,11 +807,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:65
 msgid "Disable Apple driver"
-msgstr ""
+msgstr "Abschalten des Apple-Treibers"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:69
 msgid "Enable Apple driver"
-msgstr ""
+msgstr "Einschalten des Apple-Treibers"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:117
 msgid "Use Series as Category in iTunes/iBooks"
@@ -1165,7 +1171,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/apnx.py:44
 msgid "Could not generate page mapping."
-msgstr ""
+msgstr "Seitenzuordung konnte nicht erstellt werden."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:44
 msgid "Communicate with the Kindle eBook reader."
@@ -1177,7 +1183,7 @@ msgstr "Kommunikation mit dem Kindle 2/3 eBook Reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:180
 msgid "Send page number information when sending books"
-msgstr ""
+msgstr "Sende Seitennummerinformationen beim Senden von Büchern"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:182
 msgid ""
@@ -1189,7 +1195,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:187
 msgid "Use slower but more accurate page number generation"
-msgstr ""
+msgstr "Benutze langsamere, jedoch akkuratere Seitennummergenerierung"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:189
 msgid ""
@@ -1388,7 +1394,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:92
 msgid "Search for books in all folders"
-msgstr ""
+msgstr "Suche in allen Ordnern nach Büchern"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:94
 msgid ""
@@ -1396,6 +1402,10 @@ msgid ""
 "device and its cards. This permits calibre to find books put on the device "
 "by other software and by wireless download."
 msgstr ""
+"Das Setzen diese Option erlaubt calibre nach Büchern in allen Ordnern des "
+"Geräts und dessen Speicherkarten zu suchen. Dies erlaubt calibre Bücher zu "
+"finden, die durch andere Software und kabellosem Herunterladen auf das Gerät "
+"gebracht wurden."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:190
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/structure.py:69
@@ -1416,7 +1426,7 @@ msgstr "Kommunikation mit dem Newsmy Reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:47
 msgid "Communicate with the Archos reader."
-msgstr ""
+msgstr "Kommuniziere mit dem Archos Lesegerät."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:57
 msgid "Communicate with the Pico reader."
@@ -1436,11 +1446,11 @@ msgstr "Kommunikation mit dem Sunstech EB700 Reader"
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:99
 msgid "Communicate with the Stash W950 reader."
-msgstr ""
+msgstr "Kommuniziere mit dem Stash W950 Lesegerät."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:111
 msgid "Communicate with the Wexler reader."
-msgstr ""
+msgstr "Kommuniziere mit dem Wexler Lesegerät."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:282
 msgid "Unable to detect the %s disk drive. Try rebooting."

@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-04-10 22:01+0000\n"
-"PO-Revision-Date: 2011-04-09 16:22+0000\n"
+"PO-Revision-Date: 2011-04-14 15:37+0000\n"
 "Last-Translator: FerranRius <frius64@hotmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-04-11 04:37+0000\n"
+"X-Launchpad-Export-Date: 2011-04-15 05:00+0000\n"
 "X-Generator: Launchpad (build 12735)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -494,7 +494,7 @@ msgstr "Baixada de metadades"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1050
 msgid "Control how calibre downloads ebook metadata from the net"
-msgstr ""
+msgstr "Control com el calibre baixa les metadades dels llibres de la xarxa"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1055
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:268
@@ -2608,6 +2608,9 @@ msgid ""
 "\n"
 " See: "
 msgstr ""
+"Gènere del llibre. Opcions: %s\n"
+"\n"
+" Vegeu: "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/output.py:159
 msgid "for a complete list with descriptions."
@@ -11204,7 +11207,7 @@ msgstr "Suprimeix la cerca desada actual"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:263
 msgid "Donate"
-msgstr ""
+msgstr "Donacions"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:354
 msgid "Y"
@@ -11658,7 +11661,7 @@ msgstr "Edita les metadades"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:163
 msgid "&Download metadata"
-msgstr ""
+msgstr "&Baixa les metadades"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:487
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:671
@@ -11696,10 +11699,15 @@ msgid ""
 "having a cover will find a cover in the download\n"
 "cover stage, and vice versa."
 msgstr ""
+"La indicació «té portada» no és del tot\n"
+"fiable. A vegades hi ha resultats marcats\n"
+"com si no tinguessin portada dels quals es\n"
+"troba una portada a la fase de baixada de\n"
+"portades i a l'inrevés."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:254
 msgid "See at"
-msgstr ""
+msgstr "Vegeu a"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:389
 msgid "calibre is downloading metadata from: "
@@ -11707,7 +11715,7 @@ msgstr "El calibre està baixant les metadades des de: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:411
 msgid "Please wait"
-msgstr ""
+msgstr "Espereu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:440
 msgid "Query: "
@@ -11733,27 +11741,30 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:534
 msgid "Current cover"
-msgstr ""
+msgstr "Portada actual"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:537
 msgid "Searching..."
-msgstr ""
+msgstr "S'està cercant..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:683
 msgid "Downloading covers for <b>%s</b>, please wait..."
-msgstr ""
+msgstr "S'està baixant portades per a <b>%s</b>, espereu..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:713
 msgid "Failed to download any covers, click \"Show details\" for details."
 msgstr ""
+"No s'ha pogut baixar cap portada. Feu clic a «Mostra detalls» per a més "
+"informació."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:719
 msgid "Could not find any covers for <b>%s</b>"
-msgstr ""
+msgstr "No s'ha trobat cap portada per a <b>%s</b>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:721
 msgid "Found <b>%d</b> covers of %s. Pick the one you like best."
 msgstr ""
+"S'han trobat <b>%d</b> portades per a %s. Trieu la que us agradi més."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:766
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:205
@@ -11762,7 +11773,7 @@ msgstr "Copia-ho al porta-retalls"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:773
 msgid "Download log"
-msgstr ""
+msgstr "Registre de baixades"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:809
 msgid "Downloading metadata..."
@@ -11771,7 +11782,7 @@ msgstr "Descàrrega de les metadades..."
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:827
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:918
 msgid "View log"
-msgstr ""
+msgstr "Mostra el registre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/__init__.py:36
 msgid ""
@@ -11919,7 +11930,7 @@ msgstr "Molt baix"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:72
 msgid "Compact Metadata"
-msgstr ""
+msgstr "Compacta la metadades"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:176
 msgid "Confirmation dialogs have all been reset"
@@ -11941,13 +11952,16 @@ msgstr "Mostra un avís quan hi hagi una &nova versió disponible"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:158
 msgid "Yes/No columns have three values (Requires restart)"
-msgstr ""
+msgstr "Les columnes «Sí/No» tenen tres valors (caldrà reiniciar)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:159
 msgid ""
 "If checked, Yes/No custom columns values can be Yes, No, or Unknown.\n"
 "If not checked, the values can be Yes or No."
 msgstr ""
+"Si es marca, les columnes personalizades «Sí/No» poden ser«Sí», «No» o "
+"«Desconegut».\n"
+"Si no es marca els valors poder ser «Sí» o «No»."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:161
 msgid "Automatically send downloaded &news to ebook reader"
@@ -12000,13 +12014,16 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:173
 msgid "Edit metadata (single) layout:"
-msgstr ""
+msgstr "Edita la disposició (única) de metadades:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:174
 msgid ""
 "Choose a different layout for the Edit Metadata dialog. The compact metadata "
 "layout favors editing custom metadata over changing covers and formats."
 msgstr ""
+"Trieu una disposició diferent per al quadre «Edita metadades». La disposició "
+"compacta de metadades afavoreix l'edició de les metadades personalitzades "
+"per damunt del canvi de portades i formats."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:175
 msgid "Preferred &input format order:"
@@ -12662,15 +12679,15 @@ msgstr "Cal reiniciar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:46
 msgid "Source"
-msgstr ""
+msgstr "Origen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:48
 msgid "Cover priority"
-msgstr ""
+msgstr "Prioritat de la portada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:93
 msgid "Metadata sources"
-msgstr ""
+msgstr "Orígens de les metadades"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:94
 msgid ""
@@ -12678,31 +12695,37 @@ msgid ""
 "also set the cover priority. Covers from sources that have a higher "
 "(smaller) priority will be preferred when bulk downloading metadata.\n"
 msgstr ""
+"Inhabiliteu els orígens de metadades que no voleu desmarcant-los. També "
+"podeu establir la prioritat de les portades. Es prioritzen les portades "
+"d'orígens amb una prioritat més alta (més petita) quan es baixin metadades "
+"en massa.\n"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:96
 msgid "Configure selected source"
-msgstr ""
+msgstr "Configura l'origen seleccionat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:97
 msgid "Downloaded metadata fields"
-msgstr ""
+msgstr "Camps de metadades descarregats"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:98
 msgid ""
 "If you uncheck any fields, metadata for those fields will not be downloaded"
 msgstr ""
+"Si desmarqueu algun camp no es baixaran les metadades d'aquests camps"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:99
 msgid "Convert all downloaded comments to plain &text"
-msgstr ""
+msgstr "Converteix tots els comentaris baixats a &text net"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:100
 msgid "Max. number of &tags to download:"
-msgstr ""
+msgstr "Número màxim d'&etiquetes que es descarregaran:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:101
 msgid "Max. &time to wait after first match is found:"
 msgstr ""
+"&Temps màxim d'espera després que s'hagi trobat la primer coincidència:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:102
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:104
@@ -12712,7 +12735,7 @@ msgstr " segons"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:103
 msgid "Max. time to wait after first &cover is found:"
-msgstr ""
+msgstr "Temps màxim d'espera després que es trobi la primera &portada:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc.py:42
 msgid "Failed to install command line tools."
@@ -13646,11 +13669,11 @@ msgstr "Segona barra d'eines (opcional)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:222
 msgid "The menubar"
-msgstr ""
+msgstr "Barra de menú"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:223
 msgid "The menubar when a device is connected"
-msgstr ""
+msgstr "Barra de menú quan es connecta un dispositiu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:224
 msgid "The context menu for the books in the calibre library"
@@ -17805,7 +17828,7 @@ msgstr "No baixis els fulls d'estil CSS"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:12
 msgid "Auto increment series index"
-msgstr ""
+msgstr "Increment automàtic de l'índex de la sèrie"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:13
 msgid ""
@@ -17831,10 +17854,31 @@ msgid ""
 "series_index_auto_increment = 'next_free'\n"
 "series_index_auto_increment = 16.5"
 msgstr ""
+"L'algoritme utilitzat per assignar un nombre en una sèrie existent a un "
+"llibre nou.\n"
+"Els números nous assignats amb aquest ajustament són enters, excepte si\n"
+"especifiqueu un nombre constant que no sigui enter.\n"
+"Els valors possibles són:\n"
+"next: El primer enter disponible més gran que el major dels nombres "
+"utilitzats\n"
+"first_free: El primer enter disponible més gran que 0\n"
+"next_free: El primer enter disponible més gran que el menor dels nombres "
+"utilitzats\n"
+"last_free: El primer enter disponible més petit que el major dels nombres "
+"utilitzats.\n"
+"S'obté el més gran utilitzat + 1 si no n'hi ha cap altre nombre lliure\n"
+"const: Assigna sempre el nombre 1\n"
+"a number: Assigna sempre aquest nombre. El nombre no està entre cometes. "
+"Aquí\n"
+"es pot utilitzar 0.0\n"
+"Exemples:\n"
+"series_index_auto_increment = 'next'\n"
+"series_index_auto_increment = 'next_free'\n"
+"series_index_auto_increment = 16.5"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:31
 msgid "Add separator after completing an author name"
-msgstr ""
+msgstr "Afegeix un separador després de completar un nom d'autor"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:32
 msgid ""
@@ -17844,10 +17888,14 @@ msgid ""
 "for authors.\n"
 "Can be either True or False"
 msgstr ""
+"Configura si el separador s'afegeix al final\n"
+"del text introduït per començar automàticament\n"
+"una nova operació d'introducció d'autors.\n"
+"Pot ser «True» o «False»"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:40
 msgid "Author sort name algorithm"
-msgstr ""
+msgstr "Algoritme d'ordre per nom d'autor"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:41
 msgid ""
@@ -17863,10 +17911,24 @@ msgid ""
 "selecting 'manage authors', and pressing 'Recalculate all author sort "
 "values'."
 msgstr ""
+"L'algoritme que s'utilitza per copiar l'autor a l'ordre per autor\n"
+"Els valors possibles són:\n"
+"«invert»: passa de «nom cognom» a «cognom, nom» (per defecte)\n"
+"«copy»: copia «author» a «author_sort» sense canvis\n"
+"«comma»: utilitza «copy» si hi ha una coma al nom, si no és així utilitza "
+"«invert»\n"
+"«nocomma»: passa de «nom cognom» a «cognom nom» (sense coma)\n"
+"Si es canvia aquesta opció els valors d'ordre per autor desats per a cada "
+"autor\n"
+"s'han de tornar a calcular. Feu clic dret en un autor al panell d'etiquetes "
+"de\n"
+"l'esquerra, trieu «Administra els autors» i premeu «Torna a calcular tots "
+"els \n"
+"valors d'ordre per autor»."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:52
 msgid "Use author sort in Tag Browser"
-msgstr ""
+msgstr "Utilitza l'ordre per autor a l'explorador d'etiquetes"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:53
 msgid ""
@@ -17886,10 +17948,27 @@ msgid ""
 "categories_use_field_for_author_name = 'author'\n"
 "categories_use_field_for_author_name = 'author_sort'"
 msgstr ""
+"Estableix el camp d'autor s'ha de mostrar al panell d'etiquetes (la llista\n"
+"d'autors, sèrie, editorial... a la banda esquerra). Es pot triar entre "
+"«author»\n"
+"i «author_sort». Aquest ajustament afecta només al que es visualitza a la\n"
+"categoria «autors» al panell d'etiquetes i al servidor de contingut. "
+"Tingueu\n"
+"en compte que si ho establiu a «author_sort» és molt fàcil que hi hagi noms\n"
+"duplicats a la llista perquè es garanteix que els noms d'autors són únics "
+"però\n"
+"no és així per als valors d'«author_sort». Que es visualitzin duplicats no "
+"fa cap\n"
+"mal però pot causar confusions. Si s'utilitza «author_sort» l'indicador de "
+"funció\n"
+"mostra el nom de l'autor.\n"
+"Exemples:\n"
+"categories_use_field_for_author_name = 'author'\n"
+"categories_use_field_for_author_name = 'author_sort'"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:67
 msgid "Control partitioning of Tag Browser"
-msgstr ""
+msgstr "Control de la divisió de l'explorador d'etiquetes"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:68
 msgid ""
