@@ -10,6 +10,7 @@ import os
 
 from calibre import walk
 from calibre.customize.conversion import InputFormatPlugin
+from calibre.ebooks.chardet import xml_to_unicode
 from calibre.utils.zipfile import ZipFile
 
 class HTMLZInput(InputFormatPlugin):
@@ -34,6 +35,13 @@ class HTMLZInput(InputFormatPlugin):
                     html = tf.read()
                     break
         
+        # Encoding
+        if options.input_encoding:
+            ienc = options.input_encoding
+        else:
+            ienc = xml_to_unicode(html[:4096])[-1]
+        html = html.decode(ienc, 'replace')
+        
         # Run the HTML through the html processing plugin.
         from calibre.customize.ui import plugin_for_input_format
         html_input = plugin_for_input_format('html')
@@ -48,7 +56,7 @@ class HTMLZInput(InputFormatPlugin):
             fname = 'index%d.html'%c
         htmlfile = open(fname, 'wb')
         with htmlfile:
-            htmlfile.write(html.encode('utf-8'))
+            htmlfile.write(html.encode('utf-8', 'replace'))
         odi = options.debug_pipeline
         options.debug_pipeline = None
         # Generate oeb from html conversion.
