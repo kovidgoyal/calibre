@@ -385,7 +385,7 @@ class SearchBoxMixin(object): # {{{
         self.search_options_button.clicked.connect(self.search_options_button_clicked)
         self.set_highlight_only_button_icon()
         self.highlight_only_button.clicked.connect(self.highlight_only_clicked)
-        tt = _('Enable or disable search highlighting.') + '<br>'
+        tt = _('Enable or disable search highlighting.') + '<br><br>'
         tt += config.help('highlight_search_matches')
         self.highlight_only_button.setToolTip(tt)
 
