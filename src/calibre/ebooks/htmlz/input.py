@@ -56,7 +56,7 @@ class HTMLZInput(InputFormatPlugin):
             fname = 'index%d.html'%c
         htmlfile = open(fname, 'wb')
         with htmlfile:
-            htmlfile.write(html.encode('utf-8', 'replace'))
+            htmlfile.write(html.encode('utf-8'))
         odi = options.debug_pipeline
         options.debug_pipeline = None
         # Generate oeb from html conversion.
