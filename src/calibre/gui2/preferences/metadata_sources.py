@@ -258,6 +258,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('max_tags', msprefs)
         r('wait_after_first_identify_result', msprefs)
         r('wait_after_first_cover_result', msprefs)
+        r('swap_author_names', msprefs)
 
         self.configure_plugin_button.clicked.connect(self.configure_plugin)
         self.sources_model = SourcesModel(self)
