@@ -250,7 +250,8 @@ class BooksView(QTableView): # {{{
     def multisort(self, fields, reset=True, only_if_different=False):
         if len(fields) == 0:
             return
-        sh = self.cleanup_sort_history(self._model.sort_history)
+        sh = self.cleanup_sort_history(self._model.sort_history,
+                                       ignore_column_map=True)
         if only_if_different and len(sh) >= len(fields):
             ret=True
             for i,t in enumerate(fields):
@@ -263,7 +264,7 @@ class BooksView(QTableView): # {{{
         for n,d in reversed(fields):
             if n in self._model.db.field_metadata.keys():
                 sh.insert(0, (n, d))
-        sh = self.cleanup_sort_history(sh)
+        sh = self.cleanup_sort_history(sh, ignore_column_map=True)
         self._model.sort_history = [tuple(x) for x in sh]
         self._model.resort(reset=reset)
         col = fields[0][0]
@@ -319,14 +320,14 @@ class BooksView(QTableView): # {{{
             state = self.get_state()
             self.write_state(state)
 
-    def cleanup_sort_history(self, sort_history):
+    def cleanup_sort_history(self, sort_history, ignore_column_map=False):
         history = []
         for col, order in sort_history:
             if not isinstance(order, bool):
                 continue
             if col == 'date':
                 col = 'timestamp'
-            if col in self.column_map:
+            if ignore_column_map or col in self.column_map:
                 if (not history or history[-1][0] != col):
                     history.append([col, order])
         return history
