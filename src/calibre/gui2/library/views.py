@@ -246,6 +246,35 @@ class BooksView(QTableView): # {{{
                 self.sortByColumn(idx, Qt.DescendingOrder)
         else:
             self._model.sort_by_named_field(field, order, reset)
+
+    def multisort(self, fields, reset=True, only_if_different=False):
+        if len(fields) == 0:
+            return
+        sh = self.cleanup_sort_history(self._model.sort_history)
+        if only_if_different and len(sh) >= len(fields):
+            ret=True
+            for i,t in enumerate(fields):
+                if t[0] != sh[i][0]:
+                    ret = False
+                    break
+            if ret:
+                return
+
+        for n,d in reversed(fields):
+            if n in self._model.db.field_metadata.keys():
+                sh.insert(0, (n, d))
+        sh = self.cleanup_sort_history(sh)
+        self._model.sort_history = [tuple(x) for x in sh]
+        self._model.resort(reset=reset)
+        col = fields[0][0]
+        dir = Qt.AscendingOrder if fields[0][1] else Qt.DescendingOrder
+        if col in self.column_map:
+            col = self.column_map.index(col)
+            hdrs = self.horizontalHeader()
+            try:
+                hdrs.setSortIndicator(col, dir)
+            except:
+                pass
     # }}}
 
     # Ondevice column {{{
