@@ -592,7 +592,8 @@ class ResultCache(SearchQueryParser): # {{{
             candidates = self.universal_set()
         if len(candidates) == 0:
             return matches
-        self.test_location_is_valid(location, query)
+        if location not in self.all_search_locations:
+            return matches
 
         if len(location) > 2 and location.startswith('@') and \
                     location[1:] in self.db_prefs['grouped_search_terms']:
