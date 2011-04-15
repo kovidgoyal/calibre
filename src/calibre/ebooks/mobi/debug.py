@@ -172,7 +172,7 @@ class EXTHHeader(object):
 
     def read_record(self, pos):
         type_, length = struct.unpack(b'>II', self.raw[pos:pos+8])
-        data = self.raw[pos+8:pos+length-8]
+        data = self.raw[(pos+8):(pos+length)]
         self.records.append(EXTHRecord(type_, data))
         return pos + length
 
@@ -321,6 +321,7 @@ class MOBIHeader(object):
             ans += '\n\n' + str(self.exth)
             ans += '\n\nBytes after EXTH: %d'%self.bytes_after_exth
 
+        ans += '\nRecord 0 length: %d'%len(self.raw)
         return ans
 
 class MOBIFile(object):
