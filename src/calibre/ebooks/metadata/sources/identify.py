@@ -253,6 +253,10 @@ def merge_identify_results(result_map, log):
 
 def identify(log, abort, # {{{
         title=None, authors=None, identifiers={}, timeout=30):
+    if title == _('Unknown'):
+        title = None
+    if authors == [_('Unknown')]:
+        authors = None
     start_time = time.time()
     plugins = [p for p in metadata_plugins(['identify']) if p.is_configured()]
 
@@ -361,6 +365,18 @@ def identify(log, abort, # {{{
     for r in results:
         r.tags = r.tags[:max_tags]
 
+    if msprefs['swap_author_names']:
+        for r in results:
+            def swap_to_ln_fn(a):
+                if ',' in a:
+                    return a
+                parts = a.split(None)
+                if len(parts) <= 1:
+                    return a
+                surname = parts[-1]
+                return '%s, %s' % (surname, ' '.join(parts[:-1]))
+            r.authors = [swap_to_ln_fn(a) for a in r.authors]
+
     return results
 # }}}
 
@@ -391,8 +407,8 @@ if __name__ == '__main__': # tests {{{
               # unknown to Amazon
                 {'identifiers':{'isbn': '9780307459671'},
                     'title':'Invisible Gorilla', 'authors':['Christopher Chabris']},
-                [title_test('The Invisible Gorilla: And Other Ways Our Intuitions Deceive Us',
-                    exact=True), authors_test(['Christopher Chabris', 'Daniel Simons'])]
+                [title_test('The Invisible Gorilla',
+                    exact=True), authors_test(['Christopher F. Chabris', 'Daniel Simons'])]
 
             ),
 
@@ -400,7 +416,7 @@ if __name__ == '__main__': # tests {{{
                 {'title':'Learning Python',
                     'authors':['Lutz']},
                 [title_test('Learning Python',
-                    exact=True), authors_test(['Mark Lutz'])
+                    exact=True), authors_test(['Mark J. Lutz', 'David Ascher'])
                  ]
 
             ),

@@ -236,6 +236,46 @@ class BooksView(QTableView): # {{{
                 sm.select(idx, sm.Select|sm.Rows)
             self.scroll_to_row(indices[0].row())
         self.selected_ids = []
+
+    def sort_by_named_field(self, field, order, reset=True):
+        if field in self.column_map:
+            idx = self.column_map.index(field)
+            if order:
+                self.sortByColumn(idx, Qt.AscendingOrder)
+            else:
+                self.sortByColumn(idx, Qt.DescendingOrder)
+        else:
+            self._model.sort_by_named_field(field, order, reset)
+
+    def multisort(self, fields, reset=True, only_if_different=False):
+        if len(fields) == 0:
+            return
+        sh = self.cleanup_sort_history(self._model.sort_history,
+                                       ignore_column_map=True)
+        if only_if_different and len(sh) >= len(fields):
+            ret=True
+            for i,t in enumerate(fields):
+                if t[0] != sh[i][0]:
+                    ret = False
+                    break
+            if ret:
+                return
+
+        for n,d in reversed(fields):
+            if n in self._model.db.field_metadata.keys():
+                sh.insert(0, (n, d))
+        sh = self.cleanup_sort_history(sh, ignore_column_map=True)
+        self._model.sort_history = [tuple(x) for x in sh]
+        self._model.resort(reset=reset)
+        col = fields[0][0]
+        dir = Qt.AscendingOrder if fields[0][1] else Qt.DescendingOrder
+        if col in self.column_map:
+            col = self.column_map.index(col)
+            hdrs = self.horizontalHeader()
+            try:
+                hdrs.setSortIndicator(col, dir)
+            except:
+                pass
     # }}}
 
     # Ondevice column {{{
@@ -280,14 +320,14 @@ class BooksView(QTableView): # {{{
             state = self.get_state()
             self.write_state(state)
 
-    def cleanup_sort_history(self, sort_history):
+    def cleanup_sort_history(self, sort_history, ignore_column_map=False):
         history = []
         for col, order in sort_history:
             if not isinstance(order, bool):
                 continue
             if col == 'date':
                 col = 'timestamp'
-            if col in self.column_map:
+            if ignore_column_map or col in self.column_map:
                 if (not history or history[-1][0] != col):
                     history.append([col, order])
         return history
@@ -621,7 +661,7 @@ class BooksView(QTableView): # {{{
             h = self.horizontalHeader()
             for i in range(h.count()):
                 if not h.isSectionHidden(i) and h.sectionViewportPosition(i) >= 0:
-                    self.scrollTo(self.model().index(row, i))
+                    self.scrollTo(self.model().index(row, i), self.PositionAtCenter)
                     break
 
     def set_current_row(self, row, select=True):

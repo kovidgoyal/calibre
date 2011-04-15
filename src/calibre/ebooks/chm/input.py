@@ -51,6 +51,7 @@ class CHMInput(InputFormatPlugin):
             mainpath = os.path.join(tdir, mainname)
 
             metadata = get_metadata_from_reader(self._chm_reader)
+            self._chm_reader.CloseCHM()
 
             odi = options.debug_pipeline
             options.debug_pipeline = None

@@ -310,10 +310,11 @@ class Serializer(object):
             if href not in id_offsets:
                 self.logger.warn('Hyperlink target %r not found' % href)
                 href, _ = urldefrag(href)
-            ioff = self.id_offsets[href]
-            for hoff in hoffs:
-                buffer.seek(hoff)
-                buffer.write('%010d' % ioff)
+            if href in self.id_offsets:
+                ioff = self.id_offsets[href]
+                for hoff in hoffs:
+                    buffer.seek(hoff)
+                    buffer.write('%010d' % ioff)
 
 class MobiWriter(object):
     COLLAPSE_RE = re.compile(r'[ \t\r\n\v]+')
@@ -1510,7 +1511,7 @@ class MobiWriter(object):
         record0.write(exth)
         record0.write(title)
         record0 = record0.getvalue()
-        self._records[0] = record0 + ('\0' * (2452 - len(record0)))
+        self._records[0] = record0 + ('\0' * (1024*8))
 
     def _build_exth(self):
         oeb = self._oeb

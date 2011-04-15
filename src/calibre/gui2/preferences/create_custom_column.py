@@ -41,6 +41,8 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
                         'text':_('Yes/No'), 'is_multiple':False},
                     10:{'datatype':'composite',
                         'text':_('Column built from other columns'), 'is_multiple':False},
+                    11:{'datatype':'*composite',
+                        'text':_('Column built from other columns, behaves like tags'), 'is_multiple':True},
                 }
 
     def __init__(self, parent, editing, standard_colheads, standard_colnames):
@@ -99,7 +101,9 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
         c = parent.custcols[col]
         self.column_name_box.setText(c['label'])
         self.column_heading_box.setText(c['name'])
-        ct = c['datatype'] if not c['is_multiple'] else '*text'
+        ct = c['datatype']
+        if c['is_multiple']:
+            ct = '*' + ct
         self.orig_column_number = c['colnum']
         self.orig_column_name = col
         column_numbers = dict(map(lambda x:(self.column_types[x]['datatype'], x),
@@ -109,7 +113,7 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
         if ct == 'datetime':
             if c['display'].get('date_format', None):
                 self.date_format_box.setText(c['display'].get('date_format', ''))
-        elif ct == 'composite':
+        elif ct in ['composite', '*composite']:
             self.composite_box.setText(c['display'].get('composite_template', ''))
             sb = c['display'].get('composite_sort', 'text')
             vals = ['text', 'number', 'date', 'bool']
@@ -167,7 +171,7 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
             getattr(self, 'date_format_'+x).setVisible(col_type == 'datetime')
         for x in ('box', 'default_label', 'label', 'sort_by', 'sort_by_label',
                   'make_category'):
-            getattr(self, 'composite_'+x).setVisible(col_type == 'composite')
+            getattr(self, 'composite_'+x).setVisible(col_type in ['composite', '*composite'])
         for x in ('box', 'default_label', 'label'):
             getattr(self, 'enum_'+x).setVisible(col_type == 'enumeration')
         self.use_decorations.setVisible(col_type in ['text', 'composite', 'enumeration'])
@@ -187,8 +191,8 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
                     'because these names are reserved for the index of a series column.'))
         col_heading = unicode(self.column_heading_box.text()).strip()
         col_type = self.column_types[self.column_type_box.currentIndex()]['datatype']
-        if col_type == '*text':
-            col_type='text'
+        if col_type[0] == '*':
+            col_type = col_type[1:]
             is_multiple = True
         else:
             is_multiple = False
@@ -249,11 +253,10 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
         elif col_type == 'text' and is_multiple:
             display_dict = {'is_names': self.is_names.isChecked()}
 
-        if col_type in ['text', 'composite', 'enumeration']:
+        if col_type in ['text', 'composite', 'enumeration'] and not is_multiple:
             display_dict['use_decorations'] = self.use_decorations.checkState()
 
         if not self.editing_col:
-            db.field_metadata
             self.parent.custcols[key] = {
                     'label':col,
                     'name':col_heading,

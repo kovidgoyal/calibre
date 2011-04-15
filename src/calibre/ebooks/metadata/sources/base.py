@@ -24,6 +24,7 @@ msprefs.defaults['ignore_fields'] = []
 msprefs.defaults['max_tags'] = 20
 msprefs.defaults['wait_after_first_identify_result'] = 30 # seconds
 msprefs.defaults['wait_after_first_cover_result'] = 60 # seconds
+msprefs.defaults['swap_author_names'] = False
 
 # Google covers are often poor quality (scans/errors) but they have high
 # resolution, so they trump covers from better sources. So make sure they
@@ -180,6 +181,10 @@ class Source(Plugin):
     #: A list of :class:`Option` objects. They will be used to automatically
     #: construct the configuration widget for this plugin
     options = ()
+
+    #: A string that is displayed at the top of the config widget for this
+    #: plugin
+    config_help_message = None
 
 
     def __init__(self, *args, **kwargs):

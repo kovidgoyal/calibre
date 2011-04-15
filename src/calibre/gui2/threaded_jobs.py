@@ -189,7 +189,11 @@ class ThreadedJobServer(Thread):
 
     def run(self):
         while self.keep_going:
-            self.run_once()
+            try:
+                self.run_once()
+            except:
+                import traceback
+                traceback.print_exc()
             time.sleep(0.1)
 
     def run_once(self):

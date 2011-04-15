@@ -26,7 +26,7 @@ def get_metadata(stream, extract_cover=True):
 
     try:
         with ZipFile(stream) as zf:
-            opf_name = get_first_opf_name(stream)
+            opf_name = get_first_opf_name(zf)
             opf_stream = StringIO(zf.read(opf_name))
             opf = OPF(opf_stream)
             mi = opf.to_book_metadata()
@@ -40,17 +40,13 @@ def get_metadata(stream, extract_cover=True):
 
 def set_metadata(stream, mi):
     replacements = {}
-    
+
     # Get the OPF in the archive.
-    try:
-        opf_path = get_first_opf_name(stream)
-        with ZipFile(stream) as zf:
-            opf_stream = StringIO(zf.read(opf_path))
-        opf = OPF(opf_stream)
-    except:
-        opf_path = 'metadata.opf'
-        opf = OPF(StringIO())
-    
+    with ZipFile(stream) as zf:
+        opf_path = get_first_opf_name(zf)
+        opf_stream = StringIO(zf.read(opf_path))
+    opf = OPF(opf_stream)
+
     # Cover.
     new_cdata = None
     try:
@@ -75,7 +71,7 @@ def set_metadata(stream, mi):
     newopf = StringIO(opf.render())
     safe_replace(stream, opf_path, newopf, extra_replacements=replacements)
 
-    # Cleanup temporary files.    
+    # Cleanup temporary files.
     try:
         if cpath is not None:
             replacements[cpath].close()
@@ -83,17 +79,16 @@ def set_metadata(stream, mi):
     except:
         pass
 
-def get_first_opf_name(stream):
-    with ZipFile(stream) as zf:
-        names = zf.namelist()
-        opfs = []
-        for n in names:
-            if n.endswith('.opf') and '/' not in n:
-                opfs.append(n)
-        if not opfs:
-            raise Exception('No OPF found')
-        opfs.sort()
-        return opfs[0]
+def get_first_opf_name(zf):
+    names = zf.namelist()
+    opfs = []
+    for n in names:
+        if n.endswith('.opf') and '/' not in n:
+            opfs.append(n)
+    if not opfs:
+        raise Exception('No OPF found')
+    opfs.sort()
+    return opfs[0]
 
 def _write_new_cover(new_cdata, cpath):
     from calibre.utils.magick.draw import save_cover_data_to
