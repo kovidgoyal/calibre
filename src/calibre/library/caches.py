@@ -413,12 +413,12 @@ class ResultCache(SearchQueryParser): # {{{
         cast = adjust = lambda x: x
 
         if query == 'false':
-            if dt == 'rating':
+            if dt == 'rating' or location == 'cover':
                 relop = lambda x,y: not bool(x)
             else:
                 relop = lambda x,y: x is None
         elif query == 'true':
-            if dt == 'rating':
+            if dt == 'rating' or location == 'cover':
                 relop = lambda x,y: bool(x)
             else:
                 relop = lambda x,y: x is not None
