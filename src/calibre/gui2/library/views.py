@@ -661,7 +661,7 @@ class BooksView(QTableView): # {{{
             h = self.horizontalHeader()
             for i in range(h.count()):
                 if not h.isSectionHidden(i) and h.sectionViewportPosition(i) >= 0:
-                    self.scrollTo(self.model().index(row, i))
+                    self.scrollTo(self.model().index(row, i), self.PositionAtCenter)
                     break
 
     def set_current_row(self, row, select=True):
