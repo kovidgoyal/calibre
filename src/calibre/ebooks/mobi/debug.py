@@ -141,7 +141,7 @@ class EXTHRecord(object):
                 204 : 'Creator Software',
                 205 : 'Creator Major Version', # '>I'
                 206 : 'Creator Minor Version', # '>I'
-                207 : 'Creator Build number', # '>I'
+                207 : 'Creator Build Number', # '>I'
                 208 : 'watermark',
                 209 : 'tamper_proof_keys',
                 300 : 'fontsignature',
@@ -152,6 +152,11 @@ class EXTHRecord(object):
                 502 : 'lastupdatetime',
                 503 : 'updatedtitle',
         }.get(self.type, repr(self.type))
+
+        if self.name in ('coveroffset', 'thumboffset', 'hasfakecover',
+                'Creator Major Version', 'Creator Minor Version',
+                'Creator Build Number', 'Creator Software'):
+            self.data, = struct.unpack(b'>I', self.data)
 
     def __str__(self):
         return '%s (%d): %r'%(self.name, self.type, self.data)
