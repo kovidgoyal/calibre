@@ -1,4 +1,3 @@
-
 __license__   = 'GPL v3'
 __copyright__ = '2010, Darko Miletic <darko.miletic at gmail.com>'
 '''
@@ -19,11 +18,11 @@ class SueddeutcheZeitung(BasicNewsRecipe):
     encoding               = 'cp1252'
     needs_subscription     = True
     remove_empty_feeds     = True
-    delay                  = 2
+    delay                  = 1
     PREFIX                 = 'http://www.sueddeutsche.de'
     INDEX                  = PREFIX + '/app/epaper/textversion/'
     use_embedded_content   = False
-    masthead_url           = 'http://pix.sueddeutsche.de/img/layout/header/logo.gif'
+    masthead_url           = 'http://pix.sueddeutsche.de/img/layout/header/SZ_solo288x31.gif'
     language               = 'de'
     publication_type       = 'newspaper'
     extra_css              = ' body{font-family: Arial,Helvetica,sans-serif} '
@@ -36,7 +35,7 @@ class SueddeutcheZeitung(BasicNewsRecipe):
                         , 'linearize_tables' : True
                         }
 
-    remove_attributes = ['height','width']
+    remove_attributes = ['height','width','style']
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser()
@@ -50,24 +49,37 @@ class SueddeutcheZeitung(BasicNewsRecipe):
 
     remove_tags        =[
                          dict(attrs={'class':'hidePrint'})
-                        ,dict(name=['link','object','embed','base','iframe'])
+                        ,dict(name=['link','object','embed','base','iframe','br'])
                         ]
     keep_only_tags     = [dict(attrs={'class':'artikelBox'})]
     remove_tags_before =  dict(attrs={'class':'artikelTitel'})
     remove_tags_after  =  dict(attrs={'class':'author'})
 
     feeds = [
-               (u'Politik'      , INDEX + 'Politik/'      )
-              ,(u'Seite drei'   , INDEX + 'Seite+drei/'   )
-              ,(u'Meinungsseite', INDEX + 'Meinungsseite/')
-              ,(u'Wissen'       , INDEX + 'Wissen/'       )
-              ,(u'Panorama'     , INDEX + 'Panorama/'     )
-              ,(u'Feuilleton'   , INDEX + 'Feuilleton/'   )
-              ,(u'Medien'       , INDEX + 'Medien/'       )
-              ,(u'Wirtschaft'   , INDEX + 'Wirtschaft/'   )
-              ,(u'Sport'        , INDEX + 'Sport/'        )
-              ,(u'Bayern'       , INDEX + 'Bayern/'       )
-              ,(u'Muenchen'     , INDEX + 'M%FCnchen/'    )
+               (u'Politik'       , INDEX + 'Politik/'      )
+              ,(u'Seite drei'    , INDEX + 'Seite+drei/'   )
+              ,(u'Meinungsseite' , INDEX + 'Meinungsseite/')
+              ,(u'Wissen'        , INDEX + 'Wissen/'       )
+              ,(u'Panorama'      , INDEX + 'Panorama/'     )
+              ,(u'Feuilleton'    , INDEX + 'Feuilleton/'   )
+              ,(u'Medien'        , INDEX + 'Medien/'       )
+              ,(u'Wirtschaft'    , INDEX + 'Wirtschaft/'   )
+              ,(u'Sport'         , INDEX + 'Sport/'        )
+              ,(u'Bayern'        , INDEX + 'Bayern/'       )
+              ,(u'Muenchen'      , INDEX + 'M%FCnchen/'    )
+              ,(u'Muenchen City' , INDEX + 'M%FCnchen+City/' )
+              ,(u'Jetzt.de'         , INDEX + 'Jetzt.de/'        )
+              ,(u'Reise'         , INDEX + 'Reise/'        )
+              ,(u'SZ Extra'         , INDEX + 'SZ+Extra/'        )
+              ,(u'Wochenende'    , INDEX + 'SZ+am+Wochenende/' )
+              ,(u'Stellen-Markt'  , INDEX + 'Stellen-Markt/')
+              ,(u'Motormarkt'  , INDEX + 'Motormarkt/')
+              ,(u'Immobilien-Markt', INDEX + 'Immobilien-Markt/')
+              ,(u'Thema'         , INDEX + 'Thema/'        )
+              ,(u'Forum'         , INDEX + 'Forum/'        )
+              ,(u'Leute'         , INDEX + 'Leute/'        )
+              ,(u'Jugend'         , INDEX + 'Jugend/'        )
+              ,(u'Beilage'         , INDEX + 'Beilage/'        )
             ]
 
     def parse_index(self):
