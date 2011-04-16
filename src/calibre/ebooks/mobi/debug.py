@@ -235,7 +235,9 @@ class MOBIHeader(object):
             }.get(self.encoding_raw, repr(self.encoding_raw))
         self.uid = self.raw[32:36]
         self.file_version = struct.unpack(b'>I', self.raw[36:40])
-        self.reserved = self.raw[40:80]
+        self.reserved = self.raw[40:48]
+        self.secondary_index_record, = struct.unpack(b'>I', self.raw[48:52])
+        self.reserved2 = self.raw[52:80]
         self.first_non_book_record, = struct.unpack(b'>I', self.raw[80:84])
         self.fullname_offset, = struct.unpack(b'>I', self.raw[84:88])
         self.fullname_length, = struct.unpack(b'>I', self.raw[88:92])
@@ -255,18 +257,28 @@ class MOBIHeader(object):
         self.unknown2 = self.raw[120:128]
         self.exth_flags, = struct.unpack(b'>I', self.raw[128:132])
         self.has_exth = bool(self.exth_flags & 0x40)
-        self.has_drm_data = self.length >= 184 and len(self.raw) >= 184
+        self.has_drm_data = self.length >= 174 and len(self.raw) >= 180
         if self.has_drm_data:
             self.unknown3 = self.raw[132:164]
             self.drm_offset, = struct.unpack(b'>I', self.raw[164:168])
             self.drm_count, = struct.unpack(b'>I', self.raw[168:172])
             self.drm_size, = struct.unpack(b'>I', self.raw[172:176])
             self.drm_flags = bin(struct.unpack(b'>I', self.raw[176:180])[0])
-        self.has_extra_data_flags = self.length >= 244 and len(self.raw) >= 244
+        self.has_extra_data_flags = self.length >= 232 and len(self.raw) >= 232+16
+        self.has_fcis_flis = False
         if self.has_extra_data_flags:
-            self.unknown4 = self.raw[180:242]
-            self.extra_data_flags = bin(struct.unpack(b'>H',
-                self.raw[242:244])[0])
+            self.unknown4 = self.raw[180:192]
+            self.first_content_record, self.last_content_record = \
+                    struct.unpack(b'>HH', self.raw[192:196])
+            self.unknown5, = struct.unpack(b'>I', self.raw[196:200])
+            (self.fcis_number, self.fcis_count, self.flis_number,
+                    self.flis_count) = struct.unpack(b'>IIII',
+                            self.raw[200:216])
+            self.unknown6 = self.raw[216:240]
+            self.extra_data_flags = bin(struct.unpack(b'>I',
+                self.raw[240:244])[0])
+            self.primary_index_record, = struct.unpack(b'>I',
+                    self.raw[244:248])
 
         if self.has_exth:
             self.exth_offset = 16 + self.length
@@ -291,6 +303,9 @@ class MOBIHeader(object):
         ans.append('UID: %r'%self.uid)
         ans.append('File version: %d'%self.file_version)
         ans.append('Reserved: %r'%self.reserved)
+        ans.append('Secondary index record: %d (null val: %d)'%(
+            self.secondary_index_record, 0xffffffff))
+        ans.append('Reserved2: %r'%self.reserved2)
         ans.append('First non-book record: %d'% self.first_non_book_record)
         ans.append('Full name offset: %d'%self.fullname_offset)
         ans.append('Full name length: %d bytes'%self.fullname_length)
@@ -313,7 +328,16 @@ class MOBIHeader(object):
             ans.append('DRM Flags: %r'%self.drm_flags)
         if self.has_extra_data_flags:
             ans.append('Unknown4: %r'%self.unknown4)
+            ans.append('First content record: %d'% self.first_content_record)
+            ans.append('Last content record: %d'% self.last_content_record)
+            ans.append('Unknown5: %d'% self.unknown5)
+            ans.append('FCIS number: %d'% self.fcis_number)
+            ans.append('FCIS count: %d'% self.fcis_count)
+            ans.append('FLIS number: %d'% self.flis_number)
+            ans.append('FLIS count: %d'% self.flis_count)
+            ans.append('Unknown6: %r'% self.unknown6)
             ans.append('Extra data flags: %r'%self.extra_data_flags)
+            ans.append('Primary index record: %d'%self.primary_index_record)
 
         ans = '\n'.join(ans)
 
