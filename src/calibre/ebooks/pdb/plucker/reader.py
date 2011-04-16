@@ -145,6 +145,7 @@ class HeaderRecord(object):
         # 1 is DOC compressed
         self.compression, = struct.unpack('>H', raw[2:4])
         self.records, = struct.unpack('>H', raw[4:6])
+        self.home_html = None
         
         self.reserved = {}
         for i in xrange(self.records):
@@ -152,6 +153,8 @@ class HeaderRecord(object):
             name, = struct.unpack('>H', raw[6+adv:8+adv])
             id, = struct.unpack('>H', raw[8+adv:10+adv])
             self.reserved[id] = name
+            if name == 0:
+                self.home_html = id
 
 
 class SectionHeader(object):
@@ -279,24 +282,21 @@ class Reader(FormatReader):
         self.mi = get_metadata(stream, False)
 
     def extract_content(self, output_dir):
-        html = u'<html><body>'
-        images = []
-
-        for uid, num in self.uid_text_secion_number.items():
-            section_header, section_data = self.sections[num]
-            if section_header.type == DATATYPE_PHTML:
-                html += self.process_phtml(section_data.header, section_data.data)
-            elif section_header.type == DATATYPE_PHTML_COMPRESSED:
-                d = self.decompress_phtml(section_data.data)
-                html += self.process_phtml(section_header.uid, section_data.header, d).decode(self.get_text_uid_encoding(section_header.uid), 'replace')
-
-        html += '</body></html>'
-
         with CurrentDir(output_dir):
-            with open('index.html', 'wb') as index:
-                self.log.debug('Writing text to index.html')
-                index.write(html.encode('utf-8'))
+            for uid, num in self.uid_text_secion_number.items():
+                self.log.debug(_('Writing record with uid: %s as %s.html' % (uid, uid)))
+                with open('%s.html' % uid, 'wb') as htmlf:
+                    html = u'<html><body>'
+                    section_header, section_data = self.sections[num]
+                    if section_header.type == DATATYPE_PHTML:
+                        html += self.process_phtml(section_data.header, section_data.data)
+                    elif section_header.type == DATATYPE_PHTML_COMPRESSED:
+                        d = self.decompress_phtml(section_data.data)
+                        html += self.process_phtml(section_data.header, d).decode(self.get_text_uid_encoding(section_header.uid), 'replace')
+                    html += '</body></html>'
+                    htmlf.write(html.encode('utf-8'))
 
+        images = []
         if not os.path.exists(os.path.join(output_dir, 'images/')):
             os.makedirs(os.path.join(output_dir, 'images/'))
         with CurrentDir(os.path.join(output_dir, 'images/')):
@@ -326,9 +326,25 @@ class Reader(FormatReader):
                 else:
                     self.log.error('Failed to write image with uid %s: No data.' % uid)
 
-        opf_path = self.create_opf(output_dir, images)
+        # Run the HTML through the html processing plugin.
+        from calibre.customize.ui import plugin_for_input_format
+        html_input = plugin_for_input_format('html')
+        for opt in html_input.options:
+            setattr(self.options, opt.option.name, opt.recommended_value)
+        self.options.input_encoding = 'utf-8'
+        odi = self.options.debug_pipeline
+        self.options.debug_pipeline = None
+        # Generate oeb from html conversion.
+        try:
+            home_html = self.header_record.home_html
+            if not home_html:
+                home_html = self.uid_text_secion_number.items()[0][0]
+        except:
+            raise Exception(_('Could not determine home.html'))
+        oeb = html_input.convert(open('%s.html' % home_html, 'rb'), self.options, 'html', self.log, {})
+        self.options.debug_pipeline = odi
 
-        return opf_path
+        return oeb
 
     def decompress_phtml(self, data):
         if self.header_record.compression == 2:
@@ -339,8 +355,8 @@ class Reader(FormatReader):
             #from calibre.ebooks.compression.palmdoc import decompress_doc
             return decompress_doc(data)
             
-    def process_phtml(self, uid, sub_header, d):
-        html = u'<a id="p%s" /><p id="p%s-0">' % (uid, uid)
+    def process_phtml(self, sub_header, d):
+        html = u'<p id="p0">'
         offset = 0
         paragraph_open = True
         need_set_p_id = False
@@ -354,7 +370,7 @@ class Reader(FormatReader):
         while offset < len(d):
             if not paragraph_open:
                 if need_set_p_id:
-                    html += u'<p id="p%s-%s">' % (uid, p_num)
+                    html += u'<p id="p%s">' % p_num
                     p_num += 1
                     need_set_p_id = False
                 else:
@@ -371,7 +387,7 @@ class Reader(FormatReader):
                 if c == 0x0a:
                     offset += 1
                     id = struct.unpack('>H', d[offset:offset+2])[0]
-                    html += '<a href="#p%s">' % id
+                    html += '<a href="%s.html">' % id
                     offset += 1
                 # Targeted page link begins
                 # 3 Bytes
@@ -387,7 +403,7 @@ class Reader(FormatReader):
                     id = struct.unpack('>H', d[offset:offset+2])[0]
                     offset += 2
                     pid = struct.unpack('>H', d[offset:offset+2])[0]
-                    html += '<a href="#p%s-%s">' % (id, pid)
+                    html += '<a href="%s.html#p%s">' % (id, pid)
                     offset += 1
                 # Targeted paragraph link begins
                 # 5 Bytes
@@ -543,19 +559,3 @@ class Reader(FormatReader):
 
     def get_text_uid_encoding(self, uid):
         return self.uid_text_secion_encoding.get(uid, self.default_encoding)
-
-    def create_opf(self, output_dir, images):
-        with CurrentDir(output_dir):
-            opf = OPFCreator(output_dir, self.mi)
-
-            manifest = [('index.html', None)]
-
-            for i in images:
-                manifest.append((os.path.join('images/', i), None))
-
-            opf.create_manifest(manifest)
-            opf.create_spine(['index.html'])
-            with open('metadata.opf', 'wb') as opffile:
-                opf.render(opffile)
-
-        return os.path.join(output_dir, 'metadata.opf')
