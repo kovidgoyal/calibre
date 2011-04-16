@@ -7,8 +7,6 @@ __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.cam> and \
         Kovid Goyal <kovid@kovidgoyal.net>'
 
 from collections import defaultdict
-from itertools import count
-from itertools import izip
 import random
 import re
 from struct import pack
@@ -1630,8 +1628,8 @@ class MobiWriter(object):
         self._write(title, pack('>HHIIIIII', 0, 0, now, now, 0, 0, 0, 0),
             'BOOK', 'MOBI', pack('>IIH', nrecords, 0, nrecords))
         offset = self._tell() + (8 * nrecords) + 2
-        for id, record in izip(count(), self._records):
-            self._write(pack('>I', offset), '\0', pack('>I', id)[1:])
+        for i, record in enumerate(self._records):
+            self._write(pack('>I', offset), '\0', pack('>I', 2*i)[1:])
             offset += len(record)
         self._write('\0\0')
 
