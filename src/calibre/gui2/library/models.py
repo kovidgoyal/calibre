@@ -310,10 +310,17 @@ class BooksModel(QAbstractTableModel): # {{{
     def sort(self, col, order, reset=True):
         if not self.db:
             return
-        self.about_to_be_sorted.emit(self.db.id)
         if not isinstance(order, bool):
             order = order == Qt.AscendingOrder
         label = self.column_map[col]
+        self._sort(label, order, reset)
+
+    def sort_by_named_field(self, field, order, reset=True):
+        if field in self.db.field_metadata.keys():
+            self._sort(field, order, reset)
+
+    def _sort(self, label, order, reset):
+        self.about_to_be_sorted.emit(self.db.id)
         self.db.sort(label, order)
         if reset:
             self.reset()

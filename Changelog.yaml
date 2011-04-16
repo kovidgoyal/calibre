@@ -19,6 +19,83 @@
 #  new recipes:
 #    - title: 
 
+- version: 0.7.55
+  date: 2011-04-15
+
+  new features:
+    - title: "Add a menu bar. Useful if you use a lot of plugins and are running out of space in your toolbars. By default the menu bar is hidden (except on OS X). You can add actions to it via Preferences->Toolbars. As soon as you add actions, it will become visible."
+
+    - title: "OS X: Make the main calibre window look a little more 'native' on OS X"
+
+    - title: "Show recently viewed books in the View button's drop down menu"
+
+    - title: "Add a button next to the search bar to toggle easily between highlight and restrict search modes"
+
+    - title: "Allow the use of arbitrary searches as search restrictions, rather than just saved searches. Do this by using the special entry '*Current Search' in the Search Restriction dropdown."
+
+    - title: "The Connect/share icon now changes color to indicate that the content server is running"
+      tickets: [755444]
+
+    - title: "Device drivers for Viewpad 7, Motorola Xoom and Asus Eee Note"
+
+    - title: "Add tags like composite custom column."
+      tickets: [759663]
+
+    - title: "Add a new date format code 'iso'. Permits formatting dates to see the complete time (via Preferences->Tweaks)"
+
+    - title: "Allow the use of data from the size column in the template language"
+      tickets: [759645]
+
+    - title: "Support reading/writing covers to txtz/htmlz files"
+
+    - title: "Speedup for large library sorting when using composite custom columns"
+
+    - title: "Move the boolean columns are tristate tweak to Preferences->Behavior"
+  
+  bug fixes:
+    - title: "Fix a regression in 0.7.54 that broke reading covers/metadata from cbz files."
+      tickets: [756892]
+
+    - title: "Fix tweak names and help not translatable"
+      tickets: [756736]
+
+    - title: "When the size of a book is less that 0.1MB but not zero, display the size as <0.1 instead of 0.0."
+      tickets: [755768]
+
+    - title: "HTMLZ input: Fix handling of HTML files encoded in an encoding other than UTF-8"
+
+    - title: "EPUB Input: Fix EPUB files with empty Adobe PAGE templates causing conversion to abort."
+      tickets: [760390]
+
+    - title: "Fix CHM input plugin not closing opened input file"
+      tickets: [760589]
+
+    - title: "MOBI Output: Make super/subscripts use a slightly smaller font when rendered on a Kindle. Also allow the use of vertical-align:top/bottom in the CSS to specify a super/subscript."
+      tickets: [758667]
+
+    - title: "LRF Input: Detect and workaround LRF files that have deeply nested spans, instead of crashing."
+      tickets: [759680]
+
+    - title: "MOBI Output: Fix bug that would cause conversion to unneccessarily abort when malformed hyperlinks are present in the input document."
+      tickets: [759313]
+
+    - title: "Make true and false searches work correctly for numeric fields."
+
+    - title: "MOBI Output: The Ignore margins setting no longer ignores blockquotes, only margins set via CSS on other elements."
+      tickets: [758675]
+
+    - title: "Fix regression that caused clicking auto send to also change the email address in Preferences->Email"
+
+  improved recipes:
+    - Wall Street Journal
+    - Weblogs SL
+    - Tabu.ro
+    - Vecernje Novosti
+
+  new recipes:
+    - title: Hallo Assen and Dvhn
+      author: Reijendert
+
 
 - version: 0.7.54
   date: 2011-04-08

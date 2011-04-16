@@ -413,12 +413,12 @@ class ResultCache(SearchQueryParser): # {{{
         cast = adjust = lambda x: x
 
         if query == 'false':
-            if dt == 'rating':
+            if dt == 'rating' or location == 'cover':
                 relop = lambda x,y: not bool(x)
             else:
                 relop = lambda x,y: x is None
         elif query == 'true':
-            if dt == 'rating':
+            if dt == 'rating' or location == 'cover':
                 relop = lambda x,y: bool(x)
             else:
                 relop = lambda x,y: x is not None
@@ -592,7 +592,8 @@ class ResultCache(SearchQueryParser): # {{{
             candidates = self.universal_set()
         if len(candidates) == 0:
             return matches
-        self.test_location_is_valid(location, query)
+        if location not in self.all_search_locations:
+            return matches
 
         if len(location) > 2 and location.startswith('@') and \
                     location[1:] in self.db_prefs['grouped_search_terms']:
@@ -751,7 +752,7 @@ class ResultCache(SearchQueryParser): # {{{
 
                     if loc not in exclude_fields: # time for text matching
                         if is_multiple_cols[loc] is not None:
-                            vals = item[loc].split(is_multiple_cols[loc])
+                            vals = [v.strip() for v in item[loc].split(is_multiple_cols[loc])]
                         else:
                             vals = [item[loc]] ### make into list to make _match happy
                         if _match(q, vals, matchkind):

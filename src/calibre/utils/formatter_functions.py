@@ -504,7 +504,8 @@ class BuiltinFormat_date(BuiltinFormatterFunction):
             'MMM  : the abbreviated localized month name (e.g. "Jan" to "Dec"). '
             'MMMM : the long localized month name (e.g. "January" to "December"). '
             'yy   : the year as two digit number (00 to 99). '
-            'yyyy : the year as four digit number.')
+            'yyyy : the year as four digit number. '
+            'iso  : the date with time and timezone. Must be the only format present')
 
     def evaluate(self, formatter, kwargs, mi, locals, val, format_string):
         if not val:
