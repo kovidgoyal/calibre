@@ -43,7 +43,7 @@ class ViewAction(InterfaceAction):
         ac = self.view_specific_action = QAction(_('View specific format'),
                 self.gui)
         self.qaction.setMenu(self.view_menu)
-        ac.setShortcut((Qt.ControlModifier if isosx else Qt.AltModifier)+Qt.Key_V)
+        ac.setShortcut(Qt.AltModifier+Qt.Key_V)
         ac.triggered.connect(self.view_specific_format, type=Qt.QueuedConnection)
         ac = self.view_action = QAction(self.qaction.icon(),
                 self.qaction.text(), self.gui)

@@ -205,6 +205,7 @@ class SearchBar(QWidget): # {{{
         x.setObjectName("search_option_button")
         l.addWidget(x)
         x.setToolTip(_("Change the way searching for books works"))
+        x.setVisible(False)
 
         x = parent.saved_search = SavedSearchBox(self)
         x.setMaximumSize(QSize(150, 16777215))
