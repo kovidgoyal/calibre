@@ -263,7 +263,7 @@ class Reader(FormatReader):
             elif section_header.type == DATATYPE_METADATA:
                 self.metadata_section_number = section_number
                 section = SectionMetadata(raw_data[start:])
-            elif section_header.type == DATATYPE_COMPOSITE_IMAGE:
+            #elif section_header.type == DATATYPE_COMPOSITE_IMAGE:
                 
 
             self.sections.append((section_header, section))
@@ -285,10 +285,10 @@ class Reader(FormatReader):
         for uid, num in self.uid_text_secion_number.items():
             section_header, section_data = self.sections[num]
             if section_header.type == DATATYPE_PHTML:
-                html += self.process_phtml(section_data.header, section_data.data.decode(self.get_text_uid_encoding(section_header.uid), 'replace'))
+                html += self.process_phtml(section_data.header, section_data.data)
             elif section_header.type == DATATYPE_PHTML_COMPRESSED:
-                d = self.decompress_phtml(section_data.data).decode(self.get_text_uid_encoding(section_header.uid), 'replace')
-                html += self.process_phtml(section_data.header, d)
+                d = self.decompress_phtml(section_data.data)
+                html += self.process_phtml(section_header.uid, section_data.header, d).decode(self.get_text_uid_encoding(section_header.uid), 'replace')
 
         html += '</body></html>'
 
@@ -300,7 +300,6 @@ class Reader(FormatReader):
         if not os.path.exists(os.path.join(output_dir, 'images/')):
             os.makedirs(os.path.join(output_dir, 'images/'))
         with CurrentDir(os.path.join(output_dir, 'images/')):
-            #im.read('/Users/john/Tmp/plkr/apnx.palm')
             for uid, num in self.uid_image_section_number.items():
                 section_header, section_data = self.sections[num]
                 if section_data:
@@ -340,10 +339,12 @@ class Reader(FormatReader):
             #from calibre.ebooks.compression.palmdoc import decompress_doc
             return decompress_doc(data)
             
-    def process_phtml(self, sub_header, d):
-        html = u''
+    def process_phtml(self, uid, sub_header, d):
+        html = u'<a id="p%s" /><p id="p%s-0">' % (uid, uid)
         offset = 0
-        paragraph_open = False
+        paragraph_open = True
+        need_set_p_id = False
+        p_num = 1
         paragraph_offsets = []
         running_offset = 0
         for size in sub_header.sizes:
@@ -352,7 +353,12 @@ class Reader(FormatReader):
         
         while offset < len(d):
             if not paragraph_open:
-                html += u'<p>'
+                if need_set_p_id:
+                    html += u'<p id="p%s-%s">' % (uid, p_num)
+                    p_num += 1
+                    need_set_p_id = False
+                else:
+                    html += u'<p>'
                 paragraph_open = True
 
             c = ord(d[offset])
@@ -363,26 +369,36 @@ class Reader(FormatReader):
                 # 2 Bytes
                 # record ID
                 if c == 0x0a:
-                    offset += 2
+                    offset += 1
+                    id = struct.unpack('>H', d[offset:offset+2])[0]
+                    html += '<a href="#p%s">' % id
+                    offset += 1
                 # Targeted page link begins
                 # 3 Bytes
                 # record ID, target
                 elif c == 0x0b:
                     offset += 3
+                    html += '<a>'
                 # Paragraph link begins
                 # 4 Bytes
                 # record ID, paragraph number
                 elif c == 0x0c:
-                    offset += 4
+                    offset += 1
+                    id = struct.unpack('>H', d[offset:offset+2])[0]
+                    offset += 2
+                    pid = struct.unpack('>H', d[offset:offset+2])[0]
+                    html += '<a href="#p%s-%s">' % (id, pid)
+                    offset += 1
                 # Targeted paragraph link begins
                 # 5 Bytes
                 # record ID, paragraph number, target
                 elif c == 0x0d:
                     offset += 5
+                    html += '<a>'
                 # Link ends
                 # 0 Bytes
                 elif c == 0x08:
-                    pass
+                    html += '</a>'
                 # Set font
                 # 1 Bytes
                 # font specifier
@@ -515,10 +531,11 @@ class Reader(FormatReader):
                 html += unichr(c)
             offset += 1
             if offset in paragraph_offsets:
+                need_set_p_id = True
                 if paragraph_open:
                     html += u'</p>\n'
                     paragraph_open = False
-        
+
         if paragraph_open:
             html += u'</p>'
         
