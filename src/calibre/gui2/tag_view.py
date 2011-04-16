@@ -15,7 +15,7 @@ from functools import partial
 from PyQt4.Qt import Qt, QTreeView, QApplication, pyqtSignal, QFont, QSize, \
                      QIcon, QPoint, QVBoxLayout, QHBoxLayout, QComboBox, QTimer,\
                      QAbstractItemModel, QVariant, QModelIndex, QMenu, QFrame,\
-                     QPushButton, QWidget, QItemDelegate, QString, QLabel, \
+                     QWidget, QItemDelegate, QString, QLabel, \
                      QShortcut, QKeySequence, SIGNAL, QMimeData, QToolButton
 
 from calibre.ebooks.metadata import title_sort
@@ -31,7 +31,7 @@ from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.tag_categories import TagCategories
 from calibre.gui2.dialogs.tag_list_editor import TagListEditor
 from calibre.gui2.dialogs.edit_authors_dialog import EditAuthorsDialog
-from calibre.gui2.widgets import HistoryLineEdit
+from calibre.gui2.widgets import HistoryLineEdit, ComboBoxWithHelp
 
 class TagDelegate(QItemDelegate): # {{{
 
@@ -1809,6 +1809,14 @@ class TagsModel(QAbstractItemModel): # {{{
 
     # }}}
 
+category_managers = [['', None],
+                     [_('Manage Authors'), None],
+                     [_('Manage Series'), None],
+                     [_('Manage Publishers'), None],
+                     [_('Manage Tags'), None],
+                     [_('Manage User Categories'), None],
+                     [_('Manage Saved Searches'), None]]
+
 class TagBrowserMixin(object): # {{{
 
     def __init__(self, db):
@@ -1829,8 +1837,22 @@ class TagBrowserMixin(object): # {{{
         self.tags_view.drag_drop_finished.connect(self.drag_drop_finished)
         self.tags_view.restriction_error.connect(self.do_restriction_error,
                                                  type=Qt.QueuedConnection)
-        self.edit_categories.clicked.connect(lambda x:
-                self.do_edit_user_categories())
+        self.manage_items_box.currentIndexChanged.connect(self.start_manager)
+        for i,m in enumerate(category_managers):
+            m[1] = [None,
+                    lambda p=self : self.do_author_sort_edit(p, None),
+                    lambda : self.do_tags_list_edit(None, 'series'),
+                    lambda : self.do_tags_list_edit(None, 'publisher'),
+                    lambda : self.do_tags_list_edit(None, 'tags'),
+                    lambda : self.do_edit_user_categories(None),
+                    lambda : self.do_saved_search_edit(None),
+                    ][i]
+
+    def start_manager(self, idx):
+        if idx == 0:
+            return
+        (category_managers[idx][1])()
+        self.manage_items_box.setCurrentIndex(0)
 
     def do_restriction_error(self):
         error_dialog(self.tags_view, _('Invalid search restriction'),
@@ -2149,11 +2171,14 @@ class TagBrowserWidget(QWidget): # {{{
                     'match any or all of them'))
         parent.tag_match.setStatusTip(parent.tag_match.toolTip())
 
-        parent.edit_categories = QPushButton(_('Manage &user categories'), parent)
-        self._layout.addWidget(parent.edit_categories)
-        parent.edit_categories.setToolTip(
-                _('Add your own categories to the Tag Browser'))
-        parent.edit_categories.setStatusTip(parent.edit_categories.toolTip())
+
+        l = parent.manage_items_box = ComboBoxWithHelp(parent)
+        for x in category_managers:
+            l.addItem(x[0])
+        l.initialize(_('Manage authors, tags, etc'))
+        l.setToolTip(_('All of these category_managers are available by right-clicking '
+                       'on items in the tag browser above'))
+        self._layout.addWidget(l)
 
         # self.leak_test_timer = QTimer(self)
         # self.leak_test_timer.timeout.connect(self.test_for_leak)
