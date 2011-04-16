@@ -155,7 +155,7 @@ class EXTHRecord(object):
 
         if self.name in ('coveroffset', 'thumboffset', 'hasfakecover',
                 'Creator Major Version', 'Creator Minor Version',
-                'Creator Build Number', 'Creator Software'):
+                'Creator Build Number', 'Creator Software', 'startreading'):
             self.data, = struct.unpack(b'>I', self.data)
 
     def __str__(self):
