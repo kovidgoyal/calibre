@@ -70,16 +70,17 @@ class TXTOutput(OutputFormatPlugin):
      ])
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
+        print 'New'
         if opts.txt_output_formatting.lower() == 'markdown':
             from calibre.ebooks.txt.markdownml import MarkdownMLizer
-            writer = MarkdownMLizer(log)
+            self.writer = MarkdownMLizer(log)
         elif opts.txt_output_formatting.lower() == 'textile':
             from calibre.ebooks.txt.textileml import TextileMLizer
-            writer = TextileMLizer(log)
+            self.writer = TextileMLizer(log)
         else:
-            writer = TXTMLizer(log)
+            self.writer = TXTMLizer(log)
 
-        txt = writer.extract_content(oeb_book, opts)
+        txt = self.writer.extract_content(oeb_book, opts)
         txt = clean_ascii_chars(txt)
 
         log.debug('\tReplacing newlines with selected type...')
@@ -118,10 +119,18 @@ class TXTZOutput(TXTOutput):
             # Images
             for item in oeb_book.manifest:
                 if item.media_type in OEB_IMAGES:
-                    path = os.path.join(tdir, os.path.dirname(item.href))
+                    if hasattr(self.writer, 'images'):
+                        path = os.path.join(tdir, 'images')
+                        if item.href in self.writer.images:
+                            href = self.writer.images[item.href]
+                        else:
+                            continue
+                    else:
+                        path = os.path.join(tdir, os.path.dirname(item.href))
+                        href = os.path.basename(item.href)
                     if not os.path.exists(path):
                         os.makedirs(path)
-                    with open(os.path.join(tdir, item.href), 'wb') as imgf:
+                    with open(os.path.join(path, href), 'wb') as imgf:
                         imgf.write(item.data)
             
             # Metadata
