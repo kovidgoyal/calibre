@@ -208,7 +208,7 @@ class SectionMetadata(object):
     '''
     
     def __init__(self, raw):
-        self.default_encoding = 'utf-8'
+        self.default_encoding = 'latin-1'
         self.exceptional_uid_encodings = {}
         self.owner_id = None
         
@@ -222,14 +222,14 @@ class SectionMetadata(object):
             # CharSet
             if type == 1:
                 val, = struct.unpack('>H', raw[6+adv:8+adv])
-                self.default_encoding = MIBNUM_TO_NAME.get(val, 'utf-8')
+                self.default_encoding = MIBNUM_TO_NAME.get(val, 'latin-1')
             # ExceptionalCharSets
             elif type == 2:
                 ii_adv = 0
                 for ii in xrange(length / 2):
                     uid, = struct.unpack('>H', raw[6+adv+ii_adv:8+adv+ii_adv])
                     mib, = struct.unpack('>H', raw[8+adv+ii_adv:10+adv+ii_adv])
-                    self.exceptional_uid_encodings[uid] = MIBNUM_TO_NAME.get(mib, 'utf-8')
+                    self.exceptional_uid_encodings[uid] = MIBNUM_TO_NAME.get(mib, 'latin-1')
                     ii_adv += 4
             # OwnerID
             elif type == 3:
@@ -306,7 +306,7 @@ class Reader(FormatReader):
         self.uid_image_section_number = {}
         self.uid_composite_image_section_number = {}
         self.metadata_section_number = None
-        self.default_encoding = 'utf-8'
+        self.default_encoding = 'latin-1'
         self.owner_id = None
         self.sections = []
         
@@ -680,10 +680,12 @@ class Reader(FormatReader):
                 # 3 Bytes
                 # alternate text length, 16-bit unicode character
                 elif c == 0x83:
-                    #offset += 2
+                    #offset += 1
+                    #alt_len = struct.unpack('>B', str(d[offset]))[0]
+                    #offset += 1
                     #c16 = d[offset:offset+2]
                     #html += c16.decode('utf-16')
-                    #offset += 1
+                    #offset += 1 + alt_len
                     offset += 3
                 # 32-bit Unicode character
                 # 5 Bytes
