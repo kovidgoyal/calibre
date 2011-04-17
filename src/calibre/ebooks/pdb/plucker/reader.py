@@ -13,10 +13,9 @@ import zlib
 from collections import OrderedDict
 
 from calibre import CurrentDir
-from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre.ebooks.pdb.formatreader import FormatReader
 from calibre.ptempfile import TemporaryFile
-from calibre.utils.magick import Image
+from calibre.utils.magick import Image, create_canvas
 
 DATATYPE_PHTML = 0
 DATATYPE_PHTML_COMPRESSED = 1
@@ -178,6 +177,7 @@ class SectionHeaderText(object):
             self.sizes.append(struct.unpack('>H', raw[adv:2+adv])[0])
             self.attributes.append(struct.unpack('>H', raw[2+adv:4+adv])[0])
 
+
 class SectionMetadata(object):
     
     def __init__(self, raw):
@@ -220,11 +220,40 @@ class SectionMetadata(object):
              
             adv += 2*length
 
+
 class SectionText(object):
     
     def __init__(self, section_header, raw):
         self.header = SectionHeaderText(section_header, raw)
         self.data = raw[section_header.paragraphs * 4:]
+
+
+class SectionCompositeImage(object):
+    
+    def __init__(self, raw):
+        self.columns, = struct.unpack('>H', raw[0:2])
+        self.rows, = struct.unpack('>H', raw[2:4])
+
+        # [
+        #  row [col, col, col...],
+        #  row [col, col, col...],
+        #  ...
+        # ]
+        #
+        # Each item in the layout is in it's
+        # correct position in the final
+        # composite.
+        #
+        # Each item in the layout is a uid
+        # to an image record.
+        self.layout = []
+        offset = 4
+        for i in xrange(self.rows):
+            col = []
+            for j in xrange(self.columns):
+                col.append(struct.unpack('>H', raw[offset:offset+2])[0])
+                offset += 2 
+            self.layout.append(col)
 
 
 class Reader(FormatReader):
@@ -240,6 +269,7 @@ class Reader(FormatReader):
         self.uid_text_secion_number = OrderedDict()
         self.uid_text_secion_encoding = {}
         self.uid_image_section_number = {}
+        self.uid_composite_image_section_number = {}
         self.metadata_section_number = None
         self.default_encoding = 'utf-8'
         self.owner_id = None
@@ -266,8 +296,9 @@ class Reader(FormatReader):
             elif section_header.type == DATATYPE_METADATA:
                 self.metadata_section_number = section_number
                 section = SectionMetadata(raw_data[start:])
-            #elif section_header.type == DATATYPE_COMPOSITE_IMAGE:
-                
+            elif section_header.type == DATATYPE_COMPOSITE_IMAGE:
+                self.uid_composite_image_section_number[section_header.uid] = section_number
+                section = SectionCompositeImage(raw_data[start:])
 
             self.sections.append((section_header, section))
 
@@ -282,6 +313,9 @@ class Reader(FormatReader):
         self.mi = get_metadata(stream, False)
 
     def extract_content(self, output_dir):
+        # Each text record is independent (unless the continuation
+        # value is set in the previous record). Put each converted
+        # text recored into a separate file.
         with CurrentDir(output_dir):
             for uid, num in self.uid_text_secion_number.items():
                 self.log.debug(_('Writing record with uid: %s as %s.html' % (uid, uid)))
@@ -297,9 +331,11 @@ class Reader(FormatReader):
                     htmlf.write(html.encode('utf-8'))
 
         images = []
+        image_sizes = {}
         if not os.path.exists(os.path.join(output_dir, 'images/')):
             os.makedirs(os.path.join(output_dir, 'images/'))
         with CurrentDir(os.path.join(output_dir, 'images/')):
+            # Single images.
             for uid, num in self.uid_image_section_number.items():
                 section_header, section_data = self.sections[num]
                 if section_data:
@@ -317,6 +353,7 @@ class Reader(FormatReader):
                                 itf.write(idata)
                             im = Image()
                             im.read(itn)
+                            image_sizes[uid] = im.size
                             im.set_compression_quality(70)
                             im.save('%s.jpg' % uid)
                             self.log.debug('Wrote image with uid %s to images/%s.jpg' % (uid, uid))
@@ -325,6 +362,49 @@ class Reader(FormatReader):
                     images.append('%s.jpg' % uid)
                 else:
                     self.log.error('Failed to write image with uid %s: No data.' % uid)
+            # Composite images.
+            for uid, num in self.uid_composite_image_section_number.items():
+                try:
+                    section_header, section_data = self.sections[num]
+                    # Get the final width and height.
+                    width = 0
+                    height = 0
+                    for row in section_data.layout:
+                        row_width = 0
+                        col_height = 0
+                        for col in row:
+                            if col not in image_sizes:
+                                raise Exception('Image with uid: %s missing.' % col)
+                            im = Image()
+                            im.read('%s.jpg' % col)
+                            w, h = im.size
+                            row_width += w
+                            if col_height < h:
+                                col_height = h
+                        if width < row_width:
+                            width = row_width
+                        height += col_height
+                    # Create a new image the total size of all image
+                    # parts. Put the parts into the new image.
+                    canvas = create_canvas(width, height)
+                    y_off = 0
+                    for row in section_data.layout:
+                        x_off = 0
+                        largest_height = 0
+                        for col in row:
+                            im = Image()
+                            im.read('%s.jpg' % col)
+                            canvas.compose(im, x_off, y_off)
+                            w, h = im.size
+                            x_off += w
+                            if largest_height < h:
+                                largest_height = h
+                        y_off += largest_height
+                    canvas.set_compression_quality(70)
+                    canvas.save('%s.jpg' % uid)
+                    self.log.debug('Wrote composite image with uid %s to images/%s.jpg' % (uid, uid))
+                except Exception as e:
+                    self.log.error('Failed to write composite image with uid %s: %s' % (uid, e))
 
         # Run the HTML through the html processing plugin.
         from calibre.customize.ui import plugin_for_input_format
@@ -334,13 +414,17 @@ class Reader(FormatReader):
         self.options.input_encoding = 'utf-8'
         odi = self.options.debug_pipeline
         self.options.debug_pipeline = None
-        # Generate oeb from html conversion.
+        # Determine the home.html record uid. This should be set in the
+        # reserved values in the metadata recored. home.html is the first
+        # text record (should have hyper link references to other records)
+        # in the document.
         try:
             home_html = self.header_record.home_html
             if not home_html:
                 home_html = self.uid_text_secion_number.items()[0][0]
         except:
             raise Exception(_('Could not determine home.html'))
+        # Generate oeb from html conversion.
         oeb = html_input.convert(open('%s.html' % home_html, 'rb'), self.options, 'html', self.log, {})
         self.options.debug_pipeline = odi
 
@@ -359,6 +443,7 @@ class Reader(FormatReader):
         html = u'<p id="p0">'
         offset = 0
         paragraph_open = True
+        link_open = False
         need_set_p_id = False
         p_num = 1
         paragraph_offsets = []
@@ -387,14 +472,15 @@ class Reader(FormatReader):
                 if c == 0x0a:
                     offset += 1
                     id = struct.unpack('>H', d[offset:offset+2])[0]
-                    html += '<a href="%s.html">' % id
+                    if id in self.uid_text_secion_number:
+                        html += '<a href="%s.html">' % id
+                        link_open = True
                     offset += 1
                 # Targeted page link begins
                 # 3 Bytes
                 # record ID, target
                 elif c == 0x0b:
                     offset += 3
-                    html += '<a>'
                 # Paragraph link begins
                 # 4 Bytes
                 # record ID, paragraph number
@@ -403,18 +489,21 @@ class Reader(FormatReader):
                     id = struct.unpack('>H', d[offset:offset+2])[0]
                     offset += 2
                     pid = struct.unpack('>H', d[offset:offset+2])[0]
-                    html += '<a href="%s.html#p%s">' % (id, pid)
+                    if id in self.uid_text_secion_number:
+                        html += '<a href="%s.html#p%s">' % (id, pid)
+                        link_open = True
                     offset += 1
                 # Targeted paragraph link begins
                 # 5 Bytes
                 # record ID, paragraph number, target
                 elif c == 0x0d:
                     offset += 5
-                    html += '<a>'
                 # Link ends
                 # 0 Bytes
                 elif c == 0x08:
-                    html += '</a>'
+                    if link_open:
+                        html += '</a>'
+                        link_open = False
                 # Set font
                 # 1 Bytes
                 # font specifier
