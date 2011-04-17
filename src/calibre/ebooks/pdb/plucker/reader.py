@@ -183,6 +183,9 @@ class SectionHeaderText(object):
     def __init__(self, section_header, raw):
         # The uncompressed size of each paragraph.
         self.sizes = []
+        # uncompressed offset of each paragraph starting
+        # at the beginning of the PHTML.
+        self.paragraph_offsets = []
         # Paragraph attributes.
         self.attributes = []
 
@@ -190,6 +193,11 @@ class SectionHeaderText(object):
             adv = 4*i
             self.sizes.append(struct.unpack('>H', raw[adv:2+adv])[0])
             self.attributes.append(struct.unpack('>H', raw[2+adv:4+adv])[0])
+
+        running_offset = 0
+        for size in self.sizes:
+            running_offset += size
+            self.paragraph_offsets.append(running_offset)
 
 
 class SectionMetadata(object):
@@ -299,6 +307,7 @@ class Reader(FormatReader):
           * UTF 16 and 32 characters.
           * Margins.
           * Alignment.
+          * Font color.
           * DATATYPE_MAILTO
           * DATATYPE_TABLE(_COMPRESSED)
           * DATATYPE_EXT_ANCHOR_INDEX
@@ -381,13 +390,13 @@ class Reader(FormatReader):
                     html = u'<html><body>'
                     section_header, section_data = self.sections[num]
                     if section_header.type == DATATYPE_PHTML:
-                        html += self.process_phtml(section_data.header, section_data.data)
+                        html += self.process_phtml(section_data.data, section_data.header.paragraph_offsets)
                     elif section_header.type == DATATYPE_PHTML_COMPRESSED:
                         d = self.decompress_phtml(section_data.data)
-                        html += self.process_phtml(section_data.header, d).decode(self.get_text_uid_encoding(section_header.uid), 'replace')
+                        html += self.process_phtml(d, section_data.header.paragraph_offsets).decode(self.get_text_uid_encoding(section_header.uid), 'replace')
                     html += '</body></html>'
                     htmlf.write(html.encode('utf-8'))
-        
+
         # Images.
         # Cache the image sizes in case they are used by a composite image.
         image_sizes = {}
@@ -498,7 +507,7 @@ class Reader(FormatReader):
             #from calibre.ebooks.compression.palmdoc import decompress_doc
             return decompress_doc(data)
             
-    def process_phtml(self, sub_header, d):
+    def process_phtml(self, d, paragraph_offsets=[]):
         html = u'<p id="p0">'
         offset = 0
         paragraph_open = True
@@ -506,11 +515,6 @@ class Reader(FormatReader):
         need_set_p_id = False
         p_num = 1
         font_specifier_close = ''
-        paragraph_offsets = []
-        running_offset = 0
-        for size in sub_header.sizes:
-            running_offset += size
-            paragraph_offsets.append(running_offset)
         
         while offset < len(d):
             if not paragraph_open:
@@ -754,4 +758,7 @@ class Reader(FormatReader):
         return html
 
     def get_text_uid_encoding(self, uid):
+        # Return the user sepcified input encoding,
+        # otherwise return the alternate encoding specified for the uid,
+        # otherwise retur the default encoding for the document.
         return self.options.input_encoding if self.options.input_encoding else self.uid_text_secion_encoding.get(uid, self.default_encoding)
