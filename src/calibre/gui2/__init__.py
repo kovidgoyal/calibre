@@ -656,7 +656,7 @@ def get_current_db():
     '''
     from calibre.gui2.ui import get_gui
     gui = get_gui()
-    if gui is not None:
+    if gui is not None and gui.current_db is not None:
         return gui.current_db
     from calibre.library import db
     return db()
