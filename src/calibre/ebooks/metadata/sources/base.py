@@ -294,8 +294,16 @@ class Source(Plugin):
         Excludes connectives and punctuation.
         '''
         if title:
-            pat = re.compile(r'''[-,:;+!@#$%^&*(){}.`~"'\s\[\]/]''')
-            title = pat.sub(' ', title)
+            title_patterns = [(re.compile(pat, re.IGNORECASE), repl) for pat, repl in
+            [
+                (r'(?i)[({\[](\d{4}|omnibus|anthology|hardcover|paperback|mass\s*market|edition|ed\.)[\])}]', ''),
+                (r'(\d+),(\d+)', r'\1\2'),
+                (r'(\s-)', ' '),
+                (r"'", ''),
+                (r'''[:,;+!@#$%^&*(){}.`~"\s\[\]/]''', ' ')
+            ]]
+            for pat, repl in title_patterns:
+                title = pat.sub(repl, title)
             tokens = title.split()
             for token in tokens:
                 token = token.strip()
