@@ -523,6 +523,7 @@ class Reader(FormatReader):
                 paragraph_open = True
 
             c = ord(d[offset])
+            # PHTML "functions"
             if c == 0x0:
                 offset += 1
                 c = ord(d[offset])
@@ -736,6 +737,8 @@ class Reader(FormatReader):
                 # Paragraph Offset (The Exact Link Modifier modifies a Paragraph Link or Targeted Paragraph Link function to specify an exact byte offset within the paragraph. This function must be followed immediately by the function it modifies).
                 elif c == 0x9a:
                     offset += 2
+            elif c == 0xa0:
+                html += '&nbsp;'
             else:
                 html += unichr(c)
             offset += 1
@@ -751,4 +754,4 @@ class Reader(FormatReader):
         return html
 
     def get_text_uid_encoding(self, uid):
-        return self.uid_text_secion_encoding.get(uid, self.default_encoding)
+        return self.options.input_encoding if self.options.input_encoding else self.uid_text_secion_encoding.get(uid, self.default_encoding)
