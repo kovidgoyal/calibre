@@ -743,6 +743,8 @@ class BooksView(QTableView): # {{{
         id_to_select = self._model.get_current_highlighted_id()
         if id_to_select is not None:
             self.select_rows([id_to_select], using_ids=True)
+        elif self._model.highlight_only:
+            self.clearSelection()
         self.setFocus(Qt.OtherFocusReason)
 
     def connect_to_search_box(self, sb, search_done):

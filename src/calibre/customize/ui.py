@@ -7,7 +7,8 @@ import os, shutil, traceback, functools, sys
 from calibre.customize import (CatalogPlugin, FileTypePlugin, PluginNotFound,
                               MetadataReaderPlugin, MetadataWriterPlugin,
                               InterfaceActionBase as InterfaceAction,
-                              PreferencesPlugin, platform, InvalidPlugin)
+                              PreferencesPlugin, platform, InvalidPlugin,
+                              StoreBase as Store)
 from calibre.customize.conversion import InputFormatPlugin, OutputFormatPlugin
 from calibre.customize.zipplugin import loader
 from calibre.customize.profiles import InputProfile, OutputProfile
@@ -239,6 +240,17 @@ def preferences_plugins():
     customization = config['plugin_customization']
     for plugin in _initialized_plugins:
         if isinstance(plugin, PreferencesPlugin):
+            if not is_disabled(plugin):
+                plugin.site_customization = customization.get(plugin.name, '')
+                yield plugin
+# }}}
+
+# Store Plugins # {{{
+
+def store_plugins():
+    customization = config['plugin_customization']
+    for plugin in _initialized_plugins:
+        if isinstance(plugin, Store):
             if not is_disabled(plugin):
                 plugin.site_customization = customization.get(plugin.name, '')
                 yield plugin

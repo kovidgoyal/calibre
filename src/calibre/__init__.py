@@ -5,7 +5,9 @@ __docformat__ = 'restructuredtext en'
 
 import uuid, sys, os, re, logging, time, random, \
        __builtin__, warnings, multiprocessing
+from contextlib import closing
 from urllib import getproxies
+from urllib2 import unquote as urllib2_unquote
 __builtin__.__dict__['dynamic_property'] = lambda(func): func(None)
 from htmlentitydefs import name2codepoint
 from math import floor
@@ -290,6 +292,9 @@ def get_parsed_proxy(typ='http', debug=True):
                     prints('Using http proxy', str(ans))
                 return ans
 
+USER_AGENT = 'Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.9.2.13) Gecko/20101210 Gentoo Firefox/3.6.13'
+USER_AGENT_MOBILE = 'Mozilla/5.0 (Windows; U; Windows CE 5.1; rv:1.8.1a3) Gecko/20060610 Minimo/0.016'
+
 def random_user_agent():
     choices = [
         'Mozilla/5.0 (Windows NT 5.2; rv:2.0.1) Gecko/20100101 Firefox/4.0.1',
@@ -305,7 +310,6 @@ def random_user_agent():
     #return choices[-1]
     return choices[random.randint(0, len(choices)-1)]
 
-
 def browser(honor_time=True, max_time=2, mobile_browser=False, user_agent=None):
     '''
     Create a mechanize browser for web scraping. The browser handles cookies,
@@ -319,8 +323,7 @@ def browser(honor_time=True, max_time=2, mobile_browser=False, user_agent=None):
     opener.set_handle_refresh(True, max_time=max_time, honor_time=honor_time)
     opener.set_handle_robots(False)
     if user_agent is None:
-        user_agent = ' Mozilla/5.0 (Windows; U; Windows CE 5.1; rv:1.8.1a3) Gecko/20060610 Minimo/0.016' if mobile_browser else \
-                          'Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.9.2.13) Gecko/20101210 Gentoo Firefox/3.6.13'
+        user_agent = USER_AGENT_MOBILE if mobile_browser else USER_AGENT
     opener.addheaders = [('User-agent', user_agent)]
     http_proxy = get_proxies().get('http', None)
     if http_proxy:
@@ -537,7 +540,49 @@ def as_unicode(obj, enc=preferred_encoding):
                 obj = repr(obj)
     return force_unicode(obj, enc=enc)
 
+def url_slash_cleaner(url):
+    '''
+    Removes redundant /'s from url's.
+    '''
+    return re.sub(r'(?<!:)/{2,}', '/', url)
 
+def get_download_filename(url, cookie_file=None):
+    '''
+    Get a local filename for a URL using the content disposition header
+    '''
+    filename = ''
+
+    br = browser()
+    if cookie_file:
+        from mechanize import MozillaCookieJar
+        cj = MozillaCookieJar()
+        cj.load(cookie_file)
+        br.set_cookiejar(cj)
+
+    try:
+        with closing(br.open(url)) as r:
+            disposition = r.info().get('Content-disposition', '')
+            for p in disposition.split(';'):
+                if 'filename' in p:
+                    if '*=' in disposition:
+                        parts = disposition.split('*=')[-1]
+                        filename = parts.split('\'')[-1]
+                    else:
+                        filename = disposition.split('=')[-1]
+                    if filename[0] in ('\'', '"'):
+                        filename = filename[1:]
+                    if filename[-1] in ('\'', '"'):
+                        filename = filename[:-1]
+                    filename = urllib2_unquote(filename)
+                    break
+    except:
+        import traceback
+        traceback.print_exc()
+
+    if not filename:
+        filename = r.geturl().split('/')[-1]
+
+    return filename
 
 def human_readable(size):
     """ Convert a size in bytes into a human readable form """

@@ -23,7 +23,7 @@ from calibre.constants import __appname__, isosx
 from calibre.utils.config import prefs, dynamic
 from calibre.utils.ipc.server import Server
 from calibre.library.database2 import LibraryDatabase2
-from calibre.customize.ui import interface_actions
+from calibre.customize.ui import interface_actions, store_plugins
 from calibre.gui2 import error_dialog, GetMetadata, open_url, \
         gprefs, max_available_height, config, info_dialog, Dispatcher, \
         question_dialog
@@ -34,6 +34,7 @@ from calibre.gui2.main_window import MainWindow
 from calibre.gui2.layout import MainWindowMixin
 from calibre.gui2.device import DeviceMixin
 from calibre.gui2.email import EmailMixin
+from calibre.gui2.ebook_download import EbookDownloadMixin
 from calibre.gui2.jobs import JobManager, JobsDialog, JobsButton
 from calibre.gui2.init import LibraryViewMixin, LayoutMixin
 from calibre.gui2.search_box import SearchBoxMixin, SavedSearchBoxMixin
@@ -87,19 +88,28 @@ class SystemTrayIcon(QSystemTrayIcon): # {{{
 
 # }}}
 
+_gui = None
+
+def get_gui():
+    return _gui
+
 class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         TagBrowserMixin, CoverFlowMixin, LibraryViewMixin, SearchBoxMixin,
-        SavedSearchBoxMixin, SearchRestrictionMixin, LayoutMixin, UpdateMixin
+        SavedSearchBoxMixin, SearchRestrictionMixin, LayoutMixin, UpdateMixin,
+        EbookDownloadMixin
         ):
     'The main GUI'
 
 
     def __init__(self, opts, parent=None, gui_debug=None):
+        global _gui
         MainWindow.__init__(self, opts, parent=parent, disable_automatic_gc=True)
+        _gui = self
         self.opts = opts
         self.device_connected = None
         self.gui_debug = gui_debug
         self.iactions = OrderedDict()
+        # Actions
         for action in interface_actions():
             if opts.ignore_plugins and action.plugin_path is not None:
                 continue
@@ -112,11 +122,10 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
                 if action.plugin_path is None:
                     raise
                 continue
-
             ac.plugin_path = action.plugin_path
             ac.interface_action_base_plugin = action
-
             self.add_iaction(ac)
+        self.load_store_plugins()
 
     def init_iaction(self, action):
         ac = action.load_actual_plugin(self)
@@ -132,6 +141,37 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
                 acmap[ac.name] = ac
         else:
             acmap[ac.name] = ac
+
+    def load_store_plugins(self):
+        self.istores = OrderedDict()
+        for store in store_plugins():
+            if self.opts.ignore_plugins and store.plugin_path is not None:
+                continue
+            try:
+                st = self.init_istore(store)
+                self.add_istore(st)
+            except:
+                # Ignore errors in loading user supplied plugins
+                import traceback
+                traceback.print_exc()
+                if store.plugin_path is None:
+                    raise
+                continue
+
+    def init_istore(self, store):
+        st = store.load_actual_plugin(self)
+        st.plugin_path = store.plugin_path
+        st.base_plugin = store
+        store.actual_istore_plugin_loaded = True
+        return st
+
+    def add_istore(self, st):
+        stmap = self.istores
+        if st.name in stmap:
+            if st.priority >= stmap[st.name].priority:
+                stmap[st.name] = st
+        else:
+            stmap[st.name] = st
 
 
     def initialize(self, library_path, db, listener, actions, show_gui=True):
@@ -154,6 +194,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         for ac in self.iactions.values():
             ac.do_genesis()
         self.donate_action = QAction(QIcon(I('donate.png')), _('&Donate to support calibre'), self)
+        for st in self.istores.values():
+            st.do_genesis()
         MainWindowMixin.__init__(self, db)
 
         # Jobs Button {{{
@@ -165,6 +207,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
 
         LayoutMixin.__init__(self)
         EmailMixin.__init__(self)
+        EbookDownloadMixin.__init__(self)
         DeviceMixin.__init__(self)
 
         self.progress_indicator = ProgressIndicator(self)
@@ -493,10 +536,10 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
             action.location_selected(location)
         if location == 'library':
             self.search_restriction.setEnabled(True)
-            self.search_options_button.setEnabled(True)
+            self.highlight_only_button.setEnabled(True)
         else:
             self.search_restriction.setEnabled(False)
-            self.search_options_button.setEnabled(False)
+            self.highlight_only_button.setEnabled(False)
             # Reset the view in case something changed while it was invisible
             self.current_view().reset()
         self.set_number_of_books_shown()

@@ -55,7 +55,7 @@ class ANDROID(USBMS):
                      },
 
             # Viewsonic
-            0x0489 : { 0xc001 : [0x0226] },
+            0x0489 : { 0xc001 : [0x0226], 0xc004 : [0x0226], },
 
             # Acer
             0x502 : { 0x3203 : [0x0100]},
