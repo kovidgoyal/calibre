@@ -19,6 +19,45 @@
 #  new recipes:
 #    - title: 
 
+- version: 0.7.56
+  date: 2011-04-17
+
+  new features:
+    - title: "This is primarily a bug fix release that fixes a bug in 0.7.55 that caused calibre to rescan the files on the device every time the device is connected. If you updated to 0.7.55 it is highly recommended you update to 0.7.56"
+
+    - title: "Device driver for Coby Kyros"
+
+    - title: "Remove the quick access to search options from next to the search bar, as we now have a separate search highlights toggle button"
+
+    - title: "MOBI Output: Ensure that MOBI files always have 8KB worth of null bytes at the end of record 0. This appears to be necessary for Amazon to be able to add DRM to calibre generated MOBI files sent to their publishing service."
+
+    - title: "Add a tool to inspect MOBI files. To use: calibre-debug -m file.mobi"
+  
+  bug fixes:
+    - title: "Fixed regression taht caused calibre to rescan files on the device on every reconnect"
+
+    - title: "Fix donate button causing the toolbar to be too large on OS X"
+
+    - title: "MOBI Input: Fix detection of Table of Contents for MOBI files that have a page break between the location designated as the Table of Contents and the actual table of contents."
+      tickets: [763504]
+
+    - title: "Comic Input: Fix handling of some CBZ files that have wrongly encoded non ASCII filenames on windows."
+      tickets: [763280]
+
+    - title: "PML Input: Fix multi-line chapter title causing a spurious page break"
+      tickets: [763238]
+
+    - title: "EPUB Input: Speed up processing of files with very large manifest/spines"
+
+    - title: "Fix regression that broke cover:False searches in 0.7.55"
+
+  improved recipes:
+    - Suedduetsche Zeitung
+    - Irish Times
+    - Big Oven
+    - NSPM
+
+
 - version: 0.7.55
   date: 2011-04-15
 
