@@ -88,6 +88,11 @@ class SystemTrayIcon(QSystemTrayIcon): # {{{
 
 # }}}
 
+_gui = None
+
+def get_gui():
+    return _gui
+
 class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         TagBrowserMixin, CoverFlowMixin, LibraryViewMixin, SearchBoxMixin,
         SavedSearchBoxMixin, SearchRestrictionMixin, LayoutMixin, UpdateMixin,
@@ -97,7 +102,9 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
 
 
     def __init__(self, opts, parent=None, gui_debug=None):
+        global _gui
         MainWindow.__init__(self, opts, parent=parent, disable_automatic_gc=True)
+        _gui = self
         self.opts = opts
         self.device_connected = None
         self.gui_debug = gui_debug
