@@ -401,6 +401,8 @@ class ToolBar(BaseToolBar): # {{{
                     self.d_widget.layout().addWidget(self.donate_button)
                     if isosx:
                         self.d_widget.setStyleSheet('QWidget, QToolButton {background-color: none; border: none; }')
+                        self.d_widget.layout().setContentsMargins(0,0,0,0)
+                        self.d_widget.setContentsMargins(0,0,0,0)
                         self.d_widget.filler = QLabel(u'\u00a0')
                         self.d_widget.layout().addWidget(self.d_widget.filler)
                     bar.addWidget(self.d_widget)
