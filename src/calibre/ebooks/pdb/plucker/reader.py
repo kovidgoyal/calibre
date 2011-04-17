@@ -292,6 +292,18 @@ class SectionCompositeImage(object):
 
 
 class Reader(FormatReader):
+    '''
+    Convert a plucker archive into HTML.
+    
+    TODO:
+          * UTF 16 and 32 characters.
+          * Margins.
+          * Alignment.
+          * DATATYPE_MAILTO
+          * DATATYPE_TABLE(_COMPRESSED)
+          * DATATYPE_EXT_ANCHOR_INDEX
+          * DATATYPE_EXT_ANCHOR(_COMPRESSED)
+    '''
 
     def __init__(self, header, stream, log, options):
         self.stream = stream
