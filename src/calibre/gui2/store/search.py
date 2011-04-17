@@ -13,9 +13,8 @@ from random import shuffle
 from threading import Thread
 from Queue import Queue
 
-from PyQt4.Qt import Qt, QAbstractItemModel, QDialog, QTimer, QVariant, \
-    QModelIndex, QPixmap, QSize, QCheckBox, QVBoxLayout, QHBoxLayout, \
-    QPushButton, QString, QByteArray
+from PyQt4.Qt import (Qt, QAbstractItemModel, QDialog, QTimer, QVariant,
+    QModelIndex, QPixmap, QSize, QCheckBox, QVBoxLayout)
 
 from calibre import browser
 from calibre.gui2 import NONE
@@ -35,7 +34,7 @@ class SearchDialog(QDialog, Ui_Dialog):
     def __init__(self, istores, *args):
         QDialog.__init__(self, *args)
         self.setupUi(self)
-        
+
         self.config = DynamicConfig('store_search')
 
         # We keep a cache of store plugins and reference them by name.
@@ -44,7 +43,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         # Check for results and hung threads.
         self.checker = QTimer()
         self.hang_check = 0
-        
+
         self.model = Matches()
         self.results_view.setModel(self.model)
 
@@ -59,7 +58,7 @@ class SearchDialog(QDialog, Ui_Dialog):
             stores_group_layout.addWidget(cbox)
             setattr(self, 'store_check_' + x, cbox)
         stores_group_layout.addStretch()
-        
+
         # Create and add the progress indicator
         self.pi = ProgressIndicator(self, 24)
         self.bottom_layout.insertWidget(0, self.pi)
@@ -71,9 +70,9 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.select_invert_stores.clicked.connect(self.stores_select_invert)
         self.select_none_stores.clicked.connect(self.stores_select_none)
         self.finished.connect(self.dialog_closed)
-        
+
         self.restore_state()
-        
+
     def resize_columns(self):
         total = 600
         # Cover
@@ -87,19 +86,19 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.results_view.setColumnWidth(3, int(total*.10))
         # Store
         self.results_view.setColumnWidth(4, int(total*.20))
-        
+
     def do_search(self, checked=False):
         # Stop all running threads.
         self.checker.stop()
         self.search_pool.abort()
         # Clear the visible results.
         self.results_view.model().clear_results()
-        
+
         # Don't start a search if there is nothing to search for.
         query = unicode(self.search_edit.text())
         if not query.strip():
             return
-        
+
         # Plugins are in alphebetic order. Randomize the
         # order of plugin names. This way plugins closer
         # to a don't have an unfair advantage over
@@ -117,12 +116,12 @@ class SearchDialog(QDialog, Ui_Dialog):
             self.checker.start(100)
             self.search_pool.start_threads()
             self.pi.startAnimation()
-    
+
     def save_state(self):
         self.config['store_search_geometry'] = self.saveGeometry()
         self.config['store_search_store_splitter_state'] = self.store_splitter.saveState()
         self.config['store_search_results_view_column_width'] = [self.results_view.columnWidth(i) for i in range(self.model.columnCount())]
-        
+
         store_check = {}
         for n in self.store_plugins:
             store_check[n] = getattr(self, 'store_check_' + n).isChecked()
@@ -132,11 +131,11 @@ class SearchDialog(QDialog, Ui_Dialog):
         geometry = self.config['store_search_geometry']
         if geometry:
             self.restoreGeometry(geometry)
-            
+
         splitter_state = self.config['store_search_store_splitter_state']
         if splitter_state:
             self.store_splitter.restoreState(splitter_state)
-            
+
         results_cwidth = self.config['store_search_results_view_column_width']
         if results_cwidth:
             for i, x in enumerate(results_cwidth):
@@ -145,7 +144,7 @@ class SearchDialog(QDialog, Ui_Dialog):
                 self.results_view.setColumnWidth(i, x)
         else:
             self.resize_columns()
-            
+
         store_check = self.config['store_search_store_checked']
         if store_check:
             for n in store_check:
@@ -165,7 +164,7 @@ class SearchDialog(QDialog, Ui_Dialog):
             if not self.search_pool.threads_running() and not self.search_pool.has_tasks():
                 self.checker.stop()
                 self.pi.stopAnimation()
-        
+
         while self.search_pool.has_results():
             res = self.search_pool.get_result()
             if res:
@@ -189,15 +188,15 @@ class SearchDialog(QDialog, Ui_Dialog):
     def stores_select_all(self):
         for check in self.get_store_checks():
             check.setChecked(True)
-    
+
     def stores_select_invert(self):
         for check in self.get_store_checks():
             check.setChecked(not check.isChecked())
-    
+
     def stores_select_none(self):
         for check in self.get_store_checks():
             check.setChecked(False)
-    
+
     def dialog_closed(self, result):
         self.model.closing()
         self.search_pool.abort()
@@ -208,46 +207,46 @@ class GenericDownloadThreadPool(object):
     '''
     add_task must be implemented in a subclass.
     '''
-    
+
     def __init__(self, thread_type, thread_count):
         self.thread_type = thread_type
         self.thread_count = thread_count
-        
+
         self.tasks = Queue()
         self.results = Queue()
         self.threads = []
-    
+
     def add_task(self):
         raise NotImplementedError()
-        
+
     def start_threads(self):
         for i in range(self.thread_count):
             t = self.thread_type(self.tasks, self.results)
             self.threads.append(t)
             t.start()
-        
+
     def abort(self):
         self.tasks = Queue()
         self.results = Queue()
         for t in self.threads:
             t.abort()
         self.threads = []
-    
+
     def has_tasks(self):
         return not self.tasks.empty()
-    
+
     def get_result(self):
         return self.results.get()
-    
+
     def get_result_no_wait(self):
         return self.results.get_nowait()
-    
+
     def result_count(self):
         return len(self.results)
-    
+
     def has_results(self):
         return not self.results.empty()
-    
+
     def threads_running(self):
         for t in self.threads:
             if t.is_alive():
@@ -260,7 +259,7 @@ class SearchThreadPool(GenericDownloadThreadPool):
     Threads will run until there is no work or
     abort is called. Create and start new threads
     using start_threads(). Reset by calling abort().
-    
+
     Example:
     sp = SearchThreadPool(SearchThread, 3)
     add tasks using add_task(...)
@@ -270,13 +269,13 @@ class SearchThreadPool(GenericDownloadThreadPool):
     add tasks using add_task(...)
     sp.start_threads()
     '''
-        
+
     def add_task(self, query, store_name, store_plugin, timeout):
         self.tasks.put((query, store_name, store_plugin, timeout))
 
 
 class SearchThread(Thread):
-    
+
     def __init__(self, tasks, results):
         Thread.__init__(self)
         self.daemon = True
@@ -286,7 +285,7 @@ class SearchThread(Thread):
 
     def abort(self):
         self._run = False
-    
+
     def run(self):
         while self._run and not self.tasks.empty():
             try:
@@ -305,7 +304,7 @@ class CoverThreadPool(GenericDownloadThreadPool):
     '''
     Once started all threads run until abort is called.
     '''
-    
+
     def add_task(self, search_result, update_callback, timeout=5):
         self.tasks.put((search_result, update_callback, timeout))
 
@@ -318,12 +317,12 @@ class CoverThread(Thread):
         self.tasks = tasks
         self.results = results
         self._run = True
-        
+
         self.br = browser()
 
     def abort(self):
         self._run = False
-        
+
     def run(self):
         while self._run:
             try:
@@ -354,13 +353,13 @@ class Matches(QAbstractItemModel):
 
     def closing(self):
         self.cover_pool.abort()
-        
+
     def clear_results(self):
         self.matches = []
         self.cover_pool.abort()
         self.cover_pool.start_threads()
         self.reset()
-    
+
     def add_result(self, result):
         self.layoutAboutToBeChanged.emit()
         self.matches.append(result)
@@ -391,7 +390,7 @@ class Matches(QAbstractItemModel):
 
     def columnCount(self, *args):
         return len(self.HEADERS)
-    
+
     def headerData(self, section, orientation, role):
         if role != Qt.DisplayRole:
             return NONE
@@ -434,7 +433,7 @@ class Matches(QAbstractItemModel):
         elif col == 3:
             text = result.price
             if len(text) < 3 or text[-3] not in ('.', ','):
-                text += '00' 
+                text += '00'
             text = re.sub(r'\D', '', text)
             text = text.rjust(6, '0')
         elif col == 4:
@@ -444,7 +443,7 @@ class Matches(QAbstractItemModel):
     def sort(self, col, order, reset=True):
         if not self.matches:
             return
-        descending = order == Qt.DescendingOrder       
+        descending = order == Qt.DescendingOrder
         self.matches.sort(None,
             lambda x: sort_key(unicode(self.data_as_text(x, col))),
             descending)
