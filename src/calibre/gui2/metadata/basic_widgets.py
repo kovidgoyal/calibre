@@ -223,7 +223,7 @@ class AuthorSortEdit(EnLineEdit):
     LABEL = _('Author s&ort:')
 
     def __init__(self, parent, authors_edit, autogen_button, db,
-            copy_as_to_a_action):
+            copy_a_to_as_action, copy_as_to_a_action):
         EnLineEdit.__init__(self, parent)
         self.authors_edit = authors_edit
         self.db = db
@@ -242,6 +242,7 @@ class AuthorSortEdit(EnLineEdit):
         self.textChanged.connect(self.update_state)
 
         autogen_button.clicked.connect(self.auto_generate)
+        copy_a_to_as_action.triggered.connect(self.auto_generate)
         copy_as_to_a_action.triggered.connect(self.copy_to_authors)
         self.update_state()
 
