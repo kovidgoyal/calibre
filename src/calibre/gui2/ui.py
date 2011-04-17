@@ -529,10 +529,10 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
             action.location_selected(location)
         if location == 'library':
             self.search_restriction.setEnabled(True)
-            self.search_options_button.setEnabled(True)
+            self.highlight_only_button.setEnabled(True)
         else:
             self.search_restriction.setEnabled(False)
-            self.search_options_button.setEnabled(False)
+            self.highlight_only_button.setEnabled(False)
             # Reset the view in case something changed while it was invisible
             self.current_view().reset()
         self.set_number_of_books_shown()

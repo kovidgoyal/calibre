@@ -364,7 +364,6 @@ class SearchBoxMixin(object): # {{{
             unicode(self.search.toolTip())))
         self.advanced_search_button.setStatusTip(self.advanced_search_button.toolTip())
         self.clear_button.setStatusTip(self.clear_button.toolTip())
-        self.search_options_button.clicked.connect(self.search_options_button_clicked)
         self.set_highlight_only_button_icon()
         self.highlight_only_button.clicked.connect(self.highlight_only_clicked)
         tt = _('Enable or disable search highlighting.') + '<br><br>'
@@ -374,6 +373,8 @@ class SearchBoxMixin(object): # {{{
     def highlight_only_clicked(self, state):
         config['highlight_search_matches'] = not config['highlight_search_matches']
         self.set_highlight_only_button_icon()
+        self.search.do_search()
+        self.focus_to_library()
 
     def set_highlight_only_button_icon(self):
         if config['highlight_search_matches']:
@@ -403,10 +404,6 @@ class SearchBoxMixin(object): # {{{
     def do_search_button(self):
         self.search.do_search()
         self.focus_to_library()
-
-    def search_options_button_clicked(self):
-        self.iactions['Preferences'].do_config(initial_plugin=('Interface',
-            'Search'), close_after_initial=True)
 
     def focus_to_library(self):
         self.current_view().setFocus(Qt.OtherFocusReason)

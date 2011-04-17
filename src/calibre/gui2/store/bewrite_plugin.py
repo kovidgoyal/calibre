@@ -6,7 +6,6 @@ __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import re
 import urllib2
 from contextlib import closing
 
@@ -22,7 +21,7 @@ from calibre.gui2.store.search_result import SearchResult
 from calibre.gui2.store.web_store_dialog import WebStoreDialog
 
 class BeWriteStore(BasicStoreConfig, StorePlugin):
-    
+
     def open(self, parent=None, detail_item=None, external=False):
         settings = self.get_settings()
         url = 'http://www.bewrite.net/mm5/merchant.mvc?Screen=SFNT'
@@ -42,9 +41,9 @@ class BeWriteStore(BasicStoreConfig, StorePlugin):
 
     def search(self, query, max_results=10, timeout=60):
         url = 'http://www.bewrite.net/mm5/merchant.mvc?Search_Code=B&Screen=SRCH&Search=' + urllib2.quote(query)
-        
+
         br = browser()
-        
+
         counter = max_results
         with closing(br.open(url, timeout=timeout)) as f:
             doc = html.fromstring(f.read())
@@ -55,12 +54,12 @@ class BeWriteStore(BasicStoreConfig, StorePlugin):
                 id = ''.join(data.xpath('.//a/@href'))
                 if not id:
                     continue
-                
-                heading = ''.join(data.xpath('./td[2]//text()')) 
+
+                heading = ''.join(data.xpath('./td[2]//text()'))
                 title, q, author = heading.partition('by ')
                 cover_url = ''
                 price = ''
-                
+
                 with closing(br.open(id.strip(), timeout=timeout/4)) as nf:
                     idata = html.fromstring(nf.read())
                     price = ''.join(idata.xpath('//div[@id="content"]//td[contains(text(), "ePub")]/text()'))
@@ -68,14 +67,14 @@ class BeWriteStore(BasicStoreConfig, StorePlugin):
                     cover_img = idata.xpath('//div[@id="content"]//img[1]/@src')
                     if cover_img:
                         cover_url = 'http://www.bewrite.net/mm5/' + cover_img[0]
-                
+
                 counter -= 1
-                
+
                 s = SearchResult()
                 s.cover_url = cover_url.strip()
                 s.title = title.strip()
                 s.author = author.strip()
                 s.price = price.strip()
                 s.detail_item = id.strip()
-                
+
                 yield s
