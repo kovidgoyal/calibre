@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-04-15 17:09+0000\n"
-"PO-Revision-Date: 2011-04-15 09:11+0000\n"
+"PO-Revision-Date: 2011-04-16 09:46+0000\n"
 "Last-Translator: Jellby <Unknown>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-04-16 04:51+0000\n"
+"X-Launchpad-Export-Date: 2011-04-17 04:35+0000\n"
 "X-Generator: Launchpad (build 12735)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:528
@@ -2303,7 +2303,7 @@ msgstr "Establecer la fecha de publicación."
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:498
 msgid "Set the book timestamp (used by the date column in calibre)."
 msgstr ""
-"Establecer el sello de tiempo del libro (usado por la columna de fecha en "
+"Establecer la marca temporal del libro (usado por la columna de fecha en "
 "calibre)."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:502
@@ -3157,7 +3157,7 @@ msgstr "Idioma"
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:688
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1204
 msgid "Timestamp"
-msgstr "Marca de tiempo"
+msgstr "Marca temporal"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:690
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/jacket.py:167
@@ -3621,13 +3621,15 @@ msgstr "Fuente de metadatos"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/isbndb.py:37
 msgid "IsbnDB key:"
-msgstr ""
+msgstr "Clabe IsbnDB:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/isbndb.py:38
 msgid ""
 "To use isbndb.com you have to sign up for a free accountat isbndb.com and "
 "get an access key."
 msgstr ""
+"Para usar isbndb.com debe registrarse para obtener una cuenta gratuita y una "
+"clave de acceso."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/isbndb.py:42
 msgid ""
@@ -3635,10 +3637,14 @@ msgid ""
 "an isbndb key and enter it below. Instructions to get the key are <a "
 "href=\"http://isbndb.com/docs/api/30-keys.html\">here</a>."
 msgstr ""
+"Para usar los metadatos de isbndb.com debe registrarse para obtener una "
+"cuenta gratuita y una clave de acceso, que debe introducir debajo. Las "
+"instrucciones para obtener la clave están <a "
+"href=\"http://isbndb.com/docs/api/30-keys.html\">aquí</a>."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/openlibrary.py:15
 msgid "Downloads covers from The Open Library"
-msgstr ""
+msgstr "Descargar portadas de The Open Library"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:22
 msgid "Modify images to meet Palm device size limitations."
@@ -5655,7 +5661,7 @@ msgstr "Leer un libro al azar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:55
 msgid "Clear recently viewed list"
-msgstr ""
+msgstr "Limpiar la lista de leídos recientemente"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:139
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:219
@@ -5707,7 +5713,7 @@ msgstr "No se puede abrir la carpeta"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:220
 msgid "This book no longer exists in your library"
-msgstr ""
+msgstr "Este libro ya no existe en su biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:227
 msgid "%s has no available formats."
@@ -6151,9 +6157,9 @@ msgid ""
 " -For time field, only the date will be used. "
 msgstr ""
 "Algunas aclaraciones sobre esta plantilla:\n"
-" -Los campos disponibles son 'author_sort', 'authors', 'id',\n"
-"    'isbn', 'pubdate', 'publisher', 'series_index', 'series',\n"
-"    'tags, 'timestamp', 'title', 'uuid'\n"
+" -Los campos disponibles son «author_sort», «authors», «id»,\n"
+"    «isbn», «pubdate», «publisher», «series_index», «series»,\n"
+"    «tags», «timestamp», «title», «uuid»\n"
 " -Para tipos de lista, como autores y etiquetas, sólo se usará\n"
 "    el primer elemento.\n"
 " -Para campos de tiempo, sólo se usará la fecha. "
@@ -11145,7 +11151,7 @@ msgstr "La tarea ya se ha ejecutado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:247
 msgid "This job cannot be stopped"
-msgstr ""
+msgstr "La tarea no puede detenerse"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:283
 msgid "Unavailable"
@@ -11696,37 +11702,43 @@ msgstr "Detalles"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:34
 msgid "Schedule download?"
-msgstr ""
+msgstr "¿Programar la descarga?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:35
 msgid ""
 "The download of metadata for the <b>%d selected book(s)</b> will run in the "
 "background. Proceed?"
 msgstr ""
+"La descarga de metadatos para los <b>%d libros seleccionados</b> se "
+"ejecutará en segundo plano. ¿Continuar?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:37
 msgid ""
 "You can monitor the progress of the download by clicking the rotating "
 "spinner in the bottom right corner."
 msgstr ""
+"Puede seguir el progreso de la descarga pulsando en el gráfico giratorio en "
+"la esquina inferior derecha."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:40
 msgid ""
 "When the download completes you will be asked for confirmation before "
 "calibre applies the downloaded metadata."
 msgstr ""
+"Cuando la descarga finalice, calibre le pedirá confirmación antes de aplicar "
+"los metadatos descargados."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:43
 msgid "Configure download"
-msgstr ""
+msgstr "Configurar descarga"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:54
 msgid "Download metadata for %d books"
-msgstr ""
+msgstr "Descargar metadatos para %d libros"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:57
 msgid "Metadata download started"
-msgstr ""
+msgstr "Descarga de metadatos comenzada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:74
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:766
@@ -11741,21 +11753,23 @@ msgstr "Registro de descargas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:103
 msgid "Applying downloaded metadata to your library"
-msgstr ""
+msgstr "Aplicando los metadatos descargados a su biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:172
 msgid "Some failures"
-msgstr ""
+msgstr "Algunos fallos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:173
 msgid ""
 "Failed to apply updated metadata for some books in your library. Click "
 "\"Show Details\" to see details."
 msgstr ""
+"No se pudieron aplicar los metadatos para algunos libros de su biblioteca. "
+"Pulse «Mostrar detalles» para más información."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:212
 msgid "Some books changed"
-msgstr ""
+msgstr "Algunos libros han cambiado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:213
 msgid ""
@@ -11764,34 +11778,42 @@ msgid ""
 "Click \"Show details\" to see the list of changed books. Do you want to "
 "proceed?"
 msgstr ""
+"Los metadatos de algunos libros de su biblioteca han cambiado desde que "
+"comenzó la descarga. Si continúa, los cambios podrías sobrescribirse. Pulse "
+"«Mostrar detalles» para ver la lista de los libros modificados. ¿Desea "
+"continuar?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:224
 msgid "Metadata download completed"
-msgstr ""
+msgstr "Descarga de metadatos finalizada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:228
 msgid ""
 "Could not download metadata and/or covers for %d of the books. Click \"Show "
 "details\" to see which books."
 msgstr ""
+"No se pudieron descargar metadatos o portadas para %d de los libros. Pulse "
+"«Mostrar detalles» para ver qué libros."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:234
 msgid "(Failed metadata)"
-msgstr ""
+msgstr "(Fallo en metadatos)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:236
 msgid "(Failed cover)"
-msgstr ""
+msgstr "(Fallo en portada)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:238
 msgid ""
 "Finished downloading metadata for <b>%d book(s)</b>. Proceed with updating "
 "the metadata in your library?"
 msgstr ""
+"Ha finalizado la descarga de metadatos para <b>%d libros</b>. ¿Continuar con "
+"la actualización de los metadatos de la biblioteca?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:240
 msgid "Download complete"
-msgstr ""
+msgstr "Descarga finalizada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:243
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:827
@@ -11801,7 +11823,7 @@ msgstr "Ver registro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:315
 msgid "Downloaded %d of %d"
-msgstr ""
+msgstr "Descargados %d de %d"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/config.py:58
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:106
@@ -11819,7 +11841,7 @@ msgstr "&Descargar metadatos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:174
 msgid "Change how calibre downloads metadata"
-msgstr ""
+msgstr "Cambiar cómo descarga calibre los metadatos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:504
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:693
@@ -11840,7 +11862,7 @@ msgstr "&Portada y formatos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:616
 msgid "Configure metadata downloading"
-msgstr ""
+msgstr "Configurar descarga de metadatos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:662
 msgid "C&ustom metadata"
@@ -11941,7 +11963,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/__init__.py:325
 msgid "Configure "
-msgstr ""
+msgstr "Configurar "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding.py:28
 msgid "Ignore duplicate incoming formats"
@@ -12293,7 +12315,7 @@ msgstr "Columna generada a partir de otras columnas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:45
 msgid "Column built from other columns, behaves like tags"
-msgstr ""
+msgstr "Columna creada a partir de otras columnas, funciona como etiquetas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:52
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:53
@@ -12846,27 +12868,27 @@ msgstr "Prioridad de la portada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:75
 msgid "This source is configured and ready to go"
-msgstr ""
+msgstr "Este origen está configurado y listo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:76
 msgid "This source needs configuration"
-msgstr ""
+msgstr "Este origen necesita configuración"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:147
 msgid "Published date"
-msgstr ""
+msgstr "Fecha de publicación"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:229
 msgid "<b>Configure %s</b><br>%s"
-msgstr ""
+msgstr "<b>Configurar %s</b><br>%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:277
 msgid "No source selected"
-msgstr ""
+msgstr "Ningún origen seleccionado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:278
 msgid "No source selected, cannot configure."
-msgstr ""
+msgstr "Ningún origen seleccionado, no se puede configurar."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:101
 msgid "Metadata sources"
@@ -12888,6 +12910,7 @@ msgid ""
 "Sources with a red X next to their names must be configured before they will "
 "be used. "
 msgstr ""
+"Los orígenes con una X roja al lado deben configurarse antes de usarse. "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:105
 msgid "Configure selected source"
@@ -12905,7 +12928,7 @@ msgstr "Convertir todos los comentarios descargados a &texto simple"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:109
 msgid "Swap author names from FN LN to LN, FN"
-msgstr ""
+msgstr "Invertir nombres de autor de «nombre apellido» a «apellido, nombre»"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:110
 msgid "Max. number of &tags to download:"
@@ -13990,7 +14013,7 @@ msgstr "Buscar (Para búsqueda avanzada, pulse el botón de la izquierda)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:388
 msgid "Enable or disable search highlighting."
-msgstr ""
+msgstr "Activar o desactivar el resaltado de las búsquedas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:447
 msgid "Saved Searches"
@@ -14005,7 +14028,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:34
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:42
 msgid "*Current search"
-msgstr ""
+msgstr "*Búsqueda actual"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:12
 msgid "Restrict to"
@@ -14205,11 +14228,11 @@ msgstr "El nombre guardado buscado %s está en uso."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1836
 msgid "Invalid search restriction"
-msgstr ""
+msgstr "Restricción de búsqueda no válida"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1837
 msgid "The current search restriction is invalid"
-msgstr ""
+msgstr "La restricción de búsqueda actual no es válida"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1853
 msgid "New Category"
@@ -15440,10 +15463,10 @@ msgid ""
 "Applies to: CSV, XML output formats"
 msgstr ""
 "Campo de salida por el que se ordenará.\n"
-"Los campos disponibles son: author_sort, id, rating, size, timestamp, "
-"title.\n"
+"Los campos disponibles son: «author_sort», «id», «rating», «size», "
+"«timestamp», «title».\n"
 "Valor predeterminado: «%default»\n"
-"Aplicable a: formatos de salida CSV, XML"
+"Se aplica a: formatos de salida CSV, XML"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:232
 msgid ""
@@ -15461,7 +15484,7 @@ msgstr ""
 "y cualquier campo personalizado creado por el usuario.\n"
 "Ejemlpo: %s=title,authors,tags\n"
 "Valor predeterminado: «%%default»\n"
-"Aplicable a: formato de salida BIBTEX"
+"Se aplica a: formato de salida BIBTEX"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:245
 msgid ""
@@ -15471,10 +15494,10 @@ msgid ""
 "Applies to: BIBTEX output format"
 msgstr ""
 "Campo de salida para ordenar.\n"
-"Los campos disponibles son: author_sort, id, rating, size, timestamp, "
-"title.\n"
+"Los campos disponibles son: «author_sort», «id», «rating», «size», "
+"«timestamp», «title».\n"
 "Valor predeterminado: «%default»\n"
-"Aplicable a: formato de salida BIBTEX"
+"Se aplica a: formato de salida BIBTEX"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:254
 msgid ""
@@ -15486,7 +15509,7 @@ msgstr ""
 "Crear una cita para entradas BibTex.\n"
 "Valor booleano: True, False\n"
 "Valor predeterminado: «%default»\n"
-"Aplicable a: formato de salida BIBTEX"
+"Se aplica a: formato de salida BIBTEX"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:263
 msgid ""
@@ -15514,7 +15537,7 @@ msgstr ""
 "Debe ser una plantilla con campos encerrados en {}.\n"
 "Campos disponibles: %s.\n"
 "Valor predeterminado: «%%default»\n"
-"Aplicable a: formato de salida BIBTEXT"
+"Se aplica a: formato de salida BIBTEXT"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:282
 msgid ""
@@ -15524,9 +15547,9 @@ msgid ""
 "Applies to: BIBTEX output format"
 msgstr ""
 "Codificación del fichero de salida BibTex.\n"
-"Tipos disponibles: utf8, cp1252, ascii.\n"
+"Tipos disponibles: «utf8», «cp1252», «ascii».\n"
 "Valor predeterminado: «%default»\n"
-"Aplicable a: formato de salida BIBTEX"
+"Se aplica a: formato de salida BIBTEX"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:291
 msgid ""
@@ -15536,9 +15559,9 @@ msgid ""
 "Applies to: BIBTEX output format"
 msgstr ""
 "Marca de codificación de BibTeX.\n"
-"Tipos disponibles: strict, replace, ignore, backslashreplace.\n"
+"Tipos disponibles: «strict», «replace», «ignore», «backslashreplace».\n"
 "Valor predeterminado: «%default»\n"
-"Aplicable a: formato de salida BIBTEX"
+"Se aplica a: formato de salida BIBTEX"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:300
 msgid ""
@@ -15548,9 +15571,9 @@ msgid ""
 "Applies to: BIBTEX output format"
 msgstr ""
 "Tipo de entrada para el catálogo BibTeX.\n"
-"Tipos disponibles: book, misc, mixed.\n"
+"Tipos disponibles: «book», «misc», «mixed».\n"
 "Valor predeterminado: «%default»\n"
-"Aplicable a: formato de salida BIBTEX"
+"Se aplica a: formato de salida BIBTEX"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:607
 msgid ""
@@ -17490,6 +17513,19 @@ msgid ""
 "year as four digit number. iso  : the date with time and timezone. Must be "
 "the only format present"
 msgstr ""
+"format_date(val, texto_formato) -- da formato a un valor, que debe ser un "
+"campo de fecha, según «texto_formato» y devuelve un texto. Los códigos de "
+"formato son: «d»: el día como un número, sin cero inicial (de 1 a 31). «dd»: "
+"el día como un número, con un cero inicial si es necesario (de 01 a 31). "
+"«ddd»: el día de la semana abreviado según el idioma local (p. ej. de «lun» "
+"a «dom»). «dddd»: el nombre local completo del día de la semana (p. ej. de "
+"«lunes» a «domingo»). «M»: el mes como un número sin cero inicial (de 1 a "
+"12). «MM»: el mes como un número, con un cero inicial si es necesario (de 01 "
+"a 12). «MMM»: el mes abreviado según el idioma local (p. ej. de «ene» a "
+"«dic»). «MMMM»: el nombre local completo del mes (p. ej. de «enero» a "
+"«diciembre»). «yy»: el año como un número de dos cifras (de 00 a 99). "
+"«yyyy»: el año como un número de cuatro cifras. «iso»: la fecha con hora y "
+"zona horaria; debe ser el único formato presente."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:523
 msgid "uppercase(val) -- return value of the field in upper case"
@@ -18257,6 +18293,34 @@ msgid ""
 "publication default if not set: MMM yyyy\n"
 "timestamp default if not set: dd MMM yyyy"
 msgstr ""
+"El formato que se usará para la fecha de publicación y la marca temporal "
+"(fecha).\n"
+"Es un texto que controla cómo se muestra la fecha de publicación en la "
+"interfaz\n"
+"«d»: el día como un número, sin cero inicial (de 1 a 31).\n"
+"«dd»: el día como un número, con un cero inicial si es necesario (de 01 a "
+"31).\n"
+"«ddd»: el día de la semana abreviado según el idioma local (p. ej. de «lun» "
+"a «dom»).\n"
+"«dddd»: el nombre local completo del día de la semana (p. ej. de «lunes» a "
+"«domingo»).\n"
+"«M»: el mes como un número sin cero inicial (de 1 a 12).\n"
+"«MM»: el mes como un número, con un cero inicial si es necesario (de 01 a "
+"12).\n"
+"«MMM»: el mes abreviado según el idioma local (p. ej. de «ene» a «dic»).\n"
+"«MMMM»: el nombre local completo del mes (p. ej. de «enero» a «diciembre»).\n"
+"«yy»: el año como un número de dos cifras (de 00 a 99).\n"
+"«yyyy»: el año como un número de cuatro cifras.\n"
+"Por ejemplo, dada la fecha del 9 de enero de 2010, así se muestran los\n"
+"siguientes formatos:\n"
+"MMM yyyy ==> ene 2010\n"
+"yyyy ==> 2010\n"
+"dd MMM yyyy ==> 09 ene 2010\n"
+"MM/yyyy ==> 01/2010\n"
+"d/M/yy ==> 9/1/10\n"
+"yy ==> 10\n"
+"Valor predeterminado para la fecha de publicación: MMM yyyy\n"
+"Valor predeterminado para la marca de tiempo: dd MMM yyyy"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:121
 msgid "Control sorting of titles and series in the library display"
