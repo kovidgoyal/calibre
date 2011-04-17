@@ -493,6 +493,7 @@ class Reader(FormatReader):
         link_open = False
         need_set_p_id = False
         p_num = 1
+        font_specifier_close = ''
         paragraph_offsets = []
         running_offset = 0
         for size in sub_header.sizes:
@@ -556,6 +557,55 @@ class Reader(FormatReader):
                 # font specifier
                 elif c == 0x11:
                     offset += 1
+                    specifier = d[offset]
+                    html += font_specifier_close
+                    # Regular text
+                    if specifier == 0:
+                        font_specifier_close = ''
+                    # h1
+                    elif specifier == 1:
+                        html += '<h1>'
+                        font_specifier_close = '</h1>'
+                    # h2
+                    elif specifier == 2:
+                        html += '<h2>'
+                        font_specifier_close = '</h2>'
+                    # h3
+                    elif specifier == 3:
+                        html += '<h13>'
+                        font_specifier_close = '</h3>'
+                    # h4
+                    elif specifier == 4:
+                        html += '<h4>'
+                        font_specifier_close = '</h4>'
+                    # h5
+                    elif specifier == 5:
+                        html += '<h5>'
+                        font_specifier_close = '</h5>'
+                    # h6
+                    elif specifier == 6:
+                        html += '<h6>'
+                        font_specifier_close = '</h6>'
+                    # Bold
+                    elif specifier == 7:
+                        html += '<b>'
+                        font_specifier_close = '</b>'
+                    # Fixed-width
+                    elif specifier == 8:
+                        html += '<tt>'
+                        font_specifier_close = '</tt>'
+                    # Small
+                    elif specifier == 9:
+                        html += '<small>'
+                        font_specifier_close = '</small>'
+                    # Subscript
+                    elif specifier == 10:
+                        html += '<sub>'
+                        font_specifier_close = '</sub>'
+                    # Superscript
+                    elif specifier == 11:
+                        html += '<sup>'
+                        font_specifier_close = '</sup>'
                 # Embedded image
                 # 2 Bytes
                 # image record ID
