@@ -298,6 +298,9 @@ class Source(Plugin):
             [
                 # Remove things like: (2010) (Omnibus) etc.
                 (r'(?i)[({\[](\d{4}|omnibus|anthology|hardcover|paperback|mass\s*market|edition|ed\.)[\])}]', ''),
+                # Remove any strings that contain the substring edition inside
+                # parentheses
+                (r'(?i)[({\[].*?(edition|ed.).*?[\]})]', ''),
                 # Remove commas used a separators in numbers
                 (r'(\d+),(\d+)', r'\1\2'),
                 # Remove hyphens only if they have whitespace before them
