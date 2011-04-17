@@ -680,21 +680,11 @@ class Reader(FormatReader):
                 # 3 Bytes
                 # alternate text length, 16-bit unicode character
                 elif c == 0x83:
-                    #offset += 1
-                    #alt_len = struct.unpack('>B', str(d[offset]))[0]
-                    #offset += 1
-                    #c16 = d[offset:offset+2]
-                    #html += c16.decode('utf-16')
-                    #offset += 1 + alt_len
                     offset += 3
                 # 32-bit Unicode character
                 # 5 Bytes
                 # alternate text length, 32-bit unicode character
                 elif c == 0x85:
-                    #offset += 2
-                    #c32 = d[offset:offset+4]
-                    #html += c32.decode('utf-32')
-                    #offset += 3
                     offset += 5
                 # Begin custom font span
                 # 6 Bytes
