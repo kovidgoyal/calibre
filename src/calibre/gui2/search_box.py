@@ -13,7 +13,6 @@ from PyQt4.Qt import QComboBox, Qt, QLineEdit, QStringList, pyqtSlot, QDialog, \
                      QString, QIcon
 
 from calibre.gui2 import config
-from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.saved_search_editor import SavedSearchEditor
 from calibre.gui2.dialogs.search import SearchDialog
 from calibre.utils.search_query_parser import saved_searches
@@ -317,23 +316,6 @@ class SavedSearchBox(QComboBox): # {{{
         self.setCurrentIndex(-1)
 
     # SIGNALed from the main UI
-    def delete_search_button_clicked(self):
-        if not confirm('<p>'+_('The selected search will be '
-                       '<b>permanently deleted</b>. Are you sure?')
-                    +'</p>', 'saved_search_delete', self):
-            return
-        idx = self.currentIndex
-        if idx < 0:
-            return
-        ss = saved_searches().lookup(unicode(self.currentText()))
-        if ss is None:
-            return
-        saved_searches().delete(unicode(self.currentText()))
-        self.clear()
-        self.search_box.clear()
-        self.changed.emit()
-
-    # SIGNALed from the main UI
     def save_search_button_clicked(self):
         name = unicode(self.currentText())
         if not name.strip():
@@ -438,8 +420,6 @@ class SavedSearchBoxMixin(object): # {{{
         self.clear_button.clicked.connect(self.saved_search.clear)
         self.save_search_button.clicked.connect(
                                 self.saved_search.save_search_button_clicked)
-        self.delete_search_button.clicked.connect(
-                                self.saved_search.delete_search_button_clicked)
         self.copy_search_button.clicked.connect(
                                 self.saved_search.copy_search_button_clicked)
         self.saved_searches_changed()
@@ -448,7 +428,7 @@ class SavedSearchBoxMixin(object): # {{{
         self.saved_search.setToolTip(
             _('Choose saved search or enter name for new saved search'))
         self.saved_search.setStatusTip(self.saved_search.toolTip())
-        for x in ('copy', 'save', 'delete'):
+        for x in ('copy', 'save'):
             b = getattr(self, x+'_search_button')
             b.setStatusTip(b.toolTip())
 
