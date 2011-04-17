@@ -136,6 +136,9 @@ def decompress_doc(data):
     return ''.join([chr(i) for i in res])
 
 class HeaderRecord(object):
+    '''
+    Plucker header. PDB record 0.
+    '''
 
     def __init__(self, raw):
         self.uid, = struct.unpack('>H', raw[0:2])
@@ -144,6 +147,8 @@ class HeaderRecord(object):
         # 1 is DOC compressed
         self.compression, = struct.unpack('>H', raw[2:4])
         self.records, = struct.unpack('>H', raw[4:6])
+        # uid of the first html file. This should link
+        # to other files which in turn may link to others.
         self.home_html = None
         
         self.reserved = {}
@@ -157,6 +162,10 @@ class HeaderRecord(object):
 
 
 class SectionHeader(object):
+    '''
+    Every sections (record) has this header. It gives
+    details about the section such as it's uid.
+    '''
     
     def __init__(self, raw):
         self.uid, = struct.unpack('>H', raw[0:2])
@@ -167,9 +176,14 @@ class SectionHeader(object):
 
 
 class SectionHeaderText(object):
+    '''
+    Sub header for text records.
+    '''
     
     def __init__(self, section_header, raw):
+        # The uncompressed size of each paragraph.
         self.sizes = []
+        # Paragraph attributes.
         self.attributes = []
 
         for i in xrange(section_header.paragraphs):
@@ -179,6 +193,19 @@ class SectionHeaderText(object):
 
 
 class SectionMetadata(object):
+    '''
+    Metadata.
+    
+    This does not store metadata such as title, or author.
+    That metadata would be best retrieved with the PDB (plucker)
+    metdata reader.
+    
+    This stores document specific information such as the
+    text encoding.
+    
+    Note: There is a default encoding but each text section
+    can be assigned a different encoding.
+    '''
     
     def __init__(self, raw):
         self.default_encoding = 'utf-8'
@@ -222,6 +249,9 @@ class SectionMetadata(object):
 
 
 class SectionText(object):
+    '''
+    Text data. Stores a text section header and the PHTML.
+    '''
     
     def __init__(self, section_header, raw):
         self.header = SectionHeaderText(section_header, raw)
@@ -229,14 +259,19 @@ class SectionText(object):
 
 
 class SectionCompositeImage(object):
+    '''
+    A composite image consists of a a 2D array
+    of rows and columns. The entries in the array
+    are uid's. 
+    '''
     
     def __init__(self, raw):
         self.columns, = struct.unpack('>H', raw[0:2])
         self.rows, = struct.unpack('>H', raw[2:4])
 
         # [
-        #  row [col, col, col...],
-        #  row [col, col, col...],
+        #  [uid, uid, uid, ...],
+        #  [uid, uid, uid, ...],
         #  ...
         # ]
         #
@@ -275,18 +310,21 @@ class Reader(FormatReader):
         self.owner_id = None
         self.sections = []
         
+        # The Plucker record0 header
         self.header_record = HeaderRecord(header.section_data(0))
         
         for i in range(1, header.num_sections):
-            section_number = i - 1
+            section_number = len(self.sections)
+            # The length of the section header.
+            # Where the actual data in the section starts.
             start = 8
             section = None
             
             raw_data = header.section_data(i)
+            # Every sections has a section header.
             section_header = SectionHeader(raw_data)
-            
-            self.uid_section_number[section_header.uid] = section_number
-            
+        
+            # Store sections we care able.    
             if section_header.type in (DATATYPE_PHTML, DATATYPE_PHTML_COMPRESSED):
                 self.uid_text_secion_number[section_header.uid] = section_number
                 section = SectionText(section_header, raw_data[start:])
@@ -300,8 +338,13 @@ class Reader(FormatReader):
                 self.uid_composite_image_section_number[section_header.uid] = section_number
                 section = SectionCompositeImage(raw_data[start:])
 
-            self.sections.append((section_header, section))
+            # Store the section.
+            if section:
+                self.uid_section_number[section_header.uid] = section_number
+                self.sections.append((section_header, section))
 
+        # Store useful information from the metadata section locally
+        # to make access easier.
         if self.metadata_section_number:
             mdata_section = self.sections[self.metadata_section_number][1]
             for k, v in mdata_section.exceptional_uid_encodings.items():
@@ -309,13 +352,16 @@ class Reader(FormatReader):
             self.default_encoding = mdata_section.default_encoding
             self.owner_id = mdata_section.owner_id
 
+        # Get the metadata (tile, author, ...) with the metadata reader.
         from calibre.ebooks.metadata.pdb import get_metadata
         self.mi = get_metadata(stream, False)
 
     def extract_content(self, output_dir):
         # Each text record is independent (unless the continuation
         # value is set in the previous record). Put each converted
-        # text recored into a separate file.
+        # text recored into a separate file. We will reference the
+        # home.html file as the first file and let the HTML input
+        # plugin assemble the order based on hyperlinks.
         with CurrentDir(output_dir):
             for uid, num in self.uid_text_secion_number.items():
                 self.log.debug(_('Writing record with uid: %s as %s.html' % (uid, uid)))
@@ -329,8 +375,9 @@ class Reader(FormatReader):
                         html += self.process_phtml(section_data.header, d).decode(self.get_text_uid_encoding(section_header.uid), 'replace')
                     html += '</body></html>'
                     htmlf.write(html.encode('utf-8'))
-
-        images = []
+        
+        # Images.
+        # Cache the image sizes in case they are used by a composite image.
         image_sizes = {}
         if not os.path.exists(os.path.join(output_dir, 'images/')):
             os.makedirs(os.path.join(output_dir, 'images/'))
@@ -359,10 +406,10 @@ class Reader(FormatReader):
                             self.log.debug('Wrote image with uid %s to images/%s.jpg' % (uid, uid))
                     except Exception as e:
                         self.log.error('Failed to write image with uid %s: %s' % (uid, e))
-                    images.append('%s.jpg' % uid)
                 else:
                     self.log.error('Failed to write image with uid %s: No data.' % uid)
             # Composite images.
+            # We're going to use the already compressed .jpg images here.
             for uid, num in self.uid_composite_image_section_number.items():
                 try:
                     section_header, section_data = self.sections[num]
@@ -559,7 +606,10 @@ class Reader(FormatReader):
                 # 4 Bytes
                 # alternate image record ID, image record ID
                 elif c == 0x5c:
-                    offset += 4
+                    offset += 3
+                    uid = struct.unpack('>H', d[offset:offset+2])[0]
+                    html += '<img src="images/%s.jpg" />' % uid
+                    offset += 1
                 # Underline text begins
                 # 0 Bytes
                 elif c == 0x60:
