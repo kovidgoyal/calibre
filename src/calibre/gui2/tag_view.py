@@ -15,7 +15,7 @@ from functools import partial
 from PyQt4.Qt import (Qt, QTreeView, QApplication, pyqtSignal, QFont, QSize,
                      QIcon, QPoint, QVBoxLayout, QHBoxLayout, QComboBox, QTimer,
                      QAbstractItemModel, QVariant, QModelIndex, QMenu, QFrame,
-                     QWidget, QItemDelegate, QString, QLabel, QAction,
+                     QWidget, QItemDelegate, QString, QLabel,
                      QShortcut, QKeySequence, SIGNAL, QMimeData, QToolButton)
 
 from calibre.ebooks.metadata import title_sort
@@ -1846,9 +1846,7 @@ class TagBrowserMixin(object): # {{{
                      (_('Manage Saved Searches'), self.do_saved_search_edit,
                          (None,))
             ):
-            ac = QAction(text, self)
-            ac.triggered.connect(partial(func, *args))
-            self.manage_items_button.menu().addAction(ac)
+            self.manage_items_button.menu().addAction(text, partial(func, *args))
 
     def do_restriction_error(self):
         error_dialog(self.tags_view, _('Invalid search restriction'),
