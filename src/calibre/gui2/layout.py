@@ -318,7 +318,8 @@ class BaseToolBar(QToolBar): # {{{
         style = self.get_text_style()
         self.setToolButtonStyle(style)
         if hasattr(self, 'd_widget'):
-            self.d_widget.filler.setVisible(style != Qt.ToolButtonIconOnly)
+            if hasattr(self.d_widget, 'filler'):
+                self.d_widget.filler.setVisible(style != Qt.ToolButtonIconOnly)
 
     def get_text_style(self):
         style = Qt.ToolButtonTextUnderIcon
