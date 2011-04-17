@@ -374,6 +374,8 @@ class SearchBoxMixin(object): # {{{
     def highlight_only_clicked(self, state):
         config['highlight_search_matches'] = not config['highlight_search_matches']
         self.set_highlight_only_button_icon()
+        self.search.do_search()
+        self.focus_to_library()
 
     def set_highlight_only_button_icon(self):
         if config['highlight_search_matches']:
