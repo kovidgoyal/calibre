@@ -296,10 +296,15 @@ class Source(Plugin):
         if title:
             title_patterns = [(re.compile(pat, re.IGNORECASE), repl) for pat, repl in
             [
+                # Remove things like: (2010) (Omnibus) etc.
                 (r'(?i)[({\[](\d{4}|omnibus|anthology|hardcover|paperback|mass\s*market|edition|ed\.)[\])}]', ''),
+                # Remove commas used a separators in numbers
                 (r'(\d+),(\d+)', r'\1\2'),
+                # Remove hyphens only if they have whitespace before them
                 (r'(\s-)', ' '),
+                # Remove single quotes
                 (r"'", ''),
+                # Replace other special chars with a space
                 (r'''[:,;+!@#$%^&*(){}.`~"\s\[\]/]''', ' ')
             ]]
             for pat, repl in title_patterns:
