@@ -11,6 +11,7 @@ __docformat__ = 'restructuredtext en'
 import os
 import re
 import StringIO
+from copy import deepcopy
 
 from calibre import my_unichr, prepare_string_for_xml
 from calibre.ebooks.metadata.toc import TOC
@@ -25,6 +26,7 @@ class PML_HTMLizer(object):
         'sp',
         'sb',
         'h1',
+        'h1c',
         'h2',
         'h3',
         'h4',
@@ -58,6 +60,7 @@ class PML_HTMLizer(object):
 
     STATES_TAGS = {
         'h1': ('<h1 style="page-break-before: always;">', '</h1>'),
+        'h1c': ('<h1>', '</h1>'),
         'h2': ('<h2>', '</h2>'),
         'h3': ('<h3>', '</h3>'),
         'h4': ('<h4>', '</h4>'),
@@ -140,6 +143,10 @@ class PML_HTMLizer(object):
         'd',
         'b',
     ]
+    
+    NEW_LINE_EXCHANGE_STATES = {
+        'h1': 'h1c',
+    }
 
     def __init__(self):
         self.state = {}
@@ -219,11 +226,17 @@ class PML_HTMLizer(object):
     def start_line(self):
         start = u''
 
+        state = deepcopy(self.state)
         div = []
         span = []
         other = []
+        
+        for key, val in state.items():
+            if key in self.NEW_LINE_EXCHANGE_STATES and val[0]:
+                state[self.NEW_LINE_EXCHANGE_STATES[key]] = val
+                state[key] = [False, '']
 
-        for key, val in self.state.items():
+        for key, val in state.items():
             if val[0]:
                 if key in self.DIV_STATES:
                     div.append((key, val[1]))
