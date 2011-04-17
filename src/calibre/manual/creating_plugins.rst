@@ -197,7 +197,7 @@ Once you've located the zip file of your plugin you can then directly update it 
 
     zip -R /path/to/plugin/zip/file.zip *
 
-This will automatically update all changed files. It relies on the freely available zip command line tool.
+This will update all changed files. It relies on the freely available zip command line tool. Note that you should quit calibre before running this command.
 
 More plugin examples
 ----------------------

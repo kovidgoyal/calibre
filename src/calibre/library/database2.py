@@ -41,7 +41,6 @@ from calibre.utils.magick.draw import save_cover_data_to
 from calibre.utils.recycle_bin import delete_file, delete_tree
 from calibre.utils.formatter_functions import load_user_template_functions
 
-
 copyfile = os.link if hasattr(os, 'link') else shutil.copyfile
 
 class Tag(object):
@@ -213,6 +212,12 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         defs = self.prefs.defaults
         defs['gui_restriction'] = defs['cs_restriction'] = ''
         defs['categories_using_hierarchy'] = []
+
+        # Migrate the bool tristate tweak
+        defs['bools_are_tristate'] = \
+                tweaks.get('bool_custom_columns_are_tristate', 'yes') == 'yes'
+        if self.prefs.get('bools_are_tristate') is None:
+            self.prefs.set('bools_are_tristate', defs['bools_are_tristate'])
 
         # Migrate saved search and user categories to db preference scheme
         def migrate_preference(key, default):
@@ -818,7 +823,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             pass
         return (path, mi, sequence)
 
-    def get_metadata(self, idx, index_is_id=False, get_cover=False):
+    def get_metadata(self, idx, index_is_id=False, get_cover=False,
+                     get_user_categories=True):
         '''
         Convenience method to return metadata as a :class:`Metadata` object.
         Note that the list of formats is not verified.
@@ -848,6 +854,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         mi.uuid        = row[fm['uuid']]
         mi.title_sort  = row[fm['sort']]
         mi.last_modified = row[fm['last_modified']]
+        mi.size        = row[fm['size']]
         formats = row[fm['formats']]
         if not formats:
             formats = None
@@ -877,16 +884,17 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
         user_cats = self.prefs['user_categories']
         user_cat_vals = {}
-        for ucat in user_cats:
-            res = []
-            for name,cat,ign in user_cats[ucat]:
-                v = mi.get(cat, None)
-                if isinstance(v, list):
-                    if name in v:
+        if get_user_categories:
+            for ucat in user_cats:
+                res = []
+                for name,cat,ign in user_cats[ucat]:
+                    v = mi.get(cat, None)
+                    if isinstance(v, list):
+                        if name in v:
+                            res.append([name,cat])
+                    elif name == v:
                         res.append([name,cat])
-                elif name == v:
-                    res.append([name,cat])
-            user_cat_vals[ucat] = res
+                user_cat_vals[ucat] = res
         mi.user_categories = user_cat_vals
 
         if get_cover:
@@ -1216,7 +1224,12 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if field['datatype'] == 'composite':
             dex = field['rec_index']
             for book in self.data.iterall():
-                if book[dex] == id_:
+                if field['is_multiple']:
+                    vals = [v.strip() for v in book[dex].split(field['is_multiple'])
+                            if v.strip()]
+                    if id_ in vals:
+                        ans.add(book[0])
+                elif book[dex] == id_:
                     ans.add(book[0])
             return ans
 
@@ -1346,6 +1359,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             cat = tb_cats[category]
             if cat['datatype'] == 'composite' and \
                                 cat['display'].get('make_category', False):
+                tids[category] = {}
                 tcategories[category] = {}
                 md.append((category, cat['rec_index'], cat['is_multiple'],
                            cat['datatype'] == 'composite'))
@@ -1394,8 +1408,18 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                         prints('get_categories: item', val, 'is not in', cat, 'list!')
                 else:
                     vals = book[dex].split(mult)
+                    if is_comp:
+                        vals = [v.strip() for v in vals if v.strip()]
+                        for val in vals:
+                            if val not in tids:
+                                tids[cat][val] = (val, val)
+                            item = tcategories[cat].get(val, None)
+                            if not item:
+                                item = tag_class(val, val)
+                                tcategories[cat][val] = item
+                            item.c += 1
+                            item.id = val
                     for val in vals:
-                        if not val: continue
                         try:
                             (item_id, sort_val) = tids[cat][val] # let exceptions fly
                             item = tcategories[cat].get(val, None)
@@ -1774,7 +1798,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             path_changed = True
         if set_authors:
             if not mi.authors:
-                    mi.authors = [_('Unknown')]
+                mi.authors = [_('Unknown')]
             authors = []
             for a in mi.authors:
                 authors += string_to_authors(a)

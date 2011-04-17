@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import (unicode_literals, division, absolute_import,
+                        print_function)
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -7,10 +9,10 @@ __docformat__ = 'restructuredtext en'
 
 import textwrap, re, os
 
-from PyQt4.Qt import Qt, QDateEdit, QDate, \
-    QIcon, QToolButton, QWidget, QLabel, QGridLayout, \
-    QDoubleSpinBox, QListWidgetItem, QSize, QPixmap, \
-    QPushButton, QSpinBox, QLineEdit
+from PyQt4.Qt import (Qt, QDateEdit, QDate, pyqtSignal,
+    QIcon, QToolButton, QWidget, QLabel, QGridLayout,
+    QDoubleSpinBox, QListWidgetItem, QSize, QPixmap,
+    QPushButton, QSpinBox, QLineEdit, QSizePolicy)
 
 from calibre.gui2.widgets import EnLineEdit, FormatList, ImageView
 from calibre.gui2.complete import MultiCompleteLineEdit, MultiCompleteComboBox
@@ -22,7 +24,7 @@ from calibre.ebooks.metadata.meta import get_metadata
 from calibre.gui2 import file_icon_provider, UNDEFINED_QDATE, UNDEFINED_DATE, \
         choose_files, error_dialog, choose_images, question_dialog
 from calibre.utils.date import local_tz, qt_to_dt
-from calibre import strftime
+from calibre import strftime, fit_image
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.customize.ui import run_plugins_on_import
 from calibre.utils.date import utcfromtimestamp
@@ -170,6 +172,7 @@ class AuthorsEdit(MultiCompleteComboBox):
         self.books_to_refresh = set([])
         all_authors = db.all_authors()
         all_authors.sort(key=lambda x : sort_key(x[1]))
+        self.clear()
         for i in all_authors:
             id, name = i
             name = [name.strip().replace('|', ',') for n in name.split(',')]
@@ -219,7 +222,8 @@ class AuthorSortEdit(EnLineEdit):
             'red, then the authors and this text do not match.')
     LABEL = _('Author s&ort:')
 
-    def __init__(self, parent, authors_edit, autogen_button, db):
+    def __init__(self, parent, authors_edit, autogen_button, db,
+            copy_as_to_a_action):
         EnLineEdit.__init__(self, parent)
         self.authors_edit = authors_edit
         self.db = db
@@ -238,6 +242,7 @@ class AuthorSortEdit(EnLineEdit):
         self.textChanged.connect(self.update_state)
 
         autogen_button.clicked.connect(self.auto_generate)
+        copy_as_to_a_action.triggered.connect(self.copy_to_authors)
         self.update_state()
 
     @dynamic_property
@@ -269,6 +274,14 @@ class AuthorSortEdit(EnLineEdit):
         tt = self.tooltips[0 if normal else 1]
         self.setToolTip(tt)
         self.setWhatsThis(tt)
+
+    def copy_to_authors(self):
+        aus = self.current_val
+        if aus:
+            ln, _, rest = aus.partition(',')
+            if rest:
+                au = rest.strip() + ' ' + ln.strip()
+                self.authors_edit.current_val = [au]
 
     def auto_generate(self, *args):
         au = unicode(self.authors_edit.text())
@@ -313,7 +326,7 @@ class SeriesEdit(MultiCompleteComboBox):
             if not val:
                 val = ''
             self.setEditText(val.strip())
-            self.setCursorPosition(0)
+            self.lineEdit().setCursorPosition(0)
 
         return property(fget=fget, fset=fset)
 
@@ -324,6 +337,7 @@ class SeriesEdit(MultiCompleteComboBox):
         self.update_items_cache([x[1] for x in all_series])
         series_id = db.series_id(id_, index_is_id=True)
         idx, c = None, 0
+        self.clear()
         for i in all_series:
             id, name = i
             if id == series_id:
@@ -426,7 +440,7 @@ class Format(QListWidgetItem): # {{{
         if timestamp is not None:
             ts = timestamp.astimezone(local_tz)
             t = strftime('%a, %d %b %Y [%H:%M:%S]', ts.timetuple())
-            text = _('Last modified: %s')%t
+            text = _('Last modified: %s\n\nDouble click to view')%t
             self.setToolTip(text)
             self.setStatusTip(text)
 
@@ -480,6 +494,7 @@ class FormatsManager(QWidget): # {{{
 
     def initialize(self, db, id_):
         self.changed = False
+        self.formats.clear()
         exts = db.formats(id_, index_is_id=True)
         self.original_val = set([])
         if exts:
@@ -574,8 +589,7 @@ class FormatsManager(QWidget): # {{{
             self.changed = True
 
     def show_format(self, item, *args):
-        fmt = item.ext
-        self.dialog.view_format.emit(fmt)
+        self.dialog.do_view_format(item.path, item.ext)
 
     def get_selected_format_metadata(self, db, id_):
         old = prefs['read_file_metadata']
@@ -611,6 +625,8 @@ class FormatsManager(QWidget): # {{{
 
 class Cover(ImageView): # {{{
 
+    download_cover = pyqtSignal()
+
     def __init__(self, parent):
         ImageView.__init__(self, parent)
         self.dialog = parent
@@ -637,6 +653,23 @@ class Cover(ImageView): # {{{
         self.buttons = [self.select_cover_button, self.remove_cover_button,
                 self.trim_cover_button, self.download_cover_button,
                 self.generate_cover_button]
+
+        self.frame_size = (300, 400)
+        self.setSizePolicy(QSizePolicy(QSizePolicy.Preferred,
+            QSizePolicy.Preferred))
+
+    def frame_resized(self, ev):
+        sz = ev.size()
+        self.frame_size = (sz.width()//3, sz.height())
+
+    def sizeHint(self):
+        sz = ImageView.sizeHint(self)
+        w, h = sz.width(), sz.height()
+        resized, nw, nh = fit_image(w, h, self.frame_size[0],
+                self.frame_size[1])
+        if resized:
+            sz = QSize(nw, nh)
+        return sz
 
     def select_cover(self, *args):
         files = choose_images(self, 'change cover dialog',
@@ -683,9 +716,6 @@ class Cover(ImageView): # {{{
         im.trim(10)
         cdata = im.export('png')
         self.current_val = cdata
-
-    def download_cover(self, *args):
-        pass # TODO: Implement this
 
     def generate_cover(self, *args):
         from calibre.ebooks import calibre_cover
@@ -826,7 +856,7 @@ class RatingEdit(QSpinBox): # {{{
 class TagsEdit(MultiCompleteLineEdit): # {{{
     LABEL = _('Ta&gs:')
     TOOLTIP = '<p>'+_('Tags categorize the book. This is particularly '
-            'useful while searching. <br><br>They can be any words'
+            'useful while searching. <br><br>They can be any words '
             'or phrases, separated by commas.')
 
     def __init__(self, parent):
@@ -843,6 +873,7 @@ class TagsEdit(MultiCompleteLineEdit): # {{{
             if not val:
                 val = []
             self.setText(', '.join([x.strip() for x in val]))
+            self.setCursorPosition(0)
         return property(fget=fget, fset=fset)
 
     def initialize(self, db, id_):
@@ -882,8 +913,11 @@ class TagsEdit(MultiCompleteLineEdit): # {{{
 
 # }}}
 
-class ISBNEdit(QLineEdit): # {{{
-    LABEL = _('IS&BN:')
+class IdentifiersEdit(QLineEdit): # {{{
+    LABEL = _('I&ds:')
+    BASE_TT = _('Edit the identifiers for this book. '
+            'For example: \n\n%s')%(
+            'isbn:1565927249, doi:10.1000/182, amazon:1565927249')
 
     def __init__(self, parent):
         QLineEdit.__init__(self, parent)
@@ -893,32 +927,45 @@ class ISBNEdit(QLineEdit): # {{{
     @dynamic_property
     def current_val(self):
         def fget(self):
-            return self.pat.sub('', unicode(self.text()).strip())
+            raw = unicode(self.text()).strip()
+            parts = [x.strip() for x in raw.split(',')]
+            ans = {}
+            for x in parts:
+                c = x.split(':')
+                if len(c) == 2:
+                    ans[c[0]] = c[1]
+            return ans
         def fset(self, val):
             if not val:
-                val = ''
-            self.setText(val.strip())
+                val = {}
+            txt = ', '.join(['%s:%s'%(k, v) for k, v in val.iteritems()])
+            self.setText(txt.strip())
+            self.setCursorPosition(0)
         return property(fget=fget, fset=fset)
 
     def initialize(self, db, id_):
-        self.current_val = db.isbn(id_, index_is_id=True)
+        self.current_val = db.get_identifiers(id_, index_is_id=True)
         self.original_val = self.current_val
 
     def commit(self, db, id_):
-        db.set_isbn(id_, self.current_val, notify=False, commit=False)
+        if self.original_val != self.current_val:
+            db.set_identifiers(id_, self.current_val, notify=False, commit=False)
         return True
 
     def validate(self, *args):
-        isbn = self.current_val
-        tt = _('This ISBN number is valid')
+        identifiers = self.current_val
+        isbn = identifiers.get('isbn', '')
+        tt = self.BASE_TT
+        extra = ''
         if not isbn:
             col = 'rgba(0,255,0,0%)'
         elif check_isbn(isbn) is not None:
             col = 'rgba(0,255,0,20%)'
+            extra = '\n\n'+_('This ISBN number is valid')
         else:
             col = 'rgba(255,0,0,20%)'
-            tt = _('This ISBN number is invalid')
-        self.setToolTip(tt)
+            extra = '\n\n' + _('This ISBN number is invalid')
+        self.setToolTip(tt+extra)
         self.setStyleSheet('QLineEdit { background-color: %s }'%col)
 
 # }}}
@@ -943,7 +990,7 @@ class PublisherEdit(MultiCompleteComboBox): # {{{
             if not val:
                 val = ''
             self.setEditText(val.strip())
-            self.setCursorPosition(0)
+            self.lineEdit().setCursorPosition(0)
 
         return property(fget=fget, fset=fset)
 
@@ -953,13 +1000,13 @@ class PublisherEdit(MultiCompleteComboBox): # {{{
         all_publishers.sort(key=lambda x : sort_key(x[1]))
         self.update_items_cache([x[1] for x in all_publishers])
         publisher_id = db.publisher_id(id_, index_is_id=True)
-        idx, c = None, 0
-        for i in all_publishers:
-            id, name = i
-            if id == publisher_id:
-                idx = c
+        idx = None
+        self.clear()
+        for i, x in enumerate(all_publishers):
+            id_, name = x
+            if id_ == publisher_id:
+                idx = i
             self.addItem(name)
-            c += 1
 
         self.setEditText('')
         if idx is not None:

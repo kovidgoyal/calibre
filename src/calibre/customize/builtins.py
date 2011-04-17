@@ -5,11 +5,12 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import textwrap, os, glob, functools, re
 from calibre import guess_type
 from calibre.customize import FileTypePlugin, MetadataReaderPlugin, \
-    MetadataWriterPlugin, PreferencesPlugin, InterfaceActionBase
+    MetadataWriterPlugin, PreferencesPlugin, InterfaceActionBase, StoreBase
 from calibre.constants import numeric_version
 from calibre.ebooks.metadata.archive import ArchiveExtract, get_cbz_metadata
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.ebooks.oeb.base import OEB_IMAGES
+from calibre.utils.config import test_eight_code
 
 # To archive plugins {{{
 class HTML2ZIP(FileTypePlugin):
@@ -166,6 +167,14 @@ class ComicMetadataReader(MetadataReaderPlugin):
     description = _('Extract cover from comic files')
 
     def get_metadata(self, stream, ftype):
+        if hasattr(stream, 'seek') and hasattr(stream, 'tell'):
+            pos = stream.tell()
+            id_ = stream.read(3)
+            stream.seek(pos)
+            if id_ == b'Rar':
+                ftype = 'cbr'
+            elif id_.startswith(b'PK'):
+                ftype = 'cbz'
         if ftype == 'cbr':
             from calibre.libunrar import extract_first_alphabetically as extract_first
             extract_first
@@ -604,23 +613,38 @@ from calibre.devices.folder_device.driver import FOLDER_DEVICE_FOR_CONFIG
 from calibre.devices.kobo.driver import KOBO
 from calibre.devices.bambook.driver import BAMBOOK
 
-from calibre.ebooks.metadata.fetch import KentDistrictLibrary, Amazon
-from calibre.ebooks.metadata.douban import DoubanBooks
-from calibre.ebooks.metadata.isbndb import ISBNDB
-from calibre.ebooks.metadata.google_books import GoogleBooks
-from calibre.ebooks.metadata.nicebooks import NiceBooks, NiceBooksCovers
-# from calibre.ebooks.metadata.amazon import Amazon , AmazonSocial
-from calibre.ebooks.metadata.fictionwise import Fictionwise
-from calibre.ebooks.metadata.covers import OpenLibraryCovers, \
-        AmazonCovers, DoubanCovers #, LibrarythingCovers
 from calibre.library.catalog import CSV_XML, EPUB_MOBI, BIBTEX
 from calibre.ebooks.epub.fix.unmanifested import Unmanifested
 from calibre.ebooks.epub.fix.epubcheck import Epubcheck
 
-plugins = [HTML2ZIP, PML2PMLZ, TXT2TXTZ, ArchiveExtract, GoogleBooks, ISBNDB, Amazon, #AmazonSocial,
-        KentDistrictLibrary, DoubanBooks, NiceBooks, CSV_XML, EPUB_MOBI, BIBTEX, Unmanifested,
-        Epubcheck, OpenLibraryCovers, AmazonCovers, DoubanCovers, #LibrarythingCovers,
-        NiceBooksCovers]
+plugins = [HTML2ZIP, PML2PMLZ, TXT2TXTZ, ArchiveExtract, CSV_XML, EPUB_MOBI, BIBTEX, Unmanifested,
+        Epubcheck, ]
+
+if test_eight_code:
+# New metadata download plugins {{{
+    from calibre.ebooks.metadata.sources.google import GoogleBooks
+    from calibre.ebooks.metadata.sources.amazon import Amazon
+    from calibre.ebooks.metadata.sources.openlibrary import OpenLibrary
+    from calibre.ebooks.metadata.sources.isbndb import ISBNDB
+
+    plugins += [GoogleBooks, Amazon, OpenLibrary, ISBNDB]
+
+# }}}
+else:
+    from calibre.ebooks.metadata.fetch import KentDistrictLibrary, Amazon
+    from calibre.ebooks.metadata.douban import DoubanBooks
+    from calibre.ebooks.metadata.isbndb import ISBNDB
+    from calibre.ebooks.metadata.google_books import GoogleBooks
+    from calibre.ebooks.metadata.nicebooks import NiceBooks, NiceBooksCovers
+    # from calibre.ebooks.metadata.amazon import Amazon , AmazonSocial
+    from calibre.ebooks.metadata.fictionwise import Fictionwise
+    from calibre.ebooks.metadata.covers import OpenLibraryCovers, \
+            AmazonCovers, DoubanCovers #, LibrarythingCovers
+
+    plugins += [GoogleBooks, ISBNDB, Amazon,
+        OpenLibraryCovers, AmazonCovers, DoubanCovers,
+        NiceBooksCovers, KentDistrictLibrary, DoubanBooks, NiceBooks]
+
 plugins += [
     ComicInput,
     EPUBInput,
@@ -833,6 +857,11 @@ class ActionNextMatch(InterfaceActionBase):
     name = 'Next Match'
     actual_plugin = 'calibre.gui2.actions.next_match:NextMatchAction'
 
+class ActionStore(InterfaceActionBase):
+    name = 'Store'
+    author = 'John Schember'
+    actual_plugin = 'calibre.gui2.actions.store:StoreAction'
+
 plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,
         ActionConvert, ActionDelete, ActionEditMetadata, ActionView,
         ActionFetchNews, ActionSaveToDisk, ActionShowBookDetails,
@@ -840,6 +869,9 @@ plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,
         ActionSendToDevice, ActionHelp, ActionPreferences, ActionSimilarBooks,
         ActionAddToLibrary, ActionEditCollections, ActionChooseLibrary,
         ActionCopyToLibrary, ActionTweakEpub, ActionNextMatch]
+
+if test_eight_code:
+    plugins += [ActionStore]
 
 # }}}
 
@@ -1018,6 +1050,17 @@ class Server(PreferencesPlugin):
             'give you access to your calibre library from anywhere, '
             'on any device, over the internet')
 
+class MetadataSources(PreferencesPlugin):
+    name = 'Metadata download'
+    icon = I('metadata.png')
+    gui_name = _('Metadata download')
+    category = 'Sharing'
+    gui_category = _('Sharing')
+    category_order = 4
+    name_order = 3
+    config_widget = 'calibre.gui2.preferences.metadata_sources'
+    description = _('Control how calibre downloads ebook metadata from the net')
+
 class Plugins(PreferencesPlugin):
     name = 'Plugins'
     icon = I('plugins.png')
@@ -1056,13 +1099,86 @@ plugins += [LookAndFeel, Behavior, Columns, Toolbar, Search, InputOptions,
         CommonOptions, OutputOptions, Adding, Saving, Sending, Plugboard,
         Email, Server, Plugins, Tweaks, Misc, TemplateFunctions]
 
+if test_eight_code:
+    plugins.append(MetadataSources)
+
 #}}}
 
-# New metadata download plugins {{{
-from calibre.ebooks.metadata.sources.google import GoogleBooks
-from calibre.ebooks.metadata.sources.amazon import Amazon
-from calibre.ebooks.metadata.sources.openlibrary import OpenLibrary
+# Store plugins {{{
+class StoreAmazonKindleStore(StoreBase):
+    name = 'Amazon Kindle'
+    description = _('Kindle books from Amazon')
+    actual_plugin = 'calibre.gui2.store.amazon_plugin:AmazonKindleStore'
 
-plugins += [GoogleBooks, Amazon, OpenLibrary]
+class StoreBaenWebScriptionStore(StoreBase):
+    name = 'Baen WebScription'
+    description = _('Ebooks for readers.')
+    actual_plugin = 'calibre.gui2.store.baen_webscription_plugin:BaenWebScriptionStore'
+
+class StoreBNStore(StoreBase):
+    name = 'Barnes and Noble'
+    description = _('Books, Textbooks, eBooks, Toys, Games and More.')
+    actual_plugin = 'calibre.gui2.store.bn_plugin:BNStore'
+
+class StoreBeWriteStore(StoreBase):
+    name = 'BeWrite Books'
+    description = _('Publishers of fine books.')
+    actual_plugin = 'calibre.gui2.store.bewrite_plugin:BeWriteStore'
+
+class StoreDieselEbooksStore(StoreBase):
+    name = 'Diesel eBooks'
+    description = _('World Famous eBook Store.')
+    actual_plugin = 'calibre.gui2.store.diesel_ebooks_plugin:DieselEbooksStore'
+
+class StoreEbookscomStore(StoreBase):
+    name = 'eBooks.com'
+    description = _('The digital bookstore.')
+    actual_plugin = 'calibre.gui2.store.ebooks_com_plugin:EbookscomStore'
+
+class StoreEHarlequinStoretore(StoreBase):
+    name = 'eHarlequin'
+    description = _('entertain, enrich, inspire.')
+    actual_plugin = 'calibre.gui2.store.eharlequin_plugin:EHarlequinStore'
+
+class StoreFeedbooksStore(StoreBase):
+    name = 'Feedbooks'
+    description = _('Read anywhere.')
+    actual_plugin = 'calibre.gui2.store.feedbooks_plugin:FeedbooksStore'
+
+class StoreGutenbergStore(StoreBase):
+    name = 'Project Gutenberg'
+    description = _('The first producer of free ebooks.')
+    actual_plugin = 'calibre.gui2.store.gutenberg_plugin:GutenbergStore'
+
+class StoreKoboStore(StoreBase):
+    name = 'Kobo'
+    description = _('eReading: anytime. anyplace.')
+    actual_plugin = 'calibre.gui2.store.kobo_plugin:KoboStore'
+
+class StoreManyBooksStore(StoreBase):
+    name = 'ManyBooks'
+    description = _('The best ebooks at the best price: free!')
+    actual_plugin = 'calibre.gui2.store.manybooks_plugin:ManyBooksStore'
+
+class StoreMobileReadStore(StoreBase):
+    name = 'MobileRead'
+    description = _('Ebooks handcrafted with the utmost care')
+    actual_plugin = 'calibre.gui2.store.mobileread_plugin:MobileReadStore'
+
+class StoreOpenLibraryStore(StoreBase):
+    name = 'Open Library'
+    description = _('One web page for every book.')
+    actual_plugin = 'calibre.gui2.store.open_library_plugin:OpenLibraryStore'
+
+class StoreSmashwordsStore(StoreBase):
+    name = 'Smashwords'
+    description = _('Your ebook. Your way.')
+    actual_plugin = 'calibre.gui2.store.smashwords_plugin:SmashwordsStore'
+
+plugins += [StoreAmazonKindleStore, StoreBaenWebScriptionStore, StoreBNStore,
+    StoreBeWriteStore, StoreDieselEbooksStore, StoreEbookscomStore,
+    StoreEHarlequinStoretore,
+    StoreFeedbooksStore, StoreGutenbergStore, StoreKoboStore, StoreManyBooksStore,
+    StoreMobileReadStore, StoreOpenLibraryStore, StoreSmashwordsStore]
 
 # }}}

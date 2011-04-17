@@ -125,7 +125,10 @@ class Metadata(object):
         _data = object.__getattribute__(self, '_data')
         if field in TOP_LEVEL_IDENTIFIERS:
             field, val = self._clean_identifier(field, val)
-            _data['identifiers'].update({field: val})
+            identifiers = _data['identifiers']
+            identifiers.pop(field, None)
+            if val:
+                identifiers[field] = val
         elif field == 'identifiers':
             if not val:
                 val = copy.copy(NULL_VALUES.get('identifiers', None))
@@ -224,8 +227,7 @@ class Metadata(object):
         identifiers = object.__getattribute__(self,
             '_data')['identifiers']
 
-        if not val and typ in identifiers:
-            identifiers.pop(typ)
+        identifiers.pop(typ, None)
         if val:
             identifiers[typ] = val
 
@@ -481,7 +483,7 @@ class Metadata(object):
                         self_tags = self.get(x, [])
                         self.set_user_metadata(x, meta) # get... did the deepcopy
                         other_tags = other.get(x, [])
-                        if meta['is_multiple']:
+                        if meta['datatype'] == 'text' and meta['is_multiple']:
                             # Case-insensitive but case preserving merging
                             lotags = [t.lower() for t in other_tags]
                             lstags = [t.lower() for t in self_tags]
@@ -647,7 +649,7 @@ class Metadata(object):
             fmt('Tags', u', '.join([unicode(t) for t in self.tags]))
         if self.series:
             fmt('Series', self.series + ' #%s'%self.format_series_index())
-        if self.language:
+        if not self.is_null('language'):
             fmt('Language', self.language)
         if self.rating is not None:
             fmt('Rating', self.rating)

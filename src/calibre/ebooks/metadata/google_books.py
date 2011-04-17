@@ -327,6 +327,7 @@ class ResultList(list):
 def search(title=None, author=None, publisher=None, isbn=None,
            min_viewability='none', verbose=False, max_results=40):
     br   = browser()
+    br.set_handle_gzip(True)
     entries = Query(title=title, author=author, publisher=publisher,
                         isbn=isbn, max_results=max_results,
                             min_viewability=min_viewability)(br, verbose)

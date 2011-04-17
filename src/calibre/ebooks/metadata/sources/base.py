@@ -15,9 +15,21 @@ from calibre.customize import Plugin
 from calibre.utils.logging import ThreadSafeLog, FileStream
 from calibre.utils.config import JSONConfig
 from calibre.utils.titlecase import titlecase
+from calibre.utils.icu import capitalize, lower
 from calibre.ebooks.metadata import check_isbn
 
-msprefs = JSONConfig('metadata_sources.json')
+msprefs = JSONConfig('metadata_sources/global.json')
+msprefs.defaults['txt_comments'] = False
+msprefs.defaults['ignore_fields'] = []
+msprefs.defaults['max_tags'] = 20
+msprefs.defaults['wait_after_first_identify_result'] = 30 # seconds
+msprefs.defaults['wait_after_first_cover_result'] = 60 # seconds
+msprefs.defaults['swap_author_names'] = False
+
+# Google covers are often poor quality (scans/errors) but they have high
+# resolution, so they trump covers from better sources. So make sure they
+# are only used if no other covers are found.
+msprefs.defaults['cover_priorities'] = {'Google':2}
 
 def create_log(ostream=None):
     log = ThreadSafeLog(level=ThreadSafeLog.DEBUG)
@@ -67,8 +79,8 @@ class InternalMetadataCompareKeyGen(object):
         exact_title = 1 if title and \
                 cleanup_title(title) == cleanup_title(mi.title) else 2
 
-        has_cover = 2 if source_plugin.get_cached_cover_url(mi.identifiers)\
-                is None else 1
+        has_cover = 2 if (not source_plugin.cached_cover_url_is_reliable or
+                source_plugin.get_cached_cover_url(mi.identifiers) is None) else 1
 
         self.base = (isbn, has_cover, all_fields, exact_title)
         self.comments_len = len(mi.comments.strip() if mi.comments else '')
@@ -89,6 +101,54 @@ class InternalMetadataCompareKeyGen(object):
 
 # }}}
 
+def get_cached_cover_urls(mi):
+    from calibre.customize.ui import metadata_plugins
+    plugins = list(metadata_plugins(['identify']))
+    for p in plugins:
+        url = p.get_cached_cover_url(mi.identifiers)
+        if url:
+            yield (p, url)
+
+def cap_author_token(token):
+    lt = lower(token)
+    if lt in ('von', 'de', 'el', 'van', 'le'):
+        return lt
+    if re.match(r'([a-z]\.){2,}$', lt) is not None:
+        # Normalize tokens of the form J.K. to J. K.
+        parts = token.split('.')
+        return '. '.join(map(capitalize, parts)).strip()
+    return capitalize(token)
+
+def fixauthors(authors):
+    if not authors:
+        return authors
+    ans = []
+    for x in authors:
+        ans.append(' '.join(map(cap_author_token, x.split())))
+    return ans
+
+def fixcase(x):
+    if x:
+        x = titlecase(x)
+    return x
+
+class Option(object):
+    __slots__ = ['type', 'default', 'label', 'desc', 'name', 'choices']
+
+    def __init__(self, name, type_, default, label, desc, choices=None):
+        '''
+        :param name: The name of this option. Must be a valid python identifier
+        :param type_: The type of this option, one of ('number', 'string',
+                        'bool', 'choices')
+        :param default: The default value for this option
+        :param label: A short (few words) description of this option
+        :param desc: A longer description of this option
+        :param choices: A list of possible values, used only if type='choices'
+        '''
+        self.name, self.type, self.default, self.label, self.desc = (name,
+                type_, default, label, desc)
+        self.choices = choices
+
 class Source(Plugin):
 
     type = _('Metadata source')
@@ -104,6 +164,29 @@ class Source(Plugin):
     #: during the identify phase
     touched_fields = frozenset()
 
+    #: Set this to True if your plugin return HTML formatted comments
+    has_html_comments = False
+
+    #: Setting this to True means that the browser object will add
+    #: Accept-Encoding: gzip to all requests. This can speedup downloads
+    #: but make sure that the source actually supports gzip transfer encoding
+    #: correctly first
+    supports_gzip_transfer_encoding = False
+
+    #: Cached cover URLs can sometimes be unreliable (i.e. the download could
+    #: fail or the returned image could be bogus. If that is often the case
+    #: with this source set to False
+    cached_cover_url_is_reliable = True
+
+    #: A list of :class:`Option` objects. They will be used to automatically
+    #: construct the configuration widget for this plugin
+    options = ()
+
+    #: A string that is displayed at the top of the config widget for this
+    #: plugin
+    config_help_message = None
+
+
     def __init__(self, *args, **kwargs):
         Plugin.__init__(self, *args, **kwargs)
         self._isbn_to_identifier_cache = {}
@@ -111,8 +194,28 @@ class Source(Plugin):
         self.cache_lock = threading.RLock()
         self._config_obj = None
         self._browser = None
+        self.prefs.defaults['ignore_fields'] = []
+        for opt in self.options:
+            self.prefs.defaults[opt.name] = opt.default
 
     # Configuration {{{
+
+    def is_configured(self):
+        '''
+        Return False if your plugin needs to be configured before it can be
+        used. For example, it might need a username/password/API key.
+        '''
+        return True
+
+    def is_customizable(self):
+        return True
+
+    def config_widget(self):
+        from calibre.gui2.metadata.config import ConfigWidget
+        return ConfigWidget(self)
+
+    def save_settings(self, config_widget):
+        config_widget.commit()
 
     @property
     def prefs(self):
@@ -127,6 +230,8 @@ class Source(Plugin):
     def browser(self):
         if self._browser is None:
             self._browser = browser(user_agent=random_user_agent())
+            if self.supports_gzip_transfer_encoding:
+                self._browser.set_handle_gzip(True)
         return self._browser.clone_browser()
 
     # }}}
@@ -229,19 +334,22 @@ class Source(Plugin):
         before putting the Metadata object into result_queue. You can of
         course, use a custom algorithm suited to your metadata source.
         '''
-        def fixcase(x):
-            if x:
-                x = titlecase(x)
-            return x
         if mi.title:
             mi.title = fixcase(mi.title)
-        mi.authors = list(map(fixcase, mi.authors))
+        mi.authors = fixauthors(mi.authors)
         mi.tags = list(map(fixcase, mi.tags))
         mi.isbn = check_isbn(mi.isbn)
 
     # }}}
 
     # Metadata API {{{
+
+    def get_book_url(self, identifiers):
+        '''
+        Return the URL for the book identified by identifiers at this source.
+        If no URL is found, return None.
+        '''
+        return None
 
     def get_cached_cover_url(self, identifiers):
         '''
@@ -316,7 +424,8 @@ class Source(Plugin):
             title=None, authors=None, identifiers={}, timeout=30):
         '''
         Download a cover and put it into result_queue. The parameters all have
-        the same meaning as for :meth:`identify`.
+        the same meaning as for :meth:`identify`. Put (self, cover_data) into
+        result_queue.
 
         This method should use cached cover URLs for efficiency whenever
         possible. When cached data is not present, most plugins simply call

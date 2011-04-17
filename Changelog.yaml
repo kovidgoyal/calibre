@@ -19,6 +19,142 @@
 #  new recipes:
 #    - title: 
 
+- version: 0.7.55
+  date: 2011-04-15
+
+  new features:
+    - title: "Add a menu bar. Useful if you use a lot of plugins and are running out of space in your toolbars. By default the menu bar is hidden (except on OS X). You can add actions to it via Preferences->Toolbars. As soon as you add actions, it will become visible."
+
+    - title: "OS X: Make the main calibre window look a little more 'native' on OS X"
+
+    - title: "Show recently viewed books in the View button's drop down menu"
+
+    - title: "Add a button next to the search bar to toggle easily between highlight and restrict search modes"
+
+    - title: "Allow the use of arbitrary searches as search restrictions, rather than just saved searches. Do this by using the special entry '*Current Search' in the Search Restriction dropdown."
+
+    - title: "The Connect/share icon now changes color to indicate that the content server is running"
+      tickets: [755444]
+
+    - title: "Device drivers for Viewpad 7, Motorola Xoom and Asus Eee Note"
+
+    - title: "Add tags like composite custom column."
+      tickets: [759663]
+
+    - title: "Add a new date format code 'iso'. Permits formatting dates to see the complete time (via Preferences->Tweaks)"
+
+    - title: "Allow the use of data from the size column in the template language"
+      tickets: [759645]
+
+    - title: "Support reading/writing covers to txtz/htmlz files"
+
+    - title: "Speedup for large library sorting when using composite custom columns"
+
+    - title: "Move the boolean columns are tristate tweak to Preferences->Behavior"
+  
+  bug fixes:
+    - title: "Fix a regression in 0.7.54 that broke reading covers/metadata from cbz files."
+      tickets: [756892]
+
+    - title: "Fix tweak names and help not translatable"
+      tickets: [756736]
+
+    - title: "When the size of a book is less that 0.1MB but not zero, display the size as <0.1 instead of 0.0."
+      tickets: [755768]
+
+    - title: "HTMLZ input: Fix handling of HTML files encoded in an encoding other than UTF-8"
+
+    - title: "EPUB Input: Fix EPUB files with empty Adobe PAGE templates causing conversion to abort."
+      tickets: [760390]
+
+    - title: "Fix CHM input plugin not closing opened input file"
+      tickets: [760589]
+
+    - title: "MOBI Output: Make super/subscripts use a slightly smaller font when rendered on a Kindle. Also allow the use of vertical-align:top/bottom in the CSS to specify a super/subscript."
+      tickets: [758667]
+
+    - title: "LRF Input: Detect and workaround LRF files that have deeply nested spans, instead of crashing."
+      tickets: [759680]
+
+    - title: "MOBI Output: Fix bug that would cause conversion to unneccessarily abort when malformed hyperlinks are present in the input document."
+      tickets: [759313]
+
+    - title: "Make true and false searches work correctly for numeric fields."
+
+    - title: "MOBI Output: The Ignore margins setting no longer ignores blockquotes, only margins set via CSS on other elements."
+      tickets: [758675]
+
+    - title: "Fix regression that caused clicking auto send to also change the email address in Preferences->Email"
+
+  improved recipes:
+    - Wall Street Journal
+    - Weblogs SL
+    - Tabu.ro
+    - Vecernje Novosti
+
+  new recipes:
+    - title: Hallo Assen and Dvhn
+      author: Reijendert
+
+
+- version: 0.7.54
+  date: 2011-04-08
+
+  new features:
+    - title: "New output format, HTMLZ which is a single HTML file with its associated images/stylesheets in a zipped up file"
+      description: "Useful when you want to convert your ebook into a single HTML file for easy editing. Note that this output plugin is still new and needs testing"
+
+    - title: "When dealing with ZIP/RAR archives, use the file header rather than the file extension to detrmine the file type, when possible. This fixes the common case of CBZ files being actually cbr files and vice versa"
+
+    - title: "Support for the Motorola Atrix"
+
+    - title: "Allow the icons in the toolbar to be turned off completely via Preferences->Look & Feel"
+
+    - title: "When downloading metadata use the gzip transfer encoding when possible for a speedup."
+      tickets: [749304]
+  
+  bug fixes:
+    - title: "Conversion pipeline: Workaround for bug in lxml that causes a massive mem leak on windows and OS X when the input document contains non ASCII CSS selectors."
+      tickets: [754555]
+
+    - title: "Conversion pipeline: Handle inline <style> tags that put all the actual CSS inside an XML comment."
+      tickets: [750063]
+
+    - title: "The 'Choose Library' button now shows its popup menu when you already have more than one library instead of the dialog to create a new library"
+      tickets: [754154]
+
+    - title: "Apply all content server setting when clicking the Start Server button in Preferences->Sharing over the net"
+      tickets: [753122]
+
+    - title: "Fix content server breaking if its restriction is set to a saved search that was deleted"
+      tickets: [751950]
+
+    - title: "Fix detection of PocketBook with 2.0.6 firmware on windows"
+      tickets: [750336]
+
+    - title: "ODT Input: Fix handling of the <text:s> element."
+      tickets: [749655]
+
+    - title: "MOBI Output: Don't use self closed tags"
+
+    - title: "Fix book details popup becoming too tall if there is a lot of metadata"
+
+    - title: "Fix new PDF engine crashing on PDF files with embedded fonts with null names"
+
+  improved recipes:
+    - Kommersant
+    - Perfil
+    - Times of India
+    - IHT
+    - Guardian
+
+  new recipes:
+    - title: "Al Ahram"
+      authors: Hassan Williamson
+
+    - title: "F-Secure and developpez.com"
+      authors: louhike
+
 - version: 0.7.53
   date: 2011-04-01
 

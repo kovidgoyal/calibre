@@ -12,7 +12,7 @@ from calibre.ebooks.metadata.sources.base import Source
 class OpenLibrary(Source):
 
     name = 'Open Library'
-    description = _('Downloads metadata from The Open Library')
+    description = _('Downloads covers from The Open Library')
 
     capabilities = frozenset(['cover'])
 
@@ -26,7 +26,7 @@ class OpenLibrary(Source):
         br = self.browser
         try:
             ans = br.open_novisit(self.OPENLIBRARY%isbn, timeout=timeout).read()
-            result_queue.put(ans)
+            result_queue.put((self, ans))
         except Exception as e:
             if callable(getattr(e, 'getcode', None)) and e.getcode() == 404:
                 log.error('No cover for ISBN: %r found'%isbn)

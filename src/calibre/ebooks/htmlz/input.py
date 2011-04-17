@@ -10,6 +10,7 @@ import os
 
 from calibre import walk
 from calibre.customize.conversion import InputFormatPlugin
+from calibre.ebooks.chardet import xml_to_unicode
 from calibre.utils.zipfile import ZipFile
 
 class HTMLZInput(InputFormatPlugin):
@@ -33,6 +34,13 @@ class HTMLZInput(InputFormatPlugin):
                 with open(x, 'rb') as tf:
                     html = tf.read()
                     break
+        
+        # Encoding
+        if options.input_encoding:
+            ienc = options.input_encoding
+        else:
+            ienc = xml_to_unicode(html[:4096])[-1]
+        html = html.decode(ienc, 'replace')
         
         # Run the HTML through the html processing plugin.
         from calibre.customize.ui import plugin_for_input_format

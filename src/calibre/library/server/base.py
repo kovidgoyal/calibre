@@ -24,6 +24,8 @@ from calibre.library.server.xml import XMLServer
 from calibre.library.server.opds import OPDSServer
 from calibre.library.server.cache import Cache
 from calibre.library.server.browse import BrowseServer
+from calibre.utils.search_query_parser import saved_searches
+from calibre import prints
 
 
 class DispatchController(object): # {{{
@@ -178,7 +180,12 @@ class LibraryServer(ContentServer, MobileServer, XMLServer, OPDSServer, Cache,
     def set_search_restriction(self, restriction):
         self.search_restriction_name = restriction
         if restriction:
-            self.search_restriction = 'search:"%s"'%restriction
+            if restriction not in saved_searches().names():
+                prints('WARNING: Content server: search restriction ',
+                       restriction, ' does not exist')
+                self.search_restriction = ''
+            else:
+                self.search_restriction = 'search:"%s"'%restriction
         else:
             self.search_restriction = ''
         self.reset_caches()

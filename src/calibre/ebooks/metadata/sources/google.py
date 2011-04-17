@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import time
+import time, hashlib
 from urllib import urlencode
 from functools import partial
 from Queue import Queue, Empty
@@ -133,7 +133,7 @@ def to_metadata(browser, log, entry_, timeout): # {{{
             default = utcnow().replace(day=15)
             mi.pubdate = parse_date(pubdate, assume_utc=True, default=default)
         except:
-            log.exception('Failed to parse pubdate')
+            log.error('Failed to parse pubdate %r'%pubdate)
 
     # Ratings
     for x in rating(extra):
@@ -145,23 +145,36 @@ def to_metadata(browser, log, entry_, timeout): # {{{
             log.exception('Failed to parse rating')
 
     # Cover
-    mi.has_google_cover = len(extra.xpath(
-        '//*[@rel="http://schemas.google.com/books/2008/thumbnail"]')) > 0
+    mi.has_google_cover = None
+    for x in extra.xpath(
+            '//*[@href and @rel="http://schemas.google.com/books/2008/thumbnail"]'):
+        mi.has_google_cover = x.get('href')
+        break
 
     return mi
 # }}}
 
 class GoogleBooks(Source):
 
-    name = 'Google Books'
+    name = 'Google'
     description = _('Downloads metadata from Google Books')
 
     capabilities = frozenset(['identify', 'cover'])
     touched_fields = frozenset(['title', 'authors', 'tags', 'pubdate',
         'comments', 'publisher', 'identifier:isbn', 'rating',
         'identifier:google']) # language currently disabled
+    supports_gzip_transfer_encoding = True
+    cached_cover_url_is_reliable = False
 
     GOOGLE_COVER = 'http://books.google.com/books?id=%s&printsec=frontcover&img=1'
+
+    DUMMY_IMAGE_MD5 = frozenset(['0de4383ebad0adad5eeb8975cd796657'])
+
+    def get_book_url(self, identifiers): # {{{
+        goog = identifiers.get('google', None)
+        if goog is not None:
+            return 'http://books.google.com/books?id=%s'%goog
+    # }}}
 
     def create_query(self, log, title=None, authors=None, identifiers={}): # {{{
         BASE_URL = 'http://books.google.com/books/feeds/volumes?'
@@ -212,7 +225,7 @@ class GoogleBooks(Source):
             results.sort(key=self.identify_results_keygen(
                 title=title, authors=authors, identifiers=identifiers))
             for mi in results:
-                cached_url = self.cover_url_from_identifiers(mi.identifiers)
+                cached_url = self.get_cached_cover_url(mi.identifiers)
                 if cached_url is not None:
                     break
         if cached_url is None:
@@ -222,9 +235,14 @@ class GoogleBooks(Source):
         if abort.is_set():
             return
         br = self.browser
+        log('Downloading cover from:', cached_url)
         try:
             cdata = br.open_novisit(cached_url, timeout=timeout).read()
-            result_queue.put(cdata)
+            if cdata:
+                if hashlib.md5(cdata).hexdigest() in self.DUMMY_IMAGE_MD5:
+                    log.warning('Google returned a dummy image, ignoring')
+                else:
+                    result_queue.put((self, cdata))
         except:
             log.exception('Failed to download cover from:', cached_url)
 
@@ -253,9 +271,9 @@ class GoogleBooks(Source):
                     goog = ans.identifiers['google']
                     for isbn in getattr(ans, 'all_isbns', []):
                         self.cache_isbn_to_identifier(isbn, goog)
-                        if ans.has_google_cover:
-                            self.cache_identifier_to_cover_url(goog,
-                                    self.GOOGLE_COVER%goog)
+                    if ans.has_google_cover:
+                        self.cache_identifier_to_cover_url(goog,
+                                self.GOOGLE_COVER%goog)
                     self.clean_downloaded_metadata(ans)
                     result_queue.put(ans)
             except:
@@ -270,6 +288,9 @@ class GoogleBooks(Source):
             identifiers={}, timeout=30):
         query = self.create_query(log, title=title, authors=authors,
                 identifiers=identifiers)
+        if not query:
+            log.error('Insufficient metadata to construct query')
+            return
         br = self.browser
         try:
             raw = br.open_novisit(query, timeout=timeout).read()

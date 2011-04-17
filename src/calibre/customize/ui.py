@@ -7,7 +7,8 @@ import os, shutil, traceback, functools, sys
 from calibre.customize import (CatalogPlugin, FileTypePlugin, PluginNotFound,
                               MetadataReaderPlugin, MetadataWriterPlugin,
                               InterfaceActionBase as InterfaceAction,
-                              PreferencesPlugin, platform, InvalidPlugin)
+                              PreferencesPlugin, platform, InvalidPlugin,
+                              StoreBase as Store)
 from calibre.customize.conversion import InputFormatPlugin, OutputFormatPlugin
 from calibre.customize.zipplugin import loader
 from calibre.customize.profiles import InputProfile, OutputProfile
@@ -73,6 +74,17 @@ def enable_plugin(plugin_or_name):
     config['disabled_plugins'] = dp
     ep = config['enabled_plugins']
     ep.add(x)
+    config['enabled_plugins'] = ep
+
+def restore_plugin_state_to_default(plugin_or_name):
+    x = getattr(plugin_or_name, 'name', plugin_or_name)
+    dp = config['disabled_plugins']
+    if x in dp:
+        dp.remove(x)
+    config['disabled_plugins'] = dp
+    ep = config['enabled_plugins']
+    if x in ep:
+        ep.remove(x)
     config['enabled_plugins'] = ep
 
 default_disabled_plugins = set([
@@ -228,6 +240,17 @@ def preferences_plugins():
     customization = config['plugin_customization']
     for plugin in _initialized_plugins:
         if isinstance(plugin, PreferencesPlugin):
+            if not is_disabled(plugin):
+                plugin.site_customization = customization.get(plugin.name, '')
+                yield plugin
+# }}}
+
+# Store Plugins # {{{
+
+def store_plugins():
+    customization = config['plugin_customization']
+    for plugin in _initialized_plugins:
+        if isinstance(plugin, Store):
             if not is_disabled(plugin):
                 plugin.site_customization = customization.get(plugin.name, '')
                 yield plugin
@@ -453,12 +476,15 @@ def epub_fixers():
 # Metadata sources2 {{{
 def metadata_plugins(capabilities):
     capabilities = frozenset(capabilities)
-    for plugin in _initialized_plugins:
-        if isinstance(plugin, Source) and \
-                plugin.capabilities.intersection(capabilities) and \
+    for plugin in all_metadata_plugins():
+        if plugin.capabilities.intersection(capabilities) and \
                 not is_disabled(plugin):
             yield plugin
 
+def all_metadata_plugins():
+    for plugin in _initialized_plugins:
+        if isinstance(plugin, Source):
+            yield plugin
 # }}}
 
 # Initialize plugins {{{

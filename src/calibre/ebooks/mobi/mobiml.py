@@ -463,9 +463,9 @@ class MobiMLizer(object):
                 text = COLLAPSE.sub(' ', elem.text)
         valign = style['vertical-align']
         not_baseline = valign in ('super', 'sub', 'text-top',
-                'text-bottom') or (
+                'text-bottom', 'top', 'bottom') or (
                 isinstance(valign, (float, int)) and abs(valign) != 0)
-        issup = valign in ('super', 'text-top') or (
+        issup = valign in ('super', 'text-top', 'top') or (
             isinstance(valign, (float, int)) and valign > 0)
         vtag = 'sup' if issup else 'sub'
         if not_baseline and not ignore_valign and tag not in NOT_VTAGS and not isblock:
@@ -484,6 +484,7 @@ class MobiMLizer(object):
             parent = bstate.para if bstate.inline is None else bstate.inline
             if parent is not None:
                 vtag = etree.SubElement(parent, XHTML(vtag))
+                vtag = etree.SubElement(vtag, XHTML('small'))
                 # Add anchors
                 for child in vbstate.body:
                     if child is not vbstate.para:
@@ -494,6 +495,10 @@ class MobiMLizer(object):
                     for child in vbstate.para:
                         vtag.append(child)
                 return
+
+        if tag == 'blockquote':
+            old_mim = self.opts.mobi_ignore_margins
+            self.opts.mobi_ignore_margins = False
 
         if text or tag in CONTENT_TAGS or tag in NESTABLE_TAGS:
             self.mobimlize_content(tag, text, bstate, istates)
@@ -510,6 +515,8 @@ class MobiMLizer(object):
             if tail:
                 self.mobimlize_content(tag, tail, bstate, istates)
 
+        if tag == 'blockquote':
+            self.opts.mobi_ignore_margins = old_mim
 
         if bstate.content and style['page-break-after'] in PAGE_BREAKS:
             bstate.pbreak = True

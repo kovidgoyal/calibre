@@ -310,10 +310,17 @@ class BooksModel(QAbstractTableModel): # {{{
     def sort(self, col, order, reset=True):
         if not self.db:
             return
-        self.about_to_be_sorted.emit(self.db.id)
         if not isinstance(order, bool):
             order = order == Qt.AscendingOrder
         label = self.column_map[col]
+        self._sort(label, order, reset)
+
+    def sort_by_named_field(self, field, order, reset=True):
+        if field in self.db.field_metadata.keys():
+            self._sort(field, order, reset)
+
+    def _sort(self, label, order, reset):
+        self.about_to_be_sorted.emit(self.db.id)
         self.db.sort(label, order)
         if reset:
             self.reset()
@@ -604,7 +611,10 @@ class BooksModel(QAbstractTableModel): # {{{
         def size(r, idx=-1):
             size = self.db.data[r][idx]
             if size:
-                return QVariant('%.1f'%(float(size)/(1024*1024)))
+                ans = '%.1f'%(float(size)/(1024*1024))
+                if size > 0 and ans == '0.0':
+                    ans = '<0.1'
+                return QVariant(ans)
             return None
 
         def rating_type(r, idx=-1):
@@ -700,7 +710,7 @@ class BooksModel(QAbstractTableModel): # {{{
                         self.dc_decorator[col] = functools.partial(
                             bool_type_decorator, idx=idx,
                             bool_cols_are_tristate=
-                                tweaks['bool_custom_columns_are_tristate'] != 'no')
+                                self.db.prefs.get('bools_are_tristate'))
             elif datatype in ('int', 'float'):
                 self.dc[col] = functools.partial(number_type, idx=idx)
             elif datatype == 'datetime':
@@ -710,7 +720,7 @@ class BooksModel(QAbstractTableModel): # {{{
                 self.dc_decorator[col] = functools.partial(
                             bool_type_decorator, idx=idx,
                             bool_cols_are_tristate=
-                                tweaks['bool_custom_columns_are_tristate'] != 'no')
+                                self.db.prefs.get('bools_are_tristate'))
             elif datatype == 'rating':
                 self.dc[col] = functools.partial(rating_type, idx=idx)
             elif datatype == 'series':

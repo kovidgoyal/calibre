@@ -23,7 +23,7 @@ from calibre.constants import __appname__, isosx
 from calibre.utils.config import prefs, dynamic
 from calibre.utils.ipc.server import Server
 from calibre.library.database2 import LibraryDatabase2
-from calibre.customize.ui import interface_actions
+from calibre.customize.ui import interface_actions, store_plugins
 from calibre.gui2 import error_dialog, GetMetadata, open_url, \
         gprefs, max_available_height, config, info_dialog, Dispatcher, \
         question_dialog
@@ -34,6 +34,7 @@ from calibre.gui2.main_window import MainWindow
 from calibre.gui2.layout import MainWindowMixin
 from calibre.gui2.device import DeviceMixin
 from calibre.gui2.email import EmailMixin
+from calibre.gui2.ebook_download import EbookDownloadMixin
 from calibre.gui2.jobs import JobManager, JobsDialog, JobsButton
 from calibre.gui2.init import LibraryViewMixin, LayoutMixin
 from calibre.gui2.search_box import SearchBoxMixin, SavedSearchBoxMixin
@@ -89,7 +90,8 @@ class SystemTrayIcon(QSystemTrayIcon): # {{{
 
 class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         TagBrowserMixin, CoverFlowMixin, LibraryViewMixin, SearchBoxMixin,
-        SavedSearchBoxMixin, SearchRestrictionMixin, LayoutMixin, UpdateMixin
+        SavedSearchBoxMixin, SearchRestrictionMixin, LayoutMixin, UpdateMixin,
+        EbookDownloadMixin
         ):
     'The main GUI'
 
@@ -100,6 +102,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         self.device_connected = None
         self.gui_debug = gui_debug
         self.iactions = OrderedDict()
+        # Actions
         for action in interface_actions():
             if opts.ignore_plugins and action.plugin_path is not None:
                 continue
@@ -112,11 +115,10 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
                 if action.plugin_path is None:
                     raise
                 continue
-
             ac.plugin_path = action.plugin_path
             ac.interface_action_base_plugin = action
-
             self.add_iaction(ac)
+        self.load_store_plugins()
 
     def init_iaction(self, action):
         ac = action.load_actual_plugin(self)
@@ -132,6 +134,37 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
                 acmap[ac.name] = ac
         else:
             acmap[ac.name] = ac
+
+    def load_store_plugins(self):
+        self.istores = OrderedDict()
+        for store in store_plugins():
+            if self.opts.ignore_plugins and store.plugin_path is not None:
+                continue
+            try:
+                st = self.init_istore(store)
+                self.add_istore(st)
+            except:
+                # Ignore errors in loading user supplied plugins
+                import traceback
+                traceback.print_exc()
+                if store.plugin_path is None:
+                    raise
+                continue
+
+    def init_istore(self, store):
+        st = store.load_actual_plugin(self)
+        st.plugin_path = store.plugin_path
+        st.base_plugin = store
+        store.actual_istore_plugin_loaded = True
+        return st
+
+    def add_istore(self, st):
+        stmap = self.istores
+        if st.name in stmap:
+            if st.priority >= stmap[st.name].priority:
+                stmap[st.name] = st
+        else:
+            stmap[st.name] = st
 
 
     def initialize(self, library_path, db, listener, actions, show_gui=True):
@@ -153,6 +186,9 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
 
         for ac in self.iactions.values():
             ac.do_genesis()
+        self.donate_action = QAction(QIcon(I('donate.png')), _('&Donate to support calibre'), self)
+        for st in self.istores.values():
+            st.do_genesis()
         MainWindowMixin.__init__(self, db)
 
         # Jobs Button {{{
@@ -164,6 +200,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
 
         LayoutMixin.__init__(self)
         EmailMixin.__init__(self)
+        EbookDownloadMixin.__init__(self)
         DeviceMixin.__init__(self)
 
         self.progress_indicator = ProgressIndicator(self)
@@ -186,8 +223,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         self.system_tray_menu = QMenu(self)
         self.restore_action = self.system_tray_menu.addAction(
                 QIcon(I('page.png')), _('&Restore'))
-        self.donate_action  = self.system_tray_menu.addAction(
-                QIcon(I('donate.png')), _('&Donate to support calibre'))
+        self.system_tray_menu.addAction(self.donate_action)
         self.donate_button.setDefaultAction(self.donate_action)
         self.donate_button.setStatusTip(self.donate_button.toolTip())
         self.eject_action = self.system_tray_menu.addAction(
@@ -446,15 +482,16 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         self.search.clear()
         self.saved_search.clear()
         self.book_details.reset_info()
-        self.library_view.model().count_changed()
         prefs['library_path'] = self.library_path
+        #self.library_view.model().count_changed()
         db = self.library_view.model().db
-        for action in self.iactions.values():
-            action.library_changed(db)
+        self.iactions['Choose Library'].count_changed(db.count())
         self.set_window_title()
         self.apply_named_search_restriction('') # reset restriction to null
-        self.saved_searches_changed() # reload the search restrictions combo box
+        self.saved_searches_changed(recount=False) # reload the search restrictions combo box
         self.apply_named_search_restriction(db.prefs['gui_restriction'])
+        for action in self.iactions.values():
+            action.library_changed(db)
         if olddb is not None:
             try:
                 if call_close:
@@ -607,6 +644,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         self.update_checker.terminate()
         self.listener.close()
         self.job_manager.server.close()
+        self.job_manager.threaded_server.close()
         while self.spare_servers:
             self.spare_servers.pop().close()
         self.device_manager.keep_going = False
@@ -615,8 +653,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
             mb.stop()
 
         self.hide_windows()
-        if self.emailer.is_alive():
-            self.emailer.stop()
         try:
             try:
                 if self.content_server is not None:

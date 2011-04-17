@@ -88,13 +88,6 @@ categories_collapsed_rating_template = r'{first.avg_rating:4.2f:ifempty(0)} - {l
 categories_collapsed_popularity_template = r'{first.count:d} - {last.count:d}'
 
 
-#: Set boolean custom columns to be tristate
-# Set whether boolean custom columns are two- or three-valued.
-#  Two-values for true booleans
-#  three-values for yes/no/unknown
-# Set to 'yes' for three-values, 'no' for two-values
-bool_custom_columns_are_tristate = 'yes'
-
 #: Specify columns to sort the booklist by on startup
 # Provide a set of columns to be sorted on when calibre starts
 #  The argument is None if saved sort history is to be used
