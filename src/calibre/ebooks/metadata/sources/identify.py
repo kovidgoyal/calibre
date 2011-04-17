@@ -408,7 +408,7 @@ if __name__ == '__main__': # tests {{{
                 {'identifiers':{'isbn': '9780307459671'},
                     'title':'Invisible Gorilla', 'authors':['Christopher Chabris']},
                 [title_test('The Invisible Gorilla',
-                    exact=True), authors_test(['Christopher F. Chabris', 'Daniel Simons'])]
+                    exact=True), authors_test(['Christopher Chabris', 'Daniel Simons'])]
 
             ),
 
