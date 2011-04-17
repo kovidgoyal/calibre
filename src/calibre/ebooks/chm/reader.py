@@ -147,7 +147,8 @@ class CHMReader(CHMFile):
         if self.hhc_path == '.hhc' and self.hhc_path not in files:
             from calibre import walk
             for x in walk(output_dir):
-                if os.path.basename(x).lower() in ('index.htm', 'index.html'):
+                if os.path.basename(x).lower() in ('index.htm', 'index.html',
+                        'contents.htm', 'contents.html'):
                     self.hhc_path = os.path.relpath(x, output_dir)
                     break
 
