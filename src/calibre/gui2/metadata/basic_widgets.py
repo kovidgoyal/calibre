@@ -222,7 +222,8 @@ class AuthorSortEdit(EnLineEdit):
             'red, then the authors and this text do not match.')
     LABEL = _('Author s&ort:')
 
-    def __init__(self, parent, authors_edit, autogen_button, db):
+    def __init__(self, parent, authors_edit, autogen_button, db,
+            copy_as_to_a_action):
         EnLineEdit.__init__(self, parent)
         self.authors_edit = authors_edit
         self.db = db
@@ -241,6 +242,7 @@ class AuthorSortEdit(EnLineEdit):
         self.textChanged.connect(self.update_state)
 
         autogen_button.clicked.connect(self.auto_generate)
+        copy_as_to_a_action.triggered.connect(self.copy_to_authors)
         self.update_state()
 
     @dynamic_property
@@ -272,6 +274,14 @@ class AuthorSortEdit(EnLineEdit):
         tt = self.tooltips[0 if normal else 1]
         self.setToolTip(tt)
         self.setWhatsThis(tt)
+
+    def copy_to_authors(self):
+        aus = self.current_val
+        if aus:
+            ln, _, rest = aus.partition(',')
+            if rest:
+                au = rest.strip() + ' ' + ln.strip()
+                self.authors_edit.current_val = [au]
 
     def auto_generate(self, *args):
         au = unicode(self.authors_edit.text())

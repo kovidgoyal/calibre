@@ -12,11 +12,11 @@ import traceback, copy, cPickle
 from itertools import izip, repeat
 from functools import partial
 
-from PyQt4.Qt import Qt, QTreeView, QApplication, pyqtSignal, QFont, QSize, \
-                     QIcon, QPoint, QVBoxLayout, QHBoxLayout, QComboBox, QTimer,\
-                     QAbstractItemModel, QVariant, QModelIndex, QMenu, QFrame,\
-                     QWidget, QItemDelegate, QString, QLabel, \
-                     QShortcut, QKeySequence, SIGNAL, QMimeData, QToolButton
+from PyQt4.Qt import (Qt, QTreeView, QApplication, pyqtSignal, QFont, QSize,
+                     QIcon, QPoint, QVBoxLayout, QHBoxLayout, QComboBox, QTimer,
+                     QAbstractItemModel, QVariant, QModelIndex, QMenu, QFrame,
+                     QWidget, QItemDelegate, QString, QLabel,
+                     QShortcut, QKeySequence, SIGNAL, QMimeData, QToolButton)
 
 from calibre.ebooks.metadata import title_sort
 from calibre.gui2 import config, NONE, gprefs
@@ -31,7 +31,7 @@ from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.tag_categories import TagCategories
 from calibre.gui2.dialogs.tag_list_editor import TagListEditor
 from calibre.gui2.dialogs.edit_authors_dialog import EditAuthorsDialog
-from calibre.gui2.widgets import HistoryLineEdit, ComboBoxWithHelp
+from calibre.gui2.widgets import HistoryLineEdit
 
 class TagDelegate(QItemDelegate): # {{{
 
@@ -1809,13 +1809,8 @@ class TagsModel(QAbstractItemModel): # {{{
 
     # }}}
 
-category_managers = [['', None],
-                     [_('Manage Authors'), None],
-                     [_('Manage Series'), None],
-                     [_('Manage Publishers'), None],
-                     [_('Manage Tags'), None],
-                     [_('Manage User Categories'), None],
-                     [_('Manage Saved Searches'), None]]
+category_managers = (
+                     )
 
 class TagBrowserMixin(object): # {{{
 
@@ -1837,22 +1832,21 @@ class TagBrowserMixin(object): # {{{
         self.tags_view.drag_drop_finished.connect(self.drag_drop_finished)
         self.tags_view.restriction_error.connect(self.do_restriction_error,
                                                  type=Qt.QueuedConnection)
-        self.manage_items_box.currentIndexChanged.connect(self.start_manager)
-        for i,m in enumerate(category_managers):
-            m[1] = [None,
-                    lambda p=self : self.do_author_sort_edit(p, None),
-                    lambda : self.do_tags_list_edit(None, 'series'),
-                    lambda : self.do_tags_list_edit(None, 'publisher'),
-                    lambda : self.do_tags_list_edit(None, 'tags'),
-                    lambda : self.do_edit_user_categories(None),
-                    lambda : self.do_saved_search_edit(None),
-                    ][i]
 
-    def start_manager(self, idx):
-        if idx == 0:
-            return
-        (category_managers[idx][1])()
-        self.manage_items_box.setCurrentIndex(0)
+        for text, func, args in (
+                     (_('Manage Authors'), self.do_author_sort_edit, (self,
+                         None)),
+                     (_('Manage Series'), self.do_tags_list_edit, (None,
+                         'series')),
+                     (_('Manage Publishers'), self.do_tags_list_edit, (None,
+                         'publisher')),
+                     (_('Manage Tags'), self.do_tags_list_edit, (None, 'tags')),
+                     (_('Manage User Categories'),
+                         self.do_edit_user_categories, (None,)),
+                     (_('Manage Saved Searches'), self.do_saved_search_edit,
+                         (None,))
+            ):
+            self.manage_items_button.menu().addAction(text, partial(func, *args))
 
     def do_restriction_error(self):
         error_dialog(self.tags_view, _('Invalid search restriction'),
@@ -2172,12 +2166,15 @@ class TagBrowserWidget(QWidget): # {{{
         parent.tag_match.setStatusTip(parent.tag_match.toolTip())
 
 
-        l = parent.manage_items_box = ComboBoxWithHelp(parent)
-        for x in category_managers:
-            l.addItem(x[0])
-        l.initialize(_('Manage authors, tags, etc'))
+        l = parent.manage_items_button = QToolButton(self)
+        l.setIcon(QIcon(I('tags.png')))
+        l.setText(_('Manage authors, tags, etc'))
+        l.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
+        l.setPopupMode(l.InstantPopup)
         l.setToolTip(_('All of these category_managers are available by right-clicking '
                        'on items in the tag browser above'))
+        l.m = QMenu()
+        l.setMenu(l.m)
         self._layout.addWidget(l)
 
         # self.leak_test_timer = QTimer(self)

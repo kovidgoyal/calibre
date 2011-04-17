@@ -13,7 +13,7 @@ from functools import partial
 from PyQt4.Qt import (Qt, QVBoxLayout, QHBoxLayout, QWidget, QPushButton,
         QGridLayout, pyqtSignal, QDialogButtonBox, QScrollArea, QFont,
         QTabWidget, QIcon, QToolButton, QSplitter, QGroupBox, QSpacerItem,
-        QSizePolicy, QPalette, QFrame, QSize, QKeySequence)
+        QSizePolicy, QPalette, QFrame, QSize, QKeySequence, QMenu)
 
 from calibre.ebooks.metadata import authors_to_string, string_to_authors
 from calibre.gui2 import ResizableDialog, error_dialog, gprefs, pixmap_to_data
@@ -102,15 +102,17 @@ class MetadataSingleDialogBase(ResizableDialog):
                 self.deduce_title_sort_button)
         self.basic_metadata_widgets.extend([self.title, self.title_sort])
 
-        self.authors = AuthorsEdit(self)
-        self.deduce_author_sort_button = QToolButton(self)
-        self.deduce_author_sort_button.setToolTip(_(
+        self.deduce_author_sort_button = b = QToolButton(self)
+        b.setToolTip(_(
         'Automatically create the author sort entry based on the current'
         ' author entry.\n'
         'Using this button to create author sort will change author sort from'
         ' red to green.'))
-        self.author_sort = AuthorSortEdit(self, self.authors,
-                self.deduce_author_sort_button, self.db)
+        b.m = m = QMenu()
+        ac = m.addAction(QIcon(I('back.png')), _('Set author from author sort'))
+        b.setMenu(m)
+        self.authors = AuthorsEdit(self)
+        self.author_sort = AuthorSortEdit(self, self.authors, b, self.db, ac)
         self.basic_metadata_widgets.extend([self.authors, self.author_sort])
 
         self.swap_title_author_button = QToolButton(self)
