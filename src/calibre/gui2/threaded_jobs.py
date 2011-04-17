@@ -38,7 +38,7 @@ class ThreadedJob(BaseJob):
 
         :func: The function that actually does the work. This function *must*
         accept at least three keyword arguments: abort, log and notifications. abort is
-        An Event object. func should periodically check abort.is_set(0 and if
+        An Event object. func should periodically check abort.is_set() and if
         it is True, it should stop processing as soon as possible. notifications
         is a Queue. func should put progress notifications into it in the form
         of a tuple (frac, msg). frac is a number between 0 and 1 indicating
