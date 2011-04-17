@@ -293,7 +293,7 @@ class Source(Plugin):
     def get_title_tokens(self, title, strip_joiners=True):
         '''
         Take a title and return a list of tokens useful for an AND search query.
-        Excludes connectives and punctuation.
+        Excludes connectives(optionally) and punctuation.
         '''
         if title:
             # strip sub-titles

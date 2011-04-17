@@ -626,8 +626,9 @@ if test_eight_code:
     from calibre.ebooks.metadata.sources.amazon import Amazon
     from calibre.ebooks.metadata.sources.openlibrary import OpenLibrary
     from calibre.ebooks.metadata.sources.isbndb import ISBNDB
+    from calibre.ebooks.metadata.sources.overdrive import OverDrive
 
-    plugins += [GoogleBooks, Amazon, OpenLibrary, ISBNDB]
+    plugins += [GoogleBooks, Amazon, OpenLibrary, ISBNDB, OverDrive]
 
 # }}}
 else:
@@ -1097,6 +1098,7 @@ if test_eight_code:
 from calibre.ebooks.metadata.sources.google import GoogleBooks
 from calibre.ebooks.metadata.sources.amazon import Amazon
 from calibre.ebooks.metadata.sources.openlibrary import OpenLibrary
+from calibre.ebooks.metadata.sources.overdrive import OverDrive
 
 plugins += [GoogleBooks, Amazon, OpenLibrary]
 
