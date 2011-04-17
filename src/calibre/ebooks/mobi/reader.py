@@ -716,6 +716,7 @@ class MobiReader(object):
             ent_pat = re.compile(r'&(\S+?);')
             if elems:
                 tocobj = TOC()
+                found = False
                 reached = False
                 for x in root.iter():
                     if x == elems[-1]:
@@ -732,7 +733,8 @@ class MobiReader(object):
                             text = ent_pat.sub(entity_to_unicode, text)
                             tocobj.add_item(toc.partition('#')[0], href[1:],
                                 text)
-                    if reached and x.get('class', None) == 'mbp_pagebreak':
+                            found = True
+                    if reached and found and x.get('class', None) == 'mbp_pagebreak':
                         break
             if tocobj is not None:
                 opf.set_toc(tocobj)

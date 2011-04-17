@@ -12,11 +12,11 @@ import traceback, copy, cPickle
 from itertools import izip, repeat
 from functools import partial
 
-from PyQt4.Qt import Qt, QTreeView, QApplication, pyqtSignal, QFont, QSize, \
-                     QIcon, QPoint, QVBoxLayout, QHBoxLayout, QComboBox, QTimer,\
-                     QAbstractItemModel, QVariant, QModelIndex, QMenu, QFrame,\
-                     QPushButton, QWidget, QItemDelegate, QString, QLabel, \
-                     QShortcut, QKeySequence, SIGNAL, QMimeData, QToolButton
+from PyQt4.Qt import (Qt, QTreeView, QApplication, pyqtSignal, QFont, QSize,
+                     QIcon, QPoint, QVBoxLayout, QHBoxLayout, QComboBox, QTimer,
+                     QAbstractItemModel, QVariant, QModelIndex, QMenu, QFrame,
+                     QWidget, QItemDelegate, QString, QLabel, QPushButton,
+                     QShortcut, QKeySequence, SIGNAL, QMimeData, QToolButton)
 
 from calibre.ebooks.metadata import title_sort
 from calibre.gui2 import config, NONE, gprefs
@@ -1829,8 +1829,24 @@ class TagBrowserMixin(object): # {{{
         self.tags_view.drag_drop_finished.connect(self.drag_drop_finished)
         self.tags_view.restriction_error.connect(self.do_restriction_error,
                                                  type=Qt.QueuedConnection)
-        self.edit_categories.clicked.connect(lambda x:
-                self.do_edit_user_categories())
+
+        for text, func, args, cat_name in (
+             (_('Manage Authors'),
+                        self.do_author_sort_edit, (self, None), 'authors'),
+             (_('Manage Series'),
+                        self.do_tags_list_edit, (None, 'series'), 'series'),
+             (_('Manage Publishers'),
+                        self.do_tags_list_edit, (None, 'publisher'), 'publisher'),
+             (_('Manage Tags'),
+                        self.do_tags_list_edit, (None, 'tags'), 'tags'),
+             (_('Manage User Categories'),
+                        self.do_edit_user_categories, (None,), 'user:'),
+             (_('Manage Saved Searches'),
+                        self.do_saved_search_edit, (None,), 'search')
+            ):
+            self.manage_items_button.menu().addAction(
+                                        QIcon(I(category_icon_map[cat_name])),
+                                        text, partial(func, *args))
 
     def do_restriction_error(self):
         error_dialog(self.tags_view, _('Invalid search restriction'),
@@ -2149,11 +2165,15 @@ class TagBrowserWidget(QWidget): # {{{
                     'match any or all of them'))
         parent.tag_match.setStatusTip(parent.tag_match.toolTip())
 
-        parent.edit_categories = QPushButton(_('Manage &user categories'), parent)
-        self._layout.addWidget(parent.edit_categories)
-        parent.edit_categories.setToolTip(
-                _('Add your own categories to the Tag Browser'))
-        parent.edit_categories.setStatusTip(parent.edit_categories.toolTip())
+
+        l = parent.manage_items_button = QPushButton(self)
+        l.setStyleSheet('QPushButton {text-align: left; }')
+        l.setText(_('Manage authors, tags, etc'))
+        l.setToolTip(_('All of these category_managers are available by right-clicking '
+                       'on items in the tag browser above'))
+        l.m = QMenu()
+        l.setMenu(l.m)
+        self._layout.addWidget(l)
 
         # self.leak_test_timer = QTimer(self)
         # self.leak_test_timer.timeout.connect(self.test_for_leak)

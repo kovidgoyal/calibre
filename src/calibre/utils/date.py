@@ -130,7 +130,14 @@ def utcnow():
     return datetime.utcnow().replace(tzinfo=_utc_tz)
 
 def utcfromtimestamp(stamp):
-    return datetime.utcfromtimestamp(stamp).replace(tzinfo=_utc_tz)
+    try:
+        return datetime.utcfromtimestamp(stamp).replace(tzinfo=_utc_tz)
+    except ValueError:
+        # Raised if stamp if out of range for the platforms gmtime function
+        # We print the error for debugging, but otherwise ignore it
+        import traceback
+        traceback.print_exc()
+        return utcnow()
 
 def format_date(dt, format, assume_utc=False, as_utc=False):
     ''' Return a date formatted as a string using a subset of Qt's formatting codes '''

@@ -200,12 +200,6 @@ class SearchBar(QWidget): # {{{
         x.setIcon(QIcon(I('arrow-down.png')))
         l.addWidget(x)
 
-        x = parent.search_options_button = QToolButton(self)
-        x.setIcon(QIcon(I('config.png')))
-        x.setObjectName("search_option_button")
-        l.addWidget(x)
-        x.setToolTip(_("Change the way searching for books works"))
-
         x = parent.saved_search = SavedSearchBox(self)
         x.setMaximumSize(QSize(150, 16777215))
         x.setMinimumContentsLength(15)
@@ -223,13 +217,6 @@ class SearchBar(QWidget): # {{{
         x.setObjectName("save_search_button")
         l.addWidget(x)
         x.setToolTip(_("Save current search under the name shown in the box"))
-
-        x = parent.delete_search_button = QToolButton(self)
-        x.setIcon(QIcon(I("search_delete_saved.png")))
-        x.setObjectName("delete_search_button")
-        l.addWidget(x)
-        x.setToolTip(_("Delete current saved search"))
-
 
 # }}}
 
