@@ -218,6 +218,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.search.search.connect(self.find)
         self.next_button.clicked.connect(self.find_next)
         self.previous_button.clicked.connect(self.find_previous)
+        self.changed_signal.connect(self.reload_store_plugins)
 
     def find(self, query):
         idx = self._plugin_model.find(query)
@@ -344,6 +345,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                          plugin.name + _(' cannot be removed. It is a '
                          'builtin plugin. Try disabling it instead.')).exec_()
 
+    def reload_store_plugins(self):
+        self.gui.load_store_plugins()
+        if self.gui.iactions.has_key('Store'):
+            self.gui.iactions['Store'].load_menu()
+
     def check_for_add_to_toolbars(self, plugin):
         from calibre.gui2.preferences.toolbar import ConfigWidget
         from calibre.customize import InterfaceActionBase
@@ -375,6 +381,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 installed_actions = list(gprefs.get('action-layout-'+key, []))
                 installed_actions.append(plugin_action.name)
                 gprefs['action-layout-'+key] = tuple(installed_actions)
+
 
 if __name__ == '__main__':
     from PyQt4.Qt import QApplication
