@@ -865,7 +865,10 @@ plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,
         ActionRestart, ActionOpenFolder, ActionConnectShare,
         ActionSendToDevice, ActionHelp, ActionPreferences, ActionSimilarBooks,
         ActionAddToLibrary, ActionEditCollections, ActionChooseLibrary,
-        ActionCopyToLibrary, ActionTweakEpub, ActionNextMatch, ActionStore]
+        ActionCopyToLibrary, ActionTweakEpub, ActionNextMatch]
+
+if test_eight_code:
+    plugins += [ActionStore]
 
 # }}}
 
