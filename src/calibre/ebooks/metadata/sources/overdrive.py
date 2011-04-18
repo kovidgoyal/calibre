@@ -212,10 +212,15 @@ class OverDrive(Source):
         q_query = q+'default.aspx/SearchByKeyword'
         q_init_search = q+'SearchResults.aspx'
         # get first author as string - convert this to a proper cleanup function later
-        s = Source(None)
-        author_tokens = list(s.get_author_tokens(author))
-        title_tokens = list(s.get_title_tokens(title, False, True))
-
+        print "printing list with author "+str(author)+":"
+        author_tokens = list(self.get_author_tokens(author,
+                only_first_author=True))
+        print list(author_tokens)
+        title_tokens = list(self.get_title_tokens(title, False, True))
+        print "there are "+str(len(title_tokens))+" title tokens"
+        for token in title_tokens:
+            print "cleaned up title token is: "+str(token)
+    
         if len(title_tokens) >= len(author_tokens):
             initial_q = ' '.join(title_tokens)
             xref_q = '+'.join(author_tokens)
@@ -251,41 +256,59 @@ class OverDrive(Source):
                 elif int(m.group('totalrecords')) == 0:
                     return ''
 
+        print "\n\nsorting results"
         return self.sort_ovrdrv_results(raw, title, title_tokens, author, author_tokens)
     
     
     def sort_ovrdrv_results(self, raw, title=None, title_tokens=None, author=None, author_tokens=None, ovrdrv_id=None):
+        print "\ntitle to search for is "+str(title)+"\nauthor to search for is "+str(author)
         close_matches = []
         raw = re.sub('.*?\[\[(?P<content>.*?)\]\].*', '[[\g<content>]]', raw)
         results = eval(raw)
-
+        print "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+        #print results
         # The search results are either from a keyword search or a multi-format list from a single ID,
         # sort through the results for closest match/format
         if results:
             for reserveid, od_title, subtitle, edition, series, publisher, format, formatid, creators, \
                     thumbimage, shortdescription, worldcatlink, excerptlink, creatorfile, sorttitle, \
                     availabletolibrary, availabletoretailer, relevancyrank, unknown1, unknown2, unknown3 in results:
+                print "this record's title is "+od_title+", subtitle is "+subtitle+", author[s] are "+creators+", series is "+series
                 if ovrdrv_id is not None and int(formatid) in [1, 50, 410, 900]:
+                    print "overdrive id is not None, searching based on format type priority"
                     return self.format_results(reserveid, od_title, subtitle, series, publisher, creators, thumbimage, worldcatlink, formatid)            
                 else:
                     creators = creators.split(', ')
+                    print "split creators from results are: "+str(creators)+", there are "+str(len(creators))+" total"
                     # if an exact match in a preferred format occurs
                     if creators[0] == author[0] and od_title == title and int(formatid) in [1, 50, 410, 900]:
+                        print "Got Exact Match!!!"
                         return self.format_results(reserveid, od_title, subtitle, series, publisher, creators, thumbimage, worldcatlink, formatid)
                     else:
                         close_title_match = False
                         close_author_match = False
+                        print "format id is "+str(formatid)
                         for token in title_tokens:
+                            print "attempting to find "+str(token)+" title token"
                             if od_title.lower().find(token.lower()) != -1:
+                                print "matched token"
                                 close_title_match = True
                             else:
+                                print "token didn't match"
                                 close_title_match = False
                                 break
-                        for token in author_tokens:
-                            if creators[0].lower().find(token.lower()) != -1:
-                                close_author_match = True
-                            else:
-                                close_author_match = False
+                        for author in creators:
+                            print "matching tokens for "+str(author)
+                            for token in author_tokens:
+                                print "attempting to find "+str(token)+" author token"
+                                if author.lower().find(token.lower()) != -1:
+                                    print "matched token"
+                                    close_author_match = True
+                                else:
+                                    print "token didn't match"
+                                    close_author_match = False
+                                    break
+                            if close_author_match:
                                 break
                         if close_title_match and close_author_match and int(formatid) in [1, 50, 410, 900]:
                             if subtitle and series:
