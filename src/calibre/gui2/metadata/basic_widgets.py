@@ -947,7 +947,13 @@ class IdentifiersEdit(QLineEdit): # {{{
         def fset(self, val):
             if not val:
                 val = {}
-            txt = ', '.join(['%s:%s'%(k, v) for k, v in val.iteritems()])
+            def keygen(x):
+                x = x[0]
+                if x == 'isbn':
+                    x = '00isbn'
+                return x
+            ids = sorted(val.iteritems(), key=keygen)
+            txt = ', '.join(['%s:%s'%(k, v) for k, v in ids])
             self.setText(txt.strip())
             self.setCursorPosition(0)
         return property(fget=fget, fset=fset)
