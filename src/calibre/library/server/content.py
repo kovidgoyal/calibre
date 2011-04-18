@@ -18,6 +18,7 @@ from calibre.utils.magick.draw import save_cover_data_to, Image, \
         thumbnail as generate_thumbnail
 
 plugboard_content_server_value = 'content_server'
+plugboard_content_server_formats = ['epub']
 
 class CSSortKeyGenerator(SortKeyGenerator):
 

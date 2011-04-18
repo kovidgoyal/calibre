@@ -15,7 +15,8 @@ from calibre.gui2.preferences.plugboard_ui import Ui_Form
 from calibre.customize.ui import metadata_writers, device_plugins
 from calibre.library.save_to_disk import plugboard_any_format_value, \
                         plugboard_any_device_value, plugboard_save_to_disk_value
-from calibre.library.server.content import plugboard_content_server_value
+from calibre.library.server.content import plugboard_content_server_value, \
+                                        plugboard_content_server_formats
 from calibre.utils.formatter import validation_formatter
 
 
@@ -69,13 +70,17 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.device_label.setText(_('Device currently connected: None'))
 
         self.devices = ['', 'APPLE', 'FOLDER_DEVICE']
+        self.device_to_formats_map = {}
         for device in device_plugins():
             n = device_name_for_plugboards(device)
+            self.device_to_formats_map[n] = device.FORMATS
             if n not in self.devices:
                 self.devices.append(n)
         self.devices.sort(cmp=lambda x, y: cmp(x.lower(), y.lower()))
         self.devices.insert(1, plugboard_save_to_disk_value)
         self.devices.insert(1, plugboard_content_server_value)
+        self.device_to_formats_map[plugboard_content_server_value] = \
+                        plugboard_content_server_formats
         self.devices.insert(1, plugboard_any_device_value)
         self.new_device.addItems(self.devices)
 
@@ -232,6 +237,15 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                      show=True)
             self.new_device.setCurrentIndex(0)
             return
+        if self.current_device in self.device_to_formats_map:
+            allowable_formats = self.device_to_formats_map[self.current_device]
+            if self.current_format not in allowable_formats:
+                error_dialog(self, '',
+                     _('The {0} device does not support the {1} format.').
+                                format(self.current_device, self.current_format),
+                     show=True)
+                self.new_device.setCurrentIndex(0)
+                return
         self.set_fields()
 
     def new_format_changed(self, txt):
