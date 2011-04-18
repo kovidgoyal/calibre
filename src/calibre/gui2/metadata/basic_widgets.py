@@ -282,7 +282,7 @@ class AuthorSortEdit(EnLineEdit):
         if aus:
             ln, _, rest = aus.partition(',')
             if rest:
-                if meth in ('invert', 'nocomma'):
+                if meth in ('invert', 'nocomma', 'comma'):
                     aus = rest.strip() + ' ' + ln.strip()
             self.authors_edit.current_val = [aus]
 
