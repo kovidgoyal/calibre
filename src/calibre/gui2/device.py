@@ -608,6 +608,7 @@ class DeviceMenu(QMenu): # {{{
 class DeviceMixin(object): # {{{
 
     device_metadata_available = pyqtSignal()
+    device_connection_changed = pyqtSignal(object)
 
     def __init__(self):
         self.device_error_dialog = error_dialog(self, _('Error'),
@@ -755,6 +756,7 @@ class DeviceMixin(object): # {{{
             self.location_manager.update_devices()
             self.library_view.set_device_connected(self.device_connected)
             self.refresh_ondevice()
+        self.device_connection_changed.emit(connected)
 
     def info_read(self, job):
         '''
