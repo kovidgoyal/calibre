@@ -94,14 +94,10 @@ class Arcamax(BasicNewsRecipe):
             page_soup = self.index_to_soup(url)
             if page_soup:
                 title = page_soup.find(name='div', attrs={'class':'comics-header'}).h1.contents[0]
-                print 'title is: ', title
                 page_url = url
-                print 'url is: ', url
                 # orig prev_page_url = 'http://www.arcamax.com' + page_soup.find('a', attrs={'class':'prev'}, text='Previous').parent['href']
                 prev_page_url = 'http://www.arcamax.com' + page_soup.find('span', text='Previous').parent.parent['href']
-                print 'prev_page_url is: ', prev_page_url
                 date = self.tag_to_string(page_soup.find(name='b', attrs={'class':['current']}))
-                print 'date is: ', date
             current_articles.append({'title': title, 'url': page_url, 'description':'', 'date': date})
             url = prev_page_url
         current_articles.reverse()
