@@ -29,8 +29,7 @@ from calibre.ebooks.metadata.meta import set_metadata
 from calibre.constants import DEBUG
 from calibre.utils.config import prefs, tweaks
 from calibre.utils.magick.draw import thumbnail
-from calibre.library.save_to_disk import plugboard_any_device_value, \
-                                         plugboard_any_format_value
+from calibre.library.save_to_disk import find_plugboard
 # }}}
 
 class DeviceJob(BaseJob): # {{{
@@ -92,23 +91,6 @@ class DeviceJob(BaseJob): # {{{
         return cStringIO.StringIO(self._details.encode('utf-8'))
 
     # }}}
-
-def find_plugboard(device_name, format, plugboards):
-    cpb = None
-    if format in plugboards:
-        cpb = plugboards[format]
-    elif plugboard_any_format_value in plugboards:
-        cpb = plugboards[plugboard_any_format_value]
-    if cpb is not None:
-        if device_name in cpb:
-            cpb = cpb[device_name]
-        elif plugboard_any_device_value in cpb:
-            cpb = cpb[plugboard_any_device_value]
-        else:
-            cpb = None
-    if DEBUG:
-        prints('Device using plugboard', format, device_name, cpb)
-    return cpb
 
 def device_name_for_plugboards(device_class):
     if hasattr(device_class, 'DEVICE_PLUGBOARD_NAME'):
