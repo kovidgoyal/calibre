@@ -607,6 +607,15 @@ class DeviceMenu(QMenu): # {{{
 
 class DeviceMixin(object): # {{{
 
+    #: This signal is emitted once, after metadata is downloaded from the
+    #: connected device.
+    #: The sequence: gui.device_manager.is_device_connected will become True,
+    #: then sometime later gui.device_metadata_available will be signaled.
+    #: This does not mean that there are no more jobs running. Automatic metadata
+    #: management might have kicked off a sync_booklists to write new metadata onto
+    #: the device, and that job might still be running when the signal is emitted.
+    device_metadata_available = pyqtSignal()
+
     def __init__(self):
         self.device_error_dialog = error_dialog(self, _('Error'),
                 _('Error communicating with device'), ' ')
@@ -791,6 +800,7 @@ class DeviceMixin(object): # {{{
         self.sync_news()
         self.sync_catalogs()
         self.refresh_ondevice()
+        self.device_metadata_available.emit()
 
     def refresh_ondevice(self, reset_only = False):
         '''
@@ -892,7 +902,7 @@ class DeviceMixin(object): # {{{
                 sub_dest_parts.append('')
             to = sub_dest_parts[0]
             fmts = sub_dest_parts[1]
-            subject = ';'.join(sub_dest_parts[2:]) 
+            subject = ';'.join(sub_dest_parts[2:])
             fmts = [x.strip().lower() for x in fmts.split(',')]
             self.send_by_mail(to, fmts, delete, subject=subject)
 
