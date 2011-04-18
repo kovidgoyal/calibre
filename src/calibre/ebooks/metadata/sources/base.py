@@ -290,18 +290,38 @@ class Source(Plugin):
                         yield tok
 
 
-    def get_title_tokens(self, title, strip_joiners=True):
+    def get_title_tokens(self, title, strip_joiners=True, strip_subtitle=False):
         '''
         Take a title and return a list of tokens useful for an AND search query.
         Excludes connectives(optionally) and punctuation.
         '''
         if title:
             # strip sub-titles
-            subtitle = re.compile(r'([\(\[\{].*?[\)\]\}]|[/:\\].*$)')
-            if len(subtitle.sub('', title)) > 1:
-                title = subtitle.sub('', title)
-            pat = re.compile(r'''([-,:;+!@#$%^*(){}.`~"\s\[\]/]|'(?!s))''')
-            title = pat.sub(' ', title)
+            if strip_subtitle:
+                subtitle = re.compile(r'([\(\[\{].*?[\)\]\}]|[/:\\].*$)')
+                if len(subtitle.sub('', title)) > 1:
+                    title = subtitle.sub('', title)
+
+            title_patterns = [(re.compile(pat, re.IGNORECASE), repl) for pat, repl in
+            [
+                # Remove things like: (2010) (Omnibus) etc.
+                (r'(?i)[({\[](\d{4}|omnibus|anthology|hardcover|paperback|mass\s*market|edition|ed\.)[\])}]', ''),
+                # Remove any strings that contain the substring edition inside
+                # parentheses
+                (r'(?i)[({\[].*?(edition|ed.).*?[\]})]', ''),
+                # Remove commas used a separators in numbers
+                (r'(\d+),(\d+)', r'\1\2'),
+                # Remove hyphens only if they have whitespace before them
+                (r'(\s-)', ' '),
+                # Remove single quotes
+                (r"'", ''),
+                # Replace other special chars with a space
+                (r'''[:,;+!@#$%^&*(){}.`~"\s\[\]/]''', ' ')
+            ]]
+
+            for pat, repl in title_patterns:
+                title = pat.sub(repl, title)
+
             tokens = title.split()
             for token in tokens:
                 token = token.strip()

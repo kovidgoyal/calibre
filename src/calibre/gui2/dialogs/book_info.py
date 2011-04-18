@@ -109,6 +109,8 @@ class BookInfo(QDialog, Ui_BookInfo):
                 pixmap = pixmap.scaled(new_width, new_height,
                         Qt.KeepAspectRatio, Qt.SmoothTransformation)
         self.cover.set_pixmap(pixmap)
+        sz = pixmap.size()
+        self.cover.setToolTip(_('Cover size: %dx%d')%(sz.width(), sz.height()))
 
     def refresh(self, row):
         if isinstance(row, QModelIndex):

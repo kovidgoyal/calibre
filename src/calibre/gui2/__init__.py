@@ -648,6 +648,18 @@ def open_url(qurl):
     if isfrozen and islinux and paths:
         os.environ['LD_LIBRARY_PATH'] = os.pathsep.join(paths)
 
+def get_current_db():
+    '''
+    This method will try to return the current database in use by the user as
+    efficiently as possible, i.e. without constructing duplicate
+    LibraryDatabase objects.
+    '''
+    from calibre.gui2.ui import get_gui
+    gui = get_gui()
+    if gui is not None and gui.current_db is not None:
+        return gui.current_db
+    from calibre.library import db
+    return db()
 
 def open_local_file(path):
     if iswindows:
