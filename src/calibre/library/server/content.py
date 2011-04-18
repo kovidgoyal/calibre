@@ -12,8 +12,13 @@ import cherrypy
 from calibre import fit_image, guess_type
 from calibre.utils.date import fromtimestamp
 from calibre.library.caches import SortKeyGenerator
+from calibre.library.save_to_disk import find_plugboard
+
 from calibre.utils.magick.draw import save_cover_data_to, Image, \
         thumbnail as generate_thumbnail
+
+plugboard_content_server_value = 'content_server'
+plugboard_content_server_formats = ['epub']
 
 class CSSortKeyGenerator(SortKeyGenerator):
 
@@ -183,16 +188,30 @@ class ContentServer(object):
         if fmt is None:
             raise cherrypy.HTTPError(404, 'book: %d does not have format: %s'%(id, format))
         if format == 'EPUB':
+            # Get the original metadata
+            mi = self.db.get_metadata(id, index_is_id=True)
+
+            # Get any EPUB plugboards for the content server
+            plugboards = self.db.prefs.get('plugboards', {})
+            cpb = find_plugboard(plugboard_content_server_value,
+                                 'epub', plugboards)
+            if cpb:
+                # Transform the metadata via the plugboard
+                newmi = mi.deepcopy_metadata()
+                newmi.template_to_attribute(mi, cpb)
+            else:
+                newmi = mi
+
+            # Write the updated file
             from tempfile import TemporaryFile
             from calibre.ebooks.metadata.meta import set_metadata
             raw = fmt.read()
             fmt = TemporaryFile()
             fmt.write(raw)
             fmt.seek(0)
-            set_metadata(fmt, self.db.get_metadata(id, index_is_id=True,
-                get_cover=True),
-                    'epub')
+            set_metadata(fmt, newmi, 'epub')
             fmt.seek(0)
+
         mt = guess_type('dummy.'+format.lower())[0]
         if mt is None:
             mt = 'application/octet-stream'

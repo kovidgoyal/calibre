@@ -753,7 +753,8 @@ plugins += [
     EEEREADER,
     NEXTBOOK,
     ITUNES,
-]
+    ]
+
 plugins += [x for x in list(locals().values()) if isinstance(x, type) and \
                                         x.__name__.endswith('MetadataReader')]
 plugins += [x for x in list(locals().values()) if isinstance(x, type) and \
