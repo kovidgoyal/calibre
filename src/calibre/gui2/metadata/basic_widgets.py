@@ -467,16 +467,22 @@ class FormatsManager(QWidget): # {{{
         self.metadata_from_format_button = QToolButton(self)
         self.metadata_from_format_button.setIcon(QIcon(I('edit_input.png')))
         self.metadata_from_format_button.setIconSize(QSize(32, 32))
+        self.metadata_from_format_button.setToolTip(
+                _('Set metadata for the book from the selected format'))
 
         self.add_format_button = QToolButton(self)
         self.add_format_button.setIcon(QIcon(I('add_book.png')))
         self.add_format_button.setIconSize(QSize(32, 32))
         self.add_format_button.clicked.connect(self.add_format)
+        self.add_format_button.setToolTip(
+                _('Add a format to this book'))
 
         self.remove_format_button = QToolButton(self)
         self.remove_format_button.setIcon(QIcon(I('trash.png')))
         self.remove_format_button.setIconSize(QSize(32, 32))
         self.remove_format_button.clicked.connect(self.remove_format)
+        self.remove_format_button.setToolTip(
+                _('Remove the selected format from this book'))
 
         self.formats = FormatList(self)
         self.formats.setAcceptDrops(True)
