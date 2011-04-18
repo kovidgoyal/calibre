@@ -146,7 +146,7 @@ def view_log(job, parent):
 # Apply downloaded metadata {{{
 class ApplyDialog(QDialog):
 
-    def __init__(self, id_map, gui):
+    def __init__(self, gui):
         QDialog.__init__(self, gui)
 
         self.l = l = QVBoxLayout()
@@ -155,27 +155,33 @@ class ApplyDialog(QDialog):
 
         self.pb = QProgressBar(self)
         l.addWidget(self.pb)
-        self.pb.setMinimum(0)
-        self.pb.setMaximum(len(id_map))
 
         self.bb = QDialogButtonBox(QDialogButtonBox.Cancel)
         self.bb.rejected.connect(self.reject)
-        self.bb.accepted.connect(self.accept)
         l.addWidget(self.bb)
 
         self.gui = gui
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.do_one)
+
+    def start(self, id_map):
         self.id_map = list(id_map.iteritems())
         self.current_idx = 0
-
         self.failures = []
         self.ids = []
         self.canceled = False
-
-        QTimer.singleShot(20, self.do_one)
+        self.pb.setMinimum(0)
+        self.pb.setMaximum(len(id_map))
+        self.timer.start(50)
 
     def do_one(self):
         if self.canceled:
             return
+        if self.current_idx >= len(self.id_map):
+            self.timer.stop()
+            self.finalize()
+            return
+
         i, mi = self.id_map[self.current_idx]
         db = self.gui.current_db
         try:
@@ -195,15 +201,11 @@ class ApplyDialog(QDialog):
             pass
 
         self.pb.setValue(self.pb.value()+1)
-
-        if self.current_idx >= len(self.id_map) - 1:
-            self.finalize()
-        else:
-            self.current_idx += 1
-            QTimer.singleShot(20, self.do_one)
+        self.current_idx += 1
 
     def reject(self):
         self.canceled = True
+        self.timer.stop()
         QDialog.reject(self)
 
     def finalize(self):
@@ -220,17 +222,18 @@ class ApplyDialog(QDialog):
                     title += ' - ' + authors_to_string(authors)
                 msg.append(title+'\n\n'+tb+'\n'+('*'*80))
 
-            error_dialog(self, _('Some failures'),
+            parent = self if self.isVisible() else self.parent()
+            error_dialog(parent, _('Some failures'),
                 _('Failed to apply updated metadata for some books'
                     ' in your library. Click "Show Details" to see '
                     'details.'), det_msg='\n\n'.join(msg), show=True)
-        self.accept()
         if self.ids:
             cr = self.gui.library_view.currentIndex().row()
             self.gui.library_view.model().refresh_ids(
                 self.ids, cr)
             if self.gui.cover_flow:
                 self.gui.cover_flow.dataChanged()
+        self.accept()
 
 _amd = None
 def apply_metadata(job, gui, q, result):
@@ -268,8 +271,11 @@ def apply_metadata(job, gui, q, result):
                     'Do you want to proceed?'), det_msg='\n'.join(modified)):
             return
 
-    _amd = ApplyDialog(id_map, gui)
-    _amd.exec_()
+    if _amd is None:
+        _amd = ApplyDialog(gui)
+    _amd.start(id_map)
+    if len(id_map) > 3:
+        _amd.exec_()
 
 def proceed(gui, job):
     gui.status_bar.show_message(_('Metadata download completed'), 3000)
