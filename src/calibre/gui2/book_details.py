@@ -483,8 +483,15 @@ class BookDetails(QWidget): # {{{
         self.book_info.show_data(data)
         self.cover_view.show_data(data)
         self._layout.do_layout(self.rect())
-        self.setToolTip('<p>'+_('Double-click to open Book Details window') +
-                '<br><br>' + _('Path') + ': ' + data.get(_('Path'), ''))
+        try:
+            sz = self.cover_view.pixmap.size()
+        except:
+            sz = QSize(0, 0)
+        self.setToolTip(
+                '<p>'+_('Double-click to open Book Details window') +
+                '<br><br>' + _('Path') + ': ' + data.get(_('Path'), '') +
+                '<br><br>' + _('Cover size: %dx%d')%(sz.width(), sz.height())
+        )
 
     def reset_info(self):
         self.show_data({})
