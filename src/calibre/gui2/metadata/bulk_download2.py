@@ -12,7 +12,8 @@ from functools import partial
 from itertools import izip
 
 from PyQt4.Qt import (QIcon, QDialog, QVBoxLayout, QTextBrowser, QSize,
-        QDialogButtonBox, QApplication, QTimer, QLabel, QProgressBar)
+        QDialogButtonBox, QApplication, QTimer, QLabel, QProgressBar,
+        QGridLayout, QPixmap, Qt)
 
 from calibre.gui2.dialogs.message_box import MessageBox
 from calibre.gui2.threaded_jobs import ThreadedJob
@@ -25,37 +26,86 @@ from calibre.ebooks.metadata.book.base import Metadata
 from calibre.customize.ui import metadata_plugins
 from calibre.ptempfile import PersistentTemporaryFile
 
+# Start download {{{
 def show_config(gui, parent):
     from calibre.gui2.preferences import show_config_widget
     show_config_widget('Sharing', 'Metadata download', parent=parent,
             gui=gui, never_shutdown=True)
 
-def start_download(gui, ids, callback, identify, covers):
-    q = MessageBox(MessageBox.QUESTION,  _('Schedule download?'),
+class ConfirmDialog(QDialog):
+
+    def __init__(self, ids, parent):
+        QDialog.__init__(self, parent)
+        self.setWindowTitle(_('Schedule download?'))
+        self.setWindowIcon(QIcon(I('dialog_question.png')))
+
+        l = self.l = QGridLayout()
+        self.setLayout(l)
+
+        i = QLabel(self)
+        i.setPixmap(QPixmap(I('dialog_question.png')))
+        l.addWidget(i, 0, 0)
+
+        t = QLabel(
             '<p>'+_('The download of metadata for the <b>%d selected book(s)</b> will'
                 ' run in the background. Proceed?')%len(ids) +
             '<p>'+_('You can monitor the progress of the download '
                 'by clicking the rotating spinner in the bottom right '
                 'corner.') +
             '<p>'+_('When the download completes you will be asked for'
-                ' confirmation before calibre applies the downloaded metadata.'),
-            show_copy_button=False, parent=gui)
-    b = q.bb.addButton(_('Configure download'), q.bb.ActionRole)
-    b.setIcon(QIcon(I('config.png')))
-    b.clicked.connect(partial(show_config, gui, q))
-    q.det_msg_toggle.setVisible(False)
+                ' confirmation before calibre applies the downloaded metadata.')
+            )
+        t.setWordWrap(True)
+        l.addWidget(t, 0, 1)
+        l.setColumnStretch(0, 1)
+        l.setColumnStretch(1, 100)
 
-    ret = q.exec_()
-    b.clicked.disconnect()
-    if ret != q.Accepted:
+        self.identify = self.covers = True
+        self.bb = QDialogButtonBox(QDialogButtonBox.Cancel)
+        self.bb.rejected.connect(self.reject)
+        b = self.bb.addButton(_('Download only metadata'),
+                self.bb.AcceptRole)
+        b.clicked.connect(self.only_metadata)
+        b.setIcon(QIcon(I('edit_input.png')))
+        b = self.bb.addButton(_('Download only covers'),
+                self.bb.AcceptRole)
+        b.clicked.connect(self.only_covers)
+        b.setIcon(QIcon(I('default_cover.png')))
+        b = self.b = self.bb.addButton(_('Configure download'), self.bb.ActionRole)
+        b.setIcon(QIcon(I('config.png')))
+        b.clicked.connect(partial(show_config, parent, self))
+        l.addWidget(self.bb, 1, 0, 1, 2)
+        b = self.bb.addButton(_('Download both'),
+                self.bb.AcceptRole)
+        b.clicked.connect(self.accept)
+        b.setDefault(True)
+        b.setAutoDefault(True)
+        b.setIcon(QIcon(I('ok.png')))
+
+        self.resize(self.sizeHint())
+        b.setFocus(Qt.OtherFocusReason)
+
+    def only_metadata(self):
+        self.covers = False
+        self.accept()
+
+    def only_covers(self):
+        self.identify = False
+        self.accept()
+
+def start_download(gui, ids, callback):
+    d = ConfirmDialog(ids, gui)
+    ret = d.exec_()
+    d.b.clicked.disconnect()
+    if ret != d.Accepted:
         return
 
     job = ThreadedJob('metadata bulk download',
             _('Download metadata for %d books')%len(ids),
-            download, (ids, gui.current_db, identify, covers), {}, callback)
+            download, (ids, gui.current_db, d.identify, d.covers), {}, callback)
     gui.job_manager.run_threaded_job(job)
     gui.status_bar.show_message(_('Metadata download started'), 3000)
-
+# }}}
 
 class ViewLog(QDialog): # {{{
 
@@ -93,6 +143,7 @@ def view_log(job, parent):
 
 # }}}
 
+# Apply downloaded metadata {{{
 class ApplyDialog(QDialog):
 
     def __init__(self, id_map, gui):
@@ -247,6 +298,8 @@ def proceed(gui, job):
     q.setModal(False)
     q.show()
     q.finished.connect(partial(apply_metadata, job, gui, q))
+
+# }}}
 
 def merge_result(oldmi, newmi):
     dummy = Metadata(_('Unknown'))
