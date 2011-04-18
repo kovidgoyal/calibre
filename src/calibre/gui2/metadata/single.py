@@ -109,10 +109,12 @@ class MetadataSingleDialogBase(ResizableDialog):
         'Using this button to create author sort will change author sort from'
         ' red to green.'))
         b.m = m = QMenu()
-        ac = m.addAction(QIcon(I('back.png')), _('Set author from author sort'))
+        ac = m.addAction(QIcon(I('forward.png')), _('Set author sort from author'))
+        ac2 = m.addAction(QIcon(I('back.png')), _('Set author from author sort'))
         b.setMenu(m)
         self.authors = AuthorsEdit(self)
-        self.author_sort = AuthorSortEdit(self, self.authors, b, self.db, ac)
+        self.author_sort = AuthorSortEdit(self, self.authors, b, self.db, ac,
+                ac2)
         self.basic_metadata_widgets.extend([self.authors, self.author_sort])
 
         self.swap_title_author_button = QToolButton(self)

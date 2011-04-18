@@ -317,6 +317,8 @@ class BaseToolBar(QToolBar): # {{{
         QToolBar.resizeEvent(self, ev)
         style = self.get_text_style()
         self.setToolButtonStyle(style)
+        if hasattr(self, 'd_widget') and hasattr(self.d_widget, 'filler'):
+            self.d_widget.filler.setVisible(style != Qt.ToolButtonIconOnly)
 
     def get_text_style(self):
         style = Qt.ToolButtonTextUnderIcon
@@ -399,7 +401,10 @@ class ToolBar(BaseToolBar): # {{{
                     self.d_widget.layout().addWidget(self.donate_button)
                     if isosx:
                         self.d_widget.setStyleSheet('QWidget, QToolButton {background-color: none; border: none; }')
-                        self.d_widget.layout().addWidget(QLabel(u'\u00a0'))
+                        self.d_widget.layout().setContentsMargins(0,0,0,0)
+                        self.d_widget.setContentsMargins(0,0,0,0)
+                        self.d_widget.filler = QLabel(u'\u00a0')
+                        self.d_widget.layout().addWidget(self.d_widget.filler)
                     bar.addWidget(self.d_widget)
                     self.showing_donate = True
                 elif what in self.gui.iactions:
