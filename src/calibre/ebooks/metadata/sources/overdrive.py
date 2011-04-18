@@ -55,9 +55,9 @@ class OverDrive(Source):
                 ovrdrv_id = ovrdrv_data[7]
             if isbn is not None:
                 self.cache_isbn_to_identifier(isbn, ovrdrv_id)
-    
+
             self.get_book_detail(br, ovrdrv_data[1], mi, ovrdrv_id, log)
-    
+
             result_queue.put(mi)
 
         return None
@@ -144,7 +144,7 @@ class OverDrive(Source):
             if author_tokens:
                 q += ('+' if q else '') + build_term('author',
                         author_tokens)
-    
+
         if isinstance(q, unicode):
             q = q.encode('utf-8')
         if not q:
@@ -162,7 +162,7 @@ class OverDrive(Source):
             'http://spl.lib.overdrive.com/5875E082-4CB2-4689-9426-8509F354AFEF/10/335/en/'
         ]
         return choices[random.randint(0, len(choices)-1)]
-    
+
     def format_results(self, reserveid, od_title, subtitle, series, publisher, creators, thumbimage, worldcatlink, formatid):
         fix_slashes = re.compile(r'\\/')
         thumbimage = fix_slashes.sub('/', thumbimage)
@@ -181,7 +181,7 @@ class OverDrive(Source):
             if m:
                 series_num = float(m.group(1))
         return [cover_url, social_metadata_url, worldcatlink, series, series_num, publisher, creators, reserveid, title]
-    
+
     def safe_query(self, br, query_url, post=''):
         '''
         The query must be initialized by loading an empty search results page
@@ -212,33 +212,29 @@ class OverDrive(Source):
         q_query = q+'default.aspx/SearchByKeyword'
         q_init_search = q+'SearchResults.aspx'
         # get first author as string - convert this to a proper cleanup function later
-        print "printing list with author "+str(author)+":"
         author_tokens = list(self.get_author_tokens(author,
                 only_first_author=True))
-        print list(author_tokens)
-        title_tokens = list(self.get_title_tokens(title, False, True))
-        print "there are "+str(len(title_tokens))+" title tokens"
-        for token in title_tokens:
-            print "cleaned up title token is: "+str(token)
-    
+        title_tokens = list(self.get_title_tokens(title,
+                strip_joiners=False, strip_subtitle=True))
+
         if len(title_tokens) >= len(author_tokens):
             initial_q = ' '.join(title_tokens)
             xref_q = '+'.join(author_tokens)
         else:
             initial_q = ' '.join(author_tokens)
             xref_q = '+'.join(title_tokens)
-    
+
         q_xref = q+'SearchResults.svc/GetResults?iDisplayLength=50&sSearch='+xref_q
         query = '{"szKeyword":"'+initial_q+'"}'
-    
+
         # main query, requires specific Content Type header
         req = mechanize.Request(q_query)
         req.add_header('Content-Type', 'application/json; charset=utf-8')
         br.open_novisit(req, query)
-    
+
         # initiate the search without messing up the cookiejar
         self.safe_query(br, q_init_search)
-    
+
         # get the search results object
         results = False
         while results == False:
@@ -256,16 +252,13 @@ class OverDrive(Source):
                 elif int(m.group('totalrecords')) == 0:
                     return ''
 
-        print "\n\nsorting results"
         return self.sort_ovrdrv_results(raw, title, title_tokens, author, author_tokens)
-    
-    
+
+
     def sort_ovrdrv_results(self, raw, title=None, title_tokens=None, author=None, author_tokens=None, ovrdrv_id=None):
-        print "\ntitle to search for is "+str(title)+"\nauthor to search for is "+str(author)
         close_matches = []
         raw = re.sub('.*?\[\[(?P<content>.*?)\]\].*', '[[\g<content>]]', raw)
         results = eval(raw)
-        print "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
         #print results
         # The search results are either from a keyword search or a multi-format list from a single ID,
         # sort through the results for closest match/format
@@ -273,44 +266,36 @@ class OverDrive(Source):
             for reserveid, od_title, subtitle, edition, series, publisher, format, formatid, creators, \
                     thumbimage, shortdescription, worldcatlink, excerptlink, creatorfile, sorttitle, \
                     availabletolibrary, availabletoretailer, relevancyrank, unknown1, unknown2, unknown3 in results:
-                print "this record's title is "+od_title+", subtitle is "+subtitle+", author[s] are "+creators+", series is "+series
+                #print "this record's title is "+od_title+", subtitle is "+subtitle+", author[s] are "+creators+", series is "+series
                 if ovrdrv_id is not None and int(formatid) in [1, 50, 410, 900]:
-                    print "overdrive id is not None, searching based on format type priority"
-                    return self.format_results(reserveid, od_title, subtitle, series, publisher, creators, thumbimage, worldcatlink, formatid)            
+                    #print "overdrive id is not None, searching based on format type priority"
+                    return self.format_results(reserveid, od_title, subtitle, series, publisher,
+                            creators, thumbimage, worldcatlink, formatid)            
                 else:
                     creators = creators.split(', ')
-                    print "split creators from results are: "+str(creators)+", there are "+str(len(creators))+" total"
                     # if an exact match in a preferred format occurs
                     if creators[0] == author[0] and od_title == title and int(formatid) in [1, 50, 410, 900]:
-                        print "Got Exact Match!!!"
-                        return self.format_results(reserveid, od_title, subtitle, series, publisher, creators, thumbimage, worldcatlink, formatid)
+                        return self.format_results(reserveid, od_title, subtitle, series, publisher,
+                                creators, thumbimage, worldcatlink, formatid)
                     else:
                         close_title_match = False
                         close_author_match = False
-                        print "format id is "+str(formatid)
                         for token in title_tokens:
-                            print "attempting to find "+str(token)+" title token"
                             if od_title.lower().find(token.lower()) != -1:
-                                print "matched token"
                                 close_title_match = True
                             else:
-                                print "token didn't match"
                                 close_title_match = False
                                 break
                         for author in creators:
-                            print "matching tokens for "+str(author)
                             for token in author_tokens:
-                                print "attempting to find "+str(token)+" author token"
                                 if author.lower().find(token.lower()) != -1:
-                                    print "matched token"
                                     close_author_match = True
                                 else:
-                                    print "token didn't match"
                                     close_author_match = False
                                     break
                             if close_author_match:
                                 break
-                        if close_title_match and close_author_match and int(formatid) in [1, 50, 410, 900]:
+                        if close_title_match and close_author_match and int(formatid) in [1, 50, 410, 900] and thumbimage:
                             if subtitle and series:
                                 close_matches.insert(0, self.format_results(reserveid, od_title, subtitle, series, publisher, creators, thumbimage, worldcatlink, formatid))
                             else:
@@ -321,18 +306,18 @@ class OverDrive(Source):
                 return ''
         else:
             return ''
-    
-    
+
+
     def overdrive_get_record(self, br, q, ovrdrv_id):
         search_url = q+'SearchResults.aspx?ReserveID={'+ovrdrv_id+'}'
         results_url = q+'SearchResults.svc/GetResults?sEcho=1&iColumns=18&sColumns=ReserveID%2CTitle%2CSubtitle%2CEdition%2CSeries%2CPublisher%2CFormat%2CFormatID%2CCreators%2CThumbImage%2CShortDescription%2CWorldCatLink%2CExcerptLink%2CCreatorFile%2CSortTitle%2CAvailableToLibrary%2CAvailableToRetailer%2CRelevancyRank&iDisplayStart=0&iDisplayLength=10&sSearch=&bEscapeRegex=true&iSortingCols=1&iSortCol_0=17&sSortDir_0=asc'
-    
+
         # get the base url to set the proper session cookie
         br.open_novisit(q)
-    
+
         # initialize the search
         self.safe_query(br, search_url)
-    
+
         # get the results
         req = mechanize.Request(results_url)
         req.add_header('X-Requested-With', 'XMLHttpRequest')
@@ -385,7 +370,7 @@ class OverDrive(Source):
         '''
         Parse the formatted search results from the initial Overdrive query and
         add the values to the metadta.
-        
+
         The list object has these values:
         [cover_url[0], social_metadata_url[1], worldcatlink[2], series[3], series_num[4],
         publisher[5], creators[6], reserveid[7], title[8]]
