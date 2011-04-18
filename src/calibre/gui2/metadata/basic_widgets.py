@@ -973,7 +973,7 @@ class IdentifiersEdit(QLineEdit): # {{{
         tt = self.BASE_TT
         extra = ''
         if not isbn:
-            col = 'rgba(0,255,0,0%)'
+            col = 'none'
         elif check_isbn(isbn) is not None:
             col = 'rgba(0,255,0,20%)'
             extra = '\n\n'+_('This ISBN number is valid')
