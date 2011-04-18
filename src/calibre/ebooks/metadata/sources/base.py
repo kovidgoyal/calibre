@@ -313,8 +313,8 @@ class Source(Plugin):
                 (r'(\d+),(\d+)', r'\1\2'),
                 # Remove hyphens only if they have whitespace before them
                 (r'(\s-)', ' '),
-                # Remove single quotes
-                (r"'", ''),
+                # Remove single quotes not followed by 's'
+                (r"'(?!s)", ''),
                 # Replace other special chars with a space
                 (r'''[:,;+!@#$%^&*(){}.`~"\s\[\]/]''', ' ')
             ]]

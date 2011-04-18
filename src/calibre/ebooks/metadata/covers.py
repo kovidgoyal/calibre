@@ -151,33 +151,6 @@ class AmazonCovers(CoverDownload): # {{{
 
 # }}}
 
-class OverdriveCovers(CoverDownload): # {{{
-
-    name = 'overdrive.com covers'
-    description = _('Download covers from Overdrive')
-    author = 'Kovid Goyal'
-
-
-    def has_cover(self, mi, ans, timeout=5.):
-        if not mi.authors or not mi.title:
-            return False
-        return True
-
-    def get_covers(self, mi, result_queue, abort, timeout=5.):
-        if not mi.isbn:
-            return
-        from calibre.ebooks.metadata.overdrive import get_cover_url
-        br = browser()
-        try:
-            url = get_cover_url(mi.isbn, mi.title, mi.authors, br)
-            cover_data = br.open_novisit(url).read()
-            result_queue.put((True, cover_data, 'jpg', self.name))
-        except Exception, e:
-            result_queue.put((False, self.exception_to_string(e),
-                traceback.format_exc(), self.name))
-
-# }}}
-
 def check_for_cover(mi, timeout=5.): # {{{
     from calibre.customize.ui import cover_sources
     ans = Event()

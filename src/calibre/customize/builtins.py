@@ -633,14 +633,14 @@ if test_eight_code:
 # }}}
 else:
     from calibre.ebooks.metadata.fetch import GoogleBooks, ISBNDB, Amazon, \
-        KentDistrictLibrary, Overdrive
+        KentDistrictLibrary
     from calibre.ebooks.metadata.douban import DoubanBooks
     from calibre.ebooks.metadata.nicebooks import NiceBooks, NiceBooksCovers
     from calibre.ebooks.metadata.covers import OpenLibraryCovers, \
-            AmazonCovers, DoubanCovers, OverdriveCovers
+            AmazonCovers, DoubanCovers
 
-    plugins += [GoogleBooks, ISBNDB, Amazon, Overdrive,
-        OpenLibraryCovers, AmazonCovers, DoubanCovers, OverdriveCovers,
+    plugins += [GoogleBooks, ISBNDB, Amazon,
+        OpenLibraryCovers, AmazonCovers, DoubanCovers,
         NiceBooksCovers, KentDistrictLibrary, DoubanBooks, NiceBooks]
 
 plugins += [
