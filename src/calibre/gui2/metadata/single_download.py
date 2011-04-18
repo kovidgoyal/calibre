@@ -30,7 +30,6 @@ from calibre.ebooks.metadata.book.base import Metadata
 from calibre.gui2 import error_dialog, NONE
 from calibre.utils.date import utcnow, fromordinal, format_date
 from calibre.library.comments import comments_to_html
-from calibre.constants import islinux
 from calibre import force_unicode
 # }}}
 
@@ -117,12 +116,10 @@ class CoverDelegate(QStyledItemDelegate): # {{{
 
     def paint(self, painter, option, index):
         QStyledItemDelegate.paint(self, painter, option, index)
-        if islinux:
-            # On linux for some reason the selected color is drawn on top of
-            # the decoration
-            style = QApplication.style()
-            style.drawItemPixmap(painter, option.rect, Qt.AlignTop|Qt.AlignHCenter,
-                QPixmap(index.data(Qt.DecorationRole)))
+        # Ensure the cover is rendered over any selection rect
+        style = QApplication.style()
+        style.drawItemPixmap(painter, option.rect, Qt.AlignTop|Qt.AlignHCenter,
+            QPixmap(index.data(Qt.DecorationRole)))
         if self.timer.isActive() and index.data(Qt.UserRole).toBool():
             rect = QRect(0, 0, self.spinner_width, self.spinner_width)
             rect.moveCenter(option.rect.center())
