@@ -63,19 +63,19 @@ class ConfirmDialog(QDialog):
         self.identify = self.covers = True
         self.bb = QDialogButtonBox(QDialogButtonBox.Cancel)
         self.bb.rejected.connect(self.reject)
-        b = self.bb.addButton(_('Download only metadata'),
+        b = self.bb.addButton(_('Download only &metadata'),
                 self.bb.AcceptRole)
         b.clicked.connect(self.only_metadata)
         b.setIcon(QIcon(I('edit_input.png')))
-        b = self.bb.addButton(_('Download only covers'),
+        b = self.bb.addButton(_('Download only &covers'),
                 self.bb.AcceptRole)
         b.clicked.connect(self.only_covers)
         b.setIcon(QIcon(I('default_cover.png')))
-        b = self.b = self.bb.addButton(_('Configure download'), self.bb.ActionRole)
+        b = self.b = self.bb.addButton(_('&Configure download'), self.bb.ActionRole)
         b.setIcon(QIcon(I('config.png')))
         b.clicked.connect(partial(show_config, parent, self))
         l.addWidget(self.bb, 1, 0, 1, 2)
-        b = self.bb.addButton(_('Download both'),
+        b = self.bb.addButton(_('Download &both'),
                 self.bb.AcceptRole)
         b.clicked.connect(self.accept)
         b.setDefault(True)
