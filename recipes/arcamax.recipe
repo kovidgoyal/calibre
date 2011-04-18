@@ -6,12 +6,13 @@ __copyright__ = 'Copyright 2010 Starson17'
 www.arcamax.com
 '''
 from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import Tag
 
 class Arcamax(BasicNewsRecipe):
     title               = 'Arcamax'
     __author__          = 'Starson17'
-    __version__         = '1.03'
-    __date__            = '25 November 2010'
+    __version__         = '1.04'
+    __date__            = '18 April 2011'
     description         = u'Family Friendly Comics - Customize for more days/comics: Defaults to 7 days, 25 comics - 20 general, 5 editorial.'
     category            = 'news, comics'
     language            = 'en'
@@ -30,8 +31,15 @@ class Arcamax(BasicNewsRecipe):
                         , 'language'          : language
                         }
 
-    keep_only_tags     = [dict(name='div', attrs={'class':['toon']}),
-                          ]
+    keep_only_tags     = [dict(name='div', attrs={'class':['comics-header']}),
+                                        dict(name='b', attrs={'class':['current']}),
+                                        dict(name='article', attrs={'class':['comic']}),
+                                        ]
+
+    remove_tags = [dict(name='div', attrs={'id':['comicfull' ]}),
+                               dict(name='div', attrs={'class':['calendar' ]}),
+                               dict(name='nav', attrs={'class':['calendar-nav' ]}),
+                               ]
 
     def parse_index(self):
         feeds = []
@@ -71,7 +79,6 @@ class Arcamax(BasicNewsRecipe):
                             #(u"Rugrats", u"http://www.arcamax.com/rugrats"),
                             (u"Speed Bump", u"http://www.arcamax.com/speedbump"),
                             (u"Wizard of Id", u"http://www.arcamax.com/wizardofid"),
-                            (u"Dilbert", u"http://www.arcamax.com/dilbert"),
                             (u"Zits", u"http://www.arcamax.com/zits"),
                              ]:
             articles = self.make_links(url)
@@ -86,24 +93,37 @@ class Arcamax(BasicNewsRecipe):
         for page in pages:
             page_soup = self.index_to_soup(url)
             if page_soup:
-                title = page_soup.find(name='div', attrs={'class':'toon'}).p.img['alt']
+                title = page_soup.find(name='div', attrs={'class':'comics-header'}).h1.contents[0]
                 page_url = url
-                prev_page_url = 'http://www.arcamax.com' + page_soup.find('a', attrs={'class':'next'}, text='Previous').parent['href']
-            current_articles.append({'title': title, 'url': page_url, 'description':'', 'date':''})
+                # orig prev_page_url = 'http://www.arcamax.com' + page_soup.find('a', attrs={'class':'prev'}, text='Previous').parent['href']
+                prev_page_url = 'http://www.arcamax.com' + page_soup.find('span', text='Previous').parent.parent['href']
+                date = self.tag_to_string(page_soup.find(name='b', attrs={'class':['current']}))
+            current_articles.append({'title': title, 'url': page_url, 'description':'', 'date': date})
             url = prev_page_url
         current_articles.reverse()
         return current_articles
 
     def preprocess_html(self, soup):
-        main_comic = soup.find('p',attrs={'class':'m0'})
-        if main_comic.a['target'] == '_blank':
-            main_comic.a.img['id'] = 'main_comic'
+        for img_tag in soup.findAll('img'):
+            parent_tag = img_tag.parent
+            if parent_tag.name == 'a':
+                new_tag = Tag(soup,'p')
+                new_tag.insert(0,img_tag)
+                parent_tag.replaceWith(new_tag)
+            elif parent_tag.name == 'p':
+                if not self.tag_to_string(parent_tag) == '':
+                    new_div = Tag(soup,'div')
+                    new_tag = Tag(soup,'p')
+                    new_tag.insert(0,img_tag)
+                    parent_tag.replaceWith(new_div)
+                    new_div.insert(0,new_tag)
+                    new_div.insert(1,parent_tag)
         return soup
 
     extra_css = '''
                     h1{font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:large;}
                     h2{font-family:Arial,Helvetica,sans-serif; font-weight:normal;font-size:small;}
-                    img#main_comic {max-width:100%; min-width:100%;}
+                    img {max-width:100%; min-width:100%;}
                     p{font-family:Arial,Helvetica,sans-serif;font-size:small;}
                     body{font-family:Helvetica,Arial,sans-serif;font-size:small;}
 		'''

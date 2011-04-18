@@ -156,6 +156,9 @@ class MetadataSingleDialogBase(ResizableDialog):
 
         self.identifiers = IdentifiersEdit(self)
         self.basic_metadata_widgets.append(self.identifiers)
+        self.clear_identifiers_button = QToolButton(self)
+        self.clear_identifiers_button.setIcon(QIcon(I('trash.png')))
+        self.clear_identifiers_button.clicked.connect(self.identifiers.clear)
 
         self.publisher = PublisherEdit(self)
         self.basic_metadata_widgets.append(self.publisher)
@@ -541,8 +544,8 @@ class MetadataSingleDialog(MetadataSingleDialogBase): # {{{
         sto(self.rating, self.tags)
         create_row2(2, self.tags, self.tags_editor_button)
         sto(self.tags_editor_button, self.identifiers)
-        create_row2(3, self.identifiers)
-        sto(self.identifiers, self.timestamp)
+        create_row2(3, self.identifiers, self.clear_identifiers_button)
+        sto(self.clear_identifiers_button, self.timestamp)
         create_row2(4, self.timestamp, self.timestamp.clear_button)
         sto(self.timestamp.clear_button, self.pubdate)
         create_row2(5, self.pubdate, self.pubdate.clear_button)
