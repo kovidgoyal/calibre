@@ -312,6 +312,9 @@ class OverDrive(Source):
         search_url = q+'SearchResults.aspx?ReserveID={'+ovrdrv_id+'}'
         results_url = q+'SearchResults.svc/GetResults?sEcho=1&iColumns=18&sColumns=ReserveID%2CTitle%2CSubtitle%2CEdition%2CSeries%2CPublisher%2CFormat%2CFormatID%2CCreators%2CThumbImage%2CShortDescription%2CWorldCatLink%2CExcerptLink%2CCreatorFile%2CSortTitle%2CAvailableToLibrary%2CAvailableToRetailer%2CRelevancyRank&iDisplayStart=0&iDisplayLength=10&sSearch=&bEscapeRegex=true&iSortingCols=1&iSortCol_0=17&sSortDir_0=asc'
 
+        # re-initialize the cookiejar to so that it's clean
+        clean_cj = mechanize.CookieJar()
+        br.set_cookiejar(clean_cj)
         # get the base url to set the proper session cookie
         br.open_novisit(q)
 
