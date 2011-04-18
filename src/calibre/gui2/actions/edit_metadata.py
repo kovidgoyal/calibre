@@ -37,8 +37,6 @@ class EditMetadataAction(InterfaceAction):
         md.addSeparator()
         if test_eight_code:
             dall = self.download_metadata
-            dident = partial(self.download_metadata, covers=False)
-            dcovers = partial(self.download_metadata, identify=False)
         else:
             dall = partial(self.download_metadata_old, False, covers=True)
             dident = partial(self.download_metadata_old, False, covers=False)
@@ -47,9 +45,9 @@ class EditMetadataAction(InterfaceAction):
 
         md.addAction(_('Download metadata and covers'), dall,
                 Qt.ControlModifier+Qt.Key_D)
-        md.addAction(_('Download only metadata'), dident)
-        md.addAction(_('Download only covers'), dcovers)
         if not test_eight_code:
+            md.addAction(_('Download only metadata'), dident)
+            md.addAction(_('Download only covers'), dcovers)
             md.addAction(_('Download only social metadata'),
                 partial(self.download_metadata_old, False, covers=False,
                     set_metadata=False, set_social_metadata=True))
@@ -80,7 +78,7 @@ class EditMetadataAction(InterfaceAction):
         self.qaction.setEnabled(enabled)
         self.action_merge.setEnabled(enabled)
 
-    def download_metadata(self, identify=True, covers=True, ids=None):
+    def download_metadata(self, ids=None):
         if ids is None:
             rows = self.gui.library_view.selectionModel().selectedRows()
             if not rows or len(rows) == 0:
@@ -90,7 +88,7 @@ class EditMetadataAction(InterfaceAction):
             ids = [db.id(row.row()) for row in rows]
         from calibre.gui2.metadata.bulk_download2 import start_download
         start_download(self.gui, ids,
-                Dispatcher(self.bulk_metadata_downloaded), identify, covers)
+                Dispatcher(self.bulk_metadata_downloaded))
 
     def bulk_metadata_downloaded(self, job):
         if job.failed:
