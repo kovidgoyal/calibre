@@ -660,7 +660,8 @@ class MetadataSingleDialogAlt1(MetadataSingleDialogBase): # {{{
         create_row(9, self.publisher, self.timestamp)
         create_row(10, self.timestamp, self.identifiers,
                    button=self.timestamp.clear_button, icon='trash.png')
-        create_row(11, self.identifiers, self.comments)
+        create_row(11, self.identifiers, self.comments,
+                   button=self.clear_identifiers_button, icon='trash.png')
         tl.addItem(QSpacerItem(1, 1, QSizePolicy.Fixed, QSizePolicy.Expanding),
                    12, 1, 1 ,1)
 
