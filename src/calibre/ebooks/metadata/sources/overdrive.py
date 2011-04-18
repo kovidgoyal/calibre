@@ -45,7 +45,6 @@ class OverDrive(Source):
         isbn = identifiers.get('isbn', None)
 
         br = self.browser
-        print "in identify, calling to_ovrdrv_data"
         ovrdrv_data = self.to_ovrdrv_data(br, title, authors, ovrdrv_id)
         if ovrdrv_data:
             title = ovrdrv_data[8]
@@ -83,7 +82,6 @@ class OverDrive(Source):
         if cached_url is None:
             log.info('No cached cover found, running identify')
             rq = Queue()
-            print "inside download cover, calling identify"
             self.identify(log, rq, abort, title=title, authors=authors,
                     identifiers=identifiers)
             if abort.is_set():
@@ -110,7 +108,6 @@ class OverDrive(Source):
         ovrdrv_id = identifiers.get('overdrive', None)
         br = self.browser
         referer = self.get_base_referer()+'ContentDetails-Cover.htm?ID='+ovrdrv_id
-        print "downloading cover, referer is "+str(referer)
         req = mechanize.Request(cached_url)
         req.add_header('referer', referer)
         log('Downloading cover from:', cached_url)
@@ -124,7 +121,6 @@ class OverDrive(Source):
     def get_cached_cover_url(self, identifiers): # {{{
         url = None
         ovrdrv_id = identifiers.get('overdrive', None)
-        print "inside get_cached_cover_url, ovrdrv_id is "+str(ovrdrv_id)
         if ovrdrv_id is None:
             isbn = identifiers.get('isbn', None)
             if isbn is not None:
@@ -217,14 +213,9 @@ class OverDrive(Source):
         q_init_search = q+'SearchResults.aspx'
         # get first author as string - convert this to a proper cleanup function later
         s = Source(None)
-        print "printing list with author "+str(author)+":"
         author_tokens = list(s.get_author_tokens(author))
-        print list(author_tokens)
         title_tokens = list(s.get_title_tokens(title, False, True))
-        print "there are "+str(len(title_tokens))+" title tokens"
-        for token in title_tokens:
-            print "cleaned up title token is: "+str(token)
-    
+
         if len(title_tokens) >= len(author_tokens):
             initial_q = ' '.join(title_tokens)
             xref_q = '+'.join(author_tokens)
@@ -232,8 +223,6 @@ class OverDrive(Source):
             initial_q = ' '.join(author_tokens)
             xref_q = '+'.join(title_tokens)
     
-        print "initial query is "+str(initial_q)
-        print "cross reference query is "+str(xref_q)
         q_xref = q+'SearchResults.svc/GetResults?iDisplayLength=50&sSearch='+xref_q
         query = '{"szKeyword":"'+initial_q+'"}'
     
@@ -242,7 +231,6 @@ class OverDrive(Source):
         req.add_header('Content-Type', 'application/json; charset=utf-8')
         br.open_novisit(req, query)
     
-        print "q_init_search is "+q_init_search
         # initiate the search without messing up the cookiejar
         self.safe_query(br, q_init_search)
     
@@ -254,7 +242,6 @@ class OverDrive(Source):
             xreq.add_header('Referer', q_init_search)
             xreq.add_header('Accept', 'application/json, text/javascript, */*')
             raw = br.open_novisit(xreq).read()
-            print "overdrive search result is:\n"+raw
             for m in re.finditer(ur'"iTotalDisplayRecords":(?P<displayrecords>\d+).*?"iTotalRecords":(?P<totalrecords>\d+)', raw):
                 if int(m.group('displayrecords')) >= 1:
                     results = True
@@ -264,54 +251,40 @@ class OverDrive(Source):
                 elif int(m.group('totalrecords')) == 0:
                     return ''
 
-        print "\n\nsorting results"
         return self.sort_ovrdrv_results(raw, title, title_tokens, author, author_tokens)
     
     
     def sort_ovrdrv_results(self, raw, title=None, title_tokens=None, author=None, author_tokens=None, ovrdrv_id=None):
-        print "\ntitle to search for is "+str(title)+"\nauthor to search for is "+str(author)
         close_matches = []
         raw = re.sub('.*?\[\[(?P<content>.*?)\]\].*', '[[\g<content>]]', raw)
         results = eval(raw)
-        print "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
-        #print results
+
         # The search results are either from a keyword search or a multi-format list from a single ID,
         # sort through the results for closest match/format
         if results:
             for reserveid, od_title, subtitle, edition, series, publisher, format, formatid, creators, \
                     thumbimage, shortdescription, worldcatlink, excerptlink, creatorfile, sorttitle, \
                     availabletolibrary, availabletoretailer, relevancyrank, unknown1, unknown2, unknown3 in results:
-                print "this record's title is "+od_title+", subtitle is "+subtitle+", author[s] are "+creators+", series is "+series
                 if ovrdrv_id is not None and int(formatid) in [1, 50, 410, 900]:
-                    print "overdrive id is not None, searching based on format type priority"
                     return self.format_results(reserveid, od_title, subtitle, series, publisher, creators, thumbimage, worldcatlink, formatid)            
                 else:
                     creators = creators.split(', ')
-                    print "split creators from results are: "+str(creators)
                     # if an exact match in a preferred format occurs
                     if creators[0] == author[0] and od_title == title and int(formatid) in [1, 50, 410, 900]:
-                        print "Got Exact Match!!!"
                         return self.format_results(reserveid, od_title, subtitle, series, publisher, creators, thumbimage, worldcatlink, formatid)
                     else:
                         close_title_match = False
                         close_author_match = False
-                        print "format id is "+str(formatid)
                         for token in title_tokens:
-                            print "attempting to find "+str(token)+" title token"
                             if od_title.lower().find(token.lower()) != -1:
-                                print "matched token"
                                 close_title_match = True
                             else:
-                                print "token didn't match"
                                 close_title_match = False
                                 break
                         for token in author_tokens:
-                            print "attempting to find "+str(token)+" author token"
                             if creators[0].lower().find(token.lower()) != -1:
-                                print "matched token"
                                 close_author_match = True
                             else:
-                                print "token didn't match"
                                 close_author_match = False
                                 break
                         if close_title_match and close_author_match and int(formatid) in [1, 50, 410, 900]:
@@ -350,7 +323,6 @@ class OverDrive(Source):
 
 
     def find_ovrdrv_data(self, br, title, author, isbn, ovrdrv_id=None):
-        print "in find_ovrdrv_data, title is "+str(title)+", author is "+str(author)+", overdrive id is "+str(ovrdrv_id)
         q = base_url
         if ovrdrv_id is None:
            return self.overdrive_search(br, q, title, author)
@@ -364,28 +336,22 @@ class OverDrive(Source):
         Takes either a title/author combo or an Overdrive ID.  One of these
         two must be passed to this function.
         '''
-        print "starting to_ovrdrv_data"
         if ovrdrv_id is not None:
             with cache_lock:
                 ans = ovrdrv_data_cache.get(ovrdrv_id, None)
             if ans:
-                print "inside to_ovrdrv_data, cache lookup successful, ans is "+str(ans)
                 return ans
             elif ans is False:
-                print "inside to_ovrdrv_data, ans returned False"
                 return None
             else:
                 ovrdrv_data = self.find_ovrdrv_data(br, title, author, ovrdrv_id)
         else:
             try:
-                print "trying to retrieve data, running find_ovrdrv_data"
                 ovrdrv_data = self.find_ovrdrv_data(br, title, author, ovrdrv_id)
-                print "ovrdrv_data is "+str(ovrdrv_data)
             except:
                 import traceback
                 traceback.print_exc()
                 ovrdrv_data = None
-        print "writing results to ovrdrv_data cache"
         with cache_lock:
             ovrdrv_data_cache[ovrdrv_id] = ovrdrv_data if ovrdrv_data else False
 
@@ -402,7 +368,6 @@ class OverDrive(Source):
         publisher[5], creators[6], reserveid[7], title[8]]
 
         '''
-        print "inside parse_search_results, writing the metadata results"
         ovrdrv_id = ovrdrv_data[7]
         mi.set_identifier('overdrive', ovrdrv_id)
 
@@ -445,7 +410,7 @@ class OverDrive(Source):
             mi.pubdate = parse_date(pub_date[0].strip())
         if lang:
             mi.language = lang[0].strip()
-            print "languages is "+str(mi.language)
+
         #if ebook_isbn:
         #    print "ebook isbn is "+str(ebook_isbn[0])
         #    isbn = check_isbn(ebook_isbn[0].strip())
@@ -454,7 +419,7 @@ class OverDrive(Source):
         #        mi.isbn = isbn
         if subjects:
             mi.tags = [tag.strip() for tag in subjects[0].split(',')]
-            print "tags are "+str(mi.tags)
+
         if desc:
             desc = desc[0]
             desc = html.tostring(desc, method='html', encoding=unicode).strip()
@@ -468,7 +433,6 @@ class OverDrive(Source):
 
 
 def main(args=sys.argv):
-    print "running through main tests"
     import tempfile, os, time
     tdir = tempfile.gettempdir()
     br = browser()
@@ -490,19 +454,19 @@ def main(args=sys.argv):
             (None, '9780345509741', 'The Horror Stories of Robert E. Howard', ['Robert E. Howard']), # Complex title with initials/dots stripped, some results don't have a cover
             ]:
         cpath = os.path.join(tdir, title+'.jpg')
-        print "cpath is "+cpath
+        #print "cpath is "+cpath
         st = time.time()
         curl = get_cover_url(isbn, title, author, br, ovrdrv_id)
-        print '\n\n Took ', time.time() - st, ' to get basic metadata\n\n'
-        if curl is None:
-            print 'No cover found for', title
-        else:
-            print "curl is "+curl
-            #open(cpath, 'wb').write(br.open_novisit(curl).read())
-            #print 'Cover for', title, 'saved to', cpath
+        #print '\n\n Took ', time.time() - st, ' to get basic metadata\n\n'
+        #if curl is None:
+        #    print 'No cover found for', title
+        #else:
+        #    print "curl is "+curl
+        #    open(cpath, 'wb').write(br.open_novisit(curl).read())
+        #    print 'Cover for', title, 'saved to', cpath
         st = time.time()
-        print get_social_metadata(title, author, isbn, ovrdrv_id)
-        print '\n\n Took ', time.time() - st, ' to get detailed metadata\n\n'
+        #print get_social_metadata(title, author, isbn, ovrdrv_id)
+        #print '\n\n Took ', time.time() - st, ' to get detailed metadata\n\n'
 
     return 0
 
