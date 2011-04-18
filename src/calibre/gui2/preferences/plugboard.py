@@ -15,6 +15,7 @@ from calibre.gui2.preferences.plugboard_ui import Ui_Form
 from calibre.customize.ui import metadata_writers, device_plugins
 from calibre.library.save_to_disk import plugboard_any_format_value, \
                         plugboard_any_device_value, plugboard_save_to_disk_value
+from calibre.library.server.content import plugboard_content_server_value
 from calibre.utils.formatter import validation_formatter
 
 
@@ -74,7 +75,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 self.devices.append(n)
         self.devices.sort(cmp=lambda x, y: cmp(x.lower(), y.lower()))
         self.devices.insert(1, plugboard_save_to_disk_value)
-        self.devices.insert(2, plugboard_any_device_value)
+        self.devices.insert(1, plugboard_content_server_value)
+        self.devices.insert(1, plugboard_any_device_value)
         self.new_device.addItems(self.devices)
 
         self.formats = ['']
