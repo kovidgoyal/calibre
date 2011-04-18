@@ -582,6 +582,7 @@ from calibre.ebooks.snb.output import SNBOutput
 from calibre.customize.profiles import input_profiles, output_profiles
 
 from calibre.devices.apple.driver import ITUNES
+from calibre.devices.content_server.driver import CONTENT_SERVER_FOR_CONFIG
 from calibre.devices.hanlin.driver import HANLINV3, HANLINV5, BOOX, SPECTRA
 from calibre.devices.blackberry.driver import BLACKBERRY
 from calibre.devices.cybook.driver import CYBOOK, ORIZON
@@ -753,7 +754,9 @@ plugins += [
     EEEREADER,
     NEXTBOOK,
     ITUNES,
-]
+    CONTENT_SERVER_FOR_CONFIG
+    ]
+
 plugins += [x for x in list(locals().values()) if isinstance(x, type) and \
                                         x.__name__.endswith('MetadataReader')]
 plugins += [x for x in list(locals().values()) if isinstance(x, type) and \

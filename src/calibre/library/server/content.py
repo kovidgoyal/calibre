@@ -183,16 +183,37 @@ class ContentServer(object):
         if fmt is None:
             raise cherrypy.HTTPError(404, 'book: %d does not have format: %s'%(id, format))
         if format == 'EPUB':
+            # Get the original metadata
+            mi = self.db.get_metadata(id, index_is_id=True)
+
+            # Instantiate the CONTENT_SERVER driver
+            from calibre.devices.content_server.driver import CONTENT_SERVER
+            cs = CONTENT_SERVER()
+
+            # Get any EPUB plugboards for the content server
+            from calibre.gui2.device import find_plugboard, device_name_for_plugboards
+            plugboards = self.db.prefs.get('plugboards', {})
+
+            # Transform the metadata via the plugboard
+            if hasattr(cs, 'set_plugboards') and callable(cs.set_plugboards):
+                cs.set_plugboards(plugboards, find_plugboard)
+                cpb = find_plugboard(device_name_for_plugboards(cs), format.lower(), plugboards)
+                if cpb:
+                    newmi = mi.deepcopy_metadata()
+                    newmi.template_to_attribute(mi, cpb)
+                else:
+                    newmi = mi
+
+            # Write the updated file
             from tempfile import TemporaryFile
             from calibre.ebooks.metadata.meta import set_metadata
             raw = fmt.read()
             fmt = TemporaryFile()
             fmt.write(raw)
             fmt.seek(0)
-            set_metadata(fmt, self.db.get_metadata(id, index_is_id=True,
-                get_cover=True),
-                    'epub')
+            set_metadata(fmt, newmi, 'epub')
             fmt.seek(0)
+
         mt = guess_type('dummy.'+format.lower())[0]
         if mt is None:
             mt = 'application/octet-stream'
