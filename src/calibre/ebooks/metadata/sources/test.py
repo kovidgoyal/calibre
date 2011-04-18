@@ -218,11 +218,11 @@ def test_identify_plugin(name, tests): # {{{
                 '')+'-%s-cover.jpg'%sanitize_file_name2(mi.title.replace(' ',
                     '_')))
             with open(cover, 'wb') as f:
-                f.write(cdata)
+                f.write(cdata[-1])
 
             prints('Cover downloaded to:', cover)
 
-            if len(cdata) < 10240:
+            if len(cdata[-1]) < 10240:
                 prints('Downloaded cover too small')
                 raise SystemExit(1)
 

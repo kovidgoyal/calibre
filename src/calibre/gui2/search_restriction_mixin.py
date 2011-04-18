@@ -25,16 +25,36 @@ class SearchRestrictionMixin(object):
             r = self.search_restriction.findText(name)
             if r < 0:
                 r = 0
-        self.search_restriction.setCurrentIndex(r)
-        self.apply_search_restriction(r)
+        if r != self.search_restriction.currentIndex():
+            self.search_restriction.setCurrentIndex(r)
+            self.apply_search_restriction(r)
+
+    def apply_text_search_restriction(self, search):
+        if not search:
+            self.search_restriction.setItemText(1, _('*Current search'))
+            self.search_restriction.setCurrentIndex(0)
+        else:
+            self.search_restriction.setCurrentIndex(1)
+            self.search_restriction.setItemText(1, search)
+            self._apply_search_restriction(search)
 
     def apply_search_restriction(self, i):
-        r = unicode(self.search_restriction.currentText())
-        if r is not None and r != '':
-            restriction = 'search:"%s"'%(r)
+        self.search_restriction.setItemText(1, _('*Current search'))
+        if i == 1:
+            restriction = unicode(self.search.currentText())
+            if not restriction:
+                self.search_restriction.setCurrentIndex(0)
+            else:
+                self.search_restriction.setItemText(1, restriction)
         else:
-            restriction = ''
+            r = unicode(self.search_restriction.currentText())
+            if r is not None and r != '':
+                restriction = 'search:"%s"'%(r)
+            else:
+                restriction = ''
+        self._apply_search_restriction(restriction)
 
+    def _apply_search_restriction(self, restriction):
         self.saved_search.clear()
         # The order below is important. Set the restriction, force a '' search
         # to apply it, reset the tag browser to take it into account, then set

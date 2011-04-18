@@ -3,8 +3,7 @@
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Constantin Hofstetter <consti at consti.de>, Steffen Siebert <calibre at steffensiebert.de>'
-__version__   = '0.97'
-
+__version__   = '0.98' # 2011-04-10
 ''' http://brandeins.de - Wirtschaftsmagazin '''
 import re
 import string
@@ -14,8 +13,8 @@ from calibre.web.feeds.recipes import BasicNewsRecipe
 class BrandEins(BasicNewsRecipe):
 
   title = u'brand eins'
-  __author__ = 'Constantin Hofstetter'
-  description = u'Wirtschaftsmagazin'
+  __author__ = 'Constantin Hofstetter; Steffen Siebert'
+  description = u'Wirtschaftsmagazin: Gets the last full issue on default. Set a integer value for the username-field to get older issues: 1 -> the newest (but not complete) issue, 2 -> the last complete issue (default), 3 -> the issue before 2 etc.'
   publisher ='brandeins.de'
   category = 'politics, business, wirtschaft, Germany'
   use_embedded_content = False

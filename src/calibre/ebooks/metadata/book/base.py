@@ -483,7 +483,7 @@ class Metadata(object):
                         self_tags = self.get(x, [])
                         self.set_user_metadata(x, meta) # get... did the deepcopy
                         other_tags = other.get(x, [])
-                        if meta['is_multiple']:
+                        if meta['datatype'] == 'text' and meta['is_multiple']:
                             # Case-insensitive but case preserving merging
                             lotags = [t.lower() for t in other_tags]
                             lstags = [t.lower() for t in self_tags]

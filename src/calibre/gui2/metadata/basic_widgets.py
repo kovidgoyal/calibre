@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 import textwrap, re, os
 
-from PyQt4.Qt import (Qt, QDateEdit, QDate,
+from PyQt4.Qt import (Qt, QDateEdit, QDate, pyqtSignal,
     QIcon, QToolButton, QWidget, QLabel, QGridLayout,
     QDoubleSpinBox, QListWidgetItem, QSize, QPixmap,
     QPushButton, QSpinBox, QLineEdit, QSizePolicy)
@@ -172,6 +172,7 @@ class AuthorsEdit(MultiCompleteComboBox):
         self.books_to_refresh = set([])
         all_authors = db.all_authors()
         all_authors.sort(key=lambda x : sort_key(x[1]))
+        self.clear()
         for i in all_authors:
             id, name = i
             name = [name.strip().replace('|', ',') for n in name.split(',')]
@@ -221,7 +222,8 @@ class AuthorSortEdit(EnLineEdit):
             'red, then the authors and this text do not match.')
     LABEL = _('Author s&ort:')
 
-    def __init__(self, parent, authors_edit, autogen_button, db):
+    def __init__(self, parent, authors_edit, autogen_button, db,
+            copy_a_to_as_action, copy_as_to_a_action):
         EnLineEdit.__init__(self, parent)
         self.authors_edit = authors_edit
         self.db = db
@@ -240,6 +242,8 @@ class AuthorSortEdit(EnLineEdit):
         self.textChanged.connect(self.update_state)
 
         autogen_button.clicked.connect(self.auto_generate)
+        copy_a_to_as_action.triggered.connect(self.auto_generate)
+        copy_as_to_a_action.triggered.connect(self.copy_to_authors)
         self.update_state()
 
     @dynamic_property
@@ -271,6 +275,14 @@ class AuthorSortEdit(EnLineEdit):
         tt = self.tooltips[0 if normal else 1]
         self.setToolTip(tt)
         self.setWhatsThis(tt)
+
+    def copy_to_authors(self):
+        aus = self.current_val
+        if aus:
+            ln, _, rest = aus.partition(',')
+            if rest:
+                au = rest.strip() + ' ' + ln.strip()
+                self.authors_edit.current_val = [au]
 
     def auto_generate(self, *args):
         au = unicode(self.authors_edit.text())
@@ -315,7 +327,7 @@ class SeriesEdit(MultiCompleteComboBox):
             if not val:
                 val = ''
             self.setEditText(val.strip())
-            self.setCursorPosition(0)
+            self.lineEdit().setCursorPosition(0)
 
         return property(fget=fget, fset=fset)
 
@@ -326,6 +338,7 @@ class SeriesEdit(MultiCompleteComboBox):
         self.update_items_cache([x[1] for x in all_series])
         series_id = db.series_id(id_, index_is_id=True)
         idx, c = None, 0
+        self.clear()
         for i in all_series:
             id, name = i
             if id == series_id:
@@ -613,6 +626,8 @@ class FormatsManager(QWidget): # {{{
 
 class Cover(ImageView): # {{{
 
+    download_cover = pyqtSignal()
+
     def __init__(self, parent):
         ImageView.__init__(self, parent)
         self.dialog = parent
@@ -702,9 +717,6 @@ class Cover(ImageView): # {{{
         im.trim(10)
         cdata = im.export('png')
         self.current_val = cdata
-
-    def download_cover(self, *args):
-        pass # TODO: Implement this
 
     def generate_cover(self, *args):
         from calibre.ebooks import calibre_cover
@@ -845,7 +857,7 @@ class RatingEdit(QSpinBox): # {{{
 class TagsEdit(MultiCompleteLineEdit): # {{{
     LABEL = _('Ta&gs:')
     TOOLTIP = '<p>'+_('Tags categorize the book. This is particularly '
-            'useful while searching. <br><br>They can be any words'
+            'useful while searching. <br><br>They can be any words '
             'or phrases, separated by commas.')
 
     def __init__(self, parent):
@@ -862,6 +874,7 @@ class TagsEdit(MultiCompleteLineEdit): # {{{
             if not val:
                 val = []
             self.setText(', '.join([x.strip() for x in val]))
+            self.setCursorPosition(0)
         return property(fget=fget, fset=fset)
 
     def initialize(self, db, id_):
@@ -928,6 +941,7 @@ class IdentifiersEdit(QLineEdit): # {{{
                 val = {}
             txt = ', '.join(['%s:%s'%(k, v) for k, v in val.iteritems()])
             self.setText(txt.strip())
+            self.setCursorPosition(0)
         return property(fget=fget, fset=fset)
 
     def initialize(self, db, id_):
@@ -977,7 +991,7 @@ class PublisherEdit(MultiCompleteComboBox): # {{{
             if not val:
                 val = ''
             self.setEditText(val.strip())
-            self.setCursorPosition(0)
+            self.lineEdit().setCursorPosition(0)
 
         return property(fget=fget, fset=fset)
 
@@ -987,13 +1001,13 @@ class PublisherEdit(MultiCompleteComboBox): # {{{
         all_publishers.sort(key=lambda x : sort_key(x[1]))
         self.update_items_cache([x[1] for x in all_publishers])
         publisher_id = db.publisher_id(id_, index_is_id=True)
-        idx, c = None, 0
-        for i in all_publishers:
-            id, name = i
-            if id == publisher_id:
-                idx = c
+        idx = None
+        self.clear()
+        for i, x in enumerate(all_publishers):
+            id_, name = x
+            if id_ == publisher_id:
+                idx = i
             self.addItem(name)
-            c += 1
 
         self.setEditText('')
         if idx is not None:

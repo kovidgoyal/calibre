@@ -5,7 +5,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import textwrap, os, glob, functools, re
 from calibre import guess_type
 from calibre.customize import FileTypePlugin, MetadataReaderPlugin, \
-    MetadataWriterPlugin, PreferencesPlugin, InterfaceActionBase
+    MetadataWriterPlugin, PreferencesPlugin, InterfaceActionBase, StoreBase
 from calibre.constants import numeric_version
 from calibre.ebooks.metadata.archive import ArchiveExtract, get_cbz_metadata
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
@@ -173,7 +173,7 @@ class ComicMetadataReader(MetadataReaderPlugin):
             stream.seek(pos)
             if id_ == b'Rar':
                 ftype = 'cbr'
-            elif id.startswith(b'PK'):
+            elif id_.startswith(b'PK'):
                 ftype = 'cbz'
         if ftype == 'cbr':
             from calibre.libunrar import extract_first_alphabetically as extract_first
@@ -625,8 +625,9 @@ if test_eight_code:
     from calibre.ebooks.metadata.sources.google import GoogleBooks
     from calibre.ebooks.metadata.sources.amazon import Amazon
     from calibre.ebooks.metadata.sources.openlibrary import OpenLibrary
+    from calibre.ebooks.metadata.sources.isbndb import ISBNDB
 
-    plugins += [GoogleBooks, Amazon, OpenLibrary]
+    plugins += [GoogleBooks, Amazon, OpenLibrary, ISBNDB]
 
 # }}}
 else:
@@ -853,6 +854,11 @@ class ActionNextMatch(InterfaceActionBase):
     name = 'Next Match'
     actual_plugin = 'calibre.gui2.actions.next_match:NextMatchAction'
 
+class ActionStore(InterfaceActionBase):
+    name = 'Store'
+    author = 'John Schember'
+    actual_plugin = 'calibre.gui2.actions.store:StoreAction'
+
 plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,
         ActionConvert, ActionDelete, ActionEditMetadata, ActionView,
         ActionFetchNews, ActionSaveToDisk, ActionShowBookDetails,
@@ -860,6 +866,9 @@ plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,
         ActionSendToDevice, ActionHelp, ActionPreferences, ActionSimilarBooks,
         ActionAddToLibrary, ActionEditCollections, ActionChooseLibrary,
         ActionCopyToLibrary, ActionTweakEpub, ActionNextMatch]
+
+if test_eight_code:
+    plugins += [ActionStore]
 
 # }}}
 
@@ -1038,6 +1047,17 @@ class Server(PreferencesPlugin):
             'give you access to your calibre library from anywhere, '
             'on any device, over the internet')
 
+class MetadataSources(PreferencesPlugin):
+    name = 'Metadata download'
+    icon = I('metadata.png')
+    gui_name = _('Metadata download')
+    category = 'Sharing'
+    gui_category = _('Sharing')
+    category_order = 4
+    name_order = 3
+    config_widget = 'calibre.gui2.preferences.metadata_sources'
+    description = _('Control how calibre downloads ebook metadata from the net')
+
 class Plugins(PreferencesPlugin):
     name = 'Plugins'
     icon = I('plugins.png')
@@ -1076,6 +1096,86 @@ plugins += [LookAndFeel, Behavior, Columns, Toolbar, Search, InputOptions,
         CommonOptions, OutputOptions, Adding, Saving, Sending, Plugboard,
         Email, Server, Plugins, Tweaks, Misc, TemplateFunctions]
 
+if test_eight_code:
+    plugins.append(MetadataSources)
+
 #}}}
 
+# Store plugins {{{
+class StoreAmazonKindleStore(StoreBase):
+    name = 'Amazon Kindle'
+    description = _('Kindle books from Amazon')
+    actual_plugin = 'calibre.gui2.store.amazon_plugin:AmazonKindleStore'
 
+class StoreBaenWebScriptionStore(StoreBase):
+    name = 'Baen WebScription'
+    description = _('Ebooks for readers.')
+    actual_plugin = 'calibre.gui2.store.baen_webscription_plugin:BaenWebScriptionStore'
+
+class StoreBNStore(StoreBase):
+    name = 'Barnes and Noble'
+    description = _('Books, Textbooks, eBooks, Toys, Games and More.')
+    actual_plugin = 'calibre.gui2.store.bn_plugin:BNStore'
+
+class StoreBeWriteStore(StoreBase):
+    name = 'BeWrite Books'
+    description = _('Publishers of fine books.')
+    actual_plugin = 'calibre.gui2.store.bewrite_plugin:BeWriteStore'
+
+class StoreDieselEbooksStore(StoreBase):
+    name = 'Diesel eBooks'
+    description = _('World Famous eBook Store.')
+    actual_plugin = 'calibre.gui2.store.diesel_ebooks_plugin:DieselEbooksStore'
+
+class StoreEbookscomStore(StoreBase):
+    name = 'eBooks.com'
+    description = _('The digital bookstore.')
+    actual_plugin = 'calibre.gui2.store.ebooks_com_plugin:EbookscomStore'
+
+class StoreEHarlequinStoretore(StoreBase):
+    name = 'eHarlequin'
+    description = _('entertain, enrich, inspire.')
+    actual_plugin = 'calibre.gui2.store.eharlequin_plugin:EHarlequinStore'
+
+class StoreFeedbooksStore(StoreBase):
+    name = 'Feedbooks'
+    description = _('Read anywhere.')
+    actual_plugin = 'calibre.gui2.store.feedbooks_plugin:FeedbooksStore'
+
+class StoreGutenbergStore(StoreBase):
+    name = 'Project Gutenberg'
+    description = _('The first producer of free ebooks.')
+    actual_plugin = 'calibre.gui2.store.gutenberg_plugin:GutenbergStore'
+
+class StoreKoboStore(StoreBase):
+    name = 'Kobo'
+    description = _('eReading: anytime. anyplace.')
+    actual_plugin = 'calibre.gui2.store.kobo_plugin:KoboStore'
+
+class StoreManyBooksStore(StoreBase):
+    name = 'ManyBooks'
+    description = _('The best ebooks at the best price: free!')
+    actual_plugin = 'calibre.gui2.store.manybooks_plugin:ManyBooksStore'
+
+class StoreMobileReadStore(StoreBase):
+    name = 'MobileRead'
+    description = _('Ebooks handcrafted with the utmost care')
+    actual_plugin = 'calibre.gui2.store.mobileread_plugin:MobileReadStore'
+
+class StoreOpenLibraryStore(StoreBase):
+    name = 'Open Library'
+    description = _('One web page for every book.')
+    actual_plugin = 'calibre.gui2.store.open_library_plugin:OpenLibraryStore'
+
+class StoreSmashwordsStore(StoreBase):
+    name = 'Smashwords'
+    description = _('Your ebook. Your way.')
+    actual_plugin = 'calibre.gui2.store.smashwords_plugin:SmashwordsStore'
+
+plugins += [StoreAmazonKindleStore, StoreBaenWebScriptionStore, StoreBNStore,
+    StoreBeWriteStore, StoreDieselEbooksStore, StoreEbookscomStore,
+    StoreEHarlequinStoretore,
+    StoreFeedbooksStore, StoreGutenbergStore, StoreKoboStore, StoreManyBooksStore,
+    StoreMobileReadStore, StoreOpenLibraryStore, StoreSmashwordsStore]
+
+# }}}

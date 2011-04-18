@@ -171,10 +171,10 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         return ConfigWidgetBase.commit(self)
 
     def refresh_gui(self, gui):
+        gui.set_highlight_only_button_icon()
         if self.muc_changed:
             gui.tags_view.set_new_model()
         gui.search.search_as_you_type(config['search_as_you_type'])
-        gui.library_view.model().set_highlight_only(config['highlight_search_matches'])
         gui.search.do_search()
 
     def clear_histories(self, *args):

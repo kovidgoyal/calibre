@@ -66,7 +66,7 @@ class HTMLStream(Stream):
     color = {
             DEBUG: '<span style="color:green">',
             INFO:'<span>',
-            WARN: '<span style="color:yellow">',
+            WARN: '<span style="color:blue">',
             ERROR: '<span style="color:red">'
             }
     normal = '</span>'

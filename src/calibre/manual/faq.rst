@@ -20,9 +20,9 @@ What formats does |app| support conversion to/from?
 |app| supports the conversion of many input formats to many output formats.
 It can convert every input format in the following list, to every output format.
 
-*Input Formats:* CBZ, CBR, CBC, CHM, EPUB, FB2, HTML, LIT, LRF, MOBI, ODT, PDF, PRC**, PDB, PML, RB, RTF, SNB, TCR, TXT
+*Input Formats:* CBZ, CBR, CBC, CHM, EPUB, FB2, HTML, HTMLZ, LIT, LRF, MOBI, ODT, PDF, PRC**, PDB, PML, RB, RTF, SNB, TCR, TXT, TXTZ
 
-*Output Formats:* EPUB, FB2, OEB, LIT, LRF, MOBI, PDB, PML, RB, PDF, SNB, TCR, TXT
+*Output Formats:* EPUB, FB2, OEB, LIT, LRF, MOBI, HTMLZ, PDB, PML, RB, PDF, SNB, TCR, TXT, TXTZ
 
 ** PRC is a generic format, |app| supports PRC files with TextRead and MOBIBook headers
 
@@ -30,7 +30,7 @@ It can convert every input format in the following list, to every output format.
 
 What are the best source formats to convert?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-In order of decreasing preference: LIT, MOBI, EPUB, HTML, PRC, RTF, PDB, TXT, PDF
+In order of decreasing preference: LIT, MOBI, EPUB, FB2, HTML, PRC, RTF, PDB, TXT, PDF
 
 Why does the PDF conversion lose some images/tables?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -65,6 +65,22 @@ There are two aspects to this problem:
   2. When adding HTML files to |app|, you may need to tell |app| what encoding the files are in. To do this go to :guilabel:`Preferences->Advanced->Plugins->File Type plugins` and customize the HTML2Zip plugin, telling it what encoding your HTML files are in. Now when you add HTML files to |app| they will be correctly processed. HTML files from different sources often have different encodings, so you may have to change this setting repeatedly. A common encoding for many files from the web is ``cp1252`` and I would suggest you try that first. Note that when converting HTML files, leave the input encoding setting mentioned above blank. This is because the HTML2ZIP plugin automatically converts the HTML files to a standard encoding (utf-8).
   3. Embedding fonts: If you are generating an LRF file to read on your SONY Reader, you are limited by the fact that the Reader only supports a few non-English characters in the fonts it comes pre-loaded with. You can work around this problem by embedding a unicode-aware font that supports the character set your file uses into the LRF file. You should embed atleast a serif and a sans-serif font. Be aware that embedding fonts significantly slows down page-turn speed on the reader.
 
+What's the deal with Table of Contents in MOBI files?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The first thing to realize is that most ebooks have two tables of contents. One is the traditional Table of Contents, like the TOC you find in paper books. This Table of Contents is part of the main document flow and can be styled however you like. This TOC is called the *content TOC*.
+
+Then there is the *metadata TOC*. A metadata TOC is a TOC that is not part of the book text and is typically accessed by some special button on a reader. For example, in the calibre viewer, you use the Show Table of Contents button to see this TOC. This TOC cannot be styled by the book creator. How it is represented is up to the viewer program.
+
+In the MOBI format, the situation is a little confused. This is because the MOBI format, alone amongst mainstream ebook formats, *does not* have decent support for a metadata TOC. A MOBI book simulates the presence of a metadata TOC by putting an *extra* content TOC at the end of the book. When you click Goto Table of Contents on your Kindle, it is to this extra content TOC that the Kindle takes you. 
+
+Now it might well seem to you that the MOBI book has two identical TOCs. Remember that one is semantically a content TOC and the other is a metadata TOC, even though both might have exactly the same entries and look the same. One can be accessed directly from the Kindle's menus, the other cannot. 
+
+When converting to MOBI, calibre detects the *metadata TOC* in the input document and generates an end-of-file TOC in the output MOBI file. You can turn this off by an option in the MOBI Output settings. You cannot control where this generated TOC will go. Remember this TOC is semantically a *metadata TOC*, in any format other than MOBI it *cannot not be part of the text*. The fact that it is part of the text in MOBI is an accident caused by the limitations of MOBI. If you want a TOC at a particular location in your document text, create one by hand. 
+
+If you have a hand edited TOC in the input document, you can use the TOC detection options in calibre to automatically generate the metadata TOC from it. See the conversion section of the User Manual for more details on how to use these options.
+
+Finally, I encourage you to ditch the content TOC and only have a metadata TOC in your ebooks. Metadata TOCs will give the people reading your ebooks a much superior navigation experience (except on the Kindle, where they are essentially the same as a content TOC).
 
 How do I use some of the advanced features of the conversion tools?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -471,7 +487,13 @@ menu, choose "Validate fonts".
 I downloaded the installer, but it is not working?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Downloading from the internet can sometimes result in a corrupted download. If the |app| installer you downloaded is not opening, try downloading it again. If re-downloading it does not work, download it from `an alternate location <http://sourceforge.net/projects/calibre/files/>`_. If the installer still doesn't work, then something on your computer is preventing it from running. Try rebooting your computer and running a registry cleaner like `Wise registry cleaner <http://www.wisecleaner.com>`_. Best place to ask for more help is in the `forums <http://www.mobileread.com/forums/usercp.php>`_.
+Downloading from the internet can sometimes result in a corrupted download. If the |app| installer you downloaded is not opening, try downloading it again. If re-downloading it does not work, download it from `an alternate location <http://sourceforge.net/projects/calibre/files/>`_. If the installer still doesn't work, then something on your computer is preventing it from running. 
+
+    * Try temporarily disabling your antivirus program (Microsoft Security Essentials, or Kaspersky or Norton or McAfee or whatever). This is most likely the culprit if the upgrade process is hanging in the middle.
+    * Try rebooting your computer and running a registry cleaner like `Wise registry cleaner <http://www.wisecleaner.com>`_.
+    * Try downloading the installer with an alternate browser. For example if you are using Internet Explorer, try using Firefox or Chrome instead.
+      
+Best place to ask for more help is in the `forums <http://www.mobileread.com/forums/forumdisplay.php?f=166>`_.
 
 My antivirus program claims |app| is a virus/trojan?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

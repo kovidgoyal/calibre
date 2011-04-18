@@ -24,7 +24,7 @@ from calibre.translations.dynamic import translate
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.oeb.entitydefs import ENTITYDEFS
 from calibre.ebooks.conversion.preprocess import CSSPreProcessor
-from calibre import isbytestring
+from calibre import isbytestring, as_unicode
 
 RECOVER_PARSER = etree.XMLParser(recover=True, no_network=True)
 
@@ -643,7 +643,7 @@ class Metadata(object):
             return unicode(self.value).encode('ascii', 'xmlcharrefreplace')
 
         def __unicode__(self):
-            return unicode(self.value)
+            return as_unicode(self.value)
 
         def to_opf1(self, dcmeta=None, xmeta=None, nsrmap={}):
             attrib = {}

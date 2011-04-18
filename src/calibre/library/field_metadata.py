@@ -364,11 +364,11 @@ class FieldMetadata(dict):
             self._tb_cats[k]['display'] = {}
             self._tb_cats[k]['is_editable'] = True
             self._add_search_terms_to_map(k, v['search_terms'])
-        for x in ('timestamp', 'last_modified'):
-            self._tb_cats[x]['display'] = {
+        self._tb_cats['timestamp']['display'] = {
                         'date_format': tweaks['gui_timestamp_display_format']}
         self._tb_cats['pubdate']['display'] = {
                         'date_format': tweaks['gui_pubdate_display_format']}
+        self._tb_cats['last_modified']['display'] = {'date_format': 'iso'}
         self.custom_field_prefix = '#'
         self.get = self._tb_cats.get
 

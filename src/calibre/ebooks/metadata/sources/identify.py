@@ -114,8 +114,12 @@ class ISBNMerge(object):
 
         return self.results
 
-    def merge_metadata_results(self):
-        ' Merge results with identical title and authors '
+    def merge_metadata_results(self, merge_on_identifiers=False):
+        '''
+        Merge results with identical title and authors or an identical
+        identifier
+        '''
+        # First title/author
         groups = {}
         for result in self.results:
             title = lower(result.title if result.title else '')
@@ -134,6 +138,44 @@ class ISBNMerge(object):
                 else:
                     result = rgroup[0]
                 self.results.append(result)
+
+        if merge_on_identifiers:
+            # Now identifiers
+            groups, empty = {}, []
+            for result in self.results:
+                key = set()
+                for typ, val in result.identifiers.iteritems():
+                    if typ and val:
+                        key.add((typ, val))
+                if key:
+                    key = frozenset(key)
+                    match = None
+                    for candidate in list(groups):
+                        if candidate.intersection(key):
+                            # We have at least one identifier in common
+                            match = candidate.union(key)
+                            results = groups.pop(candidate)
+                            results.append(result)
+                            groups[match] = results
+                            break
+                    if match is None:
+                        groups[key] = [result]
+                else:
+                    empty.append(result)
+
+            if len(groups) != len(self.results):
+                self.results = []
+                for rgroup in groups.itervalues():
+                    rel = [r.average_source_relevance for r in rgroup]
+                    if len(rgroup) > 1:
+                        result = self.merge(rgroup, None, do_asr=False)
+                        result.average_source_relevance = sum(rel)/len(rel)
+                    elif rgroup:
+                        result = rgroup[0]
+                    self.results.append(result)
+
+            if empty:
+                self.results.extend(empty)
 
         self.results.sort(key=attrgetter('average_source_relevance'))
 
@@ -253,6 +295,10 @@ def merge_identify_results(result_map, log):
 
 def identify(log, abort, # {{{
         title=None, authors=None, identifiers={}, timeout=30):
+    if title == _('Unknown'):
+        title = None
+    if authors == [_('Unknown')]:
+        authors = None
     start_time = time.time()
     plugins = [p for p in metadata_plugins(['identify']) if p.is_configured()]
 
@@ -338,8 +384,9 @@ def identify(log, abort, # {{{
 
         for i, result in enumerate(presults):
             result.relevance_in_source = i
-            result.has_cached_cover_url = \
-                plugin.get_cached_cover_url(result.identifiers) is not None
+            result.has_cached_cover_url = (plugin.cached_cover_url_is_reliable
+                    and plugin.get_cached_cover_url(result.identifiers) is not
+                    None)
             result.identify_plugin = plugin
 
     log('The identify phase took %.2f seconds'%(time.time() - start_time))
@@ -356,12 +403,21 @@ def identify(log, abort, # {{{
             if r.plugin.has_html_comments and r.comments:
                 r.comments = html2text(r.comments)
 
-    dummy = Metadata(_('Unknown'))
     max_tags = msprefs['max_tags']
     for r in results:
-        for f in msprefs['ignore_fields']:
-            setattr(r, f, getattr(dummy, f))
         r.tags = r.tags[:max_tags]
+
+    if msprefs['swap_author_names']:
+        for r in results:
+            def swap_to_ln_fn(a):
+                if ',' in a:
+                    return a
+                parts = a.split(None)
+                if len(parts) <= 1:
+                    return a
+                surname = parts[-1]
+                return '%s, %s' % (surname, ' '.join(parts[:-1]))
+            r.authors = [swap_to_ln_fn(a) for a in r.authors]
 
     return results
 # }}}
@@ -375,6 +431,10 @@ def urls_from_identifiers(identifiers): # {{{
                 ans.append((plugin.name, url))
         except:
             pass
+    isbn = identifiers.get('isbn', None)
+    if isbn:
+        ans.append(('ISBN',
+            'http://www.worldcat.org/search?q=bn%%3A%s&qt=advanced'%isbn))
     return ans
 # }}}
 
@@ -389,7 +449,7 @@ if __name__ == '__main__': # tests {{{
               # unknown to Amazon
                 {'identifiers':{'isbn': '9780307459671'},
                     'title':'Invisible Gorilla', 'authors':['Christopher Chabris']},
-                [title_test('The Invisible Gorilla: And Other Ways Our Intuitions Deceive Us',
+                [title_test('The Invisible Gorilla',
                     exact=True), authors_test(['Christopher Chabris', 'Daniel Simons'])]
 
             ),
@@ -398,7 +458,7 @@ if __name__ == '__main__': # tests {{{
                 {'title':'Learning Python',
                     'authors':['Lutz']},
                 [title_test('Learning Python',
-                    exact=True), authors_test(['Mark Lutz'])
+                    exact=True), authors_test(['Mark J. Lutz', 'David Ascher'])
                  ]
 
             ),
