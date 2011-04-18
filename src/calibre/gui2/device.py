@@ -615,6 +615,7 @@ class DeviceMixin(object): # {{{
     #: management might have kicked off a sync_booklists to write new metadata onto
     #: the device, and that job might still be running when the signal is emitted.
     device_metadata_available = pyqtSignal()
+    device_connection_changed = pyqtSignal(object)
 
     def __init__(self):
         self.device_error_dialog = error_dialog(self, _('Error'),
@@ -762,6 +763,7 @@ class DeviceMixin(object): # {{{
             self.location_manager.update_devices()
             self.library_view.set_device_connected(self.device_connected)
             self.refresh_ondevice()
+        self.device_connection_changed.emit(connected)
 
     def info_read(self, job):
         '''
