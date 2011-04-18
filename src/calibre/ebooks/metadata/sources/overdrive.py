@@ -39,6 +39,11 @@ class OverDrive(Source):
     supports_gzip_transfer_encoding = False
     cached_cover_url_is_reliable = True
 
+    def __init__(self, *args, **kwargs):
+       Source.__init__(self, *args, **kwargs)
+       self.prefs.defaults['ignore_fields'] =['tags', 'pubdate', 'comments', 'identifier:isbn', 'language']
+
+
     def identify(self, log, result_queue, abort, title=None, authors=None, # {{{
             identifiers={}, timeout=30):
         ovrdrv_id = identifiers.get('overdrive', None)
@@ -444,41 +449,6 @@ class OverDrive(Source):
 
 
 def main(args=sys.argv):
-    import tempfile, os, time
-    tdir = tempfile.gettempdir()
-    br = browser()
-    for ovrdrv_id, isbn, title, author in [
-            #(None, '0899661343', 'On the Road', ['Jack Kerouac']), # basic test, no series, single author
-            #(None, '9780061952838', 'The Fellowship of the Ring', ['J. R. R. Tolkien']), # Series test, multi-author
-            #(None, '9780061952838', 'The Two Towers (The Lord of the Rings, Book II)', ['J. R. R. Tolkien']), # Series test, book 2
-            #(None, '9780618153985', 'The Fellowship of the Ring (The Lord of the Rings, Part 1)', ['J.R.R. Tolkien']),
-            #('57844706-20fa-4ace-b5ee-3470b1b52173', None, 'The Two Towers', ['J. R. R. Tolkien']), # Series test, w/ ovrdrv id
-            #(None, '9780345505057', 'Deluge', ['Anne McCaffrey']) # Multiple authors
-            #(None, None, 'Deluge', ['Anne McCaffrey']) # Empty ISBN
-            #(None, None, 'On the Road', ['Jack Kerouac']), # Nonetype ISBN
-            #(None, '9780345435279', 'A Caress of Twilight', ['Laurell K. Hamilton']),
-            #(None, '9780606087230', 'The Omnivore\'s Dilemma : A Natural History of Four Meals', ['Michael Pollan']), # Subtitle colon
-            #(None, '9780061747649', 'Mental_Floss Presents: Condensed Knowledge', ['Will Pearson', 'Mangesh Hattikudur']),
-            #(None, '9781400050802', 'The Zombie Survival Guide', ['Max Brooks']), # Two books with this title by this author
-            #(None, '9781775414315', 'The Worst Journey in the World / Antarctic 1910-1913', ['Apsley Cherry-Garrard']), # Garbage sub-title
-            #(None, '9780440335160', 'Outlander', ['Diana Gabaldon']), # Returns lots of results to sort through to get the best match
-            (None, '9780345509741', 'The Horror Stories of Robert E. Howard', ['Robert E. Howard']), # Complex title with initials/dots stripped, some results don't have a cover
-            ]:
-        cpath = os.path.join(tdir, title+'.jpg')
-        #print "cpath is "+cpath
-        st = time.time()
-        curl = get_cover_url(isbn, title, author, br, ovrdrv_id)
-        #print '\n\n Took ', time.time() - st, ' to get basic metadata\n\n'
-        #if curl is None:
-        #    print 'No cover found for', title
-        #else:
-        #    print "curl is "+curl
-        #    open(cpath, 'wb').write(br.open_novisit(curl).read())
-        #    print 'Cover for', title, 'saved to', cpath
-        st = time.time()
-        #print get_social_metadata(title, author, isbn, ovrdrv_id)
-        #print '\n\n Took ', time.time() - st, ' to get detailed metadata\n\n'
-
     return 0
 
 if __name__ == '__main__':
