@@ -278,11 +278,13 @@ class AuthorSortEdit(EnLineEdit):
 
     def copy_to_authors(self):
         aus = self.current_val
+        meth = tweaks['author_sort_copy_method']
         if aus:
             ln, _, rest = aus.partition(',')
             if rest:
-                au = rest.strip() + ' ' + ln.strip()
-                self.authors_edit.current_val = [au]
+                if meth in ('invert', 'nocomma'):
+                    aus = rest.strip() + ' ' + ln.strip()
+            self.authors_edit.current_val = [aus]
 
     def auto_generate(self, *args):
         au = unicode(self.authors_edit.text())
