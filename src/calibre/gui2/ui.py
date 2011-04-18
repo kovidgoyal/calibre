@@ -88,6 +88,11 @@ class SystemTrayIcon(QSystemTrayIcon): # {{{
 
 # }}}
 
+_gui = None
+
+def get_gui():
+    return _gui
+
 class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         TagBrowserMixin, CoverFlowMixin, LibraryViewMixin, SearchBoxMixin,
         SavedSearchBoxMixin, SearchRestrictionMixin, LayoutMixin, UpdateMixin,
@@ -97,7 +102,9 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
 
 
     def __init__(self, opts, parent=None, gui_debug=None):
+        global _gui
         MainWindow.__init__(self, opts, parent=parent, disable_automatic_gc=True)
+        _gui = self
         self.opts = opts
         self.device_connected = None
         self.gui_debug = gui_debug
@@ -529,10 +536,10 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
             action.location_selected(location)
         if location == 'library':
             self.search_restriction.setEnabled(True)
-            self.search_options_button.setEnabled(True)
+            self.highlight_only_button.setEnabled(True)
         else:
             self.search_restriction.setEnabled(False)
-            self.search_options_button.setEnabled(False)
+            self.highlight_only_button.setEnabled(False)
             # Reset the view in case something changed while it was invisible
             self.current_view().reset()
         self.set_number_of_books_shown()

@@ -109,10 +109,12 @@ class MetadataSingleDialogBase(ResizableDialog):
         'Using this button to create author sort will change author sort from'
         ' red to green.'))
         b.m = m = QMenu()
-        ac = m.addAction(QIcon(I('back.png')), _('Set author from author sort'))
+        ac = m.addAction(QIcon(I('forward.png')), _('Set author sort from author'))
+        ac2 = m.addAction(QIcon(I('back.png')), _('Set author from author sort'))
         b.setMenu(m)
         self.authors = AuthorsEdit(self)
-        self.author_sort = AuthorSortEdit(self, self.authors, b, self.db, ac)
+        self.author_sort = AuthorSortEdit(self, self.authors, b, self.db, ac,
+                ac2)
         self.basic_metadata_widgets.extend([self.authors, self.author_sort])
 
         self.swap_title_author_button = QToolButton(self)
@@ -154,6 +156,9 @@ class MetadataSingleDialogBase(ResizableDialog):
 
         self.identifiers = IdentifiersEdit(self)
         self.basic_metadata_widgets.append(self.identifiers)
+        self.clear_identifiers_button = QToolButton(self)
+        self.clear_identifiers_button.setIcon(QIcon(I('trash.png')))
+        self.clear_identifiers_button.clicked.connect(self.identifiers.clear)
 
         self.publisher = PublisherEdit(self)
         self.basic_metadata_widgets.append(self.publisher)
@@ -539,8 +544,8 @@ class MetadataSingleDialog(MetadataSingleDialogBase): # {{{
         sto(self.rating, self.tags)
         create_row2(2, self.tags, self.tags_editor_button)
         sto(self.tags_editor_button, self.identifiers)
-        create_row2(3, self.identifiers)
-        sto(self.identifiers, self.timestamp)
+        create_row2(3, self.identifiers, self.clear_identifiers_button)
+        sto(self.clear_identifiers_button, self.timestamp)
         create_row2(4, self.timestamp, self.timestamp.clear_button)
         sto(self.timestamp.clear_button, self.pubdate)
         create_row2(5, self.pubdate, self.pubdate.clear_button)
@@ -655,7 +660,8 @@ class MetadataSingleDialogAlt1(MetadataSingleDialogBase): # {{{
         create_row(9, self.publisher, self.timestamp)
         create_row(10, self.timestamp, self.identifiers,
                    button=self.timestamp.clear_button, icon='trash.png')
-        create_row(11, self.identifiers, self.comments)
+        create_row(11, self.identifiers, self.comments,
+                   button=self.clear_identifiers_button, icon='trash.png')
         tl.addItem(QSpacerItem(1, 1, QSizePolicy.Fixed, QSizePolicy.Expanding),
                    12, 1, 1 ,1)
 

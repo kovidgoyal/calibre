@@ -114,8 +114,12 @@ class ISBNMerge(object):
 
         return self.results
 
-    def merge_metadata_results(self):
-        ' Merge results with identical title and authors '
+    def merge_metadata_results(self, merge_on_identifiers=False):
+        '''
+        Merge results with identical title and authors or an identical
+        identifier
+        '''
+        # First title/author
         groups = {}
         for result in self.results:
             title = lower(result.title if result.title else '')
@@ -134,6 +138,44 @@ class ISBNMerge(object):
                 else:
                     result = rgroup[0]
                 self.results.append(result)
+
+        if merge_on_identifiers:
+            # Now identifiers
+            groups, empty = {}, []
+            for result in self.results:
+                key = set()
+                for typ, val in result.identifiers.iteritems():
+                    if typ and val:
+                        key.add((typ, val))
+                if key:
+                    key = frozenset(key)
+                    match = None
+                    for candidate in list(groups):
+                        if candidate.intersection(key):
+                            # We have at least one identifier in common
+                            match = candidate.union(key)
+                            results = groups.pop(candidate)
+                            results.append(result)
+                            groups[match] = results
+                            break
+                    if match is None:
+                        groups[key] = [result]
+                else:
+                    empty.append(result)
+
+            if len(groups) != len(self.results):
+                self.results = []
+                for rgroup in groups.itervalues():
+                    rel = [r.average_source_relevance for r in rgroup]
+                    if len(rgroup) > 1:
+                        result = self.merge(rgroup, None, do_asr=False)
+                        result.average_source_relevance = sum(rel)/len(rel)
+                    elif rgroup:
+                        result = rgroup[0]
+                    self.results.append(result)
+
+            if empty:
+                self.results.extend(empty)
 
         self.results.sort(key=attrgetter('average_source_relevance'))
 
@@ -408,7 +450,7 @@ if __name__ == '__main__': # tests {{{
                 {'identifiers':{'isbn': '9780307459671'},
                     'title':'Invisible Gorilla', 'authors':['Christopher Chabris']},
                 [title_test('The Invisible Gorilla',
-                    exact=True), authors_test(['Christopher F. Chabris', 'Daniel Simons'])]
+                    exact=True), authors_test(['Christopher Chabris', 'Daniel Simons'])]
 
             ),
 

@@ -116,6 +116,10 @@ class CoverDelegate(QStyledItemDelegate): # {{{
 
     def paint(self, painter, option, index):
         QStyledItemDelegate.paint(self, painter, option, index)
+        # Ensure the cover is rendered over any selection rect
+        style = QApplication.style()
+        style.drawItemPixmap(painter, option.rect, Qt.AlignTop|Qt.AlignHCenter,
+            QPixmap(index.data(Qt.DecorationRole)))
         if self.timer.isActive() and index.data(Qt.UserRole).toBool():
             rect = QRect(0, 0, self.spinner_width, self.spinner_width)
             rect.moveCenter(option.rect.center())
@@ -945,7 +949,7 @@ class CoverFetch(QDialog): # {{{
 # }}}
 
 if __name__ == '__main__':
-    #DEBUG_DIALOG = True
+    DEBUG_DIALOG = True
     app = QApplication([])
     d = FullFetch()
     d.start(title='great gatsby', authors=['fitzgerald'])

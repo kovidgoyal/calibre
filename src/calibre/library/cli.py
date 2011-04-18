@@ -426,7 +426,7 @@ def do_show_metadata(db, id, as_opf):
         mi = OPFCreator(os.getcwd(), mi)
         mi.render(sys.stdout)
     else:
-        print unicode(mi).encode(preferred_encoding)
+        prints(unicode(mi))
 
 def show_metadata_option_parser():
     parser = get_parser(_(

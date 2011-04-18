@@ -12,6 +12,7 @@ from Queue import Empty
 
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
 from calibre import extract, CurrentDir, prints
+from calibre.constants import filesystem_encoding
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.ipc.server import Server
 from calibre.utils.ipc.job import ParallelJob
@@ -21,6 +22,10 @@ def extract_comic(path_to_comic_file):
     Un-archive the comic file.
     '''
     tdir = PersistentTemporaryDirectory(suffix='_comic_extract')
+    if not isinstance(tdir, unicode):
+        # Needed in case the zip file has wrongly encoded unicode file/dir
+        # names
+        tdir = tdir.decode(filesystem_encoding)
     extract(path_to_comic_file, tdir)
     return tdir
 

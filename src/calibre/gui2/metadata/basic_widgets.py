@@ -223,7 +223,7 @@ class AuthorSortEdit(EnLineEdit):
     LABEL = _('Author s&ort:')
 
     def __init__(self, parent, authors_edit, autogen_button, db,
-            copy_as_to_a_action):
+            copy_a_to_as_action, copy_as_to_a_action):
         EnLineEdit.__init__(self, parent)
         self.authors_edit = authors_edit
         self.db = db
@@ -242,6 +242,7 @@ class AuthorSortEdit(EnLineEdit):
         self.textChanged.connect(self.update_state)
 
         autogen_button.clicked.connect(self.auto_generate)
+        copy_a_to_as_action.triggered.connect(self.auto_generate)
         copy_as_to_a_action.triggered.connect(self.copy_to_authors)
         self.update_state()
 
@@ -277,11 +278,13 @@ class AuthorSortEdit(EnLineEdit):
 
     def copy_to_authors(self):
         aus = self.current_val
+        meth = tweaks['author_sort_copy_method']
         if aus:
             ln, _, rest = aus.partition(',')
             if rest:
-                au = rest.strip() + ' ' + ln.strip()
-                self.authors_edit.current_val = [au]
+                if meth in ('invert', 'nocomma', 'comma'):
+                    aus = rest.strip() + ' ' + ln.strip()
+            self.authors_edit.current_val = [aus]
 
     def auto_generate(self, *args):
         au = unicode(self.authors_edit.text())
@@ -464,16 +467,22 @@ class FormatsManager(QWidget): # {{{
         self.metadata_from_format_button = QToolButton(self)
         self.metadata_from_format_button.setIcon(QIcon(I('edit_input.png')))
         self.metadata_from_format_button.setIconSize(QSize(32, 32))
+        self.metadata_from_format_button.setToolTip(
+                _('Set metadata for the book from the selected format'))
 
         self.add_format_button = QToolButton(self)
         self.add_format_button.setIcon(QIcon(I('add_book.png')))
         self.add_format_button.setIconSize(QSize(32, 32))
         self.add_format_button.clicked.connect(self.add_format)
+        self.add_format_button.setToolTip(
+                _('Add a format to this book'))
 
         self.remove_format_button = QToolButton(self)
         self.remove_format_button.setIcon(QIcon(I('trash.png')))
         self.remove_format_button.setIconSize(QSize(32, 32))
         self.remove_format_button.clicked.connect(self.remove_format)
+        self.remove_format_button.setToolTip(
+                _('Remove the selected format from this book'))
 
         self.formats = FormatList(self)
         self.formats.setAcceptDrops(True)
@@ -938,7 +947,13 @@ class IdentifiersEdit(QLineEdit): # {{{
         def fset(self, val):
             if not val:
                 val = {}
-            txt = ', '.join(['%s:%s'%(k, v) for k, v in val.iteritems()])
+            def keygen(x):
+                x = x[0]
+                if x == 'isbn':
+                    x = '00isbn'
+                return x
+            ids = sorted(val.iteritems(), key=keygen)
+            txt = ', '.join(['%s:%s'%(k, v) for k, v in ids])
             self.setText(txt.strip())
             self.setCursorPosition(0)
         return property(fget=fget, fset=fset)
@@ -958,7 +973,7 @@ class IdentifiersEdit(QLineEdit): # {{{
         tt = self.BASE_TT
         extra = ''
         if not isbn:
-            col = 'rgba(0,255,0,0%)'
+            col = 'none'
         elif check_isbn(isbn) is not None:
             col = 'rgba(0,255,0,20%)'
             extra = '\n\n'+_('This ISBN number is valid')

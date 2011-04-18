@@ -289,6 +289,7 @@ class Series(Base):
         values = self.all_values = list(self.db.all_custom(num=self.col_id))
         values.sort(key=sort_key)
         w = MultiCompleteComboBox(parent)
+        w.set_separator(None)
         w.setSizeAdjustPolicy(w.AdjustToMinimumContentsLengthWithIcon)
         w.setMinimumContentsLength(25)
         self.name_widget = w
