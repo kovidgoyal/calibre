@@ -33,6 +33,13 @@ TIMEOUT = 75 # seconds
 SEARCH_THREAD_TOTAL = 4
 COVER_DOWNLOAD_THREAD_TOTAL = 2
 
+def comparable_price(text):
+    if len(text) < 3 or text[-3] not in ('.', ','):
+        text += '00'
+    text = re.sub(r'\D', '', text)
+    text = text.rjust(6, '0')
+
+
 class SearchDialog(QDialog, Ui_Dialog):
 
     def __init__(self, istores, *args):
@@ -294,9 +301,7 @@ class SearchThread(Thread):
         while self._run and not self.tasks.empty():
             try:
                 query, store_name, store_plugin, timeout = self.tasks.get()
-                squery = query
-                for loc in SearchFilter.USABLE_LOCATIONS:
-                    squery = re.sub(r'%s:"?(?P<a>[^\s"]+)"?' % loc, '\g<a>', squery)
+                squery = self._clean_query(query)
                 for res in store_plugin.search(squery, timeout=timeout):
                     if not self._run:
                         return
@@ -306,6 +311,21 @@ class SearchThread(Thread):
                 self.tasks.task_done()
             except:
                 pass
+            
+    def _clean_query(self, query):
+        query = query.lower()
+        for loc in ( 'all', 'author', 'authors', 'title'):
+            query = re.sub(r'%s:"?(?P<a>[^\s"]+)"?' % loc, '\g<a>', query)
+        for loc in ('cover', 'drm', 'format', 'formats', 'price', 'store'):
+            query = re.sub(r'%s:"[^"]"' % loc, '', query)
+            query = re.sub(r'%s:[^\s]*' % loc, '', query)
+        query = re.sub(r'(^|\s)(and|not|or)(\s|$)', ' ', query)
+        query = query.replace('\\', '')
+        query = query.replace('!', '')
+        query = query.replace('=', '')
+        query = query.replace('~', '')
+        query = re.sub(r'\s{2,}', ' ', query)
+        return query
 
 
 class CoverThreadPool(GenericDownloadThreadPool):
@@ -439,11 +459,7 @@ class Matches(QAbstractItemModel):
         elif col == 2:
             text = result.author
         elif col == 3:
-            text = result.price
-            if len(text) < 3 or text[-3] not in ('.', ','):
-                text += '00'
-            text = re.sub(r'\D', '', text)
-            text = text.rjust(6, '0')
+            text = comparable_price(result.price)
         elif col == 4:
             text = result.store_name
         return text
@@ -504,8 +520,9 @@ class SearchFilter(SearchQueryParser):
         q = {
              'author': self.search_result.author.lower(),
              'cover': self.search_result.cover_url,
+             'drm': '',
              'format': '',
-             'price': self.search_result.price,
+             'price': comparable_price(self.search_result.price),
              'store': self.search_result.store_name.lower(),
              'title': self.search_result.title.lower(),
         }
