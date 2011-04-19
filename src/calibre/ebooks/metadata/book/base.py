@@ -625,6 +625,8 @@ class Metadata(object):
                 res = res + ' [%s]'%self.format_series_index()
             elif datatype == 'datetime':
                 res = format_date(res, fmeta['display'].get('date_format','dd MMM yyyy'))
+            elif datatype == 'rating':
+                res = res/2
             return (name, unicode(res), orig_res, fmeta)
 
         return (None, None, None, None)
