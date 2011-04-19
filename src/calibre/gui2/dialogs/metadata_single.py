@@ -25,7 +25,6 @@ from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.metadata import string_to_authors, \
         authors_to_string, check_isbn, title_sort
 from calibre.ebooks.metadata.covers import download_cover
-from calibre.ebooks.metadata.meta import get_metadata
 from calibre.ebooks.metadata import MetaInformation
 from calibre.utils.config import prefs, tweaks
 from calibre.utils.date import qt_to_dt, local_tz, utcfromtimestamp
@@ -353,6 +352,7 @@ class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
             self.formats_changed = True
 
     def get_selected_format_metadata(self):
+        from calibre.ebooks.metadata.meta import get_metadata
         old = prefs['read_file_metadata']
         if not old:
             prefs['read_file_metadata'] = True

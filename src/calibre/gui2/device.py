@@ -25,7 +25,6 @@ from calibre.devices.errors import FreeSpaceError
 from calibre.devices.apple.driver import ITUNES_ASYNC
 from calibre.devices.folder_device.driver import FOLDER_DEVICE
 from calibre.devices.bambook.driver import BAMBOOK, BAMBOOKWifi
-from calibre.ebooks.metadata.meta import set_metadata
 from calibre.constants import DEBUG
 from calibre.utils.config import prefs, tweaks
 from calibre.utils.magick.draw import thumbnail
@@ -334,6 +333,7 @@ class DeviceManager(Thread): # {{{
 
     def _upload_books(self, files, names, on_card=None, metadata=None, plugboards=None):
         '''Upload books to device: '''
+        from calibre.ebooks.metadata.meta import set_metadata
         if hasattr(self.connected_device, 'set_plugboards') and \
                 callable(self.connected_device.set_plugboards):
             self.connected_device.set_plugboards(plugboards, find_plugboard)

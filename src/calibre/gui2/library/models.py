@@ -18,7 +18,6 @@ from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import tweaks, prefs
 from calibre.utils.date import dt_factory, qt_to_dt, isoformat
 from calibre.utils.icu import sort_key
-from calibre.ebooks.metadata.meta import set_metadata as _set_metadata
 from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.library.caches import _match, CONTAINS_MATCH, EQUALS_MATCH, \
     REGEXP_MATCH, MetadataBackup, force_to_bool
@@ -478,6 +477,7 @@ class BooksModel(QAbstractTableModel): # {{{
     def get_preferred_formats_from_ids(self, ids, formats,
                               set_metadata=False, specific_format=None,
                               exclude_auto=False, mode='r+b'):
+        from calibre.ebooks.metadata.meta import set_metadata as _set_metadata
         ans = []
         need_auto = []
         if specific_format is not None:
@@ -526,6 +526,7 @@ class BooksModel(QAbstractTableModel): # {{{
     def get_preferred_formats(self, rows, formats, paths=False,
                               set_metadata=False, specific_format=None,
                               exclude_auto=False):
+        from calibre.ebooks.metadata.meta import set_metadata as _set_metadata
         ans = []
         need_auto = []
         if specific_format is not None:

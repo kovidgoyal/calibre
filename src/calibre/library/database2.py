@@ -15,7 +15,8 @@ from math import ceil
 from PyQt4.QtGui import QImage
 
 from calibre import prints
-from calibre.ebooks.metadata import title_sort, author_to_author_sort
+from calibre.ebooks.metadata import (title_sort, author_to_author_sort,
+        string_to_authors, authors_to_string)
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.library.database import LibraryDatabase
 from calibre.library.field_metadata import FieldMetadata, TagsIcons
@@ -24,9 +25,7 @@ from calibre.library.caches import ResultCache
 from calibre.library.custom_columns import CustomColumns
 from calibre.library.sqlite import connect, IntegrityError
 from calibre.library.prefs import DBPrefs
-from calibre.ebooks.metadata import string_to_authors, authors_to_string
 from calibre.ebooks.metadata.book.base import Metadata
-from calibre.ebooks.metadata.meta import get_metadata, metadata_from_formats
 from calibre.constants import preferred_encoding, iswindows, isosx, filesystem_encoding
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.customize.ui import run_plugins_on_import
@@ -2729,6 +2728,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.set_identifier(id_, 'isbn', isbn, notify=notify, commit=commit)
 
     def add_catalog(self, path, title):
+        from calibre.ebooks.metadata.meta import get_metadata
+
         format = os.path.splitext(path)[1][1:].lower()
         with lopen(path, 'rb') as stream:
             matches = self.data.get_matches('title', '='+title)
@@ -2764,6 +2765,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
 
     def add_news(self, path, arg):
+        from calibre.ebooks.metadata.meta import get_metadata
+
         format = os.path.splitext(path)[1][1:].lower()
         stream = path if hasattr(path, 'read') else lopen(path, 'rb')
         stream.seek(0)
@@ -3157,6 +3160,8 @@ books_series_link      feeds
                 yield formats
 
     def import_book_directory_multiple(self, dirpath, callback=None):
+        from calibre.ebooks.metadata.meta import metadata_from_formats
+
         duplicates = []
         for formats in self.find_books_in_directory(dirpath, False):
             mi = metadata_from_formats(formats)
@@ -3172,6 +3177,7 @@ books_series_link      feeds
         return duplicates
 
     def import_book_directory(self, dirpath, callback=None):
+        from calibre.ebooks.metadata.meta import metadata_from_formats
         dirpath = os.path.abspath(dirpath)
         formats = self.find_books_in_directory(dirpath, True)
         formats = list(formats)[0]
