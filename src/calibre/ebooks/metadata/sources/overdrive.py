@@ -1,4 +1,7 @@
 #!/usr/bin/env  python
+from __future__ import (unicode_literals, division, absolute_import,
+                        print_function)
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
@@ -6,14 +9,13 @@ __docformat__ = 'restructuredtext en'
 '''
 Fetch metadata using Overdrive Content Reserve
 '''
-import sys, re, random, urllib, mechanize, copy
+import re, random, mechanize, copy
 from threading import RLock
 from Queue import Queue, Empty
 
-from lxml import html, etree
+from lxml import html
 from lxml.html import soupparser
 
-from calibre import browser
 from calibre.ebooks.metadata import check_isbn
 from calibre.ebooks.metadata.sources.base import Source
 from calibre.ebooks.metadata.book.base import Metadata
@@ -33,7 +35,7 @@ class OverDrive(Source):
 
     capabilities = frozenset(['identify', 'cover'])
     touched_fields = frozenset(['title', 'authors', 'tags', 'pubdate',
-        'comments', 'publisher', 'identifier:isbn', 'series', 'series_num',
+        'comments', 'publisher', 'identifier:isbn', 'series', 'series_index',
         'language', 'identifier:overdrive'])
     has_html_comments = True
     supports_gzip_transfer_encoding = False
@@ -42,7 +44,6 @@ class OverDrive(Source):
     def __init__(self, *args, **kwargs):
        Source.__init__(self, *args, **kwargs)
        self.prefs.defaults['ignore_fields'] =['tags', 'pubdate', 'comments', 'identifier:isbn', 'language']
-
 
     def identify(self, log, result_queue, abort, title=None, authors=None, # {{{
             identifiers={}, timeout=30):
@@ -66,19 +67,6 @@ class OverDrive(Source):
             result_queue.put(mi)
 
         return None
-    # }}}
-
-
-    def get_book_url(self, identifiers): # {{{
-        ovrdrv_id = identifiers.get('overdrive', None)
-        if ovrdrv_id is not None:
-            ovrdrv_data = ovrdrv_data_cache.get(ovrdrv_id, None)
-            if ovrdrv_data:
-                return ovrdrv_data[1]
-            else:
-                br = browser()
-                ovrdrv_data = self.to_ovrdrv_data(br, None, None, ovrdrv_id)
-                return ovrdrv_data[1]
     # }}}
 
     def download_cover(self, log, result_queue, abort, # {{{
@@ -136,28 +124,6 @@ class OverDrive(Source):
         return url
     # }}}
 
-    def create_query(self, title=None, authors=None, identifiers={}):
-        q = ''
-        if title or authors:
-            def build_term(prefix, parts):
-                return ' '.join('in'+prefix + ':' + x for x in parts)
-            title_tokens = list(self.get_title_tokens(title, False, True))
-            if title_tokens:
-                q += build_term('title', title_tokens)
-            author_tokens = self.get_author_tokens(authors,
-                    only_first_author=True)
-            if author_tokens:
-                q += ('+' if q else '') + build_term('author',
-                        author_tokens)
-
-        if isinstance(q, unicode):
-            q = q.encode('utf-8')
-        if not q:
-            return None
-        return BASE_URL+urlencode({
-            'q':q,
-            })
-
     def get_base_referer(self): # to be used for passing referrer headers to cover download
         choices = [
             'http://overdrive.chipublib.org/82DC601D-7DDE-4212-B43A-09D821935B01/10/375/en/',
@@ -208,7 +174,6 @@ class OverDrive(Source):
             br.open_novisit(query_url)
 
         br.set_cookiejar(clean_cj)
-
 
     def overdrive_search(self, br, q, title, author):
         # re-initialize the cookiejar to so that it's clean
@@ -275,11 +240,11 @@ class OverDrive(Source):
                 if ovrdrv_id is not None and int(formatid) in [1, 50, 410, 900]:
                     #print "overdrive id is not None, searching based on format type priority"
                     return self.format_results(reserveid, od_title, subtitle, series, publisher,
-                            creators, thumbimage, worldcatlink, formatid)            
+                            creators, thumbimage, worldcatlink, formatid)
                 else:
                     creators = creators.split(', ')
                     # if an exact match in a preferred format occurs
-                    if creators[0] == author[0] and od_title == title and int(formatid) in [1, 50, 410, 900]:
+                    if (author and creators[0] == author[0]) and od_title == title and int(formatid) in [1, 50, 410, 900]:
                         return self.format_results(reserveid, od_title, subtitle, series, publisher,
                                 creators, thumbimage, worldcatlink, formatid)
                     else:
@@ -311,7 +276,6 @@ class OverDrive(Source):
                 return ''
         else:
             return ''
-
 
     def overdrive_get_record(self, br, q, ovrdrv_id):
         search_url = q+'SearchResults.aspx?ReserveID={'+ovrdrv_id+'}'
@@ -390,7 +354,10 @@ class OverDrive(Source):
         if len(ovrdrv_data[3]) > 1:
             mi.series = ovrdrv_data[3]
             if ovrdrv_data[4]:
-                mi.series_index = ovrdrv_data[4]
+                try:
+                    mi.series_index = float(ovrdrv_data[4])
+                except:
+                    pass
         mi.publisher = ovrdrv_data[5]
         mi.authors = ovrdrv_data[6]
         mi.title = ovrdrv_data[8]
@@ -407,7 +374,7 @@ class OverDrive(Source):
             if callable(getattr(e, 'getcode', None)) and \
                     e.getcode() == 404:
                 return False
-            raise   
+            raise
         raw = xml_to_unicode(raw, strip_encoding_pats=True,
                 resolve_entities=True)[0]
         try:
@@ -427,12 +394,12 @@ class OverDrive(Source):
         if lang:
             mi.language = lang[0].strip()
 
-        #if ebook_isbn:
-        #    print "ebook isbn is "+str(ebook_isbn[0])
-        #    isbn = check_isbn(ebook_isbn[0].strip())
-        #    if isbn:
-        #        self.cache_isbn_to_identifier(isbn, ovrdrv_id)
-        #        mi.isbn = isbn
+        if ebook_isbn:
+            #print "ebook isbn is "+str(ebook_isbn[0])
+            isbn = check_isbn(ebook_isbn[0].strip())
+            if isbn:
+                self.cache_isbn_to_identifier(isbn, ovrdrv_id)
+                mi.isbn = isbn
         if subjects:
             mi.tags = [tag.strip() for tag in subjects[0].split(',')]
 
@@ -448,8 +415,25 @@ class OverDrive(Source):
         return None
 
 
-def main(args=sys.argv):
-    return 0
-
 if __name__ == '__main__':
-    sys.exit(main())
+    # To run these test use:
+    # calibre-debug -e src/calibre/ebooks/metadata/sources/overdrive.py
+    from calibre.ebooks.metadata.sources.test import (test_identify_plugin,
+            title_test, authors_test)
+    test_identify_plugin(OverDrive.name,
+        [
+
+            (
+                {'title':'Foundation and Earth',
+                    'authors':['Asimov']},
+                [title_test('Foundation and Earth', exact=True),
+                    authors_test(['Isaac Asimov'])]
+            ),
+
+            (
+                {'title': 'Elephants', 'authors':['Agatha']},
+                [title_test('Elephants Can Remember', exact=False),
+                    authors_test(['Agatha Christie'])]
+            ),
+    ])
+

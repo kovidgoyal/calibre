@@ -325,9 +325,8 @@ class Source(Plugin):
             tokens = title.split()
             for token in tokens:
                 token = token.strip()
-                if token and token.lower() not in ('a', 'and', 'the', '&') and strip_joiners:
-                    yield token
-                elif token:
+                if token and (not strip_joiners or token.lower() not in ('a',
+                    'and', 'the', '&')):
                     yield token
 
     def split_jobs(self, jobs, num):
@@ -375,7 +374,12 @@ class Source(Plugin):
     def get_book_url(self, identifiers):
         '''
         Return the URL for the book identified by identifiers at this source.
-        If no URL is found, return None.
+        This URL must be browseable to by a human using a browser. It is meant
+        to provide a clickable link for the user to easily visit the books page
+        at this source.
+        If no URL is found, return None. This method must be quick, and
+        consistent, so only implement it if it is possible to construct the URL
+        from a known scheme given identifiers.
         '''
         return None
 
