@@ -31,10 +31,14 @@ class NPWebView(QWebView):
             proxy_parts = urlparse(http_proxy)
             proxy = QNetworkProxy()
             proxy.setType(QNetworkProxy.HttpProxy)
-            proxy.setUser(proxy_parts.username)
-            proxy.setPassword(proxy_parts.password)
-            proxy.setHostName(proxy_parts.hostname)
-            proxy.setPort(proxy_parts.port)
+            if proxy_parts.username:
+                proxy.setUser(proxy_parts.username)
+            if proxy_parts.password:
+                proxy.setPassword(proxy_parts.password)
+            if proxy_parts.hostname:
+                proxy.setHostName(proxy_parts.hostname)
+            if proxy_parts.port:
+                proxy.setPort(proxy_parts.port)
             self.page().networkAccessManager().setProxy(proxy)
 
         self.page().setForwardUnsupportedContent(True)
