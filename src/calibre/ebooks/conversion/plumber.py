@@ -875,6 +875,8 @@ OptionRecommendation(name='sr3_replace',
         if self.opts.verbose:
             self.log.filter_level = self.log.DEBUG
         self.flush()
+        import cssutils, logging
+        cssutils.log.setLevel(logging.WARN)
 
         if self.opts.debug_pipeline is not None:
             self.opts.verbose = max(self.opts.verbose, 4)

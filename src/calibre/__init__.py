@@ -4,8 +4,7 @@ __copyright__ = '2008, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import uuid, sys, os, re, logging, time, random, \
-       __builtin__, warnings, multiprocessing
-from contextlib import closing
+       __builtin__, warnings
 from urllib import getproxies
 from urllib2 import unquote as urllib2_unquote
 __builtin__.__dict__['dynamic_property'] = lambda(func): func(None)
@@ -383,6 +382,7 @@ class StreamReadWrapper(object):
 
 def detect_ncpus():
     """Detects the number of effective CPUs in the system"""
+    import multiprocessing
     ans = -1
     try:
         ans = multiprocessing.cpu_count()
@@ -547,6 +547,7 @@ def get_download_filename(url, cookie_file=None):
     '''
     Get a local filename for a URL using the content disposition header
     '''
+    from contextlib import closing
     filename = ''
 
     br = browser()
