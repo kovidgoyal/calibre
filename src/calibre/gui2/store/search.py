@@ -8,6 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 import re
 import time
+import traceback
 from contextlib import closing
 from random import shuffle
 from threading import Thread
@@ -20,9 +21,12 @@ from calibre import browser
 from calibre.gui2 import NONE
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.gui2.store.search_ui import Ui_Dialog
+from calibre.library.caches import _match, CONTAINS_MATCH, EQUALS_MATCH, \
+    REGEXP_MATCH
 from calibre.utils.config import DynamicConfig
 from calibre.utils.icu import sort_key
 from calibre.utils.magick.draw import thumbnail
+from calibre.utils.search_query_parser import SearchQueryParser
 
 HANG_TIME = 75000 # milliseconds seconds
 TIMEOUT = 75 # seconds
@@ -290,11 +294,15 @@ class SearchThread(Thread):
         while self._run and not self.tasks.empty():
             try:
                 query, store_name, store_plugin, timeout = self.tasks.get()
-                for res in store_plugin.search(query, timeout=timeout):
+                squery = query
+                for loc in SearchFilter.USABLE_LOCATIONS:
+                    squery = re.sub(r'%s:"?(?P<a>[^\s"]+)"?' % loc, '\g<a>', squery)
+                for res in store_plugin.search(squery, timeout=timeout):
                     if not self._run:
                         return
                     res.store_name = store_name
-                    self.results.put(res)
+                    if SearchFilter(res).parse(query):
+                        self.results.put(res)
                 self.tasks.task_done()
             except:
                 pass
@@ -450,3 +458,82 @@ class Matches(QAbstractItemModel):
         if reset:
             self.reset()
 
+
+class SearchFilter(SearchQueryParser):
+    
+    USABLE_LOCATIONS = [
+        'all',
+        'author',
+        'authors',
+        'cover',
+        'price',
+        'title',
+        'store',
+    ]
+
+    def __init__(self, search_result):
+        SearchQueryParser.__init__(self, locations=self.USABLE_LOCATIONS)
+        self.search_result = search_result
+
+    def universal_set(self):
+        return set([self.search_result])
+
+    def get_matches(self, location, query):
+        location = location.lower().strip()
+        if location == 'authors':
+            location = 'author'
+
+        matchkind = CONTAINS_MATCH
+        if len(query) > 1:
+            if query.startswith('\\'):
+                query = query[1:]
+            elif query.startswith('='):
+                matchkind = EQUALS_MATCH
+                query = query[1:]
+            elif query.startswith('~'):
+                matchkind = REGEXP_MATCH
+                query = query[1:]
+        if matchkind != REGEXP_MATCH: ### leave case in regexps because it can be significant e.g. \S \W \D
+            query = query.lower()
+
+        if location not in self.USABLE_LOCATIONS:
+            return set([])
+        matches = set([])
+        all_locs = set(self.USABLE_LOCATIONS) - set(['all'])
+        locations = all_locs if location == 'all' else [location]
+        q = {
+             'author': self.search_result.author.lower(),
+             'cover': self.search_result.cover_url,
+             'format': '',
+             'price': self.search_result.price,
+             'store': self.search_result.store_name.lower(),
+             'title': self.search_result.title.lower(),
+        }
+        for x in ('author', 'format'):
+            q[x+'s'] = q[x]
+        for locvalue in locations:
+            ac_val = q[locvalue]
+            if query == 'true':
+                if ac_val is not None:
+                    matches.add(self.search_result)
+                continue
+            if query == 'false':
+                if ac_val is None:
+                    matches.add(self.search_result)
+                continue
+            try:
+                ### Can't separate authors because comma is used for name sep and author sep
+                ### Exact match might not get what you want. For that reason, turn author
+                ### exactmatch searches into contains searches.
+                if locvalue == 'author' and matchkind == EQUALS_MATCH:
+                    m = CONTAINS_MATCH
+                else:
+                    m = matchkind
+
+                vals = [ac_val]
+                if _match(query, vals, m):
+                    matches.add(self.search_result)
+                    break
+            except ValueError: # Unicode errors
+                traceback.print_exc()
+        return matches
