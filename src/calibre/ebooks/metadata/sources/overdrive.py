@@ -23,7 +23,6 @@ from calibre.ebooks.chardet import xml_to_unicode
 from calibre.library.comments import sanitize_comments_html
 
 ovrdrv_data_cache = {}
-cover_url_cache = {}
 cache_lock = RLock()
 base_url = 'http://search.overdrive.com/'
 
@@ -100,8 +99,10 @@ class OverDrive(Source):
 
         ovrdrv_id = identifiers.get('overdrive', None)
         br = self.browser
-        referer = self.get_base_referer()+'ContentDetails-Cover.htm?ID='+ovrdrv_id
         req = mechanize.Request(cached_url)
+        if ovrdrv_id is not None:
+            referer = self.get_base_referer()+'ContentDetails-Cover.htm?ID='+ovrdrv_id
+            req.add_header('referer', referer)
         req.add_header('referer', referer)
         log('Downloading cover from:', cached_url)
         try:
