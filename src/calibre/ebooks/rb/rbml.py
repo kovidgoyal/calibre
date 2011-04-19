@@ -11,8 +11,6 @@ Transform OEB content into RB compatible markup.
 import re
 
 from calibre import prepare_string_for_xml
-from calibre.ebooks.oeb.base import XHTML, XHTML_NS, barename, namespace
-from calibre.ebooks.oeb.stylizer import Stylizer
 from calibre.ebooks.rb import unique_name
 
 TAGS = [
@@ -81,6 +79,8 @@ class RBMLizer(object):
         return output
 
     def get_cover_page(self):
+        from calibre.ebooks.oeb.stylizer import Stylizer
+        from calibre.ebooks.oeb.base import XHTML
         output = u''
         if 'cover' in self.oeb_book.guide:
             if self.name_map.get(self.oeb_book.guide['cover'].href, None):
@@ -109,6 +109,9 @@ class RBMLizer(object):
         return ''.join(toc)
 
     def get_text(self):
+        from calibre.ebooks.oeb.stylizer import Stylizer
+        from calibre.ebooks.oeb.base import XHTML
+
         output = [u'']
         for item in self.oeb_book.spine:
             self.log.debug('Converting %s to RocketBook HTML...' % item.href)
@@ -137,6 +140,8 @@ class RBMLizer(object):
         return text
 
     def dump_text(self, elem, stylizer, page, tag_stack=[]):
+        from calibre.ebooks.oeb.base import XHTML_NS, barename, namespace
+
         if not isinstance(elem.tag, basestring) \
            or namespace(elem.tag) != XHTML_NS:
             return [u'']

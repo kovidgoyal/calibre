@@ -14,7 +14,6 @@ from mimetypes import guess_type
 from collections import defaultdict
 
 from lxml import etree
-import cssutils
 
 from calibre.ebooks.oeb.base import OPF1_NS, OPF2_NS, OPF2_NSMAP, DC11_NS, \
     DC_NSES, OPF, xml2text
@@ -172,6 +171,7 @@ class OEBReader(object):
         return bad
 
     def _manifest_add_missing(self, invalid):
+        import cssutils
         manifest = self.oeb.manifest
         known = set(manifest.hrefs)
         unchecked = set(manifest.values())

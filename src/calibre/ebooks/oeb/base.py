@@ -15,11 +15,7 @@ from urlparse import urldefrag, urlparse, urlunparse, urljoin
 from urllib import unquote as urlunquote
 
 from lxml import etree, html
-from cssutils import CSSParser, parseString, parseStyle, replaceUrls
-from cssutils.css import CSSRule
-
-import calibre
-from calibre.constants import filesystem_encoding
+from calibre.constants import filesystem_encoding, __version__
 from calibre.translations.dynamic import translate
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.oeb.entitydefs import ENTITYDEFS
@@ -179,6 +175,9 @@ def rewrite_links(root, link_repl_func, resolve_base_href=False):
     If the ``link_repl_func`` returns None, the attribute or
     tag text will be removed completely.
     '''
+    from cssutils import parseString, parseStyle, replaceUrls, log
+    log.setLevel(logging.WARN)
+
     if resolve_base_href:
         resolve_base_href(root)
     for el, attrib, link, pos in iterlinks(root, find_links_in_css=False):
@@ -1075,7 +1074,9 @@ class Manifest(object):
 
 
         def _parse_css(self, data):
-
+            from cssutils.css import CSSRule
+            from cssutils import CSSParser, log
+            log.setLevel(logging.WARN)
             def get_style_rules_from_import(import_rule):
                 ans = []
                 if not import_rule.styleSheet:
@@ -2011,7 +2012,7 @@ class OEBBook(object):
             name='dtb:uid', content=unicode(self.uid))
         etree.SubElement(head, NCX('meta'),
             name='dtb:depth', content=str(self.toc.depth()))
-        generator = ''.join(['calibre (', calibre.__version__, ')'])
+        generator = ''.join(['calibre (', __version__, ')'])
         etree.SubElement(head, NCX('meta'),
             name='dtb:generator', content=generator)
         etree.SubElement(head, NCX('meta'),

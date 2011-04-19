@@ -33,9 +33,6 @@ if False:
     fcntl, win32event, isfrozen, __author__, terminal_controller
     winerror, win32api, isfreebsd, guess_type
 
-import cssutils
-cssutils.log.setLevel(logging.WARN)
-
 def to_unicode(raw, encoding='utf-8', errors='strict'):
     if isinstance(raw, unicode):
         return raw
@@ -678,5 +675,4 @@ main()
     ipshell = IPShellEmbed(user_ns=user_ns)
     ipshell()
     sys.argv = old_argv
-
 

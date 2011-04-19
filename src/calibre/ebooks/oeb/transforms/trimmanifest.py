@@ -8,8 +8,6 @@ __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
 from urlparse import urldefrag
 
-import cssutils
-
 from calibre.ebooks.oeb.base import CSS_MIME, OEB_DOCS
 from calibre.ebooks.oeb.base import urlnormalize, iterlinks
 
@@ -23,6 +21,7 @@ class ManifestTrimmer(object):
         return cls()
 
     def __call__(self, oeb, context):
+        import cssutils
         oeb.logger.info('Trimming unused files from manifest...')
         self.opts = context
         used = set()
