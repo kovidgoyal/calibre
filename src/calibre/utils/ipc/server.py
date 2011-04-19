@@ -113,6 +113,7 @@ class Server(Thread):
         self.start()
 
     def launch_worker(self, gui=False, redirect_output=None):
+        #start = time.time()
         with self._worker_launch_lock:
             self.launched_worker_count += 1
             id = self.launched_worker_count
@@ -136,6 +137,7 @@ class Server(Thread):
                 break
         if isinstance(cw, basestring):
             raise CriticalError('Failed to launch worker process:\n'+cw)
+        #print 'Launch took:', time.time() - start
         return cw
 
     def do_launch(self, env, gui, redirect_output, rfile):
