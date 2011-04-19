@@ -949,7 +949,7 @@ class CoverFetch(QDialog): # {{{
 # }}}
 
 if __name__ == '__main__':
-    DEBUG_DIALOG = True
+    #DEBUG_DIALOG = True
     app = QApplication([])
     d = FullFetch()
     d.start(title='great gatsby', authors=['fitzgerald'])
