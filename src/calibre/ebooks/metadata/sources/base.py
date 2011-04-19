@@ -377,8 +377,9 @@ class Source(Plugin):
         This URL must be browseable to by a human using a browser. It is meant
         to provide a clickable link for the user to easily visit the books page
         at this source.
-        If no URL is found, return None. This method must be quick, either it
-        should construct the URL using a known URL scheme or use a cached URL.
+        If no URL is found, return None. This method must be quick, and
+        consistent, so only implement it if it is possible to construct the URL
+        from a known scheme given identifiers.
         '''
         return None
 
