@@ -156,7 +156,9 @@ def _config():
     c.add_opt('plugin_search_history', default=[],
         help='Search history for the recipe scheduler')
     c.add_opt('worker_limit', default=6,
-            help=_('Maximum number of waiting worker processes'))
+            help=_(
+        'Maximum number of simultaneous conversion/news download jobs. '
+        'This number is twice the actual value for historical reasons.'))
     c.add_opt('get_social_metadata', default=True,
             help=_('Download social metadata (tags/rating/etc.)'))
     c.add_opt('overwrite_author_title_metadata', default=True,
