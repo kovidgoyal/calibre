@@ -324,6 +324,8 @@ class SearchThread(Thread):
         query = query.replace('!', '')
         query = query.replace('=', '')
         query = query.replace('~', '')
+        query = query.replace('>', '')
+        query = query.replace('<', '')
         query = re.sub(r'\s{2,}', ' ', query)
         return query
 
