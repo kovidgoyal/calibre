@@ -4,19 +4,17 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import os, sys, Queue, threading
 from threading import RLock
 from urllib import unquote
-
-from PyQt4.Qt import QVariant, QFileInfo, QObject, SIGNAL, QBuffer, Qt, \
-                         QByteArray, QTranslator, QCoreApplication, QThread, \
-                         QEvent, QTimer, pyqtSignal, QDate, QDesktopServices, \
-                         QFileDialog, QFileIconProvider, \
-                         QIcon, QApplication, QDialog, QUrl, QFont
+from PyQt4.Qt import (QVariant, QFileInfo, QObject, SIGNAL, QBuffer, Qt,
+                    QByteArray, QTranslator, QCoreApplication, QThread,
+                    QEvent, QTimer, pyqtSignal, QDate, QDesktopServices,
+                    QFileDialog, QFileIconProvider,
+                    QIcon, QApplication, QDialog, QUrl, QFont)
 
 ORG_NAME = 'KovidsBrain'
 APP_UID  = 'libprs500'
 from calibre.constants import islinux, iswindows, isfreebsd, isfrozen, isosx
 from calibre.utils.config import Config, ConfigProxy, dynamic, JSONConfig
 from calibre.utils.localization import set_qt_translator
-from calibre.ebooks.metadata.meta import get_metadata, metadata_from_formats
 from calibre.ebooks.metadata import MetaInformation
 from calibre.utils.date import UNDEFINED_DATE
 
@@ -332,6 +330,7 @@ class GetMetadata(QObject):
                   id, args, kwargs)
 
     def _from_formats(self, id, args, kwargs):
+        from calibre.ebooks.metadata.meta import metadata_from_formats
         try:
             mi = metadata_from_formats(*args, **kwargs)
         except:
@@ -339,6 +338,7 @@ class GetMetadata(QObject):
         self.emit(SIGNAL('metadataf(PyQt_PyObject, PyQt_PyObject)'), id, mi)
 
     def _get_metadata(self, id, args, kwargs):
+        from calibre.ebooks.metadata.meta import get_metadata
         try:
             mi = get_metadata(*args, **kwargs)
         except:
@@ -740,3 +740,4 @@ def build_forms(srcdir, info=None):
 _df = os.environ.get('CALIBRE_DEVELOP_FROM', None)
 if _df and os.path.exists(_df):
     build_forms(_df)
+
