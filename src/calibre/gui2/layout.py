@@ -156,8 +156,6 @@ class SearchBar(QWidget): # {{{
         x = ComboBoxWithHelp(self)
         x.setMaximumSize(QSize(150, 16777215))
         x.setObjectName("search_restriction")
-        x.setToolTip(_('Books display will be restricted to those matching the '
-                       'selected saved search'))
         l.addWidget(x)
         parent.search_restriction = x
 
