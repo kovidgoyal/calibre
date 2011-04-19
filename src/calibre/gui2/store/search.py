@@ -314,11 +314,14 @@ class SearchThread(Thread):
             
     def _clean_query(self, query):
         query = query.lower()
+        # Remove the prefix.
         for loc in ( 'all', 'author', 'authors', 'title'):
             query = re.sub(r'%s:"?(?P<a>[^\s"]+)"?' % loc, '\g<a>', query)
+        # Remove the prefix and search text.
         for loc in ('cover', 'drm', 'format', 'formats', 'price', 'store'):
             query = re.sub(r'%s:"[^"]"' % loc, '', query)
             query = re.sub(r'%s:[^\s]*' % loc, '', query)
+        # Remove control modifiers.
         query = re.sub(r'(^|\s)(and|not|or)(\s|$)', ' ', query)
         query = query.replace('\\', '')
         query = query.replace('!', '')
@@ -326,6 +329,7 @@ class SearchThread(Thread):
         query = query.replace('~', '')
         query = query.replace('>', '')
         query = query.replace('<', '')
+        # Remove excess whitespace.
         query = re.sub(r'\s{2,}', ' ', query)
         return query
 
