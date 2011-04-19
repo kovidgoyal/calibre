@@ -16,3 +16,8 @@ class SearchResult(object):
         self.author = ''
         self.price = ''
         self.detail_item = ''
+        # None = Unknown.
+        # True = Has DRM.
+        # False = Does not have DRM.
+        self.drm = None
+        self.formats = ''

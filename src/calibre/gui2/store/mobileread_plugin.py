@@ -129,8 +129,6 @@ class BookRef(SearchResult):
     
     def __init__(self):
         SearchResult.__init__(self)
-        
-        self.format = ''
 
 
 class MobeReadStoreDialog(QDialog, Ui_Dialog):

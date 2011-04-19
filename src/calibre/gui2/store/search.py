@@ -38,6 +38,7 @@ def comparable_price(text):
         text += '00'
     text = re.sub(r'\D', '', text)
     text = text.rjust(6, '0')
+    return text
 
 
 class SearchDialog(QDialog, Ui_Dialog):
@@ -314,6 +315,13 @@ class SearchThread(Thread):
             
     def _clean_query(self, query):
         query = query.lower()
+        # Remove control modifiers.
+        query = query.replace('\\', '')
+        query = query.replace('!', '')
+        query = query.replace('=', '')
+        query = query.replace('~', '')
+        query = query.replace('>', '')
+        query = query.replace('<', '')
         # Remove the prefix.
         for loc in ( 'all', 'author', 'authors', 'title'):
             query = re.sub(r'%s:"?(?P<a>[^\s"]+)"?' % loc, '\g<a>', query)
@@ -321,14 +329,8 @@ class SearchThread(Thread):
         for loc in ('cover', 'drm', 'format', 'formats', 'price', 'store'):
             query = re.sub(r'%s:"[^"]"' % loc, '', query)
             query = re.sub(r'%s:[^\s]*' % loc, '', query)
-        # Remove control modifiers.
+        # Remove logic.
         query = re.sub(r'(^|\s)(and|not|or)(\s|$)', ' ', query)
-        query = query.replace('\\', '')
-        query = query.replace('!', '')
-        query = query.replace('=', '')
-        query = query.replace('~', '')
-        query = query.replace('>', '')
-        query = query.replace('<', '')
         # Remove excess whitespace.
         query = re.sub(r'\s{2,}', ' ', query)
         return query
