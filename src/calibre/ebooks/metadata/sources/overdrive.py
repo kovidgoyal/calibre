@@ -245,7 +245,7 @@ class OverDrive(Source):
                 else:
                     creators = creators.split(', ')
                     # if an exact match in a preferred format occurs
-                    if (author and creators[0] == author[0]) and od_title == title and int(formatid) in [1, 50, 410, 900]:
+                    if (author and creators[0] == author[0]) and od_title == title and int(formatid) in [1, 50, 410, 900] and thumbimage:
                         return self.format_results(reserveid, od_title, subtitle, series, publisher,
                                 creators, thumbimage, worldcatlink, formatid)
                     else:
