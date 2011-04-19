@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-04-17 16:54+0000\n"
-"PO-Revision-Date: 2011-04-17 18:49+0000\n"
-"Last-Translator: Christine Emrich <Unknown>\n"
+"PO-Revision-Date: 2011-04-18 11:44+0000\n"
+"Last-Translator: Armin Geller <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-04-18 04:52+0000\n"
-"X-Generator: Launchpad (build 12735)\n"
+"X-Launchpad-Export-Date: 2011-04-19 04:38+0000\n"
+"X-Generator: Launchpad (build 12758)\n"
 "Generated-By: pygettext.py 1.5\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -228,7 +228,7 @@ msgstr "Einstellungen"
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:609
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search.py:346
 msgid "Store"
-msgstr ""
+msgstr "Händler"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:19
 msgid ""
@@ -531,7 +531,7 @@ msgstr "Konfiguration verschiedener fortgeschrittener Parameter"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1107
 msgid "Kindle books from Amazon"
-msgstr ""
+msgstr "Kindle Bücher von Amazone"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1112
 msgid "Ebooks for readers."
@@ -1234,7 +1234,7 @@ msgstr "Kommunikation mit dem JetBook Mini Reader"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/apnx.py:28
 msgid "Not a valid MOBI file. Reports identity of %s"
-msgstr ""
+msgstr "Keine gültige MOBI- Datei. Enthält Identität von %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/apnx.py:44
 msgid "Could not generate page mapping."
@@ -1259,6 +1259,11 @@ msgid ""
 "the Kindle when uploading MOBI files by USB. Note that the page numbers do "
 "not correspond to any paper book."
 msgstr ""
+"Der Kindle 3 und neuere Versionen können Seitenzahl- Informationen aus MÒBI- "
+"Dateien nutzen. Mit dieser Option wird Calibre diese Information berechnen "
+"und an den Kindle übertragen, wenn MOBI- Dateien per USB übertragen werden. "
+"Beachten sie, dass die Seitenzahlen nicht mit tatsächlichen Büchern "
+"übereinstimmen."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:187
 msgid "Use slower but more accurate page number generation"
@@ -1271,6 +1276,10 @@ msgid ""
 "book. However, this method is slower and will slow down sending files to the "
 "Kindle."
 msgstr ""
+"Es gibt zwei Möglichkeiten, die Seitenzahlinformation zu generieren. Der "
+"genauere Generator wird Seitenzahlen erzeugen, die eher mit gedruckten "
+"Büchern übereinstimmen. Allerdings ist diese Methode langsamer und wird das "
+"Übertragen von Dateien an den Kindle verlangsamen."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:257
 msgid "Communicate with the Kindle DX eBook reader."
@@ -1312,7 +1321,7 @@ msgstr "Kommuniziere mit dem Bq Avant"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:60
 msgid "Communicate with the Sweex/Kogan/Q600/Wink"
-msgstr ""
+msgstr "Kommunikation mit Sweex/Kogan/Q600/Wink"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:81
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:108
@@ -1451,6 +1460,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:86
 msgid "Preserve cover aspect ratio when building thumbnails"
 msgstr ""
+"Behalte Seitenverhältnis des Umschlags beim Erstellen von Vorschaubildern bei"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:88
 msgid ""
@@ -1458,6 +1468,10 @@ msgid ""
 "ratio (width to height) as the cover. Unset it if you want the thumbnail to "
 "be the maximum size, ignoring aspect ratio."
 msgstr ""
+"Wählen sie diese Option, wenn sie die Vorschaubilder der Umschläge im "
+"gleichen Seitenverhältnis (Breite zu Höhe) wie das Umschlagbild erhalten "
+"möchten. Ist diese Option abgewählt, werden die Vorschaubilder mit der "
+"maximal möglichen Größe erstellt, unabhängig vom Seitenverhältnis."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:92
 msgid "Search for books in all folders"
@@ -1730,12 +1744,18 @@ msgid ""
 "Specify the image size as widthxheight pixels. Normally, an image size is "
 "automatically calculated from the output profile, this option overrides it."
 msgstr ""
+"Angabe der Bildgröße als Breite x Höhe Pixel. Normalerweise wird die "
+"Bildgröße automatisch aus dem Ausgabeprofil bestimmt, diese Option hat "
+"darüber Vorrang."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:320
 msgid ""
 "When converting a CBC do not add links to each page to the TOC. Note this "
 "only applies if the TOC has more than one section"
 msgstr ""
+"Bei Konvertierung von CBC keine Links für jede Seite des TOC hinzufügen. "
+"Beachte, dass dies nur gilt, wenn das TOC  mehr als einer Ebene (section) "
+"hat."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:459
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:471
@@ -2334,6 +2354,9 @@ msgid ""
 "h3 tags.  This setting will not create a TOC, but can be used in conjunction "
 "with structure detection to create one."
 msgstr ""
+"Unformatierte Kapitelüberschriften und Untertitel aufspüren und in h2 resp. "
+"h3 Tags umwandeln. Diese Einstellung erstellt nur in Kombination mit der "
+"Strukturanalyse ein Inhaltsverzeichnis."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:514
 msgid ""
@@ -2397,27 +2420,27 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:564
 msgid "Search pattern (regular expression) to be replaced with sr1-replace."
-msgstr ""
+msgstr "Suchmuster (regulärer Ausdruck), wird durch sr1-replace ersetzt"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:569
 msgid "Replacement to replace the text found with sr1-search."
-msgstr ""
+msgstr "Ersatz zum Ersetzen des gefundenen Text mit sr1-search"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:573
 msgid "Search pattern (regular expression) to be replaced with sr2-replace."
-msgstr ""
+msgstr "Suchmuster (regulärer Ausdruck), wird durch sr2-replace ersetzt"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:578
 msgid "Replacement to replace the text found with sr2-search."
-msgstr ""
+msgstr "Ersatz zum Ersetzen des gefundenen Text mit sr2-search."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:582
 msgid "Search pattern (regular expression) to be replaced with sr3-replace."
-msgstr ""
+msgstr "Suchmuster (regulärer Ausdruck), wird durch sr3-replace ersetzt"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:587
 msgid "Replacement to replace the text found with sr3-search."
-msgstr ""
+msgstr "Ersatz zum Ersetzen des gefundenen Text mit sr3-search"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:689
 msgid "Could not find an ebook inside the archive"
@@ -2625,10 +2648,13 @@ msgid ""
 "\n"
 " See: "
 msgstr ""
+"Buchgattung. Auswahl: %s\n"
+"\n"
+" Siehe: "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/output.py:159
 msgid "for a complete list with descriptions."
-msgstr ""
+msgstr "für eine vollständige Liste mit Beschreibung."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:248
 msgid ""
@@ -3365,6 +3391,9 @@ msgid ""
 "Downloads series information from ww2.kdl.org. This website cannot handle "
 "large numbers of queries, so the plugin is disabled by default."
 msgstr ""
+"Herunterladen der Serieninformationen von ww2.kdl.org. Diese Webseite kann "
+"nicht viele gleichzeitige Anfragen bearbeiten, deshalb ist das Plugin in der "
+"Voreinstellung ausgeschaltet."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fictionwise.py:25
 msgid "Downloads metadata from Fictionwise"
@@ -3589,7 +3618,7 @@ msgstr "Umschlagbild"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:283
 msgid "Downloads metadata from Amazon"
-msgstr ""
+msgstr "Metadaten von Amazon herunterladen"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:293
 msgid "US"
@@ -3610,10 +3639,12 @@ msgstr "UK"
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:390
 msgid "Amazon timed out. Try again later."
 msgstr ""
+"Zeitüberschreitung beim Abruf von Metadaten bei Amazon. Versuche es später "
+"nochmal."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/base.py:154
 msgid "Metadata source"
-msgstr ""
+msgstr "Metadaten- Quelle"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/isbndb.py:37
 msgid "IsbnDB key:"
@@ -3624,6 +3655,8 @@ msgid ""
 "To use isbndb.com you have to sign up for a free accountat isbndb.com and "
 "get an access key."
 msgstr ""
+"Zur Verwendung von isbndb.com müssen sie einen kostenlosen Account bei "
+"isbndb.com erstellen und einen Zugangsschlüssel erhalten."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/isbndb.py:42
 msgid ""
@@ -3631,10 +3664,14 @@ msgid ""
 "an isbndb key and enter it below. Instructions to get the key are <a "
 "href=\"http://isbndb.com/docs/api/30-keys.html\">here</a>."
 msgstr ""
+"Zur verwendung von isbndb.com müssen Sie einen kostenlosen Account erstellen "
+"und Ihren Zugangsschlüssel unten eingeben. Eine Beschreibung wie Sie den "
+"Zugangsschlüssel erhalten finden Sie <a href=\"http://isbndb.com/docs/api/30-"
+"keys.html\">hier</a>."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/openlibrary.py:15
 msgid "Downloads covers from The Open Library"
-msgstr ""
+msgstr "Umschläge von The Open Library herunterladen"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:22
 msgid "Modify images to meet Palm device size limitations."
@@ -4393,6 +4430,8 @@ msgid ""
 "Start searching as you type. If this is disabled then search will only take "
 "place when the Enter or Return key is pressed."
 msgstr ""
+"Start der Suche bei Eingabe. Falls ausgeschaltet, wird die Suche erst "
+"angewendet, wenn die Enter- oder Return-Taste gedrückt wird."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:141
 msgid ""
@@ -4561,15 +4600,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:98
 msgid "Select book files"
-msgstr ""
+msgstr "Buchdateien auswählen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:169
 msgid "Adding"
-msgstr ""
+msgstr "Füge hinzu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:170
 msgid "Creating book records from ISBNs"
-msgstr ""
+msgstr "Erstellt Bucheinträge anhand von ISBNs"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:278
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:327
@@ -4582,7 +4621,7 @@ msgstr "Unterstützte Bücher"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:301
 msgid "Select books"
-msgstr ""
+msgstr "Wähle Bücher"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:338
 msgid "Merged some books"
@@ -4770,7 +4809,7 @@ msgstr "Bibliothek überprüfen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:145
 msgid "Restore database"
-msgstr ""
+msgstr "Datenbank wiederherstellen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:220
 msgid "Rename"
@@ -4876,6 +4915,8 @@ msgstr "Fehlgeschlagen"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:317
 msgid "Database integrity check failed, click Show details for details."
 msgstr ""
+"Die Überprüfung der Datenbankintegrität hat Fehler gefunden. Clicken Sie auf "
+"Details anzeigen für weitere Informationen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:322
 msgid "No problems found"
@@ -4884,6 +4925,8 @@ msgstr "Keine Probleme gefunden"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:323
 msgid "The files in your library match the information in the database."
 msgstr ""
+"Die Dateien in ihrer Bibliothek stimmen mit den Informationen der Datenbank "
+"überein."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:332
 msgid "No library found"
@@ -5123,7 +5166,7 @@ msgstr "Mit iTunes verbinden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:42
 msgid "Connect to Bambook"
-msgstr ""
+msgstr "Mit Bambook verbinden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:56
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:64
@@ -5141,11 +5184,11 @@ msgstr "eMail an"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:81
 msgid "Email to and delete from library"
-msgstr ""
+msgstr "Email an und löschen aus der Biliothek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:90
 msgid "(delete from library)"
-msgstr ""
+msgstr "(aus der Bibliothek löschen)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:105
 msgid "Setup email based sharing of books"
@@ -5166,12 +5209,13 @@ msgstr "Verbinden/Teilen"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:178
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:79
 msgid "Stopping"
-msgstr ""
+msgstr "Stoppe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:179
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:80
 msgid "Stopping server, this could take upto a minute, please wait..."
 msgstr ""
+"Halte Server an, dies kann bis zu einer Minute dauern, bitte warten ..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_collections.py:13
 msgid "Manage collections"
@@ -5590,7 +5634,7 @@ msgstr "Spezielles Format ansehen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:51
 msgid "Read a random book"
-msgstr ""
+msgstr "Lese ein zufällig ausgewähltes Buch"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:55
 msgid "Clear recently viewed list"
@@ -5646,7 +5690,7 @@ msgstr "Konnte Verzeichnis nicht öffnen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:220
 msgid "This book no longer exists in your library"
-msgstr ""
+msgstr "Dieses Buch ist existiert in Ihrer Bibliothek nicht mehr"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:227
 msgid "%s has no available formats."
@@ -5941,12 +5985,12 @@ msgstr "Keine"
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:158
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:243
 msgid "Paste Cover"
-msgstr ""
+msgstr "Umschlag einfügen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:159
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:244
 msgid "Copy Cover"
-msgstr ""
+msgstr "Umschlag kopieren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:486
 msgid "Double-click to open Book Details window"
@@ -6076,7 +6120,7 @@ msgstr "Zitier- Tag erstellen?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:83
 msgid "Add files path with formats?"
-msgstr ""
+msgstr "Dateipfad mit Formaten hinzufügen?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:84
 msgid "Expression to form the BibTeX citation tag:"
@@ -6147,6 +6191,10 @@ msgid ""
 "excludes tags of the form [tag], \n"
 "e.g., [Project Gutenberg]</p>"
 msgstr ""
+"<p>Vorgabemuster \n"
+" \\[.+\\]\n"
+"schließt Etiketten der Form [tag] aus, \n"
+" z.B. [Project Gutenberg]</p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:308
 msgid "Excluded genres"
@@ -6161,6 +6209,8 @@ msgstr "Auszuschließende Tags"
 msgid ""
 "Books matching either pattern will not be included in generated catalog. "
 msgstr ""
+"Bücher, die einem der Suchmuster entsprechen, werden nicht in den "
+"generierten Katalog aufgenommen. "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:311
 msgid "Excluded books"
@@ -6171,11 +6221,13 @@ msgid ""
 "<p>Comma-separated list of tags to exclude.\n"
 "Default: ~,Catalog"
 msgstr ""
+"<p>Komma separierte Liste von auszuschließenden Etiketten.\n"
+"Voreinstellung: ~,Catalog"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:315
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:320
 msgid "&Column/value"
-msgstr ""
+msgstr "&Spalte/Wert"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:316
 msgid "Column containing additional exclusion criteria"
@@ -16662,7 +16714,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:185
 msgid "format: type {0} requires a decimal (float) value, got {1}"
-msgstr ""
+msgstr "Format: Typ {0} benötigt einen Fließkommawert, erhielt {1}"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:296
 msgid "%s: unknown function"
@@ -17949,6 +18001,9 @@ msgid ""
 "to fit within this size. This is to prevent slowdowns caused by extremely\n"
 "large covers"
 msgstr ""
+"Alle Umschlagbilder innerhalb der Calibre-Bibliothek werden auf diese \n"
+"Maximalgröße skaliert, wobei ihr Seitenverhältnis unverändert bleibt. \n"
+"Das soll Verlangsamungen durch extrem große Umschlagbilder vermeiden."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:350
 msgid "Where to send downloaded news"
@@ -17963,6 +18018,16 @@ msgid ""
 "that if there isn't enough free space available on the location you choose,\n"
 "the files will be sent to the location with the most free space."
 msgstr ""
+"Beim automatischen Übertragen von heruntergeladenen Nachrichten an ein \n"
+"verbundenes Gerät, wird Calibre diese standardmäßig an den Hauptspeicher \n"
+"senden. Hier kann kontrolliert werden, wohin genau die Nachrichten gesendet "
+"\n"
+"werden sollen. Erlaubte Werte sind \"main\", \"carda\", \"cardb\". Beachte, "
+"dass die \n"
+"Dateien an die Speicherstelle mit dem meisten freien Platz gesendet werden, "
+"\n"
+"sollte auf der ausgewählte Speicherstelle zu wenig freier Platz vorhanden "
+"sein."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:358
 msgid "What interfaces should the content server listen on"

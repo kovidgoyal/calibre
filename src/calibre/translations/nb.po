@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-04-17 16:54+0000\n"
-"PO-Revision-Date: 2011-03-20 17:11+0000\n"
-"Last-Translator: ChiVampir <Unknown>\n"
+"PO-Revision-Date: 2011-04-19 01:41+0000\n"
+"Last-Translator: kleppar <erik@klepsvik.info>\n"
 "Language-Team: Norwegian Bokmal <nb@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-04-18 04:56+0000\n"
-"X-Generator: Launchpad (build 12735)\n"
+"X-Launchpad-Export-Date: 2011-04-19 04:39+0000\n"
+"X-Generator: Launchpad (build 12758)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -200,7 +200,7 @@ msgstr "Filtype"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:354
 msgid "Metadata reader"
-msgstr "Metadata-leser"
+msgstr "Metadataleser"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:384
 msgid "Metadata writer"
@@ -227,7 +227,7 @@ msgstr "Innstillinger"
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:609
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search.py:346
 msgid "Store"
-msgstr ""
+msgstr "Lagre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:19
 msgid ""
@@ -297,11 +297,11 @@ msgstr "Les metadata fra %s filer"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:363
 msgid "Read metadata from ebooks in RAR archives"
-msgstr "Les metadata fra e boken i RAR arkivene"
+msgstr "Les metadata fra e-boka"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:437
 msgid "Read metadata from ebooks in ZIP archives"
-msgstr "Les metadata fra e boken i ZIP arkivene"
+msgstr "Les metadata fra e-boka i Zip-arkiva"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:450
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:471
@@ -336,7 +336,7 @@ msgstr "Juster utseende for calibres brukergrensesnitt etter ditt ønske"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:892
 msgid "Behavior"
-msgstr "Atferd"
+msgstr "Adferd"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:898
 msgid "Change the way calibre behaves"
@@ -365,15 +365,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:926
 msgid "Searching"
-msgstr ""
+msgstr "Søker"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:932
 msgid "Customize the way searching for books works in calibre"
-msgstr "Personifiser måten calibre skal søke etter bøker"
+msgstr "Tilpass måten Calibre søker etter bøker"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:937
 msgid "Input Options"
-msgstr "Valg for inndata"
+msgstr "Inndatavalg"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:939
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:950
@@ -410,13 +410,12 @@ msgstr "Legger til bøker"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:996
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1008
 msgid "Import/Export"
-msgstr "Improter/Exporter"
+msgstr "Importér/eksportér"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:976
 msgid "Control how calibre reads metadata from files when adding books"
 msgstr ""
-"Kontrollerer hvordan calibre leser metadata fra filer når den legger til "
-"bøker"
+"Kontrollér hvordan calibre leser metadata fra filer når den legger til bøker"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:982
 msgid "Saving books to disk"
@@ -427,7 +426,7 @@ msgid ""
 "Control how calibre exports files from its database to disk when using Save "
 "to disk"
 msgstr ""
-"Kontrollerer hvordan calibre eksporterer filer fra dens database til disken "
+"Kontrollér  hvordan calibre eksporterer filer fra dens database til disken "
 "når \"lagre til disk\" benyttes"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:994
@@ -436,7 +435,7 @@ msgstr "Sender bøker til enheter"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1000
 msgid "Control how calibre transfers files to your ebook reader"
-msgstr "Kontrollerer hvordan calibre overfører filer til din e-bokleser"
+msgstr "Kontrollér hvordan calibre overfører filer til din e-bokleser"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1006
 msgid "Metadata plugboards"
@@ -448,7 +447,7 @@ msgstr "Endre felt for metadata før lagring/sending"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1017
 msgid "Template Functions"
-msgstr "Funksjoner for maler"
+msgstr "Malfunksjoner"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1019
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1066
@@ -459,11 +458,11 @@ msgstr "Avansert"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1023
 msgid "Create your own template functions"
-msgstr "Lag dine egne funksjonsmaler"
+msgstr "Lag dine egne malfunksjoner"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1028
 msgid "Sharing books by email"
-msgstr "Dele bøker ved e-post"
+msgstr "Dele bøker via e-post"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1030
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1042
@@ -488,8 +487,8 @@ msgid ""
 "Setup the calibre Content Server which will give you access to your calibre "
 "library from anywhere, on any device, over the internet"
 msgstr ""
-"Klargjør calibre Innholdsserver som vil gi deg tilgang til calibres "
-"biblioteket fra hvor som helst, på enhver enhet, over Internett"
+"Klargjør calibre innholdstjener som vil gi deg tilgang til calibres "
+"bibliotek fra hvor som helst, på enhver enhet, over internett"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1053
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:57
@@ -498,7 +497,7 @@ msgstr "Nedlasting av metadata"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1059
 msgid "Control how calibre downloads ebook metadata from the net"
-msgstr ""
+msgstr "Kontrollér hvordan calibre laster ned e-bok metadata fra internettet"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1064
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:269
@@ -507,15 +506,15 @@ msgstr "Programtillegg"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1070
 msgid "Add/remove/customize various bits of calibre functionality"
-msgstr "Legg til/fjern/tilpass varierende deler av calibres funksjonalitet"
+msgstr "Legg til/fjern/tilpass ulike deler av calibres funksjonalitet"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1076
 msgid "Tweaks"
-msgstr "Tilpassning"
+msgstr "Tilpasning"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1082
 msgid "Fine tune how calibre behaves in various contexts"
-msgstr "Finjuster hvordan calibre oppfører seg under varierende situasjoner"
+msgstr "Finjustér hvordan calibre virker i ulike sammenhenger"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1087
 msgid "Miscellaneous"
@@ -527,59 +526,59 @@ msgstr "Diverse avanserte konfigurasjoner"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1107
 msgid "Kindle books from Amazon"
-msgstr ""
+msgstr "Kindlebøker fra Amazon"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1112
 msgid "Ebooks for readers."
-msgstr ""
+msgstr "E-bøker for lesere"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1117
 msgid "Books, Textbooks, eBooks, Toys, Games and More."
-msgstr ""
+msgstr "Bøker, tekstbøker, e-bøker, leker, spill og mer"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1122
 msgid "Publishers of fine books."
-msgstr ""
+msgstr "Forlag for fine bøker"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1127
 msgid "World Famous eBook Store."
-msgstr ""
+msgstr "Verdenskjent e-bokhandel"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1132
 msgid "The digital bookstore."
-msgstr ""
+msgstr "Den digitale bokhandel"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1137
 msgid "entertain, enrich, inspire."
-msgstr ""
+msgstr "Underhold, berik, inspirér"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1142
 msgid "Read anywhere."
-msgstr ""
+msgstr "Les over alt"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1147
 msgid "The first producer of free ebooks."
-msgstr ""
+msgstr "Det første e-bokforlag"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1152
 msgid "eReading: anytime. anyplace."
-msgstr ""
+msgstr "E-lesing: nårsomhelts, hvorsomhelst"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1157
 msgid "The best ebooks at the best price: free!"
-msgstr ""
+msgstr "De beste e-bøker for best pris: Gratis!"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1162
 msgid "Ebooks handcrafted with the utmost care"
-msgstr ""
+msgstr "E-bøker håndlaga med kjærlighet"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1167
 msgid "One web page for every book."
-msgstr ""
+msgstr "Ei nettside for hver bok"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1172
 msgid "Your ebook. Your way."
-msgstr ""
+msgstr "Di e-bok. På din måte."
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:102
 msgid "Conversion Input"
@@ -1460,7 +1459,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:92
 msgid "Search for books in all folders"
-msgstr ""
+msgstr "Søk etter bøker i alle mapper"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:94
 msgid ""
@@ -2614,10 +2613,13 @@ msgid ""
 "\n"
 " See: "
 msgstr ""
+"Boksjanger. Valg: %s\n"
+"\n"
+" Se: "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/output.py:159
 msgid "for a complete list with descriptions."
-msgstr ""
+msgstr "for ei fullstending liste med beskrivelser."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:248
 msgid ""
@@ -3582,7 +3584,7 @@ msgstr "Tyskland"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:296
 msgid "UK"
-msgstr ""
+msgstr "Storbritannia"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:390
 msgid "Amazon timed out. Try again later."
@@ -3594,7 +3596,7 @@ msgstr "KIilde for metadata"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/isbndb.py:37
 msgid "IsbnDB key:"
-msgstr ""
+msgstr "IsbnDB-nøkkel:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/isbndb.py:38
 msgid ""
@@ -3611,7 +3613,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/openlibrary.py:15
 msgid "Downloads covers from The Open Library"
-msgstr ""
+msgstr "Last ned omslag fra The Open Library"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:22
 msgid "Modify images to meet Palm device size limitations."
@@ -5545,7 +5547,7 @@ msgstr "Bøker med de samme taggene"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:18
 msgid "Get books"
-msgstr ""
+msgstr "Få tak i bøker"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:27
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:92
@@ -5648,7 +5650,7 @@ msgstr "Kan ikke åpne folder"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:220
 msgid "This book no longer exists in your library"
-msgstr ""
+msgstr "Denne boka er ikke lenger i ditt bibliotek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:227
 msgid "%s has no available formats."
@@ -6155,7 +6157,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:308
 msgid "Excluded genres"
-msgstr "Ekskluder sjangre"
+msgstr "Ekskludér sjangre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:309
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:312
@@ -6639,7 +6641,7 @@ msgstr "Seksjoner:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_output_ui.py:46
 msgid "Genre"
-msgstr ""
+msgstr "Sjanger"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:104
 msgid "Font rescaling wizard"
@@ -17834,7 +17836,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:330
 msgid "The number of seconds to wait before sending emails"
-msgstr ""
+msgstr "Antall sekunder før epost sendes"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:331
 msgid ""
