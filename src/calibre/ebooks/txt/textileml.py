@@ -58,31 +58,39 @@ class TextileMLizer(OEB2HTML):
         return ''.join(output)
 
     def tidy_up(self, text):
-        def check_count(text, tests):
-            x = []
-            for i, t in enumerate(reversed(tests)):
-                x.append((text.count(t), i, t))
-            if x:
-                return sorted(x, key=itemgetter(0, 1), reverse=True)[0][2]
-            return ''
+#        def check_count(text, tests):
+#            x = []
+#            for i, t in enumerate(reversed(tests)):
+#                x.append((text.count(t), i, t))
+#            if x:
+#                return sorted(x, key=itemgetter(0, 1), reverse=True)[0][2]
+#            return ''
 
-        # NEEDS TWEAKING
-#        def check_escaping(text, tests):
-#            for t in tests:
-#                text = re.sub(r'(\S)('+t+'\w+'+t+')', r'\1[\2]', text)
-#                text = re.sub(r'(\s)('+t+'\w+'+t+')(\S)', r'\1[\2]\3', text)
-#            return text
+        # Needs tweaking and finetuning - don't use yet.
+        def check_escaping(text, tests):
+            for t in tests:
+                text = re.sub(r'(\S)'+t+t+'(\S)', r'\1\2', text)
+#                text = re.sub(r'(\w)('+t+'\w+'+t+')', r'\1[\2]', text)
+#                text = re.sub(r'('+t+'\w+'+t+')(\w)', r'[\1]\2', text)
+#                text = re.sub(r'(["\'])\[('+t+'\w+'+t+')\]', r'\1\2', text)
+#                text = re.sub(r'\[('+t+'\w+'+t+')\](["\',\.!\?])', r'\1\2', text)
+            return text
 
-        txt = check_count(text, ['\np<. ', '\np<>. ', '\np. '])
-        text = re.sub(txt+'(\S)', r'\n\1', text)
+#        txt = check_count(text, ['\np<. ', '\np<>. ', '\np. '])
+#        text = re.sub(txt+'(\S)', r'\n\1', text)
 
-#        text = check_escaping(text, ['\^', '\*', '_', '\+', '~', '-'])
+        text = check_escaping(text, ['\^', '\*', '_', '\+', '~', '-'])
 
-        text = re.sub('\npre\. bc\.', '\nbc.', text)
-        text = re.sub('\np=. p. ', '\np. ', text)
-        text = re.sub('\np=. \n', '\n', text)
-        text = re.sub('\n{3,}', '\n\n', text)
-        text = re.sub(' \|', '|', text)
+        text = re.sub(r'^\n+', r'', text)
+        text = re.sub(r'\npre\. bc\.', r'\nbc.', text)
+        text = re.sub(r'\nbq\. \n\np\. ', r'\nbq. ', text)
+        text = re.sub(r'\n{4,}', r'\n\np. \n\n', text)
+        text = re.sub(r'\n{3}', r'\n\n', text)
+        text = re.sub(r'(p.*\. \n?)(p.*\. )', r'\2', text)
+        text = re.sub(r'p.*\. \n\n', r'', text)
+#        text = re.sub(u'\n  \n',   r'\n<br />\n', text)     # blank paragraph - br tag
+        text = re.sub(u'p.*\. \xa0',   r'p. ', text)              # blank paragraph
+        text = re.sub(r' \|', r'|', text)
 
         # started work on trying to fix footnotes
 #        text = re.sub(r'\^"(\d+)":#.+\^', r'[\1]', text)
@@ -94,20 +102,29 @@ class TextileMLizer(OEB2HTML):
         text = text.replace('\r', ' ')
         # Condense redundant spaces created by replacing newlines with spaces.
         text = re.sub(r'[ ]{2,}', ' ', text)
-        text = re.sub(r'\t+', '', text)
+        text = re.sub(r'\t +', '', text)
+#        text = re.sub(r'\n +', '', text)
         return text
 
     def remove_leading_ws(self, text):
         text = text.replace('\r\n', '\n')
         text = text.replace('\r', '\n')
-        text = re.sub(r'\n+', '\n', text)
         text = re.sub(r'\n[\t ]+', '\n', text)
+        text = re.sub(r'\n{2,}', '\n', text)
         return text
 
-    def check_align(self, style, align, tests):
+    def check_halign(self, style):
+        tests = {'left':'<','justify':'<>','center':'=','right':'>'}
         for i in tests:
-            if style[align] == i[0]:
-                return i[1]
+            if style['text-align'] == i:
+                return tests[i]
+        return ''
+
+    def check_valign(self, style):
+        tests = {'top':'^','bottom':'~', 'middle':'-'}
+        for i in tests:
+            if style['vertical-align'] == i:
+                return tests[i]
         return ''
 
     def check_padding(self, style, tests):
@@ -124,15 +141,16 @@ class TextileMLizer(OEB2HTML):
     def check_id_tag(self, attribs):
         txt = ''
         if attribs.has_key('id'):
-            txt = '(#'+attribs['id']+')'
+            #if attribs['id'] in self.links:
+                txt = '(#'+attribs['id']+')'
         return txt
 
     def build_block(self, tag, style, attribs, finish):
-        txt = tag
+        txt = '\n' + tag
         if self.opts.keep_links:
             txt += self.check_id_tag(attribs)
         txt += self.check_padding(style, [['padding-left','('],['padding-right',')']])
-        txt += self.check_align(style, 'text-align', [['left','<'],['justify','<>'],['center','='],['right','>']])
+        txt += self.check_halign(style)
         txt += finish
         return txt
 
@@ -163,7 +181,17 @@ class TextileMLizer(OEB2HTML):
            or style['visibility'] == 'hidden':
             return ['']
 
-        if tag in ('h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p'):
+        # Soft scene breaks.
+        text.append(self.check_padding(style, ['margin-top',u'\n\n\xa0']))
+
+        if tag in ('h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'div'):
+            #For debugging
+            if tag == 'h1':
+                for i in self.links:
+                    text.append(i)
+                    text.append('\n')
+            if tag == 'div':
+                tag = 'p'
             text.append(self.build_block(tag, style, attribs, '. '))
             tags.append('\n')
 
@@ -191,10 +219,10 @@ class TextileMLizer(OEB2HTML):
                 tags.append('-')
                 self.style_strike = True
         if style['font-variant'] == 'small-caps':
-            if self.style_smallcap == 0:
+            if self.style_smallcap == False:
                 text.append('&')
                 tags.append('&')
-                self.style_smallcap = 1
+                self.style_smallcap = True
         if tag == 'br':
             text.append('')
             tags.append('\n')
@@ -236,7 +264,10 @@ class TextileMLizer(OEB2HTML):
                     tags.append('(' + attribs['title'] + ')')
         elif tag == 'img':
             if self.opts.keep_image_references:
-                text.append ('!' + attribs['src'])
+                txt = '!' + self.check_halign(style)
+                txt += self.check_valign(style)
+                txt += attribs['src']
+                text.append(txt)
                 if attribs.has_key('alt'):
                     txt = attribs['alt']
                     if txt != '':
@@ -247,6 +278,7 @@ class TextileMLizer(OEB2HTML):
             text.append('')
             tags.append(tag)
         elif tag == 'li':
+#            text.append('\n')
             if self.list: li = self.list[-1]
             else: li = {'name':'ul', 'num':0}
             if   li['name'] == 'ul': text.append('*'*len(self.list)+' ')
@@ -273,8 +305,8 @@ class TextileMLizer(OEB2HTML):
         elif tag == 'td':
             text.append('|')
             txt = ''
-            txt += self.check_align(style, 'text-align', [['left','<'],['justify','<>'],['center','='],['right','>']])
-            txt += self.check_align(style, 'vertical-align', [['top','^'],['bottom','~']])
+            txt += self.check_halign(style)
+            txt += self.check_valign(style)
             if attribs.has_key ('colspan'):
                 txt += '\\' + attribs['colspan']
             if attribs.has_key ('rowspan'):
@@ -288,7 +320,10 @@ class TextileMLizer(OEB2HTML):
 
         if self.opts.keep_links and attribs.has_key('id'):
             if tag not in ('body', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p'):
-                text.append('(#' + attribs['id'] + ')')
+                if tag == 'span':
+                    text.append(' %')
+                    tags.append('% ')
+                text.append('(#' + attribs['id'] + u')\xa0')
 
         # If wanted process all style tags here - before taxt in tags is written
 
@@ -318,11 +353,19 @@ class TextileMLizer(OEB2HTML):
                     if self.list: self.list.pop()
             else:
                 text.append('%s' % t)
-                if t == '*': self.style_bold = False
-                if t == '_': self.style_italic = False
-                if t == '+': self.style_under = False
-                if t == '-': self.style_strike = False
-                if t == '&': self.style_smallcap = False
+                if t == '*':
+                    self.style_bold = False
+                if t == '_':
+                    self.style_italic = False
+                if t == '+':
+                    self.style_under = False
+                if t == '-':
+                    self.style_strike = False
+                if t == '&':
+                    self.style_smallcap = False
+
+        # Soft scene breaks.
+        text.append(self.check_padding(style, ['margin-bottom',u'\n\n\xa0']))
 
         # Add the text that is outside of the tag.
         if hasattr(elem, 'tail') and elem.tail:

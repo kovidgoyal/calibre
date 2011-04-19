@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
-'''
-
-'''
+"""unsmarten : html2textile helper function"""
 
 __version__ = '0.1'
 __author__ = 'Leigh Parry'
@@ -102,8 +100,9 @@ def unsmarten(txt):
     txt = re.sub(u'&#9829;|&hearts;|♥',  r'{heart}',   txt)  # heart
     txt = re.sub(u'&#9830;|&diams;|♦',   r'{diamond}', txt)  # diamond
 
-    txt = re.sub(u'\xa0',   r'p. ', txt)              # blank paragraph
-    txt = re.sub(u'\n\n\n\n',   r'\n\np. \n\n', txt)  # blank paragraph
-    txt = re.sub(u'\n  \n',   r'\n<br />\n', txt)     # blank paragraph - br tag
+    # Move into main code?
+#    txt = re.sub(u'\xa0',   r'p. ', txt)              # blank paragraph
+#    txt = re.sub(u'\n\n\n\n',   r'\n\np. \n\n', txt)  # blank paragraph
+#    txt = re.sub(u'\n  \n',   r'\n<br />\n', txt)     # blank paragraph - br tag
 
     return txt

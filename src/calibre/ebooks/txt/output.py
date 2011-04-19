@@ -70,7 +70,6 @@ class TXTOutput(OutputFormatPlugin):
      ])
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
-        print 'New'
         if opts.txt_output_formatting.lower() == 'markdown':
             from calibre.ebooks.txt.markdownml import MarkdownMLizer
             self.writer = MarkdownMLizer(log)
