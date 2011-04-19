@@ -1379,13 +1379,15 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             for (cat, dex, mult, is_comp) in md:
                 if not book[dex]:
                     continue
+                tid_cat = tids[cat]
+                tcats_cat = tcategories[cat]
                 if not mult:
                     val = book[dex]
                     if is_comp:
-                        item = tcategories[cat].get(val, None)
+                        item = tcats_cat.get(val, None)
                         if not item:
                             item = tag_class(val, val)
-                            tcategories[cat][val] = item
+                            tcats_cat[val] = item
                         item.c += 1
                         item.id = val
                         if rating > 0:
@@ -1393,11 +1395,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                             item.rc += 1
                         continue
                     try:
-                        (item_id, sort_val) = tids[cat][val] # let exceptions fly
-                        item = tcategories[cat].get(val, None)
+                        (item_id, sort_val) = tid_cat[val] # let exceptions fly
+                        item = tcats_cat.get(val, None)
                         if not item:
                             item = tag_class(val, sort_val)
-                            tcategories[cat][val] = item
+                            tcats_cat[val] = item
                         item.c += 1
                         item.id_set.add(book[0])
                         item.id = item_id
@@ -1411,21 +1413,15 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     if is_comp:
                         vals = [v.strip() for v in vals if v.strip()]
                         for val in vals:
-                            if val not in tids:
-                                tids[cat][val] = (val, val)
-                            item = tcategories[cat].get(val, None)
-                            if not item:
-                                item = tag_class(val, val)
-                                tcategories[cat][val] = item
-                            item.c += 1
-                            item.id = val
+                            if val not in tid_cat:
+                                tid_cat[val] = (val, val)
                     for val in vals:
                         try:
-                            (item_id, sort_val) = tids[cat][val] # let exceptions fly
-                            item = tcategories[cat].get(val, None)
+                            (item_id, sort_val) = tid_cat[val] # let exceptions fly
+                            item = tcats_cat.get(val, None)
                             if not item:
                                 item = tag_class(val, sort_val)
-                                tcategories[cat][val] = item
+                                tcats_cat[val] = item
                             item.c += 1
                             item.id_set.add(book[0])
                             item.id = item_id
