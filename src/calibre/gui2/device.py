@@ -7,7 +7,7 @@ import os, traceback, Queue, time, cStringIO, re, sys
 from threading import Thread
 
 from PyQt4.Qt import QMenu, QAction, QActionGroup, QIcon, SIGNAL, \
-                     Qt, pyqtSignal, QDialog
+                     Qt, pyqtSignal, QDialog, QObject
 
 from calibre.customize.ui import available_input_formats, available_output_formats, \
     device_plugins
@@ -587,17 +587,25 @@ class DeviceMenu(QMenu): # {{{
 
     # }}}
 
-class DeviceMixin(object): # {{{
-
+class DeviceSignals(QObject):
     #: This signal is emitted once, after metadata is downloaded from the
     #: connected device.
     #: The sequence: gui.device_manager.is_device_connected will become True,
+    #: and the device_connection_changed signal will be emitted,
     #: then sometime later gui.device_metadata_available will be signaled.
     #: This does not mean that there are no more jobs running. Automatic metadata
     #: management might have kicked off a sync_booklists to write new metadata onto
     #: the device, and that job might still be running when the signal is emitted.
     device_metadata_available = pyqtSignal()
+
+    #: This signal is emitted once when the device is detected and once when
+    #: it is disconnected. If the parameter is True, then it is a connection,
+    #: otherwise a disconnection.
     device_connection_changed = pyqtSignal(object)
+
+device_signals = DeviceSignals()
+
+class DeviceMixin(object): # {{{
 
     def __init__(self):
         self.device_error_dialog = error_dialog(self, _('Error'),
@@ -745,7 +753,7 @@ class DeviceMixin(object): # {{{
             self.location_manager.update_devices()
             self.library_view.set_device_connected(self.device_connected)
             self.refresh_ondevice()
-        self.device_connection_changed.emit(connected)
+        device_signals.device_connection_changed.emit(connected)
 
     def info_read(self, job):
         '''
@@ -784,7 +792,7 @@ class DeviceMixin(object): # {{{
         self.sync_news()
         self.sync_catalogs()
         self.refresh_ondevice()
-        self.device_metadata_available.emit()
+        device_signals.device_metadata_available.emit()
 
     def refresh_ondevice(self, reset_only = False):
         '''

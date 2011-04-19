@@ -198,7 +198,6 @@ def get_components(template, mi, id, timefmt='%b %Y', length=250,
     for key in custom_metadata:
         if key in format_args:
             cm = custom_metadata[key]
-            ## TODO: NEWMETA: should ratings be divided by 2? The standard rating isn't...
             if cm['datatype'] == 'series':
                 format_args[key] = title_sort(format_args[key], order=tsorder)
                 if key+'_index' in format_args:
