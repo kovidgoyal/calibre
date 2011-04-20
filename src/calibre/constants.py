@@ -22,11 +22,11 @@ def terminal_controller():
         _tc = TerminalController(sys.stdout)
     return _tc
 
-
-iswindows = 'win32' in sys.platform.lower() or 'win64' in sys.platform.lower()
-isosx     = 'darwin' in sys.platform.lower()
-isnewosx = isosx and getattr(sys, 'new_app_bundle', False)
-isfreebsd = 'freebsd' in sys.platform.lower()
+_plat = sys.platform.lower()
+iswindows = 'win32' in _plat or 'win64' in _plat
+isosx     = 'darwin' in _plat
+isnewosx  = isosx and getattr(sys, 'new_app_bundle', False)
+isfreebsd = 'freebsd' in _plat
 islinux   = not(iswindows or isosx or isfreebsd)
 isfrozen  = hasattr(sys, 'frozen')
 isunix = isosx or islinux
