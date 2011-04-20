@@ -43,7 +43,7 @@ class OverDrive(Source):
 
     def __init__(self, *args, **kwargs):
        Source.__init__(self, *args, **kwargs)
-       self.prefs.defaults['ignore_fields'] =['tags', 'pubdate', 'comments', 'identifier:isbn']
+       self.prefs.defaults['ignore_fields'] =['tags', 'pubdate', 'comments']
 
     def identify(self, log, result_queue, abort, title=None, authors=None, # {{{
             identifiers={}, timeout=30):

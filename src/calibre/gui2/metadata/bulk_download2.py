@@ -310,7 +310,8 @@ def proceed(gui, job):
 def merge_result(oldmi, newmi):
     dummy = Metadata(_('Unknown'))
     for f in msprefs['ignore_fields']:
-        setattr(newmi, f, getattr(dummy, f))
+        if ':' not in f:
+            setattr(newmi, f, getattr(dummy, f))
     fields = set()
     for plugin in metadata_plugins(['identify']):
         fields |= plugin.touched_fields
