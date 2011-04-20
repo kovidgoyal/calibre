@@ -159,16 +159,6 @@ class AmazonKindleStore(StorePlugin):
                 author = ''.join(data.xpath('div[@class="productTitle"]/span[@class="ptBrand"]/text()'))
                 author = author.split('by')[-1]
                 price = ''.join(data.xpath('div[@class="newPrice"]/span/text()'))
-                
-                with closing(br.open(asin_href, timeout=timeout/4)) as nf:
-                    idata = html.fromstring(nf.read())
-                    if idata.xpath('boolean(//div[@class="content"]//li/b[contains(text(), "Simultaneous Device Usage")])'):
-                        if idata.xpath('boolean(//div[@class="content"]//li[contains(., "Unlimited") and contains(b, "Simultaneous Device Usage")])'):
-                            drm = False
-                        else:
-                            drm = None
-                    else:
-                        drm = True
 
                 counter -= 1
 
@@ -178,6 +168,21 @@ class AmazonKindleStore(StorePlugin):
                 s.author = author.strip()
                 s.price = price.strip()
                 s.detail_item = asin.strip()
-                s.drm = drm
 
                 yield s
+
+    def get_details(self, search_result, timeout):
+        url = 'http://amazon.com/dp/'
+        
+        br = browser()
+        with closing(br.open(url + search_result.detail_item, timeout=timeout)) as nf:
+            idata = html.fromstring(nf.read())
+            if idata.xpath('boolean(//div[@class="content"]//li/b[contains(text(), "Simultaneous Device Usage")])'):
+                if idata.xpath('boolean(//div[@class="content"]//li[contains(., "Unlimited") and contains(b, "Simultaneous Device Usage")])'):
+                    search_result.drm = SearchResult.DRM_UNLOCKED
+                else:
+                    search_result.drm = SearchResult.DRM_UNKNOWN
+            else:
+                search_result.drm = SearchResult.DRM_LOCKED
+
+        

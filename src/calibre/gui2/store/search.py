@@ -21,6 +21,7 @@ from calibre import browser
 from calibre.gui2 import NONE
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.gui2.store.search_ui import Ui_Dialog
+from calibre.gui2.store.search_result import SearchResult
 from calibre.library.caches import _match, CONTAINS_MATCH, EQUALS_MATCH, \
     REGEXP_MATCH
 from calibre.utils.config import DynamicConfig
@@ -123,6 +124,8 @@ class SearchDialog(QDialog, Ui_Dialog):
         store_names = self.store_plugins.keys()
         if not store_names:
             return
+        # Remove all of our internal filtering logic from the query.
+        query = self.clean_query(query)
         shuffle(store_names)
         # Add plugins that the user has checked to the search pool's work queue.
         for n in store_names:
@@ -133,6 +136,29 @@ class SearchDialog(QDialog, Ui_Dialog):
             self.checker.start(100)
             self.search_pool.start_threads()
             self.pi.startAnimation()
+
+    def clean_query(self, query):
+        query = query.lower()
+        # Remove control modifiers.
+        query = query.replace('\\', '')
+        query = query.replace('!', '')
+        query = query.replace('=', '')
+        query = query.replace('~', '')
+        query = query.replace('>', '')
+        query = query.replace('<', '')
+        # Remove the prefix.
+        for loc in ( 'all', 'author', 'authors', 'title'):
+            query = re.sub(r'%s:"?(?P<a>[^\s"]+)"?' % loc, '\g<a>', query)
+        # Remove the prefix and search text.
+        for loc in ('cover', 'drm', 'format', 'formats', 'price', 'store'):
+            query = re.sub(r'%s:"[^"]"' % loc, '', query)
+            query = re.sub(r'%s:[^\s]*' % loc, '', query)
+        # Remove logic.
+        query = re.sub(r'(^|\s)(and|not|or)(\s|$)', ' ', query)
+        # Remove excess whitespace.
+        query = re.sub(r'\s{2,}', ' ', query)
+        query = query.strip()
+        return query
 
     def save_state(self):
         self.config['store_search_geometry'] = self.saveGeometry()
@@ -183,9 +209,9 @@ class SearchDialog(QDialog, Ui_Dialog):
                 self.pi.stopAnimation()
 
         while self.search_pool.has_results():
-            res = self.search_pool.get_result()
+            res, store_plugin = self.search_pool.get_result()
             if res:
-                self.results_view.model().add_result(res)
+                self.results_view.model().add_result(res, store_plugin)
 
     def open_store(self, index):
         result = self.results_view.model().get_result(index)
@@ -307,37 +333,14 @@ class SearchThread(Thread):
         while self._run and not self.tasks.empty():
             try:
                 query, store_name, store_plugin, timeout = self.tasks.get()
-                query = self._clean_query(query)
                 for res in store_plugin.search(query, timeout=timeout):
                     if not self._run:
                         return
                     res.store_name = store_name
-                    self.results.put(res)
+                    self.results.put((res, store_plugin))
                 self.tasks.task_done()
             except:
                 traceback.print_exc()
-            
-    def _clean_query(self, query):
-        query = query.lower()
-        # Remove control modifiers.
-        query = query.replace('\\', '')
-        query = query.replace('!', '')
-        query = query.replace('=', '')
-        query = query.replace('~', '')
-        query = query.replace('>', '')
-        query = query.replace('<', '')
-        # Remove the prefix.
-        for loc in ( 'all', 'author', 'authors', 'title'):
-            query = re.sub(r'%s:"?(?P<a>[^\s"]+)"?' % loc, '\g<a>', query)
-        # Remove the prefix and search text.
-        for loc in ('cover', 'drm', 'format', 'formats', 'price', 'store'):
-            query = re.sub(r'%s:"[^"]"' % loc, '', query)
-            query = re.sub(r'%s:[^\s]*' % loc, '', query)
-        # Remove logic.
-        query = re.sub(r'(^|\s)(and|not|or)(\s|$)', ' ', query)
-        # Remove excess whitespace.
-        query = re.sub(r'\s{2,}', ' ', query)
-        return query
 
 
 class CoverThreadPool(GenericDownloadThreadPool):
@@ -381,6 +384,42 @@ class CoverThread(Thread):
                 continue
 
 
+class DetailsThreadPool(GenericDownloadThreadPool):
+    '''
+    Once started all threads run until abort is called.
+    '''
+
+    def add_task(self, search_result, store_plugin, update_callback, timeout=10):
+        self.tasks.put((search_result, store_plugin, update_callback, timeout))
+
+
+class DetailsThread(Thread):
+    
+    def __init__(self, tasks, results):
+        Thread.__init__(self)
+        self.daemon = True
+        self.tasks = tasks
+        self.results = results
+        self._run = True
+
+    def abort(self):
+        self._run = False
+
+    def run(self):
+        while self._run:
+            try:
+                time.sleep(.1)
+                while not self.tasks.empty():
+                    if not self._run:
+                        break
+                    result, store_plugin, callback, timeout = self.tasks.get()
+                    if result:
+                        store_plugin.get_details(result, timeout)
+                        callback()
+                    self.tasks.task_done()
+            except:
+                continue
+
 class Matches(QAbstractItemModel):
 
     HEADERS = [_('Cover'), _('Title'), _('Author(s)'), _('Price'), _('DRM'), _('Store')]
@@ -402,9 +441,12 @@ class Matches(QAbstractItemModel):
         self.search_filter = SearchFilter()
         self.cover_pool = CoverThreadPool(CoverThread, 2)
         self.cover_pool.start_threads()
+        self.details_pool = DetailsThreadPool(DetailsThread, 4)
+        self.details_pool.start_threads()
 
     def closing(self):
         self.cover_pool.abort()
+        self.details_pool.abort()
 
     def clear_results(self):
         self.all_matches = []
@@ -414,13 +456,16 @@ class Matches(QAbstractItemModel):
         self.query = ''
         self.cover_pool.abort()
         self.cover_pool.start_threads()
+        self.details_pool.abort()
+        self.details_pool.start_threads()
         self.reset()
 
-    def add_result(self, result):
+    def add_result(self, result, store_plugin):
         self.layoutAboutToBeChanged.emit()
         self.all_matches.append(result)
         self.search_filter.add_search_result(result)
         self.cover_pool.add_task(result, self.filter_results)
+        self.details_pool.add_task(result, store_plugin, self.filter_results)
         self.filter_results()
         self.layoutChanged.emit()
 
@@ -438,7 +483,7 @@ class Matches(QAbstractItemModel):
         else:
             self.matches = list(self.search_filter.universal_set())
         self.reorder_matches()
-        self.layoutAboutToBeChanged.emit()
+        self.layoutChanged.emit()
 
     def set_query(self, query):
         self.query = query
@@ -487,11 +532,11 @@ class Matches(QAbstractItemModel):
                 p.loadFromData(result.cover_data)
                 return QVariant(p)
             if col == 4:
-                if result.drm:
+                if result.drm == SearchResult.DRM_LOCKED:
                     return QVariant(self.DRM_LOCKED_ICON)
-                if result.drm == False:
+                if result.drm == SearchResult.DRM_UNLOCKED:
                     return QVariant(self.DRM_UNLOCKED_ICON)
-                else:
+                elif result.drm == SearchResult.DRM_UNKNOWN:
                     return QVariant(self.DRM_UNKNOWN_ICON)
         elif role == Qt.SizeHintRole:
             return QSize(64, 64)
@@ -596,7 +641,7 @@ class SearchFilter(SearchQueryParser):
                 accessor = q[locvalue]
                 if query == 'true':
                     if locvalue == 'drm':
-                        if accessor(sr) == True:
+                        if accessor(sr) == SearchResult.DRM_LOCKED:
                             matches.add(sr)
                     else:
                         if accessor(sr) is not None:
@@ -604,7 +649,7 @@ class SearchFilter(SearchQueryParser):
                     continue
                 if query == 'false':
                     if locvalue == 'drm':
-                        if accessor(sr) == False:
+                        if accessor(sr) == SearchResult.DRM_UNKNOWN:
                             matches.add(sr)
                     else:
                         if accessor(sr) is None:

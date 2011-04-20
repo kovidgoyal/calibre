@@ -76,10 +76,16 @@ class StorePlugin(object): # {{{
         return items as a generator.
 
         Don't be lazy with the search! Load as much data as possible in the
-        :class:`calibre.gui2.store.search_result.SearchResult` object. If you have to parse
-        multiple pages to get all of the data then do so. However, if data (such as cover_url)
+        :class:`calibre.gui2.store.search_result.SearchResult` object. 
+        However, if data (such as cover_url)
         isn't available because the store does not display cover images then it's okay to
         ignore it.
+        
+        At the very least a :class:`calibre.gui2.store.search_result.SearchResult`
+        returned by this function must have the title, author and id.
+        
+        If you have to parse multiple pages to get all of the data then implement
+        :meth:`get_deatils` for retrieving additional information.
 
         Also, by default search results can only include ebooks. A plugin can offer users
         an option to include physical books in the search results but this must be
@@ -95,6 +101,9 @@ class StorePlugin(object): # {{{
         :return: :class:`calibre.gui2.store.search_result.SearchResult` objects
         item_data is plugin specific and is used in :meth:`open` to open to a specifc place in the store.
         '''
+        raise NotImplementedError()
+    
+    def get_details(self, search_result, timeout=60):
         raise NotImplementedError()
 
     def get_settings(self):

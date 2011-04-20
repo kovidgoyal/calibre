@@ -8,6 +8,10 @@ __docformat__ = 'restructuredtext en'
 
 class SearchResult(object):
     
+    DRM_LOCKED = 1
+    DRM_UNLOCKED = 2
+    DRM_UNKNOWN = 3
+    
     def __init__(self):
         self.store_name = ''
         self.cover_url = ''
@@ -16,8 +20,5 @@ class SearchResult(object):
         self.author = ''
         self.price = ''
         self.detail_item = ''
-        # None = Unknown.
-        # True = Has DRM.
-        # False = Does not have DRM.
         self.drm = None
         self.formats = ''
