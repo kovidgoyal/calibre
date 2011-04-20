@@ -95,9 +95,11 @@ class SearchDialog(QDialog, Ui_Dialog):
         # Author
         self.results_view.setColumnWidth(2,int(total*.35))
         # Price
-        self.results_view.setColumnWidth(3, int(total*.10))
+        self.results_view.setColumnWidth(3, int(total*.5))
+        # DRM
+        self.results_view.setColumnWidth(4, int(total*.5))
         # Store
-        self.results_view.setColumnWidth(4, int(total*.20))
+        self.results_view.setColumnWidth(5, int(total*.20))
 
     def do_search(self, checked=False):
         # Stop all running threads.
@@ -311,6 +313,7 @@ class SearchThread(Thread):
                         self.results.put(res)
                 self.tasks.task_done()
             except:
+                traceback.print_exc()
                 pass
             
     def _clean_query(self, query):
@@ -379,10 +382,15 @@ class CoverThread(Thread):
 
 class Matches(QAbstractItemModel):
 
-    HEADERS = [_('Cover'), _('Title'), _('Author(s)'), _('Price'), _('Store')]
+    HEADERS = [_('Cover'), _('Title'), _('Author(s)'), _('Price'), _('DRM'), _('Store')]
 
     def __init__(self):
         QAbstractItemModel.__init__(self)
+        
+        self.DRM_LOCKED_ICON = QPixmap(I('drm-locked.png')).scaledToHeight(64)
+        self.DRM_UNLOCKED_ICON = QPixmap(I('drm-unlocked.png')).scaledToHeight(64)
+        self.DRM_UNKNOWN_ICON = QPixmap(I('dialog_warning.png')).scaledToHeight(64)
+        
         self.matches = []
         self.cover_pool = CoverThreadPool(CoverThread, 2)
         self.cover_pool.start_threads()
@@ -448,7 +456,7 @@ class Matches(QAbstractItemModel):
                 return QVariant(result.author)
             elif col == 3:
                 return QVariant(result.price)
-            elif col == 4:
+            elif col == 5:
                 return QVariant(result.store_name)
             return NONE
         elif role == Qt.DecorationRole:
@@ -456,6 +464,13 @@ class Matches(QAbstractItemModel):
                 p = QPixmap()
                 p.loadFromData(result.cover_data)
                 return QVariant(p)
+            if col == 4:
+                if result.drm:
+                    return QVariant(self.DRM_LOCKED_ICON)
+                if result.drm == False:
+                    return QVariant(self.DRM_UNLOCKED_ICON)
+                else:
+                    return QVariant(self.DRM_UNKNOWN_ICON)
         elif role == Qt.SizeHintRole:
             return QSize(64, 64)
         return NONE
@@ -469,6 +484,13 @@ class Matches(QAbstractItemModel):
         elif col == 3:
             text = comparable_price(result.price)
         elif col == 4:
+            if result.drm:
+                text = 'a'
+            elif result.drm == False:
+                text = 'b'
+            else:
+                text = 'c'
+        elif col == 5:
             text = result.store_name
         return text
 
@@ -490,6 +512,7 @@ class SearchFilter(SearchQueryParser):
         'author',
         'authors',
         'cover',
+        'drm',
         'price',
         'title',
         'store',
@@ -528,7 +551,7 @@ class SearchFilter(SearchQueryParser):
         q = {
              'author': self.search_result.author.lower(),
              'cover': self.search_result.cover_url,
-             'drm': '',
+             'drm': self.search_result.drm,
              'format': '',
              'price': comparable_price(self.search_result.price),
              'store': self.search_result.store_name.lower(),
@@ -539,12 +562,23 @@ class SearchFilter(SearchQueryParser):
         for locvalue in locations:
             ac_val = q[locvalue]
             if query == 'true':
-                if ac_val is not None:
-                    matches.add(self.search_result)
+                if locvalue == 'drm':
+                    if ac_val == True:
+                        matches.add(self.search_result)
+                else:
+                    if ac_val is not None:
+                        matches.add(self.search_result)
                 continue
             if query == 'false':
-                if ac_val is None:
-                    matches.add(self.search_result)
+                if locvalue == 'drm':
+                    if ac_val == False:
+                        matches.add(self.search_result)
+                else:
+                    if ac_val is None:
+                        matches.add(self.search_result)
+                continue
+            # this is bool, so can't match below
+            if locvalue == 'drm':
                 continue
             try:
                 ### Can't separate authors because comma is used for name sep and author sep

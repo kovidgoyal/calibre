@@ -85,5 +85,6 @@ class BaenWebScriptionStore(BasicStoreConfig, StorePlugin):
                 s.author = author.strip()
                 s.price = price
                 s.detail_item = id.strip()
+                s.drm = False
                 
                 yield s
