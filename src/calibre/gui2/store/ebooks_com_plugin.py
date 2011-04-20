@@ -70,6 +70,11 @@ class EbookscomStore(BasicStoreConfig, StorePlugin):
                     pdata = pdoc.xpath('//table[@class="price"]/tr/td/text()')
                     if len(pdata) >= 2:
                         price = pdata[1]
+                    drm = False
+                    for sec in ('Printing', 'Copying', 'Lending'):
+                        if pdoc.xpath('boolean(//div[@class="formatTableInner"]//table//tr[contains(th, "%s") and contains(td, "Off")])' % sec):
+                            drm = True
+                            break
                 if not price:
                     continue
                 
@@ -91,5 +96,6 @@ class EbookscomStore(BasicStoreConfig, StorePlugin):
                 s.author = author.strip()
                 s.price = price.strip()
                 s.detail_item = '?url=http://www.ebooks.com/cj.asp?IID=' + id.strip() + '&cjsku=' + id.strip()
+                s.drm = drm
                 
                 yield s
