@@ -41,10 +41,6 @@ class OverDrive(Source):
     supports_gzip_transfer_encoding = False
     cached_cover_url_is_reliable = True
 
-    def __init__(self, *args, **kwargs):
-       Source.__init__(self, *args, **kwargs)
-       self.prefs.defaults['ignore_fields'] =['tags', 'pubdate', 'comments']
-
     def identify(self, log, result_queue, abort, title=None, authors=None, # {{{
             identifiers={}, timeout=30):
         ovrdrv_id = identifiers.get('overdrive', None)
@@ -390,7 +386,10 @@ class OverDrive(Source):
 
         if pub_date:
             from calibre.utils.date import parse_date
-            mi.pubdate = parse_date(pub_date[0].strip())
+            try:
+                mi.pubdate = parse_date(pub_date[0].strip())
+            except:
+                pass
         if lang:
             lang = lang[0].strip().lower()
             mi.language = {'english':'en', 'french':'fr', 'german':'de',
