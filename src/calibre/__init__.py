@@ -3,8 +3,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import uuid, sys, os, re, logging, time, random, \
-       __builtin__, warnings
+import sys, os, re, logging, time, random, __builtin__, warnings
 from urllib import getproxies
 from urllib2 import unquote as urllib2_unquote
 __builtin__.__dict__['dynamic_property'] = lambda(func): func(None)
@@ -15,15 +14,20 @@ from functools import partial
 warnings.simplefilter('ignore', DeprecationWarning)
 
 
-from calibre.constants import iswindows, isosx, islinux, isfreebsd, isfrozen, \
-                              terminal_controller, preferred_encoding, \
-                              __appname__, __version__, __author__, \
-                              win32event, win32api, winerror, fcntl, \
-                              filesystem_encoding, plugins, config_dir
+from calibre.constants import (iswindows, isosx, islinux, isfreebsd, isfrozen,
+                              terminal_controller, preferred_encoding,
+                              __appname__, __version__, __author__,
+                              win32event, win32api, winerror, fcntl,
+                              filesystem_encoding, plugins, config_dir)
 from calibre.startup import winutil, winutilerror, guess_type
 
 if islinux and not getattr(sys, 'frozen', False):
-    # Imported before PyQt4 to workaround PyQt4 util-linux conflict on gentoo
+    # Imported before PyQt4 to workaround PyQt4 util-linux conflict discovered on gentoo
+    # See http://bugs.gentoo.org/show_bug.cgi?id=317557
+    # Importing uuid is slow so get rid of this at some point, maybe in a few
+    # years when even Debian has caught up
+    # Also remember to remove it from site.py in the binary builds
+    import uuid
     uuid.uuid4()
 
 if False:
