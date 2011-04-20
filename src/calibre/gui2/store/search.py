@@ -112,6 +112,9 @@ class SearchDialog(QDialog, Ui_Dialog):
         query = unicode(self.search_edit.text())
         if not query.strip():
             return
+        # Give the query to the results model so it can do
+        # futher filtering.
+        self.results_view.model().set_query(query)
 
         # Plugins are in alphebetic order. Randomize the
         # order of plugin names. This way plugins closer
@@ -304,13 +307,12 @@ class SearchThread(Thread):
         while self._run and not self.tasks.empty():
             try:
                 query, store_name, store_plugin, timeout = self.tasks.get()
-                squery = self._clean_query(query)
-                for res in store_plugin.search(squery, timeout=timeout):
+                query = self._clean_query(query)
+                for res in store_plugin.search(query, timeout=timeout):
                     if not self._run:
                         return
                     res.store_name = store_name
-                    if SearchFilter(res).parse(query):
-                        self.results.put(res)
+                    self.results.put(res)
                 self.tasks.task_done()
             except:
                 traceback.print_exc()
@@ -390,7 +392,14 @@ class Matches(QAbstractItemModel):
         self.DRM_UNLOCKED_ICON = QPixmap(I('drm-unlocked.png')).scaledToHeight(64)
         self.DRM_UNKNOWN_ICON = QPixmap(I('dialog_warning.png')).scaledToHeight(64)
         
+        # All matches. Used to determine the order to display
+        # self.matches because the SearchFilter returns
+        # matches unordered.
+        self.all_matches = []
+        # Only the showing matches.
         self.matches = []
+        self.query = ''
+        self.search_filter = SearchFilter()
         self.cover_pool = CoverThreadPool(CoverThread, 2)
         self.cover_pool.start_threads()
 
@@ -398,15 +407,21 @@ class Matches(QAbstractItemModel):
         self.cover_pool.abort()
 
     def clear_results(self):
+        self.all_matches = []
         self.matches = []
+        self.all_matches = []
+        self.search_filter.clear_search_results()
+        self.query = ''
         self.cover_pool.abort()
         self.cover_pool.start_threads()
         self.reset()
 
     def add_result(self, result):
         self.layoutAboutToBeChanged.emit()
-        self.matches.append(result)
-        self.cover_pool.add_task(result, self.update_result)
+        self.all_matches.append(result)
+        self.search_filter.add_search_result(result)
+        self.cover_pool.add_task(result, self.filter_results)
+        self.filter_results()
         self.layoutChanged.emit()
 
     def get_result(self, index):
@@ -415,10 +430,18 @@ class Matches(QAbstractItemModel):
             return self.matches[row]
         else:
             return None
-
-    def update_result(self):
+        
+    def filter_results(self):
         self.layoutAboutToBeChanged.emit()
-        self.layoutChanged.emit()
+        if self.query:
+            self.matches = list(self.search_filter.parse(self.query))
+        else:
+            self.matches = list(self.search_filter.universal_set())
+        self.reorder_matches()
+        self.layoutAboutToBeChanged.emit()
+
+    def set_query(self, query):
+        self.query = query
 
     def index(self, row, column, parent=QModelIndex()):
         return self.createIndex(row, column)
@@ -497,11 +520,15 @@ class Matches(QAbstractItemModel):
         if not self.matches:
             return
         descending = order == Qt.DescendingOrder
-        self.matches.sort(None,
+        self.all_matches.sort(None,
             lambda x: sort_key(unicode(self.data_as_text(x, col))),
             descending)
+        self.reorder_matches()
         if reset:
             self.reset()
+            
+    def reorder_matches(self):
+        self.matches = sorted(self.matches, key=lambda x: self.all_matches.index(x))
 
 
 class SearchFilter(SearchQueryParser):
@@ -517,12 +544,18 @@ class SearchFilter(SearchQueryParser):
         'store',
     ]
 
-    def __init__(self, search_result):
+    def __init__(self):
         SearchQueryParser.__init__(self, locations=self.USABLE_LOCATIONS)
-        self.search_result = search_result
+        self.srs = set([])
+
+    def add_search_result(self, search_result):
+        self.srs.add(search_result)
+        
+    def clear_search_results(self):
+        self.srs = set([])
 
     def universal_set(self):
-        return set([self.search_result])
+        return self.srs
 
     def get_matches(self, location, query):
         location = location.lower().strip()
@@ -548,50 +581,51 @@ class SearchFilter(SearchQueryParser):
         all_locs = set(self.USABLE_LOCATIONS) - set(['all'])
         locations = all_locs if location == 'all' else [location]
         q = {
-             'author': self.search_result.author.lower(),
-             'cover': self.search_result.cover_url,
-             'drm': self.search_result.drm,
+             'author': lambda x: x.author.lower(),
+             'cover': lambda x: x.cover_url,
+             'drm': lambda x: x.drm,
              'format': '',
-             'price': comparable_price(self.search_result.price),
-             'store': self.search_result.store_name.lower(),
-             'title': self.search_result.title.lower(),
+             'price': lambda x: comparable_price(x.price),
+             'store': lambda x: x.store_name.lower(),
+             'title': lambda x: x.title.lower(),
         }
         for x in ('author', 'format'):
             q[x+'s'] = q[x]
-        for locvalue in locations:
-            ac_val = q[locvalue]
-            if query == 'true':
+        for sr in self.srs:
+            for locvalue in locations:
+                accessor = q[locvalue]
+                if query == 'true':
+                    if locvalue == 'drm':
+                        if accessor(sr) == True:
+                            matches.add(sr)
+                    else:
+                        if accessor(sr) is not None:
+                            matches.add(sr)
+                    continue
+                if query == 'false':
+                    if locvalue == 'drm':
+                        if accessor(sr) == False:
+                            matches.add(sr)
+                    else:
+                        if accessor(sr) is None:
+                            matches.add(sr)
+                    continue
+                # this is bool, so can't match below
                 if locvalue == 'drm':
-                    if ac_val == True:
-                        matches.add(self.search_result)
-                else:
-                    if ac_val is not None:
-                        matches.add(self.search_result)
-                continue
-            if query == 'false':
-                if locvalue == 'drm':
-                    if ac_val == False:
-                        matches.add(self.search_result)
-                else:
-                    if ac_val is None:
-                        matches.add(self.search_result)
-                continue
-            # this is bool, so can't match below
-            if locvalue == 'drm':
-                continue
-            try:
-                ### Can't separate authors because comma is used for name sep and author sep
-                ### Exact match might not get what you want. For that reason, turn author
-                ### exactmatch searches into contains searches.
-                if locvalue == 'author' and matchkind == EQUALS_MATCH:
-                    m = CONTAINS_MATCH
-                else:
-                    m = matchkind
-
-                vals = [ac_val]
-                if _match(query, vals, m):
-                    matches.add(self.search_result)
-                    break
-            except ValueError: # Unicode errors
-                traceback.print_exc()
+                    continue
+                try:
+                    ### Can't separate authors because comma is used for name sep and author sep
+                    ### Exact match might not get what you want. For that reason, turn author
+                    ### exactmatch searches into contains searches.
+                    if locvalue == 'author' and matchkind == EQUALS_MATCH:
+                        m = CONTAINS_MATCH
+                    else:
+                        m = matchkind
+    
+                    vals = [accessor(sr)]
+                    if _match(query, vals, m):
+                        matches.add(sr)
+                        break
+                except ValueError: # Unicode errors
+                    traceback.print_exc()
         return matches
