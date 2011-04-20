@@ -12,7 +12,7 @@ __author__    = u"Kovid Goyal <kovid@kovidgoyal.net>"
 Various run time constants.
 '''
 
-import sys, locale, codecs, os, importlib
+import sys, locale, codecs, os, importlib, collections
 
 _tc = None
 def terminal_controller():
@@ -52,15 +52,12 @@ def debug():
     DEBUG = True
 
 # plugins {{{
-plugins = None
-if plugins is None:
-    # Load plugins
-    def load_plugins():
-        plugins = {}
-        plugin_path = sys.extensions_location
-        sys.path.insert(0, plugin_path)
 
-        for plugin in [
+class Plugins(collections.Mapping):
+
+    def __init__(self):
+        self._plugins = {}
+        plugins = [
                 'pictureflow',
                 'lzx',
                 'msdes',
@@ -74,19 +71,44 @@ if plugins is None:
                 'chm_extra',
                 'icu',
                 'speedup',
-            ] + \
-                    (['winutil'] if iswindows else []) + \
-                    (['usbobserver'] if isosx else []):
-            try:
-                p, err = importlib.import_module(plugin), ''
-            except Exception as err:
-                p = None
-                err = str(err)
-            plugins[plugin] = (p, err)
-        sys.path.remove(plugin_path)
-        return plugins
+            ]
+        if iswindows:
+            plugins.append('winutil')
+        if isosx:
+            plugins.append(['usbobserver'])
+        self.plugins = frozenset(plugins)
 
-    plugins = load_plugins()
+    def load_plugin(self, name):
+        if name in self._plugins:
+            return
+        sys.path.insert(0, sys.extensions_location)
+        try:
+            p, err = importlib.import_module(name), ''
+        except Exception as err:
+            p = None
+            err = str(err)
+        self._plugins[name] = (p, err)
+        sys.path.remove(sys.extensions_location)
+
+    def __iter__(self):
+        return iter(self.plugins)
+
+    def __len__(self):
+        return len(self.plugins)
+
+    def __contains__(self, name):
+        return name in self.plugins
+
+    def __getitem__(self, name):
+        if name not in self.plugins:
+            raise KeyError('No plugin named %r'%name)
+        self.load_plugin(name)
+        return self._plugins[name]
+
+
+plugins = None
+if plugins is None:
+    plugins = Plugins()
 # }}}
 
 # config_dir {{{
