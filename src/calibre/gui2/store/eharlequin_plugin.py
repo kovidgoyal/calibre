@@ -68,13 +68,20 @@ class EHarlequinStore(BasicStoreConfig, StorePlugin):
                 price = ''.join(data.xpath('.//div[@class="ourprice"]/font/text()'))
                 cover_url = ''.join(data.xpath('.//a[@href="%s"]/img/@src' % id))
 
+                with closing(br.open('http://ebooks.eharlequin.com/' + id.strip(), timeout=timeout/4)) as nf:
+                    idata = html.fromstring(nf.read())
+                    drm = None
+                    if idata.xpath('boolean(//div[@class="drm_head"])'):
+                        drm = idata.xpath('boolean(//td[contains(., "Copy") and contains(., "not")])')
+
                 counter -= 1
-                
+
                 s = SearchResult()
                 s.cover_url = cover_url
                 s.title = title.strip()
                 s.author = author.strip()
                 s.price = price.strip()
                 s.detail_item = '?url=http://ebooks.eharlequin.com/' + id.strip()
+                s.drm = drm
                 
                 yield s

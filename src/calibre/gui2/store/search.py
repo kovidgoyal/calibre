@@ -314,7 +314,6 @@ class SearchThread(Thread):
                 self.tasks.task_done()
             except:
                 traceback.print_exc()
-                pass
             
     def _clean_query(self, query):
         query = query.lower()
