@@ -16,13 +16,13 @@ from calibre.constants import (config_dir, CONFIG_DIR_MODE, __appname__,
 from calibre.utils.lock import ExclusiveFile
 from calibre.utils.config_base import (make_config_dir, Option, OptionValues,
         OptionSet, ConfigInterface, Config, prefs, StringConfig, ConfigProxy,
-        read_raw_tweaks, read_tweaks, write_tweaks, tweaks)
+        read_raw_tweaks, read_tweaks, write_tweaks, tweaks, plugin_dir)
 
 if False:
     # Make pyflakes happy
     Config, ConfigProxy, Option, OptionValues, StringConfig
     OptionSet, ConfigInterface, read_tweaks, write_tweaks
-    read_raw_tweaks, tweaks
+    read_raw_tweaks, tweaks, plugin_dir
 
 test_eight_code = tweaks.get('test_eight_code', False)
 
