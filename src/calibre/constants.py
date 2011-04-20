@@ -75,7 +75,7 @@ class Plugins(collections.Mapping):
         if iswindows:
             plugins.append('winutil')
         if isosx:
-            plugins.append(['usbobserver'])
+            plugins.append('usbobserver')
         self.plugins = frozenset(plugins)
 
     def load_plugin(self, name):
