@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-04-17 16:54+0000\n"
-"PO-Revision-Date: 2011-03-10 11:29+0000\n"
-"Last-Translator: Andrei B <Unknown>\n"
+"PO-Revision-Date: 2011-04-19 06:54+0000\n"
+"Last-Translator: Anca Stratulat <Unknown>\n"
 "Language-Team: Romanian <ro@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-04-18 04:58+0000\n"
-"X-Generator: Launchpad (build 12735)\n"
+"X-Launchpad-Export-Date: 2011-04-20 04:35+0000\n"
+"X-Generator: Launchpad (build 12758)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -263,6 +263,9 @@ msgid ""
 "Textile references to images. The referenced images as well as the TXT file "
 "are added to the archive."
 msgstr ""
+"Crează o arhivă TXTZ atunci când este importat un fișier TXT în care "
+"referințele la imagini sunt de tip Markdown sau Textile. Imaginile la care "
+"se face referință precum și fișierul TXT sunt adăugate la arhivă."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:167
 msgid "Extract cover from comic files"
@@ -353,7 +356,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:914
 msgid "Toolbar"
-msgstr ""
+msgstr "Bară de unelte"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:920
 msgid ""
@@ -365,7 +368,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:926
 msgid "Searching"
-msgstr ""
+msgstr "Căutare"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:932
 msgid "Customize the way searching for books works in calibre"
@@ -444,7 +447,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1006
 msgid "Metadata plugboards"
-msgstr ""
+msgstr "Panouri de conectare pentru metadate"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1012
 msgid "Change metadata fields before saving/sending"
@@ -499,11 +502,13 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1053
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:57
 msgid "Metadata download"
-msgstr ""
+msgstr "Descărcare metadate"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1059
 msgid "Control how calibre downloads ebook metadata from the net"
 msgstr ""
+"Controlează modul în care Calibre descarcă metadatele cărţilor electronice "
+"din internet"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1064
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:269
@@ -533,59 +538,59 @@ msgstr "Configurare avansată a altor elemente"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1107
 msgid "Kindle books from Amazon"
-msgstr ""
+msgstr "Cărţi Kindle de pe Amazon"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1112
 msgid "Ebooks for readers."
-msgstr ""
+msgstr "E-cărţi pentru cititori"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1117
 msgid "Books, Textbooks, eBooks, Toys, Games and More."
-msgstr ""
+msgstr "Cărţi, Manuale, eCărţi, Jucării, Jocuri şi multe altele."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1122
 msgid "Publishers of fine books."
-msgstr ""
+msgstr "Editori de cărţi bune"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1127
 msgid "World Famous eBook Store."
-msgstr ""
+msgstr "Magazin eBook cunoscut în toată lumea"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1132
 msgid "The digital bookstore."
-msgstr ""
+msgstr "Biblioteca digitală"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1137
 msgid "entertain, enrich, inspire."
-msgstr ""
+msgstr "distrează, îmbogăţeşte, inspiră."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1142
 msgid "Read anywhere."
-msgstr ""
+msgstr "Citeste oriunde."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1147
 msgid "The first producer of free ebooks."
-msgstr ""
+msgstr "Primul producător de cărţi electronice gratuite."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1152
 msgid "eReading: anytime. anyplace."
-msgstr ""
+msgstr "Citire electronică: oricând, oriunde."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1157
 msgid "The best ebooks at the best price: free!"
-msgstr ""
+msgstr "Cele mai bune ebooks la cele mai bun preţ: gratis!"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1162
 msgid "Ebooks handcrafted with the utmost care"
-msgstr ""
+msgstr "eCărţi lucrate manual cu cea mai mare grijă"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1167
 msgid "One web page for every book."
-msgstr ""
+msgstr "O pagină web pentru fiecare carte"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1172
 msgid "Your ebook. Your way."
-msgstr ""
+msgstr "Cartea dvs. Stilul dvs."
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:102
 msgid "Conversion Input"
@@ -870,14 +875,22 @@ msgid ""
 "iTunes</em> menu item.</p><p>Enabling the Apple driver for direct connection "
 "to iDevices is an unsupported advanced user mode.</p><p></p>"
 msgstr ""
+"<p> Dacă nu doriţi calibre să recunoască iDevice Apple atunci când este "
+"conectat la computerul dumneavoastră, faceţi clic <b> Dezactivează Driver "
+"Apple </ b>.</p><p>Pentru a transfera cărţi pe iDevice dumneavoastră, faceţi "
+"clic <b> Dezactivează Driver Apple </ b>, apoi utilizaţi \"Conectare la "
+"iTunes\" metoda recomandată în <a "
+"href=\"http://www.mobileread.com/forums/showthread.php?t=118559\">Calibre + "
+"iDevices FAQ</a>, utilizând <em>Conectare/Împărţire</em>|<em>Conectare la "
+"iTunes</em> element din meniu.</p><p>"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:65
 msgid "Disable Apple driver"
-msgstr ""
+msgstr "Dezactivează driver-ul Apple."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:69
 msgid "Enable Apple driver"
-msgstr ""
+msgstr "Activează driver-ul Apple."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:117
 msgid "Use Series as Category in iTunes/iBooks"
@@ -885,7 +898,7 @@ msgstr "Foloseste Seria ca si Categorie in iTunes/iBoooks"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:118
 msgid "Enable to use the series name as the iTunes Genre, iBooks Category"
-msgstr ""
+msgstr "Permite utilizarea numelor serie ca gen iTunes, categoria iBooks"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:120
 msgid "Cache covers from iTunes/iBooks"
@@ -893,7 +906,7 @@ msgstr "Memorare în cache a copertelor de la iTunes/iBooks"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:122
 msgid "Enable to cache and display covers from iTunes/iBooks"
-msgstr ""
+msgstr "Perminte"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:176
 msgid "Apple device"
@@ -1015,6 +1028,9 @@ msgid ""
 "If you are trying to connect via Wi-Fi, please make sure the IP address of "
 "Bambook has been correctly configured."
 msgstr ""
+"Nu este posibilă conectarea la Bambook. \n"
+"Dacă încercați să vă conectați prin Wi-Fi, vă rugăm sa verificați dacă "
+"adresa IP a Bambook a fost configurată corect."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:112
 msgid "Bambook"
@@ -1102,7 +1118,7 @@ msgstr "Comunica cu Cybook Gen 3 / Opus."
 
 #: /home/kovid/work/calibre/src/calibre/devices/cybook/driver.py:64
 msgid "Communicate with the Cybook Orizon eBook reader."
-msgstr ""
+msgstr "Comunică cu cititorul de cărţi electronice Cybook Orizon."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:25
 msgid "Communicate with the EB600 eBook reader."
@@ -1234,7 +1250,7 @@ msgstr "Nu este un fișier MOBI valid. Raportează identitatea %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/apnx.py:44
 msgid "Could not generate page mapping."
-msgstr ""
+msgstr "Nu s-a putut genera maparea paginii."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:44
 msgid "Communicate with the Kindle eBook reader."
@@ -1255,6 +1271,10 @@ msgid ""
 "the Kindle when uploading MOBI files by USB. Note that the page numbers do "
 "not correspond to any paper book."
 msgstr ""
+"Kindle 3 şi versiunile mai noi pot folosi informaţii despre numărul paginii "
+"în fişiere MOBI. Cu această opţiune, calibre va calcula şi transmite aceste "
+"informaţii la Kindle atunci când se face încărcarea fişierelor MOBI prin "
+"USB. Reţineţi că numerele de pagină nu corespund oricărei cărți."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:187
 msgid "Use slower but more accurate page number generation"
@@ -1303,11 +1323,11 @@ msgstr "Comunica cu Palm Pre"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:39
 msgid "Communicate with the Bq Avant"
-msgstr ""
+msgstr "Comunică cu Bq Avant"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:60
 msgid "Communicate with the Sweex/Kogan/Q600/Wink"
-msgstr ""
+msgstr "Comunică cu Sweex/Kogan/Q600/Wink"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:81
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:108
@@ -1495,7 +1515,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:111
 msgid "Communicate with the Wexler reader."
-msgstr ""
+msgstr "Comunica cu cititorul Wexler"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:282
 msgid "Unable to detect the %s disk drive. Try rebooting."
