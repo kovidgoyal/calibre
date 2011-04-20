@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 '''
 Fetch metadata using Overdrive Content Reserve
 '''
-import re, random, mechanize, copy
+import re, random, mechanize, copy, json
 from threading import RLock
 from Queue import Queue, Empty
 
@@ -43,7 +43,7 @@ class OverDrive(Source):
 
     def __init__(self, *args, **kwargs):
        Source.__init__(self, *args, **kwargs)
-       self.prefs.defaults['ignore_fields'] =['tags', 'pubdate', 'comments', 'identifier:isbn', 'language']
+       self.prefs.defaults['ignore_fields'] =['tags', 'pubdate', 'comments', 'identifier:isbn']
 
     def identify(self, log, result_queue, abort, title=None, authors=None, # {{{
             identifiers={}, timeout=30):
@@ -228,7 +228,7 @@ class OverDrive(Source):
     def sort_ovrdrv_results(self, raw, title=None, title_tokens=None, author=None, author_tokens=None, ovrdrv_id=None):
         close_matches = []
         raw = re.sub('.*?\[\[(?P<content>.*?)\]\].*', '[[\g<content>]]', raw)
-        results = eval(raw)
+        results = json.loads(raw)
         #print results
         # The search results are either from a keyword search or a multi-format list from a single ID,
         # sort through the results for closest match/format
@@ -392,7 +392,9 @@ class OverDrive(Source):
             from calibre.utils.date import parse_date
             mi.pubdate = parse_date(pub_date[0].strip())
         if lang:
-            mi.language = lang[0].strip()
+            lang = lang[0].strip().lower()
+            mi.language = {'english':'en', 'french':'fr', 'german':'de',
+                    'spanish':'es'}.get(lang, None)
 
         if ebook_isbn:
             #print "ebook isbn is "+str(ebook_isbn[0])
