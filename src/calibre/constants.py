@@ -1,23 +1,27 @@
+from future_builtins import map
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
-__appname__   = 'calibre'
-__version__   = '0.7.56'
-__author__    = "Kovid Goyal <kovid@kovidgoyal.net>"
-
-import re, importlib
-_ver = __version__.split('.')
-_ver = [int(re.search(r'(\d+)', x).group(1)) for x in _ver]
-numeric_version = tuple(_ver)
+__appname__   = u'calibre'
+numeric_version = (0, 7, 56)
+__version__   = u'.'.join(map(unicode, numeric_version))
+__author__    = u"Kovid Goyal <kovid@kovidgoyal.net>"
 
 '''
 Various run time constants.
 '''
 
-import sys, locale, codecs, os
-from calibre.utils.terminfo import TerminalController
+import sys, locale, codecs, os, importlib
 
-terminal_controller = TerminalController(sys.stdout)
+_tc = None
+def terminal_controller():
+    global _tc
+    if _tc is None:
+        from calibre.utils.terminfo import TerminalController
+        _tc = TerminalController(sys.stdout)
+    return _tc
+
 
 iswindows = 'win32' in sys.platform.lower() or 'win64' in sys.platform.lower()
 isosx     = 'darwin' in sys.platform.lower()

@@ -14,7 +14,8 @@ from calibre.ebooks.conversion.preprocess import HTMLPreProcessor
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.date import parse_date
 from calibre.utils.zipfile import ZipFile
-from calibre import extract, walk, isbytestring, filesystem_encoding
+from calibre import (extract, walk, isbytestring, filesystem_encoding,
+        get_types_map)
 from calibre.constants import __version__
 
 DEBUG_README=u'''
@@ -877,6 +878,7 @@ OptionRecommendation(name='sr3_replace',
         self.flush()
         import cssutils, logging
         cssutils.log.setLevel(logging.WARN)
+        get_types_map() # Ensure the mimetypes module is intialized
 
         if self.opts.debug_pipeline is not None:
             self.opts.verbose = max(self.opts.verbose, 4)

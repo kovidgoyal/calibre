@@ -10,7 +10,6 @@ Transform OEB content into FB2 markup
 
 from base64 import b64encode
 from datetime import datetime
-from mimetypes import types_map
 import re
 import uuid
 
@@ -259,7 +258,7 @@ class FB2MLizer(object):
                 continue
             if item.media_type in OEB_RASTER_IMAGES:
                 try:
-                    if not item.media_type == types_map['.jpeg'] or not item.media_type == types_map['.jpg']:
+                    if item.media_type != 'image/jpeg':
                         im = Image()
                         im.load(item.data)
                         im.set_compression_quality(70)

@@ -8,7 +8,6 @@ __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import os, re, uuid, logging
-from mimetypes import types_map
 from collections import defaultdict
 from itertools import count
 from urlparse import urldefrag, urlparse, urlunparse, urljoin
@@ -20,7 +19,7 @@ from calibre.translations.dynamic import translate
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.oeb.entitydefs import ENTITYDEFS
 from calibre.ebooks.conversion.preprocess import CSSPreProcessor
-from calibre import isbytestring, as_unicode
+from calibre import isbytestring, as_unicode, get_types_map
 
 RECOVER_PARSER = etree.XMLParser(recover=True, no_network=True)
 
@@ -247,7 +246,7 @@ def rewrite_links(root, link_repl_func, resolve_base_href=False):
                 el.attrib['style'] = repl
 
 
-
+types_map = get_types_map()
 EPUB_MIME      = types_map['.epub']
 XHTML_MIME     = types_map['.xhtml']
 CSS_MIME       = types_map['.css']

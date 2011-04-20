@@ -3,9 +3,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, os, re, logging, time, random, __builtin__, warnings
-from urllib import getproxies
-from urllib2 import unquote as urllib2_unquote
+import sys, os, re, time, random, __builtin__, warnings
 __builtin__.__dict__['dynamic_property'] = lambda(func): func(None)
 from htmlentitydefs import name2codepoint
 from math import floor
@@ -15,13 +13,12 @@ warnings.simplefilter('ignore', DeprecationWarning)
 
 
 from calibre.constants import (iswindows, isosx, islinux, isfreebsd, isfrozen,
-                              terminal_controller, preferred_encoding,
-                              __appname__, __version__, __author__,
+                              preferred_encoding, __appname__, __version__, __author__,
                               win32event, win32api, winerror, fcntl,
                               filesystem_encoding, plugins, config_dir)
-from calibre.startup import winutil, winutilerror, guess_type
+from calibre.startup import winutil, winutilerror
 
-if islinux and not getattr(sys, 'frozen', False):
+if False and islinux and not getattr(sys, 'frozen', False):
     # Imported before PyQt4 to workaround PyQt4 util-linux conflict discovered on gentoo
     # See http://bugs.gentoo.org/show_bug.cgi?id=317557
     # Importing uuid is slow so get rid of this at some point, maybe in a few
@@ -33,8 +30,33 @@ if islinux and not getattr(sys, 'frozen', False):
 if False:
     # Prevent pyflakes from complaining
     winutil, winutilerror, __appname__, islinux, __version__
-    fcntl, win32event, isfrozen, __author__, terminal_controller
-    winerror, win32api, isfreebsd, guess_type
+    fcntl, win32event, isfrozen, __author__
+    winerror, win32api, isfreebsd
+
+_mt_inited = False
+def _init_mimetypes():
+    global _mt_inited
+    import mimetypes
+    mimetypes.init([P('mime.types')])
+    _mt_inited = True
+
+def guess_type(*args, **kwargs):
+    import mimetypes
+    if not _mt_inited:
+        _init_mimetypes()
+    return mimetypes.guess_type(*args, **kwargs)
+
+def guess_all_extensions(*args, **kwargs):
+    import mimetypes
+    if not _mt_inited:
+        _init_mimetypes()
+    return mimetypes.guess_all_extensions(*args, **kwargs)
+
+def get_types_map():
+    import mimetypes
+    if not _mt_inited:
+        _init_mimetypes()
+    return mimetypes.types_map
 
 def to_unicode(raw, encoding='utf-8', errors='strict'):
     if isinstance(raw, unicode):
@@ -182,6 +204,7 @@ class CommandLineError(Exception):
     pass
 
 def setup_cli_handlers(logger, level):
+    import logging
     if os.environ.get('CALIBRE_WORKER', None) is not None and logger.handlers:
         return
     logger.setLevel(level)
@@ -243,6 +266,7 @@ def extract(path, dir):
     extractor(path, dir)
 
 def get_proxies(debug=True):
+    from urllib import getproxies
     proxies = getproxies()
     for key, proxy in list(proxies.items()):
         if not proxy or '..' in proxy:
@@ -552,6 +576,8 @@ def get_download_filename(url, cookie_file=None):
     Get a local filename for a URL using the content disposition header
     '''
     from contextlib import closing
+    from urllib2 import unquote as urllib2_unquote
+
     filename = ''
 
     br = browser()

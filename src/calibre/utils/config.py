@@ -6,15 +6,15 @@ __docformat__ = 'restructuredtext en'
 '''
 Manage application-wide preferences.
 '''
-import os, re, cPickle, textwrap, traceback, plistlib, json, base64, datetime
+import os, re, cPickle, traceback, base64, datetime
 from copy import deepcopy
 from functools import partial
 from optparse import OptionParser as _OptionParser
 from optparse import IndentedHelpFormatter
 from collections import defaultdict
 
-from calibre.constants import terminal_controller, config_dir, CONFIG_DIR_MODE, \
-                              __appname__, __version__, __author__
+from calibre.constants import (config_dir, CONFIG_DIR_MODE, __appname__,
+        __version__, __author__, terminal_controller)
 from calibre.utils.lock import LockError, ExclusiveFile
 
 plugin_dir = os.path.join(config_dir, 'plugins')
@@ -29,23 +29,28 @@ def check_config_write_access():
 class CustomHelpFormatter(IndentedHelpFormatter):
 
     def format_usage(self, usage):
-        return _("%sUsage%s: %s\n") % (terminal_controller.BLUE, terminal_controller.NORMAL, usage)
+        tc = terminal_controller()
+        return _("%sUsage%s: %s\n") % (tc.BLUE, tc.NORMAL, usage)
 
     def format_heading(self, heading):
-        return "%*s%s%s%s:\n" % (self.current_indent, terminal_controller.BLUE,
-                                 "", heading, terminal_controller.NORMAL)
+        tc = terminal_controller()
+        return "%*s%s%s%s:\n" % (self.current_indent, tc.BLUE,
+                                 "", heading, tc.NORMAL)
 
     def format_option(self, option):
+        import textwrap
+        tc = terminal_controller()
+
         result = []
         opts = self.option_strings[option]
         opt_width = self.help_position - self.current_indent - 2
         if len(opts) > opt_width:
             opts = "%*s%s\n" % (self.current_indent, "",
-                                    terminal_controller.GREEN+opts+terminal_controller.NORMAL)
+                                    tc.GREEN+opts+tc.NORMAL)
             indent_first = self.help_position
         else:                       # start help on same line as opts
-            opts = "%*s%-*s  " % (self.current_indent, "", opt_width + len(terminal_controller.GREEN + terminal_controller.NORMAL),
-                                  terminal_controller.GREEN + opts + terminal_controller.NORMAL)
+            opts = "%*s%-*s  " % (self.current_indent, "", opt_width +
+                    len(tc.GREEN + tc.NORMAL), tc.GREEN + opts + tc.NORMAL)
             indent_first = 0
         result.append(opts)
         if option.help:
@@ -71,9 +76,12 @@ class OptionParser(_OptionParser):
                  gui_mode=False,
                  conflict_handler='resolve',
                  **kwds):
+        import textwrap
+        tc = terminal_controller()
+
         usage = textwrap.dedent(usage)
         if epilog is None:
-            epilog = _('Created by ')+terminal_controller.RED+__author__+terminal_controller.NORMAL
+            epilog = _('Created by ')+tc.RED+__author__+tc.NORMAL
         usage += '\n\n'+_('''Whenever you pass arguments to %prog that have spaces in them, '''
                  '''enclose the arguments in quotation marks.''')
         _OptionParser.__init__(self, usage=usage, version=version, epilog=epilog,
@@ -579,9 +587,11 @@ class XMLConfig(dict):
         self.refresh()
 
     def raw_to_object(self, raw):
+        import plistlib
         return plistlib.readPlistFromString(raw)
 
     def to_raw(self):
+        import plistlib
         return plistlib.writePlistToString(self)
 
     def refresh(self):
@@ -601,6 +611,7 @@ class XMLConfig(dict):
         self.update(d)
 
     def __getitem__(self, key):
+        import plistlib
         try:
             ans = dict.__getitem__(self, key)
             if isinstance(ans, plistlib.Data):
@@ -610,6 +621,7 @@ class XMLConfig(dict):
             return self.defaults.get(key, None)
 
     def get(self, key, default=None):
+        import plistlib
         try:
             ans = dict.__getitem__(self, key)
             if isinstance(ans, plistlib.Data):
@@ -619,6 +631,7 @@ class XMLConfig(dict):
             return self.defaults.get(key, default)
 
     def __setitem__(self, key, val):
+        import plistlib
         if isinstance(val, (bytes, str)):
             val = plistlib.Data(val)
         dict.__setitem__(self, key, val)
@@ -667,9 +680,11 @@ class JSONConfig(XMLConfig):
     EXTENSION = '.json'
 
     def raw_to_object(self, raw):
+        import json
         return json.loads(raw.decode('utf-8'), object_hook=from_json)
 
     def to_raw(self):
+        import json
         return json.dumps(self, indent=2, default=to_json)
 
     def __getitem__(self, key):
