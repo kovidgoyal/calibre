@@ -242,7 +242,7 @@ def apply_metadata(job, gui, q, result):
     q.finished.disconnect()
     if result != q.Accepted:
         return
-    id_map, failed_ids, failed_covers, title_map = job.result
+    id_map, failed_ids, failed_covers, title_map, all_failed = job.result
     id_map = dict([(k, v) for k, v in id_map.iteritems() if k not in
         failed_ids])
     if not id_map:
@@ -279,31 +279,39 @@ def apply_metadata(job, gui, q, result):
 
 def proceed(gui, job):
     gui.status_bar.show_message(_('Metadata download completed'), 3000)
-    id_map, failed_ids, failed_covers, title_map = job.result
-    fmsg = det_msg = ''
-    if failed_ids or failed_covers:
-        fmsg = '<p>'+_('Could not download metadata and/or covers for %d of the books. Click'
-                ' "Show details" to see which books.')%len(failed_ids)
-        det_msg = []
-        for i in failed_ids | failed_covers:
-            title = title_map[i]
-            if i in failed_ids:
-                title += (' ' + _('(Failed metadata)'))
-            if i in failed_covers:
-                title += (' ' + _('(Failed cover)'))
-            det_msg.append(title)
-    msg = '<p>' + _('Finished downloading metadata for <b>%d book(s)</b>. '
-        'Proceed with updating the metadata in your library?')%len(id_map)
-    q = MessageBox(MessageBox.QUESTION, _('Download complete'),
-            msg + fmsg, det_msg='\n'.join(det_msg), show_copy_button=bool(failed_ids),
-            parent=gui)
+    id_map, failed_ids, failed_covers, title_map, all_failed = job.result
+    if all_failed:
+        q = error_dialog(gui, _('Download failed'),
+            _('Failed to download metadata or covers for any of the %d'
+               ' book(s).') % len(id_map))
+    else:
+        fmsg = det_msg = ''
+        if failed_ids or failed_covers:
+            fmsg = '<p>'+_('Could not download metadata and/or covers for %d of the books. Click'
+                    ' "Show details" to see which books.')%len(failed_ids)
+            det_msg = []
+            for i in failed_ids | failed_covers:
+                title = title_map[i]
+                if i in failed_ids:
+                    title += (' ' + _('(Failed metadata)'))
+                if i in failed_covers:
+                    title += (' ' + _('(Failed cover)'))
+                det_msg.append(title)
+        msg = '<p>' + _('Finished downloading metadata for <b>%d book(s)</b>. '
+            'Proceed with updating the metadata in your library?')%len(id_map)
+        q = MessageBox(MessageBox.QUESTION, _('Download complete'),
+                msg + fmsg, det_msg='\n'.join(det_msg), show_copy_button=bool(failed_ids),
+                parent=gui)
+        q.finished.connect(partial(apply_metadata, job, gui, q))
+
     q.vlb = q.bb.addButton(_('View log'), q.bb.ActionRole)
     q.vlb.setIcon(QIcon(I('debug.png')))
     q.vlb.clicked.connect(partial(view_log, job, q))
     q.det_msg_toggle.setVisible(bool(failed_ids | failed_covers))
     q.setModal(False)
+    if all_failed:
+        q.det_msg_toggle.setVisible(False)
     q.show()
-    q.finished.connect(partial(apply_metadata, job, gui, q))
 
 # }}}
 
@@ -336,6 +344,7 @@ def download(ids, db, do_identify, covers,
     title_map = {}
     ans = {}
     count = 0
+    all_failed = True
     for i, mi in izip(ids, metadata):
         if abort.is_set():
             log.error('Aborting...')
@@ -350,6 +359,7 @@ def download(ids, db, do_identify, covers,
             except:
                 pass
             if results:
+                all_failed = False
                 mi = merge_result(mi, results[0])
                 identifiers = mi.identifiers
                 if not mi.is_null('rating'):
@@ -367,6 +377,7 @@ def download(ids, db, do_identify, covers,
                 with PersistentTemporaryFile('.jpg', 'downloaded-cover-') as f:
                     f.write(cdata[-1])
                     mi.cover = f.name
+                all_failed = False
             else:
                 failed_covers.add(i)
         ans[i] = mi
@@ -374,7 +385,7 @@ def download(ids, db, do_identify, covers,
         notifications.put((count/len(ids),
             _('Downloaded %d of %d')%(count, len(ids))))
     log('Download complete, with %d failures'%len(failed_ids))
-    return (ans, failed_ids, failed_covers, title_map)
+    return (ans, failed_ids, failed_covers, title_map, all_failed)
 
 
 
