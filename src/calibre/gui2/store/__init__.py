@@ -96,7 +96,7 @@ class StorePlugin(object): # {{{
 
         :param query: The string query search with.
         :param max_results: The maximum number of results to return.
-        :param timeout: The maximum amount of time in seconds to spend download the search results.
+        :param timeout: The maximum amount of time in seconds to spend downloading data for search results.
 
         :return: :class:`calibre.gui2.store.search_result.SearchResult` objects
         item_data is plugin specific and is used in :meth:`open` to open to a specifc place in the store.
@@ -116,8 +116,13 @@ class StorePlugin(object): # {{{
         take extra time to load. Splitting retrieving data that takes longer
         to load into a separate function will give the illusion of the search
         being faster.
+        
+        :param search_result: A search result that need details set.
+        :param timeout: The maximum amount of time in seconds to spend downloading details.
+        
+        :return: True if the search_result was modified otherwise False
         '''
-        pass
+        return False
 
     def get_settings(self):
         '''

@@ -117,3 +117,4 @@ class EbookscomStore(BasicStoreConfig, StorePlugin):
             search_result.formats = fdata
         
         search_result.price = price.strip()
+        return True

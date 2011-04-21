@@ -185,5 +185,6 @@ class AmazonKindleStore(StorePlugin):
                     search_result.drm = SearchResult.DRM_UNKNOWN
             else:
                 search_result.drm = SearchResult.DRM_LOCKED
+        return True
 
         

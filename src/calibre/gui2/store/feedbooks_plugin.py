@@ -72,8 +72,10 @@ class FeedbooksStore(BasicStoreConfig, StorePlugin):
                 title = ''.join(data.xpath('//h5//a/text()'))
                 author = ''.join(data.xpath('//h6//a/text()'))
                 price = ''.join(data.xpath('//a[@class="buy"]/text()'))
+                formats = 'EPUB'
                 if not price:
                     price = '$0.00'
+                    formats = 'EPUB, MOBI, PDF'
                 cover_url = ''
                 cover_url_img =  data.xpath('//img')
                 if cover_url_img:
@@ -88,6 +90,7 @@ class FeedbooksStore(BasicStoreConfig, StorePlugin):
                 s.author = author.strip()
                 s.price = price.replace(' ', '').strip()
                 s.detail_item = id.strip()
+                s.formats = formats
                 
                 yield s
 
@@ -101,3 +104,4 @@ class FeedbooksStore(BasicStoreConfig, StorePlugin):
                 search_result.drm = SearchResult.DRM_LOCKED
             else:
                 search_result.drm = SearchResult.DRM_UNLOCKED
+        return True

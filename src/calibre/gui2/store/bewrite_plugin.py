@@ -98,4 +98,6 @@ class BeWriteStore(BasicStoreConfig, StorePlugin):
                 formats.add('PDF')
             if idata.xpath('boolean(//div[@id="content"]//td[contains(text(), "MOBI")])'):
                 formats.add('MOBI')
-            search_result.formats = ', '.join(list(formats))    
+            search_result.formats = ', '.join(list(formats))
+
+        return True

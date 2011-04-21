@@ -101,3 +101,4 @@ class EHarlequinStore(BasicStoreConfig, StorePlugin):
                 else:
                     drm = SearchResult.DRM_UNLOCKED
         search_result.drm = drm
+        return True

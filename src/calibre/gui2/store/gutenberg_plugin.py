@@ -82,3 +82,12 @@ class GutenbergStore(BasicStoreConfig, StorePlugin):
                 s.drm = SearchResult.DRM_UNLOCKED
                 
                 yield s
+
+    def get_details(self, search_result, timeout):
+        url = 'http://m.gutenberg.org/'
+        
+        br = browser()
+        with closing(br.open(url + search_result.detail_item, timeout=timeout)) as nf:
+            idata = html.fromstring(nf.read())
+            search_result.formats = ', '.join(idata.xpath('//a[@type!="application/atom+xml"]//span[@class="title"]/text()'))
+        return True

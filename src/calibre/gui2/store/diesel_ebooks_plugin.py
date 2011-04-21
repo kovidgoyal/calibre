@@ -99,3 +99,4 @@ class DieselEbooksStore(BasicStoreConfig, StorePlugin):
                 search_result.drm = SearchResult.DRM_UNLOCKED
             else:
                 search_result.drm = SearchResult.DRM_LOCKED
+        return True

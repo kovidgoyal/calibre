@@ -82,5 +82,6 @@ class KoboStore(BasicStoreConfig, StorePlugin):
                 s.price = price.strip()
                 s.detail_item = '?url=http://www.kobobooks.com/' + id.strip()
                 s.drm = SearchResult.DRM_LOCKED if drm else SearchResult.DRM_UNLOCKED
+                s.formats = 'EPUB'
                 
                 yield s
