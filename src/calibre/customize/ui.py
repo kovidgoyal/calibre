@@ -22,6 +22,11 @@ from calibre.utils.config import make_config_dir, Config, ConfigProxy, \
 from calibre.ebooks.epub.fix import ePubFixer
 from calibre.ebooks.metadata.sources.base import Source
 
+builtin_names = frozenset([p.name for p in builtin_plugins])
+
+class NameConflict(ValueError):
+    pass
+
 def _config():
     c = Config('customize')
     c.add_opt('plugins', default={}, help=_('Installed plugins'))
@@ -355,6 +360,9 @@ def set_file_type_metadata(stream, mi, ftype):
 def add_plugin(path_to_zip_file):
     make_config_dir()
     plugin = load_plugin(path_to_zip_file)
+    if plugin.name in builtin_names:
+        raise NameConflict(
+            'A builtin plugin with the name %r already exists' % plugin.name)
     plugin = initialize_plugin(plugin, path_to_zip_file)
     plugins = config['plugins']
     zfp = os.path.join(plugin_dir, plugin.name+'.zip')
@@ -506,7 +514,9 @@ def initialize_plugin(plugin, path_to_zip_file):
 def initialize_plugins():
     global _initialized_plugins
     _initialized_plugins = []
-    for zfp in list(config['plugins'].values()) + builtin_plugins:
+    user_plugins = [p for name, p in config['plugins'].iteritems() if name not
+            in builtin_names]
+    for zfp in user_plugins + builtin_plugins:
         try:
             try:
                 plugin = load_plugin(zfp) if not isinstance(zfp, type) else zfp
