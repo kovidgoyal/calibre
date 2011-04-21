@@ -280,27 +280,29 @@ def apply_metadata(job, gui, q, result):
 def proceed(gui, job):
     gui.status_bar.show_message(_('Metadata download completed'), 3000)
     id_map, failed_ids, failed_covers, title_map, all_failed = job.result
+    det_msg = []
+    for i in failed_ids | failed_covers:
+        title = title_map[i]
+        if i in failed_ids:
+            title += (' ' + _('(Failed metadata)'))
+        if i in failed_covers:
+            title += (' ' + _('(Failed cover)'))
+        det_msg.append(title)
+    det_msg = '\n'.join(det_msg)
+
     if all_failed:
         q = error_dialog(gui, _('Download failed'),
             _('Failed to download metadata or covers for any of the %d'
-               ' book(s).') % len(id_map))
+               ' book(s).') % len(id_map), det_msg=det_msg)
     else:
         fmsg = det_msg = ''
         if failed_ids or failed_covers:
             fmsg = '<p>'+_('Could not download metadata and/or covers for %d of the books. Click'
                     ' "Show details" to see which books.')%len(failed_ids)
-            det_msg = []
-            for i in failed_ids | failed_covers:
-                title = title_map[i]
-                if i in failed_ids:
-                    title += (' ' + _('(Failed metadata)'))
-                if i in failed_covers:
-                    title += (' ' + _('(Failed cover)'))
-                det_msg.append(title)
         msg = '<p>' + _('Finished downloading metadata for <b>%d book(s)</b>. '
             'Proceed with updating the metadata in your library?')%len(id_map)
         q = MessageBox(MessageBox.QUESTION, _('Download complete'),
-                msg + fmsg, det_msg='\n'.join(det_msg), show_copy_button=bool(failed_ids),
+                msg + fmsg, det_msg=det_msg, show_copy_button=bool(failed_ids),
                 parent=gui)
         q.finished.connect(partial(apply_metadata, job, gui, q))
 
@@ -309,8 +311,6 @@ def proceed(gui, job):
     q.vlb.clicked.connect(partial(view_log, job, q))
     q.det_msg_toggle.setVisible(bool(failed_ids | failed_covers))
     q.setModal(False)
-    if all_failed:
-        q.det_msg_toggle.setVisible(False)
     q.show()
 
 # }}}
