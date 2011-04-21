@@ -62,9 +62,9 @@ if not _run_once:
     ################################################################################
     # Initialize locale
     # Import string as we do not want locale specific
-    # string.whitespace/printable, on windows especially, this causes problems
+    # string.whitespace/printable, on windows especially, this causes problems.
     # Before the delay load optimizations, string was loaded before this point
-    # anyway, so we preserve the old behavior, explicitly.
+    # anyway, so we preserve the old behavior explicitly.
     import string
     string
     try:
