@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-04-17 16:54+0000\n"
-"PO-Revision-Date: 2011-04-19 13:44+0000\n"
-"Last-Translator: Manichean <Unknown>\n"
+"PO-Revision-Date: 2011-04-20 15:20+0000\n"
+"Last-Translator: Armin Geller <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-04-20 04:35+0000\n"
+"X-Launchpad-Export-Date: 2011-04-21 04:37+0000\n"
 "X-Generator: Launchpad (build 12758)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -571,7 +571,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1157
 msgid "The best ebooks at the best price: free!"
-msgstr ""
+msgstr "Die besten Ebooks zum besten Preis: Kostenlos!"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1162
 msgid "Ebooks handcrafted with the utmost care"
@@ -9138,7 +9138,7 @@ msgstr "Auswählen, um alle Etiketten des Buches zu entfernen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:543
 msgid "Remove &all"
-msgstr ""
+msgstr "&Alle entfernen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:547
 msgid "If checked, the series will be cleared"
@@ -9146,7 +9146,7 @@ msgstr "Wenn ausgewählt, wird der Serien- Eintrag entfernt."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:548
 msgid "&Clear series"
-msgstr ""
+msgstr "&Serie löschen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:549
 msgid ""
@@ -9162,7 +9162,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:553
 msgid "&Automatically number books in this series"
-msgstr ""
+msgstr "Bücher in dieser Serie &automatisch numerieren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:554
 msgid ""
@@ -9176,7 +9176,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:557
 msgid "&Force numbers to start with:"
-msgstr ""
+msgstr "Start der &Numerierung mit:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:558
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:440
@@ -9186,21 +9186,21 @@ msgstr "&Datum:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:559
 msgid "d MMM yyyy"
-msgstr ""
+msgstr "d MMM yyyy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:561
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:566
 msgid "&Apply date"
-msgstr ""
+msgstr "Datum &setzen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:562
 msgid "&Published:"
-msgstr ""
+msgstr "&Veröffentlicht:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:564
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:444
 msgid "Clear published date"
-msgstr ""
+msgstr "Veröffentlichungsdatum löschen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:567
 msgid "Remove &format:"
@@ -9218,17 +9218,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:570
 msgid "Change title to title &case"
-msgstr ""
+msgstr "Titel in Titelschreibweise ändern"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:571
 msgid ""
 "Update title sort based on the current title. This will be applied only "
 "after other changes to title."
 msgstr ""
+"Titelsortierung basierend auf dem derzeitigem Titel aktualisieren. Dies wird "
+"erst nach weiteren Änderungen des Titels angewandt."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:572
 msgid "Update &title sort"
-msgstr ""
+msgstr "&Titelsortierung aktualisieren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:573
 msgid ""
@@ -9261,7 +9263,7 @@ msgstr "&Remove Cover"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:580
 msgid "Set from &ebook file(s)"
-msgstr ""
+msgstr "Aus &Ebook- Datei(en) setzen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:581
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:465
@@ -9278,19 +9280,19 @@ msgstr "Ben&utzerdefinierte Metadaten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:583
 msgid "Load searc&h/replace:"
-msgstr ""
+msgstr "Suc&hen/Ersetzen laden:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:584
 msgid "Select saved search/replace to load."
-msgstr ""
+msgstr "Zu ladendes Suchen/Ersetzen- Muster wählen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:585
 msgid "Save current search/replace"
-msgstr ""
+msgstr "Derzeitiges Suchen/Ersetzen- Muster speichern"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:586
 msgid "Sa&ve"
-msgstr ""
+msgstr "&Speichern"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:588
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager_ui.py:64
@@ -9307,7 +9309,7 @@ msgstr "Name des zu durchsuchenden Feldes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:591
 msgid "Search &mode:"
-msgstr ""
+msgstr "Such&modus:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:592
 msgid ""
@@ -9329,11 +9331,13 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:595
 msgid "Te&mplate:"
-msgstr ""
+msgstr "&Vorlage:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:596
 msgid "Enter a template to be used as the source for the search/replace"
 msgstr ""
+"Geben sie eine Vorlage ein, die als Quelle für das Suchen/Ersetzen verwendet "
+"werden soll"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:597
 msgid "&Search for:"
@@ -9357,7 +9361,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:600
 msgid "Cas&e sensitive"
-msgstr ""
+msgstr "&Groß/Kleinschreibung beachten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:601
 msgid "&Replace with:"
@@ -9373,7 +9377,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:603
 msgid "&Apply function after replace:"
-msgstr ""
+msgstr "Funktion nach Ersetzen &anwenden:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:604
 msgid ""
@@ -9396,10 +9400,13 @@ msgid ""
 "The field that the text will be put into after all replacements.\n"
 "If blank, the source field is used if the field is modifiable"
 msgstr ""
+"Das Feld, in das der Text nach allen Ersetzungen eingefügt wird.\n"
+"Wird dies leer gelassen, wird das Quellfeld genommen, sofern es\n"
+"editierbar ist."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:609
 msgid "M&ode:"
-msgstr ""
+msgstr "M&odus:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:610
 msgid "Specify how the text should be copied into the destination."
@@ -9412,36 +9419,42 @@ msgid ""
 "is\n"
 "not multiple and the destination field is multiple"
 msgstr ""
+"Gibt an, ob die Ergebnisse in mehrere Werte getrennt oder als\n"
+"einzelne Werte belassen werden sollen. Diese Option hat den größten "
+"Einfluß,\n"
+"wenn das Quellfeld keine multiplen Werte erlaubt, das Zielfeld jedoch schon."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:614
 msgid "Split &result"
-msgstr ""
+msgstr "E&rgebnis aufteilen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:617
 msgid "For multiple-valued fields, sho&w"
-msgstr ""
+msgstr "Für Felder mit multiplen &Werten, zeige"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:618
 msgid "values starting a&t"
-msgstr ""
+msgstr "Werte beginnend mi&t"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:619
 msgid "with values separated b&y"
-msgstr ""
+msgstr "mit Werten getrennt durch"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:620
 msgid ""
 "Used when displaying test results to separate values in multiple-valued "
 "fields"
 msgstr ""
+"Bei der Anzeige von Testergebnissen genutzt, um Werte in Feldern mit "
+"multiplen Werten zu trennen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:621
 msgid "Test text"
-msgstr ""
+msgstr "Testtext"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:622
 msgid "Test result"
-msgstr ""
+msgstr "Testergebnis"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:623
 msgid "Your test:"
@@ -9653,16 +9666,21 @@ msgid ""
 "You have changed the tags. In order to use the tags editor, you must either "
 "discard or apply these changes. Apply changes?"
 msgstr ""
+"Sie haben die Etiketten verändert. Um den Etiketteneditor zu verwenden, "
+"müssen sie die Änderungen entweder verwerfen oder anwenden. Änderungen "
+"anwenden?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:819
 msgid "Timed out"
-msgstr ""
+msgstr "Zeitüberschreitung"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:820
 msgid ""
 "The download of social metadata timed out, the servers are probably busy. "
 "Try again later."
 msgstr ""
+"Zeitüberschreitung beim Herunterladen von sozialen Metadaten, vermutlich "
+"sind die Server ausgelastet. Versuchen sie es später noch einmal."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:827
 msgid "There were errors"
@@ -9800,7 +9818,7 @@ msgstr "Umschlagbild auf Voreinstellung zurücksetzen"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:452
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:642
 msgid "&Remove"
-msgstr ""
+msgstr "&Löschen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:453
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:648
@@ -9877,10 +9895,12 @@ msgid ""
 "Restoring database from backups, do not interrupt, this will happen in three "
 "stages"
 msgstr ""
+"Stelle Datenbank aus Backups wieder her. Den Vorgang nicht unterbrechen, "
+"dies wird in drei Stadien geschehen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:25
 msgid "Restoring database"
-msgstr ""
+msgstr "Stelle Datenbank wieder her"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:79
 msgid ""
@@ -9892,30 +9912,45 @@ msgid ""
 "only restores books, not any settings stored in the database, or any custom "
 "recipes.<p>Do you want to restore the database?"
 msgstr ""
+"Ihre Buchliste, mit allen Metadaten, ist in einer einzigen Datei, der "
+"Datenbank, gespeichert. Zusätzlich werden als Backup die Metadaten jedes "
+"Buches in seinem jeweiligen Ordner gespeichert.<p>Diese Operation stellt die "
+"Datenbank aus den Metadaten der einzelnen Bücher wieder her. Dies kann "
+"nützlich sein, wenn die Datenbank defekt ist und sie eine leere Buchliste "
+"erhalten. Beachten sie, dass dies nur die Buchliste wiederherstellt, jedoch "
+"keine in der Datenbank gespeicherten Einstellungen wie beispielsweise "
+"Downloadschemata für Nachrichten.<p>Möchten sie die Datenbank "
+"wiederherstellen?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:102
 msgid "Restoring database failed, click Show details to see details"
 msgstr ""
+"Wiederherstellung der Datenbank fehlgeschlagen, klicken sie Details anzeigen "
+"für weitere Informationen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:107
 msgid ""
 "Restoring the database succeeded with some warnings click Show details to "
 "see the details."
 msgstr ""
+"Wiederherstellung der Datenbank war erfolgreich mit Warnungen, klicken sie "
+"Details anzeigen für weitere Informationen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:112
 msgid "Restoring database was successful"
-msgstr ""
+msgstr "Wiederherstellung der Datenbank war erfolgreich"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor.py:48
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor.py:75
 msgid "Saved search already exists"
-msgstr ""
+msgstr "Gespeicherte Suche existiert bereits"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor.py:49
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor.py:76
 msgid "The saved search %s already exists, perhaps with different case"
 msgstr ""
+"Die gespeicherte Suche %s existiert bereits, eventuell mit anderer "
+"Groß/Kleinschreibung"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor.py:62
 msgid ""
@@ -9950,7 +9985,7 @@ msgstr "Die neue gespeicherte Suche hinzufügen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:102
 msgid "Rename the current search to what is in the box"
-msgstr ""
+msgstr "Derzeitige Suche zum Inhalt der Eingabebox umbenennen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:104
 msgid "Change the contents of the saved search"
@@ -9967,10 +10002,18 @@ msgid ""
 "                soon after 9:00 AM as possible.\n"
 "            "
 msgstr ""
+"                Diese Nachrichtenquelle jede Woche am angegebenen Tag nach "
+"der\n"
+"                angegebenen Zeit herungerladen. Beispielsweise bei Montag "
+"nach \n"
+"                9:00 Uhr wird die Quelle montags so bald wie möglich nach "
+"9:00 Uhr\n"
+"                heruntergeladen werden.\n"
+"            "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:61
 msgid "&Download after:"
-msgstr ""
+msgstr "Herunterla&den nach:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:91
 msgid ""
@@ -9984,18 +10027,29 @@ msgid ""
 "                month, as soon after 9:00 AM as possible.\n"
 "            "
 msgstr ""
+"                Diese Nachrichtenquelle jeden Monat an den angegebenen Tagen "
+"laden.\n"
+"                Die Quelle wird sobald wie möglich nach der angegebenen "
+"Zeit\n"
+"                an den gewählten Tagen heruntergeladen. Wählen sie "
+"beispielsweise\n"
+"                den 1. und 15. nach 9:00 Uhr zum Laden aus, wird die \n"
+"                Quelle jeden Monat am 1. und 15. so bald wie möglich nach "
+"9:00 Uhr\n"
+"                heruntergeladen.\n"
+"            "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:103
 msgid "&Days of the month:"
-msgstr ""
+msgstr "&Tage im Monat:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:105
 msgid "Comma separated list of days of the month. For example: 1, 15"
-msgstr ""
+msgstr "Durch Kommata getrennte Liste der Monatstage. Beispiel: 1, 15"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:109
 msgid "Download &after:"
-msgstr ""
+msgstr "Herunterladen n&ach:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:142
 msgid ""
@@ -10006,27 +10060,38 @@ msgid ""
 "                0.1 days to download a periodical more than once a day.\n"
 "            "
 msgstr ""
+"                Diese Nachrichtenquelle alle x Tage herunterladen. "
+"Beispielsweise\n"
+"                wird bei Auswahl von 30 Tagen die Quelle alle 30 Tage "
+"heruntergeladen.\n"
+"                Beachten sie, dass die auch Perioden von kleiner als einem "
+"Tag wählen\n"
+"                können, beispielsweise 0,1 Tage, um die Quelle mehrmals "
+"täglich zu laden.\n"
+"            "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:151
 msgid "&Download every:"
-msgstr ""
+msgstr "&Herunterladen alle:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:154
 msgid "every hour"
-msgstr ""
+msgstr "stündlich"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:157
 msgid "days"
-msgstr ""
+msgstr "Tage"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:161
 msgid ""
 "Note: You can set intervals of less than a day, by typing the value manually."
 msgstr ""
+"Bemerkung: Sie können Intervalle von kleiner als einem Tag durch manuelle "
+"Eingabe auswählen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:196
 msgid "%s news sources"
-msgstr ""
+msgstr "%s Nachrichtenquellen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:311
 msgid "Need username and password"
@@ -10060,7 +10125,7 @@ msgstr "Zuletzt geladen: niemals"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:373
 msgid "never"
-msgstr ""
+msgstr "nie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:379
 msgid "%d days, %d hours and %d minutes ago"
@@ -10068,7 +10133,7 @@ msgstr "Vor %d Tagen, %d Stunden und %d Minuten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:393
 msgid "Last downloaded:"
-msgstr ""
+msgstr "Zuletzt heruntergeladen:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:421
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:197
@@ -10106,15 +10171,15 @@ msgstr "Zeit&plan zum Laden:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:201
 msgid "Days of  week"
-msgstr ""
+msgstr "Wochentage"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:202
 msgid "Days of month"
-msgstr ""
+msgstr "Monatstage"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:203
 msgid "Every x days"
-msgstr ""
+msgstr "Alle x Tage"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:204
 msgid "&Account"
@@ -10141,10 +10206,12 @@ msgid ""
 "Maximum number of copies (issues) of this recipe to keep.  Set to 0 to keep "
 "all (disable)."
 msgstr ""
+"Maximale Anzahl an Kopien (Ausgaben), die von diesem Downloadschema behalten "
+"werden sollen. Setzen sie 0, um alle zu behalten (deaktivieren)."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:213
 msgid "&Keep at most:"
-msgstr ""
+msgstr "&Behalte maximal:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:214
 msgid ""
@@ -10156,14 +10223,21 @@ msgid ""
 "<p>Also, the setting for deleting periodicals older than a number of days, "
 "below, takes priority over this setting."
 msgstr ""
+"<p>Wenn ausgewählt, wird Calibre höchstens die angegebene Anzahl an Ausgaben "
+"dieser Nachrichtenquelle behalten. Beim Herunterladen wird jeweils die "
+"älteste Ausgabe gelöscht, wenn mehr als die gewählte Anzahl vorhanden sind.\n"
+"<p>Beachten sie, dass diese Funktion nur zur Verfügung steht, wenn sie die "
+"Option, den Titel als Etikett hinzuzufügen, aktiviert haben.\n"
+"<p>Außerdem hat die Einstellung, Ausgaben älter als eine gewisse Anzahl an "
+"Tagen zu löschen, über diese Option Priorität."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:217
 msgid "all issues"
-msgstr ""
+msgstr "alle Ausgaben"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:218
 msgid " issues"
-msgstr ""
+msgstr " Ausgaben"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:219
 msgid "&Advanced"
@@ -10175,7 +10249,7 @@ msgstr "&Jetzt laden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:221
 msgid "&Delete downloaded news older than:"
-msgstr ""
+msgstr "&Lösche heruntergeladene Nachrichten älter als:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:222
 msgid ""
@@ -10185,10 +10259,14 @@ msgid ""
 "periodical that are kept by clicking the Advanced tab for that periodical "
 "above."
 msgstr ""
+"<p>Lösche heruntergeladene Nachrichten älter als die angegebene Anzahl an "
+"Tagen. Auf Null setzen, um zu deaktivieren.\n"
+"<p>Sie können auch die maximale Anzahl an Ausgaben einer bestimmten Quelle, "
+"die behalten werden sollen, im Erweitert- Tab der Quelle auswählen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:224
 msgid "never delete"
-msgstr ""
+msgstr "niemals löschen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:225
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:273
@@ -10197,7 +10275,7 @@ msgstr " Tage"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:226
 msgid "Download all scheduled news sources at once"
-msgstr ""
+msgstr "Lädt alle geplanten Quellen auf einmal herunter"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:227
 msgid "Download &all scheduled"
@@ -10231,7 +10309,7 @@ msgstr "Erweiterte Suche"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:199
 msgid "&What kind of match to use:"
-msgstr ""
+msgstr "Art der zu ver&wendenden Suche:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:200
 msgid "Contains: the word or phrase matches anywhere in the metadata field"
@@ -10349,12 +10427,12 @@ msgstr " (in keinem Buch)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:146
 msgid "Category lookup name: "
-msgstr ""
+msgstr "Suchname für Kategorie: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:191
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:222
 msgid "Invalid name"
-msgstr ""
+msgstr "Ungültiger Name"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:192
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:223
@@ -10362,17 +10440,20 @@ msgid ""
 "That name contains leading or trailing periods, multiple periods in a row or "
 "spaces before or after periods."
 msgstr ""
+"Der Name startet oder endet mit Punkten, enthält mehrere Punkte "
+"hintereinander oder Leerzeichen vor oder hinter Punkten."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:200
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:230
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:151
 msgid "Name already used"
-msgstr ""
+msgstr "Name bereits verwendet"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:201
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:231
 msgid "That name is already used, perhaps with different case."
 msgstr ""
+"Der Name wird bereits verwendet, eventuell mit anderer Groß/Kleinschreibung."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:244
 msgid ""
@@ -10400,10 +10481,12 @@ msgstr "Die gewählte Etiketten-Kategorie löschen"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:171
 msgid "Enter a category name, then use the add button or the rename button"
 msgstr ""
+"Geben Sie den Kategorienamen ein und wählen sie dann den Hinzufügen- oder "
+"Umbenennen- Knopf"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:172
 msgid "Add a new category"
-msgstr ""
+msgstr "Neue Kategorie hinzufügen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:174
 msgid "Rename the current category to the what is in the box"
@@ -10556,16 +10639,16 @@ msgstr "Strg+S"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:71
 msgid "Function &name:"
-msgstr ""
+msgstr "Funktions&name:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:72
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:100
 msgid "&Documentation:"
-msgstr ""
+msgstr "&Dokumentation:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:73
 msgid "Python &code:"
-msgstr ""
+msgstr "Python- &Code:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/test_email_ui.py:56
 msgid "Test email settings"
@@ -10818,41 +10901,41 @@ msgstr "Source Code (Python) des Schemas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dnd.py:51
 msgid "Download %s"
-msgstr ""
+msgstr "%s herunterladen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dnd.py:54
 msgid "Downloading <b>%s</b> from %s"
-msgstr ""
+msgstr "Lade <b>%s</b> von %s herunter"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dnd.py:84
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:458
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:712
 msgid "Download failed"
-msgstr ""
+msgstr "Herunterladen fehlgeschlagen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dnd.py:85
 msgid "Failed to download from %r with error: %s"
-msgstr ""
+msgstr "Herunterladen von %r fehlgeschlagen, Fehler: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ebook_download.py:41
 msgid "No file specified to download."
-msgstr ""
+msgstr "Keine Datei zum herunterladen ausgewählt."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ebook_download.py:66
 msgid "Not a support ebook format."
-msgstr ""
+msgstr "Kein unterstütztes Ebook- Format."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ebook_download.py:87
 msgid "Downloading %s"
-msgstr ""
+msgstr "Lade %s herunter"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ebook_download.py:99
 msgid "Downloading"
-msgstr ""
+msgstr "Lade herunter"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ebook_download.py:103
 msgid "Failed to download ebook"
-msgstr ""
+msgstr "Herunterladen von Ebook fehlgeschlagen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:91
 msgid "Email %s to %s"
@@ -10923,6 +11006,16 @@ msgid ""
 "group names for the various metadata entries are documented in "
 "tooltips.</p></div>"
 msgstr ""
+"<div style=\"font-size:10pt;\">\n"
+"<p>Wählen sie einen regulären Ausdruck zum Auslesen von Metadaten aus "
+"Dateinamen. </p>\n"
+"<p>Es gibt eine <a href=\"http://calibre-"
+"ebook.com/user_manual/regexp.html\">Anleitung</a>, wie man reguläre "
+"Ausdrücke verwendet.</p>\n"
+"<p>Nutzen sie die <b>Test</b>- Funktion, um ihren regulären Ausdruck an "
+"einigen Dateinamen zu testen (die Dateiendung muß im Namen stehen). Die "
+"Gruppennamen der einzelnen Metadatenfelder sind in Tooltips "
+"dokumentiert.</p></div>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:133
 msgid "Regular &expression"
@@ -10989,19 +11082,19 @@ msgstr "Regulärer Ausdruck (?P<isbn>)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:152
 msgid "Publisher:"
-msgstr ""
+msgstr "Verleger:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:153
 msgid "Regular expression (?P<publisher>)"
-msgstr ""
+msgstr "Regulärer Ausdruck (?P<publisher>)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:155
 msgid "Published:"
-msgstr ""
+msgstr "Veröffentlicht:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:156
 msgid "Regular expression (?P<published>)"
-msgstr ""
+msgstr "Regulärer Ausdruck (?P<published>)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:105
 msgid "Cover Browser"
@@ -11096,7 +11189,7 @@ msgstr "Auftrag wird schon ausgeführt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:247
 msgid "This job cannot be stopped"
-msgstr ""
+msgstr "Dieser Auftrag kann nicht angehalten werden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:283
 msgid "Unavailable"
@@ -11120,11 +11213,11 @@ msgstr " - Aufträge"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:457
 msgid "Do you really want to stop the selected job?"
-msgstr ""
+msgstr "Möchten sie wirklich den ausgewählten Auftrag anhalten?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:463
 msgid "Do you really want to stop all non-device jobs?"
-msgstr ""
+msgstr "Möchten sie wirklich alle nicht- Geräte- Aufträge anhalten?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:53
 msgid "Eject this device"
@@ -11206,7 +11299,7 @@ msgstr "Aktuelle Suche unter dem in der Box angezeigten Namen speichern"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:254
 msgid "Donate"
-msgstr ""
+msgstr "Spenden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:354
 msgid "Y"
@@ -11406,6 +11499,8 @@ msgid ""
 "Ignore custom plugins, useful if you installed a plugin that is preventing "
 "calibre from starting"
 msgstr ""
+"Ignoriere benutzerdefinierte Plugins. Nützlich, wenn sie ein Plugin "
+"installiert haben, das Calibre am Starten hindert"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:61
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:678
@@ -11536,15 +11631,15 @@ msgstr "Be&enden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_window.py:138
 msgid "Unhandled exception"
-msgstr ""
+msgstr "Nicht abgefangener Fehler"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:113
 msgid "Title &sort:"
-msgstr ""
+msgstr "&Sortierung nach Titel:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:223
 msgid "Author s&ort:"
-msgstr ""
+msgstr "S&ortierung nach Autor:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:363
 msgid "&Number:"
@@ -11559,19 +11654,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:747
 msgid "Invalid cover"
-msgstr ""
+msgstr "Ungültiges Umschlagbild"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:748
 msgid "Could not change cover as the image is invalid."
-msgstr ""
+msgstr "Konnte Umschlagbild nicht ändern, da das Bild ungültig ist."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:775
 msgid "This book has no cover"
-msgstr ""
+msgstr "Dieses Buch hat keinen Umschlag"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:825
 msgid "stars"
-msgstr ""
+msgstr "Sterne"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:918
 msgid "I&ds:"
@@ -11586,11 +11681,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:975
 msgid "&Publisher:"
-msgstr ""
+msgstr "&Verleger:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1045
 msgid "Clear date"
-msgstr ""
+msgstr "Datum löschen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:109
 msgid "Book has neither title nor ISBN"
@@ -11632,37 +11727,43 @@ msgstr "Einzelheiten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:34
 msgid "Schedule download?"
-msgstr ""
+msgstr "Herunterladen planen?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:35
 msgid ""
 "The download of metadata for the <b>%d selected book(s)</b> will run in the "
 "background. Proceed?"
 msgstr ""
+"Das Herunterladen der Metadaten für die <b>%s gewählten Bücher</b> wird im "
+"Hintergrund stattfinden. Fortfahren?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:37
 msgid ""
 "You can monitor the progress of the download by clicking the rotating "
 "spinner in the bottom right corner."
 msgstr ""
+"Sie können den Fortschritt des Herunterladens beobachten, indem sie auf das "
+"rotierende Rad in der unteren rechten Ecke klicken."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:40
 msgid ""
 "When the download completes you will be asked for confirmation before "
 "calibre applies the downloaded metadata."
 msgstr ""
+"Nach Beendigung des Herunterladends werden sie um Bestätigung gebeten, bevor "
+"Calibre die heruntergeladenen Metadaten anwendet."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:43
 msgid "Configure download"
-msgstr ""
+msgstr "Herunterladen konfigurieren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:54
 msgid "Download metadata for %d books"
-msgstr ""
+msgstr "Metadaten für %d Bücher herunterladen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:57
 msgid "Metadata download started"
-msgstr ""
+msgstr "Herunterladen von Metadaten gestartet"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:74
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:766
@@ -11673,15 +11774,15 @@ msgstr "In die Zwischenablage kopieren"
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:81
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:773
 msgid "Download log"
-msgstr ""
+msgstr "Protokoll des Herunterladens"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:103
 msgid "Applying downloaded metadata to your library"
-msgstr ""
+msgstr "Wende heruntergeladene Metadaten in der Bibliothek an"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:172
 msgid "Some failures"
-msgstr ""
+msgstr "Einige Fehler"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:173
 msgid ""

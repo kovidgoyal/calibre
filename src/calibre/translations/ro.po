@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-04-17 16:54+0000\n"
-"PO-Revision-Date: 2011-04-19 06:54+0000\n"
+"PO-Revision-Date: 2011-04-20 09:22+0000\n"
 "Last-Translator: Anca Stratulat <Unknown>\n"
 "Language-Team: Romanian <ro@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-04-20 04:35+0000\n"
+"X-Launchpad-Export-Date: 2011-04-21 04:37+0000\n"
 "X-Generator: Launchpad (build 12758)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -227,7 +227,7 @@ msgstr "Preferințe"
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:609
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search.py:346
 msgid "Store"
-msgstr ""
+msgstr "Stochează"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:19
 msgid ""
@@ -1287,6 +1287,10 @@ msgid ""
 "book. However, this method is slower and will slow down sending files to the "
 "Kindle."
 msgstr ""
+"Există două modalităţi de a genera informaţii despre numărul paginii. "
+"Folosirea celui mai precis generator va produce pagini care corespund mai "
+"bine unei cărți tipărite. Totuşi, această metodă este mai lentă şi va "
+"încetini trimiterea fişierelor la Kindle."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:257
 msgid "Communicate with the Kindle DX eBook reader."
@@ -1348,19 +1352,19 @@ msgstr "Comunica cu Acer Lumiread"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:199
 msgid "Communicate with the Aluratek Color"
-msgstr ""
+msgstr "Comunică cu Aluratek Color"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:219
 msgid "Communicate with the Trekstor"
-msgstr ""
+msgstr "Comunică cu Trekstor"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:239
 msgid "Communicate with the EEE Reader"
-msgstr ""
+msgstr "Comunică cu EEE Reader"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:259
 msgid "Communicate with the Nextbook Reader"
-msgstr ""
+msgstr "Comunică cu Nextbook Reader"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
@@ -1404,11 +1408,11 @@ msgstr "Comunica cu toate cititoarele eBook Sony."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:62
 msgid "All by title"
-msgstr ""
+msgstr "Toate după titlu"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:63
 msgid "All by author"
-msgstr ""
+msgstr "Toate după autor"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:66
 msgid ""
@@ -1424,10 +1428,15 @@ msgid ""
 "to the list to enable them. The collections will be given the name provided "
 "after the \":\" character."
 msgstr ""
+". Sunt disponibile două colecții speciale: %s:%s şi %s:%s. Adăugă aceste "
+"valori listei pentru a le activa. Colecţiile vor primi denumirea prevăzută "
+"după caracterul \":\" ."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:73
 msgid "Upload separate cover thumbnails for books (newer readers)"
 msgstr ""
+"Încărcați separat imagini reduse pentru coperțile cărților (cititoare mai "
+"noi)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:74
 msgid ""
@@ -1437,11 +1446,19 @@ msgid ""
 "WARNING: This option should only be used with newer SONY readers: 350, 650, "
 "950 and newer."
 msgstr ""
+"În mod normal, cititoarele SONY preiau imaginea pentru copertă din însuşi "
+"fișierul ebook. Cu această opțiune, calibre va trimite cititorului o imagine "
+"separată a coperții, utilă dacă trimiteți cărți protejate cu drepturi "
+"digitale în care nu este permisă schimbarea coperții. AVERTIZARE: Această "
+"opțiune ar trebui folosită doar cu cititoare SONY mai recente: 350, 650, 950 "
+"sau mai noi."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:80
 msgid ""
 "Refresh separate covers when using automatic management (newer readers)"
 msgstr ""
+"Reîncarcă coperți separate atunci când este utilizată administratea automată "
+"(cititoare mai noi)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:82
 msgid ""
@@ -1449,10 +1466,15 @@ msgid ""
 "your device. Unset this option if you have so many books on the reader that "
 "performance is unacceptable."
 msgstr ""
+"Setaţi această opţiune pentru a avea coperţi separate, încărcate de fiecare "
+"dată când conectaţi dispozitivul. Dezactivați această opţiune dacă aveţi "
+"atât de multe cărţi pe cititor încât randamentul este inacceptabil."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:86
 msgid "Preserve cover aspect ratio when building thumbnails"
 msgstr ""
+"Păstrează raportul de aspect al coperții atunci când sunt generate imagini "
+"reduse"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:88
 msgid ""
@@ -1460,10 +1482,14 @@ msgid ""
 "ratio (width to height) as the cover. Unset it if you want the thumbnail to "
 "be the maximum size, ignoring aspect ratio."
 msgstr ""
+"Setaţi această opțiune dacă doriți ca imaginile reduse să aibă același "
+"raport de aspect (lăţime - înălţime) ca și coperta. Dezactivați-o dacă "
+"doriți ca imaginea redusă să aibă mărimea maximă, ignorând raportul de "
+"aspect."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:92
 msgid "Search for books in all folders"
-msgstr ""
+msgstr "Căutaţi cărţi în toate dosarele"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:94
 msgid ""
@@ -1471,6 +1497,10 @@ msgid ""
 "device and its cards. This permits calibre to find books put on the device "
 "by other software and by wireless download."
 msgstr ""
+"Setarea acestei opţiuni îi spune lui calibre să căute cărţi în toate "
+"folderele de pe dispozitiv şi cardurile sale. Acest lucru îi permite lui "
+"calibre să găsească cărţi puse pe aparat de către alte software-uri sau "
+"descărcate wireless."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:190
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/structure.py:69
@@ -1491,7 +1521,7 @@ msgstr "Comunica cu cititorul Newsmy."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:47
 msgid "Communicate with the Archos reader."
-msgstr ""
+msgstr "Comunică cu cititorul Archos."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:57
 msgid "Communicate with the Pico reader."
@@ -1507,11 +1537,11 @@ msgstr "Comunica cu Sovos"
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:88
 msgid "Communicate with the Sunstech EB700 reader."
-msgstr ""
+msgstr "Comunică cu cititorul Sunstech EB700."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:99
 msgid "Communicate with the Stash W950 reader."
-msgstr ""
+msgstr "Comunică cu cititorul Stash W950."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:111
 msgid "Communicate with the Wexler reader."
@@ -1540,6 +1570,8 @@ msgid ""
 "Unable to detect the %s disk drive. Either the device has already been "
 "ejected, or your kernel is exporting a deprecated version of SYSFS."
 msgstr ""
+"Discul %s nu poate fi detectat. Fie dispozitivul a fost scos, sau kernel-ul "
+"este exportatotul unei versiuni depășite de SYSFS."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:642
 msgid "Unable to mount main memory (Error code: %d)"
@@ -1550,6 +1582,8 @@ msgid ""
 "The main memory of %s is read only. This usually happens because of file "
 "system errors."
 msgstr ""
+"Memoria principală a %s poate fi doar citită. Acest lucru se întâmplă de "
+"obicei din cauza unor erori din sistemul de fişiere."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:842
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:844
@@ -1723,12 +1757,18 @@ msgid ""
 "Specify the image size as widthxheight pixels. Normally, an image size is "
 "automatically calculated from the output profile, this option overrides it."
 msgstr ""
+"Specificați mărimea imaginii în pixeli ca lățime x înălțime. În mod normal, "
+"mărimea unei imagini este calculată automat folosind profilul de ieşire, "
+"această opțiune o va suprascrie."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:320
 msgid ""
 "When converting a CBC do not add links to each page to the TOC. Note this "
 "only applies if the TOC has more than one section"
 msgstr ""
+"Când se face conversia unui CBC nu adăugaţi legăturile fiecărei pagini la "
+"TOC. Observaţi ca această opţiune se aplică numai dacă TOC are mai mult de o "
+"secţiune"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:459
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:471
@@ -1811,11 +1851,16 @@ msgid ""
 "default. Use %s to enable.  Individual actions can be disabled with the %s "
 "options."
 msgstr ""
+"Modifică textul și structura documentului folosind tipare comune. "
+"Dezactivată în mod implicit. Folosiți %s pentru a activa. Acțiunile "
+"individuale pot fi dezactivate cu opțiunile %s ."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:153
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:18
 msgid "Modify the document text and structure using user defined patterns."
 msgstr ""
+"Modifică textul și structura documentului folosind tipare definite de către "
+"utilizator."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:162
 msgid "Control auto-detection of document structure."
@@ -1930,6 +1975,13 @@ msgid ""
 "line height specification, unless you know what you are doing. For example, "
 "you can achieve \"double spaced\" text by setting this to 240."
 msgstr ""
+"Înălţimea minimă a liniei, ca un procent din dimensiunea fontului "
+"elementului calculat, calibre se va asigura că fiecare element are o "
+"înălţime de linie cel puţin egală cu această valoare, indiferent de ceea ce "
+"documentul de intrare specifică. Setați la zero pentru a dezactiva. Implicit "
+"este 120%. Utilizaţi această setare în preferinţa specificării înălţimii "
+"liniei directe, cu excepţia cazului în care ştiţi ce faceţi. De exemplu, "
+"puteţi obţine text \"dublu spațiat\" dacă folosiți valoarea 240."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:183
 msgid ""
@@ -1938,6 +1990,11 @@ msgid ""
 "cases, the minimum line height option is more useful. By default no line "
 "height manipulation is performed."
 msgstr ""
+"Înălțimea liniei exprimată în puncte. Controlează spațierea dintre liniile "
+"de text consecutive. Se aplică doar elementelor care nu iși definesc propria "
+"înălțime a liniei. În majoritatea cazurilor, alegearea înălțimii minime a "
+"liniei este mai utilă. În mod implicit nu sunt efectuate modificări ale "
+"înălțimii liniei."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:194
 msgid ""
@@ -2075,6 +2132,11 @@ msgid ""
 "margins. Sometimes, this can cause the removal of margins that should not "
 "have been removed. In this case you can disable the removal."
 msgstr ""
+"Unele documente specifică bordura paginii prin specificarea marginilor "
+"drepte şi stângi pe fiecare paragraf în parte. calibre va incerca să "
+"identifice şi să înlăture aceste margini. Uneori, această acţiune poate "
+"cauza îndepărtarea unor margini care nu trebuiau scoase. În acest caz, "
+"puteţi dezactiva scoaterea."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:320
 msgid ""
@@ -2178,12 +2240,17 @@ msgid ""
 "Convert plain quotes, dashes and ellipsis to their typographically correct "
 "equivalents. For details, see http://daringfireball.net/projects/smartypants"
 msgstr ""
+"Transformaţi citate simple, cratime şi elipse în echivalentele lor "
+"tipografice corecte. Pentru detalii, vizitați "
+"http://daringfireball.net/projects/smartypants"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:403
 msgid ""
 "Read metadata from the specified OPF file. Metadata read from this file will "
 "override any metadata in the source file."
 msgstr ""
+"Citeste metadata din fisierul OPF specificat. Metadata citită din acest "
+"fişier va suprascrie orice metadată din fişierul sursă."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:410
 msgid ""
@@ -2194,6 +2261,12 @@ msgid ""
 "by Chinese and Japanese for instance) the representation based on the "
 "current calibre interface language will be used."
 msgstr ""
+"Transpuneți caractere de tip Unicode într-o reprezentare ASCII. Folosiţi cu "
+"grijă, deoarece aceasta va înlocui caracterele Unicode cu ASCII. De exemplu, "
+"va înlocui \"%s\" cu \"Mihail Gorbaciov\". De asemenea, reţineţi că, în "
+"cazurile în care există mai multe reprezentări ale unui caracter (caractere "
+"împărtăşite de către chinezi şi japonezi, de exemplu) va fi folosită "
+"reprezentarea bazată pe limbajul curent a interfeței calibre."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:425
 msgid ""
@@ -2217,78 +2290,86 @@ msgstr "Introdu titlul"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:441
 msgid "Set the authors. Multiple authors should be separated by ampersands."
-msgstr ""
+msgstr "Introduceţi autorii. Autorii multiplii trebuie separaţi prin \"&\"."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:446
 msgid "The version of the title to be used for sorting. "
-msgstr ""
+msgstr "Versiunea titlului de folosit pentru sortare. "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:450
 msgid "String to be used when sorting by author. "
-msgstr ""
+msgstr "Şir de caractere care trebuie utilizat la sortarea după autor. "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:454
 msgid "Set the cover to the specified file or URL"
-msgstr ""
+msgstr "Setează coperta către fişierul sau URL specificat."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:458
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:54
 msgid "Set the ebook description."
-msgstr ""
+msgstr "Introduceți descrierea cărții electronice"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:462
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:56
 msgid "Set the ebook publisher."
-msgstr ""
+msgstr "Introduceți editorul/editura cărții electronice"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:466
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:60
 msgid "Set the series this ebook belongs to."
-msgstr ""
+msgstr "Setaţi seria care aparţine acestei cărţi electronice"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:470
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:62
 msgid "Set the index of the book in this series."
-msgstr ""
+msgstr "Setaţi indexul cărtii în această serie"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:474
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:64
 msgid "Set the rating. Should be a number between 1 and 5."
 msgstr ""
+"Stabiliţi evaluarea personală a cărții. Ar trebui să fie un număr intre 1 și "
+"5."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:478
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:66
 msgid "Set the ISBN of the book."
-msgstr ""
+msgstr "Indicați numărul ISBN al cărții."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:482
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:68
 msgid "Set the tags for the book. Should be a comma separated list."
 msgstr ""
+"Introduceți etichetele pentru carte. Ar trebui să fie o listă separată prin "
+"virgule."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:486
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:70
 msgid "Set the book producer."
-msgstr ""
+msgstr "Indicați producătorul cărții."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:490
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:72
 msgid "Set the language."
-msgstr ""
+msgstr "Setaţi limbajul."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:494
 msgid "Set the publication date."
-msgstr ""
+msgstr "Indicați data publicării."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:498
 msgid "Set the book timestamp (used by the date column in calibre)."
 msgstr ""
+"Indicați ștampila temporală a cărții (folosită de coloana \"dată\" în "
+"calibre)."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:502
 msgid ""
 "Enable heuristic processing. This option must be set for any heuristic "
 "processing to take place."
 msgstr ""
+"Activați procesarea euristică. Această opțiune trebuie sa fie activată "
+"pentru ca orice procesare euristică să aibă loc."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:507
 msgid ""
@@ -2296,17 +2377,24 @@ msgid ""
 "h3 tags.  This setting will not create a TOC, but can be used in conjunction "
 "with structure detection to create one."
 msgstr ""
+"Detectează titlurile și sub-titlurile neformatate. Modifică-le în etichete "
+"de tip h2 și h3. Această setare nu va crea un cuprins, dar poate fi folosită "
+"împreună cu detectarea structurii pentru a crea unul."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:514
 msgid ""
 "Look for common words and patterns that denote italics and italicize them."
 msgstr ""
+"Caută cuvinte comune şi tipare care denotă caractere cursive şi tipărește-le "
+"cursiv."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:519
 msgid ""
 "Turn indentation created from multiple non-breaking space entities into CSS "
 "indents."
 msgstr ""
+"Schimbă indentaţia creată din multiple entități de spațiu neintrerupte în "
+"paragrafe CSS."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:524
 msgid ""
@@ -2315,16 +2403,24 @@ msgid ""
 "the median line length.  If only a few lines in the document require "
 "unwrapping this value should be reduced"
 msgstr ""
+"Scara utilizată pentru a determina lungimea la care o linie ar trebui să fie "
+"desfășurată. Valorile valide sunt zecimale între 0 și 1. Valoarea implicită "
+"este de 0,4 , tocmai sub lungimea mediană a liniei. În cazul în care doar "
+"câteva linii în document necesită desfășurare această valoare ar trebui să "
+"fie redusă"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:532
 msgid "Unwrap lines using punctuation and other formatting clues."
 msgstr ""
+"Desfășoară liniile folosind semne de punctuație și alte indicii de formatare."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:536
 msgid ""
 "Remove empty paragraphs from the document when they exist between every "
 "other paragraph"
 msgstr ""
+"Elimină paragrafele goale din document atunci când acestea există între "
+"fiecare alt paragraf."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:541
 msgid ""
@@ -2361,19 +2457,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:573
 msgid "Search pattern (regular expression) to be replaced with sr2-replace."
-msgstr ""
+msgstr "Model de căutare (expresie obişnuită) înlocuire sr2."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:578
 msgid "Replacement to replace the text found with sr2-search."
-msgstr ""
+msgstr "Înlocuirea textului găsit prin căutarea sr2."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:582
 msgid "Search pattern (regular expression) to be replaced with sr3-replace."
-msgstr ""
+msgstr "Model de căutare (expresie obişnuită) înlocuire cu sr3."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:587
 msgid "Replacement to replace the text found with sr3-search."
-msgstr ""
+msgstr "Înlocuirea textului găsit prin căutarea sr3."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:689
 msgid "Could not find an ebook inside the archive"
@@ -2382,34 +2478,36 @@ msgstr "Nu a fost găsită o e-carte în arhivă"
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:747
 msgid "Values of series index and rating must be numbers. Ignoring"
 msgstr ""
+"Valorile pentru indexul seriei şi evaluarea cărţii trebuie să fie numere. "
+"Ignorare"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:754
 msgid "Failed to parse date/time"
-msgstr ""
+msgstr "Nu s-a putut interpreta data / ora"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:909
 msgid "Converting input to HTML..."
-msgstr ""
+msgstr "Convertire intrare în HTML"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:936
 msgid "Running transforms on ebook..."
-msgstr ""
+msgstr "Rularea transformări ale carţii electronice."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:1032
 msgid "Creating"
-msgstr ""
+msgstr "Creare"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/__init__.py:20
 msgid "Failed to parse: %s with error: %s"
-msgstr ""
+msgstr "Nu s-a putut interpreta: %s cu eroarea: %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/__init__.py:26
 msgid "ePub Fixer"
-msgstr ""
+msgstr "ePub Fixer"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/epubcheck.py:18
 msgid "Workaround epubcheck bugs"
-msgstr ""
+msgstr "Soluţia epubcheck pentru viruşi"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/epubcheck.py:22
 msgid ""
@@ -2418,6 +2516,11 @@ msgid ""
 "detect these and replace them with constructs that epubcheck likes. This may "
 "cause significant changes to your epub, complain to the epubcheck project."
 msgstr ""
+"Soluţii pentru viruşi în ultima versiune epubcheck . epubcheck raportează "
+"multe lucruri corecte drept erori. epub-fix va încerca să le detectecteze şi "
+"să le înlocuiască cu construţii pe placul epubcheck-ului. Aceasta poate "
+"cauza schimbări semnificative în epub, plângerile sunt adresate către "
+"proiectul epubcheck."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/main.py:21
 msgid ""
@@ -2429,24 +2532,34 @@ msgid ""
 "By default, no fixing is done and messages are printed out for each error "
 "detected. Use the options to control which errors are automatically fixed."
 msgstr ""
+"%prog [options] file.epub\n"
+"\n"
+"Rezolvă problemele comune din fişierele EPUB care le pot determina să fie "
+"respinse de către serviciile de publicare prost proiectate.\n"
+"\n"
+"Implicit, nu se rezolză şi mesajele sunt tipărite pentru fiecare eroare "
+"detectată. Utilizaţi opţiuni pentru a controla care erori sunt remediate "
+"automat."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/main.py:52
 msgid "You must specify an epub file"
-msgstr ""
+msgstr "Trebuie să specificaţi un fişier epub"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/unmanifested.py:17
 msgid "Fix unmanifested files"
-msgstr ""
+msgstr "Repară fişierele nemanifestate"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/unmanifested.py:21
 msgid ""
 "Fix unmanifested files. epub-fix can either add them to the manifest or "
 "delete them as specified by the delete unmanifested option."
 msgstr ""
+"Repară fişierele nemanifestate. epub-fix le poate fie adăuga la manifest sau "
+"le poate şterge după cum se specifică după ştergerea opţiunii nemanifestate."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/unmanifested.py:32
 msgid "Delete unmanifested files instead of adding them to the manifest"
-msgstr ""
+msgstr "Şterge fişierele nemanifestate în loc de a le adăuga la manifest"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:56
 msgid ""
@@ -16719,7 +16832,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:350
 msgid "Where to send downloaded news"
-msgstr ""
+msgstr "Unde să transmiteţi ştirile descărcate"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:351
 msgid ""
