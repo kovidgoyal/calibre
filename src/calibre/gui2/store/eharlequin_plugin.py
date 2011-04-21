@@ -77,6 +77,7 @@ class EHarlequinStore(BasicStoreConfig, StorePlugin):
                 s.author = author.strip()
                 s.price = price.strip()
                 s.detail_item = '?url=http://ebooks.eharlequin.com/' + id.strip()
+                s.formats = 'EPUB'
                 
                 yield s
                 

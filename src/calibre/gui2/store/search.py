@@ -418,12 +418,11 @@ class DetailsThread(Thread):
                         callback(result)
                     self.tasks.task_done()
             except:
-                traceback.print_exc()
                 continue
 
 class Matches(QAbstractItemModel):
 
-    HEADERS = [_('Cover'), _('Title'), _('Author(s)'), _('Price'), _('DRM'), _('Store')]
+    HEADERS = [_('Cover'), _('Title'), _('Author(s)'), _('Price'), _('DRM'), _('Store'), _('Formats')]
 
     def __init__(self):
         QAbstractItemModel.__init__(self)
@@ -539,6 +538,8 @@ class Matches(QAbstractItemModel):
                 return QVariant(result.price)
             elif col == 5:
                 return QVariant(result.store_name)
+            elif col == 6:
+                return QVariant(result.formats)
             return NONE
         elif role == Qt.DecorationRole:
             if col == 0 and result.cover_data:
@@ -573,6 +574,8 @@ class Matches(QAbstractItemModel):
                 text = 'c'
         elif col == 5:
             text = result.store_name
+        elif col == 6:
+            text = ', '.join(sorted(result.formats.split(',')))
         return text
 
     def sort(self, col, order, reset=True):
@@ -598,6 +601,8 @@ class SearchFilter(SearchQueryParser):
         'authors',
         'cover',
         'drm',
+        'format',
+        'formats',
         'price',
         'title',
         'store',
@@ -643,7 +648,7 @@ class SearchFilter(SearchQueryParser):
              'author': lambda x: x.author.lower(),
              'cover': lambda x: x.cover_url,
              'drm': lambda x: x.drm,
-             'format': '',
+             'format': lambda x: x.formats,
              'price': lambda x: comparable_price(x.price),
              'store': lambda x: x.store_name.lower(),
              'title': lambda x: x.title.lower(),
@@ -681,7 +686,10 @@ class SearchFilter(SearchQueryParser):
                     else:
                         m = matchkind
     
-                    vals = [accessor(sr)]
+                    if locvalue == 'format':
+                        vals = accessor(sr).split(',')
+                    else:
+                        vals = [accessor(sr)]
                     if _match(query, vals, m):
                         matches.add(sr)
                         break

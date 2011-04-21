@@ -75,6 +75,8 @@ class DieselEbooksStore(BasicStoreConfig, StorePlugin):
                 if price_elem:
                     price = price_elem[0]
 
+                formats = ', '.join(data.xpath('.//td[@class="format"]/text()'))
+
                 counter -= 1
                 
                 s = SearchResult()
@@ -83,6 +85,7 @@ class DieselEbooksStore(BasicStoreConfig, StorePlugin):
                 s.author = author.strip()
                 s.price = price.strip()
                 s.detail_item = '/item/' + id.strip()
+                s.formats = formats
                 
                 yield s
 

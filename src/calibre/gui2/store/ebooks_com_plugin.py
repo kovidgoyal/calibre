@@ -98,12 +98,21 @@ class EbookscomStore(BasicStoreConfig, StorePlugin):
         br = browser()
         with closing(br.open(url + id, timeout=timeout)) as nf:
             pdoc = html.fromstring(nf.read())
+            
             pdata = pdoc.xpath('//table[@class="price"]/tr/td/text()')
             if len(pdata) >= 2:
                 price = pdata[1]
+            
             search_result.drm = SearchResult.DRM_UNLOCKED
             for sec in ('Printing', 'Copying', 'Lending'):
                 if pdoc.xpath('boolean(//div[@class="formatTableInner"]//table//tr[contains(th, "%s") and contains(td, "Off")])' % sec):
                     search_result.drm = SearchResult.DRM_LOCKED
                     break
+            
+            fdata = ', '.join(pdoc.xpath('//table[@class="price"]//tr//td[1]/text()'))
+            fdata = fdata.replace(':', '')
+            fdata = re.sub(r'\s{2,}', ' ', fdata)
+            fdata = fdata.strip()
+            search_result.formats = fdata
+        
         search_result.price = price.strip()

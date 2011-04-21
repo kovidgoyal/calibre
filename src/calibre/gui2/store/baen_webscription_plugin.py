@@ -86,5 +86,6 @@ class BaenWebScriptionStore(BasicStoreConfig, StorePlugin):
                 s.price = price
                 s.detail_item = id.strip()
                 s.drm = SearchResult.DRM_UNLOCKED
+                s.formats = 'RB, MOBI, EPUB, LIT, LRF, RTF, HTML'
                 
                 yield s

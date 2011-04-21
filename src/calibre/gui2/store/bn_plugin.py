@@ -79,5 +79,6 @@ class BNStore(BasicStoreConfig, StorePlugin):
                 s.price = price
                 s.detail_item = id.strip()
                 s.drm = SearchResult.DRM_UNKNOWN
+                s.formats = 'Nook'
                 
                 yield s

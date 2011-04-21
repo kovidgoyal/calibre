@@ -168,6 +168,7 @@ class AmazonKindleStore(StorePlugin):
                 s.author = author.strip()
                 s.price = price.strip()
                 s.detail_item = asin.strip()
+                s.formats = 'Kindle'
 
                 yield s
 
