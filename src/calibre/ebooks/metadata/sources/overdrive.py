@@ -17,7 +17,7 @@ from lxml import html
 from lxml.html import soupparser
 
 from calibre.ebooks.metadata import check_isbn
-from calibre.ebooks.metadata.sources.base import Source
+from calibre.ebooks.metadata.sources.base import Source, Option
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.library.comments import sanitize_comments_html
@@ -58,10 +58,12 @@ class OverDrive(Source):
             self.parse_search_results(ovrdrv_data, mi)
             if ovrdrv_id is None:
                 ovrdrv_id = ovrdrv_data[7]
+
+            if get_full_metadata():
+                self.get_book_detail(br, ovrdrv_data[1], mi, ovrdrv_id, log)
+
             if isbn is not None:
                 self.cache_isbn_to_identifier(isbn, ovrdrv_id)
-
-            self.get_book_detail(br, ovrdrv_data[1], mi, ovrdrv_id, log)
 
             result_queue.put(mi)
 
