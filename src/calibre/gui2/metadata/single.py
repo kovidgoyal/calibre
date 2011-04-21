@@ -326,7 +326,8 @@ class MetadataSingleDialogBase(ResizableDialog):
             mi = d.book
             dummy = Metadata(_('Unknown'))
             for f in msprefs['ignore_fields']:
-                setattr(mi, f, getattr(dummy, f))
+                if ':' not in f:
+                    setattr(mi, f, getattr(dummy, f))
             if mi is not None:
                 self.update_from_mi(mi)
             if d.cover_pixmap is not None:

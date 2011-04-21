@@ -19,6 +19,9 @@ from calibre.utils.config import prefs, dynamic
 from calibre.library.database2 import LibraryDatabase2
 from calibre.library.sqlite import sqlite, DatabaseException
 
+if iswindows:
+    winutil = plugins['winutil'][0]
+
 def option_parser():
     parser = _option_parser('''\
 %prog [opts] [path_to_ebook]
@@ -80,8 +83,7 @@ def get_library_path(parent=None):
     if library_path is None: # Need to migrate to new database layout
         base = os.path.expanduser('~')
         if iswindows:
-            base = plugins['winutil'][0].special_folder_path(
-                    plugins['winutil'][0].CSIDL_PERSONAL)
+            base = winutil.special_folder_path(winutil.CSIDL_PERSONAL)
             if not base or not os.path.exists(base):
                 from PyQt4.Qt import QDir
                 base = unicode(QDir.homePath()).replace('/', os.sep)

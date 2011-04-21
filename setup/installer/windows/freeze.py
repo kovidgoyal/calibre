@@ -13,7 +13,8 @@ from setup import Command, modules, functions, basenames, __version__, \
 from setup.build_environment import msvc, MT, RC
 from setup.installer.windows.wix import WixMixIn
 
-QT_DIR = 'Q:\\Qt\\4.7.1'
+OPENSSL_DIR = r'Q:\openssl'
+QT_DIR = 'Q:\\Qt\\4.7.2'
 QT_DLLS = ['Core', 'Gui', 'Network', 'Svg', 'WebKit', 'Xml', 'XmlPatterns']
 LIBUSB_DIR       = 'C:\\libusb'
 LIBUNRAR         = 'C:\\Program Files\\UnrarDLL\\unrar.dll'
@@ -108,6 +109,8 @@ class Win32Freeze(Command, WixMixIn):
         self.dll_dir = self.j(self.base, 'DLLs')
         shutil.copytree(r'C:\Python%s\DLLs'%self.py_ver, self.dll_dir,
                 ignore=shutil.ignore_patterns('msvc*.dll', 'Microsoft.*'))
+        for x in glob.glob(self.j(OPENSSL_DIR, 'bin', '*.dll')):
+            shutil.copy2(x, self.dll_dir)
         for x in QT_DLLS:
             x += '4.dll'
             if not x.startswith('phonon'): x = 'Qt'+x

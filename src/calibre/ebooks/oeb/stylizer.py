@@ -12,16 +12,17 @@ import os, itertools, re, logging, copy, unicodedata
 from weakref import WeakKeyDictionary
 from xml.dom import SyntaxErr as CSSSyntaxError
 import cssutils
-from cssutils.css import CSSStyleRule, CSSPageRule, CSSStyleDeclaration, \
-    CSSValueList, CSSFontFaceRule, cssproperties
+from cssutils.css import (CSSStyleRule, CSSPageRule, CSSStyleDeclaration,
+    CSSValueList, CSSFontFaceRule, cssproperties)
 from cssutils import profile as cssprofiles
 from lxml import etree
 from lxml.cssselect import css_to_xpath, ExpressionError, SelectorSyntaxError
-
 from calibre import force_unicode
 from calibre.ebooks.oeb.base import XHTML, XHTML_NS, CSS_MIME, OEB_STYLES
 from calibre.ebooks.oeb.base import XPNSMAP, xpath, urlnormalize
 from calibre.ebooks.oeb.profile import PROFILES
+
+cssutils.log.setLevel(logging.WARN)
 
 _html_css_stylesheet = None
 
