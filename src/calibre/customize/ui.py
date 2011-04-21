@@ -514,9 +514,11 @@ def initialize_plugin(plugin, path_to_zip_file):
 def initialize_plugins():
     global _initialized_plugins
     _initialized_plugins = []
-    user_plugins = [p for name, p in config['plugins'].iteritems() if name not
-            in builtin_names]
-    for zfp in user_plugins + builtin_plugins:
+    conflicts = [name for name in config['plugins'] if name in
+            builtin_names]
+    for p in conflicts:
+        remove_plugin(p)
+    for zfp in list(config['plugins'].itervalues()) + builtin_plugins:
         try:
             try:
                 plugin = load_plugin(zfp) if not isinstance(zfp, type) else zfp
