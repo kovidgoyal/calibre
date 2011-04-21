@@ -93,6 +93,7 @@ class SmashwordsStore(BasicStoreConfig, StorePlugin):
                 s.drm = SearchResult.DRM_UNLOCKED
                 
                 yield s
+
     def get_details(self, search_result, timeout):
         url = 'http://www.smashwords.com/'
         
