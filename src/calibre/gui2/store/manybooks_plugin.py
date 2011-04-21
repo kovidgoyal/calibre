@@ -89,6 +89,6 @@ class ManyBooksStore(BasicStoreConfig, StorePlugin):
                 s.author = author.strip()
                 s.price = price.strip()
                 s.detail_item = '/titles/' + id
-                s.drm = False
+                s.drm = SearchResult.DRM_UNLOCKED
                 
                 yield s

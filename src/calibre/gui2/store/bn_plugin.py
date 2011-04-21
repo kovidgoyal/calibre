@@ -78,5 +78,6 @@ class BNStore(BasicStoreConfig, StorePlugin):
                 s.author = author.strip()
                 s.price = price
                 s.detail_item = id.strip()
+                s.drm = SearchResult.DRM_UNKNOWN
                 
                 yield s

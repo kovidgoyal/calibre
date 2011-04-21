@@ -76,7 +76,7 @@ class MobileReadStore(BasicStoreConfig, StorePlugin):
         matches = heapq.nlargest(max_results, matches)
         for score, book in matches:
             book.price = '$0.00'
-            book.drm = False
+            book.drm = SearchResult.DRM_UNLOCKED
             yield book
 
     def update_book_list(self, timeout=10):

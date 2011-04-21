@@ -415,9 +415,10 @@ class DetailsThread(Thread):
                     result, store_plugin, callback, timeout = self.tasks.get()
                     if result:
                         store_plugin.get_details(result, timeout)
-                        callback()
+                        callback(result)
                     self.tasks.task_done()
             except:
+                traceback.print_exc()
                 continue
 
 class Matches(QAbstractItemModel):
@@ -464,8 +465,12 @@ class Matches(QAbstractItemModel):
         self.layoutAboutToBeChanged.emit()
         self.all_matches.append(result)
         self.search_filter.add_search_result(result)
-        self.cover_pool.add_task(result, self.filter_results)
-        self.details_pool.add_task(result, store_plugin, self.filter_results)
+        if result.cover_url:
+            result.cover_queued = True
+            self.cover_pool.add_task(result, self.filter_results)
+        else:
+            result.cover_queued = False
+        self.details_pool.add_task(result, store_plugin, self.got_result_details)
         self.filter_results()
         self.layoutChanged.emit()
 
@@ -484,6 +489,15 @@ class Matches(QAbstractItemModel):
             self.matches = list(self.search_filter.universal_set())
         self.reorder_matches()
         self.layoutChanged.emit()
+
+    def got_result_details(self, result):
+        if not result.cover_queued and result.cover_url:
+            result.cover_queued = True
+            self.cover_pool.add_task(result, self.filter_results)
+        if result in self.matches:
+            row = self.matches.index(result)
+            self.dataChanged.emit(self.index(row, 0), self.index(row, self.columnCount() - 1))
+        self.filter_results()
 
     def set_query(self, query):
         self.query = query

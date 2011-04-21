@@ -79,6 +79,6 @@ class GutenbergStore(BasicStoreConfig, StorePlugin):
                 s.author = author.strip()
                 s.price = price.strip()
                 s.detail_item = '/ebooks/' + id.strip()
-                s.drm = False
+                s.drm = SearchResult.DRM_UNLOCKED
                 
                 yield s

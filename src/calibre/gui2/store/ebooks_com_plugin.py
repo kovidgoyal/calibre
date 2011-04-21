@@ -7,6 +7,7 @@ __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
 import random
+import re
 import urllib2
 from contextlib import closing
 
@@ -63,20 +64,6 @@ class EbookscomStore(BasicStoreConfig, StorePlugin):
                 id = id.split('=')[-1]
                 if not id:
                     continue
-
-                price = ''
-                with closing(br.open('http://www.ebooks.com/ebooks/book_display.asp?IID=' + id.strip(), timeout=timeout)) as fp:
-                    pdoc = html.fromstring(fp.read())
-                    pdata = pdoc.xpath('//table[@class="price"]/tr/td/text()')
-                    if len(pdata) >= 2:
-                        price = pdata[1]
-                    drm = False
-                    for sec in ('Printing', 'Copying', 'Lending'):
-                        if pdoc.xpath('boolean(//div[@class="formatTableInner"]//table//tr[contains(th, "%s") and contains(td, "Off")])' % sec):
-                            drm = True
-                            break
-                if not price:
-                    continue
                 
                 cover_url = ''.join(data.xpath('.//img[1]/@src'))
                 
@@ -94,8 +81,29 @@ class EbookscomStore(BasicStoreConfig, StorePlugin):
                 s.cover_url = cover_url
                 s.title = title.strip()
                 s.author = author.strip()
-                s.price = price.strip()
                 s.detail_item = '?url=http://www.ebooks.com/cj.asp?IID=' + id.strip() + '&cjsku=' + id.strip()
-                s.drm = drm
                 
                 yield s
+
+    def get_details(self, search_result, timeout):
+        url = 'http://www.ebooks.com/ebooks/book_display.asp?IID='
+        
+        mo = re.search(r'\?IID=(?P<id>\d+)', search_result.detail_item)
+        if mo:
+            id = mo.group('id')
+        if not id:
+            return
+
+        price = _('Not Available')
+        br = browser()
+        with closing(br.open(url + id, timeout=timeout)) as nf:
+            pdoc = html.fromstring(nf.read())
+            pdata = pdoc.xpath('//table[@class="price"]/tr/td/text()')
+            if len(pdata) >= 2:
+                price = pdata[1]
+            search_result.drm = SearchResult.DRM_UNLOCKED
+            for sec in ('Printing', 'Copying', 'Lending'):
+                if pdoc.xpath('boolean(//div[@class="formatTableInner"]//table//tr[contains(th, "%s") and contains(td, "Off")])' % sec):
+                    search_result.drm = SearchResult.DRM_LOCKED
+                    break
+        search_result.price = price.strip()

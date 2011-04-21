@@ -7,6 +7,7 @@ __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
 import random
+import re
 import urllib2
 from contextlib import closing
 
@@ -68,12 +69,6 @@ class EHarlequinStore(BasicStoreConfig, StorePlugin):
                 price = ''.join(data.xpath('.//div[@class="ourprice"]/font/text()'))
                 cover_url = ''.join(data.xpath('.//a[@href="%s"]/img/@src' % id))
 
-                with closing(br.open('http://ebooks.eharlequin.com/' + id.strip(), timeout=timeout/4)) as nf:
-                    idata = html.fromstring(nf.read())
-                    drm = None
-                    if idata.xpath('boolean(//div[@class="drm_head"])'):
-                        drm = idata.xpath('boolean(//td[contains(., "Copy") and contains(., "not")])')
-
                 counter -= 1
 
                 s = SearchResult()
@@ -82,6 +77,26 @@ class EHarlequinStore(BasicStoreConfig, StorePlugin):
                 s.author = author.strip()
                 s.price = price.strip()
                 s.detail_item = '?url=http://ebooks.eharlequin.com/' + id.strip()
-                s.drm = drm
                 
                 yield s
+                
+    def get_details(self, search_result, timeout):
+        url = 'http://ebooks.eharlequin.com/en/ContentDetails.htm?ID='
+        
+        mo = re.search(r'\?ID=(?P<id>.+)', search_result.detail_item)
+        if mo:
+            id = mo.group('id')
+        if not id:
+            return
+        
+        
+        br = browser()
+        with closing(br.open(url + id, timeout=timeout)) as nf:
+            idata = html.fromstring(nf.read())
+            drm = SearchResult.DRM_UNKNOWN
+            if idata.xpath('boolean(//div[@class="drm_head"])'):
+                if idata.xpath('boolean(//td[contains(., "Copy") and contains(., "not")])'):
+                    drm = SearchResult.DRM_LOCKED
+                else:
+                    drm = SearchResult.DRM_UNLOCKED
+        search_result.drm = drm

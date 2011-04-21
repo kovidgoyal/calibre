@@ -90,3 +90,14 @@ class FeedbooksStore(BasicStoreConfig, StorePlugin):
                 s.detail_item = id.strip()
                 
                 yield s
+
+    def get_details(self, search_result, timeout):
+        url = 'http://m.feedbooks.com/'
+        
+        br = browser()
+        with closing(br.open(url_slash_cleaner(url + search_result.detail_item), timeout=timeout)) as nf:
+            idata = html.fromstring(nf.read())
+            if idata.xpath('boolean(//div[contains(@class, "m-description-long")]//p[contains(., "DRM") or contains(b, "Protection")])'):
+                search_result.drm = SearchResult.DRM_LOCKED
+            else:
+                search_result.drm = SearchResult.DRM_UNLOCKED

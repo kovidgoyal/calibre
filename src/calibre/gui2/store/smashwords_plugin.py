@@ -90,5 +90,6 @@ class SmashwordsStore(BasicStoreConfig, StorePlugin):
                 s.author = author.strip()
                 s.price = price.strip()
                 s.detail_item = '/books/view/' + id.strip()
+                s.drm = SearchResult.DRM_UNLOCKED
                 
                 yield s

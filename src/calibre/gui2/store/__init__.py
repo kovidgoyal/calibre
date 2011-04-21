@@ -104,7 +104,7 @@ class StorePlugin(object): # {{{
         raise NotImplementedError()
     
     def get_details(self, search_result, timeout=60):
-        raise NotImplementedError()
+        pass
 
     def get_settings(self):
         '''
