@@ -647,6 +647,8 @@ class SearchFilter(SearchQueryParser):
         location = location.lower().strip()
         if location == 'authors':
             location = 'author'
+        elif location == 'formats':
+            location = 'format'
 
         matchkind = CONTAINS_MATCH
         if len(query) > 1:
