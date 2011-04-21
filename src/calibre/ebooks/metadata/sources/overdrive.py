@@ -3,7 +3,7 @@ from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 
 __license__   = 'GPL v3'
-__copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
+__copyright__ = '2011, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 
 '''
@@ -44,7 +44,7 @@ class OverDrive(Source):
        Source.__init__(self, *args, **kwargs)
 
     options = (
-            Option('get_full_metadata', 'bool', False, _('Gather all Metadata:'),
+            Option('get_full_metadata', 'bool', None, _('Gather all Metadata:'),
                 _('Enable this option to gather all metadata available from Overdrive.')),
             )
 
@@ -58,10 +58,6 @@ class OverDrive(Source):
 
         prefs = self.prefs
         prefs.defaults['get_full_metadata'] = False
-
-    @property
-    def get_full_metadata(self):
-        return self.prefs['get_full_metadata']
 
     def identify(self, log, result_queue, abort, title=None, authors=None, # {{{
             identifiers={}, timeout=30):
@@ -78,7 +74,7 @@ class OverDrive(Source):
             if ovrdrv_id is None:
                 ovrdrv_id = ovrdrv_data[7]
 
-            if get_full_metadata():
+            if self.prefs['get_full_metadata']:
                 self.get_book_detail(br, ovrdrv_data[1], mi, ovrdrv_id, log)
 
             if isbn is not None:
