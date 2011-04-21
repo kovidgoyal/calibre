@@ -40,6 +40,29 @@ class OverDrive(Source):
     supports_gzip_transfer_encoding = False
     cached_cover_url_is_reliable = True
 
+    def __init__(self, *args, **kwargs):
+       Source.__init__(self, *args, **kwargs)
+
+    options = (
+            Option('get_full_metadata', 'bool', False, _('Gather all Metadata:'),
+                _('Enable this option to gather all metadata available from Overdrive.')),
+            )
+
+    config_help_message = '<p>'+_('Additional metadata can be taken from Overdrive\'s book detail'
+            ' page.  This includes a limited set of tags used by libraries, comments, language,'
+            ' and the ebook ISBN. Collecting this data is disabled by default due to the extra'
+            ' time required.')
+
+    def __init__(self, *args, **kwargs):
+        Source.__init__(self, *args, **kwargs)
+
+        prefs = self.prefs
+        prefs.defaults['get_full_metadata'] = False
+
+    @property
+    def get_full_metadata(self):
+        return self.prefs['get_full_metadata']
+
     def identify(self, log, result_queue, abort, title=None, authors=None, # {{{
             identifiers={}, timeout=30):
         ovrdrv_id = identifiers.get('overdrive', None)
@@ -440,4 +463,3 @@ if __name__ == '__main__':
                     authors_test(['Agatha Christie'])]
             ),
     ])
-
