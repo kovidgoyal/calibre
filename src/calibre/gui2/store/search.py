@@ -588,9 +588,9 @@ class Matches(QAbstractItemModel):
         elif col == 3:
             text = comparable_price(result.price)
         elif col == 4:
-            if result.drm:
+            if result.drm == SearchResult.DRM_UNLOCKED:
                 text = 'a'
-            elif result.drm == False:
+            elif result.drm == SearchResult.DRM_LOCKED:
                 text = 'b'
             else:
                 text = 'c'
