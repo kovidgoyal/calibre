@@ -60,4 +60,3 @@ class StoreAction(InterfaceAction):
                 '<a href="http://en.wikipedia.org/wiki/Digital_rights_management">DRM</a> '
                 'restrictions.</p>'),
                 show=True, show_copy_button=False)
-        
