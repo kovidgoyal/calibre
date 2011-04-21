@@ -90,5 +90,6 @@ class ManyBooksStore(BasicStoreConfig, StorePlugin):
                 s.price = price.strip()
                 s.detail_item = '/titles/' + id
                 s.drm = SearchResult.DRM_UNLOCKED
+                s.formts = 'EPUB, PDB (eReader, PalmDoc, zTXT, Plucker, iSilo), FB2, ZIP, AZW, MOBI, PRC, LIT, PKG, PDF, TXT, RB, RTF, LRF, TCR, JAR'
                 
                 yield s

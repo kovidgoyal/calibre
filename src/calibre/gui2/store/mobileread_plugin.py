@@ -104,8 +104,8 @@ class MobileReadStore(BasicStoreConfig, StorePlugin):
                 for book_data in data.xpath('//ul/li'):
                     book = BookRef()
                     book.detail_item = ''.join(book_data.xpath('.//a/@href'))
-                    book.format = ''.join(book_data.xpath('.//i/text()'))
-                    book.format = book.format.strip()
+                    book.formats = ''.join(book_data.xpath('.//i/text()'))
+                    book.formats = book.formats.strip()
         
                     text = ''.join(book_data.xpath('.//a/text()'))
                     if ':' in text:
@@ -222,7 +222,7 @@ class BooksModel(QAbstractItemModel):
         self.books = []
         if self.filter:
             for b in self.all_books:
-                test = '%s %s %s' % (b.title, b.author, b.format)
+                test = '%s %s %s' % (b.title, b.author, b.formats)
                 test = test.lower()
                 include = True
                 for item in self.filter.split(' '):
@@ -275,7 +275,7 @@ class BooksModel(QAbstractItemModel):
             elif col == 1:
                 return QVariant(result.author)
             elif col == 2:
-                return QVariant(result.format)
+                return QVariant(result.formats)
         return NONE
 
     def data_as_text(self, result, col):
@@ -285,7 +285,7 @@ class BooksModel(QAbstractItemModel):
         elif col == 1:
             text = result.author
         elif col == 2:
-            text = result.format
+            text = result.formats
         return text
 
     def sort(self, col, order, reset=True):

@@ -559,22 +559,22 @@ class Matches(QAbstractItemModel):
                     return QVariant(self.DRM_UNKNOWN_ICON)
         elif role == Qt.ToolTipRole:
             if col == 1:
-                return QVariant(result.title)
+                return QVariant('<p>%s</p>' % result.title)
             elif col == 2:
-                return QVariant(result.author)
+                return QVariant('<p>%s</p>' % result.author)
             elif col == 3:
-                return QVariant(_('Detected price as: %s. Check with the store before making a purchase to verify this price information is correct.') % result.price)
+                return QVariant('<p>' + _('Detected price as: %s. Check with the store before making a purchase to verify this price is correct. This price often does not include promotions the store may be running.') % result.price + '</p>')
             elif col == 4:
                 if result.drm == SearchResult.DRM_LOCKED:
-                    return QVariant(_('This book as been detected as having DRM restrictions. This book may not work with your reader and you will have limitations placed upon you as to what you can do with this book. Check with the store before making any purchases to ensure you can actually read this book.'))
+                    return QVariant('<p>' + _('This book as been detected as having DRM restrictions. This book may not work with your reader and you will have limitations placed upon you as to what you can do with this book. Check with the store before making any purchases to ensure you can actually read this book.') + '</p>')
                 elif result.drm == SearchResult.DRM_UNLOCKED:
-                    return QVariant(_('This book has been detected as being DRM Free. You should be able to use this book on any device provided it is in a format calibre supports for conversion. However, before making a purchase double check the DRM status with the store. The store may not be disclosing the use of DRM.'))
+                    return QVariant('<p>' + _('This book has been detected as being DRM Free. You should be able to use this book on any device provided it is in a format calibre supports for conversion. However, before making a purchase double check the DRM status with the store. The store may not be disclosing the use of DRM.') + '</p>')
                 else:
-                    return QVariant(_('The DRM status of this book could not be determined. There is a very high likelihood that this book is actually DRM restricted.'))
+                    return QVariant('<p>' + _('The DRM status of this book could not be determined. There is a very high likelihood that this book is actually DRM restricted.') + '</p>')
             elif col == 5:
-                return QVariant(result.store_name)
+                return QVariant('<p>%s</p>' % result.store_name)
             elif col == 6:
-                return QVariant(result.formats)
+                return QVariant('<p>%s</p>' % result.formats)
         elif role == Qt.SizeHintRole:
             return QSize(64, 64)
         return NONE
