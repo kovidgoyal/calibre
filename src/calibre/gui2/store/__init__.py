@@ -104,6 +104,19 @@ class StorePlugin(object): # {{{
         raise NotImplementedError()
     
     def get_details(self, search_result, timeout=60):
+        '''
+        Delayed search for information about specific search items.
+        
+        Typically, this will be used when certain information such as
+        formats, drm status, cover url are not part of the main search
+        results and the information is on another web page.
+        
+        Using this function allows for the main information (title, author)
+        to be displayed in the search results while other information can
+        take extra time to load. Splitting retrieving data that takes longer
+        to load into a separate function will give the illusion of the search
+        being faster.
+        '''
         pass
 
     def get_settings(self):

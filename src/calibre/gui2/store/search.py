@@ -100,7 +100,9 @@ class SearchDialog(QDialog, Ui_Dialog):
         # DRM
         self.results_view.setColumnWidth(4, int(total*.5))
         # Store
-        self.results_view.setColumnWidth(5, int(total*.20))
+        self.results_view.setColumnWidth(5, int(total*.15))
+        # Formats
+        self.results_view.setColumnWidth(6, int(total*.5))
 
     def do_search(self, checked=False):
         # Stop all running threads.
@@ -496,6 +498,8 @@ class Matches(QAbstractItemModel):
         if result in self.matches:
             row = self.matches.index(result)
             self.dataChanged.emit(self.index(row, 0), self.index(row, self.columnCount() - 1))
+        if result.drm not in (SearchResult.DRM_LOCKED, SearchResult.DRM_UNLOCKED, SearchResult.DRM_UNKNOWN):
+            result.drm = SearchResult.DRM_UNKNOWN
         self.filter_results()
 
     def set_query(self, query):
@@ -549,10 +553,28 @@ class Matches(QAbstractItemModel):
             if col == 4:
                 if result.drm == SearchResult.DRM_LOCKED:
                     return QVariant(self.DRM_LOCKED_ICON)
-                if result.drm == SearchResult.DRM_UNLOCKED:
+                elif result.drm == SearchResult.DRM_UNLOCKED:
                     return QVariant(self.DRM_UNLOCKED_ICON)
                 elif result.drm == SearchResult.DRM_UNKNOWN:
                     return QVariant(self.DRM_UNKNOWN_ICON)
+        elif role == Qt.ToolTipRole:
+            if col == 1:
+                return QVariant(result.title)
+            elif col == 2:
+                return QVariant(result.author)
+            elif col == 3:
+                return QVariant(_('Detected price as: %s. Check with the store before making a purchase to verify this price information is correct.') % result.price)
+            elif col == 4:
+                if result.drm == SearchResult.DRM_LOCKED:
+                    return QVariant(_('This book as been detected as having DRM restrictions. This book may not work with your reader and you will have limitations placed upon you as to what you can do with this book. Check with the store before making any purchases to ensure you can actually read this book.'))
+                elif result.drm == SearchResult.DRM_UNLOCKED:
+                    return QVariant(_('This book has been detected as being DRM Free. You should be able to use this book on any device provided it is in a format calibre supports for conversion. However, before making a purchase double check the DRM status with the store. The store may not be disclosing the use of DRM.'))
+                else:
+                    return QVariant(_('The DRM status of this book could not be determined. There is a very high likelihood that this book is actually DRM restricted.'))
+            elif col == 5:
+                return QVariant(result.store_name)
+            elif col == 6:
+                return QVariant(result.formats)
         elif role == Qt.SizeHintRole:
             return QSize(64, 64)
         return NONE
