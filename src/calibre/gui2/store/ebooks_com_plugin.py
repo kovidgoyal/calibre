@@ -112,6 +112,7 @@ class EbookscomStore(BasicStoreConfig, StorePlugin):
             fdata = ', '.join(pdoc.xpath('//table[@class="price"]//tr//td[1]/text()'))
             fdata = fdata.replace(':', '')
             fdata = re.sub(r'\s{2,}', ' ', fdata)
+            fdata = fdata.replace(' ,', ',')
             fdata = fdata.strip()
             search_result.formats = fdata
         
