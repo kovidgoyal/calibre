@@ -38,7 +38,7 @@ class StoreAction(InterfaceAction):
         sd.exec_()
 
     def open_store(self, store_plugin):
-        self.first_run_check()
+        self.show_disclaimer()
         store_plugin.open(self.gui)
 
     def show_disclaimer(self):
