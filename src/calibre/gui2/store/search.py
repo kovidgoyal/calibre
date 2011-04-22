@@ -10,6 +10,7 @@ import re
 import time
 import traceback
 from contextlib import closing
+from operator import attrgetter
 from random import shuffle
 from threading import Thread
 from Queue import Queue
@@ -24,7 +25,7 @@ from calibre.gui2.store.search_ui import Ui_Dialog
 from calibre.gui2.store.search_result import SearchResult
 from calibre.library.caches import _match, CONTAINS_MATCH, EQUALS_MATCH, \
     REGEXP_MATCH
-from calibre.utils.config import DynamicConfig
+from calibre.gui2 import JSONConfig
 from calibre.utils.icu import sort_key
 from calibre.utils.magick.draw import thumbnail
 from calibre.utils.search_query_parser import SearchQueryParser
@@ -48,7 +49,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         QDialog.__init__(self, *args)
         self.setupUi(self)
 
-        self.config = DynamicConfig('store/search')
+        self.config = JSONConfig('store/search')
 
         # We keep a cache of store plugins and reference them by name.
         self.store_plugins = istores
@@ -163,8 +164,8 @@ class SearchDialog(QDialog, Ui_Dialog):
         return query
 
     def save_state(self):
-        self.config['store_search_geometry'] = self.saveGeometry()
-        self.config['store_search_store_splitter_state'] = self.store_splitter.saveState()
+        self.config['store_search_geometry'] = bytearray(self.saveGeometry())
+        self.config['store_search_store_splitter_state'] = bytearray(self.store_splitter.saveState())
         self.config['store_search_results_view_column_width'] = [self.results_view.columnWidth(i) for i in range(self.model.columnCount())]
 
         store_check = {}
@@ -173,15 +174,15 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.config['store_search_store_checked'] = store_check
 
     def restore_state(self):
-        geometry = self.config['store_search_geometry']
+        geometry = self.config.get('store_search_geometry', None)
         if geometry:
             self.restoreGeometry(geometry)
 
-        splitter_state = self.config['store_search_store_splitter_state']
+        splitter_state = self.config.get('store_search_store_splitter_state', None)
         if splitter_state:
             self.store_splitter.restoreState(splitter_state)
 
-        results_cwidth = self.config['store_search_results_view_column_width']
+        results_cwidth = self.config.get('store_search_results_view_column_width', None)
         if results_cwidth:
             for i, x in enumerate(results_cwidth):
                 if i >= self.model.columnCount():
@@ -190,7 +191,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         else:
             self.resize_columns()
 
-        store_check = self.config['store_search_store_checked']
+        store_check = self.config.get('store_search_store_checked', None)
         if store_check:
             for n in store_check:
                 if hasattr(self, 'store_check_' + n):
