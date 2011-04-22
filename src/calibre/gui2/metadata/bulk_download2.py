@@ -170,12 +170,13 @@ class ApplyDialog(QDialog):
         self.failures = []
         self.ids = []
         self.canceled = False
+        self.finalized = False
         self.pb.setMinimum(0)
         self.pb.setMaximum(len(id_map))
         self.timer.start(50)
 
     def do_one(self):
-        if self.canceled:
+        if self.canceled or self.finalized:
             return
         if self.current_idx >= len(self.id_map):
             self.finalize()
@@ -210,10 +211,10 @@ class ApplyDialog(QDialog):
     def finalize(self):
         self.timer.stop()
 
-        if self.canceled:
+        if self.canceled or self.finalized:
             return
         # Prevent queued timer events from having any effect
-        self.canceled = True
+        self.finalized = True
 
         if self.failures:
             msg = []
