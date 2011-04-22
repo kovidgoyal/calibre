@@ -18,7 +18,7 @@ from PyQt4.Qt import (QStyledItemDelegate, QTextDocument, QRectF, QIcon, Qt,
         QStyle, QApplication, QDialog, QVBoxLayout, QLabel, QDialogButtonBox,
         QStackedWidget, QWidget, QTableView, QGridLayout, QFontInfo, QPalette,
         QTimer, pyqtSignal, QAbstractTableModel, QVariant, QSize, QListView,
-        QPixmap, QAbstractListModel, QColor, QRect, QTextBrowser)
+        QPixmap, QAbstractListModel, QColor, QRect, QTextBrowser, QModelIndex)
 from PyQt4.QtWebKit import QWebView
 
 from calibre.customize.ui import metadata_plugins
@@ -52,12 +52,9 @@ class RichTextDelegate(QStyledItemDelegate): # {{{
         return ans
 
     def paint(self, painter, option, index):
+        QStyledItemDelegate.paint(self, painter, option, QModelIndex())
         painter.save()
         painter.setClipRect(QRectF(option.rect))
-        if hasattr(QStyle, 'CE_ItemViewItem'):
-            QApplication.style().drawControl(QStyle.CE_ItemViewItem, option, painter)
-        elif option.state & QStyle.State_Selected:
-            painter.fillRect(option.rect, option.palette.highlight())
         painter.translate(option.rect.topLeft())
         self.to_doc(index).drawContents(painter)
         painter.restore()
