@@ -33,7 +33,7 @@ class StoreAction(InterfaceAction):
 
     def search(self):
         self.show_disclaimer()
-        from calibre.gui2.store.search import SearchDialog
+        from calibre.gui2.store.search.search import SearchDialog
         sd = SearchDialog(self.gui.istores, self.gui)
         sd.exec_()
 

@@ -9,14 +9,13 @@ __docformat__ = 'restructuredtext en'
 from PyQt4.Qt import (QTreeView)
 
 from calibre.gui2.metadata.single_download import RichTextDelegate
-
+from calibre.gui2.store.search.models import Matches
 
 class ResultsView(QTreeView):
 
     def __init__(self, *args):
         QTreeView.__init__(self,*args)
-        
-        from search import Matches
+
         self._model = Matches()
         self.setModel(self._model)
 
