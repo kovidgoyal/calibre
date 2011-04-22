@@ -10,7 +10,7 @@ from functools import partial
 
 from PyQt4.Qt import Qt, QMenu, QModelIndex, QTimer
 
-from calibre.gui2 import error_dialog, config, Dispatcher
+from calibre.gui2 import error_dialog, config, Dispatcher, question_dialog
 from calibre.gui2.dialogs.metadata_single import MetadataSingleDialog
 from calibre.gui2.dialogs.metadata_bulk import MetadataBulkDialog
 from calibre.gui2.dialogs.confirm_delete import confirm
@@ -79,6 +79,7 @@ class EditMetadataAction(InterfaceAction):
         self.qaction.setEnabled(enabled)
         self.action_merge.setEnabled(enabled)
 
+    # Download metadata {{{
     def download_metadata(self, ids=None):
         if ids is None:
             rows = self.gui.library_view.selectionModel().selectedRows()
@@ -89,14 +90,73 @@ class EditMetadataAction(InterfaceAction):
             ids = [db.id(row.row()) for row in rows]
         from calibre.gui2.metadata.bulk_download2 import start_download
         start_download(self.gui, ids,
-                Dispatcher(self.bulk_metadata_downloaded))
+                Dispatcher(self.metadata_downloaded))
 
-    def bulk_metadata_downloaded(self, job):
+    def metadata_downloaded(self, job):
         if job.failed:
             self.gui.job_exception(job, dialog_title=_('Failed to download metadata'))
             return
-        from calibre.gui2.metadata.bulk_download2 import proceed
-        proceed(self.gui, job)
+        from calibre.gui2.metadata.bulk_download2 import get_job_details
+        id_map, failed_ids, failed_covers, all_failed, det_msg = \
+                                            get_job_details(job)
+        if all_failed:
+            return error_dialog(self.gui, _('Download failed'),
+            _('Failed to download metadata or covers for any of the %d'
+               ' book(s).') % len(id_map), det_msg=det_msg, show=True)
+
+        self.gui.status_bar.show_message(_('Metadata download completed'), 3000)
+
+        msg = '<p>' + _('Finished downloading metadata for <b>%d book(s)</b>. '
+            'Proceed with updating the metadata in your library?')%len(id_map)
+
+        show_copy_button = False
+        if failed_ids or failed_covers:
+            show_copy_button = True
+            msg += '<p>'+_('Could not download metadata and/or covers for %d of the books. Click'
+                    ' "Show details" to see which books.')%len(failed_ids)
+
+        payload = (id_map, failed_ids, failed_covers)
+        from calibre.gui2.dialogs.message_box import ProceedNotification
+        p = ProceedNotification(payload, job.html_details,
+                _('Download log'), _('Download complete'), msg,
+                det_msg=det_msg, show_copy_button=show_copy_button,
+                parent=self.gui)
+        p.proceed.connect(self.apply_downloaded_metadata)
+        p.show()
+
+    def apply_downloaded_metadata(self, payload):
+        id_map, failed_ids, failed_covers = payload
+        id_map = dict([(k, v) for k, v in id_map.iteritems() if k not in
+            failed_ids])
+        if not id_map:
+            return
+
+        modified = set()
+        db = self.gui.current_db
+
+        for i, mi in id_map.iteritems():
+            lm = db.metadata_last_modified(i, index_is_id=True)
+            if lm > mi.last_modified:
+                title = db.title(i, index_is_id=True)
+                authors = db.authors(i, index_is_id=True)
+                if authors:
+                    authors = [x.replace('|', ',') for x in authors.split(',')]
+                    title += ' - ' + authors_to_string(authors)
+                modified.add(title)
+
+        if modified:
+            from calibre.utils.icu import lower
+
+            modified = sorted(modified, key=lower)
+            if not question_dialog(self.gui, _('Some books changed'), '<p>'+
+                    _('The metadata for some books in your library has'
+                        ' changed since you started the download. If you'
+                        ' proceed, some of those changes may be overwritten. '
+                        'Click "Show details" to see the list of changed books. '
+                        'Do you want to proceed?'), det_msg='\n'.join(modified)):
+                return
+
+        self.apply_metadata_changes(id_map)
 
     def download_metadata_old(self, checked, covers=True, set_metadata=True,
             set_social_metadata=None):
@@ -141,6 +201,7 @@ class EditMetadataAction(InterfaceAction):
                 x.updated, cr)
             if self.gui.cover_flow:
                 self.gui.cover_flow.dataChanged()
+    # }}}
 
     def edit_metadata(self, checked, bulk=None):
         '''
@@ -467,8 +528,8 @@ class EditMetadataAction(InterfaceAction):
             self.gui.upload_collections(model.db, view=view, oncard=oncard)
             view.reset()
 
-    def apply_metadata_changes(self, id_map,
-            title=_('Applying changed metadata'), msg=''):
+    # Apply bulk metadata changes {{{
+    def apply_metadata_changes(self, id_map, title=None, msg=''):
         '''
         Apply the metadata changes in id_map to the database synchronously
         id_map must be a mapping of ids to Metadata objects. Set any fields you
@@ -476,6 +537,8 @@ class EditMetadataAction(InterfaceAction):
         that is to create a metadata object as Metadata(_('Unknown')) and then
         only set the fields you want changed on this object.
         '''
+        if title is None:
+            title = _('Applying changed metadata')
         self.apply_id_map = list(id_map.iteritems())
         self.apply_current_idx = 0
         self.apply_failures = []
@@ -548,4 +611,6 @@ class EditMetadataAction(InterfaceAction):
 
         self.apply_id_map = []
         self.apply_pd = None
+
+    # }}}
 

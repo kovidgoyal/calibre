@@ -6,13 +6,13 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 
-from PyQt4.Qt import QDialog, QIcon, QApplication, QSize, QKeySequence, \
-    QAction, Qt
+from PyQt4.Qt import (QDialog, QIcon, QApplication, QSize, QKeySequence,
+    QAction, Qt, pyqtSignal, QTextBrowser, QDialogButtonBox, QVBoxLayout)
 
 from calibre.constants import __version__
 from calibre.gui2.dialogs.message_box_ui import Ui_Dialog
 
-class MessageBox(QDialog, Ui_Dialog):
+class MessageBox(QDialog, Ui_Dialog): # {{{
 
     ERROR = 0
     WARNING = 1
@@ -111,6 +111,68 @@ class MessageBox(QDialog, Ui_Dialog):
         self.det_msg_toggle.setVisible(bool(msg))
         self.det_msg.setVisible(False)
         self.do_resize()
+# }}}
+
+class ViewLog(QDialog): # {{{
+
+    def __init__(self, title, html, parent=None):
+        QDialog.__init__(self, parent)
+        self.l = l = QVBoxLayout()
+        self.setLayout(l)
+
+        self.tb = QTextBrowser(self)
+        self.tb.setHtml('<pre style="font-family: monospace">%s</pre>' % html)
+        l.addWidget(self.tb)
+
+        self.bb = QDialogButtonBox(QDialogButtonBox.Ok)
+        self.bb.accepted.connect(self.accept)
+        self.bb.rejected.connect(self.reject)
+        self.copy_button = self.bb.addButton(_('Copy to clipboard'),
+                self.bb.ActionRole)
+        self.copy_button.setIcon(QIcon(I('edit-copy.png')))
+        self.copy_button.clicked.connect(self.copy_to_clipboard)
+        l.addWidget(self.bb)
+        self.setModal(False)
+        self.resize(QSize(700, 500))
+        self.setWindowTitle(title)
+        self.setWindowIcon(QIcon(I('debug.png')))
+        self.show()
+
+    def copy_to_clipboard(self):
+        txt = self.tb.toPlainText()
+        QApplication.clipboard().setText(txt)
+# }}}
+
+class ProceedNotification(MessageBox):
+
+    proceed = pyqtSignal(object)
+
+    def __init__(self, payload, html_log, log_viewer_title, title, msg, det_msg='', show_copy_button=False, parent=None):
+        MessageBox.__init__(self, MessageBox.QUESTION, title, msg,
+                det_msg=det_msg, show_copy_button=show_copy_button,
+                parent=parent)
+        self.payload = payload
+        self.html_log = html_log
+        self.log_viewer_title = log_viewer_title
+        self.finished.connect(self.do_proceed)
+
+        self.vlb = self.bb.addButton(_('View log'), self.bb.ActionRole)
+        self.vlb.setIcon(QIcon(I('debug.png')))
+        self.vlb.clicked.connect(self.show_log)
+        self.det_msg_toggle.setVisible(bool(det_msg))
+        self.setModal(False)
+
+    def show_log(self):
+        self.log_viewer = ViewLog(self.log_viewer_title, self.html_log,
+                parent=self)
+
+    def do_proceed(self, result):
+        if result == self.Accepted:
+            self.proceed.emit(self.payload)
+        try:
+            self.proceed.disconnect()
+        except:
+            pass
 
 if __name__ == '__main__':
     app = QApplication([])
