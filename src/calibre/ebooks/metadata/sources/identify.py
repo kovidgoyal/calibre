@@ -216,7 +216,7 @@ class ISBNMerge(object):
 
         # We assume the smallest set of tags has the least cruft in it
         ans.tags = self.length_merge('tags', results,
-                null_value=ans.tags)
+                null_value=ans.tags, shortest=msprefs['fewer_tags'])
 
         # We assume the longest series has the most info in it
         ans.series = self.length_merge('series', results,

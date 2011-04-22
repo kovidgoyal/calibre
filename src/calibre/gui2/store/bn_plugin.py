@@ -25,8 +25,6 @@ from calibre.gui2.store.web_store_dialog import WebStoreDialog
 class BNStore(BasicStoreConfig, StorePlugin):
     
     def open(self, parent=None, detail_item=None, external=False):
-        settings = self.get_settings()
-
         pub_id = '21000000000352219'
         # Use Kovid's affiliate id 30% of the time.
         if random.randint(1, 10) in (1, 2, 3):
@@ -40,12 +38,12 @@ class BNStore(BasicStoreConfig, StorePlugin):
                 isbn = mo.group('isbn')
                 detail_item = 'http://gan.doubleclick.net/gan_click?lid=41000000012871747&pid=' + isbn + '&adurl=' + detail_item + '&pubid=' + pub_id
 
-        if external or settings.get(self.name + '_open_external', False):
+        if external or self.config.get('open_external', False):
             open_url(QUrl(url_slash_cleaner(detail_item if detail_item else url)))
         else:
             d = WebStoreDialog(self.gui, url, parent, detail_item)
             d.setWindowTitle(self.name)
-            d.set_tags(settings.get(self.name + '_tags', ''))
+            d.set_tags(self.config.get('tags', ''))
             d.exec_()
 
     def search(self, query, max_results=10, timeout=60):

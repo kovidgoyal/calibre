@@ -24,19 +24,18 @@ from calibre.gui2.store.web_store_dialog import WebStoreDialog
 class ManyBooksStore(BasicStoreConfig, StorePlugin):
 
     def open(self, parent=None, detail_item=None, external=False):
-        settings = self.get_settings()
         url = 'http://manybooks.net/'
 
         detail_url = None
         if detail_item:
             detail_url = url + detail_item
         
-        if external or settings.get(self.name + '_open_external', False):
+        if external or self.config.get('open_external', False):
             open_url(QUrl(url_slash_cleaner(detail_url if detail_url else url)))
         else:
             d = WebStoreDialog(self.gui, url, parent, detail_url)
             d.setWindowTitle(self.name)
-            d.set_tags(settings.get(self.name + '_tags', ''))
+            d.set_tags(self.config.get('tags', ''))
             d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
