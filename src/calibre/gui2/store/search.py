@@ -671,9 +671,9 @@ class SearchFilter(SearchQueryParser):
         locations = all_locs if location == 'all' else [location]
         q = {
              'author': lambda x: x.author.lower(),
-             'cover': lambda x: x.cover_url,
-             'drm': lambda x: x.drm,
-             'format': lambda x: x.formats,
+             'cover': attrgetter('cover_url'),
+             'drm': attrgetter('drm'),
+             'format': attrgetter('formats'),
              'price': lambda x: comparable_price(x.price),
              'store': lambda x: x.store_name.lower(),
              'title': lambda x: x.title.lower(),
