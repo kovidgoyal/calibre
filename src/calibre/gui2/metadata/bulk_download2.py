@@ -10,6 +10,7 @@ __docformat__ = 'restructuredtext en'
 import os
 from functools import partial
 from itertools import izip
+from threading import Event
 
 from PyQt4.Qt import (QIcon, QDialog, QVBoxLayout, QTextBrowser, QSize,
         QDialogButtonBox, QApplication, QTimer, QLabel, QProgressBar,
@@ -146,12 +147,13 @@ def view_log(job, parent):
 # Apply downloaded metadata {{{
 class ApplyDialog(QDialog):
 
-    def __init__(self, gui):
+    def __init__(self, msg, gui):
         QDialog.__init__(self, gui)
+        self.setModal(True)
 
         self.l = l = QVBoxLayout()
         self.setLayout(l)
-        l.addWidget(QLabel(_('Applying downloaded metadata to your library')))
+        l.addWidget(QLabel(msg))
 
         self.pb = QProgressBar(self)
         l.addWidget(self.pb)
@@ -160,23 +162,23 @@ class ApplyDialog(QDialog):
         self.bb.rejected.connect(self.reject)
         l.addWidget(self.bb)
 
-        self.gui = gui
-        self.timer = QTimer(self)
-        self.timer.timeout.connect(self.do_one)
+        self.setWindowTitle(_('Applying metadata'))
 
-    def start(self, id_map):
+        self.gui = gui
+
+    def start_applying(self, id_map):
         self.id_map = list(id_map.iteritems())
         self.current_idx = 0
         self.failures = []
         self.ids = []
         self.canceled = False
-        self.finalized = False
         self.pb.setMinimum(0)
         self.pb.setMaximum(len(id_map))
-        self.timer.start(50)
+        self.pb.setValue(0)
+        self.do_one()
 
     def do_one(self):
-        if self.canceled or self.finalized:
+        if self.canceled:
             return
         if self.current_idx >= len(self.id_map):
             self.finalize()
@@ -202,23 +204,24 @@ class ApplyDialog(QDialog):
 
         self.pb.setValue(self.pb.value()+1)
         self.current_idx += 1
+        if not self.canceled:
+            QTimer.singleShot(50, self.do_one)
 
     def reject(self):
         self.canceled = True
-        self.timer.stop()
+        # Commit any changes so far
+        db = self.gui.current_db
+        db.commit()
         QDialog.reject(self)
 
     def finalize(self):
-        self.timer.stop()
-
-        if self.canceled or self.finalized:
+        if self.canceled:
             return
-        # Prevent queued timer events from having any effect
-        self.finalized = True
+        db = self.gui.current_db
+        db.commit()
 
         if self.failures:
             msg = []
-            db = self.gui.current_db
             for i, tb in self.failures:
                 title = db.title(i, index_is_id=True)
                 authors = db.authors(i, index_is_id=True)
@@ -232,6 +235,7 @@ class ApplyDialog(QDialog):
                 _('Failed to apply updated metadata for some books'
                     ' in your library. Click "Show Details" to see '
                     'details.'), det_msg='\n\n'.join(msg), show=True)
+        self.accept()
         if self.ids:
             cr = self.gui.library_view.currentIndex().row()
             self.gui.library_view.model().refresh_ids(
@@ -239,11 +243,20 @@ class ApplyDialog(QDialog):
             if self.gui.cover_flow:
                 self.gui.cover_flow.dataChanged()
 
-        self.accept()
+        self.id_map = []
 
 _amd = None
-def apply_metadata(job, gui, q, result):
+
+def do_apply_metadata(gui, id_map,
+        msg=_('Applying downloaded metadata to your library')):
     global _amd
+    _amd = ApplyDialog(msg, gui)
+    _amd.start_applying(id_map)
+    if len(id_map) > 3:
+        _amd.show()
+
+
+def apply_metadata(job, gui, q, result):
     q.vlb.clicked.disconnect()
     q.finished.disconnect()
     if result != q.Accepted:
@@ -277,11 +290,7 @@ def apply_metadata(job, gui, q, result):
                     'Do you want to proceed?'), det_msg='\n'.join(modified)):
             return
 
-    if _amd is None:
-        _amd = ApplyDialog(gui)
-    _amd.start(id_map)
-    if len(id_map) > 3:
-        _amd.exec_()
+    do_apply_metadata(gui, id_map)
 
 def proceed(gui, job):
     gui.status_bar.show_message(_('Metadata download completed'), 3000)
@@ -351,6 +360,10 @@ def download(ids, db, do_identify, covers,
     ans = {}
     count = 0
     all_failed = True
+    '''
+    Test apply dialog
+    all_failed = do_identify = covers = False
+    '''
     for i, mi in izip(ids, metadata):
         if abort.is_set():
             log.error('Aborting...')
@@ -360,7 +373,7 @@ def download(ids, db, do_identify, covers,
         if do_identify:
             results = []
             try:
-                results = identify(log, abort, title=title, authors=authors,
+                results = identify(log, Event(), title=title, authors=authors,
                     identifiers=identifiers)
             except:
                 pass
