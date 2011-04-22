@@ -10,8 +10,8 @@ from functools import partial
 
 from PyQt4.Qt import QMenu
 
-from calibre.gui2 import JSONConfig
 from calibre.gui2.actions import InterfaceAction
+from calibre.gui2.dialogs.confirm_delete import confirm
 
 class StoreAction(InterfaceAction):
 
@@ -19,8 +19,6 @@ class StoreAction(InterfaceAction):
     action_spec = (_('Get books'), 'store.png', None, None)
 
     def genesis(self):
-        self.config = JSONConfig('store/action')
-
         self.qaction.triggered.connect(self.search)
         self.store_menu = QMenu()
         self.load_menu()
@@ -34,7 +32,7 @@ class StoreAction(InterfaceAction):
         self.qaction.setMenu(self.store_menu)
 
     def search(self):
-        self.first_run_check()
+        self.show_disclaimer()
         from calibre.gui2.store.search import SearchDialog
         sd = SearchDialog(self.gui.istores, self.gui)
         sd.exec_()
@@ -43,18 +41,15 @@ class StoreAction(InterfaceAction):
         self.first_run_check()
         store_plugin.open(self.gui)
 
-    def first_run_check(self):
-        if self.config.get('first_run', True):
-            self.config['first_run'] = False
-            from calibre.gui2 import info_dialog
-            info_dialog(self.gui, _('About Get Books'), '<p>' +
+    def show_disclaimer(self):
+        confirm(('<p>' +
             _('Calibre helps you find the ebooks you want by searching '
-            'the websites of a variety of commercial and public domain '
+            'the websites of various commercial and public domain '
             'book sources for you.') +
             '<p>' +
             _('Using the integrated search you can easily find which '
             'store has the book you are looking for, at the best price. '
-            'You will also get DRM status and other useful information.')
+            'You also get DRM status and other useful information.')
             + '<p>' +
             _('All transactions (paid or otherwise) are handled between '
             'you and the particular website. '
@@ -64,4 +59,7 @@ class StoreAction(InterfaceAction):
             'will work with your e-book reader, especially if the book you '
             'are buying has '
             '<a href="http://drmfree.calibre-ebook.com/about#drm">DRM</a>.'
-            ), show=True, show_copy_button=False)
+            )), 'about_get_books_msg',
+            parent=self.gui, show_cancel_button=False,
+            confirm_msg=_('Show this message again'),
+            pixmap='dialog_information.png', title=_('About Get Books'))

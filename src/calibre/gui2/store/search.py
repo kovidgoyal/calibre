@@ -396,7 +396,7 @@ class DetailsThreadPool(GenericDownloadThreadPool):
 
 
 class DetailsThread(Thread):
-    
+
     def __init__(self, tasks, results):
         Thread.__init__(self)
         self.daemon = True
@@ -428,11 +428,14 @@ class Matches(QAbstractItemModel):
 
     def __init__(self):
         QAbstractItemModel.__init__(self)
-        
-        self.DRM_LOCKED_ICON = QPixmap(I('drm-locked.png')).scaledToHeight(64)
-        self.DRM_UNLOCKED_ICON = QPixmap(I('drm-unlocked.png')).scaledToHeight(64)
-        self.DRM_UNKNOWN_ICON = QPixmap(I('dialog_warning.png')).scaledToHeight(64)
-        
+
+        self.DRM_LOCKED_ICON = QPixmap(I('drm-locked.png')).scaledToHeight(64,
+                Qt.SmoothTransformation)
+        self.DRM_UNLOCKED_ICON = QPixmap(I('drm-unlocked.png')).scaledToHeight(64,
+                Qt.SmoothTransformation)
+        self.DRM_UNKNOWN_ICON = QPixmap(I('dialog_question.png')).scaledToHeight(64,
+                Qt.SmoothTransformation)
+
         # All matches. Used to determine the order to display
         # self.matches because the SearchFilter returns
         # matches unordered.
@@ -482,7 +485,7 @@ class Matches(QAbstractItemModel):
             return self.matches[row]
         else:
             return None
-        
+
     def filter_results(self):
         self.layoutAboutToBeChanged.emit()
         if self.query:
@@ -611,13 +614,13 @@ class Matches(QAbstractItemModel):
         self.reorder_matches()
         if reset:
             self.reset()
-            
+
     def reorder_matches(self):
         self.matches = sorted(self.matches, key=lambda x: self.all_matches.index(x))
 
 
 class SearchFilter(SearchQueryParser):
-    
+
     USABLE_LOCATIONS = [
         'all',
         'author',
@@ -637,7 +640,7 @@ class SearchFilter(SearchQueryParser):
 
     def add_search_result(self, search_result):
         self.srs.add(search_result)
-        
+
     def clear_search_results(self):
         self.srs = set([])
 
@@ -710,7 +713,7 @@ class SearchFilter(SearchQueryParser):
                         m = CONTAINS_MATCH
                     else:
                         m = matchkind
-    
+
                     if locvalue == 'format':
                         vals = accessor(sr).split(',')
                     else:
