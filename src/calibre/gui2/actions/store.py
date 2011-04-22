@@ -52,7 +52,7 @@ class StoreAction(InterfaceAction):
             'You also get DRM status and other useful information.')
             + '<p>' +
             _('All transactions (paid or otherwise) are handled between '
-            'you and the particular website. '
+            'you and the book seller. '
             'Calibre is not part of this process and any issues related '
             'to a purchase should be directed to the website you are '
             'buying from. Be sure to double check that any books you get '
@@ -63,3 +63,4 @@ class StoreAction(InterfaceAction):
             parent=self.gui, show_cancel_button=False,
             confirm_msg=_('Show this message again'),
             pixmap='dialog_information.png', title=_('About Get Books'))
+
