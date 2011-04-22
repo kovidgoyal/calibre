@@ -25,12 +25,12 @@
   new features:
     - title: "Launch worker processes on demand instead of keeping a pool of them in memory. Reduces memory footprint."
 
-    - title: "Use the visual formatting of the Table of Contents to try to automatically create a multi-level TOC when converting/viewing MOBI files. "
+    - title: "Use the visual formatting of the Table of Contents to try to automatically create a multi-level TOC when converting/viewing MOBI files."
       tickets: [763681]
 
     - title: "Add a new function booksize() to the template language to get the value of the size column in calibre."
 
-    - title: "Add support for using metadata plugborads with the content server (only with the epub format)"
+    - title: "Add support for using metadata plugboards with the content server (only with the epub format)"
 
     - title: "Change default algorithm for automatically computing author sort to be more intelligent and handle the case when the author name has a comma in it"
 
