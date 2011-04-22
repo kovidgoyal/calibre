@@ -693,7 +693,7 @@ class SearchFilter(SearchQueryParser):
                     continue
                 if query == 'false':
                     if locvalue == 'drm':
-                        if accessor(sr) == SearchResult.DRM_UNKNOWN:
+                        if accessor(sr) == SearchResult.DRM_UNLOCKED:
                             matches.add(sr)
                     else:
                         if accessor(sr) is None:
