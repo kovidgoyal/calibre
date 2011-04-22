@@ -3,7 +3,7 @@ from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 
 __license__   = 'GPL v3'
-__copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
+__copyright__ = '2011, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 
 '''
@@ -17,7 +17,7 @@ from lxml import html
 from lxml.html import soupparser
 
 from calibre.ebooks.metadata import check_isbn
-from calibre.ebooks.metadata.sources.base import Source
+from calibre.ebooks.metadata.sources.base import Source, Option
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.library.comments import sanitize_comments_html
@@ -40,6 +40,18 @@ class OverDrive(Source):
     supports_gzip_transfer_encoding = False
     cached_cover_url_is_reliable = True
 
+    options = (
+            Option('get_full_metadata', 'bool', False,
+                _('Download all metadata (slow)'),
+                _('Enable this option to gather all metadata available from Overdrive.')),
+            )
+
+    config_help_message = '<p>'+_('Additional metadata can be taken from Overdrive\'s book detail'
+            ' page. This includes a limited set of tags used by libraries, comments, language,'
+            ' and the ebook ISBN. Collecting this data is disabled by default due to the extra'
+            ' time required. Check the download all metadata option below to'
+            ' enable downloading this data.')
+
     def identify(self, log, result_queue, abort, title=None, authors=None, # {{{
             identifiers={}, timeout=30):
         ovrdrv_id = identifiers.get('overdrive', None)
@@ -54,10 +66,12 @@ class OverDrive(Source):
             self.parse_search_results(ovrdrv_data, mi)
             if ovrdrv_id is None:
                 ovrdrv_id = ovrdrv_data[7]
+
+            if self.prefs['get_full_metadata']:
+                self.get_book_detail(br, ovrdrv_data[1], mi, ovrdrv_id, log)
+
             if isbn is not None:
                 self.cache_isbn_to_identifier(isbn, ovrdrv_id)
-
-            self.get_book_detail(br, ovrdrv_data[1], mi, ovrdrv_id, log)
 
             result_queue.put(mi)
 
@@ -438,4 +452,3 @@ if __name__ == '__main__':
                     authors_test(['Agatha Christie'])]
             ),
     ])
-
