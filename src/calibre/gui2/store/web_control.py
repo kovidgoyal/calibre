@@ -68,6 +68,18 @@ class NPWebView(QWebView):
         filename = get_download_filename(url, cf)
         ext = os.path.splitext(filename)[1][1:].lower()
         if ext not in BOOK_EXTENSIONS:
+            if ext == 'acsm':
+                from calibre.gui2.dialogs.confirm_delete import confirm
+                confirm(_('<p>You have selected to download an ebook that uses '
+                          'the ACSM format. ACSM files are not ebook files but '
+                          'pointers '
+                          '<a href="http://www.adobe.com/products/digitaleditions/">'
+                          'Adobe Digital Editions</a> (ADE) uses so it can download '
+                          'the ebook and apply DRM to it. You will be prompted to save this '
+                          'file to your computer. Then open it using ADE. Once ADE has '
+                          'downloaded the actual ebook you can add the book to calibre '
+                          'using Add and selecting the file from the ADE library folder.'),
+                          'acsm_download', self)
             home = os.path.expanduser('~')
             name = QFileDialog.getSaveFileName(self,
                 _('File is not a supported ebook type. Save to disk?'),

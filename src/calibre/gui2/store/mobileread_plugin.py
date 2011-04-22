@@ -97,12 +97,12 @@ class MobileReadStore(BasicStoreConfig, StorePlugin):
             if not raw_data:
                 return
             
-            # Turn books listed in the HTML file into BookRef's.
+            # Turn books listed in the HTML file into SearchResults's.
             books = []
             try:
                 data = html.fromstring(raw_data)
                 for book_data in data.xpath('//ul/li'):
-                    book = BookRef()
+                    book = SearchResult()
                     book.detail_item = ''.join(book_data.xpath('.//a/@href'))
                     book.formats = ''.join(book_data.xpath('.//i/text()'))
                     book.formats = book.formats.strip()
@@ -124,12 +124,6 @@ class MobileReadStore(BasicStoreConfig, StorePlugin):
     def get_book_list(self, timeout=10):
         self.update_book_list(timeout=timeout)
         return self.config.get(self.name + '_book_list', [])
-
-
-class BookRef(SearchResult):
-    
-    def __init__(self):
-        SearchResult.__init__(self)
 
 
 class MobeReadStoreDialog(QDialog, Ui_Dialog):
