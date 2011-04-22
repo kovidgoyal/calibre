@@ -46,9 +46,12 @@ class StorePlugin(object): # {{{
     '''
 
     def __init__(self, gui, name):
+        from calibre.gui2 import JSONConfig
+        
         self.gui = gui
         self.name = name
         self.base_plugin = None
+        self.config = JSONConfig('store/stores/' + self.name)
 
     def open(self, gui, parent=None, detail_item=None, external=False):
         '''

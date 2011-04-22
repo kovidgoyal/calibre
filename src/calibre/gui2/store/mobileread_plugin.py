@@ -18,7 +18,7 @@ from PyQt4.Qt import Qt, QUrl, QDialog, QAbstractItemModel, QModelIndex, QVarian
     pyqtSignal
 
 from calibre import browser
-from calibre.gui2 import open_url, NONE, JSONConfig
+from calibre.gui2 import open_url, NONE
 from calibre.gui2.store import StorePlugin
 from calibre.gui2.store.basic_config import BasicStoreConfig
 from calibre.gui2.store.mobileread_store_dialog_ui import Ui_Dialog
@@ -29,20 +29,18 @@ from calibre.utils.icu import sort_key
 class MobileReadStore(BasicStoreConfig, StorePlugin):
     
     def genesis(self):
-        self.config = JSONConfig('store/store/' + self.name)
         self.rlock = RLock()
     
     def open(self, parent=None, detail_item=None, external=False):
-        settings = self.get_settings()
         url = 'http://www.mobileread.com/'
         
-        if external or settings.get(self.name + '_open_external', False):
+        if external or self.config.get('open_external', False):
             open_url(QUrl(detail_item if detail_item else url))
         else:
             if detail_item:
                 d = WebStoreDialog(self.gui, url, parent, detail_item)
                 d.setWindowTitle(self.name)
-                d.set_tags(settings.get(self.name + '_tags', ''))
+                d.set_tags(self.config.get('tags', ''))
                 d.exec_()
             else:
                 d = MobeReadStoreDialog(self, parent)
