@@ -55,6 +55,9 @@ class Matches(QAbstractItemModel):
         self.cover_pool.start_threads()
         self.details_pool = DetailsThreadPool(DetailsThread, 4)
         self.details_pool.start_threads()
+        
+        self.sort_col = 2
+        self.sort_order = Qt.AscendingOrder
 
     def closing(self):
         self.cover_pool.abort()
@@ -102,7 +105,7 @@ class Matches(QAbstractItemModel):
             self.matches = list(self.search_filter.parse(self.query))
         else:
             self.matches = list(self.search_filter.universal_set())
-        self.reorder_matches()
+        self.sort(self.sort_col, self.sort_order, False)
         self.layoutChanged.emit()
 
     def got_result_details(self, result):
@@ -193,11 +196,20 @@ class Matches(QAbstractItemModel):
             text = result.title
         elif col == 2:
             text = comparable_price(result.price)
+        elif col == 3:
+            if result.drm == SearchResult.DRM_UNLOCKED:
+                text = 'a'
+            if result.drm == SearchResult.DRM_LOCKED:
+                text = 'b'
+            else:
+                text = 'c'
         elif col == 4:
             text = result.store_name
         return text
 
     def sort(self, col, order, reset=True):
+        self.sort_col = col
+        self.sort_order = order
         if not self.matches:
             return
         descending = order == Qt.DescendingOrder

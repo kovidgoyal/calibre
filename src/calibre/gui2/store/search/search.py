@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 import re
 from random import shuffle
 
-from PyQt4.Qt import (QDialog, QTimer, QCheckBox, QVBoxLayout) 
+from PyQt4.Qt import (Qt, QDialog, QTimer, QCheckBox, QVBoxLayout) 
 
 from calibre.gui2 import JSONConfig, info_dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
@@ -135,25 +135,27 @@ class SearchDialog(QDialog, Ui_Dialog):
         return query
 
     def save_state(self):
-        self.config['store_search_geometry'] = bytearray(self.saveGeometry())
-        self.config['store_search_store_splitter_state'] = bytearray(self.store_splitter.saveState())
-        self.config['store_search_results_view_column_width'] = [self.results_view.columnWidth(i) for i in range(self.results_view.model().columnCount())]
+        self.config['geometry'] = bytearray(self.saveGeometry())
+        self.config['store_splitter_state'] = bytearray(self.store_splitter.saveState())
+        self.config['results_view_column_width'] = [self.results_view.columnWidth(i) for i in range(self.results_view.model().columnCount())]
+        self.config['sort_col'] = self.results_view.model().sort_col
+        self.config['sort_order'] = self.results_view.model().sort_order
 
         store_check = {}
         for n in self.store_plugins:
             store_check[n] = getattr(self, 'store_check_' + n).isChecked()
-        self.config['store_search_store_checked'] = store_check
+        self.config['store_checked'] = store_check
 
     def restore_state(self):
-        geometry = self.config.get('store_search_geometry', None)
+        geometry = self.config.get('geometry', None)
         if geometry:
             self.restoreGeometry(geometry)
 
-        splitter_state = self.config.get('store_search_store_splitter_state', None)
+        splitter_state = self.config.get('store_splitter_state', None)
         if splitter_state:
             self.store_splitter.restoreState(splitter_state)
 
-        results_cwidth = self.config.get('store_search_results_view_column_width', None)
+        results_cwidth = self.config.get('results_view_column_width', None)
         if results_cwidth:
             for i, x in enumerate(results_cwidth):
                 if i >= self.results_view.model().columnCount():
@@ -162,11 +164,15 @@ class SearchDialog(QDialog, Ui_Dialog):
         else:
             self.resize_columns()
 
-        store_check = self.config.get('store_search_store_checked', None)
+        store_check = self.config.get('store_checked', None)
         if store_check:
             for n in store_check:
                 if hasattr(self, 'store_check_' + n):
                     getattr(self, 'store_check_' + n).setChecked(store_check[n])
+                    
+        self.results_view.model().sort_col = self.config.get('sort_col', 2)
+        self.results_view.model().sort_order = self.config.get('sort_order', Qt.AscendingOrder)
+        self.results_view.header().setSortIndicator(self.results_view.model().sort_col, self.results_view.model().sort_order)         
 
     def get_results(self):
         # We only want the search plugins to run
