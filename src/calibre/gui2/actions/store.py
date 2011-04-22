@@ -47,16 +47,21 @@ class StoreAction(InterfaceAction):
         if self.config.get('first_run', True):
             self.config['first_run'] = False
             from calibre.gui2 import info_dialog
-            info_dialog(self.gui, _('Get Books Disclaimer'),
-                _('<p>Calibre helps you find books to read by connecting you with outside stores. '
-                'The stores are a variety of big, independent, free, and public domain sources.</p>'
-                '<p>Using the integrated search you can easily find what store has the book you\'re '
-                'looking for. It will also give you a price, DRM status as well as a lot of '
-                'other useful information.</p>'
-                '<p>All transaction (paid or otherwise) are handled between you and the store. '
-                'Calibre is not part of this process and any issues related to a purchase need to '
-                'be directed to the actual store. Be sure to double check that any books you get '
-                'will work with you device. Double check for format and '
-                '<a href="http://en.wikipedia.org/wiki/Digital_rights_management">DRM</a> '
-                'restrictions.</p>'),
-                show=True, show_copy_button=False)
+            info_dialog(self.gui, _('About Get Books'), '<p>' +
+            _('Calibre helps you find the ebooks you want by searching '
+            'the websites of a variety of commercial and public domain '
+            'book sources for you.') +
+            '<p>' +
+            _('Using the integrated search you can easily find which '
+            'store has the book you are looking for, at the best price. '
+            'You will also get DRM status and other useful information.')
+            + '<p>' +
+            _('All transactions (paid or otherwise) are handled between '
+            'you and the particular website. '
+            'Calibre is not part of this process and any issues related '
+            'to a purchase should be directed to the website you are '
+            'buying from. Be sure to double check that any books you get '
+            'will work with your e-book reader, especially if the book you '
+            'are buying has '
+            '<a href="http://drmfree.calibre-ebook.com/about#drm">DRM</a>.'
+            ), show=True, show_copy_button=False)

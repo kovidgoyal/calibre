@@ -67,6 +67,23 @@ def authors_test(authors):
 
     return test
 
+def series_test(series, series_index):
+    series = series.lower()
+
+    def test(mi):
+        ms = mi.series.lower() if mi.series else ''
+        if (ms == series) and (series_index == mi.series_index):
+            return True
+        if mi.series:
+            prints('Series test failed. Expected: \'%s [%d]\' found \'%s[%d]\''% \
+                        (series, series_index, ms, mi.series_index))
+        else:
+            prints('Series test failed. Expected: \'%s [%d]\' found no series'% \
+                        (series, series_index))
+        return False
+
+    return test
+
 def init_test(tdir_name):
     tdir = tempfile.gettempdir()
     lf = os.path.join(tdir, tdir_name.replace(' ', '')+'_identify_test.txt')

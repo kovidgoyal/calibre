@@ -48,7 +48,7 @@ authors_completer_append_separator = False
 # When this tweak is changed, the author_sort values stored with each author
 # must be recomputed by right-clicking on an author in the left-hand tags pane,
 # selecting 'manage authors', and pressing 'Recalculate all author sort values'.
-author_sort_copy_method = 'invert'
+author_sort_copy_method = 'comma'
 
 #: Use author sort in Tag Browser
 # Set which author field to display in the tags pane (the list of authors,

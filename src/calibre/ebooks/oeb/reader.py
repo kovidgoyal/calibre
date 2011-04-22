@@ -10,11 +10,9 @@ import sys, os, uuid, copy, re, cStringIO
 from itertools import izip
 from urlparse import urldefrag, urlparse
 from urllib import unquote as urlunquote
-from mimetypes import guess_type
 from collections import defaultdict
 
 from lxml import etree
-import cssutils
 
 from calibre.ebooks.oeb.base import OPF1_NS, OPF2_NS, OPF2_NSMAP, DC11_NS, \
     DC_NSES, OPF, xml2text
@@ -30,6 +28,7 @@ from calibre.ebooks.oeb.entitydefs import ENTITYDEFS
 from calibre.utils.localization import get_lang
 from calibre.ptempfile import TemporaryDirectory
 from calibre.constants import __appname__, __version__
+from calibre import guess_type
 
 __all__ = ['OEBReader']
 
@@ -172,6 +171,7 @@ class OEBReader(object):
         return bad
 
     def _manifest_add_missing(self, invalid):
+        import cssutils
         manifest = self.oeb.manifest
         known = set(manifest.hrefs)
         unchecked = set(manifest.values())

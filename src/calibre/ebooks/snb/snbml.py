@@ -13,8 +13,6 @@ import re
 
 from lxml import etree
 
-from calibre.ebooks.oeb.base import XHTML, XHTML_NS, barename, namespace
-from calibre.ebooks.oeb.stylizer import Stylizer
 
 def ProcessFileName(fileName):
     # Flat the path
@@ -81,6 +79,8 @@ class SNBMLizer(object):
                     body.append(entity)
 
     def mlize(self):
+        from calibre.ebooks.oeb.base import XHTML
+        from calibre.ebooks.oeb.stylizer import Stylizer
         output = [ u'' ]
         stylizer = Stylizer(self.item.data, self.item.href, self.oeb_book, self.opts, self.opts.output_profile)
         content = unicode(etree.tostring(self.item.data.find(XHTML('body')), encoding=unicode))
@@ -208,6 +208,7 @@ class SNBMLizer(object):
         return text
 
     def dump_text(self, subitems, elem, stylizer, end='', pre=False, li = ''):
+        from calibre.ebooks.oeb.base import XHTML_NS, barename, namespace
 
         if not isinstance(elem.tag, basestring) \
            or namespace(elem.tag) != XHTML_NS:

@@ -22,7 +22,7 @@ class FetchAnnotationsAction(InterfaceAction):
     action_type = 'current'
 
     def genesis(self):
-        pass
+        self.qaction.triggered.connect(self.fetch_annotations)
 
     def fetch_annotations(self, *args):
         # Generate a path_map from selected ids
@@ -52,6 +52,10 @@ class FetchAnnotationsAction(InterfaceAction):
             return path_map
 
         device = self.gui.device_manager.device
+        if not getattr(device, 'SUPPORTS_ANNOTATIONS', False):
+            return error_dialog(self.gui, _('Not supported'),
+                    _('Fetching annotations is not supported for this device'),
+                    show=True)
 
         if self.gui.current_view() is not self.gui.library_view:
             return error_dialog(self.gui, _('Use library only'),

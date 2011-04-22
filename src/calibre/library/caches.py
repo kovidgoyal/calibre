@@ -707,7 +707,10 @@ class ResultCache(SearchQueryParser): # {{{
             for loc in location: # location is now an array of field indices
                 if loc == db_col['authors']:
                     ### DB stores authors with commas changed to bars, so change query
-                    q = query.replace(',', '|');
+                    if matchkind == REGEXP_MATCH:
+                        q = query.replace(',', r'\|');
+                    else:
+                        q = query.replace(',', '|');
                 else:
                     q = query
 

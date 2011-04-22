@@ -9,7 +9,6 @@ from calibre.customize import FileTypePlugin, MetadataReaderPlugin, \
 from calibre.constants import numeric_version
 from calibre.ebooks.metadata.archive import ArchiveExtract, get_cbz_metadata
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
-from calibre.ebooks.oeb.base import OEB_IMAGES
 from calibre.utils.config import test_eight_code
 
 # To archive plugins {{{
@@ -98,6 +97,8 @@ class TXT2TXTZ(FileTypePlugin):
     on_import = True
 
     def _get_image_references(self, txt, base_dir):
+        from calibre.ebooks.oeb.base import OEB_IMAGES
+
         images = []
 
         # Textile
@@ -626,8 +627,9 @@ if test_eight_code:
     from calibre.ebooks.metadata.sources.amazon import Amazon
     from calibre.ebooks.metadata.sources.openlibrary import OpenLibrary
     from calibre.ebooks.metadata.sources.isbndb import ISBNDB
+    from calibre.ebooks.metadata.sources.overdrive import OverDrive
 
-    plugins += [GoogleBooks, Amazon, OpenLibrary, ISBNDB]
+    plugins += [GoogleBooks, Amazon, OpenLibrary, ISBNDB, OverDrive]
 
 # }}}
 else:

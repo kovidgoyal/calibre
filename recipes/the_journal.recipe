@@ -1,0 +1,26 @@
+__license__   = 'GPL v3'
+__copyright__ = '2011 Phil Burns'
+'''
+TheJournal.ie
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class TheJournal(BasicNewsRecipe):
+
+    __author_              = 'Phil Burns'
+    title                  = u'TheJournal.ie'
+    oldest_article         = 1
+    max_articles_per_feed  = 100
+    encoding               = 'utf8'
+    language               = 'en_IE'
+    timefmt                = ' (%A, %B %d, %Y)'
+
+    no_stylesheets         = True
+    remove_tags            = [dict(name='div', attrs={'class':'footer'}),
+                           dict(name=['script', 'noscript'])]
+
+    extra_css              = 'p, div { margin: 0pt; border: 0pt; text-indent: 0.5em }'
+
+    feeds                  = [
+                          (u'Latest News', u'http://www.thejournal.ie/feed/')]
