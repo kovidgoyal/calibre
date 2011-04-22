@@ -19,6 +19,60 @@
 #  new recipes:
 #    - title: 
 
+- version: 0.7.57
+  date: 2011-04-22
+
+  new features:
+    - title: "Launch worker processes on demand instead of keeping a pool of them in memory. Reduces memory footprint."
+
+    - title: "Use the visual formatting of the Table of Contents to try to automatically create a multi-level TOC when converting/viewing MOBI files. "
+      tickets: [763681]
+
+    - title: "Add a new function booksize() to the template language to get the value of the size column in calibre."
+
+    - title: "Add support for using metadata plugborads with the content server (only with the epub format)"
+
+    - title: "Change default algorithm for automatically computing author sort to be more intelligent and handle the case when the author name has a comma in it"
+
+    - title: "Show cover size in the tooltips of the book details panel and book details popup window"
+  
+  bug fixes:
+    - title: "Dragging and dropping a cover onto the book details panel did not change the cover size"
+      tickets: [768332]
+
+    - title: "Fix non-escaped '|' when searching for commas in authors using REGEXP_MATCH"
+
+    - title: "Fix ratings in templates being multiplied by 2"
+
+    - title: "Fix adding a comma to custom series values when using completion."
+      tickets: [763788]
+
+    - title: "CHM Input: Another workaround for a Microsoft mess."
+      tickets: [763336]
+
+    - title: "Fix job count in the spinner not always being updated when a job completes"
+
+    - title: "Changing case only of a title does not update title sort"
+      tickets: [768904]
+
+  improved recipes:
+    - ecuisine.ro, egirl.ro and tabu.ro
+    - Daily Telegraph
+    - Handelsblatt
+    - Il Sole 24 Ore
+    - Newsweek
+    - Arcamax
+
+  new recipes:
+    - title: BabyOnline.ro
+      author: Silviu Cotoara
+
+    - title: "The Journal.ie"
+      author: Phil Burns
+
+    - title: "Der Spiegel"
+      author: Nikolas Mangold
+
 - version: 0.7.56
   date: 2011-04-17
 
