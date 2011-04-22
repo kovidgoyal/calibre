@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-04-17 16:54+0000\n"
-"PO-Revision-Date: 2011-04-20 15:20+0000\n"
-"Last-Translator: Armin Geller <Unknown>\n"
+"PO-Revision-Date: 2011-04-21 11:25+0000\n"
+"Last-Translator: Christine Emrich <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-04-21 04:37+0000\n"
+"X-Launchpad-Export-Date: 2011-04-22 04:36+0000\n"
 "X-Generator: Launchpad (build 12758)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -500,7 +500,7 @@ msgstr "Metadaten laden"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1059
 msgid "Control how calibre downloads ebook metadata from the net"
 msgstr ""
-"Kontrolle der calibre-Vorhehensweise beim Herunterladen von E-Book-Metadaten "
+"Kontrolle der calibre-Vorhehensweise beim Herunterladen von eBook-Metadaten "
 "aus dem Netz"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1064
@@ -4973,7 +4973,7 @@ msgstr "Fehlgeschlagen"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:317
 msgid "Database integrity check failed, click Show details for details."
 msgstr ""
-"Die Überprüfung der Datenbankintegrität hat Fehler gefunden. Clicken Sie auf "
+"Die Überprüfung der Datenbankintegrität hat Fehler gefunden. Klicken Sie auf "
 "Details anzeigen für weitere Informationen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:322
@@ -9259,7 +9259,7 @@ msgstr "&Generate standard Cover"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:579
 msgid "&Remove cover"
-msgstr "&Remove Cover"
+msgstr "&Remove Umschlag"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:580
 msgid "Set from &ebook file(s)"
@@ -10490,7 +10490,7 @@ msgstr "Neue Kategorie hinzufügen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:174
 msgid "Rename the current category to the what is in the box"
-msgstr ""
+msgstr "Derzeitige Kategorie zum Inhalt der Eingabebox umbenennen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:176
 msgid "Category filter: "
@@ -11287,7 +11287,7 @@ msgstr "Schnellsuche durchführen (Sie können auch die Eingabetaste drücken)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:197
 msgid "Reset Quick Search"
-msgstr "Quick Search löschen"
+msgstr "Schnellsuche löschen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:213
 msgid "Copy current search text (instead of search name)"
@@ -11789,10 +11789,13 @@ msgid ""
 "Failed to apply updated metadata for some books in your library. Click "
 "\"Show Details\" to see details."
 msgstr ""
+"Die aktualisieren Metadaten konnten für einige Bücher Ihrer Bibliothek nicht "
+"übernommen werden. Klicken Sie auf \"Zeige Details\" für weitere "
+"Informationen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:212
 msgid "Some books changed"
-msgstr ""
+msgstr "Einige Bücher haben sich geändert"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:213
 msgid ""
@@ -11801,16 +11804,23 @@ msgid ""
 "Click \"Show details\" to see the list of changed books. Do you want to "
 "proceed?"
 msgstr ""
+"Die Metadaten einiger Bücher in Ihrer Bibliothek haben sich geändert seit "
+"der Download gestartet wurde. Wenn Sie fortfahren, können diese Änderungen "
+"verloren gehen. Klicken Sie auf \"Zeige Details\", um eine Liste aller "
+"geändertern Bücher zu sehen. Möchten Sie fortfahren?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:224
 msgid "Metadata download completed"
-msgstr ""
+msgstr "Herunterladen der Metadaten abgeschlossen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:228
 msgid ""
 "Could not download metadata and/or covers for %d of the books. Click \"Show "
 "details\" to see which books."
 msgstr ""
+"Für %d der Bücher konnten Metadaten und/oder Umschlagbilder nicht "
+"heruntergeladen werden. Klicken Sie auf \"Zeige Details\", um betroffene "
+"Bücher anzuzeigen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:234
 msgid "(Failed metadata)"
@@ -11825,30 +11835,32 @@ msgid ""
 "Finished downloading metadata for <b>%d book(s)</b>. Proceed with updating "
 "the metadata in your library?"
 msgstr ""
+"Erfolgreich Metadaten für <b>%d Buch/Bücher</b> heruntergeladen. Soll mit "
+"dem Aktualisieren der Metadaten in Ihrer Bibliothek fortgefahren werden?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:240
 msgid "Download complete"
-msgstr ""
+msgstr "Herunterladen abgeschlossen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:243
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:827
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:918
 msgid "View log"
-msgstr ""
+msgstr "Log-Datei anschauen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:315
 msgid "Downloaded %d of %d"
-msgstr ""
+msgstr "%d von %d heruntergeladen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/config.py:58
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:106
 msgid "Downloaded metadata fields"
-msgstr ""
+msgstr "Metadaten-Felder heruntergeladen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:75
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:237
 msgid "Edit Metadata"
-msgstr ""
+msgstr "Metadaten bearbeiten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:112
 msgid "Set author sort from author"
@@ -11860,7 +11872,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:168
 msgid "&Download metadata"
-msgstr ""
+msgstr "Metadaten &Herunterladen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:178
 msgid "Change how calibre downloads metadata"
@@ -11869,7 +11881,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:508
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:697
 msgid "Change cover"
-msgstr ""
+msgstr "Umschlag ändern"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:557
 msgid "Co&mments"
@@ -13823,7 +13835,7 @@ msgstr "Suche (Zur erweiterten Suche die Schaltfläche links klicken)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:369
 msgid "Enable or disable search highlighting."
-msgstr ""
+msgstr "Hervorhebung von Suchergebnissen an- oder ausschalten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:424
 msgid "Saved Searches"
@@ -13838,7 +13850,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:34
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:42
 msgid "*Current search"
-msgstr ""
+msgstr "*Aktuelle Suche"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:12
 msgid "Restrict to"
@@ -14104,19 +14116,19 @@ msgstr "Der gespeicherte Such-Name %s wird schon verwendet."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1834
 msgid "Manage Authors"
-msgstr ""
+msgstr "Autoren verwalten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1836
 msgid "Manage Series"
-msgstr ""
+msgstr "Reihen verwalten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1838
 msgid "Manage Publishers"
-msgstr ""
+msgstr "Herausgeber verwalten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1840
 msgid "Manage Tags"
-msgstr ""
+msgstr "Etiketten verwalten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1852
 msgid "Invalid search restriction"
@@ -14161,7 +14173,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:2089
 msgid "Find item in tag browser"
-msgstr ""
+msgstr "Eintrag im Etiketten-Browser finden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:2092
 msgid ""
@@ -14227,7 +14239,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:2171
 msgid "Manage authors, tags, etc"
-msgstr ""
+msgstr "Autoren, Etiketten, etc. verwalten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:2172
 msgid ""

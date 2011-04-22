@@ -55,7 +55,7 @@ class Matches(QAbstractItemModel):
         self.cover_pool.start_threads()
         self.details_pool = DetailsThreadPool(DetailsThread, 4)
         self.details_pool.start_threads()
-        
+
         self.sort_col = 2
         self.sort_order = Qt.AscendingOrder
 
@@ -95,7 +95,7 @@ class Matches(QAbstractItemModel):
             return self.matches[row]
         else:
             return None
-        
+
     def has_results(self):
         return len(self.matches) > 0
 
@@ -221,7 +221,12 @@ class Matches(QAbstractItemModel):
             self.reset()
 
     def reorder_matches(self):
-        self.matches = sorted(self.matches, key=lambda x: self.all_matches.index(x))
+        def keygen(x):
+            try:
+                return self.all_matches.index(x)
+            except:
+                return 100000
+        self.matches = sorted(self.matches, key=keygen)
 
 
 class SearchFilter(SearchQueryParser):
@@ -327,5 +332,6 @@ class SearchFilter(SearchQueryParser):
                         matches.add(sr)
                         break
                 except ValueError: # Unicode errors
+                    import traceback
                     traceback.print_exc()
         return matches

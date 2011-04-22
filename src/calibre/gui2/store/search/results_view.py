@@ -20,7 +20,7 @@ class ResultsView(QTreeView):
         self.setModel(self._model)
 
         self.rt_delegate = RichTextDelegate(self)
-        
+
         for i in self._model.HTML_COLS:
             self.setItemDelegateForColumn(i, self.rt_delegate)
 

@@ -58,7 +58,7 @@ class OverDrive(Source):
         isbn = identifiers.get('isbn', None)
 
         br = self.browser
-        ovrdrv_data = self.to_ovrdrv_data(br, title, authors, ovrdrv_id)
+        ovrdrv_data = self.to_ovrdrv_data(br, log, title, authors, ovrdrv_id)
         if ovrdrv_data:
             title = ovrdrv_data[8]
             authors = ovrdrv_data[6]
@@ -113,7 +113,7 @@ class OverDrive(Source):
         if ovrdrv_id is not None:
             referer = self.get_base_referer()+'ContentDetails-Cover.htm?ID='+ovrdrv_id
             req.add_header('referer', referer)
-        req.add_header('referer', referer)
+
         log('Downloading cover from:', cached_url)
         try:
             cdata = br.open_novisit(req, timeout=timeout).read()
@@ -186,7 +186,7 @@ class OverDrive(Source):
 
         br.set_cookiejar(clean_cj)
 
-    def overdrive_search(self, br, q, title, author):
+    def overdrive_search(self, br, log, q, title, author):
         # re-initialize the cookiejar to so that it's clean
         clean_cj = mechanize.CookieJar()
         br.set_cookiejar(clean_cj)
@@ -204,7 +204,8 @@ class OverDrive(Source):
         else:
             initial_q = ' '.join(author_tokens)
             xref_q = '+'.join(title_tokens)
-
+        #log.error('Initial query is %s'%initial_q)
+        #log.error('Cross reference query is %s'%xref_q)
         q_xref = q+'SearchResults.svc/GetResults?iDisplayLength=50&sSearch='+xref_q
         query = '{"szKeyword":"'+initial_q+'"}'
 
@@ -313,16 +314,16 @@ class OverDrive(Source):
         return self.sort_ovrdrv_results(raw, None, None, None, ovrdrv_id)
 
 
-    def find_ovrdrv_data(self, br, title, author, isbn, ovrdrv_id=None):
+    def find_ovrdrv_data(self, br, log, title, author, isbn, ovrdrv_id=None):
         q = base_url
         if ovrdrv_id is None:
-           return self.overdrive_search(br, q, title, author)
+           return self.overdrive_search(br, log, q, title, author)
         else:
            return self.overdrive_get_record(br, q, ovrdrv_id)
 
 
 
-    def to_ovrdrv_data(self, br, title=None, author=None, ovrdrv_id=None):
+    def to_ovrdrv_data(self, br, log, title=None, author=None, ovrdrv_id=None):
         '''
         Takes either a title/author combo or an Overdrive ID.  One of these
         two must be passed to this function.
@@ -335,10 +336,10 @@ class OverDrive(Source):
             elif ans is False:
                 return None
             else:
-                ovrdrv_data = self.find_ovrdrv_data(br, title, author, ovrdrv_id)
+                ovrdrv_data = self.find_ovrdrv_data(br, log, title, author, ovrdrv_id)
         else:
             try:
-                ovrdrv_data = self.find_ovrdrv_data(br, title, author, ovrdrv_id)
+                ovrdrv_data = self.find_ovrdrv_data(br, log, title, author, ovrdrv_id)
             except:
                 import traceback
                 traceback.print_exc()
