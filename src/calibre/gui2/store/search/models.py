@@ -92,6 +92,9 @@ class Matches(QAbstractItemModel):
             return self.matches[row]
         else:
             return None
+        
+    def has_results(self):
+        return len(self.matches) > 0
 
     def filter_results(self):
         self.layoutAboutToBeChanged.emit()

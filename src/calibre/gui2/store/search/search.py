@@ -11,7 +11,7 @@ from random import shuffle
 
 from PyQt4.Qt import (QDialog, QTimer, QCheckBox, QVBoxLayout) 
 
-from calibre.gui2 import JSONConfig
+from calibre.gui2 import JSONConfig, info_dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.gui2.store.search.download_thread import SearchThreadPool, SearchThread
 from calibre.gui2.store.search.search_ui import Ui_Dialog
@@ -186,6 +186,11 @@ class SearchDialog(QDialog, Ui_Dialog):
             res, store_plugin = self.search_pool.get_result()
             if res:
                 self.results_view.model().add_result(res, store_plugin)
+                
+        if not self.checker.isActive():
+            if not self.results_view.model().has_results():
+                info_dialog(self, _('No matches'), _('Couldn\'t find any books matching your query.'), show=True, show_copy_button=False)
+
 
     def open_store(self, index):
         result = self.results_view.model().get_result(index)
