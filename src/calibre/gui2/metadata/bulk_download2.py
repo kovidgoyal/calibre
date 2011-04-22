@@ -178,7 +178,6 @@ class ApplyDialog(QDialog):
         if self.canceled:
             return
         if self.current_idx >= len(self.id_map):
-            self.timer.stop()
             self.finalize()
             return
 
@@ -209,8 +208,13 @@ class ApplyDialog(QDialog):
         QDialog.reject(self)
 
     def finalize(self):
+        self.timer.stop()
+
         if self.canceled:
             return
+        # Prevent queued timer events from having any effect
+        self.canceled = True
+
         if self.failures:
             msg = []
             db = self.gui.current_db
@@ -233,6 +237,7 @@ class ApplyDialog(QDialog):
                 self.ids, cr)
             if self.gui.cover_flow:
                 self.gui.cover_flow.dataChanged()
+
         self.accept()
 
 _amd = None
