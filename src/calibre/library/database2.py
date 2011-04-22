@@ -2002,8 +2002,16 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             return False
         if isbytestring(title):
             title = title.decode(preferred_encoding, 'replace')
+        old_title = self.title(id, index_is_id=True)
+        # We cannot check if old_title == title as previous code might have
+        # already updated the cache
+        only_case_change = icu_lower(old_title) == icu_lower(title)
         self.conn.execute('UPDATE books SET title=? WHERE id=?', (title, id))
         self.data.set(id, self.FIELD_MAP['title'], title, row_is_id=True)
+        if only_case_change:
+            # SQLite update trigger will not update sort on a case change
+            self.conn.execute('UPDATE books SET sort=? WHERE id=?',
+                    (title_sort(title), id))
         ts = self.conn.get('SELECT sort FROM books WHERE id=?', (id,),
                 all=False)
         if ts:
