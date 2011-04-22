@@ -15,7 +15,7 @@ from operator import attrgetter
 from Queue import Queue, Empty
 
 from PyQt4.Qt import (QStyledItemDelegate, QTextDocument, QRectF, QIcon, Qt,
-        QStyle, QApplication, QDialog, QVBoxLayout, QLabel, QDialogButtonBox,
+        QApplication, QDialog, QVBoxLayout, QLabel, QDialogButtonBox,
         QStackedWidget, QWidget, QTableView, QGridLayout, QFontInfo, QPalette,
         QTimer, pyqtSignal, QAbstractTableModel, QVariant, QSize, QListView,
         QPixmap, QAbstractListModel, QColor, QRect, QTextBrowser, QModelIndex)
