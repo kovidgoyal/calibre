@@ -37,10 +37,12 @@ class TabuRo(BasicNewsRecipe):
                      ]
 
     remove_tags = [
-            dict(name='div', attrs={'class':'asemanatoare'})
+            dict(name='div', attrs={'class':'asemanatoare'}),
+			 dict(name='div', attrs={'class':'social'})
                            ]
 
     remove_tags_after = [
+					  dict(name='div', attrs={'class':'social'}),
                       dict(name='div', attrs={'id':'comments'}),
                       dict(name='div', attrs={'class':'asemanatoare'})
                         ]

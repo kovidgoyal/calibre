@@ -60,14 +60,6 @@ class BeWriteStore(BasicStoreConfig, StorePlugin):
                 cover_url = ''
                 price = ''
 
-                with closing(br.open(id.strip(), timeout=timeout/4)) as nf:
-                    idata = html.fromstring(nf.read())
-                    price = ''.join(idata.xpath('//div[@id="content"]//td[contains(text(), "ePub")]/text()'))
-                    price = '$' + price.split('$')[-1]
-                    cover_img = idata.xpath('//div[@id="content"]//img[1]/@src')
-                    if cover_img:
-                        cover_url = 'http://www.bewrite.net/mm5/' + cover_img[0]
-
                 counter -= 1
 
                 s = SearchResult()
@@ -76,5 +68,36 @@ class BeWriteStore(BasicStoreConfig, StorePlugin):
                 s.author = author.strip()
                 s.price = price.strip()
                 s.detail_item = id.strip()
+                s.drm = SearchResult.DRM_UNLOCKED
 
                 yield s
+
+    def get_details(self, search_result, timeout):
+        br = browser()
+
+        with closing(br.open(search_result.detail_item, timeout=timeout)) as nf:
+            idata = html.fromstring(nf.read())
+            
+            price = ''.join(idata.xpath('//div[@id="content"]//td[contains(text(), "ePub")]/text()'))
+            if not price:
+                price = ''.join(idata.xpath('//div[@id="content"]//td[contains(text(), "MOBI")]/text()'))
+            if not price:
+                price = ''.join(idata.xpath('//div[@id="content"]//td[contains(text(), "PDF")]/text()'))
+            price = '$' + price.split('$')[-1]
+            search_result.price = price.strip()
+            
+            cover_img = idata.xpath('//div[@id="content"]//img[1]/@src')
+            if cover_img:
+                cover_url = 'http://www.bewrite.net/mm5/' + cover_img[0]
+                search_result.cover_url = cover_url.strip()
+            
+            formats = set([])
+            if idata.xpath('boolean(//div[@id="content"]//td[contains(text(), "ePub")])'):
+                formats.add('EPUB')
+            if idata.xpath('boolean(//div[@id="content"]//td[contains(text(), "PDF")])'):
+                formats.add('PDF')
+            if idata.xpath('boolean(//div[@id="content"]//td[contains(text(), "MOBI")])'):
+                formats.add('MOBI')
+            search_result.formats = ', '.join(list(formats))
+
+        return True

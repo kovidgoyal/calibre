@@ -63,7 +63,7 @@ class KoboStore(BasicStoreConfig, StorePlugin):
                 if not id:
                     continue
 
-                price = ''.join(data.xpath('.//span[@class="SCOurPrice"]/strong/text()'))
+                price = ''.join(data.xpath('.//li[@class="OurPrice"]/strong/text()'))
                 if not price:
                     price = '$0.00'
                 
@@ -71,6 +71,7 @@ class KoboStore(BasicStoreConfig, StorePlugin):
                 
                 title = ''.join(data.xpath('.//div[@class="SCItemHeader"]/h1/a[1]/text()'))
                 author = ''.join(data.xpath('.//div[@class="SCItemSummary"]/span/a[1]/text()'))
+                drm = data.xpath('boolean(.//span[@class="SCAvailibilityFormatsText" and contains(text(), "DRM")])')
 
                 counter -= 1
                 
@@ -80,5 +81,7 @@ class KoboStore(BasicStoreConfig, StorePlugin):
                 s.author = author.strip()
                 s.price = price.strip()
                 s.detail_item = '?url=http://www.kobobooks.com/' + id.strip()
+                s.drm = SearchResult.DRM_LOCKED if drm else SearchResult.DRM_UNLOCKED
+                s.formats = 'EPUB'
                 
                 yield s

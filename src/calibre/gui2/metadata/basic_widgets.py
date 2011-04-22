@@ -24,7 +24,7 @@ from calibre.ebooks.metadata.meta import get_metadata
 from calibre.gui2 import file_icon_provider, UNDEFINED_QDATE, UNDEFINED_DATE, \
         choose_files, error_dialog, choose_images, question_dialog
 from calibre.utils.date import local_tz, qt_to_dt
-from calibre import strftime, fit_image
+from calibre import strftime
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.customize.ui import run_plugins_on_import
 from calibre.utils.date import utcfromtimestamp
@@ -672,12 +672,7 @@ class Cover(ImageView): # {{{
         self.frame_size = (sz.width()//3, sz.height())
 
     def sizeHint(self):
-        sz = ImageView.sizeHint(self)
-        w, h = sz.width(), sz.height()
-        resized, nw, nh = fit_image(w, h, self.frame_size[0],
-                self.frame_size[1])
-        if resized:
-            sz = QSize(nw, nh)
+        sz = QSize(self.frame_size[0], self.frame_size[1])
         return sz
 
     def select_cover(self, *args):

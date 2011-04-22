@@ -10,6 +10,7 @@ import re
 import time
 import traceback
 from contextlib import closing
+from operator import attrgetter
 from random import shuffle
 from threading import Thread
 from Queue import Queue
@@ -18,12 +19,12 @@ from PyQt4.Qt import (Qt, QAbstractItemModel, QDialog, QTimer, QVariant,
     QModelIndex, QPixmap, QSize, QCheckBox, QVBoxLayout)
 
 from calibre import browser
-from calibre.gui2 import NONE
+from calibre.gui2 import NONE, JSONConfig
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.gui2.store.search_ui import Ui_Dialog
+from calibre.gui2.store.search_result import SearchResult
 from calibre.library.caches import _match, CONTAINS_MATCH, EQUALS_MATCH, \
     REGEXP_MATCH
-from calibre.utils.config import DynamicConfig
 from calibre.utils.icu import sort_key
 from calibre.utils.magick.draw import thumbnail
 from calibre.utils.search_query_parser import SearchQueryParser
@@ -33,13 +34,21 @@ TIMEOUT = 75 # seconds
 SEARCH_THREAD_TOTAL = 4
 COVER_DOWNLOAD_THREAD_TOTAL = 2
 
+def comparable_price(text):
+    if len(text) < 3 or text[-3] not in ('.', ','):
+        text += '00'
+    text = re.sub(r'\D', '', text)
+    text = text.rjust(6, '0')
+    return text
+
+
 class SearchDialog(QDialog, Ui_Dialog):
 
     def __init__(self, istores, *args):
         QDialog.__init__(self, *args)
         self.setupUi(self)
 
-        self.config = DynamicConfig('store_search')
+        self.config = JSONConfig('store/search')
 
         # We keep a cache of store plugins and reference them by name.
         self.store_plugins = istores
@@ -87,9 +96,13 @@ class SearchDialog(QDialog, Ui_Dialog):
         # Author
         self.results_view.setColumnWidth(2,int(total*.35))
         # Price
-        self.results_view.setColumnWidth(3, int(total*.10))
+        self.results_view.setColumnWidth(3, int(total*.5))
+        # DRM
+        self.results_view.setColumnWidth(4, int(total*.5))
         # Store
-        self.results_view.setColumnWidth(4, int(total*.20))
+        self.results_view.setColumnWidth(5, int(total*.15))
+        # Formats
+        self.results_view.setColumnWidth(6, int(total*.5))
 
     def do_search(self, checked=False):
         # Stop all running threads.
@@ -102,6 +115,9 @@ class SearchDialog(QDialog, Ui_Dialog):
         query = unicode(self.search_edit.text())
         if not query.strip():
             return
+        # Give the query to the results model so it can do
+        # futher filtering.
+        self.results_view.model().set_query(query)
 
         # Plugins are in alphebetic order. Randomize the
         # order of plugin names. This way plugins closer
@@ -110,6 +126,8 @@ class SearchDialog(QDialog, Ui_Dialog):
         store_names = self.store_plugins.keys()
         if not store_names:
             return
+        # Remove all of our internal filtering logic from the query.
+        query = self.clean_query(query)
         shuffle(store_names)
         # Add plugins that the user has checked to the search pool's work queue.
         for n in store_names:
@@ -121,9 +139,32 @@ class SearchDialog(QDialog, Ui_Dialog):
             self.search_pool.start_threads()
             self.pi.startAnimation()
 
+    def clean_query(self, query):
+        query = query.lower()
+        # Remove control modifiers.
+        query = query.replace('\\', '')
+        query = query.replace('!', '')
+        query = query.replace('=', '')
+        query = query.replace('~', '')
+        query = query.replace('>', '')
+        query = query.replace('<', '')
+        # Remove the prefix.
+        for loc in ( 'all', 'author', 'authors', 'title'):
+            query = re.sub(r'%s:"?(?P<a>[^\s"]+)"?' % loc, '\g<a>', query)
+        # Remove the prefix and search text.
+        for loc in ('cover', 'drm', 'format', 'formats', 'price', 'store'):
+            query = re.sub(r'%s:"[^"]"' % loc, '', query)
+            query = re.sub(r'%s:[^\s]*' % loc, '', query)
+        # Remove logic.
+        query = re.sub(r'(^|\s)(and|not|or)(\s|$)', ' ', query)
+        # Remove excess whitespace.
+        query = re.sub(r'\s{2,}', ' ', query)
+        query = query.strip()
+        return query
+
     def save_state(self):
-        self.config['store_search_geometry'] = self.saveGeometry()
-        self.config['store_search_store_splitter_state'] = self.store_splitter.saveState()
+        self.config['store_search_geometry'] = bytearray(self.saveGeometry())
+        self.config['store_search_store_splitter_state'] = bytearray(self.store_splitter.saveState())
         self.config['store_search_results_view_column_width'] = [self.results_view.columnWidth(i) for i in range(self.model.columnCount())]
 
         store_check = {}
@@ -132,15 +173,15 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.config['store_search_store_checked'] = store_check
 
     def restore_state(self):
-        geometry = self.config['store_search_geometry']
+        geometry = self.config.get('store_search_geometry', None)
         if geometry:
             self.restoreGeometry(geometry)
 
-        splitter_state = self.config['store_search_store_splitter_state']
+        splitter_state = self.config.get('store_search_store_splitter_state', None)
         if splitter_state:
             self.store_splitter.restoreState(splitter_state)
 
-        results_cwidth = self.config['store_search_results_view_column_width']
+        results_cwidth = self.config.get('store_search_results_view_column_width', None)
         if results_cwidth:
             for i, x in enumerate(results_cwidth):
                 if i >= self.model.columnCount():
@@ -149,7 +190,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         else:
             self.resize_columns()
 
-        store_check = self.config['store_search_store_checked']
+        store_check = self.config.get('store_search_store_checked', None)
         if store_check:
             for n in store_check:
                 if hasattr(self, 'store_check_' + n):
@@ -170,9 +211,9 @@ class SearchDialog(QDialog, Ui_Dialog):
                 self.pi.stopAnimation()
 
         while self.search_pool.has_results():
-            res = self.search_pool.get_result()
+            res, store_plugin = self.search_pool.get_result()
             if res:
-                self.results_view.model().add_result(res)
+                self.results_view.model().add_result(res, store_plugin)
 
     def open_store(self, index):
         result = self.results_view.model().get_result(index)
@@ -294,18 +335,14 @@ class SearchThread(Thread):
         while self._run and not self.tasks.empty():
             try:
                 query, store_name, store_plugin, timeout = self.tasks.get()
-                squery = query
-                for loc in SearchFilter.USABLE_LOCATIONS:
-                    squery = re.sub(r'%s:"?(?P<a>[^\s"]+)"?' % loc, '\g<a>', squery)
-                for res in store_plugin.search(squery, timeout=timeout):
+                for res in store_plugin.search(query, timeout=timeout):
                     if not self._run:
                         return
                     res.store_name = store_name
-                    if SearchFilter(res).parse(query):
-                        self.results.put(res)
+                    self.results.put((res, store_plugin))
                 self.tasks.task_done()
             except:
-                pass
+                traceback.print_exc()
 
 
 class CoverThreadPool(GenericDownloadThreadPool):
@@ -349,30 +386,98 @@ class CoverThread(Thread):
                 continue
 
 
+class DetailsThreadPool(GenericDownloadThreadPool):
+    '''
+    Once started all threads run until abort is called.
+    '''
+
+    def add_task(self, search_result, store_plugin, update_callback, timeout=10):
+        self.tasks.put((search_result, store_plugin, update_callback, timeout))
+
+
+class DetailsThread(Thread):
+
+    def __init__(self, tasks, results):
+        Thread.__init__(self)
+        self.daemon = True
+        self.tasks = tasks
+        self.results = results
+        self._run = True
+
+    def abort(self):
+        self._run = False
+
+    def run(self):
+        while self._run:
+            try:
+                time.sleep(.1)
+                while not self.tasks.empty():
+                    if not self._run:
+                        break
+                    result, store_plugin, callback, timeout = self.tasks.get()
+                    if result:
+                        store_plugin.get_details(result, timeout)
+                        callback(result)
+                    self.tasks.task_done()
+            except:
+                continue
+
 class Matches(QAbstractItemModel):
 
-    HEADERS = [_('Cover'), _('Title'), _('Author(s)'), _('Price'), _('Store')]
+    HEADERS = [_('Cover'), _('Title'), _('Author(s)'), _('Price'), _('DRM'), _('Store'), _('Formats')]
 
     def __init__(self):
         QAbstractItemModel.__init__(self)
+
+        self.DRM_LOCKED_ICON = QPixmap(I('drm-locked.png')).scaledToHeight(64,
+                Qt.SmoothTransformation)
+        self.DRM_UNLOCKED_ICON = QPixmap(I('drm-unlocked.png')).scaledToHeight(64,
+                Qt.SmoothTransformation)
+        self.DRM_UNKNOWN_ICON = QPixmap(I('dialog_question.png')).scaledToHeight(64,
+                Qt.SmoothTransformation)
+
+        # All matches. Used to determine the order to display
+        # self.matches because the SearchFilter returns
+        # matches unordered.
+        self.all_matches = []
+        # Only the showing matches.
         self.matches = []
+        self.query = ''
+        self.search_filter = SearchFilter()
         self.cover_pool = CoverThreadPool(CoverThread, 2)
         self.cover_pool.start_threads()
+        self.details_pool = DetailsThreadPool(DetailsThread, 4)
+        self.details_pool.start_threads()
 
     def closing(self):
         self.cover_pool.abort()
+        self.details_pool.abort()
 
     def clear_results(self):
+        self.all_matches = []
         self.matches = []
+        self.all_matches = []
+        self.search_filter.clear_search_results()
+        self.query = ''
         self.cover_pool.abort()
         self.cover_pool.start_threads()
+        self.details_pool.abort()
+        self.details_pool.start_threads()
         self.reset()
 
-    def add_result(self, result):
-        self.layoutAboutToBeChanged.emit()
-        self.matches.append(result)
-        self.cover_pool.add_task(result, self.update_result)
-        self.layoutChanged.emit()
+    def add_result(self, result, store_plugin):
+        if result not in self.all_matches:
+            self.layoutAboutToBeChanged.emit()
+            self.all_matches.append(result)
+            self.search_filter.add_search_result(result)
+            if result.cover_url:
+                result.cover_queued = True
+                self.cover_pool.add_task(result, self.filter_results)
+            else:
+                result.cover_queued = False
+            self.details_pool.add_task(result, store_plugin, self.got_result_details)
+            self.filter_results()
+            self.layoutChanged.emit()
 
     def get_result(self, index):
         row = index.row()
@@ -381,9 +486,28 @@ class Matches(QAbstractItemModel):
         else:
             return None
 
-    def update_result(self):
+    def filter_results(self):
         self.layoutAboutToBeChanged.emit()
+        if self.query:
+            self.matches = list(self.search_filter.parse(self.query))
+        else:
+            self.matches = list(self.search_filter.universal_set())
+        self.reorder_matches()
         self.layoutChanged.emit()
+
+    def got_result_details(self, result):
+        if not result.cover_queued and result.cover_url:
+            result.cover_queued = True
+            self.cover_pool.add_task(result, self.filter_results)
+        if result in self.matches:
+            row = self.matches.index(result)
+            self.dataChanged.emit(self.index(row, 0), self.index(row, self.columnCount() - 1))
+        if result.drm not in (SearchResult.DRM_LOCKED, SearchResult.DRM_UNLOCKED, SearchResult.DRM_UNKNOWN):
+            result.drm = SearchResult.DRM_UNKNOWN
+        self.filter_results()
+
+    def set_query(self, query):
+        self.query = query
 
     def index(self, row, column, parent=QModelIndex()):
         return self.createIndex(row, column)
@@ -420,14 +544,41 @@ class Matches(QAbstractItemModel):
                 return QVariant(result.author)
             elif col == 3:
                 return QVariant(result.price)
-            elif col == 4:
+            elif col == 5:
                 return QVariant(result.store_name)
+            elif col == 6:
+                return QVariant(result.formats)
             return NONE
         elif role == Qt.DecorationRole:
             if col == 0 and result.cover_data:
                 p = QPixmap()
                 p.loadFromData(result.cover_data)
                 return QVariant(p)
+            if col == 4:
+                if result.drm == SearchResult.DRM_LOCKED:
+                    return QVariant(self.DRM_LOCKED_ICON)
+                elif result.drm == SearchResult.DRM_UNLOCKED:
+                    return QVariant(self.DRM_UNLOCKED_ICON)
+                elif result.drm == SearchResult.DRM_UNKNOWN:
+                    return QVariant(self.DRM_UNKNOWN_ICON)
+        elif role == Qt.ToolTipRole:
+            if col == 1:
+                return QVariant('<p>%s</p>' % result.title)
+            elif col == 2:
+                return QVariant('<p>%s</p>' % result.author)
+            elif col == 3:
+                return QVariant('<p>' + _('Detected price as: %s. Check with the store before making a purchase to verify this price is correct. This price often does not include promotions the store may be running.') % result.price + '</p>')
+            elif col == 4:
+                if result.drm == SearchResult.DRM_LOCKED:
+                    return QVariant('<p>' + _('This book as been detected as having DRM restrictions. This book may not work with your reader and you will have limitations placed upon you as to what you can do with this book. Check with the store before making any purchases to ensure you can actually read this book.') + '</p>')
+                elif result.drm == SearchResult.DRM_UNLOCKED:
+                    return QVariant('<p>' + _('This book has been detected as being DRM Free. You should be able to use this book on any device provided it is in a format calibre supports for conversion. However, before making a purchase double check the DRM status with the store. The store may not be disclosing the use of DRM.') + '</p>')
+                else:
+                    return QVariant('<p>' + _('The DRM status of this book could not be determined. There is a very high likelihood that this book is actually DRM restricted.') + '</p>')
+            elif col == 5:
+                return QVariant('<p>%s</p>' % result.store_name)
+            elif col == 6:
+                return QVariant('<p>%s</p>' % result.formats)
         elif role == Qt.SizeHintRole:
             return QSize(64, 64)
         return NONE
@@ -439,49 +590,69 @@ class Matches(QAbstractItemModel):
         elif col == 2:
             text = result.author
         elif col == 3:
-            text = result.price
-            if len(text) < 3 or text[-3] not in ('.', ','):
-                text += '00'
-            text = re.sub(r'\D', '', text)
-            text = text.rjust(6, '0')
+            text = comparable_price(result.price)
         elif col == 4:
+            if result.drm == SearchResult.DRM_UNLOCKED:
+                text = 'a'
+            elif result.drm == SearchResult.DRM_LOCKED:
+                text = 'b'
+            else:
+                text = 'c'
+        elif col == 5:
             text = result.store_name
+        elif col == 6:
+            text = ', '.join(sorted(result.formats.split(',')))
         return text
 
     def sort(self, col, order, reset=True):
         if not self.matches:
             return
         descending = order == Qt.DescendingOrder
-        self.matches.sort(None,
+        self.all_matches.sort(None,
             lambda x: sort_key(unicode(self.data_as_text(x, col))),
             descending)
+        self.reorder_matches()
         if reset:
             self.reset()
 
+    def reorder_matches(self):
+        self.matches = sorted(self.matches, key=lambda x: self.all_matches.index(x))
+
 
 class SearchFilter(SearchQueryParser):
-    
+
     USABLE_LOCATIONS = [
         'all',
         'author',
         'authors',
         'cover',
+        'drm',
+        'format',
+        'formats',
         'price',
         'title',
         'store',
     ]
 
-    def __init__(self, search_result):
+    def __init__(self):
         SearchQueryParser.__init__(self, locations=self.USABLE_LOCATIONS)
-        self.search_result = search_result
+        self.srs = set([])
+
+    def add_search_result(self, search_result):
+        self.srs.add(search_result)
+
+    def clear_search_results(self):
+        self.srs = set([])
 
     def universal_set(self):
-        return set([self.search_result])
+        return self.srs
 
     def get_matches(self, location, query):
         location = location.lower().strip()
         if location == 'authors':
             location = 'author'
+        elif location == 'formats':
+            location = 'format'
 
         matchkind = CONTAINS_MATCH
         if len(query) > 1:
@@ -502,38 +673,54 @@ class SearchFilter(SearchQueryParser):
         all_locs = set(self.USABLE_LOCATIONS) - set(['all'])
         locations = all_locs if location == 'all' else [location]
         q = {
-             'author': self.search_result.author.lower(),
-             'cover': self.search_result.cover_url,
-             'format': '',
-             'price': self.search_result.price,
-             'store': self.search_result.store_name.lower(),
-             'title': self.search_result.title.lower(),
+             'author': lambda x: x.author.lower(),
+             'cover': attrgetter('cover_url'),
+             'drm': attrgetter('drm'),
+             'format': attrgetter('formats'),
+             'price': lambda x: comparable_price(x.price),
+             'store': lambda x: x.store_name.lower(),
+             'title': lambda x: x.title.lower(),
         }
         for x in ('author', 'format'):
             q[x+'s'] = q[x]
-        for locvalue in locations:
-            ac_val = q[locvalue]
-            if query == 'true':
-                if ac_val is not None:
-                    matches.add(self.search_result)
-                continue
-            if query == 'false':
-                if ac_val is None:
-                    matches.add(self.search_result)
-                continue
-            try:
-                ### Can't separate authors because comma is used for name sep and author sep
-                ### Exact match might not get what you want. For that reason, turn author
-                ### exactmatch searches into contains searches.
-                if locvalue == 'author' and matchkind == EQUALS_MATCH:
-                    m = CONTAINS_MATCH
-                else:
-                    m = matchkind
+        for sr in self.srs:
+            for locvalue in locations:
+                accessor = q[locvalue]
+                if query == 'true':
+                    if locvalue == 'drm':
+                        if accessor(sr) == SearchResult.DRM_LOCKED:
+                            matches.add(sr)
+                    else:
+                        if accessor(sr) is not None:
+                            matches.add(sr)
+                    continue
+                if query == 'false':
+                    if locvalue == 'drm':
+                        if accessor(sr) == SearchResult.DRM_UNLOCKED:
+                            matches.add(sr)
+                    else:
+                        if accessor(sr) is None:
+                            matches.add(sr)
+                    continue
+                # this is bool, so can't match below
+                if locvalue == 'drm':
+                    continue
+                try:
+                    ### Can't separate authors because comma is used for name sep and author sep
+                    ### Exact match might not get what you want. For that reason, turn author
+                    ### exactmatch searches into contains searches.
+                    if locvalue == 'author' and matchkind == EQUALS_MATCH:
+                        m = CONTAINS_MATCH
+                    else:
+                        m = matchkind
 
-                vals = [ac_val]
-                if _match(query, vals, m):
-                    matches.add(self.search_result)
-                    break
-            except ValueError: # Unicode errors
-                traceback.print_exc()
+                    if locvalue == 'format':
+                        vals = accessor(sr).split(',')
+                    else:
+                        vals = [accessor(sr)]
+                    if _match(query, vals, m):
+                        matches.add(sr)
+                        break
+                except ValueError: # Unicode errors
+                    traceback.print_exc()
         return matches

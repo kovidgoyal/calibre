@@ -68,5 +68,15 @@ class OpenLibraryStore(BasicStoreConfig, StorePlugin):
                 s.author = author.strip()
                 s.price = price
                 s.detail_item = id.strip()
+                s.drm = SearchResult.DRM_UNKNOWN
                 
                 yield s
+
+    def get_details(self, search_result, timeout):
+        url = 'http://openlibrary.org/'
+        
+        br = browser()
+        with closing(br.open(url_slash_cleaner(url + search_result.detail_item), timeout=timeout)) as nf:
+            idata = html.fromstring(nf.read())
+            search_result.formats = ', '.join(list(set(idata.xpath('//a[contains(@title, "Download")]/text()'))))
+        return True

@@ -11,7 +11,11 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>calibre Store Search</string>
+   <string>Get Books</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="../../../../resources/images.qrc">
+    <normaloff>:/images/store.png</normaloff>:/images/store.png</iconset>
   </property>
   <property name="sizeGripEnabled">
    <bool>true</bool>
@@ -58,8 +62,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>215</width>
-            <height>116</height>
+            <width>170</width>
+            <height>138</height>
            </rect>
           </property>
          </widget>
@@ -174,7 +178,9 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="../../../../resources/images.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>close</sender>

@@ -31,8 +31,8 @@ class EgirlRo(BasicNewsRecipe):
                          }
 
     keep_only_tags = [
-                          dict(name='div', attrs={'id':'title_art'})
-                        , dict(name='div', attrs={'class':'content_style'})
+                          dict(name='div', attrs={'id':'content_art'})
+                        , dict(name='div', attrs={'class':'content_articol'})
                      ]
 
     feeds          = [

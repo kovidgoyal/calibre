@@ -21,11 +21,11 @@ def text2int(textnum):
                 "thirteen", "fourteen", "fifteen", "sixteen", "seventeen",
                 "eighteen", "nineteen"]
 
-        tens = ["", "", "twenty", "thirty", "forty", "fifty", "sixty", 
+        tens = ["", "", "twenty", "thirty", "forty", "fifty", "sixty",
                 "seventy", "eighty", "ninety"]
 
-        scales = ["hundred", "thousand", "million", "billion", "trillion", 
-                'quadrillion', 'quintillion', 'sexillion', 'septillion', 
+        scales = ["hundred", "thousand", "million", "billion", "trillion",
+                'quadrillion', 'quintillion', 'sexillion', 'septillion',
                 'octillion', 'nonillion', 'decillion' ]
 
         numwords["and"] = (1, 0)
@@ -33,7 +33,7 @@ def text2int(textnum):
         for idx, word in enumerate(tens): numwords[word] = (1, idx * 10)
         for idx, word in enumerate(scales): numwords[word] = (10 ** (idx * 3 or 2), 0)
 
-    ordinal_words = {'first':1, 'second':2, 'third':3, 'fifth':5, 
+    ordinal_words = {'first':1, 'second':2, 'third':3, 'fifth':5,
             'eighth':8, 'ninth':9, 'twelfth':12}
     ordinal_endings = [('ieth', 'y'), ('th', '')]
     current = result = 0

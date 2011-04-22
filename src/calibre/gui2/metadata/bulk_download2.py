@@ -295,7 +295,7 @@ def proceed(gui, job):
             _('Failed to download metadata or covers for any of the %d'
                ' book(s).') % len(id_map), det_msg=det_msg)
     else:
-        fmsg = det_msg = ''
+        fmsg = ''
         if failed_ids or failed_covers:
             fmsg = '<p>'+_('Could not download metadata and/or covers for %d of the books. Click'
                     ' "Show details" to see which books.')%len(failed_ids)

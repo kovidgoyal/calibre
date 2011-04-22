@@ -18,6 +18,7 @@ from cssutils import profile as cssprofiles
 from lxml import etree
 from lxml.cssselect import css_to_xpath, ExpressionError, SelectorSyntaxError
 from calibre import force_unicode
+from calibre.ebooks import unit_convert
 from calibre.ebooks.oeb.base import XHTML, XHTML_NS, CSS_MIME, OEB_STYLES
 from calibre.ebooks.oeb.base import XPNSMAP, xpath, urlnormalize
 from calibre.ebooks.oeb.profile import PROFILES
@@ -444,7 +445,6 @@ class Stylizer(object):
 
 
 class Style(object):
-    UNIT_RE = re.compile(r'^(-*[0-9]*[.]?[0-9]*)\s*(%|em|ex|en|px|mm|cm|in|pt|pc)$')
     MS_PAT = re.compile(r'^\s*(mso-|panose-|text-underline|tab-interval)')
 
     def __init__(self, element, stylizer):
@@ -507,43 +507,11 @@ class Style(object):
         return result
 
     def _unit_convert(self, value, base=None, font=None):
-        ' Return value in pts'
-        if isinstance(value, (int, long, float)):
-            return value
-        try:
-            return float(value) * 72.0 / self._profile.dpi
-        except:
-            pass
-        result = value
-        m = self.UNIT_RE.match(value)
-        if m is not None and m.group(1):
-            value = float(m.group(1))
-            unit = m.group(2)
-            if unit == '%':
-                if base is None:
-                    base = self.width
-                result = (value / 100.0) * base
-            elif unit == 'px':
-                result = value * 72.0 / self._profile.dpi
-            elif unit == 'in':
-                result = value * 72.0
-            elif unit == 'pt':
-                result = value
-            elif unit == 'em':
-                font = font or self.fontSize
-                result = value * font
-            elif unit in ('ex', 'en'):
-                # This is a hack for ex since we have no way to know
-                # the x-height of the font
-                font = font or self.fontSize
-                result = value * font * 0.5
-            elif unit == 'pc':
-                result = value * 12.0
-            elif unit == 'mm':
-                result = value * 0.04
-            elif unit == 'cm':
-                result = value * 0.40
-        return result
+        'Return value in pts'
+        if base is None:
+            base = self.width
+        font = font or self.fontSize
+        return unit_convert(value, base, font, self._profile.dpi)
 
     def pt_to_px(self, value):
         return (self._profile.dpi / 72.0) * value
