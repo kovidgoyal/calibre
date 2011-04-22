@@ -90,5 +90,15 @@ class SmashwordsStore(BasicStoreConfig, StorePlugin):
                 s.author = author.strip()
                 s.price = price.strip()
                 s.detail_item = '/books/view/' + id.strip()
+                s.drm = SearchResult.DRM_UNLOCKED
                 
                 yield s
+
+    def get_details(self, search_result, timeout):
+        url = 'http://www.smashwords.com/'
+        
+        br = browser()
+        with closing(br.open(url + search_result.detail_item, timeout=timeout)) as nf:
+            idata = html.fromstring(nf.read())
+            search_result.formats = ', '.join(list(set(idata.xpath('//td//b//text()'))))
+        return True

@@ -75,6 +75,8 @@ class DieselEbooksStore(BasicStoreConfig, StorePlugin):
                 if price_elem:
                     price = price_elem[0]
 
+                formats = ', '.join(data.xpath('.//td[@class="format"]/text()'))
+
                 counter -= 1
                 
                 s = SearchResult()
@@ -83,5 +85,18 @@ class DieselEbooksStore(BasicStoreConfig, StorePlugin):
                 s.author = author.strip()
                 s.price = price.strip()
                 s.detail_item = '/item/' + id.strip()
+                s.formats = formats
                 
                 yield s
+
+    def get_details(self, search_result, timeout):
+        url = 'http://www.diesel-ebooks.com/item/'
+        
+        br = browser()
+        with closing(br.open(url + search_result.detail_item, timeout=timeout)) as nf:
+            idata = html.fromstring(nf.read())
+            if idata.xpath('boolean(//table[@class="format-info"]//tr[contains(th, "DRM") and contains(td, "No")])'):
+                search_result.drm = SearchResult.DRM_UNLOCKED
+            else:
+                search_result.drm = SearchResult.DRM_LOCKED
+        return True
