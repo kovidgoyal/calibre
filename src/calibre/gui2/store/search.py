@@ -463,17 +463,18 @@ class Matches(QAbstractItemModel):
         self.reset()
 
     def add_result(self, result, store_plugin):
-        self.layoutAboutToBeChanged.emit()
-        self.all_matches.append(result)
-        self.search_filter.add_search_result(result)
-        if result.cover_url:
-            result.cover_queued = True
-            self.cover_pool.add_task(result, self.filter_results)
-        else:
-            result.cover_queued = False
-        self.details_pool.add_task(result, store_plugin, self.got_result_details)
-        self.filter_results()
-        self.layoutChanged.emit()
+        if result not in self.all_matches:
+            self.layoutAboutToBeChanged.emit()
+            self.all_matches.append(result)
+            self.search_filter.add_search_result(result)
+            if result.cover_url:
+                result.cover_queued = True
+                self.cover_pool.add_task(result, self.filter_results)
+            else:
+                result.cover_queued = False
+            self.details_pool.add_task(result, store_plugin, self.got_result_details)
+            self.filter_results()
+            self.layoutChanged.emit()
 
     def get_result(self, index):
         row = index.row()

@@ -22,3 +22,6 @@ class SearchResult(object):
         self.detail_item = ''
         self.drm = None
         self.formats = ''
+
+    def __eq__(self, other):
+        return self.title == other.title and self.author == other.author and self.store_name == other.store_name
