@@ -19,7 +19,7 @@ class StoreAction(InterfaceAction):
     action_spec = (_('Get books'), 'store.png', None, None)
 
     def genesis(self):
-        self.config = JSONConfig('store_action')
+        self.config = JSONConfig('store/action')
 
         self.qaction.triggered.connect(self.search)
         self.store_menu = QMenu()
