@@ -19,13 +19,12 @@ from PyQt4.Qt import (Qt, QAbstractItemModel, QDialog, QTimer, QVariant,
     QModelIndex, QPixmap, QSize, QCheckBox, QVBoxLayout)
 
 from calibre import browser
-from calibre.gui2 import NONE
+from calibre.gui2 import NONE, JSONConfig
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.gui2.store.search_ui import Ui_Dialog
 from calibre.gui2.store.search_result import SearchResult
 from calibre.library.caches import _match, CONTAINS_MATCH, EQUALS_MATCH, \
     REGEXP_MATCH
-from calibre.gui2 import JSONConfig
 from calibre.utils.icu import sort_key
 from calibre.utils.magick.draw import thumbnail
 from calibre.utils.search_query_parser import SearchQueryParser
