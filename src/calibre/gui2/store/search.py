@@ -16,7 +16,7 @@ from threading import Thread
 from Queue import Queue
 
 from PyQt4.Qt import (Qt, QAbstractItemModel, QDialog, QTimer, QVariant,
-    QModelIndex, QPixmap, QSize, QCheckBox, QVBoxLayout)
+    QModelIndex, QPixmap, QSize, QCheckBox, QVBoxLayout, QTreeView)
 
 from calibre import browser
 from calibre.gui2 import NONE, JSONConfig
@@ -57,9 +57,6 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.checker = QTimer()
         self.hang_check = 0
 
-        self.model = Matches()
-        self.results_view.setModel(self.model)
-
         # Add check boxes for each store so the user
         # can disable searching specific stores on a
         # per search basis.
@@ -74,7 +71,7 @@ class SearchDialog(QDialog, Ui_Dialog):
 
         # Create and add the progress indicator
         self.pi = ProgressIndicator(self, 24)
-        self.bottom_layout.insertWidget(0, self.pi)
+        self.top_layout.addWidget(self.pi)
 
         self.search.clicked.connect(self.do_search)
         self.checker.timeout.connect(self.get_results)
@@ -91,18 +88,14 @@ class SearchDialog(QDialog, Ui_Dialog):
         # Cover
         self.results_view.setColumnWidth(0, 85)
         total = total - 85
-        # Title
-        self.results_view.setColumnWidth(1,int(total*.35))
-        # Author
-        self.results_view.setColumnWidth(2,int(total*.35))
+        # Title / Author
+        self.results_view.setColumnWidth(1,int(total*.40))
         # Price
-        self.results_view.setColumnWidth(3, int(total*.5))
+        self.results_view.setColumnWidth(2,int(total*.20))
         # DRM
-        self.results_view.setColumnWidth(4, int(total*.5))
-        # Store
-        self.results_view.setColumnWidth(5, int(total*.15))
-        # Formats
-        self.results_view.setColumnWidth(6, int(total*.5))
+        self.results_view.setColumnWidth(3, int(total*.15))
+        # Store / Formats
+        self.results_view.setColumnWidth(4, int(total*.25))
 
     def do_search(self, checked=False):
         # Stop all running threads.
@@ -165,7 +158,7 @@ class SearchDialog(QDialog, Ui_Dialog):
     def save_state(self):
         self.config['store_search_geometry'] = bytearray(self.saveGeometry())
         self.config['store_search_store_splitter_state'] = bytearray(self.store_splitter.saveState())
-        self.config['store_search_results_view_column_width'] = [self.results_view.columnWidth(i) for i in range(self.model.columnCount())]
+        self.config['store_search_results_view_column_width'] = [self.results_view.columnWidth(i) for i in range(self.results_view.model().columnCount())]
 
         store_check = {}
         for n in self.store_plugins:
@@ -184,7 +177,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         results_cwidth = self.config.get('store_search_results_view_column_width', None)
         if results_cwidth:
             for i, x in enumerate(results_cwidth):
-                if i >= self.model.columnCount():
+                if i >= self.results_view.model().columnCount():
                     break
                 self.results_view.setColumnWidth(i, x)
         else:
@@ -243,7 +236,7 @@ class SearchDialog(QDialog, Ui_Dialog):
             check.setChecked(False)
 
     def dialog_closed(self, result):
-        self.model.closing()
+        self.results_view.model().closing()
         self.search_pool.abort()
         self.save_state()
 
@@ -422,9 +415,11 @@ class DetailsThread(Thread):
             except:
                 continue
 
+
 class Matches(QAbstractItemModel):
 
-    HEADERS = [_('Cover'), _('Title'), _('Author(s)'), _('Price'), _('DRM'), _('Store'), _('Formats')]
+    HEADERS = [_('Cover'), _('Title'), _('Price'), _('DRM'), _('Store')]
+    HTML_COLS = (1, 4)
 
     def __init__(self):
         QAbstractItemModel.__init__(self)
@@ -539,22 +534,20 @@ class Matches(QAbstractItemModel):
         result = self.matches[row]
         if role == Qt.DisplayRole:
             if col == 1:
-                return QVariant(result.title)
+                t = result.title if result.title else _('Unknown')
+                a = result.author if result.author else ''
+                return QVariant('<b>%s</b><br><i>%s</i>' % (t, a))
             elif col == 2:
-                return QVariant(result.author)
-            elif col == 3:
                 return QVariant(result.price)
-            elif col == 5:
-                return QVariant(result.store_name)
-            elif col == 6:
-                return QVariant(result.formats)
+            elif col == 4:
+                return QVariant('%s<br>%s' % (result.store_name, result.formats))
             return NONE
         elif role == Qt.DecorationRole:
             if col == 0 and result.cover_data:
                 p = QPixmap()
                 p.loadFromData(result.cover_data)
                 return QVariant(p)
-            if col == 4:
+            if col == 3:
                 if result.drm == SearchResult.DRM_LOCKED:
                     return QVariant(self.DRM_LOCKED_ICON)
                 elif result.drm == SearchResult.DRM_UNLOCKED:
@@ -565,19 +558,15 @@ class Matches(QAbstractItemModel):
             if col == 1:
                 return QVariant('<p>%s</p>' % result.title)
             elif col == 2:
-                return QVariant('<p>%s</p>' % result.author)
-            elif col == 3:
                 return QVariant('<p>' + _('Detected price as: %s. Check with the store before making a purchase to verify this price is correct. This price often does not include promotions the store may be running.') % result.price + '</p>')
-            elif col == 4:
+            elif col == 3:
                 if result.drm == SearchResult.DRM_LOCKED:
                     return QVariant('<p>' + _('This book as been detected as having DRM restrictions. This book may not work with your reader and you will have limitations placed upon you as to what you can do with this book. Check with the store before making any purchases to ensure you can actually read this book.') + '</p>')
                 elif result.drm == SearchResult.DRM_UNLOCKED:
                     return QVariant('<p>' + _('This book has been detected as being DRM Free. You should be able to use this book on any device provided it is in a format calibre supports for conversion. However, before making a purchase double check the DRM status with the store. The store may not be disclosing the use of DRM.') + '</p>')
                 else:
                     return QVariant('<p>' + _('The DRM status of this book could not be determined. There is a very high likelihood that this book is actually DRM restricted.') + '</p>')
-            elif col == 5:
-                return QVariant('<p>%s</p>' % result.store_name)
-            elif col == 6:
+            elif col == 4:
                 return QVariant('<p>%s</p>' % result.formats)
         elif role == Qt.SizeHintRole:
             return QSize(64, 64)
@@ -588,20 +577,9 @@ class Matches(QAbstractItemModel):
         if col == 1:
             text = result.title
         elif col == 2:
-            text = result.author
-        elif col == 3:
             text = comparable_price(result.price)
         elif col == 4:
-            if result.drm == SearchResult.DRM_UNLOCKED:
-                text = 'a'
-            elif result.drm == SearchResult.DRM_LOCKED:
-                text = 'b'
-            else:
-                text = 'c'
-        elif col == 5:
             text = result.store_name
-        elif col == 6:
-            text = ', '.join(sorted(result.formats.split(',')))
         return text
 
     def sort(self, col, order, reset=True):
