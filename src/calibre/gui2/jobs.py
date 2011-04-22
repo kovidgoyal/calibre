@@ -169,11 +169,11 @@ class JobManager(QAbstractTableModel): # {{{
                 job.update()
                 if orig_state != job.run_state:
                     needs_reset = True
+                    if job.is_finished:
+                        self.job_done.emit(len(self.unfinished_jobs()))
             if needs_reset:
                 self.jobs.sort()
                 self.reset()
-                if job.is_finished:
-                    self.job_done.emit(len(self.unfinished_jobs()))
             else:
                 for job in jobs:
                     idx = self.jobs.index(job)
