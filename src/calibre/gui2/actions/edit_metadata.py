@@ -467,12 +467,22 @@ class EditMetadataAction(InterfaceAction):
             self.gui.upload_collections(model.db, view=view, oncard=oncard)
             view.reset()
 
-    def apply_metadata_changes(self, id_map):
+    def apply_metadata_changes(self, id_map,
+            title=_('Applying changed metadata'), msg=''):
         self.apply_id_map = list(id_map.iteritems())
         self.apply_current_idx = 0
         self.apply_failures = []
         self.applied_ids = []
+        self.apply_pd = None
+        if len(self.apply_id_map) > 1:
+            from calibre.gui2.dialogs.progress import ProgressDialog
+            self.apply_pd = ProgressDialog(title, msg, min=0,
+                    max=len(self.apply_id_map)-1, parent=self.gui,
+                    cancelable=False)
+            self.apply_pd.setModal(True)
+            self.apply_pd.show()
         self.do_one_apply()
+
 
     def do_one_apply(self):
         if self.apply_current_idx >= len(self.apply_id_map):
@@ -497,11 +507,16 @@ class EditMetadataAction(InterfaceAction):
             pass
 
         self.apply_current_idx += 1
+        if self.apply_pd is not None:
+            self.apply_pd.value += 1
         QTimer.singleShot(50, self.do_one_apply)
 
     def finalize_apply(self):
         db = self.gui.current_db
         db.commit()
+
+        if self.apply_pd is not None:
+            self.apply_pd.hide()
 
         if self.apply_failures:
             msg = []
@@ -525,4 +540,5 @@ class EditMetadataAction(InterfaceAction):
                 self.gui.cover_flow.dataChanged()
 
         self.apply_id_map = []
+        self.apply_pd = None
 

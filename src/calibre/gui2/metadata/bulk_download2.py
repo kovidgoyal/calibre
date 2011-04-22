@@ -7,14 +7,12 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os
 from functools import partial
 from itertools import izip
 from threading import Event
 
 from PyQt4.Qt import (QIcon, QDialog, QVBoxLayout, QTextBrowser, QSize,
-        QDialogButtonBox, QApplication, QTimer, QLabel, QProgressBar,
-        QGridLayout, QPixmap, Qt)
+        QDialogButtonBox, QApplication, QLabel, QGridLayout, QPixmap, Qt)
 
 from calibre.gui2.dialogs.message_box import MessageBox
 from calibre.gui2.threaded_jobs import ThreadedJob
@@ -144,118 +142,7 @@ def view_log(job, parent):
 
 # }}}
 
-# Apply downloaded metadata {{{
-class ApplyDialog(QDialog):
-
-    def __init__(self, msg, gui):
-        QDialog.__init__(self, gui)
-        self.setModal(True)
-
-        self.l = l = QVBoxLayout()
-        self.setLayout(l)
-        l.addWidget(QLabel(msg))
-
-        self.pb = QProgressBar(self)
-        l.addWidget(self.pb)
-
-        self.bb = QDialogButtonBox(QDialogButtonBox.Cancel)
-        self.bb.rejected.connect(self.reject)
-        l.addWidget(self.bb)
-
-        self.setWindowTitle(_('Applying metadata'))
-
-        self.gui = gui
-
-    def start_applying(self, id_map):
-        self.id_map = list(id_map.iteritems())
-        self.current_idx = 0
-        self.failures = []
-        self.ids = []
-        self.canceled = False
-        self.pb.setMinimum(0)
-        self.pb.setMaximum(len(id_map))
-        self.pb.setValue(0)
-        self.do_one()
-
-    def do_one(self):
-        if self.canceled:
-            return
-        if self.current_idx >= len(self.id_map):
-            self.finalize()
-            return
-
-        i, mi = self.id_map[self.current_idx]
-        db = self.gui.current_db
-        try:
-            set_title = not mi.is_null('title')
-            set_authors = not mi.is_null('authors')
-            db.set_metadata(i, mi, commit=False, set_title=set_title,
-                    set_authors=set_authors)
-            self.ids.append(i)
-        except:
-            import traceback
-            self.failures.append((i, traceback.format_exc()))
-
-        try:
-            if mi.cover:
-                os.remove(mi.cover)
-        except:
-            pass
-
-        self.pb.setValue(self.pb.value()+1)
-        self.current_idx += 1
-        if not self.canceled:
-            QTimer.singleShot(50, self.do_one)
-
-    def reject(self):
-        self.canceled = True
-        # Commit any changes so far
-        db = self.gui.current_db
-        db.commit()
-        QDialog.reject(self)
-
-    def finalize(self):
-        if self.canceled:
-            return
-        db = self.gui.current_db
-        db.commit()
-
-        if self.failures:
-            msg = []
-            for i, tb in self.failures:
-                title = db.title(i, index_is_id=True)
-                authors = db.authors(i, index_is_id=True)
-                if authors:
-                    authors = [x.replace('|', ',') for x in authors.split(',')]
-                    title += ' - ' + authors_to_string(authors)
-                msg.append(title+'\n\n'+tb+'\n'+('*'*80))
-
-            parent = self if self.isVisible() else self.parent()
-            error_dialog(parent, _('Some failures'),
-                _('Failed to apply updated metadata for some books'
-                    ' in your library. Click "Show Details" to see '
-                    'details.'), det_msg='\n\n'.join(msg), show=True)
-        self.accept()
-        if self.ids:
-            cr = self.gui.library_view.currentIndex().row()
-            self.gui.library_view.model().refresh_ids(
-                self.ids, cr)
-            if self.gui.cover_flow:
-                self.gui.cover_flow.dataChanged()
-
-        self.id_map = []
-
-_amd = None
-
-def do_apply_metadata(gui, id_map,
-        msg=_('Applying downloaded metadata to your library')):
-    global _amd
-    _amd = ApplyDialog(msg, gui)
-    _amd.start_applying(id_map)
-    if len(id_map) > 3:
-        _amd.show()
-
-
+# Apply metadata {{{
 def apply_metadata(job, gui, q, result):
     q.vlb.clicked.disconnect()
     q.finished.disconnect()
@@ -361,7 +248,7 @@ def download(ids, db, do_identify, covers,
     count = 0
     all_failed = True
     '''
-    Test apply dialog
+    # Test apply dialog
     all_failed = do_identify = covers = False
     '''
     for i, mi in izip(ids, metadata):
