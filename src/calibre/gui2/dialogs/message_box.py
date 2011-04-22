@@ -143,11 +143,23 @@ class ViewLog(QDialog): # {{{
         QApplication.clipboard().setText(txt)
 # }}}
 
-class ProceedNotification(MessageBox):
+class ProceedNotification(MessageBox): # {{{
 
     proceed = pyqtSignal(object)
 
     def __init__(self, payload, html_log, log_viewer_title, title, msg, det_msg='', show_copy_button=False, parent=None):
+        '''
+        A non modal popup that notifies the user that a background task has
+        been completed. If they user clicks yes, the proceed signal is emitted
+        with payload as its argument.
+
+        :param payload: Arbitrary object, emitted in the proceed signal
+        :param html_log: An HTML or plain text log
+        :param log_viewer_title: The title for the log viewer window
+        :param title: The title fo rthis popup
+        :param msg: The msg to display
+        :param det_msg: Detailed message
+        '''
         MessageBox.__init__(self, MessageBox.QUESTION, title, msg,
                 det_msg=det_msg, show_copy_button=show_copy_button,
                 parent=parent)
@@ -173,6 +185,7 @@ class ProceedNotification(MessageBox):
             self.proceed.disconnect()
         except:
             pass
+# }}}
 
 if __name__ == '__main__':
     app = QApplication([])
