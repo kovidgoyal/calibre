@@ -48,7 +48,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         QDialog.__init__(self, *args)
         self.setupUi(self)
 
-        self.config = DynamicConfig('store_search')
+        self.config = DynamicConfig('store/search')
 
         # We keep a cache of store plugins and reference them by name.
         self.store_plugins = istores

@@ -30,7 +30,7 @@ from calibre.utils.icu import sort_key
 class MobileReadStore(BasicStoreConfig, StorePlugin):
     
     def genesis(self):
-        self.config = DynamicConfig('store_' + self.name)
+        self.config = DynamicConfig('store/store/' + self.name)
         self.rlock = RLock()
     
     def open(self, parent=None, detail_item=None, external=False):
