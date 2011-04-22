@@ -469,6 +469,13 @@ class EditMetadataAction(InterfaceAction):
 
     def apply_metadata_changes(self, id_map,
             title=_('Applying changed metadata'), msg=''):
+        '''
+        Apply the metadata changes in id_map to the database synchronously
+        id_map must be a mapping of ids to Metadata objects. Set any fields you
+        do not want updated in the Metadata object to null. An easy way to do
+        that is to create a metadata object as Metadata(_('Unknown')) and then
+        only set the fields you want changed on this object.
+        '''
         self.apply_id_map = list(id_map.iteritems())
         self.apply_current_idx = 0
         self.apply_failures = []
@@ -494,7 +501,7 @@ class EditMetadataAction(InterfaceAction):
             set_title = not mi.is_null('title')
             set_authors = not mi.is_null('authors')
             db.set_metadata(i, mi, commit=False, set_title=set_title,
-                    set_authors=set_authors)
+                    set_authors=set_authors, notify=False)
             self.applied_ids.append(i)
         except:
             import traceback
