@@ -9,7 +9,6 @@ import posixpath
 from urlparse import urldefrag, urlparse
 
 from lxml import etree
-import cssutils
 
 from calibre.ebooks.oeb.base import rewrite_links, urlnormalize
 
@@ -25,6 +24,7 @@ class RenameFiles(object): # {{{
         self.renamed_items_map = renamed_items_map
 
     def __call__(self, oeb, opts):
+        import cssutils
         self.log = oeb.logger
         self.opts = opts
         self.oeb = oeb

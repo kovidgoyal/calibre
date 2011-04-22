@@ -14,14 +14,14 @@ class EcuisineRo(BasicNewsRecipe):
     __author__            = u'Silviu Cotoar\u0103'
     description           = u'Reinventeaz\u0103 pl\u0103cerea de a g\u0103ti'
     publisher             = 'eCuisine'
-    oldest_article        = 5
+    oldest_article        = 50
     language              = 'ro'
     max_articles_per_feed = 100
     no_stylesheets        = True
     use_embedded_content  = False
     category              = 'Ziare,Retete,Bucatarie'
     encoding              = 'utf-8'
-    cover_url             = ''
+    cover_url             = 'http://www.ecuisine.ro/sites/all/themes/ecuisine/images/logo.gif'
 
     conversion_options = {
                              'comments'   : description
@@ -31,8 +31,8 @@ class EcuisineRo(BasicNewsRecipe):
                          }
 
     keep_only_tags = [
-            dict(name='div', attrs={'class':'page-title'})
-            , dict(name='div', attrs={'class':'content clearfix'})
+            dict(name='h1', attrs={'id':'page-title'})
+            , dict(name='div', attrs={'class':'field-item even'})
                      ]
 
     remove_tags = [

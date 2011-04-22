@@ -106,7 +106,7 @@ def migrate(old, new):
     from calibre.library.database import LibraryDatabase
     from calibre.library.database2 import LibraryDatabase2
     from calibre.utils.terminfo import ProgressBar
-    from calibre import terminal_controller
+    from calibre.constants import terminal_controller
     class Dummy(ProgressBar):
         def setLabelText(self, x): pass
         def setAutoReset(self, y): pass
@@ -119,7 +119,7 @@ def migrate(old, new):
 
     db = LibraryDatabase(old)
     db2 = LibraryDatabase2(new)
-    db2.migrate_old(db, Dummy(terminal_controller, 'Migrating database...'))
+    db2.migrate_old(db, Dummy(terminal_controller(), 'Migrating database...'))
     prefs['library_path'] = os.path.abspath(new)
     print 'Database migrated to', os.path.abspath(new)
 

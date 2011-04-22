@@ -18,7 +18,6 @@ from calibre.customize.conversion import OutputFormatPlugin
 from calibre.customize.conversion import OptionRecommendation
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.zipfile import ZipFile
-from calibre.ebooks.oeb.base import OEB_RASTER_IMAGES
 from calibre.ebooks.pml.pmlml import PMLMLizer
 
 class PMLOutput(OutputFormatPlugin):
@@ -60,6 +59,7 @@ class PMLOutput(OutputFormatPlugin):
             pmlz.add_dir(tdir)
 
     def write_images(self, manifest, image_hrefs, out_dir, opts):
+        from calibre.ebooks.oeb.base import OEB_RASTER_IMAGES
         for item in manifest:
             if item.media_type in OEB_RASTER_IMAGES and item.href in image_hrefs.keys():
                 if opts.full_image_depth:

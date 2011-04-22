@@ -24,26 +24,23 @@ from calibre.gui2.store.basic_config import BasicStoreConfig
 from calibre.gui2.store.mobileread_store_dialog_ui import Ui_Dialog
 from calibre.gui2.store.search_result import SearchResult
 from calibre.gui2.store.web_store_dialog import WebStoreDialog
-from calibre.utils.config import DynamicConfig
 from calibre.utils.icu import sort_key
 
 class MobileReadStore(BasicStoreConfig, StorePlugin):
     
     def genesis(self):
-        self.config = DynamicConfig('store_' + self.name)
         self.rlock = RLock()
     
     def open(self, parent=None, detail_item=None, external=False):
-        settings = self.get_settings()
         url = 'http://www.mobileread.com/'
         
-        if external or settings.get(self.name + '_open_external', False):
+        if external or self.config.get('open_external', False):
             open_url(QUrl(detail_item if detail_item else url))
         else:
             if detail_item:
                 d = WebStoreDialog(self.gui, url, parent, detail_item)
                 d.setWindowTitle(self.name)
-                d.set_tags(settings.get(self.name + '_tags', ''))
+                d.set_tags(self.config.get('tags', ''))
                 d.exec_()
             else:
                 d = MobeReadStoreDialog(self, parent)
@@ -76,13 +73,14 @@ class MobileReadStore(BasicStoreConfig, StorePlugin):
         matches = heapq.nlargest(max_results, matches)
         for score, book in matches:
             book.price = '$0.00'
+            book.drm = SearchResult.DRM_UNLOCKED
             yield book
 
     def update_book_list(self, timeout=10):
         with self.rlock:
             url = 'http://www.mobileread.com/forums/ebooks.php?do=getlist&type=html'
             
-            last_download = self.config.get(self.name + '_last_download', None)
+            last_download = self.config.get('last_download', None)
             # Don't update the book list if our cache is less than one week old.
             if last_download and (time.time() - last_download) < 604800:
                 return
@@ -96,15 +94,15 @@ class MobileReadStore(BasicStoreConfig, StorePlugin):
             if not raw_data:
                 return
             
-            # Turn books listed in the HTML file into BookRef's.
+            # Turn books listed in the HTML file into SearchResults's.
             books = []
             try:
                 data = html.fromstring(raw_data)
                 for book_data in data.xpath('//ul/li'):
-                    book = BookRef()
+                    book = SearchResult()
                     book.detail_item = ''.join(book_data.xpath('.//a/@href'))
-                    book.format = ''.join(book_data.xpath('.//i/text()'))
-                    book.format = book.format.strip()
+                    book.formats = ''.join(book_data.xpath('.//i/text()'))
+                    book.formats = book.formats.strip()
         
                     text = ''.join(book_data.xpath('.//a/text()'))
                     if ':' in text:
@@ -117,20 +115,34 @@ class MobileReadStore(BasicStoreConfig, StorePlugin):
     
             # Save the book list and it's create time.
             if books:
-                self.config[self.name + '_last_download'] = time.time()
-                self.config[self.name + '_book_list'] = books
+                self.config['last_download'] = time.time()
+                self.config['book_list'] = self.seralize_books(books)
 
     def get_book_list(self, timeout=10):
         self.update_book_list(timeout=timeout)
-        return self.config.get(self.name + '_book_list', [])
-
-
-class BookRef(SearchResult):
+        return self.deseralize_books(self.config.get('book_list', []))
     
-    def __init__(self):
-        SearchResult.__init__(self)
-        
-        self.format = ''
+    def seralize_books(self, books):
+        sbooks = []
+        for b in books:
+            data = {}
+            data['author'] = b.author
+            data['title'] = b.title
+            data['detail_item'] = b.detail_item
+            data['formats'] = b.formats
+            sbooks.append(data)
+        return sbooks
+    
+    def deseralize_books(self, sbooks):
+        books = []
+        for s in sbooks:
+            b = SearchResult()
+            b.author = s.get('author', '')
+            b.title = s.get('title', '')
+            b.detail_item = s.get('detail_item', '')
+            b.formats = s.get('formats', '')
+            books.append(b)
+        return books
 
 
 class MobeReadStoreDialog(QDialog, Ui_Dialog):
@@ -159,11 +171,11 @@ class MobeReadStoreDialog(QDialog, Ui_Dialog):
             self.plugin.open(self, result.detail_item)
     
     def restore_state(self):
-        geometry = self.plugin.config['store_mobileread_dialog_geometry']
+        geometry = self.plugin.config.get('dialog_geometry', None)
         if geometry:
             self.restoreGeometry(geometry)
 
-        results_cwidth = self.plugin.config['store_mobileread_dialog_results_view_column_width']
+        results_cwidth = self.plugin.config.get('dialog_results_view_column_width')
         if results_cwidth:
             for i, x in enumerate(results_cwidth):
                 if i >= self.results_view.model().columnCount():
@@ -173,16 +185,16 @@ class MobeReadStoreDialog(QDialog, Ui_Dialog):
             for i in xrange(self.results_view.model().columnCount()):
                 self.results_view.resizeColumnToContents(i)
                 
-        self.results_view.model().sort_col = self.plugin.config.get('store_mobileread_dialog_sort_col', 0)
-        self.results_view.model().sort_order = self.plugin.config.get('store_mobileread_dialog_sort_order', Qt.AscendingOrder)
+        self.results_view.model().sort_col = self.plugin.config.get('dialog_sort_col', 0)
+        self.results_view.model().sort_order = self.plugin.config.get('dialog_sort_order', Qt.AscendingOrder)
         self.results_view.model().sort(self.results_view.model().sort_col, self.results_view.model().sort_order)
         self.results_view.header().setSortIndicator(self.results_view.model().sort_col, self.results_view.model().sort_order)
 
     def save_state(self):
-        self.plugin.config['store_mobileread_dialog_geometry'] = self.saveGeometry()
-        self.plugin.config['store_mobileread_dialog_results_view_column_width'] = [self.results_view.columnWidth(i) for i in range(self.model.columnCount())]
-        self.plugin.config['store_mobileread_dialog_sort_col'] = self.results_view.model().sort_col
-        self.plugin.config['store_mobileread_dialog_sort_order'] = self.results_view.model().sort_order
+        self.plugin.config['dialog_geometry'] = bytearray(self.saveGeometry())
+        self.plugin.config['dialog_results_view_column_width'] = [self.results_view.columnWidth(i) for i in range(self.model.columnCount())]
+        self.plugin.config['dialog_sort_col'] = self.results_view.model().sort_col
+        self.plugin.config['dialog_sort_order'] = self.results_view.model().sort_order
 
     def dialog_closed(self, result):
         self.save_state()
@@ -223,7 +235,7 @@ class BooksModel(QAbstractItemModel):
         self.books = []
         if self.filter:
             for b in self.all_books:
-                test = '%s %s %s' % (b.title, b.author, b.format)
+                test = '%s %s %s' % (b.title, b.author, b.formats)
                 test = test.lower()
                 include = True
                 for item in self.filter.split(' '):
@@ -276,7 +288,7 @@ class BooksModel(QAbstractItemModel):
             elif col == 1:
                 return QVariant(result.author)
             elif col == 2:
-                return QVariant(result.format)
+                return QVariant(result.formats)
         return NONE
 
     def data_as_text(self, result, col):
@@ -286,7 +298,7 @@ class BooksModel(QAbstractItemModel):
         elif col == 1:
             text = result.author
         elif col == 2:
-            text = result.format
+            text = result.formats
         return text
 
     def sort(self, col, order, reset=True):

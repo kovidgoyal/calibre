@@ -12,7 +12,7 @@ from zipfile import ZipFile, ZIP_DEFLATED, ZIP_STORED
 
 from PyQt4.Qt import QDialog
 
-from calibre.constants import isosx, iswindows
+from calibre.constants import isosx
 from calibre.gui2 import open_local_file
 from calibre.gui2.dialogs.tweak_epub_ui import Ui_Dialog
 from calibre.libunzip import extract as zipextract

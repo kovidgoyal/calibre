@@ -16,14 +16,14 @@ methods :method:`SearchQueryParser.universal_set` and
 If this module is run, it will perform a series of unit tests.
 '''
 
-import sys, string, operator
+import sys, operator
 
 from calibre.utils.pyparsing import CaselessKeyword, Group, Forward, \
         CharsNotIn, Suppress, OneOrMore, MatchFirst, CaselessLiteral, \
         Optional, NoMatch, ParseException, QuotedString
 from calibre.constants import preferred_encoding
 from calibre.utils.icu import sort_key
-
+from calibre import prints
 
 
 '''
@@ -109,7 +109,7 @@ class SearchQueryParser(object):
     def run_tests(parser, result, tests):
         failed = []
         for test in tests:
-            print '\tTesting:', test[0],
+            prints('\tTesting:', test[0], end=' ')
             res = parser.parseString(test[0])
             if list(res.get(result, None)) == test[1]:
                 print 'OK'
@@ -134,7 +134,7 @@ class SearchQueryParser(object):
         for l in standard_locations:
             location |= l
         location     = Optional(location, default='all')
-        word_query   = CharsNotIn(string.whitespace + '()')
+        word_query   = CharsNotIn(u'\t\r\n\u00a0 ' + u'()')
         #quoted_query = Suppress('"')+CharsNotIn('"')+Suppress('"')
         quoted_query = QuotedString('"', escChar='\\')
         query        = quoted_query | word_query
@@ -617,7 +617,7 @@ class Tester(SearchQueryParser):
     def run_tests(self):
         failed = []
         for query in self.tests.keys():
-            print 'Testing query:', query,
+            prints('Testing query:', query, end=' ')
             res = self.parse(query)
             if res != self.tests[query]:
                 print 'FAILED', 'Expected:', self.tests[query], 'Got:', res

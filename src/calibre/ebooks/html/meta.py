@@ -4,7 +4,6 @@ __copyright__ = '2010, Fabian Grassl <fg@jusmeum.de>'
 __docformat__ = 'restructuredtext en'
 
 
-from calibre.ebooks.oeb.base import namespace, barename, DC11_NS
 
 class EasyMeta(object):
 
@@ -12,6 +11,7 @@ class EasyMeta(object):
         self.meta = meta
 
     def __iter__(self):
+        from calibre.ebooks.oeb.base import namespace, barename, DC11_NS
         meta = self.meta
         for item_name in meta.items:
             for item in meta[item_name]:

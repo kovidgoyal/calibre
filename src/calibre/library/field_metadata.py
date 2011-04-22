@@ -35,7 +35,7 @@ category_icon_map = {
                     'custom:'    : 'column.png',
                     'user:'      : 'tb_folder.png',
                     'search'     : 'search.png',
-                    'identifiers': 'id_card.png'
+                    'identifiers': 'identifiers.png'
             }
 
 

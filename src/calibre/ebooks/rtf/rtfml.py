@@ -14,9 +14,6 @@ import cStringIO
 
 from lxml import etree
 
-from calibre.ebooks.oeb.base import XHTML, XHTML_NS, barename, namespace, \
-    OEB_RASTER_IMAGES
-from calibre.ebooks.oeb.stylizer import Stylizer
 from calibre.ebooks.metadata import authors_to_string
 from calibre.utils.filenames import ascii_text
 from calibre.utils.magick.draw import save_cover_data_to, identify_data
@@ -100,6 +97,8 @@ class RTFMLizer(object):
         return self.mlize_spine()
 
     def mlize_spine(self):
+        from calibre.ebooks.oeb.base import XHTML
+        from calibre.ebooks.oeb.stylizer import Stylizer
         output = self.header()
         if 'titlepage' in self.oeb_book.guide:
             href = self.oeb_book.guide['titlepage'].href
@@ -154,6 +153,8 @@ class RTFMLizer(object):
         return ' }'
 
     def insert_images(self, text):
+        from calibre.ebooks.oeb.base import OEB_RASTER_IMAGES
+
         for item in self.oeb_book.manifest:
             if item.media_type in OEB_RASTER_IMAGES:
                 src = os.path.basename(item.href)
@@ -201,6 +202,8 @@ class RTFMLizer(object):
         return text
 
     def dump_text(self, elem, stylizer, tag_stack=[]):
+        from calibre.ebooks.oeb.base import XHTML_NS, namespace, barename
+
         if not isinstance(elem.tag, basestring) \
            or namespace(elem.tag) != XHTML_NS:
             p = elem.getparent()

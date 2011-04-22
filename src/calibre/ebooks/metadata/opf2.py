@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 lxml based OPF parser.
 '''
 
-import re, sys, unittest, functools, os, mimetypes, uuid, glob, cStringIO, json
+import re, sys, unittest, functools, os, uuid, glob, cStringIO, json
 from urllib import unquote
 from urlparse import urlparse
 
@@ -20,7 +20,7 @@ from calibre.ebooks.metadata import string_to_authors, MetaInformation, check_is
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.utils.date import parse_date, isoformat
 from calibre.utils.localization import get_lang
-from calibre import prints
+from calibre import prints, guess_type
 from calibre.utils.cleantext import clean_ascii_chars
 
 class Resource(object): # {{{
@@ -42,7 +42,7 @@ class Resource(object): # {{{
         self.path = None
         self.fragment = ''
         try:
-            self.mime_type = mimetypes.guess_type(href_or_path)[0]
+            self.mime_type = guess_type(href_or_path)[0]
         except:
             self.mime_type = None
         if self.mime_type is None:
@@ -1000,7 +1000,7 @@ class OPF(object): # {{{
                 for t in ('cover', 'other.ms-coverimage-standard', 'other.ms-coverimage'):
                     for item in self.guide:
                         if item.type.lower() == t:
-                            self.create_manifest_item(item.href(), mimetypes.guess_type(path)[0])
+                            self.create_manifest_item(item.href(), guess_type(path)[0])
 
         return property(fget=fget, fset=fset)
 

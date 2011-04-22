@@ -17,6 +17,10 @@ class SearchRestrictionMixin(object):
         self.search_restriction.setMinimumContentsLength(10)
         self.search_restriction.setStatusTip(self.search_restriction.toolTip())
         self.search_count.setText(_("(all books)"))
+        self.search_restriction_tooltip = \
+            _('Books display will be restricted to those matching a '
+              'selected saved search')
+        self.search_restriction.setToolTip(self.search_restriction_tooltip)
 
     def apply_named_search_restriction(self, name):
         if not name:
@@ -30,29 +34,38 @@ class SearchRestrictionMixin(object):
             self.apply_search_restriction(r)
 
     def apply_text_search_restriction(self, search):
+        search = unicode(search)
         if not search:
-            self.search_restriction.setItemText(1, _('*Current search'))
             self.search_restriction.setCurrentIndex(0)
         else:
-            self.search_restriction.setCurrentIndex(1)
-            self.search_restriction.setItemText(1, search)
+            s = '*' + search
+            if self.search_restriction.count() > 1:
+                txt = unicode(self.search_restriction.itemText(2))
+                if txt.startswith('*'):
+                    self.search_restriction.setItemText(2, s)
+                else:
+                    self.search_restriction.insertItem(2, s)
+            else:
+                self.search_restriction.insertItem(2, s)
+            self.search_restriction.setCurrentIndex(2)
+            self.search_restriction.setToolTip('<p>' +
+                    self.search_restriction_tooltip +
+                     _(' or the search ') + "'" + search + "'</p>")
             self._apply_search_restriction(search)
 
     def apply_search_restriction(self, i):
-        self.search_restriction.setItemText(1, _('*Current search'))
         if i == 1:
-            restriction = unicode(self.search.currentText())
-            if not restriction:
-                self.search_restriction.setCurrentIndex(0)
-            else:
-                self.search_restriction.setItemText(1, restriction)
+            self.apply_text_search_restriction(unicode(self.search.currentText()))
+        elif i == 2 and unicode(self.search_restriction.currentText()).startswith('*'):
+            self.apply_text_search_restriction(
+                                unicode(self.search_restriction.currentText())[1:])
         else:
             r = unicode(self.search_restriction.currentText())
             if r is not None and r != '':
                 restriction = 'search:"%s"'%(r)
             else:
                 restriction = ''
-        self._apply_search_restriction(restriction)
+            self._apply_search_restriction(restriction)
 
     def _apply_search_restriction(self, restriction):
         self.saved_search.clear()
