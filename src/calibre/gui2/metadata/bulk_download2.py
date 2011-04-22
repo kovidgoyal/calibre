@@ -290,7 +290,7 @@ def apply_metadata(job, gui, q, result):
                     'Do you want to proceed?'), det_msg='\n'.join(modified)):
             return
 
-    do_apply_metadata(gui, id_map)
+    gui.iactions['Edit Metadata'].apply_metadata_changes(id_map)
 
 def proceed(gui, job):
     gui.status_bar.show_message(_('Metadata download completed'), 3000)

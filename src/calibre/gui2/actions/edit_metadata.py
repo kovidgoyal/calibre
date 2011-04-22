@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 import os
 from functools import partial
 
-from PyQt4.Qt import Qt, QMenu, QModelIndex
+from PyQt4.Qt import Qt, QMenu, QModelIndex, QTimer
 
 from calibre.gui2 import error_dialog, config, Dispatcher
 from calibre.gui2.dialogs.metadata_single import MetadataSingleDialog
@@ -16,6 +16,7 @@ from calibre.gui2.dialogs.metadata_bulk import MetadataBulkDialog
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.tag_list_editor import TagListEditor
 from calibre.gui2.actions import InterfaceAction
+from calibre.ebooks.metadata import authors_to_string
 from calibre.utils.icu import sort_key
 from calibre.utils.config import test_eight_code
 
@@ -466,4 +467,62 @@ class EditMetadataAction(InterfaceAction):
             self.gui.upload_collections(model.db, view=view, oncard=oncard)
             view.reset()
 
+    def apply_metadata_changes(self, id_map):
+        self.apply_id_map = list(id_map.iteritems())
+        self.apply_current_idx = 0
+        self.apply_failures = []
+        self.applied_ids = []
+        self.do_one_apply()
+
+    def do_one_apply(self):
+        if self.apply_current_idx >= len(self.apply_id_map):
+            return self.finalize_apply()
+
+        i, mi = self.apply_id_map[self.apply_current_idx]
+        db = self.gui.current_db
+        try:
+            set_title = not mi.is_null('title')
+            set_authors = not mi.is_null('authors')
+            db.set_metadata(i, mi, commit=False, set_title=set_title,
+                    set_authors=set_authors)
+            self.applied_ids.append(i)
+        except:
+            import traceback
+            self.apply_failures.append((i, traceback.format_exc()))
+
+        try:
+            if mi.cover:
+                os.remove(mi.cover)
+        except:
+            pass
+
+        self.apply_current_idx += 1
+        QTimer.singleShot(50, self.do_one_apply)
+
+    def finalize_apply(self):
+        db = self.gui.current_db
+        db.commit()
+
+        if self.apply_failures:
+            msg = []
+            for i, tb in self.apply_failures:
+                title = db.title(i, index_is_id=True)
+                authors = db.authors(i, index_is_id=True)
+                if authors:
+                    authors = [x.replace('|', ',') for x in authors.split(',')]
+                    title += ' - ' + authors_to_string(authors)
+                msg.append(title+'\n\n'+tb+'\n'+('*'*80))
+
+            error_dialog(self.gui, _('Some failures'),
+                _('Failed to apply updated metadata for some books'
+                    ' in your library. Click "Show Details" to see '
+                    'details.'), det_msg='\n\n'.join(msg), show=True)
+        if self.applied_ids:
+            cr = self.gui.library_view.currentIndex().row()
+            self.gui.library_view.model().refresh_ids(
+                self.applied_ids, cr)
+            if self.gui.cover_flow:
+                self.gui.cover_flow.dataChanged()
+
+        self.apply_id_map = []
 
