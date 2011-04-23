@@ -31,6 +31,13 @@
       </widget>
      </item>
      <item>
+      <widget class="QToolButton" name="adv_search_button">
+       <property name="text">
+        <string>...</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QLineEdit" name="search_edit"/>
      </item>
      <item>

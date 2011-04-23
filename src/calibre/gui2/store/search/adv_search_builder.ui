@@ -1,0 +1,364 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Dialog</class>
+ <widget class="QDialog" name="Dialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>752</width>
+    <height>472</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Advanced Search</string>
+  </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>:/images/search.png</normaloff>:/images/search.png</iconset>
+  </property>
+  <layout class="QGridLayout" name="gridLayout_2">
+   <item row="0" column="0">
+    <widget class="QLabel" name="label_5">
+     <property name="text">
+      <string>&amp;What kind of match to use:</string>
+     </property>
+     <property name="buddy">
+      <cstring>matchkind</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <widget class="QComboBox" name="matchkind">
+     <item>
+      <property name="text">
+       <string>Contains: the word or phrase matches anywhere in the metadata field</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Equals: the word or phrase must match the entire metadata field</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Regular expression: the expression must match anywhere in the metadata field</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="2" column="0" colspan="2">
+    <widget class="QTabWidget" name="tabWidget">
+     <property name="currentIndex">
+      <number>1</number>
+     </property>
+     <widget class="QWidget" name="tab">
+      <attribute name="title">
+       <string>A&amp;dvanced Search</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_3">
+       <item row="0" column="0">
+        <widget class="QGroupBox" name="groupBox">
+         <property name="title">
+          <string>Find entries that have...</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout">
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout">
+            <item>
+             <widget class="QLabel" name="label">
+              <property name="text">
+               <string>&amp;All these words:</string>
+              </property>
+              <property name="buddy">
+               <cstring>all</cstring>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="all"/>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_2">
+            <item>
+             <widget class="QLabel" name="label_2">
+              <property name="text">
+               <string>This exact &amp;phrase:</string>
+              </property>
+              <property name="buddy">
+               <cstring>all</cstring>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="phrase"/>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_3">
+            <item>
+             <widget class="QLabel" name="label_3">
+              <property name="text">
+               <string>&amp;One or more of these words:</string>
+              </property>
+              <property name="buddy">
+               <cstring>all</cstring>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="any"/>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QGroupBox" name="groupBox_2">
+         <property name="title">
+          <string>But dont show entries that have...</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_2">
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_4">
+            <item>
+             <widget class="QLabel" name="label_4">
+              <property name="text">
+               <string>Any of these &amp;unwanted words:</string>
+              </property>
+              <property name="buddy">
+               <cstring>all</cstring>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="none"/>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_6">
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>See the &lt;a href=&quot;http://calibre-ebook.com/user_manual/gui.html#the-search-interface&quot;&gt;User Manual&lt;/a&gt; for more help</string>
+            </property>
+            <property name="openExternalLinks">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <spacer name="verticalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="3" column="0">
+        <widget class="QDialogButtonBox" name="buttonBox">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="standardButtons">
+          <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_2">
+      <attribute name="title">
+       <string>Titl&amp;e/Author/Price ...</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout">
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_7">
+         <property name="text">
+          <string>&amp;Title:</string>
+         </property>
+         <property name="buddy">
+          <cstring>title_box</cstring>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="EnLineEdit" name="title_box">
+         <property name="toolTip">
+          <string>Enter the title.</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_8">
+         <property name="text">
+          <string>&amp;Author:</string>
+         </property>
+         <property name="buddy">
+          <cstring>author_box</cstring>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QLabel" name="label_9">
+         <property name="text">
+          <string>&amp;Price:</string>
+         </property>
+         <property name="buddy">
+          <cstring>price_box</cstring>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="0" colspan="2">
+        <layout class="QHBoxLayout" name="horizontalLayout_6">
+         <item>
+          <widget class="QPushButton" name="clear_button">
+           <property name="text">
+            <string>&amp;Clear</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QDialogButtonBox" name="tab_2_button_box">
+           <property name="standardButtons">
+            <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="5" column="1">
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="0" column="0" colspan="2">
+        <widget class="QLabel" name="label_11">
+         <property name="text">
+          <string>Search only in specific fields:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="EnLineEdit" name="author_box"/>
+       </item>
+       <item row="4" column="1">
+        <widget class="QLineEdit" name="format_box"/>
+       </item>
+       <item row="4" column="0">
+        <widget class="QLabel" name="label_10">
+         <property name="text">
+          <string>&amp;Format:</string>
+         </property>
+         <property name="buddy">
+          <cstring>format_box</cstring>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="EnLineEdit" name="price_box"/>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <spacer name="verticalSpacer_3">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>EnLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>widgets.h</header>
+  </customwidget>
+ </customwidgets>
+ <tabstops>
+  <tabstop>all</tabstop>
+  <tabstop>phrase</tabstop>
+  <tabstop>any</tabstop>
+  <tabstop>none</tabstop>
+  <tabstop>buttonBox</tabstop>
+  <tabstop>title_box</tabstop>
+  <tabstop>author_box</tabstop>
+  <tabstop>price_box</tabstop>
+  <tabstop>format_box</tabstop>
+  <tabstop>clear_button</tabstop>
+  <tabstop>tab_2_button_box</tabstop>
+  <tabstop>tabWidget</tabstop>
+  <tabstop>matchkind</tabstop>
+ </tabstops>
+ <resources>
+  <include location="../../../../resources/images.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>Dialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>248</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>Dialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>316</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

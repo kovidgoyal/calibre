@@ -9,10 +9,11 @@ __docformat__ = 'restructuredtext en'
 import re
 from random import shuffle
 
-from PyQt4.Qt import (Qt, QDialog, QTimer, QCheckBox, QVBoxLayout) 
+from PyQt4.Qt import (Qt, QDialog, QTimer, QCheckBox, QVBoxLayout, QIcon) 
 
 from calibre.gui2 import JSONConfig, info_dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
+from calibre.gui2.store.search.adv_search_builder import AdvSearchBuilderDialog
 from calibre.gui2.store.search.download_thread import SearchThreadPool
 from calibre.gui2.store.search.search_ui import Ui_Dialog
 
@@ -50,7 +51,10 @@ class SearchDialog(QDialog, Ui_Dialog):
         # Create and add the progress indicator
         self.pi = ProgressIndicator(self, 24)
         self.top_layout.addWidget(self.pi)
+        
+        self.adv_search_button.setIcon(QIcon(I('search.png')))
 
+        self.adv_search_button.clicked.connect(self.build_adv_search)
         self.search.clicked.connect(self.do_search)
         self.checker.timeout.connect(self.get_results)
         self.progress_checker.timeout.connect(self.check_progress)
@@ -63,6 +67,11 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.progress_checker.start(100)
 
         self.restore_state()
+
+    def build_adv_search(self):
+        adv = AdvSearchBuilderDialog(self)
+        if adv.exec_() == QDialog.Accepted:
+            self.search_edit.setText(adv.search_string())
 
     def resize_columns(self):
         total = 600
