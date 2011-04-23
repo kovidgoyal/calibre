@@ -229,7 +229,7 @@ class OverDrive(Source):
                 if int(m.group('displayrecords')) >= 1:
                     results = True
                 elif int(m.group('totalrecords')) >= 1:
-                    if int(m.group('totalrecords')) >= 500:
+                    if int(m.group('totalrecords')) >= 100:
                         if xref_q.find('+') != -1:
                             xref_tokens = xref_q.split('+')
                             xref_q = xref_tokens[0]
