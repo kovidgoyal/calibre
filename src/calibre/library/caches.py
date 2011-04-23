@@ -556,7 +556,7 @@ class ResultCache(SearchQueryParser): # {{{
         return matchkind, query
 
     def get_bool_matches(self, location, query, candidates):
-        bools_are_tristate = not self.db_prefs.get('bools_are_tristate')
+        bools_are_tristate = self.db_prefs.get('bools_are_tristate')
         loc = self.field_metadata[location]['rec_index']
         matches = set()
         query = icu_lower(query)
@@ -1005,9 +1005,9 @@ class SortKeyGenerator(object):
                 if sb == 'date':
                     try:
                         val = parse_date(val)
-                        dt = 'datetime'
                     except:
-                        pass
+                        val = UNDEFINED_DATE
+                    dt = 'datetime'
                 elif sb == 'number':
                     try:
                         val = float(val)
