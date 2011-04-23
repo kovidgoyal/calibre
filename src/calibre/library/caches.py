@@ -630,8 +630,11 @@ class ResultCache(SearchQueryParser): # {{{
                         terms.add(l)
                 if terms:
                     for l in terms:
-                        matches |= self.get_matches(l, query,
-                            candidates=candidates, allow_recursion=allow_recursion)
+                        try:
+                            matches |= self.get_matches(l, query,
+                                candidates=candidates, allow_recursion=allow_recursion)
+                        except:
+                            pass
                     return matches
 
             if location in self.field_metadata:
