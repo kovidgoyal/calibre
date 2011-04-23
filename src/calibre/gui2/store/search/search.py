@@ -214,7 +214,8 @@ class SearchDialog(QDialog, Ui_Dialog):
         if not self.search_pool.threads_running() and not self.results_view.model().cover_pool.threads_running() and not self.results_view.model().details_pool.threads_running(): 
             self.pi.stopAnimation()
         else:
-            self.pi.startAnimation()
+            if not self.pi.isAnimated():
+                self.pi.startAnimation()
 
     def get_store_checks(self):
         '''
