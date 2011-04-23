@@ -592,7 +592,7 @@ class Metadata(object):
             elif datatype == 'bool':
                 res = _('Yes') if res else _('No')
             elif datatype == 'rating':
-                res = res/2
+                res = res/2.0
             return (name, unicode(res), orig_res, cmeta)
 
         # convert top-level ids into their value
@@ -626,7 +626,7 @@ class Metadata(object):
             elif datatype == 'datetime':
                 res = format_date(res, fmeta['display'].get('date_format','dd MMM yyyy'))
             elif datatype == 'rating':
-                res = res/2
+                res = res/2.0
             return (name, unicode(res), orig_res, fmeta)
 
         return (None, None, None, None)

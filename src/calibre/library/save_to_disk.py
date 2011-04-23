@@ -14,7 +14,6 @@ from calibre.utils.formatter import TemplateFormatter
 from calibre.utils.filenames import shorten_components_to, supports_long_names, \
                                     ascii_filename
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
-from calibre.ebooks.metadata.meta import set_metadata
 from calibre.constants import preferred_encoding
 from calibre.ebooks.metadata import fmt_sidx
 from calibre.ebooks.metadata import title_sort
@@ -251,6 +250,7 @@ def save_book_to_disk(id_, db, root, opts, length):
 
 def do_save_book_to_disk(id_, mi, cover, plugboards,
         format_map, root, opts, length):
+    from calibre.ebooks.metadata.meta import set_metadata
     available_formats = [x.lower().strip() for x in format_map.keys()]
     if opts.formats == 'all':
         asked_formats = available_formats

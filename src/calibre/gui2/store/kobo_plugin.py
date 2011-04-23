@@ -24,8 +24,6 @@ from calibre.gui2.store.web_store_dialog import WebStoreDialog
 class KoboStore(BasicStoreConfig, StorePlugin):
 
     def open(self, parent=None, detail_item=None, external=False):
-        settings = self.get_settings()
-
         m_url = 'http://www.dpbolvw.net/'
         h_click = 'click-4879827-10762497'
         d_click = 'click-4879827-10772898'
@@ -39,12 +37,12 @@ class KoboStore(BasicStoreConfig, StorePlugin):
         if detail_item:
             detail_url = m_url + d_click + detail_item
 
-        if external or settings.get(self.name + '_open_external', False):
+        if external or self.config.get('open_external', False):
             open_url(QUrl(url_slash_cleaner(detail_url if detail_url else url)))
         else:
             d = WebStoreDialog(self.gui, url, parent, detail_url)
             d.setWindowTitle(self.name)
-            d.set_tags(settings.get(self.name + '_tags', ''))
+            d.set_tags(self.config.get('tags', ''))
             d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
@@ -63,7 +61,7 @@ class KoboStore(BasicStoreConfig, StorePlugin):
                 if not id:
                     continue
 
-                price = ''.join(data.xpath('.//span[@class="SCOurPrice"]/strong/text()'))
+                price = ''.join(data.xpath('.//li[@class="OurPrice"]/strong/text()'))
                 if not price:
                     price = '$0.00'
                 
@@ -71,6 +69,7 @@ class KoboStore(BasicStoreConfig, StorePlugin):
                 
                 title = ''.join(data.xpath('.//div[@class="SCItemHeader"]/h1/a[1]/text()'))
                 author = ''.join(data.xpath('.//div[@class="SCItemSummary"]/span/a[1]/text()'))
+                drm = data.xpath('boolean(.//span[@class="SCAvailibilityFormatsText" and contains(text(), "DRM")])')
 
                 counter -= 1
                 
@@ -80,5 +79,7 @@ class KoboStore(BasicStoreConfig, StorePlugin):
                 s.author = author.strip()
                 s.price = price.strip()
                 s.detail_item = '?url=http://www.kobobooks.com/' + id.strip()
+                s.drm = SearchResult.DRM_LOCKED if drm else SearchResult.DRM_UNLOCKED
+                s.formats = 'EPUB'
                 
                 yield s

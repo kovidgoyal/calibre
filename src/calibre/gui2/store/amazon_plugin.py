@@ -154,6 +154,13 @@ class AmazonKindleStore(StorePlugin):
                     cover_img = data.xpath('//div[@class="productImage"]/a[@href="%s"]/img/@src' % asin_href)
                     if cover_img:
                         cover_url = cover_img[0]
+                        parts = cover_url.split('/')
+                        bn = parts[-1]
+                        f, _, ext = bn.rpartition('.')
+                        if '_' in f:
+                            bn = f.partition('_')[0]+'_SL160_.'+ext
+                            parts[-1] = bn
+                            cover_url = '/'.join(parts)
 
                 title = ''.join(data.xpath('div[@class="productTitle"]/a/text()'))
                 author = ''.join(data.xpath('div[@class="productTitle"]/span[@class="ptBrand"]/text()'))
@@ -168,5 +175,23 @@ class AmazonKindleStore(StorePlugin):
                 s.author = author.strip()
                 s.price = price.strip()
                 s.detail_item = asin.strip()
+                s.formats = 'Kindle'
 
                 yield s
+
+    def get_details(self, search_result, timeout):
+        url = 'http://amazon.com/dp/'
+
+        br = browser()
+        with closing(br.open(url + search_result.detail_item, timeout=timeout)) as nf:
+            idata = html.fromstring(nf.read())
+            if idata.xpath('boolean(//div[@class="content"]//li/b[contains(text(), "Simultaneous Device Usage")])'):
+                if idata.xpath('boolean(//div[@class="content"]//li[contains(., "Unlimited") and contains(b, "Simultaneous Device Usage")])'):
+                    search_result.drm = SearchResult.DRM_UNLOCKED
+                else:
+                    search_result.drm = SearchResult.DRM_UNKNOWN
+            else:
+                search_result.drm = SearchResult.DRM_LOCKED
+        return True
+
+

@@ -25,7 +25,6 @@ from calibre.devices.errors import FreeSpaceError
 from calibre.devices.apple.driver import ITUNES_ASYNC
 from calibre.devices.folder_device.driver import FOLDER_DEVICE
 from calibre.devices.bambook.driver import BAMBOOK, BAMBOOKWifi
-from calibre.ebooks.metadata.meta import set_metadata
 from calibre.constants import DEBUG
 from calibre.utils.config import prefs, tweaks
 from calibre.utils.magick.draw import thumbnail
@@ -334,6 +333,7 @@ class DeviceManager(Thread): # {{{
 
     def _upload_books(self, files, names, on_card=None, metadata=None, plugboards=None):
         '''Upload books to device: '''
+        from calibre.ebooks.metadata.meta import set_metadata
         if hasattr(self.connected_device, 'set_plugboards') and \
                 callable(self.connected_device.set_plugboards):
             self.connected_device.set_plugboards(plugboards, find_plugboard)
@@ -591,11 +591,16 @@ class DeviceSignals(QObject):
     #: This signal is emitted once, after metadata is downloaded from the
     #: connected device.
     #: The sequence: gui.device_manager.is_device_connected will become True,
+    #: and the device_connection_changed signal will be emitted,
     #: then sometime later gui.device_metadata_available will be signaled.
     #: This does not mean that there are no more jobs running. Automatic metadata
     #: management might have kicked off a sync_booklists to write new metadata onto
     #: the device, and that job might still be running when the signal is emitted.
     device_metadata_available = pyqtSignal()
+
+    #: This signal is emitted once when the device is detected and once when
+    #: it is disconnected. If the parameter is True, then it is a connection,
+    #: otherwise a disconnection.
     device_connection_changed = pyqtSignal(object)
 
 device_signals = DeviceSignals()

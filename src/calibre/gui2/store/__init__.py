@@ -46,9 +46,12 @@ class StorePlugin(object): # {{{
     '''
 
     def __init__(self, gui, name):
+        from calibre.gui2 import JSONConfig
+        
         self.gui = gui
         self.name = name
         self.base_plugin = None
+        self.config = JSONConfig('store/stores/' + self.name)
 
     def open(self, gui, parent=None, detail_item=None, external=False):
         '''
@@ -76,10 +79,16 @@ class StorePlugin(object): # {{{
         return items as a generator.
 
         Don't be lazy with the search! Load as much data as possible in the
-        :class:`calibre.gui2.store.search_result.SearchResult` object. If you have to parse
-        multiple pages to get all of the data then do so. However, if data (such as cover_url)
+        :class:`calibre.gui2.store.search_result.SearchResult` object. 
+        However, if data (such as cover_url)
         isn't available because the store does not display cover images then it's okay to
         ignore it.
+        
+        At the very least a :class:`calibre.gui2.store.search_result.SearchResult`
+        returned by this function must have the title, author and id.
+        
+        If you have to parse multiple pages to get all of the data then implement
+        :meth:`get_deatils` for retrieving additional information.
 
         Also, by default search results can only include ebooks. A plugin can offer users
         an option to include physical books in the search results but this must be
@@ -90,12 +99,33 @@ class StorePlugin(object): # {{{
 
         :param query: The string query search with.
         :param max_results: The maximum number of results to return.
-        :param timeout: The maximum amount of time in seconds to spend download the search results.
+        :param timeout: The maximum amount of time in seconds to spend downloading data for search results.
 
         :return: :class:`calibre.gui2.store.search_result.SearchResult` objects
         item_data is plugin specific and is used in :meth:`open` to open to a specifc place in the store.
         '''
         raise NotImplementedError()
+    
+    def get_details(self, search_result, timeout=60):
+        '''
+        Delayed search for information about specific search items.
+        
+        Typically, this will be used when certain information such as
+        formats, drm status, cover url are not part of the main search
+        results and the information is on another web page.
+        
+        Using this function allows for the main information (title, author)
+        to be displayed in the search results while other information can
+        take extra time to load. Splitting retrieving data that takes longer
+        to load into a separate function will give the illusion of the search
+        being faster.
+        
+        :param search_result: A search result that need details set.
+        :param timeout: The maximum amount of time in seconds to spend downloading details.
+        
+        :return: True if the search_result was modified otherwise False
+        '''
+        return False
 
     def get_settings(self):
         '''

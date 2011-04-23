@@ -24,7 +24,6 @@ from calibre.gui2.store.web_store_dialog import WebStoreDialog
 class DieselEbooksStore(BasicStoreConfig, StorePlugin):
         
     def open(self, parent=None, detail_item=None, external=False):
-        settings = self.get_settings()
         url = 'http://www.diesel-ebooks.com/'
 
         aff_id = '?aid=2049'
@@ -37,12 +36,12 @@ class DieselEbooksStore(BasicStoreConfig, StorePlugin):
             detail_url = url + detail_item + aff_id
         url = url + aff_id
 
-        if external or settings.get(self.name + '_open_external', False):
+        if external or self.config.get('open_external', False):
             open_url(QUrl(url_slash_cleaner(detail_url if detail_url else url)))
         else:
             d = WebStoreDialog(self.gui, url, parent, detail_url)
             d.setWindowTitle(self.name)
-            d.set_tags(settings.get(self.name + '_tags', ''))
+            d.set_tags(self.config.get('tags', ''))
             d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
@@ -75,6 +74,8 @@ class DieselEbooksStore(BasicStoreConfig, StorePlugin):
                 if price_elem:
                     price = price_elem[0]
 
+                formats = ', '.join(data.xpath('.//td[@class="format"]/text()'))
+
                 counter -= 1
                 
                 s = SearchResult()
@@ -83,5 +84,18 @@ class DieselEbooksStore(BasicStoreConfig, StorePlugin):
                 s.author = author.strip()
                 s.price = price.strip()
                 s.detail_item = '/item/' + id.strip()
+                s.formats = formats
                 
                 yield s
+
+    def get_details(self, search_result, timeout):
+        url = 'http://www.diesel-ebooks.com/item/'
+        
+        br = browser()
+        with closing(br.open(url + search_result.detail_item, timeout=timeout)) as nf:
+            idata = html.fromstring(nf.read())
+            if idata.xpath('boolean(//table[@class="format-info"]//tr[contains(th, "DRM") and contains(td, "No")])'):
+                search_result.drm = SearchResult.DRM_UNLOCKED
+            else:
+                search_result.drm = SearchResult.DRM_LOCKED
+        return True
