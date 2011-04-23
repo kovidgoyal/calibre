@@ -412,7 +412,7 @@ def identify(log, abort, # {{{
 
     if msprefs['txt_comments']:
         for r in results:
-            if r.plugin.has_html_comments and r.comments:
+            if r.identify_plugin.has_html_comments and r.comments:
                 r.comments = html2text(r.comments)
 
     max_tags = msprefs['max_tags']
