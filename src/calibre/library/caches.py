@@ -1005,9 +1005,9 @@ class SortKeyGenerator(object):
                 if sb == 'date':
                     try:
                         val = parse_date(val)
-                        dt = 'datetime'
                     except:
-                        pass
+                        val = UNDEFINED_DATE
+                    dt = 'datetime'
                 elif sb == 'number':
                     try:
                         val = float(val)
