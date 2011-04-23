@@ -10,12 +10,13 @@ import difflib
 import heapq
 import time
 from contextlib import closing
+from operator import attrgetter
 from threading import RLock
 
 from lxml import html
 
 from PyQt4.Qt import Qt, QUrl, QDialog, QAbstractItemModel, QModelIndex, QVariant, \
-    pyqtSignal
+    pyqtSignal, QIcon
 
 from calibre import browser
 from calibre.gui2 import open_url, NONE
@@ -24,7 +25,11 @@ from calibre.gui2.store.basic_config import BasicStoreConfig
 from calibre.gui2.store.mobileread_store_dialog_ui import Ui_Dialog
 from calibre.gui2.store.search_result import SearchResult
 from calibre.gui2.store.web_store_dialog import WebStoreDialog
+from calibre.gui2.store.search.adv_search_builder import AdvSearchBuilderDialog
+from calibre.library.caches import _match, CONTAINS_MATCH, EQUALS_MATCH, \
+    REGEXP_MATCH
 from calibre.utils.icu import sort_key
+from calibre.utils.search_query_parser import SearchQueryParser
 
 class MobileReadStore(BasicStoreConfig, StorePlugin):
     
@@ -50,28 +55,10 @@ class MobileReadStore(BasicStoreConfig, StorePlugin):
     def search(self, query, max_results=10, timeout=60):
         books = self.get_book_list(timeout=timeout)
 
-        query = query.lower()
-        query_parts = query.split(' ')
-        matches = []
-        s = difflib.SequenceMatcher()
-        for x in books:
-            ratio = 0
-            t_string = '%s %s' % (x.author.lower(), x.title.lower())
-            query_matches = []
-            for q in query_parts:
-                if q in t_string:
-                    query_matches.append(q)
-            for q in query_matches:
-                s.set_seq2(q)
-                for p in t_string.split(' '):
-                    s.set_seq1(p)
-                    ratio += s.ratio()
-            if ratio > 0:
-                matches.append((ratio, x))
-        
-        # Move the best scorers to head of list.
-        matches = heapq.nlargest(max_results, matches)
-        for score, book in matches:
+        sf = SearchFilter(books)
+        matches = sf.parse(query)
+
+        for book in matches:
             book.price = '$0.00'
             book.drm = SearchResult.DRM_UNLOCKED
             yield book
@@ -153,22 +140,37 @@ class MobeReadStoreDialog(QDialog, Ui_Dialog):
 
         self.plugin = plugin
         
-        self.model = BooksModel()
-        self.results_view.setModel(self.model)
-        self.results_view.model().set_books(self.plugin.get_book_list())
-        self.total.setText('%s' % self.model.rowCount())
+        self.adv_search_button.setIcon(QIcon(I('search.png')))
+        
+        self._model = BooksModel(self.plugin.get_book_list())
+        self.results_view.setModel(self._model)
+        self.total.setText('%s' % self.results_view.model().rowCount())
 
+        self.search_button.clicked.connect(self.do_search)
+        self.adv_search_button.clicked.connect(self.build_adv_search)
         self.results_view.activated.connect(self.open_store)
-        self.search_query.textChanged.connect(self.model.set_filter)
-        self.results_view.model().total_changed.connect(self.total.setText)
+        self.results_view.model().total_changed.connect(self.update_book_total)
         self.finished.connect(self.dialog_closed)
         
         self.restore_state()
+        
+    def do_search(self):
+        self.results_view.model().search(unicode(self.search_query.text()))
         
     def open_store(self, index):
         result = self.results_view.model().get_book(index)
         if result:
             self.plugin.open(self, result.detail_item)
+    
+    def update_book_total(self, total):
+        self.total.setText('%s' % total)
+    
+    def build_adv_search(self):
+        adv = AdvSearchBuilderDialog(self)
+        adv.price_label.hide()
+        adv.price_box.hide()
+        if adv.exec_() == QDialog.Accepted:
+            self.search_query.setText(adv.search_string())
     
     def restore_state(self):
         geometry = self.plugin.config.get('dialog_geometry', None)
@@ -192,7 +194,7 @@ class MobeReadStoreDialog(QDialog, Ui_Dialog):
 
     def save_state(self):
         self.plugin.config['dialog_geometry'] = bytearray(self.saveGeometry())
-        self.plugin.config['dialog_results_view_column_width'] = [self.results_view.columnWidth(i) for i in range(self.model.columnCount())]
+        self.plugin.config['dialog_results_view_column_width'] = [self.results_view.columnWidth(i) for i in range(self.results_view.model().columnCount())]
         self.plugin.config['dialog_sort_col'] = self.results_view.model().sort_col
         self.plugin.config['dialog_sort_order'] = self.results_view.model().sort_order
 
@@ -202,23 +204,18 @@ class MobeReadStoreDialog(QDialog, Ui_Dialog):
 
 class BooksModel(QAbstractItemModel):
     
-    total_changed = pyqtSignal(unicode)
+    total_changed = pyqtSignal(int)
 
     HEADERS = [_('Title'), _('Author(s)'), _('Format')]
 
-    def __init__(self):
+    def __init__(self, all_books):
         QAbstractItemModel.__init__(self)
-        self.books = []
-        self.all_books = []
+        self.books = all_books
+        self.all_books = all_books
         self.filter = ''
+        self.search_filter = SearchFilter(all_books)
         self.sort_col = 0
         self.sort_order = Qt.AscendingOrder
-
-    def set_books(self, books):
-        self.books = books
-        self.all_books = books
-        
-        self.sort(self.sort_col, self.sort_order)
 
     def get_book(self, index):
         row = index.row()
@@ -227,32 +224,17 @@ class BooksModel(QAbstractItemModel):
         else:
             return None
     
-    def set_filter(self, filter):
-        #self.layoutAboutToBeChanged.emit()
-        self.beginResetModel()
-        
-        self.filter = unicode(filter)
-        self.books = []
-        if self.filter:
-            for b in self.all_books:
-                test = '%s %s %s' % (b.title, b.author, b.formats)
-                test = test.lower()
-                include = True
-                for item in self.filter.split(' '):
-                    item = item.lower()
-                    if item not in test:
-                        include = False
-                        break
-                if include:
-                    self.books.append(b)
-        else:
+    def search(self, filter):        
+        self.filter = filter.strip()
+        if not self.filter:
             self.books = self.all_books
-
-        self.sort(self.sort_col, self.sort_order, reset=False)
-        self.total_changed.emit('%s' % self.rowCount())
-
-        self.endResetModel()
-        #self.layoutChanged.emit()
+        else:
+            try:
+                self.books = list(self.search_filter.parse(self.filter))
+            except:
+                self.books = self.all_books
+        self.sort(self.sort_col, self.sort_order)
+        self.total_changed.emit(self.rowCount())
     
     def index(self, row, column, parent=QModelIndex()):
         return self.createIndex(row, column)
@@ -304,13 +286,91 @@ class BooksModel(QAbstractItemModel):
     def sort(self, col, order, reset=True):
         self.sort_col = col
         self.sort_order = order
-
         if not self.books:
             return
-        descending = order == Qt.DescendingOrder       
+        descending = order == Qt.DescendingOrder
         self.books.sort(None,
             lambda x: sort_key(unicode(self.data_as_text(x, col))),
             descending)
         if reset:
             self.reset()
 
+
+class SearchFilter(SearchQueryParser):
+    
+    USABLE_LOCATIONS = [
+        'all',
+        'author',
+        'authors',
+        'format',
+        'formats',
+        'title',
+    ]
+
+    def __init__(self, all_books=[]):
+        SearchQueryParser.__init__(self, locations=self.USABLE_LOCATIONS)
+        self.srs = set(all_books)
+
+    def universal_set(self):
+        return self.srs
+
+    def get_matches(self, location, query):
+        location = location.lower().strip()
+        if location == 'authors':
+            location = 'author'
+        elif location == 'formats':
+            location = 'format'
+
+        matchkind = CONTAINS_MATCH
+        if len(query) > 1:
+            if query.startswith('\\'):
+                query = query[1:]
+            elif query.startswith('='):
+                matchkind = EQUALS_MATCH
+                query = query[1:]
+            elif query.startswith('~'):
+                matchkind = REGEXP_MATCH
+                query = query[1:]
+        if matchkind != REGEXP_MATCH: ### leave case in regexps because it can be significant e.g. \S \W \D
+            query = query.lower()
+
+        if location not in self.USABLE_LOCATIONS:
+            return set([])
+        matches = set([])
+        all_locs = set(self.USABLE_LOCATIONS) - set(['all'])
+        locations = all_locs if location == 'all' else [location]
+        q = {
+             'author': lambda x: x.author.lower(),
+             'format': attrgetter('formats'),
+             'title': lambda x: x.title.lower(),
+        }
+        for x in ('author', 'format'):
+            q[x+'s'] = q[x]
+        for sr in self.srs:
+            for locvalue in locations:
+                accessor = q[locvalue]
+                if query == 'true':
+                    if accessor(sr) is not None:
+                        matches.add(sr)
+                    continue
+                if query == 'false':
+                    if accessor(sr) is None:
+                        matches.add(sr)
+                    continue
+                try:
+                    ### Can't separate authors because comma is used for name sep and author sep
+                    ### Exact match might not get what you want. For that reason, turn author
+                    ### exactmatch searches into contains searches.
+                    if locvalue == 'author' and matchkind == EQUALS_MATCH:
+                        m = CONTAINS_MATCH
+                    else:
+                        m = matchkind
+
+                    vals = [accessor(sr)]
+                    if _match(query, vals, m):
+                        matches.add(sr)
+                        break
+                except ValueError: # Unicode errors
+                    import traceback
+                    traceback.print_exc()
+        return matches
