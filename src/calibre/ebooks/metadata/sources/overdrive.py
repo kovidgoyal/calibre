@@ -204,8 +204,8 @@ class OverDrive(Source):
         else:
             initial_q = ' '.join(author_tokens)
             xref_q = '+'.join(title_tokens)
-        log.error('Initial query is %s'%initial_q)
-        log.error('Cross reference query is %s'%xref_q)
+        #log.error('Initial query is %s'%initial_q)
+        #log.error('Cross reference query is %s'%xref_q)
         q_xref = q+'SearchResults.svc/GetResults?iDisplayLength=50&sSearch='+xref_q
         query = '{"szKeyword":"'+initial_q+'"}'
 

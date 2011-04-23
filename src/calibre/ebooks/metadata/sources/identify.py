@@ -42,6 +42,10 @@ class Worker(Thread):
             self.log.exception('Plugin', self.plugin.name, 'failed')
         self.plugin.dl_time_spent = time.time() - start
 
+    @property
+    def name(self):
+        return self.plugin.name
+
 def is_worker_alive(workers):
     for w in workers:
         if w.is_alive():
@@ -348,7 +352,11 @@ def identify(log, abort, # {{{
 
         if (first_result_at is not None and time.time() - first_result_at >
                 wait_time):
-            log('Not waiting any longer for more results')
+            log.warn('Not waiting any longer for more results. Still running'
+                    ' sources:')
+            for worker in workers:
+                if worker.is_alive():
+                    log.debug('\t' + worker.name)
             abort.set()
             break
 
