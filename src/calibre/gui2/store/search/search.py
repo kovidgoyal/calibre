@@ -18,8 +18,6 @@ from calibre.gui2.store.search.search_ui import Ui_Dialog
 
 HANG_TIME = 75000 # milliseconds seconds
 TIMEOUT = 75 # seconds
-SEARCH_THREAD_TOTAL = 4
-COVER_DOWNLOAD_THREAD_TOTAL = 2
 
 class SearchDialog(QDialog, Ui_Dialog):
 
@@ -31,7 +29,7 @@ class SearchDialog(QDialog, Ui_Dialog):
 
         # We keep a cache of store plugins and reference them by name.
         self.store_plugins = istores
-        self.search_pool = SearchThreadPool(SEARCH_THREAD_TOTAL)
+        self.search_pool = SearchThreadPool(4)
         # Check for results and hung threads.
         self.checker = QTimer()
         self.progress_checker = QTimer()
@@ -184,12 +182,10 @@ class SearchDialog(QDialog, Ui_Dialog):
         if self.hang_check >= HANG_TIME:
             self.search_pool.abort()
             self.checker.stop()
-            #self.check_progress()
         else:
             # Stop the checker if not threads are running.
             if not self.search_pool.threads_running() and not self.search_pool.has_tasks():
                 self.checker.stop()
-                #self.check_progress()
 
         while self.search_pool.has_results():
             res, store_plugin = self.search_pool.get_result()
