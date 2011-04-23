@@ -13,7 +13,7 @@ from PyQt4.Qt import (Qt, QDialog, QTimer, QCheckBox, QVBoxLayout)
 
 from calibre.gui2 import JSONConfig, info_dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
-from calibre.gui2.store.search.download_thread import SearchThreadPool, SearchThread
+from calibre.gui2.store.search.download_thread import SearchThreadPool
 from calibre.gui2.store.search.search_ui import Ui_Dialog
 
 HANG_TIME = 75000 # milliseconds seconds
@@ -31,9 +31,10 @@ class SearchDialog(QDialog, Ui_Dialog):
 
         # We keep a cache of store plugins and reference them by name.
         self.store_plugins = istores
-        self.search_pool = SearchThreadPool(SearchThread, SEARCH_THREAD_TOTAL)
+        self.search_pool = SearchThreadPool(SEARCH_THREAD_TOTAL)
         # Check for results and hung threads.
         self.checker = QTimer()
+        self.progress_checker = QTimer()
         self.hang_check = 0
 
         # Add check boxes for each store so the user
@@ -54,11 +55,14 @@ class SearchDialog(QDialog, Ui_Dialog):
 
         self.search.clicked.connect(self.do_search)
         self.checker.timeout.connect(self.get_results)
+        self.progress_checker.timeout.connect(self.check_progress)
         self.results_view.activated.connect(self.open_store)
         self.select_all_stores.clicked.connect(self.stores_select_all)
         self.select_invert_stores.clicked.connect(self.stores_select_invert)
         self.select_none_stores.clicked.connect(self.stores_select_none)
         self.finished.connect(self.dialog_closed)
+
+        self.progress_checker.start(100)
 
         self.restore_state()
 
@@ -105,10 +109,9 @@ class SearchDialog(QDialog, Ui_Dialog):
         for n in store_names:
             if getattr(self, 'store_check_' + n).isChecked():
                 self.search_pool.add_task(query, n, self.store_plugins[n], TIMEOUT)
-        if self.search_pool.has_tasks():
+        if self.search_pool.has_tasks() or self.search_pool.threads_running():
             self.hang_check = 0
             self.checker.start(100)
-            self.search_pool.start_threads()
             self.pi.startAnimation()
 
     def clean_query(self, query):
@@ -181,12 +184,12 @@ class SearchDialog(QDialog, Ui_Dialog):
         if self.hang_check >= HANG_TIME:
             self.search_pool.abort()
             self.checker.stop()
-            self.pi.stopAnimation()
+            #self.check_progress()
         else:
             # Stop the checker if not threads are running.
             if not self.search_pool.threads_running() and not self.search_pool.has_tasks():
                 self.checker.stop()
-                self.pi.stopAnimation()
+                #self.check_progress()
 
         while self.search_pool.has_results():
             res, store_plugin = self.search_pool.get_result()
@@ -201,6 +204,12 @@ class SearchDialog(QDialog, Ui_Dialog):
     def open_store(self, index):
         result = self.results_view.model().get_result(index)
         self.store_plugins[result.store_name].open(self, result.detail_item)
+
+    def check_progress(self):
+        if not self.search_pool.threads_running() and not self.results_view.model().cover_pool.threads_running() and not self.results_view.model().details_pool.threads_running(): 
+            self.pi.stopAnimation()
+        else:
+            self.pi.startAnimation()
 
     def get_store_checks(self):
         '''

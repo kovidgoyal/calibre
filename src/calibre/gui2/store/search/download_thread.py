@@ -6,7 +6,6 @@ __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import time
 import traceback
 from contextlib import closing
 from threading import Thread
@@ -17,7 +16,9 @@ from calibre.utils.magick.draw import thumbnail
 
 class GenericDownloadThreadPool(object):
     '''
-    add_task must be implemented in a subclass.
+    add_task must be implemented in a subclass and must
+    GenericDownloadThreadPool.add_task must be called
+    at the end of the function.
     '''
 
     def __init__(self, thread_type, thread_count):
@@ -29,10 +30,16 @@ class GenericDownloadThreadPool(object):
         self.threads = []
 
     def add_task(self):
-        raise NotImplementedError()
-
-    def start_threads(self):
-        for i in range(self.thread_count):
+        '''
+        This must be implemented in a sub class and this function
+        must be called at the end of the add_task function in
+        the sub class.
+        
+        The implementation of this function (in this base class)
+        starts any threads necessary to fill the pool if it is
+        not already full.
+        '''
+        for i in xrange(self.thread_count - self.running_threads_count()):
             t = self.thread_type(self.tasks, self.results)
             self.threads.append(t)
             t.start()
@@ -60,10 +67,14 @@ class GenericDownloadThreadPool(object):
         return not self.results.empty()
 
     def threads_running(self):
+        return self.running_threads_count() > 0
+
+    def running_threads_count(self):
+        count = 0
         for t in self.threads:
             if t.is_alive():
-                return True
-        return False
+                count += 1
+        return count
 
 
 class SearchThreadPool(GenericDownloadThreadPool):
@@ -73,17 +84,16 @@ class SearchThreadPool(GenericDownloadThreadPool):
     using start_threads(). Reset by calling abort().
 
     Example:
-    sp = SearchThreadPool(SearchThread, 3)
-    add tasks using add_task(...)
-    sp.start_threads()
-    all threads have finished.
-    sp.abort()
-    add tasks using add_task(...)
-    sp.start_threads()
+    sp = SearchThreadPool(3)
+    sp.add_task(...)
     '''
+    
+    def __init__(self, thread_count):
+        GenericDownloadThreadPool.__init__(self, SearchThread, thread_count)
 
     def add_task(self, query, store_name, store_plugin, timeout):
         self.tasks.put((query, store_name, store_plugin, timeout))
+        GenericDownloadThreadPool.add_task(self)
 
 
 class SearchThread(Thread):
@@ -113,12 +123,13 @@ class SearchThread(Thread):
 
 
 class CoverThreadPool(GenericDownloadThreadPool):
-    '''
-    Once started all threads run until abort is called.
-    '''
+
+    def __init__(self, thread_count):
+        GenericDownloadThreadPool.__init__(self, CoverThread, thread_count)
 
     def add_task(self, search_result, update_callback, timeout=5):
         self.tasks.put((search_result, update_callback, timeout))
+        GenericDownloadThreadPool.add_task(self)
 
 
 class CoverThread(Thread):
@@ -136,30 +147,27 @@ class CoverThread(Thread):
         self._run = False
 
     def run(self):
-        while self._run:
+        while self._run and not self.tasks.empty():
             try:
-                time.sleep(.1)
-                while not self.tasks.empty():
-                    if not self._run:
-                        break
-                    result, callback, timeout = self.tasks.get()
-                    if result and result.cover_url:
-                        with closing(self.br.open(result.cover_url, timeout=timeout)) as f:
-                            result.cover_data = f.read()
-                        result.cover_data = thumbnail(result.cover_data, 64, 64)[2]
-                        callback()
-                    self.tasks.task_done()
+                result, callback, timeout = self.tasks.get()
+                if result and result.cover_url:
+                    with closing(self.br.open(result.cover_url, timeout=timeout)) as f:
+                        result.cover_data = f.read()
+                    result.cover_data = thumbnail(result.cover_data, 64, 64)[2]
+                    callback()
+                self.tasks.task_done()
             except:
                 continue
 
 
 class DetailsThreadPool(GenericDownloadThreadPool):
-    '''
-    Once started all threads run until abort is called.
-    '''
+    
+    def __init__(self, thread_count):
+        GenericDownloadThreadPool.__init__(self, DetailsThread, thread_count)
 
     def add_task(self, search_result, store_plugin, update_callback, timeout=10):
         self.tasks.put((search_result, store_plugin, update_callback, timeout))
+        GenericDownloadThreadPool.add_task(self)
 
 
 class DetailsThread(Thread):
@@ -175,16 +183,12 @@ class DetailsThread(Thread):
         self._run = False
 
     def run(self):
-        while self._run:
+        while self._run and not self.tasks.empty():
             try:
-                time.sleep(.1)
-                while not self.tasks.empty():
-                    if not self._run:
-                        break
-                    result, store_plugin, callback, timeout = self.tasks.get()
-                    if result:
-                        store_plugin.get_details(result, timeout)
-                        callback(result)
-                    self.tasks.task_done()
+                result, store_plugin, callback, timeout = self.tasks.get()
+                if result:
+                    store_plugin.get_details(result, timeout)
+                    callback(result)
+                self.tasks.task_done()
             except:
                 continue
