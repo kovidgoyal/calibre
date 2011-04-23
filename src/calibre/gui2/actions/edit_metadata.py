@@ -117,11 +117,11 @@ class EditMetadataAction(InterfaceAction):
 
         payload = (id_map, failed_ids, failed_covers)
         from calibre.gui2.dialogs.message_box import ProceedNotification
-        p = ProceedNotification(payload, job.html_details,
+        p = ProceedNotification(self.apply_downloaded_metadata,
+                payload, job.html_details,
                 _('Download log'), _('Download complete'), msg,
                 det_msg=det_msg, show_copy_button=show_copy_button,
                 parent=self.gui)
-        p.proceed.connect(self.apply_downloaded_metadata)
         p.show()
 
     def apply_downloaded_metadata(self, payload):
