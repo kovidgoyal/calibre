@@ -534,6 +534,7 @@ class DocumentView(QWebView): # {{{
                 _('&Lookup in dictionary'), self)
         self.dictionary_action.setShortcut(Qt.CTRL+Qt.Key_L)
         self.dictionary_action.triggered.connect(self.lookup)
+        self.addAction(self.dictionary_action)
         self.goto_location_action = QAction(_('Go to...'), self)
         self.goto_location_menu = m = QMenu(self)
         self.goto_location_actions = a = {

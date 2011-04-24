@@ -11,7 +11,6 @@ from lxml import etree
 
 from calibre.customize.conversion import OutputFormatPlugin, \
     OptionRecommendation
-from calibre.ebooks.oeb.base import OEB_IMAGES
 from calibre.ebooks.txt.txtml import TXTMLizer
 from calibre.ebooks.txt.newlines import TxtNewlines, specified_newlines
 from calibre.ptempfile import TemporaryDirectory, TemporaryFile
@@ -103,12 +102,13 @@ class TXTOutput(OutputFormatPlugin):
 
 
 class TXTZOutput(TXTOutput):
-    
+
     name = 'TXTZ Output'
     author = 'John Schember'
     file_type = 'txtz'
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
+        from calibre.ebooks.oeb.base import OEB_IMAGES
         with TemporaryDirectory('_txtz_output') as tdir:
             # TXT
             with TemporaryFile('index.txt') as tf:
@@ -123,10 +123,10 @@ class TXTZOutput(TXTOutput):
                         os.makedirs(path)
                     with open(os.path.join(tdir, item.href), 'wb') as imgf:
                         imgf.write(item.data)
-            
+
             # Metadata
-            with open(os.path.join(tdir, 'metadata.opf'), 'wb') as mdataf: 
+            with open(os.path.join(tdir, 'metadata.opf'), 'wb') as mdataf:
                 mdataf.write(etree.tostring(oeb_book.metadata.to_opf1()))
-            
+
             txtz = ZipFile(output_path, 'w')
             txtz.add_dir(tdir)

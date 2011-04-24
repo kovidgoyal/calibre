@@ -42,6 +42,10 @@ class Worker(Thread):
             self.log.exception('Plugin', self.plugin.name, 'failed')
         self.plugin.dl_time_spent = time.time() - start
 
+    @property
+    def name(self):
+        return self.plugin.name
+
 def is_worker_alive(workers):
     for w in workers:
         if w.is_alive():
@@ -216,7 +220,7 @@ class ISBNMerge(object):
 
         # We assume the smallest set of tags has the least cruft in it
         ans.tags = self.length_merge('tags', results,
-                null_value=ans.tags)
+                null_value=ans.tags, shortest=msprefs['fewer_tags'])
 
         # We assume the longest series has the most info in it
         ans.series = self.length_merge('series', results,
@@ -348,7 +352,11 @@ def identify(log, abort, # {{{
 
         if (first_result_at is not None and time.time() - first_result_at >
                 wait_time):
-            log('Not waiting any longer for more results')
+            log.warn('Not waiting any longer for more results. Still running'
+                    ' sources:')
+            for worker in workers:
+                if worker.is_alive():
+                    log.debug('\t' + worker.name)
             abort.set()
             break
 
@@ -382,7 +390,11 @@ def identify(log, abort, # {{{
             log(plog)
         log('\n'+'*'*80)
 
+        dummy = Metadata(_('Unknown'))
         for i, result in enumerate(presults):
+            for f in plugin.prefs['ignore_fields']:
+                if ':' not in f:
+                    setattr(result, f, getattr(dummy, f))
             result.relevance_in_source = i
             result.has_cached_cover_url = (plugin.cached_cover_url_is_reliable
                     and plugin.get_cached_cover_url(result.identifiers) is not
@@ -400,7 +412,7 @@ def identify(log, abort, # {{{
 
     if msprefs['txt_comments']:
         for r in results:
-            if r.plugin.has_html_comments and r.comments:
+            if r.identify_plugin.has_html_comments and r.comments:
                 r.comments = html2text(r.comments)
 
     max_tags = msprefs['max_tags']
@@ -433,7 +445,7 @@ def urls_from_identifiers(identifiers): # {{{
             pass
     isbn = identifiers.get('isbn', None)
     if isbn:
-        ans.append(('ISBN',
+        ans.append((isbn,
             'http://www.worldcat.org/search?q=bn%%3A%s&qt=advanced'%isbn))
     return ans
 # }}}
@@ -444,13 +456,18 @@ if __name__ == '__main__': # tests {{{
     from calibre.ebooks.metadata.sources.test import (test_identify,
             title_test, authors_test)
     tests = [
+            (
+                {'title':'Magykal Papers',
+                    'authors':['Sage']},
+                [title_test('The Magykal Papers', exact=True)],
+            ),
+
 
             ( # An e-book ISBN not on Amazon, one of the authors is
               # unknown to Amazon
                 {'identifiers':{'isbn': '9780307459671'},
                     'title':'Invisible Gorilla', 'authors':['Christopher Chabris']},
-                [title_test('The Invisible Gorilla',
-                    exact=True), authors_test(['Christopher Chabris', 'Daniel Simons'])]
+                [title_test('The Invisible Gorilla', exact=True)]
 
             ),
 

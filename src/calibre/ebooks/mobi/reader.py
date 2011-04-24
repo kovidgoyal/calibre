@@ -20,7 +20,7 @@ from calibre.utils.filenames import ascii_filename
 from calibre.utils.date import parse_date
 from calibre.utils.cleantext import clean_ascii_chars
 from calibre.ptempfile import TemporaryDirectory
-from calibre.ebooks import DRMError
+from calibre.ebooks import DRMError, unit_convert
 from calibre.ebooks.chardet import ENCODING_PATS
 from calibre.ebooks.mobi import MobiError
 from calibre.ebooks.mobi.huffcdic import HuffReader
@@ -258,6 +258,8 @@ class MobiReader(object):
                 }
                 ''')
         self.tag_css_rules = {}
+        self.left_margins = {}
+        self.text_indents = {}
 
         if hasattr(filename_or_stream, 'read'):
             stream = filename_or_stream
@@ -567,9 +569,21 @@ class MobiReader(object):
                     elif tag.tag == 'img':
                         tag.set('width', width)
                     else:
-                        styles.append('text-indent: %s' % self.ensure_unit(width))
+                        ewidth = self.ensure_unit(width)
+                        styles.append('text-indent: %s' % ewidth)
+                        try:
+                            ewidth_val = unit_convert(ewidth, 12, 500, 166)
+                            self.text_indents[tag] = ewidth_val
+                        except:
+                            pass
                         if width.startswith('-'):
                             styles.append('margin-left: %s' % self.ensure_unit(width[1:]))
+                            try:
+                                ewidth_val = unit_convert(ewidth[1:], 12, 500, 166)
+                                self.left_margins[tag] = ewidth_val
+                            except:
+                                pass
+
             if attrib.has_key('align'):
                 align = attrib.pop('align').strip()
                 if align:
@@ -661,6 +675,26 @@ class MobiReader(object):
             if hasattr(parent, 'remove'):
                 parent.remove(tag)
 
+    def get_left_whitespace(self, tag):
+
+        def whitespace(tag):
+            lm = ti = 0.0
+            if tag.tag == 'p':
+                ti = unit_convert('1.5em', 12, 500, 166)
+            if tag.tag == 'blockquote':
+                lm = unit_convert('2em', 12, 500, 166)
+            lm = self.left_margins.get(tag, lm)
+            ti = self.text_indents.get(tag, ti)
+            return lm + ti
+
+        parent = tag
+        ans = 0.0
+        while parent is not None:
+            ans += whitespace(parent)
+            parent = parent.getparent()
+
+        return ans
+
     def create_opf(self, htmlfile, guide=None, root=None):
         mi = getattr(self.book_header.exth, 'mi', self.embedded_mi)
         if mi is None:
@@ -731,16 +765,45 @@ class MobiReader(object):
                             except:
                                 text = ''
                             text = ent_pat.sub(entity_to_unicode, text)
-                            tocobj.add_item(toc.partition('#')[0], href[1:],
+                            item = tocobj.add_item(toc.partition('#')[0], href[1:],
                                 text)
+                            item.left_space = int(self.get_left_whitespace(x))
                             found = True
                     if reached and found and x.get('class', None) == 'mbp_pagebreak':
                         break
             if tocobj is not None:
+                tocobj = self.structure_toc(tocobj)
                 opf.set_toc(tocobj)
 
         return opf, ncx_manifest_entry
 
+    def structure_toc(self, toc):
+        indent_vals = set()
+        for item in toc:
+            indent_vals.add(item.left_space)
+        if len(indent_vals) > 6 or len(indent_vals) < 2:
+            # Too many or too few levels, give up
+            return toc
+        indent_vals = sorted(indent_vals)
+
+        last_found = [None for i in indent_vals]
+
+        newtoc = TOC()
+
+        def find_parent(level):
+            candidates = last_found[:level]
+            for x in reversed(candidates):
+                if x is not None:
+                    return x
+            return newtoc
+
+        for item in toc:
+            level = indent_vals.index(item.left_space)
+            parent = find_parent(level)
+            last_found[level] = parent.add_item(item.href, item.fragment,
+                        item.text)
+
+        return newtoc
 
     def sizeof_trailing_entries(self, data):
         def sizeof_trailing_entry(ptr, psize):

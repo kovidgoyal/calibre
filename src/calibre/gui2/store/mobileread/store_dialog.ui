@@ -19,12 +19,29 @@
      <item>
       <widget class="QLabel" name="label">
        <property name="text">
-        <string>Search:</string>
+        <string>&amp;Query:</string>
+       </property>
+       <property name="buddy">
+        <cstring>search_query</cstring>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="adv_search_button">
+       <property name="text">
+        <string>...</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QLineEdit" name="search_query"/>
+     </item>
+     <item>
+      <widget class="QPushButton" name="search_button">
+       <property name="text">
+        <string>Search</string>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>

@@ -24,8 +24,10 @@ def initialize_constants():
     global __version__, __appname__, modules, functions, basenames, scripts
 
     src = open('src/calibre/constants.py', 'rb').read()
-    __version__ = re.search(r'__version__\s+=\s+[\'"]([^\'"]+)[\'"]', src).group(1)
-    __appname__ = re.search(r'__appname__\s+=\s+[\'"]([^\'"]+)[\'"]', src).group(1)
+    nv = re.search(r'numeric_version\s+=\s+\((\d+), (\d+), (\d+)\)', src)
+    __version__ = '%s.%s.%s'%(nv.group(1), nv.group(2), nv.group(3))
+    __appname__ = re.search(r'__appname__\s+=\s+(u{0,1})[\'"]([^\'"]+)[\'"]',
+            src).group(2)
     epsrc = re.compile(r'entry_points = (\{.*?\})', re.DOTALL).\
             search(open('src/calibre/linux.py', 'rb').read()).group(1)
     entry_points = eval(epsrc, {'__appname__': __appname__})

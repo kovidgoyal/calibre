@@ -6,11 +6,11 @@ __docformat__ = 'restructuredtext en'
 """
 Provides abstraction for metadata reading.writing from a variety of ebook formats.
 """
-import os, mimetypes, sys, re
+import os, sys, re
 from urllib import unquote, quote
 from urlparse import urlparse
 
-from calibre import relpath
+from calibre import relpath, guess_type
 
 from calibre.utils.config import tweaks
 
@@ -118,7 +118,7 @@ class Resource(object):
         self.path = None
         self.fragment = ''
         try:
-            self.mime_type = mimetypes.guess_type(href_or_path)[0]
+            self.mime_type = guess_type(href_or_path)[0]
         except:
             self.mime_type = None
         if self.mime_type is None:

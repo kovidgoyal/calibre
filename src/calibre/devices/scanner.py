@@ -8,7 +8,7 @@ manner.
 import sys, os, re
 from threading import RLock
 
-from calibre import iswindows, isosx, plugins, islinux
+from calibre.constants import iswindows, isosx, plugins, islinux
 
 osx_scanner = win_scanner = linux_scanner = None
 

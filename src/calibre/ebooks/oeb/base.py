@@ -8,23 +8,18 @@ __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import os, re, uuid, logging
-from mimetypes import types_map
 from collections import defaultdict
 from itertools import count
 from urlparse import urldefrag, urlparse, urlunparse, urljoin
 from urllib import unquote as urlunquote
 
 from lxml import etree, html
-from cssutils import CSSParser, parseString, parseStyle, replaceUrls
-from cssutils.css import CSSRule
-
-import calibre
-from calibre.constants import filesystem_encoding
+from calibre.constants import filesystem_encoding, __version__
 from calibre.translations.dynamic import translate
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.oeb.entitydefs import ENTITYDEFS
 from calibre.ebooks.conversion.preprocess import CSSPreProcessor
-from calibre import isbytestring, as_unicode
+from calibre import isbytestring, as_unicode, get_types_map
 
 RECOVER_PARSER = etree.XMLParser(recover=True, no_network=True)
 
@@ -179,6 +174,9 @@ def rewrite_links(root, link_repl_func, resolve_base_href=False):
     If the ``link_repl_func`` returns None, the attribute or
     tag text will be removed completely.
     '''
+    from cssutils import parseString, parseStyle, replaceUrls, log
+    log.setLevel(logging.WARN)
+
     if resolve_base_href:
         resolve_base_href(root)
     for el, attrib, link, pos in iterlinks(root, find_links_in_css=False):
@@ -248,7 +246,7 @@ def rewrite_links(root, link_repl_func, resolve_base_href=False):
                 el.attrib['style'] = repl
 
 
-
+types_map = get_types_map()
 EPUB_MIME      = types_map['.epub']
 XHTML_MIME     = types_map['.xhtml']
 CSS_MIME       = types_map['.css']
@@ -1075,7 +1073,9 @@ class Manifest(object):
 
 
         def _parse_css(self, data):
-
+            from cssutils.css import CSSRule
+            from cssutils import CSSParser, log
+            log.setLevel(logging.WARN)
             def get_style_rules_from_import(import_rule):
                 ans = []
                 if not import_rule.styleSheet:
@@ -2011,7 +2011,7 @@ class OEBBook(object):
             name='dtb:uid', content=unicode(self.uid))
         etree.SubElement(head, NCX('meta'),
             name='dtb:depth', content=str(self.toc.depth()))
-        generator = ''.join(['calibre (', calibre.__version__, ')'])
+        generator = ''.join(['calibre (', __version__, ')'])
         etree.SubElement(head, NCX('meta'),
             name='dtb:generator', content=generator)
         etree.SubElement(head, NCX('meta'),

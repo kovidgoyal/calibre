@@ -5,11 +5,12 @@ __copyright__ = '2008, Anatoly Shipitsin <norguhtar at gmail.com>'
 
 '''Read meta information from fb2 files'''
 
-import mimetypes, os
+import os
 from base64 import b64decode
 from lxml import etree
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.chardet import xml_to_unicode
+from calibre import guess_all_extensions
 
 XLINK_NS     = 'http://www.w3.org/1999/xlink'
 def XLINK(name):
@@ -71,7 +72,7 @@ def get_metadata(stream):
             binary = XPath('//fb2:binary[@id="%s"]'%id)(root)
             if binary:
                 mt = binary[0].get('content-type', 'image/jpeg')
-                exts = mimetypes.guess_all_extensions(mt)
+                exts = guess_all_extensions(mt)
                 if not exts:
                     exts = ['.jpg']
                 cdata = (exts[0][1:], b64decode(tostring(binary[0])))

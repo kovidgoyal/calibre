@@ -15,9 +15,9 @@ from setup import prints, get_warnings
 
 def check_version_info():
     vi = sys.version_info
-    if vi[0] == 2 and vi[1] > 5:
+    if vi[0] == 2 and vi[1] > 6:
         return None
-    return 'calibre requires python >= 2.6'
+    return 'calibre requires python >= 2.7 and < 3'
 
 def option_parser():
     parser = optparse.OptionParser()

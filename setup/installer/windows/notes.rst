@@ -53,12 +53,25 @@ SQLite
 
 Put sqlite3*.h from the sqlite windows amlgamation in ~/sw/include
 
+OpenSSL
+--------
+
+First install ActiveState Perl if you dont already have perl in windows
+Download and untar the openssl tarball, follow the instructions in INSTALL.W32 (use no-asm)
+to install use prefix q:\openssl
+
+perl Configure VC-WIN32 no-asm enable-static-engine --prefix=Q:/openssl
+ms\do_ms.bat
+nmake -f ms\ntdll.mak
+nmake -f ms\ntdll.mak test
+nmake -f ms\ntdll.mak install
+
 Qt
 --------
 
 Extract Qt sourcecode to C:\Qt\4.x.x. Run configure and make::
 
-    configure -opensource -release -qt-zlib -qt-gif -qt-libmng -qt-libpng -qt-libtiff -qt-libjpeg -release -platform win32-msvc2008 -no-qt3support -webkit -xmlpatterns -no-phonon -no-style-plastique -no-style-cleanlooks -no-style-motif -no-style-cde -no-declarative -no-scripttools -no-audio-backend -no-multimedia -no-dbus -no-openvg -no-opengl -no-qt3support -confirm-license -nomake examples -nomake demos -nomake docs && nmake
+    configure -opensource -release -qt-zlib -qt-gif -qt-libmng -qt-libpng -qt-libtiff -qt-libjpeg -release -platform win32-msvc2008 -no-qt3support -webkit -xmlpatterns -no-phonon -no-style-plastique -no-style-cleanlooks -no-style-motif -no-style-cde -no-declarative -no-scripttools -no-audio-backend -no-multimedia -no-dbus -no-openvg -no-opengl -no-qt3support -confirm-license -nomake examples -nomake demos -nomake docs -openssl -I Q:\openssl\include -L Q:\openssl\lib && nmake
 
 SIP
 -----
