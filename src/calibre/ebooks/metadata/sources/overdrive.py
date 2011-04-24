@@ -206,6 +206,7 @@ class OverDrive(Source):
             xref_q = '+'.join(title_tokens)
         #log.error('Initial query is %s'%initial_q)
         #log.error('Cross reference query is %s'%xref_q)
+
         q_xref = q+'SearchResults.svc/GetResults?iDisplayLength=50&sSearch='+xref_q
         query = '{"szKeyword":"'+initial_q+'"}'
 
@@ -229,34 +230,42 @@ class OverDrive(Source):
                 if int(m.group('displayrecords')) >= 1:
                     results = True
                 elif int(m.group('totalrecords')) >= 1:
+                    if int(m.group('totalrecords')) >= 100:
+                        if xref_q.find('+') != -1:
+                            xref_tokens = xref_q.split('+')
+                            xref_q = xref_tokens[0]
+                            #log.error('xref_q is '+xref_q)
+                    else:
+                        xref_q = ''
                     xref_q = ''
                     q_xref = q+'SearchResults.svc/GetResults?iDisplayLength=50&sSearch='+xref_q
                 elif int(m.group('totalrecords')) == 0:
                     return ''
 
-        return self.sort_ovrdrv_results(raw, title, title_tokens, author, author_tokens)
+        return self.sort_ovrdrv_results(raw, log, title, title_tokens, author, author_tokens)
 
 
-    def sort_ovrdrv_results(self, raw, title=None, title_tokens=None, author=None, author_tokens=None, ovrdrv_id=None):
+    def sort_ovrdrv_results(self, raw, log, title=None, title_tokens=None, author=None, author_tokens=None, ovrdrv_id=None):
         close_matches = []
         raw = re.sub('.*?\[\[(?P<content>.*?)\]\].*', '[[\g<content>]]', raw)
         results = json.loads(raw)
-        #print results
+        #log.error('raw results are:'+str(results))
         # The search results are either from a keyword search or a multi-format list from a single ID,
         # sort through the results for closest match/format
         if results:
             for reserveid, od_title, subtitle, edition, series, publisher, format, formatid, creators, \
                     thumbimage, shortdescription, worldcatlink, excerptlink, creatorfile, sorttitle, \
                     availabletolibrary, availabletoretailer, relevancyrank, unknown1, unknown2, unknown3 in results:
-                #print "this record's title is "+od_title+", subtitle is "+subtitle+", author[s] are "+creators+", series is "+series
+                #log.error("this record's title is "+od_title+", subtitle is "+subtitle+", author[s] are "+creators+", series is "+series)
                 if ovrdrv_id is not None and int(formatid) in [1, 50, 410, 900]:
-                    #print "overdrive id is not None, searching based on format type priority"
+                    #log.error('overdrive id is not None, searching based on format type priority')
                     return self.format_results(reserveid, od_title, subtitle, series, publisher,
                             creators, thumbimage, worldcatlink, formatid)
                 else:
-                    creators = creators.split(', ')
+                    if creators:
+                        creators = creators.split(', ')
                     # if an exact match in a preferred format occurs
-                    if (author and creators[0] == author[0]) and od_title == title and int(formatid) in [1, 50, 410, 900] and thumbimage:
+                    if ((author and creators[0] == author[0]) or (not author and not creators)) and od_title.lower() == title.lower() and int(formatid) in [1, 50, 410, 900] and thumbimage:
                         return self.format_results(reserveid, od_title, subtitle, series, publisher,
                                 creators, thumbimage, worldcatlink, formatid)
                     else:
@@ -282,6 +291,10 @@ class OverDrive(Source):
                                 close_matches.insert(0, self.format_results(reserveid, od_title, subtitle, series, publisher, creators, thumbimage, worldcatlink, formatid))
                             else:
                                 close_matches.append(self.format_results(reserveid, od_title, subtitle, series, publisher, creators, thumbimage, worldcatlink, formatid))
+                                
+                        elif close_title_match and close_author_match and int(formatid) in [1, 50, 410, 900]:
+                            close_matches.append(self.format_results(reserveid, od_title, subtitle, series, publisher, creators, thumbimage, worldcatlink, formatid))
+
             if close_matches:
                 return close_matches[0]
             else:
@@ -289,7 +302,7 @@ class OverDrive(Source):
         else:
             return ''
 
-    def overdrive_get_record(self, br, q, ovrdrv_id):
+    def overdrive_get_record(self, br, log, q, ovrdrv_id):
         search_url = q+'SearchResults.aspx?ReserveID={'+ovrdrv_id+'}'
         results_url = q+'SearchResults.svc/GetResults?sEcho=1&iColumns=18&sColumns=ReserveID%2CTitle%2CSubtitle%2CEdition%2CSeries%2CPublisher%2CFormat%2CFormatID%2CCreators%2CThumbImage%2CShortDescription%2CWorldCatLink%2CExcerptLink%2CCreatorFile%2CSortTitle%2CAvailableToLibrary%2CAvailableToRetailer%2CRelevancyRank&iDisplayStart=0&iDisplayLength=10&sSearch=&bEscapeRegex=true&iSortingCols=1&iSortCol_0=17&sSortDir_0=asc'
 
@@ -311,7 +324,7 @@ class OverDrive(Source):
         raw = str(list(raw))
         clean_cj = mechanize.CookieJar()
         br.set_cookiejar(clean_cj)
-        return self.sort_ovrdrv_results(raw, None, None, None, ovrdrv_id)
+        return self.sort_ovrdrv_results(raw, log, None, None, None, ovrdrv_id)
 
 
     def find_ovrdrv_data(self, br, log, title, author, isbn, ovrdrv_id=None):
@@ -319,7 +332,7 @@ class OverDrive(Source):
         if ovrdrv_id is None:
            return self.overdrive_search(br, log, q, title, author)
         else:
-           return self.overdrive_get_record(br, q, ovrdrv_id)
+           return self.overdrive_get_record(br, log, q, ovrdrv_id)
 
 
 
