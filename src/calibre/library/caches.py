@@ -560,6 +560,10 @@ class ResultCache(SearchQueryParser): # {{{
         loc = self.field_metadata[location]['rec_index']
         matches = set()
         query = icu_lower(query)
+        if query not in (_('no'), _('unchecked'), '_no', 'false',
+                         _('yes'), _('checked'), '_yes', 'true',
+                         _('empty'), _('blank'), '_empty'):
+            raise ParseException(_('Invalid boolean query "{0}"').format(query))
         for id_ in candidates:
             item = self._data[id_]
             if item is None:
