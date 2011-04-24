@@ -198,12 +198,16 @@ class OverDrive(Source):
         title_tokens = list(self.get_title_tokens(title,
                 strip_joiners=False, strip_subtitle=True))
 
-        if len(title_tokens) >= len(author_tokens):
+        xref_q = ''
+        if len(author_tokens) <= 1:
             initial_q = ' '.join(title_tokens)
             xref_q = '+'.join(author_tokens)
         else:
             initial_q = ' '.join(author_tokens)
-            xref_q = '+'.join(title_tokens)
+            for token in title_tokens:
+                if len(xref_q) < len(token):
+                    xref_q = token
+
         #log.error('Initial query is %s'%initial_q)
         #log.error('Cross reference query is %s'%xref_q)
 
@@ -234,10 +238,12 @@ class OverDrive(Source):
                         if xref_q.find('+') != -1:
                             xref_tokens = xref_q.split('+')
                             xref_q = xref_tokens[0]
-                            #log.error('xref_q is '+xref_q)
+                            for token in xref_tokens:
+                                if len(xref_q) < len(token):
+                                    xref_q = token
+                            #log.error('rewrote xref_q, new query is '+xref_q)
                     else:
                         xref_q = ''
-                    xref_q = ''
                     q_xref = q+'SearchResults.svc/GetResults?iDisplayLength=50&sSearch='+xref_q
                 elif int(m.group('totalrecords')) == 0:
                     return ''
@@ -264,6 +270,7 @@ class OverDrive(Source):
                 else:
                     if creators:
                         creators = creators.split(', ')
+
                     # if an exact match in a preferred format occurs
                     if ((author and creators[0] == author[0]) or (not author and not creators)) and od_title.lower() == title.lower() and int(formatid) in [1, 50, 410, 900] and thumbimage:
                         return self.format_results(reserveid, od_title, subtitle, series, publisher,
