@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 '''
-Read meta information from eReader pdb files.
+Read meta information from pdb files.
 '''
 
 __license__   = 'GPL v3'
@@ -13,10 +13,12 @@ import re
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.pdb.header import PdbHeaderReader
 from calibre.ebooks.metadata.ereader import get_metadata as get_eReader
+from calibre.ebooks.metadata.plucker import get_metadata as get_plucker
 
 MREADER = {
     'PNPdPPrs' : get_eReader,
     'PNRdPPrs' : get_eReader,
+    'DataPlkr' : get_plucker,
 }
 
 from calibre.ebooks.metadata.ereader import set_metadata as set_eReader
