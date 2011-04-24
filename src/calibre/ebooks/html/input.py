@@ -315,7 +315,8 @@ class HTMLInput(InputFormatPlugin):
         from calibre import guess_type
         from calibre.ebooks.oeb.transforms.metadata import \
             meta_info_to_oeb_metadata
-        import cssutils
+        import cssutils, logging
+        cssutils.log.setLevel(logging.WARN)
         self.OEB_STYLES = OEB_STYLES
         oeb = create_oebbook(log, None, opts, self,
                 encoding=opts.input_encoding, populate=False)

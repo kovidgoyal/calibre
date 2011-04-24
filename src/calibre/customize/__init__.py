@@ -602,3 +602,35 @@ class PreferencesPlugin(Plugin): # {{{
 
 # }}}
 
+class StoreBase(Plugin): # {{{
+
+    supported_platforms = ['windows', 'osx', 'linux']
+    author         = 'John Schember'
+    type = _('Store')
+
+    actual_plugin = None
+
+    def load_actual_plugin(self, gui):
+        '''
+        This method must return the actual interface action plugin object.
+        '''
+        mod, cls = self.actual_plugin.split(':')
+        self.actual_plugin_object  = getattr(importlib.import_module(mod), cls)(gui, self.name)
+        return self.actual_plugin_object
+
+    def customization_help(self, gui=False):
+        if getattr(self, 'actual_plugin_object', None) is not None:
+            return self.actual_plugin_object.customization_help(gui)
+        raise NotImplementedError()
+
+    def config_widget(self):
+        if getattr(self, 'actual_plugin_object', None) is not None:
+            return self.actual_plugin_object.config_widget()
+        raise NotImplementedError()
+
+    def save_settings(self, config_widget):
+        if getattr(self, 'actual_plugin_object', None) is not None:
+            return self.actual_plugin_object.save_settings(config_widget)
+        raise NotImplementedError()
+
+# }}}

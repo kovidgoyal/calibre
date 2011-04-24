@@ -418,6 +418,7 @@ class BookDetails(QWidget): # {{{
             if y is None:
                 # Local image
                 self.cover_view.paste_from_clipboard(x)
+                self.update_layout()
             else:
                 self.remote_file_dropped.emit(x, y)
                 # We do not support setting cover *and* adding formats for
@@ -449,6 +450,7 @@ class BookDetails(QWidget): # {{{
         self.setAcceptDrops(True)
         self._layout = DetailsLayout(vertical, self)
         self.setLayout(self._layout)
+        self.current_path = ''
 
         self.cover_view = CoverView(vertical, self)
         self.cover_view.cover_changed.connect(self.cover_changed.emit)
@@ -482,9 +484,20 @@ class BookDetails(QWidget): # {{{
     def show_data(self, data):
         self.book_info.show_data(data)
         self.cover_view.show_data(data)
+        self.current_path = data.get(_('Path'), '')
+        self.update_layout()
+
+    def update_layout(self):
         self._layout.do_layout(self.rect())
-        self.setToolTip('<p>'+_('Double-click to open Book Details window') +
-                '<br><br>' + _('Path') + ': ' + data.get(_('Path'), ''))
+        try:
+            sz = self.cover_view.pixmap.size()
+        except:
+            sz = QSize(0, 0)
+        self.setToolTip(
+            '<p>'+_('Double-click to open Book Details window') +
+            '<br><br>' + _('Path') + ': ' + self.current_path +
+            '<br><br>' + _('Cover size: %dx%d')%(sz.width(), sz.height())
+        )
 
     def reset_info(self):
         self.show_data({})

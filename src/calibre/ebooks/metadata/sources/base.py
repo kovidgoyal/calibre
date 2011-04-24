@@ -25,6 +25,7 @@ msprefs.defaults['max_tags'] = 20
 msprefs.defaults['wait_after_first_identify_result'] = 30 # seconds
 msprefs.defaults['wait_after_first_cover_result'] = 60 # seconds
 msprefs.defaults['swap_author_names'] = False
+msprefs.defaults['fewer_tags'] = True
 
 # Google covers are often poor quality (scans/errors) but they have high
 # resolution, so they trump covers from better sources. So make sure they
@@ -274,32 +275,59 @@ class Source(Plugin):
 
         if authors:
             # Leave ' in there for Irish names
-            pat = re.compile(r'[-,:;+!@#$%^&*(){}.`~"\s\[\]/]')
+            remove_pat = re.compile(r'[,!@#$%^&*(){}`~"\s\[\]/]')
+            replace_pat = re.compile(r'[-+.:;]')
             if only_first_author:
                 authors = authors[:1]
             for au in authors:
+                au = replace_pat.sub(' ', au)
                 parts = au.split()
                 if ',' in au:
                     # au probably in ln, fn form
                     parts = parts[1:] + parts[:1]
                 for tok in parts:
-                    tok = pat.sub('', tok).strip()
+                    tok = remove_pat.sub('', tok).strip()
                     if len(tok) > 2 and tok.lower() not in ('von', ):
                         yield tok
 
 
-    def get_title_tokens(self, title):
+    def get_title_tokens(self, title, strip_joiners=True, strip_subtitle=False):
         '''
         Take a title and return a list of tokens useful for an AND search query.
-        Excludes connectives and punctuation.
+        Excludes connectives(optionally) and punctuation.
         '''
         if title:
-            pat = re.compile(r'''[-,:;+!@#$%^&*(){}.`~"'\s\[\]/]''')
-            title = pat.sub(' ', title)
+            # strip sub-titles
+            if strip_subtitle:
+                subtitle = re.compile(r'([\(\[\{].*?[\)\]\}]|[/:\\].*$)')
+                if len(subtitle.sub('', title)) > 1:
+                    title = subtitle.sub('', title)
+
+            title_patterns = [(re.compile(pat, re.IGNORECASE), repl) for pat, repl in
+            [
+                # Remove things like: (2010) (Omnibus) etc.
+                (r'(?i)[({\[](\d{4}|omnibus|anthology|hardcover|paperback|mass\s*market|edition|ed\.)[\])}]', ''),
+                # Remove any strings that contain the substring edition inside
+                # parentheses
+                (r'(?i)[({\[].*?(edition|ed.).*?[\]})]', ''),
+                # Remove commas used a separators in numbers
+                (r'(\d+),(\d+)', r'\1\2'),
+                # Remove hyphens only if they have whitespace before them
+                (r'(\s-)', ' '),
+                # Remove single quotes not followed by 's'
+                (r"'(?!s)", ''),
+                # Replace other special chars with a space
+                (r'''[:,;+!@#$%^&*(){}.`~"\s\[\]/]''', ' ')
+            ]]
+
+            for pat, repl in title_patterns:
+                title = pat.sub(repl, title)
+
             tokens = title.split()
             for token in tokens:
                 token = token.strip()
-                if token and token.lower() not in ('a', 'and', 'the'):
+                if token and (not strip_joiners or token.lower() not in ('a',
+                    'and', 'the', '&')):
                     yield token
 
     def split_jobs(self, jobs, num):
@@ -347,7 +375,12 @@ class Source(Plugin):
     def get_book_url(self, identifiers):
         '''
         Return the URL for the book identified by identifiers at this source.
-        If no URL is found, return None.
+        This URL must be browseable to by a human using a browser. It is meant
+        to provide a clickable link for the user to easily visit the books page
+        at this source.
+        If no URL is found, return None. This method must be quick, and
+        consistent, so only implement it if it is possible to construct the URL
+        from a known scheme given identifiers.
         '''
         return None
 

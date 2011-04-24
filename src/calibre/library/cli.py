@@ -10,8 +10,7 @@ Command line interface to the calibre database.
 import sys, os, cStringIO, re
 from textwrap import TextWrapper
 
-from calibre import terminal_controller, preferred_encoding, prints, \
-    isbytestring
+from calibre import preferred_encoding, prints, isbytestring
 from calibre.utils.config import OptionParser, prefs, tweaks
 from calibre.ebooks.metadata.meta import get_metadata
 from calibre.library.database2 import LibraryDatabase2
@@ -53,6 +52,8 @@ def get_db(dbpath, options):
 
 def do_list(db, fields, afields, sort_by, ascending, search_text, line_width, separator,
             prefix, subtitle='Books in the calibre database'):
+    from calibre.constants import terminal_controller as tc
+    terminal_controller = tc()
     if sort_by:
         db.sort(sort_by, ascending)
     if search_text:
@@ -426,7 +427,7 @@ def do_show_metadata(db, id, as_opf):
         mi = OPFCreator(os.getcwd(), mi)
         mi.render(sys.stdout)
     else:
-        print unicode(mi).encode(preferred_encoding)
+        prints(unicode(mi))
 
 def show_metadata_option_parser():
     parser = get_parser(_(
@@ -1087,6 +1088,9 @@ def command_list_categories(args, dbpath):
     fields = ['category', 'tag_name', 'count', 'rating']
 
     def do_list():
+        from calibre.constants import terminal_controller as tc
+        terminal_controller = tc()
+
         separator = ' '
         widths = list(map(lambda x : 0, fields))
         for i in data:

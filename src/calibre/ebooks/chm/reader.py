@@ -5,8 +5,8 @@ __copyright__  = '2008, Kovid Goyal <kovid at kovidgoyal.net>,' \
                  ' and Alex Bramley <a.bramley at gmail.com>.'
 
 import os, re
-from mimetypes import guess_type as guess_mimetype
 
+from calibre import guess_type as guess_mimetype
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, NavigableString
 from calibre.constants import iswindows, filesystem_encoding
 from calibre.utils.chm.chm import CHMFile
@@ -147,7 +147,8 @@ class CHMReader(CHMFile):
         if self.hhc_path == '.hhc' and self.hhc_path not in files:
             from calibre import walk
             for x in walk(output_dir):
-                if os.path.basename(x).lower() in ('index.htm', 'index.html'):
+                if os.path.basename(x).lower() in ('index.htm', 'index.html',
+                        'contents.htm', 'contents.html'):
                     self.hhc_path = os.path.relpath(x, output_dir)
                     break
 

@@ -3,9 +3,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import uuid, sys, os, re, logging, time, random, \
-       __builtin__, warnings, multiprocessing
-from urllib import getproxies
+import sys, os, re, time, random, __builtin__, warnings
 __builtin__.__dict__['dynamic_property'] = lambda(func): func(None)
 from htmlentitydefs import name2codepoint
 from math import floor
@@ -14,25 +12,51 @@ from functools import partial
 warnings.simplefilter('ignore', DeprecationWarning)
 
 
-from calibre.constants import iswindows, isosx, islinux, isfreebsd, isfrozen, \
-                              terminal_controller, preferred_encoding, \
-                              __appname__, __version__, __author__, \
-                              win32event, win32api, winerror, fcntl, \
-                              filesystem_encoding, plugins, config_dir
-from calibre.startup import winutil, winutilerror, guess_type
+from calibre.constants import (iswindows, isosx, islinux, isfreebsd, isfrozen,
+                              preferred_encoding, __appname__, __version__, __author__,
+                              win32event, win32api, winerror, fcntl,
+                              filesystem_encoding, plugins, config_dir)
+from calibre.startup import winutil, winutilerror
 
-if islinux and not getattr(sys, 'frozen', False):
-    # Imported before PyQt4 to workaround PyQt4 util-linux conflict on gentoo
+if False and islinux and not getattr(sys, 'frozen', False):
+    # Imported before PyQt4 to workaround PyQt4 util-linux conflict discovered on gentoo
+    # See http://bugs.gentoo.org/show_bug.cgi?id=317557
+    # Importing uuid is slow so get rid of this at some point, maybe in a few
+    # years when even Debian has caught up
+    # Also remember to remove it from site.py in the binary builds
+    import uuid
     uuid.uuid4()
 
 if False:
     # Prevent pyflakes from complaining
     winutil, winutilerror, __appname__, islinux, __version__
-    fcntl, win32event, isfrozen, __author__, terminal_controller
-    winerror, win32api, isfreebsd, guess_type
+    fcntl, win32event, isfrozen, __author__
+    winerror, win32api, isfreebsd
 
-import cssutils
-cssutils.log.setLevel(logging.WARN)
+_mt_inited = False
+def _init_mimetypes():
+    global _mt_inited
+    import mimetypes
+    mimetypes.init([P('mime.types')])
+    _mt_inited = True
+
+def guess_type(*args, **kwargs):
+    import mimetypes
+    if not _mt_inited:
+        _init_mimetypes()
+    return mimetypes.guess_type(*args, **kwargs)
+
+def guess_all_extensions(*args, **kwargs):
+    import mimetypes
+    if not _mt_inited:
+        _init_mimetypes()
+    return mimetypes.guess_all_extensions(*args, **kwargs)
+
+def get_types_map():
+    import mimetypes
+    if not _mt_inited:
+        _init_mimetypes()
+    return mimetypes.types_map
 
 def to_unicode(raw, encoding='utf-8', errors='strict'):
     if isinstance(raw, unicode):
@@ -180,6 +204,7 @@ class CommandLineError(Exception):
     pass
 
 def setup_cli_handlers(logger, level):
+    import logging
     if os.environ.get('CALIBRE_WORKER', None) is not None and logger.handlers:
         return
     logger.setLevel(level)
@@ -241,6 +266,7 @@ def extract(path, dir):
     extractor(path, dir)
 
 def get_proxies(debug=True):
+    from urllib import getproxies
     proxies = getproxies()
     for key, proxy in list(proxies.items()):
         if not proxy or '..' in proxy:
@@ -290,6 +316,9 @@ def get_parsed_proxy(typ='http', debug=True):
                     prints('Using http proxy', str(ans))
                 return ans
 
+USER_AGENT = 'Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.9.2.13) Gecko/20101210 Gentoo Firefox/3.6.13'
+USER_AGENT_MOBILE = 'Mozilla/5.0 (Windows; U; Windows CE 5.1; rv:1.8.1a3) Gecko/20060610 Minimo/0.016'
+
 def random_user_agent():
     choices = [
         'Mozilla/5.0 (Windows NT 5.2; rv:2.0.1) Gecko/20100101 Firefox/4.0.1',
@@ -305,7 +334,6 @@ def random_user_agent():
     #return choices[-1]
     return choices[random.randint(0, len(choices)-1)]
 
-
 def browser(honor_time=True, max_time=2, mobile_browser=False, user_agent=None):
     '''
     Create a mechanize browser for web scraping. The browser handles cookies,
@@ -319,8 +347,7 @@ def browser(honor_time=True, max_time=2, mobile_browser=False, user_agent=None):
     opener.set_handle_refresh(True, max_time=max_time, honor_time=honor_time)
     opener.set_handle_robots(False)
     if user_agent is None:
-        user_agent = ' Mozilla/5.0 (Windows; U; Windows CE 5.1; rv:1.8.1a3) Gecko/20060610 Minimo/0.016' if mobile_browser else \
-                          'Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.9.2.13) Gecko/20101210 Gentoo Firefox/3.6.13'
+        user_agent = USER_AGENT_MOBILE if mobile_browser else USER_AGENT
     opener.addheaders = [('User-agent', user_agent)]
     http_proxy = get_proxies().get('http', None)
     if http_proxy:
@@ -383,6 +410,7 @@ class StreamReadWrapper(object):
 
 def detect_ncpus():
     """Detects the number of effective CPUs in the system"""
+    import multiprocessing
     ans = -1
     try:
         ans = multiprocessing.cpu_count()
@@ -537,7 +565,52 @@ def as_unicode(obj, enc=preferred_encoding):
                 obj = repr(obj)
     return force_unicode(obj, enc=enc)
 
+def url_slash_cleaner(url):
+    '''
+    Removes redundant /'s from url's.
+    '''
+    return re.sub(r'(?<!:)/{2,}', '/', url)
 
+def get_download_filename(url, cookie_file=None):
+    '''
+    Get a local filename for a URL using the content disposition header
+    '''
+    from contextlib import closing
+    from urllib2 import unquote as urllib2_unquote
+
+    filename = ''
+
+    br = browser()
+    if cookie_file:
+        from mechanize import MozillaCookieJar
+        cj = MozillaCookieJar()
+        cj.load(cookie_file)
+        br.set_cookiejar(cj)
+
+    try:
+        with closing(br.open(url)) as r:
+            disposition = r.info().get('Content-disposition', '')
+            for p in disposition.split(';'):
+                if 'filename' in p:
+                    if '*=' in disposition:
+                        parts = disposition.split('*=')[-1]
+                        filename = parts.split('\'')[-1]
+                    else:
+                        filename = disposition.split('=')[-1]
+                    if filename[0] in ('\'', '"'):
+                        filename = filename[1:]
+                    if filename[-1] in ('\'', '"'):
+                        filename = filename[:-1]
+                    filename = urllib2_unquote(filename)
+                    break
+    except:
+        import traceback
+        traceback.print_exc()
+
+    if not filename:
+        filename = r.geturl().split('/')[-1]
+
+    return filename
 
 def human_readable(size):
     """ Convert a size in bytes into a human readable form """
@@ -633,5 +706,4 @@ main()
     ipshell = IPShellEmbed(user_ns=user_ns)
     ipshell()
     sys.argv = old_argv
-
 

@@ -73,13 +73,13 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
           choices=sorted(list(choices), key=sort_key))
 
 
-        self.current_font = None
+        self.current_font = self.initial_font = None
         self.change_font_button.clicked.connect(self.change_font)
 
 
     def initialize(self):
         ConfigWidgetBase.initialize(self)
-        self.current_font = gprefs['font']
+        self.current_font = self.initial_font = gprefs['font']
         self.update_font_display()
 
     def restore_defaults(self):
@@ -119,7 +119,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def commit(self, *args):
         rr = ConfigWidgetBase.commit(self, *args)
-        if self.current_font != gprefs['font']:
+        if self.current_font != self.initial_font:
             gprefs['font'] = self.current_font
             QApplication.setFont(self.font_display.font())
             rr = True

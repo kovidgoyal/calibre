@@ -15,7 +15,6 @@ from calibre.customize import CatalogPlugin
 from calibre.customize.conversion import OptionRecommendation, DummyReporter
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, BeautifulStoneSoup, Tag, NavigableString
 from calibre.ebooks.chardet import substitute_entites
-from calibre.ebooks.oeb.base import XHTML_NS
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.config import config_dir
 from calibre.utils.date import format_date, isoformat, is_date_undefined, now as nowf
@@ -4322,6 +4321,8 @@ Author '{0}':
             '''
             Generate description header from template
             '''
+            from calibre.ebooks.oeb.base import XHTML_NS
+
             def generate_html():
                 args = dict(
                             author=author,

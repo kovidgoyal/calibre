@@ -15,7 +15,8 @@ from math import ceil
 from PyQt4.QtGui import QImage
 
 from calibre import prints
-from calibre.ebooks.metadata import title_sort, author_to_author_sort
+from calibre.ebooks.metadata import (title_sort, author_to_author_sort,
+        string_to_authors, authors_to_string)
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.library.database import LibraryDatabase
 from calibre.library.field_metadata import FieldMetadata, TagsIcons
@@ -24,9 +25,7 @@ from calibre.library.caches import ResultCache
 from calibre.library.custom_columns import CustomColumns
 from calibre.library.sqlite import connect, IntegrityError
 from calibre.library.prefs import DBPrefs
-from calibre.ebooks.metadata import string_to_authors, authors_to_string
 from calibre.ebooks.metadata.book.base import Metadata
-from calibre.ebooks.metadata.meta import get_metadata, metadata_from_formats
 from calibre.constants import preferred_encoding, iswindows, isosx, filesystem_encoding
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.customize.ui import run_plugins_on_import
@@ -853,8 +852,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         mi.pubdate     = row[fm['pubdate']]
         mi.uuid        = row[fm['uuid']]
         mi.title_sort  = row[fm['sort']]
+        mi.book_size   = row[fm['size']]
         mi.last_modified = row[fm['last_modified']]
-        mi.size        = row[fm['size']]
         formats = row[fm['formats']]
         if not formats:
             formats = None
@@ -1379,13 +1378,15 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             for (cat, dex, mult, is_comp) in md:
                 if not book[dex]:
                     continue
+                tid_cat = tids[cat]
+                tcats_cat = tcategories[cat]
                 if not mult:
                     val = book[dex]
                     if is_comp:
-                        item = tcategories[cat].get(val, None)
+                        item = tcats_cat.get(val, None)
                         if not item:
                             item = tag_class(val, val)
-                            tcategories[cat][val] = item
+                            tcats_cat[val] = item
                         item.c += 1
                         item.id = val
                         if rating > 0:
@@ -1393,11 +1394,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                             item.rc += 1
                         continue
                     try:
-                        (item_id, sort_val) = tids[cat][val] # let exceptions fly
-                        item = tcategories[cat].get(val, None)
+                        (item_id, sort_val) = tid_cat[val] # let exceptions fly
+                        item = tcats_cat.get(val, None)
                         if not item:
                             item = tag_class(val, sort_val)
-                            tcategories[cat][val] = item
+                            tcats_cat[val] = item
                         item.c += 1
                         item.id_set.add(book[0])
                         item.id = item_id
@@ -1411,21 +1412,15 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     if is_comp:
                         vals = [v.strip() for v in vals if v.strip()]
                         for val in vals:
-                            if val not in tids:
-                                tids[cat][val] = (val, val)
-                            item = tcategories[cat].get(val, None)
-                            if not item:
-                                item = tag_class(val, val)
-                                tcategories[cat][val] = item
-                            item.c += 1
-                            item.id = val
+                            if val not in tid_cat:
+                                tid_cat[val] = (val, val)
                     for val in vals:
                         try:
-                            (item_id, sort_val) = tids[cat][val] # let exceptions fly
-                            item = tcategories[cat].get(val, None)
+                            (item_id, sort_val) = tid_cat[val] # let exceptions fly
+                            item = tcats_cat.get(val, None)
                             if not item:
                                 item = tag_class(val, sort_val)
-                                tcategories[cat][val] = item
+                                tcats_cat[val] = item
                             item.c += 1
                             item.id_set.add(book[0])
                             item.id = item_id
@@ -1761,7 +1756,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         return books_to_refresh
 
     def set_metadata(self, id, mi, ignore_errors=False, set_title=True,
-                     set_authors=True, commit=True, force_changes=False):
+                     set_authors=True, commit=True, force_changes=False,
+                     notify=True):
         '''
         Set metadata for the book `id` from the `Metadata` object `mi`
 
@@ -1870,7 +1866,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                          label=user_mi[key]['label'], commit=False)
         if commit:
             self.conn.commit()
-        self.notify('metadata', [id])
+        if notify:
+            self.notify('metadata', [id])
 
     def authors_sort_strings(self, id, index_is_id=False):
         '''
@@ -2007,8 +2004,16 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             return False
         if isbytestring(title):
             title = title.decode(preferred_encoding, 'replace')
+        old_title = self.title(id, index_is_id=True)
+        # We cannot check if old_title == title as previous code might have
+        # already updated the cache
+        only_case_change = icu_lower(old_title) == icu_lower(title)
         self.conn.execute('UPDATE books SET title=? WHERE id=?', (title, id))
         self.data.set(id, self.FIELD_MAP['title'], title, row_is_id=True)
+        if only_case_change:
+            # SQLite update trigger will not update sort on a case change
+            self.conn.execute('UPDATE books SET sort=? WHERE id=?',
+                    (title_sort(title), id))
         ts = self.conn.get('SELECT sort FROM books WHERE id=?', (id,),
                 all=False)
         if ts:
@@ -2733,6 +2738,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.set_identifier(id_, 'isbn', isbn, notify=notify, commit=commit)
 
     def add_catalog(self, path, title):
+        from calibre.ebooks.metadata.meta import get_metadata
+
         format = os.path.splitext(path)[1][1:].lower()
         with lopen(path, 'rb') as stream:
             matches = self.data.get_matches('title', '='+title)
@@ -2768,6 +2775,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
 
     def add_news(self, path, arg):
+        from calibre.ebooks.metadata.meta import get_metadata
+
         format = os.path.splitext(path)[1][1:].lower()
         stream = path if hasattr(path, 'read') else lopen(path, 'rb')
         stream.seek(0)
@@ -3161,6 +3170,8 @@ books_series_link      feeds
                 yield formats
 
     def import_book_directory_multiple(self, dirpath, callback=None):
+        from calibre.ebooks.metadata.meta import metadata_from_formats
+
         duplicates = []
         for formats in self.find_books_in_directory(dirpath, False):
             mi = metadata_from_formats(formats)
@@ -3176,6 +3187,7 @@ books_series_link      feeds
         return duplicates
 
     def import_book_directory(self, dirpath, callback=None):
+        from calibre.ebooks.metadata.meta import metadata_from_formats
         dirpath = os.path.abspath(dirpath)
         formats = self.find_books_in_directory(dirpath, True)
         formats = list(formats)[0]

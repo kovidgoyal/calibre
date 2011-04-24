@@ -13,9 +13,9 @@ from PyQt4.Qt import Qt, QModelIndex, QAbstractItemModel, QVariant, QIcon, \
 
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget
 from calibre.gui2.preferences.plugins_ui import Ui_Form
-from calibre.customize.ui import initialized_plugins, is_disabled, enable_plugin, \
-                                 disable_plugin, plugin_customization, add_plugin, \
-                                 remove_plugin
+from calibre.customize.ui import (initialized_plugins, is_disabled, enable_plugin,
+                                 disable_plugin, plugin_customization, add_plugin,
+                                 remove_plugin, NameConflict)
 from calibre.gui2 import NONE, error_dialog, info_dialog, choose_files, \
         question_dialog, gprefs
 from calibre.utils.search_query_parser import SearchQueryParser
@@ -218,6 +218,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.search.search.connect(self.find)
         self.next_button.clicked.connect(self.find_next)
         self.previous_button.clicked.connect(self.find_previous)
+        self.changed_signal.connect(self.reload_store_plugins)
 
     def find(self, query):
         idx = self._plugin_model.find(query)
@@ -278,7 +279,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                         ' Are you sure you want to proceed?'),
                     show_copy_button=False):
                 return
-            plugin = add_plugin(path)
+            try:
+                plugin = add_plugin(path)
+            except NameConflict as e:
+                return error_dialog(self, _('Already exists'),
+                        unicode(e), show=True)
             self._plugin_model.populate()
             self._plugin_model.reset()
             self.changed_signal.emit()
@@ -344,6 +349,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                          plugin.name + _(' cannot be removed. It is a '
                          'builtin plugin. Try disabling it instead.')).exec_()
 
+    def reload_store_plugins(self):
+        self.gui.load_store_plugins()
+        if self.gui.iactions.has_key('Store'):
+            self.gui.iactions['Store'].load_menu()
+
     def check_for_add_to_toolbars(self, plugin):
         from calibre.gui2.preferences.toolbar import ConfigWidget
         from calibre.customize import InterfaceActionBase
@@ -375,6 +385,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 installed_actions = list(gprefs.get('action-layout-'+key, []))
                 installed_actions.append(plugin_action.name)
                 gprefs['action-layout-'+key] = tuple(installed_actions)
+
 
 if __name__ == '__main__':
     from PyQt4.Qt import QApplication
