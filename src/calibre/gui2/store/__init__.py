@@ -161,18 +161,6 @@ class StorePlugin(object): # {{{
         '''
         return False
 
-    def get_settings(self):
-        '''
-        This is only useful for plugins that implement
-        :attr:`config_widget` that is the only way to save
-        settings. This is used by plugins to get the saved
-        settings and apply when necessary.
-
-        :return: A dictionary filled with the settings used
-        by this plugin.
-        '''
-        raise NotImplementedError()
-
     def do_genesis(self):
         self.genesis()
 
