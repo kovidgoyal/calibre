@@ -9,17 +9,17 @@ __docformat__ = 'restructuredtext en'
 import re
 from random import shuffle
 
-from PyQt4.Qt import (Qt, QDialog, QTimer, QCheckBox, QVBoxLayout) 
+from PyQt4.Qt import (Qt, QDialog, QTimer, QCheckBox, QVBoxLayout, QIcon) 
 
 from calibre.gui2 import JSONConfig, info_dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
-from calibre.gui2.store.search.download_thread import SearchThreadPool, SearchThread
+from calibre.gui2.store.search.adv_search_builder import AdvSearchBuilderDialog
+from calibre.gui2.store.search.download_thread import SearchThreadPool, \
+    CacheUpdateThreadPool
 from calibre.gui2.store.search.search_ui import Ui_Dialog
 
 HANG_TIME = 75000 # milliseconds seconds
 TIMEOUT = 75 # seconds
-SEARCH_THREAD_TOTAL = 4
-COVER_DOWNLOAD_THREAD_TOTAL = 2
 
 class SearchDialog(QDialog, Ui_Dialog):
 
@@ -31,10 +31,16 @@ class SearchDialog(QDialog, Ui_Dialog):
 
         # We keep a cache of store plugins and reference them by name.
         self.store_plugins = istores
-        self.search_pool = SearchThreadPool(SearchThread, SEARCH_THREAD_TOTAL)
+        self.search_pool = SearchThreadPool(4)
+        self.cache_pool = CacheUpdateThreadPool(2)
         # Check for results and hung threads.
         self.checker = QTimer()
+        self.progress_checker = QTimer()
         self.hang_check = 0
+        
+        # Update store caches silently.
+        for p in self.store_plugins.values():
+            self.cache_pool.add_task(p, 30)
 
         # Add check boxes for each store so the user
         # can disable searching specific stores on a
@@ -51,16 +57,27 @@ class SearchDialog(QDialog, Ui_Dialog):
         # Create and add the progress indicator
         self.pi = ProgressIndicator(self, 24)
         self.top_layout.addWidget(self.pi)
+        
+        self.adv_search_button.setIcon(QIcon(I('search.png')))
 
+        self.adv_search_button.clicked.connect(self.build_adv_search)
         self.search.clicked.connect(self.do_search)
         self.checker.timeout.connect(self.get_results)
+        self.progress_checker.timeout.connect(self.check_progress)
         self.results_view.activated.connect(self.open_store)
         self.select_all_stores.clicked.connect(self.stores_select_all)
         self.select_invert_stores.clicked.connect(self.stores_select_invert)
         self.select_none_stores.clicked.connect(self.stores_select_none)
         self.finished.connect(self.dialog_closed)
 
+        self.progress_checker.start(100)
+
         self.restore_state()
+
+    def build_adv_search(self):
+        adv = AdvSearchBuilderDialog(self)
+        if adv.exec_() == QDialog.Accepted:
+            self.search_edit.setText(adv.search_string())
 
     def resize_columns(self):
         total = 600
@@ -105,11 +122,9 @@ class SearchDialog(QDialog, Ui_Dialog):
         for n in store_names:
             if getattr(self, 'store_check_' + n).isChecked():
                 self.search_pool.add_task(query, n, self.store_plugins[n], TIMEOUT)
-        if self.search_pool.has_tasks():
-            self.hang_check = 0
-            self.checker.start(100)
-            self.search_pool.start_threads()
-            self.pi.startAnimation()
+        self.hang_check = 0
+        self.checker.start(100)
+        self.pi.startAnimation()
 
     def clean_query(self, query):
         query = query.lower()
@@ -181,26 +196,30 @@ class SearchDialog(QDialog, Ui_Dialog):
         if self.hang_check >= HANG_TIME:
             self.search_pool.abort()
             self.checker.stop()
-            self.pi.stopAnimation()
         else:
             # Stop the checker if not threads are running.
             if not self.search_pool.threads_running() and not self.search_pool.has_tasks():
                 self.checker.stop()
-                self.pi.stopAnimation()
 
         while self.search_pool.has_results():
             res, store_plugin = self.search_pool.get_result()
             if res:
                 self.results_view.model().add_result(res, store_plugin)
-                
-        if not self.checker.isActive():
-            if not self.results_view.model().has_results():
-                info_dialog(self, _('No matches'), _('Couldn\'t find any books matching your query.'), show=True, show_copy_button=False)
+
+        if not self.results_view.model().has_results():
+            info_dialog(self, _('No matches'), _('Couldn\'t find any books matching your query.'), show=True, show_copy_button=False)
 
 
     def open_store(self, index):
         result = self.results_view.model().get_result(index)
         self.store_plugins[result.store_name].open(self, result.detail_item)
+
+    def check_progress(self):
+        if not self.search_pool.threads_running() and not self.results_view.model().cover_pool.threads_running() and not self.results_view.model().details_pool.threads_running(): 
+            self.pi.stopAnimation()
+        else:
+            if not self.pi.isAnimated():
+                self.pi.startAnimation()
 
     def get_store_checks(self):
         '''
