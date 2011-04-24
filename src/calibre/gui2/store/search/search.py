@@ -14,7 +14,8 @@ from PyQt4.Qt import (Qt, QDialog, QTimer, QCheckBox, QVBoxLayout, QIcon)
 from calibre.gui2 import JSONConfig, info_dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.gui2.store.search.adv_search_builder import AdvSearchBuilderDialog
-from calibre.gui2.store.search.download_thread import SearchThreadPool
+from calibre.gui2.store.search.download_thread import SearchThreadPool, \
+    CacheUpdateThreadPool
 from calibre.gui2.store.search.search_ui import Ui_Dialog
 
 HANG_TIME = 75000 # milliseconds seconds
@@ -31,10 +32,15 @@ class SearchDialog(QDialog, Ui_Dialog):
         # We keep a cache of store plugins and reference them by name.
         self.store_plugins = istores
         self.search_pool = SearchThreadPool(4)
+        self.cache_pool = CacheUpdateThreadPool(2)
         # Check for results and hung threads.
         self.checker = QTimer()
         self.progress_checker = QTimer()
         self.hang_check = 0
+        
+        # Update store caches silently.
+        for p in self.store_plugins.values():
+            self.cache_pool.add_task(p, 30)
 
         # Add check boxes for each store so the user
         # can disable searching specific stores on a
@@ -116,10 +122,9 @@ class SearchDialog(QDialog, Ui_Dialog):
         for n in store_names:
             if getattr(self, 'store_check_' + n).isChecked():
                 self.search_pool.add_task(query, n, self.store_plugins[n], TIMEOUT)
-        if self.search_pool.has_tasks() or self.search_pool.threads_running():
-            self.hang_check = 0
-            self.checker.start(100)
-            self.pi.startAnimation()
+        self.hang_check = 0
+        self.checker.start(100)
+        self.pi.startAnimation()
 
     def clean_query(self, query):
         query = query.lower()
@@ -200,10 +205,9 @@ class SearchDialog(QDialog, Ui_Dialog):
             res, store_plugin = self.search_pool.get_result()
             if res:
                 self.results_view.model().add_result(res, store_plugin)
-                
-        if not self.checker.isActive():
-            if not self.results_view.model().has_results():
-                info_dialog(self, _('No matches'), _('Couldn\'t find any books matching your query.'), show=True, show_copy_button=False)
+
+        if not self.results_view.model().has_results():
+            info_dialog(self, _('No matches'), _('Couldn\'t find any books matching your query.'), show=True, show_copy_button=False)
 
 
     def open_store(self, index):

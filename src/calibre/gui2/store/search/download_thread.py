@@ -192,3 +192,33 @@ class DetailsThread(Thread):
                 self.tasks.task_done()
             except:
                 continue
+
+
+class CacheUpdateThreadPool(GenericDownloadThreadPool):
+
+    def __init__(self, thread_count):
+        GenericDownloadThreadPool.__init__(self, CacheUpdateThread, thread_count)
+
+    def add_task(self, store_plugin, timeout=10):
+        self.tasks.put((store_plugin, timeout))
+        GenericDownloadThreadPool.add_task(self)
+
+
+class CacheUpdateThread(Thread):
+
+    def __init__(self, tasks, results):
+        Thread.__init__(self)
+        self.daemon = True
+        self.tasks = tasks
+        self._run = True
+
+    def abort(self):
+        self._run = False
+
+    def run(self):
+        while self._run and not self.tasks.empty():
+            try:
+                store_plugin, timeout = self.tasks.get()
+                store_plugin.update_cache(timeout=timeout, suppress_progress=True)
+            except:
+                traceback.print_exc()
