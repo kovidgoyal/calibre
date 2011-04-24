@@ -145,10 +145,10 @@ def download(ids, db, do_identify, covers,
     ans = {}
     count = 0
     all_failed = True
-    #'''
+    '''
     # Test apply dialog
     all_failed = do_identify = covers = False
-    #'''
+    '''
     for i, mi in izip(ids, metadata):
         if abort.is_set():
             log.error('Aborting...')

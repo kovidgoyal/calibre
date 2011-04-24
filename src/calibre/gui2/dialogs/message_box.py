@@ -143,6 +143,9 @@ class ViewLog(QDialog): # {{{
         QApplication.clipboard().setText(txt)
 # }}}
 
+
+_proceed_memory = []
+
 class ProceedNotification(MessageBox): # {{{
 
     def __init__(self, callback, payload, html_log, log_viewer_title, title, msg,
@@ -174,6 +177,7 @@ class ProceedNotification(MessageBox): # {{{
         self.det_msg_toggle.setVisible(bool(det_msg))
         self.setModal(False)
         self.callback = callback
+        _proceed_memory.append(self)
 
     def show_log(self):
         self.log_viewer = ViewLog(self.log_viewer_title, self.html_log,
@@ -189,6 +193,7 @@ class ProceedNotification(MessageBox): # {{{
             self.setParent(None)
             self.finished.disconnect()
             self.vlb.clicked.disconnect()
+            _proceed_memory.remove(self)
 # }}}
 
 if __name__ == '__main__':
