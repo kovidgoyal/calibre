@@ -247,5 +247,6 @@ class SearchDialog(QDialog, Ui_Dialog):
     def dialog_closed(self, result):
         self.results_view.model().closing()
         self.search_pool.abort()
+        self.cache_pool.abort()
         self.save_state()
 
