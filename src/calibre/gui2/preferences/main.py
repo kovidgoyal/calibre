@@ -87,6 +87,8 @@ class Category(QWidget): # {{{
         self.plugins = plugins
 
         self.bar = QToolBar(self)
+        self.bar.setStyleSheet(
+                'QToolBar { border: none; background: none }')
         self.bar.setIconSize(QSize(48, 48))
         self.bar.setMovable(False)
         self.bar.setFloatable(False)
