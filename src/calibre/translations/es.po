@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-04-22 20:42+0000\n"
-"PO-Revision-Date: 2011-04-21 15:39+0000\n"
+"PO-Revision-Date: 2011-04-23 10:33+0000\n"
 "Last-Translator: Jellby <Unknown>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-04-23 04:48+0000\n"
+"X-Launchpad-Export-Date: 2011-04-24 04:35+0000\n"
 "X-Generator: Launchpad (build 12758)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:528
@@ -3716,15 +3716,17 @@ msgstr "Descargar portadas de The Open Library"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/overdrive.py:33
 msgid "Downloads metadata from Overdrive's Content Reserve"
-msgstr ""
+msgstr "Descarga metadatos de Content Reserve de Overdrive"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/overdrive.py:45
 msgid "Download all metadata (slow)"
-msgstr ""
+msgstr "Descargar todos los metadatos (lento)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/overdrive.py:46
 msgid "Enable this option to gather all metadata available from Overdrive."
 msgstr ""
+"Active esta opción para recopilar todos los metadatos disponibles en "
+"Overdrive."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/overdrive.py:49
 msgid ""
@@ -3734,6 +3736,12 @@ msgid ""
 "time required. Check the download all metadata option below to enable "
 "downloading this data."
 msgstr ""
+"Pueden tomarse más metadatos de la página de detalles de Overdrive. Esto "
+"incluye un conjunto limitado de etiquetas usadas por bibliotecas, "
+"comentarios, idioma y el ISBN del libro electrónico. La recopilación de "
+"estos datos está desactivada de manera predeterminada debido al tiempo "
+"adicional que requiere. Active la opción de descargar todos los metadatos "
+"más abajo para descargar estos datos."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:22
 msgid "Modify images to meet Palm device size limitations."
@@ -4551,6 +4559,8 @@ msgid ""
 "Maximum number of simultaneous conversion/news download jobs. This number is "
 "twice the actual value for historical reasons."
 msgstr ""
+"Número máximo de tareas de conversión o descarga simultáneas. Este número es "
+"el doble del valor real por razones históricas."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:161
 msgid "Download social metadata (tags/rating/etc.)"
@@ -4796,11 +4806,11 @@ msgstr "Obtener anotaciones (experimental)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:56
 msgid "Not supported"
-msgstr ""
+msgstr "No soportado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:57
 msgid "Fetching annotations is not supported for this device"
-msgstr ""
+msgstr "No se pueden extraer anotaciones de este dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:61
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:245
@@ -5505,7 +5515,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:471
 msgid "Applying changed metadata"
-msgstr ""
+msgstr "Aplicando los metadatos modificados"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:538
 msgid "Some failures"
@@ -5756,6 +5766,8 @@ msgid ""
 "Calibre helps you find the ebooks you want by searching the websites of "
 "various commercial and public domain book sources for you."
 msgstr ""
+"Calibre le ayuda a encontrar los libros electrónicos que desea buscando en "
+"las páginas de diferentes fuentes de libros comerciales y de dominio público."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:50
 msgid ""
@@ -5763,6 +5775,8 @@ msgid ""
 "are looking for, at the best price. You also get DRM status and other useful "
 "information."
 msgstr ""
+"Si usa la búsqueda integrada podrá encontrar qué tienda tiene el libro que "
+"busca al mejor precio. También sabrá si tiene DRM y otros detalles útiles."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:54
 msgid ""
@@ -5773,14 +5787,20 @@ msgid ""
 "especially if the book you are buying has <a href=\"http://drmfree.calibre-"
 "ebook.com/about#drm\">DRM</a>."
 msgstr ""
+"Todas las transacciones (con o sin pagos) tienen lugar entre usted y la "
+"tienda de libros. Calibre no toma parte en este proceso y cualquier "
+"incidencia que pueda ocurrir relacionada con una compra debe resolverse con "
+"la página en la que está comprando. Asegúrese de que cualquier libro que "
+"compre funcione en su lector, particularmente si se trata de libros con <a "
+"href=\"http://drmfree.calibre-ebook.com/about#drm\">DRM</a>."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:64
 msgid "Show this message again"
-msgstr ""
+msgstr "Volver a mostrar este mensaje"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:65
 msgid "About Get Books"
-msgstr ""
+msgstr "Sobre Get Books"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:15
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:54
@@ -6184,7 +6204,7 @@ msgstr "Pulse dos veces para abrir la ventana de Detalles del libro"
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:499
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:113
 msgid "Cover size: %dx%d"
-msgstr ""
+msgstr "Tamaño de portada: %d×%d"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex.py:16
 msgid "BibTeX Options"
@@ -11808,15 +11828,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:471
 msgid "Set metadata for the book from the selected format"
-msgstr ""
+msgstr "Establecer los metadatos del libro a partir del formato seleccionado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:478
 msgid "Add a format to this book"
-msgstr ""
+msgstr "Añadir un formato a este libro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:485
 msgid "Remove the selected format from this book"
-msgstr ""
+msgstr "Eliminar el formato seleccionado de este libro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:750
 msgid "Invalid cover"
@@ -11924,19 +11944,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:65
 msgid "Download only &metadata"
-msgstr ""
+msgstr "Descargar sólo los &metadatos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:69
 msgid "Download only &covers"
-msgstr ""
+msgstr "Descargar sólo las &portadas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:73
 msgid "&Configure download"
-msgstr ""
+msgstr "&Configurar descarga"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:77
 msgid "Download &both"
-msgstr ""
+msgstr "Descargar &ambos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:103
 msgid "Download metadata for %d books"
@@ -11988,6 +12008,8 @@ msgstr "(Fallo en portada)"
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:197
 msgid "Failed to download metadata or covers for any of the %d book(s)."
 msgstr ""
+"No se pudieron descargar los metadatos o las portadas para ninguno de los %d "
+"libros."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:202
 msgid ""
@@ -13160,10 +13182,18 @@ msgid ""
 "metadata sources has a genre like tag set for the book you are searching "
 "for. Most often, they all have large tag sets."
 msgstr ""
+"<p>Las diferentes fuentes de metadatos contiened distintos conjuntos de "
+"etiquetas para el miso libro. Si se activa esta opción calibre usará el "
+"menor conjunto de etiquetas. Esto suele representar mejor el género del "
+"libro, mientras que el conjunto mayor tiende a describir el contenido del "
+"libro.\n"
+"<p>Tenga en cuenta que esta opción sólo tiene importancia práctica si alguna "
+"de las fuentes de metadatos tiene un conjunto de etiquetas de tipo género "
+"para el libro que busca. Frecuentemente todas tienen conjuntos mayores."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:120
 msgid "Prefer &fewer tags"
-msgstr ""
+msgstr "Mejor con &menos etiquetas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc.py:50
 msgid "Failed to install command line tools."
@@ -13185,7 +13215,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:59
 msgid "Max. simultaneous conversion/news download jobs:"
-msgstr ""
+msgstr "Máximo número de tareas de conversión o descarga simultáneas:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:60
 msgid "Limit the max. simultaneous jobs to the available CPU &cores"
@@ -13227,7 +13257,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:247
 msgid "The {0} device does not support the {1} format."
-msgstr ""
+msgstr "El dispositivo {0} no admite el formato {1}."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:280
 msgid "Invalid destination"
@@ -14251,10 +14281,12 @@ msgstr "(todos los libros)"
 msgid ""
 "Books display will be restricted to those matching a selected saved search"
 msgstr ""
+"Se mostrarán sólo los libros que coincidan con la búsqueda guardada "
+"seleccionada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:53
 msgid " or the search "
-msgstr ""
+msgstr " o la búsqueda "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:87
 msgid "({0} of {1})"
@@ -14329,7 +14361,7 @@ msgstr "Abrir la tienda en un explorador web externo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/ebooks_com_plugin.py:95
 msgid "Not Available"
-msgstr ""
+msgstr "No disponible"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread_store_dialog_ui.py:62
 msgid "Search:"
@@ -14348,7 +14380,7 @@ msgstr "Cerrar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:33
 msgid "DRM"
-msgstr ""
+msgstr "DRM"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:33
 msgid "Price"
@@ -14360,6 +14392,9 @@ msgid ""
 "verify this price is correct. This price often does not include promotions "
 "the store may be running."
 msgstr ""
+"Precio detectado: %s. Compruebe que el precio es correcto en la tienda antes "
+"de realizar la compra. Este precio normalmente no incluye las promociones "
+"que la tienda pueda tener activas."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:182
 msgid ""
@@ -14368,6 +14403,10 @@ msgid ""
 "what you can do with this book. Check with the store before making any "
 "purchases to ensure you can actually read this book."
 msgstr ""
+"Se han detectado restricciones de DRM en este libro. Puede que el libro no "
+"funcione en su lector y que tenga limitaciones en lo que pueda hacer con él. "
+"Compruébelo en la tienda antes de realizar ninguna compra para asegurarse de "
+"que realmente va a poder leer este libro."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:184
 msgid ""
@@ -14376,21 +14415,28 @@ msgid ""
 "conversion. However, before making a purchase double check the DRM status "
 "with the store. The store may not be disclosing the use of DRM."
 msgstr ""
+"No se han detectado restricciones de DRM en este libro. Debería poder usar "
+"el libro en cualquier lector, siempre que esté en un formato soportado por "
+"calibro. No obstante, antes de realizar una compra vuelva a comprobar el "
+"posible DRM en la tienda. Es posible que la tienda no desvele abiertamente "
+"la presencia de DRM."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:186
 msgid ""
 "The DRM status of this book could not be determined. There is a very high "
 "likelihood that this book is actually DRM restricted."
 msgstr ""
+"No se pudo determinar si el libro tiene restricciones de DRM. Es muy "
+"probable que las tenga."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:198
 msgid "Couldn't find any books matching your query."
-msgstr ""
+msgstr "No se pudo encontrar ningún libro que satisfaga las condiciones."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:107
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search_ui.py:107
 msgid "Get Books"
-msgstr ""
+msgstr "Get Books"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:108
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search_ui.py:108
@@ -14421,6 +14467,13 @@ msgid ""
 "will be a .epub file. You can add this book to calibre using \"Add Books\" "
 "and selecting the file from the ADE library folder."
 msgstr ""
+"Este libro es un fichero EPUB con DRM. Se le pedirá que guarde este fichero "
+"en su ordenador. Una vez guardado, ábralo con <a "
+"href=\"http://www.adobe.com/products/digitaleditions/\">Adobe Digital "
+"Editions</a> (ADE).\r\n"
+"<p>ADE, por su parte descargará el libro real, que será un fichero «.epub». "
+"Puede añadir este libro a la biblioteca de calibre usando «Añadir libros» y "
+"seleccionando el fichero de la carpeta de la biblioteca de ADE."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/web_control.py:86
 msgid "File is not a supported ebook type. Save to disk?"
@@ -17905,7 +17958,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:555
 msgid "booksize() -- return value of the field capitalized"
-msgstr ""
+msgstr "booksize() -- devuelve el valor del campo en mayúsculas"
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:43
 msgid "Waiting..."
