@@ -206,7 +206,7 @@ class SearchDialog(QDialog, Ui_Dialog):
             if res:
                 self.results_view.model().add_result(res, store_plugin)
 
-        if not self.results_view.model().has_results():
+        if not self.search_pool.threads_running() and not self.results_view.model().has_results():
             info_dialog(self, _('No matches'), _('Couldn\'t find any books matching your query.'), show=True, show_copy_button=False)
 
 
