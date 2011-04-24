@@ -6,19 +6,19 @@ __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-from PyQt4.Qt import (QCoreApplication, QDialog, QTimer)
+from PyQt4.Qt import QDialog
 
 from calibre.gui2.store.mobileread.cache_progress_dialog_ui import Ui_Dialog
 
 class CacheProgressDialog(QDialog, Ui_Dialog):
-    
+
     def __init__(self, parent=None, total=None):
         QDialog.__init__(self, parent)
         self.setupUi(self)
-        
+
         self.completed = 0
-        self.canceled = False        
-        
+        self.canceled = False
+
         self.progress.setValue(0)
         self.progress.setMinimum(0)
         self.progress.setMaximum(total if total else 0)
@@ -32,7 +32,7 @@ class CacheProgressDialog(QDialog, Ui_Dialog):
         self.completed = 0
         self.canceled = False
         QDialog.open(self)
-        
+
     def reject(self):
         self.canceled = True
         QDialog.reject(self)
@@ -43,13 +43,13 @@ class CacheProgressDialog(QDialog, Ui_Dialog):
         records that have bee completed.
         '''
         self.set_progress(self.completed + 1)
-    
+
     def set_message(self, msg):
         self.message.setText(msg)
-    
+
     def set_details(self, msg):
         self.details.setText(msg)
-    
+
     def set_progress(self, completed):
         '''
         completed is an int from 0 to total representing the number
@@ -57,6 +57,6 @@ class CacheProgressDialog(QDialog, Ui_Dialog):
         '''
         self.completed = completed
         self.progress.setValue(self.completed)
-    
+
     def set_total(self, total):
         self.progress.setMaximum(total)

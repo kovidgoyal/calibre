@@ -158,7 +158,7 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
                 {
                     'isbn': '{identifiers:select(isbn)}',
                     'formats': '{formats}',
-                    'last_modified':'''{last_modified:'format_date($, "dd MMM yy")'}'''
+                    'last_modified':'''{last_modified:'format_date($, "dd MMM yyyy")'}'''
                     }[which])
             self.composite_sort_by.setCurrentIndex(2 if which == 'last_modified' else 0)
 

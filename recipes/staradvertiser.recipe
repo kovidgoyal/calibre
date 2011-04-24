@@ -1,5 +1,5 @@
 __license__   = 'GPL v3'
-__copyright__ = '2009-2010, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2009-2011, Darko Miletic <darko.miletic at gmail.com>'
 '''
 staradvertiser.com
 '''
@@ -9,7 +9,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class Starbulletin(BasicNewsRecipe):
     title                 = 'Honolulu Star Advertiser'
     __author__            = 'Darko Miletic'
-    description           = "Latest national and local Hawaii sports news"
+    description           = 'Latest national and local Hawaii sports news'
     publisher             = 'Honolulu Star-Advertiser'
     category              = 'news, Honolulu, Hawaii'
     oldest_article        = 2
@@ -19,7 +19,13 @@ class Starbulletin(BasicNewsRecipe):
     use_embedded_content  = False
     encoding              = 'utf8'
     publication_type      = 'newspaper'
-    extra_css             = ' body{font-family: Verdana,Arial,Helvetica,sans-serif} h1,.brown,.postCredit{color: #663300} .storyDeck{font-size: 1.2em; font-weight: bold} '
+    masthead_url          = 'http://media.staradvertiser.com/designimages/star-advertiser-logo-small.gif'
+    extra_css             = """ 
+                                body{font-family: Verdana,Arial,Helvetica,sans-serif} 
+                                h1,.brown,.postCredit{color: #663300} 
+                                .storyDeck{font-size: 1.2em; font-weight: bold}
+                                img{display: block}
+                            """
 
     conversion_options = {
                           'comment'          : description
@@ -28,14 +34,16 @@ class Starbulletin(BasicNewsRecipe):
                         , 'language'         : language
                         , 'linearize_tables' : True
                         }
-
-    remove_tags_before = dict(attrs={'id':'storyTitle'})
-    remove_tags_after  = dict(name='div',attrs={'class':'storytext'})
+    keep_only_tags = [
+                         dict(attrs={'id':'storyTitle'})
+                        ,dict(attrs={'class':['storyDeck','postCredit']})
+                        ,dict(name='span',attrs={'class':'brown'})
+                        ,dict(name='div',attrs={'class':'storytext'})
+                     ]
     remove_tags = [
-                     dict(name=['object','link','script','span'])
-                    ,dict(attrs={'class':'insideStoryImage'})
+                     dict(name=['object','link','script','span','meta','base','iframe'])
+                    ,dict(attrs={'class':['insideStoryImage','insideStoryAd']})
 					,dict(attrs={'name':'fb_share'})
-					,dict(name='div',attrs={'class':'storytext'})
                   ]
 
     feeds = [
@@ -47,3 +55,24 @@ class Starbulletin(BasicNewsRecipe):
              ,(u'Business'  , u'http://www.staradvertiser.com/business/index.rss'           )
              ,(u'Travel'    , u'http://www.staradvertiser.com/travel/index.rss'             )
             ]
+
+    def preprocess_html(self, soup):
+        for item in soup.findAll(style=True):
+            del item['style']
+        for item in soup.findAll('a'):
+            limg = item.find('img')
+            if item.string is not None:
+               str = item.string
+               item.replaceWith(str)
+            else:
+               if limg:
+                  item.name = 'div'
+                  item.attrs = []
+               else:
+                   str = self.tag_to_string(item)
+                   item.replaceWith(str)
+        for item in soup.findAll('img'):
+            if not item.has_key('alt'):
+               item['alt'] = 'image'
+        return soup
+            

@@ -556,10 +556,14 @@ class ResultCache(SearchQueryParser): # {{{
         return matchkind, query
 
     def get_bool_matches(self, location, query, candidates):
-        bools_are_tristate = not self.db_prefs.get('bools_are_tristate')
+        bools_are_tristate = self.db_prefs.get('bools_are_tristate')
         loc = self.field_metadata[location]['rec_index']
         matches = set()
         query = icu_lower(query)
+        if query not in (_('no'), _('unchecked'), '_no', 'false',
+                         _('yes'), _('checked'), '_yes', 'true',
+                         _('empty'), _('blank'), '_empty'):
+            raise ParseException(_('Invalid boolean query "{0}"').format(query))
         for id_ in candidates:
             item = self._data[id_]
             if item is None:
@@ -630,8 +634,11 @@ class ResultCache(SearchQueryParser): # {{{
                         terms.add(l)
                 if terms:
                     for l in terms:
-                        matches |= self.get_matches(l, query,
-                            candidates=candidates, allow_recursion=allow_recursion)
+                        try:
+                            matches |= self.get_matches(l, query,
+                                candidates=candidates, allow_recursion=allow_recursion)
+                        except:
+                            pass
                     return matches
 
             if location in self.field_metadata:
@@ -1005,9 +1012,9 @@ class SortKeyGenerator(object):
                 if sb == 'date':
                     try:
                         val = parse_date(val)
-                        dt = 'datetime'
                     except:
-                        pass
+                        val = UNDEFINED_DATE
+                    dt = 'datetime'
                 elif sb == 'number':
                     try:
                         val = float(val)

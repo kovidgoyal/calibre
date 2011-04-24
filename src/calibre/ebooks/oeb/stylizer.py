@@ -21,7 +21,6 @@ from calibre import force_unicode
 from calibre.ebooks import unit_convert
 from calibre.ebooks.oeb.base import XHTML, XHTML_NS, CSS_MIME, OEB_STYLES
 from calibre.ebooks.oeb.base import XPNSMAP, xpath, urlnormalize
-from calibre.ebooks.oeb.profile import PROFILES
 
 cssutils.log.setLevel(logging.WARN)
 
@@ -123,10 +122,10 @@ class CSSSelector(etree.XPath):
 class Stylizer(object):
     STYLESHEETS = WeakKeyDictionary()
 
-    def __init__(self, tree, path, oeb, opts, profile=PROFILES['PRS505'],
+    def __init__(self, tree, path, oeb, opts, profile=None,
             extra_css='', user_css=''):
         self.oeb, self.opts = oeb, opts
-        self.profile = profile
+        self.profile = opts.input_profile
         self.logger = oeb.logger
         item = oeb.manifest.hrefs[path]
         basename = os.path.basename(path)
