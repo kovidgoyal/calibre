@@ -556,7 +556,7 @@ class ResultCache(SearchQueryParser): # {{{
         return matchkind, query
 
     def get_bool_matches(self, location, query, candidates):
-        bools_are_tristate = not self.db_prefs.get('bools_are_tristate')
+        bools_are_tristate = self.db_prefs.get('bools_are_tristate')
         loc = self.field_metadata[location]['rec_index']
         matches = set()
         query = icu_lower(query)
@@ -630,8 +630,11 @@ class ResultCache(SearchQueryParser): # {{{
                         terms.add(l)
                 if terms:
                     for l in terms:
-                        matches |= self.get_matches(l, query,
-                            candidates=candidates, allow_recursion=allow_recursion)
+                        try:
+                            matches |= self.get_matches(l, query,
+                                candidates=candidates, allow_recursion=allow_recursion)
+                        except:
+                            pass
                     return matches
 
             if location in self.field_metadata:
@@ -707,7 +710,10 @@ class ResultCache(SearchQueryParser): # {{{
             for loc in location: # location is now an array of field indices
                 if loc == db_col['authors']:
                     ### DB stores authors with commas changed to bars, so change query
-                    q = query.replace(',', '|');
+                    if matchkind == REGEXP_MATCH:
+                        q = query.replace(',', r'\|');
+                    else:
+                        q = query.replace(',', '|');
                 else:
                     q = query
 
@@ -1002,9 +1008,9 @@ class SortKeyGenerator(object):
                 if sb == 'date':
                     try:
                         val = parse_date(val)
-                        dt = 'datetime'
                     except:
-                        pass
+                        val = UNDEFINED_DATE
+                    dt = 'datetime'
                 elif sb == 'number':
                     try:
                         val = float(val)

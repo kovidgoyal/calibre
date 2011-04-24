@@ -24,11 +24,18 @@ class Dialog(QDialog, Ui_Dialog):
         dynamic[confirm_config_name(self.name)] = self.again.isChecked()
 
 
-def confirm(msg, name, parent=None, pixmap='dialog_warning.png'):
+def confirm(msg, name, parent=None, pixmap='dialog_warning.png', title=None,
+        show_cancel_button=True, confirm_msg=None):
     if not dynamic.get(confirm_config_name(name), True):
         return True
     d = Dialog(msg, name, parent)
     d.label.setPixmap(QPixmap(I(pixmap)))
     d.setWindowIcon(QIcon(I(pixmap)))
+    if title is not None:
+        d.setWindowTitle(title)
+    if not show_cancel_button:
+        d.buttonBox.button(d.buttonBox.Cancel).setVisible(False)
+    if confirm_msg is not None:
+        d.again.setText(confirm_msg)
     d.resize(d.sizeHint())
     return d.exec_() == d.Accepted

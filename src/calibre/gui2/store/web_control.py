@@ -31,10 +31,14 @@ class NPWebView(QWebView):
             proxy_parts = urlparse(http_proxy)
             proxy = QNetworkProxy()
             proxy.setType(QNetworkProxy.HttpProxy)
-            proxy.setUser(proxy_parts.username)
-            proxy.setPassword(proxy_parts.password)
-            proxy.setHostName(proxy_parts.hostname)
-            proxy.setPort(proxy_parts.port)
+            if proxy_parts.username:
+                proxy.setUser(proxy_parts.username)
+            if proxy_parts.password:
+                proxy.setPassword(proxy_parts.password)
+            if proxy_parts.hostname:
+                proxy.setHostName(proxy_parts.hostname)
+            if proxy_parts.port:
+                proxy.setPort(proxy_parts.port)
             self.page().networkAccessManager().setProxy(proxy)
 
         self.page().setForwardUnsupportedContent(True)
@@ -64,6 +68,19 @@ class NPWebView(QWebView):
         filename = get_download_filename(url, cf)
         ext = os.path.splitext(filename)[1][1:].lower()
         if ext not in BOOK_EXTENSIONS:
+            if ext == 'acsm':
+                from calibre.gui2.dialogs.confirm_delete import confirm
+                if not confirm('<p>' + _('This ebook is a DRMed EPUB file.  '
+                          'You will be prompted to save this file to your '
+                          'computer. Once it is saved, open it with '
+                          '<a href="http://www.adobe.com/products/digitaleditions/">'
+                          'Adobe Digital Editions</a> (ADE).<p>ADE, in turn '
+                          'will download the actual ebook, which will be a '
+                          '.epub file. You can add this book to calibre '
+                          'using "Add Books" and selecting the file from '
+                          'the ADE library folder.'),
+                          'acsm_download', self):
+                    return
             home = os.path.expanduser('~')
             name = QFileDialog.getSaveFileName(self,
                 _('File is not a supported ebook type. Save to disk?'),

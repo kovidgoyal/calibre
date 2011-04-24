@@ -18,7 +18,6 @@ import cStringIO
 from calibre.ebooks.rb.rbml import RBMLizer
 from calibre.ebooks.rb import HEADER
 from calibre.ebooks.rb import unique_name
-from calibre.ebooks.oeb.base import OEB_RASTER_IMAGES
 from calibre.constants import __appname__, __version__
 
 TEXT_RECORD_SIZE = 4096
@@ -111,6 +110,7 @@ class RBWriter(object):
         return (size, pages)
 
     def _images(self, manifest):
+        from calibre.ebooks.oeb.base import OEB_RASTER_IMAGES
         images = []
         used_names = []
 

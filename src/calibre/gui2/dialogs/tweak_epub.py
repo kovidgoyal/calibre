@@ -12,6 +12,7 @@ from zipfile import ZipFile, ZIP_DEFLATED, ZIP_STORED
 
 from PyQt4.Qt import QDialog
 
+from calibre.constants import isosx
 from calibre.gui2 import open_local_file
 from calibre.gui2.dialogs.tweak_epub_ui import Ui_Dialog
 from calibre.libunzip import extract as zipextract
@@ -42,10 +43,18 @@ class TweakEpub(QDialog, Ui_Dialog):
         self.move(parent_loc.x(),parent_loc.y())
 
     def cleanup(self):
+        if isosx:
+            try:
+                import appscript
+                self.finder = appscript.app('Finder')
+                self.finder.Finder_windows[os.path.basename(self._exploded)].close()
+            except:
+                # appscript fails to load on 10.4
+                pass
+
         # Delete directory containing exploded ePub
         if self._exploded is not None:
             shutil.rmtree(self._exploded, ignore_errors=True)
-
 
     def display_exploded(self):
         '''

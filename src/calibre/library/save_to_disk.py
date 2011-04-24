@@ -14,7 +14,6 @@ from calibre.utils.formatter import TemplateFormatter
 from calibre.utils.filenames import shorten_components_to, supports_long_names, \
                                     ascii_filename
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
-from calibre.ebooks.metadata.meta import set_metadata
 from calibre.constants import preferred_encoding
 from calibre.ebooks.metadata import fmt_sidx
 from calibre.ebooks.metadata import title_sort
@@ -50,6 +49,23 @@ FORMAT_ARGS = {}
 for x in FORMAT_ARG_DESCS:
     FORMAT_ARGS[x] = ''
 
+
+def find_plugboard(device_name, format, plugboards):
+    cpb = None
+    if format in plugboards:
+        cpb = plugboards[format]
+    elif plugboard_any_format_value in plugboards:
+        cpb = plugboards[plugboard_any_format_value]
+    if cpb is not None:
+        if device_name in cpb:
+            cpb = cpb[device_name]
+        elif plugboard_any_device_value in cpb:
+            cpb = cpb[plugboard_any_device_value]
+        else:
+            cpb = None
+    if DEBUG:
+        prints('Device using plugboard', format, device_name, cpb)
+    return cpb
 
 def config(defaults=None):
     if defaults is None:
@@ -181,7 +197,6 @@ def get_components(template, mi, id, timefmt='%b %Y', length=250,
     for key in custom_metadata:
         if key in format_args:
             cm = custom_metadata[key]
-            ## TODO: NEWMETA: should ratings be divided by 2? The standard rating isn't...
             if cm['datatype'] == 'series':
                 format_args[key] = title_sort(format_args[key], order=tsorder)
                 if key+'_index' in format_args:
@@ -235,6 +250,7 @@ def save_book_to_disk(id_, db, root, opts, length):
 
 def do_save_book_to_disk(id_, mi, cover, plugboards,
         format_map, root, opts, length):
+    from calibre.ebooks.metadata.meta import set_metadata
     available_formats = [x.lower().strip() for x in format_map.keys()]
     if opts.formats == 'all':
         asked_formats = available_formats
@@ -279,20 +295,7 @@ def do_save_book_to_disk(id_, mi, cover, plugboards,
     written = False
     for fmt in formats:
         global plugboard_save_to_disk_value, plugboard_any_format_value
-        dev_name = plugboard_save_to_disk_value
-        cpb = None
-        if fmt in plugboards:
-            cpb = plugboards[fmt]
-            if dev_name in cpb:
-                cpb = cpb[dev_name]
-            else:
-                cpb = None
-        if cpb is None and plugboard_any_format_value in plugboards:
-            cpb = plugboards[plugboard_any_format_value]
-            if dev_name in cpb:
-                cpb = cpb[dev_name]
-            else:
-                cpb = None
+        cpb = find_plugboard(plugboard_save_to_disk_value, fmt, plugboards)
         # Leave this here for a while, in case problems arise.
         if cpb is not None:
             prints('Save-to-disk using plugboard:', fmt, cpb)

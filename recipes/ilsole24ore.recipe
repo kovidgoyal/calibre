@@ -1,71 +1,65 @@
-#!/usr/bin/env  python
-__license__   = 'GPL v3'
-__author__    = 'Lorenzo Vigentini & Edwin van Maastrigt'
-__copyright__ = '2009, Lorenzo Vigentini <l.vigentini at gmail.com> and Edwin van Maastrigt <evanmaastrigt at gmail.com>'
-__description__ = 'Financial news daily paper - v1.02 (30, January 2010)'
+__author__    = 'Marco Saraceno'
+__copyright__ = '2010, Marco Saraceno <marcosaraceno at gmail.com>'
+description   = 'Italian daily newspaper - v 1.1 (Mar14,2011)'
 
 '''
-http://www.ilsole24ore.com/
+http://www.ilsole24ore.com
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
+class IlSole24Ore(BasicNewsRecipe):
+    __author__        = 'Marco Saraceno'
+    description   = 'Italian financial daily newspaper'
 
-class ilsole24Ore(BasicNewsRecipe):
-    author        = 'Lorenzo Vigentini & Edwin van Maastrigt'
-    description   = 'Financial news daily paper'
-
-    cover_url      = 'http://www.ilsole24ore.com/img2007/print_header.gif'
-
-    title          = u'il Sole 24 Ore New'
-    publisher      = 'italiaNews'
-    category       = 'News, finance, economy, politics'
+    cover_url      = 'http://www.shopping24.ilsole24ore.com/ProductRelated/rds/img/logo_sole.gif'
+    title          = u'Il Sole 24 Ore'
+    publisher      = 'Gruppo editoriale GRUPPO 24ORE'
+    category       = 'News, politics, culture, economy, financial, Italian'
 
     language       = 'it'
     timefmt        = '[%a, %d %b, %Y]'
 
     oldest_article = 2
-    max_articles_per_feed = 50
+    max_articles_per_feed = 100
     use_embedded_content  = False
+    extra_css      = '.headline {font-size: x-large;} \n .fact { padding-top: 10pt  }'
 
-    remove_javascript     = True
-    no_stylesheets        = True
+
+    remove_tags = [
+                            dict(name='div', attrs={'class':['header','titolo']}),
+                            dict(name='table', attrs={'class':['footer1024','footerdown']}),
+                            ]
+
 
     def get_article_url(self, article):
-        return article.get('id', article.get('guid', None))
+       link = article.get('link', None)
+       if link is None:
+           return article
+       if link.split('/')[-1]=="story01.htm":
+           link=link.split('/')[-2]
+           a=['0B','0C','0D','0E','0F','0G','0N'  ,'0L0S','0A']
+           b=['.' ,'/' ,'?' ,'-' ,'=' ,'&' ,'.com','www.','0']
+           for i in range(0,len(a)):
+              link=link.replace(a[i],b[i])
+           link="http://"+link
+       return link
+
+    feeds = [
+                  (u'Notizie Italia', u'http://www.ilsole24ore.com/rss/notizie/italia.xml'),
+                  (u'Notizie Europa', u'http://www.ilsole24ore.com/rss/notizie/europa.xml'),
+                  (u'Notizie USA', u'http://www.ilsole24ore.com/rss/notizie/usa.xml'),
+                  (u'Notizie Americhe', u'http://www.ilsole24ore.com/rss/notizie/americhe.xml'),
+                  (u'Notizie Medio Oriente e Africa', u'http://www.ilsole24ore.com/rss/notizie/medio-oriente-e-africa.xml'),
+                  (u'Notizie Asia e Oceania', u'http://www.ilsole24ore.com/rss/notizie/asia-e-oceania.xml'),
+                  (u'Commenti', u'http://www.ilsole24ore.com/rss/commenti-e-idee.xml'),
+                  (u'Norme e tributi', u'http://www.ilsole24ore.com/rss/norme-e-tributi.xml'),
+                  (u'Finanza', u'http://www.ilsole24ore.com/rss/finanza-e-mercati.xml'),
+                  (u'Economia', u'http://www.ilsole24ore.com/rss/economia.xml'),
+                  (u'Tecnologia', u'http://www.ilsole24ore.com/rss/tecnologie.xml'),
+                  (u'Cultura', u'http://www.ilsole24ore.com/rss/cultura.xml'),
+                  ]
 
     def print_version(self, url):
-        link, sep, params = url.rpartition('?')
-        if link  is None:
-           return link.replace('_1.php', '_php')
-        return link.replace('.shtml', '_PRN.shtml')
-
-    keep_only_tags     = [
-                            dict(name='div', attrs={'class':'txt'})
-                        ]
-#    remove_tags = [dict(name='br')]
-
-    feeds          = [
-                       (u'Prima pagina', u'http://www.ilsole24ore.com/rss/primapagina.xml'),
-                       (u'Norme e tributi', u'http://www.ilsole24ore.com/rss/norme-tributi.xml'),
-                       (u'Finanza e mercati', u'http://www.ilsole24ore.com/rss/finanza-mercati.xml'),
-                       (u'Economia e lavoro', u'http://www.ilsole24ore.com/rss/economia-lavoro.xml'),
-                       (u'Italia', u'http://www.ilsole24ore.com/rss/italia.xml'),
-                       (u'Mondo', u'http://www.ilsole24ore.com/rss/mondo.xml'),
-                       (u'Tecnologia e business', u'http://www.ilsole24ore.com/rss/tecnologia-business.xml'),
-                       (u'Cultura e tempo libero', u'http://www.ilsole24ore.com/rss/tempolibero-cultura.xml'),
-                       (u'Sport', u'http://www.ilsole24ore.com/rss/sport.xml'),
-                       (u'Professionisti 24', u'http://www.ilsole24ore.com/rss/prof_home.xml'),
-                       (u'Ambiente e Sicurezza',u'http://www.ilsole24ore.com/rss/prof_as.xml')
-                     ]
-
-    extra_css = '''
-                html, body, table, tr, td, h1, h2, h3, h4, h5, h6, p, a, span, br, img {margin:0;padding:0;border:0;font-size:12px;font-family:"Georgia","Times New Roman";}
-                .linkHighlight {color:#0292c6;}
-                .txt {border-bottom:1px solid #7c7c7c;padding-bottom:20px};text-align:justify;font-family:"serif"}
-                .txt p {line-height:18px;}
-                .txt span {line-height:22px;}
-                .title h3 {color:#7b7b7b;}
-                .title h4 {color:#08526e;font-size:26px;font-family:"Times New Roman";font-weight:normal;}
-                '''
+          return url.replace('.shtml', '_PRN.shtml')
 

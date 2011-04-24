@@ -12,8 +12,6 @@ import re
 
 from lxml import etree
 
-from calibre.ebooks.oeb.base import XHTML, XHTML_NS, barename, namespace
-from calibre.ebooks.oeb.stylizer import Stylizer
 
 BLOCK_TAGS = [
     'div',
@@ -58,12 +56,14 @@ class TXTMLizer(object):
         self.toc_titles = []
         self.toc_ids = []
         self.last_was_heading = False
-        
+
         self.create_flat_toc(self.oeb_book.toc)
 
         return self.mlize_spine()
 
     def mlize_spine(self):
+        from calibre.ebooks.oeb.base import XHTML
+        from calibre.ebooks.oeb.stylizer import Stylizer
         output = [u'']
         output.append(self.get_toc())
         for item in self.oeb_book.spine:
@@ -139,7 +139,7 @@ class TXTMLizer(object):
         # when remove paragraph spacing is enabled.
         text = re.sub('(?imu)^[ ]+', '', text)
         text = re.sub('(?imu)[ ]+$', '', text)
-        
+
         # Remove empty space and newlines at the beginning of the document.
         text = re.sub(r'(?u)^[ \n]+', '', text)
 
@@ -185,6 +185,7 @@ class TXTMLizer(object):
         @stylizer: The style information attached to the element.
         @page: OEB page used to determine absolute urls.
         '''
+        from calibre.ebooks.oeb.base import XHTML_NS, barename, namespace
 
         if not isinstance(elem.tag, basestring) \
            or namespace(elem.tag) != XHTML_NS:

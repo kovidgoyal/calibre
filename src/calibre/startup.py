@@ -61,6 +61,12 @@ if not _run_once:
 
     ################################################################################
     # Initialize locale
+    # Import string as we do not want locale specific
+    # string.whitespace/printable, on windows especially, this causes problems.
+    # Before the delay load optimizations, string was loaded before this point
+    # anyway, so we preserve the old behavior explicitly.
+    import string
+    string
     try:
         locale.setlocale(locale.LC_ALL, '')
     except:
@@ -162,10 +168,6 @@ if not _run_once:
     __builtin__.__dict__['icu_lower'] = icu_lower
     __builtin__.__dict__['icu_upper'] = icu_upper
     __builtin__.__dict__['icu_title'] = title_case
-
-    import mimetypes
-    mimetypes.init([P('mime.types')])
-    guess_type = mimetypes.guess_type
 
 def test_lopen():
     from calibre.ptempfile import TemporaryDirectory

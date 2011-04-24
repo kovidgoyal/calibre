@@ -21,7 +21,6 @@ except ImportError:
 import cStringIO
 
 from calibre.ebooks.pdb.formatwriter import FormatWriter
-from calibre.ebooks.oeb.base import OEB_RASTER_IMAGES
 from calibre.ebooks.pdb.header import PdbHeaderBuilder
 from calibre.ebooks.pml.pmlml import PMLMLizer
 
@@ -135,6 +134,7 @@ class Writer(FormatWriter):
         62-...: Raw image data in 8 bit PNG format.
         '''
         images = []
+        from calibre.ebooks.oeb.base import OEB_RASTER_IMAGES
 
         for item in manifest:
             if item.media_type in OEB_RASTER_IMAGES and item.href in image_hrefs.keys():

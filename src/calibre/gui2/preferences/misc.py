@@ -6,19 +6,27 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 
-from calibre.gui2.preferences import ConfigWidgetBase, test_widget
+from calibre.gui2.preferences import ConfigWidgetBase, test_widget, Setting
 from calibre.gui2.preferences.misc_ui import Ui_Form
 from calibre.gui2 import error_dialog, config, open_local_file, info_dialog
 from calibre.constants import isosx
 
-# Check Integrity {{{
+class WorkersSetting(Setting):
+
+    def set_gui_val(self, val):
+        val = val//2
+        Setting.set_gui_val(self, val)
+
+    def get_gui_val(self):
+        val = Setting.get_gui_val(self)
+        return val * 2
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def genesis(self, gui):
         self.gui = gui
         r = self.register
-        r('worker_limit', config, restart_required=True)
+        r('worker_limit', config, restart_required=True, setting=WorkersSetting)
         r('enforce_cpu_limit', config, restart_required=True)
         self.device_detection_button.clicked.connect(self.debug_device_detection)
         self.button_open_config_dir.clicked.connect(self.open_config_dir)
