@@ -21,8 +21,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>682</width>
-        <height>254</height>
+        <width>699</width>
+        <height>306</height>
        </rect>
       </property>
       <attribute name="label">
@@ -189,8 +189,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>699</width>
-        <height>151</height>
+        <width>649</width>
+        <height>96</height>
        </rect>
       </property>
       <attribute name="label">
@@ -308,8 +308,8 @@ then the tags will be displayed each on their own line.</string>
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>699</width>
-        <height>306</height>
+        <width>429</width>
+        <height>63</height>
        </rect>
       </property>
       <attribute name="label">
@@ -374,7 +374,7 @@ then the tags will be displayed each on their own line.</string>
          </property>
         </widget>
        </item>
-       <item row="0" column="0">
+       <item row="0" column="0" rowspan="2">
         <widget class="QGroupBox" name="groupBox">
          <property name="title">
           <string>Select displayed metadata</string>
@@ -388,7 +388,7 @@ then the tags will be displayed each on their own line.</string>
            </widget>
           </item>
           <item row="0" column="1">
-           <widget class="QToolButton" name="toolButton">
+           <widget class="QToolButton" name="df_up_button">
             <property name="toolTip">
              <string>Move up</string>
             </property>
@@ -399,7 +399,7 @@ then the tags will be displayed each on their own line.</string>
            </widget>
           </item>
           <item row="2" column="1">
-           <widget class="QToolButton" name="toolButton_2">
+           <widget class="QToolButton" name="df_down_button">
             <property name="toolTip">
              <string>Move down</string>
             </property>
@@ -423,6 +423,16 @@ then the tags will be displayed each on their own line.</string>
            </spacer>
           </item>
          </layout>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QLabel" name="label_3">
+         <property name="text">
+          <string>Note that comments will always be displayed at the end, regardless of the position you assign here.</string>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
         </widget>
        </item>
       </layout>

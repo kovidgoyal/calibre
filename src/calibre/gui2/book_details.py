@@ -67,8 +67,9 @@ def render_html(mi, css, vertical, widget, all_fields=False): # {{{
                 % (table, right_pane))
     return ans
 
-def get_field_list(fm):
-    fieldlist = list(gprefs['book_display_fields'])
+def get_field_list(fm, use_defaults=False):
+    src = gprefs.defaults if use_defaults else gprefs
+    fieldlist = list(src['book_display_fields'])
     names = frozenset([x[0] for x in fieldlist])
     for field in fm.displayable_field_keys():
         if field not in names:
