@@ -438,14 +438,13 @@ def urls_from_identifiers(identifiers): # {{{
     ans = []
     for plugin in all_metadata_plugins():
         try:
-            url = plugin.get_book_url(identifiers)
-            if url is not None:
-                ans.append((plugin.name, url))
+            id_type, id_val, url = plugin.get_book_url(identifiers)
+            ans.append((plugin.name, id_type, id_val, url))
         except:
             pass
     isbn = identifiers.get('isbn', None)
     if isbn:
-        ans.append((isbn,
+        ans.append((isbn, 'isbn', isbn,
             'http://www.worldcat.org/search?q=bn%%3A%s&qt=advanced'%isbn))
     return ans
 # }}}

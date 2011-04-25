@@ -374,7 +374,11 @@ class Source(Plugin):
 
     def get_book_url(self, identifiers):
         '''
-        Return the URL for the book identified by identifiers at this source.
+        Return a 3-tuple or None. The 3-tuple is of the form:
+        (identifier_type, identifier_value, URL).
+        The URL is the URL for the book identified by identifiers at this
+        source. identifier_type, identifier_value specify the identifier
+        corresponding to the URL.
         This URL must be browseable to by a human using a browser. It is meant
         to provide a clickable link for the user to easily visit the books page
         at this source.
