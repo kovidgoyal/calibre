@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-04-22 20:42+0000\n"
-"PO-Revision-Date: 2011-04-06 15:13+0000\n"
-"Last-Translator: Daniel Nylander <yeager@ubuntu.com>\n"
+"PO-Revision-Date: 2011-04-24 20:00+0000\n"
+"Last-Translator: Merarom <Unknown>\n"
 "Language-Team: Swedish <sv@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-04-23 04:48+0000\n"
+"X-Launchpad-Export-Date: 2011-04-25 04:49+0000\n"
 "X-Generator: Launchpad (build 12758)\n"
 "X-Poedit-Country: SWEDEN\n"
 "X-Poedit-Language: Swedish\n"
@@ -231,7 +231,7 @@ msgstr "Inställningar"
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:609
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:33
 msgid "Store"
-msgstr ""
+msgstr "Butik"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:18
 msgid ""
@@ -503,7 +503,7 @@ msgstr "Hämta metadata"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1061
 msgid "Control how calibre downloads ebook metadata from the net"
-msgstr ""
+msgstr "Kontrollera hur Caliber laddningar ned ebokmetadata från nätet"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1066
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:269
@@ -532,59 +532,59 @@ msgstr "Diverse avancerad konfiguration"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1109
 msgid "Kindle books from Amazon"
-msgstr ""
+msgstr "Kindle böcker från Amazon"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1114
 msgid "Ebooks for readers."
-msgstr ""
+msgstr "E-böcker för läsare."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1119
 msgid "Books, Textbooks, eBooks, Toys, Games and More."
-msgstr ""
+msgstr "Och textböcker, böcker, leksaker, spel och mycket mer."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1124
 msgid "Publishers of fine books."
-msgstr ""
+msgstr "Utgivare av fina böcker."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1129
 msgid "World Famous eBook Store."
-msgstr ""
+msgstr "World Famous eBook Store."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1134
 msgid "The digital bookstore."
-msgstr ""
+msgstr "Den digitala bokhandel."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1139
 msgid "entertain, enrich, inspire."
-msgstr ""
+msgstr "underhålla, berika, inspirera."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1144
 msgid "Read anywhere."
-msgstr ""
+msgstr "Läs någonstans."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1149
 msgid "The first producer of free ebooks."
-msgstr ""
+msgstr "Den första tillverkaren av gratis e-böcker."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1154
 msgid "eReading: anytime. anyplace."
-msgstr ""
+msgstr "eReading: när som helst. var som helst."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1159
 msgid "The best ebooks at the best price: free!"
-msgstr ""
+msgstr "De bästa e-böcker till bästa pris: gratis!"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1164
 msgid "Ebooks handcrafted with the utmost care"
-msgstr ""
+msgstr "Eböcker handgjorda med största omsorg"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1169
 msgid "One web page for every book."
-msgstr ""
+msgstr "En webbsida för varje bok."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1174
 msgid "Your ebook. Your way."
-msgstr ""
+msgstr "Din eBok. Din väg."
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:102
 msgid "Conversion Input"
@@ -865,6 +865,15 @@ msgid ""
 "iTunes</em> menu item.</p><p>Enabling the Apple driver for direct connection "
 "to iDevices is an unsupported advanced user mode.</p><p></p>"
 msgstr ""
+"<p> Om du inte vill Caliber att ska känna igen din Apple iDevice när den är "
+"ansluten till din dator, klicka på <b> Inaktivera Apple Driver </b>. </p> "
+"För att överföra böcker till ditt iDevice, klicka <b> Inaktivera Apple "
+"Driver </b>, använd sedan \"Anslut till iTunes\" metod som rekommenderas i "
+"<a href=\"http://www.mobileread.com/forums/showthread.php?t=118559\"> "
+"Calibre + iDevices FAQ </a>, med <em> Connect / Dela </em> |. <em> Anslut "
+"till iTunes </em> menyalternativet </p> Aktivera Apple drivrutinen för "
+"direkt anslutning till iDevices är inte stöds avancerat användarläge. </p> "
+"</p>"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:65
 msgid "Disable Apple driver"
@@ -881,6 +890,7 @@ msgstr "Använd serie som kategori i iTunes/iBooks"
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:118
 msgid "Enable to use the series name as the iTunes Genre, iBooks Category"
 msgstr ""
+"Aktivera för att använda serierna namn som iTunes Genre, iBook Kategori"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:120
 msgid "Cache covers from iTunes/iBooks"
@@ -888,7 +898,7 @@ msgstr "Spara omslag från iTunes/iBooks i cachen"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:122
 msgid "Enable to cache and display covers from iTunes/iBooks"
-msgstr ""
+msgstr "Aktivera för att mellanlagra och visa omslag från iTunes / iBook"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:176
 msgid "Apple device"
@@ -1472,6 +1482,9 @@ msgid ""
 "device and its cards. This permits calibre to find books put on the device "
 "by other software and by wireless download."
 msgstr ""
+"Valet får Caliber att söka efter böcker i alla mappar på enheten och dess "
+"kort. Detta tillåter Caliber att hitta böcker  på enheten genom andra "
+"program och trådlös nedladdning."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:190
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/structure.py:69
@@ -2085,6 +2098,10 @@ msgid ""
 "margins. Sometimes, this can cause the removal of margins that should not "
 "have been removed. In this case you can disable the removal."
 msgstr ""
+"Vissa dokument anger sidmarginaler genom att ange en vänster och höger "
+"marginal på varje enskild punkt. Caliber kommer att försöka upptäcka och ta "
+"bort dessa marginaler. Ibland kan detta orsaka avlägsnande av marginaler som "
+"inte borde ha tagits bort. I detta fall kan du inaktivera borttagning."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:321
 msgid ""
@@ -2615,6 +2632,9 @@ msgid ""
 "\n"
 " See: "
 msgstr ""
+"Genre för boken. Val:%s\n"
+"\n"
+" Se: "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/output.py:159
 msgid "for a complete list with descriptions."
@@ -2685,6 +2705,10 @@ msgid ""
 "inline: Write the CSS as an inline style attribute.\n"
 "tag: Turn as many CSS styles as possible into HTML tags."
 msgstr ""
+"Ange hantering av CSS. Standard är klass.\n"
+"klass: Använd CSS-klasser och har inslag referens dem.\n"
+"inline: Skriv CSS som en infogad stil attribut.\n"
+"tag: Slå så många CSS-format som möjligt till HTML-taggar."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/htmlz/output.py:36
 msgid ""
@@ -2693,6 +2717,10 @@ msgid ""
 "external: Use an external CSS file that is linked in the document.\n"
 "inline: Place the CSS in the head section of the document."
 msgstr ""
+"Hur man hanterar CSS när du använder css-type = 'klass'.\n"
+"Standard är externa.\n"
+"yttre: Använd en extern CSS-fil som är länkad i dokumentet.\n"
+"inline: Placera CSS i huvudet avsnitt i dokumentet."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/from_any.py:47
 msgid "Creating LIT file from EPUB..."
@@ -3587,7 +3615,7 @@ msgstr "Storbritannien"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:390
 msgid "Amazon timed out. Try again later."
-msgstr ""
+msgstr "Amazon tidsbegränsning löpte ut. Försök igen senare."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/base.py:155
 msgid "Metadata source"
@@ -3595,13 +3623,15 @@ msgstr "Metadatakälla"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/isbndb.py:37
 msgid "IsbnDB key:"
-msgstr ""
+msgstr "IsbnDB nyckel:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/isbndb.py:38
 msgid ""
 "To use isbndb.com you have to sign up for a free accountat isbndb.com and "
 "get an access key."
 msgstr ""
+"För att använda isbndb.com måste du registrera dig för ett gratis konto "
+"isbndb.com och få en accessnyckel."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/isbndb.py:42
 msgid ""
@@ -3609,22 +3639,28 @@ msgid ""
 "an isbndb key and enter it below. Instructions to get the key are <a "
 "href=\"http://isbndb.com/docs/api/30-keys.html\">here</a>."
 msgstr ""
+"Om du vill använda metadata från isbndb.com måste du registrera dig för ett "
+"gratis konto och få en isbndb nyckel och ange den nedan. Instruktioner för "
+"att få nyckeln är <a href=\"http://isbndb.com/docs/api/30-keys.html\"> här "
+"</a>."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/openlibrary.py:15
 msgid "Downloads covers from The Open Library"
-msgstr ""
+msgstr "Ladda ner omslag från The Open Library"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/overdrive.py:33
 msgid "Downloads metadata from Overdrive's Content Reserve"
-msgstr ""
+msgstr "Laddar ner metadata från Overdrive's Content Reserve"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/overdrive.py:45
 msgid "Download all metadata (slow)"
-msgstr ""
+msgstr "Ladda ner alla metadata (långsam)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/overdrive.py:46
 msgid "Enable this option to gather all metadata available from Overdrive."
 msgstr ""
+"Aktivera detta alternativ för att samla alla metadata som är tillgängliga "
+"från Overdrive."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/overdrive.py:49
 msgid ""
@@ -3634,6 +3670,11 @@ msgid ""
 "time required. Check the download all metadata option below to enable "
 "downloading this data."
 msgstr ""
+"Ytterligare metadata kan tas från Overdrive bokdetaljsidan. Detta omfattar "
+"en begränsad uppsättning taggar som används av bibliotek, kommentarer, språk "
+"och ebok ISBN. Insamling av dessa data är inaktiverat som standard på grund "
+"av den extra tid det tar. Markera ladda ner alla metadata alternativ nedan "
+"för att aktivera nedladdning av dessa data."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:22
 msgid "Modify images to meet Palm device size limitations."
@@ -4350,7 +4391,7 @@ msgstr "Sortera etikettlista efter namn, popularitet eller betyg"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:107
 msgid "Match tags by any or all."
-msgstr ""
+msgstr "Jämför markeringar för någon eller alla."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:109
 msgid "Number of covers to show in the cover browsing mode"
@@ -4430,6 +4471,8 @@ msgid ""
 "Maximum number of simultaneous conversion/news download jobs. This number is "
 "twice the actual value for historical reasons."
 msgstr ""
+"Maximala antalet samtidiga konvertering / Nyheter nedladdningsjobb. Detta "
+"nummer är dubbelt det faktiska värdet av historiska skäl."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:161
 msgid "Download social metadata (tags/rating/etc.)"
@@ -4667,11 +4710,11 @@ msgstr "Hämta anteckningar (experimentellt)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:56
 msgid "Not supported"
-msgstr ""
+msgstr "Stöds inte"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:57
 msgid "Fetching annotations is not supported for this device"
-msgstr ""
+msgstr "Hämtar kommentarer stöds inte för denna enhet"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:61
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:245
@@ -5367,17 +5410,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:471
 msgid "Applying changed metadata"
-msgstr ""
+msgstr "Tillämpa förändrat metadata"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:538
 msgid "Some failures"
-msgstr ""
+msgstr "Vissa fel"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:539
 msgid ""
 "Failed to apply updated metadata for some books in your library. Click "
 "\"Show Details\" to see details."
 msgstr ""
+"Underlåtit att tillämpa uppdaterade metadata för några böcker i biblioteket. "
+"Klicka på \"Visa detaljer\" för att se detaljer."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/fetch_news.py:19
 msgid "F"
@@ -5599,7 +5644,7 @@ msgstr "Böcker med samma etikett"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:19
 msgid "Get books"
-msgstr ""
+msgstr "Hämta böcker"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:28
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:92
@@ -5616,6 +5661,8 @@ msgid ""
 "Calibre helps you find the ebooks you want by searching the websites of "
 "various commercial and public domain book sources for you."
 msgstr ""
+"Caliber hjälper dig hitta den eBoj du vill genom att söka på webbplatserna "
+"för olika kommersiella och offentliga domänkällor för dig."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:50
 msgid ""
@@ -5623,6 +5670,8 @@ msgid ""
 "are looking for, at the best price. You also get DRM status and other useful "
 "information."
 msgstr ""
+"Med den integrerade sökning kan du lätt hitta vilken butik har den bok du "
+"söker, till bästa pris. Du får också DRM status och annan nyttig information."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:54
 msgid ""
@@ -5633,14 +5682,20 @@ msgid ""
 "especially if the book you are buying has <a href=\"http://drmfree.calibre-"
 "ebook.com/about#drm\">DRM</a>."
 msgstr ""
+"Alla transaktioner (betald eller på annat sätt) hanteras mellan dig och "
+"boken säljaren. Caliber är inte en del av denna process och eventuella "
+"problem relaterade till ett köp bör riktas till den webbplats du köper av. "
+"Var noga med att dubbelkolla att alla böcker du kommer att fungera med din e-"
+"bok läsare, särskilt om den bok du köper har <a "
+"href=\"http://drmfree.calibre-ebook.com/about#drm\"> DRM </a>."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:64
 msgid "Show this message again"
-msgstr ""
+msgstr "Visa detta meddelande igen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:65
 msgid "About Get Books"
-msgstr ""
+msgstr "Om hämta böcker"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:15
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:54
@@ -5682,7 +5737,7 @@ msgstr "Läs en slumpmässig bok"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:55
 msgid "Clear recently viewed list"
-msgstr ""
+msgstr "Rensa nyligen visad lista"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:139
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:219
@@ -5734,7 +5789,7 @@ msgstr "Kan inte öppna mapp"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:220
 msgid "This book no longer exists in your library"
-msgstr ""
+msgstr "Denna bok finns inte längre i ditt bibliotek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:227
 msgid "%s has no available formats."
@@ -6043,7 +6098,7 @@ msgstr "Dubbelklicka för att öppna fönster för bokdetaljer"
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:499
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:113
 msgid "Cover size: %dx%d"
-msgstr ""
+msgstr "Omslag storlek:%dx%d"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex.py:16
 msgid "BibTeX Options"
@@ -6897,15 +6952,15 @@ msgstr "Byt enhetstrecksatserna med CSS strecksatser"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/htmlz_output.py:14
 msgid "HTMLZ Output"
-msgstr ""
+msgstr "HTMLZ Utgång"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/htmlz_output_ui.py:45
 msgid "How to handle CSS"
-msgstr ""
+msgstr "Hur man hanterar CSS"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/htmlz_output_ui.py:46
 msgid "How to handle class based CSS"
-msgstr ""
+msgstr "Hur man hanterar klass baserad CSS"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:16
 msgid "Look & Feel"
@@ -7564,7 +7619,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:64
 msgid "Remove &fake margins"
-msgstr ""
+msgstr "Ta bort &falska marginaler"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc.py:16
 msgid ""
@@ -8318,6 +8373,85 @@ msgid ""
 "\n"
 "        "
 msgstr ""
+"        <h1> Hjälp </h1>\n"
+"\n"
+"        <p> Calibre lagrar listan med dina böcker och deras metadata i en\n"
+"        databas. De faktiska bokfilerna och omslag lagras som vanligt\n"
+"        filer i Calibres biblioteksmapp. Databasen innehåller en förteckning "
+"över de filer\n"
+"        och omslag som tillhör varje kontoförd bok. Detta verktyg "
+"kontrollerar att\n"
+"        faktiska filerna i biblioteksmappen på datorn överensstämmer\n"
+"        informationen i databasen. </p>\n"
+"\n"
+"        <p> Resultatet av varje slag av kontroll visas till vänster. De "
+"olika\n"
+"        kontroller är:\n"
+"        </p>\n"
+"        <ul>\n"
+"        <li> <b> Ogiltig titlar </b>: Dessa är filer och mappar visas\n"
+"        i biblioteket där böckerna titlar borde, men som inte har\n"
+"        rätt form för att vara en boktitel. </li>\n"
+"        <li> <b> Extra titlar </b>: Detta är extra filer i ditt Calibre\n"
+"        bibliotek som verkar vara korrekt formaterade rubriker, men har "
+"ingen motsvarande\n"
+"        poster i databasen </li>\n"
+"        <li> <b> Ogiltig författare </b>: Dessa är filer som finns\n"
+"        i biblioteket där endast författaren mappar ska vara. </li>\n"
+"        <li> <b> Extra författare </b>: Dessa mappar i\n"
+"        Calibres bibliotek som verkar vara författare, men som inte har "
+"poster\n"
+"        i databasen </li>\n"
+"        <li> <b> Saknat bokformat </b>: Detta är boken format som är i\n"
+"        databasen, men har ingen motsvarande format fil i bokens mapp.\n"
+"        <li> <b> Extra bok format </b>: Dessa är bokformat filer som hittas "
+"i\n"
+"        bokens mappen men inte i databasen.\n"
+"        <li> <b> okända filer i böcker </b>: Detta är extra filer i\n"
+"        mapp för varje bok som inte motsvarar en känd format eller täcka\n"
+"        fil. </li>\n"
+"        <li> <b> Saknade omslagsfiler </b>: Dessa representerar böcker som "
+"är markerade\n"
+"        i databasen ha täcker men det faktiska omslagsfiler\n"
+"        saknas. </li>\n"
+"        <li> <b> Omslagsfiler inte i databasen </b>: Det är böcker som har\n"
+"        omslagsfiler men är markerade som inte har omslag i databasen. "
+"</li>\n"
+"        <li> <b> Mapp höja undantag </b>: Dessa representerar mappar i\n"
+"        Calibers bibliotek som inte kunde behandlas eller förstås av detta\n"
+"        verktyg. </li>\n"
+"        </Ul>\n"
+"\n"
+"        <p> Det finns två typer av automatiska korrigeringar möjligt: ​​<i> "
+"Radera\n"
+"        märkt </i> och <i> Fix märkta </ ​i>. </p>\n"
+"        <p> <i> Radera markerade </i> används för att ta bort extra filer / "
+"mappar / omslag som\n"
+"        har några poster i databasen. Markera rutan bredvid det objekt du "
+"vill\n"
+"        att ta bort. Använd med försiktighet. </ P>\n"
+"\n"
+"        <p> <i> Fix märkt </i> endast är tillämplig på omslag och saknade "
+"format\n"
+"        (De tre linjerna märkt \"fixeras\"). När det gäller saknade täcka "
+"filer\n"
+"        kontrollera fastställbara rutan och trycka på den här knappen kommer "
+"att berätta kaliber som\n"
+"        Det finns inget omslag för alla listade böckerna. Använd detta "
+"alternativ om du\n"
+"        kommer inte att återställa täcker från en säkerhetskopia. När det "
+"gäller extra\n"
+"        täcka filer, kontrollera fastställbara rutan och trycka på den här "
+"knappen kommer att beordra\n"
+"        Calibre att låsa filerna den hittades är de rätta för alla böcker\n"
+"        förtecknade. Använd detta när du inte kommer att ta bort fil (er). "
+"I\n"
+"        utebliven format, kontroll av fastställbara rutan och trycka detta\n"
+"        Knappen kommer att tala för Calibre att de format som verkligen är "
+"borta. Använd det om\n"
+"        du kommer inte att återställa format från en säkerhetskopia. </ p>\n"
+"\n"
+"        "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:226
 msgid "&Run the check again"
@@ -9860,12 +9994,12 @@ msgstr "Återställning av databasen var framgångsrik"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor.py:48
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor.py:75
 msgid "Saved search already exists"
-msgstr ""
+msgstr "Sparad sökning finns redan"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor.py:49
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor.py:76
 msgid "The saved search %s already exists, perhaps with different case"
-msgstr ""
+msgstr "Den sparade sökningen %s finns redan, kanske med annat ärende"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor.py:62
 msgid ""
@@ -9900,7 +10034,7 @@ msgstr "Lägg till den nya sparade sökningen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:102
 msgid "Rename the current search to what is in the box"
-msgstr ""
+msgstr "Byt namn på den aktuella sökningen till vad som är i rutan"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:104
 msgid "Change the contents of the saved search"
@@ -10329,7 +10463,7 @@ msgstr " (Inte på någon bok)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:146
 msgid "Category lookup name: "
-msgstr ""
+msgstr "Kategori uppslagningsnamn: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:191
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:222
@@ -10814,23 +10948,23 @@ msgstr "Misslyckades att ladda ner från %r med fel: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ebook_download.py:41
 msgid "No file specified to download."
-msgstr ""
+msgstr "Ingen fil anges att ladda ner."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ebook_download.py:66
 msgid "Not a support ebook format."
-msgstr ""
+msgstr "Inte ett stött ebokformat."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ebook_download.py:87
 msgid "Downloading %s"
-msgstr ""
+msgstr "Laddar ner %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ebook_download.py:99
 msgid "Downloading"
-msgstr ""
+msgstr "Ladda ner"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ebook_download.py:103
 msgid "Failed to download ebook"
-msgstr ""
+msgstr "Det gick inte att ladda ner ebok"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:91
 msgid "Email %s to %s"
@@ -11082,7 +11216,7 @@ msgstr "Jobbet har redan körts"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:247
 msgid "This job cannot be stopped"
-msgstr ""
+msgstr "Det här jobbet kan inte stoppas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:283
 msgid "Unavailable"
@@ -11184,7 +11318,7 @@ msgstr "Spara aktuell sökning under namnet som visas i rutan"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:252
 msgid "Donate"
-msgstr ""
+msgstr "Donera"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:354
 msgid "Y"
@@ -11530,18 +11664,21 @@ msgid ""
 "\n"
 "Double click to view"
 msgstr ""
+"Senast uppdaterad:%s\n"
+"\n"
+"Dubbelklicka för att se"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:471
 msgid "Set metadata for the book from the selected format"
-msgstr ""
+msgstr "Ställ in metadata för boken från det valda formatet"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:478
 msgid "Add a format to this book"
-msgstr ""
+msgstr "Lägg till ett format till den här boken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:485
 msgid "Remove the selected format from this book"
-msgstr ""
+msgstr "Ta bort det valda formatet i den här boken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:750
 msgid "Invalid cover"
@@ -11561,7 +11698,7 @@ msgstr "stjärnor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:921
 msgid "I&ds:"
-msgstr ""
+msgstr "I&ds:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:922
 msgid ""
@@ -11618,49 +11755,55 @@ msgstr "Detaljinformation"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:38
 msgid "Schedule download?"
-msgstr ""
+msgstr "Schemalägg hämtning?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:49
 msgid ""
 "The download of metadata for the <b>%d selected book(s)</b> will run in the "
 "background. Proceed?"
 msgstr ""
+"Nedladdning av metadata för de <b> %d valda boken (s) </b> kommer att köras "
+"i bakgrunden. Fortsätta?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:51
 msgid ""
 "You can monitor the progress of the download by clicking the rotating "
 "spinner in the bottom right corner."
 msgstr ""
+"Du kan övervaka nedladdningen genom att klicka på den roterande ratten i det "
+"nedre högra hörnet."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:54
 msgid ""
 "When the download completes you will be asked for confirmation before "
 "calibre applies the downloaded metadata."
 msgstr ""
+"När nedladdningen är klar kommer du att frågas om bekräftelse innan Calibre "
+"utför nedladdning av metadata."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:65
 msgid "Download only &metadata"
-msgstr ""
+msgstr "Hämta endast &metadata"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:69
 msgid "Download only &covers"
-msgstr ""
+msgstr "Ladda endast ner omslag"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:73
 msgid "&Configure download"
-msgstr ""
+msgstr "&Konfigurera nedladdning"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:77
 msgid "Download &both"
-msgstr ""
+msgstr "Hämta &både"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:103
 msgid "Download metadata for %d books"
-msgstr ""
+msgstr "Hämta metadata för %d böcker"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:106
 msgid "Metadata download started"
-msgstr ""
+msgstr "Metadata nedladdning började"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:123
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:767
@@ -11671,11 +11814,11 @@ msgstr "Kopiera till urklipp"
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:130
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:774
 msgid "Download log"
-msgstr ""
+msgstr "Hämta log"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:172
 msgid "Some books changed"
-msgstr ""
+msgstr "Vissa böcker har förändrats"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:173
 msgid ""
@@ -11684,53 +11827,62 @@ msgid ""
 "Click \"Show details\" to see the list of changed books. Do you want to "
 "proceed?"
 msgstr ""
+"Metadata för några böcker i biblioteket har förändrats sedan du startade "
+"nedladdningen. Om du fortsätter kan vissa av dessa ändringar att skrivas "
+"över. Klicka på \"Visa detaljer\" för att se lista över ändrade böcker. Vill "
+"du fortsätta?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:183
 msgid "Metadata download completed"
-msgstr ""
+msgstr "Metadata nedladdning avslutad"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:189
 msgid "(Failed metadata)"
-msgstr ""
+msgstr "(Misslyckades metadata)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:191
 msgid "(Failed cover)"
-msgstr ""
+msgstr "(Misslyckades omslag)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:197
 msgid "Failed to download metadata or covers for any of the %d book(s)."
 msgstr ""
+"Misslyckades med att hämta metadata eller omslag för någon av de %d böcker."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:202
 msgid ""
 "Could not download metadata and/or covers for %d of the books. Click \"Show "
 "details\" to see which books."
 msgstr ""
+"Kunde inte hämta metadata och / eller omslag för %d av böckerna. Klicka på "
+"\"Visa detaljer\" för att se vilka böcker."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:204
 msgid ""
 "Finished downloading metadata for <b>%d book(s)</b>. Proceed with updating "
 "the metadata in your library?"
 msgstr ""
+"Hämtat metadata för <b> %d böcker </b>. Fortsätt med att uppdatera metadata "
+"i ditt bibliotek?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:206
 msgid "Download complete"
-msgstr ""
+msgstr "Nedladdning färdig"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:211
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:828
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:919
 msgid "View log"
-msgstr ""
+msgstr "Visa logg"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:292
 msgid "Downloaded %d of %d"
-msgstr ""
+msgstr "Hämtade %d av %​​d"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/config.py:58
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:109
 msgid "Downloaded metadata fields"
-msgstr ""
+msgstr "Hämtade metadatafält"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:75
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:240
@@ -11739,19 +11891,19 @@ msgstr "Redigera metadata"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:112
 msgid "Set author sort from author"
-msgstr ""
+msgstr "Angre författarsortering från författaren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:113
 msgid "Set author from author sort"
-msgstr ""
+msgstr "Ange författare från författarsortering"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:171
 msgid "&Download metadata"
-msgstr ""
+msgstr "&Hämta metadata"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:181
 msgid "Change how calibre downloads metadata"
-msgstr ""
+msgstr "Ändra hur Calibre laddar ner metadata"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:512
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:702
@@ -11772,7 +11924,7 @@ msgstr "&Omslag och format"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:624
 msgid "Configure metadata downloading"
-msgstr ""
+msgstr "Konfigurera metadata nedladdning"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:671
 msgid "C&ustom metadata"
@@ -11780,11 +11932,11 @@ msgstr "&Anpassa eget metadata"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:129
 msgid "Has cover"
-msgstr ""
+msgstr "Har omslag"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:129
 msgid "Has summary"
-msgstr ""
+msgstr "Har sammandrag"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:186
 msgid ""
@@ -11796,7 +11948,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:255
 msgid "See at"
-msgstr ""
+msgstr "Se på"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:390
 msgid "calibre is downloading metadata from: "
@@ -11804,15 +11956,17 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:412
 msgid "Please wait"
-msgstr ""
+msgstr "Var god vänta"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:441
 msgid "Query: "
-msgstr ""
+msgstr "Fråga: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:460
 msgid "Failed to download metadata. Click Show Details to see details"
 msgstr ""
+"Misslyckades med att hämta metadata. Klicka på Visa detaljer för att se "
+"detaljer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:469
 msgid ""
@@ -11821,14 +11975,18 @@ msgid ""
 "single distinctive word from the title.<p>To see the full log, click Show "
 "Details."
 msgstr ""
+"Kunde inte hitta några böcker som passar din sökning. Prova att sök <b> "
+"mindre specifika </b>. Använd till exempel endast författarens efternamn och "
+"ett enda särskiljande ord i titeln. <p> För att se hela loggen, klicka på "
+"Visa detaljer."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:535
 msgid "Current cover"
-msgstr ""
+msgstr "Nuvarande omslag"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:538
 msgid "Searching..."
-msgstr ""
+msgstr "Söker ..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:684
 msgid "Downloading covers for <b>%s</b>, please wait..."
