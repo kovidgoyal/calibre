@@ -20,6 +20,10 @@
       <number>0</number>
      </property>
      <widget class="QWidget" name="tab">
+      <attribute name="icon">
+       <iconset resource="../../../../resources/images.qrc">
+        <normaloff>:/images/lt.png</normaloff>:/images/lt.png</iconset>
+      </attribute>
       <attribute name="title">
        <string>Main Interface</string>
       </attribute>
@@ -180,6 +184,10 @@
       </layout>
      </widget>
      <widget class="QWidget" name="tab_4">
+      <attribute name="icon">
+       <iconset resource="../../../../resources/images.qrc">
+        <normaloff>:/images/book.png</normaloff>:/images/book.png</iconset>
+      </attribute>
       <attribute name="title">
        <string>Book Details</string>
       </attribute>
@@ -258,6 +266,10 @@
       </layout>
      </widget>
      <widget class="QWidget" name="tab_2">
+      <attribute name="icon">
+       <iconset resource="../../../../resources/images.qrc">
+        <normaloff>:/images/tags.png</normaloff>:/images/tags.png</iconset>
+      </attribute>
       <attribute name="title">
        <string>Tag Browser</string>
       </attribute>
@@ -352,6 +364,10 @@ then the tags will be displayed each on their own line.</string>
       </layout>
      </widget>
      <widget class="QWidget" name="tab_3">
+      <attribute name="icon">
+       <iconset resource="../../../../resources/images.qrc">
+        <normaloff>:/images/cover_flow.png</normaloff>:/images/cover_flow.png</iconset>
+      </attribute>
       <attribute name="title">
        <string>Cover Browser</string>
       </attribute>
