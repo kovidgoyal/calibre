@@ -26,6 +26,7 @@ class ANDROID(USBMS):
                        0xc92  : [0x100],
                        0xc97  : [0x226],
                        0xc99  : [0x0100],
+                       0xca2  : [0x226],
                        0xca3  : [0x100],
                        0xca4  : [0x226],
             },

@@ -121,7 +121,7 @@
    <addaction name="action_font_size_larger"/>
    <addaction name="action_font_size_smaller"/>
    <addaction name="action_table_of_contents"/>
-   <addaction name="action_metadata"/>
+   <addaction name="action_full_screen"/>
    <addaction name="separator"/>
    <addaction name="action_previous_page"/>
    <addaction name="action_next_page"/>
@@ -130,7 +130,7 @@
    <addaction name="action_reference_mode"/>
    <addaction name="separator"/>
    <addaction name="action_preferences"/>
-   <addaction name="action_full_screen"/>
+   <addaction name="action_metadata"/>
    <addaction name="separator"/>
    <addaction name="action_print"/>
   </widget>
