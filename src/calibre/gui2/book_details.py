@@ -23,7 +23,6 @@ from calibre.gui2 import (config, open_local_file, open_url, pixmap_to_data,
         gprefs)
 from calibre.utils.icu import sort_key
 
-
 def render_html(mi, css, vertical, widget, all_fields=False): # {{{
     table = render_data(mi, all_fields=all_fields,
             use_roman_numbers=config['use_roman_numerals_for_series_number'])
@@ -121,7 +120,7 @@ def render_data(mi, use_roman_numbers=True, all_fields=False):
                 continue
             val = prepare_string_for_xml(val)
             if metadata['datatype'] == 'series':
-                sidx = getattr(mi, field+'_index')
+                sidx = getattr(mi, field+'_index', None)
                 if sidx is None:
                     sidx = 1.0
                 val = _('Book %s of <span class="series_name">%s</span>')%(fmt_sidx(sidx,
