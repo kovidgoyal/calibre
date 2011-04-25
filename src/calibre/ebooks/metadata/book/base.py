@@ -631,7 +631,7 @@ class Metadata(object):
                 res = format_date(res, fmeta['display'].get('date_format','dd MMM yyyy'))
             elif datatype == 'rating':
                 res = res/2.0
-            elif key in ('book_size', 'size'):
+            elif key == 'size':
                 res = human_readable(res)
             return (name, unicode(res), orig_res, fmeta)
 
