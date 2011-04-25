@@ -1,0 +1,26 @@
+a { 
+    text-decoration: none;
+    color: blue
+}
+.comments { 
+    margin-top: 0;
+    padding-top: 0;
+    text-indent: 0
+}
+
+table.fields { 
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+table.fields td { 
+    vertical-align: top
+}
+
+table.fields td.title {
+    font-weight: bold
+}
+
+.series_name {
+    font-style: italic
+}

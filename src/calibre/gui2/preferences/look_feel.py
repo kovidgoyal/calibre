@@ -5,15 +5,21 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from PyQt4.Qt import QApplication, QFont, QFontInfo, QFontDialog
+from PyQt4.Qt import (QApplication, QFont, QFontInfo, QFontDialog,
+        QAbstractListModel)
 
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget, CommaSeparatedList
 from calibre.gui2.preferences.look_feel_ui import Ui_Form
 from calibre.gui2 import config, gprefs, qt_app
-from calibre.utils.localization import available_translations, \
-    get_language, get_lang
+from calibre.utils.localization import (available_translations,
+    get_language, get_lang)
 from calibre.utils.config import prefs
 from calibre.utils.icu import sort_key
+
+class DisplayedFields(QAbstractListModel):
+
+    def __init__(self, parent=None):
+        QAbstractListModel.__init__(self, parent)
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
