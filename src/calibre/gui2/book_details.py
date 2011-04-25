@@ -120,7 +120,7 @@ def render_data(mi, use_roman_numbers=True, all_fields=False):
                 continue
             val = prepare_string_for_xml(val)
             if metadata['datatype'] == 'series':
-                sidx = getattr(mi, field+'_index', None)
+                sidx = mi.get(field+'_index')
                 if sidx is None:
                     sidx = 1.0
                 val = _('Book %s of <span class="series_name">%s</span>')%(fmt_sidx(sidx,
