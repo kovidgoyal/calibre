@@ -446,7 +446,7 @@ def urls_from_identifiers(identifiers): # {{{
     isbn = identifiers.get('isbn', None)
     if isbn:
         ans.append((isbn, 'isbn', isbn,
-            'http://www.worldcat.org/search?q=bn%%3A%s&qt=advanced'%isbn))
+            'http://www.worldcat.org/isbn/'+isbn))
     doi = identifiers.get('doi', None)
     if doi:
         ans.append(('DOI', 'doi', doi,
@@ -455,6 +455,10 @@ def urls_from_identifiers(identifiers): # {{{
     if arxiv:
         ans.append(('arXiv', 'arxiv', arxiv,
             'http://arxiv.org/abs/'+arxiv))
+    oclc = identifiers.get('oclc', None)
+    if oclc:
+        ans.append(('OCLC', 'oclc', oclc,
+            'http://www.worldcat.org/oclc/'+oclc))
     return ans
 # }}}
 
