@@ -628,8 +628,9 @@ if test_eight_code:
     from calibre.ebooks.metadata.sources.openlibrary import OpenLibrary
     from calibre.ebooks.metadata.sources.isbndb import ISBNDB
     from calibre.ebooks.metadata.sources.overdrive import OverDrive
-
-    plugins += [GoogleBooks, Amazon, OpenLibrary, ISBNDB, OverDrive]
+    from calibre.ebooks.metadata.sources.douban import Douban
+    
+    plugins += [GoogleBooks, Amazon, OpenLibrary, ISBNDB, OverDrive, Douban]
 
 # }}}
 else:
