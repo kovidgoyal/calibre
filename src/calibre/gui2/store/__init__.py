@@ -127,17 +127,39 @@ class StorePlugin(object): # {{{
         '''
         return False
 
-    def get_settings(self):
+    def update_cache(self, parent=None, timeout=60, force=False, suppress_progress=False):
         '''
-        This is only useful for plugins that implement
-        :attr:`config_widget` that is the only way to save
-        settings. This is used by plugins to get the saved
-        settings and apply when necessary.
-
-        :return: A dictionary filled with the settings used
-        by this plugin.
+        Some plugins need to keep an local cache of available books. This function
+        is called to update the caches. It is recommended to call this function
+        from :meth:`open`. Especially if :meth:`open` does anything other than
+        open a web page.
+        
+        This function can be called at any time. It is up to the plugin to determine
+        if the cache really does need updating. Unless :param:`force` is True, then
+        the plugin must update the cache. The only time force should be True is if
+        this function is called by the plugin's configuration dialog.
+        
+        if :param:`suppress_progress` is False it is safe to assume that this function
+        is being called from the main GUI thread so it is safe and recommended to use
+        a QProgressDialog to display what is happening and allow the user to cancel
+        the operation. if :param:`suppress_progress` is True then run the update
+        silently. In this case there is no guarantee what thread is calling this
+        function so no Qt related functionality that requires being run in the main
+        GUI thread should be run. E.G. Open a QProgressDialog. 
+        
+        :param parent: The parent object to be used by an GUI dialogs.
+        
+        :param timeout: The maximum amount of time that should be spent in
+        any given network connection.
+        
+        :param force: Force updating the cache even if the plugin has determined
+        it is not necessary.
+        
+        :param suppress_progress: Should a progress indicator be shown.
+        
+        :return: True if the cache was updated, False otherwise.
         '''
-        raise NotImplementedError()
+        return False
 
     def do_genesis(self):
         self.genesis()

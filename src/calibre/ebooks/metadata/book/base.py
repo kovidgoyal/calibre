@@ -19,6 +19,9 @@ from calibre.utils.date import isoformat, format_date
 from calibre.utils.icu import sort_key
 from calibre.utils.formatter import TemplateFormatter
 
+def human_readable(size, precision=2):
+    """ Convert a size in bytes into megabytes """
+    return ('%.'+str(precision)+'f'+ 'MB') % ((size/(1024.*1024.)),)
 
 NULL_VALUES = {
                 'user_metadata': {},
@@ -551,7 +554,8 @@ class Metadata(object):
     def format_field_extended(self, key, series_with_index=True):
         from calibre.ebooks.metadata import authors_to_string
         '''
-        returns the tuple (field_name, formatted_value)
+        returns the tuple (field_name, formatted_value, original_value,
+        field_metadata)
         '''
 
         # Handle custom series index
@@ -627,6 +631,8 @@ class Metadata(object):
                 res = format_date(res, fmeta['display'].get('date_format','dd MMM yyyy'))
             elif datatype == 'rating':
                 res = res/2.0
+            elif key in ('book_size', 'size'):
+                res = human_readable(res)
             return (name, unicode(res), orig_res, fmeta)
 
         return (None, None, None, None)

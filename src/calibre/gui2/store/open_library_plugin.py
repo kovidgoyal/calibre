@@ -50,6 +50,9 @@ class OpenLibraryStore(BasicStoreConfig, StorePlugin):
                 if counter <= 0:
                     break
                 
+                # Don't include books that don't have downloadable files.
+                if not data.xpath('boolean(./span[@class="actions"]//span[@class="label" and contains(text(), "Read")])'):
+                    continue
                 id = ''.join(data.xpath('./span[@class="bookcover"]/a/@href'))
                 if not id:
                     continue
@@ -67,7 +70,7 @@ class OpenLibraryStore(BasicStoreConfig, StorePlugin):
                 s.author = author.strip()
                 s.price = price
                 s.detail_item = id.strip()
-                s.drm = SearchResult.DRM_UNKNOWN
+                s.drm = SearchResult.DRM_UNLOCKED
                 
                 yield s
 
