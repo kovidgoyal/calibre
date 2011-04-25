@@ -739,12 +739,6 @@ def build_forms(srcdir, info=None):
             dat = dat.replace('from QtWebKit.QWebView import QWebView',
                     'from PyQt4 import QtWebKit\nfrom PyQt4.QtWebKit import QWebView')
 
-            if form.endswith('viewer%smain.ui'%os.sep):
-                info('\t\tPromoting WebView')
-                dat = dat.replace('self.view = QtWebKit.QWebView(', 'self.view = DocumentView(')
-                dat = dat.replace('self.view = QWebView(', 'self.view = DocumentView(')
-                dat += '\n\nfrom calibre.gui2.viewer.documentview import DocumentView'
-
             open(compiled_form, 'wb').write(dat)
 
 _df = os.environ.get('CALIBRE_DEVELOP_FROM', None)

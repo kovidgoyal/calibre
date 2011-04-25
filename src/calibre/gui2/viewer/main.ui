@@ -33,24 +33,21 @@
         <enum>QFrame::Raised</enum>
        </property>
        <layout class="QGridLayout" name="gridLayout">
-        <item row="0" column="0">
-         <widget class="QWebView" name="view"/>
-        </item>
-        <item row="0" column="1">
+        <item row="1" column="1">
          <widget class="QScrollBar" name="vertical_scrollbar">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
           </property>
          </widget>
         </item>
-        <item row="1" column="0">
+        <item row="2" column="0">
          <widget class="QScrollBar" name="horizontal_scrollbar">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
          </widget>
         </item>
-        <item row="2" column="0" colspan="2">
+        <item row="3" column="0" colspan="2">
          <widget class="QFrame" name="dictionary_box">
           <property name="frameShape">
            <enum>QFrame::StyledPanel</enum>
@@ -91,6 +88,9 @@
           </layout>
          </widget>
         </item>
+        <item row="1" column="0">
+         <widget class="DocumentView" name="view" native="true"/>
+        </item>
        </layout>
       </widget>
      </widget>
@@ -108,7 +108,7 @@
     </size>
    </property>
    <attribute name="toolBarArea">
-    <enum>Qt::LeftToolBarArea</enum>
+    <enum>LeftToolBarArea</enum>
    </attribute>
    <attribute name="toolBarBreak">
     <bool>false</bool>
@@ -136,7 +136,7 @@
   </widget>
   <widget class="QToolBar" name="tool_bar2">
    <attribute name="toolBarArea">
-    <enum>Qt::TopToolBarArea</enum>
+    <enum>TopToolBarArea</enum>
    </attribute>
    <attribute name="toolBarBreak">
     <bool>false</bool>
@@ -315,6 +315,12 @@
    <class>QWebView</class>
    <extends>QWidget</extends>
    <header>QtWebKit/QWebView</header>
+  </customwidget>
+  <customwidget>
+   <class>DocumentView</class>
+   <extends>QWidget</extends>
+   <header>calibre/gui2/viewer/documentview.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources>
