@@ -337,9 +337,9 @@ class OverDrive(Source):
     def find_ovrdrv_data(self, br, log, title, author, isbn, ovrdrv_id=None):
         q = base_url
         if ovrdrv_id is None:
-           return self.overdrive_search(br, log, q, title, author)
+            return self.overdrive_search(br, log, q, title, author)
         else:
-           return self.overdrive_get_record(br, log, q, ovrdrv_id)
+            return self.overdrive_get_record(br, log, q, ovrdrv_id)
 
 
 
