@@ -435,6 +435,7 @@ def identify(log, abort, # {{{
 # }}}
 
 def urls_from_identifiers(identifiers): # {{{
+    identifiers = dict([(k.lower(), v) for k, v in identifiers.iteritems()])
     ans = []
     for plugin in all_metadata_plugins():
         try:
@@ -446,6 +447,14 @@ def urls_from_identifiers(identifiers): # {{{
     if isbn:
         ans.append((isbn, 'isbn', isbn,
             'http://www.worldcat.org/search?q=bn%%3A%s&qt=advanced'%isbn))
+    doi = identifiers.get('doi', None)
+    if doi:
+        ans.append(('DOI', 'doi', doi,
+            'http://dx.doi.org/'+doi))
+    arxiv = identifiers.get('arxiv', None)
+    if arxiv:
+        ans.append(('arXiv', 'arxiv', arxiv,
+            'http://arxiv.org/abs/'+arxiv))
     return ans
 # }}}
 
