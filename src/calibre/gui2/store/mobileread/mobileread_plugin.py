@@ -37,10 +37,10 @@ class MobileReadStore(BasicStoreConfig, StorePlugin):
                 d.set_tags(self.config.get('tags', ''))
                 d.exec_()
             else:
-                if self.update_cache(parent, 30):
-                    d = MobeReadStoreDialog(self, parent)
-                    d.setWindowTitle(self.name)
-                    d.exec_()
+                self.update_cache(parent, 30)
+                d = MobeReadStoreDialog(self, parent)
+                d.setWindowTitle(self.name)
+                d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
         books = self.get_book_list()

@@ -529,13 +529,17 @@ class EditMetadataAction(InterfaceAction):
             view.reset()
 
     # Apply bulk metadata changes {{{
-    def apply_metadata_changes(self, id_map, title=None, msg=''):
+    def apply_metadata_changes(self, id_map, title=None, msg='', callback=None):
         '''
         Apply the metadata changes in id_map to the database synchronously
         id_map must be a mapping of ids to Metadata objects. Set any fields you
         do not want updated in the Metadata object to null. An easy way to do
         that is to create a metadata object as Metadata(_('Unknown')) and then
         only set the fields you want changed on this object.
+
+        callback can be either None or a function accepting a single argument,
+        in which case it is called after applying is complete with the list of
+        changed ids.
         '''
         if title is None:
             title = _('Applying changed metadata')
@@ -544,6 +548,7 @@ class EditMetadataAction(InterfaceAction):
         self.apply_failures = []
         self.applied_ids = []
         self.apply_pd = None
+        self.apply_callback = callback
         if len(self.apply_id_map) > 1:
             from calibre.gui2.dialogs.progress import ProgressDialog
             self.apply_pd = ProgressDialog(title, msg, min=0,
@@ -611,6 +616,11 @@ class EditMetadataAction(InterfaceAction):
 
         self.apply_id_map = []
         self.apply_pd = None
+        try:
+            if callable(self.apply_callback):
+                self.apply_callback(self.applied_ids)
+        finally:
+            self.apply_callback = None
 
     # }}}
 
