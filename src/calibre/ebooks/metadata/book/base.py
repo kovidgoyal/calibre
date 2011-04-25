@@ -120,7 +120,11 @@ class Metadata(object):
                                             _('TEMPLATE ERROR'),
                                             self).strip()
             return val
-
+        if field.startswith('#') and field.endswith('_index'):
+            try:
+                return self.get_extra(field[:-6])
+            except:
+                pass
         raise AttributeError(
                 'Metadata object has no attribute named: '+ repr(field))
 
