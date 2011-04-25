@@ -17,6 +17,7 @@ from calibre.gui2.dnd import (dnd_has_image, dnd_get_image, dnd_get_files,
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.metadata.book.base import (field_metadata, Metadata)
 from calibre.ebooks.metadata import fmt_sidx
+from calibre.ebooks.metadata.sources.identify import urls_from_identifiers
 from calibre.constants import filesystem_encoding
 from calibre.library.comments import comments_to_html
 from calibre.gui2 import (config, open_local_file, open_url, pixmap_to_data,
@@ -113,7 +114,12 @@ def render_data(mi, use_roman_numbers=True, all_fields=False):
             ans.append((field, u'<td class="title">%s</td><td>%s</td>'%(name,
                 u', '.join(fmts))))
         elif field == 'identifiers':
-            pass # TODO
+            urls = urls_from_identifiers(mi.identifiers)
+            links = [u'<a href="%s" title="%s:%s">%s</a>' % (url, id_typ, id_val, name)
+                    for name, id_typ, id_val, url in urls]
+            links = u', '.join(links)
+            ans.append((field, u'<td class="title">%s</td><td>%s</td>'%(
+                _('Ids')+':', links)))
         else:
             val = mi.format_field(field)[-1]
             if val is None:
@@ -288,6 +294,8 @@ class BookInfo(QWebView):
 
     def link_activated(self, link):
         self._link_clicked = True
+        if unicode(link.scheme()) in ('http', 'https'):
+            return open_url(link)
         link = unicode(link.toString())
         self.link_clicked.emit(link)
 
