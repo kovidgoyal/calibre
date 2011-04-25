@@ -428,7 +428,7 @@ then the tags will be displayed each on their own line.</string>
        <item row="1" column="1">
         <widget class="QLabel" name="label_3">
          <property name="text">
-          <string>Note that comments will always be displayed at the end, regardless of the position you assign here.</string>
+          <string>Note that &lt;b&gt;comments&lt;/b&gt; will always be displayed at the end, regardless of the position you assign here.</string>
          </property>
          <property name="wordWrap">
           <bool>true</bool>
