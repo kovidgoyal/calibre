@@ -109,32 +109,6 @@ MIBNUM_TO_NAME = {
     2258: 'cp1258',
 }
 
-def decompress_doc(data):
-    buffer = [ord(i) for i in data]
-    res = []
-    i = 0
-    while i < len(buffer):
-        c = buffer[i]
-        i += 1
-        if c >= 1 and c <= 8:
-            res.extend(buffer[i:i+c])
-            i += c
-        elif c <= 0x7f:
-            res.append(c)
-        elif c >= 0xc0:
-            res.extend( (ord(' '), c^0x80) )
-        else:
-            c = (c << 8) + buffer[i]
-            i += 1
-            di = (c & 0x3fff) >> 3
-            j = len(res)
-            num = (c & ((1 << 3) - 1)) + 3
-
-            for k in range( num ):
-                res.append(res[j - di+k])
-
-    return ''.join([chr(i) for i in res])
-
 class HeaderRecord(object):
     '''
     Plucker header. PDB record 0.
@@ -504,7 +478,7 @@ class Reader(FormatReader):
                 raise NotImplementedError
             return zlib.decompress(data)
         elif self.header_record.compression == 1:
-            #from calibre.ebooks.compression.palmdoc import decompress_doc
+            from calibre.ebooks.compression.palmdoc import decompress_doc
             return decompress_doc(data)
 
     def process_phtml(self, d, paragraph_offsets=[]):
