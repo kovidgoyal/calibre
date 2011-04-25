@@ -11,7 +11,6 @@ from PyQt4.Qt import (QApplication, QFont, QFontInfo, QFontDialog,
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget, CommaSeparatedList
 from calibre.gui2.preferences.look_feel_ui import Ui_Form
 from calibre.gui2 import config, gprefs, qt_app
-from calibre.constants import iswindows
 from calibre.utils.localization import (available_translations,
     get_language, get_lang)
 from calibre.utils.config import prefs
@@ -159,20 +158,6 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.field_display_order.setModel(self.display_model)
         self.df_up_button.clicked.connect(self.move_df_up)
         self.df_down_button.clicked.connect(self.move_df_down)
-        if iswindows:
-            self.toolBox.setStyleSheet(
-                '''
-                QToolBox::tab {
-                    background: none;
-                    border: none;
-                    border-bottom: 2px solid black;
-                    font-weight: bold;
-                }
-
-                QToolBox::tab:selected { /* italicize selected tabs */
-                    font-style: italic;
-                }
-                ''')
 
     def initialize(self):
         ConfigWidgetBase.initialize(self)
