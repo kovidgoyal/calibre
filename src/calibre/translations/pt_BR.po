@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-04-22 20:42+0000\n"
-"PO-Revision-Date: 2011-04-14 18:08+0000\n"
-"Last-Translator: Fabrício Massuia <Unknown>\n"
+"PO-Revision-Date: 2011-04-26 03:11+0000\n"
+"Last-Translator: Iann <iannsp@gmail.com>\n"
 "Language-Team: American English <kde-i18n-doc@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-04-23 04:51+0000\n"
+"X-Launchpad-Export-Date: 2011-04-26 04:40+0000\n"
 "X-Generator: Launchpad (build 12758)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -365,11 +365,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:928
 msgid "Searching"
-msgstr ""
+msgstr "Pesquisando"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:934
 msgid "Customize the way searching for books works in calibre"
-msgstr ""
+msgstr "Personalize a pesquisa por livros no calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:939
 msgid "Input Options"
@@ -461,7 +461,7 @@ msgstr "Avançado"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1025
 msgid "Create your own template functions"
-msgstr ""
+msgstr "crie seu próprio função de template"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1030
 msgid "Sharing books by email"
@@ -501,6 +501,7 @@ msgstr "Baixar metadados"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1061
 msgid "Control how calibre downloads ebook metadata from the net"
 msgstr ""
+"Controle como o calibre transfere os metadados de um livro da internet"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1066
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:269
@@ -530,47 +531,47 @@ msgstr "Configurações avançadas"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1109
 msgid "Kindle books from Amazon"
-msgstr ""
+msgstr "Livros da Loja Kindle da Amazon"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1114
 msgid "Ebooks for readers."
-msgstr ""
+msgstr "Ebooks para leitores"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1119
 msgid "Books, Textbooks, eBooks, Toys, Games and More."
-msgstr ""
+msgstr "Livros, livros Textos, Livros Eletronicos, Brinquedos, jogos e mais."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1124
 msgid "Publishers of fine books."
-msgstr ""
+msgstr "Publicadores de livros especiais"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1129
 msgid "World Famous eBook Store."
-msgstr ""
+msgstr "Mundialmente Famosa Loja de Livros Eletronicos"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1134
 msgid "The digital bookstore."
-msgstr ""
+msgstr "Loja de livros digitais"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1139
 msgid "entertain, enrich, inspire."
-msgstr ""
+msgstr "entrertenham enriqueça, inspire."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1144
 msgid "Read anywhere."
-msgstr ""
+msgstr "Leia em qualquer lugar"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1149
 msgid "The first producer of free ebooks."
-msgstr ""
+msgstr "O primeiro produtor de livros gratuítos"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1154
 msgid "eReading: anytime. anyplace."
-msgstr ""
+msgstr "Livros Eletrônicos: qualquer hora. qualquer lugar"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1159
 msgid "The best ebooks at the best price: free!"
-msgstr ""
+msgstr "O melhor livro eletronico pelo melhor preço: de graça"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1164
 msgid "Ebooks handcrafted with the utmost care"
@@ -578,11 +579,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1169
 msgid "One web page for every book."
-msgstr ""
+msgstr "Uma página web para cada livro"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1174
 msgid "Your ebook. Your way."
-msgstr ""
+msgstr "Seu livro eletronico, seu jeito."
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:102
 msgid "Conversion Input"
@@ -865,6 +866,16 @@ msgid ""
 "iTunes</em> menu item.</p><p>Enabling the Apple driver for direct connection "
 "to iDevices is an unsupported advanced user mode.</p><p></p>"
 msgstr ""
+"<p>Se você não quer que o calibre reconheça seus aparelhos Apple quando os "
+"conectar no seu computador, clique em <b>Desabilitar Drivers "
+"Apple</b>.</p><p>Para trasnferir ebooks para seu aparelho de leitura, clique "
+"<b>Desabilite driver Apple</b>, e use o metodo com conexão com iTunes "
+"recomendado em <a "
+"href=\"http://www.mobileread.com/forums/showthread.php?t=118559\">Calibre + "
+"FAQ sobre dispositivos Apple</a>, use o menu "
+"<em>Conectar/Compartilhar</em>|<em>Conectar ao iTunes</em>.</p><p>Habilitar "
+"o driver Apple para uma conexão direta com aparelhos não é suportado no modo "
+"avançado..</p><p></p>"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:65
 msgid "Disable Apple driver"

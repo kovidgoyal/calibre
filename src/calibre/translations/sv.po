@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-04-22 20:42+0000\n"
-"PO-Revision-Date: 2011-04-24 20:00+0000\n"
+"PO-Revision-Date: 2011-04-25 20:31+0000\n"
 "Last-Translator: Merarom <Unknown>\n"
 "Language-Team: Swedish <sv@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-04-25 04:49+0000\n"
+"X-Launchpad-Export-Date: 2011-04-26 04:40+0000\n"
 "X-Generator: Launchpad (build 12758)\n"
 "X-Poedit-Country: SWEDEN\n"
 "X-Poedit-Language: Swedish\n"
@@ -11706,6 +11706,9 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
+"Redigera kännetecken för denna bok. Till exempel: \n"
+"\n"
+"%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:984
 msgid "&Publisher:"
@@ -11945,6 +11948,10 @@ msgid ""
 "having a cover will find a cover in the download\n"
 "cover stage, and vice versa."
 msgstr ""
+"Den här omslagsindikation är inte helt\n"
+"tillförlitliga. Ibland markeras resultat som inte\n"
+"med ett omslag med ett omslag i \n"
+"omslagsnedladdningssteget, och vice versa."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:255
 msgid "See at"
@@ -11952,7 +11959,7 @@ msgstr "Se på"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:390
 msgid "calibre is downloading metadata from: "
-msgstr ""
+msgstr "Calibre hämtar metadata från: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:412
 msgid "Please wait"
@@ -11990,23 +11997,25 @@ msgstr "Söker ..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:684
 msgid "Downloading covers for <b>%s</b>, please wait..."
-msgstr ""
+msgstr "Hämtar omslag för <b> %s </b>, var god att vänta ..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:714
 msgid "Failed to download any covers, click \"Show details\" for details."
 msgstr ""
+"Misslyckades med att hämta några omslag, klicka på \"Visa detaljer\" för "
+"detaljer."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:720
 msgid "Could not find any covers for <b>%s</b>"
-msgstr ""
+msgstr "Kunde inte hitta några omslag för <b>%s </b>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:722
 msgid "Found <b>%d</b> covers of %s. Pick the one you like best."
-msgstr ""
+msgstr "Hittade <b> %d </b> omslag av %s. Välj den du gillar bäst."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:810
 msgid "Downloading metadata..."
-msgstr ""
+msgstr "Hämtar metadata ..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/__init__.py:37
 msgid ""
@@ -12018,7 +12027,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/__init__.py:328
 msgid "Configure "
-msgstr ""
+msgstr "Konfigurera "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding.py:28
 msgid "Ignore duplicate incoming formats"
@@ -12154,7 +12163,7 @@ msgstr "Mycket lågt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:72
 msgid "Compact Metadata"
-msgstr ""
+msgstr "Kompakt Metadata"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:176
 msgid "Confirmation dialogs have all been reset"
@@ -12174,13 +12183,15 @@ msgstr "Visa ett meddelande när en &ny version finns tillgänglig"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:158
 msgid "Yes/No columns have three values (Requires restart)"
-msgstr ""
+msgstr "Ja / Nej kolumner har tre värden (kräver omstart)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:159
 msgid ""
 "If checked, Yes/No custom columns values can be Yes, No, or Unknown.\n"
 "If not checked, the values can be Yes or No."
 msgstr ""
+"Om markerad, kan ja / nej-anpassade kolumnvärden vara Ja, Nej eller okänd.\n"
+"Om inte markerad, kan värdena vara Ja eller Nej."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:161
 msgid "Automatically send downloaded &news to ebook reader"
@@ -12231,13 +12242,16 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:173
 msgid "Edit metadata (single) layout:"
-msgstr ""
+msgstr "Redigera metadata (enda) utformning:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:174
 msgid ""
 "Choose a different layout for the Edit Metadata dialog. The compact metadata "
 "layout favors editing custom metadata over changing covers and formats."
 msgstr ""
+"Välj en annan utformning för Redigera metadata dialogrutan. Den kompakta "
+"metadata utformningen gynnar redigerings anpassade metadata jämfört mot byte "
+"av omslag och format."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:175
 msgid "Preferred &input format order:"
@@ -12355,7 +12369,7 @@ msgstr "Kolumn byggs från andra kolumner"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:45
 msgid "Column built from other columns, behaves like tags"
-msgstr ""
+msgstr "Kolumn byggs från andra kolumner, beter sig som märknningar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:52
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:53
@@ -12514,6 +12528,8 @@ msgstr "Visa bockar"
 msgid ""
 "Check this box if this column contains names, like the authors column."
 msgstr ""
+"Markera denna ruta om den här kolumnen innehåller namn, som "
+"författarkolumnen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:201
 msgid "Contains names"
@@ -12579,10 +12595,12 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:217
 msgid "If checked, this column will appear in the tags browser as a category"
 msgstr ""
+"Om markerad, kommer den här kolumnen visas  i webbläsarmarkeringar som en "
+"kategori"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:218
 msgid "Show in tags browser"
-msgstr ""
+msgstr "Visa som webbläsarmarkeringar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:219
 msgid "Values"
@@ -12657,6 +12675,9 @@ msgid ""
 "used for the subject. Also, the same templates used for \"Save to disk\" "
 "such as {title} and {author_sort} can be used here."
 msgstr ""
+"Ämnet i ebrevet att använda när du skickar. När det lämnas tomt kommer "
+"titeln att användas för ämnet. Även samma mallar används för \"Spara på "
+"disk\" som {titel} och {author_sort} kan användas här."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/emailp.py:37
 msgid ""
@@ -12680,7 +12701,7 @@ msgstr "Bred"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:52
 msgid "Off"
-msgstr ""
+msgstr "Av"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:52
 msgid "Small"
@@ -12881,39 +12902,39 @@ msgstr "Omstart behövs"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:47
 msgid "Source"
-msgstr ""
+msgstr "Källa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:49
 msgid "Cover priority"
-msgstr ""
+msgstr "Omslagsprioritet"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:75
 msgid "This source is configured and ready to go"
-msgstr ""
+msgstr "Denna källa är konfigurerad och redo att abvändas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:76
 msgid "This source needs configuration"
-msgstr ""
+msgstr "Denna källa måste konfigurationen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:147
 msgid "Published date"
-msgstr ""
+msgstr "Publicerades"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:229
 msgid "<b>Configure %s</b><br>%s"
-msgstr ""
+msgstr "<b> Konfigurera  s </b> <br> %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:278
 msgid "No source selected"
-msgstr ""
+msgstr "Ingen källa vald"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:279
 msgid "No source selected, cannot configure."
-msgstr ""
+msgstr "Ingen källa vald och kan inte konfigurera."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:104
 msgid "Metadata sources"
-msgstr ""
+msgstr "Metadatskällor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:105
 msgid ""
@@ -12921,37 +12942,44 @@ msgid ""
 "also set the cover priority. Covers from sources that have a higher "
 "(smaller) priority will be preferred when bulk downloading metadata.\n"
 msgstr ""
+"Inaktivera alla metadata källor du inte vill ha genom att avmarkera dem. Du "
+"kan också ställa in omslagsprioritering. Omslag från källor som har en högre "
+"(mindre) prioritet kommer att ges företräde när masshämtning av metadata "
+"görs.\n"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:107
 msgid ""
 "Sources with a red X next to their names must be configured before they will "
 "be used. "
 msgstr ""
+"Källor med ett rött kryss bredvid deras namn måste konfigureras innan de ska "
+"användas. "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:108
 msgid "Configure selected source"
-msgstr ""
+msgstr "Konfigurera valda källan"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:110
 msgid ""
 "If you uncheck any fields, metadata for those fields will not be downloaded"
 msgstr ""
+"Om du avmarkerar alla fält, kommer metadata för dessa områden inte hämtas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:111
 msgid "Convert all downloaded comments to plain &text"
-msgstr ""
+msgstr "Konvertera alla nedladdade kommentarer till oformaterad &text"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:112
 msgid "Swap author names from FN LN to LN, FN"
-msgstr ""
+msgstr "Kasta om författarnamn från FN LN till LN, FN"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:113
 msgid "Max. number of &tags to download:"
-msgstr ""
+msgstr "Max. antal och etikett att ladda ner:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:114
 msgid "Max. &time to wait after first match is found:"
-msgstr ""
+msgstr "Max. Och tid att vänta efter första träff hittas:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:115
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:117
@@ -12961,7 +12989,7 @@ msgstr " sek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:116
 msgid "Max. time to wait after first &cover is found:"
-msgstr ""
+msgstr "Max. tid att vänta efter första &omslag finns:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:118
 msgid ""
@@ -12973,10 +13001,17 @@ msgid ""
 "metadata sources has a genre like tag set for the book you are searching "
 "for. Most often, they all have large tag sets."
 msgstr ""
+"<p> Olika metadata källor har olika uppsättningar av markeringar för samma "
+"bok. Om alternativet är markerad, så Calibre kommer att använda mindre "
+"markeringsgrupp. Dessa tenderar att vara mer som genrer, medan de större "
+"markeringsgrupperna tenderar att beskriva böckerna innehållet.\n"
+"<p> Observera att detta alternativ bara kommer att göra en praktisk skillnad "
+"om någon av metadata källor har en genre som markering för boken du söker "
+"efter. Oftast har de alla stora markeringsuppsättningar."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:120
 msgid "Prefer &fewer tags"
-msgstr ""
+msgstr "Föredrar &färre markeringar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc.py:50
 msgid "Failed to install command line tools."
@@ -12998,7 +13033,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:59
 msgid "Max. simultaneous conversion/news download jobs:"
-msgstr ""
+msgstr "Max. samtidiga omvandling- eller  nyhetsnedladdningsjobb:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:60
 msgid "Limit the max. simultaneous jobs to the available CPU &cores"
@@ -13039,7 +13074,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:247
 msgid "The {0} device does not support the {1} format."
-msgstr ""
+msgstr "{0} enheten stöder inte den {1} format."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:280
 msgid "Invalid destination"
@@ -13892,15 +13927,15 @@ msgstr "Verktygsfältet när en enhet är ansluten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:221
 msgid "The optional second toolbar"
-msgstr ""
+msgstr "Den valfria andra verktygsraden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:222
 msgid "The menubar"
-msgstr ""
+msgstr "Menyraden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:223
 msgid "The menubar when a device is connected"
-msgstr ""
+msgstr "Menyraden när en enhet är ansluten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:224
 msgid "The context menu for the books in the calibre library"
@@ -14035,7 +14070,7 @@ msgstr "Sök (för avancerad sökning, klicka på knappen till vänster)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:369
 msgid "Enable or disable search highlighting."
-msgstr ""
+msgstr "Aktivera eller inaktivera sökträffs markeringar."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:424
 msgid "Saved Searches"
@@ -14047,7 +14082,7 @@ msgstr "Välj sparad sökning eller ange namn för en ny sparad sökning"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:439
 msgid "*Current search"
-msgstr ""
+msgstr "* Nuvarande sökning"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:12
 msgid "Restrict to"
@@ -14062,10 +14097,12 @@ msgstr "(alla böcker)"
 msgid ""
 "Books display will be restricted to those matching a selected saved search"
 msgstr ""
+"Visning av böcker kommer att begränsas till dem som passar en vald sparad "
+"sökning"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:53
 msgid " or the search "
-msgstr ""
+msgstr " eller sök "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:87
 msgid "({0} of {1})"
@@ -14132,38 +14169,38 @@ msgstr "&Alternativ snabbtangent:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/basic_config_widget_ui.py:38
 msgid "Added Tags:"
-msgstr ""
+msgstr "Tillagda markeringar:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/basic_config_widget_ui.py:39
 msgid "Open store in external web browswer"
-msgstr ""
+msgstr "Öppna butik i externa webb-läsare"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/ebooks_com_plugin.py:95
 msgid "Not Available"
-msgstr ""
+msgstr "Inte tillgänglig"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread_store_dialog_ui.py:62
 msgid "Search:"
-msgstr ""
+msgstr "Sök:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread_store_dialog_ui.py:63
 msgid "Books:"
-msgstr ""
+msgstr "Böcker:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread_store_dialog_ui.py:65
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:114
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search_ui.py:114
 #: /home/kovid/work/calibre/src/calibre/gui2/store/web_store_dialog_ui.py:63
 msgid "Close"
-msgstr ""
+msgstr "Stäng"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:33
 msgid "DRM"
-msgstr ""
+msgstr "DRM"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:33
 msgid "Price"
-msgstr ""
+msgstr "Pris"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:179
 msgid ""
@@ -14171,6 +14208,9 @@ msgid ""
 "verify this price is correct. This price often does not include promotions "
 "the store may be running."
 msgstr ""
+"Upptäckt pris: %s. Kontrollera med butiken innan man köper något för att "
+"kontrollera detta pris är korrekt. Detta pris ofta ingår inte kampanjer i "
+"butiken som pågår."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:182
 msgid ""
@@ -14179,6 +14219,10 @@ msgid ""
 "what you can do with this book. Check with the store before making any "
 "purchases to ensure you can actually read this book."
 msgstr ""
+"Denna bok som upptäckts ha DRM-begränsningar. Den här boken kanske inte "
+"fungerar med dina läsare och du kommer att ha begränsningar som ställs på "
+"dig om vad du kan göra med denna bok. Kontrollera med butiken innan du gör "
+"några inköp för att du faktiskt kan läsa den här boken."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:184
 msgid ""
@@ -14187,41 +14231,47 @@ msgid ""
 "conversion. However, before making a purchase double check the DRM status "
 "with the store. The store may not be disclosing the use of DRM."
 msgstr ""
+"Denna bok har upptäckts som DRM fria. Du bör kunna använda den här boken på "
+"valfri enhet förutsatt att det är i ett format stött av Calibre för "
+"konvertering. Men innan du köper dubbelkolla DRM status med butiken. Butiken "
+"kanske inte visar användningen av DRM."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:186
 msgid ""
 "The DRM status of this book could not be determined. There is a very high "
 "likelihood that this book is actually DRM restricted."
 msgstr ""
+"DRM status i denna bok kunde inte fastställas. Det finns en mycket hög "
+"sannolikhet att denna bok är faktiskt DRM begränsad."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:198
 msgid "Couldn't find any books matching your query."
-msgstr ""
+msgstr "Kunde inte hitta några böcker som passar din sökning."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:107
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search_ui.py:107
 msgid "Get Books"
-msgstr ""
+msgstr "Hämta böcker"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:108
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search_ui.py:108
 msgid "Query:"
-msgstr ""
+msgstr "Fråga:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:110
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search_ui.py:110
 msgid "Stores"
-msgstr ""
+msgstr "Butiker"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:111
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search_ui.py:111
 msgid "All"
-msgstr ""
+msgstr "Alla"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:112
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search_ui.py:112
 msgid "Invert"
-msgstr ""
+msgstr "Invertera"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/web_control.py:73
 msgid ""
@@ -14232,22 +14282,28 @@ msgid ""
 "will be a .epub file. You can add this book to calibre using \"Add Books\" "
 "and selecting the file from the ADE library folder."
 msgstr ""
+"Detta eBok är en DRMed EPUB fil. Du uppmanas att spara filen på din dator. "
+"När den är sparad, öppna den med <a "
+"href=\"http://www.adobe.com/products/digitaleditions/\"> Adobe Digital "
+"Editions </a> (ADE). <p> ADE i sin tur kommer att ladda ner faktiska ebook, "
+"som blir en epub fil. Du kan lägga till den här boken till Calibre med "
+"\"Lägg till böcker\" och välja filen från ADE biblioteket mappen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/web_control.py:86
 msgid "File is not a supported ebook type. Save to disk?"
-msgstr ""
+msgstr "eBoksfiltyp stöds inte. Spara till disk?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/web_store_dialog_ui.py:59
 msgid "Home"
-msgstr ""
+msgstr "Hem"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/web_store_dialog_ui.py:60
 msgid "Reload"
-msgstr ""
+msgstr "Ladda om"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/web_store_dialog_ui.py:61
 msgid "%p%"
-msgstr ""
+msgstr "%P%"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:345
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:375
@@ -14376,27 +14432,27 @@ msgstr "Namnet %s för den sparade sökningen används redan"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1834
 msgid "Manage Authors"
-msgstr ""
+msgstr "Hantera Författare"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1836
 msgid "Manage Series"
-msgstr ""
+msgstr "Hantera Serier"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1838
 msgid "Manage Publishers"
-msgstr ""
+msgstr "Hantera Utgivare"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1840
 msgid "Manage Tags"
-msgstr ""
+msgstr "Hantera Märken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1852
 msgid "Invalid search restriction"
-msgstr ""
+msgstr "Ogiltig sökbegränsning"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1853
 msgid "The current search restriction is invalid"
-msgstr ""
+msgstr "Den aktuella sökbegränsningen är ogiltig"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1869
 msgid "New Category"
@@ -14506,13 +14562,15 @@ msgstr "Matcha någon eller alla träffar i etikettbläddraren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:2171
 msgid "Manage authors, tags, etc"
-msgstr ""
+msgstr "Hantera författare, markeringar, etc"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:2172
 msgid ""
 "All of these category_managers are available by right-clicking on items in "
 "the tag browser above"
 msgstr ""
+"Alla dessa category_managers är tillgängliga genom att högerklicka på objekt "
+"i webbläsaren ovan"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:65
 msgid "Convert book %(num)d of %(total)d (%(title)s)"
@@ -15015,7 +15073,7 @@ msgstr "Förhandsgranska"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:303
 msgid "Clear list of recently opened books"
-msgstr ""
+msgstr "Tydlig lista över nyligen öppnade böcker"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:361
 msgid "Connecting to dict.org to lookup: <b>%s</b>&hellip;"
@@ -15406,6 +15464,8 @@ msgid ""
 "You must either set both the username <b>and</b> password for the mail "
 "server or no username and no password at all."
 msgstr ""
+"Du måste antingen ange både användarnamn <b> och </b> lösenordet för e-"
+"postservern eller inget användarnamn och inget lösenord alls."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:219
 msgid "Please enter a username and password or set encryption to None "
@@ -15417,6 +15477,8 @@ msgid ""
 "No username and password set for mailserver. Most  mailservers need a "
 "username and password. Are you sure?"
 msgstr ""
+"Inga användarnamn och lösenord som för mailservern. De flesta e-postservrar "
+"behöver ett användarnamn och lösenord. Är du säker?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:124
 msgid "Send email &from:"
@@ -17194,6 +17256,9 @@ msgid ""
 "and consume more resources. Most tasks like conversion/news download/adding "
 "books/etc. are affected by this setting."
 msgstr ""
+"Prioriteringen av arbetsprocesser. En högre prioritering innebär snabbare "
+"körning och förbrukar mer resurser. De flesta arbetsuppgifter som ombyggnad "
+"/ nyheter hämta / lägga böcker / etc. påverkas av denna inställning."
 
 #: /home/kovid/work/calibre/src/calibre/utils/config_base.py:400
 msgid "Swap author first and last names when reading metadata"
@@ -17631,6 +17696,18 @@ msgid ""
 "year as four digit number. iso  : the date with time and timezone. Must be "
 "the only format present"
 msgstr ""
+"format_date (Val, format_string) - format värdet, vilket måste vara ett "
+"datumfält, med hjälp av format_string, returnerar en sträng. Formateringen "
+"koder är: d: dagen som tal utan inledande nolla (1 till 31) dd: Dagen som "
+"nummer med inledande nolla (01 till 31) ddd: det förkortade lokaliserade dag "
+"namn (t.ex. \"Mån\" till \"Sön \"). dddd: det långa lokaliserade dag namn "
+"(t.ex. \"måndag\" till \"söndag\"). M: den månad som nummer utan inledande "
+"nolla (1 till 12). MM: månad som nummer med inledande nolla (01 till 12) "
+"MMM: det förkortade lokaliserade månad namn (t.ex. \"Jan\" till "
+"\"December\"). MMMM: det långa lokaliserade månad namn (t.ex. \"januari\" "
+"till \"December\"). yy: Det år som två siffror (00 till 99). yyyy: året som "
+"fyra siffror. iso: datum med tid och tidszon. Måste vara det enda formatet "
+"nuvarande"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:523
 msgid "uppercase(val) -- return value of the field in upper case"
@@ -17650,7 +17727,7 @@ msgstr "capitalize(Val) - Returnerar värdet av fältet med versaler"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:555
 msgid "booksize() -- return value of the field capitalized"
-msgstr ""
+msgstr "booksize () - returnera värdet i fältet aktiverade"
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:43
 msgid "Waiting..."
@@ -18153,7 +18230,7 @@ msgstr "Hämta inte CSS-stilmallar."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:12
 msgid "Auto increment series index"
-msgstr ""
+msgstr "Auto ökning serieindex"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:13
 msgid ""
@@ -18179,10 +18256,31 @@ msgid ""
 "series_index_auto_increment = 'next_free'\n"
 "series_index_auto_increment = 16.5"
 msgstr ""
+"Algoritmen som används för att tilldela en ny bok, i en befintlig serie, ett "
+"serienummer.\n"
+"Nytt serienummer som tilldelats med denna justering är alltid heltalsvärden, "
+"utom\n"
+"om en konstant icke-heltal anges.\n"
+"Möjliga värden är:\n"
+"nästa - Första tillgängliga heltal större än det största antalet befintliga\n"
+"first_free - Första tillgängliga heltal större än 0\n"
+"next_free - Första tillgängliga heltal större än den minsta befintliga "
+"numret\n"
+"last_free - Första tillgängliga heltal mindre än den största befintliga "
+"numret\n"
+"Återgå största befintliga + 1 om inget gratis nummer finns\n"
+"konst - Tilldela nummer 1 alltid\n"
+"ett nummer - Tilldela detta antal alltid. Antalet är inte inom "
+"citationstecken. Notera att\n"
+"0,0 kan användas här.\n"
+"Exempel:\n"
+"series_index_auto_increment = 'nästa'\n"
+"series_index_auto_increment = 'next_free'\n"
+"series_index_auto_increment = 16,5"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:31
 msgid "Add separator after completing an author name"
-msgstr ""
+msgstr "Lägg avgränsare efter att ha avslutat ett författarnamn"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:32
 msgid ""
@@ -18192,10 +18290,15 @@ msgid ""
 "for authors.\n"
 "Can be either True or False"
 msgstr ""
+"En fullbordad separator läggs\n"
+"till slutet av den färdiga texten till\n"
+"automatiskt påbörja ett nytt färdigställandet\n"
+"för författare.\n"
+"Kan vara antingen sant eller falskt"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:40
 msgid "Author sort name algorithm"
-msgstr ""
+msgstr "Författare sorterad namnalgoritm"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:41
 msgid ""
@@ -18211,10 +18314,22 @@ msgid ""
 "selecting 'manage authors', and pressing 'Recalculate all author sort "
 "values'."
 msgstr ""
+"Algoritmen som används för att kopiera författare till author_sort\n"
+"Möjliga värden är:\n"
+"invert: Använd \"fn ln\" -> \"ln, fn\" (standard algoritm)\n"
+"Kopiera: Kopiera författaren att author_sort utan ändringar\n"
+"kommatecken: använd \"kopia\" om det finns en \",\" i namnet, annars använda "
+"\"Vänd\"\n"
+"nocomma: \"fn ln\" -> \"ln fn\" (utan komma)\n"
+"När detta tweak ändras, värderar author_sort lagrats med varje författare\n"
+"måste räknats genom att högerklicka på en författare i den vänstra taggar "
+"rutan\n"
+"välja \"hantera författares, och trycka på\" Beräkna alla Författare Sortera "
+"värderingar \"."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:52
 msgid "Use author sort in Tag Browser"
-msgstr ""
+msgstr "Använd författarsortering i läsaren"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:53
 msgid ""
@@ -18234,10 +18349,26 @@ msgid ""
 "categories_use_field_for_author_name = 'author'\n"
 "categories_use_field_for_author_name = 'author_sort'"
 msgstr ""
+"Ange vilket författarfält som ska visas i markeringsrutan (listan över "
+"författare,\n"
+"serien, förlag etc på vänster sida). Alternativen är författare och\n"
+"author_sort. Detta justering påverkar bara vad som visas under författarna\n"
+"kategori i markeringsrutan och innehållsserver. Observera att om du ställer\n"
+"till author_sort är det mycket möjligt att se duplicera namn i listan "
+"eftersom\n"
+"Även om det är garanterat att författarnamn är unika, det finns ingen sådan\n"
+"garanti för author_sort värden. Visar dubbletter kommer inte förstör något, "
+"men\n"
+"den kan leda till viss förvirring. När du använder \"author_sort\", den "
+"verktygstips kommer\n"
+"visar på författarens namn.\n"
+"Exempel:\n"
+"categories_use_field_for_author_name = 'författar'\n"
+"categories_use_field_for_author_name = 'author_sort'"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:67
 msgid "Control partitioning of Tag Browser"
-msgstr ""
+msgstr "Styt uppdelning av markeringar i läsaren"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:68
 msgid ""
@@ -18266,10 +18397,33 @@ msgid ""
 "(\\ characters) in the template. It doesn't hurt anything to leave it there\n"
 "even if there aren't any backslashes."
 msgstr ""
+"När partitionering för webbläsare så är formatet på underkategorietikett\n"
+"styrd av en mall: categories_collapsed_name_template om sortering av\n"
+"namn, categories_collapsed_rating_template om sortering av genomsnittliga "
+"betyget, och\n"
+"categories_collapsed_popularity_template om sortering efter popularitet. Det "
+"finns\n"
+"två variabler är tillgängliga för mall: första och sista. Variabeln "
+"\"första\"\n"
+"är den första posten i underkategorin och variabeln \"sista\" är den sista\n"
+"objekt i underkategori. Båda variablerna är \"objekt\", de har var flera\n"
+"värden som erhålls med hjälp av ett suffix. Till exempel first.name för en\n"
+"Författaren kategori kommer att vara namnet på författaren. Den sub-värden "
+"är tillgängliga:\n"
+"Namn: den utskrivbara namnet på objektet\n"
+"antal: antalet böcker som refererar denna post\n"
+"avg_rating: det genomsnittliga betyget av alla de böcker hänvisning till "
+"detta objekt\n"
+"Sortera: det slags värde. För författare är detta author_sort för "
+"upphovsmannen\n"
+"Kategori: den kategori (t.ex. författare, serie) att objektet är i.\n"
+"Observera att \"r\" framför {är nödvändig om det finns omvända snedstreck\n"
+"(\\ Tecken) i mallen. Det gör inte ont något att lämna den där\n"
+"även om det inte finns några bakstreck."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:90
 msgid "Specify columns to sort the booklist by on startup"
-msgstr ""
+msgstr "Ange kolumner för att sortera boklista som vid start"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:91
 msgid ""
@@ -18281,10 +18435,18 @@ msgid ""
 "For example, set it to [('authors',0),('title',0)] to sort by\n"
 "title within authors."
 msgstr ""
+"Lämna en uppsättning kolumner som kan sorteras på när Calibre startar\n"
+"Argumentet är Ingen om sparat sorteringshistoria ska användas\n"
+"annars är det en lista över kolumn och beställnings par. Kolumnen är den\n"
+"uppslag / Söknamn, hittades med hjälp av verktygstips för kolumnen\n"
+"Beställning är 0 för stigande, 1 för Fallande\n"
+"Till exempel, ställ in den på [(\"författare\", 0), (\"Titel\", 0)] för att "
+"sortera efter\n"
+"titel inom författare."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:100
 msgid "Control how dates are displayed"
-msgstr ""
+msgstr "Styr hur datum visas"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:101
 msgid ""
@@ -18306,10 +18468,29 @@ msgid ""
 "publication default if not set: MMM yyyy\n"
 "timestamp default if not set: dd MMM yyyy"
 msgstr ""
+"Uppställningsform för utgivningsdatum och tidsstämpel (datum).\n"
+"En sträng styr hur utgivningsdatum visas i GUI\n"
+"d dagen som tal utan inledande nolla (1 till 31)\n"
+"dd dagen som nummer med inledande nolla (01 till 31)\n"
+"ddd det förkortade lokaliserade dag namn (t.ex. \"mon till\" Sun \").\n"
+"dddd det långa lokaliserade dag namn (t.ex. \"måndag\" till \"Qt:: söndag).\n"
+"M är månaden som nummer utan inledande nolla (1-12)\n"
+"MM är månaden som nummer med inledande nolla (01-12)\n"
+"MMM det förkortade lokaliserade månad namn (t.ex. \"Jan\" till "
+"\"December\").\n"
+"MMMM det långa lokaliserade månad namn (t.ex. \"januari\" till "
+"\"december\").\n"
+"åå året som två siffror (00-99)\n"
+"åååå året som fyrsiffrigt nummer\n"
+"Till exempel, med tanke på dagen den 9 jan 2010, följande format visar\n"
+"MMM yyyy ==> Jan 2010 åååå ==> 2010 dd MMM yyyy ==> 9 januari 2010\n"
+"Mm / åååå ==> 01/2010 D / M / åå ==> 9/1/10 åå ==> 10\n"
+"offentliggörande standard om inte fastställd: MMM yyyy\n"
+"tidstämpel standard om inte fastställd: dd MMM yyyy"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:121
 msgid "Control sorting of titles and series in the library display"
-msgstr ""
+msgstr "Styr sortering av titlar och serier i biblioteketfönstret"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:122
 msgid ""
@@ -18330,10 +18511,28 @@ msgid ""
 "return\n"
 "without changing anything is sufficient to change the sort."
 msgstr ""
+"Styr Titel och serie sortering i biblioteketvyn. Om satt till\n"
+"\"Library_order\", kommer titelsorteringsfältet användas istället för "
+"titeln.\n"
+"Om du inte har manuellt redigerat fält titel sortera, ledande artiklar, "
+"exempelvis\n"
+"De och A kommer att ignoreras. Om inställd till \"strictly_alphabetic\" "
+"kommer titlarna att\n"
+"sorteras som-är (Sortera efter titel istället för titeln slag). Till exempel "
+"med\n"
+"library_order kommer kunden sortera under \"C\". Med strictly_alphabetic, "
+"den\n"
+"Boken kommer att sortera under \"T\".\n"
+"Denna flagga påverkar Calibre bibliotek display. Det har ingen effekt på "
+"enheter. I\n"
+"Dessutom la titlar om böcker innan du ändrar flaggan kommer att behålla sin\n"
+"ordning tills titeln är redigeras. Dubbelklicka på en titel och trycka på "
+"retur\n"
+"utan att ändra något är tillräckligt för att ändra sorteringsordning."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:135
 msgid "Control formatting of title and series when used in templates"
-msgstr ""
+msgstr "Styr formatering av titel och serier när de används i mallarna"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:136
 msgid ""
@@ -18351,10 +18550,25 @@ msgid ""
 "will become \"Lord of the Rings, The\". If the tweak is set to\n"
 "strictly_alphabetic, it would remain \"The Lord of the Rings\"."
 msgstr ""
+"Styr hur Titel- och serienamn formateras när den sparas till disk / skickas\n"
+"till enheten. Beteendet beror på fältet som bearbetas. Om bearbetnings-\n"
+"titel, så om denna justering är inställd på \"library_order\", kommer titeln "
+"att\n"
+"ersättas med title_sort. Om den är satt till 'strictly_alphabetic \", ska\n"
+"Titeln kommer inte att ändras. Om bearbetningen serien, sedan om den är "
+"inställd\n"
+"\"Library_order\", artiklar som \"The\" och \"Ett\" kommer att flyttas till "
+"slutet. Om\n"
+"inställd på \"strictly_alphabetic\" kommer serien att sändas utan "
+"förändring.\n"
+"Till exempel, om tweak är inställd på library_order, \"Sagan om ringen\"\n"
+"kommer att bli \"Lord of the Rings, The\". Om justering är inställd på\n"
+"strictly_alphabetic skulle det vara \"The Lord of the Rings\"."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:148
 msgid "Set the list of words considered to be \"articles\" for sort strings"
 msgstr ""
+"Ställ lista med ord som anses vara \"artiklar\" för sorteringssträngar"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:149
 msgid ""
@@ -18369,10 +18583,19 @@ msgid ""
 "To disable use the expression: '^$'\n"
 "Default: '^(A|The|An)\\s+'"
 msgstr ""
+"Ställ in lista med ord som ska betraktas som \"artiklar\" vid beräkning av\n"
+"titel sortera strängar. Listan är ett reguljärt uttryck, med artiklar\n"
+"åtskilda av \"eller\" tecken. Jämförelser är skiftlägesokänsliga, och som "
+"inte kan\n"
+"förändrats. Förändringar av denna tweak kommer inte att ha en effekt förrän "
+"boken är modifierade\n"
+"på något sätt. Om du anger en ogiltig mönster, är det ignoreras.\n"
+"Så här inaktiverar använda uttrycket: \"^ $ '\n"
+"Standard: \"^ (A | Det | An) \\ s +\""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:158
 msgid "Specify a folder calibre should connect to at startup"
-msgstr ""
+msgstr "Ange en mapp Calibre ska ansluta till vid start"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:159
 msgid ""
@@ -18386,10 +18609,21 @@ msgid ""
 "auto_connect_to_folder = 'C:\\\\Users\\\\someone\\\\Desktop\\\\testlib'\n"
 "auto_connect_to_folder = '/home/dropbox/My Dropbox/someone/library'"
 msgstr ""
+"Ange en mapp som Calibre ska ansluta till vid start med hjälp av\n"
+"connect_to_folder. Detta måste vara en fullständig sökväg till mappen. Om "
+"mappen inte\n"
+"inte existerar när Calibre startar ignoreras det. Om det finns '\\' tecken "
+"i\n"
+"vägen (som i Windows banor), måste du dubbelklicka dem.\n"
+"Exempel:\n"
+"auto_connect_to_folder = 'C: \\ \\ Användare \\ \\ någon \\ \\ Desktop \\ \\ "
+"testlib \"\n"
+"auto_connect_to_folder = '/ home / dropbox / Mina Dropbox / någon / "
+"bibliotek \""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:168
 msgid "Specify renaming rules for SONY collections"
-msgstr ""
+msgstr "Ange namngivningsregler för SONY-samlingar"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:169
 msgid ""
@@ -18461,10 +18695,83 @@ msgid ""
 "sony_collection_renaming_rules={'series':'Series', 'tags':'Tag'}\n"
 "sony_collection_name_template='{category:||: }{value}'"
 msgstr ""
+"Ange namngivningsregler för Sony samlingar. Denna inställning gäller bara "
+"om\n"
+"metadata hanteringen är inställd på automatisk. Samlingar på Sonys namnges\n"
+"beroende på om fältet är standard eller anpassad. En samling härrör\n"
+"från en vanlig fält är uppkallad efter värdet i fältet. Till exempel, om\n"
+"standarden \"series\" kolumn innehåller värdet \"Darkover\", ska\n"
+"kollektion heter \"Darkover\". En samling kommer från ett anpassat fält "
+"kommer\n"
+"har namnet på fältet läggas till värdet. Till exempel, om en anpassad serie\n"
+"kolumnen \"min serie\" innehåller namnet \"Darkover\", då insamlingen\n"
+"kommer som standard med namnet \"Darkover (min serie)\". För tillämpningen "
+"av denna\n"
+"dokumentation, är \"Darkover\" kallas värde och \"min serie\" kallas\n"
+"kategorin. Om två böcker har fält som genererar samma samlingsnamn,\n"
+"då båda böckerna kommer att vara i samlingen.\n"
+"Denna uppsättning av inställningar kan du ange en standard eller anpassat "
+"fält hur\n"
+"samlingarna är att omnämnas. Du kan använda den för att lägga till en "
+"beskrivning till en\n"
+"standard fält, t.ex. \"Foo (Tag)\" istället för \"Foo\". Du kan också "
+"använda\n"
+"den för att tvinga flera fält för att hamna i samma kollektion. Du kan till "
+"exempel\n"
+"kan tvinga värden i \"serien\", \"# my_series_1\" och \"# my_series_2\" för "
+"att\n"
+"visas i samlingar som heter \"some_value (serie)\", vilket sammanslagning "
+"alla\n"
+"fält i en uppsättning av samlingar.\n"
+"Det finns två relaterade inställningar. Den första avgör vilken du ska "
+"använda\n"
+"för ett metadatafält. Den andra är en mall, som används för att bestämmer "
+"hur\n"
+"värde och kategori kombineras för att skapa den samling namn.\n"
+"Syntaxen för första inställningen, sony_collection_renaming_rules, är:\n"
+"{'Field_lookup_name \":\" category_name_to_use \",\" lookup_name \":\" namn "
+"\", ...}\n"
+"Den andra inställningen, sony_collection_name_template, är en mall. Den "
+"använder den\n"
+"samma mall språk som plugboards och spara mallar. Denna inställning styr\n"
+"hur värdet och kategorin kombineras ihop för att göra samlingsnamn.\n"
+"De enda två fält som finns tillgängliga är {kategori} och {value}. Det "
+"{value} fält är\n"
+"aldrig tomma. Den {} kategorin fältet kan vara tomt. Standard är att sätta\n"
+"värde först, sedan den kategori inom parentes, är den inte är tom:\n"
+"'{Value} {kategori :|(|)}'\n"
+"Exempel: De tre första exemplen förutsätter att andra inställningen\n"
+"inte har ändrats.\n"
+"1: Jag vill ha tre serier kolumner som ska slås ihop till en uppsättning av "
+"samlingar. Dessa\n"
+"kolumnuppslagsnamn är \"serie\", \"# series_1\" och \"# series_2\". Jag vill "
+"inget\n"
+"inom parentes. Det värde som ska användas som inställningsvärde är:\n"
+"sony_collection_renaming_rules = {'serie':'', \"# series_1':'',' # "
+"series_2':''}\n"
+"2: Jag vill att ordet \"(serie)\" visas på samlingar från serien, och\n"
+"ordet \"(Tag) visas på samlingar från taggar. Användning:\n"
+"sony_collection_renaming_rules = {\"serie\": \"Serie\", \"taggar\": \"Tag "
+"'}\n"
+"3: Jag vill \"series\" och \"# myseries\" att vara ihop, och för "
+"insamlingsnamn\n"
+"att ha \"(serie)\" tillagt. Den namngivningsregeln är:\n"
+"sony_collection_renaming_rules = {\"serie\": \"Serie\", \"# myseries\": "
+"\"Serien\"}\n"
+"4: Samma som exempel 2, men istället för att ha kategorins namn inom "
+"parentes\n"
+"och läggs till värdet, jag vill det till före och åtskilda av ett kolon, "
+"t.ex.\n"
+"som i Serie: Darkover. Jag måste ändra mallen används för att formatera "
+"kategorinamn\n"
+"De resulterande två inställningarna är:\n"
+"sony_collection_renaming_rules = {\"serie\": \"Serie\", \"taggar\": \"Tag "
+"'}\n"
+"sony_collection_name_template = '{Kategori: | |:} {value}'"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:221
 msgid "Specify how SONY collections are sorted"
-msgstr ""
+msgstr "Ange hur SONY samlingar är sorterade"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:222
 msgid ""
@@ -18492,25 +18799,51 @@ msgid ""
 "[ ( [list of fields], sort field ) , ( [ list of fields ] , sort field ) ]\n"
 "Default: empty (no rules), so no collection attributes are named."
 msgstr ""
+"Ange hur Sony samlingar ska sorteras. Denna inställning gäller bara om\n"
+"metadatahanteringen är inställd på automatisk. Du kan ange vilka metadata "
+"ska\n"
+"användas för att sortera på en samling-för-samling basis. Formatet på "
+"inställningen\n"
+"är en lista över metadatafält från vilka samlingar görs, följt av\n"
+"namn på metadata fält som innehåller detta typvärde.\n"
+"Exempel: Följande visar att samlingar byggs från pubDate och taggar\n"
+"ska sorteras efter värdet i den anpassade kolumnen \"# MyDate\", att "
+"samlingar\n"
+"byggs från \"serie\" ska sorteras med \"series_index\", och att alla andra\n"
+"samlingar ska sorteras efter titel. Om en samling metadatafält är inte\n"
+"namngivna, så om det är en seriebaserad uppsamling är det en sorterad "
+"serieordning,\n"
+"annars är det sorterade efter rubrik ordning.\n"
+"[(['PubDate \",\" taggar'],'# MyDate \"), ([' serie '],' series_index), "
+"(['*'],\" titel \")]\n"
+"Observera att bracketing och parenteser krävs. Syntaxen är\n"
+"[([Lista över områden], sortera fält), ([lista över områden], sortera "
+"fält)]\n"
+"Standard: tomt (inga regler), så ingen insamling attribut är namngivna."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:240
 msgid "Control how tags are applied when copying books to another library"
 msgstr ""
+"Styr hur märkningar används när kopiera böcker till ett annat bibliotek"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:241
 msgid ""
 "Set this to True to ensure that tags in 'Tags to add when adding\n"
 "a book' are added when copying books to another library"
 msgstr ""
+"Ställ in denna till true för att se till att taggarna i \"taggar att lägga "
+"till när du lägger\n"
+"en bok \"läggas vid kopiering böcker till ett annat bibliotek"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:246
 msgid "Set the maximum number of tags to show per book in the content server"
 msgstr ""
+"Ställ in maximalt antal markeringar att visa per bok i innehållsservern"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:250
 msgid ""
 "Set custom metadata fields that the content server will or will not display."
-msgstr ""
+msgstr "Ställ egna metadata som servern kommer eller inte kommer att visas."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:251
 msgid ""
@@ -18530,12 +18863,27 @@ msgid ""
 "content_server_will_display = ['*']\n"
 "content_server_wont_display['#mycomments']"
 msgstr ""
+"content_server_will_display är en lista med anpassade fält som ska visas.\n"
+"content_server_wont_display är en lista över egna fält inte ska visas.\n"
+"wont_display har högre prioritet än will_display.\n"
+"Det särskilda värdet \"*\" alla egna fält. Värdet [] innebär ingen poster.\n"
+"Standardvärden:\n"
+"content_server_will_display = ['*']\n"
+"content_server_wont_display = []\n"
+"Exempel:\n"
+"Du bara vill visa de anpassade fälten # mytags och # genre:\n"
+"content_server_will_display = ['# mytags \",\" # genre']\n"
+"content_server_wont_display = []\n"
+"För att visa alla fält utom # mycomments:\n"
+"content_server_will_display = ['*']\n"
+"content_server_wont_display ['# mycomments']"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:268
 msgid ""
 "Set custom metadata fields that the book details panel will or will not "
 "display."
 msgstr ""
+"Ställ egna metadata som bokdetaljspanelen kommer eller inte kommer att visas."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:269
 msgid ""
@@ -18557,10 +18905,27 @@ msgid ""
 "As above, this tweak affects only display of custom fields. The standard\n"
 "fields are not affected"
 msgstr ""
+"book_details_will_display är en lista med anpassade fält som ska visas.\n"
+"book_details_wont_display är en lista över egna fält inte ska visas.\n"
+"wont_display har högre prioritet än will_display.\n"
+"Det särskilda värdet \"*\" alla egna fält. Värdet [] innebär ingen poster.\n"
+"Standardvärden:\n"
+"book_details_will_display = ['*']\n"
+"book_details_wont_display = []\n"
+"Exempel:\n"
+"Du bara vill visa de anpassade fälten # mytags och # genre:\n"
+"book_details_will_display = ['# mytags \",\" # genre']\n"
+"book_details_wont_display = []\n"
+"För att visa alla fält utom # mycomments:\n"
+"book_details_will_display = ['*']\n"
+"book_details_wont_display ['# mycomments']\n"
+"Som ovan, påverkar denna inställning bara uppvisning av egna fält. "
+"Standarden\n"
+"fält påverkas inte"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:288
 msgid "Set the maximum number of sort 'levels'"
-msgstr ""
+msgstr "Ange det maximala antalet sorterings- \"nivåer\""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:289
 msgid ""
@@ -18573,10 +18938,19 @@ msgid ""
 "level sorts, and if you are seeing a slowdown, reduce the value of this "
 "tweak."
 msgstr ""
+"Ange det maximala antalet sorterings- \"nivåer\" som Calibre kommer att "
+"använda för ut-\n"
+"biblioteket efter vissa operationer som söker eller anordningsinsättning. "
+"Varje\n"
+"sorteringsnivå tillför en prestandaförlust. Om databasen är stor (i "
+"tusental\n"
+"böcker) påföljden kan vara märkbar. Om du inte är orolig för multi-\n"
+"nivå sorterar, och om du ser en avmattning, minska värdet av denna justering."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:296
 msgid "Specify which font to use when generating a default cover"
 msgstr ""
+"Ange vilka typsnitt som ska användas när du genererar ett standardomslag"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:297
 msgid ""
@@ -18585,10 +18959,15 @@ msgid ""
 "(Liberation\n"
 "Serif) does not contain glyphs for the language of the books in your library."
 msgstr ""
+"Absolut sökväg till. Ttf typsnittsfiler att använda som font för titel, "
+"författare\n"
+"och sidfot när du genererar ett standardomslag. Användbart om "
+"standardteckensnitt (Liberation\n"
+"Serif) inte innehåller glyfer för språket i böckerna i ditt bibliotek."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:303
 msgid "Control behavior of double clicks on the book list"
-msgstr ""
+msgstr "Styr beteende av dubbelklick på boklistan"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:304
 msgid ""
@@ -18599,10 +18978,16 @@ msgid ""
 "Default: open_viewer.\n"
 "Example: doubleclick_on_library_view = 'do_nothing'"
 msgstr ""
+"Beteende dubbelklicka på böckerna listan. Alternativ: open_viewer, "
+"do_nothing,\n"
+"edit_cell, edit_metadata. Välja edit_metadata har bieffekt av\n"
+"inaktivera redigering ett fält med ett enda klick.\n"
+"Standard: open_viewer.\n"
+"Exempel: doubleclick_on_library_view = 'do_nothing'"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:312
 msgid "Language to use when sorting."
-msgstr ""
+msgstr "Språk att använda vid sortering."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:313
 msgid ""
@@ -18617,10 +19002,21 @@ msgid ""
 "Example: locale_for_sorting = 'fr' -- sort using French rules.\n"
 "Example: locale_for_sorting = 'nb' -- sort using Norwegian rules."
 msgstr ""
+"Ställ in denna justering för att tvinga sortering att använda\n"
+"sammanställning för att det angivna språket. Detta kan vara användbart om du "
+"kör\n"
+"Calibre på engelska men vill sortering arbeta på det språk där du bor.\n"
+"Ställ justeringen till önskat ISO 639-1 språkkod, med gemener.\n"
+"Du hittar listan över stödda locale på\n"
+"http://publib.boulder.ibm.com/infocenter/iseries/v5r3/topic/nls/rbagsicusorts"
+"equencetables.htm\n"
+"Standard: locale_for_sorting =''- använda språket kaliber visas i\n"
+"Exempel: locale_for_sorting = \"fr\" - sort med franska lagstiftningen.\n"
+"Exempel: locale_for_sorting = 'nb' - sort med norska regler."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:324
 msgid "Number of columns for custom metadata in the edit metadata dialog"
-msgstr ""
+msgstr "Antal kolumner för anpassade metadata i redigera metadatadialogrutan"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:325
 msgid ""
@@ -18629,10 +19025,14 @@ msgid ""
 "two\n"
 "columns. If False, one column is used."
 msgstr ""
+"Ange om att använda en eller två kolumner för anpassade metadata vid "
+"redigering av\n"
+"metadata en bok i taget. Om sant, då de områden läggs ut med hjälp av två\n"
+"kolumner. Om falskt används en kolumn."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:330
 msgid "The number of seconds to wait before sending emails"
-msgstr ""
+msgstr "Antalet sekunder att vänta innan du skickar e-post"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:331
 msgid ""
@@ -18642,10 +19042,16 @@ msgid ""
 "making email sending fail. Changes will take effect only after a restart of\n"
 "calibre."
 msgstr ""
+"Antalet sekunder att vänta innan du skickar e-post när du använder en\n"
+"offentliga e-postserver som Gmail eller Hotmail. Standard är: 5 minuter\n"
+"Ställ in den till lägre kan medföra att serverns SPAM kontroller aktiveras,\n"
+"göra e-post skickning misslyckas. Ändringar träder i kraft först efter en "
+"omstart av\n"
+"Calibre."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:338
 msgid "Remove the bright yellow lines at the edges of the book list"
-msgstr ""
+msgstr "Ta bort den ljusa gula linjer i kanterna på boklistan"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:339
 msgid ""
@@ -18653,10 +19059,14 @@ msgid ""
 "when a section of the user interface is hidden. Changes will take effect\n"
 "after a restart of calibre."
 msgstr ""
+"Kontrollera om den ljusa gula linjer i kanterna på boklistan är hämtade\n"
+"när en del av användargränssnittet är dolt. Ändringar träder i kraft\n"
+"efter en omstart av Calibre."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:344
 msgid "The maximum width and height for covers saved in the calibre library"
 msgstr ""
+"Den maximala bredden och höjden för omslag sparas i Calibre-biblioteket"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:345
 msgid ""
@@ -18664,10 +19074,15 @@ msgid ""
 "to fit within this size. This is to prevent slowdowns caused by extremely\n"
 "large covers"
 msgstr ""
+"Alla omslag i Calibre-biblioteket kommer att ändra storlek, bevarande "
+"bildförhållande,\n"
+"för att passa inom denna storlek. Detta för att förhindra uppbromsning som "
+"orsakas av extremt\n"
+"stora omslag"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:350
 msgid "Where to send downloaded news"
-msgstr ""
+msgstr "Till vart nyheter ska skickas ner"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:351
 msgid ""
@@ -18678,10 +19093,17 @@ msgid ""
 "that if there isn't enough free space available on the location you choose,\n"
 "the files will be sent to the location with the most free space."
 msgstr ""
+"När automatiskt skicka ner nyheter till en ansluten enhet, kommer Calibre \n"
+"som standard skicka den till primärminnet. Genom att ändra denna inställning "
+"kan du\n"
+"styra dit det skickas. Giltiga värden är \"huvud\", \"Carda\", \"cardb\". "
+"Not\n"
+"att om det inte finns tillräckligt ledigt utrymme på den plats du väljer,\n"
+"filerna kommer att skickas till platsen med mest ledigt utrymme."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:358
 msgid "What interfaces should the content server listen on"
-msgstr ""
+msgstr "Vilket gränssnitt ska meidaservern lyssna på"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:359
 msgid ""
@@ -18693,6 +19115,15 @@ msgid ""
 "to '::' to listen to all incoming IPv6 and IPv4 connections (this may not\n"
 "work on all operating systems)"
 msgstr ""
+"Som standard lyssnar Calibre mediaservern på '0 .0.0.0 'vilket innebär att "
+"den\n"
+"accepterar IPv4-anslutningar på alla gränssnitt. Du kan ändra detta till, "
+"för\n"
+"exempel 127 .0.0.1 'lyssna bara för anslutningar från den lokala datorn, "
+"eller\n"
+"till \"::\" att lyssna på alla inkommande IPv6 och IPv4-anslutningar (detta "
+"kan inte\n"
+"fungerar på alla operativsystem)"
 
 #~ msgid "The reader has no storage card connected."
 #~ msgstr "Läsaren har inga minneskort inkopplade."

@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-04-22 20:42+0000\n"
-"PO-Revision-Date: 2011-04-21 10:40+0000\n"
+"PO-Revision-Date: 2011-04-25 20:45+0000\n"
 "Last-Translator: FerranRius <frius64@hotmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-04-23 04:37+0000\n"
+"X-Launchpad-Export-Date: 2011-04-26 04:39+0000\n"
 "X-Generator: Launchpad (build 12758)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -3700,15 +3700,17 @@ msgstr "Baixa portades des de «The Open Library»"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/overdrive.py:33
 msgid "Downloads metadata from Overdrive's Content Reserve"
-msgstr ""
+msgstr "Baixa les metadades des del Content Reserve d'Overdrive"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/overdrive.py:45
 msgid "Download all metadata (slow)"
-msgstr ""
+msgstr "Baixa totes les metadades (lent)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/overdrive.py:46
 msgid "Enable this option to gather all metadata available from Overdrive."
 msgstr ""
+"Habiliteu aquesta opció per recollir totes les metadades disponibles a "
+"Overdrive."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/overdrive.py:49
 msgid ""
@@ -3718,6 +3720,12 @@ msgid ""
 "time required. Check the download all metadata option below to enable "
 "downloading this data."
 msgstr ""
+"Es pot aconseguir metadades addicionals de la pàgina de detalls del llibre "
+"d'Overdrive. Inclou un conjunt limitat d'etiquetes utilitzades per "
+"biblioteques, comentaris, idioma i l'ISBN del llibre. La recollida "
+"d'aquestes metadades està inhabilitada per defecte pel temps addicional que "
+"necessita. Marqueu l'opció «Baixa totes les metadades» més avall per "
+"habilitar que es baixin aquestes dades."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:22
 msgid "Modify images to meet Palm device size limitations."
@@ -4523,6 +4531,8 @@ msgid ""
 "Maximum number of simultaneous conversion/news download jobs. This number is "
 "twice the actual value for historical reasons."
 msgstr ""
+"Nombre màxim de tasques simultànies de conversió/baixada de notícies. Aquest "
+"nombre és el doble del valor real per raons històriques."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:161
 msgid "Download social metadata (tags/rating/etc.)"
@@ -4764,11 +4774,11 @@ msgstr "Recull les anotacions (experimental)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:56
 msgid "Not supported"
-msgstr ""
+msgstr "No està implementat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:57
 msgid "Fetching annotations is not supported for this device"
-msgstr ""
+msgstr "No es pot aconseguir anotacions per a aquest dispositiu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:61
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:245
@@ -5474,7 +5484,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:471
 msgid "Applying changed metadata"
-msgstr ""
+msgstr "S'està aplicant les metadades canviades"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:538
 msgid "Some failures"
@@ -5725,6 +5735,8 @@ msgid ""
 "Calibre helps you find the ebooks you want by searching the websites of "
 "various commercial and public domain book sources for you."
 msgstr ""
+"El calibre us ajuda a trobar els llibres que voleu cercant als llocs web de "
+"diferents fonts de llibres comercials i de domini públic."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:50
 msgid ""
@@ -5732,6 +5744,9 @@ msgid ""
 "are looking for, at the best price. You also get DRM status and other useful "
 "information."
 msgstr ""
+"Si s'utilitza la cerca integrada podeu trobar fàcilment quina botiga té el "
+"llibre que s'està buscant, al millor preu. També podeu saber l'estat DRM i "
+"d'altra informació útil."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:54
 msgid ""
@@ -5745,11 +5760,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:64
 msgid "Show this message again"
-msgstr ""
+msgstr "Torna a mostrar aquest missatge"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:65
 msgid "About Get Books"
-msgstr ""
+msgstr "Quant a Get Books"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:15
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:54
@@ -6153,7 +6168,7 @@ msgstr "Feu doble clic per obrir la finestra de detalls del llibre"
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:499
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:113
 msgid "Cover size: %dx%d"
-msgstr ""
+msgstr "Mida de la portada: %dx%d"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex.py:16
 msgid "BibTeX Options"
@@ -11805,15 +11820,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:471
 msgid "Set metadata for the book from the selected format"
-msgstr ""
+msgstr "Estableix les metadades per al llibre del format seleccionat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:478
 msgid "Add a format to this book"
-msgstr ""
+msgstr "Afegeix un format a aquest llibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:485
 msgid "Remove the selected format from this book"
-msgstr ""
+msgstr "Suprimeix el format seleccionat d'aquest llibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:750
 msgid "Invalid cover"
@@ -11921,15 +11936,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:65
 msgid "Download only &metadata"
-msgstr ""
+msgstr "Baixa només les &metadades"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:69
 msgid "Download only &covers"
-msgstr ""
+msgstr "Baixa només les &portades"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:73
 msgid "&Configure download"
-msgstr ""
+msgstr "&Configura la baixada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:77
 msgid "Download &both"
