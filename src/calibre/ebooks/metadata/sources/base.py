@@ -56,7 +56,8 @@ class InternalMetadataCompareKeyGen(object):
 
     '''
     Generate a sort key for comparison of the relevance of Metadata objects,
-    given a search query.
+    given a search query. This is used only to compare results from the same
+    metadata source, not across different sources.
 
     The sort key ensures that an ascending order sort is a sort by order of
     decreasing relevance.
