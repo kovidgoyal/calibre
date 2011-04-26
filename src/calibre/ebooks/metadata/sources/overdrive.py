@@ -265,7 +265,7 @@ class OverDrive(Source):
                     if creators:
                         creators = creators.split(', ')
                     # if an exact match in a preferred format occurs
-                    if ((author and creators[0] == author[0]) or (not author and not creators)) and od_title.lower() == title.lower() and int(formatid) in [1, 50, 410, 900] and thumbimage:
+                    if ((author and creators and creators[0] == author[0]) or (not author and not creators)) and od_title.lower() == title.lower() and int(formatid) in [1, 50, 410, 900] and thumbimage:
                         return self.format_results(reserveid, od_title, subtitle, series, publisher,
                                 creators, thumbimage, worldcatlink, formatid)
                     else:
@@ -291,7 +291,7 @@ class OverDrive(Source):
                                 close_matches.insert(0, self.format_results(reserveid, od_title, subtitle, series, publisher, creators, thumbimage, worldcatlink, formatid))
                             else:
                                 close_matches.append(self.format_results(reserveid, od_title, subtitle, series, publisher, creators, thumbimage, worldcatlink, formatid))
-                                
+
                         elif close_title_match and close_author_match and int(formatid) in [1, 50, 410, 900]:
                             close_matches.append(self.format_results(reserveid, od_title, subtitle, series, publisher, creators, thumbimage, worldcatlink, formatid))
 

@@ -174,11 +174,6 @@ class Metadata(object):
         try:
             return self.__getattribute__(field)
         except AttributeError:
-            if field.startswith('#') and field.endswith('_index'):
-                try:
-                    return self.get_extra(field[:-6])
-                except:
-                    pass
             return default
 
     def get_extra(self, field, default=None):

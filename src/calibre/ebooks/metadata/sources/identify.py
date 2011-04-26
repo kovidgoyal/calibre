@@ -435,18 +435,30 @@ def identify(log, abort, # {{{
 # }}}
 
 def urls_from_identifiers(identifiers): # {{{
+    identifiers = dict([(k.lower(), v) for k, v in identifiers.iteritems()])
     ans = []
     for plugin in all_metadata_plugins():
         try:
-            url = plugin.get_book_url(identifiers)
-            if url is not None:
-                ans.append((plugin.name, url))
+            id_type, id_val, url = plugin.get_book_url(identifiers)
+            ans.append((plugin.name, id_type, id_val, url))
         except:
             pass
     isbn = identifiers.get('isbn', None)
     if isbn:
-        ans.append((isbn,
-            'http://www.worldcat.org/search?q=bn%%3A%s&qt=advanced'%isbn))
+        ans.append((isbn, 'isbn', isbn,
+            'http://www.worldcat.org/isbn/'+isbn))
+    doi = identifiers.get('doi', None)
+    if doi:
+        ans.append(('DOI', 'doi', doi,
+            'http://dx.doi.org/'+doi))
+    arxiv = identifiers.get('arxiv', None)
+    if arxiv:
+        ans.append(('arXiv', 'arxiv', arxiv,
+            'http://arxiv.org/abs/'+arxiv))
+    oclc = identifiers.get('oclc', None)
+    if oclc:
+        ans.append(('OCLC', 'oclc', oclc,
+            'http://www.worldcat.org/oclc/'+oclc))
     return ans
 # }}}
 
