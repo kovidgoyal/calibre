@@ -6,8 +6,6 @@ __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import random
-import re
 import urllib2
 from contextlib import closing
 
@@ -15,7 +13,7 @@ from lxml import html
 
 from PyQt4.Qt import QUrl
 
-from calibre import browser, url_slash_cleaner
+from calibre import browser
 from calibre.gui2 import open_url
 from calibre.gui2.store import StorePlugin
 from calibre.gui2.store.basic_config import BasicStoreConfig
@@ -29,12 +27,12 @@ class WaterstonesUKStore(BasicStoreConfig, StorePlugin):
 
         if external or self.config.get('open_external', False):
             if detail_item:
-                url = url + detail_item
-            open_url(QUrl(url_slash_cleaner(url)))
+                url = detail_item
+            open_url(QUrl(url))
         else:
             detail_url = None
             if detail_item:
-                detail_url = url + detail_item
+                detail_url = detail_item
             d = WebStoreDialog(self.gui, url, parent, detail_url)
             d.setWindowTitle(self.name)
             d.set_tags(self.config.get('tags', ''))
@@ -49,12 +47,13 @@ class WaterstonesUKStore(BasicStoreConfig, StorePlugin):
         with closing(br.open(url, timeout=timeout)) as f:
             doc = html.fromstring(f.read())
             for data in doc.xpath('//div[contains(@class, "results-pane")]'):
-                print('here')
                 if counter <= 0:
                     break
 
+                id = ''.join(data.xpath('./div/div/h2/a/@href')).strip()
+                if not id:
+                    continue
                 cover_url = ''.join(data.xpath('.//div[@class="image"]/a/img/@src'))
-
                 title = ''.join(data.xpath('./div/div/h2/a/text()'))
                 author = ', '.join(data.xpath('.//p[@class="byAuthor"]/a/text()'))
                 price = ''.join(data.xpath('.//p[@class="price"]/span[@class="priceStandard"]/text()'))
@@ -68,6 +67,7 @@ class WaterstonesUKStore(BasicStoreConfig, StorePlugin):
                 s.author = author.strip()
                 s.price = price
                 s.drm = SearchResult.DRM_LOCKED
+                s.detail_item = id
                 s.formats = 'EPUB'
 
                 yield s
