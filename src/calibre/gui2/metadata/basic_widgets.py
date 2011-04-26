@@ -943,6 +943,10 @@ class IdentifiersEdit(QLineEdit): # {{{
             for x in parts:
                 c = x.split(':')
                 if len(c) == 2:
+                    if c[0] == 'isbn':
+                        v = check_isbn(c[1])
+                        if v is not None:
+                            c[1] = v
                     ans[c[0]] = c[1]
             return ans
         def fset(self, val):
