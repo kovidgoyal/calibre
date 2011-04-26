@@ -280,11 +280,16 @@ class AuthorSortEdit(EnLineEdit):
         aus = self.current_val
         meth = tweaks['author_sort_copy_method']
         if aus:
-            ln, _, rest = aus.partition(',')
-            if rest:
-                if meth in ('invert', 'nocomma', 'comma'):
-                    aus = rest.strip() + ' ' + ln.strip()
-            self.authors_edit.current_val = [aus]
+            ans = []
+            for one in [a.strip() for a in aus.split('&')]:
+                if not one:
+                    continue
+                ln, _, rest = one.partition(',')
+                if rest:
+                    if meth in ('invert', 'nocomma', 'comma'):
+                        one = rest.strip() + ' ' + ln.strip()
+                ans.append(one)
+            self.authors_edit.current_val = ans
 
     def auto_generate(self, *args):
         au = unicode(self.authors_edit.text())
