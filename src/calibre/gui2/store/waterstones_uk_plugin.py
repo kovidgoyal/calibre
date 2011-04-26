@@ -34,7 +34,6 @@ class WaterstonesUKStore(BasicStoreConfig, StorePlugin):
             detail_url = None
             if detail_item:
                 detail_url = url_details.format(detail_item)
-                print(detail_url)
             d = WebStoreDialog(self.gui, url, parent, detail_url)
             d.setWindowTitle(self.name)
             d.set_tags(self.config.get('tags', ''))
@@ -59,7 +58,6 @@ class WaterstonesUKStore(BasicStoreConfig, StorePlugin):
                 title = ''.join(data.xpath('./div/div/h2/a/text()'))
                 author = ', '.join(data.xpath('.//p[@class="byAuthor"]/a/text()'))
                 price = ''.join(data.xpath('.//p[@class="price"]/span[@class="priceStandard"]/text()'))
-                print(title, author, price)
 
                 counter -= 1
 
