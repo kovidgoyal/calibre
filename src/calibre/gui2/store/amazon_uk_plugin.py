@@ -20,10 +20,11 @@ class AmazonUKKindleStore(AmazonKindleStore):
 
     def open(self, parent=None, detail_item=None, external=False):
         aff_id = {'tag': 'calcharles-21'}
-        store_link = 'http://www.amazon.co.uk/Kindle-eBooks/b/?ie=UTF&node=1286228011&ref_=%(tag)s&ref=%(tag)s&tag=%(tag)s&linkCode=ur2&camp=1789&creative=390957' % aff_id
+        store_link = 'http://www.amazon.co.uk/gp/redirect.html?ie=UTF8&location=http://www.amazon.co.uk/Kindle-eBooks/b?ie=UTF8&node=341689031&ref_=sa_menu_kbo2&tag=%(tag)s&linkCode=ur2&camp=1634&creative=19450' % aff_id
+
         if detail_item:
             aff_id['asin'] = detail_item
-            store_link = 'http://www.amazon.co.uk/dp/%(asin)s/?tag=%(tag)s' % aff_id
+            store_link = 'http://www.amazon.co.uk/gp/redirect.html?ie=UTF8&location=http://www.amazon.co.uk/dp/%(asin)s&tag=%(tag)s&linkCode=ur2&camp=1634&creative=6738' % aff_id
         open_url(QUrl(store_link))
 
     search_url = 'http://www.amazon.co.uk/s/url=search-alias%3Ddigital-text&field-keywords='
