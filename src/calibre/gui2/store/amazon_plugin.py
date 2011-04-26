@@ -116,8 +116,9 @@ class AmazonKindleStore(StorePlugin):
             store_link = 'http://www.amazon.com/dp/%(asin)s/?tag=%(tag)s' % aff_id
         open_url(QUrl(store_link))
 
+    search_url = 'http://www.amazon.com/s/url=search-alias%3Ddigital-text&field-keywords='
     def search(self, query, max_results=10, timeout=60):
-        url = 'http://www.amazon.com/s/url=search-alias%3Ddigital-text&field-keywords=' + urllib2.quote(query)
+        url =  self.search_url + urllib2.quote(query)
         br = browser()
 
         counter = max_results
@@ -179,8 +180,9 @@ class AmazonKindleStore(StorePlugin):
 
                 yield s
 
+    details_url = 'http://amazon.com/dp/'
     def get_details(self, search_result, timeout):
-        url = 'http://amazon.com/dp/'
+        url = self.details_url
 
         br = browser()
         with closing(br.open(url + search_result.detail_item, timeout=timeout)) as nf:
