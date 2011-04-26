@@ -1162,7 +1162,7 @@ class StoreManyBooksStore(StoreBase):
 class StoreMobileReadStore(StoreBase):
     name = 'MobileRead'
     description = _('Ebooks handcrafted with the utmost care')
-    actual_plugin = 'calibre.gui2.store.mobileread_plugin:MobileReadStore'
+    actual_plugin = 'calibre.gui2.store.mobileread.mobileread_plugin:MobileReadStore'
 
 class StoreOpenLibraryStore(StoreBase):
     name = 'Open Library'

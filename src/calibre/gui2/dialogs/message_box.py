@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 
 from PyQt4.Qt import (QDialog, QIcon, QApplication, QSize, QKeySequence,
-    QAction, Qt, pyqtSignal, QTextBrowser, QDialogButtonBox, QVBoxLayout)
+    QAction, Qt, QTextBrowser, QDialogButtonBox, QVBoxLayout)
 
 from calibre.constants import __version__
 from calibre.gui2.dialogs.message_box_ui import Ui_Dialog
@@ -143,17 +143,20 @@ class ViewLog(QDialog): # {{{
         QApplication.clipboard().setText(txt)
 # }}}
 
+
+_proceed_memory = []
+
 class ProceedNotification(MessageBox): # {{{
 
-    proceed = pyqtSignal(object)
-
-    def __init__(self, payload, html_log, log_viewer_title, title, msg, det_msg='', show_copy_button=False, parent=None):
+    def __init__(self, callback, payload, html_log, log_viewer_title, title, msg,
+            det_msg='', show_copy_button=False, parent=None):
         '''
         A non modal popup that notifies the user that a background task has
-        been completed. If they user clicks yes, the proceed signal is emitted
-        with payload as its argument.
+        been completed.
 
-        :param payload: Arbitrary object, emitted in the proceed signal
+        :param callback: A callable that is called with payload if the user
+        asks to proceed. Note that this is always called in the GUI thread
+        :param payload: Arbitrary object, passed to callback
         :param html_log: An HTML or plain text log
         :param log_viewer_title: The title for the log viewer window
         :param title: The title fo rthis popup
@@ -166,25 +169,31 @@ class ProceedNotification(MessageBox): # {{{
         self.payload = payload
         self.html_log = html_log
         self.log_viewer_title = log_viewer_title
-        self.finished.connect(self.do_proceed)
+        self.finished.connect(self.do_proceed, type=Qt.QueuedConnection)
 
         self.vlb = self.bb.addButton(_('View log'), self.bb.ActionRole)
         self.vlb.setIcon(QIcon(I('debug.png')))
         self.vlb.clicked.connect(self.show_log)
         self.det_msg_toggle.setVisible(bool(det_msg))
         self.setModal(False)
+        self.callback = callback
+        _proceed_memory.append(self)
 
     def show_log(self):
         self.log_viewer = ViewLog(self.log_viewer_title, self.html_log,
                 parent=self)
 
     def do_proceed(self, result):
-        if result == self.Accepted:
-            self.proceed.emit(self.payload)
         try:
-            self.proceed.disconnect()
-        except:
-            pass
+            if result == self.Accepted:
+                self.callback(self.payload)
+        finally:
+            # Ensure this notification is garbage collected
+            self.callback = None
+            self.setParent(None)
+            self.finished.disconnect()
+            self.vlb.clicked.disconnect()
+            _proceed_memory.remove(self)
 # }}}
 
 if __name__ == '__main__':

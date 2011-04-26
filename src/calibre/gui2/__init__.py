@@ -80,6 +80,14 @@ gprefs.defaults['font'] = None
 gprefs.defaults['tags_browser_partition_method'] = 'first letter'
 gprefs.defaults['tags_browser_collapse_at'] = 100
 gprefs.defaults['edit_metadata_single_layout'] = 'default'
+gprefs.defaults['book_display_fields'] = [
+        ('title', False), ('authors', False), ('formats', True),
+        ('series', True), ('identifiers', True), ('tags', True),
+        ('path', True), ('publisher', False), ('rating', False),
+        ('author_sort', False), ('sort', False), ('timestamp', False),
+        ('uuid', False), ('comments', True), ('id', False), ('pubdate', False),
+        ('last_modified', False), ('size', False),
+        ]
 
 # }}}
 
@@ -89,7 +97,7 @@ UNDEFINED_QDATE = QDate(UNDEFINED_DATE)
 ALL_COLUMNS = ['title', 'ondevice', 'authors', 'size', 'timestamp', 'rating', 'publisher',
         'tags', 'series', 'pubdate']
 
-def _config():
+def _config(): # {{{
     c = Config('gui', 'preferences for the calibre GUI')
     c.add_opt('send_to_storage_card_by_default', default=False,
               help=_('Send file to storage card instead of main memory by default'))
@@ -181,6 +189,8 @@ def _config():
     return ConfigProxy(c)
 
 config = _config()
+# }}}
+
 # Turn off DeprecationWarnings in windows GUI
 if iswindows:
     import warnings
@@ -728,12 +738,6 @@ def build_forms(srcdir, info=None):
             dat = pat.sub(sub, dat)
             dat = dat.replace('from QtWebKit.QWebView import QWebView',
                     'from PyQt4 import QtWebKit\nfrom PyQt4.QtWebKit import QWebView')
-
-            if form.endswith('viewer%smain.ui'%os.sep):
-                info('\t\tPromoting WebView')
-                dat = dat.replace('self.view = QtWebKit.QWebView(', 'self.view = DocumentView(')
-                dat = dat.replace('self.view = QWebView(', 'self.view = DocumentView(')
-                dat += '\n\nfrom calibre.gui2.viewer.documentview import DocumentView'
 
             open(compiled_form, 'wb').write(dat)
 

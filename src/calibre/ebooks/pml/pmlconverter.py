@@ -749,7 +749,10 @@ def pml_to_html(pml):
 
 def footnote_sidebar_to_html(pre_id, id, pml):
     id = id.strip('\x01')
-    html = '<br /><br style="page-break-after: always;" /><div id="%s-%s"><p>%s</p><small><a href="#r%s-%s">return</a></small></div>' % (pre_id, id, pml_to_html(pml), pre_id, id)
+    if id.strip():
+        html = '<br /><br style="page-break-after: always;" /><div id="%s-%s">%s<small><a href="#r%s-%s">return</a></small></div>' % (pre_id, id, pml_to_html(pml), pre_id, id)
+    else:
+        html = '<br /><br style="page-break-after: always;" /><div>%s</div>' % pml_to_html(pml)
     return html
 
 def footnote_to_html(id, pml):

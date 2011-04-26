@@ -14,7 +14,7 @@ from PyQt4.Qt import (Qt, QAbstractItemModel, QVariant, QPixmap, QModelIndex, QS
 from calibre.gui2 import NONE
 from calibre.gui2.store.search_result import SearchResult
 from calibre.gui2.store.search.download_thread import DetailsThreadPool, \
-    DetailsThread, CoverThreadPool, CoverThread
+    CoverThreadPool
 from calibre.library.caches import _match, CONTAINS_MATCH, EQUALS_MATCH, \
     REGEXP_MATCH
 from calibre.utils.icu import sort_key
@@ -51,10 +51,8 @@ class Matches(QAbstractItemModel):
         self.matches = []
         self.query = ''
         self.search_filter = SearchFilter()
-        self.cover_pool = CoverThreadPool(CoverThread, 2)
-        self.cover_pool.start_threads()
-        self.details_pool = DetailsThreadPool(DetailsThread, 4)
-        self.details_pool.start_threads()
+        self.cover_pool = CoverThreadPool(2)
+        self.details_pool = DetailsThreadPool(4)
 
         self.sort_col = 2
         self.sort_order = Qt.AscendingOrder
@@ -70,9 +68,7 @@ class Matches(QAbstractItemModel):
         self.search_filter.clear_search_results()
         self.query = ''
         self.cover_pool.abort()
-        self.cover_pool.start_threads()
         self.details_pool.abort()
-        self.details_pool.start_threads()
         self.reset()
 
     def add_result(self, result, store_plugin):

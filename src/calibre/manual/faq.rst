@@ -20,11 +20,14 @@ What formats does |app| support conversion to/from?
 |app| supports the conversion of many input formats to many output formats.
 It can convert every input format in the following list, to every output format.
 
-*Input Formats:* CBZ, CBR, CBC, CHM, EPUB, FB2, HTML, HTMLZ, LIT, LRF, MOBI, ODT, PDF, PRC**, PDB, PML, RB, RTF, SNB, TCR, TXT, TXTZ
+*Input Formats:* CBZ, CBR, CBC, CHM, EPUB, FB2, HTML, HTMLZ, LIT, LRF, MOBI, ODT, PDF, PRC, PDB, PML, RB, RTF, SNB, TCR, TXT, TXTZ
 
 *Output Formats:* EPUB, FB2, OEB, LIT, LRF, MOBI, HTMLZ, PDB, PML, RB, PDF, SNB, TCR, TXT, TXTZ
 
-** PRC is a generic format, |app| supports PRC files with TextRead and MOBIBook headers
+.. note ::
+
+    PRC is a generic format, |app| supports PRC files with TextRead and MOBIBook headers.
+    PDB is also a generic format. |app| supports eReder, Plucker, PML and zTxt PDB files.
 
 .. _best-source-formats:
 

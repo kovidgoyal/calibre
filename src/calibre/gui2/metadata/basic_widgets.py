@@ -18,11 +18,11 @@ from calibre.gui2.widgets import EnLineEdit, FormatList, ImageView
 from calibre.gui2.complete import MultiCompleteLineEdit, MultiCompleteComboBox
 from calibre.utils.icu import sort_key
 from calibre.utils.config import tweaks, prefs
-from calibre.ebooks.metadata import title_sort, authors_to_string, \
-        string_to_authors, check_isbn
+from calibre.ebooks.metadata import (title_sort, authors_to_string,
+        string_to_authors, check_isbn)
 from calibre.ebooks.metadata.meta import get_metadata
-from calibre.gui2 import file_icon_provider, UNDEFINED_QDATE, UNDEFINED_DATE, \
-        choose_files, error_dialog, choose_images, question_dialog
+from calibre.gui2 import (file_icon_provider, UNDEFINED_QDATE, UNDEFINED_DATE,
+        choose_files, error_dialog, choose_images, question_dialog)
 from calibre.utils.date import local_tz, qt_to_dt
 from calibre import strftime
 from calibre.ebooks import BOOK_EXTENSIONS
@@ -805,6 +805,7 @@ class CommentsEdit(Editor): # {{{
             else:
                 val = comments_to_html(val)
             self.html = val
+            self.wyswyg_dirtied()
         return property(fget=fget, fset=fset)
 
     def initialize(self, db, id_):

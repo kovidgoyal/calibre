@@ -301,7 +301,7 @@ class Amazon(Source):
         if asin is None:
             asin = identifiers.get('asin', None)
         if asin:
-            return 'http://amzn.com/%s'%asin
+            return ('amazon', asin, 'http://amzn.com/%s'%asin)
     # }}}
 
     def create_query(self, log, title=None, authors=None, identifiers={}): # {{{
