@@ -957,6 +957,11 @@ class IdentifiersEdit(QLineEdit): # {{{
                 if x == 'isbn':
                     x = '00isbn'
                 return x
+            for k in list(val):
+                if k == 'isbn':
+                    v = check_isbn(k)
+                    if v is not None:
+                        val[k] = v
             ids = sorted(val.iteritems(), key=keygen)
             txt = ', '.join(['%s:%s'%(k, v) for k, v in ids])
             self.setText(txt.strip())
@@ -964,8 +969,8 @@ class IdentifiersEdit(QLineEdit): # {{{
         return property(fget=fget, fset=fset)
 
     def initialize(self, db, id_):
-        self.current_val = db.get_identifiers(id_, index_is_id=True)
-        self.original_val = self.current_val
+        self.original_val = db.get_identifiers(id_, index_is_id=True)
+        self.current_val = self.original_val
 
     def commit(self, db, id_):
         if self.original_val != self.current_val:
