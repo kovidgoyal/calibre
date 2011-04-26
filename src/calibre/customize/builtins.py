@@ -1184,12 +1184,16 @@ class StoreWaterstonesUKStore(StoreBase):
     description = _('Feel every word')
     actual_plugin = 'calibre.gui2.store.waterstones_uk_plugin:WaterstonesUKStore'
 
-plugins += [StoreAmazonKindleStore, StoreAmazonUKKindleStore,
-    StoreBaenWebScriptionStore, StoreBNStore,
+class StoreFoylesUKStore(StoreBase):
+    name = 'Foyles UK'
+    description = _('Foyles of London, online')
+    actual_plugin = 'calibre.gui2.store.foyles_uk_plugin:FoylesUKStore'
+
+plugins += [StoreAmazonKindleStore, StoreBaenWebScriptionStore, StoreBNStore,
     StoreBeWriteStore, StoreDieselEbooksStore, StoreEbookscomStore,
     StoreEHarlequinStoretore,
     StoreFeedbooksStore, StoreGutenbergStore, StoreKoboStore, StoreManyBooksStore,
     StoreMobileReadStore, StoreOpenLibraryStore, StoreSmashwordsStore,
-    StoreWaterstonesUKStore]
+    StoreAmazonUKKindleStore, StoreFoylesUKStore, StoreWaterstonesUKStore]
 
 # }}}
