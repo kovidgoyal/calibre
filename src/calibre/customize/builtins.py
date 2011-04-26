@@ -1179,11 +1179,17 @@ class StoreSmashwordsStore(StoreBase):
     description = _('Your ebook. Your way.')
     actual_plugin = 'calibre.gui2.store.smashwords_plugin:SmashwordsStore'
 
+class StoreWaterstonesUKStore(StoreBase):
+    name = 'Waterstones UK'
+    description = _('Feel every word')
+    actual_plugin = 'calibre.gui2.store.waterstones_uk_plugin:WaterstonesUKStore'
+
 plugins += [StoreAmazonKindleStore, StoreAmazonUKKindleStore,
     StoreBaenWebScriptionStore, StoreBNStore,
     StoreBeWriteStore, StoreDieselEbooksStore, StoreEbookscomStore,
     StoreEHarlequinStoretore,
     StoreFeedbooksStore, StoreGutenbergStore, StoreKoboStore, StoreManyBooksStore,
-    StoreMobileReadStore, StoreOpenLibraryStore, StoreSmashwordsStore]
+    StoreMobileReadStore, StoreOpenLibraryStore, StoreSmashwordsStore,
+    StoreWaterstonesUKStore]
 
 # }}}
