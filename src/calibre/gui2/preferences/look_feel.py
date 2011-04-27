@@ -235,6 +235,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         gui.library_view.refresh_book_details()
 
 if __name__ == '__main__':
-    app = QApplication([])
+    from calibre.gui2 import Application
+    app = Application([])
     test_widget('Interface', 'Look & Feel')
 

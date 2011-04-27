@@ -460,7 +460,7 @@ class ITUNES(DriverBase):
 
                             cached_books[this_book.path] = {
                              'title':book.Name,
-                             'author':book.artist().split(' & '),
+                             'author':book.Artist.split(' & '),
                              'lib_book':library_books[this_book.path] if this_book.path in library_books else None,
                              'uuid': book.Composer,
                              'format': 'pdf' if book.KindAsString.startswith('PDF') else 'epub'

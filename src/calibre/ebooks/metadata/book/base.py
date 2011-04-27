@@ -120,7 +120,11 @@ class Metadata(object):
                                             _('TEMPLATE ERROR'),
                                             self).strip()
             return val
-
+        if field.startswith('#') and field.endswith('_index'):
+            try:
+                return self.get_extra(field[:-6])
+            except:
+                pass
         raise AttributeError(
                 'Metadata object has no attribute named: '+ repr(field))
 
@@ -170,11 +174,6 @@ class Metadata(object):
         try:
             return self.__getattribute__(field)
         except AttributeError:
-            if field.startswith('#') and field.endswith('_index'):
-                try:
-                    return self.get_extra(field[:-6])
-                except:
-                    pass
             return default
 
     def get_extra(self, field, default=None):
@@ -631,7 +630,7 @@ class Metadata(object):
                 res = format_date(res, fmeta['display'].get('date_format','dd MMM yyyy'))
             elif datatype == 'rating':
                 res = res/2.0
-            elif key in ('book_size', 'size'):
+            elif key == 'size':
                 res = human_readable(res)
             return (name, unicode(res), orig_res, fmeta)
 

@@ -209,8 +209,11 @@ class FieldsModel(QAbstractListModel): # {{{
         return ret
 
     def commit(self):
-        val = [k for k, v in self.overrides.iteritems() if v == Qt.Unchecked]
-        msprefs['ignore_fields'] = val
+        ignored_fields = set([x for x in msprefs['ignore_fields'] if x not in
+            self.overrides])
+        changed = set([k for k, v in self.overrides.iteritems() if v ==
+            Qt.Unchecked])
+        msprefs['ignore_fields'] = list(ignored_fields.union(changed))
 
 
 # }}}

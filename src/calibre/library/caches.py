@@ -406,11 +406,9 @@ class ResultCache(SearchQueryParser): # {{{
         if val_func is None:
             loc = self.field_metadata[location]['rec_index']
             val_func = lambda item, loc=loc: item[loc]
-        dt = self.field_metadata[location]['datatype']
-
         q = ''
-        val_func = lambda item, loc=loc: item[loc]
         cast = adjust = lambda x: x
+        dt = self.field_metadata[location]['datatype']
 
         if query == 'false':
             if dt == 'rating' or location == 'cover':
