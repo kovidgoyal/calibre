@@ -58,6 +58,9 @@ class WaterstonesUKStore(BasicStoreConfig, StorePlugin):
                 title = ''.join(data.xpath('./div/div/h2/a/text()'))
                 author = ', '.join(data.xpath('.//p[@class="byAuthor"]/a/text()'))
                 price = ''.join(data.xpath('.//p[@class="price"]/span[@class="priceStandard"]/text()'))
+                drm = data.xpath('boolean(.//td[@headers="productFormat" and contains(., "DRM")])')
+                pdf = data.xpath('boolean(.//td[@headers="productFormat" and contains(., "PDF")])')
+                epub = data.xpath('boolean(.//td[@headers="productFormat" and contains(., "EPUB")])')
 
                 counter -= 1
 
@@ -66,8 +69,16 @@ class WaterstonesUKStore(BasicStoreConfig, StorePlugin):
                 s.title = title.strip()
                 s.author = author.strip()
                 s.price = price
-                s.drm = SearchResult.DRM_LOCKED
+                if drm:
+                    s.drm = SearchResult.DRM_LOCKED
+                else:
+                    s.drm = SearchResult.DRM_UNKNOWN
                 s.detail_item = id
-                s.formats = 'EPUB'
+                formats = []
+                if epub:
+                    formats.append('EPUB')
+                if pdf:
+                    formats.append('PDF')
+                s.formats = ', '.join(formats)
 
                 yield s

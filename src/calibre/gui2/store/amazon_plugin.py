@@ -181,14 +181,19 @@ class AmazonKindleStore(StorePlugin):
                 yield s
 
     details_url = 'http://amazon.com/dp/'
+    drm_search_text = u'Simultaneous Device Usage'
+    drm_free_text = u'Unlimited'
     def get_details(self, search_result, timeout):
         url = self.details_url
 
         br = browser()
         with closing(br.open(url + search_result.detail_item, timeout=timeout)) as nf:
             idata = html.fromstring(nf.read())
-            if idata.xpath('boolean(//div[@class="content"]//li/b[contains(text(), "Simultaneous Device Usage")])'):
-                if idata.xpath('boolean(//div[@class="content"]//li[contains(., "Unlimited") and contains(b, "Simultaneous Device Usage")])'):
+            if idata.xpath('boolean(//div[@class="content"]//li/b[contains(text(), "' +
+                           self.drm_search_text + '")])'):
+                if idata.xpath('boolean(//div[@class="content"]//li[contains(., "' +
+                               self.drm_free_text + '") and contains(b, "' +
+                               self.drm_search_text + '")])'):
                     search_result.drm = SearchResult.DRM_UNLOCKED
                 else:
                     search_result.drm = SearchResult.DRM_UNKNOWN
