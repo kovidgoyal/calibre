@@ -74,7 +74,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def initialize(self):
         try:
-            json.loads(P('template-functions.json', data=True,
+            self.builtin_source_dict = json.loads(P('template-functions.json', data=True,
                 allow_user_override=False).decode('utf-8'))
         except:
             traceback.print_exc()
