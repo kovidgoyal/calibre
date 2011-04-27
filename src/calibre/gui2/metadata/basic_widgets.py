@@ -942,7 +942,7 @@ class IdentifiersEdit(QLineEdit): # {{{
             ans = {}
             for x in parts:
                 c = x.split(':')
-                if len(c) == 2:
+                if len(c) > 1:
                     if c[0] == 'isbn':
                         v = check_isbn(c[1])
                         if v is not None:
