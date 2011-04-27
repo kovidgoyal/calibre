@@ -446,22 +446,23 @@ class NullContainer(object):
 class DirContainer(object):
     """Filesystem directory container."""
 
-    def __init__(self, path, log):
+    def __init__(self, path, log, ignore_opf=False):
         self.log = log
         if isbytestring(path):
             path = path.decode(filesystem_encoding)
+        self.opfname = None
         ext = os.path.splitext(path)[1].lower()
         if ext == '.opf':
             self.opfname = os.path.basename(path)
             self.rootdir = os.path.dirname(path)
             return
         self.rootdir = path
-        for path in self.namelist():
-            ext = os.path.splitext(path)[1].lower()
-            if ext == '.opf':
-                self.opfname = path
-                return
-        self.opfname = None
+        if not ignore_opf:
+            for path in self.namelist():
+                ext = os.path.splitext(path)[1].lower()
+                if ext == '.opf':
+                    self.opfname = path
+                    return
 
     def read(self, path):
         if path is None:
