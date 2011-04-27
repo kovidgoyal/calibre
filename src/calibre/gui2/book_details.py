@@ -118,8 +118,9 @@ def render_data(mi, use_roman_numbers=True, all_fields=False):
             links = [u'<a href="%s" title="%s:%s">%s</a>' % (url, id_typ, id_val, name)
                     for name, id_typ, id_val, url in urls]
             links = u', '.join(links)
-            ans.append((field, u'<td class="title">%s</td><td>%s</td>'%(
-                _('Ids')+':', links)))
+            if links:
+                ans.append((field, u'<td class="title">%s</td><td>%s</td>'%(
+                    _('Ids')+':', links)))
         else:
             val = mi.format_field(field)[-1]
             if val is None:

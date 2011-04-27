@@ -368,7 +368,8 @@ class FieldMetadata(dict):
                         'date_format': tweaks['gui_timestamp_display_format']}
         self._tb_cats['pubdate']['display'] = {
                         'date_format': tweaks['gui_pubdate_display_format']}
-        self._tb_cats['last_modified']['display'] = {'date_format': 'iso'}
+        self._tb_cats['last_modified']['display'] = {
+                        'date_format': tweaks['gui_last_modified_display_format']}
         self.custom_field_prefix = '#'
         self.get = self._tb_cats.get
 

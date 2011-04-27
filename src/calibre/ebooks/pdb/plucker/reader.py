@@ -16,6 +16,7 @@ from calibre import CurrentDir
 from calibre.ebooks.pdb.formatreader import FormatReader
 from calibre.ptempfile import TemporaryFile
 from calibre.utils.magick import Image, create_canvas
+from calibre.ebooks.compression.palmdoc import decompress_doc
 
 DATATYPE_PHTML = 0
 DATATYPE_PHTML_COMPRESSED = 1
