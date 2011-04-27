@@ -187,7 +187,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.argument_count.setValue(func.arg_count)
         self.documentation.setText(func.doc)
         if txt in self.builtins:
-            if hasattr(func, 'program_text'):
+            if hasattr(func, 'program_text') and func.program_text:
                 self.program.setPlainText(func.program_text)
             elif txt in self.builtin_source_dict:
                 self.program.setPlainText(self.builtin_source_dict[txt])
