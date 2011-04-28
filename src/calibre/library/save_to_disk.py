@@ -211,6 +211,8 @@ def get_components(template, mi, id, timefmt='%b %Y', length=250,
                 format_args[key] = strftime(timefmt, format_args[key].timetuple())
             elif cm['datatype'] == 'bool':
                 format_args[key] = _('yes') if format_args[key] else _('no')
+            elif cm['datatype'] == 'rating':
+                format_args[key] = mi.format_rating(format_args[key])
             elif cm['datatype'] in ['int', 'float']:
                 if format_args[key] != 0:
                     format_args[key] = unicode(format_args[key])
