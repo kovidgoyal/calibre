@@ -100,7 +100,8 @@ class ThreadedJob(BaseJob):
         try:
             self.consolidate_log()
         except:
-            self.log.exception('Log consolidation failed')
+            if self.log is not None:
+                self.log.exception('Log consolidation failed')
 
         # No need to keep references to these around anymore
         self.func = self.args = self.kwargs = self.notifications = None
