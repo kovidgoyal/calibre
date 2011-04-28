@@ -563,8 +563,12 @@ class Metadata(object):
     def format_tags(self):
         return u', '.join([unicode(t) for t in sorted(self.tags, key=sort_key)])
 
-    def format_rating(self):
-        return unicode(self.rating)
+    def format_rating(self, v=None, divide_by=1.0):
+        if v is None:
+            if self.rating is not None:
+                return unicode(self.rating/divide_by)
+            return u'None'
+        return unicode(v/divide_by)
 
     def format_field(self, key, series_with_index=True):
         '''

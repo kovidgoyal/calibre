@@ -189,7 +189,7 @@ def get_components(template, mi, id, timefmt='%b %Y', length=250,
     else:
         template = re.sub(r'\{series_index[^}]*?\}', '', template)
     if mi.rating is not None:
-        format_args['rating'] = mi.format_rating()
+        format_args['rating'] = mi.format_rating(divide_by=2.0)
     if hasattr(mi.timestamp, 'timetuple'):
         format_args['timestamp'] = strftime(timefmt, mi.timestamp.timetuple())
     if hasattr(mi.pubdate, 'timetuple'):
@@ -211,6 +211,9 @@ def get_components(template, mi, id, timefmt='%b %Y', length=250,
                 format_args[key] = strftime(timefmt, format_args[key].timetuple())
             elif cm['datatype'] == 'bool':
                 format_args[key] = _('yes') if format_args[key] else _('no')
+            elif cm['datatype'] == 'rating':
+                format_args[key] = mi.format_rating(format_args[key],
+                        divide_by=2.0)
             elif cm['datatype'] in ['int', 'float']:
                 if format_args[key] != 0:
                     format_args[key] = unicode(format_args[key])
