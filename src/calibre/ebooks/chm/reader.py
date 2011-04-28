@@ -97,7 +97,7 @@ class CHMReader(CHMFile):
             raise CHMError("'%s' is zero bytes in length!"%(path,))
         return data
 
-    def ExtractFiles(self, output_dir=os.getcwdu()):
+    def ExtractFiles(self, output_dir=os.getcwdu(), debug_dump=False):
         html_files = set([])
         for path in self.Contents():
             lpath = os.path.join(output_dir, path)
@@ -123,6 +123,9 @@ class CHMReader(CHMFile):
                     self.log.warn('%r filename too long, skipping'%path)
                     continue
                 raise
+        if debug_dump:
+            import shutil
+            shutil.copytree(output_dir, os.path.join(debug_dump, 'debug_dump'))
         for lpath in html_files:
             with open(lpath, 'r+b') as f:
                 data = f.read()
@@ -249,8 +252,8 @@ class CHMReader(CHMFile):
         if not os.path.isdir(dir):
             os.makedirs(dir)
 
-    def extract_content(self, output_dir=os.getcwdu()):
-        self.ExtractFiles(output_dir=output_dir)
+    def extract_content(self, output_dir=os.getcwdu(), debug_dump=False):
+        self.ExtractFiles(output_dir=output_dir, debug_dump=debug_dump)
 
 
 

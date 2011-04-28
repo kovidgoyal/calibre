@@ -400,7 +400,8 @@ class MetadataUpdater(object):
         if getattr(self, 'exth', None) is None:
             raise MobiError('No existing EXTH record. Cannot update metadata.')
 
-        self.record0[92:96] = iana2mobi(mi.language)
+        if not mi.is_null('language'):
+            self.record0[92:96] = iana2mobi(mi.language)
         self.create_exth(exth=exth, new_title=mi.title)
 
         # Fetch updated timestamp, cover_record, thumbnail_record

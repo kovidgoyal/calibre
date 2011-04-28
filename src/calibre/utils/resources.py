@@ -65,7 +65,8 @@ _resolver = PathResolver()
 def get_path(path, data=False, allow_user_override=True):
     fpath = _resolver(path, allow_user_override=allow_user_override)
     if data:
-        return open(fpath, 'rb').read()
+        with open(fpath, 'rb') as f:
+            return f.read()
     return fpath
 
 def get_image_path(path, data=False, allow_user_override=True):

@@ -63,7 +63,7 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
         self.shortcuts.linkActivated.connect(self.shortcut_activated)
         text = '<p>'+_('Quick create:')
         for col, name in [('isbn', _('ISBN')), ('formats', _('Formats')),
-                ('last_modified', _('Modified Date')), ('yesno', _('Yes/No')),
+                ('yesno', _('Yes/No')),
                 ('tags', _('Tags')), ('series', _('Series')), ('rating',
                     _('Rating')), ('people', _("People's names"))]:
             text += ' <a href="col:%s">%s</a>,'%(col, name)
@@ -150,7 +150,6 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
             'tags': _('My Tags'),
             'series': _('My Series'),
             'rating': _('My Rating'),
-            'last_modified':_('Modified Date'),
             'people': _('People')}[which])
         self.is_names.setChecked(which == 'people')
         if self.composite_box.isVisible():
@@ -158,9 +157,8 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
                 {
                     'isbn': '{identifiers:select(isbn)}',
                     'formats': '{formats}',
-                    'last_modified':'''{last_modified:'format_date($, "dd MMM yyyy")'}'''
                     }[which])
-            self.composite_sort_by.setCurrentIndex(2 if which == 'last_modified' else 0)
+            self.composite_sort_by.setCurrentIndex(0)
 
     def datatype_changed(self, *args):
         try:
