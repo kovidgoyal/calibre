@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-04-22 20:42+0000\n"
-"PO-Revision-Date: 2011-04-24 14:53+0000\n"
+"PO-Revision-Date: 2011-04-27 22:27+0000\n"
 "Last-Translator: drMerry <Unknown>\n"
 "Language-Team: Dutch <nl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-04-25 04:48+0000\n"
+"X-Launchpad-Export-Date: 2011-04-28 04:36+0000\n"
 "X-Generator: Launchpad (build 12758)\n"
 "X-Poedit-Country: NETHERLANDS\n"
 "X-Poedit-Language: Dutch\n"
@@ -237,7 +237,7 @@ msgstr "Voorkeuren"
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:609
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:33
 msgid "Store"
-msgstr ""
+msgstr "Winkel"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:18
 msgid ""
@@ -567,7 +567,7 @@ msgstr "Lees overal."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1149
 msgid "The first producer of free ebooks."
-msgstr ""
+msgstr "De eerste producent van gratis E-boeken."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1154
 msgid "eReading: anytime. anyplace."
@@ -6421,7 +6421,7 @@ msgstr " inch"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:329
 msgid "&Description note"
-msgstr ""
+msgstr "Omschrijving notitie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:330
 msgid "Custom column source for note to include in Description header area"
@@ -11666,7 +11666,7 @@ msgstr "Voeg een formaat toe aan dit boek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:485
 msgid "Remove the selected format from this book"
-msgstr ""
+msgstr "Verwijder geselecteerde formaat van dit boek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:750
 msgid "Invalid cover"
@@ -11746,7 +11746,7 @@ msgstr "Details"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:38
 msgid "Schedule download?"
-msgstr ""
+msgstr "Download plannen?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:49
 msgid ""
@@ -11788,7 +11788,7 @@ msgstr "Download metadata voor %d boeken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:106
 msgid "Metadata download started"
-msgstr ""
+msgstr "Download van metadata gestart"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:123
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:767
@@ -11831,7 +11831,7 @@ msgstr "(Omslag mislukt)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:197
 msgid "Failed to download metadata or covers for any of the %d book(s)."
-msgstr ""
+msgstr "Downloaden van metadata of omslagen voor %d boek(en) mislukt."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:202
 msgid ""
@@ -11885,7 +11885,7 @@ msgstr "&Download metagegevens"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:181
 msgid "Change how calibre downloads metadata"
-msgstr ""
+msgstr "Wijze waarop calibre metadata download aanpassen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:512
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:702
@@ -12344,7 +12344,7 @@ msgstr "Kolom gemaakt van andere kolommen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:45
 msgid "Column built from other columns, behaves like tags"
-msgstr ""
+msgstr "Kolom gemaakt uit andere kolommen, gedrag zoals bij labels"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:52
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:53
@@ -13761,11 +13761,11 @@ msgstr "Functie niet gedefinieerd"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:155
 msgid "Argument count must be -1 or greater than zero"
-msgstr ""
+msgstr "Parameter moet -1 of groter dan nul zijn"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:166
 msgid "Exception while compiling function"
-msgstr ""
+msgstr "Uitzondering gedurende compilatie van functie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:194
 msgid "function source code not available"
@@ -13781,7 +13781,7 @@ msgstr "Voer de naam in van de te creëren functie."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:98
 msgid "Arg &count:"
-msgstr ""
+msgstr "Aantal argumenten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:99
 msgid "Set this to -1 if the function takes a variable number of arguments"
@@ -13801,7 +13801,7 @@ msgstr "C&reïer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:105
 msgid "&Program Code: (be sure to follow python indenting rules)"
-msgstr ""
+msgstr "&Programma code: (zorg dat je python identatie regels gebruitk)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:36
 msgid "Switch between library and device views"
@@ -14129,7 +14129,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:198
 msgid "Couldn't find any books matching your query."
-msgstr ""
+msgstr "Geen boeken overeenkomstig je zoekterm gevonden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:107
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search_ui.py:107
@@ -14168,7 +14168,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/web_control.py:86
 msgid "File is not a supported ebook type. Save to disk?"
-msgstr ""
+msgstr "Bestand is geen ondersteund E-boek formaat. Opslaan op schijf?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/web_store_dialog_ui.py:59
 msgid "Home"
@@ -14332,7 +14332,7 @@ msgstr "Foutieve zoek restrictie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1853
 msgid "The current search restriction is invalid"
-msgstr ""
+msgstr "Huidige restrictie is niet geldig"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1869
 msgid "New Category"
