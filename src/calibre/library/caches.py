@@ -783,7 +783,7 @@ class ResultCache(SearchQueryParser): # {{{
         else:
             q = query
             if search_restriction:
-                q = u'%s (%s)' % (search_restriction, query)
+                q = u'(%s) and (%s)' % (search_restriction, query)
         if not q:
             if set_restriction_count:
                 self.search_restriction_book_count = len(self._map)
