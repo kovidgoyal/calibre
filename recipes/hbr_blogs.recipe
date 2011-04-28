@@ -1,9 +1,6 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 import re
 
-# Needed for BLOGs
-from calibre.web.feeds import Feed
-
 class HBR(BasicNewsRecipe):
 
     title = 'Harvard Business Review Blogs'
@@ -32,6 +29,7 @@ class HBR(BasicNewsRecipe):
         feeds = [('Blog','http://feeds.harvardbusiness.org/harvardbusiness')]
         oldest_article = 30
         max_articles_per_feed = 100
+        use_embedded_content = False
     else:
         timefmt                = ' [%B %Y]'
 
@@ -161,27 +159,13 @@ class HBR(BasicNewsRecipe):
         return startDate, endDate
 
 #-------------------------------------------------------------------------------------------------
-    def hbr_parse_blogs(self, feeds):
-        # Do the "official" parse_feeds first
-        rssFeeds = Feed()
 
-        # Use the PARSE_FEEDS method to get a Feeds object of the articles
-        rssFeeds = BasicNewsRecipe.parse_feeds(self)
-
-        # Create a new feed of the right configuration and append to existing afeeds
-        self.feed_to_index_append(rssFeeds[:], feeds)
-
-#-------------------------------------------------------------------------------------------------
     def parse_index(self):
         if self.INCLUDE_ARTICLES == True:
             soup = self.hbr_get_toc()
             feeds = self.hbr_parse_toc(soup)
         else:
-            feeds = []
-
-        # blog stuff
-        if self.INCLUDE_BLOGS == True:
-            self.hbr_parse_blogs(feeds)
+            return BasicNewsRecipe.parse_index(self)
 
         return feeds
 #-------------------------------------------------------------------------------------------------
