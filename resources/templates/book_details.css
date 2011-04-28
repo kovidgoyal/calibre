@@ -2,6 +2,11 @@ a {
     text-decoration: none;
     color: blue
 }
+
+a:hover {
+    color: red
+}
+
 .comments { 
     margin-top: 0;
     padding-top: 0;
