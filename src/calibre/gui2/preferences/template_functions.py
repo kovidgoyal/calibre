@@ -74,9 +74,10 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def initialize(self):
         try:
-            with open(P('template-functions.json'), 'rb') as f:
-                self.builtin_source_dict = json.load(f, encoding='utf-8')
+            self.builtin_source_dict = json.loads(P('template-functions.json', data=True,
+                allow_user_override=False).decode('utf-8'))
         except:
+            traceback.print_exc()
             self.builtin_source_dict = {}
 
         self.funcs = formatter_functions.get_functions()
