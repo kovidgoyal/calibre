@@ -112,7 +112,7 @@ class ThreadedJob(BaseJob):
             self.start_time = time.time()
             self.duration = 0.0001
         else:
-            self.duration = time.time() - self.start_time()
+            self.duration = time.time() - self.start_time
             self.abort.set()
 
         self.log('Aborted job:', self.description)
