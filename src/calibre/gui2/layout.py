@@ -156,8 +156,6 @@ class SearchBar(QWidget): # {{{
         x = ComboBoxWithHelp(self)
         x.setMaximumSize(QSize(150, 16777215))
         x.setObjectName("search_restriction")
-        x.setToolTip(_('Books display will be restricted to those matching the '
-                       'selected saved search'))
         l.addWidget(x)
         parent.search_restriction = x
 
@@ -196,11 +194,9 @@ class SearchBar(QWidget): # {{{
         l.addWidget(x)
         x.setToolTip(_("Reset Quick Search"))
 
-        x = parent.search_options_button = QToolButton(self)
-        x.setIcon(QIcon(I('config.png')))
-        x.setObjectName("search_option_button")
+        x = parent.highlight_only_button = QToolButton(self)
+        x.setIcon(QIcon(I('arrow-down.png')))
         l.addWidget(x)
-        x.setToolTip(_("Change the way searching for books works"))
 
         x = parent.saved_search = SavedSearchBox(self)
         x.setMaximumSize(QSize(150, 16777215))
@@ -218,14 +214,6 @@ class SearchBar(QWidget): # {{{
         x.setIcon(QIcon(I("search_add_saved.png")))
         x.setObjectName("save_search_button")
         l.addWidget(x)
-        x.setToolTip(_("Save current search under the name shown in the box"))
-
-        x = parent.delete_search_button = QToolButton(self)
-        x.setIcon(QIcon(I("search_delete_saved.png")))
-        x.setObjectName("delete_search_button")
-        l.addWidget(x)
-        x.setToolTip(_("Delete current saved search"))
-
 
 # }}}
 
@@ -326,6 +314,8 @@ class BaseToolBar(QToolBar): # {{{
         QToolBar.resizeEvent(self, ev)
         style = self.get_text_style()
         self.setToolButtonStyle(style)
+        if hasattr(self, 'd_widget') and hasattr(self.d_widget, 'filler'):
+            self.d_widget.filler.setVisible(style != Qt.ToolButtonIconOnly)
 
     def get_text_style(self):
         style = Qt.ToolButtonTextUnderIcon
@@ -408,6 +398,10 @@ class ToolBar(BaseToolBar): # {{{
                     self.d_widget.layout().addWidget(self.donate_button)
                     if isosx:
                         self.d_widget.setStyleSheet('QWidget, QToolButton {background-color: none; border: none; }')
+                        self.d_widget.layout().setContentsMargins(0,0,0,0)
+                        self.d_widget.setContentsMargins(0,0,0,0)
+                        self.d_widget.filler = QLabel(u'\u00a0')
+                        self.d_widget.layout().addWidget(self.d_widget.filler)
                     bar.addWidget(self.d_widget)
                     self.showing_donate = True
                 elif what in self.gui.iactions:

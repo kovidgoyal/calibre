@@ -23,7 +23,7 @@ class BigOven(BasicNewsRecipe):
                         , 'publisher'         : publisher
                         , 'language'          : language
                         }
-    
+
     def get_browser(self):
         br = BasicNewsRecipe.get_browser()
         if self.username is not None and self.password is not None:
@@ -36,29 +36,38 @@ class BigOven(BasicNewsRecipe):
 
     remove_attributes = ['style', 'font']
 
-    remove_tags     = [dict(name='div', attrs={'class':['ppy-caption']})
-                                  ,dict(name='div', attrs={'id':['float_corner']})
-                                  ]
+    def get_article_url(self, article):
+        url = article.get('feedburner_origlink',article.get('link', None))
+        front, middle, end = url.partition('comhttp//www.bigoven.com')
+        url = front + 'com' + end
+        return url
+
+    keep_only_tags = [dict(name='div', attrs={'id':['nosidebar_main']})]
+
+    remove_tags_after = [dict(name='div', attrs={'class':['display-field']})]
+
+    remove_tags =  [dict(name='ul', attrs={'class':['tabs']})]
+
+    preprocess_regexps = [
+        (re.compile(r'Want detailed nutrition information?', re.DOTALL), lambda match: ''),
+        (re.compile('\(You could win \$100 in our ', re.DOTALL), lambda match: ''),
+         ]
 
     def preprocess_html(self, soup):
-        for tag in soup.findAll(name='a', attrs={'class':['deflink']}):
-          tag.replaceWith(tag.string)
         for tag in soup.findAll(name='a', text=re.compile(r'.*View Metric.*', re.DOTALL)):
-          tag.parent.parent.extract()
-        for tag in soup.findAll(name='a', text=re.compile(r'.*Add my own photo.*', re.DOTALL)):
-          tag.parent.parent.extract()
-        for tag in soup.findAll(name='div', attrs={'class':['container']}):
-          if tag.find(name='h1'):
-              continue
-          if tag.find(name='h2', text=re.compile(r'.*Ingredients.*', re.DOTALL)):
-              print 'tag found Ingred h2'
-              continue
-          if tag.find(name='h2', text=re.compile(r'Preparation.*', re.DOTALL)):
-              print 'tag found Prep h2'
-              continue
-          tag.extract()
+            tag.parent.parent.extract()
+        for tag in soup.findAll(text=re.compile(r'.*Try BigOven Pro for Free.*', re.DOTALL)):
+            tag.extract()
+        for tag in soup.findAll(text=re.compile(r'.*Add my photo of this recipe.*', re.DOTALL)):
+            tag.parent.extract()
+        for tag in soup.findAll(name='a', text=re.compile(r'.*photo contest.*', re.DOTALL)):
+            tag.parent.extract()
+        for tag in soup.findAll(name='a', text='Remove ads'):
+            tag.parent.parent.extract()
+        for tag in soup.findAll(name='ol', attrs={'class':['recipe-tags']}):
+            tag.parent.extract()
         return soup
 
-    feeds = [(u'4 & 5 Star Rated Recipes', u'http://feeds.feedburner.com/Bigovencom-RecipeRaves?format=xml')]
-    
+    feeds = [(u'Recent Raves', u'http://www.bigoven.com/rss/recentraves'),
+                   (u'Recipe Of The Day', u'http://feeds.feedburner.com/bigovencom-RecipeOfTheDay')]
 

@@ -91,7 +91,8 @@ class ThreadedJob(BaseJob):
         try:
             self.callback(self)
         except:
-            pass
+            import traceback
+            traceback.print_exc()
         self._cleanup()
 
     def _cleanup(self):
@@ -99,17 +100,20 @@ class ThreadedJob(BaseJob):
         try:
             self.consolidate_log()
         except:
-            self.log.exception('Log consolidation failed')
+            if self.log is not None:
+                self.log.exception('Log consolidation failed')
 
         # No need to keep references to these around anymore
         self.func = self.args = self.kwargs = self.notifications = None
+        # We can't delete self.callback as it might be a Dispatch object and if
+        # it is garbage collected it won't work
 
     def kill(self):
         if self.start_time is None:
             self.start_time = time.time()
             self.duration = 0.0001
         else:
-            self.duration = time.time() - self.start_time()
+            self.duration = time.time() - self.start_time
             self.abort.set()
 
         self.log('Aborted job:', self.description)
@@ -186,7 +190,11 @@ class ThreadedJobServer(Thread):
 
     def run(self):
         while self.keep_going:
-            self.run_once()
+            try:
+                self.run_once()
+            except:
+                import traceback
+                traceback.print_exc()
             time.sleep(0.1)
 
     def run_once(self):

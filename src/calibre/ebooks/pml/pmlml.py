@@ -12,8 +12,6 @@ import re
 
 from lxml import etree
 
-from calibre.ebooks.oeb.base import XHTML, XHTML_NS, barename, namespace
-from calibre.ebooks.oeb.stylizer import Stylizer
 from calibre.ebooks.pdb.ereader import image_name
 from calibre.ebooks.pml import unipmlcode
 
@@ -110,6 +108,9 @@ class PMLMLizer(object):
         return output
 
     def get_cover_page(self):
+        from calibre.ebooks.oeb.stylizer import Stylizer
+        from calibre.ebooks.oeb.base import XHTML
+
         output = u''
         if 'cover' in self.oeb_book.guide:
             output += '\\m="cover.png"\n'
@@ -125,6 +126,9 @@ class PMLMLizer(object):
         return output
 
     def get_text(self):
+        from calibre.ebooks.oeb.stylizer import Stylizer
+        from calibre.ebooks.oeb.base import XHTML
+
         text = [u'']
         for item in self.oeb_book.spine:
             self.log.debug('Converting %s to PML markup...' % item.href)
@@ -180,7 +184,7 @@ class PMLMLizer(object):
         links = set(re.findall(r'(?<=\\q="#).+?(?=")', text))
         for unused in anchors.difference(links):
             text = text.replace('\\Q="%s"' % unused, '')
-            
+
         # Remove \Cn tags that are within \x and \Xn tags
         text = re.sub(ur'(?msu)(?P<t>\\(x|X[0-4]))(?P<a>.*?)(?P<c>\\C[0-4]\s*=\s*"[^"]*")(?P<b>.*?)(?P=t)', '\g<t>\g<a>\g<b>\g<t>', text)
 
@@ -214,6 +218,8 @@ class PMLMLizer(object):
         return text
 
     def dump_text(self, elem, stylizer, page, tag_stack=[]):
+        from calibre.ebooks.oeb.base import XHTML_NS, barename, namespace
+
         if not isinstance(elem.tag, basestring) \
            or namespace(elem.tag) != XHTML_NS:
             return []

@@ -6,7 +6,6 @@ __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import re
 import urllib2
 from contextlib import closing
 
@@ -22,12 +21,11 @@ from calibre.gui2.store.search_result import SearchResult
 from calibre.gui2.store.web_store_dialog import WebStoreDialog
 
 class BeWriteStore(BasicStoreConfig, StorePlugin):
-    
+
     def open(self, parent=None, detail_item=None, external=False):
-        settings = self.get_settings()
         url = 'http://www.bewrite.net/mm5/merchant.mvc?Screen=SFNT'
 
-        if external or settings.get(self.name + '_open_external', False):
+        if external or self.config.get('open_external', False):
             if detail_item:
                 url = url + detail_item
             open_url(QUrl(url_slash_cleaner(url)))
@@ -37,14 +35,14 @@ class BeWriteStore(BasicStoreConfig, StorePlugin):
                 detail_url = url + detail_item
             d = WebStoreDialog(self.gui, url, parent, detail_url)
             d.setWindowTitle(self.name)
-            d.set_tags(settings.get(self.name + '_tags', ''))
+            d.set_tags(self.config.get('tags', ''))
             d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
         url = 'http://www.bewrite.net/mm5/merchant.mvc?Search_Code=B&Screen=SRCH&Search=' + urllib2.quote(query)
-        
+
         br = browser()
-        
+
         counter = max_results
         with closing(br.open(url, timeout=timeout)) as f:
             doc = html.fromstring(f.read())
@@ -55,27 +53,50 @@ class BeWriteStore(BasicStoreConfig, StorePlugin):
                 id = ''.join(data.xpath('.//a/@href'))
                 if not id:
                     continue
-                
-                heading = ''.join(data.xpath('./td[2]//text()')) 
+
+                heading = ''.join(data.xpath('./td[2]//text()'))
                 title, q, author = heading.partition('by ')
                 cover_url = ''
                 price = ''
-                
-                with closing(br.open(id.strip(), timeout=timeout/4)) as nf:
-                    idata = html.fromstring(nf.read())
-                    price = ''.join(idata.xpath('//div[@id="content"]//td[contains(text(), "ePub")]/text()'))
-                    price = '$' + price.split('$')[-1]
-                    cover_img = idata.xpath('//div[@id="content"]//img[1]/@src')
-                    if cover_img:
-                        cover_url = 'http://www.bewrite.net/mm5/' + cover_img[0]
-                
+
                 counter -= 1
-                
+
                 s = SearchResult()
                 s.cover_url = cover_url.strip()
                 s.title = title.strip()
                 s.author = author.strip()
                 s.price = price.strip()
                 s.detail_item = id.strip()
-                
+                s.drm = SearchResult.DRM_UNLOCKED
+
                 yield s
+
+    def get_details(self, search_result, timeout):
+        br = browser()
+
+        with closing(br.open(search_result.detail_item, timeout=timeout)) as nf:
+            idata = html.fromstring(nf.read())
+            
+            price = ''.join(idata.xpath('//div[@id="content"]//td[contains(text(), "ePub")]/text()'))
+            if not price:
+                price = ''.join(idata.xpath('//div[@id="content"]//td[contains(text(), "MOBI")]/text()'))
+            if not price:
+                price = ''.join(idata.xpath('//div[@id="content"]//td[contains(text(), "PDF")]/text()'))
+            price = '$' + price.split('$')[-1]
+            search_result.price = price.strip()
+            
+            cover_img = idata.xpath('//div[@id="content"]//img[1]/@src')
+            if cover_img:
+                cover_url = 'http://www.bewrite.net/mm5/' + cover_img[0]
+                search_result.cover_url = cover_url.strip()
+            
+            formats = set([])
+            if idata.xpath('boolean(//div[@id="content"]//td[contains(text(), "ePub")])'):
+                formats.add('EPUB')
+            if idata.xpath('boolean(//div[@id="content"]//td[contains(text(), "PDF")])'):
+                formats.add('PDF')
+            if idata.xpath('boolean(//div[@id="content"]//td[contains(text(), "MOBI")])'):
+                formats.add('MOBI')
+            search_result.formats = ', '.join(list(formats))
+
+        return True

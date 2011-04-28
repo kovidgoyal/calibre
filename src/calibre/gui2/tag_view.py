@@ -12,11 +12,11 @@ import traceback, copy, cPickle
 from itertools import izip, repeat
 from functools import partial
 
-from PyQt4.Qt import Qt, QTreeView, QApplication, pyqtSignal, QFont, QSize, \
-                     QIcon, QPoint, QVBoxLayout, QHBoxLayout, QComboBox, QTimer,\
-                     QAbstractItemModel, QVariant, QModelIndex, QMenu, QFrame,\
-                     QPushButton, QWidget, QItemDelegate, QString, QLabel, \
-                     QShortcut, QKeySequence, SIGNAL, QMimeData, QToolButton
+from PyQt4.Qt import (Qt, QTreeView, QApplication, pyqtSignal, QFont, QSize,
+                     QIcon, QPoint, QVBoxLayout, QHBoxLayout, QComboBox, QTimer,
+                     QAbstractItemModel, QVariant, QModelIndex, QMenu, QFrame,
+                     QWidget, QItemDelegate, QString, QLabel, QPushButton,
+                     QShortcut, QKeySequence, SIGNAL, QMimeData, QToolButton)
 
 from calibre.ebooks.metadata import title_sort
 from calibre.gui2 import config, NONE, gprefs
@@ -86,6 +86,7 @@ class TagsView(QTreeView): # {{{
     tag_item_renamed        = pyqtSignal()
     search_item_renamed     = pyqtSignal()
     drag_drop_finished      = pyqtSignal(object)
+    restriction_error       = pyqtSignal()
 
     def __init__(self, parent=None):
         QTreeView.__init__(self, parent=None)
@@ -1117,9 +1118,13 @@ class TagsModel(QAbstractItemModel): # {{{
 
         # Get the categories
         if self.search_restriction:
-            data = self.db.get_categories(sort=sort,
+            try:
+                data = self.db.get_categories(sort=sort,
                         icon_map=self.category_icon_map,
                         ids=self.db.search('', return_matches=True))
+            except:
+                data = self.db.get_categories(sort=sort, icon_map=self.category_icon_map)
+                self.tags_view.restriction_error.emit()
         else:
             data = self.db.get_categories(sort=sort, icon_map=self.category_icon_map)
 
@@ -1822,8 +1827,30 @@ class TagBrowserMixin(object): # {{{
         self.tags_view.tag_item_renamed.connect(self.do_tag_item_renamed)
         self.tags_view.search_item_renamed.connect(self.saved_searches_changed)
         self.tags_view.drag_drop_finished.connect(self.drag_drop_finished)
-        self.edit_categories.clicked.connect(lambda x:
-                self.do_edit_user_categories())
+        self.tags_view.restriction_error.connect(self.do_restriction_error,
+                                                 type=Qt.QueuedConnection)
+
+        for text, func, args, cat_name in (
+             (_('Manage Authors'),
+                        self.do_author_sort_edit, (self, None), 'authors'),
+             (_('Manage Series'),
+                        self.do_tags_list_edit, (None, 'series'), 'series'),
+             (_('Manage Publishers'),
+                        self.do_tags_list_edit, (None, 'publisher'), 'publisher'),
+             (_('Manage Tags'),
+                        self.do_tags_list_edit, (None, 'tags'), 'tags'),
+             (_('Manage User Categories'),
+                        self.do_edit_user_categories, (None,), 'user:'),
+             (_('Manage Saved Searches'),
+                        self.do_saved_search_edit, (None,), 'search')
+            ):
+            self.manage_items_button.menu().addAction(
+                                        QIcon(I(category_icon_map[cat_name])),
+                                        text, partial(func, *args))
+
+    def do_restriction_error(self):
+        error_dialog(self.tags_view, _('Invalid search restriction'),
+                         _('The current search restriction is invalid'), show=True)
 
     def do_add_subcategory(self, on_category_key, new_category_name=None):
         '''
@@ -2138,11 +2165,15 @@ class TagBrowserWidget(QWidget): # {{{
                     'match any or all of them'))
         parent.tag_match.setStatusTip(parent.tag_match.toolTip())
 
-        parent.edit_categories = QPushButton(_('Manage &user categories'), parent)
-        self._layout.addWidget(parent.edit_categories)
-        parent.edit_categories.setToolTip(
-                _('Add your own categories to the Tag Browser'))
-        parent.edit_categories.setStatusTip(parent.edit_categories.toolTip())
+
+        l = parent.manage_items_button = QPushButton(self)
+        l.setStyleSheet('QPushButton {text-align: left; }')
+        l.setText(_('Manage authors, tags, etc'))
+        l.setToolTip(_('All of these category_managers are available by right-clicking '
+                       'on items in the tag browser above'))
+        l.m = QMenu()
+        l.setMenu(l.m)
+        self._layout.addWidget(l)
 
         # self.leak_test_timer = QTimer(self)
         # self.leak_test_timer.timeout.connect(self.test_for_leak)

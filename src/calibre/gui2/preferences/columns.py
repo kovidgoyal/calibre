@@ -163,8 +163,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             elif '*edited' in self.custcols[c]:
                 cc = self.custcols[c]
                 db.set_custom_column_metadata(cc['colnum'], name=cc['name'],
-                                                   label=cc['label'],
-                                                   display = self.custcols[c]['display'])
+                                              label=cc['label'],
+                                              display = self.custcols[c]['display'],
+                                              notify=False)
                 if '*must_restart' in self.custcols[c]:
                     must_restart = True
         return must_restart

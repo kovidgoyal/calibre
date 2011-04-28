@@ -5,8 +5,8 @@ __copyright__  = '2008, Kovid Goyal <kovid at kovidgoyal.net>,' \
                  ' and Alex Bramley <a.bramley at gmail.com>.'
 
 import os, re
-from mimetypes import guess_type as guess_mimetype
 
+from calibre import guess_type as guess_mimetype
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, NavigableString
 from calibre.constants import iswindows, filesystem_encoding
 from calibre.utils.chm.chm import CHMFile
@@ -97,7 +97,7 @@ class CHMReader(CHMFile):
             raise CHMError("'%s' is zero bytes in length!"%(path,))
         return data
 
-    def ExtractFiles(self, output_dir=os.getcwdu()):
+    def ExtractFiles(self, output_dir=os.getcwdu(), debug_dump=False):
         html_files = set([])
         for path in self.Contents():
             lpath = os.path.join(output_dir, path)
@@ -123,6 +123,9 @@ class CHMReader(CHMFile):
                     self.log.warn('%r filename too long, skipping'%path)
                     continue
                 raise
+        if debug_dump:
+            import shutil
+            shutil.copytree(output_dir, os.path.join(debug_dump, 'debug_dump'))
         for lpath in html_files:
             with open(lpath, 'r+b') as f:
                 data = f.read()
@@ -147,7 +150,8 @@ class CHMReader(CHMFile):
         if self.hhc_path == '.hhc' and self.hhc_path not in files:
             from calibre import walk
             for x in walk(output_dir):
-                if os.path.basename(x).lower() in ('index.htm', 'index.html'):
+                if os.path.basename(x).lower() in ('index.htm', 'index.html',
+                        'contents.htm', 'contents.html'):
                     self.hhc_path = os.path.relpath(x, output_dir)
                     break
 
@@ -248,8 +252,8 @@ class CHMReader(CHMFile):
         if not os.path.isdir(dir):
             os.makedirs(dir)
 
-    def extract_content(self, output_dir=os.getcwdu()):
-        self.ExtractFiles(output_dir=output_dir)
+    def extract_content(self, output_dir=os.getcwdu(), debug_dump=False):
+        self.ExtractFiles(output_dir=output_dir, debug_dump=debug_dump)
 
 
 

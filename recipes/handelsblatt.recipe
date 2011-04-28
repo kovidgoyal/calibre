@@ -1,4 +1,3 @@
-
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class Handelsblatt(BasicNewsRecipe):
@@ -7,14 +6,11 @@ class Handelsblatt(BasicNewsRecipe):
     oldest_article = 7
     max_articles_per_feed = 100
     no_stylesheets = True
-    cover_url = 'http://www.handelsblatt.com/images/logo/logo_handelsblatt.com.png'
+#    cover_url = 'http://www.handelsblatt.com/images/logo/logo_handelsblatt.com.png'
     language = 'de'
-  #  keep_only_tags = []
-    keep_only_tags = (dict(name = 'div', attrs = {'class': ['hcf-detail-abstract hcf-teaser ajaxify','hcf-detail','hcf-author-wrapper']}))
-   # keep_only_tags.append(dict(name = 'div', attrs = {'id': 'fullText'}))
-    remove_tags    = [dict(name='img', attrs = {'src': 'http://www.handelsblatt.com/images/icon/loading.gif'})
-                      ,dict(name='ul' , attrs={'class':['hcf-detail-tools']})
-    									]
+
+    remove_tags_before =  dict(attrs={'class':'hcf-overline'})
+    remove_tags_after  =  dict(attrs={'class':'hcf-footer'})
 
     feeds          = [
                         (u'Handelsblatt Exklusiv',u'http://www.handelsblatt.com/rss/exklusiv'),
@@ -28,17 +24,16 @@ class Handelsblatt(BasicNewsRecipe):
                         (u'Handelsblatt Magazin',u'http://www.handelsblatt.com/rss/magazin/'),
                         (u'Handelsblatt Weblogs',u'http://www.handelsblatt.com/rss/blogs')
                      ]
+
     extra_css = '''
-        .hcf-headline {font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:x-large;}
-        .hcf-overline {font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:x-large;}
-        .hcf-exclusive {font-family:Arial,Helvetica,sans-serif; font-style:italic;font-weight:bold; margin-right:5pt;}
-        p{font-family:Arial,Helvetica,sans-serif;}
-        .hcf-location-mark{font-weight:bold; margin-right:5pt;}
-        .MsoNormal{font-family:Helvetica,Arial,sans-serif;}
-        .hcf-author-wrapper{font-style:italic;}
-        .hcf-article-date{font-size:x-small;}
-        .hcf-caption {font-style:italic;font-size:small;}
-        img {align:left;}
+        h1{font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:large;}
+        h2{font-family:Arial,Helvetica,sans-serif; font-weight:normal;font-size:small;}
+        p{font-family:Arial,Helvetica,sans-serif;font-size:small;}
+        body{font-family:Helvetica,Arial,sans-serif;font-size:small;}
         '''
 
-
+    def print_version(self, url):
+        url = url.split('/')
+        url[-1] = 'v_detail_tab_print,'+url[-1]
+        url = '/'.join(url)
+        return url

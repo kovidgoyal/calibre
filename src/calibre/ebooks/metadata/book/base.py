@@ -19,6 +19,9 @@ from calibre.utils.date import isoformat, format_date
 from calibre.utils.icu import sort_key
 from calibre.utils.formatter import TemplateFormatter
 
+def human_readable(size, precision=2):
+    """ Convert a size in bytes into megabytes """
+    return ('%.'+str(precision)+'f'+ 'MB') % ((size/(1024.*1024.)),)
 
 NULL_VALUES = {
                 'user_metadata': {},
@@ -65,7 +68,19 @@ composite_formatter = SafeFormat()
 class Metadata(object):
 
     '''
-    A class representing all the metadata for a book.
+    A class representing all the metadata for a book. The various standard metadata
+    fields are available as attributes of this object. You can also stick
+    arbitrary attributes onto this object.
+
+    Metadata from custom columns should be accessed via the get() method,
+    passing in the lookup name for the column, for example: "#mytags".
+
+    Use the :meth:`is_null` method to test if a filed is null.
+
+    This object also has functions to format fields into strings.
+
+    The list of standard metadata fields grows with time is in
+    :data:`STANDARD_METADATA_FIELDS`.
 
     Please keep the method based API of this class to a minimum. Every method
     becomes a reserved field name.
@@ -85,11 +100,19 @@ class Metadata(object):
             if title:
                 self.title = title
             if authors:
-                #: List of strings or []
+                # List of strings or []
                 self.author = list(authors) if authors else []# Needed for backward compatibility
                 self.authors = list(authors) if authors else []
 
     def is_null(self, field):
+        '''
+        Return True if the value of filed is null in this object.
+        'null' means it is unknown or evaluates to False. So a title of
+        _('Unknown') is null or a language of 'und' is null.
+
+        Be careful with numeric fields since this will return True for zero as
+        well as None.
+        '''
         null_val = NULL_VALUES.get(field, None)
         val = getattr(self, field, None)
         return not val or val == null_val
@@ -117,7 +140,11 @@ class Metadata(object):
                                             _('TEMPLATE ERROR'),
                                             self).strip()
             return val
-
+        if field.startswith('#') and field.endswith('_index'):
+            try:
+                return self.get_extra(field[:-6])
+            except:
+                pass
         raise AttributeError(
                 'Metadata object has no attribute named: '+ repr(field))
 
@@ -167,11 +194,6 @@ class Metadata(object):
         try:
             return self.__getattribute__(field)
         except AttributeError:
-            if field.startswith('#') and field.endswith('_index'):
-                try:
-                    return self.get_extra(field[:-6])
-                except:
-                    pass
             return default
 
     def get_extra(self, field, default=None):
@@ -483,7 +505,7 @@ class Metadata(object):
                         self_tags = self.get(x, [])
                         self.set_user_metadata(x, meta) # get... did the deepcopy
                         other_tags = other.get(x, [])
-                        if meta['is_multiple']:
+                        if meta['datatype'] == 'text' and meta['is_multiple']:
                             # Case-insensitive but case preserving merging
                             lotags = [t.lower() for t in other_tags]
                             lstags = [t.lower() for t in self_tags]
@@ -541,17 +563,25 @@ class Metadata(object):
     def format_tags(self):
         return u', '.join([unicode(t) for t in sorted(self.tags, key=sort_key)])
 
-    def format_rating(self):
-        return unicode(self.rating)
+    def format_rating(self, v=None, divide_by=1.0):
+        if v is None:
+            if self.rating is not None:
+                return unicode(self.rating/divide_by)
+            return u'None'
+        return unicode(v/divide_by)
 
     def format_field(self, key, series_with_index=True):
+        '''
+        Returns the tuple (display_name, formatted_value)
+        '''
         name, val, ign, ign = self.format_field_extended(key, series_with_index)
         return (name, val)
 
     def format_field_extended(self, key, series_with_index=True):
         from calibre.ebooks.metadata import authors_to_string
         '''
-        returns the tuple (field_name, formatted_value)
+        returns the tuple (display_name, formatted_value, original_value,
+        field_metadata)
         '''
 
         # Handle custom series index
@@ -592,7 +622,7 @@ class Metadata(object):
             elif datatype == 'bool':
                 res = _('Yes') if res else _('No')
             elif datatype == 'rating':
-                res = res/2
+                res = res/2.0
             return (name, unicode(res), orig_res, cmeta)
 
         # convert top-level ids into their value
@@ -625,11 +655,19 @@ class Metadata(object):
                 res = res + ' [%s]'%self.format_series_index()
             elif datatype == 'datetime':
                 res = format_date(res, fmeta['display'].get('date_format','dd MMM yyyy'))
+            elif datatype == 'rating':
+                res = res/2.0
+            elif key == 'size':
+                res = human_readable(res)
             return (name, unicode(res), orig_res, fmeta)
 
         return (None, None, None, None)
 
     def __unicode__(self):
+        '''
+        A string representation of this object, suitable for printing to
+        console
+        '''
         from calibre.ebooks.metadata import authors_to_string
         ans = []
         def fmt(x, y):
@@ -673,6 +711,9 @@ class Metadata(object):
         return u'\n'.join(ans)
 
     def to_html(self):
+        '''
+        A HTML representation of this object.
+        '''
         from calibre.ebooks.metadata import authors_to_string
         ans = [(_('Title'), unicode(self.title))]
         ans += [(_('Author(s)'), (authors_to_string(self.authors) if self.authors else _('Unknown')))]

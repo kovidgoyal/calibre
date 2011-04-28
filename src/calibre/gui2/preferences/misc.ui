@@ -17,7 +17,7 @@
    <item row="0" column="0">
     <widget class="QLabel" name="label_5">
      <property name="text">
-      <string>&amp;Maximum number of waiting worker processes (needs restart):</string>
+      <string>Max. simultaneous conversion/news download jobs:</string>
      </property>
      <property name="buddy">
       <cstring>opt_worker_limit</cstring>
@@ -27,13 +27,7 @@
    <item row="0" column="1">
     <widget class="QSpinBox" name="opt_worker_limit">
      <property name="minimum">
-      <number>2</number>
-     </property>
-     <property name="maximum">
-      <number>10000</number>
-     </property>
-     <property name="singleStep">
-      <number>2</number>
+      <number>1</number>
      </property>
     </widget>
    </item>

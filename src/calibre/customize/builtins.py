@@ -9,7 +9,6 @@ from calibre.customize import FileTypePlugin, MetadataReaderPlugin, \
 from calibre.constants import numeric_version
 from calibre.ebooks.metadata.archive import ArchiveExtract, get_cbz_metadata
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
-from calibre.ebooks.oeb.base import OEB_IMAGES
 from calibre.utils.config import test_eight_code
 
 # To archive plugins {{{
@@ -98,6 +97,8 @@ class TXT2TXTZ(FileTypePlugin):
     on_import = True
 
     def _get_image_references(self, txt, base_dir):
+        from calibre.ebooks.oeb.base import OEB_IMAGES
+
         images = []
 
         # Textile
@@ -625,8 +626,10 @@ if test_eight_code:
     from calibre.ebooks.metadata.sources.google import GoogleBooks
     from calibre.ebooks.metadata.sources.amazon import Amazon
     from calibre.ebooks.metadata.sources.openlibrary import OpenLibrary
+    from calibre.ebooks.metadata.sources.isbndb import ISBNDB
+    from calibre.ebooks.metadata.sources.overdrive import OverDrive
 
-    plugins += [GoogleBooks, Amazon, OpenLibrary]
+    plugins += [GoogleBooks, Amazon, OpenLibrary, ISBNDB, OverDrive]
 
 # }}}
 else:
@@ -852,7 +855,7 @@ class ActionTweakEpub(InterfaceActionBase):
 class ActionNextMatch(InterfaceActionBase):
     name = 'Next Match'
     actual_plugin = 'calibre.gui2.actions.next_match:NextMatchAction'
-    
+
 class ActionStore(InterfaceActionBase):
     name = 'Store'
     author = 'John Schember'
@@ -864,7 +867,10 @@ plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,
         ActionRestart, ActionOpenFolder, ActionConnectShare,
         ActionSendToDevice, ActionHelp, ActionPreferences, ActionSimilarBooks,
         ActionAddToLibrary, ActionEditCollections, ActionChooseLibrary,
-        ActionCopyToLibrary, ActionTweakEpub, ActionNextMatch, ActionStore]
+        ActionCopyToLibrary, ActionTweakEpub, ActionNextMatch]
+
+if test_eight_code:
+    plugins += [ActionStore]
 
 # }}}
 
@@ -1097,20 +1103,12 @@ if test_eight_code:
 
 #}}}
 
-# New metadata download plugins {{{
-from calibre.ebooks.metadata.sources.google import GoogleBooks
-from calibre.ebooks.metadata.sources.amazon import Amazon
-
-plugins += [GoogleBooks, Amazon]
-
-# }}}
-
 # Store plugins {{{
 class StoreAmazonKindleStore(StoreBase):
     name = 'Amazon Kindle'
     description = _('Kindle books from Amazon')
     actual_plugin = 'calibre.gui2.store.amazon_plugin:AmazonKindleStore'
-    
+
 class StoreBaenWebScriptionStore(StoreBase):
     name = 'Baen WebScription'
     description = _('Ebooks for readers.')
@@ -1141,11 +1139,11 @@ class StoreEHarlequinStoretore(StoreBase):
     description = _('entertain, enrich, inspire.')
     actual_plugin = 'calibre.gui2.store.eharlequin_plugin:EHarlequinStore'
 
-class StoreFeedbooksStore(StoreBase):    
+class StoreFeedbooksStore(StoreBase):
     name = 'Feedbooks'
     description = _('Read anywhere.')
     actual_plugin = 'calibre.gui2.store.feedbooks_plugin:FeedbooksStore'
-    
+
 class StoreGutenbergStore(StoreBase):
     name = 'Project Gutenberg'
     description = _('The first producer of free ebooks.')
@@ -1163,8 +1161,8 @@ class StoreManyBooksStore(StoreBase):
 
 class StoreMobileReadStore(StoreBase):
     name = 'MobileRead'
-    description = _('Handcrafted with utmost care ;)')
-    actual_plugin = 'calibre.gui2.store.mobileread_plugin:MobileReadStore'
+    description = _('Ebooks handcrafted with the utmost care')
+    actual_plugin = 'calibre.gui2.store.mobileread.mobileread_plugin:MobileReadStore'
 
 class StoreOpenLibraryStore(StoreBase):
     name = 'Open Library'

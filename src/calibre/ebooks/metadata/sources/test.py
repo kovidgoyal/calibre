@@ -15,14 +15,17 @@ from calibre.customize.ui import metadata_plugins
 from calibre import prints, sanitize_file_name2
 from calibre.ebooks.metadata import check_isbn
 from calibre.ebooks.metadata.sources.base import (create_log,
-        get_cached_cover_urls)
+        get_cached_cover_urls, msprefs)
 
 def isbn_test(isbn):
     isbn_ = check_isbn(isbn)
 
     def test(mi):
         misbn = check_isbn(mi.isbn)
-        return misbn and misbn == isbn_
+        if misbn and misbn == isbn_:
+            return True
+        prints('ISBN test failed. Expected: \'%s\' found \'%s\''%(isbn_, misbn))
+        return False
 
     return test
 
@@ -32,8 +35,11 @@ def title_test(title, exact=False):
 
     def test(mi):
         mt = mi.title.lower()
-        return (exact and mt == title) or \
-                (not exact and title in mt)
+        if (exact and mt == title) or \
+                (not exact and title in mt):
+            return True
+        prints('Title test failed. Expected: \'%s\' found \'%s\''%(title, mt))
+        return False
 
     return test
 
@@ -42,7 +48,39 @@ def authors_test(authors):
 
     def test(mi):
         au = set([x.lower() for x in mi.authors])
-        return au == authors
+        if msprefs['swap_author_names']:
+            def revert_to_fn_ln(a):
+                if ',' not in a:
+                    return a
+                parts = a.split(',', 1)
+                t = parts[-1]
+                parts = parts[:-1]
+                parts.insert(0, t)
+                return ' '.join(parts)
+
+            au = set([revert_to_fn_ln(x) for x in au])
+
+        if au == authors:
+            return True
+        prints('Author test failed. Expected: \'%s\' found \'%s\''%(authors, au))
+        return False
+
+    return test
+
+def series_test(series, series_index):
+    series = series.lower()
+
+    def test(mi):
+        ms = mi.series.lower() if mi.series else ''
+        if (ms == series) and (series_index == mi.series_index):
+            return True
+        if mi.series:
+            prints('Series test failed. Expected: \'%s [%d]\' found \'%s[%d]\''% \
+                        (series, series_index, ms, mi.series_index))
+        else:
+            prints('Series test failed. Expected: \'%s [%d]\' found no series'% \
+                        (series, series_index))
+        return False
 
     return test
 
@@ -218,11 +256,11 @@ def test_identify_plugin(name, tests): # {{{
                 '')+'-%s-cover.jpg'%sanitize_file_name2(mi.title.replace(' ',
                     '_')))
             with open(cover, 'wb') as f:
-                f.write(cdata)
+                f.write(cdata[-1])
 
             prints('Cover downloaded to:', cover)
 
-            if len(cdata) < 10240:
+            if len(cdata[-1]) < 10240:
                 prints('Downloaded cover too small')
                 raise SystemExit(1)
 

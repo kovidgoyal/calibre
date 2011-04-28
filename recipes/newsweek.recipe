@@ -1,4 +1,3 @@
-import string
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class Newsweek(BasicNewsRecipe):
@@ -11,7 +10,6 @@ class Newsweek(BasicNewsRecipe):
     no_stylesheets = True
 
     BASE_URL = 'http://www.newsweek.com'
-    INDEX = BASE_URL+'/topics.html'
 
     keep_only_tags = dict(name='article', attrs={'class':'article-text'})
     remove_tags = [dict(attrs={'data-dartad':True})]
@@ -23,11 +21,14 @@ class Newsweek(BasicNewsRecipe):
         return soup
 
     def newsweek_sections(self):
-        soup = self.index_to_soup(self.INDEX)
-        for a in soup.findAll('a', title='Primary tag', href=True):
-            yield (string.capitalize(self.tag_to_string(a)),
-                    self.BASE_URL+a['href'])
-
+        return [
+                ('Nation', 'http://www.newsweek.com/tag/nation.html'),
+                ('Society', 'http://www.newsweek.com/tag/society.html'),
+                ('Culture', 'http://www.newsweek.com/tag/culture.html'),
+                ('World', 'http://www.newsweek.com/tag/world.html'),
+                ('Politics', 'http://www.newsweek.com/tag/politics.html'),
+                ('Business', 'http://www.newsweek.com/tag/business.html'),
+        ]
 
     def newsweek_parse_section_page(self, soup):
         for article in soup.findAll('article', about=True,

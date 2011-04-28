@@ -3,30 +3,33 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 
-import textwrap, os, re
 
-from PyQt4.Qt import QCoreApplication, SIGNAL, QModelIndex, QTimer, Qt, \
-    QDialog, QPixmap, QIcon, QSize
+from PyQt4.Qt import (QCoreApplication, SIGNAL, QModelIndex, QTimer, Qt,
+    QDialog, QPixmap, QIcon, QSize, QPalette)
 
 from calibre.gui2.dialogs.book_info_ui import Ui_BookInfo
-from calibre.gui2 import dynamic, open_local_file, open_url
+from calibre.gui2 import dynamic
 from calibre import fit_image
-from calibre.library.comments import comments_to_html
-from calibre.utils.icu import sort_key
-
+from calibre.gui2.book_details import render_html
 
 class BookInfo(QDialog, Ui_BookInfo):
 
-    def __init__(self, parent, view, row, view_func):
+    def __init__(self, parent, view, row, link_delegate):
         QDialog.__init__(self, parent)
         Ui_BookInfo.__init__(self)
         self.setupUi(self)
         self.gui = parent
         self.cover_pixmap = None
-        self.comments.sizeHint = self.comments_size_hint
-        self.comments.page().setLinkDelegationPolicy(self.comments.page().DelegateAllLinks)
-        self.comments.linkClicked.connect(self.link_clicked)
-        self.view_func = view_func
+        self.details.sizeHint = self.details_size_hint
+        self.details.page().setLinkDelegationPolicy(self.details.page().DelegateAllLinks)
+        self.details.linkClicked.connect(self.link_clicked)
+        self.css = P('templates/book_details.css', data=True).decode('utf-8')
+        self.link_delegate = link_delegate
+        self.details.setAttribute(Qt.WA_OpaquePaintEvent, False)
+        palette = self.details.palette()
+        self.details.setAcceptDrops(False)
+        palette.setBrush(QPalette.Base, Qt.transparent)
+        self.details.page().setPalette(palette)
 
 
         self.view = view
@@ -37,7 +40,6 @@ class BookInfo(QDialog, Ui_BookInfo):
         self.connect(self.view.selectionModel(), SIGNAL('currentChanged(QModelIndex,QModelIndex)'), self.slave)
         self.connect(self.next_button, SIGNAL('clicked()'), self.next)
         self.connect(self.previous_button, SIGNAL('clicked()'), self.previous)
-        self.connect(self.text, SIGNAL('linkActivated(QString)'), self.open_book_path)
         self.fit_cover.stateChanged.connect(self.toggle_cover_fit)
         self.cover.resizeEvent = self.cover_view_resized
         self.cover.cover_changed.connect(self.cover_changed)
@@ -45,6 +47,10 @@ class BookInfo(QDialog, Ui_BookInfo):
         desktop = QCoreApplication.instance().desktop()
         screen_height = desktop.availableGeometry().height() - 100
         self.resize(self.size().width(), screen_height)
+
+    def link_clicked(self, qurl):
+        link = unicode(qurl.toString())
+        self.link_delegate(link)
 
     def cover_changed(self, data):
         if self.current_row is not None:
@@ -60,11 +66,8 @@ class BookInfo(QDialog, Ui_BookInfo):
         if self.fit_cover.isChecked():
             self.resize_cover()
 
-    def link_clicked(self, url):
-        open_url(url)
-
-    def comments_size_hint(self):
-        return QSize(350, 250)
+    def details_size_hint(self):
+        return QSize(350, 550)
 
     def toggle_cover_fit(self, state):
         dynamic.set('book_info_dialog_fit_cover', self.fit_cover.isChecked())
@@ -76,13 +79,6 @@ class BookInfo(QDialog, Ui_BookInfo):
     def slave(self, current, previous):
         row = current.row()
         self.refresh(row)
-
-    def open_book_path(self, path):
-        path = unicode(path)
-        if os.sep in path:
-            open_local_file(path)
-        else:
-            self.view_func(self.view.model().id(self.current_row), path)
 
     def next(self):
         row = self.view.currentIndex().row()
@@ -109,14 +105,16 @@ class BookInfo(QDialog, Ui_BookInfo):
                 pixmap = pixmap.scaled(new_width, new_height,
                         Qt.KeepAspectRatio, Qt.SmoothTransformation)
         self.cover.set_pixmap(pixmap)
+        sz = pixmap.size()
+        self.cover.setToolTip(_('Cover size: %dx%d')%(sz.width(), sz.height()))
 
     def refresh(self, row):
         if isinstance(row, QModelIndex):
             row = row.row()
         if row == self.current_row:
             return
-        info = self.view.model().get_book_info(row)
-        if info is None:
+        mi = self.view.model().get_book_display_info(row)
+        if mi is None:
             # Indicates books was deleted from library, or row numbers have
             # changed
             return
@@ -124,40 +122,11 @@ class BookInfo(QDialog, Ui_BookInfo):
         self.previous_button.setEnabled(False if row == 0 else True)
         self.next_button.setEnabled(False if row == self.view.model().rowCount(QModelIndex())-1 else True)
         self.current_row = row
-        self.setWindowTitle(info[_('Title')])
-        self.title.setText('<b>'+info.pop(_('Title')))
-        comments = info.pop(_('Comments'), '')
-        if comments:
-            comments = comments_to_html(comments)
-        if re.search(r'<[a-zA-Z]+>', comments) is None:
-            lines = comments.splitlines()
-            lines = [x if x.strip() else '<br><br>' for x in lines]
-            comments = '\n'.join(lines)
-        self.comments.setHtml('<div>%s</div>' % comments)
-        self.comments.page().setLinkDelegationPolicy(self.comments.page().DelegateAllLinks)
-        cdata = info.pop('cover', '')
-        self.cover_pixmap = QPixmap.fromImage(cdata)
+        self.setWindowTitle(mi.title)
+        self.title.setText('<b>'+mi.title)
+        mi.title = _('Unknown')
+        self.cover_pixmap = QPixmap.fromImage(mi.cover_data[1])
         self.resize_cover()
+        html = render_html(mi, self.css, True, self, all_fields=True)
+        self.details.setHtml(html)
 
-        rows = u''
-        self.text.setText('')
-        self.data = info
-        if _('Path') in info.keys():
-            p = info[_('Path')]
-            info[_('Path')] = '<a href="%s">%s</a>'%(p, p)
-        if _('Formats') in info.keys():
-            formats = info[_('Formats')].split(',')
-            info[_('Formats')] = ''
-            for f in formats:
-                f = f.strip()
-                info[_('Formats')] += '<a href="%s">%s</a>, '%(f,f)
-        for key in sorted(info.keys(), key=sort_key):
-            if key == 'id': continue
-            txt  = info[key]
-            if key.endswith(':html'):
-                key = key[:-5]
-                txt = comments_to_html(txt)
-            if key != _('Path'):
-                txt  = u'<br />\n'.join(textwrap.wrap(txt, 120))
-            rows += u'<tr><td><b>%s:</b></td><td>%s</td></tr>'%(key, txt)
-        self.text.setText(u'<table>'+rows+'</table>')

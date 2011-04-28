@@ -365,6 +365,8 @@ Dates and numeric fields support the relational operators ``=`` (equals), ``>`` 
 Rating fields are considered to be numeric. For example, the search ``rating:>=3`` will find all books rated 3
 or higher.
 
+You can search for the number of items in multiple-valued fields such as tags). These searches begin with the character ``#``, then use the same syntax as numeric fields. For example, to find all books with more than 4 tags, use ``tags:#>4``. To find all books with exactly 10 tags, use ``tags:#=10``.
+
 Series indices are searchable. For the standard series, the search name is 'series_index'. For
 custom series columns, use the column search name followed by _index. For example, to search the indices for a
 custom series column named ``#my_series``, you would use the search name ``#my_series_index``.

@@ -12,7 +12,6 @@ from os.path import dirname, abspath, relpath, exists, basename
 from lxml import etree
 from templite import Templite
 
-from calibre.ebooks.oeb.base import element
 from calibre.customize.conversion import OutputFormatPlugin, OptionRecommendation
 from calibre import CurrentDir
 from calibre.ptempfile import PersistentTemporaryDirectory
@@ -51,6 +50,7 @@ class HTMLOutput(OutputFormatPlugin):
         '''
         Generate table of contents
         '''
+        from calibre.ebooks.oeb.base import element
         with CurrentDir(output_dir):
             def build_node(current_node, parent=None):
                 if parent is None:

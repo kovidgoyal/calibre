@@ -201,8 +201,9 @@ class ITUNES(DriverBase):
     #  0x1294   iPhone 3GS
     #  0x1297   iPhone 4
     #  0x129a   iPad
+    #  0x12a2   iPad2
     VENDOR_ID = [0x05ac]
-    PRODUCT_ID = [0x1292,0x1293,0x1294,0x1297,0x1299,0x129a]
+    PRODUCT_ID = [0x1292,0x1293,0x1294,0x1297,0x1299,0x129a,0x12a2]
     BCD = [0x01]
 
     # Plugboard ID
@@ -349,7 +350,7 @@ class ITUNES(DriverBase):
                                         break
                             break
                 if self.report_progress is not None:
-                    self.report_progress(j+1/task_count, _('Updating device metadata listing...'))
+                    self.report_progress((j+1)/task_count, _('Updating device metadata listing...'))
 
             if self.report_progress is not None:
                 self.report_progress(1.0, _('Updating device metadata listing...'))
@@ -421,14 +422,14 @@ class ITUNES(DriverBase):
 
                         cached_books[this_book.path] = {
                          'title':book.name(),
-                         'author':[book.artist()],
+                         'author':book.artist().split(' & '),
                          'lib_book':library_books[this_book.path] if this_book.path in library_books else None,
                          'dev_book':book,
                          'uuid': book.composer()
                          }
 
                         if self.report_progress is not None:
-                            self.report_progress(i+1/book_count, _('%d of %d') % (i+1, book_count))
+                            self.report_progress((i+1)/book_count, _('%d of %d') % (i+1, book_count))
                     self._purge_orphans(library_books, cached_books)
 
                 elif iswindows:
@@ -459,14 +460,14 @@ class ITUNES(DriverBase):
 
                             cached_books[this_book.path] = {
                              'title':book.Name,
-                             'author':book.Artist,
+                             'author':book.Artist.split(' & '),
                              'lib_book':library_books[this_book.path] if this_book.path in library_books else None,
                              'uuid': book.Composer,
                              'format': 'pdf' if book.KindAsString.startswith('PDF') else 'epub'
                              }
 
                             if self.report_progress is not None:
-                                self.report_progress(i+1/book_count,
+                                self.report_progress((i+1)/book_count,
                                         _('%d of %d') % (i+1, book_count))
                         self._purge_orphans(library_books, cached_books)
 
@@ -916,6 +917,8 @@ class ITUNES(DriverBase):
         """
         if DEBUG:
             self.log.info("ITUNES.reset()")
+        if report_progress:
+            self.set_progress_reporter(report_progress)
 
     def set_progress_reporter(self, report_progress):
         '''
@@ -924,6 +927,9 @@ class ITUNES(DriverBase):
                                 If it is called with -1 that means that the
                                 task does not have any progress information
         '''
+        if DEBUG:
+            self.log.info("ITUNES.set_progress_reporter()")
+
         self.report_progress = report_progress
 
     def set_plugboards(self, plugboards, pb_func):
@@ -1016,7 +1022,9 @@ class ITUNES(DriverBase):
         if isosx:
             for (i,file) in enumerate(files):
                 format = file.rpartition('.')[2].lower()
-                path = self.path_template % (metadata[i].title, metadata[i].author[0],format)
+                path = self.path_template % (metadata[i].title,
+                                             authors_to_string(metadata[i].authors),
+                                             format)
                 self._remove_existing_copy(path, metadata[i])
                 fpath = self._get_fpath(file, metadata[i], format, update_md=True)
                 db_added, lb_added = self._add_new_copy(fpath, metadata[i])
@@ -1029,9 +1037,11 @@ class ITUNES(DriverBase):
                 if DEBUG:
                     self.log.info("ITUNES.upload_books()")
                     self.log.info(" adding '%s' by '%s' uuid:%s to self.cached_books" %
-                                  ( metadata[i].title, metadata[i].author, metadata[i].uuid))
+                                  (metadata[i].title,
+                                   authors_to_string(metadata[i].authors),
+                                   metadata[i].uuid))
                 self.cached_books[this_book.path] = {
-                   'author': metadata[i].author,
+                   'author': authors_to_string(metadata[i].authors),
                  'dev_book': db_added,
                    'format': format,
                  'lib_book': lb_added,
@@ -1041,7 +1051,7 @@ class ITUNES(DriverBase):
 
                 # Report progress
                 if self.report_progress is not None:
-                    self.report_progress(i+1/file_count, _('%d of %d') % (i+1, file_count))
+                    self.report_progress((i+1)/file_count, _('%d of %d') % (i+1, file_count))
 
         elif iswindows:
             try:
@@ -1050,7 +1060,9 @@ class ITUNES(DriverBase):
 
                 for (i,file) in enumerate(files):
                     format = file.rpartition('.')[2].lower()
-                    path = self.path_template % (metadata[i].title, metadata[i].author[0],format)
+                    path = self.path_template % (metadata[i].title,
+                                                 authors_to_string(metadata[i].authors),
+                                                 format)
                     self._remove_existing_copy(path, metadata[i])
                     fpath = self._get_fpath(file, metadata[i],format, update_md=True)
                     db_added, lb_added = self._add_new_copy(fpath, metadata[i])
@@ -1070,9 +1082,11 @@ class ITUNES(DriverBase):
                     if DEBUG:
                         self.log.info("ITUNES.upload_books()")
                         self.log.info(" adding '%s' by '%s' uuid:%s to self.cached_books" %
-                                      ( metadata[i].title, metadata[i].author, metadata[i].uuid))
+                                      (metadata[i].title,
+                                       authors_to_string(metadata[i].authors),
+                                       metadata[i].uuid))
                     self.cached_books[this_book.path] = {
-                       'author': metadata[i].author[0],
+                       'author': authors_to_string(metadata[i].authors),
                      'dev_book': db_added,
                        'format': format,
                      'lib_book': lb_added,
@@ -1081,7 +1095,7 @@ class ITUNES(DriverBase):
 
                     # Report progress
                     if self.report_progress is not None:
-                        self.report_progress(i+1/file_count, _('%d of %d') % (i+1, file_count))
+                        self.report_progress((i+1)/file_count, _('%d of %d') % (i+1, file_count))
             finally:
                 pythoncom.CoUninitialize()
 
@@ -1185,7 +1199,7 @@ class ITUNES(DriverBase):
                         base_fn = base_fn.rpartition('.')[0]
                         db_added = self._find_device_book(
                             { 'title': base_fn if format == 'pdf' else metadata.title,
-                             'author': metadata.authors[0],
+                             'author': authors_to_string(metadata.authors),
                                'uuid': metadata.uuid,
                              'format': format})
                     return db_added
@@ -1250,7 +1264,7 @@ class ITUNES(DriverBase):
                 base_fn = base_fn.rpartition('.')[0]
                 added = self._find_library_book(
                     { 'title': base_fn if format == 'pdf' else metadata.title,
-                     'author': metadata.author[0],
+                     'author': authors_to_string(metadata.authors),
                        'uuid': metadata.uuid,
                      'format': format})
         return added
@@ -1309,7 +1323,7 @@ class ITUNES(DriverBase):
                         with open(metadata.cover,'r+b') as cd:
                             cover_data = cd.read()
                 except:
-                    self.problem_titles.append("'%s' by %s" % (metadata.title, metadata.author[0]))
+                    self.problem_titles.append("'%s' by %s" % (metadata.title, authors_to_string(metadata.authors)))
                     self.log.error("  error scaling '%s' for '%s'" % (metadata.cover,metadata.title))
 
                     import traceback
@@ -1384,7 +1398,7 @@ class ITUNES(DriverBase):
                 thumb_path = path.rpartition('.')[0] + '.jpg'
                 zfw.writestr(thumb_path, thumb)
             except:
-                self.problem_titles.append("'%s' by %s" % (metadata.title, metadata.author[0]))
+                self.problem_titles.append("'%s' by %s" % (metadata.title, authors_to_string(metadata.authors)))
                 self.log.error("   error converting '%s' to thumb for '%s'" % (metadata.cover,metadata.title))
             finally:
                 try:
@@ -1402,7 +1416,7 @@ class ITUNES(DriverBase):
         if DEBUG:
             self.log.info(" ITUNES._create_new_book()")
 
-        this_book = Book(metadata.title, authors_to_string(metadata.author))
+        this_book = Book(metadata.title, authors_to_string(metadata.authors))
         this_book.datetime = time.gmtime()
         this_book.db_id = None
         this_book.device_collections = []
@@ -2446,7 +2460,7 @@ class ITUNES(DriverBase):
             for book in self.cached_books:
                 if self.cached_books[book]['uuid'] == metadata.uuid   or \
                    (self.cached_books[book]['title'] == metadata.title and \
-                   self.cached_books[book]['author'] == metadata.authors[0]):
+                   self.cached_books[book]['author'] == authors_to_string(metadata.authors)):
                     self.update_list.append(self.cached_books[book])
                     self._remove_from_device(self.cached_books[book])
                     if DEBUG:
@@ -2465,7 +2479,7 @@ class ITUNES(DriverBase):
             for book in self.cached_books:
                 if self.cached_books[book]['uuid'] == metadata.uuid   or \
                    (self.cached_books[book]['title'] == metadata.title and \
-                    self.cached_books[book]['author'] == metadata.authors[0]):
+                    self.cached_books[book]['author'] == authors_to_string(metadata.authors)):
                     self.update_list.append(self.cached_books[book])
                     self._remove_from_iTunes(self.cached_books[book])
                     if DEBUG:
@@ -2934,13 +2948,13 @@ class ITUNES(DriverBase):
     def _xform_metadata_via_plugboard(self, book, format):
         ''' Transform book metadata from plugboard templates '''
         if DEBUG:
-            self.log.info("  ITUNES._xform_metadata_via_plugboard()")
+            self.log.info(" ITUNES._xform_metadata_via_plugboard()")
 
         if self.plugboard_func:
             pb = self.plugboard_func(self.DEVICE_PLUGBOARD_NAME, format, self.plugboards)
             newmi = book.deepcopy_metadata()
             newmi.template_to_attribute(book, pb)
-            if DEBUG:
+            if pb is not None and DEBUG:
                 self.log.info(" transforming %s using %s:" % (format, pb))
                 self.log.info("       title: %s %s" % (book.title, ">>> %s" %
                                            newmi.title if book.title != newmi.title else ''))
@@ -3057,7 +3071,7 @@ class ITUNES_ASYNC(ITUNES):
 
                     cached_books[this_book.path] = {
                      'title':library_books[book].name(),
-                     'author':[library_books[book].artist()],
+                     'author':library_books[book].artist().split(' & '),
                      'lib_book':library_books[book],
                      'dev_book':None,
                      'uuid': library_books[book].composer(),
@@ -3065,7 +3079,7 @@ class ITUNES_ASYNC(ITUNES):
                      }
 
                     if self.report_progress is not None:
-                        self.report_progress(i+1/book_count, _('%d of %d') % (i+1, book_count))
+                        self.report_progress((i+1)/book_count, _('%d of %d') % (i+1, book_count))
 
             elif iswindows:
                 try:
@@ -3097,14 +3111,14 @@ class ITUNES_ASYNC(ITUNES):
 
                         cached_books[this_book.path] = {
                          'title':library_books[book].Name,
-                         'author':library_books[book].Artist,
+                         'author':library_books[book].Artist.split(' & '),
                          'lib_book':library_books[book],
                          'uuid': library_books[book].Composer,
                          'format': format
                          }
 
                         if self.report_progress is not None:
-                            self.report_progress(i+1/book_count,
+                            self.report_progress((i+1)/book_count,
                                     _('%d of %d') % (i+1, book_count))
 
                 finally:
@@ -3283,7 +3297,7 @@ class Book(Metadata):
     See ebooks.metadata.book.base
     '''
     def __init__(self,title,author):
-        Metadata.__init__(self, title, authors=[author])
+        Metadata.__init__(self, title, authors=author.split(' & '))
 
     @property
     def title_sorter(self):

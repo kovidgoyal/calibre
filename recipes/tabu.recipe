@@ -24,30 +24,31 @@ class TabuRo(BasicNewsRecipe):
     cover_url             = 'http://www.tabu.ro/img/tabu-logo2.png'
 
     conversion_options = {
-                                     'comments'   : description
-                                  ,'tags'       : category
-                                 ,'language'   : language
-                      ,'publisher'  : publisher
-                                 }
+                                 'comments'   : description
+                                ,'tags'       : category
+                                ,'language'   : language
+                                ,'publisher'  : publisher
+                         }
 
     keep_only_tags = [
-           dict(name='div', attrs={'id':'Article'}),
-                              ]
+                        dict(name='h2', attrs={'class':'articol_titlu'}),
+                        dict(name='div', attrs={'class':'poza_articol_featured'}),
+                        dict(name='div', attrs={'class':'articol_text'})
+                     ]
 
     remove_tags = [
-            dict(name='div', attrs={'id':['advertisementArticle']}),
-                        dict(name='div', attrs={'class':'voting_number'}),
-            dict(name='div', attrs={'id':'number_votes'}),
-            dict(name='div', attrs={'id':'rating_one'}),
-            dict(name='div', attrs={'class':'float: right;'})
+            dict(name='div', attrs={'class':'asemanatoare'}),
+			 dict(name='div', attrs={'class':'social'})
                            ]
 
     remove_tags_after = [
+					  dict(name='div', attrs={'class':'social'}),
                       dict(name='div', attrs={'id':'comments'}),
-           ]
+                      dict(name='div', attrs={'class':'asemanatoare'})
+                        ]
 
     feeds          = [
-        (u'Feeds', u'http://www.tabu.ro/rss_all.xml')
+                        (u'Feeds', u'http://www.tabu.ro/feed/')
                      ]
 
     def preprocess_html(self, soup):

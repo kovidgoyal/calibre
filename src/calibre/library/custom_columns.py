@@ -182,7 +182,7 @@ class CustomColumns(object):
             else:
                 is_category = False
             if v['is_multiple']:
-                is_m = '|'
+                is_m = ',' if v['datatype'] == 'composite' else '|'
             else:
                 is_m = None
             tn = 'custom_column_{0}'.format(v['num'])
@@ -318,7 +318,7 @@ class CustomColumns(object):
         self.conn.commit()
 
     def set_custom_column_metadata(self, num, name=None, label=None,
-            is_editable=None, display=None):
+            is_editable=None, display=None, notify=True):
         changed = False
         if name is not None:
             self.conn.execute('UPDATE custom_columns SET name=? WHERE id=?',
@@ -340,6 +340,9 @@ class CustomColumns(object):
 
         if changed:
             self.conn.commit()
+        if notify:
+            self.notify('metadata', [])
+
         return changed
 
     def set_custom_bulk_multiple(self, ids, add=[], remove=[],
@@ -595,7 +598,7 @@ class CustomColumns(object):
             raise ValueError('%r is not a supported data type'%datatype)
         normalized  = datatype not in ('datetime', 'comments', 'int', 'bool',
                 'float', 'composite')
-        is_multiple = is_multiple and datatype in ('text',)
+        is_multiple = is_multiple and datatype in ('text', 'composite')
         num = self.conn.execute(
                 ('INSERT INTO '
                 'custom_columns(label,name,datatype,is_multiple,editable,display,normalized)'

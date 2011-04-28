@@ -347,9 +347,10 @@ class UploadUserManual(Command): # {{{
         with NamedTemporaryFile(suffix='.zip') as f:
             os.fchmod(f.fileno(),
                 stat.S_IRUSR|stat.S_IRGRP|stat.S_IROTH|stat.S_IWRITE)
-            with CurrentDir(self.d(path)):
+            with CurrentDir(path):
                 with ZipFile(f, 'w') as zf:
                     for x in os.listdir('.'):
+                        if x.endswith('.swp'): continue
                         zf.write(x)
                         if os.path.isdir(x):
                             for y in os.listdir(x):

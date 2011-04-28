@@ -10,7 +10,6 @@ Transform OEB content into FB2 markup
 
 from base64 import b64encode
 from datetime import datetime
-from mimetypes import types_map
 import re
 import uuid
 
@@ -18,9 +17,6 @@ from lxml import etree
 
 from calibre import prepare_string_for_xml
 from calibre.constants import __appname__, __version__
-from calibre.ebooks.oeb.base import XHTML, XHTML_NS, barename, namespace
-from calibre.ebooks.oeb.stylizer import Stylizer
-from calibre.ebooks.oeb.base import OEB_RASTER_IMAGES, OPF
 from calibre.utils.magick import Image
 
 class FB2MLizer(object):
@@ -71,7 +67,7 @@ class FB2MLizer(object):
             return u'<?xml version="1.0" encoding="UTF-8"?>' + output
 
     def clean_text(self, text):
-        # Condense empty paragraphs into a line break. 
+        # Condense empty paragraphs into a line break.
         text = re.sub(r'(?miu)(<p>\s*</p>\s*){3,}', '<empty-line />', text)
         # Remove empty paragraphs.
         text = re.sub(r'(?miu)<p>\s*</p>', '', text)
@@ -100,6 +96,7 @@ class FB2MLizer(object):
         return text
 
     def fb2_header(self):
+        from calibre.ebooks.oeb.base import OPF
         metadata = {}
         metadata['title'] = self.oeb_book.metadata.title[0].value
         metadata['appname'] = __appname__
@@ -180,6 +177,8 @@ class FB2MLizer(object):
         return u'</FictionBook>'
 
     def get_cover(self):
+        from calibre.ebooks.oeb.base import OEB_RASTER_IMAGES
+
         cover_href = None
 
         # Get the raster cover if it's available.
@@ -213,6 +212,8 @@ class FB2MLizer(object):
         return u''
 
     def get_text(self):
+        from calibre.ebooks.oeb.base import XHTML
+        from calibre.ebooks.oeb.stylizer import Stylizer
         text = ['<body>']
 
         # Create main section if there are no others to create
@@ -248,6 +249,8 @@ class FB2MLizer(object):
         '''
         This function uses the self.image_hrefs dictionary mapping. It is populated by the dump_text function.
         '''
+        from calibre.ebooks.oeb.base import OEB_RASTER_IMAGES
+
         images = []
         for item in self.oeb_book.manifest:
             # Don't write the image if it's not referenced in the document's text.
@@ -255,7 +258,7 @@ class FB2MLizer(object):
                 continue
             if item.media_type in OEB_RASTER_IMAGES:
                 try:
-                    if not item.media_type == types_map['.jpeg'] or not item.media_type == types_map['.jpg']:
+                    if item.media_type != 'image/jpeg':
                         im = Image()
                         im.load(item.data)
                         im.set_compression_quality(70)
@@ -344,6 +347,8 @@ class FB2MLizer(object):
 
         @return: List of string representing the XHTML converted to FB2 markup.
         '''
+        from calibre.ebooks.oeb.base import XHTML_NS, barename, namespace
+
         # Ensure what we are converting is not a string and that the fist tag is part of the XHTML namespace.
         if not isinstance(elem_tree.tag, basestring) or namespace(elem_tree.tag) != XHTML_NS:
             return []

@@ -22,6 +22,8 @@ First start the |app| content server as shown below::
 
     calibre-server --url-prefix /calibre --port 8080 
 
+The key parameter here is ``--url-prefix /calibre``. This causes the content server to serve all URLs prefixed by calibre. To see this in action, visit ``http://localhost:8080/calibre`` in your browser. You should see the normal content server website, but now it will run under /calibre.
+
 Now suppose you are using Apache as your main server. First enable the proxy modules in apache, by adding the following to :file:`httpd.conf`::
 
     LoadModule proxy_module modules/mod_proxy.so

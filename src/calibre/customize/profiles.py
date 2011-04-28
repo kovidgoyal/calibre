@@ -344,6 +344,7 @@ class iPadOutput(OutputProfile):
                 border-spacing:1px;
                 margin-left: 5%;
                 margin-right: 5%;
+                page-break-inside:avoid;
                 width: 90%;
                 -webkit-border-radius:4px;
                 }

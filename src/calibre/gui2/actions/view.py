@@ -6,9 +6,8 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os, time
-from functools import partial
 
-from PyQt4.Qt import Qt, QMenu
+from PyQt4.Qt import Qt, QMenu, QAction, pyqtSignal
 
 from calibre.constants import isosx
 from calibre.gui2 import error_dialog, Dispatcher, question_dialog, config, \
@@ -17,6 +16,19 @@ from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
 from calibre.utils.config import prefs
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.gui2.actions import InterfaceAction
+
+class HistoryAction(QAction):
+
+    view_historical = pyqtSignal(object)
+
+    def __init__(self, id_, title, parent):
+        QAction.__init__(self, title, parent)
+        self.id = id_
+        self.triggered.connect(self._triggered)
+
+    def _triggered(self):
+        self.view_historical.emit(self.id)
+
 
 class ViewAction(InterfaceAction):
 
@@ -28,18 +40,51 @@ class ViewAction(InterfaceAction):
         self.persistent_files = []
         self.qaction.triggered.connect(self.view_book)
         self.view_menu = QMenu()
-        self.view_menu.addAction(_('View'), partial(self.view_book, False))
-        ac = self.view_menu.addAction(_('View specific format'))
-        ac.setShortcut((Qt.ControlModifier if isosx else Qt.AltModifier)+Qt.Key_V)
+        ac = self.view_specific_action = QAction(_('View specific format'),
+                self.gui)
         self.qaction.setMenu(self.view_menu)
+        ac.setShortcut(Qt.AltModifier+Qt.Key_V)
         ac.triggered.connect(self.view_specific_format, type=Qt.QueuedConnection)
-
-        self.view_menu.addSeparator()
+        ac = self.view_action = QAction(self.qaction.icon(),
+                self.qaction.text(), self.gui)
+        ac.triggered.connect(self.view_book)
         ac = self.create_action(spec=(_('Read a random book'), 'catalog.png',
             None, None), attr='action_pick_random')
         ac.triggered.connect(self.view_random)
-        self.view_menu.addAction(ac)
+        ac = self.clear_history_action = QAction(
+                _('Clear recently viewed list'), self.gui)
+        ac.triggered.connect(self.clear_history)
 
+    def initialization_complete(self):
+        self.build_menus(self.gui.current_db)
+
+    def build_menus(self, db):
+        self.view_menu.clear()
+        self.view_menu.addAction(self.qaction)
+        self.view_menu.addAction(self.view_specific_action)
+        self.view_menu.addSeparator()
+        self.view_menu.addAction(self.action_pick_random)
+        self.history_actions = []
+        history = db.prefs.get('gui_view_history', [])
+        if history:
+            self.view_menu.addSeparator()
+            for id_, title in history:
+                ac = HistoryAction(id_, title, self.view_menu)
+                self.view_menu.addAction(ac)
+                ac.view_historical.connect(self.view_historical)
+            self.view_menu.addSeparator()
+            self.view_menu.addAction(self.clear_history_action)
+
+    def clear_history(self):
+        db = self.gui.current_db
+        db.prefs['gui_view_history'] = []
+        self.build_menus(db)
+
+    def view_historical(self, id_):
+        self._view_calibre_books([id_])
+
+    def library_changed(self, db):
+        self.build_menus(db)
 
     def location_selected(self, loc):
         enabled = loc == 'library'
@@ -47,15 +92,17 @@ class ViewAction(InterfaceAction):
             action.setEnabled(enabled)
 
     def view_format(self, row, format):
-        fmt_path = self.gui.library_view.model().db.format_abspath(row, format)
-        if fmt_path:
-            self._view_file(fmt_path)
+        id_ = self.gui.library_view.model().id(row)
+        self.view_format_by_id(id_, format)
 
     def view_format_by_id(self, id_, format):
-        fmt_path = self.gui.library_view.model().db.format_abspath(id_, format,
+        db = self.gui.current_db
+        fmt_path = db.format_abspath(id_, format,
                 index_is_id=True)
         if fmt_path:
+            title = db.title(id_, index_is_id=True)
             self._view_file(fmt_path)
+            self.update_history([(id_, title)])
 
     def book_downloaded_for_viewing(self, job):
         if job.failed:
@@ -162,6 +209,54 @@ class ViewAction(InterfaceAction):
         self.gui.iactions['Choose Library'].pick_random()
         self._view_books([self.gui.library_view.currentIndex()])
 
+    def _view_calibre_books(self, ids):
+        db = self.gui.current_db
+        views = []
+        for id_ in ids:
+            try:
+                formats = db.formats(id_, index_is_id=True)
+            except:
+                error_dialog(self.gui, _('Cannot view'),
+                    _('This book no longer exists in your library'), show=True)
+                self.update_history([], remove=set([id_]))
+                continue
+
+            title   = db.title(id_, index_is_id=True)
+            if not formats:
+                error_dialog(self.gui, _('Cannot view'),
+                    _('%s has no available formats.')%(title,), show=True)
+                continue
+
+            formats = formats.upper().split(',')
+
+            fmt = formats[0]
+            for format in prefs['input_format_order']:
+                if format in formats:
+                    fmt = format
+                    break
+            views.append((id_, title))
+            self.view_format_by_id(id_, fmt)
+
+        self.update_history(views)
+
+    def update_history(self, views, remove=frozenset()):
+        db = self.gui.current_db
+        if views:
+            seen = set()
+            history = []
+            for id_, title in views + db.prefs.get('gui_view_history', []):
+                if title not in seen:
+                    seen.add(title)
+                    history.append((id_, title))
+
+            db.prefs['gui_view_history'] = history[:10]
+            self.build_menus(db)
+        if remove:
+            history = db.prefs.get('gui_view_history', [])
+            history = [x for x in history if x[0] not in remove]
+            db.prefs['gui_view_history'] = history[:10]
+            self.build_menus(db)
+
     def _view_books(self, rows):
         if not rows or len(rows) == 0:
             self._launch_viewer()
@@ -171,28 +266,8 @@ class ViewAction(InterfaceAction):
             return
 
         if self.gui.current_view() is self.gui.library_view:
-            for row in rows:
-                if hasattr(row, 'row'):
-                    row = row.row()
-
-                formats = self.gui.library_view.model().db.formats(row)
-                title   = self.gui.library_view.model().db.title(row)
-                if not formats:
-                    error_dialog(self.gui, _('Cannot view'),
-                        _('%s has no available formats.')%(title,), show=True)
-                    continue
-
-                formats = formats.upper().split(',')
-
-
-                in_prefs = False
-                for format in prefs['input_format_order']:
-                    if format in formats:
-                        in_prefs = True
-                        self.view_format(row, format)
-                        break
-                if not in_prefs:
-                    self.view_format(row, formats[0])
+            ids = list(map(self.gui.library_view.model().id, rows))
+            self._view_calibre_books(ids)
         else:
             paths = self.gui.current_view().model().paths(rows)
             for path in paths:

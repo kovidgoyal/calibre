@@ -202,7 +202,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.changed_signal.emit()
 
     def refresh_gui(self, gui):
-        gui.emailer.calculate_rate_limit()
+        from calibre.gui2.email import gui_sendmail
+        gui_sendmail.calculate_rate_limit()
 
 
 if __name__ == '__main__':

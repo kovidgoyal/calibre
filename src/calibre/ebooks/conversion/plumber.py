@@ -14,7 +14,8 @@ from calibre.ebooks.conversion.preprocess import HTMLPreProcessor
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.date import parse_date
 from calibre.utils.zipfile import ZipFile
-from calibre import extract, walk, isbytestring, filesystem_encoding
+from calibre import (extract, walk, isbytestring, filesystem_encoding,
+        get_types_map)
 from calibre.constants import __version__
 
 DEBUG_README=u'''
@@ -853,7 +854,8 @@ OptionRecommendation(name='sr3_replace',
         if isinstance(ret, basestring):
             shutil.copytree(output_dir, out_dir)
         else:
-            os.makedirs(out_dir)
+            if not os.path.exists(out_dir):
+                os.makedirs(out_dir)
             self.dump_oeb(ret, out_dir)
         if self.input_fmt == 'recipe':
             zf = ZipFile(os.path.join(self.opts.debug_pipeline,
@@ -875,6 +877,9 @@ OptionRecommendation(name='sr3_replace',
         if self.opts.verbose:
             self.log.filter_level = self.log.DEBUG
         self.flush()
+        import cssutils, logging
+        cssutils.log.setLevel(logging.WARN)
+        get_types_map() # Ensure the mimetypes module is intialized
 
         if self.opts.debug_pipeline is not None:
             self.opts.verbose = max(self.opts.verbose, 4)

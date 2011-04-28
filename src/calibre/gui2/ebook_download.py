@@ -18,7 +18,7 @@ from calibre.gui2.threaded_jobs import ThreadedJob
 from calibre.ptempfile import PersistentTemporaryFile
 
 class EbookDownload(object):
-    
+
     def __call__(self, gui, cookie_file=None, url='', filename='', save_loc='', add_to_lib=True, tags=[], log=None, abort=None, notifications=None):
         dfilename = ''
         try:
@@ -33,10 +33,10 @@ class EbookDownload(object):
                     os.remove(dfilename)
             except:
                 pass
-        
+
     def _download(self, cookie_file, url, filename, save_loc, add_to_lib):
         dfilename = ''
-        
+
         if not url:
             raise Exception(_('No file specified to download.'))
         if not save_loc and not add_to_lib:
@@ -45,7 +45,7 @@ class EbookDownload(object):
 
         if not filename:
             filename = get_download_filename(url, cookie_file)
-        
+
         br = browser()
         if cookie_file:
             cj = MozillaCookieJar()
@@ -55,9 +55,9 @@ class EbookDownload(object):
             tf = PersistentTemporaryFile(suffix=filename)
             tf.write(r.read())
             dfilename = tf.name
-        
+
         return dfilename
-    
+
     def _add(self, filename, gui, add_to_lib, tags):
         if not add_to_lib or not filename:
             return
@@ -74,7 +74,7 @@ class EbookDownload(object):
         gui.library_view.model().db.add_format_with_hooks(id, ext.upper(), filename, index_is_id=True)
         gui.library_view.model().books_added(1)
         gui.library_view.model().count_changed()
-    
+
     def _save_as(self, dfilename, save_loc):
         if not save_loc or not dfilename:
             return
@@ -90,17 +90,17 @@ def start_ebook_download(callback, job_manager, gui, cookie_file=None, url='', f
 
 
 class EbookDownloadMixin(object):
-  
+
     def download_ebook(self, url='', cookie_file=None, filename='', save_loc='', add_to_lib=True, tags=[]):
         if tags:
             if isinstance(tags, basestring):
                 tags = tags.split(',')
         start_ebook_download(Dispatcher(self.downloaded_ebook), self.job_manager, self, cookie_file, url, filename, save_loc, add_to_lib, tags)
         self.status_bar.show_message(_('Downloading') + ' ' + filename if filename else url, 3000)
-    
+
     def downloaded_ebook(self, job):
         if job.failed:
             self.job_exception(job, dialog_title=_('Failed to download ebook'))
             return
-        
+
         self.status_bar.show_message(job.description + ' ' + _('finished'), 5000)

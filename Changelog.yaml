@@ -19,6 +19,176 @@
 #  new recipes:
 #    - title: 
 
+- version: 0.7.57
+  date: 2011-04-22
+
+  new features:
+    - title: "Launch worker processes on demand instead of keeping a pool of them in memory. Reduces memory footprint."
+
+    - title: "Use the visual formatting of the Table of Contents to try to automatically create a multi-level TOC when converting/viewing MOBI files."
+      tickets: [763681]
+
+    - title: "Add a new function booksize() to the template language to get the value of the size column in calibre."
+
+    - title: "Add support for using metadata plugboards with the content server (only with the epub format)"
+
+    - title: "Change default algorithm for automatically computing author sort to be more intelligent and handle the case when the author name has a comma in it"
+
+    - title: "Show cover size in the tooltips of the book details panel and book details popup window"
+  
+  bug fixes:
+    - title: "Dragging and dropping a cover onto the book details panel did not change the cover size"
+      tickets: [768332]
+
+    - title: "Fix non-escaped '|' when searching for commas in authors using REGEXP_MATCH"
+
+    - title: "Fix ratings in templates being multiplied by 2"
+
+    - title: "Fix adding a comma to custom series values when using completion."
+      tickets: [763788]
+
+    - title: "CHM Input: Another workaround for a Microsoft mess."
+      tickets: [763336]
+
+    - title: "Fix job count in the spinner not always being updated when a job completes"
+
+    - title: "Changing case only of a title does not update title sort"
+      tickets: [768904]
+
+  improved recipes:
+    - ecuisine.ro, egirl.ro and tabu.ro
+    - Daily Telegraph
+    - Handelsblatt
+    - Il Sole 24 Ore
+    - Newsweek
+    - Arcamax
+
+  new recipes:
+    - title: BabyOnline.ro
+      author: Silviu Cotoara
+
+    - title: "The Journal.ie"
+      author: Phil Burns
+
+    - title: "Der Spiegel"
+      author: Nikolas Mangold
+
+- version: 0.7.56
+  date: 2011-04-17
+
+  new features:
+    - title: "This is primarily a bug fix release that fixes a bug in 0.7.55 that caused calibre to rescan the files on the device every time the device is connected. If you updated to 0.7.55 it is highly recommended you update to 0.7.56"
+
+    - title: "Device driver for Coby Kyros"
+
+    - title: "Remove the quick access to search options from next to the search bar, as we now have a separate search highlights toggle button"
+
+    - title: "MOBI Output: Ensure that MOBI files always have 8KB worth of null bytes at the end of record 0. This appears to be necessary for Amazon to be able to add DRM to calibre generated MOBI files sent to their publishing service."
+
+    - title: "Add a tool to inspect MOBI files. To use: calibre-debug -m file.mobi"
+  
+  bug fixes:
+    - title: "Fixed regression taht caused calibre to rescan files on the device on every reconnect"
+
+    - title: "Fix donate button causing the toolbar to be too large on OS X"
+
+    - title: "MOBI Input: Fix detection of Table of Contents for MOBI files that have a page break between the location designated as the Table of Contents and the actual table of contents."
+      tickets: [763504]
+
+    - title: "Comic Input: Fix handling of some CBZ files that have wrongly encoded non ASCII filenames on windows."
+      tickets: [763280]
+
+    - title: "PML Input: Fix multi-line chapter title causing a spurious page break"
+      tickets: [763238]
+
+    - title: "EPUB Input: Speed up processing of files with very large manifest/spines"
+
+    - title: "Fix regression that broke cover:False searches in 0.7.55"
+
+  improved recipes:
+    - Suedduetsche Zeitung
+    - Irish Times
+    - Big Oven
+    - NSPM
+
+
+- version: 0.7.55
+  date: 2011-04-15
+
+  new features:
+    - title: "Add a menu bar. Useful if you use a lot of plugins and are running out of space in your toolbars. By default the menu bar is hidden (except on OS X). You can add actions to it via Preferences->Toolbars. As soon as you add actions, it will become visible."
+
+    - title: "OS X: Make the main calibre window look a little more 'native' on OS X"
+
+    - title: "Show recently viewed books in the View button's drop down menu"
+
+    - title: "Add a button next to the search bar to toggle easily between highlight and restrict search modes"
+
+    - title: "Allow the use of arbitrary searches as search restrictions, rather than just saved searches. Do this by using the special entry '*Current Search' in the Search Restriction dropdown."
+
+    - title: "The Connect/share icon now changes color to indicate that the content server is running"
+      tickets: [755444]
+
+    - title: "Device drivers for Viewpad 7, Motorola Xoom and Asus Eee Note"
+
+    - title: "Add tags like composite custom column."
+      tickets: [759663]
+
+    - title: "Add a new date format code 'iso'. Permits formatting dates to see the complete time (via Preferences->Tweaks)"
+
+    - title: "Allow the use of data from the size column in the template language"
+      tickets: [759645]
+
+    - title: "Support reading/writing covers to txtz/htmlz files"
+
+    - title: "Speedup for large library sorting when using composite custom columns"
+
+    - title: "Move the boolean columns are tristate tweak to Preferences->Behavior"
+  
+  bug fixes:
+    - title: "Fix a regression in 0.7.54 that broke reading covers/metadata from cbz files."
+      tickets: [756892]
+
+    - title: "Fix tweak names and help not translatable"
+      tickets: [756736]
+
+    - title: "When the size of a book is less that 0.1MB but not zero, display the size as <0.1 instead of 0.0."
+      tickets: [755768]
+
+    - title: "HTMLZ input: Fix handling of HTML files encoded in an encoding other than UTF-8"
+
+    - title: "EPUB Input: Fix EPUB files with empty Adobe PAGE templates causing conversion to abort."
+      tickets: [760390]
+
+    - title: "Fix CHM input plugin not closing opened input file"
+      tickets: [760589]
+
+    - title: "MOBI Output: Make super/subscripts use a slightly smaller font when rendered on a Kindle. Also allow the use of vertical-align:top/bottom in the CSS to specify a super/subscript."
+      tickets: [758667]
+
+    - title: "LRF Input: Detect and workaround LRF files that have deeply nested spans, instead of crashing."
+      tickets: [759680]
+
+    - title: "MOBI Output: Fix bug that would cause conversion to unneccessarily abort when malformed hyperlinks are present in the input document."
+      tickets: [759313]
+
+    - title: "Make true and false searches work correctly for numeric fields."
+
+    - title: "MOBI Output: The Ignore margins setting no longer ignores blockquotes, only margins set via CSS on other elements."
+      tickets: [758675]
+
+    - title: "Fix regression that caused clicking auto send to also change the email address in Preferences->Email"
+
+  improved recipes:
+    - Wall Street Journal
+    - Weblogs SL
+    - Tabu.ro
+    - Vecernje Novosti
+
+  new recipes:
+    - title: Hallo Assen and Dvhn
+      author: Reijendert
+
 
 - version: 0.7.54
   date: 2011-04-08

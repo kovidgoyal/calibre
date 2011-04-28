@@ -603,40 +603,34 @@ class PreferencesPlugin(Plugin): # {{{
 # }}}
 
 class StoreBase(Plugin): # {{{
-    
+
     supported_platforms = ['windows', 'osx', 'linux']
     author         = 'John Schember'
     type = _('Store')
-    # This needs to be changed to (0, 8, 0)
-    minimum_calibre_version = (0, 4, 118)
 
     actual_plugin = None
-    actual_plugin_object = None
 
     def load_actual_plugin(self, gui):
         '''
         This method must return the actual interface action plugin object.
         '''
         mod, cls = self.actual_plugin.split(':')
-        self.actual_plugin_object  = getattr(__import__(mod, fromlist=['1'], level=0), cls)(gui, self.name)
+        self.actual_plugin_object  = getattr(importlib.import_module(mod), cls)(gui, self.name)
         return self.actual_plugin_object
 
     def customization_help(self, gui=False):
-        if self.actual_plugin_object:
+        if getattr(self, 'actual_plugin_object', None) is not None:
             return self.actual_plugin_object.customization_help(gui)
-        else:
-            raise NotImplementedError()
-        
+        raise NotImplementedError()
+
     def config_widget(self):
-        if self.actual_plugin_object:
+        if getattr(self, 'actual_plugin_object', None) is not None:
             return self.actual_plugin_object.config_widget()
-        else:
-            raise NotImplementedError()
+        raise NotImplementedError()
 
     def save_settings(self, config_widget):
-        if self.actual_plugin_object:
+        if getattr(self, 'actual_plugin_object', None) is not None:
             return self.actual_plugin_object.save_settings(config_widget)
-        else:
-            raise NotImplementedError()
+        raise NotImplementedError()
 
 # }}}

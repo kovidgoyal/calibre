@@ -13,7 +13,6 @@ from calibre.gui2.dialogs.metadata_bulk_ui import Ui_MetadataBulkDialog
 from calibre.gui2.dialogs.tag_editor import TagEditor
 from calibre.ebooks.metadata import string_to_authors, authors_to_string, title_sort
 from calibre.ebooks.metadata.book.base import composite_formatter
-from calibre.ebooks.metadata.meta import get_metadata
 from calibre.gui2.custom_column_widgets import populate_metadata_page
 from calibre.gui2 import error_dialog, ResizableDialog, UNDEFINED_QDATE, \
     gprefs, question_dialog
@@ -26,6 +25,7 @@ from calibre.utils.magick.draw import identify_data
 from calibre.utils.date import qt_to_dt
 
 def get_cover_data(path): # {{{
+    from calibre.ebooks.metadata.meta import get_metadata
     old = prefs['read_file_metadata']
     if not old:
         prefs['read_file_metadata'] = True
@@ -519,6 +519,8 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
                 val = [] if fm['is_multiple'] else ['']
             elif not fm['is_multiple']:
                 val = [val]
+            elif fm['datatype'] == 'composite':
+                val = [v.strip() for v in val.split(fm['is_multiple'])]
             elif field == 'authors':
                 val = [v.replace('|', ',') for v in val]
         else:

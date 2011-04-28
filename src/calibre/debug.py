@@ -51,6 +51,8 @@ Run an embedded python interpreter.
             'with sqlite3 works.')
     parser.add_option('-p', '--py-console', help='Run python console',
             default=False, action='store_true')
+    parser.add_option('-m', '--inspect-mobi',
+            help='Inspect the MOBI file at the specified path', default=None)
 
     return parser
 
@@ -104,7 +106,7 @@ def migrate(old, new):
     from calibre.library.database import LibraryDatabase
     from calibre.library.database2 import LibraryDatabase2
     from calibre.utils.terminfo import ProgressBar
-    from calibre import terminal_controller
+    from calibre.constants import terminal_controller
     class Dummy(ProgressBar):
         def setLabelText(self, x): pass
         def setAutoReset(self, y): pass
@@ -117,7 +119,7 @@ def migrate(old, new):
 
     db = LibraryDatabase(old)
     db2 = LibraryDatabase2(new)
-    db2.migrate_old(db, Dummy(terminal_controller, 'Migrating database...'))
+    db2.migrate_old(db, Dummy(terminal_controller(), 'Migrating database...'))
     prefs['library_path'] = os.path.abspath(new)
     print 'Database migrated to', os.path.abspath(new)
 
@@ -227,6 +229,9 @@ def main(args=sys.argv):
         if len(args) > 1 and os.access(args[-1], os.R_OK):
             sql_dump = args[-1]
         reinit_db(opts.reinitialize_db, sql_dump=sql_dump)
+    elif opts.inspect_mobi is not None:
+        from calibre.ebooks.mobi.debug import inspect_mobi
+        inspect_mobi(opts.inspect_mobi)
     else:
         from calibre import ipython
         ipython()

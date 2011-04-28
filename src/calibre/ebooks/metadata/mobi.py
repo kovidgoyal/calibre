@@ -259,6 +259,7 @@ class MetadataUpdater(object):
         trail = len(new_record0.getvalue()) % 4
         pad = '\0' * (4 - trail) # Always pad w/ at least 1 byte
         new_record0.write(pad)
+        new_record0.write('\0'*(1024*8))
 
         # Rebuild the stream, update the pdbrecords pointers
         self.patchSection(0,new_record0.getvalue())
@@ -399,7 +400,8 @@ class MetadataUpdater(object):
         if getattr(self, 'exth', None) is None:
             raise MobiError('No existing EXTH record. Cannot update metadata.')
 
-        self.record0[92:96] = iana2mobi(mi.language)
+        if not mi.is_null('language'):
+            self.record0[92:96] = iana2mobi(mi.language)
         self.create_exth(exth=exth, new_title=mi.title)
 
         # Fetch updated timestamp, cover_record, thumbnail_record

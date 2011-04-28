@@ -230,21 +230,23 @@ The following functions are available in addition to those described in single-f
 
     * ``add(x, y)`` -- returns x + y. Throws an exception if either x or y are not numbers.
     * ``assign(id, val)`` -- assigns val to id, then returns val. id must be an identifier, not an expression
+    * ``booksize()`` -- returns the value of the |app| 'size' field. Returns '' if there are no formats.
     * ``cmp(x, y, lt, eq, gt)`` -- compares x and y after converting both to numbers. Returns ``lt`` if x < y. Returns ``eq`` if x == y. Otherwise returns ``gt``.
     * ``divide(x, y)`` -- returns x / y. Throws an exception if either x or y are not numbers.
     * ``field(name)`` -- returns the metadata field named by ``name``.
     * ``format_date(x, date_format)`` -- format_date(val, format_string) -- format the value, which must be a date field, using the format_string, returning a string. The formatting codes are::
     
         d    : the day as number without a leading zero (1 to 31)
-        dd   : the day as number with a leading zero (01 to 31) '
-        ddd  : the abbreviated localized day name (e.g. "Mon" to "Sun"). '
-        dddd : the long localized day name (e.g. "Monday" to "Sunday"). '
-        M    : the month as number without a leading zero (1 to 12). '
-        MM   : the month as number with a leading zero (01 to 12) '
-        MMM  : the abbreviated localized month name (e.g. "Jan" to "Dec"). '
-        MMMM : the long localized month name (e.g. "January" to "December"). '
-        yy   : the year as two digit number (00 to 99). '
-        yyyy : the year as four digit number.'
+        dd   : the day as number with a leading zero (01 to 31) 
+        ddd  : the abbreviated localized day name (e.g. "Mon" to "Sun"). 
+        dddd : the long localized day name (e.g. "Monday" to "Sunday"). 
+        M    : the month as number without a leading zero (1 to 12). 
+        MM   : the month as number with a leading zero (01 to 12) 
+        MMM  : the abbreviated localized month name (e.g. "Jan" to "Dec"). 
+        MMMM : the long localized month name (e.g. "January" to "December"). 
+        yy   : the year as two digit number (00 to 99). 
+        yyyy : the year as four digit number.
+        iso  : the date with time and timezone. Must be the only format present.
     
     * ``eval(string)`` -- evaluates the string as a program, passing the local variables (those ``assign`` ed to). This permits using the template processor to construct complex results from local variables.
     * ``multiply(x, y)`` -- returns x * y. Throws an exception if either x or y are not numbers.
@@ -394,3 +396,19 @@ You might find the following tips useful.
     * In a plugboard, you can set a field to empty (or whatever is equivalent to empty) by using the special template ``{null}``. This template will always evaluate to an empty string.
     * The technique described above to show numbers even if they have a zero value works with the standard field series_index.
     
+API of the Metadata objects
+----------------------------
+
+.. module:: calibre.ebooks.metadata.book.base
+
+.. autoclass:: Metadata
+   :members:
+   :member-order: bysource
+
+.. data:: STANDARD_METADATA_FIELDS
+
+    The set of standard metadata fields.
+
+.. literalinclude:: ../ebooks/metadata/book/__init__.py
+   :lines: 7-
+

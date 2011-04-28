@@ -20,8 +20,9 @@ class RemoveAdobeMargins(object):
         self.oeb, self.opts, self.log = oeb, opts, log
 
         for item in self.oeb.manifest:
-            if item.media_type in ('application/vnd.adobe-page-template+xml',
-                    'application/vnd.adobe.page-template+xml'):
+            if (item.media_type in ('application/vnd.adobe-page-template+xml',
+                    'application/vnd.adobe.page-template+xml') and
+                    hasattr(item.data, 'xpath')):
                 self.log('Removing page margins specified in the'
                         ' Adobe page template')
                 for elem in item.data.xpath(

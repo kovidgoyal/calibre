@@ -15,10 +15,10 @@ from operator import attrgetter
 from Queue import Queue, Empty
 
 from PyQt4.Qt import (QStyledItemDelegate, QTextDocument, QRectF, QIcon, Qt,
-        QStyle, QApplication, QDialog, QVBoxLayout, QLabel, QDialogButtonBox,
+        QApplication, QDialog, QVBoxLayout, QLabel, QDialogButtonBox,
         QStackedWidget, QWidget, QTableView, QGridLayout, QFontInfo, QPalette,
         QTimer, pyqtSignal, QAbstractTableModel, QVariant, QSize, QListView,
-        QPixmap, QAbstractListModel, QColor, QRect, QTextBrowser)
+        QPixmap, QAbstractListModel, QColor, QRect, QTextBrowser, QModelIndex)
 from PyQt4.QtWebKit import QWebView
 
 from calibre.customize.ui import metadata_plugins
@@ -52,12 +52,9 @@ class RichTextDelegate(QStyledItemDelegate): # {{{
         return ans
 
     def paint(self, painter, option, index):
+        QStyledItemDelegate.paint(self, painter, option, QModelIndex())
         painter.save()
         painter.setClipRect(QRectF(option.rect))
-        if hasattr(QStyle, 'CE_ItemViewItem'):
-            QApplication.style().drawControl(QStyle.CE_ItemViewItem, option, painter)
-        elif option.state & QStyle.State_Selected:
-            painter.fillRect(option.rect, option.palette.highlight())
         painter.translate(option.rect.topLeft())
         self.to_doc(index).drawContents(painter)
         painter.restore()
@@ -116,10 +113,17 @@ class CoverDelegate(QStyledItemDelegate): # {{{
 
     def paint(self, painter, option, index):
         QStyledItemDelegate.paint(self, painter, option, index)
-        if self.timer.isActive() and index.data(Qt.UserRole).toBool():
+        style = QApplication.style()
+        waiting = self.timer.isActive() and index.data(Qt.UserRole).toBool()
+        if waiting:
             rect = QRect(0, 0, self.spinner_width, self.spinner_width)
             rect.moveCenter(option.rect.center())
             self.draw_spinner(painter, rect)
+        else:
+            # Ensure the cover is rendered over any selection rect
+            style.drawItemPixmap(painter, option.rect, Qt.AlignTop|Qt.AlignHCenter,
+                QPixmap(index.data(Qt.DecorationRole)))
+
 # }}}
 
 class ResultsModel(QAbstractTableModel): # {{{
@@ -249,7 +253,7 @@ class ResultsView(QTableView): # {{{
         parts.append('</center>')
         if book.identifiers:
             urls = urls_from_identifiers(book.identifiers)
-            ids = ['<a href="%s">%s</a>'%(url, name) for name, url in urls]
+            ids = ['<a href="%s">%s</a>'%(url, name) for name, ign, ign, url in urls]
             if ids:
                 parts.append('<div><b>%s:</b> %s</div><br>'%(_('See at'), ', '.join(ids)))
         if book.tags:
@@ -945,7 +949,7 @@ class CoverFetch(QDialog): # {{{
 # }}}
 
 if __name__ == '__main__':
-    #DEBUG_DIALOG = True
+    DEBUG_DIALOG = True
     app = QApplication([])
     d = FullFetch()
     d.start(title='great gatsby', authors=['fitzgerald'])

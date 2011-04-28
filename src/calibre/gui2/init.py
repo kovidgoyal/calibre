@@ -247,6 +247,11 @@ class LayoutMixin(object): # {{{
         for x in ('cb', 'tb', 'bd'):
             button = getattr(self, x+'_splitter').button
             button.setIconSize(QSize(24, 24))
+            if isosx:
+                button.setStyleSheet('''
+                        QToolButton { background: none; border:none; padding: 0px; }
+                        QToolButton:checked { background: rgba(0, 0, 0, 25%); }
+                ''')
             self.status_bar.addPermanentWidget(button)
         self.status_bar.addPermanentWidget(self.jobs_button)
         self.setStatusBar(self.status_bar)

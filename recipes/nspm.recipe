@@ -1,12 +1,12 @@
 __license__   = 'GPL v3'
-__copyright__ = '2008-2010, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2008-2011, Darko Miletic <darko.miletic at gmail.com>'
 '''
 nspm.rs
 '''
 
 import re
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import NavigableString
+from calibre.ebooks.BeautifulSoup import NavigableString, Tag
 
 class Nspm(BasicNewsRecipe):
     title                 = 'Nova srpska politicka misao'
@@ -21,7 +21,6 @@ class Nspm(BasicNewsRecipe):
     INDEX                 = 'http://www.nspm.rs/?alphabet=l'
     encoding              = 'utf-8'
     language              = 'sr'
-    delay                 = 2
     remove_empty_feeds    = True
     publication_type      = 'magazine'
     masthead_url          = 'http://www.nspm.rs/templates/jsn_epic_pro/images/logol.jpg'
@@ -29,27 +28,21 @@ class Nspm(BasicNewsRecipe):
                                 @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)}
                                 body{font-family: "Times New Roman", serif1, serif}
                                 .article_description{font-family: Arial, sans1, sans-serif}
-                                img{margin-top:0.5em; margin-bottom: 0.7em}
+                                img{margin-top:0.5em; margin-bottom: 0.7em; display: block}
                                 .author{color: #990000; font-weight: bold}
                                 .author,.createdate{font-size: 0.9em} """
 
     conversion_options = {
-                          'comment'          : description
-                        , 'tags'             : category
-                        , 'publisher'        : publisher
-                        , 'language'         : language
-                        , 'linearize_tables' : True
+                          'comment'      : description
+                        , 'tags'         : category
+                        , 'publisher'    : publisher
+                        , 'language'     : language
+                        , 'pretty_print' : True
                         }
 
     preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
-    keep_only_tags = [dict(attrs={'id':'jsn-mainbody'})]
-    remove_tags        = [
-                           dict(name=['link','object','embed','script','meta','base','iframe'])
-                          ,dict(attrs={'class':'buttonheading'})
-                         ]
-    remove_tags_before = dict(attrs={'class':'contentheading'})
-    remove_tags_after  = dict(attrs={'class':'article_separator'})
-    remove_attributes  = ['width','height']
+    remove_tags        = [dict(name=['link','script','meta','base','img'])]
+    remove_attributes  = ['width','height','lang','xmlns:fb','xmlns:og','vspace','hspace','type','start','size']
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser()
@@ -57,21 +50,67 @@ class Nspm(BasicNewsRecipe):
         return br
 
     feeds = [
-                 (u'Rubrike'      , u'http://www.nspm.rs/rubrike/feed/rss.html')
-                ,(u'Debate'       , u'http://www.nspm.rs/debate/feed/rss.html')
-                ,(u'Reci i misli' , u'http://www.nspm.rs/reci-i-misli/feed/rss.html')
+                 (u'Rubrike'                 , u'http://www.nspm.rs/rubrike/feed/rss.html'                 )
+                ,(u'Debate'                  , u'http://www.nspm.rs/debate/feed/rss.html'                  )
+                ,(u'Reci i misli'            , u'http://www.nspm.rs/reci-i-misli/feed/rss.html'            )
                 ,(u'Samo smeh srbina spasava', u'http://www.nspm.rs/samo-smeh-srbina-spasava/feed/rss.html')
-                ,(u'Polemike'     , u'http://www.nspm.rs/polemike/feed/rss.html')
-                ,(u'Prikazi'   , u'http://www.nspm.rs/prikazi/feed/rss.html')
-                ,(u'Prenosimo'   , u'http://www.nspm.rs/prenosimo/feed/rss.html')
-                ,(u'Hronika'   , u'http://www.nspm.rs/tabela/hronika/feed/rss.html')
+                ,(u'Polemike'                , u'http://www.nspm.rs/polemike/feed/rss.html'                )
+                ,(u'Prikazi'                 , u'http://www.nspm.rs/prikazi/feed/rss.html'                 )
+                ,(u'Prenosimo'               , u'http://www.nspm.rs/prenosimo/feed/rss.html'               )
+                ,(u'Hronika'                 , u'http://www.nspm.rs/tabela/hronika/feed/rss.html'          )
             ]
 
     def preprocess_html(self, soup):
-        for item in soup.body.findAll(style=True):
-            del item['style']
-        for item in soup.body.findAll('h1'):
-            nh = NavigableString(item.a.string)
-            item.a.extract()
-            item.insert(0,nh)
-        return self.adeify_images(soup)
+        atitle = soup.body.find('a',attrs={'class':'contentpagetitle'})
+        if atitle:
+           cleanTitle = Tag(soup,'h1',[('class','contentpagetitle')])
+           cnt        = NavigableString(self.tag_to_string(atitle))
+           cleanTitle.append(cnt)
+           
+        author = soup.body.find('span',attrs={'class':'author'})
+        if author:
+           author.extract()
+           author.name = 'div'
+           
+        crdate = soup.body.find('td',attrs={'class':'createdate'})
+        if crdate:
+           cleanCrdate = Tag(soup,'div',[('class','createdate')])
+           cnt         = NavigableString(self.tag_to_string(crdate))
+           cleanCrdate.append(cnt)
+
+           #get the dependant element
+           artText = Tag(soup,'div',[('class','text')])
+           textHolderp = crdate.parent
+           textHolder = textHolderp.nextSibling
+           while textHolder and (not isinstance(textHolder,Tag) or (textHolder.name <> textHolderp.name)):
+                 textHolder = textHolder.nextSibling
+           if textHolder.td:
+              artText          = textHolder.td
+              artText.name     = 'div'
+              artText.attrs    = []
+              artText['class'] = 'text'
+              artText.extract()
+           
+           soup.body.contents=[]
+
+           soup.body.append(cleanTitle)
+           soup.body.append(author)
+           soup.body.append(cleanCrdate)
+           soup.body.append(artText)
+
+        for item in soup.findAll('a'):
+            limg = item.find('img')
+            if item.string is not None:
+               str = item.string
+               item.replaceWith(str)
+            else:
+               if limg:
+                  item.name = 'div'
+                  item.attrs = []
+               else:
+                   str = self.tag_to_string(item)
+                   item.replaceWith(str)
+        for item in soup.findAll('img'):
+            if not item.has_key('alt'):
+               item['alt'] = 'image'
+        return soup

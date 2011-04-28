@@ -68,7 +68,7 @@ class DaysOfWeek(Base):
     def initialize(self, typ=None, val=None):
         if typ is None:
             typ = 'day/time'
-            val = (-1, 9, 0)
+            val = (-1, 6, 0)
         if typ == 'day/time':
             val = convert_day_time_schedule(val)
 
@@ -118,7 +118,7 @@ class DaysOfMonth(Base):
 
     def initialize(self, typ=None, val=None):
         if val is None:
-            val = ((1,), 9, 0)
+            val = ((1,), 6, 0)
         days_of_month, hour, minute = val
         self.days.setText(', '.join(map(str, map(int, days_of_month))))
         self.time.setTime(QTime(hour, minute))
@@ -380,7 +380,7 @@ class SchedulerDialog(QDialog, Ui_Dialog):
             if d < timedelta(days=366):
                 ld_text = tm
         else:
-            typ, sch = 'day/time', (-1, 9, 0)
+            typ, sch = 'day/time', (-1, 6, 0)
         sch_widget = {'day/time': 0, 'days_of_week': 0, 'days_of_month':1,
                 'interval':2}[typ]
         rb = getattr(self, list(self.SCHEDULE_TYPES)[sch_widget])

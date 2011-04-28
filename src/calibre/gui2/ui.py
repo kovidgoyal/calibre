@@ -88,6 +88,11 @@ class SystemTrayIcon(QSystemTrayIcon): # {{{
 
 # }}}
 
+_gui = None
+
+def get_gui():
+    return _gui
+
 class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         TagBrowserMixin, CoverFlowMixin, LibraryViewMixin, SearchBoxMixin,
         SavedSearchBoxMixin, SearchRestrictionMixin, LayoutMixin, UpdateMixin,
@@ -97,7 +102,9 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
 
 
     def __init__(self, opts, parent=None, gui_debug=None):
+        global _gui
         MainWindow.__init__(self, opts, parent=parent, disable_automatic_gc=True)
+        _gui = self
         self.opts = opts
         self.device_connected = None
         self.gui_debug = gui_debug
@@ -126,7 +133,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         ac.interface_action_base_plugin = action
         action.actual_iaction_plugin_loaded = True
         return ac
-    
+
     def add_iaction(self, ac):
         acmap = self.iactions
         if ac.name in acmap:
@@ -134,7 +141,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
                 acmap[ac.name] = ac
         else:
             acmap[ac.name] = ac
-    
+
     def load_store_plugins(self):
         self.istores = OrderedDict()
         for store in store_plugins():
@@ -150,14 +157,14 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
                 if store.plugin_path is None:
                     raise
                 continue
-    
+
     def init_istore(self, store):
         st = store.load_actual_plugin(self)
         st.plugin_path = store.plugin_path
         st.base_plugin = store
         store.actual_istore_plugin_loaded = True
         return st
-        
+
     def add_istore(self, st):
         stmap = self.istores
         if st.name in stmap:
@@ -271,11 +278,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         self.library_view.model().count_changed_signal.connect(
                 self.iactions['Choose Library'].count_changed)
         if not gprefs.get('quick_start_guide_added', False):
-            from calibre.ebooks.metadata import MetaInformation
-            mi = MetaInformation(_('Calibre Quick Start Guide'), ['John Schember'])
-            mi.author_sort = 'Schember, John'
-            mi.comments = "A guide to get you up and running with calibre"
-            mi.publisher = 'calibre'
+            from calibre.ebooks.metadata.meta import get_metadata
+            mi = get_metadata(open(P('quick_start.epub'), 'rb'), 'epub')
             self.library_view.model().add_books([P('quick_start.epub')], ['epub'],
                     [mi])
             gprefs['quick_start_guide_added'] = True
@@ -442,6 +446,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
             self.library_view.model().refresh()
             self.library_view.model().research()
             self.tags_view.recount()
+        elif msg.startswith('shutdown:'):
+            self.quit(confirm_quit=False)
         else:
             print msg
 
@@ -529,10 +535,10 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
             action.location_selected(location)
         if location == 'library':
             self.search_restriction.setEnabled(True)
-            self.search_options_button.setEnabled(True)
+            self.highlight_only_button.setEnabled(True)
         else:
             self.search_restriction.setEnabled(False)
-            self.search_options_button.setEnabled(False)
+            self.highlight_only_button.setEnabled(False)
             # Reset the view in case something changed while it was invisible
             self.current_view().reset()
         self.set_number_of_books_shown()
@@ -595,8 +601,9 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         dynamic.set('sort_history', self.library_view.model().sort_history)
         self.save_layout_state()
 
-    def quit(self, checked=True, restart=False, debug_on_restart=False):
-        if not self.confirm_quit():
+    def quit(self, checked=True, restart=False, debug_on_restart=False,
+            confirm_quit=True):
+        if confirm_quit and not self.confirm_quit():
             return
         try:
             self.shutdown()
