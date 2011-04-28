@@ -446,6 +446,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
             self.library_view.model().refresh()
             self.library_view.model().research()
             self.tags_view.recount()
+        elif msg.startswith('shutdown:'):
+            self.quit(confirm_quit=False)
         else:
             print msg
 
@@ -599,8 +601,9 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         dynamic.set('sort_history', self.library_view.model().sort_history)
         self.save_layout_state()
 
-    def quit(self, checked=True, restart=False, debug_on_restart=False):
-        if not self.confirm_quit():
+    def quit(self, checked=True, restart=False, debug_on_restart=False,
+            confirm_quit=True):
+        if confirm_quit and not self.confirm_quit():
             return
         try:
             self.shutdown()
