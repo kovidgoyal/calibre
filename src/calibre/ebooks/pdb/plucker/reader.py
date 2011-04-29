@@ -360,7 +360,7 @@ class Reader(FormatReader):
         # plugin assemble the order based on hyperlinks.
         with CurrentDir(output_dir):
             for uid, num in self.uid_text_secion_number.items():
-                self.log.debug(_('Writing record with uid: %s as %s.html' % (uid, uid)))
+                self.log.debug('Writing record with uid: %s as %s.html' % (uid, uid))
                 with open('%s.html' % uid, 'wb') as htmlf:
                     html = u'<html><body>'
                     section_header, section_data = self.sections[num]
@@ -466,7 +466,7 @@ class Reader(FormatReader):
             if not home_html:
                 home_html = self.uid_text_secion_number.items()[0][0]
         except:
-            raise Exception(_('Could not determine home.html'))
+            raise Exception('Could not determine home.html')
         # Generate oeb from html conversion.
         oeb = html_input.convert(open('%s.html' % home_html, 'rb'), self.options, 'html', self.log, {})
         self.options.debug_pipeline = odi

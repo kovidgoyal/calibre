@@ -54,7 +54,7 @@
 
     - title: "Fix adding html books from the top of a deep folder hierarchy very slow"
 
-    - title: "Only set language in MOBI metadata is it is not null"
+    - title: "Only set language in MOBI metadata if it is not null"
 
     - title: "Fix 'count-of' searches (e.g., tags:#>3)."
       tickets: [771175]
@@ -62,7 +62,7 @@
     - title: "Fix regression that broke connection to iTunes in some cases"
       tickets: [771164]
 
-    - title: "Fix buggy regex that made converting PDfs with the string ****************** very slow"
+    - title: "Fix buggy regex that made converting PDFs with the string ****************** very slow"
       tickets: [770534]
 
     - title: "Fix Ctrl+L shortcut to lookup word not working in ebook viewer"
