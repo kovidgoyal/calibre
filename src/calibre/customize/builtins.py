@@ -1197,9 +1197,9 @@ class AmazonDEKindleStore(StoreBase):
 plugins += [StoreAmazonKindleStore, AmazonDEKindleStore, StoreAmazonUKKindleStore,
     StoreBaenWebScriptionStore, StoreBNStore,
     StoreBeWriteStore, StoreDieselEbooksStore, StoreEbookscomStore,
-    StoreEHarlequinStoretore,
-    StoreFeedbooksStore, StoreGutenbergStore, StoreKoboStore, StoreManyBooksStore,
+    StoreEHarlequinStoretore, StoreFeedbooksStore,
+    StoreFoylesUKStore, StoreGutenbergStore, StoreKoboStore, StoreManyBooksStore,
     StoreMobileReadStore, StoreOpenLibraryStore, StoreSmashwordsStore,
-    StoreFoylesUKStore, StoreWaterstonesUKStore]
+    StoreWaterstonesUKStore]
 
 # }}}
