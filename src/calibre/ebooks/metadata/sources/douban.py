@@ -25,14 +25,8 @@ from calibre import as_unicode
 NAMESPACES = {
               'openSearch':'http://a9.com/-/spec/opensearchrss/1.0/',
               'atom' : 'http://www.w3.org/2005/Atom',
-              'dc'   : 'http://purl.org/dc/terms',
-              'gd'   : 'http://schemas.google.com/g/2005'
-            }
-
-NAMESPACES = {
-              'openSearch':'http://a9.com/-/spec/opensearchrss/1.0/',
-              'atom' : 'http://www.w3.org/2005/Atom',
-              'db': 'http://www.douban.com/xmlns/'
+              'db': 'http://www.douban.com/xmlns/',
+              'gd': 'http://schemas.google.com/g/2005'
             }
 XPath = partial(etree.XPath, namespaces=NAMESPACES)
 total_results  = XPath('//openSearch:totalResults')
@@ -47,6 +41,8 @@ isbn           = XPath("descendant::db:attribute[@name='isbn13']")
 date           = XPath("descendant::db:attribute[@name='pubdate']")
 creator        = XPath("descendant::db:attribute[@name='author']")
 tag            = XPath("descendant::db:tag")
+rating         = XPath("descendant::gd:rating[@name='average']")
+cover_url      = XPath("descendant::atom:link[@rel='image']/attribute::href")
 
 def get_details(browser, url, timeout): # {{{
     try:
@@ -77,7 +73,7 @@ def to_metadata(browser, log, entry_, timeout): # {{{
 
 
     id_url = entry_id(entry_)[0].text
-    google_id = id_url.split('/')[-1]
+    douban_id = id_url.split('/')[-1]
     title_ = ': '.join([x.text for x in title(entry_)]).strip()
     authors = [x.text.strip() for x in creator(entry_) if x.text]
     if not authors:
@@ -87,7 +83,7 @@ def to_metadata(browser, log, entry_, timeout): # {{{
         return None
 
     mi = Metadata(title_, authors)
-    mi.identifiers = {'google':google_id}
+    mi.identifiers = {'douban':douban_id}
     try:
         raw = get_details(browser, id_url, timeout)
         feed = etree.fromstring(xml_to_unicode(clean_ascii_chars(raw),
@@ -103,13 +99,9 @@ def to_metadata(browser, log, entry_, timeout): # {{{
 
     # ISBN
     isbns = []
-    for x in identifier(extra):
-        t = str(x.text).strip()
-        if t[:5].upper() in ('ISBN:', 'LCCN:', 'OCLC:'):
-            if t[:5].upper() == 'ISBN:':
-                t = check_isbn(t[5:])
-                if t:
-                    isbns.append(t)
+    for x in [t.text for t in isbn(extra)]:
+        if check_isbn(x):
+            isbns.append(x)
     if isbns:
         mi.isbn = sorted(isbns, key=len)[-1]
     mi.all_isbns = isbns
@@ -139,21 +131,23 @@ def to_metadata(browser, log, entry_, timeout): # {{{
             log.error('Failed to parse pubdate %r'%pubdate)
 
     # Ratings
-    for x in rating(extra):
+    if rating(extra):
         try:
-            mi.rating = float(x.get('average'))
-            if mi.rating > 5:
-                mi.rating /= 2
+            mi.rating = float(rating(extra).text) / 2.0
         except:
             log.exception('Failed to parse rating')
+            mi.rating = 0
 
     # Cover
-    mi.has_google_cover = None
-    for x in extra.xpath(
-            '//*[@href and @rel="http://schemas.google.com/books/2008/thumbnail"]'):
-        mi.has_google_cover = x.get('href')
-        break
-
+    mi.has_douban_cover = None
+    u = cover_url(extra)
+    print(u)
+    if u:
+        u = u[0].replace('/spic/', '/lpic/');
+        print(u)
+        # If URL contains "book-default", the book doesn't have a cover
+        if u.find('book-default') == -1:
+            mi.has_douban_cover = u
     return mi
 # }}}
 
@@ -172,6 +166,7 @@ class Douban(Source):
     cached_cover_url_is_reliable = True
 
     DOUBAN_API_KEY = '0bd1672394eb1ebf2374356abec15c3d'
+    DOUBAN_ID_URL = 'http://api.douban.com/book/subject/%s'
 #    GOOGLE_COVER = 'http://books.google.com/books?id=%s&printsec=frontcover&img=1'
 
 #    DUMMY_IMAGE_MD5 = frozenset(['0de4383ebad0adad5eeb8975cd796657'])
@@ -179,7 +174,7 @@ class Douban(Source):
     def get_book_url(self, identifiers): # {{{
         db = identifiers.get('douban', None)
         if db is not None:
-            return db
+            return DOUBAN_ID_URL % db
         else:
             return None
     # }}}
@@ -206,11 +201,11 @@ class Douban(Source):
                 q += ((' ' if q != '' else '') + 
                     build_term('author', author_tokens))
             t = 'search'
+        q = q.strip()
         if isinstance(q, unicode):
             q = q.encode('utf-8')
         if not q:
             return None
-        print(q)
         url = None
         if t == "isbn":
             url = ISBN_URL + q
@@ -220,7 +215,6 @@ class Douban(Source):
                     })
         if self.DOUBAN_API_KEY and self.DOUBAN_API_KEY != '':
             url = url + "?apikey=" + self.DOUBAN_API_KEY
-        print(url)
         return url
     # }}}
 
@@ -257,10 +251,7 @@ class Douban(Source):
         try:
             cdata = br.open_novisit(cached_url, timeout=timeout).read()
             if cdata:
-                if hashlib.md5(cdata).hexdigest() in self.DUMMY_IMAGE_MD5:
-                    log.warning('Google returned a dummy image, ignoring')
-                else:
-                    result_queue.put((self, cdata))
+                result_queue.put((self, cdata))
         except:
             log.exception('Failed to download cover from:', cached_url)
 
@@ -268,13 +259,13 @@ class Douban(Source):
 
     def get_cached_cover_url(self, identifiers): # {{{
         url = None
-        goog = identifiers.get('google', None)
-        if goog is None:
+        db = identifiers.get('douban', None)
+        if db is None:
             isbn = identifiers.get('isbn', None)
             if isbn is not None:
-                goog = self.cached_isbn_to_identifier(isbn)
-        if goog is not None:
-            url = self.cached_identifier_to_cover_url(goog)
+                db = self.cached_isbn_to_identifier(isbn)
+        if db is not None:
+            url = self.cached_identifier_to_cover_url(db)
 
         return url
     # }}}
@@ -286,12 +277,12 @@ class Douban(Source):
                 ans = to_metadata(br, log, i, timeout)
                 if isinstance(ans, Metadata):
                     ans.source_relevance = relevance
-                    goog = ans.identifiers['google']
+                    db = ans.identifiers['douban']
                     for isbn in getattr(ans, 'all_isbns', []):
-                        self.cache_isbn_to_identifier(isbn, goog)
-                    if ans.has_google_cover:
-                        self.cache_identifier_to_cover_url(goog,
-                                self.GOOGLE_COVER%goog)
+                        self.cache_isbn_to_identifier(isbn, db)
+                    if ans.has_douban_cover:
+                        self.cache_identifier_to_cover_url(db,
+                                ans.has_douban_cover)
                     self.clean_downloaded_metadata(ans)
                     result_queue.put(ans)
             except:
@@ -315,7 +306,6 @@ class Douban(Source):
         except Exception as e:
             log.exception('Failed to make identify query: %r'%query)
             return as_unicode(e)
-
         try:
             parser = etree.XMLParser(recover=True, no_network=True)
             feed = etree.fromstring(xml_to_unicode(clean_ascii_chars(raw),
@@ -324,7 +314,8 @@ class Douban(Source):
         except Exception as e:
             log.exception('Failed to parse identify results')
             return as_unicode(e)
-
+        if not title:
+            title = ""
         if not entries and identifiers and title and authors and \
                 not abort.is_set():
             return self.identify(log, result_queue, abort, title=title,
