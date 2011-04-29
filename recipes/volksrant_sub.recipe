@@ -1,0 +1,115 @@
+from calibre import strftime
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class Volkskrant_full(BasicNewsRecipe):
+    # This recipe will download the Volkskrant newspaper,
+    # from the subscribers site. It requires a password.
+    # Known issues are: articles that are spread out over
+    # multiple pages will appear multiple times. Pages
+    # that contain only adverts will appear, but empty.
+    # The supplement 'Volkskrant Magazine' on saturday
+    # is currently not downloaded.
+    # You can set a manual date, to download an archived
+    # newspaper. Volkskrant stores over a month at the
+    # moment of writing. To do so I suggest you unmark
+    # the date on the line below, and insert it in the title. Then
+    # follow the instructions marked further below.
+
+    title = 'De Volkskrant (subscription)' # [za, 13 nov 2010]'
+    __author__ = u'Selcal'
+    description = u"Volkskrant"
+    oldest_article = 30
+    max_articles_per_feed = 100
+    no_stylesheets = True
+    language = 'nl'
+    use_embedded_content = False
+    simultaneous_downloads = 1
+    delay = 1
+    needs_subscription = True
+    # Set RETRIEVEDATE to 'yyyymmdd' to load an older
+    # edition. Otherwise keep '%Y%m%d'
+    # When setting a manual date, unmark and add the date
+    # to the title above, and unmark the timefmt line to stop
+    # Calibre from adding today's date in addition.
+
+    # timefmt = ''
+    RETRIEVEDATE = strftime('%Y%m%d')
+    INDEX_MAIN = 'http://www.volkskrant.nl/vk-online/VK/' + RETRIEVEDATE + '___/VKN01_001/#text'
+    INDEX_ARTICLE = 'http://www.volkskrant.nl/vk-online/VK/' + RETRIEVEDATE + '___/VKN01_001/'
+    LOGIN = 'http://www.volkskrant.nl/vk/user/loggedIn.do'
+    remove_tags = [dict(name='address')]
+    cover_url = 'http://www.volkskrant.nl/vk-online/VK/' + RETRIEVEDATE + '___/VKN01_001/page.jpg'
+
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser()
+
+        if self.username is not None and self.password is not None:
+           br.open(self.LOGIN)
+           br.select_form(nr = 0)
+           br['username'] = self.username
+           br['password'] = self.password
+           br.submit()
+        return br
+
+    def parse_index(self):
+        krant = []
+        def strip_title(_title):
+            i = 0
+            while ((_title[i] <> ":") and (i <= len(_title))):
+               i = i + 1
+            return(_title[0:i])
+        for temp in range (5):
+              try:
+                soup = self.index_to_soup(self.INDEX_MAIN)
+                break
+              except:
+                #print '(Retrying main index load)'
+                continue
+        mainsoup = soup.find('td', attrs={'id': 'select_page_top'})
+        for option in mainsoup.findAll('option'):
+           articles = []
+           _INDEX = 'http://www.volkskrant.nl/vk-online/VK/' + self.RETRIEVEDATE + '___/' + option['value'] + '/#text'
+           _INDEX_ARTICLE = 'http://www.volkskrant.nl/vk-online/VK/' + self.RETRIEVEDATE + '___/' + option['value'] + '/'
+           #print ''
+           #print '<-------    Processing section: ' + _INDEX + ' ------------------------->'
+           for temp in range (5):
+              try:
+                soup = self.index_to_soup(_INDEX)
+                break
+              except:
+                #print '(Retrying index load)'
+                continue
+           for item in soup.findAll('area'):
+              art_nr = item['class']
+              attrname = art_nr[0:12] + '_section' + option['value'][0:5] + '_' + art_nr[26:len(art_nr)]
+              #print '==> Found: ' + attrname;
+              index_title = soup.find('div', attrs={'class': attrname})
+              get_title = index_title['title'];
+              _ARTICLE   = _INDEX_ARTICLE + attrname + '.html#text'
+              title = get_title;
+              #print '--> Title: ' + title;
+              #print '--> URL: ' + _ARTICLE;
+              for temp in range (5):
+                 try:
+                   souparticle =  self.index_to_soup(_ARTICLE);
+                   break
+                 except:
+                   print '(Retrying URL load)'
+                   continue
+              headerurl = souparticle.findAll('frame')[0]['src'];
+              #print '--> Read frame name for header: ' + headerurl;
+              url = _INDEX_ARTICLE + headerurl[0:len(headerurl)-12] + '_text.html';
+              #print '--> Corrected URL: ' + url;
+              if (get_title <> ''):
+                 title = strip_title(get_title)
+                 date  = strftime(' %B %Y')
+              if (title <> ''):
+                 articles.append({
+                                         'title'      :title
+                                        ,'date'       :date
+                                        ,'url'        :url
+                                        ,'description':''
+                                        })
+           krant.append( (option.string, articles))
+        return krant
+

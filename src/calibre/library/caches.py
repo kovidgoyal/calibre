@@ -406,11 +406,9 @@ class ResultCache(SearchQueryParser): # {{{
         if val_func is None:
             loc = self.field_metadata[location]['rec_index']
             val_func = lambda item, loc=loc: item[loc]
-        dt = self.field_metadata[location]['datatype']
-
         q = ''
-        val_func = lambda item, loc=loc: item[loc]
         cast = adjust = lambda x: x
+        dt = self.field_metadata[location]['datatype']
 
         if query == 'false':
             if dt == 'rating' or location == 'cover':
@@ -785,7 +783,7 @@ class ResultCache(SearchQueryParser): # {{{
         else:
             q = query
             if search_restriction:
-                q = u'%s (%s)' % (search_restriction, query)
+                q = u'(%s) and (%s)' % (search_restriction, query)
         if not q:
             if set_restriction_count:
                 self.search_restriction_book_count = len(self._map)

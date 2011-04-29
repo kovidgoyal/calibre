@@ -69,7 +69,24 @@ nmake -f ms\ntdll.mak install
 Qt
 --------
 
-Extract Qt sourcecode to C:\Qt\4.x.x. Run configure and make::
+Extract Qt sourcecode to C:\Qt\4.x.x. 
+
+Qt uses its own routine to locate and load "system libraries" including the openssl libraries needed for "Get Books". This means that we have to apply the following patch to have Qt load the openssl libraries bundled with calibre:
+
+
+--- src/corelib/plugin/qsystemlibrary.cpp	2011-02-22 05:04:00.000000000 -0700
++++ src/corelib/plugin/qsystemlibrary.cpp	2011-04-25 20:53:13.635247466 -0600
+@@ -110,7 +110,7 @@ HINSTANCE QSystemLibrary::load(const wch
+ 
+ #if !defined(QT_BOOTSTRAPPED)
+     if (!onlySystemDirectory)
+-        searchOrder << QFileInfo(qAppFileName()).path();
++        searchOrder << (QFileInfo(qAppFileName()).path().replace(QLatin1Char('/'), QLatin1Char('\\')) + QString::fromLatin1("\\DLLs\\"));
+ #endif
+     searchOrder << qSystemDirectory();
+ 
+
+Now, run configure and make::
 
     configure -opensource -release -qt-zlib -qt-gif -qt-libmng -qt-libpng -qt-libtiff -qt-libjpeg -release -platform win32-msvc2008 -no-qt3support -webkit -xmlpatterns -no-phonon -no-style-plastique -no-style-cleanlooks -no-style-motif -no-style-cde -no-declarative -no-scripttools -no-audio-backend -no-multimedia -no-dbus -no-openvg -no-opengl -no-qt3support -confirm-license -nomake examples -nomake demos -nomake docs -openssl -I Q:\openssl\include -L Q:\openssl\lib && nmake
 

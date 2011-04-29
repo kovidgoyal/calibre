@@ -278,11 +278,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         self.library_view.model().count_changed_signal.connect(
                 self.iactions['Choose Library'].count_changed)
         if not gprefs.get('quick_start_guide_added', False):
-            from calibre.ebooks.metadata import MetaInformation
-            mi = MetaInformation(_('Calibre Quick Start Guide'), ['John Schember'])
-            mi.author_sort = 'Schember, John'
-            mi.comments = "A guide to get you up and running with calibre"
-            mi.publisher = 'calibre'
+            from calibre.ebooks.metadata.meta import get_metadata
+            mi = get_metadata(open(P('quick_start.epub'), 'rb'), 'epub')
             self.library_view.model().add_books([P('quick_start.epub')], ['epub'],
                     [mi])
             gprefs['quick_start_guide_added'] = True
@@ -449,6 +446,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
             self.library_view.model().refresh()
             self.library_view.model().research()
             self.tags_view.recount()
+        elif msg.startswith('shutdown:'):
+            self.quit(confirm_quit=False)
         else:
             print msg
 
@@ -602,8 +601,9 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         dynamic.set('sort_history', self.library_view.model().sort_history)
         self.save_layout_state()
 
-    def quit(self, checked=True, restart=False, debug_on_restart=False):
-        if not self.confirm_quit():
+    def quit(self, checked=True, restart=False, debug_on_restart=False,
+            confirm_quit=True):
+        if confirm_quit and not self.confirm_quit():
             return
         try:
             self.shutdown()
