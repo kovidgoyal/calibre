@@ -18,11 +18,11 @@ from calibre.gui2.widgets import EnLineEdit, FormatList, ImageView
 from calibre.gui2.complete import MultiCompleteLineEdit, MultiCompleteComboBox
 from calibre.utils.icu import sort_key
 from calibre.utils.config import tweaks, prefs
-from calibre.ebooks.metadata import title_sort, authors_to_string, \
-        string_to_authors, check_isbn
+from calibre.ebooks.metadata import (title_sort, authors_to_string,
+        string_to_authors, check_isbn)
 from calibre.ebooks.metadata.meta import get_metadata
-from calibre.gui2 import file_icon_provider, UNDEFINED_QDATE, UNDEFINED_DATE, \
-        choose_files, error_dialog, choose_images, question_dialog
+from calibre.gui2 import (file_icon_provider, UNDEFINED_QDATE, UNDEFINED_DATE,
+        choose_files, error_dialog, choose_images, question_dialog)
 from calibre.utils.date import local_tz, qt_to_dt
 from calibre import strftime
 from calibre.ebooks import BOOK_EXTENSIONS
@@ -280,11 +280,16 @@ class AuthorSortEdit(EnLineEdit):
         aus = self.current_val
         meth = tweaks['author_sort_copy_method']
         if aus:
-            ln, _, rest = aus.partition(',')
-            if rest:
-                if meth in ('invert', 'nocomma', 'comma'):
-                    aus = rest.strip() + ' ' + ln.strip()
-            self.authors_edit.current_val = [aus]
+            ans = []
+            for one in [a.strip() for a in aus.split('&')]:
+                if not one:
+                    continue
+                ln, _, rest = one.partition(',')
+                if rest:
+                    if meth in ('invert', 'nocomma', 'comma'):
+                        one = rest.strip() + ' ' + ln.strip()
+                ans.append(one)
+            self.authors_edit.current_val = ans
 
     def auto_generate(self, *args):
         au = unicode(self.authors_edit.text())
@@ -805,6 +810,7 @@ class CommentsEdit(Editor): # {{{
             else:
                 val = comments_to_html(val)
             self.html = val
+            self.wyswyg_dirtied()
         return property(fget=fget, fset=fset)
 
     def initialize(self, db, id_):
@@ -936,7 +942,11 @@ class IdentifiersEdit(QLineEdit): # {{{
             ans = {}
             for x in parts:
                 c = x.split(':')
-                if len(c) == 2:
+                if len(c) > 1:
+                    if c[0] == 'isbn':
+                        v = check_isbn(c[1])
+                        if v is not None:
+                            c[1] = v
                     ans[c[0]] = c[1]
             return ans
         def fset(self, val):
@@ -947,6 +957,11 @@ class IdentifiersEdit(QLineEdit): # {{{
                 if x == 'isbn':
                     x = '00isbn'
                 return x
+            for k in list(val):
+                if k == 'isbn':
+                    v = check_isbn(k)
+                    if v is not None:
+                        val[k] = v
             ids = sorted(val.iteritems(), key=keygen)
             txt = ', '.join(['%s:%s'%(k, v) for k, v in ids])
             self.setText(txt.strip())
@@ -954,8 +969,8 @@ class IdentifiersEdit(QLineEdit): # {{{
         return property(fget=fget, fset=fset)
 
     def initialize(self, db, id_):
-        self.current_val = db.get_identifiers(id_, index_is_id=True)
-        self.original_val = self.current_val
+        self.original_val = db.get_identifiers(id_, index_is_id=True)
+        self.current_val = self.original_val
 
     def commit(self, db, id_):
         if self.original_val != self.current_val:

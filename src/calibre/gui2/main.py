@@ -40,6 +40,11 @@ path_to_ebook to the database.
     parser.add_option('--ignore-plugins', default=False, action='store_true',
             help=_('Ignore custom plugins, useful if you installed a plugin'
                 ' that is preventing calibre from starting'))
+    parser.add_option('-s', '--shutdown-running-calibre', default=False,
+            action='store_true',
+            help=_('Cause a running calibre instance, if any, to be'
+                ' shutdown. Note that if there are running jobs, they '
+                'will be silently aborted, so use with care.'))
     return parser
 
 def init_qt(args):
@@ -339,7 +344,7 @@ def cant_start(msg=_('If you are sure it is not running')+', ',
 
     raise SystemExit(1)
 
-def communicate(args):
+def communicate(opts, args):
     t = RC()
     t.start()
     time.sleep(3)
@@ -348,9 +353,12 @@ def communicate(args):
         cant_start(what=_('try deleting the file')+': '+f)
         raise SystemExit(1)
 
-    if len(args) > 1:
-        args[1] = os.path.abspath(args[1])
-    t.conn.send('launched:'+repr(args))
+    if opts.shutdown_running_calibre:
+        t.conn.send('shutdown:')
+    else:
+        if len(args) > 1:
+            args[1] = os.path.abspath(args[1])
+        t.conn.send('launched:'+repr(args))
     t.conn.close()
     raise SystemExit(0)
 
@@ -365,6 +373,8 @@ def main(args=sys.argv):
     from calibre.utils.lock import singleinstance
     from multiprocessing.connection import Listener
     si = singleinstance('calibre GUI')
+    if si and opts.shutdown_running_calibre:
+        return 0
     if si:
         try:
             listener = Listener(address=ADDRESS)
@@ -390,10 +400,10 @@ def main(args=sys.argv):
     else:
         # On windows only singleinstance can be trusted
         otherinstance = True if iswindows else False
-    if not otherinstance:
+    if not otherinstance and not opts.shutdown_running_calibre:
         return run_gui(opts, args, actions, listener, app, gui_debug=gui_debug)
 
-    communicate(args)
+    communicate(opts, args)
 
     return 0
 

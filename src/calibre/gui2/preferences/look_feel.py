@@ -5,15 +5,91 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from PyQt4.Qt import QApplication, QFont, QFontInfo, QFontDialog
+from PyQt4.Qt import (QApplication, QFont, QFontInfo, QFontDialog,
+        QAbstractListModel, Qt)
 
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget, CommaSeparatedList
 from calibre.gui2.preferences.look_feel_ui import Ui_Form
 from calibre.gui2 import config, gprefs, qt_app
-from calibre.utils.localization import available_translations, \
-    get_language, get_lang
+from calibre.utils.localization import (available_translations,
+    get_language, get_lang)
 from calibre.utils.config import prefs
 from calibre.utils.icu import sort_key
+from calibre.gui2 import NONE
+from calibre.gui2.book_details import get_field_list
+
+class DisplayedFields(QAbstractListModel): # {{{
+
+    def __init__(self, db, parent=None):
+        QAbstractListModel.__init__(self, parent)
+
+        self.fields = []
+        self.db = db
+        self.changed = False
+
+    def initialize(self, use_defaults=False):
+        self.fields = [[x[0], x[1]] for x in
+                get_field_list(self.db.field_metadata,
+                    use_defaults=use_defaults)]
+        self.reset()
+        self.changed = True
+
+    def rowCount(self, *args):
+        return len(self.fields)
+
+    def data(self, index, role):
+        try:
+            field, visible = self.fields[index.row()]
+        except:
+            return NONE
+        if role == Qt.DisplayRole:
+            name = field
+            try:
+                name = self.db.field_metadata[field]['name']
+            except:
+                pass
+            if not name:
+                name = field
+            return name
+        if role == Qt.CheckStateRole:
+            return Qt.Checked if visible else Qt.Unchecked
+        return NONE
+
+    def flags(self, index):
+        ans = QAbstractListModel.flags(self, index)
+        return ans | Qt.ItemIsUserCheckable
+
+    def setData(self, index, val, role):
+        ret = False
+        if role == Qt.CheckStateRole:
+            val, ok = val.toInt()
+            if ok:
+                self.fields[index.row()][1] = bool(val)
+                self.changed = True
+                ret = True
+                self.dataChanged.emit(index, index)
+        return ret
+
+    def restore_defaults(self):
+        self.initialize(use_defaults=True)
+
+    def commit(self):
+        if self.changed:
+            gprefs['book_display_fields'] = self.fields
+
+    def move(self, idx, delta):
+        row = idx.row() + delta
+        if row >= 0 and row < len(self.fields):
+            t = self.fields[row]
+            self.fields[row] = self.fields[row-delta]
+            self.fields[row-delta] = t
+            self.dataChanged.emit(idx, idx)
+            idx = self.index(row)
+            self.dataChanged.emit(idx, idx)
+            self.changed = True
+            return idx
+
+# }}}
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
@@ -76,11 +152,18 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.current_font = self.initial_font = None
         self.change_font_button.clicked.connect(self.change_font)
 
+        self.display_model = DisplayedFields(self.gui.current_db,
+                self.field_display_order)
+        self.display_model.dataChanged.connect(self.changed_signal)
+        self.field_display_order.setModel(self.display_model)
+        self.df_up_button.clicked.connect(self.move_df_up)
+        self.df_down_button.clicked.connect(self.move_df_down)
 
     def initialize(self):
         ConfigWidgetBase.initialize(self)
         self.current_font = self.initial_font = gprefs['font']
         self.update_font_display()
+        self.display_model.initialize()
 
     def restore_defaults(self):
         ConfigWidgetBase.restore_defaults(self)
@@ -89,6 +172,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         if ofont is not None:
             self.changed_signal.emit()
             self.update_font_display()
+        self.display_model.restore_defaults()
+        self.changed_signal.emit()
 
     def build_font_obj(self):
         font_info = self.current_font
@@ -107,6 +192,24 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.font_display.setText(name +
                 ' [%dpt]'%fi.pointSize())
 
+    def move_df_up(self):
+        idx = self.field_display_order.currentIndex()
+        if idx.isValid():
+            idx = self.display_model.move(idx, -1)
+            if idx is not None:
+                sm = self.field_display_order.selectionModel()
+                sm.select(idx, sm.ClearAndSelect)
+                self.field_display_order.setCurrentIndex(idx)
+
+    def move_df_down(self):
+        idx = self.field_display_order.currentIndex()
+        if idx.isValid():
+            idx = self.display_model.move(idx, 1)
+            if idx is not None:
+                sm = self.field_display_order.selectionModel()
+                sm.select(idx, sm.ClearAndSelect)
+                self.field_display_order.setCurrentIndex(idx)
+
     def change_font(self, *args):
         fd = QFontDialog(self.build_font_obj(), self)
         if fd.exec_() == fd.Accepted:
@@ -123,14 +226,16 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             gprefs['font'] = self.current_font
             QApplication.setFont(self.font_display.font())
             rr = True
+        self.display_model.commit()
         return rr
-
 
     def refresh_gui(self, gui):
         self.update_font_display()
         gui.tags_view.reread_collapse_parameters()
+        gui.library_view.refresh_book_details()
 
 if __name__ == '__main__':
-    app = QApplication([])
+    from calibre.gui2 import Application
+    app = Application([])
     test_widget('Interface', 'Look & Feel')
 

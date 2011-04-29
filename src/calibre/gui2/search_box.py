@@ -7,12 +7,15 @@ __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import re
+from functools import partial
+
 
 from PyQt4.Qt import QComboBox, Qt, QLineEdit, QStringList, pyqtSlot, QDialog, \
                      pyqtSignal, QCompleter, QAction, QKeySequence, QTimer, \
-                     QString, QIcon
+                     QString, QIcon, QMenu
 
-from calibre.gui2 import config
+from calibre.gui2 import config, error_dialog
+from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.saved_search_editor import SavedSearchEditor
 from calibre.gui2.dialogs.search import SearchDialog
 from calibre.utils.search_query_parser import saved_searches
@@ -330,6 +333,24 @@ class SavedSearchBox(QComboBox): # {{{
         self.saved_search_selected (name)
         self.changed.emit()
 
+    def delete_current_search(self):
+        idx = self.currentIndex()
+        if idx <= 0:
+            error_dialog(self, _('Delete current search'),
+                         _('No search is selected'), show=True)
+            return
+        if not confirm('<p>'+_('The selected search will be '
+                       '<b>permanently deleted</b>. Are you sure?')
+                    +'</p>', 'saved_search_delete', self):
+            return
+        ss = saved_searches().lookup(unicode(self.currentText()))
+        if ss is None:
+            return
+        saved_searches().delete(unicode(self.currentText()))
+        self.clear()
+        self.search_box.clear()
+        self.changed.emit()
+
     # SIGNALed from the main UI
     def copy_search_button_clicked (self):
         idx = self.currentIndex();
@@ -428,6 +449,22 @@ class SavedSearchBoxMixin(object): # {{{
         for x in ('copy', 'save'):
             b = getattr(self, x+'_search_button')
             b.setStatusTip(b.toolTip())
+        self.save_search_button.setToolTip('<p>' +
+         _("Save current search under the name shown in the box. "
+           "Press and hold for a pop-up options menu.") + '</p>')
+        self.save_search_button.setMenu(QMenu())
+        self.save_search_button.menu().addAction(
+                            QIcon(I('plus.png')),
+                            _('Create saved search'),
+                            self.saved_search.save_search_button_clicked)
+        self.save_search_button.menu().addAction(
+                             QIcon(I('trash.png')),
+                             _('Delete saved search'),
+                            self.saved_search.delete_current_search)
+        self.save_search_button.menu().addAction(
+                             QIcon(I('search.png')),
+                            _('Manage saved searches'),
+                            partial(self.do_saved_search_edit, None))
 
     def saved_searches_changed(self, set_restriction=None, recount=True):
         p = sorted(saved_searches().names(), key=sort_key)

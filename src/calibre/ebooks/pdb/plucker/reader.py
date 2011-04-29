@@ -16,6 +16,7 @@ from calibre import CurrentDir
 from calibre.ebooks.pdb.formatreader import FormatReader
 from calibre.ptempfile import TemporaryFile
 from calibre.utils.magick import Image, create_canvas
+from calibre.ebooks.compression.palmdoc import decompress_doc
 
 DATATYPE_PHTML = 0
 DATATYPE_PHTML_COMPRESSED = 1
@@ -108,32 +109,6 @@ MIBNUM_TO_NAME = {
     2257: 'cp1257',
     2258: 'cp1258',
 }
-
-def decompress_doc(data):
-    buffer = [ord(i) for i in data]
-    res = []
-    i = 0
-    while i < len(buffer):
-        c = buffer[i]
-        i += 1
-        if c >= 1 and c <= 8:
-            res.extend(buffer[i:i+c])
-            i += c
-        elif c <= 0x7f:
-            res.append(c)
-        elif c >= 0xc0:
-            res.extend( (ord(' '), c^0x80) )
-        else:
-            c = (c << 8) + buffer[i]
-            i += 1
-            di = (c & 0x3fff) >> 3
-            j = len(res)
-            num = (c & ((1 << 3) - 1)) + 3
-
-            for k in range( num ):
-                res.append(res[j - di+k])
-
-    return ''.join([chr(i) for i in res])
 
 class HeaderRecord(object):
     '''
@@ -385,7 +360,7 @@ class Reader(FormatReader):
         # plugin assemble the order based on hyperlinks.
         with CurrentDir(output_dir):
             for uid, num in self.uid_text_secion_number.items():
-                self.log.debug(_('Writing record with uid: %s as %s.html' % (uid, uid)))
+                self.log.debug('Writing record with uid: %s as %s.html' % (uid, uid))
                 with open('%s.html' % uid, 'wb') as htmlf:
                     html = u'<html><body>'
                     section_header, section_data = self.sections[num]
@@ -491,7 +466,7 @@ class Reader(FormatReader):
             if not home_html:
                 home_html = self.uid_text_secion_number.items()[0][0]
         except:
-            raise Exception(_('Could not determine home.html'))
+            raise Exception('Could not determine home.html')
         # Generate oeb from html conversion.
         oeb = html_input.convert(open('%s.html' % home_html, 'rb'), self.options, 'html', self.log, {})
         self.options.debug_pipeline = odi
@@ -504,7 +479,7 @@ class Reader(FormatReader):
                 raise NotImplementedError
             return zlib.decompress(data)
         elif self.header_record.compression == 1:
-            #from calibre.ebooks.compression.palmdoc import decompress_doc
+            from calibre.ebooks.compression.palmdoc import decompress_doc
             return decompress_doc(data)
 
     def process_phtml(self, d, paragraph_offsets=[]):

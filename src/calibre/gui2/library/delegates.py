@@ -97,18 +97,25 @@ class RatingDelegate(QStyledItemDelegate): # {{{
 
 class DateDelegate(QStyledItemDelegate): # {{{
 
+    def __init__(self, parent, tweak_name='gui_timestamp_display_format',
+            default_format='dd MMM yyyy', editor_format='dd MMM yyyy'):
+        QStyledItemDelegate.__init__(self, parent)
+        self.tweak_name = tweak_name
+        self.default_format = default_format
+        self.editor_format = editor_format
+
     def displayText(self, val, locale):
         d = val.toDate()
         if d <= UNDEFINED_QDATE:
             return ''
-        format = tweaks['gui_timestamp_display_format']
+        format = tweaks[self.tweak_name]
         if format is None:
-            format = 'dd MMM yyyy'
+            format = self.default_format
         return format_date(d.toPyDate(), format)
 
     def createEditor(self, parent, option, index):
         qde = QStyledItemDelegate.createEditor(self, parent, option, index)
-        qde.setDisplayFormat('dd MMM yyyy')
+        qde.setDisplayFormat(self.editor_format)
         qde.setMinimumDate(UNDEFINED_QDATE)
         qde.setSpecialValueText(_('Undefined'))
         qde.setCalendarPopup(True)

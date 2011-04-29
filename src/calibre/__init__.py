@@ -388,7 +388,11 @@ class CurrentDir(object):
         return self.cwd
 
     def __exit__(self, *args):
-        os.chdir(self.cwd)
+        try:
+            os.chdir(self.cwd)
+        except:
+            # The previous CWD no longer exists
+            pass
 
 
 class StreamReadWrapper(object):
