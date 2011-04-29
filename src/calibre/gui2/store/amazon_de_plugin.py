@@ -12,10 +12,14 @@ from calibre.gui2 import open_url
 from calibre.gui2.store.amazon_plugin import AmazonKindleStore
 
 class AmazonDEKindleStore(AmazonKindleStore):
-
     '''
     For comments on the implementation, please see amazon_plugin.py
     '''
+
+    search_url = 'http://www.amazon.de/s/url=search-alias%3Ddigital-text&field-keywords='
+    details_url = 'http://amazon.de/dp/'
+    drm_search_text = u'Gleichzeitige Verwendung von Geräten'
+    drm_free_text = u'Keine Einschränkung'
 
     def open(self, parent=None, detail_item=None, external=False):
         aff_id = {'tag': 'charhale0a-21'}
@@ -28,9 +32,3 @@ class AmazonDEKindleStore(AmazonKindleStore):
                           '&location=http://www.amazon.de/dp/%(asin)s&site-redirect=de'
                           '&tag=%(tag)s&linkCode=ur2&camp=1638&creative=6742') % aff_id
         open_url(QUrl(store_link))
-
-    search_url = 'http://www.amazon.de/s/url=search-alias%3Ddigital-text&field-keywords='
-
-    details_url = 'http://amazon.de/dp/'
-    drm_search_text = u'Gleichzeitige Verwendung von Geräten'
-    drm_free_text = u'Keine Einschränkung'

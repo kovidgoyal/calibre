@@ -22,6 +22,11 @@ from calibre.gui2.store.search_result import SearchResult
 
 class AmazonKindleStore(StorePlugin):
 
+    search_url = 'http://www.amazon.com/s/url=search-alias%3Ddigital-text&field-keywords='
+    details_url = 'http://amazon.com/dp/'
+    drm_search_text = u'Simultaneous Device Usage'
+    drm_free_text = u'Unlimited'
+
     def open(self, parent=None, detail_item=None, external=False):
         '''
         Amazon comes with a number of difficulties.
@@ -116,7 +121,6 @@ class AmazonKindleStore(StorePlugin):
             store_link = 'http://www.amazon.com/dp/%(asin)s/?tag=%(tag)s' % aff_id
         open_url(QUrl(store_link))
 
-    search_url = 'http://www.amazon.com/s/url=search-alias%3Ddigital-text&field-keywords='
     def search(self, query, max_results=10, timeout=60):
         url =  self.search_url + urllib2.quote(query)
         br = browser()
@@ -180,9 +184,6 @@ class AmazonKindleStore(StorePlugin):
 
                 yield s
 
-    details_url = 'http://amazon.com/dp/'
-    drm_search_text = u'Simultaneous Device Usage'
-    drm_free_text = u'Unlimited'
     def get_details(self, search_result, timeout):
         url = self.details_url
 
@@ -200,5 +201,3 @@ class AmazonKindleStore(StorePlugin):
             else:
                 search_result.drm = SearchResult.DRM_LOCKED
         return True
-
-

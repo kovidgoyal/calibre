@@ -1195,7 +1195,7 @@ class AmazonDEKindleStore(StoreBase):
     actual_plugin = 'calibre.gui2.store.amazon_de_plugin:AmazonDEKindleStore'
 
 plugins += [StoreAmazonKindleStore, AmazonDEKindleStore, StoreAmazonUKKindleStore,
-            StoreBaenWebScriptionStore, StoreBNStore,
+    StoreBaenWebScriptionStore, StoreBNStore,
     StoreBeWriteStore, StoreDieselEbooksStore, StoreEbookscomStore,
     StoreEHarlequinStoretore,
     StoreFeedbooksStore, StoreGutenbergStore, StoreKoboStore, StoreManyBooksStore,

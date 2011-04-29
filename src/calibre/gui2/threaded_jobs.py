@@ -100,7 +100,8 @@ class ThreadedJob(BaseJob):
         try:
             self.consolidate_log()
         except:
-            self.log.exception('Log consolidation failed')
+            if self.log is not None:
+                self.log.exception('Log consolidation failed')
 
         # No need to keep references to these around anymore
         self.func = self.args = self.kwargs = self.notifications = None
@@ -112,7 +113,7 @@ class ThreadedJob(BaseJob):
             self.start_time = time.time()
             self.duration = 0.0001
         else:
-            self.duration = time.time() - self.start_time()
+            self.duration = time.time() - self.start_time
             self.abort.set()
 
         self.log('Aborted job:', self.description)
