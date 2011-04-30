@@ -11877,7 +11877,7 @@ msgstr "(Misslyckades omslag)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:190
 msgid "Downloaded %d of %d"
-msgstr "Hämtade %d av %​​d"
+msgstr "Hämtade %d av %d"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/config.py:61
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:109
