@@ -2626,7 +2626,10 @@ class ITUNES(DriverBase):
                                    None,
                                    level=UserFeedback.WARN)
             fnames = zf_opf.namelist()
-            opf = [x for x in fnames if '.opf' in x][0]
+            try:
+                opf = [x for x in fnames if '.opf' in x][0]
+            except:
+                opf = None
             if opf:
                 opf_tree = etree.fromstring(zf_opf.read(opf))
                 md_els = opf_tree.xpath('.//*[local-name()="metadata"]')
