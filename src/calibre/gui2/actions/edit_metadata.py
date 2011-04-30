@@ -613,6 +613,7 @@ class EditMetadataAction(InterfaceAction):
                 self.applied_ids, cr)
             if self.gui.cover_flow:
                 self.gui.cover_flow.dataChanged()
+            self.gui.tags_view.recount()
 
         self.apply_id_map = []
         self.apply_pd = None
