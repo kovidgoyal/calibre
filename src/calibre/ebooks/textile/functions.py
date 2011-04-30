@@ -12,7 +12,7 @@ A Humane Web Text Generator
 #__date__ = '2009/12/04'
 
 __copyright__ = """
-Copyright (c) 2011, Leigh Parry
+Copyright (c) 2011, Leigh Parry <leighparry@blueyonder.co.uk>
 Copyright (c) 2011, John Schember <john@nachtimwald.com>
 Copyright (c) 2009, Jason Samsa, http://jsamsa.com/
 Copyright (c) 2004, Roberto A. F. De Almeida, http://dealmeida.net/
@@ -225,8 +225,8 @@ class Textile(object):
         (re.compile(r'\b([A-Z][A-Z\'\-]+[A-Z])(?=[\s.,\)>])'),         r'<span class="caps">\1</span>'),       #  3+ uppercase
         (re.compile(r'\b(\s{0,1})?\.{3}'),                             r'\1&#8230;'),                          #  ellipsis
         (re.compile(r'^[\*_-]{3,}$', re.M),                            r'<hr />'),                             #  <hr> scene-break
-        (re.compile(r'\b--\b'),                                        r'&#8212;'),                            #  em dash
-        (re.compile(r'(\s)--(\s)'),                                    r'\1&#8212;\2'),                        #  em dash
+#        (re.compile(r'\b--\b'),                                        r'&#8212;'),                            #  em dash
+        (re.compile(r'([^-])--([^-])'),                                r'\1&#8212;\2'),                        #  em dash
         (re.compile(r'\s-(?:\s|$)'),                                   r' &#8211; '),                          #  en dash
         (re.compile(r'\b( ?)[([]TM[])]', re.I),                        r'\1&#8482;'),                          #  trademark
         (re.compile(r'\b( ?)[([]R[])]', re.I),                         r'\1&#174;'),                           #  registered
@@ -868,7 +868,7 @@ class Textile(object):
         >>> t.span(r"hello %(bob)span *strong* and **bold**% goodbye")
         'hello <span class="bob">span <strong>strong</strong> and <b>bold</b></span> goodbye'
         """
-        qtags = (r'\*\*', r'\*', r'\?\?', r'\-', r'__', r'_', r'%', r'\+', r'~', r'\^')
+        qtags = (r'\*\*', r'\*', r'\?\?', r'\-', r'__', r'_', r'%', r'\+', r'~', r'\^', r'&')
         pnct = ".,\"'?!;:"
 
         for qtag in qtags:
@@ -900,7 +900,9 @@ class Textile(object):
             '%' : 'span',
             '+' : 'ins',
             '~' : 'sub',
-            '^' : 'sup'
+            '^' : 'sup',
+            '&' : 'span style="font-variant:small-caps;"'
+#            '&' : 'span style="font-transform:uppercase;font-size:smaller;"'
         }
         tag = qtags[tag]
         atts = self.pba(atts)
