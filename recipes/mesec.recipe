@@ -1,0 +1,37 @@
+__license__   = 'GPL v3'
+__copyright__ = '2011, Tomas Latal<latal.tomas at gmail.com>'
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class MesecCZ(BasicNewsRecipe):
+    title                   =  u'M\u011b\u0161ec'
+    __author__              = 'Tomas Latal'
+    __version__             = '1.0'
+    __date__                = '30 April 2011'
+    description             = u'Zpr\xe1vi\u010dky a \u010dl\xe1nky z Mesec.cz'
+    oldest_article          = 1
+    max_articles_per_feed   = 10
+    encoding                = 'utf8'
+    publisher               = 'Internet Info s.r.o.'
+    category                = 'finance,CZ'
+    language                = 'cs'
+    publication_type        = 'newsportal'
+    no_stylesheets          = True
+    remove_javascript       = True
+    extra_css               = 'p.perex{font-size: 1.2em;margin: 0 0 10px 0;line-height: 1.4;padding: 0 0 10px 0;font-weight: bold;} \
+                               p.perex img {display:none;} \
+                               .urs p {margin: 0 0 0.8em 0;}'
+
+    feeds          = [
+                        (u'Aktuality', u'http://www.mesec.cz/rss/aktuality/'),
+                        (u'\u010cl\xe1nky', u'http://www.mesec.cz/rss/clanky/')
+                    ]
+
+    remove_tags_before = dict(id='main')
+
+    remove_tags_after = [dict(id='main')]
+
+    remove_tags = [
+                    dict(attrs={'class':['author clear','tags-rubrics','box border style1 links clear','enquiry clear','serial','box border style1 TitleList','breadcrumb clear','article-discussion box border style1 monitoringComponentArticle','link-more border prev-next clear']}),
+                    dict(id=['discussionList','similarItems','sidebar','footer','opl','promo-box'])
+                  ]
