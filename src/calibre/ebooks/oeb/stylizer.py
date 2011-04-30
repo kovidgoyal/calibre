@@ -125,7 +125,19 @@ class Stylizer(object):
     def __init__(self, tree, path, oeb, opts, profile=None,
             extra_css='', user_css=''):
         self.oeb, self.opts = oeb, opts
-        self.profile = opts.input_profile
+        self.profile = profile
+        if self.profile is None:
+            # Use the default profile. This should really be using
+            # opts.output_profile, but I don't want to risk changing it, as
+            # doing so might well have hard to debug font size effects.
+            from calibre.customize.ui import output_profiles
+            for x in output_profiles():
+                if x.short_name == 'default':
+                    self.profile = x
+                    break
+        if self.profile is None:
+            # Just in case the default profile is removed in the future :)
+            self.profile = opts.output_profile
         self.logger = oeb.logger
         item = oeb.manifest.hrefs[path]
         basename = os.path.basename(path)
