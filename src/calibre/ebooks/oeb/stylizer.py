@@ -124,8 +124,15 @@ class Stylizer(object):
 
     def __init__(self, tree, path, oeb, opts, profile=None,
             extra_css='', user_css=''):
+        from calibre.customize.ui import input_profiles
         self.oeb, self.opts = oeb, opts
-        self.profile = opts.input_profile
+        self.profile = None
+        for x in input_profiles():
+            if x.short_name == 'sony':
+                self.profile = x
+                break
+        if self.profile is None:
+            self.profile = opts.input_profile
         self.logger = oeb.logger
         item = oeb.manifest.hrefs[path]
         basename = os.path.basename(path)

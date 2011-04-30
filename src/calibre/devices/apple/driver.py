@@ -460,7 +460,7 @@ class ITUNES(DriverBase):
 
                             cached_books[this_book.path] = {
                              'title':book.Name,
-                             'author':book.artist().split(' & '),
+                             'author':book.Artist.split(' & '),
                              'lib_book':library_books[this_book.path] if this_book.path in library_books else None,
                              'uuid': book.Composer,
                              'format': 'pdf' if book.KindAsString.startswith('PDF') else 'epub'
@@ -2626,7 +2626,10 @@ class ITUNES(DriverBase):
                                    None,
                                    level=UserFeedback.WARN)
             fnames = zf_opf.namelist()
-            opf = [x for x in fnames if '.opf' in x][0]
+            try:
+                opf = [x for x in fnames if '.opf' in x][0]
+            except:
+                opf = None
             if opf:
                 opf_tree = etree.fromstring(zf_opf.read(opf))
                 md_els = opf_tree.xpath('.//*[local-name()="metadata"]')

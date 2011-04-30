@@ -22,6 +22,11 @@ from calibre.gui2.store.search_result import SearchResult
 
 class AmazonKindleStore(StorePlugin):
 
+    search_url = 'http://www.amazon.com/s/url=search-alias%3Ddigital-text&field-keywords='
+    details_url = 'http://amazon.com/dp/'
+    drm_search_text = u'Simultaneous Device Usage'
+    drm_free_text = u'Unlimited'
+
     def open(self, parent=None, detail_item=None, external=False):
         '''
         Amazon comes with a number of difficulties.
@@ -117,7 +122,7 @@ class AmazonKindleStore(StorePlugin):
         open_url(QUrl(store_link))
 
     def search(self, query, max_results=10, timeout=60):
-        url = 'http://www.amazon.com/s/url=search-alias%3Ddigital-text&field-keywords=' + urllib2.quote(query)
+        url =  self.search_url + urllib2.quote(query)
         br = browser()
 
         counter = max_results
@@ -180,18 +185,19 @@ class AmazonKindleStore(StorePlugin):
                 yield s
 
     def get_details(self, search_result, timeout):
-        url = 'http://amazon.com/dp/'
+        url = self.details_url
 
         br = browser()
         with closing(br.open(url + search_result.detail_item, timeout=timeout)) as nf:
             idata = html.fromstring(nf.read())
-            if idata.xpath('boolean(//div[@class="content"]//li/b[contains(text(), "Simultaneous Device Usage")])'):
-                if idata.xpath('boolean(//div[@class="content"]//li[contains(., "Unlimited") and contains(b, "Simultaneous Device Usage")])'):
+            if idata.xpath('boolean(//div[@class="content"]//li/b[contains(text(), "' +
+                           self.drm_search_text + '")])'):
+                if idata.xpath('boolean(//div[@class="content"]//li[contains(., "' +
+                               self.drm_free_text + '") and contains(b, "' +
+                               self.drm_search_text + '")])'):
                     search_result.drm = SearchResult.DRM_UNLOCKED
                 else:
                     search_result.drm = SearchResult.DRM_UNKNOWN
             else:
                 search_result.drm = SearchResult.DRM_LOCKED
         return True
-
-

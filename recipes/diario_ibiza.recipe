@@ -1,0 +1,55 @@
+__license__   = 'GPL v3'
+__author__    = 'Joan Tur, based on El Pais version by Jordi Balcells & elargentino.com version by Darko Miletic'
+description   = 'Principal periodico de las islas Pitiusas, Ibiza y Formentera (Espanya) - v1.06 (29/04/2011)'
+__docformat__ = 'restructuredtext en'
+
+'''
+diariodeibiza.es
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class DiarioDeIbiza(BasicNewsRecipe):
+    __author__        = 'Joan Tur, cullet'
+    description   = 'Principal periodico de las islas Pitiusas, Ibiza y Formentera (Espanya) - v1.06 (29/04/2011)'
+
+    cover_url      = 'http://estaticos01.diariodeibiza.es//elementosWeb/mediaweb/images/logo.jpg'
+    title          = u'Diario de Ibiza digital'
+    publisher      = u'Editorial Prensa Iberica'
+    category       = 'News, politics, culture, economy, general interest'
+    language = 'es'
+
+    encoding              = 'iso-8859-1'
+
+    timefmt        = '[%a, %d %b, %Y]'
+
+    oldest_article = 2
+    max_articles_per_feed = 20
+
+    use_embedded_content  = False
+    recursion             = 5
+
+    remove_javascript = True
+    no_stylesheets = True
+
+    keep_only_tags = [
+                        dict(name='div', attrs={'class':['noticia_titular','epigrafe','subtitulo','actualizada','noticia_fecha','noticia_texto']}),
+                        dict(name='font', attrs={'class':['actualizada']})
+                     ]
+
+    feeds          = [
+                        (u'Portada de Ibiza', u'http://www.diariodeibiza.es/elementosInt/rss/1'),
+                        (u'Pitiuses i Balears', u'http://www.diariodeibiza.es/elementosInt/rss/2'),
+                        (u'Opini\xf3n', u'http://www.diariodeibiza.es/elementosInt/rss/3'),
+                        (u'Nacional', u'http://www.diariodeibiza.es/elementosInt/rss/4'),
+                        (u'Internacional', u'http://www.diariodeibiza.es/elementosInt/rss/5'),
+                        (u'Econom\xeda', u'http://www.diariodeibiza.es/elementosInt/rss/6'),
+                        (u'Deportes', u'http://www.diariodeibiza.es/elementosInt/rss/7'),
+                        (u'Sociedad', u'http://www.diariodeibiza.es/elementosInt/rss/8'),
+                        (u'Ciencia', u'http://www.diariodeibiza.es/elementosInt/rss/11'),
+                        (u'Tecnolog\xeda', u'http://www.diariodeibiza.es/elementosInt/rss/12'),
+                        (u'Gente', u'http://www.diariodeibiza.es/elementosInt/rss/13'),
+                        (u'Sucesos', u'http://www.diariodeibiza.es/elementosInt/rss/15'),
+                        (u'Cultura', u'http://www.diariodeibiza.es/elementosInt/rss/16Piti')
+                    ]
+

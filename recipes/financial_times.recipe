@@ -53,6 +53,7 @@ class FinancialTimes(BasicNewsRecipe):
     feeds = [
                (u'UK'         , u'http://www.ft.com/rss/home/uk'        )
               ,(u'US'         , u'http://www.ft.com/rss/home/us'        )
+              ,(u'Europe'     , u'http://www.ft.com/rss/home/europe'    )
               ,(u'Asia'       , u'http://www.ft.com/rss/home/asia'      )
               ,(u'Middle East', u'http://www.ft.com/rss/home/middleeast')
             ]

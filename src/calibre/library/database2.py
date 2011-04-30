@@ -464,9 +464,12 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             self.refresh_ondevice = None
 
     def initialize_database(self):
-        metadata_sqlite = open(P('metadata_sqlite.sql'), 'rb').read()
+        metadata_sqlite = P('metadata_sqlite.sql', data=True,
+                allow_user_override=False).decode('utf-8')
         self.conn.executescript(metadata_sqlite)
-        self.user_version = 1
+        self.conn.commit()
+        if self.user_version == 0:
+            self.user_version = 1
 
     def last_modified(self):
         ''' Return last modified time as a UTC datetime object'''
@@ -3214,7 +3217,6 @@ books_series_link      feeds
             if callable(callback):
                 if callback(''):
                     break
-
         return duplicates
 
     def add_custom_book_data(self, book_id, name, val):
@@ -3223,10 +3225,17 @@ books_series_link      feeds
             raise ValueError('add_custom_book_data: no such book_id %d'%book_id)
         # Do the json encode first, in case it throws an exception
         s = json.dumps(val, default=to_json)
-        self.conn.execute('DELETE FROM books_plugin_data WHERE book=? AND name=?',
-                          (book_id, name))
-        self.conn.execute('''INSERT INTO books_plugin_data(book, name, val)
+        self.conn.execute('''INSERT OR REPLACE INTO books_plugin_data(book, name, val)
                              VALUES(?, ?, ?)''', (book_id, name, s))
+        self.commit()
+
+    def add_multiple_custom_book_data(self, name, vals, delete_first=False):
+        if delete_first:
+            self.conn.execute('DELETE FROM books_plugin_data WHERE name=?', (name, ))
+        self.conn.executemany(
+            'INSERT OR REPLACE INTO books_plugin_data (book, name, val) VALUES (?, ?, ?)',
+            [(book_id, name, json.dumps(val, default=to_json))
+                    for book_id, val in vals.iteritems()])
         self.commit()
 
     def get_custom_book_data(self, book_id, name, default=None):
@@ -3240,9 +3249,27 @@ books_series_link      feeds
             pass
         return default
 
+    def get_all_custom_book_data(self, name, default=None):
+        try:
+            s = self.conn.get('''select book, val FROM books_plugin_data
+                    WHERE name=?''', (name,))
+            if s is None:
+                return default
+            res = {}
+            for r in s:
+                res[r[0]] = json.loads(r[1], object_hook=from_json)
+            return res
+        except:
+            pass
+        return default
+
     def delete_custom_book_data(self, book_id, name):
         self.conn.execute('DELETE FROM books_plugin_data WHERE book=? AND name=?',
                           (book_id, name))
+        self.commit()
+
+    def delete_all_custom_book_data(self, name):
+        self.conn.execute('DELETE FROM books_plugin_data WHERE name=?', (name, ))
         self.commit()
 
     def get_ids_for_custom_book_data(self, name):

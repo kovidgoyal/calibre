@@ -214,7 +214,6 @@ class SearchBar(QWidget): # {{{
         x.setIcon(QIcon(I("search_add_saved.png")))
         x.setObjectName("save_search_button")
         l.addWidget(x)
-        x.setToolTip(_("Save current search under the name shown in the box"))
 
 # }}}
 
