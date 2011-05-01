@@ -400,6 +400,9 @@ def identify(log, abort, # {{{
                     and plugin.get_cached_cover_url(result.identifiers) is not
                     None)
             result.identify_plugin = plugin
+            if msprefs['txt_comments']:
+                if plugin.has_html_comments and result.comments:
+                    result.comments = html2text(r.comments)
 
     log('The identify phase took %.2f seconds'%(time.time() - start_time))
     log('The longest time (%f) was taken by:'%longest, lp)
@@ -410,10 +413,6 @@ def identify(log, abort, # {{{
     log('We have %d merged results, merging took: %.2f seconds' %
             (len(results), time.time() - start_time))
 
-    if msprefs['txt_comments']:
-        for r in results:
-            if r.identify_plugin.has_html_comments and r.comments:
-                r.comments = html2text(r.comments)
 
     max_tags = msprefs['max_tags']
     for r in results:

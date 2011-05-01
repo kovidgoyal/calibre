@@ -1,5 +1,5 @@
 __license__   = 'GPL v3'
-__copyright__ = '2010, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2010-2011, Darko Miletic <darko.miletic at gmail.com>'
 '''
 foxnews.com
 '''
@@ -23,6 +23,7 @@ class FoxNews(BasicNewsRecipe):
     extra_css             = """
                                 body{font-family: Arial,sans-serif }
                                 .caption{font-size: x-small}
+                                .author,.dateline{font-size: small}
                             """
 
     conversion_options = {
@@ -34,12 +35,12 @@ class FoxNews(BasicNewsRecipe):
 
     remove_attributes = ['xmlns','lang']
 
-    remove_tags = [
-                     dict(name=['object','embed','link','script','iframe','meta','base'])
-                    ,dict(attrs={'class':['user-control','url-description','ad-context']})
-                  ]
+    remove_tags=[
+                  dict(attrs={'class':['user-control','logo','ad-300x250','url-description']})
+                 ,dict(name=['meta','base','link','iframe','object','embed'])
+                ]
 
-    remove_tags_before=dict(name='h1')
+    keep_only_tags=[dict(attrs={'id':'article-print'})]
     remove_tags_after =dict(attrs={'class':'url-description'})
 
     feeds = [
@@ -55,3 +56,24 @@ class FoxNews(BasicNewsRecipe):
 
     def print_version(self, url):
         return url + 'print'
+
+    def preprocess_html(self, soup):
+        for item in soup.findAll(style=True):
+            del item['style']
+        for item in soup.findAll('a'):
+            limg = item.find('img')
+            if item.string is not None:
+               str = item.string
+               item.replaceWith(str)
+            else:
+               if limg:
+                  item.name = 'div'
+                  item.attrs = []
+               else:
+                   str = self.tag_to_string(item)
+                   item.replaceWith(str)
+        for item in soup.findAll('img'):
+            if not item.has_key('alt'):
+               item['alt'] = 'image'
+        return soup
+        
