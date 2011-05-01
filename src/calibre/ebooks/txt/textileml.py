@@ -98,7 +98,7 @@ class TextileMLizer(OEB2HTML):
         text = re.sub(u'%\n(p[<>=]{1,2}\.)', r'%\n\n\1', text)
         text = re.sub(u'p[<>=]{1,2}\.\n\n?', r'', text)
         text = re.sub(r'\n(p.*\.\n)(p.*\.)', r'\n\2', text)
-        text = re.sub(u'\np.*\.\xa0',   r'\np. ', text)                # blank paragraph
+        text = re.sub(r'(^|\n)p\.\n', r'\1p. \n', text)                # blank paragraph
         text = re.sub(u'\n\xa0',   r'\np. ', text)                     # blank paragraph
         text = re.sub(r' {2,}\|', r' |', text)                               #sort out spaces in tables
         # Now put back spaces removed earlier as they're needed here
@@ -176,6 +176,11 @@ class TextileMLizer(OEB2HTML):
         txt += self.check_styles(style)
         return txt
 
+    def prepare_string_for_textile(self, txt):
+        if re.search(r'(\s([*&_+\-=~@%|]|\?{2}))|(([*&_+\-=~@%|]|\?{2})\s)', txt):
+            return ' ==%s== ' % txt
+        return txt
+
     def dump_text(self, elem, stylizer):
         '''
         @elem: The element in the etree that we are working on.
@@ -197,7 +202,7 @@ class TextileMLizer(OEB2HTML):
         tags = []
         tag = barename(elem.tag)
         attribs = elem.attrib
-        
+
         # Ignore anything that is set to not be displayed.
         if style['display'] in ('none', 'oeb-page-head', 'oeb-page-foot') \
            or style['visibility'] == 'hidden':
@@ -209,15 +214,9 @@ class TextileMLizer(OEB2HTML):
         if tag in ('h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'div'):
             if tag == 'div':
                 tag = 'p'
-            block = self.build_block(tag, style, attribs)
-            # Normal paragraph with no styling.
-            if block == '\np':
-                text.append('\n\n')
-                tags.append('\n')
-            else:
-                text.append(block)
-                text.append('. ')
-                tags.append('\n')
+            text.append(self.build_block(tag, style, attribs))
+            text.append('. ')
+            tags.append('\n')
             #self.style_embed = []
 
         if style['font-style'] == 'italic' or tag in ('i', 'em'):
@@ -393,7 +392,7 @@ class TextileMLizer(OEB2HTML):
         if hasattr(elem, 'text') and elem.text:
             txt = elem.text
             if not self.in_pre:
-                txt = self.remove_newlines(txt)
+                txt = self.prepare_string_for_textile(self.remove_newlines(txt))
             text.append(txt)
             self.id_no_text = u''
 
@@ -439,7 +438,7 @@ class TextileMLizer(OEB2HTML):
         if hasattr(elem, 'tail') and elem.tail:
             tail = elem.tail
             if not self.in_pre:
-                tail = self.remove_newlines(tail)
+                tail = self.prepare_string_for_textile(self.remove_newlines(tail))
             text.append(tail)
 
         return text

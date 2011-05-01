@@ -66,6 +66,13 @@ class TXTOutput(OutputFormatPlugin):
             help=_('Do not remove image references within the document. This is only ' \
             'useful when paired with a txt-output-formatting option that '
             'is not none because links are always removed with plain text output.')),
+        OptionRecommendation(name='keep_color',
+            recommended_value=False, level=OptionRecommendation.LOW,
+            help=_('Do not remove font color from output. This is only useful when ' \
+                   'txt-output-formatting is set to textile. Textile is the only ' \
+                   'formatting that supports setting font color. If this option is ' \
+                   'not specified font color will not be set and default to the ' \
+                   'color displayed by the reader (generally this is black).')),
      ])
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
@@ -111,9 +118,12 @@ class TXTZOutput(TXTOutput):
         from calibre.ebooks.oeb.base import OEB_IMAGES
         with TemporaryDirectory('_txtz_output') as tdir:
             # TXT
-            with TemporaryFile('index.txt') as tf:
+            txt_name = 'index.txt'
+            if opts.txt_output_formatting.lower() == 'textile':
+                txt_name = 'index.text'
+            with TemporaryFile(txt_name) as tf:
                 TXTOutput.convert(self, oeb_book, tf, input_plugin, opts, log)
-                shutil.copy(tf, os.path.join(tdir, 'index.txt'))
+                shutil.copy(tf, os.path.join(tdir, txt_name))
 
             # Images
             for item in oeb_book.manifest:
