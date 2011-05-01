@@ -468,7 +468,7 @@ If it still wont launch, start a command prompt (press the windows key and R; th
 
 Post any output you see in a help message on the `Forum <http://www.mobileread.com/forums/forumdisplay.php?f=166>`_.
 
-|app| freeze when I click on anything?
+|app| freezes when I click on anything?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 There are three possible things I know of, that can cause this:
