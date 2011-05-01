@@ -1049,8 +1049,8 @@ class Manifest(object):
 
             # Remove hyperlinks with no content as they cause rendering
             # artifacts in browser based renderers
-            # Also remove empty <b> and <i> tags
-            for a in xpath(data, '//h:a[@href]|//h:i|//h:b'):
+            # Also remove empty <b>, <u> and <i> tags
+            for a in xpath(data, '//h:a[@href]|//h:i|//h:b|//h:u'):
                 if a.get('id', None) is None and a.get('name', None) is None \
                         and len(a) == 0 and not a.text:
                     remove_elem(a)
