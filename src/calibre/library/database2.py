@@ -464,9 +464,12 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             self.refresh_ondevice = None
 
     def initialize_database(self):
-        metadata_sqlite = open(P('metadata_sqlite.sql'), 'rb').read()
+        metadata_sqlite = P('metadata_sqlite.sql', data=True,
+                allow_user_override=False).decode('utf-8')
         self.conn.executescript(metadata_sqlite)
-        self.user_version = 1
+        self.conn.commit()
+        if self.user_version == 0:
+            self.user_version = 1
 
     def last_modified(self):
         ''' Return last modified time as a UTC datetime object'''

@@ -1109,6 +1109,11 @@ class StoreAmazonKindleStore(StoreBase):
     description = _('Kindle books from Amazon')
     actual_plugin = 'calibre.gui2.store.amazon_plugin:AmazonKindleStore'
 
+class StoreAmazonUKKindleStore(StoreBase):
+    name = 'Amazon UK Kindle'
+    description = _('Kindle books from Amazon.uk')
+    actual_plugin = 'calibre.gui2.store.amazon_uk_plugin:AmazonUKKindleStore'
+
 class StoreBaenWebScriptionStore(StoreBase):
     name = 'Baen WebScription'
     description = _('Ebooks for readers.')
@@ -1174,10 +1179,27 @@ class StoreSmashwordsStore(StoreBase):
     description = _('Your ebook. Your way.')
     actual_plugin = 'calibre.gui2.store.smashwords_plugin:SmashwordsStore'
 
-plugins += [StoreAmazonKindleStore, StoreBaenWebScriptionStore, StoreBNStore,
+class StoreWaterstonesUKStore(StoreBase):
+    name = 'Waterstones UK'
+    description = _('Feel every word')
+    actual_plugin = 'calibre.gui2.store.waterstones_uk_plugin:WaterstonesUKStore'
+
+class StoreFoylesUKStore(StoreBase):
+    name = 'Foyles UK'
+    description = _('Foyles of London, online')
+    actual_plugin = 'calibre.gui2.store.foyles_uk_plugin:FoylesUKStore'
+
+class AmazonDEKindleStore(StoreBase):
+    name = 'Amazon DE Kindle'
+    description = _('Kindle eBooks')
+    actual_plugin = 'calibre.gui2.store.amazon_de_plugin:AmazonDEKindleStore'
+
+plugins += [StoreAmazonKindleStore, AmazonDEKindleStore, StoreAmazonUKKindleStore,
+    StoreBaenWebScriptionStore, StoreBNStore,
     StoreBeWriteStore, StoreDieselEbooksStore, StoreEbookscomStore,
     StoreEHarlequinStoretore,
     StoreFeedbooksStore, StoreGutenbergStore, StoreKoboStore, StoreManyBooksStore,
-    StoreMobileReadStore, StoreOpenLibraryStore, StoreSmashwordsStore]
+    StoreMobileReadStore, StoreOpenLibraryStore, StoreSmashwordsStore,
+    StoreFoylesUKStore, StoreWaterstonesUKStore]
 
 # }}}
