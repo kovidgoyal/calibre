@@ -6,8 +6,8 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class NovinkyCZ(BasicNewsRecipe):
     title                   = 'Novinky'
     __author__              = 'Tomas Latal'
-    __version__             = '1.0'
-    __date__                = '24 April 2011'
+    __version__             = '1.1'
+    __date__                = '30 April 2011'
     description             = 'News from server Novinky.cz'
     oldest_article          = 1
     max_articles_per_feed   = 10
@@ -18,6 +18,7 @@ class NovinkyCZ(BasicNewsRecipe):
     publication_type        = 'newsportal'
     no_stylesheets          = True
     remove_javascript       = True
+    cover_url               = 'http://img193.imageshack.us/img193/3039/novinkycover.jpg'
     extra_css               = 'p.acmDescription{font-style:italic;} p.acmAuthor{font-size:0.8em; color:#707070}'
 
     feeds          = [

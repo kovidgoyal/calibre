@@ -14,41 +14,14 @@
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="1">
-    <spacer>
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>10</width>
-       <height>0</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="0" column="0">
-    <widget class="QCheckBox" name="opt_overwrite_author_title_metadata">
-     <property name="text">
-      <string>&amp;Overwrite author and title by default when fetching metadata</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="2">
-    <widget class="QCheckBox" name="opt_get_social_metadata">
-     <property name="text">
-      <string>Download &amp;social metadata (tags/ratings/etc.) by default</string>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="0">
+   <item row="1" column="0">
     <widget class="QCheckBox" name="opt_new_version_notification">
      <property name="text">
       <string>Show notification when &amp;new version is available</string>
      </property>
     </widget>
    </item>
-   <item row="2" column="2">
+   <item row="1" column="1">
     <widget class="QCheckBox" name="opt_bools_are_tristate">
      <property name="toolTip">
       <string>If checked, Yes/No custom columns values can be Yes, No, or Unknown.
@@ -59,21 +32,21 @@ If not checked, the values can be Yes or No.</string>
      </property>
     </widget>
    </item>
-   <item row="4" column="0">
+   <item row="3" column="0">
     <widget class="QCheckBox" name="opt_upload_news_to_device">
      <property name="text">
       <string>Automatically send downloaded &amp;news to ebook reader</string>
      </property>
     </widget>
    </item>
-   <item row="4" column="2">
+   <item row="3" column="1">
     <widget class="QCheckBox" name="opt_delete_news_from_library_on_upload">
      <property name="text">
       <string>&amp;Delete news from library when it is automatically sent to reader</string>
      </property>
     </widget>
    </item>
-   <item row="6" column="0">
+   <item row="5" column="0">
     <layout class="QHBoxLayout">
      <item>
       <widget class="QLabel" name="label_23">
@@ -97,7 +70,7 @@ If not checked, the values can be Yes or No.</string>
      </item>
     </layout>
    </item>
-   <item row="6" column="2">
+   <item row="5" column="1">
     <layout class="QHBoxLayout">
      <item>
       <widget class="QLabel" name="label_2">
@@ -130,7 +103,7 @@ If not checked, the values can be Yes or No.</string>
      </item>
     </layout>
    </item>
-   <item row="8" column="0">
+   <item row="7" column="0">
     <layout class="QHBoxLayout">
      <item>
       <widget class="QLabel" name="priority_label">
@@ -169,7 +142,7 @@ If not checked, the values can be Yes or No.</string>
      </item>
     </layout>
    </item>
-   <item row="8" column="2">
+   <item row="7" column="1">
     <layout class="QHBoxLayout">
      <item>
       <widget class="QLabel" name="label_170">
@@ -202,7 +175,7 @@ If not checked, the values can be Yes or No.</string>
      </item>
     </layout>
    </item>
-   <item row="9" column="0">
+   <item row="8" column="0">
     <layout class="QHBoxLayout">
      <item>
       <widget class="QLabel" name="edit_metadata_single_label">
@@ -223,7 +196,7 @@ If not checked, the values can be Yes or No.</string>
      </item>
     </layout>
    </item>
-   <item row="20" column="0">
+   <item row="19" column="0">
     <widget class="QGroupBox" name="groupBox_5">
      <property name="title">
       <string>Preferred &amp;input format order:</string>
@@ -285,7 +258,7 @@ If not checked, the values can be Yes or No.</string>
      </layout>
     </widget>
    </item>
-   <item row="20" column="2">
+   <item row="19" column="1">
     <widget class="QGroupBox" name="groupBox_3">
      <property name="title">
       <string>Use internal &amp;viewer for:</string>
@@ -304,7 +277,7 @@ If not checked, the values can be Yes or No.</string>
      </layout>
     </widget>
    </item>
-   <item row="9" column="2">
+   <item row="8" column="1">
     <widget class="QPushButton" name="reset_confirmation_button">
      <property name="text">
       <string>Reset all disabled &amp;confirmation dialogs</string>

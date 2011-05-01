@@ -20,9 +20,8 @@ from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.utils.filenames import ascii_filename
 from calibre.constants import preferred_encoding, filesystem_encoding
 from calibre.gui2.actions import InterfaceAction
-from calibre.gui2 import config, question_dialog
+from calibre.gui2 import question_dialog
 from calibre.ebooks.metadata import MetaInformation
-from calibre.utils.config import test_eight_code
 from calibre.ebooks.metadata.sources.base import msprefs
 
 def get_filters():
@@ -180,26 +179,17 @@ class AddAction(InterfaceAction):
             except IndexError:
                 self.gui.library_view.model().books_added(self.isbn_add_dialog.value)
                 self.isbn_add_dialog.accept()
-                if test_eight_code:
-                    orig = msprefs['ignore_fields']
-                    new = list(orig)
-                    for x in ('title', 'authors'):
-                        if x in new:
-                            new.remove(x)
-                    msprefs['ignore_fields'] = new
-                    try:
-                        self.gui.iactions['Edit Metadata'].download_metadata(
-                            ids=self.add_by_isbn_ids)
-                    finally:
-                        msprefs['ignore_fields'] = orig
-                else:
-                    orig = config['overwrite_author_title_metadata']
-                    config['overwrite_author_title_metadata'] = True
-                    try:
-                        self.gui.iactions['Edit Metadata'].do_download_metadata(
-                                self.add_by_isbn_ids)
-                    finally:
-                        config['overwrite_author_title_metadata'] = orig
+                orig = msprefs['ignore_fields']
+                new = list(orig)
+                for x in ('title', 'authors'):
+                    if x in new:
+                        new.remove(x)
+                msprefs['ignore_fields'] = new
+                try:
+                    self.gui.iactions['Edit Metadata'].download_metadata(
+                        ids=self.add_by_isbn_ids)
+                finally:
+                    msprefs['ignore_fields'] = orig
                 return
 
 

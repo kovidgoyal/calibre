@@ -19,13 +19,8 @@ from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.ebooks.metadata.sources.base import create_log
 from calibre.ebooks.metadata.sources.identify import identify
 from calibre.ebooks.metadata.sources.covers import download_cover
-from calibre.utils.config import test_eight_code
 
 def option_parser():
-    if not test_eight_code:
-        from calibre.ebooks.metadata.fetch import option_parser
-        return option_parser()
-
     parser = OptionParser(textwrap.dedent(
         '''\
         %prog [options]
@@ -48,9 +43,6 @@ def option_parser():
     return parser
 
 def main(args=sys.argv):
-    if not test_eight_code:
-        from calibre.ebooks.metadata.fetch import main
-        return main(args)
     parser = option_parser()
     opts, args = parser.parse_args(args)
 
