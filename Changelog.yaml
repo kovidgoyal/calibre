@@ -19,6 +19,99 @@
 #  new recipes:
 #    - title: 
 
+- version: 0.7.59
+  date: 2011-04-30
+
+  bug fixes:
+    - title: "Fixes a bug in 0.7.58 that caused too small fonts when converting to MOBI for the Kindle. Apologies."
+
+    - title: "Apple driver: Handle invalid EPUBs that do not contain an OPF file"
+
+  new recipes:
+    - title: The Big Picture and Auto industry news
+      author: welovelucy
+
+    - title: Gazeta Prawna 
+      author: Vroo
+
+    - title: Various Czech news sources
+      author: Tomas Latal
+
+    - title: Diario de Ibiza
+      author: Joan Tur
+
+- version: 0.7.58
+  date: 2011-04-29
+
+  new features:
+    - title: "Support for converting and reading metadata from Plucker format PDB files"
+      type: major
+
+    - title: "The metadata that is displayed in the book details panel on the right is now completely configurable via Preferences->Look & Feel"
+
+    - title: "Add a column that shows the date when the metadata of a book record was last modified in calibre. To see the column, right click on the column headers in calibre and select Show column->Modified. Note that the dates may be incorrect for books added with older versions of calibre."
+
+    - title: "Add command line option to shutdown running calibre"
+
+    - title: "CHM Input: Store extracted files in the input/ sub dir for easy debugging when --debug-pipeline is specified"
+
+    - title: "Add a popup menu to the 'Create saved search button' to allow easy deleting of saved searches"
+  
+  bug fixes:
+    - title: "Fix regression that broke converting to LIT in 0.7.57"
+      tickets: [769334]
+
+    - title: "Conversion pipeline: Remove encoding declarations from input HTML documents to guarantee that there is only a single encoding declaration in the output HTML."
+      tickets: [773337]
+
+    - title: "Correctly parenthesize searches that are used to make search restrictions"
+
+    - title: "Fix ratings in save to disk templates not being divided by 2"
+
+    - title: "TXT to EPUB: Underlined words (following quotes?) fail to become italics"
+      tickets: [772267]
+
+    - title: "Fix template function source code unavailable when not running calibre from source"
+
+    - title: "Fix adding html books from the top of a deep folder hierarchy very slow"
+
+    - title: "Only set language in MOBI metadata if it is not null"
+
+    - title: "Fix 'count-of' searches (e.g., tags:#>3)."
+      tickets: [771175]
+
+    - title: "Fix regression that broke connection to iTunes in some cases"
+      tickets: [771164]
+
+    - title: "Fix buggy regex that made converting PDFs with the string ****************** very slow"
+      tickets: [770534]
+
+    - title: "Fix Ctrl+L shortcut to lookup word not working in ebook viewer"
+      tickets: [769492]
+
+    - title: "Fix regression that broke searching on boolean columns"
+
+  improved recipes:
+    - HBR Blogs
+    - The Marker
+    - Financial Times
+    - Clarin
+    - Honolulu Star Advertiser
+
+  new recipes:
+    - title: Novi Standard
+      author: Darko Miletic
+
+    - title: Autobild.ro and Social Diva
+      author: Silviu Cotoara
+
+    - title: Novinky
+      author: Tomas Latal
+
+    - title: "De Volksrant (subscriber version)"
+      author: Selcal
+
+
 - version: 0.7.57
   date: 2011-04-22
 

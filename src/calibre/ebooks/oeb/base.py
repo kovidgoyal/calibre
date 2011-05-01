@@ -16,7 +16,7 @@ from urllib import unquote as urlunquote
 from lxml import etree, html
 from calibre.constants import filesystem_encoding, __version__
 from calibre.translations.dynamic import translate
-from calibre.ebooks.chardet import xml_to_unicode
+from calibre.ebooks.chardet import xml_to_unicode, strip_encoding_declarations
 from calibre.ebooks.oeb.entitydefs import ENTITYDEFS
 from calibre.ebooks.conversion.preprocess import CSSPreProcessor
 from calibre import isbytestring, as_unicode, get_types_map
@@ -853,6 +853,7 @@ class Manifest(object):
             self.oeb.log.debug('Parsing', self.href, '...')
             # Convert to Unicode and normalize line endings
             data = self.oeb.decode(data)
+            data = strip_encoding_declarations(data)
             data = self.oeb.html_preprocessor(data)
             # There could be null bytes in data if it had &#0; entities in it
             data = data.replace('\0', '')
