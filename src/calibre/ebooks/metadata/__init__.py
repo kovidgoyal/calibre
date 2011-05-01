@@ -274,6 +274,9 @@ def check_isbn(isbn):
     if not isbn:
         return None
     isbn = re.sub(r'[^0-9X]', '', isbn.upper())
+    all_same = re.match(r'(\d)\1{9,12}$', isbn)
+    if all_same is not None:
+        return None
     if len(isbn) == 10:
         return check_isbn10(isbn)
     if len(isbn) == 13:

@@ -1,308 +1,195 @@
 #!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+from __future__ import (unicode_literals, division, absolute_import,
+                        print_function)
 
 __license__   = 'GPL v3'
-__copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
+__copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import traceback
-from threading import Thread
-from Queue import Queue, Empty
 from functools import partial
+from itertools import izip
+from threading import Event
 
-from PyQt4.Qt import QObject, QTimer, QDialog, \
-        QVBoxLayout, QTextBrowser, QLabel, QGroupBox, QDialogButtonBox
+from PyQt4.Qt import (QIcon, QDialog,
+        QDialogButtonBox, QLabel, QGridLayout, QPixmap, Qt)
 
-from calibre.ebooks.metadata.fetch import search, get_social_metadata
-from calibre.gui2 import config, error_dialog
-from calibre.gui2.dialogs.progress import ProgressDialog
-from calibre.ebooks.metadata.covers import download_cover
-from calibre.customize.ui import get_isbndb_key
+from calibre.gui2.threaded_jobs import ThreadedJob
+from calibre.ebooks.metadata.sources.identify import identify, msprefs
+from calibre.ebooks.metadata.sources.covers import download_cover
+from calibre.ebooks.metadata.book.base import Metadata
+from calibre.customize.ui import metadata_plugins
+from calibre.ptempfile import PersistentTemporaryFile
 
-class Worker(Thread):
-    'Cover downloader'
+# Start download {{{
+def show_config(gui, parent):
+    from calibre.gui2.preferences import show_config_widget
+    show_config_widget('Sharing', 'Metadata download', parent=parent,
+            gui=gui, never_shutdown=True)
 
-    def __init__(self):
-        Thread.__init__(self)
-        self.daemon = True
-        self.jobs = Queue()
-        self.results = Queue()
+class ConfirmDialog(QDialog):
 
-    def run(self):
-        while True:
-            id, mi = self.jobs.get()
-            if not getattr(mi, 'isbn', False):
-                break
+    def __init__(self, ids, parent):
+        QDialog.__init__(self, parent)
+        self.setWindowTitle(_('Schedule download?'))
+        self.setWindowIcon(QIcon(I('dialog_question.png')))
+
+        l = self.l = QGridLayout()
+        self.setLayout(l)
+
+        i = QLabel(self)
+        i.setPixmap(QPixmap(I('dialog_question.png')))
+        l.addWidget(i, 0, 0)
+
+        t = QLabel(
+            '<p>'+_('The download of metadata for the <b>%d selected book(s)</b> will'
+                ' run in the background. Proceed?')%len(ids) +
+            '<p>'+_('You can monitor the progress of the download '
+                'by clicking the rotating spinner in the bottom right '
+                'corner.') +
+            '<p>'+_('When the download completes you will be asked for'
+                ' confirmation before calibre applies the downloaded metadata.')
+            )
+        t.setWordWrap(True)
+        l.addWidget(t, 0, 1)
+        l.setColumnStretch(0, 1)
+        l.setColumnStretch(1, 100)
+
+        self.identify = self.covers = True
+        self.bb = QDialogButtonBox(QDialogButtonBox.Cancel)
+        self.bb.rejected.connect(self.reject)
+        b = self.bb.addButton(_('Download only &metadata'),
+                self.bb.AcceptRole)
+        b.clicked.connect(self.only_metadata)
+        b.setIcon(QIcon(I('edit_input.png')))
+        b = self.bb.addButton(_('Download only &covers'),
+                self.bb.AcceptRole)
+        b.clicked.connect(self.only_covers)
+        b.setIcon(QIcon(I('default_cover.png')))
+        b = self.b = self.bb.addButton(_('&Configure download'), self.bb.ActionRole)
+        b.setIcon(QIcon(I('config.png')))
+        b.clicked.connect(partial(show_config, parent, self))
+        l.addWidget(self.bb, 1, 0, 1, 2)
+        b = self.bb.addButton(_('Download &both'),
+                self.bb.AcceptRole)
+        b.clicked.connect(self.accept)
+        b.setDefault(True)
+        b.setAutoDefault(True)
+        b.setIcon(QIcon(I('ok.png')))
+
+        self.resize(self.sizeHint())
+        b.setFocus(Qt.OtherFocusReason)
+
+    def only_metadata(self):
+        self.covers = False
+        self.accept()
+
+    def only_covers(self):
+        self.identify = False
+        self.accept()
+
+def start_download(gui, ids, callback):
+    d = ConfirmDialog(ids, gui)
+    ret = d.exec_()
+    d.b.clicked.disconnect()
+    if ret != d.Accepted:
+        return
+
+    job = ThreadedJob('metadata bulk download',
+            _('Download metadata for %d books')%len(ids),
+            download, (ids, gui.current_db, d.identify, d.covers), {}, callback)
+    gui.job_manager.run_threaded_job(job)
+    gui.status_bar.show_message(_('Metadata download started'), 3000)
+# }}}
+
+def get_job_details(job):
+    id_map, failed_ids, failed_covers, title_map, all_failed = job.result
+    det_msg = []
+    for i in failed_ids | failed_covers:
+        title = title_map[i]
+        if i in failed_ids:
+            title += (' ' + _('(Failed metadata)'))
+        if i in failed_covers:
+            title += (' ' + _('(Failed cover)'))
+        det_msg.append(title)
+    det_msg = '\n'.join(det_msg)
+    return id_map, failed_ids, failed_covers, all_failed, det_msg
+
+def merge_result(oldmi, newmi):
+    dummy = Metadata(_('Unknown'))
+    for f in msprefs['ignore_fields']:
+        if ':' not in f:
+            setattr(newmi, f, getattr(dummy, f))
+    fields = set()
+    for plugin in metadata_plugins(['identify']):
+        fields |= plugin.touched_fields
+
+    for f in fields:
+        # Optimize so that set_metadata does not have to do extra work later
+        if not f.startswith('identifier:'):
+            if (not newmi.is_null(f) and getattr(newmi, f) == getattr(oldmi, f)):
+                setattr(newmi, f, getattr(dummy, f))
+
+    newmi.last_modified = oldmi.last_modified
+
+    return newmi
+
+def download(ids, db, do_identify, covers,
+        log=None, abort=None, notifications=None):
+    ids = list(ids)
+    metadata = [db.get_metadata(i, index_is_id=True, get_user_categories=False)
+        for i in ids]
+    failed_ids = set()
+    failed_covers = set()
+    title_map = {}
+    ans = {}
+    count = 0
+    all_failed = True
+    '''
+    # Test apply dialog
+    all_failed = do_identify = covers = False
+    '''
+    for i, mi in izip(ids, metadata):
+        if abort.is_set():
+            log.error('Aborting...')
+            break
+        title, authors, identifiers = mi.title, mi.authors, mi.identifiers
+        title_map[i] = title
+        if do_identify:
+            results = []
             try:
-                cdata, errors = download_cover(mi)
-                if cdata:
-                    self.results.put((id, mi, True, cdata))
-                else:
-                    msg = []
-                    for e in errors:
-                        if not e[0]:
-                            msg.append(e[-1] + ' - ' + e[1])
-                    self.results.put((id, mi, False, '\n'.join(msg)))
+                results = identify(log, Event(), title=title, authors=authors,
+                    identifiers=identifiers)
             except:
-                self.results.put((id, mi, False, traceback.format_exc()))
-
-    def __enter__(self):
-        self.start()
-        return self
-
-    def __exit__(self, *args):
-        self.jobs.put((False, False))
-
-
-class DownloadMetadata(Thread):
-    'Metadata downloader'
-
-    def __init__(self, db, ids, get_covers, set_metadata=True,
-            get_social_metadata=True):
-        Thread.__init__(self)
-        self.daemon = True
-        self.metadata = {}
-        self.covers   = {}
-        self.set_metadata = set_metadata
-        self.get_social_metadata = get_social_metadata
-        self.social_metadata_exceptions = []
-        self.db = db
-        self.updated = set([])
-        self.get_covers = get_covers
-        self.worker = Worker()
-        self.results = Queue()
-        self.keep_going = True
-        for id in ids:
-            self.metadata[id] = db.get_metadata(id, index_is_id=True)
-            self.metadata[id].rating = None
-        self.total = len(ids)
-        if self.get_covers:
-            self.total += len(ids)
-        self.fetched_metadata = {}
-        self.fetched_covers = {}
-        self.failures = {}
-        self.cover_failures = {}
-        self.exception = self.tb = None
-
-    def run(self):
-        try:
-            self._run()
-        except Exception as e:
-            self.exception = e
-            self.tb = traceback.format_exc()
-
-    def _run(self):
-        self.key = get_isbndb_key()
-        if not self.key:
-            self.key = None
-        with self.worker:
-            for id, mi in self.metadata.items():
-                if not self.keep_going:
-                    break
-                args = {}
-                if mi.isbn:
-                    args['isbn'] = mi.isbn
-                else:
-                    if mi.is_null('title'):
-                        self.failures[id] = \
-                                _('Book has neither title nor ISBN')
-                        continue
-                    args['title'] = mi.title
-                    if mi.authors and mi.authors[0] != _('Unknown'):
-                        args['author'] = mi.authors[0]
-                if self.key:
-                    args['isbndb_key'] = self.key
-                results, exceptions = search(**args)
-                if results:
-                    fmi = results[0]
-                    self.fetched_metadata[id] = fmi
-                    if self.get_covers:
-                        if fmi.isbn:
-                            self.worker.jobs.put((id, fmi))
-                        else:
-                            self.results.put((id, 'cover', False, mi.title))
-                    if (not config['overwrite_author_title_metadata']):
-                        fmi.authors = mi.authors
-                        fmi.author_sort = mi.author_sort
-                        fmi.title = mi.title
-                    mi.smart_update(fmi)
-                    if mi.isbn and self.get_social_metadata:
-                        self.social_metadata_exceptions = get_social_metadata(mi)
-                        if mi.rating:
-                            mi.rating *= 2
-                    if not self.get_social_metadata:
-                        mi.tags = []
-                    self.results.put((id, 'metadata', True, mi.title))
-                else:
-                    self.failures[id] = _('No matches found for this book')
-                    self.results.put((id, 'metadata', False, mi.title))
-                    self.results.put((id, 'cover', False, mi.title))
-                self.commit_covers()
-
-        self.commit_covers(True)
-
-    def commit_covers(self, all=False):
-        if all:
-            self.worker.jobs.put((False, False))
-        while True:
-            try:
-                id, fmi, ok, cdata = self.worker.results.get_nowait()
-                if ok:
-                    self.fetched_covers[id] = cdata
-                    self.results.put((id, 'cover', ok, fmi.title))
-                else:
-                    self.results.put((id, 'cover', ok, fmi.title))
-                    try:
-                        self.cover_failures[id] = unicode(cdata)
-                    except:
-                        self.cover_failures[id] = repr(cdata)
-            except Empty:
-                if not all or not self.worker.is_alive():
-                    return
-
-class DoDownload(QObject):
-
-    def __init__(self, parent, title, db, ids, get_covers, set_metadata=True,
-            get_social_metadata=True):
-        QObject.__init__(self, parent)
-        self.pd = ProgressDialog(title, min=0, max=0, parent=parent)
-        self.pd.canceled_signal.connect(self.cancel)
-        self.downloader = None
-        self.create = partial(DownloadMetadata, db, ids, get_covers,
-                set_metadata=set_metadata,
-                get_social_metadata=get_social_metadata)
-        self.get_covers = get_covers
-        self.db = db
-        self.updated = set([])
-        self.total = len(ids)
-        self.keep_going = True
-
-    def exec_(self):
-        QTimer.singleShot(50, self.do_one)
-        ret = self.pd.exec_()
-        if getattr(self.downloader, 'exception', None) is not None and \
-                ret == self.pd.Accepted:
-            error_dialog(self.parent(), _('Failed'),
-                    _('Failed to download metadata'), show=True)
-        else:
-            self.show_report()
-        return ret
-
-    def cancel(self, *args):
-        self.keep_going = False
-        self.downloader.keep_going = False
-        self.pd.reject()
-
-    def do_one(self):
-        try:
-            if not self.keep_going:
-                return
-            if self.downloader is None:
-                self.downloader = self.create()
-                self.downloader.start()
-                self.pd.set_min(0)
-                self.pd.set_max(self.downloader.total)
-            try:
-                r = self.downloader.results.get_nowait()
-                self.handle_result(r)
-            except Empty:
                 pass
-            if not self.downloader.is_alive():
-                while True:
-                    try:
-                        r = self.downloader.results.get_nowait()
-                        self.handle_result(r)
-                    except Empty:
-                        break
-                self.pd.accept()
-                return
-        except:
-            self.cancel()
-            raise
-        QTimer.singleShot(50, self.do_one)
-
-    def handle_result(self, r):
-        id_, typ, ok, title = r
-        what = _('cover') if typ == 'cover' else _('metadata')
-        which = _('Downloaded') if ok else _('Failed to get')
-        if self.get_covers or typ != 'cover' or ok:
-            # Do not show message when cover fetch fails if user didn't ask to
-            # download covers
-            self.pd.set_msg(_('%s %s for: %s') % (which, what, title))
-        self.pd.value += 1
-        if ok:
-            self.updated.add(id_)
-            if typ == 'cover':
-                try:
-                    self.db.set_cover(id_,
-                            self.downloader.fetched_covers.pop(id_))
-                except:
-                    self.downloader.cover_failures[id_] = \
-                            traceback.format_exc()
+            if results:
+                all_failed = False
+                mi = merge_result(mi, results[0])
+                identifiers = mi.identifiers
+                if not mi.is_null('rating'):
+                    # set_metadata expects a rating out of 10
+                    mi.rating *= 2
             else:
-                try:
-                    self.set_metadata(id_)
-                except:
-                    self.downloader.failures[id_] = \
-                            traceback.format_exc()
-
-    def set_metadata(self, id_):
-        mi = self.downloader.metadata[id_]
-        if self.downloader.set_metadata:
-            self.db.set_metadata(id_, mi)
-        if not self.downloader.set_metadata and self.downloader.get_social_metadata:
-            if mi.rating:
-                self.db.set_rating(id_, mi.rating)
-            if mi.tags:
-                self.db.set_tags(id_, mi.tags)
-            if mi.comments:
-                self.db.set_comment(id_, mi.comments)
-            if mi.series:
-                self.db.set_series(id_, mi.series)
-                if mi.series_index is not None:
-                    self.db.set_series_index(id_, mi.series_index)
-
-    def show_report(self):
-        f, cf = self.downloader.failures, self.downloader.cover_failures
-        report = []
-        if f:
-            report.append(
-                '<h3>Failed to download metadata for the following:</h3><ol>')
-            for id_, err in f.items():
-                mi = self.downloader.metadata[id_]
-                report.append('<li><b>%s</b><pre>%s</pre></li>' % (mi.title,
-                    unicode(err)))
-            report.append('</ol>')
-        if cf:
-            report.append(
-                '<h3>Failed to download cover for the following:</h3><ol>')
-            for id_, err in cf.items():
-                mi = self.downloader.metadata[id_]
-                report.append('<li><b>%s</b><pre>%s</pre></li>' % (mi.title,
-                    unicode(err)))
-            report.append('</ol>')
-
-        if len(self.updated) != self.total or report:
-            d = QDialog(self.parent())
-            bb = QDialogButtonBox(QDialogButtonBox.Ok, parent=d)
-            v1 = QVBoxLayout()
-            d.setLayout(v1)
-            d.setWindowTitle(_('Done'))
-            v1.addWidget(QLabel(_('Successfully downloaded metadata for %d out of %d books') %
-                (len(self.updated), self.total)))
-            gb = QGroupBox(_('Details'), self.parent())
-            v2 = QVBoxLayout()
-            gb.setLayout(v2)
-            b = QTextBrowser(self.parent())
-            v2.addWidget(b)
-            b.setHtml('\n'.join(report))
-            v1.addWidget(gb)
-            v1.addWidget(bb)
-            bb.accepted.connect(d.accept)
-            d.resize(800, 600)
-            d.exec_()
-
+                log.error('Failed to download metadata for', title)
+                failed_ids.add(i)
+                # We don't want set_metadata operating on anything but covers
+                mi = merge_result(mi, mi)
+        if covers:
+            cdata = download_cover(log, title=title, authors=authors,
+                    identifiers=identifiers)
+            if cdata is not None:
+                with PersistentTemporaryFile('.jpg', 'downloaded-cover-') as f:
+                    f.write(cdata[-1])
+                    mi.cover = f.name
+                all_failed = False
+            else:
+                failed_covers.add(i)
+        ans[i] = mi
+        count += 1
+        notifications.put((count/len(ids),
+            _('Downloaded %d of %d')%(count, len(ids))))
+    log('Download complete, with %d failures'%len(failed_ids))
+    return (ans, failed_ids, failed_covers, title_map, all_failed)
 
 
 

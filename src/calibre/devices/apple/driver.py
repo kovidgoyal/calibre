@@ -163,6 +163,8 @@ class ITUNES(DriverBase):
         settings()
         set_progress_reporter()
         upload_books()
+         _get_fpath()
+          _update_epub_metadata()
         add_books_to_metadata()
         use_plugboard_ext()
         set_plugboard()
@@ -2621,45 +2623,42 @@ class ITUNES(DriverBase):
             # Touch the OPF timestamp
             try:
                 zf_opf = ZipFile(fpath,'r')
+                fnames = zf_opf.namelist()
+                opf = [x for x in fnames if '.opf' in x][0]
             except:
                 raise UserFeedback("'%s' is not a valid EPUB" % metadata.title,
                                    None,
                                    level=UserFeedback.WARN)
-            fnames = zf_opf.namelist()
-            try:
-                opf = [x for x in fnames if '.opf' in x][0]
-            except:
-                opf = None
-            if opf:
-                opf_tree = etree.fromstring(zf_opf.read(opf))
-                md_els = opf_tree.xpath('.//*[local-name()="metadata"]')
-                if md_els:
-                    ts = md_els[0].find('.//*[@name="calibre:timestamp"]')
-                    if ts is not None:
-                        timestamp = ts.get('content')
-                        old_ts = parse_date(timestamp)
-                        metadata.timestamp = datetime.datetime(old_ts.year, old_ts.month, old_ts.day, old_ts.hour,
-                                                   old_ts.minute, old_ts.second, old_ts.microsecond+1, old_ts.tzinfo)
-                        if DEBUG:
-                            self.log.info("   existing timestamp: %s" % metadata.timestamp)
-                    else:
-                        metadata.timestamp = now()
-                        if DEBUG:
-                            self.log.info("   add timestamp: %s" % metadata.timestamp)
+
+            opf_tree = etree.fromstring(zf_opf.read(opf))
+            md_els = opf_tree.xpath('.//*[local-name()="metadata"]')
+            if md_els:
+                ts = md_els[0].find('.//*[@name="calibre:timestamp"]')
+                if ts is not None:
+                    timestamp = ts.get('content')
+                    old_ts = parse_date(timestamp)
+                    metadata.timestamp = datetime.datetime(old_ts.year, old_ts.month, old_ts.day, old_ts.hour,
+                                               old_ts.minute, old_ts.second, old_ts.microsecond+1, old_ts.tzinfo)
+                    if DEBUG:
+                        self.log.info("   existing timestamp: %s" % metadata.timestamp)
                 else:
                     metadata.timestamp = now()
                     if DEBUG:
-                        self.log.warning("   missing <metadata> block in OPF file")
                         self.log.info("   add timestamp: %s" % metadata.timestamp)
-                # Force the language declaration for iBooks 1.1
-                #metadata.language = get_lang().replace('_', '-')
-
-                # Updates from metadata plugboard (ignoring publisher)
-                metadata.language = metadata_x.language
-
+            else:
+                metadata.timestamp = now()
                 if DEBUG:
-                    if metadata.language != metadata_x.language:
-                        self.log.info("   rewriting language: <dc:language>%s</dc:language>" % metadata.language)
+                    self.log.warning("   missing <metadata> block in OPF file")
+                    self.log.info("   add timestamp: %s" % metadata.timestamp)
+            # Force the language declaration for iBooks 1.1
+            #metadata.language = get_lang().replace('_', '-')
+
+            # Updates from metadata plugboard (ignoring publisher)
+            metadata.language = metadata_x.language
+
+            if DEBUG:
+                if metadata.language != metadata_x.language:
+                    self.log.info("   rewriting language: <dc:language>%s</dc:language>" % metadata.language)
 
             zf_opf.close()
 
