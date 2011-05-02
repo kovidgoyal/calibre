@@ -112,7 +112,7 @@ class ANDROID(USBMS):
             'MB860', 'MULTI-CARD', 'MID7015A', 'INCREDIBLE', 'A7EB']
     WINDOWS_CARD_A_MEM = ['ANDROID_PHONE', 'GT-I9000_CARD', 'SGH-I897',
             'FILE-STOR_GADGET', 'SGH-T959', 'SAMSUNG_ANDROID', 'GT-P1000_CARD',
-            'A70S', 'A101IT', '7', 'INCREDIBLE', 'A7EB']
+            'A70S', 'A101IT', '7', 'INCREDIBLE', 'A7EB', 'SGH-T849_CARD']
 
     OSX_MAIN_MEM = 'Android Device Main Memory'
 

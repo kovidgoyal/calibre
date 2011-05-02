@@ -19,6 +19,27 @@
 #  new recipes:
 #    - title: 
 
+- version: 0.7.59
+  date: 2011-04-30
+
+  bug fixes:
+    - title: "Fixes a bug in 0.7.58 that caused too small fonts when converting to MOBI for the Kindle. Apologies."
+
+    - title: "Apple driver: Handle invalid EPUBs that do not contain an OPF file"
+
+  new recipes:
+    - title: The Big Picture and Auto industry news
+      author: welovelucy
+
+    - title: Gazeta Prawna 
+      author: Vroo
+
+    - title: Various Czech news sources
+      author: Tomas Latal
+
+    - title: Diario de Ibiza
+      author: Joan Tur
+
 - version: 0.7.58
   date: 2011-04-29
 
