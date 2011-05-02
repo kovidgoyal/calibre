@@ -8,6 +8,7 @@ from collections import namedtuple
 from copy import deepcopy
 from xml.sax.saxutils import escape
 from lxml import etree
+from types import StringType, UnicodeType
 
 from calibre import prints, prepare_string_for_xml, strftime
 from calibre.constants import preferred_encoding, DEBUG
@@ -15,13 +16,16 @@ from calibre.customize import CatalogPlugin
 from calibre.customize.conversion import OptionRecommendation, DummyReporter
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, BeautifulStoneSoup, Tag, NavigableString
 from calibre.ebooks.chardet import substitute_entites
+from calibre.library.save_to_disk import preprocess_template
 from calibre.ptempfile import PersistentTemporaryDirectory
+from calibre.utils.bibtex import BibTeX
 from calibre.utils.config import config_dir
 from calibre.utils.date import format_date, isoformat, is_date_undefined, now as nowf
+from calibre.utils.html2text import html2text
 from calibre.utils.icu import capitalize
 from calibre.utils.logging import default_log as log
-from calibre.utils.zipfile import ZipFile, ZipInfo
 from calibre.utils.magick.draw import thumbnail
+from calibre.utils.zipfile import ZipFile, ZipInfo
 
 FIELDS = ['all', 'title', 'author_sort', 'authors', 'comments',
           'cover', 'formats','id', 'isbn', 'ondevice', 'pubdate', 'publisher',
@@ -303,12 +307,6 @@ class BIBTEX(CatalogPlugin): # {{{
 
     def run(self, path_to_output, opts, db, notification=DummyReporter()):
 
-        from types import StringType, UnicodeType
-
-        from calibre.library.save_to_disk import preprocess_template
-        #Bibtex functions
-        from calibre.utils.bibtex import BibTeX
-
         def create_bibtex_entry(entry, fields, mode, template_citation,
             bibtexdict, citation_bibtex=True, calibre_files=True):
 
@@ -365,6 +363,11 @@ class BIBTEX(CatalogPlugin): # {{{
                     #\n removal
                     item = item.replace(u'\r\n',u' ')
                     item = item.replace(u'\n',u' ')
+                    #html to text
+                    try:
+                        item = html2text(item)
+                    except:
+                        log(" WARNING: error in converting comments to text")
                     bibtex_entry.append(u'note = "%s"' % bibtexdict.utf8ToBibtex(item))
 
                 elif field == 'isbn' :
