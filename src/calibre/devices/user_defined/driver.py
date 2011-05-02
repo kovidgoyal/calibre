@@ -15,7 +15,7 @@ class USER_DEFINED(USBMS):
     supported_platforms = ['windows', 'osx', 'linux']
 
     # Ordered list of supported formats
-    FORMATS     = BOOK_EXTENSIONS
+    FORMATS     = ['epub', 'mobi', 'pdf']
 
     VENDOR_ID   = 0xFFFF
     PRODUCT_ID  = 0xFFFF
@@ -35,42 +35,44 @@ class USER_DEFINED(USBMS):
     SUPPORTS_SUB_DIRS = True
 
     EXTRA_CUSTOMIZATION_MESSAGE = [
-        _('USB Vendor ID (in hex)') + ':::' +
+        _('USB Vendor ID (in hex)') + ':::<p>' +
             _('Get this ID using Preferences -> Misc -> Get information to '
-              'set up the user-defined device'),
-        _('USB Product ID (in hex)')+ ':::' +
+              'set up the user-defined device') + '</p>',
+        _('USB Product ID (in hex)')+ ':::<p>' +
             _('Get this ID using Preferences -> Misc -> Get information to '
-              'set up the user-defined device'),
-        _('USB Revision ID (in hex)')+ ':::' +
+              'set up the user-defined device') + '</p>',
+        _('USB Revision ID (in hex)')+ ':::<p>' +
             _('Get this ID using Preferences -> Misc -> Get information to '
-              'set up the user-defined device'),
-        _('Windows main memory vendor string') + ':::' +
+              'set up the user-defined device') + '</p>',
+        '',
+        _('Windows main memory vendor string') + ':::<p>' +
             _('This field is used only on windows. '
               'Get this ID using Preferences -> Misc -> Get information to '
-              'set up the user-defined device'),
-        _('Windows main memory ID string') + ':::' +
+              'set up the user-defined device') + '</p>',
+        _('Windows main memory ID string') + ':::<p>' +
             _('This field is used only on windows. '
               'Get this ID using Preferences -> Misc -> Get information to '
-              'set up the user-defined device'),
-        _('Windows card A vendor string') + ':::' +
+              'set up the user-defined device') + '</p>',
+        _('Windows card A vendor string') + ':::<p>' +
             _('This field is used only on windows. '
               'Get this ID using Preferences -> Misc -> Get information to '
-              'set up the user-defined device'),
-        _('Windows card A ID string') + ':::' +
+              'set up the user-defined device') + '</p>',
+        _('Windows card A ID string') + ':::<p>' +
             _('This field is used only on windows. '
               'Get this ID using Preferences -> Misc -> Get information to '
-              'set up the user-defined device'),
-        _('Main memory folder') + ':::' +
+              'set up the user-defined device') + '</p>',
+        _('Main memory folder') + ':::<p>' +
             _('Enter the folder where the books are to be stored. This folder '
-              'is prepended to any send_to_device template'),
-        _('Card A folder') + ':::' +
+              'is prepended to any send_to_device template') + '</p>',
+        _('Card A folder') + ':::<p>' +
             _('Enter the folder where the books are to be stored. This folder '
-              'is prepended to any send_to_device template'),
+              'is prepended to any send_to_device template') + '</p>',
     ]
     EXTRA_CUSTOMIZATION_DEFAULT = [
                 '0x0000',
                 '0x0000',
                 '0x0000',
+                None,
                 '',
                 '',
                 '',
@@ -81,12 +83,12 @@ class USER_DEFINED(USBMS):
     OPT_USB_VENDOR_ID           = 0
     OPT_USB_PRODUCT_ID          = 1
     OPT_USB_REVISION_ID         = 2
-    OPT_USB_WINDOWS_MM_VEN_ID   = 3
-    OPT_USB_WINDOWS_MM_ID       = 4
-    OPT_USB_WINDOWS_CA_VEN_ID   = 5
-    OPT_USB_WINDOWS_CA_ID       = 6
-    OPT_MAIN_MEM_FOLDER         = 7
-    OPT_CARD_A_FOLDER           = 8
+    OPT_USB_WINDOWS_MM_VEN_ID   = 4
+    OPT_USB_WINDOWS_MM_ID       = 5
+    OPT_USB_WINDOWS_CA_VEN_ID   = 6
+    OPT_USB_WINDOWS_CA_ID       = 7
+    OPT_MAIN_MEM_FOLDER         = 8
+    OPT_CARD_A_FOLDER           = 9
 
     def initialize(self):
         try:
