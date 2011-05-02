@@ -468,7 +468,7 @@ If it still wont launch, start a command prompt (press the windows key and R; th
 
 Post any output you see in a help message on the `Forum <http://www.mobileread.com/forums/forumdisplay.php?f=166>`_.
 
-|app| freeze when I click on anything?
+|app| freezes when I click on anything?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 There are three possible things I know of, that can cause this:
@@ -557,7 +557,7 @@ You have two choices:
 
 How is |app| licensed?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-|app| is licensed under the GNU General Public License v3 (an open source license). This means that you are free to redistribute |app| as long as you make the source code available. So if you want to put |app| on a CD with your product, you must also put the |app| source code on the CD. The source code is available for download `from googlecode <http://code.google.com/p/calibre-ebook/downloads/list>`_. You are free to use the results of conversions from |app| however you want. You cannot use code, libraries from |app| in your software without maing your software open source. For details, see `The GNU GPL v3 <http://www.gnu.org/licenses/gpl.html>`_.
+|app| is licensed under the GNU General Public License v3 (an open source license). This means that you are free to redistribute |app| as long as you make the source code available. So if you want to put |app| on a CD with your product, you must also put the |app| source code on the CD. The source code is available for download `from googlecode <http://code.google.com/p/calibre-ebook/downloads/list>`_. You are free to use the results of conversions from |app| however you want. You cannot use code, libraries from |app| in your software without making your software open source. For details, see `The GNU GPL v3 <http://www.gnu.org/licenses/gpl.html>`_.
 
 How do I run calibre from my USB stick?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
