@@ -10,6 +10,8 @@ __docformat__ = 'restructuredtext en'
 from PyQt4.Qt import QDialog, QVBoxLayout, QPlainTextEdit, QTimer, \
     QDialogButtonBox, QPushButton, QApplication, QIcon, QMessageBox
 
+from calibre.constants import iswindows
+
 def step_dialog(parent, title, msg, det_msg=''):
     d = QMessageBox(parent)
     d.setWindowTitle(title)
@@ -26,10 +28,10 @@ class UserDefinedDevice(QDialog):
         self.setLayout(self._layout)
         self.log = QPlainTextEdit(self)
         self._layout.addWidget(self.log)
-        self.log.setPlainText(_('Getting debug information')+'...')
+        self.log.setPlainText(_('Getting device information')+'...')
         self.copy = QPushButton(_('Copy to &clipboard'))
         self.copy.setDefault(True)
-        self.setWindowTitle(_('Debug device detection'))
+        self.setWindowTitle(_('User-defined device information'))
         self.setWindowIcon(QIcon(I('debug.png')))
         self.copy.clicked.connect(self.copy_to_clipboard)
         self.ok = QPushButton('&OK')
@@ -59,7 +61,7 @@ class UserDefinedDevice(QDialog):
             new_drives = after['drive_set'] - before['drive_set']
             new_devices = after['device_set'] - before['device_set']
             res = ''
-            if len(new_drives) and len(new_devices) == 1:
+            if (not iswindows or len(new_drives)) and len(new_devices) == 1:
                 for d in new_devices:
                     res =  _('USB Vendor ID (in hex)') + ': 0x' + \
                             after['device_details'][d][0] + '\n'
@@ -67,20 +69,20 @@ class UserDefinedDevice(QDialog):
                             after['device_details'][d][1] + '\n'
                     res += _('USB Revision ID (in hex)') + ': 0x' + \
                             after['device_details'][d][2] + '\n'
-                # sort the drives by the order number
-                for i,d in enumerate(sorted(new_drives,
-                                key=lambda x: after['drive_details'][x][0])):
-                    if i == 0:
-                        res +=  _('Windows main memory ID string') + ': ' + \
-                                after['drive_details'][d][1] + '\n'
-                        res += _('Windows main memory ID string') + ': ' + \
-                                after['drive_details'][d][2] + '\n'
-                    else:
-                        res +=  _('Windows card A vendor string') + ': ' + \
-                                after['drive_details'][d][1] + '\n'
-                        res += _('Windows card A ID string') + ': ' + \
-                                after['drive_details'][d][2] + '\n'
-
+                if iswindows:
+                    # sort the drives by the order number
+                    for i,d in enumerate(sorted(new_drives,
+                                    key=lambda x: after['drive_details'][x][0])):
+                        if i == 0:
+                            res +=  _('Windows main memory ID string') + ': ' + \
+                                    after['drive_details'][d][1] + '\n'
+                            res += _('Windows main memory ID string') + ': ' + \
+                                    after['drive_details'][d][2] + '\n'
+                        else:
+                            res +=  _('Windows card A vendor string') + ': ' + \
+                                    after['drive_details'][d][1] + '\n'
+                            res += _('Windows card A ID string') + ': ' + \
+                                    after['drive_details'][d][2] + '\n'
             trailer = _('Enter the above values into the USER_DEVICE by '
                         'customizing the device plugin. Be sure to also '
                         'enter the folders where you want the books to '

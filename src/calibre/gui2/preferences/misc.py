@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget, Setting
 from calibre.gui2.preferences.misc_ui import Ui_Form
 from calibre.gui2 import error_dialog, config, open_local_file, info_dialog
-from calibre.constants import isosx, iswindows
+from calibre.constants import isosx
 
 class WorkersSetting(Setting):
 
@@ -33,7 +33,6 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.user_defined_device_button.clicked.connect(self.user_defined_device)
         self.button_osx_symlinks.clicked.connect(self.create_symlinks)
         self.button_osx_symlinks.setVisible(isosx)
-        self.user_defined_device_button.setVisible(iswindows)
 
     def debug_device_detection(self, *args):
         from calibre.gui2.preferences.device_debug import DebugDevice
