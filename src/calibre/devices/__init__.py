@@ -156,3 +156,55 @@ def debug(ioreg_to_tmp=False, buf=None):
         sys.stdout = oldo
         sys.stderr = olde
 
+def device_info(ioreg_to_tmp=False, buf=None):
+    from calibre.devices.scanner import DeviceScanner, win_pnp_drives
+    from calibre.constants import iswindows
+    from calibre import prints
+    import re
+
+    res = {}
+    if not iswindows:
+        return None
+    try:
+        s = DeviceScanner()
+        s.scan()
+        devices = (s.devices)
+        device_details = {}
+        device_set = set()
+        for dev in devices:
+            vid = re.search('vid_([0-9a-f]*)&', dev)
+            if vid:
+                vid = vid.group(1)
+                pid = re.search('pid_([0-9a-f]*)&', dev)
+                if pid:
+                    pid = pid.group(1)
+                    rev = re.search('rev_([0-9a-f]*)$', dev)
+                    if rev:
+                        rev = rev.group(1)
+                        d = vid+pid+rev
+                        prints(d)
+                        device_set.add(d)
+                        device_details[d] = (vid, pid, rev)
+        res['device_set'] = device_set
+        res['device_details'] = device_details
+        drives = win_pnp_drives(debug=False)
+        drive_details = {}
+        print drives
+        drive_set = set()
+        for drive,details in drives.iteritems():
+            order = 'ORD_' + str(drive.order)
+            ven = re.search('VEN_([^&]*)&', details)
+            if ven:
+                ven = ven.group(1)
+                prod = re.search('PROD_([^&]*)&', details)
+                if prod:
+                    prod = prod.group(1)
+                    d = (order, ven, prod)
+                    print d
+                    drive_details[drive] = d
+                    drive_set.add(drive)
+        res['drive_details'] = drive_details
+        res['drive_set'] = drive_set
+    finally:
+        pass
+    return res
