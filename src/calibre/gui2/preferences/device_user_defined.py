@@ -51,11 +51,13 @@ class UserDefinedDevice(QDialog):
             r = step_dialog(self.parent(), _('Device Detection'),
                         _('Ensure your device is disconnected, then press OK'))
             if r:
+                self.close()
                 return
             before = device_info()
             r = step_dialog(self.parent(), _('Device Detection'),
                         _('Ensure your device is connected, then press OK'))
             if r:
+                self.close()
                 return
             after = device_info()
             new_drives = after['drive_set'] - before['drive_set']
@@ -83,7 +85,8 @@ class UserDefinedDevice(QDialog):
                                     after['drive_details'][d][1] + '\n'
                             res += _('Windows card A ID string') + ': ' + \
                                     after['drive_details'][d][2] + '\n'
-            trailer = _('Enter the above values into the USER_DEVICE by '
+            trailer = _('Copy these values to the clipboard, paste them into an '
+                        'editor, then enter them into the USER_DEVICE by '
                         'customizing the device plugin. Be sure to also '
                         'enter the folders where you want the books to '
                         'be put. You must restart calibre for your changes '
