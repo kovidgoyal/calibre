@@ -81,7 +81,12 @@ class UserDefinedDevice(QDialog):
                         res += _('Windows card A ID string') + ': ' + \
                                 after['drive_details'][d][2] + '\n'
 
-            self.log.setPlainText(res)
+            trailer = _('Enter the above values into the USER_DEVICE by '
+                        'customizing the device plugin. Be sure to also '
+                        'enter the folders where you want the books to '
+                        'be put. You must restart calibre for your changes '
+                        'to take effect.\n')
+            self.log.setPlainText(res + '\n\n' + trailer)
         finally:
             self.bbox.setEnabled(True)
 

@@ -10,7 +10,7 @@ from calibre.ebooks import BOOK_EXTENSIONS
 class USER_DEFINED(USBMS):
 
     name           = 'User Defined USB driver'
-    gui_name       = 'User Defined phone'
+    gui_name       = 'User Defined USB Device'
     author         = 'Kovid Goyal'
     supported_platforms = ['windows', 'osx', 'linux']
 
@@ -66,21 +66,22 @@ class USER_DEFINED(USBMS):
     OPT_MAIN_MEM_FOLDER         = 7
     OPT_CARD_A_FOLDER           = 8
 
-    def __init__(self, *args):
-        USBMS.__init__(self, args)
+    def initialize(self):
         try:
             e = self.settings().extra_customization
             self.VENDOR_ID          = int(e[self.OPT_USB_VENDOR_ID], 16)
             self.PRODUCT_ID         = int(e[self.OPT_USB_PRODUCT_ID], 16)
             self.BCD                = [int(e[self.OPT_USB_REVISION_ID], 16)]
-            print '%x, %x, %s' %(self.VENDOR_ID, self.PRODUCT_ID, str(self.BCD))
             if e[self.OPT_USB_WINDOWS_MM_VEN_ID]:
                 self.VENDOR_NAME.append(e[self.OPT_USB_WINDOWS_MM_VEN_ID])
-            if e[self.OPT_USB_WINDOWS_CA_VEN_ID]:
+            if e[self.OPT_USB_WINDOWS_CA_VEN_ID] and \
+                    e[self.OPT_USB_WINDOWS_CA_VEN_ID] not in self.VENDOR_NAME:
                 self.VENDOR_NAME.append(e[self.OPT_USB_WINDOWS_CA_VEN_ID])
-            self.WINDOWS_MAIN_MEM   = e[self.OPT_USB_WINDOWS_MM_ID]
-            self.WINDOWS_CARD_A_MEM = e[self.OPT_USB_WINDOWS_CA_ID]
+            self.WINDOWS_MAIN_MEM   = e[self.OPT_USB_WINDOWS_MM_ID] + '&'
+            self.WINDOWS_CARD_A_MEM = e[self.OPT_USB_WINDOWS_CA_ID] + '&'
             self.EBOOK_DIR_MAIN     = e[self.OPT_MAIN_MEM_FOLDER]
             self.EBOOK_DIR_CARD_A   = e[self.OPT_CARD_A_FOLDER]
         except:
-            pass
+            import traceback
+            traceback.print_exc()
+        USBMS.initialize(self)

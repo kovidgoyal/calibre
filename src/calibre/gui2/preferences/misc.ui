@@ -61,7 +61,7 @@
    <item row="4" column="0" colspan="2">
     <widget class="QPushButton" name="user_defined_device_button">
      <property name="text">
-      <string>Setup the &amp;user defined device</string>
+      <string>Get information to setup the &amp;user defined device (Windows only)</string>
      </property>
     </widget>
    </item>
