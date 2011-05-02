@@ -100,7 +100,9 @@ Device Integration
 
 What devices does |app| support?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-At the moment |app| has full support for the SONY PRS line, Barnes & Noble Nook line, Cybook Gen 3/Opus, Amazon Kindle line, Entourage Edge, Longshine ShineBook, Ectaco Jetbook, BeBook/BeBook Mini, Irex Illiad/DR1000, Foxit eSlick, PocketBook line, Italica, eClicto, Iriver Story, Airis dBook, Hanvon N515, Binatone Readme, Teclast K3 and clones, SpringDesign Alex, Kobo Reader, various Android phones and the iPhone/iPad. In addition, using the :guilabel:`Connect to folder` function you can use it with any ebook reader that exports itself as a USB disk.
+At the moment |app| has full support for the SONY PRS line, Barnes & Noble Nook line, Cybook Gen 3/Opus, Amazon Kindle line, Entourage Edge, Longshine ShineBook, Ectaco Jetbook, BeBook/BeBook Mini, Irex Illiad/DR1000, Foxit eSlick, PocketBook line, Italica, eClicto, Iriver Story, Airis dBook, Hanvon N515, Binatone Readme, Teclast K3 and clones, SpringDesign Alex, Kobo Reader, various Android phones and the iPhone/iPad. In addition, using the :guilabel:`Connect to folder` function you can use it with any ebook reader that exports itself as a USB disk. 
+
+There is also a special ``User Defined`` device plugin that can be used to connect to arbitrary devices that present their memory as disk drives. See the device plugin ``Preferences -> Plugins -> Device Plugins -> User Defined`` and ``Preferences -> Miscelleaneous -> Get information to setup the user defined device`` for more information.
 
 How can I help get my device supported in |app|?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -132,6 +134,11 @@ Follow these steps to find the problem:
     * Ensure your operating system is seeing the device. That is, the device should be mounted as a disk that you can access using Windows explorer or whatever the file management program on your computer is.
     * In calibre, go to Preferences->Plugins->Device Interface plugin and make sure the plugin for your device is enabled, the plugin icon next to it should be green when it is enabled.
     * If all the above steps fail, go to Preferences->Miscellaneous and click debug device detection with your device attached and post the output as a ticket on `the calibre bug tracker <http://bugs.calibre-ebook.com>`_.
+
+My device is non-standard or unusual. What can I do to connect to it?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In addition to the :guilabel:`Connect to Folder` function found under the Connect/Share button, |app| provides a ``User Defined`` device plugin that can be used to connect to any USB device that presents that shows up as a disk drive in your operating system. See the device plugin ``Preferences -> Plugins -> Device Plugins -> User Defined`` and ``Preferences -> Miscellaneous -> Get information to setup the user defined device`` for more information.
 
 How does |app| manage collections on my SONY reader?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
