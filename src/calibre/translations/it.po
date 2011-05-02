@@ -9,13 +9,13 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-04-30 16:30+0000\n"
-"PO-Revision-Date: 2011-04-22 18:07+0000\n"
+"PO-Revision-Date: 2011-05-01 22:03+0000\n"
 "Last-Translator: Paolo Furlani <Unknown>\n"
 "Language-Team: italiano\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-05-01 04:42+0000\n"
+"X-Launchpad-Export-Date: 2011-05-02 04:35+0000\n"
 "X-Generator: Launchpad (build 12758)\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -553,7 +553,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1124
 msgid "Books, Textbooks, eBooks, Toys, Games and More."
-msgstr ""
+msgstr "Libri, Manuali, eBooks, Giocattoli, Giochi e Altro."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1129
 msgid "Publishers of fine books."
@@ -565,7 +565,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1139
 msgid "The digital bookstore."
-msgstr ""
+msgstr "Il negozio digitale di libri."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1144
 msgid "entertain, enrich, inspire."
@@ -585,19 +585,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1164
 msgid "The best ebooks at the best price: free!"
-msgstr ""
+msgstr "I migliori ebooks al migliore prezzo: gratuiti!"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1169
 msgid "Ebooks handcrafted with the utmost care"
-msgstr ""
+msgstr "Ebooks realizzati con la massima cura"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1174
 msgid "One web page for every book."
-msgstr ""
+msgstr "Una pagina web per ogni libro."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1179
 msgid "Your ebook. Your way."
-msgstr ""
+msgstr "Il vostro ebook. A modo vostro."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1184
 msgid "Feel every word"

@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-04-30 16:30+0000\n"
-"PO-Revision-Date: 2011-04-25 13:27+0000\n"
-"Last-Translator: Ado Nishimura <Unknown>\n"
+"PO-Revision-Date: 2011-05-01 10:12+0000\n"
+"Last-Translator: Hiroshi Miura <miurahr@linux.com>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-05-01 04:42+0000\n"
+"X-Launchpad-Export-Date: 2011-05-02 04:35+0000\n"
 "X-Generator: Launchpad (build 12758)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -369,7 +369,7 @@ msgstr "検索中"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:934
 msgid "Customize the way searching for books works in calibre"
-msgstr ""
+msgstr "calibreでの本の検索方法をカスタマイズする"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:939
 msgid "Input Options"
@@ -444,7 +444,7 @@ msgstr "保存・送信まえに書誌情報を変更します。"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1019
 msgid "Template Functions"
-msgstr ""
+msgstr "テンプレート関数"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1021
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1068
@@ -455,7 +455,7 @@ msgstr "高度な設定"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1025
 msgid "Create your own template functions"
-msgstr ""
+msgstr "独自のテンプレート関数を作成する。"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1030
 msgid "Sharing books by email"
@@ -482,6 +482,7 @@ msgid ""
 "Setup the calibre Content Server which will give you access to your calibre "
 "library from anywhere, on any device, over the internet"
 msgstr ""
+"calibreコンテンツサーバを設定し、calibreライブラリに、インターネット経由でどこからでも、どのデバイスからでもアクセスできるようにします。"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1055
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:57
@@ -490,7 +491,7 @@ msgstr "メタデータのダウンロード"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1061
 msgid "Control how calibre downloads ebook metadata from the net"
-msgstr ""
+msgstr "calibreが電子書籍のメタデータを、ネットからダウンロードする方法を制御します。"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1066
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:269
@@ -499,15 +500,15 @@ msgstr "プラグイン"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1072
 msgid "Add/remove/customize various bits of calibre functionality"
-msgstr ""
+msgstr "calibreの機能各種について、追加/削除/カスタマイズする"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1078
 msgid "Tweaks"
-msgstr ""
+msgstr "Tweaks"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1084
 msgid "Fine tune how calibre behaves in various contexts"
-msgstr ""
+msgstr "様々なコンテキストでのcalibreの挙動を微調整"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1089
 msgid "Miscellaneous"
@@ -519,11 +520,11 @@ msgstr "その他の高度な設定"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1109
 msgid "Kindle books from Amazon"
-msgstr ""
+msgstr "AmazonからKindleブック"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1114
 msgid "Kindle books from Amazon.uk"
-msgstr ""
+msgstr "Amazon.ukからkindle版書籍"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1119
 msgid "Ebooks for readers."
@@ -531,19 +532,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1124
 msgid "Books, Textbooks, eBooks, Toys, Games and More."
-msgstr ""
+msgstr "書籍、テキスト、電子書籍、おもちゃ、ゲームなどなど"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1129
 msgid "Publishers of fine books."
-msgstr ""
+msgstr "良書の出版"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1134
 msgid "World Famous eBook Store."
-msgstr ""
+msgstr "世界的に有名な電子書籍ストア"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1139
 msgid "The digital bookstore."
-msgstr ""
+msgstr "電子書店"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1144
 msgid "entertain, enrich, inspire."
@@ -551,7 +552,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1149
 msgid "Read anywhere."
-msgstr ""
+msgstr "どこでも読める"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1154
 msgid "The first producer of free ebooks."
