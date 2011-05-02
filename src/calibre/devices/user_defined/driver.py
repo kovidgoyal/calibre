@@ -35,15 +35,37 @@ class USER_DEFINED(USBMS):
     SUPPORTS_SUB_DIRS = True
 
     EXTRA_CUSTOMIZATION_MESSAGE = [
-        _('USB Vendor ID (in hex)'),
-        _('USB Product ID (in hex)'),
-        _('USB Revision ID (in hex)'),
-        _('Windows main memory vendor string'),
-        _('Windows main memory ID string'),
-        _('Windows card A vendor string'),
-        _('Windows card A ID string'),
-        _('Main memory folder'),
-        _('Card A folder'),
+        _('USB Vendor ID (in hex)') + ':::' +
+            _('Get this ID using Preferences -> Misc -> Get information to '
+              'set up the user-defined device'),
+        _('USB Product ID (in hex)')+ ':::' +
+            _('Get this ID using Preferences -> Misc -> Get information to '
+              'set up the user-defined device'),
+        _('USB Revision ID (in hex)')+ ':::' +
+            _('Get this ID using Preferences -> Misc -> Get information to '
+              'set up the user-defined device'),
+        _('Windows main memory vendor string') + ':::' +
+            _('This field is used only on windows. '
+              'Get this ID using Preferences -> Misc -> Get information to '
+              'set up the user-defined device'),
+        _('Windows main memory ID string') + ':::' +
+            _('This field is used only on windows. '
+              'Get this ID using Preferences -> Misc -> Get information to '
+              'set up the user-defined device'),
+        _('Windows card A vendor string') + ':::' +
+            _('This field is used only on windows. '
+              'Get this ID using Preferences -> Misc -> Get information to '
+              'set up the user-defined device'),
+        _('Windows card A ID string') + ':::' +
+            _('This field is used only on windows. '
+              'Get this ID using Preferences -> Misc -> Get information to '
+              'set up the user-defined device'),
+        _('Main memory folder') + ':::' +
+            _('Enter the folder where the books are to be stored. This folder '
+              'is prepended to any send_to_device template'),
+        _('Card A folder') + ':::' +
+            _('Enter the folder where the books are to be stored. This folder '
+              'is prepended to any send_to_device template'),
     ]
     EXTRA_CUSTOMIZATION_DEFAULT = [
                 '0x0000',
