@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-04-30 16:30+0000\n"
-"PO-Revision-Date: 2011-04-23 10:33+0000\n"
+"PO-Revision-Date: 2011-05-02 12:20+0000\n"
 "Last-Translator: Jellby <Unknown>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-05-01 04:48+0000\n"
+"X-Launchpad-Export-Date: 2011-05-03 04:38+0000\n"
 "X-Generator: Launchpad (build 12758)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:528
@@ -566,7 +566,7 @@ msgstr "Libros de Amazon para Kindle"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1114
 msgid "Kindle books from Amazon.uk"
-msgstr ""
+msgstr "Libros Kindle de Amazon.uk"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1119
 msgid "Ebooks for readers."
@@ -622,15 +622,15 @@ msgstr "Su libro. Su modo."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1184
 msgid "Feel every word"
-msgstr ""
+msgstr "Detectar todas las palabras"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1189
 msgid "Foyles of London, online"
-msgstr ""
+msgstr "Foyles de Londres, en línea"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1194
 msgid "Kindle eBooks"
-msgstr ""
+msgstr "Libros Kindle"
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:102
 msgid "Conversion Input"
@@ -6203,11 +6203,11 @@ msgstr "Clic para abrir"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:123
 msgid "Ids"
-msgstr ""
+msgstr "Id."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:133
 msgid "Book %s of <span class=\"series_name\">%s</span>"
-msgstr ""
+msgstr "Libro %s de <span class=\"series_name\">%s</span>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:144
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:978
@@ -11548,7 +11548,7 @@ msgstr "Tamaño (MB)"
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:73
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:241
 msgid "Modified"
-msgstr ""
+msgstr "Modificado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:717
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1274
@@ -11731,6 +11731,8 @@ msgid ""
 "Cause a running calibre instance, if any, to be shutdown. Note that if there "
 "are running jobs, they will be silently aborted, so use with care."
 msgstr ""
+"Cierra cualquier sesión de calibre que pueda estar abierta. Tenga cuidado, "
+"porque si hay tareas en ejecución serán abortadas,"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:69
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:678
@@ -12968,19 +12970,19 @@ msgstr "Cambiar &tipo de letra (requiere reinicio)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:210
 msgid "Main Interface"
-msgstr ""
+msgstr "Interfaz principal"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:211
 msgid "Select displayed metadata"
-msgstr ""
+msgstr "Seleccionar metadatos mostrados"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:212
 msgid "Move up"
-msgstr ""
+msgstr "Mover hacia arriba"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:213
 msgid "Move down"
-msgstr ""
+msgstr "Mover hacia abajo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:214
 msgid "Use &Roman numerals for series"
@@ -12991,6 +12993,8 @@ msgid ""
 "Note that <b>comments</b> will always be displayed at the end, regardless of "
 "the position you assign here."
 msgstr ""
+"Los <b>comentarios</b> se mostrarán siempre al final, independientemente de "
+"la posición que se asigne aquí."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:217
 msgid "Tags browser category &partitioning method:"
@@ -14270,11 +14274,11 @@ msgstr "Aplicar los cambios realizados en este ajuste"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:339
 msgid "Delete current search"
-msgstr ""
+msgstr "Borrar búsqueda actual"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:340
 msgid "No search is selected"
-msgstr ""
+msgstr "No hay ninguna búsqueda seleccionada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:342
 msgid "The selected search will be <b>permanently deleted</b>. Are you sure?"
@@ -14303,18 +14307,20 @@ msgid ""
 "Save current search under the name shown in the box. Press and hold for a "
 "pop-up options menu."
 msgstr ""
+"Guarda la búsqueda actual con el nombre que se muestra en el cuadro. "
+"Mantenga el botón pulsado para obtener un menú emergente de opciones."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:458
 msgid "Create saved search"
-msgstr ""
+msgstr "Crear búsqueda guardada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:462
 msgid "Delete saved search"
-msgstr ""
+msgstr "Borrar búsqueda guardada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:466
 msgid "Manage saved searches"
-msgstr ""
+msgstr "Administrar búsquedas guardadas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:476
 msgid "*Current search"
@@ -14426,31 +14432,31 @@ msgstr "No disponible"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread/cache_progress_dialog_ui.py:51
 msgid "Updating book cache"
-msgstr ""
+msgstr "Actualizando el caché de libros"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread/cache_update_thread.py:42
 msgid "Checking last download date."
-msgstr ""
+msgstr "Comprobando la fecha de la última descarga."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread/cache_update_thread.py:48
 msgid "Downloading book list from MobileRead."
-msgstr ""
+msgstr "Descargando lista de libros de MobileRead."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread/cache_update_thread.py:61
 msgid "Processing books."
-msgstr ""
+msgstr "Procesando libros"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread/cache_update_thread.py:70
 msgid "%s of %s books processed."
-msgstr ""
+msgstr "%s de %s libros procesados."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread/mobileread_plugin.py:62
 msgid "Updating MobileRead book cache..."
-msgstr ""
+msgstr "Actualizando el caché de libros de MobileRead..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread/store_dialog_ui.py:69
 msgid "&Query:"
-msgstr ""
+msgstr "&Consulta:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread/store_dialog_ui.py:72
 #: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread_store_dialog_ui.py:63
@@ -14471,11 +14477,11 @@ msgstr "Buscar:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:192
 msgid "&Price:"
-msgstr ""
+msgstr "&Precio:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:196
 msgid "Titl&e/Author/Price ..."
-msgstr ""
+msgstr "&Título/autor/precio..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:33
 msgid "DRM"
@@ -15951,7 +15957,7 @@ msgstr "empty"
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:564
 msgid "Invalid boolean query \"{0}\""
-msgstr ""
+msgstr "Consulta booleana \"{0}\" no válida"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:51
 msgid ""
@@ -17173,6 +17179,7 @@ msgstr "La fecha de publicación"
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:46
 msgid "The date when the metadata for this book record was last modified"
 msgstr ""
+"La fecha en que se modificaron por última vez los metadatos de este libro."
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:48
 msgid "The calibre internal id"
