@@ -214,11 +214,51 @@ class NookInput(InputProfile):
     dpi                       = 167
     fbase                     = 16
     fsizes                    = [12, 12, 14, 16, 18, 20, 22, 24]
+    
+class BoeyeG5Input(InputProfile):
+    
+    author      = 'Ken'
+    name        = 'Boeye Digital Reader G5'
+    short_name  = 'boeyeg5'
+    description = _('This profile is intended for the Boeye G5.')
+
+    # Screen size is a best guess
+    screen_size                = (600, 800)
+    dpi                        = 200
+    fbase                      = 16
+    fsizes                     = [12, 14, 16, 18, 20, 22, 24]
+    
+class BoeyeG6Input(InputProfile):
+    
+    author      = 'Ken'
+    name        = 'Boeye Digital Reader G6'
+    short_name  = 'boeyeg6'
+    description = _('This profile is intended for the Boeye G6.')
+
+    # Screen size is a best guess
+    screen_size                = (600, 800)
+    dpi                        = 166.66
+    fbase                      = 16
+    fsizes                     = [12, 14, 16, 18, 20, 22, 24]
+
+class BoeyeG10Input(InputProfile):
+
+    author      = 'Ken'
+    name        = 'Boeye Digital Reader G10'
+    short_name  = 'boeyeg10'
+    description = _('This profile is intended for the Boeye G10.')
+
+    # Screen size is a best guess
+    screen_size                = (825, 1200)
+    dpi                        = 150
+    fbase                      = 16
+    fsizes                     = [12, 14, 16, 18, 20, 22, 24]
+
 
 input_profiles = [InputProfile, SonyReaderInput, SonyReader300Input,
         SonyReader900Input, MSReaderInput, MobipocketInput, HanlinV3Input,
         HanlinV5Input, CybookG3Input, CybookOpusInput, KindleInput, IlliadInput,
-        IRexDR1000Input, IRexDR800Input, NookInput]
+        IRexDR1000Input, IRexDR800Input, NookInput, BoeyeG5Input, BoeyeG6Input, BoeyeG10Input]
 
 input_profiles.sort(cmp=lambda x,y:cmp(x.name.lower(), y.name.lower()))
 
@@ -730,6 +770,50 @@ class BambookOutput(OutputProfile):
     dpi                       = 168.451
     fbase                     = 12
     fsizes                    = [10, 12, 14, 16]
+    
+class BoeyeG5Output(OutputProfile):
+
+    author      = 'Ken'
+    name        = 'Boeye Digital Reader G5'
+    short_name  = 'boeyeg5'
+    description = _('This profile is intended for the Boeye Digital Reader G5.')
+
+    # Screen size is a best guess
+    screen_size               = (600, 800)
+    comic_screen_size         = (600, 740)
+    dpi                       = 200
+    fbase                     = 16
+    fsizes                    = [12, 14, 16, 18, 20, 22, 24]
+
+
+class BoeyeG6Output(OutputProfile):
+
+    author      = 'Ken'
+    name        = 'Boeye Digital Reader G6'
+    short_name  = 'boeyeg6'
+    description = _('This profile is intended for the Boeye Digital Reader G6.')
+
+    # Screen size is a best guess
+    screen_size               = (600, 800)
+    comic_screen_size         = (600, 740)
+    dpi                       = 160
+    fbase                     = 16
+    fsizes                    = [12, 14, 16, 18, 20, 22, 24]
+
+class BoeyeG10Output(OutputProfile):
+
+    author      = 'Ken'
+    name        = 'Boeye Digital Reader G10'
+    short_name  = 'boeyeg10'
+    description = _('This profile is intended for the Boeye Digital Reader G10.')
+
+    # Screen size is a best guess
+    screen_size               = (825, 1200)
+    comic_screen_size         = (824, 1140)
+    dpi                       = 150
+    fbase                     = 16
+    fsizes                    = [12, 14, 16, 18, 20, 22, 24]
+
 
 output_profiles = [OutputProfile, SonyReaderOutput, SonyReader300Output,
         SonyReader900Output, MSReaderOutput, MobipocketOutput, HanlinV3Output,
@@ -737,6 +821,7 @@ output_profiles = [OutputProfile, SonyReaderOutput, SonyReader300Output,
         iPadOutput, KoboReaderOutput, TabletOutput, SamsungGalaxy,
         SonyReaderLandscapeOutput, KindleDXOutput, IlliadOutput,
         IRexDR1000Output, IRexDR800Output, JetBook5Output, NookOutput,
-        BambookOutput, NookColorOutput, GenericEink, GenericEinkLarge]
+        BambookOutput, NookColorOutput, BoeyeG5Output, BoeyeG6Output, BoeyeG10Output,
+        GenericEink, GenericEinkLarge]
 
 output_profiles.sort(cmp=lambda x,y:cmp(x.name.lower(), y.name.lower()))
