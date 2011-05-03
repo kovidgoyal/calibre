@@ -5,7 +5,6 @@ __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from calibre.devices.usbms.driver import USBMS
-from calibre.ebooks import BOOK_EXTENSIONS
 
 class USER_DEFINED(USBMS):
 

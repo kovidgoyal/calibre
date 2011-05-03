@@ -2905,4 +2905,4 @@ class BibTeX:
 
     def bibtex_author_format(self, item):
         #Format authors for Bibtex compliance (get a list as input)
-        return self.utf8ToBibtex(u' and'.join([author for author in item]))
+        return self.utf8ToBibtex(u' and '.join([author for author in item]))
