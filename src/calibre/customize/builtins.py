@@ -613,6 +613,7 @@ from calibre.devices.misc import PALMPRE, AVANT, SWEEX, PDNOVEL, \
 from calibre.devices.folder_device.driver import FOLDER_DEVICE_FOR_CONFIG
 from calibre.devices.kobo.driver import KOBO
 from calibre.devices.bambook.driver import BAMBOOK
+from calibre.devices.boeye.driver import BOEYE_BEX, BOEYE_BDX
 
 from calibre.library.catalog import CSV_XML, EPUB_MOBI, BIBTEX
 from calibre.ebooks.epub.fix.unmanifested import Unmanifested
@@ -743,6 +744,8 @@ plugins += [
     EEEREADER,
     NEXTBOOK,
     ITUNES,
+    BOEYE_BEX,
+    BOEYE_BDX,
     USER_DEFINED,
 ]
 plugins += [x for x in list(locals().values()) if isinstance(x, type) and \
