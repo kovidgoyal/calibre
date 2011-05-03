@@ -253,6 +253,8 @@ class MobiReader(object):
 
                 .italic { font-style: italic }
 
+                .underline { text-decoration: underline }
+
                 .mbp_pagebreak {
                     page-break-after: always; margin: 0; display: block
                 }
@@ -601,6 +603,9 @@ class MobiReader(object):
             elif tag.tag == 'i':
                 tag.tag = 'span'
                 tag.attrib['class'] = 'italic'
+            elif tag.tag == 'u':
+                tag.tag = 'span'
+                tag.attrib['class'] = 'underline'
             elif tag.tag == 'b':
                 tag.tag = 'span'
                 tag.attrib['class'] = 'bold'

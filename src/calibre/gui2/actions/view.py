@@ -60,7 +60,7 @@ class ViewAction(InterfaceAction):
 
     def build_menus(self, db):
         self.view_menu.clear()
-        self.view_menu.addAction(self.qaction)
+        self.view_menu.addAction(self.view_action)
         self.view_menu.addAction(self.view_specific_action)
         self.view_menu.addSeparator()
         self.view_menu.addAction(self.action_pick_random)
