@@ -13,7 +13,7 @@ from functools import partial
 from PyQt4.Qt import (Qt, QVBoxLayout, QHBoxLayout, QWidget, QPushButton,
         QGridLayout, pyqtSignal, QDialogButtonBox, QScrollArea, QFont,
         QTabWidget, QIcon, QToolButton, QSplitter, QGroupBox, QSpacerItem,
-        QSizePolicy, QPalette, QFrame, QSize, QKeySequence, QMenu)
+        QSizePolicy, QPalette, QFrame, QSize, QKeySequence, QMenu, QLabel)
 
 from calibre.ebooks.metadata import authors_to_string, string_to_authors
 from calibre.gui2 import ResizableDialog, error_dialog, gprefs, pixmap_to_data
@@ -198,7 +198,7 @@ class MetadataSingleDialogBase(ResizableDialog):
             ans = self.custom_metadata_widgets
             for i in range(len(ans)-1):
                 if before is not None and i == 0:
-                    pass# Do something
+                    pass
                 if len(ans[i+1].widgets) == 2:
                     sto(ans[i].widgets[-1], ans[i+1].widgets[1])
                 else:
@@ -206,7 +206,7 @@ class MetadataSingleDialogBase(ResizableDialog):
                 for c in range(2, len(ans[i].widgets), 2):
                     sto(ans[i].widgets[c-1], ans[i].widgets[c+1])
             if after is not None:
-                pass # Do something
+                pass
     # }}}
 
     def do_view_format(self, path, fmt):
@@ -728,7 +728,135 @@ class MetadataSingleDialogAlt1(MetadataSingleDialogBase): # {{{
 
 # }}}
 
-editors = {'default': MetadataSingleDialog, 'alt1': MetadataSingleDialogAlt1}
+class MetadataSingleDialogAlt2(MetadataSingleDialogBase): # {{{
+
+    cc_two_column = False
+    one_line_comments_toolbar = True
+
+    def do_layout(self):
+        self.central_widget.clear()
+        self.labels = []
+        sto = QWidget.setTabOrder
+
+        self.central_widget.tabBar().setVisible(False)
+        tab0 = QWidget(self)
+        self.central_widget.addTab(tab0, _("&Metadata"))
+        l = QGridLayout()
+        tab0.setLayout(l)
+
+        # Basic metadata in col 0
+        tl = QGridLayout()
+        gb = QGroupBox(_('Basic metadata'), tab0)
+        l.addWidget(gb, 0, 0, 1, 1)
+        gb.setLayout(tl)
+
+        self.button_box.addButton(self.fetch_metadata_button,
+                                  QDialogButtonBox.ActionRole)
+        self.config_metadata_button.setToolButtonStyle(Qt.ToolButtonTextOnly)
+        self.config_metadata_button.setText(_('Configure metadata downloading'))
+        self.button_box.addButton(self.config_metadata_button,
+                                  QDialogButtonBox.ActionRole)
+        sto(self.button_box, self.title)
+
+        def create_row(row, widget, tab_to, button=None, icon=None, span=1):
+            ql = BuddyLabel(widget)
+            tl.addWidget(ql, row, 1, 1, 1)
+            tl.addWidget(widget, row, 2, 1, 1)
+            if button is not None:
+                tl.addWidget(button, row, 3, span, 1)
+                if icon is not None:
+                    button.setIcon(QIcon(I(icon)))
+            if tab_to is not None:
+                if button is not None:
+                    sto(widget, button)
+                    sto(button, tab_to)
+                else:
+                    sto(widget, tab_to)
+
+        tl.addWidget(self.swap_title_author_button, 0, 0, 2, 1)
+
+        create_row(0, self.title, self.title_sort,
+                   button=self.deduce_title_sort_button, span=2,
+                   icon='auto_author_sort.png')
+        create_row(1, self.title_sort, self.authors)
+        create_row(2, self.authors, self.author_sort,
+                   button=self.deduce_author_sort_button,
+                   span=2, icon='auto_author_sort.png')
+        create_row(3, self.author_sort, self.series)
+        create_row(4, self.series, self.series_index,
+                   button=self.remove_unused_series_button, icon='trash.png')
+        create_row(5, self.series_index, self.tags)
+        create_row(6, self.tags, self.rating, button=self.tags_editor_button)
+        create_row(7, self.rating, self.pubdate)
+        create_row(8, self.pubdate, self.publisher,
+                   button=self.pubdate.clear_button, icon='trash.png')
+        create_row(9, self.publisher, self.timestamp)
+        create_row(10, self.timestamp, self.identifiers,
+                   button=self.timestamp.clear_button, icon='trash.png')
+        create_row(11, self.identifiers, self.comments,
+                   button=self.clear_identifiers_button, icon='trash.png')
+        tl.addItem(QSpacerItem(1, 1, QSizePolicy.Fixed, QSizePolicy.Expanding),
+                   12, 1, 1 ,1)
+
+        # Custom metadata in col 1
+        w = getattr(self, 'custom_metadata_widgets_parent', None)
+        if w is not None:
+            gb = QGroupBox(_('Custom metadata'), tab0)
+            gbl = QVBoxLayout()
+            gb.setLayout(gbl)
+            sr = QScrollArea(gb)
+            sr.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+            sr.setWidgetResizable(True)
+            sr.setBackgroundRole(QPalette.Base)
+            sr.setFrameStyle(QFrame.NoFrame)
+            sr.setWidget(w)
+            gbl.addWidget(sr)
+            l.addWidget(gb, 0, 1, 1, 1)
+            sp = QSizePolicy()
+            sp.setVerticalStretch(10)
+            sp.setHorizontalPolicy(QSizePolicy.Fixed)
+            sp.setVerticalPolicy(QSizePolicy.Expanding)
+            gb.setSizePolicy(sp)
+            self.set_custom_metadata_tab_order()
+
+        # comments span col 0 & 1
+        w = QGroupBox(_('Comments'), tab0)
+        sp = QSizePolicy()
+        sp.setVerticalStretch(10)
+        sp.setHorizontalPolicy(QSizePolicy.Expanding)
+        sp.setVerticalPolicy(QSizePolicy.Expanding)
+        w.setSizePolicy(sp)
+        lb = QHBoxLayout()
+        w.setLayout(lb)
+        lb.addWidget(self.comments)
+        l.addWidget(w, 1, 0, 1, 2)
+
+        # Cover & formats in col 3
+        gb = QGroupBox(_('Cover'), tab0)
+        lb = QGridLayout()
+        gb.setLayout(lb)
+        lb.addWidget(self.cover, 0, 0, 1, 3, alignment=Qt.AlignCenter)
+        sto(self.clear_identifiers_button, self.cover.buttons[0])
+        for i, b in enumerate(self.cover.buttons[:3]):
+            lb.addWidget(b, 1, i, 1, 1)
+            sto(b, self.cover.buttons[i+1])
+        hl = QHBoxLayout()
+        for b in self.cover.buttons[3:]:
+            hl.addWidget(b)
+        sto(self.cover.buttons[-2], self.cover.buttons[-1])
+        lb.addLayout(hl, 2, 0, 1, 3)
+        l.addWidget(gb, 0, 2, 1, 1)
+        l.addWidget(self.formats_manager, 1, 2, 1, 1)
+        sto(self.cover.buttons[-1], self.formats_manager)
+
+        self.formats_manager.formats.setMaximumWidth(10000)
+        self.formats_manager.formats.setIconSize(QSize(32, 32))
+
+# }}}
+
+
+editors = {'default': MetadataSingleDialog, 'alt1': MetadataSingleDialogAlt1,
+           'alt2': MetadataSingleDialogAlt2}
 
 def edit_metadata(db, row_list, current_row, parent=None, view_slot=None,
         set_current_callback=None):
