@@ -6,7 +6,6 @@ __docformat__ = 'restructuredtext en'
 Device driver for BOEYE serial readers
 '''
 
-import re
 from calibre.devices.usbms.driver import USBMS
 
 class BOEYE_BEX(USBMS):
