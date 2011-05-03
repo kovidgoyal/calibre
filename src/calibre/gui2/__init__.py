@@ -34,7 +34,7 @@ if isosx:
         )
     gprefs.defaults['action-layout-toolbar'] = (
         'Add Books', 'Edit Metadata', None, 'Convert Books', 'View', None,
-        'Choose Library', 'Donate', None, 'Fetch News', 'Save To Disk',
+        'Choose Library', 'Donate', None, 'Fetch News', 'Store', 'Save To Disk',
         'Connect Share', None, 'Remove Books',
         )
     gprefs.defaults['action-layout-toolbar-device'] = (
@@ -48,7 +48,7 @@ else:
     gprefs.defaults['action-layout-menubar-device'] = ()
     gprefs.defaults['action-layout-toolbar'] = (
         'Add Books', 'Edit Metadata', None, 'Convert Books', 'View', None,
-        'Choose Library', 'Donate', None, 'Fetch News', 'Save To Disk',
+        'Choose Library', 'Donate', None, 'Fetch News', 'Store', 'Save To Disk',
         'Connect Share', None, 'Remove Books', None, 'Help', 'Preferences',
         )
     gprefs.defaults['action-layout-toolbar-device'] = (

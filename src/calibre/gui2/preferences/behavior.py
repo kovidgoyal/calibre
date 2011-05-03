@@ -61,7 +61,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
         r('bools_are_tristate', db.prefs, restart_required=True)
         r = self.register
-        choices = [(_('Default'), 'default'), (_('Compact Metadata'), 'alt1')]
+        choices = [(_('Default'), 'default'), (_('Compact Metadata'), 'alt1'),
+                   (_('All on 1 tab'), 'alt2')]
         r('edit_metadata_single_layout', gprefs, choices=choices)
 
     def initialize(self):

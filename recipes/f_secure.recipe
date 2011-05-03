@@ -12,7 +12,6 @@ class AdvancedUserRecipe1301860159(BasicNewsRecipe):
     max_articles_per_feed = 100
     no_stylesheets = True
     use_embedded_content   = False
-    language = 'en_EN'
     remove_javascript = True
     keep_only_tags = [dict(name='div', attrs={'class':'modSectionTd2'})]
     remove_tags = [dict(name='a'),dict(name='hr')]
