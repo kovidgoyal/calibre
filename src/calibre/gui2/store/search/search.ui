@@ -70,7 +70,7 @@
             <x>0</x>
             <y>0</y>
             <width>215</width>
-            <height>116</height>
+            <height>93</height>
            </rect>
           </property>
          </widget>
@@ -100,6 +100,16 @@
           </widget>
          </item>
         </layout>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="open_external">
+         <property name="toolTip">
+          <string>Open a selected book in the system's web browser</string>
+         </property>
+         <property name="text">
+          <string>Open external</string>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>
