@@ -246,7 +246,7 @@ class ChooseLibraryAction(InterfaceAction):
     def delete_requested(self, name, location):
         loc = location.replace('/', os.sep)
         if not question_dialog(self.gui, _('Are you sure?'), '<p>'+
-                _('All files from %s will be '
+                _('<b>All files</b> from %s will be '
                 '<b>permanently deleted</b>. Are you sure?') % loc,
                 show_copy_button=False):
             return
