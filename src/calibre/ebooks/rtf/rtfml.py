@@ -79,8 +79,7 @@ def txt2rtf(text):
         elif val <= 127:
             buf.write(x)
         else:
-            repl = ascii_text(x)
-            c = r'\uc{2}\u{0:d}{1}'.format(val, repl, len(repl))
+            c = r'\u{0:d}?'.format(val)
             buf.write(c)
     return buf.getvalue()
 
