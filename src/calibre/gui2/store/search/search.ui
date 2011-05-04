@@ -107,7 +107,7 @@
           <string>Open a selected book in the system's web browser</string>
          </property>
          <property name="text">
-          <string>Open external</string>
+          <string>Open in &amp;external browser</string>
          </property>
         </widget>
        </item>
