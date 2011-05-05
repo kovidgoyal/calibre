@@ -56,6 +56,9 @@ class Extract(ODF2XHTML):
             nc = [x for x in r.selectorList if not
                     x.selectorText.startswith('.')]
             if len(r.selectorList) > 1 and not nc:
+                # Replace all the class selectors with a single class selector
+                # This will be added to the class attribute of all elements
+                # that have one of these selectors.
                 replace_name = 'c_odt%d'%count
                 count += 1
                 for sel in r.selectorList:
