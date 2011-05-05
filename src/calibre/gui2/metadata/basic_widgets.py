@@ -298,11 +298,12 @@ class AuthorSortEdit(EnLineEdit):
         self.current_val = self.db.author_sort_from_authors(authors)
 
     def initialize(self, db, id_):
-        self.current_val = db.author_sort(id_, index_is_id=True)
+        self.current_val = self.original_val = db.author_sort(id_, index_is_id=True)
 
     def commit(self, db, id_):
         aus = self.current_val
-        db.set_author_sort(id_, aus, notify=False, commit=False)
+        if aus != self.original_val:
+            db.set_author_sort(id_, aus, notify=False, commit=False)
         return True
 
 # }}}

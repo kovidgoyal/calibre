@@ -13,7 +13,7 @@ from functools import partial
 from PyQt4.Qt import (Qt, QVBoxLayout, QHBoxLayout, QWidget, QPushButton,
         QGridLayout, pyqtSignal, QDialogButtonBox, QScrollArea, QFont,
         QTabWidget, QIcon, QToolButton, QSplitter, QGroupBox, QSpacerItem,
-        QSizePolicy, QPalette, QFrame, QSize, QKeySequence, QMenu, QLabel)
+        QSizePolicy, QPalette, QFrame, QSize, QKeySequence, QMenu)
 
 from calibre.ebooks.metadata import authors_to_string, string_to_authors
 from calibre.gui2 import ResizableDialog, error_dialog, gprefs, pixmap_to_data
