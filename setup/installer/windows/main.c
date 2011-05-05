@@ -23,6 +23,9 @@ wWinMain(HINSTANCE Inst, HINSTANCE PrevInst,
 	ret = execute_python_entrypoint(BASENAME, MODULE, FUNCTION,
 					stdout_redirect, stderr_redirect);
 
+    if (stdout != NULL) fclose(stdout);
+    if (stderr != NULL) fclose(stderr);
+
     DeleteFile(stdout_redirect);
     DeleteFile(stderr_redirect);
 
