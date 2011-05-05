@@ -111,8 +111,9 @@ class MetadataSingleDialogBase(ResizableDialog):
         b.m = m = QMenu()
         ac = m.addAction(QIcon(I('forward.png')), _('Set author sort from author'))
         ac2 = m.addAction(QIcon(I('back.png')), _('Set author from author sort'))
+        ac3 = m.addAction(QIcon(I('user_profile.png')), _('Manage authors'))
         b.setMenu(m)
-        self.authors = AuthorsEdit(self)
+        self.authors = AuthorsEdit(self, ac3)
         self.author_sort = AuthorSortEdit(self, self.authors, b, self.db, ac,
                 ac2)
         self.basic_metadata_widgets.extend([self.authors, self.author_sort])
