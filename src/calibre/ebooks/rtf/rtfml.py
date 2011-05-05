@@ -15,7 +15,6 @@ import cStringIO
 from lxml import etree
 
 from calibre.ebooks.metadata import authors_to_string
-from calibre.utils.filenames import ascii_text
 from calibre.utils.magick.draw import save_cover_data_to, identify_data
 
 TAGS = {

@@ -299,13 +299,13 @@ def run_gui(opts, args, actions, listener, app, gui_debug=None):
         if getattr(runner.main, 'debug_on_restart', False):
             run_in_debug_mode()
         else:
+            import subprocess
             print 'Restarting with:', e, sys.argv
             if hasattr(sys, 'frameworks_dir'):
                 app = os.path.dirname(os.path.dirname(sys.frameworks_dir))
-                import subprocess
                 subprocess.Popen('sleep 3s; open '+app, shell=True)
             else:
-                os.execvp(e, sys.argv)
+                subprocess.Popen([e] + sys.argv[1:])
     else:
         if iswindows:
             try:
