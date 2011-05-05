@@ -70,7 +70,7 @@ def set_metadata(stream, mi):
     # Update the metadata.
     old_mi = opf.to_book_metadata()
     old_mi.smart_update(mi)
-    opf.smart_update(metadata_to_opf(old_mi))
+    opf.smart_update(metadata_to_opf(old_mi), replace_metadata=True)
     newopf = StringIO(opf.render())
     safe_replace(stream, opf_path, newopf, extra_replacements=replacements, add_missing=True)
 

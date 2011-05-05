@@ -164,7 +164,7 @@ class APNXBuilder(object):
                 if c == '/':
                     closing = True
                     continue
-                elif c in ('d', 'p'):
+                elif c == 'p':
                     if closing:
                         in_p = False
                     else:
