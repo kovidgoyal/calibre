@@ -36,7 +36,7 @@ def meta_info_to_oeb_metadata(mi, m, log, override_input_metadata=False):
         m.clear('description')
         m.add('description', mi.comments)
     elif override_input_metadata:
-         m.clear('description')
+        m.clear('description')
     if not mi.is_null('publisher'):
         m.clear('publisher')
         m.add('publisher', mi.publisher)
