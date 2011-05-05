@@ -13,6 +13,7 @@ from Queue import Queue, Empty
 from threading import Thread
 from io import BytesIO
 from operator import attrgetter
+from urlparse import urlparse
 
 from calibre.customize.ui import metadata_plugins, all_metadata_plugins
 from calibre.ebooks.metadata.sources.base import create_log, msprefs
@@ -458,6 +459,14 @@ def urls_from_identifiers(identifiers): # {{{
     if oclc:
         ans.append(('OCLC', 'oclc', oclc,
             'http://www.worldcat.org/oclc/'+oclc))
+    url = identifiers.get('uri', None)
+    if url is None:
+        url = identifiers.get('url', None)
+    if url and url.startswith('http'):
+        url = url[:8].replace('|', ':') + url[8:].replace('|', ',')
+        parts = urlparse(url)
+        name = parts.netloc
+        ans.append((name, 'url', url, url))
     return ans
 # }}}
 
