@@ -103,11 +103,12 @@ class MetadataSingleDialogBase(ResizableDialog):
         self.basic_metadata_widgets.extend([self.title, self.title_sort])
 
         self.deduce_author_sort_button = b = QToolButton(self)
-        b.setToolTip(_(
-        'Automatically create the author sort entry based on the current'
-        ' author entry.\n'
-        'Using this button to create author sort will change author sort from'
-        ' red to green.'))
+        b.setToolTip('<p>' +
+            _('Automatically create the author sort entry based on the current '
+              'author entry. Using this button to create author sort will '
+              'change author sort from red to green.  There is a menu of '
+              'functions available under this button. Click and hold '
+              'on the button to see it.') + '</p>')
         b.m = m = QMenu()
         ac = m.addAction(QIcon(I('forward.png')), _('Set author sort from author'))
         ac2 = m.addAction(QIcon(I('back.png')), _('Set author from author sort'))
