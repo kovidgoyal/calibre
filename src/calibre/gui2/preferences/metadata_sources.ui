@@ -77,14 +77,28 @@
          <property name="title">
           <string>Downloaded metadata fields</string>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_2">
-          <item>
+         <layout class="QGridLayout" name="gridLayout_2">
+          <item row="0" column="0" colspan="2">
            <widget class="QListView" name="fields_view">
             <property name="toolTip">
              <string>If you uncheck any fields, metadata for those fields will not be downloaded</string>
             </property>
             <property name="selectionMode">
              <enum>QAbstractItemView::NoSelection</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QPushButton" name="select_all_button">
+            <property name="text">
+             <string>&amp;Select all</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QPushButton" name="clear_all_button">
+            <property name="text">
+             <string>&amp;Clear all</string>
             </property>
            </widget>
           </item>

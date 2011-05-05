@@ -15,12 +15,11 @@ from calibre.customize.profiles import InputProfile, OutputProfile
 from calibre.customize.builtins import plugins as builtin_plugins
 from calibre.devices.interface import DevicePlugin
 from calibre.ebooks.metadata import MetaInformation
-from calibre.ebooks.metadata.covers import CoverDownload
-from calibre.ebooks.metadata.fetch import MetadataSource
-from calibre.utils.config import make_config_dir, Config, ConfigProxy, \
-                                 plugin_dir, OptionParser, prefs
+from calibre.utils.config import (make_config_dir, Config, ConfigProxy,
+                                 plugin_dir, OptionParser)
 from calibre.ebooks.epub.fix import ePubFixer
 from calibre.ebooks.metadata.sources.base import Source
+from calibre.constants import DEBUG
 
 builtin_names = frozenset([p.name for p in builtin_plugins])
 
@@ -188,44 +187,6 @@ def output_profiles():
     for plugin in _initialized_plugins:
         if isinstance(plugin, OutputProfile):
             yield plugin
-# }}}
-
-# Metadata sources {{{
-def metadata_sources(metadata_type='basic', customize=True, isbndb_key=None):
-    for plugin in _initialized_plugins:
-        if isinstance(plugin, MetadataSource) and \
-                plugin.metadata_type == metadata_type:
-            if is_disabled(plugin):
-                continue
-            if customize:
-                customization = config['plugin_customization']
-                plugin.site_customization = customization.get(plugin.name, None)
-            if plugin.name == 'IsbnDB' and isbndb_key is not None:
-                plugin.site_customization = isbndb_key
-            yield plugin
-
-def get_isbndb_key():
-    return config['plugin_customization'].get('IsbnDB', None)
-
-def set_isbndb_key(key):
-    for plugin in _initialized_plugins:
-        if plugin.name == 'IsbnDB':
-            return customize_plugin(plugin, key)
-
-def migrate_isbndb_key():
-    key = prefs['isbndb_com_key']
-    if key:
-        prefs.set('isbndb_com_key', '')
-        set_isbndb_key(key)
-
-def cover_sources():
-    customization = config['plugin_customization']
-    for plugin in _initialized_plugins:
-        if isinstance(plugin, CoverDownload):
-            if not is_disabled(plugin):
-                plugin.site_customization = customization.get(plugin.name, '')
-                yield plugin
-
 # }}}
 
 # Interface Actions # {{{
@@ -527,8 +488,9 @@ def initialize_plugins():
             plugin = initialize_plugin(plugin, None if isinstance(zfp, type) else zfp)
             _initialized_plugins.append(plugin)
         except:
-            print 'Failed to initialize plugin...'
-            traceback.print_exc()
+            print 'Failed to initialize plugin:', repr(zfp)
+            if DEBUG:
+                traceback.print_exc()
     _initialized_plugins.sort(cmp=lambda x,y:cmp(x.priority, y.priority), reverse=True)
     reread_filetype_plugins()
     reread_metadata_plugins()

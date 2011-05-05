@@ -155,6 +155,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.config['results_view_column_width'] = [self.results_view.columnWidth(i) for i in range(self.results_view.model().columnCount())]
         self.config['sort_col'] = self.results_view.model().sort_col
         self.config['sort_order'] = self.results_view.model().sort_order
+        self.config['open_external'] = self.open_external.isChecked()
 
         store_check = {}
         for n in self.store_plugins:
@@ -178,6 +179,8 @@ class SearchDialog(QDialog, Ui_Dialog):
                 self.results_view.setColumnWidth(i, x)
         else:
             self.resize_columns()
+
+        self.open_external.setChecked(self.config.get('open_external', False))
 
         store_check = self.config.get('store_checked', None)
         if store_check:
@@ -212,7 +215,7 @@ class SearchDialog(QDialog, Ui_Dialog):
 
     def open_store(self, index):
         result = self.results_view.model().get_result(index)
-        self.store_plugins[result.store_name].open(self, result.detail_item)
+        self.store_plugins[result.store_name].open(self, result.detail_item, self.open_external.isChecked())
 
     def check_progress(self):
         if not self.search_pool.threads_running() and not self.results_view.model().cover_pool.threads_running() and not self.results_view.model().details_pool.threads_running(): 
