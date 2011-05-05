@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-04-30 16:30+0000\n"
-"PO-Revision-Date: 2011-05-03 12:43+0000\n"
+"PO-Revision-Date: 2011-05-04 09:09+0000\n"
 "Last-Translator: Anca Stratulat <Unknown>\n"
 "Language-Team: Romanian <ro@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-05-04 04:35+0000\n"
-"X-Generator: Launchpad (build 12758)\n"
+"X-Launchpad-Export-Date: 2011-05-05 04:38+0000\n"
+"X-Generator: Launchpad (build 12959)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -515,7 +515,7 @@ msgstr "Descărcare metadate"
 msgid "Control how calibre downloads ebook metadata from the net"
 msgstr ""
 "Controlează modul în care Calibre descarcă metadatele cărţilor electronice "
-"din internet"
+"de pe internet"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1066
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:269
@@ -1089,7 +1089,7 @@ msgstr "Transfera carti catre dispozitiv..."
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:279
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:310
 msgid "Adding books to device metadata listing..."
-msgstr "Adaug carti la lista metadata a dispozitivului..."
+msgstr "Adaugă carţi listei de metadate a dispozitivului..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:307
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:309
@@ -1109,7 +1109,7 @@ msgstr "Sterge carti din dispozitiv..."
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:341
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:346
 msgid "Removing books from device metadata listing..."
-msgstr "Sterg carti din lista metadata a dispozitivului..."
+msgstr "Şterge cărţi din lista de metadate a dispozitivului..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:397
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:376
@@ -1442,8 +1442,8 @@ msgid ""
 "Comma separated list of metadata fields to turn into collections on the "
 "device. Possibilities include: "
 msgstr ""
-"Lista separata prin virgule a campurilor de metadate ce vor fi transformate "
-"in colectii in dispozitiv. "
+"Lista separată prin virgule a câmpurilor de metadate ce vor fi transformate "
+"în colecţii pe dispozitiv. "
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:69
 msgid ""
@@ -1647,7 +1647,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:61
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:81
 msgid "Read metadata from files on device"
-msgstr "Citeste metadate din fisierele de pe dispozitiv"
+msgstr "Citeşte metadate din fişierele de pe dispozitiv"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:63
 msgid "Use author sort instead of author"
@@ -2254,9 +2254,8 @@ msgid ""
 "Insert the book metadata at the start of the book. This is useful if your "
 "ebook reader does not support displaying/searching metadata directly."
 msgstr ""
-"Introduce metadatele cărții la începutul cărții. Este de folos dacă "
-"cititorul dvs. de cărți electronice nu suporta afișarea/căutarea directă a "
-"metadatelor."
+"Introduce metadatele cărții la începutul cărții. Este util dacă cititorul "
+"dvs. de cărți electronice nu suportă afișarea/căutarea directă a metadatelor."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:395
 msgid ""
@@ -2272,8 +2271,8 @@ msgid ""
 "Read metadata from the specified OPF file. Metadata read from this file will "
 "override any metadata in the source file."
 msgstr ""
-"Citeste metadata din fisierul OPF specificat. Metadata citită din acest "
-"fişier va suprascrie orice metadată din fişierul sursă."
+"Citeşte metadatele din fişierul OPF specificat. Metadatele citite din acest "
+"fişier vor suprascrie orice metadată din fişierul sursă."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:411
 msgid ""
@@ -3103,23 +3102,23 @@ msgstr "Comic"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/amazonfr.py:26
 msgid "Downloads metadata from amazon.fr"
-msgstr "Descarcă metadata de pe amazon.fr"
+msgstr "Descarcă metadate de pe amazon.fr"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/amazonfr.py:43
 msgid "Downloads metadata from amazon.com in spanish"
-msgstr "Descarca metadata de pe amazon.com în spaniolă"
+msgstr "Descarca metadate de pe amazon.com în spaniolă"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/amazonfr.py:60
 msgid "Downloads metadata from amazon.com in english"
-msgstr "Descarcă metadata de pe amazon.com în engleză"
+msgstr "Descarcă metadate de pe amazon.com în engleză"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/amazonfr.py:77
 msgid "Downloads metadata from amazon.de"
-msgstr "Descarcă metadata de pe amazon.de"
+msgstr "Descarcă metadate de pe amazon.de"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/amazonfr.py:94
 msgid "Downloads metadata from amazon.com"
-msgstr "Descarca metadata de pe amazon.com"
+msgstr "Descarca metadate de pe amazon.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/amazonfr.py:474
 msgid ""
@@ -3266,12 +3265,16 @@ msgid ""
 "Set the authors. Multiple authors should be separated by the & character. "
 "Author names should be in the order Firstname Lastname."
 msgstr ""
+"Setează autorii. Autori multiplii ar trebuie separaţi prin caracterul &. "
+"Numele autorilor ar trebui să fie în ordinea Nume Prenume."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:44
 msgid ""
 "The version of the title to be used for sorting. If unspecified, and the "
 "title is specified, it will be auto-generated from the title."
 msgstr ""
+"Versiunea titlului care urmează a fi utilizată la sortare. Dacă nu e "
+"specificată, iar titlul este specificat, va fi autogenerată din titlu."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:48
 msgid ""
@@ -3281,11 +3284,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:52
 msgid "Set the cover to the specified file."
-msgstr ""
+msgstr "Setează coperta fişierului specificat."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:58
 msgid "Set the book category."
-msgstr ""
+msgstr "Setaţi categoria cărţii."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:74
 msgid "Set the published date."
@@ -3302,7 +3305,7 @@ msgid ""
 "Specify the name of an OPF file. The metadata will be written to the OPF "
 "file."
 msgstr ""
-"Specificaţi numele unui fişier OPF. Metadata va fi scrisă pe fişierul OPF."
+"Specificaţi numele unui fişier OPF. Metadatele vor fi scrise pe fişierul OPF."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:83
 msgid ""
@@ -3313,60 +3316,60 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:88
 msgid "Set the BookID in LRF files"
-msgstr ""
+msgstr "Setaţi BookID-ul în fişierele LRF"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:153
 msgid "No file specified"
-msgstr ""
+msgstr "Nici un fişier specificat"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:168
 msgid "Original metadata"
-msgstr ""
+msgstr "Metadate originale"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:185
 msgid "Changed metadata"
-msgstr ""
+msgstr "Schimbă metadatele"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:197
 msgid "OPF created in"
-msgstr ""
+msgstr "OPF creat în"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:203
 msgid "Cover saved to"
-msgstr ""
+msgstr "Copertă salvată în"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:205
 msgid "No cover found"
-msgstr ""
+msgstr "Nu s-a găsit nici o copertă"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/covers.py:27
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:45
 msgid "Cover download"
-msgstr ""
+msgstr "Descarcă coperta"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/covers.py:81
 msgid "Download covers from openlibrary.org"
-msgstr ""
+msgstr "Descarcă coperţi de pe openlibrary.org"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/covers.py:111
 msgid "ISBN: %s not found"
-msgstr ""
+msgstr "ISBN: %s nu a fost găsit"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/covers.py:121
 msgid "Download covers from amazon.com"
-msgstr ""
+msgstr "Descarcă coperţi de pe amazon.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/covers.py:211
 msgid "Download covers from Douban.com"
-msgstr ""
+msgstr "Descarcă coperţi de pe Douban.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/covers.py:220
 msgid "Douban.com API timed out. Try again later."
-msgstr ""
+msgstr "Douban.com API a expirat. Încercaţi din nou, mai târziu."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/douban.py:42
 msgid "Downloads metadata from Douban.com"
-msgstr ""
+msgstr "Descarcă medtadate de pe Douban.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:144
 msgid "ratings"
@@ -3374,15 +3377,15 @@ msgstr "Evaluări"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:144
 msgid "tags"
-msgstr ""
+msgstr "etichete"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:145
 msgid "description/reviews"
-msgstr ""
+msgstr "descriere/comentarii"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:146
 msgid "Download %s from %s"
-msgstr ""
+msgstr "Descarcă %s din %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:153
 msgid "Convert comments downloaded from %s to plain text"
@@ -3391,22 +3394,24 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:181
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google.py:160
 msgid "Downloads metadata from Google Books"
-msgstr ""
+msgstr "Descarcă metadate de pe Google Books"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:198
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/isbndb.py:27
 msgid "Downloads metadata from isbndb.com"
-msgstr ""
+msgstr "Descarcă metadate de pe isbndb.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:226
 msgid ""
 "To use isbndb.com you must sign up for a %sfree account%s and enter your "
 "access key below."
 msgstr ""
+"Pentru a utiliza isbndb.com trebuie să vă înscrieţi pentru un %s cont "
+"gratuiut %s şi introduceţi cheia de acces mai jos."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:236
 msgid "Downloads social metadata from amazon.com"
-msgstr ""
+msgstr "Descărcaţi metadate sociale de pe amazon.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:257
 msgid ""
@@ -3416,22 +3421,22 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fictionwise.py:25
 msgid "Downloads metadata from Fictionwise"
-msgstr ""
+msgstr "Descarcă metadate de pe Fictionwise"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fictionwise.py:90
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:108
 msgid "Query: %s"
-msgstr ""
+msgstr "Interogare: %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fictionwise.py:100
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fictionwise.py:285
 msgid "Fictionwise timed out. Try again later."
-msgstr ""
+msgstr "Fictionwise a expirat. Încercaţi din nou mai târziu."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fictionwise.py:101
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fictionwise.py:286
 msgid "Fictionwise encountered an error."
-msgstr ""
+msgstr "Fictionwise a întâmpinat o eroare."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fictionwise.py:219
 msgid ""
@@ -3459,7 +3464,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fictionwise.py:362
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:363
 msgid "Book title"
-msgstr ""
+msgstr "Titlul cărţii"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fictionwise.py:363
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:364
@@ -3507,7 +3512,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:118
 msgid "The ISBN ID of the book you want metadata for."
-msgstr ""
+msgstr "ID-ul ISBN a cărţii pentru care doriţi metadatele."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:120
 msgid "The author whose book to search for."
@@ -3532,7 +3537,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:26
 msgid "Downloads metadata from french Nicebooks"
-msgstr ""
+msgstr "Descărcaţi metadate de pe Nicebook franceză"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:42
 msgid "Downloads covers from french Nicebooks"
@@ -3601,7 +3606,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:283
 msgid "Downloads metadata from Amazon"
-msgstr ""
+msgstr "Descărcaţi metadate de pe Amazon"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:293
 msgid "US"
@@ -3625,7 +3630,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/base.py:156
 msgid "Metadata source"
-msgstr ""
+msgstr "Sursa de metadate"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/isbndb.py:37
 msgid "IsbnDB key:"
@@ -3650,15 +3655,17 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/overdrive.py:33
 msgid "Downloads metadata from Overdrive's Content Reserve"
-msgstr ""
+msgstr "Descărcaţi metadate de pe Overdrive's Content Reserve"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/overdrive.py:45
 msgid "Download all metadata (slow)"
-msgstr ""
+msgstr "Descărcaţi toate metadatele (încet)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/overdrive.py:46
 msgid "Enable this option to gather all metadata available from Overdrive."
 msgstr ""
+"Activaţi această opţiune pentru a aduna toate metadatele disponibile de la "
+"Overdrive."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/overdrive.py:49
 msgid ""
@@ -4333,7 +4340,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:171
 msgid "Overwrite author and title with new metadata"
-msgstr ""
+msgstr "Suprascriere autorul şi titlul cu metadate noi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:173
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata_ui.py:101
@@ -4416,11 +4423,12 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:48
 msgid "Add books"
-msgstr ""
+msgstr "Adaugă cărţi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:49
 msgid "Add books to the calibre library/device from files on your computer"
 msgstr ""
+"Adaugă cărţi librăriei/dispozitivului calibre din fişierele de pe computer."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:50
 msgid "A"
@@ -4428,19 +4436,24 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:56
 msgid "Add books from a single directory"
-msgstr ""
+msgstr "Adaugă cărţi dintr-un singur director"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:58
 msgid ""
 "Add books from directories, including sub-directories (One book per "
 "directory, assumes every ebook file is the same book in a different format)"
 msgstr ""
+"Adaugă cărţi din directoare, incluzând şi subdirectoare (Câte o carte pe "
+"director, presupune că fiecare fişier ecarte este aceeaşi carte într-un "
+"format diferit)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:62
 msgid ""
 "Add books from directories, including sub directories (Multiple books per "
 "directory, assumes every ebook file is a different book)"
 msgstr ""
+"Adaugă cărţi din directoare, incluzând şi subdirectoare (Mai multe cărţi pe "
+"director, presupune că fiecare fişier ecarte este o carte diferită)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:66
 msgid "Add Empty book. (Book entry with no formats)"
@@ -4510,11 +4523,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:359
 msgid "Failed to read metadata"
-msgstr ""
+msgstr "Nu a reuşit să citească metadatele"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:360
 msgid "Failed to read metadata from the following"
-msgstr ""
+msgstr "Nu a reuşit să citească metadate pentru următoarele"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:381
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:386
@@ -4541,11 +4554,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add_to_library.py:13
 msgid "Add books to library"
-msgstr ""
+msgstr "Adaugă cărţi librăriei"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add_to_library.py:14
 msgid "Add books to your calibre library from the connected device"
-msgstr ""
+msgstr "Adaugă cărţi librariei tale calibre de pe dispozitivul conectat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:20
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:543
@@ -4676,7 +4689,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:133
 msgid "Library metadata backup status"
-msgstr ""
+msgstr "Statutul de rezervă al bibliotecii de metadate"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:137
 msgid "Start backing up metadata of all books"
@@ -4752,13 +4765,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:277
 msgid "Backup metadata"
-msgstr ""
+msgstr "Metadate de backup"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:278
 msgid ""
 "Metadata will be backed up while calibre is running, at the rate of "
 "approximately 1 book every three seconds."
 msgstr ""
+"Metadatele vor fi salvate în tim ce calibre rulează, la o rată de "
+"aproximativ 1 carte la fiecare 3 secunde."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:310
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:106
@@ -5083,7 +5098,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:26
 msgid "Edit metadata"
-msgstr ""
+msgstr "Editează metadatele"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:30
 msgid "Merge book records"
@@ -5095,19 +5110,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:33
 msgid "Edit metadata individually"
-msgstr ""
+msgstr "Editează metadatele individual"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:36
 msgid "Edit metadata in bulk"
-msgstr ""
+msgstr "Editează metadatele pentru tot grupul"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:47
 msgid "Download metadata and covers"
-msgstr ""
+msgstr "Descarcă metadate şi coperţi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:50
 msgid "Download only metadata"
-msgstr ""
+msgstr "Descarcă numai metadatele"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:51
 msgid "Download only covers"
@@ -5115,7 +5130,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:52
 msgid "Download only social metadata"
-msgstr ""
+msgstr "Descarcă numai metadatele sociale"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:58
 msgid "Merge into first selected book - delete others"
@@ -5132,12 +5147,12 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:87
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:165
 msgid "Cannot download metadata"
-msgstr ""
+msgstr "Metadatele nu pot fi descărcate"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:97
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:187
 msgid "Failed to download metadata"
-msgstr ""
+msgstr "Descărcarea metadatelor a eşuat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:103
 #: /home/kovid/work/calibre/src/calibre/gui2/dnd.py:84
@@ -5149,22 +5164,28 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:104
 msgid "Failed to download metadata or covers for any of the %d book(s)."
 msgstr ""
+"Descărcarea metadatelor sau a coperţilor a eşuat pentru oricare din aceste "
+"%d cărţi."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:107
 msgid "Metadata download completed"
-msgstr ""
+msgstr "Descărcarea metadatelor finalizată"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:109
 msgid ""
 "Finished downloading metadata for <b>%d book(s)</b>. Proceed with updating "
 "the metadata in your library?"
 msgstr ""
+"Descărcarea metadatelor pentru <b>%d cărţi</b> finalizată. Continuaţi cu "
+"actualizarea metadatelor în biblioteca dumneavoastră?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:115
 msgid ""
 "Could not download metadata and/or covers for %d of the books. Click \"Show "
 "details\" to see which books."
 msgstr ""
+"Nu se pot descărca metadate şi/sau coperţi pentru %d din cărţi. Faceţi clic "
+"pe \"Arată detalii\" pentru a vedea care cărţi."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:122
 msgid "Download complete"
@@ -5189,7 +5210,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:185
 msgid "social metadata"
-msgstr ""
+msgstr "metadate sociale"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:187
 msgid "covers"
@@ -5198,7 +5219,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:187
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:227
 msgid "metadata"
-msgstr ""
+msgstr "metadate"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:188
 msgid "Downloading {0} for {1} book(s)"
@@ -5207,7 +5228,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:213
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:309
 msgid "Cannot edit metadata"
-msgstr ""
+msgstr "Metadatele nu pot fi editate"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:346
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:349
@@ -5257,7 +5278,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:545
 msgid "Applying changed metadata"
-msgstr ""
+msgstr "Aplică metadate schimbate"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:606
 msgid "Some failures"
@@ -5713,7 +5734,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/__init__.py:146
 msgid "Add books to calibre"
-msgstr ""
+msgstr "Adauga cărţi lui calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/scan_ui.py:26
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:62
@@ -5734,7 +5755,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:63
 msgid "Choose the location to add books from"
-msgstr ""
+msgstr "Alegeţi locaţia de unde doriţi să adăugaţi cărţile"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:64
 msgid "Select a folder on your hard disk"
@@ -6846,6 +6867,8 @@ msgid ""
 "Set the metadata. The output file will contain as much of this metadata as "
 "possible."
 msgstr ""
+"Setaţi metadatele. Fişierul de ieşire va conţine cât mai multe metadate pe "
+"cât posibil."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:180
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:170
@@ -7313,7 +7336,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:62
 msgid "Insert &metadata as page at start of book"
-msgstr ""
+msgstr "Inseraţi &metadata ca pagină la începutul cărţii"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:63
 msgid ""
@@ -7666,7 +7689,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:327
 msgid "Send metadata to device"
-msgstr ""
+msgstr "Trimite metadate la dispozitiv"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:332
 msgid "Send collections to device"
@@ -7892,7 +7915,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_from_isbn_ui.py:63
 msgid "Add books by ISBN"
-msgstr ""
+msgstr "Adaugă cărţi de ISBN"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_from_isbn_ui.py:64
 msgid "&Paste from clipboard"
@@ -8386,15 +8409,16 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:192
 msgid "Finding metadata..."
-msgstr ""
+msgstr "Găsire metadate..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:206
 msgid "Could not find metadata"
-msgstr ""
+msgstr "Metadatele nu au putut fi găsite"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:207
 msgid "The metadata download seems to have stalled. Try again later."
 msgstr ""
+"Descărcarea metadatelor pare să stagneze. Încercaţi din nou mai tărziu."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:216
 msgid "Warning"
@@ -8402,21 +8426,23 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:217
 msgid "Could not fetch metadata from:"
-msgstr ""
+msgstr "Metadatele nu au putut fi aduse din:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:221
 msgid "No metadata found"
-msgstr ""
+msgstr "Nu au fost găsite metadate"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:222
 msgid ""
 "No metadata found, try adjusting the title and author and/or removing the "
 "ISBN."
 msgstr ""
+"Nu au fost găsite metadate, încercaţi să reglaţi titlul şi autorul şi/sau să "
+"îndepărtaţi ISBN-ul."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata_ui.py:93
 msgid "Fetch metadata"
-msgstr ""
+msgstr "Adu metadate"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata_ui.py:94
 msgid ""
@@ -8510,11 +8536,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:59
 msgid "Standard metadata"
-msgstr ""
+msgstr "Metadate standard"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:60
 msgid "Custom metadata"
-msgstr ""
+msgstr "Metadate personalizate"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:61
 msgid "Search/Replace"
@@ -8862,13 +8888,13 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:464
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:617
 msgid "&Basic metadata"
-msgstr ""
+msgstr "&Metadate de bază"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:582
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:466
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:471
 msgid "&Custom metadata"
-msgstr ""
+msgstr "&Metadate personalizate"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:583
 msgid "Load searc&h/replace:"
@@ -9138,12 +9164,12 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:378
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:631
 msgid "Could not read metadata"
-msgstr ""
+msgstr "Metadatele nu au putut fi citite"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:379
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:632
 msgid "Could not read metadata from %s format"
-msgstr ""
+msgstr "Metadatele nu au putut fi citite de pe %s format"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:453
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:233
@@ -9229,6 +9255,8 @@ msgid ""
 "The download of social metadata timed out, the servers are probably busy. "
 "Try again later."
 msgstr ""
+"Descărcarea de metadate sociale a expirat, serverele sunt probabil, ocupate. "
+"Încercaţi din nou mai târziu."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:827
 msgid "There were errors"
@@ -9236,11 +9264,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:828
 msgid "There were errors downloading social metadata"
-msgstr ""
+msgstr "Au fost erori la descărcarea de metadate sociale"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:862
 msgid "Cannot fetch metadata"
-msgstr ""
+msgstr "Metadatele nu pot fi aduse"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:863
 msgid "You must specify at least one of ISBN, Title, Authors or Publisher"
@@ -9330,7 +9358,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:445
 msgid "&Fetch metadata from server"
-msgstr ""
+msgstr "&Adu metadata de pe server"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:448
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:651
@@ -9388,7 +9416,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:463
 msgid "Update metadata from the metadata in the selected format"
-msgstr ""
+msgstr "Actualizează metadatele din metadatele din formatul selectat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:464
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:683
@@ -9781,18 +9809,22 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:200
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:178
 msgid "Contains: the word or phrase matches anywhere in the metadata field"
-msgstr ""
+msgstr "Conţine: cuvântul sau fraza potrivită oriunde în câmpul de metadate"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:201
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:179
 msgid "Equals: the word or phrase must match the entire metadata field"
 msgstr ""
+"Echivalent: cuvântul sau fraza trebuie să se potrivească Intregului câmpl de "
+"metadate"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:202
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:180
 msgid ""
 "Regular expression: the expression must match anywhere in the metadata field"
 msgstr ""
+"Expresie uzuală: expresia trebuie să se potrivească oriunde în câmpul de "
+"metadate"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:203
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:181
@@ -11044,7 +11076,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:476
 msgid "Set metadata for the book from the selected format"
-msgstr ""
+msgstr "Setaţi metadatele pentru carte, în formatul selectat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:483
 msgid "Add a format to this book"
@@ -11120,7 +11152,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:292
 msgid "Successfully downloaded metadata for %d out of %d books"
-msgstr ""
+msgstr "Metadate descărcate cu succes pentru %d din %d cărţi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:294
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:765
@@ -11136,6 +11168,8 @@ msgid ""
 "The download of metadata for the <b>%d selected book(s)</b> will run in the "
 "background. Proceed?"
 msgstr ""
+"Descărcaţi metadate pentru <b>%d carţi selectate</ b> va rula în fundal. "
+"Continuaţi?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:47
 msgid ""
@@ -11148,10 +11182,12 @@ msgid ""
 "When the download completes you will be asked for confirmation before "
 "calibre applies the downloaded metadata."
 msgstr ""
+"Când descărcarea se va finaliza vi se va cere o confirmare înainte calibre "
+"să aplice metadatele descărcate."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:61
 msgid "Download only &metadata"
-msgstr ""
+msgstr "Descărcaţi numai &metadata"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:65
 msgid "Download only &covers"
@@ -11167,15 +11203,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:99
 msgid "Download metadata for %d books"
-msgstr ""
+msgstr "Descarcaţi metadate pentru %d din cărţi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:102
 msgid "Metadata download started"
-msgstr ""
+msgstr "Descărcarea metadatelor a început"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:111
 msgid "(Failed metadata)"
-msgstr ""
+msgstr "(Metadatele au eşuat)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:113
 msgid "(Failed cover)"
@@ -11188,12 +11224,12 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/config.py:61
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:109
 msgid "Downloaded metadata fields"
-msgstr ""
+msgstr "Descarcă campurile de metadate"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:75
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:240
 msgid "Edit Metadata"
-msgstr ""
+msgstr "Editează metadatele"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:112
 msgid "Set author sort from author"
@@ -11205,11 +11241,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:171
 msgid "&Download metadata"
-msgstr ""
+msgstr "&Descarcă metadatele"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:181
 msgid "Change how calibre downloads metadata"
-msgstr ""
+msgstr "Schimbă modul în care calibre descarcă metadatele"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:512
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:702
@@ -11222,7 +11258,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:600
 msgid "&Metadata"
-msgstr ""
+msgstr "&Metadate"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:605
 msgid "&Cover and formats"
@@ -11230,11 +11266,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:624
 msgid "Configure metadata downloading"
-msgstr ""
+msgstr "Configurează descărcarea metadatelor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:671
 msgid "C&ustom metadata"
-msgstr ""
+msgstr "&Editeaza metadate"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:132
 msgid "Has cover"
@@ -11306,7 +11342,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:813
 msgid "Downloading metadata..."
-msgstr ""
+msgstr "Descărcare metadate..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/__init__.py:37
 msgid ""
@@ -11419,7 +11455,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:72
 msgid "Compact Metadata"
-msgstr ""
+msgstr "Metadate compacte"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:176
 msgid "Confirmation dialogs have all been reset"
@@ -11427,7 +11463,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:155
 msgid "&Overwrite author and title by default when fetching metadata"
-msgstr ""
+msgstr "&Rescrie autorul şi titlul în mod implicit la preluarea metadatelor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:156
 msgid "Download &social metadata (tags/ratings/etc.) by default"
@@ -14359,6 +14395,9 @@ msgid ""
 "<p>Choose a location for your books. When you add books to calibre, they "
 "will be copied here. Use an <b>empty folder</b> for a new calibre library:"
 msgstr ""
+"<p>Alegeţi o locaţie pentru cărţile dumneavoastră. Când adăugati cărţi lui "
+"calibre, ele vor fi copiate aici. Utilizaţi un <b>fişier gol<b> pentru o "
+"nouă librărie calibre:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:59
 msgid "&Change"
@@ -15019,6 +15058,8 @@ msgid ""
 "Add books to database even if they already exist. Comparison is done based "
 "on book titles."
 msgstr ""
+"Adăugaţi cărţi la baza de date chiar dacă ele există deja. Comparaţie este "
+"făcută pe baza titlurilor cărţilor."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:287
 msgid "Add an empty book (a book with no formats)"
