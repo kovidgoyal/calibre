@@ -295,9 +295,8 @@ class AuthorSortEdit(EnLineEdit):
         return property(fget=fget, fset=fset)
 
     def update_state_and_val(self):
-        au = unicode(self.authors_edit.text())
         # Handle case change if the authors box changed
-        aus = authors_to_sort_string(string_to_authors(au))
+        aus = authors_to_sort_string(self.authors_edit.current_val)
         if strcmp(aus, self.current_val) == 0:
             self.current_val = aus
         self.update_state()

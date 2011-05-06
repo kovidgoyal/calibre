@@ -292,13 +292,17 @@ class MetadataSingleDialogBase(ResizableDialog):
                          show=True)
             return
 
-    def update_from_mi(self, mi):
+    def update_from_mi(self, mi, update_sorts=True):
         if not mi.is_null('title'):
             self.title.current_val = mi.title
+            if update_sorts:
+                self.title_sort.auto_generate()
         if not mi.is_null('authors'):
             self.authors.current_val = mi.authors
         if not mi.is_null('author_sort'):
             self.author_sort.current_val = mi.author_sort
+        elif update_sorts:
+            self.author_sort.auto_generate()
         if not mi.is_null('rating'):
             try:
                 self.rating.current_val = mi.rating
