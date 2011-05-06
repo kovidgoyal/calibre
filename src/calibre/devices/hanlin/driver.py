@@ -64,7 +64,7 @@ class HANLINV3(USBMS):
         return names
 
     def linux_swap_drives(self, drives):
-        if len(drives) < 2: return drives
+        if len(drives) < 2 or not drives[1] or not drives[2]: return drives
         drives = list(drives)
         t = drives[0]
         drives[0] = drives[1]
@@ -94,7 +94,6 @@ class HANLINV5(HANLINV3):
     name           = 'Hanlin V5 driver'
     gui_name       = 'Hanlin V5'
     description    = _('Communicate with Hanlin V5 eBook readers.')
-
 
     VENDOR_ID	= [0x0492]
     PRODUCT_ID	= [0x8813]

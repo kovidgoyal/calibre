@@ -103,16 +103,18 @@ class MetadataSingleDialogBase(ResizableDialog):
         self.basic_metadata_widgets.extend([self.title, self.title_sort])
 
         self.deduce_author_sort_button = b = QToolButton(self)
-        b.setToolTip(_(
-        'Automatically create the author sort entry based on the current'
-        ' author entry.\n'
-        'Using this button to create author sort will change author sort from'
-        ' red to green.'))
+        b.setToolTip('<p>' +
+            _('Automatically create the author sort entry based on the current '
+              'author entry. Using this button to create author sort will '
+              'change author sort from red to green.  There is a menu of '
+              'functions available under this button. Click and hold '
+              'on the button to see it.') + '</p>')
         b.m = m = QMenu()
         ac = m.addAction(QIcon(I('forward.png')), _('Set author sort from author'))
         ac2 = m.addAction(QIcon(I('back.png')), _('Set author from author sort'))
+        ac3 = m.addAction(QIcon(I('user_profile.png')), _('Manage authors'))
         b.setMenu(m)
-        self.authors = AuthorsEdit(self)
+        self.authors = AuthorsEdit(self, ac3)
         self.author_sort = AuthorSortEdit(self, self.authors, b, self.db, ac,
                 ac2)
         self.basic_metadata_widgets.extend([self.authors, self.author_sort])
@@ -290,13 +292,17 @@ class MetadataSingleDialogBase(ResizableDialog):
                          show=True)
             return
 
-    def update_from_mi(self, mi):
+    def update_from_mi(self, mi, update_sorts=True):
         if not mi.is_null('title'):
             self.title.current_val = mi.title
+            if update_sorts:
+                self.title_sort.auto_generate()
         if not mi.is_null('authors'):
             self.authors.current_val = mi.authors
         if not mi.is_null('author_sort'):
             self.author_sort.current_val = mi.author_sort
+        elif update_sorts:
+            self.author_sort.auto_generate()
         if not mi.is_null('rating'):
             try:
                 self.rating.current_val = mi.rating

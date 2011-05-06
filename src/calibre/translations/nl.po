@@ -27,15 +27,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2011-04-29 18:21+0000\n"
-"PO-Revision-Date: 2011-04-29 22:47+0000\n"
+"POT-Creation-Date: 2011-04-30 16:30+0000\n"
+"PO-Revision-Date: 2011-05-04 08:54+0000\n"
 "Last-Translator: drMerry <Unknown>\n"
 "Language-Team: Dutch <nl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-04-30 04:37+0000\n"
-"X-Generator: Launchpad (build 12758)\n"
+"X-Launchpad-Export-Date: 2011-05-05 04:37+0000\n"
+"X-Generator: Launchpad (build 12959)\n"
 "X-Poedit-Country: NETHERLANDS\n"
 "X-Poedit-Language: Dutch\n"
 
@@ -328,15 +328,15 @@ msgstr "Haal de omslag uit bestanden met stripverhalen"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:416
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:427
 msgid "Read metadata from %s files"
-msgstr "Metagegevens van %s-bestanden lezen"
+msgstr "Metagegevens van %s bestanden lezen"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:364
 msgid "Read metadata from ebooks in RAR archives"
-msgstr "Metagegevens van e-books in RAR-archieven lezen"
+msgstr "Metagegevens van E-boeken uit RAR-archieven lezen"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:438
 msgid "Read metadata from ebooks in ZIP archives"
-msgstr "Metadata van e-books in ZIP-archieven lezen"
+msgstr "Metadata van E-boeken uit ZIP-archieven lezen"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:451
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:472
@@ -345,7 +345,7 @@ msgstr "Metadata van e-books in ZIP-archieven lezen"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:515
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:525
 msgid "Set metadata in %s files"
-msgstr "Metagegevens van %s-bestanden instellen"
+msgstr "Metagegevens van %s bestanden instellen"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:882
 msgid "Look and Feel"
@@ -565,15 +565,15 @@ msgstr "Kindle boeken van Amazon.uk"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1119
 msgid "Ebooks for readers."
-msgstr "E-books voor lezers."
+msgstr "E-boeken voor lezers."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1124
 msgid "Books, Textbooks, eBooks, Toys, Games and More."
-msgstr "Boeken, tekstboeken, e-books, speeltjes, spellen en meer"
+msgstr "Boeken, tekstboeken, E-boeken, speeltjes, spellen en meer"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1129
 msgid "Publishers of fine books."
-msgstr ""
+msgstr "Uitgevers van mooie boeken."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1134
 msgid "World Famous eBook Store."
@@ -585,7 +585,7 @@ msgstr "De digitale boekenwinkel"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1144
 msgid "entertain, enrich, inspire."
-msgstr "entertain, verrijk, inspireer."
+msgstr "Vermaak, verrijk, inspireer."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1149
 msgid "Read anywhere."
@@ -593,7 +593,7 @@ msgstr "Lees overal."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1154
 msgid "The first producer of free ebooks."
-msgstr "De eerste producent van gratis e-books."
+msgstr "De eerste producent van gratis E-boeken."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1159
 msgid "eReading: anytime. anyplace."
@@ -601,7 +601,7 @@ msgstr "eReading: altijd. overal."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1164
 msgid "The best ebooks at the best price: free!"
-msgstr "De beste e-books voor de beste prijs: gratis!"
+msgstr "De beste E-boeken voor de beste prijs: gratis!"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1169
 msgid "Ebooks handcrafted with the utmost care"
@@ -609,11 +609,11 @@ msgstr "E-boeken handgemaakt met de meeste zorg"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1174
 msgid "One web page for every book."
-msgstr "Eèn webpagina voor ieder boek"
+msgstr "Eén webpagina voor ieder boek"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1179
 msgid "Your ebook. Your way."
-msgstr "Uw e-book. Uw manier."
+msgstr "Uw E-book. Zoals u het wil."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1184
 msgid "Feel every word"
@@ -621,7 +621,7 @@ msgstr "Voel ieder woord"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1189
 msgid "Foyles of London, online"
-msgstr ""
+msgstr "Foyles uit London, online"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1194
 msgid "Kindle eBooks"
@@ -944,19 +944,19 @@ msgstr "Omslagen van iTunes/iBooks cachen"
 msgid "Enable to cache and display covers from iTunes/iBooks"
 msgstr "Sta het lokaal opslaan en tonen van iTunes/iBooks-omslagen toe"
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:176
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:178
 msgid "Apple device"
 msgstr "Apple-apparaat"
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:178
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:180
 msgid "Communicate with iTunes/iBooks."
 msgstr "Communiceer met iTunes / iBooks."
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:190
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:192
 msgid "Apple device detected, launching iTunes, please wait ..."
 msgstr "Apple-apparaat gevonden, iTunes wordt gestart, even geduld…"
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:192
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:194
 msgid ""
 "Cannot copy books directly from iDevice. Drag from iTunes Library to "
 "desktop, then add to calibre's Library window."
@@ -965,28 +965,28 @@ msgstr ""
 "naar het bureaublad, en voeg het dan aan het bibliotheekvenster van calibre "
 "toe."
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:353
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:356
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:355
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:358
 msgid "Updating device metadata listing..."
 msgstr "Bijwerken van lijst met metadata op het apparaat…"
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:432
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:471
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:1054
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:1098
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3082
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3122
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:434
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:473
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:1056
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:1100
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3084
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3124
 msgid "%d of %d"
 msgstr "%d van %d"
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:478
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:1103
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3128
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:480
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:1105
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3130
 #: /home/kovid/work/calibre/src/calibre/gui2/ebook_download.py:106
 msgid "finished"
 msgstr "voltooid"
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:663
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:665
 msgid ""
 "Some books not found in iTunes database.\n"
 "Delete using the iBooks app.\n"
@@ -996,7 +996,7 @@ msgstr ""
 "Verwijder met behulp van de iBooks-app.\n"
 "Klik op ‘Toon details’ voor een lijst."
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:1014
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:1016
 msgid ""
 "Some cover art could not be converted.\n"
 "Click 'Show Details' for a list."
@@ -1004,7 +1004,7 @@ msgstr ""
 "Sommige omslagafbeeldingen konden niet worden omgezet.\n"
 "Klik op ‘Toon details’ voor een overzicht."
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2664
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2666
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:100
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:447
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:470
@@ -1020,7 +1020,7 @@ msgstr ""
 msgid "News"
 msgstr "Nieuws"
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2665
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2667
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:65
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:633
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:2750
@@ -1028,7 +1028,7 @@ msgstr "Nieuws"
 msgid "Catalog"
 msgstr "Catalogus"
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2986
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2988
 msgid "Communicate with iTunes."
 msgstr "Met iTunes verbinden."
 
@@ -2258,7 +2258,7 @@ msgid ""
 "Insert the book metadata at the start of the book. This is useful if your "
 "ebook reader does not support displaying/searching metadata directly."
 msgstr ""
-"Voeg metadata aan het begin van het boek toe. Dit is handig als uwe-reader "
+"Voeg metadata aan het begin van het boek toe. Dit is handig als uw E-reader "
 "het weergeven/zoeken van metadata niet direct ondersteund."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:395
@@ -2366,7 +2366,7 @@ msgstr "Geef het ISBN van het boek."
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:68
 msgid "Set the tags for the book. Should be a comma separated list."
 msgstr ""
-"Stel de labels voor het boek in. Dient lijst gescheiden door komma's te zijn."
+"Stel de labels voor het boek in. Dient een komma-gescheiden lijst te zijn."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:487
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:70
@@ -2529,7 +2529,7 @@ msgstr "Bewerking mislukt: %s met fout: %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/__init__.py:26
 msgid "ePub Fixer"
-msgstr "correctie ePub"
+msgstr "ePub reparatie"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/epubcheck.py:18
 msgid "Workaround epubcheck bugs"
@@ -3679,7 +3679,7 @@ msgstr "Time-out van Amazon. Probeer later nog eens"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/base.py:156
 msgid "Metadata source"
-msgstr "Bron metadata"
+msgstr "Externe metadata bronnen"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/isbndb.py:37
 msgid "IsbnDB key:"
@@ -3730,6 +3730,11 @@ msgid ""
 "time required. Check the download all metadata option below to enable "
 "downloading this data."
 msgstr ""
+"Extra metadata kan worden verkregen van de Overdrive's boek detail pagina. "
+"Deze bevat een klein aantal labels gebruikt bij bibliotheken, commentaar, "
+"taal, en de E-boek ISBN. Deze data verzamelen is standaard uitgeschakeld "
+"omdat het extra tijd kost. Selecteer de 'download alle metadata' optie "
+"hieronder om het downloaden van deze data te activeren."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:22
 msgid "Modify images to meet Palm device size limitations."
@@ -4848,7 +4853,7 @@ msgstr "Genereren catalogus %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:78
 msgid "Catalog generated."
-msgstr "Catalogus aangemaakt"
+msgstr "Catalogus aangemaakt."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:81
 msgid "Export Catalog Directory"
@@ -5630,7 +5635,7 @@ msgstr "Ctrl+P"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:23
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:208
 msgid "Run welcome wizard"
-msgstr "Start de verwelkomingswizard"
+msgstr "Start de welkomswizard"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:27
 msgid "Restart in debug mode"
@@ -5646,7 +5651,7 @@ msgstr "Is niet te configureren alvorens calibre opnieuw is opgestart"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/restart.py:14
 msgid "&Restart"
-msgstr "&Herstarten"
+msgstr "He&rstarten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/restart.py:14
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/main.py:59
@@ -6069,7 +6074,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:68
 msgid "&Root folder:"
-msgstr "&Beginmap:"
+msgstr "Beginmap:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:69
 msgid ""
@@ -6148,7 +6153,7 @@ msgid ""
 "&One book per folder, assumes every ebook file in a folder is the same book "
 "in a different format"
 msgstr ""
-"&Een boek per map, neem aan dat elk e-boekbestand in een map hetzelfde boek "
+"Een b&oek per map, neem aan dat elk e-boekbestand in een map hetzelfde boek "
 "in een ander formaat is"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:74
@@ -6357,7 +6362,7 @@ msgstr "Opties e-Boek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:296
 msgid "Sections to include in catalog."
-msgstr "Afdelingen die in catalogus moeten."
+msgstr "Secties die in catalogus moeten."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:297
 msgid "Included sections"
@@ -6373,11 +6378,11 @@ msgstr "Recente &aanwinsten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:300
 msgid "&Descriptions"
-msgstr "&Beschrijvingen"
+msgstr "Beschrijvingen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:301
 msgid "Books by &Series"
-msgstr "Boeken per &reeks"
+msgstr "Boeken per reek&s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:302
 msgid "Books by &Title"
@@ -6385,7 +6390,7 @@ msgstr "Boeken per &titel"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:303
 msgid "Books by Author"
-msgstr "Boeken per au&teur"
+msgstr "Boeken per auteur"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:304
 msgid ""
@@ -6406,13 +6411,13 @@ msgstr "Uitgesloten genres"
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:309
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:312
 msgid "Tags to &exclude"
-msgstr "Uit te sluiten labels"
+msgstr "Uit te sluit&en labels"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:310
 msgid ""
 "Books matching either pattern will not be included in generated catalog. "
 msgstr ""
-"Boeken die overeenkomen met een van de patronen worden niet opgenomen in de "
+"Boeken overeenkomend met één van de patronen worden niet opgenomen in de "
 "catalogus. "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:311
@@ -6425,12 +6430,12 @@ msgid ""
 "Default: ~,Catalog"
 msgstr ""
 "<p>Door komma's gescheiden lijst van uit te sluiten labels.\n"
-"standaard: ~,Catalog"
+"Standaard: ~,Catalog"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:315
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:320
 msgid "&Column/value"
-msgstr "&Kolom/waarde"
+msgstr "Kolom/waarde"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:316
 msgid "Column containing additional exclusion criteria"
@@ -6462,7 +6467,7 @@ msgstr "Overige opties"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:324
 msgid "&Wishlist tag"
-msgstr "verlanglijstlabel"
+msgstr "&Wensen/Verlanglijstlabel"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:325
 msgid "Books tagged as Wishlist items will be displayed with an X"
@@ -6506,7 +6511,7 @@ msgstr "Voeg bijkomende inhoud voor commentaren in"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:334
 msgid "&Before"
-msgstr "&Voor"
+msgstr "Voor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:335
 msgid "Merge additional content after Comments"
@@ -6514,7 +6519,7 @@ msgstr "Voeg bijkomende inhoud na commentaren in"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:336
 msgid "&After"
-msgstr "&Na"
+msgstr "N&a"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:337
 msgid "Separate Comments and additional content with horizontal rule"
@@ -6724,7 +6729,7 @@ msgstr "invoer"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:104
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:99
 msgid "&Number of Colors:"
-msgstr "Aantal &kleuren:"
+msgstr "Aa&ntal kleuren:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:105
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:101
@@ -6773,7 +6778,7 @@ msgstr "Ont&spikkel"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:114
 msgid "&Disable comic processing"
-msgstr "Schakel stripverwerking uit: &D"
+msgstr "Stripverwerking &deactiveren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:115
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single_ui.py:120
@@ -6782,11 +6787,11 @@ msgstr "Uitv&oerformaat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:116
 msgid "Disable conversion of images to &black and white"
-msgstr "Schakel conversie van afbeeldingen naar zwart-wit uit"
+msgstr "Schakel conversie van af&beeldingen naar zwart-wit uit"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:117
 msgid "Override image  &size:"
-msgstr "Overschrijf beeldgrootte"
+msgstr "Over&schrijf beeldgrootte"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:118
 msgid "Don't add links to &pages to the Table of Contents for CBC files"
@@ -6845,7 +6850,7 @@ msgstr "&Splits niet bij start nieuwe pagina"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:58
 msgid "No default &cover"
-msgstr "Geen standaard omslagafbeelding"
+msgstr "Geen standaard omslagafbeelding bes&chikbaar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:59
 msgid "No &SVG cover"
@@ -6853,11 +6858,11 @@ msgstr "Geen &SVG-omslag"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:60
 msgid "Preserve cover &aspect ratio"
-msgstr "Bewaar de beeldverhouding van de omslaghoes"
+msgstr "Bew&aar de beeldverhouding van de omslaghoes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:61
 msgid "Split files &larger than:"
-msgstr "Splits bestanden groter dan: &l"
+msgstr "Sp&lits bestanden groter dan:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:62
 msgid " KB"
@@ -6873,7 +6878,7 @@ msgstr "FB2-invoer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_input_ui.py:34
 msgid "Do not insert a &Table of Contents at the beginning of the book."
-msgstr "Voeg geen &inhoudsopgave toe aan het begin van het boek."
+msgstr "Voeg geen inhoudsopgave &toe aan het begin van het boek."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_output.py:14
 msgid "FB2 Output"
@@ -6933,7 +6938,7 @@ msgstr "&Basislettergrootte:"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:110
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:141
 msgid "Font size &key:"
-msgstr "Reeks lettergroottes:"
+msgstr "Ree&ks lettergroottes:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:111
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:115
@@ -6960,7 +6965,7 @@ msgstr "&Invoerdocument"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:116
 msgid "&Font size: "
-msgstr "Lettergrootte: "
+msgstr "Letter&formaat: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:118
 msgid " will map to size: "
@@ -7038,7 +7043,7 @@ msgstr "Zorg ervoor dat breaks tussen scenes er overal hetzelfde uitzien"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:122
 msgid "Replace soft scene &breaks:"
-msgstr "Vervang zachte breaks"
+msgstr "Vervang zachte &breaks"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:123
 msgid "Remove unnecessary hyphens"
@@ -7086,11 +7091,11 @@ msgstr "Tekst uitvullen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:138
 msgid "&Disable font size rescaling"
-msgstr "Annuleer instelling lettergrootte"
+msgstr "Lettergrootte herschalen &deactiveren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:139
 msgid "Base &font size:"
-msgstr "Basis&lettergrootte"
+msgstr "Basisletter&formaat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:142
 msgid "Wizard to help you choose an appropriate font size key"
@@ -7098,7 +7103,7 @@ msgstr "Wizard om je te helpen een geschikte lettergrootte te kiezen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:144
 msgid "Line &height:"
-msgstr "regel&hoogte:"
+msgstr "Regel&hoogte:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:146
 msgid "Input character &encoding:"
@@ -7132,11 +7137,11 @@ msgstr "Uitlijnen van tekst:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:152
 msgid "&Linearize tables"
-msgstr "Splits tabellen in regels"
+msgstr "Sp&lits tabellen in regels"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:153
 msgid "Extra &CSS"
-msgstr "Extra CSS"
+msgstr "Extra &CSS"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:154
 msgid "&Transliterate unicode characters to ASCII"
@@ -7176,7 +7181,7 @@ msgstr "&Woordruimte:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:124
 msgid "Minimum para. &indent:"
-msgstr "Miniale &indent. alinea:"
+msgstr "Miniale &indentatie alinea:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:126
 msgid "Render &tables as images"
@@ -7188,11 +7193,11 @@ msgstr "Voor gegenereerde tabellen: tekstgrootte maal"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:128
 msgid "Add &header"
-msgstr "Voeg &koptekst toe"
+msgstr "Koptekst (&hoofd) toevoegen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:129
 msgid "Header &separation:"
-msgstr "Scheiding koptekst:"
+msgstr "Scheiding koptek&st:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:131
 msgid "Header &format:"
@@ -7208,11 +7213,11 @@ msgstr "Lettertype met &schreef:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:134
 msgid "S&ans-serif font family:"
-msgstr "S&chreefloos lettertype:"
+msgstr "Schreefloos lettertype:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:135
 msgid "&Monospaced font family:"
-msgstr "Niet-proportioneel lettertype:"
+msgstr "Niet-proportioneel lettertype-fa&milie:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:47
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:117
@@ -7273,7 +7278,7 @@ msgstr "Boekomslag"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:160
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:447
 msgid "Change &cover image:"
-msgstr "Verander &omslagafbeelding"
+msgstr "Verander bes&chikbare omslagafbeelding"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:161
 msgid "Browse for an image to use as the cover of this book."
@@ -7281,7 +7286,7 @@ msgstr "Zoek een afbeelding om als omslag voor dit boek te gebruiken."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:163
 msgid "Use cover from &source file"
-msgstr "Gebruik omslag van &bronbestand"
+msgstr "Gebruik omslag van bronbe&stand"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:164
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:408
@@ -7316,12 +7321,12 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:535
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:428
 msgid "&Publisher: "
-msgstr "&Uitgeverij "
+msgstr "Uitgeverij "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:170
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:429
 msgid "Ta&gs: "
-msgstr "&Labels: "
+msgstr "Labels: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:171
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:537
@@ -7341,7 +7346,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:214
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:314
 msgid "&Series:"
-msgstr "R&eeks:"
+msgstr "Reek&s:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:173
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:174
@@ -7401,7 +7406,7 @@ msgstr "Label voor persoonlijk document:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:83
 msgid "Ignore &margins"
-msgstr "Negeer marges"
+msgstr "Negeer &marges"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup.py:35
 msgid "Page Setup"
@@ -7409,7 +7414,7 @@ msgstr "Pagina-instellingen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:121
 msgid "&Output profile:"
-msgstr "&Uitvoerprofiel:"
+msgstr "Uitvoerpr&ofiel:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:122
 msgid "Profile description"
@@ -7429,7 +7434,7 @@ msgstr "&Links:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:127
 msgid "&Top:"
-msgstr "&Boven:"
+msgstr "Boven:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:129
 msgid "&Right:"
@@ -7437,11 +7442,11 @@ msgstr "&Rechts:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/page_setup_ui.py:131
 msgid "&Bottom:"
-msgstr "&Onder:"
+msgstr "Onder:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_input_ui.py:37
 msgid "Treat each &line as a paragraph"
-msgstr "Behandel iedere regel als een alinea"
+msgstr "Behandel iedere rege&l als een alinea"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_input_ui.py:38
 msgid "Assume print formatting"
@@ -7474,11 +7479,11 @@ msgstr "PDF-invoer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_input_ui.py:44
 msgid "Line &Un-Wrapping Factor:"
-msgstr "Factor om lijnen aaneen te &plakken:"
+msgstr "Factor om lijnen aaneen te plakken:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_input_ui.py:45
 msgid "No &Images"
-msgstr "Geen &afbeeldingen"
+msgstr "Geen afbeeld&ingen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output.py:15
 msgid "PDF Output"
@@ -7494,7 +7499,7 @@ msgstr "&Orientatie:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:50
 msgid "Preserve &aspect ratio of cover"
-msgstr "Behoud &beeldverhouding omslag"
+msgstr "Behoud beeldverhouding omsl&ag"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pml_output.py:14
 msgid "PMLZ Output"
@@ -7551,13 +7556,13 @@ msgstr "Ga naar"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:72
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:89
 msgid "&Previous"
-msgstr "Vo&rige"
+msgstr "Vorige"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder_ui.py:97
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:73
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:88
 msgid "&Next"
-msgstr "&Volgende"
+msgstr "Volge&nde"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder_ui.py:98
 msgid "Preview"
@@ -7577,7 +7582,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:33
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:36
 msgid "&Search Regular Expression"
-msgstr "Regexp voor &zoeken"
+msgstr "Reguliere expre&ssie voor zoeken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:73
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:101
@@ -7597,7 +7602,7 @@ msgstr "Eerste regexp"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:151
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:153
 msgid "&Replacement Text"
-msgstr "Ver&vangtekst"
+msgstr "Ve&rvangtekst"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:150
 msgid "Second Expression"
@@ -7706,7 +7711,7 @@ msgstr "&Markering hoofdstuk:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:61
 msgid "Remove first &image"
-msgstr "Verwijder eerste &afbeelding"
+msgstr "Verwijder eerste afbeeld&ing"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:62
 msgid "Insert &metadata as page at start of book"
@@ -7760,7 +7765,7 @@ msgstr "Aantal &links toe te voegen aan de inhoudsopgave"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:70
 msgid "Chapter &threshold"
-msgstr "&Drempel aantal hoofdstukken"
+msgstr "Drempel aan&tal hoofdstukken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:71
 msgid "&Force use of auto-generated Table of Contents"
@@ -7832,7 +7837,7 @@ msgstr "Cod&ering uitvoer:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:87
 msgid "&Line ending style:"
-msgstr "Stijl einde &regel:"
+msgstr "Stijl einde rege&l:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:88
 msgid "&Formatting:"
@@ -7938,7 +7943,7 @@ msgstr "Heeft &attribuut:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:87
 msgid "With &value:"
-msgstr "Met &waarde:"
+msgstr "Be&vat waarde:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:88
 msgid "(A regular expression)"
@@ -8222,7 +8227,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:974
 msgid "Sending catalogs to device."
-msgstr "Verstuur catalogus naar apparaat."
+msgstr "Catalogus naar apparaat versturen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:1075
 msgid "Sending news to device."
@@ -8303,7 +8308,7 @@ msgstr "Gebruik sorteerauteur voor auteur"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:85
 msgid "Save &template:"
-msgstr "Bewaar &sjabloon:"
+msgstr "Bewaar sjabloon:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_empty_book.py:20
 msgid "How many empty books?"
@@ -8345,16 +8350,16 @@ msgstr ""
 "<p>Ongeldige ISBN's in de lijst worden genegeerd.</p>\n"
 "<p>Je kan bij een ISBN ook een bestand opgeven om toe te voegen. Daarvoor "
 "tik je het volledige pad naar het bestand na een <code>>></code>, "
-"bijvoorbeeld </p>\n"
+"bijvoorbeeld:</p>\n"
 "<p><code>9788842915232 >> %s</code></p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_from_isbn_ui.py:69
 msgid "&Tags to set on created book entries:"
-msgstr "&Labels om op gecreëerde boekrecords aan te brengen"
+msgstr "Labels om op gecreëerde boekrecords &toe te passen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:71
 msgid "Fit &cover within view"
-msgstr "Pas de &omslag in het kader"
+msgstr "Pas de bes&chikbare omslag in het kader"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog.py:33
 msgid "My Books"
@@ -8382,11 +8387,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog_ui.py:96
 msgid "&Send catalog to device automatically"
-msgstr "&Verstuur catalogus automatisch naar apparaat"
+msgstr "Ver&stuur catalogus automatisch naar apparaat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog_ui.py:97
 msgid "Catalog options"
-msgstr "Opties catalogus"
+msgstr "Catalogus opties"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:25
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:26
@@ -8486,6 +8491,95 @@ msgid ""
 "\n"
 "        "
 msgstr ""
+"        <h1>Help</h1>\n"
+"\n"
+"        <p>calibre slaat de lijst van boeken en bijbehorende metadata op in "
+"een\n"
+"        database. De werkelijke boek bestanden en omslagen zijn opgeslagen "
+"als een normaal\n"
+"        bestand in de calibre-bibliotheek map. De database bevat een lijst "
+"van deze bestanden\n"
+"        en omslagen behorend bij ieder boek. Dit hulpmiddel controleert of "
+"de\n"
+"        werkelijke bestanden in de bibliotheek map op je computer overeen "
+"komen\n"
+"        met de informatie in de database.</p>\n"
+"\n"
+"        <p>Het resultaat van ieder type controle is weergegeven aan de "
+"linker kant.\n"
+"        De diverse controles zijn:\n"
+"        </p>\n"
+"        <ul>\n"
+"        <li><b>Foutieve titels</b>: Dit zijn bestanden en mappen die "
+"voorkomen\n"
+"        in de bibliotheek waar boeken zouden moeten staan, maar die niet de "
+"juiste\n"
+"        naamgeving hebben om een boek te zijn.</li>\n"
+"        <li><b>Extra titels</b>: Dit zijn extra bestanden in je calibre "
+"bibliotheek\n"
+"        welke een correcte benaming hebben maar die niet voorkomen in de "
+"database.</li>\n"
+"        <li><b>Foutieve schrijvers</b>: Dit zijn bestanden die voor komen in "
+"de bibliotheek\n"
+"        op de plaats waar alleen schrijvers mappen zouden moeten "
+"staan.</li>\n"
+"        <li><b>Extra schrijvers</b>: Dit zijn mappen in de calibre\n"
+"        bibliotheek welke schrijvers lijken te zijn maar die niet voorkomen\n"
+"        in de database</li>\n"
+"        <li><b>Missende boek formaten</b>: Dit zijn boekformaten die in de "
+"database\n"
+"        voorkomen maar geen bestand met overeenkomstig formaat hebben in de "
+"boeken map.\n"
+"        <li><b>Extra boek formaten</b>: Deze boekformaten hebben bestanden "
+"in de map\n"
+"        van dit boek maar komen niet voor in de database.\n"
+"        <li><b>Onbekende bestanden in boeken</b>: Dit zijn extra bestanden "
+"in\n"
+"        de boekenmap die niet overeenkomen met een bekend boekformaat of "
+"omslag\n"
+"        bestand.</li>\n"
+"        <li><b>Missend omslag-bestand</b>: Dit geeft een boek aan welke een "
+"omslag heeft\n"
+"        afgaand op database informatie maar waarbij geen omslag gevonden is "
+"in de map.</li>\n"
+"        <li><b>Omslag niet in database</b>: Deze boeken hebben wel een "
+"omslag in de map\n"
+"        maar in de database wordt aangegeven dat er geen omslag is.</li>\n"
+"        <li><b>Map zorgt voor fout</b>: Dit zijn mappen in de calibre "
+"bibliotheek welke\n"
+"        niet konden worden uitgelezen / begrepen door dit hulpmiddel.</li>\n"
+"        </ul>\n"
+"\n"
+"        <p>Er zijn twee manieren van automatisch reparatie mogelijk: "
+"<i>Verwijder\n"
+"        gemarkeerde</i> en <i>Repareer gemarkeerde</i>.</p>\n"
+"        <p><i>Verwijder gemarkeerde</i> wordt gebruikt bij extra "
+"bestanden/mappen/omslagen\n"
+"        die niet in de database staan. Vink het vakje naast het onderdeel "
+"aan wat je wilt\n"
+"        verwijderen. Gebruik deze optie voorzichtig.</p>\n"
+"\n"
+"        <p><i>Repareer gemarkeerde</i> wordt enkel gebruitk bij omslagen en "
+"missende formaten\n"
+"        (de drie lijnen gemarkeerd als 'te repareren'). In het geval van "
+"missende omslagen,\n"
+"        zal een gemarkeerd boek na een druk op de knop de vermelding 'geen "
+"omslag' krijgen\n"
+"        in de calibre database. Gebruik deze optie als je de omslag niet "
+"wilt terughalen\n"
+"        uit een backup. In het geval van extra omslagen,\n"
+"        zal het markeren van deze boeken na een druk op de knop er voor \n"
+"        zorgen dat calibre de omslagbestanden zal toeveogen aan de "
+"database.\n"
+"        Gebruik deze optie als je de boek(en) niet wilt verwijderen. In het "
+"geval\n"
+"        van missende formaten, zal het aanvinken van de boeken na een druk "
+"op de knop zorgen\n"
+"        dat calibre de boeken ook uit de database zal verwijderen.\n"
+"        Gebruik deze optie als je de bestanden niet wilt terughalen uit een "
+"backup.</p>\n"
+"\n"
+"        "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:226
 msgid "&Run the check again"
@@ -8493,7 +8587,7 @@ msgstr "Cont&roleer nog eens"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:229
 msgid "Copy &to clipboard"
-msgstr "Kopieer naar klembord &t"
+msgstr "Kopie op klembord plaa&tsen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:236
 msgid "Delete marked files (checked subitems)"
@@ -8624,7 +8718,7 @@ msgstr "Nieuwe &locatie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:80
 msgid "Use &existing library at the new location"
-msgstr "Gebruik &bestaande bibliotheek op de nieuwe locatie"
+msgstr "Gebruik b&estaande bibliotheek op de nieuwe locatie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:81
 msgid "&Create an empty library at the new location"
@@ -8632,7 +8726,7 @@ msgstr "&Creëer een lege bibliotheek op de nieuwe locatie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:82
 msgid "&Copy structure from the current library"
-msgstr "Kopieer structuur van huidige bibliotheek"
+msgstr "Kopieer stru&ctuur van huidige bibliotheek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:83
 msgid ""
@@ -8644,7 +8738,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:85
 msgid "&Move current library to new location"
-msgstr "&Verplaats de huidige bibliotheek naar de nieuwe locatie"
+msgstr "Verplaats de huidige bibliotheek &meteen naar de nieuwe locatie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_plugin_toolbars.py:23
 msgid "Add \"%s\" to toolbars or menus"
@@ -8724,7 +8818,7 @@ msgstr "Bibliotheek en apparaat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/confirm_delete_ui.py:55
 msgid "&Show this warning again"
-msgstr "&Laat deze waarschuwing nogmaals zien"
+msgstr "Laat deze waarschuwing nogmaal&s zien"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/conversion_error_ui.py:47
 msgid "ERROR"
@@ -8898,7 +8992,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata_ui.py:95
 msgid "&Access Key:"
-msgstr "&Toegangssleutel:"
+msgstr "Toeg&angssleutel:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata_ui.py:96
 msgid "Fetch"
@@ -8948,7 +9042,7 @@ msgstr "Stop &alle niet aan het apparaat gerelateerde taken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:43
 msgid "&Copy to clipboard"
-msgstr "&Kopieer naar plakbord"
+msgstr "Kopieer naar klembord"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:48
 msgid "Show &details"
@@ -9154,16 +9248,16 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:990
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:587
 msgid "Delete saved search/replace"
-msgstr "Verwijder bewaarde Zoek & Vervang"
+msgstr "Verwijder bewaarde Zoek/Vervang"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:991
 msgid "The selected saved search/replace will be deleted. Are you sure?"
-msgstr "De geselecteerde Zoek & Vervang wordt verwijderd. Ben je zeker?"
+msgstr "De geselecteerde Zoek/Vervang wordt verwijderd. Ben je zeker?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1008
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1016
 msgid "Save search/replace"
-msgstr "Bewaar Zoek & Vervang"
+msgstr "Bewaar Zoek/Vervang"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1009
 msgid "Search/replace name:"
@@ -9174,7 +9268,7 @@ msgid ""
 "That saved search/replace already exists and will be overwritten. Are you "
 "sure?"
 msgstr ""
-"Deze Zoek & Vervang bestaat al en zal overschreven worden. Ben je zeker?"
+"Deze Zoek/Vervang bestaat al en zal overschreven worden. Ben je zeker?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:524
 msgid "Edit Meta information"
@@ -9204,7 +9298,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:424
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:826
 msgid "&Rating:"
-msgstr "&Rangschikking"
+msgstr "Waa&rdering:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:531
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:532
@@ -9225,7 +9319,7 @@ msgstr " sterren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:536
 msgid "Add ta&gs: "
-msgstr "Voeg labels toe: "
+msgstr "Voe&g labels toe: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:538
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:539
@@ -9237,7 +9331,7 @@ msgstr "Open Labeleditor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:540
 msgid "&Remove tags:"
-msgstr "&Verwijder labels:"
+msgstr "Verwijde&r labels:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:541
 msgid "Comma separated list of tags to remove from the books. "
@@ -9258,7 +9352,7 @@ msgstr "Aangevinkt, de reeks wordt verwijderd"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:548
 msgid "&Clear series"
-msgstr "&Maak reeks leeg"
+msgstr "Maak reeks leeg/Ops&chonen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:549
 msgid ""
@@ -9341,7 +9435,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:572
 msgid "Update &title sort"
-msgstr "Pas titelsortering aan"
+msgstr "Pas &titelsortering aan"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:573
 msgid ""
@@ -9361,19 +9455,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:577
 msgid "Change &cover"
-msgstr "Verander &omslag"
+msgstr "Verander bes&chikbare omslag"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:578
 msgid "&Generate default cover"
-msgstr "Maak &standaardomslag"
+msgstr "Maak standaardomsla&g"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:579
 msgid "&Remove cover"
-msgstr "&Verwijder omslag"
+msgstr "Verwijde&r omslag"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:580
 msgid "Set from &ebook file(s)"
-msgstr "Neem uit e-boekbestanden"
+msgstr "Neem uit &E-boekbestanden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:581
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:465
@@ -9386,23 +9480,23 @@ msgstr "&Basismetagegevens"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:466
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:471
 msgid "&Custom metadata"
-msgstr "&Aangepaste metagegevens"
+msgstr "Aangepaste metagegevens"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:583
 msgid "Load searc&h/replace:"
-msgstr "Laad Zoek & Vervang"
+msgstr "Laad Zoek/Vervang"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:584
 msgid "Select saved search/replace to load."
-msgstr "Selecteer Zoek & Vervang om te laden"
+msgstr "Selecteer Zoek/Vervang om te laden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:585
 msgid "Save current search/replace"
-msgstr "Bewaar Zoek & Vervang"
+msgstr "Bewaar Zoek/Vervang"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:586
 msgid "Sa&ve"
-msgstr "Be&waar"
+msgstr "Bewaar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:588
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager_ui.py:64
@@ -9440,15 +9534,15 @@ msgstr "Kies welke identificator gebruikt wordt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:595
 msgid "Te&mplate:"
-msgstr "&Patroon:"
+msgstr "Patroon:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:596
 msgid "Enter a template to be used as the source for the search/replace"
-msgstr "Geef een zoekpatroon voor Zoek & Vervang"
+msgstr "Geef een zoekpatroon voor Zoek/Vervang"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:597
 msgid "&Search for:"
-msgstr "&Zoeken naar:"
+msgstr "Zoeken naar:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:598
 msgid ""
@@ -9468,11 +9562,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:600
 msgid "Cas&e sensitive"
-msgstr "Hoofd/kleinelettergevoelig"
+msgstr "Hoofd/kl&einelettergevoelig"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:601
 msgid "&Replace with:"
-msgstr "&Vervangen door:"
+msgstr "Ve&rvangen door:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:602
 msgid ""
@@ -9534,7 +9628,7 @@ msgstr "Splits &resultaat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:617
 msgid "For multiple-valued fields, sho&w"
-msgstr "Toon voor meervo&udige velden"
+msgstr "&Weergeven voor meervoudige velden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:618
 msgid "values starting a&t"
@@ -9542,7 +9636,7 @@ msgstr "Waarden beginnend me&t"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:619
 msgid "with values separated b&y"
-msgstr "met waarden gesche&iden door"
+msgstr "met waarden gescheiden door"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:620
 msgid ""
@@ -9564,7 +9658,7 @@ msgstr "Jouw test:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:624
 msgid "&Search and replace"
-msgstr "&Zoek & Vervang"
+msgstr "Zoeken en aanpa&ssen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:97
 msgid "Last modified: %s"
@@ -9848,7 +9942,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:418
 msgid "Title &sort: "
-msgstr "Sorteertitel: "
+msgstr "&Sorteertitel: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:419
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:111
@@ -9893,11 +9987,11 @@ msgstr "dd MMM yyyy"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:442
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1101
 msgid "Publishe&d:"
-msgstr "U&itgegeven"
+msgstr "Uitgave&datum"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:445
 msgid "&Fetch metadata from server"
-msgstr "&Download metagegevens van de server"
+msgstr "Download metagegevens van de server"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:448
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:651
@@ -9911,7 +10005,7 @@ msgstr "Verwijder rand (als die er is) van omslag"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:450
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:653
 msgid "T&rim"
-msgstr "Tri&mmen"
+msgstr "T&rimmen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:451
 msgid "Reset cover to default"
@@ -9925,7 +10019,7 @@ msgstr "Ver&wijder"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:453
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:661
 msgid "Download co&ver"
-msgstr "Download omslag &v"
+msgstr "Omslag &verkrijgen (download)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:454
 msgid "Generate a default cover based on the title and author"
@@ -9980,14 +10074,14 @@ msgstr "Gebr&uikersnaam:"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:126
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:135
 msgid "&Password:"
-msgstr "W&achtwoord:"
+msgstr "&Pin/Wachtwoord:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/password_ui.py:65
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:207
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:130
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:173
 msgid "&Show password"
-msgstr "&Toon wachtwoord"
+msgstr "Toon wachtwoord"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/progress.py:59
 msgid "Aborting..."
@@ -10251,7 +10345,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:198
 msgid "&Search:"
-msgstr "&Zoeken:"
+msgstr "Zoeken:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:199
 msgid "blurb"
@@ -10259,7 +10353,7 @@ msgstr "flaptekst"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:200
 msgid "&Schedule for download:"
-msgstr "&Plan voor download:"
+msgstr "Plan voor download:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:201
 msgid "Days of  week"
@@ -10285,7 +10379,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:209
 msgid "&Schedule"
-msgstr "&Planning"
+msgstr "Planning"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:210
 msgid "Add &title as tag"
@@ -10304,7 +10398,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:213
 msgid "&Keep at most:"
-msgstr "&Houd hoogstens:"
+msgstr "Houd hoogstens:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:214
 msgid ""
@@ -10341,7 +10435,7 @@ msgstr "&Download nu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:221
 msgid "&Delete downloaded news older than:"
-msgstr "&Verwijder nieuws dat ouder is dan:"
+msgstr "Verwij&der nieuws dat ouder is dan:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:222
 msgid ""
@@ -10404,7 +10498,7 @@ msgstr "Geavanceerde zoekopdracht"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:199
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:177
 msgid "&What kind of match to use:"
-msgstr "Soort zoeken om te gebr&Uiken:"
+msgstr "&Welk type zoeken om te gebruiken:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:200
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:178
@@ -10437,12 +10531,12 @@ msgstr "&Al deze woorden:"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:205
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:183
 msgid "This exact &phrase:"
-msgstr "&Exact deze &uitdrukking:"
+msgstr "Exact deze uitdrukking:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:206
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:184
 msgid "&One or more of these words:"
-msgstr "Een of &meer vam deze woorden:"
+msgstr "Een &of meer vam deze woorden:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:207
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:185
@@ -10452,7 +10546,7 @@ msgstr "Maar laat geen inzendingen zien die..."
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:208
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:186
 msgid "Any of these &unwanted words:"
-msgstr "&ook maar een van deze &Ongewenste woorden bevat:"
+msgstr "Ook maar een van deze ongewenste woorden bevat:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:209
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:187
@@ -10481,7 +10575,7 @@ msgstr "&Auteur:"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:215
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:867
 msgid "Ta&gs:"
-msgstr "&Labels:"
+msgstr "Labels:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:216
 msgid "Enter an author's name. Only one author can be used."
@@ -10501,7 +10595,7 @@ msgstr "Geef de labels op, gescheiden met spaties"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:101
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:193
 msgid "&Clear"
-msgstr "&Wis"
+msgstr "Ops&chonen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:220
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:194
@@ -10510,7 +10604,7 @@ msgstr "Zoek enkel in specifieke velden:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:221
 msgid "Titl&e/Author/Series ..."
-msgstr "Tite&l/Auteur/Reeks ..."
+msgstr "Tit&el/Auteur/Reeks ..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/select_formats.py:45
 msgid "Choose formats"
@@ -10614,7 +10708,7 @@ msgstr "Labels toepassen op de huidige labelcategorie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:181
 msgid "A&pplied items"
-msgstr "Toegepaste items"
+msgstr "Toege&paste items"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:182
 msgid "Unapply (remove) tag from current tag category"
@@ -10639,7 +10733,7 @@ msgstr "Labeleditor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor_ui.py:129
 msgid "A&vailable tags"
-msgstr "&Beschikbare labels"
+msgstr "Labels &voor handen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor_ui.py:130
 msgid ""
@@ -10663,7 +10757,7 @@ msgstr "Verwijder label van huidige boek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor_ui.py:137
 msgid "&Add tag:"
-msgstr "Voeg label &toe:"
+msgstr "Voeg l&abel toe:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor_ui.py:138
 msgid ""
@@ -10741,7 +10835,7 @@ msgstr "Ctrl+S"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:71
 msgid "Function &name:"
-msgstr "functie&Naam"
+msgstr "functie&naam"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:72
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:100
@@ -10900,15 +10994,15 @@ msgstr "Voeg toe/Update &recept"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:260
 msgid "&Remove recipe"
-msgstr "&Verwijder recept"
+msgstr "Ve&rwijder recept"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:261
 msgid "&Share recipe"
-msgstr "&Deel recept"
+msgstr "Recept ver&spreiden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:262
 msgid "S&how recipe files"
-msgstr "t&Oon receptbestanden"
+msgstr "Receptbestanden weergeven"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:263
 msgid "Customize &builtin recipe"
@@ -10985,7 +11079,7 @@ msgstr "&URL Feed:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:285
 msgid "&Add feed"
-msgstr "V&oeg feed toe"
+msgstr "Feed &aanmaken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:286
 msgid ""
@@ -11115,7 +11209,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:133
 msgid "Regular &expression"
-msgstr "Reguliere &uitdrukking"
+msgstr "R&eguliere uitdrukking"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:135
 msgid "File &name:"
@@ -11716,11 +11810,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_window.py:113
 msgid "&Preferences"
-msgstr "&Voorkeuren"
+msgstr "Voorkeuren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_window.py:114
 msgid "&Quit"
-msgstr "&Afsluiten"
+msgstr "Afsluiten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_window.py:138
 msgid "Unhandled exception"
@@ -11792,7 +11886,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:999
 msgid "&Publisher:"
-msgstr "&Uitgever:"
+msgstr "Uitgever:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1069
 msgid "Clear date"
@@ -11870,7 +11964,7 @@ msgstr "Download alleen &metadata"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:65
 msgid "Download only &covers"
-msgstr "Download alleen &omslagen"
+msgstr "Download alleen omslagen (indien bes&chikbaar)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download2.py:69
 msgid "&Configure download"
@@ -11933,7 +12027,7 @@ msgstr "Verander omslag"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:561
 msgid "Co&mments"
-msgstr "Commentaar"
+msgstr "Co&mmentaar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:600
 msgid "&Metadata"
@@ -11941,7 +12035,7 @@ msgstr "&Metadata"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:605
 msgid "&Cover and formats"
-msgstr "Omsla&g en formaten"
+msgstr "Omslag en formaten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:624
 msgid "Configure metadata downloading"
@@ -12069,7 +12163,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:66
 msgid "Read &metadata from &file contents rather than file name"
-msgstr "Haal metadata uit bestands&inhoud in plaats van bestandsnaam"
+msgstr "Lees &metadata uit bestandsinhoud in plaats van bestandsnaam"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:67
 msgid ""
@@ -12081,7 +12175,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:68
 msgid "&Swap author firstname and lastname"
-msgstr "&Verwissel voornaam en achternaam auteur"
+msgstr "Ver&wissel voornaam en achternaam auteur"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:69
 msgid ""
@@ -12107,7 +12201,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:74
 msgid "&Automerge added books if they already exist in the calibre library:"
-msgstr "Voeg boeken in als ze al bestaan in de calibrebibliotheek:"
+msgstr "Voeg boeken in als ze &al bestaan in de calibrebibliotheek:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:75
 msgid ""
@@ -12144,7 +12238,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:85
 msgid "&Tags to apply when adding a book:"
-msgstr "Te gebruiken labels voor een nieuw boek"
+msgstr "&Te gebruiken labels voor een nieuw boek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:86
 msgid ""
@@ -12179,7 +12273,7 @@ msgstr "Compacte metadata"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:176
 msgid "Confirmation dialogs have all been reset"
-msgstr "Confirmatiedialogen zijn allemaal gereset"
+msgstr "Bevestigingsmeldingen zijn allemaal hersteld"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:155
 msgid "&Overwrite author and title by default when fetching metadata"
@@ -12212,12 +12306,12 @@ msgstr "Stuur gedownload &nieuws automatisch naar e-boeklezer"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:162
 msgid "&Delete news from library when it is automatically sent to reader"
 msgstr ""
-"&Verwijder nieuws van bibliotheek zodra het automatisch naar de lezer is "
+"Verwij&der nieuws van bibliotheek zodra het automatisch naar de lezer is "
 "verstuurd"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:163
 msgid "Preferred &output format:"
-msgstr "Voorkeursformaat voor &uitvoer:"
+msgstr "Voorkeursf&ormaat voor uitvoer:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:164
 msgid "Default network &timeout:"
@@ -12276,7 +12370,7 @@ msgstr "Gebruik interne &viewer voor:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:179
 msgid "Reset all disabled &confirmation dialogs"
-msgstr "Reset alle uitgeschakelde &confirmatiedialogen"
+msgstr "Herstel alle uitges&chakelde bevestigingsmeldingen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns.py:96
 msgid "You must select a column to delete it"
@@ -12327,7 +12421,7 @@ msgstr "Kolom naar omlaag"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns_ui.py:98
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/custom_columns_ui.py:91
 msgid "Add &custom column"
-msgstr "Voeg eigen &kolom toe"
+msgstr "Voeg eigen kolom toe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/conversion.py:41
 msgid ""
@@ -12496,11 +12590,11 @@ msgstr "Waarde  \"{0}\" staat meer dan een keer in de lijst"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:190
 msgid "&Lookup name"
-msgstr "&Zoeknaam"
+msgstr "Zoeknaam"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:191
 msgid "Column &heading"
-msgstr "Koptekst kolom"
+msgstr "Koptekst (&hoofd) kolom"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:192
 msgid ""
@@ -12518,7 +12612,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:194
 msgid "&Column type"
-msgstr "Type &kolom"
+msgstr "Type kolom"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:195
 msgid "What kind of information will be kept in the column."
@@ -12581,7 +12675,7 @@ msgstr "&Datumformaat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:211
 msgid "&Template"
-msgstr "&Sjabloon"
+msgstr "Sjabloon"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:212
 msgid "Field template. Uses the same syntax as save templates."
@@ -12611,7 +12705,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:218
 msgid "Show in tags browser"
-msgstr "Toon on labelbrowser"
+msgstr "Toon in labelbrowser"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:219
 msgid "Values"
@@ -12637,7 +12731,7 @@ msgstr "Verkrijg debuginformatie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_debug.py:22
 msgid "Copy to &clipboard"
-msgstr "Copieër naar klembord"
+msgstr "&Copieër naar klembord"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_debug.py:24
 msgid "Debug device detection"
@@ -12659,11 +12753,11 @@ msgstr "Voeg een e-mailadres toe om boeken naar toe te sturen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/email_ui.py:68
 msgid "&Add email"
-msgstr "&Voeg e-mail toe"
+msgstr "Voeg e-m&ail toe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/email_ui.py:69
 msgid "Make &default"
-msgstr "Maak &standaard"
+msgstr "Maak stan&daard"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/email_ui.py:70
 msgid "&Remove email"
@@ -12759,11 +12853,11 @@ msgstr "&Lay-out gebruikersinterface (heeft een herstart nodig):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:199
 msgid "Choose &language (requires restart):"
-msgstr "Kies &taal (herstart nodig)"
+msgstr "Kies taa&l (herstart nodig)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:200
 msgid "Enable system &tray icon (needs restart)"
-msgstr "Activeer icoon systeemvak"
+msgstr "Ac&tiveer systeemvak icoon"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:201
 msgid "Disable all animations. Useful if you have a slow/old computer."
@@ -12780,11 +12874,11 @@ msgstr "Schakel &notificaties in systeemtray uit"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:204
 msgid "Show &splash screen at startup"
-msgstr "Laat het opstartscherm zien"
+msgstr "Laat het op&startscherm zien"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:205
 msgid "&Toolbar"
-msgstr "&Werkbalk"
+msgstr "&Taakbalk"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:206
 msgid "&Icon size:"
@@ -12832,7 +12926,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:217
 msgid "Tags browser category &partitioning method:"
-msgstr "Methode om categorieën van de labelbrowser in te delen:"
+msgstr "Methode om categorieën van de labelbrowser o&p te delen:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:218
 msgid ""
@@ -12850,7 +12944,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:223
 msgid "&Collapse when more items than:"
-msgstr "&Klap in als er meer items zijn dan:"
+msgstr "&Combineer/Klap in als er meer items zijn dan:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:224
 msgid ""
@@ -12868,7 +12962,7 @@ msgstr "L&aat de gemiddelde waarderingen in de categorieënbrowser zien"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:227
 msgid "Categories with &hierarchical items:"
-msgstr "Categorieën met hiërarchische items:"
+msgstr "Categorieën met &hiërarchische items:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:228
 msgid ""
@@ -12892,7 +12986,7 @@ msgstr "Toon omslag&browser in een apart scherm (herstart nodig)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:236
 msgid "&Number of covers to show in browse mode (needs restart):"
-msgstr "&Aantal omslagen zichtbaar in browsermodus (herstart nodig)"
+msgstr "Aa&ntal omslagen zichtbaar in browsermodus (herstart nodig)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:230
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:96
@@ -13010,11 +13104,11 @@ msgstr "Wissel schrijversnamen van VN AN naar AN, VN"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:113
 msgid "Max. number of &tags to download:"
-msgstr "Max. aantal gedownloade labels:"
+msgstr "Max. aan&tal gedownloade labels:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:114
 msgid "Max. &time to wait after first match is found:"
-msgstr "Max. wachttijd na het vinden van eerste overeenkomst:"
+msgstr "Max. wacht&tijd na het vinden van eerste overeenkomst:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:115
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:117
@@ -13024,7 +13118,7 @@ msgstr " seconden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:116
 msgid "Max. time to wait after first &cover is found:"
-msgstr "Max. wachttijd na het vinden van eerste omslag:"
+msgstr "Max. wa&chttijd na het vinden van eerste omslag:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:118
 msgid ""
@@ -13036,10 +13130,17 @@ msgid ""
 "metadata sources has a genre like tag set for the book you are searching "
 "for. Most often, they all have large tag sets."
 msgstr ""
+"<p>Verschillende metadata bronnen hebben verschillende verzamelingen labels "
+"voor hetzelfde boek. Als deze optie wordt gebruikt, zal calibre de kleinste "
+"verzameling gebruiken. Deze hebben meer kans om genres te bevatten terwijl "
+"grotere verzamelingen meestal de inhoud van het boek beschrijven.\n"
+"<p>Bedenk dat deze optie alleen verschil maakt als één van de metadata "
+"bronnen een (mogelijk genre) label bevat voor één van de door jou gezochte "
+"boeken. Meestal bevatten ze allemaal grote verzamelingen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:120
 msgid "Prefer &fewer tags"
-msgstr "Prefereer &minder labels"
+msgstr "Pre&fereer minder labels"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc.py:50
 msgid "Failed to install command line tools."
@@ -13072,7 +13173,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:61
 msgid "Debug &device detection"
-msgstr "Foutopsporing &apparaatdetectie"
+msgstr "Foutopsporing apparaat&detectie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:62
 msgid "Open calibre &configuration directory"
@@ -13080,7 +13181,7 @@ msgstr "Open &configuratiemap van calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:63
 msgid "&Install command line tools"
-msgstr "Installeer commandoregeltools"
+msgstr "&Installeer commandoregeltools"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:34
 msgid "Open Editor"
@@ -13233,8 +13334,8 @@ msgid ""
 "Plugin <b>{0}</b> successfully installed under <b> {1} plugins</b>. You may "
 "have to restart calibre for the plugin to take effect."
 msgstr ""
-"Plugin <b>{0}</b> met succes geïnstalleerd onder<b> {1} plug-ins</b>. "
-"Misschien hmoet je calibre herstarten voor de plug-in werkt."
+"Plug-in <b>{0}</b> succesvol geïnstalleerd onder <b>{1} plug-ins</b>. "
+"Misschien moet je calibre herstarten voor de plug-in werkt."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:300
 msgid "No valid plugin path"
@@ -13302,19 +13403,19 @@ msgstr "Activeer/&deactiveer plug-in"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:91
 msgid "&Customize plugin"
-msgstr "&Persoonlijke instellingen plug-in"
+msgstr "Persoonlijke &configuratie plug-in"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:92
 msgid "&Remove plugin"
-msgstr "&Verwijder plug-in"
+msgstr "Ve&rwijder plug-in"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:93
 msgid "&Add a new plugin"
-msgstr "Voeg een nieuwe plug-in toe"
+msgstr "L&aad een nieuwe plug-in"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:33
 msgid "Any custom field"
-msgstr "elk eigen veld"
+msgstr "Elk eigen veld"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:34
 msgid "The lookup name of any custom field. These names begin with \"#\")"
@@ -13334,7 +13435,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template_ui.py:47
 msgid "Save &template"
-msgstr "Bewaar &sjabloon"
+msgstr "Sjabloon opslaan voor la&ter"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template_ui.py:48
 msgid ""
@@ -13365,11 +13466,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/saving_ui.py:69
 msgid "Save &cover separately"
-msgstr "Bewaar &omslag apart"
+msgstr "Bewaar omslag ges&cheiden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/saving_ui.py:70
 msgid "Replace space with &underscores"
-msgstr "Vervang spaties door lage &streepjes"
+msgstr "Vervang spaties door &underscores"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/saving_ui.py:71
 msgid "Update &metadata in saved copies"
@@ -13377,7 +13478,7 @@ msgstr "Update &metagegevens in de opgeslagen kopieën"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/saving_ui.py:72
 msgid "Change paths to &lowercase"
-msgstr "Schrijf padnamen met &kleine letters"
+msgstr "Schrijf padnamen met k&leine letters"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/saving_ui.py:73
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:76
@@ -13475,7 +13576,7 @@ msgstr "Zoek terwijl je &typt"
 msgid ""
 "&Highlight search results instead of restricting the book list to the results"
 msgstr ""
-"Oplichtende vondsten inplaats van alleen vondsten in de boekenlijst te tonen"
+"Oplic&htende vondsten inplaats van alleen vondsten in de boekenlijst te tonen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:112
 msgid "What to search by default"
@@ -13495,11 +13596,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:114
 msgid "&Limit the searched metadata"
-msgstr "&Beperk zoeken tot bepaalde kolommen"
+msgstr "Beperk zoeken tot bepaa&lde kolommen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:115
 msgid "&Columns that non-prefixed searches are limited to:"
-msgstr "Zoek zonder prefix alleen in volgende &kolommen:"
+msgstr "Zoek zonder prefix alleen bes&chikbaar in volgende kolommen:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:116
 msgid ""
@@ -13527,7 +13628,7 @@ msgstr "Ruim alle zoekgesc&hiedenis op"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:120
 msgid "&Names:"
-msgstr "Namen:"
+msgstr "&Namen:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:121
 msgid ""
@@ -13560,7 +13661,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:131
 msgid "&Save"
-msgstr "Be&waar"
+msgstr "Op&slaan"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:132
 msgid "Make &user categories from:"
@@ -13591,7 +13692,7 @@ msgstr "Automatische instellingen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:69
 msgid "Metadata &management:"
-msgstr "Metadata&beheer:"
+msgstr "&Metadatabeheer:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:73
 msgid ""
@@ -13663,7 +13764,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:129
 msgid "Max. &cover size:"
-msgstr "Max. &omslaggrootte:"
+msgstr "Max. omslaggrootte:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:131
 msgid "Max. &OPDS items per query:"
@@ -13671,7 +13772,7 @@ msgstr "Max. &OPDS-onderdelen per zoekopdracht"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:132
 msgid "Max. OPDS &ungrouped items:"
-msgstr "Max. &ongegroepeerde items OPDS:"
+msgstr "Max. ongegroepeerde items OPDS:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:133
 msgid "Restriction (saved search) to apply:"
@@ -13930,11 +14031,11 @@ msgstr "Pas deze acties aan in:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:100
 msgid "A&vailable actions"
-msgstr "&Beschikbare acties"
+msgstr "Uit&voerbare acties"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:101
 msgid "&Current actions"
-msgstr "&Huidige acties"
+msgstr "Huidige a&cties"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:102
 msgid "Move selected action up"
@@ -14019,7 +14120,7 @@ msgstr "Zet de standaardwaarde terug voor deze tweak"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:94
 msgid "Restore &default"
-msgstr "Zet de standaardwaarde terug"
+msgstr "Zet de stan&daardwaarde terug"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:95
 msgid "Apply any changes you made to this tweak"
@@ -14138,7 +14239,7 @@ msgstr " of "
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:134
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:74
 msgid "&Default"
-msgstr "&Standaard"
+msgstr "Stan&daard"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:136
 msgid "Customize shortcuts for"
@@ -14158,7 +14259,7 @@ msgstr "Rand"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:75
 msgid "&Custom"
-msgstr "Aan&gepast"
+msgstr "Aangepast"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:76
 msgid "&Shortcut:"
@@ -14262,6 +14363,10 @@ msgid ""
 "what you can do with this book. Check with the store before making any "
 "purchases to ensure you can actually read this book."
 msgstr ""
+"ER is een DRM-restrictie gedetecteerd bij dit boek. Dit moek werkt mogelijk "
+"niet op je ereader an er is een beperking aanwezig op het aantal handelingen "
+"welke je met dit boek mag uitvoeren. Controleer in de winkel voor je tot "
+"aanschaf over gaat of je dit boek kan lezen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:180
 msgid ""
@@ -14323,6 +14428,12 @@ msgid ""
 "will be a .epub file. You can add this book to calibre using \"Add Books\" "
 "and selecting the file from the ADE library folder."
 msgstr ""
+"Dit E-boek is een EPUB DRM bestand. Je zal worden gevraagd dit bestand op te "
+"slaan op je computer. Na het opslaan open het met <a "
+"href=\"http://www.adobe.com/products/digitaleditions/\">Adobe Digital "
+"Editions</a> (ADE).<p>ADE, zal het echte E-boek downloaden, het .epub "
+"bestand. Je kan dit boek toevoegen aan calibere met \"Boeken toevoegen\" en "
+"het boek dan selecteren van de ADE bibliotheek map."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/web_control.py:86
 msgid "File is not a supported ebook type. Save to disk?"
@@ -14667,7 +14778,7 @@ msgstr "He&rstellen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:237
 msgid "&Eject connected device"
-msgstr "Aangesloten apparaat ontkoppelen"
+msgstr "Aangesloten apparaat ontkopp&elen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:345
 msgid "Debug mode"
@@ -14740,7 +14851,7 @@ msgstr "Laat deze melding zien voor volgende updates"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:68
 msgid "&Get update"
-msgstr "&Haal update binnen"
+msgstr "Update verkrij&gen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager.py:43
 msgid "Edit bookmark"
@@ -14796,23 +14907,23 @@ msgstr "Configureer leesvenster"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:179
 msgid "&Font options"
-msgstr "&Lettertype-opties"
+msgstr "Lettertype-opties"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:180
 msgid "Se&rif family:"
-msgstr "Lettertype met &schreef:"
+msgstr "Lettertype met sch&reef:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:181
 msgid "&Sans family:"
-msgstr "S&chreefloos lettertype:"
+msgstr "&Schreefloos lettertype:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:182
 msgid "&Monospace family:"
-msgstr "&Niet-proportionele familie (Monospace):"
+msgstr "Niet-proportionele familie (&Monospace):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:183
 msgid "&Default font size:"
-msgstr "&Standaard lettergrootte:"
+msgstr "Stan&daard lettergrootte:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:184
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:186
@@ -14822,7 +14933,7 @@ msgstr " px"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:185
 msgid "Monospace &font size:"
-msgstr "Niet-proportionele &lettergrootte:"
+msgstr "Niet-proportionele letter&formaat:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:187
 msgid "S&tandard font:"
@@ -14842,11 +14953,11 @@ msgstr "Niet-proportioneel"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:191
 msgid "Remember last used &window size"
-msgstr "Onthoud de laatst gebruikte venstergrootte"
+msgstr "Onthoud de laatst gebruikte &weergavegrootte van venster"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:192
 msgid "Remember the &current page when quitting"
-msgstr "Onthoude huidige pagina"
+msgstr "Huidige pagina onthouden bij afsluiten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:193
 msgid "H&yphenate (break line in the middle of large words)"
@@ -14862,7 +14973,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:195
 msgid "Default &language for hyphenation:"
-msgstr "Standaard&taal voor woordafbreken:"
+msgstr "Standaardtaa&l voor woordafbreken:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:196
 msgid "&Resize images larger than the viewer window (needs restart)"
@@ -14871,7 +14982,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:197
 msgid "Page flip &duration:"
-msgstr "Pagina omdraaien:"
+msgstr "&Duur pagina omslaan:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:198
 msgid "disabled"
@@ -14883,11 +14994,11 @@ msgstr "Pagina omdraaien met mius&wiel:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:202
 msgid "Maximum &view width:"
-msgstr "Maximale &kijkbreedte"
+msgstr "Maximale weerga&vebreedte"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:203
 msgid "&General"
-msgstr "&Algemeen"
+msgstr "Al&gemeen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:204
 msgid "Double click to change a keyboard shortcut"
@@ -14895,7 +15006,7 @@ msgstr "Dubbelklik om een sneltoetscombinatie te veranderen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:205
 msgid "&Keyboard shortcuts"
-msgstr "&sneltoetsen"
+msgstr "Sneltoetsen/&knoppen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:206
 msgid ""
@@ -15005,7 +15116,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:534
 msgid "&Lookup in dictionary"
-msgstr "&Zoek in woordenboek"
+msgstr "Zoek in (on&line) woordenboek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:538
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:141
@@ -15322,7 +15433,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:745
 msgid "welcome wizard"
-msgstr "Verwelkomingswizard"
+msgstr "Welkomswizard"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/device_ui.py:54
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/device_ui.py:55
@@ -15343,11 +15454,11 @@ msgstr "De complete oplossing voor al je e-boekbehoeften."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/device_ui.py:57
 msgid "&Manufacturers"
-msgstr "&Fabricanten"
+msgstr "Fabrikanten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/device_ui.py:58
 msgid "&Devices"
-msgstr "A&pparaten"
+msgstr "Apparaten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/finish_ui.py:49
 msgid ""
@@ -15394,7 +15505,7 @@ msgstr "&Kindle e-mail:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:57
 msgid "Choose your &language:"
-msgstr "Kies je &taal:"
+msgstr "Kies je taa&l:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:58
 msgid ""
@@ -15407,7 +15518,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:59
 msgid "&Change"
-msgstr "&Wijzigen"
+msgstr "Wijzigen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:60
 msgid ""
@@ -15457,8 +15568,8 @@ msgid ""
 "If you don't have an account, you can sign up for a free {name} email "
 "account at <a href=\"http://{url}\">http://{url}</a>. {extra}"
 msgstr ""
-"Als je geen account hebt kan je intekenen op een gratis {name} e-mailaccount "
-"op<a href=\"http://{url}\">http://{url}</a>. {extra}"
+"Als je geen account hebt kan je je aanmelden voor een gratis {name} e-"
+"mailaccount op <a href=\"http://{url}\">http://{url}</a>. {extra}"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:160
 msgid "Your %s &email address:"
@@ -15470,7 +15581,7 @@ msgstr "Je %s gebr&uikersnaam"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:162
 msgid "Your %s &password:"
-msgstr "Je %s &wachtwoord"
+msgstr "Je %s wachtwoord/&pin"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:180
 msgid ""
@@ -15518,7 +15629,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:124
 msgid "Send email &from:"
-msgstr "Verstuur e-mail &van:"
+msgstr "Verstuur e-mail van:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:125
 msgid ""
@@ -15574,7 +15685,7 @@ msgstr "Je wachtwoord op de mailserver"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:137
 msgid "&Show"
-msgstr "Weerge&ven"
+msgstr "Weergeven"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:138
 msgid "&Encryption:"
@@ -15790,6 +15901,11 @@ msgid ""
 "Default: '%%default'\n"
 "Applies to: BIBTEX output format"
 msgstr ""
+"De sjabloon voor het maken van citaten uit database velden.\n"
+"Moet een sjabloon zijn met velden omsloten door {}.\n"
+"Beschikbare velden: %s.\n"
+"Standaard: '%%default'\n"
+"Van toepassing op: BIBTEX weergave formaat"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:281
 msgid ""
@@ -15836,7 +15952,7 @@ msgstr ""
 "De titel van de aangemaakte catalogus wordt ook gebruikt als titel in de "
 "metagegevens.\n"
 "Standaard: '%default'\n"
-"Betrekking tot: ePub, MOBI uitvoerformaten"
+"Van toepassing op: ePub, MOBI weergave formaten."
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:613
 msgid ""
@@ -15846,6 +15962,11 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"Sla de uitvoer van verschillende stappen in het convercie-porces op in de "
+"aangegeven map. Nuttig als je niet zeker weet op welk punt problemen "
+"optreden.\n"
+"Standaard: '%default'\n"
+"Van toepassing op: ePub, MOBI weergave formaten"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:623
 msgid ""
@@ -15863,7 +15984,7 @@ msgid ""
 msgstr ""
 "Regex die de labels beschijft die worden uitgesloten als genres.\n"
 "Standaard: '%default'  uitgezonderd labels in haken, b.v. '[<label>]'\n"
-"Betrekking tot: ePub, MOBI uitvoerformaten"
+"Van toepassing op: ePub, MOBI weergave formaten."
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:636
 msgid ""
@@ -15872,6 +15993,11 @@ msgid ""
 "this'.Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"Komma-gescheiden lijst van label woorden die aangeven dat een boek niet moet "
+"worden opgenomen in de uitvoer. Bijvoorbeeld: 'ben' zal overeenkomen met "
+"'ben ik niet aan toegekomen' en 'Ben zal dit leuk vinden'. Standaard: "
+"'%default'\n"
+"Van toepassing op: ePub, MOBI weergave formaten."
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:644
 msgid ""
@@ -15881,7 +16007,7 @@ msgid ""
 msgstr ""
 "'Schrijvers' sectie toevoegen in catalogus.\n"
 "Standaard: '%default'\n"
-"Geldig voor: ePub, MOBI uitvoer formaten"
+"Van toepassing op: ePub, MOBI weergave formaten."
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:651
 msgid ""
@@ -15891,7 +16017,7 @@ msgid ""
 msgstr ""
 "'Omschrijvingen' sectie toevoegen in catalogus.\n"
 "Standaard: '%default'\n"
-"Geldig voor: ePub, MOBI uitvoer formaten"
+"Van toepassing op: ePub, MOBI weergave formaten."
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:658
 msgid ""
@@ -15901,7 +16027,7 @@ msgid ""
 msgstr ""
 "'Genres' sectie toevoegen in catalogus.\n"
 "Standaard: '%default'\n"
-"Geldig voor: ePub, MOBI uitvoer formaten"
+"Van toepassing op: ePub, MOBI weergave formaten."
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:665
 msgid ""
@@ -15921,7 +16047,7 @@ msgid ""
 msgstr ""
 "Bewaar 'Reeks' onderdeel in catalogus.\n"
 "Standaard: '%default'\n"
-"Geldt voor: ePub, MOBI uitvoerformaten."
+"Van toepassing op: ePub, MOBI weergave formaten."
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:679
 msgid ""
@@ -15941,7 +16067,7 @@ msgid ""
 msgstr ""
 "Standaardveld met notities om toe te voegen aan de kop met omschrijvingen.\n"
 "Standaard: '%default'\n"
-"Geldig voor: ePub, MOBI uitvoer formaten"
+"Van toepassing op: ePub, MOBI weergave formaten."
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:693
 msgid ""
@@ -15967,7 +16093,7 @@ msgstr ""
 "Bijvoorbeeld, 'kindle' of 'kindle_dx' maakt een gestructureerde "
 "inhoudsopgave aan met paragraafs en artikelen.\n"
 "Standaard: '%default'\n"
-"Betrekking tot: ePub, MOBI uitvoerformaten"
+"Van toepassing op: ePub, MOBI weergave formaten."
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:710
 msgid ""
@@ -15983,6 +16109,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to ePub, MOBI output formats"
 msgstr ""
+"Omvang tip (in inches) voor boekomslagen in catalogus.\n"
+"Range: 1.0 - 2.0\n"
+"Standaard: '%default'\n"
+"Van toepassing op: ePub, MOBI weergave formaten."
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:724
 msgid ""
@@ -15992,7 +16122,7 @@ msgid ""
 msgstr ""
 "Tag waarmee een boek wordt weergegeven als wenslijstitem.\n"
 "Standaard: '%default'\n"
-"Geldt voor: ePub, Mobi uitvoerformaten"
+"Van toepassing op: ePub, MOBI weergave formaten."
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:1407
 msgid "No enabled genres found to catalog.\n"
@@ -16026,6 +16156,9 @@ msgid ""
 "Author '{0}':\n"
 "'{1}' <> '{2}'\n"
 msgstr ""
+"Waarschuwing: inconsistente Schrijvers-sorteer waardes voor\n"
+"Schrijver '{0}':\n"
+"'{1}' <> '{2}'\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:1699
 msgid ""
@@ -17307,7 +17440,7 @@ msgstr "Voeg nieuwe formaten toe aan bestaande boeken"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config_base.py:404
 msgid "Tags to apply to books added to the library"
-msgstr "Labels voor boeken die toegevoegd worden aan de bibliotheek"
+msgstr "Labels voor nieuw toegevoegde boeken"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config_base.py:408
 msgid "List of named saved searches"
@@ -17420,24 +17553,32 @@ msgid ""
 "add(x, y) -- returns x + y. Throws an exception if either x or y are not "
 "numbers."
 msgstr ""
+"add(x, y) -- geeft x + y terug. Geeft een waarschuwing als x of y geen "
+"nummer zijn."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:150
 msgid ""
 "subtract(x, y) -- returns x - y. Throws an exception if either x or y are "
 "not numbers."
 msgstr ""
+"subtract(x, y) -- geeft x - y terug. Geeft een waarschuwing als x of y geen "
+"nummer zijn."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:160
 msgid ""
 "multiply(x, y) -- returns x * y. Throws an exception if either x or y are "
 "not numbers."
 msgstr ""
+"multiply(x, y) -- geeft x * y terug. Er wordt een foutmelding gegeven als x "
+"of y geen nummer is."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:170
 msgid ""
 "divide(x, y) -- returns x / y. Throws an exception if either x or y are not "
 "numbers."
 msgstr ""
+"divide(x, y) -- geeft x / y terug. Geeft een waarschuwing als x of y geen "
+"nummer zijn."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:180
 msgid ""
@@ -17461,6 +17602,8 @@ msgid ""
 "assign(id, val) -- assigns val to id, then returns val. id must be an "
 "identifier, not an expression"
 msgstr ""
+"assign(id, waarde) -- geeft id de waarde waarde en geeft waarde terug. id "
+"moet een identificator, geen uitdrukking"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:218
 msgid ""
@@ -17468,16 +17611,22 @@ msgid ""
 "start calibre from the command line (calibre-debug -g), the output will go "
 "to a black hole."
 msgstr ""
+"print(a, b, ...) -- geeft meegegeven informatie weer in standaard uitvoer. "
+"Tenzij je calibre start van de command line (calibre-debug -g), zal deze "
+"uitvoer terecht verdwijnen (zwart gat)/"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:229
 msgid "field(name) -- returns the metadata field named by name"
 msgstr ""
+"field(naam) -- geeft de mtadata terug van het veld aangegeven met naam"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:237
 msgid ""
 "raw_field(name) -- returns the metadata field named by name without applying "
 "any formatting."
 msgstr ""
+"raw_field(naam) -- geeft de metadate terug uit het veld naam zonder enige "
+"opmaak toe te passen."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:246
 msgid ""
@@ -17508,6 +17657,9 @@ msgid ""
 "test(val, text if not empty, text if empty) -- return `text if not empty` if "
 "the field is not empty, otherwise return `text if empty`"
 msgstr ""
+"test(waarde, tekst indien niet leeg, tekst indien leeg) -- geeft `tekst "
+"indien niet leeg` terug als het veld niet leeg is, anders word `tekst indien "
+"leeg` terug gegeven."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:298
 msgid ""
@@ -17541,6 +17693,8 @@ msgid ""
 "ifempty(val, text if empty) -- return val if val is not empty, otherwise "
 "return `text if empty`"
 msgstr ""
+"ifempty(waarde, tekst indien leeg) -- geeft waarde terug als het veld niet "
+"leeg is, anders 'tekst indien leeg'"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:356
 msgid ""
@@ -17563,6 +17717,10 @@ msgid ""
 "comma as the separator, but authors uses an ampersand. Examples: "
 "{tags:count(,)}, {authors:count(&)}"
 msgstr ""
+"count(waarde, scheiding) -- interpreteerd de waarde als een lijst van termen "
+"gescheiden door 'scheiding', geeft het aantal items in de lijst terug. "
+"Meeste lijsten gebruiken een komma als scheiding maar schrijvers gebruiken "
+"een ampersand. Voorbeeld: {tags:count{,}}, {authors:count{&}}"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:392
 msgid ""
@@ -17579,6 +17737,10 @@ msgid ""
 "with the items being \"id:value\". Find the pair with theid equal to key, "
 "and return the corresponding value."
 msgstr ""
+"select(waarde, sleutel) -- interpreteerd de waarde als een komma-gescheiden "
+"lijst van onderdelen met de onderdelen weergegeven als \"id:waarde\". Vind "
+"het koppel met het id gelijk aan sleutel en geeft de bijbehorende waarde "
+"terug."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:429
 msgid ""
@@ -17638,10 +17800,13 @@ msgstr "lowercase(val) -- waarde van het veld terug geven in kleine letters"
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:539
 msgid "titlecase(val) -- return value of the field in title case"
 msgstr ""
+"titlecase(val) -- geeft de waarde van het veld terug in (Engelstalige) title-"
+"case"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:547
 msgid "capitalize(val) -- return value of the field capitalized"
 msgstr ""
+"capitalize(val) -- geeft de waarde van het veld terug in hoofdletters"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:555
 msgid "booksize() -- return value of the field capitalized"
@@ -18506,8 +18671,8 @@ msgstr ""
 #: /home/kovid/work/calibre/resources/default_tweaks.py:241
 msgid "Control how tags are applied when copying books to another library"
 msgstr ""
-"Controleer hoe labels worden toegepast tijdens kopiëren van boeken naar "
-"andere bibliotheken"
+"Beheer hoe labels worden toegepast tijdens kopiëren van boeken naar andere "
+"bibliotheken"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:242
 msgid ""
@@ -18580,10 +18745,16 @@ msgid ""
 "(Liberation\n"
 "Serif) does not contain glyphs for the language of the books in your library."
 msgstr ""
+"Complete pad naar .ttf lettertype bestanden om te gebruiken als het "
+"lettertype voor de titel,\n"
+"schrijver en voetnoot bij het maken van een standaard omslag. Bruikbaar als "
+"het standaard\n"
+"lettertype (Liberation Serif) geen leestekens bevat voor de taal van de "
+"boeken in jou bibliotheek,"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:284
 msgid "Control behavior of double clicks on the book list"
-msgstr "Gedrag bij dubbelklik op de boekenlijst"
+msgstr "Gedrag bij dubbelklik op de boekenlijst beheren"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:285
 msgid ""
@@ -18594,6 +18765,13 @@ msgid ""
 "Default: open_viewer.\n"
 "Example: doubleclick_on_library_view = 'do_nothing'"
 msgstr ""
+"Gedrag van dubbelklik op de boekenlijst. Keuzemogelijkheden: open_viewer, "
+"do_nothing,\n"
+"edit_cell, edit_metadata. Selecteren van edit_metadata heeft het neveneffect "
+"dat bewerken\n"
+"van een veld na een enkele klik zal worden uitgeschakeld.\n"
+"Standaard: open_viewer.\n"
+"Voorbeeld: doubleclick_on_library_view = 'do_nothing'"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:293
 msgid "Language to use when sorting."
@@ -18625,6 +18803,11 @@ msgid ""
 "two\n"
 "columns. If False, one column is used."
 msgstr ""
+"Instellen of één of twee kolommen worden gebruikt voor persoonlijke metadata "
+"bij het\n"
+"bewerken van metadata per boek. Indien waar, zullen de velden in twee "
+"kolommen worden\n"
+"gezet. Indien onwaar, zal één kolom worden gebruikt."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:311
 msgid "The number of seconds to wait before sending emails"
@@ -18689,6 +18872,15 @@ msgid ""
 "that if there isn't enough free space available on the location you choose,\n"
 "the files will be sent to the location with the most free space."
 msgstr ""
+"Tijdens automatisch versturen van gedownload nieuws naar verbonden\n"
+"apparaten, zal calibre dit standaard naar de hoofdopslag sturen. Door deze\n"
+"tweak te veranderen, kan je beheren waar het wordt geplaatst. Geldige "
+"waardes\n"
+"zijn \"main\", \"carda\", \"cardb\". Bedenk dat, indien er niet genoeg "
+"ruimte op de\n"
+"geselecteerde locatie beschikbaar is, de bestanden geplaatst worden op de "
+"locatie\n"
+"met de meeste ruimte."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:339
 msgid "What interfaces should the content server listen on"
@@ -19054,9 +19246,6 @@ msgstr ""
 #~ msgid "Free unused diskspace from the database"
 #~ msgstr "Geef ongebruikte diskruimte uit de database terug"
 
-#~ msgid "Select visible &columns in library view"
-#~ msgstr "Selecteer zichtbare &kolommen in bibliotheek weergave"
-
 #~ msgid "&Compact database"
 #~ msgstr "&Comprimeer database"
 
@@ -19142,9 +19331,6 @@ msgstr ""
 #~ msgid "&Word spacing:"
 #~ msgstr "&Woord spatiëring"
 
-#~ msgid "Minimum &indent:"
-#~ msgstr "Minimum &indentie:"
-
 #~ msgid "Source en&coding:"
 #~ msgstr "Bron &Codering"
 
@@ -19166,20 +19352,8 @@ msgstr ""
 #~ msgid "Enable auto &rotation of images"
 #~ msgstr "Activeer auto &rotatie van afbeeldingen"
 
-#~ msgid "&Preprocess:"
-#~ msgstr "&Verwerk"
-
-#~ msgid "Ignore &colors"
-#~ msgstr "Negeer &kleuren"
-
 #~ msgid "Header"
 #~ msgstr "Koptekst"
-
-#~ msgid "&Show header"
-#~ msgstr "Laat koptekst &zien"
-
-#~ msgid "&Header format:"
-#~ msgstr "&Koptekst Formaat:"
 
 #~ msgid "Override<br>CSS"
 #~ msgstr "Negeer<br>CSS"
@@ -19193,20 +19367,11 @@ msgstr ""
 #~ msgid "Set the category"
 #~ msgstr "Geef de categorie"
 
-#~ msgid "&Top Margin:"
-#~ msgstr "&Boven Marge:"
-
-#~ msgid "&Bottom Margin:"
-#~ msgstr "&Onder Marge:"
-
 #~ msgid "&Left Margin:"
 #~ msgstr "&Linker Kantlijn:"
 
 #~ msgid "&Right Margin:"
 #~ msgstr "&Rechter Kantlijn:"
-
-#~ msgid "Add &chapters to table of contents"
-#~ msgstr "Voeg hoofdstukken toe aan de &inhoudsopgave"
 
 #~ msgid "&Force page break before tag:"
 #~ msgstr "&Forceer nieuwe pagina voor tag:"
@@ -19222,9 +19387,6 @@ msgstr ""
 
 #~ msgid "Tag based detection"
 #~ msgstr "Tag-gebaseerde detectie"
-
-#~ msgid "Add Ta&gs: "
-#~ msgstr "Voeg Ta&gs Toe: "
 
 #~ msgid ""
 #~ "For help with writing advanced news recipes, please visit <a "
@@ -19454,9 +19616,6 @@ msgstr ""
 #~ msgid "Show &text in toolbar buttons"
 #~ msgstr "Laat &tekst zien in werkbalk knoppen"
 
-#~ msgid "&Button size in toolbar"
-#~ msgstr "&Knop grootte in werkbalk"
-
 #~ msgid ""
 #~ "Specify trutype font families for serif, sans-serif and monospace fonts. "
 #~ "These fonts will be embedded in the LRF file. Note that custom fonts lead to "
@@ -19516,9 +19675,6 @@ msgstr ""
 #~ msgstr ""
 #~ "<p>De volgende boeken konden niet worden bewaard op schijf, omdat het %s "
 #~ "formaat niet beschikbaar is:<ul>"
-
-#~ msgid "Format for &single file save:"
-#~ msgstr "Opglagformaat voor &enkel bestand:"
 
 #~ msgid "The reader has no storage card connected."
 #~ msgstr "Er is geen geheugen kaart verbonden met de reader."
@@ -19793,20 +19949,11 @@ msgstr ""
 #~ msgid "No text &justification"
 #~ msgstr "Geen tekst uitlijning"
 
-#~ msgid "&Transliterate unicode characters to ASCII."
-#~ msgstr "Converteer unicode karakters naar ASCII"
-
 #~ msgid "~"
 #~ msgstr "~"
 
 #~ msgid "PDB Input"
 #~ msgstr "PDB Invoer"
-
-#~ msgid "Remove F&ooter"
-#~ msgstr "Verwijder &Voetnoot"
-
-#~ msgid "Remove H&eader"
-#~ msgstr "Verwijder &Koptekst"
 
 #~ msgid "Add a tab at the beginning of each paragraph"
 #~ msgstr "Voerg een tab toe aan het begin van iedere paragraaf"
@@ -19853,15 +20000,6 @@ msgstr ""
 #~ msgid "TabWidget"
 #~ msgstr "TabWidget"
 
-#~ msgid "&Adding books"
-#~ msgstr "Boeken &Toevoegen"
-
-#~ msgid "&Saving books"
-#~ msgstr "&Bewaren boeken"
-
-#~ msgid "Search as you type"
-#~ msgstr "Zoek al typend"
-
 #~ msgid "Show &notifications in system tray"
 #~ msgstr "Laat &notificaties zien in het systeemvak"
 
@@ -19873,15 +20011,6 @@ msgstr ""
 
 #~ msgid "Add new plugin"
 #~ msgstr "Voeg nieuwe plugin toe"
-
-#~ msgid "&Add"
-#~ msgstr "&Toevoegen"
-
-#~ msgid "Plugin &file:"
-#~ msgstr "Plugin &bestand:"
-
-#~ msgid "Stop &all jobs"
-#~ msgstr "Stop alle werk opdrachten"
 
 #~ msgid "Abort the editing of all remaining books"
 #~ msgstr "Annuleer het bewerken van alle overgebleven boeken"
@@ -20159,14 +20288,8 @@ msgstr ""
 #~ msgid "English (PK)"
 #~ msgstr "Engels (PK)"
 
-#~ msgid "Fit &cover to view"
-#~ msgstr "Schaal &omslag naar schermgrootte"
-
 #~ msgid "Paste Image"
 #~ msgstr "Afbeelding Plakken"
-
-#~ msgid "Sending to &device"
-#~ msgstr "Verstuur naar &apparaat"
 
 #~ msgid "Copy Image"
 #~ msgstr "Afbeelding kopiëren"
@@ -20458,9 +20581,6 @@ msgstr ""
 #~ "&Locatie van de eboeken. (De eboeken zijn opgeslagen in de folders "
 #~ "gesorteerd op auteur, en metadata word bewaard in eht bestand metadata.db)"
 
-#~ msgid "Read metadata only from &file name"
-#~ msgstr "Lees metagegevens alleen uit de &bestandsnaam"
-
 #~ msgid "Contains: the word or phrase matches anywhere in the metadata"
 #~ msgstr ""
 #~ "Bevat: het woord of de uitdrukking komt ergens in de metagegevens voor"
@@ -20531,9 +20651,6 @@ msgstr ""
 #~ msgid "free"
 #~ msgstr "vrij"
 
-#~ msgid "&Restrict to:"
-#~ msgstr "&Beperkt tot:"
-
 #~ msgid "Edit sort for '%s'"
 #~ msgstr "Bewerk sorteeropdracht voor '%s'"
 
@@ -20603,18 +20720,12 @@ msgstr ""
 #~ msgid "Switch to library..."
 #~ msgstr "Schakel naar bibliotheek..."
 
-#~ msgid "&Miscellaneous"
-#~ msgstr "&Overige"
-
 #~ msgid ""
 #~ "Values for the tweaks are shown below. Edit them to change the behavior of "
 #~ "calibre"
 #~ msgstr ""
 #~ "De waarden van de aanpassingen staan hieronder weergegeven. Wijzig deze om "
 #~ "het gedrag van Calibre aan te passen."
-
-#~ msgid "&Current tweaks"
-#~ msgstr "&Huidige aanpassingen"
 
 #~ msgid "All available tweaks"
 #~ msgstr "Alle beschikbare aanpassingen"
@@ -20627,12 +20738,6 @@ msgstr ""
 #~ "Reset alle auteurssorteerwaarden naar een waarde die automatisch gegenereerd "
 #~ "is van de auteursnaam. De manier waarop deze waarde precies gegenereerd "
 #~ "wordt kan gecontroleerd worden via Voorkeuren->Geavanceerd->Aanpassingen"
-
-#~ msgid "&Tweaks"
-#~ msgstr "&Aanpassingen"
-
-#~ msgid "&Restore to defaults"
-#~ msgstr "&Reset naar standaardwaarden"
 
 #~ msgid ""
 #~ "<p>Enter a list of ISBNs in the box to the left, one per line. calibre will "
@@ -20892,9 +20997,6 @@ msgstr ""
 
 #~ msgid "Wishlist tag:"
 #~ msgstr "Wenslijst tag:"
-
-#~ msgid "Manage &user categories"
-#~ msgstr "Beheer &gebruikerscategorieën"
 
 #~ msgid ""
 #~ "The following books had formats or covers listed in the database that are "
@@ -21228,9 +21330,6 @@ msgstr ""
 #~ msgid "Footer regular expression:"
 #~ msgstr "Voetnoot regexp:"
 
-#~ msgid "&Preprocess input file to possibly improve structure detection"
-#~ msgstr "&Voorbewerk invoerbestand voor mogelijk betere structuur detectie"
-
 #~ msgid "Use a wizard to help construct the XPath expression"
 #~ msgstr "Gebruik een wizard om te helpen een XPath uitdrukking te construeren"
 
@@ -21253,9 +21352,6 @@ msgstr ""
 #~ "Automatically create the author sort entry based on the current author entry"
 #~ msgstr ""
 #~ "Creër automatisch de sorteerauteur gebaseerd op de huidige auteur ingave"
-
-#~ msgid "Download &cover"
-#~ msgstr "Download &omslagafbeelding"
 
 #~ msgid ""
 #~ "<p>Could not convert: %s<p>It is a <a href=\"%s\">DRM</a>ed book. You must "
@@ -21604,3 +21700,101 @@ msgstr ""
 #~ msgstr ""
 #~ "Stel persoonlijke metadata velden in die al dan niet worden weergegeven in "
 #~ "het boeken-details paneel."
+
+#~ msgid "Select visible &columns in library view"
+#~ msgstr "Sele&cteer zichtbare kolommen in bibliotheek weergave"
+
+#~ msgid "Minimum &indent:"
+#~ msgstr "Minimum &indentatie:"
+
+#~ msgid "&Preprocess:"
+#~ msgstr "Verwerk"
+
+#~ msgid "Ignore &colors"
+#~ msgstr "Negeer kleuren"
+
+#~ msgid "&Show header"
+#~ msgstr "Laat koptekst zien"
+
+#~ msgid "&Header format:"
+#~ msgstr "Koptekst (&hoofd) formaat:"
+
+#~ msgid "&Top Margin:"
+#~ msgstr "Boven Marge:"
+
+#~ msgid "&Bottom Margin:"
+#~ msgstr "Onder Marge:"
+
+#~ msgid "Add &chapters to table of contents"
+#~ msgstr "Hoofdstukken bes&chikbaar maken in inhoudsopgave"
+
+#~ msgid "Add Ta&gs: "
+#~ msgstr "Voe&g labels toe: "
+
+#~ msgid "&Button size in toolbar"
+#~ msgstr "Omvang knop(-af&beelding) in werkbalk"
+
+#~ msgid "Format for &single file save:"
+#~ msgstr "Op&slagformaat voor enkel bestand:"
+
+#~ msgid "&Transliterate unicode characters to ASCII."
+#~ msgstr "Conver&teer unicode karakters naar ASCII"
+
+#~ msgid "Remove F&ooter"
+#~ msgstr "Verwijder V&oetnoot"
+
+#~ msgid "Remove H&eader"
+#~ msgstr "Verwijder Kopt&ekst"
+
+#~ msgid "&Adding books"
+#~ msgstr "Boeken toevoegen"
+
+#~ msgid "&Saving books"
+#~ msgstr "Boeken op&slaan"
+
+#~ msgid "Search as you type"
+#~ msgstr "Zoek tijdens typen"
+
+#~ msgid "&Add"
+#~ msgstr "Toevoegen"
+
+#~ msgid "Plugin &file:"
+#~ msgstr "Plugin bestand:"
+
+#~ msgid "Stop &all jobs"
+#~ msgstr "Stop &alle taken"
+
+#~ msgid "Fit &cover to view"
+#~ msgstr "S&chaal omslag naar schermgrootte"
+
+#~ msgid "Sending to &device"
+#~ msgstr "Verstuur naar apparaat"
+
+#~ msgid "Read metadata only from &file name"
+#~ msgstr "Lees metagegevens alleen uit de bestandsnaam"
+
+#~ msgid "&Restrict to:"
+#~ msgstr "Bepe&rkt tot:"
+
+#~ msgid "&Miscellaneous"
+#~ msgstr "Overige"
+
+#~ msgid "&Current tweaks"
+#~ msgstr "Huidige aanpassingen"
+
+#~ msgid "&Tweaks"
+#~ msgstr "&Tweaks"
+
+#~ msgid "&Restore to defaults"
+#~ msgstr "He&rstel naar standaardwaarden"
+
+#~ msgid "Manage &user categories"
+#~ msgstr "Beheer gebr&uikerscategorieën"
+
+#~ msgid "&Preprocess input file to possibly improve structure detection"
+#~ msgstr ""
+#~ "Invoerbestand voorbewerken (aan&passen) voor mogelijk betere structuur "
+#~ "detectie"
+
+#~ msgid "Download &cover"
+#~ msgstr "Download omslagafbeelding (indien bes&chikbaar)"
