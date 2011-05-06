@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-04-30 16:30+0000\n"
-"PO-Revision-Date: 2011-04-15 14:46+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2011-05-05 06:09+0000\n"
+"Last-Translator: Devilinside <Unknown>\n"
 "Language-Team: Hungarian <hu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-05-01 04:41+0000\n"
-"X-Generator: Launchpad (build 12758)\n"
+"X-Launchpad-Export-Date: 2011-05-06 04:34+0000\n"
+"X-Generator: Launchpad (build 12959)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -369,7 +369,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:928
 msgid "Searching"
-msgstr ""
+msgstr "Keresés"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:934
 msgid "Customize the way searching for books works in calibre"
@@ -529,11 +529,11 @@ msgstr "Egyéb speciális beállítások"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1109
 msgid "Kindle books from Amazon"
-msgstr ""
+msgstr "Kindle könyvek az Amazontól"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1114
 msgid "Kindle books from Amazon.uk"
-msgstr ""
+msgstr "Kindle könyvek az Amazon.uk-től"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1119
 msgid "Ebooks for readers."
@@ -573,7 +573,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1164
 msgid "The best ebooks at the best price: free!"
-msgstr ""
+msgstr "A legjobb könyvek a legjobb áron: ingyen!"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1169
 msgid "Ebooks handcrafted with the utmost care"
@@ -8253,7 +8253,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:60
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:233
 msgid "&Cancel"
-msgstr ""
+msgstr "Mégsem"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comments_dialog_ui.py:43
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:70
@@ -14330,7 +14330,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:189
 msgid "E-book Viewer"
-msgstr "E-booik olvasó"
+msgstr "E-book olvasó"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:190
 msgid "Close dictionary"

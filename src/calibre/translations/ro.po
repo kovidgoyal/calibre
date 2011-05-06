@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-04-30 16:30+0000\n"
-"PO-Revision-Date: 2011-05-04 09:09+0000\n"
+"PO-Revision-Date: 2011-05-05 11:47+0000\n"
 "Last-Translator: Anca Stratulat <Unknown>\n"
 "Language-Team: Romanian <ro@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-05-05 04:38+0000\n"
+"X-Launchpad-Export-Date: 2011-05-06 04:34+0000\n"
 "X-Generator: Launchpad (build 12959)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -3389,7 +3389,7 @@ msgstr "Descarcă %s din %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:153
 msgid "Convert comments downloaded from %s to plain text"
-msgstr ""
+msgstr "Converteşte comentariile descărcate de la %s în text simplu"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:181
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google.py:160
@@ -3418,6 +3418,9 @@ msgid ""
 "Downloads series information from ww2.kdl.org. This website cannot handle "
 "large numbers of queries, so the plugin is disabled by default."
 msgstr ""
+"Descarcă informaţiile seriilor de pe ww2.kdl.org. Acest site web nu poate "
+"manipula un număr mare de întrebări, astfel încât plugin-ul este dezactivat "
+"în mod implicit."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fictionwise.py:25
 msgid "Downloads metadata from Fictionwise"
@@ -3447,7 +3450,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fictionwise.py:316
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fictionwise.py:333
 msgid "Failed to get all details for an entry"
-msgstr ""
+msgstr "Nu s-au putut obţine toate detaliile pentru o înregistrare"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fictionwise.py:354
 msgid ""
@@ -3469,32 +3472,32 @@ msgstr "Titlul cărţii"
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fictionwise.py:363
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:364
 msgid "Book author(s)"
-msgstr ""
+msgstr "Autor(ii) cărţii"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fictionwise.py:364
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:365
 msgid "Book publisher"
-msgstr ""
+msgstr "Editorul cărţii"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fictionwise.py:365
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:367
 msgid "Keywords"
-msgstr ""
+msgstr "Cuvinte cheie"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fictionwise.py:367
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:373
 msgid "Maximum number of results to fetch"
-msgstr ""
+msgstr "Numărul maxim de rezultate preluate"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fictionwise.py:369
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:375
 msgid "Be more verbose about errors"
-msgstr ""
+msgstr "Mai multe detalii despre erori"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fictionwise.py:383
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:390
 msgid "No result found for this search!"
-msgstr ""
+msgstr "Niciun rezultat găsit pentru aceasta cautare!"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:107
 msgid ""
@@ -3516,15 +3519,15 @@ msgstr "ID-ul ISBN a cărţii pentru care doriţi metadatele."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:120
 msgid "The author whose book to search for."
-msgstr ""
+msgstr "Autorul a cărui carte o căutaţi."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:122
 msgid "The title of the book to search for."
-msgstr ""
+msgstr "Titlul cărţii pe care o căutaţi."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:124
 msgid "The publisher of the book to search for."
-msgstr ""
+msgstr "Editura cărţii pe care o căutaţi."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/library_thing.py:64
 msgid ""
@@ -3541,22 +3544,22 @@ msgstr "Descărcaţi metadate de pe Nicebook franceză"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:42
 msgid "Downloads covers from french Nicebooks"
-msgstr ""
+msgstr "Descărcă coperţi de pe Nicebooks francez"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:118
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:242
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:320
 msgid "Nicebooks timed out. Try again later."
-msgstr ""
+msgstr "Nicebooks expirat. Încercaţi din nou mai târziu."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:119
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:243
 msgid "Nicebooks encountered an error."
-msgstr ""
+msgstr "Nicebooks a întâlnit o eroare."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:323
 msgid "ISBN: %s not found."
-msgstr ""
+msgstr "SBN: %s nu a fost găsit."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:324
 msgid "An errror occured with Nicebooks cover fetcher"
@@ -3576,11 +3579,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:366
 msgid "Book ISBN"
-msgstr ""
+msgstr "Carte ISBN"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:369
 msgid "Covers: 1-Check/ 2-Download"
-msgstr ""
+msgstr "Coperţi: 1-Verifică/ 2-Descarcă"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:371
 msgid "Covers files path"
@@ -3588,11 +3591,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:396
 msgid "No cover found!"
-msgstr ""
+msgstr "Nu s-a găsit nici o copertă"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:398
 msgid "A cover was found for this book"
-msgstr ""
+msgstr "A fost găsită o copertă pentru acestă carte"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/nicebooks.py:407
 msgid "Cover saved to file "
@@ -3602,7 +3605,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1493
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:33
 msgid "Cover"
-msgstr ""
+msgstr "Copertă"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:283
 msgid "Downloads metadata from Amazon"
@@ -3610,23 +3613,23 @@ msgstr "Descărcaţi metadate de pe Amazon"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:293
 msgid "US"
-msgstr ""
+msgstr "Engleză US"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:294
 msgid "France"
-msgstr ""
+msgstr "Franceză"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:295
 msgid "Germany"
-msgstr ""
+msgstr "Germania"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:296
 msgid "UK"
-msgstr ""
+msgstr "MB"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:390
 msgid "Amazon timed out. Try again later."
-msgstr ""
+msgstr "Amazon a expirat. Încercaţi din nou mai târziu."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/base.py:156
 msgid "Metadata source"
@@ -3634,13 +3637,15 @@ msgstr "Sursa de metadate"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/isbndb.py:37
 msgid "IsbnDB key:"
-msgstr ""
+msgstr "Cheia IsbnDB:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/isbndb.py:38
 msgid ""
 "To use isbndb.com you have to sign up for a free accountat isbndb.com and "
 "get an access key."
 msgstr ""
+"Pentru a utiliza isbndb.com trebuie să vă înscrieţi pentru un cont gratuit "
+"isbndb.com şi să obţineţi o cheie de acces."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/isbndb.py:42
 msgid ""
@@ -3651,7 +3656,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/openlibrary.py:15
 msgid "Downloads covers from The Open Library"
-msgstr ""
+msgstr "Descarcă coperţi de pe The Open Library"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/overdrive.py:33
 msgid "Downloads metadata from Overdrive's Content Reserve"
@@ -3679,16 +3684,20 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:22
 msgid "Modify images to meet Palm device size limitations."
 msgstr ""
+"Modifică imagini pentru a corespunde limitării dimensiunii dispozitivului "
+"Palm."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:26
 msgid "When present, use author sort field as author."
-msgstr ""
+msgstr "Când prezent, utilizează câmpul sortarii după autor, ca autor."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:30
 msgid ""
 "Don't add Table of Contents to end of book. Useful if the book has its own "
 "table of contents."
 msgstr ""
+"Nu adăugaţi Cuprins la sfârşitul cărţii. Util în cazul în care cartea are "
+"propriul său cuprins."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:33
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/htmltoc.py:56
@@ -3712,62 +3721,62 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:113
 msgid "All articles"
-msgstr ""
+msgstr "Toate articolele"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:272
 msgid "This is an Amazon Topaz book. It cannot be processed."
-msgstr ""
+msgstr "Aceasta este o carte Amazon Topaz. Nu poate fi procesată."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1494
 msgid "Title Page"
-msgstr ""
+msgstr "Copertă interioară"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1495
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/htmltoc.py:15
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:56
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:199
 msgid "Table of Contents"
-msgstr ""
+msgstr "Cuprins"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1496
 msgid "Index"
-msgstr ""
+msgstr "Index"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1497
 msgid "Glossary"
-msgstr ""
+msgstr "Glosar"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1498
 msgid "Acknowledgements"
-msgstr ""
+msgstr "Mulţumiri"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1499
 msgid "Bibliography"
-msgstr ""
+msgstr "Bibliografie"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1500
 msgid "Colophon"
-msgstr ""
+msgstr "Casetă"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1501
 msgid "Copyright"
-msgstr ""
+msgstr "Drepturi de autor"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1502
 msgid "Dedication"
-msgstr ""
+msgstr "Dedicație"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1503
 msgid "Epigraph"
-msgstr ""
+msgstr "Epigraf"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1504
 msgid "Foreword"
-msgstr ""
+msgstr "Înainte"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1505
 msgid "List of Illustrations"
-msgstr ""
+msgstr "Listă cu ilustraţii"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1506
 msgid "List of Tables"
@@ -3775,26 +3784,26 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1507
 msgid "Notes"
-msgstr ""
+msgstr "Observații"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1508
 msgid "Preface"
-msgstr ""
+msgstr "Prefaţă"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1509
 msgid "Main Text"
-msgstr ""
+msgstr "Textul principal"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/iterator.py:41
 msgid "%s format books are not supported"
-msgstr ""
+msgstr "%s formatul cărţilor nu este acceptat"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/cover.py:98
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:176
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:219
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:742
 msgid "Book %s of %s"
-msgstr ""
+msgstr "Carte %s din %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/htmltoc.py:54
 msgid "HTML TOC generation options."
@@ -3806,7 +3815,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:149
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:759
 msgid "Rating"
-msgstr ""
+msgstr "Apreciere"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/split.py:34
 msgid ""
@@ -3828,11 +3837,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/reader132.py:128
 msgid "Footnotes"
-msgstr ""
+msgstr "Note de subsol"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/reader132.py:139
 msgid "Sidebar"
-msgstr ""
+msgstr "Bară laterală"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/output.py:23
 msgid "Format to use inside the pdb container. Choices are:"
@@ -3864,7 +3873,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/input.py:30
 msgid "Use the new PDF conversion engine."
-msgstr ""
+msgstr "Foloseşte noul motor de converţie PDF"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/cli.py:31
 msgid ""
