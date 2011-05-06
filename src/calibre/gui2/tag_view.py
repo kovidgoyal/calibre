@@ -2048,12 +2048,12 @@ class TagBrowserMixin(object): # {{{
         self.library_view.select_rows(ids)
         # refreshing the tags view happens at the emit()/call() site
 
-    def do_author_sort_edit(self, parent, id):
+    def do_author_sort_edit(self, parent, id, select_sort=True):
         '''
         Open the manage authors dialog
         '''
         db = self.library_view.model().db
-        editor = EditAuthorsDialog(parent, db, id)
+        editor = EditAuthorsDialog(parent, db, id, select_sort)
         d = editor.exec_()
         if d:
             for (id, old_author, new_author, new_sort) in editor.result:

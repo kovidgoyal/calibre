@@ -30,12 +30,18 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('enforce_cpu_limit', config, restart_required=True)
         self.device_detection_button.clicked.connect(self.debug_device_detection)
         self.button_open_config_dir.clicked.connect(self.open_config_dir)
+        self.user_defined_device_button.clicked.connect(self.user_defined_device)
         self.button_osx_symlinks.clicked.connect(self.create_symlinks)
         self.button_osx_symlinks.setVisible(isosx)
 
     def debug_device_detection(self, *args):
         from calibre.gui2.preferences.device_debug import DebugDevice
         d = DebugDevice(self)
+        d.exec_()
+
+    def user_defined_device(self, *args):
+        from calibre.gui2.preferences.device_user_defined import UserDefinedDevice
+        d = UserDefinedDevice(self)
         d.exec_()
 
     def open_config_dir(self, *args):

@@ -1,7 +1,7 @@
 #!/usr/bin/env  python
 
 __license__   = 'GPL v3'
-__copyright__ = u'2010, Tomasz Dlugosz <tomek3d@gmail.com>'
+__copyright__ = u'2010-2011, Tomasz Dlugosz <tomek3d@gmail.com>'
 '''
 frazpc.pl
 '''
@@ -19,17 +19,20 @@ class FrazPC(BasicNewsRecipe):
     use_embedded_content = False
     no_stylesheets = True
 
-    feeds          = [(u'Aktualno\u015bci', u'http://www.frazpc.pl/feed'), (u'Recenzje', u'http://www.frazpc.pl/kat/recenzje-2/feed') ]
-
-    keep_only_tags = [dict(name='div', attrs={'id':'FRAZ_CONTENT'})]
-
-    remove_tags = [dict(name='p', attrs={'class':'gray tagsP fs11'})]
-
-    preprocess_regexps = [
-        (re.compile(i[0], re.IGNORECASE | re.DOTALL), i[1]) for i in
-            [(r'<div id="post-[0-9]*"', lambda match: '<div id="FRAZ_CONTENT"'),
-             (r'href="/f/news/', lambda match: 'href="http://www.frazpc.pl/f/news/'),
-             (r' &nbsp; <a href="http://www.frazpc.pl/[^>]*?">(Skomentuj|Komentarz(e)?\([0-9]*\))</a>&nbsp; \|', lambda match: '')]
+    feeds          = [
+        (u'Aktualno\u015bci', u'http://www.frazpc.pl/feed/aktualnosci'), 
+        (u'Artyku\u0142y', u'http://www.frazpc.pl/feed/artykuly')
     ]
+
+    keep_only_tags = [dict(name='div', attrs={'class':'article'})]
+
+    remove_tags = [
+        dict(name='div', attrs={'class':'title-wrapper'}),
+        dict(name='p', attrs={'class':'tags'}),
+        dict(name='p', attrs={'class':'article-links'}),
+        dict(name='div', attrs={'class':'comments_box'})
+    ]
+
+    preprocess_regexps = [(re.compile(r'\| <a href="#comments">Komentarze \([0-9]*\)</a>'), lambda match: '')]
 
     remove_attributes = [ 'width', 'height' ]

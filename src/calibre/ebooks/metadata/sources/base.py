@@ -307,7 +307,7 @@ class Source(Plugin):
             title_patterns = [(re.compile(pat, re.IGNORECASE), repl) for pat, repl in
             [
                 # Remove things like: (2010) (Omnibus) etc.
-                (r'(?i)[({\[](\d{4}|omnibus|anthology|hardcover|paperback|mass\s*market|edition|ed\.)[\])}]', ''),
+                (r'(?i)[({\[](\d{4}|omnibus|anthology|hardcover|paperback|turtleback|mass\s*market|edition|ed\.)[\])}]', ''),
                 # Remove any strings that contain the substring edition inside
                 # parentheses
                 (r'(?i)[({\[].*?(edition|ed.).*?[\]})]', ''),
