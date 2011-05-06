@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2011-04-29 18:21+0000\n"
-"PO-Revision-Date: 2011-04-29 15:07+0000\n"
+"POT-Creation-Date: 2011-04-30 16:30+0000\n"
+"PO-Revision-Date: 2011-04-30 05:54+0000\n"
 "Last-Translator: Kovid Goyal <Unknown>\n"
 "Language-Team: Swedish <sv@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-04-30 04:48+0000\n"
+"X-Launchpad-Export-Date: 2011-05-01 04:49+0000\n"
 "X-Generator: Launchpad (build 12758)\n"
 "X-Poedit-Country: SWEDEN\n"
 "X-Poedit-Language: Swedish\n"
@@ -921,19 +921,19 @@ msgstr "Spara omslag från iTunes/iBooks i cachen"
 msgid "Enable to cache and display covers from iTunes/iBooks"
 msgstr "Aktivera för att mellanlagra och visa omslag från iTunes / iBook"
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:176
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:178
 msgid "Apple device"
 msgstr "Apple-enhet"
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:178
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:180
 msgid "Communicate with iTunes/iBooks."
 msgstr "Kommunicera med iTunes/iBooks"
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:190
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:192
 msgid "Apple device detected, launching iTunes, please wait ..."
 msgstr "pple-enhet identifieras, starta iTunes, var god vänta ..."
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:192
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:194
 msgid ""
 "Cannot copy books directly from iDevice. Drag from iTunes Library to "
 "desktop, then add to calibre's Library window."
@@ -941,28 +941,28 @@ msgstr ""
 "Kan inte kopiera böcker direkt från iDevice. Dra från iTunes-biblioteket "
 "till skrivbordet, sedan lägg till Calibres biblioteksfönster."
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:353
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:356
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:355
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:358
 msgid "Updating device metadata listing..."
 msgstr "Uppdaterar metadata på enheten..."
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:432
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:471
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:1054
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:1098
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3082
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3122
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:434
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:473
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:1056
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:1100
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3084
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3124
 msgid "%d of %d"
 msgstr "%d av %d"
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:478
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:1103
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3128
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:480
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:1105
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3130
 #: /home/kovid/work/calibre/src/calibre/gui2/ebook_download.py:106
 msgid "finished"
 msgstr "slutförda"
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:663
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:665
 msgid ""
 "Some books not found in iTunes database.\n"
 "Delete using the iBooks app.\n"
@@ -972,7 +972,7 @@ msgstr ""
 "Ta bort med hjälp av iBook app.\n"
 "Klicka på \"Visa detaljer\" för en lista."
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:1014
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:1016
 msgid ""
 "Some cover art could not be converted.\n"
 "Click 'Show Details' for a list."
@@ -980,7 +980,7 @@ msgstr ""
 "En del omslag kan inte konverteras.\n"
 "Klicka på \"Visa detaljer\" för en lista."
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2664
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2666
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:100
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:447
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:470
@@ -996,7 +996,7 @@ msgstr ""
 msgid "News"
 msgstr "Nyheter"
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2665
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2667
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:65
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:633
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:2750
@@ -1004,7 +1004,7 @@ msgstr "Nyheter"
 msgid "Catalog"
 msgstr "Katalog"
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2986
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2988
 msgid "Communicate with iTunes."
 msgstr "Kommunicera med iTunes"
 
