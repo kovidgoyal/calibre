@@ -944,6 +944,7 @@ class EPUB_MOBI(CatalogPlugin):
             catalog.createDirectoryStructure()
             catalog.copyResources()
             catalog.buildSources()
+        Options managed in gui2.catalog.catalog_epub_mobi.py
         '''
 
         # A single number creates 'Last x days' only.
