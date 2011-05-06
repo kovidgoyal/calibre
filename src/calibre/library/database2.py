@@ -2285,6 +2285,12 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             return []
         return result
 
+    def get_author_id(self, author):
+        author = author.replace(',', '|')
+        result = self.conn.get('SELECT id FROM authors WHERE name=?',
+                               (author,), all=False)
+        return result
+
     def set_sort_field_for_author(self, old_id, new_sort, commit=True, notify=False):
         self.conn.execute('UPDATE authors SET sort=? WHERE id=?', \
                               (new_sort.strip(), old_id))
