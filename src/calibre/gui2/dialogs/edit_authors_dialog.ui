@@ -21,6 +21,50 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
+    <layout class="QHBoxLayout" name="">
+     <item>
+      <widget class="QLabel">
+       <property name="text">
+        <string>&amp;Search for:</string>
+       </property>
+       <property name="buddy">
+        <cstring>find_box</cstring>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="HistoryLineEdit" name="find_box">
+       <property name="minimumSize">
+        <size>
+         <width>200</width>
+         <height>0</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="find_button">
+       <property name="text">
+        <string>F&amp;ind</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item>
     <widget class="QTableWidget" name="table">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -143,4 +187,11 @@ after changing Preferences-&gt;Advanced-&gt;Tweaks-&gt;Author sort name algorith
    </hints>
   </connection>
  </connections>
+ <customwidgets>
+  <customwidget>
+   <class>HistoryLineEdit</class>
+   <extends>QComboBox</extends>
+   <header>calibre/gui2/widgets.h</header>
+  </customwidget>
+ </customwidgets>
 </ui>
