@@ -4,7 +4,7 @@ __docformat__ = 'restructuredtext en'
 __license__   = 'GPL v3'
 
 from PyQt4.Qt import (Qt, QDialog, QTableWidgetItem, QAbstractItemView, QIcon,
-                      QDialogButtonBox, QFrame, QLabel, QTimer)
+                  QDialogButtonBox, QFrame, QLabel, QTimer, QMenu, QApplication)
 
 from calibre.ebooks.metadata import author_to_author_sort
 from calibre.gui2 import error_dialog
@@ -111,6 +111,76 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         self.not_found_label_timer.setSingleShot(True)
         self.not_found_label_timer.timeout.connect(
                 self.not_found_label_timer_event, type=Qt.QueuedConnection)
+
+        self.table.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.table.customContextMenuRequested .connect(self.show_context_menu)
+
+    def show_context_menu(self, point):
+        self.context_item = self.table.itemAt(point)
+        case_menu = QMenu(_('Change Case'))
+        action_upper_case = case_menu.addAction(_('Upper Case'))
+        action_lower_case = case_menu.addAction(_('Lower Case'))
+        action_swap_case = case_menu.addAction(_('Swap Case'))
+        action_title_case = case_menu.addAction(_('Title Case'))
+        action_capitalize = case_menu.addAction(_('Capitalize'))
+
+        action_upper_case.triggered.connect(self.upper_case)
+        action_lower_case.triggered.connect(self.lower_case)
+        action_swap_case.triggered.connect(self.swap_case)
+        action_title_case.triggered.connect(self.title_case)
+        action_capitalize.triggered.connect(self.capitalize)
+
+        m = self.au_context_menu = QMenu()
+        ca = m.addAction(_('Copy'))
+        ca.triggered.connect(self.copy_to_clipboard)
+        ca = m.addAction(_('Paste'))
+        ca.triggered.connect(self.paste_from_clipboard)
+        m.addSeparator()
+
+        if self.context_item.column() == 0:
+            ca = m.addAction(_('Copy to author sort'))
+            ca.triggered.connect(self.copy_au_to_aus)
+        else:
+            ca = m.addAction(_('Copy to author'))
+            ca.triggered.connect(self.copy_aus_to_au)
+        m.addSeparator()
+        m.addMenu(case_menu)
+        m.exec_(self.table.mapToGlobal(point))
+
+    def copy_to_clipboard(self):
+        cb = QApplication.clipboard()
+        cb.setText(unicode(self.context_item.text()))
+
+    def paste_from_clipboard(self):
+        cb = QApplication.clipboard()
+        self.context_item.setText(cb.text())
+
+    def upper_case(self):
+        self.context_item.setText(icu_upper(unicode(self.context_item.text())))
+
+    def lower_case(self):
+        self.context_item.setText(icu_lower(unicode(self.context_item.text())))
+
+    def swap_case(self):
+        self.context_item.setText(unicode(self.context_item.text()).swapcase())
+
+    def title_case(self):
+        from calibre.utils.titlecase import titlecase
+        self.context_item.setText(titlecase(unicode(self.context_item.text())))
+
+    def capitalize(self):
+        from calibre.utils.icu import capitalize
+        self.context_item.setText(capitalize(unicode(self.context_item.text())))
+
+    def copy_aus_to_au(self):
+        row = self.context_item.row()
+        dest = self.table.item(row, 0)
+        dest.setText(self.context_item.text())
+
+    def copy_au_to_aus(self):
+        row = self.context_item.row()
+        dest = self.table.item(row, 1)
+        dest.setText(self.context_item.text())
 
     def not_found_label_timer_event(self):
         self.not_found_label.setVisible(False)
