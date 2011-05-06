@@ -8,8 +8,9 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import textwrap, re, os
+from functools import partial
 
-from PyQt4.Qt import (Qt, QDateEdit, QDate, pyqtSignal,
+from PyQt4.Qt import (Qt, QDateEdit, QDate, pyqtSignal, QMessageBox,
     QIcon, QToolButton, QWidget, QLabel, QGridLayout,
     QDoubleSpinBox, QListWidgetItem, QSize, QPixmap,
     QPushButton, QSpinBox, QLineEdit, QSizePolicy)
@@ -31,6 +32,16 @@ from calibre.utils.date import utcfromtimestamp
 from calibre.gui2.comments_editor import Editor
 from calibre.library.comments import comments_to_html
 from calibre.gui2.dialogs.tag_editor import TagEditor
+from calibre.utils.icu import strcmp
+
+def save_dialog(parent, title, msg, det_msg=''):
+    d = QMessageBox(parent)
+    d.setWindowTitle(title)
+    d.setText(msg)
+    d.setStandardButtons(QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel)
+    return d.exec_()
+
+
 
 '''
 The interface common to all widgets used to set basic metadata
@@ -168,16 +179,22 @@ class AuthorsEdit(MultiCompleteComboBox):
 
     def manage_authors(self):
         if self.original_val != self.current_val:
-            if (question_dialog(self, _('Authors changed'),
+            d = save_dialog(self, _('Authors changed'),
                     _('You have changed the authors for this book. You must save '
                       'these changes before you can use Manage authors. Do you '
-                      'want to save these changes?'), show_copy_button=False)):
+                      'want to save these changes?'))
+            if d == QMessageBox.Cancel:
+                return
+            if d == QMessageBox.Yes:
                 self.commit(self.db, self.id_)
                 self.db.commit()
                 self.original_val = self.current_val
             else:
                 self.current_val = self.original_val
-        self.dialog.parent().do_author_sort_edit(self,  self.id_)
+        first_author = self.current_val[0] if len(self.current_val) else None
+        self.dialog.parent().do_author_sort_edit(self,
+                                        self.db.get_author_id(first_author),
+                                        select_sort=False)
         self.initialize(self.db, self.id_)
         self.dialog.author_sort.initialize(self.db, self.id_)
 
@@ -256,13 +273,13 @@ class AuthorSortEdit(EnLineEdit):
                     'No action is required if this is what you want.'))
         self.tooltips = (ok_tooltip, bad_tooltip)
 
-        self.authors_edit.editTextChanged.connect(self.update_state)
-        self.textChanged.connect(self.update_state)
+        self.authors_edit.editTextChanged.connect(partial(self.update_state, True))
+        self.textChanged.connect(partial(self.update_state, False))
 
         autogen_button.clicked.connect(self.auto_generate)
         copy_a_to_as_action.triggered.connect(self.auto_generate)
         copy_as_to_a_action.triggered.connect(self.copy_to_authors)
-        self.update_state()
+        self.update_state(False)
 
     @dynamic_property
     def current_val(self):
@@ -278,12 +295,16 @@ class AuthorSortEdit(EnLineEdit):
 
         return property(fget=fget, fset=fset)
 
-    def update_state(self, *args):
+    def update_state(self, modify_aus, *args):
         au = unicode(self.authors_edit.text())
+        # Handle case change if the authors box changed
+        if modify_aus and strcmp(au, self.current_val) == 0:
+            self.current_val = au
+
         au = re.sub(r'\s+et al\.$', '', au)
         au = self.db.author_sort_from_authors(string_to_authors(au))
 
-        normal = au == self.current_val
+        normal = strcmp(au, self.current_val) == 0
         if normal:
             col = 'rgb(0, 255, 0, 20%)'
         else:
@@ -316,12 +337,11 @@ class AuthorSortEdit(EnLineEdit):
         self.current_val = self.db.author_sort_from_authors(authors)
 
     def initialize(self, db, id_):
-        self.current_val = self.original_val = db.author_sort(id_, index_is_id=True)
+        self.current_val = db.author_sort(id_, index_is_id=True)
 
     def commit(self, db, id_):
         aus = self.current_val
-        if aus != self.original_val:
-            db.set_author_sort(id_, aus, notify=False, commit=False)
+        db.set_author_sort(id_, aus, notify=False, commit=False)
         return True
 
 # }}}
@@ -919,10 +939,13 @@ class TagsEdit(MultiCompleteLineEdit): # {{{
 
     def edit(self, db, id_):
         if self.changed:
-            if question_dialog(self, _('Tags changed'),
+            d = save_dialog(self, _('Tags changed'),
                     _('You have changed the tags. In order to use the tags'
                        ' editor, you must either discard or apply these '
-                       'changes. Apply changes?'), show_copy_button=False):
+                       'changes. Apply changes?'))
+            if d == QMessageBox.Cancel:
+                return
+            if d == QMessageBox.Yes:
                 self.commit(db, id_)
                 db.commit()
                 self.original_val = self.current_val

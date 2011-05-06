@@ -19,7 +19,7 @@ class tableItem(QTableWidgetItem):
 
 class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
 
-    def __init__(self, parent, db, id_to_select):
+    def __init__(self, parent, db, id_to_select, select_sort):
         QDialog.__init__(self, parent)
         Ui_EditAuthorsDialog.__init__(self)
         self.setupUi(self)
@@ -48,7 +48,10 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
             self.table.setItem(row, 0, aut)
             self.table.setItem(row, 1, sort)
             if id == id_to_select:
-                select_item = sort
+                if select_sort:
+                    select_item = sort
+                else:
+                    select_item = aut
         self.table.resizeColumnsToContents()
 
         # set up the cellChanged signal only after the table is filled
