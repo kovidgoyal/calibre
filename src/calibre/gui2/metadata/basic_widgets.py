@@ -208,7 +208,7 @@ class AuthorsEdit(MultiCompleteComboBox):
         for i in all_authors:
             id, name = i
             name = name.strip().replace('|', ',')
-            self.addItem(authors_to_string(name))
+            self.addItem(name)
 
         self.set_separator('&')
         self.set_space_before_sep(True)
