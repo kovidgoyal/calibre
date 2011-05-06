@@ -156,7 +156,7 @@ class AuthorsEdit(MultiCompleteComboBox):
     TOOLTIP = ''
     LABEL = _('&Author(s):')
 
-    def __init__(self, parent):
+    def __init__(self, parent, manage_authors):
         self.dialog = parent
         self.books_to_refresh = set([])
         MultiCompleteComboBox.__init__(self, parent)
@@ -164,6 +164,22 @@ class AuthorsEdit(MultiCompleteComboBox):
         self.setWhatsThis(self.TOOLTIP)
         self.setEditable(True)
         self.setSizeAdjustPolicy(self.AdjustToMinimumContentsLengthWithIcon)
+        manage_authors.triggered.connect(self.manage_authors)
+
+    def manage_authors(self):
+        if self.original_val != self.current_val:
+            if (question_dialog(self, _('Authors changed'),
+                    _('You have changed the authors for this book. You must save '
+                      'these changes before you can use Manage authors. Do you '
+                      'want to save these changes?'), show_copy_button=False)):
+                self.commit(self.db, self.id_)
+                self.db.commit()
+                self.original_val = self.current_val
+            else:
+                self.current_val = self.original_val
+        self.dialog.parent().do_author_sort_edit(self,  self.id_)
+        self.initialize(self.db, self.id_)
+        self.dialog.author_sort.initialize(self.db, self.id_)
 
     def get_default(self):
         return _('Unknown')
@@ -175,7 +191,7 @@ class AuthorsEdit(MultiCompleteComboBox):
         self.clear()
         for i in all_authors:
             id, name = i
-            name = [name.strip().replace('|', ',') for n in name.split(',')]
+            name = name.strip().replace('|', ',')
             self.addItem(authors_to_string(name))
 
         self.set_separator('&')
@@ -188,6 +204,8 @@ class AuthorsEdit(MultiCompleteComboBox):
             au = _('Unknown')
         self.current_val = [a.strip().replace('|', ',') for a in au.split(',')]
         self.original_val = self.current_val
+        self.id_ = id_
+        self.db = db
 
     def commit(self, db, id_):
         authors = self.current_val
