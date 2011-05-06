@@ -8,7 +8,6 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import textwrap, re, os
-from functools import partial
 
 from PyQt4.Qt import (Qt, QDateEdit, QDate, pyqtSignal, QMessageBox,
     QIcon, QToolButton, QWidget, QLabel, QGridLayout,
@@ -23,7 +22,7 @@ from calibre.ebooks.metadata import (title_sort, authors_to_string,
         string_to_authors, check_isbn)
 from calibre.ebooks.metadata.meta import get_metadata
 from calibre.gui2 import (file_icon_provider, UNDEFINED_QDATE, UNDEFINED_DATE,
-        choose_files, error_dialog, choose_images, question_dialog)
+        choose_files, error_dialog, choose_images)
 from calibre.utils.date import local_tz, qt_to_dt
 from calibre import strftime
 from calibre.ebooks import BOOK_EXTENSIONS
@@ -192,8 +191,8 @@ class AuthorsEdit(MultiCompleteComboBox):
             else:
                 self.current_val = self.original_val
         first_author = self.current_val[0] if len(self.current_val) else None
-        self.dialog.parent().do_author_sort_edit(self,
-                                        self.db.get_author_id(first_author),
+        first_author_id = self.db.get_author_id(first_author) if first_author else None
+        self.dialog.parent().do_author_sort_edit(self, first_author_id,
                                         select_sort=False)
         self.initialize(self.db, self.id_)
         self.dialog.author_sort.initialize(self.db, self.id_)
@@ -273,13 +272,13 @@ class AuthorSortEdit(EnLineEdit):
                     'No action is required if this is what you want.'))
         self.tooltips = (ok_tooltip, bad_tooltip)
 
-        self.authors_edit.editTextChanged.connect(partial(self.update_state, True))
-        self.textChanged.connect(partial(self.update_state, False))
+        self.authors_edit.editTextChanged.connect(self.update_state_and_val)
+        self.textChanged.connect(self.update_state)
 
         autogen_button.clicked.connect(self.auto_generate)
         copy_a_to_as_action.triggered.connect(self.auto_generate)
         copy_as_to_a_action.triggered.connect(self.copy_to_authors)
-        self.update_state(False)
+        self.update_state()
 
     @dynamic_property
     def current_val(self):
@@ -295,12 +294,15 @@ class AuthorSortEdit(EnLineEdit):
 
         return property(fget=fget, fset=fset)
 
-    def update_state(self, modify_aus, *args):
+    def update_state_and_val(self):
         au = unicode(self.authors_edit.text())
         # Handle case change if the authors box changed
-        if modify_aus and strcmp(au, self.current_val) == 0:
+        if strcmp(au, self.current_val) == 0:
             self.current_val = au
+        self.update_state()
 
+    def update_state(self, *args):
+        au = unicode(self.authors_edit.text())
         au = re.sub(r'\s+et al\.$', '', au)
         au = self.db.author_sort_from_authors(string_to_authors(au))
 
