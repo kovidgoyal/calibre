@@ -19,7 +19,7 @@ from calibre.gui2.complete import MultiCompleteLineEdit, MultiCompleteComboBox
 from calibre.utils.icu import sort_key
 from calibre.utils.config import tweaks, prefs
 from calibre.ebooks.metadata import (title_sort, authors_to_string,
-        string_to_authors, check_isbn)
+        string_to_authors, check_isbn, authors_to_sort_string)
 from calibre.ebooks.metadata.meta import get_metadata
 from calibre.gui2 import (file_icon_provider, UNDEFINED_QDATE, UNDEFINED_DATE,
         choose_files, error_dialog, choose_images)
@@ -297,8 +297,9 @@ class AuthorSortEdit(EnLineEdit):
     def update_state_and_val(self):
         au = unicode(self.authors_edit.text())
         # Handle case change if the authors box changed
-        if strcmp(au, self.current_val) == 0:
-            self.current_val = au
+        aus = authors_to_sort_string(string_to_authors(au))
+        if strcmp(aus, self.current_val) == 0:
+            self.current_val = aus
         self.update_state()
 
     def update_state(self, *args):
