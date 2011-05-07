@@ -69,7 +69,9 @@ class MetadataSingleDialogBase(ResizableDialog):
         self.setLayout(self.l)
         self.l.setMargin(0)
         self.l.addWidget(self.scroll_area)
-        self.l.addWidget(self.button_box)
+        ll = self.button_box_layout = QHBoxLayout()
+        self.l.addLayout(ll)
+        ll.addWidget(self.button_box)
 
         self.setWindowIcon(QIcon(I('edit_input.png')))
         self.setWindowTitle(_('Edit Metadata'))
@@ -647,13 +649,13 @@ class MetadataSingleDialogAlt1(MetadataSingleDialogBase): # {{{
         self.tabs[0].l.addWidget(gb, 0, 0, 1, 1)
         gb.setLayout(tl)
 
-        self.button_box.addButton(self.fetch_metadata_button,
-                                  QDialogButtonBox.ActionRole)
+        self.button_box_layout.insertWidget(0, self.fetch_metadata_button)
         self.config_metadata_button.setToolButtonStyle(Qt.ToolButtonTextOnly)
         self.config_metadata_button.setText(_('Configure metadata downloading'))
-        self.button_box.addButton(self.config_metadata_button,
-                                  QDialogButtonBox.ActionRole)
-        sto(self.button_box, self.title)
+        self.button_box_layout.insertWidget(1, self.config_metadata_button)
+        sto(self.button_box, self.fetch_metadata_button)
+        sto(self.fetch_metadata_button, self.config_metadata_button)
+        sto(self.config_metadata_button, self.title)
 
         def create_row(row, widget, tab_to, button=None, icon=None, span=1):
             ql = BuddyLabel(widget)
@@ -783,13 +785,13 @@ class MetadataSingleDialogAlt2(MetadataSingleDialogBase): # {{{
         l.addWidget(gb, 0, 0, 1, 1)
         gb.setLayout(tl)
 
-        self.button_box.addButton(self.fetch_metadata_button,
-                                  QDialogButtonBox.ActionRole)
+        self.button_box_layout.insertWidget(0, self.fetch_metadata_button)
         self.config_metadata_button.setToolButtonStyle(Qt.ToolButtonTextOnly)
         self.config_metadata_button.setText(_('Configure metadata downloading'))
-        self.button_box.addButton(self.config_metadata_button,
-                                  QDialogButtonBox.ActionRole)
-        sto(self.button_box, self.title)
+        self.button_box_layout.insertWidget(1, self.config_metadata_button)
+        sto(self.button_box, self.fetch_metadata_button)
+        sto(self.fetch_metadata_button, self.config_metadata_button)
+        sto(self.config_metadata_button, self.title)
 
         def create_row(row, widget, tab_to, button=None, icon=None, span=1):
             ql = BuddyLabel(widget)
@@ -852,7 +854,7 @@ class MetadataSingleDialogAlt2(MetadataSingleDialogBase): # {{{
             l.addWidget(gb, 0, 1, 1, 1)
             sp = QSizePolicy()
             sp.setVerticalStretch(10)
-            sp.setHorizontalPolicy(QSizePolicy.Fixed)
+            sp.setHorizontalPolicy(QSizePolicy.Minimum)
             sp.setVerticalPolicy(QSizePolicy.Expanding)
             gb.setSizePolicy(sp)
             self.set_custom_metadata_tab_order()
