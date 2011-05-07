@@ -607,6 +607,7 @@ class StoreBase(Plugin): # {{{
     supported_platforms = ['windows', 'osx', 'linux']
     author         = 'John Schember'
     type = _('Store')
+    minimum_calibre_version = (0, 8, 0)
 
     actual_plugin = None
 

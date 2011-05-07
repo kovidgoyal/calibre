@@ -966,7 +966,9 @@ class OPF(object): # {{{
             cover_id = covers[0].get('content')
             for item in self.itermanifest():
                 if item.get('id', None) == cover_id:
-                    return item.get('href', None)
+                    mt = item.get('media-type', '')
+                    if 'xml' not in mt:
+                        return item.get('href', None)
 
     @dynamic_property
     def cover(self):

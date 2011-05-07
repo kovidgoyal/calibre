@@ -41,7 +41,7 @@ class OverDrive(Source):
     cached_cover_url_is_reliable = True
 
     options = (
-            Option('get_full_metadata', 'bool', False,
+            Option('get_full_metadata', 'bool', True,
                 _('Download all metadata (slow)'),
                 _('Enable this option to gather all metadata available from Overdrive.')),
             )

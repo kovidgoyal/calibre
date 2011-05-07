@@ -19,6 +19,7 @@ from calibre.utils.config import (make_config_dir, Config, ConfigProxy,
                                  plugin_dir, OptionParser)
 from calibre.ebooks.epub.fix import ePubFixer
 from calibre.ebooks.metadata.sources.base import Source
+from calibre.constants import DEBUG
 
 builtin_names = frozenset([p.name for p in builtin_plugins])
 
@@ -91,8 +92,7 @@ def restore_plugin_state_to_default(plugin_or_name):
     config['enabled_plugins'] = ep
 
 default_disabled_plugins = set([
-    'Douban Books', 'Douban.com covers', 'Nicebooks', 'Nicebooks covers',
-    'Kent District Library'
+    'Overdrive',
 ])
 
 def is_disabled(plugin):
@@ -487,8 +487,9 @@ def initialize_plugins():
             plugin = initialize_plugin(plugin, None if isinstance(zfp, type) else zfp)
             _initialized_plugins.append(plugin)
         except:
-            print 'Failed to initialize plugin...'
-            traceback.print_exc()
+            print 'Failed to initialize plugin:', repr(zfp)
+            if DEBUG:
+                traceback.print_exc()
     _initialized_plugins.sort(cmp=lambda x,y:cmp(x.priority, y.priority), reverse=True)
     reread_filetype_plugins()
     reread_metadata_plugins()

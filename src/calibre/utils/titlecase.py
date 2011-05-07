@@ -68,7 +68,7 @@ def titlecase(text):
             continue
 
         match = MAC_MC.match(word)
-        if match and not match.group(2).startswith('hin'):
+        if match and not match.group(2)[:3] in ('hin', 'ht'):
             line.append("%s%s" % (capitalize(match.group(1)),
                                   capitalize(match.group(2))))
             continue
