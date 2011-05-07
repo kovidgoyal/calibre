@@ -16,7 +16,6 @@ from calibre.customize import CatalogPlugin
 from calibre.customize.conversion import OptionRecommendation, DummyReporter
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, BeautifulStoneSoup, Tag, NavigableString
 from calibre.ebooks.chardet import substitute_entites
-from calibre.ebooks.metadata import title_sort as _title_sort
 from calibre.library.save_to_disk import preprocess_template
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.bibtex import BibTeX
