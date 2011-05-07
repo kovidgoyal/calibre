@@ -1171,13 +1171,19 @@ class StoreFoylesUKStore(StoreBase):
     description = _('Foyles of London, online')
     actual_plugin = 'calibre.gui2.store.foyles_uk_plugin:FoylesUKStore'
 
-class AmazonDEKindleStore(StoreBase):
+class StoreAmazonDEKindleStore(StoreBase):
     name = 'Amazon DE Kindle'
     description = _('Kindle eBooks')
     actual_plugin = 'calibre.gui2.store.amazon_de_plugin:AmazonDEKindleStore'
 
-plugins += [StoreAmazonKindleStore, AmazonDEKindleStore, StoreAmazonUKKindleStore,
-    StoreBaenWebScriptionStore, StoreBNStore,
+class StoreBeamEBooksDEStore(StoreBase):
+    name = 'Beam EBooks DE'
+    description = _('Kindle eBooks')
+    actual_plugin = 'calibre.gui2.store.beam_ebooks_de_plugin:BeamEBooksDEStore'
+
+plugins += [StoreAmazonKindleStore, StoreAmazonDEKindleStore,
+    StoreAmazonUKKindleStore,
+    StoreBaenWebScriptionStore, StoreBNStore, StoreBeamEBooksDEStore,
     StoreBeWriteStore, StoreDieselEbooksStore, StoreEbookscomStore,
     StoreEHarlequinStoretore, StoreFeedbooksStore,
     StoreFoylesUKStore, StoreGutenbergStore, StoreKoboStore, StoreManyBooksStore,

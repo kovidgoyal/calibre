@@ -20,11 +20,11 @@ from calibre.gui2.store.basic_config import BasicStoreConfig
 from calibre.gui2.store.search_result import SearchResult
 from calibre.gui2.store.web_store_dialog import WebStoreDialog
 
-class WaterstonesUKStore(BasicStoreConfig, StorePlugin):
+class BeamEBooksDEStore(BasicStoreConfig, StorePlugin):
 
     def open(self, parent=None, detail_item=None, external=False):
-        url = 'http://clkuk.tradedoubler.com/click?p=51196&a=1951604&g=19333484'
-        url_details = 'http://clkuk.tradedoubler.com/click?p(51196)a(1951604)g(16460516)url({0})'
+        url = 'http://www.beam-ebooks.de'
+        url_details = 'http://www.beam-ebooks.de{0}'
 
         if external or self.config.get('open_external', False):
             if detail_item:
@@ -40,28 +40,34 @@ class WaterstonesUKStore(BasicStoreConfig, StorePlugin):
             d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
-        url = 'http://www.waterstones.com/waterstonesweb/advancedSearch.do?buttonClicked=1&format=3757&bookkeywords=' + urllib2.quote(query)
-
+        url = 'http://www.beam-ebooks.de/suchergebnis.php?Type=&sw=' + urllib2.quote(query)
+        print(url)
         br = browser()
 
         counter = max_results
         with closing(br.open(url, timeout=timeout)) as f:
             doc = html.fromstring(f.read())
-            for data in doc.xpath('//div[contains(@class, "results-pane")]'):
+            print(doc)
+            for data in doc.xpath('//table[tr/td/div[@class="stil2"]]'):
+                print('here1')
                 if counter <= 0:
                     break
 
-                id = ''.join(data.xpath('./div/div/h2/a/@href')).strip()
+                id = ''.join(data.xpath('./tr/td/div[@class="stil2"]/a/@href')).strip()
+                print('here', id)
                 if not id:
                     continue
-                cover_url = ''.join(data.xpath('.//div[@class="image"]/a/img/@src'))
-                title = ''.join(data.xpath('./div/div/h2/a/text()'))
-                author = ', '.join(data.xpath('.//p[@class="byAuthor"]/a/text()'))
-                price = ''.join(data.xpath('.//p[@class="price"]/span[@class="priceStandard"]/text()'))
-                drm = data.xpath('boolean(.//td[@headers="productFormat" and contains(., "DRM")])')
-                pdf = data.xpath('boolean(.//td[@headers="productFormat" and contains(., "PDF")])')
-                epub = data.xpath('boolean(.//td[@headers="productFormat" and contains(., "EPUB")])')
-
+                cover_url = ''.join(data.xpath('./tr/td[1]/a/img/@src'))
+                if cover_url:
+                    cover_url = 'http://www.beam-ebooks.de' + cover_url
+                title = ''.join(data.xpath('./tr/td/div[@class="stil2"]/a/b/text()'))
+                author = ' '.join(data.xpath('./tr/td/div[@class="stil2"]/child::b/text()|./tr/td/div[@class="stil2"]/child::strong/text()'))
+                price = ''.join(data.xpath('./tr/td[3]/text()'))
+                print(data.xpath('./tr/td[3]/a/img/@alt'))
+                pdf = data.xpath('boolean(./tr/td[3]/a/img[contains(@alt, "PDF")]/@alt)')
+                epub = data.xpath('boolean(./tr/td[3]/a/img[contains(@alt, "ePub")]/@alt)')
+                mobi = data.xpath('boolean(./tr/td[3]/a/img[contains(@alt, "Mobipocket")]/@alt)')
+                print(id, cover_url, title, author, price, pdf, epub, mobi)
                 counter -= 1
 
                 s = SearchResult()
@@ -69,16 +75,15 @@ class WaterstonesUKStore(BasicStoreConfig, StorePlugin):
                 s.title = title.strip()
                 s.author = author.strip()
                 s.price = price
-                if drm:
-                    s.drm = SearchResult.DRM_LOCKED
-                else:
-                    s.drm = SearchResult.DRM_UNKNOWN
+                s.drm = SearchResult.DRM_UNLOCKED
                 s.detail_item = id
                 formats = []
                 if epub:
                     formats.append('ePub')
                 if pdf:
                     formats.append('PDF')
+                if mobi:
+                    formats.append('MOBI')
                 s.formats = ', '.join(formats)
 
                 yield s
