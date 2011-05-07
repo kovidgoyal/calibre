@@ -125,6 +125,13 @@ class MetadataSingleDialogBase(ResizableDialog):
             'Swap the author and title'))
         self.swap_title_author_button.clicked.connect(self.swap_title_author)
 
+        self.manage_authors_button = QToolButton(self)
+        self.manage_authors_button.setIcon(QIcon(I('user_profile.png')))
+        self.manage_authors_button.setToolTip('<p>' + _(
+            'Manage authors. Use to rename authors and correct '
+            'individual author\'s sort values') + '</p>')
+        self.manage_authors_button.clicked.connect(self.authors.manage_authors)
+
         self.series = SeriesEdit(self)
         self.remove_unused_series_button = QToolButton(self)
         self.remove_unused_series_button.setToolTip(
@@ -161,6 +168,12 @@ class MetadataSingleDialogBase(ResizableDialog):
         self.clear_identifiers_button = QToolButton(self)
         self.clear_identifiers_button.setIcon(QIcon(I('trash.png')))
         self.clear_identifiers_button.clicked.connect(self.identifiers.clear)
+        self.paste_isbn_button = QToolButton(self)
+        self.paste_isbn_button.setToolTip('<p>' +
+                    _('Paste the contents of the clipboard into the '
+                      'identifiers box prefixed with isbn:') + '</p>')
+        self.paste_isbn_button.setIcon(QIcon(I('edit-paste.png')))
+        self.paste_isbn_button.clicked.connect(self.identifiers.paste_isbn)
 
         self.publisher = PublisherEdit(self)
         self.basic_metadata_widgets.append(self.publisher)
@@ -499,7 +512,8 @@ class MetadataSingleDialog(MetadataSingleDialogBase): # {{{
             sto(one, two)
             sto(two, three)
 
-        tl.addWidget(self.swap_title_author_button, 0, 0, 2, 1)
+        tl.addWidget(self.swap_title_author_button, 0, 0, 1, 1)
+        tl.addWidget(self.manage_authors_button, 1, 0, 1, 1)
 
         create_row(0, self.title, self.deduce_title_sort_button, self.title_sort)
         sto(self.title_sort, self.authors)
@@ -508,6 +522,7 @@ class MetadataSingleDialog(MetadataSingleDialogBase): # {{{
         create_row(2, self.series, self.remove_unused_series_button,
                 self.series_index, icon='trash.png')
         sto(self.series_index, self.swap_title_author_button)
+        sto(self.swap_title_author_button, self.manage_authors_button)
 
         tl.addWidget(self.formats_manager, 0, 6, 3, 1)
 
@@ -518,7 +533,7 @@ class MetadataSingleDialog(MetadataSingleDialogBase): # {{{
         self.tabs[0].gb = gb = QGroupBox(_('Change cover'), self)
         gb.l = l = QGridLayout()
         gb.setLayout(l)
-        sto(self.swap_title_author_button, self.cover.buttons[0])
+        sto(self.manage_authors_button, self.cover.buttons[0])
         for i, b in enumerate(self.cover.buttons[:3]):
             l.addWidget(b, 0, i, 1, 1)
             sto(b, self.cover.buttons[i+1])
@@ -532,10 +547,16 @@ class MetadataSingleDialog(MetadataSingleDialogBase): # {{{
         w.setLayout(w.l)
         l.setMargin(0)
         self.splitter.addWidget(w)
-        def create_row2(row, widget, button=None):
+        def create_row2(row, widget, button=None, front_button=None):
             row += 1
             ql = BuddyLabel(widget)
-            l.addWidget(ql, row, 0, 1, 1)
+            if front_button:
+                ltl = QHBoxLayout()
+                ltl.addWidget(front_button)
+                ltl.addWidget(ql)
+                l.addLayout(ltl, row, 0, 1, 1)
+            else:
+                l.addWidget(ql, row, 0, 1, 1)
             l.addWidget(widget, row, 1, 1, 2 if button is None else 1)
             if button is not None:
                 l.addWidget(button, row, 2, 1, 1)
@@ -550,8 +571,10 @@ class MetadataSingleDialog(MetadataSingleDialogBase): # {{{
         create_row2(1, self.rating)
         sto(self.rating, self.tags)
         create_row2(2, self.tags, self.tags_editor_button)
-        sto(self.tags_editor_button, self.identifiers)
-        create_row2(3, self.identifiers, self.clear_identifiers_button)
+        sto(self.tags_editor_button, self.paste_isbn_button)
+        sto(self.paste_isbn_button, self.identifiers)
+        create_row2(3, self.identifiers, self.clear_identifiers_button,
+                                        front_button=self.paste_isbn_button)
         sto(self.clear_identifiers_button, self.timestamp)
         create_row2(4, self.timestamp, self.timestamp.clear_button)
         sto(self.timestamp.clear_button, self.pubdate)
@@ -648,6 +671,8 @@ class MetadataSingleDialogAlt1(MetadataSingleDialogBase): # {{{
                     sto(widget, tab_to)
 
         tl.addWidget(self.swap_title_author_button, 0, 0, 2, 1)
+        tl.addWidget(self.manage_authors_button, 2, 0, 1, 1)
+        tl.addWidget(self.paste_isbn_button, 11, 0, 1, 1)
 
         create_row(0, self.title, self.title_sort,
                    button=self.deduce_title_sort_button, span=2,
@@ -669,6 +694,9 @@ class MetadataSingleDialogAlt1(MetadataSingleDialogBase): # {{{
                    button=self.timestamp.clear_button, icon='trash.png')
         create_row(11, self.identifiers, self.comments,
                    button=self.clear_identifiers_button, icon='trash.png')
+        sto(self.clear_identifiers_button, self.swap_title_author_button)
+        sto(self.swap_title_author_button, self.manage_authors_button)
+        sto(self.manage_authors_button, self.paste_isbn_button)
         tl.addItem(QSpacerItem(1, 1, QSizePolicy.Fixed, QSizePolicy.Expanding),
                    12, 1, 1 ,1)
 
@@ -708,7 +736,6 @@ class MetadataSingleDialogAlt1(MetadataSingleDialogBase): # {{{
         gb = QGroupBox(_('Change cover'), tab1)
         l = QGridLayout()
         gb.setLayout(l)
-        sto(self.swap_title_author_button, self.cover.buttons[0])
         for i, b in enumerate(self.cover.buttons[:3]):
             l.addWidget(b, 0, i, 1, 1)
             sto(b, self.cover.buttons[i+1])
@@ -780,6 +807,8 @@ class MetadataSingleDialogAlt2(MetadataSingleDialogBase): # {{{
                     sto(widget, tab_to)
 
         tl.addWidget(self.swap_title_author_button, 0, 0, 2, 1)
+        tl.addWidget(self.manage_authors_button, 2, 0, 2, 1)
+        tl.addWidget(self.paste_isbn_button, 11, 0, 1, 1)
 
         create_row(0, self.title, self.title_sort,
                    button=self.deduce_title_sort_button, span=2,
@@ -801,6 +830,9 @@ class MetadataSingleDialogAlt2(MetadataSingleDialogBase): # {{{
                    button=self.timestamp.clear_button, icon='trash.png')
         create_row(11, self.identifiers, self.comments,
                    button=self.clear_identifiers_button, icon='trash.png')
+        sto(self.clear_identifiers_button, self.swap_title_author_button)
+        sto(self.swap_title_author_button, self.manage_authors_button)
+        sto(self.manage_authors_button, self.paste_isbn_button)
         tl.addItem(QSpacerItem(1, 1, QSizePolicy.Fixed, QSizePolicy.Expanding),
                    12, 1, 1 ,1)
 
@@ -842,7 +874,7 @@ class MetadataSingleDialogAlt2(MetadataSingleDialogBase): # {{{
         lb = QGridLayout()
         gb.setLayout(lb)
         lb.addWidget(self.cover, 0, 0, 1, 3, alignment=Qt.AlignCenter)
-        sto(self.clear_identifiers_button, self.cover.buttons[0])
+        sto(self.manage_authors_button, self.cover.buttons[0])
         for i, b in enumerate(self.cover.buttons[:3]):
             lb.addWidget(b, 1, i, 1, 1)
             sto(b, self.cover.buttons[i+1])

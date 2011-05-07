@@ -10,7 +10,7 @@ __docformat__ = 'restructuredtext en'
 import textwrap, re, os
 
 from PyQt4.Qt import (Qt, QDateEdit, QDate, pyqtSignal, QMessageBox,
-    QIcon, QToolButton, QWidget, QLabel, QGridLayout,
+    QIcon, QToolButton, QWidget, QLabel, QGridLayout, QApplication,
     QDoubleSpinBox, QListWidgetItem, QSize, QPixmap,
     QPushButton, QSpinBox, QLineEdit, QSizePolicy)
 
@@ -1036,6 +1036,12 @@ class IdentifiersEdit(QLineEdit): # {{{
             extra = '\n\n' + _('This ISBN number is invalid')
         self.setToolTip(tt+extra)
         self.setStyleSheet('QLineEdit { background-color: %s }'%col)
+
+    def paste_isbn(self):
+        cb = QApplication.clipboard()
+        vals = self.current_val
+        vals['isbn'] = cb.text()
+        self.current_val = vals
 
 # }}}
 
