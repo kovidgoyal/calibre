@@ -57,7 +57,7 @@ class FoylesUKStore(BasicStoreConfig, StorePlugin):
                 cover_url = ''.join(data.xpath('.//a[@class="Jacket"]/img/@src'))
                 if cover_url:
                     cover_url = 'http://www.foyles.co.uk' + cover_url
-                print(cover_url)
+                #print(cover_url)
 
                 title = ''.join(data.xpath('.//a[@class="Title"]/text()'))
                 author = ', '.join(data.xpath('.//span[@class="Author"]/text()'))

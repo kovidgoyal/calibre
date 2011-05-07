@@ -9,7 +9,6 @@ from calibre.customize import FileTypePlugin, MetadataReaderPlugin, \
 from calibre.constants import numeric_version
 from calibre.ebooks.metadata.archive import ArchiveExtract, get_cbz_metadata
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
-from calibre.utils.config import test_eight_code
 
 # To archive plugins {{{
 class HTML2ZIP(FileTypePlugin):
@@ -596,6 +595,7 @@ from calibre.devices.jetbook.driver import JETBOOK, MIBUK, JETBOOK_MINI
 from calibre.devices.kindle.driver import KINDLE, KINDLE2, KINDLE_DX
 from calibre.devices.nook.driver import NOOK, NOOK_COLOR
 from calibre.devices.prs505.driver import PRS505
+from calibre.devices.user_defined.driver import USER_DEFINED
 from calibre.devices.android.driver import ANDROID, S60
 from calibre.devices.nokia.driver import N770, N810, E71X, E52
 from calibre.devices.eslick.driver import ESLICK, EBK52
@@ -613,6 +613,7 @@ from calibre.devices.misc import PALMPRE, AVANT, SWEEX, PDNOVEL, \
 from calibre.devices.folder_device.driver import FOLDER_DEVICE_FOR_CONFIG
 from calibre.devices.kobo.driver import KOBO
 from calibre.devices.bambook.driver import BAMBOOK
+from calibre.devices.boeye.driver import BOEYE_BEX, BOEYE_BDX
 
 from calibre.library.catalog import CSV_XML, EPUB_MOBI, BIBTEX
 from calibre.ebooks.epub.fix.unmanifested import Unmanifested
@@ -621,28 +622,16 @@ from calibre.ebooks.epub.fix.epubcheck import Epubcheck
 plugins = [HTML2ZIP, PML2PMLZ, TXT2TXTZ, ArchiveExtract, CSV_XML, EPUB_MOBI, BIBTEX, Unmanifested,
         Epubcheck, ]
 
-if test_eight_code:
 # New metadata download plugins {{{
-    from calibre.ebooks.metadata.sources.google import GoogleBooks
-    from calibre.ebooks.metadata.sources.amazon import Amazon
-    from calibre.ebooks.metadata.sources.openlibrary import OpenLibrary
-    from calibre.ebooks.metadata.sources.isbndb import ISBNDB
-    from calibre.ebooks.metadata.sources.overdrive import OverDrive
+from calibre.ebooks.metadata.sources.google import GoogleBooks
+from calibre.ebooks.metadata.sources.amazon import Amazon
+from calibre.ebooks.metadata.sources.openlibrary import OpenLibrary
+from calibre.ebooks.metadata.sources.isbndb import ISBNDB
+from calibre.ebooks.metadata.sources.overdrive import OverDrive
 
-    plugins += [GoogleBooks, Amazon, OpenLibrary, ISBNDB, OverDrive]
+plugins += [GoogleBooks, Amazon, OpenLibrary, ISBNDB, OverDrive]
 
 # }}}
-else:
-    from calibre.ebooks.metadata.fetch import GoogleBooks, ISBNDB, Amazon, \
-        KentDistrictLibrary
-    from calibre.ebooks.metadata.douban import DoubanBooks
-    from calibre.ebooks.metadata.nicebooks import NiceBooks, NiceBooksCovers
-    from calibre.ebooks.metadata.covers import OpenLibraryCovers, \
-            AmazonCovers, DoubanCovers
-
-    plugins += [GoogleBooks, ISBNDB, Amazon,
-        OpenLibraryCovers, AmazonCovers, DoubanCovers,
-        NiceBooksCovers, KentDistrictLibrary, DoubanBooks, NiceBooks]
 
 plugins += [
     ComicInput,
@@ -755,6 +744,9 @@ plugins += [
     EEEREADER,
     NEXTBOOK,
     ITUNES,
+    BOEYE_BEX,
+    BOEYE_BDX,
+    USER_DEFINED,
 ]
 plugins += [x for x in list(locals().values()) if isinstance(x, type) and \
                                         x.__name__.endswith('MetadataReader')]
@@ -867,10 +859,7 @@ plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,
         ActionRestart, ActionOpenFolder, ActionConnectShare,
         ActionSendToDevice, ActionHelp, ActionPreferences, ActionSimilarBooks,
         ActionAddToLibrary, ActionEditCollections, ActionChooseLibrary,
-        ActionCopyToLibrary, ActionTweakEpub, ActionNextMatch]
-
-if test_eight_code:
-    plugins += [ActionStore]
+        ActionCopyToLibrary, ActionTweakEpub, ActionNextMatch, ActionStore]
 
 # }}}
 
@@ -1096,10 +1085,8 @@ class Misc(PreferencesPlugin):
 
 plugins += [LookAndFeel, Behavior, Columns, Toolbar, Search, InputOptions,
         CommonOptions, OutputOptions, Adding, Saving, Sending, Plugboard,
-        Email, Server, Plugins, Tweaks, Misc, TemplateFunctions]
-
-if test_eight_code:
-    plugins.append(MetadataSources)
+        Email, Server, Plugins, Tweaks, Misc, TemplateFunctions,
+        MetadataSources]
 
 #}}}
 

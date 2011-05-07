@@ -62,8 +62,18 @@ class ConfigWidget(QWidget, Ui_ConfigWidget):
 
             if isinstance(extra_customization_message, list):
                 self.opt_extra_customization = []
+                if len(extra_customization_message) > 6:
+                    row_func = lambda x, y: ((x/2) * 2) + y
+                    col_func = lambda x: x%2
+                else:
+                    row_func = lambda x, y: x*2 + y
+                    col_func = lambda x: 0
+
                 for i, m in enumerate(extra_customization_message):
                     label_text, tt = parse_msg(m)
+                    if not label_text:
+                        self.opt_extra_customization.append(None)
+                        continue
                     if isinstance(settings.extra_customization[i], bool):
                         self.opt_extra_customization.append(QCheckBox(label_text))
                         self.opt_extra_customization[-1].setToolTip(tt)
@@ -75,8 +85,9 @@ class ConfigWidget(QWidget, Ui_ConfigWidget):
                         l.setBuddy(self.opt_extra_customization[i])
                         l.setWordWrap(True)
                         self.opt_extra_customization[i].setText(settings.extra_customization[i])
-                        self.extra_layout.addWidget(l)
-                    self.extra_layout.addWidget(self.opt_extra_customization[i])
+                        self.extra_layout.addWidget(l, row_func(i, 0), col_func(i))
+                    self.extra_layout.addWidget(self.opt_extra_customization[i],
+                                                row_func(i, 1), col_func(i))
             else:
                 self.opt_extra_customization = QLineEdit()
                 label_text, tt = parse_msg(extra_customization_message)
@@ -86,8 +97,8 @@ class ConfigWidget(QWidget, Ui_ConfigWidget):
                 l.setWordWrap(True)
                 if settings.extra_customization:
                     self.opt_extra_customization.setText(settings.extra_customization)
-                self.extra_layout.addWidget(l)
-                self.extra_layout.addWidget(self.opt_extra_customization)
+                self.extra_layout.addWidget(l, 0, 0)
+                self.extra_layout.addWidget(self.opt_extra_customization, 1, 0)
         self.opt_save_template.setText(settings.save_template)
 
 

@@ -10,6 +10,8 @@ import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class Time(BasicNewsRecipe):
+    recipe_disabled = ('This recipe has been disabled as TIME no longer'
+            ' publish complete articles on the web.')
     title                 = u'Time'
     __author__            = 'Kovid Goyal and Sujata Raman'
     description           = 'Weekly magazine'

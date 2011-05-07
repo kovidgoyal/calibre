@@ -1,0 +1,37 @@
+__license__   = 'GPL v3'
+__copyright__ = '2011, Tomas Latal<latal.tomas at gmail.com>'
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class DigiZoneCZ(BasicNewsRecipe):
+    title                   = 'DigiZone'
+    __author__              = 'Tomas Latal'
+    __version__             = '1.0'
+    __date__                = '30 April 2011'
+    description             = u'Aktuality a \u010dl\xe1nky z DigiZone.cz'
+    oldest_article          = 1
+    max_articles_per_feed   = 10
+    encoding                = 'iso-8859-2'
+    publisher               = 'Internet Info s.r.o.'
+    category                = 'digitalni vysilani, televize, CZ'
+    language                = 'cs'
+    publication_type        = 'newsportal'
+    no_stylesheets          = True
+    remove_javascript       = True
+    extra_css               = 'p.perex{font-size: 1.2em; margin: 0 0 10px 0;line-height: 1.4;padding: 0 0 10px 0;font-weight: bold;} \
+                               p.perex img {display:none;} \
+                               .urs p {margin: 0 0 0.8em 0;}'
+
+    feeds          = [
+                        (u'Aktuality', u'http://rss.digizone.cz/aktuality'),
+                        (u'\u010cl\xe1nky', u'http://rss.digizone.cz/clanky')
+                     ]
+
+    remove_tags_before = dict(id=['p-article','p-actuality'])
+
+    remove_tags_after = dict(id=['p-article','p-actuality'])
+
+    remove_tags = [
+                    dict(attrs={'class':['path','mth','lbtr','serial','enquiry','links','dp-n','side','op-ab','op-view','op-sub','op-list',]}),
+                    dict(id=['opinions','discussionList','similarItems','sidebar','footer','opl','promo-box'])
+                  ]

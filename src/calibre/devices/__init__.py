@@ -156,3 +156,60 @@ def debug(ioreg_to_tmp=False, buf=None):
         sys.stdout = oldo
         sys.stderr = olde
 
+def device_info(ioreg_to_tmp=False, buf=None):
+    from calibre.devices.scanner import DeviceScanner, win_pnp_drives
+    from calibre.constants import iswindows
+    import re
+
+    res = {}
+    device_details = {}
+    device_set = set()
+    drive_details = {}
+    drive_set = set()
+    res['device_set'] = device_set
+    res['device_details'] = device_details
+    res['drive_details'] = drive_details
+    res['drive_set'] = drive_set
+
+    try:
+        s = DeviceScanner()
+        s.scan()
+        devices = (s.devices)
+        if not iswindows:
+            devices = [list(x) for x in devices]
+            for dev in devices:
+                for i in range(3):
+                    dev[i] = hex(dev[i])
+                d = dev[0] + dev[1] + dev[2]
+                device_set.add(d)
+                device_details[d] = dev[0:3]
+        else:
+            for dev in devices:
+                vid = re.search('vid_([0-9a-f]*)&', dev)
+                if vid:
+                    vid = vid.group(1)
+                    pid = re.search('pid_([0-9a-f]*)&', dev)
+                    if pid:
+                        pid = pid.group(1)
+                        rev = re.search('rev_([0-9a-f]*)$', dev)
+                        if rev:
+                            rev = rev.group(1)
+                            d = vid+pid+rev
+                            device_set.add(d)
+                            device_details[d] = (vid, pid, rev)
+
+            drives = win_pnp_drives(debug=False)
+            for drive,details in drives.iteritems():
+                order = 'ORD_' + str(drive.order)
+                ven = re.search('VEN_([^&]*)&', details)
+                if ven:
+                    ven = ven.group(1)
+                    prod = re.search('PROD_([^&]*)&', details)
+                    if prod:
+                        prod = prod.group(1)
+                        d = (order, ven, prod)
+                        drive_details[drive] = d
+                        drive_set.add(drive)
+    finally:
+        pass
+    return res

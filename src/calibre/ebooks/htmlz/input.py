@@ -7,10 +7,12 @@ __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
 import os
+import posixpath
 
-from calibre import walk
+from calibre import guess_type, walk
 from calibre.customize.conversion import InputFormatPlugin
 from calibre.ebooks.chardet import xml_to_unicode
+from calibre.ebooks.metadata.opf2 import OPF
 from calibre.utils.zipfile import ZipFile
 
 class HTMLZInput(InputFormatPlugin):
@@ -27,7 +29,7 @@ class HTMLZInput(InputFormatPlugin):
 
         # Extract content from zip archive.
         zf = ZipFile(stream)
-        zf.extractall('.')
+        zf.extractall()
 
         for x in walk('.'):
             if os.path.splitext(x)[1].lower() in ('.html', '.xhtml', '.htm'):
@@ -70,5 +72,24 @@ class HTMLZInput(InputFormatPlugin):
         from calibre.ebooks.oeb.transforms.metadata import meta_info_to_oeb_metadata
         mi = get_file_type_metadata(stream, file_ext)
         meta_info_to_oeb_metadata(mi, oeb.metadata, log)
+        
+        # Get the cover path from the OPF.
+        cover_href = None
+        opf = None
+        for x in walk('.'):
+            if os.path.splitext(x)[1].lower() in ('.opf'):
+                opf = x
+                break
+        if opf:
+            opf = OPF(opf)
+            cover_href = posixpath.relpath(opf.cover, os.path.dirname(stream.name))
+        # Set the cover.
+        if cover_href:
+            cdata = None
+            with open(cover_href, 'rb') as cf:
+                cdata = cf.read()
+            id, href = oeb.manifest.generate('cover', cover_href)
+            oeb.manifest.add(id, href, guess_type(cover_href)[0], data=cdata)
+            oeb.guide.add('cover', 'Cover', href)
 
         return oeb
