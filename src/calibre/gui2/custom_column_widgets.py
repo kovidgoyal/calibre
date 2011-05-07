@@ -439,6 +439,7 @@ def populate_metadata_page(layout, db, book_id, bulk=False, two_column=False, pa
         w = widget_factory(dt, col)
         ans.append(w)
         for c in range(0, len(w.widgets), 2):
+            w.widgets[c].setWordWrap(True)
             w.widgets[c].setBuddy(w.widgets[c+1])
             layout.addWidget(w.widgets[c], row, column)
             layout.addWidget(w.widgets[c+1], row, column+1)
