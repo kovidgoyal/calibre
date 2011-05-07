@@ -1038,10 +1038,11 @@ class IdentifiersEdit(QLineEdit): # {{{
         self.setStyleSheet('QLineEdit { background-color: %s }'%col)
 
     def paste_isbn(self):
-        cb = QApplication.clipboard()
-        vals = self.current_val
-        vals['isbn'] = cb.text()
-        self.current_val = vals
+        text = unicode(QApplication.clipboard().text()).strip()
+        if text:
+            vals = self.current_val
+            vals['isbn'] = text
+            self.current_val = vals
 
 # }}}
 

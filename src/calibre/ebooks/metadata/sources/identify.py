@@ -403,7 +403,7 @@ def identify(log, abort, # {{{
             result.identify_plugin = plugin
             if msprefs['txt_comments']:
                 if plugin.has_html_comments and result.comments:
-                    result.comments = html2text(r.comments)
+                    result.comments = html2text(result.comments)
 
     log('The identify phase took %.2f seconds'%(time.time() - start_time))
     log('The longest time (%f) was taken by:'%longest, lp)
