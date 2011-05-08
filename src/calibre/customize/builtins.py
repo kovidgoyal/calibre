@@ -1126,7 +1126,7 @@ class StoreEbookscomStore(StoreBase):
     description = _('The digital bookstore.')
     actual_plugin = 'calibre.gui2.store.ebooks_com_plugin:EbookscomStore'
 
-class StoreEHarlequinStoretore(StoreBase):
+class StoreEHarlequinStore(StoreBase):
     name = 'eHarlequin'
     description = _('entertain, enrich, inspire.')
     actual_plugin = 'calibre.gui2.store.eharlequin_plugin:EHarlequinStore'
@@ -1183,14 +1183,19 @@ class StoreAmazonDEKindleStore(StoreBase):
 
 class StoreBeamEBooksDEStore(StoreBase):
     name = 'Beam EBooks DE'
-    description = _('Kindle eBooks')
+    description = _('der eBook Shop')
     actual_plugin = 'calibre.gui2.store.beam_ebooks_de_plugin:BeamEBooksDEStore'
+
+class StoreEPubBuyDEStore(StoreBase):
+    name = 'EPUBBuy DE'
+    description = _('EPUBReaders eBook Shop')
+    actual_plugin = 'calibre.gui2.store.epubbuy_de_plugin:EPubBuyDEStore'
 
 plugins += [StoreAmazonKindleStore, StoreAmazonDEKindleStore,
     StoreAmazonUKKindleStore,
     StoreBaenWebScriptionStore, StoreBNStore, StoreBeamEBooksDEStore,
     StoreBeWriteStore, StoreDieselEbooksStore, StoreEbookscomStore,
-    StoreEHarlequinStoretore, StoreFeedbooksStore,
+    StoreEPubBuyDEStore, StoreEHarlequinStore, StoreFeedbooksStore,
     StoreFoylesUKStore, StoreGutenbergStore, StoreKoboStore, StoreManyBooksStore,
     StoreMobileReadStore, StoreOpenLibraryStore, StoreSmashwordsStore,
     StoreWaterstonesUKStore]
