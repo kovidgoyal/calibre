@@ -449,7 +449,7 @@ class CatalogPlugin(Plugin): # {{{
                           ['author_sort','authors','comments','cover','formats',
                            'id','isbn','ondevice','pubdate','publisher','rating',
                            'series_index','series','size','tags','timestamp',
-                           'title','uuid'])
+                           'title_sort','title','uuid'])
         all_custom_fields = set(db.custom_field_keys())
         all_fields = all_std_fields.union(all_custom_fields)
 
@@ -607,6 +607,7 @@ class StoreBase(Plugin): # {{{
     supported_platforms = ['windows', 'osx', 'linux']
     author         = 'John Schember'
     type = _('Store')
+    minimum_calibre_version = (0, 8, 0)
 
     actual_plugin = None
 

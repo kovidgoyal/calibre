@@ -7,28 +7,27 @@
     <x>0</x>
     <y>0</y>
     <width>717</width>
-    <height>444</height>
+    <height>390</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout_2">
-   <item row="0" column="0" colspan="2">
-    <widget class="QToolBox" name="toolBox">
-     <widget class="QWidget" name="page">
-      <property name="geometry">
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>682</width>
-        <height>254</height>
-       </rect>
-      </property>
-      <attribute name="label">
-       <string>Main interface</string>
+   <item row="0" column="0">
+    <widget class="QTabWidget" name="tabWidget">
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
+     <widget class="QWidget" name="tab">
+      <attribute name="icon">
+       <iconset resource="../../../../resources/images.qrc">
+        <normaloff>:/images/lt.png</normaloff>:/images/lt.png</iconset>
       </attribute>
-      <layout class="QGridLayout" name="gridLayout_4">
+      <attribute name="title">
+       <string>Main Interface</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_9">
        <item row="0" column="0">
         <widget class="QLabel" name="label_17">
          <property name="text">
@@ -75,6 +74,13 @@
          </property>
         </widget>
        </item>
+       <item row="2" column="0">
+        <widget class="QCheckBox" name="opt_systray_icon">
+         <property name="text">
+          <string>Enable system &amp;tray icon (needs restart)</string>
+         </property>
+        </widget>
+       </item>
        <item row="2" column="1">
         <widget class="QCheckBox" name="opt_disable_animations">
          <property name="toolTip">
@@ -82,6 +88,13 @@
          </property>
          <property name="text">
           <string>Disable &amp;animations</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QCheckBox" name="opt_disable_tray_notification">
+         <property name="text">
+          <string>Disable &amp;notifications in system tray</string>
          </property>
         </widget>
        </item>
@@ -97,12 +110,12 @@
          <property name="title">
           <string>&amp;Toolbar</string>
          </property>
-         <layout class="QGridLayout" name="gridLayout">
+         <layout class="QGridLayout" name="gridLayout_8">
           <item row="0" column="1">
            <widget class="QComboBox" name="opt_toolbar_icon_size"/>
           </item>
           <item row="0" column="0">
-           <widget class="QLabel" name="label">
+           <widget class="QLabel" name="label_5">
             <property name="text">
              <string>&amp;Icon size:</string>
             </property>
@@ -115,7 +128,7 @@
            <widget class="QComboBox" name="opt_toolbar_text"/>
           </item>
           <item row="1" column="0">
-           <widget class="QLabel" name="label_4">
+           <widget class="QLabel" name="label_8">
             <property name="text">
              <string>Show &amp;text under icons:</string>
             </property>
@@ -127,20 +140,7 @@
          </layout>
         </widget>
        </item>
-       <item row="8" column="0">
-        <spacer name="verticalSpacer_3">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="6" column="0">
+       <item row="4" column="0">
         <layout class="QHBoxLayout" name="horizontalLayout">
          <item>
           <widget class="QLabel" name="label_2">
@@ -161,135 +161,15 @@
          </item>
         </layout>
        </item>
-       <item row="6" column="1">
+       <item row="4" column="1">
         <widget class="QPushButton" name="change_font_button">
          <property name="text">
           <string>Change &amp;font (needs restart)</string>
          </property>
         </widget>
        </item>
-       <item row="2" column="0">
-        <widget class="QCheckBox" name="opt_systray_icon">
-         <property name="text">
-          <string>Enable system &amp;tray icon (needs restart)</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="0">
-        <widget class="QCheckBox" name="opt_disable_tray_notification">
-         <property name="text">
-          <string>Disable &amp;notifications in system tray</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="page_2">
-      <property name="geometry">
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>699</width>
-        <height>151</height>
-       </rect>
-      </property>
-      <attribute name="label">
-       <string>Tag Browser</string>
-      </attribute>
-      <layout class="QGridLayout" name="gridLayout_5">
-       <item row="0" column="0" colspan="2">
-        <widget class="QCheckBox" name="opt_show_avg_rating">
-         <property name="text">
-          <string>Show &amp;average ratings in the tags browser</string>
-         </property>
-         <property name="checked">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0" colspan="2">
-        <layout class="QHBoxLayout">
-         <item>
-          <widget class="QLabel" name="label_6">
-           <property name="text">
-            <string>Tags browser category &amp;partitioning method:</string>
-           </property>
-           <property name="buddy">
-            <cstring>opt_tags_browser_partition_method</cstring>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QComboBox" name="opt_tags_browser_partition_method">
-           <property name="toolTip">
-            <string>Choose how tag browser subcategories are displayed when
-there are more items than the limit. Select by first
-letter to see an A, B, C list. Choose partitioned to
-have a list of fixed-sized groups. Set to disabled
-if you never want subcategories</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="label_6">
-           <property name="text">
-            <string>&amp;Collapse when more items than:</string>
-           </property>
-           <property name="buddy">
-            <cstring>opt_tags_browser_collapse_at</cstring>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QSpinBox" name="opt_tags_browser_collapse_at">
-           <property name="toolTip">
-            <string>If a Tag Browser category has more than this number of items, it is divided
-up into sub-categories. If the partition method is set to disable, this value is ignored.</string>
-           </property>
-           <property name="maximum">
-            <number>10000</number>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <spacer name="verticalSpacer">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>5</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-        </layout>
-       </item>
-       <item row="2" column="0">
-        <widget class="QLabel" name="label_81">
-         <property name="text">
-          <string>Categories with &amp;hierarchical items:</string>
-         </property>
-         <property name="buddy">
-          <cstring>opt_categories_using_hierarchy</cstring>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="1">
-        <widget class="MultiCompleteLineEdit" name="opt_categories_using_hierarchy">
-         <property name="toolTip">
-          <string>A comma-separated list of columns in which items containing
-periods are displayed in the tag browser trees. For example, if
-this box contains 'tags' then tags of the form 'Mystery.English'
-and 'Mystery.Thriller' will be displayed with English and Thriller
-both under 'Mystery'. If 'tags' is not in this box,
-then the tags will be displayed each on their own line.</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="0" colspan="2">
-        <spacer name="verticalSpacer_2">
+       <item row="6" column="0">
+        <spacer name="verticalSpacer_3">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
          </property>
@@ -303,19 +183,195 @@ then the tags will be displayed each on their own line.</string>
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="page_3">
-      <property name="geometry">
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>699</width>
-        <height>306</height>
-       </rect>
-      </property>
-      <attribute name="label">
+     <widget class="QWidget" name="tab_4">
+      <attribute name="icon">
+       <iconset resource="../../../../resources/images.qrc">
+        <normaloff>:/images/book.png</normaloff>:/images/book.png</iconset>
+      </attribute>
+      <attribute name="title">
+       <string>Book Details</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_12">
+       <item row="0" column="0" rowspan="2">
+        <widget class="QGroupBox" name="groupBox">
+         <property name="title">
+          <string>Select displayed metadata</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_3">
+          <item row="0" column="0" rowspan="3">
+           <widget class="QListView" name="field_display_order">
+            <property name="alternatingRowColors">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QToolButton" name="df_up_button">
+            <property name="toolTip">
+             <string>Move up</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../../../../resources/images.qrc">
+              <normaloff>:/images/arrow-up.png</normaloff>:/images/arrow-up.png</iconset>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QToolButton" name="df_down_button">
+            <property name="toolTip">
+             <string>Move down</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../../../../resources/images.qrc">
+              <normaloff>:/images/arrow-down.png</normaloff>:/images/arrow-down.png</iconset>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <spacer name="verticalSpacer_5">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QCheckBox" name="opt_use_roman_numerals_for_series_number">
+         <property name="text">
+          <string>Use &amp;Roman numerals for series</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QLabel" name="label_3">
+         <property name="text">
+          <string>Note that &lt;b&gt;comments&lt;/b&gt; will always be displayed at the end, regardless of the position you assign here.</string>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_2">
+      <attribute name="icon">
+       <iconset resource="../../../../resources/images.qrc">
+        <normaloff>:/images/tags.png</normaloff>:/images/tags.png</iconset>
+      </attribute>
+      <attribute name="title">
+       <string>Tag Browser</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_10">
+       <item row="0" column="0" colspan="2">
+        <widget class="QLabel" name="label_9">
+         <property name="text">
+          <string>Tags browser category &amp;partitioning method:</string>
+         </property>
+         <property name="buddy">
+          <cstring>opt_tags_browser_partition_method</cstring>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="2">
+        <widget class="QComboBox" name="opt_tags_browser_partition_method">
+         <property name="toolTip">
+          <string>Choose how tag browser subcategories are displayed when
+there are more items than the limit. Select by first
+letter to see an A, B, C list. Choose partitioned to
+have a list of fixed-sized groups. Set to disabled
+if you never want subcategories</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="3">
+        <widget class="QLabel" name="label_10">
+         <property name="text">
+          <string>&amp;Collapse when more items than:</string>
+         </property>
+         <property name="buddy">
+          <cstring>opt_tags_browser_collapse_at</cstring>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="4">
+        <widget class="QSpinBox" name="opt_tags_browser_collapse_at">
+         <property name="toolTip">
+          <string>If a Tag Browser category has more than this number of items, it is divided
+up into sub-categories. If the partition method is set to disable, this value is ignored.</string>
+         </property>
+         <property name="maximum">
+          <number>10000</number>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0" colspan="5">
+        <widget class="QCheckBox" name="opt_show_avg_rating">
+         <property name="text">
+          <string>Show &amp;average ratings in the tags browser</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_81">
+         <property name="text">
+          <string>Categories with &amp;hierarchical items:</string>
+         </property>
+         <property name="buddy">
+          <cstring>opt_categories_using_hierarchy</cstring>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0" colspan="5">
+        <spacer name="verticalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>690</width>
+           <height>252</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="2" column="2" colspan="3">
+        <widget class="MultiCompleteLineEdit" name="opt_categories_using_hierarchy">
+         <property name="toolTip">
+          <string>A comma-separated list of columns in which items containing
+periods are displayed in the tag browser trees. For example, if
+this box contains 'tags' then tags of the form 'Mystery.English'
+and 'Mystery.Thriller' will be displayed with English and Thriller
+both under 'Mystery'. If 'tags' is not in this box,
+then the tags will be displayed each on their own line.</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_3">
+      <attribute name="icon">
+       <iconset resource="../../../../resources/images.qrc">
+        <normaloff>:/images/cover_flow.png</normaloff>:/images/cover_flow.png</iconset>
+      </attribute>
+      <attribute name="title">
        <string>Cover Browser</string>
       </attribute>
-      <layout class="QGridLayout" name="gridLayout_6">
+      <layout class="QGridLayout" name="gridLayout_11">
        <item row="0" column="0" colspan="2">
         <widget class="QCheckBox" name="opt_separate_cover_flow">
          <property name="text">
@@ -343,87 +399,11 @@ then the tags will be displayed each on their own line.</string>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
-           <width>20</width>
-           <height>40</height>
+           <width>690</width>
+           <height>283</height>
           </size>
          </property>
         </spacer>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="page_4">
-      <property name="geometry">
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>699</width>
-        <height>306</height>
-       </rect>
-      </property>
-      <attribute name="label">
-       <string>Book Details</string>
-      </attribute>
-      <layout class="QGridLayout" name="gridLayout_7">
-       <item row="0" column="1">
-        <widget class="QCheckBox" name="opt_use_roman_numerals_for_series_number">
-         <property name="text">
-          <string>Use &amp;Roman numerals for series</string>
-         </property>
-         <property name="checked">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="0">
-        <widget class="QGroupBox" name="groupBox">
-         <property name="title">
-          <string>Select displayed metadata</string>
-         </property>
-         <layout class="QGridLayout" name="gridLayout_3">
-          <item row="0" column="0" rowspan="3">
-           <widget class="QListView" name="field_display_order">
-            <property name="alternatingRowColors">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QToolButton" name="toolButton">
-            <property name="toolTip">
-             <string>Move up</string>
-            </property>
-            <property name="icon">
-             <iconset resource="../../../../resources/images.qrc">
-              <normaloff>:/images/arrow-up.png</normaloff>:/images/arrow-up.png</iconset>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1">
-           <widget class="QToolButton" name="toolButton_2">
-            <property name="toolTip">
-             <string>Move down</string>
-            </property>
-            <property name="icon">
-             <iconset resource="../../../../resources/images.qrc">
-              <normaloff>:/images/arrow-down.png</normaloff>:/images/arrow-down.png</iconset>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <spacer name="verticalSpacer_5">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>40</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-         </layout>
-        </widget>
        </item>
       </layout>
      </widget>

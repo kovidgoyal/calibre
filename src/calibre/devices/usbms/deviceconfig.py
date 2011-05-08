@@ -94,6 +94,9 @@ class DeviceConfig(object):
             if isinstance(cls.EXTRA_CUSTOMIZATION_MESSAGE, list):
                 ec = []
                 for i in range(0, len(cls.EXTRA_CUSTOMIZATION_MESSAGE)):
+                    if config_widget.opt_extra_customization[i] is None:
+                        ec.append(None)
+                        continue
                     if hasattr(config_widget.opt_extra_customization[i], 'isChecked'):
                         ec.append(config_widget.opt_extra_customization[i].isChecked())
                     else:

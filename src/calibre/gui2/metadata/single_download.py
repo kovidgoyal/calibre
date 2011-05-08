@@ -253,7 +253,7 @@ class ResultsView(QTableView): # {{{
         parts.append('</center>')
         if book.identifiers:
             urls = urls_from_identifiers(book.identifiers)
-            ids = ['<a href="%s">%s</a>'%(url, name) for name, url in urls]
+            ids = ['<a href="%s">%s</a>'%(url, name) for name, ign, ign, url in urls]
             if ids:
                 parts.append('<div><b>%s:</b> %s</div><br>'%(_('See at'), ', '.join(ids)))
         if book.tags:

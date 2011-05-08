@@ -13,6 +13,7 @@ from Queue import Queue, Empty
 from threading import Thread
 from io import BytesIO
 from operator import attrgetter
+from urlparse import urlparse
 
 from calibre.customize.ui import metadata_plugins, all_metadata_plugins
 from calibre.ebooks.metadata.sources.base import create_log, msprefs
@@ -400,6 +401,9 @@ def identify(log, abort, # {{{
                     and plugin.get_cached_cover_url(result.identifiers) is not
                     None)
             result.identify_plugin = plugin
+            if msprefs['txt_comments']:
+                if plugin.has_html_comments and result.comments:
+                    result.comments = html2text(result.comments)
 
     log('The identify phase took %.2f seconds'%(time.time() - start_time))
     log('The longest time (%f) was taken by:'%longest, lp)
@@ -410,10 +414,6 @@ def identify(log, abort, # {{{
     log('We have %d merged results, merging took: %.2f seconds' %
             (len(results), time.time() - start_time))
 
-    if msprefs['txt_comments']:
-        for r in results:
-            if r.identify_plugin.has_html_comments and r.comments:
-                r.comments = html2text(r.comments)
 
     max_tags = msprefs['max_tags']
     for r in results:
@@ -435,18 +435,38 @@ def identify(log, abort, # {{{
 # }}}
 
 def urls_from_identifiers(identifiers): # {{{
+    identifiers = dict([(k.lower(), v) for k, v in identifiers.iteritems()])
     ans = []
     for plugin in all_metadata_plugins():
         try:
-            url = plugin.get_book_url(identifiers)
-            if url is not None:
-                ans.append((plugin.name, url))
+            id_type, id_val, url = plugin.get_book_url(identifiers)
+            ans.append((plugin.name, id_type, id_val, url))
         except:
             pass
     isbn = identifiers.get('isbn', None)
     if isbn:
-        ans.append((isbn,
-            'http://www.worldcat.org/search?q=bn%%3A%s&qt=advanced'%isbn))
+        ans.append((isbn, 'isbn', isbn,
+            'http://www.worldcat.org/isbn/'+isbn))
+    doi = identifiers.get('doi', None)
+    if doi:
+        ans.append(('DOI', 'doi', doi,
+            'http://dx.doi.org/'+doi))
+    arxiv = identifiers.get('arxiv', None)
+    if arxiv:
+        ans.append(('arXiv', 'arxiv', arxiv,
+            'http://arxiv.org/abs/'+arxiv))
+    oclc = identifiers.get('oclc', None)
+    if oclc:
+        ans.append(('OCLC', 'oclc', oclc,
+            'http://www.worldcat.org/oclc/'+oclc))
+    url = identifiers.get('uri', None)
+    if url is None:
+        url = identifiers.get('url', None)
+    if url and url.startswith('http'):
+        url = url[:8].replace('|', ':') + url[8:].replace('|', ',')
+        parts = urlparse(url)
+        name = parts.netloc
+        ans.append((name, 'url', url, url))
     return ans
 # }}}
 

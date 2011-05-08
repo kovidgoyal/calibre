@@ -1,0 +1,43 @@
+__license__   = 'GPL v3'
+__copyright__ = '2011, Tomas Latal<latal.tomas at gmail.com>'
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class NovinkyCZ(BasicNewsRecipe):
+    title                   = 'Novinky'
+    __author__              = 'Tomas Latal'
+    __version__             = '1.1'
+    __date__                = '30 April 2011'
+    description             = 'News from server Novinky.cz'
+    oldest_article          = 1
+    max_articles_per_feed   = 10
+    encoding                = 'utf8'
+    publisher               = 'Novinky'
+    category                = 'news, CZ'
+    language                = 'cs'
+    publication_type        = 'newsportal'
+    no_stylesheets          = True
+    remove_javascript       = True
+    cover_url               = 'http://img193.imageshack.us/img193/3039/novinkycover.jpg'
+    extra_css               = 'p.acmDescription{font-style:italic;} p.acmAuthor{font-size:0.8em; color:#707070}'
+
+    feeds          = [
+                        (u'Dom\xe1c\xed', u'http://www.novinky.cz/rss/domaci/'),
+                        (u'Zahrani\u010d\xed', u'http://www.novinky.cz/rss/zahranicni/'),
+                        (u'Krimi', u'http://www.novinky.cz/rss/krimi/'),
+                        (u'Ekonomika', u'http://www.novinky.cz/rss/ekonomika/'),
+                        (u'Finance', u'http://www.novinky.cz/rss/finance/'),
+                        (u'Kultura', u'http://www.novinky.cz/rss/kultura/'),
+                        (u'Koktejl', u'http://www.novinky.cz/rss/koktejl/'),
+                        (u'Internet a PC', u'http://www.novinky.cz/rss/internet-a-pc/'),
+                        (u'Auto-moto', u'http://www.novinky.cz/rss/auto/'),
+                    ]
+
+    remove_tags_before = dict(id='articleContent')
+
+    remove_tags_after = [dict(id='movedArticleAuthors')]
+
+    remove_tags = [
+                      dict(name='div', attrs={'id':['articleColumnInfo','pictureInnerBox']}),
+                      dict(name='p', attrs={'id':['articleDate']})
+                  ]

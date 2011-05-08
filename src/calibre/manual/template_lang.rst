@@ -396,3 +396,19 @@ You might find the following tips useful.
     * In a plugboard, you can set a field to empty (or whatever is equivalent to empty) by using the special template ``{null}``. This template will always evaluate to an empty string.
     * The technique described above to show numbers even if they have a zero value works with the standard field series_index.
     
+API of the Metadata objects
+----------------------------
+
+.. module:: calibre.ebooks.metadata.book.base
+
+.. autoclass:: Metadata
+   :members:
+   :member-order: bysource
+
+.. data:: STANDARD_METADATA_FIELDS
+
+    The set of standard metadata fields.
+
+.. literalinclude:: ../ebooks/metadata/book/__init__.py
+   :lines: 7-
+

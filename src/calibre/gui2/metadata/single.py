@@ -69,7 +69,9 @@ class MetadataSingleDialogBase(ResizableDialog):
         self.setLayout(self.l)
         self.l.setMargin(0)
         self.l.addWidget(self.scroll_area)
-        self.l.addWidget(self.button_box)
+        ll = self.button_box_layout = QHBoxLayout()
+        self.l.addLayout(ll)
+        ll.addWidget(self.button_box)
 
         self.setWindowIcon(QIcon(I('edit_input.png')))
         self.setWindowTitle(_('Edit Metadata'))
@@ -103,16 +105,18 @@ class MetadataSingleDialogBase(ResizableDialog):
         self.basic_metadata_widgets.extend([self.title, self.title_sort])
 
         self.deduce_author_sort_button = b = QToolButton(self)
-        b.setToolTip(_(
-        'Automatically create the author sort entry based on the current'
-        ' author entry.\n'
-        'Using this button to create author sort will change author sort from'
-        ' red to green.'))
+        b.setToolTip('<p>' +
+            _('Automatically create the author sort entry based on the current '
+              'author entry. Using this button to create author sort will '
+              'change author sort from red to green.  There is a menu of '
+              'functions available under this button. Click and hold '
+              'on the button to see it.') + '</p>')
         b.m = m = QMenu()
         ac = m.addAction(QIcon(I('forward.png')), _('Set author sort from author'))
         ac2 = m.addAction(QIcon(I('back.png')), _('Set author from author sort'))
+        ac3 = m.addAction(QIcon(I('user_profile.png')), _('Manage authors'))
         b.setMenu(m)
-        self.authors = AuthorsEdit(self)
+        self.authors = AuthorsEdit(self, ac3)
         self.author_sort = AuthorSortEdit(self, self.authors, b, self.db, ac,
                 ac2)
         self.basic_metadata_widgets.extend([self.authors, self.author_sort])
@@ -122,6 +126,13 @@ class MetadataSingleDialogBase(ResizableDialog):
         self.swap_title_author_button.setToolTip(_(
             'Swap the author and title'))
         self.swap_title_author_button.clicked.connect(self.swap_title_author)
+
+        self.manage_authors_button = QToolButton(self)
+        self.manage_authors_button.setIcon(QIcon(I('user_profile.png')))
+        self.manage_authors_button.setToolTip('<p>' + _(
+            'Manage authors. Use to rename authors and correct '
+            'individual author\'s sort values') + '</p>')
+        self.manage_authors_button.clicked.connect(self.authors.manage_authors)
 
         self.series = SeriesEdit(self)
         self.remove_unused_series_button = QToolButton(self)
@@ -159,6 +170,12 @@ class MetadataSingleDialogBase(ResizableDialog):
         self.clear_identifiers_button = QToolButton(self)
         self.clear_identifiers_button.setIcon(QIcon(I('trash.png')))
         self.clear_identifiers_button.clicked.connect(self.identifiers.clear)
+        self.paste_isbn_button = QToolButton(self)
+        self.paste_isbn_button.setToolTip('<p>' +
+                    _('Paste the contents of the clipboard into the '
+                      'identifiers box prefixed with isbn:') + '</p>')
+        self.paste_isbn_button.setIcon(QIcon(I('edit-paste.png')))
+        self.paste_isbn_button.clicked.connect(self.identifiers.paste_isbn)
 
         self.publisher = PublisherEdit(self)
         self.basic_metadata_widgets.append(self.publisher)
@@ -198,7 +215,7 @@ class MetadataSingleDialogBase(ResizableDialog):
             ans = self.custom_metadata_widgets
             for i in range(len(ans)-1):
                 if before is not None and i == 0:
-                    pass# Do something
+                    pass
                 if len(ans[i+1].widgets) == 2:
                     sto(ans[i].widgets[-1], ans[i+1].widgets[1])
                 else:
@@ -206,7 +223,7 @@ class MetadataSingleDialogBase(ResizableDialog):
                 for c in range(2, len(ans[i].widgets), 2):
                     sto(ans[i].widgets[c-1], ans[i].widgets[c+1])
             if after is not None:
-                pass # Do something
+                pass
     # }}}
 
     def do_view_format(self, path, fmt):
@@ -290,13 +307,17 @@ class MetadataSingleDialogBase(ResizableDialog):
                          show=True)
             return
 
-    def update_from_mi(self, mi):
+    def update_from_mi(self, mi, update_sorts=True):
         if not mi.is_null('title'):
             self.title.current_val = mi.title
+            if update_sorts:
+                self.title_sort.auto_generate()
         if not mi.is_null('authors'):
             self.authors.current_val = mi.authors
         if not mi.is_null('author_sort'):
             self.author_sort.current_val = mi.author_sort
+        elif update_sorts:
+            self.author_sort.auto_generate()
         if not mi.is_null('rating'):
             try:
                 self.rating.current_val = mi.rating
@@ -493,7 +514,8 @@ class MetadataSingleDialog(MetadataSingleDialogBase): # {{{
             sto(one, two)
             sto(two, three)
 
-        tl.addWidget(self.swap_title_author_button, 0, 0, 2, 1)
+        tl.addWidget(self.swap_title_author_button, 0, 0, 1, 1)
+        tl.addWidget(self.manage_authors_button, 1, 0, 1, 1)
 
         create_row(0, self.title, self.deduce_title_sort_button, self.title_sort)
         sto(self.title_sort, self.authors)
@@ -502,6 +524,7 @@ class MetadataSingleDialog(MetadataSingleDialogBase): # {{{
         create_row(2, self.series, self.remove_unused_series_button,
                 self.series_index, icon='trash.png')
         sto(self.series_index, self.swap_title_author_button)
+        sto(self.swap_title_author_button, self.manage_authors_button)
 
         tl.addWidget(self.formats_manager, 0, 6, 3, 1)
 
@@ -512,7 +535,7 @@ class MetadataSingleDialog(MetadataSingleDialogBase): # {{{
         self.tabs[0].gb = gb = QGroupBox(_('Change cover'), self)
         gb.l = l = QGridLayout()
         gb.setLayout(l)
-        sto(self.swap_title_author_button, self.cover.buttons[0])
+        sto(self.manage_authors_button, self.cover.buttons[0])
         for i, b in enumerate(self.cover.buttons[:3]):
             l.addWidget(b, 0, i, 1, 1)
             sto(b, self.cover.buttons[i+1])
@@ -526,10 +549,16 @@ class MetadataSingleDialog(MetadataSingleDialogBase): # {{{
         w.setLayout(w.l)
         l.setMargin(0)
         self.splitter.addWidget(w)
-        def create_row2(row, widget, button=None):
+        def create_row2(row, widget, button=None, front_button=None):
             row += 1
             ql = BuddyLabel(widget)
-            l.addWidget(ql, row, 0, 1, 1)
+            if front_button:
+                ltl = QHBoxLayout()
+                ltl.addWidget(front_button)
+                ltl.addWidget(ql)
+                l.addLayout(ltl, row, 0, 1, 1)
+            else:
+                l.addWidget(ql, row, 0, 1, 1)
             l.addWidget(widget, row, 1, 1, 2 if button is None else 1)
             if button is not None:
                 l.addWidget(button, row, 2, 1, 1)
@@ -544,8 +573,10 @@ class MetadataSingleDialog(MetadataSingleDialogBase): # {{{
         create_row2(1, self.rating)
         sto(self.rating, self.tags)
         create_row2(2, self.tags, self.tags_editor_button)
-        sto(self.tags_editor_button, self.identifiers)
-        create_row2(3, self.identifiers, self.clear_identifiers_button)
+        sto(self.tags_editor_button, self.paste_isbn_button)
+        sto(self.paste_isbn_button, self.identifiers)
+        create_row2(3, self.identifiers, self.clear_identifiers_button,
+                                        front_button=self.paste_isbn_button)
         sto(self.clear_identifiers_button, self.timestamp)
         create_row2(4, self.timestamp, self.timestamp.clear_button)
         sto(self.timestamp.clear_button, self.pubdate)
@@ -618,13 +649,13 @@ class MetadataSingleDialogAlt1(MetadataSingleDialogBase): # {{{
         self.tabs[0].l.addWidget(gb, 0, 0, 1, 1)
         gb.setLayout(tl)
 
-        self.button_box.addButton(self.fetch_metadata_button,
-                                  QDialogButtonBox.ActionRole)
+        self.button_box_layout.insertWidget(0, self.fetch_metadata_button)
         self.config_metadata_button.setToolButtonStyle(Qt.ToolButtonTextOnly)
         self.config_metadata_button.setText(_('Configure metadata downloading'))
-        self.button_box.addButton(self.config_metadata_button,
-                                  QDialogButtonBox.ActionRole)
-        sto(self.button_box, self.title)
+        self.button_box_layout.insertWidget(1, self.config_metadata_button)
+        sto(self.button_box, self.fetch_metadata_button)
+        sto(self.fetch_metadata_button, self.config_metadata_button)
+        sto(self.config_metadata_button, self.title)
 
         def create_row(row, widget, tab_to, button=None, icon=None, span=1):
             ql = BuddyLabel(widget)
@@ -642,6 +673,8 @@ class MetadataSingleDialogAlt1(MetadataSingleDialogBase): # {{{
                     sto(widget, tab_to)
 
         tl.addWidget(self.swap_title_author_button, 0, 0, 2, 1)
+        tl.addWidget(self.manage_authors_button, 2, 0, 1, 1)
+        tl.addWidget(self.paste_isbn_button, 11, 0, 1, 1)
 
         create_row(0, self.title, self.title_sort,
                    button=self.deduce_title_sort_button, span=2,
@@ -663,6 +696,9 @@ class MetadataSingleDialogAlt1(MetadataSingleDialogBase): # {{{
                    button=self.timestamp.clear_button, icon='trash.png')
         create_row(11, self.identifiers, self.comments,
                    button=self.clear_identifiers_button, icon='trash.png')
+        sto(self.clear_identifiers_button, self.swap_title_author_button)
+        sto(self.swap_title_author_button, self.manage_authors_button)
+        sto(self.manage_authors_button, self.paste_isbn_button)
         tl.addItem(QSpacerItem(1, 1, QSizePolicy.Fixed, QSizePolicy.Expanding),
                    12, 1, 1 ,1)
 
@@ -702,7 +738,6 @@ class MetadataSingleDialogAlt1(MetadataSingleDialogBase): # {{{
         gb = QGroupBox(_('Change cover'), tab1)
         l = QGridLayout()
         gb.setLayout(l)
-        sto(self.swap_title_author_button, self.cover.buttons[0])
         for i, b in enumerate(self.cover.buttons[:3]):
             l.addWidget(b, 0, i, 1, 1)
             sto(b, self.cover.buttons[i+1])
@@ -728,7 +763,140 @@ class MetadataSingleDialogAlt1(MetadataSingleDialogBase): # {{{
 
 # }}}
 
-editors = {'default': MetadataSingleDialog, 'alt1': MetadataSingleDialogAlt1}
+class MetadataSingleDialogAlt2(MetadataSingleDialogBase): # {{{
+
+    cc_two_column = False
+    one_line_comments_toolbar = True
+
+    def do_layout(self):
+        self.central_widget.clear()
+        self.labels = []
+        sto = QWidget.setTabOrder
+
+        self.central_widget.tabBar().setVisible(False)
+        tab0 = QWidget(self)
+        self.central_widget.addTab(tab0, _("&Metadata"))
+        l = QGridLayout()
+        tab0.setLayout(l)
+
+        # Basic metadata in col 0
+        tl = QGridLayout()
+        gb = QGroupBox(_('Basic metadata'), tab0)
+        l.addWidget(gb, 0, 0, 1, 1)
+        gb.setLayout(tl)
+
+        self.button_box_layout.insertWidget(0, self.fetch_metadata_button)
+        self.config_metadata_button.setToolButtonStyle(Qt.ToolButtonTextOnly)
+        self.config_metadata_button.setText(_('Configure metadata downloading'))
+        self.button_box_layout.insertWidget(1, self.config_metadata_button)
+        sto(self.button_box, self.fetch_metadata_button)
+        sto(self.fetch_metadata_button, self.config_metadata_button)
+        sto(self.config_metadata_button, self.title)
+
+        def create_row(row, widget, tab_to, button=None, icon=None, span=1):
+            ql = BuddyLabel(widget)
+            tl.addWidget(ql, row, 1, 1, 1)
+            tl.addWidget(widget, row, 2, 1, 1)
+            if button is not None:
+                tl.addWidget(button, row, 3, span, 1)
+                if icon is not None:
+                    button.setIcon(QIcon(I(icon)))
+            if tab_to is not None:
+                if button is not None:
+                    sto(widget, button)
+                    sto(button, tab_to)
+                else:
+                    sto(widget, tab_to)
+
+        tl.addWidget(self.swap_title_author_button, 0, 0, 2, 1)
+        tl.addWidget(self.manage_authors_button, 2, 0, 2, 1)
+        tl.addWidget(self.paste_isbn_button, 11, 0, 1, 1)
+
+        create_row(0, self.title, self.title_sort,
+                   button=self.deduce_title_sort_button, span=2,
+                   icon='auto_author_sort.png')
+        create_row(1, self.title_sort, self.authors)
+        create_row(2, self.authors, self.author_sort,
+                   button=self.deduce_author_sort_button,
+                   span=2, icon='auto_author_sort.png')
+        create_row(3, self.author_sort, self.series)
+        create_row(4, self.series, self.series_index,
+                   button=self.remove_unused_series_button, icon='trash.png')
+        create_row(5, self.series_index, self.tags)
+        create_row(6, self.tags, self.rating, button=self.tags_editor_button)
+        create_row(7, self.rating, self.pubdate)
+        create_row(8, self.pubdate, self.publisher,
+                   button=self.pubdate.clear_button, icon='trash.png')
+        create_row(9, self.publisher, self.timestamp)
+        create_row(10, self.timestamp, self.identifiers,
+                   button=self.timestamp.clear_button, icon='trash.png')
+        create_row(11, self.identifiers, self.comments,
+                   button=self.clear_identifiers_button, icon='trash.png')
+        sto(self.clear_identifiers_button, self.swap_title_author_button)
+        sto(self.swap_title_author_button, self.manage_authors_button)
+        sto(self.manage_authors_button, self.paste_isbn_button)
+        tl.addItem(QSpacerItem(1, 1, QSizePolicy.Fixed, QSizePolicy.Expanding),
+                   12, 1, 1 ,1)
+
+        # Custom metadata in col 1
+        w = getattr(self, 'custom_metadata_widgets_parent', None)
+        if w is not None:
+            gb = QGroupBox(_('Custom metadata'), tab0)
+            gbl = QVBoxLayout()
+            gb.setLayout(gbl)
+            sr = QScrollArea(gb)
+            sr.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+            sr.setWidgetResizable(True)
+            sr.setBackgroundRole(QPalette.Base)
+            sr.setFrameStyle(QFrame.NoFrame)
+            sr.setWidget(w)
+            gbl.addWidget(sr)
+            l.addWidget(gb, 0, 1, 1, 1)
+            sp = QSizePolicy()
+            sp.setVerticalStretch(10)
+            sp.setHorizontalPolicy(QSizePolicy.Minimum)
+            sp.setVerticalPolicy(QSizePolicy.Expanding)
+            gb.setSizePolicy(sp)
+            self.set_custom_metadata_tab_order()
+
+        # comments span col 0 & 1
+        w = QGroupBox(_('Comments'), tab0)
+        sp = QSizePolicy()
+        sp.setVerticalStretch(10)
+        sp.setHorizontalPolicy(QSizePolicy.Expanding)
+        sp.setVerticalPolicy(QSizePolicy.Expanding)
+        w.setSizePolicy(sp)
+        lb = QHBoxLayout()
+        w.setLayout(lb)
+        lb.addWidget(self.comments)
+        l.addWidget(w, 1, 0, 1, 2)
+
+        # Cover & formats in col 3
+        gb = QGroupBox(_('Cover'), tab0)
+        lb = QGridLayout()
+        gb.setLayout(lb)
+        lb.addWidget(self.cover, 0, 0, 1, 3, alignment=Qt.AlignCenter)
+        sto(self.manage_authors_button, self.cover.buttons[0])
+        for i, b in enumerate(self.cover.buttons[:3]):
+            lb.addWidget(b, 1, i, 1, 1)
+            sto(b, self.cover.buttons[i+1])
+        hl = QHBoxLayout()
+        for b in self.cover.buttons[3:]:
+            hl.addWidget(b)
+        sto(self.cover.buttons[-2], self.cover.buttons[-1])
+        lb.addLayout(hl, 2, 0, 1, 3)
+        l.addWidget(gb, 0, 2, 1, 1)
+        l.addWidget(self.formats_manager, 1, 2, 1, 1)
+        sto(self.cover.buttons[-1], self.formats_manager)
+
+        self.formats_manager.formats.setMaximumWidth(10000)
+        self.formats_manager.formats.setIconSize(QSize(32, 32))
+
+# }}}
+
+
+editors = {'default': MetadataSingleDialog, 'alt1': MetadataSingleDialogAlt1,
+           'alt2': MetadataSingleDialogAlt2}
 
 def edit_metadata(db, row_list, current_row, parent=None, view_slot=None,
         set_current_callback=None):

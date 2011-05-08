@@ -56,7 +56,8 @@ class InternalMetadataCompareKeyGen(object):
 
     '''
     Generate a sort key for comparison of the relevance of Metadata objects,
-    given a search query.
+    given a search query. This is used only to compare results from the same
+    metadata source, not across different sources.
 
     The sort key ensures that an ascending order sort is a sort by order of
     decreasing relevance.
@@ -306,7 +307,7 @@ class Source(Plugin):
             title_patterns = [(re.compile(pat, re.IGNORECASE), repl) for pat, repl in
             [
                 # Remove things like: (2010) (Omnibus) etc.
-                (r'(?i)[({\[](\d{4}|omnibus|anthology|hardcover|paperback|mass\s*market|edition|ed\.)[\])}]', ''),
+                (r'(?i)[({\[](\d{4}|omnibus|anthology|hardcover|paperback|turtleback|mass\s*market|edition|ed\.)[\])}]', ''),
                 # Remove any strings that contain the substring edition inside
                 # parentheses
                 (r'(?i)[({\[].*?(edition|ed.).*?[\]})]', ''),
@@ -374,7 +375,11 @@ class Source(Plugin):
 
     def get_book_url(self, identifiers):
         '''
-        Return the URL for the book identified by identifiers at this source.
+        Return a 3-tuple or None. The 3-tuple is of the form:
+        (identifier_type, identifier_value, URL).
+        The URL is the URL for the book identified by identifiers at this
+        source. identifier_type, identifier_value specify the identifier
+        corresponding to the URL.
         This URL must be browseable to by a human using a browser. It is meant
         to provide a clickable link for the user to easily visit the books page
         at this source.

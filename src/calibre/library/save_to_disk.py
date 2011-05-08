@@ -17,6 +17,7 @@ from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.constants import preferred_encoding
 from calibre.ebooks.metadata import fmt_sidx
 from calibre.ebooks.metadata import title_sort
+from calibre.utils.date import parse_date
 from calibre import strftime, prints, sanitize_file_name_unicode
 
 plugboard_any_device_value = 'any device'
@@ -42,6 +43,8 @@ FORMAT_ARG_DESCS = dict(
         publisher=_('The publisher'),
         timestamp=_('The date'),
         pubdate=_('The published date'),
+        last_modified=_('The date when the metadata for this book record'
+            ' was last modified'),
         id=_('The calibre internal id')
         )
 
@@ -186,11 +189,14 @@ def get_components(template, mi, id, timefmt='%b %Y', length=250,
     else:
         template = re.sub(r'\{series_index[^}]*?\}', '', template)
     if mi.rating is not None:
-        format_args['rating'] = mi.format_rating()
+        format_args['rating'] = mi.format_rating(divide_by=2.0)
     if hasattr(mi.timestamp, 'timetuple'):
         format_args['timestamp'] = strftime(timefmt, mi.timestamp.timetuple())
     if hasattr(mi.pubdate, 'timetuple'):
         format_args['pubdate'] = strftime(timefmt, mi.pubdate.timetuple())
+    if hasattr(mi, 'last_modified') and hasattr(mi.last_modified, 'timetuple'):
+        format_args['last_modified'] = strftime(timefmt, mi.last_modified.timetuple())
+
     format_args['id'] = str(id)
     # Now format the custom fields
     custom_metadata = mi.get_all_user_metadata(make_copy=False)
@@ -205,6 +211,9 @@ def get_components(template, mi, id, timefmt='%b %Y', length=250,
                 format_args[key] = strftime(timefmt, format_args[key].timetuple())
             elif cm['datatype'] == 'bool':
                 format_args[key] = _('yes') if format_args[key] else _('no')
+            elif cm['datatype'] == 'rating':
+                format_args[key] = mi.format_rating(format_args[key],
+                        divide_by=2.0)
             elif cm['datatype'] in ['int', 'float']:
                 if format_args[key] != 0:
                     format_args[key] = unicode(format_args[key])
@@ -373,10 +382,14 @@ def save_serialized_to_disk(ids, data, plugboards, root, opts, callback):
     root, opts, length = _sanitize_args(root, opts)
     failures = []
     for x in ids:
-        opf, cover, format_map = data[x]
+        opf, cover, format_map, last_modified = data[x]
         if isinstance(opf, unicode):
             opf = opf.encode('utf-8')
         mi = OPF(cStringIO.StringIO(opf)).to_book_metadata()
+        try:
+            mi.last_modified = parse_date(last_modified)
+        except:
+            pass
         tb = ''
         try:
             failed, id, title = do_save_book_to_disk(x, mi, cover, plugboards,

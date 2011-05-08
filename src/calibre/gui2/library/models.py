@@ -70,6 +70,7 @@ class BooksModel(QAbstractTableModel): # {{{
                         'publisher' : _("Publisher"),
                         'tags'      : _("Tags"),
                         'series'    : _("Series"),
+                        'last_modified' : _('Modified'),
     }
 
     def __init__(self, parent=None, buffer=40):
@@ -620,6 +621,8 @@ class BooksModel(QAbstractTableModel): # {{{
                                 idx=self.db.field_metadata['timestamp']['rec_index']),
                    'pubdate'  : functools.partial(datetime_type,
                                 idx=self.db.field_metadata['pubdate']['rec_index']),
+                   'last_modified': functools.partial(datetime_type,
+                                idx=self.db.field_metadata['last_modified']['rec_index']),
                    'rating'   : functools.partial(rating_type,
                                 idx=self.db.field_metadata['rating']['rec_index']),
                    'publisher': functools.partial(text_type,

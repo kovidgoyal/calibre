@@ -118,6 +118,7 @@ sort_columns_at_startup = None
 # timestamp default if not set: dd MMM yyyy
 gui_pubdate_display_format = 'MMM yyyy'
 gui_timestamp_display_format = 'dd MMM yyyy'
+gui_last_modified_display_format = 'dd MMM yyyy'
 
 #: Control sorting of titles and series in the library display
 # Control title and series sorting in the library view. If set to

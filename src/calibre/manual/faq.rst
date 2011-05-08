@@ -20,13 +20,14 @@ What formats does |app| support conversion to/from?
 |app| supports the conversion of many input formats to many output formats.
 It can convert every input format in the following list, to every output format.
 
-*Input Formats:* CBZ, CBR, CBC, CHM, EPUB, FB2, HTML, HTMLZ, LIT, LRF, MOBI, ODT, PDF, PRC**, PDB***, PML, RB, RTF, SNB, TCR, TXT, TXTZ
+*Input Formats:* CBZ, CBR, CBC, CHM, EPUB, FB2, HTML, HTMLZ, LIT, LRF, MOBI, ODT, PDF, PRC, PDB, PML, RB, RTF, SNB, TCR, TXT, TXTZ
 
 *Output Formats:* EPUB, FB2, OEB, LIT, LRF, MOBI, HTMLZ, PDB, PML, RB, PDF, SNB, TCR, TXT, TXTZ
 
-** PRC is a generic format, |app| supports PRC files with TextRead and MOBIBook headers
+.. note ::
 
-*** PDB is also a generic format. |app| supports eReder, Plucker, PML and zTxt PDB files.
+    PRC is a generic format, |app| supports PRC files with TextRead and MOBIBook headers.
+    PDB is also a generic format. |app| supports eReder, Plucker, PML and zTxt PDB files.
 
 .. _best-source-formats:
 
@@ -99,7 +100,9 @@ Device Integration
 
 What devices does |app| support?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-At the moment |app| has full support for the SONY PRS line, Barnes & Noble Nook line, Cybook Gen 3/Opus, Amazon Kindle line, Entourage Edge, Longshine ShineBook, Ectaco Jetbook, BeBook/BeBook Mini, Irex Illiad/DR1000, Foxit eSlick, PocketBook line, Italica, eClicto, Iriver Story, Airis dBook, Hanvon N515, Binatone Readme, Teclast K3 and clones, SpringDesign Alex, Kobo Reader, various Android phones and the iPhone/iPad. In addition, using the :guilabel:`Connect to folder` function you can use it with any ebook reader that exports itself as a USB disk.
+At the moment |app| has full support for the SONY PRS line, Barnes & Noble Nook line, Cybook Gen 3/Opus, Amazon Kindle line, Entourage Edge, Longshine ShineBook, Ectaco Jetbook, BeBook/BeBook Mini, Irex Illiad/DR1000, Foxit eSlick, PocketBook line, Italica, eClicto, Iriver Story, Airis dBook, Hanvon N515, Binatone Readme, Teclast K3 and clones, SpringDesign Alex, Kobo Reader, various Android phones and the iPhone/iPad. In addition, using the :guilabel:`Connect to folder` function you can use it with any ebook reader that exports itself as a USB disk. 
+
+There is also a special ``User Defined`` device plugin that can be used to connect to arbitrary devices that present their memory as disk drives. See the device plugin ``Preferences -> Plugins -> Device Plugins -> User Defined`` and ``Preferences -> Miscelleaneous -> Get information to setup the user defined device`` for more information.
 
 How can I help get my device supported in |app|?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -131,6 +134,11 @@ Follow these steps to find the problem:
     * Ensure your operating system is seeing the device. That is, the device should be mounted as a disk that you can access using Windows explorer or whatever the file management program on your computer is.
     * In calibre, go to Preferences->Plugins->Device Interface plugin and make sure the plugin for your device is enabled, the plugin icon next to it should be green when it is enabled.
     * If all the above steps fail, go to Preferences->Miscellaneous and click debug device detection with your device attached and post the output as a ticket on `the calibre bug tracker <http://bugs.calibre-ebook.com>`_.
+
+My device is non-standard or unusual. What can I do to connect to it?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In addition to the :guilabel:`Connect to Folder` function found under the Connect/Share button, |app| provides a ``User Defined`` device plugin that can be used to connect to any USB device that presents that shows up as a disk drive in your operating system. See the device plugin ``Preferences -> Plugins -> Device Plugins -> User Defined`` and ``Preferences -> Miscellaneous -> Get information to setup the user defined device`` for more information.
 
 How does |app| manage collections on my SONY reader?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -467,6 +475,18 @@ If it still wont launch, start a command prompt (press the windows key and R; th
 
 Post any output you see in a help message on the `Forum <http://www.mobileread.com/forums/forumdisplay.php?f=166>`_.
 
+|app| freezes when I click on anything?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+There are three possible things I know of, that can cause this:
+
+    * You recently connected an external monitor or TV to your computer. In this case, whenever |app| opens a new window like the edit metadata window or the conversion dialog, it appears on the second monitor where you dont notice it and so you think |app| has frozen. Disconnect your second monitor and restart calibre.
+
+    * You are using a Wacom branded mouse. There is an incompatibility between Wacom mice and the graphics toolkit |app| uses. Try using a non-Wacom mouse.
+
+    * You have invalid files in your fonts folder. If this is the case, start |app| in debug mode as desribed in the previous answer and you will get messages about invalid files in :file:`C:\\Windows\\fonts`. Delete these files and you will be fine.
+
+
 |app| is not starting on OS X?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -544,7 +564,7 @@ You have two choices:
 
 How is |app| licensed?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-|app| is licensed under the GNU General Public License v3 (an open source license). This means that you are free to redistribute |app| as long as you make the source code available. So if you want to put |app| on a CD with your product, you must also put the |app| source code on the CD. The source code is available for download `from googlecode <http://code.google.com/p/calibre-ebook/downloads/list>`_. You are free to use the results of conversions from |app| however you want. You cannot use code, libraries from |app| in your software without maing your software open source. For details, see `The GNU GPL v3 <http://www.gnu.org/licenses/gpl.html>`_.
+|app| is licensed under the GNU General Public License v3 (an open source license). This means that you are free to redistribute |app| as long as you make the source code available. So if you want to put |app| on a CD with your product, you must also put the |app| source code on the CD. The source code is available for download `from googlecode <http://code.google.com/p/calibre-ebook/downloads/list>`_. You are free to use the results of conversions from |app| however you want. You cannot use code, libraries from |app| in your software without making your software open source. For details, see `The GNU GPL v3 <http://www.gnu.org/licenses/gpl.html>`_.
 
 How do I run calibre from my USB stick?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

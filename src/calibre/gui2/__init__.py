@@ -34,7 +34,7 @@ if isosx:
         )
     gprefs.defaults['action-layout-toolbar'] = (
         'Add Books', 'Edit Metadata', None, 'Convert Books', 'View', None,
-        'Choose Library', 'Donate', None, 'Fetch News', 'Save To Disk',
+        'Choose Library', 'Donate', None, 'Fetch News', 'Store', 'Save To Disk',
         'Connect Share', None, 'Remove Books',
         )
     gprefs.defaults['action-layout-toolbar-device'] = (
@@ -48,7 +48,7 @@ else:
     gprefs.defaults['action-layout-menubar-device'] = ()
     gprefs.defaults['action-layout-toolbar'] = (
         'Add Books', 'Edit Metadata', None, 'Convert Books', 'View', None,
-        'Choose Library', 'Donate', None, 'Fetch News', 'Save To Disk',
+        'Choose Library', 'Donate', None, 'Fetch News', 'Store', 'Save To Disk',
         'Connect Share', None, 'Remove Books', None, 'Help', 'Preferences',
         )
     gprefs.defaults['action-layout-toolbar-device'] = (
@@ -738,12 +738,6 @@ def build_forms(srcdir, info=None):
             dat = pat.sub(sub, dat)
             dat = dat.replace('from QtWebKit.QWebView import QWebView',
                     'from PyQt4 import QtWebKit\nfrom PyQt4.QtWebKit import QWebView')
-
-            if form.endswith('viewer%smain.ui'%os.sep):
-                info('\t\tPromoting WebView')
-                dat = dat.replace('self.view = QtWebKit.QWebView(', 'self.view = DocumentView(')
-                dat = dat.replace('self.view = QWebView(', 'self.view = DocumentView(')
-                dat += '\n\nfrom calibre.gui2.viewer.documentview import DocumentView'
 
             open(compiled_form, 'wb').write(dat)
 

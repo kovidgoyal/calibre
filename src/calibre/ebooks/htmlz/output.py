@@ -7,11 +7,13 @@ __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
 import os
+from cStringIO import StringIO
 
 from lxml import etree
 
 from calibre.customize.conversion import OutputFormatPlugin, \
     OptionRecommendation
+from calibre.ebooks.metadata.opf2 import OPF, metadata_to_opf
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.zipfile import ZipFile
 
@@ -79,10 +81,31 @@ class HTMLZOutput(OutputFormatPlugin):
                         fname = os.path.join(tdir, 'images', images[item.href])
                         with open(fname, 'wb') as img:
                             img.write(data)
+            
+            # Cover
+            cover_path = None
+            try:
+                cover_data = None
+                if oeb_book.metadata.cover:
+                    term = oeb_book.metadata.cover[0].term
+                    cover_data = oeb_book.guide[term].item.data
+                if cover_data:
+                    from calibre.utils.magick.draw import save_cover_data_to
+                    cover_path = os.path.join(tdir, 'cover.jpg')
+                    with open(cover_path, 'w') as cf:
+                        cf.write('')
+                    save_cover_data_to(cover_data, cover_path)
+            except:
+                import traceback
+                traceback.print_exc()
 
             # Metadata
             with open(os.path.join(tdir, 'metadata.opf'), 'wb') as mdataf:
-                mdataf.write(etree.tostring(oeb_book.metadata.to_opf1()))
+                opf = OPF(StringIO(etree.tostring(oeb_book.metadata.to_opf1())))
+                mi = opf.to_book_metadata()
+                if cover_path:
+                    mi.cover = 'cover.jpg'
+                mdataf.write(metadata_to_opf(mi))
 
             htmlz = ZipFile(output_path, 'w')
             htmlz.add_dir(tdir)

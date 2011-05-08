@@ -854,7 +854,8 @@ OptionRecommendation(name='sr3_replace',
         if isinstance(ret, basestring):
             shutil.copytree(output_dir, out_dir)
         else:
-            os.makedirs(out_dir)
+            if not os.path.exists(out_dir):
+                os.makedirs(out_dir)
             self.dump_oeb(ret, out_dir)
         if self.input_fmt == 'recipe':
             zf = ZipFile(os.path.join(self.opts.debug_pipeline,

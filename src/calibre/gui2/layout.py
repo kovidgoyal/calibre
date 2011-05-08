@@ -44,18 +44,19 @@ class LocationManager(QObject): # {{{
             receiver = partial(self._location_selected, name)
             ac.triggered.connect(receiver)
             self.tooltips[name] = tooltip
+            
+            m = QMenu(parent)
+            self._mem.append(m)
+            a = m.addAction(icon, tooltip)
+            a.triggered.connect(receiver)
             if name != 'library':
-                m = QMenu(parent)
-                self._mem.append(m)
-                a = m.addAction(icon, tooltip)
-                a.triggered.connect(receiver)
                 self._mem.append(a)
                 a = m.addAction(QIcon(I('eject.png')), _('Eject this device'))
                 a.triggered.connect(self._eject_requested)
-                ac.setMenu(m)
                 self._mem.append(a)
             else:
                 ac.setToolTip(tooltip)
+            ac.setMenu(m)
             ac.calibre_name = name
 
             return ac
@@ -71,7 +72,12 @@ class LocationManager(QObject): # {{{
 
     def set_switch_actions(self, quick_actions, rename_actions, delete_actions,
             switch_actions, choose_action):
-        self.switch_menu = QMenu()
+        self.switch_menu = self.library_action.menu()
+        if self.switch_menu:
+            self.switch_menu.addSeparator()
+        else:
+            self.switch_menu = QMenu()
+        
         self.switch_menu.addAction(choose_action)
         self.cs_menus = []
         for t, acs in [(_('Quick switch'), quick_actions),
@@ -85,7 +91,9 @@ class LocationManager(QObject): # {{{
         self.switch_menu.addSeparator()
         for ac in switch_actions:
             self.switch_menu.addAction(ac)
-        self.library_action.setMenu(self.switch_menu)
+        
+        if self.switch_menu != self.library_action.menu():
+            self.library_action.setMenu(self.switch_menu)
 
     def _location_selected(self, location, *args):
         if location != self.current_location and hasattr(self,
@@ -214,7 +222,6 @@ class SearchBar(QWidget): # {{{
         x.setIcon(QIcon(I("search_add_saved.png")))
         x.setObjectName("save_search_button")
         l.addWidget(x)
-        x.setToolTip(_("Save current search under the name shown in the box"))
 
 # }}}
 

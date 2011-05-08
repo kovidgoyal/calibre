@@ -17,12 +17,12 @@ from calibre.gui2.dnd import (dnd_has_image, dnd_get_image, dnd_get_files,
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.metadata.book.base import (field_metadata, Metadata)
 from calibre.ebooks.metadata import fmt_sidx
+from calibre.ebooks.metadata.sources.identify import urls_from_identifiers
 from calibre.constants import filesystem_encoding
 from calibre.library.comments import comments_to_html
 from calibre.gui2 import (config, open_local_file, open_url, pixmap_to_data,
         gprefs)
 from calibre.utils.icu import sort_key
-
 
 def render_html(mi, css, vertical, widget, all_fields=False): # {{{
     table = render_data(mi, all_fields=all_fields,
@@ -67,8 +67,9 @@ def render_html(mi, css, vertical, widget, all_fields=False): # {{{
                 % (table, right_pane))
     return ans
 
-def get_field_list(fm):
-    fieldlist = list(gprefs['book_display_fields'])
+def get_field_list(fm, use_defaults=False):
+    src = gprefs.defaults if use_defaults else gprefs
+    fieldlist = list(src['book_display_fields'])
     names = frozenset([x[0] for x in fieldlist])
     for field in fm.displayable_field_keys():
         if field not in names:
@@ -113,17 +114,20 @@ def render_data(mi, use_roman_numbers=True, all_fields=False):
             ans.append((field, u'<td class="title">%s</td><td>%s</td>'%(name,
                 u', '.join(fmts))))
         elif field == 'identifiers':
-            pass # TODO
+            urls = urls_from_identifiers(mi.identifiers)
+            links = [u'<a href="%s" title="%s:%s">%s</a>' % (url, id_typ, id_val, name)
+                    for name, id_typ, id_val, url in urls]
+            links = u', '.join(links)
+            if links:
+                ans.append((field, u'<td class="title">%s</td><td>%s</td>'%(
+                    _('Ids')+':', links)))
         else:
             val = mi.format_field(field)[-1]
             if val is None:
                 continue
             val = prepare_string_for_xml(val)
             if metadata['datatype'] == 'series':
-                if metadata['is_custom']:
-                    sidx = mi.get_extra(field)
-                else:
-                    sidx = getattr(mi, field+'_index')
+                sidx = mi.get(field+'_index')
                 if sidx is None:
                     sidx = 1.0
                 val = _('Book %s of <span class="series_name">%s</span>')%(fmt_sidx(sidx,
@@ -291,6 +295,8 @@ class BookInfo(QWebView):
 
     def link_activated(self, link):
         self._link_clicked = True
+        if unicode(link.scheme()) in ('http', 'https'):
+            return open_url(link)
         link = unicode(link.toString())
         self.link_clicked.emit(link)
 

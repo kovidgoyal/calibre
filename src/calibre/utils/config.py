@@ -24,8 +24,6 @@ if False:
     OptionSet, ConfigInterface, read_tweaks, write_tweaks
     read_raw_tweaks, tweaks, plugin_dir
 
-test_eight_code = tweaks.get('test_eight_code', False)
-
 def check_config_write_access():
     return os.access(config_dir, os.W_OK) and os.access(config_dir, os.X_OK)
 
