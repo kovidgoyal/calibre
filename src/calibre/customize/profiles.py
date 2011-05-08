@@ -253,7 +253,7 @@ class OutputProfile(Plugin):
     periodical_date_in_title = True
 
     #: Characters used in jackets and catalogs
-	missing_char = u'x'
+    missing_char = u'x'
     ratings_char = u'*'
     empty_ratings_char = u' '
     read_char = u'+'
