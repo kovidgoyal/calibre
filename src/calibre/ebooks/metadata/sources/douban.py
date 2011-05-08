@@ -40,8 +40,8 @@ publisher      = XPath("descendant::db:attribute[@name='publisher']")
 isbn           = XPath("descendant::db:attribute[@name='isbn13']")
 date           = XPath("descendant::db:attribute[@name='pubdate']")
 creator        = XPath("descendant::db:attribute[@name='author']")
-tag            = XPath("descendant::db:tag")
-rating         = XPath("descendant::gd:rating[@name='average']")
+booktag        = XPath("descendant::db:tag/attribute::name")
+rating         = XPath("descendant::gd:rating/attribute::average")
 cover_url      = XPath("descendant::atom:link[@rel='image']/attribute::href")
 
 def get_details(browser, url, timeout): # {{{
@@ -51,7 +51,7 @@ def get_details(browser, url, timeout): # {{{
         gc = getattr(e, 'getcode', lambda : -1)
         if gc() != 403:
             raise
-        # Google is throttling us, wait a little
+        # Douban is throttling us, wait a little
         time.sleep(2)
         raw = browser.open_novisit(url, timeout=timeout).read()
 
@@ -59,7 +59,6 @@ def get_details(browser, url, timeout): # {{{
 # }}}
 
 def to_metadata(browser, log, entry_, timeout): # {{{
-
     def get_text(extra, x):
         try:
             ans = x(extra)
@@ -70,7 +69,6 @@ def to_metadata(browser, log, entry_, timeout): # {{{
         except:
             log.exception('Programming error:')
         return None
-
 
     id_url = entry_id(entry_)[0].text
     douban_id = id_url.split('/')[-1]
@@ -92,9 +90,7 @@ def to_metadata(browser, log, entry_, timeout): # {{{
     except:
         log.exception('Failed to get additional details for', mi.title)
         return mi
-
     mi.comments = get_text(extra, description)
-    #mi.language = get_text(extra, language)
     mi.publisher = get_text(extra, publisher)
 
     # ISBN
@@ -108,7 +104,7 @@ def to_metadata(browser, log, entry_, timeout): # {{{
 
     # Tags
     try:
-        btags = [x.text for x in subject(extra) if x.text]
+        btags = [x for x in booktag(extra) if x]
         tags = []
         for t in btags:
             atags = [y.strip() for y in t.split('/')]
@@ -120,7 +116,7 @@ def to_metadata(browser, log, entry_, timeout): # {{{
         tags = []
     if tags:
         mi.tags = [x.replace(',', ';') for x in tags]
-
+        
     # pubdate
     pubdate = get_text(extra, date)
     if pubdate:
@@ -133,7 +129,7 @@ def to_metadata(browser, log, entry_, timeout): # {{{
     # Ratings
     if rating(extra):
         try:
-            mi.rating = float(rating(extra).text) / 2.0
+            mi.rating = float(rating(extra)[0]) / 2.0
         except:
             log.exception('Failed to parse rating')
             mi.rating = 0
@@ -141,10 +137,8 @@ def to_metadata(browser, log, entry_, timeout): # {{{
     # Cover
     mi.has_douban_cover = None
     u = cover_url(extra)
-    print(u)
     if u:
         u = u[0].replace('/spic/', '/lpic/');
-        print(u)
         # If URL contains "book-default", the book doesn't have a cover
         if u.find('book-default') == -1:
             mi.has_douban_cover = u
@@ -155,26 +149,24 @@ class Douban(Source):
 
     name = 'Douban Books'
     author = _('Li Fanxi')
+    version = (2, 0, 0)
     
     description = _('Downloads metadata from Douban.com')
 
     capabilities = frozenset(['identify', 'cover'])
     touched_fields = frozenset(['title', 'authors', 'tags', 
-        'comments', 'publisher', 'identifier:isbn', 'rating',
+        'pubdate', 'comments', 'publisher', 'identifier:isbn', 'rating',
         'identifier:douban']) # language currently disabled
     supports_gzip_transfer_encoding = True
     cached_cover_url_is_reliable = True
 
     DOUBAN_API_KEY = '0bd1672394eb1ebf2374356abec15c3d'
-    DOUBAN_ID_URL = 'http://api.douban.com/book/subject/%s'
-#    GOOGLE_COVER = 'http://books.google.com/books?id=%s&printsec=frontcover&img=1'
-
-#    DUMMY_IMAGE_MD5 = frozenset(['0de4383ebad0adad5eeb8975cd796657'])
+    DOUBAN_BOOK_URL = 'http://book.douban.com/subject/%s/'
 
     def get_book_url(self, identifiers): # {{{
         db = identifiers.get('douban', None)
         if db is not None:
-            return DOUBAN_ID_URL % db
+            return ('douban', db, self.DOUBAN_BOOK_URL%db)
         else:
             return None
     # }}}
@@ -182,13 +174,18 @@ class Douban(Source):
     def create_query(self, log, title=None, authors=None, identifiers={}): # {{{
         SEARCH_URL = 'http://api.douban.com/book/subjects?'
         ISBN_URL = 'http://api.douban.com/book/subject/isbn/'
+        SUBJECT_URL = 'http://api.douban.com/book/subject/'
 
         q = ''
         t = None
         isbn = check_isbn(identifiers.get('isbn', None))
+        subject = identifiers.get('douban', None)
         if isbn is not None:
             q = isbn
             t = 'isbn'
+        elif subject is not None:
+            q = subject
+            t = 'subject'
         elif title or authors:
             def build_term(prefix, parts):
                 return ' '.join(x for x in parts)
@@ -209,6 +206,8 @@ class Douban(Source):
         url = None
         if t == "isbn":
             url = ISBN_URL + q
+        elif t == 'subject':
+            url = SUBJECT_URL + q
         else:
             url = SEARCH_URL + urlencode({
                     'q': q,
@@ -314,14 +313,12 @@ class Douban(Source):
         except Exception as e:
             log.exception('Failed to parse identify results')
             return as_unicode(e)
-        if not title:
-            title = ""
         if not entries and identifiers and title and authors and \
                 not abort.is_set():
             return self.identify(log, result_queue, abort, title=title,
                     authors=authors, timeout=timeout)
 
-        # There is no point running these queries in threads as google
+        # There is no point running these queries in threads as douban
         # throttles requests returning 403 Forbidden errors
         self.get_all_details(br, log, entries, abort, result_queue, timeout)
 
@@ -329,23 +326,23 @@ class Douban(Source):
     # }}}
 
 if __name__ == '__main__': # tests {{{
-    # To run these test use: calibre-debug -e src/calibre/ebooks/metadata/sources/google.py
+    # To run these test use: calibre-debug -e src/calibre/ebooks/metadata/sources/douban.py
     from calibre.ebooks.metadata.sources.test import (test_identify_plugin,
             title_test, authors_test)
-    test_identify_plugin(GoogleBooks.name,
+    test_identify_plugin(Douban.name,
         [
 
 
             (
-                {'identifiers':{'isbn': '0743273567'}, 'title':'Great Gatsby',
-                    'authors':['Fitzgerald']},
-                [title_test('The great gatsby', exact=True),
-                    authors_test(['Francis Scott Fitzgerald'])]
+                {'identifiers':{'isbn': '9787536692930'}, 'title':'三体',
+                    'authors':['刘慈欣']},
+                [title_test('三体', exact=True),
+                    authors_test(['刘慈欣'])]
             ),
 
             (
-                {'title': 'Flatland', 'authors':['Abbott']},
-                [title_test('Flatland', exact=False)]
+                {'title': 'Linux内核修炼之道', 'authors':['任桥伟']},
+                [title_test('Linux内核修炼之道', exact=False)]
             ),
     ])
 # }}}
