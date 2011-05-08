@@ -10,6 +10,7 @@ License: http://www.opensource.org/licenses/mit-license.php
 import re
 
 from calibre.utils.icu import capitalize
+from calibre.utils.config import prefs
 
 __all__ = ['titlecase']
 __version__ = '0.5'
@@ -67,11 +68,12 @@ def titlecase(text):
             line.append(icu_lower(word))
             continue
 
-        match = MAC_MC.match(word)
-        if match and not match.group(2)[:3] in ('hin', 'ht'):
-            line.append("%s%s" % (capitalize(match.group(1)),
-                                  capitalize(match.group(2))))
-            continue
+        if prefs['language'].startswith('en'):
+            match = MAC_MC.match(word)
+            if match and not match.group(2)[:3] in ('hin', 'ht'):
+                line.append("%s%s" % (capitalize(match.group(1)),
+                                      capitalize(match.group(2))))
+                continue
 
         hyphenated = []
         for item in word.split('-'):
