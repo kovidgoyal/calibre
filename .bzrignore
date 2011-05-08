@@ -30,3 +30,4 @@ nbproject/
 .project
 .pydevproject
 .settings/
+*.DS_Store
