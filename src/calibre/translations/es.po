@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-05-06 17:31+0000\n"
-"PO-Revision-Date: 2011-05-02 12:20+0000\n"
+"PO-Revision-Date: 2011-05-07 07:52+0000\n"
 "Last-Translator: Jellby <Unknown>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-05-07 04:48+0000\n"
+"X-Launchpad-Export-Date: 2011-05-08 04:36+0000\n"
 "X-Generator: Launchpad (build 12959)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:528
@@ -1144,11 +1144,11 @@ msgstr "Kovid Goyal"
 
 #: /home/kovid/work/calibre/src/calibre/devices/boeye/driver.py:14
 msgid "Communicate with BOEYE BEX Serial eBook readers."
-msgstr ""
+msgstr "Comunicar con lectores BOEYE BEX."
 
 #: /home/kovid/work/calibre/src/calibre/devices/boeye/driver.py:35
 msgid "Communicate with BOEYE BDX serial eBook readers."
-msgstr ""
+msgstr "Comunicar con lectores BOEYE BDX."
 
 #: /home/kovid/work/calibre/src/calibre/devices/cybook/driver.py:22
 msgid "Communicate with the Cybook Gen 3 / Opus eBook reader."
@@ -1684,7 +1684,7 @@ msgstr "Obtener información del dispositivo..."
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:37
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:68
 msgid "USB Vendor ID (in hex)"
-msgstr ""
+msgstr "Identificador USB del fabricante (hexadecimal)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:38
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:41
@@ -1693,20 +1693,22 @@ msgid ""
 "Get this ID using Preferences -> Misc -> Get information to set up the user-"
 "defined device"
 msgstr ""
+"Puede ver este identificador en Preferencias -> Miscelánea -> Obtener "
+"información, para configurar el dispositivo manualmente"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:40
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:70
 msgid "USB Product ID (in hex)"
-msgstr ""
+msgstr "Identificador USB del producto (hexadecimal)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:43
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:72
 msgid "USB Revision ID (in hex)"
-msgstr ""
+msgstr "Identificador USB de la revisión (hexadecimal)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:47
 msgid "Windows main memory vendor string"
-msgstr ""
+msgstr "Texto del fabricante para la memoria principal, en Windows"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:48
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:52
@@ -1716,26 +1718,29 @@ msgid ""
 "This field is used only on windows. Get this ID using Preferences -> Misc -> "
 "Get information to set up the user-defined device"
 msgstr ""
+"Este campo sólo se usa en Windows. Puede ver este identificador en "
+"Preferencias -> Miscelánea -> Obtener información, para configurar el "
+"dispositivo manualmente"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:51
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:79
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:81
 msgid "Windows main memory ID string"
-msgstr ""
+msgstr "Identificador para la memoria principal, en Windows"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:55
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:84
 msgid "Windows card A vendor string"
-msgstr ""
+msgstr "Texto del fabricante para la tarjeta A, en Windows"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:59
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:86
 msgid "Windows card A ID string"
-msgstr ""
+msgstr "Identificador para la tarjeta A, en Windows"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:63
 msgid "Main memory folder"
-msgstr ""
+msgstr "Carpeta de la memoria principal"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:64
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:67
@@ -1743,10 +1748,12 @@ msgid ""
 "Enter the folder where the books are to be stored. This folder is prepended "
 "to any send_to_device template"
 msgstr ""
+"Introduzca la corpeta donde se almacenarán los libros. Esta carpeta se añade "
+"al principio de cualquier plantilla para enviar al dispositivo."
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:66
 msgid "Card A folder"
-msgstr ""
+msgstr "Carpeta de la tarjeta A"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:202
 msgid "Rendered %s"
@@ -4743,6 +4750,8 @@ msgid ""
 "<b style=\"color: red\">All files</b> (not just ebooks) from "
 "<br><br><b>%s</b><br><br> will be <b>permanently deleted</b>. Are you sure?"
 msgstr ""
+"<b style=\"color: red\">Todos los ficheros</b> (no sólo los libros) de "
+"<br><br><b>%s</b><br><br> se <b>borrarán permanentemente</b>. ¿Está seguro?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:270
 msgid "none"
@@ -5382,7 +5391,7 @@ msgstr "Ctrl+P"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:22
 msgid "Change calibre behavior"
-msgstr ""
+msgstr "Cambiar el comportamiento de calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:24
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:208
@@ -10107,11 +10116,11 @@ msgstr "Prueba"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub.py:100
 msgid "Cannot preview"
-msgstr ""
+msgstr "No se puede previsualizar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub.py:101
 msgid "You must first explode the epub before previewing."
-msgstr ""
+msgstr "Debe descomprimir el ePub antes de previsualizarlo."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:61
 msgid ""
@@ -10150,7 +10159,7 @@ msgstr "&Reconstruir ePub"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:68
 msgid "&Preview ePub"
-msgstr ""
+msgstr "&Previsualizar ePub"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:141
 msgid "No recipe selected"
@@ -11106,13 +11115,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:181
 msgid "Authors changed"
-msgstr ""
+msgstr "Los autores han cambiado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:182
 msgid ""
 "You have changed the authors for this book. You must save these changes "
 "before you can use Manage authors. Do you want to save these changes?"
 msgstr ""
+"Ha modificado los autores de este libro. Debe guardar los cambios antes de "
+"usar «Administrar autores». ¿Quiere guardar los cambios?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:252
 msgid ""
@@ -11406,6 +11417,10 @@ msgid ""
 "red to green.  There is a menu of functions available under this button. "
 "Click and hold on the button to see it."
 msgstr ""
+"Crear automáticamente el orden de autor a partir del autor actual. Al usar "
+"este botón para crear el orden de autor el color cambiará de rojo a verde. "
+"Hay un menú de funciones para este botón al que puede acceder si lo mantiene "
+"pulsado."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:113
 msgid "Set author sort from author"
@@ -11492,7 +11507,7 @@ msgstr "Co&mentarios"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:755
 msgid "Basic metadata"
-msgstr ""
+msgstr "Metadatos básicos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:132
 msgid "Has cover"
@@ -11734,7 +11749,7 @@ msgstr "Metadatos compactos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:65
 msgid "All on 1 tab"
-msgstr ""
+msgstr "Todo en una ficha"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:165
 msgid "Done"
@@ -12219,24 +12234,24 @@ msgstr "Depurar detección de dispositivos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:31
 msgid "Getting device information"
-msgstr ""
+msgstr "Obtener información del dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:34
 msgid "User-defined device information"
-msgstr ""
+msgstr "Información manual del dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:51
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:57
 msgid "Device Detection"
-msgstr ""
+msgstr "Detección del dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:52
 msgid "Ensure your device is disconnected, then press OK"
-msgstr ""
+msgstr "Asegúrese de que el dispositivo está desconectado y pulse OK"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:58
 msgid "Ensure your device is connected, then press OK"
-msgstr ""
+msgstr "Asegúrese de que el dispositivo está conectado y pulse OK"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:88
 msgid ""
@@ -12245,6 +12260,11 @@ msgid ""
 ">Plugins. Remember to also enter the folders where you want the books to be "
 "put. You must restart calibre for your changes to take effect.\n"
 msgstr ""
+"Copie estos valores al portapapeles, péguelos en un editor e introdúzcalos "
+"en USER_DEVICE personalizando el complemento de dispositivo en Preferencias-"
+">Complementos. Recuerde que debe también introducir las carpetas donde "
+"quiere almacenar los libros. Es necesario reiniciar calibre para que los "
+"cambios tengan efecto.\n"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/email_ui.py:66
 msgid ""
@@ -12612,11 +12632,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:117
 msgid "&Select all"
-msgstr ""
+msgstr "&Seleccionar todo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:118
 msgid "&Clear all"
-msgstr ""
+msgstr "&Limpiar todo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:119
 msgid "Convert all downloaded comments to plain &text"
@@ -12701,7 +12721,7 @@ msgstr "&Depurar detección de dispositivos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:65
 msgid "Get information to setup the &user defined device"
-msgstr ""
+msgstr "Obtener información para configurar el dispositivo &manualmente"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:66
 msgid "Open calibre &configuration directory"
@@ -14012,11 +14032,11 @@ msgstr "Invertir"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:121
 msgid "Open a selected book in the system's web browser"
-msgstr ""
+msgstr "Abrir el libro seleccionado en el navegador web del sistema"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:122
 msgid "Open in &external browser"
-msgstr ""
+msgstr "Abrir en &navegador externo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/web_control.py:73
 msgid ""

@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-05-06 17:31+0000\n"
-"PO-Revision-Date: 2011-05-07 04:01+0000\n"
+"PO-Revision-Date: 2011-05-08 03:40+0000\n"
 "Last-Translator: Ado Nishimura <Unknown>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-05-07 04:42+0000\n"
+"X-Launchpad-Export-Date: 2011-05-08 04:34+0000\n"
 "X-Generator: Launchpad (build 12959)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -1590,7 +1590,7 @@ msgstr "USBベンダーID(16進)"
 msgid ""
 "Get this ID using Preferences -> Misc -> Get information to set up the user-"
 "defined device"
-msgstr ""
+msgstr "「基本設定」→「各種設定」→「ユーザー定義デバイス設定用情報を取得」を使ってこのIDを取得してください。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:40
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:70
@@ -1604,7 +1604,7 @@ msgstr "USBリビションID（hex）"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:47
 msgid "Windows main memory vendor string"
-msgstr ""
+msgstr "Windowsメインメモリ・ベンダー文字列"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:48
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:52
@@ -1614,41 +1614,42 @@ msgid ""
 "This field is used only on windows. Get this ID using Preferences -> Misc -> "
 "Get information to set up the user-defined device"
 msgstr ""
+"このフィールドはWindowsでのみ使われます。「基本設定」→「各種設定」→「ユーザー定義デバイス設定用情報を取得」を使ってこのIDを取得してください。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:51
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:79
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:81
 msgid "Windows main memory ID string"
-msgstr ""
+msgstr "WindowsメインメモリID文字列"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:55
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:84
 msgid "Windows card A vendor string"
-msgstr ""
+msgstr "WindowsカードAベンダー文字列"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:59
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:86
 msgid "Windows card A ID string"
-msgstr ""
+msgstr "WindowsカードA、ID文字列"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:63
 msgid "Main memory folder"
-msgstr ""
+msgstr "メインメモリー・ディレクトリ"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:64
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:67
 msgid ""
 "Enter the folder where the books are to be stored. This folder is prepended "
 "to any send_to_device template"
-msgstr ""
+msgstr "EBookを保存するディレクトリを入力してください。このディレクトリは"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:66
 msgid "Card A folder"
-msgstr ""
+msgstr "カードA、ディレクトリ"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:202
 msgid "Rendered %s"
-msgstr ""
+msgstr "%sを描画"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:205
 msgid "Failed %s"
@@ -1706,7 +1707,7 @@ msgstr "縦横比を維持し、画像幅をランドスケープモードでの
 msgid ""
 "Used for right-to-left publications like manga. Causes landscape pages to be "
 "split into portrait pages from right to left."
-msgstr ""
+msgstr "漫画のような右から左への出版物の時に使用。横長のページを右、左の縦長のページに分割します。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:301
 msgid ""
@@ -1740,12 +1741,16 @@ msgid ""
 "Specify the image size as widthxheight pixels. Normally, an image size is "
 "automatically calculated from the output profile, this option overrides it."
 msgstr ""
+"画像のサイズを、幅x高さの形式でピクセル単位で指定する。通常は、画像サイズは出力用プロファイルから自動的に計算されますが、このオプションはそれより優先され"
+"ます。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:320
 msgid ""
 "When converting a CBC do not add links to each page to the TOC. Note this "
 "only applies if the TOC has more than one section"
 msgstr ""
+"CBCファイル（comic book "
+"collection）を変換する時に、各ベージへのリンクをを目次に入れない。注：これは目次に1つ以上のセクションがある時にのみ有効です。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:459
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:471
@@ -1777,6 +1782,21 @@ msgid ""
 "\n"
 "For full documentation of the conversion system see\n"
 msgstr ""
+"input_file output_file [options]\n"
+"\n"
+"EBookをあるフォーマットから別のフォーマットへ変換します。\n"
+"\n"
+"input_file が入力で、output_file が出力されるファイルです。両方とも最初の２つの引数として指定されなければなりません。\n"
+"\n"
+"出力されるファイル形式は、output_fileのエクステンションから判断されます。output_fileは「.EXT」の様にエクステンションだけにするこ"
+"ともできます。その場合ファイル名の部分は入力ファイルから取られます。ファイル名はハイフンで始められない事に注意してください。もしoutput_fileにエ"
+"クステンションがない場合には、その名前のディレクトリが作成され\"open ebook\" "
+"(OEB)形式のHTMLファイルがその中に書かれます。これらのファイルは通常、出力プラグインに渡す時に使われるファイルです。\n"
+"\n"
+"入力と出力ファイル名の後ろには、変換をカスタマイズする各種のオプションが指定できます。指定できるオプションは入力と出力のファイルタイプによって違います。こ"
+"れに関するヘルプを見るには、入力と出力ファイルの後に「-h」オプションをつけてください。\n"
+"\n"
+"変換システムに関する詳細な資料は以下を見てください：\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:108
 msgid "INPUT OPTIONS"
@@ -1792,11 +1812,11 @@ msgstr "出力オプション"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:116
 msgid "Options to control the processing of the output %s"
-msgstr ""
+msgstr "%s出力処理をコントロールするためのオプション"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:130
 msgid "Options to control the look and feel of the output"
-msgstr ""
+msgstr "出力の見た目をコントロールするためのオプション"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:145
 msgid ""
@@ -1804,11 +1824,12 @@ msgid ""
 "default. Use %s to enable.  Individual actions can be disabled with the %s "
 "options."
 msgstr ""
+"共通のパターンを使って文章や構造を変更します。ディフォールトでは無効です。%sを使うと有効になります。各動作は%sオプションを使うことで無効にできます。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:153
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:18
 msgid "Modify the document text and structure using user defined patterns."
-msgstr ""
+msgstr "ユーザー定義のパターンを使って文章や構造を変更します。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:162
 msgid "Control auto-detection of document structure."
@@ -1819,7 +1840,7 @@ msgid ""
 "Control the automatic generation of a Table of Contents. By default, if the "
 "source file has a Table of Contents, it will be used in preference to the "
 "automatically generated one."
-msgstr ""
+msgstr "目次の自動生成のコントロールをします。ディフォールトでは、もし入力ファイルが目次を持っていた場合、優先的に自動生成されます。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:182
 msgid "Options to set metadata in the output"
@@ -1827,7 +1848,7 @@ msgstr "出力の書誌情報の設定オプション"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:185
 msgid "Options to help with debugging the conversion"
-msgstr ""
+msgstr "変換をデバッグする補助用のオプション"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:211
 msgid "List builtin recipes"
@@ -1839,14 +1860,14 @@ msgstr "出力を名前をつけて保存"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:103
 msgid "Level of verbosity. Specify multiple times for greater verbosity."
-msgstr ""
+msgstr "詳細さのレベル。複数回指定するとより詳細になります。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:110
 msgid ""
 "Save the output from different stages of the conversion pipeline to the "
 "specified directory. Useful if you are unsure at which stage of the "
 "conversion process a bug is occurring."
-msgstr ""
+msgstr "指定したディレクトリに変換の各ステージでの出力を保存します。変換プロセスのどのステージでバグが起こっているのか確信がない場合に便利です。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:119
 msgid ""
@@ -1875,6 +1896,8 @@ msgid ""
 "fonts in the output bigger and vice versa. By default, the base font size is "
 "chosen based on the output profile you chose."
 msgstr ""
+"ポイントでの基本フォントサイズ。本の生成時に使用されるすべてのフォントサイズはこのサイズを基本に計算されます。大きなサイズを選ぶと出力のフォントも大きめに"
+"なります。ディフォールトでは基本フォントサイズは出力プロファイルによって決まります。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:151
 msgid ""
@@ -1884,6 +1907,9 @@ msgid ""
 "algorithm uses these sizes to intelligently rescale fonts. The default is to "
 "use a mapping based on the output profile you chose."
 msgstr ""
+"CSSフォント名からポイントでのフォントサイズへのマッピング。（例：12,12,14,16,18,20,22,24）xx-small から xx-"
+"largeまでのマッピングで、後のほうが大きなサイズです。フォントの再変換アルゴリズムはこれらのサイズを賢く変換します。ディフォールトは選択された出力プロ"
+"ファイルによって設定されます。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:163
 msgid "Disable all rescaling of font sizes."
@@ -1906,6 +1932,8 @@ msgid ""
 "cases, the minimum line height option is more useful. By default no line "
 "height manipulation is performed."
 msgstr ""
+"ポイントでの行の高さ。連続するテキストの行と行の間のスペースを調整します。行の高さ情報のないエレメントにのみ適用されます。たいていの場合には最低の行の高さ"
+"の設定のほうが便利でしょう。ディフォールトではこの行の高さの設定はありません。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:195
 msgid ""
@@ -1914,6 +1942,8 @@ msgid ""
 "page and other artifacts. This option will extract the content from the "
 "tables and present it in a linear fashion."
 msgstr ""
+"たまにテーブルでページのレイアウトを行う悪いデザインの文章があります。そのような文章を変換する場合、ページがはみ出したりみだれたりするばあいがあります。こ"
+"のオプションを使うとテーブルから内容を抜き出し、直線的な配置に置き換えます。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:205
 msgid ""
@@ -1927,21 +1957,21 @@ msgid ""
 "XPath expression that specifies all tags that should be added to the Table "
 "of Contents at level two. Each entry is added under the previous level one "
 "entry."
-msgstr ""
+msgstr "目次の第2レベル項目にどのようなタグを追加するかを決めるための、XPath表記の指定。全ての項目は直前のレベル1項目の下に追加されます。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:222
 msgid ""
 "XPath expression that specifies all tags that should be added to the Table "
 "of Contents at level three. Each entry is added under the previous level two "
 "entry."
-msgstr ""
+msgstr "目次の第3レベル項目にどのようなタグを追加するかを決めるための、XPath表記の指定。全ての項目は直前のレベル2項目の下に追加されます。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:230
 msgid ""
 "Normally, if the source file already has a Table of Contents, it is used in "
 "preference to the auto-generated one. With this option, the auto-generated "
 "one is always used."
-msgstr ""
+msgstr "元のファイルに目次がある場合、通常、設定に従い自動生成されます。このオプションは常に自動生成を行います。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:238
 msgid "Don't add auto-detected chapters to the Table of Contents."
@@ -1951,7 +1981,7 @@ msgstr "目次に自動判定された章を追加しない"
 msgid ""
 "If fewer than this number of chapters is detected, then links are added to "
 "the Table of Contents. Default: %default"
-msgstr ""
+msgstr "もしこの数以下の章が見つかった場合、目次にリンクが追加されます。ディフォールト： %default"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:252
 msgid ""
@@ -1959,12 +1989,14 @@ msgid ""
 "is: %default. Links are only added to the TOC if less than the threshold "
 "number of chapters were detected."
 msgstr ""
+"目次に入れられる最大のリンク数。0にすると無限になります。ディフォールト： %default "
+"。リンクは、最低の章の数の設定以下の場合にのみ、追加されるます。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:260
 msgid ""
 "Remove entries from the Table of Contents whose titles match the specified "
 "regular expression. Matching entries and all their children are removed."
-msgstr ""
+msgstr "目次から削除する項目を指定するための正規表現による指定。マッチした項目とその子項目は削除されます。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:271
 msgid ""
@@ -1983,6 +2015,8 @@ msgid ""
 "chapters. A value of \"none\" will disable chapter marking and a value of "
 "\"both\" will use both page breaks and lines to mark chapters."
 msgstr ""
+"見つかった章をどのようにマーキングするか指定します。「改ページ」を選ぶと章の前に改ページを挿入します。「ルール」を選ぶと章の前に行を挿入します。「なし」を"
+"選ぶとマーキングを行いません。「両方」を選ぶと改ページと行の両方を挿入します。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:295
 msgid ""
@@ -1990,11 +2024,13 @@ msgid ""
 "the style rules from the source file, so it can be used to override those "
 "rules."
 msgstr ""
+"CSSスタイルシートへのパスかCSS自身を指定します。このCSSは入力ファイルのスタイル･ルールに追加されるので、既存のルールをオーバーライドすることもで"
+"きます。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:304
 msgid ""
 "An XPath expression. Page breaks are inserted before the specified elements."
-msgstr ""
+msgstr "XPath表記で指定した要素の前に改ページを挿入します。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:310
 msgid ""
@@ -2003,6 +2039,8 @@ msgid ""
 "margins. Sometimes, this can cause the removal of margins that should not "
 "have been removed. In this case you can disable the removal."
 msgstr ""
+"いくつかの文章は、各パラグラフに左右のマージンを指定することで、ページのマージンを指定しています。calibreはそれらのマージンを見つけて削除しようとし"
+"ますが、たまに、これが原因でマージン全体がなくなってしまうことがあります。そのような場合、削除を無効にすることができます。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:321
 msgid ""
@@ -11336,7 +11374,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:65
 msgid "Get information to setup the &user defined device"
-msgstr ""
+msgstr "ユーザー定義デバイス設定用情報を取得"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:66
 msgid "Open calibre &configuration directory"

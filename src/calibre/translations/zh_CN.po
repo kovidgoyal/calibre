@@ -10,13 +10,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-05-06 17:31+0000\n"
-"PO-Revision-Date: 2011-02-23 10:00+0000\n"
-"Last-Translator: 冯超 <rainofchaos@gmail.com>\n"
+"PO-Revision-Date: 2011-05-08 03:48+0000\n"
+"Last-Translator: Spirit <Unknown>\n"
 "Language-Team: Simplified Chinese <wanglihao@gmail.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-05-07 04:52+0000\n"
+"X-Launchpad-Export-Date: 2011-05-08 04:36+0000\n"
 "X-Generator: Launchpad (build 12959)\n"
 "X-Poedit-Country: CHINA\n"
 "X-Poedit-Language: Chinese\n"
@@ -233,7 +233,7 @@ msgstr "首选项"
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:609
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:33
 msgid "Store"
-msgstr ""
+msgstr "存储"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:17
 msgid ""
@@ -262,6 +262,7 @@ msgid ""
 "Textile references to images. The referenced images as well as the TXT file "
 "are added to the archive."
 msgstr ""
+"当含有通往图像的Markdown或Textile引用的TXT文件被导入时，建立一个TXTZ的存档。被引用的图像和TXT文件都会被加入到存档中。"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:167
 msgid "Extract cover from comic files"
@@ -359,11 +360,11 @@ msgstr "自定义工具栏和上下文菜单，设置它们所可以提供的功
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:917
 msgid "Searching"
-msgstr ""
+msgstr "搜索中"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:923
 msgid "Customize the way searching for books works in calibre"
-msgstr ""
+msgstr "个性化calibre中的书籍搜索方式。"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:928
 msgid "Input Options"
@@ -438,7 +439,7 @@ msgstr "保存或发送前更改元数据域"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1008
 msgid "Template Functions"
-msgstr ""
+msgstr "模板函数"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1010
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1057
@@ -449,7 +450,7 @@ msgstr "高级"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1014
 msgid "Create your own template functions"
-msgstr ""
+msgstr "建立你自己的模板函数。"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1019
 msgid "Sharing books by email"
@@ -483,7 +484,7 @@ msgstr "元数据下载"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1050
 msgid "Control how calibre downloads ebook metadata from the net"
-msgstr ""
+msgstr "控制calibre从网络上下载元信息（metadata）的方式。"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1055
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:269
@@ -512,19 +513,19 @@ msgstr "其它高级选项"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1096
 msgid "Kindle books from Amazon"
-msgstr ""
+msgstr "来自亚马逊（Amazon）的Kindle书籍"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1101
 msgid "Kindle books from Amazon.uk"
-msgstr ""
+msgstr "来自英国亚马逊（Amazon UK）的Kindle书籍。"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1106
 msgid "Ebooks for readers."
-msgstr ""
+msgstr "面向读者的电子书。"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1111
 msgid "Books, Textbooks, eBooks, Toys, Games and More."
-msgstr ""
+msgstr "书籍，教科书，电子书，玩具，游戏等等。"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1116
 msgid "Publishers of fine books."
@@ -532,15 +533,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1121
 msgid "World Famous eBook Store."
-msgstr ""
+msgstr "世界著名电子书商店"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1126
 msgid "The digital bookstore."
-msgstr ""
+msgstr "数码书店"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1131
 msgid "entertain, enrich, inspire."
-msgstr ""
+msgstr "娱乐，丰富，灵感"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1136
 msgid "Read anywhere."
@@ -548,15 +549,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1141
 msgid "The first producer of free ebooks."
-msgstr ""
+msgstr "第一个免费电子书的制造者"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1146
 msgid "eReading: anytime. anyplace."
-msgstr ""
+msgstr "电子阅读：随时，随地。"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1151
 msgid "The best ebooks at the best price: free!"
-msgstr ""
+msgstr "最好的电子书，最好的价格：免费！"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1156
 msgid "Ebooks handcrafted with the utmost care"
@@ -564,15 +565,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1161
 msgid "One web page for every book."
-msgstr ""
+msgstr "每本书有一个单独的网页"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1166
 msgid "Your ebook. Your way."
-msgstr ""
+msgstr "你的电子书，你的方式。"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1171
 msgid "Feel every word"
-msgstr ""
+msgstr "感受每一个词"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1176
 msgid "Foyles of London, online"
@@ -580,7 +581,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1181
 msgid "Kindle eBooks"
-msgstr ""
+msgstr "Kindle电子书"
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:102
 msgid "Conversion Input"
@@ -720,11 +721,11 @@ msgstr "该配置文件适用索尼 PRS-300。"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:503
 msgid "Suitable for use with any e-ink device"
-msgstr ""
+msgstr "适用于任何电子墨水产品"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:510
 msgid "Suitable for use with any large screen e-ink device"
-msgstr ""
+msgstr "适用于任何大屏幕电子墨水产品"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:519
 msgid "This profile is intended for the 5-inch JetBook."
@@ -839,14 +840,19 @@ msgid ""
 "iTunes</em> menu item.</p><p>Enabling the Apple driver for direct connection "
 "to iDevices is an unsupported advanced user mode.</p><p></p>"
 msgstr ""
+"<p>如果你不想让calibre在你的苹果设备连接到电脑时将其识别，点击<b>禁用苹果驱动器</b>。</p><p>如果要向你的电子设备传输电子书，点击<"
+"b>禁用苹果驱动器</b>，然后使用在<a "
+"href=\"http://www.mobileread.com/forums/showthread.php?t=118559\">Calibre和苹果设"
+"备FAQ</a>中推荐的“连接到iTunes”的方法，用<em>连接/共享</em>|<em> 连接到iTunes</em> "
+"菜单项。允许苹果驱动器来实现苹果设备的直接连接是一个不被支持的高级用户模式。</p><p></p>"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:65
 msgid "Disable Apple driver"
-msgstr ""
+msgstr "禁用苹果驱动器"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:69
 msgid "Enable Apple driver"
-msgstr ""
+msgstr "使用苹果驱动器"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:117
 msgid "Use Series as Category in iTunes/iBooks"
@@ -862,7 +868,7 @@ msgstr "缓存来自 iTunes/iBooks 的封面"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:122
 msgid "Enable to cache and display covers from iTunes/iBooks"
-msgstr ""
+msgstr "允许从iTunes和iBooks缓存和显示封面。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:178
 msgid "Apple device"
@@ -1205,7 +1211,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/apnx.py:44
 msgid "Could not generate page mapping."
-msgstr ""
+msgstr "无法生成页映射。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:44
 msgid "Communicate with the Kindle eBook reader."
@@ -1217,7 +1223,7 @@ msgstr "与 Kindle 2/3 电子书阅读器通信。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:180
 msgid "Send page number information when sending books"
-msgstr ""
+msgstr "发送书籍时发送页码信息。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:182
 msgid ""
@@ -1226,10 +1232,13 @@ msgid ""
 "the Kindle when uploading MOBI files by USB. Note that the page numbers do "
 "not correspond to any paper book."
 msgstr ""
+"Kindle "
+"3以及更新的版本可以使用MOBI文件中的页码信息。使用这个选项，calibre能够在使用USB上传MOBI文件时计算并且将此信息发送至Kindle。注意该"
+"页码信息并不与任何纸质书籍对应。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:187
 msgid "Use slower but more accurate page number generation"
-msgstr ""
+msgstr "使用更慢但是更准确的页码生成。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:189
 msgid ""
@@ -1238,6 +1247,7 @@ msgid ""
 "book. However, this method is slower and will slow down sending files to the "
 "Kindle."
 msgstr ""
+"有两种方法来生成页码信息。使用更准确的方法能够生成与印刷书籍对应更好的页。但是，这种方法比较慢，而且会使发送文件到Kindle的速度变慢。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:257
 msgid "Communicate with the Kindle DX eBook reader."
@@ -1270,11 +1280,11 @@ msgstr "与 Palm Pre 通信"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:39
 msgid "Communicate with the Bq Avant"
-msgstr ""
+msgstr "与Bq Avant通讯"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:60
 msgid "Communicate with the Sweex/Kogan/Q600/Wink"
-msgstr ""
+msgstr "与Sweex/Kogan/Q600/Wink通讯"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:81
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:108
@@ -1372,7 +1382,7 @@ msgstr "。有两种特别合集： %s:%s 和 %s:%s。将这些值添加到列�
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:73
 msgid "Upload separate cover thumbnails for books (newer readers)"
-msgstr ""
+msgstr "为书籍上传分别的封面小图片（比较新的阅读器）"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:74
 msgid ""
@@ -1382,33 +1392,35 @@ msgid ""
 "WARNING: This option should only be used with newer SONY readers: 350, 650, "
 "950 and newer."
 msgstr ""
+"通常来说，SONY阅读器从电子书文件本身获得封面图像。用这个选项，calibre会向SONY阅读器发送一个单独的封面图像。这在你发送无法改变封面的DRM书"
+"籍时是有用的。警告：该选项只能用于更新的SONY阅读器：350,650,950或者更新。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:80
 msgid ""
 "Refresh separate covers when using automatic management (newer readers)"
-msgstr ""
+msgstr "使用自动管理时刷新分别的封面（更新的阅读器）"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:82
 msgid ""
 "Set this option to have separate book covers uploaded every time you connect "
 "your device. Unset this option if you have so many books on the reader that "
 "performance is unacceptable."
-msgstr ""
+msgstr "设置这个选项以用来在每次连接设备时上传分别的书籍封面。如果你的阅读器上有过多的书籍以至于影响到性能时，禁用这个选项。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:86
 msgid "Preserve cover aspect ratio when building thumbnails"
-msgstr ""
+msgstr "创建小图像时保持长宽比。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:88
 msgid ""
 "Set this option if you want the cover thumbnails to have the same aspect "
 "ratio (width to height) as the cover. Unset it if you want the thumbnail to "
 "be the maximum size, ignoring aspect ratio."
-msgstr ""
+msgstr "如果你想让小图像和封面图像具有同样的长宽比，勾选这个选项。如果你想让小图像拥有最大的大小，而忽略长宽比，不要勾选这个选项。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:92
 msgid "Search for books in all folders"
-msgstr ""
+msgstr "在所有文件夹中搜索书籍"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:94
 msgid ""
@@ -1416,6 +1428,7 @@ msgid ""
 "device and its cards. This permits calibre to find books put on the device "
 "by other software and by wireless download."
 msgstr ""
+"如果勾选这个选项，calibre会在设备以及存储卡上的所有文件夹中寻找书籍。这允许calibre通过其他软件和无线下载来寻找书籍并放到设备上。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:190
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/structure.py:69
@@ -1460,7 +1473,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:111
 msgid "Communicate with the Wexler reader."
-msgstr ""
+msgstr "与Wexler阅读器通讯"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:282
 msgid "Unable to detect the %s disk drive. Try rebooting."
@@ -1556,7 +1569,7 @@ msgstr "获取设备信息..."
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:37
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:68
 msgid "USB Vendor ID (in hex)"
-msgstr ""
+msgstr "USB制造商编号（16进制）"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:38
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:41
@@ -1564,21 +1577,21 @@ msgstr ""
 msgid ""
 "Get this ID using Preferences -> Misc -> Get information to set up the user-"
 "defined device"
-msgstr ""
+msgstr "使用首选项->其他->获取信息来获取该ID，以用来设置用户定义的设备。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:40
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:70
 msgid "USB Product ID (in hex)"
-msgstr ""
+msgstr "USB产品ID（十六进制）"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:43
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:72
 msgid "USB Revision ID (in hex)"
-msgstr ""
+msgstr "USB修正ID（十六进制）"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:47
 msgid "Windows main memory vendor string"
-msgstr ""
+msgstr "Windows主设备制造商字符串"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:48
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:52
@@ -1587,27 +1600,27 @@ msgstr ""
 msgid ""
 "This field is used only on windows. Get this ID using Preferences -> Misc -> "
 "Get information to set up the user-defined device"
-msgstr ""
+msgstr "这个域仅是用户Windows系统。使用首选项->其他->获取信息来获取该ID，以用来设置用户定义的设备。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:51
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:79
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:81
 msgid "Windows main memory ID string"
-msgstr ""
+msgstr "Windows主存储ID字符串"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:55
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:84
 msgid "Windows card A vendor string"
-msgstr ""
+msgstr "Windows存储卡A字符串"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:59
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:86
 msgid "Windows card A ID string"
-msgstr ""
+msgstr "Windows存储卡AID字符串"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:63
 msgid "Main memory folder"
-msgstr ""
+msgstr "主存储文件夹"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:64
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:67
@@ -1618,7 +1631,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:66
 msgid "Card A folder"
-msgstr ""
+msgstr "存储卡A文件夹"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:202
 msgid "Rendered %s"
@@ -1711,7 +1724,7 @@ msgstr "图像不转换为灰度(黑白)"
 msgid ""
 "Specify the image size as widthxheight pixels. Normally, an image size is "
 "automatically calculated from the output profile, this option overrides it."
-msgstr ""
+msgstr "用宽 * 长（单位为像素）的形式指定图像大小。通常来说，图片的大小是通过输出档案来自动计算的，该选项会覆盖自动计算的值。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:320
 msgid ""
@@ -16522,7 +16535,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:331
 msgid "Where to send downloaded news"
-msgstr ""
+msgstr "将下载的新闻发往何处"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:332
 msgid ""
@@ -16533,10 +16546,14 @@ msgid ""
 "that if there isn't enough free space available on the location you choose,\n"
 "the files will be sent to the location with the most free space."
 msgstr ""
+"当向连接的设备自动发送下载的新闻时，calibre\n"
+"会默认将其发送至主存储。如果更改此选项，你可以\n"
+"控制发往何处。合法值包括主存储，存储卡A，存储卡B。注意\n"
+"如果你选择的地方没有足够空间，文件将被发往剩余空间最大的存储位置。"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:339
 msgid "What interfaces should the content server listen on"
-msgstr ""
+msgstr "内容服务器应该监听什么接口"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:340
 msgid ""
@@ -16548,6 +16565,8 @@ msgid ""
 "to '::' to listen to all incoming IPv6 and IPv4 connections (this may not\n"
 "work on all operating systems)"
 msgstr ""
+"calibre内容服务器默认监听‘0.0.0.0‘，这意味着可以在任何接口上接受IPv4的连接。你可以将其改为’127.0.0.1‘来监听来自本机的连接，"
+"或者改为'::'来监听所有的IPv6和IPv4连接（可能并不适用所有的操作系统）。"
 
 #~ msgid "Options to control the conversion to EPUB"
 #~ msgstr "EPUB文件转换控制选项"
