@@ -16,7 +16,6 @@ from calibre.customize import CatalogPlugin
 from calibre.customize.conversion import OptionRecommendation, DummyReporter
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, BeautifulStoneSoup, Tag, NavigableString
 from calibre.ebooks.chardet import substitute_entites
-from calibre.ebooks.metadata import title_sort as _title_sort
 from calibre.library.save_to_disk import preprocess_template
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.bibtex import BibTeX
@@ -128,7 +127,7 @@ class CSV_XML(CatalogPlugin): # {{{
                     if field.startswith('#'):
                         item = db.get_field(entry['id'],field,index_is_id=True)
                     elif field == 'title_sort':
-                        item = _title_sort(unicode(entry['title']))
+                        item = entry['sort']
                     else:
                         item = entry[field]
 
@@ -183,7 +182,7 @@ class CSV_XML(CatalogPlugin): # {{{
                         record.append(item)
 
                 if 'title' in fields:
-                    title = E.title(r['title'], sort=_title_sort(unicode(r['title'])))
+                    title = E.title(r['title'], sort=r['sort'])
                     record.append(title)
 
                 if 'authors' in fields:

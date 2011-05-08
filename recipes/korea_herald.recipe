@@ -1,0 +1,36 @@
+__license__   = 'GPL v3'
+__copyright__ = '2011, Seongkyoun Yoo <Seongkyoun.yoo at gmail.com>'
+'''
+Profile to download KoreaHerald
+'''
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class KoreaHerald(BasicNewsRecipe):
+    title          = u'KoreaHerald'
+    language = 'en'
+    description = u'Korea Herald News articles'
+    __author__	= 'Seongkyoun Yoo'
+    oldest_article = 10
+    recursions = 3
+    max_articles_per_feed = 10
+    no_stylesheets         = True
+    keep_only_tags    = [
+						dict(id=['contentLeft', '_article'])
+                        ]
+
+    remove_tags = [
+       dict(name='iframe'),
+       dict(name='div', attrs={'class':['left','htit2', 'navigation','banner_txt','banner_img']}),
+       dict(name='ul', attrs={'class':['link_icon', 'flow_icon','detailTextAD110113']}),
+       ]
+
+    feeds = [
+	('All News','http://www.koreaherald.com/rss/020000000000.xml'),
+    ('National','http://www.koreaherald.com/rss/020100000000.xml'),
+    ('Business','http://www.koreaherald.com/rss/020200000000.xml'),
+    ('Life&Style','http://www.koreaherald.com/rss/020300000000.xml'),
+    ('Entertainment','http://www.koreaherald.com/rss/020400000000.xml'),
+    ('Sports','http://www.koreaherald.com/rss/020500000000.xml'),
+    ('Opinion','http://www.koreaherald.com/rss/020600000000.xml'),
+    ('English Cafe','http://www.koreaherald.com/rss/021000000000.xml'),
+	]
