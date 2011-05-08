@@ -68,7 +68,7 @@ def titlecase(text):
             line.append(icu_lower(word))
             continue
 
-        if prefs['language'].startswith('en'):
+        if prefs['language'].lower().startswith('en'):
             match = MAC_MC.match(word)
             if match and not match.group(2)[:3] in ('hin', 'ht'):
                 line.append("%s%s" % (capitalize(match.group(1)),
