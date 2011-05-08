@@ -1126,7 +1126,7 @@ class DateEdit(QDateEdit): # {{{
     @dynamic_property
     def current_val(self):
         def fget(self):
-            return qt_to_dt(self.date())
+            return qt_to_dt(self.date(), as_utc=False)
         def fset(self, val):
             if val is None:
                 val = UNDEFINED_DATE
