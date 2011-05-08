@@ -212,6 +212,9 @@ class Source(Plugin):
     def is_customizable(self):
         return True
 
+    def customization_help(self):
+        return 'This plugin can only be customized using the GUI'
+
     def config_widget(self):
         from calibre.gui2.metadata.config import ConfigWidget
         return ConfigWidget(self)
