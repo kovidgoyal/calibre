@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 class StorePlugin(object): # {{{
     '''
     A plugin representing an online ebook repository (store). The store can
-    be a comercial store that sells ebooks or a source of free downloadable
+    be a commercial store that sells ebooks or a source of free downloadable
     ebooks.
 
     Note that this class is the base class for these plugins, however, to
