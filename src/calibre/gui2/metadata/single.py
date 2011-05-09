@@ -199,7 +199,8 @@ class MetadataSingleDialogBase(ResizableDialog):
             self.config_metadata_button.setIcon(QIcon(I('config.png')))
         else:
             self.config_metadata_button = QPushButton(self)
-            self.config_metadata_button.setText(_('Configure metadata downloading'))
+            self.config_metadata_button.setText(_('Configure download metadata'))
+        self.config_metadata_button.setIcon(QIcon(I('config.png')))
         self.config_metadata_button.clicked.connect(self.configure_metadata)
         self.config_metadata_button.setToolTip(
             _('Change how calibre downloads metadata'))
