@@ -68,7 +68,8 @@ def check_command_line_options(parser, args, log):
         raise SystemExit(1)
 
     output = args[2]
-    if output.startswith('.') and output != '.':
+    if output.startswith('.') and (output != '.' and not
+            output.startswith('..')):
         output = os.path.splitext(os.path.basename(input))[0]+output
     output = os.path.abspath(output)
 
