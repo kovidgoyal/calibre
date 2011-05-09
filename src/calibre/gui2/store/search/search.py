@@ -47,7 +47,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         # per search basis.
         stores_group_layout = QVBoxLayout()
         self.stores_group.setLayout(stores_group_layout)
-        for x in self.store_plugins:
+        for x in sorted(self.store_plugins.keys(), key=lambda x: x.lower()):
             cbox = QCheckBox(x)
             cbox.setChecked(True)
             stores_group_layout.addWidget(cbox)
