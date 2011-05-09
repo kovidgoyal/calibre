@@ -1116,11 +1116,6 @@ class StoreBeWriteStore(StoreBase):
     description = _('Publishers of fine books.')
     actual_plugin = 'calibre.gui2.store.bewrite_plugin:BeWriteStore'
 
-class StoreBordersStore(StoreBase):
-    name = 'Borders'
-    description = _('Buy Books, Used Books, Music, DVDs & Blu-ray Online.')
-    actual_plugin = 'calibre.gui2.store.borders_plugin:BordersStore'
-
 class StoreDieselEbooksStore(StoreBase):
     name = 'Diesel eBooks'
     description = _('World Famous eBook Store.')
@@ -1188,7 +1183,7 @@ class AmazonDEKindleStore(StoreBase):
 
 plugins += [StoreAmazonKindleStore, AmazonDEKindleStore, StoreAmazonUKKindleStore,
     StoreBaenWebScriptionStore, StoreBNStore,
-    StoreBeWriteStore, StoreBordersStore,
+    StoreBeWriteStore,
     StoreDieselEbooksStore, StoreEbookscomStore,
     StoreEHarlequinStoretore, StoreFeedbooksStore,
     StoreFoylesUKStore, StoreGutenbergStore, StoreKoboStore, StoreManyBooksStore,
