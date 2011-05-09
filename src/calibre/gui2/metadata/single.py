@@ -31,6 +31,7 @@ class MetadataSingleDialogBase(ResizableDialog):
     view_format = pyqtSignal(object, object)
     cc_two_column = tweaks['metadata_single_use_2_cols_for_custom_fields']
     one_line_comments_toolbar = False
+    use_toolbutton_for_config_metadata = True
 
     def __init__(self, db, parent=None):
         self.db = db
@@ -71,7 +72,9 @@ class MetadataSingleDialogBase(ResizableDialog):
         self.l.addWidget(self.scroll_area)
         ll = self.button_box_layout = QHBoxLayout()
         self.l.addLayout(ll)
+        ll.addSpacing(10)
         ll.addWidget(self.button_box)
+        ll.addSpacing(10)
 
         self.setWindowIcon(QIcon(I('edit_input.png')))
         self.setWindowTitle(_('Edit Metadata'))
@@ -191,8 +194,12 @@ class MetadataSingleDialogBase(ResizableDialog):
         font.setBold(True)
         self.fetch_metadata_button.setFont(font)
 
-        self.config_metadata_button = QToolButton(self)
-        self.config_metadata_button.setIcon(QIcon(I('config.png')))
+        if self.use_toolbutton_for_config_metadata:
+            self.config_metadata_button = QToolButton(self)
+            self.config_metadata_button.setIcon(QIcon(I('config.png')))
+        else:
+            self.config_metadata_button = QPushButton(self)
+            self.config_metadata_button.setText(_('Configure metadata downloading'))
         self.config_metadata_button.clicked.connect(self.configure_metadata)
         self.config_metadata_button.setToolTip(
             _('Change how calibre downloads metadata'))
@@ -614,6 +621,7 @@ class MetadataSingleDialogAlt1(MetadataSingleDialogBase): # {{{
 
     cc_two_column = False
     one_line_comments_toolbar = True
+    use_toolbutton_for_config_metadata = False
 
     on_drag_enter = pyqtSignal()
 
@@ -649,10 +657,8 @@ class MetadataSingleDialogAlt1(MetadataSingleDialogBase): # {{{
         self.tabs[0].l.addWidget(gb, 0, 0, 1, 1)
         gb.setLayout(tl)
 
-        self.button_box_layout.insertWidget(0, self.fetch_metadata_button)
-        self.config_metadata_button.setToolButtonStyle(Qt.ToolButtonTextOnly)
-        self.config_metadata_button.setText(_('Configure metadata downloading'))
-        self.button_box_layout.insertWidget(1, self.config_metadata_button)
+        self.button_box_layout.insertWidget(1, self.fetch_metadata_button)
+        self.button_box_layout.insertWidget(2, self.config_metadata_button)
         sto(self.button_box, self.fetch_metadata_button)
         sto(self.fetch_metadata_button, self.config_metadata_button)
         sto(self.config_metadata_button, self.title)
@@ -767,6 +773,7 @@ class MetadataSingleDialogAlt2(MetadataSingleDialogBase): # {{{
 
     cc_two_column = False
     one_line_comments_toolbar = True
+    use_toolbutton_for_config_metadata = False
 
     def do_layout(self):
         self.central_widget.clear()
@@ -785,10 +792,8 @@ class MetadataSingleDialogAlt2(MetadataSingleDialogBase): # {{{
         l.addWidget(gb, 0, 0, 1, 1)
         gb.setLayout(tl)
 
-        self.button_box_layout.insertWidget(0, self.fetch_metadata_button)
-        self.config_metadata_button.setToolButtonStyle(Qt.ToolButtonTextOnly)
-        self.config_metadata_button.setText(_('Configure metadata downloading'))
-        self.button_box_layout.insertWidget(1, self.config_metadata_button)
+        self.button_box_layout.insertWidget(1, self.fetch_metadata_button)
+        self.button_box_layout.insertWidget(2, self.config_metadata_button)
         sto(self.button_box, self.fetch_metadata_button)
         sto(self.fetch_metadata_button, self.config_metadata_button)
         sto(self.config_metadata_button, self.title)
