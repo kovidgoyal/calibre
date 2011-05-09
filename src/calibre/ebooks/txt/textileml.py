@@ -68,9 +68,8 @@ class TextileMLizer(OEB2HTML):
                 # I'm not checking for duplicated spans '%' as any that follow each other were being incorrectly merged
                 txt = '%s' % t
                 if txt != '%':
-                    text = re.sub(r'([^'+t+'|^\n])'+t+t+'([^'+t+'])', r'\1\2', text)
-                text = re.sub(r'([a-zA-Z0-9\'"\-])('+t+'[a-zA-Z0-9\'"!? ,.\-]+'+t+')', r'\1[\2]', text)
-                text = re.sub(r'('+t+'[a-zA-Z0-9\'"!? ,.\-]+'+t+')([a-zA-Z0-9\'"!?\-])', r'[\1]\2', text)
+                    text = re.sub(r'([^'+t+'|^\n])'+t+'\]\['+t+'([^'+t+'])', r'\1\2', text)
+                text = re.sub(r'(\s|[*_])\[('+t+'[a-zA-Z0-9 \',.*_]+'+t+')\](\s|[*_])', r'\1\2\3', text)
             return text
 
         # Now tidyup links and ids - remove ones that don't have a correponding opposite
@@ -84,7 +83,8 @@ class TextileMLizer(OEB2HTML):
                     text = re.sub(r'\('+i+'\)', '', text)
                     
         # Note - I'm not checking for escaped '-' as this will also get hypenated words
-        text = check_escaping(text, ['\^', '\*', '_', '\+', '~', '%'])
+        text = check_escaping(text, ['\*', '_', '\+', '-'])
+#        text = check_escaping(text, ['\*', '_', '\+', '-'])
 
         text = re.sub(r'%\xa0+', r'%', text)                            #remove empty spans
         text = re.sub(r'%%', r'', text)                                 #remove empty spans - MAY MERGE SOME ?
@@ -93,20 +93,24 @@ class TextileMLizer(OEB2HTML):
         text = re.sub(r'^\n+', r'', text)                               #remove newlines at top of file
         text = re.sub(r'\npre\.\n?\nbc\.', r'\nbc.', text)              #correct blockcode paras
         text = re.sub(r'\nbq\.\n?\np.*\. ', r'\nbq. ', text)            #correct blockquote paras
+#        text = re.sub(r'\n{4,}', r'\n\np. \n\n', text)                  #reduce blank lines + insert blank para
         text = re.sub(r'\n{3}', r'\n\n', text)                          #reduce blank lines
+#        text = re.sub(r' ((\* ?)+) ', r' ==\1== ', text)
         text = re.sub(u'%\n(p[<>=]{1,2}\.)', r'%\n\n\1', text)
         text = re.sub(u'p[<>=]{1,2}\.\n\n?', r'', text)
         text = re.sub(r'(^|\n)p\.\n', r'\1p. \n', text)                # blank paragraph
         text = re.sub(u'\n\xa0',   r'\np. ', text)                     # blank paragraph
-        text = re.sub(u'\np[<>=]{0,2}\. \xa0',   r'\np. ', text)       # blank paragraph
-        text = re.sub(r'\n(p.*\.\n)(p.*\.)', r'\n\2', text)
+        text = re.sub(u'\np[<>=]{1,2}?\. \xa0',   r'\np. ', text)       # blank paragraph
+        text = re.sub(r'(^|\n)(p.*\. ?\n)(p.*\.)', r'\1\3', text)
         text = re.sub(r'\n(p\. \n)(p.*\.)', r'\n\2', text)
         text = re.sub(r' {2,}\|', r' |', text)                               #sort out spaces in tables
 
         # Now put back spaces removed earlier as they're needed here
         text = re.sub(r'\np\.\n', r'\np. \n', text)
         text = re.sub(r' \n\n\n', r' \n\n', text)                          #reduce blank lines
-
+        
+        # started work on trying to fix footnotes
+#        text = re.sub(r'\[\^"(\d+)":#.+\^\]', r'[\1]', text)
         return text
 
     def remove_newlines(self, text):
@@ -236,29 +240,29 @@ class TextileMLizer(OEB2HTML):
         if style['font-style'] == 'italic' or tag in ('i', 'em'):
             if tag not in ('h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'cite'):
                 if self.style_italic == False:
-                    text.append('_')
-                    tags.append('_')
-                    self.style_embed.append ('_')
+                    text.append('[_')
+                    tags.append('_]')
+                    self.style_embed.append('_')
                     self.style_italic = True
         if style['font-weight'] in ('bold', 'bolder') or tag in ('b', 'strong'):
             if tag not in ('h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'th'):
                 if self.style_bold == False:
-                    text.append('*')
-                    tags.append('*')
-                    self.style_embed.append ('*')
+                    text.append('[*')
+                    tags.append('*]')
+                    self.style_embed.append('*')
                     self.style_bold = True
         if style['text-decoration'] == 'underline' or tag in ('u', 'ins'):
             if tag != 'a':
                 if self.style_under == False:
-                    text.append('+')
-                    tags.append('+')
-                    self.style_embed.append ('+')
+                    text.append('[+')
+                    tags.append('+]')
+                    self.style_embed.append('+')
                     self.style_under = True
         if style['text-decoration'] == 'line-through' or tag in ('strike', 'del', 's'):
             if self.style_strike == False:
-                text.append('-')
-                tags.append('-')
-                self.style_embed.append ('-')
+                text.append('[-')
+                tags.append('-]')
+                self.style_embed.append('-')
                 self.style_strike = True
         if tag == 'br':
             for i in reversed(self.style_embed):
@@ -428,26 +432,24 @@ class TextileMLizer(OEB2HTML):
                     t = ''
                 text.append(self.id_no_text)
                 self.id_no_text = u''
-                if t == '*':
+                if t == '*]':
                     self.style_bold = False
-                elif t == '_':
+                elif t == '_]':
                     self.style_italic = False
-                elif t == '+':
+                elif t == '+]':
                     self.style_under = False
-                elif t == '-':
+                elif t == '-]':
                     self.style_strike = False
                 elif t == '&':
                     self.style_smallcap = False
-                if t in ('*', '_', '+', '-'):
+                if t in ('*]', '_]', '+]', '-]'):
                     txt = self.style_embed.pop()
-                    text.append(txt)
-                else:
-                    text.append('%s' % t)
+                text.append('%s' % t)
 
         # Soft scene breaks.
         if 'margin-bottom' in style.cssdict() and style['margin-bottom'] != 'auto':
             ems = int(round((float(style.marginBottom) / style.fontSize) - 1))
-            if ems >=1:
+            if ems >= 1:
                 text.append(u'\n\n\xa0' * ems)
 
         # Add the text that is outside of the tag.
