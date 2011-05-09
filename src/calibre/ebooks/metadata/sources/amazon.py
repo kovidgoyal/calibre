@@ -338,7 +338,7 @@ class Amazon(Source):
                     q['field-author'] = ' '.join(author_tokens)
 
         if not ('field-keywords' in q or 'field-isbn' in q or
-                ('field-title' in q and 'field-author' in q)):
+                ('field-title' in q)):
             # Insufficient metadata to make an identify query
             return None
 
