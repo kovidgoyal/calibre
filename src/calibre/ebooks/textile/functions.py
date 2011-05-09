@@ -792,6 +792,7 @@ class Textile(object):
             text = self.noTextile(text)
             text = self.code(text)
 
+        text = self.glyphs(text)
         text = self.links(text)
 
         if not self.noimage:
@@ -803,7 +804,6 @@ class Textile(object):
 
         text = self.span(text)
         text = self.footnoteRef(text)
-        text = self.glyphs(text)
 
         return text.rstrip('\n')
 

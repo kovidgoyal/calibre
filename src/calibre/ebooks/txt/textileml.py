@@ -69,8 +69,8 @@ class TextileMLizer(OEB2HTML):
                 txt = '%s' % t
                 if txt != '%':
                     text = re.sub(r'([^'+t+'|^\n])'+t+t+'([^'+t+'])', r'\1\2', text)
-                text = re.sub(r'(\w)('+t+'\w+'+t+')', r'\1[\2]', text)
-                text = re.sub(r'('+t+'\w+'+t+')(\w)', r'[\1]\2', text)
+                text = re.sub(r'([a-zA-Z0-9\'"\-])('+t+'[a-zA-Z0-9\'"!? ,.\-]+'+t+')', r'\1[\2]', text)
+                text = re.sub(r'('+t+'[a-zA-Z0-9\'"!? ,.\-]+'+t+')([a-zA-Z0-9\'"!?\-])', r'[\1]\2', text)
             return text
 
         # Now tidyup links and ids - remove ones that don't have a correponding opposite
