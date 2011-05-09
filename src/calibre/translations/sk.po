@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-05-06 17:31+0000\n"
-"PO-Revision-Date: 2011-05-03 14:29+0000\n"
-"Last-Translator: Robert Hartl <hartl.robert@gmail.com>\n"
+"PO-Revision-Date: 2011-05-08 19:07+0000\n"
+"Last-Translator: mascot4M <Unknown>\n"
 "Language-Team: Slovak <sk@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-05-07 04:47+0000\n"
+"X-Launchpad-Export-Date: 2011-05-09 04:35+0000\n"
 "X-Generator: Launchpad (build 12959)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -188,7 +188,7 @@ msgstr "Základ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:148
 msgid "Customize"
-msgstr ""
+msgstr "Prispôsobiť"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:156
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:42
@@ -229,7 +229,7 @@ msgstr "Nastavenia"
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:609
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:33
 msgid "Store"
-msgstr ""
+msgstr "Obchod"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:17
 msgid ""
@@ -366,11 +366,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:917
 msgid "Searching"
-msgstr ""
+msgstr "Vyhľadávanie"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:923
 msgid "Customize the way searching for books works in calibre"
-msgstr ""
+msgstr "Prispôsobí spôsob vyhľadávania kníh v calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:928
 msgid "Input Options"
@@ -440,15 +440,15 @@ msgstr "Kontrolovať, ako calibre prenáša súbory do vášho zariadenia"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:997
 msgid "Metadata plugboards"
-msgstr ""
+msgstr "Pluginy s metadatami"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1003
 msgid "Change metadata fields before saving/sending"
-msgstr ""
+msgstr "Zmeniť polia metadat pred uložením/odoslaním"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1008
 msgid "Template Functions"
-msgstr ""
+msgstr "Funkcie šablóny"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1010
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1057
@@ -459,7 +459,7 @@ msgstr "Rozšírené"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1014
 msgid "Create your own template functions"
-msgstr ""
+msgstr "Vytvorte vlastnú funkciu ščablóny"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1019
 msgid "Sharing books by email"
@@ -526,15 +526,15 @@ msgstr "Rôzne pokročilé nastavenia"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1096
 msgid "Kindle books from Amazon"
-msgstr ""
+msgstr "Kindle knihy z Amazon"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1101
 msgid "Kindle books from Amazon.uk"
-msgstr ""
+msgstr "Kindle knihy z Amazon.uk"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1106
 msgid "Ebooks for readers."
-msgstr ""
+msgstr "E-knihy pre čitateľov."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1111
 msgid "Books, Textbooks, eBooks, Toys, Games and More."
@@ -546,11 +546,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1121
 msgid "World Famous eBook Store."
-msgstr ""
+msgstr "Najznámejší obchod s e-knihami"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1126
 msgid "The digital bookstore."
-msgstr ""
+msgstr "Digitálny obchod s knihami"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1131
 msgid "entertain, enrich, inspire."
@@ -558,19 +558,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1136
 msgid "Read anywhere."
-msgstr ""
+msgstr "Čítaj kdekoľvek"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1141
 msgid "The first producer of free ebooks."
-msgstr ""
+msgstr "Prvý vydavateľ e-kníh zdarma."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1146
 msgid "eReading: anytime. anyplace."
-msgstr ""
+msgstr "eReading: kedykoľvek. kdekoľvek."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1151
 msgid "The best ebooks at the best price: free!"
-msgstr ""
+msgstr "Najlepšie e-knihy za najlepšiu cenu: zdarma!"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1156
 msgid "Ebooks handcrafted with the utmost care"
@@ -578,15 +578,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1161
 msgid "One web page for every book."
-msgstr ""
+msgstr "Jedna web stránka pre všetky knihy"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1166
 msgid "Your ebook. Your way."
-msgstr ""
+msgstr "Tvoja e-kniha. Tvoja cesta."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1171
 msgid "Feel every word"
-msgstr ""
+msgstr "Precítiť každé slovo."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1176
 msgid "Foyles of London, online"
@@ -594,7 +594,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1181
 msgid "Kindle eBooks"
-msgstr ""
+msgstr "Kindle e-knihy"
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:102
 msgid "Conversion Input"
@@ -727,13 +727,15 @@ msgstr "Určený pre iPad a podobné zariadenia s rozlíšením 768x1024"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:438
 msgid "Intended for generic tablet devices, does no resizing of images"
-msgstr ""
+msgstr "Určené pre tablety, nemení veľkosť obrázkov."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:446
 msgid ""
 "Intended for the Samsung Galaxy and similar tablet devices with a resolution "
 "of 600x1280"
 msgstr ""
+"Určené pre Samsung Galaxy a podobné zariadenia typu tablet s rozlíšením "
+"600x1280"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:472
 msgid "This profile is intended for the Kobo Reader."
@@ -745,11 +747,12 @@ msgstr "Tento profil je určený pre zariadenie SONY PRS-300."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:503
 msgid "Suitable for use with any e-ink device"
-msgstr ""
+msgstr "Vhodné pre použitie s akýmkoľvek e-ink zariadením."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:510
 msgid "Suitable for use with any large screen e-ink device"
 msgstr ""
+"Vhodné pre použitie s akoukoľvek veľkosťou displeja e-ink zariadenia."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:519
 msgid "This profile is intended for the 5-inch JetBook."
@@ -769,11 +772,11 @@ msgstr "Tento profil je určený pre zariadenie Amazon Kindle DX."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:713
 msgid "This profile is intended for the B&N Nook Color."
-msgstr ""
+msgstr "Tento profil je určený pre B&N Nook Color."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:724
 msgid "This profile is intended for the Sanda Bambook."
-msgstr ""
+msgstr "Tento profil je určený pre Sanda Bambook."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:31
 msgid "Installed plugins"
@@ -840,7 +843,7 @@ msgstr "Deaktivovať modul podľa mena"
 
 #: /home/kovid/work/calibre/src/calibre/debug.py:152
 msgid "Debug log"
-msgstr ""
+msgstr "Debug log"
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:13
 msgid "Communicate with Android phones."
@@ -872,11 +875,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:65
 msgid "Disable Apple driver"
-msgstr ""
+msgstr "Zakázať Apple driver."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:69
 msgid "Enable Apple driver"
-msgstr ""
+msgstr "Povoliť Apple driver."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:117
 msgid "Use Series as Category in iTunes/iBooks"
@@ -911,6 +914,8 @@ msgid ""
 "Cannot copy books directly from iDevice. Drag from iTunes Library to "
 "desktop, then add to calibre's Library window."
 msgstr ""
+"Nemožno kopírovať knihy priamo z iDevice. Pretiahnite ich z knižnice iTunes "
+"na plochu a potom ich pridajte do okna knižnice calibre."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:355
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:358
@@ -981,26 +986,30 @@ msgstr "Komunikácia s iTunes."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:24
 msgid "Communicate with the Sanda Bambook eBook reader."
-msgstr ""
+msgstr "Komunikovať s Sanda Bambook eBook čítačkou."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:25
 msgid "Li Fanxi"
-msgstr ""
+msgstr "Li Fanxi"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:42
 msgid "Device IP Address (restart calibre after changing)"
-msgstr ""
+msgstr "IP adresa zariadenia (po zmene reštartuje program Calibre)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:47
 msgid ""
 "Unable to add book to library directly from Bambook. Please save the book to "
 "disk and add the file to library from disk."
 msgstr ""
+"Do knižnice nie je možné pridávať knihu priamo z Bambook. Prosím uložte "
+"knihu na disk a pridajte súbor do knižnice z disku."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:67
 msgid ""
 "Unable to connect to Bambook, you need to install Bambook library first."
 msgstr ""
+"Nie je možné sa pripojiť k zariadeniu Bambook, musíte najprv nainštalovať "
+"Bambook knižnicu."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:75
 msgid ""
@@ -1008,10 +1017,13 @@ msgid ""
 "If you are trying to connect via Wi-Fi, please make sure the IP address of "
 "Bambook has been correctly configured."
 msgstr ""
+"Nie je možné sa pripojiť k zariadeniu Bambook. \n"
+"Ak sa pokúsite pripojiť cez Wi-Fi ubezpečte sa, že bola správne "
+"nakonfigurovaná IP adresa zariadenia Bambook."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:112
 msgid "Bambook"
-msgstr ""
+msgstr "Bambook"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:218
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:234
@@ -1072,7 +1084,7 @@ msgstr "Odosielam knihy do zariadenia..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/libbambookcore.py:129
 msgid "Bambook SDK has not been installed."
-msgstr ""
+msgstr "Bambook SDK nebol nainštalovaný"
 
 #: /home/kovid/work/calibre/src/calibre/devices/binatone/driver.py:17
 msgid "Communicate with the Binatone Readme eBook reader."
@@ -1091,11 +1103,11 @@ msgstr "Kovid Goyal"
 
 #: /home/kovid/work/calibre/src/calibre/devices/boeye/driver.py:14
 msgid "Communicate with BOEYE BEX Serial eBook readers."
-msgstr ""
+msgstr "Komunikovať s BOEYE BEX Serial eBook readers."
 
 #: /home/kovid/work/calibre/src/calibre/devices/boeye/driver.py:35
 msgid "Communicate with BOEYE BDX serial eBook readers."
-msgstr ""
+msgstr "Komunikovať s BOEYE BDX serial eBook readers."
 
 #: /home/kovid/work/calibre/src/calibre/devices/cybook/driver.py:22
 msgid "Communicate with the Cybook Gen 3 / Opus eBook reader."
@@ -1103,7 +1115,7 @@ msgstr "Komunikácia s Cybook Gen 3 / Opus eBook reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/cybook/driver.py:64
 msgid "Communicate with the Cybook Orizon eBook reader."
-msgstr ""
+msgstr "Komunikovať s Cybook Orizon eBook reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:25
 msgid "Communicate with the EB600 eBook reader."
@@ -1119,11 +1131,11 @@ msgstr "Komunikácia s PocketBook 301 reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:233
 msgid "Communicate with the PocketBook 602/603/902/903 reader."
-msgstr ""
+msgstr "Komunikovať s PocketBook 602/603/902/903 reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:253
 msgid "Communicate with the PocketBook 701"
-msgstr ""
+msgstr "Komunikovať s PocketBook 701"
 
 #: /home/kovid/work/calibre/src/calibre/devices/edge/driver.py:17
 msgid "Entourage Edge"
@@ -1203,7 +1215,7 @@ msgstr "John Schember"
 
 #: /home/kovid/work/calibre/src/calibre/devices/interface.py:54
 msgid "Cannot get files from this device"
-msgstr ""
+msgstr "Nie je možné získať súbory z tohto zariadenia"
 
 #: /home/kovid/work/calibre/src/calibre/devices/irexdr/driver.py:16
 msgid "Communicate with the IRex Digital Reader 1000 eBook reader."
@@ -1227,7 +1239,7 @@ msgstr "Komunikácia s MiBuk Wolder reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:116
 msgid "Communicate with the JetBook Mini reader."
-msgstr ""
+msgstr "Komunikovať s JetBook Mini reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/apnx.py:28
 msgid "Not a valid MOBI file. Reports identity of %s"
@@ -1235,7 +1247,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/apnx.py:44
 msgid "Could not generate page mapping."
-msgstr ""
+msgstr "Nie je možné vygenerovať mapovanie stránok"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:44
 msgid "Communicate with the Kindle eBook reader."
@@ -1247,7 +1259,7 @@ msgstr "Komunikácia s Kindle 2/3 eBook reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:180
 msgid "Send page number information when sending books"
-msgstr ""
+msgstr "Odošli číslo stránky počas odosielania knihy"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:182
 msgid ""
@@ -1259,7 +1271,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:187
 msgid "Use slower but more accurate page number generation"
-msgstr ""
+msgstr "Použiť pomalšie ale presnejšie číslovanie strán"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:189
 msgid ""
@@ -1268,6 +1280,9 @@ msgid ""
 "book. However, this method is slower and will slow down sending files to the "
 "Kindle."
 msgstr ""
+"Sú dve možnosti ako generovať čísla strán. Použitím presnejšieho generátora "
+"sa vytvoria strany bližšie tlačenej knihe. Táto metóda je pomalšia a spomalí "
+"posielanie súborov do Kindle."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:257
 msgid "Communicate with the Kindle DX eBook reader."
@@ -1282,6 +1297,8 @@ msgid ""
 "The Kobo supports only one collection currently: the \"Im_Reading\" list.  "
 "Create a tag called \"Im_Reading\" "
 msgstr ""
+"Kobo podporuje v súčasnej dobe len jednu kolekciu: zoznam \"Im_Reading\". "
+"Vytvorte tag nazvaný \"Im_Reading\". "
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:468
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:388
@@ -1302,11 +1319,11 @@ msgstr "Komunikácia s Palm Pre"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:39
 msgid "Communicate with the Bq Avant"
-msgstr ""
+msgstr "Komunikácia s Bq Avant"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:60
 msgid "Communicate with the Sweex/Kogan/Q600/Wink"
-msgstr ""
+msgstr "Komunikácia s Sweex/Kogan/Q600/Wink"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:81
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:108
@@ -1315,7 +1332,7 @@ msgstr "Komunikácia s Pandigital Novel"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:127
 msgid "Communicate with the VelocityMicro"
-msgstr ""
+msgstr "Komunikácia s VelocityMicro"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:145
 msgid "Communicate with the GM2000"
@@ -1323,23 +1340,23 @@ msgstr "Komunikácia s GM2000"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:165
 msgid "Communicate with the Acer Lumiread"
-msgstr ""
+msgstr "Komunikácia s Acer Lumiread"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:199
 msgid "Communicate with the Aluratek Color"
-msgstr ""
+msgstr "Komunikácia s Aluratek Color"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:219
 msgid "Communicate with the Trekstor"
-msgstr ""
+msgstr "Komunikácia s Trekstor"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:239
 msgid "Communicate with the EEE Reader"
-msgstr ""
+msgstr "Komunikácia s EEE Reader"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:259
 msgid "Communicate with the Nextbook Reader"
-msgstr ""
+msgstr "Komunikácia s Nextbook Reader"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
@@ -1347,7 +1364,7 @@ msgstr "Komunikácia s Nokia 770 internet tablet."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:40
 msgid "Communicate with the Nokia 810/900 internet tablet."
-msgstr ""
+msgstr "Komunikácia s Nokia 810/900 internet tablet."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:74
 msgid "Communicate with the Nokia E52"
@@ -1363,11 +1380,11 @@ msgstr "Komunikácia s Nook eBook reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:85
 msgid "Nook Color"
-msgstr ""
+msgstr "Nook Color"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:86
 msgid "Communicate with the Nook Color eBook reader."
-msgstr ""
+msgstr "Komunikácia s Nook Color eBook reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nuut2/driver.py:17
 msgid "Communicate with the Nuut2 eBook reader."
@@ -1383,11 +1400,11 @@ msgstr "Komunikácia s všetkými Sony eBook čítačkami."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:62
 msgid "All by title"
-msgstr ""
+msgstr "Všetko podľa názvu"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:63
 msgid "All by author"
-msgstr ""
+msgstr "Všetko podľa autora"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:66
 msgid ""
@@ -1428,10 +1445,13 @@ msgid ""
 "your device. Unset this option if you have so many books on the reader that "
 "performance is unacceptable."
 msgstr ""
+"Nastavte túto voľbu aby sa samostatné obálky kníh nahrávali vždy pri "
+"pripojení zariadenia. Zakážte  túto voľbu pokiaľ máte v čítačke toľko kníh, "
+"že je výkon neprijateľný."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:86
 msgid "Preserve cover aspect ratio when building thumbnails"
-msgstr ""
+msgstr "Zachovať pomer strán prednej strany pri vytváraní náhľadov"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:88
 msgid ""
@@ -1442,7 +1462,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:92
 msgid "Search for books in all folders"
-msgstr ""
+msgstr "Hľadať knihy vo všetkých priečinkoch"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:94
 msgid ""
@@ -1470,11 +1490,11 @@ msgstr "Komunikácia s Newsmy reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:47
 msgid "Communicate with the Archos reader."
-msgstr ""
+msgstr "Komunikovať s Archos reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:57
 msgid "Communicate with the Pico reader."
-msgstr ""
+msgstr "Komunikovať s Pico reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:67
 msgid "Communicate with the iPapyrus reader."
@@ -1482,19 +1502,19 @@ msgstr "Komunikácia s iPapyrus reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:78
 msgid "Communicate with the Sovos reader."
-msgstr ""
+msgstr "Komunikovať s Sovos reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:88
 msgid "Communicate with the Sunstech EB700 reader."
-msgstr ""
+msgstr "Komunikovať s Sunstech EB700 reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:99
 msgid "Communicate with the Stash W950 reader."
-msgstr ""
+msgstr "Komunikovať s Stash W950 reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:111
 msgid "Communicate with the Wexler reader."
-msgstr ""
+msgstr "Komunikovať s Wexler reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:282
 msgid "Unable to detect the %s disk drive. Try rebooting."
@@ -1510,7 +1530,7 @@ msgstr "Nemožno detekovať %s diskovú jednotku."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:621
 msgid "Could not find mount helper: %s."
-msgstr ""
+msgstr "Nie je možné nájsť monocníka pripojenia: %s."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:633
 msgid ""
@@ -1527,6 +1547,8 @@ msgid ""
 "The main memory of %s is read only. This usually happens because of file "
 "system errors."
 msgstr ""
+"Hlavná pamäť %s je len na čítanie. To sa zvyčajne stáva v dôsledku chyby "
+"súborového systému."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:842
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:844
@@ -1569,7 +1591,7 @@ msgstr "Čítať metadáta zo súborov v zariadení"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:63
 msgid "Use author sort instead of author"
-msgstr ""
+msgstr "Použiť zoradeného autora namiesto autora"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:65
 msgid "Template to control how books are saved"
@@ -1590,7 +1612,7 @@ msgstr "Preberám informácie o zariadení..."
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:37
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:68
 msgid "USB Vendor ID (in hex)"
-msgstr ""
+msgstr "USB Vendor ID (v hex)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:38
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:41
@@ -1603,12 +1625,12 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:40
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:70
 msgid "USB Product ID (in hex)"
-msgstr ""
+msgstr "USB Product ID (v hex)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:43
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:72
 msgid "USB Revision ID (in hex)"
-msgstr ""
+msgstr "USB Revision ID (v hex)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:47
 msgid "Windows main memory vendor string"
@@ -1641,7 +1663,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:63
 msgid "Main memory folder"
-msgstr ""
+msgstr "Priečinok hlavnej pamäti"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:64
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:67
@@ -1765,6 +1787,8 @@ msgid ""
 "Specify the image size as widthxheight pixels. Normally, an image size is "
 "automatically calculated from the output profile, this option overrides it."
 msgstr ""
+"Určite veľkosť obrázka ako šírka x výška pixelov. Obyčajne sa veľkosť obrazu "
+"automaticky počíta z výstupného profilu, táto voľba to prepisuje."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:320
 msgid ""
@@ -1829,11 +1853,14 @@ msgid ""
 "default. Use %s to enable.  Individual actions can be disabled with the %s "
 "options."
 msgstr ""
+"Upraviť text a štruktúru dokumentu pomocou zvyčajných šablón. Vo pôvodnom "
+"stave zakázané. Použite %s pre povolenie. Jednotlivé akcie môžu byť zakázané "
+"voľbami %s."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:153
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:18
 msgid "Modify the document text and structure using user defined patterns."
-msgstr ""
+msgstr "Upraviť text a štruktúru dokumentu pomocou určených šablón."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:162
 msgid "Control auto-detection of document structure."
@@ -1867,7 +1894,7 @@ msgstr "Výstup uložený do"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:103
 msgid "Level of verbosity. Specify multiple times for greater verbosity."
-msgstr ""
+msgstr "Úroveň podrobností. Zadajte viackrát pre väčšiu podrobnosť."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:110
 msgid ""
@@ -1883,6 +1910,10 @@ msgid ""
 "For example resolution dependent lengths (i.e. lengths in pixels). Choices "
 "are:"
 msgstr ""
+"Nastavenie vstupného profilu. Vstupný profil predá konverznému systému "
+"konverzie informácie o tom, ako interpretovať rôzne informácie vo vstupnom "
+"dokumente. Napríklad rozlíšenie závisí od dĺžky (tj dĺžky v pixeloch). "
+"Možnosti sú:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:130
 msgid ""
@@ -2289,6 +2320,8 @@ msgstr ""
 msgid ""
 "Look for common words and patterns that denote italics and italicize them."
 msgstr ""
+"Hľadať zvyčajné slová a vzorce, ktoré označují kurzívou a previesť ich na "
+"kurzívu."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:520
 msgid ""
@@ -2307,12 +2340,15 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:533
 msgid "Unwrap lines using punctuation and other formatting clues."
 msgstr ""
+"Nezalamovať riadky používajúce interpunkciu a ďalšie formátovacie stopy."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:537
 msgid ""
 "Remove empty paragraphs from the document when they exist between every "
 "other paragraph"
 msgstr ""
+"Odstrániť prázdne odstavce z dokumentu ak sa nachádzajú medzi každým ďalším "
+"odstavcom"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:542
 msgid ""
@@ -2325,6 +2361,8 @@ msgid ""
 "Replace scene breaks with the specified text. By default, the text from the "
 "input document is used."
 msgstr ""
+"Nahradiť zalomenie scény zadaným textom. V pôvodnom stave je použitý text zo "
+"vstupného súboru."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:553
 msgid ""
@@ -2539,7 +2577,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/output.py:159
 msgid "for a complete list with descriptions."
-msgstr ""
+msgstr "pre úplný zoznam s popisom."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:248
 msgid ""
@@ -2911,13 +2949,13 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:63
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:562
 msgid "No"
-msgstr ""
+msgstr "Nie"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:623
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:63
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:562
 msgid "Yes"
-msgstr ""
+msgstr "Áno"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:718
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/info.py:45
@@ -3120,31 +3158,31 @@ msgstr "Obálka"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:283
 msgid "Downloads metadata from Amazon"
-msgstr ""
+msgstr "Stiahnuť metadata z Amazon"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:293
 msgid "US"
-msgstr ""
+msgstr "US"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:294
 msgid "France"
-msgstr ""
+msgstr "Francúzsko"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:295
 msgid "Germany"
-msgstr ""
+msgstr "Nemecko"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:296
 msgid "UK"
-msgstr ""
+msgstr "Veľká Británia"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:390
 msgid "Amazon timed out. Try again later."
-msgstr ""
+msgstr "Čas pre Amazon vypršal. Skúste neskôr."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/base.py:156
 msgid "Metadata source"
-msgstr ""
+msgstr "Zdroj metadat"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google.py:160
 msgid "Downloads metadata from Google Books"
@@ -3156,13 +3194,15 @@ msgstr "Download metadát z isbndb.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/isbndb.py:37
 msgid "IsbnDB key:"
-msgstr ""
+msgstr "IsbnDB kľúč:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/isbndb.py:38
 msgid ""
 "To use isbndb.com you have to sign up for a free accountat isbndb.com and "
 "get an access key."
 msgstr ""
+"Pre použite isbndb.com sa musíte zdarma zaregistrovať z isbndb.com a získať "
+"prístupový kľúč."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/isbndb.py:42
 msgid ""
@@ -3170,22 +3210,26 @@ msgid ""
 "an isbndb key and enter it below. Instructions to get the key are <a "
 "href=\"http://isbndb.com/docs/api/30-keys.html\">here</a>."
 msgstr ""
+"Pre použite metadat z isbndb.com sa musíte zdarma zaregistrovať z isbndb.com "
+"a získať isbndb kľúč a vložiť ho nižšie. Inštrukcie ako získať kľúč sú <a "
+"href=\"http://isbndb.com/docs/api/30-keys.html\">tu</a>"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/openlibrary.py:15
 msgid "Downloads covers from The Open Library"
-msgstr ""
+msgstr "Stiahnuť obal knihy z The Open Library"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/overdrive.py:33
 msgid "Downloads metadata from Overdrive's Content Reserve"
-msgstr ""
+msgstr "Stiahnuť metadata z Overdrive's Content Reserve"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/overdrive.py:45
 msgid "Download all metadata (slow)"
-msgstr ""
+msgstr "Stiahnuť všetky metadata (pomalé)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/overdrive.py:46
 msgid "Enable this option to gather all metadata available from Overdrive."
 msgstr ""
+"Povoliť túto možnosť pre získanie všetkých metadat dostupných na Overdrive."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/overdrive.py:49
 msgid ""
@@ -3447,7 +3491,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:73
 msgid "Crop Options:"
-msgstr ""
+msgstr "Možnosti orezania:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:73
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/decrypt.py:60
@@ -3468,7 +3512,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/decrypt.py:60
 msgid "Decrypt Options:"
-msgstr ""
+msgstr "Možnosti dešifrovania:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/encrypt.py:25
 msgid ""
@@ -3479,7 +3523,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/encrypt.py:54
 msgid "Encrypt Options:"
-msgstr ""
+msgstr "Možnosti šifrovania:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/info.py:21
 msgid ""
@@ -3487,6 +3531,9 @@ msgid ""
 "\n"
 "Get info about a PDF.\n"
 msgstr ""
+"súbor.pdf ...\n"
+"\n"
+"Informácie o PDF.\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/info.py:46
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/delete_matching_from_device.py:75
@@ -3548,7 +3595,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/rotate.py:53
 msgid "Rotate Options:"
-msgstr ""
+msgstr "Možnosti otočenia:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/split.py:25
 msgid ""
@@ -3567,7 +3614,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/split.py:61
 msgid "Split Options:"
-msgstr ""
+msgstr "Možnosti rozdelenia:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:31
 msgid ""
@@ -3670,17 +3717,17 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:125
 msgid "Start Page"
-msgstr ""
+msgstr "Úvodná strana"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:135
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:137
 msgid "Cover Pages"
-msgstr ""
+msgstr "Obal knihy"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:150
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:153
 msgid " (Preface)"
-msgstr ""
+msgstr " (Predslov)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/input.py:30
 msgid ""
@@ -12907,7 +12954,7 @@ msgstr "Zoradiť podľa obľúbenosti"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:2149
 msgid "Sort by average rating"
-msgstr ""
+msgstr "Zoradiť podľa priemerného hodnotenia"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:2152
 msgid "Set the sort order for entries in the Tag Browser"

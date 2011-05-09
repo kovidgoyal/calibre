@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-05-06 17:31+0000\n"
-"PO-Revision-Date: 2011-03-02 12:04+0000\n"
-"Last-Translator: gorkaazk <gorkaazkarate@euskalerria.org>\n"
+"PO-Revision-Date: 2011-05-08 17:11+0000\n"
+"Last-Translator: Oier Mees <Unknown>\n"
 "Language-Team: Basque <eu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-05-07 04:36+0000\n"
+"X-Launchpad-Export-Date: 2011-05-09 04:33+0000\n"
 "X-Generator: Launchpad (build 12959)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -366,7 +366,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:917
 msgid "Searching"
-msgstr ""
+msgstr "Bilatzen"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:923
 msgid "Customize the way searching for books works in calibre"
@@ -1032,7 +1032,7 @@ msgstr ""
 msgid ""
 "Unable to connect to Bambook, you need to install Bambook library first."
 msgstr ""
-"Ezin izan da Bambook horrekin konektatu, lehenago instalatu beharko duzu "
+"Ezin izan da Bambook-arekin konektatu, lehenago instalatu beharko duzu "
 "Bambook liburutegia."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:75
@@ -1041,8 +1041,8 @@ msgid ""
 "If you are trying to connect via Wi-Fi, please make sure the IP address of "
 "Bambook has been correctly configured."
 msgstr ""
-"Ezin izan da Bambook horrekin konektatu. \n"
-"Wi-Fi-aren bidez saiatzen ari bazara, konprobatu Bambook horren IP helbidea "
+"Ezin izan da Bambook-arekin konektatu. \n"
+"Wi-Fi-aren bidez saiatzen ari bazara, konprobatu Bambook-aren IP helbidea "
 "behar bezala zehaztu duzula."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:112
@@ -4798,11 +4798,11 @@ msgstr "Bihurtu liburuak"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:28
 msgid "Convert individually"
-msgstr "Convert individually"
+msgstr "Bihurtu banaka"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:30
 msgid "Bulk convert"
-msgstr "Bulk convert"
+msgstr "Bihurtu multzoka"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:86
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:560
@@ -4892,7 +4892,7 @@ msgstr "Ezabatu liburuak"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:79
 msgid "Remove selected books"
-msgstr "Remove selected books"
+msgstr "Ezabatu hautatutako liburuak"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:81
 msgid "Remove files of a specific format from selected books.."
@@ -4904,7 +4904,7 @@ msgstr "Remove all formats from selected books, except..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:87
 msgid "Remove covers from selected books"
-msgstr "Remove covers from selected books"
+msgstr "Ezabatu hautatutako liburuetako azalak"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:90
 msgid "Remove matching books from device"
@@ -4985,15 +4985,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:31
 msgid "Connect to folder"
-msgstr "Connect to folder"
+msgstr "Konektatu karpetara"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:36
 msgid "Connect to iTunes"
-msgstr "Connect to iTunes"
+msgstr "Konektatu  iTunes-era"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:42
 msgid "Connect to Bambook"
-msgstr "Konektatu Bambook horrekin"
+msgstr "Konektatu Bambook-era"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:56
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:64
@@ -5073,7 +5073,7 @@ msgstr "Editatu metadatuak banan-banan"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:34
 msgid "Edit metadata in bulk"
-msgstr "Edit metadatuak multzoka"
+msgstr "Editatu metadatuak multzoka"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:37
 msgid "Download metadata and covers"
@@ -5408,7 +5408,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/show_book_details.py:16
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:766
 msgid "Show book details"
-msgstr "Show book details"
+msgstr "Erakutsi liburuaren xehetasunak"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/show_book_details.py:17
 msgid "I"
@@ -5424,7 +5424,7 @@ msgstr "No detailed information is available for books on the device."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:17
 msgid "Similar books..."
-msgstr "Similar books..."
+msgstr "Antzeko liburuak..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:24
 msgid "Alt+A"
@@ -6375,7 +6375,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/bulk.py:74
 msgid "Bulk Convert"
-msgstr "Karga handiko bihurketa"
+msgstr "Bihurtu multzoka"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/bulk.py:89
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single.py:189
@@ -9198,7 +9198,7 @@ msgstr "Gorde egin da bilaketa editorea"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:95
 msgid "Saved Search: "
-msgstr "Bilaketa gordeta: "
+msgstr "Gordetako bilaketa: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:96
 msgid "Select a saved search to edit"
@@ -9591,13 +9591,13 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:218
 msgid "Enter tags separated by spaces"
-msgstr "Sartu etiketak Zuriuneekin bereizturik"
+msgstr "Sartu zuriuneekin bereizitako etiketak"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:219
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:101
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:193
 msgid "&Clear"
-msgstr "Garbitu"
+msgstr "&Garbitu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:220
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:194
@@ -13453,7 +13453,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread_store_dialog_ui.py:62
 msgid "Search:"
-msgstr ""
+msgstr "Bilatu:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:192
 msgid "&Price:"
@@ -13877,7 +13877,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:196
 msgid "&Donate to support calibre"
-msgstr "&Emaitza egin calibre diruz laguntzeko"
+msgstr "&Dohaintza egin calibre diruz laguntzeko"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:232
 msgid "&Restore"
