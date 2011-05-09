@@ -1,17 +1,12 @@
 # -*- coding: utf-8 -*-
 
-__license__   = 'GPL v3'
-__copyright__ = '2009, Gerhard Aigner <gerhard.aigner at gmail.com>'
-
-
-import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class TelepolisNews(BasicNewsRecipe):
     title          = u'Telepolis (News+Artikel)'
-    __author__ = 'Gerhard Aigner'
+    __author__ = 'syntaxis'
     publisher = 'Heise Zeitschriften Verlag GmbH & Co KG'
-    description = 'News from telepolis'
+    description = 'News from Telepolis'
     category = 'news'
     oldest_article = 7
     max_articles_per_feed = 100
@@ -20,14 +15,19 @@ class TelepolisNews(BasicNewsRecipe):
     encoding = "utf-8"
     language = 'de'
 
-    use_embedded_content =False
+
     remove_empty_feeds = True
 
-    preprocess_regexps = [(re.compile(r'<a[^>]*>', re.DOTALL|re.IGNORECASE), lambda match: ''),
-        (re.compile(r'</a>', re.DOTALL|re.IGNORECASE), lambda match: ''),]
 
-    keep_only_tags = [dict(name = 'td',attrs={'class':'bloghead'}),dict(name = 'td',attrs={'class':'blogfliess'})]
-    remove_tags = [dict(name='img'), dict(name='td',attrs={'class':'blogbottom'}), dict(name='td',attrs={'class':'forum'})]
+
+    keep_only_tags = [dict(name = 'div',attrs={'class':'head'}),dict(name = 'div',attrs={'class':'leftbox'}),dict(name='td',attrs={'class':'strict'})]
+    remove_tags = [ dict(name='td',attrs={'class':'blogbottom'}),
+            dict(name='div',attrs={'class':'forum'}), dict(name='div',attrs={'class':'social'}),dict(name='div',attrs={'class':'blog-letter p-news'}),
+            dict(name='div',attrs={'class':'blog-sub'}),dict(name='div',attrs={'class':'version-div'}),dict(name='div',attrs={'id':'breadcrumb'})
+            ,dict(attrs={'class':'tp-url'}),dict(attrs={'class':'blog-name entry_'}) ]
+
+    remove_tags_after  = [dict(name='span', attrs={'class':['breadcrumb']})]
+
 
     feeds          = [(u'News', u'http://www.heise.de/tp/news-atom.xml')]
 
@@ -39,15 +39,8 @@ class TelepolisNews(BasicNewsRecipe):
 
     html2epub_options  = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"'
 
-    def get_article_url(self, article):
-        '''if the linked article is of kind artikel don't take it'''
-        if (article.link.count('artikel') > 1) :
-            return None
-        return article.link
 
     def preprocess_html(self, soup):
         mtag = '<meta http-equiv="Content-Type" content="text/html; charset=' + self.encoding + '">'
         soup.head.insert(0,mtag)
         return soup
-
-
