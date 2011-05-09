@@ -1,0 +1,5 @@
+This is a list of stores that objected, declined
+or asked not to be included in the store integration.
+
+* Borders (http://www.borders.com/)
+* WH Smith (http://www.whsmith.co.uk/)

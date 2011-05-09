@@ -1096,6 +1096,11 @@ class StoreAmazonKindleStore(StoreBase):
     description = _('Kindle books from Amazon')
     actual_plugin = 'calibre.gui2.store.amazon_plugin:AmazonKindleStore'
 
+class StoreAmazonDEKindleStore(StoreBase):
+    name = 'Amazon DE Kindle'
+    description = _('Kindle eBooks')
+    actual_plugin = 'calibre.gui2.store.amazon_de_plugin:AmazonDEKindleStore'
+
 class StoreAmazonUKKindleStore(StoreBase):
     name = 'Amazon UK Kindle'
     description = _('Kindle books from Amazon.uk')
@@ -1136,6 +1141,11 @@ class StoreFeedbooksStore(StoreBase):
     description = _('Read anywhere.')
     actual_plugin = 'calibre.gui2.store.feedbooks_plugin:FeedbooksStore'
 
+class StoreFoylesUKStore(StoreBase):
+    name = 'Foyles UK'
+    description = _('Foyles of London, online')
+    actual_plugin = 'calibre.gui2.store.foyles_uk_plugin:FoylesUKStore'
+
 class StoreGutenbergStore(StoreBase):
     name = 'Project Gutenberg'
     description = _('The first producer of free ebooks.')
@@ -1171,23 +1181,18 @@ class StoreWaterstonesUKStore(StoreBase):
     description = _('Feel every word')
     actual_plugin = 'calibre.gui2.store.waterstones_uk_plugin:WaterstonesUKStore'
 
-class StoreFoylesUKStore(StoreBase):
-    name = 'Foyles UK'
-    description = _('Foyles of London, online')
-    actual_plugin = 'calibre.gui2.store.foyles_uk_plugin:FoylesUKStore'
+class StoreWeightlessBooksStore(StoreBase):
+    name = 'Weightless Books'
+    description = '(e)Books That Don\'t Weigh You Down'
+    actual_plugin = 'calibre.gui2.store.weightless_books_plugin:WeightlessBooksStore'
 
-class AmazonDEKindleStore(StoreBase):
-    name = 'Amazon DE Kindle'
-    description = _('Kindle eBooks')
-    actual_plugin = 'calibre.gui2.store.amazon_de_plugin:AmazonDEKindleStore'
-
-plugins += [StoreAmazonKindleStore, AmazonDEKindleStore, StoreAmazonUKKindleStore,
+plugins += [StoreAmazonKindleStore, StoreAmazonDEKindleStore, StoreAmazonUKKindleStore,
     StoreBaenWebScriptionStore, StoreBNStore,
     StoreBeWriteStore,
     StoreDieselEbooksStore, StoreEbookscomStore,
     StoreEHarlequinStoretore, StoreFeedbooksStore,
     StoreFoylesUKStore, StoreGutenbergStore, StoreKoboStore, StoreManyBooksStore,
     StoreMobileReadStore, StoreOpenLibraryStore, StoreSmashwordsStore,
-    StoreWaterstonesUKStore]
+    StoreWaterstonesUKStore, StoreWeightlessBooksStore]
 
 # }}}
