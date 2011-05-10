@@ -12,7 +12,7 @@ A Humane Web Text Generator
 #__date__ = '2009/12/04'
 
 __copyright__ = """
-Copyright (c) 2011, Leigh Parry
+Copyright (c) 2011, Leigh Parry <leighparry@blueyonder.co.uk>
 Copyright (c) 2011, John Schember <john@nachtimwald.com>
 Copyright (c) 2009, Jason Samsa, http://jsamsa.com/
 Copyright (c) 2004, Roberto A. F. De Almeida, http://dealmeida.net/
