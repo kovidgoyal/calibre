@@ -78,44 +78,55 @@ class TextileMLizer(OEB2HTML):
             for i in self.our_links:
                 if i[0] == '#':
                     if i not in self.our_ids:
-                        self.log.debug('Link has no target - %s ...' % i)
                         text = re.sub(r'"(.+)":'+i+'(\s)', r'\1\2', text)
             for i in self.our_ids:
                 if i not in self.our_links:
-                    self.log.debug('ID has no link - %s ...' % i)
                     text = re.sub(r'%?\('+i+'\)\xa0?%?', r'', text)
                     
         # Remove obvious non-needed escaping, add sub/sup-script ones
         text = check_escaping(text, ['\*', '_', '\*'])
-        text = re.sub(r'(\w)([~^]\w+[~^])', r'\1[\2]', text) # escape the super/sub-scripts if needed
-        text = re.sub(r'([~^]\w+[~^])(\w)', r'[\1]\2', text) # escape the super/sub-scripts if needed
+        # escape the super/sub-scripts if needed
+        text = re.sub(r'(\w)([~^]\w+[~^])', r'\1[\2]', text)
+        # escape the super/sub-scripts if needed
+        text = re.sub(r'([~^]\w+[~^])(\w)', r'[\1]\2', text)
 
-        text = re.sub(r'%\xa0+', r'%', text)                            #remove empty spans
-        text = re.sub(r'%%', r'', text)                                 #remove empty spans - MAY MERGE SOME ?
-        text = re.sub(r'%([_+*-]+)%', r'\1', text)                      #remove spans from tagged output
-        text = re.sub(r' +\n', r'\n', text)                             #remove spaces before a newline
-        text = re.sub(r'^\n+', r'', text)                               #remove newlines at top of file
-        text = re.sub(r'\npre\.\n?\nbc\.', r'\nbc.', text)              #correct blockcode paras
-        text = re.sub(r'\nbq\.\n?\np.*\. ', r'\nbq. ', text)            #correct blockquote paras
-#        text = re.sub(r'\n{4,}', r'\n\np. \n\n', text)                  #reduce blank lines + insert blank para
-        text = re.sub(r'\n{3}', r'\n\n', text)                          #reduce blank lines
-#        text = re.sub(r' ((\* ?)+) ', r' ==\1== ', text)
+        #remove empty spans
+        text = re.sub(r'%\xa0+', r'%', text)
+        #remove empty spans - MAY MERGE SOME ?
+        text = re.sub(r'%%', r'', text)
+        #remove spans from tagged output
+        text = re.sub(r'%([_+*-]+)%', r'\1', text)
+        #remove spaces before a newline
+        text = re.sub(r' +\n', r'\n', text)
+        #remove newlines at top of file
+        text = re.sub(r'^\n+', r'', text)
+        #correct blockcode paras
+        text = re.sub(r'\npre\.\n?\nbc\.', r'\nbc.', text)
+        #correct blockquote paras
+        text = re.sub(r'\nbq\.\n?\np.*\. ', r'\nbq. ', text)
+
+        #reduce blank lines
+        text = re.sub(r'\n{3}', r'\n\n', text)
         text = re.sub(u'%\n(p[<>=]{1,2}\.|p\.)', r'%\n\n\1', text)
-        text = re.sub(r'\n\n {2,4}%', r'%', text)                          #Check span following blank para
+        #Check span following blank para
+        text = re.sub(r'\n+ +%', r' %', text)
         text = re.sub(u'p[<>=]{1,2}\.\n\n?', r'', text)
-        text = re.sub(r'(^|\n)p\.\n', r'\1p. \n', text)                # blank paragraph
-        text = re.sub(u'\n\xa0',   r'\np. ', text)                     # blank paragraph
-        text = re.sub(u'\np[<>=]{1,2}?\. \xa0',   r'\np. ', text)       # blank paragraph
+        # blank paragraph
+        text = re.sub(r'(^|\n)p\.\n', r'\1p. \n', text)
+        # blank paragraph
+        text = re.sub(u'\n\xa0',   r'\np. ', text)
+        # blank paragraph
+        text = re.sub(u'\np[<>=]{1,2}?\. \xa0',   r'\np. ', text)
         text = re.sub(r'(^|\n)(p.*\. ?\n)(p.*\.)', r'\1\3', text)
         text = re.sub(r'\n(p\. \n)(p.*\.|h.*\.)', r'\n\2', text)
-        text = re.sub(r' {2,}\|', r' |', text)                               #sort out spaces in tables
+        #sort out spaces in tables
+        text = re.sub(r' {2,}\|', r' |', text)
 
         # Now put back spaces removed earlier as they're needed here
         text = re.sub(r'\np\.\n', r'\np. \n', text)
-        text = re.sub(r' \n\n\n', r' \n\n', text)                          #reduce blank lines
-        
-        # started work on trying to fix footnotes
-#        text = re.sub(r'\[\^"(\d+)":#.+\^\]', r'[\1]', text)
+        #reduce blank lines
+        text = re.sub(r' \n\n\n', r' \n\n', text)
+
         return text
 
     def remove_newlines(self, text):
@@ -198,7 +209,6 @@ class TextileMLizer(OEB2HTML):
         return txt
 
     def prepare_string_for_textile(self, txt):
-#        if re.search(r'(\s([*&_+\-~@%|]|\?{2}))|(([*&_+\-~@%|]|\?{2})\s)', txt):
         if re.search(r'(\s([*&_+\-~@%|]|\?{2})\S)|(\S([*&_+\-~@%|]|\?{2})\s)', txt):
             return ' ==%s== ' % txt
         return txt
