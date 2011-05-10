@@ -23,8 +23,9 @@ from calibre.gui2.store.web_store_dialog import WebStoreDialog
 class EPubBuyDEStore(BasicStoreConfig, StorePlugin):
 
     def open(self, parent=None, detail_item=None, external=False):
-        url = 'http://www.epubbuy.com/'
-        url_details = '{0}'
+        url = 'http://klick.affiliwelt.net/klick.php?bannerid=47653&pid=32307&prid=2627'
+        url_details = ('http://klick.affiliwelt.net/klick.php?bannerid=47653'
+                       '&pid=32307&prid=2627&prodid={0}')
 
         if external or self.config.get('open_external', False):
             if detail_item:
@@ -50,13 +51,19 @@ class EPubBuyDEStore(BasicStoreConfig, StorePlugin):
                 if counter <= 0:
                     break
 
-                id = ''.join(data.xpath('./div[@class="center_block"]/a[@class="product_img_link"]/@href')).strip()
+                id = ''.join(data.xpath('./div[@class="center_block"]'
+                                        '/p[contains(text(), "artnr:")]/text()')).strip()
                 if not id:
                     continue
-                cover_url = ''.join(data.xpath('./div[@class="center_block"]/a[@class="product_img_link"]/img/@src'))
+                id = id[6:].strip()
+                if not id:
+                    continue
+                cover_url = ''.join(data.xpath('./div[@class="center_block"]'
+                                               '/a[@class="product_img_link"]/img/@src'))
                 if cover_url:
                     cover_url = 'http://www.epubbuy.com' + cover_url
-                title = ''.join(data.xpath('./div[@class="center_block"]/a[@class="product_img_link"]/@title'))
+                title = ''.join(data.xpath('./div[@class="center_block"]'
+                                           '/a[@class="product_img_link"]/@title'))
                 author = ''.join(data.xpath('./div[@class="center_block"]/a[2]/text()'))
                 price = ''.join(data.xpath('.//span[@class="price"]/text()'))
                 counter -= 1

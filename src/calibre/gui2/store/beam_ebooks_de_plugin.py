@@ -24,7 +24,8 @@ class BeamEBooksDEStore(BasicStoreConfig, StorePlugin):
 
     def open(self, parent=None, detail_item=None, external=False):
         url = 'http://klick.affiliwelt.net/klick.php?bannerid=10072&pid=32307&prid=908'
-        url_details = 'http://klick.affiliwelt.net/klick.php?bannerid=10730&pid=32307&prid=908&prodid={0}'
+        url_details = ('http://klick.affiliwelt.net/klick.php?'
+                       'bannerid=10730&pid=32307&prid=908&prodid={0}')
 
         if external or self.config.get('open_external', False):
             if detail_item:
@@ -54,15 +55,23 @@ class BeamEBooksDEStore(BasicStoreConfig, StorePlugin):
                 if not id:
                     continue
                 id = id[7:]
+                print(id)
                 cover_url = ''.join(data.xpath('./tr/td[1]/a/img/@src'))
                 if cover_url:
                     cover_url = 'http://www.beam-ebooks.de' + cover_url
                 title = ''.join(data.xpath('./tr/td/div[@class="stil2"]/a/b/text()'))
-                author = ' '.join(data.xpath('./tr/td/div[@class="stil2"]/child::b/text()|./tr/td/div[@class="stil2"]/child::strong/text()'))
+                author = ' '.join(data.xpath('./tr/td/div[@class="stil2"]/'
+                                             'child::b/text()'
+                                             '|'
+                                             './tr/td/div[@class="stil2"]/'
+                                             'child::strong/text()'))
                 price = ''.join(data.xpath('./tr/td[3]/text()'))
-                pdf = data.xpath('boolean(./tr/td[3]/a/img[contains(@alt, "PDF")]/@alt)')
-                epub = data.xpath('boolean(./tr/td[3]/a/img[contains(@alt, "ePub")]/@alt)')
-                mobi = data.xpath('boolean(./tr/td[3]/a/img[contains(@alt, "Mobipocket")]/@alt)')
+                pdf = data.xpath(
+                        'boolean(./tr/td[3]/a/img[contains(@alt, "PDF")]/@alt)')
+                epub = data.xpath(
+                        'boolean(./tr/td[3]/a/img[contains(@alt, "ePub")]/@alt)')
+                mobi = data.xpath(
+                        'boolean(./tr/td[3]/a/img[contains(@alt, "Mobipocket")]/@alt)')
                 counter -= 1
 
                 s = SearchResult()
