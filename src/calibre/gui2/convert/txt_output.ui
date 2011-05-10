@@ -122,6 +122,13 @@
         </property>
        </widget>
       </item>
+      <item>
+       <widget class="QCheckBox" name="opt_keep_color">
+        <property name="text">
+         <string>Do not remove font color before processing</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
