@@ -19,17 +19,23 @@ class MessageBox(QDialog, Ui_Dialog): # {{{
     INFO = 2
     QUESTION = 3
 
-    def __init__(self, type_, title, msg, det_msg='', show_copy_button=True,
-            parent=None):
+    def __init__(self, type_, title, msg,
+                 det_msg='',
+                 q_icon=None,
+                 show_copy_button=True,
+                 parent=None):
         QDialog.__init__(self, parent)
-        icon = {
-                self.ERROR : 'error',
-                self.WARNING: 'warning',
-                self.INFO:    'information',
-                self.QUESTION: 'question',
-        }[type_]
-        icon = 'dialog_%s.png'%icon
-        self.icon = QIcon(I(icon))
+        if q_icon is None:
+            icon = {
+                    self.ERROR : 'error',
+                    self.WARNING: 'warning',
+                    self.INFO:    'information',
+                    self.QUESTION: 'question',
+            }[type_]
+            icon = 'dialog_%s.png'%icon
+            self.icon = QIcon(I(icon))
+        else:
+            self.icon = q_icon
         self.setupUi(self)
 
         self.setWindowTitle(title)
@@ -43,7 +49,6 @@ class MessageBox(QDialog, Ui_Dialog): # {{{
             self.ctc_button = self.bb.addButton(_('&Copy to clipboard'),
                     self.bb.ActionRole)
             self.ctc_button.clicked.connect(self.copy_to_clipboard)
-
 
         self.show_det_msg = _('Show &details')
         self.hide_det_msg = _('Hide &details')
