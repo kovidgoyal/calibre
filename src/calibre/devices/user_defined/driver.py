@@ -68,9 +68,9 @@ class USER_DEFINED(USBMS):
               'is prepended to any send_to_device template') + '</p>',
     ]
     EXTRA_CUSTOMIZATION_DEFAULT = [
-                '0x0000',
-                '0x0000',
-                '0x0000',
+                '0xffff',
+                '0xffff',
+                '0xffff',
                 None,
                 '',
                 '',

@@ -3056,7 +3056,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         '''
         if prefix is None:
             prefix = self.library_path
-        FIELDS = set(['title', 'authors', 'author_sort', 'publisher', 'rating',
+        FIELDS = set(['title', 'sort', 'authors', 'author_sort', 'publisher', 'rating',
             'timestamp', 'size', 'tags', 'comments', 'series', 'series_index',
             'uuid', 'pubdate', 'last_modified', 'identifiers'])
         for x in self.custom_column_num_map:

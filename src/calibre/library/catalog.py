@@ -27,7 +27,7 @@ from calibre.utils.logging import default_log as log
 from calibre.utils.magick.draw import thumbnail
 from calibre.utils.zipfile import ZipFile, ZipInfo
 
-FIELDS = ['all', 'title', 'author_sort', 'authors', 'comments',
+FIELDS = ['all', 'title', 'title_sort', 'author_sort', 'authors', 'comments',
           'cover', 'formats','id', 'isbn', 'ondevice', 'pubdate', 'publisher',
           'rating', 'series_index', 'series', 'size', 'tags', 'timestamp', 'uuid']
 
@@ -66,7 +66,7 @@ class CSV_XML(CatalogPlugin): # {{{
                 dest = 'sort_by',
                 action = None,
                 help = _('Output field to sort on.\n'
-                'Available fields: author_sort, id, rating, size, timestamp, title.\n'
+                'Available fields: author_sort, id, rating, size, timestamp, title_sort\n'
                 "Default: '%default'\n"
                 "Applies to: CSV, XML output formats"))]
 
@@ -76,7 +76,7 @@ class CSV_XML(CatalogPlugin): # {{{
 
         if opts.verbose:
             opts_dict = vars(opts)
-            log("%s(): Generating %s" % (self.name,self.fmt))
+            log("%s(): Generating %s" % (self.name,self.fmt.upper()))
             if opts.connected_device['is_device_connected']:
                 log(" connected_device: %s" % opts.connected_device['name'])
             if opts_dict['search_text']:
@@ -126,8 +126,11 @@ class CSV_XML(CatalogPlugin): # {{{
                 for field in fields:
                     if field.startswith('#'):
                         item = db.get_field(entry['id'],field,index_is_id=True)
+                    elif field == 'title_sort':
+                        item = entry['sort']
                     else:
                         item = entry[field]
+
                     if item is None:
                         outstr.append('""')
                         continue
@@ -167,7 +170,7 @@ class CSV_XML(CatalogPlugin): # {{{
                         item = getattr(E, field.replace('#','_'))(val)
                         record.append(item)
 
-                for field in ('id', 'uuid', 'title', 'publisher', 'rating', 'size',
+                for field in ('id', 'uuid', 'publisher', 'rating', 'size',
                               'isbn','ondevice'):
                     if field in fields:
                         val = r[field]
@@ -177,6 +180,10 @@ class CSV_XML(CatalogPlugin): # {{{
                             val = unicode(val)
                         item = getattr(E, field)(val)
                         record.append(item)
+
+                if 'title' in fields:
+                    title = E.title(r['title'], sort=r['sort'])
+                    record.append(title)
 
                 if 'authors' in fields:
                     aus = E.authors(sort=r['author_sort'])
