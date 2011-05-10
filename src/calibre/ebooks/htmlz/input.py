@@ -7,7 +7,6 @@ __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
 import os
-import posixpath
 
 from calibre import guess_type, walk
 from calibre.customize.conversion import InputFormatPlugin
@@ -74,22 +73,23 @@ class HTMLZInput(InputFormatPlugin):
         meta_info_to_oeb_metadata(mi, oeb.metadata, log)
         
         # Get the cover path from the OPF.
-        cover_href = None
+        cover_path = None
         opf = None
         for x in walk('.'):
             if os.path.splitext(x)[1].lower() in ('.opf'):
                 opf = x
                 break
         if opf:
-            opf = OPF(opf)
-            cover_href = posixpath.relpath(opf.cover, os.path.dirname(stream.name))
+            opf = OPF(opf, basedir=os.getcwd())
+            cover_path = opf.raster_cover
         # Set the cover.
-        if cover_href:
+        if cover_path:
             cdata = None
-            with open(cover_href, 'rb') as cf:
+            with open(os.path.join(os.getcwd(), cover_path), 'rb') as cf:
                 cdata = cf.read()
-            id, href = oeb.manifest.generate('cover', cover_href)
-            oeb.manifest.add(id, href, guess_type(cover_href)[0], data=cdata)
+            cover_name = os.path.basename(cover_path)
+            id, href = oeb.manifest.generate('cover', cover_name)
+            oeb.manifest.add(id, href, guess_type(cover_name)[0], data=cdata)
             oeb.guide.add('cover', 'Cover', href)
 
         return oeb
