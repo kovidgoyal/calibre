@@ -55,7 +55,6 @@ class BeamEBooksDEStore(BasicStoreConfig, StorePlugin):
                 if not id:
                     continue
                 id = id[7:]
-                print(id)
                 cover_url = ''.join(data.xpath('./tr/td[1]/a/img/@src'))
                 if cover_url:
                     cover_url = 'http://www.beam-ebooks.de' + cover_url
