@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-05-06 17:31+0000\n"
-"PO-Revision-Date: 2011-05-09 04:11+0000\n"
+"PO-Revision-Date: 2011-05-10 03:06+0000\n"
 "Last-Translator: Ado Nishimura <Unknown>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-05-09 04:34+0000\n"
+"X-Launchpad-Export-Date: 2011-05-10 04:36+0000\n"
 "X-Generator: Launchpad (build 12959)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -2077,6 +2077,9 @@ msgid ""
 "\"original\" (the default) does not change justification in the source file. "
 "Note that only some output formats support justification."
 msgstr ""
+"テキストのジャスティフィケーションを変える。「左」に設定するとジャスティファイすべき全てのテキストを左寄せにします。「ジャスティファイ」にするとジャスティ"
+"ファイしていないすべてのテキストをジャスティファイします。「オリジナル」（ディフォールト）にすると元ファイルのジャスティフィケーションを変えません。注：幾"
+"つかのフォーマットのみがジャスティフィケーションをサポートする事に注意してください。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:352
 msgid ""
@@ -2084,6 +2087,8 @@ msgid ""
 "1.5em. Spacing removal will not work if the source file does not use "
 "paragraphs (<p> or <div> tags)."
 msgstr ""
+"パラグラフ間のスペースを取り除く。同時にパラグラフのインデントを1.5emにします。この機能は入力ファイルがパラグラフ（<p>や<div>タグ）をサポート"
+"しない場合には動作しません。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:359
 msgid ""
@@ -2091,24 +2096,26 @@ msgid ""
 "paragraph indent, to ensure that paragraphs can be easily distinguished. "
 "This option controls the width of that indent."
 msgstr ""
+"calibreがパラグラフ間のスペースを取り除く場合、パラグラフが簡単に識別できるように、自動的にパラグラフのインデントを設定します。このオプションはイン"
+"デントの幅をコントロールします。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:366
 msgid ""
 "Use the cover detected from the source file in preference to the specified "
 "cover."
-msgstr ""
+msgstr "設定で指定した入力ファイルより識別されたカバーを指定のカバーとして使います。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:372
 msgid ""
 "Insert a blank line between paragraphs. Will not work if the source file "
 "does not use paragraphs (<p> or <div> tags)."
-msgstr ""
+msgstr "パラグラフ間に空白行を挿入します。入力ファイルがパラグラフ（<p>や<div>タグ）を使わない場合には動作しません。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:379
 msgid ""
 "Remove the first image from the input ebook. Useful if the first image in "
 "the source file is a cover and you are specifying an external cover."
-msgstr ""
+msgstr "入力のEBookの最初の画像を取り除きます。最初の画像が表紙で、外部から表紙を指定した場合に便利です。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:387
 msgid ""
@@ -2122,6 +2129,8 @@ msgid ""
 "Convert plain quotes, dashes and ellipsis to their typographically correct "
 "equivalents. For details, see http://daringfireball.net/projects/smartypants"
 msgstr ""
+"引用記号、ダッシュ、省略符号を印刷として正しいものに変換します。詳しくは  "
+"http://daringfireball.net/projects/smartypants を参照してください。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:404
 msgid ""
@@ -2148,6 +2157,9 @@ msgid ""
 "corresponding pair of normal characters. This option will preserve them "
 "instead."
 msgstr ""
+"入力ドキュメント内の合字をそのままにします。合字とは2つの文字を組み合わせて表現する特別な文字です。（例：ff,fi,fl等）大半のリーダーは標準のフォン"
+"トで合字をサポートしないので、これらが正しく表示される可能性は低いです。ディフォールトではcalibreは合字を2つの通常文字に変換します。このオプション"
+"はそれらをそのままにします。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:438
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:38
@@ -2156,7 +2168,7 @@ msgstr "タイトルの設定"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:442
 msgid "Set the authors. Multiple authors should be separated by ampersands."
-msgstr ""
+msgstr "作者を設定します。複数の作者は&でつなげてください。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:447
 msgid "The version of the title to be used for sorting. "
@@ -2193,7 +2205,7 @@ msgstr "このシリーズの書籍の巻数を設定。"
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:475
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:64
 msgid "Set the rating. Should be a number between 1 and 5."
-msgstr ""
+msgstr "１～５の番号で、評価を設定します。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:479
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:66
@@ -2203,7 +2215,7 @@ msgstr "書籍のISBNコードを設定。"
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:483
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:68
 msgid "Set the tags for the book. Should be a comma separated list."
-msgstr ""
+msgstr "本にタグを設定します。コンマ「,」で区切られたリストにしてください。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:487
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:70
@@ -2221,7 +2233,7 @@ msgstr "出版年月日を設定する。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:499
 msgid "Set the book timestamp (used by the date column in calibre)."
-msgstr ""
+msgstr "本の日時を設定します。（calibreの日付列で使用されます）"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:503
 msgid ""
@@ -2235,17 +2247,19 @@ msgid ""
 "h3 tags.  This setting will not create a TOC, but can be used in conjunction "
 "with structure detection to create one."
 msgstr ""
+"フォーマットされていない章タイトルやサブタイトルを見つけます。それらはh2とh3タグに変換されます。この設定だけでは目次を作りませんが、目次作成の機能と同"
+"時に使用することができます。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:515
 msgid ""
 "Look for common words and patterns that denote italics and italicize them."
-msgstr ""
+msgstr "イタリック体に変換する標準的な言葉やパターンを捜します。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:520
 msgid ""
 "Turn indentation created from multiple non-breaking space entities into CSS "
 "indents."
-msgstr ""
+msgstr "複数の（改行しない）スペースで作られたインデントを、CSSのインデントへ変換します。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:525
 msgid ""
@@ -2254,16 +2268,18 @@ msgid ""
 "the median line length.  If only a few lines in the document require "
 "unwrapping this value should be reduced"
 msgstr ""
+"行の折り返しをしない長さを決めるための比率。有効な値は０～１まです。ディフォールトは0.4で、真ん中より少し小さいあたりです。もし少しの行しか折り返しする"
+"必要が無い場合にはこの値を下げてください。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:533
 msgid "Unwrap lines using punctuation and other formatting clues."
-msgstr ""
+msgstr "句読点やその他のフォーマット要素によって、行の折り返しをします。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:537
 msgid ""
 "Remove empty paragraphs from the document when they exist between every "
 "other paragraph"
-msgstr ""
+msgstr "2つのパラグラフに挟まれた、空白のパラグラフを取り除きます。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:542
 msgid ""
