@@ -11,7 +11,20 @@ class Newsweek(BasicNewsRecipe):
     no_stylesheets = True
 
     BASE_URL = 'http://www.newsweek.com'
-    INDEX = BASE_URL+'/topics.html'
+    
+    topics = {
+        'Culture' : '/tag/culture.html',
+        'Business' : '/tag/business.html',
+        'Society' : '/tag/society.html',
+        'Science' : '/tag/science.html',
+        'Education' : '/tag/education.html',
+        'Politics' : '/tag/politics.html',
+        'Health' : '/tag/health.html',
+        'World' : '/tag/world.html',
+        'Nation' : '/tag/nation.html',
+        'Technology' : '/tag/technology.html',
+        'Game Changers' : '/tag/game-changers.html',
+    }
 
     keep_only_tags = dict(name='article', attrs={'class':'article-text'})
     remove_tags = [dict(attrs={'data-dartad':True})]
@@ -23,10 +36,9 @@ class Newsweek(BasicNewsRecipe):
         return soup
 
     def newsweek_sections(self):
-        soup = self.index_to_soup(self.INDEX)
-        for a in soup.findAll('a', title='Primary tag', href=True):
-            yield (string.capitalize(self.tag_to_string(a)),
-                    self.BASE_URL+a['href'])
+        for topic_name, topic_url in self.topics.iteritems():
+            yield (topic_name,
+                    self.BASE_URL+topic_url)
 
 
     def newsweek_parse_section_page(self, soup):
