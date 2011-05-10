@@ -705,7 +705,7 @@ class Textile(object):
             result.append(line)
         return ''.join(result)
 
-    def glyphs_only(self, text):
+    def macros_only(self, text):
         # fix: hackish
         text = re.sub(r'"\Z', '\" ', text)
 
@@ -828,7 +828,7 @@ class Textile(object):
         'fooobar ... and hello world ...'
         """
 
-        text = self.glyphs_only(text)
+        text = self.macros_only(text)
         punct = '!"#$%&\'*+,-./:;=?@\\^_`|~'
 
         pattern = r'''
