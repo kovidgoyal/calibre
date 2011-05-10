@@ -1186,6 +1186,11 @@ class StoreWeightlessBooksStore(StoreBase):
     description = '(e)Books That Don\'t Weigh You Down'
     actual_plugin = 'calibre.gui2.store.weightless_books_plugin:WeightlessBooksStore'
 
+class StoreWizardsTowerBooksStore(StoreBase):
+    name = 'Wizards Tower Books'
+    description = 'Wizard\'s Tower Press'
+    actual_plugin = 'calibre.gui2.store.wizards_tower_books_plugin:WizardsTowerBooksStore'
+
 plugins += [StoreAmazonKindleStore, StoreAmazonDEKindleStore, StoreAmazonUKKindleStore,
     StoreBaenWebScriptionStore, StoreBNStore,
     StoreBeWriteStore,
@@ -1193,6 +1198,6 @@ plugins += [StoreAmazonKindleStore, StoreAmazonDEKindleStore, StoreAmazonUKKindl
     StoreEHarlequinStoretore, StoreFeedbooksStore,
     StoreFoylesUKStore, StoreGutenbergStore, StoreKoboStore, StoreManyBooksStore,
     StoreMobileReadStore, StoreOpenLibraryStore, StoreSmashwordsStore,
-    StoreWaterstonesUKStore, StoreWeightlessBooksStore]
+    StoreWaterstonesUKStore, StoreWeightlessBooksStore, StoreWizardsTowerBooksStore]
 
 # }}}
