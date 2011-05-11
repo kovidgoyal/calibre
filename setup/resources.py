@@ -139,7 +139,7 @@ class Resources(Command):
         dest = self.j(self.RESOURCES, 'localization',
                 'pykakasi','itaijidict2.pickle')
 
-        if self.newer(dest, src):
+        if self.newer(dest, src) or iswindows:
             self.info('\tGenerating Itaijidict')
             self.mkitaiji(src, dest)
 
@@ -147,7 +147,7 @@ class Resources(Command):
         dest = self.j(self.RESOURCES, 'localization',
                 'pykakasi','kanadict2.pickle')
 
-        if self.newer(dest, src):
+        if self.newer(dest, src) or iswindows:
             self.info('\tGenerating kanadict')
             self.mkkanadict(src, dest)
 

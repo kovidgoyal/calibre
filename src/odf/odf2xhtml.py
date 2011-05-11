@@ -1415,7 +1415,7 @@ ol, ul { padding-left: 2em; }
         self.writedata()
         c = attrs.get( (TEXTNS,'style-name'), None)
         htmlattrs = {}
-        # Changed by Kovid to handle inline apecial styles defined on <text:span> tags.
+        # Changed by Kovid to handle inline special styles defined on <text:span> tags.
         # Apparently LibreOffice does this.
         special = 'span'
         if c:
@@ -1433,7 +1433,7 @@ ol, ul { padding-left: 2em; }
         """ End the <text:span> """
         self.writedata()
         c = attrs.get( (TEXTNS,'style-name'), None)
-        # Changed by Kovid to handle inline apecial styles defined on <text:span> tags.
+        # Changed by Kovid to handle inline special styles defined on <text:span> tags.
         # Apparently LibreOffice does this.
         special = 'span'
         if c:
