@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 import os, cPickle, re, anydbm, shutil, marshal, zipfile, glob
 from zlib import compress
 
-from setup import Command, basenames, __appname__
+from setup import Command, basenames, __appname__, iswindows
 
 def get_opts_from_parser(parser):
     def do_opt(opt):
@@ -128,7 +128,7 @@ class Resources(Command):
         if not os.path.exists(base):
             os.makedirs(base)
 
-        if self.newer(dest, src):
+        if self.newer(dest, src) or iswindows:
             self.info('\tGenerating Kanwadict')
 
             for line in open(src, "r"):
