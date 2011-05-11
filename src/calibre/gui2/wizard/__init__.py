@@ -435,7 +435,7 @@ class DevicePage(QWizardPage, DeviceUI):
         self.registerField("device", self.device_view)
 
     def initializePage(self):
-        self.label.setText(_('Choose you e-book device. If your device is'
+        self.label.setText(_('Choose your e-book device. If your device is'
             ' not in the list, choose a "%s" device.')%Device.manufacturer)
         self.man_model = ManufacturerModel()
         self.manufacturer_view.setModel(self.man_model)
