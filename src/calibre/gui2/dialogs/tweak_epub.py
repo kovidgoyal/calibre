@@ -7,16 +7,16 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os, shutil
-from contextlib import closing
 from zipfile import ZipFile, ZIP_DEFLATED, ZIP_STORED
 
 from PyQt4.Qt import QDialog
 
 from calibre.constants import isosx
-from calibre.gui2 import open_local_file
+from calibre.gui2 import open_local_file, error_dialog
 from calibre.gui2.dialogs.tweak_epub_ui import Ui_Dialog
 from calibre.libunzip import extract as zipextract
-from calibre.ptempfile import PersistentTemporaryDirectory
+from calibre.ptempfile import (PersistentTemporaryDirectory,
+        PersistentTemporaryFile)
 
 class TweakEpub(QDialog, Ui_Dialog):
     '''
@@ -37,10 +37,14 @@ class TweakEpub(QDialog, Ui_Dialog):
         self.cancel_button.clicked.connect(self.reject)
         self.explode_button.clicked.connect(self.explode)
         self.rebuild_button.clicked.connect(self.rebuild)
+        self.preview_button.clicked.connect(self.preview)
 
         # Position update dialog overlaying top left of app window
         parent_loc = parent.pos()
         self.move(parent_loc.x(),parent_loc.y())
+
+        self.gui = parent
+        self._preview_files = []
 
     def cleanup(self):
         if isosx:
@@ -55,6 +59,11 @@ class TweakEpub(QDialog, Ui_Dialog):
         # Delete directory containing exploded ePub
         if self._exploded is not None:
             shutil.rmtree(self._exploded, ignore_errors=True)
+        for x in self._preview_files:
+            try:
+                os.remove(x)
+            except:
+                pass
 
     def display_exploded(self):
         '''
@@ -71,9 +80,8 @@ class TweakEpub(QDialog, Ui_Dialog):
             self.rebuild_button.setEnabled(True)
             self.explode_button.setEnabled(False)
 
-    def rebuild(self, *args):
-        self._output = os.path.join(self._exploded, 'rebuilt.epub')
-        with closing(ZipFile(self._output, 'w', compression=ZIP_DEFLATED)) as zf:
+    def do_rebuild(self, src):
+        with ZipFile(src, 'w', compression=ZIP_DEFLATED) as zf:
             # Write mimetype
             zf.write(os.path.join(self._exploded,'mimetype'), 'mimetype', compress_type=ZIP_STORED)
             # Write everything else
@@ -86,5 +94,23 @@ class TweakEpub(QDialog, Ui_Dialog):
                     zfn = os.path.relpath(absfn,
                             self._exploded).replace(os.sep, '/')
                     zf.write(absfn, zfn)
+
+    def preview(self):
+        if not self._exploded:
+            return error_dialog(self, _('Cannot preview'),
+                    _('You must first explode the epub before previewing.'),
+                    show=True)
+
+        tf = PersistentTemporaryFile('.epub')
+        tf.close()
+        self._preview_files.append(tf.name)
+
+        self.do_rebuild(tf.name)
+
+        self.gui.iactions['View']._view_file(tf.name)
+
+    def rebuild(self, *args):
+        self._output = os.path.join(self._exploded, 'rebuilt.epub')
+        self.do_rebuild(self._output)
         return QDialog.accept(self)
 

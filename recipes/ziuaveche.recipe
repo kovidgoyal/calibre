@@ -1,0 +1,53 @@
+# -*- coding: utf-8 -*-
+#!/usr/bin/env  python
+
+__license__   = 'GPL v3'
+__copyright__ = u'2011, Silviu Cotoar\u0103'
+'''
+ziuaveche.ro
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class ZiuaVeche(BasicNewsRecipe):
+    title                       = u'Ziua Veche'
+    __author__          = u'Silviu Cotoar\u0103'
+    description             = 'Cotidian online'
+    publisher                   = 'Ziua Veche'
+    oldest_article              = 5
+    language                    = 'ro'
+    max_articles_per_feed = 100
+    no_stylesheets          = True
+    use_embedded_content  = False
+    category                  = 'Ziare,Cotidiane,Stiri'
+    encoding                = 'utf-8'
+    cover_url     = 'http://www.ziuaveche.ro/wp-content/themes/tema/images/zv-logo-alb-old.png'
+
+    conversion_options = {
+                             'comments'  : description
+                            ,'tags'           : category
+                            ,'language'    : language
+                ,'publisher'   : publisher
+                         }
+
+
+    keep_only_tags = [
+        dict(name='div', attrs={'id':'singlePost'})
+
+                 ]
+
+    remove_tags = [
+            dict(name='div', attrs={'id':'LikePluginPagelet'})
+
+                          ]
+
+    remove_tags_after = [
+               dict(name='div', attrs={'id':'LikePluginPagelet'})
+           ]
+
+    feeds          = [
+        (u'Feeds', u'http://www.ziuaveche.ro/feed/rss')
+                     ]
+
+    def preprocess_html(self, soup):
+        return self.adeify_images(soup)

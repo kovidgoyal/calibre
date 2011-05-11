@@ -190,7 +190,15 @@ class FieldsModel(QAbstractListModel): # {{{
         return ans | Qt.ItemIsUserCheckable
 
     def restore_defaults(self):
-        self.overrides = dict([(f, self.state(f, True)) for f in self.fields])
+        self.overrides = dict([(f, self.state(f, Qt.Checked)) for f in self.fields])
+        self.reset()
+
+    def select_all(self):
+        self.overrides = dict([(f, Qt.Checked) for f in self.fields])
+        self.reset()
+
+    def clear_all(self):
+        self.overrides = dict([(f, Qt.Unchecked) for f in self.fields])
         self.reset()
 
     def setData(self, index, val, role):
@@ -272,6 +280,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.fields_model = FieldsModel(self)
         self.fields_view.setModel(self.fields_model)
         self.fields_model.dataChanged.connect(self.changed_signal)
+
+        self.select_all_button.clicked.connect(self.fields_model.select_all)
+        self.clear_all_button.clicked.connect(self.fields_model.clear_all)
 
     def configure_plugin(self):
         for index in self.sources_view.selectionModel().selectedRows():

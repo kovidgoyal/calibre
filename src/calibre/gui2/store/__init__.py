@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 class StorePlugin(object): # {{{
     '''
     A plugin representing an online ebook repository (store). The store can
-    be a comercial store that sells ebooks or a source of free downloadable
+    be a commercial store that sells ebooks or a source of free downloadable
     ebooks.
 
     Note that this class is the base class for these plugins, however, to
@@ -43,11 +43,13 @@ class StorePlugin(object): # {{{
     The easiest way to handle affiliate money payouts is to randomly select
     between the author's affiliate id and calibre's affiliate id so that
     70% of the time the author's id is used.
+    
+    See declined.txt for a list of stores that do not want to be included.
     '''
 
     def __init__(self, gui, name):
         from calibre.gui2 import JSONConfig
-        
+
         self.gui = gui
         self.name = name
         self.base_plugin = None
@@ -79,14 +81,14 @@ class StorePlugin(object): # {{{
         return items as a generator.
 
         Don't be lazy with the search! Load as much data as possible in the
-        :class:`calibre.gui2.store.search_result.SearchResult` object. 
+        :class:`calibre.gui2.store.search_result.SearchResult` object.
         However, if data (such as cover_url)
         isn't available because the store does not display cover images then it's okay to
         ignore it.
-        
+
         At the very least a :class:`calibre.gui2.store.search_result.SearchResult`
         returned by this function must have the title, author and id.
-        
+
         If you have to parse multiple pages to get all of the data then implement
         :meth:`get_deatils` for retrieving additional information.
 
@@ -105,24 +107,24 @@ class StorePlugin(object): # {{{
         item_data is plugin specific and is used in :meth:`open` to open to a specifc place in the store.
         '''
         raise NotImplementedError()
-    
+
     def get_details(self, search_result, timeout=60):
         '''
         Delayed search for information about specific search items.
-        
+
         Typically, this will be used when certain information such as
         formats, drm status, cover url are not part of the main search
         results and the information is on another web page.
-        
+
         Using this function allows for the main information (title, author)
         to be displayed in the search results while other information can
         take extra time to load. Splitting retrieving data that takes longer
         to load into a separate function will give the illusion of the search
         being faster.
-        
+
         :param search_result: A search result that need details set.
         :param timeout: The maximum amount of time in seconds to spend downloading details.
-        
+
         :return: True if the search_result was modified otherwise False
         '''
         return False
@@ -133,30 +135,30 @@ class StorePlugin(object): # {{{
         is called to update the caches. It is recommended to call this function
         from :meth:`open`. Especially if :meth:`open` does anything other than
         open a web page.
-        
+
         This function can be called at any time. It is up to the plugin to determine
         if the cache really does need updating. Unless :param:`force` is True, then
         the plugin must update the cache. The only time force should be True is if
         this function is called by the plugin's configuration dialog.
-        
+
         if :param:`suppress_progress` is False it is safe to assume that this function
         is being called from the main GUI thread so it is safe and recommended to use
         a QProgressDialog to display what is happening and allow the user to cancel
         the operation. if :param:`suppress_progress` is True then run the update
         silently. In this case there is no guarantee what thread is calling this
         function so no Qt related functionality that requires being run in the main
-        GUI thread should be run. E.G. Open a QProgressDialog. 
-        
+        GUI thread should be run. E.G. Open a QProgressDialog.
+
         :param parent: The parent object to be used by an GUI dialogs.
-        
+
         :param timeout: The maximum amount of time that should be spent in
         any given network connection.
-        
+
         :param force: Force updating the cache even if the plugin has determined
         it is not necessary.
-        
+
         :param suppress_progress: Should a progress indicator be shown.
-        
+
         :return: True if the cache was updated, False otherwise.
         '''
         return False

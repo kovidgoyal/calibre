@@ -203,9 +203,11 @@ class ITUNES(DriverBase):
     #  0x1294   iPhone 3GS
     #  0x1297   iPhone 4
     #  0x129a   iPad
-    #  0x12a2   iPad2
+    #  0x129f   iPad2 (WiFi)
+    #  0x12a2   iPad2 (GSM)
+    #  0x12a3   iPad2 (CDMA)
     VENDOR_ID = [0x05ac]
-    PRODUCT_ID = [0x1292,0x1293,0x1294,0x1297,0x1299,0x129a,0x12a2]
+    PRODUCT_ID = [0x1292,0x1293,0x1294,0x1297,0x1299,0x129a,0x129f,0x12a2,0x12a3]
     BCD = [0x01]
 
     # Plugboard ID
@@ -506,7 +508,7 @@ class ITUNES(DriverBase):
         if self.iTunes:
             # Check for connected book-capable device
             self.sources = self._get_sources()
-            if 'iPod' in self.sources:
+            if 'iPod' in self.sources and not self.ejected:
                 #if DEBUG:
                     #sys.stdout.write('.')
                     #sys.stdout.flush()
@@ -2036,16 +2038,17 @@ class ITUNES(DriverBase):
             if 'iPod' in self.sources:
                 connected_device = self.sources['iPod']
                 device = self.iTunes.sources[connected_device]
+                dev_books = None
                 for pl in device.playlists():
                     if pl.special_kind() == appscript.k.Books:
                         if DEBUG:
                             self.log.info("  Book playlist: '%s'" % (pl.name()))
-                        books = pl.file_tracks()
+                        dev_books = pl.file_tracks()
                         break
                 else:
                     self.log.error("  book_playlist not found")
 
-                for book in books:
+                for book in dev_books:
                     # This may need additional entries for international iTunes users
                     if book.kind() in self.Audiobooks:
                         if DEBUG:

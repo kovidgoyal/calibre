@@ -439,10 +439,16 @@ class BooksView(QTableView): # {{{
 
         if tweaks['sort_columns_at_startup'] is not None:
             sh = []
-            for c,d in tweaks['sort_columns_at_startup']:
-                if not isinstance(d, bool):
-                    d = True if d == 0 else False
-                sh.append((c, d))
+            try:
+                for c,d in tweaks['sort_columns_at_startup']:
+                    if not isinstance(d, bool):
+                        d = True if d == 0 else False
+                    sh.append((c, d))
+            except:
+                # Ignore invalid tweak values as users seem to often get them
+                # wrong
+                import traceback
+                traceback.print_exc()
             old_state['sort_history'] = sh
 
         self.apply_state(old_state)

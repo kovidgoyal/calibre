@@ -10,7 +10,7 @@ from PyQt4.Qt import QIcon, QMenu, Qt
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.preferences.main import Preferences
 from calibre.gui2 import error_dialog
-from calibre.constants import DEBUG
+from calibre.constants import DEBUG, isosx
 
 class PreferencesAction(InterfaceAction):
 
@@ -19,7 +19,8 @@ class PreferencesAction(InterfaceAction):
 
     def genesis(self):
         pm = QMenu()
-        pm.addAction(QIcon(I('config.png')), _('Preferences'), self.do_config)
+        acname = _('Change calibre behavior') if isosx else _('Preferences')
+        pm.addAction(QIcon(I('config.png')), acname, self.do_config)
         pm.addAction(QIcon(I('wizard.png')), _('Run welcome wizard'),
                 self.gui.run_wizard)
         if not DEBUG:

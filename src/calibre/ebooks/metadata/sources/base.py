@@ -212,6 +212,9 @@ class Source(Plugin):
     def is_customizable(self):
         return True
 
+    def customization_help(self):
+        return 'This plugin can only be customized using the GUI'
+
     def config_widget(self):
         from calibre.gui2.metadata.config import ConfigWidget
         return ConfigWidget(self)
@@ -288,9 +291,9 @@ class Source(Plugin):
                     parts = parts[1:] + parts[:1]
                 for tok in parts:
                     tok = remove_pat.sub('', tok).strip()
-                    if len(tok) > 2 and tok.lower() not in ('von', ):
+                    if len(tok) > 2 and tok.lower() not in ('von', 'van',
+                            _('Unknown').lower()):
                         yield tok
-
 
     def get_title_tokens(self, title, strip_joiners=True, strip_subtitle=False):
         '''

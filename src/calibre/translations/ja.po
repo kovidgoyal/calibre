@@ -7,15 +7,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2011-04-29 18:21+0000\n"
-"PO-Revision-Date: 2011-04-25 13:27+0000\n"
+"POT-Creation-Date: 2011-04-30 16:30+0000\n"
+"PO-Revision-Date: 2011-05-05 14:08+0000\n"
 "Last-Translator: Ado Nishimura <Unknown>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-04-30 04:41+0000\n"
-"X-Generator: Launchpad (build 12758)\n"
+"X-Launchpad-Export-Date: 2011-05-06 04:34+0000\n"
+"X-Generator: Launchpad (build 12959)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -189,7 +189,7 @@ msgstr "不明"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:77
 msgid "Base"
-msgstr "基礎"
+msgstr "基本"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:148
 msgid "Customize"
@@ -199,7 +199,7 @@ msgstr "カスタマイズ"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:41
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:46
 msgid "Cannot configure"
-msgstr "設定できない"
+msgstr "設定できません"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:318
 msgid "File type"
@@ -207,7 +207,7 @@ msgstr "ファイル形式"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:354
 msgid "Metadata reader"
-msgstr "メタデータ読み込み"
+msgstr "書誌情報読み込み"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:384
 msgid "Metadata writer"
@@ -219,7 +219,7 @@ msgstr "カタログ・ジェネレータ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:523
 msgid "User Interface Action"
-msgstr "ユーザインターフェースアクション"
+msgstr "ユーザインターフェース・アクション"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:557
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:18
@@ -369,7 +369,7 @@ msgstr "検索中"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:934
 msgid "Customize the way searching for books works in calibre"
-msgstr ""
+msgstr "calibreでの本の検索方法をカスタマイズする"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:939
 msgid "Input Options"
@@ -436,7 +436,7 @@ msgstr "calibreがファイルを電子書籍リーダーへ送信する挙動�
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1008
 msgid "Metadata plugboards"
-msgstr ""
+msgstr "メタデータ変換ルール"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1014
 msgid "Change metadata fields before saving/sending"
@@ -444,7 +444,7 @@ msgstr "保存・送信まえに書誌情報を変更します。"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1019
 msgid "Template Functions"
-msgstr ""
+msgstr "テンプレート関数"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1021
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1068
@@ -455,7 +455,7 @@ msgstr "高度な設定"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1025
 msgid "Create your own template functions"
-msgstr ""
+msgstr "独自のテンプレート関数を作成する。"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1030
 msgid "Sharing books by email"
@@ -482,6 +482,7 @@ msgid ""
 "Setup the calibre Content Server which will give you access to your calibre "
 "library from anywhere, on any device, over the internet"
 msgstr ""
+"calibreコンテンツサーバを設定し、calibreライブラリに、インターネット経由でどこからでも、どのデバイスからでもアクセスできるようにします。"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1055
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fetch.py:57
@@ -490,7 +491,7 @@ msgstr "メタデータのダウンロード"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1061
 msgid "Control how calibre downloads ebook metadata from the net"
-msgstr ""
+msgstr "calibreが電子書籍のメタデータを、ネットからダウンロードする方法を制御します。"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1066
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:269
@@ -499,15 +500,15 @@ msgstr "プラグイン"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1072
 msgid "Add/remove/customize various bits of calibre functionality"
-msgstr ""
+msgstr "calibreの機能各種について、追加/削除/カスタマイズする"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1078
 msgid "Tweaks"
-msgstr ""
+msgstr "Tweaks"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1084
 msgid "Fine tune how calibre behaves in various contexts"
-msgstr ""
+msgstr "様々なコンテキストでのcalibreの挙動を微調整"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1089
 msgid "Miscellaneous"
@@ -519,75 +520,75 @@ msgstr "その他の高度な設定"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1109
 msgid "Kindle books from Amazon"
-msgstr ""
+msgstr "AmazonからKindleブック"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1114
 msgid "Kindle books from Amazon.uk"
-msgstr ""
+msgstr "Amazon.ukからkindle版書籍"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1119
 msgid "Ebooks for readers."
-msgstr ""
+msgstr "Ebooks for readers."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1124
 msgid "Books, Textbooks, eBooks, Toys, Games and More."
-msgstr ""
+msgstr "書籍、テキスト、電子書籍、おもちゃ、ゲームなどなど"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1129
 msgid "Publishers of fine books."
-msgstr ""
+msgstr "良書の出版"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1134
 msgid "World Famous eBook Store."
-msgstr ""
+msgstr "世界的に有名な電子書籍ストア"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1139
 msgid "The digital bookstore."
-msgstr ""
+msgstr "電子書店"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1144
 msgid "entertain, enrich, inspire."
-msgstr ""
+msgstr "entertain, enrich, inspire."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1149
 msgid "Read anywhere."
-msgstr ""
+msgstr "どこでも読める"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1154
 msgid "The first producer of free ebooks."
-msgstr ""
+msgstr "The first producer of free ebooks."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1159
 msgid "eReading: anytime. anyplace."
-msgstr ""
+msgstr "eReading: anytime. anyplace."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1164
 msgid "The best ebooks at the best price: free!"
-msgstr ""
+msgstr "The best ebooks at the best price: free!"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1169
 msgid "Ebooks handcrafted with the utmost care"
-msgstr ""
+msgstr "Ebooks handcrafted with the utmost care"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1174
 msgid "One web page for every book."
-msgstr ""
+msgstr "One web page for every book."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1179
 msgid "Your ebook. Your way."
-msgstr ""
+msgstr "Your ebook. Your way."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1184
 msgid "Feel every word"
-msgstr ""
+msgstr "Feel every word"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1189
 msgid "Foyles of London, online"
-msgstr ""
+msgstr "Foyles of London, online"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1194
 msgid "Kindle eBooks"
-msgstr ""
+msgstr "Kindle eBooks"
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:102
 msgid "Conversion Input"
@@ -712,13 +713,13 @@ msgstr "iPadや同種の解像度(768x1024)を想定する"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:438
 msgid "Intended for generic tablet devices, does no resizing of images"
-msgstr ""
+msgstr "一般的なタブレット用。イメージのリサイズをしません。"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:446
 msgid ""
 "Intended for the Samsung Galaxy and similar tablet devices with a resolution "
 "of 600x1280"
-msgstr ""
+msgstr "サムソンGalaxy Tabやその他の600x1280解像度のデバイス。"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:472
 msgid "This profile is intended for the Kobo Reader."
@@ -730,11 +731,11 @@ msgstr "SONY PRS-300用のプロファイルです。"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:503
 msgid "Suitable for use with any e-ink device"
-msgstr ""
+msgstr "e-inkを使ったデバイス（汎用）"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:510
 msgid "Suitable for use with any large screen e-ink device"
-msgstr ""
+msgstr "e-inkを使った大きな画面のデバイス（汎用）"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:519
 msgid "This profile is intended for the 5-inch JetBook."
@@ -756,7 +757,7 @@ msgstr "このプロファイル設定は、バーンズアンドノーブルの
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:724
 msgid "This profile is intended for the Sanda Bambook."
-msgstr ""
+msgstr "Sanda Bambook"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:32
 msgid "Installed plugins"
@@ -818,7 +819,7 @@ msgstr "名付けたプラグインを無効にする"
 
 #: /home/kovid/work/calibre/src/calibre/debug.py:152
 msgid "Debug log"
-msgstr ""
+msgstr "デバッグ・ログ"
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:13
 msgid "Communicate with Android phones."
@@ -845,14 +846,22 @@ msgid ""
 "iTunes</em> menu item.</p><p>Enabling the Apple driver for direct connection "
 "to iDevices is an unsupported advanced user mode.</p><p></p>"
 msgstr ""
+"<p>Apple iDevice が接続されたときにcalibreに自動認識させないためには、<b>Apple "
+"ドライバーを無効化</b>をクリックしてください。</p><p>その場合iDevice に転送する時には、<b>Apple "
+"ドライバーを無効化</b>をクリックして、<a "
+"href=\"http://www.mobileread.com/forums/showthread.php?t=118559\">Calibre + "
+"iDevices FAQ</a>の 'Connect to "
+"iTunes'の項で推奨されているように、メニューの<em>Connect/Share</em>|<em>Connect to "
+"iTunes</em>を使ってください。</p><p>アドバンストモードではAppleドライバーを使用したiDevicesへの直接接続はサポートされていま"
+"せん。</p><p></p>"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:65
 msgid "Disable Apple driver"
-msgstr ""
+msgstr "Apple ドライバーを無効化"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:69
 msgid "Enable Apple driver"
-msgstr ""
+msgstr "Apple ドライバーを有効化"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:117
 msgid "Use Series as Category in iTunes/iBooks"
@@ -860,7 +869,7 @@ msgstr "iTunes/iBooksのカテゴリーをシリーズとして使う"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:118
 msgid "Enable to use the series name as the iTunes Genre, iBooks Category"
-msgstr ""
+msgstr "iTunesのジャンル / iBooksのカテゴリーをシリーズ名として使う"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:120
 msgid "Cache covers from iTunes/iBooks"
@@ -868,48 +877,50 @@ msgstr "iTunes/iBooksから表紙を保存"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:122
 msgid "Enable to cache and display covers from iTunes/iBooks"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:176
-msgid "Apple device"
-msgstr ""
+msgstr "iTunes/iBooksからの表紙を使用する（キャッシュもされる）"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:178
+msgid "Apple device"
+msgstr "Appleデバイス"
+
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:180
 msgid "Communicate with iTunes/iBooks."
 msgstr "iTunes/iBooksと通信"
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:190
-msgid "Apple device detected, launching iTunes, please wait ..."
-msgstr ""
-
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:192
+msgid "Apple device detected, launching iTunes, please wait ..."
+msgstr "Appleの機器が見つかりました。iTunes を起動しています。しばらくお待ちください..."
+
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:194
 msgid ""
 "Cannot copy books directly from iDevice. Drag from iTunes Library to "
 "desktop, then add to calibre's Library window."
 msgstr ""
+"iDeviceから直接EBookをコピーできません。iTunesのライブラリから一度デスクトップへドラッグしてからcalibreのライブラリ・ウインドウに"
+"追加してください。"
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:353
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:356
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:355
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:358
 msgid "Updating device metadata listing..."
 msgstr "デバイスの書誌情報リストを更新..."
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:432
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:471
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:1054
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:1098
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3082
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3122
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:434
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:473
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:1056
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:1100
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3084
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3124
 msgid "%d of %d"
 msgstr "%d / %d"
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:478
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:1103
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3128
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:480
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:1105
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3130
 #: /home/kovid/work/calibre/src/calibre/gui2/ebook_download.py:106
 msgid "finished"
 msgstr "完了"
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:663
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:665
 msgid ""
 "Some books not found in iTunes database.\n"
 "Delete using the iBooks app.\n"
@@ -917,15 +928,17 @@ msgid ""
 msgstr ""
 "iTunesデータベースにみつからない書籍があります。\n"
 "iBooksアプリを使って削除してください。\n"
-"'詳細を見る'をクリックするとリストを表示します。"
+"'詳細を表示'をクリックするとリストを表示します。"
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:1014
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:1016
 msgid ""
 "Some cover art could not be converted.\n"
 "Click 'Show Details' for a list."
 msgstr ""
+"いくつかの表紙が変換できませんでした。\n"
+"'詳細を表示' をクリックするとリストを表示します。"
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2664
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2666
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:100
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:447
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:470
@@ -941,7 +954,7 @@ msgstr ""
 msgid "News"
 msgstr "ニュース"
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2665
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2667
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:65
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:633
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:2750
@@ -949,32 +962,32 @@ msgstr "ニュース"
 msgid "Catalog"
 msgstr "カタログ"
 
-#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2986
+#: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2988
 msgid "Communicate with iTunes."
 msgstr "iTunesと通信"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:24
 msgid "Communicate with the Sanda Bambook eBook reader."
-msgstr ""
+msgstr "Sanda Bambook eBookリーダーと通信します。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:25
 msgid "Li Fanxi"
-msgstr ""
+msgstr "Li Fanxi"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:42
 msgid "Device IP Address (restart calibre after changing)"
-msgstr ""
+msgstr "デバイスIPアドレス（再起動が必要）"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:47
 msgid ""
 "Unable to add book to library directly from Bambook. Please save the book to "
 "disk and add the file to library from disk."
-msgstr ""
+msgstr "Bambookから直接ライブラリにEBookを追加できません。一度ディスクにEBookをセーブしてからライブラリに追加してください。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:67
 msgid ""
 "Unable to connect to Bambook, you need to install Bambook library first."
-msgstr ""
+msgstr "Bambookに接続できませんでした。Bambook libraryを先にインストールしてください。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:75
 msgid ""
@@ -982,10 +995,12 @@ msgid ""
 "If you are trying to connect via Wi-Fi, please make sure the IP address of "
 "Bambook has been correctly configured."
 msgstr ""
+"Bambookに接続できませんでした。\n"
+"もしWi-Fiで接続しているのなら、BambookのIPアドレスが設定されているか確認してください。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:112
 msgid "Bambook"
-msgstr ""
+msgstr "Bambook"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:218
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:234
@@ -1046,7 +1061,7 @@ msgstr "デバイスにメタデータを送信しています..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/libbambookcore.py:129
 msgid "Bambook SDK has not been installed."
-msgstr ""
+msgstr "Bambook SDKがインストールされていません。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/binatone/driver.py:17
 msgid "Communicate with the Binatone Readme eBook reader."
@@ -1085,11 +1100,11 @@ msgstr "PocketBook 301 と通信しています"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:233
 msgid "Communicate with the PocketBook 602/603/902/903 reader."
-msgstr ""
+msgstr "PocketBook 602/603/902/903リーダーと通信する"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:253
 msgid "Communicate with the PocketBook 701"
-msgstr ""
+msgstr "PocketBook 701と通信する"
 
 #: /home/kovid/work/calibre/src/calibre/devices/edge/driver.py:17
 msgid "Entourage Edge"
@@ -1195,11 +1210,11 @@ msgstr "JetBookミニリーダーと通信しています"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/apnx.py:28
 msgid "Not a valid MOBI file. Reports identity of %s"
-msgstr ""
+msgstr "正しいMOBIファイルではありません。%sです。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/apnx.py:44
 msgid "Could not generate page mapping."
-msgstr ""
+msgstr "ページのマッピングができません。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:44
 msgid "Communicate with the Kindle eBook reader."
@@ -1211,7 +1226,7 @@ msgstr "Kindle 2/3電子ブックリーダーと通信"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:180
 msgid "Send page number information when sending books"
-msgstr ""
+msgstr "Book転送時にページ番号情報を送る。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:182
 msgid ""
@@ -1220,10 +1235,12 @@ msgid ""
 "the Kindle when uploading MOBI files by USB. Note that the page numbers do "
 "not correspond to any paper book."
 msgstr ""
+"Kindle3以降のヴァージョンではMOBIファイルでページ番号情報を使用できます。このオプションを有効にするとcalibreはKindleとUSBで接続"
+"されたときに、情報を計算してMOBIファイルと一緒にアップロードします。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:187
 msgid "Use slower but more accurate page number generation"
-msgstr ""
+msgstr "遅いが正確なページ番号生成"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:189
 msgid ""
@@ -1232,6 +1249,8 @@ msgid ""
 "book. However, this method is slower and will slow down sending files to the "
 "Kindle."
 msgstr ""
+"ページ番号を生成するには２つの方法があります。このオプションを使うと、印刷された本に近い、より正確なページ番号を生成できますが、この方法は遅く、Kindl"
+"eに送信する時間がかかります。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:257
 msgid "Communicate with the Kindle DX eBook reader."
@@ -1264,11 +1283,11 @@ msgstr "Palm Pre と通信します。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:39
 msgid "Communicate with the Bq Avant"
-msgstr ""
+msgstr "Booq Avant と通信します。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:60
 msgid "Communicate with the Sweex/Kogan/Q600/Wink"
-msgstr ""
+msgstr "Sweex/Kogan/Q600/Winkと通信します。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:81
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:108
@@ -1289,19 +1308,19 @@ msgstr "Acer Lumireadと通信しています"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:199
 msgid "Communicate with the Aluratek Color"
-msgstr ""
+msgstr "Aluratek Colorと通信します。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:219
 msgid "Communicate with the Trekstor"
-msgstr ""
+msgstr "Trekstorと通信します。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:239
 msgid "Communicate with the EEE Reader"
-msgstr ""
+msgstr "EEE Readerと通信します。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:259
 msgid "Communicate with the Nextbook Reader"
-msgstr ""
+msgstr "Nextbook Readerと通信します。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
@@ -4332,7 +4351,7 @@ msgstr "失敗"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:317
 msgid "Database integrity check failed, click Show details for details."
-msgstr ""
+msgstr "データーベースの整合性チェックに失敗しました。詳しくは'詳細を表示'をクリックしてください。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:322
 msgid "No problems found"
@@ -4457,7 +4476,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:67
 msgid ""
 "Failed to delete some books, click the Show Details button for details."
-msgstr ""
+msgstr "いくつかのEBookの削除ができませんでした。詳しくは'詳細を表示'をクリックしてください。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:73
 msgid "Del"
@@ -7374,7 +7393,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget.py:124
 msgid "Unknown formats"
-msgstr ""
+msgstr "不明なフォーマット"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget.py:125
 msgid ""
@@ -9121,7 +9140,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:196
 msgid "%s news sources"
-msgstr ""
+msgstr "%s ニュース・ソース"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:311
 msgid "Need username and password"
@@ -9129,7 +9148,7 @@ msgstr "ユーザ名とパスワードが必要"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:312
 msgid "You must provide a username and/or password to use this news source."
-msgstr ""
+msgstr "このニュースにはユーザー名（とパスワード）が必要です。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:346
 msgid "Account"
@@ -9289,7 +9308,7 @@ msgstr " 日経過したニュースを削除"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:226
 msgid "Download all scheduled news sources at once"
-msgstr ""
+msgstr "スケジュールしたニュースをすべてダウンロード"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:227
 msgid "Download &all scheduled"
@@ -10249,7 +10268,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:251
 msgid "Donate"
-msgstr ""
+msgstr "寄付"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:361
 msgid "Y"
@@ -11544,7 +11563,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:210
 msgid "Main Interface"
-msgstr ""
+msgstr "メイン画面"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:211
 msgid "Select displayed metadata"
@@ -12419,7 +12438,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:155
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:166
 msgid "Template functions"
-msgstr ""
+msgstr "テンプレート関数"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:135
 msgid "You cannot delete a built-in function"
@@ -15506,11 +15525,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:101
 msgid "unknown id "
-msgstr ""
+msgstr "不明なID "
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:107
 msgid "unknown function {0}"
-msgstr ""
+msgstr "不明な関数 {0}"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:126
 msgid "missing closing parenthesis"
@@ -15530,7 +15549,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:296
 msgid "%s: unknown function"
-msgstr ""
+msgstr "%s: 不明な関数"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:343
 msgid "No such variable "
@@ -15860,7 +15879,7 @@ msgstr "英語（キプロス）"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:107
 msgid "English (Czechoslovakia)"
-msgstr ""
+msgstr "英語（チェコスロバキア）"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:108
 msgid "English (Pakistan)"
@@ -15868,11 +15887,11 @@ msgstr "英語（パキスタン）"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:109
 msgid "English (Croatia)"
-msgstr ""
+msgstr "英語（クロアチア）"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:110
 msgid "English (Indonesia)"
-msgstr ""
+msgstr "英語(インドネシア)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:111
 msgid "English (Israel)"
@@ -15900,43 +15919,43 @@ msgstr "スペイン語(パラグアイ)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:117
 msgid "Spanish (Uruguay)"
-msgstr ""
+msgstr "スペイン語 (ウルグアイ)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:118
 msgid "Spanish (Argentina)"
-msgstr ""
+msgstr "スペイン語（アルゼンチン）"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:119
 msgid "Spanish (Mexico)"
-msgstr ""
+msgstr "スペイン語 (メキシコ)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:120
 msgid "Spanish (Cuba)"
-msgstr ""
+msgstr "スペイン語 (キューバ)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:121
 msgid "Spanish (Chile)"
-msgstr ""
+msgstr "スペイン語 (チリ)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:122
 msgid "Spanish (Ecuador)"
-msgstr ""
+msgstr "スペイン語 (エクアドル)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:123
 msgid "Spanish (Honduras)"
-msgstr ""
+msgstr "スペイン語 (ホンジュラス)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:124
 msgid "Spanish (Venezuela)"
-msgstr ""
+msgstr "スペイン語 (ベネズエラ)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:125
 msgid "Spanish (Bolivia)"
-msgstr ""
+msgstr "スペイン語 (ボリビア)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:126
 msgid "Spanish (Nicaragua)"
-msgstr ""
+msgstr "スペイン語 (ニカラグア)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:127
 msgid "German (AT)"
@@ -16018,7 +16037,7 @@ msgstr "電子メール配送の制御"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:120
 msgid "Unknown section"
-msgstr ""
+msgstr "不明なセクション"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:142
 msgid "Unknown feed"

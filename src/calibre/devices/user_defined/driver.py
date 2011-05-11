@@ -5,7 +5,6 @@ __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from calibre.devices.usbms.driver import USBMS
-from calibre.ebooks import BOOK_EXTENSIONS
 
 class USER_DEFINED(USBMS):
 
@@ -69,9 +68,9 @@ class USER_DEFINED(USBMS):
               'is prepended to any send_to_device template') + '</p>',
     ]
     EXTRA_CUSTOMIZATION_DEFAULT = [
-                '0x0000',
-                '0x0000',
-                '0x0000',
+                '0xffff',
+                '0xffff',
+                '0xffff',
                 None,
                 '',
                 '',
