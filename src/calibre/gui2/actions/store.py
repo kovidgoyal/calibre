@@ -27,7 +27,7 @@ class StoreAction(InterfaceAction):
         self.store_menu.clear()
         self.store_menu.addAction(_('Search'), self.search)
         self.store_menu.addSeparator()
-        for n, p in self.gui.istores.items():
+        for n, p in sorted(self.gui.istores.items(), key=lambda x: x[0].lower()):
             self.store_menu.addAction(n, partial(self.open_store, p))
         self.qaction.setMenu(self.store_menu)
 
