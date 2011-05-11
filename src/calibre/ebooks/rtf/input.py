@@ -87,7 +87,7 @@ class RTFInput(InputFormatPlugin):
                 indent_out = 1
                 self.log('Running RTFParser in debug mode')
             except:
-                pass
+                self.log.warn('Impossible to run RTFParser in debug mode')
         parser = ParseRtf(
             in_file    = stream,
             out_file   = ofile,

@@ -197,8 +197,8 @@ class ProcessTokens:
         # character info => ci
         'b'                  :	('ci', 'bold______', self.bool_st_func),
         'blue'               :	('ci', 'blue______', self.color_func),
-        'caps'               :  ('ci', 'caps______', self.bool_st_func),
-        'cf'                 :	('ci', 'font-color', self.default_func),
+        'caps'               :	('ci', 'caps______', self.bool_st_func),
+        'cf'                 :	('ci', 'font-color', self.colorz_func),
         'chftn'              :	('ci', 'footnot-mk', self.bool_st_func),
         'dn'                 :	('ci', 'font-down_', self.divide_by_2),
         'embo'               :	('ci', 'emboss____', self.bool_st_func),
@@ -622,6 +622,11 @@ class ProcessTokens:
     def default_func(self, pre, token, num):
         if num is None:
             num = 'true'
+        return 'cw<%s<%s<nu<%s\n' % (pre, token, num)
+
+    def colorz_func(self, pre, token, num):
+        if num is None:
+            num = '0'
         return 'cw<%s<%s<nu<%s\n' % (pre, token, num)
 
     def __list_type_func(self, pre, token, num):
