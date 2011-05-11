@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-05-06 17:31+0000\n"
-"PO-Revision-Date: 2011-05-10 03:06+0000\n"
+"PO-Revision-Date: 2011-05-10 12:39+0000\n"
 "Last-Translator: Ado Nishimura <Unknown>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-05-10 04:36+0000\n"
+"X-Launchpad-Export-Date: 2011-05-11 04:35+0000\n"
 "X-Generator: Launchpad (build 12959)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -3025,31 +3025,31 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:283
 msgid "Downloads metadata from Amazon"
-msgstr ""
+msgstr "書籍情報をAmazonからダウンロード"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:293
 msgid "US"
-msgstr ""
+msgstr "US"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:294
 msgid "France"
-msgstr ""
+msgstr "フランス"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:295
 msgid "Germany"
-msgstr ""
+msgstr "ドイツ"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:296
 msgid "UK"
-msgstr ""
+msgstr "英国"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:390
 msgid "Amazon timed out. Try again later."
-msgstr ""
+msgstr "Amazonがタイムアウトしました。後でまた試してみてください。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/base.py:156
 msgid "Metadata source"
-msgstr ""
+msgstr "書籍情報のソース"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google.py:160
 msgid "Downloads metadata from Google Books"
@@ -3078,19 +3078,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/openlibrary.py:15
 msgid "Downloads covers from The Open Library"
-msgstr ""
+msgstr "The Open Libraryから表紙をダウンロード"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/overdrive.py:33
 msgid "Downloads metadata from Overdrive's Content Reserve"
-msgstr ""
+msgstr "Overdrive's Content Reserveから書籍情報をダウンロード"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/overdrive.py:45
 msgid "Download all metadata (slow)"
-msgstr ""
+msgstr "全ての書籍情報をダウンロード（遅い）"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/overdrive.py:46
 msgid "Enable this option to gather all metadata available from Overdrive."
-msgstr ""
+msgstr "すべての書籍情報をOverdriveから取得するには、このオプションを有効にしてください。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/overdrive.py:49
 msgid ""
@@ -3100,10 +3100,13 @@ msgid ""
 "time required. Check the download all metadata option below to enable "
 "downloading this data."
 msgstr ""
+"追加の書籍情報がOverdriveの詳細ページから取得できます。これにはいくつかの、ライブラリで使うタグ、コメント、言語、ebook "
+"ISBNなども含まれます。余計な時間がかかるので、ディフォールトではこのデータの取得は無効になっています。下の書籍情報オプションを全てチェックすることで、"
+"これらの情報ダウンロードが有効になります。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:22
 msgid "Modify images to meet Palm device size limitations."
-msgstr ""
+msgstr "画像をPalmデバイスの画面サイズに合うように変更します。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:26
 msgid "When present, use author sort field as author."
@@ -3113,7 +3116,7 @@ msgstr ""
 msgid ""
 "Don't add Table of Contents to end of book. Useful if the book has its own "
 "table of contents."
-msgstr ""
+msgstr "目次を本の最後に追加しません。本に独自の目次がある場合に便利です。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:33
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/htmltoc.py:56
@@ -3122,7 +3125,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:37
 msgid "Disable compression of the file contents."
-msgstr ""
+msgstr "ファイル内容の圧縮を無効にします。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:40
 msgid "Tag marking book to be filed with Personal Docs"
@@ -3134,6 +3137,8 @@ msgid ""
 "will try to convert margins specified in the input document, otherwise it "
 "will ignore them."
 msgstr ""
+"入力ドキュメントのマージンを無視します。有効にしない時にはMOBI "
+"outputプラグインは入力ドキュメントにあるマージンを変換しようとしますが、無効の時には無視します。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:113
 msgid "All articles"
@@ -3172,7 +3177,7 @@ msgstr "書誌情報"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1500
 msgid "Colophon"
-msgstr ""
+msgstr "出版社のマーク"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1501
 msgid "Copyright"
@@ -3180,11 +3185,11 @@ msgstr "著作権"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1502
 msgid "Dedication"
-msgstr ""
+msgstr "献辞"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1503
 msgid "Epigraph"
-msgstr ""
+msgstr "題辞"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1504
 msgid "Foreword"
@@ -3243,7 +3248,7 @@ msgstr "OPF/NCX/etc. 生成オプション"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/writer.py:35
 msgid "OPF version to generate. Default is %default."
-msgstr ""
+msgstr "OPFヴァージョンが生成されました。ディフォールトは%defaultです。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/writer.py:37
 msgid ""
@@ -3267,6 +3272,7 @@ msgid ""
 "Specify the character encoding of the output document. The default is "
 "cp1252. Note: This option is not honored by all formats."
 msgstr ""
+"出力ドキュメントの文字エンコーディングを指定します。ディフォールトはcp1252です。注：このオプションは全てのフォーマットで使われるとは限りません。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/output.py:32
 #: /home/kovid/work/calibre/src/calibre/ebooks/pml/output.py:36
@@ -3277,7 +3283,7 @@ msgstr "本の最初に目次を追加する。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/input.py:24
 msgid "Do not extract images from the document"
-msgstr ""
+msgstr "ドキュメントからイメージを抽出しません。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/input.py:26
 msgid ""
@@ -3301,6 +3307,14 @@ msgid ""
 "\n"
 "Manipulate a PDF.\n"
 msgstr ""
+"コマンド...\n"
+"\n"
+"コマンドは以下のうちの１つです：\n"
+"[%%commands]\n"
+"\n"
+"%prog command --help とすると、そのコマンドの情報が得られます。\n"
+"\n"
+"Manipulate a PDF.\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:29
 msgid ""
@@ -3308,6 +3322,9 @@ msgid ""
 "\n"
 "Crop a PDF file.\n"
 msgstr ""
+"[options] file.pdf\n"
+"\n"
+"PDFファイルをトリミングします。\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:38
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/decrypt.py:32
@@ -3318,23 +3335,23 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/split.py:41
 msgid ""
 "Path to output file. By default a file is created in the current directory."
-msgstr ""
+msgstr "出力ファイルへのパス。ディフォールトではファイルはカレント・ディレクトリに作られます。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:41
 msgid "Number of pixels to crop from the left most x (default is %s)"
-msgstr ""
+msgstr "トリミングされる左端からのxピクセル数(ディフォールトは%s)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:44
 msgid "Number of pixels to crop from the left most y (default is %s)"
-msgstr ""
+msgstr "トリミングされる左端からのyピクセル数(ディフォールトは%s)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:47
 msgid "Number of pixels to crop from the right most x (default is %s)"
-msgstr ""
+msgstr "トリミングされる右端からのxピクセル数(ディフォールトは%s)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:50
 msgid "Number of pixels to crop from the right most y (default is %s)"
-msgstr ""
+msgstr "トリミングされる右端からのyピクセル数(ディフォールトは%s)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:53
 msgid ""
@@ -3344,7 +3361,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:73
 msgid "Crop Options:"
-msgstr ""
+msgstr "トリミングオプション"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:73
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/decrypt.py:60
@@ -3362,10 +3379,13 @@ msgid ""
 "\n"
 "Decrypt a PDF.\n"
 msgstr ""
+"[options] file.pdf password\n"
+"\n"
+"PDFファイルを解読します。\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/decrypt.py:60
 msgid "Decrypt Options:"
-msgstr ""
+msgstr "解読オプション"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/encrypt.py:25
 msgid ""
@@ -3373,10 +3393,13 @@ msgid ""
 "\n"
 "Encrypt a PDF.\n"
 msgstr ""
+"[options] file.pdf password\n"
+"\n"
+"PDFファイルを暗号化します。\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/encrypt.py:54
 msgid "Encrypt Options:"
-msgstr ""
+msgstr "暗号化オプション"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/info.py:21
 msgid ""
@@ -3384,6 +3407,9 @@ msgid ""
 "\n"
 "Get info about a PDF.\n"
 msgstr ""
+"file.pdf ...\n"
+"\n"
+"PDFの情報を取得します。\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/info.py:46
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/delete_matching_from_device.py:75
@@ -3420,6 +3446,11 @@ msgid ""
 "\n"
 "Merges individual PDFs.\n"
 msgstr ""
+"[options] file1.pdf file2.pdf ...\n"
+"\n"
+"書籍情報は最初に指定したPDFから取られます。\n"
+"\n"
+"各PDFを結合します。\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/merge.py:56
 msgid "Merge Options:"
@@ -3431,6 +3462,9 @@ msgid ""
 "\n"
 "Reverse a PDF.\n"
 msgstr ""
+"[options] file.pdf\n"
+"\n"
+"PDFを逆順にします。\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/reverse.py:54
 msgid "Reverse Options:"
@@ -3442,6 +3476,9 @@ msgid ""
 "\n"
 "Rotate pages of a PDF clockwise.\n"
 msgstr ""
+"file.pdf degrees\n"
+"\n"
+"PDFを時計方向に回転させます。\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/rotate.py:53
 msgid "Rotate Options:"
@@ -3461,6 +3498,17 @@ msgid ""
 "\n"
 "Split a PDF.\n"
 msgstr ""
+"\n"
+"%prog %%name [options] file.pdf page_to_split_on ...\n"
+"%prog %%name [options] file.pdf page_range_to_split_on ...\n"
+"\t\n"
+"例：\n"
+"\t\n"
+"%prog %%name file.pdf 6\n"
+"%prog %%name file.pdf 6-12\n"
+"%prog %%name file.pdf 6-12 8 10 9-20\n"
+"\n"
+"PDFを分割します。\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/split.py:61
 msgid "Split Options:"
