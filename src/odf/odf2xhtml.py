@@ -1415,18 +1415,34 @@ ol, ul { padding-left: 2em; }
         self.writedata()
         c = attrs.get( (TEXTNS,'style-name'), None)
         htmlattrs = {}
+        # Changed by Kovid to handle inline apecial styles defined on <text:span> tags.
+        # Apparently LibreOffice does this.
+        special = 'span'
         if c:
             c = c.replace(".","_")
             special = special_styles.get("S-"+c)
-            if special is None and self.generate_css:
-                htmlattrs['class'] = "S-%s" % c
-        self.opentag('span', htmlattrs)
+            if special is None:
+                special = 'span'
+                if self.generate_css:
+                    htmlattrs['class'] = "S-%s" % c
+
+        self.opentag(special, htmlattrs)
         self.purgedata()
 
     def e_text_span(self, tag, attrs):
         """ End the <text:span> """
         self.writedata()
-        self.closetag('span', False)
+        c = attrs.get( (TEXTNS,'style-name'), None)
+        # Changed by Kovid to handle inline apecial styles defined on <text:span> tags.
+        # Apparently LibreOffice does this.
+        special = 'span'
+        if c:
+            c = c.replace(".","_")
+            special = special_styles.get("S-"+c)
+            if special is None:
+                special = 'span'
+
+        self.closetag(special, False)
         self.purgedata()
 
     def s_text_tab(self, tag, attrs):
