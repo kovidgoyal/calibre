@@ -112,10 +112,15 @@ class Metadata(object):
 
         Be careful with numeric fields since this will return True for zero as
         well as None.
+
+        Also returns True if the field does not exist.
         '''
-        null_val = NULL_VALUES.get(field, None)
-        val = getattr(self, field, None)
-        return not val or val == null_val
+        try:
+            null_val = NULL_VALUES.get(field, None)
+            val = getattr(self, field, None)
+            return not val or val == null_val
+        except:
+            return True
 
     def __getattribute__(self, field):
         _data = object.__getattribute__(self, '_data')
