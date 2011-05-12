@@ -23,8 +23,8 @@ TIMEOUT = 75 # seconds
 
 class SearchDialog(QDialog, Ui_Dialog):
 
-    def __init__(self, istores, *args):
-        QDialog.__init__(self, *args)
+    def __init__(self, istores, parent=None, query=''):
+        QDialog.__init__(self, parent)
         self.setupUi(self)
 
         self.config = JSONConfig('store/search')
@@ -53,6 +53,9 @@ class SearchDialog(QDialog, Ui_Dialog):
             stores_group_layout.addWidget(cbox)
             setattr(self, 'store_check_' + x, cbox)
         stores_group_layout.addStretch()
+
+        # Set the search query
+        self.search_edit.setText(query)
 
         # Create and add the progress indicator
         self.pi = ProgressIndicator(self, 24)
@@ -93,7 +96,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         # Store / Formats
         self.results_view.setColumnWidth(4, int(total*.25))
 
-    def do_search(self, checked=False):
+    def do_search(self):
         # Stop all running threads.
         self.checker.stop()
         self.search_pool.abort()
@@ -252,4 +255,9 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.search_pool.abort()
         self.cache_pool.abort()
         self.save_state()
+        
+    def exec_(self):
+        if unicode(self.search_edit.text()).strip():
+            self.do_search()
+        return QDialog.exec_(self)
 

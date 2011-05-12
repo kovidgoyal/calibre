@@ -25,17 +25,52 @@ class StoreAction(InterfaceAction):
 
     def load_menu(self):
         self.store_menu.clear()
-        self.store_menu.addAction(_('Search'), self.search)
+        self.store_menu.addAction(_('Search for ebooks'), self.search)
+        self.store_menu.addAction(_('Search by this author'), self.search_author)
+        self.store_menu.addAction(_('Search by this title'), self.search_title)
         self.store_menu.addSeparator()
+        self.store_list_menu = self.store_menu.addMenu(_('Stores'))
         for n, p in sorted(self.gui.istores.items(), key=lambda x: x[0].lower()):
-            self.store_menu.addAction(n, partial(self.open_store, p))
+            self.store_list_menu.addAction(n, partial(self.open_store, p))
         self.qaction.setMenu(self.store_menu)
 
-    def search(self):
+    def search(self, query=''):
         self.show_disclaimer()
         from calibre.gui2.store.search.search import SearchDialog
-        sd = SearchDialog(self.gui.istores, self.gui)
+        sd = SearchDialog(self.gui.istores, self.gui, query)
         sd.exec_()
+
+    def search_author(self):
+        rows = self.gui.current_view().selectionModel().selectedRows()
+        if not rows or len(rows) == 0:
+            return
+        row = rows[0].row()
+
+        author = ''
+        if self.gui.current_view() is self.gui.library_view:
+            author = self.gui.library_view.model().authors(row)
+        else:
+            mi = self.gui.current_view().model().get_book_display_info(row)
+            author = ' & '.join(mi.authors)
+
+        query = 'author:"%s"' % author
+        self.search(query)
+
+    def search_title(self):
+        rows = self.gui.current_view().selectionModel().selectedRows()
+        if not rows or len(rows) == 0:
+            return
+        row = rows[0].row()
+
+        title = ''
+        if self.gui.current_view() is self.gui.library_view:
+            title = self.gui.library_view.model().title(row)
+        else:
+            mi = self.gui.current_view().model().get_book_display_info(row)
+            title = mi.title
+
+        query = 'title:"%s"' % title
+        self.search(query)
 
     def open_store(self, store_plugin):
         self.show_disclaimer()
