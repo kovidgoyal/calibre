@@ -106,17 +106,17 @@ class TextileMLizer(OEB2HTML):
         text = re.sub(r'\nbq\.\n?\np.*\. ', r'\nbq. ', text)
 
         #reduce blank lines
-        text = re.sub(r'\n{3}', r'\n\n', text)
+        text = re.sub(r'\n{3}', r'\n\np. \n\n', text)
         text = re.sub(u'%\n(p[<>=]{1,2}\.|p\.)', r'%\n\n\1', text)
         #Check span following blank para
         text = re.sub(r'\n+ +%', r' %', text)
         text = re.sub(u'p[<>=]{1,2}\.\n\n?', r'', text)
         # blank paragraph
-        text = re.sub(r'(^|\n)p\.\n', r'\1p. \n', text)
+        text = re.sub(r'\n(p.*\.)\n', r'\n\1 \n\n', text)
         # blank paragraph
-        text = re.sub(u'\n\xa0',   r'\np. ', text)
+        text = re.sub(u'\n\xa0', r'\np. ', text)
         # blank paragraph
-        text = re.sub(u'\np[<>=]{1,2}?\. \xa0',   r'\np. ', text)
+        text = re.sub(u'\np[<>=]{1,2}?\. \xa0', r'\np. ', text)
         text = re.sub(r'(^|\n)(p.*\. ?\n)(p.*\.)', r'\1\3', text)
         text = re.sub(r'\n(p\. \n)(p.*\.|h.*\.)', r'\n\2', text)
         #sort out spaces in tables
