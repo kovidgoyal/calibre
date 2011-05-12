@@ -336,7 +336,9 @@ class MetadataSingleDialogBase(ResizableDialog):
         if not mi.is_null('tags'):
             self.tags.current_val = mi.tags
         if not mi.is_null('identifiers'):
-            self.identifiers.current_val = mi.identifiers
+            current = self.identifiers.current_val
+            current.update(mi.identifiers)
+            self.identifiers.current_val = current
         if not mi.is_null('pubdate'):
             self.pubdate.current_val = mi.pubdate
         if not mi.is_null('series') and mi.series.strip():
