@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-05-06 17:31+0000\n"
-"PO-Revision-Date: 2011-05-10 12:39+0000\n"
+"PO-Revision-Date: 2011-05-12 04:27+0000\n"
 "Last-Translator: Ado Nishimura <Unknown>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-05-11 04:35+0000\n"
+"X-Launchpad-Export-Date: 2011-05-12 04:33+0000\n"
 "X-Generator: Launchpad (build 12959)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -2299,12 +2299,13 @@ msgid ""
 "used as a dictionary to determine whether hyphens should be retained or "
 "removed."
 msgstr ""
+"ドキュメント中のハイフン化されたワードを分析します。ドキュメント自身を辞書として使い、ハイフォンをそのままにするか取り除くかを決定します。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:559
 msgid ""
 "Looks for occurrences of sequential <h1> or <h2> tags. The tags are "
 "renumbered to prevent splitting in the middle of chapter headings."
-msgstr ""
+msgstr "連続する<h1>や<h2>タグがあるか探します。タグは章のヘッダーの途中で分割されないように、再番号づけされます。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:565
 msgid "Search pattern (regular expression) to be replaced with sr1-replace."
@@ -2336,7 +2337,7 @@ msgstr "この書庫からはebookを見つけられませんでした。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:748
 msgid "Values of series index and rating must be numbers. Ignoring"
-msgstr ""
+msgstr "シリーズ番号とレーティングは数字で無ければなりません。無視します。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:755
 msgid "Failed to parse date/time"
@@ -2356,7 +2357,7 @@ msgstr "作成"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/__init__.py:20
 msgid "Failed to parse: %s with error: %s"
-msgstr ""
+msgstr "解析に失敗しました: %s エラー: %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/__init__.py:26
 msgid "ePub Fixer"
@@ -2364,7 +2365,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/epubcheck.py:18
 msgid "Workaround epubcheck bugs"
-msgstr ""
+msgstr "epubcheckのバグを回避"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/epubcheck.py:22
 msgid ""
@@ -2373,6 +2374,9 @@ msgid ""
 "detect these and replace them with constructs that epubcheck likes. This may "
 "cause significant changes to your epub, complain to the epubcheck project."
 msgstr ""
+"最新版のepubcheckのバグを回避します。epubcheckは実際にはエラーでない多くの物をエラーだとレポートします。epub-"
+"fixはそれらを判別しepubcheckが好むように変換します。これはあなたのepubに重大な変化を加えます。（epubcheckプロジェクトに文句を言っ"
+"てね。）"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/main.py:21
 msgid ""
@@ -2384,6 +2388,11 @@ msgid ""
 "By default, no fixing is done and messages are printed out for each error "
 "detected. Use the options to control which errors are automatically fixed."
 msgstr ""
+"%prog [options] file.epub\n"
+"\n"
+"EPUBファイルによくある問題を修正し、よく設計されていない出版サービスに拒否されないようにします。\n"
+"\n"
+"ディフォールトでは実際の修正は行わず、見つかったエラーについてのメッセージを表示します。どのエラーを自動的に修正するかをオプションで指定してください。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/main.py:52
 msgid "You must specify an epub file"
@@ -2391,23 +2400,25 @@ msgstr "epubファイルを指定しなければなりません。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/unmanifested.py:17
 msgid "Fix unmanifested files"
-msgstr ""
+msgstr "記載されていないファイルを修正する"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/unmanifested.py:21
 msgid ""
 "Fix unmanifested files. epub-fix can either add them to the manifest or "
 "delete them as specified by the delete unmanifested option."
 msgstr ""
+"記載されていないファイルを修正する。epub-"
+"fixは、それらをマニフェストに記載するか削除するかのどちらも可能です。削除するときには「記載されていないファイルを削除」を選んでください。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/unmanifested.py:32
 msgid "Delete unmanifested files instead of adding them to the manifest"
-msgstr ""
+msgstr "記載されていないファイルを、マニフェストに記載する代わりに削除する"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:56
 msgid ""
 "Extract the contents of the generated EPUB file to the specified directory. "
 "The contents of the directory are first deleted, so be careful."
-msgstr ""
+msgstr "生成したEPUBファイルの内容を指定したディレクトリに展開する。最初にディレクトリの内容が消されるので、注意してください。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:62
 msgid ""
@@ -2417,6 +2428,8 @@ msgid ""
 "if your source file contains a very large number of page breaks, you should "
 "turn off splitting on page breaks."
 msgstr ""
+"改ページでの分割をしない。通常、入力ファイルは自動的に改ページの部分で2つのファイルに分割されます。そうするとEbookの変換で解析が速くなり、使用リソー"
+"スも少なくてすみます。しかしながら、もしファイルに大量の改ページがある場合には分割自身が遅くなります。その時には改ページでの分割をしないでください。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:73
 msgid ""
@@ -2424,6 +2437,8 @@ msgid ""
 "most EPUB readers cannot handle large file sizes. The default of %defaultKB "
 "is the size required for Adobe Digital Editions."
 msgstr ""
+"指定した容量(KB)以上のHTMLファイルを分割します。大抵のEPUBリーダーは大きなファイルサイズを扱えないので必要です。ディフォールトの%defaul"
+"tKBはAdobe Digital Editionsに必要なサイズです。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:80
 msgid ""
@@ -2431,6 +2446,8 @@ msgid ""
 "default cover is generated with the title, authors, etc. This option "
 "disables the generation of this cover."
 msgstr ""
+"通常、入力ファイルに表紙が無く指定もされなかった場合、タイトルや作者などからディフォールトの表紙が作成されます。このオプションはこの表紙の生成を無効にしま"
+"す。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:86
 msgid ""
@@ -2439,6 +2456,8 @@ msgid ""
 "JetBook Lite. Without this option, such devices will display the cover as a "
 "blank page."
 msgstr ""
+"SVGを本の表紙に使用しない。このオプションはiPhoneや JetBook "
+"LiteのようなSVGをサポートしないデバイスで使用する場合に使ってください。指定しないと、それらのデバイスでは表紙が白紙になってしまいます。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:94
 msgid ""
@@ -2448,6 +2467,8 @@ msgid ""
 "and bottom of the image, but the image will never be distorted. Without this "
 "option the image may be slightly distorted, but there will be no borders."
 msgstr ""
+"SVGの表紙を使う場合、このオプションはアスペクト比（縦横の比率）を保ったまま、表紙をスクリーンのサイズに広げます。これにより表紙の両端や上下に白い部分が"
+"できる事がありますが、表紙は歪みません。このオプションを使わないと表紙がいくらか歪みますが白い部分はできません。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:105
 msgid ""
@@ -2455,6 +2476,8 @@ msgid ""
 "will flatten the file system inside the EPUB, putting all files into the top "
 "level."
 msgstr ""
+"このオプションはFBReaderJでEPUBを見る場合のみに必要になります。EPUB内のファイルのレイアウトをフラットにし、すべてのファイルをトップレベル"
+"に配置します。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:184
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:206
@@ -2463,7 +2486,7 @@ msgstr "開始"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/input.py:32
 msgid "Do not insert a Table of Contents at the beginning of the book."
-msgstr ""
+msgstr "目次をEBookの先頭に挿入しません。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/output.py:149
 msgid ""
@@ -2475,6 +2498,9 @@ msgid ""
 "\"Table of Contents\" settings (turn on \"Force use of auto-generated Table "
 "of Contents)."
 msgstr ""
+"要素のセクション化を指定します。「なし」を選ぶと、本をひとつのセクションにまとめます。「ファイル」は各ファイルを別のセクションにします。（もし、デバイスで"
+"問題があった場合にはこれを選んでください）「目次」は目次の項目からタイトルとセクションを生成します。「目次」で失敗した場合には、「構造の検出」や「目次」設"
+"定を調整してください。（「強制的に目次を生成」を使ってください）"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/output.py:158
 msgid ""
@@ -2482,6 +2508,9 @@ msgid ""
 "\n"
 " See: "
 msgstr ""
+"本のジャンル。選択肢： %s\n"
+"\n"
+" 参照： "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/output.py:159
 msgid "for a complete list with descriptions."
@@ -2499,6 +2528,8 @@ msgid ""
 "negative. 0 implies that no links in the root HTML file are followed. "
 "Default is %default."
 msgstr ""
+"HTMLファイルのリンクをたどる時の、最大のネスティング・レベル。正の値でなければなりません。０にするとルートのHTMLファイルからリンクがたどられません"
+"。ディフォールトは%defaultです。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:264
 msgid ""
@@ -2507,28 +2538,30 @@ msgid ""
 "can result in various nasty side effects in the rest of of the conversion "
 "pipeline."
 msgstr ""
+"通常この入力プラグインはすべての入力ファイルを標準的なフォルダー階層に再アレンジします。このオプションは、あなたが変換パイプラインに対する色々な難しい副作"
+"用の影響を理解している時のみに使用してください。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/output.py:32
 msgid "CSS file used for the output instead of the default file"
-msgstr ""
+msgstr "出力に使う、ディフォールトと違うCSSファイル。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/output.py:35
 msgid ""
 "Template used for generation of the html index file instead of the default "
 "file"
-msgstr ""
+msgstr "ディフォールトと違うhtmlのindexファイルを生成するときのテンプレート。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/output.py:38
 msgid ""
 "Template used for the generation of the html contents of the book instead of "
 "the default file"
-msgstr ""
+msgstr "ディフォールトと違う、htmlの本の内容を生成する時に使うテンプレート"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/output.py:41
 msgid ""
 "Extract the contents of the generated ZIP file to the specified directory. "
 "WARNING: The contents of the directory will be deleted."
-msgstr ""
+msgstr "生成された内容のZIPファイルを指定したディレクトリに展開する。注：ディレクトリの前の内容は消去されます。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/htmlz/output.py:30
 msgid ""
@@ -2537,6 +2570,10 @@ msgid ""
 "inline: Write the CSS as an inline style attribute.\n"
 "tag: Turn as many CSS styles as possible into HTML tags."
 msgstr ""
+"CSSの扱い方を指定。ディフォールトは「class」\n"
+"class：CSSのclassを使い、要素がそれを参照するように設定\n"
+"インライン：CSSをインライン･スタイル要素として書き出す。\n"
+"タグ：できる限りCSSスタイルを対応するHTMLタグに変換"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/htmlz/output.py:38
 msgid ""
@@ -2545,6 +2582,10 @@ msgid ""
 "external: Use an external CSS file that is linked in the document.\n"
 "inline: Place the CSS in the head section of the document."
 msgstr ""
+"CSSタイプが「class」の場合どのように処理するか。\n"
+"ディフォールトは「外部」\n"
+"外部：ドキュメントからリンクする、外部CSSファイルを使用する。\n"
+"インライン：CSSをドキュメントのHEADセクションに挿入する。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/from_any.py:47
 msgid "Creating LIT file from EPUB..."
@@ -2552,7 +2593,7 @@ msgstr "EPUBからLITファイルを生成する"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:320
 msgid "\tBook Designer file detected."
-msgstr ""
+msgstr "\tBook Designerファイルが見つかりました。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:322
 msgid "\tParsing HTML..."
@@ -2560,11 +2601,11 @@ msgstr "\tHTMLの解釈中..."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:345
 msgid "\tBaen file detected. Re-parsing..."
-msgstr ""
+msgstr "\tBaenファイルが見つかりました。再解析します。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:361
 msgid "Written preprocessed HTML to "
-msgstr ""
+msgstr "下解析したHTMLを書き出しました： "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:379
 msgid "Processing %s"
@@ -2572,7 +2613,7 @@ msgstr "%s を処理する"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:393
 msgid "\tConverting to BBeB..."
-msgstr ""
+msgstr "\tBBeBに変換します..."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:539
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:552
@@ -2581,23 +2622,23 @@ msgstr "ファイル %s の解釈ができません"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:544
 msgid "%s is an empty file"
-msgstr ""
+msgstr "%s は空のファイルです"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:564
 msgid "Failed to parse link %s %s"
-msgstr ""
+msgstr "リンクの解析ができません： %s %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:608
 msgid "Cannot add link %s to TOC"
-msgstr ""
+msgstr "%sを表紙にリンクできません"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:957
 msgid "Unable to process image %s. Error: %s"
-msgstr ""
+msgstr "イメージを処理できません： %s。　エラー： %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1002
 msgid "Unable to process interlaced PNG %s"
-msgstr ""
+msgstr "インターレースされたPNGは処理できません： %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1017
 msgid ""
@@ -2610,13 +2651,15 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1772
 msgid ""
 "An error occurred while processing a table: %s. Ignoring table markup."
-msgstr ""
+msgstr "テーブルを処理中にエラーが起こりました： %s。テーブルのマークアップを無視します。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1774
 msgid ""
 "Bad table:\n"
 "%s"
 msgstr ""
+"悪いテーブル：\n"
+"%s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1796
 msgid "Table has cell that is too large"
@@ -2639,6 +2682,8 @@ msgid ""
 "%prog book.lrf\n"
 "Convert an LRF file into an LRS (XML UTF-8 encoded) file"
 msgstr ""
+"%prog book.lrf\n"
+"LRFファイルをLRS (XML UTF-8 encoded)ファイルに変換します"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrfparser.py:137
 msgid "Output LRS file"
@@ -2646,7 +2691,7 @@ msgstr "LRSファイルの出力"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrfparser.py:139
 msgid "Do not save embedded image and font files to disk"
-msgstr ""
+msgstr "内包しているイメージとフォントファイルをディスクに保存しません。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrfparser.py:158
 msgid "Parsing LRF..."
@@ -2662,13 +2707,15 @@ msgstr "LRSを保存する場所 "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrs/convert_from.py:267
 msgid "Could not read from thumbnail file:"
-msgstr ""
+msgstr "サムネイルファイルを読み込めません："
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrs/convert_from.py:287
 msgid ""
 "%prog [options] file.lrs\n"
 "Compile an LRS file into an LRF file."
 msgstr ""
+"%prog [options] file.lrs\n"
+"LRSファイルをLRFファイルにコンパイルします。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrs/convert_from.py:288
 msgid "Path to output file"
@@ -2680,7 +2727,7 @@ msgstr "処理中のメッセージを出力"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrs/convert_from.py:292
 msgid "Convert LRS to LRS, useful for debugging."
-msgstr ""
+msgstr "LRSをLRSに変換します。デバッグに便利です。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:457
 msgid "Invalid LRF file. Could not set metadata."
@@ -6517,7 +6564,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_input_ui.py:45
 msgid "No &Images"
-msgstr "イメージがない(&N)"
+msgstr "イメージを入れない(&I)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output.py:15
 msgid "PDF Output"

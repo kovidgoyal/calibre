@@ -28,13 +28,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-05-06 17:31+0000\n"
-"PO-Revision-Date: 2011-05-07 11:09+0000\n"
-"Last-Translator: Ivo <Unknown>\n"
+"PO-Revision-Date: 2011-05-11 19:01+0000\n"
+"Last-Translator: drMerry <Unknown>\n"
 "Language-Team: Dutch <nl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-05-08 04:34+0000\n"
+"X-Launchpad-Export-Date: 2011-05-12 04:32+0000\n"
 "X-Generator: Launchpad (build 12959)\n"
 "X-Poedit-Country: NETHERLANDS\n"
 "X-Poedit-Language: Dutch\n"
@@ -1488,7 +1488,7 @@ msgstr ""
 "Normaliter ziet de gebruiker van de Sony reader een weergave van de "
 "afbeelding van de omslag. Met deze optie zal calibre een afzonderlijke "
 "omslag naar de reader sturen, wat van pas komt wanneer u DRM-boeken overzet, "
-"waarvan u de omslag niet kunt wijzigen. Waarschuwing:  Deze optie kan "
+"waarvan u de omslag niet kunt wijzigen. WAARSCHUWING:  Deze optie kan "
 "slechts gebruikt worden bij de nieuwste Sony readers: 350, 650, 950 en "
 "nieuwer."
 
@@ -1608,7 +1608,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:642
 msgid "Unable to mount main memory (Error code: %d)"
-msgstr "Niet mogelijk om het hoofdgeheugen aan te koppelen (Error code: %d)"
+msgstr "Niet mogelijk om het hoofdgeheugen aan te koppelen (Fout code: %d)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:693
 msgid ""
@@ -2634,13 +2634,13 @@ msgid ""
 "By default, no fixing is done and messages are printed out for each error "
 "detected. Use the options to control which errors are automatically fixed."
 msgstr ""
-"%prog [options] file.epu\n"
+"%prog [opties] bestand.epub\n"
 "Herstelt eenvoudige problemen in EPUB-bestanden die ervoor kunnen zorgen dat "
 "ze geweigerd worden door slecht ontworpen publicatiediensten.\n"
 "\n"
-"Standaard worden geen herstellingen gemaakt en foutmeldingen worden "
-"weergegeven voor iedere gevonden fout. Gebruik de opties om te controleren "
-"welke fouten automatisch hersteld worden."
+"Standaard wordt geen herstel uitgevoerd en foutmeldingen worden weergegeven "
+"voor iedere gevonden fout. Gebruik de opties om te controleren welke fouten "
+"automatisch hersteld worden."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/main.py:52
 msgid "You must specify an epub file"
@@ -4728,6 +4728,9 @@ msgid ""
 "<b style=\"color: red\">All files</b> (not just ebooks) from "
 "<br><br><b>%s</b><br><br> will be <b>permanently deleted</b>. Are you sure?"
 msgstr ""
+"<b style=\"color: red\">Alle bestanden</b> (niet enkel E-boeken) van "
+"<br><br><b>%s</b><br><br> worden <b>permanent verwijderd</b>. Weet je het "
+"zeker?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:270
 msgid "none"
@@ -5377,7 +5380,8 @@ msgstr "Kan niet configureren terwijl er taken bezig zijn"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:48
 msgid "Cannot configure before calibre is restarted."
-msgstr "Is niet te configureren alvorens calibre opnieuw is opgestart"
+msgstr ""
+"Kan niet geconfigureerd worden alvorens calibre opnieuw is opgestart."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/restart.py:14
 msgid "&Restart"
@@ -6039,7 +6043,7 @@ msgstr "Velden te gebruiken in uitvoer:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:80
 msgid "Encoding configuration (change if you have errors) :"
-msgstr "Coderingsinstellingen (aan te passen bij fouten)"
+msgstr "Coderingsinstellingen (aanpassen als er fouten optreden):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:81
 msgid "BibTeX entry type:"
@@ -8566,12 +8570,12 @@ msgid ""
 "          available at <a href=\"http://drmfree.calibre-ebook.com\">Open "
 "Books</a>."
 msgstr ""
-"<p>Dit boek is versleuteld door <b>DRM</b>. Om meer te leren over DRM "
-"enwaarom je dit boek niet met calibre kan lezen of converteren  cannot read "
-"or convert this book in calibre, \n"
+"<p>Dit boek is versleuteld door <b>DRM</b>. Om meer te leren over DRM en "
+"waarom je dit boek niet met calibre kan lezen of converteren, \n"
 "          <a href=\"http://drmfree.calibre-ebook.com/about#drm\">klik "
-"hier</a>.<p>Veel recente uitgaven zonder DRM zijn te verkrijgen bij          "
-"<a href=\"http://drmfree.calibre-ebook.com\">Open Books</a>."
+"hier</a>.<p>Veel recente uitgaven zonder DRM zijn \n"
+"          verkrijgbaar via <a href=\"http://drmfree.calibre-ebook.com\">Open "
+"Boeken</a>."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:43
 msgid "Author sort"
@@ -17008,6 +17012,9 @@ msgid ""
 "strcmp(x, y, lt, eq, gt) -- does a case-insensitive comparison of x and y as "
 "strings. Returns lt if x < y. Returns eq if x == y. Otherwise returns gt."
 msgstr ""
+"strcmp(x, y, kd, ge, gd) -- doet een hoofdletter-ongevoelige vergelijking "
+"van x en y als string. Geeft kd als x < y/ Geeft ge als x ==y. Anders wordt "
+"gd terug gegeven."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:112
 msgid ""
@@ -18148,8 +18155,8 @@ msgstr ""
 #: /home/kovid/work/calibre/resources/default_tweaks.py:241
 msgid "Control how tags are applied when copying books to another library"
 msgstr ""
-"Beheer hoe labels worden toegepast tijdens kopiëren van boeken naar andere "
-"bibliotheken"
+"Beheer hoe labels worden toegepast tijdens kopiëren van boeken naar een "
+"andere bibliotheek"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:242
 msgid ""
@@ -18164,15 +18171,15 @@ msgstr ""
 #: /home/kovid/work/calibre/resources/default_tweaks.py:247
 msgid "Set the maximum number of tags to show per book in the content server"
 msgstr ""
-"Stel het maximum aantal labels per boek in om weer te geven in de content "
-"server"
+"Stel het maximum aantal labels per boek in om weer te geven in de "
+"inhoudsserver"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:251
 msgid ""
 "Set custom metadata fields that the content server will or will not display."
 msgstr ""
 "Stel persoonlijke metadata velden in om al dan niet weer te geven in de "
-"content server."
+"inhoudsserver."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:252
 msgid ""
@@ -18267,6 +18274,17 @@ msgid ""
 "Example: locale_for_sorting = 'fr' -- sort using French rules.\n"
 "Example: locale_for_sorting = 'nb' -- sort using Norwegian rules."
 msgstr ""
+"Bij het gebruiken van deze tweak wordt de sorteervolgorde geforceerd om\n"
+"gebruik te maken van de gespecificeerde taal. Dit kan hanidg zijn als je\n"
+"Calibre gebruikt in het Engels, maar wilt sorteren in je lokale taal.\n"
+"Stel deze tweak in op de gewenste ISO 639-1 taal code, in kleine letters.\n"
+"Je kan een lijst van ondersteunde talen vinden op\n"
+"http://publib.boulder.ibm.com/infocenter/iseries/v5r3/topic/nls/rbagsicusorts"
+"equencetables.htm\n"
+"Standaard: locale_for_sorting = '' -- gebruik de weergave taal van calibre.\n"
+"Voorbeeld: locale_for_sorting = 'fr' -- sorteer op basis van Franse regels.\n"
+"Voorbeeld: locale_for_sorting = 'nl' -- sorteer op basis van Nederlandse "
+"regels."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:305
 msgid "Number of columns for custom metadata in the edit metadata dialog"
