@@ -32,6 +32,7 @@ class Win32(VMInstaller):
     FREEZE_TEMPLATE = 'python -OO setup.py {freeze_command} --no-ice'
     INSTALLER_EXT = 'msi'
     SHUTDOWN_CMD = ['shutdown.exe', '-s', '-f', '-t', '0']
+    BUILD_BUILD  =  ['python setup.py kakasi',] + VMInstaller.BUILD_BUILD
 
     def download_installer(self):
         installer = self.installer()
