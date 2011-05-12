@@ -139,14 +139,17 @@ class SearchDialog(QDialog, Ui_Dialog):
         query = query.replace('>', '')
         query = query.replace('<', '')
         # Remove the prefix.
-        for loc in ( 'all', 'author', 'authors', 'title'):
-            query = re.sub(r'%s:"?(?P<a>[^\s"]+)"?' % loc, '\g<a>', query)
+        for loc in ('all', 'author', 'authors', 'title'):
+            query = re.sub(r'%s:"(?P<a>[^\s"]+)"' % loc, '\g<a>', query)
+            query = query.replace('%s:' % loc, '')
         # Remove the prefix and search text.
         for loc in ('cover', 'drm', 'format', 'formats', 'price', 'store'):
             query = re.sub(r'%s:"[^"]"' % loc, '', query)
             query = re.sub(r'%s:[^\s]*' % loc, '', query)
         # Remove logic.
-        query = re.sub(r'(^|\s)(and|not|or)(\s|$)', ' ', query)
+        query = re.sub(r'(^|\s)(and|not|or|a|the|is|of)(\s|$)', ' ', query)
+        # Remove "
+        query = query.replace('"', '')
         # Remove excess whitespace.
         query = re.sub(r'\s{2,}', ' ', query)
         query = query.strip()
