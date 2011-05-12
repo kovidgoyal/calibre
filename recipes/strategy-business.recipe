@@ -33,7 +33,7 @@ class StrategyBusinessRecipe(BasicNewsRecipe):
                     elif c.name.endswith('_password'):
                         br[c.name] = self.password
                 raw = br.submit().read()
-                if '>Logout' not in raw:
+                if 'You have been logged in' not in raw:
                     raise ValueError('Failed to login, check your username and password')
         return br
 
