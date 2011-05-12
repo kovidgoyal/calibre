@@ -10,6 +10,7 @@ from functools import partial
 
 from PyQt4.Qt import QMenu
 
+from calibre.gui2 import error_dialog
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.dialogs.confirm_delete import confirm
 
@@ -25,9 +26,10 @@ class StoreAction(InterfaceAction):
 
     def load_menu(self):
         self.store_menu.clear()
-        self.store_menu.addAction(_('Search'), self.search)
-        self.store_menu.addAction(_('Search Author'), self.search_author)
-        self.store_menu.addAction(_('Search Title'), self.search_title)
+        self.store_menu.addAction(_('Search for ebooks'), self.search)
+        self.store_menu.addAction(_('Search by this author'), self.search_author)
+        self.store_menu.addAction(_('Search by this title'), self.search_title)
+        self.store_menu.addAction(_('Search by this author and title'), self.search_author_title)
         self.store_menu.addSeparator()
         self.store_list_menu = self.store_menu.addMenu(_('Stores'))
         for n, p in sorted(self.gui.istores.items(), key=lambda x: x[0].lower()):
@@ -40,12 +42,13 @@ class StoreAction(InterfaceAction):
         sd = SearchDialog(self.gui.istores, self.gui, query)
         sd.exec_()
     
-    def search_author(self):
+    def _get_selected_row(self):
         rows = self.gui.current_view().selectionModel().selectedRows()
         if not rows or len(rows) == 0:
-            return
-        row = rows[0].row()
-        
+            return None
+        return rows[0].row()
+
+    def _get_author(self, row):
         author = ''
         if self.gui.current_view() is self.gui.library_view:
             author = self.gui.library_view.model().authors(row)
@@ -53,23 +56,43 @@ class StoreAction(InterfaceAction):
             mi = self.gui.current_view().model().get_book_display_info(row)
             author = ' & '.join(mi.authors)
         
-        query = 'author:"%s"' % author
+        return author
+        
+    def search_author(self):
+        row = self._get_selected_row()
+        if row == None:
+            error_dialog(self.gui, _('Cannot search'), _('No book selected'), show=True)
+            return
+
+        query = 'author:"%s"' % self._get_author(row)
         self.search(query)
     
-    def search_title(self):
-        rows = self.gui.current_view().selectionModel().selectedRows()
-        if not rows or len(rows) == 0:
-            return
-        row = rows[0].row()
-        
+    def _get_title(self, row):
         title = ''
         if self.gui.current_view() is self.gui.library_view:
             title = self.gui.library_view.model().title(row)
         else:
             mi = self.gui.current_view().model().get_book_display_info(row)
             title = mi.title
+    
+        return title
+    
+    def search_title(self):
+        row = self._get_selected_row()
+        if row == None:
+            error_dialog(self.gui, _('Cannot search'), _('No book selected'), show=True)
+            return
+
+        query = 'title:"%s"' % self._get_title(row)
+        self.search(query)
         
-        query = 'title:"%s"' % title
+    def search_author_title(self):
+        row = self._get_selected_row()
+        if row == None:
+            error_dialog(self.gui, _('Cannot search'), _('No book selected'), show=True)
+            return
+        
+        query = 'author:"%s" title:"%s"' % (self._get_author(row), self._get_title(row))
         self.search(query)
 
     def open_store(self, store_plugin):
