@@ -14,7 +14,7 @@ from setup.build_environment import msvc, MT, RC
 from setup.installer.windows.wix import WixMixIn
 
 OPENSSL_DIR = r'Q:\openssl'
-QT_DIR = 'Q:\\Qt\\4.7.2'
+QT_DIR = 'Q:\\Qt\\4.7.3'
 QT_DLLS = ['Core', 'Gui', 'Network', 'Svg', 'WebKit', 'Xml', 'XmlPatterns']
 LIBUSB_DIR       = 'C:\\libusb'
 LIBUNRAR         = 'C:\\Program Files\\UnrarDLL\\unrar.dll'

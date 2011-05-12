@@ -11,9 +11,6 @@
 						SummaryCodepage='1252' />
 
                 <Media Id="1" Cabinet="{app}.cab" CompressionLevel="{compression}" EmbedCab="yes" />
-                <!-- The following line is needed because of the patch to QtCore4.dll. You can remove this line
-                     after you update Qt beyond 4.7.2. 'emus' means re-install even if version is the same not just if it is older. -->
-                <Property Id='REINSTALLMODE' Value='emus'/>
 
                 <Upgrade Id="{upgrade_code}">
                     <UpgradeVersion Maximum="{version}"
