@@ -1,0 +1,42 @@
+# -*- coding: utf-8 -*-
+__license__   = 'GPL v3'
+# dug from http://www.mobileread.com/forums/showthread.php?p=1012294
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1277443634(BasicNewsRecipe):
+    title = u'中時電子報'
+    oldest_article = 1
+    max_articles_per_feed = 100
+
+    feeds = [(u'焦點', u'http://rss.chinatimes.com/rss/focus-u.rss'),
+             (u'政治', u'http://rss.chinatimes.com/rss/Politic-u.rss'),
+             (u'社會', u'http://rss.chinatimes.com/rss/social-u.rss'),
+             (u'國際', u'http://rss.chinatimes.com/rss/international-u.rss'),
+             (u'兩岸', u'http://rss.chinatimes.com/rss/mainland-u.rss'),
+             (u'地方', u'http://rss.chinatimes.com/rss/local-u.rss'),
+             (u'言論', u'http://rss.chinatimes.com/rss/comment-u.rss'),
+             (u'科技', u'http://rss.chinatimes.com/rss/technology-u.rss'),
+             (u'運動', u'http://rss.chinatimes.com/rss/sport-u.rss'),
+             (u'藝文', u'http://rss.chinatimes.com/rss/philology-u.rss'),
+             #(u'旺報', u'http://rss.chinatimes.com/rss/want-u.rss'),
+             #(u'財經', u'http://rss.chinatimes.com/rss/finance-u.rss'),  # broken links
+             #(u'股市', u'http://rss.chinatimes.com/rss/stock-u.rss')  # broken links
+             ]
+
+    __author__ = 'einstuerzende, updated by Eddie Lau'
+    __version__ = '1.0'
+    language = 'zh'
+    publisher = 'China Times Group'
+    description = 'China Times (Taiwan)'
+    category = 'News, Chinese, Taiwan'
+    remove_javascript = True
+    use_embedded_content = False
+    no_stylesheets = True
+    encoding = 'big5'
+    conversion_options = {'linearize_tables':True}
+    masthead_url = 'http://www.fcuaa.org/gif/chinatimeslogo.gif'
+    cover_url = 'http://www.fcuaa.org/gif/chinatimeslogo.gif'
+    keep_only_tags = [dict(name='div', attrs={'class':['articlebox','articlebox clearfix']})]
+    remove_tags = [dict(name='div', attrs={'class':['focus-news']})]
+

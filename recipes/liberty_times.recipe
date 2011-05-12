@@ -1,0 +1,44 @@
+# -*- coding: utf-8 -*-
+__license__   = 'GPL v3'
+# dug from http://www.mobileread.com/forums/showthread.php?p=1012294
+
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1277443634(BasicNewsRecipe):
+	title = u'自由電子報'
+	oldest_article = 1
+	max_articles_per_feed = 100
+
+	feeds = [(u'焦點新聞', u'http://www.libertytimes.com.tw/rss/fo.xml'),
+                  (u'政治新聞', u'http://www.libertytimes.com.tw/rss/p.xml'),
+                  (u'生活新聞', u'http://www.libertytimes.com.tw/rss/life.xml'),
+                  (u'國際新聞', u'http://www.libertytimes.com.tw/rss/int.xml'),
+                  (u'自由廣場', u'http://www.libertytimes.com.tw/rss/o.xml'),
+                  (u'社會新聞', u'http://www.libertytimes.com.tw/rss/so.xml'),
+                  (u'體育新聞', u'http://www.libertytimes.com.tw/rss/sp.xml'),
+                  (u'財經焦點', u'http://www.libertytimes.com.tw/rss/e.xml'),
+                  (u'證券理財', u'http://www.libertytimes.com.tw/rss/stock.xml'),
+                  (u'影視焦點', u'http://www.libertytimes.com.tw/rss/show.xml'),
+                  (u'北部新聞', u'http://www.libertytimes.com.tw/rss/north.xml'),
+                  (u'中部新聞', u'http://www.libertytimes.com.tw/rss/center.xml'),
+                  (u'南部新聞', u'http://www.libertytimes.com.tw/rss/south.xml'),
+                  (u'大台北新聞', u'http://www.libertytimes.com.tw/rss/taipei.xml'),
+                  (u'藝術文化', u'http://www.libertytimes.com.tw/rss/art.xml'),
+                 ]
+	extra_css = '''span[class='insubject1'][id='newtitle'] {font-size:200%; font-weight:bold;}'''
+	__author__ = 'einstuerzende, updated by Eddie Lau'
+	__version__ = '1.1'
+	language = 'zh'
+	publisher = 'Liberty Times Group'
+	description = 'Liberty Times (Taiwan)'
+	category = 'News, Chinese, Taiwan'
+	remove_javascript = True
+	use_embedded_content = False
+	no_stylesheets = True
+	encoding = 'big5'
+	conversion_options = {'linearize_tables':True}
+	masthead_url = 'http://www.libertytimes.com.tw/2008/images/img_auto/005/logo_new.gif'
+	cover_url = 'http://www.libertytimes.com.tw/2008/images/img_auto/005/logo_new.gif'
+	keep_only_tags = [dict(name='td', attrs={'id':['newsContent']})]
+
