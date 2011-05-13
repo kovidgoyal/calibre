@@ -191,7 +191,11 @@ class OEBReader(object):
                         if not scheme and href not in known:
                             new.add(href)
                 elif item.media_type in OEB_STYLES:
-                    for url in cssutils.getUrls(item.data):
+                    try:
+                        urls = list(cssutils.getUrls(item.data))
+                    except:
+                        urls = []
+                    for url in urls:
                         href, _ = urldefrag(url)
                         href = item.abshref(urlnormalize(href))
                         scheme = urlparse(href).scheme

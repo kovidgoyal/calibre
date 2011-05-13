@@ -53,7 +53,7 @@ class StoreAction(InterfaceAction):
         if self.gui.current_view() is self.gui.library_view:
             author = self.gui.library_view.model().authors(row)
             if author:
-                author = author.replace('|', ',')
+                author = author.replace('|', ' ')
         else:
             mi = self.gui.current_view().model().get_book_display_info(row)
             author = ' & '.join(mi.authors)
