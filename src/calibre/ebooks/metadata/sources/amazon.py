@@ -202,6 +202,8 @@ class Worker(Thread): # Get details {{{
 
     def parse_rating(self, root):
         ratings = root.xpath('//div[@class="jumpBar"]/descendant::span[@class="asinReviewsSummary"]')
+        if not ratings:
+            ratings = root.xpath('//div[@class="buying"]/descendant::span[@class="asinReviewsSummary"]')
         pat = re.compile(r'([0-9.]+) out of (\d+) stars')
         if ratings:
             for elem in ratings[0].xpath('descendant::*[@title]'):
@@ -215,9 +217,13 @@ class Worker(Thread): # Get details {{{
         if desc:
             desc = desc[0]
             for c in desc.xpath('descendant::*[@class="seeAll" or'
-                    ' @class="emptyClear" or @href]'):
+                    ' @class="emptyClear"]'):
                 c.getparent().remove(c)
+            for a in desc.xpath('descendant::a[@href]'):
+                del a.attrib['href']
+                a.tag = 'span'
             desc = tostring(desc, method='html', encoding=unicode).strip()
+
             # Encoding bug in Amazon data U+fffd (replacement char)
             # in some examples it is present in place of '
             desc = desc.replace('\ufffd', "'")
@@ -246,8 +252,12 @@ class Worker(Thread): # Get details {{{
                         return ('/'.join(parts[:-1]))+'/'+bn
 
     def parse_isbn(self, pd):
-        for x in reversed(pd.xpath(
-            'descendant::*[starts-with(text(), "ISBN")]')):
+        items = pd.xpath(
+            'descendant::*[starts-with(text(), "ISBN")]')
+        if not items:
+            items = pd.xpath(
+                'descendant::b[contains(text(), "ISBN:")]')
+        for x in reversed(items):
             if x.tail:
                 ans = check_isbn(x.tail.strip())
                 if ans:
@@ -519,8 +529,17 @@ if __name__ == '__main__': # tests {{{
     test_identify_plugin(Amazon.name,
         [
 
-            ( # An e-book ISBN not on Amazon, one of the authors is
-              # unknown to Amazon, so no popup wrapper
+            (  # Description has links
+                {'identifiers':{'isbn': '9780671578275'}},
+                [title_test('A Civil Campaign: A Comedy of Biology and Manners',
+                    exact=True), authors_test(['Lois McMaster Bujold'])
+                 ]
+
+            ),
+
+            ( # An e-book ISBN not on Amazon, the title/author search matches
+              # the Kindle edition, which has different markup for ratings and
+              # isbn
                 {'identifiers':{'isbn': '9780307459671'},
                     'title':'Invisible Gorilla', 'authors':['Christopher Chabris']},
                 [title_test('The Invisible Gorilla: And Other Ways Our Intuitions Deceive Us',
@@ -556,6 +575,6 @@ if __name__ == '__main__': # tests {{{
 
             ),
 
-        ])
+            ])
 # }}}
 
