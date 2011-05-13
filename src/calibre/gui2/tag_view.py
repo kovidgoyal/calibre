@@ -1263,7 +1263,7 @@ class TagsModel(QAbstractItemModel): # {{{
                                 d['last'] = data[key][cat_len-1]
                             name = eval_formatter.safe_format(collapse_template,
                                                               d, 'TAG_VIEW', None)
-                            self.beginInsertRows(category_index, 999999, 1) #len(data[key])-1)
+                            self.beginInsertRows(category_index, 999998, 999999) #len(data[key])-1)
                             sub_cat = TagTreeItem(parent=category, data = name,
                                      tooltip = None, temporary=True,
                                      category_icon = category_node.icon,
@@ -1296,7 +1296,7 @@ class TagsModel(QAbstractItemModel): # {{{
                         key in ['authors', 'publisher', 'news', 'formats', 'rating'] or
                         key not in self.db.prefs.get('categories_using_hierarchy', []) or
                         len(components) == 1):
-                    self.beginInsertRows(category_index, 999999, 1)
+                    self.beginInsertRows(category_index, 999998, 999999)
                     n = TagTreeItem(parent=node_parent, data=tag, tooltip=tt,
                                     icon_map=self.icon_state_map)
                     if tag.id_set is not None:
@@ -1332,7 +1332,7 @@ class TagsModel(QAbstractItemModel): # {{{
                             t.is_hierarchical = \
                                 '5state' if t.category != 'search' else '3state'
                             t.name = comp
-                            self.beginInsertRows(category_index, 999999, 1)
+                            self.beginInsertRows(category_index, 999998, 999999)
                             node_parent = TagTreeItem(parent=node_parent, data=t,
                                             tooltip=tt, icon_map=self.icon_state_map)
                             child_map[(comp,tag.category)] = node_parent
