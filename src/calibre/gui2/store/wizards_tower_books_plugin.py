@@ -29,7 +29,7 @@ class WizardsTowerBooksStore(BasicStoreConfig, StorePlugin):
             detail_item = self.url + detail_item
 
         if external or self.config.get('open_external', False):
-            open_url(QUrl(url_slash_cleaner(detail_item if detail_item else url)))
+            open_url(QUrl(url_slash_cleaner(detail_item)))
         else:
             d = WebStoreDialog(self.gui, self.url, parent, detail_item)
             d.setWindowTitle(self.name)
@@ -38,9 +38,9 @@ class WizardsTowerBooksStore(BasicStoreConfig, StorePlugin):
 
     def search(self, query, max_results=10, timeout=60):
         url = 'http://www.wizardstowerbooks.com/search.html?for=' + urllib.quote(query)
-        
+
         br = browser()
-        
+
         counter = max_results
         with closing(br.open(url, timeout=timeout)) as f:
             doc = html.fromstring(f.read())
@@ -60,13 +60,13 @@ class WizardsTowerBooksStore(BasicStoreConfig, StorePlugin):
                 price = price.strip()
                 if not price:
                     continue
-                
+
                 title = ''.join(data.xpath('.//span[@class="prti"]/a/b/text()'))
                 author = ''.join(data.xpath('.//p[@class="last"]/text()'))
                 a, b, author = author.partition(' by ')
-                
+
                 counter -= 1
-                
+
                 s = SearchResult()
                 s.cover_url = cover_url
                 s.title = title.strip()
@@ -74,15 +74,15 @@ class WizardsTowerBooksStore(BasicStoreConfig, StorePlugin):
                 s.price = price.strip()
                 s.detail_item = id.strip()
                 s.drm = SearchResult.DRM_UNLOCKED
-                
+
                 yield s
 
     def get_details(self, search_result, timeout):
         br = browser()
         with closing(br.open(url_slash_cleaner(self.url + search_result.detail_item), timeout=timeout)) as nf:
             idata = html.fromstring(nf.read())
-        
+
             formats = ', '.join(idata.xpath('//select[@id="N1_"]//option//text()'))
             search_result.formats = formats.upper()
-            
+
         return True

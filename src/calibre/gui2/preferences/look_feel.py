@@ -161,7 +161,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def initialize(self):
         ConfigWidgetBase.initialize(self)
-        self.current_font = self.initial_font = gprefs['font']
+        font = gprefs['font']
+        if font is not None:
+            font = list(font)
+            font.append(gprefs.get('font_stretch', QFont.Unstretched))
+        self.current_font = self.initial_font = font
         self.update_font_display()
         self.display_model.initialize()
 
@@ -178,7 +182,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
     def build_font_obj(self):
         font_info = self.current_font
         if font_info is not None:
-            font = QFont(*font_info)
+            font = QFont(*(font_info[:4]))
+            font.setStretch(font_info[4])
         else:
             font = qt_app.original_font
         return font
@@ -215,15 +220,18 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         if fd.exec_() == fd.Accepted:
             font = fd.selectedFont()
             fi = QFontInfo(font)
-            self.current_font = (unicode(fi.family()), fi.pointSize(),
-                    fi.weight(), fi.italic())
+            self.current_font = [unicode(fi.family()), fi.pointSize(),
+                    fi.weight(), fi.italic(), font.stretch()]
             self.update_font_display()
             self.changed_signal.emit()
 
     def commit(self, *args):
         rr = ConfigWidgetBase.commit(self, *args)
         if self.current_font != self.initial_font:
-            gprefs['font'] = self.current_font
+            gprefs['font'] = (self.current_font[:4] if self.current_font else
+                    None)
+            gprefs['font_stretch'] = (self.current_font[4] if self.current_font
+                    is not None else QFont.Unstretched)
             QApplication.setFont(self.font_display.font())
             rr = True
         self.display_model.commit()

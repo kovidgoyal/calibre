@@ -382,7 +382,7 @@ def identify(log, abort, # {{{
             if key not in filter_results:
                 filtered_results.append(r)
                 filter_results.add(key)
-        presults = filtered_results
+        results[plugin] = presults = filtered_results
 
         plog = logs[plugin].getvalue().strip()
         log('\n'+'*'*30, plugin.name, '*'*30)

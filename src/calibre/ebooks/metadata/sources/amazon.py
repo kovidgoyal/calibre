@@ -280,7 +280,7 @@ class Worker(Thread): # Get details {{{
 class Amazon(Source):
 
     name = 'Amazon.com'
-    description = _('Downloads metadata from Amazon')
+    description = _('Downloads metadata and covers from Amazon')
 
     capabilities = frozenset(['identify', 'cover'])
     touched_fields = frozenset(['title', 'authors', 'identifier:amazon',

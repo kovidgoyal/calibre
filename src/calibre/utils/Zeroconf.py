@@ -869,7 +869,8 @@ class Engine(threading.Thread):
                             if DEBUG:
                                 traceback.print_exc()
                         except:
-                            traceback.print_exc()
+                            if DEBUG:
+                                traceback.print_exc()
                 except:
                     pass
 
