@@ -28,13 +28,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-05-06 17:31+0000\n"
-"PO-Revision-Date: 2011-05-11 19:01+0000\n"
+"PO-Revision-Date: 2011-05-12 23:35+0000\n"
 "Last-Translator: drMerry <Unknown>\n"
 "Language-Team: Dutch <nl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-05-12 04:32+0000\n"
+"X-Launchpad-Export-Date: 2011-05-13 04:34+0000\n"
 "X-Generator: Launchpad (build 12959)\n"
 "X-Poedit-Country: NETHERLANDS\n"
 "X-Poedit-Language: Dutch\n"
@@ -1146,11 +1146,11 @@ msgstr "Kovid Goyal"
 
 #: /home/kovid/work/calibre/src/calibre/devices/boeye/driver.py:14
 msgid "Communicate with BOEYE BEX Serial eBook readers."
-msgstr ""
+msgstr "Communiceer met BOEYE BEX Seriele E-boek lezers."
 
 #: /home/kovid/work/calibre/src/calibre/devices/boeye/driver.py:35
 msgid "Communicate with BOEYE BDX serial eBook readers."
-msgstr ""
+msgstr "Communiceer met BOEYE BDX Seriele E-boek lezers."
 
 #: /home/kovid/work/calibre/src/calibre/devices/cybook/driver.py:22
 msgid "Communicate with the Cybook Gen 3 / Opus eBook reader."
@@ -11375,6 +11375,11 @@ msgid ""
 "red to green.  There is a menu of functions available under this button. "
 "Click and hold on the button to see it."
 msgstr ""
+"Creeer automatisch de schrijver-sortering gebaseerd op de huidige schrijver. "
+"Door deze knop te gebruiken om een schrijver-sortereing te maken zal de "
+"schrijver-sortering wijzigen van rood naar groen. Er is een menu met "
+"functies beschikbaar onder deze knop. Klik en houd de knop ingedrukt om dit "
+"te zien."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:113
 msgid "Set author sort from author"
@@ -12191,6 +12196,11 @@ msgid ""
 ">Plugins. Remember to also enter the folders where you want the books to be "
 "put. You must restart calibre for your changes to take effect.\n"
 msgstr ""
+"Kopieer deze waardes naar het klembord, plak ze in een editor, en plaats ze "
+"in de USER_DEVICE door de persoonlijke voorkeuren van de apparaat-plugin in "
+"Voorkeuren-->Plugins aan te passen. Vergeet niet ook de mappen waar de "
+"boeken moeten komen in te stellen. Je moet calibre herstaren om de "
+"wijzigingen door te voeren.\n"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/email_ui.py:66
 msgid ""

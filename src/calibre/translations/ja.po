@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-05-06 17:31+0000\n"
-"PO-Revision-Date: 2011-05-12 04:27+0000\n"
+"PO-Revision-Date: 2011-05-12 05:03+0000\n"
 "Last-Translator: Ado Nishimura <Unknown>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-05-12 04:33+0000\n"
+"X-Launchpad-Export-Date: 2011-05-13 04:34+0000\n"
 "X-Generator: Launchpad (build 12959)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -2741,6 +2741,11 @@ msgid ""
 "Show/edit the metadata in an LRF file.\n"
 "\n"
 msgstr ""
+"%prog [options] mybook.lrf\n"
+"\n"
+"\n"
+"LRFファイルの書籍情報を表示/編集します。\n"
+"\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:589
 msgid "Set the book title"
@@ -2769,7 +2774,7 @@ msgstr "このファイルのサムネイル画像となる写真などへのパ
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:603
 msgid ""
 "Path to a txt file containing the comment to be stored in the lrf file."
-msgstr ""
+msgstr "LRFファイルに入れる、コメントが入ったテキストファイルへのパス。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:607
 msgid "Extract thumbnail from LRF file"
@@ -2804,43 +2809,43 @@ msgstr "本のIDを設定"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:90
 msgid "Enable autorotation of images that are wider than the screen width."
-msgstr ""
+msgstr "スクリーンの幅よりも広いイメージの自動回転を有効にする。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:94
 msgid "Set the space between words in pts. Default is %default"
-msgstr ""
+msgstr "ワード間のスペースをポイントで設定。ディフォールト： %default"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:97
 msgid "Add a header to all the pages with title and author."
-msgstr ""
+msgstr "すべてのページにタイトルと作者のヘッダーを追加する。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:100
 msgid ""
 "Set the format of the header. %a is replaced by the author and %t by the "
 "title. Default is %default"
-msgstr ""
+msgstr "ヘッダーのフォーマットを設定する。%aは作者に変換され、%tはタイトルに変換されます。ディフォールトは%defaultです。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:104
 msgid "Add extra spacing below the header. Default is %default pt."
-msgstr ""
+msgstr "追加の空間をヘッダーの下に追加します。ディフォールト：%default ポイント"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:107
 msgid ""
 "Minimum paragraph indent (the indent of the first line of a paragraph) in "
 "pts. Default: %default"
-msgstr ""
+msgstr "パラグラフの最小のインデント・ポイント数（パラグラフの最初の行のインデント）。ディフォールト：%default"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:112
 msgid ""
 "Render tables in the HTML as images (useful if the document has large or "
 "complex tables)"
-msgstr ""
+msgstr "HTMLのテーブルをイメージにする。（大きい、もしくは複雑なテーブルを持つドキュメントの時に便利）"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:117
 msgid ""
 "Multiply the size of text in rendered tables by this factor. Default is "
 "%default"
-msgstr ""
+msgstr "描画されるテーブルのテキストのサイズを拡大する倍率。ディフォールトは %default"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:121
 msgid "The serif family of fonts to embed"
@@ -2863,10 +2868,11 @@ msgid ""
 "Extract common e-book formats from archives (zip/rar) files. Also try to "
 "autodetect if they are actually cbz/cbr files."
 msgstr ""
+"アーカイブ・ファイル（ZIP/RAR)からよくあるe-bookのフォーマットを抜き出す。そして、それらが実際はCBZ/CBRであるかを自動的に判別する。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:140
 msgid "TEMPLATE ERROR"
-msgstr ""
+msgstr "テンプレート・エラー"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:623
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:63
@@ -2978,46 +2984,51 @@ msgid ""
 "some metadata on a file type that does not support it, the metadata will be\n"
 "silently ignored.\n"
 msgstr ""
+"\n"
+"書籍情報を書き込めるフォーマット： %s\n"
+"\n"
+"ファイルタイプはそれぞれサポートする書籍情報が違います。もし、そのファイルが\n"
+"サポートしない書籍情報を設定しようとした場合には、その情報は無視されます。\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:40
 msgid ""
 "Set the authors. Multiple authors should be separated by the & character. "
 "Author names should be in the order Firstname Lastname."
-msgstr ""
+msgstr "著者を設定。複数の著者を設定する場合には&で区切ってください。著者名は「苗字」「名前」の順です。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:44
 msgid ""
 "The version of the title to be used for sorting. If unspecified, and the "
 "title is specified, it will be auto-generated from the title."
-msgstr ""
+msgstr "ソートに使う別タイトル。もし指定しない場合、タイトル情報があればそこから自動生成されます。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:48
 msgid ""
 "String to be used when sorting by author. If unspecified, and the author(s) "
 "are specified, it will be auto-generated from the author(s)."
-msgstr ""
+msgstr "著者順にソートする時に使う文字列。もし指定しない場合、著者情報があればそこから自動生成されます。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:52
 msgid "Set the cover to the specified file."
-msgstr ""
+msgstr "表紙を特定のファイルに設定"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:58
 msgid "Set the book category."
-msgstr ""
+msgstr "本のカテゴリーを設定"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:74
 msgid "Set the published date."
-msgstr ""
+msgstr "出版日を設定"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:77
 msgid "Get the cover from the ebook and save it at as the specified file."
-msgstr ""
+msgstr "表紙をebookから取得し指定した場所に保存する。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:80
 msgid ""
 "Specify the name of an OPF file. The metadata will be written to the OPF "
 "file."
-msgstr ""
+msgstr "OFPファイルの名前を指定。書籍情報はOPFファイルに書き出されます。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:83
 msgid ""
@@ -3025,10 +3036,11 @@ msgid ""
 "ebook. Metadata specified on the command line will override metadata read "
 "from the OPF file"
 msgstr ""
+"OPFファイルから書籍情報を読み込み、ebookの書籍情報として設定する。コマンドラインで指定した書籍情報は、OPFファイルからの物より優先されます。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:88
 msgid "Set the BookID in LRF files"
-msgstr ""
+msgstr "BookIDをLRFファイルに設定"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:153
 msgid "No file specified"
@@ -3044,11 +3056,11 @@ msgstr "変更された書誌情報"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:197
 msgid "OPF created in"
-msgstr ""
+msgstr "OPFが作成されました："
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:203
 msgid "Cover saved to"
-msgstr ""
+msgstr "表紙が保存されました："
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:205
 msgid "No cover found"
@@ -3062,13 +3074,17 @@ msgid ""
 "Fetch a cover image/social metadata for the book identified by ISBN from "
 "LibraryThing.com\n"
 msgstr ""
+"\n"
+"%prog [options] ISBN\n"
+"\n"
+"表紙イメージと書籍情報をISBNによってLibraryThing.comから取得します。\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1358
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1493
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:841
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:33
 msgid "Cover"
-msgstr ""
+msgstr "表紙"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:283
 msgid "Downloads metadata from Amazon"
@@ -3108,13 +3124,13 @@ msgstr "isbndb.comから書誌情報をダウンロード"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/isbndb.py:37
 msgid "IsbnDB key:"
-msgstr ""
+msgstr "IsbnDB キー："
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/isbndb.py:38
 msgid ""
 "To use isbndb.com you have to sign up for a free accountat isbndb.com and "
 "get an access key."
-msgstr ""
+msgstr "isbndb.comを使うには、isbndb.comの無料会員になってアクセスキーを得る必要があります。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/isbndb.py:42
 msgid ""
@@ -3122,6 +3138,8 @@ msgid ""
 "an isbndb key and enter it below. Instructions to get the key are <a "
 "href=\"http://isbndb.com/docs/api/30-keys.html\">here</a>."
 msgstr ""
+"isbndb.comを使うには、isbndb.comの無料会員になってisbndbキーを取得し下に入れてください。キー取得の説明は<a "
+"href=\"http://isbndb.com/docs/api/30-keys.html\">ここ</a>にあります。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/openlibrary.py:15
 msgid "Downloads covers from The Open Library"
