@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 class StorePlugin(object): # {{{
     '''
     A plugin representing an online ebook repository (store). The store can
-    be a comercial store that sells ebooks or a source of free downloadable
+    be a commercial store that sells ebooks or a source of free downloadable
     ebooks.
 
     Note that this class is the base class for these plugins, however, to
@@ -43,6 +43,8 @@ class StorePlugin(object): # {{{
     The easiest way to handle affiliate money payouts is to randomly select
     between the author's affiliate id and calibre's affiliate id so that
     70% of the time the author's id is used.
+    
+    See declined.txt for a list of stores that do not want to be included.
     '''
 
     def __init__(self, gui, name):

@@ -8,12 +8,11 @@ Read meta information from extZ (TXTZ, HTMLZ...) files.
 '''
 
 import os
-import posixpath
 
 from cStringIO import StringIO
 
 from calibre.ebooks.metadata import MetaInformation
-from calibre.ebooks.metadata.opf2 import OPF, metadata_to_opf
+from calibre.ebooks.metadata.opf2 import OPF
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.zipfile import ZipFile, safe_replace
 
@@ -31,9 +30,9 @@ def get_metadata(stream, extract_cover=True):
             opf = OPF(opf_stream)
             mi = opf.to_book_metadata()
             if extract_cover:
-                cover_href = posixpath.relpath(opf.cover, os.path.dirname(stream.name))
+                cover_href = opf.raster_cover
                 if cover_href:
-                    mi.cover_data = ('jpg', zf.read(cover_href))
+                    mi.cover_data = (os.path.splitext(cover_href)[1], zf.read(cover_href))
     except:
         return mi
     return mi
@@ -59,18 +58,15 @@ def set_metadata(stream, mi):
         except:
             pass
     if new_cdata:
-        cover = opf.cover
-        if not cover:
-            cover = 'cover.jpg'
-        cpath = posixpath.join(posixpath.dirname(opf_path), cover)
+        cpath = opf.raster_cover
+        if not cpath:
+            cpath = 'cover.jpg'
         new_cover = _write_new_cover(new_cdata, cpath)
         replacements[cpath] = open(new_cover.name, 'rb')
-        mi.cover = cover
+        mi.cover = cpath
 
     # Update the metadata.
-    old_mi = opf.to_book_metadata()
-    old_mi.smart_update(mi)
-    opf.smart_update(metadata_to_opf(old_mi))
+    opf.smart_update(mi, replace_metadata=True)
     newopf = StringIO(opf.render())
     safe_replace(stream, opf_path, newopf, extra_replacements=replacements, add_missing=True)
 

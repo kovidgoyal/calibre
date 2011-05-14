@@ -13,6 +13,7 @@ from Queue import Queue, Empty
 from threading import Thread
 from io import BytesIO
 from operator import attrgetter
+from urlparse import urlparse
 
 from calibre.customize.ui import metadata_plugins, all_metadata_plugins
 from calibre.ebooks.metadata.sources.base import create_log, msprefs
@@ -371,6 +372,18 @@ def identify(log, abort, # {{{
     longest, lp = -1, ''
     for plugin, presults in results.iteritems():
         presults.sort(key=plugin.identify_results_keygen(**sort_kwargs))
+
+        # Throw away lower priority results from the same source that have exactly the same
+        # title and authors as a higher priority result
+        filter_results = set()
+        filtered_results = []
+        for r in presults:
+            key = (r.title, tuple(r.authors))
+            if key not in filter_results:
+                filtered_results.append(r)
+                filter_results.add(key)
+        results[plugin] = presults = filtered_results
+
         plog = logs[plugin].getvalue().strip()
         log('\n'+'*'*30, plugin.name, '*'*30)
         log('Request extra headers:', plugin.browser.addheaders)
@@ -402,7 +415,7 @@ def identify(log, abort, # {{{
             result.identify_plugin = plugin
             if msprefs['txt_comments']:
                 if plugin.has_html_comments and result.comments:
-                    result.comments = html2text(r.comments)
+                    result.comments = html2text(result.comments)
 
     log('The identify phase took %.2f seconds'%(time.time() - start_time))
     log('The longest time (%f) was taken by:'%longest, lp)
@@ -458,6 +471,14 @@ def urls_from_identifiers(identifiers): # {{{
     if oclc:
         ans.append(('OCLC', 'oclc', oclc,
             'http://www.worldcat.org/oclc/'+oclc))
+    url = identifiers.get('uri', None)
+    if url is None:
+        url = identifiers.get('url', None)
+    if url and url.startswith('http'):
+        url = url[:8].replace('|', ':') + url[8:].replace('|', ',')
+        parts = urlparse(url)
+        name = parts.netloc
+        ans.append((name, 'url', url, url))
     return ans
 # }}}
 
@@ -470,7 +491,7 @@ if __name__ == '__main__': # tests {{{
             (
                 {'title':'Magykal Papers',
                     'authors':['Sage']},
-                [title_test('The Magykal Papers', exact=True)],
+                [title_test('Septimus Heap: The Magykal Papers', exact=True)],
             ),
 
 
@@ -495,12 +516,6 @@ if __name__ == '__main__': # tests {{{
                 {'identifiers':{'isbn': '9781416580829'}},
                 [title_test('Angels & Demons',
                     exact=True), authors_test(['Dan Brown'])]
-            ),
-
-            ( # No ISBN
-                {'title':'Justine', 'authors':['Durrel']},
-                [title_test('Justine', exact=True),
-                    authors_test(['Lawrence Durrel'])]
             ),
 
             (  # A newer book

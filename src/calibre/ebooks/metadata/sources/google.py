@@ -157,7 +157,7 @@ def to_metadata(browser, log, entry_, timeout): # {{{
 class GoogleBooks(Source):
 
     name = 'Google'
-    description = _('Downloads metadata from Google Books')
+    description = _('Downloads metadata and covers from Google Books')
 
     capabilities = frozenset(['identify', 'cover'])
     touched_fields = frozenset(['title', 'authors', 'tags', 'pubdate',

@@ -12,6 +12,7 @@ from threading import Thread
 from Queue import Queue
 
 from calibre import browser
+from calibre.constants import DEBUG
 from calibre.utils.magick.draw import thumbnail
 
 class GenericDownloadThreadPool(object):
@@ -119,7 +120,8 @@ class SearchThread(Thread):
                     self.results.put((res, store_plugin))
                 self.tasks.task_done()
             except:
-                traceback.print_exc()
+                if DEBUG:
+                    traceback.print_exc()
 
 
 class CoverThreadPool(GenericDownloadThreadPool):
@@ -157,7 +159,8 @@ class CoverThread(Thread):
                     callback()
                 self.tasks.task_done()
             except:
-                continue
+                if DEBUG:
+                    traceback.print_exc()
 
 
 class DetailsThreadPool(GenericDownloadThreadPool):
@@ -191,7 +194,8 @@ class DetailsThread(Thread):
                     callback(result)
                 self.tasks.task_done()
             except:
-                continue
+                if DEBUG:
+                    traceback.print_exc()
 
 
 class CacheUpdateThreadPool(GenericDownloadThreadPool):
@@ -221,4 +225,5 @@ class CacheUpdateThread(Thread):
                 store_plugin, timeout = self.tasks.get()
                 store_plugin.update_cache(timeout=timeout, suppress_progress=True)
             except:
-                traceback.print_exc()
+                if DEBUG:
+                    traceback.print_exc()

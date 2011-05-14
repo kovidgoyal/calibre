@@ -19,6 +19,90 @@
 #  new recipes:
 #    - title: 
 
+- version: 0.8.1
+  date: 2011-05-13
+
+  new features:
+    - title: "Add Amazon DE, Beam EBooks, Beam DE, Weightless Books, Wizards Tower Books to the list of ebook stores searched by Get Books"
+
+    - title: "TXT output: All new Textile output with much greater preservation of formatting from the input document"
+
+    - title: "Migrate metadata plugin for Douban Books to the 0.8 API"
+
+    - title: "Driver for Dell Streak on windows"
+
+    - title: "Add menu items to Get Books action to search by title and author of current book"
+
+    - title: "Add title_sort as available field to CSV/XML catalogs"
+
+    - title: "Add a context menu to the manage authors dialog"
+
+    - title: "Add a button to paste isbn into the identifiers field in the edit metadata dialog automatically"
+  
+  bug fixes:
+    - title: "Amazon metadata download plugin: Fix links being stripped from comments. Also fix ratings/isbn not being parsed from kindle edition pages."
+      tickets: [782012]
+
+    - title: "Fix one source of segfaults on shutdown in the linux binary builds."
+
+    - title: "Allow the use of condensed/expanded fonts as interface fonts"
+
+    - title: "EPUB Input: Ignore missing cover file when converting, instead of erroring out."
+      tickets: [781848]
+
+    - title: "Fix custom identifier being erased by metadata download"
+      tickets: [781759]
+
+    - title: "Fix regression that broke various things when using Japanese language calibre on windows"
+      tickets: [780804]
+
+    - title: "RTF Input: Handle null color codes correctly"
+      tickets: [780728]
+
+    - title: "ODT Input: Handle inline special styles defined on <text:span> tags."
+      tickets: [780250]
+
+    - title: "Fix error when pressing next previous button with an empty search in the Plugins preferences"
+      tickets: [781135]
+
+    - title: "Ignore 'Unknown' author when downloading metadata."
+      tickets: [779348]
+
+    - title: "Fix timezone bug when setting dates in the edit metadata dialog"
+      tickets: [779497]
+
+    - title: "Fix ebook-convert not recognizing output paths starting with .."
+      tickets: [779322]
+
+  improved recipes:
+    - "Strategy+Business"
+    - Readers Digest
+    - Ming Pao
+    - Telepolis
+    - Fronda
+    - Rzeczpospolita
+
+  new recipes:
+    - title: "Various Taiwanese news sources"
+      author: Eddie Lau
+
+    - title: Replica Vedetelor, Ziua Veche 
+      author: Silviu Cotoara
+
+    - title: Welt der Physik
+      author: schuster
+
+    - title: Korea Herald
+      author: Seongkyoun Yoo
+
+
+- version: 0.8.0
+  date: 2010-05-06
+
+  new features:
+    - title: "Go to http://calibre-ebook.com/new-in/eight to see what's new in 0.8.0"
+      type: major
+
 - version: 0.7.59
   date: 2011-04-30
 

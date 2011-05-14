@@ -3,7 +3,6 @@ __license__   = 'GPL v3'
 '''
 '''
 from calibre.web.feeds.recipes import BasicNewsRecipe
-from calibre.web.feeds import Feed
 
 
 class ReadersDigest(BasicNewsRecipe):
@@ -38,151 +37,20 @@ class ReadersDigest(BasicNewsRecipe):
                         '''
 
 
-    remove_tags = [
-        dict(name='h4', attrs={'class':'close'}),
-        dict(name='div', attrs={'class':'fromLine'}),
-        dict(name='img', attrs={'class':'colorTag'}),
-        dict(name='div', attrs={'id':'sponsorArticleHeader'}),
-        dict(name='div', attrs={'class':'horizontalAd'}),
-        dict(name='div', attrs={'id':'imageCounterLeft'}),
-        dict(name='div', attrs={'id':'commentsPrint'})
-        ]
-
-
     feeds = [
-            ('New in RD', 'http://feeds.rd.com/ReadersDigest'),
-            ('Jokes', 'http://feeds.rd.com/ReadersDigestJokes'),
-            ('Cartoons', 'http://feeds.rd.com/ReadersDigestCartoons'),
-            ('Blogs','http://feeds.rd.com/ReadersDigestBlogs')
+            ('Food', 'http://www.rd.com/food/feed'),
+            ('Health', 'http://www.rd.com/health/feed'),
+            ('Home', 'http://www.rd.com/home/feed'),
+            ('Family', 'http://www.rd.com/family/feed'),
+            ('Money', 'http://www.rd.com/money/feed'),
+            ('Travel', 'http://www.rd.com/travel/feed'),
         ]
 
     cover_url = 'http://www.rd.com/images/logo-main-rd.gif'
 
-
-
-#-------------------------------------------------------------------------------------------------
-
-    def print_version(self, url):
-
-        # Get the identity number of the current article and append it to the root print URL
-
-        if url.find('/article') > 0:
-            ident = url[url.find('/article')+8:url.find('.html?')-4]
-            url = 'http://www.rd.com/content/printContent.do?contentId=' + ident
-
-        elif url.find('/post') > 0:
-
-            # in this case, have to get the page itself to derive the Print page.
-            soup = self.index_to_soup(url)
-            newsoup = soup.find('ul',attrs={'class':'printBlock'})
-            url = 'http://www.rd.com' + newsoup('a')[0]['href']
-            url = url[0:url.find('&Keep')]
-
-        return url
-
-#-------------------------------------------------------------------------------------------------
-
-    def parse_index(self):
-
-        pages = [
-                ('Your America','http://www.rd.com/your-america-inspiring-people-and-stories', 'channelLeftContainer',{'class':'moreLeft'}),
-                # useless recipes ('Living Healthy','http://www.rd.com/living-healthy', 'channelLeftContainer',{'class':'moreLeft'}),
-                ('Advice and Know-How','http://www.rd.com/advice-and-know-how', 'channelLeftContainer',{'class':'moreLeft'})
-
+    keep_only_tags = dict(id='main-content')
+    remove_tags = [
+            {'class':['post-categories']},
             ]
 
-        feeds = []
-
-        for page in pages:
-            section, url, divider, attrList = page
-            newArticles = self.page_parse(url, divider, attrList)
-            feeds.append((section,newArticles))
-
-        # after the pages of the site have been processed, parse several RSS feeds for additional sections
-        newfeeds = Feed()
-        newfeeds = self.parse_rss()
-
-
-        # The utility code in parse_rss returns a Feed object.  Convert each feed/article combination into a form suitable
-        # for this module (parse_index).
-
-        for feed in newfeeds:
-            newArticles = []
-            for article in feed.articles:
-                newArt = {
-                            'title' : article.title,
-                            'url'   : article.url,
-                            'date'  : article.date,
-                            'description' : article.text_summary
-                        }
-                newArticles.append(newArt)
-
-
-            # New and Blogs should be the first two feeds.
-            if feed.title == 'New in RD':
-                feeds.insert(0,(feed.title,newArticles))
-            elif feed.title == 'Blogs':
-                feeds.insert(1,(feed.title,newArticles))
-            else:
-                feeds.append((feed.title,newArticles))
-
-
-        return feeds
-
-#-------------------------------------------------------------------------------------------------
-
-    def page_parse(self, mainurl, divider, attrList):
-
-        articles = []
-        mainsoup = self.index_to_soup(mainurl)
-        for item in mainsoup.findAll(attrs=attrList):
-            newArticle = {
-                        'title' : item('img')[0]['alt'],
-                        'url'   : 'http://www.rd.com'+item('a')[0]['href'],
-                        'date'  : '',
-                        'description' : ''
-                    }
-            articles.append(newArticle)
-
-
-
-        return articles
-
-
-
-#-------------------------------------------------------------------------------------------------
-
-    def parse_rss (self):
-
-        # Do the "official" parse_feeds first
-        feeds = BasicNewsRecipe.parse_feeds(self)
-
-
-        # Loop thru the articles in all feeds to find articles with "recipe" in it
-        recipeArticles = []
-        for curfeed in feeds:
-            delList = []
-            for a,curarticle in enumerate(curfeed.articles):
-                if curarticle.title.upper().find('RECIPE') >= 0:
-                    recipeArticles.append(curarticle)
-                    delList.append(curarticle)
-            if len(delList)>0:
-                for d in delList:
-                    index = curfeed.articles.index(d)
-                    curfeed.articles[index:index+1] = []
-
-        # If there are any recipes found, create a new Feed object and append.
-        if len(recipeArticles) > 0:
-            pfeed = Feed()
-            pfeed.title = 'Recipes'
-            pfeed.descrition = 'Recipe Feed (Virtual)'
-            pfeed.image_url  = None
-            pfeed.oldest_article = 30
-            pfeed.id_counter = len(recipeArticles)
-            # Create a new Feed, add the recipe articles, and then append
-            # to "official" list of feeds
-            pfeed.articles = recipeArticles[:]
-            feeds.append(pfeed)
-
-        return feeds
 

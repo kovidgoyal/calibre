@@ -33,7 +33,7 @@ from calibre import isbytestring
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.date import utcnow, now as nowf, utcfromtimestamp
 from calibre.utils.config import prefs, tweaks, from_json, to_json
-from calibre.utils.icu import sort_key
+from calibre.utils.icu import sort_key, strcmp
 from calibre.utils.search_query_parser import saved_searches, set_saved_searches
 from calibre.ebooks import BOOK_EXTENSIONS, check_ebook_format
 from calibre.utils.magick.draw import save_cover_data_to
@@ -1920,6 +1920,18 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 result.append(r)
         return ' & '.join(result).replace('|', ',')
 
+    def _update_author_in_cache(self, id_, ss, final_authors):
+        self.conn.execute('UPDATE books SET author_sort=? WHERE id=?', (ss, id_))
+        self.data.set(id_, self.FIELD_MAP['authors'],
+                      ','.join([a.replace(',', '|') for a in final_authors]),
+                      row_is_id=True)
+        self.data.set(id_, self.FIELD_MAP['author_sort'], ss, row_is_id=True)
+
+        aum = self.authors_with_sort_strings(id_, index_is_id=True)
+        self.data.set(id_, self.FIELD_MAP['au_map'],
+            ':#:'.join([':::'.join((au.replace(',', '|'), aus)) for (au, aus) in aum]),
+            row_is_id=True)
+
     def _set_authors(self, id, authors, allow_case_change=False):
         if not authors:
             authors = [_('Unknown')]
@@ -1933,14 +1945,17 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             a = a.strip().replace(',', '|')
             if not isinstance(a, unicode):
                 a = a.decode(preferred_encoding, 'replace')
-            aus = self.conn.get('SELECT id, name FROM authors WHERE name=?', (a,))
+            aus = self.conn.get('SELECT id, name, sort FROM authors WHERE name=?', (a,))
             if aus:
-                aid, name = aus[0]
+                aid, name, sort = aus[0]
                 # Handle change of case
                 if name != a:
                     if allow_case_change:
-                        self.conn.execute('''UPDATE authors
-                                            SET name=? WHERE id=?''', (a, aid))
+                        ns = author_to_author_sort(a.replace('|', ','))
+                        if strcmp(sort, ns) == 0:
+                            sort = ns
+                        self.conn.execute('''UPDATE authors SET name=?, sort=?
+                                             WHERE id=?''', (a, sort, aid))
                         case_change = True
                     else:
                         a = name
@@ -1957,17 +1972,14 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 bks = self.conn.get('''SELECT book FROM books_authors_link
                                        WHERE author=?''', (aid,))
                 books_to_refresh |= set([bk[0] for bk in bks])
+                for bk in books_to_refresh:
+                    ss = self.author_sort_from_book(id, index_is_id=True)
+                    aus = self.author_sort(bk, index_is_id=True)
+                    if strcmp(aus, ss) ==  0:
+                        self._update_author_in_cache(bk, ss, final_authors)
+        # This can repeat what was done above in rare cases. Let it.
         ss = self.author_sort_from_book(id, index_is_id=True)
-        self.conn.execute('UPDATE books SET author_sort=? WHERE id=?',
-                          (ss, id))
-        self.data.set(id, self.FIELD_MAP['authors'],
-                      ','.join([a.replace(',', '|') for a in final_authors]),
-                      row_is_id=True)
-        self.data.set(id, self.FIELD_MAP['author_sort'], ss, row_is_id=True)
-        aum = self.authors_with_sort_strings(id, index_is_id=True)
-        self.data.set(id, self.FIELD_MAP['au_map'],
-            ':#:'.join([':::'.join((au.replace(',', '|'), aus)) for (au, aus) in aum]),
-            row_is_id=True)
+        self._update_author_in_cache(id, ss, final_authors)
         return books_to_refresh
 
     def set_authors(self, id, authors, notify=True, commit=True,
@@ -2271,6 +2283,12 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         result = self.conn.get('SELECT id,name,sort FROM authors')
         if not result:
             return []
+        return result
+
+    def get_author_id(self, author):
+        author = author.replace(',', '|')
+        result = self.conn.get('SELECT id FROM authors WHERE name=?',
+                               (author,), all=False)
         return result
 
     def set_sort_field_for_author(self, old_id, new_sort, commit=True, notify=False):
@@ -3038,7 +3056,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         '''
         if prefix is None:
             prefix = self.library_path
-        FIELDS = set(['title', 'authors', 'author_sort', 'publisher', 'rating',
+        FIELDS = set(['title', 'sort', 'authors', 'author_sort', 'publisher', 'rating',
             'timestamp', 'size', 'tags', 'comments', 'series', 'series_index',
             'uuid', 'pubdate', 'last_modified', 'identifiers'])
         for x in self.custom_column_num_map:
