@@ -104,6 +104,17 @@ class Worker(Thread): # Get details {{{
         self.ratings_pat = re.compile(
             r'([0-9.]+) (out of|von|su|étoiles sur) (\d+)( (stars|Sternen|stelle)){0,1}')
 
+        lm = {
+                'en': ('English', 'Englisch'),
+                'fr': ('French', 'Français'),
+                'it': ('Italian', 'Italiano'),
+                'de': ('German', 'Deutsch'),
+                }
+        self.lang_map = {}
+        for code, names in lm.iteritems():
+            for name in names:
+                self.lang_map[name] = code
+
     def delocalize_datestr(self, raw):
         if not self.months:
             return raw
@@ -362,14 +373,9 @@ class Worker(Thread): # Get details {{{
         for x in reversed(pd.xpath(self.language_xpath)):
             if x.tail:
                 ans = x.tail.strip()
-                if ans in ('English', 'Englisch'):
-                    return 'en'
-                elif ans in ('German', 'Deutsch'):
-                    return 'de'
-                elif ans in ('Italian', 'Italiano'):
-                    return 'it'
-                elif ans in ('French', 'Français',):
-                    return 'fr'
+                ans = self.lang_map.get(ans, None)
+                if ans:
+                    return ans
 # }}}
 
 class Amazon(Source):
