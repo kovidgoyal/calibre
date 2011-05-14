@@ -16,7 +16,7 @@ from lxml.html import soupparser, tostring
 
 from calibre import as_unicode
 from calibre.ebooks.metadata import check_isbn
-from calibre.ebooks.metadata.sources.base import Source
+from calibre.ebooks.metadata.sources.base import Source, Option
 from calibre.utils.cleantext import clean_ascii_chars
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.metadata.book.base import Metadata
@@ -37,6 +37,81 @@ class Worker(Thread): # Get details {{{
         self.relevance, self.plugin = relevance, plugin
         self.browser = browser.clone_browser()
         self.cover_url = self.amazon_id = self.isbn = None
+        self.domain = self.plugin.domain
+
+        months = {
+                'de': {
+            1 : ['jän'],
+            3 : ['märz'],
+            5 : ['mai'],
+            6 : ['juni'],
+            7 : ['juli'],
+            10: ['okt'],
+            12: ['dez']
+            },
+                'it': {
+            1: ['enn'],
+            2: ['febbr'],
+            5: ['magg'],
+            6: ['giugno'],
+            7: ['luglio'],
+            8: ['ag'],
+            9: ['sett'],
+            10: ['ott'],
+            12: ['dic'],
+            },
+                'fr': {
+            1: ['janv'],
+            2: ['févr'],
+            3: ['mars'],
+            4: ['avril'],
+            5: ['mai'],
+            6: ['juin'],
+            7: ['juil'],
+            8: ['août'],
+            9: ['sept'],
+            12: ['déc'],
+            },
+
+        }
+
+        self.english_months = [None, 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+        self.months = months.get(self.domain, {})
+
+        self.pd_xpath = '''
+            //h2[text()="Product Details" or \
+                 text()="Produktinformation" or \
+                 text()="Dettagli prodotto" or \
+                 text()="Product details" or \
+                 text()="Détails sur le produit"]/../div[@class="content"]
+            '''
+        self.publisher_xpath = '''
+            descendant::*[starts-with(text(), "Publisher:") or \
+                    starts-with(text(), "Verlag:") or \
+                    starts-with(text(), "Editore:") or \
+                    starts-with(text(), "Editeur")]
+            '''
+        self.language_xpath =    '''
+            descendant::*[
+                starts-with(text(), "Language:") \
+                or text() = "Language" \
+                or text() = "Sprache:" \
+                or text() = "Lingua:" \
+                or starts-with(text(), "Langue") \
+                ]
+            '''
+        self.ratings_pat = re.compile(
+            r'([0-9.]+) (out of|von|su|étoiles sur) (\d+)( (stars|Sternen|stelle)){0,1}')
+
+    def delocalize_datestr(self, raw):
+        if not self.months:
+            return raw
+        ans = raw.lower()
+        for i, vals in self.months.iteritems():
+            for x in vals:
+                ans = ans.replace(x, self.english_months[i])
+        return ans
 
     def run(self):
         try:
@@ -132,7 +207,7 @@ class Worker(Thread): # Get details {{{
             self.log.exception('Error parsing cover for url: %r'%self.url)
         mi.has_cover = bool(self.cover_url)
 
-        pd = root.xpath('//h2[text()="Product Details"]/../div[@class="content"]')
+        pd = root.xpath(self.pd_xpath)
         if pd:
             pd = pd[0]
 
@@ -194,23 +269,29 @@ class Worker(Thread): # Get details {{{
     def parse_authors(self, root):
         x = '//h1[@class="parseasinTitle"]/following-sibling::span/*[(name()="a" and @href) or (name()="span" and @class="contributorNameTrigger")]'
         aname = root.xpath(x)
+        if not aname:
+            aname = root.xpath('''
+            //h1[@class="parseasinTitle"]/following-sibling::*[(name()="a" and @href) or (name()="span" and @class="contributorNameTrigger")]
+                    ''')
         for x in aname:
             x.tail = ''
         authors = [tostring(x, encoding=unicode, method='text').strip() for x
                 in aname]
+        authors = [a for a in authors if a]
         return authors
 
     def parse_rating(self, root):
         ratings = root.xpath('//div[@class="jumpBar"]/descendant::span[@class="asinReviewsSummary"]')
         if not ratings:
             ratings = root.xpath('//div[@class="buying"]/descendant::span[@class="asinReviewsSummary"]')
-        pat = re.compile(r'([0-9.]+) out of (\d+) stars')
+        if not ratings:
+            ratings = root.xpath('//span[@class="crAvgStars"]/descendant::span[@class="asinReviewsSummary"]')
         if ratings:
             for elem in ratings[0].xpath('descendant::*[@title]'):
                 t = elem.get('title').strip()
-                m = pat.match(t)
+                m = self.ratings_pat.match(t)
                 if m is not None:
-                    return float(m.group(1))/float(m.group(2)) * 5
+                    return float(m.group(1))/float(m.group(3)) * 5
 
     def parse_comments(self, root):
         desc = root.xpath('//div[@id="productDescription"]/*[@class="content"]')
@@ -264,27 +345,31 @@ class Worker(Thread): # Get details {{{
                     return ans
 
     def parse_publisher(self, pd):
-        for x in reversed(pd.xpath(
-            'descendant::*[starts-with(text(), "Publisher:")]')):
+        for x in reversed(pd.xpath(self.publisher_xpath)):
             if x.tail:
                 ans = x.tail.partition(';')[0]
                 return ans.partition('(')[0].strip()
 
     def parse_pubdate(self, pd):
-        for x in reversed(pd.xpath(
-            'descendant::*[starts-with(text(), "Publisher:")]')):
+        for x in reversed(pd.xpath(self.publisher_xpath)):
             if x.tail:
                 ans = x.tail
                 date = ans.partition('(')[-1].replace(')', '').strip()
+                date = self.delocalize_datestr(date)
                 return parse_date(date, assume_utc=True)
 
     def parse_language(self, pd):
-        for x in reversed(pd.xpath(
-            'descendant::*[starts-with(text(), "Language:")]')):
+        for x in reversed(pd.xpath(self.language_xpath)):
             if x.tail:
                 ans = x.tail.strip()
-                if ans == 'English':
+                if ans in ('English', 'Englisch'):
                     return 'en'
+                elif ans in ('German', 'Deutsch'):
+                    return 'de'
+                elif ans in ('Italian', 'Italiano'):
+                    return 'it'
+                elif ans in ('French', 'Français',):
+                    return 'fr'
 # }}}
 
 class Amazon(Source):
@@ -304,7 +389,14 @@ class Amazon(Source):
             'fr' : _('France'),
             'de' : _('Germany'),
             'uk' : _('UK'),
+            'it' : _('Italy'),
     }
+
+    options = (
+            Option('domain', 'choices', 'com', _('Amazon website to use:'),
+                _('Metadata from Amazon will be fetched using this '
+                    'country\'s Amazon website.'), choices=AMAZON_DOMAINS),
+            )
 
     def get_book_url(self, identifiers): # {{{
         asin = identifiers.get('amazon', None)
@@ -314,8 +406,16 @@ class Amazon(Source):
             return ('amazon', asin, 'http://amzn.com/%s'%asin)
     # }}}
 
+    @property
+    def domain(self):
+        domain = self.prefs['domain']
+        if domain not in self.AMAZON_DOMAINS:
+            domain = 'com'
+
+        return domain
+
     def create_query(self, log, title=None, authors=None, identifiers={}): # {{{
-        domain = self.prefs.get('domain', 'com')
+        domain = self.domain
 
         # See the amazon detailed search page to get all options
         q = {   'search-alias' : 'aps',
@@ -355,6 +455,8 @@ class Amazon(Source):
         latin1q = dict([(x.encode('latin1', 'ignore'), y.encode('latin1',
             'ignore')) for x, y in
             q.iteritems()])
+        if domain == 'uk':
+            domain = 'co.uk'
         url = 'http://www.amazon.%s/s/?'%domain + urlencode(latin1q)
         return url
 
@@ -526,8 +628,7 @@ if __name__ == '__main__': # tests {{{
     # src/calibre/ebooks/metadata/sources/amazon.py
     from calibre.ebooks.metadata.sources.test import (test_identify_plugin,
             title_test, authors_test)
-    test_identify_plugin(Amazon.name,
-        [
+    com_tests = [ # {{{
 
             (  # Description has links
                 {'identifiers':{'isbn': '9780671578275'}},
@@ -575,6 +676,38 @@ if __name__ == '__main__': # tests {{{
 
             ),
 
-            ])
+    ] # }}}
+
+    de_tests = [ # {{{
+            (
+                {'identifiers':{'isbn': '3548283519'}},
+                [title_test('Wer Wind sät',
+                    exact=True), authors_test(['Nele Neuhaus'])
+                 ]
+
+            ),
+    ] # }}}
+
+    it_tests = [ # {{{
+            (
+                {'identifiers':{'isbn': '8838922195'}},
+                [title_test('La briscola in cinque',
+                    exact=True), authors_test(['Marco Malvaldi'])
+                 ]
+
+            ),
+    ] # }}}
+
+    fr_tests = [ # {{{
+            (
+                {'identifiers':{'isbn': '2221116798'}},
+                [title_test('L\'étrange voyage de Monsieur Daldry',
+                    exact=True), authors_test(['Marc Levy'])
+                 ]
+
+            ),
+    ] # }}}
+
+    test_identify_plugin(Amazon.name, com_tests)
 # }}}
 
