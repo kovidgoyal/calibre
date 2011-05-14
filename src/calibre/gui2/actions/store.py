@@ -20,7 +20,7 @@ class StoreAction(InterfaceAction):
     action_spec = (_('Get books'), 'store.png', None, None)
 
     def genesis(self):
-        self.qaction.triggered.connect(self.search)
+        self.qaction.triggered.connect(self.do_search)
         self.store_menu = QMenu()
         self.load_menu()
 
@@ -35,6 +35,9 @@ class StoreAction(InterfaceAction):
         for n, p in sorted(self.gui.istores.items(), key=lambda x: x[0].lower()):
             self.store_list_menu.addAction(n, partial(self.open_store, p))
         self.qaction.setMenu(self.store_menu)
+
+    def do_search(self):
+        return self.search()
 
     def search(self, query=''):
         self.show_disclaimer()

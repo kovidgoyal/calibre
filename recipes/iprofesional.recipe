@@ -1,0 +1,79 @@
+__license__   = 'GPL v3'
+__copyright__ = '2011, Darko Miletic <darko.miletic at gmail.com>'
+'''
+www.iprofesional.com
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class iProfesional(BasicNewsRecipe):
+    title                 = 'iProfesional.com'
+    __author__            = 'Darko Miletic'
+    description           = 'Las ultimas noticias sobre profesionales'
+    publisher             = 'Emprendimientos Corporativos S.A.'
+    category              = 'news, IT, impuestos, negocios, politics, Argentina'
+    oldest_article        = 2
+    max_articles_per_feed = 200
+    no_stylesheets        = True
+    encoding              = 'utf8'
+    use_embedded_content  = False
+    language              = 'es_AR'
+    remove_empty_feeds    = True
+    publication_type      = 'nesportal'
+    masthead_url          = 'http://www.iprofesional.com/img/logo-iprofesional.png'
+    extra_css             = """
+                               body{font-family: Arial,Helvetica,sans-serif }
+                               img{margin-bottom: 0.4em; display:block}
+                               .titulo-interior{font-family: Georgia,"Times New Roman",Times,serif}
+                               .autor-nota{font-size: small; font-weight: bold; font-style: italic; color: gray}
+                            """
+
+    conversion_options = {
+                          'comment'   : description
+                        , 'tags'      : category
+                        , 'publisher' : publisher
+                        , 'language'  : language
+                        }
+
+    keep_only_tags = [dict(attrs={'class':['fecha','interior-nota']})]
+
+    remove_tags = [
+                     dict(name=['meta','link','base','embed','object','iframe'])
+                    ,dict(attrs={'class':['menu-imprimir','guardarNota','IN-widget','fin','permalink']})
+                  ]
+    remove_attributes=['lang','xmlns:og','xmlns:fb']
+
+
+    feeds = [
+              (u'Ultimas noticias'  , u'http://feeds.feedburner.com/iprofesional-principales-noticias')
+             ,(u'Finanzas'          , u'http://feeds.feedburner.com/iprofesional-finanzas'            )
+             ,(u'Impuestos'         , u'http://feeds.feedburner.com/iprofesional-impuestos'           )
+             ,(u'Negocios'          , u'http://feeds.feedburner.com/iprofesional-economia'            )
+             ,(u'Comercio Exterior' , u'http://feeds.feedburner.com/iprofesional-comercio-exterior'   )
+             ,(u'Tecnologia'        , u'http://feeds.feedburner.com/iprofesional-tecnologia'          )
+             ,(u'Management'        , u'http://feeds.feedburner.com/iprofesional-managment'           )
+             ,(u'Marketing'         , u'http://feeds.feedburner.com/iprofesional-marketing'           )
+             ,(u'Legales'           , u'http://feeds.feedburner.com/iprofesional-legales'             )
+             ,(u'Autos'             , u'http://feeds.feedburner.com/iprofesional-autos'               )
+             ,(u'Vinos'             , u'http://feeds.feedburner.com/iprofesional-vinos-bodegas'       )
+            ]
+
+    def preprocess_html(self, soup):
+        for item in soup.findAll(style=True):
+            del item['style']
+        for item in soup.findAll('a'):
+            limg = item.find('img')
+            if item.string is not None:
+               str = item.string
+               item.replaceWith(str)
+            else:
+               if limg:
+                  item.name = 'div'
+                  item.attrs = []
+               else:
+                   str = self.tag_to_string(item)
+                   item.replaceWith(str)
+        for item in soup.findAll('img'):
+            if not item.has_key('alt'):
+               item['alt'] = 'image'
+        return soup

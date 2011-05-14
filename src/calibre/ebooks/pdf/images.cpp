@@ -13,6 +13,7 @@
 #include <math.h>
 #include <iostream>
 #include <wand/MagickWand.h>
+#include <zlib.h>
 
 #include "images.h"
 #include "utils.h"

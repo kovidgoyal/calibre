@@ -93,7 +93,7 @@ class Arcamax(BasicNewsRecipe):
         for page in pages:
             page_soup = self.index_to_soup(url)
             if page_soup:
-                title = page_soup.find(name='div', attrs={'class':'comics-header'}).h1.contents[0]
+                title = self.tag_to_string(page_soup.find(name='div', attrs={'class':'comics-header'}).h1.contents[0])
                 page_url = url
                 # orig prev_page_url = 'http://www.arcamax.com' + page_soup.find('a', attrs={'class':'prev'}, text='Previous').parent['href']
                 prev_page_url = 'http://www.arcamax.com' + page_soup.find('span', text='Previous').parent.parent['href']
@@ -127,4 +127,3 @@ class Arcamax(BasicNewsRecipe):
                     p{font-family:Arial,Helvetica,sans-serif;font-size:small;}
                     body{font-family:Helvetica,Arial,sans-serif;font-size:small;}
 		'''
-
