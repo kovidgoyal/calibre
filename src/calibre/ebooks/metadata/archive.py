@@ -83,6 +83,7 @@ class ArchiveExtract(FileTypePlugin):
         return of.name
 
 def get_comic_book_info(d, mi):
+    # See http://code.google.com/p/comicbookinfo/wiki/Example
     series = d.get('series', '')
     if series.strip():
         mi.series = series
@@ -111,6 +112,7 @@ def get_comic_book_info(d, mi):
 
 
 def get_cbz_metadata(stream):
+    # See http://code.google.com/p/comicbookinfo/wiki/Example
     from calibre.utils.zipfile import ZipFile
     from calibre.ebooks.metadata import MetaInformation
     import json

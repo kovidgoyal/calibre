@@ -30,7 +30,7 @@ base_url = 'http://search.overdrive.com/'
 class OverDrive(Source):
 
     name = 'Overdrive'
-    description = _('Downloads metadata from Overdrive\'s Content Reserve')
+    description = _('Downloads metadata and covers from Overdrive\'s Content Reserve')
 
     capabilities = frozenset(['identify', 'cover'])
     touched_fields = frozenset(['title', 'authors', 'tags', 'pubdate',

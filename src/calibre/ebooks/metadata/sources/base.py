@@ -145,10 +145,13 @@ class Option(object):
         :param default: The default value for this option
         :param label: A short (few words) description of this option
         :param desc: A longer description of this option
-        :param choices: A list of possible values, used only if type='choices'
+        :param choices: A dict of possible values, used only if type='choices'.
+        dict is of the form {key:human readable label, ...}
         '''
         self.name, self.type, self.default, self.label, self.desc = (name,
                 type_, default, label, desc)
+        if choices and not isinstance(choices, dict):
+            choices = dict([(x, x) for x in choices])
         self.choices = choices
 
 class Source(Plugin):
