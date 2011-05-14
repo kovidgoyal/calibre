@@ -28,6 +28,8 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.setupUi(self)
 
         self.config = JSONConfig('store/search')
+        
+        self.search_edit.initialize('store_search_search')
 
         # We keep a cache of store plugins and reference them by name.
         self.store_plugins = istores
