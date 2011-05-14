@@ -1,0 +1,64 @@
+__license__   = 'GPL v3'
+__copyright__ = '2011, Darko Miletic <darko.miletic at gmail.com>'
+'''
+www.financialsense.com
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class FinancialSense(BasicNewsRecipe):
+    title                 = 'Financial Sense'
+    __author__            = 'Darko Miletic'
+    description           = 'Uncommon News & Views for the Wise Investor'
+    publisher             = 'Financial Sense'
+    category              = 'news, finances, politics, USA'
+    oldest_article        = 2
+    max_articles_per_feed = 200
+    no_stylesheets        = True
+    encoding              = 'utf8'
+    use_embedded_content  = False
+    language              = 'en'
+    remove_empty_feeds    = True
+    publication_type      = 'newsportal'
+    masthead_url          = 'http://www.financialsense.com/sites/default/files/logo.jpg'
+    extra_css             = """
+                               body{font-family: Arial,"Helvetica Neue",Helvetica,sans-serif }
+                               img{margin-bottom: 0.4em; display:block}
+                               h2{color: gray}
+                               .name{margin-right: 5em}
+                            """
+
+    conversion_options = {
+                          'comment'   : description
+                        , 'tags'      : category
+                        , 'publisher' : publisher
+                        , 'language'  : language
+                        }
+
+    remove_tags      =[dict(name=['meta','link','base','object','embed','iframe'])]
+    remove_tags_after=dict(attrs={'class':'vcard'})
+    keep_only_tags   =[dict(attrs={'class':['title','post-meta','content','item-title','vcard']})]
+    remove_attributes=['lang','type']
+
+
+    feeds = [(u'Articles', u'http://feeds.feedburner.com/fso')]
+
+    def preprocess_html(self, soup):
+        for item in soup.findAll(style=True):
+            del item['style']
+        for item in soup.findAll('a'):
+            limg = item.find('img')
+            if item.string is not None:
+               str = item.string
+               item.replaceWith(str)
+            else:
+               if limg:
+                  item.name = 'div'
+                  item.attrs = []
+               else:
+                   str = self.tag_to_string(item)
+                   item.replaceWith(str)
+        for item in soup.findAll('img'):
+            if not item.has_key('alt'):
+               item['alt'] = 'image'
+        return soup

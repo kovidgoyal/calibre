@@ -243,6 +243,8 @@ def detect_formatting_type(txt):
     textile_count += len(re.findall(r'(?mu)(?<=\!)\S+(?=\!)', txt))
     # Links
     textile_count += len(re.findall(r'"[^"]*":\S+', txt))
+    # paragraph blocks
+    textile_count += len(re.findall(r'(?mu)^p(<|<>|=|>)?\. ', txt))
 
     # Decide if either markdown or textile is used in the text
     # based on the number of unique formatting elements found.

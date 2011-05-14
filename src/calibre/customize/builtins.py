@@ -628,8 +628,9 @@ from calibre.ebooks.metadata.sources.amazon import Amazon
 from calibre.ebooks.metadata.sources.openlibrary import OpenLibrary
 from calibre.ebooks.metadata.sources.isbndb import ISBNDB
 from calibre.ebooks.metadata.sources.overdrive import OverDrive
+from calibre.ebooks.metadata.sources.douban import Douban
 
-plugins += [GoogleBooks, Amazon, OpenLibrary, ISBNDB, OverDrive]
+plugins += [GoogleBooks, Amazon, OpenLibrary, ISBNDB, OverDrive, Douban]
 
 # }}}
 

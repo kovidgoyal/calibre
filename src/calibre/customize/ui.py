@@ -92,7 +92,7 @@ def restore_plugin_state_to_default(plugin_or_name):
     config['enabled_plugins'] = ep
 
 default_disabled_plugins = set([
-    'Overdrive',
+    'Overdrive', 'Douban Books',
 ])
 
 def is_disabled(plugin):
