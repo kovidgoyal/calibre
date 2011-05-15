@@ -1,0 +1,22 @@
+from calibre.web.feeds.recipes import BasicNewsRecipe
+class AdvancedUserRecipe1303841067(BasicNewsRecipe):
+
+    title          = u'Pro Physik'
+    __author__  = 'schuster'
+    oldest_article = 4
+    max_articles_per_feed = 100
+    no_stylesheets         = True
+    use_embedded_content   = False
+    language               = 'de'
+    remove_javascript      = True
+    cover_url = 'http://www.pro-physik.de/Phy/images/site/prophysik_logo1.jpg'
+
+
+    def print_version(self, url):
+        return url.replace('leadArticle.do', 'print.do')
+
+
+    feeds          = [(u'Hightech', u'http://www.pro-physik.de/Phy/hightechfeed.xml'),
+                          (u'Forschung', u'http://www.pro-physik.de/Phy/forschungfeed.xml'),
+                          (u'Magazin', u'http://www.pro-physik.de/Phy/magazinfeed.xml')]
+
