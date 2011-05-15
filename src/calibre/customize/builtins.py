@@ -1107,6 +1107,12 @@ class StoreAmazonUKKindleStore(StoreBase):
     description = _('Kindle books from Amazon.uk')
     actual_plugin = 'calibre.gui2.store.amazon_uk_plugin:AmazonUKKindleStore'
 
+class StoreArchiveOrgStore(StoreBase):
+    name = 'Archive.org'
+    description = _('Rree Books : Download & Streaming : Ebook  and Texts Archive : Internet Archive')
+    actual_plugin = 'calibre.gui2.store.archive_org_plugin:ArchiveOrgStore'
+
+
 class StoreBaenWebScriptionStore(StoreBase):
     name = 'Baen WebScription'
     description = _('Ebooks for readers.')
@@ -1202,8 +1208,8 @@ class StoreWizardsTowerBooksStore(StoreBase):
     description = 'Wizard\'s Tower Press'
     actual_plugin = 'calibre.gui2.store.wizards_tower_books_plugin:WizardsTowerBooksStore'
 
-plugins += [StoreAmazonKindleStore, StoreAmazonDEKindleStore, StoreAmazonUKKindleStore,
-    StoreBaenWebScriptionStore, StoreBNStore,
+plugins += [StoreArchiveOrgStore, StoreAmazonKindleStore, StoreAmazonDEKindleStore,
+    StoreAmazonUKKindleStore, StoreBaenWebScriptionStore, StoreBNStore,
     StoreBeamEBooksDEStore, StoreBeWriteStore,
     StoreDieselEbooksStore, StoreEbookscomStore, StoreEPubBuyDEStore,
     StoreEHarlequinStore, StoreFeedbooksStore,
