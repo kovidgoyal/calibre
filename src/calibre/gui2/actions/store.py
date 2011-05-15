@@ -52,16 +52,23 @@ class StoreAction(InterfaceAction):
         return rows[0].row()
 
     def _get_author(self, row):
-        author = ''
+        authors = []
+
         if self.gui.current_view() is self.gui.library_view:
-            author = self.gui.library_view.model().authors(row)
-            if author:
-                author = author.replace('|', ' ')
+            a = self.gui.library_view.model().authors(row)
+            authors = a.split(',')
         else:
             mi = self.gui.current_view().model().get_book_display_info(row)
-            author = ' & '.join(mi.authors)
+            authors = mi.authors
 
-        return author
+        corrected_authors = []
+        for x in authors:
+            a = x.split('|')
+            a.reverse()
+            a = ' '.join(a)
+            corrected_authors.append(a)
+
+        return ' & '.join(corrected_authors)
 
     def search_author(self):
         row = self._get_selected_row()
