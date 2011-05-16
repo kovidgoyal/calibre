@@ -1100,7 +1100,7 @@ class StoreAmazonKindleStore(StoreBase):
 
 class StoreAmazonDEKindleStore(StoreBase):
     name = 'Amazon DE Kindle'
-    description = _('Kindle books form Amazon.de.')
+    description = _('Kindle books from Amazon.de.')
     actual_plugin = 'calibre.gui2.store.amazon_de_plugin:AmazonDEKindleStore'
 
 class StoreAmazonUKKindleStore(StoreBase):
