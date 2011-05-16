@@ -1,0 +1,31 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1305547242(BasicNewsRecipe):
+    title          = u'Good House Keeping'
+    language = 'en'
+    __author__ = 'Anonymous'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    no_stylesheets         = True
+    use_embedded_content   = False
+    remove_javascript      = True
+
+    def print_version(self,url):
+          segments = url.split('/')
+          printURL = '/'.join(segments[0:3]) + '/print-this/' + '/'.join(segments[4:])
+          return printURL
+
+    def preprocess_html(self, soup):
+        for alink in soup.findAll('a'):
+            if alink.string is not None:
+               tstr = alink.string
+               alink.replaceWith(tstr)
+        return soup
+
+    feeds  = [	(u'Recipes & Entertaining', u'http://www.goodhousekeeping.com/food/food-rss/?src=rss'),
+	(u'Home & House', u'http://www.goodhousekeeping.com/home/home-rss/?src=rss'),
+	(u'Diet & Health', u'http://www.goodhousekeeping.com/health/health-rss/?src=rss'),
+	(u'Beauty & Style', u'http://www.goodhousekeeping.com/beauty/beauty-rss/?src=rss'),
+	(u'Family & Pets', u'http://www.goodhousekeeping.com/family/family-rss/?src=rss'),
+	(u'Saving Money', u'http://www.goodhousekeeping.com/money/money-rss/?src=rss'),
+	]
