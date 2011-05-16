@@ -693,12 +693,10 @@ class MobiReader(object):
             try:
                 lm = float(lm)
             except:
-                raise
                 lm = 0.0
             try:
                 ti = float(ti)
             except:
-                raise
                 ti = 0.0
             return lm + ti
 
