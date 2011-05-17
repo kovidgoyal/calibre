@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-05-13 18:31+0000\n"
-"PO-Revision-Date: 2011-05-06 08:05+0000\n"
-"Last-Translator: Devilinside <Unknown>\n"
+"PO-Revision-Date: 2011-05-16 18:59+0000\n"
+"Last-Translator: nb000 <Unknown>\n"
 "Language-Team: Hungarian <hu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-05-14 04:40+0000\n"
+"X-Launchpad-Export-Date: 2011-05-17 04:37+0000\n"
 "X-Generator: Launchpad (build 12959)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -231,7 +231,7 @@ msgstr "Beállítások"
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:609
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:33
 msgid "Store"
-msgstr ""
+msgstr "Tárol"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:17
 msgid ""
@@ -267,6 +267,9 @@ msgid ""
 "Textile references to images. The referenced images as well as the TXT file "
 "are added to the archive."
 msgstr ""
+"Új TXTZ archívum létrehozása, ha olyan TXT fájlt importálunk, amely Markdown "
+"vagy Textile referenciákat tartamlaz képekre. A hivatkozott képek és a TXT "
+"is hozzá lesz adva az archívumhoz."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:167
 msgid "Extract cover from comic files"
@@ -489,6 +492,8 @@ msgid ""
 "Setup the calibre Content Server which will give you access to your calibre "
 "library from anywhere, on any device, over the internet"
 msgstr ""
+"A Calibre tartlom kiszolgáló beállítása, amely elérhetővé teszi a calibre "
+"könyvtárat bárhonnan bármilyen eszközzel az Interneten."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1045
 msgid "Metadata download"
@@ -497,6 +502,7 @@ msgstr "Metaadatok letöltése"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1051
 msgid "Control how calibre downloads ebook metadata from the net"
 msgstr ""
+"Megadja, hogy a calibre hogyan töltsön le ekönyv metaadatokat a Netről"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1056
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:273
@@ -529,7 +535,7 @@ msgstr "Kindle könyvek az Amazontól"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1102
 msgid "Kindle eBooks"
-msgstr ""
+msgstr "Kindle eKönyvek"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1107
 msgid "Kindle books from Amazon.uk"
@@ -537,39 +543,39 @@ msgstr "Kindle könyvek az Amazon.uk-től"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1112
 msgid "Ebooks for readers."
-msgstr ""
+msgstr "eKönyvek olvasóknak."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1117
 msgid "Books, Textbooks, eBooks, Toys, Games and More."
-msgstr ""
+msgstr "Könyvek, szövegkönyvek, eKönyvek, játékok és egyéb."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1122
 msgid "der eBook Shop"
-msgstr ""
+msgstr "az eKönyv-bolt"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1127
 msgid "Publishers of fine books."
-msgstr ""
+msgstr "Jó könyvek terjesztői."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1132
 msgid "World Famous eBook Store."
-msgstr ""
+msgstr "Világhírű eKönyv-bolt."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1137
 msgid "The digital bookstore."
-msgstr ""
+msgstr "A digitális könyvbolt."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1142
 msgid "EPUBReaders eBook Shop"
-msgstr ""
+msgstr "EPUBReaders eKönyv-bolt"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1147
 msgid "entertain, enrich, inspire."
-msgstr ""
+msgstr "szórakoztat, gazdagít, inspirál."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1152
 msgid "Read anywhere."
-msgstr ""
+msgstr "Olvassa bárhol."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1157
 msgid "Foyles of London, online"
@@ -577,11 +583,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1162
 msgid "The first producer of free ebooks."
-msgstr ""
+msgstr "Az ingyenes ekönyvek első alkotója."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1167
 msgid "eReading: anytime. anyplace."
-msgstr ""
+msgstr "eOlvasás: bármikor, bárhol."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1172
 msgid "The best ebooks at the best price: free!"
@@ -589,19 +595,19 @@ msgstr "A legjobb könyvek a legjobb áron: ingyen!"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1177
 msgid "Ebooks handcrafted with the utmost care"
-msgstr ""
+msgstr "Ekönyvek létrehozva a legnagyobb odafigyeléssel"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1182
 msgid "One web page for every book."
-msgstr ""
+msgstr "Egy weboldal minden könyvnek."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1187
 msgid "Your ebook. Your way."
-msgstr ""
+msgstr "A te ekönyved. A te utad."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1192
 msgid "Feel every word"
-msgstr ""
+msgstr "Érezzen minden szót!"
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:102
 msgid "Conversion Input"
@@ -758,7 +764,7 @@ msgstr "Megfelelő használni bármilyen e-ink eszközzel"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:510
 msgid "Suitable for use with any large screen e-ink device"
-msgstr ""
+msgstr "Alkalmas minden nagy-képernyős e-ink eszközön való használatra"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:519
 msgid "This profile is intended for the 5-inch JetBook."
@@ -884,27 +890,28 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:65
 msgid "Disable Apple driver"
-msgstr ""
+msgstr "Apple meghajtó kikapcsolása"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:69
 msgid "Enable Apple driver"
-msgstr ""
+msgstr "Apple meghajtó bekapcsolása"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:117
 msgid "Use Series as Category in iTunes/iBooks"
-msgstr ""
+msgstr "Sorozatok használata Kategóriakénz az iTunes/iBooks-ban"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:118
 msgid "Enable to use the series name as the iTunes Genre, iBooks Category"
 msgstr ""
+"Engedélyezze, hogy a sorozat neve legyen az iTunes műfaj, iBooks Kategória"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:120
 msgid "Cache covers from iTunes/iBooks"
-msgstr ""
+msgstr "Borítók gyorstárazása az iTunes/iBooks-ból"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:122
 msgid "Enable to cache and display covers from iTunes/iBooks"
-msgstr ""
+msgstr "Engedélyezze a iTunes/iBooks borítók gyorsítótárazásához"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:178
 msgid "Apple device"
@@ -923,6 +930,8 @@ msgid ""
 "Cannot copy books directly from iDevice. Drag from iTunes Library to "
 "desktop, then add to calibre's Library window."
 msgstr ""
+"Nem lehet a könyveket közvetlenül az iDevice-ról lemásolni. Húzza az iTunes "
+"könyvtárból az asztalra, majd adja a calibre könyvtár ablakához."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:357
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:360
@@ -951,12 +960,17 @@ msgid ""
 "Delete using the iBooks app.\n"
 "Click 'Show Details' for a list."
 msgstr ""
+"Néhány könyv nem található az iTunes adatbázisban.\n"
+"Törlés az iBooks alkalmazás segítségével.\n"
+"Kattintson a 'Részletek megjelenítése' szövegre a listához."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:1018
 msgid ""
 "Some cover art could not be converted.\n"
 "Click 'Show Details' for a list."
 msgstr ""
+"Néhány borítót nem lehetett konvertálni.\n"
+"Kattinson a 'Részletek megjelenítése' szövegre a listához."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2669
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:100
@@ -1105,11 +1119,11 @@ msgstr "Kovid Goyal"
 
 #: /home/kovid/work/calibre/src/calibre/devices/boeye/driver.py:14
 msgid "Communicate with BOEYE BEX Serial eBook readers."
-msgstr ""
+msgstr "Kommunikáció a BOEYE BEX soros eKönyv olvasókkal."
 
 #: /home/kovid/work/calibre/src/calibre/devices/boeye/driver.py:35
 msgid "Communicate with BOEYE BDX serial eBook readers."
-msgstr ""
+msgstr "Kommunikáció a BOEYE BDX soros eKönyv olvasókkal."
 
 #: /home/kovid/work/calibre/src/calibre/devices/cybook/driver.py:22
 msgid "Communicate with the Cybook Gen 3 / Opus eBook reader."
@@ -1182,6 +1196,8 @@ msgid ""
 "Comma separated list of directories to send e-books to on the device. The "
 "first one that exists will be used."
 msgstr ""
+"Könyvtárak vesszővel elválasztott listája, ahova az ekönyvek küldve lesznek "
+"az eszközön. Az első létező lesz használva."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:22
 msgid "Communicate with the Hanvon N520 eBook reader."
@@ -1243,11 +1259,11 @@ msgstr "Kommunikáció a JetBook Mini olvasóval"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/apnx.py:28
 msgid "Not a valid MOBI file. Reports identity of %s"
-msgstr ""
+msgstr "Nem érvényes MOBI fájl. Jelentett azonosság: %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/apnx.py:44
 msgid "Could not generate page mapping."
-msgstr ""
+msgstr "Nem sikerült az oldal hozzárendelés létrehozása."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:44
 msgid "Communicate with the Kindle eBook reader."
@@ -1268,6 +1284,11 @@ msgid ""
 "the Kindle when uploading MOBI files by USB. Note that the page numbers do "
 "not correspond to any paper book."
 msgstr ""
+"A Kindle 3 és újabb verziók tudják használni az oldalszám információkat a "
+"MOBI fájlokban. Ezzel a lehetőséggel a calibre kiszámítja és elküldi ezt az "
+"információt a Kindle-nek a MOBI fájlok USB-n feltöltésekor. Megjegyzendő, "
+"hogy ezek az oldalszámok nem egyeznek egyetlen nyomtatott könyv "
+"oldalszámaival se."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:187
 msgid "Use slower but more accurate page number generation"
@@ -1280,6 +1301,9 @@ msgid ""
 "book. However, this method is slower and will slow down sending files to the "
 "Kindle."
 msgstr ""
+"Két módon lehet oldalszám információkat létrehozni. A pontosabb generátor a "
+"nyomtatott verzióhoz jobban illeszkedő számozást készít, de ez a módszer "
+"lassab, és lassítja a fájlok Kindle felé küldését."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:257
 msgid "Communicate with the Kindle DX eBook reader."
@@ -1307,6 +1331,8 @@ msgid ""
 "\".kobo\" files do not exist on the device as books instead, they are rows "
 "in the sqlite database. Currently they cannot be exported or viewed."
 msgstr ""
+"a \".kobo\" fájlok nem léteznek az eszközön, mint ekönyvek, csk sorok egy "
+"sqlite adatbázisban. Jelenleg nem lehet őket exportálni vagy megnézni."
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:19
 msgid "Communicate with the Palm Pre"
@@ -1339,19 +1365,19 @@ msgstr "Kommunikáció az Acer Lumiread-del"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:199
 msgid "Communicate with the Aluratek Color"
-msgstr ""
+msgstr "Kommunikáció az Aluratek Color-ral"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:219
 msgid "Communicate with the Trekstor"
-msgstr ""
+msgstr "Kommunikáció Trekstorral"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:239
 msgid "Communicate with the EEE Reader"
-msgstr ""
+msgstr "Kommunikáció az EEE olvasóval"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:259
 msgid "Communicate with the Nextbook Reader"
-msgstr ""
+msgstr "Kommunikáció a Nextbook olvasóval"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
@@ -1359,7 +1385,7 @@ msgstr "Kapcsolódás Nokia 770 internet tablethez"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:40
 msgid "Communicate with the Nokia 810/900 internet tablet."
-msgstr ""
+msgstr "Kommunikáció a Nokia 810/900 internet táblával."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:74
 msgid "Communicate with the Nokia E52"
@@ -1375,11 +1401,11 @@ msgstr "Kapcsolódás Nook eBook olvasóhoz"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:85
 msgid "Nook Color"
-msgstr ""
+msgstr "Nook Color"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:86
 msgid "Communicate with the Nook Color eBook reader."
-msgstr ""
+msgstr "Kommunikáció a Nook Color eKönyv olvasóval."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nuut2/driver.py:17
 msgid "Communicate with the Nuut2 eBook reader."
@@ -1395,11 +1421,11 @@ msgstr "Kommunikáció az összes Sony eBook olvasóval."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:62
 msgid "All by title"
-msgstr ""
+msgstr "Mind cím szerint"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:63
 msgid "All by author"
-msgstr ""
+msgstr "Mind szerző szerint"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:66
 msgid ""
@@ -1415,10 +1441,13 @@ msgid ""
 "to the list to enable them. The collections will be given the name provided "
 "after the \":\" character."
 msgstr ""
+"Két különleges gyűjtemény érhető el: %s:%s és %s:%s. Adja ezeket az "
+"értékeket a listához, hogy engedélyezze őket. A gyűjtemények neve a \":\" "
+"karakter után megadott név lesz."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:73
 msgid "Upload separate cover thumbnails for books (newer readers)"
-msgstr ""
+msgstr "Külön bélyegkép a feltöltése a borítókhoz (újabb olvasók)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:74
 msgid ""
@@ -1428,11 +1457,17 @@ msgid ""
 "WARNING: This option should only be used with newer SONY readers: 350, 650, "
 "950 and newer."
 msgstr ""
+"Általában a SONY olvasói a borító képét magából az ekönyvből veszi. Ha ezen "
+"opciót endedélyezi, akkor a calibre külön borító képet küld az olvasónak. Ez "
+"akkor hasznos, ha DRMed könyveket küld, ahol nem lehet megváltoztatni a "
+"borítót. FIGYELEM: ezt a lehetőséget csak újabb SONY olvasóknál szabad "
+"használni: 350, 650, 950 és újabb."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:80
 msgid ""
 "Refresh separate covers when using automatic management (newer readers)"
 msgstr ""
+"Különálló borítók frissítése az automatikus kezelésnél (újabb olvasók)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:82
 msgid ""
@@ -1440,10 +1475,13 @@ msgid ""
 "your device. Unset this option if you have so many books on the reader that "
 "performance is unacceptable."
 msgstr ""
+"Engedélyezze ezt, hogy az eszköz minden csatlakoztatásakor frissüljenek a "
+"különálló könyvborítók. Kapcsolja ki, ha sok könyv van az olvasón, mert ez "
+"rontja a teljesítményt."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:86
 msgid "Preserve cover aspect ratio when building thumbnails"
-msgstr ""
+msgstr "A borító méretarányának megtartása a bélyegkép létrehozásakor"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:88
 msgid ""
@@ -1451,10 +1489,13 @@ msgid ""
 "ratio (width to height) as the cover. Unset it if you want the thumbnail to "
 "be the maximum size, ignoring aspect ratio."
 msgstr ""
+"Állítsa be ezt az opciót, ha azt szeretné, hogy a bélyegképek aránya "
+"(szélesség / magasság) azonos legyen a borítóéval. Kapcsolja ki, ha "
+"maximális méretet szeretne, aránytól függetlenül."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:92
 msgid "Search for books in all folders"
-msgstr ""
+msgstr "Könyvek keresése minden mappában"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:94
 msgid ""
@@ -1462,6 +1503,9 @@ msgid ""
 "device and its cards. This permits calibre to find books put on the device "
 "by other software and by wireless download."
 msgstr ""
+"Ezt választva a calibre az eszköz minden mappájában és kártyáján keresi a "
+"könyveket. Így a calibre megtalálhatja azon könyveket, amik más szoftver "
+"vagy vezeték nélküli letöltés útján kerültek az eszközre."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:190
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/structure.py:69
@@ -1482,7 +1526,7 @@ msgstr "Kommunikáció a Newsmy olvasóval."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:47
 msgid "Communicate with the Archos reader."
-msgstr ""
+msgstr "Kommunikáció az Archos olvasóval."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:57
 msgid "Communicate with the Pico reader."

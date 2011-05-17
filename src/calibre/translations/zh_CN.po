@@ -10,13 +10,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-05-13 18:31+0000\n"
-"PO-Revision-Date: 2011-05-14 09:12+0000\n"
+"PO-Revision-Date: 2011-05-17 01:15+0000\n"
 "Last-Translator: lumpy <Unknown>\n"
 "Language-Team: Simplified Chinese <wanglihao@gmail.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-05-15 04:39+0000\n"
+"X-Launchpad-Export-Date: 2011-05-17 04:39+0000\n"
 "X-Generator: Launchpad (build 12959)\n"
 "X-Poedit-Country: CHINA\n"
 "X-Poedit-Language: Chinese\n"
@@ -3978,7 +3978,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:168
 msgid "Adding"
-msgstr ""
+msgstr "添加中"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:169
 msgid "Creating book records from ISBNs"
@@ -4241,6 +4241,8 @@ msgid ""
 "<b style=\"color: red\">All files</b> (not just ebooks) from "
 "<br><br><b>%s</b><br><br> will be <b>permanently deleted</b>. Are you sure?"
 msgstr ""
+"<b>%s</b>的<b style=\"color: red\">所有文件</b>(不仅是电子书) <br><br> 将被 "
+"<b>彻底删除</b>。您确定么？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:270
 msgid "none"
@@ -4540,7 +4542,7 @@ msgstr "发送邮件至"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:81
 msgid "Email to and delete from library"
-msgstr ""
+msgstr "邮件发送并从书库中删除"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:90
 msgid "(delete from library)"
@@ -5077,7 +5079,7 @@ msgstr "格式不可用"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:153
 msgid "Selected books have no formats"
-msgstr ""
+msgstr "选中的书籍没有格式"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:155
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:127
@@ -5671,7 +5673,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:336
 msgid "&After"
-msgstr ""
+msgstr "之后（&A)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:337
 msgid "Separate Comments and additional content with horizontal rule"
@@ -5941,7 +5943,7 @@ msgstr "禁用图像黑白转换(&b)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:117
 msgid "Override image  &size:"
-msgstr ""
+msgstr "覆盖图片大小（&s）"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:118
 msgid "Don't add links to &pages to the Table of Contents for CBC files"

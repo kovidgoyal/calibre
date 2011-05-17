@@ -32,13 +32,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-05-13 18:31+0000\n"
-"PO-Revision-Date: 2011-05-16 00:24+0000\n"
+"PO-Revision-Date: 2011-05-16 05:25+0000\n"
 "Last-Translator: Jan Cnops <Unknown>\n"
 "Language-Team: Dutch <nl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-05-16 04:38+0000\n"
+"X-Launchpad-Export-Date: 2011-05-17 04:36+0000\n"
 "X-Generator: Launchpad (build 12959)\n"
 "X-Poedit-Country: NETHERLANDS\n"
 "X-Poedit-Language: Dutch\n"
@@ -222,7 +222,7 @@ msgstr "Basis"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:148
 msgid "Customize"
-msgstr "Op maat maken"
+msgstr "Aanpassen"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:156
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:42
@@ -240,7 +240,7 @@ msgstr "Lezen van metadata"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:384
 msgid "Metadata writer"
-msgstr "Schrijven van metadata"
+msgstr "Schrijver van metagegevens"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:414
 msgid "Catalog generator"
@@ -333,7 +333,7 @@ msgstr "Metadata van %s bestanden lezen"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:363
 msgid "Read metadata from ebooks in RAR archives"
-msgstr "Metadata van E-boeken uit RAR-archieven lezen"
+msgstr "Metadata van e-boeken uit RAR-archieven lezen"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:437
 msgid "Read metadata from ebooks in ZIP archives"
