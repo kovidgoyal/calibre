@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-05-13 18:31+0000\n"
-"PO-Revision-Date: 2011-05-16 18:59+0000\n"
+"PO-Revision-Date: 2011-05-17 17:23+0000\n"
 "Last-Translator: nb000 <Unknown>\n"
 "Language-Team: Hungarian <hu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-05-17 04:37+0000\n"
+"X-Launchpad-Export-Date: 2011-05-18 04:35+0000\n"
 "X-Generator: Launchpad (build 12959)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -1530,7 +1530,7 @@ msgstr "Kommunikáció az Archos olvasóval."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:57
 msgid "Communicate with the Pico reader."
-msgstr ""
+msgstr "Kommunikáció a Pico olvasóval."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:67
 msgid "Communicate with the iPapyrus reader."
@@ -1542,15 +1542,15 @@ msgstr "Kommunikáció a Sovos olvasóval."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:88
 msgid "Communicate with the Sunstech EB700 reader."
-msgstr ""
+msgstr "Kommunikáció a Sunstech EB700 olvasóval."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:99
 msgid "Communicate with the Stash W950 reader."
-msgstr ""
+msgstr "Sunstech EB700 Stash W950 olvasóval."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:111
 msgid "Communicate with the Wexler reader."
-msgstr ""
+msgstr "Sunstech EB700 Wexler olvasóval."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:282
 msgid "Unable to detect the %s disk drive. Try rebooting."
@@ -1575,6 +1575,8 @@ msgid ""
 "Unable to detect the %s disk drive. Either the device has already been "
 "ejected, or your kernel is exporting a deprecated version of SYSFS."
 msgstr ""
+"Nem található a %s lemezmeghajtó. Az eszköz vagy már le lett csatolva, vagy "
+"a kernel a SYSFS egy régi verzióját használja."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:642
 msgid "Unable to mount main memory (Error code: %d)"
@@ -1650,7 +1652,7 @@ msgstr "Eszköz-információ lekérdezése"
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:37
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:68
 msgid "USB Vendor ID (in hex)"
-msgstr ""
+msgstr "USB gyártó ID (hexában)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:38
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:41
@@ -1659,20 +1661,22 @@ msgid ""
 "Get this ID using Preferences -> Misc -> Get information to set up the user-"
 "defined device"
 msgstr ""
+"Az ID meghatározása: Beállítások -> Egyéb -> Információ a felhasználó által "
+"definiált eszköz beállításához"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:40
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:70
 msgid "USB Product ID (in hex)"
-msgstr ""
+msgstr "USB termék ID (hexában)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:43
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:72
 msgid "USB Revision ID (in hex)"
-msgstr ""
+msgstr "USB revízió ID (hexában)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:47
 msgid "Windows main memory vendor string"
-msgstr ""
+msgstr "Windows fő memória gyártó szöveg"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:48
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:52
@@ -1682,26 +1686,28 @@ msgid ""
 "This field is used only on windows. Get this ID using Preferences -> Misc -> "
 "Get information to set up the user-defined device"
 msgstr ""
+"A mező csak Windows esetén hazsnált. ID megszerzése: Beállítások -> Egyéb -> "
+"Információ felhasználó által megadott eszköz beállításához"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:51
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:79
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:81
 msgid "Windows main memory ID string"
-msgstr ""
+msgstr "Windows fő memória ID karakterlánc"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:55
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:84
 msgid "Windows card A vendor string"
-msgstr ""
+msgstr "Windows kártya gyártó A karakterlánc"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:59
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:86
 msgid "Windows card A ID string"
-msgstr ""
+msgstr "Windows kártya ID A karakterlánc"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:63
 msgid "Main memory folder"
-msgstr ""
+msgstr "Fő memória mappa"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:64
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:67
@@ -1712,7 +1718,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:66
 msgid "Card A folder"
-msgstr ""
+msgstr "A kártya mappa"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:202
 msgid "Rendered %s"
@@ -1822,12 +1828,18 @@ msgid ""
 "Specify the image size as widthxheight pixels. Normally, an image size is "
 "automatically calculated from the output profile, this option overrides it."
 msgstr ""
+"Adja meg a kép méreteit szélesség x magasság formában, képpontban. Normális "
+"esetben a kép méretét a kimeneti sablon határozza meg, ez felülbírálja azt "
+"az értéket."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:320
 msgid ""
 "When converting a CBC do not add links to each page to the TOC. Note this "
 "only applies if the TOC has more than one section"
 msgstr ""
+"CBC átalakítása esetén ne legyen minden oldalhoz külön link a "
+"tartalomjegyzékben. Ez csak akkor érvényesül, ha a tartalomjegyzékben egynél "
+"több fejezet van."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:459
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:471
@@ -1906,11 +1918,16 @@ msgid ""
 "default. Use %s to enable.  Individual actions can be disabled with the %s "
 "options."
 msgstr ""
+"A dokumentum szövegének és felépítésének módosítása általános minták "
+"szerint. Alapból kikapcsolva. Használja %s-t bekapcsoláshoz. Egyedi akciók "
+"kikapcsolhatók %s opcióval."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:154
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:18
 msgid "Modify the document text and structure using user defined patterns."
 msgstr ""
+"A dokumentum szövegének és felépítésének módosítása felhasználó által "
+"megadott minták alapján."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:163
 msgid "Control auto-detection of document structure."
@@ -2016,6 +2033,11 @@ msgid ""
 "line height specification, unless you know what you are doing. For example, "
 "you can achieve \"double spaced\" text by setting this to 240."
 msgstr ""
+"Minimális sormagasság, az elem számolt betűméretének százaléka. A calibre "
+"biztosítja, hogy minden elem, legalább az itt megadott érték legyen, a "
+"bemenő dokumentumban megadottól függetlenül. Állítsa 0-ra a kikapcsoláshoz. "
+"Alapérték: 120%. Közvetlen sormagasság megadására is használható. Duplán "
+"széthúzott szöveg érhető el például 240-re állítva az értéket."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:184
 msgid ""
@@ -2024,6 +2046,10 @@ msgid ""
 "cases, the minimum line height option is more useful. By default no line "
 "height manipulation is performed."
 msgstr ""
+"Sormagasság pontban. megadja az egymást követő sorok közti távolságot. Csak "
+"azokra az elemekre vonatkozik, amik nem adják meg a sormagasságot. Legtöbb "
+"esetben a minimális sormagasság használata célszerűbb. Alapból nincs "
+"sormagasság módosítás."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:195
 msgid ""
@@ -2158,6 +2184,10 @@ msgid ""
 "margins. Sometimes, this can cause the removal of margins that should not "
 "have been removed. In this case you can disable the removal."
 msgstr ""
+"Egyes dokumentumok a bal és jobb margót minden bekezdésnél külön adják meg. "
+"A calibre megpróbálja ezt felismerni és eltávolítani a felesleges margókat. "
+"Néha a szükséges margók is törlődnek. Ilyenkor ezzel ki lehet kapcsolni az "
+"eltávolítást."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:321
 msgid ""
@@ -2195,6 +2225,10 @@ msgid ""
 "\"original\" (the default) does not change justification in the source file. "
 "Note that only some output formats support justification."
 msgstr ""
+"Szöveg rendezés módosítása. A \"left\" érték minden sorkizárt szöveget balra "
+"igazít. A \"justify\" érték minden igazítatlan szöveget sorkizárttá tesz. Az "
+"\"original\" (alapértelmezett) érték nem változtatja a forrás renezettségét. "
+"Megjegyzendő, hogy csak néhány kimeneti formátum támogatja a rendezéseket."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:352
 msgid ""
@@ -2271,6 +2305,11 @@ msgid ""
 "by Chinese and Japanese for instance) the representation based on the "
 "current calibre interface language will be used."
 msgstr ""
+"Unicode karakterek ascii kódolása. Óvatosan használja, mert az uncode "
+"karaktereket ascii-val helyettesíti. Például a \"%s\" helyett \"Mikhail "
+"Gorbachiov\" lesz. Megjegyzendő, hogy ahol egy betűnek több megfelelője "
+"lehet (például kínai és japán betűknél), ott a calibre felületének megfelelő "
+"reprezentáció lesz használva."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:426
 msgid ""
@@ -2281,6 +2320,11 @@ msgid ""
 "corresponding pair of normal characters. This option will preserve them "
 "instead."
 msgstr ""
+"Ligatúrák megőrzése a bementi dokumentumban. A ligatúra egy betűpár "
+"különleges megjelenése, például: ff, fi, fl, stb. A legtöbb olvasó nem "
+"támogatja a ligatúrákat az alap betűtípusaikban, így nem valószínű, hogy "
+"helyesen jelennének meg. Alapból a calibra a ligatúrákat normál betűpárra "
+"cseréli. Ez az opció megtartja őket."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:438
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:38
@@ -2357,13 +2401,15 @@ msgstr "Állítsd be kiadás dátumát."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:499
 msgid "Set the book timestamp (used by the date column in calibre)."
-msgstr ""
+msgstr "Könyv időbélyegének megadása (a calibre dátum oszlopa ezt használja)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:503
 msgid ""
 "Enable heuristic processing. This option must be set for any heuristic "
 "processing to take place."
 msgstr ""
+"Heurisztikus feldolgozás. Ezt be kell kapcsolni, hogy bármilyen heurisztikus "
+"feldolgozás megtörténjen."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:508
 msgid ""

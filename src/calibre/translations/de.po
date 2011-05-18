@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-05-13 18:31+0000\n"
-"PO-Revision-Date: 2011-05-16 17:03+0000\n"
+"PO-Revision-Date: 2011-05-17 20:26+0000\n"
 "Last-Translator: Christine Emrich <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-05-17 04:37+0000\n"
+"X-Launchpad-Export-Date: 2011-05-18 04:35+0000\n"
 "X-Generator: Launchpad (build 12959)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -5528,25 +5528,25 @@ msgstr "Bücher erwerben"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:29
 msgid "Search for ebooks"
-msgstr ""
+msgstr "Nach eBooks suchen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:30
 msgid "Search for this author"
-msgstr ""
+msgstr "Nach diesem Autor suchen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:31
 msgid "Search for this title"
-msgstr ""
+msgstr "Nach diesem Titel suchen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:32
 msgid "Search for this book"
-msgstr ""
+msgstr "Nach diesem Buch suchen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:34
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:117
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search_ui.py:110
 msgid "Stores"
-msgstr ""
+msgstr "Händler"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:69
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:88
@@ -5579,11 +5579,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:127
 msgid "Show this message again"
-msgstr ""
+msgstr "Diese Nachricht nochmal anzeigen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:128
 msgid "About Get Books"
-msgstr ""
+msgstr "Über Bücher erwerben"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:15
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:60
@@ -5951,7 +5951,7 @@ msgstr "Pfad"
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:515
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:109
 msgid "Cover size: %dx%d"
-msgstr ""
+msgstr "Umschlag-Größe: %dx%d"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex.py:16
 msgid "BibTeX Options"
@@ -12781,12 +12781,12 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:221
 msgid "Search for plugin"
-msgstr ""
+msgstr "Nach Plugin suchen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:230
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:219
 msgid "No matches"
-msgstr ""
+msgstr "Keine Treffer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:231
 msgid "Could not find any matching plugins"
@@ -12865,7 +12865,7 @@ msgid ""
 "Here you can customize the behavior of Calibre by controlling what plugins "
 "it uses."
 msgstr ""
-"Hier können Sie das Verhalten von Calibrie anpassen, indem sie festlegen, "
+"Hier können Sie das Verhalten von Calibre anpassen, indem Sie festlegen, "
 "welche Plugins verwendet werden."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:90
@@ -12882,7 +12882,7 @@ msgstr "Plugin entfe&rnen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:93
 msgid "&Add a new plugin"
-msgstr ""
+msgstr "Neues Plugin &hinzufügen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:33
 msgid "Any custom field"
@@ -13592,18 +13592,20 @@ msgid ""
 "Save current search under the name shown in the box. Press and hold for a "
 "pop-up options menu."
 msgstr ""
+"Aktuelle Suche unter dem Namen speichern, der im Eingabefeld steht. Durch "
+"drücken und gedrückt halten  der Maustaste erscheint ein Optionenmenü."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:458
 msgid "Create saved search"
-msgstr ""
+msgstr "Gespeicherte Suche erstellen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:462
 msgid "Delete saved search"
-msgstr ""
+msgstr "Lösche gespeicherte Suche"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:466
 msgid "Manage saved searches"
-msgstr ""
+msgstr "Gespeicherte Suchen verwalten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:476
 msgid "*Current search"
@@ -13737,7 +13739,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread/store_dialog_ui.py:69
 msgid "&Query:"
-msgstr ""
+msgstr "&Suchanfrage"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread/store_dialog_ui.py:72
 #: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread_store_dialog_ui.py:63
@@ -13750,7 +13752,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search_ui.py:114
 #: /home/kovid/work/calibre/src/calibre/gui2/store/web_store_dialog_ui.py:63
 msgid "Close"
-msgstr ""
+msgstr "Schließen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread_store_dialog_ui.py:62
 msgid "Search:"
@@ -13758,7 +13760,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:192
 msgid "&Price:"
-msgstr ""
+msgstr "&Preis"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:196
 msgid "Titl&e/Author/Price ..."
@@ -13770,7 +13772,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:33
 msgid "Price"
-msgstr ""
+msgstr "Preis"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:175
 msgid ""
@@ -13804,16 +13806,17 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:219
 msgid "Couldn't find any books matching your query."
 msgstr ""
+"Es konnten keine Bücher gefunden werden, die Ihrer Suche entsprechen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:113
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search_ui.py:107
 msgid "Get Books"
-msgstr ""
+msgstr "Bücher erwerben"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:114
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search_ui.py:108
 msgid "Query:"
-msgstr ""
+msgstr "Suchanfrage:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:118
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search_ui.py:111
@@ -13823,15 +13826,15 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:119
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search_ui.py:112
 msgid "Invert"
-msgstr ""
+msgstr "Umkehren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:121
 msgid "Open a selected book in the system's web browser"
-msgstr ""
+msgstr "Ausgewähltes Buch im Standardbrowser öffnen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:122
 msgid "Open in &external browser"
-msgstr ""
+msgstr "In &externem Browser öffnen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/web_control.py:73
 msgid ""
@@ -13879,7 +13882,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:379
 msgid "Delete search %s"
-msgstr ""
+msgstr "Lösche Suche %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:384
 msgid "Remove %s from category %s"
@@ -17966,6 +17969,8 @@ msgstr ""
 #: /home/kovid/work/calibre/resources/default_tweaks.py:247
 msgid "Set the maximum number of tags to show per book in the content server"
 msgstr ""
+"Setzt die maximale Anzahl an Tags, die im Content Server pro Buch angezeigt "
+"werden sollen."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:251
 msgid ""

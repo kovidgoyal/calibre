@@ -7,13 +7,13 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-05-13 18:31+0000\n"
-"PO-Revision-Date: 2011-05-16 07:20+0000\n"
-"Last-Translator: Alexey Moskvin <Unknown>\n"
+"PO-Revision-Date: 2011-05-17 14:26+0000\n"
+"Last-Translator: Andrey Olykainen <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-05-17 04:38+0000\n"
+"X-Launchpad-Export-Date: 2011-05-18 04:36+0000\n"
 "X-Generator: Launchpad (build 12959)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
@@ -4325,7 +4325,7 @@ msgstr "Получить аннотации"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:56
 msgid "Not supported"
-msgstr ""
+msgstr "Не поддерживается"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:57
 msgid "Fetching annotations is not supported for this device"
@@ -4911,7 +4911,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:462
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:716
 msgid "Download failed"
-msgstr ""
+msgstr "Ошибка загрузки"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:88
 msgid "Failed to download metadata or covers for any of the %d book(s)."
@@ -4935,7 +4935,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:107
 msgid "Download complete"
-msgstr ""
+msgstr "Загрузка завершена"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:107
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:777
@@ -5261,7 +5261,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:117
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search_ui.py:110
 msgid "Stores"
-msgstr ""
+msgstr "Магазины"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:69
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:88
@@ -5296,7 +5296,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:127
 msgid "Show this message again"
-msgstr ""
+msgstr "Показать снова данное сообщение"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:128
 msgid "About Get Books"
@@ -5918,7 +5918,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:323
 msgid "Other options"
-msgstr ""
+msgstr "Другие настройки"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:324
 msgid "&Wishlist tag"
