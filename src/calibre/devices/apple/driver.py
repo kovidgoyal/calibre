@@ -2754,8 +2754,7 @@ class ITUNES(DriverBase):
                 lb_added.description.set("%s %s" % (self.description_prefix,strftime('%Y-%m-%d %H:%M:%S')))
                 lb_added.enabled.set(True)
                 lb_added.sort_artist.set(icu_title(metadata_x.author_sort))
-                lb_added.sort_name.set(metadata.title_sort)
-
+                lb_added.sort_name.set(metadata_x.title_sort)
 
             if db_added:
                 db_added.name.set(metadata_x.title)
@@ -2765,7 +2764,7 @@ class ITUNES(DriverBase):
                 db_added.description.set("%s %s" % (self.description_prefix,strftime('%Y-%m-%d %H:%M:%S')))
                 db_added.enabled.set(True)
                 db_added.sort_artist.set(icu_title(metadata_x.author_sort))
-                db_added.sort_name.set(metadata.title_sort)
+                db_added.sort_name.set(metadata_x.title_sort)
 
             if metadata_x.comments:
                 if lb_added:
@@ -2785,6 +2784,7 @@ class ITUNES(DriverBase):
 
             # Set genre from series if available, else first alpha tag
             # Otherwise iTunes grabs the first dc:subject from the opf metadata
+            # If title_sort applied in plugboard, that overrides using series/index as title_sort
             if metadata_x.series and self.settings().extra_customization[self.USE_SERIES_AS_CATEGORY]:
                 if DEBUG:
                     self.log.info(" ITUNES._update_iTunes_metadata()")
@@ -2796,7 +2796,9 @@ class ITUNES(DriverBase):
                 fraction = index-integer
                 series_index = '%04d%s' % (integer, str('%0.4f' % fraction).lstrip('0'))
                 if lb_added:
-                    lb_added.sort_name.set("%s %s" % (self.title_sorter(metadata_x.series), series_index))
+                    # If no title_sort plugboard tweak, create sort_name from series/index
+                    if metadata.title_sort == metadata_x.title_sort:
+                        lb_added.sort_name.set("%s %s" % (self.title_sorter(metadata_x.series), series_index))
                     lb_added.episode_ID.set(metadata_x.series)
                     lb_added.episode_number.set(metadata_x.series_index)
 
@@ -2810,7 +2812,9 @@ class ITUNES(DriverBase):
                                 break
 
                 if db_added:
-                    db_added.sort_name.set("%s %s" % (self.title_sorter(metadata_x.series), series_index))
+                    # If no title_sort plugboard tweak, create sort_name from series/index
+                    if metadata.title_sort == metadata_x.title_sort:
+                        db_added.sort_name.set("%s %s" % (self.title_sorter(metadata_x.series), series_index))
                     db_added.episode_ID.set(metadata_x.series)
                     db_added.episode_number.set(metadata_x.series_index)
 
@@ -2845,7 +2849,7 @@ class ITUNES(DriverBase):
                 lb_added.Description = ("%s %s" % (self.description_prefix,strftime('%Y-%m-%d %H:%M:%S')))
                 lb_added.Enabled = True
                 lb_added.SortArtist = icu_title(metadata_x.author_sort)
-                lb_added.SortName = metadata.title_sort
+                lb_added.SortName = metadata_x.title_sort
 
             if db_added:
                 db_added.Name = metadata_x.title
@@ -2855,7 +2859,7 @@ class ITUNES(DriverBase):
                 db_added.Description = ("%s %s" % (self.description_prefix,strftime('%Y-%m-%d %H:%M:%S')))
                 db_added.Enabled = True
                 db_added.SortArtist = icu_title(metadata_x.author_sort)
-                db_added.SortName = metadata.title_sort
+                db_added.SortName = metadata_x.title_sort
 
             if metadata_x.comments:
                 if lb_added:
@@ -2888,7 +2892,9 @@ class ITUNES(DriverBase):
                 fraction = index-integer
                 series_index = '%04d%s' % (integer, str('%0.4f' % fraction).lstrip('0'))
                 if lb_added:
-                    lb_added.SortName = "%s %s" % (self.title_sorter(metadata_x.series), series_index)
+                    # If no title_sort plugboard tweak, create sort_name from series/index
+                    if metadata.title_sort == metadata_x.title_sort:
+                        lb_added.SortName = "%s %s" % (self.title_sorter(metadata_x.series), series_index)
                     lb_added.EpisodeID = metadata_x.series
 
                     try:
@@ -2914,7 +2920,9 @@ class ITUNES(DriverBase):
                                 break
 
                 if db_added:
-                    db_added.SortName = "%s %s" % (self.title_sorter(metadata_x.series), series_index)
+                    # If no title_sort plugboard tweak, create sort_name from series/index
+                    if metadata.title_sort == metadata_x.title_sort:
+                        db_added.SortName = "%s %s" % (self.title_sorter(metadata_x.series), series_index)
                     db_added.EpisodeID = metadata_x.series
 
                     try:
