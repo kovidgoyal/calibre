@@ -435,7 +435,7 @@ class DevicePage(QWizardPage, DeviceUI):
         self.registerField("device", self.device_view)
 
     def initializePage(self):
-        self.label.setText(_('Choose you e-book device. If your device is'
+        self.label.setText(_('Choose your e-book device. If your device is'
             ' not in the list, choose a "%s" device.')%Device.manufacturer)
         self.man_model = ManufacturerModel()
         self.manufacturer_view.setModel(self.man_model)
@@ -633,8 +633,8 @@ class LibraryPage(QWizardPage, LibraryUI):
         try:
             lang = prefs['language'].lower()[:2]
             metadata_plugins = {
-                    'zh' : ('Douban Books', 'Douban.com covers'),
-                    'fr' : ('Nicebooks', 'Nicebooks covers'),
+                    'zh' : ('Douban Books',),
+                    'fr' : ('Nicebooks',),
             }.get(lang, [])
             from calibre.customize.ui import enable_plugin
             for name in metadata_plugins:

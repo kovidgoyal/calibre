@@ -841,11 +841,19 @@ ol, ul { padding-left: 2em; }
             self.styledict[name] = styles
         # Write the styles to HTML
         self.writeout(self.default_styles)
+        # Changed by Kovid to not write out endless copies of the same style
+        css_styles = {}
         for name in self.stylestack:
             styles = self.styledict.get(name)
-            css2 = self.cs.convert_styles(styles)
-            self.writeout("%s {\n" % name)
-            for style, val in css2.items():
+            css2 = tuple(self.cs.convert_styles(styles).iteritems())
+            if css2 in css_styles:
+                css_styles[css2].append(name)
+            else:
+                css_styles[css2] = [name]
+
+        for css2, names in css_styles.iteritems():
+            self.writeout("%s {\n" % ', '.join(names))
+            for style, val in css2:
                 self.writeout("\t%s: %s;\n" % (style, val) )
             self.writeout("}\n")
 
@@ -1407,18 +1415,34 @@ ol, ul { padding-left: 2em; }
         self.writedata()
         c = attrs.get( (TEXTNS,'style-name'), None)
         htmlattrs = {}
+        # Changed by Kovid to handle inline special styles defined on <text:span> tags.
+        # Apparently LibreOffice does this.
+        special = 'span'
         if c:
             c = c.replace(".","_")
             special = special_styles.get("S-"+c)
-            if special is None and self.generate_css:
-                htmlattrs['class'] = "S-%s" % c
-        self.opentag('span', htmlattrs)
+            if special is None:
+                special = 'span'
+                if self.generate_css:
+                    htmlattrs['class'] = "S-%s" % c
+
+        self.opentag(special, htmlattrs)
         self.purgedata()
 
     def e_text_span(self, tag, attrs):
         """ End the <text:span> """
         self.writedata()
-        self.closetag('span', False)
+        c = attrs.get( (TEXTNS,'style-name'), None)
+        # Changed by Kovid to handle inline special styles defined on <text:span> tags.
+        # Apparently LibreOffice does this.
+        special = 'span'
+        if c:
+            c = c.replace(".","_")
+            special = special_styles.get("S-"+c)
+            if special is None:
+                special = 'span'
+
+        self.closetag(special, False)
         self.purgedata()
 
     def s_text_tab(self, tag, attrs):

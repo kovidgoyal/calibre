@@ -30,6 +30,17 @@ ALL_CAPS = re.compile(r'^[A-Z\s%s]+$' % PUNCT)
 UC_INITIALS = re.compile(r"^(?:[A-Z]{1}\.{1}|[A-Z]{1}\.{1}[A-Z]{1})+$")
 MAC_MC = re.compile(r"^([Mm]a?c)(.+)")
 
+
+_lang = None
+
+def lang():
+    global _lang
+    if _lang is None:
+        from calibre.utils.localization import get_lang
+        _lang = get_lang().lower()
+    return _lang
+
+
 def titlecase(text):
 
     """
@@ -67,11 +78,12 @@ def titlecase(text):
             line.append(icu_lower(word))
             continue
 
-        match = MAC_MC.match(word)
-        if match and not match.group(2).startswith('hin'):
-            line.append("%s%s" % (capitalize(match.group(1)),
-                                  capitalize(match.group(2))))
-            continue
+        if lang().startswith('en'):
+            match = MAC_MC.match(word)
+            if match and not match.group(2)[:3] in ('hin', 'ht'):
+                line.append("%s%s" % (capitalize(match.group(1)),
+                                      capitalize(match.group(2))))
+                continue
 
         hyphenated = []
         for item in word.split('-'):

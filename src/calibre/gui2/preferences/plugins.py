@@ -13,9 +13,9 @@ from PyQt4.Qt import Qt, QModelIndex, QAbstractItemModel, QVariant, QIcon, \
 
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget
 from calibre.gui2.preferences.plugins_ui import Ui_Form
-from calibre.customize.ui import initialized_plugins, is_disabled, enable_plugin, \
-                                 disable_plugin, plugin_customization, add_plugin, \
-                                 remove_plugin
+from calibre.customize.ui import (initialized_plugins, is_disabled, enable_plugin,
+                                 disable_plugin, plugin_customization, add_plugin,
+                                 remove_plugin, NameConflict)
 from calibre.gui2 import NONE, error_dialog, info_dialog, choose_files, \
         question_dialog, gprefs
 from calibre.utils.search_query_parser import SearchQueryParser
@@ -75,6 +75,8 @@ class PluginModel(QAbstractItemModel, SearchQueryParser): # {{{
 
     def find(self, query):
         query = query.strip()
+        if not query:
+            return QModelIndex()
         matches = self.parse(query)
         if not matches:
             return QModelIndex()
@@ -87,6 +89,8 @@ class PluginModel(QAbstractItemModel, SearchQueryParser): # {{{
 
     def find_next(self, idx, query, backwards=False):
         query = query.strip()
+        if not query:
+            return idx
         matches = self.parse(query)
         if not matches:
             return idx
@@ -279,7 +283,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                         ' Are you sure you want to proceed?'),
                     show_copy_button=False):
                 return
-            plugin = add_plugin(path)
+            try:
+                plugin = add_plugin(path)
+            except NameConflict as e:
+                return error_dialog(self, _('Already exists'),
+                        unicode(e), show=True)
             self._plugin_model.populate()
             self._plugin_model.reset()
             self.changed_signal.emit()

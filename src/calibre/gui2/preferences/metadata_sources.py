@@ -71,9 +71,10 @@ class SourcesModel(QAbstractTableModel): # {{{
                     plugin.is_configured()):
             return QIcon(I('list_remove.png'))
         elif role == Qt.ToolTipRole:
+            base = plugin.description + '\n\n'
             if plugin.is_configured():
-                return _('This source is configured and ready to go')
-            return _('This source needs configuration')
+                return base + _('This source is configured and ready to go')
+            return base + _('This source needs configuration')
         return NONE
 
     def setData(self, index, val, role):
@@ -190,7 +191,15 @@ class FieldsModel(QAbstractListModel): # {{{
         return ans | Qt.ItemIsUserCheckable
 
     def restore_defaults(self):
-        self.overrides = dict([(f, self.state(f, True)) for f in self.fields])
+        self.overrides = dict([(f, self.state(f, Qt.Checked)) for f in self.fields])
+        self.reset()
+
+    def select_all(self):
+        self.overrides = dict([(f, Qt.Checked) for f in self.fields])
+        self.reset()
+
+    def clear_all(self):
+        self.overrides = dict([(f, Qt.Unchecked) for f in self.fields])
         self.reset()
 
     def setData(self, index, val, role):
@@ -209,8 +218,11 @@ class FieldsModel(QAbstractListModel): # {{{
         return ret
 
     def commit(self):
-        val = [k for k, v in self.overrides.iteritems() if v == Qt.Unchecked]
-        msprefs['ignore_fields'] = val
+        ignored_fields = set([x for x in msprefs['ignore_fields'] if x not in
+            self.overrides])
+        changed = set([k for k, v in self.overrides.iteritems() if v ==
+            Qt.Unchecked])
+        msprefs['ignore_fields'] = list(ignored_fields.union(changed))
 
 
 # }}}
@@ -259,6 +271,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('wait_after_first_identify_result', msprefs)
         r('wait_after_first_cover_result', msprefs)
         r('swap_author_names', msprefs)
+        r('fewer_tags', msprefs)
 
         self.configure_plugin_button.clicked.connect(self.configure_plugin)
         self.sources_model = SourcesModel(self)
@@ -268,6 +281,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.fields_model = FieldsModel(self)
         self.fields_view.setModel(self.fields_model)
         self.fields_model.dataChanged.connect(self.changed_signal)
+
+        self.select_all_button.clicked.connect(self.fields_model.select_all)
+        self.clear_all_button.clicked.connect(self.fields_model.clear_all)
 
     def configure_plugin(self):
         for index in self.sources_view.selectionModel().selectedRows():

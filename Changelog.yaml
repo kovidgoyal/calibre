@@ -19,6 +19,237 @@
 #  new recipes:
 #    - title: 
 
+- version: 0.8.1
+  date: 2011-05-13
+
+  new features:
+    - title: "Add Amazon DE, Beam EBooks, Beam DE, Weightless Books, Wizards Tower Books to the list of ebook stores searched by Get Books"
+
+    - title: "TXT output: All new Textile output with much greater preservation of formatting from the input document"
+
+    - title: "Migrate metadata plugin for Douban Books to the 0.8 API"
+
+    - title: "Driver for Dell Streak on windows"
+
+    - title: "Add menu items to Get Books action to search by title and author of current book"
+
+    - title: "Add title_sort as available field to CSV/XML catalogs"
+
+    - title: "Add a context menu to the manage authors dialog"
+
+    - title: "Add a button to paste isbn into the identifiers field in the edit metadata dialog automatically"
+  
+  bug fixes:
+    - title: "Amazon metadata download plugin: Fix links being stripped from comments. Also fix ratings/isbn not being parsed from kindle edition pages."
+      tickets: [782012]
+
+    - title: "Fix one source of segfaults on shutdown in the linux binary builds."
+
+    - title: "Allow the use of condensed/expanded fonts as interface fonts"
+
+    - title: "EPUB Input: Ignore missing cover file when converting, instead of erroring out."
+      tickets: [781848]
+
+    - title: "Fix custom identifier being erased by metadata download"
+      tickets: [781759]
+
+    - title: "Fix regression that broke various things when using Japanese language calibre on windows"
+      tickets: [780804]
+
+    - title: "RTF Input: Handle null color codes correctly"
+      tickets: [780728]
+
+    - title: "ODT Input: Handle inline special styles defined on <text:span> tags."
+      tickets: [780250]
+
+    - title: "Fix error when pressing next previous button with an empty search in the Plugins preferences"
+      tickets: [781135]
+
+    - title: "Ignore 'Unknown' author when downloading metadata."
+      tickets: [779348]
+
+    - title: "Fix timezone bug when setting dates in the edit metadata dialog"
+      tickets: [779497]
+
+    - title: "Fix ebook-convert not recognizing output paths starting with .."
+      tickets: [779322]
+
+  improved recipes:
+    - "Strategy+Business"
+    - Readers Digest
+    - Ming Pao
+    - Telepolis
+    - Fronda
+    - Rzeczpospolita
+
+  new recipes:
+    - title: "Various Taiwanese news sources"
+      author: Eddie Lau
+
+    - title: Replica Vedetelor, Ziua Veche 
+      author: Silviu Cotoara
+
+    - title: Welt der Physik
+      author: schuster
+
+    - title: Korea Herald
+      author: Seongkyoun Yoo
+
+
+- version: 0.8.0
+  date: 2010-05-06
+
+  new features:
+    - title: "Go to http://calibre-ebook.com/new-in/eight to see what's new in 0.8.0"
+      type: major
+
+- version: 0.7.59
+  date: 2011-04-30
+
+  bug fixes:
+    - title: "Fixes a bug in 0.7.58 that caused too small fonts when converting to MOBI for the Kindle. Apologies."
+
+    - title: "Apple driver: Handle invalid EPUBs that do not contain an OPF file"
+
+  new recipes:
+    - title: The Big Picture and Auto industry news
+      author: welovelucy
+
+    - title: Gazeta Prawna 
+      author: Vroo
+
+    - title: Various Czech news sources
+      author: Tomas Latal
+
+    - title: Diario de Ibiza
+      author: Joan Tur
+
+- version: 0.7.58
+  date: 2011-04-29
+
+  new features:
+    - title: "Support for converting and reading metadata from Plucker format PDB files"
+      type: major
+
+    - title: "The metadata that is displayed in the book details panel on the right is now completely configurable via Preferences->Look & Feel"
+
+    - title: "Add a column that shows the date when the metadata of a book record was last modified in calibre. To see the column, right click on the column headers in calibre and select Show column->Modified. Note that the dates may be incorrect for books added with older versions of calibre."
+
+    - title: "Add command line option to shutdown running calibre"
+
+    - title: "CHM Input: Store extracted files in the input/ sub dir for easy debugging when --debug-pipeline is specified"
+
+    - title: "Add a popup menu to the 'Create saved search button' to allow easy deleting of saved searches"
+  
+  bug fixes:
+    - title: "Fix regression that broke converting to LIT in 0.7.57"
+      tickets: [769334]
+
+    - title: "Conversion pipeline: Remove encoding declarations from input HTML documents to guarantee that there is only a single encoding declaration in the output HTML."
+      tickets: [773337]
+
+    - title: "Correctly parenthesize searches that are used to make search restrictions"
+
+    - title: "Fix ratings in save to disk templates not being divided by 2"
+
+    - title: "TXT to EPUB: Underlined words (following quotes?) fail to become italics"
+      tickets: [772267]
+
+    - title: "Fix template function source code unavailable when not running calibre from source"
+
+    - title: "Fix adding html books from the top of a deep folder hierarchy very slow"
+
+    - title: "Only set language in MOBI metadata if it is not null"
+
+    - title: "Fix 'count-of' searches (e.g., tags:#>3)."
+      tickets: [771175]
+
+    - title: "Fix regression that broke connection to iTunes in some cases"
+      tickets: [771164]
+
+    - title: "Fix buggy regex that made converting PDFs with the string ****************** very slow"
+      tickets: [770534]
+
+    - title: "Fix Ctrl+L shortcut to lookup word not working in ebook viewer"
+      tickets: [769492]
+
+    - title: "Fix regression that broke searching on boolean columns"
+
+  improved recipes:
+    - HBR Blogs
+    - The Marker
+    - Financial Times
+    - Clarin
+    - Honolulu Star Advertiser
+
+  new recipes:
+    - title: Novi Standard
+      author: Darko Miletic
+
+    - title: Autobild.ro and Social Diva
+      author: Silviu Cotoara
+
+    - title: Novinky
+      author: Tomas Latal
+
+    - title: "De Volksrant (subscriber version)"
+      author: Selcal
+
+
+- version: 0.7.57
+  date: 2011-04-22
+
+  new features:
+    - title: "Launch worker processes on demand instead of keeping a pool of them in memory. Reduces memory footprint."
+
+    - title: "Use the visual formatting of the Table of Contents to try to automatically create a multi-level TOC when converting/viewing MOBI files."
+      tickets: [763681]
+
+    - title: "Add a new function booksize() to the template language to get the value of the size column in calibre."
+
+    - title: "Add support for using metadata plugboards with the content server (only with the epub format)"
+
+    - title: "Change default algorithm for automatically computing author sort to be more intelligent and handle the case when the author name has a comma in it"
+
+    - title: "Show cover size in the tooltips of the book details panel and book details popup window"
+  
+  bug fixes:
+    - title: "Dragging and dropping a cover onto the book details panel did not change the cover size"
+      tickets: [768332]
+
+    - title: "Fix non-escaped '|' when searching for commas in authors using REGEXP_MATCH"
+
+    - title: "Fix ratings in templates being multiplied by 2"
+
+    - title: "Fix adding a comma to custom series values when using completion."
+      tickets: [763788]
+
+    - title: "CHM Input: Another workaround for a Microsoft mess."
+      tickets: [763336]
+
+    - title: "Fix job count in the spinner not always being updated when a job completes"
+
+    - title: "Changing case only of a title does not update title sort"
+      tickets: [768904]
+
+  improved recipes:
+    - ecuisine.ro, egirl.ro and tabu.ro
+    - Daily Telegraph
+    - Handelsblatt
+    - Il Sole 24 Ore
+    - Newsweek
+    - Arcamax
+
+  new recipes:
+    - title: BabyOnline.ro
+      author: Silviu Cotoara
+
+    - title: "The Journal.ie"
+      author: Phil Burns
+
+    - title: "Der Spiegel"
+      author: Nikolas Mangold
+
 - version: 0.7.56
   date: 2011-04-17
 

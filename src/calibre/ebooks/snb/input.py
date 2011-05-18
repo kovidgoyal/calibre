@@ -7,7 +7,6 @@ __docformat__ = 'restructuredtext en'
 import os, uuid
 
 from calibre.customize.conversion import InputFormatPlugin
-from calibre.ebooks.oeb.base import DirContainer
 from calibre.ebooks.snb.snbfile import SNBFile
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.filenames import ascii_filename
@@ -30,6 +29,7 @@ class SNBInput(InputFormatPlugin):
 
     def convert(self, stream, options, file_ext, log,
                 accelerators):
+        from calibre.ebooks.oeb.base import DirContainer
         log.debug("Parsing SNB file...")
         snbFile = SNBFile()
         try:

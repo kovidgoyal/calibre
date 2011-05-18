@@ -16,7 +16,7 @@ class Kotaku(BasicNewsRecipe):
     max_articles_per_feed = 100
     no_stylesheets        = True
     encoding              = 'utf-8'
-    use_embedded_content  = False
+    use_embedded_content  = True
     language              = 'en'
     masthead_url          = 'http://cache.gawkerassets.com/assets/kotaku.com/img/logo.png'
     extra_css             = '''
@@ -31,13 +31,12 @@ class Kotaku(BasicNewsRecipe):
                         , 'language'  : language
                         }
 
-    remove_attributes  = ['width','height']
-    keep_only_tags     = [dict(attrs={'class':'content permalink'})]
-    remove_tags_before = dict(name='h1')
-    remove_tags        = [dict(attrs={'class':'contactinfo'})]
-    remove_tags_after  = dict(attrs={'class':'contactinfo'})
+    feeds = [(u'Articles', u'http://feeds.gawker.com/kotaku/vip?format=xml')]
 
-    feeds = [(u'Articles', u'http://feeds.gawker.com/kotaku/full')]
+    remove_tags = [
+            {'class': 'feedflare'},
+    ]
+
 
     def preprocess_html(self, soup):
         return self.adeify_images(soup)

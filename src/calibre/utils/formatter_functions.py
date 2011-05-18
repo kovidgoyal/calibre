@@ -549,8 +549,22 @@ class BuiltinCapitalize(BuiltinFormatterFunction):
     def evaluate(self, formatter, kwargs, mi, locals, val):
         return capitalize(val)
 
+class BuiltinBooksize(BuiltinFormatterFunction):
+    name = 'booksize'
+    arg_count = 0
+    doc = _('booksize() -- return value of the field capitalized')
+
+    def evaluate(self, formatter, kwargs, mi, locals):
+        if mi.book_size is not None:
+            try:
+                return str(mi.book_size)
+            except:
+                pass
+        return ''
+
 builtin_add         = BuiltinAdd()
 builtin_assign      = BuiltinAssign()
+builtin_booksize    = BuiltinBooksize()
 builtin_capitalize  = BuiltinCapitalize()
 builtin_cmp         = BuiltinCmp()
 builtin_contains    = BuiltinContains()

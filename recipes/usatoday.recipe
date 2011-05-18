@@ -7,13 +7,11 @@ usatoday.com
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, BeautifulStoneSoup, NavigableString, Tag
-import re
 
 class USAToday(BasicNewsRecipe):
 
     title = 'USA Today'
-    __author__ = 'GRiker'
+    __author__ = 'Kovid Goyal'
     oldest_article = 1
     timefmt  = ''
     max_articles_per_feed = 20
@@ -31,7 +29,6 @@ class USAToday(BasicNewsRecipe):
                                  margin-bottom: 0em;        \
                                  font-size:     smaller;}\n \
                  .articleBody   {text-align:    left;}\n    '
-    conversion_options = { 'linearize_tables' : True }
     #simultaneous_downloads = 1
     feeds =  [
                 ('Top Headlines', 'http://rssfeeds.usatoday.com/usatoday-NewsTopStories'),
@@ -47,63 +44,26 @@ class USAToday(BasicNewsRecipe):
                 ('Most Popular', 'http://rssfeeds.usatoday.com/Usatoday-MostViewedArticles'),
                 ('Offbeat News', 'http://rssfeeds.usatoday.com/UsatodaycomOffbeat-TopStories'),
                 ]
-    keep_only_tags = [dict(attrs={'class':[
-                                           'byLine',
-                                           'inside-copy',
-                                           'inside-head',
-                                           'inside-head2',
-                                           'item',
-                                           'item-block',
-                                           'photo-container',
-                                           ]}),
-                      dict(id=[
-                               'applyMainStoryPhoto',
-                               'permalink',
-                               ])]
+    keep_only_tags = [dict(attrs={'class':'story'})]
+    remove_tags = [
+            dict(attrs={'class':[
+                                'share',
+                                'reprints',
+                                'inline-h3',
+                                'info-extras',
+                                'ppy-outer',
+                                'ppy-caption',
+                                'comments',
+                                'jump',
+                                'pagetools',
+                                'post-attributes',
+                                'tags',
+                                'bottom-tools',
+                                'sponsoredlinks',
+                                ]}),
+            dict(id=['pluck']),
+                  ]
 
-    remove_tags = [dict(attrs={'class':[
-                                        'comments',
-                                        'jump',
-                                        'pagetools',
-                                        'post-attributes',
-                                        'tags',
-                                        ]}),
-                   dict(id=[])]
-
-    #feeds =  [('Most Popular', 'http://rssfeeds.usatoday.com/Usatoday-MostViewedArticles')]
-
-    def dump_hex(self, src, length=16):
-        ''' Diagnostic '''
-        FILTER=''.join([(len(repr(chr(x)))==3) and chr(x) or '.' for x in range(256)])
-        N=0; result=''
-        while src:
-           s,src = src[:length],src[length:]
-           hexa = ' '.join(["%02X"%ord(x) for x in s])
-           s = s.translate(FILTER)
-           result += "%04X   %-*s   %s\n" % (N, length*3, hexa, s)
-           N+=length
-        print result
-
-    def fixChars(self,string):
-        # Replace lsquo (\x91)
-        fixed = re.sub("\x91","&#8216;",string)
-
-        # Replace rsquo (\x92)
-        fixed = re.sub("\x92","&#8217;",fixed)
-
-        # Replace ldquo (\x93)
-        fixed = re.sub("\x93","&#8220;",fixed)
-
-        # Replace rdquo (\x94)
-        fixed = re.sub("\x94","&#8221;",fixed)
-
-        # Replace ndash (\x96)
-        fixed = re.sub("\x96","&#8211;",fixed)
-
-        # Replace mdash (\x97)
-        fixed = re.sub("\x97","&#8212;",fixed)
-
-        return fixed
 
     def get_masthead_url(self):
         masthead = 'http://i.usatoday.net/mobile/_common/_images/565x73_usat_mobile.gif'
@@ -115,321 +75,4 @@ class USAToday(BasicNewsRecipe):
             masthead = None
         return masthead
 
-    def massageNCXText(self, description):
-        # Kindle TOC descriptions won't render certain characters
-        if description:
-            massaged = unicode(BeautifulStoneSoup(description, convertEntities=BeautifulStoneSoup.HTML_ENTITIES))
-            # Replace '&' with '&#38;'
-            massaged = re.sub("&","&#38;", massaged)
-            return self.fixChars(massaged)
-        else:
-            return description
 
-    def parse_feeds(self, *args, **kwargs):
-        parsed_feeds = BasicNewsRecipe.parse_feeds(self, *args, **kwargs)
-        # Count articles for progress dialog
-        article_count = 0
-        for feed in parsed_feeds:
-            article_count += len(feed)
-        self.log( "Queued %d articles" % article_count)
-        return parsed_feeds
-
-    def preprocess_html(self, soup):
-        soup = self.strip_anchors(soup)
-        return soup
-
-    def postprocess_html(self, soup, first_fetch):
-
-        # Remove navLinks <div class="inside-copy" style="padding-bottom:3px">
-        navLinks = soup.find(True,{'style':'padding-bottom:3px'})
-        if navLinks:
-            navLinks.extract()
-
-        # Remove <div class="inside-copy" style="margin-bottom:10px">
-        gibberish = soup.find(True,{'style':'margin-bottom:10px'})
-        if gibberish:
-            gibberish.extract()
-
-        # Change <inside-head> to <h2>
-        headline = soup.find(True, {'class':['inside-head','inside-head2']})
-        if not headline:
-            headline = soup.find('h3')
-        if headline:
-            tag = Tag(soup, "h2")
-            tag['class'] = "headline"
-            tag.insert(0, headline.contents[0])
-            headline.replaceWith(tag)
-        else:
-            print "unable to find headline:\n%s\n" % soup
-
-        # Change byLine to byline, change commas to middot
-        # Kindle renders commas in byline as '&'
-        byline = soup.find(True, {'class':'byLine'})
-        if byline:
-            byline['class'] = 'byline'
-            # Replace comma with middot
-            byline.contents[0].replaceWith(re.sub(","," &middot;", byline.renderContents()))
-
-        jumpout_punc_list = [':','?']
-        # Remove the inline jumpouts in <div class="inside-copy">
-        paras = soup.findAll(True, {'class':'inside-copy'})
-        for para in paras:
-            if re.match("<b>[\w\W]+ ",para.renderContents()):
-                p = para.find('b')
-                for punc in jumpout_punc_list:
-                    punc_offset = p.contents[0].find(punc)
-                    if punc_offset == -1:
-                        continue
-                    if punc_offset > 1:
-                        if p.contents[0][:punc_offset] == p.contents[0][:punc_offset].upper():
-                            #print "extracting \n%s\n" % para.prettify()
-                            para.extract()
-
-        # Reset class for remaining
-        paras = soup.findAll(True, {'class':'inside-copy'})
-        for para in paras:
-            para['class'] = 'articleBody'
-
-        # Remove inline jumpouts in <p>
-        paras = soup.findAll(['p'])
-        for p in paras:
-            if hasattr(p,'contents') and len(p.contents):
-                for punc in jumpout_punc_list:
-                    punc_offset = p.contents[0].find(punc)
-                    if punc_offset == -1:
-                        continue
-                    if punc_offset > 2 and hasattr(p,'a') and len(p.contents):
-                        #print "evaluating %s\n" % p.contents[0][:punc_offset+1]
-                        if p.contents[0][:punc_offset] == p.contents[0][:punc_offset].upper():
-                            #print "extracting \n%s\n" % p.prettify()
-                            p.extract()
-
-        # Capture the first img, insert after headline
-        imgs = soup.findAll('img')
-        print "postprocess_html(): %d images" % len(imgs)
-        if imgs:
-            divTag = Tag(soup, 'div')
-            divTag['class'] = 'image'
-            body = soup.find('body')
-            img = imgs[0]
-            #print "img: \n%s\n" % img.prettify()
-
-            # Table for photo and credit
-            tableTag = Tag(soup,'table')
-
-            # Photo
-            trimgTag = Tag(soup, 'tr')
-            tdimgTag = Tag(soup, 'td')
-            tdimgTag.insert(0,img)
-            trimgTag.insert(0,tdimgTag)
-            tableTag.insert(0,trimgTag)
-
-            # Credit
-            trcreditTag = Tag(soup, 'tr')
-
-            tdcreditTag = Tag(soup, 'td')
-            tdcreditTag['class'] = 'credit'
-            credit = soup.find('td',{'class':'photoCredit'})
-            if credit:
-                tdcreditTag.insert(0,NavigableString(credit.renderContents()))
-            else:
-                credit = img['credit']
-                if credit:
-                    tdcreditTag.insert(0,NavigableString(credit))
-                else:
-                    tdcreditTag.insert(0,NavigableString(''))
-
-            trcreditTag.insert(0,tdcreditTag)
-            tableTag.insert(1,trcreditTag)
-            dtc = 0
-            divTag.insert(dtc,tableTag)
-            dtc += 1
-
-            if False:
-                # Add the caption in the table
-                tableCaptionTag = Tag(soup,'caption')
-                tableCaptionTag.insert(0,soup.find('td',{'class':'photoCredit'}).renderContents())
-                tableTag.insert(1,tableCaptionTag)
-                divTag.insert(dtc,tableTag)
-                dtc += 1
-                body.insert(1,divTag)
-            else:
-                # Add the caption below the table
-                #print "Looking for caption in this soup:\n%s" % img.prettify()
-                captionTag = Tag(soup,'p')
-                captionTag['class'] = 'caption'
-                if hasattr(img,'alt') and img['alt']:
-                    captionTag.insert(0,NavigableString('<blockquote>%s</blockquote>' % img['alt']))
-                    divTag.insert(dtc, captionTag)
-                    dtc += 1
-                else:
-                    try:
-                        captionTag.insert(0,NavigableString('<blockquote>%s</blockquote>' % img['cutline']))
-                        divTag.insert(dtc, captionTag)
-                        dtc += 1
-                    except:
-                        pass
-
-            hrTag = Tag(soup, 'hr')
-            divTag.insert(dtc, hrTag)
-            dtc += 1
-
-            # Delete <div id="applyMainStoryPhoto"
-            photoJunk = soup.find('div',{'id':'applyMainStoryPhoto'})
-            if photoJunk:
-                photoJunk.extract()
-
-            # Insert img after headline
-            tag = body.find(True)
-            insertLoc = 0
-            headline_found = False
-            while True:
-                # Scan the top-level tags
-                insertLoc += 1
-                if hasattr(tag,'class') and tag['class'] == 'headline':
-                    headline_found = True
-                    body.insert(insertLoc,divTag)
-                    break
-                tag = tag.nextSibling
-                if not tag:
-                    break
-
-            if not headline_found:
-                # Monolithic <div> - restructure
-                tag = body.find(True)
-                while True:
-                    insertLoc += 1
-                    try:
-                        if hasattr(tag,'class') and tag['class'] == 'headline':
-                            headline_found = True
-                            tag.insert(insertLoc,divTag)
-                            break
-                    except:
-                        pass
-                    tag = tag.next
-                    if not tag:
-                        break
-
-                # Yank out headline, img and caption
-                headline = body.find('h2','headline')
-                img = body.find('div','image')
-                caption = body.find('p''class')
-
-                # body(0) is calibre_navbar
-                # body(1) is <div class="item">
-
-                btc = 1
-                headline.extract()
-                body.insert(1, headline)
-                btc += 1
-                if img:
-                    img.extract()
-                    body.insert(btc, img)
-                    btc += 1
-                if caption:
-                    caption.extract()
-                    body.insert(btc, caption)
-                    btc += 1
-
-            if len(imgs) > 1:
-                if True:
-                    [img.extract() for img in imgs[1:]]
-                else:
-                    # Format the remaining images
-                    # This doesn't work yet
-                    for img in imgs[1:]:
-                        print "img:\n%s\n" % img.prettify()
-                        divTag = Tag(soup, 'div')
-                        divTag['class'] = 'image'
-
-                        # Table for photo and credit
-                        tableTag = Tag(soup,'table')
-
-                        # Photo
-                        trimgTag = Tag(soup, 'tr')
-                        tdimgTag = Tag(soup, 'td')
-                        tdimgTag.insert(0,img)
-                        trimgTag.insert(0,tdimgTag)
-                        tableTag.insert(0,trimgTag)
-
-                        # Credit
-                        trcreditTag = Tag(soup, 'tr')
-
-                        tdcreditTag = Tag(soup, 'td')
-                        tdcreditTag['class'] = 'credit'
-                        try:
-                            tdcreditTag.insert(0,NavigableString(img['credit']))
-                        except:
-                            tdcreditTag.insert(0,NavigableString(''))
-                        trcreditTag.insert(0,tdcreditTag)
-                        tableTag.insert(1,trcreditTag)
-                        divTag.insert(0,tableTag)
-                        soup.img.replaceWith(divTag)
-
-        return soup
-
-    def postprocess_book(self, oeb, opts, log) :
-
-        def extract_byline(href) :
-            # <meta name="byline" content=
-            soup = BeautifulSoup(str(oeb.manifest.hrefs[href]))
-            byline = soup.find('div',attrs={'class':'byline'})
-            if byline:
-                byline['class'] = 'byline'
-                # Replace comma with middot
-                byline.contents[0].replaceWith(re.sub(u",", u" &middot;",
-                    byline.renderContents(encoding=None)))
-                return byline.renderContents(encoding=None)
-            else :
-                paras = soup.findAll(text=True)
-                for para in paras:
-                    if para.startswith("Copyright"):
-                        return para[len('Copyright xxxx '):para.find('.')]
-                return None
-
-        def extract_description(href) :
-            soup = BeautifulSoup(str(oeb.manifest.hrefs[href]))
-            description = soup.find('meta',attrs={'name':'description'})
-            if description :
-                return self.massageNCXText(description['content'])
-            else:
-                # Take first paragraph of article
-                articleBody = soup.find('div',attrs={'id':['articleBody','item']})
-                if articleBody:
-                    paras = articleBody.findAll('p')
-                    for p in paras:
-                        if p.renderContents() > '' :
-                            return self.massageNCXText(self.tag_to_string(p,use_alt=False))
-                else:
-                    print "Didn't find <div id='articleBody'> in this soup:\n%s" % soup.prettify()
-                    return None
-
-        # Method entry point here
-        # Single section toc looks different than multi-section tocs
-        if oeb.toc.depth() == 2 :
-            for article in oeb.toc :
-                if article.author is None :
-                    article.author = extract_byline(article.href)
-                if article.description is None :
-                    article.description = extract_description(article.href)
-        elif oeb.toc.depth() == 3 :
-            for section in oeb.toc :
-                for article in section :
-                    article.author = extract_byline(article.href)
-                    '''
-                    if article.author is None :
-                        article.author = self.massageNCXText(extract_byline(article.href))
-                    else:
-                        article.author = self.massageNCXText(article.author)
-                    '''
-                    if article.description is None :
-                        article.description = extract_description(article.href)
-
-    def strip_anchors(self,soup):
-        paras = soup.findAll(True)
-        for para in paras:
-            aTags = para.findAll('a')
-            for a in aTags:
-                if a.img is None:
-                    a.replaceWith(a.renderContents().decode('cp1252','replace'))
-        return soup

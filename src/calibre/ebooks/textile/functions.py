@@ -12,7 +12,7 @@ A Humane Web Text Generator
 #__date__ = '2009/12/04'
 
 __copyright__ = """
-Copyright (c) 2011, Leigh Parry
+Copyright (c) 2011, Leigh Parry <leighparry@blueyonder.co.uk>
 Copyright (c) 2011, John Schember <john@nachtimwald.com>
 Copyright (c) 2009, Jason Samsa, http://jsamsa.com/
 Copyright (c) 2004, Roberto A. F. De Almeida, http://dealmeida.net/
@@ -219,14 +219,13 @@ class Textile(object):
     ]
     glyph_defaults = [
         (re.compile(r'(\d+\'?\"?)( ?)x( ?)(?=\d+)'),                   r'\1\2&#215;\3'),                       #  dimension sign
-        (re.compile(r'(\d+)\'', re.I),                                 r'\1&#8242;'),                          #  prime
-        (re.compile(r'(\d+)\"', re.I),                                 r'\1&#8243;'),                          #  prime-double
+        (re.compile(r'(\d+)\'(\s)', re.I),                             r'\1&#8242;\2'),                          #  prime
+        (re.compile(r'(\d+)\"(\s)', re.I),                             r'\1&#8243;\2'),                          #  prime-double
         (re.compile(r'\b([A-Z][A-Z0-9]{2,})\b(?:[(]([^)]*)[)])'),      r'<acronym title="\2">\1</acronym>'),   #  3+ uppercase acronym
         (re.compile(r'\b([A-Z][A-Z\'\-]+[A-Z])(?=[\s.,\)>])'),         r'<span class="caps">\1</span>'),       #  3+ uppercase
         (re.compile(r'\b(\s{0,1})?\.{3}'),                             r'\1&#8230;'),                          #  ellipsis
         (re.compile(r'^[\*_-]{3,}$', re.M),                            r'<hr />'),                             #  <hr> scene-break
-        (re.compile(r'\b--\b'),                                        r'&#8212;'),                            #  em dash
-        (re.compile(r'(\s)--(\s)'),                                    r'\1&#8212;\2'),                        #  em dash
+        (re.compile(r'(^|[^-])--([^-]|$)'),                                r'\1&#8212;\2'),                        #  em dash
         (re.compile(r'\s-(?:\s|$)'),                                   r' &#8211; '),                          #  en dash
         (re.compile(r'\b( ?)[([]TM[])]', re.I),                        r'\1&#8482;'),                          #  trademark
         (re.compile(r'\b( ?)[([]R[])]', re.I),                         r'\1&#174;'),                           #  registered
@@ -706,6 +705,21 @@ class Textile(object):
             result.append(line)
         return ''.join(result)
 
+    def macros_only(self, text):
+        # fix: hackish
+        text = re.sub(r'"\Z', '\" ', text)
+
+        result = []
+        for line in re.compile(r'(<.*?>)', re.U).split(text):
+            if not re.search(r'<.*>', line):
+                rules = []
+                if re.search(r'{.+?}', line):
+                    rules = self.macro_defaults
+                for s, r in rules:
+                    line = s.sub(r, line)
+            result.append(line)
+        return ''.join(result)
+
     def vAlign(self, input):
         d = {'^':'top', '-':'middle', '~':'bottom'}
         return d.get(input, '')
@@ -814,6 +828,7 @@ class Textile(object):
         'fooobar ... and hello world ...'
         """
 
+        text = self.macros_only(text)
         punct = '!"#$%&\'*+,-./:;=?@\\^_`|~'
 
         pattern = r'''
@@ -1044,4 +1059,3 @@ def textile_restricted(text, lite=True, noimage=True, html_type='xhtml'):
     return Textile(restricted=True, lite=lite,
                    noimage=noimage).textile(text, rel='nofollow',
                                             html_type=html_type)
-

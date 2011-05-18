@@ -4,19 +4,17 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import os, sys, Queue, threading
 from threading import RLock
 from urllib import unquote
-
-from PyQt4.Qt import QVariant, QFileInfo, QObject, SIGNAL, QBuffer, Qt, \
-                         QByteArray, QTranslator, QCoreApplication, QThread, \
-                         QEvent, QTimer, pyqtSignal, QDate, QDesktopServices, \
-                         QFileDialog, QFileIconProvider, \
-                         QIcon, QApplication, QDialog, QUrl, QFont
+from PyQt4.Qt import (QVariant, QFileInfo, QObject, SIGNAL, QBuffer, Qt,
+                    QByteArray, QTranslator, QCoreApplication, QThread,
+                    QEvent, QTimer, pyqtSignal, QDate, QDesktopServices,
+                    QFileDialog, QFileIconProvider,
+                    QIcon, QApplication, QDialog, QUrl, QFont)
 
 ORG_NAME = 'KovidsBrain'
 APP_UID  = 'libprs500'
 from calibre.constants import islinux, iswindows, isfreebsd, isfrozen, isosx
 from calibre.utils.config import Config, ConfigProxy, dynamic, JSONConfig
 from calibre.utils.localization import set_qt_translator
-from calibre.ebooks.metadata.meta import get_metadata, metadata_from_formats
 from calibre.ebooks.metadata import MetaInformation
 from calibre.utils.date import UNDEFINED_DATE
 
@@ -36,7 +34,7 @@ if isosx:
         )
     gprefs.defaults['action-layout-toolbar'] = (
         'Add Books', 'Edit Metadata', None, 'Convert Books', 'View', None,
-        'Choose Library', 'Donate', None, 'Fetch News', 'Save To Disk',
+        'Choose Library', 'Donate', None, 'Fetch News', 'Store', 'Save To Disk',
         'Connect Share', None, 'Remove Books',
         )
     gprefs.defaults['action-layout-toolbar-device'] = (
@@ -50,7 +48,7 @@ else:
     gprefs.defaults['action-layout-menubar-device'] = ()
     gprefs.defaults['action-layout-toolbar'] = (
         'Add Books', 'Edit Metadata', None, 'Convert Books', 'View', None,
-        'Choose Library', 'Donate', None, 'Fetch News', 'Save To Disk',
+        'Choose Library', 'Donate', None, 'Fetch News', 'Store', 'Save To Disk',
         'Connect Share', None, 'Remove Books', None, 'Help', 'Preferences',
         )
     gprefs.defaults['action-layout-toolbar-device'] = (
@@ -82,6 +80,14 @@ gprefs.defaults['font'] = None
 gprefs.defaults['tags_browser_partition_method'] = 'first letter'
 gprefs.defaults['tags_browser_collapse_at'] = 100
 gprefs.defaults['edit_metadata_single_layout'] = 'default'
+gprefs.defaults['book_display_fields'] = [
+        ('title', False), ('authors', False), ('formats', True),
+        ('series', True), ('identifiers', True), ('tags', True),
+        ('path', True), ('publisher', False), ('rating', False),
+        ('author_sort', False), ('sort', False), ('timestamp', False),
+        ('uuid', False), ('comments', True), ('id', False), ('pubdate', False),
+        ('last_modified', False), ('size', False),
+        ]
 
 # }}}
 
@@ -91,7 +97,7 @@ UNDEFINED_QDATE = QDate(UNDEFINED_DATE)
 ALL_COLUMNS = ['title', 'ondevice', 'authors', 'size', 'timestamp', 'rating', 'publisher',
         'tags', 'series', 'pubdate']
 
-def _config():
+def _config(): # {{{
     c = Config('gui', 'preferences for the calibre GUI')
     c.add_opt('send_to_storage_card_by_default', default=False,
               help=_('Send file to storage card instead of main memory by default'))
@@ -156,7 +162,9 @@ def _config():
     c.add_opt('plugin_search_history', default=[],
         help='Search history for the recipe scheduler')
     c.add_opt('worker_limit', default=6,
-            help=_('Maximum number of waiting worker processes'))
+            help=_(
+        'Maximum number of simultaneous conversion/news download jobs. '
+        'This number is twice the actual value for historical reasons.'))
     c.add_opt('get_social_metadata', default=True,
             help=_('Download social metadata (tags/rating/etc.)'))
     c.add_opt('overwrite_author_title_metadata', default=True,
@@ -181,6 +189,8 @@ def _config():
     return ConfigProxy(c)
 
 config = _config()
+# }}}
+
 # Turn off DeprecationWarnings in windows GUI
 if iswindows:
     import warnings
@@ -330,6 +340,7 @@ class GetMetadata(QObject):
                   id, args, kwargs)
 
     def _from_formats(self, id, args, kwargs):
+        from calibre.ebooks.metadata.meta import metadata_from_formats
         try:
             mi = metadata_from_formats(*args, **kwargs)
         except:
@@ -337,6 +348,7 @@ class GetMetadata(QObject):
         self.emit(SIGNAL('metadataf(PyQt_PyObject, PyQt_PyObject)'), id, mi)
 
     def _get_metadata(self, id, args, kwargs):
+        from calibre.ebooks.metadata.meta import get_metadata
         try:
             mi = get_metadata(*args, **kwargs)
         except:
@@ -608,7 +620,22 @@ class Application(QApplication):
         self.original_font = QFont(QApplication.font())
         fi = gprefs['font']
         if fi is not None:
-            QApplication.setFont(QFont(*fi))
+            font = QFont(*(fi[:4]))
+            s = gprefs.get('font_stretch', None)
+            if s is not None:
+                font.setStretch(s)
+            QApplication.setFont(font)
+        st = self.style()
+        if st is not None:
+            st = unicode(st.objectName()).lower()
+        if (islinux or isfreebsd) and st in ('windows', 'motif', 'cde'):
+            from PyQt4.Qt import QStyleFactory
+            styles = set(map(unicode, QStyleFactory.keys()))
+            if 'Plastique' in styles and os.environ.get('KDE_FULL_SESSION',
+                    False):
+                self.setStyle('Plastique')
+            elif 'Cleanlooks' in styles:
+                self.setStyle('Cleanlooks')
 
     def _send_file_open_events(self):
         with self._file_open_lock:
@@ -727,14 +754,9 @@ def build_forms(srcdir, info=None):
             dat = dat.replace('from QtWebKit.QWebView import QWebView',
                     'from PyQt4 import QtWebKit\nfrom PyQt4.QtWebKit import QWebView')
 
-            if form.endswith('viewer%smain.ui'%os.sep):
-                info('\t\tPromoting WebView')
-                dat = dat.replace('self.view = QtWebKit.QWebView(', 'self.view = DocumentView(')
-                dat = dat.replace('self.view = QWebView(', 'self.view = DocumentView(')
-                dat += '\n\nfrom calibre.gui2.viewer.documentview import DocumentView'
-
             open(compiled_form, 'wb').write(dat)
 
 _df = os.environ.get('CALIBRE_DEVELOP_FROM', None)
 if _df and os.path.exists(_df):
     build_forms(_df)
+

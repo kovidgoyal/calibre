@@ -35,7 +35,7 @@ category_icon_map = {
                     'custom:'    : 'column.png',
                     'user:'      : 'tb_folder.png',
                     'search'     : 'search.png',
-                    'identifiers': 'id_card.png'
+                    'identifiers': 'identifiers.png'
             }
 
 
@@ -188,7 +188,7 @@ class FieldMetadata(dict):
                             'datatype':'text',
                            'is_multiple':None,
                            'kind':'field',
-                           'name':None,
+                           'name':_('Author Sort'),
                            'search_terms':['author_sort'],
                            'is_custom':False,
                            'is_category':False,
@@ -238,7 +238,7 @@ class FieldMetadata(dict):
                            'datatype':'datetime',
                            'is_multiple':None,
                            'kind':'field',
-                           'name':_('Date'),
+                           'name':_('Modified'),
                            'search_terms':['last_modified'],
                            'is_custom':False,
                            'is_category':False,
@@ -258,7 +258,7 @@ class FieldMetadata(dict):
                            'datatype':'text',
                            'is_multiple':None,
                            'kind':'field',
-                           'name':None,
+                           'name':_('Path'),
                            'search_terms':[],
                            'is_custom':False,
                            'is_category':False,
@@ -308,7 +308,7 @@ class FieldMetadata(dict):
                            'datatype':'float',
                            'is_multiple':None,
                            'kind':'field',
-                           'name':_('Size (MB)'),
+                           'name':_('Size'),
                            'search_terms':['size'],
                            'is_custom':False,
                            'is_category':False,
@@ -368,7 +368,8 @@ class FieldMetadata(dict):
                         'date_format': tweaks['gui_timestamp_display_format']}
         self._tb_cats['pubdate']['display'] = {
                         'date_format': tweaks['gui_pubdate_display_format']}
-        self._tb_cats['last_modified']['display'] = {'date_format': 'iso'}
+        self._tb_cats['last_modified']['display'] = {
+                        'date_format': tweaks['gui_last_modified_display_format']}
         self.custom_field_prefix = '#'
         self.get = self._tb_cats.get
 
@@ -398,6 +399,13 @@ class FieldMetadata(dict):
         return [k for k in self._tb_cats.keys()
                 if self._tb_cats[k]['kind']=='field' and
                    self._tb_cats[k]['datatype'] is not None]
+
+    def displayable_field_keys(self):
+        return [k for k in self._tb_cats.keys()
+                if self._tb_cats[k]['kind']=='field' and
+                   self._tb_cats[k]['datatype'] is not None and
+                   k not in ('au_map', 'marked', 'ondevice', 'cover') and
+                   not self.is_series_index(k)]
 
     def standard_field_keys(self):
         return [k for k in self._tb_cats.keys()
@@ -441,6 +449,11 @@ class FieldMetadata(dict):
 
     def is_custom_field(self, key):
         return key.startswith(self.custom_field_prefix)
+
+    def is_series_index(self, key):
+        m = self[key]
+        return (m['datatype'] == 'float' and key.endswith('_index') and
+                key[:-6] in self)
 
     def key_to_label(self, key):
         if 'label' not in self._tb_cats[key]:

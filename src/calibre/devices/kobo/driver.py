@@ -38,7 +38,7 @@ class KOBO(USBMS):
 
     VENDOR_ID   = [0x2237]
     PRODUCT_ID  = [0x4161]
-    BCD         = [0x0110]
+    BCD         = [0x0110, 0x0323]
 
     VENDOR_NAME = ['KOBO_INC', 'KOBO']
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['.KOBOEREADER', 'EREADER']

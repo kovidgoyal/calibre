@@ -65,17 +65,14 @@ Catalog plugins
 Metadata download plugins
 --------------------------
 
-.. module:: calibre.ebooks.metadata.fetch
+.. module:: calibre.ebooks.metadata.sources.base
 
-.. autoclass:: MetadataSource
+.. autoclass:: Source
    :show-inheritance:
    :members:
    :member-order: bysource
 
-.. autoclass:: calibre.ebooks.metadata.covers.CoverDownload
-   :show-inheritance:
-   :members:
-   :member-order: bysource
+.. autoclass:: InternalMetadataCompareKeyGen
 
 Conversion plugins
 --------------------

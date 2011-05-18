@@ -81,7 +81,7 @@ class ISBNDB(Source):
             author_tokens = self.get_author_tokens(authors,
                     only_first_author=True)
             tokens += author_tokens
-            tokens = [quote(t) for t in tokens]
+            tokens = [quote(t.encode('utf-8') if isinstance(t, unicode) else t) for t in tokens]
             q = '+'.join(tokens)
             q = 'index1=combined&value1='+q
 

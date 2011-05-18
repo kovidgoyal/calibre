@@ -2,12 +2,8 @@
 #  jisyo.py
 #
 # Copyright 2011 Hiroshi Miura <miurahr@linux.com>
-from cPickle import load
-import anydbm,marshal
+import cPickle, marshal
 from zlib import decompress
-import os
-
-import calibre.utils.resources as resources
 
 class jisyo (object):
     kanwadict = None
@@ -25,16 +21,14 @@ class jisyo (object):
 
     def __init__(self):
         if self.kanwadict is None:
-            dictpath = resources.get_path(os.path.join('localization','pykakasi','kanwadict2.db'))
-            self.kanwadict = anydbm.open(dictpath,'r')
-        if self.itaijidict is  None:
-            itaijipath = resources.get_path(os.path.join('localization','pykakasi','itaijidict2.pickle'))
-            itaiji_pkl = open(itaijipath, 'rb')
-            self.itaijidict = load(itaiji_pkl)
+            self.kanwadict = cPickle.loads(
+                P('localization/pykakasi/kanwadict2.pickle', data=True))
+        if self.itaijidict is None:
+            self.itaijidict = cPickle.loads(
+                P('localization/pykakasi/itaijidict2.pickle', data=True))
         if self.kanadict is None:
-            kanadictpath = resources.get_path(os.path.join('localization','pykakasi','kanadict2.pickle'))
-            kanadict_pkl = open(kanadictpath, 'rb')
-            self.kanadict = load(kanadict_pkl)
+            self.kanadict = cPickle.loads(
+                P('localization/pykakasi/kanadict2.pickle', data=True))
 
     def load_jisyo(self, char):
         try:#python2

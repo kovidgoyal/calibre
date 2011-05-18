@@ -230,6 +230,7 @@ The following functions are available in addition to those described in single-f
 
     * ``add(x, y)`` -- returns x + y. Throws an exception if either x or y are not numbers.
     * ``assign(id, val)`` -- assigns val to id, then returns val. id must be an identifier, not an expression
+    * ``booksize()`` -- returns the value of the |app| 'size' field. Returns '' if there are no formats.
     * ``cmp(x, y, lt, eq, gt)`` -- compares x and y after converting both to numbers. Returns ``lt`` if x < y. Returns ``eq`` if x == y. Otherwise returns ``gt``.
     * ``divide(x, y)`` -- returns x / y. Throws an exception if either x or y are not numbers.
     * ``field(name)`` -- returns the metadata field named by ``name``.
@@ -395,3 +396,19 @@ You might find the following tips useful.
     * In a plugboard, you can set a field to empty (or whatever is equivalent to empty) by using the special template ``{null}``. This template will always evaluate to an empty string.
     * The technique described above to show numbers even if they have a zero value works with the standard field series_index.
     
+API of the Metadata objects
+----------------------------
+
+.. module:: calibre.ebooks.metadata.book.base
+
+.. autoclass:: Metadata
+   :members:
+   :member-order: bysource
+
+.. data:: STANDARD_METADATA_FIELDS
+
+    The set of standard metadata fields.
+
+.. literalinclude:: ../ebooks/metadata/book/__init__.py
+   :lines: 7-
+

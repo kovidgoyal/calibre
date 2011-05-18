@@ -1,0 +1,46 @@
+# -*- coding: utf-8 -*-
+from calibre.web.feeds.recipes import BasicNewsRecipe
+class AdvancedUserRecipe1303841067(BasicNewsRecipe):
+    title          = u'Bild.de'
+    __author__  = 'schuster'
+    oldest_article = 1
+    max_articles_per_feed = 50
+    no_stylesheets         = True
+    use_embedded_content   = False
+    language               = 'de'
+    remove_javascript      = True
+
+# get cover from myspace
+    cover_url = 'http://a3.l3-images.myspacecdn.com/images02/56/0232f842170b4d349779f8379c27e073/l.jpg'
+
+# set what to fetch on the site
+    remove_tags_before =  dict(name = 'h2', attrs={'id':'cover'})
+    remove_tags_after = dict(name ='div', attrs={'class':'back'})
+
+#  thanx to kiklop74 for code (see sticky thread -> Recipes - Re-usable code)
+# this one removes a lot of direct-link's
+    def preprocess_html(self, soup):
+        for alink in soup.findAll('a'):
+            if alink.string is not None:
+               tstr = alink.string
+               alink.replaceWith(tstr)
+        return soup
+
+# remove the ad's
+    filter_regexps = [r'.\.smartadserver\.com']
+    def skip_ad_pages(self, soup):
+        return None
+
+#get the real url behind  .feedsportal.com and fetch the artikels
+    def get_article_url(self, article):
+        return article.get('id', article.get('guid', None))
+
+#list of the rss source from www.bild.de
+    feeds          = [(u'Überblick', u'http://rss.bild.de/bild.xml'),
+                          (u'News', u'http://rss.bild.de/bild-news.xml'),
+                          (u'Politik', u'http://rss.bild.de/bild-politik.xml'),
+                          (u'Unterhaltung', u'http://rss.bild.de/bild-unterhaltung.xml'),
+                          (u'Sport', u'http://rss.bild.de/bild-sport.xml'),
+                          (u'Lifestyle', u'http://rss.bild.de/bild-lifestyle.xml'),
+                          (u'Ratgeber', u'http://rss.bild.de/bild-ratgeber.xml')
+]

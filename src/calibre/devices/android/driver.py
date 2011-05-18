@@ -26,6 +26,7 @@ class ANDROID(USBMS):
                        0xc92  : [0x100],
                        0xc97  : [0x226],
                        0xc99  : [0x0100],
+                       0xca2  : [0x226],
                        0xca3  : [0x100],
                        0xca4  : [0x226],
             },
@@ -61,7 +62,7 @@ class ANDROID(USBMS):
             0x502 : { 0x3203 : [0x0100]},
 
             # Dell
-            0x413c : { 0xb007 : [0x0100, 0x0224]},
+            0x413c : { 0xb007 : [0x0100, 0x0224, 0x0226]},
 
             # LG
             0x1004 : { 0x61cc : [0x100], 0x61ce : [0x100], 0x618e : [0x226] },
@@ -108,10 +109,10 @@ class ANDROID(USBMS):
             'SGH-T849', '_MB300', 'A70S', 'S_ANDROID', 'A101IT', 'A70H',
             'IDEOS_TABLET', 'MYTOUCH_4G', 'UMS_COMPOSITE', 'SCH-I800_CARD',
             '7', 'A956', 'A955', 'A43', 'ANDROID_PLATFORM', 'TEGRA_2',
-            'MB860', 'MULTI-CARD', 'MID7015A']
+            'MB860', 'MULTI-CARD', 'MID7015A', 'INCREDIBLE', 'A7EB', 'STREAK']
     WINDOWS_CARD_A_MEM = ['ANDROID_PHONE', 'GT-I9000_CARD', 'SGH-I897',
             'FILE-STOR_GADGET', 'SGH-T959', 'SAMSUNG_ANDROID', 'GT-P1000_CARD',
-            'A70S', 'A101IT', '7']
+            'A70S', 'A101IT', '7', 'INCREDIBLE', 'A7EB', 'SGH-T849_CARD']
 
     OSX_MAIN_MEM = 'Android Device Main Memory'
 

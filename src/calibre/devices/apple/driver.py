@@ -163,6 +163,8 @@ class ITUNES(DriverBase):
         settings()
         set_progress_reporter()
         upload_books()
+         _get_fpath()
+          _update_epub_metadata()
         add_books_to_metadata()
         use_plugboard_ext()
         set_plugboard()
@@ -201,9 +203,11 @@ class ITUNES(DriverBase):
     #  0x1294   iPhone 3GS
     #  0x1297   iPhone 4
     #  0x129a   iPad
-    #  0x12a2   iPad2
+    #  0x129f   iPad2 (WiFi)
+    #  0x12a2   iPad2 (GSM)
+    #  0x12a3   iPad2 (CDMA)
     VENDOR_ID = [0x05ac]
-    PRODUCT_ID = [0x1292,0x1293,0x1294,0x1297,0x1299,0x129a,0x12a2]
+    PRODUCT_ID = [0x1292,0x1293,0x1294,0x1297,0x1299,0x129a,0x129f,0x12a2,0x12a3]
     BCD = [0x01]
 
     # Plugboard ID
@@ -460,7 +464,7 @@ class ITUNES(DriverBase):
 
                             cached_books[this_book.path] = {
                              'title':book.Name,
-                             'author':book.artist().split(' & '),
+                             'author':book.Artist.split(' & '),
                              'lib_book':library_books[this_book.path] if this_book.path in library_books else None,
                              'uuid': book.Composer,
                              'format': 'pdf' if book.KindAsString.startswith('PDF') else 'epub'
@@ -504,7 +508,7 @@ class ITUNES(DriverBase):
         if self.iTunes:
             # Check for connected book-capable device
             self.sources = self._get_sources()
-            if 'iPod' in self.sources:
+            if 'iPod' in self.sources and not self.ejected:
                 #if DEBUG:
                     #sys.stdout.write('.')
                     #sys.stdout.flush()
@@ -2034,16 +2038,17 @@ class ITUNES(DriverBase):
             if 'iPod' in self.sources:
                 connected_device = self.sources['iPod']
                 device = self.iTunes.sources[connected_device]
+                dev_books = None
                 for pl in device.playlists():
                     if pl.special_kind() == appscript.k.Books:
                         if DEBUG:
                             self.log.info("  Book playlist: '%s'" % (pl.name()))
-                        books = pl.file_tracks()
+                        dev_books = pl.file_tracks()
                         break
                 else:
                     self.log.error("  book_playlist not found")
 
-                for book in books:
+                for book in dev_books:
                     # This may need additional entries for international iTunes users
                     if book.kind() in self.Audiobooks:
                         if DEBUG:
@@ -2621,42 +2626,42 @@ class ITUNES(DriverBase):
             # Touch the OPF timestamp
             try:
                 zf_opf = ZipFile(fpath,'r')
+                fnames = zf_opf.namelist()
+                opf = [x for x in fnames if '.opf' in x][0]
             except:
                 raise UserFeedback("'%s' is not a valid EPUB" % metadata.title,
                                    None,
                                    level=UserFeedback.WARN)
-            fnames = zf_opf.namelist()
-            opf = [x for x in fnames if '.opf' in x][0]
-            if opf:
-                opf_tree = etree.fromstring(zf_opf.read(opf))
-                md_els = opf_tree.xpath('.//*[local-name()="metadata"]')
-                if md_els:
-                    ts = md_els[0].find('.//*[@name="calibre:timestamp"]')
-                    if ts is not None:
-                        timestamp = ts.get('content')
-                        old_ts = parse_date(timestamp)
-                        metadata.timestamp = datetime.datetime(old_ts.year, old_ts.month, old_ts.day, old_ts.hour,
-                                                   old_ts.minute, old_ts.second, old_ts.microsecond+1, old_ts.tzinfo)
-                        if DEBUG:
-                            self.log.info("   existing timestamp: %s" % metadata.timestamp)
-                    else:
-                        metadata.timestamp = now()
-                        if DEBUG:
-                            self.log.info("   add timestamp: %s" % metadata.timestamp)
+
+            opf_tree = etree.fromstring(zf_opf.read(opf))
+            md_els = opf_tree.xpath('.//*[local-name()="metadata"]')
+            if md_els:
+                ts = md_els[0].find('.//*[@name="calibre:timestamp"]')
+                if ts is not None:
+                    timestamp = ts.get('content')
+                    old_ts = parse_date(timestamp)
+                    metadata.timestamp = datetime.datetime(old_ts.year, old_ts.month, old_ts.day, old_ts.hour,
+                                               old_ts.minute, old_ts.second, old_ts.microsecond+1, old_ts.tzinfo)
+                    if DEBUG:
+                        self.log.info("   existing timestamp: %s" % metadata.timestamp)
                 else:
                     metadata.timestamp = now()
                     if DEBUG:
-                        self.log.warning("   missing <metadata> block in OPF file")
                         self.log.info("   add timestamp: %s" % metadata.timestamp)
-                # Force the language declaration for iBooks 1.1
-                #metadata.language = get_lang().replace('_', '-')
-
-                # Updates from metadata plugboard (ignoring publisher)
-                metadata.language = metadata_x.language
-
+            else:
+                metadata.timestamp = now()
                 if DEBUG:
-                    if metadata.language != metadata_x.language:
-                        self.log.info("   rewriting language: <dc:language>%s</dc:language>" % metadata.language)
+                    self.log.warning("   missing <metadata> block in OPF file")
+                    self.log.info("   add timestamp: %s" % metadata.timestamp)
+            # Force the language declaration for iBooks 1.1
+            #metadata.language = get_lang().replace('_', '-')
+
+            # Updates from metadata plugboard (ignoring publisher)
+            metadata.language = metadata_x.language
+
+            if DEBUG:
+                if metadata.language != metadata_x.language:
+                    self.log.info("   rewriting language: <dc:language>%s</dc:language>" % metadata.language)
 
             zf_opf.close()
 

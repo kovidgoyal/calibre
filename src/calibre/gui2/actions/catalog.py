@@ -20,6 +20,9 @@ class GenerateCatalogAction(InterfaceAction):
     action_spec = (_('Create a catalog of the books in your calibre library'), 'catalog.png', 'Catalog builder', None)
     dont_add_to = frozenset(['menubar-device', 'toolbar-device', 'context-menu-device'])
 
+    def genesis(self):
+        self.qaction.triggered.connect(self.generate_catalog)
+
     def generate_catalog(self):
         rows = self.gui.library_view.selectionModel().selectedRows()
         if not rows or len(rows) < 2:

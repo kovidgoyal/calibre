@@ -24,7 +24,7 @@ def available_translations():
 
 def get_lang():
     'Try to figure out what language to display the interface in'
-    from calibre.utils.config import prefs
+    from calibre.utils.config_base import prefs
     lang = prefs['language']
     lang = os.environ.get('CALIBRE_OVERRIDE_LANG', lang)
     if lang is not None:

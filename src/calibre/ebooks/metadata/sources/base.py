@@ -25,6 +25,7 @@ msprefs.defaults['max_tags'] = 20
 msprefs.defaults['wait_after_first_identify_result'] = 30 # seconds
 msprefs.defaults['wait_after_first_cover_result'] = 60 # seconds
 msprefs.defaults['swap_author_names'] = False
+msprefs.defaults['fewer_tags'] = True
 
 # Google covers are often poor quality (scans/errors) but they have high
 # resolution, so they trump covers from better sources. So make sure they
@@ -55,7 +56,8 @@ class InternalMetadataCompareKeyGen(object):
 
     '''
     Generate a sort key for comparison of the relevance of Metadata objects,
-    given a search query.
+    given a search query. This is used only to compare results from the same
+    metadata source, not across different sources.
 
     The sort key ensures that an ascending order sort is a sort by order of
     decreasing relevance.
@@ -143,10 +145,13 @@ class Option(object):
         :param default: The default value for this option
         :param label: A short (few words) description of this option
         :param desc: A longer description of this option
-        :param choices: A list of possible values, used only if type='choices'
+        :param choices: A dict of possible values, used only if type='choices'.
+        dict is of the form {key:human readable label, ...}
         '''
         self.name, self.type, self.default, self.label, self.desc = (name,
                 type_, default, label, desc)
+        if choices and not isinstance(choices, dict):
+            choices = dict([(x, x) for x in choices])
         self.choices = choices
 
 class Source(Plugin):
@@ -209,6 +214,9 @@ class Source(Plugin):
 
     def is_customizable(self):
         return True
+
+    def customization_help(self):
+        return 'This plugin can only be customized using the GUI'
 
     def config_widget(self):
         from calibre.gui2.metadata.config import ConfigWidget
@@ -274,30 +282,38 @@ class Source(Plugin):
 
         if authors:
             # Leave ' in there for Irish names
-            pat = re.compile(r'[-,:;+!@#$%^&*(){}.`~"\s\[\]/]')
+            remove_pat = re.compile(r'[,!@#$%^&*(){}`~"\s\[\]/]')
+            replace_pat = re.compile(r'[-+.:;]')
             if only_first_author:
                 authors = authors[:1]
             for au in authors:
+                au = replace_pat.sub(' ', au)
                 parts = au.split()
                 if ',' in au:
                     # au probably in ln, fn form
                     parts = parts[1:] + parts[:1]
                 for tok in parts:
-                    tok = pat.sub('', tok).strip()
-                    if len(tok) > 2 and tok.lower() not in ('von', ):
+                    tok = remove_pat.sub('', tok).strip()
+                    if len(tok) > 2 and tok.lower() not in ('von', 'van',
+                            _('Unknown').lower()):
                         yield tok
 
-
-    def get_title_tokens(self, title):
+    def get_title_tokens(self, title, strip_joiners=True, strip_subtitle=False):
         '''
         Take a title and return a list of tokens useful for an AND search query.
-        Excludes connectives and punctuation.
+        Excludes connectives(optionally) and punctuation.
         '''
         if title:
+            # strip sub-titles
+            if strip_subtitle:
+                subtitle = re.compile(r'([\(\[\{].*?[\)\]\}]|[/:\\].*$)')
+                if len(subtitle.sub('', title)) > 1:
+                    title = subtitle.sub('', title)
+
             title_patterns = [(re.compile(pat, re.IGNORECASE), repl) for pat, repl in
             [
                 # Remove things like: (2010) (Omnibus) etc.
-                (r'(?i)[({\[](\d{4}|omnibus|anthology|hardcover|paperback|mass\s*market|edition|ed\.)[\])}]', ''),
+                (r'(?i)[({\[](\d{4}|omnibus|anthology|hardcover|paperback|turtleback|mass\s*market|edition|ed\.)[\])}]', ''),
                 # Remove any strings that contain the substring edition inside
                 # parentheses
                 (r'(?i)[({\[].*?(edition|ed.).*?[\]})]', ''),
@@ -305,17 +321,20 @@ class Source(Plugin):
                 (r'(\d+),(\d+)', r'\1\2'),
                 # Remove hyphens only if they have whitespace before them
                 (r'(\s-)', ' '),
-                # Remove single quotes
-                (r"'", ''),
+                # Remove single quotes not followed by 's'
+                (r"'(?!s)", ''),
                 # Replace other special chars with a space
                 (r'''[:,;+!@#$%^&*(){}.`~"\s\[\]/]''', ' ')
             ]]
+
             for pat, repl in title_patterns:
                 title = pat.sub(repl, title)
+
             tokens = title.split()
             for token in tokens:
                 token = token.strip()
-                if token and token.lower() not in ('a', 'and', 'the'):
+                if token and (not strip_joiners or token.lower() not in ('a',
+                    'and', 'the', '&')):
                     yield token
 
     def split_jobs(self, jobs, num):
@@ -362,8 +381,17 @@ class Source(Plugin):
 
     def get_book_url(self, identifiers):
         '''
-        Return the URL for the book identified by identifiers at this source.
-        If no URL is found, return None.
+        Return a 3-tuple or None. The 3-tuple is of the form:
+        (identifier_type, identifier_value, URL).
+        The URL is the URL for the book identified by identifiers at this
+        source. identifier_type, identifier_value specify the identifier
+        corresponding to the URL.
+        This URL must be browseable to by a human using a browser. It is meant
+        to provide a clickable link for the user to easily visit the books page
+        at this source.
+        If no URL is found, return None. This method must be quick, and
+        consistent, so only implement it if it is possible to construct the URL
+        from a known scheme given identifiers.
         '''
         return None
 

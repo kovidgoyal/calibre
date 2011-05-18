@@ -15,7 +15,8 @@ from math import ceil
 from PyQt4.QtGui import QImage
 
 from calibre import prints
-from calibre.ebooks.metadata import title_sort, author_to_author_sort
+from calibre.ebooks.metadata import (title_sort, author_to_author_sort,
+        string_to_authors, authors_to_string)
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.library.database import LibraryDatabase
 from calibre.library.field_metadata import FieldMetadata, TagsIcons
@@ -24,9 +25,7 @@ from calibre.library.caches import ResultCache
 from calibre.library.custom_columns import CustomColumns
 from calibre.library.sqlite import connect, IntegrityError
 from calibre.library.prefs import DBPrefs
-from calibre.ebooks.metadata import string_to_authors, authors_to_string
 from calibre.ebooks.metadata.book.base import Metadata
-from calibre.ebooks.metadata.meta import get_metadata, metadata_from_formats
 from calibre.constants import preferred_encoding, iswindows, isosx, filesystem_encoding
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.customize.ui import run_plugins_on_import
@@ -34,7 +33,7 @@ from calibre import isbytestring
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.date import utcnow, now as nowf, utcfromtimestamp
 from calibre.utils.config import prefs, tweaks, from_json, to_json
-from calibre.utils.icu import sort_key
+from calibre.utils.icu import sort_key, strcmp
 from calibre.utils.search_query_parser import saved_searches, set_saved_searches
 from calibre.ebooks import BOOK_EXTENSIONS, check_ebook_format
 from calibre.utils.magick.draw import save_cover_data_to
@@ -465,9 +464,12 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             self.refresh_ondevice = None
 
     def initialize_database(self):
-        metadata_sqlite = open(P('metadata_sqlite.sql'), 'rb').read()
+        metadata_sqlite = P('metadata_sqlite.sql', data=True,
+                allow_user_override=False).decode('utf-8')
         self.conn.executescript(metadata_sqlite)
-        self.user_version = 1
+        self.conn.commit()
+        if self.user_version == 0:
+            self.user_version = 1
 
     def last_modified(self):
         ''' Return last modified time as a UTC datetime object'''
@@ -853,6 +855,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         mi.pubdate     = row[fm['pubdate']]
         mi.uuid        = row[fm['uuid']]
         mi.title_sort  = row[fm['sort']]
+        mi.book_size   = row[fm['size']]
         mi.last_modified = row[fm['last_modified']]
         formats = row[fm['formats']]
         if not formats:
@@ -1378,13 +1381,15 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             for (cat, dex, mult, is_comp) in md:
                 if not book[dex]:
                     continue
+                tid_cat = tids[cat]
+                tcats_cat = tcategories[cat]
                 if not mult:
                     val = book[dex]
                     if is_comp:
-                        item = tcategories[cat].get(val, None)
+                        item = tcats_cat.get(val, None)
                         if not item:
                             item = tag_class(val, val)
-                            tcategories[cat][val] = item
+                            tcats_cat[val] = item
                         item.c += 1
                         item.id = val
                         if rating > 0:
@@ -1392,11 +1397,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                             item.rc += 1
                         continue
                     try:
-                        (item_id, sort_val) = tids[cat][val] # let exceptions fly
-                        item = tcategories[cat].get(val, None)
+                        (item_id, sort_val) = tid_cat[val] # let exceptions fly
+                        item = tcats_cat.get(val, None)
                         if not item:
                             item = tag_class(val, sort_val)
-                            tcategories[cat][val] = item
+                            tcats_cat[val] = item
                         item.c += 1
                         item.id_set.add(book[0])
                         item.id = item_id
@@ -1410,21 +1415,15 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     if is_comp:
                         vals = [v.strip() for v in vals if v.strip()]
                         for val in vals:
-                            if val not in tids:
-                                tids[cat][val] = (val, val)
-                            item = tcategories[cat].get(val, None)
-                            if not item:
-                                item = tag_class(val, val)
-                                tcategories[cat][val] = item
-                            item.c += 1
-                            item.id = val
+                            if val not in tid_cat:
+                                tid_cat[val] = (val, val)
                     for val in vals:
                         try:
-                            (item_id, sort_val) = tids[cat][val] # let exceptions fly
-                            item = tcategories[cat].get(val, None)
+                            (item_id, sort_val) = tid_cat[val] # let exceptions fly
+                            item = tcats_cat.get(val, None)
                             if not item:
                                 item = tag_class(val, sort_val)
-                                tcategories[cat][val] = item
+                                tcats_cat[val] = item
                             item.c += 1
                             item.id_set.add(book[0])
                             item.id = item_id
@@ -1760,7 +1759,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         return books_to_refresh
 
     def set_metadata(self, id, mi, ignore_errors=False, set_title=True,
-                     set_authors=True, commit=True, force_changes=False):
+                     set_authors=True, commit=True, force_changes=False,
+                     notify=True):
         '''
         Set metadata for the book `id` from the `Metadata` object `mi`
 
@@ -1869,7 +1869,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                          label=user_mi[key]['label'], commit=False)
         if commit:
             self.conn.commit()
-        self.notify('metadata', [id])
+        if notify:
+            self.notify('metadata', [id])
 
     def authors_sort_strings(self, id, index_is_id=False):
         '''
@@ -1919,6 +1920,18 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 result.append(r)
         return ' & '.join(result).replace('|', ',')
 
+    def _update_author_in_cache(self, id_, ss, final_authors):
+        self.conn.execute('UPDATE books SET author_sort=? WHERE id=?', (ss, id_))
+        self.data.set(id_, self.FIELD_MAP['authors'],
+                      ','.join([a.replace(',', '|') for a in final_authors]),
+                      row_is_id=True)
+        self.data.set(id_, self.FIELD_MAP['author_sort'], ss, row_is_id=True)
+
+        aum = self.authors_with_sort_strings(id_, index_is_id=True)
+        self.data.set(id_, self.FIELD_MAP['au_map'],
+            ':#:'.join([':::'.join((au.replace(',', '|'), aus)) for (au, aus) in aum]),
+            row_is_id=True)
+
     def _set_authors(self, id, authors, allow_case_change=False):
         if not authors:
             authors = [_('Unknown')]
@@ -1932,14 +1945,17 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             a = a.strip().replace(',', '|')
             if not isinstance(a, unicode):
                 a = a.decode(preferred_encoding, 'replace')
-            aus = self.conn.get('SELECT id, name FROM authors WHERE name=?', (a,))
+            aus = self.conn.get('SELECT id, name, sort FROM authors WHERE name=?', (a,))
             if aus:
-                aid, name = aus[0]
+                aid, name, sort = aus[0]
                 # Handle change of case
                 if name != a:
                     if allow_case_change:
-                        self.conn.execute('''UPDATE authors
-                                            SET name=? WHERE id=?''', (a, aid))
+                        ns = author_to_author_sort(a.replace('|', ','))
+                        if strcmp(sort, ns) == 0:
+                            sort = ns
+                        self.conn.execute('''UPDATE authors SET name=?, sort=?
+                                             WHERE id=?''', (a, sort, aid))
                         case_change = True
                     else:
                         a = name
@@ -1956,17 +1972,14 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 bks = self.conn.get('''SELECT book FROM books_authors_link
                                        WHERE author=?''', (aid,))
                 books_to_refresh |= set([bk[0] for bk in bks])
+                for bk in books_to_refresh:
+                    ss = self.author_sort_from_book(id, index_is_id=True)
+                    aus = self.author_sort(bk, index_is_id=True)
+                    if strcmp(aus, ss) ==  0:
+                        self._update_author_in_cache(bk, ss, final_authors)
+        # This can repeat what was done above in rare cases. Let it.
         ss = self.author_sort_from_book(id, index_is_id=True)
-        self.conn.execute('UPDATE books SET author_sort=? WHERE id=?',
-                          (ss, id))
-        self.data.set(id, self.FIELD_MAP['authors'],
-                      ','.join([a.replace(',', '|') for a in final_authors]),
-                      row_is_id=True)
-        self.data.set(id, self.FIELD_MAP['author_sort'], ss, row_is_id=True)
-        aum = self.authors_with_sort_strings(id, index_is_id=True)
-        self.data.set(id, self.FIELD_MAP['au_map'],
-            ':#:'.join([':::'.join((au.replace(',', '|'), aus)) for (au, aus) in aum]),
-            row_is_id=True)
+        self._update_author_in_cache(id, ss, final_authors)
         return books_to_refresh
 
     def set_authors(self, id, authors, notify=True, commit=True,
@@ -2006,8 +2019,16 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             return False
         if isbytestring(title):
             title = title.decode(preferred_encoding, 'replace')
+        old_title = self.title(id, index_is_id=True)
+        # We cannot check if old_title == title as previous code might have
+        # already updated the cache
+        only_case_change = icu_lower(old_title) == icu_lower(title)
         self.conn.execute('UPDATE books SET title=? WHERE id=?', (title, id))
         self.data.set(id, self.FIELD_MAP['title'], title, row_is_id=True)
+        if only_case_change:
+            # SQLite update trigger will not update sort on a case change
+            self.conn.execute('UPDATE books SET sort=? WHERE id=?',
+                    (title_sort(title), id))
         ts = self.conn.get('SELECT sort FROM books WHERE id=?', (id,),
                 all=False)
         if ts:
@@ -2262,6 +2283,12 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         result = self.conn.get('SELECT id,name,sort FROM authors')
         if not result:
             return []
+        return result
+
+    def get_author_id(self, author):
+        author = author.replace(',', '|')
+        result = self.conn.get('SELECT id FROM authors WHERE name=?',
+                               (author,), all=False)
         return result
 
     def set_sort_field_for_author(self, old_id, new_sort, commit=True, notify=False):
@@ -2732,6 +2759,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.set_identifier(id_, 'isbn', isbn, notify=notify, commit=commit)
 
     def add_catalog(self, path, title):
+        from calibre.ebooks.metadata.meta import get_metadata
+
         format = os.path.splitext(path)[1][1:].lower()
         with lopen(path, 'rb') as stream:
             matches = self.data.get_matches('title', '='+title)
@@ -2767,6 +2796,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
 
     def add_news(self, path, arg):
+        from calibre.ebooks.metadata.meta import get_metadata
+
         format = os.path.splitext(path)[1][1:].lower()
         stream = path if hasattr(path, 'read') else lopen(path, 'rb')
         stream.seek(0)
@@ -3025,7 +3056,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         '''
         if prefix is None:
             prefix = self.library_path
-        FIELDS = set(['title', 'authors', 'author_sort', 'publisher', 'rating',
+        FIELDS = set(['title', 'sort', 'authors', 'author_sort', 'publisher', 'rating',
             'timestamp', 'size', 'tags', 'comments', 'series', 'series_index',
             'uuid', 'pubdate', 'last_modified', 'identifiers'])
         for x in self.custom_column_num_map:
@@ -3160,6 +3191,8 @@ books_series_link      feeds
                 yield formats
 
     def import_book_directory_multiple(self, dirpath, callback=None):
+        from calibre.ebooks.metadata.meta import metadata_from_formats
+
         duplicates = []
         for formats in self.find_books_in_directory(dirpath, False):
             mi = metadata_from_formats(formats)
@@ -3175,6 +3208,7 @@ books_series_link      feeds
         return duplicates
 
     def import_book_directory(self, dirpath, callback=None):
+        from calibre.ebooks.metadata.meta import metadata_from_formats
         dirpath = os.path.abspath(dirpath)
         formats = self.find_books_in_directory(dirpath, True)
         formats = list(formats)[0]
@@ -3201,7 +3235,6 @@ books_series_link      feeds
             if callable(callback):
                 if callback(''):
                     break
-
         return duplicates
 
     def add_custom_book_data(self, book_id, name, val):
@@ -3210,10 +3243,17 @@ books_series_link      feeds
             raise ValueError('add_custom_book_data: no such book_id %d'%book_id)
         # Do the json encode first, in case it throws an exception
         s = json.dumps(val, default=to_json)
-        self.conn.execute('DELETE FROM books_plugin_data WHERE book=? AND name=?',
-                          (book_id, name))
-        self.conn.execute('''INSERT INTO books_plugin_data(book, name, val)
+        self.conn.execute('''INSERT OR REPLACE INTO books_plugin_data(book, name, val)
                              VALUES(?, ?, ?)''', (book_id, name, s))
+        self.commit()
+
+    def add_multiple_custom_book_data(self, name, vals, delete_first=False):
+        if delete_first:
+            self.conn.execute('DELETE FROM books_plugin_data WHERE name=?', (name, ))
+        self.conn.executemany(
+            'INSERT OR REPLACE INTO books_plugin_data (book, name, val) VALUES (?, ?, ?)',
+            [(book_id, name, json.dumps(val, default=to_json))
+                    for book_id, val in vals.iteritems()])
         self.commit()
 
     def get_custom_book_data(self, book_id, name, default=None):
@@ -3227,9 +3267,27 @@ books_series_link      feeds
             pass
         return default
 
+    def get_all_custom_book_data(self, name, default=None):
+        try:
+            s = self.conn.get('''select book, val FROM books_plugin_data
+                    WHERE name=?''', (name,))
+            if s is None:
+                return default
+            res = {}
+            for r in s:
+                res[r[0]] = json.loads(r[1], object_hook=from_json)
+            return res
+        except:
+            pass
+        return default
+
     def delete_custom_book_data(self, book_id, name):
         self.conn.execute('DELETE FROM books_plugin_data WHERE book=? AND name=?',
                           (book_id, name))
+        self.commit()
+
+    def delete_all_custom_book_data(self, name):
+        self.conn.execute('DELETE FROM books_plugin_data WHERE name=?', (name, ))
         self.commit()
 
     def get_ids_for_custom_book_data(self, name):

@@ -11,7 +11,7 @@
 						SummaryCodepage='1252' />
 
                 <Media Id="1" Cabinet="{app}.cab" CompressionLevel="{compression}" EmbedCab="yes" />
-                
+
                 <Upgrade Id="{upgrade_code}">
                     <UpgradeVersion Maximum="{version}"
                        IncludeMaximum="yes"

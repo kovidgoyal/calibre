@@ -187,7 +187,7 @@ class LUMIREAD(USBMS):
             cfilepath = cfilepath.replace(os.sep+'books'+os.sep,
                     os.sep+'covers'+os.sep, 1)
             pdir = os.path.dirname(cfilepath)
-            if not os.exists(pdir):
+            if not os.path.exists(pdir):
                 os.makedirs(pdir)
             with open(cfilepath+'.jpg', 'wb') as f:
                 f.write(metadata.thumbnail[-1])

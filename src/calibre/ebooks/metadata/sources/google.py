@@ -157,7 +157,7 @@ def to_metadata(browser, log, entry_, timeout): # {{{
 class GoogleBooks(Source):
 
     name = 'Google'
-    description = _('Downloads metadata from Google Books')
+    description = _('Downloads metadata and covers from Google Books')
 
     capabilities = frozenset(['identify', 'cover'])
     touched_fields = frozenset(['title', 'authors', 'tags', 'pubdate',
@@ -173,7 +173,7 @@ class GoogleBooks(Source):
     def get_book_url(self, identifiers): # {{{
         goog = identifiers.get('google', None)
         if goog is not None:
-            return 'http://books.google.com/books?id=%s'%goog
+            return ('google', goog, 'http://books.google.com/books?id=%s'%goog)
     # }}}
 
     def create_query(self, log, title=None, authors=None, identifiers={}): # {{{

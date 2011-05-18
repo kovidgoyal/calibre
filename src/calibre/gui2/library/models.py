@@ -8,21 +8,20 @@ __docformat__ = 'restructuredtext en'
 import shutil, functools, re, os, traceback
 from contextlib import closing
 
-from PyQt4.Qt import QAbstractTableModel, Qt, pyqtSignal, QIcon, QImage, \
-        QModelIndex, QVariant, QDate, QColor
+from PyQt4.Qt import (QAbstractTableModel, Qt, pyqtSignal, QIcon, QImage,
+        QModelIndex, QVariant, QDate, QColor)
 
-from calibre.gui2 import NONE, config, UNDEFINED_QDATE
+from calibre.gui2 import NONE, UNDEFINED_QDATE
 from calibre.utils.pyparsing import ParseException
 from calibre.ebooks.metadata import fmt_sidx, authors_to_string, string_to_authors
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import tweaks, prefs
-from calibre.utils.date import dt_factory, qt_to_dt, isoformat
+from calibre.utils.date import dt_factory, qt_to_dt
 from calibre.utils.icu import sort_key
-from calibre.ebooks.metadata.meta import set_metadata as _set_metadata
 from calibre.utils.search_query_parser import SearchQueryParser
-from calibre.library.caches import _match, CONTAINS_MATCH, EQUALS_MATCH, \
-    REGEXP_MATCH, MetadataBackup, force_to_bool
-from calibre import strftime, isbytestring, prepare_string_for_xml
+from calibre.library.caches import (_match, CONTAINS_MATCH, EQUALS_MATCH,
+    REGEXP_MATCH, MetadataBackup, force_to_bool)
+from calibre import strftime, isbytestring
 from calibre.constants import filesystem_encoding, DEBUG
 from calibre.gui2.library import DEFAULT_SORT
 
@@ -71,6 +70,7 @@ class BooksModel(QAbstractTableModel): # {{{
                         'publisher' : _("Publisher"),
                         'tags'      : _("Tags"),
                         'series'    : _("Series"),
+                        'last_modified' : _('Modified'),
     }
 
     def __init__(self, parent=None, buffer=40):
@@ -115,7 +115,7 @@ class BooksModel(QAbstractTableModel): # {{{
         return cc_label in self.custom_columns
 
     def read_config(self):
-        self.use_roman_numbers = config['use_roman_numerals_for_series_number']
+        pass
 
     def set_device_connected(self, is_connected):
         self.device_connected = is_connected
@@ -356,63 +356,13 @@ class BooksModel(QAbstractTableModel): # {{{
         return self.rowCount(None)
 
     def get_book_display_info(self, idx):
-        def custom_keys_to_display():
-            ans = getattr(self, '_custom_fields_in_book_info', None)
-            if ans is None:
-                cfkeys = set(self.db.custom_field_keys())
-                yes_fields = set(tweaks['book_details_will_display'])
-                no_fields = set(tweaks['book_details_wont_display'])
-                if '*' in yes_fields:
-                    yes_fields = cfkeys
-                if '*' in no_fields:
-                    no_fields = cfkeys
-                ans = frozenset(yes_fields - no_fields)
-                setattr(self, '_custom_fields_in_book_info', ans)
-            return ans
-
-        data = {}
-        cdata = self.cover(idx)
-        if cdata:
-            data['cover'] = cdata
-        tags = list(self.db.get_tags(self.db.id(idx)))
-        if tags:
-            tags.sort(key=sort_key)
-            tags = ', '.join(tags)
-        else:
-            tags = _('None')
-        data[_('Tags')] = tags
-        formats = self.db.formats(idx)
-        if formats:
-            formats = formats.replace(',', ', ')
-        else:
-            formats = _('None')
-        data[_('Formats')] = formats
-        data[_('Path')] = self.db.abspath(idx)
-        data['id'] = self.id(idx)
-        comments = self.db.comments(idx)
-        if not comments:
-            comments = _('None')
-        data[_('Comments')] = comments
-        series = self.db.series(idx)
-        if series:
-            sidx = self.db.series_index(idx)
-            sidx = fmt_sidx(sidx, use_roman = self.use_roman_numbers)
-            data[_('Series')] = \
-                _('Book %s of %s.')%\
-                    (sidx, prepare_string_for_xml(series))
         mi = self.db.get_metadata(idx)
-        cf_to_display = custom_keys_to_display()
-        for key in mi.custom_field_keys():
-            if key not in cf_to_display:
-                continue
-            name, val = mi.format_field(key)
-            if mi.metadata_for_field(key)['datatype'] == 'comments':
-                name += ':html'
-            if val and name not in data:
-                data[name] = val
-
-        return data
-
+        mi.size = mi.book_size
+        mi.cover_data = ('jpg', self.cover(idx))
+        mi.id = self.db.id(idx)
+        mi.field_metadata = self.db.field_metadata
+        mi.path = self.db.abspath(idx, create_dirs=False)
+        return mi
 
     def current_changed(self, current, previous, emit_signal=True):
         if current.isValid():
@@ -426,16 +376,8 @@ class BooksModel(QAbstractTableModel): # {{{
     def get_book_info(self, index):
         if isinstance(index, int):
             index = self.index(index, 0)
+        # If index is not valid returns None
         data = self.current_changed(index, None, False)
-        if data is None:
-            return data
-        row = index.row()
-        data[_('Title')] = self.db.title(row)
-        au = self.db.authors(row)
-        if not au:
-            au = _('Unknown')
-        au = authors_to_string([a.strip().replace('|', ',') for a in au.split(',')])
-        data[_('Author(s)')] = au
         return data
 
     def metadata_for(self, ids):
@@ -478,6 +420,7 @@ class BooksModel(QAbstractTableModel): # {{{
     def get_preferred_formats_from_ids(self, ids, formats,
                               set_metadata=False, specific_format=None,
                               exclude_auto=False, mode='r+b'):
+        from calibre.ebooks.metadata.meta import set_metadata as _set_metadata
         ans = []
         need_auto = []
         if specific_format is not None:
@@ -526,6 +469,7 @@ class BooksModel(QAbstractTableModel): # {{{
     def get_preferred_formats(self, rows, formats, paths=False,
                               set_metadata=False, specific_format=None,
                               exclude_auto=False):
+        from calibre.ebooks.metadata.meta import set_metadata as _set_metadata
         ans = []
         need_auto = []
         if specific_format is not None:
@@ -561,6 +505,9 @@ class BooksModel(QAbstractTableModel): # {{{
 
     def id(self, row):
         return self.db.id(getattr(row, 'row', lambda:row)())
+
+    def authors(self, row_number):
+        return self.db.authors(row_number)
 
     def title(self, row_number):
         return self.db.title(row_number)
@@ -677,6 +624,8 @@ class BooksModel(QAbstractTableModel): # {{{
                                 idx=self.db.field_metadata['timestamp']['rec_index']),
                    'pubdate'  : functools.partial(datetime_type,
                                 idx=self.db.field_metadata['pubdate']['rec_index']),
+                   'last_modified': functools.partial(datetime_type,
+                                idx=self.db.field_metadata['last_modified']['rec_index']),
                    'rating'   : functools.partial(rating_type,
                                 idx=self.db.field_metadata['rating']['rec_index']),
                    'publisher': functools.partial(text_type,
@@ -1188,39 +1137,46 @@ class DeviceBooksModel(BooksModel): # {{{
             img = self.default_image
         return img
 
-    def current_changed(self, current, previous):
-        data = {}
-        item = self.db[self.map[current.row()]]
-        cover = self.cover(current.row())
-        if cover is not self.default_image:
-            data['cover'] = cover
-        type = _('Unknown')
+    def get_book_display_info(self, idx):
+        from calibre.ebooks.metadata.book.base import Metadata
+        item = self.db[self.map[idx]]
+        cover = self.cover(idx)
+        if cover is self.default_image:
+            cover = None
+        title = item.title
+        if not title:
+            title = _('Unknown')
+        au = item.authors
+        if not au:
+            au = [_('Unknown')]
+        mi = Metadata(title, au)
+        mi.cover_data = ('jpg', cover)
+        fmt = _('Unknown')
         ext = os.path.splitext(item.path)[1]
         if ext:
-            type = ext[1:].lower()
-        data[_('Format')] = type
-        data[_('Path')] = item.path
+            fmt = ext[1:].lower()
+        mi.formats = [fmt]
+        mi.path = (item.path if item.path else None)
         dt = dt_factory(item.datetime, assume_utc=True)
-        data[_('Timestamp')] = isoformat(dt, sep=' ', as_utc=False)
-        data[_('Collections')] = ', '.join(item.device_collections)
-
-        tags = getattr(item, 'tags', None)
-        if tags:
-            tags = u', '.join(tags)
-        else:
-            tags = _('None')
-        data[_('Tags')] = tags
-        comments = getattr(item, 'comments', None)
-        if not comments:
-            comments = _('None')
-        data[_('Comments')] = comments
+        mi.timestamp = dt
+        mi.device_collections = list(item.device_collections)
+        mi.tags = list(getattr(item, 'tags', []))
+        mi.comments = getattr(item, 'comments', None)
         series = getattr(item, 'series', None)
         if series:
             sidx = getattr(item, 'series_index', 0)
-            sidx = fmt_sidx(sidx, use_roman = self.use_roman_numbers)
-            data[_('Series')] = _('Book <font face="serif">%s</font> of %s.')%(sidx, series)
+            mi.series = series
+            mi.series_index = sidx
+        return mi
 
-        self.new_bookdisplay_data.emit(data)
+    def current_changed(self, current, previous, emit_signal=True):
+        if current.isValid():
+            idx = current.row()
+            data = self.get_book_display_info(idx)
+            if emit_signal:
+                self.new_bookdisplay_data.emit(data)
+            else:
+                return data
 
     def paths(self, rows):
         return [self.db[self.map[r.row()]].path for r in rows ]
@@ -1280,7 +1236,7 @@ class DeviceBooksModel(BooksModel): # {{{
             elif cname == 'authors':
                 au = self.db[self.map[row]].authors
                 if not au:
-                    au = self.unknown
+                    au = [_('Unknown')]
                 return QVariant(authors_to_string(au))
             elif cname == 'size':
                 size = self.db[self.map[row]].size

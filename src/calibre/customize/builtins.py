@@ -1,4 +1,5 @@
-import os.path
+# -*- coding: utf-8 -*-
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
@@ -9,8 +10,6 @@ from calibre.customize import FileTypePlugin, MetadataReaderPlugin, \
 from calibre.constants import numeric_version
 from calibre.ebooks.metadata.archive import ArchiveExtract, get_cbz_metadata
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
-from calibre.ebooks.oeb.base import OEB_IMAGES
-from calibre.utils.config import test_eight_code
 
 # To archive plugins {{{
 class HTML2ZIP(FileTypePlugin):
@@ -98,6 +97,8 @@ class TXT2TXTZ(FileTypePlugin):
     on_import = True
 
     def _get_image_references(self, txt, base_dir):
+        from calibre.ebooks.oeb.base import OEB_IMAGES
+
         images = []
 
         # Textile
@@ -595,6 +596,7 @@ from calibre.devices.jetbook.driver import JETBOOK, MIBUK, JETBOOK_MINI
 from calibre.devices.kindle.driver import KINDLE, KINDLE2, KINDLE_DX
 from calibre.devices.nook.driver import NOOK, NOOK_COLOR
 from calibre.devices.prs505.driver import PRS505
+from calibre.devices.user_defined.driver import USER_DEFINED
 from calibre.devices.android.driver import ANDROID, S60
 from calibre.devices.nokia.driver import N770, N810, E71X, E52
 from calibre.devices.eslick.driver import ESLICK, EBK52
@@ -612,6 +614,7 @@ from calibre.devices.misc import PALMPRE, AVANT, SWEEX, PDNOVEL, \
 from calibre.devices.folder_device.driver import FOLDER_DEVICE_FOR_CONFIG
 from calibre.devices.kobo.driver import KOBO
 from calibre.devices.bambook.driver import BAMBOOK
+from calibre.devices.boeye.driver import BOEYE_BEX, BOEYE_BDX
 
 from calibre.library.catalog import CSV_XML, EPUB_MOBI, BIBTEX
 from calibre.ebooks.epub.fix.unmanifested import Unmanifested
@@ -620,27 +623,17 @@ from calibre.ebooks.epub.fix.epubcheck import Epubcheck
 plugins = [HTML2ZIP, PML2PMLZ, TXT2TXTZ, ArchiveExtract, CSV_XML, EPUB_MOBI, BIBTEX, Unmanifested,
         Epubcheck, ]
 
-if test_eight_code:
 # New metadata download plugins {{{
-    from calibre.ebooks.metadata.sources.google import GoogleBooks
-    from calibre.ebooks.metadata.sources.amazon import Amazon
-    from calibre.ebooks.metadata.sources.openlibrary import OpenLibrary
-    from calibre.ebooks.metadata.sources.isbndb import ISBNDB
+from calibre.ebooks.metadata.sources.google import GoogleBooks
+from calibre.ebooks.metadata.sources.amazon import Amazon
+from calibre.ebooks.metadata.sources.openlibrary import OpenLibrary
+from calibre.ebooks.metadata.sources.isbndb import ISBNDB
+from calibre.ebooks.metadata.sources.overdrive import OverDrive
+from calibre.ebooks.metadata.sources.douban import Douban
 
-    plugins += [GoogleBooks, Amazon, OpenLibrary, ISBNDB]
+plugins += [GoogleBooks, Amazon, OpenLibrary, ISBNDB, OverDrive, Douban]
 
 # }}}
-else:
-    from calibre.ebooks.metadata.fetch import GoogleBooks, ISBNDB, Amazon, \
-        KentDistrictLibrary
-    from calibre.ebooks.metadata.douban import DoubanBooks
-    from calibre.ebooks.metadata.nicebooks import NiceBooks, NiceBooksCovers
-    from calibre.ebooks.metadata.covers import OpenLibraryCovers, \
-            AmazonCovers, DoubanCovers
-
-    plugins += [GoogleBooks, ISBNDB, Amazon,
-        OpenLibraryCovers, AmazonCovers, DoubanCovers,
-        NiceBooksCovers, KentDistrictLibrary, DoubanBooks, NiceBooks]
 
 plugins += [
     ComicInput,
@@ -753,6 +746,9 @@ plugins += [
     EEEREADER,
     NEXTBOOK,
     ITUNES,
+    BOEYE_BEX,
+    BOEYE_BDX,
+    USER_DEFINED,
 ]
 plugins += [x for x in list(locals().values()) if isinstance(x, type) and \
                                         x.__name__.endswith('MetadataReader')]
@@ -865,10 +861,7 @@ plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,
         ActionRestart, ActionOpenFolder, ActionConnectShare,
         ActionSendToDevice, ActionHelp, ActionPreferences, ActionSimilarBooks,
         ActionAddToLibrary, ActionEditCollections, ActionChooseLibrary,
-        ActionCopyToLibrary, ActionTweakEpub, ActionNextMatch]
-
-if test_eight_code:
-    plugins += [ActionStore]
+        ActionCopyToLibrary, ActionTweakEpub, ActionNextMatch, ActionStore]
 
 # }}}
 
@@ -1094,18 +1087,32 @@ class Misc(PreferencesPlugin):
 
 plugins += [LookAndFeel, Behavior, Columns, Toolbar, Search, InputOptions,
         CommonOptions, OutputOptions, Adding, Saving, Sending, Plugboard,
-        Email, Server, Plugins, Tweaks, Misc, TemplateFunctions]
-
-if test_eight_code:
-    plugins.append(MetadataSources)
+        Email, Server, Plugins, Tweaks, Misc, TemplateFunctions,
+        MetadataSources]
 
 #}}}
 
 # Store plugins {{{
 class StoreAmazonKindleStore(StoreBase):
     name = 'Amazon Kindle'
-    description = _('Kindle books from Amazon')
+    description = _('Kindle books from Amazon.')
     actual_plugin = 'calibre.gui2.store.amazon_plugin:AmazonKindleStore'
+
+class StoreAmazonDEKindleStore(StoreBase):
+    name = 'Amazon DE Kindle'
+    description = _('Kindle books from Amazon.de.')
+    actual_plugin = 'calibre.gui2.store.amazon_de_plugin:AmazonDEKindleStore'
+
+class StoreAmazonUKKindleStore(StoreBase):
+    name = 'Amazon UK Kindle'
+    description = _('Kindle books from Amazon.uk.')
+    actual_plugin = 'calibre.gui2.store.amazon_uk_plugin:AmazonUKKindleStore'
+
+class StoreArchiveOrgStore(StoreBase):
+    name = 'Archive.org'
+    description = _('Free Books : Download & Streaming : Ebook  and Texts Archive : Internet Archive.')
+    actual_plugin = 'calibre.gui2.store.archive_org_plugin:ArchiveOrgStore'
+
 
 class StoreBaenWebScriptionStore(StoreBase):
     name = 'Baen WebScription'
@@ -1116,6 +1123,11 @@ class StoreBNStore(StoreBase):
     name = 'Barnes and Noble'
     description = _('Books, Textbooks, eBooks, Toys, Games and More.')
     actual_plugin = 'calibre.gui2.store.bn_plugin:BNStore'
+
+class StoreBeamEBooksDEStore(StoreBase):
+    name = 'Beam EBooks DE'
+    description = _('Der eBook Shop.')
+    actual_plugin = 'calibre.gui2.store.beam_ebooks_de_plugin:BeamEBooksDEStore'
 
 class StoreBeWriteStore(StoreBase):
     name = 'BeWrite Books'
@@ -1132,15 +1144,30 @@ class StoreEbookscomStore(StoreBase):
     description = _('The digital bookstore.')
     actual_plugin = 'calibre.gui2.store.ebooks_com_plugin:EbookscomStore'
 
-class StoreEHarlequinStoretore(StoreBase):
+class StoreEPubBuyDEStore(StoreBase):
+    name = 'EPUBBuy DE'
+    description = _('EPUBReaders eBook Shop.')
+    actual_plugin = 'calibre.gui2.store.epubbuy_de_plugin:EPubBuyDEStore'
+
+class StoreEHarlequinStore(StoreBase):
     name = 'eHarlequin'
-    description = _('entertain, enrich, inspire.')
+    description = _('Entertain, enrich, inspire.')
     actual_plugin = 'calibre.gui2.store.eharlequin_plugin:EHarlequinStore'
 
 class StoreFeedbooksStore(StoreBase):
     name = 'Feedbooks'
     description = _('Read anywhere.')
     actual_plugin = 'calibre.gui2.store.feedbooks_plugin:FeedbooksStore'
+
+class StoreFoylesUKStore(StoreBase):
+    name = 'Foyles UK'
+    description = _('Foyles of London, online.')
+    actual_plugin = 'calibre.gui2.store.foyles_uk_plugin:FoylesUKStore'
+
+class StoreGoogleBooksStore(StoreBase):
+    name = 'Google Books'
+    description = _('Google Books')
+    actual_plugin = 'calibre.gui2.store.google_books_plugin:GoogleBooksStore'
 
 class StoreGutenbergStore(StoreBase):
     name = 'Project Gutenberg'
@@ -1159,8 +1186,13 @@ class StoreManyBooksStore(StoreBase):
 
 class StoreMobileReadStore(StoreBase):
     name = 'MobileRead'
-    description = _('Ebooks handcrafted with the utmost care')
-    actual_plugin = 'calibre.gui2.store.mobileread_plugin:MobileReadStore'
+    description = _('Ebooks handcrafted with the utmost care.')
+    actual_plugin = 'calibre.gui2.store.mobileread.mobileread_plugin:MobileReadStore'
+
+class StoreNextoStore(StoreBase):
+    name = 'Nexto'
+    description = _('Audiobooki mp3, ebooki, prasa - księgarnia internetowa.')
+    actual_plugin = 'calibre.gui2.store.nexto_plugin:NextoStore'
 
 class StoreOpenLibraryStore(StoreBase):
     name = 'Open Library'
@@ -1172,10 +1204,29 @@ class StoreSmashwordsStore(StoreBase):
     description = _('Your ebook. Your way.')
     actual_plugin = 'calibre.gui2.store.smashwords_plugin:SmashwordsStore'
 
-plugins += [StoreAmazonKindleStore, StoreBaenWebScriptionStore, StoreBNStore,
-    StoreBeWriteStore, StoreDieselEbooksStore, StoreEbookscomStore,
-    StoreEHarlequinStoretore,
-    StoreFeedbooksStore, StoreGutenbergStore, StoreKoboStore, StoreManyBooksStore,
-    StoreMobileReadStore, StoreOpenLibraryStore, StoreSmashwordsStore]
+class StoreWaterstonesUKStore(StoreBase):
+    name = 'Waterstones UK'
+    description = _('Feel every word.')
+    actual_plugin = 'calibre.gui2.store.waterstones_uk_plugin:WaterstonesUKStore'
+
+class StoreWeightlessBooksStore(StoreBase):
+    name = 'Weightless Books'
+    description = '(e)Books That Don\'t Weigh You Down.'
+    actual_plugin = 'calibre.gui2.store.weightless_books_plugin:WeightlessBooksStore'
+
+class StoreWizardsTowerBooksStore(StoreBase):
+    name = 'Wizards Tower Books'
+    description = 'Wizard\'s Tower Press.'
+    actual_plugin = 'calibre.gui2.store.wizards_tower_books_plugin:WizardsTowerBooksStore'
+
+plugins += [StoreArchiveOrgStore, StoreAmazonKindleStore, StoreAmazonDEKindleStore,
+    StoreAmazonUKKindleStore, StoreBaenWebScriptionStore, StoreBNStore,
+    StoreBeamEBooksDEStore, StoreBeWriteStore,
+    StoreDieselEbooksStore, StoreEbookscomStore, StoreEPubBuyDEStore,
+    StoreEHarlequinStore, StoreFeedbooksStore,
+    StoreFoylesUKStore, StoreGoogleBooksStore, StoreGutenbergStore,
+    StoreKoboStore, StoreManyBooksStore,
+    StoreMobileReadStore, StoreNextoStore, StoreOpenLibraryStore, StoreSmashwordsStore,
+    StoreWaterstonesUKStore, StoreWeightlessBooksStore, StoreWizardsTowerBooksStore]
 
 # }}}

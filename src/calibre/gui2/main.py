@@ -19,6 +19,9 @@ from calibre.utils.config import prefs, dynamic
 from calibre.library.database2 import LibraryDatabase2
 from calibre.library.sqlite import sqlite, DatabaseException
 
+if iswindows:
+    winutil = plugins['winutil'][0]
+
 def option_parser():
     parser = _option_parser('''\
 %prog [opts] [path_to_ebook]
@@ -37,6 +40,11 @@ path_to_ebook to the database.
     parser.add_option('--ignore-plugins', default=False, action='store_true',
             help=_('Ignore custom plugins, useful if you installed a plugin'
                 ' that is preventing calibre from starting'))
+    parser.add_option('-s', '--shutdown-running-calibre', default=False,
+            action='store_true',
+            help=_('Cause a running calibre instance, if any, to be'
+                ' shutdown. Note that if there are running jobs, they '
+                'will be silently aborted, so use with care.'))
     return parser
 
 def init_qt(args):
@@ -80,8 +88,7 @@ def get_library_path(parent=None):
     if library_path is None: # Need to migrate to new database layout
         base = os.path.expanduser('~')
         if iswindows:
-            base = plugins['winutil'][0].special_folder_path(
-                    plugins['winutil'][0].CSIDL_PERSONAL)
+            base = winutil.special_folder_path(winutil.CSIDL_PERSONAL)
             if not base or not os.path.exists(base):
                 from PyQt4.Qt import QDir
                 base = unicode(QDir.homePath()).replace('/', os.sep)
@@ -292,13 +299,13 @@ def run_gui(opts, args, actions, listener, app, gui_debug=None):
         if getattr(runner.main, 'debug_on_restart', False):
             run_in_debug_mode()
         else:
+            import subprocess
             print 'Restarting with:', e, sys.argv
             if hasattr(sys, 'frameworks_dir'):
                 app = os.path.dirname(os.path.dirname(sys.frameworks_dir))
-                import subprocess
                 subprocess.Popen('sleep 3s; open '+app, shell=True)
             else:
-                os.execvp(e, sys.argv)
+                subprocess.Popen([e] + sys.argv[1:])
     else:
         if iswindows:
             try:
@@ -337,7 +344,7 @@ def cant_start(msg=_('If you are sure it is not running')+', ',
 
     raise SystemExit(1)
 
-def communicate(args):
+def communicate(opts, args):
     t = RC()
     t.start()
     time.sleep(3)
@@ -346,9 +353,12 @@ def communicate(args):
         cant_start(what=_('try deleting the file')+': '+f)
         raise SystemExit(1)
 
-    if len(args) > 1:
-        args[1] = os.path.abspath(args[1])
-    t.conn.send('launched:'+repr(args))
+    if opts.shutdown_running_calibre:
+        t.conn.send('shutdown:')
+    else:
+        if len(args) > 1:
+            args[1] = os.path.abspath(args[1])
+        t.conn.send('launched:'+repr(args))
     t.conn.close()
     raise SystemExit(0)
 
@@ -363,6 +373,8 @@ def main(args=sys.argv):
     from calibre.utils.lock import singleinstance
     from multiprocessing.connection import Listener
     si = singleinstance('calibre GUI')
+    if si and opts.shutdown_running_calibre:
+        return 0
     if si:
         try:
             listener = Listener(address=ADDRESS)
@@ -388,10 +400,10 @@ def main(args=sys.argv):
     else:
         # On windows only singleinstance can be trusted
         otherinstance = True if iswindows else False
-    if not otherinstance:
+    if not otherinstance and not opts.shutdown_running_calibre:
         return run_gui(opts, args, actions, listener, app, gui_debug=gui_debug)
 
-    communicate(args)
+    communicate(opts, args)
 
     return 0
 

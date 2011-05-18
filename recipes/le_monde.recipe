@@ -48,7 +48,7 @@ class LeMonde(BasicNewsRecipe):
             if alink.string is not None:
                tstr = alink.string
                alink.replaceWith(tstr)
-        return soup
+        return self.adeify_images(soup)
 
     preprocess_regexps = [
         (re.compile(r'([0-9])%'), lambda m: m.group(1) + '&nbsp;%'),

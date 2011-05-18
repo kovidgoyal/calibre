@@ -23,11 +23,10 @@ from calibre.gui2.store.web_store_dialog import WebStoreDialog
 class FeedbooksStore(BasicStoreConfig, StorePlugin):
     
     def open(self, parent=None, detail_item=None, external=False):
-        settings = self.get_settings()
         url = 'http://m.feedbooks.com/'
         ext_url = 'http://feedbooks.com/'
 
-        if external or settings.get(self.name + '_open_external', False):
+        if external or self.config.get('open_external', False):
             if detail_item:
                 ext_url = ext_url + detail_item
             open_url(QUrl(url_slash_cleaner(ext_url)))
@@ -37,7 +36,7 @@ class FeedbooksStore(BasicStoreConfig, StorePlugin):
                 detail_url = url + detail_item
             d = WebStoreDialog(self.gui, url, parent, detail_url)
             d.setWindowTitle(self.name)
-            d.set_tags(settings.get(self.name + '_tags', ''))
+            d.set_tags(self.config.get('tags', ''))
             d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
@@ -72,8 +71,10 @@ class FeedbooksStore(BasicStoreConfig, StorePlugin):
                 title = ''.join(data.xpath('//h5//a/text()'))
                 author = ''.join(data.xpath('//h6//a/text()'))
                 price = ''.join(data.xpath('//a[@class="buy"]/text()'))
+                formats = 'EPUB'
                 if not price:
                     price = '$0.00'
+                    formats = 'EPUB, MOBI, PDF'
                 cover_url = ''
                 cover_url_img =  data.xpath('//img')
                 if cover_url_img:
@@ -88,5 +89,18 @@ class FeedbooksStore(BasicStoreConfig, StorePlugin):
                 s.author = author.strip()
                 s.price = price.replace(' ', '').strip()
                 s.detail_item = id.strip()
+                s.formats = formats
                 
                 yield s
+
+    def get_details(self, search_result, timeout):
+        url = 'http://m.feedbooks.com/'
+        
+        br = browser()
+        with closing(br.open(url_slash_cleaner(url + search_result.detail_item), timeout=timeout)) as nf:
+            idata = html.fromstring(nf.read())
+            if idata.xpath('boolean(//div[contains(@class, "m-description-long")]//p[contains(., "DRM") or contains(b, "Protection")])'):
+                search_result.drm = SearchResult.DRM_LOCKED
+            else:
+                search_result.drm = SearchResult.DRM_UNLOCKED
+        return True

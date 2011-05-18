@@ -11,7 +11,6 @@ from lxml import etree
 
 from calibre.customize.conversion import OutputFormatPlugin, \
     OptionRecommendation
-from calibre.ebooks.oeb.base import OEB_IMAGES
 from calibre.ebooks.txt.txtml import TXTMLizer
 from calibre.ebooks.txt.newlines import TxtNewlines, specified_newlines
 from calibre.ptempfile import TemporaryDirectory, TemporaryFile
@@ -67,19 +66,26 @@ class TXTOutput(OutputFormatPlugin):
             help=_('Do not remove image references within the document. This is only ' \
             'useful when paired with a txt-output-formatting option that '
             'is not none because links are always removed with plain text output.')),
+        OptionRecommendation(name='keep_color',
+            recommended_value=False, level=OptionRecommendation.LOW,
+            help=_('Do not remove font color from output. This is only useful when ' \
+                   'txt-output-formatting is set to textile. Textile is the only ' \
+                   'formatting that supports setting font color. If this option is ' \
+                   'not specified font color will not be set and default to the ' \
+                   'color displayed by the reader (generally this is black).')),
      ])
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
         if opts.txt_output_formatting.lower() == 'markdown':
             from calibre.ebooks.txt.markdownml import MarkdownMLizer
-            writer = MarkdownMLizer(log)
+            self.writer = MarkdownMLizer(log)
         elif opts.txt_output_formatting.lower() == 'textile':
             from calibre.ebooks.txt.textileml import TextileMLizer
-            writer = TextileMLizer(log)
+            self.writer = TextileMLizer(log)
         else:
-            writer = TXTMLizer(log)
+            self.writer = TXTMLizer(log)
 
-        txt = writer.extract_content(oeb_book, opts)
+        txt = self.writer.extract_content(oeb_book, opts)
         txt = clean_ascii_chars(txt)
 
         log.debug('\tReplacing newlines with selected type...')
@@ -103,30 +109,42 @@ class TXTOutput(OutputFormatPlugin):
 
 
 class TXTZOutput(TXTOutput):
-    
+
     name = 'TXTZ Output'
     author = 'John Schember'
     file_type = 'txtz'
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
+        from calibre.ebooks.oeb.base import OEB_IMAGES
         with TemporaryDirectory('_txtz_output') as tdir:
             # TXT
-            with TemporaryFile('index.txt') as tf:
+            txt_name = 'index.txt'
+            if opts.txt_output_formatting.lower() == 'textile':
+                txt_name = 'index.text'
+            with TemporaryFile(txt_name) as tf:
                 TXTOutput.convert(self, oeb_book, tf, input_plugin, opts, log)
-                shutil.copy(tf, os.path.join(tdir, 'index.txt'))
+                shutil.copy(tf, os.path.join(tdir, txt_name))
 
             # Images
             for item in oeb_book.manifest:
                 if item.media_type in OEB_IMAGES:
-                    path = os.path.join(tdir, os.path.dirname(item.href))
+                    if hasattr(self.writer, 'images'):
+                        path = os.path.join(tdir, 'images')
+                        if item.href in self.writer.images:
+                            href = self.writer.images[item.href]
+                        else:
+                            continue
+                    else:
+                        path = os.path.join(tdir, os.path.dirname(item.href))
+                        href = os.path.basename(item.href)
                     if not os.path.exists(path):
                         os.makedirs(path)
-                    with open(os.path.join(tdir, item.href), 'wb') as imgf:
+                    with open(os.path.join(path, href), 'wb') as imgf:
                         imgf.write(item.data)
-            
+
             # Metadata
-            with open(os.path.join(tdir, 'metadata.opf'), 'wb') as mdataf: 
+            with open(os.path.join(tdir, 'metadata.opf'), 'wb') as mdataf:
                 mdataf.write(etree.tostring(oeb_book.metadata.to_opf1()))
-            
+
             txtz = ZipFile(output_path, 'w')
             txtz.add_dir(tdir)

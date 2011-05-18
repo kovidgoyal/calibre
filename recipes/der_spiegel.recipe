@@ -1,0 +1,83 @@
+#!/usr/bin/env  python
+
+__license__   = 'GPL v3'
+__copyright__ = '2011, Nikolas Mangold <nmangold at gmail.com>'
+'''
+spiegel.de
+'''
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre import strftime
+from calibre import re
+
+class DerSpiegel(BasicNewsRecipe):
+    title                  = 'Der Spiegel'
+    __author__             = 'Nikolas Mangold'
+    description            = 'Der Spiegel, Printed Edition. Access to paid content.'
+    publisher              = 'SPIEGEL-VERLAG RUDOLF AUGSTEIN GMBH & CO. KG'
+    category               = 'news, politics, Germany'
+    no_stylesheets         = True
+    encoding               = 'cp1252'
+    needs_subscription     = True
+    remove_empty_feeds     = True
+    delay                  = 1
+    PREFIX                 = 'http://m.spiegel.de'
+    INDEX                  = PREFIX + '/spiegel/print/epaper/index-heftaktuell.html'
+    use_embedded_content   = False
+    masthead_url = 'http://upload.wikimedia.org/wikipedia/en/thumb/1/17/Der_Spiegel_logo.svg/200px-Der_Spiegel_logo.svg.png'
+    language               = 'de'
+    publication_type       = 'magazine'
+    extra_css              = ' body{font-family: Arial,Helvetica,sans-serif} '
+    timefmt = '[%W/%Y]'
+    empty_articles = ['Titelbild']
+    preprocess_regexps = [
+        (re.compile(r'<p>&#9670;</p>', re.DOTALL|re.IGNORECASE), lambda match: '<hr>'),
+        ]
+
+    def get_browser(self):
+        def has_login_name(form):
+            try:
+                form.find_control(name="f.loginName")
+            except:
+                return False
+            else:
+                return True
+
+        br = BasicNewsRecipe.get_browser()
+        if self.username is not None and self.password is not None:
+            br.open(self.PREFIX + '/meinspiegel/login.html')
+            br.select_form(predicate=has_login_name)
+            br['f.loginName'    ] = self.username
+            br['f.password'] = self.password
+            br.submit()
+        return br
+
+    remove_tags_before =  dict(attrs={'class':'spArticleContent'})
+    remove_tags_after  =  dict(attrs={'class':'spArticleCredit'})
+
+    def parse_index(self):
+        soup = self.index_to_soup(self.INDEX)
+
+        cover = soup.find('img', width=248)
+        if cover is not None:
+            self.cover_url = cover['src']
+
+        index = soup.find('dl')
+
+        feeds = []
+        for section in index.findAll('dt'):
+            section_title = self.tag_to_string(section).strip()
+            self.log('Found section ', section_title)
+
+            articles = []
+            for article in section.findNextSiblings(['dd','dt']):
+                if article.name == 'dt':
+                    break
+                link = article.find('a')
+                title = self.tag_to_string(link).strip()
+                if title in self.empty_articles:
+                    continue
+                self.log('Found article ', title)
+                url = self.PREFIX + link['href']
+                articles.append({'title' : title, 'date' : strftime(self.timefmt), 'url' : url})
+            feeds.append((section_title,articles))
+        return feeds;

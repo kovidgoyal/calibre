@@ -13,6 +13,7 @@ from Queue import Queue, Empty
 from threading import Thread
 from io import BytesIO
 from operator import attrgetter
+from urlparse import urlparse
 
 from calibre.customize.ui import metadata_plugins, all_metadata_plugins
 from calibre.ebooks.metadata.sources.base import create_log, msprefs
@@ -41,6 +42,10 @@ class Worker(Thread):
         except:
             self.log.exception('Plugin', self.plugin.name, 'failed')
         self.plugin.dl_time_spent = time.time() - start
+
+    @property
+    def name(self):
+        return self.plugin.name
 
 def is_worker_alive(workers):
     for w in workers:
@@ -216,7 +221,7 @@ class ISBNMerge(object):
 
         # We assume the smallest set of tags has the least cruft in it
         ans.tags = self.length_merge('tags', results,
-                null_value=ans.tags)
+                null_value=ans.tags, shortest=msprefs['fewer_tags'])
 
         # We assume the longest series has the most info in it
         ans.series = self.length_merge('series', results,
@@ -348,7 +353,11 @@ def identify(log, abort, # {{{
 
         if (first_result_at is not None and time.time() - first_result_at >
                 wait_time):
-            log('Not waiting any longer for more results')
+            log.warn('Not waiting any longer for more results. Still running'
+                    ' sources:')
+            for worker in workers:
+                if worker.is_alive():
+                    log.debug('\t' + worker.name)
             abort.set()
             break
 
@@ -363,6 +372,18 @@ def identify(log, abort, # {{{
     longest, lp = -1, ''
     for plugin, presults in results.iteritems():
         presults.sort(key=plugin.identify_results_keygen(**sort_kwargs))
+
+        # Throw away lower priority results from the same source that have exactly the same
+        # title and authors as a higher priority result
+        filter_results = set()
+        filtered_results = []
+        for r in presults:
+            key = (r.title, tuple(r.authors))
+            if key not in filter_results:
+                filtered_results.append(r)
+                filter_results.add(key)
+        results[plugin] = presults = filtered_results
+
         plog = logs[plugin].getvalue().strip()
         log('\n'+'*'*30, plugin.name, '*'*30)
         log('Request extra headers:', plugin.browser.addheaders)
@@ -382,12 +403,19 @@ def identify(log, abort, # {{{
             log(plog)
         log('\n'+'*'*80)
 
+        dummy = Metadata(_('Unknown'))
         for i, result in enumerate(presults):
+            for f in plugin.prefs['ignore_fields']:
+                if ':' not in f:
+                    setattr(result, f, getattr(dummy, f))
             result.relevance_in_source = i
             result.has_cached_cover_url = (plugin.cached_cover_url_is_reliable
                     and plugin.get_cached_cover_url(result.identifiers) is not
                     None)
             result.identify_plugin = plugin
+            if msprefs['txt_comments']:
+                if plugin.has_html_comments and result.comments:
+                    result.comments = html2text(result.comments)
 
     log('The identify phase took %.2f seconds'%(time.time() - start_time))
     log('The longest time (%f) was taken by:'%longest, lp)
@@ -398,10 +426,6 @@ def identify(log, abort, # {{{
     log('We have %d merged results, merging took: %.2f seconds' %
             (len(results), time.time() - start_time))
 
-    if msprefs['txt_comments']:
-        for r in results:
-            if r.plugin.has_html_comments and r.comments:
-                r.comments = html2text(r.comments)
 
     max_tags = msprefs['max_tags']
     for r in results:
@@ -423,18 +447,38 @@ def identify(log, abort, # {{{
 # }}}
 
 def urls_from_identifiers(identifiers): # {{{
+    identifiers = dict([(k.lower(), v) for k, v in identifiers.iteritems()])
     ans = []
     for plugin in all_metadata_plugins():
         try:
-            url = plugin.get_book_url(identifiers)
-            if url is not None:
-                ans.append((plugin.name, url))
+            id_type, id_val, url = plugin.get_book_url(identifiers)
+            ans.append((plugin.name, id_type, id_val, url))
         except:
             pass
     isbn = identifiers.get('isbn', None)
     if isbn:
-        ans.append(('ISBN',
-            'http://www.worldcat.org/search?q=bn%%3A%s&qt=advanced'%isbn))
+        ans.append((isbn, 'isbn', isbn,
+            'http://www.worldcat.org/isbn/'+isbn))
+    doi = identifiers.get('doi', None)
+    if doi:
+        ans.append(('DOI', 'doi', doi,
+            'http://dx.doi.org/'+doi))
+    arxiv = identifiers.get('arxiv', None)
+    if arxiv:
+        ans.append(('arXiv', 'arxiv', arxiv,
+            'http://arxiv.org/abs/'+arxiv))
+    oclc = identifiers.get('oclc', None)
+    if oclc:
+        ans.append(('OCLC', 'oclc', oclc,
+            'http://www.worldcat.org/oclc/'+oclc))
+    url = identifiers.get('uri', None)
+    if url is None:
+        url = identifiers.get('url', None)
+    if url and url.startswith('http'):
+        url = url[:8].replace('|', ':') + url[8:].replace('|', ',')
+        parts = urlparse(url)
+        name = parts.netloc
+        ans.append((name, 'url', url, url))
     return ans
 # }}}
 
@@ -444,13 +488,18 @@ if __name__ == '__main__': # tests {{{
     from calibre.ebooks.metadata.sources.test import (test_identify,
             title_test, authors_test)
     tests = [
+            (
+                {'title':'Magykal Papers',
+                    'authors':['Sage']},
+                [title_test('Septimus Heap: The Magykal Papers', exact=True)],
+            ),
+
 
             ( # An e-book ISBN not on Amazon, one of the authors is
               # unknown to Amazon
                 {'identifiers':{'isbn': '9780307459671'},
                     'title':'Invisible Gorilla', 'authors':['Christopher Chabris']},
-                [title_test('The Invisible Gorilla',
-                    exact=True), authors_test(['Christopher Chabris', 'Daniel Simons'])]
+                [title_test('The Invisible Gorilla', exact=True)]
 
             ),
 
@@ -467,12 +516,6 @@ if __name__ == '__main__': # tests {{{
                 {'identifiers':{'isbn': '9781416580829'}},
                 [title_test('Angels & Demons',
                     exact=True), authors_test(['Dan Brown'])]
-            ),
-
-            ( # No ISBN
-                {'title':'Justine', 'authors':['Durrel']},
-                [title_test('Justine', exact=True),
-                    authors_test(['Lawrence Durrel'])]
             ),
 
             (  # A newer book
