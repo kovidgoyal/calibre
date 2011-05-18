@@ -630,6 +630,24 @@ def human_readable(size):
         size = size[:-2]
     return size + " " + suffix
 
+def remove_bracketed_text(src,
+        brackets={u'(':u')', u'[':u']', u'{':u'}'}):
+    from collections import Counter
+    counts = Counter()
+    buf = []
+    src = force_unicode(src)
+    rmap = dict([(v, k) for k, v in brackets.iteritems()])
+    for char in src:
+        if char in brackets:
+            counts[char] += 1
+        elif char in rmap:
+            idx = rmap[char]
+            if counts[idx] > 0:
+                counts[idx] -= 1
+        elif sum(counts.itervalues()) < 1:
+            buf.append(char)
+    return u''.join(buf)
+
 if isosx:
     import glob, shutil
     fdir = os.path.expanduser('~/.fonts')
