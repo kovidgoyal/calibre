@@ -26,7 +26,7 @@ class NextoStore(BasicStoreConfig, StorePlugin):
     def open(self, parent=None, detail_item=None, external=False):
         pid = '155711'
 
-        url = 'http://www.nexto.pl/ebooki_c1015.xml?pid=' + pid
+        url = 'http://www.nexto.pl/ebooki_c1015.xml'
         detail_url = None
 
         if detail_item:

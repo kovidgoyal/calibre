@@ -68,7 +68,7 @@ class StoreAction(InterfaceAction):
             a = ' '.join(a)
             corrected_authors.append(a)
 
-        return ' & '.join(corrected_authors)
+        return ' & '.join(corrected_authors).strip()
 
     def search_author(self):
         row = self._get_selected_row()
@@ -87,7 +87,7 @@ class StoreAction(InterfaceAction):
             mi = self.gui.current_view().model().get_book_display_info(row)
             title = mi.title
 
-        return title
+        return title.strip()
 
     def search_title(self):
         row = self._get_selected_row()
