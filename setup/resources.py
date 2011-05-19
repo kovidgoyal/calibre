@@ -6,10 +6,10 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, cPickle, re, anydbm, shutil, marshal, zipfile, glob
+import os, cPickle, re, shutil, marshal, zipfile, glob
 from zlib import compress
 
-from setup import Command, basenames, __appname__, iswindows
+from setup import Command, basenames, __appname__
 
 def get_opts_from_parser(parser):
     def do_opt(opt):
@@ -34,12 +34,12 @@ class Kakasi(Command):
         self.records = {}
         src = self.j(self.KAKASI_PATH, 'kakasidict.utf8')
         dest = self.j(self.RESOURCES, 'localization',
-                'pykakasi','kanwadict2.db')
+                'pykakasi','kanwadict2.pickle')
         base = os.path.dirname(dest)
         if not os.path.exists(base):
             os.makedirs(base)
 
-        if self.newer(dest, src) or iswindows:
+        if self.newer(dest, src):
             self.info('\tGenerating Kanwadict')
 
             for line in open(src, "r"):
@@ -50,7 +50,7 @@ class Kakasi(Command):
         dest = self.j(self.RESOURCES, 'localization',
                 'pykakasi','itaijidict2.pickle')
 
-        if self.newer(dest, src) or iswindows:
+        if self.newer(dest, src):
             self.info('\tGenerating Itaijidict')
             self.mkitaiji(src, dest)
 
@@ -58,7 +58,7 @@ class Kakasi(Command):
         dest = self.j(self.RESOURCES, 'localization',
                 'pykakasi','kanadict2.pickle')
 
-        if self.newer(dest, src) or iswindows:
+        if self.newer(dest, src):
             self.info('\tGenerating kanadict')
             self.mkkanadict(src, dest)
 
@@ -75,7 +75,7 @@ class Kakasi(Command):
                 continue
             pair = re.sub(r'\\u([0-9a-fA-F]{4})', lambda x:unichr(int(x.group(1),16)), line)
             dic[pair[0]] = pair[1]
-        cPickle.dump(dic, open(dst, 'w'), protocol=-1) #pickle
+        cPickle.dump(dic, open(dst, 'wb'), protocol=-1) #pickle
 
     def mkkanadict(self, src, dst):
         dic = {}
@@ -87,7 +87,7 @@ class Kakasi(Command):
                 continue
             (alpha, kana) = line.split(' ')
             dic[kana] = alpha
-        cPickle.dump(dic, open(dst, 'w'), protocol=-1) #pickle
+        cPickle.dump(dic, open(dst, 'wb'), protocol=-1) #pickle
 
     def parsekdict(self, line):
         line = line.decode("utf-8").strip()
@@ -115,16 +115,11 @@ class Kakasi(Command):
             self.records[key][kanji]=[(yomi, tail)]
 
     def kanwaout(self, out):
-        try:
-            # Needed as otherwise anydbm tries to create a gdbm db when the db
-            # created on Unix is found
-            os.remove(out)
-        except:
-            pass
-        dic = anydbm.open(out, 'n')
-        for (k, v) in self.records.iteritems():
-            dic[k] = compress(marshal.dumps(v))
-        dic.close()
+        with open(out, 'wb') as f:
+            dic = {}
+            for k, v in self.records.iteritems():
+                dic[k] = compress(marshal.dumps(v))
+            cPickle.dump(dic, f, -1)
 
     def clean(self):
         kakasi = self.j(self.RESOURCES, 'localization', 'pykakasi')

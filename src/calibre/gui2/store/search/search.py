@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 import re
 from random import shuffle
 
-from PyQt4.Qt import (Qt, QDialog, QTimer, QCheckBox, QVBoxLayout, QIcon) 
+from PyQt4.Qt import (Qt, QDialog, QTimer, QCheckBox, QVBoxLayout, QIcon, QWidget) 
 
 from calibre.gui2 import JSONConfig, info_dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
@@ -28,6 +28,8 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.setupUi(self)
 
         self.config = JSONConfig('store/search')
+        
+        self.search_edit.initialize('store_search_search')
 
         # We keep a cache of store plugins and reference them by name.
         self.store_plugins = istores
@@ -45,14 +47,16 @@ class SearchDialog(QDialog, Ui_Dialog):
         # Add check boxes for each store so the user
         # can disable searching specific stores on a
         # per search basis.
+        stores_check_widget = QWidget()
         stores_group_layout = QVBoxLayout()
-        self.stores_group.setLayout(stores_group_layout)
+        stores_check_widget.setLayout(stores_group_layout)
         for x in sorted(self.store_plugins.keys(), key=lambda x: x.lower()):
             cbox = QCheckBox(x)
-            cbox.setChecked(True)
+            cbox.setChecked(False)
             stores_group_layout.addWidget(cbox)
             setattr(self, 'store_check_' + x, cbox)
         stores_group_layout.addStretch()
+        self.stores_group.setWidget(stores_check_widget)
 
         # Set the search query
         self.search_edit.setText(query)

@@ -19,8 +19,9 @@ class PreferencesAction(InterfaceAction):
 
     def genesis(self):
         pm = QMenu()
-        acname = _('Change calibre behavior') if isosx else _('Preferences')
-        pm.addAction(QIcon(I('config.png')), acname, self.do_config)
+        pm.addAction(QIcon(I('config.png')), _('Preferences'), self.do_config)
+        if isosx:
+            pm.addAction(QIcon(I('config.png')), _('Change calibre behavior'), self.do_config)
         pm.addAction(QIcon(I('wizard.png')), _('Run welcome wizard'),
                 self.gui.run_wizard)
         if not DEBUG:

@@ -625,6 +625,17 @@ class Application(QApplication):
             if s is not None:
                 font.setStretch(s)
             QApplication.setFont(font)
+        st = self.style()
+        if st is not None:
+            st = unicode(st.objectName()).lower()
+        if (islinux or isfreebsd) and st in ('windows', 'motif', 'cde'):
+            from PyQt4.Qt import QStyleFactory
+            styles = set(map(unicode, QStyleFactory.keys()))
+            if 'Plastique' in styles and os.environ.get('KDE_FULL_SESSION',
+                    False):
+                self.setStyle('Plastique')
+            elif 'Cleanlooks' in styles:
+                self.setStyle('Cleanlooks')
 
     def _send_file_open_events(self):
         with self._file_open_lock:
