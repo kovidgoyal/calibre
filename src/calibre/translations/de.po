@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-05-13 18:31+0000\n"
-"PO-Revision-Date: 2011-05-17 20:26+0000\n"
+"PO-Revision-Date: 2011-05-18 16:37+0000\n"
 "Last-Translator: Christine Emrich <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-05-18 04:35+0000\n"
+"X-Launchpad-Export-Date: 2011-05-19 04:38+0000\n"
 "X-Generator: Launchpad (build 12959)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -5559,6 +5559,8 @@ msgid ""
 "Calibre helps you find the ebooks you want by searching the websites of "
 "various commercial and public domain book sources for you."
 msgstr ""
+"Calibre hilft Ihnen bestimmte eBooks zu finden, indem es die Websites vieler "
+"kommerzieller und gemeinfreier Buchquellen für Sie durchsucht."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:113
 msgid ""
@@ -5566,6 +5568,9 @@ msgid ""
 "are looking for, at the best price. You also get DRM status and other useful "
 "information."
 msgstr ""
+"Mit der eingebauten Suchfunktion können Sie einfach herausfinden, welcher "
+"Händler das Buch nach dem Sie suchen am günstigsten anbietet. Außerdem "
+"können Sie sich den DRM-Status und andere nützliche Informationen ansehen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:117
 msgid ""
@@ -5576,6 +5581,13 @@ msgid ""
 "especially if the book you are buying has <a href=\"http://drmfree.calibre-"
 "ebook.com/about#drm\">DRM</a>."
 msgstr ""
+"Alle Transaktionen (bezahlt oder nicht) werden zwischen Ihnen und dem "
+"Händler abgewickelt. Calibre ist kein Teilnehmer dieses Prozesses und alle "
+"Probleme die im Zusammenhang mit einem Kauf entstehen, sollten an die "
+"Website gerichtet werden, von der Sie kaufen. Sie sollten vorher überprüfen, "
+"ob die eBooks mit Ihrem eBook Reader gelesen werden können, besonders wenn "
+"das entsprechende Buch <a href=\"http://drmfree.calibre-"
+"ebook.com/about#drm\">DRM</a>-geschützt ist."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:127
 msgid "Show this message again"
@@ -12376,15 +12388,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:211
 msgid "Select displayed metadata"
-msgstr ""
+msgstr "Angezeigte Metadaten auswählen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:212
 msgid "Move up"
-msgstr ""
+msgstr "Nach oben verschieben"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:213
 msgid "Move down"
-msgstr ""
+msgstr "Nach unten verschieben"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:214
 msgid "Use &Roman numerals for series"
@@ -12395,10 +12407,12 @@ msgid ""
 "Note that <b>comments</b> will always be displayed at the end, regardless of "
 "the position you assign here."
 msgstr ""
+"Beachten Sie, dass <b>Kommentare</b> immer am Ende angezeigt werden - "
+"unabhängig von der Position, die Sie hier zuweisen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:217
 msgid "Tags browser category &partitioning method:"
-msgstr ""
+msgstr "Art der &Gruppierung im Etiketten-Browser:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:218
 msgid ""
@@ -12408,10 +12422,16 @@ msgid ""
 "have a list of fixed-sized groups. Set to disabled\n"
 "if you never want subcategories"
 msgstr ""
+"Wählen Sie, wie Unterkategorien im Etiketten-Browser dargestellt\n"
+"werden sollen, wenn es mehr Eiträge als die Maximalgrenze gibt. \n"
+"Wählen Sie \"Nach Anfangsbuchstaben\" aus, um eine alphabetische \n"
+"Liste angezeigt zu bekommen. Wählen Sie \"Gruppiert\", um eine Liste \n"
+"aus Gruppen fester Größe zu erhalten. Wählen Sie \"Ausgeschaltet\", \n"
+"wenn Sie keine Unterkategorien benötigen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:223
 msgid "&Collapse when more items than:"
-msgstr ""
+msgstr "&Einklappen bei mehr Einträgen als:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:224
 msgid ""
@@ -12419,6 +12439,11 @@ msgid ""
 "up into sub-categories. If the partition method is set to disable, this "
 "value is ignored."
 msgstr ""
+"Wenn eine Kategorie im Etiketten-Browser mehr als diese Anzahl an Einträgen "
+"hat, wird sie\n"
+"in Unterkategorien aufgeteilt. Wenn die Gruppierungsart auf \"Augeschaltet\" "
+"gesetzt wurde,\n"
+"wird dieser Wert ignoriert."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:226
 msgid "Show &average ratings in the tags browser"
@@ -12426,7 +12451,7 @@ msgstr "Zeige durchschnittliche &Bewertungen im Etiketten-Browser"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:227
 msgid "Categories with &hierarchical items:"
-msgstr ""
+msgstr "Kategorien mit &hierarchischen Einträgen:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:228
 msgid ""
@@ -13764,7 +13789,7 @@ msgstr "&Preis"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:196
 msgid "Titl&e/Author/Price ..."
-msgstr ""
+msgstr "Tit&el/Autor/Preis"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:33
 msgid "DRM"
@@ -14955,8 +14980,6 @@ msgid ""
 "If you are setting up a new hotmail account, you must log in to it  once "
 "before you will be able to send mails."
 msgstr ""
-"Wenn Sie einen neuen Hotmail Account anlegen, müssen Sie sich dort zuerst "
-"einmalig anmelden bevor Sie E-Mails versenden können."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:151
 msgid "Setup sending email using"
@@ -15119,7 +15142,7 @@ msgstr "Googlemail verwenden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:146
 msgid "Use Hotmail"
-msgstr "Benutze Hotmail"
+msgstr "Hotmail verwenden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:147
 msgid "&Test email"

@@ -7,13 +7,13 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-05-13 18:31+0000\n"
-"PO-Revision-Date: 2011-05-17 14:26+0000\n"
+"PO-Revision-Date: 2011-05-18 18:11+0000\n"
 "Last-Translator: Andrey Olykainen <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-05-18 04:36+0000\n"
+"X-Launchpad-Export-Date: 2011-05-19 04:39+0000\n"
 "X-Generator: Launchpad (build 12959)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
@@ -7641,7 +7641,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget.py:135
 msgid "Unknown formats"
-msgstr ""
+msgstr "Неизвестные форматы"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget.py:136
 msgid ""
@@ -8103,7 +8103,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/delete_matching_from_device.py:75
 msgid "Location"
-msgstr ""
+msgstr "Размещение"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/delete_matching_from_device.py:76
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:67
@@ -8291,7 +8291,7 @@ msgstr "Копировать в буфер"
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:831
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:922
 msgid "View log"
-msgstr ""
+msgstr "Просмотреть журнал"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:58
 msgid "Title/Author"
@@ -8308,7 +8308,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:61
 msgid "Search/Replace"
-msgstr ""
+msgstr "Поиск/Замена"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:65
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/progress.py:76
@@ -8321,7 +8321,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:267
 msgid "Regular Expression"
-msgstr ""
+msgstr "Регулярное выражение"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:270
 msgid "Replace field"
@@ -8858,7 +8858,7 @@ msgstr "Восстановление базы данных прошло успе
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor.py:48
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor.py:75
 msgid "Saved search already exists"
-msgstr ""
+msgstr "Сохраненный поиск уже существует"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor.py:49
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor.py:76
@@ -8876,7 +8876,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:95
 msgid "Saved Search: "
-msgstr ""
+msgstr "Сохраненный поиск: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:96
 msgid "Select a saved search to edit"

@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-05-13 18:31+0000\n"
-"PO-Revision-Date: 2011-04-26 03:11+0000\n"
-"Last-Translator: Iann <iannsp@gmail.com>\n"
+"PO-Revision-Date: 2011-05-18 22:17+0000\n"
+"Last-Translator: Júlio Cezar Santos Pires <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-05-14 04:50+0000\n"
+"X-Launchpad-Export-Date: 2011-05-19 04:40+0000\n"
 "X-Generator: Launchpad (build 12959)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -16829,7 +16829,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:100
 msgid "Control how dates are displayed"
-msgstr ""
+msgstr "Controlar a forma como as datas são exibidas"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:101
 msgid ""
@@ -17150,7 +17150,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:311
 msgid "The number of seconds to wait before sending emails"
-msgstr ""
+msgstr "O número de segundos para esperar antes de enviar emails"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:312
 msgid ""

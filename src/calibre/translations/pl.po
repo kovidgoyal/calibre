@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-05-13 18:31+0000\n"
-"PO-Revision-Date: 2011-05-16 14:27+0000\n"
+"PO-Revision-Date: 2011-05-18 08:53+0000\n"
 "Last-Translator: t3d <tomek3d@gmail.com>\n"
 "Language-Team: Polish <pl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-05-17 04:38+0000\n"
+"X-Launchpad-Export-Date: 2011-05-19 04:39+0000\n"
 "X-Generator: Launchpad (build 12959)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -4494,7 +4494,7 @@ msgstr "Nieobsługiwane"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:57
 msgid "Fetching annotations is not supported for this device"
-msgstr ""
+msgstr "To urządzenie nie pozwala na dodawanie adnotacji"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:61
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:245
@@ -5220,7 +5220,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:455
 msgid "Applying changed metadata"
-msgstr ""
+msgstr "Zapisywanie zmienionych metadanych"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:520
 msgid "Some failures"
@@ -5231,6 +5231,8 @@ msgid ""
 "Failed to apply updated metadata for some books in your library. Click "
 "\"Show Details\" to see details."
 msgstr ""
+"Nie udało się zapisać metadanych dla niektórych książek z Twojej biblioteki. "
+"Klinkij „Pokaż szczegóły”, aby zobaczyć więcej."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/fetch_news.py:19
 msgid "F"
@@ -10700,7 +10702,7 @@ msgstr "Skopiuj aktualny tekst wyszukiwania (zamiast nazwy wyszukiwania)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:259
 msgid "Donate"
-msgstr ""
+msgstr "Wspomóż"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:361
 msgid "Y"
@@ -13790,7 +13792,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/basic_config_widget_ui.py:39
 msgid "Open store in external web browswer"
-msgstr ""
+msgstr "Otwórz stronę sklepu w zewnętrznej przeglądarce"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/ebooks_com_plugin.py:95
 msgid "Not Available"
@@ -13874,6 +13876,9 @@ msgid ""
 "what you can do with this book. Check with the store before making any "
 "purchases to ensure you can actually read this book."
 msgstr ""
+"Ta książka posiada zabezpieczenia DRM. Może ona nie działać na twoim "
+"czytniku. Dodatkowo sposób jej użycia może być ograniczany. Przed zakupem "
+"upewnij się, że będziesz miał możliwość przeczytać tę książkę."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:180
 msgid ""
@@ -13882,6 +13887,10 @@ msgid ""
 "conversion. However, before making a purchase double check the DRM status "
 "with the store. The store may not be disclosing the use of DRM."
 msgstr ""
+"Ta książka jest wolna od zabezpiczeń DRM. Pownieneś móc otworzyć tę książkę "
+"na każdym urządzeniu, które wspiera formaty do których calibre potrafi "
+"konwertować. Jednak przed zakupem upewnij się co do braku zabezpieczeń - "
+"niektóre sklepy nie publikują informacji o stosowanych zabezpieczeniach."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:182
 msgid ""
@@ -13919,7 +13928,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:122
 msgid "Open in &external browser"
-msgstr ""
+msgstr "Otwórz w z&ewnętrznej przeglądarce"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/web_control.py:73
 msgid ""
