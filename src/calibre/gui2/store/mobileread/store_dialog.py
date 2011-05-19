@@ -20,6 +20,7 @@ class MobeReadStoreDialog(QDialog, Ui_Dialog):
         self.setupUi(self)
 
         self.plugin = plugin
+        self.search_query.initialize('store_mobileread_search')
         
         self.adv_search_button.setIcon(QIcon(I('search.png')))
         
