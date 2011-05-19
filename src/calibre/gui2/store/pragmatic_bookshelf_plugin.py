@@ -23,7 +23,7 @@ from calibre.gui2.store.web_store_dialog import WebStoreDialog
 class PragmaticBookshelfStore(BasicStoreConfig, StorePlugin):
 
     def open(self, parent=None, detail_item=None, external=False):
-        url = 'http://weightlessbooks.com/'
+        url = 'http://pragprog.com/'
 
         if external or self.config.get('open_external', False):
             open_url(QUrl(url_slash_cleaner(detail_item if detail_item else url)))
