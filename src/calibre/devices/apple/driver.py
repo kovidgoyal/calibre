@@ -941,7 +941,7 @@ class ITUNES(DriverBase):
         # declared in use_plugboard_ext and a device name of ITUNES
         if DEBUG:
             self.log.info("ITUNES.set_plugboard()")
-            #self.log.info('  using plugboard %s' % plugboards)
+            #self.log.info('  plugboard: %s' % plugboards)
         self.plugboards = plugboards
         self.plugboard_func = pb_func
 
@@ -1051,7 +1051,6 @@ class ITUNES(DriverBase):
                  'lib_book': lb_added,
                     'title': metadata[i].title,
                      'uuid': metadata[i].uuid }
-
 
                 # Report progress
                 if self.report_progress is not None:
@@ -2744,7 +2743,7 @@ class ITUNES(DriverBase):
         # Update metadata from plugboard
         # If self.plugboard is None (no transforms), original metadata is returned intact
         metadata_x = self._xform_metadata_via_plugboard(metadata, this_book.format)
-
+        self.log("metadata.title_sort: %s  metadata_x.title_sort: %s" % (metadata.title_sort, metadata_x.title_sort))
         if isosx:
             if lb_added:
                 lb_added.name.set(metadata_x.title)
@@ -2983,6 +2982,9 @@ class ITUNES(DriverBase):
                                            newmi.publisher if book.publisher != newmi.publisher else ''))
                 self.log.info("        tags: %s %s" % (book.tags, ">>> %s" %
                                            newmi.tags if book.tags != newmi.tags else ''))
+            else:
+                self.log("  matching plugboard not found")
+
         else:
             newmi = book
         return newmi
