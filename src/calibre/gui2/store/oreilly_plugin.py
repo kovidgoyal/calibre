@@ -6,6 +6,7 @@ __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
+import re
 import urllib
 from contextlib import closing
 
@@ -24,6 +25,9 @@ class OReillyStore(BasicStoreConfig, StorePlugin):
 
     def open(self, parent=None, detail_item=None, external=False):
         url = 'http://oreilly.com/ebooks/'
+
+        if detail_item:
+            detail_item = 'https://epoch.oreilly.com/shop/cart.orm?prod=%s.EBOOK&p=CALIBRE' % detail_item
 
         if external or self.config.get('open_external', False):
             open_url(QUrl(url_slash_cleaner(detail_item if detail_item else url)))
@@ -45,15 +49,29 @@ class OReillyStore(BasicStoreConfig, StorePlugin):
                 if counter <= 0:
                     break
 
-                id = ''.join(data.xpath('.//div[@class="title"]/a/@href'))
-                if not id:
+                full_id = ''.join(data.xpath('.//div[@class="title"]/a/@href'))
+                mo = re.search('\d+', full_id)
+                if not mo:
                     continue
+                id = mo.group()
 
                 cover_url = ''.join(data.xpath('.//div[@class="bigCover"]//img/@src'))
 
                 title = ''.join(data.xpath('.//div[@class="title"]/a/text()'))
                 author = ''.join(data.xpath('.//div[@class="author"]/text()'))
                 author = author.split('By ')[-1].strip()
+
+                # Get the detail here because we need to get the ebook id for the detail_item.
+                with closing(br.open(full_id, timeout=timeout)) as nf:
+                    idoc = html.fromstring(nf.read())
+                    
+                    price = ''.join(idoc.xpath('(//span[@class="price"])[1]/span//text()'))
+                    formats = ', '.join(idoc.xpath('//div[@class="ebook_formats"]//a/text()'))
+                    
+                    eid = ''.join(idoc.xpath('(//a[@class="product_buy_link" and contains(@href, ".EBOOK")])[1]/@href')).strip()
+                    mo = re.search('\d+', eid)
+                    if mo:
+                        id = mo.group()
 
                 counter -= 1
                 
@@ -62,17 +80,8 @@ class OReillyStore(BasicStoreConfig, StorePlugin):
                 s.title = title.strip()
                 s.author = author.strip()
                 s.detail_item = id.strip()
+                s.price = price.strip()
                 s.drm = SearchResult.DRM_UNLOCKED
+                s.formats = formats.upper()
                 
                 yield s
-                
-    def get_details(self, search_result, timeout):
-        br = browser()
-        with closing(br.open(search_result.detail_item, timeout=timeout)) as nf:
-            doc = html.fromstring(nf.read())
-
-            search_result.price = ''.join(doc.xpath('(//span[@class="price"])[1]/span//text()')).strip()
-            search_result.formats = ', '.join(doc.xpath('//div[@class="ebook_formats"]//a/text()')).upper()
-            
-        return True
-
