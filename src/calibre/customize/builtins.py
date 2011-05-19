@@ -1211,6 +1211,11 @@ class StoreOReillyStore(StoreBase):
     description = _('DRM-Free tech ebooks.')
     actual_plugin = 'calibre.gui2.store.oreilly_plugin:OReillyStore'
 
+class StorePragmaticBookshelfStore(StoreBase):
+    name = 'Pragmatic Bookshelf'
+    description = _('The Pragmatic Bookshelf')
+    actual_plugin = 'calibre.gui2.store.pragmatic_bookshelf_plugin:PragmaticBookshelfStore'
+
 class StoreSmashwordsStore(StoreBase):
     name = 'Smashwords'
     description = _('Your ebook. Your way.')
@@ -1231,16 +1236,35 @@ class StoreWizardsTowerBooksStore(StoreBase):
     description = 'Wizard\'s Tower Press.'
     actual_plugin = 'calibre.gui2.store.wizards_tower_books_plugin:WizardsTowerBooksStore'
 
-plugins += [StoreArchiveOrgStore, StoreAmazonKindleStore, StoreAmazonDEKindleStore,
-    StoreAmazonUKKindleStore, StoreBaenWebScriptionStore, StoreBNStore,
-    StoreBeamEBooksDEStore, StoreBeWriteStore,
-    StoreDieselEbooksStore, StoreEbookscomStore, StoreEPubBuyDEStore,
-    StoreEHarlequinStore, StoreFeedbooksStore,
-    StoreFoylesUKStore, StoreGandalfStore, 
-    StoreGoogleBooksStore, StoreGutenbergStore,
-    StoreKoboStore, StoreManyBooksStore,
-    StoreMobileReadStore, StoreNextoStore, StoreOpenLibraryStore,
-    StoreOReillyStore, StoreSmashwordsStore,
-    StoreWaterstonesUKStore, StoreWeightlessBooksStore, StoreWizardsTowerBooksStore]
+plugins += [
+    StoreArchiveOrgStore,
+    StoreAmazonKindleStore,
+    StoreAmazonDEKindleStore,
+    StoreAmazonUKKindleStore,
+    StoreBaenWebScriptionStore,
+    StoreBNStore,
+    StoreBeamEBooksDEStore,
+    StoreBeWriteStore,
+    StoreDieselEbooksStore,
+    StoreEbookscomStore,
+    StoreEPubBuyDEStore,
+    StoreEHarlequinStore,
+    StoreFeedbooksStore,
+    StoreFoylesUKStore,
+    StoreGandalfStore, 
+    StoreGoogleBooksStore,
+    StoreGutenbergStore,
+    StoreKoboStore,
+    StoreManyBooksStore,
+    StoreMobileReadStore,
+    StoreNextoStore,
+    StoreOpenLibraryStore,
+    StoreOReillyStore,
+    StorePragmaticBookshelfStore,
+    StoreSmashwordsStore,
+    StoreWaterstonesUKStore,
+    StoreWeightlessBooksStore,
+    StoreWizardsTowerBooksStore
+]
 
 # }}}
