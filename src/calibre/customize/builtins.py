@@ -1164,6 +1164,12 @@ class StoreFoylesUKStore(StoreBase):
     description = _('Foyles of London, online.')
     actual_plugin = 'calibre.gui2.store.foyles_uk_plugin:FoylesUKStore'
 
+class StoreGandalfStore(StoreBase):
+    name = 'Gandalf'
+    author = 'Tomasz Długosz'
+    description = _('Zaczarowany świat książek')
+    actual_plugin = 'calibre.gui2.store.gandalf_plugin:GandalfStore'
+
 class StoreGoogleBooksStore(StoreBase):
     name = 'Google Books'
     description = _('Google Books')
@@ -1191,6 +1197,7 @@ class StoreMobileReadStore(StoreBase):
 
 class StoreNextoStore(StoreBase):
     name = 'Nexto'
+    author = 'Tomasz Długosz'
     description = _('Audiobooki mp3, ebooki, prasa - księgarnia internetowa.')
     actual_plugin = 'calibre.gui2.store.nexto_plugin:NextoStore'
 
@@ -1229,7 +1236,8 @@ plugins += [StoreArchiveOrgStore, StoreAmazonKindleStore, StoreAmazonDEKindleSto
     StoreBeamEBooksDEStore, StoreBeWriteStore,
     StoreDieselEbooksStore, StoreEbookscomStore, StoreEPubBuyDEStore,
     StoreEHarlequinStore, StoreFeedbooksStore,
-    StoreFoylesUKStore, StoreGoogleBooksStore, StoreGutenbergStore,
+    StoreFoylesUKStore, StoreGandalfStore, 
+    StoreGoogleBooksStore, StoreGutenbergStore,
     StoreKoboStore, StoreManyBooksStore,
     StoreMobileReadStore, StoreNextoStore, StoreOpenLibraryStore,
     StoreOReillyStore, StoreSmashwordsStore,
