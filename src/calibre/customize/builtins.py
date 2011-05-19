@@ -1199,6 +1199,11 @@ class StoreOpenLibraryStore(StoreBase):
     description = _('One web page for every book.')
     actual_plugin = 'calibre.gui2.store.open_library_plugin:OpenLibraryStore'
 
+class StoreOReillyStore(StoreBase):
+    name = 'OReilly'
+    description = _('DRM-Free tech ebooks.')
+    actual_plugin = 'calibre.gui2.store.oreilly_plugin:OReillyStore'
+
 class StoreSmashwordsStore(StoreBase):
     name = 'Smashwords'
     description = _('Your ebook. Your way.')
@@ -1226,7 +1231,8 @@ plugins += [StoreArchiveOrgStore, StoreAmazonKindleStore, StoreAmazonDEKindleSto
     StoreEHarlequinStore, StoreFeedbooksStore,
     StoreFoylesUKStore, StoreGoogleBooksStore, StoreGutenbergStore,
     StoreKoboStore, StoreManyBooksStore,
-    StoreMobileReadStore, StoreNextoStore, StoreOpenLibraryStore, StoreSmashwordsStore,
+    StoreMobileReadStore, StoreNextoStore, StoreOpenLibraryStore,
+    StoreOReillyStore, StoreSmashwordsStore,
     StoreWaterstonesUKStore, StoreWeightlessBooksStore, StoreWizardsTowerBooksStore]
 
 # }}}
