@@ -41,14 +41,19 @@ authors_completer_append_separator = False
 #: Author sort name algorithm
 # The algorithm used to copy author to author_sort
 # Possible values are:
-#  invert: use "fn ln" -> "ln, fn" (the default algorithm)
+#  invert: use "fn ln" -> "ln, fn"
 #  copy  : copy author to author_sort without modification
 #  comma : use 'copy' if there is a ',' in the name, otherwise use 'invert'
 #  nocomma : "fn ln" -> "ln fn" (without the comma)
 # When this tweak is changed, the author_sort values stored with each author
 # must be recomputed by right-clicking on an author in the left-hand tags pane,
 # selecting 'manage authors', and pressing 'Recalculate all author sort values'.
+# The author name suffixes are words that are ignored when they occur at the
+# end of an author name. The case of the suffix is ignored and trailing
+# periods are automatically handled.
 author_sort_copy_method = 'comma'
+author_name_suffixes = ('Jr', 'Sr', 'Inc', 'Ph.D', 'Phd',
+                        'MD', 'M.D', 'I', 'II', 'III', 'IV')
 
 #: Use author sort in Tag Browser
 # Set which author field to display in the tags pane (the list of authors,

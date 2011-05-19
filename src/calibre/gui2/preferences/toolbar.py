@@ -317,6 +317,10 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             am.restore_defaults()
         self.changed_signal.emit()
 
+    def refresh_gui(self, gui):
+        gui.bars_manager.init_bars()
+        gui.bars_manager.update_bars()
+
 
 if __name__ == '__main__':
     from PyQt4.Qt import QApplication

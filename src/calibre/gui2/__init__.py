@@ -631,10 +631,11 @@ class Application(QApplication):
         if (islinux or isfreebsd) and st in ('windows', 'motif', 'cde'):
             from PyQt4.Qt import QStyleFactory
             styles = set(map(unicode, QStyleFactory.keys()))
-            if 'Cleanlooks' in styles:
-                self.setStyle('Cleanlooks')
-            else:
+            if 'Plastique' in styles and os.environ.get('KDE_FULL_SESSION',
+                    False):
                 self.setStyle('Plastique')
+            elif 'Cleanlooks' in styles:
+                self.setStyle('Cleanlooks')
 
     def _send_file_open_events(self):
         with self._file_open_lock:

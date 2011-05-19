@@ -1164,6 +1164,11 @@ class StoreFoylesUKStore(StoreBase):
     description = _('Foyles of London, online.')
     actual_plugin = 'calibre.gui2.store.foyles_uk_plugin:FoylesUKStore'
 
+class StoreGoogleBooksStore(StoreBase):
+    name = 'Google Books'
+    description = _('Google Books')
+    actual_plugin = 'calibre.gui2.store.google_books_plugin:GoogleBooksStore'
+
 class StoreGutenbergStore(StoreBase):
     name = 'Project Gutenberg'
     description = _('The first producer of free ebooks.')
@@ -1219,7 +1224,8 @@ plugins += [StoreArchiveOrgStore, StoreAmazonKindleStore, StoreAmazonDEKindleSto
     StoreBeamEBooksDEStore, StoreBeWriteStore,
     StoreDieselEbooksStore, StoreEbookscomStore, StoreEPubBuyDEStore,
     StoreEHarlequinStore, StoreFeedbooksStore,
-    StoreFoylesUKStore, StoreGutenbergStore, StoreKoboStore, StoreManyBooksStore,
+    StoreFoylesUKStore, StoreGoogleBooksStore, StoreGutenbergStore,
+    StoreKoboStore, StoreManyBooksStore,
     StoreMobileReadStore, StoreNextoStore, StoreOpenLibraryStore, StoreSmashwordsStore,
     StoreWaterstonesUKStore, StoreWeightlessBooksStore, StoreWizardsTowerBooksStore]
 

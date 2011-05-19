@@ -24,6 +24,7 @@ elif isosx:
                 path = path.decode(filesystem_encoding)
             u.send2trash(path)
 
+can_recycle = callable(recycle)
 
 def delete_file(path):
     if callable(recycle):

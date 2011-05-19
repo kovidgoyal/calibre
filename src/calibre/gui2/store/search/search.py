@@ -52,7 +52,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         stores_check_widget.setLayout(stores_group_layout)
         for x in sorted(self.store_plugins.keys(), key=lambda x: x.lower()):
             cbox = QCheckBox(x)
-            cbox.setChecked(True)
+            cbox.setChecked(False)
             stores_group_layout.addWidget(cbox)
             setattr(self, 'store_check_' + x, cbox)
         stores_group_layout.addStretch()
