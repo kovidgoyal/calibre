@@ -1,4 +1,5 @@
-import os.path
+# -*- coding: utf-8 -*-
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
@@ -628,8 +629,9 @@ from calibre.ebooks.metadata.sources.amazon import Amazon
 from calibre.ebooks.metadata.sources.openlibrary import OpenLibrary
 from calibre.ebooks.metadata.sources.isbndb import ISBNDB
 from calibre.ebooks.metadata.sources.overdrive import OverDrive
+from calibre.ebooks.metadata.sources.douban import Douban
 
-plugins += [GoogleBooks, Amazon, OpenLibrary, ISBNDB, OverDrive]
+plugins += [GoogleBooks, Amazon, OpenLibrary, ISBNDB, OverDrive, Douban]
 
 # }}}
 
@@ -1093,13 +1095,24 @@ plugins += [LookAndFeel, Behavior, Columns, Toolbar, Search, InputOptions,
 # Store plugins {{{
 class StoreAmazonKindleStore(StoreBase):
     name = 'Amazon Kindle'
-    description = _('Kindle books from Amazon')
+    description = _('Kindle books from Amazon.')
     actual_plugin = 'calibre.gui2.store.amazon_plugin:AmazonKindleStore'
+
+class StoreAmazonDEKindleStore(StoreBase):
+    name = 'Amazon DE Kindle'
+    description = _('Kindle books from Amazon.de.')
+    actual_plugin = 'calibre.gui2.store.amazon_de_plugin:AmazonDEKindleStore'
 
 class StoreAmazonUKKindleStore(StoreBase):
     name = 'Amazon UK Kindle'
-    description = _('Kindle books from Amazon.uk')
+    description = _('Kindle books from Amazon.uk.')
     actual_plugin = 'calibre.gui2.store.amazon_uk_plugin:AmazonUKKindleStore'
+
+class StoreArchiveOrgStore(StoreBase):
+    name = 'Archive.org'
+    description = _('Free Books : Download & Streaming : Ebook  and Texts Archive : Internet Archive.')
+    actual_plugin = 'calibre.gui2.store.archive_org_plugin:ArchiveOrgStore'
+
 
 class StoreBaenWebScriptionStore(StoreBase):
     name = 'Baen WebScription'
@@ -1110,6 +1123,11 @@ class StoreBNStore(StoreBase):
     name = 'Barnes and Noble'
     description = _('Books, Textbooks, eBooks, Toys, Games and More.')
     actual_plugin = 'calibre.gui2.store.bn_plugin:BNStore'
+
+class StoreBeamEBooksDEStore(StoreBase):
+    name = 'Beam EBooks DE'
+    description = _('Der eBook Shop.')
+    actual_plugin = 'calibre.gui2.store.beam_ebooks_de_plugin:BeamEBooksDEStore'
 
 class StoreBeWriteStore(StoreBase):
     name = 'BeWrite Books'
@@ -1126,15 +1144,30 @@ class StoreEbookscomStore(StoreBase):
     description = _('The digital bookstore.')
     actual_plugin = 'calibre.gui2.store.ebooks_com_plugin:EbookscomStore'
 
-class StoreEHarlequinStoretore(StoreBase):
+class StoreEPubBuyDEStore(StoreBase):
+    name = 'EPUBBuy DE'
+    description = _('EPUBReaders eBook Shop.')
+    actual_plugin = 'calibre.gui2.store.epubbuy_de_plugin:EPubBuyDEStore'
+
+class StoreEHarlequinStore(StoreBase):
     name = 'eHarlequin'
-    description = _('entertain, enrich, inspire.')
+    description = _('Entertain, enrich, inspire.')
     actual_plugin = 'calibre.gui2.store.eharlequin_plugin:EHarlequinStore'
 
 class StoreFeedbooksStore(StoreBase):
     name = 'Feedbooks'
     description = _('Read anywhere.')
     actual_plugin = 'calibre.gui2.store.feedbooks_plugin:FeedbooksStore'
+
+class StoreFoylesUKStore(StoreBase):
+    name = 'Foyles UK'
+    description = _('Foyles of London, online.')
+    actual_plugin = 'calibre.gui2.store.foyles_uk_plugin:FoylesUKStore'
+
+class StoreGoogleBooksStore(StoreBase):
+    name = 'Google Books'
+    description = _('Google Books')
+    actual_plugin = 'calibre.gui2.store.google_books_plugin:GoogleBooksStore'
 
 class StoreGutenbergStore(StoreBase):
     name = 'Project Gutenberg'
@@ -1153,8 +1186,13 @@ class StoreManyBooksStore(StoreBase):
 
 class StoreMobileReadStore(StoreBase):
     name = 'MobileRead'
-    description = _('Ebooks handcrafted with the utmost care')
+    description = _('Ebooks handcrafted with the utmost care.')
     actual_plugin = 'calibre.gui2.store.mobileread.mobileread_plugin:MobileReadStore'
+
+class StoreNextoStore(StoreBase):
+    name = 'Nexto'
+    description = _('Audiobooki mp3, ebooki, prasa - księgarnia internetowa.')
+    actual_plugin = 'calibre.gui2.store.nexto_plugin:NextoStore'
 
 class StoreOpenLibraryStore(StoreBase):
     name = 'Open Library'
@@ -1168,25 +1206,27 @@ class StoreSmashwordsStore(StoreBase):
 
 class StoreWaterstonesUKStore(StoreBase):
     name = 'Waterstones UK'
-    description = _('Feel every word')
+    description = _('Feel every word.')
     actual_plugin = 'calibre.gui2.store.waterstones_uk_plugin:WaterstonesUKStore'
 
-class StoreFoylesUKStore(StoreBase):
-    name = 'Foyles UK'
-    description = _('Foyles of London, online')
-    actual_plugin = 'calibre.gui2.store.foyles_uk_plugin:FoylesUKStore'
+class StoreWeightlessBooksStore(StoreBase):
+    name = 'Weightless Books'
+    description = '(e)Books That Don\'t Weigh You Down.'
+    actual_plugin = 'calibre.gui2.store.weightless_books_plugin:WeightlessBooksStore'
 
-class AmazonDEKindleStore(StoreBase):
-    name = 'Amazon DE Kindle'
-    description = _('Kindle eBooks')
-    actual_plugin = 'calibre.gui2.store.amazon_de_plugin:AmazonDEKindleStore'
+class StoreWizardsTowerBooksStore(StoreBase):
+    name = 'Wizards Tower Books'
+    description = 'Wizard\'s Tower Press.'
+    actual_plugin = 'calibre.gui2.store.wizards_tower_books_plugin:WizardsTowerBooksStore'
 
-plugins += [StoreAmazonKindleStore, AmazonDEKindleStore, StoreAmazonUKKindleStore,
-    StoreBaenWebScriptionStore, StoreBNStore,
-    StoreBeWriteStore, StoreDieselEbooksStore, StoreEbookscomStore,
-    StoreEHarlequinStoretore, StoreFeedbooksStore,
-    StoreFoylesUKStore, StoreGutenbergStore, StoreKoboStore, StoreManyBooksStore,
-    StoreMobileReadStore, StoreOpenLibraryStore, StoreSmashwordsStore,
-    StoreWaterstonesUKStore]
+plugins += [StoreArchiveOrgStore, StoreAmazonKindleStore, StoreAmazonDEKindleStore,
+    StoreAmazonUKKindleStore, StoreBaenWebScriptionStore, StoreBNStore,
+    StoreBeamEBooksDEStore, StoreBeWriteStore,
+    StoreDieselEbooksStore, StoreEbookscomStore, StoreEPubBuyDEStore,
+    StoreEHarlequinStore, StoreFeedbooksStore,
+    StoreFoylesUKStore, StoreGoogleBooksStore, StoreGutenbergStore,
+    StoreKoboStore, StoreManyBooksStore,
+    StoreMobileReadStore, StoreNextoStore, StoreOpenLibraryStore, StoreSmashwordsStore,
+    StoreWaterstonesUKStore, StoreWeightlessBooksStore, StoreWizardsTowerBooksStore]
 
 # }}}

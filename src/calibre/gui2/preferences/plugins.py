@@ -75,6 +75,8 @@ class PluginModel(QAbstractItemModel, SearchQueryParser): # {{{
 
     def find(self, query):
         query = query.strip()
+        if not query:
+            return QModelIndex()
         matches = self.parse(query)
         if not matches:
             return QModelIndex()
@@ -87,6 +89,8 @@ class PluginModel(QAbstractItemModel, SearchQueryParser): # {{{
 
     def find_next(self, idx, query, backwards=False):
         query = query.strip()
+        if not query:
+            return idx
         matches = self.parse(query)
         if not matches:
             return idx

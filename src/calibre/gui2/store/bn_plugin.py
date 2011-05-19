@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 import random
 import re
-import urllib2
+import urllib
 from contextlib import closing
 
 from lxml import html
@@ -48,7 +48,7 @@ class BNStore(BasicStoreConfig, StorePlugin):
 
     def search(self, query, max_results=10, timeout=60):
         url = 'http://productsearch.barnesandnoble.com/search/results.aspx?STORE=EBOOK&SZE=%s&WRD=' % max_results
-        url += urllib2.quote(query)
+        url += urllib.quote_plus(query)
         
         br = browser()
         

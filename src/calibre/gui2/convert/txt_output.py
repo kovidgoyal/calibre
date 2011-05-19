@@ -19,7 +19,7 @@ class PluginWidget(Widget, Ui_Form):
         Widget.__init__(self, parent,
         ['newline', 'max_line_length', 'force_max_line_length',
         'inline_toc', 'txt_output_formatting', 'keep_links', 'keep_image_references',
-        'txt_output_encoding'])
+        'keep_color', 'txt_output_encoding'])
         self.db, self.book_id = db, book_id
         for x in get_option('newline').option.choices:
             self.opt_newline.addItem(x)

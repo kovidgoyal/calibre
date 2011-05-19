@@ -30,11 +30,12 @@ int report_libc_error(const char *msg) {
 }
 
 int pyobject_to_int(PyObject *res) {
-    int ret; PyObject *tmp;
-    tmp = PyNumber_Int(res);
-    if (tmp == NULL) ret = (PyObject_IsTrue(res)) ? 1 : 0;
-    else ret = (int)PyInt_AS_LONG(tmp);
-
+    int ret = 0; PyObject *tmp;
+    if (res != NULL) {
+        tmp = PyNumber_Int(res);
+        if (tmp == NULL) ret = (PyObject_IsTrue(res)) ? 1 : 0;
+        else ret = (int)PyInt_AS_LONG(tmp);
+    }
     return ret;
 }
 
