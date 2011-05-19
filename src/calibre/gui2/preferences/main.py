@@ -361,10 +361,9 @@ class Preferences(QMainWindow):
             self.gui.tags_view.recount()
             self.gui.create_device_menu()
             self.gui.set_device_menu_items_state(bool(self.gui.device_connected))
-            self.gui.tool_bar.build_bar()
-            self.gui.menu_bar.build_bar()
+            self.gui.bars_manager.apply_settings()
+            self.gui.bars_manager.update_bars()
             self.gui.build_context_menus()
-            self.gui.tool_bar.apply_settings()
 
         return QMainWindow.closeEvent(self, *args)
 
