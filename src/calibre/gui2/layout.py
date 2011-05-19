@@ -259,10 +259,6 @@ class MainWindowMixin(object): # {{{
         self.search_bar = SearchBar(self)
         self.bars_manager = BarsManager(self.donate_button,
                 self.location_manager, self)
-        for bar in self.bars_manager.main_bars:
-            self.addToolBar(Qt.TopToolBarArea, bar)
-        for bar in self.bars_manager.child_bars:
-            self.addToolBar(Qt.BottomToolBarArea, bar)
         self.bars_manager.update_bars()
         self.setUnifiedTitleAndToolBarOnMac(True)
 
