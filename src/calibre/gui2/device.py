@@ -765,6 +765,7 @@ class DeviceMixin(object): # {{{
         info, cp, fs = job.result
         self.location_manager.update_devices(cp, fs,
                 self.device_manager.device.icon)
+        self.bars_manager.update_bars()
         self.status_bar.device_connected(info[0])
         self.device_manager.books(Dispatcher(self.metadata_downloaded))
 
@@ -1199,7 +1200,6 @@ class DeviceMixin(object): # {{{
         cp, fs = job.result
         self.location_manager.update_devices(cp, fs,
                 self.device_manager.device.icon)
-        self.bars_manager.update_bars()
         # reset the views so that up-to-date info is shown. These need to be
         # here because some drivers update collections in sync_booklists
         self.memory_view.reset()

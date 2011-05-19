@@ -319,6 +319,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def refresh_gui(self, gui):
         gui.bars_manager.init_bars()
+        gui.bars_manager.update_bars()
 
 
 if __name__ == '__main__':
