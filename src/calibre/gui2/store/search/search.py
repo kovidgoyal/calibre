@@ -190,7 +190,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         else:
             self.resize_columns()
 
-        self.open_external.setChecked(self.config.get('open_external', False))
+        self.open_external.setChecked(self.config.get('open_external', True))
 
         store_check = self.config.get('store_checked', None)
         if store_check:
