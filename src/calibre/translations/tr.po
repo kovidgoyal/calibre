@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-05-13 18:31+0000\n"
-"PO-Revision-Date: 2011-01-07 20:53+0000\n"
-"Last-Translator: Ozgur Demirel <Unknown>\n"
+"PO-Revision-Date: 2011-05-19 23:10+0000\n"
+"Last-Translator: Serdar Peker <Unknown>\n"
 "Language-Team: Turkish <tr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-05-14 04:49+0000\n"
+"X-Launchpad-Export-Date: 2011-05-20 04:33+0000\n"
 "X-Generator: Launchpad (build 12959)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -190,7 +190,7 @@ msgstr "Temel"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:148
 msgid "Customize"
-msgstr ""
+msgstr "Özelleştir"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:156
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:42
@@ -226,12 +226,12 @@ msgstr "Kullanıcı Arayüzü Eylemi"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:309
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:206
 msgid "Preferences"
-msgstr "Ayarlar"
+msgstr "Tercihler"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:609
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:33
 msgid "Store"
-msgstr ""
+msgstr "Kaydet"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:17
 msgid ""
@@ -267,6 +267,9 @@ msgid ""
 "Textile references to images. The referenced images as well as the TXT file "
 "are added to the archive."
 msgstr ""
+"Resimlere Textile veya Markdown referansları barındıran TXT dosyası içeri "
+"aktarıldığında TXTZ dosyası yarat. TXT dosyası ile birlikte referanslı "
+"resimler de arşive eklenir."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:167
 msgid "Extract cover from comic files"
@@ -321,7 +324,7 @@ msgstr "%s dosyalarından metadata belirle"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:872
 msgid "Look and Feel"
-msgstr "Görünüm"
+msgstr "Görünüm ve İzlenim"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:874
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:886
@@ -333,11 +336,11 @@ msgstr "Arayüz"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:878
 msgid "Adjust the look and feel of the calibre interface to suit your tastes"
-msgstr "Calibre'nin görünümünü zevklerinize uygun olarak değiştirin"
+msgstr "Calibre'nin arabirimini zevkinize uygun olarak ayarlayın"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:884
 msgid "Behavior"
-msgstr "İşleyiş"
+msgstr "Davranış"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:890
 msgid "Change the way calibre behaves"
@@ -354,23 +357,23 @@ msgstr "Calibre kitap listesine kendi sütunlarınızı ekleyin/çıkarın"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:906
 msgid "Toolbar"
-msgstr ""
+msgstr "Araç Çubuğu"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:912
 msgid ""
 "Customize the toolbars and context menus, changing which actions are "
 "available in each"
 msgstr ""
-"Her birinde hangi eylemlerin mümkün olduğunu değiştirmek suretiyle araç "
-"çubuğunu ve kontekst (sağ tık) menüsünü özelleştir"
+"Araç Çubuğunu ve kontekst(sağ tık) menüsünü özelleştir, böylece hangisinde "
+"hangi eylem olacağını değiştir."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:918
 msgid "Searching"
-msgstr ""
+msgstr "Aranıyor"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:924
 msgid "Customize the way searching for books works in calibre"
-msgstr ""
+msgstr "Calibre'deki kitap işleri için arama şeklini özelleştir"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:929
 msgid "Input Options"
@@ -388,7 +391,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:940
 msgid "Common Options"
-msgstr "Genel Seçenekler"
+msgstr "Ortak Seçenekler"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:946
 msgid "Set conversion options common to all formats"
@@ -404,7 +407,7 @@ msgstr "Her çıktı biçimine özel dönüştürme seçeneklerini belirle"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:962
 msgid "Adding books"
-msgstr "Kitaplar ekleniyor"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:964
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:976
@@ -428,8 +431,8 @@ msgid ""
 "Control how calibre exports files from its database to disk when using Save "
 "to disk"
 msgstr ""
-"Calibre'nin \"Diske kaydet\" kullanıldığında veritabanından dosyaları diske "
-"nasıl aktardığını kontrol et."
+"Diske kaydet kullanılırken Calibre'nin veritabanından diske nasıl dışa "
+"aktaracağını kontrol et"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:986
 msgid "Sending books to devices"
@@ -450,7 +453,7 @@ msgstr "Kaydetme/göndermeden önce metadata alanlarını değiştir"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1009
 msgid "Template Functions"
-msgstr ""
+msgstr "Şablon Fonksiyonları"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1011
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1058
@@ -461,17 +464,17 @@ msgstr "Gelişmiş"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1015
 msgid "Create your own template functions"
-msgstr ""
+msgstr "Kendi şablon fonksiyonlarını oluştur"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1020
 msgid "Sharing books by email"
-msgstr "Kitapların eposta ile paylaşımı"
+msgstr "Kitapları eposta ile paylaşıyor"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1022
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1034
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1047
 msgid "Sharing"
-msgstr "Paylaşım"
+msgstr "Paylaşıyor"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1026
 msgid ""
@@ -483,7 +486,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1032
 msgid "Sharing over the net"
-msgstr "İnternet üzerinde paylaşım"
+msgstr "Şebeke üzerinden paylaşıyor"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1038
 msgid ""
@@ -495,11 +498,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1045
 msgid "Metadata download"
-msgstr ""
+msgstr "Metadata indir"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1051
 msgid "Control how calibre downloads ebook metadata from the net"
-msgstr ""
+msgstr "Şebeke'den ekitap metadatasının nasıl indirileceğini kontrol et"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1056
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:273
@@ -516,7 +519,7 @@ msgstr "İnce Ayarlar"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1074
 msgid "Fine tune how calibre behaves in various contexts"
-msgstr "Farklı durumlarda Calibre'nin nasıl işleyeceğini belirle"
+msgstr "Farklı içeriklerde Calibre'nin nasıl davranacağını ince ayar"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1079
 msgid "Miscellaneous"
@@ -528,87 +531,87 @@ msgstr "Çeşitli gelişmiş ayarlar"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1097
 msgid "Kindle books from Amazon"
-msgstr ""
+msgstr "Amazon'dan Kindle kitapları"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1102
 msgid "Kindle eBooks"
-msgstr ""
+msgstr "Kindle ekitapları"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1107
 msgid "Kindle books from Amazon.uk"
-msgstr ""
+msgstr "Amazon.uk'den Kindle kitapları"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1112
 msgid "Ebooks for readers."
-msgstr ""
+msgstr "okuyucular için Ekitaplar"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1117
 msgid "Books, Textbooks, eBooks, Toys, Games and More."
-msgstr ""
+msgstr "Kitaplar, Ders kitapları, Ekitaplar, Oyuncaklar, Oyunlar ve fazlası"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1122
 msgid "der eBook Shop"
-msgstr ""
+msgstr "der eBook Shop"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1127
 msgid "Publishers of fine books."
-msgstr ""
+msgstr "İyi kitapların yayıncıları"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1132
 msgid "World Famous eBook Store."
-msgstr ""
+msgstr "Dünyaca Ünlü eKitap Mağazası"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1137
 msgid "The digital bookstore."
-msgstr ""
+msgstr "Dijital kitapevi"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1142
 msgid "EPUBReaders eBook Shop"
-msgstr ""
+msgstr "EPUBOkuyucuları eKitap Dükkanı"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1147
 msgid "entertain, enrich, inspire."
-msgstr ""
+msgstr "eğlen, zenginleştir, ilham al"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1152
 msgid "Read anywhere."
-msgstr ""
+msgstr "Her yerde oku"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1157
 msgid "Foyles of London, online"
-msgstr ""
+msgstr "Foyles of London, online"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1162
 msgid "The first producer of free ebooks."
-msgstr ""
+msgstr "Özgür ekitapların ilk üreticisi"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1167
 msgid "eReading: anytime. anyplace."
-msgstr ""
+msgstr "eOkuma:herhangi bir zamanda, herhangi bir yerde"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1172
 msgid "The best ebooks at the best price: free!"
-msgstr ""
+msgstr "En iyi ekitaplar en iyi fiyatla: Bedava!"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1177
 msgid "Ebooks handcrafted with the utmost care"
-msgstr ""
+msgstr "İtina ile elde üretilmiş Ekitaplar"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1182
 msgid "One web page for every book."
-msgstr ""
+msgstr "her kitap için bir web sayfası"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1187
 msgid "Your ebook. Your way."
-msgstr ""
+msgstr "Senin ekitabın. Senin tarzın."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1192
 msgid "Feel every word"
-msgstr ""
+msgstr "Her kelimeyi hisset"
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:102
 msgid "Conversion Input"
-msgstr "Dönüştürme Girdisi"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:134
 msgid ""
@@ -618,8 +621,8 @@ msgid ""
 "encoding declarations."
 msgstr ""
 "Girdi dökümanındaki dil kodlamasını belirtin. Belirtilirse, bu seçenek "
-"dökümanın kendisinde belirtilmiş herhangi bir kodlamayı yok sayar. Bilhassa "
-"kodlama belirtmeyen veya hatalı kodlama belirtilmiş dökümanlar için "
+"dökümanın kendisinde belirtilmiş herhangi bir kodlamanın üzerine yazar. "
+"Bilhassa kodlama belirtmeyen veya hatalı kodlama belirtilmiş dökümanlar için "
 "kullanışlıdır."
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:234
@@ -737,12 +740,14 @@ msgstr "768x1024 çözünürlüğe sahip iPad ve benzer cihazları hedefler."
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:438
 msgid "Intended for generic tablet devices, does no resizing of images"
 msgstr ""
+"Resimleri yeniden boyutlandırmayan generic tablet cihazlarını hedefler"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:446
 msgid ""
 "Intended for the Samsung Galaxy and similar tablet devices with a resolution "
 "of 600x1280"
 msgstr ""
+"600x1280 çözünürlüklü Samsung Galaxy ve benzer tablet cihazları hedefler"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:472
 msgid "This profile is intended for the Kobo Reader."
@@ -754,11 +759,11 @@ msgstr "Bu profil SONY PRS-300'ü hedefler."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:503
 msgid "Suitable for use with any e-ink device"
-msgstr ""
+msgstr "Herhangi e-mürekkep cihazı ile kullanıma uygun"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:510
 msgid "Suitable for use with any large screen e-ink device"
-msgstr ""
+msgstr "Herhangi geniş ekran e-mürekkep cihazı ile kullanıma uygun"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:519
 msgid "This profile is intended for the 5-inch JetBook."
@@ -778,11 +783,11 @@ msgstr "Bu profil Amazon Kindle DX'i hedefler."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:713
 msgid "This profile is intended for the B&N Nook Color."
-msgstr ""
+msgstr "Bu profil B&N Nook Color'ı hedefler"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:724
 msgid "This profile is intended for the Sanda Bambook."
-msgstr ""
+msgstr "Bu profil Sandra Barnbook'u hedefler"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:31
 msgid "Installed plugins"
@@ -853,7 +858,7 @@ msgstr "İsimlendirilmiş eklentiler geçersiz"
 
 #: /home/kovid/work/calibre/src/calibre/debug.py:152
 msgid "Debug log"
-msgstr ""
+msgstr "Hata ayıklama logu"
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:13
 msgid "Communicate with Android phones."
@@ -885,11 +890,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:65
 msgid "Disable Apple driver"
-msgstr ""
+msgstr "Apple sürücüsünü devre dışı bırak"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:69
 msgid "Enable Apple driver"
-msgstr ""
+msgstr "Apple sürücüsünü etkinleştir"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:117
 msgid "Use Series as Category in iTunes/iBooks"
@@ -898,6 +903,7 @@ msgstr "Seri'yi iTunes/iBooks'ta Kategori olarak kullan"
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:118
 msgid "Enable to use the series name as the iTunes Genre, iBooks Category"
 msgstr ""
+"Seri isimlerini iTunes Genre, ibook Category olarak  kullanmayı etkinleştir"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:120
 msgid "Cache covers from iTunes/iBooks"
@@ -906,6 +912,7 @@ msgstr "iTunes/iBooks'taki kapakları önbelleğe al"
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:122
 msgid "Enable to cache and display covers from iTunes/iBooks"
 msgstr ""
+"iTunes/iBooks''dan kapakları göstermeyi ve önbelleğe almayı etkinleştir"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:178
 msgid "Apple device"
@@ -924,11 +931,13 @@ msgid ""
 "Cannot copy books directly from iDevice. Drag from iTunes Library to "
 "desktop, then add to calibre's Library window."
 msgstr ""
+"Kitapları icihazdan doğrudan kopyalayamaz. iTunes Library'den masaüstüne "
+"sürükleyin, ardından calibre'nin Kütüphane penceresine ekleyin"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:357
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:360
 msgid "Updating device metadata listing..."
-msgstr ""
+msgstr "Cihaz metadata listelemesi güncelleniyor."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:436
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:475
@@ -944,7 +953,7 @@ msgstr "%d / %d"
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3133
 #: /home/kovid/work/calibre/src/calibre/gui2/ebook_download.py:106
 msgid "finished"
-msgstr "tamamlandı"
+msgstr "bitti"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:667
 msgid ""
@@ -994,26 +1003,29 @@ msgstr "iTunes ile iletişim kur."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:24
 msgid "Communicate with the Sanda Bambook eBook reader."
-msgstr ""
+msgstr "Sandra Bambook eBook okuyucusu ile iletişim kur"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:25
 msgid "Li Fanxi"
-msgstr ""
+msgstr "Li Fanxi"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:42
 msgid "Device IP Address (restart calibre after changing)"
-msgstr ""
+msgstr "Cihaz IP Adresi(değişimden sonra calibre'yi yeniden başlatın)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:47
 msgid ""
 "Unable to add book to library directly from Bambook. Please save the book to "
 "disk and add the file to library from disk."
 msgstr ""
+"Kitabı Bambook'dan kütüphaneye doğrudan ekliyemiyor. Lütfen kitabı diske "
+"kaydedin ve kütüphaneye diskden ekleyin"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:67
 msgid ""
 "Unable to connect to Bambook, you need to install Bambook library first."
 msgstr ""
+"Bambook ile iletişim kurulumayıor, önce Bambook kütüphanesini yüklemelisiniz."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:75
 msgid ""
@@ -1021,10 +1033,13 @@ msgid ""
 "If you are trying to connect via Wi-Fi, please make sure the IP address of "
 "Bambook has been correctly configured."
 msgstr ""
+"Bambook ile iletişim kurulamıyor\n"
+"Eğer Wi-Fi ile bağlanmaya çalışıyorsanız lütfen Bambook'un IP adresinin "
+"doğru ayarlandığından emin olun."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:112
 msgid "Bambook"
-msgstr ""
+msgstr "Bambook"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:218
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:234
@@ -1085,11 +1100,11 @@ msgstr "Metadata bilgileri cihaza gönderiliyor..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/libbambookcore.py:129
 msgid "Bambook SDK has not been installed."
-msgstr ""
+msgstr "Bambook SDK yüklenmedi"
 
 #: /home/kovid/work/calibre/src/calibre/devices/binatone/driver.py:17
 msgid "Communicate with the Binatone Readme eBook reader."
-msgstr "Binatone Readme eBook reader ile bağlantı kur"
+msgstr "Binatone Readme eBook okuyucu ile iletişim kur."
 
 #: /home/kovid/work/calibre/src/calibre/devices/blackberry/driver.py:13
 msgid "Communicate with the Blackberry smart phone."
@@ -1104,11 +1119,11 @@ msgstr "Kovid Goyal"
 
 #: /home/kovid/work/calibre/src/calibre/devices/boeye/driver.py:14
 msgid "Communicate with BOEYE BEX Serial eBook readers."
-msgstr ""
+msgstr "BOEYE BEX Serial eBook okuyucu ile iletişim kur."
 
 #: /home/kovid/work/calibre/src/calibre/devices/boeye/driver.py:35
 msgid "Communicate with BOEYE BDX serial eBook readers."
-msgstr ""
+msgstr "BOEYE BDX serial eBook okuyucu ile iletişim kur."
 
 #: /home/kovid/work/calibre/src/calibre/devices/cybook/driver.py:22
 msgid "Communicate with the Cybook Gen 3 / Opus eBook reader."
@@ -1116,7 +1131,7 @@ msgstr "Cybook Gen 3 / Opus eBook reader ile bağlantı kur"
 
 #: /home/kovid/work/calibre/src/calibre/devices/cybook/driver.py:64
 msgid "Communicate with the Cybook Orizon eBook reader."
-msgstr ""
+msgstr "Cybook Orizon eBook okuyucu ile iletişim kur."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:25
 msgid "Communicate with the EB600 eBook reader."
@@ -1132,11 +1147,11 @@ msgstr "PocketBook 301 reader ile iletişim kur."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:233
 msgid "Communicate with the PocketBook 602/603/902/903 reader."
-msgstr ""
+msgstr "PocketBook 602/603/902/903 okuyucu ile iletişim kur."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:253
 msgid "Communicate with the PocketBook 701"
-msgstr ""
+msgstr "PocketBook 701 ile iletişim kur"
 
 #: /home/kovid/work/calibre/src/calibre/devices/edge/driver.py:17
 msgid "Entourage Edge"
@@ -1157,7 +1172,7 @@ msgstr "Sigmatek eBook reader ile iletişim kur."
 #: /home/kovid/work/calibre/src/calibre/devices/folder_device/driver.py:16
 #: /home/kovid/work/calibre/src/calibre/devices/folder_device/driver.py:32
 msgid "Use an arbitrary folder as a device."
-msgstr ""
+msgstr "rastgele bir klasörü cihaz olarak kullan"
 
 #: /home/kovid/work/calibre/src/calibre/devices/folder_device/driver.py:28
 #: /home/kovid/work/calibre/src/calibre/devices/interface.py:14
@@ -1188,11 +1203,11 @@ msgstr "Hanvon N520 eBook reader ile bağlantı kur"
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:47
 msgid "Communicate with The Book reader."
-msgstr ""
+msgstr "The Book okuyucu ile iletişim kur"
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:59
 msgid "Communicate with the SpringDesign Alex eBook reader."
-msgstr "SpringDesign Alex eBook reader ile haberleş."
+msgstr "SpringDesign Alex eBook reader ile iletişim kur"
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:119
 msgid "Communicate with the Azbooka"
@@ -1200,7 +1215,7 @@ msgstr "Azbooka ile iletişim kur"
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:138
 msgid "Communicate with the Elonex EB 511 eBook reader."
-msgstr "Elonex EB 511 eBook reader ile haberleş."
+msgstr "Elonex EB 511 eBook reader ile iletişim kur."
 
 #: /home/kovid/work/calibre/src/calibre/devices/iliad/driver.py:16
 msgid "Communicate with the IRex Iliad eBook reader."
@@ -1214,7 +1229,7 @@ msgstr "John Schember"
 
 #: /home/kovid/work/calibre/src/calibre/devices/interface.py:54
 msgid "Cannot get files from this device"
-msgstr ""
+msgstr "Bu cihazdan dosyalar alınmıyor"
 
 #: /home/kovid/work/calibre/src/calibre/devices/irexdr/driver.py:16
 msgid "Communicate with the IRex Digital Reader 1000 eBook reader."
@@ -1234,19 +1249,19 @@ msgstr "JetBook eBook reader ile bağlantı kur"
 
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:88
 msgid "Communicate with the MiBuk Wolder reader."
-msgstr ""
+msgstr "MiBuk Wolder okuyucu ile iletişim kur."
 
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:116
 msgid "Communicate with the JetBook Mini reader."
-msgstr ""
+msgstr "JetBook Mini okuyucu ile iletişim kur."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/apnx.py:28
 msgid "Not a valid MOBI file. Reports identity of %s"
-msgstr ""
+msgstr "Geçerli MOBI dosyası değil. %s'in kimliğini rapor et"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/apnx.py:44
 msgid "Could not generate page mapping."
-msgstr ""
+msgstr "sayfa eşleşmesi yaratılamıyor."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:44
 msgid "Communicate with the Kindle eBook reader."
@@ -1254,11 +1269,11 @@ msgstr "Kindle eBook reader ile bağlantı kur"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:171
 msgid "Communicate with the Kindle 2/3 eBook reader."
-msgstr ""
+msgstr "Kindle 2/3 eBook okuyucu ile iletişim kur."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:180
 msgid "Send page number information when sending books"
-msgstr ""
+msgstr "Kitap gönderirken sayfa numarası bilgisini gönder"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:182
 msgid ""
@@ -1267,10 +1282,14 @@ msgid ""
 "the Kindle when uploading MOBI files by USB. Note that the page numbers do "
 "not correspond to any paper book."
 msgstr ""
+"Kindle 3 ve yeni versiyonları MOBI dosyalarında sayfa numara bilgisini "
+"kullanabilir. Bu seçenek ile USB'den MOBI dosyası yüklerken calibre bu "
+"bilgiyi hesaplayacak ve Kİndle'a gönderecektir. Sayfa numaralarının kağıt "
+"kitapların sayfaları ile uyuşmayacağını dikkate alın."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:187
 msgid "Use slower but more accurate page number generation"
-msgstr ""
+msgstr "Daha yavaş ama daha doğru sayfa numara oluşturmayı kullan"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:189
 msgid ""
@@ -1279,6 +1298,9 @@ msgid ""
 "book. However, this method is slower and will slow down sending files to the "
 "Kindle."
 msgstr ""
+"Sayfa numara bilgisi oluşturmanın iki yolu var. Daha doğru oluşturma yolunu "
+"kullanma basılı kitap ile daha iyi uyuşan sayfalar üretir. Fakat bu yöntem "
+"daha yavaştır ve Kindle'a dosya aktarımını yavaşlatacaktır."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:257
 msgid "Communicate with the Kindle DX eBook reader."
@@ -1293,6 +1315,8 @@ msgid ""
 "The Kobo supports only one collection currently: the \"Im_Reading\" list.  "
 "Create a tag called \"Im_Reading\" "
 msgstr ""
+"Kobo şu anda sadece bir kolleksiyonu destekliyor: \"Im_Reading\" Şu isimli "
+"bir etiket oluştur \"Im_Reading\" "
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:468
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:388
@@ -1304,6 +1328,9 @@ msgid ""
 "\".kobo\" files do not exist on the device as books instead, they are rows "
 "in the sqlite database. Currently they cannot be exported or viewed."
 msgstr ""
+"\".kobo\" dosyaları cihazda kitap olarak mevcut değil bunun yerine sqlite "
+"veritabanında satır olarak duruyorlar. Şu anda ne izlenebilirler ne de dışa "
+"aktarılabilirler."
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:19
 msgid "Communicate with the Palm Pre"
@@ -1311,56 +1338,56 @@ msgstr "Palm Pre ile iletişim kur"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:39
 msgid "Communicate with the Bq Avant"
-msgstr ""
+msgstr "Bq Avant ile iletişim kur"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:60
 msgid "Communicate with the Sweex/Kogan/Q600/Wink"
-msgstr ""
+msgstr "Sweex/Kogan/Q600/Wink ile iletişim kur"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:81
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:108
 msgid "Communicate with the Pandigital Novel"
-msgstr ""
+msgstr "Pandigital Novel ile iletişim kur"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:127
 msgid "Communicate with the VelocityMicro"
-msgstr ""
+msgstr "VelocityMicro ile iletişim kur"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:145
 msgid "Communicate with the GM2000"
-msgstr ""
+msgstr "GM2000 ile iletişim kur"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:165
 msgid "Communicate with the Acer Lumiread"
-msgstr ""
+msgstr "Acer Lumiread ile iletişim kur"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:199
 msgid "Communicate with the Aluratek Color"
-msgstr ""
+msgstr "Aluratek Color ile iletişim kur"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:219
 msgid "Communicate with the Trekstor"
-msgstr ""
+msgstr "Trekstor ile iletişim kur"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:239
 msgid "Communicate with the EEE Reader"
-msgstr ""
+msgstr "EEE Reader ile iletişim kur"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:259
 msgid "Communicate with the Nextbook Reader"
-msgstr ""
+msgstr "Nextbook Reader ile iletişim kur"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
-msgstr "Nokia 770 internet tablet ile bağlantı kur"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:40
 msgid "Communicate with the Nokia 810/900 internet tablet."
-msgstr ""
+msgstr "Nokia 810/900 internet tablet ile iletişim kur"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:74
 msgid "Communicate with the Nokia E52"
-msgstr ""
+msgstr "Nokia E52 ile iletişim kur"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:20
 msgid "The Nook"
@@ -1372,15 +1399,15 @@ msgstr "Nook eBook reader ile bağlantı kur"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:85
 msgid "Nook Color"
-msgstr ""
+msgstr "Nook Color"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:86
 msgid "Communicate with the Nook Color eBook reader."
-msgstr ""
+msgstr "Nook Color eBook okuyucu ile iletişim kur."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nuut2/driver.py:17
 msgid "Communicate with the Nuut2 eBook reader."
-msgstr "Nuut2 eBook reader ile bağlantı kur"
+msgstr "Nuut2 eBook"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs500/driver.py:89
 msgid "Communicate with the Sony PRS-500 eBook reader."
@@ -1388,11 +1415,11 @@ msgstr "Sony PRS-500 eBook reader ile bağlantı kur"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:22
 msgid "Communicate with all the Sony eBook readers."
-msgstr ""
+msgstr "Tüm Sony eBook okuyucuları ile iletişim kur"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:62
 msgid "All by title"
-msgstr ""
+msgstr "İsme göre tümü"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:63
 msgid "All by author"
