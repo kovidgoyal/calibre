@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 import re
 from random import shuffle
 
-from PyQt4.Qt import (Qt, QDialog, QTimer, QCheckBox, QVBoxLayout, QIcon) 
+from PyQt4.Qt import (Qt, QDialog, QTimer, QCheckBox, QVBoxLayout, QIcon, QWidget) 
 
 from calibre.gui2 import JSONConfig, info_dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
@@ -23,11 +23,13 @@ TIMEOUT = 75 # seconds
 
 class SearchDialog(QDialog, Ui_Dialog):
 
-    def __init__(self, istores, *args):
-        QDialog.__init__(self, *args)
+    def __init__(self, istores, parent=None, query=''):
+        QDialog.__init__(self, parent)
         self.setupUi(self)
 
         self.config = JSONConfig('store/search')
+        
+        self.search_edit.initialize('store_search_search')
 
         # We keep a cache of store plugins and reference them by name.
         self.store_plugins = istores
@@ -45,14 +47,19 @@ class SearchDialog(QDialog, Ui_Dialog):
         # Add check boxes for each store so the user
         # can disable searching specific stores on a
         # per search basis.
+        stores_check_widget = QWidget()
         stores_group_layout = QVBoxLayout()
-        self.stores_group.setLayout(stores_group_layout)
-        for x in self.store_plugins:
+        stores_check_widget.setLayout(stores_group_layout)
+        for x in sorted(self.store_plugins.keys(), key=lambda x: x.lower()):
             cbox = QCheckBox(x)
-            cbox.setChecked(True)
+            cbox.setChecked(False)
             stores_group_layout.addWidget(cbox)
             setattr(self, 'store_check_' + x, cbox)
         stores_group_layout.addStretch()
+        self.stores_group.setWidget(stores_check_widget)
+
+        # Set the search query
+        self.search_edit.setText(query)
 
         # Create and add the progress indicator
         self.pi = ProgressIndicator(self, 24)
@@ -93,7 +100,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         # Store / Formats
         self.results_view.setColumnWidth(4, int(total*.25))
 
-    def do_search(self, checked=False):
+    def do_search(self):
         # Stop all running threads.
         self.checker.stop()
         self.search_pool.abort()
@@ -136,14 +143,17 @@ class SearchDialog(QDialog, Ui_Dialog):
         query = query.replace('>', '')
         query = query.replace('<', '')
         # Remove the prefix.
-        for loc in ( 'all', 'author', 'authors', 'title'):
-            query = re.sub(r'%s:"?(?P<a>[^\s"]+)"?' % loc, '\g<a>', query)
+        for loc in ('all', 'author', 'authors', 'title'):
+            query = re.sub(r'%s:"(?P<a>[^\s"]+)"' % loc, '\g<a>', query)
+            query = query.replace('%s:' % loc, '')
         # Remove the prefix and search text.
         for loc in ('cover', 'drm', 'format', 'formats', 'price', 'store'):
             query = re.sub(r'%s:"[^"]"' % loc, '', query)
             query = re.sub(r'%s:[^\s]*' % loc, '', query)
         # Remove logic.
-        query = re.sub(r'(^|\s)(and|not|or)(\s|$)', ' ', query)
+        query = re.sub(r'(^|\s)(and|not|or|a|the|is|of)(\s|$)', ' ', query)
+        # Remove "
+        query = query.replace('"', '')
         # Remove excess whitespace.
         query = re.sub(r'\s{2,}', ' ', query)
         query = query.strip()
@@ -180,7 +190,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         else:
             self.resize_columns()
 
-        self.open_external.setChecked(self.config.get('open_external', False))
+        self.open_external.setChecked(self.config.get('open_external', True))
 
         store_check = self.config.get('store_checked', None)
         if store_check:
@@ -252,4 +262,9 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.search_pool.abort()
         self.cache_pool.abort()
         self.save_state()
+        
+    def exec_(self):
+        if unicode(self.search_edit.text()).strip():
+            self.do_search()
+        return QDialog.exec_(self)
 

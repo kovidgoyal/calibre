@@ -478,6 +478,10 @@ class EditMetadataAction(InterfaceAction):
         try:
             set_title = not mi.is_null('title')
             set_authors = not mi.is_null('authors')
+            idents = db.get_identifiers(i, index_is_id=True)
+            if mi.identifiers:
+                idents.update(mi.identifiers)
+            mi.identifiers = idents
             db.set_metadata(i, mi, commit=False, set_title=set_title,
                     set_authors=set_authors, notify=False)
             self.applied_ids.append(i)

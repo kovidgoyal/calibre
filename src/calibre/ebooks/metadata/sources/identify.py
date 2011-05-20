@@ -372,6 +372,18 @@ def identify(log, abort, # {{{
     longest, lp = -1, ''
     for plugin, presults in results.iteritems():
         presults.sort(key=plugin.identify_results_keygen(**sort_kwargs))
+
+        # Throw away lower priority results from the same source that have exactly the same
+        # title and authors as a higher priority result
+        filter_results = set()
+        filtered_results = []
+        for r in presults:
+            key = (r.title, tuple(r.authors))
+            if key not in filter_results:
+                filtered_results.append(r)
+                filter_results.add(key)
+        results[plugin] = presults = filtered_results
+
         plog = logs[plugin].getvalue().strip()
         log('\n'+'*'*30, plugin.name, '*'*30)
         log('Request extra headers:', plugin.browser.addheaders)
@@ -479,7 +491,7 @@ if __name__ == '__main__': # tests {{{
             (
                 {'title':'Magykal Papers',
                     'authors':['Sage']},
-                [title_test('The Magykal Papers', exact=True)],
+                [title_test('Septimus Heap: The Magykal Papers', exact=True)],
             ),
 
 
@@ -504,12 +516,6 @@ if __name__ == '__main__': # tests {{{
                 {'identifiers':{'isbn': '9781416580829'}},
                 [title_test('Angels & Demons',
                     exact=True), authors_test(['Dan Brown'])]
-            ),
-
-            ( # No ISBN
-                {'title':'Justine', 'authors':['Durrel']},
-                [title_test('Justine', exact=True),
-                    authors_test(['Lawrence Durrel'])]
             ),
 
             (  # A newer book

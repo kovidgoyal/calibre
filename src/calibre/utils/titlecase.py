@@ -10,7 +10,6 @@ License: http://www.opensource.org/licenses/mit-license.php
 import re
 
 from calibre.utils.icu import capitalize
-from calibre.utils.config import prefs
 
 __all__ = ['titlecase']
 __version__ = '0.5'
@@ -30,6 +29,17 @@ APOS_SECOND = re.compile(r"^[dol]{1}['‘]{1}[a-z]+$", re.I)
 ALL_CAPS = re.compile(r'^[A-Z\s%s]+$' % PUNCT)
 UC_INITIALS = re.compile(r"^(?:[A-Z]{1}\.{1}|[A-Z]{1}\.{1}[A-Z]{1})+$")
 MAC_MC = re.compile(r"^([Mm]a?c)(.+)")
+
+
+_lang = None
+
+def lang():
+    global _lang
+    if _lang is None:
+        from calibre.utils.localization import get_lang
+        _lang = get_lang().lower()
+    return _lang
+
 
 def titlecase(text):
 
@@ -68,7 +78,7 @@ def titlecase(text):
             line.append(icu_lower(word))
             continue
 
-        if prefs['language'].lower().startswith('en'):
+        if lang().startswith('en'):
             match = MAC_MC.match(word)
             if match and not match.group(2)[:3] in ('hin', 'ht'):
                 line.append("%s%s" % (capitalize(match.group(1)),

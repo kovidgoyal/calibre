@@ -71,9 +71,10 @@ class SourcesModel(QAbstractTableModel): # {{{
                     plugin.is_configured()):
             return QIcon(I('list_remove.png'))
         elif role == Qt.ToolTipRole:
+            base = plugin.description + '\n\n'
             if plugin.is_configured():
-                return _('This source is configured and ready to go')
-            return _('This source needs configuration')
+                return base + _('This source is configured and ready to go')
+            return base + _('This source needs configuration')
         return NONE
 
     def setData(self, index, val, role):

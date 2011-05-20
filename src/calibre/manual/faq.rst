@@ -22,7 +22,7 @@ It can convert every input format in the following list, to every output format.
 
 *Input Formats:* CBZ, CBR, CBC, CHM, EPUB, FB2, HTML, HTMLZ, LIT, LRF, MOBI, ODT, PDF, PRC, PDB, PML, RB, RTF, SNB, TCR, TXT, TXTZ
 
-*Output Formats:* EPUB, FB2, OEB, LIT, LRF, MOBI, HTMLZ, PDB, PML, RB, PDF, SNB, TCR, TXT, TXTZ
+*Output Formats:* EPUB, FB2, OEB, LIT, LRF, MOBI, HTMLZ, PDB, PML, RB, PDF, RTF, SNB, TCR, TXT, TXTZ
 
 .. note ::
 

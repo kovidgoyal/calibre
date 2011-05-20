@@ -288,8 +288,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
                 self.db_images.reset()
 
         self.library_view.model().count_changed()
-        self.tool_bar.database_changed(self.library_view.model().db)
-        self.library_view.model().database_changed.connect(self.tool_bar.database_changed,
+        self.bars_manager.database_changed(self.library_view.model().db)
+        self.library_view.model().database_changed.connect(self.bars_manager.database_changed,
                 type=Qt.QueuedConnection)
 
         ########################### Tags Browser ##############################
@@ -324,7 +324,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
 
         self.read_settings()
         self.finalize_layout()
-        if self.tool_bar.showing_donate:
+        if self.bars_manager.showing_donate:
             self.donate_button.start_animation()
         self.set_window_title()
 

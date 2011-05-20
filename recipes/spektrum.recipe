@@ -1,0 +1,28 @@
+from calibre.web.feeds.recipes import BasicNewsRecipe
+class AdvancedUserRecipe1303841067(BasicNewsRecipe):
+    title          = u'Spektrum (der Wissenschaft)'
+    __author__  = 'schuster'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    language               = 'de'
+    cover_url = 'http://upload.wikimedia.org/wikipedia/de/3/3b/Spektrum_der_Wissenschaft_Logo.svg'
+
+    remove_tags = [dict(attrs={'class':['hauptnaviPkt gainlayout', 'hauptnaviButton', 'suchButton', 'suchbegriffKasten', 'loginButton', 'subnavigation', 'artikelInfoLeiste gainlayout', 'artikelTools', 'nurLetzteSeite', 'link', 'boxUnterArtikel', 'leserbriefeBlock', 'boxTitel', 'boxInhalt', 'sehrklein', 'boxabstand', 'werbeboxinhalt', 'rbabstand', 'bildlinks', 'rechtebox', 'denkmalbox', 'denkmalfrage']}),
+	dict(id=['pflip', 'verlagsleiste', 'bereich', 'bannerVertikal', 'headerLogoLink', 'kopf', 'topNavi', 'headerSchnellsuche', 'headerSchnellsucheWarten', 'navigation', 'navigationL', 'navigationR', 'inhalt', 'rechtespalte', 'sdwboxenshop', 'shopboxen', 'fuss']),
+	dict(name=['naservice'])]
+
+    def print_version(self,url):
+        newurl = url.replace('artikel/', 'sixcms/detail.php?id=')
+        return newurl + '&_druckversion=1'
+
+
+
+    feeds          = [(u'Spektrum der Wissenschaft', u'http://www.spektrum.de/artikel/982623'),
+                          (u'SpektrumDirekt', u'http://www.spektrumdirekt.de/artikel/996406'),
+                          (u'Sterne und Weltraum', u'http://www.astronomie-heute.de/artikel/865248'),
+                          (u'Gehirn & Geist', u'http://www.gehirn-und-geist.de/artikel/982626'),
+                          (u'epoc', u'http://www.epoc.de/artikel/982625')
+
+]
+
+    filter_regexps = [r'ads\.doubleclick\.net']

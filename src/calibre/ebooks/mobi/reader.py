@@ -690,6 +690,14 @@ class MobiReader(object):
                 lm = unit_convert('2em', 12, 500, 166)
             lm = self.left_margins.get(tag, lm)
             ti = self.text_indents.get(tag, ti)
+            try:
+                lm = float(lm)
+            except:
+                lm = 0.0
+            try:
+                ti = float(ti)
+            except:
+                ti = 0.0
             return lm + ti
 
         parent = tag
