@@ -67,7 +67,7 @@ def find_plugboard(device_name, format, plugboards):
             cpb = pb[device_name]
         elif plugboard_any_device_value in pb:
             cpb = pb[plugboard_any_device_value]
-    if True or DEBUG:
+    if DEBUG:
         prints('Device using plugboard', format, device_name, cpb)
     return cpb
 

@@ -3,8 +3,9 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class AdvancedUserRecipe1295262156(BasicNewsRecipe):
     title          = u'kath.net'
     __author__     = 'Bobus'
+    description    = u'Katholische Nachrichten'
     oldest_article = 7
-    language = 'en'
+    language = 'de'
     max_articles_per_feed = 100
 
     feeds          = [(u'kath.net', u'http://www.kath.net/2005/xml/index.xml')]

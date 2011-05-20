@@ -246,6 +246,8 @@ class BarsManager(QObject):
         self.main_bars = tuple(bars[:2])
         self.child_bars = tuple(bars[2:])
 
+        self.menu_bar = MenuBar(self.location_manager, self.parent())
+        self.parent().setMenuBar(self.menu_bar)
 
         self.apply_settings()
         self.init_bars()
@@ -295,11 +297,9 @@ class BarsManager(QObject):
         if child_bar.added_actions:
             child_bar.setVisible(True)
 
-        self.menu_bar = MenuBar(self.location_manager, self.parent())
         self.menu_bar.init_bar(self.bar_actions[4 if showing_device else 3])
         self.menu_bar.update_lm_actions()
         self.menu_bar.setVisible(bool(self.menu_bar.added_actions))
-        self.parent().setMenuBar(self.menu_bar)
 
     def apply_settings(self):
         sz = gprefs['toolbar_icon_size']
