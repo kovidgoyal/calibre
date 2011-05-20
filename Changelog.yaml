@@ -34,7 +34,7 @@
 
     - title: "Add a tweak that controls what words are treated as suffixes when generating an author sort string from an author name."
 
-    - title: "Get Books: Store alst few searches in history"
+    - title: "Get Books: Store last few searches in history"
   
   bug fixes:
     - title: "Fix a crash when a device is connected/disconnected while a modal dialog opened from the toolbar is visible"
