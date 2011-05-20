@@ -19,6 +19,72 @@
 #  new recipes:
 #    - title: 
 
+- version: 0.8.2
+  date: 2011-05-20
+
+  new features:
+    - title: "Various new ebook sources added to Get Books: Google Books, O'Reilly, archive.org, some Polish ebooks stores, etc."
+
+    - title: "Amazon metadata download: Allow user to configure Amazon plugin to use any of the US, UK, German, French and Italian Amazon websites"
+
+    - title: "When deleting large numbers of books, give the user the option to skip the Recycle Bin, since sending lots of files to the recycle bin can be very slow."
+      tickets: [784987]
+
+    - title: "OS X: The unified title+toolbar was disabled as it had various bugs. If you really want it you can turn it on again via Preferences->Tweaks, but be aware that you will see problems like the calibre windowd being too wide, weird animations when a device is detected, etc."
+
+    - title: "Add a tweak that controls what words are treated as suffixes when generating an author sort string from an author name."
+
+    - title: "Get Books: Store alst few searches in history"
+  
+  bug fixes:
+    - title: "Fix a crash when a device is connected/disconnected while a modal dialog opened from the toolbar is visible"
+      tickets: [780484]
+
+    - title: "Fix incorrect results from ebooks.com when searching via Get Books"
+
+    - title: "Metadata plugboards: Add prioritization scheme to allow for using different settings for different locations"
+      tickets: [783229]
+
+    - title: "Fix manage authors dialog too wide"
+      tickets: [783065]
+
+    - title: "Fix multiple bracket types in author names not handled correctly when generating author sort string"
+      tickets: [782551]
+
+    - title: "MOBI Input: Don't error out when detecting TOC structure if one of the elements has an invalid margin unit"
+
+    - title: "More fixes for japanese language calibre on windows"
+      tickets: [782408]
+
+    - title: "Linux binaries: Always use either Cleanlook or Plastique styles for the GUI if no style can be loaded from the host computer"
+
+  improved recipes:
+    - Newsweek
+    - Economist
+    - Dvhn
+    - United Daily
+    - Dagens Nyheter
+    - GoComics
+    - faz.net
+    - golem.de
+
+  new recipes:
+    - title: National Geographic
+      author: gagsays
+    
+    - title: Various German news sources
+      author: schuster
+
+    - title: Dilema Veche
+      author: Silviu Cotoara
+
+    - title: "Glamour, Good to Know, Good Housekeeping and Men's Health"
+      author: Anonymous
+
+    - title: "Financial Sense and iProfessional"
+      author: Darko Miletic
+
+
 - version: 0.8.1
   date: 2011-05-13
 
