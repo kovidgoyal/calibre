@@ -374,13 +374,18 @@ To accomplish this, we:
 Templates and Plugboards
 ------------------------
 
-Plugboards are used for changing the metadata written into books during send-to-device and save-to-disk operations. A plugboard permits you to specify a template to provide the data to write into the book's metadata. You can use plugboards to modify the following fields: authors, author_sort, language, publisher, tags, title, title_sort. This feature should help those of you who want to use different metadata in your books on devices to solve sorting or display issues.
+Plugboards are used for changing the metadata written into books during send-to-device and save-to-disk operations. A plugboard permits you to specify a template to provide the data to write into the book's metadata. You can use plugboards to modify the following fields: authors, author_sort, language, publisher, tags, title, title_sort. This feature helps people who want to use different metadata in books on devices to solve sorting or display issues.
 
-When you create a plugboard, you specify the format and device for which the plugboard is to be used. A special device is provided, save_to_disk, that is used when saving formats (as opposed to sending them to a device). Once you have chosen the format and device, you choose the metadata fields to change, providing templates to supply the new values. These templates are `connected` to their destination fields, hence the name `plugboards`. You can, of course, use composite columns in these templates. 
+When you create a plugboard, you specify the format and device for which the plugboard is to be used. A special device is provided, save_to_disk, that is used when saving formats (as opposed to sending them to a device). Once you have chosen the format and device, you choose the metadata fields to change, providing templates to supply the new values. These templates are `connected` to their destination fields, hence the name `plugboards`. You can, of course, use composite columns in these templates.
 
-The tags and authors fields have special treatment, because both of these fields can hold more than one item. After all, book can have many tags and many authors. When you specify that one of these two fields is to be changed, the result of evaluating the template is examined to see if more than one item is there.
+When a plugboard might apply (content server, save to disk, or send to device), |app| searches the defined plugboards to choose the correct one for the given format and device. For example, to find the appropriate plugboard for an EPUB book being sent to an ANDROID device, |app| searches the plugboards using the following search order:
 
-For tags, the result cut apart whereever |app| finds a comma. For example, if the template produces the value ``Thriller, Horror``, then the result will be two tags, ``Thriller`` and ``Horror``. There is no way to put a comma in the middle of a tag.
+    * a plugboard with an exact match on format and device, e.g., ``EPUB`` and ``ANDROID``
+    * a plugboard with an exact match on format and the special ``any device`` choice, e.g., ``EPUB`` and ``any device``
+    * a plugboard with the special ``any format`` choice and an exact match on device, e.g., ``any format`` and ``ANDROID``
+    * a plugboard with ``any format`` and ``any device``
+    
+The tags and authors fields have special treatment, because both of these fields can hold more than one item. A book can have many tags and many authors. When you specify that one of these two fields is to be changed, the template's result is examined to see if more than one item is there. For tags, the result is cut apart wherever |app| finds a comma. For example, if the template produces the value ``Thriller, Horror``, then the result will be two tags, ``Thriller`` and ``Horror``. There is no way to put a comma in the middle of a tag.
 
 The same thing happens for authors, but using a different character for the cut, a `&` (ampersand) instead of a comma. For example, if the template produces the value ``Blogs, Joe&Posts, Susan``, then the book will end up with two authors, ``Blogs, Joe`` and ``Posts, Susan``. If the template produces the value ``Blogs, Joe;Posts, Susan``, then the book will have one author with a rather strange name.
 
