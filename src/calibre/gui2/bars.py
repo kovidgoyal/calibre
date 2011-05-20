@@ -249,10 +249,6 @@ class BarsManager(QObject):
         self.menu_bar = MenuBar(self.location_manager, self.parent())
         self.parent().setMenuBar(self.menu_bar)
 
-        parent.addToolBar(Qt.TopToolBarArea, self.main_bars[0])
-        parent.addToolBar(Qt.BottomToolBarArea, self.main_bars[1])
-        parent.addToolBar(Qt.BottomToolBarArea, self.child_bars[0])
-
         self.apply_settings()
         self.init_bars()
 
@@ -292,15 +288,12 @@ class BarsManager(QObject):
         '''
         showing_device = self.location_manager.has_device
         main_bar = self.main_bars[1 if showing_device else 0]
-        hidden_bar = self.main_bars[0 if showing_device else 1]
-        self.parent().addToolBar(Qt.BottomToolBarArea, hidden_bar)
         child_bar = self.child_bars[0]
         for bar in self.bars:
             bar.setVisible(False)
             bar.update_lm_actions()
         if main_bar.added_actions:
             main_bar.setVisible(True)
-            self.parent().addToolBar(Qt.TopToolBarArea, main_bar)
         if child_bar.added_actions:
             child_bar.setVisible(True)
 
