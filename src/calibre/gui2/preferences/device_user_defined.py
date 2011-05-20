@@ -76,7 +76,7 @@ class UserDefinedDevice(QDialog):
                     for i,d in enumerate(sorted(new_drives,
                                     key=lambda x: after['drive_details'][x][0])):
                         if i == 0:
-                            res +=  _('Windows main memory ID string') + ': ' + \
+                            res +=  _('Windows main memory vendor string') + ': ' + \
                                     after['drive_details'][d][1] + '\n'
                             res += _('Windows main memory ID string') + ': ' + \
                                     after['drive_details'][d][2] + '\n'
