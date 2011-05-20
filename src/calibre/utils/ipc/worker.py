@@ -55,7 +55,7 @@ PARALLEL_FUNCS = {
       ('calibre.utils.ipc.worker', 'arbitrary', None),
 
       'arbitrary_n' :
-      ('calibre.utils.ipc.worker', 'arbitrary', 'notification'),
+      ('calibre.utils.ipc.worker', 'arbitrary_n', 'notification'),
 }
 
 class Progress(Thread):
