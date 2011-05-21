@@ -115,7 +115,7 @@
 				<Property Id="ARPPRODUCTICON" Value="main_icon" />
 
                 <Condition
-                    Message="This application is only supported on Windows XP SP2, or higher.">
+                    Message="This application is only supported on Windows XP SP3, or higher.">
                     <![CDATA[Installed OR (VersionNT >= 501)]]>
                 </Condition>
                 <InstallExecuteSequence>
