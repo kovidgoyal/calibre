@@ -20,7 +20,7 @@ from itertools import izip
 from calibre.customize.conversion import InputFormatPlugin
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.customize.conversion import OptionRecommendation
-from calibre.constants import islinux, isfreebsd, iswindows
+from calibre.constants import islinux, isbsd, iswindows
 from calibre import unicode_path, as_unicode
 from calibre.utils.localization import get_lang
 from calibre.utils.filenames import ascii_filename
@@ -302,7 +302,7 @@ class HTMLInput(InputFormatPlugin):
         if getattr(self, '_is_case_sensitive', None) is not None:
             return self._is_case_sensitive
         if not path or not os.path.exists(path):
-            return islinux or isfreebsd
+            return islinux or isbsd
         self._is_case_sensitive = not (os.path.exists(path.lower()) \
                 and os.path.exists(path.upper()))
         return self._is_case_sensitive
