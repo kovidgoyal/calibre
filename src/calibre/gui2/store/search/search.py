@@ -9,10 +9,12 @@ __docformat__ = 'restructuredtext en'
 import re
 from random import shuffle
 
-from PyQt4.Qt import (Qt, QDialog, QTimer, QCheckBox, QVBoxLayout, QIcon, QWidget) 
+from PyQt4.Qt import (Qt, QDialog, QDialogButtonBox, QTimer, QCheckBox,
+                      QVBoxLayout, QIcon, QWidget) 
 
 from calibre.gui2 import JSONConfig, info_dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
+from calibre.gui2.store.config.search_widget import StoreConfigWidget
 from calibre.gui2.store.search.adv_search_builder import AdvSearchBuilderDialog
 from calibre.gui2.store.search.download_thread import SearchThreadPool, \
     CacheUpdateThreadPool
@@ -224,9 +226,23 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.details_thread_count = self.config.get('details_thread_count', 4)
 
     def do_config(self):
-        pass
+        d = QDialog(self)
+        button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        v = QVBoxLayout(d)
+        button_box.accepted.connect(d.accept)
+        button_box.rejected.connect(d.reject)
+        d.setWindowTitle(_('Customize get books search'))
+        config_widget = StoreConfigWidget(self.config)
+        v.addWidget(config_widget)
+        v.addWidget(button_box)
+        
+        d.exec_()
+        
+        if d.result() == QDialog.Accepted:
+            config_widget.save_settings()
+            self.config_changed()
 
-    def config_finished(self):
+    def config_changed(self):
         self.load_settings()
         
         self.search_pool.set_thread_count(self.search_thread_count)
