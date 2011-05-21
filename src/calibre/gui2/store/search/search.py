@@ -78,9 +78,11 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.checker.timeout.connect(self.get_results)
         self.progress_checker.timeout.connect(self.check_progress)
         self.results_view.activated.connect(self.open_store)
+        self.results_view.model().total_changed.connect(self.update_book_total)
         self.select_all_stores.clicked.connect(self.stores_select_all)
         self.select_invert_stores.clicked.connect(self.stores_select_invert)
         self.select_none_stores.clicked.connect(self.stores_select_none)
+        self.configure.clicked.connect(self.do_config)
         self.finished.connect(self.dialog_closed)
 
         self.progress_checker.start(100)
@@ -221,6 +223,9 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.cover_thread_count = self.config.get('cover_thread_count', 2)
         self.details_thread_count = self.config.get('details_thread_count', 4)
 
+    def do_config(self):
+        pass
+
     def config_finished(self):
         self.load_settings()
         
@@ -249,6 +254,8 @@ class SearchDialog(QDialog, Ui_Dialog):
         if not self.search_pool.threads_running() and not self.results_view.model().has_results():
             info_dialog(self, _('No matches'), _('Couldn\'t find any books matching your query.'), show=True, show_copy_button=False)
 
+    def update_book_total(self, total):
+        self.total.setText('%s' % total)
 
     def open_store(self, index):
         result = self.results_view.model().get_result(index)

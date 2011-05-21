@@ -82,8 +82,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>207</width>
-            <height>130</height>
+            <width>102</width>
+            <height>129</height>
            </rect>
           </property>
          </widget>
@@ -209,7 +209,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="book_count">
+      <widget class="QLabel" name="total">
        <property name="text">
         <string>0</string>
        </property>

@@ -9,7 +9,8 @@ __docformat__ = 'restructuredtext en'
 import re
 from operator import attrgetter
 
-from PyQt4.Qt import (Qt, QAbstractItemModel, QVariant, QPixmap, QModelIndex, QSize)
+from PyQt4.Qt import (Qt, QAbstractItemModel, QVariant, QPixmap, QModelIndex, QSize,
+                      pyqtSignal)
 
 from calibre.gui2 import NONE
 from calibre.gui2.store.search_result import SearchResult
@@ -29,6 +30,8 @@ def comparable_price(text):
 
 
 class Matches(QAbstractItemModel):
+
+    total_changed = pyqtSignal(int)
 
     HEADERS = [_('Cover'), _('Title'), _('Price'), _('DRM'), _('Store')]
     HTML_COLS = (1, 4)
@@ -69,6 +72,7 @@ class Matches(QAbstractItemModel):
         self.query = ''
         self.cover_pool.abort()
         self.details_pool.abort()
+        self.total_changed.emit(self.rowCount())
         self.reset()
 
     def add_result(self, result, store_plugin):
@@ -101,6 +105,7 @@ class Matches(QAbstractItemModel):
             self.matches = list(self.search_filter.parse(self.query))
         else:
             self.matches = list(self.search_filter.universal_set())
+        self.total_changed.emit(self.rowCount())
         self.sort(self.sort_col, self.sort_order, False)
         self.layoutChanged.emit()
 
