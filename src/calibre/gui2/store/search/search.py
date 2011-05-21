@@ -54,15 +54,15 @@ class SearchDialog(QDialog, Ui_Dialog):
         # can disable searching specific stores on a
         # per search basis.
         stores_check_widget = QWidget()
-        stores_group_layout = QVBoxLayout()
-        stores_check_widget.setLayout(stores_group_layout)
+        store_list_layout = QVBoxLayout()
+        stores_check_widget.setLayout(store_list_layout)
         for x in sorted(self.store_plugins.keys(), key=lambda x: x.lower()):
             cbox = QCheckBox(x)
             cbox.setChecked(False)
-            stores_group_layout.addWidget(cbox)
+            store_list_layout.addWidget(cbox)
             setattr(self, 'store_check_' + x, cbox)
-        stores_group_layout.addStretch()
-        self.stores_group.setWidget(stores_check_widget)
+        store_list_layout.addStretch()
+        self.store_list.setWidget(stores_check_widget)
 
         # Set the search query
         self.search_edit.setText(query)
