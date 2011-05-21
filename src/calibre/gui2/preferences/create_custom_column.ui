@@ -304,8 +304,8 @@ Everything else will show nothing.</string>
         </widget>
        </item>
        <item row="6" column="2">
-        <layout class="QHBoxLayout" name="horizontalLayout_2">
-         <item>
+        <layout class="QGridLayout" name="horizontalLayout_2">
+         <item row="0" column="0">
           <widget class="QLineEdit" name="enum_box">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -320,13 +320,34 @@ four values, the first of them being the empty value.</string>
            </property>
           </widget>
          </item>
-         <item>
+         <item row="0" column="1">
           <widget class="QLabel" name="enum_default_label">
            <property name="toolTip">
             <string>The empty string is always the first value</string>
            </property>
            <property name="text">
-            <string>Default: (nothing)</string>
+            <string>Values</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLineEdit" name="enum_colors">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="toolTip">
+            <string>A list of color names to use when displaying an item. The
+list must be empty or contain a color for each value.</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QLabel" name="enum_colors_label">
+           <property name="text">
+            <string>Colors</string>
            </property>
           </widget>
          </item>

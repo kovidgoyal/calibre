@@ -6,7 +6,7 @@ __copyright__ = '2010, Kovid Goyal <kovid at kovidgoyal.net>'
 import re
 from functools import partial
 
-from PyQt4.Qt import QDialog, Qt, QListWidgetItem, QVariant
+from PyQt4.Qt import QDialog, Qt, QListWidgetItem, QVariant, QColor
 
 from calibre.gui2.preferences.create_custom_column_ui import Ui_QCreateCustomColumn
 from calibre.gui2 import error_dialog
@@ -126,6 +126,7 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
                                 c['display'].get('make_category', False))
         elif ct == 'enumeration':
             self.enum_box.setText(','.join(c['display'].get('enum_values', [])))
+            self.enum_colors.setText(','.join(c['display'].get('enum_colors', [])))
         self.datatype_changed()
         if ct in ['text', 'composite', 'enumeration']:
             self.use_decorations.setChecked(c['display'].get('use_decorations', False))
@@ -170,7 +171,7 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
         for x in ('box', 'default_label', 'label', 'sort_by', 'sort_by_label',
                   'make_category'):
             getattr(self, 'composite_'+x).setVisible(col_type in ['composite', '*composite'])
-        for x in ('box', 'default_label', 'label'):
+        for x in ('box', 'default_label', 'label', 'colors', 'colors_label'):
             getattr(self, 'enum_'+x).setVisible(col_type == 'enumeration')
         self.use_decorations.setVisible(col_type in ['text', 'composite', 'enumeration'])
         self.is_names.setVisible(col_type == '*text')
@@ -247,7 +248,21 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
                 if l[i] in l[i+1:]:
                     return self.simple_error('', _('The value "{0}" is in the '
                     'list more than once').format(l[i]))
-            display_dict = {'enum_values': l}
+            c = unicode(self.enum_colors.text())
+            if c:
+                c = [v.strip() for v in unicode(self.enum_colors.text()).split(',')]
+            else:
+                c = []
+            print c, len(c)
+            if len(c) != 0 and len(c) != len(l):
+                return self.simple_error('', _('The colors box must be empty or '
+                'contain the same number of items as the value box'))
+            for tc in c:
+                if tc not in QColor.colorNames():
+                    return self.simple_error('',
+                            _('The color {0} is unknown').format(tc))
+
+            display_dict = {'enum_values': l, 'enum_colors': c}
         elif col_type == 'text' and is_multiple:
             display_dict = {'is_names': self.is_names.isChecked()}
 

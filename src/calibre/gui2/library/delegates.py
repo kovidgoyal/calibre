@@ -274,6 +274,31 @@ class CcEnumDelegate(QStyledItemDelegate): # {{{
     Delegate for text/int/float data.
     '''
 
+    def __init__(self, parent):
+        QStyledItemDelegate.__init__(self, parent)
+        self.document = QTextDocument()
+
+    def paint(self, painter, option, index):
+        style = self.parent().style()
+        txt = unicode(index.data(Qt.DisplayRole).toString())
+        self.document.setPlainText(txt)
+        painter.save()
+        if hasattr(QStyle, 'CE_ItemViewItem'):
+            style.drawControl(QStyle.CE_ItemViewItem, option,
+                    painter, self.parent())
+        elif option.state & QStyle.State_Selected:
+            painter.fillRect(option.rect, option.palette.highlight())
+        m = index.model()
+        col = m.column_map[index.column()]
+        colors = m.custom_columns[col]['display'].get('enum_colors', [])
+        values = m.custom_columns[col]['display']['enum_values']
+        if len(colors) > 0 and txt in values:
+            painter.fillRect(option.rect, QColor(colors[values.index(txt)]))
+        painter.setClipRect(option.rect)
+        painter.translate(option.rect.topLeft())
+        self.document.drawContents(painter)
+        painter.restore()
+
     def createEditor(self, parent, option, index):
         m = index.model()
         col = m.column_map[index.column()]
