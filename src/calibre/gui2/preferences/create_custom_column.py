@@ -132,6 +132,9 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
             self.use_decorations.setChecked(c['display'].get('use_decorations', False))
         elif ct == '*text':
             self.is_names.setChecked(c['display'].get('is_names', False))
+
+        all_colors = [unicode(s) for s in list(QColor.colorNames())]
+        self.enum_colors_label.setToolTip('<p>' + ', '.join(all_colors) + '</p>')
         self.exec_()
 
     def shortcut_activated(self, url):
@@ -253,7 +256,6 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
                 c = [v.strip() for v in unicode(self.enum_colors.text()).split(',')]
             else:
                 c = []
-            print c, len(c)
             if len(c) != 0 and len(c) != len(l):
                 return self.simple_error('', _('The colors box must be empty or '
                 'contain the same number of items as the value box'))
