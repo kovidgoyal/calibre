@@ -18,9 +18,6 @@ from calibre.gui2.store.search.download_thread import SearchThreadPool, \
     CacheUpdateThreadPool
 from calibre.gui2.store.search.search_ui import Ui_Dialog
 
-HANG_TIME = 75000 # milliseconds seconds
-TIMEOUT = 75 # seconds
-
 class SearchDialog(QDialog, Ui_Dialog):
 
     def __init__(self, istores, parent=None, query=''):
@@ -28,13 +25,22 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.setupUi(self)
 
         self.config = JSONConfig('store/search')
-        
         self.search_edit.initialize('store_search_search')
+        
+        # Loads variables that store various settings.
+        # This needs to be called soon in __init__ because
+        # the variables it sets up are used later.
+        self.load_settings()
 
         # We keep a cache of store plugins and reference them by name.
         self.store_plugins = istores
-        self.search_pool = SearchThreadPool(4)
-        self.cache_pool = CacheUpdateThreadPool(2)
+
+        # Setup our worker threads.
+        self.search_pool = SearchThreadPool(self.search_thread_count)
+        self.cache_pool = CacheUpdateThreadPool(self.cache_thread_count)
+        self.results_view.model().cover_pool.set_thread_count(self.cover_thread_count)
+        self.results_view.model().details_pool.set_thread_count(self.details_thread_count)
+        
         # Check for results and hung threads.
         self.checker = QTimer()
         self.progress_checker = QTimer()
@@ -42,7 +48,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         
         # Update store caches silently.
         for p in self.store_plugins.values():
-            self.cache_pool.add_task(p, 30)
+            self.cache_pool.add_task(p, self.timeout)
 
         # Add check boxes for each store so the user
         # can disable searching specific stores on a
@@ -128,7 +134,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         # Add plugins that the user has checked to the search pool's work queue.
         for n in store_names:
             if getattr(self, 'store_check_' + n).isChecked():
-                self.search_pool.add_task(query, n, self.store_plugins[n], TIMEOUT)
+                self.search_pool.add_task(query, n, self.store_plugins[n], self.max_results, self.timeout)
         self.hang_check = 0
         self.checker.start(100)
         self.pi.startAnimation()
@@ -202,11 +208,32 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.results_view.model().sort_order = self.config.get('sort_order', Qt.AscendingOrder)
         self.results_view.header().setSortIndicator(self.results_view.model().sort_col, self.results_view.model().sort_order)         
 
+    def load_settings(self):
+        # Seconds
+        self.timeout = self.config.get('timeout', 75)
+        # Milliseconds
+        self.hang_time = self.config.get('hang_time', 75) * 1000
+        self.max_results = self.config.get('max_results', 10)
+        
+        # Number of threads to run for each type of operation
+        self.search_thread_count = self.config.get('search_thread_count', 4)
+        self.cache_thread_count = self.config.get('cache_thread_count', 2)
+        self.cover_thread_count = self.config.get('cover_thread_count', 2)
+        self.details_thread_count = self.config.get('details_thread_count', 4)
+
+    def config_finished(self):
+        self.load_settings()
+        
+        self.search_pool.set_thread_count(self.search_thread_count)
+        self.cache_pool.set_thread_count(self.cache_thread_count)
+        self.results_view.model().cover_pool.set_thread_count(self.cover_thread_count)
+        self.results_view.model().details_pool.set_thread_count(self.details_thread_count)
+
     def get_results(self):
         # We only want the search plugins to run
         # a maximum set amount of time before giving up.
         self.hang_check += 1
-        if self.hang_check >= HANG_TIME:
+        if self.hang_check >= self.hang_time:
             self.search_pool.abort()
             self.checker.stop()
         else:

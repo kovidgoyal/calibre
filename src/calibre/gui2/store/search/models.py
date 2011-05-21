@@ -33,7 +33,7 @@ class Matches(QAbstractItemModel):
     HEADERS = [_('Cover'), _('Title'), _('Price'), _('DRM'), _('Store')]
     HTML_COLS = (1, 4)
 
-    def __init__(self):
+    def __init__(self, cover_thread_count=2, detail_thread_count=4):
         QAbstractItemModel.__init__(self)
 
         self.DRM_LOCKED_ICON = QPixmap(I('drm-locked.png')).scaledToHeight(64,
@@ -51,8 +51,8 @@ class Matches(QAbstractItemModel):
         self.matches = []
         self.query = ''
         self.search_filter = SearchFilter()
-        self.cover_pool = CoverThreadPool(2)
-        self.details_pool = DetailsThreadPool(4)
+        self.cover_pool = CoverThreadPool(cover_thread_count)
+        self.details_pool = DetailsThreadPool(detail_thread_count)
 
         self.sort_col = 2
         self.sort_order = Qt.AscendingOrder

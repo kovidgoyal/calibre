@@ -854,6 +854,17 @@ class ActionStore(InterfaceActionBase):
     name = 'Store'
     author = 'John Schember'
     actual_plugin = 'calibre.gui2.actions.store:StoreAction'
+    
+    def customization_help(self, gui=False):
+        return 'Customize the behavior of the store search.'
+    
+    def config_widget(self):
+        from calibre.gui2.store.config.store import config_widget as get_cw
+        return get_cw()
+    
+    def save_settings(self, config_widget):
+        from calibre.gui2.store.config.store import save_settings as save
+        save(config_widget)
 
 plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,
         ActionConvert, ActionDelete, ActionEditMetadata, ActionView,
