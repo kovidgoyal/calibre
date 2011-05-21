@@ -53,7 +53,8 @@ authors_completer_append_separator = False
 # periods are automatically handled.
 author_sort_copy_method = 'comma'
 author_name_suffixes = ('Jr', 'Sr', 'Inc', 'Ph.D', 'Phd',
-                        'MD', 'M.D', 'I', 'II', 'III', 'IV')
+                        'MD', 'M.D', 'I', 'II', 'III', 'IV',
+                        'Junior', 'Senior')
 
 #: Use author sort in Tag Browser
 # Set which author field to display in the tags pane (the list of authors,
