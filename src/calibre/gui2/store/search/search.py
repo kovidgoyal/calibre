@@ -74,6 +74,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.top_layout.addWidget(self.pi)
         
         self.adv_search_button.setIcon(QIcon(I('search.png')))
+        self.configure.setIcon(QIcon(I('config.png')))
 
         self.adv_search_button.clicked.connect(self.build_adv_search)
         self.search.clicked.connect(self.do_search)
@@ -200,7 +201,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         else:
             self.resize_columns()
 
-        self.open_external.setChecked(self.config.get('open_external', True))
+        self.open_external.setChecked(self.should_open_external)
 
         store_check = self.config.get('store_checked', None)
         if store_check:
@@ -217,7 +218,9 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.timeout = self.config.get('timeout', 75)
         # Milliseconds
         self.hang_time = self.config.get('hang_time', 75) * 1000
+        
         self.max_results = self.config.get('max_results', 10)
+        self.should_open_external = self.config.get('open_external', True)
         
         # Number of threads to run for each type of operation
         self.search_thread_count = self.config.get('search_thread_count', 4)
@@ -226,6 +229,10 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.details_thread_count = self.config.get('details_thread_count', 4)
 
     def do_config(self):
+        # Save values that need to be synced between the dialog and the
+        # search widget.
+        self.config['open_external'] = self.open_external.isChecked()
+        
         d = QDialog(self)
         button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         v = QVBoxLayout(d)
@@ -245,6 +252,7 @@ class SearchDialog(QDialog, Ui_Dialog):
     def config_changed(self):
         self.load_settings()
         
+        self.open_external.setChecked(self.should_open_external)
         self.search_pool.set_thread_count(self.search_thread_count)
         self.cache_pool.set_thread_count(self.cache_thread_count)
         self.results_view.model().cover_pool.set_thread_count(self.cover_thread_count)
