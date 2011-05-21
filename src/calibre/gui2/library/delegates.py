@@ -289,11 +289,14 @@ class CcEnumDelegate(QStyledItemDelegate): # {{{
         elif option.state & QStyle.State_Selected:
             painter.fillRect(option.rect, option.palette.highlight())
         m = index.model()
-        col = m.column_map[index.column()]
-        colors = m.custom_columns[col]['display'].get('enum_colors', [])
-        values = m.custom_columns[col]['display']['enum_values']
+        cc = m.custom_columns[m.column_map[index.column()]]['display']
+        colors = cc.get('enum_colors', [])
+        values = cc.get('enum_values', [])
         if len(colors) > 0 and txt in values:
-            painter.fillRect(option.rect, QColor(colors[values.index(txt)]))
+            try:
+                painter.fillRect(option.rect, QColor(colors[values.index(txt)]))
+            except:
+                pass
         painter.setClipRect(option.rect)
         painter.translate(option.rect.topLeft())
         self.document.drawContents(painter)
