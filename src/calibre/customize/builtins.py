@@ -1236,6 +1236,12 @@ class StoreWizardsTowerBooksStore(StoreBase):
     description = 'Wizard\'s Tower Press.'
     actual_plugin = 'calibre.gui2.store.wizards_tower_books_plugin:WizardsTowerBooksStore'
 
+class StoreWoblinkStore(StoreBase):
+    name = 'Woblink'
+    author = 'Tomasz Długosz'
+    description = _('Czytanie zdarza się wszędzie!')
+    actual_plugin = 'calibre.gui2.store.woblink_plugin:WoblinkStore'
+
 plugins += [
     StoreArchiveOrgStore,
     StoreAmazonKindleStore,
@@ -1264,7 +1270,8 @@ plugins += [
     StoreSmashwordsStore,
     StoreWaterstonesUKStore,
     StoreWeightlessBooksStore,
-    StoreWizardsTowerBooksStore
+    StoreWizardsTowerBooksStore,
+    StoreWoblinkStore
 ]
 
 # }}}
