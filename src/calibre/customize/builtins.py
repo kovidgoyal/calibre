@@ -1108,72 +1108,127 @@ class StoreAmazonKindleStore(StoreBase):
     name = 'Amazon Kindle'
     description = _('Kindle books from Amazon.')
     actual_plugin = 'calibre.gui2.store.amazon_plugin:AmazonKindleStore'
+    
+    drm_free_only = False
+    location = 'US'
+    formats = ['KINDLE']
 
 class StoreAmazonDEKindleStore(StoreBase):
     name = 'Amazon DE Kindle'
     description = _('Kindle books from Amazon.de.')
     actual_plugin = 'calibre.gui2.store.amazon_de_plugin:AmazonDEKindleStore'
+    
+    drm_free_only = False
+    location = 'DE'
+    formats = ['KINDLE']
 
 class StoreAmazonUKKindleStore(StoreBase):
     name = 'Amazon UK Kindle'
     description = _('Kindle books from Amazon.uk.')
     actual_plugin = 'calibre.gui2.store.amazon_uk_plugin:AmazonUKKindleStore'
+    
+    drm_free_only = False
+    location = 'UK'
+    formats = ['KINDLE']
 
 class StoreArchiveOrgStore(StoreBase):
     name = 'Archive.org'
     description = _('Free Books : Download & Streaming : Ebook  and Texts Archive : Internet Archive.')
     actual_plugin = 'calibre.gui2.store.archive_org_plugin:ArchiveOrgStore'
 
+    drm_free_only = True
+    location = 'US'
+    formats = ['DAISY', 'DJVU', 'EPUB', 'MOBI', 'PDF', 'TXT']
 
 class StoreBaenWebScriptionStore(StoreBase):
     name = 'Baen WebScription'
     description = _('Ebooks for readers.')
     actual_plugin = 'calibre.gui2.store.baen_webscription_plugin:BaenWebScriptionStore'
+    
+    drm_free_only = True
+    location = 'US'
+    formats = ['EPUB', 'LIT', 'LRF', 'MOBI', 'RB', 'RTF', 'ZIP']
 
 class StoreBNStore(StoreBase):
     name = 'Barnes and Noble'
     description = _('Books, Textbooks, eBooks, Toys, Games and More.')
     actual_plugin = 'calibre.gui2.store.bn_plugin:BNStore'
+    
+    drm_free_only = False
+    location = 'US'
+    formats = ['NOOK']
 
 class StoreBeamEBooksDEStore(StoreBase):
     name = 'Beam EBooks DE'
     description = _('Der eBook Shop.')
     actual_plugin = 'calibre.gui2.store.beam_ebooks_de_plugin:BeamEBooksDEStore'
+    
+    drm_free_only = False
+    location = 'DE'
+    formats = ['MOBI', 'PDF']
 
 class StoreBeWriteStore(StoreBase):
     name = 'BeWrite Books'
     description = _('Publishers of fine books.')
     actual_plugin = 'calibre.gui2.store.bewrite_plugin:BeWriteStore'
+    
+    drm_free_only = True
+    location = 'US'
+    formats = ['EPUB', 'MOBI', 'PDF']
 
 class StoreDieselEbooksStore(StoreBase):
     name = 'Diesel eBooks'
     description = _('World Famous eBook Store.')
     actual_plugin = 'calibre.gui2.store.diesel_ebooks_plugin:DieselEbooksStore'
+    
+    drm_free_only = False
+    location = 'US'
+    formats = ['EPUB', 'PDF']
 
 class StoreEbookscomStore(StoreBase):
     name = 'eBooks.com'
     description = _('The digital bookstore.')
     actual_plugin = 'calibre.gui2.store.ebooks_com_plugin:EbookscomStore'
+    
+    drm_free_only = False
+    location = 'US'
+    formats = ['EPUB', 'LIT', 'MOBI', 'PDF']
 
 class StoreEPubBuyDEStore(StoreBase):
     name = 'EPUBBuy DE'
     description = _('EPUBReaders eBook Shop.')
     actual_plugin = 'calibre.gui2.store.epubbuy_de_plugin:EPubBuyDEStore'
+    
+    drm_free_only = True
+    location = 'DE'
+    formats = ['EPUB']
 
 class StoreEHarlequinStore(StoreBase):
     name = 'eHarlequin'
     description = _('Entertain, enrich, inspire.')
     actual_plugin = 'calibre.gui2.store.eharlequin_plugin:EHarlequinStore'
+    
+    drm_free_only = False
+    location = 'US'
+    formats = ['EPUB', 'PDF']
 
 class StoreFeedbooksStore(StoreBase):
     name = 'Feedbooks'
     description = _('Read anywhere.')
     actual_plugin = 'calibre.gui2.store.feedbooks_plugin:FeedbooksStore'
+    
+    drm_free_only = False
+    location = 'FR'
+    formats = ['EPUB', 'MOBI', 'PDF']
 
 class StoreFoylesUKStore(StoreBase):
     name = 'Foyles UK'
     description = _('Foyles of London, online.')
     actual_plugin = 'calibre.gui2.store.foyles_uk_plugin:FoylesUKStore'
+
+    drm_free_only = False
+    location = 'UK'
+    formats = ['EPUB', 'PDF']
 
 class StoreGandalfStore(StoreBase):
     name = 'Gandalf'
@@ -1181,71 +1236,127 @@ class StoreGandalfStore(StoreBase):
     description = _('Zaczarowany świat książek')
     actual_plugin = 'calibre.gui2.store.gandalf_plugin:GandalfStore'
 
+    drm_free_only = False
+    location = 'PL'
+    formats = ['EPUB', 'PDF']
+
 class StoreGoogleBooksStore(StoreBase):
     name = 'Google Books'
     description = _('Google Books')
     actual_plugin = 'calibre.gui2.store.google_books_plugin:GoogleBooksStore'
+    
+    drm_free_only = False
+    location = 'US'
+    formats = ['EPUB', 'PDF', 'TXT']
 
 class StoreGutenbergStore(StoreBase):
     name = 'Project Gutenberg'
     description = _('The first producer of free ebooks.')
     actual_plugin = 'calibre.gui2.store.gutenberg_plugin:GutenbergStore'
+    
+    drm_free_only = True
+    location = 'US'
+    formats = ['EPUB', 'HTML', 'MOBI', 'PDB', 'TXT']
 
 class StoreKoboStore(StoreBase):
     name = 'Kobo'
     description = _('eReading: anytime. anyplace.')
     actual_plugin = 'calibre.gui2.store.kobo_plugin:KoboStore'
+    
+    drm_free_only = False
+    location = 'US'
+    formats = ['EPUB']
 
 class StoreManyBooksStore(StoreBase):
     name = 'ManyBooks'
     description = _('The best ebooks at the best price: free!')
     actual_plugin = 'calibre.gui2.store.manybooks_plugin:ManyBooksStore'
+    
+    drm_free_only = True
+    location = 'US'
+    formats = ['EPUB', 'FB2', 'JAR', 'LIT', 'LRF', 'MOBI', 'PDB', 'PDF', 'RB', 'RTF', 'TCR', 'TXT', 'ZIP']
 
 class StoreMobileReadStore(StoreBase):
     name = 'MobileRead'
     description = _('Ebooks handcrafted with the utmost care.')
     actual_plugin = 'calibre.gui2.store.mobileread.mobileread_plugin:MobileReadStore'
 
+    drm_free_only = True
+    location = 'CH'
+    formats = ['EPUB', 'IMP', 'LRF', 'LIT', 'MOBI', 'PDF']
+
 class StoreNextoStore(StoreBase):
     name = 'Nexto'
     author = 'Tomasz Długosz'
     description = _('Audiobooki mp3, ebooki, prasa - księgarnia internetowa.')
     actual_plugin = 'calibre.gui2.store.nexto_plugin:NextoStore'
+    
+    drm_free_only = False
+    location = 'PL'
+    formats = ['EPUB', 'PDF']
 
 class StoreOpenLibraryStore(StoreBase):
     name = 'Open Library'
     description = _('One web page for every book.')
     actual_plugin = 'calibre.gui2.store.open_library_plugin:OpenLibraryStore'
+    
+    drm_free_only = True
+    location = ['US']
+    formats = ['DAISY', 'DJVU', 'EPUB', 'MOBI', 'PDF', 'TXT']
 
 class StoreOReillyStore(StoreBase):
     name = 'OReilly'
     description = _('DRM-Free tech ebooks.')
     actual_plugin = 'calibre.gui2.store.oreilly_plugin:OReillyStore'
+    
+    drm_free_only = True
+    location = 'US'
+    formats = ['APK', 'DAISY', 'EPUB', 'MOBI', 'PDF']
 
 class StorePragmaticBookshelfStore(StoreBase):
     name = 'Pragmatic Bookshelf'
     description = _('The Pragmatic Bookshelf')
     actual_plugin = 'calibre.gui2.store.pragmatic_bookshelf_plugin:PragmaticBookshelfStore'
 
+    drm_free_only = True
+    location = 'US'
+    formats = ['EPUB', 'MOBI', 'PDF']
+
 class StoreSmashwordsStore(StoreBase):
     name = 'Smashwords'
     description = _('Your ebook. Your way.')
     actual_plugin = 'calibre.gui2.store.smashwords_plugin:SmashwordsStore'
+    
+    drm_free_only = True
+    location = 'US'
+    formats = ['EPUB', 'HTML', 'LRF', 'MOBI', 'PDB', 'RTF', 'TXT']
 
 class StoreWaterstonesUKStore(StoreBase):
     name = 'Waterstones UK'
     description = _('Feel every word.')
     actual_plugin = 'calibre.gui2.store.waterstones_uk_plugin:WaterstonesUKStore'
+    
+    drm_free_only = False
+    location = 'UK'
+    formats = ['EPUB', 'PDF']
 
 class StoreWeightlessBooksStore(StoreBase):
     name = 'Weightless Books'
     description = '(e)Books That Don\'t Weigh You Down.'
     actual_plugin = 'calibre.gui2.store.weightless_books_plugin:WeightlessBooksStore'
 
+    drm_free_only = True
+    location = 'US'
+    formats = ['EPUB', 'HTML', 'LIT', 'MOBI', 'PDF']
+
 class StoreWizardsTowerBooksStore(StoreBase):
     name = 'Wizards Tower Books'
     description = 'Wizard\'s Tower Press.'
     actual_plugin = 'calibre.gui2.store.wizards_tower_books_plugin:WizardsTowerBooksStore'
+    
+    drm_free_only = True
+    location = 'UK'
+    formats = ['EPUB', 'MOBI']
 
 plugins += [
     StoreArchiveOrgStore,
