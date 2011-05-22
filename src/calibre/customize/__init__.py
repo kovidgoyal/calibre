@@ -607,6 +607,10 @@ class StoreBase(Plugin): # {{{
     supported_platforms = ['windows', 'osx', 'linux']
     author         = 'John Schember'
     type = _('Store')
+    # Information about the store. Should be in the primary language
+    # of the store. This should not be translatable when set by
+    # a subclass.
+    description = _('An ebook store.')
     minimum_calibre_version = (0, 8, 0)
     version        = (1, 0, 1)
 

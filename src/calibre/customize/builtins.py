@@ -1106,7 +1106,7 @@ plugins += [LookAndFeel, Behavior, Columns, Toolbar, Search, InputOptions,
 # Store plugins {{{
 class StoreAmazonKindleStore(StoreBase):
     name = 'Amazon Kindle'
-    description = _('Kindle books from Amazon.')
+    description = u'Kindle books from Amazon.'
     actual_plugin = 'calibre.gui2.store.amazon_plugin:AmazonKindleStore'
     
     drm_free_only = False
@@ -1116,7 +1116,7 @@ class StoreAmazonKindleStore(StoreBase):
 class StoreAmazonDEKindleStore(StoreBase):
     name = 'Amazon DE Kindle'
     author = 'Charles Haley'
-    description = _('Kindle books from Amazon\'s German website.')
+    description = u'Kindle Bücher von Amazon.'
     actual_plugin = 'calibre.gui2.store.amazon_de_plugin:AmazonDEKindleStore'
     
     drm_free_only = False
@@ -1126,7 +1126,7 @@ class StoreAmazonDEKindleStore(StoreBase):
 class StoreAmazonUKKindleStore(StoreBase):
     name = 'Amazon UK Kindle'
     author = 'Charles Haley'
-    description = _('Kindle books from Amazon\'s UK web site. Also, includes French language ebooks.')
+    description = u'Kindle books from Amazon\'s UK web site. Also, includes French language ebooks.'
     actual_plugin = 'calibre.gui2.store.amazon_uk_plugin:AmazonUKKindleStore'
     
     drm_free_only = False
@@ -1135,7 +1135,7 @@ class StoreAmazonUKKindleStore(StoreBase):
 
 class StoreArchiveOrgStore(StoreBase):
     name = 'Archive.org'
-    description = _('An Internet library offering permanent access for researchers, historians, scholars, people with disabilities, and the general public to historical collections that exist in digital format.')
+    description = u'An Internet library offering permanent access for researchers, historians, scholars, people with disabilities, and the general public to historical collections that exist in digital format.'
     actual_plugin = 'calibre.gui2.store.archive_org_plugin:ArchiveOrgStore'
 
     drm_free_only = True
@@ -1144,7 +1144,7 @@ class StoreArchiveOrgStore(StoreBase):
 
 class StoreBaenWebScriptionStore(StoreBase):
     name = 'Baen WebScription'
-    description = _('Sci-Fi & Fantasy brought to you by Jim Baen.')
+    description = u'Sci-Fi & Fantasy brought to you by Jim Baen.'
     actual_plugin = 'calibre.gui2.store.baen_webscription_plugin:BaenWebScriptionStore'
     
     drm_free_only = True
@@ -1153,7 +1153,7 @@ class StoreBaenWebScriptionStore(StoreBase):
 
 class StoreBNStore(StoreBase):
     name = 'Barnes and Noble'
-    description = _('The world\'s largest book seller. As the ultimate destination for book lovers, Barnes & Noble.com offers an incredible array of content.')
+    description = u'The world\'s largest book seller. As the ultimate destination for book lovers, Barnes & Noble.com offers an incredible array of content.'
     actual_plugin = 'calibre.gui2.store.bn_plugin:BNStore'
     
     drm_free_only = False
@@ -1163,7 +1163,7 @@ class StoreBNStore(StoreBase):
 class StoreBeamEBooksDEStore(StoreBase):
     name = 'Beam EBooks DE'
     author = 'Charles Haley'
-    description = _('Thousands of German-language eBooks.')
+    description = u'Der eBook Shop.'
     actual_plugin = 'calibre.gui2.store.beam_ebooks_de_plugin:BeamEBooksDEStore'
     
     drm_free_only = True
@@ -1172,7 +1172,7 @@ class StoreBeamEBooksDEStore(StoreBase):
 
 class StoreBeWriteStore(StoreBase):
     name = 'BeWrite Books'
-    description = _('Publishers of fine books. Highly selective and editorially driven. Does not offer: books for children or exclusively YA, erotica, swords-and-sorcery fantasy and space-opera-style science fiction. All other genres are represented.')
+    description = u'Publishers of fine books. Highly selective and editorially driven. Does not offer: books for children or exclusively YA, erotica, swords-and-sorcery fantasy and space-opera-style science fiction. All other genres are represented.'
     actual_plugin = 'calibre.gui2.store.bewrite_plugin:BeWriteStore'
     
     drm_free_only = True
@@ -1181,7 +1181,7 @@ class StoreBeWriteStore(StoreBase):
 
 class StoreDieselEbooksStore(StoreBase):
     name = 'Diesel eBooks'
-    description = _('Instant access to over 2.4 million titles from hundreds of publishers including Harlequin, HarperCollins, John Wiley & Sons, McGraw-Hill, Simon & Schuster and Random House.')
+    description = u'Instant access to over 2.4 million titles from hundreds of publishers including Harlequin, HarperCollins, John Wiley & Sons, McGraw-Hill, Simon & Schuster and Random House.'
     actual_plugin = 'calibre.gui2.store.diesel_ebooks_plugin:DieselEbooksStore'
     
     drm_free_only = False
@@ -1190,7 +1190,7 @@ class StoreDieselEbooksStore(StoreBase):
 
 class StoreEbookscomStore(StoreBase):
     name = 'eBooks.com'
-    description = _('Sells books in multiple electronic formats in all categories. Technical infrastructure is cutting edge, robust and scalable, with servers in the US and Europe.')
+    description = u'Sells books in multiple electronic formats in all categories. Technical infrastructure is cutting edge, robust and scalable, with servers in the US and Europe.'
     actual_plugin = 'calibre.gui2.store.ebooks_com_plugin:EbookscomStore'
     
     drm_free_only = False
@@ -1200,7 +1200,7 @@ class StoreEbookscomStore(StoreBase):
 class StoreEPubBuyDEStore(StoreBase):
     name = 'EPUBBuy DE'
     author = 'Charles Haley'
-    description = _('Fiction and Non-Fiction. Only sells EPUB ebooks. German-language.')
+    description = u'Deutsch epub-Spezialisten.'
     actual_plugin = 'calibre.gui2.store.epubbuy_de_plugin:EPubBuyDEStore'
     
     drm_free_only = True
@@ -1209,7 +1209,7 @@ class StoreEPubBuyDEStore(StoreBase):
 
 class StoreEHarlequinStore(StoreBase):
     name = 'eHarlequin'
-    description = _('A global leader in series romance and one of the world\'s leading publishers of books for women. Offers women a broad range of reading from romance to bestseller fiction, from young adult novels to erotic literature, from nonfiction to fantasy, from African-American novels to inspirational romance, and more.')
+    description = u'A global leader in series romance and one of the world\'s leading publishers of books for women. Offers women a broad range of reading from romance to bestseller fiction, from young adult novels to erotic literature, from nonfiction to fantasy, from African-American novels to inspirational romance, and more.'
     actual_plugin = 'calibre.gui2.store.eharlequin_plugin:EHarlequinStore'
     
     drm_free_only = False
@@ -1218,7 +1218,7 @@ class StoreEHarlequinStore(StoreBase):
 
 class StoreFeedbooksStore(StoreBase):
     name = 'Feedbooks'
-    description = _('Feedbooks is a cloud publishing and distribution service, connected to a large ecosystem of reading systems and social networks. Provides a variety of genres from independent and classic books.')
+    description = u'Feedbooks is a cloud publishing and distribution service, connected to a large ecosystem of reading systems and social networks. Provides a variety of genres from independent and classic books.'
     actual_plugin = 'calibre.gui2.store.feedbooks_plugin:FeedbooksStore'
     
     drm_free_only = False
@@ -1228,7 +1228,7 @@ class StoreFeedbooksStore(StoreBase):
 class StoreFoylesUKStore(StoreBase):
     name = 'Foyles UK'
     author = 'Charles Haley'
-    description = _('Foyles of London\'s ebook store. Provides extensive range covering all subjects.')
+    description = u'Foyles of London\'s ebook store. Provides extensive range covering all subjects.'
     actual_plugin = 'calibre.gui2.store.foyles_uk_plugin:FoylesUKStore'
 
     drm_free_only = False
@@ -1237,8 +1237,8 @@ class StoreFoylesUKStore(StoreBase):
 
 class StoreGandalfStore(StoreBase):
     name = 'Gandalf'
-    author = 'Tomasz Długosz'
-    description = _('Polish language-store.')
+    author = u'Tomasz Długosz'
+    description = u'Zaczarowany świat książek.'
     actual_plugin = 'calibre.gui2.store.gandalf_plugin:GandalfStore'
 
     drm_free_only = False
@@ -1247,7 +1247,7 @@ class StoreGandalfStore(StoreBase):
 
 class StoreGoogleBooksStore(StoreBase):
     name = 'Google Books'
-    description = _('Google Books')
+    description = u'Google Books'
     actual_plugin = 'calibre.gui2.store.google_books_plugin:GoogleBooksStore'
     
     drm_free_only = False
@@ -1256,7 +1256,7 @@ class StoreGoogleBooksStore(StoreBase):
 
 class StoreGutenbergStore(StoreBase):
     name = 'Project Gutenberg'
-    description = _('The first producer of free ebooks. Free in the United States because their copyright has expired. They may not be free of copyright in other countries. Readers outside of the United States must check the copyright laws of their countries before downloading or redistributing our ebooks.')
+    description = u'The first producer of free ebooks. Free in the United States because their copyright has expired. They may not be free of copyright in other countries. Readers outside of the United States must check the copyright laws of their countries before downloading or redistributing our ebooks.'
     actual_plugin = 'calibre.gui2.store.gutenberg_plugin:GutenbergStore'
     
     drm_free_only = True
@@ -1265,7 +1265,7 @@ class StoreGutenbergStore(StoreBase):
 
 class StoreKoboStore(StoreBase):
     name = 'Kobo'
-    description = _('With over 2.3 million eBooks to browse we have engaged readers in over 200 countries in Kobo eReading. Our eBook listings include New York Times Bestsellers, award winners, classics and more!')
+    description = u'With over 2.3 million eBooks to browse we have engaged readers in over 200 countries in Kobo eReading. Our eBook listings include New York Times Bestsellers, award winners, classics and more!'
     actual_plugin = 'calibre.gui2.store.kobo_plugin:KoboStore'
     
     drm_free_only = False
@@ -1274,7 +1274,7 @@ class StoreKoboStore(StoreBase):
 
 class StoreManyBooksStore(StoreBase):
     name = 'ManyBooks'
-    description = _('Public domain and creative commons works from many sources.')
+    description = u'Public domain and creative commons works from many sources.'
     actual_plugin = 'calibre.gui2.store.manybooks_plugin:ManyBooksStore'
     
     drm_free_only = True
@@ -1283,7 +1283,7 @@ class StoreManyBooksStore(StoreBase):
 
 class StoreMobileReadStore(StoreBase):
     name = 'MobileRead'
-    description = _('Ebooks handcrafted with the utmost care.')
+    description = u'Ebooks handcrafted with the utmost care.'
     actual_plugin = 'calibre.gui2.store.mobileread.mobileread_plugin:MobileReadStore'
 
     drm_free_only = True
@@ -1292,8 +1292,8 @@ class StoreMobileReadStore(StoreBase):
 
 class StoreNextoStore(StoreBase):
     name = 'Nexto'
-    author = 'Tomasz Długosz'
-    description = _('Polish language-store.')
+    author = u'Tomasz Długosz'
+    description = u'Ebooki, prasa - księgarnia internetowa.'
     actual_plugin = 'calibre.gui2.store.nexto_plugin:NextoStore'
     
     drm_free_only = False
@@ -1302,7 +1302,7 @@ class StoreNextoStore(StoreBase):
 
 class StoreOpenLibraryStore(StoreBase):
     name = 'Open Library'
-    description = _('One web page for every book ever published. The goal is to be a true online library. Over 20 million records from a variety of large catalogs as well as single contributions, with more on the way.')
+    description = u'One web page for every book ever published. The goal is to be a true online library. Over 20 million records from a variety of large catalogs as well as single contributions, with more on the way.'
     actual_plugin = 'calibre.gui2.store.open_library_plugin:OpenLibraryStore'
     
     drm_free_only = True
@@ -1311,7 +1311,7 @@ class StoreOpenLibraryStore(StoreBase):
 
 class StoreOReillyStore(StoreBase):
     name = 'OReilly'
-    description = _('Programming and tech ebooks from OReilly.')
+    description = u'Programming and tech ebooks from OReilly.'
     actual_plugin = 'calibre.gui2.store.oreilly_plugin:OReillyStore'
     
     drm_free_only = True
@@ -1320,7 +1320,7 @@ class StoreOReillyStore(StoreBase):
 
 class StorePragmaticBookshelfStore(StoreBase):
     name = 'Pragmatic Bookshelf'
-    description = _('The Pragmatic Bookshelf\'s collection of programming and tech books avaliable as ebooks.')
+    description = u'The Pragmatic Bookshelf\'s collection of programming and tech books avaliable as ebooks.'
     actual_plugin = 'calibre.gui2.store.pragmatic_bookshelf_plugin:PragmaticBookshelfStore'
 
     drm_free_only = True
@@ -1329,7 +1329,7 @@ class StorePragmaticBookshelfStore(StoreBase):
 
 class StoreSmashwordsStore(StoreBase):
     name = 'Smashwords'
-    description = _('An ebook publishing and distribution platform for ebook authors, publishers and readers. Covers many genres and formats.')
+    description = u'An ebook publishing and distribution platform for ebook authors, publishers and readers. Covers many genres and formats.'
     actual_plugin = 'calibre.gui2.store.smashwords_plugin:SmashwordsStore'
     
     drm_free_only = True
@@ -1339,7 +1339,7 @@ class StoreSmashwordsStore(StoreBase):
 class StoreWaterstonesUKStore(StoreBase):
     name = 'Waterstones UK'
     author = 'Charles Haley'
-    description = _('Waterstone\'s mission is to be the leading Bookseller on the High Street and online providing customers the widest choice, great value and expert advice from a team passionate about Bookselling.')
+    description = u'Waterstone\'s mission is to be the leading Bookseller on the High Street and online providing customers the widest choice, great value and expert advice from a team passionate about Bookselling.'
     actual_plugin = 'calibre.gui2.store.waterstones_uk_plugin:WaterstonesUKStore'
     
     drm_free_only = False
@@ -1348,7 +1348,7 @@ class StoreWaterstonesUKStore(StoreBase):
 
 class StoreWeightlessBooksStore(StoreBase):
     name = 'Weightless Books'
-    description = _('An independent DRM-free ebooksite devoted to ebooks of all sorts.')
+    description = u'An independent DRM-free ebooksite devoted to ebooks of all sorts.'
     actual_plugin = 'calibre.gui2.store.weightless_books_plugin:WeightlessBooksStore'
 
     drm_free_only = True
@@ -1357,7 +1357,7 @@ class StoreWeightlessBooksStore(StoreBase):
 
 class StoreWizardsTowerBooksStore(StoreBase):
     name = 'Wizards Tower Books'
-    description = _('A science fiction and fantasy publisher. Concentrates mainly on making out-of-print works available once more as e-books, and helping other small presses exploit the e-book market. Also publishes a small number of limited-print-run anthologies with a view to encouraging diversity in the science fiction and fantasy field.')
+    description = u'A science fiction and fantasy publisher. Concentrates mainly on making out-of-print works available once more as e-books, and helping other small presses exploit the e-book market. Also publishes a small number of limited-print-run anthologies with a view to encouraging diversity in the science fiction and fantasy field.'
     actual_plugin = 'calibre.gui2.store.wizards_tower_books_plugin:WizardsTowerBooksStore'
     
     drm_free_only = True
