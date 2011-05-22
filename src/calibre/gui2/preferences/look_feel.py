@@ -194,7 +194,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         choices = db.field_metadata.displayable_field_keys()
         choices.sort(key=sort_key)
         choices.insert(0, '')
-        for i in range(1, db.column_color_count+1):
+        self.column_color_count = db.column_color_count+1
+        for i in range(1, self.column_color_count):
             r('column_color_name_'+str(i), db.prefs, choices=choices)
             r('column_color_template_'+str(i), db.prefs)
         all_colors = [unicode(s) for s in list(QColor.colorNames())]
@@ -267,6 +268,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.changed_signal.emit()
 
     def commit(self, *args):
+        for i in range(1, self.column_color_count):
+            col = getattr(self, 'opt_column_color_name_'+str(i))
+            if not col.currentText():
+                temp = getattr(self, 'opt_column_color_template_'+str(i))
+                temp.setText('')
         rr = ConfigWidgetBase.commit(self, *args)
         if self.current_font != self.initial_font:
             gprefs['font'] = (self.current_font[:4] if self.current_font else

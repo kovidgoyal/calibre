@@ -410,7 +410,7 @@ then the tags will be displayed each on their own line.</string>
      <widget class="QWidget" name="tab_5">
       <attribute name="icon">
        <iconset resource="../../../../resources/images.qrc">
-        <normaloff>:/images/cover_flow.png</normaloff>:/images/cover_flow.png</iconset>
+        <normaloff>:/images/format-fill-color.png</normaloff>:/images/format-fill-color.png</iconset>
       </attribute>
       <attribute name="title">
        <string>Column Coloring</string>
