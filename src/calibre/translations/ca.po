@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-05-20 18:12+0000\n"
-"PO-Revision-Date: 2011-05-14 19:03+0000\n"
+"PO-Revision-Date: 2011-05-21 13:13+0000\n"
 "Last-Translator: FerranRius <frius64@hotmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-05-21 04:45+0000\n"
+"X-Launchpad-Export-Date: 2011-05-22 04:44+0000\n"
 "X-Generator: Launchpad (build 12959)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -539,21 +539,23 @@ msgstr "Configuració avançada"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1098
 msgid "Kindle books from Amazon."
-msgstr ""
+msgstr "Llibres per al Kindle d'Amazon."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1103
 msgid "Kindle books from Amazon.de."
-msgstr ""
+msgstr "Llibres per al Kindle d'Amazon.de."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1108
 msgid "Kindle books from Amazon.uk."
-msgstr ""
+msgstr "Llibres per al Kindle d'Amazon.uk."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1113
 msgid ""
 "Free Books : Download & Streaming : Ebook  and Texts Archive : Internet "
 "Archive."
 msgstr ""
+"Llibres gratuïts: Descàrrega i transmissió : Arxius de llibre electrònic i "
+"textos : Arxiu d'internet."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1119
 msgid "Ebooks for readers."
@@ -565,7 +567,7 @@ msgstr "Llibres, llibres de text, llibres electrònics, joguines, jocs i més."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1129
 msgid "Der eBook Shop."
-msgstr ""
+msgstr "Botiga Der eBook."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1134
 msgid "Publishers of fine books."
@@ -581,11 +583,11 @@ msgstr "La botiga digital de llibres."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1149
 msgid "EPUBReaders eBook Shop."
-msgstr ""
+msgstr "Botiga de llibres electrònics EPUBReaders."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1154
 msgid "Entertain, enrich, inspire."
-msgstr ""
+msgstr "Entreté, enriqueix, inspira."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1159
 msgid "Read anywhere."
@@ -593,15 +595,15 @@ msgstr "Llegiu a qualsevol lloc."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1164
 msgid "Foyles of London, online."
-msgstr ""
+msgstr "Foyles de Londres, en línia."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1170
 msgid "Zaczarowany świat książek"
-msgstr ""
+msgstr "El món màgic dels llibres (Polònia)"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1175
 msgid "Google Books"
-msgstr ""
+msgstr "Google Books"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1180
 msgid "The first producer of free ebooks."
@@ -617,11 +619,13 @@ msgstr "Els millors llibres al millor preu: gratis!"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1195
 msgid "Ebooks handcrafted with the utmost care."
-msgstr ""
+msgstr "Llibres electrònics fets a mà amb la màxima cura."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1201
 msgid "Audiobooki mp3, ebooki, prasa - księgarnia internetowa."
 msgstr ""
+"Llibres d'àudio MP3, llibres electrònics, diaris - Llibreria d'internet "
+"(Polònia)"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1206
 msgid "One web page for every book."
@@ -629,11 +633,11 @@ msgstr "Una pàgina web per a cada llibre."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1211
 msgid "DRM-Free tech ebooks."
-msgstr ""
+msgstr "Llibres tècnics sense DRM"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1216
 msgid "The Pragmatic Bookshelf"
-msgstr ""
+msgstr "La llibreria pragmàtica"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1221
 msgid "Your ebook. Your way."
@@ -641,7 +645,7 @@ msgstr "El vostre llibre. A la vostra manera."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1226
 msgid "Feel every word."
-msgstr ""
+msgstr "Sentiu cada paraula."
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:102
 msgid "Conversion Input"
@@ -1526,8 +1530,8 @@ msgstr ""
 msgid ""
 "Refresh separate covers when using automatic management (newer readers)"
 msgstr ""
-"Actualitza les portades per separat quan s'utilitzi l'administració "
-"automàtica (lectors nous)"
+"Actualitza les portades per separat quan s'utilitzi la gestió automàtica "
+"(lectors nous)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:82
 msgid ""
@@ -3454,16 +3458,17 @@ msgstr "Regne Unit"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:398
 msgid "Italy"
-msgstr ""
+msgstr "Itàlia"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:402
 msgid "Amazon website to use:"
-msgstr ""
+msgstr "Portal de Amazon que s'utilitzarà:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:403
 msgid ""
 "Metadata from Amazon will be fetched using this country's Amazon website."
 msgstr ""
+"S'obtindrà les metadades d'Amazon del lloc web d'Amazon d'aquest país."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:508
 msgid "Amazon timed out. Try again later."
@@ -4977,6 +4982,9 @@ msgid ""
 "<b>can be slow</b>. Should calibre skip the Recycle Bin? If you click Yes "
 "the files will be <b>permanently deleted</b>."
 msgstr ""
+"S'està intentant suprimir %d llibres. L'enviament de tants llibres a la "
+"paperera de reciclatge <b>pot ser lent</b>. Voleu que el calibre ignori la "
+"paperera? Si accepteu els fitxers se <b>suprimiran permanentment</b>."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:42
 msgid "Deleting..."
@@ -5458,7 +5466,7 @@ msgstr "No es pot configurar si hi ha treballs executant-se"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:49
 msgid "Cannot configure before calibre is restarted."
-msgstr "No es pot congigurar fins que el calibre es torni a engegar."
+msgstr "No es pot configurar fins que el calibre es reiniciï."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/restart.py:14
 msgid "&Restart"
@@ -5798,9 +5806,9 @@ msgid ""
 "The add books process seems to have hung. Try restarting calibre and adding "
 "the books in smaller increments, until you find the problem book."
 msgstr ""
-"Sembla que el procés d'afegir llibres no respon. Intenteu tornar a iniciar "
-"el calibre i afegiu els llibres en grups més petits, fins que trobeu el "
-"llibre que causa el problema."
+"Sembla que el procés d'afegir llibres no respon. Intenteu reiniciar el "
+"calibre i afegiu els llibres en grups més petits, fins que trobeu el llibre "
+"que causa el problema."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:368
 msgid "Duplicates found!"
@@ -7685,7 +7693,7 @@ msgstr "No suprimeixis les referències a imatges abans de processar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:99
 msgid "Keep text color, when possible"
-msgstr ""
+msgstr "Manté el color del text, si és possible"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txtz_output.py:12
 msgid "TXTZ Output"
@@ -8765,7 +8773,7 @@ msgstr "Els noms d'autor no poden contenir caràcters &."
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:88
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:120
 msgid "Manage authors"
-msgstr "Administra els autors"
+msgstr "Gestiona els autors"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:89
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:597
@@ -12888,44 +12896,52 @@ msgstr "Dispositiu que està connectat: cap"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:207
 msgid "That format and device already has a plugboard."
-msgstr ""
+msgstr "Aquest format i dispositiu ja té un quadre de connexions."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:219
 msgid "Possibly override plugboard?"
-msgstr ""
+msgstr "Potser s'hauria de substituir el quadre de connexions?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:220
 msgid ""
 "A more general plugboard already exists for that format and device. Are you "
 "sure you want to add the new plugboard?"
 msgstr ""
+"Ja hi ha un quadre de connexions més general per a aquest format i "
+"dispositiu. Segur que voleu afegir un quadre de connexions nou?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:232
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:254
 msgid "Add possibly overridden plugboard?"
-msgstr ""
+msgstr "S'ha d'afegir el quadre de connexions possiblement substituït?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:233
 msgid ""
 "More specific device plugboards exist for that format. Are you sure you want "
 "to add the new plugboard?"
 msgstr ""
+"Hi ha quadres de connexions més específics per a aquest format. Voleu afegir "
+"un quadre de connexions nou?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:244
 msgid "Really add plugboard?"
-msgstr ""
+msgstr "S'ha d'afegir el quadre de connexions?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:245
 msgid ""
 "A different plugboard matches that format and device combination. Are you "
 "sure you want to add the new plugboard?"
 msgstr ""
+"Un altre quadre de connexions coincideix amb aquesta combinació de format i "
+"dispositiu. Segur que voleu afegir un quadre de connexions nou?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:255
 msgid ""
 "More specific format and device plugboards already exist. Are you sure you "
 "want to add the new plugboard?"
 msgstr ""
+"Ja hi ha quadres de connexions de format i dispositiu més específics. Segur "
+"que voleu afegir un quadre de connexions nou?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:266
 msgid "The {0} device does not support the {1} format."
@@ -16543,8 +16559,8 @@ msgid ""
 msgstr ""
 "\n"
 "    %prog saved_searches [opcions] list\n"
-"    %prog saved_searches afegeiu_nom_de_la_cerca\n"
-"    %prog saved_searches suprimiu_el_nom\n"
+"    %prog saved_searches afegeix el nom de la cerca\n"
+"    %prog saved_searches suprimeix el nom\n"
 "\n"
 "    Gestiona les cerques desades a la base de dades.\n"
 "    Si proveu d'afegir una cerca amb un nom que ja existeix,\n"
@@ -18330,6 +18346,22 @@ msgid ""
 "end of an author name. The case of the suffix is ignored and trailing\n"
 "periods are automatically handled."
 msgstr ""
+"L'algoritme que s'utilitza per copiar l'autor a l'ordre per autor\n"
+"Els valors possibles són:\n"
+"inver: passa de «nom cognom» a «cognom, nom»\n"
+"copy: copia l'autor a l'ordre per autor sense canvis\n"
+"comma: utilitza «copy» si hi ha una coma al nom, «invert» en cas contrari\n"
+"nocomma: passa de «nom cognom» a «cognom nom» (sense la coma)\n"
+"Si es canvia aquest ajustament els valors desats d'ordre per autor de cada\n"
+"autor s'han de recalcular fent un clic dret en un autor al panell "
+"d'etiquetes\n"
+"de la dreta, seleccioneu «Gestiona els autors» i premeu «Torna a calcular "
+"tots\n"
+"els valors d'ordre per autor». Els sufixos del nom de l'autor són paraules "
+"que\n"
+"s'ignoren si estan al final del norm de l'autor. S'ignora si el sufix està "
+"en\n"
+"majúscula o minúscula i els punts finals es gestionen automàticament."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:58
 msgid "Use author sort in Tag Browser"
@@ -19132,7 +19164,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:353
 msgid "Unified toolbar on OS X"
-msgstr ""
+msgstr "Fusió de la barra d'eines a l'OS X"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:354
 msgid ""
@@ -19145,6 +19177,15 @@ msgid ""
 "it\n"
 "on at your own risk!"
 msgstr ""
+"Si s'activa aquesta opció i es reinicia el calibre la barra de tasques es "
+"«fusionarà»\n"
+"a la barra de títol com és normal a les aplicacions OS X. Tanmateix fer-ho "
+"té diversos\n"
+"errors, per exemple l'amplada mínima de la barra d'eines és el doble del que "
+"tocaria\n"
+"i causa altres errors aleatoris en alguns sistemes, per tant activeu-lo  "
+"sota la vostra\n"
+"responsabilitat."
 
 #~ msgid "Set the title. Default: filename."
 #~ msgstr "Indique el títol. Per defecte: nom_del_fitxer."

@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-05-20 18:12+0000\n"
-"PO-Revision-Date: 2011-05-19 23:10+0000\n"
+"PO-Revision-Date: 2011-05-21 18:30+0000\n"
 "Last-Translator: Serdar Peker <Unknown>\n"
 "Language-Team: Turkish <tr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-05-21 04:57+0000\n"
+"X-Launchpad-Export-Date: 2011-05-22 04:47+0000\n"
 "X-Generator: Launchpad (build 12959)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -1450,13 +1450,15 @@ msgstr "İsme göre tümü"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:63
 msgid "All by author"
-msgstr ""
+msgstr "Yazara göre tümü"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:66
 msgid ""
 "Comma separated list of metadata fields to turn into collections on the "
 "device. Possibilities include: "
 msgstr ""
+"Cihazdaki kolleksiyona dönüştürlecek virgülle ayrılmış metadata alanlarının "
+"listesi. Olasılıklar şunlar: "
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:69
 msgid ""
@@ -1464,10 +1466,15 @@ msgid ""
 "to the list to enable them. The collections will be given the name provided "
 "after the \":\" character."
 msgstr ""
+". İki özel kolleksiyon uygun: %s:%s ve %s:%s. Bu değerleri etkinleştirmek "
+"için listeye ekle. Kolleksiyonlara \":\" işaretinden sonraki isim "
+"verilecektir."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:73
 msgid "Upload separate cover thumbnails for books (newer readers)"
 msgstr ""
+"Kitaplar için farklı kapak önizleme resimlerini karşıya yükle (daha yeni "
+"okuyucular)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:74
 msgid ""
@@ -1477,11 +1484,17 @@ msgid ""
 "WARNING: This option should only be used with newer SONY readers: 350, 650, "
 "950 and newer."
 msgstr ""
+"Normalde, SONY okuyucuları kapak resmini ekitabın kendisinden alır. Bu "
+"seçenek ile calibre okuyucuya farklı kapak resmi gönderecektir. Eğer kapak "
+"resimlerini değiştiremeyeceğiniz DRM li kitapları gönderiyorsunuz faydalı "
+"bir seçenek. UYARI: Bu seçenek yeni SONY okuyucular ile kullanılmalı: 350, "
+"650, 950 ve daha yenileri"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:80
 msgid ""
 "Refresh separate covers when using automatic management (newer readers)"
 msgstr ""
+"Otomatik yönetmeyi kullanırken farklı kapakları yenile (daha yeni okuyucular)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:82
 msgid ""
@@ -1489,10 +1502,13 @@ msgid ""
 "your device. Unset this option if you have so many books on the reader that "
 "performance is unacceptable."
 msgstr ""
+"Cihazınıza her bağlandığınızda yüklenmiş farklı kitap kapakları için bu "
+"seçeneği seçin. Eğer okuyucudaki çok fazla kitaptan dolayı performans kabul "
+"edilemezse bu seçeneği seçmeyin"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:86
 msgid "Preserve cover aspect ratio when building thumbnails"
-msgstr ""
+msgstr "Küçük resimleri oluştururken kapağın en-boy oranını koru."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:88
 msgid ""
@@ -1500,10 +1516,13 @@ msgid ""
 "ratio (width to height) as the cover. Unset it if you want the thumbnail to "
 "be the maximum size, ignoring aspect ratio."
 msgstr ""
+"Eğer kapak küçük resmilerinin, kapak ile aynı en-boy oranına(enden boya) "
+"sahip olmasını istiyorsanız bu seçeneği seçin. Eğer küçük resimlerin en-boy "
+"oranını göz ardı edip maksimum boyutta istiyorsanız bu seçeneği seçmeyin."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:92
 msgid "Search for books in all folders"
-msgstr ""
+msgstr "Tüm klasörlerdeki kitapları ara"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:94
 msgid ""
@@ -1511,6 +1530,9 @@ msgid ""
 "device and its cards. This permits calibre to find books put on the device "
 "by other software and by wireless download."
 msgstr ""
+"Bu seçeneği seçmek calibre'den cihaz ve kartlarındaki tüm klasörlerde ki "
+"kitapları aramasını istemektir.  Bu, kablosuz indirimler ve diğer "
+"yazılımlarla cihaza aktarılan kitapları bulmasına izin verir."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:190
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/structure.py:69
@@ -1523,39 +1545,39 @@ msgstr "Samsung SNE eBook reader ile haberleş."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:11
 msgid "Communicate with the Teclast K3/K5 reader."
-msgstr ""
+msgstr "Teclast K3/K5 okuyucusu ile iletişim kur"
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:36
 msgid "Communicate with the Newsmy reader."
-msgstr ""
+msgstr "Newsmy okuyucusu ile iletişim kur."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:47
 msgid "Communicate with the Archos reader."
-msgstr ""
+msgstr "Archos okuyucusu ile iletişim kur."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:57
 msgid "Communicate with the Pico reader."
-msgstr ""
+msgstr "Pico okuyucusu ile iletişim kur."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:67
 msgid "Communicate with the iPapyrus reader."
-msgstr "iPapyrus okuyucu ile iletişim kur."
+msgstr "iPapyrus okuyucusu ile iletişim kur."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:78
 msgid "Communicate with the Sovos reader."
-msgstr ""
+msgstr "Sovos okuyucusu ile iletişim kur."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:88
 msgid "Communicate with the Sunstech EB700 reader."
-msgstr ""
+msgstr "Sunstech EB700 okuyucusu ile iletişim kur."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:99
 msgid "Communicate with the Stash W950 reader."
-msgstr ""
+msgstr "Stash W950 okuyucusu ile iletişim kur."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:111
 msgid "Communicate with the Wexler reader."
-msgstr ""
+msgstr "Wexler okuyucusu ile iletişim kur."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:282
 msgid "Unable to detect the %s disk drive. Try rebooting."
@@ -1588,6 +1610,8 @@ msgid ""
 "The main memory of %s is read only. This usually happens because of file "
 "system errors."
 msgstr ""
+"%s 'in ana hafızası salt okunur. Bu genellikle dosya sistemi hataların "
+"nedeniyle gerçekleşir."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:842
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:844
@@ -1630,7 +1654,7 @@ msgstr "Metadataları donanımdaki dosyalardan oku."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:63
 msgid "Use author sort instead of author"
-msgstr ""
+msgstr "Yazar yerine yazar sırlamasını kullan"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:65
 msgid "Template to control how books are saved"
@@ -1651,7 +1675,7 @@ msgstr "Aygıt bilgisini al..."
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:37
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:68
 msgid "USB Vendor ID (in hex)"
-msgstr ""
+msgstr "USB Satıcı kimliği (16'lık sistemde)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:38
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:41
@@ -1660,20 +1684,22 @@ msgid ""
 "Get this ID using Preferences -> Misc -> Get information to set up the user-"
 "defined device"
 msgstr ""
+"Kullanıcı tanımlı cihazı kurmak için Tercihler -> Çeşitli -> Bilgi Al'daki "
+"kimliği al."
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:40
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:70
 msgid "USB Product ID (in hex)"
-msgstr ""
+msgstr "USB Ürün kimliği (16'lık düzende)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:43
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:72
 msgid "USB Revision ID (in hex)"
-msgstr ""
+msgstr "USB revizyon kimliği (16'lık düzende)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:47
 msgid "Windows main memory vendor string"
-msgstr ""
+msgstr "Windows ana hafızası satıcı stringi"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:48
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:52
@@ -1683,26 +1709,28 @@ msgid ""
 "This field is used only on windows. Get this ID using Preferences -> Misc -> "
 "Get information to set up the user-defined device"
 msgstr ""
+"Bu alan sadece Windows da kullanılır. Kullanıcı tanımlı cihazı kurmak için "
+"Tercihler -> Çeşitli -> Bilgi al'ı kullanarak bu kimliği al."
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:51
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:79
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:81
 msgid "Windows main memory ID string"
-msgstr ""
+msgstr "Windows ana hafızası kimlik stringi"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:55
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:84
 msgid "Windows card A vendor string"
-msgstr ""
+msgstr "Windows kart A satıcı stringi"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:59
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:86
 msgid "Windows card A ID string"
-msgstr ""
+msgstr "Windows kart A bilgi stringi"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:63
 msgid "Main memory folder"
-msgstr ""
+msgstr "Ana hafıza klasörü"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:64
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:67
@@ -1710,10 +1738,12 @@ msgid ""
 "Enter the folder where the books are to be stored. This folder is prepended "
 "to any send_to_device template"
 msgstr ""
+"Kitapların saklandığı klasöre gir. Bu klasör herhangi bir send_to_device "
+"şablonunun önüne eklenmiştir."
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:66
 msgid "Card A folder"
-msgstr ""
+msgstr "Kart A klasörü"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:202
 msgid "Rendered %s"
@@ -1729,6 +1759,9 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
+"Şu resimli romanı işlemek başarısız oldu: \n"
+"\n"
+"%s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:278
 msgid ""
@@ -1736,11 +1769,16 @@ msgid ""
 "of less than 256 may result in blurred text on your device if you are "
 "creating your comics in EPUB format."
 msgstr ""
+"Gri resim dönüştürme için renk sayısı. Varsayılan: %default. Eğer EPUB "
+"biçeminde resimli roman oluşturuyorsanız 256'dan düşük değerler cihazınızda "
+"bulanık yazılara neden olabilir."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:282
 msgid ""
 "Disable normalize (improve contrast) color range for pictures. Default: False"
 msgstr ""
+"Resimler için renk çeşitliliğini normalleştirmeyi (kontrastı geliştir) "
+"kapat. Varsayılan: kapalı"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:285
 msgid "Maintain picture aspect ratio. Default is to fill the screen."
@@ -1755,8 +1793,6 @@ msgid ""
 "Disable trimming of comic pages. For some comics, trimming might remove "
 "content as well as borders."
 msgstr ""
-"Çizgi romanlarda  düzeltmeyi kapat . Bağzı çizgi romanlarsa yapılan düzeltme "
-"işlemi içeriğinde  kaldırılmasına sebep olur."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:292
 msgid "Don't split landscape images into two portrait images"
@@ -1816,7 +1852,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:459
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:471
 msgid "Page"
-msgstr "Sayfa"
+msgstr "SAYFA"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:19
 msgid ""

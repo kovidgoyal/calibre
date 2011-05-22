@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-05-20 18:12+0000\n"
-"PO-Revision-Date: 2011-05-21 04:26+0000\n"
+"PO-Revision-Date: 2011-05-22 04:14+0000\n"
 "Last-Translator: Ado Nishimura <Unknown>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-05-21 04:49+0000\n"
+"X-Launchpad-Export-Date: 2011-05-22 04:45+0000\n"
 "X-Generator: Launchpad (build 12959)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -4966,24 +4966,24 @@ msgstr "F3"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/next_match.py:25
 msgid "Move to previous item"
-msgstr ""
+msgstr "前の結果へ移動"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/next_match.py:26
 msgid "Move to previous highlighted item"
-msgstr ""
+msgstr "前のハイライトされた結果へ移動"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/next_match.py:26
 msgid "Shift+N"
-msgstr ""
+msgstr "Shift+N"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/next_match.py:27
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:213
 msgid "Shift+F3"
-msgstr ""
+msgstr "Shift+F3"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/open.py:14
 msgid "Open containing folder"
-msgstr ""
+msgstr "内容のディレクトリを開く"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/open.py:15
 msgid "O"
@@ -4995,7 +4995,7 @@ msgstr "Ctrl+P"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:24
 msgid "Change calibre behavior"
-msgstr ""
+msgstr "calibreの動作を変更する"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:25
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:208
@@ -5004,15 +5004,15 @@ msgstr "ウェルカム・ウィザードを開始"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:29
 msgid "Restart in debug mode"
-msgstr ""
+msgstr "デバッグモードで再起動"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:44
 msgid "Cannot configure while there are running jobs."
-msgstr ""
+msgstr "ジョブの実行中には設定できません。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:49
 msgid "Cannot configure before calibre is restarted."
-msgstr ""
+msgstr "calibreが再起動する前は設定できません。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/restart.py:14
 msgid "&Restart"
@@ -5025,7 +5025,7 @@ msgstr "Ctrl+R"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:24
 msgid "Save single format to disk..."
-msgstr ""
+msgstr "ディスクに単一フォーマットで保存"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:40
 msgid "S"
@@ -5048,7 +5048,7 @@ msgstr "%s形式のみディスクに保存"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:54
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:72
 msgid "Save only %s format to disk in a single directory"
-msgstr ""
+msgstr "%sフォーマットのみをディレクトリに保存"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:91
 msgid "Cannot save to disk"
@@ -5056,7 +5056,7 @@ msgstr "ディスクに保存できません"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:94
 msgid "Choose destination directory"
-msgstr ""
+msgstr "目的のディレクトリを選択"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:102
 msgid ""
@@ -5071,16 +5071,16 @@ msgstr "保存中にエラー発生"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:137
 msgid "There was an error while saving."
-msgstr ""
+msgstr "保存時にエラーが起こりました。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:144
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:145
 msgid "Could not save some books"
-msgstr ""
+msgstr "いくつかの書籍が保存できませんでした。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:146
 msgid "Click the show details button to see which ones."
-msgstr ""
+msgstr "「詳細を表示」ボタンをクリックしてどれかを確認できます。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/show_book_details.py:16
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:766
@@ -5093,15 +5093,15 @@ msgstr "I"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/show_book_details.py:26
 msgid "No detailed info available"
-msgstr ""
+msgstr "詳細情報なし"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/show_book_details.py:27
 msgid "No detailed information is available for books on the device."
-msgstr ""
+msgstr "デバイス上の書籍に詳細な情報が存在しません。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:17
 msgid "Similar books..."
-msgstr ""
+msgstr "類似書籍、、、"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:24
 msgid "Alt+A"
@@ -5137,41 +5137,41 @@ msgstr "同じタグを持つ本"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:20
 msgid "Get books"
-msgstr ""
+msgstr "書籍を取得"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:29
 msgid "Search for ebooks"
-msgstr ""
+msgstr "EBookを検索"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:30
 msgid "Search for this author"
-msgstr ""
+msgstr "この著者で検索"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:31
 msgid "Search for this title"
-msgstr ""
+msgstr "このタイトルで検索"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:32
 msgid "Search for this book"
-msgstr ""
+msgstr "この書籍を検索"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:34
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:122
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search_ui.py:110
 msgid "Stores"
-msgstr ""
+msgstr "ストア"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:76
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:95
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:104
 msgid "Cannot search"
-msgstr ""
+msgstr "検索できません"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:116
 msgid ""
 "Calibre helps you find the ebooks you want by searching the websites of "
 "various commercial and public domain book sources for you."
-msgstr ""
+msgstr "Calibreは数々の商用とパブリックドメインの書籍源のWebサイトを検索し、EBookを見つける手伝いをします。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:120
 msgid ""
@@ -5179,6 +5179,7 @@ msgid ""
 "are looking for, at the best price. You also get DRM status and other useful "
 "information."
 msgstr ""
+"統合検索を使うことで、どのストアに探している書籍があり、どこが一番安いかが簡単に分かります。それに加えてDRMの有り無しやその他の便利な情報を得られます。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:124
 msgid ""
@@ -5189,36 +5190,39 @@ msgid ""
 "especially if the book you are buying has <a href=\"http://drmfree.calibre-"
 "ebook.com/about#drm\">DRM</a>."
 msgstr ""
+"すべての取引（商用やそうでない物も）はあなたと書籍ストアの間で行います。Calibreはこれに関係しないので、購入等に関連するすべての問題は購入先のウエブ"
+"サイトへ問い合わせてください。特に、あなたのEBookリーダーで入手する書籍が使えるかどうか良く確認してください。（特に書籍に<a "
+"href=\"http://drmfree.calibre-ebook.com/about#drm\">DRM</a>がかかっている場合など）"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:134
 msgid "Show this message again"
-msgstr ""
+msgstr "メッセージをもう一度表示"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:135
 msgid "About Get Books"
-msgstr ""
+msgstr "書籍を取得、について"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:15
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:60
 msgid "Tweak ePub"
-msgstr ""
+msgstr "ePubを細工"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:16
 msgid "Make small changes to ePub format books"
-msgstr ""
+msgstr "ePubフォーマットの書籍に小さな変更をする"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:17
 msgid "T"
-msgstr ""
+msgstr "T"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:27
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:39
 msgid "Cannot tweak ePub"
-msgstr ""
+msgstr "ePubに細工できません"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:40
 msgid "No ePub available. First convert the book to ePub."
-msgstr ""
+msgstr "ePubがありません。まずePubに書籍を変換してください。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:36
 msgid "V"
@@ -5234,11 +5238,11 @@ msgstr "指定したフォーマットで表示"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:51
 msgid "Read a random book"
-msgstr ""
+msgstr "ランダムに書籍を読む"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:55
 msgid "Clear recently viewed list"
-msgstr ""
+msgstr "最近見た物のリストを消去"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:139
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:219
@@ -5249,26 +5253,26 @@ msgstr "表示できない"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:152
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:166
 msgid "Format unavailable"
-msgstr ""
+msgstr "フォーマットがありません"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:153
 msgid "Selected books have no formats"
-msgstr ""
+msgstr "選択された書籍にはフォーマットがありません"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:155
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:127
 msgid "Choose the format to view"
-msgstr ""
+msgstr "表示するフォーマットを選択"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:167
 msgid ""
 "Not all the selected books were available in the %s format. You should "
 "convert them first."
-msgstr ""
+msgstr "選択されたすべての書籍に %s フォーマットがありません。まず変換してください。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:174
 msgid "Multiple Books Selected"
-msgstr ""
+msgstr "複数の書籍が選択されています"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:175
 msgid ""
@@ -5277,6 +5281,8 @@ msgid ""
 "started the process cannot be stopped until complete. Do you wish to "
 "continue?"
 msgstr ""
+"%d冊の書籍を開こうとしています。一度にたくさんの書籍を開くと時間がかかったり、コンピューターの反応が悪くなります。一度開こうとすると終わるまで中断できま"
+"せん。本当に開きますか？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:184
 msgid "Cannot open folder"
@@ -5284,11 +5290,11 @@ msgstr "フォルダを開くことができない"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:220
 msgid "This book no longer exists in your library"
-msgstr ""
+msgstr "この書籍はライブラリにもうありません。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:227
 msgid "%s has no available formats."
-msgstr ""
+msgstr "%s にフォーマットがありません。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:68
 msgid "Searching in"
@@ -5300,15 +5306,15 @@ msgstr "追加..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:258
 msgid "Searching in all sub-directories..."
-msgstr ""
+msgstr "すべてのサブ･ディレクトリを検索"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:269
 msgid "Path error"
-msgstr ""
+msgstr "パス・エラー"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:270
 msgid "The specified directory could not be processed."
-msgstr ""
+msgstr "指定したディレクトリは処理できません。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:274
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:845
@@ -5325,13 +5331,13 @@ msgstr "追加された"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:352
 msgid "Adding failed"
-msgstr ""
+msgstr "追加に失敗"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:353
 msgid ""
 "The add books process seems to have hung. Try restarting calibre and adding "
 "the books in smaller increments, until you find the problem book."
-msgstr ""
+msgstr "書籍追加の処理がおかしいようです。calibreをリスタートして書籍をすこしづつ追加し、どの書籍が問題なのかを見つけてください。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:368
 msgid "Duplicates found!"
@@ -5341,7 +5347,7 @@ msgstr "重複を発見!"
 msgid ""
 "Books with the same title as the following already exist in the database. "
 "Add them anyway?"
-msgstr ""
+msgstr "同じタイトルの書籍がデーターベース中にすでに存在します。追加しますか？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:372
 msgid "Adding duplicates..."
@@ -5357,15 +5363,15 @@ msgstr "保存された"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/__init__.py:56
 msgid "Searching for sub-folders"
-msgstr ""
+msgstr "サブ･フォルダーを検索"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/__init__.py:61
 msgid "Searching for books"
-msgstr ""
+msgstr "書籍を検索"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/__init__.py:73
 msgid "Looking for duplicates based on file hash"
-msgstr ""
+msgstr "ファイル・ハッシュで重複を探す"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/__init__.py:108
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:70
@@ -5378,7 +5384,7 @@ msgstr "不正なルートフォルダ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/__init__.py:136
 msgid "is not a valid root folder"
-msgstr ""
+msgstr "は有効なルート・フォルダーではありません。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/__init__.py:146
 msgid "Add books to calibre"
@@ -5391,23 +5397,23 @@ msgstr "calibreに本を追加"
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:54
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/stanza_ui.py:46
 msgid "WizardPage"
-msgstr ""
+msgstr "ウィザード・ページ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/scan_ui.py:27
 msgid "Scanning root folder for books"
-msgstr ""
+msgstr "書籍のルート・フォルダーをスキャン"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/scan_ui.py:28
 msgid "This may take a few minutes"
-msgstr ""
+msgstr "これには数分かかります。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:63
 msgid "Choose the location to add books from"
-msgstr ""
+msgstr "書籍の追加元の場所を選択"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:64
 msgid "Select a folder on your hard disk"
-msgstr ""
+msgstr "ハードディスクのディレクトリを選択"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:65
 msgid ""
@@ -5420,16 +5426,20 @@ msgid ""
 "<p>Make sure that the folder you chose for your calibre library <b>is "
 "not</b> under the root folder you choose.</p>"
 msgstr ""
+"<p>calibreはコンピューター中に存在する書籍を自動的にスキャンできます。それらの書籍はcalibreライブラリに<b>コピー</b>されます。この"
+"ウィザードは存在ずる書籍のスキャン方法と取り込み処理をカスタマイズできます。</p>\n"
+"<p>ルート・フォルダーを選択してください。このフォルダーとそのサブ･フォルダーのみから書籍を検索します。</p>\n"
+"<p>その際、選択したルート・フォルダーの下に、calibreのライブラリが<b>無い</b>ことを確認してください。</p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:68
 msgid "&Root folder:"
-msgstr ""
+msgstr "ルート・フォルダー &R :"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:69
 msgid ""
 "This folder and its sub-folders will be scanned for books to import into "
 "calibre's library"
-msgstr ""
+msgstr "このフォルダーとそのサブ･フォルダーからcalibreのライブラリにインポートする書籍を検索します。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:71
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug_ui.py:57
@@ -5486,18 +5496,18 @@ msgstr "..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:72
 msgid "Handle multiple files per book"
-msgstr ""
+msgstr "一つの書籍の複数のファイルを処理する"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:73
 msgid ""
 "&One book per folder, assumes every ebook file in a folder is the same book "
 "in a different format"
-msgstr ""
+msgstr "1つのディレクトリに1つの書籍。ディレクトリ内の別のebookファイルは同じ本の違うフォーマットだと想定します。 &O"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:74
 msgid ""
 "&Multiple books per folder, assumes every ebook file is a different book"
-msgstr ""
+msgstr "１つのディレクトリに複数の書籍。すべての違うEBookファイルは違う書籍だと想定します。&M"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/bars.py:190
 msgid "Donate"
@@ -5509,11 +5519,11 @@ msgstr "クリックして開く"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:123
 msgid "Ids"
-msgstr ""
+msgstr "Ids"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:133
 msgid "Book %s of <span class=\"series_name\">%s</span>"
-msgstr ""
+msgstr "%s (シリーズ：<span class=\"series_name\">%s</span>)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:144
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:981
@@ -5523,16 +5533,16 @@ msgstr "コレクション"
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:246
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:243
 msgid "Paste Cover"
-msgstr ""
+msgstr "表紙を貼り付け"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:247
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:244
 msgid "Copy Cover"
-msgstr ""
+msgstr "表紙をコピー"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:513
 msgid "Double-click to open Book Details window"
-msgstr ""
+msgstr "ダブルクリックで書籍の詳細ウインドウを開く"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:514
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/delete_matching_from_device.py:76
@@ -5543,7 +5553,7 @@ msgstr "パス名"
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:515
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:109
 msgid "Cover size: %dx%d"
-msgstr ""
+msgstr "表紙サイズ: %dx%d"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex.py:16
 msgid "BibTeX Options"
@@ -5648,16 +5658,16 @@ msgstr "フォーム"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:78
 msgid "Bib file encoding:"
-msgstr ""
+msgstr "Bib ファイルのエンコーディング："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:79
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_csv_xml_ui.py:43
 msgid "Fields to include in output:"
-msgstr ""
+msgstr "出力するフィールド："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:80
 msgid "Encoding configuration (change if you have errors) :"
-msgstr ""
+msgstr "エンコーディング設定（エラー時に設定してください）："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:81
 msgid "BibTeX entry type:"
@@ -5665,7 +5675,7 @@ msgstr "BibTeXの入力タイプ："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:82
 msgid "Create a citation tag?"
-msgstr ""
+msgstr "引用タグを作る"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:83
 msgid "Add files path with formats?"

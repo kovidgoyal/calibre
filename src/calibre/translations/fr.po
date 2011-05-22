@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-05-20 18:12+0000\n"
-"PO-Revision-Date: 2011-05-14 21:51+0000\n"
-"Last-Translator: sengian <Unknown>\n"
+"PO-Revision-Date: 2011-05-21 22:00+0000\n"
+"Last-Translator: Vincent Coiffier <Unknown>\n"
 "Language-Team: Français <kde-i18n-doc@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-05-21 04:47+0000\n"
+"X-Launchpad-Export-Date: 2011-05-22 04:45+0000\n"
 "X-Generator: Launchpad (build 12959)\n"
 "X-Poedit-Bookmarks: 1177,1104,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -544,15 +544,15 @@ msgstr "Diverses configurations avancées"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1098
 msgid "Kindle books from Amazon."
-msgstr ""
+msgstr "Ebook au format Kindel de Amazon"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1103
 msgid "Kindle books from Amazon.de."
-msgstr ""
+msgstr "Ebook au format Kindel de Amazon.de"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1108
 msgid "Kindle books from Amazon.uk."
-msgstr ""
+msgstr "Ebook au format Kindel de Amazon.uk"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1113
 msgid ""
@@ -570,7 +570,7 @@ msgstr "Livres, Manuels , Livres électroniques, Jouets, Jeux et plus encore."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1129
 msgid "Der eBook Shop."
-msgstr ""
+msgstr "Boutique Der eBook."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1134
 msgid "Publishers of fine books."
@@ -586,7 +586,7 @@ msgstr "La librairie digitale."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1149
 msgid "EPUBReaders eBook Shop."
-msgstr ""
+msgstr "Boutique EPUBReaders eBook."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1154
 msgid "Entertain, enrich, inspire."
@@ -598,7 +598,7 @@ msgstr "Lire n'importe où."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1164
 msgid "Foyles of London, online."
-msgstr ""
+msgstr "Foyes de Londres, en ligne."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1170
 msgid "Zaczarowany świat książek"
@@ -606,7 +606,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1175
 msgid "Google Books"
-msgstr ""
+msgstr "Livres Google"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1180
 msgid "The first producer of free ebooks."
@@ -634,11 +634,11 @@ msgstr "Une page web pour chaque livre."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1211
 msgid "DRM-Free tech ebooks."
-msgstr ""
+msgstr "Ebooks techniques sans DRM."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1216
 msgid "The Pragmatic Bookshelf"
-msgstr ""
+msgstr "Le Pragmatic Bookshelf"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1221
 msgid "Your ebook. Your way."
@@ -646,7 +646,7 @@ msgstr "Votre livre électronique. Votre choix."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1226
 msgid "Feel every word."
-msgstr ""
+msgstr "Ressentir tous les mots."
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:102
 msgid "Conversion Input"
@@ -1573,6 +1573,10 @@ msgid ""
 "device and its cards. This permits calibre to find books put on the device "
 "by other software and by wireless download."
 msgstr ""
+"En précisant cette option, calibre recherchera des livres dans tous les "
+"répertoires sur l'appareil et sur ses cartes. Cela permet à calibre de "
+"trouver des livres sur l'appareil par d'autre logiciels et par le "
+"téléchargement sans fil."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:190
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/structure.py:69
@@ -1735,12 +1739,12 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:40
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:70
 msgid "USB Product ID (in hex)"
-msgstr ""
+msgstr "ID Produit USB (en hexa)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:43
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:72
 msgid "USB Revision ID (in hex)"
-msgstr ""
+msgstr "ID Révision USB (en hexa)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:47
 msgid "Windows main memory vendor string"
@@ -3480,7 +3484,7 @@ msgstr "Couverture"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:384
 msgid "Downloads metadata and covers from Amazon"
-msgstr ""
+msgstr "Télécharge les métadonnées et les couvertures à partir d'Amazon"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:394
 msgid "US"
@@ -3500,16 +3504,18 @@ msgstr "RU"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:398
 msgid "Italy"
-msgstr ""
+msgstr "Italie"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:402
 msgid "Amazon website to use:"
-msgstr ""
+msgstr "Site Amazon à utiliser:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:403
 msgid ""
 "Metadata from Amazon will be fetched using this country's Amazon website."
 msgstr ""
+"Les métadonnées d'Amazon seront récupérées en utilisant ce site web Amazon "
+"du pays.."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:508
 msgid "Amazon timed out. Try again later."
@@ -3521,11 +3527,12 @@ msgstr "Source de métadonnées"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/douban.py:154
 msgid "Downloads metadata and covers from Douban.com"
-msgstr ""
+msgstr "Télécharge les métadonnées et les couvertures à partir de Douban.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google.py:160
 msgid "Downloads metadata and covers from Google Books"
 msgstr ""
+"Télécharge les métadonnées et les couvertures à partir de Google Books"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/isbndb.py:27
 msgid "Downloads metadata from isbndb.com"
@@ -3561,6 +3568,8 @@ msgstr "Télécharger les couvertures depuis The Open Library"
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/overdrive.py:33
 msgid "Downloads metadata and covers from Overdrive's Content Reserve"
 msgstr ""
+"Télécharge les métadonnées et les couvertures à partir de Overdrive's "
+"Content Reserve"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/overdrive.py:45
 msgid "Download all metadata (slow)"
