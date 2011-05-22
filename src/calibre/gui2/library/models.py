@@ -715,7 +715,8 @@ class BooksModel(QAbstractTableModel): # {{{
                 fmt = self.column_color_map[key]
                 try:
                     color = composite_formatter.safe_format(fmt, mi, '', mi)
-                    return QColor(color)
+                    if QColor.isValid(color):
+                        return QColor(color)
                 except:
                     return None
             elif self.is_custom_column(key) and \
