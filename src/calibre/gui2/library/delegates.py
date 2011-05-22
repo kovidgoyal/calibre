@@ -40,10 +40,7 @@ class RatingDelegate(QStyledItemDelegate): # {{{
                                   50 + 40 * sin(0.8 * i * pi))
         self.star_path.closeSubpath()
         self.star_path.setFillRule(Qt.WindingFill)
-        gradient = QLinearGradient(0, 0, 0, 100)
-        gradient.setColorAt(0.0, self.COLOR)
-        gradient.setColorAt(1.0, self.COLOR)
-        self.brush = QBrush(gradient)
+        self.gradient = QLinearGradient(0, 0, 0, 100)
         self.factor = self.SIZE/100.
 
     def sizeHint(self, option, index):
@@ -53,7 +50,8 @@ class RatingDelegate(QStyledItemDelegate): # {{{
     def paint(self, painter, option, index):
         style = self._parent.style()
         option = QStyleOptionViewItemV4(option)
-        self.initStyleOption(option, self.dummy)
+        self.initStyleOption(option, index)
+        option.text = u''
         num = index.model().data(index, Qt.DisplayRole).toInt()[0]
         def draw_star():
             painter.save()
@@ -65,6 +63,7 @@ class RatingDelegate(QStyledItemDelegate): # {{{
             painter.restore()
 
         painter.save()
+
         if hasattr(QStyle, 'CE_ItemViewItem'):
             style.drawControl(QStyle.CE_ItemViewItem, option,
                     painter, self._parent)
@@ -75,8 +74,15 @@ class RatingDelegate(QStyledItemDelegate): # {{{
             painter.setClipRect(option.rect)
             y = option.rect.center().y()-self.SIZE/2.
             x = option.rect.left()
-            painter.setPen(self.PEN)
-            painter.setBrush(self.brush)
+            color = index.data(Qt.ForegroundRole)
+            if color.isNull() or not color.isValid():
+                color = self.COLOR
+            else:
+                color = QColor(color)
+            painter.setPen(QPen(color,  1, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
+            self.gradient.setColorAt(0.0, color)
+            self.gradient.setColorAt(1.0, color)
+            painter.setBrush(QBrush(self.gradient))
             painter.translate(x, y)
             i = 0
             while i < num:

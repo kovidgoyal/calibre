@@ -693,9 +693,9 @@ class BooksModel(QAbstractTableModel): # {{{
             return NONE
         if role in (Qt.DisplayRole, Qt.EditRole):
             return self.column_to_dc_map[col](index.row())
-        elif role == Qt.BackgroundColorRole:
+        elif role == Qt.BackgroundRole:
             if self.id(index) in self.ids_to_highlight_set:
-                return QColor('lightgreen')
+                return QVariant(QColor('lightgreen'))
         elif role == Qt.DecorationRole:
             if self.column_to_dc_decorator_map[col] is not None:
                 return self.column_to_dc_decorator_map[index.column()](index.row())
