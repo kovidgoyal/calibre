@@ -65,7 +65,6 @@ class LibraryViewMixin(object): # {{{
 
         self.build_context_menus()
         self.library_view.model().set_highlight_only(config['highlight_search_matches'])
-        self.library_view.model().set_color_templates()
 
     def build_context_menus(self):
         lm = QMenu(self)

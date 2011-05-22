@@ -157,6 +157,7 @@ class BooksModel(QAbstractTableModel): # {{{
         self.database_changed.emit(db)
         self.stop_metadata_backup()
         self.start_metadata_backup()
+        self.set_color_templates()
 
     def start_metadata_backup(self):
         self.metadata_backup = MetadataBackup(self.db)
@@ -535,6 +536,7 @@ class BooksModel(QAbstractTableModel): # {{{
         return img
 
     def set_color_templates(self):
+        print 'here'
         self.column_color_map = {}
         for i in range(1,self.db.column_color_count+1):
             name = self.db.prefs.get('column_color_name_'+str(i))
