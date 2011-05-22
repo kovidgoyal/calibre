@@ -714,9 +714,9 @@ class BooksModel(QAbstractTableModel): # {{{
                 mi = self.db.get_metadata(self.id(index), index_is_id=True)
                 fmt = self.column_color_map[key]
                 try:
-                    color = composite_formatter.safe_format(fmt, mi, '', mi)
-                    if QColor.isValid(color):
-                        return QColor(color)
+                    color = QColor(composite_formatter.safe_format(fmt, mi, '', mi))
+                    if color.isValid():
+                        return color
                 except:
                     return None
             elif self.is_custom_column(key) and \
@@ -727,9 +727,9 @@ class BooksModel(QAbstractTableModel): # {{{
                 txt = unicode(index.data(Qt.DisplayRole).toString())
                 if len(colors) > 0 and txt in values:
                     try:
-                        color = colors[values.index(txt)]
-                        if QColor.isValid(color):
-                            return QColor(color)
+                        color = QColor(colors[values.index(txt)])
+                        if color.isValid():
+                            return color
                     except:
                         pass
             return None

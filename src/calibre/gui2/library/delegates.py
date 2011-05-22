@@ -7,12 +7,12 @@ __docformat__ = 'restructuredtext en'
 
 from math import cos, sin, pi
 
-from PyQt4.Qt import QColor, Qt, QModelIndex, QSize, QPalette, \
-                     QPainterPath, QLinearGradient, QBrush, QApplication, \
-                     QPen, QStyle, QPainter, QStyleOptionViewItemV4, \
-                     QIcon,  QDoubleSpinBox, QVariant, QSpinBox, \
-                     QStyledItemDelegate, QComboBox, QTextDocument, \
-                     QAbstractTextDocumentLayout
+from PyQt4.Qt import (QColor, Qt, QModelIndex, QSize, QApplication,
+                     QPainterPath, QLinearGradient, QBrush,
+                     QPen, QStyle, QPainter, QStyleOptionViewItemV4,
+                     QIcon,  QDoubleSpinBox, QVariant, QSpinBox,
+                     QStyledItemDelegate, QComboBox, QTextDocument,
+                     QAbstractTextDocumentLayout)
 
 from calibre.gui2 import UNDEFINED_QDATE, error_dialog
 from calibre.gui2.widgets import EnLineEdit
