@@ -17,7 +17,7 @@ class AmazonUKKindleStore(AmazonKindleStore):
     For comments on the implementation, please see amazon_plugin.py
     '''
 
-    search_url = 'http://www.amazon.co.uk/s/url=search-alias%3Ddigital-text&field-keywords='
+    search_url = 'http://www.amazon.co.uk/s/?url=search-alias%3Ddigital-text&field-keywords='
     details_url = 'http://amazon.co.uk/dp/'
 
     def open(self, parent=None, detail_item=None, external=False):
