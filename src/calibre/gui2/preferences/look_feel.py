@@ -6,7 +6,7 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from PyQt4.Qt import (QApplication, QFont, QFontInfo, QFontDialog,
-        QAbstractListModel, Qt)
+        QAbstractListModel, Qt, QColor)
 
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget, CommaSeparatedList
 from calibre.gui2.preferences.look_feel_ui import Ui_Form
@@ -159,12 +159,36 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.df_up_button.clicked.connect(self.move_df_up)
         self.df_down_button.clicked.connect(self.move_df_down)
 
+        self.color_help_text.setWordWrap(True)
+        self.color_help_text.setText('<p>' +
+                _('Here you can specify coloring rules for fields shown in the '
+                  'library view. Choose the field you wish to color, then '
+                  'supply a template that specifies the color to use.') +
+                 '</p><p>' +
+                _('The template must evaluate to one of the color names shown '
+                  'below. You can use any legal template expression. '
+                  'For example, you can set the title to always display in '
+                  'green using the template "green" (without the quotes). '
+                  'To show the title in blue if the book has the tag "Science '
+                  'Fiction", red if the book has the tag "Mystery", or black if '
+                  'the book has neither tag, use '
+                  '"{tags:switch(Science Fiction,blue,Mystery,red,)}" '
+                  'To show the title in green if it has one format, blue if it '
+                  'two formats, and red if more, use '
+                  "\"program:cmp(count(field('formats'),','), 2, 'green', 'blue', 'red')\"") +
+                               '</p><p>' +
+                _('Note: if you want to color a "custom column with a fixed set '
+                  'of values", it is possible and often easier to specify the '
+                  'colors in the column definition dialog. There you can '
+                  'provide a color for each value without using a template.')+ '</p>')
         choices = db.field_metadata.displayable_field_keys()
         choices.sort(key=sort_key)
         choices.insert(0, '')
         for i in range(1, db.column_color_count+1):
             r('column_color_name_'+str(i), db.prefs, choices=choices)
             r('column_color_template_'+str(i), db.prefs)
+        all_colors = [unicode(s) for s in list(QColor.colorNames())]
+        self.colors_box.setText(', '.join(all_colors))
 
     def initialize(self):
         ConfigWidgetBase.initialize(self)

@@ -562,6 +562,22 @@ class BuiltinBooksize(BuiltinFormatterFunction):
                 pass
         return ''
 
+class BuiltinFirstNonEmpty(BuiltinFormatterFunction):
+    name = 'first_non_empty'
+    arg_count = -1
+    doc = _('first_non_empty(value, value, ...) -- '
+            'returns the first value that is not empty. If all values are '
+            'empty, then the empty value is returned.'
+            'You can have as many values as you want.')
+
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        i = 0
+        while i < len(args):
+            if args[i]:
+                return args[i]
+            i += 1
+        return ''
+
 builtin_add         = BuiltinAdd()
 builtin_assign      = BuiltinAssign()
 builtin_booksize    = BuiltinBooksize()
@@ -571,8 +587,9 @@ builtin_contains    = BuiltinContains()
 builtin_count       = BuiltinCount()
 builtin_divide      = BuiltinDivide()
 builtin_eval        = BuiltinEval()
-builtin_format_date = BuiltinFormat_date()
+builtin_first_non_empty = BuiltinFirstNonEmpty()
 builtin_field       = BuiltinField()
+builtin_format_date = BuiltinFormat_date()
 builtin_ifempty     = BuiltinIfempty()
 builtin_list_item   = BuiltinListitem()
 builtin_lookup      = BuiltinLookup()

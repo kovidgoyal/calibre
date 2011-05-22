@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 from PyQt4.Qt import (SIGNAL, QLineEdit)
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
 
-class LineEditWithTextBox(QLineEdit):
+class TemplateLineEditor(QLineEdit):
 
     '''
     Extend the context menu of a QLineEdit to include more actions.
