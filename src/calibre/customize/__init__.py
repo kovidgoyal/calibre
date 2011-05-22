@@ -610,6 +610,14 @@ class StoreBase(Plugin): # {{{
     minimum_calibre_version = (0, 8, 0)
 
     actual_plugin = None
+    
+    # Does the store only distribute ebooks without DRM.
+    drm_free_only = False
+    # This is the 2 letter country code for the corporate
+    # headquarters of the store.
+    headquarters = ''
+    # All formats the store distributes ebooks in.
+    formats = []
 
     def load_actual_plugin(self, gui):
         '''
