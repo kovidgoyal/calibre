@@ -153,11 +153,11 @@ class BooksModel(QAbstractTableModel): # {{{
                 self.headers[col] = self.custom_columns[col]['name']
 
         self.build_data_convertors()
+        self.set_color_templates(reset=False)
         self.reset()
         self.database_changed.emit(db)
         self.stop_metadata_backup()
         self.start_metadata_backup()
-        self.set_color_templates()
 
     def start_metadata_backup(self):
         self.metadata_backup = MetadataBackup(self.db)
@@ -535,14 +535,15 @@ class BooksModel(QAbstractTableModel): # {{{
             img = self.default_image
         return img
 
-    def set_color_templates(self):
+    def set_color_templates(self, reset=True):
         self.column_color_map = {}
         for i in range(1,self.db.column_color_count+1):
             name = self.db.prefs.get('column_color_name_'+str(i))
             if name:
                 self.column_color_map[name] = \
                         self.db.prefs.get('column_color_template_'+str(i))
-        self.refresh()
+        if reset:
+            self.reset()
 
     def build_data_convertors(self):
         def authors(r, idx=-1):
