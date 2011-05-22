@@ -28,7 +28,6 @@ from calibre.gui2.dialogs.template_dialog import TemplateDialog
 class RatingDelegate(QStyledItemDelegate): # {{{
     COLOR    = QColor("blue")
     SIZE     = 16
-    PEN      = QPen(COLOR, 1, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin)
 
     def __init__(self, parent):
         QStyledItemDelegate.__init__(self, parent)
