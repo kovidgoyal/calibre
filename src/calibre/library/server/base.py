@@ -218,7 +218,7 @@ class LibraryServer(ContentServer, MobileServer, XMLServer, OPDSServer, Cache,
                 cherrypy.engine.start()
             except:
                 ip = get_external_ip()
-                if not ip or ip == '127.0.0.1':
+                if not ip or ip.startswith('127.'):
                     raise
                 cherrypy.log('Trying to bind to single interface: '+ip)
                 cherrypy.config.update({'server.socket_host' : ip})
