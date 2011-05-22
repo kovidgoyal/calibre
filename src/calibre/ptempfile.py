@@ -39,8 +39,20 @@ def base_dir():
         if td and os.path.exists(td):
             _base_dir = td
         else:
-            _base_dir = tempfile.mkdtemp(prefix='%s_%s_tmp_'%(__appname__,
-                __version__), dir=os.environ.get('CALIBRE_TEMP_DIR', None))
+            base = os.environ.get('CALIBRE_TEMP_DIR', None)
+            prefix = u'%s_%s_tmp_'%(__appname__, __version__)
+            try:
+                # First try an ascii path as that is what was done historically
+                # and we dont want to break working code
+                # _base_dir will be a bytestring
+                _base_dir = tempfile.mkdtemp(prefix=prefix.encode('ascii'), dir=base)
+            except:
+                # Failed to create tempdir (probably localized windows)
+                # Try unicode. This means that all temp paths created by this
+                # module will be unicode, this may cause problems elsewhere, if
+                # so, hopefully people will open tickets and they can be fixed.
+                _base_dir = tempfile.mkdtemp(prefix=prefix, dir=base)
+
             atexit.register(remove_dir, _base_dir)
     return _base_dir
 
