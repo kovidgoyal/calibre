@@ -608,6 +608,7 @@ class StoreBase(Plugin): # {{{
     author         = 'John Schember'
     type = _('Store')
     minimum_calibre_version = (0, 8, 0)
+    version        = (1, 0, 1)
 
     actual_plugin = None
     
