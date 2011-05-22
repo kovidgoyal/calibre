@@ -7,11 +7,12 @@ __docformat__ = 'restructuredtext en'
 
 from math import cos, sin, pi
 
-from PyQt4.Qt import QColor, Qt, QModelIndex, QSize, \
-                     QPainterPath, QLinearGradient, QBrush, \
+from PyQt4.Qt import QColor, Qt, QModelIndex, QSize, QPalette, \
+                     QPainterPath, QLinearGradient, QBrush, QApplication, \
                      QPen, QStyle, QPainter, QStyleOptionViewItemV4, \
                      QIcon,  QDoubleSpinBox, QVariant, QSpinBox, \
-                     QStyledItemDelegate, QComboBox, QTextDocument
+                     QStyledItemDelegate, QComboBox, QTextDocument, \
+                     QAbstractTextDocumentLayout
 
 from calibre.gui2 import UNDEFINED_QDATE, error_dialog
 from calibre.gui2.widgets import EnLineEdit
@@ -51,9 +52,7 @@ class RatingDelegate(QStyledItemDelegate): # {{{
         return QSize(5*(self.SIZE), self.SIZE+4)
 
     def paint(self, painter, option, index):
-        style = self._parent.style()
-        option = QStyleOptionViewItemV4(option)
-        self.initStyleOption(option, self.dummy)
+        self.initStyleOption(option, index)
         num = index.model().data(index, Qt.DisplayRole).toInt()[0]
         def draw_star():
             painter.save()
@@ -65,18 +64,24 @@ class RatingDelegate(QStyledItemDelegate): # {{{
             painter.restore()
 
         painter.save()
-        if hasattr(QStyle, 'CE_ItemViewItem'):
-            style.drawControl(QStyle.CE_ItemViewItem, option,
-                    painter, self._parent)
-        elif option.state & QStyle.State_Selected:
+        if option.state & QStyle.State_Selected:
             painter.fillRect(option.rect, option.palette.highlight())
+        else:
+            painter.fillRect(option.rect, option.backgroundBrush)
+
         try:
             painter.setRenderHint(QPainter.Antialiasing)
             painter.setClipRect(option.rect)
             y = option.rect.center().y()-self.SIZE/2.
             x = option.rect.left()
-            painter.setPen(self.PEN)
-            painter.setBrush(self.brush)
+            brush = index.model().data(index, role=Qt.ForegroundRole)
+            if brush is None:
+                pen = self.PEN
+                painter.setBrush(self.COLOR)
+            else:
+                pen = QPen(brush, 1, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin)
+                painter.setBrush(brush)
+            painter.setPen(pen)
             painter.translate(x, y)
             i = 0
             while i < num:
@@ -274,34 +279,6 @@ class CcEnumDelegate(QStyledItemDelegate): # {{{
     Delegate for text/int/float data.
     '''
 
-    def __init__(self, parent):
-        QStyledItemDelegate.__init__(self, parent)
-        self.document = QTextDocument()
-
-    def paint(self, painter, option, index):
-        style = self.parent().style()
-        txt = unicode(index.data(Qt.DisplayRole).toString())
-        self.document.setPlainText(txt)
-        painter.save()
-        if hasattr(QStyle, 'CE_ItemViewItem'):
-            style.drawControl(QStyle.CE_ItemViewItem, option,
-                    painter, self.parent())
-        elif option.state & QStyle.State_Selected:
-            painter.fillRect(option.rect, option.palette.highlight())
-        m = index.model()
-        cc = m.custom_columns[m.column_map[index.column()]]['display']
-        colors = cc.get('enum_colors', [])
-        values = cc.get('enum_values', [])
-        if len(colors) > 0 and txt in values:
-            try:
-                painter.fillRect(option.rect, QColor(colors[values.index(txt)]))
-            except:
-                pass
-        painter.setClipRect(option.rect)
-        painter.translate(option.rect.topLeft())
-        self.document.drawContents(painter)
-        painter.restore()
-
     def createEditor(self, parent, option, index):
         m = index.model()
         col = m.column_map[index.column()]
@@ -339,17 +316,19 @@ class CcCommentsDelegate(QStyledItemDelegate): # {{{
         self.document = QTextDocument()
 
     def paint(self, painter, option, index):
-        style = self.parent().style()
-        self.document.setHtml(index.data(Qt.DisplayRole).toString())
+        self.initStyleOption(option, index)
+        style = QApplication.style() if option.widget is None \
+                                                else option.widget.style()
+        self.document.setHtml(option.text)
+        option.text = ""
+        style.drawControl(QStyle.CE_ItemViewItem, option, painter);
+        ctx = QAbstractTextDocumentLayout.PaintContext()
+        ctx.palette = option.palette #.setColor(QPalette.Text, QColor("red"));
+        textRect = style.subElementRect(QStyle.SE_ItemViewItemText, option)
         painter.save()
-        if hasattr(QStyle, 'CE_ItemViewItem'):
-            style.drawControl(QStyle.CE_ItemViewItem, option,
-                    painter, self.parent())
-        elif option.state & QStyle.State_Selected:
-            painter.fillRect(option.rect, option.palette.highlight())
-        painter.setClipRect(option.rect)
-        painter.translate(option.rect.topLeft())
-        self.document.drawContents(painter)
+        painter.translate(textRect.topLeft())
+        painter.setClipRect(textRect.translated(-textRect.topLeft()))
+        self.document.documentLayout().draw(painter, ctx)
         painter.restore()
 
     def createEditor(self, parent, option, index):

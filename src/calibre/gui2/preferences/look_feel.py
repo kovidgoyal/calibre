@@ -159,6 +159,13 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.df_up_button.clicked.connect(self.move_df_up)
         self.df_down_button.clicked.connect(self.move_df_down)
 
+        choices = db.field_metadata.displayable_field_keys()
+        choices.sort(key=sort_key)
+        choices.insert(0, '')
+        for i in range(1, db.column_color_count+1):
+            r('column_color_name_'+str(i), db.prefs, choices=choices)
+            r('column_color_template_'+str(i), db.prefs)
+
     def initialize(self):
         ConfigWidgetBase.initialize(self)
         font = gprefs['font']
@@ -238,6 +245,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         return rr
 
     def refresh_gui(self, gui):
+        gui.library_view.model().set_color_templates()
         self.update_font_display()
         gui.tags_view.reread_collapse_parameters()
         gui.library_view.refresh_book_details()

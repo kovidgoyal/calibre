@@ -407,6 +407,84 @@ then the tags will be displayed each on their own line.</string>
        </item>
       </layout>
      </widget>
+     <widget class="QWidget" name="tab_5">
+      <attribute name="icon">
+       <iconset resource="../../../../resources/images.qrc">
+        <normaloff>:/images/cover_flow.png</normaloff>:/images/cover_flow.png</iconset>
+      </attribute>
+      <attribute name="title">
+       <string>Column Coloring</string>
+      </attribute>
+      <layout class="QGridLayout" name="column_color_layout">
+       <item row="0" column="0">
+        <widget class="QLabel">
+         <property name="text">
+          <string>Column name</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QLabel">
+         <property name="text">
+          <string>Selection template</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QComboBox" name="opt_column_color_name_1">
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="LineEditWithTextBox" name="opt_column_color_template_1">
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QComboBox" name="opt_column_color_name_2">
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="LineEditWithTextBox" name="opt_column_color_template_2">
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QComboBox" name="opt_column_color_name_3">
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="LineEditWithTextBox" name="opt_column_color_template_3">
+        </widget>
+       </item>
+       <item row="4" column="0">
+        <widget class="QComboBox" name="opt_column_color_name_4">
+        </widget>
+       </item>
+       <item row="4" column="1">
+        <widget class="LineEditWithTextBox" name="opt_column_color_template_4">
+        </widget>
+       </item>
+       <item row="5" column="0">
+        <widget class="QComboBox" name="opt_column_color_name_5">
+        </widget>
+       </item>
+       <item row="5" column="1">
+        <widget class="LineEditWithTextBox" name="opt_column_color_template_5">
+        </widget>
+       </item>
+       <item row="10" column="0" colspan="2">
+        <spacer name="verticalSpacer_4">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>690</width>
+           <height>283</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
     </widget>
    </item>
   </layout>
@@ -416,6 +494,11 @@ then the tags will be displayed each on their own line.</string>
    <class>MultiCompleteLineEdit</class>
    <extends>QLineEdit</extends>
    <header>calibre/gui2/complete.h</header>
+  </customwidget>
+  <customwidget>
+   <class>LineEditWithTextBox</class>
+   <extends>QLineEdit</extends>
+   <header>calibre/gui2/dialogs/template_line_editor.h</header>
   </customwidget>
  </customwidgets>
  <resources>
