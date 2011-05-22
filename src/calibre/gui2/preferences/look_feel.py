@@ -159,7 +159,6 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.df_up_button.clicked.connect(self.move_df_up)
         self.df_down_button.clicked.connect(self.move_df_down)
 
-        self.color_help_text.setWordWrap(True)
         self.color_help_text.setText('<p>' +
                 _('Here you can specify coloring rules for fields shown in the '
                   'library view. Choose the field you wish to color, then '
@@ -169,14 +168,25 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                   'below. You can use any legal template expression. '
                   'For example, you can set the title to always display in '
                   'green using the template "green" (without the quotes). '
-                  'To show the title in blue if the book has the tag "Science '
-                  'Fiction", red if the book has the tag "Mystery", or black if '
-                  'the book has neither tag, use '
-                  '"{tags:switch(Science Fiction,blue,Mystery,red,)}" '
+                  'To show the title in the color named in the custom column '
+                  '#column, use "{#column}". To show the title in blue if the '
+                  'custom column #column contains the value "foo", in red if the '
+                  'column contains the value "bar", otherwise in black, use '
+                  '<pre>{#column:switch(foo,blue,bar,red,black)}</pre>'
+                  'To show the title in blue if the book has the exact tag '
+                  '"Science Fiction", red if the book has the exact tag '
+                  '"Mystery", or black if the book has neither tag, use'
+                  "<pre>program: \n"
+                  "    t = field('tags'); \n"
+                  "    first_non_empty(\n"
+                  "        in_list(t, ',', '^Science Fiction$', 'blue', ''), \n"
+                  "        in_list(t, ',', '^Mystery$', 'red', 'black'))</pre>"
                   'To show the title in green if it has one format, blue if it '
-                  'two formats, and red if more, use '
-                  "\"program:cmp(count(field('formats'),','), 2, 'green', 'blue', 'red')\"") +
+                  'two formats, and red if more, use'
+                  "<pre>program:cmp(count(field('formats'),','), 2, 'green', 'blue', 'red')</pre>") +
                                '</p><p>' +
+                _('You can access a multi-line template editor from the '
+                  'context menu (right-click).') + '</p><p>' +
                 _('Note: if you want to color a "custom column with a fixed set '
                   'of values", it is possible and often easier to specify the '
                   'colors in the column definition dialog. There you can '

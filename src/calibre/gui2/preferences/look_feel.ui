@@ -424,7 +424,12 @@ then the tags will be displayed each on their own line.</string>
         </widget>
        </item>
        <item row="0" column="0" colspan="2">
-        <widget class="QLabel" name="color_help_text">
+        <widget class="QTextEdit" name="color_help_text">
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+         <sizepolicy vsizetype="Minimum" hsizetype="Expanding">
+         </sizepolicy>
         </widget>
        </item>
        <item row="1" column="1">
@@ -483,6 +488,9 @@ then the tags will be displayed each on their own line.</string>
        </item>
        <item row="21" column="0" colspan="2">
         <widget class="QTextEdit" name="colors_box">
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
          <property name="sizePolicy">
           <sizepolicy vsizetype="Expanding" hsizetype="Expanding">
            <horstretch>0</horstretch>
