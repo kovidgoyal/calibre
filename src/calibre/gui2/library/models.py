@@ -726,7 +726,9 @@ class BooksModel(QAbstractTableModel): # {{{
                 txt = unicode(index.data(Qt.DisplayRole).toString())
                 if len(colors) > 0 and txt in values:
                     try:
-                        return QColor(colors[values.index(txt)])
+                        color = colors[values.index(txt)]
+                        if QColor.isValid(color):
+                            return QColor(color)
                     except:
                         pass
             return None
