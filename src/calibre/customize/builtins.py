@@ -1367,7 +1367,7 @@ class StoreWizardsTowerBooksStore(StoreBase):
 class StoreWoblinkStore(StoreBase):
     name = 'Woblink'
     author = 'Tomasz Długosz'
-    description = _('Czytanie zdarza się wszędzie!')
+    description = u'Czytanie zdarza się wszędzie!'
     actual_plugin = 'calibre.gui2.store.woblink_plugin:WoblinkStore'
 
     drm_free_only = False
