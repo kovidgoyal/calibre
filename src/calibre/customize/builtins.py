@@ -1364,6 +1364,10 @@ class StoreWoblinkStore(StoreBase):
     description = _('Czytanie zdarza się wszędzie!')
     actual_plugin = 'calibre.gui2.store.woblink_plugin:WoblinkStore'
 
+    drm_free_only = False
+    location = 'PL'
+    formats = ['EPUB']
+
 plugins += [
     StoreArchiveOrgStore,
     StoreAmazonKindleStore,
