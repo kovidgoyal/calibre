@@ -1238,7 +1238,7 @@ class StoreFoylesUKStore(StoreBase):
 class StoreGandalfStore(StoreBase):
     name = 'Gandalf'
     author = u'Tomasz Długosz'
-    description = u'Zaczarowany świat książek.'
+    description = u'Księgarnia internetowa Gandalf.'
     actual_plugin = 'calibre.gui2.store.gandalf_plugin:GandalfStore'
 
     drm_free_only = False
@@ -1293,7 +1293,7 @@ class StoreMobileReadStore(StoreBase):
 class StoreNextoStore(StoreBase):
     name = 'Nexto'
     author = u'Tomasz Długosz'
-    description = u'Ebooki, prasa - księgarnia internetowa.'
+    description = u'Największy w Polsce sklep internetowy z audiobookami mp3, ebookami pdf oraz prasą do pobrania on-line.'
     actual_plugin = 'calibre.gui2.store.nexto_plugin:NextoStore'
     
     drm_free_only = False
@@ -1364,6 +1364,16 @@ class StoreWizardsTowerBooksStore(StoreBase):
     headquarters = 'UK'
     formats = ['EPUB', 'MOBI']
 
+class StoreWoblinkStore(StoreBase):
+    name = 'Woblink'
+    author = 'Tomasz Długosz'
+    description = _('Czytanie zdarza się wszędzie!')
+    actual_plugin = 'calibre.gui2.store.woblink_plugin:WoblinkStore'
+
+    drm_free_only = False
+    location = 'PL'
+    formats = ['EPUB']
+
 plugins += [
     StoreArchiveOrgStore,
     StoreAmazonKindleStore,
@@ -1392,7 +1402,8 @@ plugins += [
     StoreSmashwordsStore,
     StoreWaterstonesUKStore,
     StoreWeightlessBooksStore,
-    StoreWizardsTowerBooksStore
+    StoreWizardsTowerBooksStore,
+    StoreWoblinkStore
 ]
 
 # }}}
