@@ -7,11 +7,11 @@ __docformat__ = 'restructuredtext en'
 
 from math import cos, sin, pi
 
-from PyQt4.Qt import QColor, Qt, QModelIndex, QSize, \
-                     QPainterPath, QLinearGradient, QBrush, \
-                     QPen, QStyle, QPainter, QStyleOptionViewItemV4, \
-                     QIcon,  QDoubleSpinBox, QVariant, QSpinBox, \
-                     QStyledItemDelegate, QComboBox, QTextDocument
+from PyQt4.Qt import (QColor, Qt, QModelIndex, QSize,
+                     QPainterPath, QLinearGradient, QBrush,
+                     QPen, QStyle, QPainter, QStyleOptionViewItemV4,
+                     QIcon,  QDoubleSpinBox, QVariant, QSpinBox,
+                     QStyledItemDelegate, QComboBox, QTextDocument)
 
 from calibre.gui2 import UNDEFINED_QDATE, error_dialog
 from calibre.gui2.widgets import EnLineEdit
@@ -27,7 +27,6 @@ from calibre.gui2.dialogs.template_dialog import TemplateDialog
 class RatingDelegate(QStyledItemDelegate): # {{{
     COLOR    = QColor("blue")
     SIZE     = 16
-    PEN      = QPen(COLOR, 1, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin)
 
     def __init__(self, parent):
         QStyledItemDelegate.__init__(self, parent)
