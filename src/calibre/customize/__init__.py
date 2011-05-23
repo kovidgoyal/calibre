@@ -607,9 +607,22 @@ class StoreBase(Plugin): # {{{
     supported_platforms = ['windows', 'osx', 'linux']
     author         = 'John Schember'
     type = _('Store')
+    # Information about the store. Should be in the primary language
+    # of the store. This should not be translatable when set by
+    # a subclass.
+    description = _('An ebook store.')
     minimum_calibre_version = (0, 8, 0)
+    version        = (1, 0, 1)
 
     actual_plugin = None
+    
+    # Does the store only distribute ebooks without DRM.
+    drm_free_only = False
+    # This is the 2 letter country code for the corporate
+    # headquarters of the store.
+    headquarters = ''
+    # All formats the store distributes ebooks in.
+    formats = []
 
     def load_actual_plugin(self, gui):
         '''
