@@ -12,10 +12,10 @@ from functools import partial
 warnings.simplefilter('ignore', DeprecationWarning)
 
 
-from calibre.constants import (iswindows, isosx, islinux, isfreebsd, isfrozen,
-                              preferred_encoding, __appname__, __version__, __author__,
-                              win32event, win32api, winerror, fcntl,
-                              filesystem_encoding, plugins, config_dir)
+from calibre.constants import (iswindows, isosx, islinux, isfrozen,
+        isbsd, preferred_encoding, __appname__, __version__, __author__,
+        win32event, win32api, winerror, fcntl,
+        filesystem_encoding, plugins, config_dir)
 from calibre.startup import winutil, winutilerror
 
 if False and islinux and not getattr(sys, 'frozen', False):
@@ -31,7 +31,7 @@ if False:
     # Prevent pyflakes from complaining
     winutil, winutilerror, __appname__, islinux, __version__
     fcntl, win32event, isfrozen, __author__
-    winerror, win32api, isfreebsd
+    winerror, win32api, isbsd
 
 _mt_inited = False
 def _init_mimetypes():

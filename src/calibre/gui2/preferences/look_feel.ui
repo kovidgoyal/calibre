@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>717</width>
-    <height>390</height>
+    <height>519</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -407,6 +407,138 @@ then the tags will be displayed each on their own line.</string>
        </item>
       </layout>
      </widget>
+     <widget class="QWidget" name="tab_5">
+      <attribute name="icon">
+       <iconset resource="../../../../resources/images.qrc">
+        <normaloff>:/images/format-fill-color.png</normaloff>:/images/format-fill-color.png</iconset>
+      </attribute>
+      <attribute name="title">
+       <string>Column Coloring</string>
+      </attribute>
+      <layout class="QGridLayout" name="column_color_layout">
+       <item row="1" column="0">
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>Column name</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>Selection template</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QComboBox" name="opt_column_color_name_1"/>
+       </item>
+       <item row="2" column="1">
+        <widget class="TemplateLineEditor" name="opt_column_color_template_1"/>
+       </item>
+       <item row="3" column="0">
+        <widget class="QComboBox" name="opt_column_color_name_2"/>
+       </item>
+       <item row="3" column="1">
+        <widget class="TemplateLineEditor" name="opt_column_color_template_2"/>
+       </item>
+       <item row="4" column="0">
+        <widget class="QComboBox" name="opt_column_color_name_3"/>
+       </item>
+       <item row="4" column="1">
+        <widget class="TemplateLineEditor" name="opt_column_color_template_3"/>
+       </item>
+       <item row="5" column="0">
+        <widget class="QComboBox" name="opt_column_color_name_4"/>
+       </item>
+       <item row="5" column="1">
+        <widget class="TemplateLineEditor" name="opt_column_color_template_4"/>
+       </item>
+       <item row="6" column="0">
+        <widget class="QComboBox" name="opt_column_color_name_5"/>
+       </item>
+       <item row="6" column="1">
+        <widget class="TemplateLineEditor" name="opt_column_color_template_5"/>
+       </item>
+       <item row="20" column="0">
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>Color names</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0" colspan="2">
+        <widget class="QScrollArea" name="scrollArea">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>200</height>
+          </size>
+         </property>
+         <property name="widgetResizable">
+          <bool>true</bool>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+         <widget class="QWidget" name="scrollAreaWidgetContents">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>687</width>
+            <height>194</height>
+           </rect>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout">
+           <item>
+            <widget class="QLabel" name="color_help_text">
+             <property name="wordWrap">
+              <bool>true</bool>
+             </property>
+             <property name="openExternalLinks">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </widget>
+       </item>
+       <item row="21" column="0" colspan="2">
+        <widget class="QScrollArea" name="scrollArea_2">
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>120</height>
+          </size>
+         </property>
+         <property name="widgetResizable">
+          <bool>true</bool>
+         </property>
+         <widget class="QWidget" name="scrollAreaWidgetContents_2">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>687</width>
+            <height>61</height>
+           </rect>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_2">
+           <item>
+            <widget class="QLabel" name="colors_box">
+             <property name="wordWrap">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </widget>
+       </item>
+      </layout>
+     </widget>
     </widget>
    </item>
   </layout>
@@ -416,6 +548,11 @@ then the tags will be displayed each on their own line.</string>
    <class>MultiCompleteLineEdit</class>
    <extends>QLineEdit</extends>
    <header>calibre/gui2/complete.h</header>
+  </customwidget>
+  <customwidget>
+   <class>TemplateLineEditor</class>
+   <extends>QLineEdit</extends>
+   <header>calibre/gui2/dialogs/template_line_editor.h</header>
   </customwidget>
  </customwidgets>
  <resources>
