@@ -28,6 +28,7 @@ class TemplateHighlighter(QSyntaxHighlighter):
     Config = {}
     Rules = []
     Formats = {}
+    BN_FACTOR = 1000
 
     KEYWORDS = ["program"]
 
@@ -95,10 +96,8 @@ class TemplateHighlighter(QSyntaxHighlighter):
             self.Formats[name] = format
 
     def find_paren(self, bn, pos):
-        for pp in self.paren_positions:
-            if pp.block == bn and pp.pos == pos:
-                return pp
-        return None
+        dex = bn * self.BN_FACTOR + pos
+        return self.paren_pos_map.get(dex, None)
 
     def highlightBlock(self, text):
         bn = self.currentBlock().blockNumber()
@@ -127,24 +126,27 @@ class TemplateHighlighter(QSyntaxHighlighter):
         if self.generate_paren_positions:
             t = unicode(text)
             i = 0
-            first = True
+            foundQuote = False
             while i < len(t):
                 c = t[i]
                 if c == ':':
-                    if first and i+1 < len(t) and t[i+1] == "'":
+                    # Deal with the funky syntax of template program mode.
+                    # This won't work if there are more than one template
+                    # expression in the document.
+                    if not foundQuote and i+1 < len(t) and t[i+1] == "'":
                         i += 2
                 elif c in ["'", '"']:
-                    first = False
+                    foundQuote = True
                     i += 1
                     j = t[i:].find(c)
                     if j < 0:
                         i = len(t)
                     else:
                         i = i + j
-                elif c == '(':
-                    self.paren_positions.append(ParenPosition(bn, i, '('))
-                elif c == ')':
-                    self.paren_positions.append(ParenPosition(bn, i, ')'))
+                elif c in ['(', ')']:
+                    pp = ParenPosition(bn, i, c)
+                    self.paren_positions.append(pp)
+                    self.paren_pos_map[bn*self.BN_FACTOR+i] = pp
                 i += 1
 
     def rehighlight(self):
@@ -186,6 +188,7 @@ class TemplateHighlighter(QSyntaxHighlighter):
     def regenerate_paren_positions(self):
         self.generate_paren_positions = True
         self.paren_positions = []
+        self.paren_pos_map = {}
         self.rehighlight()
         self.generate_paren_positions = False
 
