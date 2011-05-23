@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-05-20 18:12+0000\n"
-"PO-Revision-Date: 2011-02-27 12:06+0000\n"
-"Last-Translator: Andriy Bodnyk <Unknown>\n"
+"PO-Revision-Date: 2011-05-22 21:34+0000\n"
+"Last-Translator: Maks Lyashuk aka Ma)(imuM <Unknown>\n"
 "Language-Team: Ukrainian <uk@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-05-21 04:57+0000\n"
+"X-Launchpad-Export-Date: 2011-05-23 04:37+0000\n"
 "X-Generator: Launchpad (build 12959)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -232,7 +232,7 @@ msgstr "Налаштування"
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:609
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:33
 msgid "Store"
-msgstr ""
+msgstr "Сховище"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:18
 msgid ""
@@ -352,7 +352,7 @@ msgstr "Додати/видалити власну колонку зі спис�
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:907
 msgid "Toolbar"
-msgstr ""
+msgstr "Панель інструментів"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:913
 msgid ""
@@ -362,7 +362,7 @@ msgstr "Налаштувати панель і контекстне меню"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:919
 msgid "Searching"
-msgstr ""
+msgstr "Шукаю"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:925
 msgid "Customize the way searching for books works in calibre"
@@ -585,7 +585,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1175
 msgid "Google Books"
-msgstr ""
+msgstr "книги Google"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1180
 msgid "The first producer of free ebooks."
@@ -597,7 +597,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1190
 msgid "The best ebooks at the best price: free!"
-msgstr ""
+msgstr "Кращі е-книги за кращою ціною - безкоштовно!"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1195
 msgid "Ebooks handcrafted with the utmost care."
@@ -909,11 +909,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:65
 msgid "Disable Apple driver"
-msgstr ""
+msgstr "Увімкнути драйвер Apple"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:69
 msgid "Enable Apple driver"
-msgstr ""
+msgstr "Вимкнути драйвер Apple"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:117
 msgid "Use Series as Category in iTunes/iBooks"
@@ -929,7 +929,7 @@ msgstr "Кешувати обкладинку з iTunes/iBooks"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:122
 msgid "Enable to cache and display covers from iTunes/iBooks"
-msgstr ""
+msgstr "Увімкнути кешування і відображення обкладиники з iTunes/iBooks"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:178
 msgid "Apple device"
@@ -1489,7 +1489,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:92
 msgid "Search for books in all folders"
-msgstr ""
+msgstr "Шукати книги в всіх теках"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:94
 msgid ""

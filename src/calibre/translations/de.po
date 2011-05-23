@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-05-20 18:12+0000\n"
-"PO-Revision-Date: 2011-05-18 16:37+0000\n"
+"PO-Revision-Date: 2011-05-22 17:27+0000\n"
 "Last-Translator: Christine Emrich <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-05-21 04:47+0000\n"
+"X-Launchpad-Export-Date: 2011-05-23 04:36+0000\n"
 "X-Generator: Launchpad (build 12959)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -11780,11 +11780,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:64
 msgid "Compact Metadata"
-msgstr ""
+msgstr "Kompakte Metadaten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:65
 msgid "All on 1 tab"
-msgstr ""
+msgstr "Alles auf einem Tab"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:165
 msgid "Done"
@@ -11803,10 +11803,13 @@ msgid ""
 "If checked, Yes/No custom columns values can be Yes, No, or Unknown.\n"
 "If not checked, the values can be Yes or No."
 msgstr ""
+"Wenn diese Option ausgewählt ist, können die Werte von Ja/Nein-Spalten Ja, "
+"Nein \n"
+"oder Unbekannt sein. Wenn nicht, können sie die Werte Ja oder Nein annehmen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:150
 msgid "Yes/No columns have three values (Requires restart)"
-msgstr ""
+msgstr "Ja/Nein-Spalten können drei Werte annehmen (erfordert Neustart)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:151
 msgid "Automatically send downloaded &news to ebook reader"
@@ -11859,13 +11862,16 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:163
 msgid "Edit metadata (single) layout:"
-msgstr ""
+msgstr "Layout für Metadaten (einzeln) bearbeiten:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:164
 msgid ""
 "Choose a different layout for the Edit Metadata dialog. The compact metadata "
 "layout favors editing custom metadata over changing covers and formats."
 msgstr ""
+"Wählt ein anderes Layout für den \"Metadaten bearbeiten\"-Dialog. Das "
+"kompakte Metadaten-Layout bevorzugt das Bearbeiten von Metadaten gegenüber "
+"dem Ändern von Umschlagbildern und Formaten."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:165
 msgid "Preferred &input format order:"
@@ -11985,15 +11991,16 @@ msgstr "Aus anderen Spalten zusammengesetzte Spalte"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:45
 msgid "Column built from other columns, behaves like tags"
 msgstr ""
+"Aus anderen Spalten zusammengesetzte Spalte, verhält sich wie Etiketten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:52
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:53
 msgid "Create a custom column"
-msgstr ""
+msgstr "BenutzerdefinierteSpalte erstellen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:64
 msgid "Quick create:"
-msgstr ""
+msgstr "Schnelles Erstellen:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:65
 msgid "ISBN"
@@ -12008,7 +12015,7 @@ msgstr "Formate"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:68
 msgid "People's names"
-msgstr ""
+msgstr "Personennamen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:73
 msgid "Number"
@@ -12126,7 +12133,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:194
 msgid "&Column type"
-msgstr ""
+msgstr "S&palten-Typ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:195
 msgid "What kind of information will be kept in the column."
@@ -12139,10 +12146,15 @@ msgid ""
 "a red X.\n"
 "Everything else will show nothing."
 msgstr ""
+"Zeigt Kontrollmarkierungen auf der Benutzeroberfläche an. Die Werte \"Ja\", "
+"\"ausgewählt\"\n"
+"und \"true\" werden mit einem grünen Haken angezeigt. \"Nein\", \"nicht "
+"ausgewählt\" und \"false\"\n"
+"werden mit einem roten X markiert. Alle anderen Werte zeigen nichts an."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:199
 msgid "Show checkmarks"
-msgstr ""
+msgstr "Markierungen anzeigen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:200
 msgid ""
@@ -12203,7 +12215,7 @@ msgstr "Voreinstellung: (nichts)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:215
 msgid "&Sort/search column by"
-msgstr ""
+msgstr "&Spalten sortieren/durchsuchen nach"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:216
 msgid "How this column should handled in the GUI when sorting and searching"
@@ -12212,10 +12224,11 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:217
 msgid "If checked, this column will appear in the tags browser as a category"
 msgstr ""
+"Bewirkt, dass diese Spalte als Kategorie im Etiketten-Browser erscheint"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:218
 msgid "Show in tags browser"
-msgstr ""
+msgstr "Im Etiketten-Browser anzeigen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:219
 msgid "Values"
@@ -13734,6 +13747,8 @@ msgstr "(Alle Bücher)"
 msgid ""
 "Books display will be restricted to those matching a selected saved search"
 msgstr ""
+"Es werden nur die Bücher angezeigt, auf die die ausgewählte gespeicherte "
+"Suche zutrifft."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:53
 msgid " or the search "
@@ -13980,7 +13995,7 @@ msgstr "%s umbenennen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:349
 msgid "Edit sort for %s"
-msgstr ""
+msgstr "Sortierung für %s bearbeiten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:356
 msgid "Add %s to user category"
@@ -14341,7 +14356,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:628
 msgid "Active jobs"
-msgstr ""
+msgstr "Aktive Aufträge"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:696
 msgid ""
@@ -14902,6 +14917,8 @@ msgid ""
 "Choose your e-book device. If your device is not in the list, choose a "
 "\"%s\" device."
 msgstr ""
+"Wählen Sie Ihr Lesegerät. Wenn Ihr Gerät nicht in der Liste auftaucht,  "
+"wählen sie ein \"%s\"-Gerät."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:499
 msgid "Moving library..."

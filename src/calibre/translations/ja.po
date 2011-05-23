@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-05-20 18:12+0000\n"
-"PO-Revision-Date: 2011-05-22 04:14+0000\n"
+"PO-Revision-Date: 2011-05-23 04:33+0000\n"
 "Last-Translator: Ado Nishimura <Unknown>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-05-22 04:45+0000\n"
+"X-Launchpad-Export-Date: 2011-05-23 04:37+0000\n"
 "X-Generator: Launchpad (build 12959)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -531,7 +531,7 @@ msgstr "Amazon.ukからのKindle Book"
 msgid ""
 "Free Books : Download & Streaming : Ebook  and Texts Archive : Internet "
 "Archive."
-msgstr ""
+msgstr "フリー書籍：ダウンロード＆ストリーミング：Ebookとテキスト・アーカイブ：インターネット・アーカイブ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1119
 msgid "Ebooks for readers."
@@ -2284,7 +2284,7 @@ msgstr "本の日時を設定します。（calibreの日付列で使用され�
 msgid ""
 "Enable heuristic processing. This option must be set for any heuristic "
 "processing to take place."
-msgstr ""
+msgstr "経験則的な処理を有効にします。このオプションは経験則的な処理をしたい場合に設定します。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:508
 msgid ""
@@ -2330,13 +2330,13 @@ msgstr "2つのパラグラフに挟まれた、空白のパラグラフを取�
 msgid ""
 "Left aligned scene break markers are center aligned. Replace soft scene "
 "breaks that use multiple blank lines withhorizontal rules."
-msgstr ""
+msgstr "左寄せのシーン区切りマーカーを中央にします。複数行からなるソフト･シーン区切りを水平区切り線にします。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:548
 msgid ""
 "Replace scene breaks with the specified text. By default, the text from the "
 "input document is used."
-msgstr ""
+msgstr "シーン区切りを指定したテキストに替えます。ディフォールトでは入力ドキュメントからのテキストが使われます。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:553
 msgid ""
@@ -2354,27 +2354,27 @@ msgstr "連続する<h1>や<h2>タグがあるか探します。タグは章の�
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:565
 msgid "Search pattern (regular expression) to be replaced with sr1-replace."
-msgstr ""
+msgstr "検索1-置換文字列と置き換えられる、検索パターン（正規表現）"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:570
 msgid "Replacement to replace the text found with sr1-search."
-msgstr ""
+msgstr "検索1-検索パターンから置き換わる、置換文字列"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:574
 msgid "Search pattern (regular expression) to be replaced with sr2-replace."
-msgstr ""
+msgstr "検索2-置換文字列と置き換えられる、検索パターン（正規表現）"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:579
 msgid "Replacement to replace the text found with sr2-search."
-msgstr ""
+msgstr "検索2-検索パターンから置き換わる、置換文字列"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:583
 msgid "Search pattern (regular expression) to be replaced with sr3-replace."
-msgstr ""
+msgstr "検索3-置換文字列と置き換えられる、検索パターン（正規表現）"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:588
 msgid "Replacement to replace the text found with sr3-search."
-msgstr ""
+msgstr "検索3-検索パターンから置き換わる、置換文字列"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:690
 msgid "Could not find an ebook inside the archive"
@@ -2406,7 +2406,7 @@ msgstr "解析に失敗しました: %s エラー: %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/__init__.py:26
 msgid "ePub Fixer"
-msgstr ""
+msgstr "ePub 修正"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/epubcheck.py:18
 msgid "Workaround epubcheck bugs"
@@ -4795,7 +4795,7 @@ msgstr "書籍情報のダウンロードに失敗しました。"
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:462
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:716
 msgid "Download failed"
-msgstr ""
+msgstr "ダウンロード失敗"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:88
 msgid "Failed to download metadata or covers for any of the %d book(s)."
@@ -5064,6 +5064,8 @@ msgid ""
 "corruption of your library. Save to disk is meant to export files from your "
 "calibre library elsewhere."
 msgstr ""
+"calibreのライブラリ内にファイルを保存しようとしています。これはライブラリを壊す可能性があります。ディスクに保存する事はcalibreライブラリから"
+"ファイルをエクスポートする事を意味しています。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:136
 msgid "Error while saving"
@@ -5579,7 +5581,7 @@ msgstr "BibTeX オプション"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output.py:14
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txtz_output.py:13
 msgid "Options specific to"
-msgstr ""
+msgstr "特定オプション："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex.py:17
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_csv_xml.py:17
@@ -5679,11 +5681,11 @@ msgstr "引用タグを作る"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:83
 msgid "Add files path with formats?"
-msgstr ""
+msgstr "フォーマットのあるファイルのパスを追加"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:84
 msgid "Expression to form the BibTeX citation tag:"
-msgstr ""
+msgstr "BibTeXの出典とやり取りするタグ："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:85
 msgid ""
@@ -5695,6 +5697,13 @@ msgid ""
 "   wil be selected.\n"
 " -For time field, only the date will be used. "
 msgstr ""
+"このテンプレートに関する説明：\n"
+" -以下のフィールドがあります： 'author_sort'(ソート用著者名), 'authors'(著者名), 'id',\n"
+"    'isbn', 'pubdate'(出版日), 'publisher'(出版社), 'series_index'(巻番号), "
+"'series'(シリーズ名),\n"
+"   'tags'(タグ), 'timestamp'(日付), 'title'(タイトル), 'uuid'\n"
+" -著者名やタグのような複数ありうる物は最初の1つ目が使われます。\n"
+" -時間関係のフィールドは日付のみが使われます。 "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_csv_xml.py:16
 msgid "CSV/XML Options"
@@ -5706,35 +5715,35 @@ msgstr "電子ブックオプション"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:296
 msgid "Sections to include in catalog."
-msgstr ""
+msgstr "カタログに入れるセクション"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:297
 msgid "Included sections"
-msgstr ""
+msgstr "入っているセクション"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:298
 msgid "Books by &Genre"
-msgstr ""
+msgstr "ジャンル別書籍 &G"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:299
 msgid "Recently &Added"
-msgstr ""
+msgstr "最近追加されたもの &A"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:300
 msgid "&Descriptions"
-msgstr ""
+msgstr "説明 &D"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:301
 msgid "Books by &Series"
-msgstr ""
+msgstr "シリーズ別の書籍 &S"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:302
 msgid "Books by &Title"
-msgstr ""
+msgstr "タイトル別の書籍 &T"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:303
 msgid "Books by Author"
-msgstr ""
+msgstr "著者別の書籍"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:304
 msgid ""
@@ -5743,187 +5752,193 @@ msgid ""
 "excludes tags of the form [tag], \n"
 "e.g., [Project Gutenberg]</p>"
 msgstr ""
+"<p>ディフォールトのパターン\n"
+"\\[.+\\]\n"
+"カギ括弧でくくられたタグ名 [tag], \n"
+"e.g., [Project Gutenberg]</p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:308
 msgid "Excluded genres"
-msgstr ""
+msgstr "除外されるジャンル"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:309
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:312
 msgid "Tags to &exclude"
-msgstr ""
+msgstr "除外するタグ &e"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:310
 msgid ""
 "Books matching either pattern will not be included in generated catalog. "
-msgstr ""
+msgstr "どちらかのパターンにマッチする書籍は生成するカタログから除外されます。 "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:311
 msgid "Excluded books"
-msgstr ""
+msgstr "除外された書籍"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:313
 msgid ""
 "<p>Comma-separated list of tags to exclude.\n"
 "Default: ~,Catalog"
 msgstr ""
+"<p>コンマ区切りの除外するタグのリスト。\n"
+"ディフォールト: ~,カタログ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:315
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:320
 msgid "&Column/value"
-msgstr ""
+msgstr "列 / 値 &C"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:316
 msgid "Column containing additional exclusion criteria"
-msgstr ""
+msgstr "追加の除外条件がある列"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:317
 msgid "Exclusion pattern"
-msgstr ""
+msgstr "除外パターン"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:318
 msgid "Matching books will be displayed with a check mark"
-msgstr ""
+msgstr "該当する書籍にはチェックマークが表示されます。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:319
 msgid "Read books"
-msgstr ""
+msgstr "既読の書籍"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:321
 msgid "Column containing 'read' status"
-msgstr ""
+msgstr "'既読'ステータスのある列"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:322
 msgid "'read book' pattern"
-msgstr ""
+msgstr "'既読書籍'のパターン"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:323
 msgid "Other options"
-msgstr ""
+msgstr "その他のオプション"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:324
 msgid "&Wishlist tag"
-msgstr ""
+msgstr "ウイッシュリストのタグ &W"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:325
 msgid "Books tagged as Wishlist items will be displayed with an X"
-msgstr ""
+msgstr "ウイッシュリスト・タグの付いた書籍はX付きで表示されます"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:326
 msgid "&Thumbnail width"
-msgstr ""
+msgstr "サムネイル画像の幅 &T"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:327
 msgid "Size hint for Description cover thumbnails"
-msgstr ""
+msgstr "表紙サムネイル画像用、説明のおおよそのサイズ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:328
 msgid " inch"
-msgstr ""
+msgstr " インチ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:329
 msgid "&Description note"
-msgstr ""
+msgstr "説明文 &D"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:330
 msgid "Custom column source for note to include in Description header area"
-msgstr ""
+msgstr "ヘッダー・エリアの説明文として使われる文の元となる列"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:331
 msgid "&Merge with Comments"
-msgstr ""
+msgstr "コメントを追加する &M"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:332
 msgid "Additional content merged with Comments during catalog generation"
-msgstr ""
+msgstr "カタログ生成時に追加内容にコメントを追加する。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:333
 msgid "Merge additional content before Comments"
-msgstr ""
+msgstr "追加内容の前にコメントを追加する"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:334
 msgid "&Before"
-msgstr ""
+msgstr "前 &B"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:335
 msgid "Merge additional content after Comments"
-msgstr ""
+msgstr "追加内容の後にコメントを追加する"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:336
 msgid "&After"
-msgstr ""
+msgstr "後 &A"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:337
 msgid "Separate Comments and additional content with horizontal rule"
-msgstr ""
+msgstr "コメントと追加内容を水平線で分ける"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:338
 msgid "&Separator"
-msgstr ""
+msgstr "水平線 &S"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_tab_template_ui.py:33
 msgid "Tab template for catalog.ui"
-msgstr ""
+msgstr "カタログUI用のタブテンプレート"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:69
 msgid "Bold"
-msgstr ""
+msgstr "太文字"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:70
 msgid "Italic"
-msgstr ""
+msgstr "イタリック体"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:73
 msgid "Underline"
-msgstr ""
+msgstr "下線"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:75
 msgid "Strikethrough"
-msgstr ""
+msgstr "打ち消し線"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:77
 msgid "Superscript"
-msgstr ""
+msgstr "上付き文字"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:79
 msgid "Subscript"
-msgstr ""
+msgstr "下付き文字"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:81
 msgid "Ordered list"
-msgstr ""
+msgstr "順番付きリスト"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:83
 msgid "Unordered list"
-msgstr ""
+msgstr "順不同リスト"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:86
 msgid "Align left"
-msgstr ""
+msgstr "左揃え"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:88
 msgid "Align center"
-msgstr ""
+msgstr "中央揃え"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:90
 msgid "Align right"
-msgstr ""
+msgstr "右揃え"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:92
 msgid "Align justified"
-msgstr ""
+msgstr "均等揃え"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:93
 msgid "Undo"
-msgstr ""
+msgstr "元に戻す"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:94
 msgid "Redo"
-msgstr ""
+msgstr "やり直す"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:95
 msgid "Remove formatting"
-msgstr ""
+msgstr "フォーマットを取り除く"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:96
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:134
@@ -5933,39 +5948,39 @@ msgstr "コピー"
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:97
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:136
 msgid "Paste"
-msgstr ""
+msgstr "貼り付け"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:98
 msgid "Cut"
-msgstr ""
+msgstr "切り取る"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:100
 msgid "Increase Indentation"
-msgstr ""
+msgstr "インデントを増やす"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:102
 msgid "Decrease Indentation"
-msgstr ""
+msgstr "インデントを減らす"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:104
 msgid "Select all"
-msgstr ""
+msgstr "全てを選択"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:109
 msgid "Foreground color"
-msgstr ""
+msgstr "描画色"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:114
 msgid "Background color"
-msgstr ""
+msgstr "背景色"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:118
 msgid "Style text block"
-msgstr ""
+msgstr "テキストのスタイル"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:120
 msgid "Style the selected text block"
-msgstr ""
+msgstr "選択されたテキストのスタイル"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:125
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:34
@@ -5981,60 +5996,60 @@ msgstr "普通"
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:130
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:131
 msgid "Heading"
-msgstr ""
+msgstr "見出し"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:132
 msgid "Pre-formatted"
-msgstr ""
+msgstr "フォーマット済み"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:133
 msgid "Blockquote"
-msgstr ""
+msgstr "ブロック・クオート"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:134
 msgid "Address"
-msgstr ""
+msgstr "住所"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:141
 msgid "Insert link"
-msgstr ""
+msgstr "リンクの挿入"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:143
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:79
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:84
 msgid "Clear"
-msgstr ""
+msgstr "消去"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:161
 msgid "Choose foreground color"
-msgstr ""
+msgstr "描画色を選択"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:167
 msgid "Choose background color"
-msgstr ""
+msgstr "背景色を選択"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:172
 msgid "Create link"
-msgstr ""
+msgstr "リンクを作成"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:173
 msgid "Enter URL"
-msgstr ""
+msgstr "URLを入力"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:523
 msgid "Normal view"
-msgstr ""
+msgstr "通常表示"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:524
 msgid "HTML Source"
-msgstr ""
+msgstr "HTML のソース"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/bulk.py:40
 msgid ""
 "For settings that cannot be specified in this dialog, use the values saved "
 "in a previous conversion (if they exist) instead of using the defaults "
 "specified in the Preferences"
-msgstr ""
+msgstr "このダイアログで指定できない設定は、ディフォールトの設定ではなく前回変換した時に使用された値(もしあれば)が使われます。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/bulk.py:74
 msgid "Bulk Convert"
@@ -6447,7 +6462,7 @@ msgstr "空行の挿入(&b)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:156
 msgid "Keep &ligatures"
-msgstr "リガチャを意地(&l)"
+msgstr "合字を維持(&l)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:157
 msgid "Smarten &punctuation"
