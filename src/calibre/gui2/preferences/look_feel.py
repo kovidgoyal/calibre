@@ -160,9 +160,12 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.df_down_button.clicked.connect(self.move_df_down)
 
         self.color_help_text.setText('<p>' +
-                _('Here you can specify coloring rules for fields shown in the '
-                  'library view. Choose the field you wish to color, then '
-                  'supply a template that specifies the color to use.') +
+                _('Here you can specify coloring rules for columns shown in the '
+                  'library view. Choose the column you wish to color, then '
+                  'supply a template that specifies the color to use based on '
+                  'the values in the column. There is a '
+                  '<a href="http://calibre-ebook.com/user_manual/template_lang.html">'
+                  'tutorial</a> on using templates.') +
                  '</p><p>' +
                 _('The template must evaluate to one of the color names shown '
                   'below. You can use any legal template expression. '
@@ -187,8 +190,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                                '</p><p>' +
                 _('You can access a multi-line template editor from the '
                   'context menu (right-click).') + '</p><p>' +
-                _('Note: if you want to color a "custom column with a fixed set '
-                  'of values", it is possible and often easier to specify the '
+                _('<b>Note:</b> if you want to color a "custom column with a fixed set '
+                  'of values", it is often easier to specify the '
                   'colors in the column definition dialog. There you can '
                   'provide a color for each value without using a template.')+ '</p>')
         choices = db.field_metadata.displayable_field_keys()

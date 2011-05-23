@@ -707,7 +707,7 @@ class BooksModel(QAbstractTableModel): # {{{
             return self.column_to_dc_map[col](index.row())
         elif role == Qt.BackgroundRole:
             if self.id(index) in self.ids_to_highlight_set:
-                return QColor('lightgreen')
+                return QVariant(QColor('lightgreen'))
         elif role == Qt.ForegroundRole:
             key = self.column_map[col]
             if key in self.column_color_map:
@@ -716,9 +716,9 @@ class BooksModel(QAbstractTableModel): # {{{
                 try:
                     color = QColor(composite_formatter.safe_format(fmt, mi, '', mi))
                     if color.isValid():
-                        return color
+                        return QVariant(color)
                 except:
-                    return None
+                    return NONE
             elif self.is_custom_column(key) and \
                         self.custom_columns[key]['datatype'] == 'enumeration':
                 cc = self.custom_columns[self.column_map[col]]['display']
@@ -729,10 +729,10 @@ class BooksModel(QAbstractTableModel): # {{{
                     try:
                         color = QColor(colors[values.index(txt)])
                         if color.isValid():
-                            return color
+                            return QVariant(color)
                     except:
                         pass
-            return None
+            return NONE
         elif role == Qt.DecorationRole:
             if self.column_to_dc_decorator_map[col] is not None:
                 return self.column_to_dc_decorator_map[index.column()](index.row())

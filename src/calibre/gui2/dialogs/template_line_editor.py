@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from PyQt4.Qt import (SIGNAL, QLineEdit)
+from PyQt4.Qt import QLineEdit
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
 
 class TemplateLineEditor(QLineEdit):
@@ -18,13 +18,14 @@ class TemplateLineEditor(QLineEdit):
         menu = self.createStandardContextMenu()
         menu.addSeparator()
 
-        action_open_editor = menu.addAction(_('Open Editor'))
+        action_open_editor = menu.addAction(_('Open Template Editor'))
 
-        self.connect(action_open_editor, SIGNAL('triggered()'), self.open_editor)
+        action_open_editor.triggered.connect(self.open_editor)
         menu.exec_(event.globalPos())
 
     def open_editor(self):
         t = TemplateDialog(self, self.text())
+        t.setWindowTitle(_('Edit template'))
         if t.exec_():
             self.setText(t.textbox.toPlainText())
 
