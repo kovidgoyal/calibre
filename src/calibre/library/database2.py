@@ -211,6 +211,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         defs = self.prefs.defaults
         defs['gui_restriction'] = defs['cs_restriction'] = ''
         defs['categories_using_hierarchy'] = []
+        self.column_color_count = 5
+        for i in range(1,self.column_color_count+1):
+            defs['column_color_name_'+str(i)] = ''
+            defs['column_color_template_'+str(i)] = ''
 
         # Migrate the bool tristate tweak
         defs['bools_are_tristate'] = \
