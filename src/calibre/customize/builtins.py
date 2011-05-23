@@ -1272,6 +1272,16 @@ class StoreKoboStore(StoreBase):
     headquarters = 'CA'
     formats = ['EPUB']
 
+class StoreLegimiStore(StoreBase):
+    name = 'Legimi'
+    author = u'Tomasz Długosz'
+    description = u'Tanie oraz darmowe ebooki, egazety i blogi w formacie EPUB, wprost na Twój e-czytnik, iPhone, iPad, Android i komputer'
+    actual_plugin = 'calibre.gui2.store.legimi_plugin:LegimiStore'
+    
+    drm_free_only = False
+    headquarters = 'PL'
+    formats = ['EPUB']
+
 class StoreManyBooksStore(StoreBase):
     name = 'ManyBooks'
     description = u'Public domain and creative commons works from many sources.'
@@ -1393,6 +1403,7 @@ plugins += [
     StoreGoogleBooksStore,
     StoreGutenbergStore,
     StoreKoboStore,
+    StoreLegimiStore,
     StoreManyBooksStore,
     StoreMobileReadStore,
     StoreNextoStore,
