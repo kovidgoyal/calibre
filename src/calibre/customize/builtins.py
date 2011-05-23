@@ -1269,7 +1269,7 @@ class StoreKoboStore(StoreBase):
     actual_plugin = 'calibre.gui2.store.kobo_plugin:KoboStore'
     
     drm_free_only = False
-    headquarters = 'US'
+    headquarters = 'CA'
     formats = ['EPUB']
 
 class StoreManyBooksStore(StoreBase):
