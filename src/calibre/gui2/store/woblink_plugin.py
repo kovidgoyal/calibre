@@ -40,7 +40,7 @@ class WoblinkStore(BasicStoreConfig, StorePlugin):
             d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
-        url = 'http://woblink.com/publication?query' + urllib.quote_plus(query.encode('utf-8'))
+        url = 'http://woblink.com/publication?query=' + urllib.quote_plus(query.encode('utf-8'))
 
         br = browser()
 
