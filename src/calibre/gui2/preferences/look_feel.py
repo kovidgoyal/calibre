@@ -167,6 +167,12 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                   '<a href="http://calibre-ebook.com/user_manual/template_lang.html">'
                   'tutorial</a> on using templates.') +
                  '</p><p>' +
+                _('If you want to color a field based on tags, then right-click '
+                  'in an empty  template line and choose tags wizard. '
+                  'It will build a template for you. You can later edit that '
+                  'template with the same wizard. If you edit it by hand, the '
+                  'wizard might not work or might restore old values.') +
+                 '</p><p>' +
                 _('The template must evaluate to one of the color names shown '
                   'below. You can use any legal template expression. '
                   'For example, you can set the title to always display in '
