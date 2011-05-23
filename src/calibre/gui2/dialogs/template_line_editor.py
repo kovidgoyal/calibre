@@ -6,7 +6,7 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from PyQt4.Qt import (QLineEdit, QDialog, QGridLayout, QLabel,
-                      QDialogButtonBox, QColor, QTimer, QComboBox)
+                      QDialogButtonBox, QColor, QComboBox, QIcon)
 
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.gui2.complete import MultiCompleteComboBox
@@ -57,6 +57,8 @@ class TagWizard(QDialog):
 
     def __init__(self, parent, tags, txt):
         QDialog.__init__(self, parent)
+        self.setWindowTitle(_('Tag Wizard'))
+        self.setWindowIcon(QIcon(I('wizard.png')))
 
         self.tags = tags
         l = QGridLayout()
