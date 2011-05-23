@@ -98,6 +98,7 @@ class BooksModel(QAbstractTableModel): # {{{
         self.current_highlighted_idx = None
         self.highlight_only = False
         self.column_color_map = {}
+        self.colors = [unicode(c) for c in QColor.colorNames()]
         self.read_config()
 
     def change_alignment(self, colname, alignment):
@@ -714,9 +715,11 @@ class BooksModel(QAbstractTableModel): # {{{
                 mi = self.db.get_metadata(self.id(index), index_is_id=True)
                 fmt = self.column_color_map[key]
                 try:
-                    color = QColor(composite_formatter.safe_format(fmt, mi, '', mi))
-                    if color.isValid():
-                        return QVariant(color)
+                    color = composite_formatter.safe_format(fmt, mi, '', mi)
+                    if color in self.colors:
+                        color = QColor(color)
+                        if color.isValid():
+                            return QVariant(color)
                 except:
                     return NONE
             elif self.is_custom_column(key) and \
