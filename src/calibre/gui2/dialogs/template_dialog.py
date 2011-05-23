@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 import json
 
 from PyQt4.Qt import (Qt, QDialog, QDialogButtonBox, QSyntaxHighlighter,
-                      QRegExp, QSettings, QVariant, QApplication,
+                      QRegExp, QApplication,
                       QTextCharFormat, QFont, QColor, QCursor)
 
 from calibre.gui2.dialogs.template_dialog_ui import Ui_TemplateDialog
@@ -67,8 +67,8 @@ class TemplateHighlighter(QSyntaxHighlighter):
 
     def initializeFormats(self):
         Config = self.Config
-        Config["fontfamily"] = "Bitstream Vera Sans Mono"
-        Config["fontsize"] = 10
+        Config["fontfamily"] = "monospace"
+        #Config["fontsize"] = 10
         for name, color, bold, italic in (
                 ("normal", "#000000", False, False),
                 ("keyword", "#000080", True, False),
@@ -84,7 +84,7 @@ class TemplateHighlighter(QSyntaxHighlighter):
 
         baseFormat = QTextCharFormat()
         baseFormat.setFontFamily(Config["fontfamily"])
-        baseFormat.setFontPointSize(Config["fontsize"])
+        #baseFormat.setFontPointSize(Config["fontsize"])
 
         for name in ("normal", "keyword", "builtin", "comment",
                      "string", "number", "lparen", "rparen"):
