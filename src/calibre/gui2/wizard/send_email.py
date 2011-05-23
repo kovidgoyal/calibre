@@ -138,8 +138,11 @@ class SendEmail(QWidget, Ui_Form):
                     'username': '',
                     'url': 'www.hotmail.com',
                     'extra': _('If you are setting up a new'
-                        ' hotmail account, you must log in to it '
-                        ' once before you will be able to send mails.'),
+                        ' hotmail account, Microsoft requires that you '
+                        ' verify your account periodically, before it'
+                        ' will let calibre send email. In this case, I'
+                        ' strongly suggest you setup a free gmail account'
+                        ' instead.'),
                 }
         }[service]
         d = QDialog(self)
