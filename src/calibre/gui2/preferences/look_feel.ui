@@ -436,11 +436,27 @@ then the tags will be displayed each on their own line.</string>
        <item row="2" column="1">
         <widget class="TemplateLineEditor" name="opt_column_color_template_1"/>
        </item>
+       <item row="2" column="2">
+        <widget class="QToolButton" name="opt_column_color_wizard_1">
+         <property name="icon">
+          <iconset resource="../../../../resources/images.qrc">
+           <normaloff>:/images/wizard.png</normaloff>:/images/wizard.png</iconset>
+         </property>
+        </widget>
+       </item>
        <item row="3" column="0">
         <widget class="QComboBox" name="opt_column_color_name_2"/>
        </item>
        <item row="3" column="1">
         <widget class="TemplateLineEditor" name="opt_column_color_template_2"/>
+       </item>
+       <item row="3" column="2">
+        <widget class="QToolButton" name="opt_column_color_wizard_2">
+         <property name="icon">
+          <iconset resource="../../../../resources/images.qrc">
+           <normaloff>:/images/wizard.png</normaloff>:/images/wizard.png</iconset>
+         </property>
+        </widget>
        </item>
        <item row="4" column="0">
         <widget class="QComboBox" name="opt_column_color_name_3"/>
@@ -448,17 +464,41 @@ then the tags will be displayed each on their own line.</string>
        <item row="4" column="1">
         <widget class="TemplateLineEditor" name="opt_column_color_template_3"/>
        </item>
+       <item row="4" column="2">
+        <widget class="QToolButton" name="opt_column_color_wizard_3">
+         <property name="icon">
+          <iconset resource="../../../../resources/images.qrc">
+           <normaloff>:/images/wizard.png</normaloff>:/images/wizard.png</iconset>
+         </property>
+        </widget>
+       </item>
        <item row="5" column="0">
         <widget class="QComboBox" name="opt_column_color_name_4"/>
        </item>
        <item row="5" column="1">
         <widget class="TemplateLineEditor" name="opt_column_color_template_4"/>
        </item>
+       <item row="5" column="2">
+        <widget class="QToolButton" name="opt_column_color_wizard_4">
+         <property name="icon">
+          <iconset resource="../../../../resources/images.qrc">
+           <normaloff>:/images/wizard.png</normaloff>:/images/wizard.png</iconset>
+         </property>
+        </widget>
+       </item>
        <item row="6" column="0">
         <widget class="QComboBox" name="opt_column_color_name_5"/>
        </item>
        <item row="6" column="1">
         <widget class="TemplateLineEditor" name="opt_column_color_template_5"/>
+       </item>
+       <item row="6" column="2">
+        <widget class="QToolButton" name="opt_column_color_wizard_5">
+         <property name="icon">
+          <iconset resource="../../../../resources/images.qrc">
+           <normaloff>:/images/wizard.png</normaloff>:/images/wizard.png</iconset>
+         </property>
+        </widget>
        </item>
        <item row="20" column="0">
         <widget class="QLabel" name="label">
@@ -467,7 +507,7 @@ then the tags will be displayed each on their own line.</string>
          </property>
         </widget>
        </item>
-       <item row="0" column="0" colspan="2">
+       <item row="0" column="0" colspan="3">
         <widget class="QScrollArea" name="scrollArea">
          <property name="minimumSize">
           <size>
@@ -505,7 +545,7 @@ then the tags will be displayed each on their own line.</string>
          </widget>
         </widget>
        </item>
-       <item row="21" column="0" colspan="2">
+       <item row="21" column="0" colspan="3">
         <widget class="QScrollArea" name="scrollArea_2">
          <property name="maximumSize">
           <size>
