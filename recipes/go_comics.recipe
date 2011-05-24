@@ -6,13 +6,13 @@ __copyright__ = 'Copyright 2010 Starson17'
 www.gocomics.com
 '''
 from calibre.web.feeds.news import BasicNewsRecipe
-import mechanize
+import mechanize, re
 
 class GoComics(BasicNewsRecipe):
     title               = 'GoComics'
     __author__          = 'Starson17'
-    __version__         = '1.03'
-    __date__            = '09 October 2010'
+    __version__         = '1.05'
+    __date__            = '19 may 2011'
     description         = u'200+ Comics - Customize for more days/comics: Defaults to 7 days, 25 comics - 20 general, 5 editorial.'
     category            = 'news, comics'
     language            = 'en'
@@ -20,6 +20,7 @@ class GoComics(BasicNewsRecipe):
     no_stylesheets      = True
     remove_javascript   = True
     cover_url           = 'http://paulbuckley14059.files.wordpress.com/2008/06/calvin-and-hobbes.jpg'
+    remove_attributes = ['style']
 
     ####### USER PREFERENCES - COMICS, IMAGE SIZE AND NUMBER OF COMICS TO RETRIEVE ########
     # num_comics_to_get - I've tried up to 99 on Calvin&Hobbes
@@ -40,6 +41,8 @@ class GoComics(BasicNewsRecipe):
 
     remove_tags = [dict(name='a', attrs={'class':['beginning','prev','cal','next','newest']}),
                    dict(name='div', attrs={'class':['tag-wrapper']}),
+                   dict(name='a', attrs={'href':re.compile(r'.*mutable_[0-9]+', re.IGNORECASE)}),
+                   dict(name='img', attrs={'src':re.compile(r'.*mutable_[0-9]+', re.IGNORECASE)}),
                    dict(name='ul', attrs={'class':['share-nav','feature-nav']}),
                    ]
 

@@ -833,7 +833,7 @@ class PythonHighlighter(QSyntaxHighlighter):
         Config["tabwidth"] = settings.value("tabwidth",
                 QVariant(4)).toInt()[0]
         Config["fontfamily"] = settings.value("fontfamily",
-                QVariant("Bitstream Vera Sans Mono")).toString()
+                QVariant("monospace")).toString()
         Config["fontsize"] = settings.value("fontsize",
                 QVariant(10)).toInt()[0]
         for name, color, bold, italic in (

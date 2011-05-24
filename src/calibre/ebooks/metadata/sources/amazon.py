@@ -549,7 +549,8 @@ class Amazon(Source):
                     r'//div[@id="Results"]/descendant::td[starts-with(@id, "search:Td:")]'):
                     for a in td.xpath(r'descendant::td[@class="dataColumn"]/descendant::a[@href]/span[@class="srTitle"]/..'):
                         title = tostring(a, method='text', encoding=unicode).lower()
-                        if 'bulk pack' not in title:
+                        if ('bulk pack' not in title and '[audiobook]' not in
+                                title and '[audio cd]' not in title):
                             matches.append(a.get('href'))
                         break
 

@@ -215,7 +215,7 @@ class TemplateFormatter(string.Formatter):
                 (r'\w+',                lambda x,t: (2, t)),
                 (r'".*?((?<!\\)")',     lambda x,t: (3, t[1:-1])),
                 (r'\'.*?((?<!\\)\')',   lambda x,t: (3, t[1:-1])),
-                (r'\n#.*?(?=\n)',       None),
+                (r'\n#.*?(?:(?=\n)|$)', None),
                 (r'\s',                 None)
         ], flags=re.DOTALL)
 
