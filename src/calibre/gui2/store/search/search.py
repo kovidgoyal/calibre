@@ -14,7 +14,7 @@ from PyQt4.Qt import (Qt, QDialog, QDialogButtonBox, QTimer, QCheckBox,
 
 from calibre.gui2 import JSONConfig, info_dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
-from calibre.gui2.store.config.search_widget import StoreConfigWidget
+from calibre.gui2.store.config.search.search_widget import StoreConfigWidget
 from calibre.gui2.store.search.adv_search_builder import AdvSearchBuilderDialog
 from calibre.gui2.store.search.download_thread import SearchThreadPool, \
     CacheUpdateThreadPool

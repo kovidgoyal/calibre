@@ -7,12 +7,12 @@ __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
 '''
-Config widget access functions for configuring the store action.
+Config widget access functions for enabling and disabling stores.
 '''
 
 def config_widget():
-    from calibre.gui2.store.config.search.search_widget import StoreConfigWidget
-    return StoreConfigWidget()
+    from calibre.gui2.store.config.chooser.chooser_widget import StoreChooserWidget
+    return StoreChooserWidget()
 
 def save_settings(config_widget):
-    config_widget.save_settings()
+    pass

@@ -1316,7 +1316,7 @@ class StoreOpenLibraryStore(StoreBase):
     actual_plugin = 'calibre.gui2.store.open_library_plugin:OpenLibraryStore'
     
     drm_free_only = True
-    headquarters = ['US']
+    headquarters = 'US'
     formats = ['DAISY', 'DJVU', 'EPUB', 'MOBI', 'PDF', 'TXT']
 
 class StoreOReillyStore(StoreBase):
@@ -1381,7 +1381,7 @@ class StoreWoblinkStore(StoreBase):
     actual_plugin = 'calibre.gui2.store.woblink_plugin:WoblinkStore'
 
     drm_free_only = False
-    location = 'PL'
+    headquarters = 'PL'
     formats = ['EPUB']
 
 plugins += [

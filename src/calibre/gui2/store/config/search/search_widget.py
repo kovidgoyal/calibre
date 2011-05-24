@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 from PyQt4.Qt import QWidget
 
 from calibre.gui2 import JSONConfig
-from calibre.gui2.store.config.search_widget_ui import Ui_Form
+from calibre.gui2.store.config.search.search_widget_ui import Ui_Form
 
 class StoreConfigWidget(QWidget, Ui_Form):
     
