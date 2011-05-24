@@ -442,6 +442,9 @@ then the tags will be displayed each on their own line.</string>
           <iconset resource="../../../../resources/images.qrc">
            <normaloff>:/images/wizard.png</normaloff>:/images/wizard.png</iconset>
          </property>
+         <property name="toolTip">
+          <string>Open the tags wizard.</string>
+         </property>
         </widget>
        </item>
        <item row="3" column="0">
@@ -455,6 +458,9 @@ then the tags will be displayed each on their own line.</string>
          <property name="icon">
           <iconset resource="../../../../resources/images.qrc">
            <normaloff>:/images/wizard.png</normaloff>:/images/wizard.png</iconset>
+         </property>
+         <property name="toolTip">
+          <string>Open the tags wizard.</string>
          </property>
         </widget>
        </item>
@@ -470,6 +476,9 @@ then the tags will be displayed each on their own line.</string>
           <iconset resource="../../../../resources/images.qrc">
            <normaloff>:/images/wizard.png</normaloff>:/images/wizard.png</iconset>
          </property>
+         <property name="toolTip">
+          <string>Open the tags wizard.</string>
+         </property>
         </widget>
        </item>
        <item row="5" column="0">
@@ -484,6 +493,9 @@ then the tags will be displayed each on their own line.</string>
           <iconset resource="../../../../resources/images.qrc">
            <normaloff>:/images/wizard.png</normaloff>:/images/wizard.png</iconset>
          </property>
+         <property name="toolTip">
+          <string>Open the tags wizard.</string>
+         </property>
         </widget>
        </item>
        <item row="6" column="0">
@@ -497,6 +509,9 @@ then the tags will be displayed each on their own line.</string>
          <property name="icon">
           <iconset resource="../../../../resources/images.qrc">
            <normaloff>:/images/wizard.png</normaloff>:/images/wizard.png</iconset>
+         </property>
+         <property name="toolTip">
+          <string>Open the tags wizard.</string>
          </property>
         </widget>
        </item>
