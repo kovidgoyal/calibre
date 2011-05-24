@@ -208,8 +208,10 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         for i in range(1, self.column_color_count):
             r('column_color_name_'+str(i), db.prefs, choices=choices)
             r('column_color_template_'+str(i), db.prefs)
-            temp = getattr(self, 'opt_column_color_template_'+str(i))
-            temp.set_tags(tags)
+            tpl = getattr(self, 'opt_column_color_template_'+str(i))
+            tpl.set_tags(tags)
+            toolbutton = getattr(self, 'opt_column_color_wizard_'+str(i))
+            toolbutton.clicked.connect(tpl.tag_wizard)
         all_colors = [unicode(s) for s in list(QColor.colorNames())]
         self.colors_box.setText(', '.join(all_colors))
 
