@@ -29,6 +29,10 @@ def remove_dir(x):
 
 def base_dir():
     global _base_dir
+    if _base_dir is not None and not os.path.exists(_base_dir):
+        # Some people seem to think that running temp file cleaners that
+        # delete the temp dirs of running programs is a good idea!
+        _base_dir = None
     if _base_dir is None:
         td = os.environ.get('CALIBRE_WORKER_TEMP_DIR', None)
         if td is not None:
