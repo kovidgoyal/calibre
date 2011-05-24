@@ -63,6 +63,7 @@ class TagWizard(QDialog):
         self.tags = tags
         l = QGridLayout()
         self.setLayout(l)
+        l.setColumnStretch(0, 1)
         l.addWidget(QLabel(_('Tag Value')), 0, 0, 1, 1)
         l.addWidget(QLabel(_('Color')), 0, 1, 1, 1)
         self.tagboxes = []
