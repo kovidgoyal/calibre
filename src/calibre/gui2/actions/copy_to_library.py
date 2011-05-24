@@ -16,7 +16,7 @@ from calibre.gui2 import error_dialog, Dispatcher, warning_dialog
 from calibre.gui2.dialogs.progress import ProgressDialog
 from calibre.utils.config import prefs, tweaks
 
-class Worker(Thread):
+class Worker(Thread): # {{{
 
     def __init__(self, ids, db, loc, progress, done, delete_after):
         Thread.__init__(self)
@@ -75,7 +75,7 @@ class Worker(Thread):
                 if co is not None:
                     newdb.set_conversion_options(x, 'PIPE', co)
             self.processed.add(x)
-
+# }}}
 
 class CopyToLibraryAction(InterfaceAction):
 
