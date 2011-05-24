@@ -9,7 +9,7 @@ from PyQt4.Qt import (QLineEdit, QDialog, QGridLayout, QLabel,
                       QDialogButtonBox, QColor, QComboBox, QIcon)
 
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
-from calibre.gui2.complete import MultiCompleteComboBox
+from calibre.gui2.complete import MultiCompleteLineEdit
 from calibre.gui2 import error_dialog
 
 class TemplateLineEditor(QLineEdit):
@@ -63,14 +63,16 @@ class TagWizard(QDialog):
         self.tags = tags
         l = QGridLayout()
         self.setLayout(l)
-        l.addWidget(QLabel(_('Tag Value')), 0, 0, 1, 1)
+        l.setColumnStretch(0, 1)
+        l.setColumnMinimumWidth(0, 300)
+        l.addWidget(QLabel(_('Tags (more than one per box permitted)')), 0, 0, 1, 1)
         l.addWidget(QLabel(_('Color')), 0, 1, 1, 1)
         self.tagboxes = []
         self.colorboxes = []
         self.colors = [unicode(s) for s in list(QColor.colorNames())]
         self.colors.insert(0, '')
         for i in range(0, 10):
-            tb = MultiCompleteComboBox(self)
+            tb = MultiCompleteLineEdit(self)
             tb.set_separator(', ')
             tb.update_items_cache(self.tags)
             self.tagboxes.append(tb)
@@ -101,10 +103,11 @@ class TagWizard(QDialog):
 
     def accepted(self):
         res = ("program:\n#tag wizard -- do not directly edit\n"
-               "    t = field('tags');\n  first_non_empty(\n")
+               "  t = field('tags');\n  first_non_empty(\n")
         lines = []
         for tb, cb in zip(self.tagboxes, self.colorboxes):
-            tags = [t.strip() for t in unicode(tb.currentText()).split(',') if t.strip()]
+            tags = [t.strip() for t in unicode(tb.text()).split(',') if t.strip()]
+            tags = '$|^'.join(tags)
             c = unicode(cb.currentText()).strip()
             if not tags or not c:
                 continue
@@ -113,14 +116,13 @@ class TagWizard(QDialog):
                              _('The color {0} is not valid').format(c),
                              show=True, show_copy_button=False)
                 return False
-            for t in tags:
-                lines.append("    in_list(t, ',', '^{0}$', '{1}', '')".format(t, c))
+            lines.append("    in_list(t, ',', '^{0}$', '{1}', '')".format(tags, c))
         res += ',\n'.join(lines)
         res += ')\n'
         self.template = res
         res = ''
         for tb, cb in zip(self.tagboxes, self.colorboxes):
-            t = unicode(tb.currentText()).strip()
+            t = unicode(tb.text()).strip()
             if t.endswith(','):
                 t = t[:-1]
             c = unicode(cb.currentText()).strip()
