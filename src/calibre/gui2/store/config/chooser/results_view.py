@@ -6,7 +6,7 @@ __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-from PyQt4.Qt import (QTreeView, QSize)
+from PyQt4.Qt import (Qt, QTreeView, QSize)
 
 from calibre.customize.ui import store_plugins
 from calibre.gui2.metadata.single_download import RichTextDelegate
@@ -29,3 +29,6 @@ class ResultsView(QTreeView):
 
         for i in xrange(self._model.columnCount()):
             self.resizeColumnToContents(i)
+            
+        self.model().sort(1, Qt.AscendingOrder)
+        self.header().setSortIndicator(self.model().sort_col, self.model().sort_order)
