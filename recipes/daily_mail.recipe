@@ -1,4 +1,5 @@
 from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.utils.magick import Image, PixelWand
 
 class TheDailyMail(BasicNewsRecipe):
     title          = u'The Daily Mail'
@@ -46,5 +47,21 @@ class TheDailyMail(BasicNewsRecipe):
     #def print_version(self, url):
     #    main = url.partition('?')[0]
     #    return main + '?printingPage=true'
-
-
+    
+        
+    def postprocess_html(self, soup, first):
+        #process all the images. assumes that the new html has the correct path
+        for tag in soup.findAll(lambda tag: tag.name.lower()=='img' and tag.has_key('src')):
+            iurl = tag['src']
+            img = Image()
+            img.open(iurl)
+            width, height = img.size
+            print 'img is: ', iurl, 'width is: ', width, 'height is: ', height
+            if img < 0:
+                raise RuntimeError('Out of memory')
+            pw = PixelWand()
+            if (width > 520 or height > 640):
+                print 'Resizing image to 50%'
+                img.size = (width / 2, height / 2)
+                img.save(iurl)
+        return soup
