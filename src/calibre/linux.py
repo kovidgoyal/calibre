@@ -356,7 +356,7 @@ class PostInstall:
                     mimetypes = set([])
                     for x in all_input_formats():
                         mt = guess_type('dummy.'+x)[0]
-                        if mt and 'chemical' not in mt:
+                        if mt and 'chemical' not in mt and 'ctc-posml' not in mt:
                             mimetypes.add(mt)
 
                     def write_mimetypes(f):
@@ -376,11 +376,10 @@ class PostInstall:
                     des = ('calibre-gui.desktop', 'calibre-lrfviewer.desktop',
                             'calibre-ebook-viewer.desktop')
                     for x in des:
-                        cmd = ['xdg-desktop-menu', 'install', './'+x]
-                        if x != des[-1]:
-                            cmd.insert(2, '--noupdate')
+                        cmd = ['xdg-desktop-menu', 'install', '--noupdate', './'+x]
                         check_call(' '.join(cmd), shell=True)
                         self.menu_resources.append(x)
+                    check_call(['xdg-desktop-menu', 'forceupdate'])
                     f = open('calibre-mimetypes', 'wb')
                     f.write(MIME)
                     f.close()
