@@ -10,7 +10,7 @@ import re
 
 from PyQt4.Qt import (QDialog, QDialogButtonBox)
 
-from calibre.gui2.store.search.adv_search_builder_ui import Ui_Dialog
+from calibre.gui2.store.config.chooser.adv_search_builder_ui import Ui_Dialog
 from calibre.library.caches import CONTAINS_MATCH, EQUALS_MATCH
 
 class AdvSearchBuilderDialog(QDialog, Ui_Dialog):
@@ -41,10 +41,12 @@ class AdvSearchBuilderDialog(QDialog, Ui_Dialog):
         self.accept()
 
     def clear_button_pushed(self):
-        self.title_box.setText('')
-        self.author_box.setText('')
-        self.price_box.setText('')
+        self.name_box.setText('')
+        self.description_box.setText('')
+        self.headquarters_box.setText('')
         self.format_box.setText('')
+        self.enabled_combo.setIndex(0)
+        self.drm_combo.setIndex(0)
 
     def tokens(self, raw):
         phrases = re.findall(r'\s*".*?"\s*', raw)
@@ -106,18 +108,24 @@ class AdvSearchBuilderDialog(QDialog, Ui_Dialog):
 
         ans = []
         self.box_last_values = {}
-        title = unicode(self.title_box.text()).strip()
-        if title:
-            ans.append('title:"' + self.mc + title + '"')
-        author = unicode(self.author_box.text()).strip()
-        if author:
-            ans.append('author:"' + self.mc + author + '"')
-        price = unicode(self.price_box.text()).strip()
-        if price:
-            ans.append('price:"' + self.mc + price + '"')
+        name = unicode(self.name_box.text()).strip()
+        if name:
+            ans.append('name:"' + self.mc + name + '"')
+        description = unicode(self.description_box.text()).strip()
+        if description:
+            ans.append('description:"' + self.mc + description + '"')
+        headquarters = unicode(self.headquarters_box.text()).strip()
+        if headquarters:
+            ans.append('headquarters:"' + self.mc + headquarters + '"')
         format = unicode(self.format_box.text()).strip()
         if format:
-            ans.append('format:"' + self.mc + format + '"')            
+            ans.append('format:"' + self.mc + format + '"')
+        enabled = unicode(self.enabled_combo.currentText()).strip()
+        if enabled:
+            ans.append('enabled:' + enabled)
+        drm = unicode(self.drm_combo.currentText()).strip()
+        if drm:
+            ans.append('drm:' + drm)
         if ans:
             return ' and '.join(ans)
         return ''

@@ -11,7 +11,7 @@ Config widget access functions for configuring the store action.
 '''
 
 def config_widget():
-    from calibre.gui2.store.config.search_widget import StoreConfigWidget
+    from calibre.gui2.store.config.search.search_widget import StoreConfigWidget
     return StoreConfigWidget()
 
 def save_settings(config_widget):

@@ -82,8 +82,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>102</width>
-            <height>129</height>
+            <width>125</width>
+            <height>127</height>
            </rect>
           </property>
          </widget>
@@ -159,6 +159,9 @@
          <property name="expandsOnDoubleClick">
           <bool>false</bool>
          </property>
+         <attribute name="headerStretchLastSection">
+          <bool>false</bool>
+         </attribute>
         </widget>
        </item>
        <item>
