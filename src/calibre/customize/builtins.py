@@ -1346,6 +1346,16 @@ class StoreSmashwordsStore(StoreBase):
     headquarters = 'US'
     formats = ['EPUB', 'HTML', 'LRF', 'MOBI', 'PDB', 'RTF', 'TXT']
 
+class StoreVirtualoStore(StoreBase):
+    name = 'Virtualo'
+    author = 'Tomasz Długosz'
+    description = u'Księgarnia internetowa, która oferuje bezpieczny i szeroki dostęp do książek w formie cyfrowej.'
+    actual_plugin = 'calibre.gui2.store.virtualo_plugin:VirtualoStore'
+
+    drm_free_only = False
+    location = 'PL'
+    formats = ['EPUB', 'PDF']
+
 class StoreWaterstonesUKStore(StoreBase):
     name = 'Waterstones UK'
     author = 'Charles Haley'
@@ -1411,6 +1421,7 @@ plugins += [
     StoreOReillyStore,
     StorePragmaticBookshelfStore,
     StoreSmashwordsStore,
+    StoreVirtualoStore,
     StoreWaterstonesUKStore,
     StoreWeightlessBooksStore,
     StoreWizardsTowerBooksStore,
