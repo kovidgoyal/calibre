@@ -130,7 +130,7 @@ class Matches(QAbstractItemModel):
         elif col == 1:
             text = match.name
         elif col == 2:
-            text = 'b' if getattr(match, 'drm', True) else 'a'
+            text = 'a' if getattr(match, 'drm_free_only', True) else 'b'
         elif col == 3:
             text = getattr(match, 'headquarters', '')
         return text
@@ -240,5 +240,3 @@ class SearchFilter(SearchQueryParser):
                     import traceback
                     traceback.print_exc()
         return matches
-
-
