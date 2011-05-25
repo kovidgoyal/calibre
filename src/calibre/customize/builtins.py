@@ -1353,7 +1353,7 @@ class StoreVirtualoStore(StoreBase):
     actual_plugin = 'calibre.gui2.store.virtualo_plugin:VirtualoStore'
 
     drm_free_only = False
-    location = 'PL'
+    headquarters = 'PL'
     formats = ['EPUB', 'PDF']
 
 class StoreWaterstonesUKStore(StoreBase):
