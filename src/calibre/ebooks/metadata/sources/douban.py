@@ -211,7 +211,10 @@ class Douban(Source):
                     'q': q,
                     })
         if self.DOUBAN_API_KEY and self.DOUBAN_API_KEY != '':
-            url = url + "&apikey=" + self.DOUBAN_API_KEY
+            if t == "isbn" or t == "subject":
+                url = url + "?apikey=" + self.DOUBAN_API_KEY
+            else:
+                url = url + "&apikey=" + self.DOUBAN_API_KEY
         return url
     # }}}
 
