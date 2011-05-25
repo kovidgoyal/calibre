@@ -594,7 +594,56 @@ class BuiltinFirstNonEmpty(BuiltinFormatterFunction):
             i += 1
         return ''
 
+class BuiltinAnd(BuiltinFormatterFunction):
+    name = 'and'
+    arg_count = -1
+    doc = _('and(value, value, ...) -- '
+            'returns the string "1" if all values are not empty, otherwise '
+            'returns the empty string. This function works well with test or '
+            'first_non_empty. You can have as many values as you want.')
+
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        i = 0
+        while i < len(args):
+            if not args[i]:
+                return ''
+            i += 1
+        return '1'
+
+class BuiltinOr(BuiltinFormatterFunction):
+    name = 'or'
+    arg_count = -1
+    doc = _('or(value, value, ...) -- '
+            'returns the string "1" if any value is not empty, otherwise '
+            'returns the empty string. This function works well with test or '
+            'first_non_empty. You can have as many values as you want.')
+
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        i = 0
+        while i < len(args):
+            if args[i]:
+                return '1'
+            i += 1
+        return ''
+
+class BuiltinNot(BuiltinFormatterFunction):
+    name = 'not'
+    arg_count = 1
+    doc = _('not(value) -- '
+            'returns the string "1" if the value is empty, otherwise '
+            'returns the empty string. This function works well with test or '
+            'first_non_empty. You can have as many values as you want.')
+
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        i = 0
+        while i < len(args):
+            if args[i]:
+                return '1'
+            i += 1
+        return ''
+
 builtin_add         = BuiltinAdd()
+builtin_and         = BuiltinAnd()
 builtin_assign      = BuiltinAssign()
 builtin_booksize    = BuiltinBooksize()
 builtin_capitalize  = BuiltinCapitalize()
@@ -612,6 +661,8 @@ builtin_list_item   = BuiltinListitem()
 builtin_lookup      = BuiltinLookup()
 builtin_lowercase   = BuiltinLowercase()
 builtin_multiply    = BuiltinMultiply()
+builtin_not         = BuiltinNot()
+builtin_or          = BuiltinOr()
 builtin_print       = BuiltinPrint()
 builtin_raw_field   = BuiltinRaw_field()
 builtin_re          = BuiltinRe()
