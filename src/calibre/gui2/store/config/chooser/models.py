@@ -33,15 +33,15 @@ class Matches(QAbstractItemModel):
 
         self.sort_col = 1
         self.sort_order = Qt.AscendingOrder
-        
+
     def get_plugin(self, index):
         row = index.row()
         if row < len(self.matches):
             return self.matches[row]
         else:
             return None
-    
-    def search(self, filter):        
+
+    def search(self, filter):
         self.filter = filter.strip()
         if not self.filter:
             self.matches = self.all_matches
@@ -71,7 +71,7 @@ class Matches(QAbstractItemModel):
 
     def columnCount(self, *args):
         return len(self.HEADERS)
-    
+
     def headerData(self, section, orientation, role):
         if role != Qt.DisplayRole:
             return NONE
@@ -114,7 +114,7 @@ class Matches(QAbstractItemModel):
             if data.toBool():
                 enable_plugin(self.get_plugin(index))
             else:
-                disable_plugin(self.get_plugin(index)) 
+                disable_plugin(self.get_plugin(index))
         self.dataChanged.emit(self.index(index.row(), 0), self.index(index.row(), self.columnCount() - 1))
         return True
 
@@ -130,9 +130,9 @@ class Matches(QAbstractItemModel):
         elif col == 1:
             text = match.name
         elif col == 2:
-            text = 'b' if match.drm else 'a'
+            text = 'b' if getattr(match, 'drm', True) else 'a'
         elif col == 3:
-            text = match.headquarteres
+            text = getattr(match, 'headquarters', '')
         return text
 
     def sort(self, col, order, reset=True):
@@ -149,7 +149,7 @@ class Matches(QAbstractItemModel):
 
 
 class SearchFilter(SearchQueryParser):
-    
+
     USABLE_LOCATIONS = [
         'all',
         'description',
@@ -202,7 +202,7 @@ class SearchFilter(SearchQueryParser):
         q['formats'] = q['format']
         for sr in self.srs:
             for locvalue in locations:
-                accessor = q[locvalue] 
+                accessor = q[locvalue]
                 if query == 'true':
                     if locvalue in ('drm', 'enabled'):
                         if accessor(sr) == True:
@@ -241,4 +241,4 @@ class SearchFilter(SearchQueryParser):
                     traceback.print_exc()
         return matches
 
-        
+
