@@ -240,5 +240,3 @@ class SearchFilter(SearchQueryParser):
                     import traceback
                     traceback.print_exc()
         return matches
-
-
