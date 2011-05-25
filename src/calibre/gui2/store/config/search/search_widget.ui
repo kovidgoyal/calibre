@@ -93,13 +93,13 @@
    <item>
     <widget class="QGroupBox" name="groupBox_3">
      <property name="title">
-      <string>Performance</string>
+      <string>Threads</string>
      </property>
      <layout class="QFormLayout" name="formLayout_3">
       <item row="0" column="0">
        <widget class="QLabel" name="label_4">
         <property name="text">
-         <string>Number of simultaneous searches</string>
+         <string>Number of search threads to use</string>
         </property>
        </widget>
       </item>
@@ -113,7 +113,7 @@
       <item row="1" column="0">
        <widget class="QLabel" name="label_5">
         <property name="text">
-         <string>Number of simultaneous cache updates</string>
+         <string>Number of cache update threads to use</string>
         </property>
        </widget>
       </item>
@@ -127,7 +127,7 @@
       <item row="2" column="0">
        <widget class="QLabel" name="label_6">
         <property name="text">
-         <string>Number of simultaneous cover downloads</string>
+         <string>Number of conver download threads to use</string>
         </property>
        </widget>
       </item>
@@ -141,7 +141,7 @@
       <item row="3" column="0">
        <widget class="QLabel" name="label_7">
         <property name="text">
-         <string>Number of simultaneous details downloads</string>
+         <string>Number of details threads to use</string>
         </property>
        </widget>
       </item>
