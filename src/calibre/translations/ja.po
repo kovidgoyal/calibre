@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-05-20 18:12+0000\n"
-"PO-Revision-Date: 2011-05-24 04:28+0000\n"
+"PO-Revision-Date: 2011-05-24 09:29+0000\n"
 "Last-Translator: Ado Nishimura <Unknown>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-05-24 04:32+0000\n"
+"X-Launchpad-Export-Date: 2011-05-25 04:34+0000\n"
 "X-Generator: Launchpad (build 12959)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -6965,15 +6965,15 @@ msgstr "章の名前を隠す"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/snb_output_ui.py:44
 msgid "Don't indent the first line for each paragraph"
-msgstr ""
+msgstr "パラグラフの最初の行をインデントしない"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/snb_output_ui.py:45
 msgid "Insert empty line between paragraphs"
-msgstr ""
+msgstr "パラグラフの間に空行を入れる"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/snb_output_ui.py:46
 msgid "Optimize for full-sceen view "
-msgstr ""
+msgstr "フルスクリーン表示に最適化 "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:15
 msgid ""
@@ -6984,25 +6984,25 @@ msgstr "構造の検出"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:17
 msgid ""
 "Fine tune the detection of chapter headings and other document structure."
-msgstr ""
+msgstr "章の始まりや他のドキュメント構造の判別を細かく制御する。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:31
 msgid "Detect chapters at (XPath expression):"
-msgstr ""
+msgstr "章の判別(XPath表記)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:32
 msgid "Insert page breaks before (XPath expression):"
-msgstr ""
+msgstr "この前に改ページを挿入(XPath表記)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:42
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc.py:39
 msgid "Invalid XPath"
-msgstr ""
+msgstr "無効なXPath"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:43
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc.py:40
 msgid "The XPath expression %s is invalid."
-msgstr ""
+msgstr "XPath表記 %s は無効です。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:60
 msgid "Chapter &mark:"
@@ -7023,10 +7023,12 @@ msgid ""
 "to use these options. Leave the replace field blank and enter your "
 "header/footer removal regexps into the search field."
 msgstr ""
+"「ヘッダーとフッターの削除」オプションは「検索＆置換」オプションに変わりました。左のバーにある「検索＆置換」カテゴリーをクリックしてそのオプションを使って"
+"ください。置換フィールドを空欄にしてヘッダ／フッタを削除する正規表現を検索フィールドに入力してください。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:64
 msgid "Remove &fake margins"
-msgstr ""
+msgstr "偽のマージンを削除"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc.py:16
 msgid ""
@@ -7040,31 +7042,31 @@ msgstr "目次の作成と変換を制御"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc.py:30
 msgid "Level &1 TOC (XPath expression):"
-msgstr ""
+msgstr "レベル&1 目次(XPath表現):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc.py:31
 msgid "Level &2 TOC (XPath expression):"
-msgstr ""
+msgstr "レベル&2 目次(XPath表現):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc.py:32
 msgid "Level &3 TOC (XPath expression):"
-msgstr ""
+msgstr "レベル&3 目次(XPath表現):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:68
 msgid "Do not add &detected chapters to the Table of Contents"
-msgstr ""
+msgstr "見つかった章を目次に追加しない(&d)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:69
 msgid "Number of &links to add to Table of Contents"
-msgstr ""
+msgstr "目次に追加するリンクの数(&l)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:70
 msgid "Chapter &threshold"
-msgstr ""
+msgstr "章の閾値(&t)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:71
 msgid "&Force use of auto-generated Table of Contents"
-msgstr ""
+msgstr "自動生成された目次を強制的に使用(&F)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:72
 msgid "TOC &Filter:"
@@ -7076,19 +7078,19 @@ msgstr "テキスト入力"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:92
 msgid "Structure"
-msgstr ""
+msgstr "構成"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:93
 msgid "Paragraph style:"
-msgstr ""
+msgstr "パラグラフ・スタイル："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:94
 msgid "Formatting style:"
-msgstr ""
+msgstr "フォーマッティング・スタイル"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:95
 msgid "Common"
-msgstr ""
+msgstr "共通"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:96
 msgid "Preserve &spaces"
@@ -7096,11 +7098,11 @@ msgstr "スペースを保全する(&s)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:97
 msgid "Remove indents at the beginning of lines"
-msgstr ""
+msgstr "行の先頭にあるインデントを削除する"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:98
 msgid "Markdown"
-msgstr ""
+msgstr "Markdown"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:99
 msgid ""
@@ -7108,10 +7110,12 @@ msgid ""
 "advanced formatting. To learn more visit <a "
 "href=\"http://daringfireball.net/projects/markdown\">markdown</a>."
 msgstr ""
+"<p>Markdownはテキストファイル用のシンプルなマークアップ言語で、高度な書式フォーマットをする事ができます。詳しくは<a "
+"href=\"http://daringfireball.net/projects/markdown\">markdown</a>のサイトを見てください。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:100
 msgid "Do not insert Table of Contents into output text when using markdown"
-msgstr ""
+msgstr "Markdown使用時には出力テキストに目次を入れない"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output.py:13
 msgid "TXT Output"
@@ -7123,39 +7127,39 @@ msgstr "全般"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:89
 msgid "Output &Encoding:"
-msgstr ""
+msgstr "出力エンコーディング(&E)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:90
 msgid "&Line ending style:"
-msgstr ""
+msgstr "行末スタイル(&L)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:91
 msgid "&Formatting:"
-msgstr ""
+msgstr "フォーマッティング(&F)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:92
 msgid "Plain"
-msgstr ""
+msgstr "プレーン"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:93
 msgid "&Maximum line length:"
-msgstr ""
+msgstr "最大の行の長さ(&M)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:94
 msgid "Force maximum line length"
-msgstr ""
+msgstr "強制的に最大文字数で改行"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:96
 msgid "Markdown, Textile"
-msgstr ""
+msgstr "Markdown, Textile"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:97
 msgid "Do not remove links (<a> tags) before processing"
-msgstr ""
+msgstr "処理前にリンク（<a>タグ）を除去しない"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:98
 msgid "Do not remove image references before processing"
-msgstr ""
+msgstr "処理前に画像への参照を除去しない"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:99
 msgid "Keep text color, when possible"
