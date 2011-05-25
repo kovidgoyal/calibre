@@ -132,7 +132,7 @@ class Matches(QAbstractItemModel):
         elif col == 2:
             text = 'b' if match.drm else 'a'
         elif col == 3:
-            text = match.headquarteres
+            text = match.headquarters
         return text
 
     def sort(self, col, order, reset=True):
