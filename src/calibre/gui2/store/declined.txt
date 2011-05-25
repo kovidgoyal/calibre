@@ -1,0 +1,8 @@
+This is a list of stores that objected, declined
+or asked not to be included in the store integration.
+
+* Borders (http://www.borders.com/)
+* WH Smith (http://www.whsmith.co.uk/)
+  Refused to permit signing up for the affiliate program
+* Libraria Rizzoli (http://libreriarizzoli.corriere.it/).
+  No reply with two attempts over 2 weeks

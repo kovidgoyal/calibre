@@ -11,9 +11,6 @@
 						SummaryCodepage='1252' />
 
                 <Media Id="1" Cabinet="{app}.cab" CompressionLevel="{compression}" EmbedCab="yes" />
-                <!-- The following line is needed because of the patch to QtCore4.dll. You can remove this line
-                     after you update Qt beyond 4.7.2. 'emus' means re-install even if version is the same not just if it is older. -->
-                <Property Id='REINSTALLMODE' Value='emus'/>
 
                 <Upgrade Id="{upgrade_code}">
                     <UpgradeVersion Maximum="{version}"
@@ -28,6 +25,11 @@
                        Property="NEWPRODUCTFOUND"/>
                </Upgrade>
                <CustomAction Id="PreventDowngrading" Error="Newer version already installed."/>
+
+               <Property Id="APPLICATIONFOLDER">
+                  <RegistrySearch Id='calibreInstDir' Type='raw'
+                      Root='HKLM' Key="Software\{app}\Installer" Name="InstallPath" />
+               </Property>
 
                 <Directory Id='TARGETDIR' Name='SourceDir'>
                         <Merge Id="VCRedist" SourceFile="{crt_msm}" DiskId="1" Language="0"/>
@@ -45,6 +47,9 @@
                         <Component Id="AddToPath" Guid="*">
                             <Environment Id='UpdatePath' Name='PATH' Action='set' System='yes' Part='last' Value='[APPLICATIONFOLDER]' />
                             <RegistryValue Root="HKCU" Key="Software\Microsoft\{app}" Name="system_path_updated" Type="integer" Value="1" KeyPath="yes"/>
+                        </Component>
+                        <Component Id="RememberInstallDir" Guid="*">
+                            <RegistryValue Root="HKLM" Key="Software\{app}\Installer" Name="InstallPath" Type="string" Value="[APPLICATIONFOLDER]" KeyPath="yes"/>
                         </Component>
                 </DirectoryRef>
 
@@ -90,7 +95,8 @@
 						ConfigurableDirectory="APPLICATIONFOLDER">
 
 						<Feature Id="MainApplication" Title="Program Files" Level="1"
-                            Description="All the files need to run {app}" Absent="disallow">
+                            Description="All the files needed to run {app}" Absent="disallow">
+                            <ComponentRef Id="RememberInstallDir"/>
                         </Feature>
 
                         <Feature Id="VCRedist" Title="Visual C++ 8.0 Runtime" AllowAdvertise="no" Display="hidden" Level="1">
@@ -118,7 +124,7 @@
 				<Property Id="ARPPRODUCTICON" Value="main_icon" />
 
                 <Condition
-                    Message="This application is only supported on Windows XP SP2, or higher.">
+                    Message="This application is only supported on Windows XP SP3, or higher.">
                     <![CDATA[Installed OR (VersionNT >= 501)]]>
                 </Condition>
                 <InstallExecuteSequence>

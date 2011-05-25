@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>; 2011, Li Fanxi <lifanxi@freemindworld.com>'
 __docformat__ = 'restructuredtext en'
 
-import time, hashlib
+import time
 from urllib import urlencode
 from functools import partial
 from Queue import Queue, Empty
@@ -116,7 +116,7 @@ def to_metadata(browser, log, entry_, timeout): # {{{
         tags = []
     if tags:
         mi.tags = [x.replace(',', ';') for x in tags]
-        
+
     # pubdate
     pubdate = get_text(extra, date)
     if pubdate:
@@ -148,13 +148,13 @@ def to_metadata(browser, log, entry_, timeout): # {{{
 class Douban(Source):
 
     name = 'Douban Books'
-    author = _('Li Fanxi')
+    author = 'Li Fanxi'
     version = (2, 0, 0)
-    
-    description = _('Downloads metadata from Douban.com')
+
+    description = _('Downloads metadata and covers from Douban.com')
 
     capabilities = frozenset(['identify', 'cover'])
-    touched_fields = frozenset(['title', 'authors', 'tags', 
+    touched_fields = frozenset(['title', 'authors', 'tags',
         'pubdate', 'comments', 'publisher', 'identifier:isbn', 'rating',
         'identifier:douban']) # language currently disabled
     supports_gzip_transfer_encoding = True
@@ -167,8 +167,6 @@ class Douban(Source):
         db = identifiers.get('douban', None)
         if db is not None:
             return ('douban', db, self.DOUBAN_BOOK_URL%db)
-        else:
-            return None
     # }}}
 
     def create_query(self, log, title=None, authors=None, identifiers={}): # {{{
@@ -195,7 +193,7 @@ class Douban(Source):
             author_tokens = self.get_author_tokens(authors,
                     only_first_author=True)
             if author_tokens:
-                q += ((' ' if q != '' else '') + 
+                q += ((' ' if q != '' else '') +
                     build_term('author', author_tokens))
             t = 'search'
         q = q.strip()

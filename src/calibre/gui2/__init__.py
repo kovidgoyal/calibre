@@ -12,7 +12,7 @@ from PyQt4.Qt import (QVariant, QFileInfo, QObject, SIGNAL, QBuffer, Qt,
 
 ORG_NAME = 'KovidsBrain'
 APP_UID  = 'libprs500'
-from calibre.constants import islinux, iswindows, isfreebsd, isfrozen, isosx
+from calibre.constants import islinux, iswindows, isbsd, isfrozen, isosx
 from calibre.utils.config import Config, ConfigProxy, dynamic, JSONConfig
 from calibre.utils.localization import set_qt_translator
 from calibre.ebooks.metadata import MetaInformation
@@ -620,7 +620,22 @@ class Application(QApplication):
         self.original_font = QFont(QApplication.font())
         fi = gprefs['font']
         if fi is not None:
-            QApplication.setFont(QFont(*fi))
+            font = QFont(*(fi[:4]))
+            s = gprefs.get('font_stretch', None)
+            if s is not None:
+                font.setStretch(s)
+            QApplication.setFont(font)
+        st = self.style()
+        if st is not None:
+            st = unicode(st.objectName()).lower()
+        if (islinux or isbsd) and st in ('windows', 'motif', 'cde'):
+            from PyQt4.Qt import QStyleFactory
+            styles = set(map(unicode, QStyleFactory.keys()))
+            if 'Plastique' in styles and os.environ.get('KDE_FULL_SESSION',
+                    False):
+                self.setStyle('Plastique')
+            elif 'Cleanlooks' in styles:
+                self.setStyle('Cleanlooks')
 
     def _send_file_open_events(self):
         with self._file_open_lock:
@@ -682,7 +697,7 @@ def open_local_file(path):
 
 def is_ok_to_use_qt():
     global gui_thread, _store_app
-    if (islinux or isfreebsd) and ':' not in os.environ.get('DISPLAY', ''):
+    if (islinux or isbsd) and ':' not in os.environ.get('DISPLAY', ''):
         return False
     if _store_app is None and QApplication.instance() is None:
         _store_app = QApplication([])

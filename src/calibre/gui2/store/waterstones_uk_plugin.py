@@ -76,7 +76,7 @@ class WaterstonesUKStore(BasicStoreConfig, StorePlugin):
                 s.detail_item = id
                 formats = []
                 if epub:
-                    formats.append('EPUB')
+                    formats.append('ePub')
                 if pdf:
                     formats.append('PDF')
                 s.formats = ', '.join(formats)

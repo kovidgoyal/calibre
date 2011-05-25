@@ -103,10 +103,11 @@ class EPUBInput(InputFormatPlugin):
         t.set('href', guide_cover)
         t.set('title', 'Title Page')
         from calibre.ebooks import render_html_svg_workaround
-        renderer = render_html_svg_workaround(guide_cover, log)
-        if renderer is not None:
-            open('calibre_raster_cover.jpg', 'wb').write(
-                renderer)
+        if os.path.exists(guide_cover):
+            renderer = render_html_svg_workaround(guide_cover, log)
+            if renderer is not None:
+                open('calibre_raster_cover.jpg', 'wb').write(
+                    renderer)
 
     def find_opf(self):
         def attr(n, attr):

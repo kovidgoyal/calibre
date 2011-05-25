@@ -37,7 +37,7 @@ class DN_se(BasicNewsRecipe):
               ,(u'Kultur' , u'http://www.dn.se/kultur-rss'       )
             ]
 
-    keep_only_tags = [dict(name='div', attrs={'id':'article'})]
+    keep_only_tags = [dict(name='div', attrs={'id':'article-content'})]
     remove_tags_before = dict(name='h1')
     remove_tags_after = dict(name='div',attrs={'id':'byline'})
     remove_tags = [
@@ -45,5 +45,5 @@ class DN_se(BasicNewsRecipe):
                     ,dict(name='div',attrs={'id':'hook'})
                   ]
 
-    
-    
+
+

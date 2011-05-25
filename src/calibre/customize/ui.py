@@ -92,7 +92,7 @@ def restore_plugin_state_to_default(plugin_or_name):
     config['enabled_plugins'] = ep
 
 default_disabled_plugins = set([
-    'Overdrive',
+    'Overdrive', 'Douban Books',
 ])
 
 def is_disabled(plugin):
@@ -216,9 +216,26 @@ def store_plugins():
     customization = config['plugin_customization']
     for plugin in _initialized_plugins:
         if isinstance(plugin, Store):
-            if not is_disabled(plugin):
-                plugin.site_customization = customization.get(plugin.name, '')
-                yield plugin
+            plugin.site_customization = customization.get(plugin.name, '')
+            yield plugin
+
+def available_store_plugins():
+    for plugin in store_plugins():
+        if not is_disabled(plugin):
+            yield plugin
+
+def stores():
+    stores = set([])
+    for plugin in store_plugins():
+        stores.add(plugin.name)
+    return stores
+
+def available_stores():
+    stores = set([])
+    for plugin in available_store_plugins():
+        stores.add(plugin.name)
+    return stores
+
 # }}}
 
 # Metadata read/write {{{

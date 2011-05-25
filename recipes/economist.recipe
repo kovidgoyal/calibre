@@ -20,7 +20,7 @@ class Economist(BasicNewsRecipe):
     INDEX = 'http://www.economist.com/printedition'
     description = ('Global news and current affairs from a European'
             ' perspective. Best downloaded on Friday mornings (GMT)')
-
+    extra_css      = '.headline {font-size: x-large;} \n h2 { font-size: small;  } \n h1 { font-size: medium;  }'
     oldest_article = 7.0
     cover_url = 'http://www.economist.com/images/covers/currentcoverus_large.jpg'
     remove_tags = [

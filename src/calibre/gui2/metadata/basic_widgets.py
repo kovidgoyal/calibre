@@ -88,11 +88,22 @@ class TitleEdit(EnLineEdit):
 
     def commit(self, db, id_):
         title = self.current_val
-        if self.COMMIT:
-            getattr(db, 'set_'+ self.TITLE_ATTR)(id_, title, notify=False)
-        else:
-            getattr(db, 'set_'+ self.TITLE_ATTR)(id_, title, notify=False,
-                    commit=False)
+        try:
+            if self.COMMIT:
+                getattr(db, 'set_'+ self.TITLE_ATTR)(id_, title, notify=False)
+            else:
+                getattr(db, 'set_'+ self.TITLE_ATTR)(id_, title, notify=False,
+                        commit=False)
+        except (IOError, OSError) as err:
+            if getattr(err, 'errno', -1) == 13: # Permission denied
+                import traceback
+                fname = err.filename if err.filename else 'file'
+                error_dialog(self, _('Permission denied'),
+                        _('Could not open %s. Is it being used by another'
+                        ' program?')%fname, det_msg=traceback.format_exc(),
+                        show=True)
+                return False
+            raise
         return True
 
     @dynamic_property
@@ -225,8 +236,19 @@ class AuthorsEdit(MultiCompleteComboBox):
 
     def commit(self, db, id_):
         authors = self.current_val
-        self.books_to_refresh |= db.set_authors(id_, authors, notify=False,
+        try:
+            self.books_to_refresh |= db.set_authors(id_, authors, notify=False,
                 allow_case_change=True)
+        except (IOError, OSError) as err:
+            if getattr(err, 'errno', -1) == 13: # Permission denied
+                import traceback
+                fname = err.filename if err.filename else 'file'
+                error_dialog(self, _('Permission denied'),
+                        _('Could not open %s. Is it being used by another'
+                        ' program?')%fname, det_msg=traceback.format_exc(),
+                        show=True)
+                return False
+            raise
         return True
 
     @dynamic_property
@@ -1126,7 +1148,7 @@ class DateEdit(QDateEdit): # {{{
     @dynamic_property
     def current_val(self):
         def fget(self):
-            return qt_to_dt(self.date())
+            return qt_to_dt(self.date(), as_utc=False)
         def fset(self, val):
             if val is None:
                 val = UNDEFINED_DATE

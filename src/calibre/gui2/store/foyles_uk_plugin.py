@@ -73,6 +73,6 @@ class FoylesUKStore(BasicStoreConfig, StorePlugin):
                 s.price = price
                 s.detail_item = id
                 s.drm = SearchResult.DRM_LOCKED
-                s.formats = 'EPUB'
+                s.formats = 'ePub'
 
                 yield s

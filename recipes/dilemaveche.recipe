@@ -1,0 +1,55 @@
+# -*- coding: utf-8 -*-
+#!/usr/bin/env  python
+
+__license__   = 'GPL v3'
+__copyright__ = u'2011, Silviu Cotoar\u0103'
+'''
+dilemaveche.ro
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class DilemaVeche(BasicNewsRecipe):
+    title                 = u'Dilema Veche'
+    __author__            = u'Silviu Cotoar\u0103'
+    description           = u'Sunt vechi, domnule!'
+    publisher             = u'Dilema Veche'
+    oldest_article        = 50
+    language              = 'ro'
+    max_articles_per_feed = 100
+    no_stylesheets        = True
+    use_embedded_content  = False
+    category              = 'Ziare'
+    encoding              = 'utf-8'
+    cover_url             = 'http://www.dilemaveche.ro/sites/all/themes/dilema/theme/dilema_two/layouter/dilema_two_homepage/logo.png'
+
+    conversion_options = {
+                             'comments'   : description
+                            ,'tags'       : category
+                            ,'language'   : language
+                            ,'publisher'  : publisher
+                         }
+
+    keep_only_tags = [
+                          dict(name='h1', attrs={'class':'art_title'})
+                        , dict(name='h1', attrs={'class':'art_title online'})
+                        , dict(name='div', attrs={'class':'item'})
+                        , dict(name='div', attrs={'class':'art_content'})
+                     ]
+
+    remove_tags = [
+                         dict(name='div', attrs={'class':['article_details']})
+                        , dict(name='div', attrs={'class':['controale']})
+                        , dict(name='div', attrs={'class':['art_related_left']})
+                  ]
+
+    remove_tags_after = [
+                            dict(name='div', attrs={'class':['article_details']})
+                        ]
+
+    feeds          = [
+                        (u'Feeds', u'http://www.dilemaveche.ro/rss.xml')
+                     ]
+
+    def preprocess_html(self, soup):
+        return self.adeify_images(soup)

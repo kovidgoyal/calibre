@@ -145,10 +145,13 @@ class Option(object):
         :param default: The default value for this option
         :param label: A short (few words) description of this option
         :param desc: A longer description of this option
-        :param choices: A list of possible values, used only if type='choices'
+        :param choices: A dict of possible values, used only if type='choices'.
+        dict is of the form {key:human readable label, ...}
         '''
         self.name, self.type, self.default, self.label, self.desc = (name,
                 type_, default, label, desc)
+        if choices and not isinstance(choices, dict):
+            choices = dict([(x, x) for x in choices])
         self.choices = choices
 
 class Source(Plugin):
@@ -211,6 +214,9 @@ class Source(Plugin):
 
     def is_customizable(self):
         return True
+
+    def customization_help(self):
+        return 'This plugin can only be customized using the GUI'
 
     def config_widget(self):
         from calibre.gui2.metadata.config import ConfigWidget
@@ -288,9 +294,9 @@ class Source(Plugin):
                     parts = parts[1:] + parts[:1]
                 for tok in parts:
                     tok = remove_pat.sub('', tok).strip()
-                    if len(tok) > 2 and tok.lower() not in ('von', ):
+                    if len(tok) > 2 and tok.lower() not in ('von', 'van',
+                            _('Unknown').lower()):
                         yield tok
-
 
     def get_title_tokens(self, title, strip_joiners=True, strip_subtitle=False):
         '''
@@ -307,7 +313,7 @@ class Source(Plugin):
             title_patterns = [(re.compile(pat, re.IGNORECASE), repl) for pat, repl in
             [
                 # Remove things like: (2010) (Omnibus) etc.
-                (r'(?i)[({\[](\d{4}|omnibus|anthology|hardcover|paperback|turtleback|mass\s*market|edition|ed\.)[\])}]', ''),
+                (r'(?i)[({\[](\d{4}|omnibus|anthology|hardcover|audiobook|audio\scd|paperback|turtleback|mass\s*market|edition|ed\.)[\])}]', ''),
                 # Remove any strings that contain the substring edition inside
                 # parentheses
                 (r'(?i)[({\[].*?(edition|ed.).*?[\]})]', ''),

@@ -23,7 +23,7 @@ from calibre.constants import __appname__, isosx
 from calibre.utils.config import prefs, dynamic
 from calibre.utils.ipc.server import Server
 from calibre.library.database2 import LibraryDatabase2
-from calibre.customize.ui import interface_actions, store_plugins
+from calibre.customize.ui import interface_actions, available_store_plugins
 from calibre.gui2 import error_dialog, GetMetadata, open_url, \
         gprefs, max_available_height, config, info_dialog, Dispatcher, \
         question_dialog
@@ -144,7 +144,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
 
     def load_store_plugins(self):
         self.istores = OrderedDict()
-        for store in store_plugins():
+        for store in available_store_plugins():
             if self.opts.ignore_plugins and store.plugin_path is not None:
                 continue
             try:
@@ -288,8 +288,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
                 self.db_images.reset()
 
         self.library_view.model().count_changed()
-        self.tool_bar.database_changed(self.library_view.model().db)
-        self.library_view.model().database_changed.connect(self.tool_bar.database_changed,
+        self.bars_manager.database_changed(self.library_view.model().db)
+        self.library_view.model().database_changed.connect(self.bars_manager.database_changed,
                 type=Qt.QueuedConnection)
 
         ########################### Tags Browser ##############################
@@ -324,7 +324,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
 
         self.read_settings()
         self.finalize_layout()
-        if self.tool_bar.showing_donate:
+        if self.bars_manager.showing_donate:
             self.donate_button.start_animation()
         self.set_window_title()
 

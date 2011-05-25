@@ -211,6 +211,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         defs = self.prefs.defaults
         defs['gui_restriction'] = defs['cs_restriction'] = ''
         defs['categories_using_hierarchy'] = []
+        self.column_color_count = 5
+        for i in range(1,self.column_color_count+1):
+            defs['column_color_name_'+str(i)] = ''
+            defs['column_color_template_'+str(i)] = ''
 
         # Migrate the bool tristate tweak
         defs['bools_are_tristate'] = \
@@ -1145,7 +1149,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             self.notify('metadata', [id])
         return True
 
-    def delete_book(self, id, notify=True, commit=True):
+    def delete_book(self, id, notify=True, commit=True, permanent=False):
         '''
         Removes book from the result cache and the underlying database.
         If you set commit to False, you must call clean() manually afterwards
@@ -1155,10 +1159,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         except:
             path = None
         if path and os.path.exists(path):
-            self.rmtree(path)
+            self.rmtree(path, permanent=permanent)
             parent = os.path.dirname(path)
             if len(os.listdir(parent)) == 0:
-                self.rmtree(parent)
+                self.rmtree(parent, permanent=permanent)
         self.conn.execute('DELETE FROM books WHERE id=?', (id,))
         if commit:
             self.conn.commit()
