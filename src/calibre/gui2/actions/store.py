@@ -113,6 +113,8 @@ class StoreAction(InterfaceAction):
         from calibre.gui2.store.config.chooser.chooser_dialog import StoreChooserDialog
         d = StoreChooserDialog(self.gui)
         d.exec_()
+        self.gui.load_store_plugins()
+        self.load_menu()
 
     def open_store(self, store_plugin):
         self.show_disclaimer()
