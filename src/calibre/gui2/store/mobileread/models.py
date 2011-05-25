@@ -47,6 +47,7 @@ class BooksModel(QAbstractItemModel):
                 self.books = list(self.search_filter.parse(self.filter))
             except:
                 self.books = self.all_books
+        self.layoutChanged.emit()
         self.sort(self.sort_col, self.sort_order)
         self.total_changed.emit(self.rowCount())
     

@@ -10,11 +10,11 @@ import re
 from random import shuffle
 
 from PyQt4.Qt import (Qt, QDialog, QDialogButtonBox, QTimer, QCheckBox,
-                      QVBoxLayout, QIcon, QWidget) 
+                      QVBoxLayout, QIcon, QWidget)
 
 from calibre.gui2 import JSONConfig, info_dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
-from calibre.gui2.store.config.search_widget import StoreConfigWidget
+from calibre.gui2.store.config.search.search_widget import StoreConfigWidget
 from calibre.gui2.store.search.adv_search_builder import AdvSearchBuilderDialog
 from calibre.gui2.store.search.download_thread import SearchThreadPool, \
     CacheUpdateThreadPool
@@ -28,7 +28,7 @@ class SearchDialog(QDialog, Ui_Dialog):
 
         self.config = JSONConfig('store/search')
         self.search_edit.initialize('store_search_search')
-        
+
         # Loads variables that store various settings.
         # This needs to be called soon in __init__ because
         # the variables it sets up are used later.
@@ -42,12 +42,12 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.cache_pool = CacheUpdateThreadPool(self.cache_thread_count)
         self.results_view.model().cover_pool.set_thread_count(self.cover_thread_count)
         self.results_view.model().details_pool.set_thread_count(self.details_thread_count)
-        
+
         # Check for results and hung threads.
         self.checker = QTimer()
         self.progress_checker = QTimer()
         self.hang_check = 0
-        
+
         # Update store caches silently.
         for p in self.store_plugins.values():
             self.cache_pool.add_task(p, self.timeout)
@@ -72,7 +72,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         # Create and add the progress indicator
         self.pi = ProgressIndicator(self, 24)
         self.top_layout.addWidget(self.pi)
-        
+
         self.adv_search_button.setIcon(QIcon(I('search.png')))
         self.configure.setIcon(QIcon(I('config.png')))
 
@@ -208,20 +208,20 @@ class SearchDialog(QDialog, Ui_Dialog):
             for n in store_check:
                 if hasattr(self, 'store_check_' + n):
                     getattr(self, 'store_check_' + n).setChecked(store_check[n])
-                    
+
         self.results_view.model().sort_col = self.config.get('sort_col', 2)
         self.results_view.model().sort_order = self.config.get('sort_order', Qt.AscendingOrder)
-        self.results_view.header().setSortIndicator(self.results_view.model().sort_col, self.results_view.model().sort_order)         
+        self.results_view.header().setSortIndicator(self.results_view.model().sort_col, self.results_view.model().sort_order)
 
     def load_settings(self):
         # Seconds
         self.timeout = self.config.get('timeout', 75)
         # Milliseconds
         self.hang_time = self.config.get('hang_time', 75) * 1000
-        
+
         self.max_results = self.config.get('max_results', 10)
         self.should_open_external = self.config.get('open_external', True)
-        
+
         # Number of threads to run for each type of operation
         self.search_thread_count = self.config.get('search_thread_count', 4)
         self.cache_thread_count = self.config.get('cache_thread_count', 2)
@@ -232,7 +232,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         # Save values that need to be synced between the dialog and the
         # search widget.
         self.config['open_external'] = self.open_external.isChecked()
-        
+
         d = QDialog(self)
         button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         v = QVBoxLayout(d)
@@ -242,16 +242,16 @@ class SearchDialog(QDialog, Ui_Dialog):
         config_widget = StoreConfigWidget(self.config)
         v.addWidget(config_widget)
         v.addWidget(button_box)
-        
+
         d.exec_()
-        
+
         if d.result() == QDialog.Accepted:
             config_widget.save_settings()
             self.config_changed()
 
     def config_changed(self):
         self.load_settings()
-        
+
         self.open_external.setChecked(self.should_open_external)
         self.search_pool.set_thread_count(self.search_thread_count)
         self.cache_pool.set_thread_count(self.cache_thread_count)
@@ -286,7 +286,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.store_plugins[result.store_name].open(self, result.detail_item, self.open_external.isChecked())
 
     def check_progress(self):
-        if not self.search_pool.threads_running() and not self.results_view.model().cover_pool.threads_running() and not self.results_view.model().details_pool.threads_running(): 
+        if not self.search_pool.threads_running() and not self.results_view.model().cover_pool.threads_running() and not self.results_view.model().details_pool.threads_running():
             self.pi.stopAnimation()
         else:
             if not self.pi.isAnimated():
@@ -320,7 +320,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.search_pool.abort()
         self.cache_pool.abort()
         self.save_state()
-        
+
     def exec_(self):
         if unicode(self.search_edit.text()).strip():
             self.do_search()

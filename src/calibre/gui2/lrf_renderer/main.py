@@ -5,7 +5,7 @@ import sys, logging, os, traceback, time
 from PyQt4.QtGui import QKeySequence, QPainter, QDialog, QSpinBox, QSlider, QIcon
 from PyQt4.QtCore import Qt, QObject, SIGNAL, QCoreApplication, QThread
 
-from calibre import __appname__, setup_cli_handlers, islinux, isfreebsd
+from calibre import __appname__, setup_cli_handlers, islinux, isbsd
 from calibre.ebooks.lrf.lrfparser import LRFDocument
 
 from calibre.gui2 import ORG_NAME, APP_UID, error_dialog, \
@@ -258,7 +258,7 @@ def file_renderer(stream, opts, parent=None, logger=None):
         level = logging.DEBUG if opts.verbose else logging.INFO
         logger = logging.getLogger('lrfviewer')
         setup_cli_handlers(logger, level)
-    if islinux or isfreebsd:
+    if islinux or isbsd:
         try: # Set lrfviewer as the default for LRF files for this user
             from subprocess import call
             call('xdg-mime default calibre-lrfviewer.desktop application/lrf', shell=True)
@@ -307,7 +307,7 @@ def main(args=sys.argv, logger=None):
     if hasattr(opts, 'help'):
         parser.print_help()
         return 1
-    pid = os.fork() if (islinux or isfreebsd) else -1
+    pid = os.fork() if (islinux or isbsd) else -1
     if pid <= 0:
         app = Application(args)
         app.setWindowIcon(QIcon(I('viewer.png')))

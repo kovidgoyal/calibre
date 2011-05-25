@@ -7,12 +7,12 @@ __docformat__ = 'restructuredtext en'
 
 import copy
 
-from PyQt4.Qt import Qt, QLineEdit, QComboBox, SIGNAL, QListWidgetItem
+from PyQt4.Qt import Qt, QComboBox, QListWidgetItem
 
 from calibre.customize.ui import is_disabled
 from calibre.gui2 import error_dialog, question_dialog
 from calibre.gui2.device import device_name_for_plugboards
-from calibre.gui2.dialogs.template_dialog import TemplateDialog
+from calibre.gui2.dialogs.template_line_editor import TemplateLineEditor
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget
 from calibre.gui2.preferences.plugboard_ui import Ui_Form
 from calibre.customize.ui import metadata_writers, device_plugins
@@ -23,26 +23,6 @@ from calibre.library.server.content import plugboard_content_server_value, \
                                         plugboard_content_server_formats
 from calibre.utils.formatter import validation_formatter
 
-
-class LineEditWithTextBox(QLineEdit):
-
-    '''
-    Extend the context menu of a QLineEdit to include more actions.
-    '''
-
-    def contextMenuEvent(self, event):
-        menu = self.createStandardContextMenu()
-        menu.addSeparator()
-
-        action_open_editor = menu.addAction(_('Open Editor'))
-
-        self.connect(action_open_editor, SIGNAL('triggered()'), self.open_editor)
-        menu.exec_(event.globalPos())
-
-    def open_editor(self):
-        t = TemplateDialog(self, self.text())
-        if t.exec_():
-            self.setText(t.textbox.toPlainText())
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
@@ -107,7 +87,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.source_widgets = []
         self.dest_widgets = []
         for i in range(0, len(self.dest_fields)-1):
-            w = LineEditWithTextBox(self)
+            w = TemplateLineEditor(self)
             self.source_widgets.append(w)
             self.fields_layout.addWidget(w, 5+i, 0, 1, 1)
             w = QComboBox(self)

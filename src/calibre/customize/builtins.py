@@ -854,14 +854,14 @@ class ActionStore(InterfaceActionBase):
     name = 'Store'
     author = 'John Schember'
     actual_plugin = 'calibre.gui2.actions.store:StoreAction'
-    
+
     def customization_help(self, gui=False):
         return 'Customize the behavior of the store search.'
-    
+
     def config_widget(self):
         from calibre.gui2.store.config.store import config_widget as get_cw
         return get_cw()
-    
+
     def save_settings(self, config_widget):
         from calibre.gui2.store.config.store import save_settings as save
         save(config_widget)
@@ -1108,7 +1108,7 @@ class StoreAmazonKindleStore(StoreBase):
     name = 'Amazon Kindle'
     description = u'Kindle books from Amazon.'
     actual_plugin = 'calibre.gui2.store.amazon_plugin:AmazonKindleStore'
-    
+
     drm_free_only = False
     headquarters = 'US'
     formats = ['KINDLE']
@@ -1118,7 +1118,7 @@ class StoreAmazonDEKindleStore(StoreBase):
     author = 'Charles Haley'
     description = u'Kindle Bücher von Amazon.'
     actual_plugin = 'calibre.gui2.store.amazon_de_plugin:AmazonDEKindleStore'
-    
+
     drm_free_only = False
     headquarters = 'DE'
     formats = ['KINDLE']
@@ -1128,7 +1128,7 @@ class StoreAmazonUKKindleStore(StoreBase):
     author = 'Charles Haley'
     description = u'Kindle books from Amazon\'s UK web site. Also, includes French language ebooks.'
     actual_plugin = 'calibre.gui2.store.amazon_uk_plugin:AmazonUKKindleStore'
-    
+
     drm_free_only = False
     headquarters = 'UK'
     formats = ['KINDLE']
@@ -1146,7 +1146,7 @@ class StoreBaenWebScriptionStore(StoreBase):
     name = 'Baen WebScription'
     description = u'Sci-Fi & Fantasy brought to you by Jim Baen.'
     actual_plugin = 'calibre.gui2.store.baen_webscription_plugin:BaenWebScriptionStore'
-    
+
     drm_free_only = True
     headquarters = 'US'
     formats = ['EPUB', 'LIT', 'LRF', 'MOBI', 'RB', 'RTF', 'ZIP']
@@ -1155,7 +1155,7 @@ class StoreBNStore(StoreBase):
     name = 'Barnes and Noble'
     description = u'The world\'s largest book seller. As the ultimate destination for book lovers, Barnes & Noble.com offers an incredible array of content.'
     actual_plugin = 'calibre.gui2.store.bn_plugin:BNStore'
-    
+
     drm_free_only = False
     headquarters = 'US'
     formats = ['NOOK']
@@ -1163,9 +1163,9 @@ class StoreBNStore(StoreBase):
 class StoreBeamEBooksDEStore(StoreBase):
     name = 'Beam EBooks DE'
     author = 'Charles Haley'
-    description = u'Der eBook Shop.'
+    description = u'Bei uns finden Sie: Tausende deutschsprachige eBooks; Alle eBooks ohne hartes DRM; PDF, ePub und Mobipocket Format; Sofortige Verfügbarkeit - 24 Stunden am Tag; Günstige Preise; eBooks für viele Lesegeräte, PC,Mac und Smartphones; Viele Gratis eBooks'
     actual_plugin = 'calibre.gui2.store.beam_ebooks_de_plugin:BeamEBooksDEStore'
-    
+
     drm_free_only = True
     headquarters = 'DE'
     formats = ['EPUB', 'MOBI', 'PDF']
@@ -1174,7 +1174,7 @@ class StoreBeWriteStore(StoreBase):
     name = 'BeWrite Books'
     description = u'Publishers of fine books. Highly selective and editorially driven. Does not offer: books for children or exclusively YA, erotica, swords-and-sorcery fantasy and space-opera-style science fiction. All other genres are represented.'
     actual_plugin = 'calibre.gui2.store.bewrite_plugin:BeWriteStore'
-    
+
     drm_free_only = True
     headquarters = 'US'
     formats = ['EPUB', 'MOBI', 'PDF']
@@ -1183,7 +1183,7 @@ class StoreDieselEbooksStore(StoreBase):
     name = 'Diesel eBooks'
     description = u'Instant access to over 2.4 million titles from hundreds of publishers including Harlequin, HarperCollins, John Wiley & Sons, McGraw-Hill, Simon & Schuster and Random House.'
     actual_plugin = 'calibre.gui2.store.diesel_ebooks_plugin:DieselEbooksStore'
-    
+
     drm_free_only = False
     headquarters = 'US'
     formats = ['EPUB', 'PDF']
@@ -1192,7 +1192,7 @@ class StoreEbookscomStore(StoreBase):
     name = 'eBooks.com'
     description = u'Sells books in multiple electronic formats in all categories. Technical infrastructure is cutting edge, robust and scalable, with servers in the US and Europe.'
     actual_plugin = 'calibre.gui2.store.ebooks_com_plugin:EbookscomStore'
-    
+
     drm_free_only = False
     headquarters = 'US'
     formats = ['EPUB', 'LIT', 'MOBI', 'PDF']
@@ -1200,9 +1200,9 @@ class StoreEbookscomStore(StoreBase):
 class StoreEPubBuyDEStore(StoreBase):
     name = 'EPUBBuy DE'
     author = 'Charles Haley'
-    description = u'Deutsch epub-Spezialisten.'
+    description = u'Bei EPUBBuy.com finden Sie ausschliesslich eBooks im weitverbreiteten EPUB-Format und ohne DRM. So haben Sie die freie Wahl, wo Sie Ihr eBook lesen: Tablet, eBook-Reader, Smartphone oder einfach auf Ihrem PC. So macht eBook-Lesen Spaß!'
     actual_plugin = 'calibre.gui2.store.epubbuy_de_plugin:EPubBuyDEStore'
-    
+
     drm_free_only = True
     headquarters = 'DE'
     formats = ['EPUB']
@@ -1211,7 +1211,7 @@ class StoreEHarlequinStore(StoreBase):
     name = 'eHarlequin'
     description = u'A global leader in series romance and one of the world\'s leading publishers of books for women. Offers women a broad range of reading from romance to bestseller fiction, from young adult novels to erotic literature, from nonfiction to fantasy, from African-American novels to inspirational romance, and more.'
     actual_plugin = 'calibre.gui2.store.eharlequin_plugin:EHarlequinStore'
-    
+
     drm_free_only = False
     headquarters = 'CA'
     formats = ['EPUB', 'PDF']
@@ -1220,7 +1220,7 @@ class StoreFeedbooksStore(StoreBase):
     name = 'Feedbooks'
     description = u'Feedbooks is a cloud publishing and distribution service, connected to a large ecosystem of reading systems and social networks. Provides a variety of genres from independent and classic books.'
     actual_plugin = 'calibre.gui2.store.feedbooks_plugin:FeedbooksStore'
-    
+
     drm_free_only = False
     headquarters = 'FR'
     formats = ['EPUB', 'MOBI', 'PDF']
@@ -1249,7 +1249,7 @@ class StoreGoogleBooksStore(StoreBase):
     name = 'Google Books'
     description = u'Google Books'
     actual_plugin = 'calibre.gui2.store.google_books_plugin:GoogleBooksStore'
-    
+
     drm_free_only = False
     headquarters = 'US'
     formats = ['EPUB', 'PDF', 'TXT']
@@ -1258,7 +1258,7 @@ class StoreGutenbergStore(StoreBase):
     name = 'Project Gutenberg'
     description = u'The first producer of free ebooks. Free in the United States because their copyright has expired. They may not be free of copyright in other countries. Readers outside of the United States must check the copyright laws of their countries before downloading or redistributing our ebooks.'
     actual_plugin = 'calibre.gui2.store.gutenberg_plugin:GutenbergStore'
-    
+
     drm_free_only = True
     headquarters = 'US'
     formats = ['EPUB', 'HTML', 'MOBI', 'PDB', 'TXT']
@@ -1267,7 +1267,7 @@ class StoreKoboStore(StoreBase):
     name = 'Kobo'
     description = u'With over 2.3 million eBooks to browse we have engaged readers in over 200 countries in Kobo eReading. Our eBook listings include New York Times Bestsellers, award winners, classics and more!'
     actual_plugin = 'calibre.gui2.store.kobo_plugin:KoboStore'
-    
+
     drm_free_only = False
     headquarters = 'CA'
     formats = ['EPUB']
@@ -1286,7 +1286,7 @@ class StoreManyBooksStore(StoreBase):
     name = 'ManyBooks'
     description = u'Public domain and creative commons works from many sources.'
     actual_plugin = 'calibre.gui2.store.manybooks_plugin:ManyBooksStore'
-    
+
     drm_free_only = True
     headquarters = 'US'
     formats = ['EPUB', 'FB2', 'JAR', 'LIT', 'LRF', 'MOBI', 'PDB', 'PDF', 'RB', 'RTF', 'TCR', 'TXT', 'ZIP']
@@ -1305,7 +1305,7 @@ class StoreNextoStore(StoreBase):
     author = u'Tomasz Długosz'
     description = u'Największy w Polsce sklep internetowy z audiobookami mp3, ebookami pdf oraz prasą do pobrania on-line.'
     actual_plugin = 'calibre.gui2.store.nexto_plugin:NextoStore'
-    
+
     drm_free_only = False
     headquarters = 'PL'
     formats = ['EPUB', 'PDF']
@@ -1314,16 +1314,16 @@ class StoreOpenLibraryStore(StoreBase):
     name = 'Open Library'
     description = u'One web page for every book ever published. The goal is to be a true online library. Over 20 million records from a variety of large catalogs as well as single contributions, with more on the way.'
     actual_plugin = 'calibre.gui2.store.open_library_plugin:OpenLibraryStore'
-    
+
     drm_free_only = True
-    headquarters = ['US']
+    headquarters = 'US'
     formats = ['DAISY', 'DJVU', 'EPUB', 'MOBI', 'PDF', 'TXT']
 
 class StoreOReillyStore(StoreBase):
     name = 'OReilly'
     description = u'Programming and tech ebooks from OReilly.'
     actual_plugin = 'calibre.gui2.store.oreilly_plugin:OReillyStore'
-    
+
     drm_free_only = True
     headquarters = 'US'
     formats = ['APK', 'DAISY', 'EPUB', 'MOBI', 'PDF']
@@ -1341,7 +1341,7 @@ class StoreSmashwordsStore(StoreBase):
     name = 'Smashwords'
     description = u'An ebook publishing and distribution platform for ebook authors, publishers and readers. Covers many genres and formats.'
     actual_plugin = 'calibre.gui2.store.smashwords_plugin:SmashwordsStore'
-    
+
     drm_free_only = True
     headquarters = 'US'
     formats = ['EPUB', 'HTML', 'LRF', 'MOBI', 'PDB', 'RTF', 'TXT']
@@ -1361,7 +1361,7 @@ class StoreWaterstonesUKStore(StoreBase):
     author = 'Charles Haley'
     description = u'Waterstone\'s mission is to be the leading Bookseller on the High Street and online providing customers the widest choice, great value and expert advice from a team passionate about Bookselling.'
     actual_plugin = 'calibre.gui2.store.waterstones_uk_plugin:WaterstonesUKStore'
-    
+
     drm_free_only = False
     headquarters = 'UK'
     formats = ['EPUB', 'PDF']
@@ -1379,7 +1379,7 @@ class StoreWizardsTowerBooksStore(StoreBase):
     name = 'Wizards Tower Books'
     description = u'A science fiction and fantasy publisher. Concentrates mainly on making out-of-print works available once more as e-books, and helping other small presses exploit the e-book market. Also publishes a small number of limited-print-run anthologies with a view to encouraging diversity in the science fiction and fantasy field.'
     actual_plugin = 'calibre.gui2.store.wizards_tower_books_plugin:WizardsTowerBooksStore'
-    
+
     drm_free_only = True
     headquarters = 'UK'
     formats = ['EPUB', 'MOBI']
@@ -1391,7 +1391,7 @@ class StoreWoblinkStore(StoreBase):
     actual_plugin = 'calibre.gui2.store.woblink_plugin:WoblinkStore'
 
     drm_free_only = False
-    location = 'PL'
+    headquarters = 'PL'
     formats = ['EPUB']
 
 plugins += [
@@ -1409,7 +1409,7 @@ plugins += [
     StoreEHarlequinStore,
     StoreFeedbooksStore,
     StoreFoylesUKStore,
-    StoreGandalfStore, 
+    StoreGandalfStore,
     StoreGoogleBooksStore,
     StoreGutenbergStore,
     StoreKoboStore,
