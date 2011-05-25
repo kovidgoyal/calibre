@@ -67,6 +67,6 @@ class VirtualoStore(BasicStoreConfig, StorePlugin):
                 s.price = price + ' zł'
                 s.detail_item = 'http://virtualo.pl' + id.strip()
                 s.formats = formats.upper().strip()
-                s.drm = SearchResult.DRM_LOCKED if formats == 'EPUB' else SearchResult.DRM_UNKNOWN
+                s.drm = SearchResult.DRM_UNKNOWN
 
                 yield s
