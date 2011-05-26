@@ -3,10 +3,7 @@ class AdvancedUserRecipe1303841067(BasicNewsRecipe):
 
     title          = u'Faz.net'
     __author__  = 'schuster'
-    remove_tags = [dict(attrs={'class':['right', 'ArrowLinkRight', 'ModulVerlagsInfo', 'left', 'Head']}),
-                dict(id=['BreadCrumbs', 'tstag', 'FazFooterPrint']),
-                dict(name=['script', 'noscript', 'style'])]
-    oldest_article = 2
+    oldest_article = 1
     description           = 'Frankfurter Allgemeine Zeitung'
     max_articles_per_feed = 100
     no_stylesheets         = True
@@ -15,9 +12,9 @@ class AdvancedUserRecipe1303841067(BasicNewsRecipe):
     remove_javascript      = True
     cover_url = 'http://www.faz.net/f30/Images/Logos/logo.gif'
 
-    def print_version(self, url):
-        return url.replace('.html', '~Afor~Eprint.html')
-
+    remove_tags = [dict(attrs={'class':['LinkBoxModulSmall', 'ModulLesermeinungenFooter', 'ModulArtikelServices', 'SocialMediaUnten', 'ArrowLinkRight', 'ModulVerlagsInfo', 'AdData', 'FazFooter', 'Date']}),
+                dict(id=['FAZNavHeader', 'FAZNavMain', 'RightColumn', 'FazFooter', 'BreadCrumbs', 'FAZNavSubMain', 'FAZImgEvent']),
+                dict(name=['jksrdt'])]
 
 
     feeds          = [(u'Politik', u'http://www.faz.net/s/RubA24ECD630CAE40E483841DB7D16F4211/Tpl~Epartner~SRss_.xml'),

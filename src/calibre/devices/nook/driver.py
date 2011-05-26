@@ -107,3 +107,13 @@ class NOOK_COLOR(NOOK):
 
         return filepath
 
+class NOOK_TSR(NOOK):
+    gui_name       = _('Nook Simple')
+    description    = _('Communicate with the Nook TSR eBook reader.')
+
+    PRODUCT_ID  = [0x003]
+    BCD         = [0x216]
+
+    EBOOK_DIR_MAIN = EBOOK_DIR_CARD_A = 'My Files/Books'
+
+

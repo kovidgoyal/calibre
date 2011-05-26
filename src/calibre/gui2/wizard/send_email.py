@@ -46,6 +46,64 @@ class TestEmail(QDialog, TE_Dialog):
         finally:
             self.test_button.setEnabled(True)
 
+class RelaySetup(QDialog):
+
+    def __init__(self, service, parent):
+        QDialog.__init__(self, parent)
+
+        self.l = l = QGridLayout()
+        self.setLayout(l)
+        self.bb = bb = QDialogButtonBox(QDialogButtonBox.Ok|QDialogButtonBox.Cancel)
+        bb.accepted.connect(self.accept)
+        bb.rejected.connect(self.reject)
+        self.tl = QLabel(('<p>'+_('Setup sending email using') +
+                ' <b>{name}</b><p>' +
+            _('If you don\'t have an account, you can sign up for a free {name} email '
+            'account at <a href="http://{url}">http://{url}</a>. {extra}')).format(
+                **service))
+        l.addWidget(self.tl, 0, 0, 3, 0)
+        self.tl.setWordWrap(True)
+        self.tl.setOpenExternalLinks(True)
+        for name, label in (
+                ['from_', _('Your %s &email address:')],
+                ['username', _('Your %s &username:')],
+                ['password', _('Your %s &password:')],
+                ):
+            la = QLabel(label%service['name'])
+            le = QLineEdit(self)
+            setattr(self, name, le)
+            setattr(self, name+'_label', la)
+            r = l.rowCount()
+            l.addWidget(la, r, 0)
+            l.addWidget(le, r, 1)
+            la.setBuddy(le)
+            if name == 'password':
+                self.ptoggle = QCheckBox(_('&Show password'), self)
+                l.addWidget(self.ptoggle, r, 2)
+                self.ptoggle.stateChanged.connect(
+                        lambda s: self.password.setEchoMode(self.password.Normal if s
+                            == Qt.Checked else self.password.Password))
+        self.username.setText(service['username'])
+        self.password.setEchoMode(self.password.Password)
+        self.bl = QLabel('<p>' + _(
+            'If you plan to use email to send books to your Kindle, remember to'
+            ' add the your %s email address to the allowed email addresses in your '
+            'Amazon.com Kindle management page.')%service['name'])
+        self.bl.setWordWrap(True)
+        l.addWidget(self.bl, l.rowCount(), 0, 3, 0)
+        l.addWidget(bb, l.rowCount(), 0, 3, 0)
+        self.setWindowTitle(_('Setup') + ' ' + service['name'])
+        self.resize(self.sizeHint())
+        self.service = service
+
+    def accept(self):
+        un = unicode(self.username.text())
+        if self.service.get('at_in_username', False) and '@' not in un:
+            return error_dialog(self, _('Incorrect username'),
+                    _('%s needs the full email address as your username') %
+                    self.service['name'], show=True)
+        QDialog.accept(self)
+
 
 class SendEmail(QWidget, Ui_Form):
 
@@ -129,7 +187,8 @@ class SendEmail(QWidget, Ui_Form):
                     'port': 587,
                     'username': '@gmail.com',
                     'url': 'www.gmail.com',
-                    'extra': ''
+                    'extra': '',
+                    'at_in_username': True,
                 },
                 'hotmail': {
                     'name': 'Hotmail',
@@ -143,53 +202,10 @@ class SendEmail(QWidget, Ui_Form):
                         ' will let calibre send email. In this case, I'
                         ' strongly suggest you setup a free gmail account'
                         ' instead.'),
+                    'at_in_username': True,
                 }
         }[service]
-        d = QDialog(self)
-        l = QGridLayout()
-        d.setLayout(l)
-        bb = QDialogButtonBox(QDialogButtonBox.Ok|QDialogButtonBox.Cancel)
-        bb.accepted.connect(d.accept)
-        bb.rejected.connect(d.reject)
-        d.tl = QLabel(('<p>'+_('Setup sending email using') +
-                ' <b>{name}</b><p>' +
-            _('If you don\'t have an account, you can sign up for a free {name} email '
-            'account at <a href="http://{url}">http://{url}</a>. {extra}')).format(
-                **service))
-        l.addWidget(d.tl, 0, 0, 3, 0)
-        d.tl.setWordWrap(True)
-        d.tl.setOpenExternalLinks(True)
-        for name, label in (
-                ['from_', _('Your %s &email address:')],
-                ['username', _('Your %s &username:')],
-                ['password', _('Your %s &password:')],
-                ):
-            la = QLabel(label%service['name'])
-            le = QLineEdit(d)
-            setattr(d, name, le)
-            setattr(d, name+'_label', la)
-            r = l.rowCount()
-            l.addWidget(la, r, 0)
-            l.addWidget(le, r, 1)
-            la.setBuddy(le)
-            if name == 'password':
-                d.ptoggle = QCheckBox(_('&Show password'), d)
-                l.addWidget(d.ptoggle, r, 2)
-                d.ptoggle.stateChanged.connect(
-                        lambda s: d.password.setEchoMode(d.password.Normal if s
-                            == Qt.Checked else d.password.Password))
-        d.username.setText(service['username'])
-        d.password.setEchoMode(d.password.Password)
-        d.bl = QLabel('<p>' + _(
-            'If you plan to use email to send books to your Kindle, remember to'
-            ' add the your %s email address to the allowed email addresses in your '
-            'Amazon.com Kindle management page.')%service['name'])
-        d.bl.setWordWrap(True)
-        l.addWidget(d.bl, l.rowCount(), 0, 3, 0)
-        l.addWidget(bb, l.rowCount(), 0, 3, 0)
-        d.setWindowTitle(_('Setup') + ' ' + service['name'])
-        d.resize(d.sizeHint())
-        bb.setVisible(True)
+        d = RelaySetup(service, self)
         if d.exec_() != d.Accepted:
             return
         self.relay_username.setText(d.username.text())

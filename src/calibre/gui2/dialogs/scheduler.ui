@@ -17,21 +17,30 @@
    <iconset resource="../../../../resources/images.qrc">
     <normaloff>:/images/scheduler.png</normaloff>:/images/scheduler.png</iconset>
   </property>
-  <layout class="QGridLayout" name="gridLayout" columnstretch="0,1,2">
+  <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
-    <widget class="QLabel" name="label_8">
-     <property name="text">
-      <string>&amp;Search:</string>
-     </property>
-     <property name="buddy">
-      <cstring>search</cstring>
-     </property>
-    </widget>
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+      <widget class="SearchBox2" name="search"/>
+     </item>
+     <item>
+      <widget class="QToolButton" name="go_button">
+       <property name="text">
+        <string>Go</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="clear_search_button">
+       <property name="icon">
+        <iconset resource="../../../../resources/images.qrc">
+         <normaloff>:/images/clear_left.png</normaloff>:/images/clear_left.png</iconset>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
-   <item row="0" column="1">
-    <widget class="SearchBox2" name="search"/>
-   </item>
-   <item row="0" column="2" rowspan="3">
+   <item row="0" column="1" rowspan="2">
     <widget class="QScrollArea" name="scrollArea">
      <property name="frameShape">
       <enum>QFrame::NoFrame</enum>
@@ -44,7 +53,7 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>486</width>
+        <width>524</width>
         <height>504</height>
        </rect>
       </property>
@@ -320,7 +329,7 @@
      </widget>
     </widget>
    </item>
-   <item row="1" column="0" colspan="2">
+   <item row="1" column="0">
     <widget class="QTreeView" name="recipes">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
@@ -345,7 +354,17 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="2">
+   <item row="2" column="0">
+    <widget class="QLabel" name="count_label">
+     <property name="text">
+      <string/>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
     <layout class="QHBoxLayout" name="horizontalLayout_3">
      <item>
       <widget class="QLabel" name="label_7">
@@ -376,17 +395,7 @@
      </item>
     </layout>
    </item>
-   <item row="4" column="2">
-    <widget class="QDialogButtonBox" name="buttonBox">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Save</set>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="0" colspan="2">
+   <item row="3" column="0">
     <widget class="QPushButton" name="download_all_button">
      <property name="toolTip">
       <string>Download all scheduled news sources at once</string>
@@ -394,15 +403,19 @@
      <property name="text">
       <string>Download &amp;all scheduled</string>
      </property>
+     <property name="icon">
+      <iconset resource="../../../../resources/images.qrc">
+       <normaloff>:/images/news.png</normaloff>:/images/news.png</iconset>
+     </property>
     </widget>
    </item>
-   <item row="3" column="0" colspan="2">
-    <widget class="QLabel" name="count_label">
-     <property name="text">
-      <string/>
+   <item row="3" column="1">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
      </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Save</set>
      </property>
     </widget>
    </item>

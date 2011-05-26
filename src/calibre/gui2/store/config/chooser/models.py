@@ -103,7 +103,22 @@ class Matches(QAbstractItemModel):
                     return Qt.Unchecked
                 return Qt.Checked
         elif role == Qt.ToolTipRole:
-            return QVariant('<p>%s</p>' % result.description)
+            if col == 0:
+                if is_disabled(result):
+                    return QVariant(_('<p>This store is currently diabled and cannot be used in other parts of calibre.</p>'))
+                else:
+                    return QVariant(_('<p>This store is currently enabled and can be used in other parts of calibre.</p>'))
+            elif col == 1:
+                return QVariant('<p>%s</p>' % result.description)
+            elif col == 2:
+                if result.drm_free_only:
+                    return QVariant(_('<p>This store only distributes ebooks with DRM.</p>'))
+                else:
+                    return QVariant(_('<p>This store distributes ebooks with DRM. It may have some titles without DRM, but you will need to check on a per title basis.</p>'))
+            elif col == 3:
+                return QVariant(_('<p>This store is headquartered in %s. This is a good indication of what market the store caters to. However, this does not necessarily mean that the store is limited to that market only.</p>') % result.headquarters)
+            elif col == 4:
+                return QVariant(_('<p>This store distributes ebooks in the following formats: %s</p>') % ', '.join(result.formats))
         return NONE
 
     def setData(self, index, data, role):
@@ -130,7 +145,7 @@ class Matches(QAbstractItemModel):
         elif col == 1:
             text = match.name
         elif col == 2:
-            text = 'b' if getattr(match, 'drm', True) else 'a'
+            text = 'a' if getattr(match, 'drm_free_only', True) else 'b'
         elif col == 3:
             text = getattr(match, 'headquarters', '')
         return text
@@ -240,5 +255,3 @@ class SearchFilter(SearchQueryParser):
                     import traceback
                     traceback.print_exc()
         return matches
-
-
