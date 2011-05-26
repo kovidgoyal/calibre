@@ -14,6 +14,7 @@ from PyQt4.Qt import (Qt, QDialog, QDialogButtonBox, QTimer, QCheckBox,
 
 from calibre.gui2 import JSONConfig, info_dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
+from calibre.gui2.store.config.chooser.chooser_widget import StoreChooserWidget
 from calibre.gui2.store.config.search.search_widget import StoreConfigWidget
 from calibre.gui2.store.search.adv_search_builder import AdvSearchBuilderDialog
 from calibre.gui2.store.search.download_thread import SearchThreadPool, \
@@ -84,17 +85,22 @@ class SearchDialog(QDialog, Ui_Dialog):
         # Add check boxes for each store so the user
         # can disable searching specific stores on a
         # per search basis.
+        existing = {}
+        for n in self.store_checks:
+            existing[n] = self.store_checks[n].isChecked()
+        
+        self.store_checks = {}
+
         stores_check_widget = QWidget()
         store_list_layout = QVBoxLayout()
         stores_check_widget.setLayout(store_list_layout)
         for x in sorted(self.gui.istores.keys(), key=lambda x: x.lower()):
             cbox = QCheckBox(x)
-            cbox.setChecked(False)
+            cbox.setChecked(existing.get(x, False))
             store_list_layout.addWidget(cbox)
-            self.store_checks['store_check_' + x] = cbox
+            self.store_checks[x] = cbox
         store_list_layout.addStretch()
         self.store_list.setWidget(stores_check_widget)
-
 
     def build_adv_search(self):
         adv = AdvSearchBuilderDialog(self)
@@ -244,13 +250,22 @@ class SearchDialog(QDialog, Ui_Dialog):
         button_box.accepted.connect(d.accept)
         button_box.rejected.connect(d.reject)
         d.setWindowTitle(_('Customize get books search'))
-        config_widget = StoreConfigWidget(self.config)
-        v.addWidget(config_widget)
+        
+        tab_widget = QTabWidget(d)
+        v.addWidget(tab_widget)
         v.addWidget(button_box)
 
+        chooser_config_widget = StoreChooserWidget()
+        search_config_widget = StoreConfigWidget(self.config)
+        
+        tab_widget.addTab(chooser_config_widget, _('Choose stores'))
+        tab_widget.addTab(search_config_widget, _('Configure search'))
+
         d.exec_()
-        config_widget.save_settings()
+        search_config_widget.save_settings()
         self.config_changed()
+        self.gui.load_store_plugins()
+        self.setup_store_checks()
 
     def config_changed(self):
         self.load_settings()
