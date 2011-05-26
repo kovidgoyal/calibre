@@ -44,7 +44,7 @@ class StoreAction(InterfaceAction):
     def search(self, query=''):
         self.show_disclaimer()
         from calibre.gui2.store.search.search import SearchDialog
-        sd = SearchDialog(self.gui.istores, self.gui, query)
+        sd = SearchDialog(self.gui, self.gui, query)
         sd.exec_()
 
     def _get_selected_row(self):
