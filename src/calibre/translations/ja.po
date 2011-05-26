@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-05-20 18:12+0000\n"
-"PO-Revision-Date: 2011-05-24 09:29+0000\n"
+"PO-Revision-Date: 2011-05-26 03:08+0000\n"
 "Last-Translator: Ado Nishimura <Unknown>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-05-25 04:34+0000\n"
+"X-Launchpad-Export-Date: 2011-05-26 04:35+0000\n"
 "X-Generator: Launchpad (build 12959)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -7163,11 +7163,11 @@ msgstr "処理前に画像への参照を除去しない"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:99
 msgid "Keep text color, when possible"
-msgstr ""
+msgstr "可能な限り、テキストの色を保持"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txtz_output.py:12
 msgid "TXTZ Output"
-msgstr ""
+msgstr "TXTZ出力"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xexp_edit_ui.py:55
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:70
@@ -7177,15 +7177,15 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/progress_ui.py:54
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/progress_ui.py:55
 msgid "TextLabel"
-msgstr ""
+msgstr "テキストラベル"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xexp_edit_ui.py:56
 msgid "Use a wizard to help construct the Regular expression"
-msgstr ""
+msgstr "正規表現を作るのを助けるためにウィザードを使う"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:73
 msgid "Match HTML &tags with tag name:"
-msgstr ""
+msgstr "このタグ名にマッチするHTMLタグ名(&t)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:74
 msgid "*"
@@ -7237,15 +7237,15 @@ msgstr "span"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:86
 msgid "Having the &attribute:"
-msgstr ""
+msgstr "持っているアトリビュート(&a)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:87
 msgid "With &value:"
-msgstr ""
+msgstr "アトリビュートの値(&v)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:88
 msgid "(A regular expression)"
-msgstr ""
+msgstr "(正規表現)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:89
 msgid ""
@@ -7256,14 +7256,19 @@ msgid ""
 "tag.</p><p>To learn more advanced usage of XPath see the <a "
 "href=\"http://calibre-ebook.com/user_manual/xpath.html\">XPath Tutorial</a>."
 msgstr ""
+"<p>例えば、すべてのclass=\"chapter\"を持つh2タグにマッチさせるには、タグを<i>h2</i>に、アトリビュートを<i>class</"
+"i>そしてアトリビュートの値を<i>chapter</i>にしてください。</p><p>アトリビュート欄を空白にすると、すべてのアトリビュートに、アトリビ"
+"ュートの値欄を空白にすると、すべてのアトリビュートの値にマッチします。タグ名を*にするとすべてのタグにマッチします。</p><p>もっと高度なXPathの"
+"使い方については<a href=\"http://calibre-"
+"ebook.com/user_manual/xpath.html\">XPathチュートリアル</a>を参照してください。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/cover_flow.py:128
 msgid "Browse by covers"
-msgstr ""
+msgstr "表紙でブラウズ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/cover_flow.py:158
 msgid "Cover browser could not be loaded"
-msgstr ""
+msgstr "表紙ブラウザーがロードできません"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:63
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:88
@@ -7294,78 +7299,78 @@ msgstr "星"
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:127
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:640
 msgid "Unrated"
-msgstr ""
+msgstr "未評価"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:170
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:669
 msgid "Set '%s' to today"
-msgstr ""
+msgstr "'%s'を今日にする"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:172
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:671
 msgid "Clear '%s'"
-msgstr ""
+msgstr "'%s'をクリア"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:298
 msgid " index:"
-msgstr ""
+msgstr " インデックス:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:367
 msgid ""
 "The enumeration \"{0}\" contains an invalid value that will be set to the "
 "default"
-msgstr ""
+msgstr "\"{0}\"一覧に無効な値があるので、ディフォールト値を使います"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:522
 msgid "Apply changes"
-msgstr ""
+msgstr "変更を適用"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:715
 msgid "Remove series"
-msgstr ""
+msgstr "シリーズを取り除く"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:718
 msgid "Automatically number books"
-msgstr ""
+msgstr "書籍を自動的に番号付けする"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:721
 msgid "Force numbers to start with "
-msgstr ""
+msgstr "強制的に番号を次からはじめる： "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:792
 msgid ""
 "The enumeration \"{0}\" contains invalid values that will not appear in the "
 "list"
-msgstr ""
+msgstr "\"{0}\"一覧に無効な値が入っているので、リストに表示しません。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:836
 msgid "Remove all tags"
-msgstr ""
+msgstr "すべてのタグを削除"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:856
 msgid "tags to add"
-msgstr ""
+msgstr "追加するタグ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:863
 msgid "tags to remove"
-msgstr ""
+msgstr "取り除くタグ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:43
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:144
 msgid "No details available."
-msgstr ""
+msgstr "詳細がありません"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:168
 msgid "Device no longer connected."
-msgstr ""
+msgstr "デバイスがもう繋がれていません。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:291
 msgid "Get device information"
-msgstr ""
+msgstr "デバイスの情報を取得"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:305
 msgid "Get list of books on device"
-msgstr ""
+msgstr "デバイスから書籍の情報リストを取得"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:315
 msgid "Get annotations from device"
@@ -7373,27 +7378,27 @@ msgstr "注釈をデバイスから取得する。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:327
 msgid "Send metadata to device"
-msgstr ""
+msgstr "書誌情報をデバイスに送る"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:332
 msgid "Send collections to device"
-msgstr ""
+msgstr "デバイスにコレクションを送る"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:368
 msgid "Upload %d books to device"
-msgstr ""
+msgstr "%d冊の書籍をデバイスにアップロード"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:383
 msgid "Delete books from device"
-msgstr ""
+msgstr "デバイスから書籍を削除"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:400
 msgid "Download books from device"
-msgstr ""
+msgstr "デバイスから書籍をダウンロード"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:410
 msgid "View book on device"
-msgstr ""
+msgstr "デバイスで書籍を見る"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:451
 msgid "Set default send to device action"
@@ -7418,7 +7423,7 @@ msgstr "主メモリー"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:487
 msgid "Send specific format to"
-msgstr ""
+msgstr "特定のフォーマットだけを送る"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:488
 msgid "Send and delete from library"
@@ -7437,47 +7442,47 @@ msgstr "エラー"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:612
 msgid "Error communicating with device"
-msgstr ""
+msgstr "デバイスとの通信時にエラー"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:631
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:1170
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:221
 msgid "No suitable formats"
-msgstr ""
+msgstr "適当なフォーマットがありません"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:647
 msgid "Select folder to open as device"
-msgstr ""
+msgstr "デバイスとして開くフォルダーを選択"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:698
 msgid "Error talking to device"
-msgstr ""
+msgstr "デバイスと通信時にエラー"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:699
 msgid ""
 "There was a temporary error talking to the device. Please unplug and "
 "reconnect the device and or reboot."
-msgstr ""
+msgstr "デバイスとの通信時に一時的なエラーが起こりました。一度デバイスを取り外し・再接続するか、リブートしてみてください。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:742
 msgid "Device: "
-msgstr ""
+msgstr "デバイス: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:744
 msgid " detected."
-msgstr ""
+msgstr " 見つかりました。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:846
 msgid "selected to send"
-msgstr ""
+msgstr "送るものを選択してください"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:865
 msgid "%i of %i Books"
-msgstr ""
+msgstr "%i / %i 書籍"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:868
 msgid "0 of %i Books"
-msgstr ""
+msgstr "0 / %i 書籍"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:869
 msgid "Choose format to send to device"
@@ -7505,7 +7510,7 @@ msgstr "送信できません: デバイスにストレージカードがあり�
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:1030
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:1164
 msgid "Auto convert the following books before uploading to the device?"
-msgstr ""
+msgstr "デバイスにアップロードする前に以下の書籍を自動的に変換しますか？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:976
 msgid "Sending catalogs to device."
@@ -7524,15 +7529,16 @@ msgid ""
 "Could not upload the following books to the device, as no suitable formats "
 "were found. Convert the book(s) to a format supported by your device first."
 msgstr ""
+"対応するフォーマットが見つからないので、書籍をデバイスにアップロードできません。まず、デバイスがサポートするフォーマットに変換してください。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:1243
 msgid "No space on device"
-msgstr ""
+msgstr "デバイスの容量が足りません。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:1244
 msgid ""
 "<p>Cannot upload books to device there is no more free space available "
-msgstr ""
+msgstr "<p>空きスペースが無いので、デバイスに書籍をアップロードできません。 "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget.py:135
 msgid "Unknown formats"
@@ -7544,42 +7550,45 @@ msgid ""
 "support them. If you send these formats to your {1} they may not work. Are "
 "you sure?"
 msgstr ""
+"{1}のために<b>{0}</b>フォーマットを有効にしましたが、{1}はそのフォーマットをサポートしていないかもしれません。もし{1}に送っても読めない"
+"可能性があります。実行しますか？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget.py:148
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:409
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:293
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:61
 msgid "Invalid template"
-msgstr ""
+msgstr "無効なテンプレート"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget.py:149
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:410
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:294
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:62
 msgid "The template %s is invalid:"
-msgstr ""
+msgstr "テンプレート%sは無効です："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:78
 msgid "Select available formats and their order for this device"
-msgstr ""
+msgstr "このデバイスに有効なフォーマットとその順番を選択してください"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:82
 msgid ""
 "If checked, books are placed into sub directories based on their metadata on "
 "the device. If unchecked, books are all put into the top level directory."
 msgstr ""
+"チェックされると、書籍はその書誌情報によりデバイスのサブディレクトリに置かれます。チェックをはずすと書籍はすべてトップレベルのディレクトリに置かれます。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:83
 msgid "Use sub directories"
-msgstr ""
+msgstr "サブディレクトリを使う"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:84
 msgid "Use author sort for author"
-msgstr ""
+msgstr "著者として著者(ソート)を使う"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:85
 msgid "Save &template:"
-msgstr ""
+msgstr "テンプレートを保存(&t)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_empty_book.py:20
 msgid "How many empty books?"
@@ -7591,11 +7600,11 @@ msgstr "いくつ中身のない本を追加すべきでしょうか"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_empty_book.py:33
 msgid "Set the author of the new books to:"
-msgstr ""
+msgstr "新しい書籍の著者を設定："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_empty_book.py:45
 msgid "Reset author to Unknown"
-msgstr ""
+msgstr "著者を「不明」にリセット"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_from_isbn_ui.py:63
 msgid "Add books by ISBN"
@@ -7603,7 +7612,7 @@ msgstr "ISBNで書籍を追加"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_from_isbn_ui.py:64
 msgid "&Paste from clipboard"
-msgstr ""
+msgstr "クリップボードから貼り付け(&P)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_from_isbn_ui.py:65
 msgid ""
@@ -7615,36 +7624,43 @@ msgid ""
 "enter the full path to the file after a <code>>></code>.  For example:</p>\n"
 "<p><code>9788842915232 >> %s</code></p>"
 msgstr ""
+"<p>ISBNのリストを、1行づづ左に入力。calibreは自動的にISBNから書籍の項目を作り、書籍情報と表紙をダウンロードします。</p>\n"
+"<p>リスト中の無効なISBNは無視されます。</p>\n"
+"<p>一つのISBNごとにファイルを指定することもできます。これをするには<code>>></code>の後にファイルのフルパスを入力してください。例：<"
+"/p>\n"
+"<p><code>9788842915232 >> %s</code></p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_from_isbn_ui.py:69
 msgid "&Tags to set on created book entries:"
-msgstr ""
+msgstr "作られた書籍項目に付加されるタグ(&T)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:71
 msgid "Fit &cover within view"
-msgstr ""
+msgstr "表紙をビュー内に全体表示"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog.py:33
 msgid "My Books"
-msgstr ""
+msgstr "マイ・ブック"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog_ui.py:92
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:314
 msgid "Generate catalog"
-msgstr ""
+msgstr "カタログ生成"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog_ui.py:93
 msgid "Generate catalog for {0} books"
-msgstr ""
+msgstr "{0}冊の書籍のカタログを生成"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog_ui.py:94
 msgid "Catalog &format:"
-msgstr ""
+msgstr "カタログ・フォーマット(&f)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog_ui.py:95
 msgid ""
 "Catalog &title (existing catalog with the same title will be replaced):"
 msgstr ""
+"カタログ・タイトル(&t)\r\n"
+"（すでに存在する同名のカタログは置き換えられます。）"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog_ui.py:96
 msgid "&Send catalog to device automatically"
@@ -7652,24 +7668,24 @@ msgstr "デバイスにカタログを自動的に送信(&S)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog_ui.py:97
 msgid "Catalog options"
-msgstr ""
+msgstr "カタログ・オプション"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:25
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:26
 msgid "Checking database integrity"
-msgstr ""
+msgstr "データーベースの整合性をチェック"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:55
 msgid "Dumping database to SQL"
-msgstr ""
+msgstr "データーベースをSQLにダンプ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:81
 msgid "Loading database from SQL"
-msgstr ""
+msgstr "SQLからデーターベースをロード"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:148
 msgid "Check Library -- Problems Found"
-msgstr ""
+msgstr "ライブラリーのチェック -- 問題発見"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:158
 msgid ""
@@ -7752,49 +7768,94 @@ msgid ""
 "\n"
 "        "
 msgstr ""
+"        <h1>ヘルプ</h1>\n"
+"\n"
+"        <p>calibreは書籍と書誌情報のリストをデーターベース内に保存します。実際の書籍ファイルと表紙は通常のファイル\n"
+"        としてcalibreのライブラリ・フォルダに置かれます。データーベースには各書籍に属するファイルや表紙のリストを保持\n"
+"        します。このツールはライブラリ内の実際のファイルとデーターベース内の情報が一致するかどうかをチェックします</p>\n"
+"\n"
+"        <p>それぞれのチェックの結果は左に表示されます。\n"
+"        チェックの種類は：\n"
+"        </p>\n"
+"        <ul>\n"
+"        <li><b>無効なタイトル</b>:ライブラリ内のファイルのある場所にファイルやフォルダーは存在するが、それに正しい\n"
+"        フォーマットのタイトルが無い場合。</li>\n"
+"        <li><b>不明なタイトル</b>: calibreのライブラリに正しい形式だが不明なファイルがあるが、それに対応する\n"
+"        データーベースのエントリーが存在しない場合。</li>\n"
+"        <li><b>無効な作者</b>: ライブラリ内で作者フォルダーのみがあるべき場所に、ファイルがある場合。</li>\n"
+"        "
+"<li><b>不明な作者</b>:calibreライブラリに作者らしきフォルダーがあるが、それに対応するデーターベース内のエントリーが無い場合。</li>"
+"\n"
+"        <li><b>書籍ファイル不明</b>:データーベース内には書籍の情報があるが、実際のファイルが存在しない場合。</li>\n"
+"        <li><b>余計な書籍ファイル</b>:書籍のフォルダーにファイルが存在するが、データーベースに情報が無い場合。</li>\n"
+"        <li><b>書籍内の不明なファイル</b>: "
+"書籍のフォルダー内に余分なファイルがあるが、認識できるフォーマットでも表紙ファイルでもない場合。</li>\n"
+"        <li><b>表紙ファイルが無い</b>: データーベース内の情報では表紙ファイルがあるが、実際にはファイルが無い場合。</li>\n"
+"        <li><b>表紙ファイルがデーターベースに無い</b>: "
+"書籍の表紙ファイルがあるが、データーベース内にはその情報が無い場合。</li>\n"
+"        <li><b>フォルダーにエラー</b>: "
+"calibreライブラリ内のフォルダーがこのツールに理解できない理由で処理できない場合。</li>\n"
+"        </ul>\n"
+"\n"
+"        <p>2種類の自動修正が可能です: <i>マークしたものを削除</i> と <i>マークしたものを修正</i>.</p>\n"
+"        "
+"<p><i>マークしたものを削除</i>はデーターベース内に情報が無い余分なファイルを削除する時に使います。削除したいものの横にあるチェックを入れてくださ"
+"い。注意して使ってください。</p>\n"
+"\n"
+"        <p><i>マークしたものを修正</i>は表紙と見つからないファイルにのみ有効です。\n"
+"        (3本線の'修正可'となっている物). 表紙が見つからない場合、\n"
+"        修正可ボックスをチェックしこのボタンを押すとcalibreにリストされている書籍には表紙が無いと教えます。\n"
+"        バックアップから表紙を戻す気が無い時に使ってください。余分な表紙ファイルがある場合、\n"
+"        修正可ボックスをチェックしてこのボタンを押すと、calibreにリストされている書籍に見つかった表紙を使うよう\n"
+"       に指示します。これらのファイルを削除したくない場合に使ってください。\n"
+"       "
+"一部のフォーマットのファイルが無い場合には、修正可ボックスをチェックしてこのボタンを押すと、calibreにファイルが無くなったと伝えます。\n"
+"        バックアップからファイルを回復するつもりの時に使ってください。</p>\n"
+"\n"
+"        "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:226
 msgid "&Run the check again"
-msgstr ""
+msgstr "チェックをもう一度実行(&R)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:229
 msgid "Copy &to clipboard"
-msgstr ""
+msgstr "クリップボードへコピー(&T)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:236
 msgid "Delete marked files (checked subitems)"
-msgstr ""
+msgstr "マークしたファイルを削除(チェックしたサブアイテム）"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:242
 msgid "Fix marked sections (checked fixable items)"
-msgstr ""
+msgstr "マークされたセクションを修正（修正可をチェックした物）"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:252
 msgid "Names to ignore:"
-msgstr ""
+msgstr "無視する名前："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:257
 msgid ""
 "Enter comma-separated standard file name wildcards, such as synctoy*.dat"
-msgstr ""
+msgstr "コンマ区切りのワイルドカード名で通常ファイルを入力。例：synctoy*.dat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:260
 msgid "Extensions to ignore"
-msgstr ""
+msgstr "無視するファイル・エクステンション"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:265
 msgid ""
 "Enter comma-separated extensions without a leading dot. Used only in book "
 "folders"
-msgstr ""
+msgstr "コンマ区切りのエクステンションを頭のドット無しで入力。書籍フォルダでしか使われません。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:314
 msgid "(fixable)"
-msgstr ""
+msgstr "(修正可)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:337
 msgid "Path from library"
-msgstr ""
+msgstr "ライブラリからのパス"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:337
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager.py:89
@@ -7806,12 +7867,12 @@ msgstr "名前"
 msgid ""
 "The marked files and folders will be <b>permanently deleted</b>. Are you "
 "sure?"
-msgstr ""
+msgstr "マークされたファイルとフォルダは<b>永遠に削除</b>されます。よろしいですか？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_format_device_ui.py:48
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_format_ui.py:45
 msgid "Choose Format"
-msgstr ""
+msgstr "フォーマットを選択"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_format_device_ui.py:49
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/delete_matching_from_device.py:76
@@ -7821,119 +7882,119 @@ msgstr "フォーマット"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_format_device_ui.py:50
 msgid "Existing"
-msgstr ""
+msgstr "存在する"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_format_device_ui.py:51
 msgid "Convertible"
-msgstr ""
+msgstr "変換できる"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:43
 msgid "Choose location for calibre library"
-msgstr ""
+msgstr "calibreライブラリの場所を選択"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:50
 msgid "Same as current"
-msgstr ""
+msgstr "現在と同じ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:51
 msgid "The location %s contains the current calibre library"
-msgstr ""
+msgstr "場所 %s は現在のcalibreライブラリを含んでいます。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:56
 msgid "No existing library found"
-msgstr ""
+msgstr "ライブラリが見つかりませんでした。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:57
 msgid "There is no existing calibre library at %s"
-msgstr ""
+msgstr "%sにcalibreライブラリが見つかりませんでした。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:61
 msgid "Not empty"
-msgstr ""
+msgstr "空ではないフォルダ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:62
 msgid "The folder %s is not empty. Please choose an empty folder"
-msgstr ""
+msgstr "フォルダー%sは空ではありません。空のフォルダーを選択してください。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:87
 msgid "No location"
-msgstr ""
+msgstr "場所が無い"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:87
 msgid "No location selected"
-msgstr ""
+msgstr "場所が選択されていません"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:91
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:670
 msgid "Bad location"
-msgstr ""
+msgstr "悪い場所"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:92
 msgid "%s is not an existing folder"
-msgstr ""
+msgstr "%sは存在しないフォルダーです"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:77
 msgid "Choose your calibre library"
-msgstr ""
+msgstr "calibreライブラリを選択してください"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:78
 msgid "Your calibre library is currently located at {0}"
-msgstr ""
+msgstr "現在calibreライブラリは{0}にあります"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:79
 msgid "New &Location:"
-msgstr ""
+msgstr "新しい場所(&L)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:80
 msgid "Use &existing library at the new location"
-msgstr ""
+msgstr "新しい場所ですでにあるライブラリを使う(&e)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:81
 msgid "&Create an empty library at the new location"
-msgstr ""
+msgstr "新しい場所に新規ライブラリを作成"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:82
 msgid "&Copy structure from the current library"
-msgstr ""
+msgstr "現在のライブラリから構造をコピー"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:83
 msgid ""
 "Copy the custom columns, saved searches, column widths, plugboards,\n"
 "user categories, and other information from the old to the new library"
-msgstr ""
+msgstr "カスタム列、保存した検索、列幅、変換ルール、ユーザーカテゴリ、その他の情報を古いライブラリから新しい物へコピーします。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:85
 msgid "&Move current library to new location"
-msgstr ""
+msgstr "現在のライブラリを新しい場所へ移動(&M)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_plugin_toolbars.py:23
 msgid "Add \"%s\" to toolbars or menus"
-msgstr ""
+msgstr "\"%s\"をツールバーかメニューに追加"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_plugin_toolbars.py:29
 msgid "Select the toolbars and/or menus to add <b>%s</b> to:"
-msgstr ""
+msgstr "<b>%s</b>を追加する先のツールバーやメニューを選択:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_plugin_toolbars.py:45
 msgid ""
 "You can also customise the plugin locations using <b>Preferences -> "
 "Customise the toolbar</b>"
-msgstr ""
+msgstr "<b>基本設定 -> ツールバーをカスタマイズ</b>でもプラグインの場所をカスタマイズできます。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf.py:33
 msgid "Set defaults for conversion of comics (CBR/CBZ files)"
-msgstr ""
+msgstr "コミック(CBR/CBZファイル)のディフォールトの変換を設定"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf.py:48
 msgid "Set options for converting %s"
-msgstr ""
+msgstr "%sを変換時のオプションを設定"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:97
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:211
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:73
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:189
 msgid "&Title:"
-msgstr ""
+msgstr "タイトル(&T):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:98
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:167
@@ -7942,12 +8003,12 @@ msgstr "著者(&A):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:100
 msgid "&Profile:"
-msgstr ""
+msgstr "プロファイル(&P):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comments_dialog.py:24
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:30
 msgid "&OK"
-msgstr ""
+msgstr "&OK"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comments_dialog.py:25
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:31
@@ -7959,11 +8020,11 @@ msgstr "キャンセル(&C)"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comments_dialog_ui.py:43
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:70
 msgid "Edit Comments"
-msgstr ""
+msgstr "コメントを編集"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/confirm_delete_location_ui.py:76
 msgid "Where do you want to delete from?"
-msgstr ""
+msgstr "どこから削除しますか？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/confirm_delete_location_ui.py:77
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:68
@@ -7978,7 +8039,7 @@ msgstr "デバイス"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/confirm_delete_location_ui.py:79
 msgid "Library and Device"
-msgstr ""
+msgstr "ライブラリとデバイス"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/confirm_delete_ui.py:55
 msgid "&Show this warning again"
@@ -7992,7 +8053,7 @@ msgstr "ERROR"
 msgid ""
 "All checked books will be <b>permanently deleted</b> from your device. "
 "Please verify the list."
-msgstr ""
+msgstr "デバイス上のすべてのチェックされた書籍は<b>永久に削除</b>されます。リストを確認してください。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/delete_matching_from_device.py:75
 msgid "Location"
@@ -8010,11 +8071,11 @@ msgstr "日付"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/delete_matching_from_device_ui.py:55
 msgid "Delete from device"
-msgstr ""
+msgstr "デバイスから削除"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/drm_error_ui.py:54
 msgid "This book is DRMed"
-msgstr ""
+msgstr "この書籍はDRMがかかっています。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/drm_error_ui.py:55
 msgid ""
@@ -8025,92 +8086,96 @@ msgid ""
 "          available at <a href=\"http://drmfree.calibre-ebook.com\">Open "
 "Books</a>."
 msgstr ""
+"<p>この書籍は<b>DRM</b>がかかっています。DRMについて知りたい場合、そしてなぜcalibreで読んだり変換したりできないのかを知りたい時には"
+"<a href=\"http://drmfree.calibre-"
+"ebook.com/about#drm\">クリック</a>してください。<p>たくさんの新しいDRMフリーな書籍が<a "
+"href=\"http://drmfree.calibre-ebook.com\">Open Books</a>にあります。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:43
 msgid "Author sort"
-msgstr ""
+msgstr "作者名(ソート)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:104
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main.py:160
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:471
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:503
 msgid "No matches found"
-msgstr ""
+msgstr "一致しませんでした"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:120
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:419
 msgid "Change Case"
-msgstr ""
+msgstr "大文字小文字を変更"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:121
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:261
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:420
 msgid "Upper Case"
-msgstr ""
+msgstr "大文字"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:122
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:260
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:421
 msgid "Lower Case"
-msgstr ""
+msgstr "小文字"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:123
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:422
 msgid "Swap Case"
-msgstr ""
+msgstr "大文字小文字を変更"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:124
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:262
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:423
 msgid "Title Case"
-msgstr ""
+msgstr "頭文字を大文字化"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:125
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:263
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:424
 msgid "Capitalize"
-msgstr ""
+msgstr "先頭を大文字化"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:141
 msgid "Copy to author sort"
-msgstr ""
+msgstr "著者名(ソート) へコピー"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:144
 msgid "Copy to author"
-msgstr ""
+msgstr "著者名へコピー"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:271
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1439
 msgid "Invalid author name"
-msgstr ""
+msgstr "無効な著者名"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:272
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1440
 msgid "Author names cannot contain & characters."
-msgstr ""
+msgstr "著者名には「&」文字は入れられません。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:88
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:120
 msgid "Manage authors"
-msgstr ""
+msgstr "著者を編集"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:89
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:597
 msgid "&Search for:"
-msgstr ""
+msgstr "検索語(&S):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:90
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:2105
 msgid "F&ind"
-msgstr ""
+msgstr "検索(&F)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:91
 msgid "Sort by author"
-msgstr ""
+msgstr "著者名で検索"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:92
 msgid "Sort by author sort"
-msgstr ""
+msgstr "著者名(ソート)で検索"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:93
 msgid ""
@@ -8118,28 +8183,32 @@ msgid ""
 "generated from the author. Exactly how this value is automatically\n"
 "generated can be controlled via Preferences->Advanced->Tweaks"
 msgstr ""
+"すべての著者名(ソート)の値を著者名から自動的に生成されたものへリセットします。具体的にこの値がどのように生成されるかは、基本設定->高度な設定-"
+">Tweaksでコントロールできます。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:96
 msgid "Recalculate all author sort values"
-msgstr ""
+msgstr "すべての著者名(ソート)の値を再計算する"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:97
 msgid ""
 "Copy author sort to author for every author. You typically use this button\n"
 "after changing Preferences->Advanced->Tweaks->Author sort name algorithm"
 msgstr ""
+"すべての著者名(ソート)の値を著者名にコピーします。通常、基本設定->高度な設定->Tweaks-"
+">著者名(ソート)のアルゴリズム、の設定を変えたときにこのボタンを使います。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:99
 msgid "Copy all author sort values to author"
-msgstr ""
+msgstr "すべての著者名(ソート)の値を著者名にコピー"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/job_view_ui.py:45
 msgid "Details of job"
-msgstr ""
+msgstr "ジョブの詳細"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:49
 msgid "Active Jobs"
-msgstr ""
+msgstr "実行中のジョブ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:50
 msgid "&Stop selected job"
@@ -8155,24 +8224,24 @@ msgstr "装置関係以外のジョブを停止する(&a)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:49
 msgid "&Copy to clipboard"
-msgstr ""
+msgstr "クリップボードにコピー(&C)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:53
 msgid "Show &details"
-msgstr ""
+msgstr "詳細を表示(&d)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:54
 msgid "Hide &details"
-msgstr ""
+msgstr "詳細を非表示(&d)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:58
 msgid "Show detailed information about this error"
-msgstr ""
+msgstr "このエラーの詳細な情報を表示"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:98
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:525
 msgid "Copied"
-msgstr ""
+msgstr "コピー済"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:135
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:770
@@ -8184,20 +8253,20 @@ msgstr "クリップボードにコピー"
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:831
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:922
 msgid "View log"
-msgstr ""
+msgstr "ログ表示"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:58
 msgid "Title/Author"
-msgstr ""
+msgstr "タイトル/著者"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:59
 msgid "Standard metadata"
-msgstr ""
+msgstr "標準書籍情報"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:60
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:852
 msgid "Custom metadata"
-msgstr ""
+msgstr "カスタム書籍情報"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:61
 msgid "Search/Replace"
@@ -8210,37 +8279,37 @@ msgstr "処理中"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:266
 msgid "Character match"
-msgstr ""
+msgstr "文字検索"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:267
 msgid "Regular Expression"
-msgstr ""
+msgstr "正規表現"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:270
 msgid "Replace field"
-msgstr ""
+msgstr "変換フィールド"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:271
 msgid "Prepend to field"
-msgstr ""
+msgstr "フィールドの前に追加"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:272
 msgid "Append to field"
-msgstr ""
+msgstr "フィールドの後ろに追加"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:282
 msgid "Editing meta information for <b>%d books</b>"
-msgstr ""
+msgstr "<b>%d 冊</b>の書籍の書誌情報を編集"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:323
 msgid ""
 "Immediately make all changes without closing the dialog. This operation "
 "cannot be canceled or undone"
-msgstr ""
+msgstr "ダイアログを閉じずに、すぐに全ての変更を行います。この操作はキャンセルもアンドゥもできません。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:382
 msgid "Book %d:"
-msgstr ""
+msgstr "書籍%d:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:400
 msgid "Enter an identifier type"

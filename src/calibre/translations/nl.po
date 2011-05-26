@@ -32,13 +32,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-05-20 18:12+0000\n"
-"PO-Revision-Date: 2011-05-23 16:24+0000\n"
+"PO-Revision-Date: 2011-05-25 14:33+0000\n"
 "Last-Translator: drMerry <Unknown>\n"
 "Language-Team: Dutch <nl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-05-24 04:32+0000\n"
+"X-Launchpad-Export-Date: 2011-05-26 04:35+0000\n"
 "X-Generator: Launchpad (build 12959)\n"
 "X-Poedit-Country: NETHERLANDS\n"
 "X-Poedit-Language: Dutch\n"
@@ -2783,12 +2783,12 @@ msgid ""
 "and bottom of the image, but the image will never be distorted. Without this "
 "option the image may be slightly distorted, but there will be no borders."
 msgstr ""
-"Bij gebruik van een SVG-hoes, zal deze optie ervoor zorgen dat de hoes het "
-"hele scherm zal bedekken, maar toch de breedte/hoogteverhouding zal "
-"behouden. Dit betekent dat er sprake kan zijn van hoezen met witte randen "
-"aan de zijkanten of de boven-en onderkant van het beeld, maar het beeld zal "
-"nooit worden verstoord. Zonder deze optie kan het beeld enigszins worden "
-"verstoord, maar er zullen geen randen zijn."
+"Bij gebruik van een SVG-omslag, zal deze optie ervoor zorgen dat de omslag "
+"beeldvullend wordt geschaald, met behoud van de breedte/hoogteverhouding. "
+"Dit betekent dat er witte randen aan de zij of de boven/onderkant van de "
+"afbeelding kunnen komen, maar het beeld wordt nooit verstoord. Zonder deze "
+"optie kan het beeld enigszins worden verstoord, maar er zullen geen randen "
+"zijn."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:105
 msgid ""
@@ -4855,7 +4855,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:295
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:349
 msgid "Success"
-msgstr "Succes"
+msgstr "Gelukt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:312
 msgid ""
@@ -9507,7 +9507,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:112
 msgid "Restoring database was successful"
-msgstr "Herstellen van de databank is gelukt."
+msgstr "Database herstellen is gelukt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor.py:48
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor.py:75
@@ -15224,8 +15224,8 @@ msgid ""
 "<h2>Congratulations!</h2> You have successfully setup calibre. Press the %s "
 "button to apply your settings."
 msgstr ""
-"<h2>Gefeliciteerd!</h2> De installatie van calibre was succesvol. Druk op de "
-"%s knop om je instellingen toe te passen."
+"<h2>Gefeliciteerd!</h2> De installatie van calibre is gelukt. Druk op de %s "
+"knop om je instellingen toe te passen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/finish_ui.py:50
 msgid ""
@@ -15299,7 +15299,7 @@ msgstr "Bezig met versturen..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:44
 msgid "Mail successfully sent"
-msgstr "Mailen gelukt"
+msgstr "E-mail verzonden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:96
 msgid "OK to proceed?"
