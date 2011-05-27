@@ -317,6 +317,7 @@ class AddAction(InterfaceAction):
                     _('Uploading books to device.'), 2000)
         if getattr(self._adder, 'number_of_books_added', 0) > 0:
             self.gui.library_view.model().books_added(self._adder.number_of_books_added)
+            self.gui.library_view.set_current_row(0)
             if hasattr(self.gui, 'db_images'):
                 self.gui.db_images.reset()
             self.gui.tags_view.recount()
@@ -337,7 +338,6 @@ class AddAction(InterfaceAction):
             if current_idx.isValid():
                 self.gui.library_view.model().current_changed(current_idx,
                         current_idx)
-
 
         if getattr(self._adder, 'critical', None):
             det_msg = []
