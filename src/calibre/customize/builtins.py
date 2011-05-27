@@ -594,7 +594,7 @@ from calibre.devices.iliad.driver import ILIAD
 from calibre.devices.irexdr.driver import IREXDR1000, IREXDR800
 from calibre.devices.jetbook.driver import JETBOOK, MIBUK, JETBOOK_MINI
 from calibre.devices.kindle.driver import KINDLE, KINDLE2, KINDLE_DX
-from calibre.devices.nook.driver import NOOK, NOOK_COLOR
+from calibre.devices.nook.driver import NOOK, NOOK_COLOR, NOOK_TSR
 from calibre.devices.prs505.driver import PRS505
 from calibre.devices.user_defined.driver import USER_DEFINED
 from calibre.devices.android.driver import ANDROID, S60
@@ -693,8 +693,7 @@ plugins += [
     KINDLE,
     KINDLE2,
     KINDLE_DX,
-    NOOK,
-    NOOK_COLOR,
+    NOOK, NOOK_COLOR, NOOK_TSR,
     PRS505,
     ANDROID,
     S60,
@@ -1277,7 +1276,7 @@ class StoreLegimiStore(StoreBase):
     author = u'Tomasz Długosz'
     description = u'Tanie oraz darmowe ebooki, egazety i blogi w formacie EPUB, wprost na Twój e-czytnik, iPhone, iPad, Android i komputer'
     actual_plugin = 'calibre.gui2.store.legimi_plugin:LegimiStore'
-    
+
     drm_free_only = False
     headquarters = 'PL'
     formats = ['EPUB']
@@ -1348,7 +1347,7 @@ class StoreSmashwordsStore(StoreBase):
 
 class StoreVirtualoStore(StoreBase):
     name = 'Virtualo'
-    author = 'Tomasz Długosz'
+    author = u'Tomasz Długosz'
     description = u'Księgarnia internetowa, która oferuje bezpieczny i szeroki dostęp do książek w formie cyfrowej.'
     actual_plugin = 'calibre.gui2.store.virtualo_plugin:VirtualoStore'
 
@@ -1386,7 +1385,7 @@ class StoreWizardsTowerBooksStore(StoreBase):
 
 class StoreWoblinkStore(StoreBase):
     name = 'Woblink'
-    author = 'Tomasz Długosz'
+    author = u'Tomasz Długosz'
     description = u'Czytanie zdarza się wszędzie!'
     actual_plugin = 'calibre.gui2.store.woblink_plugin:WoblinkStore'
 
