@@ -642,6 +642,30 @@ class BuiltinNot(BuiltinFormatterFunction):
             i += 1
         return ''
 
+class BuiltinMergeLists(BuiltinFormatterFunction):
+    name = 'merge_lists'
+    arg_count = 3
+    doc = _('merge_lists(list1, list2, separator) -- '
+            'return a list made by merging the items in list1 and list2, '
+            'removing duplicate items using a case-insensitive compare. If '
+            'items differ in case, the one in list1 is used. '
+            'The items in list1 and list2 are separated by separator, as are '
+            'the items in the returned list.')
+
+    def evaluate(self, formatter, kwargs, mi, locals, list1, list2, separator):
+        l1 = [l.strip() for l in list1.split(separator) if l.strip()]
+        l2 = [l.strip() for l in list2.split(separator) if l.strip()]
+        lcl1 = set([icu_lower(l) for l in l1])
+
+        res = []
+        for i in l1:
+            res.append(i)
+        for i in l2:
+            if icu_lower(i) not in lcl1:
+                res.append(i)
+        return ', '.join(sorted(res, key=sort_key))
+
+
 builtin_add         = BuiltinAdd()
 builtin_and         = BuiltinAnd()
 builtin_assign      = BuiltinAssign()
@@ -660,6 +684,7 @@ builtin_in_list     = BuiltinInList()
 builtin_list_item   = BuiltinListitem()
 builtin_lookup      = BuiltinLookup()
 builtin_lowercase   = BuiltinLowercase()
+builtin_merge_lists = BuiltinMergeLists()
 builtin_multiply    = BuiltinMultiply()
 builtin_not         = BuiltinNot()
 builtin_or          = BuiltinOr()
