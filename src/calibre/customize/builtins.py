@@ -1393,6 +1393,16 @@ class StoreWoblinkStore(StoreBase):
     headquarters = 'PL'
     formats = ['EPUB']
 
+class StoreEBookShoppeUKStore(StoreBase):
+    name = 'ebookShoppe UK'
+    author = u'Charles Haley'
+    description = u'We made this website in an attempt to offer the widest range of UK eBooks possible across and as many formats as we could manage.'
+    actual_plugin = 'calibre.gui2.store.ebookshoppe_uk_plugin:EBookShoppeUKStore'
+
+    drm_free_only = False
+    headquarters = 'UK'
+    formats = ['EPUB', 'PDF']
+
 plugins += [
     StoreArchiveOrgStore,
     StoreAmazonKindleStore,
@@ -1404,6 +1414,7 @@ plugins += [
     StoreBeWriteStore,
     StoreDieselEbooksStore,
     StoreEbookscomStore,
+    StoreEBookShoppeUKStore,
     StoreEPubBuyDEStore,
     StoreEHarlequinStore,
     StoreFeedbooksStore,
@@ -1421,7 +1432,7 @@ plugins += [
     StorePragmaticBookshelfStore,
     StoreSmashwordsStore,
     StoreVirtualoStore,
-    StoreWaterstonesUKStore,
+    # StoreWaterstonesUKStore,
     StoreWeightlessBooksStore,
     StoreWizardsTowerBooksStore,
     StoreWoblinkStore

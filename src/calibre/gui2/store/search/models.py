@@ -150,6 +150,8 @@ class Matches(QAbstractItemModel):
 
     def data(self, index, role):
         row, col = index.row(), index.column()
+        if row >= len(self.matches):
+            return NONE
         result = self.matches[row]
         if role == Qt.DisplayRole:
             if col == 1:
