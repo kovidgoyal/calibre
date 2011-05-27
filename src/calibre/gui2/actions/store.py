@@ -34,6 +34,8 @@ class StoreAction(InterfaceAction):
         self.store_list_menu = self.store_menu.addMenu(_('Stores'))
         for n, p in sorted(self.gui.istores.items(), key=lambda x: x[0].lower()):
             self.store_list_menu.addAction(n, partial(self.open_store, p))
+        self.store_menu.addSeparator()
+        self.store_menu.addAction(_('Choose stores'), self.choose)
         self.qaction.setMenu(self.store_menu)
 
     def do_search(self):
@@ -42,7 +44,7 @@ class StoreAction(InterfaceAction):
     def search(self, query=''):
         self.show_disclaimer()
         from calibre.gui2.store.search.search import SearchDialog
-        sd = SearchDialog(self.gui.istores, self.gui, query)
+        sd = SearchDialog(self.gui, self.gui, query)
         sd.exec_()
 
     def _get_selected_row(self):
@@ -106,6 +108,13 @@ class StoreAction(InterfaceAction):
 
         query = 'author:"%s" title:"%s"' % (self._get_author(row), self._get_title(row))
         self.search(query)
+
+    def choose(self):
+        from calibre.gui2.store.config.chooser.chooser_dialog import StoreChooserDialog
+        d = StoreChooserDialog(self.gui)
+        d.exec_()
+        self.gui.load_store_plugins()
+        self.load_menu()
 
     def open_store(self, store_plugin):
         self.show_disclaimer()
