@@ -229,13 +229,14 @@ For various values of series_index, the program returns:
 
 The following functions are available in addition to those described in single-function mode. Remember from the example above that the single-function mode functions require an additional first parameter specifying the field to operate on. With the exception of the ``id`` parameter of assign, all parameters can be statements (sequences of expressions):
 
+    * ``and(value, value, ...)`` -- returns the string "1" if all values are not empty, otherwise returns the empty string. This function works well with test or first_non_empty. You can have as many values as you want.
     * ``add(x, y)`` -- returns x + y. Throws an exception if either x or y are not numbers.
     * ``assign(id, val)`` -- assigns val to id, then returns val. id must be an identifier, not an expression
     * ``booksize()`` -- returns the value of the |app| 'size' field. Returns '' if there are no formats.
     * ``cmp(x, y, lt, eq, gt)`` -- compares x and y after converting both to numbers. Returns ``lt`` if x < y. Returns ``eq`` if x == y. Otherwise returns ``gt``.
     * ``divide(x, y)`` -- returns x / y. Throws an exception if either x or y are not numbers.
     * ``field(name)`` -- returns the metadata field named by ``name``.
-    * ``first_non_empty(value, value, ...) -- returns the first value that is not empty. If all values are empty, then the empty value is returned. You can have as many values as you want.
+    * ``first_non_empty(value, value, ...)`` -- returns the first value that is not empty. If all values are empty, then the empty value is returned. You can have as many values as you want.
     * ``format_date(x, date_format)`` -- format_date(val, format_string) -- format the value, which must be a date field, using the format_string, returning a string. The formatting codes are::
     
         d    : the day as number without a leading zero (1 to 31)
@@ -251,7 +252,10 @@ The following functions are available in addition to those described in single-f
         iso  : the date with time and timezone. Must be the only format present.
     
     * ``eval(string)`` -- evaluates the string as a program, passing the local variables (those ``assign`` ed to). This permits using the template processor to construct complex results from local variables.
+    * ``not(value)`` -- returns the string "1" if the value is empty, otherwise returns the empty string. This function works well with test or first_non_empty. You can have as many values as you want.
+    * ``merge_lists(list1, list2, separator)`` -- return a list made by merging the items in list1 and list2, removing duplicate items using a case-insensitive compare. If items differ in case, the one in list1 is used. The items in list1 and list2 are separated by separator, as are the items in the returned list.
     * ``multiply(x, y)`` -- returns x * y. Throws an exception if either x or y are not numbers.
+    * ``or(value, value, ...)`` -- returns the string "1" if any value is not empty, otherwise returns the empty string. This function works well with test or first_non_empty. You can have as many values as you want.
     * ``print(a, b, ...)`` -- prints the arguments to standard output. Unless you start calibre from the command line (``calibre-debug -g``), the output will go to a black hole.
     * ``raw_field(name)`` -- returns the metadata field named by name without applying any formatting.
     * ``strcat(a, b, ...)`` -- can take any number of arguments. Returns a string formed by concatenating all the arguments.
@@ -259,7 +263,22 @@ The following functions are available in addition to those described in single-f
     * ``substr(str, start, end)`` -- returns the ``start``'th through the ``end``'th characters of ``str``. The first character in ``str`` is the zero'th character. If end is negative, then it indicates that many characters counting from the right. If end is zero, then it indicates the last character. For example, ``substr('12345', 1, 0)`` returns ``'2345'``, and ``substr('12345', 1, -1)`` returns ``'234'``.
     * ``subtract(x, y)`` -- returns x - y. Throws an exception if either x or y are not numbers.
     * ``template(x)`` -- evaluates x as a template. The evaluation is done in its own context, meaning that variables are not shared between the caller and the template evaluation. Because the `{` and `}` characters are special, you must use `[[` for the `{` character and `]]` for the '}' character; they are converted automatically. For example, ``template('[[title_sort]]') will evaluate the template ``{title_sort}`` and return its value.
+    
+Function classification summary:
 
+    * Get values from metadata: ``field``. ``raw_field``. In some situations, ``lookup`` can be used in place of ``field``.
+    * Arithmetic: ``add``, ``subtract``, ``multiply``, ``divide``
+    * Boolean: ``and``, ``or``, ``not``. The function ``if_empty`` is similar to ``and`` called with one argument.
+    * If-then-else: ``contains``, ``test``
+    * Iterating over values: ``first_non_empty``, ``lookup``, ``switch``
+    * List lookup: ``in_list``, ``list_item``, ``select``, 
+    * List manipulation: ``count``, ``merge_lists``, ``sublist``, ``subitems``
+    * Recursion: ``eval``, ``template``
+    * Relational: ``cmp`` , ``strcmp`` for strings
+    * String case changes: ``lowercase``, ``uppercase``, ``titlecase``, ``capitalize``
+    * String manipulation: ``re``, ``shorten``, ``substr``
+    * Other: ``assign``, ``booksize``, ``print``, ``format_date``, 
+        
 .. _general_mode:
 
 Using general program mode
