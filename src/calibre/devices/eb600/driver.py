@@ -95,9 +95,8 @@ class POCKETBOOK360(EB600):
 
     FORMATS = ['epub', 'fb2', 'prc', 'mobi', 'pdf', 'djvu', 'rtf', 'chm', 'txt']
 
-    VENDOR_NAME = 'PHILIPS'
-    WINDOWS_MAIN_MEM = 'MASS_STORGE'
-    WINDOWS_CARD_A_MEM = 'MASS_STORGE'
+    VENDOR_NAME = ['PHILIPS', '__POCKET']
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['MASS_STORGE', 'BOOK_USB_STORAGE']
 
     OSX_MAIN_MEM   = 'Philips Mass Storge Media'
     OSX_CARD_A_MEM = 'Philips Mass Storge Media'

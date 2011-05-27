@@ -327,6 +327,22 @@ class BuiltinSwitch(BuiltinFormatterFunction):
                 return args[i+1]
             i += 2
 
+class BuiltinInList(BuiltinFormatterFunction):
+    name = 'in_list'
+    arg_count = 5
+    doc = _('in_list(val, separator, pattern, found_val, not_found_val) -- '
+            'treat val as a list of items separated by separator, '
+            'comparing the pattern against each value in the list. If the '
+            'pattern matches a value, return found_val, otherwise return '
+            'not_found_val.')
+
+    def evaluate(self, formatter, kwargs, mi, locals, val, sep, pat, fv, nfv):
+        l = [v.strip() for v in val.split(sep) if v.strip()]
+        for v in l:
+            if re.search(pat, v):
+                return fv
+        return nfv
+
 class BuiltinRe(BuiltinFormatterFunction):
     name = 're'
     arg_count = 3
@@ -562,7 +578,96 @@ class BuiltinBooksize(BuiltinFormatterFunction):
                 pass
         return ''
 
+class BuiltinFirstNonEmpty(BuiltinFormatterFunction):
+    name = 'first_non_empty'
+    arg_count = -1
+    doc = _('first_non_empty(value, value, ...) -- '
+            'returns the first value that is not empty. If all values are '
+            'empty, then the empty value is returned.'
+            'You can have as many values as you want.')
+
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        i = 0
+        while i < len(args):
+            if args[i]:
+                return args[i]
+            i += 1
+        return ''
+
+class BuiltinAnd(BuiltinFormatterFunction):
+    name = 'and'
+    arg_count = -1
+    doc = _('and(value, value, ...) -- '
+            'returns the string "1" if all values are not empty, otherwise '
+            'returns the empty string. This function works well with test or '
+            'first_non_empty. You can have as many values as you want.')
+
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        i = 0
+        while i < len(args):
+            if not args[i]:
+                return ''
+            i += 1
+        return '1'
+
+class BuiltinOr(BuiltinFormatterFunction):
+    name = 'or'
+    arg_count = -1
+    doc = _('or(value, value, ...) -- '
+            'returns the string "1" if any value is not empty, otherwise '
+            'returns the empty string. This function works well with test or '
+            'first_non_empty. You can have as many values as you want.')
+
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        i = 0
+        while i < len(args):
+            if args[i]:
+                return '1'
+            i += 1
+        return ''
+
+class BuiltinNot(BuiltinFormatterFunction):
+    name = 'not'
+    arg_count = 1
+    doc = _('not(value) -- '
+            'returns the string "1" if the value is empty, otherwise '
+            'returns the empty string. This function works well with test or '
+            'first_non_empty. You can have as many values as you want.')
+
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        i = 0
+        while i < len(args):
+            if args[i]:
+                return '1'
+            i += 1
+        return ''
+
+class BuiltinMergeLists(BuiltinFormatterFunction):
+    name = 'merge_lists'
+    arg_count = 3
+    doc = _('merge_lists(list1, list2, separator) -- '
+            'return a list made by merging the items in list1 and list2, '
+            'removing duplicate items using a case-insensitive compare. If '
+            'items differ in case, the one in list1 is used. '
+            'The items in list1 and list2 are separated by separator, as are '
+            'the items in the returned list.')
+
+    def evaluate(self, formatter, kwargs, mi, locals, list1, list2, separator):
+        l1 = [l.strip() for l in list1.split(separator) if l.strip()]
+        l2 = [l.strip() for l in list2.split(separator) if l.strip()]
+        lcl1 = set([icu_lower(l) for l in l1])
+
+        res = []
+        for i in l1:
+            res.append(i)
+        for i in l2:
+            if icu_lower(i) not in lcl1:
+                res.append(i)
+        return ', '.join(sorted(res, key=sort_key))
+
+
 builtin_add         = BuiltinAdd()
+builtin_and         = BuiltinAnd()
 builtin_assign      = BuiltinAssign()
 builtin_booksize    = BuiltinBooksize()
 builtin_capitalize  = BuiltinCapitalize()
@@ -571,13 +676,18 @@ builtin_contains    = BuiltinContains()
 builtin_count       = BuiltinCount()
 builtin_divide      = BuiltinDivide()
 builtin_eval        = BuiltinEval()
-builtin_format_date = BuiltinFormat_date()
+builtin_first_non_empty = BuiltinFirstNonEmpty()
 builtin_field       = BuiltinField()
+builtin_format_date = BuiltinFormat_date()
 builtin_ifempty     = BuiltinIfempty()
+builtin_in_list     = BuiltinInList()
 builtin_list_item   = BuiltinListitem()
 builtin_lookup      = BuiltinLookup()
 builtin_lowercase   = BuiltinLowercase()
+builtin_merge_lists = BuiltinMergeLists()
 builtin_multiply    = BuiltinMultiply()
+builtin_not         = BuiltinNot()
+builtin_or          = BuiltinOr()
 builtin_print       = BuiltinPrint()
 builtin_raw_field   = BuiltinRaw_field()
 builtin_re          = BuiltinRe()

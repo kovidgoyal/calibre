@@ -50,6 +50,12 @@ PARALLEL_FUNCS = {
 
       'save_book' :
       ('calibre.ebooks.metadata.worker', 'save_book', 'notification'),
+
+      'arbitrary' :
+      ('calibre.utils.ipc.worker', 'arbitrary', None),
+
+      'arbitrary_n' :
+      ('calibre.utils.ipc.worker', 'arbitrary_n', 'notification'),
 }
 
 class Progress(Thread):
@@ -73,7 +79,63 @@ class Progress(Thread):
             except:
                 break
 
+def arbitrary(module_name, func_name, args, kwargs={}):
+    '''
+    An entry point that allows arbitrary functions to be run in a parallel
+    process. useful for plugin developers that want to run jobs in a parallel
+    process.
 
+    To use this entry point, simply create a ParallelJob with the module and
+    function names for the real entry point.
+
+    Remember that args and kwargs must be serialized so only use basic types
+    for them.
+
+    To use this, you will do something like
+
+    from calibre.gui2 import Dispatcher
+    gui.job_manager.run_job(Dispatcher(job_done), 'arbitrary',
+        args=('calibre_plugins.myplugin.worker', 'do_work',
+                ('arg1' 'arg2', 'arg3')),
+                description='Change the world')
+
+    The function job_done will be called on completion, see the code in
+    gui2.actions.catalog for an example of using run_job and Dispatcher.
+
+    :param module_name: The fully qualified name of the module that contains
+    the actual function to be run. For example:
+    calibre_plugins.myplugin.worker
+    :param func_name: The name of the function to be run.
+    :param name: A list (or tuple) of arguments that will be passed to the
+    function ``func_name``
+    :param kwargs: A dictionary of keyword arguments to pass to func_name
+    '''
+    if module_name.startswith('calibre_plugins'):
+        # Initialize the plugin loader by doing this dummy import
+        from calibre.customize.ui import find_plugin
+        find_plugin
+    module = importlib.import_module(module_name)
+    func = getattr(module, func_name)
+    return func(*args, **kwargs)
+
+def arbitrary_n(module_name, func_name, args, kwargs={},
+        notification=lambda x, y: y):
+    '''
+    Same as :func:`arbitrary` above, except that func_name must support a
+    keyword argument "notification". This will be a function that accepts two
+    arguments. func_name should call it periodically with progress information.
+    The first argument is a float between 0 and 1 that represent percent
+    completed and the second is a string with a message (it can be an empty
+    string).
+    '''
+    if module_name.startswith('calibre_plugins'):
+        # Initialize the plugin loader by doing this dummy import
+        from calibre.customize.ui import find_plugin
+        find_plugin
+    module = importlib.import_module(module_name)
+    func = getattr(module, func_name)
+    kwargs['notification'] = notification
+    return func(*args, **kwargs)
 
 def get_func(name):
     module, func, notification = PARALLEL_FUNCS[name]

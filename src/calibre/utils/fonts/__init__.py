@@ -8,14 +8,14 @@ __docformat__ = 'restructuredtext en'
 
 import os, sys
 
-from calibre.constants import plugins, iswindows, islinux, isfreebsd
+from calibre.constants import plugins, iswindows, islinux, isbsd
 
 _fc, _fc_err = plugins['fontconfig']
 
 if _fc is None:
     raise RuntimeError('Failed to load fontconfig with error:'+_fc_err)
 
-if islinux or isfreebsd:
+if islinux or isbsd:
     Thread = object
 else:
     from threading import Thread
@@ -49,7 +49,7 @@ class FontConfig(Thread):
             self.failed = True
 
     def wait(self):
-        if not (islinux or isfreebsd):
+        if not (islinux or isbsd):
             self.join()
         if self.failed:
             raise RuntimeError('Failed to initialize fontconfig')
@@ -149,7 +149,7 @@ class FontConfig(Thread):
         return fonts if all else (fonts[0] if fonts else None)
 
 fontconfig = FontConfig()
-if islinux or isfreebsd:
+if islinux or isbsd:
     # On X11 Qt also uses fontconfig, so initialization must happen in the
     # main thread. In any case on X11 initializing fontconfig should be very
     # fast

@@ -10,7 +10,7 @@ import os, sys, re
 from urllib import unquote, quote
 from urlparse import urlparse
 
-from calibre import relpath, guess_type
+from calibre import relpath, guess_type, remove_bracketed_text
 
 from calibre.utils.config import tweaks
 
@@ -27,20 +27,37 @@ def authors_to_string(authors):
     else:
         return ''
 
-_bracket_pat = re.compile(r'[\[({].*?[})\]]')
-def author_to_author_sort(author):
+def author_to_author_sort(author, method=None):
     if not author:
-        return ''
-    method = tweaks['author_sort_copy_method']
-    if method == 'copy' or (method == 'comma' and ',' in author):
+        return u''
+    sauthor = remove_bracketed_text(author).strip()
+    tokens = sauthor.split()
+    if len(tokens) < 2:
         return author
-    author = _bracket_pat.sub('', author).strip()
-    tokens = author.split()
-    if tokens and tokens[-1] not in ('Inc.', 'Inc'):
-        tokens = tokens[-1:] + tokens[:-1]
-        if len(tokens) > 1 and method != 'nocomma':
-            tokens[0] += ','
-    return ' '.join(tokens)
+    if method is None:
+        method = tweaks['author_sort_copy_method']
+    if method == u'copy':
+        return author
+    suffixes = set([x.lower() for x in tweaks['author_name_suffixes']])
+    suffixes |= set([x+u'.' for x in suffixes])
+
+    last = tokens[-1].lower()
+    suffix = None
+    if last in suffixes:
+        suffix = tokens[-1]
+        tokens = tokens[:-1]
+
+    if method == u'comma' and u',' in u''.join(tokens):
+        return author
+
+    atokens = tokens[-1:] + tokens[:-1]
+    if suffix:
+        atokens.append(suffix)
+
+    if method != u'nocomma' and len(atokens) > 1:
+        atokens[0] += u','
+
+    return u' '.join(atokens)
 
 def authors_to_sort_string(authors):
     return ' & '.join(map(author_to_author_sort, authors))

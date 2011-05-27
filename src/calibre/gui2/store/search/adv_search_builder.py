@@ -116,7 +116,7 @@ class AdvSearchBuilderDialog(QDialog, Ui_Dialog):
         if price:
             ans.append('price:"' + self.mc + price + '"')
         format = unicode(self.format_box.text()).strip()
-        if author:
+        if format:
             ans.append('format:"' + self.mc + format + '"')            
         if ans:
             return ' and '.join(ans)

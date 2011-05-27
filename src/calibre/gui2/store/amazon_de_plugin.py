@@ -16,7 +16,7 @@ class AmazonDEKindleStore(AmazonKindleStore):
     For comments on the implementation, please see amazon_plugin.py
     '''
 
-    search_url = 'http://www.amazon.de/s/url=search-alias%3Ddigital-text&field-keywords='
+    search_url = 'http://www.amazon.de/s/?url=search-alias%3Ddigital-text&field-keywords='
     details_url = 'http://amazon.de/dp/'
     drm_search_text = u'Gleichzeitige Verwendung von Geräten'
     drm_free_text = u'Keine Einschränkung'

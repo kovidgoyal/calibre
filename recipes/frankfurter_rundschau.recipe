@@ -1,0 +1,35 @@
+from calibre.web.feeds.recipes import BasicNewsRecipe
+class AdvancedUserRecipe(BasicNewsRecipe):
+
+    title          = u'Frankfurter Rundschau'
+    __author__  = 'schuster'
+    oldest_article = 1
+    max_articles_per_feed = 100
+    no_stylesheets         = True
+    use_embedded_content   = False
+    language               = 'de'
+    remove_javascript      = True
+    cover_url = 'http://www.fr-online.de/image/view/-/1474018/data/823538/-/logo.png'
+    extra_css = '''
+                    h1{font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:large;}
+                    h4{font-family:Arial,Helvetica,sans-serif; font-weight:normal;font-size:small;}
+                    img {min-width:300px; max-width:600px; min-height:300px; max-height:800px}
+                    p{font-family:Arial,Helvetica,sans-serif;font-size:small;}
+                    body{font-family:Helvetica,Arial,sans-serif;font-size:small;}
+	'''
+
+    feeds          = [(u'Startseite', u'http://www.fr-online.de/home/-/1472778/1472778/-/view/asFeed/-/index.xml'),
+                          (u'Politik', u'http://www.fr-online.de/politik/-/1472596/1472596/-/view/asFeed/-/index.xml'),
+                          (u'Meinungen', u'http://www.fr-online.de/politik/meinung/-/1472602/1472602/-/view/asFeed/-/index.xml'),
+                          (u'Wirtschaft', u'http://www.fr-online.de/wirtschaft/-/1472780/1472780/-/view/asFeed/-/index.xml'),
+                          (u'Sport', u'http://www.fr-online.de/sport/-/1472784/1472784/-/view/asFeed/-/index.xml'),
+                          (u'Kultur', u'http://www.fr-online.de/kultur/-/1472786/1472786/-/view/asFeed/-/index.xml'),
+                          (u'Panorama', u'http://www.fr-online.de/panorama/-/1472782/1472782/-/view/asFeed/-/index.xml'),
+                          (u'Digital', u'http://www.fr-online.de/digital/-/1472406/1472406/-/view/asFeed/-/index.xml'),
+                          (u'Wissenschaft', u'http://www.fr-online.de/wissenschaft/-/1472788/1472788/-/view/asFeed/-/index.xml')
+]
+
+
+    def print_version(self, url):
+        return url.replace('index.html', 'view/printVersion/-/index.html')
+
