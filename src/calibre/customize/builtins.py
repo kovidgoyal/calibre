@@ -594,7 +594,7 @@ from calibre.devices.iliad.driver import ILIAD
 from calibre.devices.irexdr.driver import IREXDR1000, IREXDR800
 from calibre.devices.jetbook.driver import JETBOOK, MIBUK, JETBOOK_MINI
 from calibre.devices.kindle.driver import KINDLE, KINDLE2, KINDLE_DX
-from calibre.devices.nook.driver import NOOK, NOOK_COLOR
+from calibre.devices.nook.driver import NOOK, NOOK_COLOR, NOOK_TSR
 from calibre.devices.prs505.driver import PRS505
 from calibre.devices.user_defined.driver import USER_DEFINED
 from calibre.devices.android.driver import ANDROID, S60
@@ -693,8 +693,7 @@ plugins += [
     KINDLE,
     KINDLE2,
     KINDLE_DX,
-    NOOK,
-    NOOK_COLOR,
+    NOOK, NOOK_COLOR, NOOK_TSR,
     PRS505,
     ANDROID,
     S60,
@@ -1272,6 +1271,16 @@ class StoreKoboStore(StoreBase):
     headquarters = 'CA'
     formats = ['EPUB']
 
+class StoreLegimiStore(StoreBase):
+    name = 'Legimi'
+    author = u'Tomasz Długosz'
+    description = u'Tanie oraz darmowe ebooki, egazety i blogi w formacie EPUB, wprost na Twój e-czytnik, iPhone, iPad, Android i komputer'
+    actual_plugin = 'calibre.gui2.store.legimi_plugin:LegimiStore'
+
+    drm_free_only = False
+    headquarters = 'PL'
+    formats = ['EPUB']
+
 class StoreManyBooksStore(StoreBase):
     name = 'ManyBooks'
     description = u'Public domain and creative commons works from many sources.'
@@ -1306,7 +1315,7 @@ class StoreOpenLibraryStore(StoreBase):
     actual_plugin = 'calibre.gui2.store.open_library_plugin:OpenLibraryStore'
 
     drm_free_only = True
-    headquarters = ['US']
+    headquarters = 'US'
     formats = ['DAISY', 'DJVU', 'EPUB', 'MOBI', 'PDF', 'TXT']
 
 class StoreOReillyStore(StoreBase):
@@ -1335,6 +1344,16 @@ class StoreSmashwordsStore(StoreBase):
     drm_free_only = True
     headquarters = 'US'
     formats = ['EPUB', 'HTML', 'LRF', 'MOBI', 'PDB', 'RTF', 'TXT']
+
+class StoreVirtualoStore(StoreBase):
+    name = 'Virtualo'
+    author = u'Tomasz Długosz'
+    description = u'Księgarnia internetowa, która oferuje bezpieczny i szeroki dostęp do książek w formie cyfrowej.'
+    actual_plugin = 'calibre.gui2.store.virtualo_plugin:VirtualoStore'
+
+    drm_free_only = False
+    headquarters = 'PL'
+    formats = ['EPUB', 'PDF']
 
 class StoreWaterstonesUKStore(StoreBase):
     name = 'Waterstones UK'
@@ -1366,12 +1385,12 @@ class StoreWizardsTowerBooksStore(StoreBase):
 
 class StoreWoblinkStore(StoreBase):
     name = 'Woblink'
-    author = 'Tomasz Długosz'
+    author = u'Tomasz Długosz'
     description = u'Czytanie zdarza się wszędzie!'
     actual_plugin = 'calibre.gui2.store.woblink_plugin:WoblinkStore'
 
     drm_free_only = False
-    location = 'PL'
+    headquarters = 'PL'
     formats = ['EPUB']
 
 plugins += [
@@ -1393,6 +1412,7 @@ plugins += [
     StoreGoogleBooksStore,
     StoreGutenbergStore,
     StoreKoboStore,
+    StoreLegimiStore,
     StoreManyBooksStore,
     StoreMobileReadStore,
     StoreNextoStore,
@@ -1400,6 +1420,7 @@ plugins += [
     StoreOReillyStore,
     StorePragmaticBookshelfStore,
     StoreSmashwordsStore,
+    StoreVirtualoStore,
     StoreWaterstonesUKStore,
     StoreWeightlessBooksStore,
     StoreWizardsTowerBooksStore,

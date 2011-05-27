@@ -10,11 +10,12 @@ import re
 from random import shuffle
 
 from PyQt4.Qt import (Qt, QDialog, QDialogButtonBox, QTimer, QCheckBox,
-                      QVBoxLayout, QIcon, QWidget)
+                      QVBoxLayout, QIcon, QWidget, QTabWidget)
 
 from calibre.gui2 import JSONConfig, info_dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
-from calibre.gui2.store.config.search_widget import StoreConfigWidget
+from calibre.gui2.store.config.chooser.chooser_widget import StoreChooserWidget
+from calibre.gui2.store.config.search.search_widget import StoreConfigWidget
 from calibre.gui2.store.search.adv_search_builder import AdvSearchBuilderDialog
 from calibre.gui2.store.search.download_thread import SearchThreadPool, \
     CacheUpdateThreadPool
@@ -22,7 +23,7 @@ from calibre.gui2.store.search.search_ui import Ui_Dialog
 
 class SearchDialog(QDialog, Ui_Dialog):
 
-    def __init__(self, istores, parent=None, query=''):
+    def __init__(self, gui, parent=None, query=''):
         QDialog.__init__(self, parent)
         self.setupUi(self)
 
@@ -34,8 +35,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         # the variables it sets up are used later.
         self.load_settings()
 
-        # We keep a cache of store plugins and reference them by name.
-        self.store_plugins = istores
+        self.gui = gui
 
         # Setup our worker threads.
         self.search_pool = SearchThreadPool(self.search_thread_count)
@@ -49,22 +49,11 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.hang_check = 0
 
         # Update store caches silently.
-        for p in self.store_plugins.values():
+        for p in self.gui.istores.values():
             self.cache_pool.add_task(p, self.timeout)
 
-        # Add check boxes for each store so the user
-        # can disable searching specific stores on a
-        # per search basis.
-        stores_check_widget = QWidget()
-        store_list_layout = QVBoxLayout()
-        stores_check_widget.setLayout(store_list_layout)
-        for x in sorted(self.store_plugins.keys(), key=lambda x: x.lower()):
-            cbox = QCheckBox(x)
-            cbox.setChecked(False)
-            store_list_layout.addWidget(cbox)
-            setattr(self, 'store_check_' + x, cbox)
-        store_list_layout.addStretch()
-        self.store_list.setWidget(stores_check_widget)
+        self.store_checks = {}
+        self.setup_store_checks()
 
         # Set the search query
         self.search_edit.setText(query)
@@ -91,6 +80,27 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.progress_checker.start(100)
 
         self.restore_state()
+    
+    def setup_store_checks(self):
+        # Add check boxes for each store so the user
+        # can disable searching specific stores on a
+        # per search basis.
+        existing = {}
+        for n in self.store_checks:
+            existing[n] = self.store_checks[n].isChecked()
+        
+        self.store_checks = {}
+
+        stores_check_widget = QWidget()
+        store_list_layout = QVBoxLayout()
+        stores_check_widget.setLayout(store_list_layout)
+        for x in sorted(self.gui.istores.keys(), key=lambda x: x.lower()):
+            cbox = QCheckBox(x)
+            cbox.setChecked(existing.get(x, False))
+            store_list_layout.addWidget(cbox)
+            self.store_checks[x] = cbox
+        store_list_layout.addStretch()
+        self.store_list.setWidget(stores_check_widget)
 
     def build_adv_search(self):
         adv = AdvSearchBuilderDialog(self)
@@ -126,11 +136,12 @@ class SearchDialog(QDialog, Ui_Dialog):
         # futher filtering.
         self.results_view.model().set_query(query)
 
-        # Plugins are in alphebetic order. Randomize the
-        # order of plugin names. This way plugins closer
+        # Plugins are in random order that does not change.
+        # Randomize the ord of the plugin names every time
+        # there is a search. This way plugins closer
         # to a don't have an unfair advantage over
         # plugins further from a.
-        store_names = self.store_plugins.keys()
+        store_names = self.store_checks.keys()
         if not store_names:
             return
         # Remove all of our internal filtering logic from the query.
@@ -138,8 +149,8 @@ class SearchDialog(QDialog, Ui_Dialog):
         shuffle(store_names)
         # Add plugins that the user has checked to the search pool's work queue.
         for n in store_names:
-            if getattr(self, 'store_check_' + n).isChecked():
-                self.search_pool.add_task(query, n, self.store_plugins[n], self.max_results, self.timeout)
+            if self.store_checks[n].isChecked():
+                self.search_pool.add_task(query, n, self.gui.istores[n], self.max_results, self.timeout)
         self.hang_check = 0
         self.checker.start(100)
         self.pi.startAnimation()
@@ -179,8 +190,8 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.config['open_external'] = self.open_external.isChecked()
 
         store_check = {}
-        for n in self.store_plugins:
-            store_check[n] = getattr(self, 'store_check_' + n).isChecked()
+        for k, v in self.store_checks.items():
+            store_check[k] = v.isChecked()
         self.config['store_checked'] = store_check
 
     def restore_state(self):
@@ -206,8 +217,8 @@ class SearchDialog(QDialog, Ui_Dialog):
         store_check = self.config.get('store_checked', None)
         if store_check:
             for n in store_check:
-                if hasattr(self, 'store_check_' + n):
-                    getattr(self, 'store_check_' + n).setChecked(store_check[n])
+                if n in self.store_checks:
+                    self.store_checks[n].setChecked(store_check[n])
 
         self.results_view.model().sort_col = self.config.get('sort_col', 2)
         self.results_view.model().sort_order = self.config.get('sort_order', Qt.AscendingOrder)
@@ -234,20 +245,27 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.config['open_external'] = self.open_external.isChecked()
 
         d = QDialog(self)
-        button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        button_box = QDialogButtonBox(QDialogButtonBox.Close)
         v = QVBoxLayout(d)
         button_box.accepted.connect(d.accept)
         button_box.rejected.connect(d.reject)
-        d.setWindowTitle(_('Customize Get Books'))
-        config_widget = StoreConfigWidget(self.config)
-        v.addWidget(config_widget)
+        d.setWindowTitle(_('Customize get books search'))
+        
+        tab_widget = QTabWidget(d)
+        v.addWidget(tab_widget)
         v.addWidget(button_box)
 
-        d.exec_()
+        chooser_config_widget = StoreChooserWidget()
+        search_config_widget = StoreConfigWidget(self.config)
+        
+        tab_widget.addTab(chooser_config_widget, _('Choose stores'))
+        tab_widget.addTab(search_config_widget, _('Configure search'))
 
-        if d.result() == QDialog.Accepted:
-            config_widget.save_settings()
-            self.config_changed()
+        d.exec_()
+        search_config_widget.save_settings()
+        self.config_changed()
+        self.gui.load_store_plugins()
+        self.setup_store_checks()
 
     def config_changed(self):
         self.load_settings()
@@ -283,7 +301,7 @@ class SearchDialog(QDialog, Ui_Dialog):
 
     def open_store(self, index):
         result = self.results_view.model().get_result(index)
-        self.store_plugins[result.store_name].open(self, result.detail_item, self.open_external.isChecked())
+        self.gui.istores[result.store_name].open(self, result.detail_item, self.open_external.isChecked())
 
     def check_progress(self):
         if not self.search_pool.threads_running() and not self.results_view.model().cover_pool.threads_running() and not self.results_view.model().details_pool.threads_running():
@@ -292,27 +310,16 @@ class SearchDialog(QDialog, Ui_Dialog):
             if not self.pi.isAnimated():
                 self.pi.startAnimation()
 
-    def get_store_checks(self):
-        '''
-        Returns a list of QCheckBox's for each store.
-        '''
-        checks = []
-        for x in self.store_plugins:
-            check = getattr(self, 'store_check_' + x, None)
-            if check:
-                checks.append(check)
-        return checks
-
     def stores_select_all(self):
-        for check in self.get_store_checks():
+        for check in self.store_checks.values():
             check.setChecked(True)
 
     def stores_select_invert(self):
-        for check in self.get_store_checks():
+        for check in self.store_checks.values():
             check.setChecked(not check.isChecked())
 
     def stores_select_none(self):
-        for check in self.get_store_checks():
+        for check in self.store_checks.values():
             check.setChecked(False)
 
     def dialog_closed(self, result):

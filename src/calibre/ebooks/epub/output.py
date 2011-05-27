@@ -413,6 +413,13 @@ class EPUBOutput(OutputFormatPlugin):
                             rule.style.removeProperty('margin-left')
                             # padding-left breaks rendering in webkit and gecko
                             rule.style.removeProperty('padding-left')
+                # Change whitespace:pre to pre-line to accommodate readers that
+                # cannot scroll horizontally
+                for rule in stylesheet.data.cssRules.rulesOfType(CSSRule.STYLE_RULE):
+                    style = rule.style
+                    ws = style.getPropertyValue('white-space')
+                    if ws == 'pre':
+                        style.setProperty('white-space', 'pre-wrap')
 
     # }}}
 

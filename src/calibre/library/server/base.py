@@ -221,7 +221,12 @@ class LibraryServer(ContentServer, MobileServer, XMLServer, OPDSServer, Cache,
                 if not ip or ip.startswith('127.'):
                     raise
                 cherrypy.log('Trying to bind to single interface: '+ip)
+                # Change the host we listen on
                 cherrypy.config.update({'server.socket_host' : ip})
+                # This ensures that the change is actually applied
+                cherrypy.server.socket_host = ip
+                cherrypy.server.httpserver = cherrypy.server.instance = None
+
                 cherrypy.engine.start()
 
             self.is_running = True
@@ -231,6 +236,8 @@ class LibraryServer(ContentServer, MobileServer, XMLServer, OPDSServer, Cache,
             cherrypy.engine.block()
         except Exception as e:
             self.exception = e
+            import traceback
+            traceback.print_exc()
         finally:
             self.is_running = False
             try:
