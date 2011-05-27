@@ -7,13 +7,13 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.49\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-05-20 18:12+0000\n"
-"PO-Revision-Date: 2011-05-11 22:10+0000\n"
+"PO-Revision-Date: 2011-05-26 20:15+0000\n"
 "Last-Translator: Martin Srebotnjak <miles@filmsi.net>\n"
 "Language-Team: Martin Srebotnjak <miles@filmsi.net>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-05-21 04:55+0000\n"
+"X-Launchpad-Export-Date: 2011-05-27 04:45+0000\n"
 "X-Generator: Launchpad (build 12959)\n"
 "X-Poedit-Country: SLOVENIA\n"
 "X-Poedit-Language: Slovenian\n"
@@ -534,15 +534,15 @@ msgstr "Razne naprednejše nastavitve"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1098
 msgid "Kindle books from Amazon."
-msgstr ""
+msgstr "Knjige Kindle z Amazon.com."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1103
 msgid "Kindle books from Amazon.de."
-msgstr ""
+msgstr "Knjige Kindle z Amazon.de."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1108
 msgid "Kindle books from Amazon.uk."
-msgstr ""
+msgstr "Knjige Kindle z Amazon.co.uk."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1113
 msgid ""
@@ -560,7 +560,7 @@ msgstr "Knjige, učbeniki, e-knjige, igrače, igre in drugo."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1129
 msgid "Der eBook Shop."
-msgstr ""
+msgstr "Trgovina Der eBook."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1134
 msgid "Publishers of fine books."
@@ -596,7 +596,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1175
 msgid "Google Books"
-msgstr ""
+msgstr "Knjige Google"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1180
 msgid "The first producer of free ebooks."
@@ -628,7 +628,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1216
 msgid "The Pragmatic Bookshelf"
-msgstr ""
+msgstr "Pragmatična knjižna polica"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1221
 msgid "Your ebook. Your way."
@@ -636,7 +636,7 @@ msgstr "Vaša e-knjiga. Na vaš način."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1226
 msgid "Feel every word."
-msgstr ""
+msgstr "Začutite sleherno besedo."
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:102
 msgid "Conversion Input"
@@ -1675,12 +1675,12 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:40
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:70
 msgid "USB Product ID (in hex)"
-msgstr ""
+msgstr "ID izdelka USB (šestnajst.)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:43
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:72
 msgid "USB Revision ID (in hex)"
-msgstr ""
+msgstr "ID revizije USB (šestnast.)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:47
 msgid "Windows main memory vendor string"
@@ -1724,7 +1724,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:66
 msgid "Card A folder"
-msgstr ""
+msgstr "Mapa kartice A"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:202
 msgid "Rendered %s"
@@ -3207,31 +3207,31 @@ msgstr "Ovitek"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:384
 msgid "Downloads metadata and covers from Amazon"
-msgstr ""
+msgstr "Prenese metapodatke in naslovnice z Amazona"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:394
 msgid "US"
-msgstr ""
+msgstr "ZDA"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:395
 msgid "France"
-msgstr ""
+msgstr "Francija"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:396
 msgid "Germany"
-msgstr ""
+msgstr "Nemčija"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:397
 msgid "UK"
-msgstr ""
+msgstr "VB"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:398
 msgid "Italy"
-msgstr ""
+msgstr "Italija"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:402
 msgid "Amazon website to use:"
-msgstr ""
+msgstr "Izberite spletišče Amazon:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:403
 msgid ""
@@ -3248,11 +3248,11 @@ msgstr "Vir metapodatkov"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/douban.py:154
 msgid "Downloads metadata and covers from Douban.com"
-msgstr ""
+msgstr "Prenese metapodatke in naslovnice z Douban.com."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google.py:160
 msgid "Downloads metadata and covers from Google Books"
-msgstr ""
+msgstr "Prenese metapodatke in naslovnice z Google Knjige"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/isbndb.py:27
 msgid "Downloads metadata from isbndb.com"
@@ -3285,7 +3285,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/overdrive.py:45
 msgid "Download all metadata (slow)"
-msgstr ""
+msgstr "Prenesi vse metapodatke (počasno)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/overdrive.py:46
 msgid "Enable this option to gather all metadata available from Overdrive."
@@ -4490,7 +4490,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:406
 msgid "You cannot change libraries while jobs are running."
-msgstr ""
+msgstr "Knjižnic ne morete zamenjati med izvajanjem opravil."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:22
 msgid "C"
@@ -4814,7 +4814,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:91
 msgid "Metadata download completed"
-msgstr ""
+msgstr "Prenos metapodatkov dokončan"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:93
 msgid ""
@@ -4839,7 +4839,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:136
 msgid "Some books changed"
-msgstr ""
+msgstr "Nekatere knjige so spremenjene"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:137
 msgid ""
@@ -5134,23 +5134,23 @@ msgstr "Knjige z istimi značkami"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:20
 msgid "Get books"
-msgstr "Dobi knjige"
+msgstr "Pridobi knjige"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:29
 msgid "Search for ebooks"
-msgstr ""
+msgstr "Išči e-knjige"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:30
 msgid "Search for this author"
-msgstr ""
+msgstr "Išči tega avtorja"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:31
 msgid "Search for this title"
-msgstr ""
+msgstr "Išči ta naslov"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:32
 msgid "Search for this book"
-msgstr ""
+msgstr "Išči to knjigo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:34
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:122
@@ -5193,7 +5193,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:135
 msgid "About Get Books"
-msgstr "O Dobi knjige"
+msgstr "O funkciji Pridobi knjige"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:15
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:60
@@ -5231,11 +5231,11 @@ msgstr "Pokaži določeno vrsto zapisa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:51
 msgid "Read a random book"
-msgstr ""
+msgstr "Preberi naključno knjigo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:55
 msgid "Clear recently viewed list"
-msgstr ""
+msgstr "Počisti seznam nazadnje ogledanih"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:139
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:219
@@ -12840,7 +12840,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:118
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search_ui.py:107
 msgid "Get Books"
-msgstr "Dobi knjige"
+msgstr "Pridobi knjige"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:119
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search_ui.py:108
