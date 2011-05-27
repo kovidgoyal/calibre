@@ -587,7 +587,7 @@ You can download news and convert it into an ebook with the command::
 
    /opt/calibre/ebook-convert "Title of news source.recipe" outputfile.epub
 
-If you want to generate MOBI, use outputfile.mobi instead.
+If you want to generate MOBI, use outputfile.mobi instead and use ``--output-profile kindle``.
 
 You can email downloaded news with the command::
 
