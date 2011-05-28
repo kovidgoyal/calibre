@@ -10,7 +10,7 @@ import re
 from operator import attrgetter
 
 from PyQt4.Qt import (Qt, QAbstractItemModel, QVariant, QPixmap, QModelIndex, QSize,
-                      pyqtSignal)
+                      pyqtSignal, QIcon)
 
 from calibre.gui2 import NONE
 from calibre.gui2.store.search_result import SearchResult
@@ -33,7 +33,7 @@ class Matches(QAbstractItemModel):
 
     total_changed = pyqtSignal(int)
 
-    HEADERS = [_('Cover'), _('Title'), _('Price'), _('DRM'), _('Store')]
+    HEADERS = [_('Cover'), _('Title'), _('Price'), _('DRM'), _('Store'), _('')]
     HTML_COLS = (1, 4)
 
     def __init__(self, cover_thread_count=2, detail_thread_count=4):
@@ -76,6 +76,7 @@ class Matches(QAbstractItemModel):
         self.reset()
 
     def add_result(self, result, store_plugin):
+        result.plugin = store_plugin
         if result not in self.all_matches:
             self.layoutAboutToBeChanged.emit()
             self.all_matches.append(result)
@@ -175,6 +176,12 @@ class Matches(QAbstractItemModel):
                     return QVariant(self.DRM_UNLOCKED_ICON)
                 elif result.drm == SearchResult.DRM_UNKNOWN:
                     return QVariant(self.DRM_UNKNOWN_ICON)
+            if col == 5:
+                if getattr(result.plugin.base_plugin, 'affiliate', False):
+                    icon = QIcon()
+                    icon.addFile(I('donate.png'), QSize(16, 16))
+                    return QVariant(icon)
+                return NONE
         elif role == Qt.ToolTipRole:
             if col == 1:
                 return QVariant('<p>%s</p>' % result.title)
@@ -189,6 +196,8 @@ class Matches(QAbstractItemModel):
                     return QVariant('<p>' + _('The DRM status of this book could not be determined. There is a very high likelihood that this book is actually DRM restricted.') + '</p>')
             elif col == 4:
                 return QVariant('<p>%s</p>' % result.formats)
+            elif col == 5:
+                return QVariant(_('Buying from this store supports a calibre developer'))
         elif role == Qt.SizeHintRole:
             return QSize(64, 64)
         return NONE
@@ -208,6 +217,11 @@ class Matches(QAbstractItemModel):
                 text = 'c'
         elif col == 4:
             text = result.store_name
+        elif col == 5:
+            if getattr(result.plugin.base_plugin, 'affiliate', False):
+                text = 'y'
+            else:
+                text = 'n'
         return text
 
     def sort(self, col, order, reset=True):

@@ -1111,6 +1111,7 @@ class StoreAmazonKindleStore(StoreBase):
     drm_free_only = False
     headquarters = 'US'
     formats = ['KINDLE']
+    affiliate = True
 
 class StoreAmazonDEKindleStore(StoreBase):
     name = 'Amazon DE Kindle'
@@ -1121,6 +1122,7 @@ class StoreAmazonDEKindleStore(StoreBase):
     drm_free_only = False
     headquarters = 'DE'
     formats = ['KINDLE']
+    affiliate = True
 
 class StoreAmazonUKKindleStore(StoreBase):
     name = 'Amazon UK Kindle'
@@ -1131,6 +1133,7 @@ class StoreAmazonUKKindleStore(StoreBase):
     drm_free_only = False
     headquarters = 'UK'
     formats = ['KINDLE']
+    affiliate = True
 
 class StoreArchiveOrgStore(StoreBase):
     name = 'Archive.org'
@@ -1168,6 +1171,7 @@ class StoreBeamEBooksDEStore(StoreBase):
     drm_free_only = True
     headquarters = 'DE'
     formats = ['EPUB', 'MOBI', 'PDF']
+    affiliate = True
 
 class StoreBeWriteStore(StoreBase):
     name = 'BeWrite Books'
@@ -1233,6 +1237,7 @@ class StoreFoylesUKStore(StoreBase):
     drm_free_only = False
     headquarters = 'UK'
     formats = ['EPUB', 'PDF']
+    affiliate = True
 
 class StoreGandalfStore(StoreBase):
     name = 'Gandalf'
@@ -1402,6 +1407,7 @@ class StoreEBookShoppeUKStore(StoreBase):
     drm_free_only = False
     headquarters = 'UK'
     formats = ['EPUB', 'PDF']
+    affiliate = True
 
 plugins += [
     StoreArchiveOrgStore,
@@ -1432,7 +1438,7 @@ plugins += [
     StorePragmaticBookshelfStore,
     StoreSmashwordsStore,
     StoreVirtualoStore,
-    #StoreWaterstonesUKStore,
+    StoreWaterstonesUKStore,
     StoreWeightlessBooksStore,
     StoreWizardsTowerBooksStore,
     StoreWoblinkStore
