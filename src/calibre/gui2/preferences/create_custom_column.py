@@ -182,6 +182,18 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
             getattr(self, 'enum_'+x).setVisible(col_type == 'enumeration')
         self.use_decorations.setVisible(col_type in ['text', 'composite', 'enumeration'])
         self.is_names.setVisible(col_type == '*text')
+        if col_type == 'int':
+            self.number_format_box.setToolTip('<p>' +
+                _('Examples: The format <code>{0:0>4d}</code> '
+                  'gives a 4-digit number with leading zeros. The format '
+                  '<code>{0:d}&nbsp;days</code> prints the number then the word "days"')+ '</p>')
+        elif col_type == 'float':
+            self.number_format_box.setToolTip('<p>' +
+                _('Examples: The format <code>{0:.1f}</code> gives a floating '
+                  'point number with 1 digit after the decimal point. The format '
+                  '<code>Price:&nbsp;$&nbsp;{0:,.2f}</code> prints '
+                  '"Price&nbsp;$&nbsp;" then displays the number with 2 digits '
+                  'after the decimal point and thousands separated by commas.') + '</p>')
 
     def accept(self):
         col = unicode(self.column_name_box.text()).strip()
