@@ -179,10 +179,6 @@ Everything else will show nothing.</string>
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
-           <property name="toolTip">
-            <string>&lt;p&gt;Use 0 (a zero) for the field name. Example: {0:0>5.2f} gives a 5-digit floating point number, 2 digits after the decimal point, with leading zeros
-            </string>
-           </property>
           </widget>
          </item>
          <item>
@@ -198,7 +194,9 @@ Everything else will show nothing.</string>
          <item>
           <widget class="QLabel" name="number_format_default_label">
            <property name="toolTip">
-            <string>&lt;p&gt;Example: ${0:,.2f} gives floating point number prefixed by a dollar sign, 2 digits after the decimal point, with thousands separated by commas</string>
+            <string>&lt;p&gt;The format specifier must begin with &lt;code&gt;{0:&lt;/code&gt;
+and end with &lt;code&gt;}&lt;/code&gt; You can have text before and after the format specifier.
+            </string>
            </property>
            <property name="text">
             <string>&lt;p&gt;Default: Not formatted. For format language details see &lt;a href="http://docs.python.org/library/string.html#format-string-syntax"&gt;the python documentation&lt;/a&gt;</string>
