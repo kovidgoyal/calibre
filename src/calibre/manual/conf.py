@@ -43,7 +43,7 @@ language = 'en'
 
 # General substitutions.
 project = __appname__
-copyright = '2008, Kovid Goyal'
+copyright = 'Kovid Goyal'
 
 # The default replacements for |version| and |release|, also used in various
 # other places throughout the built documents.
