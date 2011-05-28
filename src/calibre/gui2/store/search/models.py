@@ -10,7 +10,7 @@ import re
 from operator import attrgetter
 
 from PyQt4.Qt import (Qt, QAbstractItemModel, QVariant, QPixmap, QModelIndex, QSize,
-                      pyqtSignal, QIcon)
+                      pyqtSignal)
 
 from calibre.gui2 import NONE, FunctionDispatcher
 from calibre.gui2.store.search_result import SearchResult
