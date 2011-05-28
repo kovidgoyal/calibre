@@ -76,7 +76,7 @@ class Matches(QAbstractItemModel):
         self.reset()
 
     def add_result(self, result, store_plugin):
-        result.plugin = store_plugin
+        result.affiliate = getattr(store_plugin.base_plugin, 'affiliate', False)
         if result not in self.all_matches:
             self.layoutAboutToBeChanged.emit()
             self.all_matches.append(result)
@@ -177,7 +177,7 @@ class Matches(QAbstractItemModel):
                 elif result.drm == SearchResult.DRM_UNKNOWN:
                     return QVariant(self.DRM_UNKNOWN_ICON)
             if col == 5:
-                if getattr(result.plugin.base_plugin, 'affiliate', False):
+                if result.affiliate:
                     icon = QIcon()
                     icon.addFile(I('donate.png'), QSize(16, 16))
                     return QVariant(icon)
@@ -218,7 +218,7 @@ class Matches(QAbstractItemModel):
         elif col == 4:
             text = result.store_name
         elif col == 5:
-            if getattr(result.plugin.base_plugin, 'affiliate', False):
+            if result.affiliate:
                 text = 'y'
             else:
                 text = 'n'
