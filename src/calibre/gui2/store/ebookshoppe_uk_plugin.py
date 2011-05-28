@@ -62,18 +62,17 @@ class EBookShoppeUKStore(BasicStoreConfig, StorePlugin):
                 s = SearchResult()
                 s.cover_url = cover_url
                 s.title = title.strip()
-                # Set the author to the query terms to ensure that author
-                # queries match something when pruning searches. Of course, this
-                # means that all books will match. Sigh...
-                s.author = query
                 s.price = price
                 s.drm = SearchResult.DRM_UNLOCKED
                 s.detail_item = id
-                s.formats = ''
+                
+                self.my_get_details(s, timeout)
+                if not s.author:
+                    continue
 
                 yield s
 
-    def get_details(self, search_result, timeout):
+    def my_get_details(self, search_result, timeout):
         br = browser()
         with closing(br.open(search_result.detail_item, timeout=timeout)) as nf:
             idata = html.fromstring(nf.read())

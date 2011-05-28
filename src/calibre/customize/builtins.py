@@ -1420,7 +1420,7 @@ plugins += [
     StoreBeWriteStore,
     StoreDieselEbooksStore,
     StoreEbookscomStore,
-    #StoreEBookShoppeUKStore,
+    StoreEBookShoppeUKStore,
     StoreEPubBuyDEStore,
     StoreEHarlequinStore,
     StoreFeedbooksStore,
