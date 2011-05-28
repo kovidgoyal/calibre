@@ -1,35 +1,63 @@
-from calibre.web.feeds.recipes import BasicNewsRecipe
-class AdvancedUserRecipe1303841067(BasicNewsRecipe):
+__license__   = 'GPL v3'
+__copyright__ = '2008-2011, Kovid Goyal <kovid at kovidgoyal.net>, Darko Miletic <darko at gmail.com>'
+'''
+Profile to download FAZ.NET
+'''
 
-    title          = u'Faz.net'
-    __author__  = 'schuster'
-    oldest_article = 1
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class FazNet(BasicNewsRecipe):
+    title                 = 'FAZ.NET'
+    __author__            = 'Kovid Goyal, Darko Miletic'
     description           = 'Frankfurter Allgemeine Zeitung'
-    max_articles_per_feed = 100
-    no_stylesheets         = True
-    use_embedded_content   = False
-    language               = 'de'
-    remove_javascript      = True
-    cover_url = 'http://www.faz.net/f30/Images/Logos/logo.gif'
+    publisher             = 'Frankfurter Allgemeine Zeitung GmbH'
+    category              = 'news, politics, Germany'
+    use_embedded_content  = False
+    language = 'de'
 
-    remove_tags = [dict(attrs={'class':['LinkBoxModulSmall', 'ModulLesermeinungenFooter', 'ModulArtikelServices', 'SocialMediaUnten', 'ArrowLinkRight', 'ModulVerlagsInfo', 'AdData', 'FazFooter', 'Date']}),
-                dict(id=['FAZNavHeader', 'FAZNavMain', 'RightColumn', 'FazFooter', 'BreadCrumbs', 'FAZNavSubMain', 'FAZImgEvent']),
-                dict(name=['jksrdt'])]
+    max_articles_per_feed = 30
+    no_stylesheets        = True
+    encoding              = 'utf-8'
+    remove_javascript     = True
 
+    html2lrf_options = [
+                          '--comment', description
+                        , '--category', category
+                        , '--publisher', publisher
+                        ]
 
-    feeds          = [(u'Politik', u'http://www.faz.net/s/RubA24ECD630CAE40E483841DB7D16F4211/Tpl~Epartner~SRss_.xml'),
-          (u'Wirtschaft', u'http://www.faz.net/s/RubC9401175958F4DE28E143E68888825F6/Tpl~Epartner~SRss_.xml'),
-          (u'Feuilleton', u'http://www.faz.net/s/RubCC21B04EE95145B3AC877C874FB1B611/Tpl~Epartner~SRss_.xml'),
-          (u'Sport', u'http://www.faz.net/s/Rub9F27A221597D4C39A82856B0FE79F051/Tpl~Epartner~SRss_.xml'),
-          (u'Gesellschaft', u'http://www.faz.net/s/Rub02DBAA63F9EB43CEB421272A670A685C/Tpl~Epartner~SRss_.xml'),
-          (u'Finanzen', u'http://www.faz.net/s/Rub4B891837ECD14082816D9E088A2D7CB4/Tpl~Epartner~SRss_.xml'),
-          (u'Wissen', u'http://www.faz.net/s/Rub7F4BEE0E0C39429A8565089709B70C44/Tpl~Epartner~SRss_.xml'),
-          (u'Reise', u'http://www.faz.net/s/RubE2FB5CA667054BDEA70FB3BC45F8D91C/Tpl~Epartner~SRss_.xml'),
-          (u'Technik & Motor', u'http://www.faz.net/s/Rub01E4D53776494844A85FDF23F5707AD8/Tpl~Epartner~SRss_.xml'),
-          (u'Beruf & Chance', u'http://www.faz.net/s/RubB1E10A8367E8446897468EDAA6EA0504/Tpl~Epartner~SRss_.xml'),
-          (u'Kunstmarkt', u'http://www.faz.net/s/RubBC09F7BF72A2405A96718ECBFB68FBFE/Tpl~Epartner~SRss_.xml'),
-          (u'Immobilien ', u'http://www.faz.net/s/RubFED172A9E10F46B3A5F01B02098C0C8D/Tpl~Epartner~SRss_.xml'),
-          (u'Rhein-Main Zeitung', u'http://www.faz.net/s/RubABE881A6669742C2A5EBCB5D50D7EBEE/Tpl~Epartner~SRss_.xml'),
-          (u'Atomdebatte ', u'http://www.faz.net/s/Rub469C43057F8C437CACC2DE9ED41B7950/Tpl~Epartner~SRss_.xml')
-    ]
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"'
 
+    keep_only_tags = [dict(name='div', attrs={'class':'Article'})]
+
+    remove_tags = [
+                     dict(name=['object','link','embed','base'])
+                    ,dict(name='div',
+                        attrs={'class':['LinkBoxModulSmall','ModulVerlagsInfo',
+                            'ArtikelServices', 'ModulLesermeinungenFooter',
+                            'ModulArtikelServices', 'BoxTool Aufklappen_Grau',
+                            'SocialMediaUnten', ]}),
+                    dict(id=['KurzLinkMenu', 'ArtikelServicesMenu']),
+                  ]
+
+    feeds = [
+              ('FAZ.NET Aktuell', 'http://www.faz.net/s/RubF3CE08B362D244869BE7984590CB6AC1/Tpl~Epartner~SRss_.xml'),
+              ('Politik', 'http://www.faz.net/s/RubA24ECD630CAE40E483841DB7D16F4211/Tpl~Epartner~SRss_.xml'),
+              ('Wirtschaft', 'http://www.faz.net/s/RubC9401175958F4DE28E143E68888825F6/Tpl~Epartner~SRss_.xml'),
+              ('Feuilleton', 'http://www.faz.net/s/RubCC21B04EE95145B3AC877C874FB1B611/Tpl~Epartner~SRss_.xml'),
+              ('Sport', 'http://www.faz.net/s/Rub9F27A221597D4C39A82856B0FE79F051/Tpl~Epartner~SRss_.xml'),
+              ('Gesellschaft', 'http://www.faz.net/s/Rub02DBAA63F9EB43CEB421272A670A685C/Tpl~Epartner~SRss_.xml'),
+              ('Finanzen', 'http://www.faz.net/s/Rub4B891837ECD14082816D9E088A2D7CB4/Tpl~Epartner~SRss_.xml'),
+              ('Wissen', 'http://www.faz.net/s/Rub7F4BEE0E0C39429A8565089709B70C44/Tpl~Epartner~SRss_.xml'),
+              ('Reise', 'http://www.faz.net/s/RubE2FB5CA667054BDEA70FB3BC45F8D91C/Tpl~Epartner~SRss_.xml'),
+              ('Technik & Motor', 'http://www.faz.net/s/Rub01E4D53776494844A85FDF23F5707AD8/Tpl~Epartner~SRss_.xml'),
+              ('Beruf & Chance', 'http://www.faz.net/s/RubB1E10A8367E8446897468EDAA6EA0504/Tpl~Epartner~SRss_.xml')
+            ]
+
+    def preprocess_html(self, soup):
+        mtag = '<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>'
+        soup.head.insert(0,mtag)
+        del soup.body['onload']
+        for item in soup.findAll(style=True):
+            del item['style']
+        return soup

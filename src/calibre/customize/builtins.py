@@ -1432,7 +1432,7 @@ plugins += [
     StorePragmaticBookshelfStore,
     StoreSmashwordsStore,
     StoreVirtualoStore,
-    # StoreWaterstonesUKStore,
+    #StoreWaterstonesUKStore,
     StoreWeightlessBooksStore,
     StoreWizardsTowerBooksStore,
     StoreWoblinkStore
