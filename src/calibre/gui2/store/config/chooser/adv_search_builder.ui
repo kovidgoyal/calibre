@@ -149,7 +149,7 @@
              </size>
             </property>
             <property name="text">
-             <string>See the &lt;a href=&quot;http://calibre-ebook.com/user_manual/gui.html#the-search-interface&quot;&gt;User Manual&lt;/a&gt; for more help</string>
+             <string>See the &lt;a href=&quot;http://manual.calibre-ebook.com/gui.html#the-search-interface&quot;&gt;User Manual&lt;/a&gt; for more help</string>
             </property>
             <property name="openExternalLinks">
              <bool>true</bool>

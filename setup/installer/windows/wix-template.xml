@@ -69,7 +69,7 @@
                              WorkingDirectory="APPLICATIONROOTDIRECTORY" />
                         <util:InternetShortcut Id="OnlineDocumentationShortcut"
                             Name="User Manual" Type="url"
-                               Target="http://calibre-ebook.com/user_manual"/>
+                               Target="http://manual.calibre-ebook.com"/>
                         <util:InternetShortcut Id="GetInvolvedS"
                             Name="Get Involved" Type="url"
                             Target="http://calibre-ebook.com/get-involved"/>

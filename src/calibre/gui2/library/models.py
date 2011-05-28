@@ -623,7 +623,12 @@ class BooksModel(QAbstractTableModel): # {{{
                 return None
             return QVariant(text)
 
-        def number_type(r, idx=-1):
+        def number_type(r, idx=-1, fmt=None):
+            if fmt is not None:
+                try:
+                    return QVariant(fmt.format(self.db.data[r][idx]))
+                except:
+                    pass
             return QVariant(self.db.data[r][idx])
 
         self.dc = {
@@ -674,7 +679,8 @@ class BooksModel(QAbstractTableModel): # {{{
                             bool_cols_are_tristate=
                                 self.db.prefs.get('bools_are_tristate'))
             elif datatype in ('int', 'float'):
-                self.dc[col] = functools.partial(number_type, idx=idx)
+                fmt = self.custom_columns[col]['display'].get('number_format', None)
+                self.dc[col] = functools.partial(number_type, idx=idx, fmt=fmt)
             elif datatype == 'datetime':
                 self.dc[col] = functools.partial(datetime_type, idx=idx)
             elif datatype == 'bool':

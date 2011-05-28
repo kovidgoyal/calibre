@@ -164,7 +164,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                   'library view. Choose the column you wish to color, then '
                   'supply a template that specifies the color to use based on '
                   'the values in the column. There is a '
-                  '<a href="http://calibre-ebook.com/user_manual/template_lang.html">'
+                  '<a href="http://manual.calibre-ebook.com/template_lang.html">'
                   'tutorial</a> on using templates.') +
                  '</p><p>' +
                 _('If you want to color a field based on tags, then click the '
