@@ -16,7 +16,7 @@ from setup import Command, __version__, installer_name, __appname__
 PREFIX = "/var/www/calibre-ebook.com"
 DOWNLOADS = PREFIX+"/htdocs/downloads"
 BETAS = DOWNLOADS +'/betas'
-USER_MANUAL = PREFIX+'/htdocs/user_manual'
+USER_MANUAL = '/var/www/localhost/htdocs/'
 HTML2LRF = "calibre/ebooks/lrf/html/demo"
 TXT2LRF  = "src/calibre/ebooks/lrf/txt/demo"
 MOBILEREAD = 'ftp://dev.mobileread.com/calibre/'
@@ -365,7 +365,7 @@ class UploadUserManual(Command): # {{{
             self.build_plugin_example(x)
 
         check_call(' '.join(['scp', '-r', 'src/calibre/manual/.build/html/*',
-                    'divok:%s'%USER_MANUAL]), shell=True)
+                    'bugs:%s'%USER_MANUAL]), shell=True)
 # }}}
 
 class UploadDemo(Command): # {{{

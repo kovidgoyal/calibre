@@ -172,12 +172,37 @@ Everything else will show nothing.</string>
           </widget>
          </item>
          <item>
+          <widget class="QLineEdit" name="number_format_box">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QLabel" name="date_format_default_label">
            <property name="toolTip">
             <string>Use MMM yyyy for month + year, yyyy for year only</string>
            </property>
            <property name="text">
             <string>Default: dd MMM yyyy.</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="number_format_default_label">
+           <property name="toolTip">
+            <string>&lt;p&gt;The format specifier must begin with &lt;code&gt;{0:&lt;/code&gt;
+and end with &lt;code&gt;}&lt;/code&gt; You can have text before and after the format specifier.
+            </string>
+           </property>
+           <property name="text">
+            <string>&lt;p&gt;Default: Not formatted. For format language details see &lt;a href="http://docs.python.org/library/string.html#format-string-syntax"&gt;the python documentation&lt;/a&gt;</string>
+           </property>
+           <property name="openExternalLinks">
+            <bool>true</bool>
            </property>
           </widget>
          </item>
@@ -190,6 +215,16 @@ Everything else will show nothing.</string>
          </property>
          <property name="buddy">
           <cstring>date_format_box</cstring>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0">
+        <widget class="QLabel" name="number_format_label">
+         <property name="text">
+          <string>Format for &amp;numbers</string>
+         </property>
+         <property name="buddy">
+          <cstring>number_format_box</cstring>
          </property>
         </widget>
        </item>

@@ -15,7 +15,7 @@ from PyQt4.Qt import QTableView, Qt, QAbstractItemView, QMenu, pyqtSignal, \
 from calibre.gui2.library.delegates import RatingDelegate, PubDateDelegate, \
     TextDelegate, DateDelegate, CompleteDelegate, CcTextDelegate, \
     CcBoolDelegate, CcCommentsDelegate, CcDateDelegate, CcTemplateDelegate, \
-    CcEnumDelegate
+    CcEnumDelegate, CcNumberDelegate
 from calibre.gui2.library.models import BooksModel, DeviceBooksModel
 from calibre.utils.config import tweaks, prefs
 from calibre.gui2 import error_dialog, gprefs
@@ -89,6 +89,7 @@ class BooksView(QTableView): # {{{
         self.cc_bool_delegate = CcBoolDelegate(self)
         self.cc_comments_delegate = CcCommentsDelegate(self)
         self.cc_template_delegate = CcTemplateDelegate(self)
+        self.cc_number_delegate = CcNumberDelegate(self)
         self.display_parent = parent
         self._model = modelcls(self)
         self.setModel(self._model)
@@ -501,8 +502,10 @@ class BooksView(QTableView): # {{{
                                                           self.tags_delegate)
                     else:
                         self.setItemDelegateForColumn(cm.index(colhead), self.cc_text_delegate)
-                elif cc['datatype'] in ('series', 'int', 'float'):
+                elif cc['datatype'] == 'series':
                     self.setItemDelegateForColumn(cm.index(colhead), self.cc_text_delegate)
+                elif cc['datatype'] in ('int', 'float'):
+                    self.setItemDelegateForColumn(cm.index(colhead), self.cc_number_delegate)
                 elif cc['datatype'] == 'bool':
                     self.setItemDelegateForColumn(cm.index(colhead), self.cc_bool_delegate)
                 elif cc['datatype'] == 'rating':

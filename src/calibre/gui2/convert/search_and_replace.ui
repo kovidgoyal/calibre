@@ -188,7 +188,7 @@
    <item row="0" column="0">
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>&lt;p&gt;Search and replace uses &lt;i&gt;regular expressions&lt;/i&gt;. See the &lt;a href=&quot;http://calibre-ebook.com/user_manual/regexp.html&quot;&gt;regular expressions tutorial&lt;/a&gt; to get started with regular expressions. Also clicking the wizard buttons below will allow you to test your regular expression against the current input document.</string>
+      <string>&lt;p&gt;Search and replace uses &lt;i&gt;regular expressions&lt;/i&gt;. See the &lt;a href=&quot;http://manual.calibre-ebook.com/regexp.html&quot;&gt;regular expressions tutorial&lt;/a&gt; to get started with regular expressions. Also clicking the wizard buttons below will allow you to test your regular expression against the current input document.</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>

@@ -40,7 +40,7 @@ To get help on them specify the input and output file and then use the -h \
 option.
 
 For full documentation of the conversion system see
-''') + 'http://calibre-ebook.com/user_manual/conversion.html'
+''') + 'http://manual.calibre-ebook.com/conversion.html'
 
 HEURISTIC_OPTIONS = ['markup_chapter_headings',
                       'italicize_common_cases', 'fix_indents',
