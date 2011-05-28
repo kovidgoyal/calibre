@@ -85,26 +85,26 @@
      <item>
       <widget class="QLabel" name="label_2">
        <property name="text">
-        <string>Select:</string>
+        <string>Enable</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="select_all">
+      <widget class="QPushButton" name="enable_all">
        <property name="text">
         <string>All</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="select_none">
+      <widget class="QPushButton" name="enable_none">
        <property name="text">
         <string>None</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="select_invert">
+      <widget class="QPushButton" name="enable_invert">
        <property name="text">
         <string>Invert</string>
        </property>

@@ -102,7 +102,7 @@ class SearchDialog(QDialog, Ui_Dialog):
             store_list_layout.addWidget(cbox, i, 0, 1, 1)
             if self.gui.istores[x].base_plugin.affiliate:
                 iw = QLabel(self)
-                iw.setToolTip(_('Buying from this store supports a calibre developer'))
+                iw.setToolTip('<p>' + _('Buying from this store supports the calibre developer: %s</p>') % self.gui.istores[x].base_plugin.author + '</p>')
                 iw.setPixmap(icon.pixmap(16, 16))
                 store_list_layout.addWidget(iw, i, 1, 1, 1)
             self.store_checks[x] = cbox

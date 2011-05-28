@@ -23,6 +23,9 @@ class StoreChooserWidget(QWidget, Ui_Form):
         
         self.search.clicked.connect(self.do_search)
         self.adv_search_builder.clicked.connect(self.build_adv_search)
+        self.enable_all.clicked.connect(self.results_view.model().enable_all)
+        self.enable_none.clicked.connect(self.results_view.model().enable_none)
+        self.enable_invert.clicked.connect(self.results_view.model().enable_invert)
         self.results_view.activated.connect(self.toggle_plugin)
 
     def do_search(self):

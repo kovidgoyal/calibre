@@ -23,6 +23,7 @@ class SearchResult(object):
         self.drm = None
         self.formats = ''
         self.affiliate = False
+        self.plugin_author = ''
 
     def __eq__(self, other):
         return self.title == other.title and self.author == other.author and self.store_name == other.store_name

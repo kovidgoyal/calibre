@@ -200,7 +200,7 @@ class Matches(QAbstractItemModel):
                 return QVariant('<p>%s</p>' % result.formats)
             elif col == 5:
                 if result.affiliate:
-                    return QVariant(_('Buying from this store supports a calibre developer'))
+                    return QVariant('<p>' + _('Buying from this store supports the calibre developer: %s.') % result.plugin_author + '</p>')
         elif role == Qt.SizeHintRole:
             return QSize(64, 64)
         return NONE
