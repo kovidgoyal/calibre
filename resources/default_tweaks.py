@@ -53,7 +53,8 @@ authors_completer_append_separator = False
 # periods are automatically handled.
 author_sort_copy_method = 'comma'
 author_name_suffixes = ('Jr', 'Sr', 'Inc', 'Ph.D', 'Phd',
-                        'MD', 'M.D', 'I', 'II', 'III', 'IV')
+                        'MD', 'M.D', 'I', 'II', 'III', 'IV',
+                        'Junior', 'Senior')
 
 #: Use author sort in Tag Browser
 # Set which author field to display in the tags pane (the list of authors,
@@ -349,4 +350,12 @@ send_news_to_device_location = "main"
 # to '::' to listen to all incoming IPv6 and IPv4 connections (this may not
 # work on all operating systems)
 server_listen_on = '0.0.0.0'
+
+#: Unified toolbar on OS X
+# If you enable this option and restart calibre, the toolbar will be 'unified'
+# with the titlebar as is normal for OS X applications. However, doing this has
+# various bugs, for instance the minimum width of the toolbar becomes twice
+# what it should be and it causes other random bugs on some systems, so turn it
+# on at your own risk!
+unified_title_toolbar_on_osx = False
 

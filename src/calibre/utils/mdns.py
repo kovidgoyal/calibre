@@ -13,16 +13,17 @@ def _get_external_ip():
         ipaddr = socket.gethostbyname(socket.gethostname())
     except:
         ipaddr = '127.0.0.1'
-    if ipaddr == '127.0.0.1':
+    if ipaddr.startswith('127.'):
         for addr in ('192.0.2.0', '198.51.100.0', 'google.com'):
             try:
                 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
                 s.connect((addr, 0))
                 ipaddr = s.getsockname()[0]
-                if ipaddr != '127.0.0.1':
-                    return ipaddr
+                if not ipaddr.startswith('127.'):
+                    break
             except:
                 time.sleep(0.3)
+    #print 'ipaddr: %s' % ipaddr
     return ipaddr
 
 _ext_ip = None

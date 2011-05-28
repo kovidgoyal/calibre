@@ -22,13 +22,16 @@ class GenericDownloadThreadPool(object):
     at the end of the function.
     '''
 
-    def __init__(self, thread_type, thread_count):
+    def __init__(self, thread_type, thread_count=1):
         self.thread_type = thread_type
         self.thread_count = thread_count
 
         self.tasks = Queue()
         self.results = Queue()
         self.threads = []
+
+    def set_thread_count(self, thread_count):
+        self.thread_count = thread_count
 
     def add_task(self):
         '''
@@ -92,8 +95,8 @@ class SearchThreadPool(GenericDownloadThreadPool):
     def __init__(self, thread_count):
         GenericDownloadThreadPool.__init__(self, SearchThread, thread_count)
 
-    def add_task(self, query, store_name, store_plugin, timeout):
-        self.tasks.put((query, store_name, store_plugin, timeout))
+    def add_task(self, query, store_name, store_plugin, max_results, timeout):
+        self.tasks.put((query, store_name, store_plugin, max_results, timeout))
         GenericDownloadThreadPool.add_task(self)
 
 
@@ -112,8 +115,8 @@ class SearchThread(Thread):
     def run(self):
         while self._run and not self.tasks.empty():
             try:
-                query, store_name, store_plugin, timeout = self.tasks.get()
-                for res in store_plugin.search(query, timeout=timeout):
+                query, store_name, store_plugin, max_results, timeout = self.tasks.get()
+                for res in store_plugin.search(query, max_results=max_results, timeout=timeout):
                     if not self._run:
                         return
                     res.store_name = store_name

@@ -1,0 +1,48 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1305567197(BasicNewsRecipe):
+    title          = u'Focus (DE)'
+    __author__  = 'Anonymous'
+    language = 'de'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    no_stylesheets         = True
+    use_embedded_content   = False
+    remove_javascript      = True
+
+    def print_version(self, url):
+        return url + '?drucken=1'
+
+    keep_only_tags = [
+                              dict(name='div', attrs={'id':['article']}) ]
+
+    remove_tags = [dict(name='div', attrs={'class':'sidebar'}),
+                            dict(name='div', attrs={'class':'commentForm'}),
+                            dict(name='div', attrs={'class':'comment clearfix oid-3534591 open'}),
+                            dict(name='div', attrs={'class':'similarityBlock'}),
+                            dict(name='div', attrs={'class':'footer'}),
+                            dict(name='div', attrs={'class':'getMoreComments'}),
+                            dict(name='div', attrs={'class':'moreComments'}),
+                            dict(name='div', attrs={'class':'ads'}),
+                            dict(name='div', attrs={'class':'articleContent'}),
+
+
+                            ]
+    remove_tags_after = [
+                            dict(name='div',attrs={'class':['commentForm','title', 'actions clearfix']})
+                                   ]
+
+
+    feeds          = [	(u'Eilmeldungen', u'http://rss2.focus.de/c/32191/f/533875/index.rss'),
+                                        (u'Auto-News', u'http://rss2.focus.de/c/32191/f/443320/index.rss'),
+                                        (u'Digital-News', u'http://rss2.focus.de/c/32191/f/443315/index.rss'),
+                                        (u'Finanzen-News', u'http://rss2.focus.de/c/32191/f/443317/index.rss'),
+                                        (u'Gesundheit-News', u'http://rss2.focus.de/c/32191/f/443314/index.rss'),
+                                        (u'Immobilien-News', u'http://rss2.focus.de/c/32191/f/443318/index.rss'),
+                                        (u'Kultur-News', u'http://rss2.focus.de/c/32191/f/443321/index.rss'),
+		(u'Panorama-News', u'http://rss2.focus.de/c/32191/f/533877/index.rss'),
+                                        (u'Politik-News', u'http://rss2.focus.de/c/32191/f/443313/index.rss'),
+                                        (u'Reisen-News', u'http://rss2.focus.de/c/32191/f/443316/index.rss'),
+                                        (u'Sport-News', u'http://rss2.focus.de/c/32191/f/443319/index.rss'),
+                                        (u'Wissen-News', u'http://rss2.focus.de/c/32191/f/533876/index.rss'),
+                         ]

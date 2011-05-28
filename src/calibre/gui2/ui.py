@@ -23,7 +23,7 @@ from calibre.constants import __appname__, isosx
 from calibre.utils.config import prefs, dynamic
 from calibre.utils.ipc.server import Server
 from calibre.library.database2 import LibraryDatabase2
-from calibre.customize.ui import interface_actions, store_plugins
+from calibre.customize.ui import interface_actions, available_store_plugins
 from calibre.gui2 import error_dialog, GetMetadata, open_url, \
         gprefs, max_available_height, config, info_dialog, Dispatcher, \
         question_dialog
@@ -144,7 +144,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
 
     def load_store_plugins(self):
         self.istores = OrderedDict()
-        for store in store_plugins():
+        for store in available_store_plugins():
             if self.opts.ignore_plugins and store.plugin_path is not None:
                 continue
             try:

@@ -17,6 +17,7 @@ from calibre.gui2.search_box import SearchBox2, SavedSearchBox
 from calibre.gui2.throbber import ThrobbingButton
 from calibre.gui2.bars import BarsManager
 from calibre.gui2.widgets import ComboBoxWithHelp
+from calibre.utils.config_base import tweaks
 from calibre import human_readable
 
 class LocationManager(QObject): # {{{
@@ -264,7 +265,10 @@ class MainWindowMixin(object): # {{{
         for bar in self.bars_manager.child_bars:
             self.addToolBar(Qt.BottomToolBarArea, bar)
         self.bars_manager.update_bars()
-        self.setUnifiedTitleAndToolBarOnMac(True)
+        # This is disabled because it introduces various toolbar related bugs
+        # The width of the toolbar becomes the sum of both toolbars
+        if tweaks['unified_title_toolbar_on_osx']:
+            self.setUnifiedTitleAndToolBarOnMac(True)
 
         l = self.centralwidget.layout()
         l.addWidget(self.search_bar)

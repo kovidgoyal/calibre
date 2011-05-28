@@ -138,7 +138,7 @@ Follow these steps to find the problem:
 My device is non-standard or unusual. What can I do to connect to it?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In addition to the :guilabel:`Connect to Folder` function found under the Connect/Share button, |app| provides a ``User Defined`` device plugin that can be used to connect to any USB device that presents that shows up as a disk drive in your operating system. See the device plugin ``Preferences -> Plugins -> Device Plugins -> User Defined`` and ``Preferences -> Miscellaneous -> Get information to setup the user defined device`` for more information.
+In addition to the :guilabel:`Connect to Folder` function found under the Connect/Share button, |app| provides a ``User Defined`` device plugin that can be used to connect to any USB device that shows up as a disk drive in your operating system. Note: on windows, the device must have a drive letter for calibre to use it. See the device plugin ``Preferences -> Plugins -> Device Plugins -> User Defined`` and ``Preferences -> Miscellaneous -> Get information to setup the user defined device`` for more information.
 
 How does |app| manage collections on my SONY reader?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -587,7 +587,7 @@ You can download news and convert it into an ebook with the command::
 
    /opt/calibre/ebook-convert "Title of news source.recipe" outputfile.epub
 
-If you want to generate MOBI, use outputfile.mobi instead.
+If you want to generate MOBI, use outputfile.mobi instead and use ``--output-profile kindle``.
 
 You can email downloaded news with the command::
 

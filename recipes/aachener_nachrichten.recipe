@@ -1,0 +1,42 @@
+from calibre.web.feeds.recipes import BasicNewsRecipe
+class AdvancedUserRecipe(BasicNewsRecipe):
+
+    title          = u'Aachener Nachrichten'
+    __author__  = 'schuster'
+    oldest_article = 1
+    max_articles_per_feed = 100
+    use_embedded_content   = False
+    language               = 'de'
+    remove_javascript      = True
+    cover_url = 'http://www.an-online.de/einwaage/images/an_logo.png'
+    masthead_url = 'http://www.an-online.de/einwaage/images/an_logo.png'
+    extra_css = '''
+	.fliesstext_detail:{margin-bottom:10%;}
+	.headline_1:{margin-bottom:25%;}
+                    b{font-family:Arial,Helvetica,sans-serif; font-weight:200;font-size:large;}
+                    a{font-family:Arial,Helvetica,sans-serif; font-weight:400;font-size:large;}
+                    ll{font-family:Arial,Helvetica,sans-serif; font-weight:100;font-size:large;}
+                    h4{font-family:Arial,Helvetica,sans-serif; font-weight:normal;font-size:small;}
+                    img {min-width:300px; max-width:600px; min-height:300px; max-height:800px}
+                    dd{font-family:Arial,Helvetica,sans-serif;font-size:large;}
+                    body{font-family:Helvetica,Arial,sans-serif;font-size:small;}
+	'''
+
+
+
+    keep_only_tags    = [
+                       dict(name='span', attrs={'class':['fliesstext_detail', 'headline_1', 'autor_detail']}),
+                       dict(id=['header-logo'])
+  ]
+
+    feeds          = [(u'Euregio', u'http://www.an-online.de/an/rss/Euregio.xml'),
+                          (u'Aachen', u'http://www.an-online.de/an/rss/Aachen.xml'),
+                          (u'Nordkreis', u'http://www.an-online.de/an/rss/Nordkreis.xml'),
+                          (u'Düren', u'http://www.an-online.de/an/rss/Dueren.xml'),
+                          (u'Eiffel', u'http://www.an-online.de/an/rss/Eifel.xml'),
+                          (u'Eschweiler', u'http://www.an-online.de/an/rss/Eschweiler.xml'),
+                          (u'Geilenkirchen', u'http://www.an-online.de/an/rss/Geilenkirchen.xml'),
+                          (u'Heinsberg', u'http://www.an-online.de/an/rss/Heinsberg.xml'),
+                          (u'Jülich', u'http://www.an-online.de/an/rss/Juelich.xml'),
+                          (u'Stolberg', u'http://www.an-online.de/an/rss/Stolberg.xml'),
+                          (u'Ratgebenr', u'http://www.an-online.de/an/rss/Ratgeber.xml')]

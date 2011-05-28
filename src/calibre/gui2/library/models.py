@@ -14,6 +14,7 @@ from PyQt4.Qt import (QAbstractTableModel, Qt, pyqtSignal, QIcon, QImage,
 from calibre.gui2 import NONE, UNDEFINED_QDATE
 from calibre.utils.pyparsing import ParseException
 from calibre.ebooks.metadata import fmt_sidx, authors_to_string, string_to_authors
+from calibre.ebooks.metadata.book.base import composite_formatter
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import tweaks, prefs
 from calibre.utils.date import dt_factory, qt_to_dt
@@ -96,6 +97,8 @@ class BooksModel(QAbstractTableModel): # {{{
         self.ids_to_highlight_set = set()
         self.current_highlighted_idx = None
         self.highlight_only = False
+        self.column_color_map = {}
+        self.colors = [unicode(c) for c in QColor.colorNames()]
         self.read_config()
 
     def change_alignment(self, colname, alignment):
@@ -151,6 +154,7 @@ class BooksModel(QAbstractTableModel): # {{{
                 self.headers[col] = self.custom_columns[col]['name']
 
         self.build_data_convertors()
+        self.set_color_templates(reset=False)
         self.reset()
         self.database_changed.emit(db)
         self.stop_metadata_backup()
@@ -532,6 +536,15 @@ class BooksModel(QAbstractTableModel): # {{{
             img = self.default_image
         return img
 
+    def set_color_templates(self, reset=True):
+        self.column_color_map = {}
+        for i in range(1,self.db.column_color_count+1):
+            name = self.db.prefs.get('column_color_name_'+str(i))
+            if name:
+                self.column_color_map[name] = \
+                        self.db.prefs.get('column_color_template_'+str(i))
+        if reset:
+            self.reset()
 
     def build_data_convertors(self):
         def authors(r, idx=-1):
@@ -693,9 +706,36 @@ class BooksModel(QAbstractTableModel): # {{{
             return NONE
         if role in (Qt.DisplayRole, Qt.EditRole):
             return self.column_to_dc_map[col](index.row())
-        elif role == Qt.BackgroundColorRole:
+        elif role == Qt.BackgroundRole:
             if self.id(index) in self.ids_to_highlight_set:
-                return QColor('lightgreen')
+                return QVariant(QColor('lightgreen'))
+        elif role == Qt.ForegroundRole:
+            key = self.column_map[col]
+            if key in self.column_color_map:
+                mi = self.db.get_metadata(self.id(index), index_is_id=True)
+                fmt = self.column_color_map[key]
+                try:
+                    color = composite_formatter.safe_format(fmt, mi, '', mi)
+                    if color in self.colors:
+                        color = QColor(color)
+                        if color.isValid():
+                            return QVariant(color)
+                except:
+                    return NONE
+            elif self.is_custom_column(key) and \
+                        self.custom_columns[key]['datatype'] == 'enumeration':
+                cc = self.custom_columns[self.column_map[col]]['display']
+                colors = cc.get('enum_colors', [])
+                values = cc.get('enum_values', [])
+                txt = unicode(index.data(Qt.DisplayRole).toString())
+                if len(colors) > 0 and txt in values:
+                    try:
+                        color = QColor(colors[values.index(txt)])
+                        if color.isValid():
+                            return QVariant(color)
+                    except:
+                        pass
+            return NONE
         elif role == Qt.DecorationRole:
             if self.column_to_dc_decorator_map[col] is not None:
                 return self.column_to_dc_decorator_map[index.column()](index.row())

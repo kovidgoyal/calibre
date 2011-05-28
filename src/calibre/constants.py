@@ -4,7 +4,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 __appname__   = u'calibre'
-numeric_version = (0, 8, 1)
+numeric_version = (0, 8, 3)
 __version__   = u'.'.join(map(unicode, numeric_version))
 __author__    = u"Kovid Goyal <kovid@kovidgoyal.net>"
 
@@ -27,7 +27,9 @@ iswindows = 'win32' in _plat or 'win64' in _plat
 isosx     = 'darwin' in _plat
 isnewosx  = isosx and getattr(sys, 'new_app_bundle', False)
 isfreebsd = 'freebsd' in _plat
-islinux   = not(iswindows or isosx or isfreebsd)
+isnetbsd = 'netbsd' in _plat
+isbsd = isfreebsd or isnetbsd
+islinux   = not(iswindows or isosx or isbsd)
 isfrozen  = hasattr(sys, 'frozen')
 isunix = isosx or islinux
 

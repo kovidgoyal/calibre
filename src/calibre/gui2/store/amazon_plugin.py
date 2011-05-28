@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 import random
 import re
-import urllib2
+import urllib
 from contextlib import closing
 
 from lxml import html
@@ -22,7 +22,7 @@ from calibre.gui2.store.search_result import SearchResult
 
 class AmazonKindleStore(StorePlugin):
 
-    search_url = 'http://www.amazon.com/s/url=search-alias%3Ddigital-text&field-keywords='
+    search_url = 'http://www.amazon.com/s/?url=search-alias%3Ddigital-text&field-keywords='
     details_url = 'http://amazon.com/dp/'
     drm_search_text = u'Simultaneous Device Usage'
     drm_free_text = u'Unlimited'
@@ -122,28 +122,42 @@ class AmazonKindleStore(StorePlugin):
         open_url(QUrl(store_link))
 
     def search(self, query, max_results=10, timeout=60):
-        url =  self.search_url + urllib2.quote(query)
+        url =  self.search_url + urllib.quote_plus(query)
         br = browser()
 
         counter = max_results
         with closing(br.open(url, timeout=timeout)) as f:
             doc = html.fromstring(f.read())
-            for data in doc.xpath('//div[@class="productData"]'):
+            
+            # Amazon has two results pages.
+            is_shot = doc.xpath('boolean(//div[@id="shotgunMainResults"])')
+            # Horizontal grid of books.
+            if is_shot:
+                data_xpath = '//div[contains(@class, "result")]'
+                format_xpath = './/div[@class="productTitle"]/text()'
+                cover_xpath = './/div[@class="productTitle"]//img/@src'
+            # Vertical list of books.
+            else:
+                data_xpath = '//div[@class="productData"]'
+                format_xpath = './/span[@class="format"]/text()'
+                cover_xpath = '../div[@class="productImage"]/a/img/@src'
+            
+            for data in doc.xpath(data_xpath):
                 if counter <= 0:
                     break
-
+                
                 # Even though we are searching digital-text only Amazon will still
                 # put in results for non Kindle books (author pages). Se we need
                 # to explicitly check if the item is a Kindle book and ignore it
                 # if it isn't.
-                type = ''.join(data.xpath('//span[@class="format"]/text()'))
-                if 'kindle' not in type.lower():
+                format = ''.join(data.xpath(format_xpath))
+                if 'kindle' not in format.lower():
                     continue
-
+                
                 # We must have an asin otherwise we can't easily reference the
                 # book later.
                 asin_href = None
-                asin_a = data.xpath('div[@class="productTitle"]/a[1]')
+                asin_a = data.xpath('.//div[@class="productTitle"]/a[1]')
                 if asin_a:
                     asin_href = asin_a[0].get('href', '')
                     m = re.search(r'/dp/(?P<asin>.+?)(/|$)', asin_href)
@@ -153,29 +167,22 @@ class AmazonKindleStore(StorePlugin):
                         continue
                 else:
                     continue
+                
+                cover_url = ''.join(data.xpath(cover_xpath))
 
-                cover_url = ''
-                if asin_href:
-                    cover_img = data.xpath('//div[@class="productImage"]/a[@href="%s"]/img/@src' % asin_href)
-                    if cover_img:
-                        cover_url = cover_img[0]
-                        parts = cover_url.split('/')
-                        bn = parts[-1]
-                        f, _, ext = bn.rpartition('.')
-                        if '_' in f:
-                            bn = f.partition('_')[0]+'_SL160_.'+ext
-                            parts[-1] = bn
-                            cover_url = '/'.join(parts)
-
-                title = ''.join(data.xpath('div[@class="productTitle"]/a/text()'))
-                author = ''.join(data.xpath('div[@class="productTitle"]/span[@class="ptBrand"]/text()'))
-                author = author.split('by')[-1]
-                price = ''.join(data.xpath('div[@class="newPrice"]/span/text()'))
-
+                title = ''.join(data.xpath('.//div[@class="productTitle"]/a/text()'))
+                price = ''.join(data.xpath('.//div[@class="newPrice"]/span/text()'))
+                
+                if is_shot:
+                    author = format.split(' by ')[-1]
+                else:
+                    author = ''.join(data.xpath('.//div[@class="productTitle"]/span[@class="ptBrand"]/text()'))
+                    author = author.split(' by ')[-1]
+                
                 counter -= 1
-
+    
                 s = SearchResult()
-                s.cover_url = cover_url
+                s.cover_url = cover_url.strip()
                 s.title = title.strip()
                 s.author = author.strip()
                 s.price = price.strip()
