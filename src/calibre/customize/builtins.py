@@ -1417,7 +1417,7 @@ class StoreWeightlessBooksStore(StoreBase):
 class StoreWHSmithUKStore(StoreBase):
     name = 'WH Smith UK'
     author = 'Charles Haley'
-    description = u"With over 550 stores on the high street and 490 stores at airports, train stations, hospitals and motorway services, WHSmith is one of the UK's leading retail groups and a household name."
+    description = u"Shop for savings on Books, discounted Magazine subscriptions and great prices on Stationery, Toys & Games"
     actual_plugin = 'calibre.gui2.store.whsmith_uk_plugin:WHSmithUKStore'
 
     drm_free_only = False
