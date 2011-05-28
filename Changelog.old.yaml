@@ -478,7 +478,7 @@
       type: major
       description : >
         "You can now save your frequently used searches and access them with a single click. For details
-        see http://calibre-ebook.com/user_manual/gui.html#search-sort"
+        see http://manual.calibre-ebook.com/gui.html#search-sort"
 
     - title: "Add searching by date/published date"
       tickets: [5244]
