@@ -73,7 +73,7 @@ class EBookShoppeUKStore(BasicStoreConfig, StorePlugin):
 
                 yield s
 
-    def my_get_details(self, search_result, timeout):
+    def get_details(self, search_result, timeout):
         br = browser()
         with closing(br.open(search_result.detail_item, timeout=timeout)) as nf:
             idata = html.fromstring(nf.read())
