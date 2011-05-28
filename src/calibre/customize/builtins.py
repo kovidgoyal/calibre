@@ -1143,6 +1143,7 @@ class StoreArchiveOrgStore(StoreBase):
     drm_free_only = True
     headquarters = 'US'
     formats = ['DAISY', 'DJVU', 'EPUB', 'MOBI', 'PDF', 'TXT']
+    affiliate = False
 
 class StoreBaenWebScriptionStore(StoreBase):
     name = 'Baen WebScription'
@@ -1152,6 +1153,7 @@ class StoreBaenWebScriptionStore(StoreBase):
     drm_free_only = True
     headquarters = 'US'
     formats = ['EPUB', 'LIT', 'LRF', 'MOBI', 'RB', 'RTF', 'ZIP']
+    affiliate = False
 
 class StoreBNStore(StoreBase):
     name = 'Barnes and Noble'
@@ -1161,6 +1163,7 @@ class StoreBNStore(StoreBase):
     drm_free_only = False
     headquarters = 'US'
     formats = ['NOOK']
+    affiliate = True
 
 class StoreBeamEBooksDEStore(StoreBase):
     name = 'Beam EBooks DE'
@@ -1181,6 +1184,7 @@ class StoreBeWriteStore(StoreBase):
     drm_free_only = True
     headquarters = 'US'
     formats = ['EPUB', 'MOBI', 'PDF']
+    affiliate = False
 
 class StoreDieselEbooksStore(StoreBase):
     name = 'Diesel eBooks'
@@ -1190,6 +1194,7 @@ class StoreDieselEbooksStore(StoreBase):
     drm_free_only = False
     headquarters = 'US'
     formats = ['EPUB', 'PDF']
+    affiliate = True
 
 class StoreEbookscomStore(StoreBase):
     name = 'eBooks.com'
@@ -1199,6 +1204,18 @@ class StoreEbookscomStore(StoreBase):
     drm_free_only = False
     headquarters = 'US'
     formats = ['EPUB', 'LIT', 'MOBI', 'PDF']
+    affiliate = True
+
+class StoreEPubBuyDEStore(StoreBase):
+    name = 'EPUBBuy DE'
+    author = 'Charles Haley'
+    description = u'Bei EPUBBuy.com finden Sie ausschliesslich eBooks im weitverbreiteten EPUB-Format und ohne DRM. So haben Sie die freie Wahl, wo Sie Ihr eBook lesen: Tablet, eBook-Reader, Smartphone oder einfach auf Ihrem PC. So macht eBook-Lesen Spaß!'
+    actual_plugin = 'calibre.gui2.store.epubbuy_de_plugin:EPubBuyDEStore'
+
+    drm_free_only = True
+    headquarters = 'DE'
+    formats = ['EPUB']
+    affiliate = True
 
 class StoreEBookShoppeUKStore(StoreBase):
     name = 'ebookShoppe UK'
@@ -1211,16 +1228,6 @@ class StoreEBookShoppeUKStore(StoreBase):
     formats = ['EPUB', 'PDF']
     affiliate = True
 
-class StoreEPubBuyDEStore(StoreBase):
-    name = 'EPUBBuy DE'
-    author = 'Charles Haley'
-    description = u'Bei EPUBBuy.com finden Sie ausschliesslich eBooks im weitverbreiteten EPUB-Format und ohne DRM. So haben Sie die freie Wahl, wo Sie Ihr eBook lesen: Tablet, eBook-Reader, Smartphone oder einfach auf Ihrem PC. So macht eBook-Lesen Spaß!'
-    actual_plugin = 'calibre.gui2.store.epubbuy_de_plugin:EPubBuyDEStore'
-
-    drm_free_only = True
-    headquarters = 'DE'
-    formats = ['EPUB']
-
 class StoreEHarlequinStore(StoreBase):
     name = 'eHarlequin'
     description = u'A global leader in series romance and one of the world\'s leading publishers of books for women. Offers women a broad range of reading from romance to bestseller fiction, from young adult novels to erotic literature, from nonfiction to fantasy, from African-American novels to inspirational romance, and more.'
@@ -1229,6 +1236,7 @@ class StoreEHarlequinStore(StoreBase):
     drm_free_only = False
     headquarters = 'CA'
     formats = ['EPUB', 'PDF']
+    affiliate = True
 
 class StoreFeedbooksStore(StoreBase):
     name = 'Feedbooks'
@@ -1238,6 +1246,7 @@ class StoreFeedbooksStore(StoreBase):
     drm_free_only = False
     headquarters = 'FR'
     formats = ['EPUB', 'MOBI', 'PDF']
+    affiliate = False
 
 class StoreFoylesUKStore(StoreBase):
     name = 'Foyles UK'
@@ -1259,6 +1268,7 @@ class StoreGandalfStore(StoreBase):
     drm_free_only = False
     headquarters = 'PL'
     formats = ['EPUB', 'PDF']
+    affiliate = False
 
 class StoreGoogleBooksStore(StoreBase):
     name = 'Google Books'
@@ -1268,6 +1278,7 @@ class StoreGoogleBooksStore(StoreBase):
     drm_free_only = False
     headquarters = 'US'
     formats = ['EPUB', 'PDF', 'TXT']
+    affiliate = False
 
 class StoreGutenbergStore(StoreBase):
     name = 'Project Gutenberg'
@@ -1277,6 +1288,7 @@ class StoreGutenbergStore(StoreBase):
     drm_free_only = True
     headquarters = 'US'
     formats = ['EPUB', 'HTML', 'MOBI', 'PDB', 'TXT']
+    affiliate = False
 
 class StoreKoboStore(StoreBase):
     name = 'Kobo'
@@ -1286,6 +1298,7 @@ class StoreKoboStore(StoreBase):
     drm_free_only = False
     headquarters = 'CA'
     formats = ['EPUB']
+    affiliate = True
 
 class StoreLegimiStore(StoreBase):
     name = 'Legimi'
@@ -1296,6 +1309,7 @@ class StoreLegimiStore(StoreBase):
     drm_free_only = False
     headquarters = 'PL'
     formats = ['EPUB']
+    affiliate = False
 
 class StoreManyBooksStore(StoreBase):
     name = 'ManyBooks'
@@ -1305,6 +1319,7 @@ class StoreManyBooksStore(StoreBase):
     drm_free_only = True
     headquarters = 'US'
     formats = ['EPUB', 'FB2', 'JAR', 'LIT', 'LRF', 'MOBI', 'PDB', 'PDF', 'RB', 'RTF', 'TCR', 'TXT', 'ZIP']
+    affiliate = False
 
 class StoreMobileReadStore(StoreBase):
     name = 'MobileRead'
@@ -1314,6 +1329,7 @@ class StoreMobileReadStore(StoreBase):
     drm_free_only = True
     headquarters = 'CH'
     formats = ['EPUB', 'IMP', 'LRF', 'LIT', 'MOBI', 'PDF']
+    affiliate = False
 
 class StoreNextoStore(StoreBase):
     name = 'Nexto'
@@ -1324,6 +1340,7 @@ class StoreNextoStore(StoreBase):
     drm_free_only = False
     headquarters = 'PL'
     formats = ['EPUB', 'PDF']
+    affiliate = True
 
 class StoreOpenLibraryStore(StoreBase):
     name = 'Open Library'
@@ -1333,6 +1350,7 @@ class StoreOpenLibraryStore(StoreBase):
     drm_free_only = True
     headquarters = 'US'
     formats = ['DAISY', 'DJVU', 'EPUB', 'MOBI', 'PDF', 'TXT']
+    affiliate = False
 
 class StoreOReillyStore(StoreBase):
     name = 'OReilly'
@@ -1342,6 +1360,7 @@ class StoreOReillyStore(StoreBase):
     drm_free_only = True
     headquarters = 'US'
     formats = ['APK', 'DAISY', 'EPUB', 'MOBI', 'PDF']
+    affiliate = False
 
 class StorePragmaticBookshelfStore(StoreBase):
     name = 'Pragmatic Bookshelf'
@@ -1351,6 +1370,7 @@ class StorePragmaticBookshelfStore(StoreBase):
     drm_free_only = True
     headquarters = 'US'
     formats = ['EPUB', 'MOBI', 'PDF']
+    affiliate = False
 
 class StoreSmashwordsStore(StoreBase):
     name = 'Smashwords'
@@ -1360,6 +1380,7 @@ class StoreSmashwordsStore(StoreBase):
     drm_free_only = True
     headquarters = 'US'
     formats = ['EPUB', 'HTML', 'LRF', 'MOBI', 'PDB', 'RTF', 'TXT']
+    affiliate = True
 
 class StoreVirtualoStore(StoreBase):
     name = 'Virtualo'
@@ -1370,6 +1391,7 @@ class StoreVirtualoStore(StoreBase):
     drm_free_only = False
     headquarters = 'PL'
     formats = ['EPUB', 'PDF']
+    affiliate = False
 
 class StoreWaterstonesUKStore(StoreBase):
     name = 'Waterstones UK'
@@ -1380,6 +1402,7 @@ class StoreWaterstonesUKStore(StoreBase):
     drm_free_only = False
     headquarters = 'UK'
     formats = ['EPUB', 'PDF']
+    affiliate = False
 
 class StoreWeightlessBooksStore(StoreBase):
     name = 'Weightless Books'
@@ -1389,6 +1412,18 @@ class StoreWeightlessBooksStore(StoreBase):
     drm_free_only = True
     headquarters = 'US'
     formats = ['EPUB', 'HTML', 'LIT', 'MOBI', 'PDF']
+    affiliate = False
+
+class StoreWHSmithUKStore(StoreBase):
+    name = 'WH Smith UK'
+    author = 'Charles Haley'
+    description = u"Shop for savings on Books, discounted Magazine subscriptions and great prices on Stationery, Toys & Games"
+    actual_plugin = 'calibre.gui2.store.whsmith_uk_plugin:WHSmithUKStore'
+
+    drm_free_only = False
+    headquarters = 'UK'
+    formats = ['EPUB', 'PDF']
+    affiliate = False
 
 class StoreWizardsTowerBooksStore(StoreBase):
     name = 'Wizards Tower Books'
@@ -1398,6 +1433,7 @@ class StoreWizardsTowerBooksStore(StoreBase):
     drm_free_only = True
     headquarters = 'UK'
     formats = ['EPUB', 'MOBI']
+    affiliate = False
 
 class StoreWoblinkStore(StoreBase):
     name = 'Woblink'
@@ -1408,6 +1444,7 @@ class StoreWoblinkStore(StoreBase):
     drm_free_only = False
     headquarters = 'PL'
     formats = ['EPUB']
+    affiliate = False
 
 plugins += [
     StoreArchiveOrgStore,
@@ -1440,6 +1477,7 @@ plugins += [
     StoreVirtualoStore,
     StoreWaterstonesUKStore,
     StoreWeightlessBooksStore,
+    StoreWHSmithUKStore,
     StoreWizardsTowerBooksStore,
     StoreWoblinkStore
 ]

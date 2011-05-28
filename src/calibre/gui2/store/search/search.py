@@ -9,8 +9,8 @@ __docformat__ = 'restructuredtext en'
 import re
 from random import shuffle
 
-from PyQt4.Qt import (Qt, QDialog, QDialogButtonBox, QTimer, QCheckBox,
-                      QVBoxLayout, QIcon, QWidget, QTabWidget)
+from PyQt4.Qt import (Qt, QDialog, QDialogButtonBox, QTimer, QCheckBox, QLabel,
+                      QVBoxLayout, QIcon, QWidget, QTabWidget, QGridLayout)
 
 from calibre.gui2 import JSONConfig, info_dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
@@ -80,7 +80,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.progress_checker.start(100)
 
         self.restore_state()
-    
+
     def setup_store_checks(self):
         # Add check boxes for each store so the user
         # can disable searching specific stores on a
@@ -88,18 +88,25 @@ class SearchDialog(QDialog, Ui_Dialog):
         existing = {}
         for n in self.store_checks:
             existing[n] = self.store_checks[n].isChecked()
-        
+
         self.store_checks = {}
 
         stores_check_widget = QWidget()
-        store_list_layout = QVBoxLayout()
+        store_list_layout = QGridLayout()
         stores_check_widget.setLayout(store_list_layout)
-        for x in sorted(self.gui.istores.keys(), key=lambda x: x.lower()):
+
+        icon = QIcon(I('donate.png'))
+        for i, x in enumerate(sorted(self.gui.istores.keys(), key=lambda x: x.lower())):
             cbox = QCheckBox(x)
             cbox.setChecked(existing.get(x, False))
-            store_list_layout.addWidget(cbox)
+            store_list_layout.addWidget(cbox, i, 0, 1, 1)
+            if self.gui.istores[x].base_plugin.affiliate:
+                iw = QLabel(self)
+                iw.setToolTip(_('Buying from this store supports a calibre developer'))
+                iw.setPixmap(icon.pixmap(16, 16))
+                store_list_layout.addWidget(iw, i, 1, 1, 1)
             self.store_checks[x] = cbox
-        store_list_layout.addStretch()
+        store_list_layout.setRowStretch(store_list_layout.rowCount(), 10)
         self.store_list.setWidget(stores_check_widget)
 
     def build_adv_search(self):
@@ -250,14 +257,14 @@ class SearchDialog(QDialog, Ui_Dialog):
         button_box.accepted.connect(d.accept)
         button_box.rejected.connect(d.reject)
         d.setWindowTitle(_('Customize get books search'))
-        
+
         tab_widget = QTabWidget(d)
         v.addWidget(tab_widget)
         v.addWidget(button_box)
 
         chooser_config_widget = StoreChooserWidget()
         search_config_widget = StoreConfigWidget(self.config)
-        
+
         tab_widget.addTab(chooser_config_widget, _('Choose stores'))
         tab_widget.addTab(search_config_widget, _('Configure search'))
 

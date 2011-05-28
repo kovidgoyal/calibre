@@ -65,14 +65,14 @@ class EBookShoppeUKStore(BasicStoreConfig, StorePlugin):
                 s.price = price
                 s.drm = SearchResult.DRM_UNLOCKED
                 s.detail_item = id
-                
-                self.my_get_details(s, timeout)
+
+                self.get_author_and_formats(s, timeout)
                 if not s.author:
                     continue
 
                 yield s
 
-    def my_get_details(self, search_result, timeout):
+    def get_author_and_formats(self, search_result, timeout):
         br = browser()
         with closing(br.open(search_result.detail_item, timeout=timeout)) as nf:
             idata = html.fromstring(nf.read())
