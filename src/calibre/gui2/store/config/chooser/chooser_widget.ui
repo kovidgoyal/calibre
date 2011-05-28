@@ -31,7 +31,14 @@
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="query"/>
+      <widget class="HistoryLineEdit" name="query">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+      </widget>
      </item>
      <item>
       <widget class="QPushButton" name="search">
@@ -80,6 +87,11 @@
    <class>ResultsView</class>
    <extends>QTreeView</extends>
    <header>results_view.h</header>
+  </customwidget>
+  <customwidget>
+   <class>HistoryLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>widgets.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

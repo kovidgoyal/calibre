@@ -17,6 +17,8 @@ class StoreChooserWidget(QWidget, Ui_Form):
         QWidget.__init__(self)
         self.setupUi(self)
         
+        self.query.initialize('store_config_chooser_query')
+        
         self.adv_search_builder.setIcon(QIcon(I('search.png')))
         
         self.search.clicked.connect(self.do_search)
