@@ -76,7 +76,6 @@ class Matches(QAbstractItemModel):
         self.reset()
 
     def add_result(self, result, store_plugin):
-        result.affiliate = getattr(store_plugin.base_plugin, 'affiliate', False)
         if result not in self.all_matches:
             self.layoutAboutToBeChanged.emit()
             self.all_matches.append(result)
@@ -178,6 +177,8 @@ class Matches(QAbstractItemModel):
                     return QVariant(self.DRM_UNKNOWN_ICON)
             if col == 5:
                 if result.affiliate:
+                    # For some reason the size(16, 16) is forgotten if the icon
+                    # is a class attribute. Don't know why...
                     icon = QIcon()
                     icon.addFile(I('donate.png'), QSize(16, 16))
                     return QVariant(icon)
@@ -197,7 +198,8 @@ class Matches(QAbstractItemModel):
             elif col == 4:
                 return QVariant('<p>%s</p>' % result.formats)
             elif col == 5:
-                return QVariant(_('Buying from this store supports a calibre developer'))
+                if result.affiliate:
+                    return QVariant(_('Buying from this store supports a calibre developer'))
         elif role == Qt.SizeHintRole:
             return QSize(64, 64)
         return NONE
