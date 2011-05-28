@@ -10,7 +10,7 @@ import re
 from operator import attrgetter
 
 from PyQt4.Qt import (Qt, QAbstractItemModel, QVariant, QPixmap, QModelIndex, QSize,
-                      pyqtSignal)
+                      pyqtSignal, QIcon)
 
 from calibre.gui2 import NONE, FunctionDispatcher
 from calibre.gui2.store.search_result import SearchResult
@@ -33,7 +33,7 @@ class Matches(QAbstractItemModel):
 
     total_changed = pyqtSignal(int)
 
-    HEADERS = [_('Cover'), _('Title'), _('Price'), _('DRM'), _('Store')]
+    HEADERS = [_('Cover'), _('Title'), _('Price'), _('DRM'), _('Store'), _('')]
     HTML_COLS = (1, 4)
 
     def __init__(self, cover_thread_count=2, detail_thread_count=4):
@@ -153,6 +153,8 @@ class Matches(QAbstractItemModel):
 
     def data(self, index, role):
         row, col = index.row(), index.column()
+        if row >= len(self.matches):
+            return NONE
         result = self.matches[row]
         if role == Qt.DisplayRole:
             if col == 1:
@@ -176,6 +178,14 @@ class Matches(QAbstractItemModel):
                     return QVariant(self.DRM_UNLOCKED_ICON)
                 elif result.drm == SearchResult.DRM_UNKNOWN:
                     return QVariant(self.DRM_UNKNOWN_ICON)
+            if col == 5:
+                if result.affiliate:
+                    # For some reason the size(16, 16) is forgotten if the icon
+                    # is a class attribute. Don't know why...
+                    icon = QIcon()
+                    icon.addFile(I('donate.png'), QSize(16, 16))
+                    return QVariant(icon)
+                return NONE
         elif role == Qt.ToolTipRole:
             if col == 1:
                 return QVariant('<p>%s</p>' % result.title)
@@ -190,6 +200,9 @@ class Matches(QAbstractItemModel):
                     return QVariant('<p>' + _('The DRM status of this book could not be determined. There is a very high likelihood that this book is actually DRM restricted.') + '</p>')
             elif col == 4:
                 return QVariant('<p>%s</p>' % result.formats)
+            elif col == 5:
+                if result.affiliate:
+                    return QVariant(_('Buying from this store supports a calibre developer'))
         elif role == Qt.SizeHintRole:
             return QSize(64, 64)
         return NONE
@@ -209,6 +222,11 @@ class Matches(QAbstractItemModel):
                 text = 'c'
         elif col == 4:
             text = result.store_name
+        elif col == 5:
+            if result.affiliate:
+                text = 'a'
+            else:
+                text = 'b'
         return text
 
     def sort(self, col, order, reset=True):
@@ -237,6 +255,7 @@ class SearchFilter(SearchQueryParser):
 
     USABLE_LOCATIONS = [
         'all',
+        'affiliate',
         'author',
         'authors',
         'cover',
@@ -287,6 +306,7 @@ class SearchFilter(SearchQueryParser):
         all_locs = set(self.USABLE_LOCATIONS) - set(['all'])
         locations = all_locs if location == 'all' else [location]
         q = {
+             'affiliate': attrgetter('affiliate'),
              'author': lambda x: x.author.lower(),
              'cover': attrgetter('cover_url'),
              'drm': attrgetter('drm'),
@@ -301,23 +321,35 @@ class SearchFilter(SearchQueryParser):
             for locvalue in locations:
                 accessor = q[locvalue]
                 if query == 'true':
-                    if locvalue == 'drm':
+                    # True/False.
+                    if locvalue == 'affiliate':
+                        if accessor(sr):
+                            matches.add(sr)
+                    # Special that are treated as True/False.
+                    elif locvalue == 'drm':
                         if accessor(sr) == SearchResult.DRM_LOCKED:
                             matches.add(sr)
+                    # Testing for something or nothing.
                     else:
                         if accessor(sr) is not None:
                             matches.add(sr)
                     continue
                 if query == 'false':
-                    if locvalue == 'drm':
+                    # True/False.
+                    if locvalue == 'affiliate':
+                        if not accessor(sr):
+                            matches.add(sr)
+                    # Special that are treated as True/False.
+                    elif locvalue == 'drm':
                         if accessor(sr) == SearchResult.DRM_UNLOCKED:
                             matches.add(sr)
+                    # Testing for something or nothing.
                     else:
                         if accessor(sr) is None:
                             matches.add(sr)
                     continue
-                # this is bool, so can't match below
-                if locvalue == 'drm':
+                # this is bool or treated as bool, so can't match below.
+                if locvalue in ('affiliate', 'drm'):
                     continue
                 try:
                     ### Can't separate authors because comma is used for name sep and author sep

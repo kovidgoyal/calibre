@@ -1111,6 +1111,7 @@ class StoreAmazonKindleStore(StoreBase):
     drm_free_only = False
     headquarters = 'US'
     formats = ['KINDLE']
+    affiliate = True
 
 class StoreAmazonDEKindleStore(StoreBase):
     name = 'Amazon DE Kindle'
@@ -1121,6 +1122,7 @@ class StoreAmazonDEKindleStore(StoreBase):
     drm_free_only = False
     headquarters = 'DE'
     formats = ['KINDLE']
+    affiliate = True
 
 class StoreAmazonUKKindleStore(StoreBase):
     name = 'Amazon UK Kindle'
@@ -1131,6 +1133,7 @@ class StoreAmazonUKKindleStore(StoreBase):
     drm_free_only = False
     headquarters = 'UK'
     formats = ['KINDLE']
+    affiliate = True
 
 class StoreArchiveOrgStore(StoreBase):
     name = 'Archive.org'
@@ -1168,6 +1171,7 @@ class StoreBeamEBooksDEStore(StoreBase):
     drm_free_only = True
     headquarters = 'DE'
     formats = ['EPUB', 'MOBI', 'PDF']
+    affiliate = True
 
 class StoreBeWriteStore(StoreBase):
     name = 'BeWrite Books'
@@ -1195,6 +1199,17 @@ class StoreEbookscomStore(StoreBase):
     drm_free_only = False
     headquarters = 'US'
     formats = ['EPUB', 'LIT', 'MOBI', 'PDF']
+
+class StoreEBookShoppeUKStore(StoreBase):
+    name = 'ebookShoppe UK'
+    author = u'Charles Haley'
+    description = u'We made this website in an attempt to offer the widest range of UK eBooks possible across and as many formats as we could manage.'
+    actual_plugin = 'calibre.gui2.store.ebookshoppe_uk_plugin:EBookShoppeUKStore'
+
+    drm_free_only = False
+    headquarters = 'UK'
+    formats = ['EPUB', 'PDF']
+    affiliate = True
 
 class StoreEPubBuyDEStore(StoreBase):
     name = 'EPUBBuy DE'
@@ -1233,6 +1248,7 @@ class StoreFoylesUKStore(StoreBase):
     drm_free_only = False
     headquarters = 'UK'
     formats = ['EPUB', 'PDF']
+    affiliate = True
 
 class StoreGandalfStore(StoreBase):
     name = 'Gandalf'
@@ -1355,6 +1371,16 @@ class StoreVirtualoStore(StoreBase):
     headquarters = 'PL'
     formats = ['EPUB', 'PDF']
 
+class StoreWaterstonesUKStore(StoreBase):
+    name = 'Waterstones UK'
+    author = 'Charles Haley'
+    description = u'Waterstone\'s mission is to be the leading Bookseller on the High Street and online providing customers the widest choice, great value and expert advice from a team passionate about Bookselling.'
+    actual_plugin = 'calibre.gui2.store.waterstones_uk_plugin:WaterstonesUKStore'
+
+    drm_free_only = False
+    headquarters = 'UK'
+    formats = ['EPUB', 'PDF']
+
 class StoreWeightlessBooksStore(StoreBase):
     name = 'Weightless Books'
     description = u'An independent DRM-free ebooksite devoted to ebooks of all sorts.'
@@ -1394,6 +1420,7 @@ plugins += [
     StoreBeWriteStore,
     StoreDieselEbooksStore,
     StoreEbookscomStore,
+    #StoreEBookShoppeUKStore,
     StoreEPubBuyDEStore,
     StoreEHarlequinStore,
     StoreFeedbooksStore,
@@ -1411,6 +1438,7 @@ plugins += [
     StorePragmaticBookshelfStore,
     StoreSmashwordsStore,
     StoreVirtualoStore,
+    StoreWaterstonesUKStore,
     StoreWeightlessBooksStore,
     StoreWizardsTowerBooksStore,
     StoreWoblinkStore
