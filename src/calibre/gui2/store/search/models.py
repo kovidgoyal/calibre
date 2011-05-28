@@ -45,6 +45,8 @@ class Matches(QAbstractItemModel):
                 Qt.SmoothTransformation)
         self.DRM_UNKNOWN_ICON = QPixmap(I('dialog_question.png')).scaledToHeight(64,
                 Qt.SmoothTransformation)
+        self.DONATE_ICON = QPixmap(I('donate.png')).scaledToHeight(16,
+                Qt.SmoothTransformation)
 
         # All matches. Used to determine the order to display
         # self.matches because the SearchFilter returns
@@ -180,11 +182,7 @@ class Matches(QAbstractItemModel):
                     return QVariant(self.DRM_UNKNOWN_ICON)
             if col == 5:
                 if result.affiliate:
-                    # For some reason the size(16, 16) is forgotten if the icon
-                    # is a class attribute. Don't know why...
-                    icon = QIcon()
-                    icon.addFile(I('donate.png'), QSize(16, 16))
-                    return QVariant(icon)
+                    return QVariant(self.DONATE_ICON)
                 return NONE
         elif role == Qt.ToolTipRole:
             if col == 1:
