@@ -628,6 +628,12 @@ class Metadata(object):
                 res = _('Yes') if res else _('No')
             elif datatype == 'rating':
                 res = res/2.0
+            elif datatype in ['int', 'float']:
+                try:
+                    fmt = cmeta['display'].get('number_format', None)
+                    res = fmt.format(res)
+                except:
+                    pass
             return (name, unicode(res), orig_res, cmeta)
 
         # convert top-level ids into their value

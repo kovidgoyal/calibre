@@ -127,6 +127,9 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
         elif ct == 'enumeration':
             self.enum_box.setText(','.join(c['display'].get('enum_values', [])))
             self.enum_colors.setText(','.join(c['display'].get('enum_colors', [])))
+        elif ct in ['int', 'float']:
+            if c['display'].get('number_format', None):
+                self.number_format_box.setText(c['display'].get('number_format', ''))
         self.datatype_changed()
         if ct in ['text', 'composite', 'enumeration']:
             self.use_decorations.setChecked(c['display'].get('use_decorations', False))
@@ -171,6 +174,7 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
             col_type = None
         for x in ('box', 'default_label', 'label'):
             getattr(self, 'date_format_'+x).setVisible(col_type == 'datetime')
+            getattr(self, 'number_format_'+x).setVisible(col_type in ['int', 'float'])
         for x in ('box', 'default_label', 'label', 'sort_by', 'sort_by_label',
                   'make_category'):
             getattr(self, 'composite_'+x).setVisible(col_type in ['composite', '*composite'])
@@ -267,6 +271,11 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
             display_dict = {'enum_values': l, 'enum_colors': c}
         elif col_type == 'text' and is_multiple:
             display_dict = {'is_names': self.is_names.isChecked()}
+        elif col_type in ['int', 'float']:
+            if unicode(self.number_format_box.text()).strip():
+                display_dict = {'number_format':unicode(self.number_format_box.text()).strip()}
+            else:
+                display_dict = {'number_format': None}
 
         if col_type in ['text', 'composite', 'enumeration'] and not is_multiple:
             display_dict['use_decorations'] = self.use_decorations.checkState()
