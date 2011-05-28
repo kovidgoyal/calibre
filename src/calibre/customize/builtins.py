@@ -1355,16 +1355,6 @@ class StoreVirtualoStore(StoreBase):
     headquarters = 'PL'
     formats = ['EPUB', 'PDF']
 
-class StoreWaterstonesUKStore(StoreBase):
-    name = 'Waterstones UK'
-    author = 'Charles Haley'
-    description = u'Waterstone\'s mission is to be the leading Bookseller on the High Street and online providing customers the widest choice, great value and expert advice from a team passionate about Bookselling.'
-    actual_plugin = 'calibre.gui2.store.waterstones_uk_plugin:WaterstonesUKStore'
-
-    drm_free_only = False
-    headquarters = 'UK'
-    formats = ['EPUB', 'PDF']
-
 class StoreWeightlessBooksStore(StoreBase):
     name = 'Weightless Books'
     description = u'An independent DRM-free ebooksite devoted to ebooks of all sorts.'
@@ -1421,7 +1411,6 @@ plugins += [
     StorePragmaticBookshelfStore,
     StoreSmashwordsStore,
     StoreVirtualoStore,
-    #StoreWaterstonesUKStore,
     StoreWeightlessBooksStore,
     StoreWizardsTowerBooksStore,
     StoreWoblinkStore
