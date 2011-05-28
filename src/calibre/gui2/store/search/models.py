@@ -12,7 +12,7 @@ from operator import attrgetter
 from PyQt4.Qt import (Qt, QAbstractItemModel, QVariant, QPixmap, QModelIndex, QSize,
                       pyqtSignal)
 
-from calibre.gui2 import NONE
+from calibre.gui2 import NONE, FunctionDispatcher
 from calibre.gui2.store.search_result import SearchResult
 from calibre.gui2.store.search.download_thread import DetailsThreadPool, \
     CoverThreadPool
@@ -56,6 +56,9 @@ class Matches(QAbstractItemModel):
         self.search_filter = SearchFilter()
         self.cover_pool = CoverThreadPool(cover_thread_count)
         self.details_pool = DetailsThreadPool(detail_thread_count)
+        
+        self.filter_results_dispatcher = FunctionDispatcher(self.filter_results)
+        self.got_result_details_dispatcher = FunctionDispatcher(self.got_result_details)
 
         self.sort_col = 2
         self.sort_order = Qt.AscendingOrder
@@ -82,10 +85,10 @@ class Matches(QAbstractItemModel):
             self.search_filter.add_search_result(result)
             if result.cover_url:
                 result.cover_queued = True
-                self.cover_pool.add_task(result, self.filter_results)
+                self.cover_pool.add_task(result, self.filter_results_dispatcher)
             else:
                 result.cover_queued = False
-            self.details_pool.add_task(result, store_plugin, self.got_result_details)
+            self.details_pool.add_task(result, store_plugin, self.got_result_details_dispatcher)
             self.filter_results()
             self.layoutChanged.emit()
 
@@ -112,7 +115,7 @@ class Matches(QAbstractItemModel):
     def got_result_details(self, result):
         if not result.cover_queued and result.cover_url:
             result.cover_queued = True
-            self.cover_pool.add_task(result, self.filter_results)
+            self.cover_pool.add_task(result, self.filter_results_dispatcher)
         if result in self.matches:
             row = self.matches.index(result)
             self.dataChanged.emit(self.index(row, 0), self.index(row, self.columnCount() - 1))
