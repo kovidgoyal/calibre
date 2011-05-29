@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-05-27 17:21+0000\n"
-"PO-Revision-Date: 2011-05-27 10:11+0000\n"
+"PO-Revision-Date: 2011-05-29 04:21+0000\n"
 "Last-Translator: Ado Nishimura <Unknown>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-05-28 04:42+0000\n"
+"X-Launchpad-Export-Date: 2011-05-29 04:35+0000\n"
 "X-Generator: Launchpad (build 12959)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -236,7 +236,7 @@ msgstr "保存"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:613
 msgid "An ebook store."
-msgstr ""
+msgstr "ebookストア。"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:18
 msgid ""
@@ -1295,11 +1295,11 @@ msgstr "Nook Color eBookリーダーと通信しています"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:111
 msgid "Nook Simple"
-msgstr ""
+msgstr "Nook Simple"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:112
 msgid "Communicate with the Nook TSR eBook reader."
-msgstr ""
+msgstr "Nook TSR eBookリーダーとの通信"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nuut2/driver.py:17
 msgid "Communicate with the Nuut2 eBook reader."
@@ -2465,7 +2465,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/output.py:159
 msgid "for a complete list with descriptions."
-msgstr ""
+msgstr "。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:248
 msgid ""
@@ -5074,7 +5074,7 @@ msgstr "ストア"
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/chooser_dialog.py:18
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:261
 msgid "Choose stores"
-msgstr ""
+msgstr "ストアを選択"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:78
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:97
@@ -8436,10 +8436,12 @@ msgid ""
 "for that series. Checking this box will tell calibre to start numbering\n"
 "from the value in the box"
 msgstr ""
+"シリーズは通常データーベース中のシリーズの最大の番号から再番号されます。\n"
+"このボックスをチェックするとcalibreはこのボックスの値から番号付けを始めます。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:557
 msgid "&Force numbers to start with:"
-msgstr ""
+msgstr "強制番号付けの最初の番号(&F)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:558
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1123
@@ -8448,20 +8450,20 @@ msgstr "日付(&D):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:559
 msgid "d MMM yyyy"
-msgstr ""
+msgstr "d MMM yyyy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:561
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:566
 msgid "&Apply date"
-msgstr ""
+msgstr "日付を適用(&A)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:562
 msgid "&Published:"
-msgstr ""
+msgstr "発行日(&P)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:564
 msgid "Clear published date"
-msgstr ""
+msgstr "発行日をクリア"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:567
 msgid "Remove &format:"
@@ -8533,19 +8535,19 @@ msgstr "カスタムメタデータ(&C):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:583
 msgid "Load searc&h/replace:"
-msgstr ""
+msgstr "検索/置換をロード(&h)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:584
 msgid "Select saved search/replace to load."
-msgstr ""
+msgstr "ロードする、保存された検索/置換を選択"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:585
 msgid "Save current search/replace"
-msgstr ""
+msgstr "現在の検索/置換を保存"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:586
 msgid "Sa&ve"
-msgstr ""
+msgstr "保存(&V)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:588
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager_ui.py:64
@@ -8554,69 +8556,69 @@ msgstr "削除"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:589
 msgid "Search &field:"
-msgstr ""
+msgstr "検索フィールド(&F)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:590
 msgid "The name of the field that you want to search"
-msgstr ""
+msgstr "検索したいフィールドの名前"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:591
 msgid "Search &mode:"
-msgstr ""
+msgstr "検索モード(&M)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:592
 msgid ""
 "Choose whether to use basic text matching or advanced regular expression "
 "matching"
-msgstr ""
+msgstr "基本的なテキスト検索か、高度な正規表現による検索のどちらを使うかを選択"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:593
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:615
 msgid "Identifier type:"
-msgstr ""
+msgstr "識別子タイプ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:594
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:616
 msgid "Choose which identifier type to operate upon"
-msgstr ""
+msgstr "どの識別子タイプに操作を行うか選択"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:595
 msgid "Te&mplate:"
-msgstr ""
+msgstr "テンプレート(&T)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:596
 msgid "Enter a template to be used as the source for the search/replace"
-msgstr ""
+msgstr "検索/置換の元として使用されるテンプレートを入力"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:598
 msgid ""
 "Enter the what you are looking for, either plain text or a regular "
 "expression, depending on the mode"
-msgstr ""
+msgstr "検索するものを入力。モードにより、単純なテキストまたは正規表現。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:599
 msgid ""
 "Check this box if the search string must match exactly upper and lower case. "
 "Uncheck it if case is to be ignored"
-msgstr ""
+msgstr "このボックスをチェックすると、検索文字列が正確に大文字小文字がマッチします。チェックをはずすと大小文字は無視されます。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:600
 msgid "Cas&e sensitive"
-msgstr ""
+msgstr "大文字・小文字を区別(&E)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:601
 msgid "&Replace with:"
-msgstr ""
+msgstr "置換(&R):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:602
 msgid ""
 "The replacement text. The matched search text will be replaced with this "
 "string"
-msgstr ""
+msgstr "置換文字列。マッチした検索テキストはこの文字列と入れ替えられます。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:603
 msgid "&Apply function after replace:"
-msgstr ""
+msgstr "置換後に変換操作を行う(&A)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:604
 msgid ""
@@ -8625,20 +8627,22 @@ msgid ""
 "field is processed. In regular expression mode, only the matched text is "
 "processed"
 msgstr ""
+"検索/置換後にどのようにテキストを処理するかを選択する。文字列モードではフィールド全体が処理されます。正規表現モードではマッチしたテキストだけが処理されま"
+"す。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:606
 msgid "&Destination field:"
-msgstr ""
+msgstr "対象フィールド(&F)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:607
 msgid ""
 "The field that the text will be put into after all replacements.\n"
 "If blank, the source field is used if the field is modifiable"
-msgstr ""
+msgstr "置換処理が終わった後、テキストが入れられるフィールド。もし空白の場合、元フィールドが使われます。（フィールドが変更可能の時のみ）"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:609
 msgid "M&ode:"
-msgstr ""
+msgstr "モード(&O)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:610
 msgid "Specify how the text should be copied into the destination."
@@ -8662,33 +8666,33 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:618
 msgid "values starting a&t"
-msgstr ""
+msgstr "個を"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:619
 msgid "with values separated b&y"
-msgstr ""
+msgstr "個から始める。値のセパレータは"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:620
 msgid ""
 "Used when displaying test results to separate values in multiple-valued "
 "fields"
-msgstr ""
+msgstr "テスト結果の、複数値フィールドの値を一つ一つの値として表示する時に使われます。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:621
 msgid "Test text"
-msgstr ""
+msgstr "テスト文字列"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:622
 msgid "Test result"
-msgstr ""
+msgstr "テスト結果"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:623
 msgid "Your test:"
-msgstr ""
+msgstr "あなたのテスト"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:624
 msgid "&Search and replace"
-msgstr ""
+msgstr "検索と置換(&S)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/password_ui.py:61
 msgid "Password needed"
@@ -8723,11 +8727,11 @@ msgstr "停止中..."
 msgid ""
 "Restoring database from backups, do not interrupt, this will happen in three "
 "stages"
-msgstr ""
+msgstr "バックアップからデーターベースを復帰します。中断させないでください。この処理は３つのステージからなります。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:25
 msgid "Restoring database"
-msgstr ""
+msgstr "データーベースを復帰"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:79
 msgid ""
@@ -8739,39 +8743,43 @@ msgid ""
 "only restores books, not any settings stored in the database, or any custom "
 "recipes.<p>Do you want to restore the database?"
 msgstr ""
+"ライブラリの書籍は、すべての書誌情報と共にデーターベースと呼ばれる単一のファイルに保存されています。それに加えて、一つ一つの書籍の書誌情報は書籍の'フォル"
+"ダー'にバックアップとして保存されています。<p>この操作は個々の書籍の書誌情報からデーターベースを再構築します。この操作はもし、データーベースが破損して"
+"空白の書籍リストが表示された場合の時などに便利です。注意してほしいのは、この操作は書籍を復旧するだけで、データーベースに保存されたすべての設定やカスタム・"
+"レシピ等は復旧されません。<p>データーベースを復旧しますか？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:102
 msgid "Restoring database failed, click Show details to see details"
-msgstr ""
+msgstr "データーベースの復旧に失敗しました。「詳細を表示」を押すと詳細が表示されます。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:107
 msgid ""
 "Restoring the database succeeded with some warnings click Show details to "
 "see the details."
-msgstr ""
+msgstr "データーベースの復旧は成功したものの、いくつかの問題があります。「詳細を表示」を押すと詳細が表示されます。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:112
 msgid "Restoring database was successful"
-msgstr ""
+msgstr "データーベースの復旧が成功しました。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor.py:48
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor.py:75
 msgid "Saved search already exists"
-msgstr ""
+msgstr "保存された検索がすでに存在します。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor.py:49
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor.py:76
 msgid "The saved search %s already exists, perhaps with different case"
-msgstr ""
+msgstr "保存された検索 %s がすでに存在します。（たぶん大文字小文字が違うだけです。）"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor.py:62
 msgid ""
 "The current saved search will be <b>permanently deleted</b>. Are you sure?"
-msgstr ""
+msgstr "現在の保存された検索は<b>永久に削除されます</b>。実行しますか？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:94
 msgid "Saved Search Editor"
-msgstr ""
+msgstr "保存された検索の編集"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:95
 msgid "Saved Search: "
@@ -8779,15 +8787,15 @@ msgstr "保存された検索: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:96
 msgid "Select a saved search to edit"
-msgstr ""
+msgstr "編集する保存された検索を選択"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:97
 msgid "Delete this selected saved search"
-msgstr ""
+msgstr "選択された検索の保存を削除"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:99
 msgid "Enter a new saved search name."
-msgstr ""
+msgstr "新しい検索の保存名を入力"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:100
 msgid "Add the new saved search"
@@ -8795,11 +8803,11 @@ msgstr "保存する検索を新規追加"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:102
 msgid "Rename the current search to what is in the box"
-msgstr ""
+msgstr "現在の検索をボックス内の文字列を使って名前を変える"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:104
 msgid "Change the contents of the saved search"
-msgstr ""
+msgstr "保存された検索の内容を変更する"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:42
 msgid ""
@@ -8812,10 +8820,14 @@ msgid ""
 "                soon after 9:00 AM as possible.\n"
 "            "
 msgstr ""
+"                この定期刊行物を毎週の指定された日、指定された時間の後にダウンロード\n"
+"                します。例えば、もし：月曜日9:00AMの後を選択すると、定期刊行物は\n"
+"                毎週月曜日の9:00AMにできる限りダウンロードされます。\n"
+"            "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:61
 msgid "&Download after:"
-msgstr ""
+msgstr "ダウンロード時(&D)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:91
 msgid ""
@@ -8829,18 +8841,24 @@ msgid ""
 "                month, as soon after 9:00 AM as possible.\n"
 "            "
 msgstr ""
+"                定期刊行物を毎月指定した日にダウンロードします。\n"
+"                ダウンロードは毎月の指定された日、指定された時刻のできる限り\n"
+"                すぐ後になされます。例えば、もし1日と15日の9:00AMを選ぶと、\n"
+"                定期刊行物は毎月1日と15日の9:00AM、できる限りすぐに\n"
+"                ダウンロードされます。\n"
+"            "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:103
 msgid "&Days of the month:"
-msgstr ""
+msgstr "日付(&D)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:105
 msgid "Comma separated list of days of the month. For example: 1, 15"
-msgstr ""
+msgstr "コンマ区切りの月の中の日付。例：1,15"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:109
 msgid "Download &after:"
-msgstr ""
+msgstr "ダウンロード時刻(&A)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:142
 msgid ""
@@ -8851,23 +8869,28 @@ msgid ""
 "                0.1 days to download a periodical more than once a day.\n"
 "            "
 msgstr ""
+"                この定期刊行物を毎指定日ごとにダウンロードします。例えば、もし\n"
+"                30日を指定すると、毎30日ごとに定期刊行物がダウンロードされます。\n"
+"                もし、一日以下の数が設定された場合（例えば0.1日）定期刊行物は\n"
+"                一日に一度以上ダウンロードされます。\n"
+"            "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:151
 msgid "&Download every:"
-msgstr ""
+msgstr "毎指定日ごとのダウンロード(&D)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:154
 msgid "every hour"
-msgstr ""
+msgstr "1時間毎"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:157
 msgid "days"
-msgstr ""
+msgstr "日"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:161
 msgid ""
 "Note: You can set intervals of less than a day, by typing the value manually."
-msgstr ""
+msgstr "注：直接タイプすることで間隔を1日以下に設定できます。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:196
 msgid "%s news sources"
@@ -8883,15 +8906,15 @@ msgstr "このニュースにはユーザー名（とパスワード）が必要
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:346
 msgid "Account"
-msgstr ""
+msgstr "アカウント"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:347
 msgid "(optional)"
-msgstr ""
+msgstr "(オプション)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:348
 msgid "(required)"
-msgstr ""
+msgstr "(必須)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:365
 msgid "Created by: "
@@ -8903,7 +8926,7 @@ msgstr "最後のダウンロード： なし"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:373
 msgid "never"
-msgstr ""
+msgstr "(なし)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:379
 msgid "%d days, %d hours and %d minutes ago"
@@ -8911,7 +8934,7 @@ msgstr "%d 日 %d 時 %d 分間前"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:393
 msgid "Last downloaded:"
-msgstr ""
+msgstr "最後のダウンロード："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:421
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:206
@@ -8936,7 +8959,7 @@ msgstr "有効なインターネット接続がないので、ニュースのダ
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:207
 msgid "Go"
-msgstr ""
+msgstr "Go"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:208
 msgid "blurb"
@@ -8948,15 +8971,15 @@ msgstr "ダウンロードスケジュール(&S):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:210
 msgid "Days of  week"
-msgstr ""
+msgstr "曜日指定"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:211
 msgid "Days of month"
-msgstr ""
+msgstr "(月内)日付指定"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:212
 msgid "Every x days"
-msgstr ""
+msgstr "毎指定日ごと"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:213
 msgid "&Account"
@@ -8982,11 +9005,11 @@ msgstr "追加タグ(&E):"
 msgid ""
 "Maximum number of copies (issues) of this recipe to keep.  Set to 0 to keep "
 "all (disable)."
-msgstr ""
+msgstr "このレシピで保存する最大の保存数（発行数）。0にすると無効になり、すべて保存されます。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:222
 msgid "&Keep at most:"
-msgstr ""
+msgstr "保存する最大数(&K)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:223
 msgid ""
@@ -8998,14 +9021,18 @@ msgid ""
 "<p>Also, the setting for deleting periodicals older than a number of days, "
 "below, takes priority over this setting."
 msgstr ""
+"<p>このオプションはcalibreが保存する、この定期刊行物の最大の保存数を指定します。新しい物がダウンロードされた時、もしこの数を超えた場合には古いも"
+"のから削除されます。\n"
+"<p>注：この機能は上の「タイトルをタグとして追加」がチェックされていないと動きません。\n"
+"<p>それと、下にある指定した日数より古い物を削除する設定、の方が優先されます。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:226
 msgid "all issues"
-msgstr ""
+msgstr "全ニュース"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:227
 msgid " issues"
-msgstr ""
+msgstr " ニュース"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:228
 msgid "&Advanced"
@@ -9017,7 +9044,7 @@ msgstr "すぐにダウンロード(&D)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:230
 msgid "&Delete downloaded news older than:"
-msgstr ""
+msgstr "ダウンロードした古いニュースを削除(&D)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:231
 msgid ""
@@ -9027,10 +9054,12 @@ msgid ""
 "periodical that are kept by clicking the Advanced tab for that periodical "
 "above."
 msgstr ""
+"<p>指定した日数より古いダウンロードしたニュースを削除。 0を指定で、この機能を無効。\n"
+"<p>この他、定期刊行物の「高度」タブで、保存する最大のニュース数をコントロールできます。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:233
 msgid "never delete"
-msgstr ""
+msgstr "削除しない"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:234
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:273
@@ -9047,21 +9076,21 @@ msgstr "すべてダウンロード(&A)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_item_ui.py:41
 msgid "contains"
-msgstr ""
+msgstr "含む"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_item_ui.py:42
 msgid "The text to search for. It is interpreted as a regular expression."
-msgstr ""
+msgstr "検索するテキスト。これは正規表現として解釈されます。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_item_ui.py:43
 msgid ""
 "<p>Negate this match. That is, only return results that <b>do not</b> match "
 "this query."
-msgstr ""
+msgstr "<p>検索結果を反転。検索結果に<b>マッチしない</b>物を結果とします。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_item_ui.py:44
 msgid "Negate"
-msgstr ""
+msgstr "反転"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:198
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:196
@@ -9073,62 +9102,62 @@ msgstr "高度な検索"
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:197
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:177
 msgid "&What kind of match to use:"
-msgstr ""
+msgstr "検索の方法(&W)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:200
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:198
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:178
 msgid "Contains: the word or phrase matches anywhere in the metadata field"
-msgstr ""
+msgstr "含む：単語や言葉が書誌情報フィールド内のどこかにマッチ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:201
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:199
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:179
 msgid "Equals: the word or phrase must match the entire metadata field"
-msgstr ""
+msgstr "全て：単語や言葉が書誌情報のフィールド内、全てにマッチ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:202
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:200
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:180
 msgid ""
 "Regular expression: the expression must match anywhere in the metadata field"
-msgstr ""
+msgstr "正規表現：表現が書誌情報フィールド内のどこかにマッチ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:203
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:201
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:181
 msgid "Find entries that have..."
-msgstr ""
+msgstr "以下を持つエントリを検索..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:204
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:202
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:182
 msgid "&All these words:"
-msgstr ""
+msgstr "全ての単語(&A)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:205
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:203
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:183
 msgid "This exact &phrase:"
-msgstr ""
+msgstr "フレーズ(&P)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:206
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:204
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:184
 msgid "&One or more of these words:"
-msgstr ""
+msgstr "1つ以上のこれらの言葉(&O)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:207
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:205
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:185
 msgid "But dont show entries that have..."
-msgstr ""
+msgstr "以下を持たないエントリを検索..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:208
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:206
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:186
 msgid "Any of these &unwanted words:"
-msgstr ""
+msgstr "これらの必要ない言葉のいずれか(&U)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:209
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:207
@@ -9144,57 +9173,57 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:208
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:188
 msgid "A&dvanced Search"
-msgstr ""
+msgstr "高度な検索(&D)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:212
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:210
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:190
 msgid "Enter the title."
-msgstr ""
+msgstr "タイトルを入力"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:213
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:191
 msgid "&Author:"
-msgstr ""
+msgstr "著者(&A):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:215
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:930
 msgid "Ta&gs:"
-msgstr ""
+msgstr "タグ(&G)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:216
 msgid "Enter an author's name. Only one author can be used."
-msgstr ""
+msgstr "著者名を入力。著者は１つだけしか使えません。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:217
 msgid ""
 "Enter a series name, without an index. Only one series name can be used."
-msgstr ""
+msgstr "番号なしのシリーズ名。シリーズ名は１つだけしか使えません。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:218
 msgid "Enter tags separated by spaces"
-msgstr ""
+msgstr "スペース区切りのタグを入力"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:219
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:101
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:213
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:193
 msgid "&Clear"
-msgstr ""
+msgstr "クリア(&C)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:220
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:214
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:194
 msgid "Search only in specific fields:"
-msgstr ""
+msgstr "特定のフィールドのみを検索："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:221
 msgid "Titl&e/Author/Series ..."
-msgstr ""
+msgstr "タイトル/著者/シリーズ...(&E)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/select_formats.py:45
 msgid "Choose formats"
-msgstr ""
+msgstr "フォーマットを選択"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:60
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:146
@@ -9209,102 +9238,102 @@ msgstr "発行者"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:143
 msgid " (not on any book)"
-msgstr ""
+msgstr " (どの書籍にもない)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:146
 msgid "Category lookup name: "
-msgstr ""
+msgstr "カテゴリ検索名： "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:191
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:222
 msgid "Invalid name"
-msgstr ""
+msgstr "名前が間違っています"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:192
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:223
 msgid ""
 "That name contains leading or trailing periods, multiple periods in a row or "
 "spaces before or after periods."
-msgstr ""
+msgstr "名前の先頭、もしくは後ろにピリオド、複数のピリオド、もしくはピリオドの前後の空白が入っています。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:200
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:230
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:152
 msgid "Name already used"
-msgstr ""
+msgstr "すでに使われている名前"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:201
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:231
 msgid "That name is already used, perhaps with different case."
-msgstr ""
+msgstr "名前はすでに使われています。（たぶん大小文字が違う）"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:244
 msgid ""
 "The current tag category will be <b>permanently deleted</b>. Are you sure?"
-msgstr ""
+msgstr "現在のタグ・カテゴリは<b>永久に削除されます</b>。実行しますか？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:166
 msgid "User Categories Editor"
-msgstr ""
+msgstr "ユーザー・カテゴリ編集"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:167
 msgid "Category name: "
-msgstr ""
+msgstr "カテゴリ名： "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:168
 msgid "Select a category to edit"
-msgstr ""
+msgstr "編集するカテゴリを選択"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:169
 msgid "Delete this selected tag category"
-msgstr ""
+msgstr "選択されたタグ・カテゴリを削除"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:171
 msgid "Enter a category name, then use the add button or the rename button"
-msgstr ""
+msgstr "カテゴリ名を入力して、追加ボタンや変更ボタンを使ってください。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:172
 msgid "Add a new category"
-msgstr ""
+msgstr "新しいカテゴリを追加"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:174
 msgid "Rename the current category to the what is in the box"
-msgstr ""
+msgstr "ボックス内の文字で現在のカテゴリの名前を変える"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:176
 msgid "Category filter: "
-msgstr ""
+msgstr "カテゴリ・フィルター： "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:177
 msgid "Select the content kind of the new category"
-msgstr ""
+msgstr "新しいカテゴリの内容種類を選択"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:178
 msgid "A&vailable items"
-msgstr ""
+msgstr "現在のアイテム(&A)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:179
 msgid "Apply tags to current tag category"
-msgstr ""
+msgstr "現在のタグ・カテゴリにタグを適用"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:181
 msgid "A&pplied items"
-msgstr ""
+msgstr "適用されたアイテム"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:182
 msgid "Unapply (remove) tag from current tag category"
-msgstr ""
+msgstr "現在のタグ・カテゴリからタグを削除"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor.py:70
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:111
 msgid "Are your sure?"
-msgstr ""
+msgstr "実行しますか？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor.py:71
 msgid ""
 "The following tags are used by one or more books. Are you certain you want "
 "to delete them?"
-msgstr ""
+msgstr "次のタグが1つ以上の書籍で使われています。本当に削除してもよろしいですか？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor_ui.py:128
 msgid "Tag Editor"
@@ -9312,73 +9341,73 @@ msgstr "タグエディタ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor_ui.py:129
 msgid "A&vailable tags"
-msgstr ""
+msgstr "使用できるタグ(&A)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor_ui.py:130
 msgid ""
 "Delete tag from database. This will unapply the tag from all books and then "
 "remove it from the database."
-msgstr ""
+msgstr "タグをデーターベースから削除。すべての書籍からタグを取り除き、そしてデーターベースから削除します。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor_ui.py:132
 msgid "Apply tag to current book"
-msgstr ""
+msgstr "現在の書籍にタグを適用"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor_ui.py:134
 msgid "A&pplied tags"
-msgstr ""
+msgstr "適用されたタグ(&A)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor_ui.py:135
 msgid "Unapply (remove) tag from current book"
-msgstr ""
+msgstr "現在の書籍からタグを削除"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor_ui.py:137
 msgid "&Add tag:"
-msgstr ""
+msgstr "追加タグ(&A)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor_ui.py:138
 msgid ""
 "If the tag you want is not in the available list, you can add it here. "
 "Accepts a comma separated list of tags."
-msgstr ""
+msgstr "もし追加したいタグがリスト中にない場合、ここで追加できます。コンマ区切りのタグのリストが使えます。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor_ui.py:139
 msgid "Add tag to available tags and apply it to current book"
-msgstr ""
+msgstr "使用できるタグのリストにタグを追加し、現在の書籍にも適用します"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:21
 msgid "%s (was %s)"
-msgstr ""
+msgstr "%s (%s)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:85
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1385
 msgid "Item is blank"
-msgstr ""
+msgstr "アイテムが空白です"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:86
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1386
 msgid "An item cannot be set to nothing. Delete it instead."
-msgstr ""
+msgstr "アイテムは空白に設定できません。削除してください。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:99
 msgid "No item selected"
-msgstr ""
+msgstr "アイテムが選択されていません"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:100
 msgid "You must select one item from the list of Available items."
-msgstr ""
+msgstr "使用できるアイテムのりすとから１つのアイテムを選ばなければなりません。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:107
 msgid "No items selected"
-msgstr ""
+msgstr "アイテムが選択されていません"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:108
 msgid "You must select at least one items from the list."
-msgstr ""
+msgstr "リストから最低１つのアイテムを選択する必要があります。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:112
 msgid "Are you certain you want to delete the following items?"
-msgstr ""
+msgstr "これらのアイテムを削除してもよろしいですか？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor_ui.py:77
 msgid "Category Editor"
@@ -9392,11 +9421,11 @@ msgstr "使用中の項目"
 msgid ""
 "Delete item from database. This will unapply the item from all books and "
 "then remove it from the database."
-msgstr ""
+msgstr "データーベースからアイテムを削除します。これはまず書籍からアイテムを取り除き、そしてデーターベースから削除します。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor_ui.py:81
 msgid "Rename the item in every book where it is used."
-msgstr ""
+msgstr "アイテムが使われているすべての書籍で、アイテム名を変更します。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor_ui.py:83
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:106
@@ -9405,61 +9434,61 @@ msgstr "Ctrl+S"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:71
 msgid "Function &name:"
-msgstr ""
+msgstr "関数名(&N)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:72
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:100
 msgid "&Documentation:"
-msgstr ""
+msgstr "ドキュメンテーション(&D)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:73
 msgid "Python &code:"
-msgstr ""
+msgstr "Pythonコード(&C)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:32
 msgid "Open Template Editor"
-msgstr ""
+msgstr "テンプレート編集を開く"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:35
 msgid "Open Tag Wizard"
-msgstr ""
+msgstr "タグ・ウイザードを開く"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:41
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:408
 msgid "Edit template"
-msgstr ""
+msgstr "テンプレートを編集"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:48
 msgid "Invalid text"
-msgstr ""
+msgstr "無効なテキスト"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:49
 msgid "The text in the box was not generated by this wizard"
-msgstr ""
+msgstr "ボックス内のテキストはこのウイザードで作られたものではありません"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:60
 msgid "Tag Wizard"
-msgstr ""
+msgstr "タグ・ウイザード"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:68
 msgid "Tags (more than one per box permitted)"
-msgstr ""
+msgstr "タグ（1つのボックスに、1つ以上を入力可能）"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:69
 msgid "Color"
-msgstr ""
+msgstr "色"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:115
 msgid "Invalid color"
-msgstr ""
+msgstr "無効な色"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:116
 msgid "The color {0} is not valid"
-msgstr ""
+msgstr "色{0}は無効です"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/test_email_ui.py:56
 msgid "Test email settings"
-msgstr ""
+msgstr "emailの設定をテスト"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/test_email_ui.py:57
 msgid "Send test mail from %s to:"
@@ -9472,11 +9501,11 @@ msgstr "テスト(&T)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub.py:100
 msgid "Cannot preview"
-msgstr ""
+msgstr "プレビューできません"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub.py:101
 msgid "You must first explode the epub before previewing."
-msgstr ""
+msgstr "プレビューする前にepubを開封しなければなりません。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:61
 msgid ""
@@ -9486,38 +9515,41 @@ msgid ""
 "windows you used to edit files in the epub</b>.</p><p>Rebuild the ePub, "
 "updating your calibre library.</p>"
 msgstr ""
+"<p>ePubを開封し内容をファイル･ブラウザ窓に表示します。それぞれのファイルをTweakするには右クリックし’...で開く'から好きなエディターを選ん"
+"でください。tweakし終わった後には、ファイル･ブラウザ窓を閉じて<b>epub内のファイルを編集したエディタの窓も閉じてください</b>。</p><p"
+">そしてePubを再構成し、calibreのライブラリがアップデートします。</p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:62
 msgid "Display contents of exploded ePub"
-msgstr ""
+msgstr "開封したePubの内容を表示"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:63
 msgid "&Explode ePub"
-msgstr ""
+msgstr "ePubを開封"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:64
 msgid "Discard changes"
-msgstr ""
+msgstr "変更を破棄"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:66
 msgid "Rebuild ePub from exploded contents"
-msgstr ""
+msgstr "開封したePub内容から再構成"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:67
 msgid "&Rebuild ePub"
-msgstr ""
+msgstr "ePubを再構成"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:68
 msgid "&Preview ePub"
-msgstr ""
+msgstr "ePubをプレビュー"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:141
 msgid "No recipe selected"
-msgstr ""
+msgstr "レシピが選択されていません"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:146
 msgid "The attached file: %s is a recipe to download %s."
-msgstr ""
+msgstr "添付ファイル： %s は %sをダウンロードするレシピです。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:147
 msgid "Recipe for "
