@@ -114,6 +114,8 @@ The syntax for using functions is ``{field:function(arguments)}``, or ``{field:f
 
 If you have programming experience, please note that the syntax in this mode (single function) is not what you might expect. Strings are not quoted. Spaces are significant. All arguments must be constants; there is no sub-evaluation. Use :ref:`template program mode <template_mode>` and :ref:`general program mode <general_mode>` to avoid these differences.
 
+Many functions use regular expressions. In all cases, regular expression matching is case-insensitive.
+
 The functions available are:
 
     * ``lowercase()``	-- return value of the field in lower case.
