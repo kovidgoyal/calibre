@@ -23,12 +23,13 @@ from calibre.gui2.store.web_store_dialog import WebStoreDialog
 class FoylesUKStore(BasicStoreConfig, StorePlugin):
 
     def open(self, parent=None, detail_item=None, external=False):
-        url = 'http://www.awin1.com/cread.php?awinmid=1414&awinaffid=120917&clickref=&p='
+        url = 'http://www.awin1.com/awclick.php?mid=1414&id=120917'
+        detail_url = 'http://www.awin1.com/cread.php?awinmid=1414&awinaffid=120917&clickref=&p='
         url_redirect = 'http://www.foyles.co.uk'
 
         if external or self.config.get('open_external', False):
             if detail_item:
-                url = url + url_redirect + detail_item
+                url = detail_url + url_redirect + detail_item
             open_url(QUrl(url_slash_cleaner(url)))
         else:
             detail_url = None
@@ -52,6 +53,10 @@ class FoylesUKStore(BasicStoreConfig, StorePlugin):
                     break
                 id = ''.join(data.xpath('.//a[@class="Title"]/@href')).strip()
                 if not id:
+                    continue
+
+                # filter out the audio books
+                if not data.xpath('boolean(.//div[@class="Relative"]/ul/li[contains(text(), "ePub")])'):
                     continue
 
                 cover_url = ''.join(data.xpath('.//a[@class="Jacket"]/img/@src'))
