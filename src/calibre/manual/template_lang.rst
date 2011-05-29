@@ -130,6 +130,7 @@ The functions available are:
     * ``switch(pattern, value, pattern, value, ..., else_value)`` -- for each ``pattern, value`` pair, checks if the field matches the regular expression ``pattern`` and if so, returns that ``value``. If no ``pattern`` matches, then ``else_value`` is returned. You can have as many ``pattern, value`` pairs as you want.
     * ``lookup(pattern, field, pattern, field, ..., else_field)`` -- like switch, except the arguments are field (metadata) names, not text. The value of the appropriate field will be fetched and used. Note that because composite columns are fields, you can use this function in one composite field to use the value of some other composite field. This is extremely useful when constructing variable save paths (more later).
     * ``select(key)`` -- interpret the field as a comma-separated list of items, with the items being of the form "id:value". Find the pair with the id equal to key, and return the corresponding value. This function is particularly useful for extracting a value such as an isbn from the set of identifiers for a book.
+    * ``str_in_list(val, separator, string, found_val, not_found_val)`` -- treat val as a list of items separated by separator, comparing the string against each value in the list. If the string matches a value, return found_val, otherwise return not_found_val. If the string contains separators, then it is also treated as a list and each value is checked.
     * ``subitems(val, start_index, end_index)`` -- This function is used to break apart lists of tag-like hierarchical items such as genres. It interprets the value as a comma-separated list of tag-like items, where each item is a period-separated list. Returns a new list made by first finding all the period-separated tag-like items, then for each such item extracting the components from `start_index` to `end_index`, then combining the results back together. The first component in a period-separated list has an index of zero. If an index is negative, then it counts from the end of the list. As a special case, an end_index of zero is assumed to be the length of the list. Examples::
 
         Assuming a #genre column containing "A.B.C":    
@@ -272,10 +273,10 @@ Function classification summary:
     * Boolean: ``and``, ``or``, ``not``. The function ``if_empty`` is similar to ``and`` called with one argument.
     * If-then-else: ``contains``, ``test``
     * Iterating over values: ``first_non_empty``, ``lookup``, ``switch``
-    * List lookup: ``in_list``, ``list_item``, ``select``, 
+    * List lookup: ``in_list``, ``list_item``, ``select``, ``str_in_list``
     * List manipulation: ``count``, ``merge_lists``, ``sublist``, ``subitems``
     * Recursion: ``eval``, ``template``
-    * Relational: ``cmp`` , ``strcmp`` for strings
+    * Relational: ``cmp`` (for numbers), ``strcmp`` (for strings)
     * String case changes: ``lowercase``, ``uppercase``, ``titlecase``, ``capitalize``
     * String manipulation: ``re``, ``shorten``, ``substr``
     * Other: ``assign``, ``booksize``, ``format_date``, ``ondevice`` ``print``
