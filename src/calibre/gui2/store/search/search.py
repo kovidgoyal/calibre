@@ -251,6 +251,8 @@ class SearchDialog(QDialog, Ui_Dialog):
         # search widget.
         self.config['open_external'] = self.open_external.isChecked()
 
+        # Create the config dialog. It's going to put two config widgets
+        # into a QTabWidget for displaying all of the settings.
         d = QDialog(self)
         button_box = QDialogButtonBox(QDialogButtonBox.Close)
         v = QVBoxLayout(d)
