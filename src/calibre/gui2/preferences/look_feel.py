@@ -6,7 +6,7 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from PyQt4.Qt import (QApplication, QFont, QFontInfo, QFontDialog,
-        QAbstractListModel, Qt, QColor)
+        QAbstractListModel, Qt, QColor, QIcon)
 
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget, CommaSeparatedList
 from calibre.gui2.preferences.look_feel_ui import Ui_Form
@@ -167,11 +167,10 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                   '<a href="http://manual.calibre-ebook.com/template_lang.html">'
                   'tutorial</a> on using templates.') +
                  '</p><p>' +
-                _('If you want to color a field based on tags, then click the '
-                  'button next to an empty line to open the tags wizard. '
+                _('If you want to color a field based on contents of columns, '
+                  'then click the button next to an empty line to open the wizard. '
                   'It will build a template for you. You can later edit that '
-                  'template with the same wizard. If you edit it by hand, the '
-                  'wizard might not work or might restore old values.') +
+                  'template with the same wizard.') +
                  '</p><p>' +
                 _('The template must evaluate to one of the color names shown '
                   'below. You can use any legal template expression. '
@@ -204,7 +203,6 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         choices.sort(key=sort_key)
         choices.insert(0, '')
         self.column_color_count = db.column_color_count+1
-        tags = db.all_tags()
 
         mi=None
         try:
@@ -216,11 +214,16 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         for i in range(1, self.column_color_count):
             r('column_color_name_'+str(i), db.prefs, choices=choices)
             r('column_color_template_'+str(i), db.prefs)
+            txt = db.prefs.get('column_color_template_'+str(i), None)
             tpl = getattr(self, 'opt_column_color_template_'+str(i))
-            tpl.set_tags(tags)
+            tpl.set_db(db)
             tpl.set_mi(mi)
             toolbutton = getattr(self, 'opt_column_color_wizard_'+str(i))
-            toolbutton.clicked.connect(tpl.tag_wizard)
+            if tpl.show_wizard_button(txt):
+                toolbutton.clicked.connect(tpl.tag_wizard)
+            else:
+                toolbutton.clicked.connect(tpl.open_editor)
+                toolbutton.setIcon(QIcon(I('edit_input.png')))
         all_colors = [unicode(s) for s in list(QColor.colorNames())]
         self.colors_box.setText(', '.join(all_colors))
 

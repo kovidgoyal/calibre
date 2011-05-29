@@ -331,9 +331,10 @@ class BuiltinInList(BuiltinFormatterFunction):
 
     def evaluate(self, formatter, kwargs, mi, locals, val, sep, pat, fv, nfv):
         l = [v.strip() for v in val.split(sep) if v.strip()]
-        for v in l:
-            if re.search(pat, v, flags=re.I):
-                return fv
+        if l:
+            for v in l:
+                if re.search(pat, v, flags=re.I):
+                    return fv
         return nfv
 
 class BuiltinStrInList(BuiltinFormatterFunction):
@@ -349,10 +350,11 @@ class BuiltinStrInList(BuiltinFormatterFunction):
     def evaluate(self, formatter, kwargs, mi, locals, val, sep, str, fv, nfv):
         l = [v.strip() for v in val.split(sep) if v.strip()]
         c = [v.strip() for v in str.split(sep) if v.strip()]
-        for v in l:
-            for t in c:
-                if strcmp(t, v) == 0:
-                    return fv
+        if l:
+            for v in l:
+                for t in c:
+                    if strcmp(t, v) == 0:
+                        return fv
         return nfv
 
 class BuiltinRe(BuiltinFormatterFunction):
