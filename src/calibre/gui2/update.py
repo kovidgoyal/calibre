@@ -52,7 +52,8 @@ class UpdateNotification(QDialog):
         self.label = QLabel('<p>'+
             _('%s has been updated to version <b>%s</b>. '
             'See the <a href="http://calibre-ebook.com/whats-new'
-            '">new features</a>.')%(__appname__, version))
+            '">new features</a>. Only update if one of the '
+            'new features or bug fixes is important to you.')%(__appname__, version))
         self.label.setOpenExternalLinks(True)
         self.label.setWordWrap(True)
         self.setWindowTitle(_('Update available!'))
