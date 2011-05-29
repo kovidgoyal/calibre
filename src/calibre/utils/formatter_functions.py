@@ -8,7 +8,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import inspect, re, traceback, sys
+import inspect, re, traceback
 
 from calibre.utils.titlecase import titlecase
 from calibre.utils.icu import capitalize, strcmp, sort_key
@@ -334,6 +334,25 @@ class BuiltinInList(BuiltinFormatterFunction):
         for v in l:
             if re.search(pat, v):
                 return fv
+        return nfv
+
+class BuiltinStrInList(BuiltinFormatterFunction):
+    name = 'str_in_list'
+    arg_count = 5
+    doc = _('str_in_list(val, separator, string, found_val, not_found_val) -- '
+            'treat val as a list of items separated by separator, '
+            'comparing the string against each value in the list. If the '
+            'string matches a value, return found_val, otherwise return '
+            'not_found_val. If the string contains separators, then it is '
+            'also treated as a list and each value is checked.')
+
+    def evaluate(self, formatter, kwargs, mi, locals, val, sep, str, fv, nfv):
+        l = [v.strip() for v in val.split(sep) if v.strip()]
+        c = [v.strip() for v in str.split(sep) if v.strip()]
+        for v in l:
+            for t in c:
+                if strcmp(t, v) == 0:
+                    return fv
         return nfv
 
 class BuiltinRe(BuiltinFormatterFunction):
@@ -700,6 +719,7 @@ builtin_select      = BuiltinSelect()
 builtin_shorten     = BuiltinShorten()
 builtin_strcat      = BuiltinStrcat()
 builtin_strcmp      = BuiltinStrcmp()
+builtin_str_in_list = BuiltinStrInList()
 builtin_subitems    = BuiltinSubitems()
 builtin_sublist     = BuiltinSublist()
 builtin_substr      = BuiltinSubstr()

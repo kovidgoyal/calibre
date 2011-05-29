@@ -209,8 +209,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         mi=None
         try:
             idx = gui.library_view.currentIndex().row()
-            if idx:
-                mi = db.get_metadata(idx, index_is_id=False)
+            mi = db.get_metadata(idx, index_is_id=False)
         except:
             pass
 

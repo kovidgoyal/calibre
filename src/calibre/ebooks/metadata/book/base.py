@@ -47,7 +47,7 @@ class SafeFormat(TemplateFormatter):
         key = orig_key.lower()
         if key != 'title_sort' and key not in TOP_LEVEL_IDENTIFIERS:
             key = field_metadata.search_term_to_field_key(key)
-        if key is None or key not in self.book.all_field_keys():
+        if key is None or (self.book and key not in self.book.all_field_keys()):
             raise ValueError(_('Value: unknown field ') + orig_key)
         b = self.book.get_user_metadata(key, False)
         if b and b['datatype'] == 'int' and self.book.get(key, 0) == 0:
