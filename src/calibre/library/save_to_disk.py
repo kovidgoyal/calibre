@@ -134,6 +134,8 @@ class SafeFormat(TemplateFormatter):
     '''
 
     def get_value(self, key, args, kwargs):
+        if key == '':
+            return ''
         try:
             key = key.lower()
             try:

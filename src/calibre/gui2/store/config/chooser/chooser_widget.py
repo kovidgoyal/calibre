@@ -17,17 +17,19 @@ class StoreChooserWidget(QWidget, Ui_Form):
         QWidget.__init__(self)
         self.setupUi(self)
         
+        self.query.initialize('store_config_chooser_query')
+        
         self.adv_search_builder.setIcon(QIcon(I('search.png')))
         
         self.search.clicked.connect(self.do_search)
         self.adv_search_builder.clicked.connect(self.build_adv_search)
-        self.results_view.activated.connect(self.toggle_plugin)
+        self.enable_all.clicked.connect(self.results_view.model().enable_all)
+        self.enable_none.clicked.connect(self.results_view.model().enable_none)
+        self.enable_invert.clicked.connect(self.results_view.model().enable_invert)
+        self.results_view.activated.connect(self.results_view.model().toggle_plugin)
 
     def do_search(self):
         self.results_view.model().search(unicode(self.query.text()))
-
-    def toggle_plugin(self, index):
-        self.results_view.model().toggle_plugin(index)
 
     def build_adv_search(self):
         adv = AdvSearchBuilderDialog(self)
