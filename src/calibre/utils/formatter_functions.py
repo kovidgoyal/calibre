@@ -8,7 +8,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import inspect, re, traceback, sys
+import inspect, re, traceback
 
 from calibre.utils.titlecase import titlecase
 from calibre.utils.icu import capitalize, strcmp, sort_key
@@ -63,20 +63,13 @@ class FormatterFunction(object):
         raise NotImplementedError()
 
     def eval_(self, formatter, kwargs, mi, locals, *args):
-        try:
-            ret = self.evaluate(formatter, kwargs, mi, locals, *args)
-            if isinstance(ret, (str, unicode)):
-                return ret
-            if isinstance(ret, (int, float, bool)):
-                return unicode(ret)
-            if isinstance(ret, list):
-                return ','.join(list)
-        except:
-            traceback.print_exc()
-            exc_type, exc_value, exc_traceback = sys.exc_info()
-            info = ': '.join(traceback.format_exception(exc_type, exc_value,
-                                        exc_traceback)[-2:]).replace('\n', '')
-            return _('Exception ') + info
+        ret = self.evaluate(formatter, kwargs, mi, locals, *args)
+        if isinstance(ret, (str, unicode)):
+            return ret
+        if isinstance(ret, (int, float, bool)):
+            return unicode(ret)
+        if isinstance(ret, list):
+            return ','.join(list)
 
 all_builtin_functions = []
 class BuiltinFormatterFunction(FormatterFunction):
@@ -276,7 +269,7 @@ class BuiltinLookup(BuiltinFormatterFunction):
         while i < len(args):
             if i + 1 >= len(args):
                 return formatter.vformat('{' + args[i].strip() + '}', [], kwargs)
-            if re.search(args[i], val):
+            if re.search(args[i], val, flags=re.I):
                 return formatter.vformat('{'+args[i+1].strip() + '}', [], kwargs)
             i += 2
 
@@ -302,7 +295,7 @@ class BuiltinContains(BuiltinFormatterFunction):
 
     def evaluate(self, formatter, kwargs, mi, locals,
                  val, test, value_if_present, value_if_not):
-        if re.search(test, val):
+        if re.search(test, val, flags=re.I):
             return value_if_present
         else:
             return value_if_not
@@ -323,7 +316,7 @@ class BuiltinSwitch(BuiltinFormatterFunction):
         while i < len(args):
             if i + 1 >= len(args):
                 return args[i]
-            if re.search(args[i], val):
+            if re.search(args[i], val, flags=re.I):
                 return args[i+1]
             i += 2
 
@@ -339,8 +332,27 @@ class BuiltinInList(BuiltinFormatterFunction):
     def evaluate(self, formatter, kwargs, mi, locals, val, sep, pat, fv, nfv):
         l = [v.strip() for v in val.split(sep) if v.strip()]
         for v in l:
-            if re.search(pat, v):
+            if re.search(pat, v, flags=re.I):
                 return fv
+        return nfv
+
+class BuiltinStrInList(BuiltinFormatterFunction):
+    name = 'str_in_list'
+    arg_count = 5
+    doc = _('str_in_list(val, separator, string, found_val, not_found_val) -- '
+            'treat val as a list of items separated by separator, '
+            'comparing the string against each value in the list. If the '
+            'string matches a value, return found_val, otherwise return '
+            'not_found_val. If the string contains separators, then it is '
+            'also treated as a list and each value is checked.')
+
+    def evaluate(self, formatter, kwargs, mi, locals, val, sep, str, fv, nfv):
+        l = [v.strip() for v in val.split(sep) if v.strip()]
+        c = [v.strip() for v in str.split(sep) if v.strip()]
+        for v in l:
+            for t in c:
+                if strcmp(t, v) == 0:
+                    return fv
         return nfv
 
 class BuiltinRe(BuiltinFormatterFunction):
@@ -352,7 +364,7 @@ class BuiltinRe(BuiltinFormatterFunction):
             'python-compatible regular expressions')
 
     def evaluate(self, formatter, kwargs, mi, locals, val, pattern, replacement):
-        return re.sub(pattern, replacement, val)
+        return re.sub(pattern, replacement, val, flags=re.I)
 
 class BuiltinIfempty(BuiltinFormatterFunction):
     name = 'ifempty'
@@ -568,7 +580,7 @@ class BuiltinCapitalize(BuiltinFormatterFunction):
 class BuiltinBooksize(BuiltinFormatterFunction):
     name = 'booksize'
     arg_count = 0
-    doc = _('booksize() -- return value of the field capitalized')
+    doc = _('booksize() -- return value of the size field')
 
     def evaluate(self, formatter, kwargs, mi, locals):
         if mi.book_size is not None:
@@ -576,6 +588,17 @@ class BuiltinBooksize(BuiltinFormatterFunction):
                 return str(mi.book_size)
             except:
                 pass
+        return ''
+
+class BuiltinOndevice(BuiltinFormatterFunction):
+    name = 'ondevice'
+    arg_count = 0
+    doc = _('ondevice() -- return Yes if ondevice is set, otherwise return '
+            'the empty string')
+
+    def evaluate(self, formatter, kwargs, mi, locals):
+        if mi.ondevice_col:
+            return _('Yes')
         return ''
 
 class BuiltinFirstNonEmpty(BuiltinFormatterFunction):
@@ -687,6 +710,7 @@ builtin_lowercase   = BuiltinLowercase()
 builtin_merge_lists = BuiltinMergeLists()
 builtin_multiply    = BuiltinMultiply()
 builtin_not         = BuiltinNot()
+builtin_ondevice    = BuiltinOndevice()
 builtin_or          = BuiltinOr()
 builtin_print       = BuiltinPrint()
 builtin_raw_field   = BuiltinRaw_field()
@@ -695,6 +719,7 @@ builtin_select      = BuiltinSelect()
 builtin_shorten     = BuiltinShorten()
 builtin_strcat      = BuiltinStrcat()
 builtin_strcmp      = BuiltinStrcmp()
+builtin_str_in_list = BuiltinStrInList()
 builtin_subitems    = BuiltinSubitems()
 builtin_sublist     = BuiltinSublist()
 builtin_substr      = BuiltinSubstr()
