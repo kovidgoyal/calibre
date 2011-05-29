@@ -579,10 +579,7 @@ class BuiltinOndevice(BuiltinFormatterFunction):
 
     def evaluate(self, formatter, kwargs, mi, locals):
         if mi.ondevice_col:
-            try:
-                return _('Yes')
-            except:
-                pass
+            return _('Yes')
         return ''
 
 class BuiltinFirstNonEmpty(BuiltinFormatterFunction):

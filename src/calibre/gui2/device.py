@@ -1294,7 +1294,8 @@ class DeviceMixin(object): # {{{
             self.book_db_uuid_path_map = None
             return
 
-        if not hasattr(self, 'db_book_uuid_cache'):
+        if not self.device_manager.is_device_connected or \
+                        not hasattr(self, 'db_book_uuid_cache'):
             return loc
 
         if self.book_db_id_cache is None:
