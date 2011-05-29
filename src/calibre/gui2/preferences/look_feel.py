@@ -204,7 +204,6 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         choices.sort(key=sort_key)
         choices.insert(0, '')
         self.column_color_count = db.column_color_count+1
-        tags = db.all_tags()
 
         mi=None
         try:
@@ -217,7 +216,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             r('column_color_name_'+str(i), db.prefs, choices=choices)
             r('column_color_template_'+str(i), db.prefs)
             tpl = getattr(self, 'opt_column_color_template_'+str(i))
-            tpl.set_tags(tags)
+            tpl.set_db(db)
             tpl.set_mi(mi)
             toolbutton = getattr(self, 'opt_column_color_wizard_'+str(i))
             toolbutton.clicked.connect(tpl.tag_wizard)
