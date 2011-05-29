@@ -342,6 +342,8 @@ class EvalFormatter(TemplateFormatter):
     A template formatter that uses a simple dict instead of an mi instance
     '''
     def get_value(self, key, args, kwargs):
+        if key == '':
+            return ''
         key = key.lower()
         return kwargs.get(key, _('No such variable ') + key)
 

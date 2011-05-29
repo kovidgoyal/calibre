@@ -42,6 +42,8 @@ field_metadata = FieldMetadata()
 class SafeFormat(TemplateFormatter):
 
     def get_value(self, orig_key, args, kwargs):
+        if not orig_key:
+            return ''
         key = orig_key.lower()
         if key != 'title_sort' and key not in TOP_LEVEL_IDENTIFIERS:
             key = field_metadata.search_term_to_field_key(key)
