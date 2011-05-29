@@ -585,7 +585,6 @@ class BuiltinOndevice(BuiltinFormatterFunction):
             'the empty string')
 
     def evaluate(self, formatter, kwargs, mi, locals):
-        print mi.ondevice_col
         if mi.ondevice_col:
             try:
                 return _('Yes')
