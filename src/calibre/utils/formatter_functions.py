@@ -269,7 +269,7 @@ class BuiltinLookup(BuiltinFormatterFunction):
         while i < len(args):
             if i + 1 >= len(args):
                 return formatter.vformat('{' + args[i].strip() + '}', [], kwargs)
-            if re.search(args[i], val):
+            if re.search(args[i], val, flags=re.I):
                 return formatter.vformat('{'+args[i+1].strip() + '}', [], kwargs)
             i += 2
 
@@ -295,7 +295,7 @@ class BuiltinContains(BuiltinFormatterFunction):
 
     def evaluate(self, formatter, kwargs, mi, locals,
                  val, test, value_if_present, value_if_not):
-        if re.search(test, val):
+        if re.search(test, val, flags=re.I):
             return value_if_present
         else:
             return value_if_not
@@ -316,7 +316,7 @@ class BuiltinSwitch(BuiltinFormatterFunction):
         while i < len(args):
             if i + 1 >= len(args):
                 return args[i]
-            if re.search(args[i], val):
+            if re.search(args[i], val, flags=re.I):
                 return args[i+1]
             i += 2
 
@@ -332,7 +332,7 @@ class BuiltinInList(BuiltinFormatterFunction):
     def evaluate(self, formatter, kwargs, mi, locals, val, sep, pat, fv, nfv):
         l = [v.strip() for v in val.split(sep) if v.strip()]
         for v in l:
-            if re.search(pat, v):
+            if re.search(pat, v, flags=re.I):
                 return fv
         return nfv
 
@@ -364,7 +364,7 @@ class BuiltinRe(BuiltinFormatterFunction):
             'python-compatible regular expressions')
 
     def evaluate(self, formatter, kwargs, mi, locals, val, pattern, replacement):
-        return re.sub(pattern, replacement, val)
+        return re.sub(pattern, replacement, val, flags=re.I)
 
 class BuiltinIfempty(BuiltinFormatterFunction):
     name = 'ifempty'
