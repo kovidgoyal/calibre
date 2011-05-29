@@ -584,7 +584,7 @@
     - title: "FB2 Output: Option to set the FB2 genre explicitly."
       tickets: [743178]
 
-    - title: "Plugin developers: calibre now has a new plugin API, see http://calibre-ebook.com/user_manual/creating_plugins.html. Your existing plugins should continue to work, but it would be good to test them to make sure."
+    - title: "Plugin developers: calibre now has a new plugin API, see http://manual.calibre-ebook.com/creating_plugins.html. Your existing plugins should continue to work, but it would be good to test them to make sure."
   
   bug fixes:
     - title: "Fix text color in the search bar set to black instead of the system font color"
@@ -969,7 +969,7 @@
 
   new features:
     - title: "Tag Browser: Support the creation of nested User Categories"
-      description: "See http://calibre-ebook.com/user_manual/gui.html#tag-browser for details"
+      description: "See http://manual.calibre-ebook.com/gui.html#tag-browser for details"
       type: major
 
     - title: "Disable Kent District Library plugin to download series information. The website could not handle the load calibre's 2 million users put on it. You can manually re-enable it if you really want series information, but it is very slow"
@@ -3842,7 +3842,7 @@
       type: major
       description: >
         "You can now change the icons used in the User Interface and other static resources. Details on how to
-         do this are at: http://calibre-ebook.com/user_manual/customize.html#overriding-icons-templates-etcetera"
+         do this are at: http://manual.calibre-ebook.com/customize.html#overriding-icons-templates-etcetera"
 
     - title: "Split the 'Send to device' button into two buttons, 'Connect/share' and 'Send to device'. The new 'Send to device' button will now only be available when a device is connected."
 

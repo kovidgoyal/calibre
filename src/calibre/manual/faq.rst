@@ -560,7 +560,7 @@ I want some feature added to |app|. What can I do?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 You have two choices:
  1. Create a patch by hacking on |app| and send it to me for review and inclusion. See `Development <http://calibre-ebook.com/get-involved>`_.
- 2. `Open a ticket <http://bugs.calibre-ebook.com/newticket>`_ (you have to register and login first). Remember that |app| development is done by volunteers, so if you get no response to your feature request, it means no one feels like implementing it.
+ 2. `Open a ticket <http://calibre-ebook.com/bugs>`_ (you have to register and login first). Remember that |app| development is done by volunteers, so if you get no response to your feature request, it means no one feels like implementing it.
 
 How is |app| licensed?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

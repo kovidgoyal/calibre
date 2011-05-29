@@ -615,7 +615,7 @@ class StoreBase(Plugin): # {{{
     version        = (1, 0, 1)
 
     actual_plugin = None
-    
+
     # Does the store only distribute ebooks without DRM.
     drm_free_only = False
     # This is the 2 letter country code for the corporate
@@ -623,6 +623,8 @@ class StoreBase(Plugin): # {{{
     headquarters = ''
     # All formats the store distributes ebooks in.
     formats = []
+    # Is this store on an affiliate program?
+    affiliate = False
 
     def load_actual_plugin(self, gui):
         '''
