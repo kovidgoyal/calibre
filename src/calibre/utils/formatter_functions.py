@@ -568,12 +568,27 @@ class BuiltinCapitalize(BuiltinFormatterFunction):
 class BuiltinBooksize(BuiltinFormatterFunction):
     name = 'booksize'
     arg_count = 0
-    doc = _('booksize() -- return value of the field capitalized')
+    doc = _('booksize() -- return value of the size field')
 
     def evaluate(self, formatter, kwargs, mi, locals):
         if mi.book_size is not None:
             try:
                 return str(mi.book_size)
+            except:
+                pass
+        return ''
+
+class BuiltinOndevice(BuiltinFormatterFunction):
+    name = 'ondevice'
+    arg_count = 0
+    doc = _('ondevice() -- return Yes if ondevice is set, otherwise return '
+            'the empty string')
+
+    def evaluate(self, formatter, kwargs, mi, locals):
+        print mi.ondevice_col
+        if mi.ondevice_col:
+            try:
+                return _('Yes')
             except:
                 pass
         return ''
@@ -687,6 +702,7 @@ builtin_lowercase   = BuiltinLowercase()
 builtin_merge_lists = BuiltinMergeLists()
 builtin_multiply    = BuiltinMultiply()
 builtin_not         = BuiltinNot()
+builtin_ondevice    = BuiltinOndevice()
 builtin_or          = BuiltinOr()
 builtin_print       = BuiltinPrint()
 builtin_raw_field   = BuiltinRaw_field()

@@ -255,6 +255,7 @@ The following functions are available in addition to those described in single-f
     * ``not(value)`` -- returns the string "1" if the value is empty, otherwise returns the empty string. This function works well with test or first_non_empty. You can have as many values as you want.
     * ``merge_lists(list1, list2, separator)`` -- return a list made by merging the items in list1 and list2, removing duplicate items using a case-insensitive compare. If items differ in case, the one in list1 is used. The items in list1 and list2 are separated by separator, as are the items in the returned list.
     * ``multiply(x, y)`` -- returns x * y. Throws an exception if either x or y are not numbers.
+    * ``ondevice()`` -- return the string "Yes" if ondevice is set, otherwise return the empty string
     * ``or(value, value, ...)`` -- returns the string "1" if any value is not empty, otherwise returns the empty string. This function works well with test or first_non_empty. You can have as many values as you want.
     * ``print(a, b, ...)`` -- prints the arguments to standard output. Unless you start calibre from the command line (``calibre-debug -g``), the output will go to a black hole.
     * ``raw_field(name)`` -- returns the metadata field named by name without applying any formatting.
@@ -277,7 +278,7 @@ Function classification summary:
     * Relational: ``cmp`` , ``strcmp`` for strings
     * String case changes: ``lowercase``, ``uppercase``, ``titlecase``, ``capitalize``
     * String manipulation: ``re``, ``shorten``, ``substr``
-    * Other: ``assign``, ``booksize``, ``print``, ``format_date``, 
+    * Other: ``assign``, ``booksize``, ``format_date``, ``ondevice`` ``print``
         
 .. _general_mode:
 
