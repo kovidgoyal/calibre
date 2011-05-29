@@ -45,8 +45,9 @@ class AdvSearchBuilderDialog(QDialog, Ui_Dialog):
         self.description_box.setText('')
         self.headquarters_box.setText('')
         self.format_box.setText('')
-        self.enabled_combo.setIndex(0)
-        self.drm_combo.setIndex(0)
+        self.enabled_combo.setCurrentIndex(0)
+        self.drm_combo.setCurrentIndex(0)
+        self.affiliate_combo.setCurrentIndex(0)
 
     def tokens(self, raw):
         phrases = re.findall(r'\s*".*?"\s*', raw)
@@ -126,6 +127,9 @@ class AdvSearchBuilderDialog(QDialog, Ui_Dialog):
         drm = unicode(self.drm_combo.currentText()).strip()
         if drm:
             ans.append('drm:' + drm)
+        affiliate = unicode(self.affiliate_combo.currentText()).strip()
+        if affiliate:
+            ans.append('affiliate:' + affiliate)
         if ans:
             return ' and '.join(ans)
         return ''

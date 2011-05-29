@@ -250,30 +250,45 @@ class CcDateDelegate(QStyledItemDelegate): # {{{
 
 class CcTextDelegate(QStyledItemDelegate): # {{{
     '''
+    Delegate for text data.
+    '''
+
+    def createEditor(self, parent, option, index):
+        m = index.model()
+        col = m.column_map[index.column()]
+        editor = MultiCompleteLineEdit(parent)
+        editor.set_separator(None)
+        complete_items = sorted(list(m.db.all_custom(label=m.db.field_metadata.key_to_label(col))),
+                                key=sort_key)
+        editor.update_items_cache(complete_items)
+        return editor
+
+# }}}
+
+class CcNumberDelegate(QStyledItemDelegate): # {{{
+    '''
     Delegate for text/int/float data.
     '''
 
     def createEditor(self, parent, option, index):
         m = index.model()
         col = m.column_map[index.column()]
-        typ = m.custom_columns[col]['datatype']
-        if typ == 'int':
+        if m.custom_columns[col]['datatype'] == 'int':
             editor = QSpinBox(parent)
             editor.setRange(-100, 100000000)
             editor.setSpecialValueText(_('Undefined'))
             editor.setSingleStep(1)
-        elif typ == 'float':
+        else:
             editor = QDoubleSpinBox(parent)
             editor.setSpecialValueText(_('Undefined'))
             editor.setRange(-100., 100000000)
             editor.setDecimals(2)
-        else:
-            editor = MultiCompleteLineEdit(parent)
-            editor.set_separator(None)
-            complete_items = sorted(list(m.db.all_custom(label=m.db.field_metadata.key_to_label(col))),
-                                    key=sort_key)
-            editor.update_items_cache(complete_items)
         return editor
+
+    def setEditorData(self, editor, index):
+        m = index.model()
+        val = m.db.data[index.row()][m.custom_columns[m.column_map[index.column()]]['rec_index']]
+        editor.setValue(val)
 
 # }}}
 
@@ -403,8 +418,9 @@ class CcTemplateDelegate(QStyledItemDelegate): # {{{
 
     def createEditor(self, parent, option, index):
         m = index.model()
+        mi = m.db.get_metadata(index.row(), index_is_id=False)
         text = m.custom_columns[m.column_map[index.column()]]['display']['composite_template']
-        editor = TemplateDialog(parent, text)
+        editor = TemplateDialog(parent, text, mi)
         editor.setWindowTitle(_("Edit template"))
         editor.textbox.setTabChangesFocus(False)
         editor.textbox.setTabStopWidth(20)

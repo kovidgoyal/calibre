@@ -78,7 +78,8 @@ class ManyBooksStore(BasicStoreConfig, StorePlugin):
                     cover_name = mo.group()
                     cover_name = cover_name.replace('etext', '')
                     cover_id = id.split('.')[0]
-                    cover_url = 'http://manybooks_images.s3.amazonaws.com/original_covers/' + id[0] + '/' + cover_name + '/' + cover_id + '-thumb.jpg' 
+                    cover_url = 'http://www.manybooks.net/images/' + id[0] + '/' + cover_name + '/' + cover_id + '-thumb.jpg'
+                print(cover_url)
 
                 counter -= 1
                 

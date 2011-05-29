@@ -129,7 +129,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             (_('Medium'), 'medium'), (_('Large'), 'large')]
         r('toolbar_icon_size', gprefs, choices=choices)
 
-        choices = [(_('Automatic'), 'auto'), (_('Always'), 'always'),
+        choices = [(_('If there is enough room'), 'auto'), (_('Always'), 'always'),
             (_('Never'), 'never')]
         r('toolbar_text', gprefs, choices=choices)
 
@@ -164,7 +164,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                   'library view. Choose the column you wish to color, then '
                   'supply a template that specifies the color to use based on '
                   'the values in the column. There is a '
-                  '<a href="http://calibre-ebook.com/user_manual/template_lang.html">'
+                  '<a href="http://manual.calibre-ebook.com/template_lang.html">'
                   'tutorial</a> on using templates.') +
                  '</p><p>' +
                 _('If you want to color a field based on tags, then click the '
@@ -205,11 +205,20 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         choices.insert(0, '')
         self.column_color_count = db.column_color_count+1
         tags = db.all_tags()
+
+        mi=None
+        try:
+            idx = gui.library_view.currentIndex().row()
+            mi = db.get_metadata(idx, index_is_id=False)
+        except:
+            pass
+
         for i in range(1, self.column_color_count):
             r('column_color_name_'+str(i), db.prefs, choices=choices)
             r('column_color_template_'+str(i), db.prefs)
             tpl = getattr(self, 'opt_column_color_template_'+str(i))
             tpl.set_tags(tags)
+            tpl.set_mi(mi)
             toolbutton = getattr(self, 'opt_column_color_wizard_'+str(i))
             toolbutton.clicked.connect(tpl.tag_wizard)
         all_colors = [unicode(s) for s in list(QColor.colorNames())]
