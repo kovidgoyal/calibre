@@ -914,6 +914,8 @@ class ResultCache(SearchQueryParser): # {{{
         return len(self._map)
 
     def refresh_ondevice(self, db):
+        if self.composites:
+            self.refresh(db)
         ondevice_col = self.FIELD_MAP['ondevice']
         for item in self._data:
             if item is not None:
