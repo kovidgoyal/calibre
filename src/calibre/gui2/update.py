@@ -49,11 +49,12 @@ class UpdateNotification(QDialog):
         self.logo.setMaximumWidth(110)
         self.logo.setPixmap(QPixmap(I('lt.png')).scaled(100, 100,
             Qt.IgnoreAspectRatio, Qt.SmoothTransformation))
-        self.label = QLabel('<p>'+
+        self.label = QLabel(('<p>'+
             _('%s has been updated to version <b>%s</b>. '
             'See the <a href="http://calibre-ebook.com/whats-new'
-            '">new features</a>. Only update if one of the '
-            'new features or bug fixes is important to you.')%(__appname__, version))
+            '">new features</a>.') + '<p>'+_('Update <b>only</b> if one of the '
+            'new features or bug fixes is important to you. '
+            'If the current version works well for you, do not update.'))%(__appname__, version))
         self.label.setOpenExternalLinks(True)
         self.label.setWordWrap(True)
         self.setWindowTitle(_('Update available!'))
