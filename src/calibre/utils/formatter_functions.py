@@ -63,20 +63,13 @@ class FormatterFunction(object):
         raise NotImplementedError()
 
     def eval_(self, formatter, kwargs, mi, locals, *args):
-        try:
-            ret = self.evaluate(formatter, kwargs, mi, locals, *args)
-            if isinstance(ret, (str, unicode)):
-                return ret
-            if isinstance(ret, (int, float, bool)):
-                return unicode(ret)
-            if isinstance(ret, list):
-                return ','.join(list)
-        except:
-            traceback.print_exc()
-            exc_type, exc_value, exc_traceback = sys.exc_info()
-            info = ': '.join(traceback.format_exception(exc_type, exc_value,
-                                        exc_traceback)[-2:]).replace('\n', '')
-            return _('Exception ') + info
+        ret = self.evaluate(formatter, kwargs, mi, locals, *args)
+        if isinstance(ret, (str, unicode)):
+            return ret
+        if isinstance(ret, (int, float, bool)):
+            return unicode(ret)
+        if isinstance(ret, list):
+            return ','.join(list)
 
 all_builtin_functions = []
 class BuiltinFormatterFunction(FormatterFunction):

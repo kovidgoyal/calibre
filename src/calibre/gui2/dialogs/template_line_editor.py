@@ -21,6 +21,10 @@ class TemplateLineEditor(QLineEdit):
     def __init__(self, parent):
         QLineEdit.__init__(self, parent)
         self.tags = None
+        self.mi   = None
+
+    def set_mi(self, mi):
+        self.mi = mi
 
     def set_tags(self, tags):
         self.tags = tags
@@ -37,7 +41,7 @@ class TemplateLineEditor(QLineEdit):
         menu.exec_(event.globalPos())
 
     def open_editor(self):
-        t = TemplateDialog(self, self.text())
+        t = TemplateDialog(self, self.text(), self.mi)
         t.setWindowTitle(_('Edit template'))
         if t.exec_():
             self.setText(t.textbox.toPlainText())

@@ -418,8 +418,9 @@ class CcTemplateDelegate(QStyledItemDelegate): # {{{
 
     def createEditor(self, parent, option, index):
         m = index.model()
+        mi = m.db.get_metadata(index.row(), index_is_id=False)
         text = m.custom_columns[m.column_map[index.column()]]['display']['composite_template']
-        editor = TemplateDialog(parent, text)
+        editor = TemplateDialog(parent, text, mi)
         editor.setWindowTitle(_("Edit template"))
         editor.textbox.setTabChangesFocus(False)
         editor.textbox.setTabStopWidth(20)
