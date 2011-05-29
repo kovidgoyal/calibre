@@ -38,7 +38,7 @@ class GenericDownloadThreadPool(object):
         This must be implemented in a sub class and this function
         must be called at the end of the add_task function in
         the sub class.
-        
+
         The implementation of this function (in this base class)
         starts any threads necessary to fill the pool if it is
         not already full.
@@ -91,7 +91,7 @@ class SearchThreadPool(GenericDownloadThreadPool):
     sp = SearchThreadPool(3)
     sp.add_task(...)
     '''
-    
+
     def __init__(self, thread_count):
         GenericDownloadThreadPool.__init__(self, SearchThread, thread_count)
 
@@ -120,6 +120,8 @@ class SearchThread(Thread):
                     if not self._run:
                         return
                     res.store_name = store_name
+                    res.affiliate = store_plugin.base_plugin.affiliate
+                    res.plugin_author = store_plugin.base_plugin.author
                     self.results.put((res, store_plugin))
                 self.tasks.task_done()
             except:
@@ -167,7 +169,7 @@ class CoverThread(Thread):
 
 
 class DetailsThreadPool(GenericDownloadThreadPool):
-    
+
     def __init__(self, thread_count):
         GenericDownloadThreadPool.__init__(self, DetailsThread, thread_count)
 
