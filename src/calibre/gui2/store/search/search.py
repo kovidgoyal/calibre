@@ -268,7 +268,22 @@ class SearchDialog(QDialog, Ui_Dialog):
         tab_widget.addTab(chooser_config_widget, _('Choose stores'))
         tab_widget.addTab(search_config_widget, _('Configure search'))
 
+        # Restore dialog state.
+        geometry = self.config.get('config_dialog_geometry', None)
+        if geometry:
+            d.restoreGeometry(geometry)
+        else:
+            d.resize(800, 600)
+        tab_index = self.config.get('config_dialog_tab_index', 0)
+        tab_index = min(tab_index, tab_widget.count() - 1)
+        tab_widget.setCurrentIndex(tab_index)
+
         d.exec_()
+        
+        # Save dialog state.
+        self.config['config_dialog_geometry'] = bytearray(d.saveGeometry())
+        self.config['config_dialog_tab_index'] = tab_widget.currentIndex()
+        
         search_config_widget.save_settings()
         self.config_changed()
         self.gui.load_store_plugins()
