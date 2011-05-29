@@ -39,9 +39,17 @@ class TemplateLineEditor(QLineEdit):
         menu = self.createStandardContextMenu()
         menu.addSeparator()
 
+        action_clear_field = menu.addAction(_('Remove any template from the box'))
+        action_clear_field.triggered.connect(self.clear_field)
         action_open_editor = menu.addAction(_('Open Template Editor'))
         action_open_editor.triggered.connect(self.open_editor)
         menu.exec_(event.globalPos())
+
+    def clear_field(self):
+        self.setText('')
+        self.txt = None
+        self.setReadOnly(False)
+        self.setStyleSheet('TemplateLineEditor { color: black }')
 
     def open_editor(self):
         if self.txt:
