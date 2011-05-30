@@ -87,6 +87,7 @@ class BooksModel(QAbstractTableModel): # {{{
         self.column_map = []
         self.headers = {}
         self.alignment_map = {}
+        self.mi_cache = {}
         self.buffer_size = buffer
         self.metadata_backup = None
         self.bool_yes_icon = QIcon(I('ok.png'))
@@ -172,11 +173,13 @@ class BooksModel(QAbstractTableModel): # {{{
 
 
     def refresh_ids(self, ids, current_row=-1):
+        self.mi_cache = {}
         rows = self.db.refresh_ids(ids)
         if rows:
             self.refresh_rows(rows, current_row=current_row)
 
     def refresh_rows(self, rows, current_row=-1):
+        self.mi_cache = {}
         for row in rows:
             if row == current_row:
                 self.new_bookdisplay_data.emit(
@@ -206,6 +209,7 @@ class BooksModel(QAbstractTableModel): # {{{
         return ret
 
     def count_changed(self, *args):
+        self.mi_cache = {}
         self.count_changed_signal.emit(self.db.count())
 
     def row_indices(self, index):
@@ -335,6 +339,10 @@ class BooksModel(QAbstractTableModel): # {{{
     def refresh(self, reset=True):
         self.db.refresh(field=None)
         self.resort(reset=reset)
+
+    def reset(self):
+        self.mi_cache = {}
+        QAbstractTableModel.reset(self)
 
     def resort(self, reset=True):
         if not self.db:
@@ -718,7 +726,12 @@ class BooksModel(QAbstractTableModel): # {{{
         elif role == Qt.ForegroundRole:
             key = self.column_map[col]
             if key in self.column_color_map:
-                mi = self.db.get_metadata(self.id(index), index_is_id=True)
+                id_ = self.id(index)
+                if id_ in self.mi_cache:
+                    mi = self.mi_cache[id_]
+                else:
+                    mi = self.db.get_metadata(self.id(index), index_is_id=True)
+                    self.mi_cache[id_] = mi
                 fmt = self.column_color_map[key]
                 try:
                     color = composite_formatter.safe_format(fmt, mi, '', mi)
