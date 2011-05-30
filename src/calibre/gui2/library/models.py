@@ -7,6 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import shutil, functools, re, os, traceback
 from contextlib import closing
+from collections import defaultdict
 
 from PyQt4.Qt import (QAbstractTableModel, Qt, pyqtSignal, QIcon, QImage,
         QModelIndex, QVariant, QDate, QColor)
@@ -87,7 +88,7 @@ class BooksModel(QAbstractTableModel): # {{{
         self.column_map = []
         self.headers = {}
         self.alignment_map = {}
-        self.mi_cache = {}
+        self.color_cache = defaultdict(dict)
         self.buffer_size = buffer
         self.metadata_backup = None
         self.bool_yes_icon = QIcon(I('ok.png'))
@@ -173,13 +174,13 @@ class BooksModel(QAbstractTableModel): # {{{
 
 
     def refresh_ids(self, ids, current_row=-1):
-        self.mi_cache = {}
+        self.color_cache = defaultdict(dict)
         rows = self.db.refresh_ids(ids)
         if rows:
             self.refresh_rows(rows, current_row=current_row)
 
     def refresh_rows(self, rows, current_row=-1):
-        self.mi_cache = {}
+        self.color_cache = defaultdict(dict)
         for row in rows:
             if row == current_row:
                 self.new_bookdisplay_data.emit(
@@ -209,7 +210,7 @@ class BooksModel(QAbstractTableModel): # {{{
         return ret
 
     def count_changed(self, *args):
-        self.mi_cache = {}
+        self.color_cache = defaultdict(dict)
         self.count_changed_signal.emit(self.db.count())
 
     def row_indices(self, index):
@@ -341,7 +342,7 @@ class BooksModel(QAbstractTableModel): # {{{
         self.resort(reset=reset)
 
     def reset(self):
-        self.mi_cache = {}
+        self.color_cache = defaultdict(dict)
         QAbstractTableModel.reset(self)
 
     def resort(self, reset=True):
@@ -727,18 +728,19 @@ class BooksModel(QAbstractTableModel): # {{{
             key = self.column_map[col]
             if key in self.column_color_map:
                 id_ = self.id(index)
-                if id_ in self.mi_cache:
-                    mi = self.mi_cache[id_]
-                else:
-                    mi = self.db.get_metadata(self.id(index), index_is_id=True)
-                    self.mi_cache[id_] = mi
+                if id_ in self.color_cache:
+                    if key in self.color_cache[id_]:
+                        return self.color_cache[id_][key]
+                mi = self.db.get_metadata(self.id(index), index_is_id=True)
                 fmt = self.column_color_map[key]
                 try:
                     color = composite_formatter.safe_format(fmt, mi, '', mi)
                     if color in self.colors:
                         color = QColor(color)
                         if color.isValid():
-                            return QVariant(color)
+                            color = QVariant(color)
+                            self.color_cache[id_][key] = color
+                            return color
                 except:
                     return NONE
             elif self.is_custom_column(key) and \
