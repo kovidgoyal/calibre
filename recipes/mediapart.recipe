@@ -71,7 +71,7 @@ class Mediapart(BasicNewsRecipe):
         br = BasicNewsRecipe.get_browser()
         if self.username is not None and self.password is not None:
             br.open('http://www.mediapart.fr/')
-            br.select_form(nr=1)
+            br.select_form(nr=0)
             br['name'] = self.username
             br['pass'] = self.password
             br.submit()
