@@ -99,7 +99,7 @@ class BooksModel(QAbstractTableModel): # {{{
         self.ids_to_highlight_set = set()
         self.current_highlighted_idx = None
         self.highlight_only = False
-        self.column_color_map = {}
+        self.column_color_list = []
         self.colors = [unicode(c) for c in QColor.colorNames()]
         self.read_config()
 
@@ -546,12 +546,12 @@ class BooksModel(QAbstractTableModel): # {{{
         return img
 
     def set_color_templates(self, reset=True):
-        self.column_color_map = {}
+        self.column_color_list = []
         for i in range(1,self.db.column_color_count+1):
             name = self.db.prefs.get('column_color_name_'+str(i))
             if name:
-                self.column_color_map[name] = \
-                        self.db.prefs.get('column_color_template_'+str(i))
+                self.column_color_list.append((name,
+                        self.db.prefs.get('column_color_template_'+str(i))))
         if reset:
             self.reset()
 
@@ -726,13 +726,14 @@ class BooksModel(QAbstractTableModel): # {{{
                 return QVariant(QColor('lightgreen'))
         elif role == Qt.ForegroundRole:
             key = self.column_map[col]
-            if key in self.column_color_map:
+            for k,fmt in self.column_color_list:
+                if k != key:
+                    continue
                 id_ = self.id(index)
                 if id_ in self.color_cache:
                     if key in self.color_cache[id_]:
                         return self.color_cache[id_][key]
                 mi = self.db.get_metadata(self.id(index), index_is_id=True)
-                fmt = self.column_color_map[key]
                 try:
                     color = composite_formatter.safe_format(fmt, mi, '', mi)
                     if color in self.colors:
@@ -743,7 +744,7 @@ class BooksModel(QAbstractTableModel): # {{{
                             return color
                 except:
                     return NONE
-            elif self.is_custom_column(key) and \
+            if self.is_custom_column(key) and \
                         self.custom_columns[key]['datatype'] == 'enumeration':
                 cc = self.custom_columns[self.column_map[col]]['display']
                 colors = cc.get('enum_colors', [])
