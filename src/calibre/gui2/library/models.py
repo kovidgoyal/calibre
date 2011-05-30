@@ -173,10 +173,12 @@ class BooksModel(QAbstractTableModel): # {{{
 
 
     def refresh_ids(self, ids, current_row=-1):
-        self.mi_cache = {}
         rows = self.db.refresh_ids(ids)
         if rows:
             self.refresh_rows(rows, current_row=current_row)
+        else:
+            self.mi_cache = {}
+
 
     def refresh_rows(self, rows, current_row=-1):
         self.mi_cache = {}
@@ -367,8 +369,20 @@ class BooksModel(QAbstractTableModel): # {{{
     def count(self):
         return self.rowCount(None)
 
+    def get_and_cache_metadata(self, idx, index_is_id = False, get_cover=False,
+                               get_user_categories=True):
+        if not index_is_id:
+            idx = self.db.id(idx)
+        if idx in self.mi_cache:
+            mi = self.mi_cache[idx]
+        else:
+            mi = self.db.get_metadata(idx, index_is_id=True, get_cover=get_cover,
+                                      get_user_categories=get_user_categories)
+            self.mi_cache[idx] = mi
+        return mi
+
     def get_book_display_info(self, idx):
-        mi = self.db.get_metadata(idx)
+        mi = self.get_and_cache_metadata(idx)
         mi.size = mi.book_size
         mi.cover_data = ('jpg', self.cover(idx))
         mi.id = self.db.id(idx)
@@ -395,7 +409,7 @@ class BooksModel(QAbstractTableModel): # {{{
     def metadata_for(self, ids):
         ans = []
         for id in ids:
-            mi = self.db.get_metadata(id, index_is_id=True, get_cover=True)
+            mi = self.get_and_cache_metadata(id, index_is_id=True, get_cover=True)
             ans.append(mi)
         return ans
 
@@ -404,7 +418,7 @@ class BooksModel(QAbstractTableModel): # {{{
         if not rows_are_ids:
             rows = [self.db.id(row.row()) for row in rows]
         for id in rows:
-            mi = self.db.get_metadata(id, index_is_id=True)
+            mi = self.get_and_cache_metadata(id, index_is_id=True)
             _full_metadata.append(mi)
             au = authors_to_string(mi.authors if mi.authors else [_('Unknown')])
             tags = mi.tags if mi.tags else []
@@ -460,8 +474,9 @@ class BooksModel(QAbstractTableModel): # {{{
                 pt.seek(0)
                 if set_metadata:
                     try:
-                        _set_metadata(pt, self.db.get_metadata(id, get_cover=True, index_is_id=True),
-                                  format)
+                        _set_metadata(pt, self.get_and_cache_metadata(id,
+                                                 get_cover=True, index_is_id=True),
+                                      format)
                     except:
                         traceback.print_exc()
                 pt.close()
@@ -505,7 +520,7 @@ class BooksModel(QAbstractTableModel): # {{{
                     pt.flush()
                 pt.seek(0)
                 if set_metadata:
-                    _set_metadata(pt, self.db.get_metadata(row, get_cover=True),
+                    _set_metadata(pt, self.get_and_cache_metadata(row, get_cover=True),
                                   format)
                 pt.close() if paths else pt.seek(0)
                 ans.append(pt)
@@ -726,12 +741,8 @@ class BooksModel(QAbstractTableModel): # {{{
         elif role == Qt.ForegroundRole:
             key = self.column_map[col]
             if key in self.column_color_map:
-                id_ = self.id(index)
-                if id_ in self.mi_cache:
-                    mi = self.mi_cache[id_]
-                else:
-                    mi = self.db.get_metadata(self.id(index), index_is_id=True)
-                    self.mi_cache[id_] = mi
+                mi = self.get_and_cache_metadata(index.row(),
+                                                 get_user_categories=False)
                 fmt = self.column_color_map[key]
                 try:
                     color = composite_formatter.safe_format(fmt, mi, '', mi)
