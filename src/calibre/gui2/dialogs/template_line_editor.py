@@ -140,7 +140,7 @@ class TagWizard(QDialog):
         l = QGridLayout()
         self.setLayout(l)
         l.setColumnStretch(2, 10)
-        l.setColumnMinimumWidth(2, 300)
+        l.setColumnMinimumWidth(3, 300)
 
         h = QLabel(_('And'))
         h.setToolTip('<p>' +
@@ -155,7 +155,21 @@ class TagWizard(QDialog):
         h.setAlignment(Qt.AlignCenter)
         l.addWidget(h, 0, 1, 1, 1)
 
+        h = QLabel(_('Not'))
+        h.setToolTip('<p>' +
+             _('Set this box to indicate that the value must <b>not</b> match '
+               'to return the "color if value found". For example, you '
+               'can check if a tag does not exist by entering that tag '
+               'and checking this box. You can check if tags are empty by '
+               'checking this box, entering .* (period asterisk) for the text, '
+               'then checking the RE box. The .* regular expression matches '
+               'anything, so if this box is checked, it matches nothing. '
+               'This box is particularly useful when using the AND box.'))
+        h.setAlignment(Qt.AlignCenter)
+        l.addWidget(h, 0, 2, 1, 1)
+
         h = QLabel(_('Values (see the popup help for more information)'))
+        h.setAlignment(Qt.AlignCenter)
         h.setToolTip('<p>' +
              _('You can enter more than one value per box, separated by commas. '
                'The comparison ignores letter case. Special note: you can '
@@ -172,12 +186,12 @@ class TagWizard(QDialog):
                '<li><code><b>A.*</b></code> matches anything beginning with A</li>'
                '<li><code><b>.*mystery.*</b></code> matches anything containing '
                'the word "mystery"</li>') + '</ul></p>')
-        l.addWidget(h , 0, 2, 1, 1)
+        l.addWidget(h , 0, 3, 1, 1)
 
         c = QLabel(_('is RE'))
         c.setToolTip('<p>' +
              _('Check this box if the values box contains regular expressions') + '</p>')
-        l.addWidget(c, 0, 3, 1, 1)
+        l.addWidget(c, 0, 4, 1, 1)
 
         c = QLabel(_('Color if value found'))
         c.setToolTip('<p>' +
@@ -185,15 +199,16 @@ class TagWizard(QDialog):
                'one color box empty if you want the template to use the next '
                'line in this wizard. If both boxes are filled in, the rest of '
                'the lines in this wizard will be ignored.') + '</p>')
-        l.addWidget(c, 0, 4, 1, 1)
+        l.addWidget(c, 0, 5, 1, 1)
         c = QLabel(_('Color if value not found'))
         c.setToolTip('<p>' +
              _('This box is usually filled in only on the last test. If it is '
                'filled in before the last test, then the color for value found box '
                'must be empty or all the rest of the tests will be ignored.') + '</p>')
-        l.addWidget(c, 0, 5, 1, 1)
+        l.addWidget(c, 0, 6, 1, 1)
 
         self.andboxes = []
+        self.notboxes = []
         self.tagboxes = []
         self.colorboxes = []
         self.nfcolorboxes = []
@@ -218,25 +233,29 @@ class TagWizard(QDialog):
             l.addWidget(w, i, 1, 1, 1)
             self.colboxes.append(w)
 
+            nb = QCheckBox(self)
+            self.notboxes.append(nb)
+            l.addWidget(nb, i, 2, 1, 1)
+
             tb = MultiCompleteLineEdit(self)
             tb.set_separator(', ')
             self.tagboxes.append(tb)
-            l.addWidget(tb, i, 2, 1, 1)
+            l.addWidget(tb, i, 3, 1, 1)
             w.currentIndexChanged[str].connect(partial(self.column_changed, valbox=tb))
 
             w = QCheckBox(self)
             self.reboxes.append(w)
-            l.addWidget(w, i, 3, 1, 1)
-
-            w = QComboBox(self)
-            w.addItems(self.colors)
-            self.colorboxes.append(w)
             l.addWidget(w, i, 4, 1, 1)
 
             w = QComboBox(self)
             w.addItems(self.colors)
-            self.nfcolorboxes.append(w)
+            self.colorboxes.append(w)
             l.addWidget(w, i, 5, 1, 1)
+
+            w = QComboBox(self)
+            w.addItems(self.colors)
+            self.nfcolorboxes.append(w)
+            l.addWidget(w, i, 6, 1, 1)
 
         if txt:
             lines = txt.split('\n')[3:]
@@ -250,8 +269,9 @@ class TagWizard(QDialog):
                         re = False
                         f = 'tags'
                         a = False
+                        n = False
                     else:
-                        t,c,f,nc,re,a = vals
+                        t,c,f,nc,re,a,n = vals
                     try:
                         self.colboxes[i].setCurrentIndex(self.colboxes[i].findText(f))
                         self.colorboxes[i].setCurrentIndex(
@@ -261,6 +281,7 @@ class TagWizard(QDialog):
                         self.tagboxes[i].setText(t)
                         self.reboxes[i].setChecked(re == '2')
                         self.andboxes[i].setChecked(a == '2')
+                        self.notboxes[i].setChecked(n == '2')
                         i += 1
                     except:
                         pass
@@ -269,9 +290,9 @@ class TagWizard(QDialog):
         l.addWidget(w, 99, 1, 1, 1)
         w = self.test_box = QLineEdit(self)
         w.setReadOnly(True)
-        l.addWidget(w, 99, 2, 1, 1)
+        l.addWidget(w, 99, 3, 1, 1)
         w = QPushButton(_('Test'))
-        l.addWidget(w, 99, 4, 1, 1)
+        l.addWidget(w, 99, 5, 1, 1)
         w.clicked.connect(self.preview)
 
         bb = QDialogButtonBox(QDialogButtonBox.Ok|QDialogButtonBox.Cancel, parent=self)
@@ -306,8 +327,10 @@ class TagWizard(QDialog):
         was_and = False
         had_line = False
 
-        for l, (tb, cb, fb, nfcb, reb, ab) in enumerate(zip(self.tagboxes, self.colorboxes,
-                    self.colboxes, self.nfcolorboxes, self.reboxes, self.andboxes)):
+        line = 0
+        for tb, cb, fb, nfcb, reb, ab, nb in zip(
+                    self.tagboxes, self.colorboxes, self.colboxes,
+                    self.nfcolorboxes, self.reboxes, self.andboxes, self.notboxes):
             f = unicode(fb.currentText())
             if not f:
                 continue
@@ -316,6 +339,15 @@ class TagWizard(QDialog):
             nfc = unicode(nfcb.currentText()).strip()
             re = reb.checkState()
             a = ab.checkState()
+            n = nb.checkState()
+            line += 1
+
+            if n == 2:
+                tval = ''
+                fval = '1'
+            else:
+                tval = '1'
+                fval = ''
 
             if m:
                 tags = [t.strip() for t in unicode(tb.text()).split(',') if t.strip()]
@@ -330,7 +362,7 @@ class TagWizard(QDialog):
 
             if (tags or f) and not (tags and f and (a == 2 or c)):
                 error_dialog(self, _('Invalid line'),
-                             _('Line number {0} is not valid').format(l),
+                             _('Line number {0} is not valid').format(line),
                              show=True, show_copy_button=False)
                 return False
 
@@ -355,18 +387,18 @@ class TagWizard(QDialog):
 
             if re == 2:
                 if m:
-                    lines.append("        in_list(field('{1}'), ',', '^{0}$', '1', '')".\
-                             format(tags, f))
+                    lines.append("        in_list(field('{1}'), ',', '^{0}$', '{2}', '{3}')".\
+                             format(tags, f, tval, fval))
                 else:
-                    lines.append("        contains(field('{1}'), '{0}', '1', '')".\
-                             format(tags, f))
+                    lines.append("        contains(field('{1}'), '{0}', '{2}', '{3}')".\
+                             format(tags, f, tval, fval))
             else:
                 if m:
-                    lines.append("        str_in_list(field('{1}'), ',', '{0}', '1', '')".\
-                             format(tags, f))
+                    lines.append("        str_in_list(field('{1}'), ',', '{0}', '{2}', '{3}')".\
+                             format(tags, f, tval, fval))
                 else:
-                    lines.append("        strcmp(field('{1}'), '{0}', '', '1', '')".\
-                             format(tags, f))
+                    lines.append("        strcmp(field('{1}'), '{0}', '{3}', '{2}', '{3}')".\
+                             format(tags, f, tval, fval))
             if a == 2:
                 was_and = True
             else:
@@ -377,8 +409,9 @@ class TagWizard(QDialog):
         res += ')\n'
         self.template = res
         res = ''
-        for tb, cb, fb, nfcb, reb, ab in zip(self.tagboxes, self.colorboxes,
-                    self.colboxes, self.nfcolorboxes, self.reboxes, self.andboxes):
+        for tb, cb, fb, nfcb, reb, ab, nb in zip(
+                    self.tagboxes, self.colorboxes, self.colboxes,
+                    self.nfcolorboxes, self.reboxes, self.andboxes, self.notboxes):
             t = unicode(tb.text()).strip()
             if t.endswith(','):
                 t = t[:-1]
@@ -387,9 +420,10 @@ class TagWizard(QDialog):
             nfc = unicode(nfcb.currentText()).strip()
             re = unicode(reb.checkState())
             a = unicode(ab.checkState())
+            n = unicode(nb.checkState())
             if f and t and (a == '2' or c):
                 res += '#' + t + ':|:' + c  + ':|:' + f + ':|:' + \
-                            nfc + ':|:' + re + ':|:' + a + '\n'
+                            nfc + ':|:' + re + ':|:' + a + ':|:' + n + '\n'
         self.template += res
         return True
 
