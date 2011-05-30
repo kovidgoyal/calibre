@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2011-05-27 17:21+0000\n"
+"POT-Creation-Date: 2011-05-29 21:12+0000\n"
 "PO-Revision-Date: 2011-05-20 05:37+0000\n"
 "Last-Translator: Chao-Hsiung Liao <j_h_liau@yahoo.com.tw>\n"
 "Language-Team: Chinese (traditional)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-05-28 04:52+0000\n"
+"X-Launchpad-Export-Date: 2011-05-30 04:57+0000\n"
 "X-Generator: Launchpad (build 12959)\n"
 "Language: zh_TW\n"
 
@@ -49,10 +49,10 @@ msgstr "完全不做任何事"
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:253
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:34
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:35
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:89
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:455
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:460
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:724
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:88
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:454
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:459
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:729
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/ereader.py:36
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/ereader.py:61
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/extz.py:23
@@ -126,8 +126,8 @@ msgstr "完全不做任何事"
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/writer.py:102
 #: /home/kovid/work/calibre/src/calibre/ebooks/rtf/input.py:313
 #: /home/kovid/work/calibre/src/calibre/ebooks/rtf/input.py:315
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:347
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:355
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:348
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:356
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:156
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:364
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:367
@@ -148,11 +148,11 @@ msgstr "完全不做任何事"
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:152
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:167
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:401
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1012
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1188
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1191
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1018
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1194
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1279
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1197
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1200
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1285
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:82
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:212
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:231
@@ -161,23 +161,23 @@ msgstr "完全不做任何事"
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:160
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:164
 #: /home/kovid/work/calibre/src/calibre/gui2/store/google_books_plugin.py:90
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:156
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:163
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:199
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:217
 #: /home/kovid/work/calibre/src/calibre/library/database.py:914
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:506
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:514
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:525
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1804
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1941
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:2948
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:2950
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3083
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1805
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1942
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:2949
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:2951
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3084
 #: /home/kovid/work/calibre/src/calibre/library/server/mobile.py:233
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:156
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:159
 #: /home/kovid/work/calibre/src/calibre/library/server/xml.py:79
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:131
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:134
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:46
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:64
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:78
@@ -346,7 +346,7 @@ msgid "Change the way calibre behaves"
 msgstr "改變 calibre 的行為"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:906
-#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:220
+#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:221
 msgid "Add your own columns"
 msgstr "加入您自己的欄"
 
@@ -867,7 +867,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:445
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:302
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:315
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:2812
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:2813
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:159
 msgid "News"
 msgstr "新聞"
@@ -875,8 +875,8 @@ msgstr "新聞"
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2669
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:65
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:643
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:2772
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:2790
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:2773
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:2791
 msgid "Catalog"
 msgstr "分類"
 
@@ -2733,27 +2733,32 @@ msgid ""
 "autodetect if they are actually cbz/cbr files."
 msgstr "從壓縮檔 (zip/rar) 中解壓縮一般電子書格式。同時也自動偵測它們是否確實為 cbz/cbr 檔案。"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:145
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:51
+msgid "Value: unknown field "
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:144
 msgid "TEMPLATE ERROR"
 msgstr "範本錯誤"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:628
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:627
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:63
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:563
 msgid "No"
 msgstr "否"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:628
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:627
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:63
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:563
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:601
 msgid "Yes"
 msgstr "是"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:723
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:728
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/info.py:45
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/delete_matching_from_device.py:75
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:64
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1017
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1023
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:132
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:152
 #: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread/models.py:23
@@ -2763,32 +2768,32 @@ msgstr "是"
 msgid "Title"
 msgstr "書名"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:724
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:729
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:66
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1018
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1024
 #: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread/models.py:23
 msgid "Author(s)"
 msgstr "作者"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:725
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:730
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:71
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:149
 msgid "Publisher"
 msgstr "出版社"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:726
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:731
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/info.py:49
 msgid "Producer"
 msgstr "製作人"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:727
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:732
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:871
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:147
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:211
 msgid "Comments"
 msgstr "評論"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:729
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:734
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/jacket.py:170
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:60
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:72
@@ -2799,7 +2804,7 @@ msgstr "評論"
 msgid "Tags"
 msgstr "標籤"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:731
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:736
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/jacket.py:168
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:60
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:73
@@ -2809,16 +2814,16 @@ msgstr "標籤"
 msgid "Series"
 msgstr "系列"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:732
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:737
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:154
 msgid "Language"
 msgstr "語言"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:734
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:739
 msgid "Timestamp"
 msgstr "時間戳記"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:736
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:741
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/jacket.py:167
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:69
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:132
@@ -2826,7 +2831,7 @@ msgstr "時間戳記"
 msgid "Published"
 msgstr "發佈於"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:738
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:743
 msgid "Rights"
 msgstr "所有權"
 
@@ -3678,140 +3683,140 @@ msgid ""
 "black)."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:103
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:104
 msgid "Send file to storage card instead of main memory by default"
 msgstr "預設傳送檔案到記憶卡而非主記憶體"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:105
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:106
 msgid "Confirm before deleting"
 msgstr "刪除前確認"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:107
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:108
 msgid "Main window geometry"
 msgstr "主視窗位置大小"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:109
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:110
 msgid "Notify when a new version is available"
 msgstr "當有新版本可用時通知"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:111
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:112
 msgid "Use Roman numerals for series number"
 msgstr "在系列編號中使用羅馬數字"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:113
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:114
 msgid "Sort tags list by name, popularity, or rating"
 msgstr "依名稱、熱門程度或評等排序標籤清單"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:115
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:116
 msgid "Match tags by any or all."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:117
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:118
 msgid "Number of covers to show in the cover browsing mode"
 msgstr "在封面瀏覽模式中要顯示的封面數量"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:119
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:120
 msgid "Defaults for conversion to LRF"
 msgstr "轉換為 LRF 的預設值"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:121
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:122
 msgid "Options for the LRF ebook viewer"
 msgstr "LRF 電子書檢視器的選項"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:124
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:125
 msgid "Formats that are viewed using the internal viewer"
 msgstr "使用內部檢視器觀看的格式"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:126
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:127
 msgid "Columns to be displayed in the book list"
 msgstr "在書籍清單中顯示的欄位"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:127
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:128
 msgid "Automatically launch content server on application startup"
 msgstr "應用程式啟動時自動執行內容伺服器"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:128
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:129
 msgid "Oldest news kept in database"
 msgstr "保留在資料庫中最舊的新聞"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:129
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:130
 msgid "Show system tray icon"
 msgstr "顯示系統匣圖示"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:131
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:132
 msgid "Upload downloaded news to device"
 msgstr "將下載的新聞上傳到裝置"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:133
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:134
 msgid "Delete books from library after uploading to device"
 msgstr "上傳到裝置後刪除書庫中的書籍"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:135
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:136
 msgid ""
 "Show the cover flow in a separate window instead of in the main calibre "
 "window"
 msgstr "在個別視窗中顯示 cover flow 而非在主 calibre 視窗中顯示"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:137
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:138
 msgid "Disable notifications from the system tray icon"
 msgstr "停用系統匣圖示的通知"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:139
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:140
 msgid "Default action to perform when send to device button is clicked"
 msgstr "當按下「傳送到裝置」按鈕時的預設動作"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:144
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:145
 msgid ""
 "Start searching as you type. If this is disabled then search will only take "
 "place when the Enter or Return key is pressed."
 msgstr "輸入時即開始搜尋。如果停用此項，搜尋只有在按下 Enter 或 Return 鍵後才會開始。"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:147
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:148
 msgid ""
 "When searching, show all books with search results highlighted instead of "
 "showing only the matches. You can use the N or F3 keys to go to the next "
 "match."
 msgstr "搜尋時，將搜尋結果在所有書籍中以強調方式顯示，而不是只顯示符合項。您可以使用 N 或 F3 鍵移至下一個符合項。"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:165
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:166
 msgid ""
 "Maximum number of simultaneous conversion/news download jobs. This number is "
 "twice the actual value for historical reasons."
 msgstr "同時轉換/新聞下載工作的最大數量。由於歷史因素這個數量為實際值的兩倍。"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:169
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:170
 msgid "Download social metadata (tags/rating/etc.)"
 msgstr "下載社交網路元數據（標籤/評等/其他）"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:171
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:172
 msgid "Overwrite author and title with new metadata"
 msgstr "以新的元數據覆蓋作者和書名"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:173
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:174
 msgid "Automatically download the cover, if available"
 msgstr "自動下載封面，如果有的話"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:175
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:176
 msgid "Limit max simultaneous jobs to number of CPUs"
 msgstr "限制最大同時工作不超過的 CPU 數目"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:177
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:178
 msgid "The layout of the user interface"
 msgstr "使用者介面的配置"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:179
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:180
 msgid "Show the average rating per item indication in the tag browser"
 msgstr "在標籤瀏覽器中顯示每個項目的平均評等指示"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:181
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:182
 msgid "Disable UI animations"
 msgstr "停用 UI 動畫"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:186
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:187
 msgid "tag browser categories not to display"
 msgstr "標籤瀏覽器不顯示的分類"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:461
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:462
 msgid "Choose Files"
 msgstr "選擇檔案"
 
@@ -3947,11 +3952,11 @@ msgstr "支援的書籍"
 msgid "Select books"
 msgstr "選擇書籍"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:328
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:329
 msgid "Merged some books"
 msgstr "合併某些書籍"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:329
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:330
 msgid ""
 "The following duplicate books were found and incoming book formats were "
 "processed and merged into your Calibre database according to your automerge "
@@ -3974,9 +3979,9 @@ msgstr "加入書庫"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:376
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:127
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:78
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:97
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:106
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:83
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:102
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:111
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:28
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:139
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:185
@@ -4265,7 +4270,7 @@ msgstr "在 %s 找不到現有的 calibre 書庫。它將從已知書庫清單�
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:405
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:167
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:101
-#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:854
+#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:857
 msgid "Not allowed"
 msgstr "不允許的"
 
@@ -4746,7 +4751,7 @@ msgid "Move to next highlighted match"
 msgstr "移至下一個強調的符合項"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/next_match.py:13
-#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:373
+#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:388
 msgid "N"
 msgstr "N"
 
@@ -4952,32 +4957,32 @@ msgstr ""
 msgid "Stores"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:38
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:43
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/chooser_dialog.py:18
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:261
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:270
 msgid "Choose stores"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:78
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:97
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:106
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:83
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:102
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:111
 msgid "Cannot search"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:125
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:130
 msgid ""
 "Calibre helps you find the ebooks you want by searching the websites of "
 "various commercial and public domain book sources for you."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:129
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:134
 msgid ""
 "Using the integrated search you can easily find which store has the book you "
 "are looking for, at the best price. You also get DRM status and other useful "
 "information."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:133
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:138
 msgid ""
 "All transactions (paid or otherwise) are handled between you and the book "
 "seller. Calibre is not part of this process and any issues related to a "
@@ -4987,11 +4992,11 @@ msgid ""
 "ebook.com/about#drm\">DRM</a>."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:143
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:148
 msgid "Show this message again"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:144
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:149
 msgid "About Get Books"
 msgstr ""
 
@@ -5279,7 +5284,7 @@ msgstr "這個資料夾和它的子資料夾都會被掃描以將書籍匯入 ca
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:110
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:80
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:85
-#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/chooser_widget_ui.py:57
+#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/chooser_widget_ui.py:79
 #: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread/store_dialog_ui.py:75
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:133
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:139
@@ -5319,7 +5324,7 @@ msgid "Book %s of <span class=\"series_name\">%s</span>"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:144
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1021
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1027
 msgid "Collections"
 msgstr "藏書"
 
@@ -5445,7 +5450,7 @@ msgstr "輸出"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:98
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:87
 #: /home/kovid/work/calibre/src/calibre/gui2/store/basic_config_widget_ui.py:37
-#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/chooser_widget_ui.py:55
+#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/chooser_widget_ui.py:77
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search/search_widget_ui.py:98
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search_widget_ui.py:98
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:123
@@ -6041,15 +6046,10 @@ msgid ""
 "<p>By default, if the output base font size is zero and/or no font size key "
 "is specified, calibre will use the values from the current Output Profile. "
 "</p>\n"
-"<p>See the <a href=\"http://calibre-"
-"ebook.com/user_manual/conversion.html#font-size-rescaling\">User Manual</a> "
-"for a discussion of how font size rescaling works.</p>"
+"<p>See the <a href=\"http://manual.calibre-ebook.com/conversion.html#font-"
+"size-rescaling\">User Manual</a> for a discussion of how font size rescaling "
+"works.</p>"
 msgstr ""
-"<p>這個精靈會協助您依需求選擇適合的字型大小設定鍵。只要有輸入文件的基礎字型大小再鍵入一個輸入字型大小即可。這個精靈會依字型縮放演算法顯示將要映射的字型"
-"大小。您可以調整下面的輸出基礎字型大小和字型設定鍵來調整演算法。當您找到適合的數值後，請按確定。</p>\n"
-"<p>預設值中，如果輸出基礎字型是零而/或有指定字型大小設定鍵，calibre 會使用目前輸出設定檔的數值。</p>\n"
-"<p>請查閱 <a href=\"http://calibre-ebook.com/user_manual/conversion.html#font-"
-"size-rescaling\">User Manual</a> 以了解字型大小縮放如何運作。</p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:108
 msgid "&Output document"
@@ -6120,13 +6120,9 @@ msgid ""
 "calibre guesses wrong. Therefore, it is disabled by default. Often, if a "
 "conversion does not turn out as you expect, turning on heuristics can "
 "improve matters. Read more about the various heuristic processing options in "
-"the <a href=\"http://calibre-ebook.com/user_manual/conversion.html#heuristic-"
+"the <a href=\"http://manual.calibre-ebook.com/conversion.html#heuristic-"
 "processing\">User Manual</a>."
 msgstr ""
-"<b>啟發式處理</b>代表 calibre 會掃描您書籍的一般樣式並修正它們。正如名稱所示，這涉及猜測的運作，代表如果 calibre "
-"猜測錯誤，也有可能產生更糟的轉換。因此，它預設是停用的。通常，如果轉換沒有達到您的預期，開啟啟發式處理可以改善情況。請在a "
-"href=\"http://calibre-ebook.com/user_manual/conversion.html#heuristic-"
-"processing\">使用者手冊</a>中了解更多啟發式處理的選項。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:114
 msgid "Enable &heuristic processing"
@@ -6548,8 +6544,9 @@ msgid "PDB Output"
 msgstr "PDB 輸出"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_output_ui.py:48
-#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:215
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:195
+#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:225
+#: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread/adv_search_builder_ui.py:186
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:205
 msgid "&Format:"
 msgstr "格式(&F):"
 
@@ -6708,14 +6705,11 @@ msgstr "第三表示式"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:154
 msgid ""
 "<p>Search and replace uses <i>regular expressions</i>. See the <a "
-"href=\"http://calibre-ebook.com/user_manual/regexp.html\">regular "
-"expressions tutorial</a> to get started with regular expressions. Also "
-"clicking the wizard buttons below will allow you to test your regular "
-"expression against the current input document."
+"href=\"http://manual.calibre-ebook.com/regexp.html\">regular expressions "
+"tutorial</a> to get started with regular expressions. Also clicking the "
+"wizard buttons below will allow you to test your regular expression against "
+"the current input document."
 msgstr ""
-"<p>使用<i>正規表示式</i>來搜尋與取代。請查閱<a href=\"http://calibre-"
-"ebook.com/user_manual/regexp.html\">正規表示式教學</a>來了解正規表示式。同時在下方的精靈按鈕可以讓您以目前輸入的文"
-"件測試您的正規表示式。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single.py:173
 msgid "Convert"
@@ -7043,12 +7037,8 @@ msgid ""
 "<i>chapter</i>.</p><p>Leaving attribute blank will match any attribute and "
 "leaving value blank will match any value. Setting tag to * will match any "
 "tag.</p><p>To learn more advanced usage of XPath see the <a "
-"href=\"http://calibre-ebook.com/user_manual/xpath.html\">XPath Tutorial</a>."
+"href=\"http://manual.calibre-ebook.com/xpath.html\">XPath Tutorial</a>."
 msgstr ""
-"<p>舉例來說，要比對所有 class=\"chapter\" 的 h2 標籤，請將標籤設為 <i>h2</i>，屬性設為 <i>class</i> "
-"而數值設為 <i>chapter</i>。</p><p>讓屬性留空會比對任何屬性，而讓數值留空則會比對任何數值。將標籤設為 * "
-"則會比對任何標籤。</p><p>要學習更多關於 XPath 的進階用法，請查閱 <a href=\"http://calibre-"
-"ebook.com/user_manual/xpath.html\">XPath Tutorial</a>。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/cover_flow.py:128
 msgid "Browse by covers"
@@ -7073,8 +7063,8 @@ msgstr "無法載入封面瀏覽器"
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:128
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:148
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:230
-#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:263
-#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:267
+#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:279
+#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:283
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1139
 msgid "Undefined"
 msgstr "未指定"
@@ -7340,14 +7330,14 @@ msgstr ""
 "您已啟用 <b>{0}</b> 格式用於您的 {1}。 {1} 可能不支援它們。如果您傳送這些格式到您的 {1} 它們可能無法讀取。您確定嗎？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget.py:148
-#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:421
+#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:437
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:273
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:61
 msgid "Invalid template"
 msgstr "無效的範本"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget.py:149
-#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:422
+#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:438
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:274
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:62
 msgid "The template %s is invalid:"
@@ -7732,7 +7722,8 @@ msgstr "設定轉換 %s 的選項"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:97
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:211
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:73
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:189
+#: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread/adv_search_builder_ui.py:181
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:199
 msgid "&Title:"
 msgstr "書名(&T):"
 
@@ -7746,12 +7737,12 @@ msgid "&Profile:"
 msgstr "設定檔(&P):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comments_dialog.py:24
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:218
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:222
 msgid "&OK"
 msgstr "確定(_O)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comments_dialog.py:25
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:219
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:223
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:65
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:233
 msgid "&Cancel"
@@ -7801,7 +7792,7 @@ msgstr "位置"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/delete_matching_from_device.py:76
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:68
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1019
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1025
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:32
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:73
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:321
@@ -8878,96 +8869,108 @@ msgid "Negate"
 msgstr "反相"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:198
-#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:196
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:176
+#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:206
+#: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread/adv_search_builder_ui.py:168
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:186
 msgid "Advanced Search"
 msgstr "進階搜尋"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:199
-#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:197
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:177
+#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:207
+#: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread/adv_search_builder_ui.py:169
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:187
 msgid "&What kind of match to use:"
 msgstr "要使用哪一種比對(&W):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:200
-#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:198
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:178
+#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:208
+#: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread/adv_search_builder_ui.py:170
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:188
 msgid "Contains: the word or phrase matches anywhere in the metadata field"
 msgstr "包含：在元數據欄位中任何符合字或詞的地方"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:201
-#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:199
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:179
+#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:209
+#: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread/adv_search_builder_ui.py:171
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:189
 msgid "Equals: the word or phrase must match the entire metadata field"
 msgstr "等同：字或詞必須符合整個元數據欄位"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:202
-#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:200
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:180
+#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:210
+#: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread/adv_search_builder_ui.py:172
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:190
 msgid ""
 "Regular expression: the expression must match anywhere in the metadata field"
 msgstr "正規表示式：在元數據欄位中任何符合正規表示式的地方"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:203
-#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:201
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:181
+#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:211
+#: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread/adv_search_builder_ui.py:173
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:191
 msgid "Find entries that have..."
 msgstr "尋找的項目含有..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:204
-#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:202
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:182
+#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:212
+#: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread/adv_search_builder_ui.py:174
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:192
 msgid "&All these words:"
 msgstr "所有這些字詞(&A):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:205
-#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:203
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:183
+#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:213
+#: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread/adv_search_builder_ui.py:175
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:193
 msgid "This exact &phrase:"
 msgstr "完全符合的語詞(&P):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:206
-#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:204
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:184
+#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:214
+#: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread/adv_search_builder_ui.py:176
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:194
 msgid "&One or more of these words:"
 msgstr "一或多個字詞(&O):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:207
-#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:205
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:185
+#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:215
+#: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread/adv_search_builder_ui.py:177
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:195
 msgid "But dont show entries that have..."
 msgstr "但是不要顯示項目含有..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:208
-#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:206
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:186
+#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:216
+#: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread/adv_search_builder_ui.py:178
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:196
 msgid "Any of these &unwanted words:"
 msgstr "任何這些不需要的字詞(&U):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:209
-#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:207
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:187
+#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:217
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:197
 msgid ""
-"See the <a href=\"http://calibre-ebook.com/user_manual/gui.html#the-search-"
+"See the <a href=\"http://manual.calibre-ebook.com/gui.html#the-search-"
 "interface\">User Manual</a> for more help"
 msgstr ""
-"請查閱 <a href=\"http://calibre-ebook.com/user_manual/gui.html#the-search-"
-"interface\">User Manual</a> 以獲取更多協助"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:210
-#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:208
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:188
+#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:218
+#: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread/adv_search_builder_ui.py:180
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:198
 msgid "A&dvanced Search"
 msgstr "進階搜尋(&D)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:212
-#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:210
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:190
+#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:220
+#: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread/adv_search_builder_ui.py:182
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:200
 msgid "Enter the title."
 msgstr "請輸入書名。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:213
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:191
+#: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread/adv_search_builder_ui.py:183
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:201
 msgid "&Author:"
 msgstr "作者(&A):"
 
@@ -8991,14 +8994,16 @@ msgstr "輸入以空白分隔的標籤"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:219
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:101
-#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:213
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:193
+#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:223
+#: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread/adv_search_builder_ui.py:184
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:203
 msgid "&Clear"
 msgstr "清除(&C)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:220
-#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:214
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:194
+#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:224
+#: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread/adv_search_builder_ui.py:185
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:204
 msgid "Search only in specific fields:"
 msgstr "只搜尋指定的欄位："
 
@@ -9217,6 +9222,10 @@ msgstr "重新命名每一本書中有使用到的項目。"
 msgid "Ctrl+S"
 msgstr "Ctrl+S"
 
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:249
+msgid "EXCEPTION: "
+msgstr ""
+
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:71
 msgid "Function &name:"
 msgstr "函式名稱(&N):"
@@ -9230,44 +9239,90 @@ msgstr "文件(&D):"
 msgid "Python &code:"
 msgstr "Python 程式碼(&C):"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:32
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:36
 msgid "Open Template Editor"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:35
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:39
 msgid "Open Tag Wizard"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:41
-#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:408
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:45
+#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:424
 msgid "Edit template"
 msgstr "編輯範本"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:48
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:52
 msgid "Invalid text"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:49
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:53
 msgid "The text in the box was not generated by this wizard"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:60
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:64
 msgid "Tag Wizard"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:68
-msgid "Tags (more than one per box permitted)"
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:72
+msgid "Tags (see the popup help for more information)"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:69
-msgid "Color"
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:74
+msgid ""
+"You can enter more than one tag per box, separated by commas. The comparison "
+"ignores letter case.<br>A tag value can be a regular expression. Check the "
+"box to turn them on. When using regular expressions, note that the wizard "
+"puts anchors (^ and $) around the expression, so you must ensure your "
+"expression matches from the beginning to the end of the tag.<br>Regular "
+"expression examples:"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:115
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:82
+msgid ""
+"<li><code><b>.*</b></code> matches any tag. No empty tags are checked, so "
+"you don't need to worry about empty strings</li><li><code><b>A.*</b></code> "
+"matches any tag beginning with A</li><li><code><b>.*mystery.*</b></code> "
+"matches any tag containing the word \"mystery\"</li>"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:89
+msgid "is RE"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:91
+msgid "Check this box if the tag box contains regular expressions"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:94
+msgid "Color if tag found"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:96
+msgid ""
+"At least one of the two color boxes must have a value. Leave one color box "
+"empty if you want the template to use the next line in this wizard. If both "
+"boxes are filled in, the rest of the lines in this wizard will be ignored."
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:101
+msgid "Color if tag not found"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:103
+msgid ""
+"This box is usually filled in only on the last test. If it is filled in "
+"before the last test, then the color for tag found box must be empty or all "
+"the rest of the tests will be ignored."
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:178
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:183
 msgid "Invalid color"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:116
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:179
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:184
 msgid "The color {0} is not valid"
 msgstr ""
 
@@ -9504,10 +9559,8 @@ msgstr "加入餵送(&A)"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:286
 msgid ""
 "For help with writing advanced news recipes, please visit <a "
-"href=\"http://calibre-ebook.com/user_manual/news.html\">User Recipes</a>"
+"href=\"http://manual.calibre-ebook.com/news.html\">User Recipes</a>"
 msgstr ""
-"需要關於撰寫進階新聞食譜的說明，請參訪<a href=\"http://calibre-"
-"ebook.com/user_manual/news.html\">使用者食譜</a>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:287
 msgid "Recipe source code (python)"
@@ -9604,9 +9657,8 @@ msgid ""
 "<div style=\"font-size:10pt;\">\n"
 "<p>Set a regular expression pattern to use when trying to guess ebook "
 "metadata from filenames. </p>\n"
-"<p>A <a href=\"http://calibre-"
-"ebook.com/user_manual/regexp.html\">tutorial</a> on using regular "
-"expressions is available.</p>\n"
+"<p>A <a href=\"http://manual.calibre-ebook.com/regexp.html\">tutorial</a> on "
+"using regular expressions is available.</p>\n"
 "<p>Use the <b>Test</b> functionality below to test your regular expression "
 "on a few sample filenames (remember to include the file extension). The "
 "group names for the various metadata entries are documented in "
@@ -9831,7 +9883,7 @@ msgid "Show books in the main memory of the device"
 msgstr "顯示在裝置主記憶體中的書籍"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:72
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1023
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1024
 msgid "Card A"
 msgstr "記憶卡 A"
 
@@ -9840,7 +9892,7 @@ msgid "Show books in storage card A"
 msgstr "顯示在儲存卡 A 中的書籍"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:74
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1025
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1026
 msgid "Card B"
 msgstr "記憶卡 B"
 
@@ -9882,7 +9934,7 @@ msgstr "重設快速搜尋"
 msgid "Copy current search text (instead of search name)"
 msgstr "複製目前的搜尋文字（代替搜尋名稱）"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:373
+#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:388
 msgid "Y"
 msgstr "Y"
 
@@ -9900,75 +9952,75 @@ msgstr "大小 (MB)"
 msgid "Modified"
 msgstr "已修改"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:760
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1317
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:766
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1323
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:797
 msgid "The lookup/search name is \"{0}\""
 msgstr "尋找/搜尋的名稱是「{0}」"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:766
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1319
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:772
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1325
 msgid "This book's UUID is \"{0}\""
 msgstr "這本書的 UUID 為「{0}」"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1016
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1022
 msgid "In Library"
 msgstr "於書庫"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1020
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1026
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:311
 msgid "Size"
 msgstr "大小"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1297
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1303
 msgid "Marked for deletion"
 msgstr "標記成要刪除"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1300
+#: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1306
 msgid "Double click to <b>edit</b> me<br><br>"
 msgstr "請雙擊以<b>編輯</b>我<br><br>"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:158
+#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:159
 msgid "Hide column %s"
 msgstr "隱藏欄 %s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:163
+#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:164
 msgid "Sort on %s"
 msgstr "排序於 %s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:164
+#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:165
 msgid "Ascending"
 msgstr "遞增"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:167
+#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:168
 msgid "Descending"
 msgstr "遞減"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:179
+#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:180
 msgid "Change text alignment for %s"
 msgstr "改變 %s 的文字對齊"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:181
+#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:182
 msgid "Left"
 msgstr "左"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:181
+#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:182
 msgid "Right"
 msgstr "右"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:182
+#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:183
 msgid "Center"
 msgstr "中央"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:201
+#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:202
 msgid "Show column"
 msgstr "顯示欄"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:213
+#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:214
 msgid "Restore default layout"
 msgstr "還原預設的配置"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:855
+#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:858
 msgid ""
 "Dropping onto a device is not supported. First add the book to the calibre "
 "library."
@@ -10966,7 +11018,7 @@ msgstr "評等，以星等顯示"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:41
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:66
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:73
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:153
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:156
 msgid "Yes/No"
 msgstr "是/否"
 
@@ -10992,7 +11044,7 @@ msgid "ISBN"
 msgstr "ISBN"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:65
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:152
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:155
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/emailp.py:27
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:21
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:124
@@ -11028,104 +11080,120 @@ msgstr "尚未選擇任何欄"
 msgid "Selected column is not a user-defined column"
 msgstr "選取的欄不是使用者定義欄"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:154
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:157
 msgid "My Tags"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:155
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:158
 msgid "My Series"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:156
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:159
 msgid "My Rating"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:157
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:160
 msgid "People"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:185
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:187
+msgid ""
+"Examples: The format <code>{0:0>4d}</code> gives a 4-digit number with "
+"leading zeros. The format <code>{0:d}&nbsp;days</code> prints the number "
+"then the word \"days\""
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:192
+msgid ""
+"Examples: The format <code>{0:.1f}</code> gives a floating point number with "
+"1 digit after the decimal point. The format "
+"<code>Price:&nbsp;$&nbsp;{0:,.2f}</code> prints \"Price&nbsp;$&nbsp;\" then "
+"displays the number with 2 digits after the decimal point and thousands "
+"separated by commas."
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:201
 msgid "No lookup name was provided"
 msgstr "沒有提供查詢名稱"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:189
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:205
 msgid ""
 "The lookup name must contain only lower case letters, digits and "
 "underscores, and start with a letter"
 msgstr "尋找名稱必須只包含小寫文字、數字和底線，並且以字母開頭"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:192
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:208
 msgid ""
 "Lookup names cannot end with _index, because these names are reserved for "
 "the index of a series column."
 msgstr "尋找名稱不能以 _index 結尾，因為這些名稱已保留給系列欄的索引使用。"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:202
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:218
 msgid "No column heading was provided"
 msgstr "沒有提供欄標題"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:212
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:228
 msgid "The lookup name %s is already used"
 msgstr "查詢名稱 %s 己經使用了"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:224
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:240
 msgid "The heading %s is already used"
 msgstr "標題 %s 己經使用了"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:235
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:251
 msgid "You must enter a template for composite columns"
 msgstr "您必須輸入組合欄位的範本"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:244
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:260
 msgid "You must enter at least one value for enumeration columns"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:248
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:264
 msgid "You cannot provide the empty value, as it is included by default"
 msgstr "您不能提供空白數值，因為它預設已包含"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:252
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:268
 msgid "The value \"{0}\" is in the list more than once"
 msgstr "數值「{0}」在清單中出現一次以上"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:260
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:276
 msgid ""
 "The colors box must be empty or contain the same number of items as the "
 "value box"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:265
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:281
 msgid "The color {0} is unknown"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:201
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:217
 msgid "&Lookup name"
 msgstr "查詢名稱(&L)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:202
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:218
 msgid "Column &heading"
 msgstr "欄標題(&H)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:203
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:219
 msgid ""
 "Used for searching the column. Must contain only digits and lower case "
 "letters."
 msgstr "用來搜尋欄位。必須只包含數字與小寫字母。"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:204
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:220
 msgid ""
 "Column heading in the library view and category name in the tag browser"
 msgstr "書庫檢視中的欄標題和標籤瀏覽器中的分類名稱"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:205
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:221
 msgid "&Column type"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:206
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:222
 msgid "What kind of information will be kept in the column."
 msgstr "在欄中要保留何種資訊。"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:207
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:223
 msgid ""
 "Show check marks in the GUI. Values of 'yes', 'checked', and 'true'\n"
 "will show a green check. Values of 'no', 'unchecked', and 'false' will show "
@@ -11133,20 +11201,20 @@ msgid ""
 "Everything else will show nothing."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:210
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:226
 msgid "Show checkmarks"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:211
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:227
 msgid ""
 "Check this box if this column contains names, like the authors column."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:212
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:228
 msgid "Contains names"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:213
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:229
 msgid ""
 "<p>Date format. Use 1-4 'd's for day, 1-4 'M's for month, and 2 or 4 'y's "
 "for year.</p>\n"
@@ -11163,73 +11231,92 @@ msgstr ""
 "<li>dd MMMM yy 會得到 05 January 10</li>\n"
 "</ul> "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:219
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:235
 msgid "Use MMM yyyy for month + year, yyyy for year only"
 msgstr "使用 MMM yyyy 為月 + 年，yyyy 則只有年"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:220
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:236
 msgid "Default: dd MMM yyyy."
 msgstr "預設值： dd MMM yyyy。"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:221
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:237
+msgid ""
+"<p>The format specifier must begin with <code>{0:</code>\n"
+"and end with <code>}</code> You can have text before and after the format "
+"specifier.\n"
+"            "
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:240
+msgid ""
+"<p>Default: Not formatted. For format language details see <a "
+"href=\"http://docs.python.org/library/string.html#format-string-syntax\">the "
+"python documentation</a>"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:241
 msgid "Format for &dates"
 msgstr "日期格式(&D)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:222
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:242
+msgid "Format for &numbers"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:243
 msgid "&Template"
 msgstr "範本(&T)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:223
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:244
 msgid "Field template. Uses the same syntax as save templates."
 msgstr "欄位範本。使用與儲存範本相同的語法。"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:224
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:245
 msgid "Similar to save templates. For example, {title} {isbn}"
 msgstr "類似儲存範本。例如，{title} {isbn}"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:225
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:246
 msgid "Default: (nothing)"
 msgstr "預設值：(不做任何事)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:226
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:247
 msgid "&Sort/search column by"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:227
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:248
 msgid "How this column should handled in the GUI when sorting and searching"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:228
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:249
 msgid "If checked, this column will appear in the tags browser as a category"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:229
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:250
 msgid "Show in tags browser"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:230
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:235
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:251
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:256
 msgid "Values"
 msgstr "數值"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:231
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:252
 msgid ""
 "A comma-separated list of permitted values. The empty value is always\n"
 "included, and is the default. For example, the list 'one,two,three' has\n"
 "four values, the first of them being the empty value."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:234
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:255
 msgid "The empty string is always the first value"
 msgstr "空白字串永遠是第一個數值"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:236
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:257
 msgid ""
 "A list of color names to use when displaying an item. The\n"
 "list must be empty or contain a color for each value."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:238
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:259
 msgid "Colors"
 msgstr ""
 
@@ -11356,8 +11443,8 @@ msgid "Always"
 msgstr "永遠"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:132
-msgid "Automatic"
-msgstr "自動"
+msgid "If there is enough room"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:133
 msgid "Never"
@@ -11380,8 +11467,8 @@ msgid ""
 "Here you can specify coloring rules for columns shown in the library view. "
 "Choose the column you wish to color, then supply a template that specifies "
 "the color to use based on the values in the column. There is a <a "
-"href=\"http://calibre-"
-"ebook.com/user_manual/template_lang.html\">tutorial</a> on using templates."
+"href=\"http://manual.calibre-ebook.com/template_lang.html\">tutorial</a> on "
+"using templates."
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:170
@@ -11902,7 +11989,7 @@ msgid "Search for plugin"
 msgstr "搜尋外掛程式"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:230
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:297
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:321
 msgid "No matches"
 msgstr "找不到符合項"
 
@@ -12629,7 +12716,7 @@ msgstr "套用您對這個調整進行的任何變更"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:95
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:279
-#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/chooser_widget_ui.py:58
+#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/chooser_widget_ui.py:80
 #: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread/store_dialog_ui.py:76
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:134
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search_ui.py:109
@@ -12717,6 +12804,7 @@ msgstr "(全部的 {0})"
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:48
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:78
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:83
+#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/chooser_widget_ui.py:83
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:138
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search_ui.py:113
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:351
@@ -12786,44 +12874,73 @@ msgstr ""
 msgid "Open store in external web browswer"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:209
+#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:219
 msgid "&Name:"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:211
+#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:221
 msgid "&Description:"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:212
+#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:222
 msgid "&Headquarters:"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:216
+#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:226
 msgid "Enabled:"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:217
+#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:227
 msgid "DRM:"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:218
-#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:220
+#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:228
+#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:230
+#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:233
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:207
 msgid "true"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:219
-#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:221
+#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:229
+#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:231
+#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:234
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:208
 msgid "false"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:222
+#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:232
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:206
+msgid "Affiliate:"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:235
 msgid "Nam&e/Description ..."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/chooser_widget_ui.py:56
+#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/chooser_widget_ui.py:78
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:132
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search_ui.py:108
 msgid "Query:"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/chooser_widget_ui.py:81
+msgid "Enable"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/chooser_widget_ui.py:82
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:136
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search_ui.py:111
+msgid "All"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/chooser_widget_ui.py:84
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:137
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search_ui.py:112
+msgid "Invert"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:21
+msgid "Affiliate"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:21
@@ -12838,37 +12955,44 @@ msgstr ""
 msgid "No DRM"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:108
+#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:129
 msgid ""
-"<p>This store is currently diabled and cannot be used in other parts of "
-"calibre.</p>"
+"This store is currently diabled and cannot be used in other parts of calibre."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:110
+#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:131
 msgid ""
-"<p>This store is currently enabled and can be used in other parts of "
-"calibre.</p>"
+"This store is currently enabled and can be used in other parts of calibre."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:115
-msgid "<p>This store only distributes ebooks with DRM.</p>"
+#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:136
+msgid "This store only distributes ebooks with DRM."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:117
+#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:138
 msgid ""
-"<p>This store distributes ebooks with DRM. It may have some titles without "
-"DRM, but you will need to check on a per title basis.</p>"
+"This store distributes ebooks with DRM. It may have some titles without DRM, "
+"but you will need to check on a per title basis."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:119
+#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:140
 msgid ""
-"<p>This store is headquartered in %s. This is a good indication of what "
-"market the store caters to. However, this does not necessarily mean that the "
-"store is limited to that market only.</p>"
+"This store is headquartered in %s. This is a good indication of what market "
+"the store caters to. However, this does not necessarily mean that the store "
+"is limited to that market only."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:121
-msgid "<p>This store distributes ebooks in the following formats: %s</p>"
+#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:143
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:203
+msgid "Buying from this store supports the calibre developer: %s."
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:145
+msgid "This store distributes ebooks in the following formats: %s"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/results_view.py:47
+msgid "Configure..."
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search/search_widget_ui.py:99
@@ -12945,6 +13069,19 @@ msgstr ""
 msgid "Not Available"
 msgstr ""
 
+#: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread/adv_search_builder_ui.py:179
+msgid ""
+"See the <a href=\"http://calibre-ebook.com/user_manual/gui.html#the-search-"
+"interface\">User Manual</a> for more help"
+msgstr ""
+"請查閱 <a href=\"http://calibre-ebook.com/user_manual/gui.html#the-search-"
+"interface\">User Manual</a> 以獲取更多協助"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread/adv_search_builder_ui.py:187
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:209
+msgid "Titl&e/Author/Price ..."
+msgstr ""
+
 #: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread/cache_progress_dialog_ui.py:51
 msgid "Updating book cache"
 msgstr ""
@@ -12991,12 +13128,8 @@ msgstr ""
 msgid "Search:"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:192
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:202
 msgid "&Price:"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:196
-msgid "Titl&e/Author/Price ..."
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:36
@@ -13007,14 +13140,14 @@ msgstr ""
 msgid "Price"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:180
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:191
 msgid ""
 "Detected price as: %s. Check with the store before making a purchase to "
 "verify this price is correct. This price often does not include promotions "
 "the store may be running."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:183
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:194
 msgid ""
 "This book as been detected as having DRM restrictions. This book may not "
 "work with your reader and you will have limitations placed upon you as to "
@@ -13022,7 +13155,7 @@ msgid ""
 "purchases to ensure you can actually read this book."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:185
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:196
 msgid ""
 "This book has been detected as being DRM Free. You should be able to use "
 "this book on any device provided it is in a format calibre supports for "
@@ -13030,37 +13163,31 @@ msgid ""
 "with the store. The store may not be disclosing the use of DRM."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:187
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:198
 msgid ""
 "The DRM status of this book could not be determined. There is a very high "
 "likelihood that this book is actually DRM restricted."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:252
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:105
+msgid "Buying from this store supports the calibre developer: %s</p>"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:261
 msgid "Customize get books search"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:262
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:271
 msgid "Configure search"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:297
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:321
 msgid "Couldn't find any books matching your query."
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:131
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search_ui.py:107
 msgid "Get Books"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:136
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search_ui.py:111
-msgid "All"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:137
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search_ui.py:112
-msgid "Invert"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:140
@@ -13462,15 +13589,21 @@ msgstr ""
 "%s 已更新為版本 <b>%s</b>。請查閱<a href=\"http://calibre-ebook.com/whats-"
 "new\">新的功能</a>。"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/update.py:58
+#: /home/kovid/work/calibre/src/calibre/gui2/update.py:55
+msgid ""
+"Update <b>only</b> if one of the new features or bug fixes is important to "
+"you. If the current version works well for you, do not update."
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/update.py:60
 msgid "Update available!"
 msgstr "有更新可用！"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/update.py:63
+#: /home/kovid/work/calibre/src/calibre/gui2/update.py:65
 msgid "Show this notification for future updates"
 msgstr "為往後更新顯示這個通知"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/update.py:68
+#: /home/kovid/work/calibre/src/calibre/gui2/update.py:70
 msgid "&Get update"
 msgstr "取得更新(&G)"
 
@@ -14070,11 +14203,9 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/finish_ui.py:51
 msgid ""
-"<h2>User Manual</h2>A User Manual is also available <a href=\"http://calibre-"
-"ebook.com/user_manual\">online</a>."
+"<h2>User Manual</h2>A User Manual is also available <a "
+"href=\"http://manual.calibre-ebook.com\">online</a>."
 msgstr ""
-"<h2>使用者手冊</h2>使用者手冊也可以在<a href=\"http://calibre-"
-"ebook.com/user_manual\">線上</a>取得。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/kindle_ui.py:49
 msgid ""
@@ -14325,63 +14456,63 @@ msgid "Turn on the &content server"
 msgstr "開啟內容伺服器(&C)"
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:161
-#: /home/kovid/work/calibre/src/calibre/library/caches.py:562
-#: /home/kovid/work/calibre/src/calibre/library/caches.py:576
-#: /home/kovid/work/calibre/src/calibre/library/caches.py:586
+#: /home/kovid/work/calibre/src/calibre/library/caches.py:567
+#: /home/kovid/work/calibre/src/calibre/library/caches.py:581
+#: /home/kovid/work/calibre/src/calibre/library/caches.py:591
 msgid "checked"
 msgstr "已點選"
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:161
-#: /home/kovid/work/calibre/src/calibre/library/caches.py:562
-#: /home/kovid/work/calibre/src/calibre/library/caches.py:576
-#: /home/kovid/work/calibre/src/calibre/library/caches.py:586
-#: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:214
+#: /home/kovid/work/calibre/src/calibre/library/caches.py:567
+#: /home/kovid/work/calibre/src/calibre/library/caches.py:581
+#: /home/kovid/work/calibre/src/calibre/library/caches.py:591
+#: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:216
 msgid "yes"
 msgstr "是"
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:163
-#: /home/kovid/work/calibre/src/calibre/library/caches.py:561
-#: /home/kovid/work/calibre/src/calibre/library/caches.py:573
-#: /home/kovid/work/calibre/src/calibre/library/caches.py:583
+#: /home/kovid/work/calibre/src/calibre/library/caches.py:566
+#: /home/kovid/work/calibre/src/calibre/library/caches.py:578
+#: /home/kovid/work/calibre/src/calibre/library/caches.py:588
 msgid "unchecked"
 msgstr "未核取"
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:163
-#: /home/kovid/work/calibre/src/calibre/library/caches.py:561
-#: /home/kovid/work/calibre/src/calibre/library/caches.py:573
-#: /home/kovid/work/calibre/src/calibre/library/caches.py:583
-#: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:214
+#: /home/kovid/work/calibre/src/calibre/library/caches.py:566
+#: /home/kovid/work/calibre/src/calibre/library/caches.py:578
+#: /home/kovid/work/calibre/src/calibre/library/caches.py:588
+#: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:216
 msgid "no"
 msgstr "否"
 
-#: /home/kovid/work/calibre/src/calibre/library/caches.py:356
+#: /home/kovid/work/calibre/src/calibre/library/caches.py:361
 msgid "today"
 msgstr "今天"
 
-#: /home/kovid/work/calibre/src/calibre/library/caches.py:359
+#: /home/kovid/work/calibre/src/calibre/library/caches.py:364
 msgid "yesterday"
 msgstr "昨天"
 
-#: /home/kovid/work/calibre/src/calibre/library/caches.py:362
+#: /home/kovid/work/calibre/src/calibre/library/caches.py:367
 msgid "thismonth"
 msgstr "這個月"
 
-#: /home/kovid/work/calibre/src/calibre/library/caches.py:365
-#: /home/kovid/work/calibre/src/calibre/library/caches.py:366
+#: /home/kovid/work/calibre/src/calibre/library/caches.py:370
+#: /home/kovid/work/calibre/src/calibre/library/caches.py:371
 msgid "daysago"
 msgstr "天前"
 
-#: /home/kovid/work/calibre/src/calibre/library/caches.py:563
-#: /home/kovid/work/calibre/src/calibre/library/caches.py:580
+#: /home/kovid/work/calibre/src/calibre/library/caches.py:568
+#: /home/kovid/work/calibre/src/calibre/library/caches.py:585
 msgid "blank"
 msgstr "空白"
 
-#: /home/kovid/work/calibre/src/calibre/library/caches.py:563
-#: /home/kovid/work/calibre/src/calibre/library/caches.py:580
+#: /home/kovid/work/calibre/src/calibre/library/caches.py:568
+#: /home/kovid/work/calibre/src/calibre/library/caches.py:585
 msgid "empty"
 msgstr "空的"
 
-#: /home/kovid/work/calibre/src/calibre/library/caches.py:564
+#: /home/kovid/work/calibre/src/calibre/library/caches.py:569
 msgid "Invalid boolean query \"{0}\""
 msgstr ""
 
@@ -15252,19 +15383,19 @@ msgstr "標籤必須只包含小寫字母、數字和底線，並以字母開頭
 msgid "%sAverage rating is %3.1f"
 msgstr "%s平均評等為 %3.1f"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1021
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1022
 msgid "Main"
 msgstr "主要"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3109
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3110
 msgid "<p>Migrating old database to ebook library in %s<br><center>"
 msgstr "<p>將舊的資料庫轉移到 %s 的電子書庫<br><center>"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3138
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3139
 msgid "Copying <b>%s</b>"
 msgstr "正在複製 <b>%s</b>"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3155
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3156
 msgid "Compacting database"
 msgstr "正在壓實資料庫"
 
@@ -15419,8 +15550,8 @@ msgstr "路徑轉換為小寫。"
 msgid "Replace whitespace with underscores."
 msgstr "以底線替代空格。"
 
-#: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:370
-#: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:398
+#: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:372
+#: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:400
 msgid "Requested formats not available"
 msgstr "要求的格式無法使用"
 
@@ -15770,35 +15901,35 @@ msgstr "程式結尾"
 msgid "syntax error - program ends before EOF"
 msgstr "語法錯誤 - 程式在 EOF 前結束"
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter.py:101
-msgid "unknown id "
-msgstr "不明 id "
+#: /home/kovid/work/calibre/src/calibre/utils/formatter.py:103
+msgid "Unknown identifier "
+msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter.py:107
+#: /home/kovid/work/calibre/src/calibre/utils/formatter.py:110
 msgid "unknown function {0}"
 msgstr "不明的函式 {0}"
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter.py:126
+#: /home/kovid/work/calibre/src/calibre/utils/formatter.py:129
 msgid "missing closing parenthesis"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter.py:145
+#: /home/kovid/work/calibre/src/calibre/utils/formatter.py:148
 msgid "expression is not function or constant"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter.py:179
+#: /home/kovid/work/calibre/src/calibre/utils/formatter.py:182
 msgid "format: type {0} requires an integer value, got {1}"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter.py:185
+#: /home/kovid/work/calibre/src/calibre/utils/formatter.py:188
 msgid "format: type {0} requires a decimal (float) value, got {1}"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter.py:296
+#: /home/kovid/work/calibre/src/calibre/utils/formatter.py:299
 msgid "%s: unknown function"
 msgstr "%s：不明的函式"
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter.py:343
+#: /home/kovid/work/calibre/src/calibre/utils/formatter.py:348
 msgid "No such variable "
 msgstr "沒有這種變數 "
 
@@ -15806,53 +15937,49 @@ msgstr "沒有這種變數 "
 msgid "No documentation provided"
 msgstr "沒有提供文件"
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:79
-msgid "Exception "
-msgstr "例外 "
-
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:97
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:90
 msgid ""
 "strcmp(x, y, lt, eq, gt) -- does a case-insensitive comparison of x and y as "
 "strings. Returns lt if x < y. Returns eq if x == y. Otherwise returns gt."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:112
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:105
 msgid ""
 "cmp(x, y, lt, eq, gt) -- compares x and y after converting both to numbers. "
 "Returns lt if x < y. Returns eq if x == y. Otherwise returns gt."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:127
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:120
 msgid ""
 "strcat(a, b, ...) -- can take any number of arguments. Returns a string "
 "formed by concatenating all the arguments"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:140
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:133
 msgid ""
 "add(x, y) -- returns x + y. Throws an exception if either x or y are not "
 "numbers."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:150
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:143
 msgid ""
 "subtract(x, y) -- returns x - y. Throws an exception if either x or y are "
 "not numbers."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:160
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:153
 msgid ""
 "multiply(x, y) -- returns x * y. Throws an exception if either x or y are "
 "not numbers."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:170
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:163
 msgid ""
 "divide(x, y) -- returns x / y. Throws an exception if either x or y are not "
 "numbers."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:180
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:173
 msgid ""
 "template(x) -- evaluates x as a template. The evaluation is done in its own "
 "context, meaning that variables are not shared between the caller and the "
@@ -15862,37 +15989,37 @@ msgid ""
 "template {title_sort} and return its value."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:195
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:188
 msgid ""
 "eval(template) -- evaluates the template, passing the local variables (those "
 "'assign'ed to) instead of the book metadata.  This permits using the "
 "template processor to construct complex results from local variables."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:208
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:201
 msgid ""
 "assign(id, val) -- assigns val to id, then returns val. id must be an "
 "identifier, not an expression"
 msgstr "assign(id, val) -- 將 val 指派 id，然後傳回 val。id 必須為識別，不是正規表示式"
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:218
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:211
 msgid ""
 "print(a, b, ...) -- prints the arguments to standard output. Unless you "
 "start calibre from the command line (calibre-debug -g), the output will go "
 "to a black hole."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:229
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:222
 msgid "field(name) -- returns the metadata field named by name"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:237
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:230
 msgid ""
 "raw_field(name) -- returns the metadata field named by name without applying "
 "any formatting."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:246
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:239
 msgid ""
 "substr(str, start, end) -- returns the start'th through the end'th "
 "characters of str. The first character in str is the zero'th character. If "
@@ -15902,7 +16029,7 @@ msgid ""
 "'234'."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:259
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:252
 msgid ""
 "lookup(val, pattern, field, pattern, field, ..., else_field) -- like switch, "
 "except the arguments are field (metadata) names, not text. The value of the "
@@ -15912,24 +16039,24 @@ msgid ""
 "constructing variable save paths"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:274
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:267
 msgid "lookup requires either 2 or an odd number of arguments"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:286
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:279
 msgid ""
 "test(val, text if not empty, text if empty) -- return `text if not empty` if "
 "the field is not empty, otherwise return `text if empty`"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:298
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:291
 msgid ""
 "contains(val, pattern, text if match, text if not match) -- checks if field "
 "contains matches for the regular expression `pattern`. Returns `text if "
 "match` if matches are found, otherwise it returns `text if no match`"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:313
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:306
 msgid ""
 "switch(val, pattern, value, pattern, value, ..., else_value) -- for each "
 "`pattern, value` pair, checks if the field matches the regular expression "
@@ -15938,11 +16065,11 @@ msgid ""
 "want"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:321
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:314
 msgid "switch requires an odd number of arguments"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:333
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:326
 msgid ""
 "in_list(val, separator, pattern, found_val, not_found_val) -- treat val as a "
 "list of items separated by separator, comparing the pattern against each "
@@ -15950,20 +16077,29 @@ msgid ""
 "otherwise return not_found_val."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:349
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:342
+msgid ""
+"str_in_list(val, separator, string, found_val, not_found_val) -- treat val "
+"as a list of items separated by separator, comparing the string against each "
+"value in the list. If the string matches a value, return found_val, "
+"otherwise return not_found_val. If the string contains separators, then it "
+"is also treated as a list and each value is checked."
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:361
 msgid ""
 "re(val, pattern, replacement) -- return the field after applying the regular "
 "expression. All instances of `pattern` are replaced with `replacement`. As "
 "in all of calibre, these are python-compatible regular expressions"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:360
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:372
 msgid ""
 "ifempty(val, text if empty) -- return val if val is not empty, otherwise "
 "return `text if empty`"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:372
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:384
 msgid ""
 "shorten(val, left chars, middle text, right chars) -- Return a shortened "
 "version of the field, consisting of `left chars` characters from the "
@@ -15977,7 +16113,7 @@ msgid ""
 "example, the title `The Dome` would not be changed."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:397
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:409
 msgid ""
 "count(val, separator) -- interprets the value as a list of items separated "
 "by `separator`, returning the number of items in the list. Most lists use a "
@@ -15985,7 +16121,7 @@ msgid ""
 "{tags:count(,)}, {authors:count(&)}"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:408
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:420
 msgid ""
 "list_item(val, index, separator) -- interpret the value as a list of items "
 "separated by `separator`, returning the `index`th item. The first item is "
@@ -15994,14 +16130,14 @@ msgid ""
 "separator has the same meaning as in the count function."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:428
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:440
 msgid ""
 "select(val, key) -- interpret the value as a comma-separated list of items, "
 "with the items being \"id:value\". Find the pair with theid equal to key, "
 "and return the corresponding value."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:445
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:457
 msgid ""
 "sublist(val, start_index, end_index, separator) -- interpret the value as a "
 "list of items separated by `separator`, returning a new list made from the "
@@ -16014,7 +16150,7 @@ msgid ""
 "\"A, B\"."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:474
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:486
 msgid ""
 "subitems(val, start_index, end_index) -- This function is used to break "
 "apart lists of items such as genres. It interprets the value as a comma-"
@@ -16032,7 +16168,7 @@ msgid ""
 "\"A.B, D.E\""
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:511
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:523
 msgid ""
 "format_date(val, format_string) -- format the value, which must be a date "
 "field, using the format_string, returning a string. The formatting codes "
@@ -16048,55 +16184,61 @@ msgid ""
 "the only format present"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:539
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:551
 msgid "uppercase(val) -- return value of the field in upper case"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:547
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:559
 msgid "lowercase(val) -- return value of the field in lower case"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:555
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:567
 msgid "titlecase(val) -- return value of the field in title case"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:563
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:575
 msgid "capitalize(val) -- return value of the field capitalized"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:571
-msgid "booksize() -- return value of the field capitalized"
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:583
+msgid "booksize() -- return value of the size field"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:584
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:596
+msgid ""
+"ondevice() -- return Yes if ondevice is set, otherwise return the empty "
+"string"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:607
 msgid ""
 "first_non_empty(value, value, ...) -- returns the first value that is not "
 "empty. If all values are empty, then the empty value is returned.You can "
 "have as many values as you want."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:600
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:623
 msgid ""
 "and(value, value, ...) -- returns the string \"1\" if all values are not "
 "empty, otherwise returns the empty string. This function works well with "
 "test or first_non_empty. You can have as many values as you want."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:616
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:639
 msgid ""
 "or(value, value, ...) -- returns the string \"1\" if any value is not empty, "
 "otherwise returns the empty string. This function works well with test or "
 "first_non_empty. You can have as many values as you want."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:632
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:655
 msgid ""
 "not(value) -- returns the string \"1\" if the value is empty, otherwise "
 "returns the empty string. This function works well with test or "
 "first_non_empty. You can have as many values as you want."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:648
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:671
 msgid ""
 "merge_lists(list1, list2, separator) -- return a list made by merging the "
 "items in list1 and list2, removing duplicate items using a case-insensitive "
@@ -16121,147 +16263,147 @@ msgstr "已完成"
 msgid "Working..."
 msgstr "運算中…"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:95
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:98
 msgid "Brazilian Portuguese"
 msgstr "巴西葡萄牙文"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:96
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:99
 msgid "English (UK)"
 msgstr "英文 (英國)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:97
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:100
 msgid "Simplified Chinese"
 msgstr "簡體中文"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:98
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:101
 msgid "Chinese (HK)"
 msgstr "中文 (HK)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:99
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:102
 msgid "Traditional Chinese"
 msgstr "正體中文"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:100
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:103
 msgid "English"
 msgstr "英文"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:101
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:104
 msgid "English (Australia)"
 msgstr "英文 (澳大利亞)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:102
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:105
 msgid "English (New Zealand)"
 msgstr "英文 (紐西蘭)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:103
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:106
 msgid "English (Canada)"
 msgstr "英文 (加拿大)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:104
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:107
 msgid "English (India)"
 msgstr "英文 (印度)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:105
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:108
 msgid "English (Thailand)"
 msgstr "英文 (泰國)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:106
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:109
 msgid "English (Cyprus)"
 msgstr "英文 (塞普勒斯)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:107
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:110
 msgid "English (Czechoslovakia)"
 msgstr "英語 (捷克斯洛伐克)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:108
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:111
 msgid "English (Pakistan)"
 msgstr "英文 (巴基斯坦)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:109
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:112
 msgid "English (Croatia)"
 msgstr "英語 (克羅埃西亞)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:110
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:113
 msgid "English (Indonesia)"
 msgstr "英語 (印尼)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:111
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:114
 msgid "English (Israel)"
 msgstr "英語(以色列)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:112
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:115
 msgid "English (Singapore)"
 msgstr "英文 (新加坡)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:113
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:116
 msgid "English (Yemen)"
 msgstr "英文 (葉門)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:114
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:117
 msgid "English (Ireland)"
 msgstr "英語(愛爾蘭)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:115
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:118
 msgid "English (China)"
 msgstr "英語(中國)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:116
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:119
 msgid "Spanish (Paraguay)"
 msgstr "西班牙(巴拉圭)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:117
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:120
 msgid "Spanish (Uruguay)"
 msgstr "西班牙語 (烏拉圭)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:118
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:121
 msgid "Spanish (Argentina)"
 msgstr "西班牙語 (阿根廷)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:119
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:122
 msgid "Spanish (Mexico)"
 msgstr "西班牙語 (墨西哥)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:120
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:123
 msgid "Spanish (Cuba)"
 msgstr "西班牙語 (古巴)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:121
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:124
 msgid "Spanish (Chile)"
 msgstr "西班牙語 (智利)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:122
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:125
 msgid "Spanish (Ecuador)"
 msgstr "西班牙語 (厄瓜多)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:123
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:126
 msgid "Spanish (Honduras)"
 msgstr "西班牙語 (宏都拉斯)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:124
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:127
 msgid "Spanish (Venezuela)"
 msgstr "西班牙語 (委內瑞拉)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:125
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:128
 msgid "Spanish (Bolivia)"
 msgstr "西班牙語 (玻利維亞)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:126
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:129
 msgid "Spanish (Nicaragua)"
 msgstr "西班牙語 (尼加拉瓜)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:127
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:130
 msgid "German (AT)"
 msgstr "德文 (AT)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:128
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:131
 msgid "French (BE)"
 msgstr "法語 (BE)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:129
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:132
 msgid "Dutch (NL)"
 msgstr "荷蘭文 (NL)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:130
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:133
 msgid "Dutch (BE)"
 msgstr "荷蘭文 (BE)"
 
@@ -17263,6 +17405,26 @@ msgstr ""
 #~ msgid "Sort numbers as text"
 #~ msgstr "將數字當成文字排序"
 
+#~ msgid ""
+#~ "<p>This wizard will help you choose an appropriate font size key for your "
+#~ "needs. Just enter the base font size of the input document and then enter an "
+#~ "input font size. The wizard will display what font size it will be mapped "
+#~ "to, by the font rescaling algorithm. You can adjust the algorithm by "
+#~ "adjusting the output base font size and font key below. When you find values "
+#~ "suitable for you, click OK.</p>\n"
+#~ "<p>By default, if the output base font size is zero and/or no font size key "
+#~ "is specified, calibre will use the values from the current Output Profile. "
+#~ "</p>\n"
+#~ "<p>See the <a href=\"http://calibre-"
+#~ "ebook.com/user_manual/conversion.html#font-size-rescaling\">User Manual</a> "
+#~ "for a discussion of how font size rescaling works.</p>"
+#~ msgstr ""
+#~ "<p>這個精靈會協助您依需求選擇適合的字型大小設定鍵。只要有輸入文件的基礎字型大小再鍵入一個輸入字型大小即可。這個精靈會依字型縮放演算法顯示將要映射的字型"
+#~ "大小。您可以調整下面的輸出基礎字型大小和字型設定鍵來調整演算法。當您找到適合的數值後，請按確定。</p>\n"
+#~ "<p>預設值中，如果輸出基礎字型是零而/或有指定字型大小設定鍵，calibre 會使用目前輸出設定檔的數值。</p>\n"
+#~ "<p>請查閱 <a href=\"http://calibre-ebook.com/user_manual/conversion.html#font-"
+#~ "size-rescaling\">User Manual</a> 以了解字型大小縮放如何運作。</p>"
+
 #~ msgid "%prog [options] mybook.chm"
 #~ msgstr "%prog [options] mybook.chm"
 
@@ -17303,6 +17465,19 @@ msgstr ""
 
 #~ msgid "Force maximum line lenght"
 #~ msgstr "強制設定每行最大長度"
+
+#~ msgid ""
+#~ "<p>For example, to match all h2 tags that have class=\"chapter\", set tag to "
+#~ "<i>h2</i>, attribute to <i>class</i> and value to "
+#~ "<i>chapter</i>.</p><p>Leaving attribute blank will match any attribute and "
+#~ "leaving value blank will match any value. Setting tag to * will match any "
+#~ "tag.</p><p>To learn more advanced usage of XPath see the <a "
+#~ "href=\"http://calibre-ebook.com/user_manual/xpath.html\">XPath Tutorial</a>."
+#~ msgstr ""
+#~ "<p>舉例來說，要比對所有 class=\"chapter\" 的 h2 標籤，請將標籤設為 <i>h2</i>，屬性設為 <i>class</i> "
+#~ "而數值設為 <i>chapter</i>。</p><p>讓屬性留空會比對任何屬性，而讓數值留空則會比對任何數值。將標籤設為 * "
+#~ "則會比對任何標籤。</p><p>要學習更多關於 XPath 的進階用法，請查閱 <a href=\"http://calibre-"
+#~ "ebook.com/user_manual/xpath.html\">XPath Tutorial</a>。"
 
 #~ msgid "and delete from library"
 #~ msgstr "並從書庫中刪除"
@@ -17987,6 +18162,13 @@ msgstr ""
 #~ "be copied here:"
 #~ msgstr "請選擇您書籍的位置。當您將書籍加入 calibre 時，它們會被複製到這裡："
 
+#~ msgid ""
+#~ "<h2>User Manual</h2>A User Manual is also available <a href=\"http://calibre-"
+#~ "ebook.com/user_manual\">online</a>."
+#~ msgstr ""
+#~ "<h2>使用者手冊</h2>使用者手冊也可以在<a href=\"http://calibre-"
+#~ "ebook.com/user_manual\">線上</a>取得。"
+
 #~ msgid "Finish gmail setup"
 #~ msgstr "結束 gmail 設定"
 
@@ -18339,6 +18521,9 @@ msgstr ""
 #~ msgid "Remove all"
 #~ msgstr "全部移除"
 
+#~ msgid "Automatic"
+#~ msgstr "自動"
+
 #~ msgid "Open Editor"
 #~ msgstr "開啟編輯器"
 
@@ -18428,6 +18613,32 @@ msgstr ""
 #~ msgstr ""
 #~ "這個指令會從 calibre 儲存在 OPF 檔案中的資訊重建您的 calibre 資料庫。<p>這個函式目前沒有 GUI 可用。您可以使用 "
 #~ "'calibredb restore_database' 命令列函式來復原您的資料庫。"
+
+#~ msgid ""
+#~ "<b>Heuristic processing</b> means that calibre will scan your book for "
+#~ "common patterns and fix them. As the name implies, this involves guesswork, "
+#~ "which means that it could end up worsening the result of a conversion, if "
+#~ "calibre guesses wrong. Therefore, it is disabled by default. Often, if a "
+#~ "conversion does not turn out as you expect, turning on heuristics can "
+#~ "improve matters. Read more about the various heuristic processing options in "
+#~ "the <a href=\"http://calibre-ebook.com/user_manual/conversion.html#heuristic-"
+#~ "processing\">User Manual</a>."
+#~ msgstr ""
+#~ "<b>啟發式處理</b>代表 calibre 會掃描您書籍的一般樣式並修正它們。正如名稱所示，這涉及猜測的運作，代表如果 calibre "
+#~ "猜測錯誤，也有可能產生更糟的轉換。因此，它預設是停用的。通常，如果轉換沒有達到您的預期，開啟啟發式處理可以改善情況。請在a "
+#~ "href=\"http://calibre-ebook.com/user_manual/conversion.html#heuristic-"
+#~ "processing\">使用者手冊</a>中了解更多啟發式處理的選項。"
+
+#~ msgid ""
+#~ "<p>Search and replace uses <i>regular expressions</i>. See the <a "
+#~ "href=\"http://calibre-ebook.com/user_manual/regexp.html\">regular "
+#~ "expressions tutorial</a> to get started with regular expressions. Also "
+#~ "clicking the wizard buttons below will allow you to test your regular "
+#~ "expression against the current input document."
+#~ msgstr ""
+#~ "<p>使用<i>正規表示式</i>來搜尋與取代。請查閱<a href=\"http://calibre-"
+#~ "ebook.com/user_manual/regexp.html\">正規表示式教學</a>來了解正規表示式。同時在下方的精靈按鈕可以讓您以目前輸入的文"
+#~ "件測試您的正規表示式。"
 
 #~ msgid "Markdown Options"
 #~ msgstr "Markdown 選項"
@@ -18606,6 +18817,12 @@ msgstr ""
 #~ msgid "Extra covers in books"
 #~ msgstr "書籍中額外的封面"
 
+#~ msgid "unknown id "
+#~ msgstr "不明 id "
+
+#~ msgid "Exception "
+#~ msgstr "例外 "
+
 #~ msgid "Use &Roman numerals for series number"
 #~ msgstr "在系列編號使用羅馬數字(&R)"
 
@@ -18633,6 +18850,13 @@ msgstr ""
 
 #~ msgid "Download all scheduled recipes at once"
 #~ msgstr "一次下載所有排程的食譜"
+
+#~ msgid ""
+#~ "For help with writing advanced news recipes, please visit <a "
+#~ "href=\"http://calibre-ebook.com/user_manual/news.html\">User Recipes</a>"
+#~ msgstr ""
+#~ "需要關於撰寫進階新聞食譜的說明，請參訪<a href=\"http://calibre-"
+#~ "ebook.com/user_manual/news.html\">使用者食譜</a>"
 
 #~ msgid "Change the way searching for books works"
 #~ msgstr "改變搜尋書籍的運作方式"
