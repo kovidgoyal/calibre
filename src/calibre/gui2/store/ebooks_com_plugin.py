@@ -59,9 +59,10 @@ class EbookscomStore(BasicStoreConfig, StorePlugin):
                     break
 
                 id = ''.join(data.xpath('.//a[1]/@href'))
-                id = id.split('=')[-1]
-                if not id:
+                mo = re.search('\d+', id)
+                if not mo:
                     continue
+                id = mo.group()
                 
                 cover_url = ''.join(data.xpath('.//img[1]/@src'))
                 

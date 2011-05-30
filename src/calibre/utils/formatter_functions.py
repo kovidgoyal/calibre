@@ -8,7 +8,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import inspect, re, traceback, sys
+import inspect, re, traceback
 
 from calibre.utils.titlecase import titlecase
 from calibre.utils.icu import capitalize, strcmp, sort_key
@@ -63,20 +63,13 @@ class FormatterFunction(object):
         raise NotImplementedError()
 
     def eval_(self, formatter, kwargs, mi, locals, *args):
-        try:
-            ret = self.evaluate(formatter, kwargs, mi, locals, *args)
-            if isinstance(ret, (str, unicode)):
-                return ret
-            if isinstance(ret, (int, float, bool)):
-                return unicode(ret)
-            if isinstance(ret, list):
-                return ','.join(list)
-        except:
-            traceback.print_exc()
-            exc_type, exc_value, exc_traceback = sys.exc_info()
-            info = ': '.join(traceback.format_exception(exc_type, exc_value,
-                                        exc_traceback)[-2:]).replace('\n', '')
-            return _('Exception ') + info
+        ret = self.evaluate(formatter, kwargs, mi, locals, *args)
+        if isinstance(ret, (str, unicode)):
+            return ret
+        if isinstance(ret, (int, float, bool)):
+            return unicode(ret)
+        if isinstance(ret, list):
+            return ','.join(list)
 
 all_builtin_functions = []
 class BuiltinFormatterFunction(FormatterFunction):
@@ -276,7 +269,7 @@ class BuiltinLookup(BuiltinFormatterFunction):
         while i < len(args):
             if i + 1 >= len(args):
                 return formatter.vformat('{' + args[i].strip() + '}', [], kwargs)
-            if re.search(args[i], val):
+            if re.search(args[i], val, flags=re.I):
                 return formatter.vformat('{'+args[i+1].strip() + '}', [], kwargs)
             i += 2
 
@@ -302,7 +295,7 @@ class BuiltinContains(BuiltinFormatterFunction):
 
     def evaluate(self, formatter, kwargs, mi, locals,
                  val, test, value_if_present, value_if_not):
-        if re.search(test, val):
+        if re.search(test, val, flags=re.I):
             return value_if_present
         else:
             return value_if_not
@@ -323,9 +316,46 @@ class BuiltinSwitch(BuiltinFormatterFunction):
         while i < len(args):
             if i + 1 >= len(args):
                 return args[i]
-            if re.search(args[i], val):
+            if re.search(args[i], val, flags=re.I):
                 return args[i+1]
             i += 2
+
+class BuiltinInList(BuiltinFormatterFunction):
+    name = 'in_list'
+    arg_count = 5
+    doc = _('in_list(val, separator, pattern, found_val, not_found_val) -- '
+            'treat val as a list of items separated by separator, '
+            'comparing the pattern against each value in the list. If the '
+            'pattern matches a value, return found_val, otherwise return '
+            'not_found_val.')
+
+    def evaluate(self, formatter, kwargs, mi, locals, val, sep, pat, fv, nfv):
+        l = [v.strip() for v in val.split(sep) if v.strip()]
+        if l:
+            for v in l:
+                if re.search(pat, v, flags=re.I):
+                    return fv
+        return nfv
+
+class BuiltinStrInList(BuiltinFormatterFunction):
+    name = 'str_in_list'
+    arg_count = 5
+    doc = _('str_in_list(val, separator, string, found_val, not_found_val) -- '
+            'treat val as a list of items separated by separator, '
+            'comparing the string against each value in the list. If the '
+            'string matches a value, return found_val, otherwise return '
+            'not_found_val. If the string contains separators, then it is '
+            'also treated as a list and each value is checked.')
+
+    def evaluate(self, formatter, kwargs, mi, locals, val, sep, str, fv, nfv):
+        l = [v.strip() for v in val.split(sep) if v.strip()]
+        c = [v.strip() for v in str.split(sep) if v.strip()]
+        if l:
+            for v in l:
+                for t in c:
+                    if strcmp(t, v) == 0:
+                        return fv
+        return nfv
 
 class BuiltinRe(BuiltinFormatterFunction):
     name = 're'
@@ -336,7 +366,7 @@ class BuiltinRe(BuiltinFormatterFunction):
             'python-compatible regular expressions')
 
     def evaluate(self, formatter, kwargs, mi, locals, val, pattern, replacement):
-        return re.sub(pattern, replacement, val)
+        return re.sub(pattern, replacement, val, flags=re.I)
 
 class BuiltinIfempty(BuiltinFormatterFunction):
     name = 'ifempty'
@@ -552,7 +582,7 @@ class BuiltinCapitalize(BuiltinFormatterFunction):
 class BuiltinBooksize(BuiltinFormatterFunction):
     name = 'booksize'
     arg_count = 0
-    doc = _('booksize() -- return value of the field capitalized')
+    doc = _('booksize() -- return value of the size field')
 
     def evaluate(self, formatter, kwargs, mi, locals):
         if mi.book_size is not None:
@@ -562,7 +592,107 @@ class BuiltinBooksize(BuiltinFormatterFunction):
                 pass
         return ''
 
+class BuiltinOndevice(BuiltinFormatterFunction):
+    name = 'ondevice'
+    arg_count = 0
+    doc = _('ondevice() -- return Yes if ondevice is set, otherwise return '
+            'the empty string')
+
+    def evaluate(self, formatter, kwargs, mi, locals):
+        if mi.ondevice_col:
+            return _('Yes')
+        return ''
+
+class BuiltinFirstNonEmpty(BuiltinFormatterFunction):
+    name = 'first_non_empty'
+    arg_count = -1
+    doc = _('first_non_empty(value, value, ...) -- '
+            'returns the first value that is not empty. If all values are '
+            'empty, then the empty value is returned.'
+            'You can have as many values as you want.')
+
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        i = 0
+        while i < len(args):
+            if args[i]:
+                return args[i]
+            i += 1
+        return ''
+
+class BuiltinAnd(BuiltinFormatterFunction):
+    name = 'and'
+    arg_count = -1
+    doc = _('and(value, value, ...) -- '
+            'returns the string "1" if all values are not empty, otherwise '
+            'returns the empty string. This function works well with test or '
+            'first_non_empty. You can have as many values as you want.')
+
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        i = 0
+        while i < len(args):
+            if not args[i]:
+                return ''
+            i += 1
+        return '1'
+
+class BuiltinOr(BuiltinFormatterFunction):
+    name = 'or'
+    arg_count = -1
+    doc = _('or(value, value, ...) -- '
+            'returns the string "1" if any value is not empty, otherwise '
+            'returns the empty string. This function works well with test or '
+            'first_non_empty. You can have as many values as you want.')
+
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        i = 0
+        while i < len(args):
+            if args[i]:
+                return '1'
+            i += 1
+        return ''
+
+class BuiltinNot(BuiltinFormatterFunction):
+    name = 'not'
+    arg_count = 1
+    doc = _('not(value) -- '
+            'returns the string "1" if the value is empty, otherwise '
+            'returns the empty string. This function works well with test or '
+            'first_non_empty. You can have as many values as you want.')
+
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        i = 0
+        while i < len(args):
+            if args[i]:
+                return '1'
+            i += 1
+        return ''
+
+class BuiltinMergeLists(BuiltinFormatterFunction):
+    name = 'merge_lists'
+    arg_count = 3
+    doc = _('merge_lists(list1, list2, separator) -- '
+            'return a list made by merging the items in list1 and list2, '
+            'removing duplicate items using a case-insensitive compare. If '
+            'items differ in case, the one in list1 is used. '
+            'The items in list1 and list2 are separated by separator, as are '
+            'the items in the returned list.')
+
+    def evaluate(self, formatter, kwargs, mi, locals, list1, list2, separator):
+        l1 = [l.strip() for l in list1.split(separator) if l.strip()]
+        l2 = [l.strip() for l in list2.split(separator) if l.strip()]
+        lcl1 = set([icu_lower(l) for l in l1])
+
+        res = []
+        for i in l1:
+            res.append(i)
+        for i in l2:
+            if icu_lower(i) not in lcl1:
+                res.append(i)
+        return ', '.join(sorted(res, key=sort_key))
+
+
 builtin_add         = BuiltinAdd()
+builtin_and         = BuiltinAnd()
 builtin_assign      = BuiltinAssign()
 builtin_booksize    = BuiltinBooksize()
 builtin_capitalize  = BuiltinCapitalize()
@@ -571,13 +701,19 @@ builtin_contains    = BuiltinContains()
 builtin_count       = BuiltinCount()
 builtin_divide      = BuiltinDivide()
 builtin_eval        = BuiltinEval()
-builtin_format_date = BuiltinFormat_date()
+builtin_first_non_empty = BuiltinFirstNonEmpty()
 builtin_field       = BuiltinField()
+builtin_format_date = BuiltinFormat_date()
 builtin_ifempty     = BuiltinIfempty()
+builtin_in_list     = BuiltinInList()
 builtin_list_item   = BuiltinListitem()
 builtin_lookup      = BuiltinLookup()
 builtin_lowercase   = BuiltinLowercase()
+builtin_merge_lists = BuiltinMergeLists()
 builtin_multiply    = BuiltinMultiply()
+builtin_not         = BuiltinNot()
+builtin_ondevice    = BuiltinOndevice()
+builtin_or          = BuiltinOr()
 builtin_print       = BuiltinPrint()
 builtin_raw_field   = BuiltinRaw_field()
 builtin_re          = BuiltinRe()
@@ -585,6 +721,7 @@ builtin_select      = BuiltinSelect()
 builtin_shorten     = BuiltinShorten()
 builtin_strcat      = BuiltinStrcat()
 builtin_strcmp      = BuiltinStrcmp()
+builtin_str_in_list = BuiltinStrInList()
 builtin_subitems    = BuiltinSubitems()
 builtin_sublist     = BuiltinSublist()
 builtin_substr      = BuiltinSubstr()

@@ -1,6 +1,6 @@
 
 __license__   = 'GPL v3'
-__copyright__ = '2009, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2009-2011, Darko Miletic <darko.miletic at gmail.com>'
 '''
 elmundo.es
 '''
@@ -10,15 +10,24 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class ElMundo(BasicNewsRecipe):
     title                 = 'El Mundo'
     __author__            = 'Darko Miletic'
-    description           = 'News from Spain'
-    publisher             = 'El Mundo'
+    description           = 'Lider de informacion en espaniol'
+    publisher             = 'Unidad Editorial Informacion General S.L.U.'
     category              = 'news, politics, Spain'
     oldest_article        = 2
     max_articles_per_feed = 100
     no_stylesheets        = True
     use_embedded_content  = False
     encoding              = 'iso8859_15'
-    language              = 'es'
+    language              = 'es_ES'
+    masthead_url          = 'http://estaticos03.elmundo.es/elmundo/iconos/v4.x/v4.01/bg_h1.png'
+    publication_type      = 'newspaper'
+    extra_css             = """
+                               body{font-family: Arial,Helvetica,sans-serif}
+                               .metadata_noticia{font-size: small}
+                               h1,h2,h3,h4,h5,h6,.subtitulo {color: #3F5974}
+                               .hora{color: red}
+                               .update{color: gray}
+                            """
 
     conversion_options = {
                              'comments'  : description
@@ -30,22 +39,31 @@ class ElMundo(BasicNewsRecipe):
     keep_only_tags     = [dict(name='div', attrs={'class':'noticia'})]
     remove_tags_before = dict(attrs={'class':['titular','antetitulo']     })
     remove_tags_after  = dict(name='div' , attrs={'id':['desarrollo_noticia','tamano']})
-
+    remove_attributes  = ['lang','border']
     remove_tags = [
                      dict(name='div', attrs={'class':['herramientas','publicidad_google']})
                     ,dict(name='div', attrs={'id':'modulo_multimedia' })
                     ,dict(name='ul', attrs={'class':'herramientas' })
-                    ,dict(name=['object','link'])
+                    ,dict(name=['object','link','embed','iframe','base','meta'])
                   ]
 
     feeds = [
-              (u'Portada'         , u'http://rss.elmundo.es/rss/descarga.htm?data2=4' )
-             ,(u'Deportes'        , u'http://rss.elmundo.es/rss/descarga.htm?data2=14')
-             ,(u'Economia'        , u'http://rss.elmundo.es/rss/descarga.htm?data2=7' )
-             ,(u'Espana'          , u'http://rss.elmundo.es/rss/descarga.htm?data2=8' )
-             ,(u'Internacional'   , u'http://rss.elmundo.es/rss/descarga.htm?data2=9' )
-             ,(u'Cultura'         , u'http://rss.elmundo.es/rss/descarga.htm?data2=6' )
-             ,(u'Ciencia/Ecologia', u'http://rss.elmundo.es/rss/descarga.htm?data2=5' )
-             ,(u'Comunicacion'    , u'http://rss.elmundo.es/rss/descarga.htm?data2=26')
-             ,(u'Television'      , u'http://rss.elmundo.es/rss/descarga.htm?data2=76')
+              (u'Portada'         , u'http://estaticos.elmundo.es/elmundo/rss/portada.xml'       )
+             ,(u'Deportes'        , u'http://estaticos.elmundo.es/elmundodeporte/rss/portada.xml')
+             ,(u'Economia'        , u'http://estaticos.elmundo.es/elmundo/rss/economia.xml'      )
+             ,(u'Espana'          , u'http://estaticos.elmundo.es/elmundo/rss/espana.xml'        )
+             ,(u'Internacional'   , u'http://estaticos.elmundo.es/elmundo/rss/internacional.xml' )
+             ,(u'Cultura'         , u'http://estaticos.elmundo.es/elmundo/rss/cultura.xml'       )
+             ,(u'Ciencia/Ecologia', u'http://estaticos.elmundo.es/elmundo/rss/ciencia.xml'       )
+             ,(u'Comunicacion'    , u'http://estaticos.elmundo.es/elmundo/rss/comunicacion.xml'  )
+             ,(u'Television'      , u'http://estaticos.elmundo.es/elmundo/rss/television.xml'    )
             ]
+
+    def preprocess_html(self, soup):
+        for item in soup.findAll(style=True):
+            del item['style']
+        return soup
+
+    def get_article_url(self, article):
+        return article.get('guid',  None)
+

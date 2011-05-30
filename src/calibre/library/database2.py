@@ -211,6 +211,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         defs = self.prefs.defaults
         defs['gui_restriction'] = defs['cs_restriction'] = ''
         defs['categories_using_hierarchy'] = []
+        self.column_color_count = 5
+        for i in range(1,self.column_color_count+1):
+            defs['column_color_name_'+str(i)] = ''
+            defs['column_color_template_'+str(i)] = ''
 
         # Migrate the bool tristate tweak
         defs['bools_are_tristate'] = \
@@ -856,6 +860,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         mi.uuid        = row[fm['uuid']]
         mi.title_sort  = row[fm['sort']]
         mi.book_size   = row[fm['size']]
+        mi.ondevice_col= row[fm['ondevice']]
         mi.last_modified = row[fm['last_modified']]
         formats = row[fm['formats']]
         if not formats:

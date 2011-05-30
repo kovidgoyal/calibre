@@ -207,8 +207,9 @@ class SchedulerDialog(QDialog, Ui_Dialog):
         self.recipe_model.searched.connect(self.search.search_done,
                 type=Qt.QueuedConnection)
         self.recipe_model.searched.connect(self.search_done)
-        self.search.setFocus(Qt.OtherFocusReason)
+        self.recipes.setFocus(Qt.OtherFocusReason)
         self.commit_on_change = True
+        self.previous_urn = None
 
         self.recipes.setModel(self.recipe_model)
         self.detail_box.setVisible(False)
@@ -227,6 +228,9 @@ class SchedulerDialog(QDialog, Ui_Dialog):
                 self.download_all_clicked)
 
         self.old_news.setValue(gconf['oldest_news'])
+
+        self.go_button.clicked.connect(self.search.do_search)
+        self.clear_search_button.clicked.connect(self.search.clear_clicked)
 
     def set_pw_echo_mode(self, state):
         self.password.setEchoMode(self.password.Normal
@@ -265,14 +269,9 @@ class SchedulerDialog(QDialog, Ui_Dialog):
         self.last_downloaded.setVisible(enabled)
 
     def current_changed(self, current, previous):
-        if self.commit_on_change:
-            if previous.isValid():
-                if not self.commit(urn=getattr(previous.internalPointer(),
-                    'urn', None)):
-                    self.commit_on_change = False
-                    self.recipes.setCurrentIndex(previous)
-        else:
-            self.commit_on_change = True
+        if self.previous_urn is not None:
+            self.commit(urn=self.previous_urn)
+            self.previous_urn = None
 
         urn = self.current_urn
         if urn is not None:
@@ -332,6 +331,7 @@ class SchedulerDialog(QDialog, Ui_Dialog):
         return True
 
     def initialize_detail_box(self, urn):
+        self.previous_urn = urn
         self.detail_box.setVisible(True)
         self.download_button.setVisible(True)
         self.detail_box.setCurrentIndex(0)

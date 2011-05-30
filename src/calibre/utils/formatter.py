@@ -98,7 +98,10 @@ class _Parser(object):
                     cls = funcs['assign']
                     return cls.eval_(self.parent, self.parent.kwargs,
                                     self.parent.book, self.parent.locals, id, self.expr())
-                return self.parent.locals.get(id, _('unknown id ') + id)
+                val = self.parent.locals.get(id, None)
+                if val is None:
+                    self.error(_('Unknown identifier ') + id)
+                return val
             # We have a function.
             # Check if it is a known one. We do this here so error reporting is
             # better, as it can identify the tokens near the problem.
@@ -215,7 +218,7 @@ class TemplateFormatter(string.Formatter):
                 (r'\w+',                lambda x,t: (2, t)),
                 (r'".*?((?<!\\)")',     lambda x,t: (3, t[1:-1])),
                 (r'\'.*?((?<!\\)\')',   lambda x,t: (3, t[1:-1])),
-                (r'\n#.*?(?=\n)',       None),
+                (r'\n#.*?(?:(?=\n)|$)', None),
                 (r'\s',                 None)
         ], flags=re.DOTALL)
 
@@ -317,8 +320,8 @@ class TemplateFormatter(string.Formatter):
         try:
             ans = self.vformat(fmt, [], kwargs).strip()
         except Exception as e:
-            if DEBUG:
-                traceback.print_exc()
+#            if DEBUG:
+#                traceback.print_exc()
             ans = error_value + ' ' + e.message
         return ans
 
@@ -339,6 +342,8 @@ class EvalFormatter(TemplateFormatter):
     A template formatter that uses a simple dict instead of an mi instance
     '''
     def get_value(self, key, args, kwargs):
+        if key == '':
+            return ''
         key = key.lower()
         return kwargs.get(key, _('No such variable ') + key)
 

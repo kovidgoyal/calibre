@@ -29,7 +29,7 @@ class Worker(Thread): # Get details {{{
     Get book details from amazons book page in a separate thread
     '''
 
-    def __init__(self, url, result_queue, browser, log, relevance, plugin, timeout=20):
+    def __init__(self, url, result_queue, browser, log, relevance, domain, plugin, timeout=20):
         Thread.__init__(self)
         self.daemon = True
         self.url, self.result_queue = url, result_queue
@@ -37,7 +37,7 @@ class Worker(Thread): # Get details {{{
         self.relevance, self.plugin = relevance, plugin
         self.browser = browser.clone_browser()
         self.cover_url = self.amazon_id = self.isbn = None
-        self.domain = self.plugin.domain
+        self.domain = domain
 
         months = {
                 'de': {
@@ -199,7 +199,8 @@ class Worker(Thread): # Get details {{{
             return
 
         mi = Metadata(title, authors)
-        mi.set_identifier('amazon', asin)
+        idtype = 'amazon' if self.domain == 'com' else 'amazon_'+self.domain
+        mi.set_identifier(idtype, asin)
         self.amazon_id = asin
 
         try:
@@ -404,12 +405,30 @@ class Amazon(Source):
                     'country\'s Amazon website.'), choices=AMAZON_DOMAINS),
             )
 
+    def get_domain_and_asin(self, identifiers):
+        for key, val in identifiers.iteritems():
+            key = key.lower()
+            if key in ('amazon', 'asin'):
+                return 'com', val
+            if key.startswith('amazon_'):
+                domain = key.split('_')[-1]
+                if domain and domain in self.AMAZON_DOMAINS:
+                    return domain, val
+        return None, None
+
     def get_book_url(self, identifiers): # {{{
-        asin = identifiers.get('amazon', None)
-        if asin is None:
-            asin = identifiers.get('asin', None)
-        if asin:
-            return ('amazon', asin, 'http://amzn.com/%s'%asin)
+        domain, asin = self.get_domain_and_asin(identifiers)
+        if domain and asin:
+            url = None
+            if domain == 'com':
+                url = 'http://amzn.com/'+asin
+            elif domain == 'uk':
+                url = 'http://www.amazon.co.uk/dp/'+asin
+            else:
+                url = 'http://www.amazon.%s/dp/%s'%(domain, asin)
+            if url:
+                idtype = 'amazon' if self.domain == 'com' else 'amazon_'+self.domain
+                return (idtype, asin, url)
     # }}}
 
     @property
@@ -420,8 +439,14 @@ class Amazon(Source):
 
         return domain
 
-    def create_query(self, log, title=None, authors=None, identifiers={}): # {{{
-        domain = self.domain
+    def create_query(self, log, title=None, authors=None, identifiers={}, # {{{
+            domain=None):
+        if domain is None:
+            domain = self.domain
+
+        idomain, asin = self.get_domain_and_asin(identifiers)
+        if idomain is not None:
+            domain = idomain
 
         # See the amazon detailed search page to get all options
         q = {   'search-alias' : 'aps',
@@ -433,7 +458,6 @@ class Amazon(Source):
         else:
             q['sort'] = 'relevancerank'
 
-        asin = identifiers.get('amazon', None)
         isbn = check_isbn(identifiers.get('isbn', None))
 
         if asin is not None:
@@ -456,23 +480,22 @@ class Amazon(Source):
         if not ('field-keywords' in q or 'field-isbn' in q or
                 ('field-title' in q)):
             # Insufficient metadata to make an identify query
-            return None
+            return None, None
 
         latin1q = dict([(x.encode('latin1', 'ignore'), y.encode('latin1',
             'ignore')) for x, y in
             q.iteritems()])
+        udomain = domain
         if domain == 'uk':
-            domain = 'co.uk'
-        url = 'http://www.amazon.%s/s/?'%domain + urlencode(latin1q)
-        return url
+            udomain = 'co.uk'
+        url = 'http://www.amazon.%s/s/?'%udomain + urlencode(latin1q)
+        return url, domain
 
     # }}}
 
     def get_cached_cover_url(self, identifiers): # {{{
         url = None
-        asin = identifiers.get('amazon', None)
-        if asin is None:
-            asin = identifiers.get('asin', None)
+        domain, asin = self.get_domain_and_asin(identifiers)
         if asin is None:
             isbn = identifiers.get('isbn', None)
             if isbn is not None:
@@ -489,7 +512,7 @@ class Amazon(Source):
         Note this method will retry without identifiers automatically if no
         match is found with identifiers.
         '''
-        query = self.create_query(log, title=title, authors=authors,
+        query, domain = self.create_query(log, title=title, authors=authors,
                 identifiers=identifiers)
         if query is None:
             log.error('Insufficient metadata to construct query')
@@ -549,7 +572,8 @@ class Amazon(Source):
                     r'//div[@id="Results"]/descendant::td[starts-with(@id, "search:Td:")]'):
                     for a in td.xpath(r'descendant::td[@class="dataColumn"]/descendant::a[@href]/span[@class="srTitle"]/..'):
                         title = tostring(a, method='text', encoding=unicode).lower()
-                        if 'bulk pack' not in title:
+                        if ('bulk pack' not in title and '[audiobook]' not in
+                                title and '[audio cd]' not in title):
                             matches.append(a.get('href'))
                         break
 
@@ -570,7 +594,7 @@ class Amazon(Source):
             log.error('No matches found with query: %r'%query)
             return
 
-        workers = [Worker(url, result_queue, br, log, i, self) for i, url in
+        workers = [Worker(url, result_queue, br, log, i, domain, self) for i, url in
                 enumerate(matches)]
 
         for w in workers:

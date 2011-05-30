@@ -127,7 +127,7 @@
    <item>
     <widget class="QLabel" name="label_5">
      <property name="text">
-      <string>&lt;p&gt;For example, to match all h2 tags that have class=&quot;chapter&quot;, set tag to &lt;i&gt;h2&lt;/i&gt;, attribute to &lt;i&gt;class&lt;/i&gt; and value to &lt;i&gt;chapter&lt;/i&gt;.&lt;/p&gt;&lt;p&gt;Leaving attribute blank will match any attribute and leaving value blank will match any value. Setting tag to * will match any tag.&lt;/p&gt;&lt;p&gt;To learn more advanced usage of XPath see the &lt;a href=&quot;http://calibre-ebook.com/user_manual/xpath.html&quot;&gt;XPath Tutorial&lt;/a&gt;.</string>
+      <string>&lt;p&gt;For example, to match all h2 tags that have class=&quot;chapter&quot;, set tag to &lt;i&gt;h2&lt;/i&gt;, attribute to &lt;i&gt;class&lt;/i&gt; and value to &lt;i&gt;chapter&lt;/i&gt;.&lt;/p&gt;&lt;p&gt;Leaving attribute blank will match any attribute and leaving value blank will match any value. Setting tag to * will match any tag.&lt;/p&gt;&lt;p&gt;To learn more advanced usage of XPath see the &lt;a href=&quot;http://manual.calibre-ebook.com/xpath.html&quot;&gt;XPath Tutorial&lt;/a&gt;.</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>

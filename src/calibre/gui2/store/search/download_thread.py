@@ -22,7 +22,7 @@ class GenericDownloadThreadPool(object):
     at the end of the function.
     '''
 
-    def __init__(self, thread_type, thread_count):
+    def __init__(self, thread_type, thread_count=1):
         self.thread_type = thread_type
         self.thread_count = thread_count
 
@@ -30,12 +30,15 @@ class GenericDownloadThreadPool(object):
         self.results = Queue()
         self.threads = []
 
+    def set_thread_count(self, thread_count):
+        self.thread_count = thread_count
+
     def add_task(self):
         '''
         This must be implemented in a sub class and this function
         must be called at the end of the add_task function in
         the sub class.
-        
+
         The implementation of this function (in this base class)
         starts any threads necessary to fill the pool if it is
         not already full.
@@ -88,12 +91,12 @@ class SearchThreadPool(GenericDownloadThreadPool):
     sp = SearchThreadPool(3)
     sp.add_task(...)
     '''
-    
+
     def __init__(self, thread_count):
         GenericDownloadThreadPool.__init__(self, SearchThread, thread_count)
 
-    def add_task(self, query, store_name, store_plugin, timeout):
-        self.tasks.put((query, store_name, store_plugin, timeout))
+    def add_task(self, query, store_name, store_plugin, max_results, timeout):
+        self.tasks.put((query, store_name, store_plugin, max_results, timeout))
         GenericDownloadThreadPool.add_task(self)
 
 
@@ -112,11 +115,13 @@ class SearchThread(Thread):
     def run(self):
         while self._run and not self.tasks.empty():
             try:
-                query, store_name, store_plugin, timeout = self.tasks.get()
-                for res in store_plugin.search(query, timeout=timeout):
+                query, store_name, store_plugin, max_results, timeout = self.tasks.get()
+                for res in store_plugin.search(query, max_results=max_results, timeout=timeout):
                     if not self._run:
                         return
                     res.store_name = store_name
+                    res.affiliate = store_plugin.base_plugin.affiliate
+                    res.plugin_author = store_plugin.base_plugin.author
                     self.results.put((res, store_plugin))
                 self.tasks.task_done()
             except:
@@ -164,7 +169,7 @@ class CoverThread(Thread):
 
 
 class DetailsThreadPool(GenericDownloadThreadPool):
-    
+
     def __init__(self, thread_count):
         GenericDownloadThreadPool.__init__(self, DetailsThread, thread_count)
 

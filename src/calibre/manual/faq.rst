@@ -138,7 +138,7 @@ Follow these steps to find the problem:
 My device is non-standard or unusual. What can I do to connect to it?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In addition to the :guilabel:`Connect to Folder` function found under the Connect/Share button, |app| provides a ``User Defined`` device plugin that can be used to connect to any USB device that presents that shows up as a disk drive in your operating system. See the device plugin ``Preferences -> Plugins -> Device Plugins -> User Defined`` and ``Preferences -> Miscellaneous -> Get information to setup the user defined device`` for more information.
+In addition to the :guilabel:`Connect to Folder` function found under the Connect/Share button, |app| provides a ``User Defined`` device plugin that can be used to connect to any USB device that shows up as a disk drive in your operating system. Note: on windows, the device must have a drive letter for calibre to use it. See the device plugin ``Preferences -> Plugins -> Device Plugins -> User Defined`` and ``Preferences -> Miscellaneous -> Get information to setup the user defined device`` for more information.
 
 How does |app| manage collections on my SONY reader?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -560,7 +560,7 @@ I want some feature added to |app|. What can I do?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 You have two choices:
  1. Create a patch by hacking on |app| and send it to me for review and inclusion. See `Development <http://calibre-ebook.com/get-involved>`_.
- 2. `Open a ticket <http://bugs.calibre-ebook.com/newticket>`_ (you have to register and login first). Remember that |app| development is done by volunteers, so if you get no response to your feature request, it means no one feels like implementing it.
+ 2. `Open a ticket <http://calibre-ebook.com/bugs>`_ (you have to register and login first). Remember that |app| development is done by volunteers, so if you get no response to your feature request, it means no one feels like implementing it.
 
 How is |app| licensed?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -587,7 +587,7 @@ You can download news and convert it into an ebook with the command::
 
    /opt/calibre/ebook-convert "Title of news source.recipe" outputfile.epub
 
-If you want to generate MOBI, use outputfile.mobi instead.
+If you want to generate MOBI, use outputfile.mobi instead and use ``--output-profile kindle``.
 
 You can email downloaded news with the command::
 

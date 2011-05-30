@@ -926,8 +926,8 @@ class Device(DeviceConfig, DevicePlugin):
         if not isinstance(template, unicode):
             template = template.decode('utf-8')
         app_id = str(getattr(mdata, 'application_id', ''))
-        # The db id will be in the created filename
-        extra_components = get_components(template, mdata, fname,
+        id_ = mdata.get('id', fname)
+        extra_components = get_components(template, mdata, id_,
                 timefmt=opts.send_timefmt, length=maxlen-len(app_id)-1)
         if not extra_components:
             extra_components.append(sanitize(self.filename_callback(fname,

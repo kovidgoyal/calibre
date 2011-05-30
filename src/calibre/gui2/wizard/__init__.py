@@ -164,7 +164,7 @@ class Sony900(Sony505):
 
 class Nook(Sony505):
     id = 'nook'
-    name = 'Nook'
+    name = 'Nook and Nook Simple Reader'
     manufacturer = 'Barnes & Noble'
     output_profile = 'nook'
 

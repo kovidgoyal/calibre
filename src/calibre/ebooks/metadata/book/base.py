@@ -41,27 +41,26 @@ field_metadata = FieldMetadata()
 
 class SafeFormat(TemplateFormatter):
 
-    def get_value(self, key, args, kwargs):
-        try:
-            key = key.lower()
-            if key != 'title_sort' and key not in TOP_LEVEL_IDENTIFIERS:
-                key = field_metadata.search_term_to_field_key(key)
-            b = self.book.get_user_metadata(key, False)
-            if b and b['datatype'] == 'int' and self.book.get(key, 0) == 0:
-                v = ''
-            elif b and b['datatype'] == 'float' and self.book.get(key, 0.0) == 0.0:
-                v = ''
-            else:
-                v = self.book.format_field(key, series_with_index=False)[1]
-            if v is None:
-                return ''
-            if v == '':
-                return ''
-            return v
-        except:
-            if DEBUG:
-                traceback.print_exc()
-            return key
+    def get_value(self, orig_key, args, kwargs):
+        if not orig_key:
+            return ''
+        key = orig_key.lower()
+        if key != 'title_sort' and key not in TOP_LEVEL_IDENTIFIERS:
+            key = field_metadata.search_term_to_field_key(key)
+        if key is None or (self.book and key not in self.book.all_field_keys()):
+            raise ValueError(_('Value: unknown field ') + orig_key)
+        b = self.book.get_user_metadata(key, False)
+        if b and b['datatype'] == 'int' and self.book.get(key, 0) == 0:
+            v = ''
+        elif b and b['datatype'] == 'float' and self.book.get(key, 0.0) == 0.0:
+            v = ''
+        else:
+            v = self.book.format_field(key, series_with_index=False)[1]
+        if v is None:
+            return ''
+        if v == '':
+            return ''
+        return v
 
 composite_formatter = SafeFormat()
 
@@ -75,7 +74,7 @@ class Metadata(object):
     Metadata from custom columns should be accessed via the get() method,
     passing in the lookup name for the column, for example: "#mytags".
 
-    Use the :meth:`is_null` method to test if a filed is null.
+    Use the :meth:`is_null` method to test if a field is null.
 
     This object also has functions to format fields into strings.
 
@@ -106,7 +105,7 @@ class Metadata(object):
 
     def is_null(self, field):
         '''
-        Return True if the value of filed is null in this object.
+        Return True if the value of field is null in this object.
         'null' means it is unknown or evaluates to False. So a title of
         _('Unknown') is null or a language of 'und' is null.
 
@@ -628,6 +627,12 @@ class Metadata(object):
                 res = _('Yes') if res else _('No')
             elif datatype == 'rating':
                 res = res/2.0
+            elif datatype in ['int', 'float']:
+                try:
+                    fmt = cmeta['display'].get('number_format', None)
+                    res = fmt.format(res)
+                except:
+                    pass
             return (name, unicode(res), orig_res, cmeta)
 
         # convert top-level ids into their value
