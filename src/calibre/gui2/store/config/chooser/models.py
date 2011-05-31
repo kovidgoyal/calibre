@@ -6,7 +6,7 @@ __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-from PyQt4.Qt import (Qt, QAbstractItemModel, QIcon, QVariant, QModelIndex)
+from PyQt4.Qt import (Qt, QAbstractItemModel, QIcon, QVariant, QModelIndex, QSize)
 
 from calibre.gui2 import NONE
 from calibre.customize.ui import is_disabled, disable_plugin, enable_plugin
@@ -18,13 +18,15 @@ from calibre.utils.search_query_parser import SearchQueryParser
 
 class Matches(QAbstractItemModel):
 
-    HEADERS = [_('Enabled'), _('Name'), _('No DRM'), _('Headquarters'), _('Formats')]
+    HEADERS = [_('Enabled'), _('Name'), _('No DRM'), _('Headquarters'), _('Affiliate'), _('Formats')]
     HTML_COLS = [1]
 
     def __init__(self, plugins):
         QAbstractItemModel.__init__(self)
 
         self.NO_DRM_ICON = QIcon(I('ok.png'))
+        self.DONATE_ICON = QIcon()
+        self.DONATE_ICON.addFile(I('donate.png'), QSize(16, 16))
 
         self.all_matches = plugins
         self.matches = plugins
@@ -52,6 +54,22 @@ class Matches(QAbstractItemModel):
                 self.matches = self.all_matches
         self.layoutChanged.emit()
         self.sort(self.sort_col, self.sort_order)
+
+    def enable_all(self):
+        for i in xrange(len(self.matches)):
+            index = self.createIndex(i, 0)
+            data = QVariant(True)
+            self.setData(index, data, Qt.CheckStateRole)
+    
+    def enable_none(self):
+        for i in xrange(len(self.matches)):
+            index = self.createIndex(i, 0)
+            data = QVariant(False)
+            self.setData(index, data, Qt.CheckStateRole)
+    
+    def enable_invert(self):
+        for i in xrange(len(self.matches)):
+            self.toggle_plugin(self.createIndex(i, 0))
 
     def toggle_plugin(self, index):
         new_index = self.createIndex(index.row(), 0)
@@ -91,12 +109,15 @@ class Matches(QAbstractItemModel):
                 return QVariant('<b>%s</b><br><i>%s</i>' % (result.name, result.description))
             elif col == 3:
                 return QVariant(result.headquarters)
-            elif col == 4:
+            elif col == 5:
                 return QVariant(', '.join(result.formats).upper())
         elif role == Qt.DecorationRole:
             if col == 2:
                 if result.drm_free_only:
                     return QVariant(self.NO_DRM_ICON)
+            if col == 4:
+                if result.affiliate:
+                    return QVariant(self.DONATE_ICON)
         elif role == Qt.CheckStateRole:
             if col == 0:
                 if is_disabled(result):
@@ -105,20 +126,23 @@ class Matches(QAbstractItemModel):
         elif role == Qt.ToolTipRole:
             if col == 0:
                 if is_disabled(result):
-                    return QVariant(_('<p>This store is currently diabled and cannot be used in other parts of calibre.</p>'))
+                    return QVariant('<p>' + _('This store is currently diabled and cannot be used in other parts of calibre.') + '</p>')
                 else:
-                    return QVariant(_('<p>This store is currently enabled and can be used in other parts of calibre.</p>'))
+                    return QVariant('<p>' + _('This store is currently enabled and can be used in other parts of calibre.') + '</p>')
             elif col == 1:
                 return QVariant('<p>%s</p>' % result.description)
             elif col == 2:
                 if result.drm_free_only:
-                    return QVariant(_('<p>This store only distributes ebooks with DRM.</p>'))
+                    return QVariant('<p>' + _('This store only distributes ebooks with DRM.') + '</p>')
                 else:
-                    return QVariant(_('<p>This store distributes ebooks with DRM. It may have some titles without DRM, but you will need to check on a per title basis.</p>'))
+                    return QVariant('<p>' + _('This store distributes ebooks with DRM. It may have some titles without DRM, but you will need to check on a per title basis.') + '</p>')
             elif col == 3:
-                return QVariant(_('<p>This store is headquartered in %s. This is a good indication of what market the store caters to. However, this does not necessarily mean that the store is limited to that market only.</p>') % result.headquarters)
+                return QVariant('<p>' + _('This store is headquartered in %s. This is a good indication of what market the store caters to. However, this does not necessarily mean that the store is limited to that market only.') % result.headquarters + '</p>')
             elif col == 4:
-                return QVariant(_('<p>This store distributes ebooks in the following formats: %s</p>') % ', '.join(result.formats))
+                if result.affiliate:
+                    return QVariant('<p>' + _('Buying from this store supports the calibre developer: %s.') % result.author + '</p>')
+            elif col == 5:
+                return QVariant('<p>' + _('This store distributes ebooks in the following formats: %s') % ', '.join(result.formats) + '</p>')
         return NONE
 
     def setData(self, index, data, role):
@@ -148,6 +172,8 @@ class Matches(QAbstractItemModel):
             text = 'a' if getattr(match, 'drm_free_only', True) else 'b'
         elif col == 3:
             text = getattr(match, 'headquarters', '')
+        elif col == 4:
+            text = 'a' if getattr(match, 'affiliate', False) else 'b'
         return text
 
     def sort(self, col, order, reset=True):
@@ -167,6 +193,7 @@ class SearchFilter(SearchQueryParser):
 
     USABLE_LOCATIONS = [
         'all',
+        'affiliate',
         'description',
         'drm',
         'enabled',
@@ -207,6 +234,7 @@ class SearchFilter(SearchQueryParser):
         all_locs = set(self.USABLE_LOCATIONS) - set(['all'])
         locations = all_locs if location == 'all' else [location]
         q = {
+             'affiliate': lambda x: x.affiliate,
              'description': lambda x: x.description.lower(),
              'drm': lambda x: not x.drm_free_only,
              'enabled': lambda x: not is_disabled(x),
@@ -219,21 +247,21 @@ class SearchFilter(SearchQueryParser):
             for locvalue in locations:
                 accessor = q[locvalue]
                 if query == 'true':
-                    if locvalue in ('drm', 'enabled'):
+                    if locvalue in ('affiliate', 'drm', 'enabled'):
                         if accessor(sr) == True:
                             matches.add(sr)
                     elif accessor(sr) is not None:
                         matches.add(sr)
                     continue
                 if query == 'false':
-                    if locvalue in ('drm', 'enabled'):
+                    if locvalue in ('affiliate', 'drm', 'enabled'):
                         if accessor(sr) == False:
                             matches.add(sr)
                     elif accessor(sr) is None:
                         matches.add(sr)
                     continue
                 # this is bool, so can't match below
-                if locvalue in ('drm', 'enabled'):
+                if locvalue in ('affiliate', 'drm', 'enabled'):
                     continue
                 try:
                     ### Can't separate authors because comma is used for name sep and author sep

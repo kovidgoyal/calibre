@@ -48,8 +48,9 @@ else:
     gprefs.defaults['action-layout-menubar-device'] = ()
     gprefs.defaults['action-layout-toolbar'] = (
         'Add Books', 'Edit Metadata', None, 'Convert Books', 'View', None,
-        'Choose Library', 'Donate', None, 'Fetch News', 'Store', 'Save To Disk',
-        'Connect Share', None, 'Remove Books', None, 'Help', 'Preferences',
+        'Store', 'Donate', 'Fetch News', 'Help', None,
+        'Remove Books', 'Choose Library', 'Save To Disk',
+        'Connect Share', 'Preferences',
         )
     gprefs.defaults['action-layout-toolbar-device'] = (
         'Add Books', 'Edit Metadata', None, 'Convert Books', 'View',
@@ -75,7 +76,7 @@ gprefs.defaults['action-layout-context-menu-device'] = (
 gprefs.defaults['show_splash_screen'] = True
 gprefs.defaults['toolbar_icon_size'] = 'medium'
 gprefs.defaults['automerge'] = 'ignore'
-gprefs.defaults['toolbar_text'] = 'auto'
+gprefs.defaults['toolbar_text'] = 'always'
 gprefs.defaults['font'] = None
 gprefs.defaults['tags_browser_partition_method'] = 'first letter'
 gprefs.defaults['tags_browser_collapse_at'] = 100

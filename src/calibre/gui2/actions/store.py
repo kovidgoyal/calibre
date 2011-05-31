@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 from functools import partial
 
-from PyQt4.Qt import QMenu
+from PyQt4.Qt import QMenu, QIcon, QSize
 
 from calibre.gui2 import error_dialog
 from calibre.gui2.actions import InterfaceAction
@@ -32,8 +32,13 @@ class StoreAction(InterfaceAction):
         self.store_menu.addAction(_('Search for this book'), self.search_author_title)
         self.store_menu.addSeparator()
         self.store_list_menu = self.store_menu.addMenu(_('Stores'))
+        icon = QIcon()
+        icon.addFile(I('donate.png'), QSize(16, 16))
         for n, p in sorted(self.gui.istores.items(), key=lambda x: x[0].lower()):
-            self.store_list_menu.addAction(n, partial(self.open_store, p))
+            if p.base_plugin.affiliate:
+                self.store_list_menu.addAction(icon, n, partial(self.open_store, p))
+            else:
+                self.store_list_menu.addAction(n, partial(self.open_store, p))
         self.store_menu.addSeparator()
         self.store_menu.addAction(_('Choose stores'), self.choose)
         self.qaction.setMenu(self.store_menu)

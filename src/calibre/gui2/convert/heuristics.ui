@@ -17,7 +17,7 @@
    <item>
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>&lt;b&gt;Heuristic processing&lt;/b&gt; means that calibre will scan your book for common patterns and fix them. As the name implies, this involves guesswork, which means that it could end up worsening the result of a conversion, if calibre guesses wrong. Therefore, it is disabled by default. Often, if a conversion does not turn out as you expect, turning on heuristics can improve matters. Read more about the various heuristic processing options in the &lt;a href=&quot;http://calibre-ebook.com/user_manual/conversion.html#heuristic-processing&quot;&gt;User Manual&lt;/a&gt;.</string>
+      <string>&lt;b&gt;Heuristic processing&lt;/b&gt; means that calibre will scan your book for common patterns and fix them. As the name implies, this involves guesswork, which means that it could end up worsening the result of a conversion, if calibre guesses wrong. Therefore, it is disabled by default. Often, if a conversion does not turn out as you expect, turning on heuristics can improve matters. Read more about the various heuristic processing options in the &lt;a href=&quot;http://manual.calibre-ebook.com/conversion.html#heuristic-processing&quot;&gt;User Manual&lt;/a&gt;.</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>

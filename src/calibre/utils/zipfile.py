@@ -1123,6 +1123,13 @@ class ZipFile:
                     targetpath = os.sep.join(components)
                     with open(targetpath, 'wb') as target:
                         shutil.copyfileobj(source, target)
+        # Kovid: Try to preserve the timestamps in the ZIP file
+        try:
+            mtime = time.localtime()
+            mtime = time.mktime(member.date_time + (0, 0) + (mtime.tm_isdst,))
+            os.utime(targetpath, (mtime, mtime))
+        except:
+            pass
         self.extract_mapping[member.filename] = targetpath
         return targetpath
 

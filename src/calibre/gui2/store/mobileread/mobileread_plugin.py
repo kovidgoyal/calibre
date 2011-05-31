@@ -18,7 +18,7 @@ from calibre.gui2.store.web_store_dialog import WebStoreDialog
 from calibre.gui2.store.mobileread.models import SearchFilter
 from calibre.gui2.store.mobileread.cache_progress_dialog import CacheProgressDialog
 from calibre.gui2.store.mobileread.cache_update_thread import CacheUpdateThread
-from calibre.gui2.store.mobileread.store_dialog import MobeReadStoreDialog
+from calibre.gui2.store.mobileread.store_dialog import MobileReadStoreDialog
 
 class MobileReadStore(BasicStoreConfig, StorePlugin):
     
@@ -38,7 +38,7 @@ class MobileReadStore(BasicStoreConfig, StorePlugin):
                 d.exec_()
             else:
                 self.update_cache(parent, 30)
-                d = MobeReadStoreDialog(self, parent)
+                d = MobileReadStoreDialog(self, parent)
                 d.setWindowTitle(self.name)
                 d.exec_()
 

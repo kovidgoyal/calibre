@@ -11,6 +11,7 @@ from PyQt4.Qt import (Qt, QDialog, QDialogButtonBox, QSyntaxHighlighter,
 
 from calibre.gui2.dialogs.template_dialog_ui import Ui_TemplateDialog
 from calibre.utils.formatter_functions import formatter_functions
+from calibre.ebooks.metadata.book.base import composite_formatter
 
 class ParenPosition:
 
@@ -194,10 +195,13 @@ class TemplateHighlighter(QSyntaxHighlighter):
 
 class TemplateDialog(QDialog, Ui_TemplateDialog):
 
-    def __init__(self, parent, text):
+    def __init__(self, parent, text, mi):
         QDialog.__init__(self, parent)
         Ui_TemplateDialog.__init__(self)
         self.setupUi(self)
+
+        self.mi = mi
+
         # Remove help icon on title bar
         icon = self.windowIcon()
         self.setWindowFlags(self.windowFlags()&(~Qt.WindowContextHelpButtonHint))
@@ -233,12 +237,16 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         self.function.addItems(func_names)
         self.function.setCurrentIndex(0)
         self.function.currentIndexChanged[str].connect(self.function_changed)
+        self.textbox_changed()
 
     def textbox_changed(self):
         cur_text = unicode(self.textbox.toPlainText())
         if self.last_text != cur_text:
             self.last_text = cur_text
             self.highlighter.regenerate_paren_positions()
+            self.template_value.setText(
+                composite_formatter.safe_format(cur_text, self.mi,
+                                                _('EXCEPTION: '), self.mi))
 
     def text_cursor_changed(self):
         cursor = self.textbox.textCursor()

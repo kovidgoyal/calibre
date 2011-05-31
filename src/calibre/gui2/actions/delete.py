@@ -152,7 +152,8 @@ class DeleteAction(InterfaceAction):
         if not ids:
             return
         fmts = self._get_selected_formats(
-            '<p>'+_('Choose formats <b>not</b> to be deleted'), ids)
+            '<p>'+_('Choose formats <b>not</b> to be deleted.<p>Note that '
+                'this will never remove all formats from a book.'), ids)
         if fmts is None:
             return
         for id in ids:
@@ -161,9 +162,12 @@ class DeleteAction(InterfaceAction):
                 continue
             bfmts = set([x.lower() for x in bfmts.split(',')])
             rfmts = bfmts - set(fmts)
-            for fmt in rfmts:
-                self.gui.library_view.model().db.remove_format(id, fmt,
-                        index_is_id=True, notify=False)
+            if bfmts - rfmts:
+                # Do not delete if it will leave the book with no
+                # formats
+                for fmt in rfmts:
+                    self.gui.library_view.model().db.remove_format(id, fmt,
+                            index_is_id=True, notify=False)
         self.gui.library_view.model().refresh_ids(ids)
         self.gui.library_view.model().current_changed(self.gui.library_view.currentIndex(),
                 self.gui.library_view.currentIndex())
