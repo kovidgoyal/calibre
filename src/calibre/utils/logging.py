@@ -14,7 +14,7 @@ import sys, traceback, cStringIO
 from functools import partial
 from threading import RLock
 
-
+from calibre import isbytestring, force_unicode, as_unicode
 
 class Stream(object):
 
@@ -36,12 +36,12 @@ class ANSIStream(Stream):
         from calibre.utils.terminfo import TerminalController
         tc = TerminalController(stream)
         self.color = {
-                      DEBUG: tc.GREEN,
-                      INFO:'',
-                      WARN: tc.YELLOW,
-                      ERROR: tc.RED
+                      DEBUG: bytes(tc.GREEN),
+                      INFO: bytes(''),
+                      WARN: bytes(tc.YELLOW),
+                      ERROR: bytes(tc.RED)
                       }
-        self.normal = tc.NORMAL
+        self.normal = bytes(tc.NORMAL)
 
     def prints(self, level, *args, **kwargs):
         self.stream.write(self.color[level])
@@ -63,15 +63,16 @@ class FileStream(Stream):
 
 class HTMLStream(Stream):
 
+    color = {
+            DEBUG: '<span style="color:green">',
+            INFO:'<span>',
+            WARN: '<span style="color:blue">',
+            ERROR: '<span style="color:red">'
+            }
+    normal = '</span>'
+
     def __init__(self, stream=sys.stdout):
         Stream.__init__(self, stream)
-        self.color = {
-                      DEBUG: '<span style="color:green">',
-                      INFO:'<span>',
-                      WARN: '<span style="color:yellow">',
-                      ERROR: '<span style="color:red">'
-                      }
-        self.normal = '</span>'
 
     def prints(self, level, *args, **kwargs):
         self.stream.write(self.color[level])
@@ -81,6 +82,46 @@ class HTMLStream(Stream):
 
     def flush(self):
         self.stream.flush()
+
+class UnicodeHTMLStream(HTMLStream):
+
+    def __init__(self):
+        self.clear()
+
+    def flush(self):
+        pass
+
+    def prints(self, level, *args, **kwargs):
+        col = self.color[level]
+        if col != self.last_col:
+            if self.data:
+                self.data.append(self.normal)
+            self.data.append(col)
+            self.last_col = col
+
+        sep  = kwargs.get(u'sep', u' ')
+        end  = kwargs.get(u'end', u'\n')
+
+        for arg in args:
+            if isbytestring(arg):
+                arg = force_unicode(arg)
+            elif not isinstance(arg, unicode):
+                arg = as_unicode(arg)
+            self.data.append(arg+sep)
+            self.plain_text.append(arg+sep)
+        self.data.append(end)
+        self.plain_text.append(end)
+
+    def clear(self):
+        self.data = []
+        self.plain_text = []
+        self.last_col = self.color[INFO]
+
+    @property
+    def html(self):
+        end = self.normal if self.data else u''
+        return u''.join(self.data) + end
+
 
 class Log(object):
 
@@ -123,5 +164,26 @@ class ThreadSafeLog(Log):
     def prints(self, *args, **kwargs):
         with self._lock:
             Log.prints(self, *args, **kwargs)
+
+class GUILog(ThreadSafeLog):
+
+    '''
+    Logs in HTML and plain text as unicode. Ideal for display in a GUI context.
+    '''
+
+    def __init__(self):
+        ThreadSafeLog.__init__(self, level=self.DEBUG)
+        self.outputs = [UnicodeHTMLStream()]
+
+    def clear(self):
+        self.outputs[0].clear()
+
+    @property
+    def html(self):
+        return self.outputs[0].html
+
+    @property
+    def plain_text(self):
+        return u''.join(self.outputs[0].plain_text)
 
 default_log = Log()

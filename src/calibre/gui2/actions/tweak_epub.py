@@ -15,7 +15,7 @@ class TweakEpubAction(InterfaceAction):
     action_spec = (_('Tweak ePub'), 'trim.png',
             _('Make small changes to ePub format books'),
             _('T'))
-    dont_add_to = frozenset(['toolbar-device', 'context-menu-device'])
+    dont_add_to = frozenset(['menubar-device', 'toolbar-device', 'context-menu-device'])
     action_type = 'current'
 
     def genesis(self):

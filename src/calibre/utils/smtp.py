@@ -76,7 +76,7 @@ def sendmail_direct(from_, to, msg, timeout, localhost, verbose,
             s.connect(host, 25)
             s.sendmail(from_, [to], msg)
             return s.quit()
-        except Exception, e:
+        except Exception as e:
             last_error, last_traceback = e, traceback.format_exc()
     if last_error is not None:
         print last_traceback
@@ -250,6 +250,7 @@ def config(defaults=None):
     c = Config('smtp',desc) if defaults is None else StringConfig(defaults,desc)
     c.add_opt('from_')
     c.add_opt('accounts', default={})
+    c.add_opt('subjects', default={})
     c.add_opt('relay_host')
     c.add_opt('relay_port', default=25)
     c.add_opt('relay_username')

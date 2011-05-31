@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, cPickle, shutil
+import sys, cPickle, shutil, importlib
 
 from PyQt4.Qt import QString, SIGNAL, QAbstractListModel, Qt, QVariant, QFont
 
@@ -182,8 +182,8 @@ class Config(ResizableDialog, Ui_Dialog):
         output_widget = None
         name = self.plumber.output_plugin.name.lower().replace(' ', '_')
         try:
-            output_widget = __import__('calibre.gui2.convert.'+name,
-                        fromlist=[1])
+            output_widget = importlib.import_module(
+                    'calibre.gui2.convert.'+name)
             pw = output_widget.PluginWidget
             pw.ICON = I('back.png')
             pw.HELP = _('Options specific to the output format.')
@@ -193,8 +193,8 @@ class Config(ResizableDialog, Ui_Dialog):
         input_widget = None
         name = self.plumber.input_plugin.name.lower().replace(' ', '_')
         try:
-            input_widget = __import__('calibre.gui2.convert.'+name,
-                        fromlist=[1])
+            input_widget = importlib.import_module(
+                    'calibre.gui2.convert.'+name)
             pw = input_widget.PluginWidget
             pw.ICON = I('forward.png')
             pw.HELP = _('Options specific to the input format.')

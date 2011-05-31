@@ -4,8 +4,8 @@ Created on 25 May 2010
 @author: charles
 '''
 import copy, traceback
+from collections import OrderedDict
 
-from calibre.utils.ordered_dict import OrderedDict
 from calibre.utils.config import tweaks
 
 class TagsIcons(dict):
@@ -16,7 +16,8 @@ class TagsIcons(dict):
     '''
 
     category_icons = ['authors', 'series', 'formats', 'publisher', 'rating',
-                      'news',    'tags',   'custom:', 'user:',     'search',]
+                      'news',    'tags',   'custom:', 'user:',     'search',
+                      'identifiers']
     def __init__(self, icon_dict):
         for a in self.category_icons:
             if a not in icon_dict:
@@ -24,16 +25,17 @@ class TagsIcons(dict):
             self[a] = icon_dict[a]
 
 category_icon_map = {
-                    'authors'   : 'user_profile.png',
-                    'series'    : 'series.png',
-                    'formats'   : 'book.png',
-                    'publisher' : 'publisher.png',
-                    'rating'    : 'rating.png',
-                    'news'      : 'news.png',
-                    'tags'      : 'tags.png',
-                    'custom:'   : 'column.png',
-                    'user:'     : 'tb_folder.png',
-                    'search'    : 'search.png'
+                    'authors'    : 'user_profile.png',
+                    'series'     : 'series.png',
+                    'formats'    : 'book.png',
+                    'publisher'  : 'publisher.png',
+                    'rating'     : 'rating.png',
+                    'news'       : 'news.png',
+                    'tags'       : 'tags.png',
+                    'custom:'    : 'column.png',
+                    'user:'      : 'tb_folder.png',
+                    'search'     : 'search.png',
+                    'identifiers': 'identifiers.png'
             }
 
 
@@ -80,6 +82,8 @@ class FieldMetadata(dict):
 
     rec_index: the index of the field in the db metadata record.
 
+    is_csp: field contains colon-separated pairs. Must also be text, is_multiple
+
     '''
 
     VALID_DATA_TYPES = frozenset([None, 'rating', 'text', 'comments', 'datetime',
@@ -98,7 +102,8 @@ class FieldMetadata(dict):
                            'name':_('Authors'),
                            'search_terms':['authors', 'author'],
                            'is_custom':False,
-                           'is_category':True}),
+                           'is_category':True,
+                           'is_csp': False}),
             ('series',    {'table':'series',
                            'column':'name',
                            'link_column':'series',
@@ -109,7 +114,8 @@ class FieldMetadata(dict):
                            'name':_('Series'),
                            'search_terms':['series'],
                            'is_custom':False,
-                           'is_category':True}),
+                           'is_category':True,
+                           'is_csp': False}),
             ('formats',   {'table':None,
                            'column':None,
                            'datatype':'text',
@@ -118,7 +124,8 @@ class FieldMetadata(dict):
                            'name':_('Formats'),
                            'search_terms':['formats', 'format'],
                            'is_custom':False,
-                           'is_category':True}),
+                           'is_category':True,
+                           'is_csp': False}),
             ('publisher', {'table':'publishers',
                            'column':'name',
                            'link_column':'publisher',
@@ -129,7 +136,8 @@ class FieldMetadata(dict):
                            'name':_('Publishers'),
                            'search_terms':['publisher'],
                            'is_custom':False,
-                           'is_category':True}),
+                           'is_category':True,
+                           'is_csp': False}),
             ('rating',    {'table':'ratings',
                            'column':'rating',
                            'link_column':'rating',
@@ -140,7 +148,8 @@ class FieldMetadata(dict):
                            'name':_('Ratings'),
                            'search_terms':['rating'],
                            'is_custom':False,
-                           'is_category':True}),
+                           'is_category':True,
+                           'is_csp': False}),
             ('news',      {'table':'news',
                            'column':'name',
                            'category_sort':'name',
@@ -150,7 +159,8 @@ class FieldMetadata(dict):
                            'name':_('News'),
                            'search_terms':[],
                            'is_custom':False,
-                           'is_category':True}),
+                           'is_category':True,
+                           'is_csp': False}),
             ('tags',      {'table':'tags',
                            'column':'name',
                            'link_column': 'tag',
@@ -161,16 +171,28 @@ class FieldMetadata(dict):
                            'name':_('Tags'),
                            'search_terms':['tags', 'tag'],
                            'is_custom':False,
-                           'is_category':True}),
+                           'is_category':True,
+                           'is_csp': False}),
+            ('identifiers',   {'table':None,
+                           'column':None,
+                           'datatype':'text',
+                           'is_multiple':',',
+                           'kind':'field',
+                           'name':_('Identifiers'),
+                           'search_terms':['identifiers', 'identifier', 'isbn'],
+                           'is_custom':False,
+                           'is_category':True,
+                           'is_csp': True}),
             ('author_sort',{'table':None,
                             'column':None,
                             'datatype':'text',
                            'is_multiple':None,
                            'kind':'field',
-                           'name':None,
+                           'name':_('Author Sort'),
                            'search_terms':['author_sort'],
                            'is_custom':False,
-                           'is_category':False}),
+                           'is_category':False,
+                           'is_csp': False}),
             ('au_map',    {'table':None,
                            'column':None,
                            'datatype':'text',
@@ -179,7 +201,8 @@ class FieldMetadata(dict):
                            'name':None,
                            'search_terms':[],
                            'is_custom':False,
-                           'is_category':False}),
+                           'is_category':False,
+                           'is_csp': False}),
             ('comments',  {'table':None,
                            'column':None,
                            'datatype':'text',
@@ -187,7 +210,9 @@ class FieldMetadata(dict):
                            'kind':'field',
                            'name':_('Comments'),
                            'search_terms':['comments', 'comment'],
-                           'is_custom':False, 'is_category':False}),
+                           'is_custom':False,
+                           'is_category':False,
+                           'is_csp': False}),
             ('cover',     {'table':None,
                            'column':None,
                            'datatype':'int',
@@ -196,16 +221,8 @@ class FieldMetadata(dict):
                            'name':None,
                            'search_terms':['cover'],
                            'is_custom':False,
-                           'is_category':False}),
-            ('flags',     {'table':None,
-                           'column':None,
-                           'datatype':'text',
-                           'is_multiple':None,
-                           'kind':'field',
-                           'name':None,
-                           'search_terms':[],
-                           'is_custom':False,
-                           'is_category':False}),
+                           'is_category':False,
+                           'is_csp': False}),
             ('id',        {'table':None,
                            'column':None,
                            'datatype':'int',
@@ -214,25 +231,18 @@ class FieldMetadata(dict):
                            'name':None,
                            'search_terms':[],
                            'is_custom':False,
-                           'is_category':False}),
-            ('isbn',      {'table':None,
+                           'is_category':False,
+                           'is_csp': False}),
+            ('last_modified', {'table':None,
                            'column':None,
-                           'datatype':'text',
+                           'datatype':'datetime',
                            'is_multiple':None,
                            'kind':'field',
-                           'name':None,
-                           'search_terms':['isbn'],
+                           'name':_('Modified'),
+                           'search_terms':['last_modified'],
                            'is_custom':False,
-                           'is_category':False}),
-            ('lccn',      {'table':None,
-                           'column':None,
-                           'datatype':'text',
-                           'is_multiple':None,
-                           'kind':'field',
-                           'name':None,
-                           'search_terms':[],
-                           'is_custom':False,
-                           'is_category':False}),
+                           'is_category':False,
+                           'is_csp': False}),
             ('ondevice',  {'table':None,
                            'column':None,
                            'datatype':'text',
@@ -241,16 +251,18 @@ class FieldMetadata(dict):
                            'name':_('On Device'),
                            'search_terms':['ondevice'],
                            'is_custom':False,
-                           'is_category':False}),
+                           'is_category':False,
+                           'is_csp': False}),
             ('path',      {'table':None,
                            'column':None,
                            'datatype':'text',
                            'is_multiple':None,
                            'kind':'field',
-                           'name':None,
+                           'name':_('Path'),
                            'search_terms':[],
                            'is_custom':False,
-                           'is_category':False}),
+                           'is_category':False,
+                           'is_csp': False}),
             ('pubdate',   {'table':None,
                            'column':None,
                            'datatype':'datetime',
@@ -259,7 +271,18 @@ class FieldMetadata(dict):
                            'name':_('Published'),
                            'search_terms':['pubdate'],
                            'is_custom':False,
-                           'is_category':False}),
+                           'is_category':False,
+                           'is_csp': False}),
+            ('marked',    {'table':None,
+                           'column':None,
+                           'datatype':'text',
+                           'is_multiple':None,
+                           'kind':'field',
+                           'name': None,
+                           'search_terms':['marked'],
+                           'is_custom':False,
+                           'is_category':False,
+                           'is_csp': False}),
             ('series_index',{'table':None,
                              'column':None,
                              'datatype':'float',
@@ -268,7 +291,8 @@ class FieldMetadata(dict):
                              'name':None,
                              'search_terms':['series_index'],
                              'is_custom':False,
-                             'is_category':False}),
+                             'is_category':False,
+                           'is_csp': False}),
             ('sort',      {'table':None,
                            'column':None,
                            'datatype':'text',
@@ -277,16 +301,18 @@ class FieldMetadata(dict):
                            'name':_('Title Sort'),
                            'search_terms':['title_sort'],
                            'is_custom':False,
-                           'is_category':False}),
+                           'is_category':False,
+                           'is_csp': False}),
             ('size',      {'table':None,
                            'column':None,
                            'datatype':'float',
                            'is_multiple':None,
                            'kind':'field',
-                           'name':_('Size (MB)'),
+                           'name':_('Size'),
                            'search_terms':['size'],
                            'is_custom':False,
-                           'is_category':False}),
+                           'is_category':False,
+                           'is_csp': False}),
             ('timestamp', {'table':None,
                            'column':None,
                            'datatype':'datetime',
@@ -295,7 +321,8 @@ class FieldMetadata(dict):
                            'name':_('Date'),
                            'search_terms':['date'],
                            'is_custom':False,
-                           'is_category':False}),
+                           'is_category':False,
+                           'is_csp': False}),
             ('title',     {'table':None,
                            'column':None,
                            'datatype':'text',
@@ -304,7 +331,8 @@ class FieldMetadata(dict):
                            'name':_('Title'),
                            'search_terms':['title'],
                            'is_custom':False,
-                           'is_category':False}),
+                           'is_category':False,
+                           'is_csp': False}),
             ('uuid',      {'table':None,
                            'column':None,
                            'datatype':'text',
@@ -313,7 +341,8 @@ class FieldMetadata(dict):
                            'name':None,
                            'search_terms':[],
                            'is_custom':False,
-                           'is_category':False}),
+                           'is_category':False,
+                           'is_csp': False}),
         ]
     # }}}
 
@@ -339,6 +368,8 @@ class FieldMetadata(dict):
                         'date_format': tweaks['gui_timestamp_display_format']}
         self._tb_cats['pubdate']['display'] = {
                         'date_format': tweaks['gui_pubdate_display_format']}
+        self._tb_cats['last_modified']['display'] = {
+                        'date_format': tweaks['gui_last_modified_display_format']}
         self.custom_field_prefix = '#'
         self.get = self._tb_cats.get
 
@@ -368,6 +399,13 @@ class FieldMetadata(dict):
         return [k for k in self._tb_cats.keys()
                 if self._tb_cats[k]['kind']=='field' and
                    self._tb_cats[k]['datatype'] is not None]
+
+    def displayable_field_keys(self):
+        return [k for k in self._tb_cats.keys()
+                if self._tb_cats[k]['kind']=='field' and
+                   self._tb_cats[k]['datatype'] is not None and
+                   k not in ('au_map', 'marked', 'ondevice', 'cover') and
+                   not self.is_series_index(k)]
 
     def standard_field_keys(self):
         return [k for k in self._tb_cats.keys()
@@ -412,6 +450,11 @@ class FieldMetadata(dict):
     def is_custom_field(self, key):
         return key.startswith(self.custom_field_prefix)
 
+    def is_series_index(self, key):
+        m = self[key]
+        return (m['datatype'] == 'float' and key.endswith('_index') and
+                key[:-6] in self)
+
     def key_to_label(self, key):
         if 'label' not in self._tb_cats[key]:
             return key
@@ -441,7 +484,8 @@ class FieldMetadata(dict):
         return l
 
     def add_custom_field(self, label, table, column, datatype, colnum, name,
-                               display, is_editable, is_multiple, is_category):
+                         display, is_editable, is_multiple, is_category,
+                         is_csp=False):
         key = self.custom_field_prefix + label
         if key in self._tb_cats:
             raise ValueError('Duplicate custom field [%s]'%(label))
@@ -454,7 +498,7 @@ class FieldMetadata(dict):
                              'colnum':colnum,      'display':display,
                              'is_custom':True,     'is_category':is_category,
                              'link_column':'value','category_sort':'value',
-                             'is_editable': is_editable,}
+                             'is_csp' : is_csp,     'is_editable': is_editable,}
         self._add_search_terms_to_map(key, [key])
         self.custom_label_to_key_map[label] = key
         if datatype == 'series':
@@ -466,7 +510,7 @@ class FieldMetadata(dict):
                                  'colnum':None,        'display':{},
                                  'is_custom':False,    'is_category':False,
                                  'link_column':None,   'category_sort':None,
-                                 'is_editable': False,}
+                                 'is_editable': False, 'is_csp': False}
             self._add_search_terms_to_map(key, [key])
             self.custom_label_to_key_map[label+'_index'] = key
 
@@ -515,7 +559,7 @@ class FieldMetadata(dict):
                                 'datatype':None,       'is_multiple':None,
                                 'kind':'user',         'name':name,
                                 'search_terms':st,     'is_custom':False,
-                                'is_category':True}
+                                'is_category':True,    'is_csp': False}
         self._add_search_terms_to_map(label, st)
 
     def add_search_category(self, label, name):
@@ -524,8 +568,8 @@ class FieldMetadata(dict):
         self._tb_cats[label] = {'table':None,        'column':None,
                                 'datatype':None,     'is_multiple':None,
                                 'kind':'search',     'name':name,
-                                'search_terms':[],    'is_custom':False,
-                                'is_category':True}
+                                'search_terms':[],   'is_custom':False,
+                                'is_category':True,  'is_csp': False}
 
     def set_field_record_index(self, label, index, prefer_custom=False):
         if prefer_custom:

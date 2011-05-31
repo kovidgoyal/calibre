@@ -13,6 +13,7 @@ from calibre.ptempfile import TemporaryDirectory
 from calibre.ebooks.metadata.opf2 import OPF
 from calibre.library.database2 import LibraryDatabase2
 from calibre.constants import filesystem_encoding
+from calibre.utils.date import utcfromtimestamp
 from calibre import isbytestring
 
 NON_EBOOK_EXTENSIONS = frozenset([
@@ -211,8 +212,8 @@ class Restore(Thread):
                 force_id=book['id'])
         if book['mi'].uuid:
             db.set_uuid(book['id'], book['mi'].uuid, commit=False, notify=False)
-        db.conn.execute('UPDATE books SET path=? WHERE id=?', (book['path'],
-            book['id']))
+        db.conn.execute('UPDATE books SET path=?,last_modified=? WHERE id=?', (book['path'],
+            utcfromtimestamp(book['timestamp']), book['id']))
 
         for fmt, size, name in book['formats']:
             db.conn.execute('''

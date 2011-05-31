@@ -46,7 +46,8 @@ def get_pdf_printer(opts, for_comic=False):
     printer = QPrinter(QPrinter.HighResolution)
     custom_size = get_custom_size(opts)
 
-    if opts.output_profile.short_name == 'default':
+    if opts.output_profile.short_name == 'default' or \
+            opts.output_profile.width > 10000:
         if custom_size is None:
             printer.setPaperSize(paper_size(opts.paper_size))
         else:

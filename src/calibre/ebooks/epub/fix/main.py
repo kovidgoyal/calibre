@@ -54,7 +54,7 @@ def main(args=sys.argv):
     epub = os.path.abspath(args[1])
     try:
         run(epub, opts, default_log)
-    except ParseError, err:
+    except ParseError as err:
         default_log.error(unicode(err))
         raise SystemExit(1)
 

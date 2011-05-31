@@ -177,7 +177,7 @@ class PRS500(DeviceConfig, DevicePlugin):
                         dev.send_validated_command(BeginEndSession(end=True))
                         dev.in_session = False
                     raise
-                except USBError, err:
+                except USBError as err:
                     if "No such device" in str(err):
                         raise DeviceError()
                     elif "Connection timed out" in str(err):
@@ -240,7 +240,7 @@ class PRS500(DeviceConfig, DevicePlugin):
     def set_progress_reporter(self, report_progress):
         self.report_progress = report_progress
 
-    def open(self) :
+    def open(self, library_uuid) :
         """
         Claim an interface on the device for communication.
         Requires write privileges to the device file.
@@ -272,7 +272,7 @@ class PRS500(DeviceConfig, DevicePlugin):
                 self.bulk_read_max_packet_size = red.MaxPacketSize
                 self.bulk_write_max_packet_size = wed.MaxPacketSize
                 self.handle.claim_interface(self.INTERFACE_ID)
-            except USBError, err:
+            except USBError as err:
                 raise DeviceBusy(str(err))
             # Large timeout as device may still be initializing
             res = self.send_validated_command(GetUSBProtocolVersion(), timeout=20000)
@@ -303,7 +303,7 @@ class PRS500(DeviceConfig, DevicePlugin):
             try:
                 self.handle.reset()
                 self.handle.release_interface(self.INTERFACE_ID)
-            except Exception, err:
+            except Exception as err:
                 print >> sys.stderr, err
             self.handle, self.device = None, None
             self.in_session = False
@@ -509,7 +509,7 @@ class PRS500(DeviceConfig, DevicePlugin):
                 outfile.write("".join(map(chr, packets[0][16:])))
                 for i in range(1, len(packets)):
                     outfile.write("".join(map(chr, packets[i])))
-            except IOError, err:
+            except IOError as err:
                 self.send_validated_command(FileClose(_id))
                 raise ArgumentError("File get operation failed. " + \
                             "Could not write to local location: " + str(err))
@@ -656,7 +656,7 @@ class PRS500(DeviceConfig, DevicePlugin):
         dest = None
         try:
             dest = self.path_properties(path, end_session=False)
-        except PathError, err:
+        except PathError as err:
             if "does not exist" in str(err) or "not mounted" in str(err):
                 return (False, None)
             else: raise

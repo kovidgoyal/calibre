@@ -5,8 +5,9 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+from collections import OrderedDict
+
 from calibre.utils.date import utcnow
-from calibre.utils.ordered_dict import OrderedDict
 
 class Cache(object):
 

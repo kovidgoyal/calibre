@@ -1,7 +1,8 @@
-<ui version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <class>Dialog</class>
- <widget class="QDialog" name="Dialog" >
-  <property name="geometry" >
+ <widget class="QDialog" name="Dialog">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
@@ -9,38 +10,41 @@
     <height>462</height>
    </rect>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>Details of job</string>
   </property>
-  <property name="windowIcon" >
-   <iconset resource="../../../../resources/images.qrc" >
+  <property name="windowIcon">
+   <iconset resource="../../../../resources/images.qrc">
     <normaloff>:/images/view.png</normaloff>:/images/view.png</iconset>
   </property>
-  <layout class="QGridLayout" name="gridLayout" >
-   <item row="0" column="0" >
-    <widget class="QPlainTextEdit" name="log" >
-     <property name="undoRedoEnabled" >
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <widget class="QPlainTextEdit" name="log">
+     <property name="undoRedoEnabled">
       <bool>false</bool>
      </property>
-     <property name="lineWrapMode" >
+     <property name="lineWrapMode">
       <enum>QPlainTextEdit::NoWrap</enum>
      </property>
-     <property name="readOnly" >
+     <property name="readOnly">
       <bool>true</bool>
      </property>
     </widget>
    </item>
-   <item row="1" column="0" >
-    <widget class="QDialogButtonBox" name="buttonBox" >
-     <property name="standardButtons" >
+   <item row="2" column="0">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="standardButtons">
       <set>QDialogButtonBox::Ok</set>
      </property>
     </widget>
    </item>
+   <item row="1" column="0">
+    <widget class="QTextBrowser" name="tb"/>
+   </item>
   </layout>
  </widget>
  <resources>
-  <include location="../../../../resources/images.qrc" />
+  <include location="../../../../resources/images.qrc"/>
  </resources>
  <connections>
   <connection>
@@ -49,11 +53,11 @@
    <receiver>Dialog</receiver>
    <slot>accept()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>617</x>
      <y>442</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>206</x>
      <y>-5</y>
     </hint>

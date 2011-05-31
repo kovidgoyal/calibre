@@ -1,0 +1,44 @@
+# -*- coding: utf-8 -*-
+import re
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+class HVG(BasicNewsRecipe):
+    title                 = 'HVG.HU'
+    __author__            = u'István Papp'
+    description           = u'Friss hírek a HVG-től'
+    timefmt               = ' [%Y. %b. %d., %a.]'
+    oldest_article        = 4
+    language              = 'hu'
+
+    max_articles_per_feed = 100
+    no_stylesheets        = True
+    use_embedded_content  = False
+    encoding              = 'utf8'
+    publisher             = 'HVG Online'
+    category              = u'news, hírek, hvg'
+    extra_css             = 'body{ font-family: Verdana,Helvetica,Arial,sans-serif } .introduction{font-weight: bold} .story-feature{display: block; padding: 0; border: 1px solid; width: 40%; font-size: small} .story-feature h2{text-align: center; text-transform: uppercase} '
+    preprocess_regexps    = [(re.compile(r'<!--.*?-->', re.DOTALL), lambda m: '')]
+    remove_tags_before    = dict(id='pg-content')
+    remove_javascript     = True
+    remove_empty_feeds    = True
+
+    feeds = [
+              (u'Itthon', u'http://hvg.hu/rss/itthon')
+             ,(u'Világ', u'http://hvg.hu/rss/vilag')
+             ,(u'Gazdaság', u'http://hvg.hu/rss/gazdasag')
+             ,(u'IT | Tudomány', u'http://hvg.hu/rss/tudomany')
+             ,(u'Panoráma', u'http://hvg.hu/rss/Panorama')
+             ,(u'Karrier', u'http://hvg.hu/rss/karrier')
+             ,(u'Gasztronómia', u'http://hvg.hu/rss/gasztronomia')
+             ,(u'Helyi érték', u'http://hvg.hu/rss/helyiertek')
+             ,(u'Kultúra', u'http://hvg.hu/rss/kultura')
+             ,(u'Cégautó', u'http://hvg.hu/rss/cegauto')
+             ,(u'Vállalkozó szellem', u'http://hvg.hu/rss/kkv')
+             ,(u'Egészség', u'http://hvg.hu/rss/egeszseg')
+             ,(u'Vélemény', u'http://hvg.hu/rss/velemeny')
+             ,(u'Sport', u'http://hvg.hu/rss/sport')
+            ]
+
+    def print_version(self, url):
+        return url.replace ('#rss', '/print')
+

@@ -49,8 +49,7 @@ class DBPrefs(dict):
         if self.disable_setting:
             return
         raw = self.to_raw(val)
-        self.db.conn.execute('DELETE FROM preferences WHERE key=?', (key,))
-        self.db.conn.execute('INSERT INTO preferences (key,val) VALUES (?,?)', (key,
+        self.db.conn.execute('INSERT OR REPLACE INTO preferences (key,val) VALUES (?,?)', (key,
             raw))
         self.db.conn.commit()
         dict.__setitem__(self, key, val)

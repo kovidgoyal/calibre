@@ -137,7 +137,7 @@ to the recipe. Finally, lets replace some of the :term:`CSS` that we disabled ea
 
 With these additions, our recipe has become "production quality", indeed it is very close to the actual recipe used by |app| for the *BBC*, shown below:
 
-.. literalinclude:: ../../../resources/recipes/bbc.recipe
+.. literalinclude:: ../../../recipes/bbc.recipe
 
 This :term:`recipe` explores only the tip of the iceberg when it comes to the power of |app|. To explore more of the abilities of |app| we'll examine a more complex real life example in the next section.
 
@@ -263,20 +263,18 @@ Tips for developing new recipes
 
 The best way to develop new recipes is to use the command line interface. Create the recipe using your favorite python editor and save it to a file say :file:`myrecipe.recipe`. The `.recipe` extension is required. You can download content using this recipe with the command::
 
-    ebook-convert myrecipe.recipe output_dir --test -vv
+    ebook-convert myrecipe.recipe .epub --test -vv --debug-pipeline debug
 
-The :command:`ebook-convert` will download all the webpages and save them to the directory :file:`output_dir`, creating it if necessary. The :option:`-vv` makes ebook-convert spit out a lot of information about what it is doing. The :option:`--test` makes it download only a couple of articles from at most two feeds. 
+The command :command:`ebook-convert` will download all the webpages and save them to the EPUB file :file:`myrecipe.epub`. The :option:`-vv` makes ebook-convert spit out a lot of information about what it is doing. The :option:`--test` makes it download only a couple of articles from at most two feeds. In addition, ebook-convert will put the downloaded HTML into the ``debug/input`` directory, where ``debug`` is the directory you specified in the :option:`--debug-pipeline` option. 
 
-Once the download is complete, you can look at the downloaded :term:`HTML` by opening the file :file:`index.html` in a browser. Once you're satisfied that the download and preprocessing is happening correctly, you can generate ebooks in different formats as shown below::
+Once the download is complete, you can look at the downloaded :term:`HTML` by opening the file :file:`debug/input/index.html` in a browser. Once you're satisfied that the download and preprocessing is happening correctly, you can generate ebooks in different formats as shown below::
 
     ebook-convert myrecipe.recipe myrecipe.epub
     ebook-convert myrecipe.recipe myrecipe.mobi
     ...
 
 
-If you're satisfied with your recipe, and you feel there is enough demand to justify its inclusion into the set of built-in recipes, add a comment to the ticket http://bugs.calibre-ebook.com/ticket/405
-
-Alternatively, you could just post your recipe in the calibre forum at http://www.mobileread.com/forums/forumdisplay.php?f=166 to share it with other calibre users.
+If you're satisfied with your recipe, and you feel there is enough demand to justify its inclusion into the set of built-in recipes, post your recipe in the `calibre recipes forum <http://www.mobileread.com/forums/forumdisplay.php?f=228>`_ to share it with other calibre users.
 
 
 .. seealso::

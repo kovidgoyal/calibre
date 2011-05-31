@@ -439,7 +439,8 @@ void PictureFlowPrivate::setImages(FlowImages *images)
 	QObject::disconnect(slideImages, SIGNAL(dataChanged()), widget, SLOT(dataChanged()));
 	slideImages = images;
 	dataChanged();
-	QObject::connect(slideImages, SIGNAL(dataChanged()), widget, SLOT(dataChanged()));
+	QObject::connect(slideImages, SIGNAL(dataChanged()), widget, SLOT(dataChanged()),
+            Qt::QueuedConnection);
 }
 
 int PictureFlowPrivate::slideCount() const

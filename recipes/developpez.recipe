@@ -1,0 +1,21 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1301849956(BasicNewsRecipe):
+    title          = u'Developpez.com'
+    description = u'Toutes les news du site Developpez.com'
+    publisher = u'Developpez.com'
+    timefmt = ' [%a, %d %b, %Y]'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    no_stylesheets = True
+    encoding = 'ISO-8859-1'
+    language = 'fr'
+    __author__ = 'louhike'
+    remove_javascript = True
+    keep_only_tags = [dict(name='div', attrs={'class':'content'})]
+
+    feeds = [(u'Tous les articles', u'http://www.developpez.com/index/rss')]
+
+    def get_cover_url(self):
+        return 'http://javascript.developpez.com/template/images/logo.gif'
+

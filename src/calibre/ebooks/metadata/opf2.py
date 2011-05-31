@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 lxml based OPF parser.
 '''
 
-import re, sys, unittest, functools, os, mimetypes, uuid, glob, cStringIO, json
+import re, sys, unittest, functools, os, uuid, glob, cStringIO, json
 from urllib import unquote
 from urlparse import urlparse
 
@@ -16,11 +16,12 @@ from lxml import etree
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.constants import __appname__, __version__, filesystem_encoding
 from calibre.ebooks.metadata.toc import TOC
-from calibre.ebooks.metadata import string_to_authors, MetaInformation
+from calibre.ebooks.metadata import string_to_authors, MetaInformation, check_isbn
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.utils.date import parse_date, isoformat
 from calibre.utils.localization import get_lang
-from calibre import prints
+from calibre import prints, guess_type
+from calibre.utils.cleantext import clean_ascii_chars
 
 class Resource(object): # {{{
     '''
@@ -41,7 +42,7 @@ class Resource(object): # {{{
         self.path = None
         self.fragment = ''
         try:
-            self.mime_type = mimetypes.guess_type(href_or_path)[0]
+            self.mime_type = guess_type(href_or_path)[0]
         except:
             self.mime_type = None
         if self.mime_type is None:
@@ -596,6 +597,9 @@ class OPF(object): # {{{
         ans = MetaInformation(self)
         for n, v in self._user_metadata_.items():
             ans.set_user_metadata(n, v)
+
+        ans.set_identifiers(self.get_identifiers())
+
         return ans
 
     def write_user_metadata(self):
@@ -855,6 +859,30 @@ class OPF(object): # {{{
 
         return property(fget=fget, fset=fset)
 
+    def get_identifiers(self):
+        identifiers = {}
+        for x in self.XPath(
+            'descendant::*[local-name() = "identifier" and text()]')(
+                    self.metadata):
+            found_scheme = False
+            for attr, val in x.attrib.iteritems():
+                if attr.endswith('scheme'):
+                    typ = icu_lower(val)
+                    val = etree.tostring(x, with_tail=False, encoding=unicode,
+                            method='text').strip()
+                    if val and typ not in ('calibre', 'uuid'):
+                        identifiers[typ] = val
+                    found_scheme = True
+                    break
+            if not found_scheme:
+                val = etree.tostring(x, with_tail=False, encoding=unicode,
+                            method='text').strip()
+                if val.lower().startswith('urn:isbn:'):
+                    val = check_isbn(val.split(':')[-1])
+                    if val is not None:
+                        identifiers['isbn'] = val
+        return identifiers
+
     @dynamic_property
     def application_id(self):
 
@@ -938,7 +966,9 @@ class OPF(object): # {{{
             cover_id = covers[0].get('content')
             for item in self.itermanifest():
                 if item.get('id', None) == cover_id:
-                    return item.get('href', None)
+                    mt = item.get('media-type', '')
+                    if 'xml' not in mt:
+                        return item.get('href', None)
 
     @dynamic_property
     def cover(self):
@@ -972,7 +1002,7 @@ class OPF(object): # {{{
                 for t in ('cover', 'other.ms-coverimage-standard', 'other.ms-coverimage'):
                     for item in self.guide:
                         if item.type.lower() == t:
-                            self.create_manifest_item(item.href(), mimetypes.guess_type(path)[0])
+                            self.create_manifest_item(item.href(), guess_type(path)[0])
 
         return property(fget=fget, fset=fset)
 
@@ -1130,7 +1160,7 @@ class OPFCreator(Metadata):
 
         def DC_ELEM(tag, text, dc_attrs={}, opf_attrs={}):
             if text:
-                elem = getattr(DC, tag)(text, **dc_attrs)
+                elem = getattr(DC, tag)(clean_ascii_chars(text), **dc_attrs)
             else:
                 elem = getattr(DC, tag)(**dc_attrs)
             for k, v in opf_attrs.items():
@@ -1166,8 +1196,8 @@ class OPFCreator(Metadata):
             a(DC_ELEM('description', self.comments))
         if self.publisher:
             a(DC_ELEM('publisher', self.publisher))
-        if self.isbn:
-            a(DC_ELEM('identifier', self.isbn, opf_attrs={'scheme':'ISBN'}))
+        for key, val in self.get_identifiers().iteritems():
+            a(DC_ELEM('identifier', val, opf_attrs={'scheme':icu_upper(key)}))
         if self.rights:
             a(DC_ELEM('rights', self.rights))
         if self.tags:
@@ -1288,11 +1318,11 @@ def metadata_to_opf(mi, as_string=True):
     if hasattr(mi, 'category') and mi.category:
         factory(DC('type'), mi.category)
     if mi.comments:
-        factory(DC('description'), mi.comments)
+        factory(DC('description'), clean_ascii_chars(mi.comments))
     if mi.publisher:
         factory(DC('publisher'), mi.publisher)
-    if mi.isbn:
-        factory(DC('identifier'), mi.isbn, scheme='ISBN')
+    for key, val in mi.get_identifiers().iteritems():
+        factory(DC('identifier'), val, scheme=icu_upper(key))
     if mi.rights:
         factory(DC('rights'), mi.rights)
     factory(DC('language'), mi.language if mi.language and mi.language.lower()
@@ -1342,7 +1372,7 @@ def test_m2o():
     mi.language = 'en'
     mi.comments = 'what a fun book\n\n'
     mi.publisher = 'publisher'
-    mi.isbn = 'boooo'
+    mi.set_identifiers({'isbn':'booo', 'dummy':'dummy'})
     mi.tags = ['a', 'b']
     mi.series = 's"c\'l&<>'
     mi.series_index = 3.34
@@ -1350,7 +1380,7 @@ def test_m2o():
     mi.timestamp = nowf()
     mi.publication_type = 'ooooo'
     mi.rights = 'yes'
-    mi.cover = 'asd.jpg'
+    mi.cover = os.path.abspath('asd.jpg')
     opf = metadata_to_opf(mi)
     print opf
     newmi = MetaInformation(OPF(StringIO(opf)))
@@ -1363,6 +1393,9 @@ def test_m2o():
         o, n = getattr(mi, attr), getattr(newmi, attr)
         if o != n and o.strip() != n.strip():
             print 'FAILED:', attr, getattr(mi, attr), '!=', getattr(newmi, attr)
+    if mi.get_identifiers() != newmi.get_identifiers():
+        print 'FAILED:', 'identifiers', mi.get_identifiers(),
+        print '!=', newmi.get_identifiers()
 
 
 class OPFTest(unittest.TestCase):
@@ -1378,6 +1411,7 @@ class OPFTest(unittest.TestCase):
     <creator opf:role="aut">Next</creator>
     <dc:subject>One</dc:subject><dc:subject>Two</dc:subject>
     <dc:identifier scheme="ISBN">123456789</dc:identifier>
+    <dc:identifier scheme="dummy">dummy</dc:identifier>
     <meta name="calibre:series" content="A one book series" />
     <meta name="calibre:rating" content="4"/>
     <meta name="calibre:publication_type" content="test"/>
@@ -1405,6 +1439,8 @@ class OPFTest(unittest.TestCase):
         self.assertEqual(opf.rating, 4)
         self.assertEqual(opf.publication_type, 'test')
         self.assertEqual(list(opf.itermanifest())[0].get('href'), 'a ~ b')
+        self.assertEqual(opf.get_identifiers(), {'isbn':'123456789',
+            'dummy':'dummy'})
 
     def testWriting(self):
         for test in [('title', 'New & Title'), ('authors', ['One', 'Two']),
@@ -1461,5 +1497,5 @@ def test_user_metadata():
 
 if __name__ == '__main__':
     #test_user_metadata()
-    #test_m2o()
+    test_m2o()
     test()

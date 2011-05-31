@@ -1,6 +1,9 @@
 calibre supports installation from source, only on Linux. 
-On Windows and OS X use the provided installers and use
-the facilities of the calibre-debug command to hack on the calibre source. 
+
+Note that you *do not* need to install from source to hack on
+the calibre source code. To get started with calibre development,
+use a normal calibre install and follow the instructions at
+http://manual.calibre-ebook.com/develop.html
 
 On Linux, there are two kinds of installation from source possible.
 Note that both kinds require lots of dependencies as well as a
@@ -45,3 +48,4 @@ This type of install can be run with the command::
     sudo python setup.py develop
 
 Use the -h flag for help on the develop command.
+

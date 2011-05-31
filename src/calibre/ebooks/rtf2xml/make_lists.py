@@ -291,9 +291,12 @@ class MakeLists:
         if self.__list_of_lists: # older RTF won't generate a list_of_lists
             index_of_list = self.__get_index_of_list(id)
             if index_of_list != None:# found a matching id
-                list_dict = self.__list_of_lists[index_of_list][0]
+                curlist = self.__list_of_lists[index_of_list]
+                list_dict = curlist[0]
                 level = int(self.__level) + 1
-                level_dict = self.__list_of_lists[index_of_list][level][0]
+                if level >= len(curlist):
+                    level = len(curlist) - 1
+                level_dict = curlist[level][0]
                 list_type = level_dict.get('numbering-type')
                 if list_type == 'bullet':
                     list_type = 'unordered'

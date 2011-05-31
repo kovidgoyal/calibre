@@ -1,0 +1,46 @@
+#!/usr/bin/env python
+# encoding: utf-8
+
+from __future__ import with_statement
+__license__ = 'GPL 3'
+__copyright__ = 'zotzo'
+__docformat__ = 'restructuredtext en'
+"""
+http://pogue.blogs.nytimes.com/
+"""
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class NYTimesTechnology(BasicNewsRecipe):
+    title = 'New York Times Technology Beat'
+    language = 'en'
+    __author__ = 'David Pogue'
+    description = 'The latest in technology from David Pogue'
+    publisher = 'The New York Times'
+    category = 'Technology'
+    oldest_article = 14
+    max_articles_per_feed = 25
+    no_stylesheets = True
+    language = 'en'
+    cover_url ='http://bit.ly/g0SKJT'
+    feeds = [
+               (u'Pogues Posts', u'http://pogue.blogs.nytimes.com/feed/'),
+               (u'Bits', u'http://bits.blogs.nytimes.com/feed/'),
+               (u'Gadgetwise', u'http://gadgetwise.blogs.nytimes.com/feed/'),
+               (u'Open', u'http://open.blogs.nytimes.com/feed/')
+                   ]
+    keep_only_tags = [dict(name='div', attrs={'id':'header'}),
+            dict(name='h1'),
+            dict(name='h2'),
+            dict(name='div', attrs={'class':'entry-content'})]
+    extra_css = '''
+           h1{font-family:Arial,Helvetica,sans-serif;
+               font-weight:bold;font-size:large;}
+
+           h2{font-family:Arial,Helvetica,sans-serif;
+               font-weight:normal;font-size:small;}
+
+           p{font-family:Arial,Helvetica,sans-serif;font-size:small;}
+           body{font-family:Helvetica,Arial,sans-serif;font-size:small;}
+               '''

@@ -22,6 +22,12 @@
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
       <widget class="QLabel" name="label">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="pixmap">
         <pixmap resource="../../../../resources/images.qrc">:/images/dialog_warning.png</pixmap>
        </property>
@@ -46,6 +52,10 @@
        <property name="text">
         <string>Library</string>
        </property>
+       <property name="icon">
+        <iconset resource="../../../../resources/images.qrc">
+         <normaloff>:/images/library.png</normaloff>:/images/library.png</iconset>
+       </property>
       </widget>
      </item>
      <item>
@@ -53,12 +63,20 @@
        <property name="text">
         <string>Device</string>
        </property>
+       <property name="icon">
+        <iconset resource="../../../../resources/images.qrc">
+         <normaloff>:/images/reader.png</normaloff>:/images/reader.png</iconset>
+       </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="button_both">
        <property name="text">
         <string>Library and Device</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../../../../resources/images.qrc">
+         <normaloff>:/images/trash.png</normaloff>:/images/trash.png</iconset>
        </property>
       </widget>
      </item>

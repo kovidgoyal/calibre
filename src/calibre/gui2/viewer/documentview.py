@@ -171,10 +171,11 @@ class Document(QWebPage): # {{{
             self.misc_config()
             self.after_load()
 
-    def __init__(self, shortcuts, parent=None):
+    def __init__(self, shortcuts, parent=None, resize_callback=lambda: None):
         QWebPage.__init__(self, parent)
         self.setObjectName("py_bridge")
         self.debug_javascript = False
+        self.resize_callback = resize_callback
         self.current_language = None
         self.loaded_javascript = False
 
@@ -237,6 +238,12 @@ class Document(QWebPage): # {{{
         if self.loaded_javascript:
             return
         self.loaded_javascript = True
+        self.javascript(
+            '''
+            window.onresize = function(event) {
+                window.py_bridge.window_resized();
+            }
+            ''')
         if jquery is None:
             jquery = P('content_server/jquery.js', data=True)
         self.javascript(jquery)
@@ -297,6 +304,10 @@ class Document(QWebPage): # {{{
     @pyqtSignature("QString")
     def debug(self, msg):
         prints(msg)
+
+    @pyqtSignature('')
+    def window_resized(self):
+        self.resize_callback()
 
     def reference_mode(self, enable):
         self.javascript(('enter' if enable else 'leave')+'_reference_mode()')
@@ -424,12 +435,19 @@ class Document(QWebPage): # {{{
     def xpos(self):
         return self.mainFrame().scrollPosition().x()
 
-    @property
+    @dynamic_property
     def scroll_fraction(self):
-        try:
-            return float(self.ypos)/(self.height-self.window_height)
-        except ZeroDivisionError:
-            return 0.
+        def fget(self):
+            try:
+                return float(self.ypos)/(self.height-self.window_height)
+            except ZeroDivisionError:
+                return 0.
+        def fset(self, val):
+            npos = val * (self.height - self.window_height)
+            if npos < 0:
+                npos = 0
+            self.scroll_to(x=self.xpos, y=npos)
+        return property(fget=fget, fset=fset)
 
     @property
     def hscroll_fraction(self):
@@ -493,7 +511,8 @@ class DocumentView(QWebView): # {{{
         self._size_hint = QSize(510, 680)
         self.initial_pos = 0.0
         self.to_bottom = False
-        self.document = Document(self.shortcuts, parent=self)
+        self.document = Document(self.shortcuts, parent=self,
+                resize_callback=self.viewport_resized)
         self.setPage(self.document)
         self.manager = None
         self._reference_mode = False
@@ -515,6 +534,7 @@ class DocumentView(QWebView): # {{{
                 _('&Lookup in dictionary'), self)
         self.dictionary_action.setShortcut(Qt.CTRL+Qt.Key_L)
         self.dictionary_action.triggered.connect(self.lookup)
+        self.addAction(self.dictionary_action)
         self.goto_location_action = QAction(_('Go to...'), self)
         self.goto_location_menu = m = QMenu(self)
         self.goto_location_actions = a = {
@@ -630,9 +650,13 @@ class DocumentView(QWebView): # {{{
     def sizeHint(self):
         return self._size_hint
 
-    @property
+    @dynamic_property
     def scroll_fraction(self):
-        return self.document.scroll_fraction
+        def fget(self):
+            return self.document.scroll_fraction
+        def fset(self, val):
+            self.document.scroll_fraction = float(val)
+        return property(fget=fget, fset=fset)
 
     @property
     def hscroll_fraction(self):
@@ -968,9 +992,11 @@ class DocumentView(QWebView): # {{{
     def resizeEvent(self, event):
         ret = QWebView.resizeEvent(self, event)
         QTimer.singleShot(10, self.initialize_scrollbar)
+        return ret
+
+    def viewport_resized(self):
         if self.manager is not None:
             self.manager.viewport_resized(self.scroll_fraction)
-        return ret
 
     def event(self, ev):
         typ = ev.type()

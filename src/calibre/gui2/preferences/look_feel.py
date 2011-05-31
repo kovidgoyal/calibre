@@ -5,15 +5,94 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from PyQt4.Qt import QApplication, QFont, QFontInfo, QFontDialog
+from functools import partial
+
+from PyQt4.Qt import (QApplication, QFont, QFontInfo, QFontDialog,
+        QAbstractListModel, Qt, QColor, QIcon, QToolButton, QComboBox)
 
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget, CommaSeparatedList
 from calibre.gui2.preferences.look_feel_ui import Ui_Form
 from calibre.gui2 import config, gprefs, qt_app
-from calibre.utils.localization import available_translations, \
-    get_language, get_lang
+from calibre.gui2.dialogs.template_line_editor import TemplateLineEditor
+from calibre.utils.localization import (available_translations,
+    get_language, get_lang)
 from calibre.utils.config import prefs
 from calibre.utils.icu import sort_key
+from calibre.gui2 import NONE
+from calibre.gui2.book_details import get_field_list
+
+class DisplayedFields(QAbstractListModel): # {{{
+
+    def __init__(self, db, parent=None):
+        QAbstractListModel.__init__(self, parent)
+
+        self.fields = []
+        self.db = db
+        self.changed = False
+
+    def initialize(self, use_defaults=False):
+        self.fields = [[x[0], x[1]] for x in
+                get_field_list(self.db.field_metadata,
+                    use_defaults=use_defaults)]
+        self.reset()
+        self.changed = True
+
+    def rowCount(self, *args):
+        return len(self.fields)
+
+    def data(self, index, role):
+        try:
+            field, visible = self.fields[index.row()]
+        except:
+            return NONE
+        if role == Qt.DisplayRole:
+            name = field
+            try:
+                name = self.db.field_metadata[field]['name']
+            except:
+                pass
+            if not name:
+                name = field
+            return name
+        if role == Qt.CheckStateRole:
+            return Qt.Checked if visible else Qt.Unchecked
+        return NONE
+
+    def flags(self, index):
+        ans = QAbstractListModel.flags(self, index)
+        return ans | Qt.ItemIsUserCheckable
+
+    def setData(self, index, val, role):
+        ret = False
+        if role == Qt.CheckStateRole:
+            val, ok = val.toInt()
+            if ok:
+                self.fields[index.row()][1] = bool(val)
+                self.changed = True
+                ret = True
+                self.dataChanged.emit(index, index)
+        return ret
+
+    def restore_defaults(self):
+        self.initialize(use_defaults=True)
+
+    def commit(self):
+        if self.changed:
+            gprefs['book_display_fields'] = self.fields
+
+    def move(self, idx, delta):
+        row = idx.row() + delta
+        if row >= 0 and row < len(self.fields):
+            t = self.fields[row]
+            self.fields[row] = self.fields[row-delta]
+            self.fields[row-delta] = t
+            self.dataChanged.emit(idx, idx)
+            idx = self.index(row)
+            self.dataChanged.emit(idx, idx)
+            self.changed = True
+            return idx
+
+# }}}
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
@@ -48,13 +127,12 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('disable_tray_notification', config)
         r('use_roman_numerals_for_series_number', config)
         r('separate_cover_flow', config, restart_required=True)
-        r('show_child_bar', gprefs)
 
-        choices = [(_('Small'), 'small'), (_('Medium'), 'medium'),
-            (_('Large'), 'large')]
+        choices = [(_('Off'), 'off'), (_('Small'), 'small'),
+            (_('Medium'), 'medium'), (_('Large'), 'large')]
         r('toolbar_icon_size', gprefs, choices=choices)
 
-        choices = [(_('Automatic'), 'auto'), (_('Always'), 'always'),
+        choices = [(_('If there is enough room'), 'auto'), (_('Always'), 'always'),
             (_('Never'), 'never')]
         r('toolbar_text', gprefs, choices=choices)
 
@@ -64,22 +142,147 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('tags_browser_collapse_at', gprefs)
 
         choices = set([k for k in db.field_metadata.all_field_keys()
-                    if db.field_metadata[k]['is_category'] and
-                       db.field_metadata[k]['datatype'] in ['text', 'series', 'enumeration']])
-        choices -= set(['authors', 'publisher', 'formats', 'news'])
+                if db.field_metadata[k]['is_category'] and
+                   (db.field_metadata[k]['datatype'] in ['text', 'series', 'enumeration']) and
+                   not db.field_metadata[k]['display'].get('is_names', False)])
+        choices -= set(['authors', 'publisher', 'formats', 'news', 'identifiers'])
+        choices |= set(['search'])
         self.opt_categories_using_hierarchy.update_items_cache(choices)
         r('categories_using_hierarchy', db.prefs, setting=CommaSeparatedList,
           choices=sorted(list(choices), key=sort_key))
 
 
-        self.current_font = None
+        self.current_font = self.initial_font = None
         self.change_font_button.clicked.connect(self.change_font)
 
+        self.display_model = DisplayedFields(self.gui.current_db,
+                self.field_display_order)
+        self.display_model.dataChanged.connect(self.changed_signal)
+        self.field_display_order.setModel(self.display_model)
+        self.df_up_button.clicked.connect(self.move_df_up)
+        self.df_down_button.clicked.connect(self.move_df_down)
+
+        self.color_help_text.setText('<p>' +
+                _('Here you can specify coloring rules for columns shown in the '
+                  'library view. Choose the column you wish to color, then '
+                  'supply a template that specifies the color to use based on '
+                  'the values in the column. There is a '
+                  '<a href="http://manual.calibre-ebook.com/template_lang.html">'
+                  'tutorial</a> on using templates.') +
+                 '</p><p>' +
+                _('If you want to color a field based on contents of columns, '
+                  'then click the button next to an empty line to open the wizard. '
+                  'It will build a template for you. You can later edit that '
+                  'template with the same wizard. This is by far the easiest '
+                  'way to specify a template.') +
+                 '</p><p>' +
+                _('If you manually construct a template, then the template must '
+                  'evaluate to a valid color name shown in the color names box.'
+                  'You can use any legal template expression. '
+                  'For example, you can set the title to always display in '
+                  'green using the template "green" (without the quotes). '
+                  'To show the title in the color named in the custom column '
+                  '#column, use "{#column}". To show the title in blue if the '
+                  'custom column #column contains the value "foo", in red if the '
+                  'column contains the value "bar", otherwise in black, use '
+                  '<pre>{#column:switch(foo,blue,bar,red,black)}</pre>'
+                  'To show the title in blue if the book has the exact tag '
+                  '"Science Fiction", red if the book has the exact tag '
+                  '"Mystery", or black if the book has neither tag, use'
+                  "<pre>program: \n"
+                  "    t = field('tags'); \n"
+                  "    first_non_empty(\n"
+                  "        in_list(t, ',', '^Science Fiction$', 'blue', ''), \n"
+                  "        in_list(t, ',', '^Mystery$', 'red', 'black'))</pre>"
+                  'To show the title in green if it has one format, blue if it '
+                  'two formats, and red if more, use'
+                  "<pre>program:cmp(count(field('formats'),','), 2, 'green', 'blue', 'red')</pre>") +
+                               '</p><p>' +
+                _('You can access a multi-line template editor from the '
+                  'context menu (right-click).') + '</p><p>' +
+                _('<b>Note:</b> if you want to color a "custom column with a fixed set '
+                  'of values", it is often easier to specify the '
+                  'colors in the column definition dialog. There you can '
+                  'provide a color for each value without using a template.')+ '</p>')
+        self.color_help_scrollArea.setVisible(False)
+        self.color_help_button.clicked.connect(self.change_help_text)
+        self.colors_scrollArea.setVisible(False)
+        self.colors_label.setVisible(False)
+        self.colors_button.clicked.connect(self.change_colors_text)
+
+        choices = db.field_metadata.displayable_field_keys()
+        choices.sort(key=sort_key)
+        choices.insert(0, '')
+        self.column_color_count = db.column_color_count+1
+
+        mi=None
+        try:
+            idx = gui.library_view.currentIndex().row()
+            mi = db.get_metadata(idx, index_is_id=False)
+        except:
+            pass
+
+        l = self.column_color_layout
+        for i in range(1, self.column_color_count):
+            ccn = QComboBox(parent=self)
+            setattr(self, 'opt_column_color_name_'+str(i), ccn)
+            l.addWidget(ccn, i, 0, 1, 1)
+
+            wtb = QToolButton(parent=self)
+            setattr(self, 'opt_column_color_wizard_'+str(i), wtb)
+            wtb.setIcon(QIcon(I('wizard.png')))
+            l.addWidget(wtb, i, 1, 1, 1)
+
+            ttb = QToolButton(parent=self)
+            setattr(self, 'opt_column_color_tpledit_'+str(i), ttb)
+            ttb.setIcon(QIcon(I('edit_input.png')))
+            l.addWidget(ttb, i, 2, 1, 1)
+
+            tpl = TemplateLineEditor(parent=self)
+            setattr(self, 'opt_column_color_template_'+str(i), tpl)
+            tpl.textChanged.connect(partial(self.tpl_edit_text_changed, ctrl=i))
+            tpl.set_db(db)
+            tpl.set_mi(mi)
+            l.addWidget(tpl, i, 3, 1, 1)
+
+            wtb.clicked.connect(tpl.tag_wizard)
+            ttb.clicked.connect(tpl.open_editor)
+
+            r('column_color_name_'+str(i), db.prefs, choices=choices)
+            r('column_color_template_'+str(i), db.prefs)
+            txt = db.prefs.get('column_color_template_'+str(i), None)
+
+            wtb.setEnabled(tpl.enable_wizard_button(txt))
+            ttb.setEnabled(not tpl.enable_wizard_button(txt) or not txt)
+
+        all_colors = [unicode(s) for s in list(QColor.colorNames())]
+        self.colors_box.setText(', '.join(all_colors))
+
+    def change_help_text(self):
+        self.color_help_scrollArea.setVisible(not self.color_help_scrollArea.isVisible())
+
+    def change_colors_text(self):
+        self.colors_scrollArea.setVisible(not self.colors_scrollArea.isVisible())
+        self.colors_label.setVisible(not self.colors_label.isVisible())
+
+    def tpl_edit_text_changed(self, ign, ctrl=None):
+        tpl = getattr(self, 'opt_column_color_template_'+str(ctrl))
+        txt = unicode(tpl.text())
+        wtb = getattr(self, 'opt_column_color_wizard_'+str(ctrl))
+        ttb = getattr(self, 'opt_column_color_tpledit_'+str(ctrl))
+        wtb.setEnabled(tpl.enable_wizard_button(txt))
+        ttb.setEnabled(not tpl.enable_wizard_button(txt) or not txt)
+        tpl.setFocus()
 
     def initialize(self):
         ConfigWidgetBase.initialize(self)
-        self.current_font = gprefs['font']
+        font = gprefs['font']
+        if font is not None:
+            font = list(font)
+            font.append(gprefs.get('font_stretch', QFont.Unstretched))
+        self.current_font = self.initial_font = font
         self.update_font_display()
+        self.display_model.initialize()
 
     def restore_defaults(self):
         ConfigWidgetBase.restore_defaults(self)
@@ -88,11 +291,14 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         if ofont is not None:
             self.changed_signal.emit()
             self.update_font_display()
+        self.display_model.restore_defaults()
+        self.changed_signal.emit()
 
     def build_font_obj(self):
         font_info = self.current_font
         if font_info is not None:
-            font = QFont(*font_info)
+            font = QFont(*(font_info[:4]))
+            font.setStretch(font_info[4])
         else:
             font = qt_app.original_font
         return font
@@ -106,30 +312,60 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.font_display.setText(name +
                 ' [%dpt]'%fi.pointSize())
 
+    def move_df_up(self):
+        idx = self.field_display_order.currentIndex()
+        if idx.isValid():
+            idx = self.display_model.move(idx, -1)
+            if idx is not None:
+                sm = self.field_display_order.selectionModel()
+                sm.select(idx, sm.ClearAndSelect)
+                self.field_display_order.setCurrentIndex(idx)
+
+    def move_df_down(self):
+        idx = self.field_display_order.currentIndex()
+        if idx.isValid():
+            idx = self.display_model.move(idx, 1)
+            if idx is not None:
+                sm = self.field_display_order.selectionModel()
+                sm.select(idx, sm.ClearAndSelect)
+                self.field_display_order.setCurrentIndex(idx)
+
     def change_font(self, *args):
         fd = QFontDialog(self.build_font_obj(), self)
         if fd.exec_() == fd.Accepted:
             font = fd.selectedFont()
             fi = QFontInfo(font)
-            self.current_font = (unicode(fi.family()), fi.pointSize(),
-                    fi.weight(), fi.italic())
+            self.current_font = [unicode(fi.family()), fi.pointSize(),
+                    fi.weight(), fi.italic(), font.stretch()]
             self.update_font_display()
             self.changed_signal.emit()
 
     def commit(self, *args):
+        for i in range(1, self.column_color_count):
+            col = getattr(self, 'opt_column_color_name_'+str(i))
+            tpl = getattr(self, 'opt_column_color_template_'+str(i))
+            if not col.currentIndex() or not unicode(tpl.text()).strip():
+                col.setCurrentIndex(0)
+                tpl.setText('')
         rr = ConfigWidgetBase.commit(self, *args)
-        if self.current_font != gprefs['font']:
-            gprefs['font'] = self.current_font
+        if self.current_font != self.initial_font:
+            gprefs['font'] = (self.current_font[:4] if self.current_font else
+                    None)
+            gprefs['font_stretch'] = (self.current_font[4] if self.current_font
+                    is not None else QFont.Unstretched)
             QApplication.setFont(self.font_display.font())
             rr = True
+        self.display_model.commit()
         return rr
 
-
     def refresh_gui(self, gui):
+        gui.library_view.model().set_color_templates()
         self.update_font_display()
         gui.tags_view.reread_collapse_parameters()
+        gui.library_view.refresh_book_details()
 
 if __name__ == '__main__':
-    app = QApplication([])
+    from calibre.gui2 import Application
+    app = Application([])
     test_widget('Interface', 'Look & Feel')
 

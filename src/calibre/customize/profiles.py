@@ -253,7 +253,7 @@ class OutputProfile(Plugin):
     periodical_date_in_title = True
 
     #: Characters used in jackets and catalogs
-	missing_char = u'x'
+    missing_char = u'x'
     ratings_char = u'*'
     empty_ratings_char = u' '
     read_char = u'+'
@@ -293,38 +293,38 @@ class iPadOutput(OutputProfile):
         }
     ]
 
-	missing_char = u'\u2715\u200a'		# stylized 'x' plus hair space
-    ratings_char = u'\u2605'			# filled star
-	empty_ratings_char = u'\u2606'		# hollow star
-    read_char = u'\u2713'				# check mark
+    missing_char = u'\u2715\u200a'      # stylized 'x' plus hair space
+    ratings_char = u'\u2605'            # filled star
+    empty_ratings_char = u'\u2606'      # hollow star
+    read_char = u'\u2713'               # check mark
 
     touchscreen = True
     # touchscreen_news_css {{{
     touchscreen_news_css = u'''
-			/* hr used in articles */
-			.article_articles_list {
+            /* hr used in articles */
+            .article_articles_list {
                 width:18%;
-				}
+                }
             .article_link {
-            	color: #593f29;
+                color: #593f29;
                 font-style: italic;
                 }
             .article_next {
-				-webkit-border-top-right-radius:4px;
-				-webkit-border-bottom-right-radius:4px;
+                -webkit-border-top-right-radius:4px;
+                -webkit-border-bottom-right-radius:4px;
                 font-style: italic;
                 width:32%;
                 }
 
             .article_prev {
-				-webkit-border-top-left-radius:4px;
-				-webkit-border-bottom-left-radius:4px;
+                -webkit-border-top-left-radius:4px;
+                -webkit-border-bottom-left-radius:4px;
                 font-style: italic;
                 width:32%;
                 }
-			.article_sections_list {
+            .article_sections_list {
                 width:18%;
-				}
+                }
             .articles_link {
                 font-weight: bold;
                 }
@@ -334,8 +334,8 @@ class iPadOutput(OutputProfile):
 
 
             .caption_divider {
-            	border:#ccc 1px solid;
-				}
+                border:#ccc 1px solid;
+                }
 
             .touchscreen_navbar {
                 background:#c3bab2;
@@ -344,6 +344,7 @@ class iPadOutput(OutputProfile):
                 border-spacing:1px;
                 margin-left: 5%;
                 margin-right: 5%;
+                page-break-inside:avoid;
                 width: 90%;
                 -webkit-border-radius:4px;
                 }
@@ -356,50 +357,50 @@ class iPadOutput(OutputProfile):
                 text-align:center;
                 }
 
-			.touchscreen_navbar td a:link {
-				color: #593f29;
-				text-decoration: none;
-				}
+            .touchscreen_navbar td a:link {
+                color: #593f29;
+                text-decoration: none;
+                }
 
-			/* Index formatting */
-			.publish_date {
-				text-align:center;
-				}
-			.divider {
-				border-bottom:1em solid white;
-				border-top:1px solid gray;
-				}
+            /* Index formatting */
+            .publish_date {
+                text-align:center;
+                }
+            .divider {
+                border-bottom:1em solid white;
+                border-top:1px solid gray;
+                }
 
-			hr.caption_divider {
-				border-color:black;
-				border-style:solid;
-				border-width:1px;
-				}
+            hr.caption_divider {
+                border-color:black;
+                border-style:solid;
+                border-width:1px;
+                }
 
             /* Feed summary formatting */
             .article_summary {
-            	display:inline-block;
-            	}
+                display:inline-block;
+                }
             .feed {
                 font-family:sans-serif;
                 font-weight:bold;
                 font-size:larger;
-				}
+                }
 
             .feed_link {
                 font-style: italic;
                 }
 
             .feed_next {
-				-webkit-border-top-right-radius:4px;
-				-webkit-border-bottom-right-radius:4px;
+                -webkit-border-top-right-radius:4px;
+                -webkit-border-bottom-right-radius:4px;
                 font-style: italic;
                 width:40%;
                 }
 
             .feed_prev {
-				-webkit-border-top-left-radius:4px;
-				-webkit-border-bottom-left-radius:4px;
+                -webkit-border-top-left-radius:4px;
+                -webkit-border-bottom-left-radius:4px;
                 font-style: italic;
                 width:40%;
                 }
@@ -409,24 +410,24 @@ class iPadOutput(OutputProfile):
                 font-size: 160%;
                 }
 
-			.feed_up {
+            .feed_up {
                 font-weight: bold;
                 width:20%;
-				}
+                }
 
             .summary_headline {
                 font-weight:bold;
                 text-align:left;
-				}
+                }
 
             .summary_byline {
                 text-align:left;
                 font-family:monospace;
-				}
+                }
 
             .summary_text {
                 text-align:left;
-				}
+                }
 
         '''
         # }}}
@@ -470,8 +471,8 @@ class KoboReaderOutput(OutputProfile):
 
     description = _('This profile is intended for the Kobo Reader.')
 
-    screen_size               = (540, 718)
-    comic_screen_size         = (540, 718)
+    screen_size               = (536, 710)
+    comic_screen_size         = (536, 710)
     dpi                       = 168.451
     fbase                     = 12
     fsizes                    = [7.5, 9, 10, 12, 15.5, 20, 22, 24]
@@ -616,8 +617,8 @@ class KindleOutput(OutputProfile):
     supports_mobi_indexing = True
     periodical_date_in_title = False
 
-	missing_char = u'x\u2009'
-	empty_ratings_char = u'\u2606'
+    missing_char = u'x\u2009'
+    empty_ratings_char = u'\u2606'
     ratings_char = u'\u2605'
     read_char = u'\u2713'
 
@@ -641,8 +642,8 @@ class KindleDXOutput(OutputProfile):
     #comic_screen_size         = (741, 1022)
     supports_mobi_indexing = True
     periodical_date_in_title = False
-	missing_char = u'x\u2009'
-	empty_ratings_char = u'\u2606'
+    missing_char = u'x\u2009'
+    empty_ratings_char = u'\u2606'
     ratings_char = u'\u2605'
     read_char = u'\u2713'
     mobi_ems_per_blockquote = 2.0

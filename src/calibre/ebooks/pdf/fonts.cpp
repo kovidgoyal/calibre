@@ -72,6 +72,7 @@ XMLFont::XMLFont(string* font_name, double size, GfxRGB rgb) :
         size(size-1), line_size(-1.0), italic(false), bold(false), font_name(font_name),
         font_family(NULL), color(rgb)  {
 
+
     if (!this->font_name) this->font_name = new string(DEFAULT_FONT_FAMILY);
     this->font_family = family_name(this->font_name);
     if (strcasestr(font_name->c_str(), "bold")) this->bold = true;
@@ -134,7 +135,12 @@ Fonts::size_type Fonts::add_font(XMLFont *f) {
 }
 
 Fonts::size_type Fonts::add_font(string* font_name, double size, GfxRGB rgb) {
-    XMLFont *f = new XMLFont(font_name, size, rgb);
+    XMLFont *f = NULL;
+    if (font_name == NULL) 
+        font_name = new string("Unknown");
+        // font_name must not be deleted
+    f = new XMLFont(font_name, size, rgb);
+
     return this->add_font(f);
 }
 

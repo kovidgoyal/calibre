@@ -65,7 +65,7 @@ this, make your changes, then run::
     bzr send -o my-changes
 
 This will create a :file:`my-changes` file in the current directory,
-simply attach that to a ticket on the |app| `bug tracker <http://bugs.calibre-ebook.com/newticket>`_.
+simply attach that to a ticket on the |app| `bug tracker <http://calibre-ebook.com/bugs>`_.
 
 If you plan to do a lot of development on |app|, then the best method is to create a 
 `Launchpad <http://launchpad.net>`_ account. Once you have the account, you can use it to register

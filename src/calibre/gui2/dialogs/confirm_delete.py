@@ -3,12 +3,11 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 
-from calibre.gui2 import dynamic
-from calibre.gui2.dialogs.confirm_delete_ui import Ui_Dialog
 from PyQt4.Qt import QDialog, Qt, QPixmap, QIcon
 
-def _config_name(name):
-    return name + '_again'
+from calibre import confirm_config_name
+from calibre.gui2 import dynamic
+from calibre.gui2.dialogs.confirm_delete_ui import Ui_Dialog
 
 class Dialog(QDialog, Ui_Dialog):
 
@@ -22,14 +21,21 @@ class Dialog(QDialog, Ui_Dialog):
         self.buttonBox.setFocus(Qt.OtherFocusReason)
 
     def toggle(self, *args):
-        dynamic[_config_name(self.name)] = self.again.isChecked()
+        dynamic[confirm_config_name(self.name)] = self.again.isChecked()
 
 
-def confirm(msg, name, parent=None, pixmap='dialog_warning.png'):
-    if not dynamic.get(_config_name(name), True):
+def confirm(msg, name, parent=None, pixmap='dialog_warning.png', title=None,
+        show_cancel_button=True, confirm_msg=None):
+    if not dynamic.get(confirm_config_name(name), True):
         return True
     d = Dialog(msg, name, parent)
     d.label.setPixmap(QPixmap(I(pixmap)))
     d.setWindowIcon(QIcon(I(pixmap)))
+    if title is not None:
+        d.setWindowTitle(title)
+    if not show_cancel_button:
+        d.buttonBox.button(d.buttonBox.Cancel).setVisible(False)
+    if confirm_msg is not None:
+        d.again.setText(confirm_msg)
     d.resize(d.sizeHint())
     return d.exec_() == d.Accepted

@@ -1,0 +1,36 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1259599587(BasicNewsRecipe):
+    title          = u'Gulli'
+    description = 'News from Germany'
+    language = 'de'
+    __author__ = 'posativ'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    no_stylesheets = True
+
+    feeds          = [(u'gulli:news', u'http://ticker.gulli.com/rss/')]
+
+    remove_tags = [dict(name='div', attrs={'class':['FloatL','_forumBox']})]
+
+    keep_only_tags = [dict(name='div', attrs={'id':['_contentLeft']})]
+
+    remove_tags_after  = [dict(name='div', attrs={'class':['_bookmark']})]
+
+
+
+
+
+    extra_css = '''
+                h1 {color:#008852;font-family:Arial,Helvetica,sans-serif; font-size:25px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:bold; line-height:22px; }
+                h2 {color:#4D4D4D;font-family:Arial,Helvetica,sans-serif; font-size:18px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:bold; line-height:16px; }
+                h3 {color:#4D4D4D;font-family:Arial,Helvetica,sans-serif; font-size:15px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:bold; line-height:14px;}
+                h4 {color:#333333; font-family:Arial,Helvetica,sans-serif;font-size:12px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:bold; line-height:14px; }
+                h5 {color:#333333; font-family:Arial,Helvetica,sans-serif; font-size:11px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:bold; line-height:14px; text-transform:uppercase;}
+                .newsdate {color:#333333;font-family:Arial,Helvetica,sans-serif;font-size:10px; font-size-adjust:none; font-stretch:normal; font-style:italic; font-variant:normal; font-weight:bold; line-height:10px; text-decoration:none;}
+                .articleInfo {color:#4D4D4D;font-family:Arial,Helvetica,sans-serif;font-size:10px; font-size-adjust:none; font-stretch:normal; font-style:bold; font-variant:normal; font-weight:bold; line-height:10px; text-decoration:none;}
+                .byline {color:#666;margin-bottom:0;font-size:12px}
+                .blockquote {color:#030303;font-style:italic;padding-left:15px;}
+                img {align:center;}
+                .li {list-style-type: none}
+                '''

@@ -1,0 +1,78 @@
+#!/usr/bin/env  python
+
+__license__   = 'GPL v3'
+__copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
+'''
+usatoday.com
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class USAToday(BasicNewsRecipe):
+
+    title = 'USA Today'
+    __author__ = 'Kovid Goyal'
+    oldest_article = 1
+    timefmt  = ''
+    max_articles_per_feed = 20
+    language = 'en'
+    no_stylesheets = True
+    extra_css = '.headline      {text-align:    left;}\n    \
+                 .byline        {font-family:   monospace;  \
+                                 text-align:    left;       \
+                                 margin-bottom: 1em;}\n     \
+                 .image         {text-align:    center;}\n  \
+                 .caption       {text-align:    center;     \
+                                 font-size:     smaller;    \
+                                 font-style:    italic}\n   \
+                 .credit        {text-align:    right;      \
+                                 margin-bottom: 0em;        \
+                                 font-size:     smaller;}\n \
+                 .articleBody   {text-align:    left;}\n    '
+    #simultaneous_downloads = 1
+    feeds =  [
+                ('Top Headlines', 'http://rssfeeds.usatoday.com/usatoday-NewsTopStories'),
+                ('Tech Headlines', 'http://rssfeeds.usatoday.com/usatoday-TechTopStories'),
+                ('Personal Tech', 'http://rssfeeds.usatoday.com/UsatodaycomTech-PersonalTalk'),
+                ('Science', 'http://rssfeeds.usatoday.com/TP-ScienceFair'),
+                ('Health', 'http://rssfeeds.usatoday.com/UsatodaycomHealth-TopStories'),
+                ('Travel Headlines', 'http://rssfeeds.usatoday.com/UsatodaycomTravel-TopStories'),
+                ('Money Headlines', 'http://rssfeeds.usatoday.com/UsatodaycomMoney-TopStories'),
+                ('Entertainment Headlines', 'http://rssfeeds.usatoday.com/usatoday-LifeTopStories'),
+                ('Sport Headlines', 'http://rssfeeds.usatoday.com/UsatodaycomSports-TopStories'),
+                ('Weather Headlines', 'http://rssfeeds.usatoday.com/usatoday-WeatherTopStories'),
+                ('Most Popular', 'http://rssfeeds.usatoday.com/Usatoday-MostViewedArticles'),
+                ('Offbeat News', 'http://rssfeeds.usatoday.com/UsatodaycomOffbeat-TopStories'),
+                ]
+    keep_only_tags = [dict(attrs={'class':'story'})]
+    remove_tags = [
+            dict(attrs={'class':[
+                                'share',
+                                'reprints',
+                                'inline-h3',
+                                'info-extras',
+                                'ppy-outer',
+                                'ppy-caption',
+                                'comments',
+                                'jump',
+                                'pagetools',
+                                'post-attributes',
+                                'tags',
+                                'bottom-tools',
+                                'sponsoredlinks',
+                                ]}),
+            dict(id=['pluck']),
+                  ]
+
+
+    def get_masthead_url(self):
+        masthead = 'http://i.usatoday.net/mobile/_common/_images/565x73_usat_mobile.gif'
+        br = BasicNewsRecipe.get_browser()
+        try:
+            br.open(masthead)
+        except:
+            self.log("\nCover unavailable")
+            masthead = None
+        return masthead
+
+

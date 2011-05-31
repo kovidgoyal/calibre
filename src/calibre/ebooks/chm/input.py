@@ -19,12 +19,12 @@ class CHMInput(InputFormatPlugin):
     description = 'Convert CHM files to OEB'
     file_types  = set(['chm'])
 
-    def _chmtohtml(self, output_dir, chm_path, no_images, log):
+    def _chmtohtml(self, output_dir, chm_path, no_images, log, debug_dump=False):
         from calibre.ebooks.chm.reader import CHMReader
         log.debug('Opening CHM file')
-        rdr = CHMReader(chm_path, log)
+        rdr = CHMReader(chm_path, log, self.opts)
         log.debug('Extracting CHM to %s' % output_dir)
-        rdr.extract_content(output_dir)
+        rdr.extract_content(output_dir, debug_dump=debug_dump)
         self._chm_reader = rdr
         return rdr.hhc_path
 
@@ -32,13 +32,13 @@ class CHMInput(InputFormatPlugin):
     def convert(self, stream, options, file_ext, log, accelerators):
         from calibre.ebooks.chm.metadata import get_metadata_from_reader
         from calibre.customize.ui import plugin_for_input_format
+        self.opts = options
 
         log.debug('Processing CHM...')
         with TemporaryDirectory('_chm2oeb') as tdir:
             html_input = plugin_for_input_format('html')
             for opt in html_input.options:
                 setattr(options, opt.option.name, opt.recommended_value)
-            options.input_encoding = 'utf-8'
             no_images = False #options.no_images
             chm_name = stream.name
             #chm_data = stream.read()
@@ -47,13 +47,22 @@ class CHMInput(InputFormatPlugin):
             stream.close()
             log.debug('tdir=%s' % tdir)
             log.debug('stream.name=%s' % stream.name)
-            mainname = self._chmtohtml(tdir, chm_name, no_images, log)
+            debug_dump = False
+            odi = options.debug_pipeline
+            if odi:
+                debug_dump = os.path.join(odi, 'input')
+            mainname = self._chmtohtml(tdir, chm_name, no_images, log,
+                    debug_dump=debug_dump)
             mainpath = os.path.join(tdir, mainname)
 
             metadata = get_metadata_from_reader(self._chm_reader)
+            self._chm_reader.CloseCHM()
+            #print tdir
+            #from calibre import ipython
+            #ipython()
 
-            odi = options.debug_pipeline
             options.debug_pipeline = None
+            options.input_encoding = 'utf-8'
             # try a custom conversion:
             #oeb = self._create_oebbook(mainpath, tdir, options, log, metadata)
             # try using html converter:

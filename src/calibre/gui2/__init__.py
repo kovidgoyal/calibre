@@ -4,37 +4,62 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import os, sys, Queue, threading
 from threading import RLock
 from urllib import unquote
-
-from PyQt4.Qt import QVariant, QFileInfo, QObject, SIGNAL, QBuffer, Qt, \
-                         QByteArray, QTranslator, QCoreApplication, QThread, \
-                         QEvent, QTimer, pyqtSignal, QDate, QDesktopServices, \
-                         QFileDialog, QFileIconProvider, \
-                         QIcon, QApplication, QDialog, QUrl, QFont
+from PyQt4.Qt import (QVariant, QFileInfo, QObject, SIGNAL, QBuffer, Qt,
+                    QByteArray, QTranslator, QCoreApplication, QThread,
+                    QEvent, QTimer, pyqtSignal, QDate, QDesktopServices,
+                    QFileDialog, QFileIconProvider,
+                    QIcon, QApplication, QDialog, QUrl, QFont)
 
 ORG_NAME = 'KovidsBrain'
 APP_UID  = 'libprs500'
-from calibre.constants import islinux, iswindows, isfreebsd, isfrozen
+from calibre.constants import islinux, iswindows, isbsd, isfrozen, isosx
 from calibre.utils.config import Config, ConfigProxy, dynamic, JSONConfig
 from calibre.utils.localization import set_qt_translator
-from calibre.ebooks.metadata.meta import get_metadata, metadata_from_formats
 from calibre.ebooks.metadata import MetaInformation
 from calibre.utils.date import UNDEFINED_DATE
 
 # Setup gprefs {{{
 gprefs = JSONConfig('gui')
 
-gprefs.defaults['action-layout-toolbar'] = (
-        'Add Books', 'Edit Metadata', None, 'Convert Books', 'View', None,
-        'Choose Library', 'Donate', None, 'Fetch News', 'Save To Disk',
-        'Connect Share', None, 'Remove Books', None, 'Help', 'Preferences',
+if isosx:
+    gprefs.defaults['action-layout-menubar'] = (
+        'Add Books', 'Edit Metadata', 'Convert Books',
+        'Choose Library', 'Save To Disk', 'Preferences',
+        'Help',
         )
-
-gprefs.defaults['action-layout-toolbar-device'] = (
+    gprefs.defaults['action-layout-menubar-device'] = (
+        'Add Books', 'Edit Metadata', 'Convert Books',
+        'Location Manager', 'Send To Device',
+        'Save To Disk', 'Preferences', 'Help',
+        )
+    gprefs.defaults['action-layout-toolbar'] = (
+        'Add Books', 'Edit Metadata', None, 'Convert Books', 'View', None,
+        'Choose Library', 'Donate', None, 'Fetch News', 'Store', 'Save To Disk',
+        'Connect Share', None, 'Remove Books',
+        )
+    gprefs.defaults['action-layout-toolbar-device'] = (
+        'Add Books', 'Edit Metadata', None, 'Convert Books', 'View',
+        'Send To Device', None, None, 'Location Manager', None, None,
+        'Fetch News', 'Save To Disk', 'Connect Share', None,
+        'Remove Books',
+        )
+else:
+    gprefs.defaults['action-layout-menubar'] = ()
+    gprefs.defaults['action-layout-menubar-device'] = ()
+    gprefs.defaults['action-layout-toolbar'] = (
+        'Add Books', 'Edit Metadata', None, 'Convert Books', 'View', None,
+        'Store', 'Donate', 'Fetch News', 'Help', None,
+        'Remove Books', 'Choose Library', 'Save To Disk',
+        'Connect Share', 'Preferences',
+        )
+    gprefs.defaults['action-layout-toolbar-device'] = (
         'Add Books', 'Edit Metadata', None, 'Convert Books', 'View',
         'Send To Device', None, None, 'Location Manager', None, None,
         'Fetch News', 'Save To Disk', 'Connect Share', None,
         'Remove Books', None, 'Help', 'Preferences',
         )
+
+gprefs.defaults['action-layout-toolbar-child'] = ()
 
 gprefs.defaults['action-layout-context-menu'] = (
         'Edit Metadata', 'Send To Device', 'Save To Disk',
@@ -51,11 +76,19 @@ gprefs.defaults['action-layout-context-menu-device'] = (
 gprefs.defaults['show_splash_screen'] = True
 gprefs.defaults['toolbar_icon_size'] = 'medium'
 gprefs.defaults['automerge'] = 'ignore'
-gprefs.defaults['toolbar_text'] = 'auto'
-gprefs.defaults['show_child_bar'] = False
+gprefs.defaults['toolbar_text'] = 'always'
 gprefs.defaults['font'] = None
 gprefs.defaults['tags_browser_partition_method'] = 'first letter'
 gprefs.defaults['tags_browser_collapse_at'] = 100
+gprefs.defaults['edit_metadata_single_layout'] = 'default'
+gprefs.defaults['book_display_fields'] = [
+        ('title', False), ('authors', False), ('formats', True),
+        ('series', True), ('identifiers', True), ('tags', True),
+        ('path', True), ('publisher', False), ('rating', False),
+        ('author_sort', False), ('sort', False), ('timestamp', False),
+        ('uuid', False), ('comments', True), ('id', False), ('pubdate', False),
+        ('last_modified', False), ('size', False),
+        ]
 
 # }}}
 
@@ -65,7 +98,7 @@ UNDEFINED_QDATE = QDate(UNDEFINED_DATE)
 ALL_COLUMNS = ['title', 'ondevice', 'authors', 'size', 'timestamp', 'rating', 'publisher',
         'tags', 'series', 'pubdate']
 
-def _config():
+def _config(): # {{{
     c = Config('gui', 'preferences for the calibre GUI')
     c.add_opt('send_to_storage_card_by_default', default=False,
               help=_('Send file to storage card instead of main memory by default'))
@@ -79,6 +112,8 @@ def _config():
               help=_('Use Roman numerals for series number'))
     c.add_opt('sort_tags_by', default='name',
               help=_('Sort tags list by name, popularity, or rating'))
+    c.add_opt('match_tags_type', default='any',
+              help=_('Match tags by any or all.'))
     c.add_opt('cover_flow_queue_length', default=6,
               help=_('Number of covers to show in the cover browsing mode'))
     c.add_opt('LRF_conversion_defaults', default=[],
@@ -128,7 +163,9 @@ def _config():
     c.add_opt('plugin_search_history', default=[],
         help='Search history for the recipe scheduler')
     c.add_opt('worker_limit', default=6,
-            help=_('Maximum number of waiting worker processes'))
+            help=_(
+        'Maximum number of simultaneous conversion/news download jobs. '
+        'This number is twice the actual value for historical reasons.'))
     c.add_opt('get_social_metadata', default=True,
             help=_('Download social metadata (tags/rating/etc.)'))
     c.add_opt('overwrite_author_title_metadata', default=True,
@@ -153,6 +190,8 @@ def _config():
     return ConfigProxy(c)
 
 config = _config()
+# }}}
+
 # Turn off DeprecationWarnings in windows GUI
 if iswindows:
     import warnings
@@ -302,6 +341,7 @@ class GetMetadata(QObject):
                   id, args, kwargs)
 
     def _from_formats(self, id, args, kwargs):
+        from calibre.ebooks.metadata.meta import metadata_from_formats
         try:
             mi = metadata_from_formats(*args, **kwargs)
         except:
@@ -309,6 +349,7 @@ class GetMetadata(QObject):
         self.emit(SIGNAL('metadataf(PyQt_PyObject, PyQt_PyObject)'), id, mi)
 
     def _get_metadata(self, id, args, kwargs):
+        from calibre.ebooks.metadata.meta import get_metadata
         try:
             mi = get_metadata(*args, **kwargs)
         except:
@@ -329,6 +370,7 @@ class FileIconProvider(QFileIconProvider):
              'bmp'     : 'bmp',
              'svg'     : 'svg',
              'html'    : 'html',
+             'htmlz'   : 'html',
              'htm'     : 'html',
              'xhtml'   : 'html',
              'xhtm'    : 'html',
@@ -340,6 +382,7 @@ class FileIconProvider(QFileIconProvider):
              'rar'     : 'rar',
              'zip'     : 'zip',
              'txt'     : 'txt',
+             'text'    : 'txt',
              'prc'     : 'mobi',
              'azw'     : 'mobi',
              'mobi'    : 'mobi',
@@ -578,7 +621,22 @@ class Application(QApplication):
         self.original_font = QFont(QApplication.font())
         fi = gprefs['font']
         if fi is not None:
-            QApplication.setFont(QFont(*fi))
+            font = QFont(*(fi[:4]))
+            s = gprefs.get('font_stretch', None)
+            if s is not None:
+                font.setStretch(s)
+            QApplication.setFont(font)
+        st = self.style()
+        if st is not None:
+            st = unicode(st.objectName()).lower()
+        if (islinux or isbsd) and st in ('windows', 'motif', 'cde'):
+            from PyQt4.Qt import QStyleFactory
+            styles = set(map(unicode, QStyleFactory.keys()))
+            if 'Plastique' in styles and os.environ.get('KDE_FULL_SESSION',
+                    False):
+                self.setStyle('Plastique')
+            elif 'Cleanlooks' in styles:
+                self.setStyle('Cleanlooks')
 
     def _send_file_open_events(self):
         with self._file_open_lock:
@@ -618,6 +676,18 @@ def open_url(qurl):
     if isfrozen and islinux and paths:
         os.environ['LD_LIBRARY_PATH'] = os.pathsep.join(paths)
 
+def get_current_db():
+    '''
+    This method will try to return the current database in use by the user as
+    efficiently as possible, i.e. without constructing duplicate
+    LibraryDatabase objects.
+    '''
+    from calibre.gui2.ui import get_gui
+    gui = get_gui()
+    if gui is not None and gui.current_db is not None:
+        return gui.current_db
+    from calibre.library import db
+    return db()
 
 def open_local_file(path):
     if iswindows:
@@ -628,7 +698,7 @@ def open_local_file(path):
 
 def is_ok_to_use_qt():
     global gui_thread, _store_app
-    if (islinux or isfreebsd) and ':' not in os.environ.get('DISPLAY', ''):
+    if (islinux or isbsd) and ':' not in os.environ.get('DISPLAY', ''):
         return False
     if _store_app is None and QApplication.instance() is None:
         _store_app = QApplication([])
@@ -685,14 +755,9 @@ def build_forms(srcdir, info=None):
             dat = dat.replace('from QtWebKit.QWebView import QWebView',
                     'from PyQt4 import QtWebKit\nfrom PyQt4.QtWebKit import QWebView')
 
-            if form.endswith('viewer%smain.ui'%os.sep):
-                info('\t\tPromoting WebView')
-                dat = dat.replace('self.view = QtWebKit.QWebView(', 'self.view = DocumentView(')
-                dat = dat.replace('self.view = QWebView(', 'self.view = DocumentView(')
-                dat += '\n\nfrom calibre.gui2.viewer.documentview import DocumentView'
-
             open(compiled_form, 'wb').write(dat)
 
 _df = os.environ.get('CALIBRE_DEVELOP_FROM', None)
 if _df and os.path.exists(_df):
     build_forms(_df)
+

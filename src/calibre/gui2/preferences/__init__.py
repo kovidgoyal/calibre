@@ -7,8 +7,9 @@ __docformat__ = 'restructuredtext en'
 
 import textwrap
 
-from PyQt4.Qt import QWidget, pyqtSignal, QCheckBox, QAbstractSpinBox, \
-    QLineEdit, QComboBox, QVariant
+from PyQt4.Qt import (QWidget, pyqtSignal, QCheckBox, QAbstractSpinBox,
+    QLineEdit, QComboBox, QVariant, Qt, QIcon, QDialog, QVBoxLayout,
+    QDialogButtonBox)
 
 from calibre.customize.ui import preferences_plugins
 from calibre.utils.config import ConfigProxy
@@ -21,7 +22,7 @@ class ConfigWidgetInterface(object):
     '''
     This class defines the interface that all widgets displayed in the
     Preferences dialog must implement. See :class:`ConfigWidgetBase` for
-    a base class that implements this interface and defines various conveninece
+    a base class that implements this interface and defines various convenience
     methods as well.
     '''
 
@@ -81,6 +82,8 @@ class ConfigWidgetInterface(object):
         pass
 
 class Setting(object):
+
+    CHOICES_SEARCH_FLAGS = Qt.MatchExactly | Qt.MatchCaseSensitive
 
     def __init__(self, name, config_obj, widget, gui_name=None,
             empty_string_is_None=True, choices=None, restart_required=False):
@@ -168,7 +171,8 @@ class Setting(object):
         elif self.datatype == 'string':
             self.gui_obj.setText(val if val else '')
         elif self.datatype == 'choice':
-            idx = self.gui_obj.findData(QVariant(val))
+            idx = self.gui_obj.findData(QVariant(val), role=Qt.UserRole,
+                    flags=self.CHOICES_SEARCH_FLAGS)
             if idx == -1:
                 idx = 0
             self.gui_obj.setCurrentIndex(idx)
@@ -281,7 +285,14 @@ def get_plugin(category, name):
             'No Preferences Plugin with category: %s and name: %s found' %
             (category, name))
 
-# Testing {{{
+class ConfigDialog(QDialog):
+    def set_widget(self, w): self.w = w
+    def accept(self):
+        try:
+            self.restart_required = self.w.commit()
+        except AbortCommit:
+            return
+        QDialog.accept(self)
 
 def init_gui():
     from calibre.gui2.ui import Main
@@ -295,21 +306,27 @@ def init_gui():
     gui.initialize(db.library_path, db, None, actions, show_gui=False)
     return gui
 
-def test_widget(category, name, gui=None):
-    from PyQt4.Qt import QDialog, QVBoxLayout, QDialogButtonBox
-    class Dialog(QDialog):
-        def set_widget(self, w): self.w = w
-        def accept(self):
-            try:
-                self.restart_required = self.w.commit()
-            except AbortCommit:
-                return
-            QDialog.accept(self)
+def show_config_widget(category, name, gui=None, show_restart_msg=False,
+        parent=None, never_shutdown=False):
+    '''
+    Show the preferences plugin identified by category and name
 
+    :param gui: gui instance, if None a hidden gui is created
+    :param show_restart_msg: If True and the preferences plugin indicates a
+    restart is required, show a message box telling the user to restart
+    :param parent: The parent of the displayed dialog
+
+    :return: True iff a restart is required for the changes made by the user to
+    take effect
+    '''
+    from calibre.gui2 import gprefs
     pl = get_plugin(category, name)
-    d = Dialog()
+    d = ConfigDialog(parent)
     d.resize(750, 550)
-    d.setWindowTitle(category + " - " + name)
+    conf_name = 'config_widget_dialog_geometry_%s_%s'%(category, name)
+    geom = gprefs.get(conf_name, None)
+    d.setWindowTitle(_('Configure ') + name)
+    d.setWindowIcon(QIcon(I('config.png')))
     bb = QDialogButtonBox(d)
     bb.setStandardButtons(bb.Apply|bb.Cancel|bb.RestoreDefaults)
     bb.accepted.connect(d.accept)
@@ -320,7 +337,13 @@ def test_widget(category, name, gui=None):
     bb.button(bb.RestoreDefaults).setEnabled(w.supports_restoring_to_defaults)
     bb.button(bb.Apply).setEnabled(False)
     bb.button(bb.Apply).clicked.connect(d.accept)
-    w.changed_signal.connect(lambda : bb.button(bb.Apply).setEnabled(True))
+    def onchange():
+        b = bb.button(bb.Apply)
+        b.setEnabled(True)
+        b.setDefault(True)
+        b.setAutoDefault(True)
+    w.changed_signal.connect(onchange)
+    bb.button(bb.Cancel).setFocus(True)
     l = QVBoxLayout()
     d.setLayout(l)
     l.addWidget(w)
@@ -331,12 +354,23 @@ def test_widget(category, name, gui=None):
         mygui = True
     w.genesis(gui)
     w.initialize()
+    if geom is not None:
+        d.restoreGeometry(geom)
     d.exec_()
-    if getattr(d, 'restart_required', False):
+    geom = bytearray(d.saveGeometry())
+    gprefs[conf_name] = geom
+    rr = getattr(d, 'restart_required', False)
+    if show_restart_msg and rr:
         from calibre.gui2 import warning_dialog
         warning_dialog(gui, 'Restart required', 'Restart required', show=True)
-    if mygui:
+    if mygui and not never_shutdown:
         gui.shutdown()
+    return rr
+
+# Testing {{{
+
+def test_widget(category, name, gui=None):
+    show_config_widget(category, name, gui=gui, show_restart_msg=True)
 
 def test_all():
     from PyQt4.Qt import QApplication

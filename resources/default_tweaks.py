@@ -41,14 +41,20 @@ authors_completer_append_separator = False
 #: Author sort name algorithm
 # The algorithm used to copy author to author_sort
 # Possible values are:
-#  invert: use "fn ln" -> "ln, fn" (the default algorithm)
+#  invert: use "fn ln" -> "ln, fn"
 #  copy  : copy author to author_sort without modification
 #  comma : use 'copy' if there is a ',' in the name, otherwise use 'invert'
 #  nocomma : "fn ln" -> "ln fn" (without the comma)
 # When this tweak is changed, the author_sort values stored with each author
 # must be recomputed by right-clicking on an author in the left-hand tags pane,
 # selecting 'manage authors', and pressing 'Recalculate all author sort values'.
-author_sort_copy_method = 'invert'
+# The author name suffixes are words that are ignored when they occur at the
+# end of an author name. The case of the suffix is ignored and trailing
+# periods are automatically handled.
+author_sort_copy_method = 'comma'
+author_name_suffixes = ('Jr', 'Sr', 'Inc', 'Ph.D', 'Phd',
+                        'MD', 'M.D', 'I', 'II', 'III', 'IV',
+                        'Junior', 'Senior')
 
 #: Use author sort in Tag Browser
 # Set which author field to display in the tags pane (the list of authors,
@@ -88,13 +94,6 @@ categories_collapsed_rating_template = r'{first.avg_rating:4.2f:ifempty(0)} - {l
 categories_collapsed_popularity_template = r'{first.count:d} - {last.count:d}'
 
 
-#: Set boolean custom columns to be tristate
-# Set whether boolean custom columns are two- or three-valued.
-#  Two-values for true booleans
-#  three-values for yes/no/unknown
-# Set to 'yes' for three-values, 'no' for two-values
-bool_custom_columns_are_tristate = 'yes'
-
 #: Specify columns to sort the booklist by on startup
 # Provide a set of columns to be sorted on when calibre starts
 #  The argument is None if saved sort history is to be used
@@ -125,6 +124,7 @@ sort_columns_at_startup = None
 # timestamp default if not set: dd MMM yyyy
 gui_pubdate_display_format = 'MMM yyyy'
 gui_timestamp_display_format = 'dd MMM yyyy'
+gui_last_modified_display_format = 'dd MMM yyyy'
 
 #: Control sorting of titles and series in the library display
 # Control title and series sorting in the library view. If set to
@@ -273,26 +273,6 @@ max_content_server_tags_shown=5
 content_server_will_display = ['*']
 content_server_wont_display = []
 
-#: Set custom metadata fields that the book details panel will or will not display.
-# book_details_will_display is a list of custom fields to be displayed.
-# book_details_wont_display is a list of custom fields not to be displayed.
-# wont_display has priority over will_display.
-# The special value '*' means all custom fields. The value [] means no entries.
-# Defaults:
-#    book_details_will_display = ['*']
-#    book_details_wont_display = []
-# Examples:
-# To display only the custom fields #mytags and #genre:
-#   book_details_will_display = ['#mytags', '#genre']
-#   book_details_wont_display = []
-# To display all fields except #mycomments:
-#   book_details_will_display = ['*']
-#   book_details_wont_display['#mycomments']
-# As above, this tweak affects only display of custom fields. The standard
-# fields are not affected
-book_details_will_display = ['*']
-book_details_wont_display = []
-
 #: Set the maximum number of sort 'levels'
 # Set the maximum number of sort 'levels' that calibre will use to resort the
 # library after certain operations such as searches or device insertion. Each
@@ -348,4 +328,34 @@ public_smtp_relay_delay = 301
 # when a section of the user interface is hidden. Changes will take effect
 # after a restart of calibre.
 draw_hidden_section_indicators = True
+
+#: The maximum width and height for covers saved in the calibre library
+# All covers in the calibre library will be resized, preserving aspect ratio,
+# to fit within this size. This is to prevent slowdowns caused by extremely
+# large covers
+maximum_cover_size = (1200, 1600)
+
+#: Where to send downloaded news
+# When automatically sending downloaded news to a connected device, calibre
+# will by default send it to the main memory. By changing this tweak, you can
+# control where it is sent. Valid values are "main", "carda", "cardb". Note
+# that if there isn't enough free space available on the location you choose,
+# the files will be sent to the location with the most free space.
+send_news_to_device_location = "main"
+
+#: What interfaces should the content server listen on
+# By default, the calibre content server listens on '0.0.0.0' which means that it
+# accepts IPv4 connections on all interfaces. You can change this to, for
+# example, '127.0.0.1' to only listen for connections from the local machine, or
+# to '::' to listen to all incoming IPv6 and IPv4 connections (this may not
+# work on all operating systems)
+server_listen_on = '0.0.0.0'
+
+#: Unified toolbar on OS X
+# If you enable this option and restart calibre, the toolbar will be 'unified'
+# with the titlebar as is normal for OS X applications. However, doing this has
+# various bugs, for instance the minimum width of the toolbar becomes twice
+# what it should be and it causes other random bugs on some systems, so turn it
+# on at your own risk!
+unified_title_toolbar_on_osx = False
 

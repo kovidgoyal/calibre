@@ -8,6 +8,7 @@ Wrapper for multi-threaded access to a single sqlite database connection. Serial
 all calls.
 '''
 import sqlite3 as sqlite, traceback, time, uuid, sys, os
+import repr as reprlib
 from sqlite3 import IntegrityError, OperationalError
 from threading import Thread
 from Queue import Queue
@@ -16,17 +17,53 @@ from datetime import datetime
 from functools import partial
 
 from calibre.ebooks.metadata import title_sort, author_to_author_sort
-from calibre.utils.date import parse_date, isoformat
+from calibre.utils.date import parse_date, isoformat, local_tz
 from calibre import isbytestring, force_unicode
-from calibre.constants import iswindows, DEBUG
+from calibre.constants import iswindows, DEBUG, plugins
 from calibre.utils.icu import strcmp
+from calibre import prints
+
+from dateutil.tz import tzoffset
 
 global_lock = RLock()
 
-def convert_timestamp(val):
+_c_speedup = plugins['speedup'][0]
+
+def _c_convert_timestamp(val):
+    if not val:
+        return None
+    try:
+        ret = _c_speedup.parse_date(val.strip())
+    except:
+        ret = None
+    if ret is None:
+        return parse_date(val, as_utc=False)
+    year, month, day, hour, minutes, seconds, tzsecs = ret
+    return datetime(year, month, day, hour, minutes, seconds,
+                tzinfo=tzoffset(None, tzsecs)).astimezone(local_tz)
+
+def _py_convert_timestamp(val):
     if val:
+        tzsecs = 0
+        try:
+            sign = {'+':1, '-':-1}.get(val[-6], None)
+            if sign is not None:
+                tzsecs = 60*((int(val[-5:-3])*60 + int(val[-2:])) * sign)
+            year = int(val[0:4])
+            month = int(val[5:7])
+            day = int(val[8:10])
+            hour = int(val[11:13])
+            min = int(val[14:16])
+            sec = int(val[17:19])
+            return datetime(year, month, day, hour, min, sec,
+                    tzinfo=tzoffset(None, tzsecs))
+        except:
+            pass
         return parse_date(val, as_utc=False)
     return None
+
+convert_timestamp = _py_convert_timestamp if _c_speedup is None else \
+                    _c_convert_timestamp
 
 def adapt_datetime(dt):
     return isoformat(dt, sep=' ')
@@ -87,6 +124,18 @@ class SortedConcatenate(object):
 class SafeSortedConcatenate(SortedConcatenate):
     sep = '|'
 
+class IdentifiersConcat(object):
+    '''String concatenation aggregator for the identifiers map'''
+    def __init__(self):
+        self.ans = []
+
+    def step(self, key, val):
+        self.ans.append(u'%s:%s'%(key, val))
+
+    def finalize(self):
+        return ','.join(self.ans)
+
+
 class AumSortedConcatenate(object):
     '''String concatenation aggregator for the author sort map'''
     def __init__(self):
@@ -144,7 +193,7 @@ def load_c_extensions(conn, debug=DEBUG):
         conn.load_extension(ext_path)
         conn.enable_load_extension(False)
         return True
-    except Exception, e:
+    except Exception as e:
         if debug:
             print 'Failed to load high performance sqlite C extension'
             print e
@@ -170,13 +219,13 @@ class DBThread(Thread):
                                    detect_types=sqlite.PARSE_DECLTYPES|sqlite.PARSE_COLNAMES)
         self.conn.execute('pragma cache_size=5000')
         encoding = self.conn.execute('pragma encoding').fetchone()[0]
-        c_ext_loaded = load_c_extensions(self.conn)
+        self.conn.create_aggregate('sortconcat', 2, SortedConcatenate)
+        self.conn.create_aggregate('sort_concat', 2, SafeSortedConcatenate)
+        self.conn.create_aggregate('identifiers_concat', 2, IdentifiersConcat)
+        load_c_extensions(self.conn)
         self.conn.row_factory = sqlite.Row if self.row_factory else  lambda cursor, row : list(row)
         self.conn.create_aggregate('concat', 1, Concatenate)
         self.conn.create_aggregate('aum_sortconcat', 3, AumSortedConcatenate)
-        if not c_ext_loaded:
-            self.conn.create_aggregate('sortconcat', 2, SortedConcatenate)
-            self.conn.create_aggregate('sort_concat', 2, SafeSortedConcatenate)
         self.conn.create_collation('PYNOCASE', partial(pynocase,
             encoding=encoding))
         self.conn.create_function('title_sort', 1, title_sort)
@@ -198,32 +247,36 @@ class DBThread(Thread):
                 if func == 'dump':
                     try:
                         ok, res = True, tuple(self.conn.iterdump())
-                    except Exception, err:
+                    except Exception as err:
                         ok, res = False, (err, traceback.format_exc())
                 elif func == 'create_dynamic_filter':
                     try:
                         f = DynamicFilter(args[0])
                         self.conn.create_function(args[0], 1, f)
                         ok, res = True, f
-                    except Exception, err:
+                    except Exception as err:
                         ok, res = False, (err, traceback.format_exc())
                 else:
-                    func = getattr(self.conn, func)
+                    bfunc = getattr(self.conn, func)
                     try:
                         for i in range(3):
                             try:
-                                ok, res = True, func(*args, **kwargs)
+                                ok, res = True, bfunc(*args, **kwargs)
                                 break
-                            except OperationalError, err:
+                            except OperationalError as err:
                                 # Retry if unable to open db file
-                                if 'unable to open' not in str(err) or i == 2:
+                                e = str(err)
+                                if 'unable to open' not in e or i == 2:
+                                    if 'unable to open' in e:
+                                        prints('Unable to open database for func',
+                                            func, reprlib.repr(args),
+                                            reprlib.repr(kwargs))
                                     raise
-                                traceback.print_exc()
                             time.sleep(0.5)
-                    except Exception, err:
+                    except Exception as err:
                         ok, res = False, (err, traceback.format_exc())
                 self.results.put((ok, res))
-        except Exception, err:
+        except Exception as err:
             self.unhandled_error = (err, traceback.format_exc())
 
 class DatabaseException(Exception):

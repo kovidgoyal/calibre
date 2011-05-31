@@ -7,8 +7,6 @@ __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.cam> and \
         Kovid Goyal <kovid@kovidgoyal.net>'
 
 from collections import defaultdict
-from itertools import count
-from itertools import izip
 import random
 import re
 from struct import pack
@@ -282,8 +280,8 @@ class Serializer(object):
                 buffer.write('="')
                 self.serialize_text(val, quot=True)
                 buffer.write('"')
+        buffer.write('>')
         if elem.text or len(elem) > 0:
-            buffer.write('>')
             if elem.text:
                 self.anchor_offset = None
                 self.serialize_text(elem.text)
@@ -292,9 +290,7 @@ class Serializer(object):
                 if child.tail:
                     self.anchor_offset = None
                     self.serialize_text(child.tail)
-            buffer.write('</%s>' % tag)
-        else:
-            buffer.write('/>')
+        buffer.write('</%s>' % tag)
 
     def serialize_text(self, text, quot=False):
         text = text.replace('&', '&amp;')
@@ -312,10 +308,11 @@ class Serializer(object):
             if href not in id_offsets:
                 self.logger.warn('Hyperlink target %r not found' % href)
                 href, _ = urldefrag(href)
-            ioff = self.id_offsets[href]
-            for hoff in hoffs:
-                buffer.seek(hoff)
-                buffer.write('%010d' % ioff)
+            if href in self.id_offsets:
+                ioff = self.id_offsets[href]
+                for hoff in hoffs:
+                    buffer.seek(hoff)
+                    buffer.write('%010d' % ioff)
 
 class MobiWriter(object):
     COLLAPSE_RE = re.compile(r'[ \t\r\n\v]+')
@@ -1098,7 +1095,7 @@ class MobiWriter(object):
                         nodeCountValue = 0x80 if nodeCountValue == 0 else nodeCountValue
                         tbSequence += chr(nodeCountValue)
                     else :
-                         tbSequence += decint(0x00, DECINT_FORWARD)                              # arg1 = 0x80
+                        tbSequence += decint(0x00, DECINT_FORWARD)                              # arg1 = 0x80
 
                     tbSequence += decint(len(tbSequence) + 1, DECINT_FORWARD)               # len
 
@@ -1188,7 +1185,7 @@ class MobiWriter(object):
         toc = self._oeb.toc
         nodes = list(toc.iter())[1:]
         toc_conforms = True
-        for (i, child) in enumerate(nodes) :
+        for child in nodes:
             if child.klass == "periodical" and child.depth() != 3 or    \
                child.klass == "section" and child.depth() != 2 or       \
                child.klass == "article" and child.depth() != 1 :
@@ -1512,7 +1509,7 @@ class MobiWriter(object):
         record0.write(exth)
         record0.write(title)
         record0 = record0.getvalue()
-        self._records[0] = record0 + ('\0' * (2452 - len(record0)))
+        self._records[0] = record0 + ('\0' * (1024*8))
 
     def _build_exth(self):
         oeb = self._oeb
@@ -1631,8 +1628,8 @@ class MobiWriter(object):
         self._write(title, pack('>HHIIIIII', 0, 0, now, now, 0, 0, 0, 0),
             'BOOK', 'MOBI', pack('>IIH', nrecords, 0, nrecords))
         offset = self._tell() + (8 * nrecords) + 2
-        for id, record in izip(count(), self._records):
-            self._write(pack('>I', offset), '\0', pack('>I', id)[1:])
+        for i, record in enumerate(self._records):
+            self._write(pack('>I', offset), '\0', pack('>I', 2*i)[1:])
             offset += len(record)
         self._write('\0\0')
 
@@ -1644,14 +1641,14 @@ class MobiWriter(object):
         self._oeb.log('Generating INDX ...')
         self._primary_index_record = None
 
-		# Build the NCXEntries and INDX
+        # Build the NCXEntries and INDX
         indxt, indxt_count, indices, last_name = self._generate_indxt()
 
         if last_name is None:
             self._oeb.log.warn('Input document has no TOC. No index generated.')
             return
 
-		# Assemble the INDX0[0] and INDX1[0] output streams
+        # Assemble the INDX0[0] and INDX1[0] output streams
         indx1 = StringIO()
         indx1.write('INDX'+pack('>I', 0xc0)) # header length
 
@@ -2310,10 +2307,8 @@ class MobiWriter(object):
         parentIndex = sectionParent.parentIndex
         self._write_section_node(indxt, indices, sectionParent.myCtocMapIndex, index, offset, length, c, firstArticle, lastArticle, parentIndex)
 
-        last_name = "%04X"%c
-
         # articles
-        for (i, article) in enumerate(list(sectionParent.articles)) :
+        for article in list(sectionParent.articles):
             index = article.myCtocMapIndex
             offset = article.startAddress
             length = article.articleLength
@@ -2413,7 +2408,6 @@ class MobiWriter(object):
         #	 <navPoint> Article(s)	child.depth() = 1
         #   <navpoint>	Section 2
 
-        documentType = "unknown"
         sectionIndices = []
         sectionParents = []
         currentSection = 0      # Starting section number
@@ -2421,7 +2415,6 @@ class MobiWriter(object):
         indxt, indices, c = StringIO(), StringIO(), 0
 
         indices.write('IDXT')
-        c = 0
         last_name = None
 
         # 'book', 'periodical' or None
@@ -2449,8 +2442,8 @@ class MobiWriter(object):
                 if self.opts.verbose > 3 :
                     self._oeb.logger.info("unknown document type %12.12s \tdepth:%d" % (child.title, child.depth()) )
 
-		# Original code starts here
-		# test first node for depth/class
+        # Original code starts here
+        # test first node for depth/class
         entries = list(toc.iter())[1:]
         for (i, child) in enumerate(entries):
             if not child.title or not child.title.strip():

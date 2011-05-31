@@ -14,9 +14,9 @@ from calibre.utils.config import read_raw_tweaks, write_tweaks
 from calibre.gui2.widgets import PythonHighlighter
 from calibre import isbytestring
 
-from PyQt4.Qt import QAbstractListModel, Qt, QStyledItemDelegate, QStyle, \
-    QStyleOptionViewItem, QFont, QDialogButtonBox, QDialog, \
-    QVBoxLayout, QPlainTextEdit, QLabel
+from PyQt4.Qt import (QAbstractListModel, Qt, QStyledItemDelegate, QStyle,
+    QStyleOptionViewItem, QFont, QDialogButtonBox, QDialog,
+    QVBoxLayout, QPlainTextEdit, QLabel)
 
 class Delegate(QStyledItemDelegate): # {{{
     def __init__(self, view):
@@ -35,8 +35,9 @@ class Delegate(QStyledItemDelegate): # {{{
 class Tweak(object): # {{{
 
     def __init__(self, name, doc, var_names, defaults, custom):
-        self.name = name
-        self.doc = doc.strip()
+        translate = __builtins__['_']
+        self.name = translate(name)
+        self.doc = translate(doc.strip())
         self.var_names = var_names
         self.default_values = {}
         for x in var_names:

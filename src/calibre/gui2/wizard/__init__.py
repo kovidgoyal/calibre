@@ -51,7 +51,7 @@ class Device(object):
     @classmethod
     def set_output_format(cls):
         if cls.output_format:
-            prefs.set('output_format', cls.output_format)
+            prefs.set('output_format', cls.output_format.lower())
 
     @classmethod
     def commit(cls):
@@ -164,7 +164,7 @@ class Sony900(Sony505):
 
 class Nook(Sony505):
     id = 'nook'
-    name = 'Nook'
+    name = 'Nook and Nook Simple Reader'
     manufacturer = 'Barnes & Noble'
     output_profile = 'nook'
 
@@ -435,7 +435,7 @@ class DevicePage(QWizardPage, DeviceUI):
         self.registerField("device", self.device_view)
 
     def initializePage(self):
-        self.label.setText(_('Choose you e-book device. If your device is'
+        self.label.setText(_('Choose your e-book device. If your device is'
             ' not in the list, choose a "%s" device.')%Device.manufacturer)
         self.man_model = ManufacturerModel()
         self.manufacturer_view.setModel(self.man_model)
@@ -565,7 +565,7 @@ def move_library(oldloc, newloc, parent, callback_on_complete):
         # Try to load existing library at new location
         try:
             LibraryDatabase2(newloc)
-        except Exception, err:
+        except Exception as err:
             det = traceback.format_exc()
             error_dialog(parent, _('Invalid database'),
                 _('<p>An invalid library already exists at '
@@ -577,7 +577,7 @@ def move_library(oldloc, newloc, parent, callback_on_complete):
         else:
             callback(newloc)
             return
-    except Exception, err:
+    except Exception as err:
         det = traceback.format_exc()
         error_dialog(parent, _('Could not move library'),
                 unicode(err), det, show=True)
@@ -633,8 +633,8 @@ class LibraryPage(QWizardPage, LibraryUI):
         try:
             lang = prefs['language'].lower()[:2]
             metadata_plugins = {
-                    'zh' : ('Douban Books', 'Douban.com covers'),
-                    'fr' : ('Nicebooks', 'Nicebooks covers'),
+                    'zh' : ('Douban Books',),
+                    'fr' : ('Nicebooks',),
             }.get(lang, [])
             from calibre.customize.ui import enable_plugin
             for name in metadata_plugins:

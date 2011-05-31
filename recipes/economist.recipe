@@ -1,0 +1,141 @@
+#!/usr/bin/env  python
+
+__license__   = 'GPL v3'
+__copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
+'''
+economist.com
+'''
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import BeautifulSoup
+from calibre.ebooks.BeautifulSoup import Tag, NavigableString
+
+import string, time, re
+
+class Economist(BasicNewsRecipe):
+
+    title = 'The Economist'
+    language = 'en'
+
+    __author__ = "Kovid Goyal"
+    INDEX = 'http://www.economist.com/printedition'
+    description = ('Global news and current affairs from a European'
+            ' perspective. Best downloaded on Friday mornings (GMT)')
+    extra_css      = '.headline {font-size: x-large;} \n h2 { font-size: small;  } \n h1 { font-size: medium;  }'
+    oldest_article = 7.0
+    cover_url = 'http://www.economist.com/images/covers/currentcoverus_large.jpg'
+    remove_tags = [
+            dict(name=['script', 'noscript', 'title', 'iframe', 'cf_floatingcontent']),
+            dict(attrs={'class':['dblClkTrk', 'ec-article-info', 'share_inline_header']}),
+            {'class': lambda x: x and 'share-links-header' in x},
+    ]
+    keep_only_tags = [dict(id='ec-article-body')]
+    needs_subscription = False
+    no_stylesheets = True
+    preprocess_regexps = [(re.compile('</html>.*', re.DOTALL),
+        lambda x:'</html>')]
+
+    '''
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser()
+        br.open('http://www.economist.com')
+        req = mechanize.Request(
+                'http://www.economist.com/members/members.cfm?act=exec_login',
+                headers = {
+                    'Referer':'http://www.economist.com/',
+                    },
+                data=urllib.urlencode({
+                    'logging_in' : 'Y',
+                    'returnURL'  : '/',
+                    'email_address': self.username,
+                    'fakepword' : 'Password',
+                    'pword'     : self.password,
+                    'x'         : '0',
+                    'y'         : '0',
+                    }))
+        br.open(req).read()
+        return br
+    '''
+
+    def parse_index(self):
+        try:
+            return self.economist_parse_index()
+        except:
+            raise
+            self.log.warn(
+                'Initial attempt to parse index failed, retrying in 30 seconds')
+            time.sleep(30)
+            return self.economist_parse_index()
+
+    def economist_parse_index(self):
+        soup = BeautifulSoup(self.browser.open(self.INDEX).read(),
+                             convertEntities=BeautifulSoup.HTML_ENTITIES)
+        index_started = False
+        feeds = {}
+        ans = []
+        key = None
+        for tag in soup.findAll(['h1', 'h2']):
+            text = ''.join(tag.findAll(text=True))
+            if tag.name in ('h1', 'h2') and 'Classified ads' in text:
+                break
+            if tag.name == 'h1':
+                if 'The world this week' in text or 'The world this year' in text:
+                    index_started = True
+                if not index_started:
+                    continue
+                text = string.capwords(text)
+                if text not in feeds.keys():
+                    feeds[text] = []
+                if text not in ans:
+                    ans.append(text)
+                key = text
+                continue
+            if key is None:
+                continue
+            a = tag.find('a', href=True)
+            if a is not None:
+                url=a['href']
+                id_ = re.search(r'story_id=(\d+)', url).group(1)
+                url = 'http://www.economist.com/node/%s/print'%id_
+                if url.startswith('Printer'):
+                    url = '/'+url
+                if url.startswith('/'):
+                    url = 'http://www.economist.com' + url
+                try:
+                   subtitle = tag.previousSibling.contents[0].contents[0]
+                   text = subtitle + ': ' + text
+                except:
+                   pass
+                article = dict(title=text,
+                    url = url,
+                    description='', content='', date='')
+                feeds[key].append(article)
+
+        ans = [(key, feeds[key]) for key in ans if feeds.has_key(key)]
+        if not ans:
+            raise Exception('Could not find any articles. Has your subscription expired?')
+        return ans
+
+    def eco_find_image_tables(self, soup):
+        for x in soup.findAll('table', align=['right', 'center']):
+            if len(x.findAll('font')) in (1,2) and len(x.findAll('img')) == 1:
+                yield x
+
+    def postprocess_html(self, soup, first):
+        body = soup.find('body')
+        for name, val in body.attrs:
+            del body[name]
+
+        for table in list(self.eco_find_image_tables(soup)):
+            caption = table.find('font')
+            img = table.find('img')
+            div = Tag(soup, 'div')
+            div['style'] = 'text-align:left;font-size:70%'
+            ns = NavigableString(self.tag_to_string(caption))
+            div.insert(0, ns)
+            div.insert(1, Tag(soup, 'br'))
+            del img['width']
+            del img['height']
+            img.extract()
+            div.insert(2, img)
+            table.replaceWith(div)
+        return soup

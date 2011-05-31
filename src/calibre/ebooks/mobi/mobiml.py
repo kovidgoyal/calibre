@@ -102,6 +102,7 @@ class MobiMLizer(object):
     def __call__(self, oeb, context):
         oeb.logger.info('Converting XHTML to Mobipocket markup...')
         self.oeb = oeb
+        self.log = self.oeb.logger
         self.opts = context
         self.profile = profile = context.dest
         self.fnums = fnums = dict((v, k) for k, v in profile.fnums.items())
@@ -118,6 +119,10 @@ class MobiMLizer(object):
         del oeb.guide['cover']
         item = oeb.manifest.hrefs[href]
         if item.spine_position is not None:
+            self.log.warn('Found an HTML cover,', item.href, 'removing it.',
+                    'If you find some content missing from the output MOBI, it '
+                    'is because you misidentified the HTML cover in the input '
+                    'document')
             oeb.spine.remove(item)
             if item.media_type in OEB_DOCS:
                 self.oeb.manifest.remove(item)
@@ -206,7 +211,11 @@ class MobiMLizer(object):
             vspace = bstate.vpadding + bstate.vmargin
             bstate.vpadding = bstate.vmargin = 0
             if tag not in TABLE_TAGS:
-                wrapper.attrib['height'] = self.mobimlize_measure(vspace)
+                if tag in ('ul', 'ol') and vspace > 0:
+                    wrapper.addprevious(etree.Element(XHTML('div'),
+                        height=self.mobimlize_measure(vspace)))
+                else:
+                    wrapper.attrib['height'] = self.mobimlize_measure(vspace)
                 para.attrib['width'] = self.mobimlize_measure(indent)
             elif tag == 'table' and vspace > 0:
                 vspace = int(round(vspace / self.profile.fbase))
@@ -288,9 +297,11 @@ class MobiMLizer(object):
             if id_:
                 # Keep anchors so people can use display:none
                 # to generate hidden TOCs
+                tail = elem.tail
                 elem.clear()
                 elem.text = None
                 elem.set('id', id_)
+                elem.tail = tail
             else:
                 return
         tag = barename(elem.tag)
@@ -300,7 +311,8 @@ class MobiMLizer(object):
         istates.append(istate)
         left = 0
         display = style['display']
-        isblock = not display.startswith('inline')
+        isblock = (not display.startswith('inline') and style['display'] !=
+                'none')
         isblock = isblock and style['float'] == 'none'
         isblock = isblock and tag != 'br'
         if isblock:
@@ -454,9 +466,9 @@ class MobiMLizer(object):
                 text = COLLAPSE.sub(' ', elem.text)
         valign = style['vertical-align']
         not_baseline = valign in ('super', 'sub', 'text-top',
-                'text-bottom') or (
+                'text-bottom', 'top', 'bottom') or (
                 isinstance(valign, (float, int)) and abs(valign) != 0)
-        issup = valign in ('super', 'text-top') or (
+        issup = valign in ('super', 'text-top', 'top') or (
             isinstance(valign, (float, int)) and valign > 0)
         vtag = 'sup' if issup else 'sub'
         if not_baseline and not ignore_valign and tag not in NOT_VTAGS and not isblock:
@@ -475,6 +487,7 @@ class MobiMLizer(object):
             parent = bstate.para if bstate.inline is None else bstate.inline
             if parent is not None:
                 vtag = etree.SubElement(parent, XHTML(vtag))
+                vtag = etree.SubElement(vtag, XHTML('small'))
                 # Add anchors
                 for child in vbstate.body:
                     if child is not vbstate.para:
@@ -485,6 +498,10 @@ class MobiMLizer(object):
                     for child in vbstate.para:
                         vtag.append(child)
                 return
+
+        if tag == 'blockquote':
+            old_mim = self.opts.mobi_ignore_margins
+            self.opts.mobi_ignore_margins = False
 
         if text or tag in CONTENT_TAGS or tag in NESTABLE_TAGS:
             self.mobimlize_content(tag, text, bstate, istates)
@@ -501,6 +518,8 @@ class MobiMLizer(object):
             if tail:
                 self.mobimlize_content(tag, tail, bstate, istates)
 
+        if tag == 'blockquote':
+            self.opts.mobi_ignore_margins = old_mim
 
         if bstate.content and style['page-break-after'] in PAGE_BREAKS:
             bstate.pbreak = True

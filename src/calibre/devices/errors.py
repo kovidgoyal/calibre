@@ -41,6 +41,13 @@ class OpenFeedback(DeviceError):
         self.feedback_msg = msg
         DeviceError.__init__(self, msg)
 
+    def custom_dialog(self, parent):
+        '''
+        If you need to show the user a custom dialog, instead of just
+        displaying the feedback_msg, create and return it here.
+        '''
+        raise NotImplementedError
+
 class DeviceBusy(ProtocolError):
     """ Raised when device is busy """
     def __init__(self, uerr=""):

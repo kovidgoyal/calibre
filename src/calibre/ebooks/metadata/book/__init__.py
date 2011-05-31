@@ -18,14 +18,14 @@ SOCIAL_METADATA_FIELDS = frozenset([
     'series_index',     # A floating point number
     # Of the form { scheme1:value1, scheme2:value2}
     # For example: {'isbn':'123456789', 'doi':'xxxx', ... }
-    'classifiers',
+    'identifiers',
 ])
 
 '''
-The list of names that convert to classifiers when in get and set.
+The list of names that convert to identifiers when in get and set.
 '''
 
-TOP_LEVEL_CLASSIFIERS = frozenset([
+TOP_LEVEL_IDENTIFIERS = frozenset([
     'isbn',
 ])
 
@@ -108,7 +108,7 @@ STANDARD_METADATA_FIELDS = SOCIAL_METADATA_FIELDS.union(
 SC_FIELDS_NOT_COPIED =     frozenset(['title', 'title_sort', 'authors',
                                       'author_sort', 'author_sort_map',
                                       'cover_data', 'tags', 'language',
-                                      'classifiers'])
+                                      'identifiers'])
 
 # Metadata fields that smart update should copy only if the source is not None
 SC_FIELDS_COPY_NOT_NULL =  frozenset(['lpath', 'size', 'comments', 'thumbnail'])

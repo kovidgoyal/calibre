@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>672</width>
+    <width>941</width>
     <height>563</height>
    </rect>
   </property>
@@ -14,44 +14,65 @@
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0" colspan="2">
-    <widget class="QCheckBox" name="opt_overwrite_author_title_metadata">
-     <property name="text">
-      <string>&amp;Overwrite author and title by default when fetching metadata</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="0" colspan="2">
-    <widget class="QCheckBox" name="opt_get_social_metadata">
-     <property name="text">
-      <string>Download &amp;social metadata (tags/ratings/etc.) by default</string>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="0" colspan="2">
+   <item row="1" column="0">
     <widget class="QCheckBox" name="opt_new_version_notification">
      <property name="text">
       <string>Show notification when &amp;new version is available</string>
      </property>
     </widget>
    </item>
-   <item row="3" column="0" colspan="2">
+   <item row="1" column="1">
+    <widget class="QCheckBox" name="opt_bools_are_tristate">
+     <property name="toolTip">
+      <string>If checked, Yes/No custom columns values can be Yes, No, or Unknown.
+If not checked, the values can be Yes or No.</string>
+     </property>
+     <property name="text">
+      <string>Yes/No columns have three values (Requires restart)</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0">
     <widget class="QCheckBox" name="opt_upload_news_to_device">
      <property name="text">
       <string>Automatically send downloaded &amp;news to ebook reader</string>
      </property>
     </widget>
    </item>
-   <item row="4" column="0" colspan="2">
+   <item row="3" column="1">
     <widget class="QCheckBox" name="opt_delete_news_from_library_on_upload">
      <property name="text">
       <string>&amp;Delete news from library when it is automatically sent to reader</string>
      </property>
     </widget>
    </item>
-   <item row="5" column="0" colspan="2">
-    <layout class="QGridLayout" name="gridLayout_2">
-     <item row="1" column="0">
+   <item row="5" column="0">
+    <layout class="QHBoxLayout">
+     <item>
+      <widget class="QLabel" name="label_23">
+       <property name="text">
+        <string>Preferred &amp;output format:</string>
+       </property>
+       <property name="buddy">
+        <cstring>opt_output_format</cstring>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="opt_output_format">
+       <property name="sizeAdjustPolicy">
+        <enum>QComboBox::AdjustToMinimumContentsLengthWithIcon</enum>
+       </property>
+       <property name="minimumContentsLength">
+        <number>10</number>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="5" column="1">
+    <layout class="QHBoxLayout">
+     <item>
       <widget class="QLabel" name="label_2">
        <property name="text">
         <string>Default network &amp;timeout:</string>
@@ -61,7 +82,7 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="1">
+     <item>
       <widget class="QSpinBox" name="opt_network_timeout">
        <property name="toolTip">
         <string>Set the default timeout for network fetches (i.e. anytime we go out to the internet to get information)</string>
@@ -80,7 +101,21 @@
        </property>
       </widget>
      </item>
-     <item row="2" column="1">
+    </layout>
+   </item>
+   <item row="7" column="0">
+    <layout class="QHBoxLayout">
+     <item>
+      <widget class="QLabel" name="priority_label">
+       <property name="text">
+        <string>Job &amp;priority:</string>
+       </property>
+       <property name="buddy">
+        <cstring>opt_worker_process_priority</cstring>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QComboBox" name="opt_worker_process_priority">
        <property name="sizeAdjustPolicy">
         <enum>QComboBox::AdjustToMinimumContentsLengthWithIcon</enum>
@@ -105,37 +140,11 @@
        </item>
       </widget>
      </item>
-     <item row="2" column="0">
-      <widget class="QLabel" name="priority_label">
-       <property name="text">
-        <string>Job &amp;priority:</string>
-       </property>
-       <property name="buddy">
-        <cstring>opt_worker_process_priority</cstring>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="0">
-      <widget class="QLabel" name="label_23">
-       <property name="text">
-        <string>Preferred &amp;output format:</string>
-       </property>
-       <property name="buddy">
-        <cstring>opt_output_format</cstring>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1">
-      <widget class="QComboBox" name="opt_output_format">
-       <property name="sizeAdjustPolicy">
-        <enum>QComboBox::AdjustToMinimumContentsLengthWithIcon</enum>
-       </property>
-       <property name="minimumContentsLength">
-        <number>10</number>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="0">
+    </layout>
+   </item>
+   <item row="7" column="1">
+    <layout class="QHBoxLayout">
+     <item>
       <widget class="QLabel" name="label_170">
        <property name="text">
         <string>Restriction to apply when the current library is opened:</string>
@@ -145,7 +154,7 @@
        </property>
       </widget>
      </item>
-     <item row="3" column="1">
+     <item>
       <widget class="QComboBox" name="opt_gui_restriction">
        <property name="maximumSize">
         <size>
@@ -166,14 +175,28 @@
      </item>
     </layout>
    </item>
-   <item row="6" column="0" colspan="2">
-    <widget class="QPushButton" name="reset_confirmation_button">
-     <property name="text">
-      <string>Reset all disabled &amp;confirmation dialogs</string>
-     </property>
-    </widget>
+   <item row="8" column="0">
+    <layout class="QHBoxLayout">
+     <item>
+      <widget class="QLabel" name="edit_metadata_single_label">
+       <property name="text">
+        <string>Edit metadata (single) layout:</string>
+       </property>
+       <property name="buddy">
+        <cstring>opt_edit_metadata_single_layout</cstring>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="opt_edit_metadata_single_layout">
+       <property name="toolTip">
+        <string>Choose a different layout for the Edit Metadata dialog. The compact metadata layout favors editing custom metadata over changing covers and formats.</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
-   <item row="7" column="0">
+   <item row="19" column="0">
     <widget class="QGroupBox" name="groupBox_5">
      <property name="title">
       <string>Preferred &amp;input format order:</string>
@@ -235,7 +258,7 @@
      </layout>
     </widget>
    </item>
-   <item row="7" column="1">
+   <item row="19" column="1">
     <widget class="QGroupBox" name="groupBox_3">
      <property name="title">
       <string>Use internal &amp;viewer for:</string>
@@ -252,6 +275,13 @@
        </widget>
       </item>
      </layout>
+    </widget>
+   </item>
+   <item row="8" column="1">
+    <widget class="QPushButton" name="reset_confirmation_button">
+     <property name="text">
+      <string>Reset all disabled &amp;confirmation dialogs</string>
+     </property>
     </widget>
    </item>
   </layout>

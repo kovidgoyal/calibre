@@ -56,7 +56,7 @@ def set_metadata(stream, mi):
             try:
                 p.wait()
                 break
-            except OSError, e:
+            except OSError as e:
                 if e.errno == errno.EINTR:
                     continue
                 else:

@@ -66,7 +66,7 @@ class Reflow {
         ~Reflow();
         
         /* Convert the PDF to XML. All files are output to the current directory */
-        void render();
+        int render(int first_page, int last_page);
 
         /* Get the PDF Info Dictionary */
         map<string, string> get_info();

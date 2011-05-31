@@ -7,12 +7,14 @@ __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import re
+from functools import partial
+
 
 from PyQt4.Qt import QComboBox, Qt, QLineEdit, QStringList, pyqtSlot, QDialog, \
                      pyqtSignal, QCompleter, QAction, QKeySequence, QTimer, \
-                     QString
+                     QString, QIcon, QMenu
 
-from calibre.gui2 import config
+from calibre.gui2 import config, error_dialog
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.saved_search_editor import SavedSearchEditor
 from calibre.gui2.dialogs.search import SearchDialog
@@ -109,7 +111,7 @@ class SearchBox2(QComboBox): # {{{
     def normalize_state(self):
         self.setToolTip(self.tool_tip_text)
         self.line_edit.setStyleSheet(
-            'QLineEdit{color:black;background-color:%s;}' % self.normal_background)
+            'QLineEdit{color:none;background-color:%s;}' % self.normal_background)
 
     def text(self):
         return self.currentText()
@@ -217,11 +219,15 @@ class SearchBox2(QComboBox): # {{{
                 self.clear()
             else:
                 self.normalize_state()
+                self.lineEdit().setCompleter(None)
                 self.setEditText(txt)
                 self.line_edit.end(False)
                 if emit_changed:
                     self.changed.emit()
                 self._do_search(store_in_history=store_in_history)
+                c = QCompleter()
+                self.lineEdit().setCompleter(c)
+                c.setCompletionMode(c.PopupCompletion)
             self.focus_to_library.emit()
         finally:
             if not store_in_history:
@@ -313,23 +319,6 @@ class SavedSearchBox(QComboBox): # {{{
         self.setCurrentIndex(-1)
 
     # SIGNALed from the main UI
-    def delete_search_button_clicked(self):
-        if not confirm('<p>'+_('The selected search will be '
-                       '<b>permanently deleted</b>. Are you sure?')
-                    +'</p>', 'saved_search_delete', self):
-            return
-        idx = self.currentIndex
-        if idx < 0:
-            return
-        ss = saved_searches().lookup(unicode(self.currentText()))
-        if ss is None:
-            return
-        saved_searches().delete(unicode(self.currentText()))
-        self.clear()
-        self.search_box.clear()
-        self.changed.emit()
-
-    # SIGNALed from the main UI
     def save_search_button_clicked(self):
         name = unicode(self.currentText())
         if not name.strip():
@@ -342,6 +331,24 @@ class SavedSearchBox(QComboBox): # {{{
         self.clear()
         self.setCurrentIndex(self.findText(name))
         self.saved_search_selected (name)
+        self.changed.emit()
+
+    def delete_current_search(self):
+        idx = self.currentIndex()
+        if idx <= 0:
+            error_dialog(self, _('Delete current search'),
+                         _('No search is selected'), show=True)
+            return
+        if not confirm('<p>'+_('The selected search will be '
+                       '<b>permanently deleted</b>. Are you sure?')
+                    +'</p>', 'saved_search_delete', self):
+            return
+        ss = saved_searches().lookup(unicode(self.currentText()))
+        if ss is None:
+            return
+        saved_searches().delete(unicode(self.currentText()))
+        self.clear()
+        self.search_box.clear()
         self.changed.emit()
 
     # SIGNALed from the main UI
@@ -378,7 +385,24 @@ class SearchBoxMixin(object): # {{{
             unicode(self.search.toolTip())))
         self.advanced_search_button.setStatusTip(self.advanced_search_button.toolTip())
         self.clear_button.setStatusTip(self.clear_button.toolTip())
-        self.search_options_button.clicked.connect(self.search_options_button_clicked)
+        self.set_highlight_only_button_icon()
+        self.highlight_only_button.clicked.connect(self.highlight_only_clicked)
+        tt = _('Enable or disable search highlighting.') + '<br><br>'
+        tt += config.help('highlight_search_matches')
+        self.highlight_only_button.setToolTip(tt)
+
+    def highlight_only_clicked(self, state):
+        config['highlight_search_matches'] = not config['highlight_search_matches']
+        self.set_highlight_only_button_icon()
+        self.search.do_search()
+        self.focus_to_library()
+
+    def set_highlight_only_button_icon(self):
+        if config['highlight_search_matches']:
+            self.highlight_only_button.setIcon(QIcon(I('highlight_only_on.png')))
+        else:
+            self.highlight_only_button.setIcon(QIcon(I('highlight_only_off.png')))
+        self.library_view.model().set_highlight_only(config['highlight_search_matches'])
 
     def focus_search_box(self, *args):
         self.search.setFocus(Qt.OtherFocusReason)
@@ -402,10 +426,6 @@ class SearchBoxMixin(object): # {{{
         self.search.do_search()
         self.focus_to_library()
 
-    def search_options_button_clicked(self):
-        self.iactions['Preferences'].do_config(initial_plugin=('Interface',
-            'Search'), close_after_initial=True)
-
     def focus_to_library(self):
         self.current_view().setFocus(Qt.OtherFocusReason)
 
@@ -418,8 +438,6 @@ class SavedSearchBoxMixin(object): # {{{
         self.clear_button.clicked.connect(self.saved_search.clear)
         self.save_search_button.clicked.connect(
                                 self.saved_search.save_search_button_clicked)
-        self.delete_search_button.clicked.connect(
-                                self.saved_search.delete_search_button_clicked)
         self.copy_search_button.clicked.connect(
                                 self.saved_search.copy_search_button_clicked)
         self.saved_searches_changed()
@@ -428,28 +446,50 @@ class SavedSearchBoxMixin(object): # {{{
         self.saved_search.setToolTip(
             _('Choose saved search or enter name for new saved search'))
         self.saved_search.setStatusTip(self.saved_search.toolTip())
-        for x in ('copy', 'save', 'delete'):
+        for x in ('copy', 'save'):
             b = getattr(self, x+'_search_button')
             b.setStatusTip(b.toolTip())
+        self.save_search_button.setToolTip('<p>' +
+         _("Save current search under the name shown in the box. "
+           "Press and hold for a pop-up options menu.") + '</p>')
+        self.save_search_button.setMenu(QMenu())
+        self.save_search_button.menu().addAction(
+                            QIcon(I('plus.png')),
+                            _('Create saved search'),
+                            self.saved_search.save_search_button_clicked)
+        self.save_search_button.menu().addAction(
+                             QIcon(I('trash.png')),
+                             _('Delete saved search'),
+                            self.saved_search.delete_current_search)
+        self.save_search_button.menu().addAction(
+                             QIcon(I('search.png')),
+                            _('Manage saved searches'),
+                            partial(self.do_saved_search_edit, None))
 
-    def saved_searches_changed(self):
+    def saved_searches_changed(self, set_restriction=None, recount=True):
         p = sorted(saved_searches().names(), key=sort_key)
-        t = unicode(self.search_restriction.currentText())
+        if set_restriction is None:
+            set_restriction = unicode(self.search_restriction.currentText())
         # rebuild the restrictions combobox using current saved searches
         self.search_restriction.clear()
         self.search_restriction.addItem('')
-        self.tags_view.recount()
+        self.search_restriction.addItem(_('*Current search'))
+        if recount:
+            self.tags_view.recount()
         for s in p:
             self.search_restriction.addItem(s)
-        if t: # redo the search restriction if there was one
-            self.apply_named_search_restriction(t)
+        if set_restriction: # redo the search restriction if there was one
+            self.apply_named_search_restriction(set_restriction)
 
     def do_saved_search_edit(self, search):
         d = SavedSearchEditor(self, search)
         d.exec_()
         if d.result() == d.Accepted:
-            self.saved_searches_changed()
-            self.saved_search.clear()
+            self.do_rebuild_saved_searches()
+
+    def do_rebuild_saved_searches(self):
+        self.saved_searches_changed()
+        self.saved_search.clear()
 
     # }}}
 

@@ -1,0 +1,92 @@
+#!/usr/bin/env  python
+
+__license__   = 'GPL v3'
+__copyright__ = '2009, Darko Miletic <darko.miletic at gmail.com>'
+'''
+seattletimes.nwsource.com
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class SeattleTimes(BasicNewsRecipe):
+    title                 = 'The Seattle Times'
+    __author__            = 'Darko Miletic'
+    description           = 'News from Seattle and USA'
+    publisher             = 'The Seattle Times'
+    category              = 'news, politics, USA'
+    oldest_article        = 2
+    max_articles_per_feed = 100
+    no_stylesheets        = True
+    use_embedded_content  = False
+    encoding              = 'cp1252'
+    language = 'en'
+
+    feeds              = [
+                          (u'Top Stories',
+                              u'http://seattletimes.nwsource.com/rss/home.xml'),
+                          #(u'Articles', u'http://seattletimes.nwsource.com/rss/seattletimes.xml')
+                          (u'Business & Technology',
+                              u'http://seattletimes.nwsource.com/rss/businesstechnology.xml'),
+                          (u'Personal Technology',
+                              u'http://seattletimes.nwsource.com/rss/personaltechnology.xml'),
+                          (u'Entertainment & the Arts',
+                              u'http://seattletimes.nwsource.com/rss/artsentertainment.xml'),
+                          (u'Health',
+                              u'http://seattletimes.nwsource.com/rss/health.xml'),
+                          (u'Living',
+                              u'http://seattletimes.nwsource.com/rss/living.xml'),
+                          (u'Local News',
+                              u'http://seattletimes.nwsource.com/rss/localnews.xml'),
+                          (u'Nation & World',
+                              u'http://seattletimes.nwsource.com/rss/nationworld.xml'),
+                          (u'Opinion',
+                              u'http://seattletimes.nwsource.com/rss/opinion.xml'),
+                          (u'Politics',
+                              u'http://seattletimes.nwsource.com/rss/politics.xml'),
+                          (u'Sports',
+                              u'http://seattletimes.nwsource.com/rss/sports.xml'),
+                          (u'Nicole Brodeur',
+                              u'http://seattletimes.nwsource.com/rss/nicolebrodeur.xml'),
+                          (u'Danny Westneat',
+                              u'http://seattletimes.nwsource.com/rss/dannywestneat.xml'),
+                          (u'Jerry Large',
+                              u'http://seattletimes.nwsource.com/rss/jerrylarge.xml'),
+                          (u'Ron Judd',
+                              u'http://seattletimes.nwsource.com/rss/ronjudd.xml'),
+                          (u'Education',
+                              u'http://seattletimes.nwsource.com/rss/education.xml'),
+                          (u'Letters to the Editor',
+                              u'http://seattletimes.nwsource.com/rss/northwestvoices.xml'),
+                          (u'Travel',
+                              u'http://seattletimes.nwsource.com/rss/travel.xml'),
+                          (u'Outdoors',
+                              u'http://seattletimes.nwsource.com/rss/outdoors.xml'),
+                          (u'Steve Kelley',
+                              u'http://seattletimes.nwsource.com/rss/stevekelley.xml'),
+                          (u'Jerry Brewer',
+                              u'http://seattletimes.nwsource.com/rss/jerrybrewer.xml'),
+                          (u'Most Read Articles',
+                              u'http://seattletimes.nwsource.com/rss/mostreadarticles.xml'),
+                         ]
+
+    keep_only_tags = [dict(id='content')]
+    remove_tags        = [
+                             dict(name=['object','link','script']),
+                            {'class':['permission', 'note', 'bottomtools',
+                                'homedelivery']},
+                            dict(id=["rightcolumn", 'footer', 'adbottom']),
+                         ]
+
+    def print_version(self, url):
+        return url
+        start_url, sep, rest_url = url.rpartition('_')
+        rurl, rsep, article_id = start_url.rpartition('/')
+        return u'http://seattletimes.nwsource.com/cgi-bin/PrintStory.pl?document_id=' + article_id
+
+    def preprocess_html(self, soup):
+        mtag = '<meta http-equiv="Content-Language" content="en-US"/>'
+        soup.head.insert(0,mtag)
+        for item in soup.findAll(style=True):
+            del item['style']
+        return soup
+

@@ -8,6 +8,7 @@ __docformat__ = 'restructuredtext en'
 import hashlib, binascii
 from functools import partial
 from itertools import repeat
+from collections import OrderedDict
 
 from lxml import etree, html
 from lxml.builder import ElementMaker
@@ -21,8 +22,6 @@ from calibre.library.server import custom_fields_to_display
 from calibre.library.server.utils import format_tag_string, Offsets
 from calibre import guess_type, prepare_string_for_xml as xml
 from calibre.utils.icu import sort_key
-from calibre.utils.ordered_dict import OrderedDict
-from calibre.utils.config import tweaks
 
 BASE_HREFS = {
         0 : '/stanza',
@@ -126,8 +125,7 @@ def CATALOG_ENTRY(item, item_kind, base_href, version, updated,
     count = (_('%d books') if item.count > 1 else _('%d book'))%item.count
     if ignore_count:
         count = ''
-    if item.category == 'authors' and \
-            tweaks['categories_use_field_for_author_name'] == 'author_sort':
+    if item.use_sort_as_name:
         name = item.sort
     else:
         name = item.name
@@ -580,7 +578,7 @@ class OPDSServer(object):
         for category in sorted(categories, key=lambda x: sort_key(getter(x))):
             if len(categories[category]) == 0:
                 continue
-            if category == 'formats':
+            if category in ('formats', 'identifiers'):
                 continue
             meta = category_meta.get(category, None)
             if meta is None:

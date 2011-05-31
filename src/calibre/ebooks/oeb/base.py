@@ -8,23 +8,18 @@ __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import os, re, uuid, logging
-from mimetypes import types_map
 from collections import defaultdict
 from itertools import count
 from urlparse import urldefrag, urlparse, urlunparse, urljoin
 from urllib import unquote as urlunquote
 
 from lxml import etree, html
-from cssutils import CSSParser, parseString, parseStyle, replaceUrls
-from cssutils.css import CSSRule
-
-import calibre
-from calibre.constants import filesystem_encoding
+from calibre.constants import filesystem_encoding, __version__
 from calibre.translations.dynamic import translate
-from calibre.ebooks.chardet import xml_to_unicode
+from calibre.ebooks.chardet import xml_to_unicode, strip_encoding_declarations
 from calibre.ebooks.oeb.entitydefs import ENTITYDEFS
 from calibre.ebooks.conversion.preprocess import CSSPreProcessor
-from calibre import isbytestring
+from calibre import isbytestring, as_unicode, get_types_map
 
 RECOVER_PARSER = etree.XMLParser(recover=True, no_network=True)
 
@@ -179,6 +174,9 @@ def rewrite_links(root, link_repl_func, resolve_base_href=False):
     If the ``link_repl_func`` returns None, the attribute or
     tag text will be removed completely.
     '''
+    from cssutils import parseString, parseStyle, replaceUrls, log
+    log.setLevel(logging.WARN)
+
     if resolve_base_href:
         resolve_base_href(root)
     for el, attrib, link, pos in iterlinks(root, find_links_in_css=False):
@@ -229,7 +227,11 @@ def rewrite_links(root, link_repl_func, resolve_base_href=False):
         if 'style' in el.attrib:
             text = el.attrib['style']
             if _css_url_re.search(text) is not None:
-                stext = parseStyle(text)
+                try:
+                    stext = parseStyle(text)
+                except:
+                    # Parsing errors are raised by cssutils
+                    continue
                 for p in stext.getProperties(all=True):
                     v = p.cssValue
                     if v.CSS_VALUE_LIST == v.cssValueType:
@@ -244,7 +246,7 @@ def rewrite_links(root, link_repl_func, resolve_base_href=False):
                 el.attrib['style'] = repl
 
 
-
+types_map = get_types_map()
 EPUB_MIME      = types_map['.epub']
 XHTML_MIME     = types_map['.xhtml']
 CSS_MIME       = types_map['.css']
@@ -444,22 +446,23 @@ class NullContainer(object):
 class DirContainer(object):
     """Filesystem directory container."""
 
-    def __init__(self, path, log):
+    def __init__(self, path, log, ignore_opf=False):
         self.log = log
         if isbytestring(path):
             path = path.decode(filesystem_encoding)
+        self.opfname = None
         ext = os.path.splitext(path)[1].lower()
         if ext == '.opf':
             self.opfname = os.path.basename(path)
             self.rootdir = os.path.dirname(path)
             return
         self.rootdir = path
-        for path in self.namelist():
-            ext = os.path.splitext(path)[1].lower()
-            if ext == '.opf':
-                self.opfname = path
-                return
-        self.opfname = None
+        if not ignore_opf:
+            for path in self.namelist():
+                ext = os.path.splitext(path)[1].lower()
+                if ext == '.opf':
+                    self.opfname = path
+                    return
 
     def read(self, path):
         if path is None:
@@ -639,7 +642,7 @@ class Metadata(object):
             return unicode(self.value).encode('ascii', 'xmlcharrefreplace')
 
         def __unicode__(self):
-            return unicode(self.value)
+            return as_unicode(self.value)
 
         def to_opf1(self, dcmeta=None, xmeta=None, nsrmap={}):
             attrib = {}
@@ -827,10 +830,30 @@ class Manifest(object):
                 return None
             return etree.fromstring(data, parser=RECOVER_PARSER)
 
+        def clean_word_doc(self, data):
+            prefixes = []
+            for match in re.finditer(r'xmlns:(\S+?)=".*?microsoft.*?"', data):
+                prefixes.append(match.group(1))
+            if prefixes:
+                self.oeb.log.warn('Found microsoft markup, cleaning...')
+                # Remove empty tags as they are not rendered by browsers
+                # but can become renderable HTML tags like <p/> if the
+                # document is parsed by an HTML parser
+                pat = re.compile(
+                        r'<(%s):([a-zA-Z0-9]+)[^>/]*?></\1:\2>'%('|'.join(prefixes)),
+                        re.DOTALL)
+                data = pat.sub('', data)
+                pat = re.compile(
+                        r'<(%s):([a-zA-Z0-9]+)[^>/]*?/>'%('|'.join(prefixes)))
+                data = pat.sub('', data)
+            return data
+
         def _parse_xhtml(self, data):
+            orig_data = data
             self.oeb.log.debug('Parsing', self.href, '...')
             # Convert to Unicode and normalize line endings
             data = self.oeb.decode(data)
+            data = strip_encoding_declarations(data)
             data = self.oeb.html_preprocessor(data)
             # There could be null bytes in data if it had &#0; entities in it
             data = data.replace('\0', '')
@@ -861,13 +884,13 @@ class Manifest(object):
             def first_pass(data):
                 try:
                     data = etree.fromstring(data, parser=parser)
-                except etree.XMLSyntaxError, err:
+                except etree.XMLSyntaxError as err:
                     self.oeb.log.exception('Initial parse failed:')
                     repl = lambda m: ENTITYDEFS.get(m.group(1), m.group(0))
                     data = ENTITY_RE.sub(repl, data)
                     try:
                         data = etree.fromstring(data, parser=parser)
-                    except etree.XMLSyntaxError, err:
+                    except etree.XMLSyntaxError as err:
                         self.oeb.logger.warn('Parsing file %r as HTML' % self.href)
                         if err.args and err.args[0].startswith('Excessive depth'):
                             from lxml.html import soupparser
@@ -884,10 +907,29 @@ class Manifest(object):
                         except etree.XMLSyntaxError:
                             data = etree.fromstring(data, parser=RECOVER_PARSER)
                 return data
+            try:
+                data = self.clean_word_doc(data)
+            except:
+                pass
             data = first_pass(data)
+
+            if data.tag == 'HTML':
+                # Lower case all tag and attribute names
+                data.tag = data.tag.lower()
+                for x in data.iterdescendants():
+                    try:
+                        x.tag = x.tag.lower()
+                        for key, val in list(x.attrib.iteritems()):
+                            del x.attrib[key]
+                            key = key.lower()
+                            x.attrib[key] = val
+                    except:
+                        pass
 
             # Handle weird (non-HTML/fragment) files
             if barename(data.tag) != 'html':
+                if barename(data.tag) == 'ncx':
+                    return self._parse_xml(orig_data)
                 self.oeb.log.warn('File %r does not appear to be (X)HTML'%self.href)
                 nroot = etree.fromstring('<html></html>')
                 has_body = False
@@ -906,6 +948,7 @@ class Manifest(object):
                         oparent.remove(child)
                     parent.append(child)
                 data = nroot
+
 
             # Force into the XHTML namespace
             if not namespace(data.tag):
@@ -1006,8 +1049,8 @@ class Manifest(object):
 
             # Remove hyperlinks with no content as they cause rendering
             # artifacts in browser based renderers
-            # Also remove empty <b> and <i> tags
-            for a in xpath(data, '//h:a[@href]|//h:i|//h:b'):
+            # Also remove empty <b>, <u> and <i> tags
+            for a in xpath(data, '//h:a[@href]|//h:i|//h:b|//h:u'):
                 if a.get('id', None) is None and a.get('name', None) is None \
                         and len(a) == 0 and not a.text:
                     remove_elem(a)
@@ -1032,7 +1075,9 @@ class Manifest(object):
 
 
         def _parse_css(self, data):
-
+            from cssutils.css import CSSRule
+            from cssutils import CSSParser, log
+            log.setLevel(logging.WARN)
             def get_style_rules_from_import(import_rule):
                 ans = []
                 if not import_rule.styleSheet:
@@ -1968,7 +2013,7 @@ class OEBBook(object):
             name='dtb:uid', content=unicode(self.uid))
         etree.SubElement(head, NCX('meta'),
             name='dtb:depth', content=str(self.toc.depth()))
-        generator = ''.join(['calibre (', calibre.__version__, ')'])
+        generator = ''.join(['calibre (', __version__, ')'])
         etree.SubElement(head, NCX('meta'),
             name='dtb:generator', content=generator)
         etree.SubElement(head, NCX('meta'),

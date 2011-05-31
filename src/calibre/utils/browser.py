@@ -38,10 +38,10 @@ class Browser(B):
         self._clone_actions['set_handle_equiv'] = ('set_handle_equiv',
                 args, kwargs)
 
-    def set_handle_gzip(self, *args, **kwargs):
-        B.set_handle_gzip(self, *args, **kwargs)
+    def set_handle_gzip(self, handle):
+        B._set_handler(self, '_gzip', handle)
         self._clone_actions['set_handle_gzip'] = ('set_handle_gzip',
-                args, kwargs)
+                (handle,), {})
 
     def set_debug_redirect(self, *args, **kwargs):
         B.set_debug_redirect(self, *args, **kwargs)

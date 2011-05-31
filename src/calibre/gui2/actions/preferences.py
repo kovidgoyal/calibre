@@ -10,23 +10,27 @@ from PyQt4.Qt import QIcon, QMenu, Qt
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.preferences.main import Preferences
 from calibre.gui2 import error_dialog
-from calibre.constants import DEBUG
+from calibre.constants import DEBUG, isosx
 
 class PreferencesAction(InterfaceAction):
 
     name = 'Preferences'
     action_spec = (_('Preferences'), 'config.png', None, _('Ctrl+P'))
-    dont_remove_from = frozenset(['toolbar'])
 
     def genesis(self):
         pm = QMenu()
         pm.addAction(QIcon(I('config.png')), _('Preferences'), self.do_config)
+        if isosx:
+            pm.addAction(QIcon(I('config.png')), _('Change calibre behavior'), self.do_config)
         pm.addAction(QIcon(I('wizard.png')), _('Run welcome wizard'),
                 self.gui.run_wizard)
         if not DEBUG:
             pm.addSeparator()
-            pm.addAction(QIcon(I('debug.png')), _('Restart in debug mode'),
+            ac = pm.addAction(QIcon(I('debug.png')), _('Restart in debug mode'),
                 self.debug_restart)
+            ac.setShortcut('Ctrl+Shift+R')
+            self.gui.addAction(ac)
+
         self.qaction.setMenu(pm)
         self.preferences_menu = pm
         for x in (self.gui.preferences_action, self.qaction):

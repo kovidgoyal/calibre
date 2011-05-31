@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import textwrap, codecs
+import textwrap, codecs, importlib
 from functools import partial
 
 from PyQt4.Qt import QWidget, QSpinBox, QDoubleSpinBox, QLineEdit, QTextEdit, \
@@ -22,8 +22,8 @@ from calibre.customize.ui import plugin_for_input_format
 def config_widget_for_input_plugin(plugin):
     name = plugin.name.lower().replace(' ', '_')
     try:
-        return __import__('calibre.gui2.convert.'+name,
-                fromlist=[1]).PluginWidget
+        return importlib.import_module(
+                'calibre.gui2.convert.'+name).PluginWidget
     except ImportError:
         pass
 

@@ -193,7 +193,10 @@ class PluginWidget(QWidget,Ui_Form):
         opts_dict['header_note_source_field'] = self.header_note_source_field_name
 
         # Append the output profile
-        opts_dict['output_profile'] = [load_defaults('page_setup')['output_profile']]
+        try:
+            opts_dict['output_profile'] = [load_defaults('page_setup')['output_profile']]
+        except:
+            opts_dict['output_profile'] = ['default']
         if False:
             print "opts_dict"
             for opt in sorted(opts_dict.keys()):

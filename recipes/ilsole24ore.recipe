@@ -1,0 +1,65 @@
+__author__    = 'Marco Saraceno'
+__copyright__ = '2010, Marco Saraceno <marcosaraceno at gmail.com>'
+description   = 'Italian daily newspaper - v 1.1 (Mar14,2011)'
+
+'''
+http://www.ilsole24ore.com
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class IlSole24Ore(BasicNewsRecipe):
+    __author__        = 'Marco Saraceno'
+    description   = 'Italian financial daily newspaper'
+
+    cover_url      = 'http://www.shopping24.ilsole24ore.com/ProductRelated/rds/img/logo_sole.gif'
+    title          = u'Il Sole 24 Ore'
+    publisher      = 'Gruppo editoriale GRUPPO 24ORE'
+    category       = 'News, politics, culture, economy, financial, Italian'
+
+    language       = 'it'
+    timefmt        = '[%a, %d %b, %Y]'
+
+    oldest_article = 2
+    max_articles_per_feed = 100
+    use_embedded_content  = False
+    extra_css      = '.headline {font-size: x-large;} \n .fact { padding-top: 10pt  }'
+
+
+    remove_tags = [
+                            dict(name='div', attrs={'class':['header','titolo']}),
+                            dict(name='table', attrs={'class':['footer1024','footerdown']}),
+                            ]
+
+
+    def get_article_url(self, article):
+       link = article.get('link', None)
+       if link is None:
+           return article
+       if link.split('/')[-1]=="story01.htm":
+           link=link.split('/')[-2]
+           a=['0B','0C','0D','0E','0F','0G','0N'  ,'0L0S','0A']
+           b=['.' ,'/' ,'?' ,'-' ,'=' ,'&' ,'.com','www.','0']
+           for i in range(0,len(a)):
+              link=link.replace(a[i],b[i])
+           link="http://"+link
+       return link
+
+    feeds = [
+                  (u'Notizie Italia', u'http://www.ilsole24ore.com/rss/notizie/italia.xml'),
+                  (u'Notizie Europa', u'http://www.ilsole24ore.com/rss/notizie/europa.xml'),
+                  (u'Notizie USA', u'http://www.ilsole24ore.com/rss/notizie/usa.xml'),
+                  (u'Notizie Americhe', u'http://www.ilsole24ore.com/rss/notizie/americhe.xml'),
+                  (u'Notizie Medio Oriente e Africa', u'http://www.ilsole24ore.com/rss/notizie/medio-oriente-e-africa.xml'),
+                  (u'Notizie Asia e Oceania', u'http://www.ilsole24ore.com/rss/notizie/asia-e-oceania.xml'),
+                  (u'Commenti', u'http://www.ilsole24ore.com/rss/commenti-e-idee.xml'),
+                  (u'Norme e tributi', u'http://www.ilsole24ore.com/rss/norme-e-tributi.xml'),
+                  (u'Finanza', u'http://www.ilsole24ore.com/rss/finanza-e-mercati.xml'),
+                  (u'Economia', u'http://www.ilsole24ore.com/rss/economia.xml'),
+                  (u'Tecnologia', u'http://www.ilsole24ore.com/rss/tecnologie.xml'),
+                  (u'Cultura', u'http://www.ilsole24ore.com/rss/cultura.xml'),
+                  ]
+
+    def print_version(self, url):
+          return url.replace('.shtml', '_PRN.shtml')
+

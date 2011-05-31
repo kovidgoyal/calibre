@@ -1,0 +1,87 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class Newsweek(BasicNewsRecipe):
+
+    title          = 'Newsweek'
+    __author__     = 'Kovid Goyal'
+    description    = 'Weekly news and current affairs in the US'
+    language       = 'en'
+    encoding       = 'utf-8'
+    no_stylesheets = True
+
+    BASE_URL = 'http://www.newsweek.com'
+
+    topics = {
+        'Culture' : '/tag/culture.html',
+        'Business' : '/tag/business.html',
+        'Society' : '/tag/society.html',
+        'Science' : '/tag/science.html',
+        'Education' : '/tag/education.html',
+        'Politics' : '/tag/politics.html',
+        'Health' : '/tag/health.html',
+        'World' : '/tag/world.html',
+        'Nation' : '/tag/nation.html',
+        'Technology' : '/tag/technology.html',
+        'Game Changers' : '/tag/game-changers.html',
+    }
+
+    keep_only_tags = dict(name='article', attrs={'class':'article-text'})
+    remove_tags = [dict(attrs={'data-dartad':True})]
+    remove_attributes = ['property']
+
+    def postprocess_html(self, soup, first):
+        for tag in soup.findAll(name=['article', 'header']):
+            tag.name = 'div'
+        return soup
+
+    def newsweek_sections(self):
+        for topic_name, topic_url in self.topics.iteritems():
+            yield (topic_name,
+                    self.BASE_URL+topic_url)
+
+
+    def newsweek_parse_section_page(self, soup):
+        for article in soup.findAll('article', about=True,
+                attrs={'class':'stream-item'}):
+            title = article.find(attrs={'property': 'dc:title'})
+            if title is None: continue
+            title = self.tag_to_string(title)
+            url = self.BASE_URL + article['about']
+            desc = ''
+            author = article.find({'property':'dc:creator'})
+            if author:
+                desc = u'by %s. '%self.tag_to_string(author)
+            p = article.find(attrs={'property':'dc:abstract'})
+            if p is not None:
+                for a in p.find('a'): a.extract()
+                desc += self.tag_to_string(p)
+            t = article.find('time', attrs={'property':'dc:created'})
+            date = ''
+            if t is not None:
+                date = u' [%s]'%self.tag_to_string(t)
+            self.log('\tFound article:', title, 'at', url)
+            self.log('\t\t', desc)
+            yield {'title':title, 'url':url, 'description':desc, 'date':date}
+
+
+    def parse_index(self):
+        sections = []
+        for section, shref in self.newsweek_sections():
+            self.log('Processing section', section, shref)
+            articles = []
+            soups = [self.index_to_soup(shref)]
+            na = soups[0].find('a', rel='next')
+            if na:
+                soups.append(self.index_to_soup(self.BASE_URL+na['href']))
+            for soup in soups:
+                articles.extend(self.newsweek_parse_section_page(soup))
+                if self.test and len(articles) > 1:
+                    break
+            if articles:
+                sections.append((section, articles))
+            if self.test and len(sections) > 1:
+                break
+        return sections
+
+
+

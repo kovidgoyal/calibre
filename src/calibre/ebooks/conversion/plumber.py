@@ -14,7 +14,8 @@ from calibre.ebooks.conversion.preprocess import HTMLPreProcessor
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.date import parse_date
 from calibre.utils.zipfile import ZipFile
-from calibre import extract, walk, isbytestring, filesystem_encoding
+from calibre import (extract, walk, isbytestring, filesystem_encoding,
+        get_types_map)
 from calibre.constants import __version__
 
 DEBUG_README=u'''
@@ -303,6 +304,17 @@ OptionRecommendation(name='page_breaks_before',
             help=_('An XPath expression. Page breaks are inserted '
             'before the specified elements.')
         ),
+
+OptionRecommendation(name='remove_fake_margins',
+            recommended_value=True, level=OptionRecommendation.LOW,
+            help=_('Some documents specify page margins by '
+                'specifying a left and right margin on each individual '
+                'paragraph. calibre will try to detect and remove these '
+                'margins. Sometimes, this can cause the removal of '
+                'margins that should not have been removed. In this '
+                'case you can disable the removal.')
+        ),
+
 
 OptionRecommendation(name='margin_top',
         recommended_value=5.0, level=OptionRecommendation.LOW,
@@ -842,7 +854,8 @@ OptionRecommendation(name='sr3_replace',
         if isinstance(ret, basestring):
             shutil.copytree(output_dir, out_dir)
         else:
-            os.makedirs(out_dir)
+            if not os.path.exists(out_dir):
+                os.makedirs(out_dir)
             self.dump_oeb(ret, out_dir)
         if self.input_fmt == 'recipe':
             zf = ZipFile(os.path.join(self.opts.debug_pipeline,
@@ -864,6 +877,9 @@ OptionRecommendation(name='sr3_replace',
         if self.opts.verbose:
             self.log.filter_level = self.log.DEBUG
         self.flush()
+        import cssutils, logging
+        cssutils.log.setLevel(logging.WARN)
+        get_types_map() # Ensure the mimetypes module is intialized
 
         if self.opts.debug_pipeline is not None:
             self.opts.verbose = max(self.opts.verbose, 4)
@@ -988,8 +1004,14 @@ OptionRecommendation(name='sr3_replace',
                 page_break_on_body=self.output_plugin.file_type in ('mobi',
                     'lit'))
         flattener(self.oeb, self.opts)
+
         self.opts.insert_blank_line = oibl
         self.opts.remove_paragraph_spacing = orps
+
+        from calibre.ebooks.oeb.transforms.page_margin import \
+            RemoveFakeMargins, RemoveAdobeMargins
+        RemoveFakeMargins()(self.oeb, self.log, self.opts)
+        RemoveAdobeMargins()(self.oeb, self.log, self.opts)
 
         pr(0.9)
         self.flush()

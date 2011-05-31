@@ -43,7 +43,7 @@ language = 'en'
 
 # General substitutions.
 project = __appname__
-copyright = '2008, Kovid Goyal'
+copyright = 'Kovid Goyal'
 
 # The default replacements for |version| and |release|, also used in various
 # other places throughout the built documents.
@@ -86,11 +86,19 @@ pygments_style = 'sphinx'
 # given in html_static_path.
 html_theme = 'default'
 html_theme_options = {'stickysidebar':'true', 'relbarbgcolor':'black'}
+# Put the quick search box on top
+html_sidebars = {
+        '**' : ['searchbox.html', 'localtoc.html', 'relations.html',
+            'sourcelink.html'],
+}
+
+# The favicon
+html_favicon = 'favicon.ico'
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['resources']
+html_static_path = ['resources', '../../../icons/favicon.ico']
 
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
 # using the given strftime format.
@@ -108,7 +116,7 @@ html_logo        = 'resources/logo.png'
 epub_author      = 'Kovid Goyal'
 epub_cover       = 'epub_cover.jpg'
 epub_publisher   = 'Kovid Goyal'
-epub_identifier  = 'http://calibre-ebook.com/user_manual'
+epub_identifier  = 'http://manual.calibre-ebook.com'
 epub_scheme      = 'url'
 epub_uid         = 'S54a88f8e9d42455e9c6db000e989225f'
 epub_tocdepth    = 4
@@ -126,12 +134,12 @@ html_use_modindex = False
 html_use_index = False
 
 # If true, the reST sources are included in the HTML build as _sources/<name>.
-html_copy_source = False
+html_copy_source = True
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'calibredoc'
 
-html_use_opensearch = 'http://calibre-ebook.com/user_manual'
+html_use_opensearch = 'http://manual.calibre-ebook.com'
 
 html_show_sphinx = False
 

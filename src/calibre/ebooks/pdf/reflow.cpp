@@ -712,16 +712,18 @@ Reflow::Reflow(char *pdfdata, size_t sz) :
 
 }
 
-void
-Reflow::render() {
+int
+Reflow::render(int first_page, int last_page) {
 
     if (!this->doc->okToCopy()) 
         cout << "Warning, this document has the copy protection flag set, ignoring." << endl;
 
     globalParams->setTextEncoding(encoding);
 
-    int first_page = 1;
-    int last_page = doc->getNumPages();
+    int doc_pages = doc->getNumPages();
+    if (last_page < 1 || last_page > doc_pages) last_page = doc_pages;
+    if (first_page < 1) first_page = 1;
+    if (first_page > last_page) first_page = last_page;
 
     XMLOutputDev *xml_out = new XMLOutputDev(this->doc);
     doc->displayPages(xml_out, first_page, last_page,
@@ -733,9 +735,12 @@ Reflow::render() {
               false //Printing
     );
     
-    this->dump_outline();
+    if (last_page - first_page == doc_pages - 1)
+        this->dump_outline();
 
     delete xml_out;
+
+    return doc_pages;
 }
 
 void Reflow::dump_outline() {
@@ -887,7 +892,7 @@ vector<char>* Reflow::render_first_page(bool use_crop_box, double x_res,
         }
 
         pg_w *= x_res/72.;
-        pg_h *= x_res/72.;
+        pg_h *= y_res/72.;
 
         int x=0, y=0;
         this->doc->displayPageSlice(out, pg, x_res, y_res, 0,

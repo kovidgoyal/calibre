@@ -24,6 +24,8 @@ from calibre.library.server.xml import XMLServer
 from calibre.library.server.opds import OPDSServer
 from calibre.library.server.cache import Cache
 from calibre.library.server.browse import BrowseServer
+from calibre.utils.search_query_parser import saved_searches
+from calibre import prints
 
 
 class DispatchController(object): # {{{
@@ -178,7 +180,12 @@ class LibraryServer(ContentServer, MobileServer, XMLServer, OPDSServer, Cache,
     def set_search_restriction(self, restriction):
         self.search_restriction_name = restriction
         if restriction:
-            self.search_restriction = 'search:"%s"'%restriction
+            if restriction not in saved_searches().names():
+                prints('WARNING: Content server: search restriction ',
+                       restriction, ' does not exist')
+                self.search_restriction = ''
+            else:
+                self.search_restriction = 'search:"%s"'%restriction
         else:
             self.search_restriction = ''
         self.reset_caches()
@@ -211,10 +218,15 @@ class LibraryServer(ContentServer, MobileServer, XMLServer, OPDSServer, Cache,
                 cherrypy.engine.start()
             except:
                 ip = get_external_ip()
-                if not ip or ip == '127.0.0.1':
+                if not ip or ip.startswith('127.'):
                     raise
                 cherrypy.log('Trying to bind to single interface: '+ip)
+                # Change the host we listen on
                 cherrypy.config.update({'server.socket_host' : ip})
+                # This ensures that the change is actually applied
+                cherrypy.server.socket_host = ip
+                cherrypy.server.httpserver = cherrypy.server.instance = None
+
                 cherrypy.engine.start()
 
             self.is_running = True
@@ -222,8 +234,10 @@ class LibraryServer(ContentServer, MobileServer, XMLServer, OPDSServer, Cache,
             #    cherrypy.engine.signal_handler.subscribe()
 
             cherrypy.engine.block()
-        except Exception, e:
+        except Exception as e:
             self.exception = e
+            import traceback
+            traceback.print_exc()
         finally:
             self.is_running = False
             try:

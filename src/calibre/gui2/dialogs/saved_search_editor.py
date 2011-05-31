@@ -9,12 +9,13 @@ from PyQt4.QtGui import QDialog
 from calibre.gui2.dialogs.saved_search_editor_ui import Ui_SavedSearchEditor
 from calibre.utils.search_query_parser import saved_searches
 from calibre.utils.icu import sort_key
+from calibre.gui2 import error_dialog
 from calibre.gui2.dialogs.confirm_delete import confirm
 
 class SavedSearchEditor(QDialog, Ui_SavedSearchEditor):
 
-    def __init__(self, window, initial_search=None):
-        QDialog.__init__(self, window)
+    def __init__(self, parent, initial_search=None):
+        QDialog.__init__(self, parent)
         Ui_SavedSearchEditor.__init__(self)
         self.setupUi(self)
 
@@ -22,12 +23,13 @@ class SavedSearchEditor(QDialog, Ui_SavedSearchEditor):
         self.connect(self.search_name_box, SIGNAL('currentIndexChanged(int)'),
                                     self.current_index_changed)
         self.connect(self.delete_search_button, SIGNAL('clicked()'), self.del_search)
+        self.rename_button.clicked.connect(self.rename_search)
 
         self.current_search_name = None
         self.searches = {}
-        self.searches_to_delete = []
         for name in saved_searches().names():
             self.searches[name] = saved_searches().lookup(name)
+        self.search_names = set([icu_lower(n) for n in saved_searches().names()])
 
         self.populate_search_list()
         if initial_search is not None and initial_search in self.searches:
@@ -41,6 +43,11 @@ class SavedSearchEditor(QDialog, Ui_SavedSearchEditor):
     def add_search(self):
         search_name = unicode(self.input_box.text()).strip()
         if search_name == '':
+            return False
+        if icu_lower(search_name) in self.search_names:
+            error_dialog(self, _('Saved search already exists'),
+                     _('The saved search %s already exists, perhaps with '
+                       'different case')%search_name).exec_()
             return False
         if search_name not in self.searches:
             self.searches[search_name] = ''
@@ -57,9 +64,24 @@ class SavedSearchEditor(QDialog, Ui_SavedSearchEditor):
                         +'</p>', 'saved_search_editor_delete', self):
                 return
             del self.searches[self.current_search_name]
-            self.searches_to_delete.append(self.current_search_name)
             self.current_search_name = None
             self.search_name_box.removeItem(self.search_name_box.currentIndex())
+
+    def rename_search(self):
+        new_search_name = unicode(self.input_box.text()).strip()
+        if new_search_name == '':
+            return False
+        if icu_lower(new_search_name) in self.search_names:
+            error_dialog(self, _('Saved search already exists'),
+                    _('The saved search %s already exists, perhaps with '
+                      'different case')%new_search_name).exec_()
+            return False
+        if self.current_search_name in self.searches:
+            self.searches[new_search_name] = self.searches[self.current_search_name]
+            del self.searches[self.current_search_name]
+            self.populate_search_list()
+            self.select_search(new_search_name)
+        return True
 
     def select_search(self, name):
         self.search_name_box.setCurrentIndex(self.search_name_box.findText(name))
@@ -78,7 +100,7 @@ class SavedSearchEditor(QDialog, Ui_SavedSearchEditor):
     def accept(self):
         if self.current_search_name:
             self.searches[self.current_search_name] = unicode(self.search_text.toPlainText())
-        for name in self.searches_to_delete:
+        for name in saved_searches().names():
             saved_searches().delete(name)
         for name in self.searches:
             saved_searches().add(name, self.searches[name])

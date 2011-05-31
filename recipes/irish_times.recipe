@@ -1,0 +1,58 @@
+__license__   = 'GPL v3'
+__copyright__ = "2008, Derry FitzGerald. 2009 Modified by Ray Kinsella and David O'Callaghan, 2011 Modified by Phil Burns"
+'''
+irishtimes.com
+'''
+import re
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class IrishTimes(BasicNewsRecipe):
+    title          = u'The Irish Times'
+    encoding  = 'ISO-8859-15'
+    __author__     = "Derry FitzGerald, Ray Kinsella, David O'Callaghan and Phil Burns"
+    language = 'en_IE'
+    timefmt = ' (%A, %B %d, %Y)'
+
+
+    oldest_article = 1.0
+    max_articles_per_feed  = 100
+    no_stylesheets = True
+
+    r = re.compile('.*(?P<url>http:\/\/(www.irishtimes.com)|(rss.feedsportal.com\/c)\/.*\.html?).*')
+    remove_tags    = [dict(name='div', attrs={'class':'footer'})]
+    extra_css      = 'p, div { margin: 0pt; border: 0pt; text-indent: 0.5em } .headline {font-size: large;} \n .fact { padding-top: 10pt  }'
+
+    feeds          = [
+                      ('Frontpage', 'http://www.irishtimes.com/feeds/rss/newspaper/index.rss'),
+                      ('Ireland', 'http://rss.feedsportal.com/c/851/f/10845/index.rss'),
+                      ('World', 'http://rss.feedsportal.com/c/851/f/10846/index.rss'),
+                      ('Finance', 'http://rss.feedsportal.com/c/851/f/10847/index.rss'),
+                      ('Features', 'http://rss.feedsportal.com/c/851/f/10848/index.rss'),
+                      ('Sport', 'http://rss.feedsportal.com/c/851/f/10849/index.rss'),
+                      ('Opinion', 'http://rss.feedsportal.com/c/851/f/10850/index.rss'),
+                      ('Letters', 'http://rss.feedsportal.com/c/851/f/10851/index.rss'),
+                      ('Magazine', 'http://www.irishtimes.com/feeds/rss/newspaper/magazine.rss'),
+                      ('Health', 'http://rss.feedsportal.com/c/851/f/10852/index.rss'),
+                      ('Education & Parenting', 'http://rss.feedsportal.com/c/851/f/10853/index.rss'),
+                      ('Motors', 'http://rss.feedsportal.com/c/851/f/10854/index.rss'),
+                      ('An Teanga Bheo', 'http://www.irishtimes.com/feeds/rss/newspaper/anteangabheo.rss'),
+                      ('Commercial Property', 'http://www.irishtimes.com/feeds/rss/newspaper/commercialproperty.rss'),
+                      ('Science Today', 'http://www.irishtimes.com/feeds/rss/newspaper/sciencetoday.rss'),
+                      ('Property', 'http://www.irishtimes.com/feeds/rss/newspaper/property.rss'),
+                      ('The Tickets', 'http://www.irishtimes.com/feeds/rss/newspaper/theticket.rss'),
+                      ('Weekend', 'http://www.irishtimes.com/feeds/rss/newspaper/weekend.rss'),
+                      ('News features', 'http://www.irishtimes.com/feeds/rss/newspaper/newsfeatures.rss'),
+                      ('Obituaries', 'http://www.irishtimes.com/feeds/rss/newspaper/obituaries.rss'),
+                    ]
+
+
+    def print_version(self, url):
+        if url.count('rss.feedsportal.com'):
+            u = url.replace('0Bhtml/story01.htm','_pf0Bhtml/story01.htm')
+        else:
+            u = url.replace('.html','_pf.html')
+        return u
+
+    def get_article_url(self, article):
+        return article.link

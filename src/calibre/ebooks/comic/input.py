@@ -12,6 +12,7 @@ from Queue import Empty
 
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
 from calibre import extract, CurrentDir, prints
+from calibre.constants import filesystem_encoding
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.ipc.server import Server
 from calibre.utils.ipc.job import ParallelJob
@@ -21,6 +22,10 @@ def extract_comic(path_to_comic_file):
     Un-archive the comic file.
     '''
     tdir = PersistentTemporaryDirectory(suffix='_comic_extract')
+    if not isinstance(tdir, unicode):
+        # Needed in case the zip file has wrongly encoded unicode file/dir
+        # names
+        tdir = tdir.decode(filesystem_encoding)
     extract(path_to_comic_file, tdir)
     return tdir
 
@@ -131,9 +136,12 @@ class PageProcessor(list): # {{{
                     newsizey = int(newsizex / aspect)
                     deltax = 0
                     deltay = (SCRHEIGHT - newsizey) / 2
-                wand.size = (newsizex, newsizey)
-                wand.set_border_color(pw)
-                wand.add_border(pw, deltax, deltay)
+                if newsizex < 20000 and newsizey < 20000:
+                    # Too large and resizing fails, so better
+                    # to leave it as original size
+                    wand.size = (newsizex, newsizey)
+                    wand.set_border_color(pw)
+                    wand.add_border(pw, deltax, deltay)
             elif self.opts.wide:
                 # Keep aspect and Use device height as scaled image width so landscape mode is clean
                 aspect = float(sizex) / float(sizey)
@@ -152,11 +160,15 @@ class PageProcessor(list): # {{{
                     newsizey = int(newsizex / aspect)
                     deltax = 0
                     deltay = (wscreeny - newsizey) / 2
-                wand.size = (newsizex, newsizey)
-                wand.set_border_color(pw)
-                wand.add_border(pw, deltax, deltay)
+                if newsizex < 20000 and newsizey < 20000:
+                    # Too large and resizing fails, so better
+                    # to leave it as original size
+                    wand.size = (newsizex, newsizey)
+                    wand.set_border_color(pw)
+                    wand.add_border(pw, deltax, deltay)
             else:
-                wand.size = (SCRWIDTH, SCRHEIGHT)
+                if SCRWIDTH < 20000 and SCRHEIGHT < 20000:
+                    wand.size = (SCRWIDTH, SCRHEIGHT)
 
             if not self.opts.dont_sharpen:
                 wand.sharpen(0.0, 1.0)

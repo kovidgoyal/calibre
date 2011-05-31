@@ -17,16 +17,18 @@ from calibre.gui2.viewer.bookmarkmanager import BookmarkManager
 from calibre.gui2.widgets import ProgressIndicator
 from calibre.gui2.main_window import MainWindow
 from calibre.gui2 import Application, ORG_NAME, APP_UID, choose_files, \
-    info_dialog, error_dialog, open_url, available_height, gprefs
+    info_dialog, error_dialog, open_url, available_height
 from calibre.ebooks.oeb.iterator import EbookIterator
 from calibre.ebooks import DRMError
-from calibre.constants import islinux, isfreebsd, isosx, filesystem_encoding
-from calibre.utils.config import Config, StringConfig, dynamic
+from calibre.constants import islinux, isbsd, isosx, filesystem_encoding
+from calibre.utils.config import Config, StringConfig, JSONConfig
 from calibre.gui2.search_box import SearchBox2
 from calibre.ebooks.metadata import MetaInformation
 from calibre.customize.ui import available_input_formats
 from calibre.gui2.viewer.dictionary import Lookup
 from calibre import as_unicode, force_unicode, isbytestring
+
+vprefs = JSONConfig('viewer')
 
 class TOCItem(QStandardItem):
 
@@ -223,6 +225,12 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.action_quit.setShortcuts(qs)
         self.connect(self.action_quit, SIGNAL('triggered(bool)'),
                      lambda x:QApplication.instance().quit())
+        self.action_focus_search = QAction(self)
+        self.addAction(self.action_focus_search)
+        self.action_focus_search.setShortcuts([Qt.Key_Slash,
+            QKeySequence(QKeySequence.Find)])
+        self.action_focus_search.triggered.connect(lambda x:
+                self.search.setFocus(Qt.OtherFocusReason))
         self.action_copy.setDisabled(True)
         self.action_metadata.setCheckable(True)
         self.action_metadata.setShortcut(Qt.CTRL+Qt.Key_I)
@@ -232,7 +240,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.connect(self.action_reference_mode, SIGNAL('triggered(bool)'),
                      lambda x: self.view.reference_mode(x))
         self.connect(self.action_metadata, SIGNAL('triggered(bool)'), lambda x:self.metadata.setVisible(x))
-        self.connect(self.action_table_of_contents, SIGNAL('toggled(bool)'), lambda x:self.toc.setVisible(x))
+        self.action_table_of_contents.toggled[bool].connect(self.set_toc_visible)
         self.connect(self.action_copy, SIGNAL('triggered(bool)'), self.copy)
         self.connect(self.action_font_size_larger, SIGNAL('triggered(bool)'),
                      self.font_size_larger)
@@ -291,6 +299,9 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         ca.setShortcut(QKeySequence.Copy)
         self.addAction(ca)
         self.open_history_menu = QMenu()
+        self.clear_recent_history_action = QAction(
+                _('Clear list of recently opened books'), self)
+        self.clear_recent_history_action.triggered.connect(self.clear_recent_history)
         self.build_recent_menu()
         self.action_open_ebook.setMenu(self.open_history_menu)
         self.open_history_menu.triggered[QAction].connect(self.open_recent)
@@ -299,11 +310,22 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
 
         self.restore_state()
 
+    def set_toc_visible(self, yes):
+        self.toc.setVisible(yes)
+
+    def clear_recent_history(self, *args):
+        vprefs.set('viewer_open_history', [])
+        self.build_recent_menu()
+
     def build_recent_menu(self):
         m = self.open_history_menu
         m.clear()
+        recent = vprefs.get('viewer_open_history', [])
+        if recent:
+            m.addAction(self.clear_recent_history_action)
+            m.addSeparator()
         count = 0
-        for path in gprefs.get('viewer_open_history', []):
+        for path in recent:
             if count > 9:
                 break
             if os.path.exists(path):
@@ -315,17 +337,17 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         return MainWindow.closeEvent(self, e)
 
     def save_state(self):
-        state = str(self.saveState(self.STATE_VERSION))
-        dynamic['viewer_toolbar_state'] = state
-        dynamic.set('viewer_window_geometry', self.saveGeometry())
+        state = bytearray(self.saveState(self.STATE_VERSION))
+        vprefs['viewer_toolbar_state'] = state
+        vprefs.set('viewer_window_geometry', bytearray(self.saveGeometry()))
         if self.current_book_has_toc:
-            dynamic.set('viewer_toc_isvisible', bool(self.toc.isVisible()))
+            vprefs.set('viewer_toc_isvisible', bool(self.toc.isVisible()))
         if self.toc.isVisible():
-            dynamic.set('viewer_splitter_state',
+            vprefs.set('viewer_splitter_state',
                 bytearray(self.splitter.saveState()))
 
     def restore_state(self):
-        state = dynamic.get('viewer_toolbar_state', None)
+        state = vprefs.get('viewer_toolbar_state', None)
         if state is not None:
             try:
                 state = QByteArray(state)
@@ -491,12 +513,6 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.pending_search_dir = None
         if self.view.search(text, backwards=backwards):
             self.scrolled(self.view.scroll_fraction)
-
-    def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Slash:
-            self.search.setFocus(Qt.OtherFocusReason)
-        else:
-            return MainWindow.keyPressEvent(self, event)
 
     def internal_link_clicked(self, frac):
         self.history.add(self.pos.value())
@@ -676,13 +692,13 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
                 self.action_table_of_contents.setChecked(False)
             if isbytestring(pathtoebook):
                 pathtoebook = force_unicode(pathtoebook, filesystem_encoding)
-            vh = gprefs.get('viewer_open_history', [])
+            vh = vprefs.get('viewer_open_history', [])
             try:
                 vh.remove(pathtoebook)
             except:
                 pass
             vh.insert(0, pathtoebook)
-            gprefs.set('viewer_open_history', vh[:50])
+            vprefs.set('viewer_open_history', vh[:50])
             self.build_recent_menu()
 
             self.action_table_of_contents.setDisabled(not self.iterator.toc)
@@ -739,13 +755,13 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         c = config().parse()
         self.splitter.setSizes([1, 300])
         if c.remember_window_size:
-            wg = dynamic.get('viewer_window_geometry', None)
+            wg = vprefs.get('viewer_window_geometry', None)
             if wg is not None:
                 self.restoreGeometry(wg)
-            ss = dynamic.get('viewer_splitter_state', None)
+            ss = vprefs.get('viewer_splitter_state', None)
             if ss is not None:
                 self.splitter.restoreState(ss)
-            self.show_toc_on_open = dynamic.get('viewer_toc_isvisible', False)
+            self.show_toc_on_open = vprefs.get('viewer_toc_isvisible', False)
         av = available_height() - 30
         if self.height() > av:
             self.resize(self.width(), av)
@@ -785,7 +801,7 @@ def main(args=sys.argv):
 
     parser = option_parser()
     opts, args = parser.parse_args(args)
-    pid = os.fork() if False and (islinux or isfreebsd) else -1
+    pid = os.fork() if False and (islinux or isbsd) else -1
     if pid <= 0:
         app = Application(args)
         app.setWindowIcon(QIcon(I('viewer.png')))

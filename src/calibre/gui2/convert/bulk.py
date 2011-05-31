@@ -4,7 +4,7 @@ __license__ = 'GPL 3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import shutil
+import shutil, importlib
 
 from PyQt4.Qt import QString, SIGNAL
 
@@ -82,8 +82,8 @@ class BulkConfig(Config):
         output_widget = None
         name = self.plumber.output_plugin.name.lower().replace(' ', '_')
         try:
-            output_widget = __import__('calibre.gui2.convert.'+name,
-                        fromlist=[1])
+            output_widget = importlib.import_module(
+                    'calibre.gui2.convert.'+name)
             pw = output_widget.PluginWidget
             pw.ICON = I('back.png')
             pw.HELP = _('Options specific to the output format.')

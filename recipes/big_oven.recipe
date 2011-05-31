@@ -1,0 +1,73 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+import re
+
+class BigOven(BasicNewsRecipe):
+    title               = 'BigOven'
+    __author__          = 'Starson17'
+    description         = 'Recipes for the Foodie in us all. Registration is free. A fake username and password just gives smaller photos.'
+    language            = 'en'
+    category            = 'news, food, recipes, gourmet'
+    publisher           = 'Starson17'
+    use_embedded_content= False
+    no_stylesheets      = True
+    oldest_article      = 24
+    remove_javascript   = True
+    remove_empty_feeds    = True
+    cover_url           = 'http://www.software.com/images/products/BigOven%20Logo_177_216.JPG'
+    max_articles_per_feed = 30
+    needs_subscription = True
+
+    conversion_options = {'linearize_tables'  : True
+                        , 'comment'           : description
+                        , 'tags'              : category
+                        , 'publisher'         : publisher
+                        , 'language'          : language
+                        }
+
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser()
+        if self.username is not None and self.password is not None:
+            br.open('http://www.bigoven.com/account/login?ReturnUrl=/')
+            br.select_form(nr=1)
+            br['Email']  = self.username
+            br['Password'] = self.password
+            br.submit()
+        return br
+
+    remove_attributes = ['style', 'font']
+
+    def get_article_url(self, article):
+        url = article.get('feedburner_origlink',article.get('link', None))
+        front, middle, end = url.partition('comhttp//www.bigoven.com')
+        url = front + 'com' + end
+        return url
+
+    keep_only_tags = [dict(name='div', attrs={'id':['nosidebar_main']})]
+
+    remove_tags_after = [dict(name='div', attrs={'class':['display-field']})]
+
+    remove_tags =  [dict(name='ul', attrs={'class':['tabs']})]
+
+    preprocess_regexps = [
+        (re.compile(r'Want detailed nutrition information?', re.DOTALL), lambda match: ''),
+        (re.compile('\(You could win \$100 in our ', re.DOTALL), lambda match: ''),
+         ]
+
+    def preprocess_html(self, soup):
+        for tag in soup.findAll(name='a', text=re.compile(r'.*View Metric.*', re.DOTALL)):
+            tag.parent.parent.extract()
+        for tag in soup.findAll(text=re.compile(r'.*Try BigOven Pro for Free.*', re.DOTALL)):
+            tag.extract()
+        for tag in soup.findAll(text=re.compile(r'.*Add my photo of this recipe.*', re.DOTALL)):
+            tag.parent.extract()
+        for tag in soup.findAll(name='a', text=re.compile(r'.*photo contest.*', re.DOTALL)):
+            tag.parent.extract()
+        for tag in soup.findAll(name='a', text='Remove ads'):
+            tag.parent.parent.extract()
+        for tag in soup.findAll(name='ol', attrs={'class':['recipe-tags']}):
+            tag.parent.extract()
+        return soup
+
+    feeds = [(u'Recent Raves', u'http://www.bigoven.com/rss/recentraves'),
+                   (u'Recipe Of The Day', u'http://feeds.feedburner.com/bigovencom-RecipeOfTheDay')]
+

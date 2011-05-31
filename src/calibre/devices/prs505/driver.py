@@ -57,6 +57,7 @@ class PRS505(USBMS):
     MUST_READ_METADATA = True
     SUPPORTS_USE_AUTHOR_SORT = True
     EBOOK_DIR_MAIN = 'database/media/books'
+    SCAN_FROM_ROOT = False
 
     ALL_BY_TITLE  = _('All by title')
     ALL_BY_AUTHOR = _('All by author')
@@ -87,18 +88,27 @@ class PRS505(USBMS):
                 _('Set this option if you want the cover thumbnails to have '
                   'the same aspect ratio (width to height) as the cover. '
                   'Unset it if you want the thumbnail to be the maximum size, '
-                  'ignoring aspect ratio.')
+                  'ignoring aspect ratio.'),
+            _('Search for books in all folders') +
+                ':::' +
+                _('Setting this option tells calibre to look for books in all '
+                  'folders on the device and its cards. This permits calibre to '
+                  'find books put on the device by other software and by '
+                  'wireless download.')
     ]
     EXTRA_CUSTOMIZATION_DEFAULT = [
                 ', '.join(['series', 'tags']),
                 False,
                 False,
+                True,
                 True
     ]
 
     OPT_COLLECTIONS    = 0
     OPT_UPLOAD_COVERS  = 1
     OPT_REFRESH_COVERS = 2
+    OPT_PRESERVE_ASPECT_RATIO = 3
+    OPT_SCAN_FROM_ROOT = 4
 
     plugboard = None
     plugboard_func = None
@@ -147,14 +157,13 @@ class PRS505(USBMS):
         self.booklist_class.rebuild_collections = self.rebuild_collections
         # Set the thumbnail width to the theoretical max if the user has asked
         # that we do not preserve aspect ratio
-        if not self.settings().extra_customization[3]:
+        if not self.settings().extra_customization[self.OPT_PRESERVE_ASPECT_RATIO]:
             self.THUMBNAIL_WIDTH = 168
         # Set WANTS_UPDATED_THUMBNAILS if the user has asked that thumbnails be
         # updated on every connect
-        self.WANTS_UPDATED_THUMBNAILS = self.settings().extra_customization[2]
-
-    def get_device_information(self, end_session=True):
-        return (self.gui_name, '', '', '')
+        self.WANTS_UPDATED_THUMBNAILS = \
+                self.settings().extra_customization[self.OPT_REFRESH_COVERS]
+        self.SCAN_FROM_ROOT = self.settings().extra_customization[self.OPT_SCAN_FROM_ROOT]
 
     def filename_callback(self, fname, mi):
         if getattr(mi, 'application_id', None) is not None:
@@ -224,7 +233,8 @@ class PRS505(USBMS):
                                           os.path.splitext(os.path.basename(p))[0],
                                           book, p)
                     except:
-                        debug_print('FAILED to upload cover', p)
+                        debug_print('FAILED to upload cover',
+                                prefix, book.lpath)
         else:
             debug_print('PRS505: NOT uploading covers in sync_booklists')
 

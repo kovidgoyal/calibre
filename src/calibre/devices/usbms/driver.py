@@ -10,17 +10,18 @@ driver. It is intended to be subclassed with the relevant parts implemented
 for a particular device.
 '''
 
-import os
-import re
-import time
+import os, re, time, json, uuid, functools
 from itertools import cycle
 
+from calibre.constants import numeric_version
 from calibre import prints, isbytestring
 from calibre.constants import filesystem_encoding, DEBUG
 from calibre.devices.usbms.cli import CLI
 from calibre.devices.usbms.device import Device
 from calibre.devices.usbms.books import BookList, Book
 from calibre.ebooks.metadata.book.json_codec import JsonCodec
+from calibre.utils.config import from_json, to_json
+from calibre.utils.date import now, isoformat
 
 BASE_TIME = None
 def debug_print(*args):
@@ -52,10 +53,61 @@ class USBMS(CLI, Device):
     FORMATS = []
     CAN_SET_METADATA = []
     METADATA_CACHE = 'metadata.calibre'
+    DRIVEINFO = 'driveinfo.calibre'
+
+    SCAN_FROM_ROOT = False
+
+    def _update_driveinfo_record(self, dinfo, prefix, location_code, name=None):
+        if not isinstance(dinfo, dict):
+            dinfo = {}
+        if dinfo.get('device_store_uuid', None) is None:
+            dinfo['device_store_uuid'] = unicode(uuid.uuid4())
+        if dinfo.get('device_name') is None:
+            dinfo['device_name'] = self.get_gui_name()
+        if name is not None:
+            dinfo['device_name'] = name
+        dinfo['location_code'] = location_code
+        dinfo['last_library_uuid'] = getattr(self, 'current_library_uuid', None)
+        dinfo['calibre_version'] = '.'.join([unicode(i) for i in numeric_version])
+        dinfo['date_last_connected'] = isoformat(now())
+        dinfo['prefix'] = prefix.replace('\\', '/')
+        return dinfo
+
+    def _update_driveinfo_file(self, prefix, location_code, name=None):
+        if os.path.exists(os.path.join(prefix, self.DRIVEINFO)):
+            with open(os.path.join(prefix, self.DRIVEINFO), 'rb') as f:
+                try:
+                    driveinfo = json.loads(f.read(), object_hook=from_json)
+                except:
+                    driveinfo = None
+                driveinfo = self._update_driveinfo_record(driveinfo, prefix,
+                                                          location_code, name)
+            with open(os.path.join(prefix, self.DRIVEINFO), 'wb') as f:
+                f.write(json.dumps(driveinfo, default=to_json))
+        else:
+            driveinfo = self._update_driveinfo_record({}, prefix, location_code, name)
+            with open(os.path.join(prefix, self.DRIVEINFO), 'wb') as f:
+                f.write(json.dumps(driveinfo, default=to_json))
+        return driveinfo
 
     def get_device_information(self, end_session=True):
         self.report_progress(1.0, _('Get device information...'))
-        return (self.get_gui_name(), '', '', '')
+        self.driveinfo = {}
+        if self._main_prefix is not None:
+            self.driveinfo['main'] = self._update_driveinfo_file(self._main_prefix, 'main')
+        if self._card_a_prefix is not None:
+            self.driveinfo['A'] = self._update_driveinfo_file(self._card_a_prefix, 'A')
+        if self._card_b_prefix is not None:
+            self.driveinfo['B'] = self._update_driveinfo_file(self._card_b_prefix, 'B')
+        return (self.get_gui_name(), '', '', '', self.driveinfo)
+
+    def set_driveinfo_name(self, location_code, name):
+        if location_code == 'main':
+            self._update_driveinfo_file(self._main_prefix, location_code, name)
+        elif location_code == 'A':
+            self._update_driveinfo_file(self._card_a_prefix, location_code, name)
+        elif location_code == 'B':
+            self._update_driveinfo_file(self._card_b_prefix, location_code, name)
 
     def books(self, oncard=None, end_session=True):
         from calibre.ebooks.metadata.meta import path_to_ext
@@ -123,9 +175,13 @@ class USBMS(CLI, Device):
             ebook_dirs = [ebook_dirs]
         for ebook_dir in ebook_dirs:
             ebook_dir = self.path_to_unicode(ebook_dir)
-            ebook_dir = self.normalize_path( \
+            if self.SCAN_FROM_ROOT:
+                ebook_dir = self.normalize_path(prefix)
+            else:
+                ebook_dir = self.normalize_path( \
                             os.path.join(prefix, *(ebook_dir.split('/'))) \
                                     if ebook_dir else prefix)
+            debug_print('USBMS: scan from root', self.SCAN_FROM_ROOT, ebook_dir)
             if not os.path.exists(ebook_dir): continue
             # Get all books in the ebook_dir directory
             if self.SUPPORTS_SUB_DIRS:
@@ -322,15 +378,21 @@ class USBMS(CLI, Device):
 
     @classmethod
     def build_template_regexp(cls):
-        def replfunc(match):
-            if match.group(1) in ['title', 'series', 'series_index', 'isbn']:
-                return '(?P<' + match.group(1) + '>.+?)'
-            elif match.group(1) in ['authors', 'author_sort']:
-                return '(?P<author>.+?)'
-            else:
-                return '(.+?)'
+        def replfunc(match, seen=None):
+            v = match.group(1)
+            if v in ['title', 'series', 'series_index', 'isbn']:
+                if v not in seen:
+                    seen |= set([v])
+                    return '(?P<' + v + '>.+?)'
+            elif v in ['authors', 'author_sort']:
+                if v not in seen:
+                    seen |= set([v])
+                    return '(?P<author>.+?)'
+            return '(.+?)'
+        s = set()
+        f = functools.partial(replfunc, seen=s)
         template = cls.save_template().rpartition('/')[2]
-        return re.compile(re.sub('{([^}]*)}', replfunc, template) + '([_\d]*$)')
+        return re.compile(re.sub('{([^}]*)}', f, template) + '([_\d]*$)')
 
     @classmethod
     def path_to_unicode(cls, path):

@@ -1,0 +1,189 @@
+#!/usr/bin/env  python
+__license__   = 'GPL v3'
+__copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
+__docformat__ = 'restructuredtext en'
+
+from calibre.web.feeds.news import BasicNewsRecipe
+import copy
+
+# http://online.wsj.com/page/us_in_todays_paper.html
+
+class WallStreetJournal(BasicNewsRecipe):
+
+    title = 'The Wall Street Journal'
+    __author__ = 'Kovid Goyal, Sujata Raman, and Joshua Oster-Morris'
+    description = 'News and current affairs'
+    needs_subscription = True
+    language = 'en'
+
+    max_articles_per_feed = 1000
+    timefmt  = ' [%a, %b %d, %Y]'
+    no_stylesheets = True
+
+    extra_css      = '''h1{color:#093D72 ; font-size:large ; font-family:Georgia,"Century Schoolbook","Times New Roman",Times,serif; }
+                    h2{color:#474537; font-family:Georgia,"Century Schoolbook","Times New Roman",Times,serif; font-size:small; font-style:italic;}
+                    .subhead{color:gray; font-family:Georgia,"Century Schoolbook","Times New Roman",Times,serif; font-size:small; font-style:italic;}
+                    .insettipUnit {color:#666666; font-family:Arial,Sans-serif;font-size:xx-small }
+                    .targetCaption{ font-size:x-small; color:#333333; font-family:Arial,Helvetica,sans-serif}
+                    .article{font-family :Arial,Helvetica,sans-serif; font-size:x-small}
+                    .tagline {color:#333333; font-size:xx-small}
+                    .dateStamp {color:#666666; font-family:Arial,Helvetica,sans-serif}
+                        h3{color:blue ;font-family:Arial,Helvetica,sans-serif; font-size:xx-small}
+                        .byline{color:blue;font-family:Arial,Helvetica,sans-serif; font-size:xx-small}
+                        h6{color:#333333; font-family:Georgia,"Century Schoolbook","Times New Roman",Times,serif; font-size:small;font-style:italic; }
+                    .paperLocation{color:#666666; font-size:xx-small}'''
+
+    remove_tags_before = dict(name='h1')
+    remove_tags = [
+                    dict(id=["articleTabs_tab_article", "articleTabs_tab_comments", "articleTabs_tab_interactive","articleTabs_tab_video","articleTabs_tab_map","articleTabs_tab_slideshow","articleTabs_tab_quotes","articleTabs_tab_document"]),
+                    {'class':['footer_columns','network','insetCol3wide','interactive','video','slideshow','map','insettip','insetClose','more_in', "insetContent", 'articleTools_bottom', 'aTools', "tooltip", "adSummary", "nav-inline"]},
+                    dict(rel='shortcut icon'),
+                    ]
+    remove_tags_after = [dict(id="article_story_body"), {'class':"article story"},]
+
+
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser()
+        if self.username is not None and self.password is not None:
+            br.open('http://commerce.wsj.com/auth/login')
+            br.select_form(nr=1)
+            br['user']   = self.username
+            br['password'] = self.password
+            res = br.submit()
+            raw = res.read()
+            if 'Welcome,' not in raw:
+                raise ValueError('Failed to log in to wsj.com, check your '
+                        'username and password')
+        return br
+
+    def postprocess_html(self, soup, first):
+        for tag in soup.findAll(name=['table', 'tr', 'td']):
+            tag.name = 'div'
+
+        for tag in soup.findAll('div', dict(id=["articleThumbnail_1", "articleThumbnail_2", "articleThumbnail_3", "articleThumbnail_4", "articleThumbnail_5", "articleThumbnail_6", "articleThumbnail_7"])):
+            tag.extract()
+
+        return soup
+
+    def wsj_get_index(self):
+        return self.index_to_soup('http://online.wsj.com/itp')
+
+    def wsj_add_feed(self,feeds,title,url):
+        self.log('Found section:', title)
+        try:
+            if url.endswith('whatsnews'):
+                articles = self.wsj_find_wn_articles(url)
+            else:
+                articles = self.wsj_find_articles(url)
+        except:
+            articles = []
+        if articles:
+           feeds.append((title, articles))
+        return feeds
+
+    def abs_wsj_url(self, href):
+        if not href.startswith('http'):
+            href = 'http://online.wsj.com' + href
+        return href
+
+    def parse_index(self):
+        soup = self.wsj_get_index()
+
+        date = soup.find('span', attrs={'class':'date-date'})
+        if date is not None:
+            self.timefmt = ' [%s]'%self.tag_to_string(date)
+
+        cov = soup.find('a', attrs={'class':'icon pdf'}, href=True)
+        if cov is not None:
+            self.cover_url = cov['href']
+
+        feeds = []
+        div = soup.find('div', attrs={'class':'itpHeader'})
+        div = div.find('ul', attrs={'class':'tab'})
+        for a in div.findAll('a', href=lambda x: x and '/itp/' in x):
+            pageone = a['href'].endswith('pageone')
+            if pageone:
+               title = 'Front Section'
+               url = self.abs_wsj_url(a['href'])
+               feeds = self.wsj_add_feed(feeds,title,url)
+               title = "What's News"
+               url = url.replace('pageone','whatsnews')
+               feeds = self.wsj_add_feed(feeds,title,url)
+            else:
+               title = self.tag_to_string(a)
+               url = self.abs_wsj_url(a['href'])
+               feeds = self.wsj_add_feed(feeds,title,url)
+        return feeds
+
+    def wsj_find_wn_articles(self, url):
+        soup = self.index_to_soup(url)
+        articles = []
+
+        whats_news = soup.find('div', attrs={'class':lambda x: x and 'whatsNews-simple' in x})
+        if whats_news is not None:
+          for a in whats_news.findAll('a', href=lambda x: x and '/article/' in x):
+            container = a.findParent(['p'])
+            meta = a.find(attrs={'class':'meta_sectionName'})
+            if meta is not None:
+                meta.extract()
+            title = self.tag_to_string(a).strip()
+            url = a['href']
+            desc = ''
+            if container is not None:
+                desc = self.tag_to_string(container)
+
+            articles.append({'title':title, 'url':url,
+                'description':desc, 'date':''})
+
+            self.log('\tFound WN article:', title)
+            self.log('\t\t', desc)
+
+        return articles
+
+    def wsj_find_articles(self, url):
+        soup = self.index_to_soup(url)
+
+        whats_news = soup.find('div', attrs={'class':lambda x: x and 'whatsNews-simple' in x})
+        if whats_news is not None:
+           whats_news.extract()
+
+        articles = []
+
+        flavorarea = soup.find('div', attrs={'class':lambda x: x and 'ahed' in x})
+        if flavorarea is not None:
+           flavorstory = flavorarea.find('a', href=lambda x: x and x.startswith('/article'))
+           if flavorstory is not None:
+              flavorstory['class'] = 'mjLinkItem'
+              metapage = soup.find('span', attrs={'class':lambda x: x and 'meta_sectionName' in x})
+              if metapage is not None:
+                 flavorstory.append( copy.copy(metapage) ) #metapage should always be A1 because that should be first on the page
+
+        for a in soup.findAll('a', attrs={'class':'mjLinkItem'}, href=True):
+            container = a.findParent(['li', 'div'])
+            meta = a.find(attrs={'class':'meta_sectionName'})
+            if meta is not None:
+                meta.extract()
+                meta = self.tag_to_string(meta).strip()
+            if meta:
+                title = self.tag_to_string(a).strip() + ' [%s]'%meta
+            else:
+                title = self.tag_to_string(a).strip()
+            url = self.abs_wsj_url(a['href'])
+            desc = ''
+            for p in container.findAll('p'):
+                desc = self.tag_to_string(p)
+                if not 'Subscriber Content' in desc:
+                    break
+
+            articles.append({'title':title, 'url':url,
+                'description':desc, 'date':''})
+
+            self.log('\tFound article:', title)
+            self.log('\t\t', desc)
+
+        return articles
+
+
+    def cleanup(self):
+        self.browser.open('http://online.wsj.com/logout?url=http://online.wsj.com')
+

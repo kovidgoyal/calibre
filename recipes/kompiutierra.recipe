@@ -1,0 +1,37 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+__license__   = 'GPL v3'
+__copyright__ = '2010, Vadim Dyadkin, dyadkin@gmail.com'
+__author__ = 'Vadim Dyadkin'
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class Computerra(BasicNewsRecipe):
+    title = u'\u041a\u043e\u043c\u043f\u044c\u044e\u0442\u0435\u0440\u0440\u0430'
+    oldest_article = 100
+    __author__  = 'Vadim Dyadkin (edited by A. Chewi)'
+    max_articles_per_feed = 50
+    use_embedded_content  = False
+    remove_javascript = True
+    no_stylesheets = True
+    conversion_options = {'linearize_tables' : True}
+    simultaneous_downloads = 5
+    language = 'ru'
+    description = u'Компьютерра: все новости про компьютеры, железо, новые технологии, информационные технологии'
+
+    keep_only_tags = [dict(name='div', attrs={'id': 'content'}),]
+
+    feeds = [(u'Компьютерра-Онлайн', 'http://feeds.feedburner.com/ct_news/'),]
+
+    remove_tags = [
+    dict(name='div', attrs={'id': ['fin', 'idc-container', 'idc-noscript',]}),
+    dict(name='ul', attrs={'class': "related_post"}),
+    dict(name='p', attrs={'class': 'info'}),
+    dict(name='a', attrs={'class': 'twitter-share-button'}),
+    dict(name='a', attrs={'type': 'button_count'}),
+    dict(name='h2', attrs={})
+    ]
+
+    def print_version(self, url):
+        return url + '?print=true'

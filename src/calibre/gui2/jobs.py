@@ -8,14 +8,13 @@ Job management.
 '''
 
 import re
-
 from Queue import Empty, Queue
 
-from PyQt4.Qt import QAbstractTableModel, QVariant, QModelIndex, Qt, \
-    QTimer, pyqtSignal, QIcon, QDialog, QAbstractItemDelegate, QApplication, \
-    QSize, QStyleOptionProgressBarV2, QString, QStyle, QToolTip, QFrame, \
-    QHBoxLayout, QVBoxLayout, QSizePolicy, QLabel, QCoreApplication, QAction, \
-    QByteArray
+from PyQt4.Qt import (QAbstractTableModel, QVariant, QModelIndex, Qt,
+    QTimer, pyqtSignal, QIcon, QDialog, QAbstractItemDelegate, QApplication,
+    QSize, QStyleOptionProgressBarV2, QString, QStyle, QToolTip, QFrame,
+    QHBoxLayout, QVBoxLayout, QSizePolicy, QLabel, QCoreApplication, QAction,
+    QByteArray)
 
 from calibre.utils.ipc.server import Server
 from calibre.utils.ipc.job import ParallelJob
@@ -25,8 +24,9 @@ from calibre.gui2.dialogs.jobs_ui import Ui_JobsDialog
 from calibre import __appname__
 from calibre.gui2.dialogs.job_view_ui import Ui_Dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
+from calibre.gui2.threaded_jobs import ThreadedJobServer, ThreadedJob
 
-class JobManager(QAbstractTableModel):
+class JobManager(QAbstractTableModel): # {{{
 
     job_added = pyqtSignal(int)
     job_done  = pyqtSignal(int)
@@ -42,6 +42,7 @@ class JobManager(QAbstractTableModel):
         self.add_job       = Dispatcher(self._add_job)
         self.server        = Server(limit=int(config['worker_limit']/2.0),
                                 enforce_cpu_limit=config['enforce_cpu_limit'])
+        self.threaded_server = ThreadedJobServer()
         self.changed_queue = Queue()
 
         self.timer         = QTimer(self)
@@ -146,9 +147,18 @@ class JobManager(QAbstractTableModel):
                 jobs.add(self.server.changed_jobs_queue.get_nowait())
             except Empty:
                 break
+
+        # Update device jobs
         while True:
             try:
                 jobs.add(self.changed_queue.get_nowait())
+            except Empty:
+                break
+
+        # Update threaded jobs
+        while True:
+            try:
+                jobs.add(self.threaded_server.changed_jobs.get_nowait())
             except Empty:
                 break
 
@@ -159,11 +169,11 @@ class JobManager(QAbstractTableModel):
                 job.update()
                 if orig_state != job.run_state:
                     needs_reset = True
+                    if job.is_finished:
+                        self.job_done.emit(len(self.unfinished_jobs()))
             if needs_reset:
                 self.jobs.sort()
                 self.reset()
-                if job.is_finished:
-                    self.job_done.emit(len(self.unfinished_jobs()))
             else:
                 for job in jobs:
                     idx = self.jobs.index(job)
@@ -207,11 +217,22 @@ class JobManager(QAbstractTableModel):
         self.server.add_job(job)
         return job
 
+    def run_threaded_job(self, job):
+        self.add_job(job)
+        self.threaded_server.add_job(job)
+
     def launch_gui_app(self, name, args=[], kwargs={}, description=''):
         job = ParallelJob(name, description, lambda x: x,
                 args=args, kwargs=kwargs)
         self.server.run_job(job, gui=True, redirect_output=False)
 
+    def _kill_job(self, job):
+        if isinstance(job, ParallelJob):
+            self.server.kill_job(job)
+        elif isinstance(job, ThreadedJob):
+            self.threaded_server.kill_job(job)
+        else:
+            job.kill_on_start = True
 
     def kill_job(self, row, view):
         job = self.jobs[row]
@@ -221,29 +242,29 @@ class JobManager(QAbstractTableModel):
         if job.duration is not None:
             return error_dialog(view, _('Cannot kill job'),
                          _('Job has already run')).exec_()
-        if isinstance(job, ParallelJob):
-            self.server.kill_job(job)
-        else:
-            job.kill_on_start = True
+        if not getattr(job, 'killable', True):
+            return error_dialog(view, _('Cannot kill job'),
+                    _('This job cannot be stopped'), show=True)
+        self._kill_job(job)
 
     def kill_all_jobs(self):
         for job in self.jobs:
-            if isinstance(job, DeviceJob) or job.duration is not None:
+            if (isinstance(job, DeviceJob) or job.duration is not None or
+                    not getattr(job, 'killable', True)):
                 continue
-            if isinstance(job, ParallelJob):
-                self.server.kill_job(job)
-            else:
-                job.kill_on_start = True
+            self._kill_job(job)
 
     def terminate_all_jobs(self):
         self.server.killall()
         for job in self.jobs:
-            if isinstance(job, DeviceJob) or job.duration is not None:
+            if (isinstance(job, DeviceJob) or job.duration is not None or
+                    not getattr(job, 'killable', True)):
                 continue
             if not isinstance(job, ParallelJob):
-                job.kill_on_start = True
+                self._kill_job(job)
+# }}}
 
-
+# Jobs UI {{{
 class ProgressBarDelegate(QAbstractItemDelegate):
 
     def sizeHint(self, option, index):
@@ -269,6 +290,11 @@ class DetailView(QDialog, Ui_Dialog):
         self.setupUi(self)
         self.setWindowTitle(job.description)
         self.job = job
+        self.html_view = hasattr(job, 'html_details')
+        if self.html_view:
+            self.log.setVisible(False)
+        else:
+            self.tb.setVisible(False)
         self.next_pos = 0
         self.update()
         self.timer = QTimer(self)
@@ -277,12 +303,19 @@ class DetailView(QDialog, Ui_Dialog):
 
 
     def update(self):
-        f = self.job.log_file
-        f.seek(self.next_pos)
-        more = f.read()
-        self.next_pos = f.tell()
-        if more:
-            self.log.appendPlainText(more.decode('utf-8', 'replace'))
+        if self.html_view:
+            html = self.job.html_details
+            if len(html) > self.next_pos:
+                self.next_pos = len(html)
+                self.tb.setHtml(
+                    '<pre style="font-family:monospace">%s</pre>'%html)
+        else:
+            f = self.job.log_file
+            f.seek(self.next_pos)
+            more = f.read()
+            self.next_pos = f.tell()
+            if more:
+                self.log.appendPlainText(more.decode('utf-8', 'replace'))
 
 class JobsButton(QFrame):
 
@@ -441,3 +474,5 @@ class JobsDialog(QDialog, Ui_JobsDialog):
     def hide(self, *args):
         self.save_state()
         return QDialog.hide(self, *args)
+# }}}
+

@@ -1,0 +1,39 @@
+#!/usr/bin/env  python
+
+__license__   = 'GPL v3'
+__copyright__ = u'2010, Tomasz Dlugosz <tomek3d@gmail.com>'
+'''
+fronda.pl
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+import re
+
+class Fronda(BasicNewsRecipe):
+    title          = u'Fronda.pl'
+    publisher      = u'Fronda.pl'
+    description    = u'Portal po\u015bwi\u0119cony - Infformacje'
+    language = 'pl'
+    __author__ = u'Tomasz D\u0142ugosz'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    use_embedded_content = False
+
+    feeds          = [(u'Infformacje', u'http://fronda.pl/news/feed')]
+
+    keep_only_tags = [dict(name='h2', attrs={'class':'news_title'}),
+                      dict(name='div', attrs={'class':'naglowek_tresc'}),
+                      dict(name='div', attrs={'id':'czytaj'}) ]
+
+    remove_tags = [dict(name='a', attrs={'class':'print'})]
+
+    preprocess_regexps = [
+        (re.compile(i[0], re.IGNORECASE | re.DOTALL), i[1]) for i in 
+            [ (r'<p><a href="http://fronda.pl/sklepy">.*</a></p>', lambda match: ''),
+              (r'<p><a href="http://fronda.pl/pasaz">.*</a></p>', lambda match: ''),
+              (r'<h3><strong>W.* lektury.*</a></p></div>', lambda match: '</div>'),
+              (r'<h3>Zobacz t.*?</div>', lambda match: '</div>'),
+              (r'<p[^>]*>&nbsp;</p>', lambda match: ''),
+              (r'<p><span style=".*?"><br /></span></p> ', lambda match: ''),
+              (r'<a style=\'float:right;margin-top:3px;\' href="http://www.facebook.com/share.php?.*?</a>', lambda match: '')]
+    ]

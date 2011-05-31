@@ -78,7 +78,7 @@ class RecursiveFind(QThread): # {{{
                 if isinstance(root, unicode):
                     root = root.encode(filesystem_encoding)
                 self.walk(root)
-            except Exception, err:
+            except Exception as err:
                 import traceback
                 traceback.print_exc()
                 try:

@@ -20,17 +20,20 @@ What formats does |app| support conversion to/from?
 |app| supports the conversion of many input formats to many output formats.
 It can convert every input format in the following list, to every output format.
 
-*Input Formats:* CBZ, CBR, CBC, CHM, EPUB, FB2, HTML, LIT, LRF, MOBI, ODT, PDF, PRC**, PDB, PML, RB, RTF, SNB, TCR, TXT
+*Input Formats:* CBZ, CBR, CBC, CHM, EPUB, FB2, HTML, HTMLZ, LIT, LRF, MOBI, ODT, PDF, PRC, PDB, PML, RB, RTF, SNB, TCR, TXT, TXTZ
 
-*Output Formats:* EPUB, FB2, OEB, LIT, LRF, MOBI, PDB, PML, RB, PDF, SNB, TCR, TXT
+*Output Formats:* EPUB, FB2, OEB, LIT, LRF, MOBI, HTMLZ, PDB, PML, RB, PDF, RTF, SNB, TCR, TXT, TXTZ
 
-** PRC is a generic format, |app| supports PRC files with TextRead and MOBIBook headers
+.. note ::
+
+    PRC is a generic format, |app| supports PRC files with TextRead and MOBIBook headers.
+    PDB is also a generic format. |app| supports eReder, Plucker, PML and zTxt PDB files.
 
 .. _best-source-formats:
 
 What are the best source formats to convert?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-In order of decreasing preference: LIT, MOBI, EPUB, HTML, PRC, RTF, PDB, TXT, PDF
+In order of decreasing preference: LIT, MOBI, EPUB, FB2, HTML, PRC, RTF, PDB, TXT, PDF
 
 Why does the PDF conversion lose some images/tables?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -65,6 +68,22 @@ There are two aspects to this problem:
   2. When adding HTML files to |app|, you may need to tell |app| what encoding the files are in. To do this go to :guilabel:`Preferences->Advanced->Plugins->File Type plugins` and customize the HTML2Zip plugin, telling it what encoding your HTML files are in. Now when you add HTML files to |app| they will be correctly processed. HTML files from different sources often have different encodings, so you may have to change this setting repeatedly. A common encoding for many files from the web is ``cp1252`` and I would suggest you try that first. Note that when converting HTML files, leave the input encoding setting mentioned above blank. This is because the HTML2ZIP plugin automatically converts the HTML files to a standard encoding (utf-8).
   3. Embedding fonts: If you are generating an LRF file to read on your SONY Reader, you are limited by the fact that the Reader only supports a few non-English characters in the fonts it comes pre-loaded with. You can work around this problem by embedding a unicode-aware font that supports the character set your file uses into the LRF file. You should embed atleast a serif and a sans-serif font. Be aware that embedding fonts significantly slows down page-turn speed on the reader.
 
+What's the deal with Table of Contents in MOBI files?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The first thing to realize is that most ebooks have two tables of contents. One is the traditional Table of Contents, like the TOC you find in paper books. This Table of Contents is part of the main document flow and can be styled however you like. This TOC is called the *content TOC*.
+
+Then there is the *metadata TOC*. A metadata TOC is a TOC that is not part of the book text and is typically accessed by some special button on a reader. For example, in the calibre viewer, you use the Show Table of Contents button to see this TOC. This TOC cannot be styled by the book creator. How it is represented is up to the viewer program.
+
+In the MOBI format, the situation is a little confused. This is because the MOBI format, alone amongst mainstream ebook formats, *does not* have decent support for a metadata TOC. A MOBI book simulates the presence of a metadata TOC by putting an *extra* content TOC at the end of the book. When you click Goto Table of Contents on your Kindle, it is to this extra content TOC that the Kindle takes you. 
+
+Now it might well seem to you that the MOBI book has two identical TOCs. Remember that one is semantically a content TOC and the other is a metadata TOC, even though both might have exactly the same entries and look the same. One can be accessed directly from the Kindle's menus, the other cannot. 
+
+When converting to MOBI, calibre detects the *metadata TOC* in the input document and generates an end-of-file TOC in the output MOBI file. You can turn this off by an option in the MOBI Output settings. You cannot control where this generated TOC will go. Remember this TOC is semantically a *metadata TOC*, in any format other than MOBI it *cannot not be part of the text*. The fact that it is part of the text in MOBI is an accident caused by the limitations of MOBI. If you want a TOC at a particular location in your document text, create one by hand. 
+
+If you have a hand edited TOC in the input document, you can use the TOC detection options in calibre to automatically generate the metadata TOC from it. See the conversion section of the User Manual for more details on how to use these options.
+
+Finally, I encourage you to ditch the content TOC and only have a metadata TOC in your ebooks. Metadata TOCs will give the people reading your ebooks a much superior navigation experience (except on the Kindle, where they are essentially the same as a content TOC).
 
 How do I use some of the advanced features of the conversion tools?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -81,7 +100,9 @@ Device Integration
 
 What devices does |app| support?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-At the moment |app| has full support for the SONY PRS line, Barnes & Noble Nook line, Cybook Gen 3/Opus, Amazon Kindle line, Entourage Edge, Longshine ShineBook, Ectaco Jetbook, BeBook/BeBook Mini, Irex Illiad/DR1000, Foxit eSlick, PocketBook line, Italica, eClicto, Iriver Story, Airis dBook, Hanvon N515, Binatone Readme, Teclast K3 and clones, SpringDesign Alex, Kobo Reader, various Android phones and the iPhone/iPad. In addition, using the :guilabel:`Connect to folder` function you can use it with any ebook reader that exports itself as a USB disk.
+At the moment |app| has full support for the SONY PRS line, Barnes & Noble Nook line, Cybook Gen 3/Opus, Amazon Kindle line, Entourage Edge, Longshine ShineBook, Ectaco Jetbook, BeBook/BeBook Mini, Irex Illiad/DR1000, Foxit eSlick, PocketBook line, Italica, eClicto, Iriver Story, Airis dBook, Hanvon N515, Binatone Readme, Teclast K3 and clones, SpringDesign Alex, Kobo Reader, various Android phones and the iPhone/iPad. In addition, using the :guilabel:`Connect to folder` function you can use it with any ebook reader that exports itself as a USB disk. 
+
+There is also a special ``User Defined`` device plugin that can be used to connect to arbitrary devices that present their memory as disk drives. See the device plugin ``Preferences -> Plugins -> Device Plugins -> User Defined`` and ``Preferences -> Miscelleaneous -> Get information to setup the user defined device`` for more information.
 
 How can I help get my device supported in |app|?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -99,7 +120,8 @@ We just need some information from you:
     device.
 
 Once you send us the output for a particular operating system, support for the device in that operating system
-will appear in the next release of |app|.
+will appear in the next release of |app|. To send us the output, open a bug report and attach the output to it.
+See `calibre bugs <http://calibre-ebook.com/bugs>`_.
 
 My device is not being detected by |app|?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -112,6 +134,11 @@ Follow these steps to find the problem:
     * Ensure your operating system is seeing the device. That is, the device should be mounted as a disk that you can access using Windows explorer or whatever the file management program on your computer is.
     * In calibre, go to Preferences->Plugins->Device Interface plugin and make sure the plugin for your device is enabled, the plugin icon next to it should be green when it is enabled.
     * If all the above steps fail, go to Preferences->Miscellaneous and click debug device detection with your device attached and post the output as a ticket on `the calibre bug tracker <http://bugs.calibre-ebook.com>`_.
+
+My device is non-standard or unusual. What can I do to connect to it?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In addition to the :guilabel:`Connect to Folder` function found under the Connect/Share button, |app| provides a ``User Defined`` device plugin that can be used to connect to any USB device that shows up as a disk drive in your operating system. Note: on windows, the device must have a drive letter for calibre to use it. See the device plugin ``Preferences -> Plugins -> Device Plugins -> User Defined`` and ``Preferences -> Miscellaneous -> Get information to setup the user defined device`` for more information.
 
 How does |app| manage collections on my SONY reader?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -327,9 +354,23 @@ Now coming to author name sorting:
     * When recalculating the author sort values for books, |app| uses the author sort values for each individual author. Therefore, ensure that the individual author sort values are correct before recalculating the books' author sort values.
     * You can control whether the Tag Browser display authors using their names or their sort values by setting the :guilabel:`categories_use_field_for_author_name` tweak in Preferences->Tweaks
 
-With all this flexibility, it is possible to have |app| manage your author names however you like. For example, one common request is to have |app| display author names LN, FN. To do this first set the ``author_sort_copy_method`` to ``copy``. Then change all author names to LN, FN via the Manage authors dialog. Then have |app| recalculate author sort values for both authors and books as described above.
-
 Note that you can set an individual author's sort value to whatever you want using :guilabel:`Manage authors`. This is useful when dealing with names that |app| will not get right, such as complex multi-part names like Miguel de Cervantes Saavedra or when dealing with Asian names like Sun Tzu.
+
+With all this flexibility, it is possible to have |app| manage your author names however you like. For example, one common request is to have |app| display author names LN, FN. To do this, and if the note below does not apply to you, then:
+    * Set the ``author_sort_copy_method`` tweak to ``copy`` as described above.
+    * Restart calibre. Do not change any book metadata before doing the remaining steps.
+    * Change all author names to LN, FN using the Manage authors dialog.
+    * After you have changed all the authors, press the `Recalculate all author sort values` button.
+    * Press OK, at which point |app| will change the authors in all your books. This can take a while.
+    
+.. note::
+
+    When changing from FN LN to LN, FN, it is often the case that the values in author_sort are already in LN, FN format. If this is your case, then do the following:
+        * set the ``author_sort_copy_method`` tweak to ``copy`` as described above.
+        * restart calibre. Do not change any book metadata before doing the remaining steps.
+        * open the Manage authors dialog. Press the ``copy all author sort values to author`` button.
+        * Check through the authors to be sure you are happy. You can still press Cancel to abandon the changes. Once you press OK, there is no undo.
+        * Press OK, at which point |app| will change the authors in all your books. This can take a while.
 
 
 Why doesn't |app| let me store books in my own directory structure?
@@ -350,7 +391,7 @@ Why doesn't |app| have a column for foo?
 |app| is designed to have columns for the most frequently and widely used fields. In addition, you can add any columns you like. Columns can be added via :guilabel:`Preferences->Interface->Add your own columns`.
 Watch the tutorial `UI Power tips <http://calibre-ebook.com/demo#tutorials>`_ to learn how to create your own columns.
 
-You can also create "virtual columns" that contain combinations of the metadata from other columns. In the add column dialog choose the option "Column from other columns" and in the template enter the other column names. For example to create a virtual column containing formats or ISBN, enter ``{formats}`` for formats or ``{isbn}`` for ISBN. For more details, see :ref:`templatelangcalibre`.
+You can also create "virtual columns" that contain combinations of the metadata from other columns. In the add column dialog  use the :guilabel:`Quick create` links to easily create columns to show the book ISBN, formats or the time the book was last modified. For more details, see :ref:`templatelangcalibre`.
 
 
 Can I have a column showing the formats or the ISBN?
@@ -434,6 +475,18 @@ If it still wont launch, start a command prompt (press the windows key and R; th
 
 Post any output you see in a help message on the `Forum <http://www.mobileread.com/forums/forumdisplay.php?f=166>`_.
 
+|app| freezes when I click on anything?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+There are three possible things I know of, that can cause this:
+
+    * You recently connected an external monitor or TV to your computer. In this case, whenever |app| opens a new window like the edit metadata window or the conversion dialog, it appears on the second monitor where you dont notice it and so you think |app| has frozen. Disconnect your second monitor and restart calibre.
+
+    * You are using a Wacom branded mouse. There is an incompatibility between Wacom mice and the graphics toolkit |app| uses. Try using a non-Wacom mouse.
+
+    * You have invalid files in your fonts folder. If this is the case, start |app| in debug mode as desribed in the previous answer and you will get messages about invalid files in :file:`C:\\Windows\\fonts`. Delete these files and you will be fine.
+
+
 |app| is not starting on OS X?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -456,7 +509,13 @@ menu, choose "Validate fonts".
 I downloaded the installer, but it is not working?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Downloading from the internet can sometimes result in a corrupted download. If the |app| installer you downloaded is not opening, try downloading it again. If re-downloading it does not work, download it from `an alternate location <http://sourceforge.net/projects/calibre/files/>`_. If the installer still doesn't work, then something on your computer is preventing it from running. Try rebooting your computer and running a registry cleaner like `Wise registry cleaner <http://www.wisecleaner.com>`_. Best place to ask for more help is in the `forums <http://www.mobileread.com/forums/usercp.php>`_.
+Downloading from the internet can sometimes result in a corrupted download. If the |app| installer you downloaded is not opening, try downloading it again. If re-downloading it does not work, download it from `an alternate location <http://sourceforge.net/projects/calibre/files/>`_. If the installer still doesn't work, then something on your computer is preventing it from running. 
+
+    * Try temporarily disabling your antivirus program (Microsoft Security Essentials, or Kaspersky or Norton or McAfee or whatever). This is most likely the culprit if the upgrade process is hanging in the middle.
+    * Try rebooting your computer and running a registry cleaner like `Wise registry cleaner <http://www.wisecleaner.com>`_.
+    * Try downloading the installer with an alternate browser. For example if you are using Internet Explorer, try using Firefox or Chrome instead.
+      
+Best place to ask for more help is in the `forums <http://www.mobileread.com/forums/forumdisplay.php?f=166>`_.
 
 My antivirus program claims |app| is a virus/trojan?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -479,7 +538,16 @@ Most purchased EPUB books have `DRM <http://wiki.mobileread.com/wiki/DRM>`_. Thi
 I am getting a "Permission Denied" error?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-A permission denied error can occur because of many possible reasons, none of them having anything to do with |app|. You can get permission denied errors if you are using an SD card with write protect enabled. Or if you, or some program you used changed the file permissions of the files in question to read only. Or if there is a filesystem error on the device which caused your operating system to mount the filesystem in read only mode or mark a particular file as read only pending recovery. Or if the files have their owner set to a user other than you. Or if your file is open in another program. You will need to fix the underlying cause of the permissions error before resuming to use |app|. Read the error message carefully, see what file it points to and fix the permissions on that file.
+A permission denied error can occur because of many possible reasons, none of them having anything to do with |app|. 
+
+  * You can get permission denied errors if you are using an SD card with write protect enabled. 
+  * If you, or some program you used changed the file permissions of the files in question to read only. 
+  * If there is a filesystem error on the device which caused your operating system to mount the filesystem in read only mode or mark a particular file as read only pending recovery.
+  * If the files have their owner set to a user other than you.
+  * If your file is open in another program.
+  * If the file resides on a device, you may have reached the limit of a maximum of 256 files in the root of the device. In this case you need to reformat the device/sd card referered to in the error message with a FAT32 filesystem, or delete some files from the SD card/device memory.
+    
+You will need to fix the underlying cause of the permissions error before resuming to use |app|. Read the error message carefully, see what file it points to and fix the permissions on that file.
 
 Can I have the comment metadata show up on my reader?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -492,27 +560,16 @@ I want some feature added to |app|. What can I do?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 You have two choices:
  1. Create a patch by hacking on |app| and send it to me for review and inclusion. See `Development <http://calibre-ebook.com/get-involved>`_.
- 2. `Open a ticket <http://bugs.calibre-ebook.com/newticket>`_ (you have to register and login first). Remember that |app| development is done by volunteers, so if you get no response to your feature request, it means no one feels like implementing it.
+ 2. `Open a ticket <http://calibre-ebook.com/bugs>`_ (you have to register and login first). Remember that |app| development is done by volunteers, so if you get no response to your feature request, it means no one feels like implementing it.
 
-Can I include |app| on a CD to be distributed with my product/magazine?
+How is |app| licensed?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-|app| is licensed under the GNU General Public License v3 (an open source license). This means that you are free to redistribute |app| as long as you make the source code available. So if you want to put |app| on a CD with your product, you must also put the |app| source code on the CD. The source code is available for download `from googlecode <http://code.google.com/p/calibre-ebook/downloads/list>`_.
+|app| is licensed under the GNU General Public License v3 (an open source license). This means that you are free to redistribute |app| as long as you make the source code available. So if you want to put |app| on a CD with your product, you must also put the |app| source code on the CD. The source code is available for download `from googlecode <http://code.google.com/p/calibre-ebook/downloads/list>`_. You are free to use the results of conversions from |app| however you want. You cannot use code, libraries from |app| in your software without making your software open source. For details, see `The GNU GPL v3 <http://www.gnu.org/licenses/gpl.html>`_.
 
 How do I run calibre from my USB stick?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 A portable version of calibre is available at: `portableapps.com <http://portableapps.com/node/20518>`_. However, this is usually out of date. You can also setup your own portable calibre install by following :ref:`these instructions <portablecalibre>`.
-
-Why are there so many calibre-parallel processes on my system?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-|app| maintains two separate worker process pools. One is used for adding books/saving to disk and the other for conversions. You can control the number of worker processes via :guilabel:`Preferences->Advanced->Miscellaneous`. So if you set it to 6 that means a maximum of 3 conversions will run simultaneously. And that is why you will see the number of worker processes changes by two when you use the up and down arrows. On windows, you can set the priority that these processes run with. This can be useful on older, single CPU machines, if you find them slowing down to a crawl when conversions are running.
-
-In addition to this some conversion plugins run tasks in their own pool of processes, so for example if you bulk convert comics, each comic conversion will use three separate processes to render the images. The job manager knows this so it will run only a single comic conversion simultaneously.
-
-And since I'm sure someone will ask: The reason adding/saving books are in separate processes is because of PDF. PDF processing libraries can crash on reading PDFs and I dont want the crash to take down all of calibre. Also when adding EPUB books, in order to extract the cover you have to sometimes render the HTML of the first page, which means that it either has to run in the GUI thread of the main process or in a separate process.
-
-Finally, the reason calibre keep workers alive and idle instead of launching on demand is to workaround the slow startup time of python processes.
 
 How do I run parts of |app| like news download and the content server on my own linux server?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -530,7 +587,7 @@ You can download news and convert it into an ebook with the command::
 
    /opt/calibre/ebook-convert "Title of news source.recipe" outputfile.epub
 
-If you want to generate MOBI, use outputfile.mobi instead.
+If you want to generate MOBI, use outputfile.mobi instead and use ``--output-profile kindle``.
 
 You can email downloaded news with the command::
 

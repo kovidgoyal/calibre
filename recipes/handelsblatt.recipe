@@ -1,0 +1,39 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class Handelsblatt(BasicNewsRecipe):
+    title          = u'Handelsblatt'
+    __author__ = 'malfi'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    no_stylesheets = True
+#    cover_url = 'http://www.handelsblatt.com/images/logo/logo_handelsblatt.com.png'
+    language = 'de'
+
+    remove_tags_before =  dict(attrs={'class':'hcf-overline'})
+    remove_tags_after  =  dict(attrs={'class':'hcf-footer'})
+
+    feeds          = [
+                        (u'Handelsblatt Exklusiv',u'http://www.handelsblatt.com/rss/exklusiv'),
+                        (u'Handelsblatt Top-Themen',u'http://www.handelsblatt.com/rss/top-themen'),
+                        (u'Handelsblatt Schlagzeilen',u'http://www.handelsblatt.com/rss/ticker/'),
+                        (u'Handelsblatt Finanzen',u'http://www.handelsblatt.com/rss/finanzen/'),
+                        (u'Handelsblatt Unternehmen',u'http://www.handelsblatt.com/rss/unternehmen/'),
+                        (u'Handelsblatt Politik',u'http://www.handelsblatt.com/rss/politik/'),
+                        (u'Handelsblatt Technologie',u'http://www.handelsblatt.com/rss/technologie/'),
+                        (u'Handelsblatt Meinung',u'http://www.handelsblatt.com/rss/meinung'),
+                        (u'Handelsblatt Magazin',u'http://www.handelsblatt.com/rss/magazin/'),
+                        (u'Handelsblatt Weblogs',u'http://www.handelsblatt.com/rss/blogs')
+                     ]
+
+    extra_css = '''
+        h1{font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:large;}
+        h2{font-family:Arial,Helvetica,sans-serif; font-weight:normal;font-size:small;}
+        p{font-family:Arial,Helvetica,sans-serif;font-size:small;}
+        body{font-family:Helvetica,Arial,sans-serif;font-size:small;}
+        '''
+
+    def print_version(self, url):
+        url = url.split('/')
+        url[-1] = 'v_detail_tab_print,'+url[-1]
+        url = '/'.join(url)
+        return url

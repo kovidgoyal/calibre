@@ -5,7 +5,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 '''Read meta information from epub files'''
 
-import os, re, posixpath, shutil
+import os, re, posixpath
 from cStringIO import StringIO
 from contextlib import closing
 
@@ -192,6 +192,13 @@ def get_metadata(stream, extract_cover=True):
 def get_quick_metadata(stream):
     return get_metadata(stream, False)
 
+def _write_new_cover(new_cdata, cpath):
+    from calibre.utils.magick.draw import save_cover_data_to
+    new_cover = PersistentTemporaryFile(suffix=os.path.splitext(cpath)[1])
+    new_cover.close()
+    save_cover_data_to(new_cdata, new_cover.name)
+    return new_cover
+
 def set_metadata(stream, mi, apply_null=False, update_timestamp=False):
     stream.seek(0)
     reader = OCFZipReader(stream, root=os.getcwdu())
@@ -208,6 +215,7 @@ def set_metadata(stream, mi, apply_null=False, update_timestamp=False):
             new_cdata = open(mi.cover, 'rb').read()
         except:
             pass
+    new_cover = cpath = None
     if new_cdata and raster_cover:
         try:
             cpath = posixpath.join(posixpath.dirname(reader.opf_path),
@@ -215,19 +223,7 @@ def set_metadata(stream, mi, apply_null=False, update_timestamp=False):
             cover_replacable = not reader.encryption_meta.is_encrypted(cpath) and \
                     os.path.splitext(cpath)[1].lower() in ('.png', '.jpg', '.jpeg')
             if cover_replacable:
-                from calibre.utils.magick.draw import save_cover_data_to, \
-                    identify
-                new_cover = PersistentTemporaryFile(suffix=os.path.splitext(cpath)[1])
-                resize_to = None
-                if False: # Resize new cover to same size as old cover
-                    shutil.copyfileobj(reader.open(cpath), new_cover)
-                    new_cover.close()
-                    width, height, fmt = identify(new_cover.name)
-                    resize_to = (width, height)
-                else:
-                    new_cover.close()
-                save_cover_data_to(new_cdata, new_cover.name,
-                        resize_to=resize_to)
+                new_cover = _write_new_cover(new_cdata, cpath)
                 replacements[cpath] = open(new_cover.name, 'rb')
         except:
             import traceback
@@ -249,4 +245,11 @@ def set_metadata(stream, mi, apply_null=False, update_timestamp=False):
     newopf = StringIO(reader.opf.render())
     safe_replace(stream, reader.container[OPF.MIMETYPE], newopf,
             extra_replacements=replacements)
+    try:
+        if cpath is not None:
+            replacements[cpath].close()
+            os.remove(replacements[cpath].name)
+    except:
+        pass
+
 

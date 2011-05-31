@@ -9,9 +9,9 @@ import re
 
 from PyQt4.Qt import Qt, QVariant, QListWidgetItem
 
-from calibre.gui2.preferences import ConfigWidgetBase, test_widget
+from calibre.gui2.preferences import ConfigWidgetBase, test_widget, Setting
 from calibre.gui2.preferences.behavior_ui import Ui_Form
-from calibre.gui2 import config, info_dialog, dynamic
+from calibre.gui2 import config, info_dialog, dynamic, gprefs
 from calibre.utils.config import prefs
 from calibre.customize.ui import available_output_formats, all_input_formats
 from calibre.utils.search_query_parser import saved_searches
@@ -20,6 +20,10 @@ from calibre.ebooks.oeb.iterator import is_supported
 from calibre.constants import iswindows
 from calibre.utils.icu import sort_key
 
+class OutputFormatSetting(Setting):
+
+    CHOICES_SEARCH_FLAGS = Qt.MatchFixedString
+
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def genesis(self, gui):
@@ -27,15 +31,14 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         db = gui.library_view.model().db
 
         r = self.register
-
-        r('worker_process_priority', prefs, choices=
-                [(_('Low'), 'low'), (_('Normal'), 'normal'), (_('High'), 'high')])
+        choices = [(_('Low'), 'low'), (_('Normal'), 'normal'), (_('High'),
+            'high')] if iswindows else \
+                    [(_('Normal'), 'normal'), (_('Low'), 'low'), (_('Very low'),
+                        'high')]
+        r('worker_process_priority', prefs, choices=choices)
 
         r('network_timeout', prefs)
 
-
-        r('overwrite_author_title_metadata', config)
-        r('get_social_metadata', config)
         r('new_version_notification', config)
         r('upload_news_to_device', config)
         r('delete_news_from_library_on_upload', config)
@@ -43,7 +46,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         output_formats = list(sorted(available_output_formats()))
         output_formats.remove('oeb')
         choices = [(x.upper(), x) for x in output_formats]
-        r('output_format', prefs, choices=choices)
+        r('output_format', prefs, choices=choices, setting=OutputFormatSetting)
 
         restrictions = sorted(saved_searches().names(), key=sort_key)
         choices = [('', '')] + [(x, x) for x in restrictions]
@@ -56,9 +59,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             signal = getattr(self.opt_internally_viewed_formats, 'item'+signal)
             signal.connect(self.internally_viewed_formats_changed)
 
-        self.settings['worker_process_priority'].gui_obj.setVisible(iswindows)
-        self.priority_label.setVisible(iswindows)
-
+        r('bools_are_tristate', db.prefs, restart_required=True)
+        r = self.register
+        choices = [(_('Default'), 'default'), (_('Compact Metadata'), 'alt1'),
+                   (_('All on 1 tab'), 'alt2')]
+        r('edit_metadata_single_layout', gprefs, choices=choices)
 
     def initialize(self):
         ConfigWidgetBase.initialize(self)

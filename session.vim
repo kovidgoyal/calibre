@@ -18,6 +18,6 @@ def recipe_title_callback(raw):
     return eval(raw.decode('utf-8'))
 
 vipy.session.add_content_browser('.r', ',r', 'Recipe',
-    vipy.session.glob_based_iterator(os.path.join(project_dir, 'resources', 'recipes', '*.recipe')),
+    vipy.session.glob_based_iterator(os.path.join(project_dir, 'recipes', '*.recipe')),
     vipy.session.regexp_based_matcher(r'title\s*=\s*(?P<title>.+)', 'title', recipe_title_callback))
 EOFPY

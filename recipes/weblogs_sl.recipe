@@ -1,0 +1,107 @@
+#!/usr/bin/env  python
+__license__     = 'GPL v3'
+__copyright__   = '4 February 2011, desUBIKado'
+__author__      = 'desUBIKado'
+__version__     = 'v0.05'
+__date__        = '13, April 2011'
+'''
+http://www.weblogssl.com/
+'''
+
+import re
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class weblogssl(BasicNewsRecipe):
+    __author__     = 'desUBIKado'
+    description    = u'Weblogs colectivos dedicados a seguir la actualidad sobre tecnologia, entretenimiento, estilos de vida, motor, deportes y economia.'
+    title          = u'Weblogs SL (Xataka, Genbeta, VidaExtra, Blog de Cine y otros)'
+    publisher      = 'Weblogs SL'
+    category       = 'Gadgets, Tech news, Product reviews, mobiles, science, cinema, entertainment, culture, tv, food, recipes, life style, motor, F1, sports, economy'
+    language       = 'es'
+    timefmt        = '[%a, %d %b, %Y]'
+    oldest_article = 1
+    max_articles_per_feed = 100
+    encoding       = 'utf-8'
+    use_embedded_content  = False
+    remove_empty_feeds    = True
+    remove_javascript = True
+    no_stylesheets = True
+
+    # Si no se quiere recuperar todos los blogs se puede suprimir la descarga del que se desee poniendo
+    # un caracter # por delante, es decir,  # ,(u'Applesfera', u'http://feeds.weblogssl.com/applesfera')
+    # haría que no se descargase Applesfera.
+
+    feeds              = [
+                          (u'Xataka', u'http://feeds.weblogssl.com/xataka2')
+                          ,(u'Xataka M\xf3vil', u'http://feeds.weblogssl.com/xatakamovil')
+                          ,(u'Xataka Android', u'http://feeds.weblogssl.com/xatakandroid')
+                          ,(u'Xataka Foto', u'http://feeds.weblogssl.com/xatakafoto')
+                          ,(u'Xataka ON', u'http://feeds.weblogssl.com/xatakaon')
+                          ,(u'Xataka Ciencia', u'http://feeds.weblogssl.com/xatakaciencia')
+                          ,(u'Genbeta', u'http://feeds.weblogssl.com/genbeta')
+                          ,(u'Genbeta Dev', u'http://feeds.weblogssl.com/genbetadev')
+                          ,(u'Applesfera', u'http://feeds.weblogssl.com/applesfera')
+                          ,(u'Vida Extra', u'http://feeds.weblogssl.com/vidaextra')
+                          ,(u'Naci\xf3n Red', u'http://feeds.weblogssl.com/nacionred')
+                          ,(u'Blog de Cine', u'http://feeds.weblogssl.com/blogdecine')
+                          ,(u'Vaya tele', u'http://feeds.weblogssl.com/vayatele2')
+                          ,(u'Hipers\xf3nica', u'http://feeds.weblogssl.com/hipersonica')
+                          ,(u'Diario del viajero', u'http://feeds.weblogssl.com/diariodelviajero')
+                          ,(u'Papel en blanco', u'http://feeds.weblogssl.com/papelenblanco')
+                          ,(u'Pop rosa', u'http://feeds.weblogssl.com/poprosa')
+                          ,(u'Zona FandoM', u'http://feeds.weblogssl.com/zonafandom')
+                          ,(u'Fandemia', u'http://feeds.weblogssl.com/fandemia')
+                          ,(u'Noctamina', u'http://feeds.weblogssl.com/noctamina')
+                          ,(u'Tendencias', u'http://feeds.weblogssl.com/trendencias')
+                          ,(u'Beb\xe9s y m\xe1s', u'http://feeds.weblogssl.com/bebesymas')
+                          ,(u'Directo al paladar', u'http://feeds.weblogssl.com/directoalpaladar')
+                          ,(u'Compradicci\xf3n', u'http://feeds.weblogssl.com/compradiccion')
+                          ,(u'Decoesfera', u'http://feeds.weblogssl.com/decoesfera')
+                          ,(u'Embelezzia', u'http://feeds.weblogssl.com/embelezzia')
+                          ,(u'Vit\xf3nica', u'http://feeds.weblogssl.com/vitonica')
+                          ,(u'Ambiente G', u'http://feeds.weblogssl.com/ambienteg')
+                          ,(u'Arrebatadora', u'http://feeds.weblogssl.com/arrebatadora')
+                          ,(u'Mensencia', u'http://feeds.weblogssl.com/mensencia')
+                          ,(u'Peques y m\xe1s', u'http://feeds.weblogssl.com/pequesymas')
+                          ,(u'Motorpasi\xf3n', u'http://feeds.weblogssl.com/motorpasion')
+                          ,(u'Motorpasi\xf3n F1', u'http://feeds.weblogssl.com/motorpasionf1')
+                          ,(u'Motorpasi\xf3n Moto', u'http://feeds.weblogssl.com/motorpasionmoto')
+                          ,(u'Motorpasi\xf3n Futuro', u'http://feeds.weblogssl.com/motorpasionfuturo')
+                          ,(u'Notas de futbol', u'http://feeds.weblogssl.com/notasdefutbol')
+                          ,(u'Fuera de l\xedmites', u'http://feeds.weblogssl.com/fueradelimites')
+                          ,(u'Salir a ganar', u'http://feeds.weblogssl.com/saliraganar')
+                          ,(u'El blog salm\xf3n', u'http://feeds.weblogssl.com/elblogsalmon2')
+                          ,(u'Pymes y aut\xf3nomos', u'http://feeds.weblogssl.com/pymesyautonomos')
+                          ,(u'Tecnolog\xeda Pyme', u'http://feeds.weblogssl.com/tecnologiapyme')
+                          ,(u'Ahorro diario', u'http://feeds.weblogssl.com/ahorrodiario')
+                         ]
+
+
+    keep_only_tags     = [dict(name='div', attrs={'id':'infoblock'}),
+                          dict(name='div', attrs={'class':'post'}),
+                          dict(name='div', attrs={'id':'blog-comments'})
+                         ]
+
+    remove_tags        = [dict(name='div', attrs={'id':'comment-nav'})]
+
+    def print_version(self, url):
+          return url.replace('http://www.', 'http://m.')
+
+    preprocess_regexps = [
+                            # Para poner una linea en blanco entre un comentario y el siguiente
+                           (re.compile(r'<li id="c', re.DOTALL|re.IGNORECASE), lambda match: '<br><br><li id="c')
+                         ]
+
+    # Para sustituir el video incrustado de YouTube por una imagen
+
+    def preprocess_html(self, soup):
+        for video_yt in soup.findAll('iframe',{'title':'YouTube video player'}):
+            if video_yt:
+               video_yt.name = 'img'
+               fuente = video_yt['src']
+               fuente2 = fuente.replace('http://www.youtube.com/embed/','http://img.youtube.com/vi/')
+               fuente3 = fuente2.replace('?rel=0','')
+               video_yt['src'] = fuente3 + '/0.jpg'
+
+        return soup
+

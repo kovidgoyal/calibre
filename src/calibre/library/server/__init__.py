@@ -10,7 +10,7 @@ import os
 from calibre.utils.config import Config, StringConfig, config_dir, tweaks
 
 
-listen_on = '0.0.0.0'
+listen_on = tweaks['server_listen_on']
 
 
 log_access_file = os.path.join(config_dir, 'server_access_log.txt')

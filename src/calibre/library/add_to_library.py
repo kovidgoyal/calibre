@@ -8,7 +8,6 @@ __docformat__ = 'restructuredtext en'
 import os
 from hashlib import sha1
 
-from calibre.constants import filesystem_encoding
 from calibre.ebooks import BOOK_EXTENSIONS
 
 def find_folders_under(root, db, add_root=True, # {{{
@@ -17,21 +16,13 @@ def find_folders_under(root, db, add_root=True, # {{{
     Find all folders under the specified root path, ignoring any folders under
     the library path of db
 
-    root must be a bytestring in filesystem_encoding
-
     If follow_links is True, follow symbolic links. WARNING; this can lead to
     infinite recursion.
 
     cancel_callback must be a no argument callable that returns True to cancel
     the search
     '''
-    assert not isinstance(root, unicode) # root must be in filesystem encoding
     lp = db.library_path
-    if isinstance(lp, unicode):
-        try:
-            lp = lp.encode(filesystem_encoding)
-        except:
-            lp = None
     if lp:
         lp = os.path.abspath(lp)
 

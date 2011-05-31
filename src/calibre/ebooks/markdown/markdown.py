@@ -34,7 +34,7 @@ License: GPL 2 (http://www.gnu.org/copyleft/gpl.html) or BSD
 import re, sys, codecs
 
 from logging import getLogger, StreamHandler, Formatter, \
-                    DEBUG, INFO, WARN, ERROR, CRITICAL
+                    DEBUG, INFO, WARN, CRITICAL
 
 
 MESSAGE_THRESHOLD = CRITICAL
@@ -95,7 +95,7 @@ def removeBOM(text, encoding):
 # and uses the actual name of the executable called.)
 
 EXECUTABLE_NAME_FOR_USAGE = "python markdown.py"
-                    
+
 
 # --------------- CONSTANTS YOU _SHOULD NOT_ HAVE TO CHANGE ----------
 
@@ -242,8 +242,6 @@ class Element:
 
         if bidi:
 
-            orig_bidi = self.bidi
-
             if not self.bidi or self.isDocumentElement:
                 # Once the bidi is set don't change it (except for doc element)
                 self.bidi = bidi
@@ -319,7 +317,7 @@ class Element:
             childBuffer += "/>"
 
 
-            
+
         buffer += "<" + self.nodeName
 
         if self.nodeName in ['p', 'li', 'ul', 'ol',
@@ -330,10 +328,10 @@ class Element:
                     bidi = self.bidi
                 else:
                     bidi = self.doc.bidi
-                    
+
                 if bidi=="rtl":
                     self.setAttribute("dir", "rtl")
-        
+
         for attr in self.attributes:
             value = self.attribute_values[attr]
             value = self.doc.normalizeEntities(value,
@@ -358,7 +356,7 @@ class TextNode:
     attrRegExp = re.compile(r'\{@([^\}]*)=([^\}]*)}') # {@id=123}
 
     def __init__ (self, text):
-        self.value = text        
+        self.value = text
 
     def attributeCallback(self, match):
 
@@ -372,7 +370,7 @@ class TextNode:
         text = self.value
 
         self.parent.setBidi(getBidiType(text))
-        
+
         if not text.startswith(HTML_PLACEHOLDER_PREFIX):
             if self.parent.nodeName == "p":
                 text = text.replace("\n", "\n   ")
@@ -413,11 +411,11 @@ There are two types of preprocessors: TextPreprocessor and Preprocessor.
 class TextPreprocessor:
     '''
     TextPreprocessors are run before the text is broken into lines.
-    
+
     Each TextPreprocessor implements a "run" method that takes a pointer to a
     text string of the document, modifies it as necessary and returns
-    either the same pointer or a pointer to a new string.  
-    
+    either the same pointer or a pointer to a new string.
+
     TextPreprocessors must extend markdown.TextPreprocessor.
     '''
 
@@ -431,18 +429,18 @@ class Preprocessor:
 
     Each preprocessor implements a "run" method that takes a pointer to a
     list of lines of the document, modifies it as necessary and returns
-    either the same pointer or a pointer to a new list.  
-    
+    either the same pointer or a pointer to a new list.
+
     Preprocessors must extend markdown.Preprocessor.
     '''
 
     def run(self, lines):
         pass
- 
+
 
 class HtmlBlockPreprocessor(TextPreprocessor):
     """Removes html blocks from the source text and stores it."""
-    
+
     def _get_left_tag(self, block):
         return block[1:].replace(">", " ", 1).split()[0].lower()
 
@@ -451,7 +449,7 @@ class HtmlBlockPreprocessor(TextPreprocessor):
         return block.rstrip()[-len(left_tag)-2:-1].lower()
 
     def _equal_tags(self, left_tag, right_tag):
-        
+
         if left_tag == 'div' or left_tag[0] in ['?', '@', '%']: # handle PHP, etc.
             return True
         if ("/" + left_tag) == right_tag:
@@ -467,17 +465,17 @@ class HtmlBlockPreprocessor(TextPreprocessor):
     def _is_oneliner(self, tag):
         return (tag in ['hr', 'hr/'])
 
-    
+
     def run(self, text):
 
         new_blocks = []
         text = text.split("\n\n")
-        
+
         items = []
         left_tag = ''
         right_tag = ''
         in_tag = False # flag
-        
+
         for block in text:
             if block.startswith("\n"):
                 block = block[1:]
@@ -485,7 +483,7 @@ class HtmlBlockPreprocessor(TextPreprocessor):
             if not in_tag:
 
                 if block.startswith("<"):
-                    
+
                     left_tag = self._get_left_tag(block)
                     right_tag = self._get_right_tag(left_tag, block)
 
@@ -497,13 +495,13 @@ class HtmlBlockPreprocessor(TextPreprocessor):
                     if self._is_oneliner(left_tag):
                         new_blocks.append(block.strip())
                         continue
-                        
+
                     if block[1] == "!":
                         # is a comment block
                         left_tag = "--"
                         right_tag = self._get_right_tag(left_tag, block)
                         # keep checking conditions below and maybe just append
-                        
+
                     if block.rstrip().endswith(">") \
                         and self._equal_tags(left_tag, right_tag):
                         new_blocks.append(
@@ -519,9 +517,9 @@ class HtmlBlockPreprocessor(TextPreprocessor):
 
             else:
                 items.append(block.strip())
-                
+
                 right_tag = self._get_right_tag(left_tag, block)
-                
+
                 if self._equal_tags(left_tag, right_tag):
                     # if find closing tag
                     in_tag = False
@@ -532,7 +530,7 @@ class HtmlBlockPreprocessor(TextPreprocessor):
         if items:
             new_blocks.append(self.stash.store('\n\n'.join(items)))
             new_blocks.append('\n')
-            
+
         return "\n\n".join(new_blocks)
 
 HTML_BLOCK_PREPROCESSOR = HtmlBlockPreprocessor()
@@ -605,7 +603,7 @@ LINE_PREPROCESSOR = LinePreprocessor()
 
 
 class ReferencePreprocessor(Preprocessor):
-    ''' 
+    '''
     Removes reference definitions from the text and stores them for later use.
     '''
 
@@ -760,7 +758,7 @@ class BacktickPattern (Pattern):
         return el
 
 
-class DoubleTagPattern (SimpleTagPattern): 
+class DoubleTagPattern (SimpleTagPattern):
 
     def handleMatch(self, m, doc):
         tag1, tag2 = self.tag.split(",")
@@ -775,7 +773,6 @@ class HtmlPattern (Pattern):
 
     def handleMatch (self, m, doc):
         rawhtml = m.group(2)
-        inline = True
         place_holder = self.stash.store(rawhtml)
         return doc.createTextNode(place_holder)
 
@@ -926,11 +923,11 @@ There are two types of post-processors: Postprocessor and TextPostprocessor
 class Postprocessor:
     '''
     Postprocessors are run before the dom it converted back into text.
-    
+
     Each Postprocessor implements a "run" method that takes a pointer to a
-    NanoDom document, modifies it as necessary and returns a NanoDom 
+    NanoDom document, modifies it as necessary and returns a NanoDom
     document.
-    
+
     Postprocessors must extend markdown.Postprocessor.
 
     There are currently no standard post-processors, but the footnote
@@ -945,10 +942,10 @@ class Postprocessor:
 class TextPostprocessor:
     '''
     TextPostprocessors are run after the dom it converted back into text.
-    
+
     Each TextPostprocessor implements a "run" method that takes a pointer to a
     text string, modifies it as necessary and returns a text string.
-    
+
     TextPostprocessors must extend markdown.TextPostprocessor.
     '''
 
@@ -971,7 +968,7 @@ class RawHtmlTextPostprocessor(TextPostprocessor):
                     html = ''
                 else:
                     html = HTML_REMOVED_TEXT
-                                   
+
             text = text.replace("<p>%s\n</p>" % (HTML_PLACEHOLDER % i),
                               html + "\n")
             text =  text.replace(HTML_PLACEHOLDER % i, html)
@@ -1031,7 +1028,6 @@ class BlockGuru:
                       remainder of the original list"""
 
         items = []
-        item = -1
 
         i = 0 # to keep track of where we are
 
@@ -1187,7 +1183,7 @@ class Markdown:
                                    RAWHTMLTEXTPOSTPROCESSOR]
 
         self.prePatterns = []
-        
+
 
         self.inlinePatterns = [DOUBLE_BACKTICK_PATTERN,
                                BACKTICK_PATTERN,
@@ -1241,7 +1237,7 @@ class Markdown:
                     configs_for_ext = configs[ext]
                 else:
                     configs_for_ext = []
-                extension = module.makeExtension(configs_for_ext)    
+                extension = module.makeExtension(configs_for_ext)
                 extension.extendMarkdown(self, globals())
 
 
@@ -1310,7 +1306,7 @@ class Markdown:
             else:
                 buffer.append(line)
         self._processSection(self.top_element, buffer)
-        
+
         #self._processSection(self.top_element, self.lines)
 
         # Not sure why I put this in but let's leave it for now.
@@ -1426,7 +1422,7 @@ class Markdown:
 
         for item in list:
             el.appendChild(item)
- 
+
 
     def _processUList(self, parent_elem, lines, inList):
         self._processList(parent_elem, lines, inList,
@@ -1458,7 +1454,7 @@ class Markdown:
 
         i = 0  # a counter to keep track of where we are
 
-        for line in lines: 
+        for line in lines:
 
             loose = 0
             if not line.strip():
@@ -1477,7 +1473,7 @@ class Markdown:
 
                 # Check if the next non-blank line is still a part of the list
                 if ( RE.regExp['ul'].match(next) or
-                     RE.regExp['ol'].match(next) or 
+                     RE.regExp['ol'].match(next) or
                      RE.regExp['tabbed'].match(next) ):
                     # get rid of any white space in the line
                     items[item].append(line.strip())
@@ -1618,7 +1614,7 @@ class Markdown:
             i = 0
 
             while i < len(parts):
-                
+
                 x = parts[i]
 
                 if isinstance(x, (str, unicode)):
@@ -1641,14 +1637,14 @@ class Markdown:
                 parts[i] = self.doc.createTextNode(x)
 
         return parts
-        
+
 
     def _applyPattern(self, line, pattern, patternIndex):
 
         """ Given a pattern name, this function checks if the line
         fits the pattern, creates the necessary elements, and returns
         back a list consisting of NanoDom elements and/or strings.
-        
+
         @param line: the text to be processed
         @param pattern: the pattern to be checked
 
@@ -1676,19 +1672,19 @@ class Markdown:
             if not node.nodeName in ["code", "pre"]:
                 for child in node.childNodes:
                     if isinstance(child, TextNode):
-                        
+
                         result = self._handleInline(child.value, patternIndex+1)
-                        
+
                         if result:
 
                             if result == [child]:
                                 continue
-                                
+
                             result.reverse()
                             #to make insertion easier
 
                             position = node.childNodes.index(child)
-                            
+
                             node.removeChild(child)
 
                             for item in result:
@@ -1699,7 +1695,7 @@ class Markdown:
                                              self.doc.createTextNode(item))
                                 else:
                                     node.insertChild(position, item)
-                
+
 
 
 
@@ -1798,14 +1794,14 @@ def markdownFromFile(input = None,
 def markdown(text,
              extensions = [],
              safe_mode = False):
-    
+
     message(DEBUG, "in markdown.markdown(), received text:\n%s" % text)
 
     extension_names = []
     extension_configs = {}
-    
+
     for ext in extensions:
-        pos = ext.find("(") 
+        pos = ext.find("(")
         if pos == -1:
             extension_names.append(ext)
         else:
@@ -1820,7 +1816,7 @@ def markdown(text,
                   safe_mode = safe_mode)
 
     return md.convert(text)
-        
+
 
 class Extension:
 
@@ -1845,26 +1841,11 @@ Python 2.3 or higher required for advanced command line options.
 For lower versions of Python use:
 
       %s INPUT_FILE > OUTPUT_FILE
-    
+
 """ % EXECUTABLE_NAME_FOR_USAGE
 
 def parse_options():
-
-    try:
-        optparse = __import__("optparse")
-    except:
-        if len(sys.argv) == 2:
-            return {'input': sys.argv[1],
-                    'output': None,
-                    'message_threshold': CRITICAL,
-                    'safe': False,
-                    'extensions': [],
-                    'encoding': None }
-
-        else:
-            print OPTPARSE_WARNING
-            return None
-
+    import optparse
     parser = optparse.OptionParser(usage="%prog INPUTFILE [options]")
 
     parser.add_option("-f", "--file", dest="filename",
@@ -1881,7 +1862,7 @@ def parse_options():
     parser.add_option("-s", "--safe", dest="safe", default=False,
                       metavar="SAFE_MODE",
                       help="same mode ('replace', 'remove' or 'escape'  user's HTML tag)")
-    
+
     parser.add_option("--noisy",
                       action="store_const", const=DEBUG, dest="verbose",
                       help="print debug messages")
@@ -1914,14 +1895,14 @@ def main():
 
     if not options:
         sys.exit(0)
-    
+
     markdownFromFile(**options)
 
 if __name__ == '__main__':
     sys.exit(main())
     """ Run Markdown from the command line. """
 
-    
+
 
 
 

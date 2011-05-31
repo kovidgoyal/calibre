@@ -90,7 +90,7 @@
        </property>
        <property name="icon">
         <iconset>
-         <normaloff>:/images/minus.png</normaloff>:/images/minus.png</iconset>
+         <normaloff>:/images/trash.png</normaloff>:/images/trash.png</iconset>
        </property>
       </widget>
      </item>
@@ -131,6 +131,20 @@
        <property name="icon">
         <iconset>
          <normaloff>:/images/plus.png</normaloff>:/images/plus.png</iconset>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="6">
+      <widget class="QToolButton" name="rename_button">
+       <property name="toolTip">
+        <string>Rename the current search to what is in the box</string>
+       </property>
+       <property name="text">
+        <string>...</string>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>:/images/edit-undo.png</normaloff>:/images/edit-undo.png</iconset>
        </property>
       </widget>
      </item>

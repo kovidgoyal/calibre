@@ -8,6 +8,7 @@ from collections import namedtuple
 from copy import deepcopy
 from xml.sax.saxutils import escape
 from lxml import etree
+from types import StringType, UnicodeType
 
 from calibre import prints, prepare_string_for_xml, strftime
 from calibre.constants import preferred_encoding, DEBUG
@@ -15,16 +16,18 @@ from calibre.customize import CatalogPlugin
 from calibre.customize.conversion import OptionRecommendation, DummyReporter
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, BeautifulStoneSoup, Tag, NavigableString
 from calibre.ebooks.chardet import substitute_entites
-from calibre.ebooks.oeb.base import XHTML_NS
+from calibre.library.save_to_disk import preprocess_template
 from calibre.ptempfile import PersistentTemporaryDirectory
+from calibre.utils.bibtex import BibTeX
 from calibre.utils.config import config_dir
 from calibre.utils.date import format_date, isoformat, is_date_undefined, now as nowf
+from calibre.utils.html2text import html2text
 from calibre.utils.icu import capitalize
 from calibre.utils.logging import default_log as log
-from calibre.utils.zipfile import ZipFile, ZipInfo
 from calibre.utils.magick.draw import thumbnail
+from calibre.utils.zipfile import ZipFile, ZipInfo
 
-FIELDS = ['all', 'title', 'author_sort', 'authors', 'comments',
+FIELDS = ['all', 'title', 'title_sort', 'author_sort', 'authors', 'comments',
           'cover', 'formats','id', 'isbn', 'ondevice', 'pubdate', 'publisher',
           'rating', 'series_index', 'series', 'size', 'tags', 'timestamp', 'uuid']
 
@@ -63,7 +66,7 @@ class CSV_XML(CatalogPlugin): # {{{
                 dest = 'sort_by',
                 action = None,
                 help = _('Output field to sort on.\n'
-                'Available fields: author_sort, id, rating, size, timestamp, title.\n'
+                'Available fields: author_sort, id, rating, size, timestamp, title_sort\n'
                 "Default: '%default'\n"
                 "Applies to: CSV, XML output formats"))]
 
@@ -73,7 +76,7 @@ class CSV_XML(CatalogPlugin): # {{{
 
         if opts.verbose:
             opts_dict = vars(opts)
-            log("%s(): Generating %s" % (self.name,self.fmt))
+            log("%s(): Generating %s" % (self.name,self.fmt.upper()))
             if opts.connected_device['is_device_connected']:
                 log(" connected_device: %s" % opts.connected_device['name'])
             if opts_dict['search_text']:
@@ -123,8 +126,11 @@ class CSV_XML(CatalogPlugin): # {{{
                 for field in fields:
                     if field.startswith('#'):
                         item = db.get_field(entry['id'],field,index_is_id=True)
+                    elif field == 'title_sort':
+                        item = entry['sort']
                     else:
                         item = entry[field]
+
                     if item is None:
                         outstr.append('""')
                         continue
@@ -164,7 +170,7 @@ class CSV_XML(CatalogPlugin): # {{{
                         item = getattr(E, field.replace('#','_'))(val)
                         record.append(item)
 
-                for field in ('id', 'uuid', 'title', 'publisher', 'rating', 'size',
+                for field in ('id', 'uuid', 'publisher', 'rating', 'size',
                               'isbn','ondevice'):
                     if field in fields:
                         val = r[field]
@@ -174,6 +180,10 @@ class CSV_XML(CatalogPlugin): # {{{
                             val = unicode(val)
                         item = getattr(E, field)(val)
                         record.append(item)
+
+                if 'title' in fields:
+                    title = E.title(r['title'], sort=r['sort'])
+                    record.append(title)
 
                 if 'authors' in fields:
                     aus = E.authors(sort=r['author_sort'])
@@ -304,12 +314,6 @@ class BIBTEX(CatalogPlugin): # {{{
 
     def run(self, path_to_output, opts, db, notification=DummyReporter()):
 
-        from types import StringType, UnicodeType
-
-        from calibre.library.save_to_disk import preprocess_template
-        #Bibtex functions
-        from calibre.utils.bibtex import BibTeX
-
         def create_bibtex_entry(entry, fields, mode, template_citation,
             bibtexdict, citation_bibtex=True, calibre_files=True):
 
@@ -366,6 +370,11 @@ class BIBTEX(CatalogPlugin): # {{{
                     #\n removal
                     item = item.replace(u'\r\n',u' ')
                     item = item.replace(u'\n',u' ')
+                    #html to text
+                    try:
+                        item = html2text(item)
+                    except:
+                        log.warn("Failed to convert comments to text")
                     bibtex_entry.append(u'note = "%s"' % bibtexdict.utf8ToBibtex(item))
 
                 elif field == 'isbn' :
@@ -942,6 +951,7 @@ class EPUB_MOBI(CatalogPlugin):
             catalog.createDirectoryStructure()
             catalog.copyResources()
             catalog.buildSources()
+        Options managed in gui2.catalog.catalog_epub_mobi.py
         '''
 
         # A single number creates 'Last x days' only.
@@ -4322,6 +4332,8 @@ Author '{0}':
             '''
             Generate description header from template
             '''
+            from calibre.ebooks.oeb.base import XHTML_NS
+
             def generate_html():
                 args = dict(
                             author=author,
@@ -5102,6 +5114,19 @@ Author '{0}':
                     OptionRecommendation.HIGH))
                 recommendations.append(('book_producer',opts.output_profile,
                     OptionRecommendation.HIGH))
+
+            # If cover exists, use it
+            try:
+                search_text = 'title:"%s" author:%s' % (
+                        opts.catalog_title.replace('"', '\\"'), 'calibre')
+                matches = db.search(search_text, return_matches=True)
+                if matches:
+                    cpath = db.cover(matches[0], index_is_id=True, as_path=True)
+                    if cpath and os.path.exists(cpath):
+                        recommendations.append(('cover', cpath,
+                            OptionRecommendation.HIGH))
+            except:
+                pass
 
             # Run ebook-convert
             from calibre.ebooks.conversion.plumber import Plumber

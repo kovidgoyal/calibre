@@ -1,0 +1,113 @@
+__license__   = 'GPL v3'
+__copyright__ = '2008-2011, Darko Miletic <darko.miletic at gmail.com>'
+'''
+lanacion.com.ar
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class Lanacion(BasicNewsRecipe):
+    title                 = 'La Nacion'
+    __author__            = 'Darko Miletic'
+    description           = "lanacion.com - Informacion actualizada las 24 horas, con noticias de Argentina y del mundo"
+    publisher             = 'La Nacion S.A.'
+    category              = 'news, politics, Argentina'
+    oldest_article        = 1
+    max_articles_per_feed = 100
+    use_embedded_content  = False
+    no_stylesheets        = True
+    language              = 'es_AR'
+    delay                 = 14
+    publication_type      = 'newspaper'
+    remove_empty_feeds    = True
+    masthead_url          = 'http://www.lanacion.com.ar/_ui/desktop/imgs/layout/logos/ln341x47.gif'
+    extra_css             = """
+                                h1{font-family: Georgia,serif}
+                                h2{color: #626262; font-weight: normal; font-size: 1.1em}
+                                body{font-family: Arial,sans-serif}
+                                img{margin-top: 0.5em; margin-bottom: 0.2em; display: block}
+                                .notaFecha{color: #808080; font-size: small}
+                                .notaEpigrafe{font-size: x-small}
+                                .topNota h1{font-family: Arial,sans-serif}
+                            """
+
+
+    conversion_options = {
+                          'comment'  : description
+                        , 'tags'     : category
+                        , 'publisher': publisher
+                        , 'language' : language
+                        }
+
+    keep_only_tags = [  
+                        dict(name='div', attrs={'class':['topNota','itemHeader','nota','itemBody']})
+                       ,dict(name='div', attrs={'id':'content'})
+                     ]
+    
+    remove_tags = [
+                     dict(name='div' , attrs={'class':'notaComentario floatFix noprint' })
+                    ,dict(name='ul'  , attrs={'class':['cajaHerramientas cajaTop noprint','herramientas noprint']})
+                    ,dict(name='div' , attrs={'class':['titulosMultimedia','herramientas noprint','cajaHerramientas noprint','cajaHerramientas floatFix']   })
+                    ,dict(attrs={'class':['izquierda','espacio17','espacio10','espacio20','floatFix ultimasNoticias','relacionadas','titulosMultimedia','derecha','techo color','encuesta','izquierda compartir','floatFix','videoCentro']})
+                    ,dict(name=['iframe','embed','object','form','base','hr','meta','link','input'])
+                  ]
+                  
+    remove_tags_after = dict(attrs={'class':['tags','nota-destacado']})
+    remove_attributes = ['height','width','visible','onclick','data-count','name']
+
+    feeds          = [
+                         (u'Politica'             , u'http://servicios.lanacion.com.ar/herramientas/rss/categoria_id=30'  )
+                        ,(u'Deportes'             , u'http://servicios.lanacion.com.ar/herramientas/rss/categoria_id=131' )
+                        ,(u'Economia'             , u'http://servicios.lanacion.com.ar/herramientas/rss/categoria_id=272' )
+                        ,(u'Informacion General'  , u'http://servicios.lanacion.com.ar/herramientas/rss/categoria_id=21'  )
+                        ,(u'Cultura'              , u'http://servicios.lanacion.com.ar/herramientas/rss/categoria_id=1'   )
+                        ,(u'Opinion'              , u'http://servicios.lanacion.com.ar/herramientas/rss/categoria_id=28'  )                        
+                        ,(u'Espectaculos'         , u'http://servicios.lanacion.com.ar/herramientas/rss/categoria_id=120' )
+                        ,(u'Exterior'             , u'http://servicios.lanacion.com.ar/herramientas/rss/categoria_id=7'   )
+                        ,(u'Ciencia&Salud'        , u'http://servicios.lanacion.com.ar/herramientas/rss/categoria_id=498' )
+                        ,(u'Revista'              , u'http://servicios.lanacion.com.ar/herramientas/rss/categoria_id=494' )
+                        ,(u'Enfoques'             , u'http://servicios.lanacion.com.ar/herramientas/rss/categoria_id=421' )
+                        ,(u'Comercio Exterior'    , u'http://servicios.lanacion.com.ar/herramientas/rss/categoria_id=347' )
+                        ,(u'Tecnologia'           , u'http://servicios.lanacion.com.ar/herramientas/rss/categoria_id=432' )
+                        ,(u'Arquitectura'         , u'http://servicios.lanacion.com.ar/herramientas/rss/categoria_id=366' )
+                        ,(u'Turismo'              , u'http://servicios.lanacion.com.ar/herramientas/rss/categoria_id=504' )
+                        ,(u'Al volante'           , u'http://servicios.lanacion.com.ar/herramientas/rss/categoria_id=371' )
+                        ,(u'El Campo'             , u'http://servicios.lanacion.com.ar/herramientas/rss/categoria_id=337' )
+                        ,(u'Moda y Belleza'       , u'http://servicios.lanacion.com.ar/herramientas/rss/categoria_id=1312')
+                        ,(u'Inmuebles Comerciales', u'http://servicios.lanacion.com.ar/herramientas/rss/categoria_id=1363')
+                        ,(u'Countries'            , u'http://servicios.lanacion.com.ar/herramientas/rss/categoria_id=1348')
+                        ,(u'adnCultura'           , u'http://servicios.lanacion.com.ar/herramientas/rss/categoria_id=6734')
+                        ,(u'The WSJ Americas'     , u'http://servicios.lanacion.com.ar/herramientas/rss/categoria_id=6373')
+                        ,(u'Comunidad'            , u'http://servicios.lanacion.com.ar/herramientas/rss/categoria_id=1344')
+                        ,(u'Management'           , u'http://servicios.lanacion.com.ar/herramientas/rss/categoria_id=7380')
+                        ,(u'Bicentenario'         , u'http://servicios.lanacion.com.ar/herramientas/rss/categoria_id=7276')
+                     ]
+
+                     
+    def get_article_url(self, article):
+        link = BasicNewsRecipe.get_article_url(self,article)
+        if link.startswith('http://blogs.lanacion') and not link.endswith('/'):
+           return self.browser.open_novisit(link).geturl()
+        if link.rfind('galeria=') > 0:
+           return None        
+        return link
+        
+    def preprocess_html(self, soup):
+        for item in soup.findAll(style=True):
+            del item['style']
+        for item in soup.findAll('a'):
+            limg = item.find('img')
+            if item.string is not None:
+               str = item.string
+               item.replaceWith(str)
+            else:
+               if limg:
+                  item.name = 'div'
+                  item.attrs = []
+               else:
+                   str = self.tag_to_string(item)
+                   item.replaceWith(str)
+        for item in soup.findAll('img'):
+            if not item.has_key('alt'):
+               item['alt'] = 'image'            
+        return soup

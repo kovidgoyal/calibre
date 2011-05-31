@@ -23,6 +23,16 @@
    <bool>false</bool>
   </property>
   <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0" colspan="2">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>&lt;p&gt;Explode the ePub to display contents in a file browser window. To tweak individual files, right-click, then 'Open with...' your editor of choice. When tweaks are complete, close the file browser window &lt;b&gt;and the editor windows you used to edit files in the epub&lt;/b&gt;.&lt;/p&gt;&lt;p&gt;Rebuild the ePub, updating your calibre library.&lt;/p&gt;</string>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
    <item row="1" column="0">
     <widget class="QPushButton" name="explode_button">
      <property name="statusTip">
@@ -34,23 +44,6 @@
      <property name="icon">
       <iconset resource="../../../../resources/images.qrc">
        <normaloff>:/images/wizard.png</normaloff>:/images/wizard.png</iconset>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="0">
-    <widget class="QPushButton" name="rebuild_button">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
-     <property name="statusTip">
-      <string>Rebuild ePub from exploded contents</string>
-     </property>
-     <property name="text">
-      <string>&amp;Rebuild ePub</string>
-     </property>
-     <property name="icon">
-      <iconset resource="../../../../resources/images.qrc">
-       <normaloff>:/images/exec.png</normaloff>:/images/exec.png</iconset>
      </property>
     </widget>
    </item>
@@ -68,13 +61,31 @@
      </property>
     </widget>
    </item>
-   <item row="0" column="0">
-    <widget class="QLabel" name="label">
-     <property name="text">
-      <string>&lt;p&gt;Explode the ePub to display contents in a file browser window. To tweak individual files, right-click, then 'Open with...' your editor of choice. When tweaks are complete, close the file browser window &lt;b&gt;and the editor windows you used to edit files in the epub&lt;/b&gt;.&lt;/p&gt;&lt;p&gt;Rebuild the ePub, updating your calibre library.&lt;/p&gt;</string>
+   <item row="3" column="1">
+    <widget class="QPushButton" name="rebuild_button">
+     <property name="enabled">
+      <bool>false</bool>
      </property>
-     <property name="wordWrap">
-      <bool>true</bool>
+     <property name="statusTip">
+      <string>Rebuild ePub from exploded contents</string>
+     </property>
+     <property name="text">
+      <string>&amp;Rebuild ePub</string>
+     </property>
+     <property name="icon">
+      <iconset resource="../../../../resources/images.qrc">
+       <normaloff>:/images/exec.png</normaloff>:/images/exec.png</iconset>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QPushButton" name="preview_button">
+     <property name="text">
+      <string>&amp;Preview ePub</string>
+     </property>
+     <property name="icon">
+      <iconset resource="../../../../resources/images.qrc">
+       <normaloff>:/images/view.png</normaloff>:/images/view.png</iconset>
      </property>
     </widget>
    </item>

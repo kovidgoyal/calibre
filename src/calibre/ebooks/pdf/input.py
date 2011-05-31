@@ -32,10 +32,11 @@ class PDFInput(InputFormatPlugin):
 
     def convert_new(self, stream, accelerators):
         from calibre.ebooks.pdf.reflow import PDFDocument
+        from calibre.utils.cleantext import clean_ascii_chars
         if pdfreflow_err:
             raise RuntimeError('Failed to load pdfreflow: ' + pdfreflow_err)
-        pdfreflow.reflow(stream.read())
-        xml = open('index.xml', 'rb').read()
+        pdfreflow.reflow(stream.read(), 1, -1)
+        xml = clean_ascii_chars(open('index.xml', 'rb').read())
         PDFDocument(xml, self.opts, self.log)
         return os.path.join(os.getcwd(), 'metadata.opf')
 

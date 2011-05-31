@@ -35,7 +35,7 @@
         <x>0</x>
         <y>0</y>
         <width>730</width>
-        <height>600</height>
+        <height>601</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -99,6 +99,17 @@
                <property name="icon">
                 <iconset resource="../../../../resources/images.qrc">
                  <normaloff>:/images/forward.png</normaloff>:/images/forward.png</iconset>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="show_recipe_files_button">
+               <property name="text">
+                <string>S&amp;how recipe files</string>
+               </property>
+               <property name="icon">
+                <iconset resource="../../../../resources/images.qrc">
+                 <normaloff>:/images/document_open.png</normaloff>:/images/document_open.png</iconset>
                </property>
               </widget>
              </item>
@@ -375,7 +386,7 @@ p, li { white-space: pre-wrap; }
                  <item>
                   <widget class="QLabel" name="label_8">
                    <property name="text">
-                    <string>For help with writing advanced news recipes, please visit &lt;a href=&quot;http://__appname__-ebook.com/user_manual/news.html&quot;&gt;User Recipes&lt;/a&gt;</string>
+                    <string>For help with writing advanced news recipes, please visit &lt;a href=&quot;http://manual.__appname__-ebook.com/news.html&quot;&gt;User Recipes&lt;/a&gt;</string>
                    </property>
                    <property name="wordWrap">
                     <bool>true</bool>
@@ -398,11 +409,6 @@ p, li { white-space: pre-wrap; }
                         <horstretch>100</horstretch>
                         <verstretch>0</verstretch>
                        </sizepolicy>
-                      </property>
-                      <property name="font">
-                       <font>
-                        <family>DejaVu Sans Mono</family>
-                       </font>
                       </property>
                       <property name="lineWrapMode">
                        <enum>QTextEdit::NoWrap</enum>

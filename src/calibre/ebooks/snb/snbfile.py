@@ -5,7 +5,8 @@ __copyright__ = '2010, Li Fanxi <lifanxi@freemindworld.com>'
 __docformat__ = 'restructuredtext en'
 
 import sys, struct, zlib, bz2, os
-from mimetypes import types_map
+
+from calibre import guess_type
 
 class FileStream:
     def IsBinary(self):
@@ -85,7 +86,7 @@ class SNBFile:
                                 uncompressedData += bzdc.decompress(data)
                             else:
                                 uncompressedData += data
-                        except Exception, e:
+                        except Exception as e:
                             print e
                 if len(uncompressedData) != self.plainStreamSizeUncompressed:
                     raise Exception()
@@ -180,7 +181,7 @@ class SNBFile:
                 file = open(os.path.join(path, fname), 'wb')
                 file.write(f.fileBody)
                 file.close()
-                fileNames.append((fname, types_map[ext]))
+                fileNames.append((fname, guess_type('a'+ext)[0]))
         return fileNames
 
     def Output(self, outputFile):

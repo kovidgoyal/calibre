@@ -21,6 +21,50 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
+    <layout class="QHBoxLayout" name="">
+     <item>
+      <widget class="QLabel">
+       <property name="text">
+        <string>&amp;Search for:</string>
+       </property>
+       <property name="buddy">
+        <cstring>find_box</cstring>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="HistoryLineEdit" name="find_box">
+       <property name="minimumSize">
+        <size>
+         <width>200</width>
+         <height>0</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="find_button">
+       <property name="text">
+        <string>F&amp;ind</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item>
     <widget class="QTableWidget" name="table">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -34,45 +78,45 @@
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
+    <layout class="QGridLayout">
+     <item row="0" column="0">
       <widget class="QPushButton" name="sort_by_author">
        <property name="text">
         <string>Sort by author</string>
        </property>
       </widget>
      </item>
-     <item>
+     <item row="0" column="1">
       <widget class="QPushButton" name="sort_by_author_sort">
        <property name="text">
         <string>Sort by author sort</string>
        </property>
       </widget>
      </item>
-     <item>
+     <item row="1" column="0">
       <widget class="QPushButton" name="recalc_author_sort">
        <property name="toolTip">
-        <string>Reset all the author sort values to a value automatically generated from the author. Exactly how this value is automatically generated can be controlled via Preferences-&gt;Advanced-&gt;Tweaks</string>
+        <string>Reset all the author sort values to a value automatically
+generated from the author. Exactly how this value is automatically
+generated can be controlled via Preferences-&gt;Advanced-&gt;Tweaks</string>
        </property>
        <property name="text">
         <string>Recalculate all author sort values</string>
        </property>
       </widget>
      </item>
-     <item>
-      <spacer name="horizontalSpacer_3">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+     <item row="1" column="1">
+      <widget class="QPushButton" name="auth_sort_to_author">
+       <property name="toolTip">
+        <string>Copy author sort to author for every author. You typically use this button
+after changing Preferences-&gt;Advanced-&gt;Tweaks-&gt;Author sort name algorithm</string>
        </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
+       <property name="text">
+        <string>Copy all author sort values to author</string>
        </property>
-      </spacer>
+      </widget>
      </item>
-     <item>
+     <item row="1" column="2">
       <widget class="QDialogButtonBox" name="buttonBox">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
@@ -130,4 +174,11 @@
    </hints>
   </connection>
  </connections>
+ <customwidgets>
+  <customwidget>
+   <class>HistoryLineEdit</class>
+   <extends>QComboBox</extends>
+   <header>calibre/gui2/widgets.h</header>
+  </customwidget>
+ </customwidgets>
 </ui>

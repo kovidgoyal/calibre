@@ -2,33 +2,29 @@ from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, shutil, traceback, functools, sys, re
-from contextlib import closing
+import os, shutil, traceback, functools, sys
 
-from calibre.customize import Plugin, CatalogPlugin, FileTypePlugin, \
-                              MetadataReaderPlugin, MetadataWriterPlugin, \
-                              InterfaceActionBase as InterfaceAction, \
-                              PreferencesPlugin
+from calibre.customize import (CatalogPlugin, FileTypePlugin, PluginNotFound,
+                              MetadataReaderPlugin, MetadataWriterPlugin,
+                              InterfaceActionBase as InterfaceAction,
+                              PreferencesPlugin, platform, InvalidPlugin,
+                              StoreBase as Store)
 from calibre.customize.conversion import InputFormatPlugin, OutputFormatPlugin
+from calibre.customize.zipplugin import loader
 from calibre.customize.profiles import InputProfile, OutputProfile
 from calibre.customize.builtins import plugins as builtin_plugins
-from calibre.constants import numeric_version as version, iswindows, isosx
 from calibre.devices.interface import DevicePlugin
 from calibre.ebooks.metadata import MetaInformation
-from calibre.ebooks.metadata.covers import CoverDownload
-from calibre.ebooks.metadata.fetch import MetadataSource
-from calibre.utils.config import make_config_dir, Config, ConfigProxy, \
-                                 plugin_dir, OptionParser, prefs
+from calibre.utils.config import (make_config_dir, Config, ConfigProxy,
+                                 plugin_dir, OptionParser)
 from calibre.ebooks.epub.fix import ePubFixer
 from calibre.ebooks.metadata.sources.base import Source
+from calibre.constants import DEBUG
 
-platform = 'linux'
-if iswindows:
-    platform = 'windows'
-elif isosx:
-    platform = 'osx'
+builtin_names = frozenset([p.name for p in builtin_plugins])
 
-from zipfile import ZipFile
+class NameConflict(ValueError):
+    pass
 
 def _config():
     c = Config('customize')
@@ -42,11 +38,6 @@ def _config():
 
 config = _config()
 
-class InvalidPlugin(ValueError):
-    pass
-
-class PluginNotFound(ValueError):
-    pass
 
 def find_plugin(name):
     for plugin in _initialized_plugins:
@@ -60,38 +51,7 @@ def load_plugin(path_to_zip_file): # {{{
 
     :return: A :class:`Plugin` instance.
     '''
-    #print 'Loading plugin from', path_to_zip_file
-    if not os.access(path_to_zip_file, os.R_OK):
-        raise PluginNotFound
-    with closing(ZipFile(path_to_zip_file)) as zf:
-        for name in zf.namelist():
-            if name.lower().endswith('plugin.py'):
-                locals = {}
-                raw = zf.read(name)
-                lines, encoding = raw.splitlines(), 'utf-8'
-                cr = re.compile(r'coding[:=]\s*([-\w.]+)')
-                raw = []
-                for l in lines[:2]:
-                    match = cr.search(l)
-                    if match is not None:
-                        encoding = match.group(1)
-                    else:
-                        raw.append(l)
-                raw += lines[2:]
-                raw = '\n'.join(raw)
-                raw = raw.decode(encoding)
-                raw = re.sub('\r\n', '\n', raw)
-                exec raw in locals
-                for x in locals.values():
-                    if isinstance(x, type) and issubclass(x, Plugin) and \
-                            x.name != 'Trivial Plugin':
-                        if x.minimum_calibre_version > version or \
-                            platform not in x.supported_platforms:
-                            continue
-
-                        return x
-
-    raise InvalidPlugin(_('No valid plugin found in ')+path_to_zip_file)
+    return loader.load(path_to_zip_file)
 
 # }}}
 
@@ -120,9 +80,19 @@ def enable_plugin(plugin_or_name):
     ep.add(x)
     config['enabled_plugins'] = ep
 
+def restore_plugin_state_to_default(plugin_or_name):
+    x = getattr(plugin_or_name, 'name', plugin_or_name)
+    dp = config['disabled_plugins']
+    if x in dp:
+        dp.remove(x)
+    config['disabled_plugins'] = dp
+    ep = config['enabled_plugins']
+    if x in ep:
+        ep.remove(x)
+    config['enabled_plugins'] = ep
+
 default_disabled_plugins = set([
-    'Douban Books', 'Douban.com covers', 'Nicebooks', 'Nicebooks covers',
-    'Kent District Library'
+    'Overdrive', 'Douban Books',
 ])
 
 def is_disabled(plugin):
@@ -218,44 +188,6 @@ def output_profiles():
             yield plugin
 # }}}
 
-# Metadata sources {{{
-def metadata_sources(metadata_type='basic', customize=True, isbndb_key=None):
-    for plugin in _initialized_plugins:
-        if isinstance(plugin, MetadataSource) and \
-                plugin.metadata_type == metadata_type:
-            if is_disabled(plugin):
-                continue
-            if customize:
-                customization = config['plugin_customization']
-                plugin.site_customization = customization.get(plugin.name, None)
-            if plugin.name == 'IsbnDB' and isbndb_key is not None:
-                plugin.site_customization = isbndb_key
-            yield plugin
-
-def get_isbndb_key():
-    return config['plugin_customization'].get('IsbnDB', None)
-
-def set_isbndb_key(key):
-    for plugin in _initialized_plugins:
-        if plugin.name == 'IsbnDB':
-            return customize_plugin(plugin, key)
-
-def migrate_isbndb_key():
-    key = prefs['isbndb_com_key']
-    if key:
-        prefs.set('isbndb_com_key', '')
-        set_isbndb_key(key)
-
-def cover_sources():
-    customization = config['plugin_customization']
-    for plugin in _initialized_plugins:
-        if isinstance(plugin, CoverDownload):
-            if not is_disabled(plugin):
-                plugin.site_customization = customization.get(plugin.name, '')
-                yield plugin
-
-# }}}
-
 # Interface Actions # {{{
 
 def interface_actions():
@@ -276,6 +208,34 @@ def preferences_plugins():
             if not is_disabled(plugin):
                 plugin.site_customization = customization.get(plugin.name, '')
                 yield plugin
+# }}}
+
+# Store Plugins # {{{
+
+def store_plugins():
+    customization = config['plugin_customization']
+    for plugin in _initialized_plugins:
+        if isinstance(plugin, Store):
+            plugin.site_customization = customization.get(plugin.name, '')
+            yield plugin
+
+def available_store_plugins():
+    for plugin in store_plugins():
+        if not is_disabled(plugin):
+            yield plugin
+
+def stores():
+    stores = set([])
+    for plugin in store_plugins():
+        stores.add(plugin.name)
+    return stores
+
+def available_stores():
+    stores = set([])
+    for plugin in available_store_plugins():
+        stores.add(plugin.name)
+    return stores
+
 # }}}
 
 # Metadata read/write {{{
@@ -377,6 +337,9 @@ def set_file_type_metadata(stream, mi, ftype):
 def add_plugin(path_to_zip_file):
     make_config_dir()
     plugin = load_plugin(path_to_zip_file)
+    if plugin.name in builtin_names:
+        raise NameConflict(
+            'A builtin plugin with the name %r already exists' % plugin.name)
     plugin = initialize_plugin(plugin, path_to_zip_file)
     plugins = config['plugins']
     zfp = os.path.join(plugin_dir, plugin.name+'.zip')
@@ -498,12 +461,15 @@ def epub_fixers():
 # Metadata sources2 {{{
 def metadata_plugins(capabilities):
     capabilities = frozenset(capabilities)
-    for plugin in _initialized_plugins:
-        if isinstance(plugin, Source) and \
-                plugin.capabilities.intersection(capabilities) and \
+    for plugin in all_metadata_plugins():
+        if plugin.capabilities.intersection(capabilities) and \
                 not is_disabled(plugin):
             yield plugin
 
+def all_metadata_plugins():
+    for plugin in _initialized_plugins:
+        if isinstance(plugin, Source):
+            yield plugin
 # }}}
 
 # Initialize plugins {{{
@@ -525,7 +491,11 @@ def initialize_plugin(plugin, path_to_zip_file):
 def initialize_plugins():
     global _initialized_plugins
     _initialized_plugins = []
-    for zfp in list(config['plugins'].values()) + builtin_plugins:
+    conflicts = [name for name in config['plugins'] if name in
+            builtin_names]
+    for p in conflicts:
+        remove_plugin(p)
+    for zfp in list(config['plugins'].itervalues()) + builtin_plugins:
         try:
             try:
                 plugin = load_plugin(zfp) if not isinstance(zfp, type) else zfp
@@ -534,8 +504,9 @@ def initialize_plugins():
             plugin = initialize_plugin(plugin, None if isinstance(zfp, type) else zfp)
             _initialized_plugins.append(plugin)
         except:
-            print 'Failed to initialize plugin...'
-            traceback.print_exc()
+            print 'Failed to initialize plugin:', repr(zfp)
+            if DEBUG:
+                traceback.print_exc()
     _initialized_plugins.sort(cmp=lambda x,y:cmp(x.priority, y.priority), reverse=True)
     reread_filetype_plugins()
     reread_metadata_plugins()

@@ -7,9 +7,10 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import time
+import time, hashlib
 from urllib import urlencode
 from functools import partial
+from Queue import Queue, Empty
 
 from lxml import etree
 
@@ -19,12 +20,13 @@ from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.utils.date import parse_date, utcnow
 from calibre.utils.cleantext import clean_ascii_chars
-from calibre import browser, as_unicode
+from calibre import as_unicode
 
 NAMESPACES = {
               'openSearch':'http://a9.com/-/spec/opensearchrss/1.0/',
               'atom' : 'http://www.w3.org/2005/Atom',
-              'dc': 'http://purl.org/dc/terms'
+              'dc'   : 'http://purl.org/dc/terms',
+              'gd'   : 'http://schemas.google.com/g/2005'
             }
 XPath = partial(etree.XPath, namespaces=NAMESPACES)
 
@@ -41,8 +43,9 @@ publisher      = XPath('descendant::dc:publisher')
 subject        = XPath('descendant::dc:subject')
 description    = XPath('descendant::dc:description')
 language       = XPath('descendant::dc:language')
+rating         = XPath('descendant::gd:rating[@average]')
 
-def get_details(browser, url, timeout):
+def get_details(browser, url, timeout): # {{{
     try:
         raw = browser.open_novisit(url, timeout=timeout).read()
     except Exception as e:
@@ -50,12 +53,13 @@ def get_details(browser, url, timeout):
         if gc() != 403:
             raise
         # Google is throttling us, wait a little
-        time.sleep(1)
+        time.sleep(2)
         raw = browser.open_novisit(url, timeout=timeout).read()
 
     return raw
+# }}}
 
-def to_metadata(browser, log, entry_, timeout):
+def to_metadata(browser, log, entry_, timeout): # {{{
 
     def get_text(extra, x):
         try:
@@ -94,12 +98,6 @@ def to_metadata(browser, log, entry_, timeout):
     #mi.language = get_text(extra, language)
     mi.publisher = get_text(extra, publisher)
 
-    # Author sort
-    for x in creator(extra):
-        for key, val in x.attrib.items():
-            if key.endswith('file-as') and val and val.strip():
-                mi.author_sort = val
-                break
     # ISBN
     isbns = []
     for x in identifier(extra):
@@ -118,8 +116,10 @@ def to_metadata(browser, log, entry_, timeout):
         btags = [x.text for x in subject(extra) if x.text]
         tags = []
         for t in btags:
-            tags.extend([y.strip() for y in t.split('/')])
-        tags = list(sorted(list(set(tags))))
+            atags = [y.strip() for y in t.split('/')]
+            for tag in atags:
+                if tag not in tags:
+                    tags.append(tag)
     except:
         log.exception('Failed to parse tags:')
         tags = []
@@ -133,24 +133,52 @@ def to_metadata(browser, log, entry_, timeout):
             default = utcnow().replace(day=15)
             mi.pubdate = parse_date(pubdate, assume_utc=True, default=default)
         except:
-            log.exception('Failed to parse pubdate')
+            log.error('Failed to parse pubdate %r'%pubdate)
 
+    # Ratings
+    for x in rating(extra):
+        try:
+            mi.rating = float(x.get('average'))
+            if mi.rating > 5:
+                mi.rating /= 2
+        except:
+            log.exception('Failed to parse rating')
+
+    # Cover
+    mi.has_google_cover = None
+    for x in extra.xpath(
+            '//*[@href and @rel="http://schemas.google.com/books/2008/thumbnail"]'):
+        mi.has_google_cover = x.get('href')
+        break
 
     return mi
-
+# }}}
 
 class GoogleBooks(Source):
 
-    name = 'Google Books'
-    description = _('Downloads metadata from Google Books')
+    name = 'Google'
+    description = _('Downloads metadata and covers from Google Books')
 
-    capabilities = frozenset(['identify'])
-    touched_fields = frozenset(['title', 'authors', 'isbn', 'tags', 'pubdate',
-        'comments', 'publisher', 'author_sort']) # language currently disabled
+    capabilities = frozenset(['identify', 'cover'])
+    touched_fields = frozenset(['title', 'authors', 'tags', 'pubdate',
+        'comments', 'publisher', 'identifier:isbn', 'rating',
+        'identifier:google']) # language currently disabled
+    supports_gzip_transfer_encoding = True
+    cached_cover_url_is_reliable = False
 
-    def create_query(self, log, title=None, authors=None, identifiers={}):
+    GOOGLE_COVER = 'http://books.google.com/books?id=%s&printsec=frontcover&img=1'
+
+    DUMMY_IMAGE_MD5 = frozenset(['0de4383ebad0adad5eeb8975cd796657'])
+
+    def get_book_url(self, identifiers): # {{{
+        goog = identifiers.get('google', None)
+        if goog is not None:
+            return ('google', goog, 'http://books.google.com/books?id=%s'%goog)
+    # }}}
+
+    def create_query(self, log, title=None, authors=None, identifiers={}): # {{{
         BASE_URL = 'http://books.google.com/books/feeds/volumes?'
-        isbn = identifiers.get('isbn', None)
+        isbn = check_isbn(identifiers.get('isbn', None))
         q = ''
         if isbn is not None:
             q += 'isbn:'+isbn
@@ -176,46 +204,97 @@ class GoogleBooks(Source):
             'start-index':1,
             'min-viewability':'none',
             })
+    # }}}
 
-    def cover_url_from_identifiers(self, identifiers):
+    def download_cover(self, log, result_queue, abort, # {{{
+            title=None, authors=None, identifiers={}, timeout=30):
+        cached_url = self.get_cached_cover_url(identifiers)
+        if cached_url is None:
+            log.info('No cached cover found, running identify')
+            rq = Queue()
+            self.identify(log, rq, abort, title=title, authors=authors,
+                    identifiers=identifiers)
+            if abort.is_set():
+                return
+            results = []
+            while True:
+                try:
+                    results.append(rq.get_nowait())
+                except Empty:
+                    break
+            results.sort(key=self.identify_results_keygen(
+                title=title, authors=authors, identifiers=identifiers))
+            for mi in results:
+                cached_url = self.get_cached_cover_url(mi.identifiers)
+                if cached_url is not None:
+                    break
+        if cached_url is None:
+            log.info('No cover found')
+            return
+
+        if abort.is_set():
+            return
+        br = self.browser
+        log('Downloading cover from:', cached_url)
+        try:
+            cdata = br.open_novisit(cached_url, timeout=timeout).read()
+            if cdata:
+                if hashlib.md5(cdata).hexdigest() in self.DUMMY_IMAGE_MD5:
+                    log.warning('Google returned a dummy image, ignoring')
+                else:
+                    result_queue.put((self, cdata))
+        except:
+            log.exception('Failed to download cover from:', cached_url)
+
+    # }}}
+
+    def get_cached_cover_url(self, identifiers): # {{{
+        url = None
         goog = identifiers.get('google', None)
         if goog is None:
             isbn = identifiers.get('isbn', None)
-            goog = self.cached_isbn_to_identifier(isbn)
+            if isbn is not None:
+                goog = self.cached_isbn_to_identifier(isbn)
         if goog is not None:
-            return ('http://books.google.com/books?id=%s&printsec=frontcover&img=1' %
-                goog)
+            url = self.cached_identifier_to_cover_url(goog)
 
-    def is_cover_image_valid(self, raw):
-        # When no cover is present, returns a PNG saying image not available
-        # Try for example google identifier llNqPwAACAAJ
-        # I have yet to see an actual cover in PNG format
-        return raw and len(raw) > 17000 and raw[1:4] != 'PNG'
+        return url
+    # }}}
 
-    def get_all_details(self, br, log, entries, abort, result_queue, timeout):
-        for i in entries:
+    def get_all_details(self, br, log, entries, abort, # {{{
+            result_queue, timeout):
+        for relevance, i in enumerate(entries):
             try:
                 ans = to_metadata(br, log, i, timeout)
                 if isinstance(ans, Metadata):
+                    ans.source_relevance = relevance
+                    goog = ans.identifiers['google']
+                    for isbn in getattr(ans, 'all_isbns', []):
+                        self.cache_isbn_to_identifier(isbn, goog)
+                    if ans.has_google_cover:
+                        self.cache_identifier_to_cover_url(goog,
+                                self.GOOGLE_COVER%goog)
+                    self.clean_downloaded_metadata(ans)
                     result_queue.put(ans)
-                    for isbn in ans.all_isbns:
-                        self.cache_isbn_to_identifier(isbn,
-                                ans.identifiers['google'])
             except:
                 log.exception(
                     'Failed to get metadata for identify entry:',
                     etree.tostring(i))
             if abort.is_set():
                 break
+    # }}}
 
-    def identify(self, log, result_queue, abort, title=None, authors=None,
-            identifiers={}, timeout=5):
+    def identify(self, log, result_queue, abort, title=None, authors=None, # {{{
+            identifiers={}, timeout=30):
         query = self.create_query(log, title=title, authors=authors,
                 identifiers=identifiers)
-        br = browser()
+        if not query:
+            log.error('Insufficient metadata to construct query')
+            return
+        br = self.browser
         try:
             raw = br.open_novisit(query, timeout=timeout).read()
-        except Exception, e:
+        except Exception as e:
             log.exception('Failed to make identify query: %r'%query)
             return as_unicode(e)
 
@@ -224,30 +303,41 @@ class GoogleBooks(Source):
             feed = etree.fromstring(xml_to_unicode(clean_ascii_chars(raw),
                 strip_encoding_pats=True)[0], parser=parser)
             entries = entry(feed)
-        except Exception, e:
+        except Exception as e:
             log.exception('Failed to parse identify results')
             return as_unicode(e)
+
+        if not entries and identifiers and title and authors and \
+                not abort.is_set():
+            return self.identify(log, result_queue, abort, title=title,
+                    authors=authors, timeout=timeout)
 
         # There is no point running these queries in threads as google
         # throttles requests returning 403 Forbidden errors
         self.get_all_details(br, log, entries, abort, result_queue, timeout)
 
         return None
+    # }}}
 
-if __name__ == '__main__':
+if __name__ == '__main__': # tests {{{
     # To run these test use: calibre-debug -e src/calibre/ebooks/metadata/sources/google.py
     from calibre.ebooks.metadata.sources.test import (test_identify_plugin,
-            title_test)
+            title_test, authors_test)
     test_identify_plugin(GoogleBooks.name,
         [
 
+
             (
-                {'identifiers':{'isbn': '0743273567'}},
-                [title_test('The great gatsby', exact=True)]
+                {'identifiers':{'isbn': '0743273567'}, 'title':'Great Gatsby',
+                    'authors':['Fitzgerald']},
+                [title_test('The great gatsby', exact=True),
+                    authors_test(['Francis Scott Fitzgerald'])]
             ),
 
-            #(
-            #    {'title': 'Great Expectations', 'authors':['Charles Dickens']},
-            #    [title_test('Great Expectations', exact=True)]
-            #),
+            (
+                {'title': 'Flatland', 'authors':['Abbott']},
+                [title_test('Flatland', exact=False)]
+            ),
     ])
+# }}}
+

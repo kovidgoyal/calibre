@@ -59,14 +59,24 @@ class TagCategories(QDialog, Ui_TagCategories):
                           ]
         category_names  = ['', _('Authors'), _('Series'), _('Publishers'), _('Tags')]
 
-        cc_map = self.db.custom_column_label_map
-        for cc in cc_map:
-            if cc_map[cc]['datatype'] in ['text', 'series']:
-                self.category_labels.append(db.field_metadata.label_to_key(cc))
+        cvals = {}
+        for key,cc in self.db.custom_field_metadata().iteritems():
+            if cc['datatype'] in ['text', 'series', 'enumeration']:
+                self.category_labels.append(key)
                 category_icons.append(cc_icon)
-                category_values.append(lambda col=cc: self.db.all_custom(label=col))
-                category_names.append(cc_map[cc]['name'])
-
+                category_values.append(lambda col=cc['label']: self.db.all_custom(label=col))
+                category_names.append(cc['name'])
+            elif cc['datatype'] == 'composite' and \
+                    cc['display'].get('make_category', False):
+                self.category_labels.append(key)
+                category_icons.append(cc_icon)
+                category_names.append(cc['name'])
+                dex = cc['rec_index']
+                cvals = set()
+                for book in db.data.iterall():
+                    if book[dex]:
+                        cvals.add(book[dex])
+                category_values.append(lambda s=list(cvals): s)
         self.all_items = []
         self.all_items_dict = {}
         for idx,label in enumerate(self.category_labels):
@@ -88,7 +98,8 @@ class TagCategories(QDialog, Ui_TagCategories):
                 if l[1] in self.category_labels:
                     if t is None:
                         t = Item(name=l[0], label=l[1], index=len(self.all_items),
-                                 icon=category_icons[self.category_labels.index(l[1])], exists=False)
+                                 icon=category_icons[self.category_labels.index(l[1])],
+                                 exists=False)
                         self.all_items.append(t)
                         self.all_items_dict[key] = t
                     l[2] = t.index
@@ -108,13 +119,16 @@ class TagCategories(QDialog, Ui_TagCategories):
         self.add_category_button.clicked.connect(self.add_category)
         self.rename_category_button.clicked.connect(self.rename_category)
         self.category_box.currentIndexChanged[int].connect(self.select_category)
-        self.category_filter_box.currentIndexChanged[int].connect(self.display_filtered_categories)
+        self.category_filter_box.currentIndexChanged[int].connect(
+                                                self.display_filtered_categories)
         self.delete_category_button.clicked.connect(self.del_category)
         if islinux:
             self.available_items_box.itemDoubleClicked.connect(self.apply_tags)
         else:
-            self.connect(self.available_items_box, SIGNAL('itemActivated(QListWidgetItem*)'), self.apply_tags)
-        self.connect(self.applied_items_box,   SIGNAL('itemActivated(QListWidgetItem*)'), self.unapply_tags)
+            self.connect(self.available_items_box,
+                         SIGNAL('itemActivated(QListWidgetItem*)'), self.apply_tags)
+        self.connect(self.applied_items_box,
+                     SIGNAL('itemActivated(QListWidgetItem*)'), self.unapply_tags)
 
         self.populate_category_list()
         if on_category is not None:
@@ -129,6 +143,7 @@ class TagCategories(QDialog, Ui_TagCategories):
         n = item.name if item.exists else item.name + _(' (not on any book)')
         w = QListWidgetItem(item.icon, n)
         w.setData(Qt.UserRole, item.index)
+        w.setToolTip(_('Category lookup name: ') + item.label)
         return w
 
     def display_filtered_categories(self, idx):
@@ -178,8 +193,10 @@ class TagCategories(QDialog, Ui_TagCategories):
                       'multiple periods in a row or spaces before '
                       'or after periods.')).exec_()
             return False
-        for c in self.categories:
-            if strcmp(c, cat_name) == 0:
+        for c in sorted(self.categories.keys(), key=sort_key):
+            if strcmp(c, cat_name) == 0 or \
+                    (icu_lower(cat_name).startswith(icu_lower(c) + '.') and\
+                     not cat_name.startswith(c + '.')):
                 error_dialog(self, _('Name already used'),
                         _('That name is already used, perhaps with different case.')).exec_()
                 return False

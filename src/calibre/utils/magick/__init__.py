@@ -95,6 +95,26 @@ class DrawingWand(_magick.DrawingWand): # {{{
             self.font_size_ = float(val)
         return property(fget=fget, fset=fset, doc=_magick.DrawingWand.font_size_.__doc__)
 
+    @dynamic_property
+    def stroke_color(self):
+        def fget(self):
+            return self.stroke_color_.color
+        def fset(self, val):
+            col = PixelWand()
+            col.color = unicode(val)
+            self.stroke_color_ = col
+        return property(fget=fget, fset=fset, doc=_magick.DrawingWand.font_size_.__doc__)
+
+    @dynamic_property
+    def fill_color(self):
+        def fget(self):
+            return self.fill_color_.color
+        def fset(self, val):
+            col = PixelWand()
+            col.color = unicode(val)
+            self.fill_color_ = col
+        return property(fget=fget, fset=fset, doc=_magick.DrawingWand.font_size_.__doc__)
+
 # }}}
 
 class Image(_magick.Image): # {{{

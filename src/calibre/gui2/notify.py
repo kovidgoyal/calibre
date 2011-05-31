@@ -34,7 +34,7 @@ class DBUSNotifier(Notifier):
             import dbus
             self.dbus = dbus
             self._notify = dbus.Interface(dbus.SessionBus().get_object(server, path), interface)
-        except Exception, err:
+        except Exception as err:
             self.ok = False
             self.err = str(err)
 

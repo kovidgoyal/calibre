@@ -251,12 +251,12 @@ class WMF(object):
         img.load(bmp)
         return img.export('png')
 
-def wmf_unwrap(wmf_data):
+def wmf_unwrap(wmf_data, verbose=0):
     '''
     Return the largest embedded raster image in the WMF.
     The returned data is in PNG format.
     '''
-    w = WMF()
+    w = WMF(verbose=verbose)
     w(wmf_data)
     if not w.has_raster_image:
         raise ValueError('No raster image found in the WMF')
@@ -266,4 +266,5 @@ if __name__ == '__main__':
     wmf = WMF(verbose=4)
     wmf(open(sys.argv[-1], 'rb'))
     open('/t/test.bmp', 'wb').write(wmf.bitmaps[0])
+    open('/t/test.png', 'wb').write(wmf.to_png())
 

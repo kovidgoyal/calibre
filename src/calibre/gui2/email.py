@@ -6,9 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, socket, time, cStringIO
-from threading import Thread
-from Queue import Queue
+import os, socket, time
 from binascii import unhexlify
 from functools import partial
 from itertools import repeat
@@ -16,66 +14,20 @@ from itertools import repeat
 from calibre.utils.smtp import compose_mail, sendmail, extract_email_address, \
         config as email_config
 from calibre.utils.filenames import ascii_filename
-from calibre.utils.ipc.job import BaseJob
-from calibre.ptempfile import PersistentTemporaryFile
 from calibre.customize.ui import available_input_formats, available_output_formats
 from calibre.ebooks.metadata import authors_to_string
 from calibre.constants import preferred_encoding
 from calibre.gui2 import config, Dispatcher, warning_dialog
+from calibre.library.save_to_disk import get_components
 from calibre.utils.config import tweaks
+from calibre.gui2.threaded_jobs import ThreadedJob
 
-class EmailJob(BaseJob): # {{{
-
-    def __init__(self, callback, description, attachment, aname, to, subject, text, job_manager):
-        BaseJob.__init__(self, description)
-        self.exception = None
-        self.job_manager = job_manager
-        self.email_args = (attachment, aname, to, subject, text)
-        self.email_sent_callback = callback
-        self.log_path = None
-        self._log_file = cStringIO.StringIO()
-        self._log_file.write(self.description.encode('utf-8') + '\n')
-
-    @property
-    def log_file(self):
-        if self.log_path is not None:
-            return open(self.log_path, 'rb')
-        return cStringIO.StringIO(self._log_file.getvalue())
-
-    def start_work(self):
-        self.start_time = time.time()
-        self.job_manager.changed_queue.put(self)
-
-    def job_done(self):
-        self.duration = time.time() - self.start_time
-        self.percent = 1
-        # Dump log onto disk
-        lf = PersistentTemporaryFile('email_log')
-        lf.write(self._log_file.getvalue())
-        lf.close()
-        self.log_path = lf.name
-        self._log_file.close()
-        self._log_file = None
-
-        self.job_manager.changed_queue.put(self)
-
-    def log_write(self, what):
-        self._log_file.write(what)
-
-# }}}
-
-class Emailer(Thread): # {{{
+class Sendmail(object):
 
     MAX_RETRIES = 1
 
-    def __init__(self, job_manager):
-        Thread.__init__(self)
-        self.daemon = True
-        self.jobs = Queue()
-        self.job_manager = job_manager
-        self._run = True
+    def __init__(self):
         self.calculate_rate_limit()
-
         self.last_send_time = time.time() - self.rate_limit
 
     def calculate_rate_limit(self):
@@ -86,70 +38,28 @@ class Emailer(Thread): # {{{
             'gmail.com' in rh or 'live.com' in rh):
             self.rate_limit = tweaks['public_smtp_relay_delay']
 
-    def stop(self):
-        self._run = False
-        self.jobs.put(None)
+    def __call__(self, attachment, aname, to, subject, text, log=None,
+            abort=None, notifications=None):
 
-    def run(self):
-        while self._run:
+        try_count = 0
+        while try_count <= self.MAX_RETRIES:
+            if try_count > 0:
+                log('\nRetrying in %d seconds...\n' %
+                        self.rate_limit)
             try:
-                job = self.jobs.get()
+                self.sendmail(attachment, aname, to, subject, text, log)
+                try_count = self.MAX_RETRIES
+                log('Email successfully sent')
             except:
-                break
-            if job is None or not self._run:
-                break
-            try_count = 0
-            failed, exc = False, None
-            job.start_work()
-            if job.kill_on_start:
-                job.log_write('Aborted\n')
-                job.failed = failed
-                job.killed = True
-                job.job_done()
-                continue
+                if abort.is_set():
+                    return
+                if try_count == self.MAX_RETRIES:
+                    raise
+                log.exception('\nSending failed...\n')
 
-            while try_count <= self.MAX_RETRIES:
-                failed = False
-                if try_count > 0:
-                    job.log_write('\nRetrying in %d seconds...\n' %
-                            self.rate_limit)
-                try:
-                    self.sendmail(job)
-                    break
-                except Exception, e:
-                    if not self._run:
-                        return
-                    import traceback
-                    failed = True
-                    exc = e
-                    job.log_write('\nSending failed...\n')
-                    job.log_write(traceback.format_exc())
+            try_count += 1
 
-                try_count += 1
-
-            if not self._run:
-                break
-
-            job.failed = failed
-            job.exception = exc
-            job.job_done()
-            try:
-                job.email_sent_callback(job)
-            except:
-                import traceback
-                traceback.print_exc()
-
-    def send_mails(self, jobnames, callback, attachments, to_s, subjects,
-                  texts, attachment_names):
-        for name, attachment, to, subject, text, aname in zip(jobnames,
-                attachments, to_s, subjects, texts, attachment_names):
-            description = _('Email %s to %s') % (name, to)
-            job = EmailJob(callback, description, attachment, aname, to,
-                    subject, text, self.job_manager)
-            self.job_manager.add_job(job)
-            self.jobs.put(job)
-
-    def sendmail(self, job):
+    def sendmail(self, attachment, aname, to, subject, text, log):
         while time.time() - self.last_send_time <= self.rate_limit:
             time.sleep(1)
         try:
@@ -157,7 +67,6 @@ class Emailer(Thread): # {{{
             from_ = opts.from_
             if not from_:
                 from_ = 'calibre <calibre@'+socket.getfqdn()+'>'
-            attachment, aname, to, subject, text = job.email_args
             msg = compose_mail(from_, to, text, subject, open(attachment, 'rb'),
                     aname)
             efrom, eto = map(extract_email_address, (from_, to))
@@ -168,49 +77,57 @@ class Emailer(Thread): # {{{
                         username=opts.relay_username,
                         password=unhexlify(opts.relay_password), port=opts.relay_port,
                         encryption=opts.encryption,
-                        debug_output=partial(print, file=job._log_file))
+                        debug_output=log.debug)
         finally:
             self.last_send_time = time.time()
 
-    def email_news(self, mi, remove, get_fmts, done):
-        opts = email_config().parse()
-        accounts = [(account, [x.strip().lower() for x in x[0].split(',')])
-                for account, x in opts.accounts.items() if x[1]]
-        sent_mails = []
-        for i, x in enumerate(accounts):
-            account, fmts = x
-            files = get_fmts(fmts)
-            files = [f for f in files if f is not None]
-            if not files:
-                continue
-            attachment = files[0]
-            to_s = [account]
-            subjects = [_('News:')+' '+mi.title]
-            texts    = [
-                    _('Attached is the %s periodical downloaded by calibre.')
-                     % (mi.title,)
-                    ]
-            attachment_names = [ascii_filename(mi.title)+os.path.splitext(attachment)[1]]
-            attachments = [attachment]
-            jobnames = [mi.title]
-            do_remove = []
-            if i == len(accounts) - 1:
-                do_remove = remove
-            self.send_mails(jobnames,
-                    Dispatcher(partial(done, remove=do_remove)),
-                    attachments, to_s, subjects, texts, attachment_names)
-            sent_mails.append(to_s[0])
-        return sent_mails
+gui_sendmail = Sendmail()
 
 
-# }}}
+def send_mails(jobnames, callback, attachments, to_s, subjects,
+                texts, attachment_names, job_manager):
+    for name, attachment, to, subject, text, aname in zip(jobnames,
+            attachments, to_s, subjects, texts, attachment_names):
+        description = _('Email %s to %s') % (name, to)
+        job = ThreadedJob('email', description, gui_sendmail, (attachment, aname, to,
+                subject, text), {}, callback, killable=False)
+        job_manager.run_threaded_job(job)
+
+
+def email_news(mi, remove, get_fmts, done, job_manager):
+    opts = email_config().parse()
+    accounts = [(account, [x.strip().lower() for x in x[0].split(',')])
+            for account, x in opts.accounts.items() if x[1]]
+    sent_mails = []
+    for i, x in enumerate(accounts):
+        account, fmts = x
+        files = get_fmts(fmts)
+        files = [f for f in files if f is not None]
+        if not files:
+            continue
+        attachment = files[0]
+        to_s = [account]
+        subjects = [_('News:')+' '+mi.title]
+        texts    = [
+                _('Attached is the %s periodical downloaded by calibre.')
+                    % (mi.title,)
+                ]
+        attachment_names = [ascii_filename(mi.title)+os.path.splitext(attachment)[1]]
+        attachments = [attachment]
+        jobnames = [mi.title]
+        do_remove = []
+        if i == len(accounts) - 1:
+            do_remove = remove
+        send_mails(jobnames,
+                Dispatcher(partial(done, remove=do_remove)),
+                attachments, to_s, subjects, texts, attachment_names,
+                job_manager)
+        sent_mails.append(to_s[0])
+    return sent_mails
 
 class EmailMixin(object): # {{{
 
-    def __init__(self):
-        self.emailer = Emailer(self.job_manager)
-
-    def send_by_mail(self, to, fmts, delete_from_library, send_ids=None,
+    def send_by_mail(self, to, fmts, delete_from_library, subject='', send_ids=None,
             do_auto_convert=True, specific_format=None):
         ids = [self.library_view.model().id(r) for r in self.library_view.selectionModel().selectedRows()] if send_ids is None else send_ids
         if not ids or len(ids) == 0:
@@ -239,7 +156,13 @@ class EmailMixin(object): # {{{
                 remove_ids.append(id)
                 jobnames.append(t)
                 attachments.append(f)
-                subjects.append(_('E-book:')+ ' '+t)
+                if not subject:
+                    subjects.append(_('E-book:')+ ' '+t)
+                else:
+                    components = get_components(subject, mi, id)
+                    if not components:
+                        components = [mi.title]
+                    subjects.append(os.path.join(*components))
                 a = authors_to_string(mi.authors if mi.authors else \
                         [_('Unknown')])
                 texts.append(_('Attached, you will find the e-book') + \
@@ -254,11 +177,10 @@ class EmailMixin(object): # {{{
 
         to_s = list(repeat(to, len(attachments)))
         if attachments:
-            if not self.emailer.is_alive():
-                self.emailer.start()
-            self.emailer.send_mails(jobnames,
+            send_mails(jobnames,
                     Dispatcher(partial(self.email_sent, remove=remove)),
-                    attachments, to_s, subjects, texts, attachment_names)
+                    attachments, to_s, subjects, texts, attachment_names,
+                    self.job_manager)
             self.status_bar.show_message(_('Sending email to')+' '+to, 3000)
 
         auto = []
@@ -292,7 +214,7 @@ class EmailMixin(object): # {{{
                 if self.auto_convert_question(
                     _('Auto convert the following books before sending via '
                         'email?'), autos):
-                    self.iactions['Convert Books'].auto_convert_mail(to, fmts, delete_from_library, auto, format)
+                    self.iactions['Convert Books'].auto_convert_mail(to, fmts, delete_from_library, auto, format, subject)
 
         if bad:
             bad = '\n'.join('%s'%(i,) for i in bad)
@@ -326,10 +248,8 @@ class EmailMixin(object): # {{{
             files, auto = self.library_view.model().\
                     get_preferred_formats_from_ids([id_], fmts)
             return files
-        if not self.emailer.is_alive():
-            self.emailer.start()
-        sent_mails = self.emailer.email_news(mi, remove,
-                get_fmts, self.email_sent)
+        sent_mails = email_news(mi, remove,
+                get_fmts, self.email_sent, self.job_manager)
         if sent_mails:
             self.status_bar.show_message(_('Sent news to')+' '+\
                     ', '.join(sent_mails),  3000)

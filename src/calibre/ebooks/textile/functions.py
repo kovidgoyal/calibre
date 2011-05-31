@@ -1,15 +1,19 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 """
 PyTextile
 
 A Humane Web Text Generator
 """
 
-__version__ = '2.1.4'
-
-__date__ = '2009/12/04'
+# Last upstream version basis
+# __version__ = '2.1.4'
+#__date__ = '2009/12/04'
 
 __copyright__ = """
+Copyright (c) 2011, Leigh Parry <leighparry@blueyonder.co.uk>
+Copyright (c) 2011, John Schember <john@nachtimwald.com>
 Copyright (c) 2009, Jason Samsa, http://jsamsa.com/
 Copyright (c) 2004, Roberto A. F. De Almeida, http://dealmeida.net/
 Copyright (c) 2003, Mark Pilgrim, http://diveintomark.org/
@@ -59,6 +63,8 @@ POSSIBILITY OF SUCH DAMAGE.
 import re
 import uuid
 from urlparse import urlparse
+
+from calibre.utils.smartypants import smartyPants
 
 def _normalize_newlines(string):
     out = re.sub(r'\r\n', '\n', string)
@@ -119,22 +125,113 @@ class Textile(object):
     btag = ('bq', 'bc', 'notextile', 'pre', 'h[1-6]', 'fn\d+', 'p')
     btag_lite = ('bq', 'bc', 'p')
 
-    glyph_defaults = (
-        ('txt_quote_single_open',  '&#8216;'),
-        ('txt_quote_single_close', '&#8217;'),
-        ('txt_quote_double_open',  '&#8220;'),
-        ('txt_quote_double_close', '&#8221;'),
-        ('txt_apostrophe',         '&#8217;'),
-        ('txt_prime',              '&#8242;'),
-        ('txt_prime_double',       '&#8243;'),
-        ('txt_ellipsis',           '&#8230;'),
-        ('txt_emdash',             '&#8212;'),
-        ('txt_endash',             '&#8211;'),
-        ('txt_dimension',          '&#215;'),
-        ('txt_trademark',          '&#8482;'),
-        ('txt_registered',         '&#174;'),
-        ('txt_copyright',          '&#169;'),
-    )
+    macro_defaults = [
+        (re.compile(r'{(c\||\|c)}'),     r'&#162;'),   #  cent
+        (re.compile(r'{(L-|-L)}'),       r'&#163;'),   #  pound
+        (re.compile(r'{(Y=|=Y)}'),       r'&#165;'),   #  yen
+        (re.compile(r'{\(c\)}'),         r'&#169;'),   #  copyright
+        (re.compile(r'{\(r\)}'),         r'&#174;'),   #  registered
+        (re.compile(r'{(\+_|_\+)}'),     r'&#177;'),   #  plus-minus
+        (re.compile(r'{1/4}'),           r'&#188;'),   #  quarter
+        (re.compile(r'{1/2}'),           r'&#189;'),   #  half
+        (re.compile(r'{3/4}'),           r'&#190;'),   #  three-quarter
+        (re.compile(r'{(A`|`A)}'),       r'&#192;'),   #  A-acute
+        (re.compile(r'{(A\'|\'A)}'),     r'&#193;'),   #  A-grave
+        (re.compile(r'{(A\^|\^A)}'),     r'&#194;'),   #  A-circumflex
+        (re.compile(r'{(A~|~A)}'),       r'&#195;'),   #  A-tilde
+        (re.compile(r'{(A\"|\"A)}'),     r'&#196;'),   #  A-diaeresis
+        (re.compile(r'{(Ao|oA)}'),       r'&#197;'),   #  A-ring
+        (re.compile(r'{(AE)}'),          r'&#198;'),   #  AE
+        (re.compile(r'{(C,|,C)}'),       r'&#199;'),   #  C-cedilla
+        (re.compile(r'{(E`|`E)}'),       r'&#200;'),   #  E-acute
+        (re.compile(r'{(E\'|\'E)}'),     r'&#201;'),   #  E-grave
+        (re.compile(r'{(E\^|\^E)}'),     r'&#202;'),   #  E-circumflex
+        (re.compile(r'{(E\"|\"E)}'),     r'&#203;'),   #  E-diaeresis
+        (re.compile(r'{(I`|`I)}'),       r'&#204;'),   #  I-acute
+        (re.compile(r'{(I\'|\'I)}'),     r'&#205;'),   #  I-grave
+        (re.compile(r'{(I\^|\^I)}'),     r'&#206;'),   #  I-circumflex
+        (re.compile(r'{(I\"|\"I)}'),     r'&#207;'),   #  I-diaeresis
+        (re.compile(r'{(D-|-D)}'),       r'&#208;'),   #  ETH
+        (re.compile(r'{(N~|~N)}'),       r'&#209;'),   #  N-tilde
+        (re.compile(r'{(O`|`O)}'),       r'&#210;'),   #  O-acute
+        (re.compile(r'{(O\'|\'O)}'),     r'&#211;'),   #  O-grave
+        (re.compile(r'{(O\^|\^O)}'),     r'&#212;'),   #  O-circumflex
+        (re.compile(r'{(O~|~O)}'),       r'&#213;'),   #  O-tilde
+        (re.compile(r'{(O\"|\"O)}'),     r'&#214;'),   #  O-diaeresis
+        (re.compile(r'{x}'),             r'&#215;'),   #  dimension
+        (re.compile(r'{(O\/|\/O)}'),     r'&#216;'),   #  O-slash
+        (re.compile(r'{(U`|`U)}'),       r'&#217;'),   #  U-acute
+        (re.compile(r'{(U\'|\'U)}'),     r'&#218;'),   #  U-grave
+        (re.compile(r'{(U\^|\^U)}'),     r'&#219;'),   #  U-circumflex
+        (re.compile(r'{(U\"|\"U)}'),     r'&#220;'),   #  U-diaeresis
+        (re.compile(r'{(Y\'|\'Y)}'),     r'&#221;'),   #  Y-grave
+        (re.compile(r'{sz}'),            r'&szlig;'),  #  sharp-s
+        (re.compile(r'{(a`|`a)}'),       r'&#224;'),   #  a-grave
+        (re.compile(r'{(a\'|\'a)}'),     r'&#225;'),   #  a-acute
+        (re.compile(r'{(a\^|\^a)}'),     r'&#226;'),   #  a-circumflex
+        (re.compile(r'{(a~|~a)}'),       r'&#227;'),   #  a-tilde
+        (re.compile(r'{(a\"|\"a)}'),     r'&#228;'),   #  a-diaeresis
+        (re.compile(r'{(ao|oa)}'),       r'&#229;'),   #  a-ring
+        (re.compile(r'{ae}'),            r'&#230;'),   #  ae
+        (re.compile(r'{(c,|,c)}'),       r'&#231;'),   #  c-cedilla
+        (re.compile(r'{(e`|`e)}'),       r'&#232;'),   #  e-grave
+        (re.compile(r'{(e\'|\'e)}'),     r'&#233;'),   #  e-acute
+        (re.compile(r'{(e\^|\^e)}'),     r'&#234;'),   #  e-circumflex
+        (re.compile(r'{(e\"|\"e)}'),     r'&#235;'),   #  e-diaeresis
+        (re.compile(r'{(i`|`i)}'),       r'&#236;'),   #  i-grave
+        (re.compile(r'{(i\'|\'i)}'),     r'&#237;'),   #  i-acute
+        (re.compile(r'{(i\^|\^i)}'),     r'&#238;'),   #  i-circumflex
+        (re.compile(r'{(i\"|\"i)}'),     r'&#239;'),   #  i-diaeresis
+        (re.compile(r'{(d-|-d)}'),       r'&#240;'),   #  eth
+        (re.compile(r'{(n~|~n)}'),       r'&#241;'),   #  n-tilde
+        (re.compile(r'{(o`|`o)}'),       r'&#242;'),   #  o-grave
+        (re.compile(r'{(o\'|\'o)}'),     r'&#243;'),   #  o-acute
+        (re.compile(r'{(o\^|\^o)}'),     r'&#244;'),   #  o-circumflex
+        (re.compile(r'{(o~|~o)}'),       r'&#245;'),   #  o-tilde
+        (re.compile(r'{(o\"|\"o)}'),     r'&#246;'),   #  o-diaeresis
+        (re.compile(r'{(o\/|\/o)}'),     r'&#248;'),   #  o-stroke
+        (re.compile(r'{(u`|`u)}'),       r'&#249;'),   #  u-grave
+        (re.compile(r'{(u\'|\'u)}'),     r'&#250;'),   #  u-acute
+        (re.compile(r'{(u\^|\^u)}'),     r'&#251;'),   #  u-circumflex
+        (re.compile(r'{(u\"|\"u)}'),     r'&#252;'),   #  u-diaeresis
+        (re.compile(r'{(y\'|\'y)}'),     r'&#253;'),   #  y-acute
+        (re.compile(r'{(y\"|\"y)}'),     r'&#255;'),   #  y-diaeresis
+        (re.compile(r'{OE}'),            r'&#338;'),   #  OE
+        (re.compile(r'{oe}'),            r'&#339;'),   #  oe
+        (re.compile(r'{(S\^|\^S)}'),     r'&Scaron;'), #  Scaron
+        (re.compile(r'{(s\^|\^s)}'),     r'&scaron;'), #  scaron
+        (re.compile(r'{\*}'),            r'&#8226;'),  #  bullet
+        (re.compile(r'{Fr}'),            r'&#8355;'),  #  Franc
+        (re.compile(r'{(L=|=L)}'),       r'&#8356;'),  #  Lira
+        (re.compile(r'{Rs}'),            r'&#8360;'),  #  Rupee
+        (re.compile(r'{(C=|=C)}'),       r'&#8364;'),  #  euro
+        (re.compile(r'{tm}'),            r'&#8482;'),  #  trademark
+        (re.compile(r'{spades?}'),       r'&#9824;'),  #  spade
+        (re.compile(r'{clubs?}'),        r'&#9827;'),  #  club
+        (re.compile(r'{hearts?}'),       r'&#9829;'),  #  heart
+        (re.compile(r'{diam(onds?|s)}'), r'&#9830;'),  #  diamond
+        (re.compile(r'{"}'),             r'&#34;'),    #  double-quote
+        (re.compile(r"{'}"),             r'&#39;'),    #  single-quote
+        (re.compile(r"{(’|'/|/')}"),     r'&#8217;'),  #  closing-single-quote - apostrophe
+        (re.compile(r"{(‘|\\'|'\\)}"),   r'&#8216;'),  #  opening-single-quote
+        (re.compile(r'{(”|"/|/")}'),     r'&#8221;'),  #  closing-double-quote
+        (re.compile(r'{(“|\\"|"\\)}'),   r'&#8220;'),  #  opening-double-quote        
+    ]
+    glyph_defaults = [
+        (re.compile(r'(\d+\'?\"?)( ?)x( ?)(?=\d+)'),                   r'\1\2&#215;\3'),                       #  dimension sign
+        (re.compile(r'(\d+)\'(\s)', re.I),                             r'\1&#8242;\2'),                          #  prime
+        (re.compile(r'(\d+)\"(\s)', re.I),                             r'\1&#8243;\2'),                          #  prime-double
+        (re.compile(r'\b([A-Z][A-Z0-9]{2,})\b(?:[(]([^)]*)[)])'),      r'<acronym title="\2">\1</acronym>'),   #  3+ uppercase acronym
+        (re.compile(r'\b([A-Z][A-Z\'\-]+[A-Z])(?=[\s.,\)>])'),         r'<span class="caps">\1</span>'),       #  3+ uppercase
+        (re.compile(r'\b(\s{0,1})?\.{3}'),                             r'\1&#8230;'),                          #  ellipsis
+        (re.compile(r'^[\*_-]{3,}$', re.M),                            r'<hr />'),                             #  <hr> scene-break
+        (re.compile(r'(^|[^-])--([^-]|$)'),                                r'\1&#8212;\2'),                        #  em dash
+        (re.compile(r'\s-(?:\s|$)'),                                   r' &#8211; '),                          #  en dash
+        (re.compile(r'\b( ?)[([]TM[])]', re.I),                        r'\1&#8482;'),                          #  trademark
+        (re.compile(r'\b( ?)[([]R[])]', re.I),                         r'\1&#174;'),                           #  registered
+        (re.compile(r'\b( ?)[([]C[])]', re.I),                         r'\1&#169;'),                           #  copyright
+    ]
+
 
     def __init__(self, restricted=False, lite=False, noimage=False):
         """docstring for __init__"""
@@ -166,10 +263,9 @@ class Textile(object):
             self.rel = ' rel="%s"' % rel
 
         text = self.getRefs(text)
-
         text = self.block(text, int(head_offset))
-
         text = self.retrieve(text)
+        text = smartyPants(text, 'q')
 
         return text
 
@@ -593,49 +689,33 @@ class Textile(object):
         '<p><cite>Cat&#8217;s Cradle</cite> by Vonnegut</p>'
 
         """
-         # fix: hackish
+        # fix: hackish
         text = re.sub(r'"\Z', '\" ', text)
-
-        glyph_search = (
-            re.compile(r"(\w)\'(\w)"),                                      # apostrophe's
-            re.compile(r'(\s)\'(\d+\w?)\b(?!\')'),                          # back in '88
-            re.compile(r'(\S)\'(?=\s|'+self.pnct+'|<|$)'),                       #  single closing
-            re.compile(r'\'/'),                                             #  single opening
-            re.compile(r'(\S)\"(?=\s|'+self.pnct+'|<|$)'),                       #  double closing
-            re.compile(r'"'),                                               #  double opening
-            re.compile(r'\b([A-Z][A-Z0-9]{2,})\b(?:[(]([^)]*)[)])'),        #  3+ uppercase acronym
-            re.compile(r'\b([A-Z][A-Z\'\-]+[A-Z])(?=[\s.,\)>])'),           #  3+ uppercase
-            re.compile(r'\b(\s{0,1})?\.{3}'),                                     #  ellipsis
-            re.compile(r'(\s?)--(\s?)'),                                    #  em dash
-            re.compile(r'\s-(?:\s|$)'),                                     #  en dash
-            re.compile(r'(\d+)( ?)x( ?)(?=\d+)'),                           #  dimension sign
-            re.compile(r'\b ?[([]TM[])]', re.I),                            #  trademark
-            re.compile(r'\b ?[([]R[])]', re.I),                             #  registered
-            re.compile(r'\b ?[([]C[])]', re.I),                             #  copyright
-         )
-
-        glyph_replace = [x % dict(self.glyph_defaults) for x in (
-            r'\1%(txt_apostrophe)s\2',           # apostrophe's
-            r'\1%(txt_apostrophe)s\2',           # back in '88
-            r'\1%(txt_quote_single_close)s',     #  single closing
-            r'%(txt_quote_single_open)s',         #  single opening
-            r'\1%(txt_quote_double_close)s',        #  double closing
-            r'%(txt_quote_double_open)s',             #  double opening
-            r'<acronym title="\2">\1</acronym>', #  3+ uppercase acronym
-            r'<span class="caps">\1</span>',     #  3+ uppercase
-            r'\1%(txt_ellipsis)s',                  #  ellipsis
-            r'\1%(txt_emdash)s\2',               #  em dash
-            r' %(txt_endash)s ',                 #  en dash
-            r'\1\2%(txt_dimension)s\3',          #  dimension sign
-            r'%(txt_trademark)s',                #  trademark
-            r'%(txt_registered)s',                #  registered
-            r'%(txt_copyright)s',                #  copyright
-        )]
 
         result = []
         for line in re.compile(r'(<.*?>)', re.U).split(text):
             if not re.search(r'<.*>', line):
-                for s, r in zip(glyph_search, glyph_replace):
+                rules = []
+                if re.search(r'{.+?}', line):
+                    rules = self.macro_defaults + self.glyph_defaults
+                else:
+                    rules = self.glyph_defaults
+                for s, r in rules:
+                    line = s.sub(r, line)
+            result.append(line)
+        return ''.join(result)
+
+    def macros_only(self, text):
+        # fix: hackish
+        text = re.sub(r'"\Z', '\" ', text)
+
+        result = []
+        for line in re.compile(r'(<.*?>)', re.U).split(text):
+            if not re.search(r'<.*>', line):
+                rules = []
+                if re.search(r'{.+?}', line):
+                    rules = self.macro_defaults
+                for s, r in rules:
                     line = s.sub(r, line)
             result.append(line)
         return ''.join(result)
@@ -685,7 +765,7 @@ class Textile(object):
         return url
 
     def shelve(self, text):
-        id = str(uuid.uuid4())
+        id = str(uuid.uuid4()) + 'c'
         self.shelf[id] = text
         return id
 
@@ -748,6 +828,7 @@ class Textile(object):
         'fooobar ... and hello world ...'
         """
 
+        text = self.macros_only(text)
         punct = '!"#$%&\'*+,-./:;=?@\\^_`|~'
 
         pattern = r'''
@@ -807,7 +888,7 @@ class Textile(object):
 
         for qtag in qtags:
             pattern = re.compile(r"""
-                (?:^|(?<=[\s>%(pnct)s])|([\]}]))
+                (?:^|(?<=[\s>%(pnct)s\(])|\[|([\]}]))
                 (%(qtag)s)(?!%(qtag)s)
                 (%(c)s)
                 (?::(\S+))?
@@ -978,4 +1059,3 @@ def textile_restricted(text, lite=True, noimage=True, html_type='xhtml'):
     return Textile(restricted=True, lite=lite,
                    noimage=noimage).textile(text, rel='nofollow',
                                             html_type=html_type)
-

@@ -9,21 +9,31 @@ from functools import partial
 
 from PyQt4.Qt import QMenu, QObject, QTimer
 
-from calibre.gui2 import error_dialog
+from calibre.gui2 import error_dialog, question_dialog
 from calibre.gui2.dialogs.delete_matching_from_device import DeleteMatchingFromDeviceDialog
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.confirm_delete_location import confirm_location
 from calibre.gui2.actions import InterfaceAction
+from calibre.utils.recycle_bin import can_recycle
 
 single_shot = partial(QTimer.singleShot, 10)
 
 class MultiDeleter(QObject):
 
-    def __init__(self, gui, rows, callback):
+    def __init__(self, gui, ids, callback):
         from calibre.gui2.dialogs.progress import ProgressDialog
         QObject.__init__(self, gui)
         self.model = gui.library_view.model()
-        self.ids = list(map(self.model.id, rows))
+        self.ids = ids
+        self.permanent = False
+        if can_recycle and len(ids) > 100:
+            if question_dialog(gui, _('Are you sure?'), '<p>'+
+                _('You are trying to delete %d books. '
+                    'Sending so many files to the Recycle'
+                    ' Bin <b>can be slow</b>. Should calibre skip the'
+                    ' Recycle Bin? If you click Yes the files'
+                    ' will be <b>permanently deleted</b>.')%len(ids)):
+                self.permanent = True
         self.gui = gui
         self.failures = []
         self.deleted_ids = []
@@ -44,7 +54,8 @@ class MultiDeleter(QObject):
             title_ = self.model.db.title(id_, index_is_id=True)
             if title_:
                 title = title_
-            self.model.db.delete_book(id_, notify=False, commit=False)
+            self.model.db.delete_book(id_, notify=False, commit=False,
+                    permanent=self.permanent)
             self.deleted_ids.append(id_)
         except:
             import traceback
@@ -141,7 +152,8 @@ class DeleteAction(InterfaceAction):
         if not ids:
             return
         fmts = self._get_selected_formats(
-            '<p>'+_('Choose formats <b>not</b> to be deleted'), ids)
+            '<p>'+_('Choose formats <b>not</b> to be deleted.<p>Note that '
+                'this will never remove all formats from a book.'), ids)
         if fmts is None:
             return
         for id in ids:
@@ -150,9 +162,12 @@ class DeleteAction(InterfaceAction):
                 continue
             bfmts = set([x.lower() for x in bfmts.split(',')])
             rfmts = bfmts - set(fmts)
-            for fmt in rfmts:
-                self.gui.library_view.model().db.remove_format(id, fmt,
-                        index_is_id=True, notify=False)
+            if bfmts - rfmts:
+                # Do not delete if it will leave the book with no
+                # formats
+                for fmt in rfmts:
+                    self.gui.library_view.model().db.remove_format(id, fmt,
+                            index_is_id=True, notify=False)
         self.gui.library_view.model().refresh_ids(ids)
         self.gui.library_view.model().current_changed(self.gui.library_view.currentIndex(),
                 self.gui.library_view.currentIndex())
@@ -231,6 +246,7 @@ class DeleteAction(InterfaceAction):
             return
         # Library view is visible.
         if self.gui.stack.currentIndex() == 0:
+            to_delete_ids = [view.model().id(r) for r in rows]
             # Ask the user if they want to delete the book from the library or device if it is in both.
             if self.gui.device_manager.is_device_connected:
                 on_device = False
@@ -264,10 +280,10 @@ class DeleteAction(InterfaceAction):
             if ci.isValid():
                 row = ci.row()
             if len(rows) < 5:
-                ids_deleted = view.model().delete_books(rows)
-                self.library_ids_deleted(ids_deleted, row)
+                view.model().delete_books_by_id(to_delete_ids)
+                self.library_ids_deleted(to_delete_ids, row)
             else:
-                self.__md = MultiDeleter(self.gui, rows,
+                self.__md = MultiDeleter(self.gui, to_delete_ids,
                         partial(self.library_ids_deleted, current_row=row))
         # Device view is visible.
         else:

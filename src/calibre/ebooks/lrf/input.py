@@ -6,8 +6,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, textwrap
-from copy import deepcopy
+import os, textwrap, sys, operator
+from copy import deepcopy, copy
 
 from lxml import etree
 
@@ -149,8 +149,64 @@ class TextBlock(etree.XSLTExtension):
         self.root = root
         self.parent = root
         self.add_text_to = (self.parent, 'text')
+        self.fix_deep_nesting(node)
         for child in node:
             self.process_child(child)
+
+    def fix_deep_nesting(self, node):
+        deepest = 1
+
+        def depth(node):
+            parent = node.getparent()
+            ans = 1
+            while parent is not None:
+                ans += 1
+                parent = parent.getparent()
+            return ans
+
+        for span in node.xpath('descendant::Span'):
+            d = depth(span)
+            if d > deepest:
+                deepest = d
+                if d > 500:
+                    break
+
+        if deepest < 500:
+            return
+
+        self.log.warn('Found deeply nested spans. Flattening.')
+        #with open('/t/before.xml', 'wb') as f:
+        #    f.write(etree.tostring(node, method='xml'))
+
+        spans = [(depth(span), span) for span in node.xpath('descendant::Span')]
+        spans.sort(key=operator.itemgetter(0), reverse=True)
+
+        for depth, span in spans:
+            if depth < 3:
+                continue
+            p = span.getparent()
+            gp = p.getparent()
+            idx = p.index(span)
+            pidx = gp.index(p)
+            children = list(p)[idx:]
+            t = children[-1].tail
+            t = t if t else ''
+            children[-1].tail = t + (p.tail if p.tail else '')
+            p.tail = ''
+            pattrib = dict(**p.attrib) if p.tag == 'Span' else {}
+            for child in children:
+                p.remove(child)
+                if pattrib and child.tag == "Span":
+                    attrib = copy(pattrib)
+                    attrib.update(child.attrib)
+                    child.attrib.update(attrib)
+
+
+            for child in reversed(children):
+                gp.insert(pidx+1, child)
+
+        #with open('/t/after.xml', 'wb') as f:
+        #    f.write(etree.tostring(node, method='xml'))
 
     def add_text(self, text):
         if text:
@@ -413,7 +469,12 @@ class LRFInput(InputFormatPlugin):
                 ('calibre', 'image-block'): image_block,
                 }
         transform = etree.XSLT(styledoc, extensions=extensions)
-        result = transform(doc)
+        try:
+            result = transform(doc)
+        except RuntimeError:
+            sys.setrecursionlimit(5000)
+            result = transform(doc)
+
         with open('content.opf', 'wb') as f:
             f.write(result)
         styles.write()

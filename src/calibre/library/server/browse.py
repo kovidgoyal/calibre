@@ -7,21 +7,25 @@ __docformat__ = 'restructuredtext en'
 
 import operator, os, json, re
 from binascii import hexlify, unhexlify
+from collections import OrderedDict
 
 import cherrypy
 
 from calibre.constants import filesystem_encoding
 from calibre import isbytestring, force_unicode, fit_image, \
-        prepare_string_for_xml as xml
-from calibre.utils.ordered_dict import OrderedDict
+        prepare_string_for_xml
 from calibre.utils.filenames import ascii_filename
-from calibre.utils.config import prefs, tweaks
+from calibre.utils.config import prefs
 from calibre.utils.icu import sort_key
 from calibre.utils.magick import Image
 from calibre.library.comments import comments_to_html
 from calibre.library.server import custom_fields_to_display
 from calibre.library.field_metadata import category_icon_map
 from calibre.library.server.utils import quote, unquote
+
+def xml(*args, **kwargs):
+    ans = prepare_string_for_xml(*args, **kwargs)
+    return ans.replace('&apos;', '&#39;')
 
 def render_book_list(ids, prefix, suffix=''): # {{{
     pages = []
@@ -151,8 +155,7 @@ def get_category_items(category, items, restriction, datatype, prefix): # {{{
                 '<div>{1}</div>'
                 '<div>{2}</div></div>')
         rating, rstring = render_rating(i.avg_rating, prefix)
-        if i.category == 'authors' and \
-                tweaks['categories_use_field_for_author_name'] == 'author_sort':
+        if i.use_sort_as_name:
             name = xml(i.sort)
         else:
             name = xml(i.name)
@@ -346,7 +349,7 @@ class BrowseServer(object):
         for category in sorted(categories, key=lambda x: sort_key(getter(x))):
             if len(categories[category]) == 0:
                 continue
-            if category == 'formats':
+            if category in ('formats', 'identifiers'):
                 continue
             meta = category_meta.get(category, None)
             if meta is None:
@@ -626,6 +629,8 @@ class BrowseServer(object):
             elif category == 'allbooks':
                 ids = all_ids
             else:
+                if fm.get(category, {'datatype':None})['datatype'] == 'composite':
+                    cid = cid.decode('utf-8')
                 q = category
                 if q == 'news':
                     q = 'tags'
@@ -666,7 +671,7 @@ class BrowseServer(object):
             if add_category_links:
                 added_key = False
                 fm = mi.metadata_for_field(key)
-                if val and fm and fm['is_category'] and \
+                if val and fm and fm['is_category'] and not fm['is_csp'] and\
                         key != 'formats' and fm['datatype'] not in ['rating']:
                     categories = mi.get(key)
                     if isinstance(categories, basestring):
@@ -690,7 +695,10 @@ class BrowseServer(object):
                                 xml(href, True),
                                 xml(val if len(dbtags) == 1 else tag.name),
                                 xml(key, True)))
-                        join = ' &amp; ' if key == 'authors' else ', '
+                        join = ' &amp; ' if key == 'authors' or \
+                                            (fm['is_custom'] and
+                                             fm['display'].get('is_names', False)) \
+                                         else ', '
                         args[key] = join.join(vals)
                         added_key = True
                 if not added_key:

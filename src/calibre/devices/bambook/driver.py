@@ -61,7 +61,7 @@ class BAMBOOK(DeviceConfig, DevicePlugin):
             detected_device=None) :
         self.open()
 
-    def open(self):
+    def open(self, library_uuid):
         # Make sure the Bambook library is ready
         if not is_bambook_lib_ready():
             raise OpenFeedback(_("Unable to connect to Bambook, you need to install Bambook library first."))

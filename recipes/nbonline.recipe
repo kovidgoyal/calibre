@@ -1,0 +1,33 @@
+EMAILADDRESS = 'hoge@foobar.co.jp'
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class NBOnline(BasicNewsRecipe):
+    title          = u'Nikkei Business Online'
+    language = 'ja'
+    description = u'Nikkei Business Online New articles. PLEASE NOTE: You need to edit EMAILADDRESS line of this "nbonline.recipe" file to set your e-mail address which is needed when login. (file is in "Calibre2/resources/recipes" directory.)'
+    __author__	= 'Ado Nishimura'
+    needs_subscription = True
+    oldest_article = 7
+    max_articles_per_feed = 100
+    remove_tags_before = dict(id='kanban')
+    remove_tags = [dict(name='div', id='footer')]
+
+    feeds          = [('Nikkei Buisiness Online', 'http://business.nikkeibp.co.jp/rss/all_nbo.rdf')]
+
+    def get_cover_url(self):
+        return 'http://business.nikkeibp.co.jp/images/nbo/200804/parts/logo.gif'
+
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser()
+        if self.username is not None and self.password is not None:
+            br.open('https://signon.nikkeibp.co.jp/front/login/?ct=p&ts=nbo')
+            br.select_form(name='loginActionForm')
+            br['email']   = EMAILADDRESS
+            br['userId']   = self.username
+            br['password'] = self.password
+            br.submit()
+        return br
+
+    def print_version(self, url):
+        return url + '?ST=print'

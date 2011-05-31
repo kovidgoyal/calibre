@@ -341,7 +341,7 @@ from the value in the box</string>
                 <number>1</number>
                </property>
                <property name="maximum">
-                <number>990000</number>
+                <number>99000000</number>
                </property>
                <property name="value">
                 <number>1</number>
@@ -733,6 +733,29 @@ Future conversion of these books will use the default settings.</string>
             </layout>
            </item>
            <item row="5" column="0">
+            <widget class="QLabel" name="s_r_src_ident_label">
+             <property name="text">
+              <string>Identifier type:</string>
+             </property>
+             <property name="buddy">
+              <cstring>s_r_src_ident</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="1">
+            <widget class="QComboBox" name="s_r_src_ident">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <horstretch>100</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="toolTip">
+              <string>Choose which identifier type to operate upon</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="0">
             <widget class="QLabel" name="template_label">
              <property name="text">
               <string>Te&amp;mplate:</string>
@@ -910,7 +933,30 @@ not multiple and the destination field is multiple</string>
              </item>
             </layout>
            </item>
-           <item row="9" column="1" colspan="2">
+           <item row="9" column="0">
+            <widget class="QLabel" name="s_r_dst_ident_label">
+             <property name="text">
+              <string>Identifier type:</string>
+             </property>
+             <property name="buddy">
+              <cstring>s_r_dst_ident</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="9" column="1">
+            <widget class="QLineEdit" name="s_r_dst_ident">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <horstretch>100</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="toolTip">
+              <string>Choose which identifier type to operate upon</string>
+             </property>
+            </widget>
+           </item>
+           <item row="10" column="1" colspan="2">
             <layout class="QHBoxLayout" name="horizontalLayout_21">
              <item>
               <spacer name="HSpacer_347">
@@ -996,7 +1042,7 @@ not multiple and the destination field is multiple</string>
              </item>
             </layout>
            </item>
-           <item row="10" column="0" colspan="4">
+           <item row="11" column="0" colspan="4">
             <widget class="QScrollArea" name="scrollArea11">
              <property name="frameShape">
               <enum>QFrame::NoFrame</enum>
@@ -1120,6 +1166,7 @@ not multiple and the destination field is multiple</string>
   <tabstop>remove_button</tabstop>
   <tabstop>search_field</tabstop>
   <tabstop>search_mode</tabstop>
+  <tabstop>s_r_src_ident</tabstop>
   <tabstop>s_r_template</tabstop>
   <tabstop>search_for</tabstop>
   <tabstop>case_sensitive</tabstop>
@@ -1128,6 +1175,7 @@ not multiple and the destination field is multiple</string>
   <tabstop>destination_field</tabstop>
   <tabstop>replace_mode</tabstop>
   <tabstop>comma_separated</tabstop>
+  <tabstop>s_r_dst_ident</tabstop>
   <tabstop>results_count</tabstop>
   <tabstop>starting_from</tabstop>
   <tabstop>multiple_separator</tabstop>

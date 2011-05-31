@@ -1,0 +1,76 @@
+#!/usr/bin/env  python2
+# -*- coding: utf-8 -*-
+#Based on veezh's original recipe and Kovid Goyal's New York Times recipe
+
+__license__   = 'GPL v3'
+__copyright__ = '2011, Snaab'
+
+'''
+www.nrc.nl
+'''
+import os, zipfile
+import time
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ptempfile import PersistentTemporaryFile
+
+
+class NRCHandelsblad(BasicNewsRecipe):
+
+    title = u'NRC Handelsblad'
+    description = u'De ePaper-versie van NRC'
+    language = 'nl'
+    lang = 'nl-NL'
+    needs_subscription = True
+
+    __author__ = 'Snaab'
+
+    conversion_options = {
+        'no_default_epub_cover' : True
+    }
+
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser()
+        if self.username is not None and self.password is not None:
+            br.open('http://login.nrc.nl/login')
+            br.select_form(nr=0)
+            br['username']   = self.username
+            br['password'] = self.password
+            br.submit()
+        return br
+
+    def build_index(self):
+
+        today = time.strftime("%Y%m%d")
+
+        domain = "http://digitaleeditie.nrc.nl"
+
+        url = domain + "/digitaleeditie/helekrant/epub/nrc_" + today + ".epub"
+        #print url
+
+        try:
+            br = self.get_browser()
+            f = br.open(url)
+        except:
+            self.report_progress(0,_('Kan niet inloggen om editie te downloaden'))
+            raise ValueError('Krant van vandaag nog niet beschikbaar')
+
+
+        tmp = PersistentTemporaryFile(suffix='.epub')
+        self.report_progress(0,_('downloading epub'))
+        tmp.write(f.read())
+        f.close()
+        br.close()
+        if zipfile.is_zipfile(tmp):
+            try:
+                zfile = zipfile.ZipFile(tmp.name, 'r')
+                zfile.extractall(self.output_dir)
+                self.report_progress(0,_('extracting epub'))
+            except zipfile.BadZipfile:
+                self.report_progress(0,_('BadZip error, continuing'))
+
+        tmp.close()
+        index = os.path.join(self.output_dir, 'metadata.opf')
+
+        self.report_progress(1,_('epub downloaded and extracted'))
+
+        return index

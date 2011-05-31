@@ -103,10 +103,11 @@ class EPUBInput(InputFormatPlugin):
         t.set('href', guide_cover)
         t.set('title', 'Title Page')
         from calibre.ebooks import render_html_svg_workaround
-        renderer = render_html_svg_workaround(guide_cover, log)
-        if renderer is not None:
-            open('calibre_raster_cover.jpg', 'wb').write(
-                renderer)
+        if os.path.exists(guide_cover):
+            renderer = render_html_svg_workaround(guide_cover, log)
+            if renderer is not None:
+                open('calibre_raster_cover.jpg', 'wb').write(
+                    renderer)
 
     def find_opf(self):
         def attr(n, attr):
@@ -175,18 +176,18 @@ class EPUBInput(InputFormatPlugin):
                 raise ValueError(
                     'EPUB files with DTBook markup are not supported')
 
+        not_for_spine = set()
+        for y in opf.itermanifest():
+            id_ = y.get('id', None)
+            if id_ and y.get('media-type', None) in \
+                ('application/vnd.adobe-page-template+xml',):
+                    not_for_spine.add(id_)
+
         for x in list(opf.iterspine()):
             ref = x.get('idref', None)
-            if ref is None:
+            if ref is None or ref in not_for_spine:
                 x.getparent().remove(x)
                 continue
-            for y in opf.itermanifest():
-                if y.get('id', None) == ref and y.get('media-type', None) in \
-                    ('application/vnd.adobe-page-template+xml',):
-                        p = x.getparent()
-                        if p is not None:
-                            p.remove(x)
-                        break
 
         with open('content.opf', 'wb') as nopf:
             nopf.write(opf.render())

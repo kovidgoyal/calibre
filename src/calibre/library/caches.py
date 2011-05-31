@@ -7,7 +7,7 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import re, itertools, time, traceback
-from itertools import repeat
+from itertools import repeat, izip, imap
 from datetime import timedelta
 from threading import Thread
 
@@ -15,7 +15,7 @@ from calibre.utils.config import tweaks, prefs
 from calibre.utils.date import parse_date, now, UNDEFINED_DATE
 from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.utils.pyparsing import ParseException
-from calibre.ebooks.metadata import title_sort
+from calibre.ebooks.metadata import title_sort, author_to_author_sort
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre import prints
 
@@ -121,11 +121,24 @@ CONTAINS_MATCH = 0
 EQUALS_MATCH   = 1
 REGEXP_MATCH   = 2
 def _match(query, value, matchkind):
+    if query.startswith('..'):
+        query = query[1:]
+        sq = query[1:]
+        internal_match_ok = True
+    else:
+        internal_match_ok = False
     for t in value:
         t = icu_lower(t)
         try:     ### ignore regexp exceptions, required because search-ahead tries before typing is finished
             if (matchkind == EQUALS_MATCH):
-                if query[0] == '.':
+                if internal_match_ok:
+                    if query == t:
+                        return True
+                    comps = [c.strip() for c in t.split('.') if c.strip()]
+                    for comp in comps:
+                        if sq == comp:
+                            return True
+                elif query[0] == '.':
                     if t.startswith(query[1:]):
                         ql = len(query) - 1
                         if (len(t) == ql) or (t[ql:ql+1] == '.'):
@@ -138,6 +151,22 @@ def _match(query, value, matchkind):
         except re.error:
             pass
     return False
+
+def force_to_bool(val):
+    if isinstance(val, (str, unicode)):
+        try:
+            val = icu_lower(val)
+            if not val:
+                val = None
+            elif val in [_('yes'), _('checked'), 'true']:
+                val = True
+            elif val in [_('no'), _('unchecked'), 'false']:
+                val = False
+            else:
+                val = bool(int(val))
+        except:
+            val = None
+    return val
 
 class CacheRow(list): # {{{
 
@@ -162,13 +191,19 @@ class CacheRow(list): # {{{
             if is_comp:
                 id = list.__getitem__(self, 0)
                 self._must_do = False
-                mi = self.db.get_metadata(id, index_is_id=True)
+                mi = self.db.get_metadata(id, index_is_id=True,
+                                          get_user_categories=False)
                 for c in self._composites:
                     self[c] =  mi.get(self._composites[c])
         return list.__getitem__(self, col)
 
     def __getslice__(self, i, j):
         return self.__getitem__(slice(i, j))
+
+    def refresh_composites(self):
+        for c in self._composites:
+            self[c] =  None
+        self._must_do = True
 
 # }}}
 
@@ -189,6 +224,7 @@ class ResultCache(SearchQueryParser): # {{{
         self.first_sort = True
         self.search_restriction = ''
         self.search_restriction_book_count = 0
+        self.marked_ids_dict = {}
         self.field_metadata = field_metadata
         self.all_search_locations = field_metadata.get_search_terms()
         SearchQueryParser.__init__(self, self.all_search_locations, optimize=True)
@@ -297,14 +333,20 @@ class ResultCache(SearchQueryParser): # {{{
             for id_ in candidates:
                 item = self._data[id_]
                 if item is None: continue
-                if item[loc] is None or item[loc] <= UNDEFINED_DATE:
+                v = item[loc]
+                if isinstance(v, (str, unicode)):
+                    v = parse_date(v)
+                if v is None or v <= UNDEFINED_DATE:
                     matches.add(item[0])
             return matches
         if query == 'true':
             for id_ in candidates:
                 item = self._data[id_]
                 if item is None: continue
-                if item[loc] is not None and item[loc] > UNDEFINED_DATE:
+                v = item[loc]
+                if isinstance(v, (str, unicode)):
+                    v = parse_date(v)
+                if v is not None and v > UNDEFINED_DATE:
                     matches.add(item[0])
             return matches
 
@@ -344,106 +386,211 @@ class ResultCache(SearchQueryParser): # {{{
         for id_ in candidates:
             item = self._data[id_]
             if item is None or item[loc] is None: continue
-            if relop(item[loc], qd, field_count):
+            v = item[loc]
+            if isinstance(v, (str, unicode)):
+                v = parse_date(v)
+            if relop(v, qd, field_count):
                 matches.add(item[0])
         return matches
 
     def build_numeric_relop_dict(self):
         self.numeric_search_relops = {
                         '=':[1, lambda r, q: r == q],
-                        '>':[1, lambda r, q: r > q],
-                        '<':[1, lambda r, q: r < q],
+                        '>':[1, lambda r, q: r is not None and r > q],
+                        '<':[1, lambda r, q: r is not None and r < q],
                         '!=':[2, lambda r, q: r != q],
-                        '>=':[2, lambda r, q: r >= q],
-                        '<=':[2, lambda r, q: r <= q]
+                        '>=':[2, lambda r, q: r is not None and r >= q],
+                        '<=':[2, lambda r, q: r is not None and r <= q]
                     }
 
     def get_numeric_matches(self, location, query, candidates, val_func = None):
         matches = set([])
         if len(query) == 0:
             return matches
-        if query == 'false':
-            query = '0'
-        elif query == 'true':
-            query = '!=0'
-        relop = None
-        for k in self.numeric_search_relops.keys():
-            if query.startswith(k):
-                (p, relop) = self.numeric_search_relops[k]
-                query = query[p:]
-        if relop is None:
-                (p, relop) = self.numeric_search_relops['=']
 
         if val_func is None:
             loc = self.field_metadata[location]['rec_index']
             val_func = lambda item, loc=loc: item[loc]
-
+        q = ''
+        cast = adjust = lambda x: x
         dt = self.field_metadata[location]['datatype']
-        if dt == 'int':
-            cast = (lambda x: int (x))
-            adjust = lambda x: x
-        elif  dt == 'rating':
-            cast = (lambda x: int (x))
-            adjust = lambda x: x/2
-        elif dt == 'float':
-            cast = lambda x : float (x)
-            adjust = lambda x: x
-        else: # count operation
-            cast = (lambda x: int (x))
-            adjust = lambda x: x
 
-        if len(query) > 1:
-            mult = query[-1:].lower()
-            mult = {'k':1024.,'m': 1024.**2, 'g': 1024.**3}.get(mult, 1.0)
-            if mult != 1.0:
-                query = query[:-1]
+        if query == 'false':
+            if dt == 'rating' or location == 'cover':
+                relop = lambda x,y: not bool(x)
+            else:
+                relop = lambda x,y: x is None
+        elif query == 'true':
+            if dt == 'rating' or location == 'cover':
+                relop = lambda x,y: bool(x)
+            else:
+                relop = lambda x,y: x is not None
         else:
-            mult = 1.0
-        try:
-            q = cast(query) * mult
-        except:
-            return matches
+            relop = None
+            for k in self.numeric_search_relops.keys():
+                if query.startswith(k):
+                    (p, relop) = self.numeric_search_relops[k]
+                    query = query[p:]
+            if relop is None:
+                    (p, relop) = self.numeric_search_relops['=']
+
+            if dt == 'int':
+                cast = lambda x: int (x)
+            elif  dt == 'rating':
+                cast = lambda x: 0 if x is None else int (x)
+                adjust = lambda x: x/2
+            elif dt in ('float', 'composite'):
+                cast = lambda x : float (x)
+            else: # count operation
+                cast = (lambda x: int (x))
+
+            if len(query) > 1:
+                mult = query[-1:].lower()
+                mult = {'k':1024.,'m': 1024.**2, 'g': 1024.**3}.get(mult, 1.0)
+                if mult != 1.0:
+                    query = query[:-1]
+            else:
+                mult = 1.0
+            try:
+                q = cast(query) * mult
+            except:
+                raise ParseException(query, len(query),
+                                     'Non-numeric value in query', self)
 
         for id_ in candidates:
             item = self._data[id_]
             if item is None:
                 continue
-            v = val_func(item)
-            if not v:
-                i = 0
-            else:
-                i = adjust(v)
-            if relop(i, q):
+            try:
+                v = cast(val_func(item))
+            except:
+                v = None
+            if v:
+                v = adjust(v)
+            if relop(v, q):
                 matches.add(item[0])
         return matches
 
     def get_user_category_matches(self, location, query, candidates):
-        res = set([])
-        if self.db_prefs is None:
-            return  res
+        matches = set([])
+        if self.db_prefs is None or len(query) < 2:
+            return  matches
         user_cats = self.db_prefs.get('user_categories', [])
         c = set(candidates)
-        l = location.rfind('.')
-        if l > 0:
-            alt_loc = location[0:l]
-            alt_item = location[l+1:]
+
+        if query.startswith('.'):
+            check_subcats = True
+            query = query[1:]
         else:
-            alt_loc = None
+            check_subcats = False
+
         for key in user_cats:
-            if key == location or key.startswith(location + '.'):
+            if key == location or (check_subcats and key.startswith(location + '.')):
                 for (item, category, ign) in user_cats[key]:
                     s = self.get_matches(category, '=' + item, candidates=c)
                     c -= s
-                    res |= s
-            elif key == alt_loc:
-                for (item, category, ign) in user_cats[key]:
-                    if item == alt_item:
-                        s = self.get_matches(category, '=' + item, candidates=c)
-                        c -= s
-                        res |= s
+                    matches |= s
         if query == 'false':
-            return candidates - res
-        return res
+            return candidates - matches
+        return matches
+
+    def get_keypair_matches(self, location, query, candidates):
+        matches = set([])
+        if query.find(':') >= 0:
+            q = [q.strip() for q in query.split(':')]
+            if len(q) != 2:
+                raise ParseException(query, len(query),
+                        'Invalid query format for colon-separated search', self)
+            (keyq, valq) = q
+            keyq_mkind, keyq = self._matchkind(keyq)
+            valq_mkind, valq = self._matchkind(valq)
+        else:
+            keyq = keyq_mkind = ''
+            valq_mkind, valq = self._matchkind(query)
+
+        loc = self.field_metadata[location]['rec_index']
+        split_char = self.field_metadata[location]['is_multiple']
+        for id_ in candidates:
+            item = self._data[id_]
+            if item is None:
+                continue
+
+            if item[loc] is None:
+                if valq == 'false':
+                    matches.add(id_)
+                continue
+
+            pairs = [p.strip() for p in item[loc].split(split_char)]
+            for pair in pairs:
+                parts = pair.split(':')
+                if len(parts) != 2:
+                    continue
+                k = parts[:1]
+                v = parts[1:]
+                if keyq and not _match(keyq, k, keyq_mkind):
+                    continue
+                if valq:
+                    if valq == 'true':
+                        if not v:
+                            continue
+                    elif valq == 'false':
+                        if v:
+                            continue
+                    elif not _match(valq, v, valq_mkind):
+                        continue
+                matches.add(id_)
+        return matches
+
+    def _matchkind(self, query):
+        matchkind = CONTAINS_MATCH
+        if (len(query) > 1):
+            if query.startswith('\\'):
+                query = query[1:]
+            elif query.startswith('='):
+                matchkind = EQUALS_MATCH
+                query = query[1:]
+            elif query.startswith('~'):
+                matchkind = REGEXP_MATCH
+                query = query[1:]
+
+        if matchkind != REGEXP_MATCH:
+            # leave case in regexps because it can be significant e.g. \S \W \D
+            query = icu_lower(query)
+        return matchkind, query
+
+    def get_bool_matches(self, location, query, candidates):
+        bools_are_tristate = self.db_prefs.get('bools_are_tristate')
+        loc = self.field_metadata[location]['rec_index']
+        matches = set()
+        query = icu_lower(query)
+        if query not in (_('no'), _('unchecked'), '_no', 'false',
+                         _('yes'), _('checked'), '_yes', 'true',
+                         _('empty'), _('blank'), '_empty'):
+            raise ParseException(_('Invalid boolean query "{0}"').format(query))
+        for id_ in candidates:
+            item = self._data[id_]
+            if item is None:
+                continue
+
+            val = force_to_bool(item[loc])
+            if not bools_are_tristate:
+                if val is None or not val: # item is None or set to false
+                    if query in [_('no'), _('unchecked'), '_no', 'false']:
+                        matches.add(item[0])
+                else: # item is explicitly set to true
+                    if query in [_('yes'), _('checked'), '_yes', 'true']:
+                        matches.add(item[0])
+            else:
+                if val is None:
+                    if query in [_('empty'), _('blank'), '_empty', 'false']:
+                        matches.add(item[0])
+                elif not val: # is not None and false
+                    if query in [_('no'), _('unchecked'), '_no', 'true']:
+                        matches.add(item[0])
+                else: # item is not None and true
+                    if query in [_('yes'), _('checked'), '_yes', 'true']:
+                        matches.add(item[0])
+        return matches
 
     def get_matches(self, location, query, candidates=None,
             allow_recursion=True):
@@ -451,6 +598,8 @@ class ResultCache(SearchQueryParser): # {{{
         if candidates is None:
             candidates = self.universal_set()
         if len(candidates) == 0:
+            return matches
+        if location not in self.all_search_locations:
             return matches
 
         if len(location) > 2 and location.startswith('@') and \
@@ -460,6 +609,7 @@ class ResultCache(SearchQueryParser): # {{{
         if query and query.strip():
             # get metadata key associated with the search term. Eliminates
             # dealing with plurals and other aliases
+            original_location = location
             location = self.field_metadata.search_term_to_field_key(icu_lower(location.strip()))
             # grouped search terms
             if isinstance(location, list):
@@ -487,19 +637,29 @@ class ResultCache(SearchQueryParser): # {{{
                         terms.add(l)
                 if terms:
                     for l in terms:
-                        matches |= self.get_matches(l, query,
-                            candidates=candidates, allow_recursion=allow_recursion)
+                        try:
+                            matches |= self.get_matches(l, query,
+                                candidates=candidates, allow_recursion=allow_recursion)
+                        except:
+                            pass
                     return matches
 
             if location in self.field_metadata:
                 fm = self.field_metadata[location]
                 # take care of dates special case
-                if fm['datatype'] == 'datetime':
+                if fm['datatype'] == 'datetime' or \
+                        (fm['datatype'] == 'composite' and
+                         fm['display'].get('composite_sort', '') == 'date'):
                     return self.get_dates_matches(location, query.lower(), candidates)
 
                 # take care of numbers special case
-                if fm['datatype'] in ('rating', 'int', 'float'):
+                if fm['datatype'] in ('rating', 'int', 'float') or \
+                        (fm['datatype'] == 'composite' and
+                         fm['display'].get('composite_sort', '') == 'number'):
                     return self.get_numeric_matches(location, query.lower(), candidates)
+
+                if fm['datatype'] == 'bool':
+                    return self.get_bool_matches(location, query, candidates)
 
                 # take care of the 'count' operator for is_multiples
                 if fm['is_multiple'] and \
@@ -510,24 +670,20 @@ class ResultCache(SearchQueryParser): # {{{
                     return self.get_numeric_matches(location, query[1:],
                                                     candidates, val_func=vf)
 
+                # special case: colon-separated fields such as identifiers. isbn
+                # is a special case within the case
+                if fm.get('is_csp', False):
+                    if location == 'identifiers' and original_location == 'isbn':
+                        return self.get_keypair_matches('identifiers',
+                                                   '=isbn:'+query, candidates)
+                    return self.get_keypair_matches(location, query, candidates)
+
             # check for user categories
             if len(location) >= 2 and location.startswith('@'):
                 return self.get_user_category_matches(location[1:], query.lower(),
                                                       candidates)
             # everything else, or 'all' matches
-            matchkind = CONTAINS_MATCH
-            if (len(query) > 1):
-                if query.startswith('\\'):
-                    query = query[1:]
-                elif query.startswith('='):
-                    matchkind = EQUALS_MATCH
-                    query = query[1:]
-                elif query.startswith('~'):
-                    matchkind = REGEXP_MATCH
-                    query = query[1:]
-            if matchkind != REGEXP_MATCH:
-                # leave case in regexps because it can be significant e.g. \S \W \D
-                query = icu_lower(query)
+            matchkind, query = self._matchkind(query)
 
             if not isinstance(query, unicode):
                 query = query.decode('utf-8')
@@ -558,13 +714,13 @@ class ResultCache(SearchQueryParser): # {{{
             for i, loc in enumerate(location):
                 location[i] = db_col[loc]
 
-            # get the tweak here so that the string lookup and compare aren't in the loop
-            bools_are_tristate = tweaks['bool_custom_columns_are_tristate'] != 'no'
-
             for loc in location: # location is now an array of field indices
                 if loc == db_col['authors']:
                     ### DB stores authors with commas changed to bars, so change query
-                    q = query.replace(',', '|');
+                    if matchkind == REGEXP_MATCH:
+                        q = query.replace(',', r'\|');
+                    else:
+                        q = query.replace(',', '|');
                 else:
                     q = query
 
@@ -572,35 +728,15 @@ class ResultCache(SearchQueryParser): # {{{
                     item = self._data[id_]
                     if item is None: continue
 
-                    if col_datatype[loc] == 'bool': # complexity caused by the two-/three-value tweak
-                        v = item[loc]
-                        if not bools_are_tristate:
-                            if v is None or not v: # item is None or set to false
-                                if q in [_('no'), _('unchecked'), 'false']:
-                                    matches.add(item[0])
-                            else: # item is explicitly set to true
-                                if q in [_('yes'), _('checked'), 'true']:
-                                    matches.add(item[0])
-                        else:
-                            if v is None:
-                                if q in [_('empty'), _('blank'), 'false']:
-                                    matches.add(item[0])
-                            elif not v: # is not None and false
-                                if q in [_('no'), _('unchecked'), 'true']:
-                                    matches.add(item[0])
-                            else: # item is not None and true
-                                if q in [_('yes'), _('checked'), 'true']:
-                                    matches.add(item[0])
-                        continue
-
                     if not item[loc]:
-                        if q == 'false':
+                        if q == 'false' and matchkind == CONTAINS_MATCH:
                             matches.add(item[0])
                         continue     # item is empty. No possible matches below
-                    if q == 'false': # Field has something in it, so a false query does not match
+                    if q == 'false'and matchkind == CONTAINS_MATCH:
+                        # Field has something in it, so a false query does not match
                         continue
 
-                    if q == 'true':
+                    if q == 'true' and matchkind == CONTAINS_MATCH:
                         if isinstance(item[loc], basestring):
                             if item[loc].strip() == '':
                                 continue
@@ -629,7 +765,7 @@ class ResultCache(SearchQueryParser): # {{{
 
                     if loc not in exclude_fields: # time for text matching
                         if is_multiple_cols[loc] is not None:
-                            vals = item[loc].split(is_multiple_cols[loc])
+                            vals = [v.strip() for v in item[loc].split(is_multiple_cols[loc])]
                         else:
                             vals = [item[loc]] ### make into list to make _match happy
                         if _match(q, vals, matchkind):
@@ -652,7 +788,7 @@ class ResultCache(SearchQueryParser): # {{{
         else:
             q = query
             if search_restriction:
-                q = u'%s (%s)' % (search_restriction, query)
+                q = u'(%s) and (%s)' % (search_restriction, query)
         if not q:
             if set_restriction_count:
                 self.search_restriction_book_count = len(self._map)
@@ -674,6 +810,36 @@ class ResultCache(SearchQueryParser): # {{{
 
     def get_search_restriction_book_count(self):
         return self.search_restriction_book_count
+
+    def set_marked_ids(self, id_dict):
+        '''
+        ids in id_dict are "marked". They can be searched for by
+        using the search term ``marked:true``. Pass in an empty dictionary or
+        set to clear marked ids.
+
+        :param id_dict: Either a dictionary mapping ids to values or a set
+        of ids. In the latter case, the value is set to 'true' for all ids. If
+        a mapping is provided, then the search can be used to search for
+        particular values: ``marked:value``
+        '''
+        if not hasattr(id_dict, 'items'):
+            # Simple list. Make it a dict of string 'true'
+            self.marked_ids_dict = dict.fromkeys(id_dict, u'true')
+        else:
+            # Ensure that all the items in the dict are text
+            self.marked_ids_dict = dict(izip(id_dict.iterkeys(), imap(unicode,
+                id_dict.itervalues())))
+
+        # Set the values in the cache
+        marked_col = self.FIELD_MAP['marked']
+        for r in self.iterall():
+            r[marked_col] = None
+
+        for id_, val in self.marked_ids_dict.iteritems():
+            try:
+                self._data[id_][marked_col] = val
+            except:
+                pass
 
     # }}}
 
@@ -724,6 +890,7 @@ class ResultCache(SearchQueryParser): # {{{
                 self._data[id] = CacheRow(db, self.composites,
                         db.conn.get('SELECT * from meta2 WHERE id=?', (id,))[0])
                 self._data[id].append(db.book_on_device_string(id))
+                self._data[id].append(self.marked_ids_dict.get(id, None))
             except IndexError:
                 return None
         try:
@@ -740,6 +907,7 @@ class ResultCache(SearchQueryParser): # {{{
             self._data[id] = CacheRow(db, self.composites,
                         db.conn.get('SELECT * from meta2 WHERE id=?', (id,))[0])
             self._data[id].append(db.book_on_device_string(id))
+            self._data[id].append(self.marked_ids_dict.get(id, None))
         self._map[0:0] = ids
         self._map_filtered[0:0] = ids
 
@@ -755,6 +923,7 @@ class ResultCache(SearchQueryParser): # {{{
         for item in self._data:
             if item is not None:
                 item[ondevice_col] = db.book_on_device_string(item[0])
+                item.refresh_composites()
 
     def refresh(self, db, field=None, ascending=True):
         temp = db.conn.get('SELECT * FROM meta2')
@@ -764,6 +933,15 @@ class ResultCache(SearchQueryParser): # {{{
         for item in self._data:
             if item is not None:
                 item.append(db.book_on_device_string(item[0]))
+                item.append(None)
+
+        marked_col = self.FIELD_MAP['marked']
+        for id_,val in self.marked_ids_dict.iteritems():
+            try:
+                self._data[id_][marked_col] = val
+            except:
+                pass
+
         self._map = [i[0] for i in self._data if i is not None]
         if field is not None:
             self.sort(field, ascending)
@@ -792,7 +970,7 @@ class ResultCache(SearchQueryParser): # {{{
         if not fields:
             fields = [('timestamp', False)]
 
-        keyg = SortKeyGenerator(fields, self.field_metadata, self._data)
+        keyg = SortKeyGenerator(fields, self.field_metadata, self._data, self.db_prefs)
         self._map.sort(key=keyg)
 
         tmap = list(itertools.repeat(False, len(self._data)))
@@ -815,9 +993,10 @@ class SortKey(object):
 
 class SortKeyGenerator(object):
 
-    def __init__(self, fields, field_metadata, data):
+    def __init__(self, fields, field_metadata, data, db_prefs):
         from calibre.utils.icu import sort_key
         self.field_metadata = field_metadata
+        self.db_prefs = db_prefs
         self.orders = [1 if x[1] else -1 for x in fields]
         self.entries = [(x[0], field_metadata[x[0]]) for x in fields]
         self.library_order = tweaks['title_series_sorting'] == 'library_order'
@@ -832,6 +1011,23 @@ class SortKeyGenerator(object):
         for name, fm in self.entries:
             dt = fm['datatype']
             val = record[fm['rec_index']]
+            if dt == 'composite':
+                sb = fm['display'].get('composite_sort', 'text')
+                if sb == 'date':
+                    try:
+                        val = parse_date(val)
+                    except:
+                        val = UNDEFINED_DATE
+                    dt = 'datetime'
+                elif sb == 'number':
+                    try:
+                        val = float(val)
+                    except:
+                        val = 0.0
+                    dt = 'float'
+                elif sb == 'bool':
+                    val = force_to_bool(val)
+                    dt = 'bool'
 
             if dt == 'datetime':
                 if val is None:
@@ -851,12 +1047,16 @@ class SortKeyGenerator(object):
                 if val:
                     sep = fm['is_multiple']
                     if sep:
-                        val = sep.join(sorted(val.split(sep),
+                        if fm['display'].get('is_names', False):
+                            val = sep.join(
+                                [author_to_author_sort(v) for v in val.split(sep)])
+                        else:
+                            val = sep.join(sorted(val.split(sep),
                                               key=self.string_sort_key))
                 val = self.string_sort_key(val)
 
             elif dt == 'bool':
-                if tweaks['bool_custom_columns_are_tristate'] == 'no':
+                if not self.db_prefs.get('bools_are_tristate'):
                     val = {True: 1, False: 2, None: 2}.get(val, 2)
                 else:
                     val = {True: 1, False: 2, None: 3}.get(val, 3)

@@ -15,7 +15,7 @@ class ShowBookDetailsAction(InterfaceAction):
     name = 'Show Book Details'
     action_spec = (_('Show book details'), 'dialog_information.png', None,
             _('I'))
-    dont_add_to = frozenset(['toolbar-device', 'context-menu-device'])
+    dont_add_to = frozenset(['menubar-device', 'toolbar-device', 'context-menu-device'])
     action_type = 'current'
 
     def genesis(self):
@@ -30,5 +30,5 @@ class ShowBookDetailsAction(InterfaceAction):
         index = self.gui.library_view.currentIndex()
         if index.isValid():
             BookInfo(self.gui, self.gui.library_view, index,
-                    self.gui.iactions['View'].view_format_by_id).show()
+                    self.gui.book_details.handle_click).show()
 

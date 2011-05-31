@@ -3,11 +3,11 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 ''' Post installation script for linux '''
 
-import sys, os, cPickle, textwrap, stat
+import sys, os, cPickle, textwrap, stat, importlib
 from subprocess import check_call
 
 from calibre import  __appname__, prints, guess_type
-from calibre.constants import islinux, isfreebsd
+from calibre.constants import islinux, isnetbsd, isbsd
 from calibre.customize.ui import all_input_formats
 from calibre.ptempfile import TemporaryDirectory
 from calibre import CurrentDir
@@ -30,7 +30,7 @@ entry_points = {
              'calibre-customize  = calibre.customize.ui:main',
              'calibre-complete   = calibre.utils.complete:main',
              'pdfmanipulate      = calibre.ebooks.pdf.manipulate.cli:main',
-             'fetch-ebook-metadata = calibre.ebooks.metadata.fetch:main',
+             'fetch-ebook-metadata = calibre.ebooks.metadata.sources.cli:main',
              'epub-fix           = calibre.ebooks.epub.fix.main:main',
              'calibre-smtp = calibre.utils.smtp:main',
         ],
@@ -59,7 +59,7 @@ for x in {manifest!r}:
             shutil.rmtree(x)
         else:
             os.unlink(x)
-    except Exception, e:
+    except Exception as e:
         print 'Failed to delete', x
         print '\t', e
 
@@ -136,20 +136,21 @@ class PostInstall:
         self.icon_resources = []
         self.menu_resources = []
         self.mime_resources = []
-        if islinux:
+        if islinux or isbsd:
             self.setup_completion()
         self.install_man_pages()
-        if islinux:
+        if islinux or isbsd:
             self.setup_desktop_integration()
         self.create_uninstaller()
 
         from calibre.utils.config import config_dir
         if os.path.exists(config_dir):
             os.chdir(config_dir)
-            if islinux:
+            if islinux or isbsd:
                 for f in os.listdir('.'):
                     if os.stat(f).st_uid == 0:
-                        os.rmdir(f) if os.path.isdir(f) else os.unlink(f)
+                        import shutil
+                        shutil.rmtree(f) if os.path.isdir(f) else os.unlink(f)
                 if os.stat(config_dir).st_uid == 0:
                     os.rmdir(config_dir)
 
@@ -183,7 +184,7 @@ class PostInstall:
             from calibre.ebooks.lrf.lrfparser import option_parser as lrf2lrsop
             from calibre.gui2.lrf_renderer.main import option_parser as lrfviewerop
             from calibre.gui2.viewer.main import option_parser as viewer_op
-            from calibre.ebooks.metadata.fetch import option_parser as fem_op
+            from calibre.ebooks.metadata.sources.cli import option_parser as fem_op
             from calibre.gui2.main import option_parser as guiop
             from calibre.utils.smtp import option_parser as smtp_op
             from calibre.library.server.main import option_parser as serv_op
@@ -195,7 +196,10 @@ class PostInstall:
             if os.path.exists(bc):
                 f = os.path.join(bc, 'calibre')
             else:
-                f = os.path.join(self.opts.staging_etc, 'bash_completion.d/calibre')
+                if isnetbsd:
+                    f = os.path.join(self.opts.staging_root, 'share/bash_completion.d/calibre')
+                else:
+                    f = os.path.join(self.opts.staging_etc, 'bash_completion.d/calibre')
             if not os.path.exists(os.path.dirname(f)):
                 os.makedirs(os.path.dirname(f))
             self.manifest.append(f)
@@ -285,7 +289,7 @@ class PostInstall:
 
                 complete -o nospace -C calibre-complete ebook-convert
                 '''))
-        except TypeError, err:
+        except TypeError as err:
             if 'resolve_entities' in str(err):
                 print 'You need python-lxml >= 2.0.5 for calibre'
                 sys.exit(1)
@@ -299,7 +303,7 @@ class PostInstall:
     def install_man_pages(self): # {{{
         try:
             from calibre.utils.help2man import create_man_page
-            if isfreebsd:
+            if isbsd:
                 manpath = os.path.join(self.opts.staging_root, 'man/man1')
             else:
                 manpath = os.path.join(self.opts.staging_sharedir, 'man/man1')
@@ -309,13 +313,13 @@ class PostInstall:
             for src in entry_points['console_scripts']:
                 prog, right = src.split('=')
                 prog = prog.strip()
-                module = __import__(right.split(':')[0].strip(), fromlist=['a'])
+                module = importlib.import_module(right.split(':')[0].strip())
                 parser = getattr(module, 'option_parser', None)
                 if parser is None:
                     continue
                 parser = parser()
                 raw = create_man_page(prog, parser)
-                if isfreebsd:
+                if isbsd:
                     manfile = os.path.join(manpath, prog+'.1')
                 else:
                     manfile = os.path.join(manpath, prog+'.1'+__appname__+'.bz2')
@@ -352,7 +356,7 @@ class PostInstall:
                     mimetypes = set([])
                     for x in all_input_formats():
                         mt = guess_type('dummy.'+x)[0]
-                        if mt and 'chemical' not in mt:
+                        if mt and 'chemical' not in mt and 'ctc-posml' not in mt:
                             mimetypes.add(mt)
 
                     def write_mimetypes(f):
@@ -372,11 +376,10 @@ class PostInstall:
                     des = ('calibre-gui.desktop', 'calibre-lrfviewer.desktop',
                             'calibre-ebook-viewer.desktop')
                     for x in des:
-                        cmd = ['xdg-desktop-menu', 'install', './'+x]
-                        if x != des[-1]:
-                            cmd.insert(2, '--noupdate')
+                        cmd = ['xdg-desktop-menu', 'install', '--noupdate', './'+x]
                         check_call(' '.join(cmd), shell=True)
                         self.menu_resources.append(x)
+                    check_call(['xdg-desktop-menu', 'forceupdate'])
                     f = open('calibre-mimetypes', 'wb')
                     f.write(MIME)
                     f.close()

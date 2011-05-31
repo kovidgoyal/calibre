@@ -75,7 +75,7 @@ class InterfaceAction(QObject):
     dont_remove_from = frozenset([])
 
     all_locations = frozenset(['toolbar', 'toolbar-device', 'context-menu',
-        'context-menu-device'])
+        'context-menu-device', 'toolbar-child', 'menubar', 'menubar-device'])
 
     #: Type of action
     #: 'current' means acts on the current view
@@ -145,11 +145,10 @@ class InterfaceAction(QObject):
                     ans[candidate] = zf.read(candidate)
         return ans
 
-
     def genesis(self):
         '''
         Setup this plugin. Only called once during initialization. self.gui is
-        available. The action secified by :attr:`action_spec` is available as
+        available. The action specified by :attr:`action_spec` is available as
         ``self.qaction``.
         '''
         pass

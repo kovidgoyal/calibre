@@ -4,34 +4,23 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 Fetch cover from LibraryThing.com based on ISBN number.
 '''
 
-import sys, re, random
+import sys, re
 
 from lxml import html
 import mechanize
 
-from calibre import browser, prints
+from calibre import browser, prints, random_user_agent
 from calibre.utils.config import OptionParser
 from calibre.ebooks.chardet import strip_encoding_declarations
 
 OPENLIBRARY = 'http://covers.openlibrary.org/b/isbn/%s-L.jpg?default=false'
 
-def get_ua():
-    choices = [
-        'Mozilla/5.0 (Windows; U; Windows NT 6.0; en-US; rv:1.9.2.11) Gecko/20101012 Firefox/3.6.11'
-        'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)'
-        'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0)'
-        'Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1)'
-        'Mozilla/5.0 (iPhone; U; CPU iPhone OS 3_0 like Mac OS X; en-us) AppleWebKit/528.18 (KHTML, like Gecko) Version/4.0 Mobile/7A341 Safari/528.16'
-        'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/525.19 (KHTML, like Gecko) Chrome/0.2.153.1 Safari/525.19'
-        'Mozilla/5.0 (Windows; U; Windows NT 6.0; en-US; rv:1.9.2.11) Gecko/20101012 Firefox/3.6.11'
-    ]
-    return choices[random.randint(0, len(choices)-1)]
 
 _lt_br = None
 def get_browser():
     global _lt_br
     if _lt_br is None:
-        _lt_br = browser(user_agent=get_ua())
+        _lt_br = browser(user_agent=random_user_agent())
     return _lt_br.clone_browser()
 
 class HeadRequest(mechanize.Request):
@@ -45,7 +34,7 @@ def check_for_cover(isbn, timeout=5.):
     try:
         br.open_novisit(HeadRequest(OPENLIBRARY%isbn), timeout=timeout)
         return True
-    except Exception, e:
+    except Exception as e:
         if callable(getattr(e, 'getcode', None)) and e.getcode() == 302:
             return True
     return False

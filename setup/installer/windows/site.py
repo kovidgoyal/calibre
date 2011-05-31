@@ -96,7 +96,7 @@ def main():
 
     abs__file__()
 
-    addsitedir(os.path.join(sys.app_dir, 'Lib', 'site-packages'))
+    addsitedir(os.path.join(sys.app_dir, 'pydlib'))
 
     add_calibre_vars()
 

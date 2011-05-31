@@ -124,11 +124,11 @@ class Device(DeviceConfig, DevicePlugin):
         if not prefix:
             return 0, 0
         prefix = prefix[:-1]
-        win32file = __import__('win32file', globals(), locals(), [], -1)
+        import win32file
         try:
             sectors_per_cluster, bytes_per_sector, free_clusters, total_clusters = \
                 win32file.GetDiskFreeSpace(prefix)
-        except Exception, err:
+        except Exception as err:
             if getattr(err, 'args', [None])[0] == 21: # Disk not ready
                 time.sleep(3)
                 sectors_per_cluster, bytes_per_sector, free_clusters, total_clusters = \
@@ -700,7 +700,7 @@ class Device(DeviceConfig, DevicePlugin):
 
 
 
-    def open(self):
+    def open(self, library_uuid):
         time.sleep(5)
         self._main_prefix = self._card_a_prefix = self._card_b_prefix = None
         if islinux:
@@ -722,6 +722,7 @@ class Device(DeviceConfig, DevicePlugin):
                 time.sleep(7)
                 self.open_osx()
 
+        self.current_library_uuid = library_uuid
         self.post_open_callback()
 
     def post_open_callback(self):
@@ -770,7 +771,7 @@ class Device(DeviceConfig, DevicePlugin):
         for d in drives:
             try:
                 eject(d)
-            except Exception, e:
+            except Exception as e:
                 print 'Udisks eject call for:', d, 'failed:'
                 print '\t', e
                 failures = True
@@ -925,8 +926,8 @@ class Device(DeviceConfig, DevicePlugin):
         if not isinstance(template, unicode):
             template = template.decode('utf-8')
         app_id = str(getattr(mdata, 'application_id', ''))
-        # The db id will be in the created filename
-        extra_components = get_components(template, mdata, fname,
+        id_ = mdata.get('id', fname)
+        extra_components = get_components(template, mdata, id_,
                 timefmt=opts.send_timefmt, length=maxlen-len(app_id)-1)
         if not extra_components:
             extra_components.append(sanitize(self.filename_callback(fname,

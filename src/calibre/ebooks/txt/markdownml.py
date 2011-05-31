@@ -37,7 +37,7 @@ class MarkdownMLizer(object):
             if not self.opts.keep_links:
                 html = re.sub(r'<\s*/*\s*a[^>]*>', '', html)
             if not self.opts.keep_image_references:
-                html = re.sub(r'<\s*img[^>]*>', '', html)\
+                html = re.sub(r'<\s*img[^>]*>', '', html)
             
             text = html2text(html)
         

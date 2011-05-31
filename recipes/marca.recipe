@@ -1,0 +1,48 @@
+# -*- coding: utf-8 -*-
+__license__   = 'GPL v3'
+__copyright__ = '2009-2011, Darko Miletic <darko.miletic at gmail.com>'
+'''
+www.marca.com
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class Marca(BasicNewsRecipe):
+    title                 = 'Marca'
+    __author__            = 'Darko Miletic'
+    description           = 'Noticias deportivas'
+    publisher             = 'marca.com'
+    category              = 'news, sports, Spain'
+    oldest_article        = 2
+    max_articles_per_feed = 100
+    no_stylesheets        = True
+    use_embedded_content  = False
+    delay                 = 1
+    encoding              = 'iso-8859-15'
+    language              = 'es_ES'
+    publication_type      = 'newsportal'
+    masthead_url          = 'http://estaticos.marca.com/deporte/img/v3.0/img_marca-com.png'
+    extra_css             = """
+                                body{font-family: Tahoma,Geneva,sans-serif}
+                                h1,h2,h3,h4,h5,h6{font-family: 'LatoBlack',Tahoma,Geneva,sans-serif}
+                                .cab_articulo h4 {font-family: Georgia,"Times New Roman",Times,serif}
+                                .antetitulo{text-transform: uppercase}
+                            """
+
+    feeds             = [(u'Portada', u'http://estaticos.marca.com/rss/portada.xml')]
+
+    keep_only_tags    = [dict(name='div', attrs={'class':['cab_articulo','cuerpo_articulo']})]
+    remove_attributes = ['lang']
+    remove_tags       = [
+                             dict(name=['object','link','script','embed','iframe','meta','base'])
+                            ,dict(name='div', attrs={'class':'tabs'})
+                         ]
+
+    def preprocess_html(self, soup):
+        for item in soup.findAll(style=True):
+            del item['style']
+        return soup
+
+    def get_article_url(self, article):
+        return article.get('guid',  None)
+

@@ -22,6 +22,7 @@ border_style_map = {
         'dot-dot-dash': 'dotted',
         'outset': 'outset',
         'tripple': 'double',
+        'triple': 'double',
         'thick-thin-small': 'solid',
         'thin-thick-small': 'solid',
         'thin-thick-thin-small': 'solid',
@@ -85,7 +86,7 @@ class RTFInput(InputFormatPlugin):
                 run_lev = 4
                 self.log('Running RTFParser in debug mode')
             except:
-                pass
+                self.log.warn('Impossible to run RTFParser in debug mode')
         parser = ParseRtf(
             in_file    = stream,
             out_file   = ofile,
@@ -267,7 +268,7 @@ class RTFInput(InputFormatPlugin):
         self.log('Converting RTF to XML...')
         try:
             xml = self.generate_xml(stream.name)
-        except RtfInvalidCodeException, e:
+        except RtfInvalidCodeException as e:
             raise ValueError(_('This RTF file has a feature calibre does not '
             'support. Convert it to HTML first and then try it.\n%s')%e)
 

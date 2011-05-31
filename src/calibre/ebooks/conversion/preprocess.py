@@ -265,16 +265,28 @@ class CSSPreProcessor(object):
 
     PAGE_PAT   = re.compile(r'@page[^{]*?{[^}]*?}')
     # Remove some of the broken CSS Microsoft products
-    # create, slightly dangerous as it removes to end of line
-    # rather than semi-colon
-    MS_PAT     = re.compile(r'^\s*(mso-|panose-).+?$',
-            re.MULTILINE|re.IGNORECASE)
+    # create
+    MS_PAT     = re.compile(r'''
+        (?P<start>^|;|\{)\s*    # The end of the previous rule or block start
+        (%s).+?                 # The invalid selectors
+        (?P<end>$|;|\})         # The end of the declaration
+        '''%'mso-|panose-|text-underline|tab-interval',
+        re.MULTILINE|re.IGNORECASE|re.VERBOSE)
+
+    def ms_sub(self, match):
+        end = match.group('end')
+        try:
+            start = match.group('start')
+        except:
+            start = ''
+        if end == ';':
+            end = ''
+        return start + end
 
     def __call__(self, data, add_namespace=False):
         from calibre.ebooks.oeb.base import XHTML_CSS_NAMESPACE
         data = self.PAGE_PAT.sub('', data)
-        if '\n' in data:
-            data = self.MS_PAT.sub('', data)
+        data = self.MS_PAT.sub(self.ms_sub, data)
         if not add_namespace:
             return data
         ans, namespaced = [], False
@@ -387,10 +399,10 @@ class HTMLPreProcessor(object):
                   (re.compile(u'˙\s*(<br.*?>)*\s*Z', re.UNICODE), lambda match: u'Ż'),
 
                   # If pdf printed from a browser then the header/footer has a reliable pattern
-                  (re.compile(r'((?<=</a>)\s*file:////?[A-Z].*<br>|file:////?[A-Z].*<br>(?=\s*<hr>))', re.IGNORECASE), lambda match: ''),
+                  (re.compile(r'((?<=</a>)\s*file:/{2,4}[A-Z].*<br>|file:////?[A-Z].*<br>(?=\s*<hr>))', re.IGNORECASE), lambda match: ''),
 
                   # Center separator lines
-                  (re.compile(u'<br>\s*(?P<break>([*#•✦=]+\s*)+)\s*<br>'), lambda match: '<p>\n<p style="text-align:center">' + match.group(1) + '</p>'),
+                  (re.compile(u'<br>\s*(?P<break>([*#•✦=] *){3,})\s*<br>'), lambda match: '<p>\n<p style="text-align:center">' + match.group('break') + '</p>'),
 
                   # Remove page links
                   (re.compile(r'<a name=\d+></a>', re.IGNORECASE), lambda match: ''),

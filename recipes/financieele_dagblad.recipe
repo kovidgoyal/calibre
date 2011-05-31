@@ -1,0 +1,29 @@
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class fd(BasicNewsRecipe):
+    title          = u'Het Financieele Dagblad'
+    __author__ = 'marvin_2'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    no_stylesheets = True
+    cover_url = 'http://www.fd.nl/static/gfx/logo-fd-164x78.gif'
+    language = 'nl'
+
+    keep_only_tags = (dict(name = 'div', attrs = {'class': ['headlinearticle']}))
+    remove_tags    = [dict(name='span' , attrs={'class':['opties']})]
+
+    feeds          = [
+                        (u'Overzicht',u'http://www.fd.nl/nieuws/overzicht/?view=RSS&profiel=OPENBAAR')
+
+
+                     ]
+    extra_css = '''
+        h1 {font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:x-large;}
+        p{font-family:Arial,Helvetica,sans-serif;}
+        strong{font-weight:bold; margin-right:5pt;margin-top:20pt;}
+        .datum_ie {font-style:italic;font-size:small;}
+        img {align:left;}
+        '''
+
+

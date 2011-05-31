@@ -19,7 +19,7 @@
      <property name="text">
       <string>&lt;div style=&quot;font-size:10pt;&quot;&gt;
 &lt;p&gt;Set a regular expression pattern to use when trying to guess ebook metadata from filenames. &lt;/p&gt;
-&lt;p&gt;A &lt;a href=&quot;http://calibre-ebook.com/user_manual/regexp.html&quot;&gt;tutorial&lt;/a&gt; on using regular expressions is available.&lt;/p&gt;
+&lt;p&gt;A &lt;a href=&quot;http://manual.calibre-ebook.com/regexp.html&quot;&gt;tutorial&lt;/a&gt; on using regular expressions is available.&lt;/p&gt;
 &lt;p&gt;Use the &lt;b&gt;Test&lt;/b&gt; functionality below to test your regular expression on a few sample filenames (remember to include the file extension). The group names for the various metadata entries are documented in tooltips.&lt;/p&gt;&lt;/div&gt;</string>
      </property>
      <property name="textFormat">
@@ -197,6 +197,46 @@
              <widget class="QLineEdit" name="isbn">
               <property name="toolTip">
                <string>Regular expression (?P&lt;isbn&gt;)</string>
+              </property>
+              <property name="text">
+               <string>No match</string>
+              </property>
+              <property name="readOnly">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="5" column="0">
+             <widget class="QLabel" name="label_8">
+              <property name="text">
+               <string>Publisher:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="5" column="1">
+             <widget class="QLineEdit" name="publisher">
+              <property name="toolTip">
+               <string>Regular expression (?P&lt;publisher&gt;)</string>
+              </property>
+              <property name="text">
+               <string>No match</string>
+              </property>
+              <property name="readOnly">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="6" column="0">
+             <widget class="QLabel" name="label_9">
+              <property name="text">
+               <string>Published:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="6" column="1">
+             <widget class="QLineEdit" name="pubdate">
+              <property name="toolTip">
+               <string>Regular expression (?P&lt;published&gt;)</string>
               </property>
               <property name="text">
                <string>No match</string>

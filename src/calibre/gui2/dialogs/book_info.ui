@@ -7,15 +7,31 @@
     <x>0</x>
     <y>0</y>
     <width>917</width>
-    <height>480</height>
+    <height>492</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="../../../../resources/images.qrc">
+    <normaloff>:/images/metadata.png</normaloff>:/images/metadata.png</iconset>
+  </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0" colspan="2">
     <widget class="QLabel" name="title">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
      <property name="text">
       <string>TextLabel</string>
      </property>
@@ -24,88 +40,50 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="0">
-    <widget class="QGraphicsView" name="cover"/>
+   <item row="2" column="0" rowspan="3">
+    <widget class="CoverView" name="cover"/>
    </item>
-   <item row="1" column="1">
-    <layout class="QVBoxLayout" name="verticalLayout">
+   <item row="3" column="1">
+    <widget class="QCheckBox" name="fit_cover">
+     <property name="text">
+      <string>Fit &amp;cover within view</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="1">
+    <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="QLabel" name="text">
+      <widget class="QPushButton" name="previous_button">
        <property name="text">
-        <string>TextLabel</string>
+        <string>&amp;Previous</string>
        </property>
-       <property name="alignment">
-        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-       </property>
-       <property name="wordWrap">
-        <bool>true</bool>
+       <property name="icon">
+        <iconset resource="../../../../resources/images.qrc">
+         <normaloff>:/images/previous.png</normaloff>:/images/previous.png</iconset>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QGroupBox" name="groupBox">
-       <property name="title">
-        <string>Comments</string>
-       </property>
-       <layout class="QVBoxLayout" name="verticalLayout_2">
-        <item>
-         <widget class="QWebView" name="comments">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>350</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="url">
-           <url>
-            <string>about:blank</string>
-           </url>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-     </item>
-     <item>
-      <widget class="QCheckBox" name="fit_cover">
+      <widget class="QPushButton" name="next_button">
        <property name="text">
-        <string>Fit &amp;cover within view</string>
+        <string>&amp;Next</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../../../../resources/images.qrc">
+         <normaloff>:/images/next.png</normaloff>:/images/next.png</iconset>
        </property>
       </widget>
-     </item>
-     <item>
-      <layout class="QHBoxLayout" name="horizontalLayout">
-       <item>
-        <widget class="QPushButton" name="previous_button">
-         <property name="text">
-          <string>&amp;Previous</string>
-         </property>
-         <property name="icon">
-          <iconset resource="../../../../resources/images.qrc">
-           <normaloff>:/images/previous.png</normaloff>:/images/previous.png</iconset>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="next_button">
-         <property name="text">
-          <string>&amp;Next</string>
-         </property>
-         <property name="icon">
-          <iconset resource="../../../../resources/images.qrc">
-           <normaloff>:/images/next.png</normaloff>:/images/next.png</iconset>
-         </property>
-        </widget>
-       </item>
-      </layout>
      </item>
     </layout>
+   </item>
+   <item row="2" column="1">
+    <widget class="QWebView" name="details">
+     <property name="url">
+      <url>
+       <string>about:blank</string>
+      </url>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>
@@ -114,6 +92,11 @@
    <class>QWebView</class>
    <extends>QWidget</extends>
    <header>QtWebKit/QWebView</header>
+  </customwidget>
+  <customwidget>
+   <class>CoverView</class>
+   <extends>QGraphicsView</extends>
+   <header>calibre/gui2/widgets.h</header>
   </customwidget>
  </customwidgets>
  <resources>

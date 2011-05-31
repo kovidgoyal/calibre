@@ -22,7 +22,7 @@ class TXTInput(InputFormatPlugin):
     name        = 'TXT Input'
     author      = 'John Schember'
     description = 'Convert TXT files to HTML'
-    file_types  = set(['txt', 'txtz'])
+    file_types  = set(['txt', 'txtz', 'text'])
 
     options = set([
         OptionRecommendation(name='paragraph_type', recommended_value='auto',
@@ -65,7 +65,6 @@ class TXTInput(InputFormatPlugin):
         txt = ''
         log.debug('Reading text from file...')
         length = 0
-        # [(u'path', mime),]
 
         # Extract content from zip archive.
         if file_ext == 'txtz':
@@ -73,7 +72,7 @@ class TXTInput(InputFormatPlugin):
             zf.extractall('.')
 
             for x in walk('.'):
-                if os.path.splitext(x)[1].lower() == '.txt':
+                if os.path.splitext(x)[1].lower() in ('.txt', '.text'):
                     with open(x, 'rb') as tf:
                         txt += tf.read() + '\n\n'
         else:

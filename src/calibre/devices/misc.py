@@ -187,7 +187,7 @@ class LUMIREAD(USBMS):
             cfilepath = cfilepath.replace(os.sep+'books'+os.sep,
                     os.sep+'covers'+os.sep, 1)
             pdir = os.path.dirname(cfilepath)
-            if not os.exists(pdir):
+            if not os.path.exists(pdir):
                 os.makedirs(pdir)
             with open(cfilepath+'.jpg', 'wb') as f:
                 f.write(metadata.thumbnail[-1])
@@ -224,7 +224,7 @@ class TREKSTOR(USBMS):
     FORMATS     = ['epub', 'txt', 'pdf']
 
     VENDOR_ID   = [0x1e68]
-    PRODUCT_ID  = [0x0041]
+    PRODUCT_ID  = [0x0041, 0x0042]
     BCD         = [0x0002]
 
     EBOOK_DIR_MAIN = 'Ebooks'
@@ -244,7 +244,7 @@ class EEEREADER(USBMS):
     FORMATS     = ['epub', 'fb2', 'txt', 'pdf']
 
     VENDOR_ID   = [0x0b05]
-    PRODUCT_ID  = [0x178f]
+    PRODUCT_ID  = [0x178f, 0x17a1]
     BCD         = [0x0319]
 
     EBOOK_DIR_MAIN = EBOOK_DIR_CARD_A = 'Book'
@@ -269,9 +269,10 @@ class NEXTBOOK(USBMS):
 
     EBOOK_DIR_MAIN = ''
 
-    VENDOR_NAME = 'NEXT2'
-    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = '1.0.14'
+    VENDOR_NAME = ['NEXT2', 'BK7005']
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['1.0.14', 'PLAYER']
     SUPPORTS_SUB_DIRS = True
+    THUMBNAIL_HEIGHT = 120
 
     '''
     def upload_cover(self, path, filename, metadata, filepath):

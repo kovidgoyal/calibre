@@ -5,7 +5,6 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys
 from functools import partial
 
 from PyQt4.Qt import QComboBox, QLabel, QSpinBox, QDoubleSpinBox, QDateEdit, \
@@ -63,7 +62,7 @@ class Bool(Base):
         w = self.widgets[1]
         items = [_('Yes'), _('No'), _('Undefined')]
         icons = [I('ok.png'), I('list_remove.png'), I('blank.png')]
-        if tweaks['bool_custom_columns_are_tristate'] == 'no':
+        if not self.db.prefs.get('bools_are_tristate'):
             items = items[:-1]
             icons = icons[:-1]
         for icon, text in zip(icons, items):
@@ -71,7 +70,7 @@ class Bool(Base):
 
     def setter(self, val):
         val = {None: 2, False: 1, True: 0}[val]
-        if tweaks['bool_custom_columns_are_tristate'] == 'no' and val == 2:
+        if not self.db.prefs.get('bools_are_tristate') and val == 2:
             val = 1
         self.widgets[1].setCurrentIndex(val)
 
@@ -85,7 +84,7 @@ class Int(Base):
         self.widgets = [QLabel('&'+self.col_metadata['name']+':', parent),
                 QSpinBox(parent)]
         w = self.widgets[1]
-        w.setRange(-100, sys.maxint)
+        w.setRange(-100, 100000000)
         w.setSpecialValueText(_('Undefined'))
         w.setSingleStep(1)
 
@@ -108,7 +107,7 @@ class Float(Int):
         self.widgets = [QLabel('&'+self.col_metadata['name']+':', parent),
                 QDoubleSpinBox(parent)]
         w = self.widgets[1]
-        w.setRange(-100., float(sys.maxint))
+        w.setRange(-100., float(100000000))
         w.setDecimals(2)
         w.setSpecialValueText(_('Undefined'))
         w.setSingleStep(1)
@@ -227,10 +226,18 @@ class Comments(Base):
 class Text(Base):
 
     def setup_ui(self, parent):
+        if self.col_metadata['display'].get('is_names', False):
+            self.sep = u' & '
+        else:
+            self.sep = u', '
         values = self.all_values = list(self.db.all_custom(num=self.col_id))
         values.sort(key=sort_key)
         if self.col_metadata['is_multiple']:
             w = MultiCompleteLineEdit(parent)
+            w.set_separator(self.sep.strip())
+            if self.sep == u' & ':
+                w.set_space_before_sep(True)
+                w.set_add_separator(tweaks['authors_completer_append_separator'])
             w.update_items_cache(values)
             w.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
         else:
@@ -262,12 +269,12 @@ class Text(Base):
         if self.col_metadata['is_multiple']:
             if not val:
                 val = []
-            self.widgets[1].setText(u', '.join(val))
+            self.widgets[1].setText(self.sep.join(val))
 
     def getter(self):
         if self.col_metadata['is_multiple']:
             val = unicode(self.widgets[1].text()).strip()
-            ans = [x.strip() for x in val.split(',') if x.strip()]
+            ans = [x.strip() for x in val.split(self.sep.strip()) if x.strip()]
             if not ans:
                 ans = None
             return ans
@@ -282,6 +289,7 @@ class Series(Base):
         values = self.all_values = list(self.db.all_custom(num=self.col_id))
         values.sort(key=sort_key)
         w = MultiCompleteComboBox(parent)
+        w.set_separator(None)
         w.setSizeAdjustPolicy(w.AdjustToMinimumContentsLengthWithIcon)
         w.setMinimumContentsLength(25)
         self.name_widget = w
@@ -289,7 +297,7 @@ class Series(Base):
 
         self.widgets.append(QLabel('&'+self.col_metadata['name']+_(' index:'), parent))
         w = QDoubleSpinBox(parent)
-        w.setRange(-100., float(sys.maxint))
+        w.setRange(-100., float(100000000))
         w.setDecimals(2)
         w.setSpecialValueText(_('Undefined'))
         w.setSingleStep(1)
@@ -431,6 +439,7 @@ def populate_metadata_page(layout, db, book_id, bulk=False, two_column=False, pa
         w = widget_factory(dt, col)
         ans.append(w)
         for c in range(0, len(w.widgets), 2):
+            w.widgets[c].setWordWrap(True)
             w.widgets[c].setBuddy(w.widgets[c+1])
             layout.addWidget(w.widgets[c], row, column)
             layout.addWidget(w.widgets[c+1], row, column+1)
@@ -542,7 +551,7 @@ class BulkBool(BulkBase, Bool):
         value = None
         for book_id in book_ids:
             val = self.db.get_custom(book_id, num=self.col_id, index_is_id=True)
-            if tweaks['bool_custom_columns_are_tristate'] == 'no' and val is None:
+            if not self.db.prefs.get('bools_are_tristate') and val is None:
                 val = False
             if value is not None and value != val:
                 return None
@@ -552,7 +561,7 @@ class BulkBool(BulkBase, Bool):
     def setup_ui(self, parent):
         self.make_widgets(parent, QComboBox)
         items = [_('Yes'), _('No')]
-        if tweaks['bool_custom_columns_are_tristate'] == 'no':
+        if not self.db.prefs.get('bools_are_tristate'):
             items.append('')
         else:
             items.append(_('Undefined'))
@@ -564,7 +573,7 @@ class BulkBool(BulkBase, Bool):
 
     def getter(self):
         val = self.main_widget.currentIndex()
-        if tweaks['bool_custom_columns_are_tristate'] == 'no':
+        if not self.db.prefs.get('bools_are_tristate'):
             return {2: False, 1: False, 0: True}[val]
         else:
             return {2: None, 1: False, 0: True}[val]
@@ -579,13 +588,13 @@ class BulkBool(BulkBase, Bool):
             return
         val = self.gui_val
         val = self.normalize_ui_val(val)
-        if tweaks['bool_custom_columns_are_tristate'] == 'no' and val is None:
+        if not self.db.prefs.get('bools_are_tristate') and val is None:
             val = False
         self.db.set_custom_bulk(book_ids, val, num=self.col_id, notify=notify)
 
     def a_c_checkbox_changed(self):
         if not self.ignore_change_signals:
-            if tweaks['bool_custom_columns_are_tristate'] == 'no' and \
+            if not self.db.prefs.get('bools_are_tristate') and \
                                     self.main_widget.currentIndex() == 2:
                 self.a_c_checkbox.setChecked(False)
             else:
@@ -595,7 +604,7 @@ class BulkInt(BulkBase):
 
     def setup_ui(self, parent):
         self.make_widgets(parent, QSpinBox)
-        self.main_widget.setRange(-100, sys.maxint)
+        self.main_widget.setRange(-100, 100000000)
         self.main_widget.setSpecialValueText(_('Undefined'))
         self.main_widget.setSingleStep(1)
 
@@ -617,7 +626,7 @@ class BulkFloat(BulkInt):
 
     def setup_ui(self, parent):
         self.make_widgets(parent, QDoubleSpinBox)
-        self.main_widget.setRange(-100., float(sys.maxint))
+        self.main_widget.setRange(-100., float(100000000))
         self.main_widget.setDecimals(2)
         self.main_widget.setSpecialValueText(_('Undefined'))
         self.main_widget.setSingleStep(1)
@@ -795,6 +804,7 @@ class BulkEnumeration(BulkBase, Enumeration):
         return value
 
     def setup_ui(self, parent):
+        self.parent = parent
         self.make_widgets(parent, QComboBox)
         vals = self.col_metadata['display']['enum_values']
         self.main_widget.blockSignals(True)
@@ -847,13 +857,20 @@ class BulkText(BulkBase):
             self.main_widget.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
             self.adding_widget = self.main_widget
 
-            w = RemoveTags(parent, values)
-            self.widgets.append(QLabel('&'+self.col_metadata['name']+': ' +
-                                       _('tags to remove'), parent))
-            self.widgets.append(w)
-            self.removing_widget = w
-            w.tags_box.textChanged.connect(self.a_c_checkbox_changed)
-            w.checkbox.stateChanged.connect(self.a_c_checkbox_changed)
+            if not self.col_metadata['display'].get('is_names', False):
+                w = RemoveTags(parent, values)
+                self.widgets.append(QLabel('&'+self.col_metadata['name']+': ' +
+                                           _('tags to remove'), parent))
+                self.widgets.append(w)
+                self.removing_widget = w
+                self.main_widget.set_separator(',')
+                w.tags_box.textChanged.connect(self.a_c_checkbox_changed)
+                w.checkbox.stateChanged.connect(self.a_c_checkbox_changed)
+            else:
+                self.main_widget.set_separator('&')
+                self.main_widget.set_space_before_sep(True)
+                self.main_widget.set_add_separator(
+                                tweaks['authors_completer_append_separator'])
         else:
             self.make_widgets(parent, MultiCompleteComboBox)
             self.main_widget.set_separator(None)
@@ -882,21 +899,26 @@ class BulkText(BulkBase):
         if not self.a_c_checkbox.isChecked():
             return
         if self.col_metadata['is_multiple']:
-            remove_all, adding, rtext = self.gui_val
-            remove = set()
-            if remove_all:
-                remove = set(self.db.all_custom(num=self.col_id))
+            if self.col_metadata['display'].get('is_names', False):
+                val = self.gui_val
+                add = [v.strip() for v in val.split('&') if v.strip()]
+                self.db.set_custom_bulk(book_ids, add, num=self.col_id)
             else:
-                txt = rtext
+                remove_all, adding, rtext = self.gui_val
+                remove = set()
+                if remove_all:
+                    remove = set(self.db.all_custom(num=self.col_id))
+                else:
+                    txt = rtext
+                    if txt:
+                        remove = set([v.strip() for v in txt.split(',')])
+                txt = adding
                 if txt:
-                    remove = set([v.strip() for v in txt.split(',')])
-            txt = adding
-            if txt:
-                add = set([v.strip() for v in txt.split(',')])
-            else:
-                add = set()
-            self.db.set_custom_bulk_multiple(book_ids, add=add, remove=remove,
-                                            num=self.col_id)
+                    add = set([v.strip() for v in txt.split(',')])
+                else:
+                    add = set()
+                self.db.set_custom_bulk_multiple(book_ids, add=add,
+                                            remove=remove, num=self.col_id)
         else:
             val = self.gui_val
             val = self.normalize_ui_val(val)
@@ -905,10 +927,11 @@ class BulkText(BulkBase):
 
     def getter(self):
         if self.col_metadata['is_multiple']:
-            return self.removing_widget.checkbox.isChecked(), \
-                    unicode(self.adding_widget.text()), \
-                    unicode(self.removing_widget.tags_box.text())
-
+            if not self.col_metadata['display'].get('is_names', False):
+                return self.removing_widget.checkbox.isChecked(), \
+                        unicode(self.adding_widget.text()), \
+                        unicode(self.removing_widget.tags_box.text())
+            return unicode(self.adding_widget.text())
         val = unicode(self.main_widget.currentText()).strip()
         if not val:
             val = None

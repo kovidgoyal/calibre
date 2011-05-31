@@ -17,7 +17,7 @@ from binascii import hexlify
 from calibre.utils.ipc.launch import Worker
 from calibre.utils.ipc.worker import PARALLEL_FUNCS
 from calibre import detect_ncpus as cpu_count
-from calibre.constants import iswindows
+from calibre.constants import iswindows, DEBUG
 from calibre.ptempfile import base_dir
 
 _counter = 0
@@ -34,6 +34,7 @@ class ConnectedWorker(Thread):
         self.killed = False
         self.log_path = worker.log_path
         self.rfile = rfile
+        self.close_log_file = getattr(worker, 'close_log_file', None)
 
     def start_job(self, job):
         notification = PARALLEL_FUNCS[job.name][-1] is not None
@@ -105,13 +106,14 @@ class Server(Thread):
         self.add_jobs_queue, self.changed_jobs_queue = Queue(), Queue()
         self.kill_queue = Queue()
         self.waiting_jobs = []
-        self.pool, self.workers = deque(), deque()
+        self.workers = deque()
         self.launched_worker_count = 0
         self._worker_launch_lock = RLock()
 
         self.start()
 
     def launch_worker(self, gui=False, redirect_output=None):
+        start = time.time()
         with self._worker_launch_lock:
             self.launched_worker_count += 1
             id = self.launched_worker_count
@@ -135,6 +137,8 @@ class Server(Thread):
                 break
         if isinstance(cw, basestring):
             raise CriticalError('Failed to launch worker process:\n'+cw)
+        if DEBUG:
+            print 'Worker Launch took:', time.time() - start
         return cw
 
     def do_launch(self, env, gui, redirect_output, rfile):
@@ -185,6 +189,10 @@ class Server(Thread):
 
             # Remove finished jobs
             for worker in [w for w in self.workers if not w.is_alive]:
+                try:
+                    worker.close_log_file()
+                except:
+                    pass
                 self.workers.remove(worker)
                 job = worker.job
                 if worker.returncode != 0:
@@ -199,13 +207,6 @@ class Server(Thread):
                 job.duration = time.time() - job.start_time
                 self.changed_jobs_queue.put(job)
 
-            # Start new workers
-            if len(self.pool) + len(self.workers) < self.pool_size:
-                try:
-                    self.pool.append(self.launch_worker())
-                except Exception:
-                    pass
-
             # Start waiting jobs
             sj = self.suitable_waiting_job()
             if sj is not None:
@@ -217,7 +218,7 @@ class Server(Thread):
                     job.killed = job.failed = True
                     job.result = None
                 else:
-                    worker = self.pool.pop()
+                    worker = self.launch_worker()
                     worker.start_job(job)
                     self.workers.append(worker)
                     job.log_path = worker.log_path
@@ -231,7 +232,7 @@ class Server(Thread):
                     break
 
     def suitable_waiting_job(self):
-        available_workers = len(self.pool)
+        available_workers = self.pool_size - len(self.workers)
         for worker in self.workers:
             job = worker.job
             if job.core_usage == -1:
@@ -293,11 +294,6 @@ class Server(Thread):
             pass
         time.sleep(0.2)
         for worker in list(self.workers):
-            try:
-                worker.kill()
-            except:
-                pass
-        for worker in list(self.pool):
             try:
                 worker.kill()
             except:

@@ -3,7 +3,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
 Miscellaneous widgets used in the GUI
 '''
-import re, os, traceback
+import re, traceback
 
 from PyQt4.Qt import QIcon, QFont, QLabel, QListWidget, QAction, \
                         QListWidgetItem, QTextCharFormat, QApplication, \
@@ -11,17 +11,18 @@ from PyQt4.Qt import QIcon, QFont, QLabel, QListWidget, QAction, \
                         QPixmap, QSplitterHandle, QToolButton, \
                         QAbstractListModel, QVariant, Qt, SIGNAL, pyqtSignal, \
                         QRegExp, QSettings, QSize, QSplitter, \
-                        QPainter, QLineEdit, QComboBox, QPen, \
+                        QPainter, QLineEdit, QComboBox, QPen, QGraphicsScene, \
                         QMenu, QStringListModel, QCompleter, QStringList, \
-                        QTimer, QRect
+                        QTimer, QRect, QFontDatabase, QGraphicsView
 
 from calibre.gui2 import NONE, error_dialog, pixmap_to_data, gprefs
 from calibre.gui2.filename_pattern_ui import Ui_Form
 from calibre import fit_image
 from calibre.ebooks import BOOK_EXTENSIONS
-from calibre.ebooks.metadata.meta import metadata_from_filename
 from calibre.utils.config import prefs, XMLConfig, tweaks
 from calibre.gui2.progress_indicator import ProgressIndicator as _ProgressIndicator
+from calibre.gui2.dnd import dnd_has_image, dnd_get_image, dnd_get_files, \
+    IMAGE_EXTENSIONS, dnd_has_extension, DownloadDialog
 
 history = XMLConfig('history')
 
@@ -93,9 +94,10 @@ class FilenamePattern(QWidget, Ui_Form):
         self.re.setCurrentIndex(0)
 
     def do_test(self):
+        from calibre.ebooks.metadata.meta import metadata_from_filename
         try:
             pat = self.pattern()
-        except Exception, err:
+        except Exception as err:
             error_dialog(self, _('Invalid regular expression'),
                          _('Invalid regular expression: %s')%err).exec_()
             return
@@ -119,6 +121,12 @@ class FilenamePattern(QWidget, Ui_Form):
         else:
             self.series_index.setText(_('No match'))
 
+        if mi.publisher:
+            self.publisher.setText(mi.publisher)
+
+        if mi.pubdate:
+            self.pubdate.setText(mi.pubdate.strftime('%Y-%m-%d'))
+
         self.isbn.setText(_('No match') if mi.isbn is None else str(mi.isbn))
 
 
@@ -141,36 +149,35 @@ class FilenamePattern(QWidget, Ui_Form):
         return pat
 
 
-IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'gif', 'png', 'bmp']
-
 class FormatList(QListWidget):
     DROPABBLE_EXTENSIONS = BOOK_EXTENSIONS
     formats_dropped = pyqtSignal(object, object)
     delete_format = pyqtSignal()
 
-    @classmethod
-    def paths_from_event(cls, event):
-        '''
-        Accept a drop event and return a list of paths that can be read from
-        and represent files with extensions.
-        '''
-        if event.mimeData().hasFormat('text/uri-list'):
-            urls = [unicode(u.toLocalFile()) for u in event.mimeData().urls()]
-            urls = [u for u in urls if os.path.splitext(u)[1] and os.access(u, os.R_OK)]
-            return [u for u in urls if os.path.splitext(u)[1][1:].lower() in cls.DROPABBLE_EXTENSIONS]
-
     def dragEnterEvent(self, event):
-        if int(event.possibleActions() & Qt.CopyAction) + \
-           int(event.possibleActions() & Qt.MoveAction) == 0:
-            return
-        paths = self.paths_from_event(event)
-        if paths:
+        md = event.mimeData()
+        if dnd_has_extension(md, self.DROPABBLE_EXTENSIONS):
             event.acceptProposedAction()
 
     def dropEvent(self, event):
-        paths = self.paths_from_event(event)
         event.setDropAction(Qt.CopyAction)
-        self.formats_dropped.emit(event, paths)
+        md = event.mimeData()
+        # Now look for ebook files
+        urls, filenames = dnd_get_files(md, self.DROPABBLE_EXTENSIONS)
+        if not urls:
+            # Nothing found
+            return
+
+        if not filenames:
+            # Local files
+            self.formats_dropped.emit(event, urls)
+        else:
+            # Remote files, use the first file
+            d = DownloadDialog(urls[0], filenames[0], self)
+            d.start_download()
+            if d.err is None:
+                self.formats_dropped.emit(event, [d.fpath])
+
 
     def dragMoveEvent(self, event):
         event.acceptProposedAction()
@@ -181,8 +188,81 @@ class FormatList(QListWidget):
         else:
             return QListWidget.keyPressEvent(self, event)
 
+class ImageDropMixin(object): # {{{
+    '''
+    Adds support for dropping images onto widgets and a context menu for
+    copy/pasting images.
+    '''
+    DROPABBLE_EXTENSIONS = IMAGE_EXTENSIONS
 
-class ImageView(QWidget):
+    def __init__(self):
+        self.setAcceptDrops(True)
+
+    def dragEnterEvent(self, event):
+        md = event.mimeData()
+        if dnd_has_extension(md, self.DROPABBLE_EXTENSIONS) or \
+                dnd_has_image(md):
+            event.acceptProposedAction()
+
+    def dropEvent(self, event):
+        event.setDropAction(Qt.CopyAction)
+        md = event.mimeData()
+
+        x, y = dnd_get_image(md)
+        if x is not None:
+            # We have an image, set cover
+            event.accept()
+            if y is None:
+                # Local image
+                self.handle_image_drop(x)
+            else:
+                # Remote files, use the first file
+                d = DownloadDialog(x, y, self)
+                d.start_download()
+                if d.err is None:
+                    pmap = QPixmap()
+                    pmap.loadFromData(open(d.fpath, 'rb').read())
+                    if not pmap.isNull():
+                        self.handle_image_drop(pmap)
+
+    def handle_image_drop(self, pmap):
+        self.set_pixmap(pmap)
+        self.cover_changed.emit(pixmap_to_data(pmap))
+
+    def dragMoveEvent(self, event):
+        event.acceptProposedAction()
+
+    def get_pixmap(self):
+        return self.pixmap()
+
+    def set_pixmap(self, pmap):
+        self.setPixmap(pmap)
+
+    def contextMenuEvent(self, ev):
+        cm = QMenu(self)
+        paste = cm.addAction(_('Paste Cover'))
+        copy = cm.addAction(_('Copy Cover'))
+        if not QApplication.instance().clipboard().mimeData().hasImage():
+            paste.setEnabled(False)
+        copy.triggered.connect(self.copy_to_clipboard)
+        paste.triggered.connect(self.paste_from_clipboard)
+        cm.exec_(ev.globalPos())
+
+    def copy_to_clipboard(self):
+        QApplication.instance().clipboard().setPixmap(self.get_pixmap())
+
+    def paste_from_clipboard(self):
+        cb = QApplication.instance().clipboard()
+        pmap = cb.pixmap()
+        if pmap.isNull() and cb.supportsSelection():
+            pmap = cb.pixmap(cb.Selection)
+        if not pmap.isNull():
+            self.set_pixmap(pmap)
+            self.cover_changed.emit(
+                    pixmap_to_data(pmap))
+# }}}
+
+class ImageView(QWidget, ImageDropMixin):
 
     BORDER_WIDTH = 1
     cover_changed = pyqtSignal(object)
@@ -191,46 +271,8 @@ class ImageView(QWidget):
         QWidget.__init__(self, parent)
         self._pixmap = QPixmap(self)
         self.setMinimumSize(QSize(150, 200))
-        self.setAcceptDrops(True)
+        ImageDropMixin.__init__(self)
         self.draw_border = True
-
-    # Drag 'n drop {{{
-    DROPABBLE_EXTENSIONS = IMAGE_EXTENSIONS
-
-    @classmethod
-    def paths_from_event(cls, event):
-        '''
-        Accept a drop event and return a list of paths that can be read from
-        and represent files with extensions.
-        '''
-        if event.mimeData().hasFormat('text/uri-list'):
-            urls = [unicode(u.toLocalFile()) for u in event.mimeData().urls()]
-            urls = [u for u in urls if os.path.splitext(u)[1] and os.access(u, os.R_OK)]
-            return [u for u in urls if os.path.splitext(u)[1][1:].lower() in cls.DROPABBLE_EXTENSIONS]
-
-    def dragEnterEvent(self, event):
-        if int(event.possibleActions() & Qt.CopyAction) + \
-           int(event.possibleActions() & Qt.MoveAction) == 0:
-            return
-        paths = self.paths_from_event(event)
-        if paths:
-            event.acceptProposedAction()
-
-    def dropEvent(self, event):
-        paths = self.paths_from_event(event)
-        event.setDropAction(Qt.CopyAction)
-        for path in paths:
-            pmap = QPixmap()
-            pmap.load(path)
-            if not pmap.isNull():
-                self.setPixmap(pmap)
-                event.accept()
-                self.cover_changed.emit(open(path, 'rb').read())
-                break
-
-    def dragMoveEvent(self, event):
-        event.acceptProposedAction()
-    # }}}
 
     def setPixmap(self, pixmap):
         if not isinstance(pixmap, QPixmap):
@@ -270,36 +312,26 @@ class ImageView(QWidget):
         p.setPen(pen)
         if self.draw_border:
             p.drawRect(target)
+        #p.drawRect(self.rect())
         p.end()
 
+class CoverView(QGraphicsView, ImageDropMixin):
 
-    # Clipboard copy/paste # {{{
-    def contextMenuEvent(self, ev):
-        cm = QMenu(self)
-        copy = cm.addAction(_('Copy Image'))
-        paste = cm.addAction(_('Paste Image'))
-        if not QApplication.instance().clipboard().mimeData().hasImage():
-            paste.setEnabled(False)
-        copy.triggered.connect(self.copy_to_clipboard)
-        paste.triggered.connect(self.paste_from_clipboard)
-        cm.exec_(ev.globalPos())
+    cover_changed = pyqtSignal(object)
 
-    def copy_to_clipboard(self):
-        QApplication.instance().clipboard().setPixmap(self.pixmap())
+    def __init__(self, *args, **kwargs):
+        QGraphicsView.__init__(self, *args, **kwargs)
+        ImageDropMixin.__init__(self)
 
-    def paste_from_clipboard(self):
-        cb = QApplication.instance().clipboard()
-        pmap = cb.pixmap()
-        if pmap.isNull() and cb.supportsSelection():
-            pmap = cb.pixmap(cb.Selection)
-        if not pmap.isNull():
-            self.setPixmap(pmap)
-            self.cover_changed.emit(
-                    pixmap_to_data(pmap))
-    # }}}
+    def get_pixmap(self):
+        for item in self.scene.items():
+            if hasattr(item, 'pixmap'):
+                return item.pixmap()
 
-
-
+    def set_pixmap(self, pmap):
+        self.scene = QGraphicsScene()
+        self.scene.addPixmap(pmap)
+        self.setScene(self.scene)
 
 class FontFamilyModel(QAbstractListModel):
 
@@ -312,8 +344,12 @@ class FontFamilyModel(QAbstractListModel):
             self.families = []
             print 'WARNING: Could not load fonts'
             traceback.print_exc()
+        # Restrict to Qt families as Qt tends to crash
+        qt_families = set([unicode(x) for x in QFontDatabase().families()])
+        self.families = list(qt_families.intersection(set(self.families)))
         self.families.sort()
         self.families[:0] = [_('None')]
+        self.font = QFont('sansserif')
 
     def rowCount(self, *args):
         return len(self.families)
@@ -326,10 +362,11 @@ class FontFamilyModel(QAbstractListModel):
             return NONE
         if role == Qt.DisplayRole:
             return QVariant(family)
-        if False and role == Qt.FontRole:
-            # Causes a Qt crash with some fonts
-            # so disabled.
-            return QVariant(QFont(family))
+        if role == Qt.FontRole:
+            # If a user chooses some non standard font as the interface font,
+            # rendering some font names causes Qt to crash, so return what is
+            # hopefully a "safe" font
+            return QVariant(self.font)
         return NONE
 
     def index_of(self, family):
@@ -796,7 +833,7 @@ class PythonHighlighter(QSyntaxHighlighter):
         Config["tabwidth"] = settings.value("tabwidth",
                 QVariant(4)).toInt()[0]
         Config["fontfamily"] = settings.value("fontfamily",
-                QVariant("Bitstream Vera Sans Mono")).toString()
+                QVariant("monospace")).toString()
         Config["fontsize"] = settings.value("fontsize",
                 QVariant(10)).toInt()[0]
         for name, color, bold, italic in (

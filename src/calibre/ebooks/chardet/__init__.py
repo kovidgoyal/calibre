@@ -100,6 +100,12 @@ def xml_to_unicode(raw, verbose=False, strip_encoding_pats=False,
         try:
             if encoding.lower().strip() == 'macintosh':
                 encoding = 'mac-roman'
+            if encoding.lower().replace('_', '-').strip() in (
+                    'gb2312', 'chinese', 'csiso58gb231280', 'euc-cn', 'euccn',
+                    'eucgb2312-cn', 'gb2312-1980', 'gb2312-80', 'iso-ir-58'):
+                # Microsoft Word exports to HTML with encoding incorrectly set to
+                # gb2312 instead of gbk. gbk is a superset of gb2312, anyway.
+                encoding = 'gbk'
             raw = raw.decode(encoding, 'replace')
         except LookupError:
             encoding = 'utf-8'
@@ -109,5 +115,7 @@ def xml_to_unicode(raw, verbose=False, strip_encoding_pats=False,
         raw = strip_encoding_declarations(raw)
     if resolve_entities:
         raw = substitute_entites(raw)
+
+
 
     return raw, encoding

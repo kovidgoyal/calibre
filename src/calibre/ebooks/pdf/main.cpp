@@ -24,13 +24,14 @@ extern "C" {
     pdfreflow_reflow(PyObject *self, PyObject *args) {
         char *pdfdata;
         Py_ssize_t size;
+        int first_page, last_page, num = 0;
 
-        if (!PyArg_ParseTuple(args, "s#", &pdfdata, &size))
+        if (!PyArg_ParseTuple(args, "s#ii", &pdfdata, &size, &first_page, &last_page))
             return NULL;
 
         try {
             Reflow reflow(pdfdata, static_cast<std::ifstream::pos_type>(size));
-            reflow.render();
+            num = reflow.render(first_page, last_page);
         } catch (std::exception &e) {
             PyErr_SetString(PyExc_RuntimeError, e.what()); return NULL;
         } catch (...) {
@@ -38,7 +39,7 @@ extern "C" {
                     "Unknown exception raised while rendering PDF"); return NULL;
         }
 
-        Py_RETURN_NONE;
+        return Py_BuildValue("i", num);
     }
 
     static PyObject *
@@ -166,8 +167,8 @@ extern "C" {
     static 
     PyMethodDef pdfreflow_methods[] = {
         {"reflow", pdfreflow_reflow, METH_VARARGS,
-        "reflow(pdf_data)\n\n"
-                "Reflow the specified PDF."
+        "reflow(pdf_data, first_page, last_page)\n\n"
+                "Reflow the specified PDF. Returns the number of pages in the PDF. If last_page is -1 renders to end of document."
         },
         {"get_metadata", pdfreflow_get_metadata, METH_VARARGS,
         "get_metadata(pdf_data, cover)\n\n"

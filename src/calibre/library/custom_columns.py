@@ -76,6 +76,8 @@ class CustomColumns(object):
                     'num':record[6],
                     'is_multiple':record[7],
                     }
+            if data['display'] is None:
+                data['display'] = {}
             table, lt = self.custom_table_names(data['num'])
             if table not in custom_tables or (data['normalized'] and lt not in
                     custom_tables):
@@ -117,7 +119,7 @@ class CustomColumns(object):
                 if x is None:
                     return []
                 if isinstance(x, (str, unicode, bytes)):
-                    x = x.split(',')
+                    x = x.split('&' if d['display'].get('is_names', False) else',')
                 x = [y.strip() for y in x if y.strip()]
                 x = [y.decode(preferred_encoding, 'replace') if not isinstance(y,
                     unicode) else y for y in x]
@@ -180,7 +182,7 @@ class CustomColumns(object):
             else:
                 is_category = False
             if v['is_multiple']:
-                is_m = '|'
+                is_m = ',' if v['datatype'] == 'composite' else '|'
             else:
                 is_m = None
             tn = 'custom_column_{0}'.format(v['num'])
@@ -188,7 +190,7 @@ class CustomColumns(object):
                     table=tn, column='value', datatype=v['datatype'],
                     colnum=v['num'], name=v['name'], display=v['display'],
                     is_multiple=is_m, is_category=is_category,
-                    is_editable=v['editable'])
+                    is_editable=v['editable'], is_csp=False)
 
     def get_custom(self, idx, label=None, num=None, index_is_id=False):
         if label is not None:
@@ -316,7 +318,7 @@ class CustomColumns(object):
         self.conn.commit()
 
     def set_custom_column_metadata(self, num, name=None, label=None,
-            is_editable=None, display=None):
+            is_editable=None, display=None, notify=True):
         changed = False
         if name is not None:
             self.conn.execute('UPDATE custom_columns SET name=? WHERE id=?',
@@ -338,6 +340,9 @@ class CustomColumns(object):
 
         if changed:
             self.conn.commit()
+        if notify:
+            self.notify('metadata', [])
+
         return changed
 
     def set_custom_bulk_multiple(self, ids, add=[], remove=[],
@@ -482,8 +487,11 @@ class CustomColumns(object):
             set_val = val if data['is_multiple'] else [val]
             existing = getter()
             if not existing:
-                existing = []
-            for x in set(set_val) - set(existing):
+                existing = set([])
+            else:
+                existing = set(existing)
+            # preserve the order in set_val
+            for x in [v for v in set_val if v not in existing]:
                 # normalized types are text and ratings, so we can do this check
                 # to see if we need to re-add the value
                 if not x:
@@ -590,7 +598,7 @@ class CustomColumns(object):
             raise ValueError('%r is not a supported data type'%datatype)
         normalized  = datatype not in ('datetime', 'comments', 'int', 'bool',
                 'float', 'composite')
-        is_multiple = is_multiple and datatype in ('text',)
+        is_multiple = is_multiple and datatype in ('text', 'composite')
         num = self.conn.execute(
                 ('INSERT INTO '
                 'custom_columns(label,name,datatype,is_multiple,editable,display,normalized)'

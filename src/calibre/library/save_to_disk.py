@@ -12,13 +12,13 @@ from calibre.constants import DEBUG
 from calibre.utils.config import Config, StringConfig, tweaks
 from calibre.utils.formatter import TemplateFormatter
 from calibre.utils.filenames import shorten_components_to, supports_long_names, \
-                                    ascii_filename, sanitize_file_name
+                                    ascii_filename
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
-from calibre.ebooks.metadata.meta import set_metadata
-from calibre.constants import preferred_encoding, filesystem_encoding
+from calibre.constants import preferred_encoding
 from calibre.ebooks.metadata import fmt_sidx
 from calibre.ebooks.metadata import title_sort
-from calibre import strftime, prints
+from calibre.utils.date import parse_date
+from calibre import strftime, prints, sanitize_file_name_unicode
 
 plugboard_any_device_value = 'any device'
 plugboard_any_format_value = 'any format'
@@ -43,6 +43,8 @@ FORMAT_ARG_DESCS = dict(
         publisher=_('The publisher'),
         timestamp=_('The date'),
         pubdate=_('The published date'),
+        last_modified=_('The date when the metadata for this book record'
+            ' was last modified'),
         id=_('The calibre internal id')
         )
 
@@ -50,6 +52,24 @@ FORMAT_ARGS = {}
 for x in FORMAT_ARG_DESCS:
     FORMAT_ARGS[x] = ''
 
+
+def find_plugboard(device_name, format, plugboards):
+    cpb = None
+    if format in plugboards:
+        pb = plugboards[format]
+        if device_name in pb:
+            cpb = pb[device_name]
+        elif plugboard_any_device_value in pb:
+            cpb = pb[plugboard_any_device_value]
+    if not cpb and plugboard_any_format_value in plugboards:
+        pb = plugboards[plugboard_any_format_value]
+        if device_name in pb:
+            cpb = pb[device_name]
+        elif plugboard_any_device_value in pb:
+            cpb = pb[plugboard_any_device_value]
+    if DEBUG:
+        prints('Device using plugboard', format, device_name, cpb)
+    return cpb
 
 def config(defaults=None):
     if defaults is None:
@@ -114,6 +134,8 @@ class SafeFormat(TemplateFormatter):
     '''
 
     def get_value(self, key, args, kwargs):
+        if key == '':
+            return ''
         try:
             key = key.lower()
             try:
@@ -170,18 +192,20 @@ def get_components(template, mi, id, timefmt='%b %Y', length=250,
     else:
         template = re.sub(r'\{series_index[^}]*?\}', '', template)
     if mi.rating is not None:
-        format_args['rating'] = mi.format_rating()
+        format_args['rating'] = mi.format_rating(divide_by=2.0)
     if hasattr(mi.timestamp, 'timetuple'):
         format_args['timestamp'] = strftime(timefmt, mi.timestamp.timetuple())
     if hasattr(mi.pubdate, 'timetuple'):
         format_args['pubdate'] = strftime(timefmt, mi.pubdate.timetuple())
+    if hasattr(mi, 'last_modified') and hasattr(mi.last_modified, 'timetuple'):
+        format_args['last_modified'] = strftime(timefmt, mi.last_modified.timetuple())
+
     format_args['id'] = str(id)
     # Now format the custom fields
     custom_metadata = mi.get_all_user_metadata(make_copy=False)
     for key in custom_metadata:
         if key in format_args:
             cm = custom_metadata[key]
-            ## TODO: NEWMETA: should ratings be divided by 2? The standard rating isn't...
             if cm['datatype'] == 'series':
                 format_args[key] = title_sort(format_args[key], order=tsorder)
                 if key+'_index' in format_args:
@@ -190,6 +214,9 @@ def get_components(template, mi, id, timefmt='%b %Y', length=250,
                 format_args[key] = strftime(timefmt, format_args[key].timetuple())
             elif cm['datatype'] == 'bool':
                 format_args[key] = _('yes') if format_args[key] else _('no')
+            elif cm['datatype'] == 'rating':
+                format_args[key] = mi.format_rating(format_args[key],
+                        divide_by=2.0)
             elif cm['datatype'] in ['int', 'float']:
                 if format_args[key] != 0:
                     format_args[key] = unicode(format_args[key])
@@ -197,12 +224,10 @@ def get_components(template, mi, id, timefmt='%b %Y', length=250,
                     format_args[key] = ''
     components = SafeFormat().safe_format(template, format_args,
                                             'G_C-EXCEPTION!', mi)
-    components = [x.strip() for x in components.split('/') if x.strip()]
+    components = [x.strip() for x in components.split('/')]
     components = [sanitize_func(x) for x in components if x]
     if not components:
         components = [str(id)]
-    components = [x.encode(filesystem_encoding, 'replace') if isinstance(x,
-        unicode) else x for x in components]
     if to_lowercase:
         components = [x.lower() for x in components]
     if replace_whitespace:
@@ -237,6 +262,7 @@ def save_book_to_disk(id_, db, root, opts, length):
 
 def do_save_book_to_disk(id_, mi, cover, plugboards,
         format_map, root, opts, length):
+    from calibre.ebooks.metadata.meta import set_metadata
     available_formats = [x.lower().strip() for x in format_map.keys()]
     if opts.formats == 'all':
         asked_formats = available_formats
@@ -247,7 +273,7 @@ def do_save_book_to_disk(id_, mi, cover, plugboards,
         return True, id_, mi.title
 
     components = get_components(opts.template, mi, id_, opts.timefmt, length,
-            ascii_filename if opts.asciiize else sanitize_file_name,
+            ascii_filename if opts.asciiize else sanitize_file_name_unicode,
             to_lowercase=opts.to_lowercase,
             replace_whitespace=opts.replace_whitespace)
     base_path = os.path.join(root, *components)
@@ -281,20 +307,7 @@ def do_save_book_to_disk(id_, mi, cover, plugboards,
     written = False
     for fmt in formats:
         global plugboard_save_to_disk_value, plugboard_any_format_value
-        dev_name = plugboard_save_to_disk_value
-        cpb = None
-        if fmt in plugboards:
-            cpb = plugboards[fmt]
-            if dev_name in cpb:
-                cpb = cpb[dev_name]
-            else:
-                cpb = None
-        if cpb is None and plugboard_any_format_value in plugboards:
-            cpb = plugboards[plugboard_any_format_value]
-            if dev_name in cpb:
-                cpb = cpb[dev_name]
-            else:
-                cpb = None
+        cpb = find_plugboard(plugboard_save_to_disk_value, fmt, plugboards)
         # Leave this here for a while, in case problems arise.
         if cpb is not None:
             prints('Save-to-disk using plugboard:', fmt, cpb)
@@ -329,8 +342,6 @@ def do_save_book_to_disk(id_, mi, cover, plugboards,
 def _sanitize_args(root, opts):
     if opts is None:
         opts = config().parse()
-    if isinstance(root, unicode):
-        root = root.encode(filesystem_encoding)
     root = os.path.abspath(root)
 
     opts.template = preprocess_template(opts.template)
@@ -374,10 +385,14 @@ def save_serialized_to_disk(ids, data, plugboards, root, opts, callback):
     root, opts, length = _sanitize_args(root, opts)
     failures = []
     for x in ids:
-        opf, cover, format_map = data[x]
+        opf, cover, format_map, last_modified = data[x]
         if isinstance(opf, unicode):
             opf = opf.encode('utf-8')
         mi = OPF(cStringIO.StringIO(opf)).to_book_metadata()
+        try:
+            mi.last_modified = parse_date(last_modified)
+        except:
+            pass
         tb = ''
         try:
             failed, id, title = do_save_book_to_disk(x, mi, cover, plugboards,

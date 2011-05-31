@@ -263,6 +263,84 @@ magick_DrawingWand_fontsize_setter(magick_DrawingWand *self, PyObject *val, void
 
 // }}}
 
+// DrawingWand.stroke_color {{{
+static PyObject *
+magick_DrawingWand_stroke_color_getter(magick_DrawingWand *self, void *closure) {
+    magick_PixelWand *pw;
+    PixelWand *wand;
+
+    NULL_CHECK(NULL)
+    wand = NewPixelWand();
+
+    if (wand == NULL) return PyErr_NoMemory();
+    DrawGetStrokeColor(self->wand, wand);
+
+    pw = (magick_PixelWand*) magick_PixelWandType.tp_alloc(&magick_PixelWandType, 0);
+    if (pw == NULL) return PyErr_NoMemory();
+    pw->wand = wand;
+    return Py_BuildValue("O", (PyObject *)pw);
+}
+
+static int
+magick_DrawingWand_stroke_color_setter(magick_DrawingWand *self, PyObject *val, void *closure) {
+    magick_PixelWand *pw;
+
+    NULL_CHECK(-1)
+    if (val == NULL) {
+        PyErr_SetString(PyExc_TypeError, "Cannot delete DrawingWand stroke color");
+        return -1;
+    }
+
+    
+    pw = (magick_PixelWand*)val;
+    if (!IsPixelWand(pw->wand)) { PyErr_SetString(PyExc_TypeError, "Invalid PixelWand"); return -1; }
+
+    DrawSetStrokeColor(self->wand, pw->wand);
+
+    return 0;
+}
+
+// }}}
+
+// DrawingWand.fill_color {{{
+static PyObject *
+magick_DrawingWand_fill_color_getter(magick_DrawingWand *self, void *closure) {
+    magick_PixelWand *pw;
+    PixelWand *wand;
+
+    NULL_CHECK(NULL)
+    wand = NewPixelWand();
+
+    if (wand == NULL) return PyErr_NoMemory();
+    DrawGetFillColor(self->wand, wand);
+
+    pw = (magick_PixelWand*) magick_PixelWandType.tp_alloc(&magick_PixelWandType, 0);
+    if (pw == NULL) return PyErr_NoMemory();
+    pw->wand = wand;
+    return Py_BuildValue("O", (PyObject *)pw);
+}
+
+static int
+magick_DrawingWand_fill_color_setter(magick_DrawingWand *self, PyObject *val, void *closure) {
+    magick_PixelWand *pw;
+
+    NULL_CHECK(-1)
+    if (val == NULL) {
+        PyErr_SetString(PyExc_TypeError, "Cannot delete DrawingWand fill color");
+        return -1;
+    }
+
+    
+    pw = (magick_PixelWand*)val;
+    if (!IsPixelWand(pw->wand)) { PyErr_SetString(PyExc_TypeError, "Invalid PixelWand"); return -1; }
+
+    DrawSetFillColor(self->wand, pw->wand);
+
+    return 0;
+}
+
+// }}}
+
 // DrawingWand.text_antialias {{{
 static PyObject *
 magick_DrawingWand_textantialias_getter(magick_DrawingWand *self, void *closure) {
@@ -334,6 +412,16 @@ static PyGetSetDef  magick_DrawingWand_getsetters[] = {
     {(char *)"font_size_", 
      (getter)magick_DrawingWand_fontsize_getter, (setter)magick_DrawingWand_fontsize_setter,
      (char *)"DrawingWand fontsize",
+     NULL},
+
+    {(char *)"stroke_color_", 
+     (getter)magick_DrawingWand_stroke_color_getter, (setter)magick_DrawingWand_stroke_color_setter,
+     (char *)"DrawingWand stroke color",
+     NULL},
+
+    {(char *)"fill_color_", 
+     (getter)magick_DrawingWand_fill_color_getter, (setter)magick_DrawingWand_fill_color_setter,
+     (char *)"DrawingWand fill color",
      NULL},
 
     {(char *)"text_antialias", 

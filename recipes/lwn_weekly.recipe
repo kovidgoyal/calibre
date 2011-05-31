@@ -1,0 +1,109 @@
+#!/usr/bin/env python
+
+__license__   = 'GPL v3'
+__copyright__ = '2011, Davide Cavalca <davide125 at tiscali.it>'
+'''
+lwn.net
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+import re
+
+class WeeklyLWN(BasicNewsRecipe):
+    title = 'LWN.net Weekly Edition'
+    description = 'Weekly summary of what has happened in the free software world.'
+    __author__ = 'Davide Cavalca'
+    language = 'en'
+
+    cover_url = 'http://lwn.net/images/lcorner.png'
+    #masthead_url = 'http://lwn.net/images/lcorner.png'
+    publication_type = 'magazine'
+
+    remove_tags_before = dict(attrs={'class':'PageHeadline'})
+    remove_tags_after = dict(attrs={'class':'ArticleText'})
+    remove_tags = [dict(name=['h2', 'form'])]
+
+    preprocess_regexps = [
+        # Remove the <hr> and "Log in to post comments"
+        (re.compile(r'<hr.*?comments[)]', re.DOTALL), lambda m: ''),
+    ]
+
+    conversion_options = { 'linearize_tables' : True }
+
+    oldest_article = 7.0
+    needs_subscription = 'optional'
+
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser()
+        if self.username is not None and self.password is not None:
+            br.open('https://lwn.net/login')
+            br.select_form(name='loginform')
+            br['Username'] = self.username
+            br['Password'] = self.password
+            br.submit()
+        return br
+
+    def parse_index(self):
+        if self.username is not None and self.password is not None:
+            index_url = 'http://lwn.net/current/bigpage?format=printable'
+        else:
+            index_url = 'http://lwn.net/free/bigpage?format=printable'
+        soup = self.index_to_soup(index_url)
+        body = soup.body
+
+        articles = {}
+        ans = []
+        url_re = re.compile('^/Articles/')
+
+        while True:
+            tag_title = body.findNext(name='p', attrs={'class':'SummaryHL'})
+            if tag_title == None:
+                break
+
+            tag_section = tag_title.findPrevious(name='p', attrs={'class':'Cat1HL'})
+            if tag_section == None:
+                section = 'Front Page'
+            else:
+                section = tag_section.string
+
+            tag_section2 = tag_title.findPrevious(name='p', attrs={'class':'Cat2HL'})
+            if tag_section2 != None:
+                if tag_section2.findPrevious(name='p', attrs={'class':'Cat1HL'}) == tag_section:
+                    section = "%s: %s" %(section, tag_section2.string)
+
+            if section not in articles.keys():
+                articles[section] = []
+            if section not in ans:
+                ans.append(section)
+
+            body = tag_title
+            while True:
+                tag_url = body.findNext(name='a', attrs={'href':url_re})
+                if tag_url == None:
+                    break
+                body = tag_url
+                if tag_url.string == None:
+                    continue
+                elif tag_url.string == 'Full Story':
+                    break
+                elif tag_url.string.startswith('Comments ('):
+                    break
+                else:
+                    continue
+
+            if tag_url == None:
+                break
+
+            article = dict(
+                title=tag_title.string,
+                url= 'http://lwn.net' + tag_url['href'].split('#')[0] + '?format=printable',
+                description='', content='', date='')
+            articles[section].append(article)
+
+        ans = [(key, articles[key]) for key in ans if articles.has_key(key)]
+        if not ans:
+            raise Exception('Could not find any articles.')
+
+        return ans
+
+# vim: expandtab:ts=4:sw=4

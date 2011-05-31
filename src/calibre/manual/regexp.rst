@@ -133,4 +133,5 @@ Thanks for helping with tips, corrections and such:
     * kacir
     * Starson17
 
+For more about regexps see `The Python User Manual <http://docs.python.org/library/re.html>`_.
 

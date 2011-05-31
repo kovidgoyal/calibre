@@ -5,14 +5,14 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys
 from math import cos, sin, pi
 
-from PyQt4.Qt import QColor, Qt, QModelIndex, QSize, \
-                     QPainterPath, QLinearGradient, QBrush, \
-                     QPen, QStyle, QPainter, QStyleOptionViewItemV4, \
-                     QIcon,  QDoubleSpinBox, QVariant, QSpinBox, \
-                     QStyledItemDelegate, QComboBox, QTextDocument
+from PyQt4.Qt import (QColor, Qt, QModelIndex, QSize, QApplication,
+                     QPainterPath, QLinearGradient, QBrush,
+                     QPen, QStyle, QPainter, QStyleOptionViewItemV4,
+                     QIcon,  QDoubleSpinBox, QVariant, QSpinBox,
+                     QStyledItemDelegate, QComboBox, QTextDocument,
+                     QAbstractTextDocumentLayout)
 
 from calibre.gui2 import UNDEFINED_QDATE, error_dialog
 from calibre.gui2.widgets import EnLineEdit
@@ -28,7 +28,6 @@ from calibre.gui2.dialogs.template_dialog import TemplateDialog
 class RatingDelegate(QStyledItemDelegate): # {{{
     COLOR    = QColor("blue")
     SIZE     = 16
-    PEN      = QPen(COLOR, 1, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin)
 
     def __init__(self, parent):
         QStyledItemDelegate.__init__(self, parent)
@@ -41,10 +40,7 @@ class RatingDelegate(QStyledItemDelegate): # {{{
                                   50 + 40 * sin(0.8 * i * pi))
         self.star_path.closeSubpath()
         self.star_path.setFillRule(Qt.WindingFill)
-        gradient = QLinearGradient(0, 0, 0, 100)
-        gradient.setColorAt(0.0, self.COLOR)
-        gradient.setColorAt(1.0, self.COLOR)
-        self.brush = QBrush(gradient)
+        self.gradient = QLinearGradient(0, 0, 0, 100)
         self.factor = self.SIZE/100.
 
     def sizeHint(self, option, index):
@@ -54,7 +50,8 @@ class RatingDelegate(QStyledItemDelegate): # {{{
     def paint(self, painter, option, index):
         style = self._parent.style()
         option = QStyleOptionViewItemV4(option)
-        self.initStyleOption(option, self.dummy)
+        self.initStyleOption(option, index)
+        option.text = u''
         num = index.model().data(index, Qt.DisplayRole).toInt()[0]
         def draw_star():
             painter.save()
@@ -71,13 +68,23 @@ class RatingDelegate(QStyledItemDelegate): # {{{
                     painter, self._parent)
         elif option.state & QStyle.State_Selected:
             painter.fillRect(option.rect, option.palette.highlight())
+        else:
+            painter.fillRect(option.rect, option.backgroundBrush)
+
         try:
             painter.setRenderHint(QPainter.Antialiasing)
             painter.setClipRect(option.rect)
             y = option.rect.center().y()-self.SIZE/2.
             x = option.rect.left()
-            painter.setPen(self.PEN)
-            painter.setBrush(self.brush)
+            color = index.data(Qt.ForegroundRole)
+            if color.isNull() or not color.isValid():
+                color = self.COLOR
+            else:
+                color = QColor(color)
+            painter.setPen(QPen(color,  1, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
+            self.gradient.setColorAt(0.0, color)
+            self.gradient.setColorAt(1.0, color)
+            painter.setBrush(QBrush(self.gradient))
             painter.translate(x, y)
             i = 0
             while i < num:
@@ -98,18 +105,25 @@ class RatingDelegate(QStyledItemDelegate): # {{{
 
 class DateDelegate(QStyledItemDelegate): # {{{
 
+    def __init__(self, parent, tweak_name='gui_timestamp_display_format',
+            default_format='dd MMM yyyy', editor_format='dd MMM yyyy'):
+        QStyledItemDelegate.__init__(self, parent)
+        self.tweak_name = tweak_name
+        self.default_format = default_format
+        self.editor_format = editor_format
+
     def displayText(self, val, locale):
         d = val.toDate()
         if d <= UNDEFINED_QDATE:
             return ''
-        format = tweaks['gui_timestamp_display_format']
+        format = tweaks[self.tweak_name]
         if format is None:
-            format = 'dd MMM yyyy'
+            format = self.default_format
         return format_date(d.toPyDate(), format)
 
     def createEditor(self, parent, option, index):
         qde = QStyledItemDelegate.createEditor(self, parent, option, index)
-        qde.setDisplayFormat('dd MMM yyyy')
+        qde.setDisplayFormat(self.editor_format)
         qde.setMinimumDate(UNDEFINED_QDATE)
         qde.setSpecialValueText(_('Undefined'))
         qde.setCalendarPopup(True)
@@ -236,30 +250,45 @@ class CcDateDelegate(QStyledItemDelegate): # {{{
 
 class CcTextDelegate(QStyledItemDelegate): # {{{
     '''
+    Delegate for text data.
+    '''
+
+    def createEditor(self, parent, option, index):
+        m = index.model()
+        col = m.column_map[index.column()]
+        editor = MultiCompleteLineEdit(parent)
+        editor.set_separator(None)
+        complete_items = sorted(list(m.db.all_custom(label=m.db.field_metadata.key_to_label(col))),
+                                key=sort_key)
+        editor.update_items_cache(complete_items)
+        return editor
+
+# }}}
+
+class CcNumberDelegate(QStyledItemDelegate): # {{{
+    '''
     Delegate for text/int/float data.
     '''
 
     def createEditor(self, parent, option, index):
         m = index.model()
         col = m.column_map[index.column()]
-        typ = m.custom_columns[col]['datatype']
-        if typ == 'int':
+        if m.custom_columns[col]['datatype'] == 'int':
             editor = QSpinBox(parent)
-            editor.setRange(-100, sys.maxint)
+            editor.setRange(-100, 100000000)
             editor.setSpecialValueText(_('Undefined'))
             editor.setSingleStep(1)
-        elif typ == 'float':
+        else:
             editor = QDoubleSpinBox(parent)
             editor.setSpecialValueText(_('Undefined'))
-            editor.setRange(-100., float(sys.maxint))
+            editor.setRange(-100., 100000000)
             editor.setDecimals(2)
-        else:
-            editor = MultiCompleteLineEdit(parent)
-            editor.set_separator(None)
-            complete_items = sorted(list(m.db.all_custom(label=m.db.field_metadata.key_to_label(col))),
-                                    key=sort_key)
-            editor.update_items_cache(complete_items)
         return editor
+
+    def setEditorData(self, editor, index):
+        m = index.model()
+        val = m.db.data[index.row()][m.custom_columns[m.column_map[index.column()]]['rec_index']]
+        editor.setValue(val)
 
 # }}}
 
@@ -305,18 +334,22 @@ class CcCommentsDelegate(QStyledItemDelegate): # {{{
         self.document = QTextDocument()
 
     def paint(self, painter, option, index):
-        style = self.parent().style()
-        self.document.setHtml(index.data(Qt.DisplayRole).toString())
-        painter.save()
+        self.initStyleOption(option, index)
+        style = QApplication.style() if option.widget is None \
+                                                else option.widget.style()
+        self.document.setHtml(option.text)
+        option.text = u''
         if hasattr(QStyle, 'CE_ItemViewItem'):
-            style.drawControl(QStyle.CE_ItemViewItem, option,
-                    painter, self.parent())
-        elif option.state & QStyle.State_Selected:
-            painter.fillRect(option.rect, option.palette.highlight())
-        painter.setClipRect(option.rect)
-        painter.translate(option.rect.topLeft())
-        self.document.drawContents(painter)
-        painter.restore()
+            style.drawControl(QStyle.CE_ItemViewItem, option, painter)
+        ctx = QAbstractTextDocumentLayout.PaintContext()
+        ctx.palette = option.palette #.setColor(QPalette.Text, QColor("red"));
+        if hasattr(QStyle, 'SE_ItemViewItemText'):
+            textRect = style.subElementRect(QStyle.SE_ItemViewItemText, option)
+            painter.save()
+            painter.translate(textRect.topLeft())
+            painter.setClipRect(textRect.translated(-textRect.topLeft()))
+            self.document.documentLayout().draw(painter, ctx)
+            painter.restore()
 
     def createEditor(self, parent, option, index):
         m = index.model()
@@ -354,7 +387,7 @@ class CcBoolDelegate(QStyledItemDelegate): # {{{
         editor = DelegateCB(parent)
         items = [_('Y'), _('N'), ' ']
         icons = [I('ok.png'), I('list_remove.png'), I('blank.png')]
-        if tweaks['bool_custom_columns_are_tristate'] == 'no':
+        if not index.model().db.prefs.get('bools_are_tristate'):
             items = items[:-1]
             icons = icons[:-1]
         for icon, text in zip(icons, items):
@@ -368,7 +401,7 @@ class CcBoolDelegate(QStyledItemDelegate): # {{{
     def setEditorData(self, editor, index):
         m = index.model()
         val = m.db.data[index.row()][m.custom_columns[m.column_map[index.column()]]['rec_index']]
-        if tweaks['bool_custom_columns_are_tristate'] == 'no':
+        if not m.db.prefs.get('bools_are_tristate'):
             val = 1 if not val else 0
         else:
             val = 2 if val is None else 1 if not val else 0
@@ -385,8 +418,9 @@ class CcTemplateDelegate(QStyledItemDelegate): # {{{
 
     def createEditor(self, parent, option, index):
         m = index.model()
+        mi = m.db.get_metadata(index.row(), index_is_id=False)
         text = m.custom_columns[m.column_map[index.column()]]['display']['composite_template']
-        editor = TemplateDialog(parent, text)
+        editor = TemplateDialog(parent, text, mi)
         editor.setWindowTitle(_("Edit template"))
         editor.textbox.setTabChangesFocus(False)
         editor.textbox.setTabStopWidth(20)
@@ -399,7 +433,7 @@ class CcTemplateDelegate(QStyledItemDelegate): # {{{
         val = unicode(editor.textbox.toPlainText())
         try:
             validation_formatter.validate(val)
-        except Exception, err:
+        except Exception as err:
             error_dialog(self.parent(), _('Invalid template'),
                     '<p>'+_('The template %s is invalid:')%val + \
                     '<br>'+str(err), show=True)

@@ -17,8 +17,11 @@ from calibre.gui2.actions import InterfaceAction
 class GenerateCatalogAction(InterfaceAction):
 
     name = 'Generate Catalog'
-    action_spec = (_('Create a catalog of the books in your calibre library'), None, None, None)
-    dont_add_to = frozenset(['toolbar-device', 'context-menu-device'])
+    action_spec = (_('Create a catalog of the books in your calibre library'), 'catalog.png', 'Catalog builder', None)
+    dont_add_to = frozenset(['menubar-device', 'toolbar-device', 'context-menu-device'])
+
+    def genesis(self):
+        self.qaction.triggered.connect(self.generate_catalog)
 
     def generate_catalog(self):
         rows = self.gui.library_view.selectionModel().selectedRows()
@@ -31,10 +34,10 @@ class GenerateCatalogAction(InterfaceAction):
                     _('No books selected for catalog generation'),
                     show=True)
 
-		db = self.gui.library_view.model().db
-		dbspec = {}
-		for id in ids:
-			dbspec[id] = {'ondevice': db.ondevice(id, index_is_id=True)}
+        db = self.gui.library_view.model().db
+        dbspec = {}
+        for id in ids:
+            dbspec[id] = {'ondevice': db.ondevice(id, index_is_id=True)}
 
         # Calling gui2.tools:generate_catalog()
         ret = generate_catalog(self.gui, dbspec, ids, self.gui.device_manager,

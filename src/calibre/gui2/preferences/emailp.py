@@ -5,6 +5,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import textwrap
+
 from PyQt4.Qt import QAbstractTableModel, QVariant, QFont, Qt
 
 
@@ -17,25 +19,30 @@ from calibre.utils.smtp import config as smtp_prefs
 
 class EmailAccounts(QAbstractTableModel): # {{{
 
-    def __init__(self, accounts):
+    def __init__(self, accounts, subjects):
         QAbstractTableModel.__init__(self)
         self.accounts = accounts
+        self.subjects = subjects
         self.account_order = sorted(self.accounts.keys())
-        self.headers  = map(QVariant, [_('Email'), _('Formats'), _('Auto send')])
+        self.headers  = map(QVariant, [_('Email'), _('Formats'), _('Subject'), _('Auto send')])
         self.default_font = QFont()
         self.default_font.setBold(True)
         self.default_font = QVariant(self.default_font)
-        self.tooltips =[NONE] + map(QVariant,
+        self.tooltips =[NONE] + list(map(QVariant, map(textwrap.fill,
             [_('Formats to email. The first matching format will be sent.'),
+             _('Subject of the email to use when sending. When left blank '
+               'the title will be used for the subject. Also, the same '
+               'templates used for "Save to disk" such as {title} and '
+               '{author_sort} can be used here.'),
              '<p>'+_('If checked, downloaded news will be automatically '
                      'mailed <br>to this email address '
-                     '(provided it is in one of the listed formats).')])
+                     '(provided it is in one of the listed formats).')])))
 
     def rowCount(self, *args):
         return len(self.account_order)
 
     def columnCount(self, *args):
-        return 3
+        return len(self.headers)
 
     def headerData(self, section, orientation, role):
         if role == Qt.DisplayRole and orientation == Qt.Horizontal:
@@ -56,14 +63,16 @@ class EmailAccounts(QAbstractTableModel): # {{{
                 return QVariant(account)
             if col ==  1:
                 return QVariant(self.accounts[account][0])
+            if col == 2:
+                return QVariant(self.subjects.get(account, ''))
         if role == Qt.FontRole and self.accounts[account][2]:
             return self.default_font
-        if role == Qt.CheckStateRole and col == 2:
+        if role == Qt.CheckStateRole and col == 3:
             return QVariant(Qt.Checked if self.accounts[account][1] else Qt.Unchecked)
         return NONE
 
     def flags(self, index):
-        if index.column() == 2:
+        if index.column() == 3:
             return QAbstractTableModel.flags(self, index)|Qt.ItemIsUserCheckable
         else:
             return QAbstractTableModel.flags(self, index)|Qt.ItemIsEditable
@@ -73,11 +82,13 @@ class EmailAccounts(QAbstractTableModel): # {{{
             return False
         row, col = index.row(), index.column()
         account = self.account_order[row]
-        if col == 2:
+        if col == 3:
             self.accounts[account][1] ^= True
+        elif col == 2:
+            self.subjects[account] = unicode(value.toString())
         elif col == 1:
             self.accounts[account][0] = unicode(value.toString()).upper()
-        else:
+        elif col == 0:
             na = unicode(value.toString())
             from email.utils import parseaddr
             addr = parseaddr(na)[-1]
@@ -89,7 +100,7 @@ class EmailAccounts(QAbstractTableModel): # {{{
                 self.accounts[na][0] = 'AZW, MOBI, TPZ, PRC, AZW1'
 
         self.dataChanged.emit(
-                self.index(index.row(), 0), self.index(index.row(), 2))
+                self.index(index.row(), 0), self.index(index.row(), 3))
         return True
 
     def make_default(self, index):
@@ -143,7 +154,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.send_email_widget.initialize(self.preferred_to_address)
         self.send_email_widget.changed_signal.connect(self.changed_signal.emit)
         opts = self.send_email_widget.smtp_opts
-        self._email_accounts = EmailAccounts(opts.accounts)
+        self._email_accounts = EmailAccounts(opts.accounts, opts.subjects)
         self._email_accounts.dataChanged.connect(lambda x,y:
                 self.changed_signal.emit())
         self.email_view.setModel(self._email_accounts)
@@ -170,6 +181,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         if not self.send_email_widget.set_email_settings(to_set):
             raise AbortCommit('abort')
         self.proxy['accounts'] =  self._email_accounts.accounts
+        self.proxy['subjects'] = self._email_accounts.subjects
 
         return ConfigWidgetBase.commit(self)
 
@@ -190,7 +202,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.changed_signal.emit()
 
     def refresh_gui(self, gui):
-        gui.emailer.calculate_rate_limit()
+        from calibre.gui2.email import gui_sendmail
+        gui_sendmail.calculate_rate_limit()
 
 
 if __name__ == '__main__':

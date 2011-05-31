@@ -1,0 +1,48 @@
+import re
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1283848012(BasicNewsRecipe):
+    description   = 'TheMarker Financial News in Hebrew'
+    __author__            = 'Marbs'
+    cover_url      = 'http://static.ispot.co.il/wp-content/upload/2009/09/themarker.jpg'
+    title          = u'TheMarker'
+    language              = 'he'
+    simultaneous_downloads = 5
+    remove_javascript     = True
+    timefmt        = '[%a, %d %b, %Y]'
+    oldest_article = 1
+    keep_only_tags =dict(name='div', attrs={'id':'content'})
+    remove_attributes = ['width','float','margin-left']
+    no_stylesheets        = True
+    remove_tags = [dict(name='div', attrs={'class':['social-nav article-social-nav','prsnlArticleEnvelope','cb']}) ,
+                            dict(name='a', attrs={'href':['/misc/mobile']})  ,
+                            dict(name='span', attrs={'class':['post-summ']}) ]
+    max_articles_per_feed = 100
+    extra_css='body{direction: rtl;} .article_description{direction: rtl; } a.article{direction: rtl; } .calibre_feed_description{direction: rtl; }'
+    feeds          = [(u'Head Lines', u'http://www.themarker.com/cmlink/1.144'),
+                      (u'TA Market', u'http://www.themarker.com/cmlink/1.243'),
+                      (u'Real Estate', u'http://www.themarker.com/cmlink/1.605656'),
+                      (u'Global', u'http://www.themarker.com/cmlink/1.605658'),
+                      (u'Wall Street', u'http://www.themarker.com/cmlink/1.613713'),
+                      (u'SmartPhone', u'http://www.themarker.com/cmlink/1.605661'),
+                      (u'Law', u'http://www.themarker.com/cmlink/1.605664'),
+                      (u'Media', u'http://www.themarker.com/cmlink/1.605660'),
+                      (u'Consumer', u'http://www.themarker.com/cmlink/1.605662'),
+                      (u'Career', u'http://www.themarker.com/cmlink/1.605665'),
+                      (u'Car', u'http://www.themarker.com/cmlink/1.605663'),
+                      (u'High Tech', u'http://www.themarker.com/cmlink/1.605659'),
+                      (u'Small Business', u'http://www.themarker.com/cmlink/1.605666')]
+
+    def print_version(self, url):
+        #split1 = url.split("/")
+        #print_url='http://www.themarker.com/misc/article-print-page/'+split1[-1]
+        txt=url
+
+        re1='.*?'	# Non-greedy match on filler
+        re2='(tv)'	# Word 1
+
+        rg = re.compile(re1+re2,re.IGNORECASE|re.DOTALL)
+        m = rg.search(txt)
+        if m:
+            #print 'bad link'
+            return 1

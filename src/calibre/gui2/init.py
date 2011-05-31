@@ -44,13 +44,13 @@ class LibraryViewMixin(object): # {{{
             for view in (self.library_view, self.memory_view, self.card_a_view, self.card_b_view):
                 getattr(view, func)(*args)
 
-        self.memory_view.connect_dirtied_signal(self.upload_booklists)
+        self.memory_view.connect_dirtied_signal(self.upload_dirtied_booklists)
         self.memory_view.connect_upload_collections_signal(
                                     func=self.upload_collections, oncard=None)
-        self.card_a_view.connect_dirtied_signal(self.upload_booklists)
+        self.card_a_view.connect_dirtied_signal(self.upload_dirtied_booklists)
         self.card_a_view.connect_upload_collections_signal(
                                     func=self.upload_collections, oncard='carda')
-        self.card_b_view.connect_dirtied_signal(self.upload_booklists)
+        self.card_b_view.connect_dirtied_signal(self.upload_dirtied_booklists)
         self.card_b_view.connect_upload_collections_signal(
                                     func=self.upload_collections, oncard='cardb')
         self.book_on_device(None, reset=True)
@@ -141,6 +141,15 @@ class Stack(QStackedWidget): # {{{
 
 # }}}
 
+class UpdateLabel(QLabel): # {{{
+
+    def __init__(self, *args, **kwargs):
+        QLabel.__init__(self, *args, **kwargs)
+
+    def contextMenuEvent(self, e):
+        pass
+# }}}
+
 class StatusBar(QStatusBar): # {{{
 
     def __init__(self, parent=None):
@@ -148,7 +157,7 @@ class StatusBar(QStatusBar): # {{{
         self.default_message = __appname__ + ' ' + _('version') + ' ' + \
                 self.get_version() + ' ' + _('created by Kovid Goyal')
         self.device_string = ''
-        self.update_label = QLabel('')
+        self.update_label = UpdateLabel('')
         self.addPermanentWidget(self.update_label)
         self.update_label.setVisible(False)
         self._font = QFont()
@@ -238,6 +247,11 @@ class LayoutMixin(object): # {{{
         for x in ('cb', 'tb', 'bd'):
             button = getattr(self, x+'_splitter').button
             button.setIconSize(QSize(24, 24))
+            if isosx:
+                button.setStyleSheet('''
+                        QToolButton { background: none; border:none; padding: 0px; }
+                        QToolButton:checked { background: rgba(0, 0, 0, 25%); }
+                ''')
             self.status_bar.addPermanentWidget(button)
         self.status_bar.addPermanentWidget(self.jobs_button)
         self.setStatusBar(self.status_bar)
@@ -253,6 +267,11 @@ class LayoutMixin(object): # {{{
         self.status_bar.initialize(self.system_tray_icon)
         self.book_details.show_book_info.connect(self.iactions['Show Book Details'].show_book_info)
         self.book_details.files_dropped.connect(self.iactions['Add Books'].files_dropped_on_book)
+        self.book_details.cover_changed.connect(self.bd_cover_changed,
+                type=Qt.QueuedConnection)
+        self.book_details.remote_file_dropped.connect(
+                self.iactions['Add Books'].remote_file_dropped_on_book,
+                type=Qt.QueuedConnection)
         self.book_details.open_containing_folder.connect(self.iactions['View'].view_folder_for_id)
         self.book_details.view_specific_format.connect(self.iactions['View'].view_format_by_id)
 
@@ -263,6 +282,10 @@ class LayoutMixin(object): # {{{
                     self.library_view.currentIndex())
         self.library_view.setFocus(Qt.OtherFocusReason)
 
+    def bd_cover_changed(self, id_, cdata):
+        self.library_view.model().db.set_cover(id_, cdata)
+        if self.cover_flow:
+            self.cover_flow.dataChanged()
 
     def save_layout_state(self):
         for x in ('library', 'memory', 'card_a', 'card_b'):

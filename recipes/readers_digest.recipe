@@ -1,0 +1,56 @@
+#!/usr/bin/env  python
+__license__   = 'GPL v3'
+'''
+'''
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+
+class ReadersDigest(BasicNewsRecipe):
+
+    title       = 'Readers Digest'
+    __author__  = 'BrianG'
+    language = 'en'
+    description = 'Readers Digest Feeds'
+    no_stylesheets        = True
+    use_embedded_content  = False
+    oldest_article = 60
+    max_articles_per_feed = 200
+
+    language = 'en'
+    remove_javascript     = True
+
+    extra_css      = ''' h1 {font-family:georgia,serif;color:#000000;}
+                        .mainHd{font-family:georgia,serif;color:#000000;}
+                         h2 {font-family:Arial,Sans-serif;}
+                        .name{font-family:Arial,Sans-serif; font-size:x-small;font-weight:bold; }
+                        .date{font-family:Arial,Sans-serif; font-size:x-small ;color:#999999;}
+                        .byline{font-family:Arial,Sans-serif; font-size:x-small ;}
+                        .photoBkt{ font-size:x-small ;}
+                        .vertPhoto{font-size:x-small ;}
+                        .credits{font-family:Arial,Sans-serif; font-size:x-small ;color:gray;}
+                        .credit{font-family:Arial,Sans-serif; font-size:x-small ;color:gray;}
+                        .artTxt{font-family:georgia,serif;}
+                        .caption{font-family:georgia,serif; font-size:x-small;color:#333333;}
+                        .credit{font-family:georgia,serif; font-size:x-small;color:#999999;}
+                        a:link{color:#CC0000;}
+                        .breadcrumb{font-family:Arial,Sans-serif;font-size:x-small;}
+                        '''
+
+
+    feeds = [
+            ('Food', 'http://www.rd.com/food/feed'),
+            ('Health', 'http://www.rd.com/health/feed'),
+            ('Home', 'http://www.rd.com/home/feed'),
+            ('Family', 'http://www.rd.com/family/feed'),
+            ('Money', 'http://www.rd.com/money/feed'),
+            ('Travel', 'http://www.rd.com/travel/feed'),
+        ]
+
+    cover_url = 'http://www.rd.com/images/logo-main-rd.gif'
+
+    keep_only_tags = dict(id='main-content')
+    remove_tags = [
+            {'class':['post-categories']},
+            ]
+
+

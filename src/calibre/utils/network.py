@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from calibre.constants import iswindows, islinux, isfreebsd
+from calibre.constants import iswindows, islinux, isbsd
 
 class LinuxNetworkStatus(object):
 
@@ -47,7 +47,7 @@ class DummyNetworkStatus(object):
         return True
 
 _network_status = WindowsNetworkStatus() if iswindows else \
-        LinuxNetworkStatus() if (islinux or isfreebsd) else \
+        LinuxNetworkStatus() if (islinux or isbsd) else \
         DummyNetworkStatus()
 
 def internet_connected():

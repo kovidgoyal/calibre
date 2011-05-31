@@ -1,0 +1,52 @@
+#!/usr/bin/env python
+# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import with_statement
+
+__license__   = 'GPL v3'
+__copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net> edited by Huan T'
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class Slashdot(BasicNewsRecipe):
+    title          = u'Slashdot.org'
+    description    = '''Tech news. WARNING: This recipe downloads a lot
+    of content and may result in your IP being banned from slashdot.org'''
+    oldest_article = 7
+    simultaneous_downloads = 1
+    delay = 3
+    max_articles_per_feed = 100
+    language = 'en'
+
+    __author__ = 'floweros edited by Huan T'
+    no_stylesheets = True
+    keep_only_tags = [
+        dict(name='div',attrs={'id':'article'}),
+        dict(name='div',attrs={'class':['postBody' 'details']}),
+        dict(name='footer',attrs={'class':['clearfix meta article-foot']}),
+        dict(name='article',attrs={'class':['fhitem fhitem-story article usermode thumbs grid_24']}),
+        dict(name='dl',attrs={'class':'relatedPosts'}),
+        dict(name='h2',attrs={'class':'story'}),
+        dict(name='span',attrs={'class':'comments'}),
+        ]
+
+
+    remove_tags    = [
+        dict(name='aside',attrs={'id':'slashboxes'}),
+        dict(name='div',attrs={'class':'paginate'}),
+        dict(name='section',attrs={'id':'comments'}),
+        dict(name='span',attrs={'class':'topic'}),
+        ]
+
+    feeds          = [
+                 (u'Slashdot',
+ u'http://rss.slashdot.org/Slashdot/slashdot'),
+                 (u'/. IT',
+ u'http://rss.slashdot.org/Slashdot/slashdotIT'),
+                 (u'/. Hardware',
+ u'http://rss.slashdot.org/Slashdot/slashdotHardware'),
+                 (u'/. Linux',
+ u'http://rss.slashdot.org/Slashdot/slashdotLinux'),
+                 (u'/. Your Rights Online',
+ u'http://rss.slashdot.org/Slashdot/slashdotYourRightsOnline')
+                 ]
+

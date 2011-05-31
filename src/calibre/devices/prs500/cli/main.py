@@ -213,7 +213,7 @@ def main():
 
     for d in connected_devices:
         try:
-            d.open()
+            d.open(None)
         except:
             continue
         else:
@@ -282,7 +282,7 @@ def main():
                     outfile = os.path.join(outfile, path[path.rfind("/")+1:])
                 try:
                     outfile = open(outfile, "wb")
-                except IOError, e:
+                except IOError as e:
                     print >> sys.stderr, e
                     parser.print_help()
                     return 1
@@ -291,13 +291,13 @@ def main():
             elif args[1].startswith("prs500:"):
                 try:
                     infile = open(args[0], "rb")
-                except IOError, e:
+                except IOError as e:
                     print >> sys.stderr, e
                     parser.print_help()
                     return 1
                 try:
                     dev.put_file(infile, args[1][7:])
-                except PathError, err:
+                except PathError as err:
                     if options.force and 'exists' in str(err):
                         dev.del_file(err.path, False)
                         dev.put_file(infile, args[1][7:])
@@ -355,7 +355,7 @@ def main():
             return 1
     except DeviceLocked:
         print >> sys.stderr, "The device is locked. Use the --unlock option"
-    except (ArgumentError, DeviceError), e:
+    except (ArgumentError, DeviceError) as e:
         print >>sys.stderr, e
         return 1
     return 0

@@ -4,13 +4,13 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import time, os
 
 from PyQt4.Qt import SIGNAL, QUrl, QAbstractListModel, Qt, \
-        QVariant
+        QVariant, QFont
 
-from calibre.web.feeds.recipes import compile_recipe
+from calibre.web.feeds.recipes import compile_recipe, custom_recipes
 from calibre.web.feeds.news import AutomaticNewsRecipe
 from calibre.gui2.dialogs.user_profiles_ui import Ui_Dialog
 from calibre.gui2 import error_dialog, question_dialog, open_url, \
-                         choose_files, ResizableDialog, NONE
+                         choose_files, ResizableDialog, NONE, open_local_file
 from calibre.gui2.widgets import PythonHighlighter
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.icu import sort_key
@@ -83,6 +83,9 @@ class UserProfiles(ResizableDialog, Ui_Dialog):
         self._model = self.model = CustomRecipeModel(recipe_model)
         self.available_profiles.setModel(self._model)
         self.available_profiles.currentChanged = self.current_changed
+        f = QFont()
+        f.setStyleHint(f.Monospace)
+        self.source_code.setFont(f)
 
         self.connect(self.remove_feed_button, SIGNAL('clicked(bool)'),
                      self.added_feeds.remove_selected_items)
@@ -93,6 +96,7 @@ class UserProfiles(ResizableDialog, Ui_Dialog):
         self.connect(self.load_button, SIGNAL('clicked()'), self.load)
         self.connect(self.builtin_recipe_button, SIGNAL('clicked()'), self.add_builtin_recipe)
         self.connect(self.share_button, SIGNAL('clicked()'), self.share)
+        self.show_recipe_files_button.clicked.connect(self.show_recipe_files)
         self.connect(self.down_button, SIGNAL('clicked()'), self.down)
         self.connect(self.up_button, SIGNAL('clicked()'), self.up)
         self.connect(self.add_profile_button, SIGNAL('clicked(bool)'),
@@ -101,6 +105,10 @@ class UserProfiles(ResizableDialog, Ui_Dialog):
         self.connect(self.feed_title, SIGNAL('returnPressed()'), self.add_feed)
         self.connect(self.toggle_mode_button, SIGNAL('clicked(bool)'), self.toggle_mode)
         self.clear()
+
+    def show_recipe_files(self, *args):
+        bdir = os.path.dirname(custom_recipes.file_path)
+        open_local_file(bdir)
 
     def break_cycles(self):
         self.recipe_model = self._model.recipe_model = None
@@ -229,7 +237,7 @@ class %(classname)s(%(base_class)s):
 
             try:
                 compile_recipe(src)
-            except Exception, err:
+            except Exception as err:
                 error_dialog(self, _('Invalid input'),
                         _('<p>Could not create recipe. Error:<br>%s')%str(err)).exec_()
                 return
@@ -238,7 +246,7 @@ class %(classname)s(%(base_class)s):
             src = unicode(self.source_code.toPlainText())
             try:
                 title = compile_recipe(src).title
-            except Exception, err:
+            except Exception as err:
                 error_dialog(self, _('Invalid input'),
                         _('<p>Could not create recipe. Error:<br>%s')%str(err)).exec_()
                 return
@@ -325,7 +333,7 @@ class %(classname)s(%(base_class)s):
             try:
                 profile = open(file, 'rb').read().decode('utf-8')
                 title = compile_recipe(profile).title
-            except Exception, err:
+            except Exception as err:
                 error_dialog(self, _('Invalid input'),
                         _('<p>Could not create recipe. Error:<br>%s')%str(err)).exec_()
                 return
@@ -366,8 +374,7 @@ class %(classname)s(%(base_class)s):
 if __name__ == '__main__':
     from calibre.gui2 import is_ok_to_use_qt
     is_ok_to_use_qt()
-    from calibre.library.database2 import LibraryDatabase2
     from calibre.web.feeds.recipes.model import RecipeModel
-    d=UserProfiles(None, RecipeModel(LibraryDatabase2('/home/kovid/documents/library')))
+    d=UserProfiles(None, RecipeModel())
     d.exec_()
 

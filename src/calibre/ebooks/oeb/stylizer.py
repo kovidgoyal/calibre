@@ -8,22 +8,21 @@ from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
-import os
-import itertools
-import re
-import logging
-import copy
+import os, itertools, re, logging, copy, unicodedata
 from weakref import WeakKeyDictionary
 from xml.dom import SyntaxErr as CSSSyntaxError
 import cssutils
-from cssutils.css import CSSStyleRule, CSSPageRule, CSSStyleDeclaration, \
-    CSSValueList, CSSFontFaceRule, cssproperties
+from cssutils.css import (CSSStyleRule, CSSPageRule, CSSStyleDeclaration,
+    CSSValueList, CSSFontFaceRule, cssproperties)
 from cssutils import profile as cssprofiles
 from lxml import etree
 from lxml.cssselect import css_to_xpath, ExpressionError, SelectorSyntaxError
+from calibre import force_unicode
+from calibre.ebooks import unit_convert
 from calibre.ebooks.oeb.base import XHTML, XHTML_NS, CSS_MIME, OEB_STYLES
 from calibre.ebooks.oeb.base import XPNSMAP, xpath, urlnormalize
-from calibre.ebooks.oeb.profile import PROFILES
+
+cssutils.log.setLevel(logging.WARN)
 
 _html_css_stylesheet = None
 
@@ -99,6 +98,10 @@ class CSSSelector(etree.XPath):
 
     def __init__(self, css, namespaces=XPNSMAP):
         css = self.MIN_SPACE_RE.sub(r'\1', css)
+        if isinstance(css, unicode):
+            # Workaround for bug in lxml on windows/OS X that causes a massive
+            # memory leak with non ASCII selectors
+            css = css.encode('ascii', 'ignore').decode('ascii')
         try:
             path = css_to_xpath(css)
         except UnicodeEncodeError: # Bug in css_to_xpath
@@ -119,10 +122,22 @@ class CSSSelector(etree.XPath):
 class Stylizer(object):
     STYLESHEETS = WeakKeyDictionary()
 
-    def __init__(self, tree, path, oeb, opts, profile=PROFILES['PRS505'],
+    def __init__(self, tree, path, oeb, opts, profile=None,
             extra_css='', user_css=''):
         self.oeb, self.opts = oeb, opts
         self.profile = profile
+        if self.profile is None:
+            # Use the default profile. This should really be using
+            # opts.output_profile, but I don't want to risk changing it, as
+            # doing so might well have hard to debug font size effects.
+            from calibre.customize.ui import output_profiles
+            for x in output_profiles():
+                if x.short_name == 'default':
+                    self.profile = x
+                    break
+        if self.profile is None:
+            # Just in case the default profile is removed in the future :)
+            self.profile = opts.output_profile
         self.logger = oeb.logger
         item = oeb.manifest.hrefs[path]
         basename = os.path.basename(path)
@@ -144,13 +159,22 @@ class Stylizer(object):
                 log=logging.getLogger('calibre.css'))
         self.font_face_rules = []
         for elem in head:
-            if elem.tag == XHTML('style') and elem.text \
-               and elem.get('type', CSS_MIME) in OEB_STYLES:
-                text = XHTML_CSS_NAMESPACE + elem.text
-                text = oeb.css_preprocessor(text)
-                stylesheet = parser.parseString(text, href=cssname)
-                stylesheet.namespaces['h'] = XHTML_NS
-                stylesheets.append(stylesheet)
+            if (elem.tag == XHTML('style') and
+                elem.get('type', CSS_MIME) in OEB_STYLES):
+                text = elem.text if elem.text else u''
+                for x in elem:
+                    t = getattr(x, 'text', None)
+                    if t:
+                        text += u'\n\n' + force_unicode(t, u'utf-8')
+                    t = getattr(x, 'tail', None)
+                    if t:
+                        text += u'\n\n' + force_unicode(t, u'utf-8')
+                if text:
+                    text = XHTML_CSS_NAMESPACE + elem.text
+                    text = oeb.css_preprocessor(text)
+                    stylesheet = parser.parseString(text, href=cssname)
+                    stylesheet.namespaces['h'] = XHTML_NS
+                    stylesheets.append(stylesheet)
             elif elem.tag == XHTML('link') and elem.get('href') \
                  and elem.get('rel', 'stylesheet').lower() == 'stylesheet' \
                  and elem.get('type', CSS_MIME).lower() in OEB_STYLES:
@@ -234,8 +258,18 @@ class Stylizer(object):
                 for elem in matches:
                     for x in elem.iter():
                         if x.text:
-                            span = E.span(x.text[0])
-                            span.tail = x.text[1:]
+                            punctuation_chars = []
+                            text = unicode(x.text)
+                            while text:
+                                if not unicodedata.category(text[0]).startswith('P'):
+                                    break
+                                punctuation_chars.append(text[0])
+                                text = text[1:]
+
+                            special_text = u''.join(punctuation_chars) + \
+                                    (text[0] if text else u'')
+                            span = E.span(special_text)
+                            span.tail = text[1:]
                             x.text = None
                             x.insert(0, span)
                             self.style(span)._update_cssdict(cssdict)
@@ -422,7 +456,7 @@ class Stylizer(object):
 
 
 class Style(object):
-    UNIT_RE = re.compile(r'^(-*[0-9]*[.]?[0-9]*)\s*(%|em|ex|en|px|mm|cm|in|pt|pc)$')
+    MS_PAT = re.compile(r'^\s*(mso-|panose-|text-underline|tab-interval)')
 
     def __init__(self, element, stylizer):
         self._element = element
@@ -447,6 +481,8 @@ class Style(object):
             return
         css = attrib['style'].split(';')
         css = filter(None, (x.strip() for x in css))
+        css = [x.strip() for x in css]
+        css = [x for x in css if self.MS_PAT.match(x) is None]
         try:
             style = CSSStyleDeclaration('; '.join(css))
         except CSSSyntaxError:
@@ -482,43 +518,11 @@ class Style(object):
         return result
 
     def _unit_convert(self, value, base=None, font=None):
-        ' Return value in pts'
-        if isinstance(value, (int, long, float)):
-            return value
-        try:
-            return float(value) * 72.0 / self._profile.dpi
-        except:
-            pass
-        result = value
-        m = self.UNIT_RE.match(value)
-        if m is not None and m.group(1):
-            value = float(m.group(1))
-            unit = m.group(2)
-            if unit == '%':
-                if base is None:
-                    base = self.width
-                result = (value / 100.0) * base
-            elif unit == 'px':
-                result = value * 72.0 / self._profile.dpi
-            elif unit == 'in':
-                result = value * 72.0
-            elif unit == 'pt':
-                result = value
-            elif unit == 'em':
-                font = font or self.fontSize
-                result = value * font
-            elif unit in ('ex', 'en'):
-                # This is a hack for ex since we have no way to know
-                # the x-height of the font
-                font = font or self.fontSize
-                result = value * font * 0.5
-            elif unit == 'pc':
-                result = value * 12.0
-            elif unit == 'mm':
-                result = value * 0.04
-            elif unit == 'cm':
-                result = value * 0.40
-        return result
+        'Return value in pts'
+        if base is None:
+            base = self.width
+        font = font or self.fontSize
+        return unit_convert(value, base, font, self._profile.dpi)
 
     def pt_to_px(self, value):
         return (self._profile.dpi / 72.0) * value

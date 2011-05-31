@@ -5,6 +5,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import gc
+
 from PyQt4.Qt import Qt
 
 from calibre.gui2 import Dispatcher
@@ -53,11 +55,26 @@ class FetchNewsAction(InterfaceAction):
 
     def scheduled_recipe_fetched(self, job):
         temp_files, fmt, arg = self.conversion_jobs.pop(job)
-        pt = temp_files[0]
+        fname = temp_files[0].name
         if job.failed:
             self.scheduler.recipe_download_failed(arg)
             return self.gui.job_exception(job)
-        id = self.gui.library_view.model().add_news(pt.name, arg)
+        id = self.gui.library_view.model().add_news(fname, arg)
+
+        # Arg may contain a "keep_issues" variable. If it is non-zero,
+        # delete all but newest x issues.
+        try:
+            keep_issues = int(arg['keep_issues'])
+        except:
+            keep_issues = 0
+        if keep_issues > 0:
+            ids_with_tag = list(sorted(self.gui.library_view.model().
+                db.tags_older_than(arg['title'],
+                    None, must_have_tag=_('News')), reverse=True))
+            ids_to_delete = ids_with_tag[keep_issues:]
+            if ids_to_delete:
+                self.gui.library_view.model().delete_books_by_id(ids_to_delete)
+
         self.gui.library_view.model().reset()
         sync = self.gui.news_to_be_synced
         sync.add(id)
@@ -66,5 +83,6 @@ class FetchNewsAction(InterfaceAction):
         self.gui.status_bar.show_message(arg['title'] + _(' fetched.'), 3000)
         self.gui.email_news(id)
         self.gui.sync_news()
+        gc.collect()
 
 

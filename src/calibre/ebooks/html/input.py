@@ -20,7 +20,7 @@ from itertools import izip
 from calibre.customize.conversion import InputFormatPlugin
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.customize.conversion import OptionRecommendation
-from calibre.constants import islinux, isfreebsd, iswindows
+from calibre.constants import islinux, isbsd, iswindows
 from calibre import unicode_path, as_unicode
 from calibre.utils.localization import get_lang
 from calibre.utils.filenames import ascii_filename
@@ -110,7 +110,7 @@ class HTMLFile(object):
         try:
             with open(self.path, 'rb') as f:
                 src = f.read()
-        except IOError, err:
+        except IOError as err:
             msg = 'Could not read from file: %s with error: %s'%(self.path, as_unicode(err))
             if level == 0:
                 raise IOError(msg)
@@ -202,7 +202,7 @@ def traverse(path_to_html_file, max_levels=sys.maxint, verbose=0, encoding=None)
                         raise IgnoreFile('%s is a binary file'%nf.path, -1)
                     nl.append(nf)
                     flat.append(nf)
-                except IgnoreFile, err:
+                except IgnoreFile as err:
                     rejects.append(link)
                     if not err.doesnt_exist or verbose > 1:
                         print repr(err)
@@ -302,20 +302,21 @@ class HTMLInput(InputFormatPlugin):
         if getattr(self, '_is_case_sensitive', None) is not None:
             return self._is_case_sensitive
         if not path or not os.path.exists(path):
-            return islinux or isfreebsd
+            return islinux or isbsd
         self._is_case_sensitive = not (os.path.exists(path.lower()) \
                 and os.path.exists(path.upper()))
         return self._is_case_sensitive
 
     def create_oebbook(self, htmlpath, basedir, opts, log, mi):
         from calibre.ebooks.conversion.plumber import create_oebbook
-        from calibre.ebooks.oeb.base import DirContainer, \
-            rewrite_links, urlnormalize, urldefrag, BINARY_MIME, OEB_STYLES, \
-            xpath
+        from calibre.ebooks.oeb.base import (DirContainer,
+            rewrite_links, urlnormalize, urldefrag, BINARY_MIME, OEB_STYLES,
+            xpath)
         from calibre import guess_type
         from calibre.ebooks.oeb.transforms.metadata import \
             meta_info_to_oeb_metadata
-        import cssutils
+        import cssutils, logging
+        cssutils.log.setLevel(logging.WARN)
         self.OEB_STYLES = OEB_STYLES
         oeb = create_oebbook(log, None, opts, self,
                 encoding=opts.input_encoding, populate=False)
@@ -344,7 +345,8 @@ class HTMLInput(InputFormatPlugin):
         htmlfile_map = {}
         for f in filelist:
             path = f.path
-            oeb.container = DirContainer(os.path.dirname(path), log)
+            oeb.container = DirContainer(os.path.dirname(path), log,
+                    ignore_opf=True)
             bname = os.path.basename(path)
             id, href = oeb.manifest.generate(id='html',
                     href=ascii_filename(bname))
@@ -368,7 +370,7 @@ class HTMLInput(InputFormatPlugin):
         for f in filelist:
             path = f.path
             dpath = os.path.dirname(path)
-            oeb.container = DirContainer(dpath, log)
+            oeb.container = DirContainer(dpath, log, ignore_opf=True)
             item = oeb.manifest.hrefs[htmlfile_map[path]]
             rewrite_links(item.data, partial(self.resource_adder, base=dpath))
 
@@ -408,7 +410,7 @@ class HTMLInput(InputFormatPlugin):
             if not item.linear: continue
             toc.add(title, item.href)
 
-        oeb.container = DirContainer(os.getcwdu(), oeb.log)
+        oeb.container = DirContainer(os.getcwdu(), oeb.log, ignore_opf=True)
         return oeb
 
     def link_to_local_path(self, link_, base=None):
@@ -455,7 +457,7 @@ class HTMLInput(InputFormatPlugin):
                     href=bhref)
             self.oeb.log.debug('Added', link)
             self.oeb.container = self.DirContainer(os.path.dirname(link),
-                    self.oeb.log)
+                    self.oeb.log, ignore_opf=True)
             # Load into memory
             guessed = self.guess_type(href)[0]
             media_type = guessed or self.BINARY_MIME

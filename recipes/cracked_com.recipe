@@ -1,0 +1,83 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+import re
+
+class Cracked(BasicNewsRecipe):
+    title                 = u'Cracked.com'
+    __author__            = u'Nudgenudge'
+    language              = 'en'
+    description            = 'America''s Only Humor and Video Site, since 1958'
+    publisher             = 'Cracked'
+    category              = 'comedy, lists'
+    oldest_article        = 2
+    delay                 = 10
+    max_articles_per_feed = 2
+    no_stylesheets        = True
+    encoding              = 'cp1252'
+    remove_javascript     = True
+    use_embedded_content  = False
+    INDEX                 = u'http://www.cracked.com'
+    extra_css             = """
+                                .pageheader_type{font-size: x-large; font-weight: bold; color: #828D74}
+                                .pageheader_title{font-size: xx-large; color: #394128}
+                                .pageheader_byline{font-size: small; font-weight: bold; color: #394128}
+                                .score_bg {display: inline; width: 100%; margin-bottom: 2em}
+                                .score_column_1{ padding-left: 10px; font-size: small; width: 50%}
+                                .score_column_2{ padding-left: 10px; font-size: small; width: 50%}
+                                .score_column_3{ padding-left: 10px; font-size: small; width: 50%}
+                                .score_header{font-size: large; color: #50544A}
+                                .bodytext{display: block}
+                                body{font-family: Helvetica,Arial,sans-serif}
+                            """
+
+    conversion_options = {
+                          'comment'   : description
+                        , 'tags'      : category
+                        , 'publisher' : publisher
+                        , 'language'  : language
+                        , 'linearize_tables' : True
+                        }
+
+    keep_only_tags    =  [
+                        dict(name='div', attrs={'class':['Column1']})
+                        ]
+
+    feeds = [(u'Articles', u'http://feeds.feedburner.com/CrackedRSS')]
+
+    def get_article_url(self, article):
+        return article.get('guid',  None)
+
+    def cleanup_page(self, soup):
+        for item in soup.findAll(style=True):
+            del item['style']
+        for alink in soup.findAll('a'):
+            if alink.string is not None:
+                tstr = alink.string
+                alink.replaceWith(tstr)
+        for div_to_remove in soup.findAll('div', attrs={'id':['googlead_1','fb-like-article','comments_section']}):
+            div_to_remove.extract()
+        for div_to_remove in soup.findAll('div', attrs={'class':['share_buttons_col_1','GenericModule1']}):
+            div_to_remove.extract()
+        for div_to_remove in soup.findAll('div', attrs={'class':re.compile("prev_next")}):
+            div_to_remove.extract()
+        for ul_to_remove in soup.findAll('ul', attrs={'class':['Nav6']}):
+            ul_to_remove.extract()
+        for image in soup.findAll('img', attrs={'alt': 'article image'}):
+            image.extract()
+
+    def append_page(self, soup, appendtag, position):
+        pager = soup.find('a',attrs={'class':'next_arrow_active'})
+        if pager:
+            nexturl = self.INDEX + pager['href']
+            soup2 = self.index_to_soup(nexturl)
+            texttag = soup2.find('div', attrs={'class':re.compile("userStyled")})
+            newpos = len(texttag.contents)
+            self.append_page(soup2,texttag,newpos)
+            texttag.extract()
+            self.cleanup_page(appendtag)
+            appendtag.insert(position,texttag)
+        else:
+            self.cleanup_page(appendtag)
+
+    def preprocess_html(self, soup):
+        self.append_page(soup, soup.body, 3)
+        return self.adeify_images(soup)

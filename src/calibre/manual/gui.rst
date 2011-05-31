@@ -12,7 +12,7 @@ for using |app| is to first add books to the library from your hard disk.
 to its internal database. Once they are in the database, you can perform a various
 :ref:`actions` on them that include conversion from one format to another,
 transfer to the reading device, viewing on your computer, editing metadata, including covers, etc.
-Note that |app| creates copies of the files you add to it, your original files are left untouched. 
+Note that |app| creates copies of the files you add to it, your original files are left untouched.
 
 The interface is divided into various sections:
 
@@ -51,10 +51,12 @@ Add books
 
     3. **Add books directories, including sub-directories (Multiple books per directory, assumes every ebook file is a different book)**: Allows you to choose a directory. The directory and all its sub-directories are scanned recursively and any ebooks found are added to the library. The algorithm assumes that each directory contains many books. All ebook files with the same name in a directory are assumed to be the same book in different formats. Ebooks with different names are added as different books. This action is the inverse of the :ref:`Save to disk <save_to_disk_single>` action, i.e. you can :guilabel:`Save to disk`, delete the books and re-add them with no lost information (except date).
 
-    4. **Add empty book. (Book Entry with blank formats)**: Allows you to create a blank book record. This can be used to then manually fill out the information about a book that you may not have yet in your collection. 
-    
-    5. **Add by ISBN**: Allows you to add one or more books by entering just their ISBN into a list or pasting the list of ISBNs from your clipboard. 
-    
+    4. **Add empty book. (Book Entry with blank formats)**: Allows you to create a blank book record. This can be used to then manually fill out the information about a book that you may not have yet in your collection.
+
+    5. **Add by ISBN**: Allows you to add one or more books by entering just their ISBN into a list or pasting the list of ISBNs from your clipboard.
+
+    6. **Add files to selected book records**: Allows you to add or update the files associated with an existing book in your library.
+
 The :guilabel:`Add books` action can read metadata from a wide variety of e-book formats. In addition it tries to guess metadata from the filename.
 See the :ref:`config_filename_metadata` section, to learn how to configure this.
 
@@ -69,7 +71,7 @@ Edit metadata
 
 |emii| The :guilabel:`Edit metadata` action has six variations, which can be accessed by clicking the down arrow on the right side of the button.
 
-    1. **Edit metadata individually**: This allows you to edit the metadata of books one-by-one, with the option of fetching metadata, including covers from the internet. It also allows you to add/remove particular ebook formats from a book. For more detail see :ref:`metadata`.
+    1. **Edit metadata individually**: This allows you to edit the metadata of books one-by-one, with the option of fetching metadata, including covers from the internet. It also allows you to add/remove particular ebook formats from a book. 
     2. **Edit metadata in bulk**: This allows you to edit common metadata fields for large numbers of books simulataneously. It operates on all the books you have selected in the :ref:`Library view <search_sort>`.
     3. **Download metadata and covers**: Downloads metadata and covers (if available), for the books that are selected in the book list.
     4. **Download only metadata**: Downloads only metadata (if available), for the books that are selected in the book list.
@@ -77,7 +79,8 @@ Edit metadata
     6. **Download only social metadata**: Downloads only social metadata such as tags and reviews (if available), for the books that are selected in the book list.
     7. **Merge Book Records**: Gives you the capability of merging the metadata and formats of two or more book records together. You can choose to either delete or keep the records that were not clicked first.
 
-    
+For more details see :ref:`metadata`.
+
 .. _convert_ebooks:
 
 Convert e-books
@@ -91,13 +94,13 @@ Note that ebooks you purchase will typically have `Digital Rights Management <ht
 you have to find tools to liberate your books yourself and then use |app| to convert them.
 
 For most people, conversion should be a simple 1-click affair. But if you want to learn more about the conversion process, see :ref:`conversion`.
-            
+
 The :guilabel:`Convert E-books` action has three variations, accessed by the arrow next to the button.
-                
+
     1. **Convert individually**: This will allow you to specify conversion options to customize the conversion of each selected ebook.
-                
+
     2. **Bulk convert**: This allows you to specify options only once to convert a number of ebooks in bulk.
-    
+
     3. **Create catalog**: This action allows you to generate a complete listing with all metadata of the books in your library,
        in several formats, like XML, CSV, BiBTeX, EPUB and MOBI. The catalog will contain all the books showing in the library view currently,
        so you can use the search features to limit the books to be catalogued. In addition, if you select multiple books using the mouse,
@@ -117,7 +120,7 @@ For other formats it uses the default operating system application. You can conf
 Preferences->Behavior. If a book has more than one format, you can view a particular format by clicking the down arrow
 on the right of the :guilabel:`View` button.
 
-    
+
 .. _send_to_device:
 
 Send to device
@@ -138,7 +141,7 @@ Send to device
 
 You can control the file name and folder structure of files sent to the device by setting up a template in
 :guilabel:`Preferences->Import/Export->Sending books to devices`. Also see :ref:`templatelangcalibre`.
-    
+
 .. _fetch_news:
 
 Fetch news
@@ -147,11 +150,11 @@ Fetch news
     :class: float-right-img
 
 |fni| The :guilabel:`Fetch news` action downloads news from various websites and converts it into an ebook that can be read on your ebook reader. Normally, the newly created ebook is added to your ebook library, but if an ebook reader is connected at the time the download finishes, the news is also uploaded to the reader automatically.
-            
+
 The :guilabel:`Fetch news` action uses simple recipes (10-15 lines of code) for each news site. To learn how to create recipes for your own news sources, see :ref:`news`.
 
 The :guilabel:`Fetch news` action has three variations, accessed by clicking the down arrow on the right of the button.
-    
+
     1. **Schedule news download**: This action allows you to schedule the download of of your selected news sources from a list of hundreds of available.  Scheduling can be set individually for each news source you select and the scheduling is flexible allowing you to select specific days of the week or a frequency of days between downloads.
     2. **Add a custom news service**: This action allows you to create a simple recipe for downloading news from a custom news site that you wish to access.  Creating the recipe can be as simple as specifying an RSS news feed URL, or you can be more prescriptive by creating python based code for the task, see :ref:`news`.
     3. **Download all scheduled news sources**:  This action causes |app| to immediately begin to download all news sources that you have previously scheduled.
@@ -164,7 +167,7 @@ Library
 .. |lii| image:: images/library.png
     :class: float-right-img
 
-|lii| The :guilabel: `Library` action allows you to create, switch between, rename or delete a Library.  |app| allows you to create as many libraries as you wish. You coudl for instance create a fiction library, a non fiction library, a foreign language library a project library, basically any structure that suits your needs. Libraries are the highest organizational structure within |app|, each library has its own set of books, tags, categories and base storage location.
+|lii| The :guilabel: `Library` action allows you to create, switch between, rename or delete a Library.  |app| allows you to create as many libraries as you wish. You could for instance create a fiction library, a non fiction library, a foreign language library a project library, basically any structure that suits your needs. Libraries are the highest organizational structure within |app|, each library has its own set of books, tags, categories and base storage location.
 
     1. **Switch\Create library..**: This action allows you to; a) connect to a pre-existing |app| library at another location from your currently open library, b) Create and empty library at a nw location or, c) Move the current Library to a newly specified location.
     2. **Quick Switch>**: This action allows you to switch between libraries that have been registered or created within |app|.
@@ -180,9 +183,9 @@ Device
     :class: float-right-img
 
 |dvi| The :guilabel:`Device` action allows you to view the books in the main memory or storage cards of your device, or to eject the device (detach it from |app|).
-This icon shows up automatically on the main |app| toolbar when you connect a supported device. You can click on it to see the books on your device. You can also drag  and drop books from your |app| library onto the icon to transfer them to your device. Conversely, you can drag and drop books from your device onto the |app| icon on the toolbar to transfer books from your device to the |app| library. 
+This icon shows up automatically on the main |app| toolbar when you connect a supported device. You can click on it to see the books on your device. You can also drag  and drop books from your |app| library onto the icon to transfer them to your device. Conversely, you can drag and drop books from your device onto the |app| icon on the toolbar to transfer books from your device to the |app| library.
 
-    
+
 .. _save_to_disk:
 
 Save to disk
@@ -199,14 +202,14 @@ Save to disk
             Author_(sort)
                 Title
                     Book Files
-                
+
     You can control the file name and folder structure of files saved to disk by setting up a template in
     :guilabel:`Preferences->Import/Export->Saving books to disk`. Also see :ref:`templatelangcalibre`.
-            
+
 .. _save_to_disk_single:
 
     2. **Save to disk in a single directory**: The selected books are saved to disk in a single directory.
-            
+
     For 1. and 2. All available formats as well as metadata is stored to disk for each selected book. Metadata is stored in an OPF file.
 
     Saved books can be re-imported to the library without any loss of information by using the :ref:`Add books <add_books>` action.
@@ -227,14 +230,14 @@ Connect/Share
 |csi| The :guilabel:`Connect/Share` action allows you to manually connect to a device or folder on your computer, it also allows you to set up you |app| library for access via a web browser, or email.
 
     The :guilabel:`Connect/Share` action has four variations, accessed by clicking the down arrow on the right of the button.
-    
+
     1. **Connect to folder**: This action allows you to connect to any folder on your computer as though it were a device and use all the facilities |app| has for devices with that folder. Useful if your device cannot be supported by |app| but is available as a USB disk.
-    
-    2. **Connect to iTunes**: Allows you to connect to your iTunes books database as though it were a device. Once the books are sent to iTunes, you can then use iTunes to make them available on your various iDevices. Useful if you would rather not have |app| send books to your iDevice directly. 
-    
+
+    2. **Connect to iTunes**: Allows you to connect to your iTunes books database as though it were a device. Once the books are sent to iTunes, you can then use iTunes to make them available on your various iDevices. Useful if you would rather not have |app| send books to your iDevice directly.
+
     3. **Start Content Server**: This action causes |app| to start up its built-in web server.  When this is started, your |app| library will be accessible via a web browser from the internet (if you choose). You can configure how the web server is accessed by setting preferences at :guilabel:`Preferences->Sharing->Sharing over the net`
-    
-    4. **Setup email based sharing of books**: This action allows you to setup |app| to share books (and news feeds) by email.  After setting up email addresses for this option |app| will send news updates and book updates to the entered email addresses. You can configure how the |app| sends email by setting preferences at :guilabel:`Preferences->Sharing->Sharing books by email`. Once you have setup one or more email addresses, this menu entry get replaced by menu entries to send books to the setup email addresses. 
+
+    4. **Setup email based sharing of books**: This action allows you to setup |app| to share books (and news feeds) by email.  After setting up email addresses for this option |app| will send news updates and book updates to the entered email addresses. You can configure how the |app| sends email by setting preferences at :guilabel:`Preferences->Sharing->Sharing books by email`. Once you have setup one or more email addresses, this menu entry get replaced by menu entries to send books to the setup email addresses.
 
 .. _remove_books:
 
@@ -245,14 +248,14 @@ Remove books
 
 |rbi| The :guilabel:`Remove books` action **deletes books permanently**, so use it with care. It is *context sensitive*, i.e. it depends on which :ref:`catalog <catalogs>` you have selected. If you have selected the :guilabel:`Library`, books will be removed from the library. If you have selected the ebook reader device, the books will be removed from the device. To remove only a particular format for a given book use the :ref:`edit_meta_information` action.  Remove books also has five variations which can be accessed by clicking the down arrow on the right side of the button.
 
-    1. **Remove Selected Books**: Allows you to **permanently** remove all books that are selected in the book list. 
-    
+    1. **Remove Selected Books**: Allows you to **permanently** remove all books that are selected in the book list.
+
     2. **Remove files of a specified format from selected books..**: Allows you to **permanently** remove ebook files of a specified format, from books that are selected in the book list.
-    
+
     3. **Remove all files of a specified format, except..**: Allows you to **permanently** remove ebook files of a multiple formats except a given format, from books that are selected in the book list.
-    
+
     4. **Remove covers from selected books**: Allows you to **permanently** remove cover images files, from books that are selected in the book list.
-    
+
     5. **Remove matching books from device**: Allows you to remove ebook files from a connected device, that match the books that are selected in the book list.
 
 .. note::
@@ -265,7 +268,7 @@ Preferences
 .. |cbi| image:: images/preferences.png
 
 The Preferences Action allows you to change the way various aspects of |app| work. To access it, click the |cbi|.
-    
+
 .. _catalogs:
 
 Catalogs
@@ -274,9 +277,9 @@ Catalogs
     :align: center
 
 A *catalog* is a collection of books. |app| can manage two types of different catalogs:
-                
+
     1. **Library**: This is a collection of books stored in your |app| library on your computer
-                
+
     2. **Device**:  This is a collection of books stored in the main memory of your ebook reader. It will be available when you connect the reader to your computer.
        - In addition, you can see the books on the storage card (if any) in your reader device.
 
@@ -292,17 +295,17 @@ Search & Sort
 The Search & Sort section allows you to perform several powerful actions on your book collections.
 
     * You can sort them by title, author, date, rating etc. by clicking on the column titles. You can also sub-sort (i.e. sort on multiple columns). For example, if you click on the title column and then the author column, the book will be sorted by author and then all the entries for the same author will be sorted by title.
-                
+
     * You can search for a particular book or set of books using the search bar. More on that below.
-                
+
     * You can quickly and conveniently edit metadata by double-clicking the entry you want changed in the list.
-                
+
     * You can perform :ref:`actions` on sets to books. To select multiple books you can either:
-                
+
         - Keep the :kbd:`Ctrl` key pressed and click on the books you want selected.
-                    
+
         - Keep the :kbd:`Shift` key pressed and click on the starting and ending book of arange of books you want selected.
-                
+
     * You can configure which fields you want displayed by using the :ref:`configuration` dialog.
 
 .. _search_interface:
@@ -310,10 +313,10 @@ The Search & Sort section allows you to perform several powerful actions on your
 The Search Interface
 ---------------------
 You can search all the metadata by entering search terms in the search bar. Searches are case insensitive. For example::
-    
+
     Asimov Foundation format:lrf
 
-This will match all books in your library that have ``Asimov`` and ``Foundation`` in their metadata and 
+This will match all books in your library that have ``Asimov`` and ``Foundation`` in their metadata and
 are available in the LRF format. Some more examples::
 
     author:Asimov and not series:Foundation
@@ -327,20 +330,18 @@ Equality searches are indicated by prefixing the search string with an equals si
 ``tag:"=science"`` will match "science", but not "science fiction" or "hard science". Regular expression searches are
 indicated by prefixing the search string with a tilde (~). Any python-compatible regular expression can
 be used. Regular expression searches are contains searches unless the expression contains anchors.
-Should you need to search for a string with a leading equals or tilde, prefix the string with a backslash. 
+Should you need to search for a string with a leading equals or tilde, prefix the string with a backslash.
 
 Enclose search strings with quotes (") if the string contains parenthesis or spaces. For example, to search
 for the tag ``Science Fiction``, you would need to search for ``tag:"=science fiction"``. If you search for
 ``tag:=science fiction``, you will find all books with the tag 'science' and containing the word 'fiction' in any
 metadata.
 
-You can build advanced search queries easily using the :guilabel:`Advanced Search Dialog`, accessed by 
+You can build advanced search queries easily using the :guilabel:`Advanced Search Dialog`, accessed by
 clicking the button |sbi|.
 
 Available fields for searching are: ``tag, title, author, publisher, series, series_index, rating, cover,
-comments, format, isbn, date, pubdate, search, size`` and custom columns. If a device is plugged in, the
-``ondevice`` field becomes available. To find the search name for a custom column, hover your mouse over the
-column header.
+comments, format, identifiers, date, pubdate, search, size`` and custom columns. If a device is plugged in, the ``ondevice`` field becomes available. To find the search name (actually called the `lookup name`) for a custom column, hover your mouse over the column header in the library view.
 
 The syntax for searching for dates is::
 
@@ -351,7 +352,7 @@ The syntax for searching for dates is::
 If the date is ambiguous, the current locale is used for date comparison. For example, in an mm/dd/yyyy
 locale, 2/1/2009 is interpreted as 1 Feb 2009. In a dd/mm/yyyy locale, it is interpreted as 2 Jan 2009.  Some
 special date strings are available. The string ``today`` translates to today's date, whatever it is. The
-strings `yesterday`` and ``thismonth`` also work. In addition, the string ``daysago`` can be used to compare
+strings ``yesterday`` and ``thismonth`` also work. In addition, the string ``daysago`` can be used to compare
 to a date some number of days ago, for example: date:>10daysago, date:<=45daysago.
 
 You can search for books that have a format of a certain size like this::
@@ -363,6 +364,8 @@ Dates and numeric fields support the relational operators ``=`` (equals), ``>`` 
 (greater than or equal to), ``<`` (less than), ``<=`` (less than or equal to), and ``!=`` (not equal to).
 Rating fields are considered to be numeric. For example, the search ``rating:>=3`` will find all books rated 3
 or higher.
+
+You can search for the number of items in multiple-valued fields such as tags). These searches begin with the character ``#``, then use the same syntax as numeric fields. For example, to find all books with more than 4 tags, use ``tags:#>4``. To find all books with exactly 10 tags, use ``tags:#=10``.
 
 Series indices are searchable. For the standard series, the search name is 'series_index'. For
 custom series columns, use the column search name followed by _index. For example, to search the indices for a
@@ -385,18 +388,33 @@ with undefined values in the column. Searching for ``true`` will find all books 
 values in the column. Searching for ``yes`` or ``checked`` will find all books with ``Yes`` in the column.
 Searching for ``no`` or ``unchecked`` will find all books with ``No`` in the column.
 
+Hierarchical items (e.g. A.B.C) use an extended syntax to match initial parts of the hierarchy. This is done by adding a period between the exact match indicator (=) and the text. For example, the query ``tags:=.A`` will find the tags `A` and `A.B`, but will not find the tags `AA` or `AA.B`. The query ``tags:=.A.B`` will find the tags `A.B` and `A.C`, but not the tag `A`.
+
+Identifiers (e.g., isbn, doi, lccn etc) also use an extended syntax. First, note that an identifier has the form ``type:value``, as in ``isbn:123456789``. The extended syntax permits you to specify independently which type and value to search for. Both the type and the value parts of the query can use `equality`, `contains`, or `regular expression` matches. Examples:
+
+    * ``identifiers:true`` will find books with any identifier.
+    * ``identifiers:false`` will find books with no identifier.
+    * ``identifiers:123`` will search for books with any type having a value containing `123`.
+    * ``identifiers:=123456789`` will search for books with any type having a value equal to `123456789`.
+    * ``identifiers:=isbn:`` and ``identifiers:isbn:true`` will find books with a type equal to isbn having any value
+    * ``identifiers:=isbn:false`` will find books with no type equal to isbn.
+    * ``identifiers:=isbn:123`` will find books with a type equal to isbn having a value containing `123`.
+    * ``identifiers:=isbn:=123456789`` will find books with a type equal to isbn having a value equal to `123456789`.
+    * ``identifiers:i:1`` will find books with a type containing an `i` having a value containing a `1`.
+
+
 .. |sbi| image:: images/search_button.png
     :align: middle
 
 .. figure:: images/search.png
     :align: center
-    
+
     :guilabel:`Advanced Search Dialog`
 
 Saving searches
 -----------------
 
-|app| has a useful feature, it allows you to save a search you use frequently under a special name and then re-use that search with a single click. To do this, create your search, either by typing it in the search bar, or using the Tag Browser. Then, type the name you would like to give to the search in the Saved Searches box next to the search bar and click the plus icon next to the saved searches box to save the search. 
+|app| has a useful feature, it allows you to save a search you use frequently under a special name and then re-use that search with a single click. To do this, create your search, either by typing it in the search bar, or using the Tag Browser. Then, type the name you would like to give to the search in the Saved Searches box next to the search bar and click the plus icon next to the saved searches box to save the search.
 
 Now, you can access your saved search in the Tag Browser under "Searches". A single click will allow you to re-use any arbitrarily complex search easily, without needing to re-create it.
 
@@ -436,24 +454,25 @@ Tag Browser
 .. image:: images/tag_browser.png
    :class: float-left-img
 
-The Tag Browser allows you to easily browse your collection by Author/Tags/Series/etc. If you click on any Item in the Tag Browser, for example, the Author name, Isaac Asimov, then the list of books to the right is restricted to books by that author. Clicking once again on Isaac Asimov will restrict the list of books to books not by Isaac Asimov. A third click will remove the restriction. If you hold down the Ctrl or Shift keys and click on multiple items, then restrictions based on multiple items are created. For example you could Hold Ctrl and click on the tags History and Europe for find books on European history. The Tag Browser works by constructing search expressions that are automatically entered into the Search bar. It is a good way to learn how to construct basic search expressions. 
+The Tag Browser allows you to easily browse your collection by Author/Tags/Series/etc. If you click on any item in the Tag Browser, for example the author name Isaac Asimov, then the list of books to the right is restricted to showing books by that author. You can click on category names as well. For example, clicking on "Series" will show you all books in any series.
 
-There is a search bar at the top of the Tag Browser that allows you to easily find any item in the Tag Browser. In addition, you can right click on any item and choose to hide it or rename it or open a "Manage x" dialog that allows you to manage items of that kind. For example the "Manage Authors" dialog allows you to rename authors and control how their names are sorted. 
+The first click on an item will restrict the list of books to those that contain/match the item. Continuing the above example, clicking on Isaac Asimov will show books by that author. Clicking again on the item will change what is shown, depending on whether the item has children (see sub-categories and hierarchical items below). Continuing the Isaac Asimov example, clicking again on Isaac Asimov will restrict the list of books to those not by Isaac Asimov. A third click will remove the restriction, showing all books. If you hold down the Ctrl or Shift keys and click on multiple items, then restrictions based on multiple items are created. For example you could hold Ctrl and click on the tags History and Europe for find books on European history. The Tag Browser works by constructing search expressions that are automatically entered into the Search bar. Looking at what the Tag Browser generates is a good way to learn how to construct basic search expressions.
 
 Items in the Tag browser have their icons partially colored. The amount of color depends on the average rating of the books in that category. So for example if the books by Isaac Asimov have an average of four stars, the icon for Isaac Asimov in the Tag Browser will be 4/5th colored. You can hover your mouse over the icon to see the average rating.
 
-For convenience, you can drag and drop books from the book list to items in the Tag Browser and that item will be automatically applied to the dropped books. For example, dragging a book to Isaac Asimov will set the author of that book to Isaac Asimov or dragging it to the tag History will add the tag History to its tags.
+The outer-level items in the tag browser such as Authors and Series are called categories. You can create your own categories, called User Categories, which are useful for organizing items. For example, you can use the User Categories Editor (push the Manage User Categories button) to create a user category called Favorite Authors, then put the items for your favorites into the category. User categories can have sub-categories. For example, the user category Favorites.Authors is a sub-category of Favorites. You might also have Favorites.Series, in which case there will be two sub-categories under Favorites. Sub-categories can be created by right-clicking on a user category, choosing "Add sub-category to ...", and entering the sub-category name; or by using the User Categories Editor by entering names like the Favorites example above.
 
-The outer-level items in the tag browser such as Authors and Series are called categories. You can create your own categories, called User Categories, which are useful for organizing items. For example, you can use the user categories editor (push the Manage User Categories button) to create a user category called Favorite Authors, then put the items for your favorites into the category. User categories act like built-in categories; you can click on items to search for them. You can search for all items in a category by right-clicking on the category name and choosing "Search for books in ...".
+You can search user categories in the same way as built-in categories, by clicking on them. There are four different searches cycled through by clicking: "everything matching an item in the category" indicated by a single green plus sign, "everything matching an item in the category or its sub-categories" indicated by two green plus signs, "everything not matching an item in the category" shown by a single red minus sign, and "everything not matching an item in the category or its sub-categories" shown by two red minus signs.
 
-User categories can have sub-categories. For example, the user category Favorites.Authors is a sub-category of Favorites. You might also have Favorites.Series, in which case there will be two sub-categories under Favorites. Sub-categories can be created using Manage User Categories by entering names like the Favorites example. They can also be created by right-clicking on a user category, choosing "Add sub-category to ...", and entering the category name.
+It is also possible to create hierarchies inside some of the text categories such as tags, series, and custom columns. These hierarchies show with the small triangle, permitting the sub-items to be hidden. To use hierarchies of items in a category, you must first go to Preferences / Look & Feel and enter the category name(s) into the "Categories with hierarchical items" box. Once this is done, items in that category that contain periods will be shown using the small triangle. For example, assume you create a custom column called "Genre" and indicate that it contains hierarchical items. Once done, items such as Mystery.Thriller and Mystery.English will display as Mystery with the small triangle next to it. Clicking on the triangle will show Thriller and English as sub-items. See :ref:`Managing subgroups of books, for example "genre" <subgroups-tutorial>` for more information.
 
-It is also possible to create hierarchies inside some of the built-in categories (the text categories). These hierarchies show with the small triangle permitting the sub-items to be hidden. To use hierarchies in a category, you must first go to Preferences / Look & Feel and enter the category name(s) into the "Categories with hierarchical items" box. Once this is done, items in that category that contain periods will be shown using the small triangle. For example, assume you create a custom column called "Genre" and indicate that it contains hierarchical items. Once done, items such as Mystery.Thriller and Mystery.English will display as Mystery with the small triangle next to it. Clicking on the triangle will show Thriller and English as sub-items.
+Hierarchical items (items with children) use the same four 'click-on' searches as user categories. Items that do not have children use two of the searches: "everything matching" and "everything not matching".
 
-You can drag and drop items in the Tag browser onto user categories to add them to that category.
+You can drag and drop items in the Tag browser onto user categories to add them to that category. If the source is a user category, holding the shift key while dragging will move the item to the new category. You can also drag and drop books from the book list onto items in the Tag Browser; dropping a book on an item causes that item to be automatically applied to the dropped books. For example, dragging a book onto Isaac Asimov will set the author of that book to Isaac Asimov. Dropping it onto the tag History will add the tag History to the book's tags.
+
+There is a search bar at the top of the Tag Browser that allows you to easily find any item in the Tag Browser. In addition, you can right click on any item and choose one of several operations. Some examples are to hide the it, rename it, or open a "Manage x" dialog that allows you to manage items of that kind. For example, the "Manage Authors" dialog allows you to rename authors and control how their names are sorted.
 
 You can control how items are sorted in the Tag browser via the box at the bottom of the Tag Browser. You can choose to sort by name, average rating or popularity (popularity is the number of books with an item in your library; for example; the popularity of Isaac Asimov is the number of book sin your library by Isaac Asimov).
-
 
 Jobs
 -----
@@ -479,45 +498,47 @@ Calibre has several keyboard shortcuts to save you time and mouse movement. Thes
       - Action
     * - :kbd:`F2 (Enter in OS X)`
       - Edit the metadata of the currently selected field in the book list.
-    * - :kbd:`A` 
+    * - :kbd:`A`
       - Add Books
-    * - :kbd:`C` 
+    * - :kbd:`Shift+A`
+      - Add Formats to the selected books
+    * - :kbd:`C`
       - Convert selected Books
-    * - :kbd:`D` 
+    * - :kbd:`D`
       - Send to device
-    * - :kbd:`Del` 
+    * - :kbd:`Del`
       - Remove selected Books
-    * - :kbd:`E` 
+    * - :kbd:`E`
       - Edit metadata of selected books
-    * - :kbd:`I` 
+    * - :kbd:`I`
       - Show book details
-    * - :kbd:`M` 
+    * - :kbd:`M`
       - Merge selected records
-    * - :kbd:`Alt+M` 
+    * - :kbd:`Alt+M`
       - Merge selected records, keeping originals
-    * - :kbd:`O` 
+    * - :kbd:`O`
       - Open containing folder
-    * - :kbd:`S` 
+    * - :kbd:`S`
       - Save to Disk
-    * - :kbd:`V` 
+    * - :kbd:`V`
       - View
-    * - :kbd:`Alt+V/Cmd+V in OS X` 
+    * - :kbd:`Alt+V/Cmd+V in OS X`
       - View specific format
-    * - :kbd:`Alt+Shift+J` 
+    * - :kbd:`Alt+Shift+J`
       - Toggle jobs list
-    * - :kbd:`Alt+Shift+B` 
+    * - :kbd:`Alt+Shift+B`
       - Toggle Cover Browser
-    * - :kbd:`Alt+Shift+T` 
+    * - :kbd:`Alt+Shift+T`
       - Toggle Tag Browser
-    * - :kbd:`Alt+A` 
+    * - :kbd:`Alt+A`
       - Show books by the Same author as the current book
-    * - :kbd:`Alt+T` 
+    * - :kbd:`Alt+T`
       - Show books with the same tags as current book
-    * - :kbd:`Alt+P` 
+    * - :kbd:`Alt+P`
       - Show books by the same publisher as current book
-    * - :kbd:`Alt+Shift+S` 
+    * - :kbd:`Alt+Shift+S`
       - Show books in the same series as current book
-    * - :kbd:`/, Ctrl+F` 
+    * - :kbd:`/, Ctrl+F`
       - Focus the search bar
     * - :kbd:`Shift+Ctrl+F`
       - Open the advanced search dialog
@@ -527,13 +548,15 @@ Calibre has several keyboard shortcuts to save you time and mouse movement. Thes
       - Find the next book that matches the current search (only works if the highlight checkbox next to the search bar is checked)
     * - :kbd:`Shift+N or Shift+F3`
       - Find the next book that matches the current search (only works if the highlight checkbox next to the search bar is checked)
-    * - :kbd:`Ctrl+D` 
+    * - :kbd:`Ctrl+D`
       - Download metadata and shortcuts
-    * - :kbd:`Ctrl+R` 
+    * - :kbd:`Ctrl+R`
       - Restart calibre
+    * - :kbd:`Ctrl+Shift+R`
+      - Restart calibre in debug mode
     * - :kbd:`Shift+Ctrl+E`
       - Add empty books to calibre
-    * - :kbd:`Ctrl+Q` 
+    * - :kbd:`Ctrl+Q`
       - Quit calibre
 
 

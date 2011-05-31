@@ -24,7 +24,7 @@ class ShareConnMenu(QMenu): # {{{
 
     config_email = pyqtSignal()
     toggle_server = pyqtSignal()
-    dont_add_to = frozenset(['toolbar-device', 'context-menu-device'])
+    dont_add_to = frozenset(['menubar-device', 'toolbar-device', 'context-menu-device'])
 
     def __init__(self, parent=None):
         QMenu.__init__(self, parent)
@@ -82,7 +82,8 @@ class ShareConnMenu(QMenu): # {{{
             keys = sorted(opts.accounts.keys())
             for account in keys:
                 formats, auto, default = opts.accounts[account]
-                dest = 'mail:'+account+';'+formats
+                subject = opts.subjects.get(account, '')
+                dest = 'mail:'+account+';'+formats+';'+subject
                 action1 = DeviceAction(dest, False, False, I('mail.png'),
                         account)
                 action2 = DeviceAction(dest, True, False, I('mail.png'),
@@ -120,8 +121,7 @@ class SendToDeviceAction(InterfaceAction):
 
     name = 'Send To Device'
     action_spec = (_('Send to device'), 'sync.png', None, _('D'))
-    dont_remove_from = frozenset(['toolbar-device'])
-    dont_add_to = frozenset(['toolbar', 'context-menu'])
+    dont_add_to = frozenset(['menubar', 'toolbar', 'context-menu', 'toolbar-child'])
 
     def genesis(self):
         self.qaction.triggered.connect(self.do_sync)
@@ -165,10 +165,14 @@ class ConnectShareAction(InterfaceAction):
 
     def content_server_state_changed(self, running):
         self.share_conn_menu.server_state_changed(running)
+        if running:
+            self.qaction.setIcon(QIcon(I('connect_share_on.png')))
+        else:
+            self.qaction.setIcon(QIcon(I('connect_share.png')))
 
     def toggle_content_server(self):
         if self.gui.content_server is None:
-           self.gui.start_content_server()
+            self.gui.start_content_server()
         else:
             self.gui.content_server.threaded_exit()
             self.stopping_msg = info_dialog(self.gui, _('Stopping'),

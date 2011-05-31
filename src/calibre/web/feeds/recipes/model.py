@@ -6,17 +6,19 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, copy
+import copy, zipfile
 
 from PyQt4.Qt import QAbstractItemModel, QVariant, Qt, QColor, QFont, QIcon, \
-        QModelIndex, QMetaObject, pyqtSlot, pyqtSignal
+        QModelIndex, pyqtSignal, QPixmap
 
 from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.gui2 import NONE
 from calibre.utils.localization import get_language
 from calibre.web.feeds.recipes.collection import \
         get_builtin_recipe_collection, get_custom_recipe_collection, \
-        SchedulerConfig, download_builtin_recipe
+        SchedulerConfig, download_builtin_recipe, update_custom_recipe, \
+        add_custom_recipe, remove_custom_recipe, get_custom_recipe, \
+        get_builtin_recipe
 from calibre.utils.pyparsing import ParseException
 
 class NewsTreeItem(object):
@@ -92,12 +94,13 @@ class NewsCategory(NewsTreeItem):
 
 class NewsItem(NewsTreeItem):
 
-    def __init__(self, urn, title, default_icon, custom_icon,
+    def __init__(self, urn, title, default_icon, custom_icon, favicons, zf,
             builtin, custom, scheduler_config, parent):
         NewsTreeItem.__init__(self, builtin, custom, scheduler_config, parent)
         self.urn, self.title = urn, title
         self.icon = self.default_icon = None
         self.default_icon = default_icon
+        self.favicons, self.zf = favicons, zf
         if 'custom:' in self.urn:
             self.icon = custom_icon
 
@@ -106,9 +109,16 @@ class NewsItem(NewsTreeItem):
             return QVariant(self.title)
         if role == Qt.DecorationRole:
             if self.icon is None:
-                icon = I('news/%s.png'%self.urn[8:])
-                if os.path.exists(icon):
-                    self.icon = QVariant(QIcon(icon))
+                icon = '%s.png'%self.urn[8:]
+                p = QPixmap()
+                if icon in self.favicons:
+                    try:
+                        with zipfile.ZipFile(self.zf, 'r') as zf:
+                            p.loadFromData(zf.read(self.favicons[icon]))
+                    except:
+                        pass
+                if not p.isNull():
+                    self.icon = QVariant(QIcon(p))
                 else:
                     self.icon = self.default_icon
             return self.icon
@@ -122,25 +132,20 @@ class RecipeModel(QAbstractItemModel, SearchQueryParser):
     LOCATIONS = ['all']
     searched = pyqtSignal(object)
 
-    def __init__(self, db, *args):
+    def __init__(self, *args):
         QAbstractItemModel.__init__(self, *args)
         SearchQueryParser.__init__(self, locations=['all'])
-        self.db = db
         self.default_icon = QVariant(QIcon(I('news.png')))
         self.custom_icon = QVariant(QIcon(I('user_profile.png')))
         self.builtin_recipe_collection = get_builtin_recipe_collection()
         self.scheduler_config = SchedulerConfig()
+        try:
+            with zipfile.ZipFile(P('builtin_recipes.zip'), 'r') as zf:
+                self.favicons = dict([(x.filename, x) for x in zf.infolist() if
+                    x.filename.endswith('.png')])
+        except:
+            self.favicons = {}
         self.do_refresh()
-
-    @pyqtSlot()
-    def do_database_change(self):
-        self.db = self.newdb
-        self.newdb = None
-        self.do_refresh()
-
-    def database_changed(self, db):
-        self.newdb = db
-        QMetaObject.invokeMethod(self, 'do_database_change', Qt.QueuedConnection)
 
     def get_builtin_recipe(self, urn, download=True):
         if download:
@@ -149,7 +154,7 @@ class RecipeModel(QAbstractItemModel, SearchQueryParser):
             except:
                 import traceback
                 traceback.print_exc()
-        return P('recipes/%s.recipe'%urn, data=True)
+        return get_builtin_recipe(urn)
 
     def get_recipe(self, urn, download=True):
         coll = self.custom_recipe_collection if urn.startswith('custom:') \
@@ -158,28 +163,31 @@ class RecipeModel(QAbstractItemModel, SearchQueryParser):
             if recipe.get('id', False) == urn:
                 if coll is self.builtin_recipe_collection:
                     return self.get_builtin_recipe(urn[8:], download=download)
-                return self.db.get_feed(int(urn[len('custom:'):]))
+                return get_custom_recipe(int(urn[len('custom:'):]))
 
     def update_custom_recipe(self, urn, title, script):
-        self.db.update_feed(int(urn[len('custom:'):]), script, title)
-        self.custom_recipe_collection = get_custom_recipe_collection(self.db)
+        id_ = int(urn[len('custom:'):])
+        update_custom_recipe(id_, title, script)
+        self.custom_recipe_collection = get_custom_recipe_collection()
 
     def add_custom_recipe(self, title, script):
-        self.db.add_feed(title, script)
-        self.custom_recipe_collection = get_custom_recipe_collection(self.db)
+        add_custom_recipe(title, script)
+        self.custom_recipe_collection = get_custom_recipe_collection()
 
     def remove_custom_recipes(self, urns):
         ids = [int(x[len('custom:'):]) for x in urns]
-        self.db.remove_feeds(ids)
-        self.custom_recipe_collection = get_custom_recipe_collection(self.db)
+        for id_ in ids: remove_custom_recipe(id_)
+        self.custom_recipe_collection = get_custom_recipe_collection()
 
     def do_refresh(self, restrict_to_urns=set([])):
-        self.custom_recipe_collection = get_custom_recipe_collection(self.db)
+        self.custom_recipe_collection = get_custom_recipe_collection()
+        zf = P('builtin_recipes.zip')
 
         def factory(cls, parent, *args):
             args = list(args)
             if cls is NewsItem:
-                args.extend([self.default_icon, self.custom_icon])
+                args.extend([self.default_icon, self.custom_icon,
+                    self.favicons, zf])
             args += [self.builtin_recipe_collection,
                      self.custom_recipe_collection, self.scheduler_config,
                      parent]
@@ -196,6 +204,7 @@ class RecipeModel(QAbstractItemModel, SearchQueryParser):
         lang_map = {}
         self.all_urns = set([])
         self.showing_count = 0
+        self.builtin_count = 0
         for x in self.custom_recipe_collection:
             urn = x.get('id')
             self.all_urns.add(urn)
@@ -211,6 +220,7 @@ class RecipeModel(QAbstractItemModel, SearchQueryParser):
                     lang_map[lang] = factory(NewsCategory, new_root, lang)
                 factory(NewsItem, lang_map[lang], urn, x.get('title'))
                 self.showing_count += 1
+                self.builtin_count += 1
         for x in self.scheduler_config.iter_recipes():
             urn = x.get('id')
             if urn not in self.all_urns:
@@ -354,9 +364,9 @@ class RecipeModel(QAbstractItemModel, SearchQueryParser):
         self.scheduler_config.schedule_recipe(self.recipe_from_urn(urn),
                 sched_type, schedule)
 
-    def customize_recipe(self, urn, add_title_tag, custom_tags):
+    def customize_recipe(self, urn, add_title_tag, custom_tags, keep_issues):
         self.scheduler_config.customize_recipe(urn, add_title_tag,
-                custom_tags)
+                custom_tags, keep_issues)
 
     def get_to_be_downloaded_recipes(self):
         ans = self.scheduler_config.get_to_be_downloaded_recipes()

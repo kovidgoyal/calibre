@@ -12,9 +12,11 @@ Here you will find tutorials to get you started using |app|'s more advanced feat
    :maxdepth: 1
 
    news
+   sub_groups
    xpath
    template_lang
    regexp
    portable
    server
+   creating_plugins
 

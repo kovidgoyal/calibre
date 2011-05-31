@@ -156,17 +156,17 @@ class HeuristicProcessor(object):
         ]
 
         ITALICIZE_STYLE_PATS = [
-            r'(?msu)(?<=[\s>])_(?P<words>[^_]+)_',
-            r'(?msu)(?<=[\s>])/(?P<words>[^/\*>]+)/',
-            r'(?msu)(?<=[\s>])~~(?P<words>[^~]+)~~',
-            r'(?msu)(?<=[\s>])\*(?P<words>[^\*]+)\*',
-            r'(?msu)(?<=[\s>])~(?P<words>[^~]+)~',
-            r'(?msu)(?<=[\s>])_/(?P<words>[^/_]+)/_',
-            r'(?msu)(?<=[\s>])_\*(?P<words>[^\*_]+)\*_',
-            r'(?msu)(?<=[\s>])\*/(?P<words>[^/\*]+)/\*',
-            r'(?msu)(?<=[\s>])_\*/(?P<words>[^\*_]+)/\*_',
-            r'(?msu)(?<=[\s>])/:(?P<words>[^:/]+):/',
-            r'(?msu)(?<=[\s>])\|:(?P<words>[^:\|]+):\|',
+            ur'(?msu)(?<=[\s>"“\'‘])_(?P<words>[^_]+)_',
+            ur'(?msu)(?<=[\s>"“\'‘])/(?P<words>[^/\*>]+)/',
+            ur'(?msu)(?<=[\s>"“\'‘])~~(?P<words>[^~]+)~~',
+            ur'(?msu)(?<=[\s>"“\'‘])\*(?P<words>[^\*]+)\*',
+            ur'(?msu)(?<=[\s>"“\'‘])~(?P<words>[^~]+)~',
+            ur'(?msu)(?<=[\s>"“\'‘])_/(?P<words>[^/_]+)/_',
+            ur'(?msu)(?<=[\s>"“\'‘])_\*(?P<words>[^\*_]+)\*_',
+            ur'(?msu)(?<=[\s>"“\'‘])\*/(?P<words>[^/\*]+)/\*',
+            ur'(?msu)(?<=[\s>"“\'‘])_\*/(?P<words>[^\*_]+)/\*_',
+            ur'(?msu)(?<=[\s>"“\'‘])/:(?P<words>[^:/]+):/',
+            ur'(?msu)(?<=[\s>"“\'‘])\|:(?P<words>[^:\|]+):\|',
         ]
 
         for word in ITALICIZE_WORDS:
@@ -518,13 +518,13 @@ class HeuristicProcessor(object):
         if re.findall('(<|>)', replacement_break):
             if re.match('^<hr', replacement_break):
                 if replacement_break.find('width') != -1:
-                   width = int(re.sub('.*?width(:|=)(?P<wnum>\d+).*', '\g<wnum>', replacement_break))
-                   replacement_break = re.sub('(?i)(width=\d+\%?|width:\s*\d+(\%|px|pt|em)?;?)', '', replacement_break)
-                   divpercent = (100 - width) / 2
-                   hr_open = re.sub('45', str(divpercent), hr_open)
-                   scene_break = hr_open+replacement_break+'</div>'
+                    width = int(re.sub('.*?width(:|=)(?P<wnum>\d+).*', '\g<wnum>', replacement_break))
+                    replacement_break = re.sub('(?i)(width=\d+\%?|width:\s*\d+(\%|px|pt|em)?;?)', '', replacement_break)
+                    divpercent = (100 - width) / 2
+                    hr_open = re.sub('45', str(divpercent), hr_open)
+                    scene_break = hr_open+replacement_break+'</div>'
                 else:
-                   scene_break = hr_open+'<hr style="height: 3px; background:#505050" /></div>'
+                    scene_break = hr_open+'<hr style="height: 3px; background:#505050" /></div>'
             elif re.match('^<img', replacement_break):
                 scene_break = self.scene_break_open+replacement_break+'</p>'
             else:
@@ -584,10 +584,10 @@ class HeuristicProcessor(object):
                 #print "styles for this line are: "+str(styles)
                 split_styles = []
                 for style in styles:
-                   #print "style is: "+str(style)
-                   newstyle = style.split(':')
-                   #print "newstyle is: "+str(newstyle)
-                   split_styles.append(newstyle)
+                    #print "style is: "+str(style)
+                    newstyle = style.split(':')
+                    #print "newstyle is: "+str(newstyle)
+                    split_styles.append(newstyle)
                 styles = split_styles
                 for style, setting in styles:
                     if style == 'text-align' and setting != 'left':
@@ -764,6 +764,7 @@ class HeuristicProcessor(object):
         # Multiple sequential blank paragraphs are merged with appropriate margins
         # If non-blank scene breaks exist they are center aligned and styled with appropriate margins.
         if getattr(self.extra_opts, 'format_scene_breaks', False):
+            html = re.sub('(?i)<div[^>]*>\s*<br(\s?/)?>\s*</div>', '<p></p>', html)
             html = self.detect_whitespace(html)
             html = self.detect_soft_breaks(html)
             blanks_count = len(self.any_multi_blank.findall(html))

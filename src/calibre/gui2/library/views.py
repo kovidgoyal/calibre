@@ -15,7 +15,7 @@ from PyQt4.Qt import QTableView, Qt, QAbstractItemView, QMenu, pyqtSignal, \
 from calibre.gui2.library.delegates import RatingDelegate, PubDateDelegate, \
     TextDelegate, DateDelegate, CompleteDelegate, CcTextDelegate, \
     CcBoolDelegate, CcCommentsDelegate, CcDateDelegate, CcTemplateDelegate, \
-    CcEnumDelegate
+    CcEnumDelegate, CcNumberDelegate
 from calibre.gui2.library.models import BooksModel, DeviceBooksModel
 from calibre.utils.config import tweaks, prefs
 from calibre.gui2 import error_dialog, gprefs
@@ -76,8 +76,11 @@ class BooksView(QTableView): # {{{
         self.rating_delegate = RatingDelegate(self)
         self.timestamp_delegate = DateDelegate(self)
         self.pubdate_delegate = PubDateDelegate(self)
+        self.last_modified_delegate = DateDelegate(self,
+                tweak_name='gui_last_modified_display_format')
         self.tags_delegate = CompleteDelegate(self, ',', 'all_tags')
         self.authors_delegate = CompleteDelegate(self, '&', 'all_author_names', True)
+        self.cc_names_delegate = CompleteDelegate(self, '&', 'all_custom', True)
         self.series_delegate = TextDelegate(self)
         self.publisher_delegate = TextDelegate(self)
         self.text_delegate = TextDelegate(self)
@@ -86,6 +89,7 @@ class BooksView(QTableView): # {{{
         self.cc_bool_delegate = CcBoolDelegate(self)
         self.cc_comments_delegate = CcCommentsDelegate(self)
         self.cc_template_delegate = CcTemplateDelegate(self)
+        self.cc_number_delegate = CcNumberDelegate(self)
         self.display_parent = parent
         self._model = modelcls(self)
         self.setModel(self._model)
@@ -235,6 +239,46 @@ class BooksView(QTableView): # {{{
                 sm.select(idx, sm.Select|sm.Rows)
             self.scroll_to_row(indices[0].row())
         self.selected_ids = []
+
+    def sort_by_named_field(self, field, order, reset=True):
+        if field in self.column_map:
+            idx = self.column_map.index(field)
+            if order:
+                self.sortByColumn(idx, Qt.AscendingOrder)
+            else:
+                self.sortByColumn(idx, Qt.DescendingOrder)
+        else:
+            self._model.sort_by_named_field(field, order, reset)
+
+    def multisort(self, fields, reset=True, only_if_different=False):
+        if len(fields) == 0:
+            return
+        sh = self.cleanup_sort_history(self._model.sort_history,
+                                       ignore_column_map=True)
+        if only_if_different and len(sh) >= len(fields):
+            ret=True
+            for i,t in enumerate(fields):
+                if t[0] != sh[i][0]:
+                    ret = False
+                    break
+            if ret:
+                return
+
+        for n,d in reversed(fields):
+            if n in self._model.db.field_metadata.keys():
+                sh.insert(0, (n, d))
+        sh = self.cleanup_sort_history(sh, ignore_column_map=True)
+        self._model.sort_history = [tuple(x) for x in sh]
+        self._model.resort(reset=reset)
+        col = fields[0][0]
+        dir = Qt.AscendingOrder if fields[0][1] else Qt.DescendingOrder
+        if col in self.column_map:
+            col = self.column_map.index(col)
+            hdrs = self.horizontalHeader()
+            try:
+                hdrs.setSortIndicator(col, dir)
+            except:
+                pass
     # }}}
 
     # Ondevice column {{{
@@ -255,6 +299,7 @@ class BooksView(QTableView): # {{{
         state = {}
         state['hidden_columns'] = [cm[i] for i in  range(h.count())
                 if h.isSectionHidden(i) and cm[i] != 'ondevice']
+        state['last_modified_injected'] = True
         state['sort_history'] = \
             self.cleanup_sort_history(self.model().sort_history)
         state['column_positions'] = {}
@@ -279,14 +324,14 @@ class BooksView(QTableView): # {{{
             state = self.get_state()
             self.write_state(state)
 
-    def cleanup_sort_history(self, sort_history):
+    def cleanup_sort_history(self, sort_history, ignore_column_map=False):
         history = []
         for col, order in sort_history:
             if not isinstance(order, bool):
                 continue
             if col == 'date':
                 col = 'timestamp'
-            if col in self.column_map:
+            if ignore_column_map or col in self.column_map:
                 if (not history or history[-1][0] != col):
                     history.append([col, order])
         return history
@@ -339,7 +384,7 @@ class BooksView(QTableView): # {{{
 
     def get_default_state(self):
         old_state = {
-                'hidden_columns': [],
+                'hidden_columns': ['last_modified'],
                 'sort_history':[DEFAULT_SORT],
                 'column_positions': {},
                 'column_sizes': {},
@@ -347,6 +392,7 @@ class BooksView(QTableView): # {{{
                     'size':'center',
                     'timestamp':'center',
                     'pubdate':'center'},
+                'last_modified_injected': True,
                 }
         h = self.column_header
         cm = self.column_map
@@ -357,7 +403,7 @@ class BooksView(QTableView): # {{{
                 old_state['column_sizes'][name] = \
                     min(350, max(self.sizeHintForColumn(i),
                         h.sectionSizeHint(i)))
-                if name == 'timestamp':
+                if name in ('timestamp', 'last_modified'):
                     old_state['column_sizes'][name] += 12
         return old_state
 
@@ -377,6 +423,13 @@ class BooksView(QTableView): # {{{
                         pass
                     if ans is not None:
                         db.prefs[name] = ans
+                else:
+                    if not ans.get('last_modified_injected', False):
+                        ans['last_modified_injected'] = True
+                        hc = ans.get('hidden_columns', [])
+                        if 'last_modified' not in hc:
+                            hc.append('last_modified')
+                        db.prefs[name] = ans
         return ans
 
 
@@ -387,10 +440,16 @@ class BooksView(QTableView): # {{{
 
         if tweaks['sort_columns_at_startup'] is not None:
             sh = []
-            for c,d in tweaks['sort_columns_at_startup']:
-                if not isinstance(d, bool):
-                    d = True if d == 0 else False
-                sh.append((c, d))
+            try:
+                for c,d in tweaks['sort_columns_at_startup']:
+                    if not isinstance(d, bool):
+                        d = True if d == 0 else False
+                    sh.append((c, d))
+            except:
+                # Ignore invalid tweak values as users seem to often get them
+                # wrong
+                import traceback
+                traceback.print_exc()
             old_state['sort_history'] = sh
 
         self.apply_state(old_state)
@@ -410,6 +469,7 @@ class BooksView(QTableView): # {{{
         self.save_state()
         self._model.set_database(db)
         self.tags_delegate.set_database(db)
+        self.cc_names_delegate.set_database(db)
         self.authors_delegate.set_database(db)
         self.series_delegate.set_auto_complete_function(db.all_series)
         self.publisher_delegate.set_auto_complete_function(db.all_publishers)
@@ -417,7 +477,8 @@ class BooksView(QTableView): # {{{
     def database_changed(self, db):
         for i in range(self.model().columnCount(None)):
             if self.itemDelegateForColumn(i) in (self.rating_delegate,
-                    self.timestamp_delegate, self.pubdate_delegate):
+                    self.timestamp_delegate, self.pubdate_delegate,
+                    self.last_modified_delegate):
                 self.setItemDelegateForColumn(i, self.itemDelegate())
 
         cm = self.column_map
@@ -431,13 +492,20 @@ class BooksView(QTableView): # {{{
                     self.setItemDelegateForColumn(cm.index(colhead), delegate)
                 elif cc['datatype'] == 'comments':
                     self.setItemDelegateForColumn(cm.index(colhead), self.cc_comments_delegate)
-                elif cc['datatype'] in ('text', 'series'):
+                elif cc['datatype'] == 'text':
                     if cc['is_multiple']:
-                        self.setItemDelegateForColumn(cm.index(colhead), self.tags_delegate)
+                        if cc['display'].get('is_names', False):
+                            self.setItemDelegateForColumn(cm.index(colhead),
+                                                          self.cc_names_delegate)
+                        else:
+                            self.setItemDelegateForColumn(cm.index(colhead),
+                                                          self.tags_delegate)
                     else:
                         self.setItemDelegateForColumn(cm.index(colhead), self.cc_text_delegate)
-                elif cc['datatype'] in ('int', 'float'):
+                elif cc['datatype'] == 'series':
                     self.setItemDelegateForColumn(cm.index(colhead), self.cc_text_delegate)
+                elif cc['datatype'] in ('int', 'float'):
+                    self.setItemDelegateForColumn(cm.index(colhead), self.cc_number_delegate)
                 elif cc['datatype'] == 'bool':
                     self.setItemDelegateForColumn(cm.index(colhead), self.cc_bool_delegate)
                 elif cc['datatype'] == 'rating':
@@ -603,6 +671,11 @@ class BooksView(QTableView): # {{{
     def column_map(self):
         return self._model.column_map
 
+    def refresh_book_details(self):
+        idx = self.currentIndex()
+        if idx.isValid():
+            self._model.current_changed(idx, idx)
+
     def scrollContentsBy(self, dx, dy):
         # Needed as Qt bug causes headerview to not always update when scrolling
         QTableView.scrollContentsBy(self, dx, dy)
@@ -614,7 +687,7 @@ class BooksView(QTableView): # {{{
             h = self.horizontalHeader()
             for i in range(h.count()):
                 if not h.isSectionHidden(i) and h.sectionViewportPosition(i) >= 0:
-                    self.scrollTo(self.model().index(row, i))
+                    self.scrollTo(self.model().index(row, i), self.PositionAtCenter)
                     break
 
     def set_current_row(self, row, select=True):
@@ -696,6 +769,8 @@ class BooksView(QTableView): # {{{
         id_to_select = self._model.get_current_highlighted_id()
         if id_to_select is not None:
             self.select_rows([id_to_select], using_ids=True)
+        elif self._model.highlight_only:
+            self.clearSelection()
         self.setFocus(Qt.OtherFocusReason)
 
     def connect_to_search_box(self, sb, search_done):

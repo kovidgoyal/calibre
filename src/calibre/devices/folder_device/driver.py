@@ -47,6 +47,7 @@ class FOLDER_DEVICE(USBMS):
     #: Icon for this device
     icon = I('devices/folder.png')
     METADATA_CACHE = '.metadata.calibre'
+    DRIVEINFO = '.driveinfo.calibre'
 
     _main_prefix = ''
     _card_a_prefix = None
@@ -77,7 +78,8 @@ class FOLDER_DEVICE(USBMS):
             only_presence=False):
         return self.is_connected, self
 
-    def open(self):
+    def open(self, library_uuid):
+        self.current_library_uuid = library_uuid
         if not self._main_prefix:
             return False
         return True

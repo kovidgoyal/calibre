@@ -16,11 +16,13 @@ Here, we will show you how to integrate the |app| content server into another se
 Using a reverse proxy
 -----------------------
 
-This is the simplest approach as it allows you to use the binary calibre install with no external dependencies/system integration requirements.
+A reverse proxy is when your normal server accepts incoming requests and passes them onto the calibre server. It then reads the response from the calibre server and forwards it to the client. This means that you can simply run the calibre server as normal without trying to integrate it closely with your main server, and you can take advantage of whatever authentication systems you main server has in place. This is the simplest approach as it allows you to use the binary calibre install with no external dependencies/system integration requirements. Below, is an example of how to achieve this with Apache as your main server, but it will work with any server that supports Reverse Proxies.
 
 First start the |app| content server as shown below::
 
     calibre-server --url-prefix /calibre --port 8080 
+
+The key parameter here is ``--url-prefix /calibre``. This causes the content server to serve all URLs prefixed by calibre. To see this in action, visit ``http://localhost:8080/calibre`` in your browser. You should see the normal content server website, but now it will run under /calibre.
 
 Now suppose you are using Apache as your main server. First enable the proxy modules in apache, by adding the following to :file:`httpd.conf`::
 
@@ -33,7 +35,7 @@ The exact technique for enabling the proxy modules will vary depending on your A
     RewriteRule ^/calibre/(.*) http://localhost:8080/calibre/$1 [proxy]
     RewriteRule ^/calibre http://localhost:8080 [proxy]
 
-That's all, you will now be able to access the |app| Content Server under the /calibre URL in your apache server.
+That's all, you will now be able to access the |app| Content Server under the /calibre URL in your apache server. The above rules pass all requests under /calibre to the calibre server running on port 8080 and thanks to the --url-prefix option above, the calibre server handles them transparently.
 
 .. note:: If you are willing to devote an entire VirtualHost to the content server, then there is no need to use --url-prefix and RewriteRule, instead just use the ProxyPass directive.
 

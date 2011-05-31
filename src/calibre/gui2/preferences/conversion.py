@@ -5,6 +5,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import importlib
+
 from PyQt4.Qt import QIcon, Qt, QStringListModel, QVariant
 
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget, AbortCommit
@@ -104,8 +106,8 @@ class OutputOptions(Base):
         for plugin in output_format_plugins():
             name = plugin.name.lower().replace(' ', '_')
             try:
-                output_widget = __import__('calibre.gui2.convert.'+name,
-                        fromlist=[1])
+                output_widget = importlib.import_module(
+                        'calibre.gui2.convert.'+name)
                 pw = output_widget.PluginWidget
                 self.conversion_widgets.append(pw)
             except ImportError:

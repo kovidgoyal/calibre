@@ -1,0 +1,65 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+import re
+
+class DrawAndCook(BasicNewsRecipe):
+    title               = 'DrawAndCook'
+    __author__          = 'Starson17'
+    __version__         = 'v1.10'
+    __date__            = '13 March 2011'
+    description         = 'Drawings of recipes!'
+    language            = 'en'
+    publisher           = 'Starson17'
+    category            = 'news, food, recipes'
+    use_embedded_content= False
+    no_stylesheets      = True
+    oldest_article      = 24
+    remove_javascript   = True
+    remove_empty_feeds    = True
+    cover_url           = 'http://farm5.static.flickr.com/4043/4471139063_4dafced67f_o.jpg'
+    INDEX = 'http://www.theydrawandcook.com'
+    max_articles_per_feed = 30
+
+    remove_attributes = ['style', 'font']
+
+    def parse_index(self):
+        feeds = []
+        for title, url in [
+                            ("They Draw and Cook", "http://www.theydrawandcook.com/")
+                            ]:
+            articles = self.make_links(url)
+            if articles:
+                feeds.append((title, articles))
+        print 'feeds are: ', feeds
+        return feeds
+
+    def make_links(self, url):
+        soup = self.index_to_soup(url)
+        title = ''
+        date = ''
+        current_articles = []
+        soup = self.index_to_soup(url)
+        featured_major_slider = soup.find(name='div', attrs={'id':'featured_major_slider'})
+        recipes = featured_major_slider.findAll('li', attrs={'data-id': re.compile(r'artwork_entry_\d+', re.DOTALL)})
+        for recipe in recipes:
+            page_url = self.INDEX + recipe.a['href']
+            print 'page_url is: ', page_url
+            title = recipe.find('strong').string
+            print 'title is: ', title
+            current_articles.append({'title': title, 'url': page_url, 'description':'', 'date':date})
+        return current_articles
+
+    keep_only_tags     = [dict(name='h1', attrs={'id':'page_title'})
+                         ,dict(name='section', attrs={'id':'artwork'})
+                         ]
+
+    remove_tags = [dict(name='article', attrs={'id':['recipe_actions', 'metadata']})
+                  ]
+
+    extra_css = '''
+                    h1{font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:large;}
+                    h2{font-family:Arial,Helvetica,sans-serif; font-weight:normal;font-size:small;}
+                    img {max-width:100%; min-width:100%;}
+                    p{font-family:Arial,Helvetica,sans-serif;font-size:small;}
+                    body{font-family:Helvetica,Arial,sans-serif;font-size:small;}
+		'''
+

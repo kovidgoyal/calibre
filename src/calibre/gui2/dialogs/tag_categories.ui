@@ -79,7 +79,7 @@
      </property>
      <property name="icon">
       <iconset>
-       <normaloff>:/images/minus.png</normaloff>:/images/minus.png</iconset>
+       <normaloff>:/images/trash.png</normaloff>:/images/trash.png</iconset>
      </property>
     </widget>
    </item>

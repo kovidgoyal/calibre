@@ -78,7 +78,7 @@ class Check(Command):
                     'prs500/driver.py' not in y:
                         yield y, mtime
 
-        for x in os.walk(self.j(self.d(self.SRC), 'resources', 'recipes')):
+        for x in os.walk(self.j(self.d(self.SRC), 'recipes')):
             for f in x[-1]:
                 f = self.j(x[0], f)
                 mtime = os.stat(f).st_mtime

@@ -1,15 +1,15 @@
-import os.path
+# -*- coding: utf-8 -*-
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import textwrap, os, glob, functools, re
 from calibre import guess_type
 from calibre.customize import FileTypePlugin, MetadataReaderPlugin, \
-    MetadataWriterPlugin, PreferencesPlugin, InterfaceActionBase
+    MetadataWriterPlugin, PreferencesPlugin, InterfaceActionBase, StoreBase
 from calibre.constants import numeric_version
 from calibre.ebooks.metadata.archive import ArchiveExtract, get_cbz_metadata
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
-from calibre.ebooks.oeb.base import OEB_IMAGES
 
 # To archive plugins {{{
 class HTML2ZIP(FileTypePlugin):
@@ -92,11 +92,13 @@ class TXT2TXTZ(FileTypePlugin):
         'containing Markdown or Textile references to images. The referenced '
         'images as well as the TXT file are added to the archive.')
     version = numeric_version
-    file_types = set(['txt'])
+    file_types = set(['txt', 'text'])
     supported_platforms = ['windows', 'osx', 'linux']
     on_import = True
 
     def _get_image_references(self, txt, base_dir):
+        from calibre.ebooks.oeb.base import OEB_IMAGES
+
         images = []
 
         # Textile
@@ -166,6 +168,14 @@ class ComicMetadataReader(MetadataReaderPlugin):
     description = _('Extract cover from comic files')
 
     def get_metadata(self, stream, ftype):
+        if hasattr(stream, 'seek') and hasattr(stream, 'tell'):
+            pos = stream.tell()
+            id_ = stream.read(3)
+            stream.seek(pos)
+            if id_ == b'Rar':
+                ftype = 'cbr'
+            elif id_.startswith(b'PK'):
+                ftype = 'cbz'
         if ftype == 'cbr':
             from calibre.libunrar import extract_first_alphabetically as extract_first
             extract_first
@@ -229,6 +239,17 @@ class HTMLMetadataReader(MetadataReaderPlugin):
 
     def get_metadata(self, stream, ftype):
         from calibre.ebooks.metadata.html import get_metadata
+        return get_metadata(stream)
+
+class HTMLZMetadataReader(MetadataReaderPlugin):
+
+    name        = 'Read HTMLZ metadata'
+    file_types  = set(['htmlz'])
+    description = _('Read metadata from %s files') % 'HTMLZ'
+    author      = 'John Schember'
+
+    def get_metadata(self, stream, ftype):
+        from calibre.ebooks.metadata.extz import get_metadata
         return get_metadata(stream)
 
 class IMPMetadataReader(MetadataReaderPlugin):
@@ -407,7 +428,7 @@ class TXTZMetadataReader(MetadataReaderPlugin):
     author      = 'John Schember'
 
     def get_metadata(self, stream, ftype):
-        from calibre.ebooks.metadata.txtz import get_metadata
+        from calibre.ebooks.metadata.extz import get_metadata
         return get_metadata(stream)
 
 class ZipMetadataReader(MetadataReaderPlugin):
@@ -432,6 +453,17 @@ class EPUBMetadataWriter(MetadataWriterPlugin):
     def set_metadata(self, stream, mi, type):
         from calibre.ebooks.metadata.epub import set_metadata
         set_metadata(stream, mi, apply_null=self.apply_null)
+
+class HTMLZMetadataWriter(MetadataWriterPlugin):
+
+    name        = 'Set HTMLZ metadata'
+    file_types  = set(['htmlz'])
+    description = _('Set metadata from %s files') % 'HTMLZ'
+    author      = 'John Schember'
+
+    def set_metadata(self, stream, mi, type):
+        from calibre.ebooks.metadata.extz import set_metadata
+        set_metadata(stream, mi)
 
 class LRFMetadataWriter(MetadataWriterPlugin):
 
@@ -505,7 +537,7 @@ class TXTZMetadataWriter(MetadataWriterPlugin):
     author      = 'John Schember'
 
     def set_metadata(self, stream, mi, type):
-        from calibre.ebooks.metadata.txtz import set_metadata
+        from calibre.ebooks.metadata.extz import set_metadata
         set_metadata(stream, mi)
 
 # }}}
@@ -514,6 +546,7 @@ from calibre.ebooks.comic.input import ComicInput
 from calibre.ebooks.epub.input import EPUBInput
 from calibre.ebooks.fb2.input import FB2Input
 from calibre.ebooks.html.input import HTMLInput
+from calibre.ebooks.htmlz.input import HTMLZInput
 from calibre.ebooks.lit.input import LITInput
 from calibre.ebooks.mobi.input import MOBIInput
 from calibre.ebooks.odt.input import ODTInput
@@ -544,6 +577,7 @@ from calibre.ebooks.tcr.output import TCROutput
 from calibre.ebooks.txt.output import TXTOutput
 from calibre.ebooks.txt.output import TXTZOutput
 from calibre.ebooks.html.output import HTMLOutput
+from calibre.ebooks.htmlz.output import HTMLZOutput
 from calibre.ebooks.snb.output import SNBOutput
 
 from calibre.customize.profiles import input_profiles, output_profiles
@@ -560,8 +594,9 @@ from calibre.devices.iliad.driver import ILIAD
 from calibre.devices.irexdr.driver import IREXDR1000, IREXDR800
 from calibre.devices.jetbook.driver import JETBOOK, MIBUK, JETBOOK_MINI
 from calibre.devices.kindle.driver import KINDLE, KINDLE2, KINDLE_DX
-from calibre.devices.nook.driver import NOOK, NOOK_COLOR
+from calibre.devices.nook.driver import NOOK, NOOK_COLOR, NOOK_TSR
 from calibre.devices.prs505.driver import PRS505
+from calibre.devices.user_defined.driver import USER_DEFINED
 from calibre.devices.android.driver import ANDROID, S60
 from calibre.devices.nokia.driver import N770, N810, E71X, E52
 from calibre.devices.eslick.driver import ESLICK, EBK52
@@ -579,26 +614,33 @@ from calibre.devices.misc import PALMPRE, AVANT, SWEEX, PDNOVEL, \
 from calibre.devices.folder_device.driver import FOLDER_DEVICE_FOR_CONFIG
 from calibre.devices.kobo.driver import KOBO
 from calibre.devices.bambook.driver import BAMBOOK
+from calibre.devices.boeye.driver import BOEYE_BEX, BOEYE_BDX
 
-from calibre.ebooks.metadata.fetch import GoogleBooks, ISBNDB, Amazon, \
-    KentDistrictLibrary
-from calibre.ebooks.metadata.douban import DoubanBooks
-from calibre.ebooks.metadata.nicebooks import NiceBooks, NiceBooksCovers
-from calibre.ebooks.metadata.covers import OpenLibraryCovers, \
-        AmazonCovers, DoubanCovers
 from calibre.library.catalog import CSV_XML, EPUB_MOBI, BIBTEX
 from calibre.ebooks.epub.fix.unmanifested import Unmanifested
 from calibre.ebooks.epub.fix.epubcheck import Epubcheck
 
-plugins = [HTML2ZIP, PML2PMLZ, TXT2TXTZ, ArchiveExtract, GoogleBooks, ISBNDB, Amazon,
-        KentDistrictLibrary, DoubanBooks, NiceBooks, CSV_XML, EPUB_MOBI, BIBTEX, Unmanifested,
-        Epubcheck, OpenLibraryCovers, AmazonCovers, DoubanCovers,
-        NiceBooksCovers]
+plugins = [HTML2ZIP, PML2PMLZ, TXT2TXTZ, ArchiveExtract, CSV_XML, EPUB_MOBI, BIBTEX, Unmanifested,
+        Epubcheck, ]
+
+# New metadata download plugins {{{
+from calibre.ebooks.metadata.sources.google import GoogleBooks
+from calibre.ebooks.metadata.sources.amazon import Amazon
+from calibre.ebooks.metadata.sources.openlibrary import OpenLibrary
+from calibre.ebooks.metadata.sources.isbndb import ISBNDB
+from calibre.ebooks.metadata.sources.overdrive import OverDrive
+from calibre.ebooks.metadata.sources.douban import Douban
+
+plugins += [GoogleBooks, Amazon, OpenLibrary, ISBNDB, OverDrive, Douban]
+
+# }}}
+
 plugins += [
     ComicInput,
     EPUBInput,
     FB2Input,
     HTMLInput,
+    HTMLZInput,
     LITInput,
     MOBIInput,
     ODTInput,
@@ -630,6 +672,7 @@ plugins += [
     TXTOutput,
     TXTZOutput,
     HTMLOutput,
+    HTMLZOutput,
     SNBOutput,
 ]
 # Order here matters. The first matched device is the one used.
@@ -650,8 +693,7 @@ plugins += [
     KINDLE,
     KINDLE2,
     KINDLE_DX,
-    NOOK,
-    NOOK_COLOR,
+    NOOK, NOOK_COLOR, NOOK_TSR,
     PRS505,
     ANDROID,
     S60,
@@ -703,6 +745,9 @@ plugins += [
     EEEREADER,
     NEXTBOOK,
     ITUNES,
+    BOEYE_BEX,
+    BOEYE_BDX,
+    USER_DEFINED,
 ]
 plugins += [x for x in list(locals().values()) if isinstance(x, type) and \
                                         x.__name__.endswith('MetadataReader')]
@@ -804,13 +849,29 @@ class ActionNextMatch(InterfaceActionBase):
     name = 'Next Match'
     actual_plugin = 'calibre.gui2.actions.next_match:NextMatchAction'
 
+class ActionStore(InterfaceActionBase):
+    name = 'Store'
+    author = 'John Schember'
+    actual_plugin = 'calibre.gui2.actions.store:StoreAction'
+
+    def customization_help(self, gui=False):
+        return 'Customize the behavior of the store search.'
+
+    def config_widget(self):
+        from calibre.gui2.store.config.store import config_widget as get_cw
+        return get_cw()
+
+    def save_settings(self, config_widget):
+        from calibre.gui2.store.config.store import save_settings as save
+        save(config_widget)
+
 plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,
         ActionConvert, ActionDelete, ActionEditMetadata, ActionView,
         ActionFetchNews, ActionSaveToDisk, ActionShowBookDetails,
         ActionRestart, ActionOpenFolder, ActionConnectShare,
         ActionSendToDevice, ActionHelp, ActionPreferences, ActionSimilarBooks,
         ActionAddToLibrary, ActionEditCollections, ActionChooseLibrary,
-        ActionCopyToLibrary, ActionTweakEpub, ActionNextMatch]
+        ActionCopyToLibrary, ActionTweakEpub, ActionNextMatch, ActionStore]
 
 # }}}
 
@@ -853,7 +914,7 @@ class Columns(PreferencesPlugin):
 class Toolbar(PreferencesPlugin):
     name = 'Toolbar'
     icon = I('wizard.png')
-    gui_name = _('Customize the toolbar')
+    gui_name = _('Toolbar')
     category = 'Interface'
     gui_category = _('Interface')
     category_order = 1
@@ -865,7 +926,7 @@ class Toolbar(PreferencesPlugin):
 class Search(PreferencesPlugin):
     name = 'Search'
     icon = I('search.png')
-    gui_name = _('Customize searching')
+    gui_name = _('Searching')
     category = 'Interface'
     gui_category = _('Interface')
     category_order = 1
@@ -989,6 +1050,17 @@ class Server(PreferencesPlugin):
             'give you access to your calibre library from anywhere, '
             'on any device, over the internet')
 
+class MetadataSources(PreferencesPlugin):
+    name = 'Metadata download'
+    icon = I('metadata.png')
+    gui_name = _('Metadata download')
+    category = 'Sharing'
+    gui_category = _('Sharing')
+    category_order = 4
+    name_order = 3
+    config_widget = 'calibre.gui2.preferences.metadata_sources'
+    description = _('Control how calibre downloads ebook metadata from the net')
+
 class Plugins(PreferencesPlugin):
     name = 'Plugins'
     icon = I('plugins.png')
@@ -1025,13 +1097,351 @@ class Misc(PreferencesPlugin):
 
 plugins += [LookAndFeel, Behavior, Columns, Toolbar, Search, InputOptions,
         CommonOptions, OutputOptions, Adding, Saving, Sending, Plugboard,
-        Email, Server, Plugins, Tweaks, Misc, TemplateFunctions]
+        Email, Server, Plugins, Tweaks, Misc, TemplateFunctions,
+        MetadataSources]
 
 #}}}
 
-# New metadata download plugins {{{
-from calibre.ebooks.metadata.sources.google import GoogleBooks
+# Store plugins {{{
+class StoreAmazonKindleStore(StoreBase):
+    name = 'Amazon Kindle'
+    description = u'Kindle books from Amazon.'
+    actual_plugin = 'calibre.gui2.store.amazon_plugin:AmazonKindleStore'
 
-plugins += [GoogleBooks]
+    headquarters = 'US'
+    formats = ['KINDLE']
+    affiliate = True
+
+class StoreAmazonDEKindleStore(StoreBase):
+    name = 'Amazon DE Kindle'
+    author = 'Charles Haley'
+    description = u'Kindle Bücher von Amazon.'
+    actual_plugin = 'calibre.gui2.store.amazon_de_plugin:AmazonDEKindleStore'
+
+    headquarters = 'DE'
+    formats = ['KINDLE']
+    affiliate = True
+
+class StoreAmazonUKKindleStore(StoreBase):
+    name = 'Amazon UK Kindle'
+    author = 'Charles Haley'
+    description = u'Kindle books from Amazon\'s UK web site. Also, includes French language ebooks.'
+    actual_plugin = 'calibre.gui2.store.amazon_uk_plugin:AmazonUKKindleStore'
+
+    headquarters = 'UK'
+    formats = ['KINDLE']
+    affiliate = True
+
+class StoreArchiveOrgStore(StoreBase):
+    name = 'Archive.org'
+    description = u'An Internet library offering permanent access for researchers, historians, scholars, people with disabilities, and the general public to historical collections that exist in digital format.'
+    actual_plugin = 'calibre.gui2.store.archive_org_plugin:ArchiveOrgStore'
+
+    drm_free_only = True
+    headquarters = 'US'
+    formats = ['DAISY', 'DJVU', 'EPUB', 'MOBI', 'PDF', 'TXT']
+
+class StoreBaenWebScriptionStore(StoreBase):
+    name = 'Baen WebScription'
+    description = u'Sci-Fi & Fantasy brought to you by Jim Baen.'
+    actual_plugin = 'calibre.gui2.store.baen_webscription_plugin:BaenWebScriptionStore'
+
+    drm_free_only = True
+    headquarters = 'US'
+    formats = ['EPUB', 'LIT', 'LRF', 'MOBI', 'RB', 'RTF', 'ZIP']
+
+class StoreBNStore(StoreBase):
+    name = 'Barnes and Noble'
+    description = u'The world\'s largest book seller. As the ultimate destination for book lovers, Barnes & Noble.com offers an incredible array of content.'
+    actual_plugin = 'calibre.gui2.store.bn_plugin:BNStore'
+
+    headquarters = 'US'
+    formats = ['NOOK']
+    affiliate = True
+
+class StoreBeamEBooksDEStore(StoreBase):
+    name = 'Beam EBooks DE'
+    author = 'Charles Haley'
+    description = u'Bei uns finden Sie: Tausende deutschsprachige eBooks; Alle eBooks ohne hartes DRM; PDF, ePub und Mobipocket Format; Sofortige Verfügbarkeit - 24 Stunden am Tag; Günstige Preise; eBooks für viele Lesegeräte, PC,Mac und Smartphones; Viele Gratis eBooks'
+    actual_plugin = 'calibre.gui2.store.beam_ebooks_de_plugin:BeamEBooksDEStore'
+
+    drm_free_only = True
+    headquarters = 'DE'
+    formats = ['EPUB', 'MOBI', 'PDF']
+    affiliate = True
+
+class StoreBeWriteStore(StoreBase):
+    name = 'BeWrite Books'
+    description = u'Publishers of fine books. Highly selective and editorially driven. Does not offer: books for children or exclusively YA, erotica, swords-and-sorcery fantasy and space-opera-style science fiction. All other genres are represented.'
+    actual_plugin = 'calibre.gui2.store.bewrite_plugin:BeWriteStore'
+
+    drm_free_only = True
+    headquarters = 'US'
+    formats = ['EPUB', 'MOBI', 'PDF']
+
+class StoreDieselEbooksStore(StoreBase):
+    name = 'Diesel eBooks'
+    description = u'Instant access to over 2.4 million titles from hundreds of publishers including Harlequin, HarperCollins, John Wiley & Sons, McGraw-Hill, Simon & Schuster and Random House.'
+    actual_plugin = 'calibre.gui2.store.diesel_ebooks_plugin:DieselEbooksStore'
+
+    headquarters = 'US'
+    formats = ['EPUB', 'PDF']
+    affiliate = True
+
+class StoreEbookscomStore(StoreBase):
+    name = 'eBooks.com'
+    description = u'Sells books in multiple electronic formats in all categories. Technical infrastructure is cutting edge, robust and scalable, with servers in the US and Europe.'
+    actual_plugin = 'calibre.gui2.store.ebooks_com_plugin:EbookscomStore'
+
+    headquarters = 'US'
+    formats = ['EPUB', 'LIT', 'MOBI', 'PDF']
+    affiliate = True
+
+class StoreEPubBuyDEStore(StoreBase):
+    name = 'EPUBBuy DE'
+    author = 'Charles Haley'
+    description = u'Bei EPUBBuy.com finden Sie ausschliesslich eBooks im weitverbreiteten EPUB-Format und ohne DRM. So haben Sie die freie Wahl, wo Sie Ihr eBook lesen: Tablet, eBook-Reader, Smartphone oder einfach auf Ihrem PC. So macht eBook-Lesen Spaß!'
+    actual_plugin = 'calibre.gui2.store.epubbuy_de_plugin:EPubBuyDEStore'
+
+    drm_free_only = True
+    headquarters = 'DE'
+    formats = ['EPUB']
+    affiliate = True
+
+class StoreEBookShoppeUKStore(StoreBase):
+    name = 'ebookShoppe UK'
+    author = u'Charles Haley'
+    description = u'We made this website in an attempt to offer the widest range of UK eBooks possible across and as many formats as we could manage.'
+    actual_plugin = 'calibre.gui2.store.ebookshoppe_uk_plugin:EBookShoppeUKStore'
+
+    headquarters = 'UK'
+    formats = ['EPUB', 'PDF']
+    affiliate = True
+
+class StoreEHarlequinStore(StoreBase):
+    name = 'eHarlequin'
+    description = u'A global leader in series romance and one of the world\'s leading publishers of books for women. Offers women a broad range of reading from romance to bestseller fiction, from young adult novels to erotic literature, from nonfiction to fantasy, from African-American novels to inspirational romance, and more.'
+    actual_plugin = 'calibre.gui2.store.eharlequin_plugin:EHarlequinStore'
+
+    headquarters = 'CA'
+    formats = ['EPUB', 'PDF']
+    affiliate = True
+
+class StoreFeedbooksStore(StoreBase):
+    name = 'Feedbooks'
+    description = u'Feedbooks is a cloud publishing and distribution service, connected to a large ecosystem of reading systems and social networks. Provides a variety of genres from independent and classic books.'
+    actual_plugin = 'calibre.gui2.store.feedbooks_plugin:FeedbooksStore'
+
+    headquarters = 'FR'
+    formats = ['EPUB', 'MOBI', 'PDF']
+
+class StoreFoylesUKStore(StoreBase):
+    name = 'Foyles UK'
+    author = 'Charles Haley'
+    description = u'Foyles of London\'s ebook store. Provides extensive range covering all subjects.'
+    actual_plugin = 'calibre.gui2.store.foyles_uk_plugin:FoylesUKStore'
+
+    headquarters = 'UK'
+    formats = ['EPUB', 'PDF']
+    affiliate = True
+
+class StoreGandalfStore(StoreBase):
+    name = 'Gandalf'
+    author = u'Tomasz Długosz'
+    description = u'Księgarnia internetowa Gandalf.'
+    actual_plugin = 'calibre.gui2.store.gandalf_plugin:GandalfStore'
+
+    headquarters = 'PL'
+    formats = ['EPUB', 'PDF']
+
+class StoreGoogleBooksStore(StoreBase):
+    name = 'Google Books'
+    description = u'Google Books'
+    actual_plugin = 'calibre.gui2.store.google_books_plugin:GoogleBooksStore'
+
+    headquarters = 'US'
+    formats = ['EPUB', 'PDF', 'TXT']
+
+class StoreGutenbergStore(StoreBase):
+    name = 'Project Gutenberg'
+    description = u'The first producer of free ebooks. Free in the United States because their copyright has expired. They may not be free of copyright in other countries. Readers outside of the United States must check the copyright laws of their countries before downloading or redistributing our ebooks.'
+    actual_plugin = 'calibre.gui2.store.gutenberg_plugin:GutenbergStore'
+
+    drm_free_only = True
+    headquarters = 'US'
+    formats = ['EPUB', 'HTML', 'MOBI', 'PDB', 'TXT']
+
+class StoreKoboStore(StoreBase):
+    name = 'Kobo'
+    description = u'With over 2.3 million eBooks to browse we have engaged readers in over 200 countries in Kobo eReading. Our eBook listings include New York Times Bestsellers, award winners, classics and more!'
+    actual_plugin = 'calibre.gui2.store.kobo_plugin:KoboStore'
+
+    headquarters = 'CA'
+    formats = ['EPUB']
+    affiliate = True
+
+class StoreLegimiStore(StoreBase):
+    name = 'Legimi'
+    author = u'Tomasz Długosz'
+    description = u'Tanie oraz darmowe ebooki, egazety i blogi w formacie EPUB, wprost na Twój e-czytnik, iPhone, iPad, Android i komputer'
+    actual_plugin = 'calibre.gui2.store.legimi_plugin:LegimiStore'
+
+    headquarters = 'PL'
+    formats = ['EPUB']
+
+class StoreManyBooksStore(StoreBase):
+    name = 'ManyBooks'
+    description = u'Public domain and creative commons works from many sources.'
+    actual_plugin = 'calibre.gui2.store.manybooks_plugin:ManyBooksStore'
+
+    drm_free_only = True
+    headquarters = 'US'
+    formats = ['EPUB', 'FB2', 'JAR', 'LIT', 'LRF', 'MOBI', 'PDB', 'PDF', 'RB', 'RTF', 'TCR', 'TXT', 'ZIP']
+
+class StoreMobileReadStore(StoreBase):
+    name = 'MobileRead'
+    description = u'Ebooks handcrafted with the utmost care.'
+    actual_plugin = 'calibre.gui2.store.mobileread.mobileread_plugin:MobileReadStore'
+
+    drm_free_only = True
+    headquarters = 'CH'
+    formats = ['EPUB', 'IMP', 'LRF', 'LIT', 'MOBI', 'PDF']
+
+class StoreNextoStore(StoreBase):
+    name = 'Nexto'
+    author = u'Tomasz Długosz'
+    description = u'Największy w Polsce sklep internetowy z audiobookami mp3, ebookami pdf oraz prasą do pobrania on-line.'
+    actual_plugin = 'calibre.gui2.store.nexto_plugin:NextoStore'
+
+    headquarters = 'PL'
+    formats = ['EPUB', 'PDF']
+    affiliate = True
+
+class StoreOpenLibraryStore(StoreBase):
+    name = 'Open Library'
+    description = u'One web page for every book ever published. The goal is to be a true online library. Over 20 million records from a variety of large catalogs as well as single contributions, with more on the way.'
+    actual_plugin = 'calibre.gui2.store.open_library_plugin:OpenLibraryStore'
+
+    drm_free_only = True
+    headquarters = 'US'
+    formats = ['DAISY', 'DJVU', 'EPUB', 'MOBI', 'PDF', 'TXT']
+
+class StoreOReillyStore(StoreBase):
+    name = 'OReilly'
+    description = u'Programming and tech ebooks from OReilly.'
+    actual_plugin = 'calibre.gui2.store.oreilly_plugin:OReillyStore'
+
+    drm_free_only = True
+    headquarters = 'US'
+    formats = ['APK', 'DAISY', 'EPUB', 'MOBI', 'PDF']
+
+class StorePragmaticBookshelfStore(StoreBase):
+    name = 'Pragmatic Bookshelf'
+    description = u'The Pragmatic Bookshelf\'s collection of programming and tech books avaliable as ebooks.'
+    actual_plugin = 'calibre.gui2.store.pragmatic_bookshelf_plugin:PragmaticBookshelfStore'
+
+    drm_free_only = True
+    headquarters = 'US'
+    formats = ['EPUB', 'MOBI', 'PDF']
+
+class StoreSmashwordsStore(StoreBase):
+    name = 'Smashwords'
+    description = u'An ebook publishing and distribution platform for ebook authors, publishers and readers. Covers many genres and formats.'
+    actual_plugin = 'calibre.gui2.store.smashwords_plugin:SmashwordsStore'
+
+    drm_free_only = True
+    headquarters = 'US'
+    formats = ['EPUB', 'HTML', 'LRF', 'MOBI', 'PDB', 'RTF', 'TXT']
+    affiliate = True
+
+class StoreVirtualoStore(StoreBase):
+    name = 'Virtualo'
+    author = u'Tomasz Długosz'
+    description = u'Księgarnia internetowa, która oferuje bezpieczny i szeroki dostęp do książek w formie cyfrowej.'
+    actual_plugin = 'calibre.gui2.store.virtualo_plugin:VirtualoStore'
+
+    headquarters = 'PL'
+    formats = ['EPUB', 'PDF']
+
+class StoreWaterstonesUKStore(StoreBase):
+    name = 'Waterstones UK'
+    author = 'Charles Haley'
+    description = u'Waterstone\'s mission is to be the leading Bookseller on the High Street and online providing customers the widest choice, great value and expert advice from a team passionate about Bookselling.'
+    actual_plugin = 'calibre.gui2.store.waterstones_uk_plugin:WaterstonesUKStore'
+
+    headquarters = 'UK'
+    formats = ['EPUB', 'PDF']
+
+class StoreWeightlessBooksStore(StoreBase):
+    name = 'Weightless Books'
+    description = u'An independent DRM-free ebooksite devoted to ebooks of all sorts.'
+    actual_plugin = 'calibre.gui2.store.weightless_books_plugin:WeightlessBooksStore'
+
+    drm_free_only = True
+    headquarters = 'US'
+    formats = ['EPUB', 'HTML', 'LIT', 'MOBI', 'PDF']
+
+class StoreWHSmithUKStore(StoreBase):
+    name = 'WH Smith UK'
+    author = 'Charles Haley'
+    description = u"Shop for savings on Books, discounted Magazine subscriptions and great prices on Stationery, Toys & Games"
+    actual_plugin = 'calibre.gui2.store.whsmith_uk_plugin:WHSmithUKStore'
+
+    headquarters = 'UK'
+    formats = ['EPUB', 'PDF']
+
+class StoreWizardsTowerBooksStore(StoreBase):
+    name = 'Wizards Tower Books'
+    description = u'A science fiction and fantasy publisher. Concentrates mainly on making out-of-print works available once more as e-books, and helping other small presses exploit the e-book market. Also publishes a small number of limited-print-run anthologies with a view to encouraging diversity in the science fiction and fantasy field.'
+    actual_plugin = 'calibre.gui2.store.wizards_tower_books_plugin:WizardsTowerBooksStore'
+
+    drm_free_only = True
+    headquarters = 'UK'
+    formats = ['EPUB', 'MOBI']
+
+class StoreWoblinkStore(StoreBase):
+    name = 'Woblink'
+    author = u'Tomasz Długosz'
+    description = u'Czytanie zdarza się wszędzie!'
+    actual_plugin = 'calibre.gui2.store.woblink_plugin:WoblinkStore'
+
+    headquarters = 'PL'
+    formats = ['EPUB']
+
+plugins += [
+    StoreArchiveOrgStore,
+    StoreAmazonKindleStore,
+    StoreAmazonDEKindleStore,
+    StoreAmazonUKKindleStore,
+    StoreBaenWebScriptionStore,
+    StoreBNStore,
+    StoreBeamEBooksDEStore,
+    StoreBeWriteStore,
+    StoreDieselEbooksStore,
+    StoreEbookscomStore,
+    StoreEBookShoppeUKStore,
+    StoreEPubBuyDEStore,
+    StoreEHarlequinStore,
+    StoreFeedbooksStore,
+    StoreFoylesUKStore,
+    StoreGandalfStore,
+    StoreGoogleBooksStore,
+    StoreGutenbergStore,
+    StoreKoboStore,
+    StoreLegimiStore,
+    StoreManyBooksStore,
+    StoreMobileReadStore,
+    StoreNextoStore,
+    StoreOpenLibraryStore,
+    StoreOReillyStore,
+    StorePragmaticBookshelfStore,
+    StoreSmashwordsStore,
+    StoreVirtualoStore,
+    StoreWaterstonesUKStore,
+    StoreWeightlessBooksStore,
+    StoreWHSmithUKStore,
+    StoreWizardsTowerBooksStore,
+    StoreWoblinkStore
+]
 
 # }}}

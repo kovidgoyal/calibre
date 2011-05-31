@@ -75,12 +75,20 @@ class BaseJob(object):
             self._run_state = self.RUNNING
             self._status_text = _('Working...')
 
-        while consume_notifications:
+        if consume_notifications:
+            return self.consume_notifications()
+        return False
+
+    def consume_notifications(self):
+        got_notification = False
+        while self.notifications is not None:
             try:
                 self.percent, self._message = self.notifications.get_nowait()
                 self.percent *= 100.
+                got_notification = True
             except Empty:
                 break
+        return got_notification
 
     @property
     def status_text(self):

@@ -129,14 +129,22 @@ class Reader132(FormatReader):
             footnoteids = re.findall('\w+(?=\x00)', self.section_data(self.header_record.footnote_offset).decode('cp1252' if self.encoding is None else self.encoding))
             for fid, i in enumerate(range(self.header_record.footnote_offset + 1, self.header_record.footnote_offset + self.header_record.footnote_count)):
                 self.log.debug('Extracting footnote page %i' % i)
-                html += footnote_to_html(footnoteids[fid], self.decompress_text(i))
+                if fid < len(footnoteids):
+                    fid = footnoteids[fid]
+                else:
+                    fid = ''
+                html += footnote_to_html(fid, self.decompress_text(i))
 
         if self.header_record.sidebar_count > 0:
             html += '<br /><h1>%s</h1>' % _('Sidebar')
             sidebarids = re.findall('\w+(?=\x00)', self.section_data(self.header_record.sidebar_offset).decode('cp1252' if self.encoding is None else self.encoding))
             for sid, i in enumerate(range(self.header_record.sidebar_offset + 1, self.header_record.sidebar_offset + self.header_record.sidebar_count)):
                 self.log.debug('Extracting sidebar page %i' % i)
-                html += sidebar_to_html(sidebarids[sid], self.decompress_text(i))
+                if sid < len(sidebarids):
+                    sid = sidebarids[sid]
+                else:
+                    sid = ''
+                html += sidebar_to_html(sid, self.decompress_text(i))
 
         html += '</body></html>'
 

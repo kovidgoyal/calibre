@@ -1,29 +1,35 @@
+from future_builtins import map
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
-__appname__   = 'calibre'
-__version__   = '0.7.47'
-__author__    = "Kovid Goyal <kovid@kovidgoyal.net>"
-
-import re
-_ver = __version__.split('.')
-_ver = [int(re.search(r'(\d+)', x).group(1)) for x in _ver]
-numeric_version = tuple(_ver)
+__appname__   = u'calibre'
+numeric_version = (0, 8, 3)
+__version__   = u'.'.join(map(unicode, numeric_version))
+__author__    = u"Kovid Goyal <kovid@kovidgoyal.net>"
 
 '''
 Various run time constants.
 '''
 
-import sys, locale, codecs, os
-from calibre.utils.terminfo import TerminalController
+import sys, locale, codecs, os, importlib, collections
 
-terminal_controller = TerminalController(sys.stdout)
+_tc = None
+def terminal_controller():
+    global _tc
+    if _tc is None:
+        from calibre.utils.terminfo import TerminalController
+        _tc = TerminalController(sys.stdout)
+    return _tc
 
-iswindows = 'win32' in sys.platform.lower() or 'win64' in sys.platform.lower()
-isosx     = 'darwin' in sys.platform.lower()
-isnewosx = isosx and getattr(sys, 'new_app_bundle', False)
-isfreebsd = 'freebsd' in sys.platform.lower()
-islinux   = not(iswindows or isosx or isfreebsd)
+_plat = sys.platform.lower()
+iswindows = 'win32' in _plat or 'win64' in _plat
+isosx     = 'darwin' in _plat
+isnewosx  = isosx and getattr(sys, 'new_app_bundle', False)
+isfreebsd = 'freebsd' in _plat
+isnetbsd = 'netbsd' in _plat
+isbsd = isfreebsd or isnetbsd
+islinux   = not(iswindows or isosx or isbsd)
 isfrozen  = hasattr(sys, 'frozen')
 isunix = isosx or islinux
 
@@ -33,13 +39,14 @@ try:
 except:
     preferred_encoding = 'utf-8'
 
-win32event = __import__('win32event') if iswindows else None
-winerror   = __import__('winerror') if iswindows else None
-win32api   = __import__('win32api') if iswindows else None
-fcntl      = None if iswindows else __import__('fcntl')
+win32event = importlib.import_module('win32event') if iswindows else None
+winerror   = importlib.import_module('winerror') if iswindows else None
+win32api   = importlib.import_module('win32api') if iswindows else None
+fcntl      = None if iswindows else importlib.import_module('fcntl')
 
 filesystem_encoding = sys.getfilesystemencoding()
 if filesystem_encoding is None: filesystem_encoding = 'utf-8'
+
 
 DEBUG = False
 
@@ -48,15 +55,12 @@ def debug():
     DEBUG = True
 
 # plugins {{{
-plugins = None
-if plugins is None:
-    # Load plugins
-    def load_plugins():
-        plugins = {}
-        plugin_path = sys.extensions_location
-        sys.path.insert(0, plugin_path)
 
-        for plugin in [
+class Plugins(collections.Mapping):
+
+    def __init__(self):
+        self._plugins = {}
+        plugins = [
                 'pictureflow',
                 'lzx',
                 'msdes',
@@ -69,19 +73,45 @@ if plugins is None:
                 'chmlib',
                 'chm_extra',
                 'icu',
-            ] + \
-                    (['winutil'] if iswindows else []) + \
-                    (['usbobserver'] if isosx else []):
-            try:
-                p, err = __import__(plugin), ''
-            except Exception, err:
-                p = None
-                err = str(err)
-            plugins[plugin] = (p, err)
-        sys.path.remove(plugin_path)
-        return plugins
+                'speedup',
+            ]
+        if iswindows:
+            plugins.append('winutil')
+        if isosx:
+            plugins.append('usbobserver')
+        self.plugins = frozenset(plugins)
 
-    plugins = load_plugins()
+    def load_plugin(self, name):
+        if name in self._plugins:
+            return
+        sys.path.insert(0, sys.extensions_location)
+        try:
+            p, err = importlib.import_module(name), ''
+        except Exception as err:
+            p = None
+            err = str(err)
+        self._plugins[name] = (p, err)
+        sys.path.remove(sys.extensions_location)
+
+    def __iter__(self):
+        return iter(self.plugins)
+
+    def __len__(self):
+        return len(self.plugins)
+
+    def __contains__(self, name):
+        return name in self.plugins
+
+    def __getitem__(self, name):
+        if name not in self.plugins:
+            raise KeyError('No plugin named %r'%name)
+        self.load_plugin(name)
+        return self._plugins[name]
+
+
+plugins = None
+if plugins is None:
+    plugins = Plugins()
 # }}}
 
 # config_dir {{{

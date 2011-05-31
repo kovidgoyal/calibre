@@ -7,7 +7,7 @@ import os, traceback, Queue, time, cStringIO, re, sys
 from threading import Thread
 
 from PyQt4.Qt import QMenu, QAction, QActionGroup, QIcon, SIGNAL, \
-                     Qt, pyqtSignal, QDialog
+                     Qt, pyqtSignal, QDialog, QObject
 
 from calibre.customize.ui import available_input_formats, available_output_formats, \
     device_plugins
@@ -25,12 +25,10 @@ from calibre.devices.errors import FreeSpaceError
 from calibre.devices.apple.driver import ITUNES_ASYNC
 from calibre.devices.folder_device.driver import FOLDER_DEVICE
 from calibre.devices.bambook.driver import BAMBOOK, BAMBOOKWifi
-from calibre.ebooks.metadata.meta import set_metadata
 from calibre.constants import DEBUG
 from calibre.utils.config import prefs, tweaks
 from calibre.utils.magick.draw import thumbnail
-from calibre.library.save_to_disk import plugboard_any_device_value, \
-                                         plugboard_any_format_value
+from calibre.library.save_to_disk import find_plugboard
 # }}}
 
 class DeviceJob(BaseJob): # {{{
@@ -64,7 +62,7 @@ class DeviceJob(BaseJob): # {{{
             self.result = self.func(*self.args, **self.kwargs)
             if self._aborted:
                 return
-        except (Exception, SystemExit), err:
+        except (Exception, SystemExit) as err:
             if self._aborted:
                 return
             self.failed = True
@@ -92,23 +90,6 @@ class DeviceJob(BaseJob): # {{{
         return cStringIO.StringIO(self._details.encode('utf-8'))
 
     # }}}
-
-def find_plugboard(device_name, format, plugboards):
-    cpb = None
-    if format in plugboards:
-        cpb = plugboards[format]
-    elif plugboard_any_format_value in plugboards:
-        cpb = plugboards[plugboard_any_format_value]
-    if cpb is not None:
-        if device_name in cpb:
-            cpb = cpb[device_name]
-        elif plugboard_any_device_value in cpb:
-            cpb = cpb[plugboard_any_device_value]
-        else:
-            cpb = None
-    if DEBUG:
-        prints('Device using plugboard', format, device_name, cpb)
-    return cpb
 
 def device_name_for_plugboards(device_class):
     if hasattr(device_class, 'DEVICE_PLUGBOARD_NAME'):
@@ -140,6 +121,8 @@ class DeviceManager(Thread): # {{{
         self.mount_connection_requests = Queue.Queue(0)
         self.open_feedback_slot = open_feedback_slot
         self.open_feedback_msg = open_feedback_msg
+        self._device_information = None
+        self.current_library_uuid = None
 
     def report_progress(self, *args):
         pass
@@ -159,10 +142,10 @@ class DeviceManager(Thread): # {{{
             try:
                 dev.reset(detected_device=detected_device,
                     report_progress=self.report_progress)
-                dev.open()
-            except OpenFeedback, e:
+                dev.open(self.current_library_uuid)
+            except OpenFeedback as e:
                 if dev not in self.ejected_devices:
-                    self.open_feedback_msg(dev.get_gui_name(), e.feedback_msg)
+                    self.open_feedback_msg(dev.get_gui_name(), e)
                     self.ejected_devices.add(dev)
                 continue
             except:
@@ -194,6 +177,7 @@ class DeviceManager(Thread): # {{{
         else:
             self.connected_slot(False, self.connected_device_kind)
         self.connected_device = None
+        self._device_information = None
 
     def detect_device(self):
         self.scanner.scan()
@@ -292,15 +276,22 @@ class DeviceManager(Thread): # {{{
 
     def _get_device_information(self):
         info = self.device.get_device_information(end_session=False)
-        info = [i.replace('\x00', '').replace('\x01', '') for i in info]
+        if len(info) < 5:
+            info = tuple(list(info) + [{}])
+        info = [i.replace('\x00', '').replace('\x01', '') if isinstance(i, basestring) else i
+                 for i in info]
         cp = self.device.card_prefix(end_session=False)
         fs = self.device.free_space()
+        self._device_information = {'info': info, 'prefixes': cp, 'freespace': fs}
         return info, cp, fs
 
     def get_device_information(self, done):
         '''Get device information and free space on device'''
         return self.create_job(self._get_device_information, done,
                     description=_('Get device information'))
+
+    def get_current_device_information(self):
+        return self._device_information
 
     def _books(self):
         '''Get metadata from device'''
@@ -342,6 +333,7 @@ class DeviceManager(Thread): # {{{
 
     def _upload_books(self, files, names, on_card=None, metadata=None, plugboards=None):
         '''Upload books to device: '''
+        from calibre.ebooks.metadata.meta import set_metadata
         if hasattr(self.connected_device, 'set_plugboards') and \
                 callable(self.connected_device.set_plugboards):
             self.connected_device.set_plugboards(plugboards, find_plugboard)
@@ -416,6 +408,13 @@ class DeviceManager(Thread): # {{{
     def view_book(self, done, path, target):
         return self.create_job(self._view_book, done, args=[path, target],
                         description=_('View book on device'))
+
+    def set_current_library_uuid(self, uuid):
+        self.current_library_uuid = uuid
+
+    def set_driveinfo_name(self, location_code, name):
+        if self.connected_device:
+            self.connected_device.set_driveinfo_name(location_code, name)
 
     # }}}
 
@@ -588,6 +587,24 @@ class DeviceMenu(QMenu): # {{{
 
     # }}}
 
+class DeviceSignals(QObject):
+    #: This signal is emitted once, after metadata is downloaded from the
+    #: connected device.
+    #: The sequence: gui.device_manager.is_device_connected will become True,
+    #: and the device_connection_changed signal will be emitted,
+    #: then sometime later gui.device_metadata_available will be signaled.
+    #: This does not mean that there are no more jobs running. Automatic metadata
+    #: management might have kicked off a sync_booklists to write new metadata onto
+    #: the device, and that job might still be running when the signal is emitted.
+    device_metadata_available = pyqtSignal()
+
+    #: This signal is emitted once when the device is detected and once when
+    #: it is disconnected. If the parameter is True, then it is a connection,
+    #: otherwise a disconnection.
+    device_connection_changed = pyqtSignal(object)
+
+device_signals = DeviceSignals()
+
 class DeviceMixin(object): # {{{
 
     def __init__(self):
@@ -601,8 +618,11 @@ class DeviceMixin(object): # {{{
         if tweaks['auto_connect_to_folder']:
             self.connect_to_folder_named(tweaks['auto_connect_to_folder'])
 
-    def show_open_feedback(self, devname, msg):
-        self.__of_dev_mem__ = d = info_dialog(self, devname, msg)
+    def show_open_feedback(self, devname, e):
+        try:
+            self.__of_dev_mem__ = d = e.custom_dialog(self)
+        except NotImplementedError:
+            self.__of_dev_mem__ = d = info_dialog(self, devname, e.feedback_msg)
         d.show()
 
     def auto_convert_question(self, msg, autos):
@@ -731,8 +751,10 @@ class DeviceMixin(object): # {{{
             if self.current_view() != self.library_view:
                 self.book_details.reset_info()
             self.location_manager.update_devices()
+            self.bars_manager.update_bars()
             self.library_view.set_device_connected(self.device_connected)
             self.refresh_ondevice()
+        device_signals.device_connection_changed.emit(connected)
 
     def info_read(self, job):
         '''
@@ -743,6 +765,7 @@ class DeviceMixin(object): # {{{
         info, cp, fs = job.result
         self.location_manager.update_devices(cp, fs,
                 self.device_manager.device.icon)
+        self.bars_manager.update_bars()
         self.status_bar.device_connected(info[0])
         self.device_manager.books(Dispatcher(self.metadata_downloaded))
 
@@ -771,6 +794,7 @@ class DeviceMixin(object): # {{{
         self.sync_news()
         self.sync_catalogs()
         self.refresh_ondevice()
+        device_signals.device_metadata_available.emit()
 
     def refresh_ondevice(self, reset_only = False):
         '''
@@ -867,9 +891,14 @@ class DeviceMixin(object): # {{{
                 on_card = dest
             self.sync_to_device(on_card, delete, fmt)
         elif dest == 'mail':
-            to, fmts = sub_dest.split(';')
+            sub_dest_parts = sub_dest.split(';')
+            while len(sub_dest_parts) < 3:
+                sub_dest_parts.append('')
+            to = sub_dest_parts[0]
+            fmts = sub_dest_parts[1]
+            subject = ';'.join(sub_dest_parts[2:])
             fmts = [x.strip().lower() for x in fmts.split(',')]
-            self.send_by_mail(to, fmts, delete)
+            self.send_by_mail(to, fmts, delete, subject=subject)
 
     def cover_to_thumbnail(self, data):
         if self.device_manager.device and \
@@ -1035,11 +1064,13 @@ class DeviceMixin(object): # {{{
                     except:
                         pass
                     total_size = self.location_manager.free[0]
-                if self.location_manager.free[0] > total_size + (1024**2):
+                loc = tweaks['send_news_to_device_location']
+                loc_index = {"carda": 1, "cardb": 2}.get(loc, 0)
+                if self.location_manager.free[loc_index] > total_size + (1024**2):
                     # Send news to main memory if enough space available
                     # as some devices like the Nook Color cannot handle
                     # periodicals on SD cards properly
-                    on_card = None
+                    on_card = loc if loc in ('carda', 'cardb') else None
                 self.upload_books(files, names, metadata,
                         on_card=on_card,
                         memory=[files, remove])
@@ -1142,6 +1173,14 @@ class DeviceMixin(object): # {{{
                 'format supported by your device first.'
                 ), bad)
             d.exec_()
+
+    def upload_dirtied_booklists(self):
+        '''
+        Upload metadata to device.
+        '''
+        plugboards = self.library_view.model().db.prefs.get('plugboards', {})
+        self.device_manager.sync_booklists(Dispatcher(lambda x: x),
+                                           self.booklists(), plugboards)
 
     def upload_booklists(self):
         '''
@@ -1255,7 +1294,8 @@ class DeviceMixin(object): # {{{
             self.book_db_uuid_path_map = None
             return
 
-        if not hasattr(self, 'db_book_uuid_cache'):
+        if not self.device_manager.is_device_connected or \
+                        not hasattr(self, 'db_book_uuid_cache'):
             return loc
 
         if self.book_db_id_cache is None:

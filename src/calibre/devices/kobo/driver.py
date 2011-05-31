@@ -38,7 +38,7 @@ class KOBO(USBMS):
 
     VENDOR_ID   = [0x2237]
     PRODUCT_ID  = [0x4161]
-    BCD         = [0x0110]
+    BCD         = [0x0110, 0x0323]
 
     VENDOR_NAME = ['KOBO_INC', 'KOBO']
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['.KOBOEREADER', 'EREADER']
@@ -115,6 +115,8 @@ class KOBO(USBMS):
                     playlist_map[lpath]= "Im_Reading"
                 elif readstatus == 2:
                     playlist_map[lpath]= "Read"
+                elif readstatus == 3:
+                    playlist_map[lpath]= "Closed"
 
                 path = self.normalize_path(path)
                 # print "Normalized FileName: " + path
@@ -599,11 +601,47 @@ class KOBO(USBMS):
                         try:
                             cursor.execute('update content set ReadStatus=2,FirstTimeReading=\'true\' where BookID is Null and ContentID = ?', t)
                         except:
-                            debug_print('Database Exception:  Unable set book as Rinished')
+                            debug_print('Database Exception:  Unable set book as Finished')
                             raise
                         else:
                             connection.commit()
 #                            debug_print('Database: Commit set ReadStatus as Finished')
+                if category == 'Closed':
+                    # Reset Im_Reading list in the database
+                    if oncard == 'carda':
+                        query= 'update content set ReadStatus=0, FirstTimeReading = \'true\' where BookID is Null and ReadStatus = 3 and ContentID like \'file:///mnt/sd/%\''
+                    elif oncard != 'carda' and oncard != 'cardb':
+                        query= 'update content set ReadStatus=0, FirstTimeReading = \'true\' where BookID is Null and ReadStatus = 3 and ContentID not like \'file:///mnt/sd/%\''
+
+                    try:
+                        cursor.execute (query)
+                    except:
+                        debug_print('Database Exception:  Unable to reset Closed list')
+                        raise
+                    else:
+#                       debug_print('Commit: Reset Closed list')
+                        connection.commit()
+
+                    for book in books:
+#                       debug_print('Title:', book.title, 'lpath:', book.path)
+                        book.device_collections = ['Closed']
+
+                        extension =  os.path.splitext(book.path)[1]
+                        ContentType = self.get_content_type_from_extension(extension) if extension != '' else self.get_content_type_from_path(book.path)
+
+                        ContentID = self.contentid_from_path(book.path, ContentType)
+#                        datelastread = time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime())
+
+                        t = (ContentID,)
+
+                        try:
+                            cursor.execute('update content set ReadStatus=3,FirstTimeReading=\'true\' where BookID is Null and ContentID = ?', t)
+                        except:
+                            debug_print('Database Exception:  Unable set book as Closed')
+                            raise
+                        else:
+                            connection.commit()
+#                            debug_print('Database: Commit set ReadStatus as Closed')
         else: # No collections
             # Since no collections exist the ReadStatus needs to be reset to 0 (Unread)
             print "Reseting ReadStatus to 0"

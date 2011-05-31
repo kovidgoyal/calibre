@@ -1,0 +1,91 @@
+
+__license__   = 'GPL v3'
+__copyright__ = '2008-2011, Darko Miletic <darko.miletic at gmail.com>'
+'''
+novosti.rs
+'''
+
+import re
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class Novosti(BasicNewsRecipe):
+    title                 = 'Vecernje Novosti'
+    __author__            = 'Darko Miletic'
+    description           = 'U početku su bile istinske večernje novine - pokrenute u vreme Tršćanske krize, Italijansko-jugoslovenskog konflikta oko grada Trsta - ali su brzo izrasle u dnevni informativno-politički list, koji već godinama ima najveći tiraž u Srbiji.'
+    publisher             = 'Kompanija Novosti'
+    category              = 'news, politics, Serbia'
+    oldest_article        = 2
+    max_articles_per_feed = 100
+    no_stylesheets        = True
+    use_embedded_content  = False
+    encoding              = 'utf-8'
+    language              = 'sr'
+    publication_type      = 'newspaper'
+    masthead_url          = 'http://www.novosti.rs/images/basic/logo-print.png'
+    extra_css             = """ @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)}
+                                .article_description,body{font-family: Arial,Helvetica,sans1,sans-serif}
+                                .author{font-size: small}
+                                .articleLead{font-size: large; font-weight: bold}
+                                img{display: block; margin-bottom: 1em; margin-top: 1em}
+                            """
+
+    conversion_options = {
+                          'comment'      : description
+                        , 'tags'         : category
+                        , 'publisher'    : publisher
+                        , 'language'     : language
+                        , 'pretty_print' : True
+                        }
+
+    preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
+
+    keep_only_tags     = [dict(attrs={'class':['articleTitle','articleInfo','articleLead','singlePhoto fl','articleBody']})]
+    remove_tags        = [
+                            dict(name=['embed','object','iframe','base','link','meta'])
+                           ,dict(name='a', attrs={'class':'loadComments topCommentsLink'})
+                         ]
+    remove_attributes  = ['lang','xmlns:fb']
+    
+    feeds              = [
+	                        (u'Politika'     , u'http://www.novosti.rs/rss/2-Sve%20vesti')
+	                       ,(u'Drustvo'      , u'http://www.novosti.rs/rss/1-Sve%20vesti')
+	                       ,(u'Ekonomija'    , u'http://www.novosti.rs/rss/3-Sve%20vesti')
+	                       ,(u'Hronika'      , u'http://www.novosti.rs/rss/4-Sve%20vesti')
+	                       ,(u'Dosije'       , u'http://www.novosti.rs/rss/5-Sve%20vesti')
+	                       ,(u'Reportaze'    , u'http://www.novosti.rs/rss/6-Sve%20vesti')
+	                       ,(u'Tehnologije'  , u'http://www.novosti.rs/rss/35-Sve%20vesti')
+	                       ,(u'Zanimljivosti', u'http://www.novosti.rs/rss/26-Sve%20vesti')
+	                       ,(u'Auto'         , u'http://www.novosti.rs/rss/50-Sve%20vesti')
+	                       ,(u'Sport'        , u'http://www.novosti.rs/rss/11|47|12|14|13-Sve%20vesti')
+	                       ,(u'Svet'         , u'http://www.novosti.rs/rss/7-Sve%20vesti')
+	                       ,(u'Region'       , u'http://www.novosti.rs/rss/8-Sve%20vesti')
+	                       ,(u'Dijaspora'    , u'http://www.novosti.rs/rss/9-Sve%20vesti')
+	                       ,(u'Spektakl'     , u'http://www.novosti.rs/rss/10-Sve%20vesti')
+	                       ,(u'Kultura'      , u'http://www.novosti.rs/rss/31-Sve%20vesti')
+	                       ,(u'Srbija'       , u'http://www.novosti.rs/rss/15-Sve%20vesti')
+	                       ,(u'Beograd'      , u'http://www.novosti.rs/rss/16-Sve%20vesti')
+	                       ,(u'Zivot+'       , u'http://www.novosti.rs/rss/24|33|34|25|20|18|32|19-Sve%20vesti')
+	                       ,(u'Turizam'      , u'http://www.novosti.rs/rss/36-Sve%20vesti')
+						 ]
+
+    def preprocess_html(self, soup):
+        for item in soup.findAll(style=True):
+            del item['style']
+        for item in soup.findAll('a'):
+            limg = item.find('img')
+            if item.string is not None:
+               str = item.string
+               item.replaceWith(str)
+            else:
+               if limg:
+                  item.name = 'div'
+                  item.attrs = []
+               else:
+                   str = self.tag_to_string(item)
+                   item.replaceWith(str)
+        for item in soup.findAll('img'):
+            if not item.has_key('alt'):
+               item['alt'] = 'image'
+        return soup
+
+

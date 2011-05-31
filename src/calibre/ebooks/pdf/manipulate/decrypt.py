@@ -103,7 +103,7 @@ def main(args=sys.argv, name=''):
 
     try:
         decrypt(args[0], opts.output, args[1])
-    except DecryptionError, e:
+    except DecryptionError as e:
         print e.value
         return 1
 

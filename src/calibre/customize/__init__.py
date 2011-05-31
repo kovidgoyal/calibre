@@ -2,10 +2,23 @@ from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, sys, zipfile
+import os, sys, zipfile, importlib
 
-from calibre.constants import numeric_version
+from calibre.constants import numeric_version, iswindows, isosx
 from calibre.ptempfile import PersistentTemporaryFile
+
+platform = 'linux'
+if iswindows:
+    platform = 'windows'
+elif isosx:
+    platform = 'osx'
+
+
+class PluginNotFound(ValueError):
+    pass
+
+class InvalidPlugin(ValueError):
+    pass
 
 
 class Plugin(object): # {{{
@@ -436,7 +449,7 @@ class CatalogPlugin(Plugin): # {{{
                           ['author_sort','authors','comments','cover','formats',
                            'id','isbn','ondevice','pubdate','publisher','rating',
                            'series_index','series','size','tags','timestamp',
-                           'title','uuid'])
+                           'title_sort','title','uuid'])
         all_custom_fields = set(db.custom_field_keys())
         all_fields = all_std_fields.union(all_custom_fields)
 
@@ -512,13 +525,21 @@ class InterfaceActionBase(Plugin): # {{{
 
     actual_plugin = None
 
+    def __init__(self, *args, **kwargs):
+        Plugin.__init__(self, *args, **kwargs)
+        self.actual_plugin_ = None
+
     def load_actual_plugin(self, gui):
         '''
         This method must return the actual interface action plugin object.
         '''
-        mod, cls = self.actual_plugin.split(':')
-        return getattr(__import__(mod, fromlist=['1'], level=0), cls)(gui,
-                self.site_customization)
+        ac = self.actual_plugin_
+        if ac is None:
+            mod, cls = self.actual_plugin.split(':')
+            ac = getattr(importlib.import_module(mod), cls)(gui,
+                    self.site_customization)
+            self.actual_plugin_ = ac
+        return ac
 
 # }}}
 
@@ -575,9 +596,57 @@ class PreferencesPlugin(Plugin): # {{{
         base, _, wc = self.config_widget.partition(':')
         if not wc:
             wc = 'ConfigWidget'
-        base = __import__(base, fromlist=[1])
+        base = importlib.import_module(base)
         widget = getattr(base, wc)
         return widget(parent)
 
 # }}}
 
+class StoreBase(Plugin): # {{{
+
+    supported_platforms = ['windows', 'osx', 'linux']
+    author         = 'John Schember'
+    type = _('Store')
+    # Information about the store. Should be in the primary language
+    # of the store. This should not be translatable when set by
+    # a subclass.
+    description = _('An ebook store.')
+    minimum_calibre_version = (0, 8, 0)
+    version        = (1, 0, 1)
+
+    actual_plugin = None
+
+    # Does the store only distribute ebooks without DRM.
+    drm_free_only = False
+    # This is the 2 letter country code for the corporate
+    # headquarters of the store.
+    headquarters = ''
+    # All formats the store distributes ebooks in.
+    formats = []
+    # Is this store on an affiliate program?
+    affiliate = False
+
+    def load_actual_plugin(self, gui):
+        '''
+        This method must return the actual interface action plugin object.
+        '''
+        mod, cls = self.actual_plugin.split(':')
+        self.actual_plugin_object  = getattr(importlib.import_module(mod), cls)(gui, self.name)
+        return self.actual_plugin_object
+
+    def customization_help(self, gui=False):
+        if getattr(self, 'actual_plugin_object', None) is not None:
+            return self.actual_plugin_object.customization_help(gui)
+        raise NotImplementedError()
+
+    def config_widget(self):
+        if getattr(self, 'actual_plugin_object', None) is not None:
+            return self.actual_plugin_object.config_widget()
+        raise NotImplementedError()
+
+    def save_settings(self, config_widget):
+        if getattr(self, 'actual_plugin_object', None) is not None:
+            return self.actual_plugin_object.save_settings(config_widget)
+        raise NotImplementedError()
+
+# }}}

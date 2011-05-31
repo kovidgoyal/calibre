@@ -12,6 +12,34 @@ from calibre.constants import __appname__, __version__
 from calibre.utils.config import tweaks
 from calibre import fit_image
 
+def _data_to_image(data):
+    if isinstance(data, Image):
+        img = data
+    else:
+        img = Image()
+        img.load(data)
+    return img
+
+def minify_image(data, minify_to=(1200, 1600), preserve_aspect_ratio=True):
+    '''
+    Minify image to specified size if image is bigger than specified
+    size and return minified image, otherwise, original image is
+    returned.
+
+    :param data: Image data as bytestring or Image object
+    :param minify_to: A tuple (width, height) to specify target size
+    :param preserve_aspect_ratio: whether preserve original aspect ratio
+    '''
+    img = _data_to_image(data)
+    owidth, oheight = img.size
+    nwidth, nheight = minify_to
+    if owidth <= nwidth and oheight <= nheight:
+        return img
+    if preserve_aspect_ratio:
+        scaled, nwidth, nheight = fit_image(owidth, oheight, nwidth, nheight)
+    img.size = (nwidth, nheight)
+    return img
+
 def normalize_format_name(fmt):
     fmt = fmt.lower()
     if fmt == 'jpeg':
@@ -19,7 +47,7 @@ def normalize_format_name(fmt):
     return fmt
 
 def save_cover_data_to(data, path, bgcolor='#ffffff', resize_to=None,
-        return_data=False, compression_quality=90):
+        return_data=False, compression_quality=90, minify_to=None):
     '''
     Saves image in data to path, in the format specified by the path
     extension. Removes any transparency. If there is no transparency and no
@@ -32,14 +60,13 @@ def save_cover_data_to(data, path, bgcolor='#ffffff', resize_to=None,
         compression (lossless).
     :param bgcolor: The color for transparent pixels. Must be specified in hex.
     :param resize_to: A tuple (width, height) or None for no resizing
+    :param minify_to: A tuple (width, height) to specify target size. The image
+    will be resized to fit into this target size. If None the value from the
+    tweak is used.
 
     '''
     changed = False
-    if isinstance(data, Image):
-        img = data
-    else:
-        img = Image()
-        img.load(data)
+    img = _data_to_image(data)
     orig_fmt = normalize_format_name(img.format)
     fmt = os.path.splitext(path)[1]
     fmt = normalize_format_name(fmt[1:])
@@ -47,23 +74,30 @@ def save_cover_data_to(data, path, bgcolor='#ffffff', resize_to=None,
     if resize_to is not None:
         img.size = (resize_to[0], resize_to[1])
         changed = True
+    owidth, oheight = img.size
+    nwidth, nheight = tweaks['maximum_cover_size'] if minify_to is None else minify_to
+    scaled, nwidth, nheight = fit_image(owidth, oheight, nwidth, nheight)
+    if scaled:
+        img.size = (nwidth, nheight)
+        changed = True
     if img.has_transparent_pixels():
         canvas = create_canvas(img.size[0], img.size[1], bgcolor)
         canvas.compose(img)
         img = canvas
         changed = True
+
     if not changed:
         changed = fmt != orig_fmt
 
     ret = None
     if return_data:
         ret = data
-        if changed:
+        if changed or isinstance(ret, Image):
             if hasattr(img, 'set_compression_quality') and fmt == 'jpg':
                 img.set_compression_quality(compression_quality)
             ret = img.export(fmt)
     else:
-        if changed:
+        if changed or isinstance(ret, Image):
             if hasattr(img, 'set_compression_quality') and fmt == 'jpg':
                 img.set_compression_quality(compression_quality)
             img.save(path)

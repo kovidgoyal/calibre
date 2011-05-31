@@ -1,14 +1,13 @@
 """
 Read and write ZIP files. Modified by Kovid Goyal to support replacing files in
-a zip archive.
+a zip archive, detecting filename encoding, updating zip files, etc.
 """
-from __future__ import with_statement
-import struct, os, time, sys, shutil
+import struct, os, time, sys, shutil, stat, re, io
 import binascii, cStringIO
 from contextlib import closing
 from tempfile import SpooledTemporaryFile
 
-from calibre import sanitize_file_name
+from calibre import sanitize_file_name2
 from calibre.constants import filesystem_encoding
 from calibre.ebooks.chardet import detect
 
@@ -34,7 +33,7 @@ class LargeZipFile(Exception):
 
 error = BadZipfile      # The exception raised by this module
 
-ZIP64_LIMIT= (1 << 31) - 1
+ZIP64_LIMIT = (1 << 31) - 1
 ZIP_FILECOUNT_LIMIT = 1 << 16
 ZIP_MAX_COMMENT = (1 << 16) - 1
 
@@ -150,23 +149,41 @@ def decode_arcname(name):
     return name
 
 
-def is_zipfile(filename):
-    """Quickly see if file is a ZIP file by checking the magic number."""
+def _check_zipfile(fp):
     try:
-        fpin = open(filename, "rb")
-        endrec = _EndRecData(fpin)
-        fpin.close()
-        if endrec:
-            return True                 # file has correct magic number
+        if _EndRecData(fp):
+            return True         # file has correct magic number
     except IOError:
         pass
     return False
+
+def is_zipfile(filename):
+    """Quickly see if a file is a ZIP file by checking the magic number.
+
+    The filename argument may be a file or file-like object too.
+    """
+    result = False
+    try:
+        if hasattr(filename, "read"):
+            result = _check_zipfile(filename)
+        else:
+            with open(filename, "rb") as fp:
+                result = _check_zipfile(fp)
+    except IOError:
+        pass
+    return result
 
 def _EndRecData64(fpin, offset, endrec):
     """
     Read the ZIP64 end-of-archive records and use that to update endrec
     """
-    fpin.seek(offset - sizeEndCentDir64Locator, 2)
+    try:
+        fpin.seek(offset - sizeEndCentDir64Locator, 2)
+    except IOError:
+        # If the seek fails, the file is not large enough to contain a ZIP64
+        # end-of-archive record, so just return the end record we were given.
+        return endrec
+
     data = fpin.read(sizeEndCentDir64Locator)
     sig, diskno, reloff, disks = struct.unpack(structEndArchive64Locator, data)
     if sig != stringEndArchive64Locator:
@@ -185,6 +202,7 @@ def _EndRecData64(fpin, offset, endrec):
         return endrec
 
     # Update the original endrec using data from the ZIP64 record
+    endrec[_ECD_SIGNATURE] = sig
     endrec[_ECD_DISK_NUMBER] = disk_num
     endrec[_ECD_DISK_START] = disk_dir
     endrec[_ECD_ENTRIES_THIS_DISK] = dircount
@@ -207,7 +225,10 @@ def _EndRecData(fpin):
     # Check to see if this is ZIP file with no archive comment (the
     # "end of central directory" structure should be the last item in the
     # file if this is the case).
-    fpin.seek(-sizeEndCentDir, 2)
+    try:
+        fpin.seek(-sizeEndCentDir, 2)
+    except IOError:
+        return None
     data = fpin.read()
     if data[0:4] == stringEndArchive and data[-2:] == "\000\000":
         # the signature is correct and there's no comment, unpack structure
@@ -217,13 +238,9 @@ def _EndRecData(fpin):
         # Append a blank comment and record start offset
         endrec.append("")
         endrec.append(filesize - sizeEndCentDir)
-        if endrec[_ECD_OFFSET] == 0xffffffff:
-            # the value for the "offset of the start of the central directory"
-            # indicates that there is a "Zip64 end of central directory"
-            # structure present, so go look for it
-            return _EndRecData64(fpin, -sizeEndCentDir, endrec)
 
-        return endrec
+        # Try to read the "Zip64 end of central directory" structure
+        return _EndRecData64(fpin, -sizeEndCentDir, endrec)
 
     # Either this is not a ZIP file, or it is a ZIP file with an archive
     # comment.  Search the end of the file for the "end of central directory"
@@ -245,11 +262,10 @@ def _EndRecData(fpin):
             # Append the archive comment and start offset
             endrec.append(comment)
             endrec.append(maxCommentStart + start)
-            if endrec[_ECD_OFFSET] == 0xffffffff:
-                # There is apparently a "Zip64 end of central directory"
-                # structure present, so go look for it
-                return _EndRecData64(fpin, start - filesize, endrec)
-            return endrec
+
+            # Try to read the "Zip64 end of central directory" structure
+            return _EndRecData64(fpin, maxCommentStart + start - filesize,
+                                 endrec)
 
     # Unable to find a valid end of central directory structure
     return
@@ -461,213 +477,207 @@ class _ZipDecrypter:
         self._UpdateKeys(c)
         return c
 
-class ZipExtFile:
+class ZipExtFile(io.BufferedIOBase):
     """File-like object for reading an archive member.
        Is returned by ZipFile.open().
     """
 
-    def __init__(self, fileobj, zipinfo, decrypt=None):
-        self.fileobj = fileobj
-        self.orig_pos = fileobj.tell()
-        self.decrypter = decrypt
-        self.bytes_read = 0L
-        self.rawbuffer = ''
-        self.readbuffer = ''
-        self.linebuffer = ''
-        self.eof = False
-        self.univ_newlines = False
-        self.nlSeps = ("\n", )
-        self.lastdiscard = ''
+    # Max size supported by decompressor.
+    MAX_N = 1 << 31 - 1
 
-        self.compress_type = zipinfo.compress_type
-        self.compress_size = zipinfo.compress_size
+    # Read from compressed files in 4k blocks.
+    MIN_READ_SIZE = 4096
 
-        self.closed  = False
-        self.mode    = "r"
+    # Search for universal newlines or line chunks.
+    PATTERN = re.compile(r'^(?P<chunk>[^\r\n]+)|(?P<newline>\n|\r\n?)')
+
+    def __init__(self, fileobj, mode, zipinfo, decrypter=None):
+        self._fileobj = fileobj
+        self._decrypter = decrypter
+        self._orig_pos = fileobj.tell()
+
+        self._compress_type = zipinfo.compress_type
+        self._compress_size = zipinfo.compress_size
+        self._compress_left = zipinfo.compress_size
+
+        if self._compress_type == ZIP_DEFLATED:
+            self._decompressor = zlib.decompressobj(-15)
+        self._unconsumed = ''
+
+        self._readbuffer = ''
+        self._offset = 0
+
+        self._universal = 'U' in mode
+        self.newlines = None
+
+        # Adjust read size for encrypted files since the first 12 bytes
+        # are for the encryption/password information.
+        if self._decrypter is not None:
+            self._compress_left -= 12
+
+        self.mode = mode
         self.name = zipinfo.filename
 
-        # read from compressed files in 64k blocks
-        self.compreadsize = 64*1024
-        if self.compress_type == ZIP_DEFLATED:
-            self.dc = zlib.decompressobj(-15)
-
-    def set_univ_newlines(self, univ_newlines):
-        self.univ_newlines = univ_newlines
-
-        # pick line separator char(s) based on universal newlines flag
-        self.nlSeps = ("\n", )
-        if self.univ_newlines:
-            self.nlSeps = ("\r\n", "\r", "\n")
-
-    def __iter__(self):
-        return self
-
-    def next(self):
-        nextline = self.readline()
-        if not nextline:
-            raise StopIteration()
-
-        return nextline
-
-    def close(self):
-        self.closed = True
-
-    def _checkfornewline(self):
-        nl, nllen = -1, -1
-        if self.linebuffer:
-            # ugly check for cases where half of an \r\n pair was
-            # read on the last pass, and the \r was discarded.  In this
-            # case we just throw away the \n at the start of the buffer.
-            if (self.lastdiscard, self.linebuffer[0]) == ('\r','\n'):
-                self.linebuffer = self.linebuffer[1:]
-
-            for sep in self.nlSeps:
-                nl = self.linebuffer.find(sep)
-                if nl >= 0:
-                    nllen = len(sep)
-                    return nl, nllen
-
-        return nl, nllen
-
-    def readline(self, size = -1):
-        """Read a line with approx. size. If size is negative,
-           read a whole line.
-        """
-        if size < 0:
-            size = sys.maxint
-        elif size == 0:
-            return ''
-
-        # check for a newline already in buffer
-        nl, nllen = self._checkfornewline()
-
-        if nl >= 0:
-            # the next line was already in the buffer
-            nl = min(nl, size)
+        if hasattr(zipinfo, 'CRC'):
+            self._expected_crc = zipinfo.CRC
+            self._running_crc = crc32(b'') & 0xffffffff
         else:
-            # no line break in buffer - try to read more
-            size -= len(self.linebuffer)
-            while nl < 0 and size > 0:
-                buf = self.read(min(size, 100))
-                if not buf:
-                    break
-                self.linebuffer += buf
-                size -= len(buf)
+            self._expected_crc = None
 
-                # check for a newline in buffer
-                nl, nllen = self._checkfornewline()
+    def readline(self, limit=-1):
+        """Read and return a line from the stream.
 
-            # we either ran out of bytes in the file, or
-            # met the specified size limit without finding a newline,
-            # so return current buffer
-            if nl < 0:
-                s = self.linebuffer
-                self.linebuffer = ''
-                return s
-
-        buf = self.linebuffer[:nl]
-        self.lastdiscard = self.linebuffer[nl:nl + nllen]
-        self.linebuffer = self.linebuffer[nl + nllen:]
-
-        # line is always returned with \n as newline char (except possibly
-        # for a final incomplete line in the file, which is handled above).
-        return buf + "\n"
-
-    def readlines(self, sizehint = -1):
-        """Return a list with all (following) lines. The sizehint parameter
-        is ignored in this implementation.
+        If limit is specified, at most limit bytes will be read.
         """
-        result = []
+
+        if not self._universal and limit < 0:
+            # Shortcut common case - newline found in buffer.
+            i = self._readbuffer.find('\n', self._offset) + 1
+            if i > 0:
+                line = self._readbuffer[self._offset: i]
+                self._offset = i
+                return line
+
+        if not self._universal:
+            return io.BufferedIOBase.readline(self, limit)
+
+        line = ''
+        while limit < 0 or len(line) < limit:
+            readahead = self.peek(2)
+            if readahead == '':
+                return line
+
+            #
+            # Search for universal newlines or line chunks.
+            #
+            # The pattern returns either a line chunk or a newline, but not
+            # both. Combined with peek(2), we are assured that the sequence
+            # '\r\n' is always retrieved completely and never split into
+            # separate newlines - '\r', '\n' due to coincidental readaheads.
+            #
+            match = self.PATTERN.search(readahead)
+            newline = match.group('newline')
+            if newline is not None:
+                if self.newlines is None:
+                    self.newlines = []
+                if newline not in self.newlines:
+                    self.newlines.append(newline)
+                self._offset += len(newline)
+                return line + '\n'
+
+            chunk = match.group('chunk')
+            if limit >= 0:
+                chunk = chunk[: limit - len(line)]
+
+            self._offset += len(chunk)
+            line += chunk
+
+        return line
+
+    def peek(self, n=1):
+        """Returns buffered bytes without advancing the position."""
+        if n > len(self._readbuffer) - self._offset:
+            chunk = self.read(n)
+            self._offset -= len(chunk)
+
+        # Return up to 512 bytes to reduce allocation overhead for tight loops.
+        return self._readbuffer[self._offset: self._offset + 512]
+
+    def readable(self):
+        return True
+
+    def read(self, n=-1):
+        """Read and return up to n bytes.
+        If the argument is omitted, None, or negative, data is read and returned until EOF is reached..
+        """
+        buf = ''
+        if n is None:
+            n = -1
         while True:
-            line = self.readline()
-            if not line: break
-            result.append(line)
-        return result
+            if n < 0:
+                data = self.read1(n)
+            elif n > len(buf):
+                data = self.read1(n - len(buf))
+            else:
+                return buf
+            if len(data) == 0:
+                return buf
+            buf += data
+
+    def _update_crc(self, newdata, eof):
+        # Update the CRC using the given data.
+        if self._expected_crc is None:
+            # No need to compute the CRC if we don't have a reference value
+            return
+        self._running_crc = crc32(newdata, self._running_crc) & 0xffffffff
+        # Check the CRC if we're at the end of the file
+        if eof and self._running_crc != self._expected_crc:
+            raise BadZipfile("Bad CRC-32 for file %r" % self.name)
+
+    def read1(self, n):
+        """Read up to n bytes with at most one read() system call."""
+
+        # Simplify algorithm (branching) by transforming negative n to large n.
+        if n < 0 or n is None:
+            n = self.MAX_N
+
+        # Bytes available in read buffer.
+        len_readbuffer = len(self._readbuffer) - self._offset
+
+        # Read from file.
+        if self._compress_left > 0 and n > len_readbuffer + len(self._unconsumed):
+            nbytes = n - len_readbuffer - len(self._unconsumed)
+            nbytes = max(nbytes, self.MIN_READ_SIZE)
+            nbytes = min(nbytes, self._compress_left)
+
+            data = self._fileobj.read(nbytes)
+            self._compress_left -= len(data)
+
+            if data and self._decrypter is not None:
+                data = ''.join(map(self._decrypter, data))
+
+            if self._compress_type == ZIP_STORED:
+                self._update_crc(data, eof=(self._compress_left==0))
+                self._readbuffer = self._readbuffer[self._offset:] + data
+                self._offset = 0
+            else:
+                # Prepare deflated bytes for decompression.
+                self._unconsumed += data
+
+        # Handle unconsumed data.
+        if (len(self._unconsumed) > 0 and n > len_readbuffer and
+            self._compress_type == ZIP_DEFLATED):
+            data = self._decompressor.decompress(
+                self._unconsumed,
+                max(n - len_readbuffer, self.MIN_READ_SIZE)
+            )
+
+            self._unconsumed = self._decompressor.unconsumed_tail
+            eof = len(self._unconsumed) == 0 and self._compress_left == 0
+            if eof:
+                data += self._decompressor.flush()
+
+            self._update_crc(data, eof=eof)
+            self._readbuffer = self._readbuffer[self._offset:] + data
+            self._offset = 0
+
+        # Read from buffer.
+        data = self._readbuffer[self._offset: self._offset + n]
+        self._offset += len(data)
+        return data
 
     def read_raw(self):
-        pos = self.fileobj.tell()
-        self.fileobj.seek(self.orig_pos)
-        bytes_to_read = self.compress_size
-        if self.decrypter is not None:
+        pos = self._fileobj.tell()
+        self._fileobj.seek(self._orig_pos)
+        bytes_to_read = self._compress_size
+        if self._decrypter is not None:
             bytes_to_read -= 12
         raw = b''
 
         if bytes_to_read > 0:
-            raw = self.fileobj.read(bytes_to_read)
-        self.fileobj.seek(pos)
+            raw = self._fileobj.read(bytes_to_read)
+        self._fileobj.seek(pos)
         return raw
-
-
-    def read(self, size = None):
-        # act like file() obj and return empty string if size is 0
-        if size == 0:
-            return ''
-
-        # determine read size
-        bytesToRead = self.compress_size - self.bytes_read
-
-        # adjust read size for encrypted files since the first 12 bytes
-        # are for the encryption/password information
-        if self.decrypter is not None:
-            bytesToRead -= 12
-
-        if size is not None and size >= 0:
-            if self.compress_type == ZIP_STORED:
-                lr = len(self.readbuffer)
-                bytesToRead = min(bytesToRead, size - lr)
-            elif self.compress_type == ZIP_DEFLATED:
-                if len(self.readbuffer) > size:
-                    # the user has requested fewer bytes than we've already
-                    # pulled through the decompressor; don't read any more
-                    bytesToRead = 0
-                else:
-                    # user will use up the buffer, so read some more
-                    lr = len(self.rawbuffer)
-                    bytesToRead = min(bytesToRead, self.compreadsize - lr)
-
-        # avoid reading past end of file contents
-        if bytesToRead + self.bytes_read > self.compress_size:
-            bytesToRead = self.compress_size - self.bytes_read
-
-        # try to read from file (if necessary)
-        if bytesToRead > 0:
-            bytes = self.fileobj.read(bytesToRead)
-            self.bytes_read += len(bytes)
-            self.rawbuffer += bytes
-
-            # handle contents of raw buffer
-            if self.rawbuffer:
-                newdata = self.rawbuffer
-                self.rawbuffer = ''
-
-                # decrypt new data if we were given an object to handle that
-                if newdata and self.decrypter is not None:
-                    newdata = ''.join(map(self.decrypter, newdata))
-
-                # decompress newly read data if necessary
-                if newdata and self.compress_type == ZIP_DEFLATED:
-                    newdata = self.dc.decompress(newdata)
-                    self.rawbuffer = self.dc.unconsumed_tail
-                    if self.eof and len(self.rawbuffer) == 0:
-                        # we're out of raw bytes (both from the file and
-                        # the local buffer); flush just to make sure the
-                        # decompressor is done
-                        newdata += self.dc.flush()
-                        # prevent decompressor from being used again
-                        self.dc = None
-
-                self.readbuffer += newdata
-
-
-        # return what the user asked for
-        if size is None or len(self.readbuffer) <= size:
-            bytes = self.readbuffer
-            self.readbuffer = ''
-        else:
-            bytes = self.readbuffer[:size]
-            self.readbuffer = self.readbuffer[size:]
-
-        return bytes
 
 
 class ZipFile:
@@ -733,20 +743,34 @@ class ZipFile:
         if key == 'r':
             self._GetContents()
         elif key == 'w':
-            pass
+            # set the modified flag so central directory gets written
+            # even if no files are added to the archive
+            self._didModify = True
         elif key == 'a':
-            try:                        # See if file is a zip file
+            try:
+                # See if file is a zip file
                 self._RealGetContents()
                 self._calculate_file_offsets()
                 # seek to start of directory and overwrite
                 self.fp.seek(self.start_dir, 0)
-            except BadZipfile:          # file is not a zip file, just append
+            except BadZipfile:
+                # file is not a zip file, just append
                 self.fp.seek(0, 2)
+
+                # set the modified flag so central directory gets written
+                # even if no files are added to the archive
+                self._didModify = True
         else:
             if not self._filePassed:
                 self.fp.close()
                 self.fp = None
             raise RuntimeError, 'Mode must be "r", "w" or "a"'
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        self.close()
 
     def _GetContents(self):
         """Read the directory, making sure we close the file if the format
@@ -762,9 +786,12 @@ class ZipFile:
     def _RealGetContents(self):
         """Read in the table of contents for the ZIP file."""
         fp = self.fp
-        endrec = _EndRecData(fp)
+        try:
+            endrec = _EndRecData(fp)
+        except IOError:
+            raise BadZipfile("File is not a zip file")
         if not endrec:
-            raise BadZipfile, "File is not a zip file"
+            raise BadZipfile("File is not a zip file")
         if self.debug > 1:
             print endrec
         size_cd = endrec[_ECD_SIZE]             # bytes in central directory
@@ -773,9 +800,8 @@ class ZipFile:
 
         # "concat" is zero, unless zip was concatenated to another file
         concat = endrec[_ECD_LOCATION] - size_cd - offset_cd
-        if endrec[_ECD_LOCATION] > ZIP64_LIMIT:
-            # If the offset of the "End of Central Dir" record requires Zip64
-            # extension structures, account for them
+        if endrec[_ECD_SIGNATURE] == stringEndArchive64:
+            # If Zip64 extension structures are present, account for them
             concat -= (sizeEndCentDir64 + sizeEndCentDir64Locator)
 
         if self.debug > 2:
@@ -918,9 +944,14 @@ class ZipFile:
 
     def testzip(self):
         """Read all the files and check the CRC."""
+        chunk_size = 2 ** 20
         for zinfo in self.filelist:
             try:
-                self.read(zinfo.filename)       # Check CRC-32
+                # Read by chunks, to avoid an OverflowError or a
+                # MemoryError with very large embedded files.
+                f = self.open(zinfo.filename, "r")
+                while f.read(chunk_size):     # Check CRC-32
+                    pass
             except BadZipfile:
                 return zinfo.filename
 
@@ -982,9 +1013,9 @@ class ZipFile:
             zef_file.read(fheader[_FH_EXTRA_FIELD_LENGTH])
 
         if fname != zinfo.orig_filename:
-            print ('WARNING: Header (%r) and directory (%r) filenames do not'
-                    ' match inside ZipFile')%(fname, zinfo.orig_filename)
-            print 'Using directory filename %r'%zinfo.orig_filename
+            print (('WARNING: Header (%r) and directory (%r) filenames do not'
+                    ' match inside ZipFile')%(fname, zinfo.orig_filename))
+            print ('Using directory filename %r'%zinfo.orig_filename)
             #raise BadZipfile, \
             #          'File name in directory "%r" and header "%r" differ.' % (
             #              zinfo.orig_filename, fname)
@@ -1016,16 +1047,7 @@ class ZipFile:
             if ord(h[11]) != check_byte:
                 raise RuntimeError("Bad password for file", name)
 
-        # build and return a ZipExtFile
-        if zd is None:
-            zef = ZipExtFile(zef_file, zinfo)
-        else:
-            zef = ZipExtFile(zef_file, zinfo, zd)
-
-        # set universal newlines on ZipExtFile if necessary
-        if "U" in mode:
-            zef.set_univ_newlines(True)
-        return zef
+        return ZipExtFile(zef_file, mode, zinfo, zd)
 
     def extract(self, member, path=None, pwd=None):
         """Extract a member from the archive to the current working directory,
@@ -1050,6 +1072,10 @@ class ZipFile:
         if members is None:
             members = self.namelist()
 
+        # Kovid: Extract longer names first, just in case the zip file has
+        # an entry for a directory without a trailing slash
+        members.sort(key=len, reverse=True)
+
         for zipinfo in members:
             self.extract(zipinfo, path, pwd)
 
@@ -1059,42 +1085,51 @@ class ZipFile:
         """
         # build the destination pathname, replacing
         # forward slashes to platform specific separators.
-        if targetpath[-1:] == "/":
+        # Strip trailing path separator, unless it represents the root.
+        if (targetpath[-1:] in (os.path.sep, os.path.altsep)
+            and len(os.path.splitdrive(targetpath)[1]) > 1):
             targetpath = targetpath[:-1]
 
         # don't include leading "/" from file name if present
-        fname = member.filename
-        if isinstance(fname, unicode):
-            fname = fname.encode(filesystem_encoding, 'replace')
-        if fname.startswith('/'):
-            fname = fname[1:]
-        targetpath = os.path.join(targetpath, fname)
+        if member.filename[0] == '/':
+            targetpath = os.path.join(targetpath, member.filename[1:])
+        else:
+            targetpath = os.path.join(targetpath, member.filename)
 
         targetpath = os.path.normpath(targetpath)
 
         # Create all upper directories if necessary.
         upperdirs = os.path.dirname(targetpath)
-        while upperdirs:
-            if os.path.exists(upperdirs):
-                if os.path.isdir(upperdirs):
-                    break
-                os.remove(upperdirs)
-            upperdirs = os.path.dirname(upperdirs)
-        upperdirs = os.path.dirname(targetpath)
         if upperdirs and not os.path.exists(upperdirs):
             os.makedirs(upperdirs)
 
-        if not os.path.exists(targetpath): # Could be a previously automatically created directory
+        if member.filename[-1] == '/':
+            if not os.path.isdir(targetpath):
+                os.mkdir(targetpath)
+            self.extract_mapping[member.filename] = targetpath
+            return targetpath
+
+        if not os.path.exists(targetpath):
+            # Kovid: Could be a previously automatically created directory
+            # in which case it is ignored
             with closing(self.open(member, pwd=pwd)) as source:
                 try:
                     with open(targetpath, 'wb') as target:
                         shutil.copyfileobj(source, target)
                 except:
+                    # Try sanitizing the file name to remove invalid characters
                     components = list(os.path.split(targetpath))
-                    components[-1] = sanitize_file_name(components[-1])
+                    components[-1] = sanitize_file_name2(components[-1])
                     targetpath = os.sep.join(components)
                     with open(targetpath, 'wb') as target:
                         shutil.copyfileobj(source, target)
+        # Kovid: Try to preserve the timestamps in the ZIP file
+        try:
+            mtime = time.localtime()
+            mtime = time.mktime(member.date_time + (0, 0) + (mtime.tm_isdst,))
+            os.utime(targetpath, (mtime, mtime))
+        except:
+            pass
         self.extract_mapping[member.filename] = targetpath
         return targetpath
 
@@ -1129,6 +1164,7 @@ class ZipFile:
                   "Attempt to write to ZIP archive that was already closed")
 
         st = os.stat(filename)
+        isdir = stat.S_ISDIR(st.st_mode)
         mtime = time.localtime(st.st_mtime)
         date_time = mtime[0:6]
         # Create ZipInfo instance to store file information
@@ -1139,6 +1175,8 @@ class ZipFile:
             arcname = arcname[1:]
         if not isinstance(arcname, unicode):
             arcname = arcname.decode(filesystem_encoding)
+        if isdir and not arcname.endswith('/'):
+            arcname += '/'
         zinfo = ZipInfo(arcname, date_time)
         zinfo.external_attr = (st[0] & 0xFFFF) << 16L      # Unix attributes
         if compress_type is None:
@@ -1152,6 +1190,16 @@ class ZipFile:
 
         self._writecheck(zinfo)
         self._didModify = True
+
+        if isdir:
+            zinfo.file_size = 0
+            zinfo.compress_size = 0
+            zinfo.CRC = 0
+            self.filelist.append(zinfo)
+            self.NameToInfo[zinfo.filename] = zinfo
+            self.fp.write(zinfo.FileHeader())
+            return
+
         with open(filename, "rb") as fp:
             # Must overwrite CRC and sizes with correct data later
             zinfo.CRC = CRC = 0
@@ -1261,12 +1309,6 @@ class ZipFile:
         """Call the "close()" method in case the user forgot."""
         self.close()
 
-    def __enter__(self):
-        return self
-
-    def __exit__(self, typ, value, traceback):
-        self.close()
-
     def close(self):
         """Close the file, and for mode "w" and "a" write the ending
         records."""
@@ -1338,19 +1380,26 @@ class ZipFile:
 
             pos2 = self.fp.tell()
             # Write end-of-zip-archive record
+            centDirCount = count
+            centDirSize = pos2 - pos1
             centDirOffset = pos1
-            if pos1 > ZIP64_LIMIT:
+            if (centDirCount >= ZIP_FILECOUNT_LIMIT or
+                centDirOffset > ZIP64_LIMIT or
+                centDirSize > ZIP64_LIMIT):
                 # Need to write the ZIP64 end-of-archive records
                 zip64endrec = struct.pack(
                         structEndArchive64, stringEndArchive64,
-                        44, 45, 45, 0, 0, count, count, pos2 - pos1, pos1)
+                        44, 45, 45, 0, 0, centDirCount, centDirCount,
+                        centDirSize, centDirOffset)
                 self.fp.write(zip64endrec)
 
                 zip64locrec = struct.pack(
                         structEndArchive64Locator,
                         stringEndArchive64Locator, 0, pos2, 1)
                 self.fp.write(zip64locrec)
-                centDirOffset = 0xFFFFFFFF
+                centDirCount = min(centDirCount, 0xFFFF)
+                centDirSize = min(centDirSize, 0xFFFFFFFF)
+                centDirOffset = min(centDirOffset, 0xFFFFFFFF)
 
             # check for valid comment length
             if len(self.comment) >= ZIP_MAX_COMMENT:
@@ -1361,9 +1410,8 @@ class ZipFile:
                 self.comment = self.comment[:ZIP_MAX_COMMENT]
 
             endrec = struct.pack(structEndArchive, stringEndArchive,
-                                 0, 0, count % ZIP_FILECOUNT_LIMIT,
-                                 count % ZIP_FILECOUNT_LIMIT, pos2 - pos1,
-                                 centDirOffset, len(self.comment))
+                                 0, 0, centDirCount, centDirCount,
+                                 centDirSize, centDirOffset, len(self.comment))
             self.fp.write(endrec)
             self.fp.write(self.comment)
             self.fp.flush()
@@ -1544,7 +1592,9 @@ def main(args = None):
             print USAGE
             sys.exit(1)
         zf = ZipFile(args[1], 'r')
-        zf.testzip()
+        badfile = zf.testzip()
+        if badfile:
+            print("The following enclosed file is corrupted: {!r}".format(badfile))
         print "Done testing"
 
     elif args[0] == '-e':
@@ -1563,9 +1613,8 @@ def main(args = None):
             tgtdir = os.path.dirname(tgt)
             if not os.path.exists(tgtdir):
                 os.makedirs(tgtdir)
-            fp = open(tgt, 'wb')
-            fp.write(zf.read(path))
-            fp.close()
+            with open(tgt, 'wb') as fp:
+                fp.write(zf.read(path))
         zf.close()
 
     elif args[0] == '-c':

@@ -222,7 +222,7 @@ class SaveWorker(Thread):
                         if isbytestring(fpath):
                             fpath = fpath.decode(filesystem_encoding)
                         formats[fmt.lower()] = fpath
-            data[i] = [opf, cpath, formats]
+            data[i] = [opf, cpath, formats, mi.last_modified.isoformat()]
         return data
 
     def run(self):

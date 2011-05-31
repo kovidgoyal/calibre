@@ -1,0 +1,31 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1298137661(BasicNewsRecipe):
+  title          = u'Helsingin Sanomat'
+  __author__ = 'oneillpt'
+  language = 'fi'
+  oldest_article = 7
+  max_articles_per_feed = 100
+  no_stylesheets = True
+  remove_javascript     = True
+  conversion_options = {
+                         'linearize_tables' : True
+                       }
+  remove_tags = [
+                  dict(name='a', attrs={'id':'articleCommentUrl'}),
+                  dict(name='p', attrs={'class':'newsSummary'}),
+                  dict(name='div', attrs={'class':'headerTools'})
+                ]
+
+  feeds          = [(u'Uutiset - HS.fi', u'http://www.hs.fi/uutiset/rss/'), (u'Politiikka - HS.fi', u'http://www.hs.fi/politiikka/rss/'),
+                     (u'Ulkomaat - HS.fi', u'http://www.hs.fi/ulkomaat/rss/'), (u'Kulttuuri - HS.fi', u'http://www.hs.fi/kulttuuri/rss/'),
+                     (u'Kirjat - HS.fi', u'http://www.hs.fi/kulttuuri/kirjat/rss/'), (u'Elokuvat - HS.fi', u'http://www.hs.fi/kulttuuri/elokuvat/rss/')
+                     ]
+
+  def print_version(self, url):
+    j = url.rfind("/")
+    s = url[j:]
+    i = s.rfind("?ref=rss")
+    if i > 0:
+      s = s[:i]
+    return "http://www.hs.fi/tulosta" + s

@@ -6,11 +6,11 @@ __docformat__ = 'restructuredtext en'
 """
 Provides abstraction for metadata reading.writing from a variety of ebook formats.
 """
-import os, mimetypes, sys, re
+import os, sys, re
 from urllib import unquote, quote
 from urlparse import urlparse
 
-from calibre import relpath
+from calibre import relpath, guess_type, remove_bracketed_text
 
 from calibre.utils.config import tweaks
 
@@ -27,20 +27,37 @@ def authors_to_string(authors):
     else:
         return ''
 
-_bracket_pat = re.compile(r'[\[({].*?[})\]]')
-def author_to_author_sort(author):
+def author_to_author_sort(author, method=None):
     if not author:
-        return ''
-    method = tweaks['author_sort_copy_method']
-    if method == 'copy' or (method == 'comma' and ',' in author):
+        return u''
+    sauthor = remove_bracketed_text(author).strip()
+    tokens = sauthor.split()
+    if len(tokens) < 2:
         return author
-    author = _bracket_pat.sub('', author).strip()
-    tokens = author.split()
-    if tokens and tokens[-1] not in ('Inc.', 'Inc'):
-        tokens = tokens[-1:] + tokens[:-1]
-        if len(tokens) > 1 and method != 'nocomma':
-            tokens[0] += ','
-    return ' '.join(tokens)
+    if method is None:
+        method = tweaks['author_sort_copy_method']
+    if method == u'copy':
+        return author
+    suffixes = set([x.lower() for x in tweaks['author_name_suffixes']])
+    suffixes |= set([x+u'.' for x in suffixes])
+
+    last = tokens[-1].lower()
+    suffix = None
+    if last in suffixes:
+        suffix = tokens[-1]
+        tokens = tokens[:-1]
+
+    if method == u'comma' and u',' in u''.join(tokens):
+        return author
+
+    atokens = tokens[-1:] + tokens[:-1]
+    if suffix:
+        atokens.append(suffix)
+
+    if method != u'nocomma' and len(atokens) > 1:
+        atokens[0] += u','
+
+    return u' '.join(atokens)
 
 def authors_to_sort_string(authors):
     return ' & '.join(map(author_to_author_sort, authors))
@@ -118,7 +135,7 @@ class Resource(object):
         self.path = None
         self.fragment = ''
         try:
-            self.mime_type = mimetypes.guess_type(href_or_path)[0]
+            self.mime_type = guess_type(href_or_path)[0]
         except:
             self.mime_type = None
         if self.mime_type is None:
@@ -274,6 +291,9 @@ def check_isbn(isbn):
     if not isbn:
         return None
     isbn = re.sub(r'[^0-9X]', '', isbn.upper())
+    all_same = re.match(r'(\d)\1{9,12}$', isbn)
+    if all_same is not None:
+        return None
     if len(isbn) == 10:
         return check_isbn10(isbn)
     if len(isbn) == 13:

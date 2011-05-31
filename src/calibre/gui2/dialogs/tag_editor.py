@@ -122,6 +122,8 @@ class TagEditor(QDialog, Ui_TagEditor):
         tags = unicode(self.add_tag_input.text()).split(',')
         for tag in tags:
             tag = tag.strip()
+            if not tag:
+                continue
             for item in self.available_tags.findItems(tag, Qt.MatchFixedString):
                 self.available_tags.takeItem(self.available_tags.row(item))
             if tag not in self.tags:

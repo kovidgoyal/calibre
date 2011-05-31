@@ -74,9 +74,10 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def initialize(self):
         try:
-            with open(P('template-functions.json'), 'rb') as f:
-                self.builtin_source_dict = json.load(f, encoding='utf-8')
+            self.builtin_source_dict = json.loads(P('template-functions.json', data=True,
+                allow_user_override=False).decode('utf-8'))
         except:
+            traceback.print_exc()
             self.builtin_source_dict = {}
 
         self.funcs = formatter_functions.get_functions()
@@ -186,7 +187,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.argument_count.setValue(func.arg_count)
         self.documentation.setText(func.doc)
         if txt in self.builtins:
-            if hasattr(func, 'program_text'):
+            if hasattr(func, 'program_text') and func.program_text:
                 self.program.setPlainText(func.program_text)
             elif txt in self.builtin_source_dict:
                 self.program.setPlainText(self.builtin_source_dict[txt])

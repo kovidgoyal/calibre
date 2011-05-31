@@ -8,14 +8,14 @@ __docformat__ = 'restructuredtext en'
 import os
 from functools import partial
 
-from PyQt4.Qt import Qt, QMenu, QModelIndex
+from PyQt4.Qt import Qt, QMenu, QModelIndex, QTimer
 
-from calibre.gui2 import error_dialog, config
-from calibre.gui2.dialogs.metadata_single import MetadataSingleDialog
+from calibre.gui2 import error_dialog, Dispatcher, question_dialog
 from calibre.gui2.dialogs.metadata_bulk import MetadataBulkDialog
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.tag_list_editor import TagListEditor
 from calibre.gui2.actions import InterfaceAction
+from calibre.ebooks.metadata import authors_to_string
 from calibre.utils.icu import sort_key
 
 class EditMetadataAction(InterfaceAction):
@@ -34,17 +34,8 @@ class EditMetadataAction(InterfaceAction):
         md.addAction(_('Edit metadata in bulk'),
                 partial(self.edit_metadata, False, bulk=True))
         md.addSeparator()
-        md.addAction(_('Download metadata and covers'),
-                partial(self.download_metadata, False, covers=True),
+        md.addAction(_('Download metadata and covers'), self.download_metadata,
                 Qt.ControlModifier+Qt.Key_D)
-        md.addAction(_('Download only metadata'),
-                partial(self.download_metadata, False, covers=False))
-        md.addAction(_('Download only covers'),
-                partial(self.download_metadata, False, covers=True,
-                    set_metadata=False, set_social_metadata=False))
-        md.addAction(_('Download only social metadata'),
-                partial(self.download_metadata, False, covers=False,
-                    set_metadata=False, set_social_metadata=True))
         self.metadata_menu = md
 
         mb = QMenu()
@@ -72,49 +63,87 @@ class EditMetadataAction(InterfaceAction):
         self.qaction.setEnabled(enabled)
         self.action_merge.setEnabled(enabled)
 
-    def download_metadata(self, checked, covers=True, set_metadata=True,
-            set_social_metadata=None):
-        rows = self.gui.library_view.selectionModel().selectedRows()
-        if not rows or len(rows) == 0:
-            d = error_dialog(self.gui, _('Cannot download metadata'),
-                             _('No books selected'))
-            d.exec_()
-            return
-        db = self.gui.library_view.model().db
-        ids = [db.id(row.row()) for row in rows]
-        self.do_download_metadata(ids, covers=covers,
-                set_metadata=set_metadata,
-                set_social_metadata=set_social_metadata)
+    # Download metadata {{{
+    def download_metadata(self, ids=None):
+        if ids is None:
+            rows = self.gui.library_view.selectionModel().selectedRows()
+            if not rows or len(rows) == 0:
+                return error_dialog(self.gui, _('Cannot download metadata'),
+                            _('No books selected'), show=True)
+            db = self.gui.library_view.model().db
+            ids = [db.id(row.row()) for row in rows]
+        from calibre.gui2.metadata.bulk_download import start_download
+        start_download(self.gui, ids,
+                Dispatcher(self.metadata_downloaded))
 
-    def do_download_metadata(self, ids, covers=True, set_metadata=True,
-            set_social_metadata=None):
-        m = self.gui.library_view.model()
-        db = m.db
-        if set_social_metadata is None:
-            get_social_metadata = config['get_social_metadata']
-        else:
-            get_social_metadata = set_social_metadata
-        from calibre.gui2.metadata.bulk_download import DoDownload
-        if set_social_metadata is not None and set_social_metadata:
-            x = _('social metadata')
-        else:
-            x = _('covers') if covers and not set_metadata else _('metadata')
-        title = _('Downloading {0} for {1} book(s)').format(x, len(ids))
-        self._download_book_metadata = DoDownload(self.gui, title, db, ids,
-                get_covers=covers, set_metadata=set_metadata,
-                get_social_metadata=get_social_metadata)
-        m.stop_metadata_backup()
-        try:
-            self._download_book_metadata.exec_()
-        finally:
-            m.start_metadata_backup()
-        cr = self.gui.library_view.currentIndex().row()
-        x = self._download_book_metadata
-        if x.updated:
-            self.gui.library_view.model().refresh_ids(
-                x.updated, cr)
-            if self.gui.cover_flow:
-                self.gui.cover_flow.dataChanged()
+    def metadata_downloaded(self, job):
+        if job.failed:
+            self.gui.job_exception(job, dialog_title=_('Failed to download metadata'))
+            return
+        from calibre.gui2.metadata.bulk_download import get_job_details
+        id_map, failed_ids, failed_covers, all_failed, det_msg = \
+                                            get_job_details(job)
+        if all_failed:
+            return error_dialog(self.gui, _('Download failed'),
+            _('Failed to download metadata or covers for any of the %d'
+               ' book(s).') % len(id_map), det_msg=det_msg, show=True)
+
+        self.gui.status_bar.show_message(_('Metadata download completed'), 3000)
+
+        msg = '<p>' + _('Finished downloading metadata for <b>%d book(s)</b>. '
+            'Proceed with updating the metadata in your library?')%len(id_map)
+
+        show_copy_button = False
+        if failed_ids or failed_covers:
+            show_copy_button = True
+            num = len(failed_ids.union(failed_covers))
+            msg += '<p>'+_('Could not download metadata and/or covers for %d of the books. Click'
+                    ' "Show details" to see which books.')%num
+
+        payload = (id_map, failed_ids, failed_covers)
+        from calibre.gui2.dialogs.message_box import ProceedNotification
+        p = ProceedNotification(self.apply_downloaded_metadata,
+                payload, job.html_details,
+                _('Download log'), _('Download complete'), msg,
+                det_msg=det_msg, show_copy_button=show_copy_button,
+                parent=self.gui)
+        p.show()
+
+    def apply_downloaded_metadata(self, payload):
+        id_map, failed_ids, failed_covers = payload
+        id_map = dict([(k, v) for k, v in id_map.iteritems() if k not in
+            failed_ids])
+        if not id_map:
+            return
+
+        modified = set()
+        db = self.gui.current_db
+
+        for i, mi in id_map.iteritems():
+            lm = db.metadata_last_modified(i, index_is_id=True)
+            if lm > mi.last_modified:
+                title = db.title(i, index_is_id=True)
+                authors = db.authors(i, index_is_id=True)
+                if authors:
+                    authors = [x.replace('|', ',') for x in authors.split(',')]
+                    title += ' - ' + authors_to_string(authors)
+                modified.add(title)
+
+        if modified:
+            from calibre.utils.icu import lower
+
+            modified = sorted(modified, key=lower)
+            if not question_dialog(self.gui, _('Some books changed'), '<p>'+
+                    _('The metadata for some books in your library has'
+                        ' changed since you started the download. If you'
+                        ' proceed, some of those changes may be overwritten. '
+                        'Click "Show details" to see the list of changed books. '
+                        'Do you want to proceed?'), det_msg='\n'.join(modified)):
+                return
+
+        self.apply_metadata_changes(id_map)
+
+    # }}}
 
     def edit_metadata(self, checked, bulk=None):
         '''
@@ -133,8 +162,6 @@ class EditMetadataAction(InterfaceAction):
 
         row_list = [r.row() for r in rows]
         current_row = 0
-        changed = set([])
-        db = self.gui.library_view.model().db
 
         if len(row_list) == 1:
             cr = row_list[0]
@@ -142,38 +169,43 @@ class EditMetadataAction(InterfaceAction):
                 list(range(self.gui.library_view.model().rowCount(QModelIndex())))
             current_row = row_list.index(cr)
 
-        while True:
-            prev = next_ = None
-            if current_row > 0:
-                prev = db.title(row_list[current_row-1])
-            if current_row < len(row_list) - 1:
-                next_ = db.title(row_list[current_row+1])
+        changed, rows_to_refresh = self.do_edit_metadata(row_list, current_row)
 
-            d = MetadataSingleDialog(self.gui, row_list[current_row], db,
-                    prev=prev, next_=next_)
-            d.view_format.connect(lambda
-                    fmt:self.gui.iactions['View'].view_format(row_list[current_row],
-                        fmt))
-            ret = d.exec_()
-            d.break_cycles()
-            if ret != d.Accepted:
-                break
+        m = self.gui.library_view.model()
 
-            changed.add(d.id)
-            self.gui.library_view.model().refresh_ids(list(d.books_to_refresh))
-            if d.row_delta == 0:
-                break
-            current_row += d.row_delta
-
+        if rows_to_refresh:
+            m.refresh_rows(rows_to_refresh)
 
         if changed:
-            self.gui.library_view.model().refresh_ids(list(changed))
+            m.refresh_ids(list(changed))
             current = self.gui.library_view.currentIndex()
-            m = self.gui.library_view.model()
             if self.gui.cover_flow:
                 self.gui.cover_flow.dataChanged()
             m.current_changed(current, previous)
             self.gui.tags_view.recount()
+
+    def do_edit_metadata(self, row_list, current_row):
+        from calibre.gui2.metadata.single import edit_metadata
+        db = self.gui.library_view.model().db
+        changed, rows_to_refresh = edit_metadata(db, row_list, current_row,
+                parent=self.gui, view_slot=self.view_format_callback,
+                set_current_callback=self.set_current_callback)
+        return changed, rows_to_refresh
+
+    def set_current_callback(self, id_):
+        db = self.gui.library_view.model().db
+        current_row = db.row(id_)
+        self.gui.library_view.set_current_row(current_row)
+        self.gui.library_view.scroll_to_row(current_row)
+
+    def view_format_callback(self, id_, fmt):
+        view = self.gui.iactions['View']
+        if id_ is None:
+            view._view_file(fmt)
+        else:
+            db = self.gui.library_view.model().db
+            view.view_format(db.row(id_), fmt)
+
 
     def edit_bulk_metadata(self, checked):
         '''
@@ -406,4 +438,104 @@ class EditMetadataAction(InterfaceAction):
             self.gui.upload_collections(model.db, view=view, oncard=oncard)
             view.reset()
 
+    # Apply bulk metadata changes {{{
+    def apply_metadata_changes(self, id_map, title=None, msg='', callback=None):
+        '''
+        Apply the metadata changes in id_map to the database synchronously
+        id_map must be a mapping of ids to Metadata objects. Set any fields you
+        do not want updated in the Metadata object to null. An easy way to do
+        that is to create a metadata object as Metadata(_('Unknown')) and then
+        only set the fields you want changed on this object.
+
+        callback can be either None or a function accepting a single argument,
+        in which case it is called after applying is complete with the list of
+        changed ids.
+        '''
+        if title is None:
+            title = _('Applying changed metadata')
+        self.apply_id_map = list(id_map.iteritems())
+        self.apply_current_idx = 0
+        self.apply_failures = []
+        self.applied_ids = []
+        self.apply_pd = None
+        self.apply_callback = callback
+        if len(self.apply_id_map) > 1:
+            from calibre.gui2.dialogs.progress import ProgressDialog
+            self.apply_pd = ProgressDialog(title, msg, min=0,
+                    max=len(self.apply_id_map)-1, parent=self.gui,
+                    cancelable=False)
+            self.apply_pd.setModal(True)
+            self.apply_pd.show()
+        self.do_one_apply()
+
+
+    def do_one_apply(self):
+        if self.apply_current_idx >= len(self.apply_id_map):
+            return self.finalize_apply()
+
+        i, mi = self.apply_id_map[self.apply_current_idx]
+        db = self.gui.current_db
+        try:
+            set_title = not mi.is_null('title')
+            set_authors = not mi.is_null('authors')
+            idents = db.get_identifiers(i, index_is_id=True)
+            if mi.identifiers:
+                idents.update(mi.identifiers)
+            mi.identifiers = idents
+            db.set_metadata(i, mi, commit=False, set_title=set_title,
+                    set_authors=set_authors, notify=False)
+            self.applied_ids.append(i)
+        except:
+            import traceback
+            self.apply_failures.append((i, traceback.format_exc()))
+
+        try:
+            if mi.cover:
+                os.remove(mi.cover)
+        except:
+            pass
+
+        self.apply_current_idx += 1
+        if self.apply_pd is not None:
+            self.apply_pd.value += 1
+        QTimer.singleShot(50, self.do_one_apply)
+
+    def finalize_apply(self):
+        db = self.gui.current_db
+        db.commit()
+
+        if self.apply_pd is not None:
+            self.apply_pd.hide()
+
+        if self.apply_failures:
+            msg = []
+            for i, tb in self.apply_failures:
+                title = db.title(i, index_is_id=True)
+                authors = db.authors(i, index_is_id=True)
+                if authors:
+                    authors = [x.replace('|', ',') for x in authors.split(',')]
+                    title += ' - ' + authors_to_string(authors)
+                msg.append(title+'\n\n'+tb+'\n'+('*'*80))
+
+            error_dialog(self.gui, _('Some failures'),
+                _('Failed to apply updated metadata for some books'
+                    ' in your library. Click "Show Details" to see '
+                    'details.'), det_msg='\n\n'.join(msg), show=True)
+        if self.applied_ids:
+            cr = self.gui.library_view.currentIndex().row()
+            self.gui.library_view.model().refresh_ids(
+                self.applied_ids, cr)
+            if self.gui.cover_flow:
+                self.gui.cover_flow.dataChanged()
+            self.gui.tags_view.recount()
+
+        self.apply_id_map = []
+        self.apply_pd = None
+        try:
+            if callable(self.apply_callback):
+                self.apply_callback(self.applied_ids)
+        finally:
+            self.apply_callback = None
+
+    # }}}
 

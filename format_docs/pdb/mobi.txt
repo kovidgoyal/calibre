@@ -210,21 +210,23 @@ record type    usual length     name             comments
 114                             versionnumber
 115                             sample
 116                             startreading
-118                             retail price (as text)
-119                             retail price currency (as text)
-201                             coveroffset
-202                             thumboffset
+117            3                adult            Mobipocket Creator adds this if Adult only is checked; contents: "yes" 
+118                             retail price     As text, e.g. "4.99" 
+119                             retail price currency     As text, e.g. "USD" 
+201            4                coveroffset      Add to first image field in Mobi Header to find PDB record containing the cover image 
+202            4                thumboffset      Add to first image field in Mobi Header to find PDB record containing the thumbnail cover image 
 203                             hasfakecover
-204                             204 Unknown
-205                             205 Unknown
-206                             206 Unknown
-207                             207 Unknown
-208                             208 Unknown
-300                             300 Unknown
-401                             clippinglimit
+204            4                Creator Software Records 204-207 are usually the same for all books from a certain source, e.g. 1-6-2-41 for Baen and 201-1-0-85 for project gutenberg, 200-1-0-85 for amazon when converted to a 32 bit integer. 
+205            4                Creator Major Version
+206            4                Creator Minor Version
+207            4                Creator Build Number
+208                             watermark
+209                             tamper proof keys Used by the Kindle (and Android app) for generating book-specific PIDs. 
+300                             fontsignature
+401            1                clippinglimit
 402                             publisherlimit
-403                             403 Unknown
-404                             404 ttsflag
+403                             403 Unknown      1 - Text to Speech disabled; 0 - Text to Speech enabled
+404            1                404 ttsflag
 501            4                cdetype          PDOC - Personal Doc;
                                                  EBOK - ebook;
 502                             lastupdatetime
@@ -287,9 +289,9 @@ content at the beginning of the following record. The trailing entry ends with
 a byte containing a count of the overlapping bytes plus additional flags.
 
 offset  bytes   content         comments
-0       0-3	N   terminal bytes
+0       0-3    N   terminal bytes
                 of a multibyte
-                character	
+                character    
 N       1       Size & flags    bits 1-2 encode N, use of bits 3-8 is unknown 
 
 
@@ -326,6 +328,102 @@ longer refer to the correct locations. Some reading programs allow the user to
 enter or edit these bookmarks while others treat them as a TOC. Some reading
 programs may ignore them entirely. They are stored at the end of the file itself
 so the full file needs to be scanned when loaded to find them. 
+
+
+Image Records
+-------------
+
+If the file contains images, they follow the text blocks, with each image using a
+single block. The 4096-byte record size in the PalmDoc header applies only to
+text records; image records may be larger. 
+
+
+Magic Records
+-------------
+
+In some cases, MobiPocket Creator adds a 2-zero-byte record after the text
+records in a file. This record is not included in the "record count" of text
+records in the PalmDoc header, and is also not used as the "first non-book
+index" in the MOBI header. (If the 2-zero-byte record is present, the index of
+the following block is used as the "first non-book index".)
+
+MobiPocket Creator also ends files with three records: 'FLIS', 'FCIS', and
+'end-of-file', in that order. The 'FLIS' and 'FCIS' records do not seem to be
+necessary for MobiPocket Reader or the Amazon Kindle 2 to read the file. The
+'end-of-file' record might be necessary. 
+
+
+FLIS Record
+-----------
+
+The FLIS record appears to have a fixed value. The meaning of the values is not known.
+
+offset    bytes    content      comments
+0         4        identifier   the characters F L I S (0x46 0x4c 0x49 0x53)
+4         4        ?            fixed value: 8
+8         2        ?            fixed value: 65
+10        2        ?            fixed value: 0
+12        4        ?            fixed value: 0
+16        4        ?            fixed value: -1
+20        2        ?            fixed value: 1
+22        2        ?            fixed value: 3
+24        4        ?            fixed value: 3
+28        4        ?            fixed value: 1
+32        4        ?            fixed value: -1 
+
+
+FCIS Record
+-----------
+
+The FCIS record appears to have mostly fixed values.
+
+offset    bytes    content      comments
+0         4        identifier   the characters F C I S (0x46 0x43 0x49 0x53)
+4         4        ?            fixed value: 20
+8         4        ?            fixed value: 16
+12        4        ?            fixed value: 1
+16        4        ?            fixed value: 0
+20        4        ?            text length (the same value as "text length" in the PalmDoc header)
+24        4        ?            fixed value: 0
+28        4        ?            fixed value: 32
+32        4        ?            fixed value: 8
+36        2        ?            fixed value: 1
+38        2        ?            fixed value: 1
+40        4        ?            fixed value: 0
+
+
+End-of-file Record
+------------------
+
+The end-of-file record is a fixed 4-byte record. While the last two bytes
+appear to be a CRLF marker, the meaning of the first two bytes is unknown.
+
+offset    bytes    content    comments
+0         1         ?         fixed value: 233 (0xe9)
+1         1         ?         fixed value: 142 (0x8e)
+2         1         ?         fixed value: 13 (0x0d)
+3         1         ?         fixed value: 10 (0x0a)
+
+
+SRCS Record
+-----------
+
+kindlegen creates a record whose content is a zip archive of all source files
+(i.e., .opf, .ncx, .htm, .jpg, ...) given to the command and puts it in the
+generated MOBI file. The record begins with the "SRCS" signature and is
+located just before the #End-of-file Record.
+
+MOBI files created with Mobipocket creator, Amazon's Personal Document Service,
+or Kindle Direct Publishing (former Amazon DTP) don't include SRCS record.
+In a past, kindlegen had an undocumented option to suppress this record, but
+the option was removed in 2010.
+
+offset    bytes    content      comments
+0         4        identifier   "SRCS" (0x53 0x52 0x43 0x53)
+4         4        ?            fixed value(?): 0x00000010
+8         4        ?            fixed value(?): 0x0000002f
+12        4        ?            fixed value(?): 0x00000001
+16        zip                   The zip archive continues to the end of this record 
 
 
 MBP

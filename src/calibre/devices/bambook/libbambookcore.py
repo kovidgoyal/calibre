@@ -10,7 +10,7 @@ Sanda library wrapper
 
 import ctypes, uuid, hashlib, os, sys
 from threading import Event, Lock
-from calibre.constants import iswindows, islinux, isosx
+from calibre.constants import iswindows
 from calibre import load_library
 
 try:
@@ -29,12 +29,9 @@ try:
 except:
     lib_handle = None
 
+text_encoding = 'utf-8'
 if iswindows:
     text_encoding = 'mbcs'
-elif islinux:
-    text_encoding = 'utf-8'
-elif isosx:
-    text_encoding = 'utf-8'
 
 def is_bambook_lib_ready():
     return lib_handle != None

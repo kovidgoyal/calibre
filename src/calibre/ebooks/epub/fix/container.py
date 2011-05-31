@@ -151,7 +151,7 @@ class Container(object):
         if name in self.mime_map:
             try:
                 raw = self._parse(raw, self.mime_map[name])
-            except XMLSyntaxError, err:
+            except XMLSyntaxError as err:
                 raise ParseError(name, unicode(err))
         self.cache[name] = raw
         return raw

@@ -7,13 +7,12 @@ import re, os, inspect
 
 from PyQt4.Qt import Qt, QDialog, QGridLayout, QVBoxLayout, QFont, QLabel, \
                      pyqtSignal, QDialogButtonBox, QInputDialog, QLineEdit, \
-                     QDate
+                     QDate, QCompleter
 
 from calibre.gui2.dialogs.metadata_bulk_ui import Ui_MetadataBulkDialog
 from calibre.gui2.dialogs.tag_editor import TagEditor
 from calibre.ebooks.metadata import string_to_authors, authors_to_string, title_sort
 from calibre.ebooks.metadata.book.base import composite_formatter
-from calibre.ebooks.metadata.meta import get_metadata
 from calibre.gui2.custom_column_widgets import populate_metadata_page
 from calibre.gui2 import error_dialog, ResizableDialog, UNDEFINED_QDATE, \
     gprefs, question_dialog
@@ -26,6 +25,7 @@ from calibre.utils.magick.draw import identify_data
 from calibre.utils.date import qt_to_dt
 
 def get_cover_data(path): # {{{
+    from calibre.ebooks.metadata.meta import get_metadata
     old = prefs['read_file_metadata']
     if not old:
         prefs['read_file_metadata'] = True
@@ -120,7 +120,7 @@ class MyBlockingBusy(QDialog): # {{{
             self.msg.setText(self.msg_text.format(self.phases[self.current_phase],
                                         percent))
             self.do_one(id)
-        except Exception, err:
+        except Exception as err:
             import traceback
             try:
                 err = unicode(err)
@@ -364,7 +364,8 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
                     (fm[f]['datatype'] in ['text', 'series', 'enumeration']
                      and fm[f].get('search_terms', None)
                      and f not in ['formats', 'ondevice']) or
-                    fm[f]['datatype'] in ['int', 'float', 'bool'] ):
+                    (fm[f]['datatype'] in ['int', 'float', 'bool'] and
+                     f not in ['id'])):
                 self.all_fields.append(f)
                 self.writable_fields.append(f)
             if fm[f]['datatype'] == 'composite':
@@ -392,6 +393,14 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
             setattr(self, name, w)
             self.book_1_text.setObjectName(name)
             self.testgrid.addWidget(w, i+offset, 2, 1, 1)
+
+        ident_types = sorted(self.db.get_all_identifier_types(), key=sort_key)
+        self.s_r_dst_ident.setCompleter(QCompleter(ident_types))
+        try:
+            self.s_r_dst_ident.setPlaceholderText(_('Enter an identifier type'))
+        except:
+            pass
+        self.s_r_src_ident.addItems(ident_types)
 
         self.main_heading = _(
                  '<b>You can destroy your library using this feature.</b> '
@@ -449,6 +458,8 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         self.test_text.editTextChanged[str].connect(self.s_r_paint_results)
         self.comma_separated.stateChanged.connect(self.s_r_paint_results)
         self.case_sensitive.stateChanged.connect(self.s_r_paint_results)
+        self.s_r_src_ident.currentIndexChanged[int].connect(self.s_r_paint_results)
+        self.s_r_dst_ident.textChanged.connect(self.s_r_paint_results)
         self.s_r_template.lost_focus.connect(self.s_r_template_changed)
         self.central_widget.setCurrentIndex(0)
 
@@ -471,6 +482,8 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         self.query_field.addItems(sorted([q for q in self.queries], key=sort_key))
         self.query_field.currentIndexChanged[str].connect(self.s_r_query_change)
         self.query_field.setCurrentIndex(0)
+        self.search_field.setCurrentIndex(0)
+        self.s_r_search_field_changed(0)
 
     def s_r_sf_itemdata(self, idx):
         if idx is None:
@@ -495,10 +508,19 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
                 val = mi.get(field, None)
             if isinstance(val, (int, float, bool)):
                 val = str(val)
+            elif fm['is_csp']:
+                # convert the csp dict into a list
+                id_type = unicode(self.s_r_src_ident.currentText())
+                if id_type:
+                    val = [val.get(id_type, '')]
+                else:
+                    val = [u'%s:%s'%(t[0], t[1]) for t in val.iteritems()]
             if val is None:
                 val = [] if fm['is_multiple'] else ['']
             elif not fm['is_multiple']:
                 val = [val]
+            elif fm['datatype'] == 'composite':
+                val = [v.strip() for v in val.split(fm['is_multiple'])]
             elif field == 'authors':
                 val = [v.replace('|', ',') for v in val]
         else:
@@ -512,12 +534,17 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         self.s_r_search_field_changed(self.search_field.currentIndex())
 
     def s_r_search_field_changed(self, idx):
-        if self.search_mode.currentIndex() != 0 and idx == 1: # Template
+        self.s_r_template.setVisible(False)
+        self.template_label.setVisible(False)
+        self.s_r_src_ident_label.setVisible(False)
+        self.s_r_src_ident.setVisible(False)
+        if idx == 1: # Template
             self.s_r_template.setVisible(True)
             self.template_label.setVisible(True)
-        else:
-            self.s_r_template.setVisible(False)
-            self.template_label.setVisible(False)
+        elif self.s_r_sf_itemdata(idx) == 'identifiers':
+            self.s_r_src_ident_label.setVisible(True)
+            self.s_r_src_ident.setVisible(True)
+
         for i in range(0, self.s_r_number_of_books):
             w = getattr(self, 'book_%d_text'%(i+1))
             mi = self.db.get_metadata(self.ids[i], index_is_id=True)
@@ -535,10 +562,15 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
             self.s_r_paint_results(None)
 
     def s_r_destination_field_changed(self, idx):
+        self.s_r_dst_ident_label.setVisible(False)
+        self.s_r_dst_ident.setVisible(False)
         txt = self.s_r_df_itemdata(idx)
         if not txt:
             txt = self.s_r_sf_itemdata(None)
         if txt and txt in self.writable_fields:
+            if txt == 'identifiers':
+                self.s_r_dst_ident_label.setVisible(True)
+                self.s_r_dst_ident.setVisible(True)
             self.destination_field_fm = self.db.metadata_for_field(txt)
         self.s_r_paint_results(None)
 
@@ -617,9 +649,16 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
             dest = src
         dest_mode = self.replace_mode.currentIndex()
 
+        if self.destination_field_fm['is_csp']:
+            if not unicode(self.s_r_dst_ident.text()):
+                raise Exception(_('You must specify a destination identifier type'))
+
         if self.destination_field_fm['is_multiple']:
             if self.comma_separated.isChecked():
-                if dest == 'authors':
+                if dest == 'authors' or \
+                        (self.destination_field_fm['is_custom'] and
+                         self.destination_field_fm['datatype'] == 'text' and
+                         self.destination_field_fm['display'].get('is_names', False)):
                     splitter = ' & '
                 else:
                     splitter = ','
@@ -635,6 +674,13 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
 
         if dest_mode != 0:
             dest_val = mi.get(dest, '')
+            if self.db.metadata_for_field(dest)['is_csp']:
+                dst_id_type = unicode(self.s_r_dst_ident.text())
+                if dst_id_type:
+                    dest_val = [dest_val.get(dst_id_type, '')]
+                else:
+                    # convert the csp dict into a list
+                    dest_val = [u'%s:%s'%(t[0], t[1]) for t in dest_val.iteritems()]
             if dest_val is None:
                 dest_val = []
             elif not isinstance(dest_val, list):
@@ -717,6 +763,17 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
                                'Book title %s not processed')%mi.title,
                              show=True)
                 return
+            # convert the colon-separated pair strings back into a dict, which
+            # is what set_identifiers wants
+            if dfm['is_csp']:
+                dst_id_type = unicode(self.s_r_dst_ident.text())
+                if dst_id_type:
+                    v = ''.join(val)
+                    ids = mi.get(dest)
+                    ids[dst_id_type] = v
+                    val = ids
+                else:
+                    val = dict([(t.split(':')) for t in val])
         else:
             val = self.s_r_replace_mode_separator().join(val)
             if dest == 'title' and len(val) == 0:
@@ -730,6 +787,12 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
             extra = self.db.get_custom_extra(id, label=dfm['label'], index_is_id=True)
             books_to_refresh = self.db.set_custom(id, val, label=dfm['label'],
                                                   extra=extra, commit=False,
+                                                  allow_case_change=True)
+        elif dest.startswith('#') and dest.endswith('_index'):
+            label = self.db.field_metadata[dest[:-6]]['label']
+            series = self.db.get_custom(id, label=label, index_is_id=True)
+            books_to_refresh = self.db.set_custom(id, series, label=label,
+                                                  extra=val, commit=False,
                                                   allow_case_change=True)
         else:
             if dest == 'comments':
@@ -961,11 +1024,13 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         query['search_field'] = unicode(self.search_field.currentText())
         query['search_mode'] = unicode(self.search_mode.currentText())
         query['s_r_template'] = unicode(self.s_r_template.text())
+        query['s_r_src_ident'] = unicode(self.s_r_src_ident.currentText())
         query['search_for'] = unicode(self.search_for.text())
         query['case_sensitive'] = self.case_sensitive.isChecked()
         query['replace_with'] = unicode(self.replace_with.text())
         query['replace_func'] = unicode(self.replace_func.currentText())
         query['destination_field'] = unicode(self.destination_field.currentText())
+        query['s_r_dst_ident'] = unicode(self.s_r_dst_ident.text())
         query['replace_mode'] = unicode(self.replace_mode.currentText())
         query['comma_separated'] = self.comma_separated.isChecked()
         query['results_count'] = self.results_count.value()
@@ -992,37 +1057,61 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
             self.s_r_reset_query_fields()
             return
 
-        def set_index(attr, txt):
+        def set_text(attr, key):
             try:
-                attr.setCurrentIndex(attr.findText(txt))
+                attr.setText(item[key])
+            except:
+                pass
+
+        def set_checked(attr, key):
+            try:
+                attr.setChecked(item[key])
+            except:
+                attr.setChecked(False)
+
+        def set_value(attr, key):
+            try:
+                attr.setValue(int(item[key]))
+            except:
+                attr.setValue(0)
+
+        def set_index(attr, key):
+            try:
+                attr.setCurrentIndex(attr.findText(item[key]))
             except:
                 attr.setCurrentIndex(0)
 
-        set_index(self.search_mode, item['search_mode'])
-        set_index(self.search_field, item['search_field'])
-        self.s_r_template.setText(item['s_r_template'])
+        set_index(self.search_mode, 'search_mode')
+        set_index(self.search_field, 'search_field')
+        set_text(self.s_r_template, 's_r_template')
+
         self.s_r_template_changed() #simulate gain/loss of focus
-        self.search_for.setText(item['search_for'])
-        self.case_sensitive.setChecked(item['case_sensitive'])
-        self.replace_with.setText(item['replace_with'])
-        set_index(self.replace_func, item['replace_func'])
-        set_index(self.destination_field, item['destination_field'])
-        set_index(self.replace_mode, item['replace_mode'])
-        self.comma_separated.setChecked(item['comma_separated'])
-        self.results_count.setValue(int(item['results_count']))
-        self.starting_from.setValue(int(item['starting_from']))
-        self.multiple_separator.setText(item['multiple_separator'])
+
+        set_index(self.s_r_src_ident, 's_r_src_ident');
+        set_text(self.s_r_dst_ident, 's_r_dst_ident')
+        set_text(self.search_for, 'search_for')
+        set_checked(self.case_sensitive, 'case_sensitive')
+        set_text(self.replace_with, 'replace_with')
+        set_index(self.replace_func, 'replace_func')
+        set_index(self.destination_field, 'destination_field')
+        set_index(self.replace_mode, 'replace_mode')
+        set_checked(self.comma_separated, 'comma_separated')
+        set_value(self.results_count, 'results_count')
+        set_value(self.starting_from, 'starting_from')
+        set_text(self.multiple_separator, 'multiple_separator')
 
     def s_r_reset_query_fields(self):
         # Don't reset the search mode. The user will probably want to use it
         # as it was
         self.search_field.setCurrentIndex(0)
+        self.s_r_src_ident.setCurrentIndex(0)
         self.s_r_template.setText("")
         self.search_for.setText("")
         self.case_sensitive.setChecked(False)
         self.replace_with.setText("")
         self.replace_func.setCurrentIndex(0)
         self.destination_field.setCurrentIndex(0)
+        self.s_r_dst_ident.setText('')
         self.replace_mode.setCurrentIndex(0)
         self.comma_separated.setChecked(True)
         self.results_count.setValue(999)

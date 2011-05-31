@@ -20,8 +20,26 @@ from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.utils.filenames import ascii_filename
 from calibre.constants import preferred_encoding, filesystem_encoding
 from calibre.gui2.actions import InterfaceAction
-from calibre.gui2 import config
+from calibre.gui2 import question_dialog
 from calibre.ebooks.metadata import MetaInformation
+from calibre.ebooks.metadata.sources.base import msprefs
+
+def get_filters():
+    return [
+            (_('Books'), BOOK_EXTENSIONS),
+            (_('EPUB Books'), ['epub']),
+            (_('LRF Books'), ['lrf']),
+            (_('HTML Books'), ['htm', 'html', 'xhtm', 'xhtml']),
+            (_('LIT Books'), ['lit']),
+            (_('MOBI Books'), ['mobi', 'prc', 'azw']),
+            (_('Topaz books'), ['tpz','azw1']),
+            (_('Text books'), ['txt', 'rtf']),
+            (_('PDF Books'), ['pdf']),
+            (_('SNB Books'), ['snb']),
+            (_('Comics'), ['cbz', 'cbr', 'cbc']),
+            (_('Archives'), ['zip', 'rar']),
+    ]
+
 
 class AddAction(InterfaceAction):
 
@@ -47,6 +65,10 @@ class AddAction(InterfaceAction):
         self.add_menu.addAction(_('Add Empty book. (Book entry with no '
             'formats)'), self.add_empty, _('Shift+Ctrl+E'))
         self.add_menu.addAction(_('Add from ISBN'), self.add_from_isbn)
+        self.add_menu.addSeparator()
+        self.add_menu.addAction(_('Add files to selected book records'),
+                self.add_formats, _('Shift+A'))
+
         self.qaction.setMenu(self.add_menu)
         self.qaction.triggered.connect(self.add_books)
 
@@ -54,6 +76,39 @@ class AddAction(InterfaceAction):
         enabled = loc == 'library'
         for action in list(self.add_menu.actions())[1:]:
             action.setEnabled(enabled)
+
+    def add_formats(self, *args):
+        if self.gui.stack.currentIndex() != 0:
+            return
+        view = self.gui.library_view
+        rows = view.selectionModel().selectedRows()
+        if not rows:
+            return
+        ids = [view.model().id(r) for r in rows]
+
+        if len(ids) > 1 and not question_dialog(self.gui,
+                _('Are you sure'),
+            _('Are you sure you want to add the same'
+                ' files to all %d books? If the format'
+                'already exists for a book, it will be replaced.')%len(ids)):
+                return
+
+        books = choose_files(self.gui, 'add formats dialog dir',
+                _('Select book files'), filters=get_filters())
+        if not books:
+            return
+
+        db = view.model().db
+        for id_ in ids:
+            for fpath in books:
+                fmt = os.path.splitext(fpath)[1][1:].upper()
+                if fmt:
+                    db.add_format_with_hooks(id_, fmt, fpath, index_is_id=True,
+                        notify=True)
+        current_idx = self.gui.library_view.currentIndex()
+        if current_idx.isValid():
+            view.model().current_changed(current_idx, current_idx)
+
 
     def add_recursive(self, single):
         root = choose_dir(self.gui, 'recursive book import root dir dialog',
@@ -124,13 +179,17 @@ class AddAction(InterfaceAction):
             except IndexError:
                 self.gui.library_view.model().books_added(self.isbn_add_dialog.value)
                 self.isbn_add_dialog.accept()
-                orig = config['overwrite_author_title_metadata']
-                config['overwrite_author_title_metadata'] = True
+                orig = msprefs['ignore_fields']
+                new = list(orig)
+                for x in ('title', 'authors'):
+                    if x in new:
+                        new.remove(x)
+                msprefs['ignore_fields'] = new
                 try:
-                    self.gui.iactions['Edit Metadata'].do_download_metadata(
-                            self.add_by_isbn_ids)
+                    self.gui.iactions['Edit Metadata'].download_metadata(
+                        ids=self.add_by_isbn_ids)
                 finally:
-                    config['overwrite_author_title_metadata'] = orig
+                    msprefs['ignore_fields'] = orig
                 return
 
 
@@ -150,15 +209,29 @@ class AddAction(InterfaceAction):
         to_device = self.gui.stack.currentIndex() != 0
         self._add_books(paths, to_device)
 
-    def files_dropped_on_book(self, event, paths):
+    def remote_file_dropped_on_book(self, url, fname):
+        if self.gui.current_view() is not self.gui.library_view:
+            return
+        db = self.gui.library_view.model().db
+        current_idx = self.gui.library_view.currentIndex()
+        if not current_idx.isValid(): return
+        cid = db.id(current_idx.row())
+        from calibre.gui2.dnd import DownloadDialog
+        d = DownloadDialog(url, fname, self.gui)
+        d.start_download()
+        if d.err is None:
+            self.files_dropped_on_book(None, [d.fpath], cid=cid)
+
+    def files_dropped_on_book(self, event, paths, cid=None):
         accept = False
         if self.gui.current_view() is not self.gui.library_view:
             return
         db = self.gui.library_view.model().db
         cover_changed = False
         current_idx = self.gui.library_view.currentIndex()
-        if not current_idx.isValid(): return
-        cid = db.id(current_idx.row())
+        if cid is None:
+            if not current_idx.isValid(): return
+            cid = db.id(current_idx.row()) if cid is None else cid
         for path in paths:
             ext = os.path.splitext(path)[1].lower()
             if ext:
@@ -173,8 +246,9 @@ class AddAction(InterfaceAction):
             elif ext in BOOK_EXTENSIONS:
                 db.add_format_with_hooks(cid, ext, path, index_is_id=True)
                 accept = True
-        if accept:
+        if accept and event is not None:
             event.accept()
+        if current_idx.isValid():
             self.gui.library_view.model().current_changed(current_idx, current_idx)
         if cover_changed:
             if self.gui.cover_flow:
@@ -207,27 +281,14 @@ class AddAction(InterfaceAction):
         '''
         Add books from the local filesystem to either the library or the device.
         '''
-        filters = [
-                        (_('Books'), BOOK_EXTENSIONS),
-                        (_('EPUB Books'), ['epub']),
-                        (_('LRF Books'), ['lrf']),
-                        (_('HTML Books'), ['htm', 'html', 'xhtm', 'xhtml']),
-                        (_('LIT Books'), ['lit']),
-                        (_('MOBI Books'), ['mobi', 'prc', 'azw']),
-                        (_('Topaz books'), ['tpz','azw1']),
-                        (_('Text books'), ['txt', 'rtf']),
-                        (_('PDF Books'), ['pdf']),
-                        (_('SNB Books'), ['snb']),
-                        (_('Comics'), ['cbz', 'cbr', 'cbc']),
-                        (_('Archives'), ['zip', 'rar']),
-                        ]
+        filters = get_filters()
         to_device = self.gui.stack.currentIndex() != 0
         if to_device:
             fmts = self.gui.device_manager.device.settings().format_map
             filters = [(_('Supported books'), fmts)]
 
-        books = choose_files(self.gui, 'add books dialog dir', 'Select books',
-                             filters=filters)
+        books = choose_files(self.gui, 'add books dialog dir',
+                _('Select books'), filters=filters)
         if not books:
             return
         self._add_books(books, to_device)
@@ -256,6 +317,7 @@ class AddAction(InterfaceAction):
                     _('Uploading books to device.'), 2000)
         if getattr(self._adder, 'number_of_books_added', 0) > 0:
             self.gui.library_view.model().books_added(self._adder.number_of_books_added)
+            self.gui.library_view.set_current_row(0)
             if hasattr(self.gui, 'db_images'):
                 self.gui.db_images.reset()
             self.gui.tags_view.recount()
@@ -276,7 +338,6 @@ class AddAction(InterfaceAction):
             if current_idx.isValid():
                 self.gui.library_view.model().current_changed(current_idx,
                         current_idx)
-
 
         if getattr(self._adder, 'critical', None):
             det_msg = []

@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>528</width>
-    <height>212</height>
+    <width>831</width>
+    <height>344</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -19,19 +19,20 @@
     <verstretch>0</verstretch>
    </sizepolicy>
   </property>
-  <property name="windowTitle">
-   <string>Create or edit custom columns</string>
+  <property name="windowIcon">
+   <iconset resource="../../../../resources/images.qrc">
+    <normaloff>:/images/column.png</normaloff>:/images/column.png</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <layout class="QGridLayout" name="gridLayout_2" rowstretch="0,0,0,0,0,0,0,0,0,0,0,0">
+    <layout class="QGridLayout" name="gridLayout_2" rowstretch="0,0,0,0,0,0,0,0,0,0,0,0,0,0,0">
      <property name="sizeConstraint">
       <enum>QLayout::SetDefaultConstraint</enum>
      </property>
      <property name="margin">
       <number>5</number>
      </property>
-     <item row="2" column="0">
+     <item row="5" column="0">
       <layout class="QGridLayout" name="gridLayout">
        <property name="margin">
         <number>0</number>
@@ -79,7 +80,7 @@
        <item row="2" column="0">
         <widget class="QLabel" name="label_3">
          <property name="text">
-          <string>Column &amp;type</string>
+          <string>&amp;Column type</string>
          </property>
          <property name="buddy">
           <cstring>column_type_box</cstring>
@@ -87,23 +88,68 @@
         </widget>
        </item>
        <item row="2" column="2">
-        <widget class="QComboBox" name="column_type_box">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>70</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="toolTip">
-          <string>What kind of information will be kept in the column.</string>
-         </property>
-        </widget>
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <item>
+          <widget class="QComboBox" name="column_type_box">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>70</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>What kind of information will be kept in the column.</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="use_decorations">
+           <property name="toolTip">
+            <string>Show check marks in the GUI. Values of 'yes', 'checked', and 'true'
+will show a green check. Values of 'no', 'unchecked', and 'false' will show a red X.
+Everything else will show nothing.</string>
+           </property>
+           <property name="text">
+            <string>Show checkmarks</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="is_names">
+           <property name="toolTip">
+            <string>Check this box if this column contains names, like the authors column.</string>
+           </property>
+           <property name="text">
+            <string>Contains names</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_27">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+             <horstretch>10</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>0</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
        </item>
        <item row="4" column="2">
         <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -126,12 +172,37 @@
           </widget>
          </item>
          <item>
+          <widget class="QLineEdit" name="number_format_box">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QLabel" name="date_format_default_label">
            <property name="toolTip">
             <string>Use MMM yyyy for month + year, yyyy for year only</string>
            </property>
            <property name="text">
             <string>Default: dd MMM yyyy.</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="number_format_default_label">
+           <property name="toolTip">
+            <string>&lt;p&gt;The format specifier must begin with &lt;code&gt;{0:&lt;/code&gt;
+and end with &lt;code&gt;}&lt;/code&gt; You can have text before and after the format specifier.
+            </string>
+           </property>
+           <property name="text">
+            <string>&lt;p&gt;Default: Not formatted. For format language details see &lt;a href="http://docs.python.org/library/string.html#format-string-syntax"&gt;the python documentation&lt;/a&gt;</string>
+           </property>
+           <property name="openExternalLinks">
+            <bool>true</bool>
            </property>
           </widget>
          </item>
@@ -144,6 +215,26 @@
          </property>
          <property name="buddy">
           <cstring>date_format_box</cstring>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0">
+        <widget class="QLabel" name="number_format_label">
+         <property name="text">
+          <string>Format for &amp;numbers</string>
+         </property>
+         <property name="buddy">
+          <cstring>number_format_box</cstring>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="0">
+        <widget class="QLabel" name="composite_label">
+         <property name="text">
+          <string>&amp;Template</string>
+         </property>
+         <property name="buddy">
+          <cstring>composite_box</cstring>
          </property>
         </widget>
        </item>
@@ -174,15 +265,55 @@
          </item>
         </layout>
        </item>
-       <item row="5" column="0">
-        <widget class="QLabel" name="composite_label">
-         <property name="text">
-          <string>&amp;Template</string>
-         </property>
-         <property name="buddy">
-          <cstring>composite_box</cstring>
-         </property>
-        </widget>
+       <item row="6" column="2">
+        <layout class="QHBoxLayout" name="composite_layout">
+         <item>
+          <widget class="QLabel" name="composite_sort_by_label">
+           <property name="text">
+            <string>&amp;Sort/search column by</string>
+           </property>
+           <property name="buddy">
+            <cstring>composite_sort_by</cstring>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="composite_sort_by">
+           <property name="toolTip">
+            <string>How this column should handled in the GUI when sorting and searching</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="composite_make_category">
+           <property name="toolTip">
+            <string>If checked, this column will appear in the tags browser as a category</string>
+           </property>
+           <property name="text">
+            <string>Show in tags browser</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_24">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+             <horstretch>10</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>0</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
        </item>
        <item row="11" column="0" colspan="4">
         <spacer name="verticalSpacer_2">
@@ -208,8 +339,8 @@
         </widget>
        </item>
        <item row="6" column="2">
-        <layout class="QHBoxLayout" name="horizontalLayout_2">
-         <item>
+        <layout class="QGridLayout" name="horizontalLayout_2">
+         <item row="0" column="0">
           <widget class="QLineEdit" name="enum_box">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -224,13 +355,34 @@ four values, the first of them being the empty value.</string>
            </property>
           </widget>
          </item>
-         <item>
+         <item row="0" column="1">
           <widget class="QLabel" name="enum_default_label">
            <property name="toolTip">
             <string>The empty string is always the first value</string>
            </property>
            <property name="text">
-            <string>Default: (nothing)</string>
+            <string>Values</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLineEdit" name="enum_colors">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="toolTip">
+            <string>A list of color names to use when displaying an item. The
+list must be empty or contain a color for each value.</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QLabel" name="enum_colors_label">
+           <property name="text">
+            <string>Colors</string>
            </property>
           </widget>
          </item>
@@ -238,7 +390,7 @@ four values, the first of them being the empty value.</string>
        </item>
       </layout>
      </item>
-     <item row="11" column="0">
+     <item row="14" column="0">
       <widget class="QDialogButtonBox" name="button_box">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -252,7 +404,7 @@ four values, the first of them being the empty value.</string>
       </widget>
      </item>
      <item row="1" column="0">
-      <widget class="QLabel" name="label_6">
+      <widget class="QLabel" name="heading_label">
        <property name="font">
         <font>
          <weight>75</weight>
@@ -260,7 +412,31 @@ four values, the first of them being the empty value.</string>
         </font>
        </property>
        <property name="text">
-        <string>Create or edit custom columns</string>
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QLabel" name="shortcuts">
+       <property name="text">
+        <string/>
+       </property>
+       <property name="wordWrap">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="Line" name="line">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="0">
+      <widget class="Line" name="line_2">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
        </property>
       </widget>
      </item>
@@ -276,6 +452,8 @@ four values, the first of them being the empty value.</string>
   <tabstop>composite_box</tabstop>
   <tabstop>button_box</tabstop>
  </tabstops>
- <resources/>
+ <resources>
+  <include location="../../../../resources/images.qrc"/>
+ </resources>
  <connections/>
 </ui>

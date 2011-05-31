@@ -26,6 +26,38 @@ class POT(Command):
                     ans.append(os.path.abspath(os.path.join(root, name)))
         return ans
 
+    def get_tweaks_docs(self):
+        path = self.a(self.j(self.SRC, '..', 'resources', 'default_tweaks.py'))
+        with open(path, 'rb') as f:
+            raw = f.read().decode('utf-8')
+        msgs = []
+        lines = list(raw.splitlines())
+        for i, line in enumerate(lines):
+            if line.startswith('#:'):
+                msgs.append((i, line[2:].strip()))
+                j = i
+                block = []
+                while True:
+                    j += 1
+                    line = lines[j]
+                    if not line.startswith('#'):
+                        break
+                    block.append(line[1:].strip())
+                if block:
+                    msgs.append((i+1, '\n'.join(block)))
+
+        ans = []
+        for lineno, msg in msgs:
+            ans.append('#: %s:%d'%(path, lineno))
+            slash = unichr(92)
+            msg = msg.replace(slash, slash*2).replace('"', r'\"').replace('\n',
+                    r'\n').replace('\r', r'\r').replace('\t', r'\t')
+            ans.append('msgid "%s"'%msg)
+            ans.append('msgstr ""')
+            ans.append('')
+
+        return '\n'.join(ans)
+
 
     def run(self, opts):
         files = self.source_files()
@@ -35,10 +67,10 @@ class POT(Command):
         atexit.register(shutil.rmtree, tempdir)
         pygettext(buf, ['-k', '__', '-p', tempdir]+files)
         src = buf.getvalue()
+        src += '\n\n' + self.get_tweaks_docs()
         pot = os.path.join(self.PATH, __appname__+'.pot')
-        f = open(pot, 'wb')
-        f.write(src)
-        f.close()
+        with open(pot, 'wb') as f:
+            f.write(src)
         self.info('Translations template:', os.path.abspath(pot))
         return pot
 
