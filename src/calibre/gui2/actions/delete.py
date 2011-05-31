@@ -152,7 +152,8 @@ class DeleteAction(InterfaceAction):
         if not ids:
             return
         fmts = self._get_selected_formats(
-            '<p>'+_('Choose formats <b>not</b> to be deleted'), ids)
+            '<p>'+_('Choose formats <b>not</b> to be deleted.<p>Note that '
+                'this will never remove all formats from a book.'), ids)
         if fmts is None:
             return
         for id in ids:

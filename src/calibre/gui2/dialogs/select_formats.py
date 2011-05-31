@@ -44,7 +44,7 @@ class SelectFormats(QDialog):
         self.setLayout(self._l)
         self.setWindowTitle(_('Choose formats'))
         self._m = QLabel(msg)
-        self._m.setWordWrap = True
+        self._m.setWordWrap(True)
         self._l.addWidget(self._m)
         self.formats = Formats(fmt_list)
         self.fview = QListView(self)
