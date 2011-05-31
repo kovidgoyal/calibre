@@ -1,27 +1,30 @@
 __license__   = 'GPL v3'
-__copyright__ = '2010, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2010 - 2011, Darko Miletic <darko.miletic at gmail.com>'
 '''
 news.bbc.co.uk
 '''
-import re
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
 class BBC(BasicNewsRecipe):
     title                  = 'BBC News (fast)'
     __author__             = 'Darko Miletic, Starson17'
-    description            = 'News from UK. A much faster version that does not download pictures'
+    description            = 'Visit BBC News for up-to-the-minute news, breaking news, video, audio and feature stories. BBC News provides trusted World and UK news as well as local and regional perspectives. Also entertainment, business, science, technology and health news.'
     oldest_article         = 2
     max_articles_per_feed  = 100
     no_stylesheets         = True
-    #delay                  = 1
     use_embedded_content   = False
     encoding               = 'utf8'
     publisher              = 'BBC'
     category               = 'news, UK, world'
     language               = 'en_GB'
     publication_type       = 'newsportal'
-    extra_css              = ' body{ font-family: Verdana,Helvetica,Arial,sans-serif } .introduction{font-weight: bold} .story-feature{display: block; padding: 0; border: 1px solid; width: 40%; font-size: small} .story-feature h2{text-align: center; text-transform: uppercase} '
-    preprocess_regexps     = [(re.compile(r'<!--.*?-->', re.DOTALL), lambda m: '')]
+    masthead_url           = 'http://news.bbcimg.co.uk/img/1_0_1/cream/hi/news/news-blocks.gif'
+    extra_css              = """
+                                 body{ font-family: Verdana,Helvetica,Arial,sans-serif }
+                                 .introduction{font-weight: bold}
+                                 .story-feature{display: block; padding: 0; border: 1px solid; width: 40%; font-size: small}
+                                 .story-feature h2{text-align: center; text-transform: uppercase}
+                             """
     conversion_options = {
                              'comments'        : description
                             ,'tags'            : category
@@ -31,31 +34,54 @@ class BBC(BasicNewsRecipe):
                          }
 
     keep_only_tags    = [
-                       dict(name='div', attrs={'class':['layout-block-a layout-block']})
-                       ,dict(attrs={'class':['story-body','storybody']})
+                          dict(name='div', attrs={'class':['layout-block-a layout-block']})
+                         ,dict(attrs={'class':['story-body','storybody']})
+                         ,dict(attrs={'id':['meta-information','story-body']})
                         ]
 
     remove_tags = [
-                       dict(name='div', attrs={'class':['story-feature related narrow', 'share-help', 'embedded-hyper', \
-                       'story-feature wide ', 'story-feature narrow']})
-                       , dict(name=['img'])
-                        ]
+                       dict(name='div', attrs={'class':['story-feature related narrow', \
+                                                        'share-help', 'embedded-hyper', \
+                                                        'story-feature wide ', \
+                                                        'story-feature narrow', \
+                                                        'hidden','story-actions', \
+                                                        'embedded-hyper']})
+                       ,dict(name=['img','meta','link','object','embed','iframe','base'])
+                       ,dict(attrs={'class':['hidden','videoInStoryC']})
+                       ,dict(attrs={'id':['bbccom_sponsor_section','toggle-controls', \
+                                          'toggle-images','toggle-title']})
+                  ]
 
-    remove_attributes = ['width','height']
+    remove_attributes = ['width','height','xmlns:og','lang','clear']
 
     feeds          = [
-                      ('News Front Page', 'http://newsrss.bbc.co.uk/rss/newsonline_world_edition/front_page/rss.xml'),
-                      ('Science/Nature', 'http://newsrss.bbc.co.uk/rss/newsonline_world_edition/science/nature/rss.xml'),
-                      ('Technology', 'http://newsrss.bbc.co.uk/rss/newsonline_world_edition/technology/rss.xml'),
-                      ('Entertainment', 'http://newsrss.bbc.co.uk/rss/newsonline_world_edition/entertainment/rss.xml'),
-                      ('Magazine', 'http://newsrss.bbc.co.uk/rss/newsonline_world_edition/uk_news/magazine/rss.xml'),
-                      ('Business', 'http://newsrss.bbc.co.uk/rss/newsonline_world_edition/business/rss.xml'),
-                      ('Health', 'http://newsrss.bbc.co.uk/rss/newsonline_world_edition/health/rss.xml'),
-                      ('Americas', 'http://newsrss.bbc.co.uk/rss/newsonline_world_edition/americas/rss.xml'),
-                      ('Europe', 'http://newsrss.bbc.co.uk/rss/newsonline_world_edition/europe/rss.xml'),
-                      ('South Asia', 'http://newsrss.bbc.co.uk/rss/newsonline_world_edition/south_asia/rss.xml'),
-                      ('UK', 'http://newsrss.bbc.co.uk/rss/newsonline_world_edition/uk_news/rss.xml'),
-                      ('Asia-Pacific', 'http://newsrss.bbc.co.uk/rss/newsonline_world_edition/asia-pacific/rss.xml'),
-                      ('Africa', 'http://newsrss.bbc.co.uk/rss/newsonline_world_edition/africa/rss.xml'),
+                      ('Top Stories'        , 'http://feeds.bbci.co.uk/news/rss.xml'                        ),
+                      ('Science/Environment', 'http://feeds.bbci.co.uk/news/science_and_environment/rss.xml'),
+                      ('Technology'         , 'http://feeds.bbci.co.uk/news/technology/rss.xml'             ),
+                      ('Entertainment/Arts' , 'http://feeds.bbci.co.uk/news/entertainment_and_arts/rss.xml' ),
+                      ('Magazine'           , 'http://feeds.bbci.co.uk/news/magazine/rss.xml'               ),
+                      ('Business'           , 'http://feeds.bbci.co.uk/news/business/rss.xml'               ),
+                      ('Politics'           , 'http://feeds.bbci.co.uk/news/politics/rss.xml'               ),
+                      ('Health'             , 'http://feeds.bbci.co.uk/news/health/rss.xml'                 ),
+                      ('US&Canada'          , 'http://feeds.bbci.co.uk/news/world/us_and_canada/rss.xml'    ),
+                      ('Latin America'      , 'http://feeds.bbci.co.uk/news/world/latin_america/rss.xml'    ),
+                      ('Europe'             , 'http://feeds.bbci.co.uk/news/world/europe/rss.xml'           ),
+                      ('South Asia'         , 'http://feeds.bbci.co.uk/news/world/south_asia/rss.xml'       ),
+                      ('England'            , 'http://feeds.bbci.co.uk/news/england/rss.xml'                ),
+                      ('Asia-Pacific'       , 'http://feeds.bbci.co.uk/news/world/asia_pacific/rss.xml'     ),
+                      ('Africa'             , 'http://feeds.bbci.co.uk/news/world/africa/rss.xml'           )
                     ]
 
+    def preprocess_html(self, soup):
+        for item in soup.findAll(style=True):
+            del item['style']
+        for item in soup.findAll('left'):
+            item.name='span'
+        for item in soup.findAll('a'):
+            if item.string is not None:
+               str = item.string
+               item.replaceWith(str)
+            else:
+               str = self.tag_to_string(item)
+               item.replaceWith(str)
+        return soup
