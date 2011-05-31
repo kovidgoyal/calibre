@@ -74,7 +74,7 @@ class Metadata(object):
     Metadata from custom columns should be accessed via the get() method,
     passing in the lookup name for the column, for example: "#mytags".
 
-    Use the :meth:`is_null` method to test if a filed is null.
+    Use the :meth:`is_null` method to test if a field is null.
 
     This object also has functions to format fields into strings.
 
@@ -105,7 +105,7 @@ class Metadata(object):
 
     def is_null(self, field):
         '''
-        Return True if the value of filed is null in this object.
+        Return True if the value of field is null in this object.
         'null' means it is unknown or evaluates to False. So a title of
         _('Unknown') is null or a language of 'und' is null.
 

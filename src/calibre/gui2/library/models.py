@@ -7,6 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import shutil, functools, re, os, traceback
 from contextlib import closing
+from collections import defaultdict
 
 from PyQt4.Qt import (QAbstractTableModel, Qt, pyqtSignal, QIcon, QImage,
         QModelIndex, QVariant, QDate, QColor)
@@ -87,6 +88,7 @@ class BooksModel(QAbstractTableModel): # {{{
         self.column_map = []
         self.headers = {}
         self.alignment_map = {}
+        self.color_cache = defaultdict(dict)
         self.buffer_size = buffer
         self.metadata_backup = None
         self.bool_yes_icon = QIcon(I('ok.png'))
@@ -97,7 +99,7 @@ class BooksModel(QAbstractTableModel): # {{{
         self.ids_to_highlight_set = set()
         self.current_highlighted_idx = None
         self.highlight_only = False
-        self.column_color_map = {}
+        self.column_color_list = []
         self.colors = [unicode(c) for c in QColor.colorNames()]
         self.read_config()
 
@@ -172,11 +174,13 @@ class BooksModel(QAbstractTableModel): # {{{
 
 
     def refresh_ids(self, ids, current_row=-1):
+        self.color_cache = defaultdict(dict)
         rows = self.db.refresh_ids(ids)
         if rows:
             self.refresh_rows(rows, current_row=current_row)
 
     def refresh_rows(self, rows, current_row=-1):
+        self.color_cache = defaultdict(dict)
         for row in rows:
             if row == current_row:
                 self.new_bookdisplay_data.emit(
@@ -206,6 +210,7 @@ class BooksModel(QAbstractTableModel): # {{{
         return ret
 
     def count_changed(self, *args):
+        self.color_cache = defaultdict(dict)
         self.count_changed_signal.emit(self.db.count())
 
     def row_indices(self, index):
@@ -335,6 +340,10 @@ class BooksModel(QAbstractTableModel): # {{{
     def refresh(self, reset=True):
         self.db.refresh(field=None)
         self.resort(reset=reset)
+
+    def reset(self):
+        self.color_cache = defaultdict(dict)
+        QAbstractTableModel.reset(self)
 
     def resort(self, reset=True):
         if not self.db:
@@ -537,12 +546,12 @@ class BooksModel(QAbstractTableModel): # {{{
         return img
 
     def set_color_templates(self, reset=True):
-        self.column_color_map = {}
+        self.column_color_list = []
         for i in range(1,self.db.column_color_count+1):
             name = self.db.prefs.get('column_color_name_'+str(i))
             if name:
-                self.column_color_map[name] = \
-                        self.db.prefs.get('column_color_template_'+str(i))
+                self.column_color_list.append((name,
+                        self.db.prefs.get('column_color_template_'+str(i))))
         if reset:
             self.reset()
 
@@ -717,18 +726,25 @@ class BooksModel(QAbstractTableModel): # {{{
                 return QVariant(QColor('lightgreen'))
         elif role == Qt.ForegroundRole:
             key = self.column_map[col]
-            if key in self.column_color_map:
+            for k,fmt in self.column_color_list:
+                if k != key:
+                    continue
+                id_ = self.id(index)
+                if id_ in self.color_cache:
+                    if key in self.color_cache[id_]:
+                        return self.color_cache[id_][key]
                 mi = self.db.get_metadata(self.id(index), index_is_id=True)
-                fmt = self.column_color_map[key]
                 try:
                     color = composite_formatter.safe_format(fmt, mi, '', mi)
                     if color in self.colors:
                         color = QColor(color)
                         if color.isValid():
-                            return QVariant(color)
+                            color = QVariant(color)
+                            self.color_cache[id_][key] = color
+                            return color
                 except:
                     return NONE
-            elif self.is_custom_column(key) and \
+            if self.is_custom_column(key) and \
                         self.custom_columns[key]['datatype'] == 'enumeration':
                 cc = self.custom_columns[self.column_map[col]]['display']
                 colors = cc.get('enum_colors', [])
