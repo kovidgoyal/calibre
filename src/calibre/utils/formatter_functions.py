@@ -106,8 +106,8 @@ class BuiltinCmp(BuiltinFormatterFunction):
             'numbers. Returns lt if x < y. Returns eq if x == y. Otherwise returns gt.')
 
     def evaluate(self, formatter, kwargs, mi, locals, x, y, lt, eq, gt):
-        x = float(x if x else 0)
-        y = float(y if y else 0)
+        x = float(x if x and x != 'None' else 0)
+        y = float(y if y and y != 'None' else 0)
         if x < y:
             return lt
         if x == y:
