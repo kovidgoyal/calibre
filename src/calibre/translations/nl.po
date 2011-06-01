@@ -32,13 +32,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-05-29 21:12+0000\n"
-"PO-Revision-Date: 2011-05-27 22:31+0000\n"
+"PO-Revision-Date: 2011-05-31 17:32+0000\n"
 "Last-Translator: drMerry <Unknown>\n"
 "Language-Team: Dutch <nl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-05-30 04:41+0000\n"
+"X-Launchpad-Export-Date: 2011-06-01 04:36+0000\n"
 "X-Generator: Launchpad (build 12959)\n"
 "X-Poedit-Country: NETHERLANDS\n"
 "X-Poedit-Language: Dutch\n"
@@ -3131,7 +3131,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:51
 msgid "Value: unknown field "
-msgstr ""
+msgstr "Waarde: onbekend veld "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:144
 msgid "TEMPLATE ERROR"
@@ -9842,6 +9842,8 @@ msgid ""
 "See the <a href=\"http://manual.calibre-ebook.com/gui.html#the-search-"
 "interface\">User Manual</a> for more help"
 msgstr ""
+"Bekijk de <a href=\"http://manual.calibre-ebook.com/gui.html#the-search-"
+"interface\">Handleiding</a> voor meer hulp"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:210
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:218
@@ -10132,7 +10134,7 @@ msgstr "Ctrl+S"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:249
 msgid "EXCEPTION: "
-msgstr ""
+msgstr "UITZONDERING: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:71
 msgid "Function &name:"
@@ -10204,7 +10206,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:94
 msgid "Color if tag found"
-msgstr ""
+msgstr "Kleuren als label gevonden is"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:96
 msgid ""
@@ -10215,7 +10217,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:101
 msgid "Color if tag not found"
-msgstr ""
+msgstr "Kleuren als label niet gevonden is"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:103
 msgid ""
@@ -12319,7 +12321,7 @@ msgstr "&Datumformaat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:242
 msgid "Format for &numbers"
-msgstr ""
+msgstr "Formaat voor &nummers"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:243
 msgid "&Template"
@@ -12525,7 +12527,7 @@ msgstr "Altijd"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:132
 msgid "If there is enough room"
-msgstr ""
+msgstr "Als er genoeg ruimte is"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:133
 msgid "Never"
@@ -14231,7 +14233,7 @@ msgstr "onwaar"
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:232
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:206
 msgid "Affiliate:"
-msgstr ""
+msgstr "Franchise:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:235
 msgid "Nam&e/Description ..."
@@ -14245,7 +14247,7 @@ msgstr "Zoekopdracht:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/chooser_widget_ui.py:81
 msgid "Enable"
-msgstr ""
+msgstr "Activeren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/chooser_widget_ui.py:82
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:136
@@ -14261,7 +14263,7 @@ msgstr "Omkeren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:21
 msgid "Affiliate"
-msgstr ""
+msgstr "Franchise"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:21
 msgid "Enabled"
@@ -14313,7 +14315,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/results_view.py:47
 msgid "Configure..."
-msgstr ""
+msgstr "Configureren..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search/search_widget_ui.py:99
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search_widget_ui.py:99
@@ -17634,7 +17636,7 @@ msgstr "syntaxfout - programma eindigt voor einde van bestand"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:103
 msgid "Unknown identifier "
-msgstr ""
+msgstr "Onbekende identificator "
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:110
 msgid "unknown function {0}"
@@ -18030,7 +18032,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:583
 msgid "booksize() -- return value of the size field"
-msgstr ""
+msgstr "booksize() -- geeft waarde van het grootte veld terug"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:596
 msgid ""

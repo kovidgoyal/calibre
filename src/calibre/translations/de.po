@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-05-29 21:12+0000\n"
-"PO-Revision-Date: 2011-05-22 17:27+0000\n"
-"Last-Translator: Christine Emrich <Unknown>\n"
+"PO-Revision-Date: 2011-05-31 21:02+0000\n"
+"Last-Translator: Dana Engel <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-05-30 04:43+0000\n"
+"X-Launchpad-Export-Date: 2011-06-01 04:37+0000\n"
 "X-Generator: Launchpad (build 12959)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -3381,7 +3381,7 @@ msgstr "UK"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:399
 msgid "Italy"
-msgstr ""
+msgstr "Italien"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:403
 msgid "Amazon website to use:"
