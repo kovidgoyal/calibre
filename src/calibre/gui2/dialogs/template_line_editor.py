@@ -95,25 +95,27 @@ class TemplateLineEditor(QLineEdit):
 
 class TagWizard(QDialog):
 
-    text_template              = "        strcmp(field('{f}'), '{v}', '{fv}', '{tv}', '{fv}')"
-    text_empty_template        = "        test(field('{f}'), '{fv}', '{tv}')"
-    text_re_template           = "        contains(field('{f}'), '{v}', '{tv}', '{fv}')"
+    text_template              = ("        strcmp(field('{f}'), '{v}', '{ltv}', '{eqv}', '{gtv}')", True)
+    text_empty_template        = ("        test(field('{f}'), '{fv}', '{tv}')", False)
+    text_re_template           = ("        contains(field('{f}'), '{v}', '{tv}', '{fv}')", False)
 
     templates = {
-        'text.mult'            : "        str_in_list(field('{f}'), '{mult}', '{v}', '{tv}', '{fv}')",
-        'text.mult.re'         : "        in_list(field('{f}'), '{mult}', '^{v}$', '{tv}', '{fv}')",
-        'text.mult.empty'      : "        test(field('{f}'), '{fv}', '{tv}')",
+        'text.mult'            : ("        str_in_list(field('{f}'), '{mult}', '{v}', '{tv}', '{fv}')", False),
+        'text.mult.re'         : ("        in_list(field('{f}'), '{mult}', '^{v}$', '{tv}', '{fv}')", False),
+        'text.mult.empty'      : ("        test(field('{f}'), '{fv}', '{tv}')", False),
         'text'                 : text_template,
         'text.re'              : text_re_template,
         'text.empty'           : text_empty_template,
-        'rating'               : "        cmp(field('{f}'), '{v}', '{fv}', '{tv}', '{fv}')",
+        'rating'               : ("        cmp(raw_field('{f}'), '{v}', '{ltv}', '{eqv}', '{gtv}')", True),
         'rating.empty'         : text_empty_template,
-        'int'                  : "        cmp(field('{f}'), '{v}', '{fv}', '{tv}', '{fv}')",
+        'int'                  : ("        cmp(raw_field('{f}'), '{v}', '{ltv}', '{eqv}', '{gtv}')", True),
         'int.empty'            : text_empty_template,
-        'float'                : "        cmp(field('{f}'), '{v}', '{fv}', '{tv}', '{fv}')",
+        'float'                : ("        cmp(raw_field('{f}'), '{v}', '{ltv}', '{eqv}', '{gtv}')", True),
         'float.empty'          : text_empty_template,
-        'bool'                 : "        strcmp(field('{f}'), '{v}', '{fv}', '{tv}', '{fv}')",
+        'bool'                 : ("        strcmp(field('{f}'), '{v}', '{ltv}', '{eqv}', '{gtv}')", True),
         'bool.empty'           : text_empty_template,
+        'datetime'             : ("        strcmp(format_date(raw_field('{f}'), 'yyyyMMdd'), format_date('{v}', 'yyyyMMdd'), '{ltv}', '{eqv}', '{gtv}')", True),
+        'datetime.empty'       : text_empty_template,
         'series'               : text_template,
         'series.re'            : text_re_template,
         'series.empty'         : text_empty_template,
@@ -128,6 +130,22 @@ class TagWizard(QDialog):
         'comments.empty'       : text_empty_template,
     }
 
+    relationals = ('=', '!=', '<', '>', '<=', '>=')
+    relational_truth_vals = {
+        '=':        ('', '1', ''),
+        '!=':       ('1', '', '1'),
+        '<':        ('1', '', ''),
+        '>':        ('', '', '1'),
+        '<=':       ('1', '1', ''),
+        '>=':       ('', '1', '1'),
+    }
+
+    @staticmethod
+    def uses_this_wizard(txt):
+        if not txt or txt.startswith('program:\n#tag wizard'):
+            return True
+        return False
+
     def __init__(self, parent, db, txt, mi):
         QDialog.__init__(self, parent)
         self.setWindowTitle(_('Coloring Wizard'))
@@ -141,8 +159,7 @@ class TagWizard(QDialog):
             m = db.metadata_for_field(k)
             if k.endswith('_index') or (
                     m['kind'] == 'field' and m['name'] and
-                    k not in ('ondevice', 'path', 'size', 'sort') and
-                    m['datatype'] not in ('datetime')):
+                    k not in ('ondevice', 'path', 'size', 'sort')):
                 self.columns.append(k)
                 self.completion_values[k]['dt'] = m['datatype']
                 if m['is_custom']:
@@ -203,11 +220,12 @@ class TagWizard(QDialog):
         h.setAlignment(Qt.AlignCenter)
         l.addWidget(h, 0, 2, 1, 1)
 
-        h = QLabel(_('not'))
+        h = QLabel(_('op'))
         h.setToolTip('<p>' +
-             _('Check this box to indicate that the value must <b>not</b> match '
-               'to use the color. For example, you can check if a tag does '
-               'not exist by entering that tag and checking this box.') + '</p>')
+             _('Use this box to tell what comparison operation to use. Some '
+               'comparisons cannot be used with certain options. For example, '
+               'if regular expressions are used, only equals and not equals '
+               'are valid.') + '</p>')
         h.setAlignment(Qt.AlignCenter)
         l.addWidget(h, 0, 3, 1, 1)
 
@@ -246,7 +264,7 @@ class TagWizard(QDialog):
         l.addWidget(c, 0, 7, 1, 1)
 
         self.andboxes       = []
-        self.notboxes       = []
+        self.opboxes        = []
         self.tagboxes       = []
         self.colorboxes     = []
         self.reboxes        = []
@@ -284,13 +302,17 @@ class TagWizard(QDialog):
             w.setText(_('is'))
             l.addWidget(w, i, 2, 1, 1)
 
-            create_widget(QCheckBox, self.notboxes, l, i, 3, None)
+            w = create_widget(QComboBox, self.opboxes, l, i, 3, None)
+            w.setMaximumWidth(40)
 
             w = create_widget(QCheckBox, self.emptyboxes, l, i, 4, None)
             w.stateChanged.connect(partial(self.empty_box_changed, line=i-1))
 
             create_widget(MultiCompleteLineEdit, self.tagboxes, l, i, 5, None, align=0)
-            create_widget(QCheckBox, self.reboxes, l, i, 6, None)
+
+            w = create_widget(QCheckBox, self.reboxes, l, i, 6, None)
+            w.stateChanged.connect(partial(self.re_box_changed, line=i-1))
+
             create_widget(QComboBox, self.colorboxes, l, i, 7, self.colors)
 
         w = create_widget(QLabel, None, l, maxlines+1, 5, None)
@@ -315,20 +337,23 @@ class TagWizard(QDialog):
                     if len(vals) == 2:
                         t, c = vals
                         f = 'tags'
-                        a = n = e = re = False
+                        a = re = e = 0
+                        op = '='
                     else:
-                        t,c,f,re,a,n,e = vals
+                        t,c,f,re,a,op,e = vals
                     try:
                         self.colboxes[i].setCurrentIndex(self.colboxes[i].findText(f))
                         self.colorboxes[i].setCurrentIndex(
                                                 self.colorboxes[i].findText(c))
                         self.tagboxes[i].setText(t)
                         self.reboxes[i].setChecked(re == '2')
-                        self.andboxes[i].setChecked(a == '2')
-                        self.notboxes[i].setChecked(n == '2')
                         self.emptyboxes[i].setChecked(e == '2')
+                        self.andboxes[i].setChecked(a == '2')
+                        self.opboxes[i].setCurrentIndex(self.opboxes[i].findText(op))
                         i += 1
                     except:
+                        import traceback
+                        traceback.print_exc()
                         pass
 
         w = QLabel(_('Preview'))
@@ -357,26 +382,6 @@ class TagWizard(QDialog):
                                             _('EXCEPTION'), self.mi)
         self.test_box.setText(t)
 
-    def column_changed(self, s, line=None):
-        k = unicode(s)
-        if k in self.completion_values:
-            valbox = self.tagboxes[line]
-            valbox.update_items_cache(self.completion_values[k]['v'])
-            if self.completion_values[k]['m']:
-                valbox.set_separator(', ')
-            else:
-                valbox.set_separator(None)
-
-            dt = self.completion_values[k]['dt']
-            if dt in ('int', 'float', 'rating', 'bool'):
-                self.reboxes[line].setChecked(0)
-                self.reboxes[line].setEnabled(False)
-            else:
-                self.reboxes[line].setEnabled(True)
-        else:
-            valbox.update_items_cache([])
-            valbox.set_separator(None)
-
     def generate_program(self):
         res = ("program:\n#tag wizard -- do not directly edit\n"
                "  first_non_empty(\n")
@@ -384,9 +389,9 @@ class TagWizard(QDialog):
         was_and = had_line = False
 
         line = 0
-        for tb, cb, fb, reb, ab, nb, eb in zip(
+        for tb, cb, fb, reb, ab, ob, eb in zip(
                 self.tagboxes, self.colorboxes, self.colboxes,
-                self.reboxes, self.andboxes, self.notboxes, self.emptyboxes):
+                self.reboxes, self.andboxes, self.opboxes, self.emptyboxes):
             f = unicode(fb.currentText())
             if not f:
                 continue
@@ -394,13 +399,10 @@ class TagWizard(QDialog):
             dt = self.completion_values[f]['dt']
             c = unicode(cb.currentText()).strip()
             re = reb.checkState()
-            a = ab.checkState()
-            n = nb.checkState()
-            e = eb.checkState()
+            a  = ab.checkState()
+            op = unicode(ob.currentText())
+            e  = eb.checkState()
             line += 1
-
-            tval = ''  if n == 2 else '1'
-            fval = '1' if n == 2 else ''
 
             if m:
                 tags = [t.strip() for t in unicode(tb.text()).split(m) if t.strip()]
@@ -428,8 +430,15 @@ class TagWizard(QDialog):
                 lines[-1] += ','
 
             key = dt + ('.mult' if m else '') + ('.empty' if e else '') + ('.re' if re else '')
-            template = self.templates[key]
-            lines.append(template.format(v=tags, f=f, tv=tval, fv=fval, mult=m))
+            tval = '1' if op == '=' else ''
+            fval = ''  if op == '=' else '1'
+            template, is_relational = self.templates[key]
+            if is_relational:
+                ltv, eqv, gtv = self.relational_truth_vals[op]
+            else:
+                ltv, eqv, gtv = (None, None, None)
+            lines.append(template.format(v=tags, f=f, tv=tval, fv=fval, mult=m,
+                                         ltv=ltv, eqv=eqv, gtv=gtv))
 
             if a == 2:
                 was_and = True
@@ -444,9 +453,9 @@ class TagWizard(QDialog):
         res += ')\n'
         self.template = res
         res = ''
-        for tb, cb, fb, reb, ab, nb, eb in zip(
+        for tb, cb, fb, reb, ab, ob, eb in zip(
                 self.tagboxes, self.colorboxes, self.colboxes,
-                self.reboxes, self.andboxes, self.notboxes, self.emptyboxes):
+                self.reboxes, self.andboxes, self.opboxes, self.emptyboxes):
             t = unicode(tb.text()).strip()
             if t.endswith(','):
                 t = t[:-1]
@@ -454,14 +463,56 @@ class TagWizard(QDialog):
             f = unicode(fb.currentText())
             re = unicode(reb.checkState())
             a = unicode(ab.checkState())
-            n = unicode(nb.checkState())
+            op = unicode(ob.currentText())
             e = unicode(eb.checkState())
             if f and (t or e) and (a == '2' or c):
                 res += '#' + t + ':|:' + c  + ':|:' + f + ':|:' + re + ':|:' + \
-                             a + ':|:' + n + ':|:' + e + '\n'
+                             a + ':|:' + op + ':|:' + e + '\n'
         res += '#else:' + else_txt + '\n'
         self.template += res
         return True
+
+    def column_changed(self, s, line=None):
+        k = unicode(s)
+        valbox = self.tagboxes[line]
+        if k in self.completion_values:
+            valbox.update_items_cache(self.completion_values[k]['v'])
+            if self.completion_values[k]['m']:
+                valbox.set_separator(', ')
+            else:
+                valbox.set_separator(None)
+
+            dt = self.completion_values[k]['dt']
+            if dt in ('int', 'float', 'rating', 'bool'):
+                self.reboxes[line].setChecked(0)
+                self.reboxes[line].setEnabled(False)
+            else:
+                self.reboxes[line].setEnabled(True)
+            self.fill_in_opbox(line)
+        else:
+            valbox.update_items_cache([])
+            valbox.set_separator(None)
+
+    def fill_in_opbox(self, line):
+        opbox = self.opboxes[line]
+        opbox.clear()
+        k = unicode(self.colboxes[line].currentText())
+        if not k:
+            return
+        if k in self.completion_values:
+            rebox = self.reboxes[line]
+            ebox = self.emptyboxes[line]
+            idx = opbox.currentIndex()
+            if self.completion_values[k]['m'] or \
+                    rebox.checkState() == 2 or ebox.checkState() == 2:
+                opbox.addItems(self.relationals[0:2])
+                idx = idx if idx < 2 else 0
+            else:
+                opbox.addItems(self.relationals)
+            opbox.setCurrentIndex(max(idx, 0))
+
+    def re_box_changed(self, state, line=None):
+        self.fill_in_opbox(line)
 
     def empty_box_changed(self, state, line=None):
         if state == 2:
@@ -472,6 +523,7 @@ class TagWizard(QDialog):
         else:
             self.reboxes[line].setEnabled(True)
             self.tagboxes[line].setEnabled(True)
+        self.fill_in_opbox(line)
 
     def and_box_changed(self, state, line=None):
         if state == 2:
