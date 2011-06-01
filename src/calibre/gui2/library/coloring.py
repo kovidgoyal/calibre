@@ -68,7 +68,7 @@ class Rule(object): # {{{
                 {sig}
                 test(and('1',
                          {conditions}
-                    ), {color}, '')
+                    ), {color}, '');
                 ''').format(sig=self.signature, conditions=conditions,
                         color=self.color)
 
