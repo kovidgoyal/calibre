@@ -44,11 +44,16 @@ class SafeFormat(TemplateFormatter):
     def get_value(self, orig_key, args, kwargs):
         if not orig_key:
             return ''
-        key = orig_key.lower()
+        orig_key = orig_key.lower()
+        key = orig_key
         if key != 'title_sort' and key not in TOP_LEVEL_IDENTIFIERS:
             key = field_metadata.search_term_to_field_key(key)
-        if key is None or (self.book and key not in self.book.all_field_keys()):
-            raise ValueError(_('Value: unknown field ') + orig_key)
+            if key is None or (self.book and
+                                key not in self.book.all_field_keys()):
+                if hasattr(self.book, orig_key):
+                    key = orig_key
+                else:
+                    raise ValueError(_('Value: unknown field ') + orig_key)
         b = self.book.get_user_metadata(key, False)
         if b and b['datatype'] == 'int' and self.book.get(key, 0) == 0:
             v = ''

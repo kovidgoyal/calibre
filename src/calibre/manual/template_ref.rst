@@ -34,7 +34,7 @@ booksize()
 format_date(val, format_string)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. autoclass:: BuiltinFormat_date
+.. autoclass:: BuiltinFormatDate
 
 ondevice()
 ^^^^^^^^^^^
