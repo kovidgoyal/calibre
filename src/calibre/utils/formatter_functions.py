@@ -523,7 +523,7 @@ class BuiltinFormat_date(BuiltinFormatterFunction):
     name = 'format_date'
     arg_count = 2
     doc = _('format_date(val, format_string) -- format the value, which must '
-            'be a date field, using the format_string, returning a string. '
+            'be a date, using the format_string, returning a string. '
             'The formatting codes are: '
             'd    : the day as number without a leading zero (1 to 31) '
             'dd   : the day as number with a leading zero (01 to 31) '
@@ -538,7 +538,7 @@ class BuiltinFormat_date(BuiltinFormatterFunction):
             'iso  : the date with time and timezone. Must be the only format present')
 
     def evaluate(self, formatter, kwargs, mi, locals, val, format_string):
-        if not val:
+        if not val or val == 'None':
             return ''
         try:
             dt = parse_date(val)
