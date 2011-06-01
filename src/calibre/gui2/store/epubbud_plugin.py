@@ -24,9 +24,6 @@ class EpubBudStore(BasicStoreConfig, StorePlugin):
 
     def open(self, parent=None, detail_item=None, external=False):
         url = 'http://epubbud.com/'
-        
-        if detail_item:
-            url = 'http://epubbud.com/book.php?g=' + detail_item 
 
         if external or self.config.get('open_external', False):
             open_url(QUrl(url_slash_cleaner(detail_item if detail_item else url)))
