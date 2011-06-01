@@ -86,8 +86,7 @@ def generate_template_language_help():
                                                hats='^'*len(entry))
 
     output += POSTAMBLE
-    print output
-    return output  # and hope that something good happens to it
+    return output
 
 if __name__ == '__main__':
     generate_template_language_help()
