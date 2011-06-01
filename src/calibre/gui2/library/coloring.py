@@ -66,7 +66,7 @@ class Rule(object): # {{{
         return dedent('''\
                 program:
                 {sig}
-                test(and('1',
+                test(and(
                          {conditions}
                     ), {color}, '');
                 ''').format(sig=self.signature, conditions=conditions,
@@ -113,7 +113,7 @@ class Rule(object): # {{{
                 'lt': ('1', '', ''),
                 'gt': ('', '', '1')
         }[action]
-        return "cmp(format_date('%s', 'yyyy-MM-dd'), %s, '%s', '%s', '%s')" % (col,
+        return "cmp(format_date(raw_field('%s'), 'yyyy-MM-dd'), %s, '%s', '%s', '%s')" % (col,
                 val, lt, eq, gt)
 
     def multiple_condition(self, col, action, val, sep):
@@ -246,7 +246,7 @@ class ConditionEditor(QWidget):
         for key in sorted(
                 conditionable_columns(fm),
                 key=lambda x:sort_key(fm[x]['name'])):
-            self.column_box.addItem(fm[key]['name'], key)
+            self.column_box.addItem(key, key)
         self.column_box.setCurrentIndex(0)
 
         self.column_box.currentIndexChanged.connect(self.init_action_box)
@@ -352,7 +352,8 @@ class ConditionEditor(QWidget):
             if 'pattern' in action:
                 tt = _('Enter a regular expression')
         self.value_box.setToolTip(tt)
-        if action in ('is set', 'is not set'):
+        if action in ('is set', 'is not set', 'is true', 'is false',
+                'is undefined'):
             self.value_box.setEnabled(False)
 
 
@@ -418,6 +419,7 @@ class RuleEditor(QDialog):
         self.conditions_widget = QWidget(self)
         sa.setWidget(self.conditions_widget)
         self.conditions_widget.setLayout(QVBoxLayout())
+        self.conditions_widget.layout().setAlignment(Qt.AlignTop)
         self.conditions = []
 
         for b in (self.column_box, self.color_box):
@@ -429,7 +431,7 @@ class RuleEditor(QDialog):
                 key=lambda x:sort_key(fm[x]['name'])):
             name = fm[key]['name']
             if name:
-                self.column_box.addItem(name, key)
+                self.column_box.addItem(key, key)
         self.column_box.setCurrentIndex(0)
 
         self.color_box.addItems(QColor.colorNames())
