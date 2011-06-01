@@ -29,8 +29,11 @@ def get_lang():
     lang = os.environ.get('CALIBRE_OVERRIDE_LANG', lang)
     if lang is not None:
         return lang
-    lang = locale.getdefaultlocale(['LANGUAGE', 'LC_ALL', 'LC_CTYPE',
+    try:
+        lang = locale.getdefaultlocale(['LANGUAGE', 'LC_ALL', 'LC_CTYPE',
                                     'LC_MESSAGES', 'LANG'])[0]
+    except:
+        pass # This happens on Ubuntu apparently
     if lang is None and os.environ.has_key('LANG'): # Needed for OS X
         try:
             lang = os.environ['LANG']

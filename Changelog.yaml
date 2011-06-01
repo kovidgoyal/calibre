@@ -19,6 +19,68 @@
 #  new recipes:
 #    - title: 
 
+- version: 0.8.3
+  date: 2011-05-27
+
+  new features:
+    - title: "Allow the coloring of columns in the book list."
+      description: "You can either create a custom column with a fixed set of values and assign a color to each value, or you can use the calibre template language to color any column in arbitrarily powerful ways. For example, you can have the title appear in red if the book has a particular tag."
+      type: major
+
+    - title: "Support for the Nook Simple Reader"
+
+    - title: "Get Books, new stores: Virtualo, lulu.net"
+
+    - title: "A store chooser dialog for Get Books (click the little preferences icon at the bottom of the Get Books screen)."
+
+    - title: "Add a merge_lists, and, or, not template functions to the calibre template language"
+
+    - title: "EPUB Output: Change any white-space:pre declarations in the CSS to pre-wrap to accomodate readers that cannot scroll horizontally."
+      tickets: [786722]
+
+    - title: "Windows installer: Remember and use previous installation folder when upgrading. Note that this will work for future upgrades, after this one."
+  
+  bug fixes:
+    - title: "MOBI Output: Fix hidden tags with id attributes also hiding their trailing text"
+      tickets: [788570]
+
+    - title: "Fix switching from one news source to another via a search not saving changes to the scheduling of the first source"
+      tickets: [774849]
+
+    - title: "Dont allow user to use non email usernames when setting up Hotmail or Gmail accounts"
+
+    - title: "Amazon metadata download: Use separate identifiers for country specific downloads so that the links to Amazon in the Book details panel work when downloading metadata from country specific amazon websites."
+      tickets: [786146]
+
+    - title: "Nicer error message when user attempts to set title/author via Edit metadata dialog and one of the files is open in another program."
+
+    - title: "Fix {id} not working in send to device templates"
+
+    - title: "Windows: If creating a bytestring temp dir fails, create a unicode one and hope the rest of calibre can handle it"
+
+    - title: "Get Books: Fix some results from Amazon missing."
+      tickets: [785962]
+
+  improved recipes:
+    - Kathermini
+    - Faz.net
+    - The Washington Post
+    - El Mundo
+    - Marca
+    - The Nation
+
+  new recipes:
+    - title: Various German news sources
+      author: schuster
+
+    - title: "George R. R. Martin's Blog"
+      author: Darko Miletic
+
+    - title: "Focus (DE) and National Geographic"
+      auhtor: Anonymous
+
+
+
 - version: 0.8.2
   date: 2011-05-20
 
@@ -522,7 +584,7 @@
     - title: "FB2 Output: Option to set the FB2 genre explicitly."
       tickets: [743178]
 
-    - title: "Plugin developers: calibre now has a new plugin API, see http://calibre-ebook.com/user_manual/creating_plugins.html. Your existing plugins should continue to work, but it would be good to test them to make sure."
+    - title: "Plugin developers: calibre now has a new plugin API, see http://manual.calibre-ebook.com/creating_plugins.html. Your existing plugins should continue to work, but it would be good to test them to make sure."
   
   bug fixes:
     - title: "Fix text color in the search bar set to black instead of the system font color"
@@ -907,7 +969,7 @@
 
   new features:
     - title: "Tag Browser: Support the creation of nested User Categories"
-      description: "See http://calibre-ebook.com/user_manual/gui.html#tag-browser for details"
+      description: "See http://manual.calibre-ebook.com/gui.html#tag-browser for details"
       type: major
 
     - title: "Disable Kent District Library plugin to download series information. The website could not handle the load calibre's 2 million users put on it. You can manually re-enable it if you really want series information, but it is very slow"
@@ -3780,7 +3842,7 @@
       type: major
       description: >
         "You can now change the icons used in the User Interface and other static resources. Details on how to
-         do this are at: http://calibre-ebook.com/user_manual/customize.html#overriding-icons-templates-etcetera"
+         do this are at: http://manual.calibre-ebook.com/customize.html#overriding-icons-templates-etcetera"
 
     - title: "Split the 'Send to device' button into two buttons, 'Connect/share' and 'Send to device'. The new 'Send to device' button will now only be available when a device is connected."
 

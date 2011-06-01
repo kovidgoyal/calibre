@@ -238,7 +238,6 @@ class Spacer(QWidget): # {{{
         self.l.addStretch(10)
 # }}}
 
-
 class MainWindowMixin(object): # {{{
 
     def __init__(self, db):

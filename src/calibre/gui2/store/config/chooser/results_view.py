@@ -6,7 +6,9 @@ __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-from PyQt4.Qt import (Qt, QTreeView, QSize)
+from functools import partial
+
+from PyQt4.Qt import (Qt, QTreeView, QSize, QMenu)
 
 from calibre.customize.ui import store_plugins
 from calibre.gui2.metadata.single_download import RichTextDelegate
@@ -32,3 +34,20 @@ class ResultsView(QTreeView):
             
         self.model().sort(1, Qt.AscendingOrder)
         self.header().setSortIndicator(self.model().sort_col, self.model().sort_order)
+
+    def contextMenuEvent(self, event):
+        index = self.indexAt(event.pos())
+        
+        if not index.isValid():
+            return
+        
+        plugin = self.model().get_plugin(index)
+        
+        menu = QMenu()
+        ca = menu.addAction(_('Configure...'), partial(self.configure_plugin, plugin))
+        if not plugin.is_customizable():
+            ca.setEnabled(False)
+        menu.exec_(event.globalPos())
+
+    def configure_plugin(self, plugin):
+        plugin.do_user_config(self)
