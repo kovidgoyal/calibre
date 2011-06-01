@@ -16,7 +16,7 @@ from calibre.gui2 import error_dialog
 from calibre.library.coloring import (Rule, conditionable_columns,
     displayable_columns)
 
-class ConditionEditor(QWidget):
+class ConditionEditor(QWidget): # {{{
 
     def __init__(self, fm, parent=None):
         QWidget.__init__(self, parent)
@@ -188,9 +188,9 @@ class ConditionEditor(QWidget):
         if action in ('is set', 'is not set', 'is true', 'is false',
                 'is undefined'):
             self.value_box.setEnabled(False)
+# }}}
 
-
-class RuleEditor(QDialog):
+class RuleEditor(QDialog): # {{{
 
     def __init__(self, fm, parent=None):
         QDialog.__init__(self, parent)
@@ -314,8 +314,13 @@ class RuleEditor(QDialog):
                 r.add_condition(*condition)
 
         return col, r
+# }}}
 
+class EditRules(QWidget):
 
+    def __init__(self, db, parent=None):
+        QWidget.__init__(self, parent)
+        self.db = db
 
 if __name__ == '__main__':
     from PyQt4.Qt import QApplication
