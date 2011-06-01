@@ -5,12 +5,15 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+from functools import partial
+
 from PyQt4.Qt import (QApplication, QFont, QFontInfo, QFontDialog,
-        QAbstractListModel, Qt, QColor)
+        QAbstractListModel, Qt, QColor, QIcon, QToolButton, QComboBox)
 
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget, CommaSeparatedList
 from calibre.gui2.preferences.look_feel_ui import Ui_Form
 from calibre.gui2 import config, gprefs, qt_app
+from calibre.gui2.dialogs.template_line_editor import TemplateLineEditor
 from calibre.utils.localization import (available_translations,
     get_language, get_lang)
 from calibre.utils.config import prefs
@@ -129,7 +132,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             (_('Medium'), 'medium'), (_('Large'), 'large')]
         r('toolbar_icon_size', gprefs, choices=choices)
 
-        choices = [(_('Automatic'), 'auto'), (_('Always'), 'always'),
+        choices = [(_('If there is enough room'), 'auto'), (_('Always'), 'always'),
             (_('Never'), 'never')]
         r('toolbar_text', gprefs, choices=choices)
 
@@ -167,14 +170,15 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                   '<a href="http://manual.calibre-ebook.com/template_lang.html">'
                   'tutorial</a> on using templates.') +
                  '</p><p>' +
-                _('If you want to color a field based on tags, then click the '
-                  'button next to an empty line to open the tags wizard. '
+                _('If you want to color a field based on contents of columns, '
+                  'then click the button next to an empty line to open the wizard. '
                   'It will build a template for you. You can later edit that '
-                  'template with the same wizard. If you edit it by hand, the '
-                  'wizard might not work or might restore old values.') +
+                  'template with the same wizard. This is by far the easiest '
+                  'way to specify a template.') +
                  '</p><p>' +
-                _('The template must evaluate to one of the color names shown '
-                  'below. You can use any legal template expression. '
+                _('If you manually construct a template, then the template must '
+                  'evaluate to a valid color name shown in the color names box.'
+                  'You can use any legal template expression. '
                   'For example, you can set the title to always display in '
                   'green using the template "green" (without the quotes). '
                   'To show the title in the color named in the custom column '
@@ -200,20 +204,75 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                   'of values", it is often easier to specify the '
                   'colors in the column definition dialog. There you can '
                   'provide a color for each value without using a template.')+ '</p>')
+        self.color_help_scrollArea.setVisible(False)
+        self.color_help_button.clicked.connect(self.change_help_text)
+        self.colors_scrollArea.setVisible(False)
+        self.colors_label.setVisible(False)
+        self.colors_button.clicked.connect(self.change_colors_text)
+
         choices = db.field_metadata.displayable_field_keys()
         choices.sort(key=sort_key)
         choices.insert(0, '')
         self.column_color_count = db.column_color_count+1
-        tags = db.all_tags()
+
+        mi=None
+        try:
+            idx = gui.library_view.currentIndex().row()
+            mi = db.get_metadata(idx, index_is_id=False)
+        except:
+            pass
+
+        l = self.column_color_layout
         for i in range(1, self.column_color_count):
+            ccn = QComboBox(parent=self)
+            setattr(self, 'opt_column_color_name_'+str(i), ccn)
+            l.addWidget(ccn, i, 0, 1, 1)
+
+            wtb = QToolButton(parent=self)
+            setattr(self, 'opt_column_color_wizard_'+str(i), wtb)
+            wtb.setIcon(QIcon(I('wizard.png')))
+            l.addWidget(wtb, i, 1, 1, 1)
+
+            ttb = QToolButton(parent=self)
+            setattr(self, 'opt_column_color_tpledit_'+str(i), ttb)
+            ttb.setIcon(QIcon(I('edit_input.png')))
+            l.addWidget(ttb, i, 2, 1, 1)
+
+            tpl = TemplateLineEditor(parent=self)
+            setattr(self, 'opt_column_color_template_'+str(i), tpl)
+            tpl.textChanged.connect(partial(self.tpl_edit_text_changed, ctrl=i))
+            tpl.set_db(db)
+            tpl.set_mi(mi)
+            l.addWidget(tpl, i, 3, 1, 1)
+
+            wtb.clicked.connect(tpl.tag_wizard)
+            ttb.clicked.connect(tpl.open_editor)
+
             r('column_color_name_'+str(i), db.prefs, choices=choices)
             r('column_color_template_'+str(i), db.prefs)
-            tpl = getattr(self, 'opt_column_color_template_'+str(i))
-            tpl.set_tags(tags)
-            toolbutton = getattr(self, 'opt_column_color_wizard_'+str(i))
-            toolbutton.clicked.connect(tpl.tag_wizard)
+            txt = db.prefs.get('column_color_template_'+str(i), None)
+
+            wtb.setEnabled(tpl.enable_wizard_button(txt))
+            ttb.setEnabled(not tpl.enable_wizard_button(txt) or not txt)
+
         all_colors = [unicode(s) for s in list(QColor.colorNames())]
         self.colors_box.setText(', '.join(all_colors))
+
+    def change_help_text(self):
+        self.color_help_scrollArea.setVisible(not self.color_help_scrollArea.isVisible())
+
+    def change_colors_text(self):
+        self.colors_scrollArea.setVisible(not self.colors_scrollArea.isVisible())
+        self.colors_label.setVisible(not self.colors_label.isVisible())
+
+    def tpl_edit_text_changed(self, ign, ctrl=None):
+        tpl = getattr(self, 'opt_column_color_template_'+str(ctrl))
+        txt = unicode(tpl.text())
+        wtb = getattr(self, 'opt_column_color_wizard_'+str(ctrl))
+        ttb = getattr(self, 'opt_column_color_tpledit_'+str(ctrl))
+        wtb.setEnabled(tpl.enable_wizard_button(txt))
+        ttb.setEnabled(not tpl.enable_wizard_button(txt) or not txt)
+        tpl.setFocus()
 
     def initialize(self):
         ConfigWidgetBase.initialize(self)

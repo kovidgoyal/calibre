@@ -860,6 +860,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         mi.uuid        = row[fm['uuid']]
         mi.title_sort  = row[fm['sort']]
         mi.book_size   = row[fm['size']]
+        mi.ondevice_col= row[fm['ondevice']]
         mi.last_modified = row[fm['last_modified']]
         formats = row[fm['formats']]
         if not formats:

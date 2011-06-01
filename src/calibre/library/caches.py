@@ -200,6 +200,11 @@ class CacheRow(list): # {{{
     def __getslice__(self, i, j):
         return self.__getitem__(slice(i, j))
 
+    def refresh_composites(self):
+        for c in self._composites:
+            self[c] =  None
+        self._must_do = True
+
 # }}}
 
 class ResultCache(SearchQueryParser): # {{{
@@ -918,6 +923,7 @@ class ResultCache(SearchQueryParser): # {{{
         for item in self._data:
             if item is not None:
                 item[ondevice_col] = db.book_on_device_string(item[0])
+                item.refresh_composites()
 
     def refresh(self, db, field=None, ascending=True):
         temp = db.conn.get('SELECT * FROM meta2')

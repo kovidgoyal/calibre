@@ -17,6 +17,7 @@
                        IncludeMaximum="yes"
                        OnlyDetect="no"
                        Language="1033"
+                       MigrateFeatures="yes"
                        Property="OLDPRODUCTFOUND"/>
                     <UpgradeVersion Minimum="{version}"
                        IncludeMinimum="no"
