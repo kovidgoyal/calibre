@@ -520,11 +520,11 @@ class BuiltinSubitems(BuiltinFormatterFunction):
                 pass
         return ', '.join(sorted(rv, key=sort_key))
 
-class BuiltinFormat_date(BuiltinFormatterFunction):
+class BuiltinFormatDate(BuiltinFormatterFunction):
     name = 'format_date'
     arg_count = 2
-    __doc__ = doc = _('format_date(val, format_string) -- format the value, which must '
-            'be a date field, using the format_string, returning a string. '
+    __doc__ = doc = _('format_date(val, format_string) -- format the value, '
+            'which must be a date, using the format_string, returning a string. '
             'The formatting codes are: '
             'd    : the day as number without a leading zero (1 to 31) '
             'dd   : the day as number with a leading zero (01 to 31) '
@@ -539,7 +539,7 @@ class BuiltinFormat_date(BuiltinFormatterFunction):
             'iso  : the date with time and timezone. Must be the only format present')
 
     def evaluate(self, formatter, kwargs, mi, locals, val, format_string):
-        if not val:
+        if not val or val == 'None':
             return ''
         try:
             dt = parse_date(val)
@@ -704,7 +704,7 @@ builtin_divide      = BuiltinDivide()
 builtin_eval        = BuiltinEval()
 builtin_first_non_empty = BuiltinFirstNonEmpty()
 builtin_field       = BuiltinField()
-builtin_format_date = BuiltinFormat_date()
+builtin_format_date = BuiltinFormatDate()
 builtin_ifempty     = BuiltinIfempty()
 builtin_in_list     = BuiltinInList()
 builtin_list_item   = BuiltinListitem()
