@@ -268,20 +268,14 @@ The following functions are available in addition to those described in single-f
     * ``subtract(x, y)`` -- returns x - y. Throws an exception if either x or y are not numbers.
     * ``template(x)`` -- evaluates x as a template. The evaluation is done in its own context, meaning that variables are not shared between the caller and the template evaluation. Because the `{` and `}` characters are special, you must use `[[` for the `{` character and `]]` for the '}' character; they are converted automatically. For example, ``template('[[title_sort]]') will evaluate the template ``{title_sort}`` and return its value.
     
-Function classification summary:
+Function classification
+---------------------------
 
-    * Get values from metadata: ``field``. ``raw_field``. In some situations, ``lookup`` can be used in place of ``field``.
-    * Arithmetic: ``add``, ``subtract``, ``multiply``, ``divide``
-    * Boolean: ``and``, ``or``, ``not``. The function ``if_empty`` is similar to ``and`` called with one argument.
-    * If-then-else: ``contains``, ``test``
-    * Iterating over values: ``first_non_empty``, ``lookup``, ``switch``
-    * List lookup: ``in_list``, ``list_item``, ``select``, ``str_in_list``
-    * List manipulation: ``count``, ``merge_lists``, ``sublist``, ``subitems``
-    * Recursion: ``eval``, ``template``
-    * Relational: ``cmp`` (for numbers), ``strcmp`` (for strings)
-    * String case changes: ``lowercase``, ``uppercase``, ``titlecase``, ``capitalize``
-    * String manipulation: ``re``, ``shorten``, ``substr``
-    * Other: ``assign``, ``booksize``, ``format_date``, ``ondevice`` ``print``
+.. toctree::
+    :maxdepth: 3
+
+    template_ref
+
         
 .. _general_mode:
 
@@ -425,20 +419,9 @@ You might find the following tips useful.
     * Templates can use other templates by referencing a composite custom column.
     * In a plugboard, you can set a field to empty (or whatever is equivalent to empty) by using the special template ``{null}``. This template will always evaluate to an empty string.
     * The technique described above to show numbers even if they have a zero value works with the standard field series_index.
-    
-API of the Metadata objects
-----------------------------
 
-.. module:: calibre.ebooks.metadata.book.base
+.. toctree::
+  :hidden:
 
-.. autoclass:: Metadata
-   :members:
-   :member-order: bysource
-
-.. data:: STANDARD_METADATA_FIELDS
-
-    The set of standard metadata fields.
-
-.. literalinclude:: ../ebooks/metadata/book/__init__.py
-   :lines: 7-
+  template_ref
 
