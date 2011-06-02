@@ -340,7 +340,7 @@ class RuleEditor(QDialog): # {{{
         return col, r
 # }}}
 
-class RulesModel(QAbstractListModel):
+class RulesModel(QAbstractListModel): # {{{
 
     def __init__(self, prefs, fm, parent=None):
         QAbstractListModel.__init__(self, parent)
@@ -425,7 +425,9 @@ class RulesModel(QAbstractListModel):
             _('<li>If the <b>%s</b> column <b>%s</b> the value: <b>%s</b>') %
                 tuple(condition))
 
-class EditRules(QWidget):
+# }}}
+
+class EditRules(QWidget): # {{{
 
     changed = pyqtSignal()
 
@@ -562,6 +564,8 @@ class EditRules(QWidget):
 
     def commit(self, prefs):
         self.model.commit(prefs)
+
+# }}}
 
 if __name__ == '__main__':
     from PyQt4.Qt import QApplication
