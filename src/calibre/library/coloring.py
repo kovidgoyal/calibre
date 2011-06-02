@@ -61,7 +61,7 @@ class Rule(object): # {{{
                 {sig}
                 test(and(
                          {conditions}
-                    ), {color}, '');
+                    ), '{color}', '');
                 ''').format(sig=self.signature, conditions=conditions,
                         color=self.color)
 
@@ -169,10 +169,21 @@ def conditionable_columns(fm):
                 'comments', 'text', 'enumeration', 'datetime'):
             yield key
 
-
 def displayable_columns(fm):
     for key in fm.displayable_field_keys():
         if key not in ('sort', 'author_sort', 'comments', 'formats',
                 'identifiers', 'path'):
             yield key
+
+def migrate_old_rule(fm, template):
+    if template.startswith('program:\n#tag wizard'):
+        rules = []
+        for line in template.splitlines():
+            if line.startswith('#') and ':|:' in line:
+                value, color = line[1:].split(':|:')
+                r = Rule(fm, color=color)
+                r.add_condition('tags', 'has', value)
+                rules.append(r.template)
+        return rules
+    return template
 

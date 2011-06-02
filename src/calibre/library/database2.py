@@ -211,16 +211,30 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         defs = self.prefs.defaults
         defs['gui_restriction'] = defs['cs_restriction'] = ''
         defs['categories_using_hierarchy'] = []
-        self.column_color_count = 5
-        for i in range(1,self.column_color_count+1):
-            defs['column_color_name_'+str(i)] = ''
-            defs['column_color_template_'+str(i)] = ''
+        defs['column_color_rules'] = []
 
         # Migrate the bool tristate tweak
         defs['bools_are_tristate'] = \
                 tweaks.get('bool_custom_columns_are_tristate', 'yes') == 'yes'
         if self.prefs.get('bools_are_tristate') is None:
             self.prefs.set('bools_are_tristate', defs['bools_are_tristate'])
+
+        # Migrate column coloring rules
+        if self.prefs.get('column_color_name_1', None) is not None:
+            from calibre.library.coloring import migrate_old_rule
+            old_rules = []
+            for i in range(1, 5):
+                col = self.prefs.get('column_color_name_'+str(i), None)
+                templ = self.prefs.get('column_color_template_'+str(i), None)
+                if col and templ:
+                    try:
+                        del self.prefs['column_color_name_'+str(i)]
+                        templ = migrate_old_rule(self.field_metadata, templ)
+                        old_rules.append((col, templ))
+                    except:
+                        pass
+            if old_rules:
+                self.prefs['column_color_rules'] += old_rules
 
         # Migrate saved search and user categories to db preference scheme
         def migrate_preference(key, default):

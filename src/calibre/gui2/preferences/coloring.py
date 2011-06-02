@@ -10,10 +10,11 @@ __docformat__ = 'restructuredtext en'
 from PyQt4.Qt import (QWidget, QDialog, QLabel, QGridLayout, QComboBox, QSize,
         QLineEdit, QIntValidator, QDoubleValidator, QFrame, QColor, Qt, QIcon,
         QScrollArea, QPushButton, QVBoxLayout, QDialogButtonBox, QToolButton,
-        QListView, QAbstractListModel)
+        QListView, QAbstractListModel, pyqtSignal)
 
 from calibre.utils.icu import sort_key
 from calibre.gui2 import error_dialog
+from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.gui2.metadata.single_download import RichTextDelegate
 from calibre.library.coloring import (Rule, conditionable_columns,
     displayable_columns, rule_from_template)
@@ -402,6 +403,10 @@ class RulesModel(QAbstractListModel):
             self.dataChanged.emit(idx, idx)
             return idx
 
+    def clear(self):
+        self.rules = []
+        self.reset()
+
     def rule_to_html(self, col, rule):
         if isinstance(rule, basestring):
             return _('''
@@ -421,6 +426,8 @@ class RulesModel(QAbstractListModel):
                 tuple(condition))
 
 class EditRules(QWidget):
+
+    changed = pyqtSignal()
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
@@ -479,13 +486,20 @@ class EditRules(QWidget):
         self.rules_view.setModel(self.model)
 
     def add_rule(self):
-        d = RuleEditor(db.field_metadata)
+        d = RuleEditor(self.model.fm)
         d.add_blank_condition()
         if d.exec_() == d.Accepted:
             col, r = d.rule
             if r is not None and col:
                 idx = self.model.add_rule(col, r)
                 self.rules_view.scrollTo(idx)
+                self.changed.emit()
+
+    def add_advanced(self):
+        td = TemplateDialog(self, '', None)
+        if td.exec_() == td.Accepted:
+            self.changed.emit()
+            pass # TODO
 
     def edit_rule(self, index):
         try:
@@ -493,18 +507,19 @@ class EditRules(QWidget):
         except:
             return
         if isinstance(rule, Rule):
-            d = RuleEditor(db.field_metadata)
+            d = RuleEditor(self.model.fm)
             d.apply_rule(col, rule)
             if d.exec_() == d.Accepted:
                 col, r = d.rule
                 if r is not None and col:
                     self.model.replace_rule(index, col, r)
                     self.rules_view.scrollTo(index)
+                    self.changed.emit()
         else:
-            pass # TODO
-
-    def add_advanced(self):
-        pass
+            td = TemplateDialog(self, rule, None)
+            if td.exec_() == td.Accepted:
+                self.changed.emit()
+                pass # TODO
 
     def get_selected_row(self, txt):
         sm = self.rules_view.selectionModel()
@@ -519,6 +534,7 @@ class EditRules(QWidget):
         row = self.get_selected_row(_('removal'))
         if row is not None:
             self.model.remove_rule(row)
+            self.changed.emit()
 
     def move_up(self):
         idx = self.rules_view.currentIndex()
@@ -528,6 +544,7 @@ class EditRules(QWidget):
                 sm = self.rules_view.selectionModel()
                 sm.select(idx, sm.ClearAndSelect)
                 self.rules_view.setCurrentIndex(idx)
+                self.changed.emit()
 
     def move_down(self):
         idx = self.rules_view.currentIndex()
@@ -537,6 +554,11 @@ class EditRules(QWidget):
                 sm = self.rules_view.selectionModel()
                 sm.select(idx, sm.ClearAndSelect)
                 self.rules_view.setCurrentIndex(idx)
+                self.changed.emit()
+
+    def clear(self):
+        self.model.clear()
+        self.changed.emit()
 
     def commit(self, prefs):
         self.model.commit(prefs)
