@@ -61,7 +61,7 @@ class Rule(object): # {{{
                 {sig}
                 test(and(
                          {conditions}
-                    ), {color}, '');
+                    ), '{color}', '');
                 ''').format(sig=self.signature, conditions=conditions,
                         color=self.color)
 
@@ -69,6 +69,12 @@ class Rule(object): # {{{
         col, action, val = condition
         m = self.fm[col]
         dt = m['datatype']
+
+        if col == 'ondevice':
+            return self.ondevice_condition(col, action, val)
+
+        if col == 'identifiers':
+            return self.identifiers_condition(col, action, val)
 
         if dt == 'bool':
             return self.bool_condition(col, action, val)
@@ -85,6 +91,17 @@ class Rule(object): # {{{
                 return self.multiple_condition(col, action, val, ism)
             return self.text_condition(col, action, val)
 
+    def identifiers_condition(self, col, action, val):
+        if action == 'has id':
+            return "identifier_in_list(field('identifiers'), '%s', '1', '')"%val
+        return "identifier_in_list(field('identifiers'), '%s', '', '1')"%val
+
+    def ondevice_condition(self, col, action, val):
+        if action == 'is set':
+            return "test(ondevice(), '1', '')"
+        if action == 'is not set':
+            return "test(ondevice(), '', '1')"
+
     def bool_condition(self, col, action, val):
         test = {'is true': 'True',
                 'is false': 'False',
@@ -98,7 +115,7 @@ class Rule(object): # {{{
                 'gt': ('', '', '1')
         }[action]
         lt, eq, gt = '', '1', ''
-        return "cmp(field('%s'), %s, '%s', '%s', '%s')" % (col, val, lt, eq, gt)
+        return "cmp(raw_field('%s'), %s, '%s', '%s', '%s')" % (col, val, lt, eq, gt)
 
     def date_condition(self, col, action, val):
         lt, eq, gt = {
@@ -167,12 +184,26 @@ def conditionable_columns(fm):
         dt = m['datatype']
         if m.get('name', False) and dt in ('bool', 'int', 'float', 'rating', 'series',
                 'comments', 'text', 'enumeration', 'datetime'):
-            yield key
-
+            if key == 'sort':
+                yield 'title_sort'
+            else:
+                yield key
 
 def displayable_columns(fm):
     for key in fm.displayable_field_keys():
         if key not in ('sort', 'author_sort', 'comments', 'formats',
                 'identifiers', 'path'):
             yield key
+
+def migrate_old_rule(fm, template):
+    if template.startswith('program:\n#tag wizard'):
+        rules = []
+        for line in template.splitlines():
+            if line.startswith('#') and ':|:' in line:
+                value, color = line[1:].split(':|:')
+                r = Rule(fm, color=color)
+                r.add_condition('tags', 'has', value)
+                rules.append(r.template)
+        return rules
+    return [template]
 
