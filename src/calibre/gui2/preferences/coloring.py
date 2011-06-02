@@ -2,188 +2,24 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
-from future_builtins import map
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import json, binascii, re
-from textwrap import dedent
-
-from PyQt4.Qt import (QWidget, QDialog, QLabel, QGridLayout, QComboBox,
+from PyQt4.Qt import (QWidget, QDialog, QLabel, QGridLayout, QComboBox, QSize,
         QLineEdit, QIntValidator, QDoubleValidator, QFrame, QColor, Qt, QIcon,
-        QScrollArea, QPushButton, QVBoxLayout, QDialogButtonBox)
+        QScrollArea, QPushButton, QVBoxLayout, QDialogButtonBox, QToolButton,
+        QListView, QAbstractListModel, pyqtSignal)
 
 from calibre.utils.icu import sort_key
 from calibre.gui2 import error_dialog
+from calibre.gui2.dialogs.template_dialog import TemplateDialog
+from calibre.gui2.metadata.single_download import RichTextDelegate
+from calibre.library.coloring import (Rule, conditionable_columns,
+    displayable_columns, rule_from_template)
 
-class Rule(object): # {{{
-
-    SIGNATURE = '# BasicColorRule():'
-
-    def __init__(self, fm):
-        self.color = None
-        self.fm = fm
-        self.conditions = []
-
-    def add_condition(self, col, action, val):
-        if col not in self.fm:
-            raise ValueError('%r is not a valid column name'%col)
-        v = self.validate_condition(col, action, val)
-        if v:
-            raise ValueError(v)
-        self.conditions.append((col, action, val))
-
-    def validate_condition(self, col, action, val):
-        m = self.fm[col]
-        dt = m['datatype']
-        if (dt in ('int', 'float', 'rating') and action in ('lt', 'eq', 'gt')):
-            try:
-                int(val) if dt == 'int' else float(val)
-            except:
-                return '%r is not a valid numerical value'%val
-
-        if (dt in ('comments', 'series', 'text', 'enumeration') and 'pattern'
-                in action):
-            try:
-                re.compile(val)
-            except:
-                return '%r is not a valid regular expression'%val
-
-    @property
-    def signature(self):
-        args = (self.color, self.conditions)
-        sig = json.dumps(args, ensure_ascii=False)
-        return self.SIGNATURE + binascii.hexlify(sig.encode('utf-8'))
-
-    @property
-    def template(self):
-        if not self.color or not self.conditions:
-            return None
-        conditions = map(self.apply_condition, self.conditions)
-        conditions = (',\n' + ' '*9).join(conditions)
-        return dedent('''\
-                program:
-                {sig}
-                test(and('1',
-                         {conditions}
-                    ), {color}, '');
-                ''').format(sig=self.signature, conditions=conditions,
-                        color=self.color)
-
-    def apply_condition(self, condition):
-        col, action, val = condition
-        m = self.fm[col]
-        dt = m['datatype']
-
-        if dt == 'bool':
-            return self.bool_condition(col, action, val)
-
-        if dt in ('int', 'float', 'rating'):
-            return self.number_condition(col, action, val)
-
-        if dt == 'datetime':
-            return self.date_condition(col, action, val)
-
-        if dt in ('comments', 'series', 'text', 'enumeration'):
-            ism = m.get('is_multiple', False)
-            if ism:
-                return self.multiple_condition(col, action, val, ism)
-            return self.text_condition(col, action, val)
-
-    def bool_condition(self, col, action, val):
-        test = {'is true': 'True',
-                'is false': 'False',
-                'is undefined': 'None'}[action]
-        return "strcmp('%s', raw_field('%s'), '', '1', '')"%(test, col)
-
-    def number_condition(self, col, action, val):
-        lt, eq, gt = {
-                'eq': ('', '1', ''),
-                'lt': ('1', '', ''),
-                'gt': ('', '', '1')
-        }[action]
-        lt, eq, gt = '', '1', ''
-        return "cmp(field('%s'), %s, '%s', '%s', '%s')" % (col, val, lt, eq, gt)
-
-    def date_condition(self, col, action, val):
-        lt, eq, gt = {
-                'eq': ('', '1', ''),
-                'lt': ('1', '', ''),
-                'gt': ('', '', '1')
-        }[action]
-        return "cmp(format_date('%s', 'yyyy-MM-dd'), %s, '%s', '%s', '%s')" % (col,
-                val, lt, eq, gt)
-
-    def multiple_condition(self, col, action, val, sep):
-        if action == 'is set':
-            return "test('%s', '1', '')"%col
-        if action == 'is not set':
-            return "test('%s', '', '1')"%col
-        if action == 'has':
-            return "str_in_list(field('%s'), '%s', \"%s\", '1', '')"%(col, sep, val)
-        if action == 'does not have':
-            return "str_in_list(field('%s'), '%s', \"%s\", '', '1')"%(col, sep, val)
-        if action == 'has pattern':
-            return "in_list(field('%s'), '%s', \"%s\", '1', '')"%(col, sep, val)
-        if action == 'does not have pattern':
-            return "in_list(field('%s'), '%s', \"%s\", '', '1')"%(col, sep, val)
-
-    def text_condition(self, col, action, val):
-        if action == 'is set':
-            return "test('%s', '1', '')"%col
-        if action == 'is not set':
-            return "test('%s', '', '1')"%col
-        if action == 'is':
-            return "strcmp(field('%s'), \"%s\", '', '1', '')"%(col, val)
-        if action == 'is not':
-            return "strcmp(field('%s'), \"%s\", '1', '', '1')"%(col, val)
-        if action == 'matches pattern':
-            return "contains(field('%s'), \"%s\", '1', '')"%(col, val)
-        if action == 'does not match pattern':
-            return "contains(field('%s'), \"%s\", '', '1')"%(col, val)
-
-# }}}
-
-def rule_from_template(fm, template):
-    ok_lines = []
-    for line in template.splitlines():
-        if line.startswith(Rule.SIGNATURE):
-            raw = line[len(Rule.SIGNATURE):].strip()
-            try:
-                color, conditions = json.loads(binascii.unhexlify(raw).decode('utf-8'))
-            except:
-                continue
-            r = Rule(fm)
-            r.color = color
-            for c in conditions:
-                try:
-                    r.add_condition(*c)
-                except:
-                    continue
-            if r.color and r.conditions:
-                return r
-        else:
-            ok_lines.append(line)
-    return '\n'.join(ok_lines)
-
-def conditionable_columns(fm):
-    for key in fm:
-        m = fm[key]
-        dt = m['datatype']
-        if m.get('name', False) and dt in ('bool', 'int', 'float', 'rating', 'series',
-                'comments', 'text', 'enumeration', 'datetime'):
-            yield key
-
-
-def displayable_columns(fm):
-    for key in fm.displayable_field_keys():
-        if key not in ('sort', 'author_sort', 'comments', 'formats',
-                'identifiers', 'path'):
-            yield key
-
-class ConditionEditor(QWidget):
+class ConditionEditor(QWidget): # {{{
 
     def __init__(self, fm, parent=None):
         QWidget.__init__(self, parent)
@@ -246,7 +82,7 @@ class ConditionEditor(QWidget):
         for key in sorted(
                 conditionable_columns(fm),
                 key=lambda x:sort_key(fm[x]['name'])):
-            self.column_box.addItem(fm[key]['name'], key)
+            self.column_box.addItem(key, key)
         self.column_box.setCurrentIndex(0)
 
         self.column_box.currentIndexChanged.connect(self.init_action_box)
@@ -352,11 +188,12 @@ class ConditionEditor(QWidget):
             if 'pattern' in action:
                 tt = _('Enter a regular expression')
         self.value_box.setToolTip(tt)
-        if action in ('is set', 'is not set'):
+        if action in ('is set', 'is not set', 'is true', 'is false',
+                'is undefined'):
             self.value_box.setEnabled(False)
+# }}}
 
-
-class RuleEditor(QDialog):
+class RuleEditor(QDialog): # {{{
 
     def __init__(self, fm, parent=None):
         QDialog.__init__(self, parent)
@@ -418,6 +255,7 @@ class RuleEditor(QDialog):
         self.conditions_widget = QWidget(self)
         sa.setWidget(self.conditions_widget)
         self.conditions_widget.setLayout(QVBoxLayout())
+        self.conditions_widget.layout().setAlignment(Qt.AlignTop)
         self.conditions = []
 
         for b in (self.column_box, self.color_box):
@@ -429,7 +267,7 @@ class RuleEditor(QDialog):
                 key=lambda x:sort_key(fm[x]['name'])):
             name = fm[key]['name']
             if name:
-                self.column_box.addItem(name, key)
+                self.column_box.addItem(key, key)
         self.column_box.setCurrentIndex(0)
 
         self.color_box.addItems(QColor.colorNames())
@@ -441,6 +279,27 @@ class RuleEditor(QDialog):
         c = ConditionEditor(self.fm, parent=self.conditions_widget)
         self.conditions.append(c)
         self.conditions_widget.layout().addWidget(c)
+
+    def apply_rule(self, col, rule):
+        for i in range(self.column_box.count()):
+            c = unicode(self.column_box.itemData(i).toString())
+            if col == c:
+                self.column_box.setCurrentIndex(i)
+                break
+        if rule.color:
+            idx = self.color_box.findText(rule.color)
+            if idx >= 0:
+                self.color_box.setCurrentIndex(idx)
+        for c in rule.conditions:
+            ce = ConditionEditor(self.fm, parent=self.conditions_widget)
+            self.conditions.append(ce)
+            self.conditions_widget.layout().addWidget(ce)
+            try:
+                ce.condition = c
+            except:
+                import traceback
+                traceback.print_exc()
+
 
     def accept(self):
         if self.validate():
@@ -479,8 +338,234 @@ class RuleEditor(QDialog):
                 r.add_condition(*condition)
 
         return col, r
+# }}}
 
+class RulesModel(QAbstractListModel): # {{{
 
+    def __init__(self, prefs, fm, parent=None):
+        QAbstractListModel.__init__(self, parent)
+
+        self.fm = fm
+        rules = list(prefs['column_color_rules'])
+        self.rules = []
+        for col, template in rules:
+            try:
+                rule = rule_from_template(self.fm, template)
+            except:
+                rule = template
+            self.rules.append((col, rule))
+
+    def rowCount(self, *args):
+        return len(self.rules)
+
+    def data(self, index, role):
+        row = index.row()
+        try:
+            col, rule = self.rules[row]
+        except:
+            return None
+
+        if role == Qt.DisplayRole:
+            return self.rule_to_html(col, rule)
+        if role == Qt.UserRole:
+            return (col, rule)
+
+    def add_rule(self, col, rule):
+        self.rules.append((col, rule))
+        self.reset()
+        return self.index(len(self.rules)-1)
+
+    def replace_rule(self, index, col, r):
+        self.rules[index.row()] = (col, r)
+        self.dataChanged.emit(index, index)
+
+    def remove_rule(self, index):
+        self.rules.remove(self.rules[index.row()])
+        self.reset()
+
+    def commit(self, prefs):
+        rules = []
+        for col, r in self.rules:
+            if isinstance(r, Rule):
+                r = r.template
+            if r is not None:
+                rules.append((col, r))
+        prefs['column_color_rules'] = rules
+
+    def move(self, idx, delta):
+        row = idx.row() + delta
+        if row >= 0 and row < len(self.rules):
+            t = self.rules[row]
+            self.rules[row] = self.rules[row-delta]
+            self.rules[row-delta] = t
+            self.dataChanged.emit(idx, idx)
+            idx = self.index(row)
+            self.dataChanged.emit(idx, idx)
+            return idx
+
+    def clear(self):
+        self.rules = []
+        self.reset()
+
+    def rule_to_html(self, col, rule):
+        if isinstance(rule, basestring):
+            return _('''
+            <p>Advanced Rule for column: %s
+            <pre>%s</pre>
+            ''')%(col, rule)
+        conditions = [self.condition_to_html(c) for c in rule.conditions]
+        return _('''\
+            <p>Set the color of <b>%s</b> to <b>%s</b> if the following
+            conditions are met:</p>
+            <ul>%s</ul>
+            ''') % (col, rule.color, ''.join(conditions))
+
+    def condition_to_html(self, condition):
+        return (
+            _('<li>If the <b>%s</b> column <b>%s</b> the value: <b>%s</b>') %
+                tuple(condition))
+
+# }}}
+
+class EditRules(QWidget): # {{{
+
+    changed = pyqtSignal()
+
+    def __init__(self, parent=None):
+        QWidget.__init__(self, parent)
+
+        self.l = l = QGridLayout(self)
+        self.setLayout(l)
+
+        self.l1 = l1 = QLabel(_(
+            'You can control the color of columns in the'
+            ' book list by creating "rules" that tell calibre'
+            ' what color to use. Click the Add Rule button below'
+            ' to get started. You can change an existing rule by double'
+            ' clicking it.'))
+        l1.setWordWrap(True)
+        l.addWidget(l1, 0, 0, 1, 2)
+
+        self.add_button = QPushButton(QIcon(I('plus.png')), _('Add Rule'),
+                self)
+        self.remove_button = QPushButton(QIcon(I('minus.png')),
+                _('Remove Rule'), self)
+        self.add_button.clicked.connect(self.add_rule)
+        self.remove_button.clicked.connect(self.remove_rule)
+        l.addWidget(self.add_button, 1, 0)
+        l.addWidget(self.remove_button, 1, 1)
+
+        self.g = g = QGridLayout()
+        self.rules_view = QListView(self)
+        self.rules_view.doubleClicked.connect(self.edit_rule)
+        self.rules_view.setSelectionMode(self.rules_view.SingleSelection)
+        self.rules_view.setAlternatingRowColors(True)
+        self.rtfd = RichTextDelegate(parent=self.rules_view, max_width=400)
+        self.rules_view.setItemDelegate(self.rtfd)
+        g.addWidget(self.rules_view, 0, 0, 2, 1)
+
+        self.up_button = b = QToolButton(self)
+        b.setIcon(QIcon(I('arrow-up.png')))
+        b.setToolTip(_('Move the selected rule up'))
+        b.clicked.connect(self.move_up)
+        g.addWidget(b, 0, 1, 1, 1, Qt.AlignTop)
+        self.down_button = b = QToolButton(self)
+        b.setIcon(QIcon(I('arrow-down.png')))
+        b.setToolTip(_('Move the selected rule down'))
+        b.clicked.connect(self.move_down)
+        g.addWidget(b, 1, 1, 1, 1, Qt.AlignBottom)
+
+        l.addLayout(g, 2, 0, 1, 2)
+        l.setRowStretch(2, 10)
+
+        self.add_advanced_button = b = QPushButton(QIcon(I('plus.png')),
+                _('Add Advanced Rule'), self)
+        b.clicked.connect(self.add_advanced)
+        l.addWidget(b, 3, 0, 1, 2)
+
+    def initialize(self, fm, prefs):
+        self.model = RulesModel(prefs, fm)
+        self.rules_view.setModel(self.model)
+
+    def add_rule(self):
+        d = RuleEditor(self.model.fm)
+        d.add_blank_condition()
+        if d.exec_() == d.Accepted:
+            col, r = d.rule
+            if r is not None and col:
+                idx = self.model.add_rule(col, r)
+                self.rules_view.scrollTo(idx)
+                self.changed.emit()
+
+    def add_advanced(self):
+        td = TemplateDialog(self, '', None)
+        if td.exec_() == td.Accepted:
+            self.changed.emit()
+            pass # TODO
+
+    def edit_rule(self, index):
+        try:
+            col, rule = self.model.data(index, Qt.UserRole)
+        except:
+            return
+        if isinstance(rule, Rule):
+            d = RuleEditor(self.model.fm)
+            d.apply_rule(col, rule)
+            if d.exec_() == d.Accepted:
+                col, r = d.rule
+                if r is not None and col:
+                    self.model.replace_rule(index, col, r)
+                    self.rules_view.scrollTo(index)
+                    self.changed.emit()
+        else:
+            td = TemplateDialog(self, rule, None)
+            if td.exec_() == td.Accepted:
+                self.changed.emit()
+                pass # TODO
+
+    def get_selected_row(self, txt):
+        sm = self.rules_view.selectionModel()
+        rows = list(sm.selectedRows())
+        if not rows:
+            error_dialog(self, _('No rule selected'),
+                    _('No rule selected for %s.')%txt, show=True)
+            return None
+        return rows[0]
+
+    def remove_rule(self):
+        row = self.get_selected_row(_('removal'))
+        if row is not None:
+            self.model.remove_rule(row)
+            self.changed.emit()
+
+    def move_up(self):
+        idx = self.rules_view.currentIndex()
+        if idx.isValid():
+            idx = self.model.move(idx, -1)
+            if idx is not None:
+                sm = self.rules_view.selectionModel()
+                sm.select(idx, sm.ClearAndSelect)
+                self.rules_view.setCurrentIndex(idx)
+                self.changed.emit()
+
+    def move_down(self):
+        idx = self.rules_view.currentIndex()
+        if idx.isValid():
+            idx = self.model.move(idx, 1)
+            if idx is not None:
+                sm = self.rules_view.selectionModel()
+                sm.select(idx, sm.ClearAndSelect)
+                self.rules_view.setCurrentIndex(idx)
+                self.changed.emit()
+
+    def clear(self):
+        self.model.clear()
+        self.changed.emit()
+
+    def commit(self, prefs):
+        self.model.commit(prefs)
+
+# }}}
 
 if __name__ == '__main__':
     from PyQt4.Qt import QApplication
@@ -488,13 +573,24 @@ if __name__ == '__main__':
 
     from calibre.library import db
 
-    d = RuleEditor(db().field_metadata)
-    d.add_blank_condition()
-    d.exec_()
+    db = db()
 
-    col, r = d.rule
+    if False:
+        d = RuleEditor(db.field_metadata)
+        d.add_blank_condition()
+        d.exec_()
 
-    print ('Column to be colored:', col)
-    print ('Template:')
-    print (r.template)
+        col, r = d.rule
+
+        print ('Column to be colored:', col)
+        print ('Template:')
+        print (r.template)
+    else:
+        d = EditRules()
+        d.resize(QSize(800, 600))
+        d.initialize(db.field_metadata, db.prefs)
+        d.show()
+        app.exec_()
+        d.commit(db.prefs)
+
 

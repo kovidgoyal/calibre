@@ -171,10 +171,9 @@ class ConvertAction(InterfaceAction):
                 raise Exception(_('Empty output file, '
                     'probably the conversion process crashed'))
 
-            data = open(temp_files[-1].name, 'rb')
-            self.gui.library_view.model().db.add_format(book_id, \
+            with open(temp_files[-1].name, 'rb') as data:
+                self.gui.library_view.model().db.add_format(book_id, \
                     fmt, data, index_is_id=True)
-            data.close()
             self.gui.status_bar.show_message(job.description + \
                     (' completed'), 2000)
         finally:
