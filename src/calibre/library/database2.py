@@ -1556,13 +1556,13 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             if ids is not None:
                 count = self.conn.get('''SELECT COUNT(id)
                                        FROM data
-                                       WHERE format="%s" AND
-                                       books_list_filter(book)'''%fmt,
+                                       WHERE format=? AND
+                                       books_list_filter(book)''', (fmt,),
                                        all=False)
             else:
                 count = self.conn.get('''SELECT COUNT(id)
                                        FROM data
-                                       WHERE format="%s"'''%fmt,
+                                       WHERE format=?''', (fmt,),
                                        all=False)
             if count > 0:
                 categories['formats'].append(Tag(fmt, count=count, icon=icon,
@@ -1584,13 +1584,13 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             if ids is not None:
                 count = self.conn.get('''SELECT COUNT(book)
                                        FROM identifiers
-                                       WHERE type="%s" AND
-                                       books_list_filter(book)'''%ident,
+                                       WHERE type=? AND
+                                       books_list_filter(book)''', (ident,),
                                        all=False)
             else:
                 count = self.conn.get('''SELECT COUNT(id)
                                        FROM identifiers
-                                       WHERE type="%s"'''%ident,
+                                       WHERE type=?''', (ident,),
                                        all=False)
             if count > 0:
                 categories['identifiers'].append(Tag(ident, count=count, icon=icon,
