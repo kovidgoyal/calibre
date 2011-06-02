@@ -223,7 +223,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if self.prefs.get('column_color_name_1', None) is not None:
             from calibre.library.coloring import migrate_old_rule
             old_rules = []
-            for i in range(1, 5):
+            for i in range(1, 6):
                 col = self.prefs.get('column_color_name_'+str(i), None)
                 templ = self.prefs.get('column_color_template_'+str(i), None)
                 if col and templ:
