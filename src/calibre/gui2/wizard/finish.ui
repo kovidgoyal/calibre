@@ -62,7 +62,7 @@
    <item>
     <widget class="QLabel" name="label_3">
      <property name="text">
-      <string>&lt;h2&gt;User Manual&lt;/h2&gt;A User Manual is also available &lt;a href=&quot;http://calibre-ebook.com/user_manual&quot;&gt;online&lt;/a&gt;.</string>
+      <string>&lt;h2&gt;User Manual&lt;/h2&gt;A User Manual is also available &lt;a href=&quot;http://manual.calibre-ebook.com&quot;&gt;online&lt;/a&gt;.</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>

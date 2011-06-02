@@ -149,7 +149,7 @@
              </size>
             </property>
             <property name="text">
-             <string>See the &lt;a href=&quot;http://calibre-ebook.com/user_manual/gui.html#the-search-interface&quot;&gt;User Manual&lt;/a&gt; for more help</string>
+             <string>See the &lt;a href=&quot;http://manual.calibre-ebook.com/gui.html#the-search-interface&quot;&gt;User Manual&lt;/a&gt; for more help</string>
             </property>
             <property name="openExternalLinks">
              <bool>true</bool>
@@ -226,7 +226,7 @@
          </property>
         </widget>
        </item>
-       <item row="8" column="0" colspan="2">
+       <item row="9" column="0" colspan="2">
         <layout class="QHBoxLayout" name="horizontalLayout_6">
          <item>
           <widget class="QPushButton" name="clear_button">
@@ -244,7 +244,7 @@
          </item>
         </layout>
        </item>
-       <item row="7" column="1">
+       <item row="8" column="1">
         <spacer name="verticalSpacer">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -318,6 +318,32 @@
        </item>
        <item row="6" column="1">
         <widget class="QComboBox" name="drm_combo">
+         <item>
+          <property name="text">
+           <string/>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>true</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>false</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="7" column="0">
+        <widget class="QLabel" name="label_13">
+         <property name="text">
+          <string>Affiliate:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="1">
+        <widget class="QComboBox" name="affiliate_combo">
          <item>
           <property name="text">
            <string/>

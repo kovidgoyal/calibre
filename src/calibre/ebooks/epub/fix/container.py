@@ -101,7 +101,7 @@ class Container(object):
             return None
         return existing[0]
 
-    def add_name_to_manifest(self, name):
+    def add_name_to_manifest(self, name, mt=None):
         item = self.manifest_item_for_name(name)
         if item is not None:
             return
@@ -109,11 +109,27 @@ class Container(object):
         item = manifest.makeelement('{%s}item'%OPF_NS, nsmap={'opf':OPF_NS},
                 href=self.name_to_href(name, posixpath.dirname(self.opf_name)),
                 id=self.generate_manifest_id())
-        mt = guess_type(posixpath.basename(name))[0]
+        if not mt:
+            mt = guess_type(posixpath.basename(name))[0]
         if not mt:
             mt = 'application/octest-stream'
         item.set('media-type', mt)
         manifest.append(item)
+        self.fix_tail(item)
+
+    def fix_tail(self, item):
+        '''
+        Designed only to work with self closing elements after item has
+        just been inserted/appended
+        '''
+        parent = item.getparent()
+        idx = parent.index(item)
+        if idx == 0:
+            item.tail = parent.text
+        else:
+            item.tail = parent[idx-1].tail
+            if idx == len(parent)-1:
+                parent[idx-1].tail = parent.text
 
     def generate_manifest_id(self):
         items = self.opf.xpath('//opf:manifest/opf:item[@id]',

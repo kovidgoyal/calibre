@@ -1,0 +1,64 @@
+import re
+
+__license__   = 'GPL v3'
+__copyright__ = '2011, Rasmus Lauritsen <rasmus at lauritsen.info>'
+'''
+version2.dk
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class version2(BasicNewsRecipe):
+    title                    = 'Version2.dk'
+    __author__         = 'Rasmus Lauritsen'
+    description          = 'IT News'
+    publisher             = 'version2.dk'
+    category              = 'news, IT, hardware, software, Denmark'
+    oldest_article       = 14
+    max_articles_per_feed = 50
+    no_stylesheets      = True
+    remove_empty_feeds    = True
+    use_embedded_content  = False
+    encoding              = 'iso-8859-1'
+    language              = 'da'
+
+    extra_css             = """
+                                body {font-family: "Verdana",Times,serif}
+                                .articleauthor{color: #9F9F9F;
+                                               font-family: Arial, sans-serif;
+                                               font-size: small;
+                                               text-transform: uppercase}
+                                .rubric,.dd,h6#credit{color: #CD0021;
+                                        font-family: Arial, sans-serif;
+                                        font-size: small;
+                                        text-transform: uppercase}
+                                .descender:first-letter{display: inline; font-size: xx-large; font-weight: bold}
+                                .dd,h6#credit{color: gray}
+                                .c{display: block}
+                                .caption,h2#articleintro{font-style: italic}
+                                .caption{font-size: small}
+                            """
+
+    preprocess_regexps = [ (re.compile(r'</?a[^>]*>'),lambda match: ''),
+                                       (re.compile(r'<span[^>]*article-link-id.*?<br\s*\/?><br\s*\/?>'), lambda match: '')]
+
+    keep_only_tags = [dict(name='div', attrs={'class':'article'})]
+
+    remove_tags = [
+	dict(name='p',attrs={'class':'meta links'}),
+   	dict(name='div',attrs={'class':'float-right'}),
+   	dict(name='span',attrs={'class':'article-link-id'})
+ 	 ]
+
+    feeds              = [
+                            (u'Seneste nyheder'               , u'http://www.version2.dk/feeds/nyheder')
+                           ,(u'Forretningssoftware'             , u'http://www.version2.dk/feeds/forretningssoftware')
+                           ,(u'Internet & styresystemer' , u'http://www.version2.dk/feeds/styresystemer')
+                           ,(u'It-arkitektur'           , u'http://www.version2.dk/feeds/it-arkitektur')
+                           ,(u'It-styring & outsourcing'             , u'http://www.version2.dk/feeds/it-styring')
+                           ,(u'Job & karriere'                     , u'http://www.version2.dk/feeds/karriere')
+                           ,(u'Mobil it & tele'                   , u'http://www.version2.dk/feeds/tele')
+                           ,(u'Server/storage & netværk'                 , u'http://www.version2.dk/feeds/server-storage')
+                           ,(u'Sikkerhed'                      , u'http://www.version2.dk/feeds/sikkerhed')
+                           ,(u'Softwareudvikling'                     , u'http://www.version2.dk/feeds/softwareudvikling')
+                          ]

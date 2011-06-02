@@ -6,7 +6,7 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from PyQt4.Qt import (QApplication, QFont, QFontInfo, QFontDialog,
-        QAbstractListModel, Qt, QColor)
+        QAbstractListModel, Qt, QIcon)
 
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget, CommaSeparatedList
 from calibre.gui2.preferences.look_feel_ui import Ui_Form
@@ -17,6 +17,7 @@ from calibre.utils.config import prefs
 from calibre.utils.icu import sort_key
 from calibre.gui2 import NONE
 from calibre.gui2.book_details import get_field_list
+from calibre.gui2.preferences.coloring import EditRules
 
 class DisplayedFields(QAbstractListModel): # {{{
 
@@ -129,7 +130,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             (_('Medium'), 'medium'), (_('Large'), 'large')]
         r('toolbar_icon_size', gprefs, choices=choices)
 
-        choices = [(_('Automatic'), 'auto'), (_('Always'), 'always'),
+        choices = [(_('If there is enough room'), 'auto'), (_('Always'), 'always'),
             (_('Never'), 'never')]
         r('toolbar_text', gprefs, choices=choices)
 
@@ -159,61 +160,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.df_up_button.clicked.connect(self.move_df_up)
         self.df_down_button.clicked.connect(self.move_df_down)
 
-        self.color_help_text.setText('<p>' +
-                _('Here you can specify coloring rules for columns shown in the '
-                  'library view. Choose the column you wish to color, then '
-                  'supply a template that specifies the color to use based on '
-                  'the values in the column. There is a '
-                  '<a href="http://calibre-ebook.com/user_manual/template_lang.html">'
-                  'tutorial</a> on using templates.') +
-                 '</p><p>' +
-                _('If you want to color a field based on tags, then click the '
-                  'button next to an empty line to open the tags wizard. '
-                  'It will build a template for you. You can later edit that '
-                  'template with the same wizard. If you edit it by hand, the '
-                  'wizard might not work or might restore old values.') +
-                 '</p><p>' +
-                _('The template must evaluate to one of the color names shown '
-                  'below. You can use any legal template expression. '
-                  'For example, you can set the title to always display in '
-                  'green using the template "green" (without the quotes). '
-                  'To show the title in the color named in the custom column '
-                  '#column, use "{#column}". To show the title in blue if the '
-                  'custom column #column contains the value "foo", in red if the '
-                  'column contains the value "bar", otherwise in black, use '
-                  '<pre>{#column:switch(foo,blue,bar,red,black)}</pre>'
-                  'To show the title in blue if the book has the exact tag '
-                  '"Science Fiction", red if the book has the exact tag '
-                  '"Mystery", or black if the book has neither tag, use'
-                  "<pre>program: \n"
-                  "    t = field('tags'); \n"
-                  "    first_non_empty(\n"
-                  "        in_list(t, ',', '^Science Fiction$', 'blue', ''), \n"
-                  "        in_list(t, ',', '^Mystery$', 'red', 'black'))</pre>"
-                  'To show the title in green if it has one format, blue if it '
-                  'two formats, and red if more, use'
-                  "<pre>program:cmp(count(field('formats'),','), 2, 'green', 'blue', 'red')</pre>") +
-                               '</p><p>' +
-                _('You can access a multi-line template editor from the '
-                  'context menu (right-click).') + '</p><p>' +
-                _('<b>Note:</b> if you want to color a "custom column with a fixed set '
-                  'of values", it is often easier to specify the '
-                  'colors in the column definition dialog. There you can '
-                  'provide a color for each value without using a template.')+ '</p>')
-        choices = db.field_metadata.displayable_field_keys()
-        choices.sort(key=sort_key)
-        choices.insert(0, '')
-        self.column_color_count = db.column_color_count+1
-        tags = db.all_tags()
-        for i in range(1, self.column_color_count):
-            r('column_color_name_'+str(i), db.prefs, choices=choices)
-            r('column_color_template_'+str(i), db.prefs)
-            tpl = getattr(self, 'opt_column_color_template_'+str(i))
-            tpl.set_tags(tags)
-            toolbutton = getattr(self, 'opt_column_color_wizard_'+str(i))
-            toolbutton.clicked.connect(tpl.tag_wizard)
-        all_colors = [unicode(s) for s in list(QColor.colorNames())]
-        self.colors_box.setText(', '.join(all_colors))
+        self.edit_rules = EditRules(self.tabWidget)
+        self.edit_rules.changed.connect(self.changed_signal)
+        self.tabWidget.addTab(self.edit_rules,
+                QIcon(I('format-fill-color.png')), _('Column coloring'))
+        self.tabWidget.setCurrentIndex(0)
 
     def initialize(self):
         ConfigWidgetBase.initialize(self)
@@ -224,6 +175,13 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.current_font = self.initial_font = font
         self.update_font_display()
         self.display_model.initialize()
+        db = self.gui.current_db
+        try:
+            idx = self.gui.library_view.currentIndex().row()
+            mi = db.get_metadata(idx, index_is_id=False)
+        except:
+            mi=None
+        self.edit_rules.initialize(db.field_metadata, db.prefs, mi)
 
     def restore_defaults(self):
         ConfigWidgetBase.restore_defaults(self)
@@ -233,6 +191,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.changed_signal.emit()
             self.update_font_display()
         self.display_model.restore_defaults()
+        self.edit_rules.clear()
         self.changed_signal.emit()
 
     def build_font_obj(self):
@@ -282,12 +241,6 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.changed_signal.emit()
 
     def commit(self, *args):
-        for i in range(1, self.column_color_count):
-            col = getattr(self, 'opt_column_color_name_'+str(i))
-            tpl = getattr(self, 'opt_column_color_template_'+str(i))
-            if not col.currentIndex() or not unicode(tpl.text()).strip():
-                col.setCurrentIndex(0)
-                tpl.setText('')
         rr = ConfigWidgetBase.commit(self, *args)
         if self.current_font != self.initial_font:
             gprefs['font'] = (self.current_font[:4] if self.current_font else
@@ -297,10 +250,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             QApplication.setFont(self.font_display.font())
             rr = True
         self.display_model.commit()
+        self.edit_rules.commit(self.gui.current_db.prefs)
         return rr
 
     def refresh_gui(self, gui):
-        gui.library_view.model().set_color_templates()
+        gui.library_view.model().reset()
         self.update_font_display()
         gui.tags_view.reread_collapse_parameters()
         gui.library_view.refresh_book_details()
