@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-05-29 21:12+0000\n"
-"PO-Revision-Date: 2011-05-30 11:34+0000\n"
+"PO-Revision-Date: 2011-06-02 03:41+0000\n"
 "Last-Translator: Ado Nishimura <Unknown>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-05-31 04:46+0000\n"
+"X-Launchpad-Export-Date: 2011-06-02 04:36+0000\n"
 "X-Generator: Launchpad (build 12959)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -9550,10 +9550,12 @@ msgid ""
 "empty if you want the template to use the next line in this wizard. If both "
 "boxes are filled in, the rest of the lines in this wizard will be ignored."
 msgstr ""
+"最低でも2つのうちの1つのカラー･ボックスに値がある必要があります。もしこのウイザードの次の行でテンプレートを使いたい時には1つのボックスを空にしてくださ"
+"い。もし両方のボックスが使われていれば、このウイザードの残りの行は無視されます。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:101
 msgid "Color if tag not found"
-msgstr ""
+msgstr "タグが見つからないときに色を付ける"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:103
 msgid ""
@@ -9561,6 +9563,8 @@ msgid ""
 "before the last test, then the color for tag found box must be empty or all "
 "the rest of the tests will be ignored."
 msgstr ""
+"このボックスは通常、最後のテストとして使用されます。もし最後の前に指定された場合、タグの見つかったときの色指定ボックスは空欄にしてください、さもないと残り"
+"の全てのテストは無視されます。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:178
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:183
@@ -9639,7 +9643,7 @@ msgstr "添付ファイル： %s は %sをダウンロードするレシピで�
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:147
 msgid "Recipe for "
-msgstr ""
+msgstr "レシピ： "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:164
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:175
@@ -9654,23 +9658,23 @@ msgstr "基本モードに切り替え"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:188
 msgid "Feed must have a title"
-msgstr ""
+msgstr "フィードにはタイトルが必要です"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:189
 msgid "The feed must have a title"
-msgstr ""
+msgstr "フィードにはタイトルが必要です"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:193
 msgid "Feed must have a URL"
-msgstr ""
+msgstr "フィードにはURLが必要です"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:194
 msgid "The feed %s must have a URL"
-msgstr ""
+msgstr "フィード %s にはURLが必要です"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:200
 msgid "This feed has already been added to the recipe"
-msgstr ""
+msgstr "このフィードはすでにレシピに追加されています。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:241
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:250
@@ -9682,27 +9686,27 @@ msgstr "不正な入力"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:251
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:338
 msgid "<p>Could not create recipe. Error:<br>%s"
-msgstr ""
+msgstr "<p>レシピが作れません。エラー:<br>%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:255
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:314
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:341
 msgid "Replace recipe?"
-msgstr ""
+msgstr "レシピを置換しますか？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:256
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:315
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:342
 msgid "A custom recipe named %s already exists. Do you want to replace it?"
-msgstr ""
+msgstr "%s という名前のカスタム・レシピはすでに存在します。上書きしますか？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:282
 msgid "Choose builtin recipe"
-msgstr ""
+msgstr "内蔵レシピを選択"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:328
 msgid "Choose a recipe file"
-msgstr ""
+msgstr "レシピファイルを選択"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:329
 msgid "Recipes"
@@ -9712,7 +9716,7 @@ msgstr "レシピ"
 msgid ""
 "You will lose any unsaved changes. To save your changes, click the "
 "Add/Update recipe button. Continue?"
-msgstr ""
+msgstr "保存していないレシピは無くなります。変更を保存するには、「レシピを追加/更新」ボタンをクリックしてください。続けますか？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:257
 msgid "Add custom news source"
@@ -9736,7 +9740,7 @@ msgstr "配信元を共有(&S)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:262
 msgid "S&how recipe files"
-msgstr ""
+msgstr "レシピファイルを表示(&H)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:263
 msgid "Customize &builtin recipe"
@@ -9759,6 +9763,15 @@ msgid ""
 "use the \"Advanced mode\" to further customize the fetch "
 "process.</p></body></html>"
 msgstr ""
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style "
+"type=\"text/css\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:'DejaVu Sans'; font-size:10pt; "
+"font-weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-"
+"indent:0px;\">RSSフィードを追加して基本的なニュース・レシピを作ります。 <br "
+"/>多くのフィードでは、取得処理をカスタマイズするために、「アドバンス・モード」を使用する必要があるでしょう。</p></body></html>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:270
 msgid "Recipe &title:"
@@ -9766,19 +9779,19 @@ msgstr "レシピのタイトル(&T)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:271
 msgid "&Oldest article:"
-msgstr ""
+msgstr "一番古い記事(&O)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:272
 msgid "The oldest article to download"
-msgstr ""
+msgstr "ダウンロードする一番古い記事"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:274
 msgid "&Max. number of articles per feed:"
-msgstr ""
+msgstr "フィードあたりの記事の最大数"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:275
 msgid "Maximum number of articles to download per feed."
-msgstr ""
+msgstr "フィードあたりのダウンロードする記事の最大の数"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:276
 msgid "Feeds in recipe"
@@ -9795,7 +9808,7 @@ msgstr "配信元にフィードを追加"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:282
 msgid "&Feed title:"
-msgstr ""
+msgstr "フィード・タイトル(&F)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:283
 msgid "Feed &URL:"
@@ -9803,53 +9816,55 @@ msgstr "フィードのURL(&U):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:285
 msgid "&Add feed"
-msgstr ""
+msgstr "フィードを追加(&A)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:286
 msgid ""
 "For help with writing advanced news recipes, please visit <a "
 "href=\"http://manual.calibre-ebook.com/news.html\">User Recipes</a>"
 msgstr ""
+"アドバンスモードのニュース・レシピを作るには<a href=\"http://manual.calibre-"
+"ebook.com/news.html\">ユーザー・レシピ</a>を参照してください。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:287
 msgid "Recipe source code (python)"
-msgstr ""
+msgstr "レシピのソースコード (python)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dnd.py:51
 msgid "Download %s"
-msgstr ""
+msgstr "%sをダウンロード"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dnd.py:54
 msgid "Downloading <b>%s</b> from %s"
-msgstr ""
+msgstr "<b>%s</b>を %s からダウンロード"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dnd.py:85
 msgid "Failed to download from %r with error: %s"
-msgstr ""
+msgstr "%r からのダウンロード失敗。エラー: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ebook_download.py:41
 msgid "No file specified to download."
-msgstr ""
+msgstr "ダウンロードするファイルが指定されていません。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ebook_download.py:66
 msgid "Not a support ebook format."
-msgstr ""
+msgstr "サポートされているEBookフォーマットではありません。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ebook_download.py:87
 msgid "Downloading %s"
-msgstr ""
+msgstr "%s をダウンロード中"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ebook_download.py:99
 msgid "Downloading"
-msgstr ""
+msgstr "ダウンロード中"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ebook_download.py:103
 msgid "Failed to download ebook"
-msgstr ""
+msgstr "ebookのダウンロードに失敗"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:91
 msgid "Email %s to %s"
-msgstr ""
+msgstr "%s を %s にe-mail"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:110
 msgid "News:"
@@ -9857,7 +9872,7 @@ msgstr "ニュース:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:112
 msgid "Attached is the %s periodical downloaded by calibre."
-msgstr ""
+msgstr "添付はcalibreからダウンロードされた定期刊行物 %sです。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:160
 msgid "E-book:"
@@ -9865,41 +9880,41 @@ msgstr "電子書籍:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:168
 msgid "Attached, you will find the e-book"
-msgstr ""
+msgstr "添付にEBookがあります。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:169
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:189
 msgid "by"
-msgstr ""
+msgstr "/"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:170
 msgid "in the %s format."
-msgstr ""
+msgstr "%s フォーマット。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:184
 msgid "Sending email to"
-msgstr ""
+msgstr "e-mailを送信："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:215
 msgid "Auto convert the following books before sending via email?"
-msgstr ""
+msgstr "これらの書籍をe-mailで送信する前に自動的に変換しますか？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:222
 msgid ""
 "Could not email the following books as no suitable formats were found:"
-msgstr ""
+msgstr "これらの書籍は適切なフォーマットが見つからないため、e-mailで送ることができません："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:228
 msgid "Failed to email book"
-msgstr ""
+msgstr "書籍をe-mailに失敗"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:231
 msgid "sent"
-msgstr ""
+msgstr "送信完了"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:254
 msgid "Sent news to"
-msgstr ""
+msgstr "ニュースを送信完了："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:129
 msgid ""
@@ -9928,7 +9943,7 @@ msgstr "タイトル："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:138
 msgid "Regular expression (?P&lt;title&gt;)"
-msgstr ""
+msgstr "正規表現 (?P&lt;タイトル&gt;)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:139
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:142
@@ -9951,52 +9966,52 @@ msgstr "著者:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:141
 msgid "Regular expression (?P<author>)"
-msgstr ""
+msgstr "正規表現 (?P<作者>)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:143
 msgid "Series:"
-msgstr ""
+msgstr "シリーズ："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:144
 msgid "Regular expression (?P<series>)"
-msgstr ""
+msgstr "正規表現 (?P<シリーズ>)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:146
 msgid "Series index:"
-msgstr ""
+msgstr "シリーズ番号："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:147
 msgid "Regular expression (?P<series_index>)"
-msgstr ""
+msgstr "正規表現 (?P<シリーズ番号>)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:149
 msgid "ISBN:"
-msgstr ""
+msgstr "ISBN:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:150
 msgid "Regular expression (?P<isbn>)"
-msgstr ""
+msgstr "正規表現 (?P<isbn>)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:152
 msgid "Publisher:"
-msgstr ""
+msgstr "発行者:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:153
 msgid "Regular expression (?P<publisher>)"
-msgstr ""
+msgstr "正規表現 (?P<発行者>)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:155
 msgid "Published:"
-msgstr ""
+msgstr "出版日："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:156
 msgid "Regular expression (?P<published>)"
-msgstr ""
+msgstr "正規表現 (?P<出版日>)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:105
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:337
 msgid "Cover Browser"
-msgstr ""
+msgstr "表紙ブラウザー"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:110
 msgid "Shift+Alt+B"
@@ -10027,7 +10042,7 @@ msgstr "接続された "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:188
 msgid "Update found"
-msgstr ""
+msgstr "アップデートが見つかりました"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:223
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:233
@@ -10077,19 +10092,19 @@ msgstr "%d 個の待機ジョブがあります:"
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:243
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:246
 msgid "Cannot kill job"
-msgstr ""
+msgstr "ジョブを停止できません"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:241
 msgid "Cannot kill jobs that communicate with the device"
-msgstr ""
+msgstr "デバイスと通信するジョブを停止できません"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:244
 msgid "Job has already run"
-msgstr ""
+msgstr "ジョブはすでに動作中です"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:247
 msgid "This job cannot be stopped"
-msgstr ""
+msgstr "ジョブが停止できません"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:283
 msgid "Unavailable"
@@ -10105,19 +10120,19 @@ msgstr "Shift+Alt+J"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:346
 msgid "Click to see list of jobs"
-msgstr ""
+msgstr "クリックでジョブのリストを表示"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:415
 msgid " - Jobs"
-msgstr ""
+msgstr " - ジョブ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:457
 msgid "Do you really want to stop the selected job?"
-msgstr ""
+msgstr "選択したジョブを本当に停止しますか？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:463
 msgid "Do you really want to stop all non-device jobs?"
-msgstr ""
+msgstr "本当に、デバイス関連でないジョブ全てを停止しますか？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:57
 msgid "Eject this device"
@@ -10125,11 +10140,11 @@ msgstr "このデバイスの取り出し"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:69
 msgid "Show books in calibre library"
-msgstr ""
+msgstr "caibreライブラリで書籍を表示"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:71
 msgid "Show books in the main memory of the device"
-msgstr ""
+msgstr "デバイスのメインメモリにある書籍を表示"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:72
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1024
@@ -10151,11 +10166,11 @@ msgstr "メモリカードBの本を表示"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:140
 msgid "available"
-msgstr ""
+msgstr "利用可能"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:181
 msgid "Shift+Ctrl+F"
-msgstr ""
+msgstr "Shift+Ctrl+F"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:184
 msgid "Advanced search"
@@ -10165,15 +10180,15 @@ msgstr "高度な検索"
 msgid ""
 "<p>Search the list of books by title, author, publisher, tags, comments, "
 "etc.<br><br>Words separated by spaces are ANDed"
-msgstr ""
+msgstr "<p>書籍リストをタイトル、著者、出版社などで検索します。<br><br>空白で区切られた言葉はAND検索します。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:195
 msgid "&Go!"
-msgstr ""
+msgstr "&Go!"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:201
 msgid "Do Quick Search (you can also press the Enter key)"
-msgstr ""
+msgstr "クイック検索を行う（Enterキーでもできます）"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:207
 msgid "Reset Quick Search"
@@ -10181,7 +10196,7 @@ msgstr "クイック検索をリセット"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:223
 msgid "Copy current search text (instead of search name)"
-msgstr ""
+msgstr "現在の検索文字列をコピー(検索名の替わりに）"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:388
 msgid "Y"
@@ -10199,18 +10214,18 @@ msgstr "サイズ (MB)"
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:74
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:241
 msgid "Modified"
-msgstr ""
+msgstr "修正日"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:766
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1323
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:797
 msgid "The lookup/search name is \"{0}\""
-msgstr ""
+msgstr "検索名は \"{0}\" です"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:772
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1325
 msgid "This book's UUID is \"{0}\""
-msgstr ""
+msgstr "この書籍のUUIDは \"{0}\" です"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1022
 msgid "In Library"
@@ -10219,23 +10234,23 @@ msgstr "ライブラリ中"
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1026
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:311
 msgid "Size"
-msgstr ""
+msgstr "サイズ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1303
 msgid "Marked for deletion"
-msgstr ""
+msgstr "削除する、としてマーク"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1306
 msgid "Double click to <b>edit</b> me<br><br>"
-msgstr ""
+msgstr "ダブルクリックで<b>編集</b><br><br>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:159
 msgid "Hide column %s"
-msgstr ""
+msgstr "列 %s を隠す"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:164
 msgid "Sort on %s"
-msgstr ""
+msgstr "%s でソート"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:165
 msgid "Ascending"
@@ -10247,7 +10262,7 @@ msgstr "降順"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:180
 msgid "Change text alignment for %s"
-msgstr ""
+msgstr "テキスト配置を %s にする"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:182
 msgid "Left"
@@ -10263,17 +10278,17 @@ msgstr "中央"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:202
 msgid "Show column"
-msgstr ""
+msgstr "列を表示"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:214
 msgid "Restore default layout"
-msgstr ""
+msgstr "ディフォールトのレイアウトに戻す"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:858
 msgid ""
 "Dropping onto a device is not supported. First add the book to the calibre "
 "library."
-msgstr ""
+msgstr "デバイスにドロップしてコピーすることはできません。まず、calibreのライブラリに追加して下さい。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/config_ui.py:52
 msgid "Configure Viewer"
@@ -10289,15 +10304,15 @@ msgstr "ハイフン"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/config_ui.py:55
 msgid "<b>Changes will only take effect after a restart.</b>"
-msgstr ""
+msgstr "<b>変更はリスタート後に有効になります。</b>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main.py:70
 msgid " - LRF Viewer"
-msgstr ""
+msgstr " - LRF ビューワー"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main.py:160
 msgid "<b>No matches</b> for the search phrase <i>%s</i> were found."
-msgstr ""
+msgstr "検索文字列 <i>%s</i> は<b>見つかりません</b>でした。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:128
 msgid "LRF Viewer"
@@ -10305,11 +10320,11 @@ msgstr "LRFビューア"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:129
 msgid "Parsing LRF file"
-msgstr ""
+msgstr "LRF ファイルを読み取り"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:130
 msgid "LRF Viewer toolbar"
-msgstr ""
+msgstr "LRF ビューワー・ツールバー"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:131
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:559
@@ -10347,31 +10362,31 @@ msgstr "設定"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:33
 msgid "Use the library located at the specified path."
-msgstr ""
+msgstr "指定したパスにあるライブラリを使用する。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:35
 msgid "Start minimized to system tray."
-msgstr ""
+msgstr "システム･トレイに最小化して起動"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:37
 msgid "Log debugging information to console"
-msgstr ""
+msgstr "コンソールにデバッグ情報をログ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:39
 msgid "Do not check for updates"
-msgstr ""
+msgstr "更新をチェックしない"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:41
 msgid ""
 "Ignore custom plugins, useful if you installed a plugin that is preventing "
 "calibre from starting"
-msgstr ""
+msgstr "カスタム・プラグインを無視。プラグインでcalibreの起動ができない場合に有用。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:45
 msgid ""
 "Cause a running calibre instance, if any, to be shutdown. Note that if there "
 "are running jobs, they will be silently aborted, so use with care."
-msgstr ""
+msgstr "calibreが動作しているときに終了させる。注意：ジョブが動作している場合、それは警告無く終了されます。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:69
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:678
@@ -10380,7 +10395,7 @@ msgstr "Calibreライブラリ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:96
 msgid "Choose a location for your calibre e-book library"
-msgstr ""
+msgstr "calibreのライブラリの場所を選択"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:105
 msgid "Failed to create library"
@@ -10388,16 +10403,16 @@ msgstr "ライブラリ作成に失敗"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:106
 msgid "Failed to create calibre library at: %r."
-msgstr ""
+msgstr "calibreのライブラリの作成に失敗: %r."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:109
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:195
 msgid "Choose a location for your new calibre e-book library"
-msgstr ""
+msgstr "新しいcalibreライブラリの場所を選択"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:164
 msgid "Initializing user interface..."
-msgstr ""
+msgstr "ユーザーインターフェイスを初期化..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:189
 msgid "Repairing failed"
@@ -10405,16 +10420,16 @@ msgstr "修復失敗"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:190
 msgid "The database repair failed. Starting with a new empty library."
-msgstr ""
+msgstr "データーベースの修復に失敗。新しい空のライブラリで起動します。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:204
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:236
 msgid "Bad database location"
-msgstr ""
+msgstr "データーベースの場所が無効"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:205
 msgid "Bad database location %r. calibre will now quit."
-msgstr ""
+msgstr "データーベースの場所 %r が無効です。calibreは終了します。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:217
 msgid "Corrupted database"

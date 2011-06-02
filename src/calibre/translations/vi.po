@@ -1,20 +1,20 @@
 # Vietnamese translation for calibre
 # Copyright (c) 2010 Rosetta Contributors and Canonical Ltd 2010
 # This file is distributed under the same license as the calibre package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2010.
+# Lê Trường An <truongan@linuxmail.org>, 2011.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-05-29 21:12+0000\n"
-"PO-Revision-Date: 2011-05-02 13:27+0000\n"
-"Last-Translator: Nguyen Huu Hoa <Unknown>\n"
+"PO-Revision-Date: 2011-06-02 02:07+0000\n"
+"Last-Translator: Lê Trường An <truongan@linuxmail.org>\n"
 "Language-Team: Vietnamese <vi@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-05-30 04:55+0000\n"
+"X-Launchpad-Export-Date: 2011-06-02 04:36+0000\n"
 "X-Generator: Launchpad (build 12959)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -197,7 +197,7 @@ msgstr "Tùy chỉnh"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:43
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:48
 msgid "Cannot configure"
-msgstr "Không thể thiết lập cấu hình"
+msgstr "Không thể cấu hình"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:318
 msgid "File type"
@@ -301,7 +301,7 @@ msgstr "Trích bìa từ các tập tin truyện tranh"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:416
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:427
 msgid "Read metadata from %s files"
-msgstr "Đọc thông tin mô tả từ tập tin %s"
+msgstr "Đọc thông tin mô tả từ %s tập tin"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:364
 msgid "Read metadata from ebooks in RAR archives"
@@ -318,17 +318,17 @@ msgstr "Đọc thông tin mô tả từ ebook trong các tập tin nén kiểu Z
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:515
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:525
 msgid "Set metadata in %s files"
-msgstr "Thiết lập thông tin mô tả cho tập tin %s"
+msgstr "Thiết lập thông tin mô tả trong %s tập tin"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:461
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:493
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:536
 msgid "Set metadata from %s files"
-msgstr "Thiết lập thông tin mô tả từ tập tin %s"
+msgstr "Thiết lập thông tin mô tả từ %s tập tin"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:883
 msgid "Look and Feel"
-msgstr "Trải nghiệm"
+msgstr "Xem và cảm nhận"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:885
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:897
@@ -344,11 +344,11 @@ msgstr "Tùy chỉnh giao diện calibre theo ý thích của bạn"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:895
 msgid "Behavior"
-msgstr "Ứng xử"
+msgstr "Hành động"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:901
 msgid "Change the way calibre behaves"
-msgstr "Thay đổi cách calibre ứng xử"
+msgstr "Thay đổi cách calibre hành động"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:906
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:221
@@ -371,7 +371,7 @@ msgstr "Tùy chỉnh thanh công cụ và menu ngữ cảnh"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:929
 msgid "Searching"
-msgstr "Đang tìm kiếm"
+msgstr "Tìm kiếm"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:935
 msgid "Customize the way searching for books works in calibre"
@@ -506,7 +506,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1067
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:273
 msgid "Plugins"
-msgstr "Plugin"
+msgstr "Trình cắm"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1073
 msgid "Add/remove/customize various bits of calibre functionality"
@@ -514,11 +514,11 @@ msgstr "Thêm/bớt/tùy chỉnh các chức năng nâng cao trong calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1079
 msgid "Tweaks"
-msgstr "Hiệu chỉnh nhỏ"
+msgstr "Tinh chỉnh"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1085
 msgid "Fine tune how calibre behaves in various contexts"
-msgstr "Điều chỉnh cách calibre ứng xử trong những ngữ cảnh khác nhau"
+msgstr "Điều chỉnh cách calibre ứng xử trong những trường hợp khác nhau"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1090
 msgid "Miscellaneous"
@@ -709,7 +709,7 @@ msgstr "Dùng cho Sanda Bambook."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:31
 msgid "Installed plugins"
-msgstr "Các plugin đã được cài đặt"
+msgstr "Các trình cắm đã cài đặt"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:32
 msgid "Mapping for filetype plugins"
@@ -721,15 +721,15 @@ msgstr "Tuỳ chỉnh các plugin hiện có"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:34
 msgid "Disabled plugins"
-msgstr "Các plugin đã bị vô hiệu hoá"
+msgstr "Các trình cắm bị vô hiệu hoá"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:35
 msgid "Enabled plugins"
-msgstr "Các plugin đang được sử dụng"
+msgstr "Các trình cắm đã bật"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:487
 msgid "Initialization of plugin %s failed with traceback:"
-msgstr "Quá trình khởi chạy plugin %s thất bại với các thông tin sau"
+msgstr "Quá trình khởi chạy trình cắm %s thất bại với thông tin sau:"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:525
 msgid ""
@@ -755,8 +755,8 @@ msgid ""
 "Customize plugin. Specify name of plugin and customization string separated "
 "by a comma."
 msgstr ""
-"Tuỳ biến plugin. Ghi rõ tên của plugin và chuỗi tùy biến cách nhau bằng dấu "
-"phẩy."
+"Tuỳ chỉnh trình cắm. Ghi rõ tên của trình cắm và chuỗi tùy biến cách nhau "
+"bằng dấu phẩy."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:537
 msgid "List all installed plugins"
@@ -772,7 +772,7 @@ msgstr "Vô hiệu hóa plugin có tên sau"
 
 #: /home/kovid/work/calibre/src/calibre/debug.py:152
 msgid "Debug log"
-msgstr ""
+msgstr "Nhật kí gỡ lỗi"
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:13
 msgid "Communicate with Android phones."
@@ -804,11 +804,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:65
 msgid "Disable Apple driver"
-msgstr ""
+msgstr "Tắt trình điều khiển Apple"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:69
 msgid "Enable Apple driver"
-msgstr ""
+msgstr "Bật trình điều khiển Apple"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:117
 msgid "Use Series as Category in iTunes/iBooks"
@@ -860,7 +860,7 @@ msgstr "Cập nhật danh mục thông tin mô tả của thiết bị ..."
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3097
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3137
 msgid "%d of %d"
-msgstr "%d của %d"
+msgstr "%d trong số %d"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:482
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:1106
@@ -1334,11 +1334,11 @@ msgstr "Giao tiếp với Sony eBook readers."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:62
 msgid "All by title"
-msgstr ""
+msgstr "Tất cả theo tựa đề"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:63
 msgid "All by author"
-msgstr ""
+msgstr "Tất cả theo tác giả"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:66
 msgid ""
@@ -1609,7 +1609,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:205
 msgid "Failed %s"
-msgstr ""
+msgstr "Thất bại %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:259
 msgid ""
@@ -2853,7 +2853,7 @@ msgstr "Chủ nhiệm"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:147
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:211
 msgid "Comments"
-msgstr "Lời bình/chú thích"
+msgstr "Lời bình"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:734
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/jacket.py:170
@@ -3028,23 +3028,23 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:395
 msgid "US"
-msgstr ""
+msgstr "US"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:396
 msgid "France"
-msgstr ""
+msgstr "France"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:397
 msgid "Germany"
-msgstr ""
+msgstr "Germany"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:398
 msgid "UK"
-msgstr ""
+msgstr "UK"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:399
 msgid "Italy"
-msgstr ""
+msgstr "Italy"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:403
 msgid "Amazon website to use:"
@@ -3077,7 +3077,7 @@ msgstr "Tải thông tin mô tả từ isbndb.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/isbndb.py:37
 msgid "IsbnDB key:"
-msgstr ""
+msgstr "Khóa IsbnDB:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/isbndb.py:38
 msgid ""
@@ -3102,7 +3102,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/overdrive.py:45
 msgid "Download all metadata (slow)"
-msgstr ""
+msgstr "Tải tất cả siêu dữ liệu (chậm)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/overdrive.py:46
 msgid "Enable this option to gather all metadata available from Overdrive."
@@ -3388,9 +3388,9 @@ msgid ""
 "\n"
 "Decrypt a PDF.\n"
 msgstr ""
-"[tùy chọn] mật mã file .pdf\n"
+"[tùy chọn] tập_tin.pdf mật_khẩu\n"
 "\n"
-"Giải mã file PDF.\n"
+"Giải mã tập tin PDF.\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/decrypt.py:60
 msgid "Decrypt Options:"
@@ -3402,7 +3402,7 @@ msgid ""
 "\n"
 "Encrypt a PDF.\n"
 msgstr ""
-"[tuỳ chọn] mật khẩu tập_tin.pdf\n"
+"[tuỳ chọn] tập_tin.pdf mật_khẩu\n"
 "\n"
 "Mã hoá một tập tin PDF\n"
 
@@ -3552,7 +3552,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/rb/rbml.py:102
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/txtml.py:97
 msgid "Table of Contents:"
-msgstr "Mục lục"
+msgstr "Mục lục:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/rtf/input.py:272
 msgid ""
@@ -4377,7 +4377,7 @@ msgstr "Không tìm thấy thư viện ở %s"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:135
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:139
 msgid "Copying"
-msgstr "Đang sao chép"
+msgstr "Đang chép"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:150
 msgid "Could not copy books: "
@@ -4423,15 +4423,15 @@ msgstr "Del"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:84
 msgid "Remove books"
-msgstr "Xóa sách"
+msgstr "Loại bỏ sách"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:90
 msgid "Remove selected books"
-msgstr "Xóa những sách đã chọn"
+msgstr "Loại bỏ những sách đã chọn"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:92
 msgid "Remove files of a specific format from selected books.."
-msgstr "Xóa định dạng tập tin được chỉ định từ những sách đã chọn."
+msgstr "Xóa tập tin theo định dạng trong số các sách được chọn.."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:95
 msgid "Remove all formats from selected books, except..."
@@ -4788,7 +4788,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/next_match.py:13
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:204
 msgid "F3"
-msgstr ""
+msgstr "F3"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/next_match.py:25
 msgid "Move to previous item"
@@ -4800,12 +4800,12 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/next_match.py:26
 msgid "Shift+N"
-msgstr ""
+msgstr "Shift+N"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/next_match.py:27
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:213
 msgid "Shift+F3"
-msgstr ""
+msgstr "Shift+F3"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/open.py:14
 msgid "Open containing folder"
@@ -4934,7 +4934,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:24
 msgid "Alt+A"
-msgstr ""
+msgstr "Alt+A"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:24
 msgid "Books by same author"
@@ -5350,7 +5350,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/bars.py:190
 msgid "Donate"
-msgstr ""
+msgstr "Đóng góp"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:108
 msgid "Click to open"
@@ -5661,7 +5661,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:328
 msgid " inch"
-msgstr ""
+msgstr " inch"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:329
 msgid "&Description note"
@@ -5709,15 +5709,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:69
 msgid "Bold"
-msgstr ""
+msgstr "Đậm"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:70
 msgid "Italic"
-msgstr ""
+msgstr "Nghiêng"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:73
 msgid "Underline"
-msgstr ""
+msgstr "Gạch dưới"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:75
 msgid "Strikethrough"
@@ -5741,19 +5741,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:86
 msgid "Align left"
-msgstr ""
+msgstr "Canh trái"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:88
 msgid "Align center"
-msgstr ""
+msgstr "Canh giữa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:90
 msgid "Align right"
-msgstr ""
+msgstr "Canh phải"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:92
 msgid "Align justified"
-msgstr ""
+msgstr "Canh đều hai bên"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:93
 msgid "Undo"
@@ -5775,11 +5775,11 @@ msgstr "Sao chép"
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:97
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:136
 msgid "Paste"
-msgstr ""
+msgstr "Dán"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:98
 msgid "Cut"
-msgstr ""
+msgstr "Cắt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:100
 msgid "Increase Indentation"
@@ -5791,7 +5791,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:104
 msgid "Select all"
-msgstr ""
+msgstr "Chọn tất cả"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:109
 msgid "Foreground color"
@@ -5799,7 +5799,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:114
 msgid "Background color"
-msgstr ""
+msgstr "Màu nền"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:118
 msgid "Style text block"
@@ -5814,7 +5814,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:36
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:158
 msgid "Normal"
-msgstr ""
+msgstr "Bình thường"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:126
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:127
@@ -5835,7 +5835,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:134
 msgid "Address"
-msgstr ""
+msgstr "Địa chỉ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:141
 msgid "Insert link"
@@ -5853,7 +5853,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:167
 msgid "Choose background color"
-msgstr ""
+msgstr "Chọn màu nền"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:172
 msgid "Create link"
@@ -5861,7 +5861,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:173
 msgid "Enter URL"
-msgstr ""
+msgstr "Nhập URL"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:523
 msgid "Normal view"
@@ -5869,7 +5869,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:524
 msgid "HTML Source"
-msgstr ""
+msgstr "Nguồn HTML"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/bulk.py:40
 msgid ""
@@ -6031,7 +6031,7 @@ msgstr "Tách tập tin lớn hơn:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:62
 msgid " KB"
-msgstr ""
+msgstr " KB"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:63
 msgid "&Flatten EPUB file structure"
@@ -6055,7 +6055,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_output_ui.py:46
 msgid "Genre"
-msgstr ""
+msgstr "Thể loại"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:104
 msgid "Font rescaling wizard"
@@ -6124,7 +6124,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:119
 msgid "0.0 pt"
-msgstr ""
+msgstr "0.0 pt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics.py:15
 msgid ""
@@ -6304,7 +6304,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:159
 msgid " %"
-msgstr ""
+msgstr " %"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output.py:19
 msgid "LRF Output"
@@ -6405,11 +6405,11 @@ msgstr " không phải là hình hợp lệ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:159
 msgid "Book Cover"
-msgstr "Bìa Sách"
+msgstr "Bìa sách"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:160
 msgid "Change &cover image:"
-msgstr "Thay đổi ảnh bìa:"
+msgstr "Thay đổi ảnh &bìa:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:161
 msgid "Browse for an image to use as the cover of this book."
@@ -6479,7 +6479,7 @@ msgstr "Danh mục các bộ sách. Bạn có thể thêm bộ sách."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:175
 msgid "Book "
-msgstr ""
+msgstr "Sách "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output.py:19
 msgid "MOBI Output"
@@ -6611,7 +6611,7 @@ msgstr "Xuất PDF"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:48
 msgid "&Paper Size:"
-msgstr "&Khổ giấy:"
+msgstr "Khổ &giấy:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:49
 msgid "&Orientation:"
@@ -6667,7 +6667,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread_store_dialog_ui.py:64
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:143
 msgid "0"
-msgstr ""
+msgstr "0"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder_ui.py:95
 msgid "Goto:"
@@ -6745,7 +6745,7 @@ msgstr "Chuyển đổi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single.py:200
 msgid "Options specific to the input format."
-msgstr "Tùy chọn cụ thể cho định dạng nguồn."
+msgstr "Tùy chọn cụ thể cho định dạng nhập."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single_ui.py:117
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:69
@@ -6760,11 +6760,11 @@ msgstr "Hộp thoại"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single_ui.py:118
 msgid "&Input format:"
-msgstr "Định &dạng nguồn:"
+msgstr "Định &dạng nhập:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single_ui.py:119
 msgid "Use &saved conversion settings for individual books"
-msgstr "Sử dụng thiết lập đã lưu cho từng cuốn sách"
+msgstr "Sử dụng thiết lập đã lưu cho từng cuốn &sách"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/snb_output.py:14
 msgid "SNB Output"
@@ -6791,8 +6791,8 @@ msgid ""
 "Structure\n"
 "Detection"
 msgstr ""
-"Nhận dạng\n"
-"Cấu trúc"
+"Cấu trúc\n"
+"Nhận dạng"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:17
 msgid ""
@@ -6852,7 +6852,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc.py:18
 msgid "Control the creation/conversion of the Table of Contents."
-msgstr "Thiết lập việc tạo/chuyển đổi Mục Lục."
+msgstr "Thiết lập việc tạo/chuyển đổi Mục lục."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc.py:30
 msgid "Level &1 TOC (XPath expression):"
@@ -6935,7 +6935,7 @@ msgstr "Xuất TXT"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:88
 msgid "General"
-msgstr ""
+msgstr "Chung"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:89
 msgid "Output &Encoding:"
@@ -7185,7 +7185,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:327
 msgid "Send metadata to device"
-msgstr "Gửi thông tin mô tả sang thiết bị."
+msgstr "Gửi thông tin mô tả sang thiết bị"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:332
 msgid "Send collections to device"
@@ -7217,16 +7217,16 @@ msgstr "Gửi đến bộ nhớ chính"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:459
 msgid "Send to storage card A"
-msgstr "Gửi đến thẻ lưu trữ/thẻ nhớ A"
+msgstr "Gửi đến thẻ lưu trữ A"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:461
 msgid "Send to storage card B"
-msgstr "Gửi đến thẻ lưu trữ/thẻ nhớ M"
+msgstr "Gửi đến thẻ lưu trữ M"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:466
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:475
 msgid "Main Memory"
-msgstr "Bộ Nhớ Chính"
+msgstr "Bộ nhớ chính"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:487
 msgid "Send specific format to"
@@ -7789,16 +7789,16 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:68
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:228
 msgid "Library"
-msgstr ""
+msgstr "Thư viện"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/confirm_delete_location_ui.py:78
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:70
 msgid "Device"
-msgstr ""
+msgstr "Thiết bị"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/confirm_delete_location_ui.py:79
 msgid "Library and Device"
-msgstr ""
+msgstr "Thư viện và Thiết bị"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/confirm_delete_ui.py:55
 msgid "&Show this warning again"
@@ -8197,11 +8197,11 @@ msgstr "Điểm cho cuốn sách này. 0-5 sao"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:533
 msgid "No change"
-msgstr ""
+msgstr "Không thay đổi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:534
 msgid " stars"
-msgstr ""
+msgstr " sao"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:536
 msgid "Add ta&gs: "
@@ -8364,7 +8364,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:588
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager_ui.py:64
 msgid "Delete"
-msgstr ""
+msgstr "Xóa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:589
 msgid "Search &field:"
@@ -8506,7 +8506,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/password_ui.py:61
 msgid "Password needed"
-msgstr ""
+msgstr "Cần mật khẩu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/password_ui.py:63
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:214
@@ -8672,11 +8672,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:154
 msgid "every hour"
-msgstr ""
+msgstr "mỗi giờ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:157
 msgid "days"
-msgstr ""
+msgstr "ngày"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:161
 msgid ""
@@ -8701,15 +8701,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:347
 msgid "(optional)"
-msgstr ""
+msgstr "(tùy chọn)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:348
 msgid "(required)"
-msgstr ""
+msgstr "(yêu cầu)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:365
 msgid "Created by: "
-msgstr ""
+msgstr "Được tạo bởi: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:372
 msgid "Last downloaded: never"
@@ -8975,7 +8975,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread/adv_search_builder_ui.py:182
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:200
 msgid "Enter the title."
-msgstr ""
+msgstr "Nhập tựa đề."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:213
 #: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread/adv_search_builder_ui.py:183
@@ -9229,7 +9229,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor_ui.py:83
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:106
 msgid "Ctrl+S"
-msgstr ""
+msgstr "Ctrl+S"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:249
 msgid "EXCEPTION: "
@@ -9577,7 +9577,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dnd.py:51
 msgid "Download %s"
-msgstr ""
+msgstr "Tải về %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dnd.py:54
 msgid "Downloading <b>%s</b> from %s"
@@ -9597,7 +9597,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ebook_download.py:87
 msgid "Downloading %s"
-msgstr ""
+msgstr "Đang tải về %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ebook_download.py:99
 msgid "Downloading"
@@ -9630,7 +9630,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:169
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:189
 msgid "by"
-msgstr ""
+msgstr "bởi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:170
 msgid "in the %s format."
@@ -9643,7 +9643,7 @@ msgstr "Gửi thư điện tử đến"
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:215
 msgid "Auto convert the following books before sending via email?"
 msgstr ""
-"Tự động chuyển đổi những cuốn sách sau trước khi gửi qua thư điện tử?"
+"Tự động chuyển đổi những cuốn sách sau đây, trước khi gửi qua thư điện tử?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:222
 msgid ""
@@ -9686,7 +9686,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:137
 msgid "Title:"
-msgstr ""
+msgstr "Tựa đề:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:138
 msgid "Regular expression (?P&lt;title&gt;)"
@@ -9733,7 +9733,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:149
 msgid "ISBN:"
-msgstr ""
+msgstr "ISBN:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:150
 msgid "Regular expression (?P<isbn>)"
@@ -9762,7 +9762,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:110
 msgid "Shift+Alt+B"
-msgstr ""
+msgstr "Shift+Alt+B"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:124
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:334
@@ -9771,12 +9771,12 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:126
 msgid "Shift+Alt+T"
-msgstr ""
+msgstr "Shift+Alt+T"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:157
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:29
 msgid "version"
-msgstr ""
+msgstr "phiên bản"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:158
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:30
@@ -9789,7 +9789,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:188
 msgid "Update found"
-msgstr ""
+msgstr "Tìm thấy cập nhật"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:223
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:233
@@ -9799,11 +9799,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:225
 msgid "Alt+D"
-msgstr ""
+msgstr "Alt+D"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:235
 msgid "Shift+Alt+D"
-msgstr ""
+msgstr "Shift+Alt+D"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:62
 msgid "Job"
@@ -9811,7 +9811,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:63
 msgid "Status"
-msgstr ""
+msgstr "Trạng thái"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:64
 msgid "Progress"
@@ -9863,7 +9863,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:329
 msgid "Shift+Alt+J"
-msgstr ""
+msgstr "Shift+Alt+J"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:346
 msgid "Click to see list of jobs"
@@ -9917,7 +9917,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:181
 msgid "Shift+Ctrl+F"
-msgstr ""
+msgstr "Shift+Ctrl+F"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:184
 msgid "Advanced search"
@@ -9956,7 +9956,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:67
 msgid "Size (MB)"
-msgstr ""
+msgstr "Dung lượng (MB)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:74
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:241
@@ -9976,7 +9976,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1022
 msgid "In Library"
-msgstr ""
+msgstr "Trong thư viện"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1026
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:311
@@ -9993,7 +9993,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:159
 msgid "Hide column %s"
-msgstr ""
+msgstr "Ẩn cột %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:164
 msgid "Sort on %s"
@@ -10013,19 +10013,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:182
 msgid "Left"
-msgstr ""
+msgstr "Trái"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:182
 msgid "Right"
-msgstr ""
+msgstr "Phải"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:183
 msgid "Center"
-msgstr ""
+msgstr "Giữa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:202
 msgid "Show column"
-msgstr ""
+msgstr "Hiện cột"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:214
 msgid "Restore default layout"
@@ -10076,23 +10076,23 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:131
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:559
 msgid "Next Page"
-msgstr ""
+msgstr "Trang tiếp theo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:132
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:560
 msgid "Previous Page"
-msgstr ""
+msgstr "Trang trước"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:133
 #: /home/kovid/work/calibre/src/calibre/gui2/store/web_store_dialog_ui.py:62
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:193
 msgid "Back"
-msgstr ""
+msgstr "Trở lại"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:134
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:194
 msgid "Forward"
-msgstr ""
+msgstr "Tiếp theo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:135
 msgid "Next match"
@@ -10101,11 +10101,11 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:136
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:201
 msgid "Open ebook"
-msgstr ""
+msgstr "Mở sách điện tử"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:137
 msgid "Configure"
-msgstr ""
+msgstr "Cấu hình"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:33
 msgid "Use the library located at the specified path."
@@ -10138,7 +10138,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:69
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:678
 msgid "Calibre Library"
-msgstr ""
+msgstr "Thư viện Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:96
 msgid "Choose a location for your calibre e-book library"
@@ -10201,7 +10201,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:247
 msgid "Starting %s: Loading books..."
-msgstr ""
+msgstr "Đang khởi động %s: Đang nạp sách..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:327
 msgid "If you are sure it is not running"
@@ -10679,7 +10679,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:415
 msgid "Please wait"
-msgstr ""
+msgstr "Vui lòng chờ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:444
 msgid "Query: "
@@ -10737,7 +10737,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/__init__.py:328
 msgid "Configure "
-msgstr ""
+msgstr "Cấu hình "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding.py:28
 msgid "Ignore duplicate incoming formats"
@@ -10827,16 +10827,16 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:36
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:160
 msgid "Low"
-msgstr ""
+msgstr "Thấp"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:34
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:159
 msgid "High"
-msgstr ""
+msgstr "Cao"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:36
 msgid "Very low"
-msgstr ""
+msgstr "Rất thấp"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:64
 msgid "Compact Metadata"
@@ -11233,7 +11233,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:236
 msgid "Default: dd MMM yyyy."
-msgstr ""
+msgstr "Mặc định: dd MMM yyyy."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:237
 msgid ""
@@ -11340,7 +11340,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:51
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:57
 msgid "Device Detection"
-msgstr ""
+msgstr "Nhận diện thiết bị"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:52
 msgid "Ensure your device is disconnected, then press OK"
@@ -11611,7 +11611,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:326
 msgid "Show &average ratings in the tags browser"
-msgstr "Hiển thị điểm số trung bình trong trình duyệt thẻ"
+msgstr "Hiển thị đánh giá &trung bình trong trình duyệt thẻ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:327
 msgid "Categories with &hierarchical items:"
@@ -11831,7 +11831,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:64
 msgid "Debug &device detection"
-msgstr "&Gỡ lỗi cho quá trình tìm thiết bị"
+msgstr "Gỡ lỗi cho quá trình &dò tìm thiết bị"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:65
 msgid "Get information to setup the &user defined device"
@@ -11968,7 +11968,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:183
 msgid "plugins"
-msgstr "plugin"
+msgstr "trình cắm"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:192
 msgid ""
@@ -12060,7 +12060,8 @@ msgid ""
 "Here you can customize the behavior of Calibre by controlling what plugins "
 "it uses."
 msgstr ""
-"Tùy chỉnh hành vi của Calibre bằng cách kiểm soát những plugin nó sử dụng."
+"Tại đây bạn có thể tùy chỉnh hành động của Calibre bằng cách điều khiển các "
+"trình cắm."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:90
 msgid "Enable/&Disable plugin"
@@ -12328,8 +12329,8 @@ msgid ""
 "by customizing the device interface plugins in Preferences->Advanced->Plugins"
 msgstr ""
 "Tùy chỉnh cách calibre lưu sách của bạn khi nhấn nút Gửi đến thiết bị. Thiết "
-"lập này có thể được chỉnh riêng cho từng thiết bị bằng cách tùy biến plugin "
-"thiết bị trong Tùy chỉnh-> Nâng cao-> Plugin"
+"lập này có thể được chỉnh riêng cho từng thiết bị bằng cách tùy chọn trình "
+"cắm giao diện thiết bị trong Tùy chỉnh-> Nâng cao-> Trình cắm"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:70
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:422
@@ -13429,7 +13430,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:2149
 msgid "Sort by average rating"
-msgstr "Sắp xếp theo điểm số trung bình"
+msgstr "Sắp xếp theo đánh giá trung bình"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:2152
 msgid "Set the sort order for entries in the Tag Browser"
@@ -15304,7 +15305,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:148
 msgid "Ratings"
-msgstr "Điểm số"
+msgstr "Đánh giá"
 
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:181
 msgid "Identifiers"
@@ -15356,7 +15357,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:41
 msgid "The rating"
-msgstr "Điểm số"
+msgstr "Đánh giá"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:42
 msgid "The ISBN"
@@ -15667,7 +15668,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:166
 msgid "RATING: %s<br />"
-msgstr "ĐIỂM SỐ: %s<br />"
+msgstr "ĐÁNH GIÁ: %s<br />"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:169
 msgid "TAGS: %s<br />"
@@ -16148,167 +16149,167 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:43
 msgid "Waiting..."
-msgstr ""
+msgstr "Đang chờ..."
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:52
 msgid "Stopped"
-msgstr ""
+msgstr "Đã dừng"
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:54
 msgid "Finished"
-msgstr ""
+msgstr "Đã xong"
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:76
 msgid "Working..."
-msgstr ""
+msgstr "Đang làm việc..."
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:98
 msgid "Brazilian Portuguese"
-msgstr ""
+msgstr "Brazilian Portuguese"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:99
 msgid "English (UK)"
-msgstr ""
+msgstr "English (UK)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:100
 msgid "Simplified Chinese"
-msgstr ""
+msgstr "Simplified Chinese"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:101
 msgid "Chinese (HK)"
-msgstr ""
+msgstr "Chinese (HK)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:102
 msgid "Traditional Chinese"
-msgstr ""
+msgstr "Traditional Chinese"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:103
 msgid "English"
-msgstr ""
+msgstr "English"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:104
 msgid "English (Australia)"
-msgstr ""
+msgstr "English (Australia)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:105
 msgid "English (New Zealand)"
-msgstr ""
+msgstr "English (New Zealand)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:106
 msgid "English (Canada)"
-msgstr ""
+msgstr "English (Canada)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:107
 msgid "English (India)"
-msgstr ""
+msgstr "English (India)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:108
 msgid "English (Thailand)"
-msgstr ""
+msgstr "English (Thailand)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:109
 msgid "English (Cyprus)"
-msgstr ""
+msgstr "English (Cyprus)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:110
 msgid "English (Czechoslovakia)"
-msgstr ""
+msgstr "English (Czechoslovakia)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:111
 msgid "English (Pakistan)"
-msgstr ""
+msgstr "English (Pakistan)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:112
 msgid "English (Croatia)"
-msgstr ""
+msgstr "English (Croatia)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:113
 msgid "English (Indonesia)"
-msgstr ""
+msgstr "English (Indonesia)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:114
 msgid "English (Israel)"
-msgstr ""
+msgstr "English (Israel)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:115
 msgid "English (Singapore)"
-msgstr ""
+msgstr "English (Singapore)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:116
 msgid "English (Yemen)"
-msgstr ""
+msgstr "English (Yemen)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:117
 msgid "English (Ireland)"
-msgstr ""
+msgstr "English (Ireland)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:118
 msgid "English (China)"
-msgstr ""
+msgstr "English (China)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:119
 msgid "Spanish (Paraguay)"
-msgstr ""
+msgstr "Spanish (Paraguay)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:120
 msgid "Spanish (Uruguay)"
-msgstr ""
+msgstr "Spanish (Uruguay)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:121
 msgid "Spanish (Argentina)"
-msgstr ""
+msgstr "Spanish (Argentina)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:122
 msgid "Spanish (Mexico)"
-msgstr ""
+msgstr "Spanish (Mexico)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:123
 msgid "Spanish (Cuba)"
-msgstr ""
+msgstr "Spanish (Cuba)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:124
 msgid "Spanish (Chile)"
-msgstr ""
+msgstr "Spanish (Chile)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:125
 msgid "Spanish (Ecuador)"
-msgstr ""
+msgstr "Spanish (Ecuador)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:126
 msgid "Spanish (Honduras)"
-msgstr ""
+msgstr "Spanish (Honduras)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:127
 msgid "Spanish (Venezuela)"
-msgstr ""
+msgstr "Spanish (Venezuela)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:128
 msgid "Spanish (Bolivia)"
-msgstr ""
+msgstr "Spanish (Bolivia)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:129
 msgid "Spanish (Nicaragua)"
-msgstr ""
+msgstr "Spanish (Nicaragua)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:130
 msgid "German (AT)"
-msgstr ""
+msgstr "German (AT)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:131
 msgid "French (BE)"
-msgstr ""
+msgstr "French (BE)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:132
 msgid "Dutch (NL)"
-msgstr ""
+msgstr "Dutch (NL)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:133
 msgid "Dutch (BE)"
-msgstr ""
+msgstr "Dutch (BE)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/console.py:56
 msgid "Choose theme (needs restart)"
-msgstr ""
+msgstr "Chọn chủ đề (cần khởi động lại)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/console.py:109
 msgid "ERROR: Unhandled exception"
@@ -16521,7 +16522,7 @@ msgstr "Đã đươc lên lịch"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/model.py:86
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/model.py:203
 msgid "Custom"
-msgstr "Tùy biến"
+msgstr "Tùy chọn"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:118
 msgid "Next section"
@@ -16561,7 +16562,7 @@ msgstr "%prog URL"
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:479
 msgid "Base directory into which URL is saved. Default is %default"
-msgstr "Thư mục cơ bản dùng để lưu đường dẫn. Mặc định là %default"
+msgstr "Thư mục cơ bản dùng để lưu URL. Mặc định là %default"
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:482
 msgid ""
@@ -16580,7 +16581,7 @@ msgid ""
 "The maximum number of files to download. This only applies to files from <a "
 "href> tags. Default is %default"
 msgstr ""
-"Số tập tin tải về tối đa, chỉ áp dụng với các tập tin được gắn nhãn <a "
+"Số tập tin tải về tối đa. Chỉ áp dụng với các tập tin được gắn nhãn <a "
 "href>. Mặc định là %default"
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:490
@@ -17472,4 +17473,7 @@ msgstr ""
 #~ msgstr "Các sách điện tử cho kindle từ Amazon"
 
 #~ msgid "Ebooks for readers."
-#~ msgstr "Sách điện tử cho người đọc"
+#~ msgstr "Sách điện tử cho người đọc."
+
+#~ msgid "Google Books"
+#~ msgstr "Google Books"

@@ -4,12 +4,12 @@
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2008.
 # redmar <redmar@ubuntu-nl.org>, 2011.
 #
-#######################################################
-################### WOORDENLIJST ######################
-#######################################################
-# ebook,ebooks				e-boek, e-boeken
+# ######################################################
+# ################## WOORDENLIJST ######################
+# ######################################################
+# ebook,ebooks				e-book, e-books (zoals e-mail)
 # metadata						metadata, metagegevens?
-# calibre book list		calibreboekenlijst
+# calibre book list		calibre-boekenlijst
 # Conversion					omzetten
 # Save to disk				Opslaan op schijf
 # ebook reader				e-reader
@@ -23,22 +23,27 @@
 # Table of contents		inhoudsopgave
 # set indent					inspringen
 # source file					bronbestand
-# you					je
-# tag					label (in de zin van trefwoord, wat misschien een betere
-#					vertaling is)
-# tag					tag (bijvoorbeeld HTML-tag)
+# set the ...					geef de ... op
+# line								regel
+# cover								omslag
+# parse, to parse			verwerken
+# library							bibliotheek
+# Calibre library			Calibre-bibliotheek
+# Heading							titel
+# Redmar <redmar@ubuntu-nl.org>, 2011.
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-05-29 21:12+0000\n"
-"PO-Revision-Date: 2011-05-31 17:32+0000\n"
-"Last-Translator: drMerry <Unknown>\n"
-"Language-Team: Dutch <nl@li.org>\n"
+"PO-Revision-Date: 2011-06-01 20:49+0000\n"
+"Last-Translator: Redmar <redmar@ubuntu-nl.org>\n"
+"Language-Team: Dutch <ubuntu-l10n-nl@lists.ubuntu.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-06-01 04:36+0000\n"
+"X-Launchpad-Export-Date: 2011-06-02 04:35+0000\n"
 "X-Generator: Launchpad (build 12959)\n"
 "X-Poedit-Country: NETHERLANDS\n"
 "X-Poedit-Language: Dutch\n"
@@ -2384,23 +2389,23 @@ msgstr "Geef de index van dit boek in de reeks op."
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:475
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:64
 msgid "Set the rating. Should be a number between 1 and 5."
-msgstr "Waardering geven. Moet een getal zijn tussen 1 en 5."
+msgstr "Waardering geven. Moet een getal tussen de 1 en 5 zijn."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:479
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:66
 msgid "Set the ISBN of the book."
-msgstr "Geef het ISBN van het boek."
+msgstr "Geef het ISBN van het boek op."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:483
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:68
 msgid "Set the tags for the book. Should be a comma separated list."
 msgstr ""
-"Stel de labels voor het boek in. Dient een kommagescheiden lijst te zijn."
+"Geef de labels voor het boek op. Dit moet een komma-gescheiden lijst zijn."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:487
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:70
 msgid "Set the book producer."
-msgstr "Bepaal de boekproducent"
+msgstr "Geef de producent op."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:491
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:72
@@ -2413,8 +2418,7 @@ msgstr "Stel de publicatiedatum in."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:499
 msgid "Set the book timestamp (used by the date column in calibre)."
-msgstr ""
-"Geef de tijdstempel van boek (gebruikt door de datumkolom in calibre)."
+msgstr "Stel de tijdstempel van boek in (voor de datum-kolom in Calibre)."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:503
 msgid ""
@@ -2430,9 +2434,9 @@ msgid ""
 "h3 tags.  This setting will not create a TOC, but can be used in conjunction "
 "with structure detection to create one."
 msgstr ""
-"Detecteer onopgemaakte hoofdstuk- en deelkoppen. Wijzig ze in h2- en h3-"
-"tags. Deze optie genereert zelf geen inhoudsopgave, maar kan samen met "
-"structuurdetectie gebruikt worden om er een te maken"
+"Detecteer onopgemaakte hoofdstuk- en deelkoppen en verander deze in h2- en "
+"h3-tags. Deze optie genereert zelf geen inhoudsopgave, maar kan samen met "
+"structuurdetectie gebruikt worden om er een te maken."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:515
 msgid ""
@@ -2446,7 +2450,6 @@ msgid ""
 "Turn indentation created from multiple non-breaking space entities into CSS "
 "indents."
 msgstr ""
-"Maak van inspringen aangeduid door niet-splitsende witruimte CSS-inspringen."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:525
 msgid ""
@@ -2455,23 +2458,21 @@ msgid ""
 "the median line length.  If only a few lines in the document require "
 "unwrapping this value should be reduced"
 msgstr ""
-"Schaal om te bepalen tot welke lengte korte lijnen moeten worden "
-"aaneengeplakt. Geldige waarden zijn vlottendepuntgetallen tussen 0 en 1. "
-"Standaardwaarde is 0.4, iets minder dan de mediaan van de lijnlengte. Als "
-"maar weinig lijnen aan hun voorganger moeten geplakt worden neem je beter "
-"een kleinere waarde."
+"Schaal om te bepalen tot welke lengte korte regels gecombineerd moeten "
+"worden. Geldige waarden zijn decimale getallen tussen 0 en 1. De "
+"standaardwaarde is 0.4, iets minder dan de mediaan van de regellengte. Als "
+"maar weinig regels gecombineerd hoeven te worden kunt u beter een lagere "
+"waarde kiezen."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:533
 msgid "Unwrap lines using punctuation and other formatting clues."
-msgstr ""
-"Plak korte lijnen achter elkaar op basis van interpunctie en andere opmaak "
-"gerelateerde hints."
+msgstr "Combineer korte regels op basis van interpunctie en andere hints."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:537
 msgid ""
 "Remove empty paragraphs from the document when they exist between every "
 "other paragraph"
-msgstr "Verwijder lege alinea's als ze tussen alle andere alinea's voorkomen"
+msgstr "Verwijder lege alinea's als ze elke tweede alinea voorkomen"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:542
 msgid ""
@@ -2495,8 +2496,8 @@ msgid ""
 "used as a dictionary to determine whether hyphens should be retained or "
 "removed."
 msgstr ""
-"Analyseer gesplitste woorden. Het document zelf dient als woordenboek om te "
-"bepalen of het afbreekteken als liggend streepje moet worden behouden."
+"Analyseer de afgebroken woorden. Het document zelf dient als woordenboek om "
+"te bepalen of het afbreekteken als liggend streepje moet worden behouden."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:559
 msgid ""
@@ -2504,7 +2505,7 @@ msgid ""
 "renumbered to prevent splitting in the middle of chapter headings."
 msgstr ""
 "Zoek naar opeenvolgende <h1>- of <h2>-tags. Deze worden hernummerd om te "
-"voorkomen dat hoofdstukkoppen opgedeeld worden."
+"voorkomen dat hoofdstuk-titels opgedeeld worden."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:565
 msgid "Search pattern (regular expression) to be replaced with sr1-replace."
@@ -2532,12 +2533,13 @@ msgstr "sr3 vervangen door"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:690
 msgid "Could not find an ebook inside the archive"
-msgstr "Geen E-boek in archief gevonden"
+msgstr "Geen e-book in archief gevonden"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:748
 msgid "Values of series index and rating must be numbers. Ignoring"
 msgstr ""
-"Waarden van de reeks-index en waarderingen moeten getallen zijn. Genegeerd"
+"Waarden van de reeks-index en waarderingen moeten getallen zijn. Negeer "
+"opgegeven waarden"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:755
 msgid "Failed to parse date/time"
@@ -2545,11 +2547,11 @@ msgstr "Verwerken datum/tijd mislukt"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:914
 msgid "Converting input to HTML..."
-msgstr "Invoer omzetten naar HTML..."
+msgstr "Invoer naar HTML omzetten…"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:941
 msgid "Running transforms on ebook..."
-msgstr "Transformaties worden toegepast op E-boek..."
+msgstr "Transformaties worden op e-book toegepast…"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:1037
 msgid "Creating"
@@ -2557,15 +2559,15 @@ msgstr "Aanmaken"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/__init__.py:20
 msgid "Failed to parse: %s with error: %s"
-msgstr "Doorlopen mislukt: %s met fout: %s"
+msgstr "Verwerking mislukt: %s met fout: %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/__init__.py:26
 msgid "ePub Fixer"
-msgstr "ePub reparatie"
+msgstr "ePub-correctie"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/epubcheck.py:18
 msgid "Workaround epubcheck bugs"
-msgstr "Lapmiddel fouten epubcheck"
+msgstr "Omzijl fouten in epubcheck"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/epubcheck.py:22
 msgid ""
@@ -2574,12 +2576,11 @@ msgid ""
 "detect these and replace them with constructs that epubcheck likes. This may "
 "cause significant changes to your epub, complain to the epubcheck project."
 msgstr ""
-"Lapmiddelen voor fouten in de laatste uitgave van epub controle. epub "
-"controle rapporteert veel zaken als fout, die eigenlijk geen fouten zijn. "
-"epub-reparatie zal trachten om deze te detecteren en ze te vervangen door "
-"constructies waar epub controle geen problemen mee heeft. Dit kan wel "
-"belangrijke wijzigingen teweeg brengen in je epub-bestand, klaag hierover "
-"bij het epub controle project."
+"Lapmiddelen voor fouten in de laatste uitgave van epubcheck. epubcheck "
+"rapporteert veel zaken als fouten, die eigenlijk geen fouten zijn. epub-fix "
+"zal trachten om deze te detecteren en ze te vervangen door constructies waar "
+"epubcheck geen problemen mee heeft. Dit kan voor grote veranderingen in uw "
+"epub-bestand zorgen. Klaag hierover bij het epubcheck-project."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/main.py:21
 msgid ""
@@ -2591,17 +2592,17 @@ msgid ""
 "By default, no fixing is done and messages are printed out for each error "
 "detected. Use the options to control which errors are automatically fixed."
 msgstr ""
-"%prog [opties] bestand.epub\n"
-"Herstelt veel voorkomende problemen in EPUB-bestanden die ervoor kunnen "
-"zorgen dat ze geweigerd worden door slecht ontworpen publicatiediensten.\n"
+"%prog [opties] bestand.epu\n"
+"Herstelt eenvoudige problemen in EPUB-bestanden die ervoor kunnen zorgen dat "
+"ze geweigerd worden door slecht ontworpen publicatiediensten.\n"
 "\n"
-"Standaard wordt geen herstel uitgevoerd en foutmeldingen worden weergegeven "
-"voor iedere gevonden fout. Gebruik de opties om te controleren welke fouten "
+"Standaard worden geen reparaties gemaakt en foutmeldingen worden weergegeven "
+"voor iedere gevonden fout. Gebruik de opties om in te stellen welke fouten "
 "automatisch hersteld worden."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/main.py:52
 msgid "You must specify an epub file"
-msgstr "Je moet een epub-bestand specifieren."
+msgstr "U moet een epub-bestand opgeven."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/unmanifested.py:17
 msgid "Fix unmanifested files"
@@ -2627,8 +2628,8 @@ msgid ""
 "Extract the contents of the generated EPUB file to the specified directory. "
 "The contents of the directory are first deleted, so be careful."
 msgstr ""
-"Extraheer de inhoud van het gegenereerde EPUB-bestand in de opgegeven map. "
-"De inhoud van de map zal eerst worden verwijderd, dus wees voorzichtig."
+"Verplaats de inhoud van het gegenereerde EPUB-bestand naar de opgegeven map. "
+"De inhoud van de map zal eerst gewist worden, dus wees voorzichtig."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:62
 msgid ""
@@ -2639,11 +2640,11 @@ msgid ""
 "turn off splitting on page breaks."
 msgstr ""
 "Deactiveer het splitsen op het einde van een pagina. Normaal gesproken "
-"worden invoerbestanden automatisch opgesplitst in twee bestanden bij iedere "
-"nieuwe pagina. Dit resulteert in een E-boek bestand dat sneller verwerkt kan "
-"worden met minder werk voor het systeem. Echter, het splitsen zelf is "
-"langzaam, en als je bronbestand een groot aantal pagina's bevat dan kan je "
-"deze splitsing uitschakelen."
+"worden invoerbestanden bij iedere nieuwe pagina automatisch in twee "
+"bestanden opgesplitst. Dit resulteert in een e-bookbestand dat sneller "
+"verwerkt kan worden met minder werk voor het systeem. Echter, het splitsen "
+"zelf is langzaam, en als het bronbestand een groot aantal pagina's bevat "
+"kunt udeze splitsing uitschakelen."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:73
 msgid ""
@@ -2686,12 +2687,12 @@ msgid ""
 "and bottom of the image, but the image will never be distorted. Without this "
 "option the image may be slightly distorted, but there will be no borders."
 msgstr ""
-"Bij gebruik van een SVG-omslag, zal deze optie ervoor zorgen dat de omslag "
-"beeldvullend wordt geschaald, met behoud van de breedte/hoogteverhouding. "
-"Dit betekent dat er witte randen aan de zij of de boven/onderkant van de "
-"afbeelding kunnen komen, maar het beeld wordt nooit verstoord. Zonder deze "
-"optie kan het beeld enigszins worden verstoord, maar er zullen geen randen "
-"zijn."
+"Bij gebruik van een SVG-omslag zal deze optie ervoor zorgen dat de omslag "
+"het hele scherm vult, maar toch de breedte/hoogteverhouding zal behouden. "
+"Dit betekent dat er sprake kan zijn van omslagen met witte randen aan de "
+"zijkanten of de boven- en onderkant van het beeld, maar de afbeelding zal "
+"nooit vervormd worden. Zonder deze optie kan de afbeelding enigszins "
+"vervormd worden, maar zullen er geen witte randen zijn."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:105
 msgid ""
@@ -2699,8 +2700,8 @@ msgid ""
 "will flatten the file system inside the EPUB, putting all files into the top "
 "level."
 msgstr ""
-"Deze optie is alleen nodig als je de EPUB wil gebruiken met FBReaderJ. Het "
-"verwijdert alle deelmappen binnen de EPUB, en zet alle bestanden op het "
+"Deze optie is alleen nodig als u de EPUB op een FBReaderJ wilt gebruiken. "
+"Het verwijdert alle deelmappen binnen de EPUB, en zet alle bestanden op het "
 "hoogste niveau."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:184
@@ -2710,7 +2711,7 @@ msgstr "Start"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/input.py:32
 msgid "Do not insert a Table of Contents at the beginning of the book."
-msgstr "Geen inhoudsopgave toeviegen aan het begin van het boek."
+msgstr "Voeg geen inhoudsopgave aan het begin van het boek toe."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/output.py:149
 msgid ""
@@ -2770,14 +2771,14 @@ msgid ""
 "pipeline."
 msgstr ""
 "Normaal gesproken herschikt deze invoer plug-in alle invoerbestanden in een "
-"standaard hiërarchie van mappen. Gebruik deze optie alleen als je weet wat "
-"je doet, omdat het kan resulteren in verscheidene vervelende neveneffecten "
-"in de resterende stappen van de conversie."
+"standaard hiërarchie van mappen. Gebruik deze optie alleen als u weet wat u "
+"doet, omdat het kan resulteren in verschillende akelige problemen met de "
+"rest van het conversiesysteem."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/output.py:32
 msgid "CSS file used for the output instead of the default file"
 msgstr ""
-"CSS-bestand dat gebruikt word voor de output in plaats van het "
+"CSS-bestand dat gebruikt word voor de uitvoer, in plaats van het "
 "standaardbestand"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/output.py:35
@@ -2785,15 +2786,15 @@ msgid ""
 "Template used for generation of the html index file instead of the default "
 "file"
 msgstr ""
-"Sjabloon gebruikt voor het maken van een html-indexbestand in plaats van het "
-"standaardbestand"
+"Sjabloon gebruikt voor het maken van een html-indexbestand, in plaats van "
+"het standaardbestand"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/output.py:38
 msgid ""
 "Template used for the generation of the html contents of the book instead of "
 "the default file"
 msgstr ""
-"Sjabloon gebruikt voor het maken van de html-inhoud van het boek in plaats "
+"Sjabloon gebruikt voor het maken van de html-inhoud van het boek, in plaats "
 "van het standaardbestand"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/output.py:41
@@ -2814,7 +2815,7 @@ msgstr ""
 "Specificeer het gebruik van CSS. Standaardwaarde is class.\n"
 "class: Gebruik CSS-classes en laat elementen ernaar verwijzen.\n"
 "inline: Schrijf de CSS als inline stijlattribuut.\n"
-"tag: Maak HTML-tags van zoveel mogelijk CSS-stijlen."
+"tag: Verander zoveel mogelijk CSS-stijlen in HTML-tags."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/htmlz/output.py:38
 msgid ""
@@ -2823,14 +2824,14 @@ msgid ""
 "external: Use an external CSS file that is linked in the document.\n"
 "inline: Place the CSS in the head section of the document."
 msgstr ""
-"Afhandeling van CSS bij css-type = 'class'.\n"
+"Afhandeling van CSS bij css-type = ‘class’.\n"
 "Standaard is external.\n"
 "external: gebruik een apart CSS-bestand verbonden met het document.\n"
-"inline: zet de CSS in de hoofding van het document."
+"inline:  zet de CSS in de header van het document."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/from_any.py:47
 msgid "Creating LIT file from EPUB..."
-msgstr "Aanmaken LIT-bestand van EPUB..."
+msgstr "EPUB uit LIT-bestand aanmaken…"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:320
 msgid "\tBook Designer file detected."
@@ -2838,11 +2839,11 @@ msgstr "\tBook Designer-bestand herkend."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:322
 msgid "\tParsing HTML..."
-msgstr "\tHTML doorlopen..."
+msgstr "\tHTML verwerken…"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:345
 msgid "\tBaen file detected. Re-parsing..."
-msgstr "\tBaen bestand herkend. Opnieuw doorlopen..."
+msgstr "\tBaen-bestand herkend. Opnieuw verwerken…"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:361
 msgid "Written preprocessed HTML to "
@@ -2854,12 +2855,12 @@ msgstr "Bezig met het verwerken van %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:393
 msgid "\tConverting to BBeB..."
-msgstr "\tConverteren naar BBEB..."
+msgstr "\tNaar BBEB omzetten…"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:539
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:552
 msgid "Could not parse file: %s"
-msgstr "Kon bestand niet verwerken: %s"
+msgstr "Kan bestand niet verwerken: %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:544
 msgid "%s is an empty file"
@@ -2867,11 +2868,11 @@ msgstr "%s is een leeg bestand"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:564
 msgid "Failed to parse link %s %s"
-msgstr "Link %s %s kan niet worden verwerkt"
+msgstr "Link %s %s kan niet verwerkt worden"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:608
 msgid "Cannot add link %s to TOC"
-msgstr "Link %s kan niet worden toegevoegd aan de inhoudsopgave"
+msgstr "Link %s niet aan de inhoudsopgave toevoegen"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:957
 msgid "Unable to process image %s. Error: %s"
@@ -2879,14 +2880,14 @@ msgstr "Niet mogelijk om afbeelding %s te verwerken. Foutmelding: %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1002
 msgid "Unable to process interlaced PNG %s"
-msgstr "Niet mogelijk om interlaced PNG-bestand %s te verwerken."
+msgstr "Kan interlaced PNG-bestand %s niet verwerken."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1017
 msgid ""
 "Could not process image: %s\n"
 "%s"
 msgstr ""
-"Kon afbeelding niet verwerken: %s\n"
+"Kan afbeelding niet verwerken: %s\n"
 "%s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1772
@@ -2894,7 +2895,7 @@ msgid ""
 "An error occurred while processing a table: %s. Ignoring table markup."
 msgstr ""
 "Een fout is opgetreden tijdens het verwerken van een tabel: %s. Tabelopmaak "
-"zal worden genegeerd."
+"zal genegeerd worden."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1774
 msgid ""
@@ -2910,11 +2911,11 @@ msgstr "Tabel heeft een cel die te groot is."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1862
 msgid "Could not read cover image: %s"
-msgstr "Kon omslag afbeelding kan lezen: %s"
+msgstr "Kan omslagafbeelding niet inlezen: %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1865
 msgid "Cannot read from: %s"
-msgstr "Kan niet lezen van: %s"
+msgstr "Kan niet van %s lezen"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1994
 msgid "Failed to process opf file"
@@ -2930,7 +2931,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrfparser.py:137
 msgid "Output LRS file"
-msgstr "Doel LRS-bestand"
+msgstr "Uitvoer LRS-bestand"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrfparser.py:139
 msgid "Do not save embedded image and font files to disk"
@@ -2938,11 +2939,11 @@ msgstr "Ingebedde afbeelding en lettertype niet bewaren op schijf"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrfparser.py:158
 msgid "Parsing LRF..."
-msgstr "LRF doorlopen..."
+msgstr "LRF verwerken…"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrfparser.py:161
 msgid "Creating XML..."
-msgstr "XML aanmaken..."
+msgstr "XML aanmaken…"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrfparser.py:163
 msgid "LRS written to "
@@ -2962,7 +2963,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrs/convert_from.py:288
 msgid "Path to output file"
-msgstr "Pad naar doelbestand"
+msgstr "Pad naar uitvoerbestand"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrs/convert_from.py:290
 msgid "Verbose processing"
@@ -2970,11 +2971,11 @@ msgstr "Verwerking met veel uitleg"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrs/convert_from.py:292
 msgid "Convert LRS to LRS, useful for debugging."
-msgstr "Converteer LRS naar LRS, handig om fouten op te sporen."
+msgstr "Zet LRS naar LRF om, handig om fouten op te sporen."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:457
 msgid "Invalid LRF file. Could not set metadata."
-msgstr "Ongeldig LRF-bestand. Kon metadata niet wegschrijven."
+msgstr "Ongeldig LRF-bestand. Metadata kunnen niet ingesteld worden."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:582
 msgid ""
@@ -2992,19 +2993,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:589
 msgid "Set the book title"
-msgstr "Geef boektitel"
+msgstr "Geef de boektitel op"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:591
 msgid "Set sort key for the title"
-msgstr "Geef sorteersleutel voor de titel"
+msgstr "Geef sorteersleutel voor de titel op"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:593
 msgid "Set the author"
-msgstr "Geef de schrijver"
+msgstr "Geef de auteur op"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:595
 msgid "Set sort key for the author"
-msgstr "Geef sorteersleutel voor de schrijver"
+msgstr "Geef sorteersleutel voor de auteur op"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:597
 msgid "The category this book belongs to. E.g.: History"
@@ -3013,8 +3014,8 @@ msgstr "De categorie waartoe dit boek behoord. B.v.: Geschiedenis"
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:600
 msgid "Path to a graphic that will be set as this files' thumbnail"
 msgstr ""
-"Pad naar de afbeelding die zal worden gebruikt als voorbeeldweergave voor "
-"dit bestand"
+"Pad naar de afbeelding die als pictogram voor dit bestand zal worden "
+"gebruikt."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:603
 msgid ""
@@ -3053,11 +3054,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:615
 msgid "Set book ID"
-msgstr "Geef ID boek"
+msgstr "Geef boek-ID op"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:90
 msgid "Enable autorotation of images that are wider than the screen width."
-msgstr "Roteer plaatjes die breder zijn dan het scherm automatisch."
+msgstr "Roteer afbeeldingen die breder dan het scherm zijn automatisch."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:94
 msgid "Set the space between words in pts. Default is %default"
@@ -3065,37 +3066,36 @@ msgstr "Stel de witruimte tussen woorden in, in pts. Standaard is %default"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:97
 msgid "Add a header to all the pages with title and author."
-msgstr ""
-"Voeg aan alle pagina's een kopregel toe met de titel en de schrijver."
+msgstr "Voeg aan alle pagina's een kopregel met de titel en de auteur toe."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:100
 msgid ""
 "Set the format of the header. %a is replaced by the author and %t by the "
 "title. Default is %default"
 msgstr ""
-"Stel het formaat van de kopregel in. %a wordt vervangen door de schrijver en "
-"%t door de titel. Standaard is %default"
+"Stel het formaat van de kopregel in. %a wordt vervangen door de auteur en %t "
+"door de titel. Standaard is %default"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:104
 msgid "Add extra spacing below the header. Default is %default pt."
 msgstr ""
-"Voeg extra witruimte toe onder de kopregel. Standaard is %default pt."
+"Voeg extra witruimte onder de kopregel toe. Standaard is %default pt."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:107
 msgid ""
 "Minimum paragraph indent (the indent of the first line of a paragraph) in "
 "pts. Default: %default"
 msgstr ""
-"Minimale alinea-inspringing (Inspringen van de eerste regel in een alinea) "
-"in pts. Standaard: %default"
+"Minimale alinea-inspringen (het inspringen van de eerste regel in een "
+"alinea) in pts. Standaard: %default"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:112
 msgid ""
 "Render tables in the HTML as images (useful if the document has large or "
 "complex tables)"
 msgstr ""
-"Genereer HTML-tabellen als afbeeldingen (nuttig als het document grote of "
-"complexe tabellen bevat)"
+"Teken HTML-tabellen als afbeeldingen. (Handig als het document grote of "
+"gecompliceerde tabellen bevat)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:117
 msgid ""
@@ -3107,15 +3107,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:121
 msgid "The serif family of fonts to embed"
-msgstr "De familie met schreef om toe te voegen"
+msgstr "De familie met serif-lettertypes om toe te voegen"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:124
 msgid "The sans-serif family of fonts to embed"
-msgstr "De sand-seriffamilie om toe te voegen"
+msgstr "De familie met sans-serif-lettertypes om toe te voegen"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:127
 msgid "The monospace family of fonts to embed"
-msgstr "De monospacefamilie om toe te voegen"
+msgstr "De familie met monospace-lettertypes om toe te voegen"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:152
 msgid "Comic"
@@ -3126,8 +3126,8 @@ msgid ""
 "Extract common e-book formats from archives (zip/rar) files. Also try to "
 "autodetect if they are actually cbz/cbr files."
 msgstr ""
-"Pak archiefbestanden (zip/rar) met veel voorkomende E-boekformaten uit. "
-"Controleer ook of het cbr/cbz-bestanden zijn."
+"Pak archiefbestanden(zip/rar) met standaard e-bookformaten uit. Probeer ook "
+"te detecteren of het cbr/cbz-bestanden zijn."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:51
 msgid "Value: unknown field "
@@ -3249,43 +3249,41 @@ msgid ""
 "silently ignored.\n"
 msgstr ""
 "\n"
-"Lees/Schrijf metadata van/naar E-boekbestanden.\n"
+"Lees/Schrijf metadata van/naar e-bookbestanden.\n"
 "\n"
 "Ondersteunde formaten voor het lezen van metadata: %s\n"
 "\n"
 "Ondersteunde formaten voor het schrijven van metadata: %s\n"
 "\n"
-"Verschillende bestandstypes ondersteunen verschillende soorten metadata.\n"
-"Als je probeert metadata in te stellen op een bestandstype dat deze "
-"metadata\n"
-"niet ondersteund, dan zal deze informatie zonder melding genegeerd worden.\n"
+"Verschillende bestandstypes ondersteunen verschillende soorten metadata. \n"
+"Als u probeert metadata in in te stellen op een bestandstype dat dit niet \n"
+"ondersteund zullen deze metadata genegeerd worden.\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:40
 msgid ""
 "Set the authors. Multiple authors should be separated by the & character. "
 "Author names should be in the order Firstname Lastname."
 msgstr ""
-"Geef de schrijvers op. Meerdere schrijvers moeten worden gescheiden met het "
-"& teken. schrijvers namen moeten in de volgorde Voornaam Achternaam worden "
-"opgegeven."
+"Geef de auteurs op. Meerdere auteurs moeten door het &-teken gescheiden "
+"worden. Auteursnamen moeten in de volgorde Achternaam Voornaam zijn."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:44
 msgid ""
 "The version of the title to be used for sorting. If unspecified, and the "
 "title is specified, it will be auto-generated from the title."
 msgstr ""
-"de versie van de titel die wordt gebruikt bij het sorteren. Als deze leeg is "
-"en de titel is opgegeven, dan zal deze automatisch worden gegenereerd aan de "
-"hand van de titel."
+"De versie van de titel die wordt gebruikt bij het sorteren. Als deze leeg is "
+"en de titel is opgegeven, dan zal dit automatisch aan de hand van de titel "
+"aangemaakt worden."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:48
 msgid ""
 "String to be used when sorting by author. If unspecified, and the author(s) "
 "are specified, it will be auto-generated from the author(s)."
 msgstr ""
-"Regel die wordt gebruikt bij het sorteren op schrijver. Als deze leeg is, en "
-"de schrijver(s) zijn opgegeven, dan zal deze automatisch worden gegenereerd "
-"aan de hand van de schrijver(s)."
+"Regel die wordt gebruikt bij het sorteren op auteur. Als deze leeg is, en de "
+"auteur(s) zijn opgegeven, dan zal dit automatisch aan de hand van de "
+"auteur(s) aangemaakt worden."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:52
 msgid "Set the cover to the specified file."
@@ -3297,19 +3295,19 @@ msgstr "Geef de boekcategorie op."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:74
 msgid "Set the published date."
-msgstr "Geef  de publicatiedatum."
+msgstr "Geef de publicatiedatum op."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:77
 msgid "Get the cover from the ebook and save it at as the specified file."
 msgstr ""
-"Extraheer de omslag uit het E-boek en sla deze op als het opgegeven bestand."
+"Haal de omslag van het e-book en sla deze op in het opgegeven bestand."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:80
 msgid ""
 "Specify the name of an OPF file. The metadata will be written to the OPF "
 "file."
 msgstr ""
-"Geef de naam van een OPF-bestand op. De metadata zullen in het OPF bestand "
+"Geef de naam van een OPF-bestand op. De metadata zullen in het OPF-bestand "
 "worden opgeslagen."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:83
@@ -3319,8 +3317,9 @@ msgid ""
 "from the OPF file"
 msgstr ""
 "Lees metadata uit het opgegeven OPF-bestand en gebruik deze om de metadata "
-"in het E-boek in te stellen. Metadata opgegeven op de commandoregel hebben "
-"voorrang boven de metadata die zich in het OPF-bestand bevinden."
+"in het e-book in te stellen. Metadata die op de opdrachtregel opgegeven "
+"worden hebben voorrang boven de metadata die zich in het OPF-bestand "
+"bevinden."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:88
 msgid "Set the BookID in LRF files"
@@ -3361,8 +3360,8 @@ msgstr ""
 "\n"
 "%prog [opties] ISBN\n"
 "\n"
-"Download omslag/sociale metadata voor het boek met ISBN van "
-"LibraryThing.com\n"
+"Haal een omslagafbeelding of sociale-metagegevens (labels, waarderingen, "
+"etc) voor het met ISBN-aangeduide boek op van LibraryThing.com\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1358
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1493
@@ -3377,7 +3376,7 @@ msgstr "Download metadata en omslagen van Amazon"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:395
 msgid "US"
-msgstr "US"
+msgstr "Verenigde Staten"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:396
 msgid "France"
@@ -3435,8 +3434,8 @@ msgid ""
 "To use isbndb.com you have to sign up for a free accountat isbndb.com and "
 "get an access key."
 msgstr ""
-"Om isbndb.com te gebruiken, moet je je aanmelden voor een gratis account op "
-"isbndb.com en een toegangssleutel krijgen."
+"Om isbndb.com te gebruiken, moet u zich aanmelden voor een gratis account op "
+"isbndb.com, om zo een toegangssleutel te krijgen."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/isbndb.py:42
 msgid ""
@@ -3444,14 +3443,14 @@ msgid ""
 "an isbndb key and enter it below. Instructions to get the key are <a "
 "href=\"http://isbndb.com/docs/api/30-keys.html\">here</a>."
 msgstr ""
-"Om metadata van isbndb.com te gebruiken, moet je je aanmelden voor een "
-"gratis account en een toegangssleutel krijgen. Vul deze hieronder in. "
-"Instructies kan je <a href=\"http://isbndb.com/docs/api/30-"
-"keys.html\">hier</a> vinden."
+"Om metadata van isbndb.com te gebruiken, moet u zich aanmelden voor een "
+"gratis account, om zo een toegangssleutel te krijgen. Vul deze hieronder in. "
+" Instructies kunt u <a href=\"http://isbndb.com/docs/api/30-"
+"keys.html\">hier</a> (Engelstalig) vinden."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/openlibrary.py:15
 msgid "Downloads covers from The Open Library"
-msgstr "Download omslagen van The Open Library"
+msgstr "Omslagen van The Open Library downloaden"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/overdrive.py:33
 msgid "Downloads metadata and covers from Overdrive's Content Reserve"
@@ -3459,12 +3458,13 @@ msgstr "Download metadata en omslagen van Overdrive's Content Reserve"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/overdrive.py:45
 msgid "Download all metadata (slow)"
-msgstr "Dowload alle metadata (langzaam)"
+msgstr "Alle metadata downloaden (langzaam)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/overdrive.py:46
 msgid "Enable this option to gather all metadata available from Overdrive."
 msgstr ""
-"Zet deze optie aan om alle metadata beschikbaar via Overdrive te ontvangen."
+"Zet deze optie aan om alle metadata die via Overdrive beschikbaar is op te "
+"vragen."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/overdrive.py:49
 msgid ""
@@ -3483,18 +3483,18 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:22
 msgid "Modify images to meet Palm device size limitations."
 msgstr ""
-"Bewerk afbeeldingen om binnen limieten van het Palmapparaat te blijven."
+"Bewerk afbeeldingen om binnen limieten van het Palm-apparaat te blijven."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:26
 msgid "When present, use author sort field as author."
-msgstr "Indien aanwezig, gebruik schrijvers sortering als schrijver."
+msgstr "Gebruik het auteurs-sorteerveld als auteur, wanneer dit aanwezig is."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:30
 msgid ""
 "Don't add Table of Contents to end of book. Useful if the book has its own "
 "table of contents."
 msgstr ""
-"Voeg geen inhoudsopgave toe aan het einde van het boek. Nuttig als het boek "
+"Voeg geen inhoudsopgave aan het einde van het boek toe. Handig als het boek "
 "al een eigen inhoudsopgave bevat."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:33
@@ -3528,7 +3528,7 @@ msgstr "Alle artikelen"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:274
 msgid "This is an Amazon Topaz book. It cannot be processed."
-msgstr "Dit is een Amazon Topaz boek. Het kan niet worden verwerkt."
+msgstr "Dit is een Amazon Topaz boek. Het kan niet verwerkt worden."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1494
 msgid "Title Page"
@@ -3563,7 +3563,7 @@ msgstr "Colofon"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1501
 msgid "Copyright"
-msgstr "Auteursrecht"
+msgstr "Copyright"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1502
 msgid "Dedication"
@@ -3609,7 +3609,7 @@ msgstr "Boek %s van %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/htmltoc.py:54
 msgid "HTML TOC generation options."
-msgstr "Opties generatie HTML-inhoudsopgave"
+msgstr "Opties voor aanmaken HTML-inhoudsopgave"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/jacket.py:169
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:70
@@ -3630,13 +3630,13 @@ msgstr "OPF/NCX/enz. aanmaak opties."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/writer.py:35
 msgid "OPF version to generate. Default is %default."
-msgstr "OPF-versie om te genereren. Standaard is %default."
+msgstr "Aan te maken OPF-versie. Standaard is %default."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/writer.py:37
 msgid ""
 "Generate an Adobe \"page-map\" file if pagination information is available."
 msgstr ""
-"Genereer een Adobe \"pagina-map\"-bestand als informatie over paginering "
+"Genereer een Adobe ‘pagina-map’-bestand als informatie over paginering "
 "beschikbaar is."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/reader132.py:128
@@ -3649,22 +3649,22 @@ msgstr "Zijpaneel"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/output.py:23
 msgid "Format to use inside the pdb container. Choices are:"
-msgstr "Formaat te gebruiken in de pdb-container. Keuzes zijn:"
+msgstr "Formaat voor binnen in de pdb-container. Keuzes zijn:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/output.py:27
 msgid ""
 "Specify the character encoding of the output document. The default is "
 "cp1252. Note: This option is not honored by all formats."
 msgstr ""
-"Specificeer de tekencodering van het uitvoerdocument. Standaard cp1252. NB: "
-"deze optie word niet nageleefd door alle formaten."
+"Specificeer de tekencodering van het uitvoerdocument. Standaard is cp1252. "
+"Deze optie word niet door alle formaten nageleefd."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/output.py:32
 #: /home/kovid/work/calibre/src/calibre/ebooks/pml/output.py:36
 #: /home/kovid/work/calibre/src/calibre/ebooks/rb/output.py:21
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:40
 msgid "Add Table of Contents to beginning of the book."
-msgstr "Voeg inhoudsopgave toe aan het begin van het boek."
+msgstr "Voeg inhoudsopgave aan het begin van het boek toe."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/input.py:24
 msgid "Do not extract images from the document"
@@ -3676,7 +3676,7 @@ msgid ""
 "Valid values are a decimal between 0 and 1. The default is 0.45, just below "
 "the median line length."
 msgstr ""
-"De schaal die gebruikt wordt voor het uitvouwen van een regel. Geldige "
+"De schaal die gebruikt wordt voor het samenvoegen van regels. Geldige "
 "waarden zijn decimalen tussen 0 en 1. Standaard is 0.45, net onder de "
 "gemiddelde regellengte."
 
@@ -3695,15 +3695,15 @@ msgid ""
 "\n"
 "Manipulate a PDF.\n"
 msgstr ""
-"commando ...\n"
+"opdracht ...\n"
 "\n"
-"commando can een van de volgende zijn:\n"
+"opdracht kan een van de volgende zijn:\n"
 "[%%commands]\n"
 "\n"
-"Gebruik %prog commando --help om meer informatie over een specifiek commando "
-"te verkrijgen\n"
+"Gebruik %prog commando --help om meer informatie over een specifieke "
+"opdracht te verkrijgen\n"
 "\n"
-"Manipuleer een PDF.\n"
+"Bewerk een PDF.\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:29
 msgid ""
@@ -3725,28 +3725,28 @@ msgstr ""
 msgid ""
 "Path to output file. By default a file is created in the current directory."
 msgstr ""
-"Pad naar uitvoerbestand. Standaard worden bestanden aangemaakt in de huidige "
-"map."
+"Pad naar uitvoerbestand. Standaard worden bestanden in de huidige map "
+"aangemaakt."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:41
 msgid "Number of pixels to crop from the left most x (default is %s)"
 msgstr ""
-"Aantal pixels om bij te snijden van de meest linker x (standaard is %s)"
+"Aantal pixels om bij te snijden bij de meest linkse x (standaard is %s)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:44
 msgid "Number of pixels to crop from the left most y (default is %s)"
 msgstr ""
-"Aantal pixels om bij te snijden van de meest linker y (standaard is %s)"
+"Aantal pixels om bij te snijden bij de meest linkse y (standaard is %s)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:47
 msgid "Number of pixels to crop from the right most x (default is %s)"
 msgstr ""
-"Aantal pixels om bij te snijden van de meest rechter x (standaard is %s)"
+"Aantal pixels om bij te snijden bij de meest rechtse x (standaard is %s)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:50
 msgid "Number of pixels to crop from the right most y (default is %s)"
 msgstr ""
-"Aantal pixels om bij te snijden van de meest rechter y (standaard is %s)"
+"Aantal pixels om bij te snijden bij de meest rechtse y (standaard is %s)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:53
 msgid ""
@@ -3769,7 +3769,7 @@ msgstr "Opties voor bijsnijden:"
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/rotate.py:53
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/split.py:61
 msgid "Options to control the transformation of pdf"
-msgstr "Opties betreffende de PDF-transformatie"
+msgstr "Opties voor het omzetten van PDFs"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/decrypt.py:23
 msgid ""
@@ -3834,7 +3834,7 @@ msgstr "Bestandsgrootte"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/info.py:52
 msgid "PDF Version"
-msgstr "PDF-Versie"
+msgstr "PDF-versie"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/merge.py:25
 msgid ""
@@ -3852,7 +3852,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/merge.py:56
 msgid "Merge Options:"
-msgstr "Opties samenvoegen:"
+msgstr "Opties voor samenvoegen:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/reverse.py:25
 msgid ""
@@ -3934,7 +3934,7 @@ msgid ""
 "specify the width and height. This overrides any specified paper-size."
 msgstr ""
 "Aangepaste afmetingen van het document. Gebruik het formaat BreedtexHoogte, "
-"bijvoorbeeld `123x321` om de breedte en hoogte te specificeren. Dit neemt "
+"bijvoorbeeld ‘123x321’ om de breedte en hoogte te specificeren. Dit heeft "
 "voorrang over een gespecificeerd papierformaat."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:45
@@ -3947,12 +3947,12 @@ msgid ""
 "Preserve the aspect ratio of the cover, instead of stretching it to fill the "
 "full first page of the generated pdf."
 msgstr ""
-"Behoud lengte/breedteverhouding van de omslag in plaats van hem uit te "
-"rekken tot de volledige grootte van de voortgebrachte pdf."
+"Behoud lengte/breedteverhouding van de omslag in plaats van deze uit te "
+"rekken tot de volledige grootte van de PDF."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/pdftohtml.py:57
 msgid "Could not find pdftohtml, check it is in your PATH"
-msgstr "Kon pdftohtml niet vinden, controleer of het in je zoekpad zit."
+msgstr "Kan pdftohtml niet vinden, controleer of het in uw PATH aanwezig is."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pml/output.py:32
 msgid ""
@@ -3987,7 +3987,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/rtf2xml/hex_2_utf8.py:296
 msgid "error no state found in hex_2_utf8"
-msgstr "Fout: geen toestand gevonden in hex_2_utf8"
+msgstr "Fout: geen state gevonden in hex_2_utf8"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:25
 #: /home/kovid/work/calibre/src/calibre/ebooks/tcr/output.py:23
@@ -4106,7 +4106,7 @@ msgid ""
 "all spaces will be displayed."
 msgstr ""
 "Normaal worden alle meervoudige spaties door een enkele spatie vervangen. "
-"Met deze optie zullen alle spaties zichtbaar gemaakt worden."
+"Met deze optie zullen alle spaties zichtbaar blijven."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/input.py:56
 msgid ""
@@ -4126,10 +4126,10 @@ msgid ""
 "for compatibility with Mac OS 9 and earlier. For Mac OS X use 'unix'. "
 "'system' will default to the newline type used by this OS."
 msgstr ""
-"Te gebruiken nieuweregelteken. Opties zijn %s. Standaard is 'system'. "
-"Gebruik 'old_mac' voor compatibiliteit met Mac OS 9 en ouder. Voor Mac OS X "
-"gebruik 'unix'. 'system' zal standaard het nieuweregelteken gebruiken dat "
-"standaard is op dit besturingssysteem."
+"Te gebruiken nieuweregelteken. Opties zijn %s. Standaard is ‘system’. "
+"Gebruik ‘old_mac’ voor compatibiliteit met Mac OS 9 en ouder. Gebruik "
+"gebruik ‘unix’ voor Mac OS X. ‘system’ zal standaard het nieuweregelteken "
+"van het huidige besturingssysteem gebruiken."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:50
 msgid ""
@@ -4137,7 +4137,7 @@ msgid ""
 "allows max-line-length to be below the minimum"
 msgstr ""
 "Forceer splitsen op de maximale regellengte wanneer er geen spatie is. Dit "
-"staat ook toe een maximale regel lengte te gebruiken die onder de "
+"staat ook toe een maximale regellengte te gebruiken die onder de "
 "minimumwaarde ligt."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:55
@@ -4189,12 +4189,12 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:104
 msgid "Send file to storage card instead of main memory by default"
 msgstr ""
-"Stuur bestand standaard naar de externe opslagruimte in plaats van het "
+"Stuur bestand standaard naar de externe opslag in plaats van het "
 "hoofdgeheugen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:106
 msgid "Confirm before deleting"
-msgstr "Bevestig alvorens te verwijderen"
+msgstr "Vraag om bevestiging bij verwijderen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:108
 msgid "Main window geometry"
@@ -4222,7 +4222,7 @@ msgstr "Aantal weer te geven boekomslagen in omslagbladermodus"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:120
 msgid "Defaults for conversion to LRF"
-msgstr "Standaarden voor conversie naar LRF"
+msgstr "Standaarden voor omzetten naar LRF"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:122
 msgid "Options for the LRF ebook viewer"
@@ -4230,7 +4230,7 @@ msgstr "Opties voor de LRF E-boek lezer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:125
 msgid "Formats that are viewed using the internal viewer"
-msgstr "Formaten die worden bekeken met de interne viewer"
+msgstr "Formaten die met de interne viewer worden bekeken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:127
 msgid "Columns to be displayed in the book list"
@@ -4254,7 +4254,7 @@ msgstr "Upload gedownload nieuws naar apparaat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:134
 msgid "Delete books from library after uploading to device"
-msgstr "Verwijder boeken van bibliotheek na uploaden naar apparaat"
+msgstr "Verwijder boeken uit bibliotheek na uploaden naar apparaat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:136
 msgid ""
@@ -4277,8 +4277,8 @@ msgid ""
 "Start searching as you type. If this is disabled then search will only take "
 "place when the Enter or Return key is pressed."
 msgstr ""
-"Zoeken start tijdens het intypen. Als dit uit staat dan begint zoeken pas "
-"als de Enter- of Returntoets ingedrukt wordt."
+"Begin tijdens het intypen met zoeken. Als dit uit staat begint het zoeken "
+"pas als de Enter- of Returntoets wordt ingedrukt."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:148
 msgid ""
@@ -4287,8 +4287,8 @@ msgid ""
 "match."
 msgstr ""
 "Toon alle boeken, met zoekresultaten oplichtend, in plaats van alleen de "
-"zoekresultaten bij het zoeken. Met de N- of de F3-toets kan je naar het "
-"volgende zoekresultaat."
+"zoekresultaten bij het zoeken. Met de N- of de F3-toets kunt u naar het "
+"volgende zoekresultaat springen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:166
 msgid ""
@@ -4308,12 +4308,11 @@ msgstr "Overschrijf schrijver en titel met nieuwe metadata"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:174
 msgid "Automatically download the cover, if available"
-msgstr "Download de omslag automatisch als deze er is"
+msgstr "Download de omslag automatisch, als deze er is"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:176
 msgid "Limit max simultaneous jobs to number of CPUs"
-msgstr ""
-"Beperk maximaal aantal tegelijktijdige processen tot het aantal CPU's"
+msgstr "Beperk maximaal aantal gelijktijdige processen tot het aantal CPU's"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:178
 msgid "The layout of the user interface"
@@ -4325,7 +4324,7 @@ msgstr "Toon de gemiddelde waardering per item in de labelbrowser"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:182
 msgid "Disable UI animations"
-msgstr "Blokkeer GUI-animaties"
+msgstr "GUI-animaties uitschakelen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:187
 msgid "tag browser categories not to display"
@@ -4333,7 +4332,7 @@ msgstr "categorieën om te verbergen in de labelbrowser"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:462
 msgid "Choose Files"
-msgstr "Kies bestanden"
+msgstr "Bestanden kiezen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:29
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:621
@@ -4382,16 +4381,16 @@ msgstr "Stripverhalen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:40
 msgid "Archives"
-msgstr "Archief"
+msgstr "Archieven"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:47
 msgid "Add books"
-msgstr "Voeg boeken toe"
+msgstr "Boeken toevoegen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:48
 msgid "Add books to the calibre library/device from files on your computer"
 msgstr ""
-"Voeg boeken uit computerbestanden toe aan de calibrebibliotheek/apparaat"
+"Boeken uit bestanden aan de calibrebibliotheek of het apparaat toevoegen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:49
 msgid "A"
@@ -4399,7 +4398,7 @@ msgstr "A"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:55
 msgid "Add books from a single directory"
-msgstr "Voeg boeken toe uit een enkele map"
+msgstr "Boeken toe uit een enkele map toevoegen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:57
 msgid ""
@@ -4427,11 +4426,11 @@ msgstr "Shift+Ctrl+E"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:67
 msgid "Add from ISBN"
-msgstr "Toevoegen met behulp van ISBN"
+msgstr "Aan de hand van ISBN toevoegen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:69
 msgid "Add files to selected book records"
-msgstr "Voeg bestanden toe aan geselecteerde boekrecords"
+msgstr "Voeg bestanden aan geselecteerde boekrecords toe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:70
 msgid "Shift+A"
@@ -4439,7 +4438,7 @@ msgstr "Shift+A"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:90
 msgid "Are you sure"
-msgstr "Ben je zeker?"
+msgstr "Weet u het zeker?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:91
 msgid ""
@@ -4472,7 +4471,7 @@ msgstr "Ondersteunde boeken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:291
 msgid "Select books"
-msgstr "Kies boeken"
+msgstr "Boeken kiezen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:329
 msgid "Merged some books"
@@ -4500,7 +4499,7 @@ msgstr "Metadata lezen mislukt voor de volgende"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:376
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:395
 msgid "Add to library"
-msgstr "Aan collectie toevoegen"
+msgstr "Aan bibliotheek toevoegen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:376
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:127
@@ -4517,8 +4516,8 @@ msgstr "Geen boek geselecteerd"
 msgid ""
 "The following books are virtual and cannot be added to the calibre library:"
 msgstr ""
-"De volgende boeken zijn virtueel en kunnen niet toegevoegd worden aan de "
-"calibrebibliotheek:"
+"De volgende boeken zijn virtueel en kunnen niet aan de calibre-bibliotheek "
+"toegevoegd worden:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:395
 msgid "No book files found"
@@ -4526,11 +4525,12 @@ msgstr "Geen boekbestanden gevonden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add_to_library.py:13
 msgid "Add books to library"
-msgstr "Voeg boeken toe aan de bibliotheek"
+msgstr "Voeg boeken aan de bibliotheek toe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add_to_library.py:14
 msgid "Add books to your calibre library from the connected device"
-msgstr "Voeg boeken op je aangesloten apparaat toe aan de calibrebibliotheek"
+msgstr ""
+"Voeg boeken van uw aangesloten apparaat aan de calibrebibliotheek toe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:20
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:543
@@ -4548,7 +4548,7 @@ msgstr "Ophalen van annotaties wordt niet ondersteund voor dit apparaat"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:61
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:245
 msgid "Use library only"
-msgstr "Gebruik alleen de bibliotheek"
+msgstr "Alleen de bibliotheek gebruiken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:62
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:246
@@ -4608,7 +4608,7 @@ msgstr "Geen boeken gesecteerd voor cataloguscreatie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:57
 msgid "Generating %s catalog..."
-msgstr "Genereren catalogus %s"
+msgstr "Catalogus %s genereren…"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:81
 msgid "Catalog generated."
@@ -4620,7 +4620,7 @@ msgstr "Exporteer catalogusmap"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:85
 msgid "Select destination for %s.%s"
-msgstr "Selecteer uitvoer voor %s.%s"
+msgstr "Selecteer locatie voor %s.%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:81
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:57
@@ -4631,11 +4631,11 @@ msgstr "%d boeken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:82
 msgid "Choose calibre library to work with"
-msgstr "Kies een calibrebibliotheek om mee te werken"
+msgstr "Kies een calibre-bibliotheek om mee te werken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:94
 msgid "Switch/create library..."
-msgstr "Verwissel/maak bibliotheek..."
+msgstr "Verwissel/maak bibliotheek…"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:105
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:87
@@ -4650,7 +4650,7 @@ msgstr "Hernoem bibliotheek"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:109
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:89
 msgid "Delete library"
-msgstr "Verwijder bibliotheek"
+msgstr "Bibliotheek verwijderen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:112
 msgid "Pick a random book"
@@ -4670,7 +4670,7 @@ msgstr "Start backup van metadata van alle boeken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:141
 msgid "Check library"
-msgstr "Controleer bibliotheek"
+msgstr "Bibliotheek controleren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:145
 msgid "Restore database"
@@ -4678,7 +4678,7 @@ msgstr "Database terugzetten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:220
 msgid "Rename"
-msgstr "Hernoem"
+msgstr "Hernoemen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:221
 msgid "Choose a new name for the library <b>%s</b>. "
@@ -4687,7 +4687,7 @@ msgstr "Kies een nieuwe naam voor bibliotheek <b>%s</b>. "
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:222
 msgid "Note that the actual library folder will be renamed."
 msgstr ""
-"Let erop dat de feitelijke map van de bibliotheek zal worden hernoemd."
+"Let erop dat de daadwerkelijke map van de bibliotheek hernoemd zal worden."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:229
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:199
@@ -4697,7 +4697,7 @@ msgstr "Bestaat al"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:230
 msgid "The folder %s already exists. Delete it first."
-msgstr "Map %s bestaat al. Verwijder deze eerst."
+msgstr "De map %s bestaat al. Verwijder deze eerst."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:236
 msgid "Rename failed"
@@ -4708,9 +4708,9 @@ msgid ""
 "Failed to rename the library at %s. The most common cause for this is if one "
 "of the files in the library is open in another program."
 msgstr ""
-"Het is niet gelukt de bibliotheek te hernoemen naar %s. De meest voorkomende "
-"oorzaak hiervan is dat een van de bestanden in de bibliotheek is geopend in "
-"een ander programma."
+"Het is niet gelukt de bibliotheek naar %s te hernoemen. De meest voorkomende "
+"oorzaak hiervan is dat een van de bestanden in de bibliotheek door een ander "
+"programma in gebruik is."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:248
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:30
@@ -4723,7 +4723,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:279
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:242
 msgid "Are you sure?"
-msgstr "Weet je het zeker?"
+msgstr "Weet u het zeker?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:249
 msgid ""
@@ -4755,8 +4755,8 @@ msgid ""
 "Metadata will be backed up while calibre is running, at the rate of "
 "approximately 1 book every three seconds."
 msgstr ""
-"Metadata worden geback-upt terwijl calibre loopt aan een tempo van zowat 1 "
-"boek per drie seconden."
+"Er kan een backup van metadata gemaakt worden terwijl calibre actief is, met "
+"een snelheid van ongeveer één boek per drie seconden."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:311
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:106
@@ -4771,9 +4771,9 @@ msgid ""
 "Found no errors in your calibre library database. Do you want calibre to "
 "check if the files in your  library match the information in the database?"
 msgstr ""
-"Geen fouten gevonden in de databank van de calibrebibliotheek. Moet calibre "
+"Geen fouten gevonden in de database van de calibre-bibliotheek. Moet calibre "
 "controleren of de bestanden in de bibliotheek overeenkomen met informatie in "
-"de databank?"
+"de database?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:317
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:150
@@ -4808,8 +4808,8 @@ msgid ""
 "No existing calibre library was found at %s. It will be removed from the "
 "list of known libraries."
 msgstr ""
-"Geen bestaande calibrebibliotheek gevonden op %s. Wordt verwijderd van de "
-"lijst van bestaande bibliotheken."
+"Geen bestaande calibre-bibliotheek op %s gevonden. Deze wordt verwijderd van "
+"de lijst van bestaande bibliotheken."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:400
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:405
@@ -4838,7 +4838,7 @@ msgstr "C"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:22
 msgid "Convert books"
-msgstr "Converteer boeken"
+msgstr "Boeken converteren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:28
 msgid "Convert individually"
@@ -4864,7 +4864,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:83
 msgid "Copy to library"
-msgstr "Kopieer naar bibliotheek"
+msgstr "Naar bibliotheek kopieren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:84
 msgid "Copy selected books to the specified library"
@@ -4897,7 +4897,7 @@ msgstr "Kon boeken niet kopiëren: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:153
 msgid "Copied %d books to %s"
-msgstr "%d boeken gekopieerd naar %s"
+msgstr "%d boeken naar %s gekopieerd"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:168
 msgid ""
@@ -4919,7 +4919,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:42
 msgid "Deleting..."
-msgstr "Verwijderen..."
+msgstr "Verwijderen…"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:65
 msgid "Deleted"
@@ -4951,11 +4951,11 @@ msgstr "Verwijder geselecteerde boeken"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:92
 msgid "Remove files of a specific format from selected books.."
 msgstr ""
-"Verwijder bestanden in een specifiek formaat van de geselecteerde boeken.."
+"Verwijder bestanden in een specifiek formaat van de geselecteerde boeken…"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:95
 msgid "Remove all formats from selected books, except..."
-msgstr "Verwijder alle formaten van de geselecteerde boeken, behalve..."
+msgstr "Verwijder alle formaten van de geselecteerde boeken, behalve…"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:98
 msgid "Remove covers from selected books"
@@ -4975,7 +4975,7 @@ msgstr "Kies formaten om te verwijderen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:155
 msgid "Choose formats <b>not</b> to be deleted"
-msgstr "Kies formaten die <b>niet</b> moeten worden verwijderd"
+msgstr "Kies formaten die <b>niet</b> verwijderd moeten worden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:175
 msgid "Cannot delete books"
@@ -5028,8 +5028,8 @@ msgid ""
 "from your calibre library. Are you sure?"
 msgstr ""
 "De geselecteerde boeken zullen <b>definitief verwijderd</b> worden en de "
-"bestanden zullen worden verwijderd uit je calibrebibliotheek. Wil je dit "
-"echt?"
+"bestanden zullen uit de calibre-bibliotheek verwijderd worden. Weet u het "
+"zeker?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:294
 msgid ""
@@ -5041,15 +5041,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:31
 msgid "Connect to folder"
-msgstr "Verbind met map"
+msgstr "Met map verbinden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:36
 msgid "Connect to iTunes"
-msgstr "Verbind met iTunes"
+msgstr "Met iTunes verbinden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:42
 msgid "Connect to Bambook"
-msgstr "Verbind met Bambook"
+msgstr "Met Bambook verbinden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:56
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:64
@@ -5087,7 +5087,7 @@ msgstr "Stuur naar apparaat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:141
 msgid "Connect/share"
-msgstr "Verbind/deel"
+msgstr "Verbinden/delen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:178
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:79
@@ -5097,11 +5097,12 @@ msgstr "Stoppen"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:179
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:80
 msgid "Stopping server, this could take upto a minute, please wait..."
-msgstr "Server wordt gestopt, dit kan tot een minuut duren. Wachten aub."
+msgstr ""
+"Server wordt gestopt, dit kan tot een minuut duren. Een moment geduld…"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_collections.py:13
 msgid "Manage collections"
-msgstr "Bewerk collecties"
+msgstr "Collecties beheren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_collections.py:14
 msgid "Manage the collections on this device"
@@ -5113,7 +5114,7 @@ msgstr "E"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:24
 msgid "Edit metadata"
-msgstr "Bewerk metadata"
+msgstr "Metadata bewerken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:28
 msgid "Merge book records"
@@ -5286,7 +5287,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:455
 msgid "Applying changed metadata"
-msgstr "Gewijzigde metadata toepassen"
+msgstr "Wijzigingen in metadata toepassen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:520
 msgid "Some failures"
@@ -5306,7 +5307,7 @@ msgstr "F"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/fetch_news.py:19
 msgid "Fetch news"
-msgstr "Download nieuws"
+msgstr "Nieuws downloaden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/fetch_news.py:54
 msgid "Fetching news from "
@@ -5335,7 +5336,7 @@ msgstr "Ga naar volgende overeenkomst"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/next_match.py:13
 msgid "Move to next highlighted match"
-msgstr "Ga naar volgende oplichtende overeenkomst"
+msgstr "Ga naar volgende gemarkeerde overeenkomst"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/next_match.py:13
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:388
@@ -5353,7 +5354,7 @@ msgstr "Ga naar vorig item"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/next_match.py:26
 msgid "Move to previous highlighted item"
-msgstr "Ga naar vorig oplichtend item"
+msgstr "Ga naar vorig gemarkeerd item"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/next_match.py:26
 msgid "Shift+N"
@@ -5366,7 +5367,7 @@ msgstr "Shift+F3"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/open.py:14
 msgid "Open containing folder"
-msgstr "Open betreffende map"
+msgstr "Bijbehorende map openen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/open.py:15
 msgid "O"
@@ -5387,7 +5388,7 @@ msgstr "Start de verwelkomingsassistent"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:29
 msgid "Restart in debug mode"
-msgstr "Herstart in debugmodus"
+msgstr "Herstart in debug-modus"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:44
 msgid "Cannot configure while there are running jobs."
@@ -5409,7 +5410,7 @@ msgstr "Ctrl+R"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:24
 msgid "Save single format to disk..."
-msgstr "Bewaar enkel formaat op schijf..."
+msgstr "Bewaar enkel formaat op schijf…"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:40
 msgid "S"
@@ -5418,11 +5419,11 @@ msgstr "S"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:40
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:46
 msgid "Save to disk"
-msgstr "Opslaan op schijf"
+msgstr "Op schijf opslaan"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:48
 msgid "Save to disk in a single directory"
-msgstr "Opslaan op schijf in een enkele map"
+msgstr "In één enkele map op schijf opslaan"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:50
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:69
@@ -5467,12 +5468,12 @@ msgstr "Kon sommige boeken niet opslaan"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:146
 msgid "Click the show details button to see which ones."
-msgstr "Klik de \"Toon details\"-knop om te zien welke."
+msgstr "Klik op ‘Toon details’ om die boeken te zien."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/show_book_details.py:16
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:766
 msgid "Show book details"
-msgstr "Laat boekdetails zien"
+msgstr "Boekdetails tonen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/show_book_details.py:17
 msgid "I"
@@ -5488,7 +5489,7 @@ msgstr "Geen details zijn beschikbaar voor de boeken op het apparaat."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:17
 msgid "Similar books..."
-msgstr "Vergelijkbare boeken"
+msgstr "Vergelijkbare boeken…"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:24
 msgid "Alt+A"
@@ -5524,7 +5525,7 @@ msgstr "Boeken met dezelfde labels"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:20
 msgid "Get books"
-msgstr "Krijg boeken"
+msgstr "Boeken verkrijgen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:29
 msgid "Search for ebooks"
@@ -5600,7 +5601,7 @@ msgstr "Bericht nogmaals tonen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:149
 msgid "About Get Books"
-msgstr "Over boeken ontvangen"
+msgstr "Over boeken verkrijgen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:15
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:60
@@ -5630,11 +5631,11 @@ msgstr "V"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:36
 msgid "View"
-msgstr "Bekijk"
+msgstr "Tonen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:43
 msgid "View specific format"
-msgstr "Bekijk specifiek formaat"
+msgstr "Toon specifiek formaat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:51
 msgid "Read a random book"
@@ -5642,13 +5643,13 @@ msgstr "Lees een willekeurig boek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:55
 msgid "Clear recently viewed list"
-msgstr "Wis lijst \"recent bekeken\""
+msgstr "Wis lijst recent bekeken boeken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:139
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:219
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:226
 msgid "Cannot view"
-msgstr "Kan niet bekijken"
+msgstr "Kan niet tonen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:152
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:166
@@ -5657,7 +5658,7 @@ msgstr "Formaat niet beschikbaar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:153
 msgid "Selected books have no formats"
-msgstr "Geselecteerde boeken hebben geen formaten"
+msgstr "Geselecteerde boeken hebben geen formaat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:155
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:127
@@ -5669,7 +5670,7 @@ msgid ""
 "Not all the selected books were available in the %s format. You should "
 "convert them first."
 msgstr ""
-"Niet alle geselecteerde boeken waren beschikbaar in %s-formaat. Je zult ze "
+"Niet alle geselecteerde boeken zijn in %s-formaat beschikbaar. U zult deze "
 "eerst moeten converteren."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:174
@@ -5683,10 +5684,10 @@ msgid ""
 "started the process cannot be stopped until complete. Do you wish to "
 "continue?"
 msgstr ""
-"Je probeert %d boeken te openen. Te veel boeken tegelijkertijd openen kan "
-"veel tijd in beslag nemen, en een negatief effect op de kwiekheid van je "
-"computer. Eenmaal gestart kan dit proces niet worden afgebroken totdat het "
-"klaar is. Wil je verder gaan?"
+"U probeert %d boeken tegelijk te openen. Te veel boeken tegelijkertijd "
+"openen kan veel tijd in beslag nemen, en een negatief effect op de snelheid "
+"van uw computer hebben. Eenmaal gestart kan dit proces niet worden "
+"afgebroken totdat het klaar is. Wilt u verder gaan?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:184
 msgid "Cannot open folder"
@@ -5694,11 +5695,11 @@ msgstr "Kan map niet openen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:220
 msgid "This book no longer exists in your library"
-msgstr "Dit boek bestaat niet meer in je bibliotheek"
+msgstr "Dit boek bestaat niet meer in uw bibliotheek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:227
 msgid "%s has no available formats."
-msgstr "%s heeft geen beschikbare formaten"
+msgstr "%s heeft geen beschikbare formaten."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:68
 msgid "Searching in"
@@ -5706,11 +5707,11 @@ msgstr "Zoek in"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:245
 msgid "Adding..."
-msgstr "Toevoegen..."
+msgstr "Toevoegen…"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:258
 msgid "Searching in all sub-directories..."
-msgstr "Zoeken in alle deelmappen..."
+msgstr "Zoeken in alle deelmappen…"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:269
 msgid "Path error"
@@ -5742,9 +5743,9 @@ msgid ""
 "The add books process seems to have hung. Try restarting calibre and adding "
 "the books in smaller increments, until you find the problem book."
 msgstr ""
-"Het proces om boeken toe te voegen antwoordt niet meer. Probeer calibre "
-"opnieuw op te starten, en voeg daarna boeken toe in kleinere aantallen tot "
-"je het probleemboek hebt gevonden."
+"Het proces om boeken toe te voegen reageert niet meer. Probeer calibre "
+"opnieuw op te starten, en voeg daarna boeken een voor een toe, totdat u het "
+"verantwoordelijke boek hebt gevonden."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:368
 msgid "Duplicates found!"
@@ -5760,11 +5761,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:372
 msgid "Adding duplicates..."
-msgstr "Toevoegen duplicaten..."
+msgstr "Toevoegen duplicaten…"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:441
 msgid "Saving..."
-msgstr "Opslaan..."
+msgstr "Opslaan…"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:516
 msgid "Saved"
@@ -5772,15 +5773,15 @@ msgstr "Opgeslagen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/__init__.py:56
 msgid "Searching for sub-folders"
-msgstr "Zoeken naar deelmappen"
+msgstr "Naar deelmappen zoeken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/__init__.py:61
 msgid "Searching for books"
-msgstr "Zoeken naar boeken"
+msgstr "Naar boeken zoeken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/__init__.py:73
 msgid "Looking for duplicates based on file hash"
-msgstr "Zoeken naar dubbele bestanden gebaseerd op file hash"
+msgstr "Zoeken naar dubbele bestanden gebaseerd op bestand-hash"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/__init__.py:108
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:70
@@ -5797,7 +5798,7 @@ msgstr "is geen geldige hoofdmap"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/__init__.py:146
 msgid "Add books to calibre"
-msgstr "Voeg boeken toe aan calibre"
+msgstr "Voeg boeken aan calibret oe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/scan_ui.py:26
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:62
@@ -5822,7 +5823,7 @@ msgstr "Kies de lokatie waaruit boeken moeten worden toegevoegd"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:64
 msgid "Select a folder on your hard disk"
-msgstr "Selecteer een map op je harde schijf"
+msgstr "Selecteer een map op uw harde schijf"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:65
 msgid ""
@@ -5909,7 +5910,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:139
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:191
 msgid "..."
-msgstr "..."
+msgstr "…"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:72
 msgid "Handle multiple files per book"
@@ -5953,16 +5954,16 @@ msgstr "Collecties"
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:246
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:243
 msgid "Paste Cover"
-msgstr "Plak omslag"
+msgstr "Omslag plakken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:247
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:244
 msgid "Copy Cover"
-msgstr "Kopieer omslag"
+msgstr "Omslag kopieren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:513
 msgid "Double-click to open Book Details window"
-msgstr "Dubbelklikken om de boekdetails te zien"
+msgstr "Klik dubbel om de boekdetails te zien"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:514
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/delete_matching_from_device.py:76
@@ -6128,7 +6129,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_csv_xml.py:16
 msgid "CSV/XML Options"
-msgstr "Opties CSV/XML"
+msgstr "CSV/XML-opties"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:18
 msgid "E-book options"
@@ -6221,7 +6222,7 @@ msgstr "Uitsluitingspatroon"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:318
 msgid "Matching books will be displayed with a check mark"
-msgstr "Overeenkomstige boeken worden aangeduid met een vinkje"
+msgstr "Overeenkomstige boeken worden met een vinkje aangeduid"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:319
 msgid "Read books"
@@ -6229,11 +6230,11 @@ msgstr "Gelezen boeken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:321
 msgid "Column containing 'read' status"
-msgstr "Kolom met de 'gelezen' status"
+msgstr "Kolom met de ‘gelezen’-status"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:322
 msgid "'read book' pattern"
-msgstr "'gelezen boek'-patroon"
+msgstr "‘gelezen boek’-patroon"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:323
 msgid "Other options"
@@ -6245,7 +6246,7 @@ msgstr "&Wensen/Verlanglijstlabel"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:325
 msgid "Books tagged as Wishlist items will be displayed with an X"
-msgstr "Boeken met het label voor verlanglijst worden getoond met een 'X'"
+msgstr "Boeken met het label voor verlanglijst worden met een ‘X’ getoond"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:326
 msgid "&Thumbnail width"
@@ -6301,11 +6302,11 @@ msgstr "Scheid commentaar en bijkomende inhoud met horizontale lijn"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:338
 msgid "&Separator"
-msgstr "&Splitter"
+msgstr "&Scheidingsteken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_tab_template_ui.py:33
 msgid "Tab template for catalog.ui"
-msgstr "Sjabloon tab voor catalog.ui"
+msgstr "Sjabloon-tabblad voor catalog.ui"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:69
 msgid "Bold"
@@ -6370,16 +6371,16 @@ msgstr "Verwijder opmaak"
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:96
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:134
 msgid "Copy"
-msgstr "Kopieer"
+msgstr "Kopieren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:97
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:136
 msgid "Paste"
-msgstr "Plak"
+msgstr "Plakken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:98
 msgid "Cut"
-msgstr "Knip"
+msgstr "Knippen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:100
 msgid "Increase Indentation"
@@ -6391,7 +6392,7 @@ msgstr "Inspringen verkleinen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:104
 msgid "Select all"
-msgstr "Selecteer alles"
+msgstr "Alles selecteren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:109
 msgid "Foreground color"
@@ -6423,7 +6424,7 @@ msgstr "Standaard"
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:130
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:131
 msgid "Heading"
-msgstr "Hoofding"
+msgstr "Titel"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:132
 msgid "Pre-formatted"
@@ -6461,7 +6462,7 @@ msgstr "Koppeling maken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:173
 msgid "Enter URL"
-msgstr "Geef URL"
+msgstr "Geef URL op"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:523
 msgid "Normal view"
@@ -6571,7 +6572,7 @@ msgstr "Over&schrijf grootte afbeelding:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:118
 msgid "Don't add links to &pages to the Table of Contents for CBC files"
-msgstr "Voeg geen &paginalinks aan de inhoudsopgave toe voor CBC-bestanden"
+msgstr "Voeg geen &paginalinks aan de inhoudsopgave van CBC-bestanden toe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug.py:19
 msgid "Debug"
@@ -6592,7 +6593,7 @@ msgstr "Ongeldige map voor foutopsporing"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug.py:59
 msgid "Failed to create debug directory"
-msgstr "Foutopsporingsmap kan niet worden aangemaakt"
+msgstr "Foutopsporingsmap kan niet aangemaakt worden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug_ui.py:55
 msgid ""
@@ -6618,7 +6619,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output.py:15
 msgid "EPUB Output"
-msgstr "EPUB-Uitvoer"
+msgstr "EPUB-uitvoer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:57
 msgid "Do not &split on page breaks"
@@ -6773,7 +6774,7 @@ msgstr "Heuristische verwerking"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:116
 msgid "Unwrap lines"
-msgstr "Plak lijnen achter elkaar"
+msgstr "Regels samenvoegen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:117
 msgid "Line &un-wrap factor :"
@@ -6854,7 +6855,7 @@ msgstr "Basis a&fmeting lettergrootte:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:142
 msgid "Wizard to help you choose an appropriate font size key"
-msgstr "Wizard om je te helpen een geschikte lettergrootte te kiezen"
+msgstr "Wizard die u helpt een geschikte lettergrootte te kiezen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:144
 msgid "Line &height:"
@@ -6908,11 +6909,11 @@ msgstr "Lege regel toevoegen (&bijwerken)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:156
 msgid "Keep &ligatures"
-msgstr "Bewaar &ligaturen"
+msgstr "&Ligaturen behouden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:157
 msgid "Smarten &punctuation"
-msgstr "Slimme inter&punctie"
+msgstr "Inter&punctie verbeteren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:158
 msgid "Minimum &line height:"
@@ -6928,7 +6929,7 @@ msgstr "LRF-uitvoer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:121
 msgid "Enable &autorotation of wide images"
-msgstr "Activeer &autorotatie van brede afbeeldingen"
+msgstr "&Autorotatie van brede afbeeldingen inschakelen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:122
 msgid "&Wordspace:"
@@ -6964,7 +6965,7 @@ msgstr "Voeg l&ettertypen toe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:133
 msgid "&Serif font family:"
-msgstr "Lettertype met &schreef:"
+msgstr "Lettertypes uit de &Serif-familie:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:134
 msgid "S&ans-serif font family:"
@@ -7094,7 +7095,7 @@ msgstr "Reek&s:"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:546
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:376
 msgid "List of known series. You can add new series."
-msgstr "Lijst van bekende reeksen. Je kunt nieuwe reeksen toevoegen."
+msgstr "Lijst van bekende reeksen. U kunt nieuwe reeksen toevoegen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:175
 msgid "Book "
@@ -7115,7 +7116,7 @@ msgstr "&Titel voor inhoudsopgave:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:76
 msgid "Rescale images for &Palm devices"
-msgstr "Afbeeldingen herschalen voor &Palmapparaten"
+msgstr "Afbeeldingen herschalen voor &Palm-apparaten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:77
 msgid "Use author &sort for author"
@@ -7306,7 +7307,7 @@ msgstr "Volge&nde"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder_ui.py:98
 msgid "Preview"
-msgstr "Vooraf bekijken"
+msgstr "Preview"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:17
 msgid ""
@@ -7314,9 +7315,9 @@ msgid ""
 "&\n"
 "Replace"
 msgstr ""
-"Zoek\n"
+"Zoeken\n"
 "&\n"
-"vervang"
+"vervangen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:30
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:33
@@ -7406,7 +7407,7 @@ msgstr "Voeg lege regels toe tussen alinea's"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/snb_output_ui.py:46
 msgid "Optimize for full-sceen view "
-msgstr "Optimaliseer voor volledig scherm "
+msgstr "Voor volledig scherm optimaliseren "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:15
 msgid ""
@@ -20430,9 +20431,6 @@ msgstr ""
 #~ msgid "Download %s from %s"
 #~ msgstr "Download %s van %s"
 
-#~ msgid "description/reviews"
-#~ msgstr "Omschrijving/Beoordelingen"
-
 #~ msgid "Produce more human-readable XML output."
 #~ msgstr "Genereer meer menselijk-leesbare XML uitvoer."
 
@@ -20637,6 +20635,9 @@ msgstr ""
 #~ msgstr ""
 #~ "De geselecteerde boeken zullen <b>permanent worden verwijderd</b> en de "
 #~ "bestanden gewist van de computer. Weet je dit zeker?"
+
+#~ msgid "metadata"
+#~ msgstr "metadata"
 
 #~ msgid "Downloading %s for %d book(s)"
 #~ msgstr "Downloaden van %s voor %d boek(en)"
@@ -21029,6 +21030,9 @@ msgstr ""
 #~ msgstr ""
 #~ "Er zijn duplicaten gevonden en samengevoegd met de volgende bestande boeken:"
 
+#~ msgid "Downloads metadata from Douban.com"
+#~ msgstr "Download metadata van Douban.com"
+
 #~ msgid "  "
 #~ msgstr "  "
 
@@ -21065,15 +21069,6 @@ msgstr ""
 
 #~ msgid "Column &type"
 #~ msgstr "Kolom &type"
-
-#~ msgid "Downloads metadata from Douban.com"
-#~ msgstr "Download metagegevens van Douban.com"
-
-#~ msgid "social metadata"
-#~ msgstr "sociale metagegevens (labels, waarderingen, etc)"
-
-#~ msgid "metadata"
-#~ msgstr "metagegevens"
 
 #~ msgid "Failed to download some metadata"
 #~ msgstr "Sommige metagegevens konden niet worden gedownload"
@@ -21144,9 +21139,6 @@ msgstr ""
 #~ msgstr ""
 #~ "Bevat: het woord of de uitdrukking komt ergens in de metagegevens voor"
 
-#~ msgid "Download only metadata"
-#~ msgstr "Download alleen metagegevens"
-
 #~ msgid "Equals: the word or phrase must match an entire metadata field"
 #~ msgstr ""
 #~ "Gelijk aan: het woord of de zin komt overeen met een compleet veld in de "
@@ -21156,9 +21148,6 @@ msgstr ""
 #~ msgstr ""
 #~ "Onthoud alle collecties zelfs als deze zich niet in de metagegevens van de "
 #~ "bibliotheek bevinden"
-
-#~ msgid "Download only social metadata"
-#~ msgstr "Download alleen sociale metagegevens (labels, waarderingen, etc)"
 
 #~ msgid "Downloads social metadata from amazon.com"
 #~ msgstr "Download sociale metadata (labels, waarderingen, etc) van amazon.com"
@@ -21356,11 +21345,6 @@ msgstr ""
 #~ msgid "Remove all"
 #~ msgstr "Alles verwijderen"
 
-#~ msgid "All files from %s will be <b>permanently deleted</b>. Are you sure?"
-#~ msgstr ""
-#~ "Alle bestanden van %s zullen <b>definitief</b> worden <b>verwijderd</b>. Wil "
-#~ "je dit echt?"
-
 #~ msgid "Test re&sult"
 #~ msgstr "Testre&sultaat"
 
@@ -21389,12 +21373,6 @@ msgstr ""
 
 #~ msgid "Communicate with the Digma Q600"
 #~ msgstr "Communiceer met de Digma Q600"
-
-#~ msgid "Douban.com API timed out. Try again later."
-#~ msgstr "Douban.com API time-out. Probeer later weer."
-
-#~ msgid "Convert comments downloaded from %s to plain text"
-#~ msgstr "Converteer gedownload commentaar van %s naar normale tekst."
 
 #~ msgid "Recover database"
 #~ msgstr "Herstel database"
@@ -21583,26 +21561,11 @@ msgstr ""
 #~ "verwijderd. Je zou ze handmatig moeten controleren. Dit kan ontstaan als je "
 #~ "bestanden wijzigt in de mappen zelf."
 
-#~ msgid "Downloads metadata from french Nicebooks"
-#~ msgstr "Download metagegevens van de franse Nicebooks"
-
-#~ msgid "Downloads covers from french Nicebooks"
-#~ msgstr "Download omslagen van de franse Nicebooks"
-
 #~ msgid "No details available"
 #~ msgstr "Geen details beschikbaar"
 
 #~ msgid "Communicate with the PocketBook 602 reader."
 #~ msgstr "Communiceer met de PocketBook 602 reader."
-
-#~ msgid "Downloads metadata from amazon.fr"
-#~ msgstr "Downloadt metagegevens van amazon.fr"
-
-#~ msgid "Downloads metadata from amazon.com in spanish"
-#~ msgstr "Downloadt metagegevens van amazon.com in het Spaans"
-
-#~ msgid "Downloads metadata from amazon.com in english"
-#~ msgstr "Downloadt metagegevens van amazon.com in het Engels"
 
 #~ msgid "Downloads metadata from amazon.com"
 #~ msgstr "Downloadt metagegevens van amazon.com"
@@ -21610,23 +21573,14 @@ msgstr ""
 #~ msgid "Downloads metadata from amazon.de"
 #~ msgstr "Downloadt metagegevens van amazon.de"
 
+#~ msgid "Book title"
+#~ msgstr "Boektitel"
+
 #~ msgid "Fictionwise encountered an error."
 #~ msgstr "Fictionwise kwam een fout tegen."
 
-#~ msgid "Failed to get all details for an entry"
-#~ msgstr "Niet gelukt om alle details te krijgen voor een opgave"
-
-#~ msgid "Downloads metadata from Fictionwise"
-#~ msgstr "Download metagegevens van Fictionwise"
-
-#~ msgid "Query: %s"
-#~ msgstr "Vraag: %s"
-
 #~ msgid "Keywords"
 #~ msgstr "Sleutelwoorden"
-
-#~ msgid "Be more verbose about errors"
-#~ msgstr "Wees duidelijker over fouten"
 
 #~ msgid "ISBN: %s not found."
 #~ msgstr "ISBN: %s niet gevonden."
@@ -21642,9 +21596,6 @@ msgstr ""
 
 #~ msgid "Covers: 1-Check/ 2-Download"
 #~ msgstr "Omslagen: 1-Controleer/ 2-Download"
-
-#~ msgid "A cover was found for this book"
-#~ msgstr "Er is een omslag gevonden voor dit boek"
 
 #~ msgid "Cover saved to file "
 #~ msgstr "Omslag als bestand opgeslagen "
@@ -21676,35 +21627,11 @@ msgstr ""
 #~ msgid "Download covers from amazon.com"
 #~ msgstr "Download omslagen van amazon.com"
 
-#~ msgid "Downloads metadata from Amazon"
-#~ msgstr "Download metadata van Amazon"
-
 #~ msgid "Downloading {0} for {1} book(s)"
 #~ msgstr "Bezig met downloaden boek {0} van de {1} boek(en)"
 
 #~ msgid "No valid plugin found in "
 #~ msgstr "Geen geldige plug-in gevonden in "
-
-#~ msgid ""
-#~ "        %prog [options]\n"
-#~ "\n"
-#~ "        Fetch book metadata from Amazon. You must specify one of title, "
-#~ "author,\n"
-#~ "        ISBN, publisher or keywords. Will fetch a maximum of 10 matches,\n"
-#~ "        so you should make your query as specific as possible.\n"
-#~ "        You can chose the language for metadata retrieval:\n"
-#~ "        All & english & french & german & spanish\n"
-#~ "    "
-#~ msgstr ""
-#~ "        %prog [options]\n"
-#~ "\n"
-#~ "        Haal metagegevens van Amazon. Je moet ofwel titel, auteur,\n"
-#~ "        ISBN, uitgever of sleutelwoorden opgeven. Zal een maximum van 10 "
-#~ "treffers ophalen,\n"
-#~ "        dus je moet je zoeksleutel zo specifiek mogelijk maken.\n"
-#~ "        Je kunt de taal kiezen voor de metagegevens:\n"
-#~ "        Alle, & Engels & Frans & Duits & Spaans\n"
-#~ "    "
 
 #~ msgid "Cover download"
 #~ msgstr "Download boekomslag"
@@ -21713,21 +21640,11 @@ msgstr ""
 #~ msgstr "labels"
 
 #~ msgid ""
-#~ "To use isbndb.com you must sign up for a %sfree account%s and enter your "
-#~ "access key below."
-#~ msgstr ""
-#~ "Om isbndb.com te gebruiken moet je je opgeven voor een %sgratis account%s, "
-#~ "en je toegangssleutel hieronder invoeren."
-
-#~ msgid ""
 #~ "Downloads series information from ww2.kdl.org. This website cannot handle "
 #~ "large numbers of queries, so the plugin is disabled by default."
 #~ msgstr ""
 #~ "Download informatie over reeksen van ww2.kdl.org. Deze website kan geen "
 #~ "grote hoeveelheden verkeer aan, en dus is de plug-in standaard uitgeschakeld."
-
-#~ msgid "Fictionwise timed out. Try again later."
-#~ msgstr "Fictionwise time-out. Probeer later opnieuw."
 
 #~ msgid ""
 #~ "SUMMARY:\n"
@@ -21736,62 +21653,11 @@ msgstr ""
 #~ "SAMENVATTING:\n"
 #~ " %s"
 
-#~ msgid ""
-#~ "        %prog [options]\n"
-#~ "\n"
-#~ "        Fetch book metadata from Fictionwise. You must specify one of title, "
-#~ "author,\n"
-#~ "        or keywords. No ISBN specification possible. Will fetch a maximum of "
-#~ "20 matches,\n"
-#~ "        so you should make your query as specific as possible.\n"
-#~ "    "
-#~ msgstr ""
-#~ "        %prog [options]\n"
-#~ "\n"
-#~ "        Haal metagegevens van Fictionwise. Je moet ofwel titel, auteur,\n"
-#~ "        uitgever of sleutelwoorden opgeven. Geen ISBN mogelijk. Zal een "
-#~ "maximum van 20 treffers ophalen,\n"
-#~ "        dus je moet je zoeksleutel zo specifiek mogelijk maken.\n"
-#~ "    "
-
-#~ msgid "Book title"
-#~ msgstr "Titel boek"
-
-#~ msgid "Book author(s)"
-#~ msgstr "Auteur(s) boek"
-
 #~ msgid "Book publisher"
 #~ msgstr "Uigever"
 
 #~ msgid "Maximum number of results to fetch"
 #~ msgstr "Maximaal aantal op te halen resultaten"
-
-#~ msgid ""
-#~ "\n"
-#~ "%prog [options] key\n"
-#~ "\n"
-#~ "Fetch metadata for books from isndb.com. You can specify either the\n"
-#~ "books ISBN ID or its title and author. If you specify the title and author,\n"
-#~ "then more than one book may be returned.\n"
-#~ "\n"
-#~ "key is the account key you generate after signing up for a free account from "
-#~ "isbndb.com.\n"
-#~ "\n"
-#~ msgstr ""
-#~ "\n"
-#~ "%prog [opties] sleutel\n"
-#~ "\n"
-#~ "Haal metagegevens voor boeken van isbndb.com. Je kunt ofwel het ISBN nummer "
-#~ "ofwel titel en auteur opgeven.\n"
-#~ "als je de titel en auteur opgeeft, dan is het mogelijk dat er meerdere "
-#~ "resultaten zijn.\n"
-#~ "\n"
-#~ "Sleutel is de 'account key' die gegenereerd werd nadat je je inschreef voor "
-#~ "een gratis account op isbndb.com.\n"
-#~ "\n"
-
-#~ msgid "The ISBN ID of the book you want metadata for."
-#~ msgstr "Het ISBN-nummer van het boek waarvoor je de metagegevens wilt."
 
 #~ msgid "The author whose book to search for."
 #~ msgstr "De auteur van het gezochte boek."
@@ -21802,26 +21668,11 @@ msgstr ""
 #~ msgid "The publisher of the book to search for."
 #~ msgstr "De uitgever van het gezochte boek."
 
-#~ msgid "Nicebooks timed out. Try again later."
-#~ msgstr "Nicebooks time-out. Probeer later opnieuw."
-
-#~ msgid "Nicebooks encountered an error."
-#~ msgstr "Nicebook is in de fout gegaan."
-
-#~ msgid "Book ISBN"
-#~ msgstr "ISBN Boek"
-
 #~ msgid "Covers files path"
 #~ msgstr "Bestandspad voor omslagen"
 
 #~ msgid "Maximum number of waiting worker processes"
 #~ msgstr "Maximaal aantal wachtende werkprocessen"
-
-#~ msgid "Download only covers"
-#~ msgstr "Download alleen omslagafbeeldingen"
-
-#~ msgid "covers"
-#~ msgstr "Omslagafbeeldingen"
 
 #~ msgid "Third Expression"
 #~ msgstr "Derde regexp"
@@ -22429,28 +22280,6 @@ msgstr ""
 #~ "verwijderd. Je zou ze handmatig moeten controleren. Dit kan ontstaan als je "
 #~ "bestanden wijzigt in de mappen zelf."
 
-#~ msgid ""
-#~ "        %prog [options]\n"
-#~ "\n"
-#~ "        Fetch book metadata from Nicebooks. You must specify one of title, "
-#~ "author,\n"
-#~ "        ISBN, publisher or keywords. Will fetch a maximum of 20 matches,\n"
-#~ "        so you should make your query as specific as possible.\n"
-#~ "        It can also get covers if the option is activated.\n"
-#~ "    "
-#~ msgstr ""
-#~ "        %prog [options]\n"
-#~ "\n"
-#~ "        Haal metagegevens van Nicebooks. Je moet ofwel titel, auteur,\n"
-#~ "        ISBN, uitgever of sleutelwoorden opgeven. Zal een maximum van 20 "
-#~ "treffers ophalen,\n"
-#~ "        dus je moet je zoeksleutel zo specifiek mogelijk maken.\n"
-#~ "        Je kan ook omslagen ophalen als die optie is aangevinkt.\n"
-#~ "    "
-
-#~ msgid "An errror occured with Nicebooks cover fetcher"
-#~ msgstr "Er is een fout opgetreden bij het ophalen van Nicebooks omslagen"
-
 #~ msgid "Downloads metadata from The Open Library"
 #~ msgstr "Download metadata van The Open Library"
 
@@ -22476,9 +22305,6 @@ msgstr ""
 
 #~ msgid "The best ebooks at the best price: free!"
 #~ msgstr "De beste E-boeken voor de beste prijs: gratis!"
-
-#~ msgid "Downloads metadata from Overdrive's Content Reserve"
-#~ msgstr "Download metadata van Overdrive's Content Reserve"
 
 #~ msgid "eReading: anytime. anyplace."
 #~ msgstr "eReading: altijd. overal."
@@ -23170,3 +22996,178 @@ msgstr ""
 #~ msgstr ""
 #~ "<p>Deze winkel verkoopt E-boeken met DRM. Het heeft mogelijk enkele titels "
 #~ "zonder DRM, maar je moet dit per titel zelf controleren.</p>"
+
+#~ msgid "Downloads metadata from amazon.fr"
+#~ msgstr "Downloadt metadata van amazon.fr"
+
+#~ msgid "Downloads metadata from amazon.com in spanish"
+#~ msgstr "Downloadt Spaanstalige metadata van amazon.com"
+
+#~ msgid "Downloads metadata from amazon.com in english"
+#~ msgstr "Downloadt Engelstalige metagegevens van amazon.com"
+
+#~ msgid ""
+#~ "        %prog [options]\n"
+#~ "\n"
+#~ "        Fetch book metadata from Amazon. You must specify one of title, "
+#~ "author,\n"
+#~ "        ISBN, publisher or keywords. Will fetch a maximum of 10 matches,\n"
+#~ "        so you should make your query as specific as possible.\n"
+#~ "        You can chose the language for metadata retrieval:\n"
+#~ "        All & english & french & german & spanish\n"
+#~ "    "
+#~ msgstr ""
+#~ "        %prog [opties]\n"
+#~ "\n"
+#~ "        Haal metagegevens bij Amazon op. U moet ofwel titel, auteur,\n"
+#~ "        ISBN, uitgever of zoekwoord opgeven. Zal een maximum van 10 treffers "
+#~ "ophalen,\n"
+#~ "        dus u moet zo specifiek mogelijk zoeken.\n"
+#~ "        U kunt de taal voor de metagegevens kiezen:\n"
+#~ "        Alle, & Engels & Frans & Duits & Spaans\n"
+#~ "    "
+
+#~ msgid "Douban.com API timed out. Try again later."
+#~ msgstr "Douban.com-API time-out. Probeer het later opnieuw."
+
+#~ msgid "description/reviews"
+#~ msgstr "omschrijving/beoordelingen"
+
+#~ msgid "Convert comments downloaded from %s to plain text"
+#~ msgstr "Converteer van %s gedownload commentaar naar platte tekst."
+
+#~ msgid ""
+#~ "To use isbndb.com you must sign up for a %sfree account%s and enter your "
+#~ "access key below."
+#~ msgstr ""
+#~ "Om isbndb.com te gebruiken moet u een %sgratis account%s aanmaken, en uw "
+#~ "toegangssleutel hieronder invoeren."
+
+#~ msgid "Downloads metadata from Fictionwise"
+#~ msgstr "Download metadata van Fictionwise"
+
+#~ msgid "Query: %s"
+#~ msgstr "Query: %s"
+
+#~ msgid "Fictionwise timed out. Try again later."
+#~ msgstr "Fictionwise time-out. Probeer het later opnieuw."
+
+#~ msgid "Failed to get all details for an entry"
+#~ msgstr "Niet gelukt om alle details te verkrijgen"
+
+#~ msgid ""
+#~ "        %prog [options]\n"
+#~ "\n"
+#~ "        Fetch book metadata from Fictionwise. You must specify one of title, "
+#~ "author,\n"
+#~ "        or keywords. No ISBN specification possible. Will fetch a maximum of "
+#~ "20 matches,\n"
+#~ "        so you should make your query as specific as possible.\n"
+#~ "    "
+#~ msgstr ""
+#~ "        %prog [opties]\n"
+#~ "\n"
+#~ "        Haal metagegevens bij Fictionwise op. U moet ofwel titel, auteur,\n"
+#~ "        uitgever of zoekwoord opgeven. Zal een maximum van 20 treffers "
+#~ "ophalen,\n"
+#~ "        dus u moet zo specifiek mogelijk zoeken.\n"
+#~ "    "
+
+#~ msgid "Book author(s)"
+#~ msgstr "Auteur(s) van boek"
+
+#~ msgid "Be more verbose about errors"
+#~ msgstr "Geef meer details over fouten"
+
+#~ msgid ""
+#~ "\n"
+#~ "%prog [options] key\n"
+#~ "\n"
+#~ "Fetch metadata for books from isndb.com. You can specify either the\n"
+#~ "books ISBN ID or its title and author. If you specify the title and author,\n"
+#~ "then more than one book may be returned.\n"
+#~ "\n"
+#~ "key is the account key you generate after signing up for a free account from "
+#~ "isbndb.com.\n"
+#~ "\n"
+#~ msgstr ""
+#~ "\n"
+#~ "%prog [opties] sleutel\n"
+#~ "\n"
+#~ "Haal metadata voor boeken van isbndb.com op. U kunt ofwel het ISBN, ofwel "
+#~ "titel en auteur opgeven.\n"
+#~ "Als u titel en auteur opgeeft is het mogelijk dat er meerdere resultaten "
+#~ "zijn.\n"
+#~ "\n"
+#~ "Sleutel is de 'account key' die gegenereerd werd toen u zich voor een gratis "
+#~ "account op isbndb.com inschreef.\n"
+#~ "\n"
+
+#~ msgid "The ISBN ID of the book you want metadata for."
+#~ msgstr "Het ISBN van het boek waarvan u de metadata wilt."
+
+#~ msgid "Downloads metadata from french Nicebooks"
+#~ msgstr "Download metagegevens van het franse Nicebooks"
+
+#~ msgid "Downloads covers from french Nicebooks"
+#~ msgstr "Download omslagen van het franse Nicebooks"
+
+#~ msgid "Nicebooks timed out. Try again later."
+#~ msgstr "Nicebooks time-out. Probeer het later opnieuw."
+
+#~ msgid "Nicebooks encountered an error."
+#~ msgstr "Er is bij Nicebook een fout opgetreden."
+
+#~ msgid "An errror occured with Nicebooks cover fetcher"
+#~ msgstr "Er is een fout opgetreden bij het ophalen van omslagen bij Nicebooks"
+
+#~ msgid ""
+#~ "        %prog [options]\n"
+#~ "\n"
+#~ "        Fetch book metadata from Nicebooks. You must specify one of title, "
+#~ "author,\n"
+#~ "        ISBN, publisher or keywords. Will fetch a maximum of 20 matches,\n"
+#~ "        so you should make your query as specific as possible.\n"
+#~ "        It can also get covers if the option is activated.\n"
+#~ "    "
+#~ msgstr ""
+#~ "        %prog [opties]\n"
+#~ "\n"
+#~ "        Haal metagegevens bij Nicebooks op. U moet ofwel titel, auteur,\n"
+#~ "        ISBN, uitgever of zoekwoord opgeven. Zal een maximum van 20 "
+#~ "resultaten ophalen,\n"
+#~ "        dus u moet zo specifiek mogelijk zoeken.\n"
+#~ "        Als die optie is ingesteld kunt u oook omslagen ophalen.\n"
+#~ "    "
+
+#~ msgid "Book ISBN"
+#~ msgstr "ISBN van boek"
+
+#~ msgid "A cover was found for this book"
+#~ msgstr "Er is een omslag voor dit boek gevonden"
+
+#~ msgid "Downloads metadata from Amazon"
+#~ msgstr "Metadata van Amazon downloaden"
+
+#~ msgid "Downloads metadata from Overdrive's Content Reserve"
+#~ msgstr "Metadata van Overdrive's Content Reserve downloaden"
+
+#~ msgid "All files from %s will be <b>permanently deleted</b>. Are you sure?"
+#~ msgstr ""
+#~ "Alle bestanden van %s zullen <b>definitief</b> <b>verwijderd</b> worden. "
+#~ "Weet u het zeker?"
+
+#~ msgid "Download only metadata"
+#~ msgstr "Alleen metadata downloaden"
+
+#~ msgid "Download only covers"
+#~ msgstr "Alleen omslagafbeeldingen downloaden"
+
+#~ msgid "Download only social metadata"
+#~ msgstr "Alleen sociale metadata (labels, waarderingen, etc) downloaden"
+
+#~ msgid "social metadata"
+#~ msgstr "sociale metadata (labels, waarderingen, etc)"
+
+#~ msgid "covers"
+#~ msgstr "omslagafbeeldingen"
