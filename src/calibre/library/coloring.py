@@ -98,9 +98,9 @@ class Rule(object): # {{{
 
     def ondevice_condition(self, col, action, val):
         if action == 'is set':
-            return "test('%s', '1', '')"%col
+            return "test(ondevice(), '1', '')"
         if action == 'is not set':
-            return "test('%s', '', '1')"%col
+            return "test(ondevice(), '', '1')"
 
     def bool_condition(self, col, action, val):
         test = {'is true': 'True',
