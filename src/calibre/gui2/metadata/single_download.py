@@ -35,8 +35,9 @@ from calibre import force_unicode
 
 class RichTextDelegate(QStyledItemDelegate): # {{{
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, max_width=160):
         QStyledItemDelegate.__init__(self, parent)
+        self.max_width = max_width
 
     def to_doc(self, index):
         doc = QTextDocument()
@@ -46,8 +47,8 @@ class RichTextDelegate(QStyledItemDelegate): # {{{
     def sizeHint(self, option, index):
         doc = self.to_doc(index)
         ans = doc.size().toSize()
-        if ans.width() > 150:
-            ans.setWidth(160)
+        if ans.width() > self.max_width - 10:
+            ans.setWidth(self.max_width)
         ans.setHeight(ans.height()+10)
         return ans
 

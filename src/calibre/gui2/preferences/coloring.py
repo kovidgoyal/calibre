@@ -7,14 +7,16 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from PyQt4.Qt import (QWidget, QDialog, QLabel, QGridLayout, QComboBox,
+from PyQt4.Qt import (QWidget, QDialog, QLabel, QGridLayout, QComboBox, QSize,
         QLineEdit, QIntValidator, QDoubleValidator, QFrame, QColor, Qt, QIcon,
-        QScrollArea, QPushButton, QVBoxLayout, QDialogButtonBox)
+        QScrollArea, QPushButton, QVBoxLayout, QDialogButtonBox, QToolButton,
+        QListView, QAbstractListModel)
 
 from calibre.utils.icu import sort_key
 from calibre.gui2 import error_dialog
+from calibre.gui2.metadata.single_download import RichTextDelegate
 from calibre.library.coloring import (Rule, conditionable_columns,
-    displayable_columns)
+    displayable_columns, rule_from_template)
 
 class ConditionEditor(QWidget): # {{{
 
@@ -277,6 +279,27 @@ class RuleEditor(QDialog): # {{{
         self.conditions.append(c)
         self.conditions_widget.layout().addWidget(c)
 
+    def apply_rule(self, col, rule):
+        for i in range(self.column_box.count()):
+            c = unicode(self.column_box.itemData(i).toString())
+            if col == c:
+                self.column_box.setCurrentIndex(i)
+                break
+        if rule.color:
+            idx = self.color_box.findText(rule.color)
+            if idx >= 0:
+                self.color_box.setCurrentIndex(idx)
+        for c in rule.conditions:
+            ce = ConditionEditor(self.fm, parent=self.conditions_widget)
+            self.conditions.append(ce)
+            self.conditions_widget.layout().addWidget(ce)
+            try:
+                ce.condition = c
+            except:
+                import traceback
+                traceback.print_exc()
+
+
     def accept(self):
         if self.validate():
             QDialog.accept(self)
@@ -316,11 +339,178 @@ class RuleEditor(QDialog): # {{{
         return col, r
 # }}}
 
+class RulesModel(QAbstractListModel):
+
+    def __init__(self, prefs, fm, parent=None):
+        QAbstractListModel.__init__(self, parent)
+
+        self.fm = fm
+        rules = list(prefs['column_color_rules'])
+        self.rules = []
+        for col, template in rules:
+            try:
+                rule = rule_from_template(self.fm, template)
+            except:
+                rule = template
+            self.rules.append((col, rule))
+
+    def rowCount(self, *args):
+        return len(self.rules)
+
+    def data(self, index, role):
+        row = index.row()
+        try:
+            col, rule = self.rules[row]
+        except:
+            return None
+
+        if role == Qt.DisplayRole:
+            return self.rule_to_html(col, rule)
+        if role == Qt.UserRole:
+            return (col, rule)
+
+    def add_rule(self, col, rule):
+        self.rules.append((col, rule))
+        self.reset()
+        return self.index(len(self.rules)-1)
+
+    def replace_rule(self, index, col, r):
+        self.rules[index.row()] = (col, r)
+        self.dataChanged.emit(index, index)
+
+    def remove_rule(self, index):
+        self.rules.remove(self.rules[index.row()])
+        self.reset()
+
+    def commit(self, prefs):
+        rules = []
+        for col, r in self.rules:
+            if isinstance(r, Rule):
+                r = r.template
+            if r is not None:
+                rules.append((col, r))
+        prefs['column_color_rules'] = rules
+
+    def rule_to_html(self, col, rule):
+        if isinstance(rule, basestring):
+            return _('''
+            <p>Advanced Rule for column: %s
+            <pre>%s</pre>
+            ''')%(col, rule)
+        conditions = [self.condition_to_html(c) for c in rule.conditions]
+        return _('''\
+            <p>Set the color of <b>%s</b> to <b>%s</b> if the following
+            conditions are met:</p>
+            <ul>%s</ul>
+            ''') % (col, rule.color, ''.join(conditions))
+
+    def condition_to_html(self, condition):
+        return (
+            _('<li>If the <b>%s</b> column <b>%s</b> the value: <b>%s</b>') %
+                tuple(condition))
+
 class EditRules(QWidget):
 
-    def __init__(self, db, parent=None):
+    def __init__(self, parent=None):
         QWidget.__init__(self, parent)
-        self.db = db
+
+        self.l = l = QGridLayout(self)
+        self.setLayout(l)
+
+        self.l1 = l1 = QLabel(_(
+            'You can control the color of columns in the'
+            ' book list by creating "rules" that tell calibre'
+            ' what color to use. Click the Add Rule button below'
+            ' to get started. You can change an existing rule by double'
+            ' clicking it.'))
+        l1.setWordWrap(True)
+        l.addWidget(l1, 0, 0, 1, 2)
+
+        self.add_button = QPushButton(QIcon(I('plus.png')), _('Add Rule'),
+                self)
+        self.remove_button = QPushButton(QIcon(I('minus.png')),
+                _('Remove Rule'), self)
+        self.add_button.clicked.connect(self.add_rule)
+        self.remove_button.clicked.connect(self.remove_rule)
+        l.addWidget(self.add_button, 1, 0)
+        l.addWidget(self.remove_button, 1, 1)
+
+        self.g = g = QGridLayout()
+        self.rules_view = QListView(self)
+        self.rules_view.activated.connect(self.edit_rule)
+        self.rules_view.setSelectionMode(self.rules_view.SingleSelection)
+        self.rules_view.setAlternatingRowColors(True)
+        self.rtfd = RichTextDelegate(parent=self.rules_view, max_width=400)
+        self.rules_view.setItemDelegate(self.rtfd)
+        g.addWidget(self.rules_view, 0, 0, 2, 1)
+
+        self.up_button = b = QToolButton(self)
+        b.setIcon(QIcon(I('arrow-up.png')))
+        b.setToolTip(_('Move the selected rule up'))
+        b.clicked.connect(self.move_up)
+        g.addWidget(b, 0, 1, 1, 1, Qt.AlignTop)
+        self.down_button = b = QToolButton(self)
+        b.setIcon(QIcon(I('arrow-down.png')))
+        b.setToolTip(_('Move the selected rule down'))
+        b.clicked.connect(self.move_down)
+        g.addWidget(b, 1, 1, 1, 1, Qt.AlignBottom)
+
+        l.addLayout(g, 2, 0, 1, 2)
+        l.setRowStretch(2, 10)
+
+        self.add_advanced_button = b = QPushButton(QIcon(I('plus.png')),
+                _('Add Advanced Rule'), self)
+        b.clicked.connect(self.add_advanced)
+        l.addWidget(b, 3, 0, 1, 2)
+
+    def initialize(self, fm, prefs):
+        self.model = RulesModel(prefs, fm)
+        self.rules_view.setModel(self.model)
+
+    def add_rule(self):
+        d = RuleEditor(db.field_metadata)
+        d.add_blank_condition()
+        if d.exec_() == d.Accepted:
+            col, r = d.rule
+            if r is not None and col:
+                idx = self.model.add_rule(col, r)
+                self.rules_view.scrollTo(idx)
+
+    def edit_rule(self, index):
+        try:
+            col, rule = self.model.data(index, Qt.UserRole)
+        except:
+            return
+        if isinstance(rule, Rule):
+            d = RuleEditor(db.field_metadata)
+            d.apply_rule(col, rule)
+            if d.exec_() == d.Accepted:
+                col, r = d.rule
+                if r is not None and col:
+                    self.model.replace_rule(index, col, r)
+                    self.rules_view.scrollTo(index)
+        else:
+            pass # TODO
+
+    def add_advanced(self):
+        pass
+
+    def remove_rule(self):
+        sm = self.rules_view.selectionModel()
+        rows = list(sm.selectedRows())
+        if not rows:
+            return error_dialog(self, _('No rule selected'),
+                    _('No rule selected for removal.'), show=True)
+        self.model.remove_rule(rows[0])
+
+    def move_up(self):
+        pass
+
+    def move_down(self):
+        pass
+
+    def commit(self, prefs):
+        self.model.commit(prefs)
 
 if __name__ == '__main__':
     from PyQt4.Qt import QApplication
@@ -328,13 +518,24 @@ if __name__ == '__main__':
 
     from calibre.library import db
 
-    d = RuleEditor(db().field_metadata)
-    d.add_blank_condition()
-    d.exec_()
+    db = db()
 
-    col, r = d.rule
+    if False:
+        d = RuleEditor(db.field_metadata)
+        d.add_blank_condition()
+        d.exec_()
 
-    print ('Column to be colored:', col)
-    print ('Template:')
-    print (r.template)
+        col, r = d.rule
+
+        print ('Column to be colored:', col)
+        print ('Template:')
+        print (r.template)
+    else:
+        d = EditRules()
+        d.resize(QSize(800, 600))
+        d.initialize(db.field_metadata, db.prefs)
+        d.show()
+        app.exec_()
+        d.commit(db.prefs)
+
 
