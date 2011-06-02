@@ -229,8 +229,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 if col and templ:
                     try:
                         del self.prefs['column_color_name_'+str(i)]
-                        templ = migrate_old_rule(self.field_metadata, templ)
-                        old_rules.append((col, templ))
+                        rules = migrate_old_rule(self.field_metadata, templ)
+                        for templ in rules:
+                            old_rules.append((col, templ))
                     except:
                         pass
             if old_rules:

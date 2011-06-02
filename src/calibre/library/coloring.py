@@ -185,5 +185,5 @@ def migrate_old_rule(fm, template):
                 r.add_condition('tags', 'has', value)
                 rules.append(r.template)
         return rules
-    return template
+    return [template]
 
