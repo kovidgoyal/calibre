@@ -4,75 +4,28 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 Profile to download CNN
 '''
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup
 
 class CNN(BasicNewsRecipe):
 
     title = 'CNN'
     description = 'Global news'
     timefmt  = ' [%d %b %Y]'
-    __author__ = 'Krittika Goyal and Sujata Raman'
+    __author__ = 'Kovid Goyal'
     language = 'en'
 
     no_stylesheets = True
     use_embedded_content   = False
     oldest_article        = 15
-    recursions = 1
-    match_regexps = [r'http://sportsillustrated.cnn.com/.*/[1-9].html']
+    #recursions = 1
+    #match_regexps = [r'http://sportsillustrated.cnn.com/.*/[1-9].html']
     max_articles_per_feed = 25
 
-    extra_css = '''
-                .cnn_strycntntlft{font-family :Arial,Helvetica,sans-serif;}
-                h2{font-family :Arial,Helvetica,sans-serif; font-size:x-small}
-                .cnnTxtCmpnt{font-family :Arial,Helvetica,sans-serif; font-size:x-small}
-                .cnnTMcontent{font-family :Arial,Helvetica,sans-serif; font-size:x-small;color:#575757}
-                .storytext{font-family :Arial,Helvetica,sans-serif; font-size:small}
-                .storybyline{font-family :Arial,Helvetica,sans-serif; font-size:x-small; color:#575757}
-                .credit{font-family :Arial,Helvetica,sans-serif; font-size:xx-small; color:#575757}
-                .storyBrandingBanner{font-family :Arial,Helvetica,sans-serif; font-size:x-small; color:#575757}
-                .storytimestamp{font-family :Arial,Helvetica,sans-serif; font-size:x-small; color:#575757}
-                .timestamp{font-family :Arial,Helvetica,sans-serif; font-size:x-small; color:#575757}
-                .cnn_strytmstmp{font-family :Arial,Helvetica,sans-serif; font-size:x-small; color:#666666;}
-                .cnn_stryimg640caption{font-family :Arial,Helvetica,sans-serif; font-size:x-small; color:#666666;}
-                .cnn_strylccimg300cntr{font-family :Arial,Helvetica,sans-serif; font-size:x-small; color:#666666;}
-                .cnn_stryichgfcpt{font-family :Arial,Helvetica,sans-serif; font-size:x-small; color:#666666;}
-                .cnnByline{font-family :Arial,Helvetica,sans-serif; font-size:x-small; color:#666666;}
-                .cnn_bulletbin cnnStryHghLght{ font-size:xx-small;}
-                .subhead p{font-family :Arial,Helvetica,sans-serif; font-size:x-small;}
-                .cnnStoryContent{font-family :Arial,Helvetica,sans-serif; font-size:x-small}
-                .cnnContentContainer{font-family :Arial,Helvetica,sans-serif; font-size:x-small}
-                .col1{font-family :Arial,Helvetica,sans-serif; font-size:x-small; color:#666666;}
-                .col3{color:#333333; font-family :Arial,Helvetica,sans-serif; font-size:x-small;font-weight:bold;}
-                .cnnInlineT1Caption{font-family :Arial,Helvetica,sans-serif; font-size:x-small;font-weight:bold;}
-                .cnnInlineT1Credit{font-family :Arial,Helvetica,sans-serif; font-size:x-small;color:#333333;}
-                .col10{color:#5A637E;}
-                .cnnInlineRailBulletList{color:black;}
-                .cnnLine0{font-family :Arial,Helvetica,sans-serif; color:#666666;font-weight:bold;}
-                .cnnTimeStamp{font-family :Arial,Helvetica,sans-serif; font-size:x-small;color:#333333;}
-                .galleryhedDek{font-family :Arial,Helvetica,sans-serif; font-size:x-small;color:#575757;}
-                .galleryWidgetHeader{font-family :Arial,Helvetica,sans-serif; font-size:x-small;color:#004276;}
-                .article-content{font-family :Arial,Helvetica,sans-serif; font-size:x-small}
-                .cnnRecapStory{font-family :Arial,Helvetica,sans-serif; font-size:x-small}
-                h1{font-family :Arial,Helvetica,sans-serif; font-size:x-large}
-                .captionname{font-family :Arial,Helvetica,sans-serif; font-size:x-small;color:#575757;}
-                inStoryIE{{font-family :Arial,Helvetica,sans-serif; font-size:x-small;}
-                '''
-
-    #remove_tags_before = dict(name='h1', attrs={'class':'heading'})
-    #remove_tags_after  = dict(name='td', attrs={'class':'newptool1'})
-    remove_tags = [
-       dict(name='iframe'),
-       dict(name='div', attrs={'class':['cnnEndOfStory', 'cnnShareThisItem', 'cnn_strylctcntr cnn_strylctcqrelt', 'cnnShareBoxContent', 'cnn_strybtmcntnt', 'cnn_strycntntrgt']}),
-       dict(name='div', attrs={'id':['IEContainer', 'clickIncludeBox']}),
-       #dict(name='ul', attrs={'class':'article-tools'}),
-       #dict(name='ul', attrs={'class':'articleTools'}),
-    ]
 
     feeds =  [
              ('Top News', 'http://rss.cnn.com/rss/cnn_topstories.rss'),
              ('World', 'http://rss.cnn.com/rss/cnn_world.rss'),
              ('U.S.', 'http://rss.cnn.com/rss/cnn_us.rss'),
-             #('Sports', 'http://rss.cnn.com/rss/si_topstories.rss'),
+             ('Sports', 'http://rss.cnn.com/rss/si_topstories.rss'),
              ('Business', 'http://rss.cnn.com/rss/money_latest.rss'),
              ('Politics', 'http://rss.cnn.com/rss/cnn_allpolitics.rss'),
              ('Law', 'http://rss.cnn.com/rss/cnn_law.rss'),
@@ -84,15 +37,8 @@ class CNN(BasicNewsRecipe):
              ('Offbeat', 'http://rss.cnn.com/rss/cnn_offbeat.rss'),
              ('Most Popular', 'http://rss.cnn.com/rss/cnn_mostpopular.rss')
              ]
-    def preprocess_html(self, soup):
-        story = soup.find(name='div', attrs={'class':'cnnBody_Left'})
-        if story is None:
-           story = soup.find(name='div', attrs={'id':'cnnContentContainer'})
-           soup = BeautifulSoup('<html><head><title>t</title></head><body></body></html>')
-           body = soup.find(name='body')
-           body.insert(0, story)
-        else:
-           soup = BeautifulSoup('<html><head><title>t</title></head><body></body></html>')
-           body = soup.find(name='body')
-           body.insert(0, story)
-        return soup
+
+    def get_article_url(self, article):
+        ans = BasicNewsRecipe.get_article_url(self, article)
+        return ans.partition('?')[0]
+

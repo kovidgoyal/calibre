@@ -593,7 +593,7 @@ if __name__ == '__main__':
 
     db = db()
 
-    if True:
+    if False:
         d = RuleEditor(db.field_metadata)
         d.add_blank_condition()
         d.exec_()
