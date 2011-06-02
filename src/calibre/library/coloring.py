@@ -93,8 +93,8 @@ class Rule(object): # {{{
 
     def identifiers_condition(self, col, action, val):
         if action == 'has id':
-            return "identifier_in_list(field('identifiers'), '%s', '1', '')"
-        return "identifier_in_list(field('identifiers'), '%s', '', '1')"
+            return "identifier_in_list(field('identifiers'), '%s', '1', '')"%val
+        return "identifier_in_list(field('identifiers'), '%s', '', '1')"%val
 
     def ondevice_condition(self, col, action, val):
         if action == 'is set':
