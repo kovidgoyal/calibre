@@ -3,6 +3,8 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
 Profile to download CNN
 '''
+
+import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class CNN(BasicNewsRecipe):
@@ -20,12 +22,25 @@ class CNN(BasicNewsRecipe):
     #match_regexps = [r'http://sportsillustrated.cnn.com/.*/[1-9].html']
     max_articles_per_feed = 25
 
+    preprocess_regexps = [
+        (re.compile(r'<!--\[if.*if\]-->', re.DOTALL), lambda m: ''),
+        (re.compile(r'<script.*?</script>', re.DOTALL), lambda m: ''),
+        (re.compile(r'<style.*?</style>', re.DOTALL), lambda m: ''),
+    ]
+
+    keep_only_tags = [dict(id='cnnContentContainer')]
+    remove_tags = [
+            {'class':['cnn_strybtntools', 'cnn_strylftcntnt',
+                'cnn_strybtntools', 'cnn_strybtntoolsbttm', 'cnn_strybtmcntnt',
+                'cnn_strycntntrgt']},
+    ]
+
 
     feeds =  [
              ('Top News', 'http://rss.cnn.com/rss/cnn_topstories.rss'),
              ('World', 'http://rss.cnn.com/rss/cnn_world.rss'),
              ('U.S.', 'http://rss.cnn.com/rss/cnn_us.rss'),
-             ('Sports', 'http://rss.cnn.com/rss/si_topstories.rss'),
+             #('Sports', 'http://rss.cnn.com/rss/si_topstories.rss'),
              ('Business', 'http://rss.cnn.com/rss/money_latest.rss'),
              ('Politics', 'http://rss.cnn.com/rss/cnn_allpolitics.rss'),
              ('Law', 'http://rss.cnn.com/rss/cnn_law.rss'),
