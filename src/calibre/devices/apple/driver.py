@@ -3023,6 +3023,8 @@ class ITUNES_ASYNC(ITUNES):
                 pythoncom.CoInitialize()
                 self._launch_iTunes()
             except:
+                import traceback
+                traceback.print_exc()
                 raise UserFeedback('unable to launch iTunes', details=None, level=UserFeedback.WARN)
             finally:
                 pythoncom.CoUninitialize()
