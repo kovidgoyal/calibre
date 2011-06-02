@@ -18,7 +18,7 @@ from calibre.ebooks.chardet import xml_to_unicode
 from calibre.utils.zipfile import safe_replace
 from calibre.utils.config import DynamicConfig
 from calibre.utils.logging import Log
-from calibre import guess_type, prints
+from calibre import guess_type, prints, prepare_string_for_xml
 from calibre.ebooks.oeb.transforms.cover import CoverManager
 
 TITLEPAGE = CoverManager.SVG_TEMPLATE.decode('utf-8').replace(\
@@ -229,8 +229,8 @@ class EbookIterator(object):
         cover = self.opf.cover
         if self.ebook_ext in ('lit', 'mobi', 'prc', 'opf', 'fb2') and cover:
             cfile = os.path.join(self.base, 'calibre_iterator_cover.html')
-            chtml = (TITLEPAGE%os.path.relpath(cover, self.base).replace(os.sep,
-                '/')).encode('utf-8')
+            rcpath = os.path.relpath(cover, self.base).replace(os.sep, '/')
+            chtml = (TITLEPAGE%prepare_string_for_xml(rcpath, True)).encode('utf-8')
             open(cfile, 'wb').write(chtml)
             self.spine[0:0] = [SpineItem(cfile,
                 mime_type='application/xhtml+xml')]
