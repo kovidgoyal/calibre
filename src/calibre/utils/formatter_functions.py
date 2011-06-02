@@ -361,8 +361,7 @@ class BuiltinInList(BuiltinFormatterFunction):
 class BuiltinStrInList(BuiltinFormatterFunction):
     name = 'str_in_list'
     arg_count = 5
-    category = 'List Lookup'
-    category = 'Iterating over values'
+    category = 'List lookup'
     __doc__ = doc = _('str_in_list(val, separator, string, found_val, not_found_val) -- '
             'treat val as a list of items separated by separator, '
             'comparing the string against each value in the list. If the '
@@ -377,6 +376,32 @@ class BuiltinStrInList(BuiltinFormatterFunction):
             for v in l:
                 for t in c:
                     if strcmp(t, v) == 0:
+                        return fv
+        return nfv
+
+class BuiltinIdentifierInList(BuiltinFormatterFunction):
+    name = 'identifier_in_list'
+    arg_count = 4
+    category = 'List lookup'
+    __doc__ = doc = _('identifier_in_list(val, id, found_val, not_found_val) -- '
+            'treat val as a list of identifiers separated by commas, '
+            'comparing the string against each value in the list. An identifier '
+            'has the format "identifier:value". The id parameter should be '
+            'either "id" or "id:regexp". The first case matches if there is any '
+            'identifier with that id. The second case matches if the regexp '
+            'matches the identifier\'s value. If there is a match, '
+            'return found_val, otherwise return not_found_val.')
+
+    def evaluate(self, formatter, kwargs, mi, locals, val, ident, fv, nfv):
+        l = [v.strip() for v in val.split(',') if v.strip()]
+        (id, _, regexp) = ident.partition(':')
+        if not id:
+            return nfv
+        id += ':'
+        if l:
+            for v in l:
+                if v.startswith(id):
+                    if not regexp or re.search(regexp, v[len(id):], flags=re.I):
                         return fv
         return nfv
 
@@ -748,6 +773,7 @@ builtin_eval        = BuiltinEval()
 builtin_first_non_empty = BuiltinFirstNonEmpty()
 builtin_field       = BuiltinField()
 builtin_format_date = BuiltinFormatDate()
+builtin_identifier_in_list = BuiltinIdentifierInList()
 builtin_ifempty     = BuiltinIfempty()
 builtin_in_list     = BuiltinInList()
 builtin_list_item   = BuiltinListitem()

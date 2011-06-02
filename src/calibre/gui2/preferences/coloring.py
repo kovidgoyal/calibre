@@ -408,9 +408,9 @@ class RulesModel(QAbstractListModel): # {{{
         self.reset()
 
     def rule_to_html(self, col, rule):
-        if isinstance(rule, basestring):
+        if not isinstance(rule, Rule):
             return _('''
-            <p>Advanced Rule for column: %s
+            <p>Advanced Rule for column <b>%s</b>:
             <pre>%s</pre>
             ''')%(col, rule)
         conditions = [self.condition_to_html(c) for c in rule.conditions]
@@ -483,25 +483,28 @@ class EditRules(QWidget): # {{{
         b.clicked.connect(self.add_advanced)
         l.addWidget(b, 3, 0, 1, 2)
 
-    def initialize(self, fm, prefs):
+    def initialize(self, fm, prefs, mi):
         self.model = RulesModel(prefs, fm)
         self.rules_view.setModel(self.model)
+        self.fm = fm
+        self.mi = mi
 
-    def add_rule(self):
-        d = RuleEditor(self.model.fm)
-        d.add_blank_condition()
-        if d.exec_() == d.Accepted:
-            col, r = d.rule
-            if r is not None and col:
+    def _add_rule(self, dlg):
+        if dlg.exec_() == dlg.Accepted:
+            col, r = dlg.rule
+            if r and col:
                 idx = self.model.add_rule(col, r)
                 self.rules_view.scrollTo(idx)
                 self.changed.emit()
 
+    def add_rule(self):
+            d = RuleEditor(self.model.fm)
+            d.add_blank_condition()
+            self._add_rule(d)
+
     def add_advanced(self):
-        td = TemplateDialog(self, '', None)
-        if td.exec_() == td.Accepted:
-            self.changed.emit()
-            pass # TODO
+        td = TemplateDialog(self, '', mi=self.mi, fm=self.fm, color_field='')
+        self._add_rule(td)
 
     def edit_rule(self, index):
         try:
@@ -511,17 +514,14 @@ class EditRules(QWidget): # {{{
         if isinstance(rule, Rule):
             d = RuleEditor(self.model.fm)
             d.apply_rule(col, rule)
-            if d.exec_() == d.Accepted:
-                col, r = d.rule
-                if r is not None and col:
-                    self.model.replace_rule(index, col, r)
-                    self.rules_view.scrollTo(index)
-                    self.changed.emit()
         else:
-            td = TemplateDialog(self, rule, None)
-            if td.exec_() == td.Accepted:
+            d = TemplateDialog(self, rule, mi=self.mi, fm=self.fm, color_field=col)
+        if d.exec_() == d.Accepted:
+            col, r = d.rule
+            if r is not None and col:
+                self.model.replace_rule(index, col, r)
+                self.rules_view.scrollTo(index)
                 self.changed.emit()
-                pass # TODO
 
     def get_selected_row(self, txt):
         sm = self.rules_view.selectionModel()
@@ -575,7 +575,7 @@ if __name__ == '__main__':
 
     db = db()
 
-    if False:
+    if True:
         d = RuleEditor(db.field_metadata)
         d.add_blank_condition()
         d.exec_()
@@ -588,7 +588,7 @@ if __name__ == '__main__':
     else:
         d = EditRules()
         d.resize(QSize(800, 600))
-        d.initialize(db.field_metadata, db.prefs)
+        d.initialize(db.field_metadata, db.prefs, None)
         d.show()
         app.exec_()
         d.commit(db.prefs)

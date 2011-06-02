@@ -167,7 +167,10 @@ def conditionable_columns(fm):
         dt = m['datatype']
         if m.get('name', False) and dt in ('bool', 'int', 'float', 'rating', 'series',
                 'comments', 'text', 'enumeration', 'datetime'):
-            yield key
+            if key == 'sort':
+                yield 'title_sort'
+            else:
+                yield key
 
 def displayable_columns(fm):
     for key in fm.displayable_field_keys():
