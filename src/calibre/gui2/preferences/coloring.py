@@ -391,6 +391,17 @@ class RulesModel(QAbstractListModel):
                 rules.append((col, r))
         prefs['column_color_rules'] = rules
 
+    def move(self, idx, delta):
+        row = idx.row() + delta
+        if row >= 0 and row < len(self.rules):
+            t = self.rules[row]
+            self.rules[row] = self.rules[row-delta]
+            self.rules[row-delta] = t
+            self.dataChanged.emit(idx, idx)
+            idx = self.index(row)
+            self.dataChanged.emit(idx, idx)
+            return idx
+
     def rule_to_html(self, col, rule):
         if isinstance(rule, basestring):
             return _('''
@@ -437,7 +448,7 @@ class EditRules(QWidget):
 
         self.g = g = QGridLayout()
         self.rules_view = QListView(self)
-        self.rules_view.activated.connect(self.edit_rule)
+        self.rules_view.doubleClicked.connect(self.edit_rule)
         self.rules_view.setSelectionMode(self.rules_view.SingleSelection)
         self.rules_view.setAlternatingRowColors(True)
         self.rtfd = RichTextDelegate(parent=self.rules_view, max_width=400)
@@ -495,19 +506,37 @@ class EditRules(QWidget):
     def add_advanced(self):
         pass
 
-    def remove_rule(self):
+    def get_selected_row(self, txt):
         sm = self.rules_view.selectionModel()
         rows = list(sm.selectedRows())
         if not rows:
-            return error_dialog(self, _('No rule selected'),
-                    _('No rule selected for removal.'), show=True)
-        self.model.remove_rule(rows[0])
+            error_dialog(self, _('No rule selected'),
+                    _('No rule selected for %s.')%txt, show=True)
+            return None
+        return rows[0]
+
+    def remove_rule(self):
+        row = self.get_selected_row(_('removal'))
+        if row is not None:
+            self.model.remove_rule(row)
 
     def move_up(self):
-        pass
+        idx = self.rules_view.currentIndex()
+        if idx.isValid():
+            idx = self.model.move(idx, -1)
+            if idx is not None:
+                sm = self.rules_view.selectionModel()
+                sm.select(idx, sm.ClearAndSelect)
+                self.rules_view.setCurrentIndex(idx)
 
     def move_down(self):
-        pass
+        idx = self.rules_view.currentIndex()
+        if idx.isValid():
+            idx = self.model.move(idx, 1)
+            if idx is not None:
+                sm = self.rules_view.selectionModel()
+                sm.select(idx, sm.ClearAndSelect)
+                self.rules_view.setCurrentIndex(idx)
 
     def commit(self, prefs):
         self.model.commit(prefs)
