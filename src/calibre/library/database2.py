@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 The database used to store ebook metadata
 '''
 import os, sys, shutil, cStringIO, glob, time, functools, traceback, re, \
-        json, uuid
+        json, uuid, tempfile
 import threading, random
 from itertools import repeat
 from math import ceil
@@ -591,11 +591,13 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     f.write(cdata)
             for format in formats:
                 # Get data as string (can't use file as source and target files may be the same)
-                f = self.format(id, format, index_is_id=True, as_file=False)
-                if not f:
+                f = self.format(id, format, index_is_id=True, as_file=True)
+                if f is None:
                     continue
-                stream = cStringIO.StringIO(f)
-                self.add_format(id, format, stream, index_is_id=True,
+                with tempfile.SpooledTemporaryFile(max_size=100*(1024**2)) as stream:
+                    shutil.copyfileobj(f, stream)
+                    stream.seek(0)
+                    self.add_format(id, format, stream, index_is_id=True,
                         path=tpath, notify=False)
         self.conn.execute('UPDATE books SET path=? WHERE id=?', (path, id))
         self.dirtied([id], commit=False)
