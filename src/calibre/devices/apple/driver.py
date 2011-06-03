@@ -2392,6 +2392,15 @@ class ITUNES(DriverBase):
                 self.iTunes.Windows[0].Minimized = True
             self.initial_status = 'launched'
 
+            try:
+                # Pre-emptive test to confirm functional iTunes automation interface
+                foo = self.iTunes.Version
+            except:
+                self.iTunes = None
+                raise OpenFeedback('Unable to connect to iTunes.\n' +
+                             ' iTunes automation interface non-responsive, ' +
+                             'recommend reinstalling iTunes')
+
             # Read the current storage path for iTunes media from the XML file
             media_dir = ''
             string = None
@@ -2987,7 +2996,6 @@ class ITUNES(DriverBase):
         else:
             newmi = book
         return newmi
-
 
 class ITUNES_ASYNC(ITUNES):
     '''
