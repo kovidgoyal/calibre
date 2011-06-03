@@ -176,7 +176,12 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.update_font_display()
         self.display_model.initialize()
         db = self.gui.current_db
-        self.edit_rules.initialize(db.field_metadata, db.prefs)
+        try:
+            idx = self.gui.library_view.currentIndex().row()
+            mi = db.get_metadata(idx, index_is_id=False)
+        except:
+            mi=None
+        self.edit_rules.initialize(db.field_metadata, db.prefs, mi)
 
     def restore_defaults(self):
         ConfigWidgetBase.restore_defaults(self)

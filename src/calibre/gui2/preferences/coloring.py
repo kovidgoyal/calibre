@@ -10,7 +10,7 @@ __docformat__ = 'restructuredtext en'
 from PyQt4.Qt import (QWidget, QDialog, QLabel, QGridLayout, QComboBox, QSize,
         QLineEdit, QIntValidator, QDoubleValidator, QFrame, QColor, Qt, QIcon,
         QScrollArea, QPushButton, QVBoxLayout, QDialogButtonBox, QToolButton,
-        QListView, QAbstractListModel, pyqtSignal)
+        QListView, QAbstractListModel, pyqtSignal, QSizePolicy, QSpacerItem)
 
 from calibre.utils.icu import sort_key
 from calibre.gui2 import error_dialog
@@ -30,6 +30,14 @@ class ConditionEditor(QWidget): # {{{
                     (_('is true'), 'is true',),
                     (_('is false'), 'is false'),
                     (_('is undefined'), 'is undefined')
+            ),
+            'ondevice' : (
+                    (_('is true'), 'is set',),
+                    (_('is false'), 'is not set'),
+            ),
+            'identifiers' : (
+                (_('has id'), 'has id'),
+                (_('does not have id'), 'does not have id'),
             ),
             'int' : (
                 (_('is equal to'), 'eq'),
@@ -72,7 +80,7 @@ class ConditionEditor(QWidget): # {{{
         self.action_box = QComboBox(self)
         l.addWidget(self.action_box, 0, 3)
 
-        self.l3 = l3 = QLabel(_(' the value '))
+        self.l3 = l3 = QLabel(_(' value '))
         l.addWidget(l3, 0, 4)
 
         self.value_box = QLineEdit(self)
@@ -81,7 +89,7 @@ class ConditionEditor(QWidget): # {{{
         self.column_box.addItem('', '')
         for key in sorted(
                 conditionable_columns(fm),
-                key=lambda x:sort_key(fm[x]['name'])):
+                key=sort_key):
             self.column_box.addItem(key, key)
         self.column_box.setCurrentIndex(0)
 
@@ -155,7 +163,12 @@ class ConditionEditor(QWidget): # {{{
         if dt in self.action_map:
             actions = self.action_map[dt]
         else:
-            k = 'multiple' if m['is_multiple'] else 'single'
+            if col == 'ondevice':
+                k = 'ondevice'
+            elif col == 'identifiers':
+                k = 'identifiers'
+            else:
+                k = 'multiple' if m['is_multiple'] else 'single'
             actions = self.action_map[k]
 
         for text, key in actions:
@@ -176,7 +189,10 @@ class ConditionEditor(QWidget): # {{{
         if not col or not action:
             return
         tt = ''
-        if dt in ('int', 'float', 'rating'):
+        if col == 'identifiers':
+            tt = _('Enter either an identifier type or an '
+                    'identifier type and value of the form identifier:value')
+        elif dt in ('int', 'float', 'rating'):
             tt = _('Enter a number')
             v = QIntValidator if dt == 'int' else QDoubleValidator
             self.value_box.setValidator(v(self.value_box))
@@ -184,9 +200,12 @@ class ConditionEditor(QWidget): # {{{
             self.value_box.setInputMask('9999-99-99')
             tt = _('Enter a date in the format YYYY-MM-DD')
         else:
-            tt = _('Enter a string')
+            tt = _('Enter a string.')
             if 'pattern' in action:
                 tt = _('Enter a regular expression')
+            elif m.get('is_multiple', False):
+                tt += '\n' + _('You can match multiple values by separating'
+                        ' them with %s')%m['is_multiple']
         self.value_box.setToolTip(tt)
         if action in ('is set', 'is not set', 'is true', 'is false',
                 'is undefined'):
@@ -207,11 +226,11 @@ class RuleEditor(QDialog): # {{{
 
         self.l1 = l1 = QLabel(_('Create a coloring rule by'
             ' filling in the boxes below'))
-        l.addWidget(l1, 0, 0, 1, 4)
+        l.addWidget(l1, 0, 0, 1, 5)
 
         self.f1 = QFrame(self)
         self.f1.setFrameShape(QFrame.HLine)
-        l.addWidget(self.f1, 1, 0, 1, 4)
+        l.addWidget(self.f1, 1, 0, 1, 5)
 
         self.l2 = l2 = QLabel(_('Set the color of the column:'))
         l.addWidget(l2, 2, 0)
@@ -220,37 +239,36 @@ class RuleEditor(QDialog): # {{{
         l.addWidget(self.column_box, 2, 1)
 
         self.l3 = l3 = QLabel(_('to'))
-        l3.setAlignment(Qt.AlignHCenter)
         l.addWidget(l3, 2, 2)
 
         self.color_box = QComboBox(self)
         l.addWidget(self.color_box, 2, 3)
+        l.addItem(QSpacerItem(10, 10, QSizePolicy.Expanding), 2, 4)
 
         self.l4 = l4 = QLabel(
             _('Only if the following conditions are all satisfied:'))
-        l4.setAlignment(Qt.AlignHCenter)
-        l.addWidget(l4, 3, 0, 1, 4)
+        l.addWidget(l4, 3, 0, 1, 5)
 
         self.scroll_area = sa = QScrollArea(self)
         sa.setMinimumHeight(300)
         sa.setMinimumWidth(950)
         sa.setWidgetResizable(True)
-        l.addWidget(sa, 4, 0, 1, 4)
+        l.addWidget(sa, 4, 0, 1, 5)
 
         self.add_button = b = QPushButton(QIcon(I('plus.png')),
                 _('Add another condition'))
-        l.addWidget(b, 5, 0, 1, 4)
+        l.addWidget(b, 5, 0, 1, 5)
         b.clicked.connect(self.add_blank_condition)
 
         self.l5 = l5 = QLabel(_('You can disable a condition by'
             ' blanking all of its boxes'))
-        l.addWidget(l5, 6, 0, 1, 4)
+        l.addWidget(l5, 6, 0, 1, 5)
 
         self.bb = bb = QDialogButtonBox(
                 QDialogButtonBox.Ok|QDialogButtonBox.Cancel)
         bb.accepted.connect(self.accept)
         bb.rejected.connect(self.reject)
-        l.addWidget(bb, 7, 0, 1, 4)
+        l.addWidget(bb, 7, 0, 1, 5)
 
         self.conditions_widget = QWidget(self)
         sa.setWidget(self.conditions_widget)
@@ -264,7 +282,7 @@ class RuleEditor(QDialog): # {{{
 
         for key in sorted(
                 displayable_columns(fm),
-                key=lambda x:sort_key(fm[x]['name'])):
+                key=sort_key):
             name = fm[key]['name']
             if name:
                 self.column_box.addItem(key, key)
@@ -408,9 +426,9 @@ class RulesModel(QAbstractListModel): # {{{
         self.reset()
 
     def rule_to_html(self, col, rule):
-        if isinstance(rule, basestring):
+        if not isinstance(rule, Rule):
             return _('''
-            <p>Advanced Rule for column: %s
+            <p>Advanced Rule for column <b>%s</b>:
             <pre>%s</pre>
             ''')%(col, rule)
         conditions = [self.condition_to_html(c) for c in rule.conditions]
@@ -422,7 +440,7 @@ class RulesModel(QAbstractListModel): # {{{
 
     def condition_to_html(self, condition):
         return (
-            _('<li>If the <b>%s</b> column <b>%s</b> the value: <b>%s</b>') %
+            _('<li>If the <b>%s</b> column <b>%s</b> value: <b>%s</b>') %
                 tuple(condition))
 
 # }}}
@@ -483,25 +501,28 @@ class EditRules(QWidget): # {{{
         b.clicked.connect(self.add_advanced)
         l.addWidget(b, 3, 0, 1, 2)
 
-    def initialize(self, fm, prefs):
+    def initialize(self, fm, prefs, mi):
         self.model = RulesModel(prefs, fm)
         self.rules_view.setModel(self.model)
+        self.fm = fm
+        self.mi = mi
 
-    def add_rule(self):
-        d = RuleEditor(self.model.fm)
-        d.add_blank_condition()
-        if d.exec_() == d.Accepted:
-            col, r = d.rule
-            if r is not None and col:
+    def _add_rule(self, dlg):
+        if dlg.exec_() == dlg.Accepted:
+            col, r = dlg.rule
+            if r and col:
                 idx = self.model.add_rule(col, r)
                 self.rules_view.scrollTo(idx)
                 self.changed.emit()
 
+    def add_rule(self):
+            d = RuleEditor(self.model.fm)
+            d.add_blank_condition()
+            self._add_rule(d)
+
     def add_advanced(self):
-        td = TemplateDialog(self, '', None)
-        if td.exec_() == td.Accepted:
-            self.changed.emit()
-            pass # TODO
+        td = TemplateDialog(self, '', mi=self.mi, fm=self.fm, color_field='')
+        self._add_rule(td)
 
     def edit_rule(self, index):
         try:
@@ -511,17 +532,14 @@ class EditRules(QWidget): # {{{
         if isinstance(rule, Rule):
             d = RuleEditor(self.model.fm)
             d.apply_rule(col, rule)
-            if d.exec_() == d.Accepted:
-                col, r = d.rule
-                if r is not None and col:
-                    self.model.replace_rule(index, col, r)
-                    self.rules_view.scrollTo(index)
-                    self.changed.emit()
         else:
-            td = TemplateDialog(self, rule, None)
-            if td.exec_() == td.Accepted:
+            d = TemplateDialog(self, rule, mi=self.mi, fm=self.fm, color_field=col)
+        if d.exec_() == d.Accepted:
+            col, r = d.rule
+            if r is not None and col:
+                self.model.replace_rule(index, col, r)
+                self.rules_view.scrollTo(index)
                 self.changed.emit()
-                pass # TODO
 
     def get_selected_row(self, txt):
         sm = self.rules_view.selectionModel()
@@ -588,7 +606,7 @@ if __name__ == '__main__':
     else:
         d = EditRules()
         d.resize(QSize(800, 600))
-        d.initialize(db.field_metadata, db.prefs)
+        d.initialize(db.field_metadata, db.prefs, None)
         d.show()
         app.exec_()
         d.commit(db.prefs)

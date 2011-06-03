@@ -426,7 +426,7 @@ class CcTemplateDelegate(QStyledItemDelegate): # {{{
         editor.textbox.setTabStopWidth(20)
         d = editor.exec_()
         if d:
-            m.setData(index, QVariant(editor.textbox.toPlainText()), Qt.EditRole)
+            m.setData(index, QVariant(editor.rule[1]), Qt.EditRole)
         return None
 
     def setModelData(self, editor, model, index):
