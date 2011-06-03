@@ -127,6 +127,8 @@ class Rule(object): # {{{
                 val, lt, eq, gt)
 
     def multiple_condition(self, col, action, val, sep):
+        if sep == '|':
+            sep = ','
         if action == 'is set':
             return "test(field('%s'), '1', '')"%col
         if action == 'is not set':
