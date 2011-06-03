@@ -12,10 +12,9 @@ from PyQt4.Qt import QLineEdit, QAbstractListModel, Qt, \
 from calibre.utils.icu import sort_key, lower
 from calibre.gui2 import NONE
 from calibre.gui2.widgets import EnComboBox, LineEditECM
+from calibre.utils.config_base import tweaks
 
 class CompleteModel(QAbstractListModel):
-
-    MAX_LEX_SORT_ITEMS = 5000
 
     def __init__(self, parent=None):
         QAbstractListModel.__init__(self, parent)
@@ -24,7 +23,7 @@ class CompleteModel(QAbstractListModel):
 
     def set_items(self, items):
         items = [unicode(x.strip()) for x in items]
-        if len(items) < self.MAX_LEX_SORT_ITEMS:
+        if len(items) < tweaks['completion_change_to_ascii_sorting']:
             self.items = sorted(items, key=lambda x: sort_key(x))
             self.sorting = QCompleter.UnsortedModel
         else:
