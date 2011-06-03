@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-05-29 21:12+0000\n"
-"PO-Revision-Date: 2011-05-28 08:46+0000\n"
-"Last-Translator: Jellby <Unknown>\n"
+"PO-Revision-Date: 2011-06-02 06:58+0000\n"
+"Last-Translator: Juan Echanobe <Unknown>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-05-30 04:52+0000\n"
+"X-Launchpad-Export-Date: 2011-06-03 04:38+0000\n"
 "X-Generator: Launchpad (build 12959)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:528
@@ -3120,7 +3120,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:51
 msgid "Value: unknown field "
-msgstr ""
+msgstr "Valor: campo desconocido "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:144
 msgid "TEMPLATE ERROR"
@@ -9852,6 +9852,8 @@ msgid ""
 "See the <a href=\"http://manual.calibre-ebook.com/gui.html#the-search-"
 "interface\">User Manual</a> for more help"
 msgstr ""
+"Mira en <a href=\"http://manual.calibre-ebook.com/gui.html#the-search-"
+"interface\">User Manual</a> para más ayuda."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:210
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:218
@@ -10184,7 +10186,7 @@ msgstr "Asistente de etiquetas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:72
 msgid "Tags (see the popup help for more information)"
-msgstr ""
+msgstr "Tags (mira el globo de ayuda para más información)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:74
 msgid ""
@@ -10195,6 +10197,12 @@ msgid ""
 "expression matches from the beginning to the end of the tag.<br>Regular "
 "expression examples:"
 msgstr ""
+"Puedes introducir varios tag por caja, separados por comas. La comparación "
+"ignora mayúsculas o minúsculas. <br> Un tag puede ser una expresión regular. "
+"Verifica la caja para activarla. Cuando uses expresiones regulares, verás "
+"que el asistente pondrá anclas (^ y $) alrededor de la expresión, asi que "
+"debes asegurarte de que la expresión corresponde al principio del tag. <br> "
+"Ejemplos de expresiones regulares:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:82
 msgid ""
