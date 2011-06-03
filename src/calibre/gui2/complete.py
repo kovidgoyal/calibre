@@ -12,6 +12,7 @@ from PyQt4.Qt import QLineEdit, QAbstractListModel, Qt, \
 from calibre.utils.icu import sort_key, lower
 from calibre.gui2 import NONE
 from calibre.gui2.widgets import EnComboBox, LineEditECM
+from calibre.utils.config import tweaks
 
 class CompleteModel(QAbstractListModel):
 
@@ -21,7 +22,10 @@ class CompleteModel(QAbstractListModel):
 
     def set_items(self, items):
         items = [unicode(x.strip()) for x in items]
-        self.items = list(sorted(items, key=lambda x: sort_key(x)))
+        if len(items) < tweaks['completion_change_to_ascii_sorting']:
+            self.items = list(sorted(items, key=lambda x: sort_key(x)))
+        else:
+            self.items = list(sorted(items, key=lambda x: x))
         self.lowered_items = [lower(x) for x in self.items]
         self.reset()
 
@@ -62,7 +66,6 @@ class MultiCompleteLineEdit(QLineEdit, LineEditECM):
         c.setWidget(self)
         c.setCompletionMode(QCompleter.PopupCompletion)
         c.setCaseSensitivity(Qt.CaseInsensitive)
-        c.setModelSorting(QCompleter.UnsortedModel)
         c.setCompletionRole(Qt.DisplayRole)
         p = c.popup()
         p.setMouseTracking(True)
@@ -75,6 +78,10 @@ class MultiCompleteLineEdit(QLineEdit, LineEditECM):
 
     # Interface {{{
     def update_items_cache(self, complete_items):
+        if len(complete_items) < tweaks['completion_change_to_ascii_sorting']:
+            self._completer.setModelSorting(QCompleter.UnsortedModel)
+        else:
+            self._completer.setModelSorting(QCompleter.CaseInsensitivelySortedModel)
         self.all_items = complete_items
 
     def set_separator(self, sep):
