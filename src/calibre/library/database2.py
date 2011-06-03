@@ -595,7 +595,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 if f is None:
                     continue
                 with tempfile.SpooledTemporaryFile(max_size=100*(1024**2)) as stream:
-                    shutil.copyfileobj(f, stream)
+                    with f:
+                        shutil.copyfileobj(f, stream)
                     stream.seek(0)
                     self.add_format(id, format, stream, index_is_id=True,
                         path=tpath, notify=False)
