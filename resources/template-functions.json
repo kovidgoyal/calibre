@@ -5,7 +5,7 @@
     "uppercase": "def evaluate(self, formatter, kwargs, mi, locals, val):\n    return val.upper()\n", 
     "strcat": "def evaluate(self, formatter, kwargs, mi, locals, *args):\n    i = 0\n    res = ''\n    for i in range(0, len(args)):\n        res += args[i]\n    return res\n", 
     "in_list": "def evaluate(self, formatter, kwargs, mi, locals, val, sep, pat, fv, nfv):\n    l = [v.strip() for v in val.split(sep) if v.strip()]\n    if l:\n        for v in l:\n            if re.search(pat, v, flags=re.I):\n                return fv\n    return nfv\n", 
-    "multiply": "def evaluate(self, formatter, kwargs, mi, locals, x, y):\n    x = float(x if x else 0)\n    y = float(y if y else 0)\n    return unicode(x * y)\n", 
+    "not": "def evaluate(self, formatter, kwargs, mi, locals, *args):\n    i = 0\n    while i < len(args):\n        if args[i]:\n            return '1'\n        i += 1\n    return ''\n", 
     "ifempty": "def evaluate(self, formatter, kwargs, mi, locals, val, value_if_empty):\n    if val:\n        return val\n    else:\n        return value_if_empty\n", 
     "booksize": "def evaluate(self, formatter, kwargs, mi, locals):\n    if mi.book_size is not None:\n        try:\n            return str(mi.book_size)\n        except:\n            pass\n    return ''\n", 
     "select": "def evaluate(self, formatter, kwargs, mi, locals, val, key):\n    if not val:\n        return ''\n    vals = [v.strip() for v in val.split(',')]\n    for v in vals:\n        if v.startswith(key+':'):\n            return v[len(key)+1:]\n    return ''\n", 
@@ -27,9 +27,10 @@
     "sublist": "def evaluate(self, formatter, kwargs, mi, locals, val, start_index, end_index, sep):\n    if not val:\n        return ''\n    si = int(start_index)\n    ei = int(end_index)\n    val = val.split(sep)\n    try:\n        if ei == 0:\n            return sep.join(val[si:])\n        else:\n            return sep.join(val[si:ei])\n    except:\n        return ''\n", 
     "test": "def evaluate(self, formatter, kwargs, mi, locals, val, value_if_set, value_not_set):\n    if val:\n        return value_if_set\n    else:\n        return value_not_set\n", 
     "eval": "def evaluate(self, formatter, kwargs, mi, locals, template):\n    from formatter import eval_formatter\n    template = template.replace('[[', '{').replace(']]', '}')\n    return eval_formatter.safe_format(template, locals, 'EVAL', None)\n", 
-    "not": "def evaluate(self, formatter, kwargs, mi, locals, *args):\n    i = 0\n    while i < len(args):\n        if args[i]:\n            return '1'\n        i += 1\n    return ''\n", 
-    "format_date": "def evaluate(self, formatter, kwargs, mi, locals, val, format_string):\n    if not val:\n        return ''\n    try:\n        dt = parse_date(val)\n        s = format_date(dt, format_string)\n    except:\n        s = 'BAD DATE'\n    return s\n", 
+    "multiply": "def evaluate(self, formatter, kwargs, mi, locals, x, y):\n    x = float(x if x else 0)\n    y = float(y if y else 0)\n    return unicode(x * y)\n", 
+    "format_date": "def evaluate(self, formatter, kwargs, mi, locals, val, format_string):\n    if not val or val == 'None':\n        return ''\n    try:\n        dt = parse_date(val)\n        s = format_date(dt, format_string)\n    except:\n        s = 'BAD DATE'\n    return s\n", 
     "capitalize": "def evaluate(self, formatter, kwargs, mi, locals, val):\n    return capitalize(val)\n", 
+    "identifier_in_list": "def evaluate(self, formatter, kwargs, mi, locals, val, ident, fv, nfv):\n    l = [v.strip() for v in val.split(',') if v.strip()]\n    (id, _, regexp) = ident.partition(':')\n    if not id:\n        return nfv\n    id += ':'\n    if l:\n        for v in l:\n            if v.startswith(id):\n                if not regexp or re.search(regexp, v[len(id):], flags=re.I):\n                    return fv\n    return nfv\n", 
     "count": "def evaluate(self, formatter, kwargs, mi, locals, val, sep):\n    return unicode(len(val.split(sep)))\n", 
     "lowercase": "def evaluate(self, formatter, kwargs, mi, locals, val):\n    return val.lower()\n", 
     "substr": "def evaluate(self, formatter, kwargs, mi, locals, str_, start_, end_):\n    return str_[int(start_): len(str_) if int(end_) == 0 else int(end_)]\n", 
@@ -38,5 +39,5 @@
     "ondevice": "def evaluate(self, formatter, kwargs, mi, locals):\n    if mi.ondevice_col:\n        return _('Yes')\n    return ''\n", 
     "assign": "def evaluate(self, formatter, kwargs, mi, locals, target, value):\n    locals[target] = value\n    return value\n", 
     "raw_field": "def evaluate(self, formatter, kwargs, mi, locals, name):\n    return unicode(getattr(mi, name, None))\n", 
-    "cmp": "def evaluate(self, formatter, kwargs, mi, locals, x, y, lt, eq, gt):\n    x = float(x if x else 0)\n    y = float(y if y else 0)\n    if x < y:\n        return lt\n    if x == y:\n        return eq\n    return gt\n"
+    "cmp": "def evaluate(self, formatter, kwargs, mi, locals, x, y, lt, eq, gt):\n    x = float(x if x and x != 'None' else 0)\n    y = float(y if y and y != 'None' else 0)\n    if x < y:\n        return lt\n    if x == y:\n        return eq\n    return gt\n"
 }
