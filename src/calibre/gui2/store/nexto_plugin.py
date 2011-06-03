@@ -44,7 +44,7 @@ class NextoStore(BasicStoreConfig, StorePlugin):
             d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
-        url = 'http://www.nexto.pl/szukaj.xml?search-clause=' + urllib.quote_plus(query.encode('utf-8')) + '&scid=1015'
+        url = 'http://www.nexto.pl/szukaj.xml?search-clause=' + urllib.quote_plus(query) + '&scid=1015'
 
         br = browser()
 

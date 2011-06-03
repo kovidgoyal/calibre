@@ -35,7 +35,7 @@ class VirtualoStore(BasicStoreConfig, StorePlugin):
             d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
-        url = 'http://virtualo.pl/c2/?q=' + urllib.quote(query.encode('utf-8'))
+        url = 'http://virtualo.pl/c2/?q=' + urllib.quote(query)
 
         br = browser()
 
