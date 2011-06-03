@@ -4,6 +4,7 @@ src/calibre/plugins
 resources/images.qrc
 src/calibre/manual/.build/
 src/calibre/manual/cli/
+src/calibre/manual/template_ref.rst
 build
 dist
 docs

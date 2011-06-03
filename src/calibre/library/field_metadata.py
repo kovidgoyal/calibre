@@ -374,6 +374,8 @@ class FieldMetadata(dict):
         self.get = self._tb_cats.get
 
     def __getitem__(self, key):
+        if key == 'title_sort':
+            return self._tb_cats['sort']
         return self._tb_cats[key]
 
     def __setitem__(self, key, val):
@@ -390,6 +392,8 @@ class FieldMetadata(dict):
         return self.has_key(key)
 
     def has_key(self, key):
+        if key == 'title_sort':
+            return True
         return key in self._tb_cats
 
     def keys(self):
