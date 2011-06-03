@@ -44,9 +44,9 @@ class Customize(QFrame, Ui_Frame):
             clear.clicked.connect(partial(self.clear_clicked, which=x))
 
     def clear_clicked(self, which=0):
-         button = getattr(self, 'button%d'%which)
-         button.setText(_('None'))
-         setattr(self, 'shortcut%d'%which, None)
+        button = getattr(self, 'button%d'%which)
+        button.setText(_('None'))
+        setattr(self, 'shortcut%d'%which, None)
 
     def custom_toggled(self, checked):
         for w in ('1', '2'):
