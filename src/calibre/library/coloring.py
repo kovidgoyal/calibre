@@ -85,7 +85,7 @@ class Rule(object): # {{{
         if dt == 'datetime':
             return self.date_condition(col, action, val)
 
-        if dt in ('comments', 'series', 'text', 'enumeration'):
+        if dt in ('comments', 'series', 'text', 'enumeration', 'composite'):
             ism = m.get('is_multiple', False)
             if ism:
                 return self.multiple_condition(col, action, val, ism)
@@ -185,7 +185,7 @@ def conditionable_columns(fm):
         m = fm[key]
         dt = m['datatype']
         if m.get('name', False) and dt in ('bool', 'int', 'float', 'rating', 'series',
-                'comments', 'text', 'enumeration', 'datetime'):
+                'comments', 'text', 'enumeration', 'datetime', 'composite'):
             if key == 'sort':
                 yield 'title_sort'
             else:
