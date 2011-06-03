@@ -18,7 +18,6 @@ from calibre.library.field_metadata import FieldMetadata
 from calibre.utils.date import isoformat, format_date
 from calibre.utils.icu import sort_key
 from calibre.utils.formatter import TemplateFormatter
-from calibre.utils.config import config
 
 def human_readable(size, precision=2):
     """ Convert a size in bytes into megabytes """
@@ -558,13 +557,12 @@ class Metadata(object):
 
     def format_series_index(self, val=None):
         from calibre.ebooks.metadata import fmt_sidx
-        use_roman=config['use_roman_numerals_for_series_number']
         v = self.series_index if val is None else val
         try:
             x = float(v)
         except (ValueError, TypeError):
             x = 1
-        return fmt_sidx(x, use_roman=use_roman)
+        return fmt_sidx(x)
 
     def authors_from_string(self, raw):
         from calibre.ebooks.metadata import string_to_authors
