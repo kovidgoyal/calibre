@@ -2395,6 +2395,7 @@ class ITUNES(DriverBase):
             try:
                 # Pre-emptive test to confirm functional iTunes automation interface
                 foo = self.iTunes.Version
+                foo
             except:
                 self.iTunes = None
                 raise OpenFeedback('Unable to connect to iTunes.\n' +
