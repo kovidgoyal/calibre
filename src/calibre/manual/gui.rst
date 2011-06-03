@@ -74,10 +74,7 @@ Edit metadata
     1. **Edit metadata individually**: This allows you to edit the metadata of books one-by-one, with the option of fetching metadata, including covers from the internet. It also allows you to add/remove particular ebook formats from a book. 
     2. **Edit metadata in bulk**: This allows you to edit common metadata fields for large numbers of books simulataneously. It operates on all the books you have selected in the :ref:`Library view <search_sort>`.
     3. **Download metadata and covers**: Downloads metadata and covers (if available), for the books that are selected in the book list.
-    4. **Download only metadata**: Downloads only metadata (if available), for the books that are selected in the book list.
-    5. **Download only covers**: Downloads only covers (if available), for the books that are selected in the book list.
-    6. **Download only social metadata**: Downloads only social metadata such as tags and reviews (if available), for the books that are selected in the book list.
-    7. **Merge Book Records**: Gives you the capability of merging the metadata and formats of two or more book records together. You can choose to either delete or keep the records that were not clicked first.
+    4. **Merge Book Records**: Gives you the capability of merging the metadata and formats of two or more book records together. You can choose to either delete or keep the records that were not clicked first.
 
 For more details see :ref:`metadata`.
 
