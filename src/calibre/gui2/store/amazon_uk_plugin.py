@@ -77,7 +77,6 @@ class AmazonUKKindleStore(AmazonKindleStore):
                 s.detail_item = asin.strip()
                 s.formats = ''
 
-                print('is_shot', is_shot)
                 if is_shot:
                     # Amazon UK does not include the author on the grid layout
                     s.author = ''
@@ -106,7 +105,6 @@ class AmazonUKKindleStore(AmazonKindleStore):
                 is_kindle = idata.xpath('boolean(//div[@class="buying"]/h1/span/span[contains(text(), "Kindle Edition")])')
                 if is_kindle:
                     search_result.formats = 'Kindle'
-                print('az uk', is_kindle)
             if idata.xpath('boolean(//div[@class="content"]//li/b[contains(text(), "' +
                            self.drm_search_text + '")])'):
                 if idata.xpath('boolean(//div[@class="content"]//li[contains(., "' +
