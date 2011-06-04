@@ -209,7 +209,7 @@ class ConditionEditor(QWidget): # {{{
                 tt = _('Enter a regular expression')
             elif m.get('is_multiple', False):
                 tt += '\n' + _('You can match multiple values by separating'
-                        ' them with %s')%m['is_multiple']
+                        ' them with %s')%m['is_multiple']['ui_to_list']
         self.value_box.setToolTip(tt)
         if action in ('is set', 'is not set', 'is true', 'is false',
                 'is undefined'):
