@@ -1,0 +1,64 @@
+import re
+from calibre.web.feeds.news import BasicNewsRecipe
+coverpage = None
+
+class ObservatorulCultural(BasicNewsRecipe):
+    title                 = u'Observatorul cultural'
+    __author__            = 'song2' #prelucrat dupa un script de http://www.thenowhereman.com
+    encoding = 'utf-8'
+    language = 'ro'
+    publication_type = 'magazine'
+    description = 'Spiritul critic in acţiune\n'
+    no_stylesheets        = True
+    remove_javascript     = True
+    masthead_url='http://www.observatorcultural.ro/userfiles/article/sigla%20Observator%20cultural_02231058.JPG'
+    keep_only_tags = [
+        dict(name='div', attrs={'class':'detaliuArticol'})]
+    remove_tags = [dict(name='div', attrs={'class':'comentariiArticol'}),
+         dict(name='div', attrs={'class':'postComment'}),
+         dict(name='div', attrs={'class':'utileArticol'}),
+         dict(name='p', attrs={'class':'butonComenteaza'}),
+         dict(name='h5'),
+         dict(name='div', attrs={'style':'margin-top: 0px; padding-top: 0px;'})
+         ]
+    def parse_index(self):
+        soup = self.index_to_soup('http://www.observatorcultural.ro/Arhiva*-archive.html')
+        issueTag = soup.find('a', href=re.compile("observatorcultural.ro\/Numarul"))
+        issueURL = issueTag['href']
+        print issueURL;
+        issueSoup = self.index_to_soup(issueURL)
+        feeds = []
+        stories = []
+        for categorie in issueSoup.findAll('dl',attrs={'class':'continutArhive'}):
+            categ=self.tag_to_string(categorie.find('dt'))
+            for story in categorie.findAll('dd'):
+                title=[]
+                for bucatele in story.findAll('a'):
+                    title.append(bucatele)
+                if len(title)==1: #daca articolul nu are autor
+                    stories.append({
+                        'title' : self.tag_to_string(title[0]),
+                        'url'   : title[0]['href'],
+                        'date'  : '',
+                        'author' : ''})
+                else: # daca articolul are autor len(title)=2
+                    stories.append({
+                        'title' : self.tag_to_string(title[1]),
+                        'url'   :title[1]['href'],
+                        'date'  : '',
+                        'author' : self.tag_to_string(title[0])})
+                    print(self.tag_to_string(title[0]))
+                if 'Editorial' in categ:
+                    global coverpage
+                    coverpage=title[1]['href']  # am luat link-ul spre editorial
+            feeds.append((categ,stories))
+            stories = []
+        print feeds
+        return feeds
+#procedura de luat coperta
+    def get_cover_url(self):
+        soup = self.index_to_soup(coverpage)
+        link_item = soup.find('a',attrs={'rel':'lightbox'}) # caut imaginea textului
+        a=''
+        cover_url = a.join(link_item.img['src'].split('_details_'))
+        return cover_url

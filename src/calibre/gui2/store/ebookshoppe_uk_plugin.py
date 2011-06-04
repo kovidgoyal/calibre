@@ -65,7 +65,10 @@ class EBookShoppeUKStore(BasicStoreConfig, StorePlugin):
                 s.price = price
                 s.drm = SearchResult.DRM_UNLOCKED
                 s.detail_item = id
+
                 self.get_author_and_formats(s, timeout)
+                if not s.author:
+                    continue
 
                 yield s
 

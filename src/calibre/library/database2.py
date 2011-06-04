@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 The database used to store ebook metadata
 '''
 import os, sys, shutil, cStringIO, glob, time, functools, traceback, re, \
-        json, uuid
+        json, uuid, tempfile
 import threading, random
 from itertools import repeat
 from math import ceil
@@ -211,16 +211,31 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         defs = self.prefs.defaults
         defs['gui_restriction'] = defs['cs_restriction'] = ''
         defs['categories_using_hierarchy'] = []
-        self.column_color_count = 5
-        for i in range(1,self.column_color_count+1):
-            defs['column_color_name_'+str(i)] = ''
-            defs['column_color_template_'+str(i)] = ''
+        defs['column_color_rules'] = []
 
         # Migrate the bool tristate tweak
         defs['bools_are_tristate'] = \
                 tweaks.get('bool_custom_columns_are_tristate', 'yes') == 'yes'
         if self.prefs.get('bools_are_tristate') is None:
             self.prefs.set('bools_are_tristate', defs['bools_are_tristate'])
+
+        # Migrate column coloring rules
+        if self.prefs.get('column_color_name_1', None) is not None:
+            from calibre.library.coloring import migrate_old_rule
+            old_rules = []
+            for i in range(1, 6):
+                col = self.prefs.get('column_color_name_'+str(i), None)
+                templ = self.prefs.get('column_color_template_'+str(i), None)
+                if col and templ:
+                    try:
+                        del self.prefs['column_color_name_'+str(i)]
+                        rules = migrate_old_rule(self.field_metadata, templ)
+                        for templ in rules:
+                            old_rules.append((col, templ))
+                    except:
+                        pass
+            if old_rules:
+                self.prefs['column_color_rules'] += old_rules
 
         # Migrate saved search and user categories to db preference scheme
         def migrate_preference(key, default):
@@ -576,11 +591,14 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     f.write(cdata)
             for format in formats:
                 # Get data as string (can't use file as source and target files may be the same)
-                f = self.format(id, format, index_is_id=True, as_file=False)
-                if not f:
+                f = self.format(id, format, index_is_id=True, as_file=True)
+                if f is None:
                     continue
-                stream = cStringIO.StringIO(f)
-                self.add_format(id, format, stream, index_is_id=True,
+                with tempfile.SpooledTemporaryFile(max_size=100*(1024**2)) as stream:
+                    with f:
+                        shutil.copyfileobj(f, stream)
+                    stream.seek(0)
+                    self.add_format(id, format, stream, index_is_id=True,
                         path=tpath, notify=False)
         self.conn.execute('UPDATE books SET path=? WHERE id=?', (path, id))
         self.dirtied([id], commit=False)
@@ -860,6 +878,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         mi.uuid        = row[fm['uuid']]
         mi.title_sort  = row[fm['sort']]
         mi.book_size   = row[fm['size']]
+        mi.ondevice_col= row[fm['ondevice']]
         mi.last_modified = row[fm['last_modified']]
         formats = row[fm['formats']]
         if not formats:
@@ -1555,13 +1574,13 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             if ids is not None:
                 count = self.conn.get('''SELECT COUNT(id)
                                        FROM data
-                                       WHERE format="%s" AND
-                                       books_list_filter(book)'''%fmt,
+                                       WHERE format=? AND
+                                       books_list_filter(book)''', (fmt,),
                                        all=False)
             else:
                 count = self.conn.get('''SELECT COUNT(id)
                                        FROM data
-                                       WHERE format="%s"'''%fmt,
+                                       WHERE format=?''', (fmt,),
                                        all=False)
             if count > 0:
                 categories['formats'].append(Tag(fmt, count=count, icon=icon,
@@ -1583,13 +1602,13 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             if ids is not None:
                 count = self.conn.get('''SELECT COUNT(book)
                                        FROM identifiers
-                                       WHERE type="%s" AND
-                                       books_list_filter(book)'''%ident,
+                                       WHERE type=? AND
+                                       books_list_filter(book)''', (ident,),
                                        all=False)
             else:
                 count = self.conn.get('''SELECT COUNT(id)
                                        FROM identifiers
-                                       WHERE type="%s"'''%ident,
+                                       WHERE type=?''', (ident,),
                                        all=False)
             if count > 0:
                 categories['identifiers'].append(Tag(ident, count=count, icon=icon,

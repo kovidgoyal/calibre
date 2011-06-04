@@ -121,6 +121,7 @@ class SearchThread(Thread):
                         return
                     res.store_name = store_name
                     res.affiliate = store_plugin.base_plugin.affiliate
+                    res.plugin_author = store_plugin.base_plugin.author
                     self.results.put((res, store_plugin))
                 self.tasks.task_done()
             except:

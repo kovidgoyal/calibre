@@ -3,7 +3,7 @@ calibre supports installation from source, only on Linux.
 Note that you *do not* need to install from source to hack on
 the calibre source code. To get started with calibre development,
 use a normal calibre install and follow the instructions at
-http://calibre-ebook.com/user_manual/develop.html
+http://manual.calibre-ebook.com/develop.html
 
 On Linux, there are two kinds of installation from source possible.
 Note that both kinds require lots of dependencies as well as a

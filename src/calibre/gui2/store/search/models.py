@@ -10,7 +10,7 @@ import re
 from operator import attrgetter
 
 from PyQt4.Qt import (Qt, QAbstractItemModel, QVariant, QPixmap, QModelIndex, QSize,
-                      pyqtSignal, QIcon)
+                      pyqtSignal)
 
 from calibre.gui2 import NONE, FunctionDispatcher
 from calibre.gui2.store.search_result import SearchResult
@@ -33,7 +33,7 @@ class Matches(QAbstractItemModel):
 
     total_changed = pyqtSignal(int)
 
-    HEADERS = [_('Cover'), _('Title'), _('Price'), _('DRM'), _('Store'), _('')]
+    HEADERS = [_('Cover'), _('Title'), _('Price'), _('DRM'), _('Store'), '']
     HTML_COLS = (1, 4)
 
     def __init__(self, cover_thread_count=2, detail_thread_count=4):
@@ -44,6 +44,8 @@ class Matches(QAbstractItemModel):
         self.DRM_UNLOCKED_ICON = QPixmap(I('drm-unlocked.png')).scaledToHeight(64,
                 Qt.SmoothTransformation)
         self.DRM_UNKNOWN_ICON = QPixmap(I('dialog_question.png')).scaledToHeight(64,
+                Qt.SmoothTransformation)
+        self.DONATE_ICON = QPixmap(I('donate.png')).scaledToHeight(16,
                 Qt.SmoothTransformation)
 
         # All matches. Used to determine the order to display
@@ -56,7 +58,7 @@ class Matches(QAbstractItemModel):
         self.search_filter = SearchFilter()
         self.cover_pool = CoverThreadPool(cover_thread_count)
         self.details_pool = DetailsThreadPool(detail_thread_count)
-        
+
         self.filter_results_dispatcher = FunctionDispatcher(self.filter_results)
         self.got_result_details_dispatcher = FunctionDispatcher(self.got_result_details)
 
@@ -180,11 +182,7 @@ class Matches(QAbstractItemModel):
                     return QVariant(self.DRM_UNKNOWN_ICON)
             if col == 5:
                 if result.affiliate:
-                    # For some reason the size(16, 16) is forgotten if the icon
-                    # is a class attribute. Don't know why...
-                    icon = QIcon()
-                    icon.addFile(I('donate.png'), QSize(16, 16))
-                    return QVariant(icon)
+                    return QVariant(self.DONATE_ICON)
                 return NONE
         elif role == Qt.ToolTipRole:
             if col == 1:
@@ -202,7 +200,7 @@ class Matches(QAbstractItemModel):
                 return QVariant('<p>%s</p>' % result.formats)
             elif col == 5:
                 if result.affiliate:
-                    return QVariant(_('Buying from this store supports a calibre developer'))
+                    return QVariant('<p>' + _('Buying from this store supports the calibre developer: %s.') % result.plugin_author + '</p>')
         elif role == Qt.SizeHintRole:
             return QSize(64, 64)
         return NONE

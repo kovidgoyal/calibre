@@ -52,7 +52,7 @@ def create_man_page(prog, parser):
 
     lines += ['.SH SEE ALSO',
               'The User Manual is available at '
-              'http://calibre-ebook.com/user_manual',
+              'http://manual.calibre-ebook.com',
               '.PP', '.B Created by '+__author__]
 
     lines = [x if isinstance(x, unicode) else unicode(x, 'utf-8', 'replace') for

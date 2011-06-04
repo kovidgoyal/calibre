@@ -1108,7 +1108,6 @@ class StoreAmazonKindleStore(StoreBase):
     description = u'Kindle books from Amazon.'
     actual_plugin = 'calibre.gui2.store.amazon_plugin:AmazonKindleStore'
 
-    drm_free_only = False
     headquarters = 'US'
     formats = ['KINDLE']
     affiliate = True
@@ -1119,7 +1118,6 @@ class StoreAmazonDEKindleStore(StoreBase):
     description = u'Kindle Bücher von Amazon.'
     actual_plugin = 'calibre.gui2.store.amazon_de_plugin:AmazonDEKindleStore'
 
-    drm_free_only = False
     headquarters = 'DE'
     formats = ['KINDLE']
     affiliate = True
@@ -1130,7 +1128,6 @@ class StoreAmazonUKKindleStore(StoreBase):
     description = u'Kindle books from Amazon\'s UK web site. Also, includes French language ebooks.'
     actual_plugin = 'calibre.gui2.store.amazon_uk_plugin:AmazonUKKindleStore'
 
-    drm_free_only = False
     headquarters = 'UK'
     formats = ['KINDLE']
     affiliate = True
@@ -1143,7 +1140,6 @@ class StoreArchiveOrgStore(StoreBase):
     drm_free_only = True
     headquarters = 'US'
     formats = ['DAISY', 'DJVU', 'EPUB', 'MOBI', 'PDF', 'TXT']
-    affiliate = False
 
 class StoreBaenWebScriptionStore(StoreBase):
     name = 'Baen WebScription'
@@ -1153,14 +1149,12 @@ class StoreBaenWebScriptionStore(StoreBase):
     drm_free_only = True
     headquarters = 'US'
     formats = ['EPUB', 'LIT', 'LRF', 'MOBI', 'RB', 'RTF', 'ZIP']
-    affiliate = False
 
 class StoreBNStore(StoreBase):
     name = 'Barnes and Noble'
     description = u'The world\'s largest book seller. As the ultimate destination for book lovers, Barnes & Noble.com offers an incredible array of content.'
     actual_plugin = 'calibre.gui2.store.bn_plugin:BNStore'
 
-    drm_free_only = False
     headquarters = 'US'
     formats = ['NOOK']
     affiliate = True
@@ -1184,14 +1178,12 @@ class StoreBeWriteStore(StoreBase):
     drm_free_only = True
     headquarters = 'US'
     formats = ['EPUB', 'MOBI', 'PDF']
-    affiliate = False
 
 class StoreDieselEbooksStore(StoreBase):
     name = 'Diesel eBooks'
     description = u'Instant access to over 2.4 million titles from hundreds of publishers including Harlequin, HarperCollins, John Wiley & Sons, McGraw-Hill, Simon & Schuster and Random House.'
     actual_plugin = 'calibre.gui2.store.diesel_ebooks_plugin:DieselEbooksStore'
 
-    drm_free_only = False
     headquarters = 'US'
     formats = ['EPUB', 'PDF']
     affiliate = True
@@ -1201,7 +1193,6 @@ class StoreEbookscomStore(StoreBase):
     description = u'Sells books in multiple electronic formats in all categories. Technical infrastructure is cutting edge, robust and scalable, with servers in the US and Europe.'
     actual_plugin = 'calibre.gui2.store.ebooks_com_plugin:EbookscomStore'
 
-    drm_free_only = False
     headquarters = 'US'
     formats = ['EPUB', 'LIT', 'MOBI', 'PDF']
     affiliate = True
@@ -1223,7 +1214,6 @@ class StoreEBookShoppeUKStore(StoreBase):
     description = u'We made this website in an attempt to offer the widest range of UK eBooks possible across and as many formats as we could manage.'
     actual_plugin = 'calibre.gui2.store.ebookshoppe_uk_plugin:EBookShoppeUKStore'
 
-    drm_free_only = False
     headquarters = 'UK'
     formats = ['EPUB', 'PDF']
     affiliate = True
@@ -1233,20 +1223,26 @@ class StoreEHarlequinStore(StoreBase):
     description = u'A global leader in series romance and one of the world\'s leading publishers of books for women. Offers women a broad range of reading from romance to bestseller fiction, from young adult novels to erotic literature, from nonfiction to fantasy, from African-American novels to inspirational romance, and more.'
     actual_plugin = 'calibre.gui2.store.eharlequin_plugin:EHarlequinStore'
 
-    drm_free_only = False
     headquarters = 'CA'
     formats = ['EPUB', 'PDF']
     affiliate = True
+
+class StoreEpubBudStore(StoreBase):
+    name = 'ePub Bud'
+    description = 'Well, it\'s pretty much just "YouTube for Children\'s eBooks. A not-for-profit organization devoted to brining self published childrens books to the world.'
+    actual_plugin = 'calibre.gui2.store.epubbud_plugin:EpubBudStore'
+    
+    drm_free_only = True
+    headquarters = 'US'
+    formats = ['EPUB']
 
 class StoreFeedbooksStore(StoreBase):
     name = 'Feedbooks'
     description = u'Feedbooks is a cloud publishing and distribution service, connected to a large ecosystem of reading systems and social networks. Provides a variety of genres from independent and classic books.'
     actual_plugin = 'calibre.gui2.store.feedbooks_plugin:FeedbooksStore'
 
-    drm_free_only = False
     headquarters = 'FR'
     formats = ['EPUB', 'MOBI', 'PDF']
-    affiliate = False
 
 class StoreFoylesUKStore(StoreBase):
     name = 'Foyles UK'
@@ -1254,7 +1250,6 @@ class StoreFoylesUKStore(StoreBase):
     description = u'Foyles of London\'s ebook store. Provides extensive range covering all subjects.'
     actual_plugin = 'calibre.gui2.store.foyles_uk_plugin:FoylesUKStore'
 
-    drm_free_only = False
     headquarters = 'UK'
     formats = ['EPUB', 'PDF']
     affiliate = True
@@ -1265,20 +1260,16 @@ class StoreGandalfStore(StoreBase):
     description = u'Księgarnia internetowa Gandalf.'
     actual_plugin = 'calibre.gui2.store.gandalf_plugin:GandalfStore'
 
-    drm_free_only = False
     headquarters = 'PL'
     formats = ['EPUB', 'PDF']
-    affiliate = False
 
 class StoreGoogleBooksStore(StoreBase):
     name = 'Google Books'
     description = u'Google Books'
     actual_plugin = 'calibre.gui2.store.google_books_plugin:GoogleBooksStore'
 
-    drm_free_only = False
     headquarters = 'US'
     formats = ['EPUB', 'PDF', 'TXT']
-    affiliate = False
 
 class StoreGutenbergStore(StoreBase):
     name = 'Project Gutenberg'
@@ -1288,14 +1279,12 @@ class StoreGutenbergStore(StoreBase):
     drm_free_only = True
     headquarters = 'US'
     formats = ['EPUB', 'HTML', 'MOBI', 'PDB', 'TXT']
-    affiliate = False
 
 class StoreKoboStore(StoreBase):
     name = 'Kobo'
     description = u'With over 2.3 million eBooks to browse we have engaged readers in over 200 countries in Kobo eReading. Our eBook listings include New York Times Bestsellers, award winners, classics and more!'
     actual_plugin = 'calibre.gui2.store.kobo_plugin:KoboStore'
 
-    drm_free_only = False
     headquarters = 'CA'
     formats = ['EPUB']
     affiliate = True
@@ -1306,10 +1295,8 @@ class StoreLegimiStore(StoreBase):
     description = u'Tanie oraz darmowe ebooki, egazety i blogi w formacie EPUB, wprost na Twój e-czytnik, iPhone, iPad, Android i komputer'
     actual_plugin = 'calibre.gui2.store.legimi_plugin:LegimiStore'
 
-    drm_free_only = False
     headquarters = 'PL'
     formats = ['EPUB']
-    affiliate = False
 
 class StoreManyBooksStore(StoreBase):
     name = 'ManyBooks'
@@ -1319,7 +1306,6 @@ class StoreManyBooksStore(StoreBase):
     drm_free_only = True
     headquarters = 'US'
     formats = ['EPUB', 'FB2', 'JAR', 'LIT', 'LRF', 'MOBI', 'PDB', 'PDF', 'RB', 'RTF', 'TCR', 'TXT', 'ZIP']
-    affiliate = False
 
 class StoreMobileReadStore(StoreBase):
     name = 'MobileRead'
@@ -1329,7 +1315,6 @@ class StoreMobileReadStore(StoreBase):
     drm_free_only = True
     headquarters = 'CH'
     formats = ['EPUB', 'IMP', 'LRF', 'LIT', 'MOBI', 'PDF']
-    affiliate = False
 
 class StoreNextoStore(StoreBase):
     name = 'Nexto'
@@ -1337,7 +1322,6 @@ class StoreNextoStore(StoreBase):
     description = u'Największy w Polsce sklep internetowy z audiobookami mp3, ebookami pdf oraz prasą do pobrania on-line.'
     actual_plugin = 'calibre.gui2.store.nexto_plugin:NextoStore'
 
-    drm_free_only = False
     headquarters = 'PL'
     formats = ['EPUB', 'PDF']
     affiliate = True
@@ -1350,7 +1334,6 @@ class StoreOpenLibraryStore(StoreBase):
     drm_free_only = True
     headquarters = 'US'
     formats = ['DAISY', 'DJVU', 'EPUB', 'MOBI', 'PDF', 'TXT']
-    affiliate = False
 
 class StoreOReillyStore(StoreBase):
     name = 'OReilly'
@@ -1360,7 +1343,6 @@ class StoreOReillyStore(StoreBase):
     drm_free_only = True
     headquarters = 'US'
     formats = ['APK', 'DAISY', 'EPUB', 'MOBI', 'PDF']
-    affiliate = False
 
 class StorePragmaticBookshelfStore(StoreBase):
     name = 'Pragmatic Bookshelf'
@@ -1370,7 +1352,6 @@ class StorePragmaticBookshelfStore(StoreBase):
     drm_free_only = True
     headquarters = 'US'
     formats = ['EPUB', 'MOBI', 'PDF']
-    affiliate = False
 
 class StoreSmashwordsStore(StoreBase):
     name = 'Smashwords'
@@ -1388,10 +1369,8 @@ class StoreVirtualoStore(StoreBase):
     description = u'Księgarnia internetowa, która oferuje bezpieczny i szeroki dostęp do książek w formie cyfrowej.'
     actual_plugin = 'calibre.gui2.store.virtualo_plugin:VirtualoStore'
 
-    drm_free_only = False
     headquarters = 'PL'
     formats = ['EPUB', 'PDF']
-    affiliate = False
 
 class StoreWaterstonesUKStore(StoreBase):
     name = 'Waterstones UK'
@@ -1399,10 +1378,8 @@ class StoreWaterstonesUKStore(StoreBase):
     description = u'Waterstone\'s mission is to be the leading Bookseller on the High Street and online providing customers the widest choice, great value and expert advice from a team passionate about Bookselling.'
     actual_plugin = 'calibre.gui2.store.waterstones_uk_plugin:WaterstonesUKStore'
 
-    drm_free_only = False
     headquarters = 'UK'
     formats = ['EPUB', 'PDF']
-    affiliate = False
 
 class StoreWeightlessBooksStore(StoreBase):
     name = 'Weightless Books'
@@ -1412,7 +1389,6 @@ class StoreWeightlessBooksStore(StoreBase):
     drm_free_only = True
     headquarters = 'US'
     formats = ['EPUB', 'HTML', 'LIT', 'MOBI', 'PDF']
-    affiliate = False
 
 class StoreWHSmithUKStore(StoreBase):
     name = 'WH Smith UK'
@@ -1420,10 +1396,8 @@ class StoreWHSmithUKStore(StoreBase):
     description = u"Shop for savings on Books, discounted Magazine subscriptions and great prices on Stationery, Toys & Games"
     actual_plugin = 'calibre.gui2.store.whsmith_uk_plugin:WHSmithUKStore'
 
-    drm_free_only = False
     headquarters = 'UK'
     formats = ['EPUB', 'PDF']
-    affiliate = False
 
 class StoreWizardsTowerBooksStore(StoreBase):
     name = 'Wizards Tower Books'
@@ -1433,7 +1407,6 @@ class StoreWizardsTowerBooksStore(StoreBase):
     drm_free_only = True
     headquarters = 'UK'
     formats = ['EPUB', 'MOBI']
-    affiliate = False
 
 class StoreWoblinkStore(StoreBase):
     name = 'Woblink'
@@ -1441,10 +1414,8 @@ class StoreWoblinkStore(StoreBase):
     description = u'Czytanie zdarza się wszędzie!'
     actual_plugin = 'calibre.gui2.store.woblink_plugin:WoblinkStore'
 
-    drm_free_only = False
     headquarters = 'PL'
     formats = ['EPUB']
-    affiliate = False
 
 plugins += [
     StoreArchiveOrgStore,
@@ -1460,6 +1431,7 @@ plugins += [
     StoreEBookShoppeUKStore,
     StoreEPubBuyDEStore,
     StoreEHarlequinStore,
+    StoreEpubBudStore,
     StoreFeedbooksStore,
     StoreFoylesUKStore,
     StoreGandalfStore,

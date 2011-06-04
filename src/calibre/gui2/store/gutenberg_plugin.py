@@ -6,7 +6,7 @@ __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import urllib2
+import urllib
 from contextlib import closing
 
 from lxml import html
@@ -42,7 +42,7 @@ class GutenbergStore(BasicStoreConfig, StorePlugin):
     def search(self, query, max_results=10, timeout=60):
         # Gutenberg's website does not allow searching both author and title.
         # Using a google search so we can search on both fields at once.
-        url = 'http://www.google.com/xhtml?q=site:gutenberg.org+' + urllib2.quote(query)
+        url = 'http://www.google.com/xhtml?q=site:gutenberg.org+' + urllib.quote_plus(query)
         
         br = browser()
         

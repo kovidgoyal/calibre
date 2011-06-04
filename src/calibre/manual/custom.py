@@ -240,11 +240,21 @@ def cli_docs(app):
             raw += '\n'+'\n'.join(lines)
             update_cli_doc(os.path.join('cli', cmd+'.rst'), raw, info)
 
+def generate_docs(app):
+    cli_docs(app)
+    template_docs(app)
+
+def template_docs(app):
+    from template_ref_generate import generate_template_language_help
+    info = app.builder.info
+    raw = generate_template_language_help()
+    update_cli_doc('template_ref.rst', raw, info)
+
 def setup(app):
     app.add_config_value('epub_cover', None, False)
     app.add_builder(EPUBHelpBuilder)
     app.connect('doctree-read', substitute)
-    app.connect('builder-inited', cli_docs)
+    app.connect('builder-inited', generate_docs)
     app.connect('build-finished', finished)
 
 def finished(app, exception):
