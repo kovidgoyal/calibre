@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 lxml based OPF parser.
 '''
 
-import re, sys, unittest, functools, os, uuid, glob, cStringIO, json
+import re, sys, unittest, functools, os, uuid, glob, cStringIO, json, copy
 from urllib import unquote
 from urlparse import urlparse
 
@@ -457,6 +457,14 @@ def serialize_user_metadata(metadata_elem, all_user_metadata, tail='\n'+(' '*8))
 
     for name, fm in all_user_metadata.items():
         try:
+            if fm.get('is_multiple'):
+                # migrate is_multiple back to a character
+                fm = copy.copy(fm)
+                dt = fm.get('datatype', None)
+                if dt == 'composite':
+                    fm['is_multiple'] = ','
+                else:
+                    fm['is_multiple'] =  '|'
             fm = object_to_unicode(fm)
             fm = json.dumps(fm, default=to_json, ensure_ascii=False)
         except:
@@ -585,6 +593,17 @@ class OPF(object): # {{{
             fm = elem.get('content')
             try:
                 fm = json.loads(fm, object_hook=from_json)
+                im = fm.get('is_multiple', None)
+                if im and not isinstance(im, dict):
+                    # Must migrate the is_multiple from char to dict
+                    dt = fm.get('datatype', None)
+                    if dt == 'composite':
+                        im = {'cache_to_list': ',', 'ui_to_list': ',', 'list_to_ui': ', '}
+                    elif fm.get('display', {}).get('is_names', False):
+                        im = {'cache_to_list': '|', 'ui_to_list': '&', 'list_to_ui': ', '}
+                    else:
+                        im = {'cache_to_list': '|', 'ui_to_list': ',', 'list_to_ui': ', '}
+                    fm['is_multiple'] = im
                 temp.set_user_metadata(name, fm)
             except:
                 prints('Failed to read user metadata:', name)

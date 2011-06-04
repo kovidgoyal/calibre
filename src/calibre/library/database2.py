@@ -1250,7 +1250,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             dex = field['rec_index']
             for book in self.data.iterall():
                 if field['is_multiple']:
-                    vals = [v.strip() for v in book[dex].split(field['is_multiple'])
+                    vals = [v.strip() for v in
+                            book[dex].split(field['is_multiple']['cache_to_list'])
                             if v.strip()]
                     if id_ in vals:
                         ans.add(book[0])
@@ -1378,7 +1379,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             tcategories[category] = {}
             # create a list of category/field_index for the books scan to use.
             # This saves iterating through field_metadata for each book
-            md.append((category, cat['rec_index'], cat['is_multiple'], False))
+            md.append((category, cat['rec_index'],
+                       cat['is_multiple'].get('cache_to_list', None), False))
 
         for category in tb_cats.iterkeys():
             cat = tb_cats[category]
@@ -1386,7 +1388,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                                 cat['display'].get('make_category', False):
                 tids[category] = {}
                 tcategories[category] = {}
-                md.append((category, cat['rec_index'], cat['is_multiple'],
+                md.append((category, cat['rec_index'],
+                           cat['is_multiple'].get('cache_to_list', None),
                            cat['datatype'] == 'composite'))
         #print 'end phase "collection":', time.clock() - last, 'seconds'
         #last = time.clock()

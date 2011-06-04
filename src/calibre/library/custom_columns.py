@@ -78,6 +78,18 @@ class CustomColumns(object):
                     }
             if data['display'] is None:
                 data['display'] = {}
+            # set up the is_multiple separator dict
+            if data['is_multiple']:
+                if data['display'].get('is_names', False):
+                    seps = {'cache_to_list': '|', 'ui_to_list': '&', 'list_to_ui': ' & '}
+                elif data['datatype'] == 'composite':
+                    seps = {'cache_to_list': ',', 'ui_to_list': ',', 'list_to_ui': ', '}
+                else:
+                    seps = {'cache_to_list': '|', 'ui_to_list': ',', 'list_to_ui': ', '}
+            else:
+                seps = {}
+            data['multiple_seps'] = seps
+
             table, lt = self.custom_table_names(data['num'])
             if table not in custom_tables or (data['normalized'] and lt not in
                     custom_tables):
@@ -119,7 +131,7 @@ class CustomColumns(object):
                 if x is None:
                     return []
                 if isinstance(x, (str, unicode, bytes)):
-                    x = x.split('&' if d['display'].get('is_names', False) else',')
+                    x = x.split(d['multiple_seps']['ui_to_list'])
                 x = [y.strip() for y in x if y.strip()]
                 x = [y.decode(preferred_encoding, 'replace') if not isinstance(y,
                     unicode) else y for y in x]
@@ -181,10 +193,7 @@ class CustomColumns(object):
                 is_category = True
             else:
                 is_category = False
-            if v['is_multiple']:
-                is_m = ',' if v['datatype'] == 'composite' else '|'
-            else:
-                is_m = None
+            is_m = v['multiple_seps']
             tn = 'custom_column_{0}'.format(v['num'])
             self.field_metadata.add_custom_field(label=v['label'],
                     table=tn, column='value', datatype=v['datatype'],
@@ -200,7 +209,7 @@ class CustomColumns(object):
         row = self.data._data[idx] if index_is_id else self.data[idx]
         ans = row[self.FIELD_MAP[data['num']]]
         if data['is_multiple'] and data['datatype'] == 'text':
-            ans = ans.split('|') if ans else []
+            ans = ans.split(data['multiple_seps']['cache_to_list']) if ans else []
             if data['display'].get('sort_alpha', False):
                 ans.sort(cmp=lambda x,y:cmp(x.lower(), y.lower()))
         return ans
@@ -571,9 +580,17 @@ class CustomColumns(object):
             if data['normalized']:
                 query = '%s.value'
                 if data['is_multiple']:
-                    query = 'group_concat(%s.value, "|")'
-                    if not display.get('sort_alpha', False):
-                        query = 'sort_concat(link.id, %s.value)'
+#                    query = 'group_concat(%s.value, "{0}")'.format(
+#                                        data['multiple_seps']['cache_to_list'])
+#                    if not display.get('sort_alpha', False):
+                    if data['multiple_seps']['cache_to_list'] == '|':
+                        query = 'sortconcat_bar(link.id, %s.value)'
+                    elif data['multiple_seps']['cache_to_list'] == '&':
+                        query = 'sortconcat_amper(link.id, %s.value)'
+                    else:
+                        prints('WARNING: unknown value in multiple_seps',
+                               data['multiple_seps']['cache_to_list'])
+                        query = 'sortconcat_bar(link.id, %s.value)'
                 line = '''(SELECT {query} FROM {lt} AS link INNER JOIN
                     {table} ON(link.value={table}.id) WHERE link.book=books.id)
                     custom_{num}
