@@ -69,7 +69,11 @@ class Newsweek(BasicNewsRecipe):
         for section, shref in self.newsweek_sections():
             self.log('Processing section', section, shref)
             articles = []
-            soups = [self.index_to_soup(shref)]
+            try:
+                soups = [self.index_to_soup(shref)]
+            except:
+                self.log.warn('Section %s not found, skipping'%section)
+                continue
             na = soups[0].find('a', rel='next')
             if na:
                 soups.append(self.index_to_soup(self.BASE_URL+na['href']))
