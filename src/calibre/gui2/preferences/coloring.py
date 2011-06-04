@@ -159,6 +159,9 @@ class ConditionEditor(QWidget): # {{{
         self.action_box.clear()
         self.action_box.addItem('', '')
         col = self.current_col
+        if not col:
+            self.init_value_box()
+            return
         m = self.fm[col]
         dt = m['datatype']
         if dt in self.action_map:
@@ -184,11 +187,11 @@ class ConditionEditor(QWidget): # {{{
         self.value_box.setInputMask('')
         self.value_box.setValidator(None)
         col = self.current_col
-        m = self.fm[col]
-        dt = m['datatype']
         action = self.current_action
         if not col or not action:
             return
+        m = self.fm[col]
+        dt = m['datatype']
         tt = ''
         if col == 'identifiers':
             tt = _('Enter either an identifier type or an '
