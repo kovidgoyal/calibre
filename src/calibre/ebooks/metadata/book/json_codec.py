@@ -5,8 +5,7 @@ Created on 4 Jun 2010
 '''
 
 from base64 import b64encode, b64decode
-import json
-import traceback
+import json, traceback
 
 from calibre.ebooks.metadata.book import SERIALIZABLE_FIELDS
 from calibre.constants import filesystem_encoding, preferred_encoding
@@ -69,6 +68,40 @@ def object_to_unicode(obj, enc=preferred_encoding):
         return ans
     return obj
 
+def encode_is_multiple(fm):
+    if fm.get('is_multiple'):
+        # migrate is_multiple back to a character
+        fm['is_multiple2'] = fm.get('is_multiple', {})
+        dt = fm.get('datatype', None)
+        if dt == 'composite':
+            fm['is_multiple'] = ','
+        else:
+            fm['is_multiple'] =  '|'
+    else:
+        fm['is_multiple'] = None
+        fm['is_multiple2'] = {}
+
+def decode_is_multiple(fm):
+    im = fm.get('is_multiple2',  None)
+    if im:
+        fm['is_multiple'] = im
+        del fm['is_multiple2']
+    else:
+        # Must migrate the is_multiple from char to dict
+        im = fm.get('is_multiple',  {})
+        if im:
+            dt = fm.get('datatype', None)
+            if dt == 'composite':
+                im = {'cache_to_list': ',', 'ui_to_list': ',',
+                      'list_to_ui': ', '}
+            elif fm.get('display', {}).get('is_names', False):
+                im = {'cache_to_list': '|', 'ui_to_list': '&',
+                      'list_to_ui': ', '}
+            else:
+                im = {'cache_to_list': '|', 'ui_to_list': ',',
+                      'list_to_ui': ', '}
+        fm['is_multiple'] = im
+
 class JsonCodec(object):
 
     def __init__(self):
@@ -93,9 +126,10 @@ class JsonCodec(object):
     def encode_metadata_attr(self, book, key):
         if key == 'user_metadata':
             meta = book.get_all_user_metadata(make_copy=True)
-            for k in meta:
-                if meta[k]['datatype'] == 'datetime':
-                    meta[k]['#value#'] = datetime_to_string(meta[k]['#value#'])
+            for fm in meta.itervalues():
+                if fm['datatype'] == 'datetime':
+                    fm['#value#'] = datetime_to_string(fm['#value#'])
+                encode_is_multiple(fm)
             return meta
         if key in self.field_metadata:
             datatype = self.field_metadata[key]['datatype']
@@ -135,9 +169,10 @@ class JsonCodec(object):
         if key == 'classifiers':
             key = 'identifiers'
         if key == 'user_metadata':
-            for k in value:
-                if value[k]['datatype'] == 'datetime':
-                    value[k]['#value#'] = string_to_datetime(value[k]['#value#'])
+            for fm in value.itervalues():
+                if fm['datatype'] == 'datetime':
+                    fm['#value#'] = string_to_datetime(fm['#value#'])
+                decode_is_multiple(fm)
             return value
         elif key in self.field_metadata:
             if self.field_metadata[key]['datatype'] == 'datetime':
