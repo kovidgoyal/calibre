@@ -192,6 +192,8 @@ class ConditionEditor(QWidget): # {{{
         action = self.current_action
         if not action:
             return
+        m = self.fm[col]
+        dt = m['datatype']
         tt = ''
         if col == 'identifiers':
             tt = _('Enter either an identifier type or an '

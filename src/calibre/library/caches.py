@@ -509,7 +509,8 @@ class ResultCache(SearchQueryParser): # {{{
             valq_mkind, valq = self._matchkind(query)
 
         loc = self.field_metadata[location]['rec_index']
-        split_char = self.field_metadata[location]['is_multiple']['cache_to_list']
+        split_char = self.field_metadata[location]['is_multiple'].get(
+                'cache_to_list', ',')
         for id_ in candidates:
             item = self._data[id_]
             if item is None:

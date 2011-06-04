@@ -575,7 +575,6 @@ class CustomColumns(object):
     def custom_columns_in_meta(self):
         lines = {}
         for data in self.custom_column_label_map.values():
-            display = data['display']
             table, lt = self.custom_table_names(data['num'])
             if data['normalized']:
                 query = '%s.value'
