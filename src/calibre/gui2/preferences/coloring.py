@@ -12,6 +12,7 @@ from PyQt4.Qt import (QWidget, QDialog, QLabel, QGridLayout, QComboBox, QSize,
         QScrollArea, QPushButton, QVBoxLayout, QDialogButtonBox, QToolButton,
         QListView, QAbstractListModel, pyqtSignal, QSizePolicy, QSpacerItem)
 
+from calibre import prepare_string_for_xml
 from calibre.utils.icu import sort_key
 from calibre.gui2 import error_dialog
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
@@ -430,7 +431,7 @@ class RulesModel(QAbstractListModel): # {{{
             return _('''
             <p>Advanced Rule for column <b>%s</b>:
             <pre>%s</pre>
-            ''')%(col, rule)
+            ''')%(col, prepare_string_for_xml(rule))
         conditions = [self.condition_to_html(c) for c in rule.conditions]
         return _('''\
             <p>Set the color of <b>%s</b> to <b>%s</b> if the following
@@ -439,9 +440,10 @@ class RulesModel(QAbstractListModel): # {{{
             ''') % (col, rule.color, ''.join(conditions))
 
     def condition_to_html(self, condition):
+        c, a, v = condition
         return (
             _('<li>If the <b>%s</b> column <b>%s</b> value: <b>%s</b>') %
-                tuple(condition))
+                (c, a, prepare_string_for_xml(v)))
 
 # }}}
 
