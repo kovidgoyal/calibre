@@ -88,7 +88,7 @@ class Rule(object): # {{{
         if dt in ('comments', 'series', 'text', 'enumeration', 'composite'):
             ism = m.get('is_multiple', False)
             if ism:
-                return self.multiple_condition(col, action, val, ',' if ism == '|' else ism)
+                return self.multiple_condition(col, action, val, ism['ui_to_list'])
             return self.text_condition(col, action, val)
 
     def identifiers_condition(self, col, action, val):

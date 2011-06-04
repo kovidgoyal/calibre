@@ -520,7 +520,7 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
             elif not fm['is_multiple']:
                 val = [val]
             elif fm['datatype'] == 'composite':
-                val = [v.strip() for v in val.split(fm['is_multiple'])]
+                val = [v.strip() for v in val.split(fm['is_multiple']['ui_to_list'])]
             elif field == 'authors':
                 val = [v.replace('|', ',') for v in val]
         else:
@@ -655,14 +655,14 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
 
         if self.destination_field_fm['is_multiple']:
             if self.comma_separated.isChecked():
-                if dest == 'authors' or \
-                        (self.destination_field_fm['is_custom'] and
-                         self.destination_field_fm['datatype'] == 'text' and
-                         self.destination_field_fm['display'].get('is_names', False)):
-                    splitter = ' & '
-                else:
-                    splitter = ','
-
+                splitter = self.destination_field_fm['is_multiple']['ui_to_list']
+#                if dest == 'authors' or \
+#                        (self.destination_field_fm['is_custom'] and
+#                         self.destination_field_fm['datatype'] == 'text' and
+#                         self.destination_field_fm['display'].get('is_names', False)):
+#                    splitter = ' & '
+#                else:
+#                    splitter = ','
                 res = []
                 for v in val:
                     for x in v.split(splitter):
