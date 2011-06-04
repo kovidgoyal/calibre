@@ -453,19 +453,13 @@ class TitleSortField(MetadataField):
 
 def serialize_user_metadata(metadata_elem, all_user_metadata, tail='\n'+(' '*8)):
     from calibre.utils.config import to_json
-    from calibre.ebooks.metadata.book.json_codec import object_to_unicode
+    from calibre.ebooks.metadata.book.json_codec import (object_to_unicode,
+                                                         encode_is_multiple)
 
     for name, fm in all_user_metadata.items():
         try:
-            if fm.get('is_multiple'):
-                # migrate is_multiple back to a character
-                fm = copy.copy(fm)
-                fm['is_multiple2'] = fm.get('is_multiple', {})
-                dt = fm.get('datatype', None)
-                if dt == 'composite':
-                    fm['is_multiple'] = ','
-                else:
-                    fm['is_multiple'] =  '|'
+            fm = copy.copy(fm)
+            encode_is_multiple(fm)
             fm = object_to_unicode(fm)
             fm = json.dumps(fm, default=to_json, ensure_ascii=False)
         except:
@@ -584,6 +578,7 @@ class OPF(object): # {{{
         self._user_metadata_ = {}
         temp = Metadata('x', ['x'])
         from calibre.utils.config import from_json
+        from calibre.ebooks.metadata.book.json_codec import decode_is_multiple
         elems = self.root.xpath('//*[name() = "meta" and starts-with(@name,'
                 '"calibre:user_metadata:") and @content]')
         for elem in elems:
@@ -594,25 +589,7 @@ class OPF(object): # {{{
             fm = elem.get('content')
             try:
                 fm = json.loads(fm, object_hook=from_json)
-                im = fm.get('is_multiple2',  None)
-                if im:
-                    fm['is_multiple'] = im
-                    del fm['is_multiple2']
-                else:
-                    # Must migrate the is_multiple from char to dict
-                    im = fm.get('is_multiple',  None)
-                    if im:
-                        dt = fm.get('datatype', None)
-                        if dt == 'composite':
-                            im = {'cache_to_list': ',', 'ui_to_list': ',',
-                                  'list_to_ui': ', '}
-                        elif fm.get('display', {}).get('is_names', False):
-                            im = {'cache_to_list': '|', 'ui_to_list': '&',
-                                  'list_to_ui': ', '}
-                        else:
-                            im = {'cache_to_list': '|', 'ui_to_list': ',',
-                                  'list_to_ui': ', '}
-                        fm['is_multiple'] = im
+                decode_is_multiple(fm)
                 temp.set_user_metadata(name, fm)
             except:
                 prints('Failed to read user metadata:', name)
