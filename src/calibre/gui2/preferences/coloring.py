@@ -159,21 +159,22 @@ class ConditionEditor(QWidget): # {{{
         self.action_box.clear()
         self.action_box.addItem('', '')
         col = self.current_col
-        m = self.fm[col]
-        dt = m['datatype']
-        if dt in self.action_map:
-            actions = self.action_map[dt]
-        else:
-            if col == 'ondevice':
-                k = 'ondevice'
-            elif col == 'identifiers':
-                k = 'identifiers'
+        if col:
+            m = self.fm[col]
+            dt = m['datatype']
+            if dt in self.action_map:
+                actions = self.action_map[dt]
             else:
-                k = 'multiple' if m['is_multiple'] else 'single'
-            actions = self.action_map[k]
+                if col == 'ondevice':
+                    k = 'ondevice'
+                elif col == 'identifiers':
+                    k = 'identifiers'
+                else:
+                    k = 'multiple' if m['is_multiple'] else 'single'
+                actions = self.action_map[k]
 
-        for text, key in actions:
-            self.action_box.addItem(text, key)
+            for text, key in actions:
+                self.action_box.addItem(text, key)
         self.action_box.setCurrentIndex(0)
         self.action_box.blockSignals(False)
         self.init_value_box()
@@ -184,10 +185,12 @@ class ConditionEditor(QWidget): # {{{
         self.value_box.setInputMask('')
         self.value_box.setValidator(None)
         col = self.current_col
+        if not col:
+            return
         m = self.fm[col]
         dt = m['datatype']
         action = self.current_action
-        if not col or not action:
+        if not action:
             return
         tt = ''
         if col == 'identifiers':
