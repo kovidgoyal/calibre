@@ -26,14 +26,9 @@ class BeWriteStore(BasicStoreConfig, StorePlugin):
         url = 'http://www.bewrite.net/mm5/merchant.mvc?Screen=SFNT'
 
         if external or self.config.get('open_external', False):
-            if detail_item:
-                url = url + detail_item
-            open_url(QUrl(url_slash_cleaner(url)))
+            open_url(QUrl(url_slash_cleaner(detail_item if detail_item else url)))
         else:
-            detail_url = None
-            if detail_item:
-                detail_url = url + detail_item
-            d = WebStoreDialog(self.gui, url, parent, detail_url)
+            d = WebStoreDialog(self.gui, url, parent, detail_item)
             d.setWindowTitle(self.name)
             d.set_tags(self.config.get('tags', ''))
             d.exec_()

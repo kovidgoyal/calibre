@@ -120,7 +120,19 @@ class Split(object):
         for i, x in enumerate(page_breaks):
             x.set('id', x.get('id', 'calibre_pb_%d'%i))
             id = x.get('id')
-            page_breaks_.append((XPath('//*[@id=%r]'%id),
+            try:
+                xp = XPath('//*[@id="%s"]'%id)
+            except:
+                try:
+                    xp = XPath("//*[@id='%s']"%id)
+                except:
+                    # The id has both a quote and an apostrophe or some other
+                    # Just replace it since I doubt its going to work anywhere else
+                    # either
+                    id = 'calibre_pb_%d'%i
+                    x.set('id', id)
+                    xp = XPath('//*[@id=%r]'%id)
+            page_breaks_.append((xp,
                 x.get('pb_before', False)))
             page_break_ids.append(id)
 

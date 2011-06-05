@@ -9,9 +9,10 @@ __docformat__ = 'restructuredtext en'
 import re
 from operator import attrgetter
 
-from PyQt4.Qt import (Qt, QAbstractItemModel, QVariant, QPixmap, QModelIndex, QSize)
+from PyQt4.Qt import (Qt, QAbstractItemModel, QVariant, QPixmap, QModelIndex, QSize,
+                      pyqtSignal)
 
-from calibre.gui2 import NONE
+from calibre.gui2 import NONE, FunctionDispatcher
 from calibre.gui2.store.search_result import SearchResult
 from calibre.gui2.store.search.download_thread import DetailsThreadPool, \
     CoverThreadPool
@@ -30,10 +31,12 @@ def comparable_price(text):
 
 class Matches(QAbstractItemModel):
 
-    HEADERS = [_('Cover'), _('Title'), _('Price'), _('DRM'), _('Store')]
+    total_changed = pyqtSignal(int)
+
+    HEADERS = [_('Cover'), _('Title'), _('Price'), _('DRM'), _('Store'), '']
     HTML_COLS = (1, 4)
 
-    def __init__(self):
+    def __init__(self, cover_thread_count=2, detail_thread_count=4):
         QAbstractItemModel.__init__(self)
 
         self.DRM_LOCKED_ICON = QPixmap(I('drm-locked.png')).scaledToHeight(64,
@@ -41,6 +44,8 @@ class Matches(QAbstractItemModel):
         self.DRM_UNLOCKED_ICON = QPixmap(I('drm-unlocked.png')).scaledToHeight(64,
                 Qt.SmoothTransformation)
         self.DRM_UNKNOWN_ICON = QPixmap(I('dialog_question.png')).scaledToHeight(64,
+                Qt.SmoothTransformation)
+        self.DONATE_ICON = QPixmap(I('donate.png')).scaledToHeight(16,
                 Qt.SmoothTransformation)
 
         # All matches. Used to determine the order to display
@@ -51,8 +56,11 @@ class Matches(QAbstractItemModel):
         self.matches = []
         self.query = ''
         self.search_filter = SearchFilter()
-        self.cover_pool = CoverThreadPool(2)
-        self.details_pool = DetailsThreadPool(4)
+        self.cover_pool = CoverThreadPool(cover_thread_count)
+        self.details_pool = DetailsThreadPool(detail_thread_count)
+
+        self.filter_results_dispatcher = FunctionDispatcher(self.filter_results)
+        self.got_result_details_dispatcher = FunctionDispatcher(self.got_result_details)
 
         self.sort_col = 2
         self.sort_order = Qt.AscendingOrder
@@ -69,6 +77,7 @@ class Matches(QAbstractItemModel):
         self.query = ''
         self.cover_pool.abort()
         self.details_pool.abort()
+        self.total_changed.emit(self.rowCount())
         self.reset()
 
     def add_result(self, result, store_plugin):
@@ -78,10 +87,10 @@ class Matches(QAbstractItemModel):
             self.search_filter.add_search_result(result)
             if result.cover_url:
                 result.cover_queued = True
-                self.cover_pool.add_task(result, self.filter_results)
+                self.cover_pool.add_task(result, self.filter_results_dispatcher)
             else:
                 result.cover_queued = False
-            self.details_pool.add_task(result, store_plugin, self.got_result_details)
+            self.details_pool.add_task(result, store_plugin, self.got_result_details_dispatcher)
             self.filter_results()
             self.layoutChanged.emit()
 
@@ -101,13 +110,14 @@ class Matches(QAbstractItemModel):
             self.matches = list(self.search_filter.parse(self.query))
         else:
             self.matches = list(self.search_filter.universal_set())
+        self.total_changed.emit(self.rowCount())
         self.sort(self.sort_col, self.sort_order, False)
         self.layoutChanged.emit()
 
     def got_result_details(self, result):
         if not result.cover_queued and result.cover_url:
             result.cover_queued = True
-            self.cover_pool.add_task(result, self.filter_results)
+            self.cover_pool.add_task(result, self.filter_results_dispatcher)
         if result in self.matches:
             row = self.matches.index(result)
             self.dataChanged.emit(self.index(row, 0), self.index(row, self.columnCount() - 1))
@@ -145,6 +155,8 @@ class Matches(QAbstractItemModel):
 
     def data(self, index, role):
         row, col = index.row(), index.column()
+        if row >= len(self.matches):
+            return NONE
         result = self.matches[row]
         if role == Qt.DisplayRole:
             if col == 1:
@@ -168,6 +180,10 @@ class Matches(QAbstractItemModel):
                     return QVariant(self.DRM_UNLOCKED_ICON)
                 elif result.drm == SearchResult.DRM_UNKNOWN:
                     return QVariant(self.DRM_UNKNOWN_ICON)
+            if col == 5:
+                if result.affiliate:
+                    return QVariant(self.DONATE_ICON)
+                return NONE
         elif role == Qt.ToolTipRole:
             if col == 1:
                 return QVariant('<p>%s</p>' % result.title)
@@ -182,6 +198,9 @@ class Matches(QAbstractItemModel):
                     return QVariant('<p>' + _('The DRM status of this book could not be determined. There is a very high likelihood that this book is actually DRM restricted.') + '</p>')
             elif col == 4:
                 return QVariant('<p>%s</p>' % result.formats)
+            elif col == 5:
+                if result.affiliate:
+                    return QVariant('<p>' + _('Buying from this store supports the calibre developer: %s.') % result.plugin_author + '</p>')
         elif role == Qt.SizeHintRole:
             return QSize(64, 64)
         return NONE
@@ -201,6 +220,11 @@ class Matches(QAbstractItemModel):
                 text = 'c'
         elif col == 4:
             text = result.store_name
+        elif col == 5:
+            if result.affiliate:
+                text = 'a'
+            else:
+                text = 'b'
         return text
 
     def sort(self, col, order, reset=True):
@@ -229,6 +253,7 @@ class SearchFilter(SearchQueryParser):
 
     USABLE_LOCATIONS = [
         'all',
+        'affiliate',
         'author',
         'authors',
         'cover',
@@ -279,6 +304,7 @@ class SearchFilter(SearchQueryParser):
         all_locs = set(self.USABLE_LOCATIONS) - set(['all'])
         locations = all_locs if location == 'all' else [location]
         q = {
+             'affiliate': attrgetter('affiliate'),
              'author': lambda x: x.author.lower(),
              'cover': attrgetter('cover_url'),
              'drm': attrgetter('drm'),
@@ -293,23 +319,35 @@ class SearchFilter(SearchQueryParser):
             for locvalue in locations:
                 accessor = q[locvalue]
                 if query == 'true':
-                    if locvalue == 'drm':
+                    # True/False.
+                    if locvalue == 'affiliate':
+                        if accessor(sr):
+                            matches.add(sr)
+                    # Special that are treated as True/False.
+                    elif locvalue == 'drm':
                         if accessor(sr) == SearchResult.DRM_LOCKED:
                             matches.add(sr)
+                    # Testing for something or nothing.
                     else:
                         if accessor(sr) is not None:
                             matches.add(sr)
                     continue
                 if query == 'false':
-                    if locvalue == 'drm':
+                    # True/False.
+                    if locvalue == 'affiliate':
+                        if not accessor(sr):
+                            matches.add(sr)
+                    # Special that are treated as True/False.
+                    elif locvalue == 'drm':
                         if accessor(sr) == SearchResult.DRM_UNLOCKED:
                             matches.add(sr)
+                    # Testing for something or nothing.
                     else:
                         if accessor(sr) is None:
                             matches.add(sr)
                     continue
-                # this is bool, so can't match below
-                if locvalue == 'drm':
+                # this is bool or treated as bool, so can't match below.
+                if locvalue in ('affiliate', 'drm'):
                     continue
                 try:
                     ### Can't separate authors because comma is used for name sep and author sep

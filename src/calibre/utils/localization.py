@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+from __future__ import absolute_import
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -8,13 +8,14 @@ __docformat__ = 'restructuredtext en'
 
 import os, locale, re, cStringIO, cPickle
 from gettext import GNUTranslations
+from zipfile import ZipFile
 
 _available_translations = None
 
 def available_translations():
     global _available_translations
     if _available_translations is None:
-        stats = P('localization/stats.pickle')
+        stats = P('localization/stats.pickle', allow_user_override=False)
         if os.path.exists(stats):
             stats = cPickle.load(open(stats, 'rb'))
         else:
@@ -29,8 +30,11 @@ def get_lang():
     lang = os.environ.get('CALIBRE_OVERRIDE_LANG', lang)
     if lang is not None:
         return lang
-    lang = locale.getdefaultlocale(['LANGUAGE', 'LC_ALL', 'LC_CTYPE',
+    try:
+        lang = locale.getdefaultlocale(['LANGUAGE', 'LC_ALL', 'LC_CTYPE',
                                     'LC_MESSAGES', 'LANG'])[0]
+    except:
+        pass # This happens on Ubuntu apparently
     if lang is None and os.environ.has_key('LANG'): # Needed for OS X
         try:
             lang = os.environ['LANG']
@@ -46,21 +50,20 @@ def get_lang():
         lang = 'en'
     return lang
 
-def messages_path(lang):
-    return P('localization/locales/%s/LC_MESSAGES'%lang)
-
 def get_lc_messages_path(lang):
     hlang = None
-    if lang in available_translations():
-        hlang = lang
-    else:
-        xlang = lang.split('_')[0]
-        if xlang in available_translations():
-            hlang = xlang
-    if hlang is not None:
-        return messages_path(hlang)
-    return None
+    if zf_exists():
+        if lang in available_translations():
+            hlang = lang
+        else:
+            xlang = lang.split('_')[0]
+            if xlang in available_translations():
+                hlang = xlang
+    return hlang
 
+def zf_exists():
+    return os.path.exists(P('localization/locales.zip',
+                allow_user_override=False))
 
 def set_translators():
     # To test different translations invoke as
@@ -76,12 +79,17 @@ def set_translators():
 
         mpath = get_lc_messages_path(lang)
         if mpath is not None:
-            if buf is None:
-                buf = open(os.path.join(mpath, 'messages.mo'), 'rb')
-            mpath = mpath.replace(os.sep+'nds'+os.sep, os.sep+'de'+os.sep)
-            isof = os.path.join(mpath, 'iso639.mo')
-            if os.path.exists(isof):
-                iso639 = open(isof, 'rb')
+            with ZipFile(P('localization/locales.zip',
+                allow_user_override=False), 'r') as zf:
+                if buf is None:
+                    buf = cStringIO.StringIO(zf.read(mpath + '/messages.mo'))
+                if mpath == 'nds':
+                    mpath = 'de'
+                isof = mpath + '/iso639.mo'
+                try:
+                    iso639 = cStringIO.StringIO(zf.read(isof))
+                except:
+                    pass # No iso639 translations for this lang
 
         if buf is not None:
             t = GNUTranslations(buf)

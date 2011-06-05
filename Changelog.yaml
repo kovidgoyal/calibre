@@ -19,6 +19,202 @@
 #  new recipes:
 #    - title: 
 
+- version: 0.8.4
+  date: 2011-06-03
+
+  new features:
+    - title: "New and much simpler interface for specifying column coloring via Preferences->Look & Feel->Column Coloring"
+
+    - title: "Driver for Trekstor eBook Player 5M, Samsung Galaxy SII I9100, Motorola Defy and miBuk GAMMA 6.2"
+      tickets: [792091, 791216]
+
+    - title: "Get Books: Add EpubBud, WH Smits and E-book Shoppe stores"
+
+    - title: "When deleting 'all formats except ...', do not delete if it leaves a book with no formats"
+
+    - title: "Change default toolbar to make it a little more new user friendly. The icons have been re-arranged and now the text is always visiblke by default. You can change that in Preferences->Look & Feeel and Preferences->Toolbar"
+
+    - title: "Windows installer: Remember and use previous settings for installing desktop icons, adding to path, etc. This makes the installer a little slower, complaints should go to Microsoft."
+
+    - title: "Template language: Add str_in_list and on_device formatter functions. Make debugging templates a little easier"
+
+    - title: "Allow the user to specify formatting for number type custom columns"
+  
+  bug fixes:
+    - title: "Fix typo in NOOK TSR driver that prevented it from working on windows"
+
+    - title: "Fix quotes in identifiers causing Tag Browser to be blank."
+      tickets: [791044]
+
+    - title: "Speedup auto complete when there are lots of items (>2500) the downside being that non ASCII characters are not sorted correctly. The threshold can be controlled via Preferences->Tweaks"
+      tickets: [792191]
+
+    - title: "RTF Output: Fix handling of curly brackets"
+      tickets: [791805]
+
+    - title: "Fix searching in Get Books not working with non ASCII characters"
+      tickets: [791788]
+
+    - title: "Fix excessive memory consumption when moving very large files during a metadata change"
+      tickets: [791806]
+
+    - title: "Fix series index being overwritten even when series is turned off in bulk metadata download"
+      tickets: [789990]
+
+    - title: "Fix regression in templates where id and other non standard fields no longer worked."
+
+    - title: "EPUB Output: Fix crash caused by ids with non-ascii characters in them"
+
+    - title: "Try to preserve the timestamps of files in a ZIP container"
+
+    - title: "After adding books always select the most recently added book."
+      tickets: [789343]
+
+  improved recipes:
+    - bild.de
+    - CNN
+    - BBC News (fast)
+    - Dilema Veche
+
+  new recipes:
+    - title: Metro UK
+      author: Dave Asbury
+
+    - title: Alt om Herning and Version2.dk
+      author: Rasmus Lauritsen
+
+    - title: Observatorul cultural
+      author: song2
+
+
+- version: 0.8.3
+  date: 2011-05-27
+
+  new features:
+    - title: "Allow the coloring of columns in the book list."
+      description: "You can either create a custom column with a fixed set of values and assign a color to each value, or you can use the calibre template language to color any column in arbitrarily powerful ways. For example, you can have the title appear in red if the book has a particular tag."
+      type: major
+
+    - title: "Support for the Nook Simple Reader"
+
+    - title: "Get Books, new stores: Virtualo, lulu.net"
+
+    - title: "A store chooser dialog for Get Books (click the little preferences icon at the bottom of the Get Books screen)."
+
+    - title: "Add a merge_lists, and, or, not template functions to the calibre template language"
+
+    - title: "EPUB Output: Change any white-space:pre declarations in the CSS to pre-wrap to accomodate readers that cannot scroll horizontally."
+      tickets: [786722]
+
+    - title: "Windows installer: Remember and use previous installation folder when upgrading. Note that this will work for future upgrades, after this one."
+  
+  bug fixes:
+    - title: "MOBI Output: Fix hidden tags with id attributes also hiding their trailing text"
+      tickets: [788570]
+
+    - title: "Fix switching from one news source to another via a search not saving changes to the scheduling of the first source"
+      tickets: [774849]
+
+    - title: "Dont allow user to use non email usernames when setting up Hotmail or Gmail accounts"
+
+    - title: "Amazon metadata download: Use separate identifiers for country specific downloads so that the links to Amazon in the Book details panel work when downloading metadata from country specific amazon websites."
+      tickets: [786146]
+
+    - title: "Nicer error message when user attempts to set title/author via Edit metadata dialog and one of the files is open in another program."
+
+    - title: "Fix {id} not working in send to device templates"
+
+    - title: "Windows: If creating a bytestring temp dir fails, create a unicode one and hope the rest of calibre can handle it"
+
+    - title: "Get Books: Fix some results from Amazon missing."
+      tickets: [785962]
+
+  improved recipes:
+    - Kathermini
+    - Faz.net
+    - The Washington Post
+    - El Mundo
+    - Marca
+    - The Nation
+
+  new recipes:
+    - title: Various German news sources
+      author: schuster
+
+    - title: "George R. R. Martin's Blog"
+      author: Darko Miletic
+
+    - title: "Focus (DE) and National Geographic"
+      auhtor: Anonymous
+
+
+
+- version: 0.8.2
+  date: 2011-05-20
+
+  new features:
+    - title: "Various new ebook sources added to Get Books: Google Books, O'Reilly, archive.org, some Polish ebooks stores, etc."
+
+    - title: "Amazon metadata download: Allow user to configure Amazon plugin to use any of the US, UK, German, French and Italian Amazon websites"
+
+    - title: "When deleting large numbers of books, give the user the option to skip the Recycle Bin, since sending lots of files to the recycle bin can be very slow."
+      tickets: [784987]
+
+    - title: "OS X: The unified title+toolbar was disabled as it had various bugs. If you really want it you can turn it on again via Preferences->Tweaks, but be aware that you will see problems like the calibre windowd being too wide, weird animations when a device is detected, etc."
+
+    - title: "Add a tweak that controls what words are treated as suffixes when generating an author sort string from an author name."
+
+    - title: "Get Books: Store last few searches in history"
+  
+  bug fixes:
+    - title: "Fix a crash when a device is connected/disconnected while a modal dialog opened from the toolbar is visible"
+      tickets: [780484]
+
+    - title: "Fix incorrect results from ebooks.com when searching via Get Books"
+
+    - title: "Metadata plugboards: Add prioritization scheme to allow for using different settings for different locations"
+      tickets: [783229]
+
+    - title: "Fix manage authors dialog too wide"
+      tickets: [783065]
+
+    - title: "Fix multiple bracket types in author names not handled correctly when generating author sort string"
+      tickets: [782551]
+
+    - title: "MOBI Input: Don't error out when detecting TOC structure if one of the elements has an invalid margin unit"
+
+    - title: "More fixes for japanese language calibre on windows"
+      tickets: [782408]
+
+    - title: "Linux binaries: Always use either Cleanlook or Plastique styles for the GUI if no style can be loaded from the host computer"
+
+  improved recipes:
+    - Newsweek
+    - Economist
+    - Dvhn
+    - United Daily
+    - Dagens Nyheter
+    - GoComics
+    - faz.net
+    - golem.de
+
+  new recipes:
+    - title: National Geographic
+      author: gagsays
+    
+    - title: Various German news sources
+      author: schuster
+
+    - title: Dilema Veche
+      author: Silviu Cotoara
+
+    - title: "Glamour, Good to Know, Good Housekeeping and Men's Health"
+      author: Anonymous
+
+    - title: "Financial Sense and iProfessional"
+      author: Darko Miletic
+
+
 - version: 0.8.1
   date: 2011-05-13
 
@@ -456,7 +652,7 @@
     - title: "FB2 Output: Option to set the FB2 genre explicitly."
       tickets: [743178]
 
-    - title: "Plugin developers: calibre now has a new plugin API, see http://calibre-ebook.com/user_manual/creating_plugins.html. Your existing plugins should continue to work, but it would be good to test them to make sure."
+    - title: "Plugin developers: calibre now has a new plugin API, see http://manual.calibre-ebook.com/creating_plugins.html. Your existing plugins should continue to work, but it would be good to test them to make sure."
   
   bug fixes:
     - title: "Fix text color in the search bar set to black instead of the system font color"
@@ -841,7 +1037,7 @@
 
   new features:
     - title: "Tag Browser: Support the creation of nested User Categories"
-      description: "See http://calibre-ebook.com/user_manual/gui.html#tag-browser for details"
+      description: "See http://manual.calibre-ebook.com/gui.html#tag-browser for details"
       type: major
 
     - title: "Disable Kent District Library plugin to download series information. The website could not handle the load calibre's 2 million users put on it. You can manually re-enable it if you really want series information, but it is very slow"
@@ -3714,7 +3910,7 @@
       type: major
       description: >
         "You can now change the icons used in the User Interface and other static resources. Details on how to
-         do this are at: http://calibre-ebook.com/user_manual/customize.html#overriding-icons-templates-etcetera"
+         do this are at: http://manual.calibre-ebook.com/customize.html#overriding-icons-templates-etcetera"
 
     - title: "Split the 'Send to device' button into two buttons, 'Connect/share' and 'Send to device'. The new 'Send to device' button will now only be available when a device is connected."
 

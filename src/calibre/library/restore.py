@@ -171,7 +171,7 @@ class Restore(Thread):
                 for x in fields:
                     if x in cfm:
                         if x == 'is_multiple':
-                            args.append(cfm[x] is not None)
+                            args.append(bool(cfm[x]))
                         else:
                             args.append(cfm[x])
                 if len(args) == len(fields):

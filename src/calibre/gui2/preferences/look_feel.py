@@ -6,7 +6,7 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from PyQt4.Qt import (QApplication, QFont, QFontInfo, QFontDialog,
-        QAbstractListModel, Qt)
+        QAbstractListModel, Qt, QIcon)
 
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget, CommaSeparatedList
 from calibre.gui2.preferences.look_feel_ui import Ui_Form
@@ -17,6 +17,7 @@ from calibre.utils.config import prefs
 from calibre.utils.icu import sort_key
 from calibre.gui2 import NONE
 from calibre.gui2.book_details import get_field_list
+from calibre.gui2.preferences.coloring import EditRules
 
 class DisplayedFields(QAbstractListModel): # {{{
 
@@ -129,7 +130,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             (_('Medium'), 'medium'), (_('Large'), 'large')]
         r('toolbar_icon_size', gprefs, choices=choices)
 
-        choices = [(_('Automatic'), 'auto'), (_('Always'), 'always'),
+        choices = [(_('If there is enough room'), 'auto'), (_('Always'), 'always'),
             (_('Never'), 'never')]
         r('toolbar_text', gprefs, choices=choices)
 
@@ -159,6 +160,12 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.df_up_button.clicked.connect(self.move_df_up)
         self.df_down_button.clicked.connect(self.move_df_down)
 
+        self.edit_rules = EditRules(self.tabWidget)
+        self.edit_rules.changed.connect(self.changed_signal)
+        self.tabWidget.addTab(self.edit_rules,
+                QIcon(I('format-fill-color.png')), _('Column coloring'))
+        self.tabWidget.setCurrentIndex(0)
+
     def initialize(self):
         ConfigWidgetBase.initialize(self)
         font = gprefs['font']
@@ -168,6 +175,13 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.current_font = self.initial_font = font
         self.update_font_display()
         self.display_model.initialize()
+        db = self.gui.current_db
+        try:
+            idx = self.gui.library_view.currentIndex().row()
+            mi = db.get_metadata(idx, index_is_id=False)
+        except:
+            mi=None
+        self.edit_rules.initialize(db.field_metadata, db.prefs, mi)
 
     def restore_defaults(self):
         ConfigWidgetBase.restore_defaults(self)
@@ -177,6 +191,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.changed_signal.emit()
             self.update_font_display()
         self.display_model.restore_defaults()
+        self.edit_rules.clear()
         self.changed_signal.emit()
 
     def build_font_obj(self):
@@ -235,9 +250,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             QApplication.setFont(self.font_display.font())
             rr = True
         self.display_model.commit()
+        self.edit_rules.commit(self.gui.current_db.prefs)
         return rr
 
     def refresh_gui(self, gui):
+        gui.library_view.model().reset()
         self.update_font_display()
         gui.tags_view.reread_collapse_parameters()
         gui.library_view.refresh_book_details()

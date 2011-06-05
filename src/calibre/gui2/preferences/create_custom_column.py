@@ -6,12 +6,15 @@ __copyright__ = '2010, Kovid Goyal <kovid at kovidgoyal.net>'
 import re
 from functools import partial
 
-from PyQt4.Qt import QDialog, Qt, QListWidgetItem, QVariant
+from PyQt4.Qt import QDialog, Qt, QListWidgetItem, QVariant, QColor
 
 from calibre.gui2.preferences.create_custom_column_ui import Ui_QCreateCustomColumn
 from calibre.gui2 import error_dialog
 
 class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
+
+    # Note: in this class, we are treating is_multiple as the boolean that
+    # custom_columns expects to find in its structure. It does not use the dict
 
     column_types = {
                     0:{'datatype':'text',
@@ -126,11 +129,18 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
                                 c['display'].get('make_category', False))
         elif ct == 'enumeration':
             self.enum_box.setText(','.join(c['display'].get('enum_values', [])))
+            self.enum_colors.setText(','.join(c['display'].get('enum_colors', [])))
+        elif ct in ['int', 'float']:
+            if c['display'].get('number_format', None):
+                self.number_format_box.setText(c['display'].get('number_format', ''))
         self.datatype_changed()
         if ct in ['text', 'composite', 'enumeration']:
             self.use_decorations.setChecked(c['display'].get('use_decorations', False))
         elif ct == '*text':
             self.is_names.setChecked(c['display'].get('is_names', False))
+
+        all_colors = [unicode(s) for s in list(QColor.colorNames())]
+        self.enum_colors_label.setToolTip('<p>' + ', '.join(all_colors) + '</p>')
         self.exec_()
 
     def shortcut_activated(self, url):
@@ -167,13 +177,26 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
             col_type = None
         for x in ('box', 'default_label', 'label'):
             getattr(self, 'date_format_'+x).setVisible(col_type == 'datetime')
+            getattr(self, 'number_format_'+x).setVisible(col_type in ['int', 'float'])
         for x in ('box', 'default_label', 'label', 'sort_by', 'sort_by_label',
                   'make_category'):
             getattr(self, 'composite_'+x).setVisible(col_type in ['composite', '*composite'])
-        for x in ('box', 'default_label', 'label'):
+        for x in ('box', 'default_label', 'label', 'colors', 'colors_label'):
             getattr(self, 'enum_'+x).setVisible(col_type == 'enumeration')
         self.use_decorations.setVisible(col_type in ['text', 'composite', 'enumeration'])
         self.is_names.setVisible(col_type == '*text')
+        if col_type == 'int':
+            self.number_format_box.setToolTip('<p>' +
+                _('Examples: The format <code>{0:0>4d}</code> '
+                  'gives a 4-digit number with leading zeros. The format '
+                  '<code>{0:d}&nbsp;days</code> prints the number then the word "days"')+ '</p>')
+        elif col_type == 'float':
+            self.number_format_box.setToolTip('<p>' +
+                _('Examples: The format <code>{0:.1f}</code> gives a floating '
+                  'point number with 1 digit after the decimal point. The format '
+                  '<code>Price:&nbsp;$&nbsp;{0:,.2f}</code> prints '
+                  '"Price&nbsp;$&nbsp;" then displays the number with 2 digits '
+                  'after the decimal point and thousands separated by commas.') + '</p>')
 
     def accept(self):
         col = unicode(self.column_name_box.text()).strip()
@@ -247,9 +270,27 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
                 if l[i] in l[i+1:]:
                     return self.simple_error('', _('The value "{0}" is in the '
                     'list more than once').format(l[i]))
-            display_dict = {'enum_values': l}
+            c = unicode(self.enum_colors.text())
+            if c:
+                c = [v.strip() for v in unicode(self.enum_colors.text()).split(',')]
+            else:
+                c = []
+            if len(c) != 0 and len(c) != len(l):
+                return self.simple_error('', _('The colors box must be empty or '
+                'contain the same number of items as the value box'))
+            for tc in c:
+                if tc not in QColor.colorNames():
+                    return self.simple_error('',
+                            _('The color {0} is unknown').format(tc))
+
+            display_dict = {'enum_values': l, 'enum_colors': c}
         elif col_type == 'text' and is_multiple:
             display_dict = {'is_names': self.is_names.isChecked()}
+        elif col_type in ['int', 'float']:
+            if unicode(self.number_format_box.text()).strip():
+                display_dict = {'number_format':unicode(self.number_format_box.text()).strip()}
+            else:
+                display_dict = {'number_format': None}
 
         if col_type in ['text', 'composite', 'enumeration'] and not is_multiple:
             display_dict['use_decorations'] = self.use_decorations.checkState()

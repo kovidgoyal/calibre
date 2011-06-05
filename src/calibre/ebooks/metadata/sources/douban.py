@@ -46,6 +46,8 @@ cover_url      = XPath("descendant::atom:link[@rel='image']/attribute::href")
 
 def get_details(browser, url, timeout): # {{{
     try:
+        if Douban.DOUBAN_API_KEY and Douban.DOUBAN_API_KEY != '':
+            url = url + "?apikey=" + Douban.DOUBAN_API_KEY
         raw = browser.open_novisit(url, timeout=timeout).read()
     except Exception as e:
         gc = getattr(e, 'getcode', lambda : -1)
@@ -211,7 +213,10 @@ class Douban(Source):
                     'q': q,
                     })
         if self.DOUBAN_API_KEY and self.DOUBAN_API_KEY != '':
-            url = url + "?apikey=" + self.DOUBAN_API_KEY
+            if t == "isbn" or t == "subject":
+                url = url + "?apikey=" + self.DOUBAN_API_KEY
+            else:
+                url = url + "&apikey=" + self.DOUBAN_API_KEY
         return url
     # }}}
 

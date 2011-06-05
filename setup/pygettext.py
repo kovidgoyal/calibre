@@ -187,7 +187,6 @@ msgstr ""
 
 '''%dict(appname=__appname__, version=version, year=time.strftime('%Y'))
 
-
 def usage(code, msg=''):
     print >> sys.stderr, __doc__ % globals()
     if msg:

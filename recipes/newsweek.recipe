@@ -11,6 +11,20 @@ class Newsweek(BasicNewsRecipe):
 
     BASE_URL = 'http://www.newsweek.com'
 
+    topics = {
+        'Culture' : '/tag/culture.html',
+        'Business' : '/tag/business.html',
+        'Society' : '/tag/society.html',
+        'Science' : '/tag/science.html',
+        'Education' : '/tag/education.html',
+        'Politics' : '/tag/politics.html',
+        'Health' : '/tag/health.html',
+        'World' : '/tag/world.html',
+        'Nation' : '/tag/nation.html',
+        'Technology' : '/tag/technology.html',
+        'Game Changers' : '/tag/game-changers.html',
+    }
+
     keep_only_tags = dict(name='article', attrs={'class':'article-text'})
     remove_tags = [dict(attrs={'data-dartad':True})]
     remove_attributes = ['property']
@@ -21,14 +35,10 @@ class Newsweek(BasicNewsRecipe):
         return soup
 
     def newsweek_sections(self):
-        return [
-                ('Nation', 'http://www.newsweek.com/tag/nation.html'),
-                ('Society', 'http://www.newsweek.com/tag/society.html'),
-                ('Culture', 'http://www.newsweek.com/tag/culture.html'),
-                ('World', 'http://www.newsweek.com/tag/world.html'),
-                ('Politics', 'http://www.newsweek.com/tag/politics.html'),
-                ('Business', 'http://www.newsweek.com/tag/business.html'),
-        ]
+        for topic_name, topic_url in self.topics.iteritems():
+            yield (topic_name,
+                    self.BASE_URL+topic_url)
+
 
     def newsweek_parse_section_page(self, soup):
         for article in soup.findAll('article', about=True,
@@ -59,7 +69,11 @@ class Newsweek(BasicNewsRecipe):
         for section, shref in self.newsweek_sections():
             self.log('Processing section', section, shref)
             articles = []
-            soups = [self.index_to_soup(shref)]
+            try:
+                soups = [self.index_to_soup(shref)]
+            except:
+                self.log.warn('Section %s not found, skipping'%section)
+                continue
             na = soups[0].find('a', rel='next')
             if na:
                 soups.append(self.index_to_soup(self.BASE_URL+na['href']))

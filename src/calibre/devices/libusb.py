@@ -8,10 +8,10 @@ from ctypes import cdll, POINTER, byref, pointer, Structure as _Structure, \
                    c_ubyte, c_ushort, c_int, c_char, c_void_p, c_byte, c_uint
 from errno import EBUSY, ENOMEM
 
-from calibre import iswindows, isosx, isfreebsd, load_library
+from calibre import iswindows, isosx, isbsd, load_library
 
 _libusb_name = 'libusb'
-PATH_MAX = 511 if iswindows else 1024 if (isosx or isfreebsd) else 4096
+PATH_MAX = 511 if iswindows else 1024 if (isosx or isbsd) else 4096
 if iswindows:
     class Structure(_Structure):
         _pack_ = 1

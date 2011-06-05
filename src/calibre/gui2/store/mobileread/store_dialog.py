@@ -9,17 +9,18 @@ __docformat__ = 'restructuredtext en'
 
 from PyQt4.Qt import (Qt, QDialog, QIcon)
 
-from calibre.gui2.store.search.adv_search_builder import AdvSearchBuilderDialog
+from calibre.gui2.store.mobileread.adv_search_builder import AdvSearchBuilderDialog
 from calibre.gui2.store.mobileread.models import BooksModel
 from calibre.gui2.store.mobileread.store_dialog_ui import Ui_Dialog
 
-class MobeReadStoreDialog(QDialog, Ui_Dialog):
+class MobileReadStoreDialog(QDialog, Ui_Dialog):
     
     def __init__(self, plugin, *args):
         QDialog.__init__(self, *args)
         self.setupUi(self)
 
         self.plugin = plugin
+        self.search_query.initialize('store_mobileread_search')
         
         self.adv_search_button.setIcon(QIcon(I('search.png')))
         
@@ -48,8 +49,6 @@ class MobeReadStoreDialog(QDialog, Ui_Dialog):
     
     def build_adv_search(self):
         adv = AdvSearchBuilderDialog(self)
-        adv.price_label.hide()
-        adv.price_box.hide()
         if adv.exec_() == QDialog.Accepted:
             self.search_query.setText(adv.search_string())
     

@@ -200,6 +200,11 @@ class CacheRow(list): # {{{
     def __getslice__(self, i, j):
         return self.__getitem__(slice(i, j))
 
+    def refresh_composites(self):
+        for c in self._composites:
+            self[c] =  None
+        self._must_do = True
+
 # }}}
 
 class ResultCache(SearchQueryParser): # {{{
@@ -504,7 +509,8 @@ class ResultCache(SearchQueryParser): # {{{
             valq_mkind, valq = self._matchkind(query)
 
         loc = self.field_metadata[location]['rec_index']
-        split_char = self.field_metadata[location]['is_multiple']
+        split_char = self.field_metadata[location]['is_multiple'].get(
+                'cache_to_list', ',')
         for id_ in candidates:
             item = self._data[id_]
             if item is None:
@@ -660,7 +666,8 @@ class ResultCache(SearchQueryParser): # {{{
                 if fm['is_multiple'] and \
                         len(query) > 1 and query.startswith('#') and \
                         query[1:1] in '=<>!':
-                    vf = lambda item, loc=fm['rec_index'], ms=fm['is_multiple']:\
+                    vf = lambda item, loc=fm['rec_index'], \
+                                ms=fm['is_multiple']['cache_to_list']:\
                             len(item[loc].split(ms)) if item[loc] is not None else 0
                     return self.get_numeric_matches(location, query[1:],
                                                     candidates, val_func=vf)
@@ -698,7 +705,8 @@ class ResultCache(SearchQueryParser): # {{{
                             ['composite', 'text', 'comments', 'series', 'enumeration']:
                         exclude_fields.append(db_col[x])
                     col_datatype[db_col[x]] = self.field_metadata[x]['datatype']
-                    is_multiple_cols[db_col[x]] = self.field_metadata[x]['is_multiple']
+                    is_multiple_cols[db_col[x]] = \
+                        self.field_metadata[x]['is_multiple'].get('cache_to_list', None)
 
             try:
                 rating_query = int(query) * 2
@@ -918,6 +926,7 @@ class ResultCache(SearchQueryParser): # {{{
         for item in self._data:
             if item is not None:
                 item[ondevice_col] = db.book_on_device_string(item[0])
+                item.refresh_composites()
 
     def refresh(self, db, field=None, ascending=True):
         temp = db.conn.get('SELECT * FROM meta2')
@@ -1039,13 +1048,14 @@ class SortKeyGenerator(object):
 
             elif dt in ('text', 'comments', 'composite', 'enumeration'):
                 if val:
-                    sep = fm['is_multiple']
-                    if sep:
-                        if fm['display'].get('is_names', False):
-                            val = sep.join(
-                                [author_to_author_sort(v) for v in val.split(sep)])
+                    if fm['is_multiple']:
+                        jv = fm['is_multiple']['list_to_ui']
+                        sv = fm['is_multiple']['cache_to_list']
+                        if '&' in jv:
+                            val = jv.join(
+                                [author_to_author_sort(v) for v in val.split(sv)])
                         else:
-                            val = sep.join(sorted(val.split(sep),
+                            val = jv.join(sorted(val.split(sv),
                                               key=self.string_sort_key))
                 val = self.string_sort_key(val)
 

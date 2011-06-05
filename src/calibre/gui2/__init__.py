@@ -12,7 +12,7 @@ from PyQt4.Qt import (QVariant, QFileInfo, QObject, SIGNAL, QBuffer, Qt,
 
 ORG_NAME = 'KovidsBrain'
 APP_UID  = 'libprs500'
-from calibre.constants import islinux, iswindows, isfreebsd, isfrozen, isosx
+from calibre.constants import islinux, iswindows, isbsd, isfrozen, isosx
 from calibre.utils.config import Config, ConfigProxy, dynamic, JSONConfig
 from calibre.utils.localization import set_qt_translator
 from calibre.ebooks.metadata import MetaInformation
@@ -48,8 +48,9 @@ else:
     gprefs.defaults['action-layout-menubar-device'] = ()
     gprefs.defaults['action-layout-toolbar'] = (
         'Add Books', 'Edit Metadata', None, 'Convert Books', 'View', None,
-        'Choose Library', 'Donate', None, 'Fetch News', 'Store', 'Save To Disk',
-        'Connect Share', None, 'Remove Books', None, 'Help', 'Preferences',
+        'Store', 'Donate', 'Fetch News', 'Help', None,
+        'Remove Books', 'Choose Library', 'Save To Disk',
+        'Connect Share', 'Preferences',
         )
     gprefs.defaults['action-layout-toolbar-device'] = (
         'Add Books', 'Edit Metadata', None, 'Convert Books', 'View',
@@ -75,7 +76,7 @@ gprefs.defaults['action-layout-context-menu-device'] = (
 gprefs.defaults['show_splash_screen'] = True
 gprefs.defaults['toolbar_icon_size'] = 'medium'
 gprefs.defaults['automerge'] = 'ignore'
-gprefs.defaults['toolbar_text'] = 'auto'
+gprefs.defaults['toolbar_text'] = 'always'
 gprefs.defaults['font'] = None
 gprefs.defaults['tags_browser_partition_method'] = 'first letter'
 gprefs.defaults['tags_browser_collapse_at'] = 100
@@ -628,13 +629,14 @@ class Application(QApplication):
         st = self.style()
         if st is not None:
             st = unicode(st.objectName()).lower()
-        if (islinux or isfreebsd) and st in ('windows', 'motif', 'cde'):
+        if (islinux or isbsd) and st in ('windows', 'motif', 'cde'):
             from PyQt4.Qt import QStyleFactory
             styles = set(map(unicode, QStyleFactory.keys()))
-            if 'Cleanlooks' in styles:
-                self.setStyle('Cleanlooks')
-            else:
+            if 'Plastique' in styles and os.environ.get('KDE_FULL_SESSION',
+                    False):
                 self.setStyle('Plastique')
+            elif 'Cleanlooks' in styles:
+                self.setStyle('Cleanlooks')
 
     def _send_file_open_events(self):
         with self._file_open_lock:
@@ -696,7 +698,7 @@ def open_local_file(path):
 
 def is_ok_to_use_qt():
     global gui_thread, _store_app
-    if (islinux or isfreebsd) and ':' not in os.environ.get('DISPLAY', ''):
+    if (islinux or isbsd) and ':' not in os.environ.get('DISPLAY', ''):
         return False
     if _store_app is None and QApplication.instance() is None:
         _store_app = QApplication([])

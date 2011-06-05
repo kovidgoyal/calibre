@@ -7,7 +7,7 @@ __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
 import re
-import urllib2
+import urllib
 from contextlib import closing
 
 from lxml import html
@@ -43,7 +43,7 @@ class ManyBooksStore(BasicStoreConfig, StorePlugin):
         # It also doesn't do a clear job of references authors and
         # secondary titles. Google is also faster.
         # Using a google search so we can search on both fields at once.
-        url = 'http://www.google.com/xhtml?q=site:manybooks.net+' + urllib2.quote(query)
+        url = 'http://www.google.com/xhtml?q=site:manybooks.net+' + urllib.quote_plus(query)
         
         br = browser()
         
@@ -78,7 +78,8 @@ class ManyBooksStore(BasicStoreConfig, StorePlugin):
                     cover_name = mo.group()
                     cover_name = cover_name.replace('etext', '')
                     cover_id = id.split('.')[0]
-                    cover_url = 'http://manybooks_images.s3.amazonaws.com/original_covers/' + id[0] + '/' + cover_name + '/' + cover_id + '-thumb.jpg' 
+                    cover_url = 'http://www.manybooks.net/images/' + id[0] + '/' + cover_name + '/' + cover_id + '-thumb.jpg'
+                print(cover_url)
 
                 counter -= 1
                 

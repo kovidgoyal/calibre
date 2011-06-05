@@ -35,8 +35,8 @@ class EB600(USBMS):
     PRODUCT_ID  = [0x1688]
     BCD         = [0x110]
 
-    VENDOR_NAME      = 'NETRONIX'
-    WINDOWS_MAIN_MEM = 'EBOOK'
+    VENDOR_NAME      = ['NETRONIX', 'WOLDER']
+    WINDOWS_MAIN_MEM = ['EBOOK', 'MIBUK_GAMMA_6.2']
     WINDOWS_CARD_A_MEM = 'EBOOK'
 
     OSX_MAIN_MEM = 'EB600 Internal Storage Media'
@@ -95,9 +95,8 @@ class POCKETBOOK360(EB600):
 
     FORMATS = ['epub', 'fb2', 'prc', 'mobi', 'pdf', 'djvu', 'rtf', 'chm', 'txt']
 
-    VENDOR_NAME = 'PHILIPS'
-    WINDOWS_MAIN_MEM = 'MASS_STORGE'
-    WINDOWS_CARD_A_MEM = 'MASS_STORGE'
+    VENDOR_NAME = ['PHILIPS', '__POCKET']
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['MASS_STORGE', 'BOOK_USB_STORAGE']
 
     OSX_MAIN_MEM   = 'Philips Mass Storge Media'
     OSX_CARD_A_MEM = 'Philips Mass Storge Media'

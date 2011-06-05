@@ -37,18 +37,23 @@ series_index_auto_increment = 'next'
 # Can be either True or False
 authors_completer_append_separator = False
 
-
 #: Author sort name algorithm
 # The algorithm used to copy author to author_sort
 # Possible values are:
-#  invert: use "fn ln" -> "ln, fn" (the default algorithm)
+#  invert: use "fn ln" -> "ln, fn"
 #  copy  : copy author to author_sort without modification
 #  comma : use 'copy' if there is a ',' in the name, otherwise use 'invert'
 #  nocomma : "fn ln" -> "ln fn" (without the comma)
 # When this tweak is changed, the author_sort values stored with each author
 # must be recomputed by right-clicking on an author in the left-hand tags pane,
 # selecting 'manage authors', and pressing 'Recalculate all author sort values'.
+# The author name suffixes are words that are ignored when they occur at the
+# end of an author name. The case of the suffix is ignored and trailing
+# periods are automatically handled.
 author_sort_copy_method = 'comma'
+author_name_suffixes = ('Jr', 'Sr', 'Inc', 'Ph.D', 'Phd',
+                        'MD', 'M.D', 'I', 'II', 'III', 'IV',
+                        'Junior', 'Senior')
 
 #: Use author sort in Tag Browser
 # Set which author field to display in the tags pane (the list of authors,
@@ -64,6 +69,15 @@ author_sort_copy_method = 'comma'
 #   categories_use_field_for_author_name = 'author'
 #   categories_use_field_for_author_name = 'author_sort'
 categories_use_field_for_author_name = 'author'
+
+#: Completion sort order: choose when to change from lexicographic to ASCII-like
+# Calibre normally uses locale-dependent lexicographic ordering when showing
+# completion values. This means that the sort order is correct for the user's
+# language. However, this can be slow. Performance is improved by switching to
+# ascii ordering. This tweak controls when that switch happens. Set it to zero
+# to always use ascii ordering. Set it to something larger than zero to switch
+# to ascii ordering for performance reasons.
+completion_change_to_ascii_sorting = 2500
 
 #: Control partitioning of Tag Browser
 # When partitioning the tags browser, the format of the subcategory label is
@@ -86,7 +100,6 @@ categories_use_field_for_author_name = 'author'
 categories_collapsed_name_template = r'{first.sort:shorten(4,,0)} - {last.sort:shorten(4,,0)}'
 categories_collapsed_rating_template = r'{first.avg_rating:4.2f:ifempty(0)} - {last.avg_rating:4.2f:ifempty(0)}'
 categories_collapsed_popularity_template = r'{first.count:d} - {last.count:d}'
-
 
 #: Specify columns to sort the booklist by on startup
 # Provide a set of columns to be sorted on when calibre starts
@@ -238,16 +251,13 @@ sony_collection_name_template='{value}{category:| (|)}'
 # Default: empty (no rules), so no collection attributes are named.
 sony_collection_sorting_rules = []
 
-
 #: Control how tags are applied when copying books to another library
 # Set this to True to ensure that tags in 'Tags to add when adding
 # a book' are added when copying books to another library
 add_new_book_tags_when_importing_books = False
 
-
 #: Set the maximum number of tags to show per book in the content server
 max_content_server_tags_shown=5
-
 
 #: Set custom metadata fields that the content server will or will not display.
 # content_server_will_display is a list of custom fields to be displayed.
@@ -289,7 +299,6 @@ generate_cover_foot_font = None
 # Default: open_viewer.
 # Example: doubleclick_on_library_view = 'do_nothing'
 doubleclick_on_library_view = 'open_viewer'
-
 
 #: Language to use when sorting.
 # Setting this tweak will force sorting to use the
@@ -344,4 +353,12 @@ send_news_to_device_location = "main"
 # to '::' to listen to all incoming IPv6 and IPv4 connections (this may not
 # work on all operating systems)
 server_listen_on = '0.0.0.0'
+
+#: Unified toolbar on OS X
+# If you enable this option and restart calibre, the toolbar will be 'unified'
+# with the titlebar as is normal for OS X applications. However, doing this has
+# various bugs, for instance the minimum width of the toolbar becomes twice
+# what it should be and it causes other random bugs on some systems, so turn it
+# on at your own risk!
+unified_title_toolbar_on_osx = False
 

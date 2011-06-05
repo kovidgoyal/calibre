@@ -9,11 +9,12 @@ from functools import partial
 
 from PyQt4.Qt import QMenu, QObject, QTimer
 
-from calibre.gui2 import error_dialog
+from calibre.gui2 import error_dialog, question_dialog
 from calibre.gui2.dialogs.delete_matching_from_device import DeleteMatchingFromDeviceDialog
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.confirm_delete_location import confirm_location
 from calibre.gui2.actions import InterfaceAction
+from calibre.utils.recycle_bin import can_recycle
 
 single_shot = partial(QTimer.singleShot, 10)
 
@@ -24,6 +25,15 @@ class MultiDeleter(QObject):
         QObject.__init__(self, gui)
         self.model = gui.library_view.model()
         self.ids = ids
+        self.permanent = False
+        if can_recycle and len(ids) > 100:
+            if question_dialog(gui, _('Are you sure?'), '<p>'+
+                _('You are trying to delete %d books. '
+                    'Sending so many files to the Recycle'
+                    ' Bin <b>can be slow</b>. Should calibre skip the'
+                    ' Recycle Bin? If you click Yes the files'
+                    ' will be <b>permanently deleted</b>.')%len(ids)):
+                self.permanent = True
         self.gui = gui
         self.failures = []
         self.deleted_ids = []
@@ -44,7 +54,8 @@ class MultiDeleter(QObject):
             title_ = self.model.db.title(id_, index_is_id=True)
             if title_:
                 title = title_
-            self.model.db.delete_book(id_, notify=False, commit=False)
+            self.model.db.delete_book(id_, notify=False, commit=False,
+                    permanent=self.permanent)
             self.deleted_ids.append(id_)
         except:
             import traceback
@@ -83,6 +94,9 @@ class DeleteAction(InterfaceAction):
         self.delete_menu.addAction(
                 _('Remove all formats from selected books, except...'),
                 self.delete_all_but_selected_formats)
+        self.delete_menu.addAction(
+                _('Remove all formats from selected books'),
+                self.delete_all_formats)
         self.delete_menu.addAction(
                 _('Remove covers from selected books'), self.delete_covers)
         self.delete_menu.addSeparator()
@@ -141,7 +155,8 @@ class DeleteAction(InterfaceAction):
         if not ids:
             return
         fmts = self._get_selected_formats(
-            '<p>'+_('Choose formats <b>not</b> to be deleted'), ids)
+            '<p>'+_('Choose formats <b>not</b> to be deleted.<p>Note that '
+                'this will never remove all formats from a book.'), ids)
         if fmts is None:
             return
         for id in ids:
@@ -150,9 +165,34 @@ class DeleteAction(InterfaceAction):
                 continue
             bfmts = set([x.lower() for x in bfmts.split(',')])
             rfmts = bfmts - set(fmts)
-            for fmt in rfmts:
-                self.gui.library_view.model().db.remove_format(id, fmt,
-                        index_is_id=True, notify=False)
+            if bfmts - rfmts:
+                # Do not delete if it will leave the book with no
+                # formats
+                for fmt in rfmts:
+                    self.gui.library_view.model().db.remove_format(id, fmt,
+                            index_is_id=True, notify=False)
+        self.gui.library_view.model().refresh_ids(ids)
+        self.gui.library_view.model().current_changed(self.gui.library_view.currentIndex(),
+                self.gui.library_view.currentIndex())
+        if ids:
+            self.gui.tags_view.recount()
+
+    def delete_all_formats(self, *args):
+        ids = self._get_selected_ids()
+        if not ids:
+            return
+        if not confirm('<p>'+_('<b>All formats</b> for the selected books will '
+                               'be <b>deleted</b> from your library.<br>'
+                               'The book metadata will be kept. Are you sure?')
+                            +'</p>', 'delete_all_formats', self.gui):
+            return
+        db = self.gui.library_view.model().db
+        for id in ids:
+            fmts = db.formats(id, index_is_id=True, verify_formats=False)
+            if fmts:
+                for fmt in fmts.split(','):
+                    self.gui.library_view.model().db.remove_format(id, fmt,
+                            index_is_id=True, notify=False)
         self.gui.library_view.model().refresh_ids(ids)
         self.gui.library_view.model().current_changed(self.gui.library_view.currentIndex(),
                 self.gui.library_view.currentIndex())

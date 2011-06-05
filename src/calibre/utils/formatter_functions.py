@@ -8,7 +8,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import inspect, re, traceback, sys
+import inspect, re, traceback
 
 from calibre.utils.titlecase import titlecase
 from calibre.utils.icu import capitalize, strcmp, sort_key
@@ -57,26 +57,20 @@ class FormatterFunction(object):
 
     doc = _('No documentation provided')
     name = 'no name provided'
+    category = 'Unknown'
     arg_count = 0
 
     def evaluate(self, formatter, kwargs, mi, locals, *args):
         raise NotImplementedError()
 
     def eval_(self, formatter, kwargs, mi, locals, *args):
-        try:
-            ret = self.evaluate(formatter, kwargs, mi, locals, *args)
-            if isinstance(ret, (str, unicode)):
-                return ret
-            if isinstance(ret, (int, float, bool)):
-                return unicode(ret)
-            if isinstance(ret, list):
-                return ','.join(list)
-        except:
-            traceback.print_exc()
-            exc_type, exc_value, exc_traceback = sys.exc_info()
-            info = ': '.join(traceback.format_exception(exc_type, exc_value,
-                                        exc_traceback)[-2:]).replace('\n', '')
-            return _('Exception ') + info
+        ret = self.evaluate(formatter, kwargs, mi, locals, *args)
+        if isinstance(ret, (str, unicode)):
+            return ret
+        if isinstance(ret, (int, float, bool)):
+            return unicode(ret)
+        if isinstance(ret, list):
+            return ','.join(list)
 
 all_builtin_functions = []
 class BuiltinFormatterFunction(FormatterFunction):
@@ -94,7 +88,8 @@ class BuiltinFormatterFunction(FormatterFunction):
 class BuiltinStrcmp(BuiltinFormatterFunction):
     name = 'strcmp'
     arg_count = 5
-    doc = _('strcmp(x, y, lt, eq, gt) -- does a case-insensitive comparison of x '
+    category = 'Relational'
+    __doc__ = doc = _('strcmp(x, y, lt, eq, gt) -- does a case-insensitive comparison of x '
             'and y as strings. Returns lt if x < y. Returns eq if x == y. '
             'Otherwise returns gt.')
 
@@ -108,13 +103,14 @@ class BuiltinStrcmp(BuiltinFormatterFunction):
 
 class BuiltinCmp(BuiltinFormatterFunction):
     name = 'cmp'
+    category = 'Relational'
     arg_count = 5
-    doc =   _('cmp(x, y, lt, eq, gt) -- compares x and y after converting both to '
+    __doc__ = doc =   _('cmp(x, y, lt, eq, gt) -- compares x and y after converting both to '
             'numbers. Returns lt if x < y. Returns eq if x == y. Otherwise returns gt.')
 
     def evaluate(self, formatter, kwargs, mi, locals, x, y, lt, eq, gt):
-        x = float(x if x else 0)
-        y = float(y if y else 0)
+        x = float(x if x and x != 'None' else 0)
+        y = float(y if y and y != 'None' else 0)
         if x < y:
             return lt
         if x == y:
@@ -124,7 +120,8 @@ class BuiltinCmp(BuiltinFormatterFunction):
 class BuiltinStrcat(BuiltinFormatterFunction):
     name = 'strcat'
     arg_count = -1
-    doc = _('strcat(a, b, ...) -- can take any number of arguments. Returns a '
+    category = 'String Manipulation'
+    __doc__ = doc = _('strcat(a, b, ...) -- can take any number of arguments. Returns a '
             'string formed by concatenating all the arguments')
 
     def evaluate(self, formatter, kwargs, mi, locals, *args):
@@ -137,7 +134,8 @@ class BuiltinStrcat(BuiltinFormatterFunction):
 class BuiltinAdd(BuiltinFormatterFunction):
     name = 'add'
     arg_count = 2
-    doc = _('add(x, y) -- returns x + y. Throws an exception if either x or y are not numbers.')
+    category = 'Arithmetic'
+    __doc__ = doc = _('add(x, y) -- returns x + y. Throws an exception if either x or y are not numbers.')
 
     def evaluate(self, formatter, kwargs, mi, locals, x, y):
         x = float(x if x else 0)
@@ -147,7 +145,8 @@ class BuiltinAdd(BuiltinFormatterFunction):
 class BuiltinSubtract(BuiltinFormatterFunction):
     name = 'subtract'
     arg_count = 2
-    doc = _('subtract(x, y) -- returns x - y. Throws an exception if either x or y are not numbers.')
+    category = 'Arithmetic'
+    __doc__ = doc = _('subtract(x, y) -- returns x - y. Throws an exception if either x or y are not numbers.')
 
     def evaluate(self, formatter, kwargs, mi, locals, x, y):
         x = float(x if x else 0)
@@ -157,7 +156,8 @@ class BuiltinSubtract(BuiltinFormatterFunction):
 class BuiltinMultiply(BuiltinFormatterFunction):
     name = 'multiply'
     arg_count = 2
-    doc = _('multiply(x, y) -- returns x * y. Throws an exception if either x or y are not numbers.')
+    category = 'Arithmetic'
+    __doc__ = doc = _('multiply(x, y) -- returns x * y. Throws an exception if either x or y are not numbers.')
 
     def evaluate(self, formatter, kwargs, mi, locals, x, y):
         x = float(x if x else 0)
@@ -167,7 +167,8 @@ class BuiltinMultiply(BuiltinFormatterFunction):
 class BuiltinDivide(BuiltinFormatterFunction):
     name = 'divide'
     arg_count = 2
-    doc = _('divide(x, y) -- returns x / y. Throws an exception if either x or y are not numbers.')
+    category = 'Arithmetic'
+    __doc__ = doc = _('divide(x, y) -- returns x / y. Throws an exception if either x or y are not numbers.')
 
     def evaluate(self, formatter, kwargs, mi, locals, x, y):
         x = float(x if x else 0)
@@ -177,7 +178,9 @@ class BuiltinDivide(BuiltinFormatterFunction):
 class BuiltinTemplate(BuiltinFormatterFunction):
     name = 'template'
     arg_count = 1
-    doc = _('template(x) -- evaluates x as a template. The evaluation is done '
+    category = 'Recursion'
+
+    __doc__ = doc = _('template(x) -- evaluates x as a template. The evaluation is done '
             'in its own context, meaning that variables are not shared between '
             'the caller and the template evaluation. Because the { and } '
             'characters are special, you must use [[ for the { character and '
@@ -192,7 +195,8 @@ class BuiltinTemplate(BuiltinFormatterFunction):
 class BuiltinEval(BuiltinFormatterFunction):
     name = 'eval'
     arg_count = 1
-    doc = _('eval(template) -- evaluates the template, passing the local '
+    category = 'Recursion'
+    __doc__ = doc = _('eval(template) -- evaluates the template, passing the local '
             'variables (those \'assign\'ed to) instead of the book metadata. '
             ' This permits using the template processor to construct complex '
             'results from local variables.')
@@ -205,7 +209,8 @@ class BuiltinEval(BuiltinFormatterFunction):
 class BuiltinAssign(BuiltinFormatterFunction):
     name = 'assign'
     arg_count = 2
-    doc = _('assign(id, val) -- assigns val to id, then returns val. '
+    category = 'Other'
+    __doc__ = doc = _('assign(id, val) -- assigns val to id, then returns val. '
             'id must be an identifier, not an expression')
 
     def evaluate(self, formatter, kwargs, mi, locals, target, value):
@@ -215,7 +220,8 @@ class BuiltinAssign(BuiltinFormatterFunction):
 class BuiltinPrint(BuiltinFormatterFunction):
     name = 'print'
     arg_count = -1
-    doc = _('print(a, b, ...) -- prints the arguments to standard output. '
+    category = 'Other'
+    __doc__ = doc = _('print(a, b, ...) -- prints the arguments to standard output. '
             'Unless you start calibre from the command line (calibre-debug -g), '
             'the output will go to a black hole.')
 
@@ -226,15 +232,17 @@ class BuiltinPrint(BuiltinFormatterFunction):
 class BuiltinField(BuiltinFormatterFunction):
     name = 'field'
     arg_count = 1
-    doc = _('field(name) -- returns the metadata field named by name')
+    category = 'Get values from metadata'
+    __doc__ = doc = _('field(name) -- returns the metadata field named by name')
 
     def evaluate(self, formatter, kwargs, mi, locals, name):
         return formatter.get_value(name, [], kwargs)
 
-class BuiltinRaw_field(BuiltinFormatterFunction):
+class BuiltinRawField(BuiltinFormatterFunction):
     name = 'raw_field'
     arg_count = 1
-    doc = _('raw_field(name) -- returns the metadata field named by name '
+    category = 'Get values from metadata'
+    __doc__ = doc = _('raw_field(name) -- returns the metadata field named by name '
             'without applying any formatting.')
 
     def evaluate(self, formatter, kwargs, mi, locals, name):
@@ -243,7 +251,8 @@ class BuiltinRaw_field(BuiltinFormatterFunction):
 class BuiltinSubstr(BuiltinFormatterFunction):
     name = 'substr'
     arg_count = 3
-    doc = _('substr(str, start, end) -- returns the start\'th through the end\'th '
+    category = 'String Manipulation'
+    __doc__ = doc = _('substr(str, start, end) -- returns the start\'th through the end\'th '
             'characters of str. The first character in str is the zero\'th '
             'character. If end is negative, then it indicates that many '
             'characters counting from the right. If end is zero, then it '
@@ -256,7 +265,8 @@ class BuiltinSubstr(BuiltinFormatterFunction):
 class BuiltinLookup(BuiltinFormatterFunction):
     name = 'lookup'
     arg_count = -1
-    doc = _('lookup(val, pattern, field, pattern, field, ..., else_field) -- '
+    category = 'Iterating over values'
+    __doc__ = doc = _('lookup(val, pattern, field, pattern, field, ..., else_field) -- '
             'like switch, except the arguments are field (metadata) names, not '
             'text. The value of the appropriate field will be fetched and used. '
             'Note that because composite columns are fields, you can use this '
@@ -276,14 +286,15 @@ class BuiltinLookup(BuiltinFormatterFunction):
         while i < len(args):
             if i + 1 >= len(args):
                 return formatter.vformat('{' + args[i].strip() + '}', [], kwargs)
-            if re.search(args[i], val):
+            if re.search(args[i], val, flags=re.I):
                 return formatter.vformat('{'+args[i+1].strip() + '}', [], kwargs)
             i += 2
 
 class BuiltinTest(BuiltinFormatterFunction):
     name = 'test'
     arg_count = 3
-    doc = _('test(val, text if not empty, text if empty) -- return `text if not '
+    category = 'If-then-else'
+    __doc__ = doc = _('test(val, text if not empty, text if empty) -- return `text if not '
             'empty` if the field is not empty, otherwise return `text if empty`')
 
     def evaluate(self, formatter, kwargs, mi, locals, val, value_if_set, value_not_set):
@@ -295,14 +306,15 @@ class BuiltinTest(BuiltinFormatterFunction):
 class BuiltinContains(BuiltinFormatterFunction):
     name = 'contains'
     arg_count = 4
-    doc = _('contains(val, pattern, text if match, text if not match) -- checks '
+    category = 'If-then-else'
+    __doc__ = doc = _('contains(val, pattern, text if match, text if not match) -- checks '
             'if field contains matches for the regular expression `pattern`. '
             'Returns `text if match` if matches are found, otherwise it returns '
             '`text if no match`')
 
     def evaluate(self, formatter, kwargs, mi, locals,
                  val, test, value_if_present, value_if_not):
-        if re.search(test, val):
+        if re.search(test, val, flags=re.I):
             return value_if_present
         else:
             return value_if_not
@@ -310,7 +322,8 @@ class BuiltinContains(BuiltinFormatterFunction):
 class BuiltinSwitch(BuiltinFormatterFunction):
     name = 'switch'
     arg_count = -1
-    doc = _('switch(val, pattern, value, pattern, value, ..., else_value) -- '
+    category = 'Iterating over values'
+    __doc__ = doc = _('switch(val, pattern, value, pattern, value, ..., else_value) -- '
             'for each `pattern, value` pair, checks if the field matches '
             'the regular expression `pattern` and if so, returns that '
             '`value`. If no pattern matches, then else_value is returned. '
@@ -323,25 +336,92 @@ class BuiltinSwitch(BuiltinFormatterFunction):
         while i < len(args):
             if i + 1 >= len(args):
                 return args[i]
-            if re.search(args[i], val):
+            if re.search(args[i], val, flags=re.I):
                 return args[i+1]
             i += 2
+
+class BuiltinInList(BuiltinFormatterFunction):
+    name = 'in_list'
+    arg_count = 5
+    category = 'List Lookup'
+    __doc__ = doc = _('in_list(val, separator, pattern, found_val, not_found_val) -- '
+            'treat val as a list of items separated by separator, '
+            'comparing the pattern against each value in the list. If the '
+            'pattern matches a value, return found_val, otherwise return '
+            'not_found_val.')
+
+    def evaluate(self, formatter, kwargs, mi, locals, val, sep, pat, fv, nfv):
+        l = [v.strip() for v in val.split(sep) if v.strip()]
+        if l:
+            for v in l:
+                if re.search(pat, v, flags=re.I):
+                    return fv
+        return nfv
+
+class BuiltinStrInList(BuiltinFormatterFunction):
+    name = 'str_in_list'
+    arg_count = 5
+    category = 'List lookup'
+    __doc__ = doc = _('str_in_list(val, separator, string, found_val, not_found_val) -- '
+            'treat val as a list of items separated by separator, '
+            'comparing the string against each value in the list. If the '
+            'string matches a value, return found_val, otherwise return '
+            'not_found_val. If the string contains separators, then it is '
+            'also treated as a list and each value is checked.')
+
+    def evaluate(self, formatter, kwargs, mi, locals, val, sep, str, fv, nfv):
+        l = [v.strip() for v in val.split(sep) if v.strip()]
+        c = [v.strip() for v in str.split(sep) if v.strip()]
+        if l:
+            for v in l:
+                for t in c:
+                    if strcmp(t, v) == 0:
+                        return fv
+        return nfv
+
+class BuiltinIdentifierInList(BuiltinFormatterFunction):
+    name = 'identifier_in_list'
+    arg_count = 4
+    category = 'List lookup'
+    __doc__ = doc = _('identifier_in_list(val, id, found_val, not_found_val) -- '
+            'treat val as a list of identifiers separated by commas, '
+            'comparing the string against each value in the list. An identifier '
+            'has the format "identifier:value". The id parameter should be '
+            'either "id" or "id:regexp". The first case matches if there is any '
+            'identifier with that id. The second case matches if the regexp '
+            'matches the identifier\'s value. If there is a match, '
+            'return found_val, otherwise return not_found_val.')
+
+    def evaluate(self, formatter, kwargs, mi, locals, val, ident, fv, nfv):
+        l = [v.strip() for v in val.split(',') if v.strip()]
+        (id, _, regexp) = ident.partition(':')
+        if not id:
+            return nfv
+        id += ':'
+        if l:
+            for v in l:
+                if v.startswith(id):
+                    if not regexp or re.search(regexp, v[len(id):], flags=re.I):
+                        return fv
+        return nfv
 
 class BuiltinRe(BuiltinFormatterFunction):
     name = 're'
     arg_count = 3
-    doc = _('re(val, pattern, replacement) -- return the field after applying '
+    category = 'String Manipulation'
+    __doc__ = doc = _('re(val, pattern, replacement) -- return the field after applying '
             'the regular expression. All instances of `pattern` are replaced '
             'with `replacement`. As in all of calibre, these are '
             'python-compatible regular expressions')
 
     def evaluate(self, formatter, kwargs, mi, locals, val, pattern, replacement):
-        return re.sub(pattern, replacement, val)
+        return re.sub(pattern, replacement, val, flags=re.I)
 
 class BuiltinIfempty(BuiltinFormatterFunction):
     name = 'ifempty'
     arg_count = 2
-    doc = _('ifempty(val, text if empty) -- return val if val is not empty, '
+    category = 'If-then-else'
+    __doc__ = doc = _('ifempty(val, text if empty) -- return val if val is not empty, '
             'otherwise return `text if empty`')
 
     def evaluate(self, formatter, kwargs, mi, locals, val, value_if_empty):
@@ -353,7 +433,8 @@ class BuiltinIfempty(BuiltinFormatterFunction):
 class BuiltinShorten(BuiltinFormatterFunction):
     name = 'shorten'
     arg_count = 4
-    doc = _('shorten(val, left chars, middle text, right chars) -- Return a '
+    category = 'String Manipulation'
+    __doc__ = doc = _('shorten(val, left chars, middle text, right chars) -- Return a '
             'shortened version of the field, consisting of `left chars` '
             'characters from the beginning of the field, followed by '
             '`middle text`, followed by `right chars` characters from '
@@ -378,7 +459,8 @@ class BuiltinShorten(BuiltinFormatterFunction):
 class BuiltinCount(BuiltinFormatterFunction):
     name = 'count'
     arg_count = 2
-    doc = _('count(val, separator) -- interprets the value as a list of items '
+    category = 'List Manipulation'
+    __doc__ = doc = _('count(val, separator) -- interprets the value as a list of items '
             'separated by `separator`, returning the number of items in the '
             'list. Most lists use a comma as the separator, but authors '
             'uses an ampersand. Examples: {tags:count(,)}, {authors:count(&)}')
@@ -389,7 +471,8 @@ class BuiltinCount(BuiltinFormatterFunction):
 class BuiltinListitem(BuiltinFormatterFunction):
     name = 'list_item'
     arg_count = 3
-    doc = _('list_item(val, index, separator) -- interpret the value as a list of '
+    category = 'List Lookup'
+    __doc__ = doc = _('list_item(val, index, separator) -- interpret the value as a list of '
             'items separated by `separator`, returning the `index`th item. '
             'The first item is number zero. The last item can be returned '
             'using `list_item(-1,separator)`. If the item is not in the list, '
@@ -409,7 +492,8 @@ class BuiltinListitem(BuiltinFormatterFunction):
 class BuiltinSelect(BuiltinFormatterFunction):
     name = 'select'
     arg_count = 2
-    doc = _('select(val, key) -- interpret the value as a comma-separated list '
+    category = 'List Lookup'
+    __doc__ = doc = _('select(val, key) -- interpret the value as a comma-separated list '
             'of items, with the items being "id:value". Find the pair with the'
             'id equal to key, and return the corresponding value.'
             )
@@ -426,9 +510,10 @@ class BuiltinSelect(BuiltinFormatterFunction):
 class BuiltinSublist(BuiltinFormatterFunction):
     name = 'sublist'
     arg_count = 4
-    doc = _('sublist(val, start_index, end_index, separator) -- interpret the '
+    category = 'List Manipulation'
+    __doc__ = doc = _('sublist(val, start_index, end_index, separator) -- interpret the '
             'value as a list of items separated by `separator`, returning a '
-            'new list made from the `start_index`th to the `end_index`th item. '
+            'new list made from the `start_index` to the `end_index` item. '
             'The first item is number zero. If an index is negative, then it '
             'counts from the end of the list. As a special case, an end_index '
             'of zero is assumed to be the length of the list. Examples using '
@@ -436,7 +521,8 @@ class BuiltinSublist(BuiltinFormatterFunction):
             'comma-separated) contains "A, B, C": '
             '{tags:sublist(0,1,\,)} returns "A". '
             '{tags:sublist(-1,0,\,)} returns "C". '
-            '{tags:sublist(0,-1,\,)} returns "A, B".')
+            '{tags:sublist(0,-1,\,)} returns "A, B".'
+            )
 
     def evaluate(self, formatter, kwargs, mi, locals, val, start_index, end_index, sep):
         if not val:
@@ -455,12 +541,13 @@ class BuiltinSublist(BuiltinFormatterFunction):
 class BuiltinSubitems(BuiltinFormatterFunction):
     name = 'subitems'
     arg_count = 3
-    doc = _('subitems(val, start_index, end_index) -- This function is used to '
+    category = 'List Manipulation'
+    __doc__ = doc = _('subitems(val, start_index, end_index) -- This function is used to '
             'break apart lists of items such as genres. It interprets the value '
             'as a comma-separated list of items, where each item is a period-'
             'separated list. Returns a new list made by first finding all the '
             'period-separated items, then for each such item extracting the '
-            'start_index`th to the `end_index`th components, then combining '
+            'start_index` to the `end_index` components, then combining '
             'the results back together. The first component in a period-'
             'separated list has an index of zero. If an index is negative, '
             'then it counts from the end of the list. As a special case, an '
@@ -489,11 +576,12 @@ class BuiltinSubitems(BuiltinFormatterFunction):
                 pass
         return ', '.join(sorted(rv, key=sort_key))
 
-class BuiltinFormat_date(BuiltinFormatterFunction):
+class BuiltinFormatDate(BuiltinFormatterFunction):
     name = 'format_date'
     arg_count = 2
-    doc = _('format_date(val, format_string) -- format the value, which must '
-            'be a date field, using the format_string, returning a string. '
+    category = 'Get values from metadata'
+    __doc__ = doc = _('format_date(val, format_string) -- format the value, '
+            'which must be a date, using the format_string, returning a string. '
             'The formatting codes are: '
             'd    : the day as number without a leading zero (1 to 31) '
             'dd   : the day as number with a leading zero (01 to 31) '
@@ -508,7 +596,7 @@ class BuiltinFormat_date(BuiltinFormatterFunction):
             'iso  : the date with time and timezone. Must be the only format present')
 
     def evaluate(self, formatter, kwargs, mi, locals, val, format_string):
-        if not val:
+        if not val or val == 'None':
             return ''
         try:
             dt = parse_date(val)
@@ -520,7 +608,8 @@ class BuiltinFormat_date(BuiltinFormatterFunction):
 class BuiltinUppercase(BuiltinFormatterFunction):
     name = 'uppercase'
     arg_count = 1
-    doc = _('uppercase(val) -- return value of the field in upper case')
+    category = 'String case changes'
+    __doc__ = doc = _('uppercase(val) -- return value of the field in upper case')
 
     def evaluate(self, formatter, kwargs, mi, locals, val):
         return val.upper()
@@ -528,7 +617,8 @@ class BuiltinUppercase(BuiltinFormatterFunction):
 class BuiltinLowercase(BuiltinFormatterFunction):
     name = 'lowercase'
     arg_count = 1
-    doc = _('lowercase(val) -- return value of the field in lower case')
+    category = 'String case changes'
+    __doc__ = doc = _('lowercase(val) -- return value of the field in lower case')
 
     def evaluate(self, formatter, kwargs, mi, locals, val):
         return val.lower()
@@ -536,7 +626,8 @@ class BuiltinLowercase(BuiltinFormatterFunction):
 class BuiltinTitlecase(BuiltinFormatterFunction):
     name = 'titlecase'
     arg_count = 1
-    doc = _('titlecase(val) -- return value of the field in title case')
+    category = 'String case changes'
+    __doc__ = doc = _('titlecase(val) -- return value of the field in title case')
 
     def evaluate(self, formatter, kwargs, mi, locals, val):
         return titlecase(val)
@@ -544,7 +635,8 @@ class BuiltinTitlecase(BuiltinFormatterFunction):
 class BuiltinCapitalize(BuiltinFormatterFunction):
     name = 'capitalize'
     arg_count = 1
-    doc = _('capitalize(val) -- return value of the field capitalized')
+    category = 'String case changes'
+    __doc__ = doc = _('capitalize(val) -- return value of the field capitalized')
 
     def evaluate(self, formatter, kwargs, mi, locals, val):
         return capitalize(val)
@@ -552,7 +644,8 @@ class BuiltinCapitalize(BuiltinFormatterFunction):
 class BuiltinBooksize(BuiltinFormatterFunction):
     name = 'booksize'
     arg_count = 0
-    doc = _('booksize() -- return value of the field capitalized')
+    category = 'Get values from metadata'
+    __doc__ = doc = _('booksize() -- return value of the size field')
 
     def evaluate(self, formatter, kwargs, mi, locals):
         if mi.book_size is not None:
@@ -562,7 +655,108 @@ class BuiltinBooksize(BuiltinFormatterFunction):
                 pass
         return ''
 
+class BuiltinOndevice(BuiltinFormatterFunction):
+    name = 'ondevice'
+    arg_count = 0
+    category = 'Get values from metadata'
+    __doc__ = doc = _('ondevice() -- return Yes if ondevice is set, otherwise return '
+            'the empty string')
+
+    def evaluate(self, formatter, kwargs, mi, locals):
+        if mi.ondevice_col:
+            return _('Yes')
+        return ''
+
+class BuiltinFirstNonEmpty(BuiltinFormatterFunction):
+    name = 'first_non_empty'
+    arg_count = -1
+    category = 'Iterating over values'
+    __doc__ = doc = _('first_non_empty(value, value, ...) -- '
+            'returns the first value that is not empty. If all values are '
+            'empty, then the empty value is returned.'
+            'You can have as many values as you want.')
+
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        i = 0
+        while i < len(args):
+            if args[i]:
+                return args[i]
+            i += 1
+        return ''
+
+class BuiltinAnd(BuiltinFormatterFunction):
+    name = 'and'
+    arg_count = -1
+    category = 'Boolean'
+    __doc__ = doc = _('and(value, value, ...) -- '
+            'returns the string "1" if all values are not empty, otherwise '
+            'returns the empty string. This function works well with test or '
+            'first_non_empty. You can have as many values as you want.')
+
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        i = 0
+        while i < len(args):
+            if not args[i]:
+                return ''
+            i += 1
+        return '1'
+
+class BuiltinOr(BuiltinFormatterFunction):
+    name = 'or'
+    arg_count = -1
+    category = 'Boolean'
+    __doc__ = doc = _('or(value, value, ...) -- '
+            'returns the string "1" if any value is not empty, otherwise '
+            'returns the empty string. This function works well with test or '
+            'first_non_empty. You can have as many values as you want.')
+
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        i = 0
+        while i < len(args):
+            if args[i]:
+                return '1'
+            i += 1
+        return ''
+
+class BuiltinNot(BuiltinFormatterFunction):
+    name = 'not'
+    arg_count = 1
+    category = 'Boolean'
+    __doc__ = doc = _('not(value) -- '
+            'returns the string "1" if the value is empty, otherwise '
+            'returns the empty string. This function works well with test or '
+            'first_non_empty. You can have as many values as you want.')
+
+    def evaluate(self, formatter, kwargs, mi, locals, val):
+        return '' if val else '1'
+
+class BuiltinMergeLists(BuiltinFormatterFunction):
+    name = 'merge_lists'
+    arg_count = 3
+    category = 'List Manipulation'
+    __doc__ = doc = _('merge_lists(list1, list2, separator) -- '
+            'return a list made by merging the items in list1 and list2, '
+            'removing duplicate items using a case-insensitive compare. If '
+            'items differ in case, the one in list1 is used. '
+            'The items in list1 and list2 are separated by separator, as are '
+            'the items in the returned list.')
+
+    def evaluate(self, formatter, kwargs, mi, locals, list1, list2, separator):
+        l1 = [l.strip() for l in list1.split(separator) if l.strip()]
+        l2 = [l.strip() for l in list2.split(separator) if l.strip()]
+        lcl1 = set([icu_lower(l) for l in l1])
+
+        res = []
+        for i in l1:
+            res.append(i)
+        for i in l2:
+            if icu_lower(i) not in lcl1:
+                res.append(i)
+        return ', '.join(sorted(res, key=sort_key))
+
+
 builtin_add         = BuiltinAdd()
+builtin_and         = BuiltinAnd()
 builtin_assign      = BuiltinAssign()
 builtin_booksize    = BuiltinBooksize()
 builtin_capitalize  = BuiltinCapitalize()
@@ -571,20 +765,28 @@ builtin_contains    = BuiltinContains()
 builtin_count       = BuiltinCount()
 builtin_divide      = BuiltinDivide()
 builtin_eval        = BuiltinEval()
-builtin_format_date = BuiltinFormat_date()
+builtin_first_non_empty = BuiltinFirstNonEmpty()
 builtin_field       = BuiltinField()
+builtin_format_date = BuiltinFormatDate()
+builtin_identifier_in_list = BuiltinIdentifierInList()
 builtin_ifempty     = BuiltinIfempty()
+builtin_in_list     = BuiltinInList()
 builtin_list_item   = BuiltinListitem()
 builtin_lookup      = BuiltinLookup()
 builtin_lowercase   = BuiltinLowercase()
+builtin_merge_lists = BuiltinMergeLists()
 builtin_multiply    = BuiltinMultiply()
+builtin_not         = BuiltinNot()
+builtin_ondevice    = BuiltinOndevice()
+builtin_or          = BuiltinOr()
 builtin_print       = BuiltinPrint()
-builtin_raw_field   = BuiltinRaw_field()
+builtin_raw_field   = BuiltinRawField()
 builtin_re          = BuiltinRe()
 builtin_select      = BuiltinSelect()
 builtin_shorten     = BuiltinShorten()
 builtin_strcat      = BuiltinStrcat()
 builtin_strcmp      = BuiltinStrcmp()
+builtin_str_in_list = BuiltinStrInList()
 builtin_subitems    = BuiltinSubitems()
 builtin_sublist     = BuiltinSublist()
 builtin_substr      = BuiltinSubstr()

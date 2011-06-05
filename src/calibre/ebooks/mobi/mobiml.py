@@ -297,9 +297,11 @@ class MobiMLizer(object):
             if id_:
                 # Keep anchors so people can use display:none
                 # to generate hidden TOCs
+                tail = elem.tail
                 elem.clear()
                 elem.text = None
                 elem.set('id', id_)
+                elem.tail = tail
             else:
                 return
         tag = barename(elem.tag)
@@ -309,7 +311,8 @@ class MobiMLizer(object):
         istates.append(istate)
         left = 0
         display = style['display']
-        isblock = not display.startswith('inline')
+        isblock = (not display.startswith('inline') and style['display'] !=
+                'none')
         isblock = isblock and style['float'] == 'none'
         isblock = isblock and tag != 'br'
         if isblock:

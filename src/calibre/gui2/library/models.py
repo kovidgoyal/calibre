@@ -7,6 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import shutil, functools, re, os, traceback
 from contextlib import closing
+from collections import defaultdict
 
 from PyQt4.Qt import (QAbstractTableModel, Qt, pyqtSignal, QIcon, QImage,
         QModelIndex, QVariant, QDate, QColor)
@@ -14,6 +15,7 @@ from PyQt4.Qt import (QAbstractTableModel, Qt, pyqtSignal, QIcon, QImage,
 from calibre.gui2 import NONE, UNDEFINED_QDATE
 from calibre.utils.pyparsing import ParseException
 from calibre.ebooks.metadata import fmt_sidx, authors_to_string, string_to_authors
+from calibre.ebooks.metadata.book.base import composite_formatter
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import tweaks, prefs
 from calibre.utils.date import dt_factory, qt_to_dt
@@ -86,6 +88,7 @@ class BooksModel(QAbstractTableModel): # {{{
         self.column_map = []
         self.headers = {}
         self.alignment_map = {}
+        self.color_cache = defaultdict(dict)
         self.buffer_size = buffer
         self.metadata_backup = None
         self.bool_yes_icon = QIcon(I('ok.png'))
@@ -96,6 +99,7 @@ class BooksModel(QAbstractTableModel): # {{{
         self.ids_to_highlight_set = set()
         self.current_highlighted_idx = None
         self.highlight_only = False
+        self.colors = frozenset([unicode(c) for c in QColor.colorNames()])
         self.read_config()
 
     def change_alignment(self, colname, alignment):
@@ -168,11 +172,13 @@ class BooksModel(QAbstractTableModel): # {{{
 
 
     def refresh_ids(self, ids, current_row=-1):
+        self.color_cache = defaultdict(dict)
         rows = self.db.refresh_ids(ids)
         if rows:
             self.refresh_rows(rows, current_row=current_row)
 
     def refresh_rows(self, rows, current_row=-1):
+        self.color_cache = defaultdict(dict)
         for row in rows:
             if row == current_row:
                 self.new_bookdisplay_data.emit(
@@ -202,6 +208,7 @@ class BooksModel(QAbstractTableModel): # {{{
         return ret
 
     def count_changed(self, *args):
+        self.color_cache = defaultdict(dict)
         self.count_changed_signal.emit(self.db.count())
 
     def row_indices(self, index):
@@ -331,6 +338,10 @@ class BooksModel(QAbstractTableModel): # {{{
     def refresh(self, reset=True):
         self.db.refresh(field=None)
         self.resort(reset=reset)
+
+    def reset(self):
+        self.color_cache = defaultdict(dict)
+        QAbstractTableModel.reset(self)
 
     def resort(self, reset=True):
         if not self.db:
@@ -532,7 +543,6 @@ class BooksModel(QAbstractTableModel): # {{{
             img = self.default_image
         return img
 
-
     def build_data_convertors(self):
         def authors(r, idx=-1):
             au = self.db.data[r][idx]
@@ -598,10 +608,11 @@ class BooksModel(QAbstractTableModel): # {{{
 
         def text_type(r, mult=None, idx=-1):
             text = self.db.data[r][idx]
-            if text and mult is not None:
-                if mult:
-                    return QVariant(u' & '.join(text.split('|')))
-                return QVariant(u', '.join(sorted(text.split('|'),key=sort_key)))
+            if text and mult:
+                jv = mult['list_to_ui']
+                sv = mult['cache_to_list']
+                return QVariant(jv.join(
+                    sorted([t.strip() for t in text.split(sv)], key=sort_key)))
             return QVariant(text)
 
         def decorated_text_type(r, idx=-1):
@@ -610,7 +621,12 @@ class BooksModel(QAbstractTableModel): # {{{
                 return None
             return QVariant(text)
 
-        def number_type(r, idx=-1):
+        def number_type(r, idx=-1, fmt=None):
+            if fmt is not None:
+                try:
+                    return QVariant(fmt.format(self.db.data[r][idx]))
+                except:
+                    pass
             return QVariant(self.db.data[r][idx])
 
         self.dc = {
@@ -650,8 +666,6 @@ class BooksModel(QAbstractTableModel): # {{{
             datatype = self.custom_columns[col]['datatype']
             if datatype in ('text', 'comments', 'composite', 'enumeration'):
                 mult=self.custom_columns[col]['is_multiple']
-                if mult is not None:
-                    mult = self.custom_columns[col]['display'].get('is_names', False)
                 self.dc[col] = functools.partial(text_type, idx=idx, mult=mult)
                 if datatype in ['text', 'composite', 'enumeration'] and not mult:
                     if self.custom_columns[col]['display'].get('use_decorations', False):
@@ -661,7 +675,8 @@ class BooksModel(QAbstractTableModel): # {{{
                             bool_cols_are_tristate=
                                 self.db.prefs.get('bools_are_tristate'))
             elif datatype in ('int', 'float'):
-                self.dc[col] = functools.partial(number_type, idx=idx)
+                fmt = self.custom_columns[col]['display'].get('number_format', None)
+                self.dc[col] = functools.partial(number_type, idx=idx, fmt=fmt)
             elif datatype == 'datetime':
                 self.dc[col] = functools.partial(datetime_type, idx=idx)
             elif datatype == 'bool':
@@ -693,9 +708,45 @@ class BooksModel(QAbstractTableModel): # {{{
             return NONE
         if role in (Qt.DisplayRole, Qt.EditRole):
             return self.column_to_dc_map[col](index.row())
-        elif role == Qt.BackgroundColorRole:
+        elif role == Qt.BackgroundRole:
             if self.id(index) in self.ids_to_highlight_set:
-                return QColor('lightgreen')
+                return QVariant(QColor('lightgreen'))
+        elif role == Qt.ForegroundRole:
+            key = self.column_map[col]
+            mi = None
+            for k, fmt in self.db.prefs['column_color_rules']:
+                if k != key:
+                    continue
+                id_ = self.id(index)
+                if id_ in self.color_cache:
+                    if key in self.color_cache[id_]:
+                        return self.color_cache[id_][key]
+                try:
+                    if mi is None:
+                        mi = self.db.get_metadata(id_, index_is_id=True)
+                    color = composite_formatter.safe_format(fmt, mi, '', mi)
+                    if color in self.colors:
+                        color = QColor(color)
+                        if color.isValid():
+                            color = QVariant(color)
+                            self.color_cache[id_][key] = color
+                            return color
+                except:
+                    continue
+            if self.is_custom_column(key) and \
+                        self.custom_columns[key]['datatype'] == 'enumeration':
+                cc = self.custom_columns[self.column_map[col]]['display']
+                colors = cc.get('enum_colors', [])
+                values = cc.get('enum_values', [])
+                txt = unicode(index.data(Qt.DisplayRole).toString())
+                if len(colors) > 0 and txt in values:
+                    try:
+                        color = QColor(colors[values.index(txt)])
+                        if color.isValid():
+                            return QVariant(color)
+                    except:
+                        pass
+            return NONE
         elif role == Qt.DecorationRole:
             if self.column_to_dc_decorator_map[col] is not None:
                 return self.column_to_dc_decorator_map[index.column()](index.row())

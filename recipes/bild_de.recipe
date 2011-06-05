@@ -1,0 +1,74 @@
+# -*- coding: utf-8 -*-
+from calibre.web.feeds.recipes import BasicNewsRecipe
+class AdvancedUserRecipe1303841067(BasicNewsRecipe):
+
+    title          = u'Bild.de'
+    __author__  = 'schuster'
+    oldest_article = 1
+    max_articles_per_feed = 100
+    no_stylesheets         = True
+    use_embedded_content   = False
+    language               = 'de'
+    remove_javascript      = True
+
+# get cover from myspace
+    cover_url = 'http://a3.l3-images.myspacecdn.com/images02/56/0232f842170b4d349779f8379c27e073/l.jpg'
+    masthead_url = 'http://a3.l3-images.myspacecdn.com/images02/56/0232f842170b4d349779f8379c27e073/l.jpg'
+
+# set what to fetch on the site
+    remove_tags_before =  dict(name = 'h2', attrs={'id':'cover'})
+    remove_tags_after = dict(name ='div', attrs={'class':'back'})
+
+
+# remove things on the site that we don't want
+    remove_tags = [dict(name='div', attrs={'class':'credit'}),
+        dict(name='div', attrs={'class':'index'}),
+        dict(name='div', attrs={'id':'zstart31'}),
+        dict(name='div', attrs={'class':'hentry'}),
+        dict(name='div', attrs={'class':'back'}),
+        dict(name='div', attrs={'class':'pagination'}),
+        dict(name='div', attrs={'class':'header'}),
+        dict(name='div', attrs={'class':'element floatL'}),
+        dict(name='div', attrs={'class':'stWrap'})
+]
+
+#  thanx to kiklop74 for code (see sticky thread -> Recipes - Re-usable code)
+# this one removes a lot of direct-link's
+    def preprocess_html(self, soup):
+        for alink in soup.findAll('a'):
+            if alink.string is not None:
+               tstr = alink.string
+               alink.replaceWith(tstr)
+        return soup
+
+# remove the ad's
+    filter_regexps = [r'.\.smartadserver\.com']
+    def skip_ad_pages(self, soup):
+        return None
+
+#get the real url behind  .feedsportal.com and fetch the artikels
+    def get_article_url(self, article):
+        return article.get('id', article.get('guid', None))
+
+#list of the rss source from www.bild.de
+    feeds          = [(u'Überblick', u'http://rss.bild.de/bild.xml'),
+                          (u'News', u'http://rss.bild.de/bild-news.xml'),
+                          (u'Politik', u'http://rss.bild.de/bild-politik.xml'),
+                          (u'Unterhaltung', u'http://rss.bild.de/bild-unterhaltung.xml'),
+                          (u'Sport', u'http://rss.bild.de/bild-sport.xml'),
+                          (u'Lifestyle', u'http://rss.bild.de/bild-lifestyle.xml'),
+                          (u'Ratgeber', u'http://rss.bild.de/bild-ratgeber.xml'),
+                          (u'Reg. - Berlin', u'http://rss.bild.de/bild-berlin.xml'),
+                          (u'Reg. - Bremen', u'http://rss.bild.de/bild-bremen.xml'),
+                          (u'Reg. - Dresden', u'http://rss.bild.de/bild-dresden.xml'),
+                          (u'Reg. - Düsseldorf', u'http://rss.bild.de/bild-duesseldorf.xml'),
+                          (u'Reg. - Frankfurt-Main', u'http://rss.bild.de/bild-frankfurt-main.xml'),
+                          (u'Reg. - Hamburg', u'http://rss.bild.de/bild-hamburg.xml'),
+                          (u'Reg. - Hannover', u'http://rss.bild.de/bild-hannover.xml'),
+                          (u'Reg. - Köln', u'http://rss.bild.de/bild-koeln.xml'),
+                          (u'Reg. - Leipzig', u'http://rss.bild.de/bild-leipzig.xml'),
+                          (u'Reg. - München', u'http://rss.bild.de/bild-muenchen.xml'),
+                          (u'Reg. - Ruhrgebiet', u'http://rss.bild.de/bild-ruhrgebiet.xml'),
+                          (u'Reg. - Stuttgart', u'http://rss.bild.de/bild-stuttgart.xml')
+]
+

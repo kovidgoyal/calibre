@@ -1,0 +1,24 @@
+from calibre.web.feeds.recipes import BasicNewsRecipe
+class AdvancedUserRecipe1303841067(BasicNewsRecipe):
+
+    title          = u'Max-Planck-Inst.'
+    __author__  = 'schuster'
+    oldest_article = 30
+    max_articles_per_feed = 100
+    no_stylesheets         = True
+    use_embedded_content   = False
+    language               = 'de'
+    remove_javascript      = True
+
+    remove_tags = [dict(attrs={'class':['box_url', 'print_kontakt']}),
+                dict(id=['skiplinks'])]
+
+
+
+    def print_version(self, url):
+        split_url = url.split("/")
+        print_url = 'http://www.mpg.de/print/' +  split_url[3]
+        return print_url
+
+    feeds          = [(u'Forschung', u'http://www.mpg.de/de/forschung.rss')]
+

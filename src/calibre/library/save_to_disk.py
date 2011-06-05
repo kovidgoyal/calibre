@@ -56,16 +56,17 @@ for x in FORMAT_ARG_DESCS:
 def find_plugboard(device_name, format, plugboards):
     cpb = None
     if format in plugboards:
-        cpb = plugboards[format]
-    elif plugboard_any_format_value in plugboards:
-        cpb = plugboards[plugboard_any_format_value]
-    if cpb is not None:
-        if device_name in cpb:
-            cpb = cpb[device_name]
-        elif plugboard_any_device_value in cpb:
-            cpb = cpb[plugboard_any_device_value]
-        else:
-            cpb = None
+        pb = plugboards[format]
+        if device_name in pb:
+            cpb = pb[device_name]
+        elif plugboard_any_device_value in pb:
+            cpb = pb[plugboard_any_device_value]
+    if not cpb and plugboard_any_format_value in plugboards:
+        pb = plugboards[plugboard_any_format_value]
+        if device_name in pb:
+            cpb = pb[device_name]
+        elif plugboard_any_device_value in pb:
+            cpb = pb[plugboard_any_device_value]
     if DEBUG:
         prints('Device using plugboard', format, device_name, cpb)
     return cpb
@@ -133,6 +134,8 @@ class SafeFormat(TemplateFormatter):
     '''
 
     def get_value(self, key, args, kwargs):
+        if key == '':
+            return ''
         try:
             key = key.lower()
             try:
