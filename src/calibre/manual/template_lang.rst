@@ -114,13 +114,15 @@ The syntax for using functions is ``{field:function(arguments)}``, or ``{field:f
 
 If you have programming experience, please note that the syntax in this mode (single function) is not what you might expect. Strings are not quoted. Spaces are significant. All arguments must be constants; there is no sub-evaluation. Use :ref:`template program mode <template_mode>` and :ref:`general program mode <general_mode>` to avoid these differences.
 
+Many functions use regular expressions. In all cases, regular expression matching is case-insensitive.
+
 The functions available are:
 
     * ``lowercase()``	-- return value of the field in lower case.
     * ``uppercase()``	-- return the value of the field in upper case.
     * ``titlecase()``	-- return the value of the field in title case.
     * ``capitalize()``	-- return the value with the first letter upper case and the rest lower case.
-    * ``contains(pattern, text if match, text if not match`` -- checks if field contains matches for the regular expression `pattern`. Returns `text if match` if matches are found, otherwise it returns `text if no match`.
+    * ``contains(pattern, text if match, text if not match)`` -- checks if field contains matches for the regular expression `pattern`. Returns `text if match` if matches are found, otherwise it returns `text if no match`.
     * ``count(separator)`` -- interprets the value as a list of items separated by `separator`, returning the number of items in the list. Most lists use a comma as the separator, but authors uses an ampersand. Examples: `{tags:count(,)}`, `{authors:count(&)}`
     * ``ifempty(text)``	-- if the field is not empty, return the value of the field. Otherwise return `text`.
     * ``in_list(separator, pattern, found_val, not_found_val)`` -- interpret the field as a list of items separated by `separator`, comparing the `pattern` against each value in the list. If the pattern matches a value, return `found_val`, otherwise return `not_found_val`.
@@ -130,6 +132,7 @@ The functions available are:
     * ``switch(pattern, value, pattern, value, ..., else_value)`` -- for each ``pattern, value`` pair, checks if the field matches the regular expression ``pattern`` and if so, returns that ``value``. If no ``pattern`` matches, then ``else_value`` is returned. You can have as many ``pattern, value`` pairs as you want.
     * ``lookup(pattern, field, pattern, field, ..., else_field)`` -- like switch, except the arguments are field (metadata) names, not text. The value of the appropriate field will be fetched and used. Note that because composite columns are fields, you can use this function in one composite field to use the value of some other composite field. This is extremely useful when constructing variable save paths (more later).
     * ``select(key)`` -- interpret the field as a comma-separated list of items, with the items being of the form "id:value". Find the pair with the id equal to key, and return the corresponding value. This function is particularly useful for extracting a value such as an isbn from the set of identifiers for a book.
+    * ``str_in_list(val, separator, string, found_val, not_found_val)`` -- treat val as a list of items separated by separator, comparing the string against each value in the list. If the string matches a value, return found_val, otherwise return not_found_val. If the string contains separators, then it is also treated as a list and each value is checked.
     * ``subitems(val, start_index, end_index)`` -- This function is used to break apart lists of tag-like hierarchical items such as genres. It interprets the value as a comma-separated list of tag-like items, where each item is a period-separated list. Returns a new list made by first finding all the period-separated tag-like items, then for each such item extracting the components from `start_index` to `end_index`, then combining the results back together. The first component in a period-separated list has an index of zero. If an index is negative, then it counts from the end of the list. As a special case, an end_index of zero is assumed to be the length of the list. Examples::
 
         Assuming a #genre column containing "A.B.C":    
@@ -255,6 +258,7 @@ The following functions are available in addition to those described in single-f
     * ``not(value)`` -- returns the string "1" if the value is empty, otherwise returns the empty string. This function works well with test or first_non_empty. You can have as many values as you want.
     * ``merge_lists(list1, list2, separator)`` -- return a list made by merging the items in list1 and list2, removing duplicate items using a case-insensitive compare. If items differ in case, the one in list1 is used. The items in list1 and list2 are separated by separator, as are the items in the returned list.
     * ``multiply(x, y)`` -- returns x * y. Throws an exception if either x or y are not numbers.
+    * ``ondevice()`` -- return the string "Yes" if ondevice is set, otherwise return the empty string
     * ``or(value, value, ...)`` -- returns the string "1" if any value is not empty, otherwise returns the empty string. This function works well with test or first_non_empty. You can have as many values as you want.
     * ``print(a, b, ...)`` -- prints the arguments to standard output. Unless you start calibre from the command line (``calibre-debug -g``), the output will go to a black hole.
     * ``raw_field(name)`` -- returns the metadata field named by name without applying any formatting.
@@ -264,20 +268,14 @@ The following functions are available in addition to those described in single-f
     * ``subtract(x, y)`` -- returns x - y. Throws an exception if either x or y are not numbers.
     * ``template(x)`` -- evaluates x as a template. The evaluation is done in its own context, meaning that variables are not shared between the caller and the template evaluation. Because the `{` and `}` characters are special, you must use `[[` for the `{` character and `]]` for the '}' character; they are converted automatically. For example, ``template('[[title_sort]]') will evaluate the template ``{title_sort}`` and return its value.
     
-Function classification summary:
+Function classification
+---------------------------
 
-    * Get values from metadata: ``field``. ``raw_field``. In some situations, ``lookup`` can be used in place of ``field``.
-    * Arithmetic: ``add``, ``subtract``, ``multiply``, ``divide``
-    * Boolean: ``and``, ``or``, ``not``. The function ``if_empty`` is similar to ``and`` called with one argument.
-    * If-then-else: ``contains``, ``test``
-    * Iterating over values: ``first_non_empty``, ``lookup``, ``switch``
-    * List lookup: ``in_list``, ``list_item``, ``select``, 
-    * List manipulation: ``count``, ``merge_lists``, ``sublist``, ``subitems``
-    * Recursion: ``eval``, ``template``
-    * Relational: ``cmp`` , ``strcmp`` for strings
-    * String case changes: ``lowercase``, ``uppercase``, ``titlecase``, ``capitalize``
-    * String manipulation: ``re``, ``shorten``, ``substr``
-    * Other: ``assign``, ``booksize``, ``print``, ``format_date``, 
+.. toctree::
+    :maxdepth: 3
+
+    template_ref
+
         
 .. _general_mode:
 
@@ -421,20 +419,9 @@ You might find the following tips useful.
     * Templates can use other templates by referencing a composite custom column.
     * In a plugboard, you can set a field to empty (or whatever is equivalent to empty) by using the special template ``{null}``. This template will always evaluate to an empty string.
     * The technique described above to show numbers even if they have a zero value works with the standard field series_index.
-    
-API of the Metadata objects
-----------------------------
 
-.. module:: calibre.ebooks.metadata.book.base
+.. toctree::
+  :hidden:
 
-.. autoclass:: Metadata
-   :members:
-   :member-order: bysource
-
-.. data:: STANDARD_METADATA_FIELDS
-
-    The set of standard metadata fields.
-
-.. literalinclude:: ../ebooks/metadata/book/__init__.py
-   :lines: 7-
+  template_ref
 

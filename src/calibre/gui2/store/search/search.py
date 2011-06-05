@@ -186,7 +186,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         # Remove excess whitespace.
         query = re.sub(r'\s{2,}', ' ', query)
         query = query.strip()
-        return query
+        return query.encode('utf-8')
 
     def save_state(self):
         self.config['geometry'] = bytearray(self.saveGeometry())

@@ -2743,7 +2743,6 @@ class ITUNES(DriverBase):
         # Update metadata from plugboard
         # If self.plugboard is None (no transforms), original metadata is returned intact
         metadata_x = self._xform_metadata_via_plugboard(metadata, this_book.format)
-        self.log("metadata.title_sort: %s  metadata_x.title_sort: %s" % (metadata.title_sort, metadata_x.title_sort))
         if isosx:
             if lb_added:
                 lb_added.name.set(metadata_x.title)
@@ -3024,6 +3023,8 @@ class ITUNES_ASYNC(ITUNES):
                 pythoncom.CoInitialize()
                 self._launch_iTunes()
             except:
+                import traceback
+                traceback.print_exc()
                 raise UserFeedback('unable to launch iTunes', details=None, level=UserFeedback.WARN)
             finally:
                 pythoncom.CoUninitialize()

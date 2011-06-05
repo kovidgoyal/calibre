@@ -352,7 +352,7 @@ The syntax for searching for dates is::
 If the date is ambiguous, the current locale is used for date comparison. For example, in an mm/dd/yyyy
 locale, 2/1/2009 is interpreted as 1 Feb 2009. In a dd/mm/yyyy locale, it is interpreted as 2 Jan 2009.  Some
 special date strings are available. The string ``today`` translates to today's date, whatever it is. The
-strings `yesterday`` and ``thismonth`` also work. In addition, the string ``daysago`` can be used to compare
+strings ``yesterday`` and ``thismonth`` also work. In addition, the string ``daysago`` can be used to compare
 to a date some number of days ago, for example: date:>10daysago, date:<=45daysago.
 
 You can search for books that have a format of a certain size like this::

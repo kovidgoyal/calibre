@@ -1227,6 +1227,15 @@ class StoreEHarlequinStore(StoreBase):
     formats = ['EPUB', 'PDF']
     affiliate = True
 
+class StoreEpubBudStore(StoreBase):
+    name = 'ePub Bud'
+    description = 'Well, it\'s pretty much just "YouTube for Children\'s eBooks. A not-for-profit organization devoted to brining self published childrens books to the world.'
+    actual_plugin = 'calibre.gui2.store.epubbud_plugin:EpubBudStore'
+    
+    drm_free_only = True
+    headquarters = 'US'
+    formats = ['EPUB']
+
 class StoreFeedbooksStore(StoreBase):
     name = 'Feedbooks'
     description = u'Feedbooks is a cloud publishing and distribution service, connected to a large ecosystem of reading systems and social networks. Provides a variety of genres from independent and classic books.'
@@ -1422,6 +1431,7 @@ plugins += [
     StoreEBookShoppeUKStore,
     StoreEPubBuyDEStore,
     StoreEHarlequinStore,
+    StoreEpubBudStore,
     StoreFeedbooksStore,
     StoreFoylesUKStore,
     StoreGandalfStore,

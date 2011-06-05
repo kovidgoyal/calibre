@@ -482,6 +482,8 @@ class EditMetadataAction(InterfaceAction):
             if mi.identifiers:
                 idents.update(mi.identifiers)
             mi.identifiers = idents
+            if mi.is_null('series'):
+                mi.series_index = None
             db.set_metadata(i, mi, commit=False, set_title=set_title,
                     set_authors=set_authors, notify=False)
             self.applied_ids.append(i)

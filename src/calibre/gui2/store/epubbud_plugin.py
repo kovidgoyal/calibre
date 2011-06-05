@@ -3,10 +3,9 @@
 from __future__ import (unicode_literals, division, absolute_import, print_function)
 
 __license__ = 'GPL 3'
-__copyright__ = '2011, Tomasz Długosz <tomek3d@gmail.com>'
+__copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import re
 import urllib
 from contextlib import closing
 
@@ -21,55 +20,59 @@ from calibre.gui2.store.basic_config import BasicStoreConfig
 from calibre.gui2.store.search_result import SearchResult
 from calibre.gui2.store.web_store_dialog import WebStoreDialog
 
-class LegimiStore(BasicStoreConfig, StorePlugin):
+class EpubBudStore(BasicStoreConfig, StorePlugin):
 
     def open(self, parent=None, detail_item=None, external=False):
-        
-        url = 'http://www.legimi.com/pl/ebooks/?price=any'
-        detail_url = None
-
-        if detail_item:
-            detail_url = detail_item
+        url = 'http://epubbud.com/'
 
         if external or self.config.get('open_external', False):
-            open_url(QUrl(url_slash_cleaner(detail_url if detail_url else url)))
+            open_url(QUrl(url_slash_cleaner(detail_item if detail_item else url)))
         else:
-            d = WebStoreDialog(self.gui, url, parent, detail_url)
+            d = WebStoreDialog(self.gui, url, parent, detail_item)
             d.setWindowTitle(self.name)
             d.set_tags(self.config.get('tags', ''))
             d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
-        url = 'http://www.legimi.com/pl/ebooks/?price=any&lang=pl&search=' + urllib.quote_plus(query) + '&sort=relevance'
+        '''
+        OPDS based search.
+        
+        We really should get the catelog from http://pragprog.com/catalog.opds
+        and look for the application/opensearchdescription+xml entry.
+        Then get the opensearch description to get the search url and
+        format. However, we are going to be lazy and hard code it.
+        '''
+        url = 'http://www.epubbud.com/search.php?format=atom&q=' + urllib.quote_plus(query)
         
         br = browser()
         
         counter = max_results
         with closing(br.open(url, timeout=timeout)) as f:
+            # Use html instead of etree as html allows us
+            # to ignore the namespace easily.
             doc = html.fromstring(f.read())
-            for data in doc.xpath('//div[@class="list"]/ul/li'):
+            for data in doc.xpath('//entry'):
                 if counter <= 0:
                     break
-                
-                id = ''.join(data.xpath('.//div[@class="item_cover_container"]/a[1]/@href'))
+
+                id = ''.join(data.xpath('.//id/text()'))
                 if not id:
                     continue
 
-                cover_url = ''.join(data.xpath('.//div[@class="item_cover_container"]/a/img/@src'))
-                title = ''.join(data.xpath('.//div[@class="item_entries"]/h2/a/text()'))
-                author = ''.join(data.xpath('.//div[@class="item_entries"]/span[1]/a/text()'))
-                price = ''.join(data.xpath('.//div[@class="item_entries"]/span[3]/text()'))
-                price = re.sub(r'[^0-9,]*','',price) + ' zł'
+                cover_url = ''.join(data.xpath('.//link[@rel="http://opds-spec.org/thumbnail"]/@href'))
+                
+                title = u''.join(data.xpath('.//title/text()'))
+                author = u''.join(data.xpath('.//author/name/text()'))
 
                 counter -= 1
                 
                 s = SearchResult()
-                s.cover_url = 'http://www.legimi.com/' + cover_url
+                s.cover_url = cover_url
                 s.title = title.strip()
                 s.author = author.strip()
-                s.price = price
-                s.detail_item = 'http://www.legimi.com/' + id.strip()
-                s.drm = SearchResult.DRM_LOCKED
+                s.price = '$0.00'
+                s.detail_item = id.strip()
+                s.drm = SearchResult.DRM_UNLOCKED
                 s.formats = 'EPUB'
                 
                 yield s

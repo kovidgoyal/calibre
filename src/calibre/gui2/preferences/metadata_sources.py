@@ -283,7 +283,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.fields_model.dataChanged.connect(self.changed_signal)
 
         self.select_all_button.clicked.connect(self.fields_model.select_all)
+        self.select_all_button.clicked.connect(self.changed_signal)
         self.clear_all_button.clicked.connect(self.fields_model.clear_all)
+        self.clear_all_button.clicked.connect(self.changed_signal)
 
     def configure_plugin(self):
         for index in self.sources_view.selectionModel().selectedRows():

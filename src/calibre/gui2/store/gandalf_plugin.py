@@ -37,7 +37,7 @@ class GandalfStore(BasicStoreConfig, StorePlugin):
     def search(self, query, max_results=10, timeout=60):
         url = 'http://www.gandalf.com.pl/s/'
         values={
-            'search': query.encode('iso8859_2'),
+            'search': query.decode('utf-8').encode('iso8859_2'),
             'dzialx':'11'
             }
 
