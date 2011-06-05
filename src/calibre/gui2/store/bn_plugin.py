@@ -8,7 +8,6 @@ __docformat__ = 'restructuredtext en'
 
 import random
 import re
-import urllib
 from contextlib import closing
 
 from lxml import html
