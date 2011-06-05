@@ -71,7 +71,7 @@ class NextoStore(BasicStoreConfig, StorePlugin):
                 author = ''
                 with closing(br.open('http://www.nexto.pl/' + id.strip(), timeout=timeout/4)) as nf:
                     idata = html.fromstring(nf.read())
-                    author = ''.join(idata.xpath('//div[@class="basic_data"]/p[1]/b/a/text()'))
+                    author = ', '.join(idata.xpath('//div[@class="basic_data"]/p[1]/b/a/text()'))
 
                 counter -= 1
 
