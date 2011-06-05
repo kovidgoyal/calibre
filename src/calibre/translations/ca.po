@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-06-03 18:21+0000\n"
-"PO-Revision-Date: 2011-06-03 18:47+0000\n"
+"PO-Revision-Date: 2011-06-04 19:15+0000\n"
 "Last-Translator: FerranRius <frius64@hotmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-06-04 04:36+0000\n"
+"X-Launchpad-Export-Date: 2011-06-05 04:33+0000\n"
 "X-Generator: Launchpad (build 12959)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -12143,27 +12143,30 @@ msgstr "Només si es compleixen les condicions següents:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:259
 msgid "Add another condition"
-msgstr ""
+msgstr "Afegeix una altra condició"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:263
 msgid "You can disable a condition by blanking all of its boxes"
 msgstr ""
+"Es pot inhabilitar una condició deixant en blanc tots els seus quadres"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:335
 msgid "Invalid condition"
-msgstr ""
+msgstr "Condició no vàlida"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:336
 msgid "One of the conditions for this rule is invalid: <b>%s</b>"
-msgstr ""
+msgstr "Una de les condicions per a aquesta regla no és vàlida: <b>%s</b>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:341
 msgid "No conditions"
-msgstr ""
+msgstr "No hi ha condicions"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:342
 msgid "You must specify at least one non-empty condition for this rule"
 msgstr ""
+"Per a aquesta regla s'ha d'especificar almenys una condició que no estigui "
+"buida"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:430
 msgid ""
@@ -12172,6 +12175,10 @@ msgid ""
 "            <pre>%s</pre>\n"
 "            "
 msgstr ""
+"\n"
+"            <p>Regla avançada per a la columna <b>%s</b>:\n"
+"            <pre>%s</pre>\n"
+"            "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:435
 msgid ""
@@ -12180,10 +12187,14 @@ msgid ""
 "            <ul>%s</ul>\n"
 "            "
 msgstr ""
+"            <p>Estableix el color de <b>%s</b> a <b>%s</b> si es compleixen\n"
+"            les condicions següents:</p>\n"
+"            <ul>%s</ul>\n"
+"            "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:443
 msgid "<li>If the <b>%s</b> column <b>%s</b> value: <b>%s</b>"
-msgstr ""
+msgstr "<li>Si la columna <b>%s</b> <b>%s</b> té el valor: <b>%s</b>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:458
 msgid ""
@@ -12191,38 +12202,41 @@ msgid ""
 "that tell calibre what color to use. Click the Add Rule button below to get "
 "started. You can change an existing rule by double clicking it."
 msgstr ""
+"Podeu controlar el color de les columnes al llibre creant «regles» que "
+"indiquen al calibre quin color ha d'utilitzar. Feu clic al botó «Afegeix "
+"regla» per començar. Podeu canviar una regla existent fent-hi doble clic."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:467
 msgid "Add Rule"
-msgstr ""
+msgstr "Afegeix una regla"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:470
 msgid "Remove Rule"
-msgstr ""
+msgstr "Suprimeix una regla"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:487
 msgid "Move the selected rule up"
-msgstr ""
+msgstr "Mou la regla seleccionada amunt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:492
 msgid "Move the selected rule down"
-msgstr ""
+msgstr "Mou la regla seleccionada avall"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:500
 msgid "Add Advanced Rule"
-msgstr ""
+msgstr "Afegeix una regla avançada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:548
 msgid "No rule selected"
-msgstr ""
+msgstr "No s'ha seleccionat cap regla"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:549
 msgid "No rule selected for %s."
-msgstr ""
+msgstr "No s'ha seleccionat cap regla per a %s."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:554
 msgid "removal"
-msgstr ""
+msgstr "supressió"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns.py:96
 msgid "You must select a column to delete it"
@@ -12575,6 +12589,10 @@ msgid ""
 "specifier.\n"
 "            "
 msgstr ""
+"<p>L'especificació de format ha de començar per <code>{0:</code>\n"
+"i acabar amb <code>}</code> Es pot posar text abans i després de "
+"l'especificador de format.\n"
+"            "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:240
 msgid ""
@@ -12582,6 +12600,9 @@ msgid ""
 "href=\"http://docs.python.org/library/string.html#format-string-syntax\">the "
 "python documentation</a>"
 msgstr ""
+"<p>Per defecte: Sense format. Per al llenguatge de format vegeu <a "
+"href=\"http://docs.python.org/library/string.html#format-string-syntax\">la "
+"documentació de python</a>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:241
 msgid "Format for &dates"
@@ -12589,7 +12610,7 @@ msgstr "Format per a les &dates"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:242
 msgid "Format for &numbers"
-msgstr ""
+msgstr "Format per als &nombres"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:243
 msgid "&Template"
@@ -12798,7 +12819,7 @@ msgstr "Sempre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:133
 msgid "If there is enough room"
-msgstr ""
+msgstr "Si hi ha prou espai"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:134
 msgid "Never"
@@ -12818,7 +12839,7 @@ msgstr "Repartit"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:166
 msgid "Column coloring"
-msgstr ""
+msgstr "Pintat de columna"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:198
 msgid "User Interface &layout (needs restart):"
@@ -14038,6 +14059,8 @@ msgid ""
 "Argument count should be -1 or greater than zero.Setting it to zero means "
 "that this function cannot be used in single function mode."
 msgstr ""
+"El recompte d'arguments a de ser -1 o major que zero. Zero significa que "
+"aquesta funció no es pot utilitzar en mode de funció única."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:174
 msgid "Exception while compiling function"
@@ -14439,7 +14462,7 @@ msgstr "fals"
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:232
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:206
 msgid "Affiliate:"
-msgstr ""
+msgstr "Afiliat:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:235
 msgid "Nam&e/Description ..."
@@ -14453,7 +14476,7 @@ msgstr "Consulta:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/chooser_widget_ui.py:81
 msgid "Enable"
-msgstr ""
+msgstr "Habilita"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/chooser_widget_ui.py:82
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:136
@@ -14469,7 +14492,7 @@ msgstr "Inverteix"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:21
 msgid "Affiliate"
-msgstr ""
+msgstr "Afiliat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:21
 msgid "Enabled"
@@ -14487,21 +14510,27 @@ msgstr "Sense DRM"
 msgid ""
 "This store is currently diabled and cannot be used in other parts of calibre."
 msgstr ""
+"Aquesta botiga està inhabilitada i no es pot utilitzar a d'altres parts del "
+"calibre."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:131
 msgid ""
 "This store is currently enabled and can be used in other parts of calibre."
 msgstr ""
+"Aquesta botiga està habilitada i es pot utilitzar a d'altres parts del "
+"calibre."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:136
 msgid "This store only distributes ebooks with DRM."
-msgstr ""
+msgstr "Aquesta botiga només distribueix llibres amb DRM."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:138
 msgid ""
 "This store distributes ebooks with DRM. It may have some titles without DRM, "
 "but you will need to check on a per title basis."
 msgstr ""
+"Aquesta botiga distribueix llibres amb DRM. És possible que tingui algun "
+"títol sense DRM però caldrà comprovar-ho per a cada títol."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:140
 msgid ""
@@ -14509,19 +14538,23 @@ msgid ""
 "the store caters to. However, this does not necessarily mean that the store "
 "is limited to that market only."
 msgstr ""
+"Aquesta botiga té la seva seu a %s. Això és un bon indicador del mercat al "
+"qual dóna servei. No significa però que la botiga es limiti només a aquest "
+"mercat."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:143
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:203
 msgid "Buying from this store supports the calibre developer: %s."
 msgstr ""
+"Si compreu en aquesta botiga doneu suport al desenvolupador del calibre: %s."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:145
 msgid "This store distributes ebooks in the following formats: %s"
-msgstr ""
+msgstr "Aquesta botiga distribueix llibres en els formats següents: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/results_view.py:47
 msgid "Configure..."
-msgstr ""
+msgstr "Configura..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search/search_widget_ui.py:99
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search_widget_ui.py:99
@@ -14715,6 +14748,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:105
 msgid "Buying from this store supports the calibre developer: %s</p>"
 msgstr ""
+"Si compreu en aquesta botiga doneu suport al desenvolupador del calibre: "
+"%s</p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:261
 msgid "Customize get books search"
@@ -15167,6 +15202,8 @@ msgid ""
 "Update <b>only</b> if one of the new features or bug fixes is important to "
 "you. If the current version works well for you, do not update."
 msgstr ""
+"Actualitzeu <b>només</b> si alguna de les funcions noves o correccions "
+"d'errors us és important. Si la versió actual us funciona, no actualitzeu."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:60
 msgid "Update available!"
@@ -15809,6 +15846,8 @@ msgid ""
 "<h2>User Manual</h2>A User Manual is also available <a "
 "href=\"http://manual.calibre-ebook.com\">online</a>."
 msgstr ""
+"<h2>Manual de l'usuari</h2>També hi ha un manual de l'usuari disponible <a "
+"href=\"http://manual.calibre-ebook.com\">en línia</a>."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/kindle_ui.py:49
 msgid ""
@@ -17859,7 +17898,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:103
 msgid "Unknown identifier "
-msgstr ""
+msgstr "No es coneix l'identificador "
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:110
 msgid "unknown function {0}"
@@ -18094,6 +18133,11 @@ msgid ""
 "otherwise return not_found_val. If the string contains separators, then it "
 "is also treated as a list and each value is checked."
 msgstr ""
+"str_in_list(val, separador, cadena, valor_trobat, valor_no trobat) -- "
+"considera «val» com a una llista d'elements separats per un separador que es "
+"compara amb cada valor de la llista. Si la cadena coincideix amb un valor, "
+"s'obté «valor_trobat», en cas contrari «valor _no_trobat. Si la cadena conté "
+"separadors també es tracta com a una llista i es comprova cada valor."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:386
 msgid ""
@@ -18252,13 +18296,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:648
 msgid "booksize() -- return value of the size field"
-msgstr ""
+msgstr "booksize() -- s'obté el valor del camp de mida"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:662
 msgid ""
 "ondevice() -- return Yes if ondevice is set, otherwise return the empty "
 "string"
 msgstr ""
+"ondevice() -- s'obté «Yes» si s'ha establert «ondevice», un text buit en cas "
+"contrari"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:674
 msgid ""
@@ -18964,6 +19010,7 @@ msgstr ""
 msgid ""
 "Completion sort order: choose when to change from lexicographic to ASCII-like"
 msgstr ""
+"Ordre de compleció: trieu quan s'ha de canviar de lexicografia a tipus ASCII"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:73
 msgid ""

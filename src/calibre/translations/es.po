@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-06-03 18:21+0000\n"
-"PO-Revision-Date: 2011-06-02 06:58+0000\n"
-"Last-Translator: Juan Echanobe <Unknown>\n"
+"PO-Revision-Date: 2011-06-04 09:19+0000\n"
+"Last-Translator: Jellby <Unknown>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-06-04 04:47+0000\n"
+"X-Launchpad-Export-Date: 2011-06-05 04:34+0000\n"
 "X-Generator: Launchpad (build 12959)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:528
@@ -4982,6 +4982,8 @@ msgid ""
 "Choose formats <b>not</b> to be deleted.<p>Note that this will never remove "
 "all formats from a book."
 msgstr ""
+"Elegir los formatos que <b>no</b> se borrarán.<p>Nunca se borrarán todos los "
+"formatos de un libro."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:179
 msgid "Cannot delete books"
@@ -6695,6 +6697,19 @@ msgid ""
 "size-rescaling\">User Manual</a> for a discussion of how font size rescaling "
 "works.</p>"
 msgstr ""
+"<p>Este asistente le ayudará a elegir una clave de tamaño de letra adecuada. "
+"Introduzca el tamaño de letra base del documento de entrada y después "
+"introduzca un tamaño de letra de entrada. El asistente mostrará a qué tamaño "
+"de letra corresponderá según el algoritmo de redimensionado de tipos de "
+"letra. Puede ajustar el algoritmo cambiando el tamaño de letra base de "
+"salida y la clave de tamaño más abajo. Cuando encuentre valores "
+"satisfactorios, pulse OK.</p>\n"
+"<p>De manera predeterminada, si el tamaño de letra base de salida es cero o "
+"si no se especifica ninguna clave de tamaño, calibre usará los valores del "
+"perfil de salida actual.</p>\n"
+"<p>Véase el <a href=\"http://manual.calibre-ebook.com/conversion.html#font-"
+"size-rescaling\">Manual de usuario</a> para una discusión de cómo funciona "
+"el redimensionado de tipos de letra.</p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:108
 msgid "&Output document"
@@ -6770,6 +6785,15 @@ msgid ""
 "the <a href=\"http://manual.calibre-ebook.com/conversion.html#heuristic-"
 "processing\">User Manual</a>."
 msgstr ""
+"<b>Procesado heurístico</b> significa que calibre buscará patrones "
+"habituales en un libro y los arreglará. Como el nombre indica, este proceso "
+"se basa en conjeturas, con lo que podría terminar empeorando el resultado de "
+"una conversión si las conjeturas son erróneas. Por este motivo, esta opción "
+"está desactiva de manera predeterminada. A menudo, si una conversión no "
+"ocurre como se espera, activar la heurística puede mejorar el resultado. Lea "
+"más acerca de las distintas opciones de procesado heurístico en el <a "
+"href=\"http://manual.calibre-ebook.com/conversion.html#heuristic-"
+"processing\">Manual del usuario</a>."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:114
 msgid "Enable &heuristic processing"
@@ -7369,6 +7393,11 @@ msgid ""
 "wizard buttons below will allow you to test your regular expression against "
 "the current input document."
 msgstr ""
+"<p>Buscar y sustituir utiliza <i>expresiones regulares</i>. Consulte el <a "
+"href=\"http://manual.calibre-ebook.com/regexp.html\">tutorial de expresiones "
+"regulares</a> para aprender las bases de su funcionamiento. Al pulsar en los "
+"botones de asistente de más abajo podrá comprobar sus expresiones regulares "
+"con el documento de entrada actual."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single.py:173
 msgid "Convert"
@@ -7708,6 +7737,15 @@ msgid ""
 "tag.</p><p>To learn more advanced usage of XPath see the <a "
 "href=\"http://manual.calibre-ebook.com/xpath.html\">XPath Tutorial</a>."
 msgstr ""
+"<p>Por ejemplo, para seleccionar todas las etiquetas h2 que tengan "
+"class=\"chapter\", ponga «h2» en la etiqueta, «class» en el atributo y "
+"«chapter» en el valor.</p>\r\n"
+"<p>Un atributo en blanco corresponde a cualquier atributo y un valor en "
+"blanco a cualquier valor. Si se establece «*» en la etiqueta se seleccionará "
+"cualquier etiqueta.</p>\r\n"
+"<p>Para usos más avanzados de XPath, véase el <a "
+"href=\"http://manual.calibre-ebook.com/xpath.html\">Tutorial de "
+"XPath</a>.</p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/cover_flow.py:128
 msgid "Browse by covers"
@@ -10146,37 +10184,38 @@ msgstr "Ctrl+S"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:265
 msgid "EXCEPTION: "
-msgstr ""
+msgstr "EXCEPCIÓN: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:293
 msgid "No column chosen"
-msgstr ""
+msgstr "No se eligió ninguna columna"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:294
 msgid "You must specify a column to be colored"
-msgstr ""
+msgstr "Debe especificar una columna para colorear"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:297
 msgid "No template provided"
-msgstr ""
+msgstr "No se especificó ninguna plantilla"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:298
 msgid "The template box cannot be empty"
-msgstr ""
+msgstr "El cuadro de plantilla no puede estar vacío"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:89
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:235
 msgid "Set the color of the column:"
-msgstr ""
+msgstr "Establecer el color de la columna:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:90
 msgid "Template value:"
-msgstr ""
+msgstr "Valor de la plantilla:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:91
 msgid ""
 "The value the of the template using the current book in the library view"
 msgstr ""
+"El valor de la plantilla para el libro actual en la vista de biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:92
 msgid "Function &name:"
@@ -10193,7 +10232,7 @@ msgstr "&Código Python:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:30
 msgid "Remove any template from the box"
-msgstr ""
+msgstr "Eliminar cualquier plantilla del cuadro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:32
 msgid "Open Template Editor"
@@ -10457,6 +10496,8 @@ msgid ""
 "For help with writing advanced news recipes, please visit <a "
 "href=\"http://manual.calibre-ebook.com/news.html\">User Recipes</a>"
 msgstr ""
+"Para más ayuda sobre cómo escribir recetas de noticias avanzadas visite <a "
+"href=\"http://manual.calibre-ebook.com/news.html\">Recetas de usuario</a>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:287
 msgid "Recipe source code (python)"
@@ -10564,6 +10605,16 @@ msgid ""
 "group names for the various metadata entries are documented in "
 "tooltips.</p></div>"
 msgstr ""
+"<div style=\"font-size:10pt;\">\n"
+"<p>Establezca un patrón de expresión regular para usar al tratar de "
+"determinar los metadatos de un libro a partir del nombre de fichero.</p>\n"
+"<p>Hay disponible un <a href=\"http://manual.calibre-"
+"ebook.com/regexp.html\">tutorial</a> sobre el uso de expresiones "
+"regulares.</p>\n"
+"<p>Use la función <b>Prueba</b> para comprobar la expresión regular con "
+"algunos nombres ficheros de prueba (acuérdese de incluir la extensión). Los "
+"nombre de grupo para las distintas entradas de metadatos están documentados "
+"en las ayudas emergentes.</p></div>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:133
 msgid "Regular &expression"
@@ -11953,156 +12004,158 @@ msgstr "Reiniciar todos los diálogos de &confirmación desactivados"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:30
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:35
 msgid "is true"
-msgstr ""
+msgstr "es verdadero"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:31
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:36
 msgid "is false"
-msgstr ""
+msgstr "es falso"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:32
 msgid "is undefined"
-msgstr ""
+msgstr "no está definido"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:39
 msgid "has id"
-msgstr ""
+msgstr "tiene id"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:40
 msgid "does not have id"
-msgstr ""
+msgstr "no tiene id"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:43
 msgid "is equal to"
-msgstr ""
+msgstr "es igual a"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:44
 msgid "is less than"
-msgstr ""
+msgstr "es menor que"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:45
 msgid "is greater than"
-msgstr ""
+msgstr "es mayor que"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:48
 msgid "has"
-msgstr ""
+msgstr "tiene"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:49
 msgid "does not have"
-msgstr ""
+msgstr "no tiene"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:50
 msgid "has pattern"
-msgstr ""
+msgstr "tiene el patrón"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:51
 msgid "does not have pattern"
-msgstr ""
+msgstr "no tiene el patrón"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:52
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:60
 msgid "is set"
-msgstr ""
+msgstr "está establecido"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:53
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:61
 msgid "is not set"
-msgstr ""
+msgstr "no está establecido"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:56
 msgid "is"
-msgstr ""
+msgstr "es"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:57
 msgid "is not"
-msgstr ""
+msgstr "no es"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:58
 msgid "matches pattern"
-msgstr ""
+msgstr "coincide con el patrón"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:59
 msgid "does not match pattern"
-msgstr ""
+msgstr "no coincide con el patrón"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:71
 msgid "If the "
-msgstr ""
+msgstr "Si "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:77
 msgid " column "
-msgstr ""
+msgstr " la columna "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:83
 msgid " value "
-msgstr ""
+msgstr " el valor "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:193
 msgid ""
 "Enter either an identifier type or an identifier type and value of the form "
 "identifier:value"
 msgstr ""
+"Introduzca un tipo de identificador o un tipo de identificador y un valor en "
+"la forma identificador:valor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:196
 msgid "Enter a number"
-msgstr ""
+msgstr "Introduzca un número"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:201
 msgid "Enter a date in the format YYYY-MM-DD"
-msgstr ""
+msgstr "Introduzca una fecha en el formato AAAA-MM-DD"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:203
 msgid "Enter a string."
-msgstr ""
+msgstr "Introduzca un texto"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:205
 msgid "Enter a regular expression"
-msgstr ""
+msgstr "Introduzca una expresión regular"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:207
 msgid "You can match multiple values by separating them with %s"
-msgstr ""
+msgstr "Puede seleccionar varios valores separándolos con %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:222
 msgid "Create/edit a column coloring rule"
-msgstr ""
+msgstr "Crear o modificar una regla de coloreado de columna"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:227
 msgid "Create a coloring rule by filling in the boxes below"
-msgstr ""
+msgstr "Cree una regla de coloreado rellenando los cuadros de abajo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:241
 msgid "to"
-msgstr ""
+msgstr "a"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:249
 msgid "Only if the following conditions are all satisfied:"
-msgstr ""
+msgstr "Sólo si todas las condiciones siguientes se satisfacen:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:259
 msgid "Add another condition"
-msgstr ""
+msgstr "Añadir otra condición"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:263
 msgid "You can disable a condition by blanking all of its boxes"
-msgstr ""
+msgstr "Puede desactivar una condición borrando todos sus cuadros"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:335
 msgid "Invalid condition"
-msgstr ""
+msgstr "Condición no válida"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:336
 msgid "One of the conditions for this rule is invalid: <b>%s</b>"
-msgstr ""
+msgstr "Una de las condiciones para esta regla no es válida: <b>%s</b>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:341
 msgid "No conditions"
-msgstr ""
+msgstr "No hay condiciones"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:342
 msgid "You must specify at least one non-empty condition for this rule"
-msgstr ""
+msgstr "Debe especificar al menos una condición no nula para esta regla"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:430
 msgid ""
@@ -12111,6 +12164,10 @@ msgid ""
 "            <pre>%s</pre>\n"
 "            "
 msgstr ""
+"\n"
+"            <p>Regla avanzada para la columna <b>%s</b>:\n"
+"<pre>%s</pre>\n"
+"            "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:435
 msgid ""
@@ -12119,10 +12176,14 @@ msgid ""
 "            <ul>%s</ul>\n"
 "            "
 msgstr ""
+"            <p>Establecer el color de <b>%s</b> a <b>%s</b> si las "
+"siguientes condiciones se satisfacen:</p>\n"
+"<ul>%s</ul>\n"
+"            "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:443
 msgid "<li>If the <b>%s</b> column <b>%s</b> value: <b>%s</b>"
-msgstr ""
+msgstr "<li>Si la columna <b>%s</b> <b>%s</b> el valor: <b>%s</b>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:458
 msgid ""
@@ -12130,38 +12191,42 @@ msgid ""
 "that tell calibre what color to use. Click the Add Rule button below to get "
 "started. You can change an existing rule by double clicking it."
 msgstr ""
+"Puede controlar el color de las columnas en la lista de libros creando "
+"\"reglas\" que le indican a calibre qué color usar. Pulse en «Añadir regla» "
+"para empezar. Puede modificar una regla existente pulsando dos veces sobre "
+"ella."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:467
 msgid "Add Rule"
-msgstr ""
+msgstr "Añadir regla"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:470
 msgid "Remove Rule"
-msgstr ""
+msgstr "Borrar regla"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:487
 msgid "Move the selected rule up"
-msgstr ""
+msgstr "Mover la regla seleccionada hacia arriba"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:492
 msgid "Move the selected rule down"
-msgstr ""
+msgstr "Mover la regla seleccionada hacia abajo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:500
 msgid "Add Advanced Rule"
-msgstr ""
+msgstr "Añadir regla avanzada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:548
 msgid "No rule selected"
-msgstr ""
+msgstr "No hay ninguna regla seleccionada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:549
 msgid "No rule selected for %s."
-msgstr ""
+msgstr "No se seleccionó ninguna regla para %s."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:554
 msgid "removal"
-msgstr ""
+msgstr "borrar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns.py:96
 msgid "You must select a column to delete it"
@@ -12345,6 +12410,9 @@ msgid ""
 "leading zeros. The format <code>{0:d}&nbsp;days</code> prints the number "
 "then the word \"days\""
 msgstr ""
+"Ejemplos: El formato <code>{0:0>4d}</code> da un número de cuatro cifras con "
+"ceros a la izquierda. El formato <code>{0:d}&nbsp;días</code> escribe un "
+"número seguido de la la palabra «días»"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:192
 msgid ""
@@ -12354,6 +12422,10 @@ msgid ""
 "displays the number with 2 digits after the decimal point and thousands "
 "separated by commas."
 msgstr ""
+"Ejemplos: El formato <code>{0:.1f}</code> da un número con una cifra "
+"decimal. El formato <code>Precio:&nbsp;{0:.2f}&nbsp;€</code> escribe "
+"«Precio:&nbsp;», seguido de un número con dos cifras decimales, y seguido de "
+"«&nbsp;€</code>."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:201
 msgid "No lookup name was provided"
@@ -12507,6 +12579,10 @@ msgid ""
 "specifier.\n"
 "            "
 msgstr ""
+"<p>El especificador de formato debe empezar por <code>{0:</code> y terminar "
+"en <code>}</code>.  Puede poner texto delante y detrás del especificador de "
+"formato.\n"
+"            "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:240
 msgid ""
@@ -12514,6 +12590,9 @@ msgid ""
 "href=\"http://docs.python.org/library/string.html#format-string-syntax\">the "
 "python documentation</a>"
 msgstr ""
+"<p>Valor predeterminado: Sin formato. Para más detalles sobre el lenguaje "
+"del formato, vea <a href=\"http://docs.python.org/library/string.html#format-"
+"string-syntax\">la documentación de python</a>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:241
 msgid "Format for &dates"
@@ -12521,7 +12600,7 @@ msgstr "Formato para &fechas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:242
 msgid "Format for &numbers"
-msgstr ""
+msgstr "Formato para &números"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:243
 msgid "&Template"
@@ -12733,7 +12812,7 @@ msgstr "Siempre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:133
 msgid "If there is enough room"
-msgstr ""
+msgstr "Si hay suficiente espacio"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:134
 msgid "Never"
@@ -12753,7 +12832,7 @@ msgstr "Particionado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:166
 msgid "Column coloring"
-msgstr ""
+msgstr "Coloreado de columna"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:198
 msgid "User Interface &layout (needs restart):"
@@ -13953,6 +14032,8 @@ msgid ""
 "Argument count should be -1 or greater than zero.Setting it to zero means "
 "that this function cannot be used in single function mode."
 msgstr ""
+"El número de argumentos debe ser -1 o mayor que cero. Si es cero significa "
+"que esta función no se puede usar en el modo de función única"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:174
 msgid "Exception while compiling function"
@@ -14358,7 +14439,7 @@ msgstr "no"
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:232
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:206
 msgid "Affiliate:"
-msgstr ""
+msgstr "Afiliado:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:235
 msgid "Nam&e/Description ..."
@@ -14372,7 +14453,7 @@ msgstr "Consulta:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/chooser_widget_ui.py:81
 msgid "Enable"
-msgstr ""
+msgstr "Activada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/chooser_widget_ui.py:82
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:136
@@ -14388,7 +14469,7 @@ msgstr "Invertir"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:21
 msgid "Affiliate"
-msgstr ""
+msgstr "Afiliado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:21
 msgid "Enabled"
@@ -14406,21 +14487,27 @@ msgstr "Sin DRM"
 msgid ""
 "This store is currently diabled and cannot be used in other parts of calibre."
 msgstr ""
+"Esta librería está actualmente desactivada y no se puede usar en otras "
+"partes de calibre."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:131
 msgid ""
 "This store is currently enabled and can be used in other parts of calibre."
 msgstr ""
+"Esta librería está actualmente activada y puede usarse en otras partes de "
+"calibre."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:136
 msgid "This store only distributes ebooks with DRM."
-msgstr ""
+msgstr "Esta librería sólo distribuye libros con DRM."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:138
 msgid ""
 "This store distributes ebooks with DRM. It may have some titles without DRM, "
 "but you will need to check on a per title basis."
 msgstr ""
+"Esta librería distribuye libros con DRM. Puede que también tenga algunos "
+"libros sin DRM, pero debería comprobarlo en cada caso."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:140
 msgid ""
@@ -14428,19 +14515,22 @@ msgid ""
 "the store caters to. However, this does not necessarily mean that the store "
 "is limited to that market only."
 msgstr ""
+"La sede principal de esta librería está en %s. Esto es una indicación de "
+"cuál es su mercado prioritario, pero no significa que sea el único."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:143
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:203
 msgid "Buying from this store supports the calibre developer: %s."
-msgstr ""
+msgstr "Al comprar en esta librería apoya al programador de calibre: %s."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:145
 msgid "This store distributes ebooks in the following formats: %s"
 msgstr ""
+"Esta librería distribuye libros electrónicos en los siguientes formatos: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/results_view.py:47
 msgid "Configure..."
-msgstr ""
+msgstr "Configurar..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search/search_widget_ui.py:99
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search_widget_ui.py:99
@@ -14633,7 +14723,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:105
 msgid "Buying from this store supports the calibre developer: %s</p>"
-msgstr ""
+msgstr "Al comprar en esta librería apoya al programador de calibre: %s.</p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:261
 msgid "Customize get books search"
@@ -15081,6 +15171,9 @@ msgid ""
 "Update <b>only</b> if one of the new features or bug fixes is important to "
 "you. If the current version works well for you, do not update."
 msgstr ""
+"Actualice <b>sólo</b> si alguna de las nuevas funciones o correcciones de "
+"errores es importante para usted. Si la presente versión le funciona "
+"correctamente, no actualice."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:60
 msgid "Update available!"
@@ -15721,6 +15814,8 @@ msgid ""
 "<h2>User Manual</h2>A User Manual is also available <a "
 "href=\"http://manual.calibre-ebook.com\">online</a>."
 msgstr ""
+"<h2>Manual de usuario</h2>También hay un Manual de usuario disponible <a "
+"href=\"http://manual.calibre-ebook.com\">en línea</a>."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/kindle_ui.py:49
 msgid ""
@@ -17778,7 +17873,7 @@ msgstr "error de sintaxis, el programa termina antes de EOF"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:103
 msgid "Unknown identifier "
-msgstr ""
+msgstr "Identificador desconocido "
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:110
 msgid "unknown function {0}"
@@ -18015,6 +18110,12 @@ msgid ""
 "otherwise return not_found_val. If the string contains separators, then it "
 "is also treated as a list and each value is checked."
 msgstr ""
+"str_in_list(val, separador, texto, val_encontrado, val_no_encontrado) -- "
+"considera «val» como una lista de elementos separados por «separador», y "
+"compara el «texto» con cada valor de la lista. Si el texto coincide con "
+"alguno de los valores, devuelve «val_encontrado», en caso contrario devuelve "
+"«val_no_encontrado». Si el texto contiene separadores, también se considera "
+"como una lista y se comprueba cada elemento."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:386
 msgid ""
@@ -18026,6 +18127,14 @@ msgid ""
 "regexp matches the identifier's value. If there is a match, return "
 "found_val, otherwise return not_found_val."
 msgstr ""
+"identifier_in_list(val, id, val_encontrado, val_no_encontrado) -- considera "
+"«val» como una lista de identificadores separados por comas, y compara el "
+"«id» con cada valor de la lista. Un identificador tiene el formato "
+"«id:valor». El argumento «id» debería ser «id» o «id:expreg». El primer caso "
+"selecciona identificadores con dicho «id». El segundo caso selecciona "
+"identificadores cuyo valor coincida con la expresión regular «expreg». Si "
+"alguna coincidencia, devuelve «val_encontrado», en caso contrario devuelve "
+"«val_no_encontrado»."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:412
 msgid ""
@@ -18118,6 +18227,16 @@ msgid ""
 "{tags:sublist(-1,0,\\,)} returns \"C\". {tags:sublist(0,-1,\\,)} returns "
 "\"A, B\"."
 msgstr ""
+"sublist(val, índice_inicio, índice_fin, separador) -- interpreta el valor "
+"como una lista de elementos separados por «separador» y devuelve una nueva "
+"lista con los elementos comprendidos entre la posición «índice_inicio» e "
+"«índice_fin». El primer elemento ocupa la posición cero. Si un índice es "
+"negativo, se cuenta desde el final de la lista. Como caso especial, si "
+"«índice_fin» es cero, se considera que es el final de la lista. Ejemplos en "
+"el modo básico de plantilla y suponiendo que la columna de etiquetas "
+"(definida como valores separados por comas) contiene «A, B, C»: "
+"{tags:sublist{0,1,\\,)} devuelve «A», {tags:sublist(-1,0,\\,)} devuelve «C», "
+"{tags:sublist(0,-1,\\,)} devuelve «A, B»."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:545
 msgid ""
@@ -18135,6 +18254,21 @@ msgid ""
 "\"B.C\". Assuming a #genre value of \"A.B.C, D.E.F\", {#genre:subitems(0,1)} "
 "returns \"A, D\". {#genre:subitems(0,2)} returns \"A.B, D.E\""
 msgstr ""
+"subitems(val, índice_inicio, índice_fin) -- Esta función se usa para separar "
+"listas de elementos tales como los géneros. Interpreta el valor como una "
+"lista de elementos separados por comas, donde cada elemento es a su vez una "
+"lista de elementos separados por puntos. Devuelve una nueva lista formada "
+"tomando, de cada lista de elementos separados por puntos, los elementos "
+"situados entre las posiciones «índice_inicio» e «índice_fin» y combinando "
+"los resultados. El primer elemento de cada lista separada por puntos ocupa "
+"la posición cero. Si un índice es negativo, se cuenta desde el final de la "
+"lista. Como caso especial, si «índice_fin» es cero, se considera que es el "
+"final de la lista. Ejemplos en el modo básico de plantilla y suponiendo que "
+"la columna #género contiene el valor «A.B.C»: {#género:subitems(0,1)} "
+"devuelve «A», {#género:subitems(0,2)} devuelve «A.B», "
+"{#género:subitems(1,0)} devuelve «B.C». Suponiendo que #género contiene el "
+"valor «A.B.C, D.E.F»: {#género:subitems(0,1)} devuelve «A, D», "
+"{#género:subitems(0,2)} devuelve «A.B, D.E»."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:583
 msgid ""
@@ -18150,6 +18284,19 @@ msgid ""
 "year as two digit number (00 to 99). yyyy : the year as four digit number. "
 "iso  : the date with time and timezone. Must be the only format present"
 msgstr ""
+"format_date(val, texto_formato) -- da formato a un valor, que debe ser un "
+"campo de fecha, según «texto_formato» y devuelve un texto. Los códigos de "
+"formato son: «d»: el día como un número, sin cero inicial (de 1 a 31). «dd»: "
+"el día como un número, con un cero inicial si es necesario (de 01 a 31). "
+"«ddd»: el día de la semana abreviado según el idioma local (p. ej. de «lun» "
+"a «dom»). «dddd»: el nombre local completo del día de la semana (p. ej. de "
+"«lunes» a «domingo»). «M»: el mes como un número sin cero inicial (de 1 a "
+"12). «MM»: el mes como un número, con un cero inicial si es necesario (de 01 "
+"a 12). «MMM»: el mes abreviado según el idioma local (p. ej. de «ene» a "
+"«dic»). «MMMM»: el nombre local completo del mes (p. ej. de «enero» a "
+"«diciembre»). «yy»: el año como un número de dos cifras (de 00 a 99). "
+"«yyyy»: el año como un número de cuatro cifras. «iso»: la fecha con hora y "
+"zona horaria. Debe ser el único formato presente."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:612
 msgid "uppercase(val) -- return value of the field in upper case"
@@ -18171,13 +18318,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:648
 msgid "booksize() -- return value of the size field"
-msgstr ""
+msgstr "booksize() -- devuelve el valor del campo de tamaño"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:662
 msgid ""
 "ondevice() -- return Yes if ondevice is set, otherwise return the empty "
 "string"
 msgstr ""
+"ondevice() -- devuelve «Yes» si ondevice está activado, si no, devuelve un "
+"texto vacío"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:674
 msgid ""
@@ -18887,6 +19036,7 @@ msgstr ""
 msgid ""
 "Completion sort order: choose when to change from lexicographic to ASCII-like"
 msgstr ""
+"Orden de autocompletado: elija cuándo cambiar de lexicográfico a ASCII"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:73
 msgid ""
@@ -18900,6 +19050,16 @@ msgid ""
 "switch\n"
 "to ascii ordering for performance reasons."
 msgstr ""
+"Normalmente calibre usa un orden lexicográfico que depende del idioma local\n"
+"al mostrar los valores de autocompletado. Esto significa que el orden es "
+"correcto\n"
+"en el idioma del usuario. Sin embargo, puede ser lento. El rendimiento "
+"mejora\n"
+"si se usa el orden ASCII. Este ajuste controla cuándo se hace el cambio de "
+"orden.\n"
+"Establézcalo a cero para usar siempre el orden ASCII. Use un número mayor "
+"que\n"
+"cero para cambiar al orden ASCII para mejorar el rendimiento."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:81
 msgid "Control partitioning of Tag Browser"
