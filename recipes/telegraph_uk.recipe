@@ -49,6 +49,7 @@ class TelegraphUK(BasicNewsRecipe):
                          (u'UK News'        , u'http://www.telegraph.co.uk/news/uknews/rss'                                      )
                         ,(u'World News'     , u'http://www.telegraph.co.uk/news/worldnews/rss'                                   )
                         ,(u'Politics'       , u'http://www.telegraph.co.uk/news/newstopics/politics/rss'                         )
+                        ,(u'Finance'        , u'http://www.telegraph.co.uk/finance/rss'                                          )
                         ,(u'Technology News', u'http://www.telegraph.co.uk/scienceandtechnology/technology/technologynews/rss'   )
                         ,(u'UK News'        , u'http://www.telegraph.co.uk/scienceandtechnology/technology/technologyreviews/rss')
                         ,(u'Science News'   , u'http://www.telegraph.co.uk/scienceandtechnology/science/sciencenews/rss'         )

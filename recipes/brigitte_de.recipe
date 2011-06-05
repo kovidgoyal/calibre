@@ -1,0 +1,36 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe(BasicNewsRecipe):
+
+    title          = u'Brigitte.de'
+    __author__  = 'schuster'
+    oldest_article = 14
+    max_articles_per_feed = 100
+    no_stylesheets         = True
+    use_embedded_content   = False
+    language               = 'de'
+    remove_javascript      = True
+    remove_empty_feeds = True
+    timeout = 10
+    cover_url = 'http://www.medienmilch.de/typo3temp/pics/Brigitte-Logo_d5feb4a6e4.jpg'
+    masthead_url = 'http://www.medienmilch.de/typo3temp/pics/Brigitte-Logo_d5feb4a6e4.jpg'
+
+
+    remove_tags = [dict(attrs={'class':['linklist', 'head', 'indent right relatedContent', 'artikel-meta segment', 'segment', 'comment commentFormWrapper segment borderBG', 'segment borderBG comments', 'segment borderBG box', 'center', 'segment nextPageLink', 'inCar']}),
+                dict(id=['header', 'artTools', 'context', 'interact', 'footer-navigation', 'bwNet', 'copy', 'keyboardNavigationHint']),
+                dict(name=['hjtrs', 'kud'])]
+
+    feeds          = [(u'Mode', u'http://www.brigitte.de/mode/feed.rss'),
+                          (u'Beauty', u'http://www.brigitte.de/beauty/feed.rss'),
+                          (u'Luxus', u'http://www.brigitte.de/luxus/feed.rss'),
+                          (u'Figur', u'http://www.brigitte.de/figur/feed.rss'),
+                          (u'Gesundheit', u'http://www.brigitte.de/gesundheit/feed.rss'),
+                          (u'Liebe&Sex', u'http://www.brigitte.de/liebe-sex/feed.rss'),
+                          (u'Gesellschaft', u'http://www.brigitte.de/gesellschaft/feed.rss'),
+                          (u'Kultur', u'http://www.brigitte.de/kultur/feed.rss'),
+                          (u'Reise', u'http://www.brigitte.de/reise/feed.rss'),
+                          (u'Kochen', u'http://www.brigitte.de/kochen/feed.rss'),
+                          (u'Wohnen', u'http://www.brigitte.de/wohnen/feed.rss'),
+                          (u'Job', u'http://www.brigitte.de/job/feed.rss'),
+                          (u'Erfahrungen', u'http://www.brigitte.de/erfahrungen/feed.rss'),
+]

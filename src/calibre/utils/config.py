@@ -6,7 +6,7 @@ __docformat__ = 'restructuredtext en'
 '''
 Manage application-wide preferences.
 '''
-import os, re, cPickle, base64, datetime, json, plistlib
+import os, cPickle, base64, datetime, json, plistlib
 from copy import deepcopy
 from optparse import OptionParser as _OptionParser
 from optparse import IndentedHelpFormatter
@@ -22,7 +22,7 @@ if False:
     # Make pyflakes happy
     Config, ConfigProxy, Option, OptionValues, StringConfig
     OptionSet, ConfigInterface, read_tweaks, write_tweaks
-    read_raw_tweaks, tweaks, plugin_dir
+    read_raw_tweaks, tweaks, plugin_dir, prefs
 
 def check_config_write_access():
     return os.access(config_dir, os.W_OK) and os.access(config_dir, os.X_OK)
@@ -351,73 +351,6 @@ class JSONConfig(XMLConfig):
         self.commit()
 
 
-
-
-def migrate():
-    if hasattr(os, 'geteuid') and os.geteuid() == 0:
-        return
-    p = prefs
-    if p.get('migrated'):
-        return
-
-    from PyQt4.QtCore import QSettings, QVariant
-    class Settings(QSettings):
-
-        def __init__(self, name='calibre2'):
-            QSettings.__init__(self, QSettings.IniFormat, QSettings.UserScope,
-                               'kovidgoyal.net', name)
-
-        def get(self, key, default=None):
-            try:
-                key = str(key)
-                if not self.contains(key):
-                    return default
-                val = str(self.value(key, QVariant()).toByteArray())
-                if not val:
-                    return None
-                return cPickle.loads(val)
-            except:
-                return default
-
-    s, migrated = Settings(), set([])
-    all_keys = set(map(unicode, s.allKeys()))
-    from calibre.gui2 import config, dynamic
-    def _migrate(key, safe=None, from_qvariant=None, p=config):
-        try:
-            if key not in all_keys:
-                return
-            if safe is None:
-                safe = re.sub(r'[^0-9a-zA-Z]', '_', key)
-            val = s.get(key)
-            if from_qvariant is not None:
-                val = getattr(s.value(key), from_qvariant)()
-            p.set(safe, val)
-        except:
-            pass
-        finally:
-            migrated.add(key)
-
-
-    _migrate('database path',    p=prefs)
-    _migrate('filename pattern', p=prefs)
-    _migrate('network timeout', p=prefs)
-    _migrate('isbndb.com key',   p=prefs)
-
-    _migrate('frequently used directories')
-    _migrate('send to device by default')
-    _migrate('save to disk single format')
-    _migrate('confirm delete')
-    _migrate('show text in toolbar')
-    _migrate('new version notification')
-    _migrate('use roman numerals for series number')
-    _migrate('cover flow queue length')
-    _migrate('LRF conversion defaults')
-    _migrate('LRF ebook viewer options')
-
-    for key in all_keys - migrated:
-        if key.endswith(': un') or key.endswith(': pw'):
-            _migrate(key, p=dynamic)
-    p.set('migrated', True)
 
 
 

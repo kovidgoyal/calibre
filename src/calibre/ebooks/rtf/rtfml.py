@@ -68,8 +68,13 @@ TODO:
 '''
 
 def txt2rtf(text):
+    # Escape { and } in the text.
+    text = text.replace('{', r'\'7b')
+    text = text.replace('}', r'\'7d')
+
     if not isinstance(text, unicode):
         return text
+
     buf = cStringIO.StringIO()
     for x in text:
         val = ord(x)

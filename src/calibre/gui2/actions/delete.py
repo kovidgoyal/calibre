@@ -95,6 +95,9 @@ class DeleteAction(InterfaceAction):
                 _('Remove all formats from selected books, except...'),
                 self.delete_all_but_selected_formats)
         self.delete_menu.addAction(
+                _('Remove all formats from selected books'),
+                self.delete_all_formats)
+        self.delete_menu.addAction(
                 _('Remove covers from selected books'), self.delete_covers)
         self.delete_menu.addSeparator()
         self.delete_menu.addAction(
@@ -166,6 +169,28 @@ class DeleteAction(InterfaceAction):
                 # Do not delete if it will leave the book with no
                 # formats
                 for fmt in rfmts:
+                    self.gui.library_view.model().db.remove_format(id, fmt,
+                            index_is_id=True, notify=False)
+        self.gui.library_view.model().refresh_ids(ids)
+        self.gui.library_view.model().current_changed(self.gui.library_view.currentIndex(),
+                self.gui.library_view.currentIndex())
+        if ids:
+            self.gui.tags_view.recount()
+
+    def delete_all_formats(self, *args):
+        ids = self._get_selected_ids()
+        if not ids:
+            return
+        if not confirm('<p>'+_('<b>All formats</b> for the selected books will '
+                               'be <b>deleted</b> from your library.<br>'
+                               'The book metadata will be kept. Are you sure?')
+                            +'</p>', 'delete_all_formats', self.gui):
+            return
+        db = self.gui.library_view.model().db
+        for id in ids:
+            fmts = db.formats(id, index_is_id=True, verify_formats=False)
+            if fmts:
+                for fmt in fmts.split(','):
                     self.gui.library_view.model().db.remove_format(id, fmt,
                             index_is_id=True, notify=False)
         self.gui.library_view.model().refresh_ids(ids)

@@ -75,15 +75,18 @@ class AmazonUKKindleStore(AmazonKindleStore):
                 s.title = title.strip()
                 s.price = price.strip()
                 s.detail_item = asin.strip()
-                s.formats = 'Kindle'
+                s.formats = ''
 
                 if is_shot:
                     # Amazon UK does not include the author on the grid layout
                     s.author = ''
                     self.get_details(s, timeout)
+                    if s.formats != 'Kindle':
+                        continue
                 else:
                     author = ''.join(data.xpath('.//div[@class="productTitle"]/span[@class="ptBrand"]/text()'))
                     s.author = author.split(' by ')[-1].strip()
+                    s.formats = 'Kindle'
 
                 yield s
 
@@ -99,6 +102,9 @@ class AmazonUKKindleStore(AmazonKindleStore):
             idata = html.fromstring(nf.read())
             if not search_result.author:
                 search_result.author = ''.join(idata.xpath('//div[@class="buying" and contains(., "Author")]/a/text()'))
+                is_kindle = idata.xpath('boolean(//div[@class="buying"]/h1/span/span[contains(text(), "Kindle Edition")])')
+                if is_kindle:
+                    search_result.formats = 'Kindle'
             if idata.xpath('boolean(//div[@class="content"]//li/b[contains(text(), "' +
                            self.drm_search_text + '")])'):
                 if idata.xpath('boolean(//div[@class="content"]//li[contains(., "' +
