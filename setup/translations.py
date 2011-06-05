@@ -85,7 +85,7 @@ class Translations(POT):
 
     def mo_file(self, po_file):
         locale = os.path.splitext(os.path.basename(po_file))[0]
-        return locale, os.path.join(self.DEST, locale, 'LC_MESSAGES', 'messages.mo')
+        return locale, os.path.join(self.DEST, locale, 'messages.mo')
 
 
     def run(self, opts):
@@ -94,9 +94,8 @@ class Translations(POT):
             base = os.path.dirname(dest)
             if not os.path.exists(base):
                 os.makedirs(base)
-            if self.newer(dest, f):
-                self.info('\tCompiling translations for', locale)
-                subprocess.check_call(['msgfmt', '-o', dest, f])
+            self.info('\tCompiling translations for', locale)
+            subprocess.check_call(['msgfmt', '-o', dest, f])
             if locale in ('en_GB', 'nds', 'te', 'yi'):
                 continue
             pycountry = self.j(sysconfig.get_python_lib(), 'pycountry',
@@ -123,6 +122,16 @@ class Translations(POT):
                 shutil.copy2(f, dest)
 
         self.write_stats()
+        self.freeze_locales()
+
+    def freeze_locales(self):
+        zf = self.DEST + '.zip'
+        from calibre import CurrentDir
+        from calibre.utils.zipfile import ZipFile, ZIP_DEFLATED
+        with ZipFile(zf, 'w', ZIP_DEFLATED) as zf:
+            with CurrentDir(self.DEST):
+                zf.add_dir('.')
+        shutil.rmtree(self.DEST)
 
     @property
     def stats(self):

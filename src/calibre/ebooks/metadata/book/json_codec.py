@@ -69,7 +69,7 @@ def object_to_unicode(obj, enc=preferred_encoding):
     return obj
 
 def encode_is_multiple(fm):
-    if fm.get('is_multiple'):
+    if fm.get('is_multiple', None):
         # migrate is_multiple back to a character
         fm['is_multiple2'] = fm.get('is_multiple', {})
         dt = fm.get('datatype', None)
