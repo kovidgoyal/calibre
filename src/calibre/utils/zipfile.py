@@ -340,7 +340,14 @@ class ZipInfo (object):
         """Return the per-file header as a string."""
         dt = self.date_time
         dosdate = (dt[0] - 1980) << 9 | dt[1] << 5 | dt[2]
+        # Added by Kovid to reset timestamp to default if it overflows the DOS
+        # limits
+        if dosdate > 0xffff or dosdate < 0:
+            dosdate = 0
         dostime = dt[3] << 11 | dt[4] << 5 | (dt[5] // 2)
+        if dostime > 0xffff or dostime < 0:
+            dostime = 0
+
         if self.flag_bits & 0x08:
             # Set these to zero because we write them after the file data
             CRC = compress_size = file_size = 0
