@@ -85,10 +85,10 @@ class Rule(object): # {{{
         if dt == 'datetime':
             return self.date_condition(col, action, val)
 
-        if dt in ('comments', 'series', 'text', 'enumeration'):
+        if dt in ('comments', 'series', 'text', 'enumeration', 'composite'):
             ism = m.get('is_multiple', False)
             if ism:
-                return self.multiple_condition(col, action, val, ism)
+                return self.multiple_condition(col, action, val, ',' if ism == '|' else ism)
             return self.text_condition(col, action, val)
 
     def identifiers_condition(self, col, action, val):
@@ -127,10 +127,12 @@ class Rule(object): # {{{
                 val, lt, eq, gt)
 
     def multiple_condition(self, col, action, val, sep):
+        if not sep or sep == '|':
+            sep = ','
         if action == 'is set':
-            return "test('%s', '1', '')"%col
+            return "test(field('%s'), '1', '')"%col
         if action == 'is not set':
-            return "test('%s', '', '1')"%col
+            return "test(field('%s'), '', '1')"%col
         if action == 'has':
             return "str_in_list(field('%s'), '%s', \"%s\", '1', '')"%(col, sep, val)
         if action == 'does not have':
@@ -142,9 +144,9 @@ class Rule(object): # {{{
 
     def text_condition(self, col, action, val):
         if action == 'is set':
-            return "test('%s', '1', '')"%col
+            return "test(field('%s'), '1', '')"%col
         if action == 'is not set':
-            return "test('%s', '', '1')"%col
+            return "test(field('%s'), '', '1')"%col
         if action == 'is':
             return "strcmp(field('%s'), \"%s\", '', '1', '')"%(col, val)
         if action == 'is not':
@@ -183,7 +185,7 @@ def conditionable_columns(fm):
         m = fm[key]
         dt = m['datatype']
         if m.get('name', False) and dt in ('bool', 'int', 'float', 'rating', 'series',
-                'comments', 'text', 'enumeration', 'datetime'):
+                'comments', 'text', 'enumeration', 'datetime', 'composite'):
             if key == 'sort':
                 yield 'title_sort'
             else:
