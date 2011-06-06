@@ -65,7 +65,8 @@ def test_sqlite():
 def test_qt():
     from PyQt4.Qt import (QWebView, QDialog, QImageReader, QNetworkAccessManager)
     fmts = set(map(unicode, QImageReader.supportedImageFormats()))
-    if 'jpg' not in fmts or 'png' not in fmts:
+    testf = set(['jpg', 'png', 'mng', 'svg', 'ico', 'gif'])
+    if testf.intersection(fmts) != testf:
         raise RuntimeError(
             "Qt doesn't seem to be able to load its image plugins")
     QWebView, QDialog
@@ -87,6 +88,12 @@ def test_imaging():
         raise RuntimeError('PIL choked!')
     print ('PIL OK!')
 
+def test_unrar():
+    from calibre.libunrar import _libunrar
+    if not _libunrar:
+        raise RuntimeError('Failed to load libunrar')
+    print ('Unrar OK!')
+
 def test():
     test_plugins()
     test_lxml()
@@ -97,6 +104,7 @@ def test():
         test_win32()
     test_qt()
     test_imaging()
+    test_unrar()
 
 if __name__ == '__main__':
     test()

@@ -8,8 +8,8 @@ __docformat__ = 'restructuredtext en'
 
 import sys, os, shutil, glob, py_compile, subprocess, re, zipfile, time
 
-from setup import Command, modules, functions, basenames, __version__, \
-    __appname__
+from setup import (Command, modules, functions, basenames, __version__,
+    __appname__)
 from setup.build_environment import msvc, MT, RC
 from setup.installer.windows.wix import WixMixIn
 
@@ -20,6 +20,7 @@ LIBUNRAR         = 'C:\\Program Files\\UnrarDLL\\unrar.dll'
 SW               = r'C:\cygwin\home\kovid\sw'
 IMAGEMAGICK      = os.path.join(SW, 'build', 'ImageMagick-6.6.6',
         'VisualMagick', 'bin')
+CRT = r'C:\Microsoft.VC90.CRT'
 
 VERSION = re.sub('[a-z]\d+', '', __version__)
 WINVER = VERSION+'.0'
@@ -72,7 +73,7 @@ class Win32Freeze(Command, WixMixIn):
         self.lib_dir = self.j(self.base, 'Lib')
         self.pylib = self.j(self.base, 'pylib.zip')
         self.dll_dir = self.j(self.base, 'DLLs')
-        self.plugins_dir = os.path.join(self.base, 'plugins')
+        self.plugins_dir = os.path.join(self.base, 'plugins2')
 
         self.initbase()
         self.build_launchers()
@@ -81,7 +82,32 @@ class Win32Freeze(Command, WixMixIn):
         self.embed_manifests()
         self.install_site_py()
         self.archive_lib_dir()
+        self.remove_CRT_from_manifests()
         self.create_installer()
+
+    def remove_CRT_from_manifests(self):
+        '''
+        The dependency on the CRT is removed from the manifests of all DLLs.
+        This allows the CRT loaded by the .exe files to be used instead.
+        '''
+        search_pat = re.compile(r'(?is)<dependency>.*Microsoft\.VC\d+\.CRT')
+        repl_pat = re.compile(
+            r'(?is)<dependency>.*?Microsoft\.VC\d+\.CRT.*?</dependency>')
+
+        for dll in glob.glob(self.j(self.dll_dir, '*.dll')):
+            bn = self.b(dll)
+            with open(dll, 'rb') as f:
+                raw = f.read()
+            match = search_pat.search(raw)
+            if match is None:
+                continue
+            self.info('Removing CRT dependency from manifest of: %s'%bn)
+            # Blank out the bytes corresponding to the dependency specification
+            nraw = repl_pat.sub(lambda m: b' '*len(m.group()), raw)
+            if len(nraw) != len(raw):
+                raise Exception('Something went wrong with %s'%bn)
+            with open(dll, 'wb') as f:
+                f.write(nraw)
 
     def initbase(self):
         if self.e(self.base):
@@ -102,6 +128,9 @@ class Win32Freeze(Command, WixMixIn):
 
     def freeze(self):
         shutil.copy2(self.j(self.src_root, 'LICENSE'), self.base)
+
+        self.info('Adding CRT')
+        shutil.copytree(CRT, self.j(self.base, os.path.basename(CRT)))
 
         self.info('Adding resources...')
         tgt = self.j(self.base, 'resources')
@@ -197,6 +226,10 @@ class Win32Freeze(Command, WixMixIn):
             if os.path.exists(tg):
                 shutil.rmtree(tg)
             shutil.copytree(imfd, tg)
+        for dirpath, dirnames, filenames in os.walk(tdir):
+            for x in filenames:
+                if not x.endswith('.dll'):
+                    os.remove(self.j(dirpath, x))
 
         print
         print 'Adding third party dependencies'
