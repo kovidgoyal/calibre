@@ -608,9 +608,9 @@ from calibre.devices.edge.driver import EDGE
 from calibre.devices.teclast.driver import TECLAST_K3, NEWSMY, IPAPYRUS, \
         SOVOS, PICO, SUNSTECH_EB700, ARCHOS7O, STASH, WEXLER
 from calibre.devices.sne.driver import SNE
-from calibre.devices.misc import PALMPRE, AVANT, SWEEX, PDNOVEL, \
-        GEMEI, VELOCITYMICRO, PDNOVEL_KOBO, LUMIREAD, ALURATEK_COLOR, \
-        TREKSTOR, EEEREADER, NEXTBOOK
+from calibre.devices.misc import (PALMPRE, AVANT, SWEEX, PDNOVEL,
+        GEMEI, VELOCITYMICRO, PDNOVEL_KOBO, LUMIREAD, ALURATEK_COLOR,
+        TREKSTOR, EEEREADER, NEXTBOOK, ADAM)
 from calibre.devices.folder_device.driver import FOLDER_DEVICE_FOR_CONFIG
 from calibre.devices.kobo.driver import KOBO
 from calibre.devices.bambook.driver import BAMBOOK
@@ -744,6 +744,7 @@ plugins += [
     TREKSTOR,
     EEEREADER,
     NEXTBOOK,
+    ADAM,
     ITUNES,
     BOEYE_BEX,
     BOEYE_BDX,
@@ -1231,7 +1232,7 @@ class StoreEpubBudStore(StoreBase):
     name = 'ePub Bud'
     description = 'Well, it\'s pretty much just "YouTube for Children\'s eBooks. A not-for-profit organization devoted to brining self published childrens books to the world.'
     actual_plugin = 'calibre.gui2.store.epubbud_plugin:EpubBudStore'
-    
+
     drm_free_only = True
     headquarters = 'US'
     formats = ['EPUB']
