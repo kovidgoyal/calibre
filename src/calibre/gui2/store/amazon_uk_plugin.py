@@ -94,6 +94,8 @@ class AmazonUKKindleStore(StorePlugin):
             return
 
         url = 'http://amazon.co.uk/dp/'
+        drm_search_text = u'Simultaneous Device Usage'
+        drm_free_text = u'Unlimited'
 
         br = browser()
         with closing(br.open(url + search_result.detail_item, timeout=timeout)) as nf:
@@ -104,10 +106,10 @@ class AmazonUKKindleStore(StorePlugin):
                 if is_kindle:
                     search_result.formats = 'Kindle'
             if idata.xpath('boolean(//div[@class="content"]//li/b[contains(text(), "' +
-                           self.drm_search_text + '")])'):
+                           drm_search_text + '")])'):
                 if idata.xpath('boolean(//div[@class="content"]//li[contains(., "' +
-                               self.drm_free_text + '") and contains(b, "' +
-                               self.drm_search_text + '")])'):
+                               drm_free_text + '") and contains(b, "' +
+                               drm_search_text + '")])'):
                     search_result.drm = SearchResult.DRM_UNLOCKED
                 else:
                     search_result.drm = SearchResult.DRM_UNKNOWN
