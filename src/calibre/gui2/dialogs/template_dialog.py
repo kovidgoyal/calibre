@@ -254,6 +254,15 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         self.textbox_changed()
         self.rule = (None, '')
 
+        tt = _('Template language tutorial')
+        self.template_tutorial.setText(
+                '<a href="http://manual.calibre-ebook.com/template_lang.html">'
+                '%s</a>'%tt)
+        tt = _('Template function reference')
+        self.template_func_reference.setText(
+                '<a href="http://manual.calibre-ebook.com/template_ref.html">'
+                '%s</a>'%tt)
+
     def textbox_changed(self):
         cur_text = unicode(self.textbox.toPlainText())
         if self.last_text != cur_text:

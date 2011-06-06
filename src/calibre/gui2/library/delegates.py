@@ -288,6 +288,8 @@ class CcNumberDelegate(QStyledItemDelegate): # {{{
     def setEditorData(self, editor, index):
         m = index.model()
         val = m.db.data[index.row()][m.custom_columns[m.column_map[index.column()]]['rec_index']]
+        if val is None:
+            val = 0
         editor.setValue(val)
 
 # }}}

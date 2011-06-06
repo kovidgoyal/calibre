@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 lxml based OPF parser.
 '''
 
-import re, sys, unittest, functools, os, uuid, glob, cStringIO, json
+import re, sys, unittest, functools, os, uuid, glob, cStringIO, json, copy
 from urllib import unquote
 from urlparse import urlparse
 
@@ -453,10 +453,13 @@ class TitleSortField(MetadataField):
 
 def serialize_user_metadata(metadata_elem, all_user_metadata, tail='\n'+(' '*8)):
     from calibre.utils.config import to_json
-    from calibre.ebooks.metadata.book.json_codec import object_to_unicode
+    from calibre.ebooks.metadata.book.json_codec import (object_to_unicode,
+                                                         encode_is_multiple)
 
     for name, fm in all_user_metadata.items():
         try:
+            fm = copy.copy(fm)
+            encode_is_multiple(fm)
             fm = object_to_unicode(fm)
             fm = json.dumps(fm, default=to_json, ensure_ascii=False)
         except:
@@ -575,6 +578,7 @@ class OPF(object): # {{{
         self._user_metadata_ = {}
         temp = Metadata('x', ['x'])
         from calibre.utils.config import from_json
+        from calibre.ebooks.metadata.book.json_codec import decode_is_multiple
         elems = self.root.xpath('//*[name() = "meta" and starts-with(@name,'
                 '"calibre:user_metadata:") and @content]')
         for elem in elems:
@@ -585,6 +589,7 @@ class OPF(object): # {{{
             fm = elem.get('content')
             try:
                 fm = json.loads(fm, object_hook=from_json)
+                decode_is_multiple(fm)
                 temp.set_user_metadata(name, fm)
             except:
                 prints('Failed to read user metadata:', name)

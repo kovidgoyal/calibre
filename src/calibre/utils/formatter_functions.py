@@ -727,13 +727,8 @@ class BuiltinNot(BuiltinFormatterFunction):
             'returns the empty string. This function works well with test or '
             'first_non_empty. You can have as many values as you want.')
 
-    def evaluate(self, formatter, kwargs, mi, locals, *args):
-        i = 0
-        while i < len(args):
-            if args[i]:
-                return '1'
-            i += 1
-        return ''
+    def evaluate(self, formatter, kwargs, mi, locals, val):
+        return '' if val else '1'
 
 class BuiltinMergeLists(BuiltinFormatterFunction):
     name = 'merge_lists'
