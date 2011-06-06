@@ -1,0 +1,35 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe(BasicNewsRecipe):
+
+    title          = u'Polizeipresse - Deutschland'
+    __author__  = 'schuster'
+    description            =    'Tagesaktuelle "Polizeiberichte" aus ganz Deutschland (bis auf Ortsebene).' 'Um deinen Ort/Stadt/Kreis usw. einzubinden, gehe auf "http://www.presseportal.de/polizeipresse/" und suche im oberen "Suchfeld" nach dem Namen.'   'Oberhalb der Suchergebnisse (Folgen:) auf den üblichen link zu den RSS-Feeds klicken und den RSS-link im Rezept unter "feeds" eintragen wie üblich.'   'Die Auswahl von Orten kann vereinfacht werden wenn man den Suchbegriff wie folgt eingibt:' '"Stadt-Ort".'
+    oldest_article = 21
+    max_articles_per_feed = 100
+    no_stylesheets         = True
+    use_embedded_content   = False
+    language               = 'de'
+    remove_javascript      = True
+    masthead_url = 'http://www.alt-heliservice.de/images/34_BPOL_Logo_4C_g_schutzbereich.jpg'
+    cover_url = 'http://berlinstadtservice.de/buerger/Bundespolizei-Logo.png'
+
+    remove_tags = [
+        dict(name='div', attrs={'id':'logo'}),
+        dict(name='div', attrs={'id':'origin'}),
+        dict(name='pre', attrs={'class':'xml_contact'})]
+
+    def print_version(self,url):
+        segments = url.split('/')
+        printURL = 'http://www.presseportal.de/print.htx?nr=' + '/'.join(segments[5:6]) + '&type=polizei'
+        return printURL
+
+    feeds          = [(u'Frimmerdorf', u'http://www.presseportal.de/rss/rss2_vts.htx?q=Grevenbroich-frimmersdorf&w=public_service'),
+          (u'Neurath', u'http://www.presseportal.de/rss/rss2_vts.htx?q=Grevenbroich-neurath&w=public_service'),
+          (u'Gustorf', u'http://www.presseportal.de/rss/rss2_vts.htx?q=Grevenbroich-gustorf&w=public_service'),
+          (u'Neuenhausen', u'http://www.presseportal.de/rss/rss2_vts.htx?q=Grevenbroich-neuenhausen&w=public_service'),
+          (u'Wevelinghoven', u'http://www.presseportal.de/rss/rss2_vts.htx?q=Grevenbroich-Wevelinghoven&w=public_service'),
+          (u'Grevenbroich ges.', u'http://www.presseportal.de/rss/rss2_vts.htx?q=grevenbroich&w=public_service'),
+          (u'Kreis Neuss ges.', u'http://www.presseportal.de/rss/rss2_vts.htx?q=Rhein-Kreis+Neuss&w=public_service'),
+          ]
+

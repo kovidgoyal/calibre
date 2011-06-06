@@ -15,16 +15,13 @@ from PyQt4.Qt import QUrl
 
 from calibre import browser
 from calibre.gui2 import open_url
-from calibre.gui2.store.amazon_plugin import AmazonKindleStore
+from calibre.gui2.store import StorePlugin
 from calibre.gui2.store.search_result import SearchResult
 
-class AmazonUKKindleStore(AmazonKindleStore):
+class AmazonUKKindleStore(StorePlugin):
     '''
     For comments on the implementation, please see amazon_plugin.py
     '''
-
-    search_url = 'http://www.amazon.co.uk/s/?url=search-alias%3Ddigital-text&field-keywords='
-    details_url = 'http://amazon.co.uk/dp/'
 
     def open(self, parent=None, detail_item=None, external=False):
         aff_id = {'tag': 'calcharles-21'}
@@ -36,7 +33,8 @@ class AmazonUKKindleStore(AmazonKindleStore):
         open_url(QUrl(store_link))
 
     def search(self, query, max_results=10, timeout=60):
-        url =  self.search_url + urllib.quote_plus(query)
+        search_url = 'http://www.amazon.co.uk/s/?url=search-alias%3Ddigital-text&field-keywords='
+        url =  search_url + urllib.quote_plus(query)
         br = browser()
 
         counter = max_results
@@ -75,15 +73,18 @@ class AmazonUKKindleStore(AmazonKindleStore):
                 s.title = title.strip()
                 s.price = price.strip()
                 s.detail_item = asin.strip()
-                s.formats = 'Kindle'
+                s.formats = ''
 
                 if is_shot:
                     # Amazon UK does not include the author on the grid layout
                     s.author = ''
                     self.get_details(s, timeout)
+                    if s.formats != 'Kindle':
+                        continue
                 else:
                     author = ''.join(data.xpath('.//div[@class="productTitle"]/span[@class="ptBrand"]/text()'))
                     s.author = author.split(' by ')[-1].strip()
+                    s.formats = 'Kindle'
 
                 yield s
 
@@ -92,18 +93,23 @@ class AmazonUKKindleStore(AmazonKindleStore):
         if search_result.drm:
             return
 
-        url = self.details_url
+        url = 'http://amazon.co.uk/dp/'
+        drm_search_text = u'Simultaneous Device Usage'
+        drm_free_text = u'Unlimited'
 
         br = browser()
         with closing(br.open(url + search_result.detail_item, timeout=timeout)) as nf:
             idata = html.fromstring(nf.read())
             if not search_result.author:
                 search_result.author = ''.join(idata.xpath('//div[@class="buying" and contains(., "Author")]/a/text()'))
+                is_kindle = idata.xpath('boolean(//div[@class="buying"]/h1/span/span[contains(text(), "Kindle Edition")])')
+                if is_kindle:
+                    search_result.formats = 'Kindle'
             if idata.xpath('boolean(//div[@class="content"]//li/b[contains(text(), "' +
-                           self.drm_search_text + '")])'):
+                           drm_search_text + '")])'):
                 if idata.xpath('boolean(//div[@class="content"]//li[contains(., "' +
-                               self.drm_free_text + '") and contains(b, "' +
-                               self.drm_search_text + '")])'):
+                               drm_free_text + '") and contains(b, "' +
+                               drm_search_text + '")])'):
                     search_result.drm = SearchResult.DRM_UNLOCKED
                 else:
                     search_result.drm = SearchResult.DRM_UNKNOWN

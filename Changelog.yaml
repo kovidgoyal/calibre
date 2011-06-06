@@ -19,6 +19,74 @@
 #  new recipes:
 #    - title: 
 
+- version: 0.8.4
+  date: 2011-06-03
+
+  new features:
+    - title: "New and much simpler interface for specifying column coloring via Preferences->Look & Feel->Column Coloring"
+
+    - title: "Driver for Trekstor eBook Player 5M, Samsung Galaxy SII I9100, Motorola Defy and miBuk GAMMA 6.2"
+      tickets: [792091, 791216]
+
+    - title: "Get Books: Add EpubBud, WH Smits and E-book Shoppe stores"
+
+    - title: "When deleting 'all formats except ...', do not delete if it leaves a book with no formats"
+
+    - title: "Change default toolbar to make it a little more new user friendly. The icons have been re-arranged and now the text is always visiblke by default. You can change that in Preferences->Look & Feeel and Preferences->Toolbar"
+
+    - title: "Windows installer: Remember and use previous settings for installing desktop icons, adding to path, etc. This makes the installer a little slower, complaints should go to Microsoft."
+
+    - title: "Template language: Add str_in_list and on_device formatter functions. Make debugging templates a little easier"
+
+    - title: "Allow the user to specify formatting for number type custom columns"
+  
+  bug fixes:
+    - title: "Fix typo in NOOK TSR driver that prevented it from working on windows"
+
+    - title: "Fix quotes in identifiers causing Tag Browser to be blank."
+      tickets: [791044]
+
+    - title: "Speedup auto complete when there are lots of items (>2500) the downside being that non ASCII characters are not sorted correctly. The threshold can be controlled via Preferences->Tweaks"
+      tickets: [792191]
+
+    - title: "RTF Output: Fix handling of curly brackets"
+      tickets: [791805]
+
+    - title: "Fix searching in Get Books not working with non ASCII characters"
+      tickets: [791788]
+
+    - title: "Fix excessive memory consumption when moving very large files during a metadata change"
+      tickets: [791806]
+
+    - title: "Fix series index being overwritten even when series is turned off in bulk metadata download"
+      tickets: [789990]
+
+    - title: "Fix regression in templates where id and other non standard fields no longer worked."
+
+    - title: "EPUB Output: Fix crash caused by ids with non-ascii characters in them"
+
+    - title: "Try to preserve the timestamps of files in a ZIP container"
+
+    - title: "After adding books always select the most recently added book."
+      tickets: [789343]
+
+  improved recipes:
+    - bild.de
+    - CNN
+    - BBC News (fast)
+    - Dilema Veche
+
+  new recipes:
+    - title: Metro UK
+      author: Dave Asbury
+
+    - title: Alt om Herning and Version2.dk
+      author: Rasmus Lauritsen
+
+    - title: Observatorul cultural
+      author: song2
+
+
 - version: 0.8.3
   date: 2011-05-27
 

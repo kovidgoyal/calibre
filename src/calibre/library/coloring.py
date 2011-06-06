@@ -79,16 +79,19 @@ class Rule(object): # {{{
         if dt == 'bool':
             return self.bool_condition(col, action, val)
 
-        if dt in ('int', 'float', 'rating'):
+        if dt in ('int', 'float'):
             return self.number_condition(col, action, val)
+
+        if dt == 'rating':
+            return self.rating_condition(col, action, val)
 
         if dt == 'datetime':
             return self.date_condition(col, action, val)
 
-        if dt in ('comments', 'series', 'text', 'enumeration'):
+        if dt in ('comments', 'series', 'text', 'enumeration', 'composite'):
             ism = m.get('is_multiple', False)
             if ism:
-                return self.multiple_condition(col, action, val, ism)
+                return self.multiple_condition(col, action, val, ism['ui_to_list'])
             return self.text_condition(col, action, val)
 
     def identifiers_condition(self, col, action, val):
@@ -114,8 +117,15 @@ class Rule(object): # {{{
                 'lt': ('1', '', ''),
                 'gt': ('', '', '1')
         }[action]
-        lt, eq, gt = '', '1', ''
         return "cmp(raw_field('%s'), %s, '%s', '%s', '%s')" % (col, val, lt, eq, gt)
+
+    def rating_condition(self, col, action, val):
+        lt, eq, gt = {
+                'eq': ('', '1', ''),
+                'lt': ('1', '', ''),
+                'gt': ('', '', '1')
+        }[action]
+        return "cmp(field('%s'), %s, '%s', '%s', '%s')" % (col, val, lt, eq, gt)
 
     def date_condition(self, col, action, val):
         lt, eq, gt = {
@@ -127,10 +137,12 @@ class Rule(object): # {{{
                 val, lt, eq, gt)
 
     def multiple_condition(self, col, action, val, sep):
+        if not sep or sep == '|':
+            sep = ','
         if action == 'is set':
-            return "test('%s', '1', '')"%col
+            return "test(field('%s'), '1', '')"%col
         if action == 'is not set':
-            return "test('%s', '', '1')"%col
+            return "test(field('%s'), '', '1')"%col
         if action == 'has':
             return "str_in_list(field('%s'), '%s', \"%s\", '1', '')"%(col, sep, val)
         if action == 'does not have':
@@ -142,9 +154,9 @@ class Rule(object): # {{{
 
     def text_condition(self, col, action, val):
         if action == 'is set':
-            return "test('%s', '1', '')"%col
+            return "test(field('%s'), '1', '')"%col
         if action == 'is not set':
-            return "test('%s', '', '1')"%col
+            return "test(field('%s'), '', '1')"%col
         if action == 'is':
             return "strcmp(field('%s'), \"%s\", '', '1', '')"%(col, val)
         if action == 'is not':
@@ -183,7 +195,7 @@ def conditionable_columns(fm):
         m = fm[key]
         dt = m['datatype']
         if m.get('name', False) and dt in ('bool', 'int', 'float', 'rating', 'series',
-                'comments', 'text', 'enumeration', 'datetime'):
+                'comments', 'text', 'enumeration', 'datetime', 'composite'):
             if key == 'sort':
                 yield 'title_sort'
             else:

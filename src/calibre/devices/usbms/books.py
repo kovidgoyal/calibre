@@ -204,7 +204,8 @@ class CollectionsBookList(BookList):
                 elif fm['datatype'] == 'text' and fm['is_multiple']:
                     val = orig_val
                 elif fm['datatype'] == 'composite' and fm['is_multiple']:
-                    val = [v.strip() for v in val.split(fm['is_multiple'])]
+                    val = [v.strip() for v in
+                           val.split(fm['is_multiple']['ui_to_list'])]
                 else:
                     val = [val]
 

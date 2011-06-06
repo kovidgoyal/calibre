@@ -107,6 +107,9 @@ class NOOK_COLOR(NOOK):
 
         return filepath
 
+    def upload_cover(self, path, filename, metadata, filepath):
+        pass
+
 class NOOK_TSR(NOOK):
     gui_name       = _('Nook Simple')
     description    = _('Communicate with the Nook TSR eBook reader.')
@@ -117,4 +120,6 @@ class NOOK_TSR(NOOK):
     EBOOK_DIR_MAIN = EBOOK_DIR_CARD_A = 'My Files/Books'
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'EBOOK_DISK'
 
+    def upload_cover(self, path, filename, metadata, filepath):
+        pass
 

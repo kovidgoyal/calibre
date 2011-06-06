@@ -13,6 +13,9 @@ from calibre.gui2 import error_dialog
 
 class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
 
+    # Note: in this class, we are treating is_multiple as the boolean that
+    # custom_columns expects to find in its structure. It does not use the dict
+
     column_types = {
                     0:{'datatype':'text',
                         'text':_('Text, column shown in the tag browser'),

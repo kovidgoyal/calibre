@@ -33,7 +33,7 @@ class Matches(QAbstractItemModel):
 
     total_changed = pyqtSignal(int)
 
-    HEADERS = [_('Cover'), _('Title'), _('Price'), _('DRM'), _('Store'), _('')]
+    HEADERS = [_('Cover'), _('Title'), _('Price'), _('DRM'), _('Store'), '']
     HTML_COLS = (1, 4)
 
     def __init__(self, cover_thread_count=2, detail_thread_count=4):
@@ -58,7 +58,7 @@ class Matches(QAbstractItemModel):
         self.search_filter = SearchFilter()
         self.cover_pool = CoverThreadPool(cover_thread_count)
         self.details_pool = DetailsThreadPool(detail_thread_count)
-        
+
         self.filter_results_dispatcher = FunctionDispatcher(self.filter_results)
         self.got_result_details_dispatcher = FunctionDispatcher(self.got_result_details)
 
