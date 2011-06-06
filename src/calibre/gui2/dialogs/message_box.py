@@ -154,13 +154,16 @@ _proceed_memory = []
 class ProceedNotification(MessageBox): # {{{
 
     def __init__(self, callback, payload, html_log, log_viewer_title, title, msg,
-            det_msg='', show_copy_button=False, parent=None):
+            det_msg='', show_copy_button=False, parent=None,
+            cancel_callback=None):
         '''
         A non modal popup that notifies the user that a background task has
         been completed.
 
         :param callback: A callable that is called with payload if the user
-        asks to proceed. Note that this is always called in the GUI thread
+        asks to proceed. Note that this is always called in the GUI thread.
+        :param cancel_callback: A callable that is called with the payload if
+        the users asks not to proceed.
         :param payload: Arbitrary object, passed to callback
         :param html_log: An HTML or plain text log
         :param log_viewer_title: The title for the log viewer window
@@ -181,7 +184,7 @@ class ProceedNotification(MessageBox): # {{{
         self.vlb.clicked.connect(self.show_log)
         self.det_msg_toggle.setVisible(bool(det_msg))
         self.setModal(False)
-        self.callback = callback
+        self.callback, self.cancel_callback = callback, cancel_callback
         _proceed_memory.append(self)
 
     def show_log(self):
@@ -192,9 +195,11 @@ class ProceedNotification(MessageBox): # {{{
         try:
             if result == self.Accepted:
                 self.callback(self.payload)
+            elif self.cancel_callback is not None:
+                self.cancel_callback(self.payload)
         finally:
             # Ensure this notification is garbage collected
-            self.callback = None
+            self.callback = self.cancel_callback = None
             self.setParent(None)
             self.finished.disconnect()
             self.vlb.clicked.disconnect()
