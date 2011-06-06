@@ -15,16 +15,13 @@ from PyQt4.Qt import QUrl
 
 from calibre import browser
 from calibre.gui2 import open_url
-from calibre.gui2.store.amazon_plugin import AmazonKindleStore
+from calibre.gui2.store import StorePlugin
 from calibre.gui2.store.search_result import SearchResult
 
-class AmazonUKKindleStore(AmazonKindleStore):
+class AmazonUKKindleStore(StorePlugin):
     '''
     For comments on the implementation, please see amazon_plugin.py
     '''
-
-    search_url = 'http://www.amazon.co.uk/s/?url=search-alias%3Ddigital-text&field-keywords='
-    details_url = 'http://amazon.co.uk/dp/'
 
     def open(self, parent=None, detail_item=None, external=False):
         aff_id = {'tag': 'calcharles-21'}
@@ -36,7 +33,8 @@ class AmazonUKKindleStore(AmazonKindleStore):
         open_url(QUrl(store_link))
 
     def search(self, query, max_results=10, timeout=60):
-        url =  self.search_url + urllib.quote_plus(query)
+        search_url = 'http://www.amazon.co.uk/s/?url=search-alias%3Ddigital-text&field-keywords='
+        url =  search_url + urllib.quote_plus(query)
         br = browser()
 
         counter = max_results
@@ -95,7 +93,7 @@ class AmazonUKKindleStore(AmazonKindleStore):
         if search_result.drm:
             return
 
-        url = self.details_url
+        url = 'http://amazon.co.uk/dp/'
 
         br = browser()
         with closing(br.open(url + search_result.detail_item, timeout=timeout)) as nf:
