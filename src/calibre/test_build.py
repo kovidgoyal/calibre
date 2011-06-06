@@ -88,6 +88,12 @@ def test_imaging():
         raise RuntimeError('PIL choked!')
     print ('PIL OK!')
 
+def test_unrar():
+    from calibre.libunrar import _libunrar
+    if not _libunrar:
+        raise RuntimeError('Failed to load libunrar')
+    print ('Unrar OK!')
+
 def test():
     test_plugins()
     test_lxml()
@@ -98,6 +104,7 @@ def test():
         test_win32()
     test_qt()
     test_imaging()
+    test_unrar()
 
 if __name__ == '__main__':
     test()

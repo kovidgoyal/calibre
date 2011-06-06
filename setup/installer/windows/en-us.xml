@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <WixLocalization Culture="en-us" xmlns="http://schemas.microsoft.com/wix/2006/localization">
-    <String Id="AdvancedWelcomeEulaDlgDescriptionPerUser">If you are upgrading from a {app} version older than 0.6.17, please uninstall {app} first. Click Advanced to change installation settings.</String>
+    <String Id="AdvancedWelcomeEulaDlgDescriptionPerUser">Click Advanced to change installation settings.</String>
     <String Id="ProgressTextFileCost">Computing space requirements, this may take upto five minutes...</String>
     <String Id="ProgressTextCostInitialize">Computing space requirements, this may take upto five minutes...</String>
     <String Id="ProgressTextCostFinalize">Computing space requirements, this may take upto five minutes...</String>
