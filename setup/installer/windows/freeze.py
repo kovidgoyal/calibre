@@ -16,7 +16,6 @@ from setup.installer.windows.wix import WixMixIn
 OPENSSL_DIR = r'Q:\openssl'
 QT_DIR = 'Q:\\Qt\\4.7.3'
 QT_DLLS = ['Core', 'Gui', 'Network', 'Svg', 'WebKit', 'Xml', 'XmlPatterns']
-LIBUSB_DIR       = 'C:\\libusb'
 LIBUNRAR         = 'C:\\Program Files\\UnrarDLL\\unrar.dll'
 SW               = r'C:\cygwin\home\kovid\sw'
 IMAGEMAGICK      = os.path.join(SW, 'build', 'ImageMagick-6.6.6',
@@ -96,9 +95,10 @@ class Win32Freeze(Command, WixMixIn):
             shutil.rmtree(tgt)
         os.mkdir(tgt)
         base = self.j(self.SRC, 'calibre', 'plugins')
-        for pat in ('*.pyd', '*.manifest'):
-            for f in glob.glob(self.j(base, pat)):
-                shutil.copy2(f, tgt)
+        for f in glob.glob(self.j(base, '*.pyd')):
+            # We dont want the manifests as the manifest in the exe will be
+            # used instead
+            shutil.copy2(f, tgt)
 
     def freeze(self):
         shutil.copy2(self.j(self.src_root, 'LICENSE'), self.base)
@@ -200,11 +200,6 @@ class Win32Freeze(Command, WixMixIn):
 
         print
         print 'Adding third party dependencies'
-        tdir = os.path.join(self.base, 'driver')
-        os.makedirs(tdir)
-        for pat in ('*.dll', '*.sys', '*.cat', '*.inf'):
-            for f in glob.glob(os.path.join(LIBUSB_DIR, pat)):
-                shutil.copyfile(f, os.path.join(tdir, os.path.basename(f)))
         print '\tAdding unrar'
         shutil.copyfile(LIBUNRAR,
                 os.path.join(self.dll_dir, os.path.basename(LIBUNRAR)))
