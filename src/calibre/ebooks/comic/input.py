@@ -11,7 +11,7 @@ import os, shutil, traceback, textwrap, time, codecs
 from Queue import Empty
 
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
-from calibre import extract, CurrentDir, prints
+from calibre import extract, CurrentDir, prints, walk
 from calibre.constants import filesystem_encoding
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.ipc.server import Server
@@ -27,6 +27,11 @@ def extract_comic(path_to_comic_file):
         # names
         tdir = tdir.decode(filesystem_encoding)
     extract(path_to_comic_file, tdir)
+    for x in walk(tdir):
+        bn = os.path.basename(x)
+        nbn = bn.replace('#', '_')
+        if nbn != bn:
+            os.rename(x, os.path.join(os.path.dirname(x), nbn))
     return tdir
 
 def find_pages(dir, sort_on_mtime=False, verbose=False):
@@ -362,6 +367,7 @@ class ComicInput(InputFormatPlugin):
                 if not line:
                     continue
                 fname, title = line.partition(':')[0], line.partition(':')[-1]
+                fname = fname.replace('#', '_')
                 fname = os.path.join(tdir, *fname.split('/'))
                 if not title:
                     title = os.path.basename(fname).rpartition('.')[0]
