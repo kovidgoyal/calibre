@@ -72,7 +72,7 @@ class Win32Freeze(Command, WixMixIn):
         self.lib_dir = self.j(self.base, 'Lib')
         self.pylib = self.j(self.base, 'pylib.zip')
         self.dll_dir = self.j(self.base, 'DLLs')
-        self.plugins_dir = os.path.join(self.base, 'plugins')
+        self.plugins_dir = os.path.join(self.base, 'plugins2')
 
         self.initbase()
         self.build_launchers()
