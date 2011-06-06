@@ -1,12 +1,72 @@
 #!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, os, linecache
+import sys
+import os
+import zipimport
+import _memimporter
+
+DEBUG_ZIPIMPORT = False
+
+class ZipExtensionImporter(zipimport.zipimporter):
+    '''
+    Taken, with thanks, from the py2exe source code
+    '''
+
+    def __init__(self, *args, **kwargs):
+        zipimport.zipimporter.__init__(self, *args, **kwargs)
+        # We know there are no dlls in the zip file, so dont set findproc
+        # (performance optimization)
+        #_memimporter.set_find_proc(self.locate_dll_image)
+
+    def find_module(self, fullname, path=None):
+        result = zipimport.zipimporter.find_module(self, fullname, path)
+        if result:
+            return result
+        fullname = fullname.replace(".", "\\")
+        if (fullname + '.pyd') in self._files:
+            return self
+        return None
+
+    def locate_dll_image(self, name):
+        # A callback function for_memimporter.import_module.  Tries to
+        # locate additional dlls.  Returns the image as Python string,
+        # or None if not found.
+        if name in self._files:
+            return self.get_data(name)
+        return None
+
+    def load_module(self, fullname):
+        if sys.modules.has_key(fullname):
+            mod = sys.modules[fullname]
+            if DEBUG_ZIPIMPORT:
+                sys.stderr.write("import %s # previously loaded from zipfile %s\n" % (fullname, self.archive))
+            return mod
+        try:
+            return zipimport.zipimporter.load_module(self, fullname)
+        except zipimport.ZipImportError:
+            pass
+        initname = "init" + fullname.split(".")[-1] # name of initfunction
+        filename = fullname.replace(".", "\\")
+        path = filename + '.pyd'
+        if path in self._files:
+            if DEBUG_ZIPIMPORT:
+                sys.stderr.write("# found %s in zipfile %s\n" % (path, self.archive))
+            code = self.get_data(path)
+            mod = _memimporter.import_module(code, initname, fullname, path)
+            mod.__file__ = "%s\\%s" % (self.archive, path)
+            mod.__loader__ = self
+            if DEBUG_ZIPIMPORT:
+                sys.stderr.write("import %s # loaded from zipfile %s\n" % (fullname, mod.__file__))
+            return mod
+        raise zipimport.ZipImportError, "can't find module %s" % fullname
+
+    def __repr__(self):
+        return "<%s object %r>" % (self.__class__.__name__, self.archive)
 
 
 def abs__file__():
@@ -42,42 +102,6 @@ def makepath(*paths):
     dir = os.path.abspath(os.path.join(*paths))
     return dir, os.path.normcase(dir)
 
-def addpackage(sitedir, name):
-    """Process a .pth file within the site-packages directory:
-       For each line in the file, either combine it with sitedir to a path,
-       or execute it if it starts with 'import '.
-    """
-    fullname = os.path.join(sitedir, name)
-    try:
-        f = open(fullname, "rU")
-    except IOError:
-        return
-    with f:
-        for line in f:
-            if line.startswith("#"):
-                continue
-            if line.startswith(("import ", "import\t")):
-                exec line
-                continue
-            line = line.rstrip()
-            dir, dircase = makepath(sitedir, line)
-            if os.path.exists(dir):
-                sys.path.append(dir)
-
-
-def addsitedir(sitedir):
-    """Add 'sitedir' argument to sys.path if missing and handle .pth files in
-    'sitedir'"""
-    sitedir, sitedircase = makepath(sitedir)
-    try:
-        names = os.listdir(sitedir)
-    except os.error:
-        return
-    dotpth = os.extsep + "pth"
-    names = [name for name in names if name.endswith(dotpth)]
-    for name in sorted(names):
-        addpackage(sitedir, name)
-
 def run_entry_point():
     bname, mod, func = sys.calibre_basename, sys.calibre_module, sys.calibre_function
     sys.argv[0] = bname+'.exe'
@@ -89,6 +113,10 @@ def main():
     sys.setdefaultencoding('utf-8')
     aliasmbcs()
 
+    sys.path_hooks.insert(0, ZipExtensionImporter)
+    sys.path_importer_cache.clear()
+
+    import linecache
     def fake_getline(filename, lineno, module_globals=None):
         return ''
     linecache.orig_getline = linecache.getline
@@ -96,9 +124,10 @@ def main():
 
     abs__file__()
 
-    addsitedir(os.path.join(sys.app_dir, 'pydlib'))
-
     add_calibre_vars()
+
+    # Needed for pywintypes to be able to load its DLL
+    sys.path.append(os.path.join(sys.app_dir, 'DLLs'))
 
     return run_entry_point()
 
