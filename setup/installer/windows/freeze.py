@@ -197,6 +197,10 @@ class Win32Freeze(Command, WixMixIn):
             if os.path.exists(tg):
                 shutil.rmtree(tg)
             shutil.copytree(imfd, tg)
+        for dirpath, dirnames, filenames in os.walk(tdir):
+            for x in filenames:
+                if not x.endswith('.dll'):
+                    os.remove(self.j(dirpath, x))
 
         print
         print 'Adding third party dependencies'

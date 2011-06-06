@@ -65,7 +65,8 @@ def test_sqlite():
 def test_qt():
     from PyQt4.Qt import (QWebView, QDialog, QImageReader, QNetworkAccessManager)
     fmts = set(map(unicode, QImageReader.supportedImageFormats()))
-    if 'jpg' not in fmts or 'png' not in fmts:
+    testf = set(['jpg', 'png', 'mng', 'svg', 'ico', 'gif'])
+    if testf.intersection(fmts) != testf:
         raise RuntimeError(
             "Qt doesn't seem to be able to load its image plugins")
     QWebView, QDialog
