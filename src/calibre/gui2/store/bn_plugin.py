@@ -8,7 +8,6 @@ __docformat__ = 'restructuredtext en'
 
 import random
 import re
-import urllib
 from contextlib import closing
 
 from lxml import html
@@ -47,26 +46,26 @@ class BNStore(BasicStoreConfig, StorePlugin):
             d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
-        url = 'http://productsearch.barnesandnoble.com/search/results.aspx?STORE=EBOOK&SZE=%s&WRD=' % max_results
-        url += urllib.quote_plus(query)
+        query = query.replace(' ', '-')
+        url = 'http://www.barnesandnoble.com/s/%s?store=ebook&sze=%s' % (query, max_results)
         
         br = browser()
         
         counter = max_results
         with closing(br.open(url, timeout=timeout)) as f:
             doc = html.fromstring(f.read())
-            for data in doc.xpath('//ul[contains(@class, "wgt-search-results-display")]/li[contains(@class, "search-result-item") and contains(@class, "nook-result-item")]'):
+            for data in doc.xpath('//ul[contains(@class, "result-set")]/li[contains(@class, "result")]'):
                 if counter <= 0:
                     break
                 
-                id = ''.join(data.xpath('.//div[contains(@class, "wgt-product-image-module")]/a/@href'))
+                id = ''.join(data.xpath('.//div[contains(@class, "image")]/a/@href'))
                 if not id:
                     continue
-                cover_url = ''.join(data.xpath('.//div[contains(@class, "wgt-product-image-module")]/a/img/@src'))
+                cover_url = ''.join(data.xpath('.//div[contains(@class, "image")]//img/@src'))
                 
-                title = ''.join(data.xpath('.//span[@class="product-title"]/a/text()'))
-                author = ', '.join(data.xpath('.//span[@class="contributers-line"]/a/text()'))
-                price = ''.join(data.xpath('.//span[contains(@class, "onlinePriceValue2")]/text()'))
+                title = ''.join(data.xpath('.//p[@class="title"]//span[@class="name"]/text()'))
+                author = ', '.join(data.xpath('.//ul[@class="contributors"]//li[position()>1]//a/text()'))
+                price = ''.join(data.xpath('.//table[@class="displayed-formats"]//a[@class="subtle"]/text()'))
                 
                 counter -= 1
                 
@@ -74,9 +73,9 @@ class BNStore(BasicStoreConfig, StorePlugin):
                 s.cover_url = cover_url
                 s.title = title.strip()
                 s.author = author.strip()
-                s.price = price
+                s.price = price.strip()
                 s.detail_item = id.strip()
                 s.drm = SearchResult.DRM_UNKNOWN
                 s.formats = 'Nook'
-                
+
                 yield s
