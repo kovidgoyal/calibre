@@ -281,11 +281,11 @@ class SearchDialog(QDialog, Ui_Dialog):
         tab_widget.setCurrentIndex(tab_index)
 
         d.exec_()
-        
+
         # Save dialog state.
         self.config['config_dialog_geometry'] = bytearray(d.saveGeometry())
         self.config['config_dialog_tab_index'] = tab_widget.currentIndex()
-        
+
         search_config_widget.save_settings()
         self.config_changed()
         self.gui.load_store_plugins()
