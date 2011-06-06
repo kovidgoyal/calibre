@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-06-03 18:21+0000\n"
-"PO-Revision-Date: 2011-05-28 20:28+0000\n"
+"PO-Revision-Date: 2011-06-05 12:16+0000\n"
 "Last-Translator: Serdar Peker <Unknown>\n"
 "Language-Team: Turkish <tr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-06-04 04:49+0000\n"
+"X-Launchpad-Export-Date: 2011-06-06 04:36+0000\n"
 "X-Generator: Launchpad (build 12959)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -1918,13 +1918,17 @@ msgid ""
 "page and other artifacts. This option will extract the content from the "
 "tables and present it in a linear fashion."
 msgstr ""
+"Bazı kötü dizayn edilmiş dökümanlar sayfadaki metinin düzenlemesini kontrol "
+"için tablo kullanırlar. Bu sayfalar dönüştürüldüğünde sıklıkla metin "
+"sayfadan ve taşıyor ve başka hatalar çıkıyor. Bu seçenek içeriği tablodan "
+"çıkaracak ve onu bildiğimiz şekilde sunacak."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:205
 msgid ""
 "XPath expression that specifies all tags that should be added to the Table "
 "of Contents at level one. If this is specified, it takes precedence over "
 "other forms of auto-detection."
-msgstr ""
+msgstr "XPath ifadesi tüm etiketleri"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:214
 msgid ""
@@ -2001,6 +2005,7 @@ msgstr ""
 msgid ""
 "An XPath expression. Page breaks are inserted before the specified elements."
 msgstr ""
+"Bir Xpath ifadesi. Sayfa sonu belirtilen unsurdan önce yerleştirilmeli."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:310
 msgid ""
@@ -2014,21 +2019,29 @@ msgstr ""
 msgid ""
 "Set the top margin in pts. Default is %default. Note: 72 pts equals 1 inch"
 msgstr ""
+"Üst sayfa boşluğunu pts olarak ayarla. Varsayılan %default. Not: 72 pst 1 "
+"inç'e(2,54cm) eşittir."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:326
 msgid ""
 "Set the bottom margin in pts. Default is %default. Note: 72 pts equals 1 inch"
 msgstr ""
+"Alt sayfa boşluğunu pts olarak ayarla. Varsayılan %default. Not: 72 pst 1 "
+"inç'e(2,54cm) eşittir."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:331
 msgid ""
 "Set the left margin in pts. Default is %default. Note: 72 pts equals 1 inch"
 msgstr ""
+"Sol sayfa boşluğunu pts olarak ayarla. Varsayılan %default. Not: 72 pst 1 "
+"inç'e(2,54cm) eşittir."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:336
 msgid ""
 "Set the right margin in pts. Default is %default. Note: 72 pts equals 1 inch"
 msgstr ""
+"Sağ sayfa boşluğunu pts olarak ayarla. Varsayılan %default. Not: 72 pst 1 "
+"inç'e(2,54cm) eşittir."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:342
 msgid ""
@@ -2045,6 +2058,9 @@ msgid ""
 "1.5em. Spacing removal will not work if the source file does not use "
 "paragraphs (<p> or <div> tags)."
 msgstr ""
+"Paragraflar arası boşlukları kaldır. Ayrıca paragrafların girintilerini "
+"1,5em olarak ayarla. Eğer kaynak dosyası paragraları(<p> or <div> "
+"etiketleri) kullanmamışsa boşluk kaldırma çalışmayacaktır."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:359
 msgid ""
@@ -2052,6 +2068,9 @@ msgid ""
 "paragraph indent, to ensure that paragraphs can be easily distinguished. "
 "This option controls the width of that indent."
 msgstr ""
+"Calibre paragraflar arası boşlukarı kaldırdığında paragraflar kolayca ayırt "
+"edilmesini sağlamak için otomatik olarak paragraf girintisini ayarlar. Bu "
+"seçenek girintinin derinliğini kontrol eder."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:366
 msgid ""
@@ -2064,14 +2083,14 @@ msgid ""
 "Insert a blank line between paragraphs. Will not work if the source file "
 "does not use paragraphs (<p> or <div> tags)."
 msgstr ""
-"Paragraflar arasında boş satır bırak . Eğer kaynak dosya paragraf ( <p> veya "
-"<div> tag ları)  kullanmıyor ise çalışmayacaktır ."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:379
 msgid ""
 "Remove the first image from the input ebook. Useful if the first image in "
 "the source file is a cover and you are specifying an external cover."
 msgstr ""
+"Girdi ekitapdan ilk resimi çıkar. Eğer kaynak dosyadaki ilk resim kapaksa ve "
+"dışarıdan bir kapak belirliyorsanız kullanışlıdır."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:387
 msgid ""
@@ -2119,6 +2138,8 @@ msgstr "Başlığı ayarla."
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:442
 msgid "Set the authors. Multiple authors should be separated by ampersands."
 msgstr ""
+"Yazarları ayarla. Birden fazla yazar varsa ampersand (&) işareti ile "
+"ayrılmalı."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:447
 msgid "The version of the title to be used for sorting. "
@@ -2126,7 +2147,7 @@ msgstr "Başlık sürümü sıralama için kullanılır. "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:451
 msgid "String to be used when sorting by author. "
-msgstr ""
+msgstr "Yazar'a göre sıralamada kullanılacak metin "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:455
 msgid "Set the cover to the specified file or URL"
@@ -2179,11 +2200,13 @@ msgstr "Dili ayarla."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:495
 msgid "Set the publication date."
-msgstr ""
+msgstr "Basım tarihini ayarla"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:499
 msgid "Set the book timestamp (used by the date column in calibre)."
 msgstr ""
+"Kitabın tarih bilgisini ayarla (calibre'de tarih sütunu tarafından "
+"kullanılır)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:503
 msgid ""
@@ -2197,6 +2220,9 @@ msgid ""
 "h3 tags.  This setting will not create a TOC, but can be used in conjunction "
 "with structure detection to create one."
 msgstr ""
+"Biçimlendirilmemiş bölüm başlıklarını ve altbaşlıklarını algıla. Onları h2 "
+"ve h3 etiketlerine çevir. Bu ayar içindekiler yaratmayacak ama "
+"oluşturulurken yapı algılama ile bağlantılı kullanılabilecek."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:515
 msgid ""

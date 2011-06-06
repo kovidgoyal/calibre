@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-06-03 18:21+0000\n"
-"PO-Revision-Date: 2011-06-04 16:04+0000\n"
-"Last-Translator: Rainer Kalthoff <Unknown>\n"
+"PO-Revision-Date: 2011-06-05 19:28+0000\n"
+"Last-Translator: olaf hohenschon <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-06-05 04:34+0000\n"
+"X-Launchpad-Export-Date: 2011-06-06 04:35+0000\n"
 "X-Generator: Launchpad (build 12959)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -3119,7 +3119,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:56
 msgid "Value: unknown field "
-msgstr ""
+msgstr "Wert: Unbekanntes Feld "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:152
 msgid "TEMPLATE ERROR"
@@ -12969,7 +12969,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:62
 msgid "Max. simultaneous conversion/news download jobs:"
-msgstr ""
+msgstr "Max. gleichzeitige Konvertierungen/Nachrichten-Downloads"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:63
 msgid "Limit the max. simultaneous jobs to the available CPU &cores"
@@ -14471,7 +14471,7 @@ msgstr "Lösche Suche %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:384
 msgid "Remove %s from category %s"
-msgstr ""
+msgstr "%s von Kategorie %s entfernen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:391
 msgid "Search for %s"
@@ -14487,7 +14487,7 @@ msgstr "Unterkategorie zu %s hinzufügen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:412
 msgid "Delete user category %s"
-msgstr ""
+msgstr "Lösche Benutzerkategorie %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:417
 msgid "Hide category %s"
@@ -14556,7 +14556,7 @@ msgstr "Suchergebnisse"
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1411
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1420
 msgid "Rename user category"
-msgstr ""
+msgstr "Benutzerkategorie umbenennen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1392
 msgid "You cannot use periods in the name when renaming user categories"
@@ -14837,6 +14837,9 @@ msgid ""
 "Update <b>only</b> if one of the new features or bug fixes is important to "
 "you. If the current version works well for you, do not update."
 msgstr ""
+"Das Update nur durchführen, falls die neuen Funktionen oder Fehlerbehebungen "
+"für Sie wichtig sind. Wenn die aktuelle Version für Sie gut funktioniert, "
+"<b>machen Sie kein Update</b>."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:60
 msgid "Update available!"
@@ -16078,7 +16081,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:1422
 msgid "No books available to catalog"
-msgstr ""
+msgstr "Keine Bücher im Katalog verfügbar"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:1497
 msgid ""
@@ -16144,7 +16147,7 @@ msgstr "Unbekannte Dateien bei Büchern"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:33
 msgid "Missing covers files"
-msgstr ""
+msgstr "Fehlende Cover-Dateien"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:34
 msgid "Cover files not in database"
@@ -16950,6 +16953,7 @@ msgstr "Das Veröffentlichungsdatum"
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:46
 msgid "The date when the metadata for this book record was last modified"
 msgstr ""
+"Das Datum an dem die Metadaten für dieses Buch zuletzt verändert wurden"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:48
 msgid "The calibre internal id"
@@ -17422,7 +17426,7 @@ msgstr " nahe "
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:38
 msgid "end of program"
-msgstr ""
+msgstr "Programmende"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:75
 msgid "syntax error - program ends before EOF"
@@ -17454,15 +17458,15 @@ msgstr "Format: Typ {0} benötigt einen Fließkommawert, erhielt {1}"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:299
 msgid "%s: unknown function"
-msgstr ""
+msgstr "%s: unbekannte Funktion"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:348
 msgid "No such variable "
-msgstr ""
+msgstr "Keine solche Variable "
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:58
 msgid "No documentation provided"
-msgstr ""
+msgstr "Keine Dokumentation vorhanden"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:92
 msgid ""
@@ -17738,7 +17742,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:648
 msgid "booksize() -- return value of the size field"
-msgstr ""
+msgstr "Buchgröße() -- gibt den Wert des Feld größe wieder"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:662
 msgid ""
@@ -17849,7 +17853,7 @@ msgstr "Englisch (Zypern)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:110
 msgid "English (Czechoslovakia)"
-msgstr ""
+msgstr "Englisch (Tschechoslowakei)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:111
 msgid "English (Pakistan)"
@@ -17857,11 +17861,11 @@ msgstr "Englisch (Pakistan)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:112
 msgid "English (Croatia)"
-msgstr ""
+msgstr "Englisch (Kroatien)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:113
 msgid "English (Indonesia)"
-msgstr ""
+msgstr "Englisch (Indonesien)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:114
 msgid "English (Israel)"
@@ -18081,15 +18085,15 @@ msgstr "\tFehlgeschlagene Verknüpfungen:"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:843
 msgid "Could not fetch article."
-msgstr ""
+msgstr "Konnte Artikel nicht abrufen."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:845
 msgid "The debug traceback is available earlier in this log"
-msgstr ""
+msgstr "Der Debug-Traceback ist weiter oben in diesem Protokoll"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:847
 msgid "Run with -vv to see the reason"
-msgstr ""
+msgstr "Mit -vv starten um den Grund zu sehen"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:870
 msgid "Fetching feeds..."
@@ -18688,7 +18692,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:279
 msgid "Set the maximum number of sort 'levels'"
-msgstr ""
+msgstr "Stellen Sie die max. anzahl von Sortier-ebenen ein"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:280
 msgid ""
@@ -18705,6 +18709,8 @@ msgstr ""
 #: /home/kovid/work/calibre/resources/default_tweaks.py:287
 msgid "Specify which font to use when generating a default cover"
 msgstr ""
+"Bestimmen Sie welche Schrifttype genutzt wird um das Default-Cover zu "
+"erstellen."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:288
 msgid ""
@@ -18716,7 +18722,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:294
 msgid "Control behavior of double clicks on the book list"
-msgstr ""
+msgstr "Verhalten von Doppelklicks innerhalb der Buchliste"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:295
 msgid ""
