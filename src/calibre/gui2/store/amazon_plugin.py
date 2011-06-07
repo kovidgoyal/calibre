@@ -131,16 +131,22 @@ class AmazonKindleStore(StorePlugin):
             
             # Amazon has two results pages.
             is_shot = doc.xpath('boolean(//div[@id="shotgunMainResults"])')
-            # Horizontal grid of books.
+            # Horizontal grid of books. Search "Paolo Bacigalupi"
             if is_shot:
                 data_xpath = '//div[contains(@class, "result")]'
-                format_xpath = './/div[@class="productTitle"]/text()'
+                format_xpath = './/div[@class="productTitle"]//text()'
+                asin_xpath = './/div[@class="productTitle"]//a'
                 cover_xpath = './/div[@class="productTitle"]//img/@src'
-            # Vertical list of books.
+                title_xpath = './/div[@class="productTitle"]/a//text()'
+                price_xpath = './/div[@class="newPrice"]/span/text()'
+            # Vertical list of books. Search "martin"
             else:
-                data_xpath = '//div[@class="productData"]'
-                format_xpath = './/span[@class="format"]/text()'
-                cover_xpath = '../div[@class="productImage"]/a/img/@src'
+                data_xpath = '//div[contains(@class, "results")]//div[contains(@class, "result")]'
+                format_xpath = './/span[@class="binding"]//text()'
+                asin_xpath = './/div[@class="image"]/a[1]'
+                cover_xpath = './/img[@class="productImage"]/@src'
+                title_xpath = './/a[@class="title"]/text()'
+                price_xpath = './/span[@class="price"]/text()'
             
             for data in doc.xpath(data_xpath):
                 if counter <= 0:
@@ -157,7 +163,7 @@ class AmazonKindleStore(StorePlugin):
                 # We must have an asin otherwise we can't easily reference the
                 # book later.
                 asin_href = None
-                asin_a = data.xpath('.//div[@class="productTitle"]/a[1]')
+                asin_a = data.xpath(asin_xpath)
                 if asin_a:
                     asin_href = asin_a[0].get('href', '')
                     m = re.search(r'/dp/(?P<asin>.+?)(/|$)', asin_href)
@@ -170,14 +176,14 @@ class AmazonKindleStore(StorePlugin):
                 
                 cover_url = ''.join(data.xpath(cover_xpath))
 
-                title = ''.join(data.xpath('.//div[@class="productTitle"]/a/text()'))
-                price = ''.join(data.xpath('.//div[@class="newPrice"]/span/text()'))
+                title = ''.join(data.xpath(title_xpath))
+                price = ''.join(data.xpath(price_xpath))
                 
                 if is_shot:
                     author = format.split(' by ')[-1]
                 else:
-                    author = ''.join(data.xpath('.//div[@class="productTitle"]/span[@class="ptBrand"]/text()'))
-                    author = author.split(' by ')[-1]
+                    author = ''.join(data.xpath('.//span[@class="ptBrand"]/text()'))
+                    author = author.split('by ')[-1]
                 
                 counter -= 1
     

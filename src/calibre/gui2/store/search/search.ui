@@ -6,15 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>584</width>
-    <height>533</height>
+    <width>872</width>
+    <height>610</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Get Books</string>
   </property>
   <property name="windowIcon">
-   <iconset>
+   <iconset resource="../../../../../resources/images.qrc">
     <normaloff>:/images/store.png</normaloff>:/images/store.png</iconset>
   </property>
   <property name="sizeGripEnabled">
@@ -82,8 +82,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>125</width>
-            <height>127</height>
+            <width>173</width>
+            <height>106</height>
            </rect>
           </property>
          </widget>
@@ -255,7 +255,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../../../../resources/images.qrc"/>
+  <include location="../../../../../resources/images.qrc"/>
  </resources>
  <connections>
   <connection>

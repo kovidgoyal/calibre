@@ -8,19 +8,19 @@ __docformat__ = 'restructuredtext en'
 
 import sys, os, shutil, glob, py_compile, subprocess, re, zipfile, time
 
-from setup import Command, modules, functions, basenames, __version__, \
-    __appname__
+from setup import (Command, modules, functions, basenames, __version__,
+    __appname__)
 from setup.build_environment import msvc, MT, RC
 from setup.installer.windows.wix import WixMixIn
 
 OPENSSL_DIR = r'Q:\openssl'
 QT_DIR = 'Q:\\Qt\\4.7.3'
 QT_DLLS = ['Core', 'Gui', 'Network', 'Svg', 'WebKit', 'Xml', 'XmlPatterns']
-LIBUSB_DIR       = 'C:\\libusb'
 LIBUNRAR         = 'C:\\Program Files\\UnrarDLL\\unrar.dll'
 SW               = r'C:\cygwin\home\kovid\sw'
 IMAGEMAGICK      = os.path.join(SW, 'build', 'ImageMagick-6.6.6',
         'VisualMagick', 'bin')
+CRT = r'C:\Microsoft.VC90.CRT'
 
 VERSION = re.sub('[a-z]\d+', '', __version__)
 WINVER = VERSION+'.0'
@@ -71,33 +71,66 @@ class Win32Freeze(Command, WixMixIn):
         self.rc_template = self.j(self.d(self.a(__file__)), 'template.rc')
         self.py_ver = ''.join(map(str, sys.version_info[:2]))
         self.lib_dir = self.j(self.base, 'Lib')
-        self.pydlib = self.j(self.base, 'pydlib')
         self.pylib = self.j(self.base, 'pylib.zip')
+        self.dll_dir = self.j(self.base, 'DLLs')
+        self.plugins_dir = os.path.join(self.base, 'plugins2')
 
         self.initbase()
         self.build_launchers()
+        self.add_plugins()
         self.freeze()
         self.embed_manifests()
         self.install_site_py()
         self.archive_lib_dir()
+        self.remove_CRT_from_manifests()
         self.create_installer()
+
+    def remove_CRT_from_manifests(self):
+        '''
+        The dependency on the CRT is removed from the manifests of all DLLs.
+        This allows the CRT loaded by the .exe files to be used instead.
+        '''
+        search_pat = re.compile(r'(?is)<dependency>.*Microsoft\.VC\d+\.CRT')
+        repl_pat = re.compile(
+            r'(?is)<dependency>.*?Microsoft\.VC\d+\.CRT.*?</dependency>')
+
+        for dll in glob.glob(self.j(self.dll_dir, '*.dll')):
+            bn = self.b(dll)
+            with open(dll, 'rb') as f:
+                raw = f.read()
+            match = search_pat.search(raw)
+            if match is None:
+                continue
+            self.info('Removing CRT dependency from manifest of: %s'%bn)
+            # Blank out the bytes corresponding to the dependency specification
+            nraw = repl_pat.sub(lambda m: b' '*len(m.group()), raw)
+            if len(nraw) != len(raw):
+                raise Exception('Something went wrong with %s'%bn)
+            with open(dll, 'wb') as f:
+                f.write(nraw)
 
     def initbase(self):
         if self.e(self.base):
             shutil.rmtree(self.base)
         os.makedirs(self.base)
 
+    def add_plugins(self):
+        self.info('Adding plugins...')
+        tgt = self.plugins_dir
+        if os.path.exists(tgt):
+            shutil.rmtree(tgt)
+        os.mkdir(tgt)
+        base = self.j(self.SRC, 'calibre', 'plugins')
+        for f in glob.glob(self.j(base, '*.pyd')):
+            # We dont want the manifests as the manifest in the exe will be
+            # used instead
+            shutil.copy2(f, tgt)
+
     def freeze(self):
         shutil.copy2(self.j(self.src_root, 'LICENSE'), self.base)
 
-        self.info('Adding plugins...')
-        tgt = os.path.join(self.base, 'plugins')
-        if not os.path.exists(tgt):
-            os.mkdir(tgt)
-        base = self.j(self.SRC, 'calibre', 'plugins')
-        for pat in ('*.pyd', '*.manifest'):
-            for f in glob.glob(self.j(base, pat)):
-                shutil.copy2(f, tgt)
+        self.info('Adding CRT')
+        shutil.copytree(CRT, self.j(self.base, os.path.basename(CRT)))
 
         self.info('Adding resources...')
         tgt = self.j(self.base, 'resources')
@@ -106,7 +139,6 @@ class Win32Freeze(Command, WixMixIn):
         shutil.copytree(self.j(self.src_root, 'resources'), tgt)
 
         self.info('Adding Qt and python...')
-        self.dll_dir = self.j(self.base, 'DLLs')
         shutil.copytree(r'C:\Python%s\DLLs'%self.py_ver, self.dll_dir,
                 ignore=shutil.ignore_patterns('msvc*.dll', 'Microsoft.*'))
         for x in glob.glob(self.j(OPENSSL_DIR, 'bin', '*.dll')):
@@ -194,14 +226,13 @@ class Win32Freeze(Command, WixMixIn):
             if os.path.exists(tg):
                 shutil.rmtree(tg)
             shutil.copytree(imfd, tg)
+        for dirpath, dirnames, filenames in os.walk(tdir):
+            for x in filenames:
+                if not x.endswith('.dll'):
+                    os.remove(self.j(dirpath, x))
 
         print
         print 'Adding third party dependencies'
-        tdir = os.path.join(self.base, 'driver')
-        os.makedirs(tdir)
-        for pat in ('*.dll', '*.sys', '*.cat', '*.inf'):
-            for f in glob.glob(os.path.join(LIBUSB_DIR, pat)):
-                shutil.copyfile(f, os.path.join(tdir, os.path.basename(f)))
         print '\tAdding unrar'
         shutil.copyfile(LIBUNRAR,
                 os.path.join(self.dll_dir, os.path.basename(LIBUNRAR)))
@@ -318,8 +349,8 @@ class Win32Freeze(Command, WixMixIn):
         if not os.path.exists(self.obj_dir):
             os.makedirs(self.obj_dir)
         base = self.j(self.src_root, 'setup', 'installer', 'windows')
-        sources = [self.j(base, x) for x in ['util.c']]
-        headers = [self.j(base, x) for x in ['util.h']]
+        sources = [self.j(base, x) for x in ['util.c', 'MemoryModule.c']]
+        headers = [self.j(base, x) for x in ['util.h', 'MemoryModule.h']]
         objects = [self.j(self.obj_dir, self.b(x)+'.obj') for x in sources]
         cflags  = '/c /EHsc /MD /W3 /Ox /nologo /D_UNICODE'.split()
         cflags += ['/DPYDLL="python%s.dll"'%self.py_ver, '/IC:/Python%s/include'%self.py_ver]
@@ -371,43 +402,49 @@ class Win32Freeze(Command, WixMixIn):
 
     def archive_lib_dir(self):
         self.info('Putting all python code into a zip file for performance')
-        if os.path.exists(self.pydlib):
-            shutil.rmtree(self.pydlib)
-        os.makedirs(self.pydlib)
         self.zf_timestamp = time.localtime(time.time())[:6]
         self.zf_names = set()
         with zipfile.ZipFile(self.pylib, 'w', zipfile.ZIP_STORED) as zf:
+            # Add the .pyds from python and calibre to the zip file
+            for x in (self.plugins_dir, self.dll_dir):
+                for pyd in os.listdir(x):
+                    if pyd.endswith('.pyd') and pyd != 'sqlite_custom.pyd':
+                        # sqlite_custom has to be a file for
+                        # sqlite_load_extension to work
+                        self.add_to_zipfile(zf, pyd, x)
+                        os.remove(self.j(x, pyd))
+
+            # Add everything in Lib except site-packages to the zip file
             for x in os.listdir(self.lib_dir):
                 if x == 'site-packages':
                     continue
                 self.add_to_zipfile(zf, x, self.lib_dir)
 
             sp = self.j(self.lib_dir, 'site-packages')
-            handled = set(['site.pyo'])
-            for pth in ('PIL.pth', 'pywin32.pth'):
-                handled.add(pth)
-                shutil.copyfile(self.j(sp, pth), self.j(self.pydlib, pth))
-                for d in self.get_pth_dirs(self.j(sp, pth)):
-                    shutil.copytree(d, self.j(self.pydlib, self.b(d)), True)
-                    handled.add(self.b(d))
+            # Special handling for PIL and pywin32
+            handled = set(['PIL.pth', 'pywin32.pth', 'PIL', 'win32'])
+            self.add_to_zipfile(zf, 'PIL', sp)
+            base = self.j(sp, 'win32', 'lib')
+            for x in os.listdir(base):
+                if os.path.splitext(x)[1] not in ('.exe',):
+                    self.add_to_zipfile(zf, x, base)
+            base = self.d(base)
+            for x in os.listdir(base):
+                if not os.path.isdir(self.j(base, x)):
+                    if os.path.splitext(x)[1] not in ('.exe',):
+                        self.add_to_zipfile(zf, x, base)
 
             handled.add('easy-install.pth')
             for d in self.get_pth_dirs(self.j(sp, 'easy-install.pth')):
                 handled.add(self.b(d))
-                zip_safe = self.is_zip_safe(d)
                 for x in os.listdir(d):
                     if x == 'EGG-INFO':
                         continue
-                    if zip_safe:
-                        self.add_to_zipfile(zf, x, d)
-                    else:
-                        absp = self.j(d, x)
-                        dest = self.j(self.pydlib, x)
-                        if os.path.isdir(absp):
-                            shutil.copytree(absp, dest, True)
-                        else:
-                            shutil.copy2(absp, dest)
+                    self.add_to_zipfile(zf, x, d)
 
+            # The rest of site-packages
+            # We dont want the site.py from site-packages
+            handled.add('site.pyo')
             for x in os.listdir(sp):
                 if x in handled or x.endswith('.egg-info'):
                     continue
@@ -415,32 +452,17 @@ class Win32Freeze(Command, WixMixIn):
                 if os.path.isdir(absp):
                     if not os.listdir(absp):
                         continue
-                    if self.is_zip_safe(absp):
-                        self.add_to_zipfile(zf, x, sp)
-                    else:
-                        shutil.copytree(absp, self.j(self.pydlib, x), True)
+                    self.add_to_zipfile(zf, x, sp)
                 else:
-                    if x.endswith('.pyd'):
-                        shutil.copy2(absp, self.j(self.pydlib, x))
-                    else:
-                        self.add_to_zipfile(zf, x, sp)
+                    self.add_to_zipfile(zf, x, sp)
 
         shutil.rmtree(self.lib_dir)
-
-    def is_zip_safe(self, path):
-        for f in walk(path):
-            ext = os.path.splitext(f)[1].lower()
-            if ext in ('.pyd', '.dll', '.exe'):
-                return False
-        return True
 
     def get_pth_dirs(self, pth):
         base = os.path.dirname(pth)
         for line in open(pth).readlines():
             line = line.strip()
             if not line or line.startswith('#') or line.startswith('import'):
-                continue
-            if line == 'win32\\lib':
                 continue
             candidate = self.j(base, line)
             if os.path.exists(candidate):
@@ -463,10 +485,10 @@ class Win32Freeze(Command, WixMixIn):
                     self.add_to_zipfile(zf, name + os.sep + x, base)
         else:
             ext = os.path.splitext(name)[1].lower()
-            if ext in ('.pyd', '.dll', '.exe'):
+            if ext in ('.dll',):
                 raise ValueError('Cannot add %r to zipfile'%abspath)
             zinfo.external_attr = 0600 << 16
-            if ext in ('.py', '.pyc', '.pyo'):
+            if ext in ('.py', '.pyc', '.pyo', '.pyd'):
                 with open(abspath, 'rb') as f:
                     zf.writestr(zinfo, f.read())
 
