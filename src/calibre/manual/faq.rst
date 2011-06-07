@@ -579,7 +579,7 @@ How is |app| licensed?
 How do I run calibre from my USB stick?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-A portable version of calibre is available at: `portableapps.com <http://portableapps.com/node/20518>`_. However, this is usually out of date. You can also setup your own portable calibre install by following :ref:`these instructions <portablecalibre>`.
+A portable version of calibre is available `here <http://calibre-ebook.com/download_portable>`_.
 
 How do I run parts of |app| like news download and the content server on my own linux server?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
