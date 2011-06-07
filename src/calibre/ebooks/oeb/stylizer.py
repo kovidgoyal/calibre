@@ -13,7 +13,13 @@ from weakref import WeakKeyDictionary
 from xml.dom import SyntaxErr as CSSSyntaxError
 import cssutils
 from cssutils.css import (CSSStyleRule, CSSPageRule, CSSStyleDeclaration,
-    CSSValueList, CSSFontFaceRule, cssproperties)
+    CSSFontFaceRule, cssproperties)
+try:
+    from cssutils.css import CSSValueList
+    CSSValueList
+except ImportError:
+    # cssutils >= 0.9.8
+    from cssutils.css import PropertyValue as CSSValueList
 from cssutils import profile as cssprofiles
 from lxml import etree
 from lxml.cssselect import css_to_xpath, ExpressionError, SelectorSyntaxError

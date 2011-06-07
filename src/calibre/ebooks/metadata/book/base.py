@@ -621,10 +621,7 @@ class Metadata(object):
             orig_res = res
             datatype = cmeta['datatype']
             if datatype == 'text' and cmeta['is_multiple']:
-                if cmeta['display'].get('is_names', False):
-                    res = u' & '.join(res)
-                else:
-                    res = u', '.join(sorted(res, key=sort_key))
+                res = cmeta['is_multiple']['list_to_ui'].join(res)
             elif datatype == 'series' and series_with_index:
                 if self.get_extra(key) is not None:
                     res = res + \
@@ -668,7 +665,7 @@ class Metadata(object):
             elif datatype == 'text' and fmeta['is_multiple']:
                 if isinstance(res, dict):
                     res = [k + ':' + v for k,v in res.items()]
-                res = u', '.join(sorted(res, key=sort_key))
+                res = fmeta['is_multiple']['list_to_ui'].join(sorted(res, key=sort_key))
             elif datatype == 'series' and series_with_index:
                 res = res + ' [%s]'%self.format_series_index()
             elif datatype == 'datetime':

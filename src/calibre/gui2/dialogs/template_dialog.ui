@@ -125,6 +125,20 @@
      <item row="9" column="1">
       <widget class="QPlainTextEdit" name="source_code"/>
      </item>
+     <item row="10" column="1">
+      <widget class="QLabel" name="template_tutorial">
+       <property name="openExternalLinks">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="11" column="1">
+      <widget class="QLabel" name="template_func_reference">
+       <property name="openExternalLinks">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
   </layout>
