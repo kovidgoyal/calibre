@@ -379,7 +379,7 @@ class Win32Freeze(Command, WixMixIn):
 
         name = '%s-portable-%s.zip'%(__appname__, __version__)
         with zipfile.ZipFile(self.j('dist', name), 'w', zipfile.ZIP_DEFLATED) as zf:
-            self.add_dir_to_zip(zf, base)
+            self.add_dir_to_zip(zf, base, 'Calibre Portable')
 
     def add_dir_to_zip(self, zf, path, prefix=''):
         '''
@@ -387,7 +387,7 @@ class Win32Freeze(Command, WixMixIn):
         '''
         if prefix:
             zi = zipfile.ZipInfo(prefix+'/')
-            zi.external_attr = 0700 << 16
+            zi.external_attr = 16
             zf.writestr(zi, '')
         cwd = os.path.abspath(os.getcwd())
         try:
