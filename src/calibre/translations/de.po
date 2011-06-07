@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-06-03 18:21+0000\n"
-"PO-Revision-Date: 2011-06-05 19:28+0000\n"
+"PO-Revision-Date: 2011-06-06 13:20+0000\n"
 "Last-Translator: olaf hohenschon <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-06-06 04:35+0000\n"
+"X-Launchpad-Export-Date: 2011-06-07 04:33+0000\n"
 "X-Generator: Launchpad (build 12959)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -9471,7 +9471,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:196
 msgid "%s news sources"
-msgstr ""
+msgstr "%s Nachrichten Quellen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:310
 msgid "Need username and password"
@@ -9539,7 +9539,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:207
 msgid "Go"
-msgstr ""
+msgstr "Los"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:208
 msgid "blurb"
@@ -10067,7 +10067,7 @@ msgstr "Strg+S"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:265
 msgid "EXCEPTION: "
-msgstr ""
+msgstr "Ausnahme: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:293
 msgid "No column chosen"
@@ -10092,7 +10092,7 @@ msgstr "Spaltenfarbe setzen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:90
 msgid "Template value:"
-msgstr ""
+msgstr "Vorlage Wert:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:91
 msgid ""
@@ -10183,7 +10183,7 @@ msgstr "ePub neu &packen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:68
 msgid "&Preview ePub"
-msgstr ""
+msgstr "& vorschau ePub"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:141
 msgid "No recipe selected"
@@ -11139,6 +11139,8 @@ msgid ""
 "You have changed the authors for this book. You must save these changes "
 "before you can use Manage authors. Do you want to save these changes?"
 msgstr ""
+"Sie haben den Autor für dieses Buch geändert. Sie müssen die änderungen "
+"speichern bevor sie den Autoren-Manager nutzen. Änderungen speichern?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:274
 msgid ""
@@ -11175,7 +11177,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:433
 msgid "&Number:"
-msgstr ""
+msgstr "&Nummer:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:514
 msgid ""
@@ -11876,7 +11878,7 @@ msgstr "Ist gleich"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:44
 msgid "is less than"
-msgstr ""
+msgstr "ist weniger als"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:45
 msgid "is greater than"
@@ -11914,7 +11916,7 @@ msgstr "ist"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:57
 msgid "is not"
-msgstr ""
+msgstr "ist nicht"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:58
 msgid "matches pattern"
@@ -11934,7 +11936,7 @@ msgstr " Spalte "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:83
 msgid " value "
-msgstr ""
+msgstr " wert "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:193
 msgid ""
@@ -11944,11 +11946,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:196
 msgid "Enter a number"
-msgstr ""
+msgstr "Gib eine Zahl ein"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:201
 msgid "Enter a date in the format YYYY-MM-DD"
-msgstr ""
+msgstr "Geben Sie ein Datum im Format YYYY-MM-DD ein"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:203
 msgid "Enter a string."
@@ -11976,11 +11978,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:249
 msgid "Only if the following conditions are all satisfied:"
-msgstr ""
+msgstr "Nur wenn die folgenden Bedingungen alle erfüllt sind:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:259
 msgid "Add another condition"
-msgstr ""
+msgstr "Andere Bedingungen hinzufügen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:263
 msgid "You can disable a condition by blanking all of its boxes"
@@ -12002,6 +12004,7 @@ msgstr "kein zustand"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:342
 msgid "You must specify at least one non-empty condition for this rule"
 msgstr ""
+"Sie müssen der Regel mindestens eine Bedingung hinzufügen die nicht leer ist"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:430
 msgid ""
@@ -13003,7 +13006,7 @@ msgstr "Aktuell angeschlossenes Gerät: Keines"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:187
 msgid "That format and device already has a plugboard."
-msgstr ""
+msgstr "Format und Gerät haben schon eine Metadaten-Schalttafel"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:199
 msgid "Possibly override plugboard?"
@@ -13014,6 +13017,8 @@ msgid ""
 "A more general plugboard already exists for that format and device. Are you "
 "sure you want to add the new plugboard?"
 msgstr ""
+"Es gibt schon eine allgemeinere Schalttafel für dieses Format und Gerät. Sie "
+"sind sicher, dass Sie die neue Schalttafel hinzufügen wollen?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:212
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:234
@@ -13025,16 +13030,20 @@ msgid ""
 "More specific device plugboards exist for that format. Are you sure you want "
 "to add the new plugboard?"
 msgstr ""
+"Es gibt schon eine speziellere Schalttafel für dieses Format und Gerät. Sie "
+"sind sicher, dass Sie die neue Schalttafel hinzufügen wollen?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:224
 msgid "Really add plugboard?"
-msgstr ""
+msgstr "Schalttafel wirklich hinzufügen?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:225
 msgid ""
 "A different plugboard matches that format and device combination. Are you "
 "sure you want to add the new plugboard?"
 msgstr ""
+"Es gibt eine andere Schalttafel für diese Format/Geräte kombination. Sind "
+"Sie sicher das sie die neue Schalttafel hinzufügen wollen?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:235
 msgid ""
@@ -13166,12 +13175,17 @@ msgid ""
 "virus/malware. Only install it if you got it from a trusted source. Are you "
 "sure you want to proceed?"
 msgstr ""
+"Installieren von  plugins ist ein <b>Sicherheitsrisiko</b>. Plugins können "
+"Virus/Malware enthalten. Installieren Sie nur wenn Sie die Plug-ins aus "
+"einer sicheren Quelle haben. Sind Sie sicher das sie fortfahren möchten?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:296
 msgid ""
 "Plugin <b>{0}</b> successfully installed under <b> {1} plugins</b>. You may "
 "have to restart calibre for the plugin to take effect."
 msgstr ""
+"Plugin <b>{0}</b> erfolgreich installiert unter <b> {1} plugins</b>. Sie "
+"müssen Calibre neu starten damit das Plug-in arbeitet."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:304
 msgid "No valid plugin path"
@@ -13764,7 +13778,7 @@ msgstr "&Ersetzen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:104
 msgid "C&reate"
-msgstr ""
+msgstr "E&rstellen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:105
 msgid "&Program Code: (be sure to follow python indenting rules)"
@@ -14157,11 +14171,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:21
 msgid "Enabled"
-msgstr ""
+msgstr "Aktiviert"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:21
 msgid "Headquarters"
-msgstr ""
+msgstr "Hauptquartier"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:21
 msgid "No DRM"
@@ -14245,7 +14259,7 @@ msgstr "Suchergebnisse anzeigen in System-Browser"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search/search_widget_ui.py:105
 msgid "Threads"
-msgstr ""
+msgstr "Themen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search/search_widget_ui.py:106
 msgid "Number of search threads to use"

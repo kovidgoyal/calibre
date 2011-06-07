@@ -9,13 +9,13 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-06-03 18:21+0000\n"
-"PO-Revision-Date: 2011-05-04 18:06+0000\n"
-"Last-Translator: simone.sandri <lexluxsox@hotmail.it>\n"
+"PO-Revision-Date: 2011-06-06 16:57+0000\n"
+"Last-Translator: Paolo Furlani <Unknown>\n"
 "Language-Team: italiano\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-06-04 04:41+0000\n"
+"X-Launchpad-Export-Date: 2011-06-07 04:33+0000\n"
 "X-Generator: Launchpad (build 12959)\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -239,7 +239,7 @@ msgstr "Negozio"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:613
 msgid "An ebook store."
-msgstr ""
+msgstr "Un negozio di ebook"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:18
 msgid ""
@@ -512,7 +512,7 @@ msgstr "Scarica i metadati"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1062
 msgid "Control how calibre downloads ebook metadata from the net"
-msgstr ""
+msgstr "Controlla come calibre scarica i meta dati degli ebook dalla rete"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1067
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:273
@@ -825,14 +825,23 @@ msgid ""
 "iTunes</em> menu item.</p><p>Enabling the Apple driver for direct connection "
 "to iDevices is an unsupported advanced user mode.</p><p></p>"
 msgstr ""
+"<p>Se non vuoi che calibre riconosca il tuo iDevice Apple quando viene "
+"connesso al computer, clicca <b>Disabilita Driver Apple</b>.</p><p>Per "
+"trasferire libri sul tuo iDevice, clicca <b>Disabilita Driver Apple </b>, "
+"poi usa il metodo 'Connetti ad iTunes' raccomandato nella <a "
+"href=\"http://www.mobileread.com/forums/showthread.php?t=118559\">FAQ "
+"Calibre + iDevices</a>, utilizzando la voce di menù "
+"<em>Connessione/Condivisione</em>|<em>Connetti ad "
+"iTunes</em>.</p><p>Abilitare il driver Apple per una connessione diretta "
+"agli iDevice è una modalità per utente avanzato non supportata.</p><p></p>"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:65
 msgid "Disable Apple driver"
-msgstr ""
+msgstr "Disabilita il driver Apple"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:69
 msgid "Enable Apple driver"
-msgstr ""
+msgstr "Abilita il driver Apple"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:117
 msgid "Use Series as Category in iTunes/iBooks"
@@ -849,6 +858,7 @@ msgstr "Conserva le copertine da iTunes/iBooks"
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:122
 msgid "Enable to cache and display covers from iTunes/iBooks"
 msgstr ""
+"Abilita la memorizzazione e visualizzazione di copertine da iTunes/iBooks"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:178
 msgid "Apple device"
@@ -1058,11 +1068,11 @@ msgstr "Kovid Goyal"
 
 #: /home/kovid/work/calibre/src/calibre/devices/boeye/driver.py:14
 msgid "Communicate with BOEYE BEX Serial eBook readers."
-msgstr ""
+msgstr "Comunica con gli eBook reader BOEYE BEX Serial."
 
 #: /home/kovid/work/calibre/src/calibre/devices/boeye/driver.py:35
 msgid "Communicate with BOEYE BDX serial eBook readers."
-msgstr ""
+msgstr "Comunica con gli eBook reader BOEYE BDX Serial"
 
 #: /home/kovid/work/calibre/src/calibre/devices/cybook/driver.py:22
 msgid "Communicate with the Cybook Gen 3 / Opus eBook reader."
@@ -1350,7 +1360,7 @@ msgstr "Comunica con il lettore Nook Color"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:111
 msgid "Nook Simple"
-msgstr ""
+msgstr "Nook Simple"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:112
 msgid "Communicate with the Nook TSR eBook reader."
@@ -1449,7 +1459,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:92
 msgid "Search for books in all folders"
-msgstr ""
+msgstr "Ricerca libri in tutte le cartelle"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:94
 msgid ""
@@ -1457,6 +1467,10 @@ msgid ""
 "device and its cards. This permits calibre to find books put on the device "
 "by other software and by wireless download."
 msgstr ""
+"Selezionando questa opzione calibre cercherà libri in tutte le cartelle sul "
+"dispositivo e sulle relative cards.\r\n"
+"Ciò consente a calibre di trovare i libri registrati sul dispositivo da "
+"altro software o scaricati da reti senza fili."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:190
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/structure.py:69
