@@ -99,8 +99,7 @@ class BooksModel(QAbstractTableModel): # {{{
         self.ids_to_highlight_set = set()
         self.current_highlighted_idx = None
         self.highlight_only = False
-        self.column_color_list = []
-        self.colors = [unicode(c) for c in QColor.colorNames()]
+        self.colors = frozenset([unicode(c) for c in QColor.colorNames()])
         self.read_config()
 
     def change_alignment(self, colname, alignment):
@@ -156,7 +155,6 @@ class BooksModel(QAbstractTableModel): # {{{
                 self.headers[col] = self.custom_columns[col]['name']
 
         self.build_data_convertors()
-        self.set_color_templates(reset=False)
         self.reset()
         self.database_changed.emit(db)
         self.stop_metadata_backup()
@@ -545,16 +543,6 @@ class BooksModel(QAbstractTableModel): # {{{
             img = self.default_image
         return img
 
-    def set_color_templates(self, reset=True):
-        self.column_color_list = []
-        for i in range(1,self.db.column_color_count+1):
-            name = self.db.prefs.get('column_color_name_'+str(i))
-            if name:
-                self.column_color_list.append((name,
-                        self.db.prefs.get('column_color_template_'+str(i))))
-        if reset:
-            self.reset()
-
     def build_data_convertors(self):
         def authors(r, idx=-1):
             au = self.db.data[r][idx]
@@ -620,10 +608,11 @@ class BooksModel(QAbstractTableModel): # {{{
 
         def text_type(r, mult=None, idx=-1):
             text = self.db.data[r][idx]
-            if text and mult is not None:
-                if mult:
-                    return QVariant(u' & '.join(text.split('|')))
-                return QVariant(u', '.join(sorted(text.split('|'),key=sort_key)))
+            if text and mult:
+                jv = mult['list_to_ui']
+                sv = mult['cache_to_list']
+                return QVariant(jv.join(
+                    sorted([t.strip() for t in text.split(sv)], key=sort_key)))
             return QVariant(text)
 
         def decorated_text_type(r, idx=-1):
@@ -677,8 +666,6 @@ class BooksModel(QAbstractTableModel): # {{{
             datatype = self.custom_columns[col]['datatype']
             if datatype in ('text', 'comments', 'composite', 'enumeration'):
                 mult=self.custom_columns[col]['is_multiple']
-                if mult is not None:
-                    mult = self.custom_columns[col]['display'].get('is_names', False)
                 self.dc[col] = functools.partial(text_type, idx=idx, mult=mult)
                 if datatype in ['text', 'composite', 'enumeration'] and not mult:
                     if self.custom_columns[col]['display'].get('use_decorations', False):
@@ -726,15 +713,17 @@ class BooksModel(QAbstractTableModel): # {{{
                 return QVariant(QColor('lightgreen'))
         elif role == Qt.ForegroundRole:
             key = self.column_map[col]
-            for k,fmt in self.column_color_list:
+            mi = None
+            for k, fmt in self.db.prefs['column_color_rules']:
                 if k != key:
                     continue
                 id_ = self.id(index)
                 if id_ in self.color_cache:
                     if key in self.color_cache[id_]:
                         return self.color_cache[id_][key]
-                mi = self.db.get_metadata(self.id(index), index_is_id=True)
                 try:
+                    if mi is None:
+                        mi = self.db.get_metadata(id_, index_is_id=True)
                     color = composite_formatter.safe_format(fmt, mi, '', mi)
                     if color in self.colors:
                         color = QColor(color)
@@ -743,7 +732,7 @@ class BooksModel(QAbstractTableModel): # {{{
                             self.color_cache[id_][key] = color
                             return color
                 except:
-                    return NONE
+                    continue
             if self.is_custom_column(key) and \
                         self.custom_columns[key]['datatype'] == 'enumeration':
                 cc = self.custom_columns[self.column_map[col]]['display']

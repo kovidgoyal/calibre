@@ -4,6 +4,7 @@ src/calibre/plugins
 resources/images.qrc
 src/calibre/manual/.build/
 src/calibre/manual/cli/
+src/calibre/manual/template_ref.rst
 build
 dist
 docs
@@ -13,6 +14,7 @@ resources/scripts.pickle
 resources/ebook-convert-complete.pickle
 resources/builtin_recipes.xml
 resources/builtin_recipes.zip
+resources/template-functions.json
 setup/installer/windows/calibre/build.log
 src/calibre/translations/.errors
 src/cssutils/.svn/

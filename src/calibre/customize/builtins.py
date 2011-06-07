@@ -586,10 +586,10 @@ from calibre.devices.apple.driver import ITUNES
 from calibre.devices.hanlin.driver import HANLINV3, HANLINV5, BOOX, SPECTRA
 from calibre.devices.blackberry.driver import BLACKBERRY
 from calibre.devices.cybook.driver import CYBOOK, ORIZON
-from calibre.devices.eb600.driver import EB600, COOL_ER, SHINEBOOK, \
-                POCKETBOOK360, GER2, ITALICA, ECLICTO, DBOOK, INVESBOOK, \
-                BOOQ, ELONEX, POCKETBOOK301, MENTOR, POCKETBOOK602, \
-                POCKETBOOK701
+from calibre.devices.eb600.driver import (EB600, COOL_ER, SHINEBOOK,
+                POCKETBOOK360, GER2, ITALICA, ECLICTO, DBOOK, INVESBOOK,
+                BOOQ, ELONEX, POCKETBOOK301, MENTOR, POCKETBOOK602,
+                POCKETBOOK701, POCKETBOOK360P)
 from calibre.devices.iliad.driver import ILIAD
 from calibre.devices.irexdr.driver import IREXDR1000, IREXDR800
 from calibre.devices.jetbook.driver import JETBOOK, MIBUK, JETBOOK_MINI
@@ -608,9 +608,9 @@ from calibre.devices.edge.driver import EDGE
 from calibre.devices.teclast.driver import TECLAST_K3, NEWSMY, IPAPYRUS, \
         SOVOS, PICO, SUNSTECH_EB700, ARCHOS7O, STASH, WEXLER
 from calibre.devices.sne.driver import SNE
-from calibre.devices.misc import PALMPRE, AVANT, SWEEX, PDNOVEL, \
-        GEMEI, VELOCITYMICRO, PDNOVEL_KOBO, LUMIREAD, ALURATEK_COLOR, \
-        TREKSTOR, EEEREADER, NEXTBOOK
+from calibre.devices.misc import (PALMPRE, AVANT, SWEEX, PDNOVEL,
+        GEMEI, VELOCITYMICRO, PDNOVEL_KOBO, LUMIREAD, ALURATEK_COLOR,
+        TREKSTOR, EEEREADER, NEXTBOOK, ADAM)
 from calibre.devices.folder_device.driver import FOLDER_DEVICE_FOR_CONFIG
 from calibre.devices.kobo.driver import KOBO
 from calibre.devices.bambook.driver import BAMBOOK
@@ -689,7 +689,7 @@ plugins += [
     JETBOOK_MINI,
     MIBUK,
     SHINEBOOK,
-    POCKETBOOK360, POCKETBOOK301, POCKETBOOK602, POCKETBOOK701,
+    POCKETBOOK360, POCKETBOOK301, POCKETBOOK602, POCKETBOOK701, POCKETBOOK360P,
     KINDLE,
     KINDLE2,
     KINDLE_DX,
@@ -744,6 +744,7 @@ plugins += [
     TREKSTOR,
     EEEREADER,
     NEXTBOOK,
+    ADAM,
     ITUNES,
     BOEYE_BEX,
     BOEYE_BDX,
@@ -1227,6 +1228,15 @@ class StoreEHarlequinStore(StoreBase):
     formats = ['EPUB', 'PDF']
     affiliate = True
 
+class StoreEpubBudStore(StoreBase):
+    name = 'ePub Bud'
+    description = 'Well, it\'s pretty much just "YouTube for Children\'s eBooks. A not-for-profit organization devoted to brining self published childrens books to the world.'
+    actual_plugin = 'calibre.gui2.store.epubbud_plugin:EpubBudStore'
+
+    drm_free_only = True
+    headquarters = 'US'
+    formats = ['EPUB']
+
 class StoreFeedbooksStore(StoreBase):
     name = 'Feedbooks'
     description = u'Feedbooks is a cloud publishing and distribution service, connected to a large ecosystem of reading systems and social networks. Provides a variety of genres from independent and classic books.'
@@ -1408,6 +1418,15 @@ class StoreWoblinkStore(StoreBase):
     headquarters = 'PL'
     formats = ['EPUB']
 
+class StoreZixoStore(StoreBase):
+    name = 'Zixo'
+    author = u'Tomasz Długosz'
+    description = u'Księgarnia z ebookami oraz książkami audio. Aby otwierać książki w formacie Zixo należy zainstalować program dostępny na stronie księgarni. Umożliwia on m.in. dodawanie zakładek i dostosowywanie rozmiaru czcionki.'
+    actual_plugin = 'calibre.gui2.store.zixo_plugin:ZixoStore'
+
+    headquarters = 'PL'
+    formats = ['PDF, ZIXO']
+
 plugins += [
     StoreArchiveOrgStore,
     StoreAmazonKindleStore,
@@ -1422,6 +1441,7 @@ plugins += [
     StoreEBookShoppeUKStore,
     StoreEPubBuyDEStore,
     StoreEHarlequinStore,
+    StoreEpubBudStore,
     StoreFeedbooksStore,
     StoreFoylesUKStore,
     StoreGandalfStore,
@@ -1441,7 +1461,8 @@ plugins += [
     StoreWeightlessBooksStore,
     StoreWHSmithUKStore,
     StoreWizardsTowerBooksStore,
-    StoreWoblinkStore
+    StoreWoblinkStore,
+    StoreZixoStore
 ]
 
 # }}}

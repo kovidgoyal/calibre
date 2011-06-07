@@ -11,6 +11,7 @@ You can "install" calibre onto a USB stick that you can take with you and use on
     * Run a Mobile Calibre installation with both the Calibre binaries and your ebook library resident on a USB disk or other portable media. In particular it is not necessary to have Calibre installed on the Windows PC that is to run Calibre. This batch file also does not care what drive letter is assigned when you plug in the USB device. It also will not affect any settings on the host machine being a completely self-contained Calibre installation.
     * Run a networked Calibre installation optimised for performance when the ebook files are located on a networked share.
 
+If you find setting up the bat file too challenging, there is a third party portable calibre build available at `portableapps.com <http://portableapps.com>`_.
 
 This calibre-portable.bat file is intended for use on Windows based systems, but the principles are easily adapted for use on Linux or OS X based systems. Note that calibre requires the Microsoft Visual C++ 2008 runtimes to run. Most windows computers have them installed already, but it may be a good idea to have the installer for installing them on your USB stick. The installer is available from `Microsoft <http://www.microsoft.com/downloads/details.aspx?FamilyID=9b2da534-3e03-4391-8a4d-074b9f2bc1bf&displaylang=en>`_.
 

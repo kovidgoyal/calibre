@@ -53,6 +53,8 @@ Run an embedded python interpreter.
             default=False, action='store_true')
     parser.add_option('-m', '--inspect-mobi',
             help='Inspect the MOBI file at the specified path', default=None)
+    parser.add_option('--test-build', help='Test binary modules in build',
+            action='store_true', default=False)
 
     return parser
 
@@ -232,6 +234,9 @@ def main(args=sys.argv):
     elif opts.inspect_mobi is not None:
         from calibre.ebooks.mobi.debug import inspect_mobi
         inspect_mobi(opts.inspect_mobi)
+    elif opts.test_build:
+        from calibre.test_build import test
+        test()
     else:
         from calibre import ipython
         ipython()

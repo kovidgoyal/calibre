@@ -44,7 +44,7 @@ class NextoStore(BasicStoreConfig, StorePlugin):
             d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
-        url = 'http://www.nexto.pl/szukaj.xml?search-clause=' + urllib.quote_plus(query.encode('utf-8')) + '&scid=1015'
+        url = 'http://www.nexto.pl/szukaj.xml?search-clause=' + urllib.quote_plus(query) + '&scid=1015'
 
         br = browser()
 
@@ -71,7 +71,7 @@ class NextoStore(BasicStoreConfig, StorePlugin):
                 author = ''
                 with closing(br.open('http://www.nexto.pl/' + id.strip(), timeout=timeout/4)) as nf:
                     idata = html.fromstring(nf.read())
-                    author = ''.join(idata.xpath('//div[@class="basic_data"]/p[1]/b/a/text()'))
+                    author = ', '.join(idata.xpath('//div[@class="basic_data"]/p[1]/b/a/text()'))
 
                 counter -= 1
 

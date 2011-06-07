@@ -2392,6 +2392,16 @@ class ITUNES(DriverBase):
                 self.iTunes.Windows[0].Minimized = True
             self.initial_status = 'launched'
 
+            try:
+                # Pre-emptive test to confirm functional iTunes automation interface
+                foo = self.iTunes.Version
+                foo
+            except:
+                self.iTunes = None
+                raise OpenFeedback('Unable to connect to iTunes.\n' +
+                             ' iTunes automation interface non-responsive, ' +
+                             'recommend reinstalling iTunes')
+
             # Read the current storage path for iTunes media from the XML file
             media_dir = ''
             string = None
@@ -2743,7 +2753,6 @@ class ITUNES(DriverBase):
         # Update metadata from plugboard
         # If self.plugboard is None (no transforms), original metadata is returned intact
         metadata_x = self._xform_metadata_via_plugboard(metadata, this_book.format)
-        self.log("metadata.title_sort: %s  metadata_x.title_sort: %s" % (metadata.title_sort, metadata_x.title_sort))
         if isosx:
             if lb_added:
                 lb_added.name.set(metadata_x.title)
@@ -2989,7 +2998,6 @@ class ITUNES(DriverBase):
             newmi = book
         return newmi
 
-
 class ITUNES_ASYNC(ITUNES):
     '''
     This subclass allows the user to interact directly with iTunes via a menu option
@@ -3024,6 +3032,8 @@ class ITUNES_ASYNC(ITUNES):
                 pythoncom.CoInitialize()
                 self._launch_iTunes()
             except:
+                import traceback
+                traceback.print_exc()
                 raise UserFeedback('unable to launch iTunes', details=None, level=UserFeedback.WARN)
             finally:
                 pythoncom.CoUninitialize()

@@ -82,6 +82,8 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.restore_state()
 
     def setup_store_checks(self):
+        first_run = self.config.get('first_run', True)
+        
         # Add check boxes for each store so the user
         # can disable searching specific stores on a
         # per search basis.
@@ -98,7 +100,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         icon = QIcon(I('donate.png'))
         for i, x in enumerate(sorted(self.gui.istores.keys(), key=lambda x: x.lower())):
             cbox = QCheckBox(x)
-            cbox.setChecked(existing.get(x, False))
+            cbox.setChecked(existing.get(x, first_run))
             store_list_layout.addWidget(cbox, i, 0, 1, 1)
             if self.gui.istores[x].base_plugin.affiliate:
                 iw = QLabel(self)
@@ -108,6 +110,8 @@ class SearchDialog(QDialog, Ui_Dialog):
             self.store_checks[x] = cbox
         store_list_layout.setRowStretch(store_list_layout.rowCount(), 10)
         self.store_list.setWidget(stores_check_widget)
+        
+        self.config['first_run'] = False
 
     def build_adv_search(self):
         adv = AdvSearchBuilderDialog(self)
@@ -186,7 +190,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         # Remove excess whitespace.
         query = re.sub(r'\s{2,}', ' ', query)
         query = query.strip()
-        return query
+        return query.encode('utf-8')
 
     def save_state(self):
         self.config['geometry'] = bytearray(self.saveGeometry())
@@ -281,11 +285,11 @@ class SearchDialog(QDialog, Ui_Dialog):
         tab_widget.setCurrentIndex(tab_index)
 
         d.exec_()
-        
+
         # Save dialog state.
         self.config['config_dialog_geometry'] = bytearray(d.saveGeometry())
         self.config['config_dialog_tab_index'] = tab_widget.currentIndex()
-        
+
         search_config_widget.save_settings()
         self.config_changed()
         self.gui.load_store_plugins()

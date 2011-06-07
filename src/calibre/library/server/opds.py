@@ -180,9 +180,12 @@ def ACQUISITION_ENTRY(item, version, db, updated, CFM, CKEYS, prefix):
         if val:
             datatype = CFM[key]['datatype']
             if datatype == 'text' and CFM[key]['is_multiple']:
-                extra.append('%s: %s<br />'%(xml(name), xml(format_tag_string(val, ',',
-                                                           ignore_max=True,
-                                                           no_tag_count=True))))
+                extra.append('%s: %s<br />'%
+                             (xml(name),
+                              xml(format_tag_string(val,
+                                    CFM[key]['is_multiple']['ui_to_list'],
+                                    ignore_max=True, no_tag_count=True,
+                                    joinval=CFM[key]['is_multiple']['list_to_ui']))))
             elif datatype == 'comments':
                 extra.append('%s: %s<br />'%(xml(name), comments_to_html(unicode(val))))
             else:
