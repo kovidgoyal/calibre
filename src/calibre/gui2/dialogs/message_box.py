@@ -206,6 +206,47 @@ class ProceedNotification(MessageBox): # {{{
             _proceed_memory.remove(self)
 # }}}
 
+
+class ErrorNotification(MessageBox): # {{{
+
+    def __init__(self, html_log, log_viewer_title, title, msg,
+            det_msg='', show_copy_button=False, parent=None):
+        '''
+        A non modal popup that notifies the user that a background task has
+        errored.
+
+        :param html_log: An HTML or plain text log
+        :param log_viewer_title: The title for the log viewer window
+        :param title: The title for this popup
+        :param msg: The msg to display
+        :param det_msg: Detailed message
+        '''
+        MessageBox.__init__(self, MessageBox.ERROR, title, msg,
+                det_msg=det_msg, show_copy_button=show_copy_button,
+                parent=parent)
+        self.html_log = html_log
+        self.log_viewer_title = log_viewer_title
+        self.finished.connect(self.do_close, type=Qt.QueuedConnection)
+
+        self.vlb = self.bb.addButton(_('View log'), self.bb.ActionRole)
+        self.vlb.setIcon(QIcon(I('debug.png')))
+        self.vlb.clicked.connect(self.show_log)
+        self.det_msg_toggle.setVisible(bool(det_msg))
+        self.setModal(False)
+        _proceed_memory.append(self)
+
+    def show_log(self):
+        self.log_viewer = ViewLog(self.log_viewer_title, self.html_log,
+                parent=self)
+
+    def do_close(self, result):
+        # Ensure this notification is garbage collected
+        self.setParent(None)
+        self.finished.disconnect()
+        self.vlb.clicked.disconnect()
+        _proceed_memory.remove(self)
+# }}}
+
 if __name__ == '__main__':
     app = QApplication([])
     from calibre.gui2 import question_dialog
