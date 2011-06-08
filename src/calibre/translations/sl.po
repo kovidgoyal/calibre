@@ -7,13 +7,13 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.49\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-06-03 18:21+0000\n"
-"PO-Revision-Date: 2011-05-26 20:15+0000\n"
+"PO-Revision-Date: 2011-06-07 21:43+0000\n"
 "Last-Translator: Martin Srebotnjak <miles@filmsi.net>\n"
 "Language-Team: Martin Srebotnjak <miles@filmsi.net>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-06-04 04:47+0000\n"
+"X-Launchpad-Export-Date: 2011-06-08 04:35+0000\n"
 "X-Generator: Launchpad (build 12959)\n"
 "X-Poedit-Country: SLOVENIA\n"
 "X-Poedit-Language: Slovenian\n"
@@ -239,7 +239,7 @@ msgstr "Trgovina"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:613
 msgid "An ebook store."
-msgstr ""
+msgstr "Trgovina z e-knjigami."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:18
 msgid ""
@@ -5075,7 +5075,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/chooser_dialog.py:18
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:270
 msgid "Choose stores"
-msgstr ""
+msgstr "Izberi trgovine"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:83
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:102
@@ -11646,11 +11646,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:104
 msgid "Narrow"
-msgstr ""
+msgstr "ozka"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:104
 msgid "Wide"
-msgstr ""
+msgstr "široka"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:129
 msgid "Off"
@@ -11694,7 +11694,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:166
 msgid "Column coloring"
-msgstr ""
+msgstr "Obarvanost stolpcev"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:198
 msgid "User Interface &layout (needs restart):"
@@ -11746,7 +11746,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:210
 msgid "Main Interface"
-msgstr ""
+msgstr "Glavni vmesnik"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:211
 msgid "Select displayed metadata"

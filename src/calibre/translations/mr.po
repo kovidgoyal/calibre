@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-06-03 18:21+0000\n"
-"PO-Revision-Date: 2010-09-03 19:11+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2011-06-07 10:53+0000\n"
+"Last-Translator: Shirish Joshi <Unknown>\n"
 "Language-Team: Marathi <mr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-06-04 04:42+0000\n"
+"X-Launchpad-Export-Date: 2011-06-08 04:35+0000\n"
 "X-Generator: Launchpad (build 12959)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -257,6 +257,9 @@ msgid ""
 "directory pmlname_img or images. This plugin is run every time you add a PML "
 "file to the library."
 msgstr ""
+"सर्व निगडीत pml  फाईल व चित्र (pmlname_img /images folder) वापरून pmlz फाईल "
+"बनवा. प्रत्येक वेळी, नवीन pml फाईल तुमच्या library (सूची) मध्ये समावेशित "
+"केली की हे plugin चालते."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:91
 msgid ""
@@ -264,10 +267,13 @@ msgid ""
 "Textile references to images. The referenced images as well as the TXT file "
 "are added to the archive."
 msgstr ""
+"txt  फाईल (ज्यामध्ये Markdown or Textile references to images आहेत ) "
+"समावेशित केली की txtz फाईल बनवा. सर्व निगडीत चित्र व मजकूर (txt  फाईल ) या "
+"txtz मध्ये समावेशित असतील."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:168
 msgid "Extract cover from comic files"
-msgstr ""
+msgstr "कॉमिक पुस्तकाच्या फाईल चे पहिले पृष्ट वापरा"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:205
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:216
@@ -291,15 +297,15 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:416
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:427
 msgid "Read metadata from %s files"
-msgstr ""
+msgstr "%s  फाईल मधले संबंधित मजकूर वाचा"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:364
 msgid "Read metadata from ebooks in RAR archives"
-msgstr ""
+msgstr "RAR   फाईल मधल्या इलेक्ट्रोनिक पुस्तकातला  संबंधित मजकूर वाचा"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:438
 msgid "Read metadata from ebooks in ZIP archives"
-msgstr ""
+msgstr "ZIP   फाईल मधल्या इलेक्ट्रोनिक पुस्तकातला  संबंधित मजकूर वाचा"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:451
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:472
@@ -308,17 +314,17 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:515
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:525
 msgid "Set metadata in %s files"
-msgstr ""
+msgstr "%s फाईल मध्ये  संबंधित मजकूर लिहा"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:461
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:493
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:536
 msgid "Set metadata from %s files"
-msgstr ""
+msgstr "%s फाईल मधला   मजकूर वापरून संबंधित मजकूर तयार करा"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:883
 msgid "Look and Feel"
-msgstr ""
+msgstr "दृश्य अनुभूती"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:885
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:897
@@ -343,33 +349,33 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:906
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:221
 msgid "Add your own columns"
-msgstr ""
+msgstr "तुमच्यानुसार मजकूर स्तंभ तयार करा"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:912
 msgid "Add/remove your own columns to the calibre book list"
-msgstr ""
+msgstr "calibre च्या पुस्तक सूची मध्ये तुमच्यानुसार मजकूर स्तंभ तयार करा"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:917
 msgid "Toolbar"
-msgstr ""
+msgstr "टूलबार"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:923
 msgid ""
 "Customize the toolbars and context menus, changing which actions are "
 "available in each"
-msgstr ""
+msgstr "तुम्च्यानुसार टूलबार व उपलभ्द  मेन्यू शी निगडीत क्रिया बदला"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:929
 msgid "Searching"
-msgstr ""
+msgstr "शोधत आहे"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:935
 msgid "Customize the way searching for books works in calibre"
-msgstr ""
+msgstr "calibre कोणत्या प्रकारे पुस्तकांमध्ये शोधते ते बदला"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:940
 msgid "Input Options"
-msgstr ""
+msgstr "input पर्याय"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:942
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:953
@@ -379,60 +385,61 @@ msgstr "रुपांतर"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:946
 msgid "Set conversion options specific to each input format"
-msgstr ""
+msgstr "प्रत्येक input नुसार रुपांतर पर्याय बदला"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:951
 msgid "Common Options"
-msgstr ""
+msgstr "नेहेमीचे पर्याय"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:957
 msgid "Set conversion options common to all formats"
-msgstr ""
+msgstr "सर्व formats साठी एक समान पर्याय वापरा"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:962
 msgid "Output Options"
-msgstr ""
+msgstr "output पर्याय"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:968
 msgid "Set conversion options specific to each output format"
-msgstr ""
+msgstr "प्रत्येक output format साठी रुपांतर पर्याय वेगळे ठेवा"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:973
 msgid "Adding books"
-msgstr ""
+msgstr "पुस्तके समाविष्ट करत आहे"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:975
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:987
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:999
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1011
 msgid "Import/Export"
-msgstr ""
+msgstr "आयात / निर्यात"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:979
 msgid "Control how calibre reads metadata from files when adding books"
-msgstr ""
+msgstr "पुस्तके समाविष्ट करताना संबंधित मजकूर कसा वाचावा यासाठी पर्याय निवडा"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:985
 msgid "Saving books to disk"
-msgstr ""
+msgstr "पुस्तके disk  वर लिहा"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:991
 msgid ""
 "Control how calibre exports files from its database to disk when using Save "
 "to disk"
 msgstr ""
+"calibre फाईल आपल्या database मधून disk वर कसे लिहील याचे पर्याय निवडा"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:997
 msgid "Sending books to devices"
-msgstr ""
+msgstr "पुस्तके या संगणकाला जोडलेल्या devices ना पाठवली जात आहेत"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1003
 msgid "Control how calibre transfers files to your ebook reader"
-msgstr ""
+msgstr "तुमच्या ebook reader वर पुस्तके कशी पाठवली जातील यासाठी पर्याय निवडा"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1009
 msgid "Metadata plugboards"
-msgstr ""
+msgstr "संबंधित मजकुरासाठी plugboards"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1015
 msgid "Change metadata fields before saving/sending"
