@@ -11,10 +11,11 @@ from PyQt4.Qt import QDialog
 
 from calibre.gui2.dialogs.choose_library_ui import Ui_Dialog
 from calibre.gui2 import error_dialog, choose_dir
-from calibre.constants import filesystem_encoding
+from calibre.constants import filesystem_encoding, iswindows
 from calibre import isbytestring, patheq
 from calibre.utils.config import prefs
 from calibre.gui2.wizard import move_library
+from calibre.library.database2 import LibraryDatabase2
 
 class ChooseLibrary(QDialog, Ui_Dialog):
 
@@ -57,12 +58,20 @@ class ChooseLibrary(QDialog, Ui_Dialog):
                     _('There is no existing calibre library at %s')%loc,
                     show=True)
             return False
-        if ac in ('new', 'move') and not empty:
-            error_dialog(self, _('Not empty'),
+        if ac in ('new', 'move'):
+            if not empty:
+                error_dialog(self, _('Not empty'),
                     _('The folder %s is not empty. Please choose an empty'
                        ' folder')%loc,
                     show=True)
-            return False
+                return False
+            if (iswindows and len(loc) >
+                    LibraryDatabase2.WINDOWS_LIBRARY_PATH_LIMIT):
+                error_dialog(self, _('Too long'),
+                    _('Path to library too long. Must be less than'
+                    ' %d characters.')%LibraryDatabase2.WINDOWS_LIBRARY_PATH_LIMIT,
+                    show=True)
+                return False
 
         return True
 
