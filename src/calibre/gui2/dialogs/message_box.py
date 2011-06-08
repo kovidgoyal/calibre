@@ -148,7 +148,6 @@ class ViewLog(QDialog): # {{{
         QApplication.clipboard().setText(txt)
 # }}}
 
-
 _proceed_memory = []
 
 class ProceedNotification(MessageBox): # {{{
@@ -205,7 +204,6 @@ class ProceedNotification(MessageBox): # {{{
             self.vlb.clicked.disconnect()
             _proceed_memory.remove(self)
 # }}}
-
 
 class ErrorNotification(MessageBox): # {{{
 
