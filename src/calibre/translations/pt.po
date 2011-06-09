@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-06-03 18:21+0000\n"
-"PO-Revision-Date: 2011-03-21 20:14+0000\n"
-"Last-Translator: Carlos Ricardo Santos <carlosricardosantos@gmail.com>\n"
+"PO-Revision-Date: 2011-06-08 18:32+0000\n"
+"Last-Translator: Daniel <Unknown>\n"
 "Language-Team: Portuguese <pt@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-06-04 04:45+0000\n"
-"X-Generator: Launchpad (build 12959)\n"
+"X-Launchpad-Export-Date: 2011-06-09 04:34+0000\n"
+"X-Generator: Launchpad (build 13168)\n"
 
 #~ msgid "Monday"
 #~ msgstr "Segundas-Feiras"
@@ -207,7 +207,7 @@ msgstr "Não faz absolutamente nada"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:46
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:54
 msgid "Unknown"
-msgstr "Desconhecido(a)"
+msgstr "Desconhecido"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:77
 msgid "Base"
@@ -221,7 +221,7 @@ msgstr "Personalizar"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:43
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:48
 msgid "Cannot configure"
-msgstr "É impossível configurar"
+msgstr "Não é possível configurar"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:318
 msgid "File type"
@@ -237,11 +237,11 @@ msgstr "Gravador de metadados"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:414
 msgid "Catalog generator"
-msgstr "Gerador de catalogo"
+msgstr "Criador de catálogos"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:523
 msgid "User Interface Action"
-msgstr "Ação de interface do usuário"
+msgstr "Ação de interface do utilizador"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:557
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:18
@@ -251,16 +251,16 @@ msgstr "Ação de interface do usuário"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:309
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:206
 msgid "Preferences"
-msgstr "Preferências"
+msgstr "Definições"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:609
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:36
 msgid "Store"
-msgstr ""
+msgstr "Armazenar"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:613
 msgid "An ebook store."
-msgstr ""
+msgstr "Uma loja de ebooks."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:18
 msgid ""
@@ -268,16 +268,16 @@ msgid ""
 "linked files. This plugin is run every time you add an HTML file to the "
 "library."
 msgstr ""
-"Segue todos os atalhos locais, num ficheiro HTML e cria um ficheiro ZIP, "
-"contendo todos os ficheiros dos atalhos. Este extra é executado, todas as "
-"vezes que adiciona um ficheiro HTML à biblioteca."
+"Segue todas as ligações locais num ficheiro HTML, e cria um ficheiro ZIP "
+"contendo todos os ficheiros com ligações. Este módulo é executado sempre que "
+"que se adiciona um ficheiro HTML à biblioteca."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:54
 msgid ""
 "Character encoding for the input HTML files. Common choices include: cp1252, "
 "latin1, iso-8859-1 and utf-8."
 msgstr ""
-"Codificação de caracteres para os ficheiros HTML de origem. As escolhas "
+"Codificação de caracteres para os ficheiros HTML inseridos. As escolhas mais "
 "comuns incluem: cp1252, latin1, iso-8859-1 e utf-8."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:61
@@ -286,9 +286,9 @@ msgid ""
 "directory pmlname_img or images. This plugin is run every time you add a PML "
 "file to the library."
 msgstr ""
-"Cria um arquivo PMLZ, contendo o ficheiro PML e todas as imagens, no "
-"directório pmlname_img ou imagens. Este plugin, é executado, todas as vezes "
-"que você adicionar um arquivo PML à bibilioteca."
+"Cria um arquivo PMLZ, contendo o ficheiro PML e todas as imagens existentes "
+"na pasta pmlname_img ou imagens. Este módulo é executado sempre que se "
+"adicionar um ficheiro PML à bibilioteca."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:91
 msgid ""
@@ -296,9 +296,9 @@ msgid ""
 "Textile references to images. The referenced images as well as the TXT file "
 "are added to the archive."
 msgstr ""
-"Cria um arquivo TXTZ quando um ficheiro TXT importado contém referências "
-"para imagens em Markdown ou Textile. Tanto as imagens referenciadas como o "
-"próprio ficheiro TXT são adicionados ao arquivo."
+"Cria um arquivo TXTZ quando um ficheiro TXT é importado e inclui referências "
+"Markdown ou Textile a imagens. Tanto as imagens referenciadas como o próprio "
+"ficheiro TXT são adicionados ao arquivo."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:168
 msgid "Extract cover from comic files"
@@ -334,7 +334,7 @@ msgstr "Lê os metadados dos livros digitais, contidos nos arquivos RAR"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:438
 msgid "Read metadata from ebooks in ZIP archives"
-msgstr "Lê os metadados dos livros digitais, contidos nos arquivos ZIP"
+msgstr "Lê os metadados dos livros eletrónicos contidos em arquivos ZIP"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:451
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:472
@@ -353,7 +353,7 @@ msgstr "Define os metadados a partir dos ficheiros %s"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:883
 msgid "Look and Feel"
-msgstr "Aparência e Tacto"
+msgstr "Aparência e Manuseamento"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:885
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:897
@@ -365,7 +365,7 @@ msgstr "Interface"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:889
 msgid "Adjust the look and feel of the calibre interface to suit your tastes"
-msgstr "Ajuste o interface de utilizador do Calibre às suas necessidades"
+msgstr "Ajuste a aparência e o manuseamento do calibre às suas preferências."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:895
 msgid "Behavior"
@@ -373,7 +373,7 @@ msgstr "Comportamento"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:901
 msgid "Change the way calibre behaves"
-msgstr "Altere o comportamento do Calibre"
+msgstr "Altere o modo como o calibre se comporta"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:906
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:221
@@ -394,20 +394,21 @@ msgid ""
 "Customize the toolbars and context menus, changing which actions are "
 "available in each"
 msgstr ""
-"Personalize as barras de ferramentas e menus de contexto, alterando as "
-"acções que estão disponíveis em cada um"
+"Personalize as barras de ferramentas e os menus de contexto, alterando as "
+"acções disponíveis em cada um deles."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:929
 msgid "Searching"
-msgstr ""
+msgstr "A procurar"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:935
 msgid "Customize the way searching for books works in calibre"
-msgstr "Personalizar o modo como funciona a pesquisa de livros no calibre"
+msgstr ""
+"Personalizar o modo de funcionamento da pesquisa de livros no calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:940
 msgid "Input Options"
-msgstr "Opções de entrada"
+msgstr "Opções de inserção"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:942
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:953
@@ -417,7 +418,7 @@ msgstr "Conversão"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:946
 msgid "Set conversion options specific to each input format"
-msgstr "Defina opções especifícas para cada formato de entrada"
+msgstr "Definir opções de conversão, específicas a cada formato de entrada"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:951
 msgid "Common Options"
@@ -425,7 +426,7 @@ msgstr "Opções Comuns"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:957
 msgid "Set conversion options common to all formats"
-msgstr "Defina opções comuns a todos os formatos"
+msgstr "Definir opções de conversão comuns a todos os formatos"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:962
 msgid "Output Options"
@@ -1799,6 +1800,8 @@ msgid ""
 "When converting a CBC do not add links to each page to the TOC. Note this "
 "only applies if the TOC has more than one section"
 msgstr ""
+"Ao converter um CBC, não adicionar links para cada página ao índice. Note-se "
+"que isto apenas se aplica de o Índice tiver mais do que uma secção"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:459
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:471
@@ -4975,7 +4978,7 @@ msgstr "Descarregar os metadados e as capas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:42
 msgid "Merge into first selected book - delete others"
-msgstr ""
+msgstr "Combinar no primeiro livro selecionado - apagar restantes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:45
 msgid "Merge into first selected book - keep others"

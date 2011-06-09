@@ -37,14 +37,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-06-03 18:21+0000\n"
-"PO-Revision-Date: 2011-06-02 12:07+0000\n"
-"Last-Translator: Redmar <redmar@ubuntu-nl.org>\n"
+"PO-Revision-Date: 2011-06-08 23:25+0000\n"
+"Last-Translator: drMerry <Unknown>\n"
 "Language-Team: Dutch <ubuntu-l10n-nl@lists.ubuntu.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-06-04 04:37+0000\n"
-"X-Generator: Launchpad (build 12959)\n"
+"X-Launchpad-Export-Date: 2011-06-09 04:34+0000\n"
+"X-Generator: Launchpad (build 13168)\n"
 "X-Poedit-Country: NETHERLANDS\n"
 "X-Poedit-Language: Dutch\n"
 
@@ -1399,7 +1399,7 @@ msgstr "Communiceer met de Sony PRS-500 E-reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:22
 msgid "Communicate with all the Sony eBook readers."
-msgstr "Verbinden met alle Sony E-reader."
+msgstr "Verbinden met alle Sony E-readers."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:62
 msgid "All by title"
@@ -10025,7 +10025,7 @@ msgid ""
 "The following tags are used by one or more books. Are you certain you want "
 "to delete them?"
 msgstr ""
-"De volgende lebels zijn in gebruik door een of meerdere boeken. Weet je "
+"De volgende labels zijn in gebruik door een of meerdere boeken. Weet je "
 "zeker dat je ze wilt verwijderen?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor_ui.py:128
@@ -10141,28 +10141,28 @@ msgstr "UITZONDERING: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:293
 msgid "No column chosen"
-msgstr ""
+msgstr "Geen kolom gekozen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:294
 msgid "You must specify a column to be colored"
-msgstr ""
+msgstr "Je moet een te kleuren kolom specificeren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:297
 msgid "No template provided"
-msgstr ""
+msgstr "Geen sjabloom opgegeven"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:298
 msgid "The template box cannot be empty"
-msgstr ""
+msgstr "Het sjabloon veld kan niet leeg zijn"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:89
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:235
 msgid "Set the color of the column:"
-msgstr ""
+msgstr "Geef de kleer voor de kolom:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:90
 msgid "Template value:"
-msgstr ""
+msgstr "Sjabloon waarde:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:91
 msgid ""
@@ -11932,90 +11932,90 @@ msgstr "Herstel alle uitges&chakelde meldingen"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:30
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:35
 msgid "is true"
-msgstr ""
+msgstr "is waar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:31
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:36
 msgid "is false"
-msgstr ""
+msgstr "is onwaar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:32
 msgid "is undefined"
-msgstr ""
+msgstr "is niet gedefinieerd"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:39
 msgid "has id"
-msgstr ""
+msgstr "heeft ID"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:40
 msgid "does not have id"
-msgstr ""
+msgstr "heeft geen ID"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:43
 msgid "is equal to"
-msgstr ""
+msgstr "is gelijk aan"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:44
 msgid "is less than"
-msgstr ""
+msgstr "is minder dan"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:45
 msgid "is greater than"
-msgstr ""
+msgstr "is groter dan"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:48
 msgid "has"
-msgstr ""
+msgstr "heeft"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:49
 msgid "does not have"
-msgstr ""
+msgstr "heeft geen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:50
 msgid "has pattern"
-msgstr ""
+msgstr "heeft patroon"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:51
 msgid "does not have pattern"
-msgstr ""
+msgstr "heeft geen patroon"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:52
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:60
 msgid "is set"
-msgstr ""
+msgstr "ingesteld"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:53
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:61
 msgid "is not set"
-msgstr ""
+msgstr "is niet ingesteld"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:56
 msgid "is"
-msgstr ""
+msgstr "is"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:57
 msgid "is not"
-msgstr ""
+msgstr "is niet"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:58
 msgid "matches pattern"
-msgstr ""
+msgstr "komt overeen met patroon"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:59
 msgid "does not match pattern"
-msgstr ""
+msgstr "komt niet overeen met patroon"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:71
 msgid "If the "
-msgstr ""
+msgstr "Als de "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:77
 msgid " column "
-msgstr ""
+msgstr " kolom "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:83
 msgid " value "
-msgstr ""
+msgstr " waarde "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:193
 msgid ""
@@ -12025,19 +12025,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:196
 msgid "Enter a number"
-msgstr ""
+msgstr "Geef een nummer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:201
 msgid "Enter a date in the format YYYY-MM-DD"
-msgstr ""
+msgstr "Geen een datum in het formaat JJJJ-MM-DD"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:203
 msgid "Enter a string."
-msgstr ""
+msgstr "Geef een tekst."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:205
 msgid "Enter a regular expression"
-msgstr ""
+msgstr "Geef een reguliere expressie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:207
 msgid "You can match multiple values by separating them with %s"
@@ -12053,7 +12053,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:241
 msgid "to"
-msgstr ""
+msgstr "tot"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:249
 msgid "Only if the following conditions are all satisfied:"
@@ -12069,7 +12069,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:335
 msgid "Invalid condition"
-msgstr ""
+msgstr "Ongeldige voorwaarde"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:336
 msgid "One of the conditions for this rule is invalid: <b>%s</b>"
@@ -12077,7 +12077,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:341
 msgid "No conditions"
-msgstr ""
+msgstr "Geen voorwaarden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:342
 msgid "You must specify at least one non-empty condition for this rule"
@@ -12112,11 +12112,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:467
 msgid "Add Rule"
-msgstr ""
+msgstr "Voeg regel toe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:470
 msgid "Remove Rule"
-msgstr ""
+msgstr "Verwijder regel"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:487
 msgid "Move the selected rule up"
@@ -12140,7 +12140,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:554
 msgid "removal"
-msgstr ""
+msgstr "verwijdering"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns.py:96
 msgid "You must select a column to delete it"
@@ -18578,7 +18578,7 @@ msgstr "Hoofdmenu"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:125
 msgid "Previous section"
-msgstr "Volgende paragraaf"
+msgstr "Vorige paragraaf"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:214
 msgid "Section Menu"
