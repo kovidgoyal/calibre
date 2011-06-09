@@ -11,10 +11,11 @@ from functools import partial
 from PyQt4.Qt import QMenu, Qt, QInputDialog, QToolButton
 
 from calibre import isbytestring
-from calibre.constants import filesystem_encoding
+from calibre.constants import filesystem_encoding, iswindows
 from calibre.utils.config import prefs
-from calibre.gui2 import gprefs, warning_dialog, Dispatcher, error_dialog, \
-    question_dialog, info_dialog
+from calibre.gui2 import (gprefs, warning_dialog, Dispatcher, error_dialog,
+    question_dialog, info_dialog)
+from calibre.library.database2 import LibraryDatabase2
 from calibre.gui2.actions import InterfaceAction
 
 class LibraryUsageStats(object): # {{{
@@ -229,6 +230,12 @@ class ChooseLibraryAction(InterfaceAction):
             return error_dialog(self.gui, _('Already exists'),
                     _('The folder %s already exists. Delete it first.') %
                     newloc, show=True)
+        if (iswindows and len(newloc) >
+                LibraryDatabase2.WINDOWS_LIBRARY_PATH_LIMIT):
+            return error_dialog(self.gui, _('Too long'),
+                    _('Path to library too long. Must be less than'
+                    ' %d characters.')%LibraryDatabase2.WINDOWS_LIBRARY_PATH_LIMIT,
+                    show=True)
         try:
             os.rename(loc, newloc)
         except:

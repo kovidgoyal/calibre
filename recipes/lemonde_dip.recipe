@@ -1,5 +1,5 @@
 __license__   = 'GPL v3'
-__copyright__ = '2008-2010, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2008-2011, Darko Miletic <darko.miletic at gmail.com>'
 '''
 mondediplo.com
 '''
@@ -11,7 +11,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class LeMondeDiplomatiqueEn(BasicNewsRecipe):
     title                  = 'Le Monde diplomatique - English edition'
     __author__             = 'Darko Miletic'
-    description            = 'Real journalism making sense of the world around us'
+    description            = "Le Monde diplomatique is the place you go when you want to know what's really happening. This is a major international paper that is truly independent, that sees the world in fresh ways, that focuses on places no other publications reach. We offer a clear, considered view of the conflicting interests and complexities of a modern global world. LMD in English is a concise version of the Paris-based parent edition, publishing all the major stories each month, expertly translated, and with some London-based commissions too. We offer a taster of LMD quality on our website where a selection of articles are available each month."
     publisher              = 'Le Monde diplomatique'
     category               = 'news, politics, world'
     no_stylesheets         = True
@@ -26,13 +26,19 @@ class LeMondeDiplomatiqueEn(BasicNewsRecipe):
     INDEX                  = PREFIX + strftime('%Y/%m/')
     use_embedded_content   = False
     language               = 'en'
-    extra_css              = ' body{font-family: "Luxi sans","Lucida sans","Lucida Grande",Lucida,"Lucida Sans Unicode",sans-serif} .surtitre{font-size: 1.2em; font-variant: small-caps; margin-bottom: 0.5em} .chapo{font-size: 1.2em; font-weight: bold; margin: 1em 0 0.5em} .texte{font-family: Georgia,"Times New Roman",serif} h1{color: #990000} .notes{border-top: 1px solid #CCCCCC; font-size: 0.9em; line-height: 1.4em} '
+    extra_css              = """
+                                body{font-family: "Luxi sans","Lucida sans","Lucida Grande",Lucida,"Lucida Sans Unicode",sans-serif}
+                                .surtitre{font-size: 1.2em; font-variant: small-caps; margin-bottom: 0.5em}
+                                .chapo{font-size: 1.2em; font-weight: bold; margin: 1em 0 0.5em}
+                                .texte{font-family: Georgia,"Times New Roman",serif} h1{color: #990000}
+                                .notes{border-top: 1px solid #CCCCCC; font-size: 0.9em; line-height: 1.4em}
+                            """
 
     conversion_options = {
-                          'comment'          : description
-                        , 'tags'             : category
-                        , 'publisher'        : publisher
-                        , 'language'         : language
+                          'comment'   : description
+                        , 'tags'      : category
+                        , 'publisher' : publisher
+                        , 'language'  : language
                         }
 
     def get_browser(self):
@@ -46,12 +52,12 @@ class LeMondeDiplomatiqueEn(BasicNewsRecipe):
             br.open(self.LOGIN,data)
         return br
 
-    keep_only_tags    =[  
+    keep_only_tags    =[
                           dict(name='div', attrs={'id':'contenu'})
                         , dict(name='div',attrs={'class':'notes surlignable'})
                         ]
     remove_tags = [dict(name=['object','link','script','iframe','base'])]
-    remove_attributes = ['height','width']
+    remove_attributes = ['height','width','name','lang']
 
     def parse_index(self):
         articles = []
@@ -75,3 +81,24 @@ class LeMondeDiplomatiqueEn(BasicNewsRecipe):
                                 })
         return [(self.title, articles)]
 
+    def get_cover_url(self):
+        cover_url = None
+        soup = self.index_to_soup(self.INDEX)
+        cover_item = soup.find('div',attrs={'class':'current'})
+        if cover_item:
+           ap = cover_item.find('img',attrs={'class':'spip_logos'})
+           if ap:
+              cover_url = self.INDEX + ap['src']
+        return cover_url
+
+    def preprocess_html(self, soup):
+        for item in soup.findAll(style=True):
+            del item['style']
+        for item in soup.findAll('a'):
+            if item.string is not None:
+               str = item.string
+               item.replaceWith(str)
+            else:
+               str = self.tag_to_string(item)
+               item.replaceWith(str)
+        return soup
