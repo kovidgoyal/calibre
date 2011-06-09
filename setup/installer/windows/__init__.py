@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 import os, shutil, subprocess
 
-from setup import Command, __appname__
+from setup import Command, __appname__, __version__
 from setup.installer import VMInstaller
 
 class Win(Command):
@@ -41,6 +41,13 @@ class Win32(VMInstaller):
             'xp_build:build/%s/%s'%(__appname__, installer), 'dist'))
         if not os.path.exists(installer):
             self.warn('Failed to freeze')
+            raise SystemExit(1)
+
+        installer = 'dist/%s-portable-%s.zip'%(__appname__, __version__)
+        subprocess.check_call(('scp',
+            'xp_build:build/%s/%s'%(__appname__, installer), 'dist'))
+        if not os.path.exists(installer):
+            self.warn('Failed to get portable installer')
             raise SystemExit(1)
 
 

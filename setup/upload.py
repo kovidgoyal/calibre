@@ -26,6 +26,7 @@ def installers():
     installers = list(map(installer_name, ('dmg', 'msi', 'tar.bz2')))
     installers.append(installer_name('tar.bz2', is64bit=True))
     installers.insert(0, 'dist/%s-%s.tar.gz'%(__appname__, __version__))
+    installers.append('dist/%s-portable-%s.zip'%(__appname__, __version__))
     return installers
 
 def installer_description(fname):
@@ -38,6 +39,8 @@ def installer_description(fname):
         return 'Windows installer'
     if fname.endswith('.dmg'):
         return 'OS X dmg'
+    if fname.endswith('.zip'):
+        return 'Calibre Portable'
     return 'Unknown file'
 
 class ReUpload(Command): # {{{
@@ -90,9 +93,11 @@ class UploadToGoogleCode(Command): # {{{
 
     def upload_one(self, fname):
         self.info('Uploading', fname)
-        typ = 'Type-Source' if fname.endswith('.gz') else 'Type-Installer'
+        typ = 'Type-' + ('Source' if fname.endswith('.gz') else 'Archive' if
+                fname.endswith('.zip') else 'Installer')
         ext = os.path.splitext(fname)[1][1:]
-        op  = 'OpSys-'+{'msi':'Windows','dmg':'OSX','bz2':'Linux','gz':'All'}[ext]
+        op  = 'OpSys-'+{'msi':'Windows','zip':'Windows',
+                'dmg':'OSX','bz2':'Linux','gz':'All'}[ext]
         desc = installer_description(fname)
         start = time.time()
         path = self.upload(os.path.abspath(fname), desc,
