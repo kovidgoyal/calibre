@@ -850,7 +850,7 @@ class Device(DeviceConfig, DevicePlugin):
 
         if on_card == 'carda':
             path = os.path.join(self._card_a_prefix,
-                    *(self.get_carda_ebook_dir().split('/')))
+                    *(self.get_carda_ebook_dir(for_upload=True).split('/')))
         elif on_card == 'cardb':
             path = os.path.join(self._card_b_prefix,
                     *(self.EBOOK_DIR_CARD_B.split('/')))
