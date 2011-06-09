@@ -837,6 +837,9 @@ class Device(DeviceConfig, DevicePlugin):
     def get_main_ebook_dir(self, for_upload=False):
         return self.EBOOK_DIR_MAIN
 
+    def get_carda_ebook_dir(self, for_upload=False):
+        return self.EBOOK_DIR_CARD_A
+
     def _sanity_check(self, on_card, files):
         if on_card == 'carda' and not self._card_a_prefix:
             raise ValueError(_('The reader has no storage card in this slot.'))
@@ -847,7 +850,7 @@ class Device(DeviceConfig, DevicePlugin):
 
         if on_card == 'carda':
             path = os.path.join(self._card_a_prefix,
-                    *(self.EBOOK_DIR_CARD_A.split('/')))
+                    *(self.get_carda_ebook_dir().split('/')))
         elif on_card == 'cardb':
             path = os.path.join(self._card_b_prefix,
                     *(self.EBOOK_DIR_CARD_B.split('/')))
