@@ -1,25 +1,25 @@
-# Persian translation for calibre
-# Copyright (c) 2010 Rosetta Contributors and Canonical Ltd 2010
+# Azerbaijani translation for calibre
+# Copyright (c) 2011 Rosetta Contributors and Canonical Ltd 2011
 # This file is distributed under the same license as the calibre package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2010.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2011.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-06-03 18:21+0000\n"
-"PO-Revision-Date: 2011-04-09 04:20+0000\n"
-"Last-Translator: Milad Naseri <m.m.naseri@gmail.com>\n"
-"Language-Team: Persian <fa@li.org>\n"
+"PO-Revision-Date: 2011-06-03 05:54+0000\n"
+"Last-Translator: Farid Zarbaliyev <faridz13@gmail.com>\n"
+"Language-Team: Azerbaijani <az@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-06-04 04:44+0000\n"
+"X-Launchpad-Export-Date: 2011-06-04 04:34+0000\n"
 "X-Generator: Launchpad (build 12959)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
-msgstr "هیچ کار ویژ ه ای انجام نمی دهد"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:59
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:87
@@ -183,37 +183,37 @@ msgstr "هیچ کار ویژ ه ای انجام نمی دهد"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:46
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:54
 msgid "Unknown"
-msgstr "نامعلوم"
+msgstr "Naməlum"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:77
 msgid "Base"
-msgstr "پایه"
+msgstr "Əsas"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:148
 msgid "Customize"
-msgstr "شخصی سازی"
+msgstr "Fərdiləşdir"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:156
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:43
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:48
 msgid "Cannot configure"
-msgstr "نمی تواند پیکر بندی کند"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:318
 msgid "File type"
-msgstr "نوع پرونده"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:354
 msgid "Metadata reader"
-msgstr "خواننده ی فراداده (Metadata)"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:384
 msgid "Metadata writer"
-msgstr "نویسنده ی فراداده (Metadata)"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:414
 msgid "Catalog generator"
-msgstr "سازنده کاتالوگ"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:523
 msgid "User Interface Action"
@@ -244,17 +244,12 @@ msgid ""
 "linked files. This plugin is run every time you add an HTML file to the "
 "library."
 msgstr ""
-"تمام پیوند های یک فایل HTML را دنبال کنید و یک فایل ZIP حاوی تمام فایل های "
-"مرتبط بسازید. این افزونه هر بار که شما یک فایل HTML را به کتابخانه ی خود "
-"اضافه  کنید اجرا می شود."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:54
 msgid ""
 "Character encoding for the input HTML files. Common choices include: cp1252, "
 "latin1, iso-8859-1 and utf-8."
 msgstr ""
-"رمزگذاری نویسه ها در فایل های HTML  ورودی. برخی از گزینه های رایج عبارت اند "
-"از: cp1252، latin1، iso-8850-1 و utf-8."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:61
 msgid ""
@@ -262,9 +257,6 @@ msgid ""
 "directory pmlname_img or images. This plugin is run every time you add a PML "
 "file to the library."
 msgstr ""
-"یک فایل فشرده ی PMLZ حاوی فایل PML و تمامی تصاویر موجود در پوشه ی "
-"pmlname_img یا images تولید می کند. این افزونه هر بار که شما یک فایل PML به "
-"کتاب خانه ی خود اضافه می کنید اجرا می شود."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:91
 msgid ""
@@ -275,7 +267,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:168
 msgid "Extract cover from comic files"
-msgstr "استخراج جلد از فایل های کمیک"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:205
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:216
@@ -299,15 +291,15 @@ msgstr "استخراج جلد از فایل های کمیک"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:416
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:427
 msgid "Read metadata from %s files"
-msgstr "خواندن فراداده از فایل های %s"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:364
 msgid "Read metadata from ebooks in RAR archives"
-msgstr "خواندن فراداده(Metadata) از ای بوک های داخل فایل های RAR"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:438
 msgid "Read metadata from ebooks in ZIP archives"
-msgstr "خواندن فراداده(Mtadata) از ای بوک های داخل فایل های ZIP"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:451
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:472
@@ -316,13 +308,13 @@ msgstr "خواندن فراداده(Mtadata) از ای بوک های داخ�
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:515
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:525
 msgid "Set metadata in %s files"
-msgstr "قراردادن فراداده در فایل های %s"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:461
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:493
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:536
 msgid "Set metadata from %s files"
-msgstr "تنظیم کردن فراداده با توجّه به فایل های %s"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:883
 msgid "Look and Feel"
@@ -522,7 +514,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:102
 msgid "Conversion Input"
-msgstr "ورودی تبدیل"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:134
 msgid ""
@@ -531,111 +523,100 @@ msgid ""
 "useful for documents that do not declare an encoding or that have erroneous "
 "encoding declarations."
 msgstr ""
-"تنظیم رمزگذاری نویسه های سند ورودی. اگر این گزینه انتخاب شود، هر رمزگذاری "
-"دیگری که در خود سند تعریف شده باشد ندیده گرفته می شود. این گزینه به خصوص "
-"برای تنظیم رمزگذاری برای سندهایی که رمزگذاری خود را تعریف نمی کنند (یا آن را "
-"به اشتباه تعریف می کنند) کارآمد است."
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:234
 msgid "Conversion Output"
-msgstr "خروجی تبدیل"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:248
 msgid ""
 "If specified, the output plugin will try to create output that is as human "
 "readable as possible. May not have any effect for some output plugins."
 msgstr ""
-"اگر تنظیم شده باشد، افزونه ی خروجی سعی می کند تا سند خروجی را تا حدّ ممکن به "
-"نوشتار قابل خواندن توسّط انسان نزدیک کند. برای برخی از افزونه های خروجی ممکن "
-"است کار به خصوصی انجام ندهد."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:49
 msgid "Input profile"
-msgstr "نمایه ی ورودی"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:53
 msgid ""
 "This profile tries to provide sane defaults and is useful if you know "
 "nothing about the input document."
 msgstr ""
-"این نمایه به منظور ارائه ی پیش فرض های قابل قبول ایجاد شده است، و به خصوص "
-"زمانی کاربرد دارد که شما هیچ اطّلاعی از سند ورودی ندارید."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:61
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:454
 msgid ""
 "This profile is intended for the SONY PRS line. The 500/505/600/700 etc."
 msgstr ""
-"این نمایه برای سری SONY PRS در نظر گرفته شده است؛ یعنی مدل های "
-"500/505/600/700 و غیر از آن."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:73
 msgid "This profile is intended for the SONY PRS 300."
-msgstr "این نمایه برای مدل های SONY PRS 300 در نظر گرفته شده است."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:82
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:494
 msgid "This profile is intended for the SONY PRS-900."
-msgstr "این نمایه برای SONY PRS-900 در نظر گرفته شده است."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:90
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:539
 msgid "This profile is intended for the Microsoft Reader."
-msgstr "این نمایه برای Microsoft Reader در نظر گرفته شده است."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:101
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:550
 msgid "This profile is intended for the Mobipocket books."
-msgstr "این نمایه برای کتاب های Mobipocket در نظر گرفته شده است."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:114
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:563
 msgid "This profile is intended for the Hanlin V3 and its clones."
-msgstr "این نمایه برای Hanlin V3 و مشابه آن در نظر گرفته شده است."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:126
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:575
 msgid "This profile is intended for the Hanlin V5 and its clones."
-msgstr "این نمایه برای Hanlin V5 و مشابه آن در نظر گرفته شده است."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:136
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:583
 msgid "This profile is intended for the Cybook G3."
-msgstr "این نمایه برای Cybook G3 در نظر گرفته شده است."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:149
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:597
 msgid "This profile is intended for the Cybook Opus."
-msgstr "این نمایه برای Cybook Opus  در نظر گرفته شده است."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:161
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:610
 msgid "This profile is intended for the Amazon Kindle."
-msgstr "این نمایه برای Amazon Kindle  در نظر گرفته شده است."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:173
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:660
 msgid "This profile is intended for the Irex Illiad."
-msgstr "این نمایه برای Irex Illiad  در نظر گرفته شده است."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:185
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:673
 msgid "This profile is intended for the IRex Digital Reader 1000."
-msgstr "این نمایه برای IRex Digital Reader 1000  در نظر گرفته شده است."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:198
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:687
 msgid "This profile is intended for the IRex Digital Reader 800."
-msgstr "این نمایه برای IRex Digital Reader 800  در نظر گرفته شده است."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:210
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:701
 msgid "This profile is intended for the B&N Nook."
-msgstr "این نمایه برای B&N Nook  در نظر گرفته شده است."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:232
 msgid "Output profile"
-msgstr "نمایه ی خروجی"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:236
 msgid ""
@@ -643,13 +624,11 @@ msgid ""
 "produce a document intended to be read at a computer or on a range of "
 "devices."
 msgstr ""
-"این نمایه به منظور ارائه ی پیش فرض های قابل قبول برای سند هایی که با هدف "
-"خواندن توسّط رایانه یا دست گاه های گوناگون دیگر تولید می شوند، ایجاد شده است."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:278
 msgid ""
 "Intended for the iPad and similar devices with a resolution of 768x1024"
-msgstr "برای کار با iPad و یا دست گاه های مشابه با بزرگ نمایی ۷۶۸×۱۰۲۴"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:438
 msgid "Intended for generic tablet devices, does no resizing of images"
@@ -663,7 +642,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:472
 msgid "This profile is intended for the Kobo Reader."
-msgstr "این نمایه برای Kobo Reader  در نظر گرفته شده است."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:485
 msgid "This profile is intended for the SONY PRS-300."
@@ -17043,6 +17022,3 @@ msgid ""
 "it\n"
 "on at your own risk!"
 msgstr ""
-
-#~ msgid " "
-#~ msgstr " "
