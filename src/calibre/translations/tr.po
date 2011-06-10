@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-06-03 18:21+0000\n"
-"PO-Revision-Date: 2011-06-05 12:16+0000\n"
+"PO-Revision-Date: 2011-06-09 08:12+0000\n"
 "Last-Translator: Serdar Peker <Unknown>\n"
 "Language-Team: Turkish <tr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-06-06 04:36+0000\n"
-"X-Generator: Launchpad (build 12959)\n"
+"X-Launchpad-Export-Date: 2011-06-10 04:36+0000\n"
+"X-Generator: Launchpad (build 13168)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -1950,6 +1950,8 @@ msgid ""
 "preference to the auto-generated one. With this option, the auto-generated "
 "one is always used."
 msgstr ""
+"Normalde kaynak içindekiler bilgisine sahipse otomatik üretilene tercihen bu "
+"bilgi kullanılır. Bu seçenek ile her zaman otomatik üretilen kullanılır"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:238
 msgid "Don't add auto-detected chapters to the Table of Contents."
@@ -2076,13 +2078,15 @@ msgstr ""
 msgid ""
 "Use the cover detected from the source file in preference to the specified "
 "cover."
-msgstr ""
+msgstr "Belirtilen kapak yerine kaynak dosyasındaki algılanan kapağı kullan"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:372
 msgid ""
 "Insert a blank line between paragraphs. Will not work if the source file "
 "does not use paragraphs (<p> or <div> tags)."
 msgstr ""
+"Paragraflar arasına boş satır ekle. Eğer kaynak dosyası paragraf (<p> or "
+"<div> etiketlerini) içermiyorsa çalışmaz"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:379
 msgid ""
@@ -2252,6 +2256,7 @@ msgid ""
 "Remove empty paragraphs from the document when they exist between every "
 "other paragraph"
 msgstr ""
+"Eğer tüm paragraflar arasında boş paragraflar varsa dökümandan bunları çıkar"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:542
 msgid ""
@@ -17132,7 +17137,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:340
 msgid "Where to send downloaded news"
-msgstr ""
+msgstr "Karşıdan yüklenmiş haberlerin yollanacağı yer"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:341
 msgid ""
