@@ -11995,7 +11995,7 @@ msgstr "ungültiger zustand"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:336
 msgid "One of the conditions for this rule is invalid: <b>%s</b>"
-msgstr "Eine bedingung für diese Regel ist ungültig"
+msgstr "Eine bedingung für diese Regel ist ungültig: <b>%s</b>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:341
 msgid "No conditions"
