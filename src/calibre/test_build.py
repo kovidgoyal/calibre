@@ -99,12 +99,12 @@ def test():
     test_lxml()
     test_fontconfig()
     test_sqlite()
-    if iswindows:
-        test_winutil()
-        test_win32()
     test_qt()
     test_imaging()
     test_unrar()
+    if iswindows:
+        test_win32()
+        test_winutil()
 
 if __name__ == '__main__':
     test()
