@@ -271,6 +271,9 @@ class Dispatcher(QObject):
     Convenience class to use Qt signals with arbitrary python callables.
     By default, ensures that a function call always happens in the
     thread this Dispatcher was created in.
+
+    Note that if you create the Dispatcher in a thread without an event loop of
+    its own, the function call will happen in the GUI thread (I think).
     '''
     dispatch_signal = pyqtSignal(object, object)
 
@@ -292,11 +295,20 @@ class FunctionDispatcher(QObject):
     '''
     Convenience class to use Qt signals with arbitrary python functions.
     By default, ensures that a function call always happens in the
-    thread this Dispatcher was created in.
+    thread this FunctionDispatcher was created in.
+
+    Note that you must create FunctionDispatcher objects in the GUI thread.
     '''
     dispatch_signal = pyqtSignal(object, object, object)
 
     def __init__(self, func, queued=True, parent=None):
+        global gui_thread
+        if gui_thread is None:
+            gui_thread = QThread.currentThread()
+        if not is_gui_thread():
+            raise ValueError(
+                'You can only create a FunctionDispatcher in the GUI thread')
+
         QObject.__init__(self, parent)
         self.func = func
         typ = Qt.QueuedConnection
@@ -305,10 +317,9 @@ class FunctionDispatcher(QObject):
         self.dispatch_signal.connect(self.dispatch, type=typ)
         self.q = Queue.Queue()
         self.lock = threading.Lock()
-        self.calling_thread = QThread.currentThread()
 
     def __call__(self, *args, **kwargs):
-        if self.calling_thread == QThread.currentThread():
+        if is_gui_thread():
             return self.func(*args, **kwargs)
         with self.lock:
             self.dispatch_signal.emit(self.q, args, kwargs)

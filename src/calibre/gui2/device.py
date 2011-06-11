@@ -6,18 +6,18 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import os, traceback, Queue, time, cStringIO, re, sys
 from threading import Thread
 
-from PyQt4.Qt import QMenu, QAction, QActionGroup, QIcon, SIGNAL, \
-                     Qt, pyqtSignal, QDialog, QObject
+from PyQt4.Qt import (QMenu, QAction, QActionGroup, QIcon, SIGNAL,
+                     Qt, pyqtSignal, QDialog, QObject)
 
-from calibre.customize.ui import available_input_formats, available_output_formats, \
-    device_plugins
+from calibre.customize.ui import (available_input_formats, available_output_formats,
+    device_plugins)
 from calibre.devices.interface import DevicePlugin
 from calibre.devices.errors import UserFeedback, OpenFeedback
 from calibre.gui2.dialogs.choose_format_device import ChooseFormatDeviceDialog
 from calibre.utils.ipc.job import BaseJob
 from calibre.devices.scanner import DeviceScanner
-from calibre.gui2 import config, error_dialog, Dispatcher, dynamic, \
-        warning_dialog, info_dialog, choose_dir, FunctionDispatcher
+from calibre.gui2 import (config, error_dialog, Dispatcher, dynamic,
+        warning_dialog, info_dialog, choose_dir, FunctionDispatcher)
 from calibre.ebooks.metadata import authors_to_string
 from calibre import preferred_encoding, prints, force_unicode, as_unicode
 from calibre.utils.filenames import ascii_filename
@@ -35,8 +35,9 @@ class DeviceJob(BaseJob): # {{{
 
     def __init__(self, func, done, job_manager, args=[], kwargs={},
             description=''):
-        BaseJob.__init__(self, description, done=done)
+        BaseJob.__init__(self, description)
         self.func = func
+        self.callback_on_done = done
         self.args, self.kwargs = args, kwargs
         self.exception = None
         self.job_manager = job_manager
@@ -50,6 +51,10 @@ class DeviceJob(BaseJob): # {{{
     def job_done(self):
         self.duration = time.time() - self.start_time
         self.percent = 1
+        try:
+            self.callback_on_done(self)
+        except:
+            pass
         self.job_manager.changed_queue.put(self)
 
     def report_progress(self, percent, msg=''):
