@@ -17,7 +17,7 @@ from calibre.gui2.dialogs.choose_format_device import ChooseFormatDeviceDialog
 from calibre.utils.ipc.job import BaseJob
 from calibre.devices.scanner import DeviceScanner
 from calibre.gui2 import config, error_dialog, Dispatcher, dynamic, \
-        warning_dialog, info_dialog, choose_dir
+        warning_dialog, info_dialog, choose_dir, FunctionDispatcher
 from calibre.ebooks.metadata import authors_to_string
 from calibre import preferred_encoding, prints, force_unicode, as_unicode
 from calibre.utils.filenames import ascii_filename
@@ -611,7 +611,7 @@ class DeviceMixin(object): # {{{
         self.device_error_dialog = error_dialog(self, _('Error'),
                 _('Error communicating with device'), ' ')
         self.device_error_dialog.setModal(Qt.NonModal)
-        self.device_manager = DeviceManager(Dispatcher(self.device_detected),
+        self.device_manager = DeviceManager(FunctionDispatcher(self.device_detected),
                 self.job_manager, Dispatcher(self.status_bar.show_message),
                 Dispatcher(self.show_open_feedback))
         self.device_manager.start()
@@ -736,7 +736,7 @@ class DeviceMixin(object): # {{{
         self.set_device_menu_items_state(connected)
         if connected:
             self.device_manager.get_device_information(\
-                    Dispatcher(self.info_read))
+                    FunctionDispatcher(self.info_read))
             self.set_default_thumbnail(\
                     self.device_manager.device.THUMBNAIL_HEIGHT)
             self.status_bar.show_message(_('Device: ')+\
@@ -767,7 +767,7 @@ class DeviceMixin(object): # {{{
                 self.device_manager.device.icon)
         self.bars_manager.update_bars()
         self.status_bar.device_connected(info[0])
-        self.device_manager.books(Dispatcher(self.metadata_downloaded))
+        self.device_manager.books(FunctionDispatcher(self.metadata_downloaded))
 
     def metadata_downloaded(self, job):
         '''
@@ -810,7 +810,7 @@ class DeviceMixin(object): # {{{
 
     def remove_paths(self, paths):
         return self.device_manager.delete_books(
-                Dispatcher(self.books_deleted), paths)
+                FunctionDispatcher(self.books_deleted), paths)
 
     def books_deleted(self, job):
         '''
@@ -1187,7 +1187,7 @@ class DeviceMixin(object): # {{{
         Upload metadata to device.
         '''
         plugboards = self.library_view.model().db.prefs.get('plugboards', {})
-        self.device_manager.sync_booklists(Dispatcher(self.metadata_synced),
+        self.device_manager.sync_booklists(FunctionDispatcher(self.metadata_synced),
                                            self.booklists(), plugboards)
 
     def metadata_synced(self, job):
@@ -1222,7 +1222,7 @@ class DeviceMixin(object): # {{{
         titles = [i.title for i in metadata]
         plugboards = self.library_view.model().db.prefs.get('plugboards', {})
         job = self.device_manager.upload_books(
-                Dispatcher(self.books_uploaded),
+                FunctionDispatcher(self.books_uploaded),
                 files, names, on_card=on_card,
                 metadata=metadata, titles=titles, plugboards=plugboards
               )
@@ -1475,7 +1475,7 @@ class DeviceMixin(object): # {{{
                                     self.cover_to_thumbnail(open(book.cover, 'rb').read())
                 plugboards = self.library_view.model().db.prefs.get('plugboards', {})
                 self.device_manager.sync_booklists(
-                                    Dispatcher(self.metadata_synced), booklists,
+                                    FunctionDispatcher(self.metadata_synced), booklists,
                                     plugboards)
         return update_metadata
     # }}}
