@@ -93,9 +93,11 @@ class UploadToGoogleCode(Command): # {{{
 
     def upload_one(self, fname):
         self.info('Uploading', fname)
-        typ = 'Type-Source' if fname.endswith('.gz') else 'Type-Installer'
+        typ = 'Type-' + ('Source' if fname.endswith('.gz') else 'Archive' if
+                fname.endswith('.zip') else 'Installer')
         ext = os.path.splitext(fname)[1][1:]
-        op  = 'OpSys-'+{'msi':'Windows','dmg':'OSX','bz2':'Linux','gz':'All'}[ext]
+        op  = 'OpSys-'+{'msi':'Windows','zip':'Windows',
+                'dmg':'OSX','bz2':'Linux','gz':'All'}[ext]
         desc = installer_description(fname)
         start = time.time()
         path = self.upload(os.path.abspath(fname), desc,

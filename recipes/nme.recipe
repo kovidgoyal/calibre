@@ -1,0 +1,42 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1306061239(BasicNewsRecipe):
+    title          = u'New Musical Express Magazine'
+    __author__ = "scissors"
+    language = 'en'
+    remove_empty_feeds = True
+    remove_javascript     = True
+    no_stylesheets = True
+    oldest_article = 7
+    max_articles_per_feed = 100
+    cover_url = 'http://tawanda3000.files.wordpress.com/2011/02/nme-logo.jpg'
+
+    remove_tags = [
+    dict( attrs={'class':'clear_icons'}),
+        dict( attrs={'class':'share_links'}),
+                        dict( attrs={'id':'right_panel'}),
+        dict( attrs={'class':'today box'})
+
+]
+
+    keep_only_tags = [
+
+    dict(name='h1'),
+    #dict(name='h3'),
+    dict(attrs={'class' :  'BText'}),
+    dict(attrs={'class' :  'Bmore'}),
+    dict(attrs={'class' : 'bPosts'}),
+    dict(attrs={'class' :  'text'}),
+    dict(attrs={'id' :  'article_gallery'}),
+    dict(attrs={'class' :  'article_text'})
+]
+
+
+
+
+    feeds          = [
+    (u'NME News', u'http://feeds2.feedburner.com/nmecom/rss/newsxml'),
+    (u'Reviews', u'http://feeds2.feedburner.com/nme/SdML'),
+    (u'Blogs', u'http://www.nme.com/blog/index.php?blog=140&tempskin=_rss2'),
+
+    ]

@@ -202,6 +202,10 @@ def main(args=sys.argv):
 
 
     if len(args) > 1:
+        if len(args) < 4:
+            print ('You must specify the from address, to address and body text'
+                    ' on the command line')
+            return 1
         msg = compose_mail(args[1], args[2], args[3], subject=opts.subject,
                            attachment=opts.attachment)
         from_, to = args[1:3]

@@ -175,6 +175,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
     def __init__(self, pathtoebook=None, debug_javascript=False):
         MainWindow.__init__(self, None)
         self.setupUi(self)
+        self.view.magnification_changed.connect(self.magnification_changed)
         self.show_toc_on_open = False
         self.current_book_has_toc = False
         self.base_window_title = unicode(self.windowTitle())
@@ -345,6 +346,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         if self.toc.isVisible():
             vprefs.set('viewer_splitter_state',
                 bytearray(self.splitter.saveState()))
+        vprefs['multiplier'] = self.view.multiplier
 
     def restore_state(self):
         state = vprefs.get('viewer_toolbar_state', None)
@@ -354,6 +356,9 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
                 self.restoreState(state, self.STATE_VERSION)
             except:
                 pass
+        mult = vprefs.get('multiplier', None)
+        if mult:
+            self.view.multiplier = mult
 
 
     def lookup(self, word):
@@ -476,16 +481,22 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
 
     def font_size_larger(self, checked):
         frac = self.view.magnify_fonts()
-        self.action_font_size_larger.setEnabled(self.view.multiplier() < 3)
-        self.action_font_size_smaller.setEnabled(self.view.multiplier() > 0.2)
+        self.action_font_size_larger.setEnabled(self.view.multiplier < 3)
+        self.action_font_size_smaller.setEnabled(self.view.multiplier > 0.2)
         self.set_page_number(frac)
 
     def font_size_smaller(self, checked):
         frac = self.view.shrink_fonts()
-        self.action_font_size_larger.setEnabled(self.view.multiplier() < 3)
-        self.action_font_size_smaller.setEnabled(self.view.multiplier() > 0.2)
+        self.action_font_size_larger.setEnabled(self.view.multiplier < 3)
+        self.action_font_size_smaller.setEnabled(self.view.multiplier > 0.2)
         self.set_page_number(frac)
 
+    def magnification_changed(self, val):
+        tt = _('Make font size %s\nCurrent magnification: %.1f')
+        self.action_font_size_larger.setToolTip(
+                tt %(_('larger'), val))
+        self.action_font_size_smaller.setToolTip(
+                tt %(_('smaller'), val))
 
     def find(self, text, repeat=False, backwards=False):
         if not text:
