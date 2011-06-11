@@ -271,6 +271,9 @@ class Dispatcher(QObject):
     Convenience class to use Qt signals with arbitrary python callables.
     By default, ensures that a function call always happens in the
     thread this Dispatcher was created in.
+
+    Note that if you create the Dispatcher in a thread without an event loop of
+    its own, the function call will happen in the GUI thread (I think).
     '''
     dispatch_signal = pyqtSignal(object, object)
 
@@ -292,7 +295,9 @@ class FunctionDispatcher(QObject):
     '''
     Convenience class to use Qt signals with arbitrary python functions.
     By default, ensures that a function call always happens in the
-    thread this Dispatcher was created in.
+    thread this FunctionDispatcher was created in.
+
+    Note that you must create FunctionDispatcher objects in the GUI thread.
     '''
     dispatch_signal = pyqtSignal(object, object, object)
 
