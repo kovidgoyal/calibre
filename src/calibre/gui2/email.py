@@ -11,8 +11,8 @@ from binascii import unhexlify
 from functools import partial
 from itertools import repeat
 
-from calibre.utils.smtp import compose_mail, sendmail, extract_email_address, \
-        config as email_config
+from calibre.utils.smtp import (compose_mail, sendmail, extract_email_address,
+        config as email_config)
 from calibre.utils.filenames import ascii_filename
 from calibre.customize.ui import available_input_formats, available_output_formats
 from calibre.ebooks.metadata import authors_to_string
@@ -67,8 +67,8 @@ class Sendmail(object):
             from_ = opts.from_
             if not from_:
                 from_ = 'calibre <calibre@'+socket.getfqdn()+'>'
-            msg = compose_mail(from_, to, text, subject, open(attachment, 'rb'),
-                    aname)
+            with lopen(attachment, 'rb') as f:
+                msg = compose_mail(from_, to, text, subject, f, aname)
             efrom, eto = map(extract_email_address, (from_, to))
             eto = [eto]
             sendmail(msg, efrom, eto, localhost=None,
