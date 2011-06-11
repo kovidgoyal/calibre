@@ -297,6 +297,7 @@ class FunctionDispatcher(QObject):
     dispatch_signal = pyqtSignal(object, object, object)
 
     def __init__(self, func, queued=True, parent=None):
+        global gui_thread
         QObject.__init__(self, parent)
         self.func = func
         typ = Qt.QueuedConnection
@@ -305,6 +306,8 @@ class FunctionDispatcher(QObject):
         self.dispatch_signal.connect(self.dispatch, type=typ)
         self.q = Queue.Queue()
         self.lock = threading.Lock()
+        if gui_thread is None:
+            gui_thread = QThread.currentThread()
 
     def __call__(self, *args, **kwargs):
         if is_gui_thread():
