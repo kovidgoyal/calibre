@@ -6,18 +6,18 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import os, traceback, Queue, time, cStringIO, re, sys
 from threading import Thread
 
-from PyQt4.Qt import (QMenu, QAction, QActionGroup, QIcon, SIGNAL,
-                     Qt, pyqtSignal, QDialog, QObject)
+from PyQt4.Qt import QMenu, QAction, QActionGroup, QIcon, SIGNAL, \
+                     Qt, pyqtSignal, QDialog, QObject
 
-from calibre.customize.ui import (available_input_formats, available_output_formats,
-    device_plugins)
+from calibre.customize.ui import available_input_formats, available_output_formats, \
+    device_plugins
 from calibre.devices.interface import DevicePlugin
 from calibre.devices.errors import UserFeedback, OpenFeedback
 from calibre.gui2.dialogs.choose_format_device import ChooseFormatDeviceDialog
 from calibre.utils.ipc.job import BaseJob
 from calibre.devices.scanner import DeviceScanner
-from calibre.gui2 import (config, error_dialog, Dispatcher, dynamic,
-        warning_dialog, info_dialog, choose_dir, FunctionDispatcher)
+from calibre.gui2 import config, error_dialog, Dispatcher, dynamic, \
+        warning_dialog, info_dialog, choose_dir
 from calibre.ebooks.metadata import authors_to_string
 from calibre import preferred_encoding, prints, force_unicode, as_unicode
 from calibre.utils.filenames import ascii_filename
@@ -611,7 +611,7 @@ class DeviceMixin(object): # {{{
         self.device_error_dialog = error_dialog(self, _('Error'),
                 _('Error communicating with device'), ' ')
         self.device_error_dialog.setModal(Qt.NonModal)
-        self.device_manager = DeviceManager(FunctionDispatcher(self.device_detected),
+        self.device_manager = DeviceManager(Dispatcher(self.device_detected),
                 self.job_manager, Dispatcher(self.status_bar.show_message),
                 Dispatcher(self.show_open_feedback))
         self.device_manager.start()
@@ -729,16 +729,14 @@ class DeviceMixin(object): # {{{
         '''
         Called when a device is connected to the computer.
         '''
-        # This could happen historically as this function was called in a queued connection and
-        # the user could have yanked the device in the meantime. Now the device
-        # thread is blocked while it is called, but the check is harmless, so
-        # we leave it in.
+        # This can happen as this function is called in a queued connection and
+        # the user could have yanked the device in the meantime
         if connected and not self.device_manager.is_device_connected:
             connected = False
         self.set_device_menu_items_state(connected)
         if connected:
             self.device_manager.get_device_information(\
-                    FunctionDispatcher(self.info_read))
+                    Dispatcher(self.info_read))
             self.set_default_thumbnail(\
                     self.device_manager.device.THUMBNAIL_HEIGHT)
             self.status_bar.show_message(_('Device: ')+\
@@ -746,7 +744,7 @@ class DeviceMixin(object): # {{{
                         _(' detected.'), 3000)
             self.device_connected = device_kind
             self.library_view.set_device_connected(self.device_connected)
-            self.refresh_ondevice(reset_only=True)
+            self.refresh_ondevice (reset_only = True)
         else:
             self.device_connected = None
             self.status_bar.device_disconnected()
@@ -769,7 +767,7 @@ class DeviceMixin(object): # {{{
                 self.device_manager.device.icon)
         self.bars_manager.update_bars()
         self.status_bar.device_connected(info[0])
-        self.device_manager.books(FunctionDispatcher(self.metadata_downloaded))
+        self.device_manager.books(Dispatcher(self.metadata_downloaded))
 
     def metadata_downloaded(self, job):
         '''
@@ -812,7 +810,7 @@ class DeviceMixin(object): # {{{
 
     def remove_paths(self, paths):
         return self.device_manager.delete_books(
-                FunctionDispatcher(self.books_deleted), paths)
+                Dispatcher(self.books_deleted), paths)
 
     def books_deleted(self, job):
         '''
@@ -1189,7 +1187,7 @@ class DeviceMixin(object): # {{{
         Upload metadata to device.
         '''
         plugboards = self.library_view.model().db.prefs.get('plugboards', {})
-        self.device_manager.sync_booklists(FunctionDispatcher(self.metadata_synced),
+        self.device_manager.sync_booklists(Dispatcher(self.metadata_synced),
                                            self.booklists(), plugboards)
 
     def metadata_synced(self, job):
@@ -1224,7 +1222,7 @@ class DeviceMixin(object): # {{{
         titles = [i.title for i in metadata]
         plugboards = self.library_view.model().db.prefs.get('plugboards', {})
         job = self.device_manager.upload_books(
-                FunctionDispatcher(self.books_uploaded),
+                Dispatcher(self.books_uploaded),
                 files, names, on_card=on_card,
                 metadata=metadata, titles=titles, plugboards=plugboards
               )
@@ -1477,7 +1475,7 @@ class DeviceMixin(object): # {{{
                                     self.cover_to_thumbnail(open(book.cover, 'rb').read())
                 plugboards = self.library_view.model().db.prefs.get('plugboards', {})
                 self.device_manager.sync_booklists(
-                                    FunctionDispatcher(self.metadata_synced), booklists,
+                                    Dispatcher(self.metadata_synced), booklists,
                                     plugboards)
         return update_metadata
     # }}}
