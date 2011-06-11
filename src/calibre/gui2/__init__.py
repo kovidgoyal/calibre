@@ -307,6 +307,8 @@ class FunctionDispatcher(QObject):
         self.lock = threading.Lock()
 
     def __call__(self, *args, **kwargs):
+        if is_gui_thread():
+            return self.func(*args, **kwargs)
         with self.lock:
             self.dispatch_signal.emit(self.q, args, kwargs)
             res = self.q.get()
