@@ -298,6 +298,12 @@ class FunctionDispatcher(QObject):
 
     def __init__(self, func, queued=True, parent=None):
         global gui_thread
+        if gui_thread is None:
+            gui_thread = QThread.currentThread()
+        if not is_gui_thread():
+            raise ValueError(
+                'You can only create a FunctionDispatcher in the GUI thread')
+
         QObject.__init__(self, parent)
         self.func = func
         typ = Qt.QueuedConnection
@@ -306,8 +312,6 @@ class FunctionDispatcher(QObject):
         self.dispatch_signal.connect(self.dispatch, type=typ)
         self.q = Queue.Queue()
         self.lock = threading.Lock()
-        if gui_thread is None:
-            gui_thread = QThread.currentThread()
 
     def __call__(self, *args, **kwargs):
         if is_gui_thread():
