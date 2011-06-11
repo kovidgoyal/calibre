@@ -179,6 +179,24 @@ class Win32Freeze(Command, WixMixIn):
         shutil.copytree(self.j(comext, 'shell'), self.j(sp_dir, 'win32com', 'shell'))
         shutil.rmtree(comext)
 
+        # Fix PyCrypto, removing the bootstrap .py modules that load the .pyd
+        # modules, since they do not work when in a zip file
+        for crypto_dir in glob.glob(self.j(sp_dir, 'pycrypto-*', 'Crypto')):
+            for dirpath, dirnames, filenames in os.walk(crypto_dir):
+                for f in filenames:
+                    name, ext = os.path.splitext(f)
+                    if ext == '.pyd':
+                        with open(self.j(dirpath, name+'.py')) as f:
+                            raw = f.read().strip()
+                        if (not raw.startswith('def __bootstrap__') or not
+                                raw.endswith('__bootstrap__()')):
+                            raise Exception('The PyCrypto file %r has non'
+                                    ' bootstrap code'%self.j(dirpath, f))
+                        for ext in ('.py', '.pyc', '.pyo'):
+                            x = self.j(dirpath, name+ext)
+                            if os.path.exists(x):
+                                os.remove(x)
+
         for pat in (r'PyQt4\uic\port_v3', ):
             x = glob.glob(self.j(self.lib_dir, 'site-packages', pat))[0]
             shutil.rmtree(x)
