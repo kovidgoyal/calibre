@@ -305,8 +305,11 @@ class FunctionDispatcher(QObject):
         self.dispatch_signal.connect(self.dispatch, type=typ)
         self.q = Queue.Queue()
         self.lock = threading.Lock()
+        self.calling_thread = QThread.currentThread()
 
     def __call__(self, *args, **kwargs):
+        if self.calling_thread == QThread.currentThread():
+            return self.func(*args, **kwargs)
         with self.lock:
             self.dispatch_signal.emit(self.q, args, kwargs)
             res = self.q.get()
