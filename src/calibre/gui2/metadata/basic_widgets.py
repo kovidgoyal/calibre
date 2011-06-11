@@ -1074,16 +1074,16 @@ class IdentifiersEdit(QLineEdit): # {{{
 
 # }}}
 
-class ISBNDialog(QDialog) :
+class ISBNDialog(QDialog) : # {{{
 
     def __init__(self, parent, txt):
         QDialog.__init__(self, parent)
         l = QGridLayout()
         self.setLayout(l)
-        self.setWindowTitle(_('Empty or Invalid ISBN'))
-        w = QLabel(_('Enter a different ISBN value if desired'))
+        self.setWindowTitle(_('Invalid ISBN'))
+        w = QLabel(_('Enter an ISBN'))
         l.addWidget(w, 0, 0, 1, 2)
-        w = QLabel(_('Value:'))
+        w = QLabel(_('ISBN:'))
         l.addWidget(w, 1, 0, 1, 1)
         self.line_edit = w = QLineEdit();
         w.setText(txt)
@@ -1095,6 +1095,17 @@ class ISBNDialog(QDialog) :
         w.accepted.connect(self.accept)
         w.rejected.connect(self.reject)
         self.checkText(self.text())
+        sz = self.sizeHint()
+        sz.setWidth(sz.width()+50)
+        self.resize(sz)
+
+    def accept(self):
+        isbn = unicode(self.line_edit.text())
+        if not check_isbn(isbn):
+            return error_dialog(self, _('Invalid ISBN'),
+                    _('The ISBN you entered is not valid. Try again.'),
+                    show=True)
+        QDialog.accept(self)
 
     def checkText(self, txt):
         isbn = unicode(txt)
@@ -1112,6 +1123,8 @@ class ISBNDialog(QDialog) :
 
     def text(self):
         return unicode(self.line_edit.text())
+
+# }}}
 
 class PublisherEdit(MultiCompleteComboBox): # {{{
     LABEL = _('&Publisher:')

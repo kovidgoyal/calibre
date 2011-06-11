@@ -58,7 +58,7 @@
       <string> KB</string>
      </property>
      <property name="minimum">
-      <number>100</number>
+      <number>25</number>
      </property>
      <property name="maximum">
       <number>1000000</number>
