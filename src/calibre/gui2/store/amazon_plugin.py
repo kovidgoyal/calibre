@@ -139,14 +139,26 @@ class AmazonKindleStore(StorePlugin):
                 cover_xpath = './/div[@class="productTitle"]//img/@src'
                 title_xpath = './/div[@class="productTitle"]/a//text()'
                 price_xpath = './/div[@class="newPrice"]/span/text()'
-            # Vertical list of books. Search "martin"
+            # Vertical list of books.
             else:
-                data_xpath = '//div[contains(@class, "results")]//div[contains(@class, "result")]'
-                format_xpath = './/span[@class="binding"]//text()'
-                asin_xpath = './/div[@class="image"]/a[1]'
-                cover_xpath = './/img[@class="productImage"]/@src'
-                title_xpath = './/a[@class="title"]/text()'
-                price_xpath = './/span[@class="price"]/text()'
+                # New style list. Search "Paolo Bacigalupi"
+                if doc.xpath('boolean(//div[@class="image"])'):
+                    data_xpath = '//div[contains(@class, "results")]//div[contains(@class, "result")]'
+                    format_xpath = './/span[@class="binding"]//text()'
+                    asin_xpath = './/div[@class="image"]/a[1]'
+                    cover_xpath = './/img[@class="productImage"]/@src'
+                    title_xpath = './/a[@class="title"]/text()'
+                    price_xpath = './/span[@class="price"]/text()'
+                # Old style list. Search "martin"
+                else:
+                    data_xpath = '//div[contains(@class, "result")]'
+                    format_xpath = './/span[@class="format"]//text()'
+                    asin_xpath = './/div[@class="productImage"]/a[1]'
+                    cover_xpath = './/div[@class="productImage"]//img/@src'
+                    title_xpath = './/div[@class="productTitle"]/a/text()'
+                    price_xpath = './/div[@class="newPrice"]//span//text()'
+                    
+            
             
             for data in doc.xpath(data_xpath):
                 if counter <= 0:
