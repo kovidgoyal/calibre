@@ -246,6 +246,16 @@ class POCKETBOOK602(USBMS):
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['PB602', 'PB603', 'PB902',
             'PB903', 'PB']
 
+class POCKETBOOK360P(POCKETBOOK602):
+
+    name = 'PocketBook 360+ Device Interface'
+    description    = _('Communicate with the PocketBook 360+ reader.')
+    BCD         = [0x0323]
+    EBOOK_DIR_MAIN = ''
+
+    VENDOR_NAME = '__POCKET'
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'BOOK_USB_STORAGE'
+
 class POCKETBOOK701(USBMS):
 
     name = 'PocketBook 701 Device Interface'

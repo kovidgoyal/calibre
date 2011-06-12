@@ -11,8 +11,8 @@ import textwrap, re, os
 
 from PyQt4.Qt import (Qt, QDateEdit, QDate, pyqtSignal, QMessageBox,
     QIcon, QToolButton, QWidget, QLabel, QGridLayout, QApplication,
-    QDoubleSpinBox, QListWidgetItem, QSize, QPixmap,
-    QPushButton, QSpinBox, QLineEdit, QSizePolicy)
+    QDoubleSpinBox, QListWidgetItem, QSize, QPixmap, QDialog,
+    QPushButton, QSpinBox, QLineEdit, QSizePolicy, QDialogButtonBox)
 
 from calibre.gui2.widgets import EnLineEdit, FormatList, ImageView
 from calibre.gui2.complete import MultiCompleteLineEdit, MultiCompleteComboBox
@@ -1061,10 +1061,68 @@ class IdentifiersEdit(QLineEdit): # {{{
 
     def paste_isbn(self):
         text = unicode(QApplication.clipboard().text()).strip()
-        if text:
-            vals = self.current_val
-            vals['isbn'] = text
-            self.current_val = vals
+        if not text or not check_isbn(text):
+            d = ISBNDialog(self, text)
+            if not d.exec_():
+                return
+            text = d.text()
+            if not text:
+                return
+        vals = self.current_val
+        vals['isbn'] = text
+        self.current_val = vals
+
+# }}}
+
+class ISBNDialog(QDialog) : # {{{
+
+    def __init__(self, parent, txt):
+        QDialog.__init__(self, parent)
+        l = QGridLayout()
+        self.setLayout(l)
+        self.setWindowTitle(_('Invalid ISBN'))
+        w = QLabel(_('Enter an ISBN'))
+        l.addWidget(w, 0, 0, 1, 2)
+        w = QLabel(_('ISBN:'))
+        l.addWidget(w, 1, 0, 1, 1)
+        self.line_edit = w = QLineEdit();
+        w.setText(txt)
+        w.selectAll()
+        w.textChanged.connect(self.checkText)
+        l.addWidget(w, 1, 1, 1, 1)
+        w = QDialogButtonBox(QDialogButtonBox.Ok|QDialogButtonBox.Cancel)
+        l.addWidget(w, 2, 0, 1, 2)
+        w.accepted.connect(self.accept)
+        w.rejected.connect(self.reject)
+        self.checkText(self.text())
+        sz = self.sizeHint()
+        sz.setWidth(sz.width()+50)
+        self.resize(sz)
+
+    def accept(self):
+        isbn = unicode(self.line_edit.text())
+        if not check_isbn(isbn):
+            return error_dialog(self, _('Invalid ISBN'),
+                    _('The ISBN you entered is not valid. Try again.'),
+                    show=True)
+        QDialog.accept(self)
+
+    def checkText(self, txt):
+        isbn = unicode(txt)
+        if not isbn:
+            col = 'none'
+            extra = ''
+        elif check_isbn(isbn) is not None:
+            col = 'rgba(0,255,0,20%)'
+            extra = _('This ISBN number is valid')
+        else:
+            col = 'rgba(255,0,0,20%)'
+            extra = _('This ISBN number is invalid')
+        self.line_edit.setToolTip(extra)
+        self.line_edit.setStyleSheet('QLineEdit { background-color: %s }'%col)
+
+    def text(self):
+        return unicode(self.line_edit.text())
 
 # }}}
 

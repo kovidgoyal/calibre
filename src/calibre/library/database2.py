@@ -82,6 +82,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     An ebook metadata database that stores references to ebook files on disk.
     '''
     PATH_LIMIT = 40 if 'win32' in sys.platform else 100
+    WINDOWS_LIBRARY_PATH_LIMIT = 75
 
     @dynamic_property
     def user_version(self):
@@ -122,9 +123,20 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         return property(doc=doc, fget=fget, fset=fset)
 
     def connect(self):
-        if 'win32' in sys.platform and len(self.library_path) + 4*self.PATH_LIMIT + 10 > 259:
-            raise ValueError('Path to library too long. Must be less than %d characters.'%(259-4*self.PATH_LIMIT-10))
+        if iswindows and len(self.library_path) + 4*self.PATH_LIMIT + 10 > 259:
+            raise ValueError(_(
+                'Path to library too long. Must be less than'
+                ' %d characters.')%(259-4*self.PATH_LIMIT-10))
         exists = os.path.exists(self.dbpath)
+        if not exists:
+            # Be more strict when creating new libraries as the old calculation
+            # allowed for max path lengths of 265 chars.
+            if (iswindows and len(self.library_path) >
+                    self.WINDOWS_LIBRARY_PATH_LIMIT):
+                raise ValueError(_(
+                    'Path to library too long. Must be less than'
+                    ' %d characters.')%self.WINDOWS_LIBRARY_PATH_LIMIT)
+
         self.conn = connect(self.dbpath, self.row_factory)
         if exists and self.user_version == 0:
             self.conn.close()
