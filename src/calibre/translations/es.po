@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-06-10 18:12+0000\n"
-"PO-Revision-Date: 2011-06-04 09:19+0000\n"
+"PO-Revision-Date: 2011-06-11 08:10+0000\n"
 "Last-Translator: Jellby <Unknown>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-06-11 04:50+0000\n"
+"X-Launchpad-Export-Date: 2011-06-12 04:51+0000\n"
 "X-Generator: Launchpad (build 13168)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:528
@@ -1111,7 +1111,7 @@ msgstr "Comunicar con el lector PocketBook 602/603/902/903."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:252
 msgid "Communicate with the PocketBook 360+ reader."
-msgstr ""
+msgstr "Comunicar con el lector PocketBook 360+."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:262
 msgid "Communicate with the PocketBook 701"
@@ -1345,7 +1345,7 @@ msgstr "Comunicar con el EEE Reader"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:263
 msgid "Communicate with the Adam tablet"
-msgstr ""
+msgstr "Comunicar con la tablilla Adam"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:284
 msgid "Communicate with the Nextbook Reader"
@@ -2149,7 +2149,7 @@ msgstr ""
 "<h2> que contengan las palabras «chapter», «book», «section» o «part», así "
 "como cualquier etiqueta que tenga class=\"chapter\". La expresión debe dar "
 "una lista de elementos. Para desactivar la detección de capítulos use la "
-"expresión «/». Véase el Tutorial de XPath en el Manual de usuario de calibre "
+"expresión «/». Véase el Cursillo de XPath en el Manual de usuario de calibre "
 "para obtener más ayuda sobre el uso de esta opción."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:285
@@ -4715,7 +4715,7 @@ msgstr "La carpeta %s ya existe. Elimínela primero."
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:70
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:661
 msgid "Too long"
-msgstr ""
+msgstr "Demasiado larga"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:236
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:71
@@ -4724,6 +4724,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:136
 msgid "Path to library too long. Must be less than %d characters."
 msgstr ""
+"La ruta a la biblioteca es demasiado larga. Debe tener menos de %d "
+"caracteres."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:243
 msgid "Rename failed"
@@ -4985,7 +4987,7 @@ msgstr "Eliminar todos los formatos de los libros seleccionados, excepto..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:98
 msgid "Remove all formats from selected books"
-msgstr ""
+msgstr "Eliminar todos los formatos de los libros seleccionados"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:101
 msgid "Remove covers from selected books"
@@ -5016,6 +5018,8 @@ msgid ""
 "<b>All formats</b> for the selected books will be <b>deleted</b> from your "
 "library.<br>The book metadata will be kept. Are you sure?"
 msgstr ""
+"Se <b>borrarán todos los formatos</b> de los libros seleccionados de la "
+"biblioteca.<br>Los metadatos se conservarán. ¿Está seguro?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:204
 msgid "Cannot delete books"
@@ -7426,7 +7430,7 @@ msgid ""
 "the current input document."
 msgstr ""
 "<p>Buscar y sustituir utiliza <i>expresiones regulares</i>. Consulte el <a "
-"href=\"http://manual.calibre-ebook.com/regexp.html\">tutorial de expresiones "
+"href=\"http://manual.calibre-ebook.com/regexp.html\">Cursillo de expresiones "
 "regulares</a> para aprender las bases de su funcionamiento. Al pulsar en los "
 "botones de asistente de más abajo podrá comprobar sus expresiones regulares "
 "con el documento de entrada actual."
@@ -7776,7 +7780,7 @@ msgstr ""
 "blanco a cualquier valor. Si se establece «*» en la etiqueta se seleccionará "
 "cualquier etiqueta.</p>\r\n"
 "<p>Para usos más avanzados de XPath, véase el <a "
-"href=\"http://manual.calibre-ebook.com/xpath.html\">Tutorial de "
+"href=\"http://manual.calibre-ebook.com/xpath.html\">Cursillo de "
 "XPath</a>.</p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/cover_flow.py:128
@@ -10217,11 +10221,11 @@ msgstr "Ctrl+S"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:257
 msgid "Template language tutorial"
-msgstr ""
+msgstr "Cursillo del lenguaje de plantillas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:261
 msgid "Template function reference"
-msgstr ""
+msgstr "Referencia del lenguaje de plantillas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:274
 msgid "EXCEPTION: "
@@ -10650,7 +10654,7 @@ msgstr ""
 "<p>Establezca un patrón de expresión regular para usar al tratar de "
 "determinar los metadatos de un libro a partir del nombre de fichero.</p>\n"
 "<p>Hay disponible un <a href=\"http://manual.calibre-"
-"ebook.com/regexp.html\">tutorial</a> sobre el uso de expresiones "
+"ebook.com/regexp.html\">cursillo</a> sobre el uso de expresiones "
 "regulares.</p>\n"
 "<p>Use la función <b>Prueba</b> para comprobar la expresión regular con "
 "algunos nombres ficheros de prueba (acuérdese de incluir la extensión). Los "
@@ -11490,15 +11494,15 @@ msgstr "Este ISBN no es válido"
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1083
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1105
 msgid "Invalid ISBN"
-msgstr ""
+msgstr "ISBN no válido"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1084
 msgid "Enter an ISBN"
-msgstr ""
+msgstr "Introduzca un ISBN"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1106
 msgid "The ISBN you entered is not valid. Try again."
-msgstr ""
+msgstr "El ISBN que ha introducido no es válido. Pruebe otra vez."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1130
 msgid "&Publisher:"
@@ -14192,7 +14196,7 @@ msgstr "No se pueden eliminar las acciones %s de esta ubicación"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:108
 msgid "Choose the &toolbar to customize:"
-msgstr ""
+msgstr "Elija una &barra de herramientas para personalizar:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:109
 msgid "A&vailable actions"
@@ -15633,14 +15637,16 @@ msgid ""
 "Make font size %s\n"
 "Current magnification: %.1f"
 msgstr ""
+"%s el tamaño de letra\n"
+"Escala actual: %.1f"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:497
 msgid "larger"
-msgstr ""
+msgstr "Aumentar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:499
 msgid "smaller"
-msgstr ""
+msgstr "Reducir"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:515
 msgid "No matches found for: %s"
