@@ -597,7 +597,7 @@ class DeviceMenu(QMenu): # {{{
 
     # }}}
 
-class DeviceSignals(QObject):
+class DeviceSignals(QObject): # {{{
     #: This signal is emitted once, after metadata is downloaded from the
     #: connected device.
     #: The sequence: gui.device_manager.is_device_connected will become True,
@@ -614,6 +614,7 @@ class DeviceSignals(QObject):
     device_connection_changed = pyqtSignal(object)
 
 device_signals = DeviceSignals()
+# }}}
 
 class DeviceMixin(object): # {{{
 
