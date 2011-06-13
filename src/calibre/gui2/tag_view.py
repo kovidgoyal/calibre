@@ -610,7 +610,7 @@ class TagTreeItem(object): # {{{
             self.temporary = temporary
             self.tag = Tag(data, category=category_key,
                    is_editable=category_key not in ['news', 'search', 'identifiers'],
-                   is_searchable=category_key not in ['news', 'search'])
+                   is_searchable=category_key not in ['search'])
 
         elif self.type == self.TAG:
             self.icon_state_map[0] = QVariant(data.icon)
@@ -1642,7 +1642,13 @@ class TagsModel(QAbstractItemModel): # {{{
 
         for node in self.category_nodes:
             if node.tag.state:
-                ans.append('%s:%s'%(node.category_key, node_searches[node.tag.state]))
+                if node.category_key == "news":
+                    if node_searches[node.tag.state] == 'true':
+                        ans.append('tags:=news')
+                    else:
+                        ans.append('( not tags:=news )')
+                else:
+                    ans.append('%s:%s'%(node.category_key, node_searches[node.tag.state]))
 
             key = node.category_key
             for tag_item in node.child_tags():
