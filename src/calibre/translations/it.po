@@ -9,13 +9,13 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-06-10 18:12+0000\n"
-"PO-Revision-Date: 2011-06-10 13:39+0000\n"
+"PO-Revision-Date: 2011-06-12 16:49+0000\n"
 "Last-Translator: Andrea Ghirardini <Unknown>\n"
 "Language-Team: italiano\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-06-11 04:44+0000\n"
+"X-Launchpad-Export-Date: 2011-06-13 04:36+0000\n"
 "X-Generator: Launchpad (build 13168)\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -1101,7 +1101,7 @@ msgstr "Comunica con il lettore PocketBook 602/603/902/903"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:252
 msgid "Communicate with the PocketBook 360+ reader."
-msgstr ""
+msgstr "In comunicazione con il lettore PocketBook 360+"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:262
 msgid "Communicate with the PocketBook 701"
@@ -1333,7 +1333,7 @@ msgstr "Comunica con l'EEE Reader"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:263
 msgid "Communicate with the Adam tablet"
-msgstr ""
+msgstr "In comunicazione con il tablet Adam"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:284
 msgid "Communicate with the Nextbook Reader"
@@ -2474,6 +2474,8 @@ msgid ""
 "Replace scene breaks with the specified text. By default, the text from the "
 "input document is used."
 msgstr ""
+"Rimpiazzare i marcatori di interruzione scena con un testo specifico. Di "
+"default, viene usato il testo del documento."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:553
 msgid ""
@@ -2490,6 +2492,8 @@ msgid ""
 "Looks for occurrences of sequential <h1> or <h2> tags. The tags are "
 "renumbered to prevent splitting in the middle of chapter headings."
 msgstr ""
+"Alla ricerca di occorrenze di sequenze di tag <h1> o <h2>. I tag sono "
+"rinumerati per prevenire la divisione a metà di un titolo di capitolo"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:565
 msgid "Search pattern (regular expression) to be replaced with sr1-replace."
@@ -2721,11 +2725,11 @@ msgid ""
 "Genre for the book. Choices: %s\n"
 "\n"
 " See: "
-msgstr ""
+msgstr "Genere per il libro: Scelte %s "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/output.py:159
 msgid "for a complete list with descriptions."
-msgstr ""
+msgstr "per una lista completa con descrizioni."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:248
 msgid ""
@@ -3345,11 +3349,11 @@ msgstr "Copertina"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:386
 msgid "Downloads metadata and covers from Amazon"
-msgstr ""
+msgstr "Download di metadati e copertine da Amazon"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:396
 msgid "US"
-msgstr ""
+msgstr "US"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:397
 msgid "France"
@@ -3365,20 +3369,21 @@ msgstr "GB"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:400
 msgid "Italy"
-msgstr ""
+msgstr "Italia"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:404
 msgid "Amazon website to use:"
-msgstr ""
+msgstr "Sito web di Amazon da usare:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:405
 msgid ""
 "Metadata from Amazon will be fetched using this country's Amazon website."
 msgstr ""
+"I metadati da Amazon saranno ottenuti dal sito Amazon di questo stato."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:532
 msgid "Amazon timed out. Try again later."
-msgstr ""
+msgstr "Timeout da Amazon. Prova più tardi."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/base.py:159
 msgid "Metadata source"
@@ -3386,11 +3391,11 @@ msgstr "Sorgente metadati"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/douban.py:156
 msgid "Downloads metadata and covers from Douban.com"
-msgstr ""
+msgstr "Download di metadati e copertine da Douban.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google.py:160
 msgid "Downloads metadata and covers from Google Books"
-msgstr ""
+msgstr "Download di metadati e copertine da Google Books"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/isbndb.py:27
 msgid "Downloads metadata from isbndb.com"
@@ -3398,13 +3403,15 @@ msgstr "Scarica i metadati da isbndb.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/isbndb.py:37
 msgid "IsbnDB key:"
-msgstr ""
+msgstr "Chiave IsbnDB:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/isbndb.py:38
 msgid ""
 "To use isbndb.com you have to sign up for a free accountat isbndb.com and "
 "get an access key."
 msgstr ""
+"Per usare isbndb.com devi sottoscrivere un account gratuito su isbndb.com "
+"per avere la chiave di accesso."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/isbndb.py:42
 msgid ""
@@ -3412,22 +3419,28 @@ msgid ""
 "an isbndb key and enter it below. Instructions to get the key are <a "
 "href=\"http://isbndb.com/docs/api/30-keys.html\">here</a>."
 msgstr ""
+"Per usare i metadati da isbndb.com devi sottoscrivere un account gratuito, "
+"ottenre una chiave di accesso e inserirla qui sotto. Maggiori istruzioni <a "
+"href=\"http://isbndb.com/docs/api/30-keys.html\">qui</a>."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/openlibrary.py:15
 msgid "Downloads covers from The Open Library"
-msgstr ""
+msgstr "Download delle cover da \"The Open Library\""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/overdrive.py:33
 msgid "Downloads metadata and covers from Overdrive's Content Reserve"
 msgstr ""
+"Download dei metadati e delle cover da \"Overdrive's Content Reserve\""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/overdrive.py:45
 msgid "Download all metadata (slow)"
-msgstr ""
+msgstr "Download di tutti i metadati (lento)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/overdrive.py:46
 msgid "Enable this option to gather all metadata available from Overdrive."
 msgstr ""
+"Abilita questa opzione per scaricare tutti i metadati disponibili su "
+"Overdrive"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/overdrive.py:49
 msgid ""
@@ -3437,6 +3450,11 @@ msgid ""
 "time required. Check the download all metadata option below to enable "
 "downloading this data."
 msgstr ""
+"Ulteriori metadati possono essere scaricati dalla pagina di dettaglio di "
+"Overdrive. Questo include anche una serie di tag usati dalle librerie, i "
+"commenti, la lingua, e l'ISBN. Lo scaricamento di questi dati è disabilitato "
+"di default dato che impiega molto tempo. Controlla le opzioni di download "
+"qui sotto per abilitare il download di questi dati."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:22
 msgid "Modify images to meet Palm device size limitations."
@@ -3952,7 +3970,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/rtf2xml/hex_2_utf8.py:296
 msgid "error no state found in hex_2_utf8"
-msgstr ""
+msgstr "errore, nessuno stato trovato in hex_2_utf8"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:25
 #: /home/kovid/work/calibre/src/calibre/ebooks/tcr/output.py:23
@@ -4148,6 +4166,11 @@ msgid ""
 "set and default to the color displayed by the reader (generally this is "
 "black)."
 msgstr ""
+"Non rimuovere il colore del font dal file di output. Questa opzione è utile "
+"solo quando txt-output-formatting è settato su textile. Il formato textile è "
+"l'unico che supporta il colore dei font. Se questa opzione non è specificata "
+"il colore del font non sarà settato e sarà utilizzato quello di default del "
+"reader (di solito nero)."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:104
 msgid "Send file to storage card instead of main memory by default"
@@ -4254,12 +4277,17 @@ msgid ""
 "showing only the matches. You can use the N or F3 keys to go to the next "
 "match."
 msgstr ""
+"Durante la ricerca, mostra tutti i libri con i risultati evidenziati "
+"piuttosto che mostrare solo le occorrenze trovate. Puoi usare il tasto N o "
+"F3 per andare sulla prossima occorrenza."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:166
 msgid ""
 "Maximum number of simultaneous conversion/news download jobs. This number is "
 "twice the actual value for historical reasons."
 msgstr ""
+"Numero massimo di job di conversione/download di news. Il numero è il doppio "
+"del valore attuale per ragioni storiche."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:170
 msgid "Download social metadata (tags/rating/etc.)"
@@ -4393,7 +4421,7 @@ msgstr "Aggiungi da ISBN"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:69
 msgid "Add files to selected book records"
-msgstr ""
+msgstr "Aggiungi i file ai record dei libri selezionati."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:70
 msgid "Shift+A"
@@ -4401,7 +4429,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:90
 msgid "Are you sure"
-msgstr ""
+msgstr "Sei sicuro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:91
 msgid ""
