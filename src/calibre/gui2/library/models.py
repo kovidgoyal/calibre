@@ -1110,6 +1110,8 @@ class DeviceBooksModel(BooksModel): # {{{
         if self.last_search:
             self.searched.emit(True)
 
+    def research(self, reset=True):
+        self.search(self.last_search, reset)
 
     def sort(self, col, order, reset=True):
         descending = order != Qt.AscendingOrder
@@ -1171,6 +1173,8 @@ class DeviceBooksModel(BooksModel): # {{{
         self.custom_columns = {}
         self.db = db
         self.map = list(range(0, len(db)))
+        self.research(reset=False)
+        self.resort()
 
     def cover(self, row):
         item = self.db[self.map[row]]
@@ -1319,8 +1323,6 @@ class DeviceBooksModel(BooksModel): # {{{
             ans = Qt.AlignVCenter | ALIGNMENT_MAP[self.alignment_map.get(cname,
                 'left')]
             return QVariant(ans)
-
-
         return NONE
 
     def headerData(self, section, orientation, role):

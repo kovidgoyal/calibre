@@ -13,8 +13,8 @@ from functools import partial
 from contextlib import nested, closing
 
 
-from calibre import browser, __appname__, iswindows, \
-                    strftime, preferred_encoding, as_unicode
+from calibre import (browser, __appname__, iswindows,
+                    strftime, preferred_encoding, as_unicode)
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, NavigableString, CData, Tag
 from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre import entity_to_unicode

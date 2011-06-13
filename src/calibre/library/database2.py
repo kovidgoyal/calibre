@@ -26,7 +26,7 @@ from calibre.library.custom_columns import CustomColumns
 from calibre.library.sqlite import connect, IntegrityError
 from calibre.library.prefs import DBPrefs
 from calibre.ebooks.metadata.book.base import Metadata
-from calibre.constants import preferred_encoding, iswindows, isosx, filesystem_encoding
+from calibre.constants import preferred_encoding, iswindows, filesystem_encoding
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.customize.ui import run_plugins_on_import
 from calibre import isbytestring
@@ -188,8 +188,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         apply_default_prefs = not os.path.exists(self.dbpath)
         self.connect()
 
-        self.is_case_sensitive = not iswindows and not isosx and \
-            not os.path.exists(self.dbpath.replace('metadata.db', 'MeTAdAtA.dB'))
+        self.is_case_sensitive = (not iswindows and
+            not os.path.exists(self.dbpath.replace('metadata.db',
+                'MeTAdAtA.dB')))
         SchemaUpgrade.__init__(self)
         # Guarantee that the library_id is set
         self.library_id
@@ -606,7 +607,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 f = self.format(id, format, index_is_id=True, as_file=True)
                 if f is None:
                     continue
-                with tempfile.SpooledTemporaryFile(max_size=100*(1024**2)) as stream:
+                with tempfile.SpooledTemporaryFile(max_size=30*(1024**2)) as stream:
                     with f:
                         shutil.copyfileobj(f, stream)
                     stream.seek(0)
