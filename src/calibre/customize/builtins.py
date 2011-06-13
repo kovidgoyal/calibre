@@ -603,10 +603,11 @@ from calibre.devices.eslick.driver import ESLICK, EBK52
 from calibre.devices.nuut2.driver import NUUT2
 from calibre.devices.iriver.driver import IRIVER_STORY
 from calibre.devices.binatone.driver import README
-from calibre.devices.hanvon.driver import N516, EB511, ALEX, AZBOOKA, THEBOOK
+from calibre.devices.hanvon.driver import (N516, EB511, ALEX, AZBOOKA, THEBOOK,
+        LIBREAIR)
 from calibre.devices.edge.driver import EDGE
-from calibre.devices.teclast.driver import TECLAST_K3, NEWSMY, IPAPYRUS, \
-        SOVOS, PICO, SUNSTECH_EB700, ARCHOS7O, STASH, WEXLER
+from calibre.devices.teclast.driver import (TECLAST_K3, NEWSMY, IPAPYRUS,
+        SOVOS, PICO, SUNSTECH_EB700, ARCHOS7O, STASH, WEXLER)
 from calibre.devices.sne.driver import SNE
 from calibre.devices.misc import (PALMPRE, AVANT, SWEEX, PDNOVEL,
         GEMEI, VELOCITYMICRO, PDNOVEL_KOBO, LUMIREAD, ALURATEK_COLOR,
@@ -716,7 +717,7 @@ plugins += [
     EB600,
     README,
     N516,
-    THEBOOK,
+    THEBOOK, LIBREAIR,
     EB511,
     ELONEX,
     TECLAST_K3,
