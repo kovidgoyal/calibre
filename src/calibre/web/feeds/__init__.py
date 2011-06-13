@@ -317,6 +317,9 @@ def feed_from_xml(raw_xml, title=None, oldest_article=7,
                   max_articles_per_feed=100,
                   get_article_url=lambda item: item.get('link', None),
                   log=default_log):
+    # Handle unclosed escaped entities. They trip up feedparser and HBR for one
+    # generates them
+    raw_xml = re.sub(r'(&amp;#\d+)([^0-9;])', r'\1;\2', raw_xml)
     feed = parse(raw_xml)
     pfeed = Feed(get_article_url=get_article_url, log=log)
     pfeed.populate_from_feed(feed, title=title,
