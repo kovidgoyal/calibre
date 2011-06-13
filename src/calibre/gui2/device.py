@@ -38,6 +38,10 @@ class DeviceJob(BaseJob): # {{{
         BaseJob.__init__(self, description)
         self.func = func
         self.callback_on_done = done
+        if not isinstance(self.callback_on_done, (Dispatcher,
+            FunctionDispatcher)):
+            self.callback_on_done = FunctionDispatcher(self.callback_on_done)
+
         self.args, self.kwargs = args, kwargs
         self.exception = None
         self.job_manager = job_manager
@@ -259,7 +263,8 @@ class DeviceManager(Thread): # {{{
                 job = self.next()
                 if job is not None:
                     self.current_job = job
-                    self.device.set_progress_reporter(job.report_progress)
+                    if self.device is not None:
+                        self.device.set_progress_reporter(job.report_progress)
                     self.current_job.run()
                     self.current_job = None
                 else:
@@ -592,7 +597,7 @@ class DeviceMenu(QMenu): # {{{
 
     # }}}
 
-class DeviceSignals(QObject):
+class DeviceSignals(QObject): # {{{
     #: This signal is emitted once, after metadata is downloaded from the
     #: connected device.
     #: The sequence: gui.device_manager.is_device_connected will become True,
@@ -609,6 +614,7 @@ class DeviceSignals(QObject):
     device_connection_changed = pyqtSignal(object)
 
 device_signals = DeviceSignals()
+# }}}
 
 class DeviceMixin(object): # {{{
 
