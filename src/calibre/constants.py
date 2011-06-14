@@ -32,6 +32,7 @@ isbsd = isfreebsd or isnetbsd
 islinux   = not(iswindows or isosx or isbsd)
 isfrozen  = hasattr(sys, 'frozen')
 isunix = isosx or islinux
+isportable = os.environ.get('CALIBRE_PORTABLE_BUILD', None) is not None
 
 try:
     preferred_encoding = locale.getpreferredencoding()
