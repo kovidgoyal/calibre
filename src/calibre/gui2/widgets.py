@@ -5,15 +5,15 @@ Miscellaneous widgets used in the GUI
 '''
 import re, traceback
 
-from PyQt4.Qt import QIcon, QFont, QLabel, QListWidget, QAction, \
-                        QListWidgetItem, QTextCharFormat, QApplication, \
-                        QSyntaxHighlighter, QCursor, QColor, QWidget, \
-                        QPixmap, QSplitterHandle, QToolButton, \
-                        QAbstractListModel, QVariant, Qt, SIGNAL, pyqtSignal, \
-                        QRegExp, QSettings, QSize, QSplitter, \
-                        QPainter, QLineEdit, QComboBox, QPen, QGraphicsScene, \
-                        QMenu, QStringListModel, QCompleter, QStringList, \
-                        QTimer, QRect, QFontDatabase, QGraphicsView
+from PyQt4.Qt import (QIcon, QFont, QLabel, QListWidget, QAction,
+                        QListWidgetItem, QTextCharFormat, QApplication,
+                        QSyntaxHighlighter, QCursor, QColor, QWidget,
+                        QPixmap, QSplitterHandle, QToolButton,
+                        QAbstractListModel, QVariant, Qt, SIGNAL, pyqtSignal,
+                        QRegExp, QSettings, QSize, QSplitter,
+                        QPainter, QLineEdit, QComboBox, QPen, QGraphicsScene,
+                        QMenu, QStringListModel, QCompleter, QStringList,
+                        QTimer, QRect, QFontDatabase, QGraphicsView)
 
 from calibre.gui2 import NONE, error_dialog, pixmap_to_data, gprefs
 from calibre.gui2.filename_pattern_ui import Ui_Form
@@ -21,8 +21,8 @@ from calibre import fit_image
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.utils.config import prefs, XMLConfig, tweaks
 from calibre.gui2.progress_indicator import ProgressIndicator as _ProgressIndicator
-from calibre.gui2.dnd import dnd_has_image, dnd_get_image, dnd_get_files, \
-    IMAGE_EXTENSIONS, dnd_has_extension, DownloadDialog
+from calibre.gui2.dnd import (dnd_has_image, dnd_get_image, dnd_get_files,
+    IMAGE_EXTENSIONS, dnd_has_extension, DownloadDialog)
 
 history = XMLConfig('history')
 
@@ -1178,4 +1178,5 @@ class Splitter(QSplitter):
         self.toggle_side_pane()
 
     # }}}
+
 
