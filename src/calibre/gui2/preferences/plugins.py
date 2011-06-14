@@ -8,16 +8,16 @@ __docformat__ = 'restructuredtext en'
 import textwrap, os
 from collections import OrderedDict
 
-from PyQt4.Qt import Qt, QModelIndex, QAbstractItemModel, QVariant, QIcon, \
-        QBrush
+from PyQt4.Qt import (Qt, QModelIndex, QAbstractItemModel, QVariant, QIcon,
+        QBrush)
 
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget
 from calibre.gui2.preferences.plugins_ui import Ui_Form
 from calibre.customize.ui import (initialized_plugins, is_disabled, enable_plugin,
                                  disable_plugin, plugin_customization, add_plugin,
                                  remove_plugin, NameConflict)
-from calibre.gui2 import NONE, error_dialog, info_dialog, choose_files, \
-        question_dialog, gprefs
+from calibre.gui2 import (NONE, error_dialog, info_dialog, choose_files,
+        question_dialog, gprefs)
 from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.utils.icu import lower
 
@@ -218,6 +218,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.remove_plugin_button.clicked.connect(self.remove_plugin)
         self.button_plugin_add.clicked.connect(self.add_plugin)
         self.button_plugin_updates.clicked.connect(self.update_plugins)
+        self.button_plugin_new.clicked.connect(self.get_plugins)
         self.search.initialize('plugin_search_history',
                 help_text=_('Search for plugin'))
         self.search.search.connect(self.find)
@@ -354,9 +355,14 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                          plugin.name + _(' cannot be removed. It is a '
                          'builtin plugin. Try disabling it instead.')).exec_()
 
-    def update_plugins(self):
-        from calibre.gui2.dialogs.plugin_updater import PluginUpdaterDialog
-        d = PluginUpdaterDialog(self.gui)
+    def get_plugins(self):
+        self.update_plugins(not_installed=True)
+
+    def update_plugins(self, not_installed=False):
+        from calibre.gui2.dialogs.plugin_updater import (PluginUpdaterDialog,
+                                FILTER_UPDATE_AVAILABLE, FILTER_NOT_INSTALLED)
+        mode = FILTER_NOT_INSTALLED if not_installed else FILTER_UPDATE_AVAILABLE
+        d = PluginUpdaterDialog(self.gui, initial_filter=mode)
         d.exec_()
         self._plugin_model.populate()
         self._plugin_model.reset()

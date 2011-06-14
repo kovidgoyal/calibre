@@ -113,6 +113,13 @@
     </layout>
    </item>
    <item>
+    <widget class="QFrame" name="frame">
+     <property name="frameShape">
+      <enum>QFrame::HLine</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
     <layout class="QHBoxLayout" name="horizontalLayout_7">
      <item>
       <widget class="QPushButton" name="button_plugin_add">
@@ -128,11 +135,22 @@
      <item>
       <widget class="QPushButton" name="button_plugin_updates">
        <property name="text">
-        <string>&amp;Plugin updates</string>
+        <string>Check for &amp;updated plugins</string>
        </property>
        <property name="icon">
         <iconset resource="../../../../resources/images.qrc">
          <normaloff>:/images/plugins/plugin_updater.png</normaloff>:/images/plugins/plugin_updater.png</iconset>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="button_plugin_new">
+       <property name="text">
+        <string>Get &amp;new plugins</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../../../../resources/images.qrc">
+         <normaloff>:/images/plugins/plugin_new.png</normaloff>:/images/plugins/plugin_new.png</iconset>
        </property>
       </widget>
      </item>
