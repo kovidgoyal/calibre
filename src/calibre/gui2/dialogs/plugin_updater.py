@@ -12,7 +12,7 @@ from lxml import html
 from PyQt4.Qt import (Qt, QUrl, QFrame, QVBoxLayout, QLabel, QBrush, QTextEdit,
                       QComboBox, QAbstractItemView, QHBoxLayout, QDialogButtonBox,
                       QAbstractTableModel, QVariant, QTableView, QModelIndex,
-                      QSortFilterProxyModel, pyqtSignal, QAction, QIcon, QDialog,
+                      QSortFilterProxyModel, QAction, QIcon, QDialog,
                       QFont, QPixmap, QSize)
 from calibre import browser, prints
 from calibre.constants import numeric_version, iswindows, isosx, DEBUG
@@ -447,7 +447,6 @@ class DisplayPluginModel(QAbstractTableModel):
 
 class PluginUpdaterDialog(SizePersistedDialog):
 
-    update_found = pyqtSignal(object)
     initial_extra_size = QSize(350, 100)
 
     def __init__(self, gui, initial_filter=FILTER_UPDATE_AVAILABLE):
@@ -587,7 +586,7 @@ class PluginUpdaterDialog(SizePersistedDialog):
         # Force our toolbar/action to be updated based on uninstalled updates
         if self.model:
             update_plugins = filter(filter_upgradeable_plugins, self.model.display_plugins)
-            self.update_found.emit(update_plugins)
+            self.gui.recalc_update_label(len(update_plugins))
         self.reject()
 
     def _plugin_current_changed(self, current, previous):

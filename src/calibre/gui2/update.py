@@ -122,19 +122,25 @@ class UpdateNotification(QDialog):
 class UpdateMixin(object):
 
     def __init__(self, opts):
+        self.last_newest_calibre_version = NO_CALIBRE_UPDATE
         if not opts.no_update_check:
             self.update_checker = CheckForUpdates(self)
             self.update_checker.update_found.connect(self.update_found,
                     type=Qt.QueuedConnection)
             self.update_checker.start()
 
-    def update_found(self, version, force=False):
+    def recalc_update_label(self, number_of_plugin_updates):
+        self.update_found('%s%s%d'%(self.last_newest_calibre_version, VSEP,
+            number_of_plugin_updates), no_show_popup=True)
+
+    def update_found(self, version, force=False, no_show_popup=False):
         try:
             calibre_version, plugin_updates = version.split(VSEP)
             plugin_updates = int(plugin_updates)
         except:
             traceback.print_exc()
             return
+        self.last_newest_calibre_version = calibre_version
         has_calibre_update = calibre_version and calibre_version != NO_CALIBRE_UPDATE
         has_plugin_updates = plugin_updates > 0
         if not has_calibre_update and not has_plugin_updates:
@@ -157,11 +163,12 @@ class UpdateMixin(object):
             self.plugin_update_found(plugin_updates)
 
         if has_calibre_update:
-            if force or (config.get('new_version_notification') and \
-                    dynamic.get('update to version %s'%calibre_version, True)):
-                self._update_notification__ = UpdateNotification(calibre_version,
-                        plugin_updates, parent=self)
-                self._update_notification__.show()
+            if (force or (config.get('new_version_notification') and
+                    dynamic.get('update to version %s'%calibre_version, True))):
+                if not no_show_popup:
+                    self._update_notification__ = UpdateNotification(calibre_version,
+                            plugin_updates, parent=self)
+                    self._update_notification__.show()
         elif has_plugin_updates:
             if force:
                 from calibre.gui2.dialogs.plugin_updater import (PluginUpdaterDialog,
