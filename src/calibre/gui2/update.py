@@ -143,6 +143,8 @@ class UpdateMixin(object):
         self.last_newest_calibre_version = calibre_version
         has_calibre_update = calibre_version and calibre_version != NO_CALIBRE_UPDATE
         has_plugin_updates = plugin_updates > 0
+        self.plugin_update_found(plugin_updates)
+
         if not has_calibre_update and not has_plugin_updates:
             self.status_bar.update_label.setVisible(False)
             return
@@ -159,7 +161,6 @@ class UpdateMixin(object):
         self.status_bar.update_label.setText(msg)
         self.status_bar.update_label.setVisible(True)
 
-        self.plugin_update_found(plugin_updates)
 
         if has_calibre_update:
             if (force or (config.get('new_version_notification') and
