@@ -48,7 +48,7 @@ class BooksView(QTableView): # {{{
     files_dropped = pyqtSignal(object)
     add_column_signal = pyqtSignal()
 
-    def __init__(self, parent, modelcls=BooksModel):
+    def __init__(self, parent, modelcls=BooksModel, use_edit_metadata_dialog=True):
         QTableView.__init__(self, parent)
 
         self.setEditTriggers(self.EditKeyPressed)
@@ -60,8 +60,12 @@ class BooksView(QTableView): # {{{
         elif tweaks['doubleclick_on_library_view'] == 'edit_metadata':
             # Must not enable single-click to edit, or the field will remain
             # open in edit mode underneath the edit metadata dialog
-            self.doubleClicked.connect(
-                        partial(parent.iactions['Edit Metadata'].edit_metadata, checked=False))
+            if use_edit_metadata_dialog:
+                self.doubleClicked.connect(
+                        partial(parent.iactions['Edit Metadata'].edit_metadata,
+                                checked=False))
+            else:
+                self.setEditTriggers(self.DoubleClicked|self.editTriggers())
 
         self.drag_allowed = True
         self.setDragEnabled(True)
@@ -792,7 +796,8 @@ class BooksView(QTableView): # {{{
 class DeviceBooksView(BooksView): # {{{
 
     def __init__(self, parent):
-        BooksView.__init__(self, parent, DeviceBooksModel)
+        BooksView.__init__(self, parent, DeviceBooksModel,
+                           use_edit_metadata_dialog=False)
         self.can_add_columns = False
         self.columns_resized = False
         self.resize_on_select = False

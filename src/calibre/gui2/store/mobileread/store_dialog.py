@@ -7,7 +7,7 @@ __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
 
-from PyQt4.Qt import (Qt, QDialog, QIcon)
+from PyQt4.Qt import (Qt, QDialog, QIcon, QComboBox)
 
 from calibre.gui2.store.mobileread.adv_search_builder import AdvSearchBuilderDialog
 from calibre.gui2.store.mobileread.models import BooksModel
@@ -21,6 +21,8 @@ class MobileReadStoreDialog(QDialog, Ui_Dialog):
 
         self.plugin = plugin
         self.search_query.initialize('store_mobileread_search')
+        self.search_query.setSizeAdjustPolicy(QComboBox.AdjustToMinimumContentsLengthWithIcon)
+        self.search_query.setMinimumContentsLength(25)
         
         self.adv_search_button.setIcon(QIcon(I('search.png')))
         
