@@ -26,7 +26,7 @@ from calibre.gui2.dnd import (dnd_has_image, dnd_get_image, dnd_get_files,
 
 history = XMLConfig('history')
 
-class ProgressIndicator(QWidget):
+class ProgressIndicator(QWidget): # {{{
 
     def __init__(self, *args):
         QWidget.__init__(self, *args)
@@ -57,8 +57,9 @@ class ProgressIndicator(QWidget):
     def stop(self):
         self.pi.stopAnimation()
         self.setVisible(False)
+# }}}
 
-class FilenamePattern(QWidget, Ui_Form):
+class FilenamePattern(QWidget, Ui_Form): # {{{
 
     changed_signal = pyqtSignal()
 
@@ -148,8 +149,9 @@ class FilenamePattern(QWidget, Ui_Form):
 
         return pat
 
+# }}}
 
-class FormatList(QListWidget):
+class FormatList(QListWidget): # {{{
     DROPABBLE_EXTENSIONS = BOOK_EXTENSIONS
     formats_dropped = pyqtSignal(object, object)
     delete_format = pyqtSignal()
@@ -187,6 +189,8 @@ class FormatList(QListWidget):
             self.delete_format.emit()
         else:
             return QListWidget.keyPressEvent(self, event)
+
+# }}}
 
 class ImageDropMixin(object): # {{{
     '''
@@ -262,7 +266,7 @@ class ImageDropMixin(object): # {{{
                     pixmap_to_data(pmap))
 # }}}
 
-class ImageView(QWidget, ImageDropMixin):
+class ImageView(QWidget, ImageDropMixin): # {{{
 
     BORDER_WIDTH = 1
     cover_changed = pyqtSignal(object)
@@ -314,8 +318,9 @@ class ImageView(QWidget, ImageDropMixin):
             p.drawRect(target)
         #p.drawRect(self.rect())
         p.end()
+# }}}
 
-class CoverView(QGraphicsView, ImageDropMixin):
+class CoverView(QGraphicsView, ImageDropMixin): # {{{
 
     cover_changed = pyqtSignal(object)
 
@@ -333,7 +338,9 @@ class CoverView(QGraphicsView, ImageDropMixin):
         self.scene.addPixmap(pmap)
         self.setScene(self.scene)
 
-class FontFamilyModel(QAbstractListModel):
+# }}}
+
+class FontFamilyModel(QAbstractListModel): # {{{
 
     def __init__(self, *args):
         QAbstractListModel.__init__(self, *args)
@@ -371,7 +378,9 @@ class FontFamilyModel(QAbstractListModel):
 
     def index_of(self, family):
         return self.families.index(family.strip())
+# }}}
 
+# BasicList {{{
 class BasicListItem(QListWidgetItem):
 
     def __init__(self, text, user_data=None):
@@ -404,9 +413,9 @@ class BasicList(QListWidget):
     def items(self):
         for i in range(self.count()):
             yield self.item(i)
+# }}}
 
-
-class LineEditECM(object):
+class LineEditECM(object): # {{{
 
     '''
     Extend the context menu of a QLineEdit to include more actions.
@@ -449,8 +458,9 @@ class LineEditECM(object):
         from calibre.utils.icu import capitalize
         self.setText(capitalize(unicode(self.text())))
 
+# }}}
 
-class EnLineEdit(LineEditECM, QLineEdit):
+class EnLineEdit(LineEditECM, QLineEdit): # {{{
 
     '''
     Enhanced QLineEdit.
@@ -459,9 +469,9 @@ class EnLineEdit(LineEditECM, QLineEdit):
     '''
 
     pass
+# }}}
 
-
-class ItemsCompleter(QCompleter):
+class ItemsCompleter(QCompleter): # {{{
 
     '''
     A completer object that completes a list of tags. It is used in conjunction
@@ -486,8 +496,9 @@ class ItemsCompleter(QCompleter):
         model = QStringListModel(items, self)
         self.setModel(model)
 
+# }}}
 
-class CompleteLineEdit(EnLineEdit):
+class CompleteLineEdit(EnLineEdit):  # {{{
 
     '''
     A QLineEdit that can complete parts of text separated by separator.
@@ -550,8 +561,9 @@ class CompleteLineEdit(EnLineEdit):
         self.setText(complete_text_pat % (before_text[:cursor_pos - prefix_len], text, self.separator, after_text))
         self.setCursorPosition(cursor_pos - prefix_len + len(text) + len_extra)
 
+# }}}
 
-class EnComboBox(QComboBox):
+class EnComboBox(QComboBox): # {{{
 
     '''
     Enhanced QComboBox.
@@ -575,7 +587,9 @@ class EnComboBox(QComboBox):
             idx = 0
         self.setCurrentIndex(idx)
 
-class CompleteComboBox(EnComboBox):
+# }}}
+
+class CompleteComboBox(EnComboBox): # {{{
 
     def __init__(self, *args):
         EnComboBox.__init__(self, *args)
@@ -590,8 +604,9 @@ class CompleteComboBox(EnComboBox):
     def set_space_before_sep(self, space_before):
         self.lineEdit().set_space_before_sep(space_before)
 
+# }}}
 
-class HistoryLineEdit(QComboBox):
+class HistoryLineEdit(QComboBox): # {{{
 
     lost_focus = pyqtSignal()
 
@@ -638,7 +653,9 @@ class HistoryLineEdit(QComboBox):
         QComboBox.focusOutEvent(self, e)
         self.lost_focus.emit()
 
-class ComboBoxWithHelp(QComboBox):
+# }}}
+
+class ComboBoxWithHelp(QComboBox): # {{{
     '''
     A combobox where item 0 is help text. CurrentText will return '' for item 0.
     Be sure to always fetch the text with currentText. Don't use the signals
@@ -685,8 +702,9 @@ class ComboBoxWithHelp(QComboBox):
         QComboBox.hidePopup(self)
         self.set_state()
 
+# }}}
 
-class EncodingComboBox(QComboBox):
+class EncodingComboBox(QComboBox): # {{{
     '''
     A combobox that holds text encodings support
     by Python. This is only populated with the most
@@ -709,8 +727,9 @@ class EncodingComboBox(QComboBox):
         for item in self.ENCODINGS:
             self.addItem(item)
 
+# }}}
 
-class PythonHighlighter(QSyntaxHighlighter):
+class PythonHighlighter(QSyntaxHighlighter): # {{{
 
     Rules = []
     Formats = {}
@@ -948,6 +967,9 @@ class PythonHighlighter(QSyntaxHighlighter):
         QSyntaxHighlighter.rehighlight(self)
         QApplication.restoreOverrideCursor()
 
+# }}}
+
+# Splitter {{{
 class SplitterHandle(QSplitterHandle):
 
     double_clicked = pyqtSignal(object)
@@ -1179,4 +1201,5 @@ class Splitter(QSplitter):
 
     # }}}
 
+# }}}
 
