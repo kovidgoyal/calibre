@@ -121,7 +121,7 @@ class NOOK_TSR(NOOK):
     PRODUCT_ID  = [0x003]
     BCD         = [0x216]
 
-    EBOOK_DIR_MAIN = 'My Files/Books'
+    EBOOK_DIR_MAIN = 'My Files'
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'EBOOK_DISK'
 
     def upload_cover(self, path, filename, metadata, filepath):
@@ -129,7 +129,13 @@ class NOOK_TSR(NOOK):
 
     def get_carda_ebook_dir(self, for_upload=False):
         if for_upload:
-            return 'My Files/Books'
+            return self.EBOOK_DIR_MAIN
         return ''
 
+    def create_upload_path(self, path, mdata, fname, create_dirs=True):
+        is_news = mdata.tags and _('News') in mdata.tags
+        subdir = 'Newspapers' if is_news else 'Books'
+        path = os.path.join(path, subdir)
+        return NOOK.create_upload_path(self, path, mdata, fname,
+                create_dirs=create_dirs)
 
