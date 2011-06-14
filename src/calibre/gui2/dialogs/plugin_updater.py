@@ -13,7 +13,7 @@ from PyQt4.Qt import (Qt, QUrl, QFrame, QVBoxLayout, QLabel, QBrush, QTextEdit,
                       QComboBox, QAbstractItemView, QHBoxLayout, QDialogButtonBox,
                       QAbstractTableModel, QVariant, QTableView, QModelIndex,
                       QSortFilterProxyModel, pyqtSignal, QAction, QIcon, QDialog,
-                      QFont, QPixmap)
+                      QFont, QPixmap, QSize)
 from PyQt4 import QtCore
 from calibre import browser, prints
 from calibre.constants import numeric_version, iswindows, isosx, DEBUG
@@ -135,6 +135,9 @@ class SizePersistedDialog(QDialog):
     This dialog is a base class for any dialogs that want their size/position
     restored when they are next opened.
     '''
+
+    initial_extra_size = QSize(0, 0)
+
     def __init__(self, parent, unique_pref_name):
         QDialog.__init__(self, parent)
         self.unique_pref_name = unique_pref_name
@@ -143,7 +146,7 @@ class SizePersistedDialog(QDialog):
 
     def resize_dialog(self):
         if self.geom is None:
-            self.resize(self.sizeHint())
+            self.resize(self.sizeHint()+self.initial_extra_size)
         else:
             self.restoreGeometry(self.geom)
 
@@ -181,6 +184,7 @@ class PluginFilterComboBox(QComboBox):
 
 
 class DisplayPlugin(object):
+
     def __init__(self, list_node):
         # The html from the index web page looks like this:
         '''
@@ -264,6 +268,7 @@ Platforms: Windows, OSX, Linux; History: Yes;</span></i></li>
 
 
 class DisplayPluginSortFilterModel(QSortFilterProxyModel):
+
     def __init__(self, parent):
         QSortFilterProxyModel.__init__(self, parent)
         self.setSortRole(Qt.UserRole)
@@ -288,6 +293,7 @@ class DisplayPluginSortFilterModel(QSortFilterProxyModel):
 
 
 class DisplayPluginModel(QAbstractTableModel):
+
     def __init__(self, display_plugins):
         QAbstractTableModel.__init__(self)
         self.display_plugins = display_plugins
@@ -440,6 +446,7 @@ class DisplayPluginModel(QAbstractTableModel):
 class PluginUpdaterDialog(SizePersistedDialog):
 
     update_found = pyqtSignal(object)
+    initial_extra_size = QSize(350, 100)
 
     def __init__(self, gui, initial_filter=FILTER_UPDATE_AVAILABLE):
         SizePersistedDialog.__init__(self, gui, 'Plugin Updater plugin:plugin updater dialog')
@@ -473,7 +480,7 @@ class PluginUpdaterDialog(SizePersistedDialog):
         self.setWindowTitle(_('Check for user plugin updates'))
         layout = QVBoxLayout(self)
         self.setLayout(layout)
-        title_layout = ImageTitleLayout(self, 'images/plugin_updater.png', _('User Plugin Status'))
+        title_layout = ImageTitleLayout(self, 'plugins/plugin_updater.png', _('User Plugin Status'))
         layout.addLayout(title_layout)
 
         header_layout = QHBoxLayout()
