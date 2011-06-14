@@ -477,10 +477,12 @@ class PluginUpdaterDialog(SizePersistedDialog):
         self.resize_dialog()
 
     def _initialize_controls(self):
-        self.setWindowTitle(_('Check for user plugin updates'))
+        self.setWindowTitle(_('User plugins'))
+        self.setWindowIcon(QIcon(I('plugins/plugin_updater.png')))
         layout = QVBoxLayout(self)
         self.setLayout(layout)
-        title_layout = ImageTitleLayout(self, 'plugins/plugin_updater.png', _('User Plugin Status'))
+        title_layout = ImageTitleLayout(self, 'plugins/plugin_updater.png',
+                _('User Plugins'))
         layout.addLayout(title_layout)
 
         header_layout = QHBoxLayout()
