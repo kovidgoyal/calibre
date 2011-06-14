@@ -17,7 +17,8 @@ from PyQt4.Qt import (Qt, QUrl, QFrame, QVBoxLayout, QLabel, QBrush, QTextEdit,
 from calibre import browser, prints
 from calibre.constants import numeric_version, iswindows, isosx, DEBUG
 from calibre.customize.ui import (initialized_plugins, is_disabled, remove_plugin,
-                                  add_plugin, enable_plugin, disable_plugin, NameConflict)
+                                  add_plugin, enable_plugin, disable_plugin,
+                                  NameConflict, has_external_plugins)
 from calibre.gui2 import error_dialog, question_dialog, info_dialog, NONE, open_url, gprefs
 from calibre.gui2.preferences.plugins import ConfigWidget
 from calibre.utils.date import UNDEFINED_DATE, format_date
@@ -38,6 +39,8 @@ def get_plugin_updates_available():
     Returns None if no updates found
     Returns list(DisplayPlugin) of plugins installed that have a new version
     '''
+    if not has_external_plugins():
+        return None
     display_plugins = read_available_plugins()
     if display_plugins:
         update_plugins = filter(filter_upgradeable_plugins, display_plugins)
