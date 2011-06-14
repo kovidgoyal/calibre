@@ -95,6 +95,11 @@ void launch_calibre(LPCTSTR exe, LPCTSTR config_dir, LPCTSTR library_dir) {
         ExitProcess(1);
     }
 
+    if (! SetEnvironmentVariable(TEXT("CALIBRE_PORTABLE_BUILD"), exe)) {
+        show_last_error(TEXT("Failed to set environment variables"));
+        ExitProcess(1);
+    }
+
     dwFlags = CREATE_UNICODE_ENVIRONMENT | CREATE_NEW_PROCESS_GROUP;
     _sntprintf_s(cmdline, BUFSIZE, _TRUNCATE, TEXT(" \"--with-library=%s\""), library_dir);
 

@@ -14,11 +14,11 @@ from PyQt4.Qt import (Qt, QUrl, QFrame, QVBoxLayout, QLabel, QBrush, QTextEdit,
                       QAbstractTableModel, QVariant, QTableView, QModelIndex,
                       QSortFilterProxyModel, pyqtSignal, QAction, QIcon, QDialog,
                       QFont, QPixmap, QSize)
-from PyQt4 import QtCore
 from calibre import browser, prints
 from calibre.constants import numeric_version, iswindows, isosx, DEBUG
 from calibre.customize.ui import (initialized_plugins, is_disabled, remove_plugin,
-                                  add_plugin, enable_plugin, disable_plugin, NameConflict)
+                                  add_plugin, enable_plugin, disable_plugin,
+                                  NameConflict, has_external_plugins)
 from calibre.gui2 import error_dialog, question_dialog, info_dialog, NONE, open_url, gprefs
 from calibre.gui2.preferences.plugins import ConfigWidget
 from calibre.utils.date import UNDEFINED_DATE, format_date
@@ -39,6 +39,8 @@ def get_plugin_updates_available():
     Returns None if no updates found
     Returns list(DisplayPlugin) of plugins installed that have a new version
     '''
+    if not has_external_plugins():
+        return None
     display_plugins = read_available_plugins()
     if display_plugins:
         update_plugins = filter(filter_upgradeable_plugins, display_plugins)
@@ -477,10 +479,12 @@ class PluginUpdaterDialog(SizePersistedDialog):
         self.resize_dialog()
 
     def _initialize_controls(self):
-        self.setWindowTitle(_('Check for user plugin updates'))
+        self.setWindowTitle(_('User plugins'))
+        self.setWindowIcon(QIcon(I('plugins/plugin_updater.png')))
         layout = QVBoxLayout(self)
         self.setLayout(layout)
-        title_layout = ImageTitleLayout(self, 'plugins/plugin_updater.png', _('User Plugin Status'))
+        title_layout = ImageTitleLayout(self, 'plugins/plugin_updater.png',
+                _('User Plugins'))
         layout.addLayout(title_layout)
 
         header_layout = QHBoxLayout()
@@ -498,7 +502,7 @@ class PluginUpdaterDialog(SizePersistedDialog):
         self.plugin_view.setSelectionMode(QAbstractItemView.SingleSelection)
         self.plugin_view.setAlternatingRowColors(True)
         self.plugin_view.setSortingEnabled(True)
-        self.plugin_view.setIconSize(QtCore.QSize(28, 28))
+        self.plugin_view.setIconSize(QSize(28, 28))
         layout.addWidget(self.plugin_view)
 
         details_layout = QHBoxLayout()
