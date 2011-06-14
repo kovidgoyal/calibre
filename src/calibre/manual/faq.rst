@@ -319,7 +319,7 @@ but it requires that the Kindle be rebooted *every time* it is disconnected from
 changes to the collections to be recognized. As such, it is unlikely that
 any |app| developers will ever feel motivated enough to support it. There is however, a |app| plugin
 that allows you to create collections on your Kindle from the |app| metadata. It is available
-`here <http://www.mobileread.com/forums/showthread.php?t=118635>`_. 
+`from here <http://www.mobileread.com/forums/showthread.php?t=118635>`_. 
 
 Library Management
 ------------------
@@ -562,6 +562,16 @@ You have two choices:
  1. Create a patch by hacking on |app| and send it to me for review and inclusion. See `Development <http://calibre-ebook.com/get-involved>`_.
  2. `Open a ticket <http://calibre-ebook.com/bugs>`_ (you have to register and login first). Remember that |app| development is done by volunteers, so if you get no response to your feature request, it means no one feels like implementing it.
 
+Why doesn't |app| have an automatic update?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+For many reasons:
+
+  * *There is no need to update every week*. If you are happy with how |app| works turn off the update notification and be on your merry way. Check back to see if you want to update once a year or so.
+  * Pre downloading the updates for all users in the background would mean require about 80TB of bandwidth *every week*. That costs thousands of dollars a month. And |app| is currently growing at 300,000 new users every month.
+  * If I implement a dialog that downloads the update and launches it, instead of going to the website as it does now, that would save the most ardent |app| updater, *at most five clicks a week*. There are far higher priority things to do in |app| development.
+  * If you really, really hate downloading |app| every week but still want to be up to the latest, I encourage you to run from source, which makes updating trivial. Instructions are :ref:`available here <develop>`.
+
 How is |app| licensed?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 |app| is licensed under the GNU General Public License v3 (an open source license). This means that you are free to redistribute |app| as long as you make the source code available. So if you want to put |app| on a CD with your product, you must also put the |app| source code on the CD. The source code is available for download `from googlecode <http://code.google.com/p/calibre-ebook/downloads/list>`_. You are free to use the results of conversions from |app| however you want. You cannot use code, libraries from |app| in your software without making your software open source. For details, see `The GNU GPL v3 <http://www.gnu.org/licenses/gpl.html>`_.
@@ -569,7 +579,7 @@ How is |app| licensed?
 How do I run calibre from my USB stick?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-A portable version of calibre is available at: `portableapps.com <http://portableapps.com/node/20518>`_. However, this is usually out of date. You can also setup your own portable calibre install by following :ref:`these instructions <portablecalibre>`.
+A portable version of calibre is available `here <http://calibre-ebook.com/download_portable>`_.
 
 How do I run parts of |app| like news download and the content server on my own linux server?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

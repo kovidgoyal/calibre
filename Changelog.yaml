@@ -19,6 +19,135 @@
 #  new recipes:
 #    - title: 
 
+- version: 0.8.5
+  date: 2011-06-10
+
+  new features:
+    - title: "A new 'portable' calibre build, useful if you like to carry around calibre and its library on a USB key"
+      type: major
+      description: "For details, see: http://calibre-ebook.com/download_portable"
+
+    - title: "E-book viewer: Remember the last used font size multiplier."
+      tickets: [774343]
+
+    - title: "Preliminary support for the Kobo Touch. Drivers for the ZTE v9 tablet, Samsung S2, Notion Ink Adam and PocketBook 360+"
+
+    - title: "When downloading metadata merge rather than replace tags"
+
+    - title: "Edit metadata dialog: When pasting in an ISBN, if not valid ISBN if present on the clipboard popup a box for the user to enter the ISBN"
+
+    - title: "Windows build: Add code to load .pyd python extensions from a zip file. This allows many more files in the calibre installation to be zipped up, speeding up the installer."
+    - title: "Add an action to remove all formats from the selected books to the remove books button"
+
+  
+  bug fixes:
+    - title: "Various minor bug fixes to the column coloring code"
+
+    - title: "Fix the not() template function"
+
+    - title: "Nook Color/TSR: When sending books to the storage card place them in the My Files/Books subdirectory. Also do not upload cover thumbnails as users report that the NC/TSR don't use them."
+      tickets: [792842]
+
+    - title: "Get Books: Update plugins for Amazon and B&N stores to handle website changes. Enable some stores by default on first run. Add Zixo store"
+      tickets: [792762]
+
+    - title: "Comic Input: Replace the # character in filenames as it can cause problem with conversion/vieweing."
+      tickets: [792723]
+
+    - title: "When writing files to zipfile, reset timestamp if it doesn't fit in 1980's vintage storage structures"
+
+    - title: "Amazon metadata plugin: Fix parsing of published date from amazon.de when it has februar in it"
+
+  improved recipes:
+    - Ambito
+    - GoComics
+    - Le Monde Diplomatique
+    - Max Planck
+    - express.de
+
+  new recipes:
+    - title: Ambito Financiero
+      author: Darko Miletic
+
+    - title: Stiin Tas Technica
+      author: Silviu Cotoara
+
+    - title: "Metro News NL"
+      author: DrMerry
+
+    - title: "Brigitte.de, Polizeipresse DE and Heise Online"
+      author: schuster
+
+
+
+- version: 0.8.4
+  date: 2011-06-03
+
+  new features:
+    - title: "New and much simpler interface for specifying column coloring via Preferences->Look & Feel->Column Coloring"
+
+    - title: "Driver for Trekstor eBook Player 5M, Samsung Galaxy SII I9100, Motorola Defy and miBuk GAMMA 6.2"
+      tickets: [792091, 791216]
+
+    - title: "Get Books: Add EpubBud, WH Smits and E-book Shoppe stores"
+
+    - title: "When deleting 'all formats except ...', do not delete if it leaves a book with no formats"
+
+    - title: "Change default toolbar to make it a little more new user friendly. The icons have been re-arranged and now the text is always visiblke by default. You can change that in Preferences->Look & Feeel and Preferences->Toolbar"
+
+    - title: "Windows installer: Remember and use previous settings for installing desktop icons, adding to path, etc. This makes the installer a little slower, complaints should go to Microsoft."
+
+    - title: "Template language: Add str_in_list and on_device formatter functions. Make debugging templates a little easier"
+
+    - title: "Allow the user to specify formatting for number type custom columns"
+  
+  bug fixes:
+    - title: "Fix typo in NOOK TSR driver that prevented it from working on windows"
+
+    - title: "Fix quotes in identifiers causing Tag Browser to be blank."
+      tickets: [791044]
+
+    - title: "Speedup auto complete when there are lots of items (>2500) the downside being that non ASCII characters are not sorted correctly. The threshold can be controlled via Preferences->Tweaks"
+      tickets: [792191]
+
+    - title: "RTF Output: Fix handling of curly brackets"
+      tickets: [791805]
+
+    - title: "Fix searching in Get Books not working with non ASCII characters"
+      tickets: [791788]
+
+    - title: "Fix excessive memory consumption when moving very large files during a metadata change"
+      tickets: [791806]
+
+    - title: "Fix series index being overwritten even when series is turned off in bulk metadata download"
+      tickets: [789990]
+
+    - title: "Fix regression in templates where id and other non standard fields no longer worked."
+
+    - title: "EPUB Output: Fix crash caused by ids with non-ascii characters in them"
+
+    - title: "Try to preserve the timestamps of files in a ZIP container"
+
+    - title: "After adding books always select the most recently added book."
+      tickets: [789343]
+
+  improved recipes:
+    - bild.de
+    - CNN
+    - BBC News (fast)
+    - Dilema Veche
+
+  new recipes:
+    - title: Metro UK
+      author: Dave Asbury
+
+    - title: Alt om Herning and Version2.dk
+      author: Rasmus Lauritsen
+
+    - title: Observatorul cultural
+      author: song2
+
+
 - version: 0.8.3
   date: 2011-05-27
 

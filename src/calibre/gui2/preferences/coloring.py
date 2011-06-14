@@ -12,6 +12,7 @@ from PyQt4.Qt import (QWidget, QDialog, QLabel, QGridLayout, QComboBox, QSize,
         QScrollArea, QPushButton, QVBoxLayout, QDialogButtonBox, QToolButton,
         QListView, QAbstractListModel, pyqtSignal, QSizePolicy, QSpacerItem)
 
+from calibre import prepare_string_for_xml
 from calibre.utils.icu import sort_key
 from calibre.gui2 import error_dialog
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
@@ -21,11 +22,7 @@ from calibre.library.coloring import (Rule, conditionable_columns,
 
 class ConditionEditor(QWidget): # {{{
 
-    def __init__(self, fm, parent=None):
-        QWidget.__init__(self, parent)
-        self.fm = fm
-
-        self.action_map = {
+    ACTION_MAP = {
             'bool' : (
                     (_('is true'), 'is true',),
                     (_('is false'), 'is false'),
@@ -60,10 +57,17 @@ class ConditionEditor(QWidget): # {{{
                 (_('is set'), 'is set'),
                 (_('is not set'), 'is not set'),
             ),
-        }
+    }
 
-        for x in ('float', 'rating', 'datetime'):
-            self.action_map[x] = self.action_map['int']
+    for x in ('float', 'rating', 'datetime'):
+        ACTION_MAP[x] = ACTION_MAP['int']
+
+
+    def __init__(self, fm, parent=None):
+        QWidget.__init__(self, parent)
+        self.fm = fm
+
+        self.action_map = self.ACTION_MAP
 
         self.l = l = QGridLayout(self)
         self.setLayout(l)
@@ -158,21 +162,22 @@ class ConditionEditor(QWidget): # {{{
         self.action_box.clear()
         self.action_box.addItem('', '')
         col = self.current_col
-        m = self.fm[col]
-        dt = m['datatype']
-        if dt in self.action_map:
-            actions = self.action_map[dt]
-        else:
-            if col == 'ondevice':
-                k = 'ondevice'
-            elif col == 'identifiers':
-                k = 'identifiers'
+        if col:
+            m = self.fm[col]
+            dt = m['datatype']
+            if dt in self.action_map:
+                actions = self.action_map[dt]
             else:
-                k = 'multiple' if m['is_multiple'] else 'single'
-            actions = self.action_map[k]
+                if col == 'ondevice':
+                    k = 'ondevice'
+                elif col == 'identifiers':
+                    k = 'identifiers'
+                else:
+                    k = 'multiple' if m['is_multiple'] else 'single'
+                actions = self.action_map[k]
 
-        for text, key in actions:
-            self.action_box.addItem(text, key)
+            for text, key in actions:
+                self.action_box.addItem(text, key)
         self.action_box.setCurrentIndex(0)
         self.action_box.blockSignals(False)
         self.init_value_box()
@@ -183,11 +188,15 @@ class ConditionEditor(QWidget): # {{{
         self.value_box.setInputMask('')
         self.value_box.setValidator(None)
         col = self.current_col
+        if not col:
+            return
         m = self.fm[col]
         dt = m['datatype']
         action = self.current_action
-        if not col or not action:
+        if not action:
             return
+        m = self.fm[col]
+        dt = m['datatype']
         tt = ''
         if col == 'identifiers':
             tt = _('Enter either an identifier type or an '
@@ -205,7 +214,7 @@ class ConditionEditor(QWidget): # {{{
                 tt = _('Enter a regular expression')
             elif m.get('is_multiple', False):
                 tt += '\n' + _('You can match multiple values by separating'
-                        ' them with %s')%m['is_multiple']
+                        ' them with %s')%m['is_multiple']['ui_to_list']
         self.value_box.setToolTip(tt)
         if action in ('is set', 'is not set', 'is true', 'is false',
                 'is undefined'):
@@ -430,7 +439,7 @@ class RulesModel(QAbstractListModel): # {{{
             return _('''
             <p>Advanced Rule for column <b>%s</b>:
             <pre>%s</pre>
-            ''')%(col, rule)
+            ''')%(col, prepare_string_for_xml(rule))
         conditions = [self.condition_to_html(c) for c in rule.conditions]
         return _('''\
             <p>Set the color of <b>%s</b> to <b>%s</b> if the following
@@ -439,9 +448,16 @@ class RulesModel(QAbstractListModel): # {{{
             ''') % (col, rule.color, ''.join(conditions))
 
     def condition_to_html(self, condition):
+        c, a, v = condition
+        action_name = a
+        for actions in ConditionEditor.ACTION_MAP.itervalues():
+            for trans, ac in actions:
+                if ac == a:
+                    action_name = trans
+
         return (
             _('<li>If the <b>%s</b> column <b>%s</b> value: <b>%s</b>') %
-                tuple(condition))
+                (c, action_name, prepare_string_for_xml(v)))
 
 # }}}
 
@@ -455,11 +471,11 @@ class EditRules(QWidget): # {{{
         self.l = l = QGridLayout(self)
         self.setLayout(l)
 
-        self.l1 = l1 = QLabel(_(
+        self.l1 = l1 = QLabel('<p>'+_(
             'You can control the color of columns in the'
             ' book list by creating "rules" that tell calibre'
             ' what color to use. Click the Add Rule button below'
-            ' to get started. You can change an existing rule by double'
+            ' to get started.<p>You can <b>change an existing rule</b> by double'
             ' clicking it.'))
         l1.setWordWrap(True)
         l.addWidget(l1, 0, 0, 1, 2)

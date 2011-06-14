@@ -26,7 +26,7 @@ from calibre.library.custom_columns import CustomColumns
 from calibre.library.sqlite import connect, IntegrityError
 from calibre.library.prefs import DBPrefs
 from calibre.ebooks.metadata.book.base import Metadata
-from calibre.constants import preferred_encoding, iswindows, isosx, filesystem_encoding
+from calibre.constants import preferred_encoding, iswindows, filesystem_encoding
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.customize.ui import run_plugins_on_import
 from calibre import isbytestring
@@ -82,6 +82,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     An ebook metadata database that stores references to ebook files on disk.
     '''
     PATH_LIMIT = 40 if 'win32' in sys.platform else 100
+    WINDOWS_LIBRARY_PATH_LIMIT = 75
 
     @dynamic_property
     def user_version(self):
@@ -122,9 +123,20 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         return property(doc=doc, fget=fget, fset=fset)
 
     def connect(self):
-        if 'win32' in sys.platform and len(self.library_path) + 4*self.PATH_LIMIT + 10 > 259:
-            raise ValueError('Path to library too long. Must be less than %d characters.'%(259-4*self.PATH_LIMIT-10))
+        if iswindows and len(self.library_path) + 4*self.PATH_LIMIT + 10 > 259:
+            raise ValueError(_(
+                'Path to library too long. Must be less than'
+                ' %d characters.')%(259-4*self.PATH_LIMIT-10))
         exists = os.path.exists(self.dbpath)
+        if not exists:
+            # Be more strict when creating new libraries as the old calculation
+            # allowed for max path lengths of 265 chars.
+            if (iswindows and len(self.library_path) >
+                    self.WINDOWS_LIBRARY_PATH_LIMIT):
+                raise ValueError(_(
+                    'Path to library too long. Must be less than'
+                    ' %d characters.')%self.WINDOWS_LIBRARY_PATH_LIMIT)
+
         self.conn = connect(self.dbpath, self.row_factory)
         if exists and self.user_version == 0:
             self.conn.close()
@@ -176,8 +188,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         apply_default_prefs = not os.path.exists(self.dbpath)
         self.connect()
 
-        self.is_case_sensitive = not iswindows and not isosx and \
-            not os.path.exists(self.dbpath.replace('metadata.db', 'MeTAdAtA.dB'))
+        self.is_case_sensitive = (not iswindows and
+            not os.path.exists(self.dbpath.replace('metadata.db',
+                'MeTAdAtA.dB')))
         SchemaUpgrade.__init__(self)
         # Guarantee that the library_id is set
         self.library_id
@@ -594,8 +607,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 f = self.format(id, format, index_is_id=True, as_file=True)
                 if f is None:
                     continue
-                with tempfile.SpooledTemporaryFile(max_size=100*(1024**2)) as stream:
-                    shutil.copyfileobj(f, stream)
+                with tempfile.SpooledTemporaryFile(max_size=30*(1024**2)) as stream:
+                    with f:
+                        shutil.copyfileobj(f, stream)
                     stream.seek(0)
                     self.add_format(id, format, stream, index_is_id=True,
                         path=tpath, notify=False)
@@ -1249,7 +1263,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             dex = field['rec_index']
             for book in self.data.iterall():
                 if field['is_multiple']:
-                    vals = [v.strip() for v in book[dex].split(field['is_multiple'])
+                    vals = [v.strip() for v in
+                            book[dex].split(field['is_multiple']['cache_to_list'])
                             if v.strip()]
                     if id_ in vals:
                         ans.add(book[0])
@@ -1377,7 +1392,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             tcategories[category] = {}
             # create a list of category/field_index for the books scan to use.
             # This saves iterating through field_metadata for each book
-            md.append((category, cat['rec_index'], cat['is_multiple'], False))
+            md.append((category, cat['rec_index'],
+                       cat['is_multiple'].get('cache_to_list', None), False))
 
         for category in tb_cats.iterkeys():
             cat = tb_cats[category]
@@ -1385,7 +1401,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                                 cat['display'].get('make_category', False):
                 tids[category] = {}
                 tcategories[category] = {}
-                md.append((category, cat['rec_index'], cat['is_multiple'],
+                md.append((category, cat['rec_index'],
+                           cat['is_multiple'].get('cache_to_list', None),
                            cat['datatype'] == 'composite'))
         #print 'end phase "collection":', time.clock() - last, 'seconds'
         #last = time.clock()

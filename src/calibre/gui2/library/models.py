@@ -608,10 +608,11 @@ class BooksModel(QAbstractTableModel): # {{{
 
         def text_type(r, mult=None, idx=-1):
             text = self.db.data[r][idx]
-            if text and mult is not None:
-                if mult:
-                    return QVariant(u' & '.join(text.split('|')))
-                return QVariant(u', '.join(sorted(text.split('|'),key=sort_key)))
+            if text and mult:
+                jv = mult['list_to_ui']
+                sv = mult['cache_to_list']
+                return QVariant(jv.join(
+                    sorted([t.strip() for t in text.split(sv)], key=sort_key)))
             return QVariant(text)
 
         def decorated_text_type(r, idx=-1):
@@ -665,8 +666,6 @@ class BooksModel(QAbstractTableModel): # {{{
             datatype = self.custom_columns[col]['datatype']
             if datatype in ('text', 'comments', 'composite', 'enumeration'):
                 mult=self.custom_columns[col]['is_multiple']
-                if mult is not None:
-                    mult = self.custom_columns[col]['display'].get('is_names', False)
                 self.dc[col] = functools.partial(text_type, idx=idx, mult=mult)
                 if datatype in ['text', 'composite', 'enumeration'] and not mult:
                     if self.custom_columns[col]['display'].get('use_decorations', False):
@@ -722,9 +721,9 @@ class BooksModel(QAbstractTableModel): # {{{
                 if id_ in self.color_cache:
                     if key in self.color_cache[id_]:
                         return self.color_cache[id_][key]
-                if mi is None:
-                    mi = self.db.get_metadata(id_, index_is_id=True)
                 try:
+                    if mi is None:
+                        mi = self.db.get_metadata(id_, index_is_id=True)
                     color = composite_formatter.safe_format(fmt, mi, '', mi)
                     if color in self.colors:
                         color = QColor(color)
@@ -1111,6 +1110,8 @@ class DeviceBooksModel(BooksModel): # {{{
         if self.last_search:
             self.searched.emit(True)
 
+    def research(self, reset=True):
+        self.search(self.last_search, reset)
 
     def sort(self, col, order, reset=True):
         descending = order != Qt.AscendingOrder
@@ -1172,6 +1173,8 @@ class DeviceBooksModel(BooksModel): # {{{
         self.custom_columns = {}
         self.db = db
         self.map = list(range(0, len(db)))
+        self.research(reset=False)
+        self.resort()
 
     def cover(self, row):
         item = self.db[self.map[row]]
@@ -1320,8 +1323,6 @@ class DeviceBooksModel(BooksModel): # {{{
             ans = Qt.AlignVCenter | ALIGNMENT_MAP[self.alignment_map.get(cname,
                 'left')]
             return QVariant(ans)
-
-
         return NONE
 
     def headerData(self, section, orientation, role):

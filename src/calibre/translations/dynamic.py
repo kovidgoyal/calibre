@@ -5,10 +5,9 @@ Dynamic language lookup of translations for user-visible strings.
 __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
-import os
-
+import cStringIO
 from gettext import GNUTranslations
-from calibre.utils.localization import get_lc_messages_path
+from calibre.utils.localization import get_lc_messages_path, ZipFile
 
 __all__ = ['translate']
 
@@ -21,10 +20,15 @@ def translate(lang, text):
     else:
         mpath = get_lc_messages_path(lang)
         if mpath is not None:
-            p = os.path.join(mpath, 'messages.mo')
-            if os.path.exists(p):
-                trans = GNUTranslations(open(p, 'rb'))
-                _CACHE[lang] = trans
+            with ZipFile(P('localization/locales.zip',
+                allow_user_override=False), 'r') as zf:
+                try:
+                    buf = cStringIO.StringIO(zf.read(mpath + '/messages.mo'))
+                except:
+                    pass
+                else:
+                    trans = GNUTranslations(buf)
+                    _CACHE[lang] = trans
     if trans is None:
         return getattr(__builtins__, '_', lambda x: x)(text)
     return trans.ugettext(text)

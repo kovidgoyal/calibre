@@ -77,44 +77,31 @@ class NOOK(USBMS):
         with open('%s.jpg' % os.path.join(path, filename), 'wb') as coverfile:
             coverfile.write(coverdata)
 
-
     def sanitize_path_components(self, components):
         return [x.replace('#', '_') for x in components]
 
 class NOOK_COLOR(NOOK):
-    gui_name       = _('Nook Color')
-    description    = _('Communicate with the Nook Color eBook reader.')
+    description    = _('Communicate with the Nook Color and TSR eBook readers.')
 
-    PRODUCT_ID  = [0x002]
+    PRODUCT_ID  = [0x002, 0x003]
     BCD         = [0x216]
-    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'EBOOK_DISK'
 
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'EBOOK_DISK'
     EBOOK_DIR_MAIN = 'My Files'
 
+    def upload_cover(self, path, filename, metadata, filepath):
+        pass
+
+    def get_carda_ebook_dir(self, for_upload=False):
+        if for_upload:
+            return self.EBOOK_DIR_MAIN
+        return ''
+
     def create_upload_path(self, path, mdata, fname, create_dirs=True):
-        filepath = NOOK.create_upload_path(self, path, mdata, fname,
-                create_dirs=False)
-        edm = self.EBOOK_DIR_MAIN
-        subdir = 'Books'
-        if mdata.tags:
-            if _('News') in mdata.tags:
-                subdir = 'Magazines'
-        filepath = filepath.replace(os.sep+edm+os.sep,
-                os.sep+edm+os.sep+subdir+os.sep)
-        filedir = os.path.dirname(filepath)
-        if create_dirs and not os.path.exists(filedir):
-            os.makedirs(filedir)
-
-        return filepath
-
-class NOOK_TSR(NOOK):
-    gui_name       = _('Nook Simple')
-    description    = _('Communicate with the Nook TSR eBook reader.')
-
-    PRODUCT_ID  = [0x003]
-    BCD         = [0x216]
-
-    EBOOK_DIR_MAIN = EBOOK_DIR_CARD_A = 'My Files/Books'
-    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'EBOOK_DISK'
+        is_news = mdata.tags and _('News') in mdata.tags
+        subdir = 'Magazines' if is_news else 'Books'
+        path = os.path.join(path, subdir)
+        return USBMS.create_upload_path(self, path, mdata, fname,
+                create_dirs=create_dirs)
 
 

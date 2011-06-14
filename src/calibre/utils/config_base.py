@@ -223,8 +223,7 @@ class OptionSet(object):
         if val is val is True or val is False or val is None or \
            isinstance(val, (int, float, long, basestring)):
             return repr(val)
-        from PyQt4.QtCore import QString
-        if isinstance(val, QString):
+        if val.__class__.__name__ == 'QString':
             return repr(unicode(val))
         pickle = cPickle.dumps(val, -1)
         return 'cPickle.loads(%s)'%repr(pickle)

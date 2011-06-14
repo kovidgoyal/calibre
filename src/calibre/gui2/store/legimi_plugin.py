@@ -40,7 +40,7 @@ class LegimiStore(BasicStoreConfig, StorePlugin):
             d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
-        url = 'http://www.legimi.com/pl/ebooks/?price=any&lang=pl&search=' + urllib.quote_plus(query.encode('utf-8')) + '&sort=relevance'
+        url = 'http://www.legimi.com/pl/ebooks/?price=any&lang=pl&search=' + urllib.quote_plus(query) + '&sort=relevance'
         
         br = browser()
         
