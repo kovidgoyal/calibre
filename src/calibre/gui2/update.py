@@ -11,12 +11,14 @@ from calibre.constants import __appname__, __version__, iswindows, isosx
 from calibre import browser
 from calibre.utils.config import prefs
 from calibre.gui2 import config, dynamic, open_url
+from calibre.gui2.dialogs.plugin_updater import get_plugin_updates_available
 
 URL = 'http://status.calibre-ebook.com/latest'
 
 class CheckForUpdates(QThread):
 
     update_found = pyqtSignal(object)
+    plugin_update_found = pyqtSignal(object)
     INTERVAL = 24*60*60
 
     def __init__(self, parent):
@@ -34,6 +36,12 @@ class CheckForUpdates(QThread):
                 version = br.open(req).read().strip()
                 if version and version != __version__ and len(version) < 10:
                     self.update_found.emit(version)
+            except:
+                traceback.print_exc()
+            try:
+                update_plugins = get_plugin_updates_available()
+                if update_plugins:
+                    self.plugin_update_found.emit(update_plugins)
             except:
                 traceback.print_exc()
             self.sleep(self.INTERVAL)
@@ -93,6 +101,8 @@ class UpdateMixin(object):
             self.update_checker = CheckForUpdates(self)
             self.update_checker.update_found.connect(self.update_found,
                     type=Qt.QueuedConnection)
+            self.update_checker.plugin_update_found.connect(self.plugin_update_found,
+                    type=Qt.QueuedConnection)
             self.update_checker.start()
 
     def update_found(self, version, force=False):
@@ -105,5 +115,19 @@ class UpdateMixin(object):
             self._update_notification__ = UpdateNotification(version,
                     parent=self)
             self._update_notification__.show()
+
+    def plugin_update_found(self, updates, icon_only=False):
+        # Change the plugin icon to indicate there are updates available
+        plugin = self.iactions.get('Plugin Updates', None)
+        if not plugin:
+            return
+        if updates:
+            plugin.qaction.setText(_('Plugin Updates')+'*')
+            plugin.qaction.setIcon(QIcon(I('plugins/plugin_updater_updates.png')))
+            plugin.qaction.setToolTip(_('There are %d plugin updates available')%len(updates))
+        else:
+            plugin.qaction.setText(_('Plugin Updates'))
+            plugin.qaction.setIcon(QIcon(I('plugins/plugin_updater.png')))
+            plugin.qaction.setToolTip(_('Install and configure user plugins'))
 
 
