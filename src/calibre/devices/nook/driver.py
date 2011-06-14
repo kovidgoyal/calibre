@@ -90,29 +90,20 @@ class NOOK_COLOR(NOOK):
 
     EBOOK_DIR_MAIN = 'My Files'
 
-    def create_upload_path(self, path, mdata, fname, create_dirs=True):
-        filepath = NOOK.create_upload_path(self, path, mdata, fname,
-                create_dirs=False)
-        edm = self.EBOOK_DIR_MAIN
-        subdir = 'Books'
-        if mdata.tags:
-            if _('News') in mdata.tags:
-                subdir = 'Magazines'
-        filepath = filepath.replace(os.sep+edm+os.sep,
-                os.sep+edm+os.sep+subdir+os.sep)
-        filedir = os.path.dirname(filepath)
-        if create_dirs and not os.path.exists(filedir):
-            os.makedirs(filedir)
-
-        return filepath
-
     def upload_cover(self, path, filename, metadata, filepath):
         pass
 
     def get_carda_ebook_dir(self, for_upload=False):
         if for_upload:
-            return 'My Files/Books'
+            return self.EBOOK_DIR_MAIN
         return ''
+
+    def create_upload_path(self, path, mdata, fname, create_dirs=True):
+        is_news = mdata.tags and _('News') in mdata.tags
+        subdir = 'Magazines' if is_news else 'Books'
+        path = os.path.join(path, subdir)
+        return NOOK.create_upload_path(self, path, mdata, fname,
+                create_dirs=create_dirs)
 
 class NOOK_TSR(NOOK):
     gui_name       = _('Nook Simple')
