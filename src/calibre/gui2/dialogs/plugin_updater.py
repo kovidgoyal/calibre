@@ -14,7 +14,6 @@ from PyQt4.Qt import (Qt, QUrl, QFrame, QVBoxLayout, QLabel, QBrush, QTextEdit,
                       QAbstractTableModel, QVariant, QTableView, QModelIndex,
                       QSortFilterProxyModel, pyqtSignal, QAction, QIcon, QDialog,
                       QFont, QPixmap, QSize)
-from PyQt4 import QtCore
 from calibre import browser, prints
 from calibre.constants import numeric_version, iswindows, isosx, DEBUG
 from calibre.customize.ui import (initialized_plugins, is_disabled, remove_plugin,
@@ -500,7 +499,7 @@ class PluginUpdaterDialog(SizePersistedDialog):
         self.plugin_view.setSelectionMode(QAbstractItemView.SingleSelection)
         self.plugin_view.setAlternatingRowColors(True)
         self.plugin_view.setSortingEnabled(True)
-        self.plugin_view.setIconSize(QtCore.QSize(28, 28))
+        self.plugin_view.setIconSize(QSize(28, 28))
         layout.addWidget(self.plugin_view)
 
         details_layout = QHBoxLayout()
