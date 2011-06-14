@@ -159,8 +159,7 @@ class UpdateMixin(object):
         self.status_bar.update_label.setText(msg)
         self.status_bar.update_label.setVisible(True)
 
-        if has_plugin_updates:
-            self.plugin_update_found(plugin_updates)
+        self.plugin_update_found(plugin_updates)
 
         if has_calibre_update:
             if (force or (config.get('new_version_notification') and
