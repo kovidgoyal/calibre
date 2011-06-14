@@ -128,11 +128,22 @@
      <item>
       <widget class="QPushButton" name="button_plugin_updates">
        <property name="text">
-        <string>&amp;Plugin updates</string>
+        <string>&amp;Check for plugin updates</string>
        </property>
        <property name="icon">
         <iconset resource="../../../../resources/images.qrc">
          <normaloff>:/images/plugins/plugin_updater.png</normaloff>:/images/plugins/plugin_updater.png</iconset>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="button_plugin_new">
+       <property name="text">
+        <string>&amp;Get new plugins</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../../../../resources/images.qrc">
+         <normaloff>:/images/plugins/plugin_new.png</normaloff>:/images/plugins/plugin_new.png</iconset>
        </property>
       </widget>
      </item>
