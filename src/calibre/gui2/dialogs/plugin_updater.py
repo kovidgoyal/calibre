@@ -12,18 +12,16 @@ from lxml import html
 from PyQt4.Qt import (Qt, QUrl, QFrame, QVBoxLayout, QLabel, QBrush, QTextEdit,
                       QComboBox, QAbstractItemView, QHBoxLayout, QDialogButtonBox,
                       QAbstractTableModel, QVariant, QTableView, QModelIndex,
-                      QSortFilterProxyModel, pyqtSignal, QAction, QIcon)
+                      QSortFilterProxyModel, pyqtSignal, QAction, QIcon, QDialog,
+                      QFont, QPixmap)
 from PyQt4 import QtCore
 from calibre import browser, prints
 from calibre.constants import numeric_version, iswindows, isosx, DEBUG
 from calibre.customize.ui import (initialized_plugins, is_disabled, remove_plugin,
                                   add_plugin, enable_plugin, disable_plugin, NameConflict)
-from calibre.gui2 import error_dialog, question_dialog, info_dialog, NONE, open_url
+from calibre.gui2 import error_dialog, question_dialog, info_dialog, NONE, open_url, gprefs
 from calibre.gui2.preferences.plugins import ConfigWidget
 from calibre.utils.date import UNDEFINED_DATE, format_date
-
-from calibre_plugins.plugin_updater.common_utils import (get_icon, get_pixmap,
-                                SizePersistedDialog,ImageTitleLayout)
 
 
 MR_URL = 'http://www.mobileread.com/forums/'
@@ -105,6 +103,53 @@ def get_installed_plugin_status(display_plugin):
                     break
             if not found:
                 display_plugin.uninstall_plugins.remove(plugin_to_uninstall)
+
+
+class ImageTitleLayout(QHBoxLayout):
+    '''
+    A reusable layout widget displaying an image followed by a title
+    '''
+    def __init__(self, parent, icon_name, title):
+        QHBoxLayout.__init__(self)
+        title_font = QFont()
+        title_font.setPointSize(16)
+        title_image_label = QLabel(parent)
+        pixmap = QPixmap()
+        pixmap.load(I(icon_name))
+        if pixmap is None:
+            error_dialog(parent, _('Restart required'),
+                         _('You must restart Calibre before using this plugin!'), show=True)
+        else:
+            title_image_label.setPixmap(pixmap)
+        title_image_label.setMaximumSize(32, 32)
+        title_image_label.setScaledContents(True)
+        self.addWidget(title_image_label)
+        shelf_label = QLabel(title, parent)
+        shelf_label.setFont(title_font)
+        self.addWidget(shelf_label)
+        self.insertStretch(-1)
+
+
+class SizePersistedDialog(QDialog):
+    '''
+    This dialog is a base class for any dialogs that want their size/position
+    restored when they are next opened.
+    '''
+    def __init__(self, parent, unique_pref_name):
+        QDialog.__init__(self, parent)
+        self.unique_pref_name = unique_pref_name
+        self.geom = gprefs.get(unique_pref_name, None)
+        self.finished.connect(self.dialog_closing)
+
+    def resize_dialog(self):
+        if self.geom is None:
+            self.resize(self.sizeHint())
+        else:
+            self.restoreGeometry(self.geom)
+
+    def dialog_closing(self, result):
+        geom = bytearray(self.saveGeometry())
+        gprefs[self.unique_pref_name] = geom
 
 
 class VersionHistoryDialog(SizePersistedDialog):
@@ -293,7 +338,7 @@ class DisplayPluginModel(QAbstractTableModel):
                 return self._get_status_icon(display_plugin)
             if col == 1:
                 if display_plugin.donation_link:
-                    return get_icon('donate.png')
+                    return QIcon(I('donate.png'))
         elif role == Qt.ToolTipRole:
             if col == 1 and display_plugin.donation_link:
                 return QVariant(_('This plugin is FREE but you can reward the developer for their effort\n'
@@ -367,7 +412,7 @@ class DisplayPluginModel(QAbstractTableModel):
                 icon_name = 'plugin_new_valid.png'
             else:
                 icon_name = 'plugin_new_invalid.png'
-        return get_icon('images/' + icon_name)
+        return QIcon(I('plugins/' + icon_name))
 
     def _get_status_tooltip(self, display_plugin):
         if display_plugin.is_deprecated:
@@ -477,7 +522,7 @@ class PluginUpdaterDialog(SizePersistedDialog):
 
     def _create_context_menu(self):
         self.plugin_view.setContextMenuPolicy(Qt.ActionsContextMenu)
-        self.install_action = QAction(get_icon('images/plugin_upgrade_ok.png'), _('&Install'), self)
+        self.install_action = QAction(QIcon(I('plugins/plugin_upgrade_ok.png')), _('&Install'), self)
         self.install_action.setToolTip(_('Install the selected plugin'))
         self.install_action.triggered.connect(self._install_clicked)
         self.install_action.setEnabled(False)
@@ -487,7 +532,7 @@ class PluginUpdaterDialog(SizePersistedDialog):
         self.history_action.triggered.connect(self._history_clicked)
         self.history_action.setEnabled(False)
         self.plugin_view.addAction(self.history_action)
-        self.forum_action = QAction(get_icon('images/mobileread.png'), _('Plugin &Forum Thread'), self)
+        self.forum_action = QAction(QIcon(I('plugins/mobileread.png')), _('Plugin &Forum Thread'), self)
         self.forum_action.triggered.connect(self._forum_label_activated)
         self.forum_action.setEnabled(False)
         self.plugin_view.addAction(self.forum_action)
@@ -531,7 +576,7 @@ class PluginUpdaterDialog(SizePersistedDialog):
         # Force our toolbar/action to be updated based on uninstalled updates
         if self.model:
             update_plugins = filter(filter_upgradeable_plugins, self.model.display_plugins)
-            self.gui.plugin_update_found(update_plugins, icon_only=True)
+            self.update_found.emit(update_plugins)
         self.reject()
 
     def _plugin_current_changed(self, current, previous):
