@@ -867,13 +867,20 @@ class ActionStore(InterfaceActionBase):
         from calibre.gui2.store.config.store import save_settings as save
         save(config_widget)
 
+class ActionPluginUpdates(InterfaceActionBase):
+    name = 'Plugin Updates'
+    author = 'Grant Drake'
+    description = 'Queries the MobileRead forums for updates to plugins to install'
+    actual_plugin = 'calibre.gui2.actions.plugin_updates:PluginUpdatesAction'
+
 plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,
         ActionConvert, ActionDelete, ActionEditMetadata, ActionView,
         ActionFetchNews, ActionSaveToDisk, ActionShowBookDetails,
         ActionRestart, ActionOpenFolder, ActionConnectShare,
         ActionSendToDevice, ActionHelp, ActionPreferences, ActionSimilarBooks,
         ActionAddToLibrary, ActionEditCollections, ActionChooseLibrary,
-        ActionCopyToLibrary, ActionTweakEpub, ActionNextMatch, ActionStore]
+        ActionCopyToLibrary, ActionTweakEpub, ActionNextMatch, ActionStore,
+        ActionPluginUpdates]
 
 # }}}
 
