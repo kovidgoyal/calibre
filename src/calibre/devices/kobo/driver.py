@@ -297,7 +297,7 @@ class KOBO(USBMS):
             path_prefix = '.kobo/images/'
             path = self._main_prefix + path_prefix + ImageID
 
-            file_endings = (' - iPhoneThumbnail.parsed', ' - bbMediumGridList.parsed', ' - NickelBookCover.parsed',)
+            file_endings = (' - iPhoneThumbnail.parsed', ' - bbMediumGridList.parsed', ' - NickelBookCover.parsed', ' - N3_LIBRARY_FULL.parsed', ' - N3_LIBRARY_GRID.parsed', ' - N3_LIBRARY_LIST.parsed', ' - N3_SOCIAL_CURRENTREAD.parsed',)
 
             for ending in file_endings:
                 fpath = path + ending
