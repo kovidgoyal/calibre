@@ -9,13 +9,13 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-06-10 18:12+0000\n"
-"PO-Revision-Date: 2011-06-13 15:01+0000\n"
-"Last-Translator: faber <Unknown>\n"
+"PO-Revision-Date: 2011-06-14 14:02+0000\n"
+"Last-Translator: Andrea Ghirardini <Unknown>\n"
 "Language-Team: italiano\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-06-14 04:39+0000\n"
+"X-Launchpad-Export-Date: 2011-06-15 04:38+0000\n"
 "X-Generator: Launchpad (build 13168)\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -2800,6 +2800,10 @@ msgid ""
 "inline: Write the CSS as an inline style attribute.\n"
 "tag: Turn as many CSS styles as possible into HTML tags."
 msgstr ""
+"Specifica l'handling del CSS. Il Default è class.\n"
+"class: Usa le classi CSS e ha degli elementi che fanno riferimento ad esse.\n"
+"inline: Scrive il CSS come uno stile di attributo inline.\n"
+"tag: Trasforma quanti più CSS style in tag html."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/htmlz/output.py:38
 msgid ""
@@ -4207,7 +4211,7 @@ msgstr "Ordina i tag per nome, popolarità o valutazione"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:116
 msgid "Match tags by any or all."
-msgstr ""
+msgstr "Effettua il match dei tag per alcuni o per tutti"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:118
 msgid "Number of covers to show in the cover browsing mode"
@@ -5944,11 +5948,11 @@ msgstr "Fare clic per aprire"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:123
 msgid "Ids"
-msgstr ""
+msgstr "Id"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:133
 msgid "Book %s of <span class=\"series_name\">%s</span>"
-msgstr ""
+msgstr "Libro %s di <span class=\"series_name\">%s</span>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:144
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1032
@@ -6178,6 +6182,10 @@ msgid ""
 "excludes tags of the form [tag], \n"
 "e.g., [Project Gutenberg]</p>"
 msgstr ""
+"<p>Pattern di default \n"
+"\\[.+\\]\n"
+"esclude i tag dalla form [tag], \n"
+"e.g., [Project Gutenberg]</p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:308
 msgid "Excluded genres"
@@ -6204,6 +6212,8 @@ msgid ""
 "<p>Comma-separated list of tags to exclude.\n"
 "Default: ~,Catalog"
 msgstr ""
+"<p>lista separata da virgole dei tag da escludere.\n"
+"Default: ~,Catalog"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:315
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:320
@@ -6240,11 +6250,11 @@ msgstr "Altre opzioni"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:324
 msgid "&Wishlist tag"
-msgstr ""
+msgstr "&Lista dei tag desiderati"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:325
 msgid "Books tagged as Wishlist items will be displayed with an X"
-msgstr ""
+msgstr "I libri taggati come desiderati saranno mostrati con un X"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:326
 msgid "&Thumbnail width"
@@ -6252,7 +6262,7 @@ msgstr "Larghezza &anteprima"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:327
 msgid "Size hint for Description cover thumbnails"
-msgstr ""
+msgstr "Grandezza suggerita per i thumbnail delle copertine."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:328
 msgid " inch"
@@ -6273,6 +6283,7 @@ msgstr "&Unisci ai commenti"
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:332
 msgid "Additional content merged with Comments during catalog generation"
 msgstr ""
+"Contenuti aggiuntivi fusi con i Commenti durante la generazione del catalogo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:333
 msgid "Merge additional content before Comments"
@@ -6292,7 +6303,7 @@ msgstr "&Dopo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:337
 msgid "Separate Comments and additional content with horizontal rule"
-msgstr ""
+msgstr "Separa i Commenti e i contenuti aggiuntivi con una riga orizzontale"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:338
 msgid "&Separator"
@@ -6398,11 +6409,11 @@ msgstr "Colore sfondo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:118
 msgid "Style text block"
-msgstr ""
+msgstr "stile del blocco di testo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:120
 msgid "Style the selected text block"
-msgstr ""
+msgstr "stile del blocco di tensto selezionato"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:125
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:34
@@ -6561,11 +6572,13 @@ msgstr "Disabilita la conversione delle immagini in bianco e nero"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:117
 msgid "Override image  &size:"
-msgstr ""
+msgstr "Ignora l'immagine di grandezza &size:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:118
 msgid "Don't add links to &pages to the Table of Contents for CBC files"
 msgstr ""
+"Non aggiungere i link alle pagine &pages alla Tabella dei Contenuti per i "
+"file CBC."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug.py:19
 msgid "Debug"
@@ -6661,7 +6674,7 @@ msgstr "Seziona:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_output_ui.py:46
 msgid "Genre"
-msgstr ""
+msgstr "Genere"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:104
 msgid "Font rescaling wizard"

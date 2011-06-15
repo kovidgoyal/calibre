@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-06-10 18:12+0000\n"
-"PO-Revision-Date: 2011-06-11 08:10+0000\n"
+"PO-Revision-Date: 2011-06-14 15:13+0000\n"
 "Last-Translator: Jellby <Unknown>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-06-12 04:51+0000\n"
+"X-Launchpad-Export-Date: 2011-06-15 04:39+0000\n"
 "X-Generator: Launchpad (build 13168)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:528
@@ -12140,15 +12140,15 @@ msgstr "no coincide con el patrón"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:72
 msgid "If the "
-msgstr "Si "
+msgstr "Si la columna "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:78
 msgid " column "
-msgstr " la columna "
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:84
 msgid " value "
-msgstr " el valor "
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:199
 msgid ""
@@ -12188,7 +12188,7 @@ msgstr "Cree una regla de coloreado rellenando los cuadros de abajo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:247
 msgid "to"
-msgstr "a"
+msgstr "en"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:255
 msgid "Only if the following conditions are all satisfied:"
@@ -12237,7 +12237,7 @@ msgid ""
 "            <ul>%s</ul>\n"
 "            "
 msgstr ""
-"            <p>Establecer el color de <b>%s</b> a <b>%s</b> si las "
+"            <p>Establecer el color de <b>%s</b> en <b>%s</b> si las "
 "siguientes condiciones se satisfacen:</p>\n"
 "<ul>%s</ul>\n"
 "            "
