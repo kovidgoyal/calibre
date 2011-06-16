@@ -85,16 +85,6 @@ class KOBO(USBMS):
         except:
             self.fwversion = 'unknown'
 
-        # Determine Hardware version differences
-        product_id =  self.detected_device.idProduct
-        debug_print ("device: ", product_id)
-        if product_id == 0x4161: #Original and KWifi
-            image_suffix = ' - NickelBookCover.parsed' 
-        else:                    #KTouch
-            image_suffix = ' - N3_LIBRARY_FULL.parsed'
-
-        debug_print("Image Suffix: ", image_suffix)
-
         if self.fwversion != '1.0' and self.fwversion != '1.4':
             self.has_kepubs = True
         debug_print('Version of firmware: ', self.fwversion, 'Has kepubs:', self.has_kepubs)
@@ -135,7 +125,11 @@ class KOBO(USBMS):
                 if idx is not None:
                     bl_cache[lpath] = None
                     if ImageID is not None:
-                        imagename = self.normalize_path(self._main_prefix + '.kobo/images/' + ImageID + image_suffix)
+                        imagename = self.normalize_path(self._main_prefix + '.kobo/images/' + ImageID + ' - NickelBookCover.parsed')
+                        if not os.path.exists(imagename): 
+                            # Try the Touch version if the image does not exist
+                            imagename = self.normalize_path(self._main_prefix + '.kobo/images/' + ImageID + ' - N3_LIBRARY_FULL.parsed')
+
                         #print "Image name Normalized: " + imagename
 
                         if imagename is not None:
