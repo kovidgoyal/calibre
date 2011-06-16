@@ -473,6 +473,7 @@ class Style(object):
         self._width = None
         self._height = None
         self._lineHeight = None
+        self._bgcolor = None
         stylizer._styles[element] = self
 
     def set(self, prop, val):
@@ -532,6 +533,44 @@ class Style(object):
 
     def pt_to_px(self, value):
         return (self._profile.dpi / 72.0) * value
+
+    @property
+    def backgroundColor(self):
+        '''
+        Return the background color by parsing both the background-color and
+        background shortcut properties. Note that inheritance/default values
+        are not used.
+        '''
+
+        def validate_color(col):
+            return cssutils.profile.validateWithProfile('color',
+                        col,
+                        profiles=[cssutils.profiles.Profiles.CSS_LEVEL_2])[1]
+
+        if self._bgcolor is None:
+            val = self._style.get('background-color', None)
+            if val and validate_color(val):
+                col = val
+            else:
+                val = self._style.get('background', None)
+                if val is not None:
+                    try:
+                        style = cssutils.parseStyle('background: '+val)
+                        val = style.getProperty('background').cssValue
+                        try:
+                            val = list(val)
+                        except:
+                            # val is CSSPrimitiveValue
+                            val = [val]
+                        for c in val:
+                            c = c.cssText
+                            if validate_color(c):
+                                col = c
+                                break
+                    except:
+                        pass
+            self._bgcolor = col
+        return self._bgcolor
 
     @property
     def fontSize(self):

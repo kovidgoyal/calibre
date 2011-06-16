@@ -443,11 +443,15 @@ class MobiMLizer(object):
             tag = 'span' if tag == 'td' else 'div'
 
         if tag == 'table':
+            col = style.backgroundColor
+            if col:
+                elem.set('bgcolor', col)
             css = style.cssdict()
             if 'border' in css or 'border-width' in css:
                 elem.set('border', '1')
         if tag in TABLE_TAGS:
-            for attr in ('rowspan', 'colspan', 'width', 'border', 'scope'):
+            for attr in ('rowspan', 'colspan', 'width', 'border', 'scope',
+                    'bgcolor'):
                 if attr in elem.attrib:
                     istate.attrib[attr] = elem.attrib[attr]
         if tag == 'q':
