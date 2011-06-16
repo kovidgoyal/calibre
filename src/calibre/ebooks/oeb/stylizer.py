@@ -11,7 +11,6 @@ __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 import os, itertools, re, logging, copy, unicodedata
 from weakref import WeakKeyDictionary
 from xml.dom import SyntaxErr as CSSSyntaxError
-import cssutils
 from cssutils.css import (CSSStyleRule, CSSPageRule, CSSStyleDeclaration,
     CSSFontFaceRule, cssproperties)
 try:
@@ -20,7 +19,8 @@ try:
 except ImportError:
     # cssutils >= 0.9.8
     from cssutils.css import PropertyValue as CSSValueList
-from cssutils import profile as cssprofiles
+from cssutils import (profile as cssprofiles, parseString, parseStyle, log as
+        cssutils_log, CSSParser, profiles)
 from lxml import etree
 from lxml.cssselect import css_to_xpath, ExpressionError, SelectorSyntaxError
 from calibre import force_unicode
@@ -28,7 +28,7 @@ from calibre.ebooks import unit_convert
 from calibre.ebooks.oeb.base import XHTML, XHTML_NS, CSS_MIME, OEB_STYLES
 from calibre.ebooks.oeb.base import XPNSMAP, xpath, urlnormalize
 
-cssutils.log.setLevel(logging.WARN)
+cssutils_log.setLevel(logging.WARN)
 
 _html_css_stylesheet = None
 
@@ -36,7 +36,7 @@ def html_css_stylesheet():
     global _html_css_stylesheet
     if _html_css_stylesheet is None:
         html_css = open(P('templates/html.css'), 'rb').read()
-        _html_css_stylesheet = cssutils.parseString(html_css)
+        _html_css_stylesheet = parseString(html_css)
         _html_css_stylesheet.namespaces['h'] = XHTML_NS
     return _html_css_stylesheet
 
@@ -157,11 +157,11 @@ class Stylizer(object):
 
         # Add cssutils parsing profiles from output_profile
         for profile in self.opts.output_profile.extra_css_modules:
-            cssutils.profile.addProfile(profile['name'],
+            cssprofiles.addProfile(profile['name'],
                                         profile['props'],
                                         profile['macros'])
 
-        parser = cssutils.CSSParser(fetcher=self._fetch_css_file,
+        parser = CSSParser(fetcher=self._fetch_css_file,
                 log=logging.getLogger('calibre.css'))
         self.font_face_rules = []
         for elem in head:
@@ -543,9 +543,9 @@ class Style(object):
         '''
 
         def validate_color(col):
-            return cssutils.profile.validateWithProfile('color',
+            return cssprofiles.validateWithProfile('color',
                         col,
-                        profiles=[cssutils.profiles.Profiles.CSS_LEVEL_2])[1]
+                        profiles=[profiles.Profiles.CSS_LEVEL_2])[1]
 
         if self._bgcolor is None:
             col = None
@@ -556,7 +556,7 @@ class Style(object):
                 val = self._style.get('background', None)
                 if val is not None:
                     try:
-                        style = cssutils.parseStyle('background: '+val)
+                        style = parseStyle('background: '+val)
                         val = style.getProperty('background').cssValue
                         try:
                             val = list(val)
