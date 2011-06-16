@@ -241,6 +241,7 @@ class Serializer(object):
         if self.write_page_breaks_after_item:
             buffer.write('<mbp:pagebreak/>')
         buffer.write('</div>')
+        self.anchor_offset = None
 
     def serialize_elem(self, elem, item, nsrmap=NSRMAP):
         buffer = self.buffer
