@@ -12,10 +12,10 @@ from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.dialogs.plugin_updater import (PluginUpdaterDialog,
                                                  FILTER_ALL, FILTER_UPDATE_AVAILABLE)
 
-class PluginUpdatesAction(InterfaceAction):
+class PluginUpdaterAction(InterfaceAction):
 
-    name = 'Plugin Updates'
-    action_spec = (_('Plugin Updates'), None, None, None)
+    name = 'Plugin Updater'
+    action_spec = (_('Plugin Updater'), None, None, None)
     action_type = 'current'
 
     def genesis(self):
