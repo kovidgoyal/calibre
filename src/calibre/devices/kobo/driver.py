@@ -457,7 +457,10 @@ class KOBO(USBMS):
                 path = self._main_prefix + path + '.kobo'
                 # print "Path: " + path
             elif (ContentType == "6" or ContentType == "10") and MimeType == 'application/x-kobo-epub+zip':
-                path = self._main_prefix + '.kobo/kepub/' + path
+                if path.startswith("file:///mnt/onboard/"):
+                    path = self._main_prefix + path.replace("file:///mnt/onboard/", '')
+                else:
+                    path = self._main_prefix + '.kobo/kepub/' + path
                 # print "Internal: " + path
             else:
                 # if path.startswith("file:///mnt/onboard/"):
