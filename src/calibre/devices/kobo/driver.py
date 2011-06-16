@@ -199,7 +199,9 @@ class KOBO(USBMS):
         changed = False
         for i, row in enumerate(cursor):
         #  self.report_progress((i+1) / float(numrows), _('Getting list of books on device...'))
-
+            if row[3].startswith("file:///usr/local/Kobo/help/"):
+                # These are internal to the Kobo device and do not exist
+                continue
             path = self.path_from_contentid(row[3], row[5], row[4], oncard)
             mime = mime_type_ext(path_to_ext(path)) if path.find('kepub') == -1 else 'application/epub+zip'
             # debug_print("mime:", mime)
