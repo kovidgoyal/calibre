@@ -586,7 +586,7 @@ class PluginUpdaterDialog(SizePersistedDialog):
         # Force our toolbar/action to be updated based on uninstalled updates
         if self.model:
             update_plugins = filter(filter_upgradeable_plugins, self.model.display_plugins)
-            self.gui.plugin_update_found(len(update_plugins))
+            self.gui.recalc_update_label(len(update_plugins))
         self.reject()
 
     def _plugin_current_changed(self, current, previous):

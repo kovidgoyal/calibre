@@ -88,6 +88,7 @@ class NOOK_COLOR(NOOK):
 
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'EBOOK_DISK'
     EBOOK_DIR_MAIN = 'My Files'
+    NEWS_IN_FOLDER = False
 
     def upload_cover(self, path, filename, metadata, filepath):
         pass
