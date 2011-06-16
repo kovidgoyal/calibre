@@ -85,7 +85,11 @@ class ISBNMerge(object):
                 isbns, min_year = xisbn.get_isbn_pool(isbn)
                 if not isbns:
                     isbns = frozenset([isbn])
-                self.pools[isbns] = pool = (min_year, [])
+                if isbns in self.pools:
+                    # xISBN had a brain fart
+                    pool = self.pools[isbn]
+                else:
+                    self.pools[isbns] = pool = (min_year, [])
 
             if not self.pool_has_result_from_same_source(pool, result):
                 pool[1].append(result)
