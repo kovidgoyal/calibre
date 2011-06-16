@@ -37,13 +37,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-06-10 18:12+0000\n"
-"PO-Revision-Date: 2011-06-13 19:38+0000\n"
+"PO-Revision-Date: 2011-06-15 05:36+0000\n"
 "Last-Translator: drMerry <Unknown>\n"
 "Language-Team: Dutch <ubuntu-l10n-nl@lists.ubuntu.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-06-14 04:38+0000\n"
+"X-Launchpad-Export-Date: 2011-06-16 04:34+0000\n"
 "X-Generator: Launchpad (build 13168)\n"
 "X-Poedit-Country: NETHERLANDS\n"
 "X-Poedit-Language: Dutch\n"
@@ -242,7 +242,7 @@ msgstr "Bestandstype"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:354
 msgid "Metadata reader"
-msgstr "Lezer van metadata"
+msgstr "Metadata lezer"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:384
 msgid "Metadata writer"
@@ -477,7 +477,7 @@ msgstr "Boeken naar apparaten sturen"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1004
 msgid "Control how calibre transfers files to your ebook reader"
-msgstr "Stel in hoe calibre de bestanden naar uw leesapparaat verstuurt"
+msgstr "Stel in hoe calibre de bestanden naar uw E-reader verstuurt"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1010
 msgid "Metadata plugboards"
@@ -1094,7 +1094,7 @@ msgstr "Communiceer met BOEYE BEX Seriële e-boeklezers."
 
 #: /home/kovid/work/calibre/src/calibre/devices/boeye/driver.py:35
 msgid "Communicate with BOEYE BDX serial eBook readers."
-msgstr "Communiceer met BOEYE BDX Seriële e-boeklezers."
+msgstr "Communiceer met BOEYE BDX Seriële E-readers."
 
 #: /home/kovid/work/calibre/src/calibre/devices/cybook/driver.py:22
 msgid "Communicate with the Cybook Gen 3 / Opus eBook reader."
@@ -1114,7 +1114,7 @@ msgstr "Verbinden met Astak Mentor EB600"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:215
 msgid "Communicate with the PocketBook 301 reader."
-msgstr "Communiceer met PocketBook 301 lezer."
+msgstr "Communiceer met PocketBook 301 E-reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:232
 msgid "Communicate with the PocketBook 602/603/902/903 reader."
@@ -1393,7 +1393,7 @@ msgstr "Nook Simple"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:119
 msgid "Communicate with the Nook TSR eBook reader."
-msgstr "Communiceer met de Nook TSR e-boeklezer"
+msgstr "Communiceer met de Nook TSR E-reader"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nuut2/driver.py:17
 msgid "Communicate with the Nuut2 eBook reader."
@@ -1405,7 +1405,7 @@ msgstr "Communiceer met de Sony PRS-500 E-reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:22
 msgid "Communicate with all the Sony eBook readers."
-msgstr "Verbinden met alle Sony e-boeklezers."
+msgstr "Verbinden met alle Sony E-readers."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:62
 msgid "All by title"
@@ -1436,8 +1436,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:73
 msgid "Upload separate cover thumbnails for books (newer readers)"
 msgstr ""
-"Voorbeeldweergave van omslag afzonderlijk uploaden voor boeken (nieuwere "
-"lezers)"
+"Voorbeeldweergave van omslag afzonderlijk uploaden voor boeken (nieuwere E-"
+"readers)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:74
 msgid ""
@@ -1458,7 +1458,7 @@ msgid ""
 "Refresh separate covers when using automatic management (newer readers)"
 msgstr ""
 "Ververs afzonderlijke omslagen wanneer automatisch management wordt gebruikt "
-"(nieuwere lezers)"
+"(nieuwere E-readers)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:82
 msgid ""
@@ -4194,7 +4194,7 @@ msgstr ""
 "uitvoeropmaak is ingesteld op textile. Textile is de enige formattering die "
 "ondersteuning biedt voor het instellen van tekstkleur. Als deze optie niet "
 "is gespecificeerd, zal de tekstkleur niet worden ingesteld en gelijk zijn "
-"aan de standaardkleur voor uw leesapparaat (over het algemeen is dit zwart)."
+"aan de standaardkleur voor uw E-reader (over het algemeen is dit zwart)."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:104
 msgid "Send file to storage card instead of main memory by default"
@@ -4473,7 +4473,7 @@ msgstr "Boekrecords vanuit ISBN aanmaken"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:268
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:317
 msgid "Uploading books to device."
-msgstr "Boeken naar de lezer sturen."
+msgstr "Boeken naar het apparaat sturen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:288
 msgid "Supported books"
@@ -5053,15 +5053,15 @@ msgstr "Geen van de geselecteerde boeken bevindt zich op het apparaat"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:240
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:331
 msgid "Deleting books from device."
-msgstr "Boeken worden van de lezer verwijderd."
+msgstr "Boeken worden van het apparaat verwijderd."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:286
 msgid ""
 "Some of the selected books are on the attached device. <b>Where</b> do you "
 "want the selected files deleted from?"
 msgstr ""
-"Sommige geselecteerde boeken staan op de lezer. <b>Waarvan</b> wilt u de "
-"geselecteerde bestanden verwijderen?"
+"Sommige geselecteerde boeken staan op het verbonden apparaat. <b>Waarvan</b> "
+"wilt u de geselecteerde bestanden verwijderen?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:298
 msgid ""
@@ -5124,7 +5124,7 @@ msgstr "D"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:123
 msgid "Send to device"
-msgstr "Naar lezer sturen"
+msgstr "Naar apparaat sturen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:141
 msgid "Connect/share"
@@ -5525,7 +5525,7 @@ msgstr "Geen details beschikbaar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/show_book_details.py:27
 msgid "No detailed information is available for books on the device."
-msgstr "Er zijn geen details over de boeken op de lezer beschikbaar."
+msgstr "Er zijn geen details over de boeken op het apparaat beschikbaar."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:17
 msgid "Similar books..."

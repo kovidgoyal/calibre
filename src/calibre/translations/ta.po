@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-06-10 18:12+0000\n"
-"PO-Revision-Date: 2010-09-03 18:46+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2011-06-15 17:59+0000\n"
+"Last-Translator: balajijagadesh பாலாஜி <Unknown>\n"
 "Language-Team: Tamil <ta@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-06-11 04:51+0000\n"
+"X-Launchpad-Export-Date: 2011-06-16 04:35+0000\n"
 "X-Generator: Launchpad (build 13168)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -191,7 +191,7 @@ msgstr "அடிப்படை"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:148
 msgid "Customize"
-msgstr ""
+msgstr "தனிப்பயனாக்கு"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:156
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:43
@@ -232,7 +232,7 @@ msgstr "முன்னுரிமைகள்"
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:609
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:36
 msgid "Store"
-msgstr ""
+msgstr "சேமி"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:613
 msgid "An ebook store."
@@ -323,7 +323,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:884
 msgid "Look and Feel"
-msgstr ""
+msgstr "பார்வையும் உணர்வும்"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:886
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:898
@@ -331,7 +331,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:920
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:932
 msgid "Interface"
-msgstr ""
+msgstr "முகப்பு"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:890
 msgid "Adjust the look and feel of the calibre interface to suit your tastes"
@@ -339,7 +339,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:896
 msgid "Behavior"
-msgstr ""
+msgstr "நடத்தை"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:902
 msgid "Change the way calibre behaves"
@@ -356,7 +356,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:918
 msgid "Toolbar"
-msgstr ""
+msgstr "கருவிப்பட்டை"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:924
 msgid ""
@@ -366,7 +366,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:930
 msgid "Searching"
-msgstr ""
+msgstr "தேடுகிறது"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:936
 msgid "Customize the way searching for books works in calibre"
@@ -380,7 +380,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:954
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:965
 msgid "Conversion"
-msgstr ""
+msgstr "நிலைமாற்றம்"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:947
 msgid "Set conversion options specific to each input format"
@@ -388,7 +388,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:952
 msgid "Common Options"
-msgstr ""
+msgstr "பொது விருப்பம்"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:958
 msgid "Set conversion options common to all formats"

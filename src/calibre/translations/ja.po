@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-06-10 18:12+0000\n"
-"PO-Revision-Date: 2011-06-10 16:46+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2011-06-15 08:10+0000\n"
+"Last-Translator: Ado Nishimura <Unknown>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-06-11 04:44+0000\n"
+"X-Launchpad-Export-Date: 2011-06-16 04:34+0000\n"
 "X-Generator: Launchpad (build 13168)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -1045,7 +1045,7 @@ msgstr "PocketBook 602/603/902/903リーダーと通信する"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:252
 msgid "Communicate with the PocketBook 360+ reader."
-msgstr ""
+msgstr "PocketBook 360+リーダーと通信"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:262
 msgid "Communicate with the PocketBook 701"
@@ -1267,7 +1267,7 @@ msgstr "EEE Readerと通信します。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:263
 msgid "Communicate with the Adam tablet"
-msgstr ""
+msgstr "Adamタブレットと通信"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:284
 msgid "Communicate with the Nextbook Reader"
@@ -4287,7 +4287,7 @@ msgstr "ディレクトリ %s は、すでに存在しています。先に削�
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:70
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:661
 msgid "Too long"
-msgstr ""
+msgstr "長すぎます"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:236
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:71
@@ -4295,7 +4295,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:127
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:136
 msgid "Path to library too long. Must be less than %d characters."
-msgstr ""
+msgstr "ライブラリへのパスが長すぎます。%d文字以下でなければなりません。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:243
 msgid "Rename failed"
@@ -4535,7 +4535,7 @@ msgstr "選択した書籍のすべてのフォーマットを一部のフォー
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:98
 msgid "Remove all formats from selected books"
-msgstr ""
+msgstr "選択した書籍からすべてのフォーマットを削除"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:101
 msgid "Remove covers from selected books"
@@ -4564,6 +4564,7 @@ msgid ""
 "<b>All formats</b> for the selected books will be <b>deleted</b> from your "
 "library.<br>The book metadata will be kept. Are you sure?"
 msgstr ""
+"選択した書籍の<b>すべてのフォーマット</b>はライブラリから<b>削除</b>されます。<br>書籍の書誌情報は残ります。実行しますか？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:204
 msgid "Cannot delete books"
@@ -9498,11 +9499,11 @@ msgstr "Ctrl+S"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:257
 msgid "Template language tutorial"
-msgstr ""
+msgstr "テンプレート言語チュートリアル"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:261
 msgid "Template function reference"
-msgstr ""
+msgstr "テンプレート関数リファレンス"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:274
 msgid "EXCEPTION: "
@@ -10648,53 +10649,53 @@ msgstr "表紙をダウンロード(&V)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:725
 msgid "&Generate cover"
-msgstr ""
+msgstr "表紙を生成(&G)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:775
 msgid "Not a valid picture"
-msgstr ""
+msgstr "有効な画像ではありません"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:799
 msgid "Specify title and author"
-msgstr ""
+msgstr "タイトルと著者を指定"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:800
 msgid "You must specify a title and author before generating a cover"
-msgstr ""
+msgstr "表紙を生成するためにはタイトルと著者を指定しなければなりません。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:818
 msgid "Invalid cover"
-msgstr ""
+msgstr "無効な表紙"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:819
 msgid "Could not change cover as the image is invalid."
-msgstr ""
+msgstr "イメージが無効なため表紙を替える事ができません。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:846
 msgid "This book has no cover"
-msgstr ""
+msgstr "この書籍には表紙がありません。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:848
 msgid "Cover size: %dx%d pixels"
-msgstr ""
+msgstr "表紙サイズ：%dx%dピクセル"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:897
 msgid "stars"
-msgstr ""
+msgstr "stars"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:966
 msgid "Tags changed"
-msgstr ""
+msgstr "タグを変更しました。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:967
 msgid ""
 "You have changed the tags. In order to use the tags editor, you must either "
 "discard or apply these changes. Apply changes?"
-msgstr ""
+msgstr "タグを変更しました。タグエディターを使うために、変更を適用するか破棄するかしなければなりません。適用しますか？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:993
 msgid "I&ds:"
-msgstr ""
+msgstr "I&d:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:994
 msgid ""
@@ -10702,6 +10703,9 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
+"この書籍の識別子を編集します。例： \n"
+"\n"
+"%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1055
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1117
@@ -10716,23 +10720,23 @@ msgstr "このISBN番号は不正"
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1083
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1105
 msgid "Invalid ISBN"
-msgstr ""
+msgstr "無効なISBN"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1084
 msgid "Enter an ISBN"
-msgstr ""
+msgstr "ISBNを入力"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1106
 msgid "The ISBN you entered is not valid. Try again."
-msgstr ""
+msgstr "入力されたISBNは有効ではありません。再入力をお願いします。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1130
 msgid "&Publisher:"
-msgstr ""
+msgstr "出版社(&P):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1200
 msgid "Clear date"
-msgstr ""
+msgstr "日付を消去"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1232
 msgid "Publishe&d:"
@@ -10740,66 +10744,66 @@ msgstr "発行日(&D):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:34
 msgid "Schedule download?"
-msgstr ""
+msgstr "ダウンロード予約"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:45
 msgid ""
 "The download of metadata for the <b>%d selected book(s)</b> will run in the "
 "background. Proceed?"
-msgstr ""
+msgstr "<b>選択された%d書籍の</b>ダウンロードはバックグラウンドで行われます。実行しますか？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:47
 msgid ""
 "You can monitor the progress of the download by clicking the rotating "
 "spinner in the bottom right corner."
-msgstr ""
+msgstr "右下端の回転するマークをクリックすることで、ダウンロードの進行を確認することができます。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:50
 msgid ""
 "When the download completes you will be asked for confirmation before "
 "calibre applies the downloaded metadata."
-msgstr ""
+msgstr "ダウンロードが終了した時点で、calibreはダウンロードした書誌情報を適用するかどうかの確認を行います。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:61
 msgid "Download only &metadata"
-msgstr ""
+msgstr "書誌情報のみをダウンロード(&M)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:65
 msgid "Download only &covers"
-msgstr ""
+msgstr "表紙のみをダウンロード(&C)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:69
 msgid "&Configure download"
-msgstr ""
+msgstr "ダウンロードを設定(&C)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:73
 msgid "Download &both"
-msgstr ""
+msgstr "両方をダウンロード(&B)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:99
 msgid "Download metadata for %d books"
-msgstr ""
+msgstr "%d 書籍の書誌情報をダウンロード"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:102
 msgid "Metadata download started"
-msgstr ""
+msgstr "書誌情報のダウンロードが開始しました。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:111
 msgid "(Failed metadata)"
-msgstr ""
+msgstr "(失敗した書誌情報)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:113
 msgid "(Failed cover)"
-msgstr ""
+msgstr "(失敗した表紙)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:190
 msgid "Downloaded %d of %d"
-msgstr ""
+msgstr "ダウンロード %d / %d"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/config.py:61
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:115
 msgid "Downloaded metadata fields"
-msgstr ""
+msgstr "ダウンロードされた書誌情報フィールド"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:51
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:825
@@ -10807,14 +10811,14 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:211
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:401
 msgid "Next"
-msgstr ""
+msgstr "次"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:55
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:106
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:221
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:384
 msgid "Previous"
-msgstr ""
+msgstr "前"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:80
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:265
@@ -10827,6 +10831,8 @@ msgid ""
 "Using this button to create title sort will change title sort from red to "
 "green."
 msgstr ""
+"現在のタイトルを元に自動的にソート用タイトルを作成します。\n"
+"このボタンでソート用タイトルを作ると、ソート用タイトルが赤から緑に変わります。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:112
 msgid ""
@@ -10835,14 +10841,16 @@ msgid ""
 "red to green.  There is a menu of functions available under this button. "
 "Click and hold on the button to see it."
 msgstr ""
+"現在のタイトルを元に自動的にソート用著者名を作成します。このボタンでソート用著者名を作ると、ソート用著者名が赤から緑に変わります。このボタンの下に機能のメ"
+"ニューがあります。ボタンをクリックしたままにすると見えます。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:118
 msgid "Set author sort from author"
-msgstr ""
+msgstr "ソート用著者名を著者名から設定"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:119
 msgid "Set author from author sort"
-msgstr ""
+msgstr "ソート用タイトルをタイトルから設定"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:129
 msgid "Swap the author and title"
@@ -10852,56 +10860,56 @@ msgstr "作者とタイトルの入れ替え"
 msgid ""
 "Manage authors. Use to rename authors and correct individual author's sort "
 "values"
-msgstr ""
+msgstr "著者を編集。著者名を変更したり、ソート用著者名の値を調整したりすることができます。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:143
 msgid "Remove unused series (Series that have no books)"
-msgstr ""
+msgstr "使われていないシリーズを削除（シリーズに書籍が無い物）"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:178
 msgid ""
 "Paste the contents of the clipboard into the identifiers box prefixed with "
 "isbn:"
-msgstr ""
+msgstr "ISBNを先頭にしてクリップボードから識別子ボックスに張り付けます。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:191
 msgid "&Download metadata"
-msgstr ""
+msgstr "ダウンロードされた書誌情報(&D)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:202
 msgid "Configure download metadata"
-msgstr ""
+msgstr "ダウンロードされた書誌情報を設定"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:206
 msgid "Change how calibre downloads metadata"
-msgstr ""
+msgstr "calibreがどのように書誌情報をダウンロードするかを変更"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:306
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:313
 msgid "Could not read cover"
-msgstr ""
+msgstr "表紙を読み込めません"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:307
 msgid "Could not read cover from %s format"
-msgstr ""
+msgstr "%sフォーマットから表紙を読み込めません"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:314
 msgid "The cover in the %s format is invalid"
-msgstr ""
+msgstr "%sフォーマットの表紙が無効です"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:454
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:459
 msgid "Save changes and edit the metadata of %s"
-msgstr ""
+msgstr "変更を保存して、%sの書誌情報を編集"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:549
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:751
 msgid "Change cover"
-msgstr ""
+msgstr "表紙を変更"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:606
 msgid "Co&mments"
-msgstr ""
+msgstr "コメント(&M)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:646
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:792
@@ -10910,11 +10918,11 @@ msgstr "書誌情報(&M)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:651
 msgid "&Cover and formats"
-msgstr ""
+msgstr "表紙とフォーマット(&C)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:720
 msgid "C&ustom metadata"
-msgstr ""
+msgstr "カスタム書誌情報(&U)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:732
 msgid "&Comments"
@@ -10922,15 +10930,15 @@ msgstr "コメント(&C)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:798
 msgid "Basic metadata"
-msgstr ""
+msgstr "基本書誌情報"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:133
 msgid "Has cover"
-msgstr ""
+msgstr "表紙有り"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:133
 msgid "Has summary"
-msgstr ""
+msgstr "サマリー有り"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:190
 msgid ""
@@ -10939,26 +10947,28 @@ msgid ""
 "having a cover will find a cover in the download\n"
 "cover stage, and vice versa."
 msgstr ""
+"「表紙有り」の表示は完全に信用できるわけではありません。時々、表紙なしとなった物でダウンロードすると表紙が見つかったり、あるいはその逆が起こることがありま"
+"す。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:259
 msgid "See at"
-msgstr ""
+msgstr "参照："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:394
 msgid "calibre is downloading metadata from: "
-msgstr ""
+msgstr "calibreの書誌情報ダウンロード先： "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:416
 msgid "Please wait"
-msgstr ""
+msgstr "お待ちください"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:445
 msgid "Query: "
-msgstr ""
+msgstr "クエリ： "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:464
 msgid "Failed to download metadata. Click Show Details to see details"
-msgstr ""
+msgstr "書誌情報のダウンロードに失敗しました。詳しくは「詳細を表示」をクリックしてください。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:473
 msgid ""
@@ -10967,60 +10977,62 @@ msgid ""
 "single distinctive word from the title.<p>To see the full log, click Show "
 "Details."
 msgstr ""
+"検索にマッチする書籍がありませんでした。<b>少ない検索条件</b>にしてみてください。例えば、著者のラストネームだけにしたり、タイトルの一部だけを使って"
+"ください。「詳細を表示」をクリックすると全部のログが見れます。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:539
 msgid "Current cover"
-msgstr ""
+msgstr "現在の表紙"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:542
 msgid "Searching..."
-msgstr ""
+msgstr "検索中..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:688
 msgid "Downloading covers for <b>%s</b>, please wait..."
-msgstr ""
+msgstr "<b>%s</b>から表紙をダウンロード中。お待ちください..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:718
 msgid "Failed to download any covers, click \"Show details\" for details."
-msgstr ""
+msgstr "表紙がダウンロードできませんでした。詳しくは「詳細を表示」をクリックしてください。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:724
 msgid "Could not find any covers for <b>%s</b>"
-msgstr ""
+msgstr "<b>%s</b>の表紙が見つかりませんでした。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:726
 msgid "Found <b>%d</b> covers of %s. Pick the one you like best."
-msgstr ""
+msgstr "<b>%d</b>つの表紙が%sで見つかりました。一番良いものを選んでください。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:814
 msgid "Downloading metadata..."
-msgstr ""
+msgstr "書誌情報をダウンロード中..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:907
 msgid "Downloading cover..."
-msgstr ""
+msgstr "表紙をダウンロード中..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/__init__.py:37
 msgid ""
 "Restore settings to default values. You have to click Apply to actually save "
 "the default settings."
-msgstr ""
+msgstr "ディフォールト値に設定を戻します。ディフォールト設定を実際に保存するには「適用」をクリックしてください。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/__init__.py:328
 msgid "Configure "
-msgstr ""
+msgstr "設定 "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding.py:28
 msgid "Ignore duplicate incoming formats"
-msgstr ""
+msgstr "重複したフォーマットの書籍を無視"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding.py:29
 msgid "Overwrite existing duplicate formats"
-msgstr ""
+msgstr "重複したフォーマットの書籍を上書き"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding.py:30
 msgid "Create new record for each duplicate format"
-msgstr ""
+msgstr "新しいレコードを重複フォーマットごとに作成"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:65
 msgid ""
@@ -11028,6 +11040,8 @@ msgid ""
 "to it. calibre can either read metadata from the contents of the file, or "
 "from the filename."
 msgstr ""
+"ここでcalibreに追加するファイルからの書誌情報の扱いを設定します。calibreはファイル内容から書誌情報を取り出すか、ファイル名から取り出すかを指"
+"定できます。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:66
 msgid "Read &metadata from &file contents rather than file name"
@@ -11037,11 +11051,11 @@ msgstr "書誌情報をファイル名からではなく、ファイルの中身
 msgid ""
 "Swap the firstname and lastname of the author. This affects only metadata "
 "read from file names."
-msgstr ""
+msgstr "ファーストネームとラストネームを交換します。この設定はファイル名から書誌情報を得た時のみに有効です。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:68
 msgid "&Swap author firstname and lastname"
-msgstr ""
+msgstr "著者の苗字と名前を入れ替える(&S)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:69
 msgid ""
@@ -11055,6 +11069,11 @@ msgid ""
 "Title match ignores leading indefinite articles (\"the\", \"a\", \"an\"), "
 "punctuation, case, etc. Author match is exact."
 msgstr ""
+"自動マージ: "
+"もし似たようなタイトルと著者が見つかったとき、自動的にこのフォーマットを存在する書籍レコードにマージします。右側のボックスでは、このフォーマットが存在する"
+"書籍レコードにすでにあった場合にどうするかを指定します。注：このオプションはライブラリにコピーする時にも適用されます。\n"
+"\n"
+"タイトルは冠詞(\"the\", \"a\", \"an\")や発音記号、大小文字を無視します。著者は完全一致です。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:74
 msgid "&Automerge added books if they already exist in the calibre library:"
