@@ -548,6 +548,7 @@ class Style(object):
                         profiles=[cssutils.profiles.Profiles.CSS_LEVEL_2])[1]
 
         if self._bgcolor is None:
+            col = None
             val = self._style.get('background-color', None)
             if val and validate_color(val):
                 col = val
@@ -569,8 +570,11 @@ class Style(object):
                                 break
                     except:
                         pass
-            self._bgcolor = col
-        return self._bgcolor
+            if col is None:
+                self._bgcolor = False
+            else:
+                self._bgcolor = col
+        return self._bgcolor if self._bgcolor else None
 
     @property
     def fontSize(self):
