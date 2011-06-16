@@ -539,7 +539,7 @@ class Style(object):
         '''
         Return the background color by parsing both the background-color and
         background shortcut properties. Note that inheritance/default values
-        are not used.
+        are not used. None is returned if no background color is set.
         '''
 
         def validate_color(col):
