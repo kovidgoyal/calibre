@@ -287,6 +287,18 @@ class ChooseLibraryAction(InterfaceAction):
               'rate of approximately 1 book every three seconds.'), show=True)
 
     def restore_database(self):
+        m = self.gui.library_view.model()
+        db = m.db
+        if (iswindows and len(db.library_path) >
+                LibraryDatabase2.WINDOWS_LIBRARY_PATH_LIMIT):
+            return error_dialog(self.gui, _('Too long'),
+                    _('Path to library too long. Must be less than'
+                    ' %d characters. Move your library to a location with'
+                    ' a shorter path using Windows Explorer, then point'
+                    ' calibre to the new location and try again.')%
+                    LibraryDatabase2.WINDOWS_LIBRARY_PATH_LIMIT,
+                    show=True)
+
         from calibre.gui2.dialogs.restore_library import restore_database
         m = self.gui.library_view.model()
         m.stop_metadata_backup()

@@ -19,6 +19,69 @@
 #  new recipes:
 #    - title: 
 
+- version: 0.8.6
+  date: 2011-06-17
+
+  new features:
+    - title: "Builtin support for downloading and installing/updating calibre plugins. Go to Preferences->Plugins and click 'Get new plugins'"
+      description: "When updates for installed plugins are available, calibre will automatically (unobtrusively) notify you"
+      type: major
+
+    - title: "Metadata download configuration: Allow defining a set of 'default' fields for metadata download and quichly switching to/from them"
+
+    - title: "Allow clicking on the news category in the Tag Browser to display all downloaded periodicals"
+
+    - title: "Driver for the Libre Air"
+
+    - title: "Email sending: Allow user to stop email jobs (note that stopping may not actually prevent the email from being sent, depending on when the stop happens). Also automatically abort email sending if it takes longer than 15mins."
+      tickets: [795960]
+  
+  bug fixes:
+    - title: "MOBI Output: Allow setting of background color on tables also set the border attribute on the table if the table has any border related css defined."
+      tickets: [797580]
+
+    - title: "Nook TSR: Put news sent to the device in My Files/Newspapers instaed of My Files/Books."
+      tickets: [796674]
+
+    - title: "MOBI Output: Fix a bug where linking to the very first element in an HTML file could sometimes result in the link pointing to the last element in the previous file."
+      tickets: [797214]
+
+    - title: "CSV catalog: Convert HTML comments to plain text"
+
+    - title: "HTML Input: Ignore links to text files."
+      tickets: [791568]
+
+    - title: "EPUB Output: Change orphaned <td> tags to <div> as they cause ADE to crash."
+
+    - title: "Fix 'Stop selected jobs' button trying to stop the same job multiple times"
+
+    - title: "Database: Explicitly test for case sensitivity on OS X instead of assuming a case insensitive filesystem."
+      tickets: [796258]
+
+    - title: "Get Books: More fixes to the Amazon store plugin"
+
+    - title: "FB2 Input: Do not specify font families/background colors"
+
+
+  improved recipes:
+    - Philadelphia Inquirer
+    - Macleans Magazone
+    - Metro UK
+
+  new recipes:
+    - title: "Christian Post, Down To Earth and Words Without Borders"
+      author: sexymax15
+
+    - title: "Noticias R7"
+      author: Diniz Bortolotto
+
+    - title: "UK Daily Mirror"
+      author: Dave Asbury
+
+    - title: "New Musical Express Magazine"
+      author: scissors
+
+
 - version: 0.8.5
   date: 2011-06-10
 
