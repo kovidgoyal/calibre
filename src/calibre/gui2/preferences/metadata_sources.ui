@@ -107,12 +107,18 @@
             <property name="text">
              <string>&amp;Select default</string>
             </property>
+             <property name="toolTip">
+             <string>Restore your own subset of checked fields that you define using the 'Set as default' button</string>
+            </property>
            </widget>
           </item>
           <item row="2" column="1">
            <widget class="QPushButton" name="set_as_default_button">
             <property name="text">
              <string>&amp;Set as default</string>
+            </property>
+             <property name="toolTip">
+             <string>Store the currently checked fields as a default you can restore using the 'Select default' button</string>
             </property>
            </widget>
           </item>
