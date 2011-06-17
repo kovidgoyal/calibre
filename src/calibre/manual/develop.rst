@@ -36,12 +36,16 @@ Code layout
 All the |app| python code is in the ``calibre`` package. This package contains the following main sub-packages
 
     * devices - All the device drivers. Just look through some of the built-in drivers to get an idea for how they work.
+
       * For details, see: devices.interface which defines the interface supported by device drivers and devices.usbms which
         defines a generic driver that connects to a USBMS device. All USBMS based drivers in calibre inherit from it.
+
     * ebooks  - All the ebook conversion/metadata code. A good starting point is ``calibre.ebooks.conversion.cli`` which is the
       module powering the :command:`ebook-convert` command. The conversion process is controlled via conversion.plumber.
       The format independent code is all in ebooks.oeb and the format dependent stuff is in ebooks.format_name.
+
         * Metadata reading writing and downloading is all in ebooks.metadata
+
     * library - The database backed and the content server. See library.database2 for the interface to the calibre library. library.server is the calibre Content Server.
     * gui2 - The Graphical User Interface. GUI initialization happens in gui2.main and gui2.ui. The ebook-viewer is in gui2.viewer.
 
