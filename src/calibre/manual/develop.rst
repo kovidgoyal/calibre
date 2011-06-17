@@ -89,9 +89,9 @@ Now whenever you commit changes to your branch with the command::
 
     bzr commit -m "Comment describing your change"
 
-I can merge it directly from you branch into the main |app| source tree. You should also subscribe to the |app|
-developers mailing list `calibre-devs <https://launchpad.net/~calibre-devs>`_. Before making major changes, you should
-discuss them on the mailing list or the #calibre IRC channel on Freenode to ensure that the changes will be accepted once you're done. 
+I can merge it directly from you branch into the main |app| source tree. You should also keep an eye on the |app|
+`development forum <http://www.mobileread.com/forums/forumdisplay.php?f=240>`. Before making major changes, you should
+discuss them in the forum or contact Kovid directly (his email address is all over the source code). 
 
 Windows development environment
 ---------------------------------
