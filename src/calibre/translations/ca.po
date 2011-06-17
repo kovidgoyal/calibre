@@ -15665,7 +15665,7 @@ msgid ""
 "Make font size %s\n"
 "Current magnification: %.1f"
 msgstr ""
-"Passa a la mida de lletra %\n"
+"Passa a la mida de lletra %s\n"
 "Escala actual: %.1f"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:497

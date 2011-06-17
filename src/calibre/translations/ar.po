@@ -350,7 +350,7 @@ msgstr "استخرج الغلاف من ملف الرسومات"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:416
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:427
 msgid "Read metadata from %s files"
-msgstr "يقرأ دليل المعلومات من s% ملف (ملفات)"
+msgstr "يقرأ دليل المعلومات من %s ملف (ملفات)"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:364
 msgid "Read metadata from ebooks in RAR archives"
@@ -406,7 +406,7 @@ msgstr "أضف أعمدتك الخاصة"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:913
 msgid "Add/remove your own columns to the calibre book list"
-msgstr "أضف\\إمسح أعمدتك الخاصة لقائمة الكتب في المكتبة"
+msgstr "أضف/إمسح أعمدتك الخاصة لقائمة الكتب في المكتبة"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:918
 msgid "Toolbar"
@@ -465,7 +465,7 @@ msgstr "إضافة كتب"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1000
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1012
 msgid "Import/Export"
-msgstr "إستيراد\\تصدير"
+msgstr "إستيراد/تصدير"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:980
 msgid "Control how calibre reads metadata from files when adding books"

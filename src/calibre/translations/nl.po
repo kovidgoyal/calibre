@@ -15775,8 +15775,8 @@ msgid ""
 "<h2>Congratulations!</h2> You have successfully setup calibre. Press the %s "
 "button to apply your settings."
 msgstr ""
-"<h2>Gefeliciteerd!</h2> De installatie van calibre is gelukt. Druk op de %s-"
-"de %s knop om je instellingen toe te passen."
+"<h2>Gefeliciteerd!</h2> De installatie van calibre is gelukt. Druk op de %s "
+"knop om je instellingen toe te passen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/finish_ui.py:50
 msgid ""
