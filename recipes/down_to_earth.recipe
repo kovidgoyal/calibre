@@ -1,0 +1,18 @@
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+class AdvancedUserRecipe1307834113(BasicNewsRecipe):
+
+    title          = u'Down To Earth'
+    oldest_article = 300
+    __author__ = 'sexymax15'
+    max_articles_per_feed = 30
+    no_stylesheets = True
+    remove_javascript     = True
+    remove_attributes = ['width','height']
+    use_embedded_content  = False
+    language              = 'en_IN'
+    remove_empty_feeds    = True
+    remove_tags_before = dict(name='div', id='PageContent')
+    remove_tags_after = [dict(name='div'),{'class':'box'}]
+    remove_tags =[{'class':'box'}]
+    feeds          = [(u'editor', u'http://www.downtoearth.org.in/taxonomy/term/20348/0/feed'), (u'cover story', u'http://www.downtoearth.org.in/taxonomy/term/20345/0/feed'), (u'special report', u'http://www.downtoearth.org.in/taxonomy/term/20384/0/feed'), (u'features', u'http://www.downtoearth.org.in/taxonomy/term/20350/0/feed'), (u'news', u'http://www.downtoearth.org.in/taxonomy/term/20366/0/feed'), (u'debate', u'http://www.downtoearth.org.in/taxonomy/term/20347/0/feed'), (u'natural disasters', u'http://www.downtoearth.org.in/taxonomy/term/20822/0/feed')]
