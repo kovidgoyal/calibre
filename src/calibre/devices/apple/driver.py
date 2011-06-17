@@ -135,7 +135,8 @@ class ITUNES(DriverBase):
     '''
     Calling sequences:
     Initialization:
-        can_handle() or can_handle_windows()
+        can_handle() | can_handle_windows()
+         _launch_iTunes()
         reset()
         open()
         card_prefix()

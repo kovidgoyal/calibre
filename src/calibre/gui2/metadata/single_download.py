@@ -236,6 +236,11 @@ class ResultsView(QTableView): # {{{
         self.resizeRowsToContents()
         self.resizeColumnsToContents()
         self.setFocus(Qt.OtherFocusReason)
+        idx = self.model().index(0, 0)
+        if idx.isValid() and self.model().rowCount() > 0:
+            self.show_details(idx)
+            sm = self.selectionModel()
+            sm.select(idx, sm.ClearAndSelect|sm.Rows)
 
     def currentChanged(self, current, previous):
         ret = QTableView.currentChanged(self, current, previous)
@@ -480,12 +485,6 @@ class IdentifyWidget(QWidget): # {{{
             return
 
         self.results_view.show_results(self.worker.results)
-
-        self.comments_view.show_data('''
-            <div style="margin-bottom:2ex">Found <b>%d</b> results</div>
-            <div>To see <b>details</b>, click on any result</div>''' %
-                len(self.worker.results))
-
         self.results_found.emit()
 
 

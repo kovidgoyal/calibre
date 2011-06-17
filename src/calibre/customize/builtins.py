@@ -594,7 +594,7 @@ from calibre.devices.iliad.driver import ILIAD
 from calibre.devices.irexdr.driver import IREXDR1000, IREXDR800
 from calibre.devices.jetbook.driver import JETBOOK, MIBUK, JETBOOK_MINI
 from calibre.devices.kindle.driver import KINDLE, KINDLE2, KINDLE_DX
-from calibre.devices.nook.driver import NOOK, NOOK_COLOR, NOOK_TSR
+from calibre.devices.nook.driver import NOOK, NOOK_COLOR
 from calibre.devices.prs505.driver import PRS505
 from calibre.devices.user_defined.driver import USER_DEFINED
 from calibre.devices.android.driver import ANDROID, S60
@@ -603,10 +603,11 @@ from calibre.devices.eslick.driver import ESLICK, EBK52
 from calibre.devices.nuut2.driver import NUUT2
 from calibre.devices.iriver.driver import IRIVER_STORY
 from calibre.devices.binatone.driver import README
-from calibre.devices.hanvon.driver import N516, EB511, ALEX, AZBOOKA, THEBOOK
+from calibre.devices.hanvon.driver import (N516, EB511, ALEX, AZBOOKA, THEBOOK,
+        LIBREAIR)
 from calibre.devices.edge.driver import EDGE
-from calibre.devices.teclast.driver import TECLAST_K3, NEWSMY, IPAPYRUS, \
-        SOVOS, PICO, SUNSTECH_EB700, ARCHOS7O, STASH, WEXLER
+from calibre.devices.teclast.driver import (TECLAST_K3, NEWSMY, IPAPYRUS,
+        SOVOS, PICO, SUNSTECH_EB700, ARCHOS7O, STASH, WEXLER)
 from calibre.devices.sne.driver import SNE
 from calibre.devices.misc import (PALMPRE, AVANT, SWEEX, PDNOVEL,
         GEMEI, VELOCITYMICRO, PDNOVEL_KOBO, LUMIREAD, ALURATEK_COLOR,
@@ -693,7 +694,7 @@ plugins += [
     KINDLE,
     KINDLE2,
     KINDLE_DX,
-    NOOK, NOOK_COLOR, NOOK_TSR,
+    NOOK, NOOK_COLOR,
     PRS505,
     ANDROID,
     S60,
@@ -716,7 +717,7 @@ plugins += [
     EB600,
     README,
     N516,
-    THEBOOK,
+    THEBOOK, LIBREAIR,
     EB511,
     ELONEX,
     TECLAST_K3,
@@ -866,13 +867,20 @@ class ActionStore(InterfaceActionBase):
         from calibre.gui2.store.config.store import save_settings as save
         save(config_widget)
 
+class ActionPluginUpdater(InterfaceActionBase):
+    name = 'Plugin Updater'
+    author = 'Grant Drake'
+    description = 'Queries the MobileRead forums for updates to plugins to install'
+    actual_plugin = 'calibre.gui2.actions.plugin_updates:PluginUpdaterAction'
+
 plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,
         ActionConvert, ActionDelete, ActionEditMetadata, ActionView,
         ActionFetchNews, ActionSaveToDisk, ActionShowBookDetails,
         ActionRestart, ActionOpenFolder, ActionConnectShare,
         ActionSendToDevice, ActionHelp, ActionPreferences, ActionSimilarBooks,
         ActionAddToLibrary, ActionEditCollections, ActionChooseLibrary,
-        ActionCopyToLibrary, ActionTweakEpub, ActionNextMatch, ActionStore]
+        ActionCopyToLibrary, ActionTweakEpub, ActionNextMatch, ActionStore,
+        ActionPluginUpdater]
 
 # }}}
 

@@ -21,8 +21,8 @@ NS = 'http://calibre-ebook.com/recipe_collection'
 E = ElementMaker(namespace=NS, nsmap={None:NS})
 
 def iterate_over_builtin_recipe_files():
-    exclude = ['craigslist', 'iht', 'outlook_india', 'toronto_sun',
-            'indian_express', 'india_today', 'livemint']
+    exclude = ['craigslist', 'iht', 'toronto_sun',
+            'india_today', 'livemint']
     d = os.path.dirname
     base = os.path.join(d(d(d(d(d(d(os.path.abspath(__file__))))))), 'recipes')
     for f in os.listdir(base):
@@ -101,6 +101,7 @@ def get_custom_recipe_collection(*args):
             if recipe_class is not None:
                 rmap['custom:%s'%id_] = recipe_class
         except:
+            print 'Failed to load recipe from: %r'%fname
             import traceback
             traceback.print_exc()
             continue
