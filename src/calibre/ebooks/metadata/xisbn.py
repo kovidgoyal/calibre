@@ -45,6 +45,11 @@ class xISBN(object):
                 ans.append(rec)
         return ans
 
+    def isbns_in_data(self, data):
+        for rec in data:
+            for i in rec.get('isbn', []):
+                yield i
+
     def get_data(self, isbn):
         isbn = self.purify(isbn)
         with self.lock:
@@ -57,9 +62,8 @@ class xISBN(object):
                     data = []
                 id_ = len(self._data)
                 self._data.append(data)
-                for rec in data:
-                    for i in rec.get('isbn', []):
-                        self._map[i] = id_
+                for i in self.isbns_in_data(data):
+                    self._map[i] = id_
                 self._map[isbn] = id_
             return self._data[self._map[isbn]]
 
