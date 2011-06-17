@@ -21,6 +21,7 @@ from calibre.ebooks.metadata import check_isbn
 msprefs = JSONConfig('metadata_sources/global.json')
 msprefs.defaults['txt_comments'] = False
 msprefs.defaults['ignore_fields'] = []
+msprefs.defaults['user_default_ignore_fields'] = []
 msprefs.defaults['max_tags'] = 20
 msprefs.defaults['wait_after_first_identify_result'] = 30 # seconds
 msprefs.defaults['wait_after_first_cover_result'] = 60 # seconds
