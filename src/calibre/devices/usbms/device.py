@@ -101,6 +101,9 @@ class Device(DeviceConfig, DevicePlugin):
     #: The maximum length of paths created on the device
     MAX_PATH_LEN = 250
 
+    #: Put news in its own folder
+    NEWS_IN_FOLDER = True
+
     def reset(self, key='-1', log_packets=False, report_progress=None,
             detected_device=None):
         self._main_prefix = self._card_a_prefix = self._card_b_prefix = None
@@ -946,7 +949,8 @@ class Device(DeviceConfig, DevicePlugin):
             extra_components = []
             tag = special_tag
             if tag.startswith(_('News')):
-                extra_components.append('News')
+                if self.NEWS_IN_FOLDER:
+                    extra_components.append('News')
             else:
                 for c in tag.split('/'):
                     c = sanitize(c)

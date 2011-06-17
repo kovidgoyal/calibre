@@ -149,6 +149,15 @@ class CSV_XML(CatalogPlugin): # {{{
                     elif field == 'comments':
                         item = item.replace(u'\r\n',u' ')
                         item = item.replace(u'\n',u' ')
+
+                    # Convert HTML to markdown text
+                    if type(item) is unicode:
+                        opening_tag = re.search('<(\w+)(\x20|>)',item)
+                        if opening_tag:
+                            closing_tag = re.search('<\/%s>$' % opening_tag.group(1), item)
+                            if closing_tag:
+                                item = html2text(item)
+
                     outstr.append(u'"%s"' % unicode(item).replace('"','""'))
 
                 outfile.write(u','.join(outstr) + u'\n')

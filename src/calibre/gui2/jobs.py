@@ -457,7 +457,7 @@ class JobsDialog(QDialog, Ui_JobsDialog):
 
     def kill_job(self, *args):
         if question_dialog(self, _('Are you sure?'), _('Do you really want to stop the selected job?')):
-            for index in self.jobs_view.selectedIndexes():
+            for index in self.jobs_view.selectionModel().selectedRows():
                 row = index.row()
                 self.model.kill_job(row, self)
 
