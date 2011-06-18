@@ -1278,6 +1278,7 @@ class TagsModel(QAbstractItemModel): # {{{
                                      category_icon = category_node.icon,
                                      category_key=category_node.category_key,
                                      icon_map=self.icon_state_map)
+                            sub_cat.tag.is_searchable = False
                             self.endInsertRows()
                     else: # by 'first letter'
                         cl = cl_list[idx]
@@ -1662,7 +1663,9 @@ class TagsModel(QAbstractItemModel): # {{{
             key = node.category_key
             for tag_item in node.all_children():
                 if tag_item.type == TagTreeItem.CATEGORY:
-                    if tag_item.temporary and not key.startswith('@') and tag_item.tag.state:
+                    if self.collapse_model == 'first letter' and \
+                            tag_item.temporary and not key.startswith('@') \
+                            and tag_item.tag.state:
                         if node_searches[tag_item.tag.state] == 'true':
                             ans.append('%s:~^%s'%(key, tag_item.py_name))
                         else:
