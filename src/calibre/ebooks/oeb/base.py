@@ -1055,6 +1055,12 @@ class Manifest(object):
                         and len(a) == 0 and not a.text:
                     remove_elem(a)
 
+            # Convert <br>s with content into paragraphs as ADE can't handle
+            # them
+            for br in xpath(data, '//h:br'):
+                if len(br) > 0 or br.text:
+                    br.tag = XHTML('div')
+
             return data
 
         def _parse_txt(self, data):
