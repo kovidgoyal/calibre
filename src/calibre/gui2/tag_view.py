@@ -727,6 +727,15 @@ class TagTreeItem(object): # {{{
         else:
             self.tag.state = set_to
 
+    def all_children(self):
+        res = []
+        def recurse(nodes, res):
+            for t in nodes:
+                res.append(t)
+                recurse(t.children, res)
+        recurse(self.children, res)
+        return res
+
     def child_tags(self):
         res = []
         def recurse(nodes, res):
@@ -1651,7 +1660,14 @@ class TagsModel(QAbstractItemModel): # {{{
                     ans.append('%s:%s'%(node.category_key, node_searches[node.tag.state]))
 
             key = node.category_key
-            for tag_item in node.child_tags():
+            for tag_item in node.all_children():
+                if tag_item.type == TagTreeItem.CATEGORY:
+                    if tag_item.temporary and not key.startswith('@') and tag_item.tag.state:
+                        if node_searches[tag_item.tag.state] == 'true':
+                            ans.append('%s:~^%s'%(key, tag_item.py_name))
+                        else:
+                            ans.append('(not %s:~^%s )'%(key, tag_item.py_name))
+                    continue
                 tag = tag_item.tag
                 if tag.state != TAG_SEARCH_STATES['clear']:
                     if tag.state == TAG_SEARCH_STATES['mark_minus'] or \

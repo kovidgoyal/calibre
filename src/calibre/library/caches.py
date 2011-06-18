@@ -145,7 +145,7 @@ def _match(query, value, matchkind):
                             return True
                 elif query == t:
                     return True
-            elif ((matchkind == REGEXP_MATCH and re.search(query, t, re.I)) or ### search unanchored
+            elif ((matchkind == REGEXP_MATCH and re.search(query, t, re.I|re.UNICODE)) or ### search unanchored
                   (matchkind == CONTAINS_MATCH and query in t)):
                     return True
         except re.error:
