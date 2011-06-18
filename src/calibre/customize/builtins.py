@@ -1300,6 +1300,16 @@ class StoreLegimiStore(StoreBase):
     headquarters = 'PL'
     formats = ['EPUB']
 
+class StoreLibreDEStore(StoreBase):
+    name = 'Libri DE'
+    author = 'Charles Haley'
+    description = u'Sicher Bücher, Hörbücher und Downloads online bestellen.'
+    actual_plugin = 'calibre.gui2.store.libri_de_plugin:LibreDEStore'
+
+    headquarters = 'DE'
+    formats = ['EPUB', 'PDF']
+    affiliate = True
+
 class StoreManyBooksStore(StoreBase):
     name = 'ManyBooks'
     description = u'Public domain and creative commons works from many sources.'
@@ -1450,6 +1460,7 @@ plugins += [
     StoreGutenbergStore,
     StoreKoboStore,
     StoreLegimiStore,
+    StoreLibreDEStore,
     StoreManyBooksStore,
     StoreMobileReadStore,
     StoreNextoStore,
