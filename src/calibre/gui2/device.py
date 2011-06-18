@@ -284,11 +284,8 @@ class DeviceManager(Thread): # {{{
         self.job_manager.add_job(job)
         if (done is None or isinstance(done, FunctionDispatcher)) and \
                     (to_job is not None and to_job == self.current_job):
-            print "adding as step", description
             self.job_steps.put(job)
         else:
-            print "adding as job not step", description
-            traceback.print_stack()
             self.jobs.put(job)
         return job
 
