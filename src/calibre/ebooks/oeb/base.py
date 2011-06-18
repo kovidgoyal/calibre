@@ -1162,7 +1162,7 @@ class Manifest(object):
                     data = self._parse_xml(data)
                 elif self.media_type.lower() in OEB_STYLES:
                     data = self._parse_css(data)
-                elif 'text' in self.media_type.lower():
+                elif self.media_type.lower() == 'text/plain':
                     self.oeb.log.warn('%s contains data in TXT format'%self.href,
                             'converting to HTML')
                     data = self._parse_txt(data)
