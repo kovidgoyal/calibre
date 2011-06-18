@@ -101,6 +101,7 @@ def get_custom_recipe_collection(*args):
             if recipe_class is not None:
                 rmap['custom:%s'%id_] = recipe_class
         except:
+            print 'Failed to load recipe from: %r'%fname
             import traceback
             traceback.print_exc()
             continue

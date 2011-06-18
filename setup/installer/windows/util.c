@@ -173,7 +173,7 @@ int show_last_error(wchar_t *preamble) {
         NULL,
         dw,
         MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-        msg,
+        &msg,
         0, NULL );
 
     return _show_error(preamble, msg, (int)dw);

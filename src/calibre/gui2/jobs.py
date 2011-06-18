@@ -197,10 +197,12 @@ class JobManager(QAbstractTableModel): # {{{
     def row_to_job(self, row):
         return self.jobs[row]
 
-    def has_device_jobs(self):
+    def has_device_jobs(self, queued_also=False):
         for job in self.jobs:
-            if job.is_running and isinstance(job, DeviceJob):
-                return True
+            if isinstance(job, DeviceJob):
+                if job.duration is None: # Running or waiting
+                    if (job.is_running or queued_also):
+                        return True
         return False
 
     def has_jobs(self):
@@ -455,7 +457,7 @@ class JobsDialog(QDialog, Ui_JobsDialog):
 
     def kill_job(self, *args):
         if question_dialog(self, _('Are you sure?'), _('Do you really want to stop the selected job?')):
-            for index in self.jobs_view.selectedIndexes():
+            for index in self.jobs_view.selectionModel().selectedRows():
                 row = index.row()
                 self.model.kill_job(row, self)
 

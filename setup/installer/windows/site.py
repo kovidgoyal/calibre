@@ -92,7 +92,7 @@ def aliasmbcs():
 
 def add_calibre_vars():
     sys.resources_location = os.path.join(sys.app_dir, 'resources')
-    sys.extensions_location = os.path.join(sys.app_dir, 'plugins')
+    sys.extensions_location = os.path.join(sys.app_dir, 'plugins2')
 
     dv = os.environ.get('CALIBRE_DEVELOP_FROM', None)
     if dv and os.path.exists(dv):

@@ -770,7 +770,8 @@ class BrowseServer(object):
             summs.append(self.browse_summary_template.format(**args))
 
 
-        return json.dumps('\n'.join(summs), ensure_ascii=False)
+        raw = json.dumps('\n'.join(summs), ensure_ascii=False)
+        return raw
 
     def browse_render_details(self, id_):
         try:

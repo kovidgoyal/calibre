@@ -442,9 +442,12 @@ class MobiMLizer(object):
         if tag in TABLE_TAGS and self.ignore_tables:
             tag = 'span' if tag == 'td' else 'div'
 
-        # GR: Added 'width', 'border' and 'scope'
+        if tag == 'table':
+            css = style.cssdict()
+            if 'border' in css or 'border-width' in css:
+                elem.set('border', '1')
         if tag in TABLE_TAGS:
-            for attr in ('rowspan', 'colspan','width','border','scope'):
+            for attr in ('rowspan', 'colspan', 'width', 'border', 'scope'):
                 if attr in elem.attrib:
                     istate.attrib[attr] = elem.attrib[attr]
         if tag == 'q':

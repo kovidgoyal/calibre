@@ -462,11 +462,11 @@ class EditRules(QWidget): # {{{
         self.l = l = QGridLayout(self)
         self.setLayout(l)
 
-        self.l1 = l1 = QLabel(_(
+        self.l1 = l1 = QLabel('<p>'+_(
             'You can control the color of columns in the'
             ' book list by creating "rules" that tell calibre'
             ' what color to use. Click the Add Rule button below'
-            ' to get started. You can change an existing rule by double'
+            ' to get started.<p>You can <b>change an existing rule</b> by double'
             ' clicking it.'))
         l1.setWordWrap(True)
         l.addWidget(l1, 0, 0, 1, 2)
