@@ -30,13 +30,11 @@ class LibreDEStore(BasicStoreConfig, StorePlugin):
         if external or self.config.get('open_external', False):
             if detail_item:
                 url = url_details.format(detail_item)
-            print(url)
             open_url(QUrl(url))
         else:
             detail_url = None
             if detail_item:
                 detail_url = url_details.format(detail_item)
-            print(detail_url)
             d = WebStoreDialog(self.gui, url, parent, detail_url)
             d.setWindowTitle(self.name)
             d.set_tags(self.config.get('tags', ''))
