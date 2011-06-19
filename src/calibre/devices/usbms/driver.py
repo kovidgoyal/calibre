@@ -132,7 +132,7 @@ class USBMS(CLI, Device):
                                      self._card_b_prefix if oncard == 'cardb' \
                                                          else self._main_prefix
 
-        ebook_dirs = self.EBOOK_DIR_CARD_A if oncard == 'carda' else \
+        ebook_dirs = self.get_carda_ebook_dir() if oncard == 'carda' else \
             self.EBOOK_DIR_CARD_B if oncard == 'cardb' else \
             self.get_main_ebook_dir()
 

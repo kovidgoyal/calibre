@@ -8,8 +8,8 @@ __docformat__ = 'restructuredtext en'
 
 import sys, os, shutil, glob, py_compile, subprocess, re, zipfile, time
 
-from setup import Command, modules, functions, basenames, __version__, \
-    __appname__
+from setup import (Command, modules, functions, basenames, __version__,
+    __appname__)
 from setup.build_environment import msvc, MT, RC
 from setup.installer.windows.wix import WixMixIn
 
@@ -20,6 +20,7 @@ LIBUNRAR         = 'C:\\Program Files\\UnrarDLL\\unrar.dll'
 SW               = r'C:\cygwin\home\kovid\sw'
 IMAGEMAGICK      = os.path.join(SW, 'build', 'ImageMagick-6.6.6',
         'VisualMagick', 'bin')
+CRT = r'C:\Microsoft.VC90.CRT'
 
 VERSION = re.sub('[a-z]\d+', '', __version__)
 WINVER = VERSION+'.0'
@@ -49,7 +50,7 @@ def walk(dir):
 
 class Win32Freeze(Command, WixMixIn):
 
-    description = 'Free windows calibre installation'
+    description = 'Freeze windows calibre installation'
 
     def add_options(self, parser):
         parser.add_option('--no-ice', default=False, action='store_true',
@@ -72,7 +73,9 @@ class Win32Freeze(Command, WixMixIn):
         self.lib_dir = self.j(self.base, 'Lib')
         self.pylib = self.j(self.base, 'pylib.zip')
         self.dll_dir = self.j(self.base, 'DLLs')
-        self.plugins_dir = os.path.join(self.base, 'plugins')
+        self.plugins_dir = os.path.join(self.base, 'plugins2')
+        self.portable_base = self.j(self.d(self.base), 'Calibre Portable')
+        self.obj_dir = self.j(self.src_root, 'build', 'launcher')
 
         self.initbase()
         self.build_launchers()
@@ -81,7 +84,33 @@ class Win32Freeze(Command, WixMixIn):
         self.embed_manifests()
         self.install_site_py()
         self.archive_lib_dir()
+        self.remove_CRT_from_manifests()
         self.create_installer()
+        self.build_portable()
+
+    def remove_CRT_from_manifests(self):
+        '''
+        The dependency on the CRT is removed from the manifests of all DLLs.
+        This allows the CRT loaded by the .exe files to be used instead.
+        '''
+        search_pat = re.compile(r'(?is)<dependency>.*Microsoft\.VC\d+\.CRT')
+        repl_pat = re.compile(
+            r'(?is)<dependency>.*?Microsoft\.VC\d+\.CRT.*?</dependency>')
+
+        for dll in glob.glob(self.j(self.dll_dir, '*.dll')):
+            bn = self.b(dll)
+            with open(dll, 'rb') as f:
+                raw = f.read()
+            match = search_pat.search(raw)
+            if match is None:
+                continue
+            self.info('Removing CRT dependency from manifest of: %s'%bn)
+            # Blank out the bytes corresponding to the dependency specification
+            nraw = repl_pat.sub(lambda m: b' '*len(m.group()), raw)
+            if len(nraw) != len(raw):
+                raise Exception('Something went wrong with %s'%bn)
+            with open(dll, 'wb') as f:
+                f.write(nraw)
 
     def initbase(self):
         if self.e(self.base):
@@ -102,6 +131,9 @@ class Win32Freeze(Command, WixMixIn):
 
     def freeze(self):
         shutil.copy2(self.j(self.src_root, 'LICENSE'), self.base)
+
+        self.info('Adding CRT')
+        shutil.copytree(CRT, self.j(self.base, os.path.basename(CRT)))
 
         self.info('Adding resources...')
         tgt = self.j(self.base, 'resources')
@@ -146,6 +178,24 @@ class Win32Freeze(Command, WixMixIn):
         comext = self.j(sp_dir, 'win32comext')
         shutil.copytree(self.j(comext, 'shell'), self.j(sp_dir, 'win32com', 'shell'))
         shutil.rmtree(comext)
+
+        # Fix PyCrypto, removing the bootstrap .py modules that load the .pyd
+        # modules, since they do not work when in a zip file
+        for crypto_dir in glob.glob(self.j(sp_dir, 'pycrypto-*', 'Crypto')):
+            for dirpath, dirnames, filenames in os.walk(crypto_dir):
+                for f in filenames:
+                    name, ext = os.path.splitext(f)
+                    if ext == '.pyd':
+                        with open(self.j(dirpath, name+'.py')) as f:
+                            raw = f.read().strip()
+                        if (not raw.startswith('def __bootstrap__') or not
+                                raw.endswith('__bootstrap__()')):
+                            raise Exception('The PyCrypto file %r has non'
+                                    ' bootstrap code'%self.j(dirpath, f))
+                        for ext in ('.py', '.pyc', '.pyo'):
+                            x = self.j(dirpath, name+ext)
+                            if os.path.exists(x):
+                                os.remove(x)
 
         for pat in (r'PyQt4\uic\port_v3', ):
             x = glob.glob(self.j(self.lib_dir, 'site-packages', pat))[0]
@@ -197,6 +247,10 @@ class Win32Freeze(Command, WixMixIn):
             if os.path.exists(tg):
                 shutil.rmtree(tg)
             shutil.copytree(imfd, tg)
+        for dirpath, dirnames, filenames in os.walk(tdir):
+            for x in filenames:
+                if not x.endswith('.dll'):
+                    os.remove(self.j(dirpath, x))
 
         print
         print 'Adding third party dependencies'
@@ -254,7 +308,7 @@ class Win32Freeze(Command, WixMixIn):
     def embed_resources(self, module, desc=None):
         icon_base = self.j(self.src_root, 'icons')
         icon_map = {'calibre':'library', 'ebook-viewer':'viewer',
-                'lrfviewer':'viewer'}
+                'lrfviewer':'viewer', 'calibre-portable':'library'}
         file_type = 'DLL' if module.endswith('.dll') else 'APP'
         template = open(self.rc_template, 'rb').read()
         bname = self.b(module)
@@ -311,8 +365,62 @@ class Win32Freeze(Command, WixMixIn):
             self.info(p.stderr.read())
             sys.exit(1)
 
+    def build_portable(self):
+        base  = self.portable_base
+        if os.path.exists(base):
+            shutil.rmtree(base)
+        os.makedirs(base)
+        src = self.j(self.src_root, 'setup', 'installer', 'windows',
+                'portable.c')
+        obj = self.j(self.obj_dir, self.b(src)+'.obj')
+        cflags  = '/c /EHsc /MT /W3 /Ox /nologo /D_UNICODE'.split()
+
+        if self.newer(obj, [src]):
+            self.info('Compiling', obj)
+            cmd = [msvc.cc] + cflags + ['/Fo'+obj, '/Tc'+src]
+            self.run_builder(cmd)
+
+        exe = self.j(base, 'calibre-portable.exe')
+        if self.newer(exe, [obj]):
+            self.info('Linking', exe)
+            cmd = [msvc.linker] + ['/INCREMENTAL:NO', '/MACHINE:X86',
+                    '/LIBPATH:'+self.obj_dir, '/SUBSYSTEM:WINDOWS',
+                    '/RELEASE',
+                    '/OUT:'+exe, self.embed_resources(exe),
+                    obj, 'User32.lib']
+            self.run_builder(cmd)
+
+        self.info('Creating portable installer')
+        shutil.copytree(self.base, self.j(base, 'Calibre'))
+        os.mkdir(self.j(base, 'Calibre Library'))
+        os.mkdir(self.j(base, 'Calibre Settings'))
+
+        name = '%s-portable-%s.zip'%(__appname__, __version__)
+        with zipfile.ZipFile(self.j('dist', name), 'w', zipfile.ZIP_DEFLATED) as zf:
+            self.add_dir_to_zip(zf, base, 'Calibre Portable')
+
+    def add_dir_to_zip(self, zf, path, prefix=''):
+        '''
+        Add a directory recursively to the zip file with an optional prefix.
+        '''
+        if prefix:
+            zi = zipfile.ZipInfo(prefix+'/')
+            zi.external_attr = 16
+            zf.writestr(zi, '')
+        cwd = os.path.abspath(os.getcwd())
+        try:
+            os.chdir(path)
+            fp = (prefix + ('/' if prefix else '')).replace('//', '/')
+            for f in os.listdir('.'):
+                arcname = fp + f
+                if os.path.isdir(f):
+                    self.add_dir_to_zip(zf, f, prefix=arcname)
+                else:
+                    zf.write(f, arcname)
+        finally:
+            os.chdir(cwd)
+
     def build_launchers(self):
-        self.obj_dir = self.j(self.src_root, 'build', 'launcher')
         if not os.path.exists(self.obj_dir):
             os.makedirs(self.obj_dir)
         base = self.j(self.src_root, 'setup', 'installer', 'windows')

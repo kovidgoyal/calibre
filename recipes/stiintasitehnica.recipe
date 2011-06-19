@@ -1,0 +1,56 @@
+# -*- coding: utf-8 -*-
+#!/usr/bin/env  python
+
+__license__   = 'GPL v3'
+__copyright__ = u'2011, Silviu Cotoar\u0103'
+'''
+stiintasitehnica.com
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class Stiintasitehnica(BasicNewsRecipe):
+    title                 = u'\u0218tiin\u021b\u0103 \u015fi Tehnic\u0103'
+    __author__            = u'Silviu Cotoar\u0103'
+    description           = u'\u0218tiin\u021b\u0103 \u015fi Tehnic\u0103'
+    publisher             = u'\u0218tiin\u021b\u0103 \u015fi Tehnic\u0103'
+    oldest_article        = 50
+    language              = 'ro'
+    max_articles_per_feed = 100
+    no_stylesheets        = True
+    use_embedded_content  = False
+    category              = u'Ziare,Reviste,Stiinta,Tehnica'
+    encoding              = 'utf-8'
+    cover_url             = 'http://www.stiintasitehnica.com/images/logo.jpg'
+
+    conversion_options = {
+                             'comments'   : description
+                            ,'tags'       : category
+                            ,'language'   : language
+                            ,'publisher'  : publisher
+                         }
+
+    keep_only_tags = [
+                        dict(name='div', attrs={'id':'mainColumn2'})
+                     ]
+
+    remove_tags = [
+                          dict(name='span', attrs={'class':['redEar']})
+                        , dict(name='table', attrs={'class':['connect_widget_interactive_area']})
+                        , dict(name='div', attrs={'class':['panel-overlay']})
+                        , dict(name='div', attrs={'id':['pointer']})
+                        , dict(name='img', attrs={'class':['nav-next', 'nav-prev']})
+                        , dict(name='table', attrs={'class':['connect_widget_interactive_area']})
+                        , dict(name='hr', attrs={'class':['dotted']})
+                  ]
+
+    remove_tags_after = [
+                            dict(name='hr', attrs={'class':['dotted']})
+                        ]
+
+    feeds          = [
+                        (u'Feeds', u'http://www.stiintasitehnica.com/rss/stiri.xml')
+                     ]
+
+    def preprocess_html(self, soup):
+        return self.adeify_images(soup)

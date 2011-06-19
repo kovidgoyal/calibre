@@ -6,7 +6,7 @@ __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-from PyQt4.Qt import (QWidget, QIcon, QDialog)
+from PyQt4.Qt import (QWidget, QIcon, QDialog, QComboBox)
 
 from calibre.gui2.store.config.chooser.adv_search_builder import AdvSearchBuilderDialog
 from calibre.gui2.store.config.chooser.chooser_widget_ui import Ui_Form
@@ -18,6 +18,8 @@ class StoreChooserWidget(QWidget, Ui_Form):
         self.setupUi(self)
         
         self.query.initialize('store_config_chooser_query')
+        self.query.setSizeAdjustPolicy(QComboBox.AdjustToMinimumContentsLengthWithIcon)
+        self.query.setMinimumContentsLength(25)
         
         self.adv_search_builder.setIcon(QIcon(I('search.png')))
         

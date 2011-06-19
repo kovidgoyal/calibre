@@ -394,6 +394,13 @@ class EPUBOutput(OutputFormatPlugin):
             for tag in XPath('//h:img[@src]')(root):
                 tag.set('src', tag.get('src', '').replace('&', ''))
 
+            # ADE whimpers in fright when it encounters a <td> outside a
+            # <table>
+            in_table = XPath('ancestor::h:table')
+            for tag in XPath('//h:td|//h:tr|//h:th')(root):
+                if not in_table(tag):
+                    tag.tag = XHTML('div')
+
             special_chars = re.compile(u'[\u200b\u00ad]')
             for elem in root.iterdescendants():
                 if getattr(elem, 'text', False):
@@ -413,7 +420,7 @@ class EPUBOutput(OutputFormatPlugin):
                             rule.style.removeProperty('margin-left')
                             # padding-left breaks rendering in webkit and gecko
                             rule.style.removeProperty('padding-left')
-                # Change whitespace:pre to pre-line to accommodate readers that
+                # Change whitespace:pre to pre-wrap to accommodate readers that
                 # cannot scroll horizontally
                 for rule in stylesheet.data.cssRules.rulesOfType(CSSRule.STYLE_RULE):
                     style = rule.style

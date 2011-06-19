@@ -16,7 +16,7 @@ from PyQt4.Qt import QWizard, QWizardPage, QPixmap, Qt, QAbstractListModel, \
 from calibre import __appname__, patheq
 from calibre.library.database2 import LibraryDatabase2
 from calibre.library.move import MoveLibrary
-from calibre.constants import filesystem_encoding
+from calibre.constants import filesystem_encoding, iswindows
 from calibre.gui2.wizard.send_email import smtp_prefs
 from calibre.gui2.wizard.device_ui import Ui_WizardPage as DeviceUI
 from calibre.gui2.wizard.library_ui import Ui_WizardPage as LibraryUI
@@ -656,6 +656,13 @@ class LibraryPage(QWizardPage, LibraryUI):
         x = choose_dir(self, 'database location dialog',
                          _('Select location for books'))
         if x:
+            if (iswindows and len(x) >
+                    LibraryDatabase2.WINDOWS_LIBRARY_PATH_LIMIT):
+                return error_dialog(self, _('Too long'),
+                    _('Path to library too long. Must be less than'
+                    ' %d characters.')%LibraryDatabase2.WINDOWS_LIBRARY_PATH_LIMIT,
+                    show=True)
+
             if self.is_library_dir_suitable(x):
                 self.location.setText(x)
             else:

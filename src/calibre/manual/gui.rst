@@ -326,8 +326,9 @@ Two other kinds of searches are available: equality search and search using regu
 Equality searches are indicated by prefixing the search string with an equals sign (=). For example, the query
 ``tag:"=science"`` will match "science", but not "science fiction" or "hard science". Regular expression searches are
 indicated by prefixing the search string with a tilde (~). Any python-compatible regular expression can
-be used. Regular expression searches are contains searches unless the expression contains anchors.
-Should you need to search for a string with a leading equals or tilde, prefix the string with a backslash.
+be used. Note that backslashes use to escape special characters in reqular expressions must be doubled, because single backslashes will be removed during query parsing. For example, to match a literal parenthesis, you must enter ``\\(``. Regular expression searches are contains searches unless the expression contains anchors. 
+
+Should you need to search for a string with a leading equals or tilde, prefix the string with a backslash. 
 
 Enclose search strings with quotes (") if the string contains parenthesis or spaces. For example, to search
 for the tag ``Science Fiction``, you would need to search for ``tag:"=science fiction"``. If you search for

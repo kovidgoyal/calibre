@@ -439,7 +439,8 @@ class EditMetadataAction(InterfaceAction):
             view.reset()
 
     # Apply bulk metadata changes {{{
-    def apply_metadata_changes(self, id_map, title=None, msg='', callback=None):
+    def apply_metadata_changes(self, id_map, title=None, msg='', callback=None,
+            merge_tags=True):
         '''
         Apply the metadata changes in id_map to the database synchronously
         id_map must be a mapping of ids to Metadata objects. Set any fields you
@@ -466,8 +467,8 @@ class EditMetadataAction(InterfaceAction):
                     cancelable=False)
             self.apply_pd.setModal(True)
             self.apply_pd.show()
+        self._am_merge_tags = True
         self.do_one_apply()
-
 
     def do_one_apply(self):
         if self.apply_current_idx >= len(self.apply_id_map):
@@ -484,6 +485,12 @@ class EditMetadataAction(InterfaceAction):
             mi.identifiers = idents
             if mi.is_null('series'):
                 mi.series_index = None
+            if self._am_merge_tags:
+                old_tags = db.tags(i, index_is_id=True)
+                if old_tags:
+                    tags = [x.strip() for x in old_tags.split(',')] + (
+                            mi.tags if mi.tags else [])
+                    mi.tags = list(set(tags))
             db.set_metadata(i, mi, commit=False, set_title=set_title,
                     set_authors=set_authors, notify=False)
             self.applied_ids.append(i)

@@ -8,8 +8,8 @@ __docformat__ = 'restructuredtext en'
 
 import sys, os, textwrap, subprocess, shutil, tempfile, atexit, stat, shlex
 
-from setup import Command, islinux, isfreebsd, isbsd, basenames, modules, functions, \
-        __appname__, __version__
+from setup import (Command, islinux, isbsd, basenames, modules, functions,
+        __appname__, __version__)
 
 HEADER = '''\
 #!/usr/bin/env python2

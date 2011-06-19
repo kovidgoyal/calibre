@@ -189,7 +189,7 @@ Extra CSS
 
 This option allows you to specify arbitrary CSS that will be applied to all HTML files in the
 input. This CSS is applied with very high priority and so should override most CSS present in
-the input document itself. You can use this setting to fine tune the presentation/layout of your
+the **input document** itself. You can use this setting to fine tune the presentation/layout of your
 document. For example, if you want all paragraphs of class `endnote` to be right aligned, just 
 add::
     
@@ -200,7 +200,8 @@ or if you want to change the indentation of all paragraphs::
     p { text-indent: 5mm; }
 
 :guilabel:`Extra CSS` is a very powerful option, but you do need an understanding of how CSS works
-to use it to its full potential.
+to use it to its full potential. You can use the debug pipeline option described above to see what
+CSS is present in your input document.
 
 Miscellaneous
 ~~~~~~~~~~~~~~

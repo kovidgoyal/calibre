@@ -315,7 +315,7 @@ class MetadataSingleDialogBase(ResizableDialog):
                          show=True)
             return
 
-    def update_from_mi(self, mi, update_sorts=True):
+    def update_from_mi(self, mi, update_sorts=True, merge_tags=True):
         if not mi.is_null('title'):
             self.title.current_val = mi.title
             if update_sorts:
@@ -334,7 +334,11 @@ class MetadataSingleDialogBase(ResizableDialog):
         if not mi.is_null('publisher'):
             self.publisher.current_val = mi.publisher
         if not mi.is_null('tags'):
-            self.tags.current_val = mi.tags
+            old_tags = self.tags.current_val
+            tags = mi.tags if mi.tags else []
+            if old_tags and merge_tags:
+                tags += old_tags
+            self.tags.current_val = tags
         if not mi.is_null('identifiers'):
             current = self.identifiers.current_val
             current.update(mi.identifiers)

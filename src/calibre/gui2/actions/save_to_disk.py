@@ -33,7 +33,6 @@ class SaveMenu(QMenu): # {{{
 
 # }}}
 
-
 class SaveToDiskAction(InterfaceAction):
 
     name = "Save To Disk"

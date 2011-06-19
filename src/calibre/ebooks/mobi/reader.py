@@ -348,7 +348,6 @@ class MobiReader(object):
                 self.processed_html = self.remove_random_bytes(self.processed_html)
                 root = soupparser.fromstring(self.processed_html)
 
-
         if root.tag != 'html':
             self.log.warn('File does not have opening <html> tag')
             nroot = html.fromstring('<html><head></head><body></body></html>')

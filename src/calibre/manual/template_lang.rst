@@ -417,7 +417,7 @@ You might find the following tips useful.
 
     * Create a custom composite column to test templates. Once you have the column, you can change its template simply by double-clicking on the column. Hide the column when you are not testing.
     * Templates can use other templates by referencing a composite custom column.
-    * In a plugboard, you can set a field to empty (or whatever is equivalent to empty) by using the special template ``{null}``. This template will always evaluate to an empty string.
+    * In a plugboard, you can set a field to empty (or whatever is equivalent to empty) by using the special template ``{}``. This template will always evaluate to an empty string.
     * The technique described above to show numbers even if they have a zero value works with the standard field series_index.
 
 .. toctree::

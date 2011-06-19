@@ -129,7 +129,13 @@ function toplevel() {
 // }}}
 
 function render_error(msg) {
-    return '<div class="ui-widget"><div class="ui-state-error ui-corner-all" style="padding: 0pt 0.7em"><p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: 0.3em">&nbsp;</span><strong>Error: </strong>'+msg+"</p></div></div>"
+    var st = "";
+    try {
+        var st = printStackTrace();
+        st = st.join('\n\n');
+    } catch(e) {
+    }
+    return '<div class="ui-widget"><div class="ui-state-error ui-corner-all" style="padding: 0pt 0.7em"><p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: 0.3em">&nbsp;</span><strong>Error: </strong>'+msg+"<pre>"+st+"</pre></p></div></div>"
 }
 
 // Category feed {{{
