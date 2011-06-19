@@ -1654,9 +1654,9 @@ class TagsModel(QAbstractItemModel): # {{{
             if node.tag.state:
                 if node.category_key == "news":
                     if node_searches[node.tag.state] == 'true':
-                        ans.append('tags:=news')
+                        ans.append('tags:"=' + _('News') + '"')
                     else:
-                        ans.append('( not tags:=news )')
+                        ans.append('( not tags:"=' + _('News') + '")')
                 else:
                     ans.append('%s:%s'%(node.category_key, node_searches[node.tag.state]))
 
