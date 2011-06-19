@@ -457,7 +457,7 @@ class HTMLInput(InputFormatPlugin):
                     href=bhref)
             guessed = self.guess_type(href)[0]
             media_type = guessed or self.BINARY_MIME
-            if 'text' in media_type:
+            if media_type == 'text/plain':
                 self.log.warn('Ignoring link to text file %r'%link_)
                 return None
 

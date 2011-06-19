@@ -1,3 +1,4 @@
+import re
 from calibre.web.feeds.news import BasicNewsRecipe
 class AdvancedUserRecipe1306097511(BasicNewsRecipe):
     title          = u'Metro UK'
@@ -10,6 +11,7 @@ class AdvancedUserRecipe1306097511(BasicNewsRecipe):
     remove_empty_feeds = True
     remove_javascript     = True
 
+    preprocess_regexps = [(re.compile(r'Tweet'), lambda  a : '')]
 
     language = 'en_GB'
 
