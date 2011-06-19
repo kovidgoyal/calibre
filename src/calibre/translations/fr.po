@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-06-17 18:48+0000\n"
-"PO-Revision-Date: 2011-06-17 21:02+0000\n"
-"Last-Translator: Samuel COUSSON <Unknown>\n"
+"PO-Revision-Date: 2011-06-18 12:49+0000\n"
+"Last-Translator: Vincent Coiffier <Unknown>\n"
 "Language-Team: Français <kde-i18n-doc@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-06-18 04:41+0000\n"
+"X-Launchpad-Export-Date: 2011-06-19 04:35+0000\n"
 "X-Generator: Launchpad (build 13168)\n"
 "X-Poedit-Bookmarks: 1177,1104,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -1171,7 +1171,7 @@ msgstr "Communiquer avec le lecteur The Book"
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:58
 msgid "Communicate with the Libre Air reader."
-msgstr ""
+msgstr "Communiquer avec le lecteur Libre Air"
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:71
 msgid "Communicate with the SpringDesign Alex eBook reader."
@@ -1374,7 +1374,7 @@ msgstr "Communiquer avec le lecteur d'ebook Nook."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:84
 msgid "Communicate with the Nook Color and TSR eBook readers."
-msgstr ""
+msgstr "Communiquer avec les lecteurs d'ebooks Nook couleur et TSR"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nuut2/driver.py:17
 msgid "Communicate with the Nuut2 eBook reader."
@@ -5471,7 +5471,7 @@ msgstr "O"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/plugin_updates.py:18
 msgid "Plugin Updater"
-msgstr ""
+msgstr "Mise à jour Plugin"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:18
 msgid "Ctrl+P"
@@ -5488,7 +5488,7 @@ msgstr "Démarrer l'assistant de bienvenue"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:28
 msgid "Get plugins to enhance calibre"
-msgstr ""
+msgstr "Obtenir des plugins pour améliorer calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:31
 msgid "Restart in debug mode"
@@ -9525,15 +9525,15 @@ msgstr "&Montrer le mot de passe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:122
 msgid "Restart required"
-msgstr ""
+msgstr "Redémarrage requis"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:123
 msgid "You must restart Calibre before using this plugin!"
-msgstr ""
+msgstr "Vous devez redémarrer Calibre avant d'utiliser ce plugin!"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:164
 msgid "Version History for %s"
-msgstr ""
+msgstr "Historique des versions pour %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:184
 msgid "Update available"
@@ -9542,12 +9542,12 @@ msgstr "Mise à jour disponible"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:184
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:302
 msgid "Installed"
-msgstr ""
+msgstr "Installé"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:184
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:397
 msgid "Not installed"
-msgstr ""
+msgstr "Non installé"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:184
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/chooser_widget_ui.py:82
@@ -9558,7 +9558,7 @@ msgstr "Tout"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:302
 msgid "Plugin Name"
-msgstr ""
+msgstr "Nom du plugin"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:302
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:63
@@ -9567,19 +9567,19 @@ msgstr "Statut"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:303
 msgid "Available"
-msgstr ""
+msgstr "Disponible"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:303
 msgid "Calibre"
-msgstr ""
+msgstr "Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:303
 msgid "Released"
-msgstr ""
+msgstr "Sorti"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:328
 msgid "PayPal"
-msgstr ""
+msgstr "PayPal"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:352
 msgid ""
@@ -9588,30 +9588,35 @@ msgid ""
 "\n"
 "Right-click and choose Donate to reward: "
 msgstr ""
+"Ce plugin est GRATUIT mais vous pouvez récompenser les développeurs pour "
+"leurs efforts\n"
+"en leur donnant via PayPal.\n"
+"\n"
+"Clic droit et choisir Donner pour récompenser: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:387
 msgid "Platform unavailable"
-msgstr ""
+msgstr "Plateforme indisponible"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:389
 msgid "Calibre upgrade required"
-msgstr ""
+msgstr "Mise à jour de Calibre nécessaire"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:392
 msgid "Plugin deprecated"
-msgstr ""
+msgstr "Plugin obsolète"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:394
 msgid "New version available"
-msgstr ""
+msgstr "Une nouvelle version est disponible"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:396
 msgid "Latest version installed"
-msgstr ""
+msgstr "Dernière version installée"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:427
 msgid "This plugin has been deprecated and should be uninstalled"
-msgstr ""
+msgstr "Ce plugin est devenu obsolète et doit être désinstallé"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:428
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:432
@@ -9620,78 +9625,80 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:443
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:445
 msgid "Right-click to see more options"
-msgstr ""
+msgstr "Clic droit pour voir plus d'options"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:430
 msgid "This plugin can only be installed on: %s"
-msgstr ""
+msgstr "Ce plugin peut être install seulement sur: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:434
 msgid "You must upgrade to at least Calibre %s before installing this plugin"
 msgstr ""
+"Vous devez mettre au moins vers Calibre %s avant l'installation de ce plugin"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:439
 msgid "You can install this plugin"
-msgstr ""
+msgstr "Vous pouvez installer ce plugin"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:442
 msgid "A new version of this plugin is available"
-msgstr ""
+msgstr "Une nouvelle version de ce plugin est disponible"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:444
 msgid "This plugin is installed and up-to-date"
-msgstr ""
+msgstr "Ce plugin est installé et à jour"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:473
 msgid "Update Check Failed"
-msgstr ""
+msgstr "La vérification de la mise à jour a échouée"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:474
 msgid "Unable to reach the MobileRead plugins forum index page."
 msgstr ""
+"Impossible d'accéder à la page d'index des plugins du forum Mobileread."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:481
 msgid "User plugins"
-msgstr ""
+msgstr "Plugins utilisateur"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:486
 msgid "User Plugins"
-msgstr ""
+msgstr "Plugins utilisateur"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:494
 msgid "Filter list of plugins"
-msgstr ""
+msgstr "Liste filtrée de plugins"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:512
 msgid "Description"
-msgstr ""
+msgstr "Description"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:523
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:535
 msgid "&Install"
-msgstr ""
+msgstr "&Installer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:524
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:536
 msgid "Install the selected plugin"
-msgstr ""
+msgstr "Installer le plugin sélectionné"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:527
 msgid "&Customize plugin "
-msgstr ""
+msgstr "Personnaliser le plugin "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:528
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:580
 msgid "Customize the options for this plugin"
-msgstr ""
+msgstr "Personnaliser les options pour ce plugin"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:540
 msgid "Version &History"
-msgstr ""
+msgstr "&Historique des versions"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:541
 msgid "Show history of changes to this plugin"
-msgstr ""
+msgstr "Afficher l'historique des modifications pour ce plugin"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:545
 msgid "Plugin &Forum Thread"
@@ -9704,7 +9711,7 @@ msgstr "Activer/&Désactiver le plugin"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:555
 msgid "Enable or disable this plugin"
-msgstr ""
+msgstr "Activer et désactiver ce plugin"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:559
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:111
@@ -9713,15 +9720,15 @@ msgstr "Supp&rimer le plugin"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:560
 msgid "Uninstall the selected plugin"
-msgstr ""
+msgstr "Désinstaller le plugin sélectionné"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:569
 msgid "Donate to developer"
-msgstr ""
+msgstr "Donner au développeur"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:570
 msgid "Donate to the developer of this plugin"
-msgstr ""
+msgstr "Donner au développeur de ce plugin"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:579
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:110
@@ -9730,11 +9737,11 @@ msgstr "&Personnaliser le plugin"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:675
 msgid "Are you sure you want to uninstall the <b>%s</b> plugin?"
-msgstr ""
+msgstr "Êtes-vous sûr de vouloir désinstaller le plugin <b>%s</b>?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:687
 msgid "Install %s"
-msgstr ""
+msgstr "Installer %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:688
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:282
@@ -9749,28 +9756,28 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:704
 msgid "Locating zip file for %s: %s"
-msgstr ""
+msgstr "Emplacement du fichier zip pour %s: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:707
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:744
 msgid "Install Plugin Failed"
-msgstr ""
+msgstr "L'installation du plugin a échouée"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:708
 msgid "Unable to locate a plugin zip file for <b>%s</b>"
-msgstr ""
+msgstr "Impossible de localiser le fichier zip du plugin pour <b>%s</b>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:713
 msgid "Downloading plugin zip attachment: %s"
-msgstr ""
+msgstr "Téléchargement de l'attachement zip du plugin: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:718
 msgid "Installing plugin: %s"
-msgstr ""
+msgstr "Installation du plugin: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:730
 msgid "Plugin installed: %s"
-msgstr ""
+msgstr "Plugin installé: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:732
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:298
@@ -9787,14 +9794,17 @@ msgid ""
 "uninstalled. Please post the error message in details below into the forum "
 "thread for this plugin and restart Calibre."
 msgstr ""
+"Un problème est survenu lors de l'installation de ce plugin. Ce plugin va "
+"être maintenant désinstallé. Veuillez poster le message d'erreur de détail "
+"ci-dessous dans la discussion de forum de ce plugin et redémarrer Calibre."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:770
 msgid "Version history missing"
-msgstr ""
+msgstr "L'historique des versions est manquant"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:771
 msgid "Unable to find the version history for %s"
-msgstr ""
+msgstr "Impossible de trouver l'historique des versions pour %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:778
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:333
@@ -12471,11 +12481,11 @@ msgstr "n'est pas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:55
 msgid "matches pattern"
-msgstr ""
+msgstr "correspond au modèle"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:56
 msgid "does not match pattern"
-msgstr ""
+msgstr "ne correspond pas au modèle"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:75
 msgid "If the "
@@ -12537,7 +12547,7 @@ msgstr "Ajouter une autre condition"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:272
 msgid "You can disable a condition by blanking all of its boxes"
-msgstr ""
+msgstr "Vous pouvez désactiver une condition en vidant toutes ces boites"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:344
 msgid "Invalid condition"
@@ -12812,6 +12822,9 @@ msgid ""
 "leading zeros. The format <code>{0:d}&nbsp;days</code> prints the number "
 "then the word \"days\""
 msgstr ""
+"Exemples: Le format <code>{0:0>4d}</code> fourni un nombre de 4 chiffres "
+"avec des zéros devant. Le format <code>{0:d}&nbsp;jours</code> affiche le "
+"nombre puis le mot \"jours\""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:195
 msgid ""
@@ -13219,7 +13232,7 @@ msgstr "Partitionné"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:166
 msgid "Column coloring"
-msgstr ""
+msgstr "Coloration de colonne"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:198
 msgid "User Interface &layout (needs restart):"
@@ -13483,11 +13496,11 @@ msgstr "Tout effacer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:125
 msgid "&Select default"
-msgstr ""
+msgstr "&Sélectionner par défaut"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:126
 msgid "&Set as default"
-msgstr ""
+msgstr "&Préciser comme défaut"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:127
 msgid "Convert all downloaded comments to plain &text"
@@ -13780,15 +13793,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:112
 msgid "Get &new plugins"
-msgstr ""
+msgstr "Obtenir de &nouveaux plugins"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:113
 msgid "Check for &updated plugins"
-msgstr ""
+msgstr "Vérifier la mise à jour des plugins"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:114
 msgid "&Load plugin from file"
-msgstr ""
+msgstr "&Charger un plugin à partir d'un fichier"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:33
 msgid "Any custom field"
@@ -14577,7 +14590,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:390
 msgid "Enable or disable search highlighting."
-msgstr ""
+msgstr "Activer ou désactiver le surlignage de la recherche."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:445
 msgid "Saved Searches"
@@ -14751,7 +14764,7 @@ msgstr "faux"
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:232
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:206
 msgid "Affiliate:"
-msgstr ""
+msgstr "Membre:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:235
 msgid "Nam&e/Description ..."
@@ -14775,7 +14788,7 @@ msgstr "Inverser"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:21
 msgid "Affiliate"
-msgstr ""
+msgstr "Membre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:21
 msgid "Enabled"
@@ -14783,7 +14796,7 @@ msgstr "Activé"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:21
 msgid "Headquarters"
-msgstr ""
+msgstr "Quartier Général"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:21
 msgid "No DRM"
@@ -15016,14 +15029,15 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:110
 msgid "Buying from this store supports the calibre developer: %s</p>"
 msgstr ""
+"En achetant dans cette boutique, vous aidez le développeur calibre: %s</p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:268
 msgid "Customize get books search"
-msgstr ""
+msgstr "Personnaliser la recherche pour obtenir des livres"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:278
 msgid "Configure search"
-msgstr ""
+msgstr "Configurer la recherche"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:328
 msgid "Couldn't find any books matching your query."
@@ -15482,11 +15496,11 @@ msgstr "&Obtenir une mise à jour"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:95
 msgid "Update &plugins"
-msgstr ""
+msgstr "Mettre à jours les &plugins"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:154
 msgid " (%d plugin updates)"
-msgstr ""
+msgstr " (%d mise(s) à jour de plugins)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:157
 msgid "Update found"
@@ -15494,20 +15508,20 @@ msgstr "Mise à jour trouvée"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:160
 msgid "updated plugins"
-msgstr ""
+msgstr "plugins mis à jour"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:186
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:191
 msgid "Plugin Updates"
-msgstr ""
+msgstr "Mise à jour de plugins"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:189
 msgid "There are %d plugin updates available"
-msgstr ""
+msgstr "Il y a %d mises à jour de plugins disponible"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:193
 msgid "Install and configure user plugins"
-msgstr ""
+msgstr "Installer et configurer les plugins utilisateur"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager.py:43
 msgid "Edit bookmark"
@@ -16063,6 +16077,8 @@ msgid ""
 "Choose your e-book device. If your device is not in the list, choose a "
 "\"%s\" device."
 msgstr ""
+"Choisir votre lecteur e-book. Si votre lecteur n'est pas dans la liste, "
+"choisir un lecteur \"%s\"."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:499
 msgid "Moving library..."
@@ -16151,6 +16167,8 @@ msgid ""
 "<h2>User Manual</h2>A User Manual is also available <a "
 "href=\"http://manual.calibre-ebook.com\">online</a>."
 msgstr ""
+"<h2>Manual Utilisateur</h2>Un Manuel Utilisateur est aussi disponible <a "
+"href=\"http://manual.calibre-ebook.com\">en ligne</a>."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/kindle_ui.py:49
 msgid ""
@@ -16254,7 +16272,7 @@ msgstr "Nom d'utilisateur incorrect"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:103
 msgid "%s needs the full email address as your username"
-msgstr ""
+msgstr "%s a besoin de l'adresse email complète comme nom d'utilisateur"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:154
 msgid "OK to proceed?"
@@ -16272,6 +16290,10 @@ msgid ""
 "verify your account periodically, before it will let calibre send email. In "
 "this case, I strongly suggest you setup a free gmail account instead."
 msgstr ""
+"Si vous configurez un nouveau compte hotmail, Microsoft demande de vérifier "
+"votre compte périodiquement, avant de pouvoir laisser calibre envoyer des "
+"emails. Dans ce cas, je vous suggère vivement de configurer un compte gmail "
+"gratuit à la place."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:221
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:232
@@ -16514,6 +16536,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: CSV, XML output formats"
 msgstr ""
+"Champ de sortie à utiliser pour le tri.\n"
+"Champs disponibles: author_sort, id, rating, size, timestamp, title_sort\n"
+"Par défault: '%default'\n"
+"Applicable aux formats de sortie CSV, XML"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:251
 msgid ""
@@ -18213,7 +18239,7 @@ msgstr "erreur de syntaxe - le programme se termine avant la fin du fichier"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:103
 msgid "Unknown identifier "
-msgstr ""
+msgstr "Identifiant inconnu "
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:110
 msgid "unknown function {0}"
@@ -18444,6 +18470,10 @@ msgid ""
 "value in the list. If the pattern matches a value, return found_val, "
 "otherwise return not_found_val."
 msgstr ""
+"in_list(val, separateur, modele, valeur_trouve, valeur_non_trouve) -- "
+"traiter val comme une liste d'articles séparée par separateur, en comparant "
+"modele avec chaque valeur de la liste. Si modele correspond à une valeur, "
+"renvoie valeur_trouve sinon renvoie valeur_non_trouve."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:365
 msgid ""
@@ -18610,13 +18640,15 @@ msgstr "capitalize(val) -- renvoie la valeur du champ en lettres capitales"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:648
 msgid "booksize() -- return value of the size field"
-msgstr ""
+msgstr "booksize() -- renvoie la valeur du champ taille"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:662
 msgid ""
 "ondevice() -- return Yes if ondevice is set, otherwise return the empty "
 "string"
 msgstr ""
+"ondevice() -- renvoie Yes si ondevice est précisé, sinon renvoie une chaîne "
+"vide"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:674
 msgid ""
@@ -18757,7 +18789,7 @@ msgstr "Anglais (Chine)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:124
 msgid "English (South Africa)"
-msgstr ""
+msgstr "Anglais (Afrique du sud)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:125
 msgid "Spanish (Paraguay)"

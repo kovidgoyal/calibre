@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-06-17 18:48+0000\n"
-"PO-Revision-Date: 2011-06-17 17:01+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2011-06-18 17:09+0000\n"
+"Last-Translator: FerranRius <frius64@hotmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-06-18 04:38+0000\n"
+"X-Launchpad-Export-Date: 2011-06-19 04:33+0000\n"
 "X-Generator: Launchpad (build 13168)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -1167,7 +1167,7 @@ msgstr "Comunica't amb un lector electrònics."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:58
 msgid "Communicate with the Libre Air reader."
-msgstr ""
+msgstr "Comunica't amb un lector Libre Air."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:71
 msgid "Communicate with the SpringDesign Alex eBook reader."
@@ -1368,7 +1368,7 @@ msgstr "Comunica't amb un lector Nook."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:84
 msgid "Communicate with the Nook Color and TSR eBook readers."
-msgstr ""
+msgstr "Comunica't amb els lectors Nook Color i TSR."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nuut2/driver.py:17
 msgid "Communicate with the Nuut2 eBook reader."
@@ -4758,6 +4758,9 @@ msgid ""
 "to a location with a shorter path using Windows Explorer, then point calibre "
 "to the new location and try again."
 msgstr ""
+"Camí a la biblioteca massa llarg. Ha de ser de menys de %d caràcters. Cal "
+"moure la biblioteca a una ubicació amb un camí més curt amb l'Explorador del "
+"Windows i després tornar-ho a intentar amb la ubicació nova."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:330
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:731
@@ -5394,7 +5397,7 @@ msgstr "O"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/plugin_updates.py:18
 msgid "Plugin Updater"
-msgstr ""
+msgstr "Actualitzador de connectors"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:18
 msgid "Ctrl+P"
@@ -5411,7 +5414,7 @@ msgstr "Executa l'assistent de benvinguda"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:28
 msgid "Get plugins to enhance calibre"
-msgstr ""
+msgstr "Aconsegueix connectors per millorar el calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:31
 msgid "Restart in debug mode"
@@ -9444,29 +9447,29 @@ msgstr "Mo&stra la contrasenya"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:122
 msgid "Restart required"
-msgstr ""
+msgstr "Cal reiniciar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:123
 msgid "You must restart Calibre before using this plugin!"
-msgstr ""
+msgstr "Heu de reiniciar el calibre abans d'utilitzar aquest connector"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:164
 msgid "Version History for %s"
-msgstr ""
+msgstr "Historial de versions de %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:184
 msgid "Update available"
-msgstr ""
+msgstr "Hi ha una actualització disponible"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:184
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:302
 msgid "Installed"
-msgstr ""
+msgstr "S'ha instal·lat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:184
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:397
 msgid "Not installed"
-msgstr ""
+msgstr "No s'ha instal·lat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:184
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/chooser_widget_ui.py:82
@@ -9477,7 +9480,7 @@ msgstr "Tot"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:302
 msgid "Plugin Name"
-msgstr ""
+msgstr "Nom del connector"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:302
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:63
@@ -9486,19 +9489,19 @@ msgstr "Estat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:303
 msgid "Available"
-msgstr ""
+msgstr "Disponible"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:303
 msgid "Calibre"
-msgstr ""
+msgstr "calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:303
 msgid "Released"
-msgstr ""
+msgstr "S'ha llançat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:328
 msgid "PayPal"
-msgstr ""
+msgstr "PayPal"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:352
 msgid ""
@@ -9507,30 +9510,34 @@ msgid ""
 "\n"
 "Right-click and choose Donate to reward: "
 msgstr ""
+"Aquest complement és GRATUÏT però podeu premiar els esforços\n"
+"del desenvolupador amb una donació via PayPal.\n"
+"\n"
+"Feu clic dret i trieu «Donacions» per al pagament: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:387
 msgid "Platform unavailable"
-msgstr ""
+msgstr "Plataforma no disponible"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:389
 msgid "Calibre upgrade required"
-msgstr ""
+msgstr "Cal actualitzar el calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:392
 msgid "Plugin deprecated"
-msgstr ""
+msgstr "Connector desfasat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:394
 msgid "New version available"
-msgstr ""
+msgstr "Hi ha una nova versió disponible"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:396
 msgid "Latest version installed"
-msgstr ""
+msgstr "La darrera versió ja està instal·lada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:427
 msgid "This plugin has been deprecated and should be uninstalled"
-msgstr ""
+msgstr "Aquest connector està desfasat i s'ha de desinstal·lar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:428
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:432
@@ -9539,82 +9546,86 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:443
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:445
 msgid "Right-click to see more options"
-msgstr ""
+msgstr "Feu clic dret per veure més opcions"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:430
 msgid "This plugin can only be installed on: %s"
-msgstr ""
+msgstr "Aquest connector només es pot instal·lar a: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:434
 msgid "You must upgrade to at least Calibre %s before installing this plugin"
 msgstr ""
+"Abans d'instal·lar aquest connector heu d'actualitzar el calibre almenys a "
+"la versió %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:439
 msgid "You can install this plugin"
-msgstr ""
+msgstr "Podeu instal·lar aquest connector"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:442
 msgid "A new version of this plugin is available"
-msgstr ""
+msgstr "Hi ha disponible una versió nova d'aquest connector"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:444
 msgid "This plugin is installed and up-to-date"
-msgstr ""
+msgstr "Aquest connector està instal·lat i actualitzat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:473
 msgid "Update Check Failed"
-msgstr ""
+msgstr "Ha fallat la comprovació d'actualitzacions"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:474
 msgid "Unable to reach the MobileRead plugins forum index page."
 msgstr ""
+"No s'ha pogut carregar la pàgina de l'índex del fòrum de connectors de "
+"MobileRead."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:481
 msgid "User plugins"
-msgstr ""
+msgstr "Connectors de l'usuari"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:486
 msgid "User Plugins"
-msgstr ""
+msgstr "Connectors de l'usuari"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:494
 msgid "Filter list of plugins"
-msgstr ""
+msgstr "Filtra la llista de connectors"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:512
 msgid "Description"
-msgstr ""
+msgstr "Descripció"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:523
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:535
 msgid "&Install"
-msgstr ""
+msgstr "&Instal·la"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:524
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:536
 msgid "Install the selected plugin"
-msgstr ""
+msgstr "Instal·la el connector seleccionat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:527
 msgid "&Customize plugin "
-msgstr ""
+msgstr "&Personalitza el connector "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:528
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:580
 msgid "Customize the options for this plugin"
-msgstr ""
+msgstr "Personalitza les opcions d'aquest connector"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:540
 msgid "Version &History"
-msgstr ""
+msgstr "&Historial de versions"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:541
 msgid "Show history of changes to this plugin"
-msgstr ""
+msgstr "Mostra l'historial de canvis d'aquest connector"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:545
 msgid "Plugin &Forum Thread"
-msgstr ""
+msgstr "%Fil de connectors del fòrum"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:554
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:109
@@ -9623,7 +9634,7 @@ msgstr "&Habilita/Inhabilita el connector"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:555
 msgid "Enable or disable this plugin"
-msgstr ""
+msgstr "Habilita o inhabilita aquest connector"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:559
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:111
@@ -9632,15 +9643,15 @@ msgstr "&Suprimeix el connector"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:560
 msgid "Uninstall the selected plugin"
-msgstr ""
+msgstr "Desinstal·la el connector seleccionat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:569
 msgid "Donate to developer"
-msgstr ""
+msgstr "Donació al desenvolupador"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:570
 msgid "Donate to the developer of this plugin"
-msgstr ""
+msgstr "Feu una donació al desenvolupador d'aquest connector"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:579
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:110
@@ -9649,11 +9660,11 @@ msgstr "&Personalitza el connector"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:675
 msgid "Are you sure you want to uninstall the <b>%s</b> plugin?"
-msgstr ""
+msgstr "Esteu segur que voleu desinstal·lar el complement <b>%s</b>?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:687
 msgid "Install %s"
-msgstr ""
+msgstr "Instal·la %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:688
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:282
@@ -9668,28 +9679,28 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:704
 msgid "Locating zip file for %s: %s"
-msgstr ""
+msgstr "Cercant el fitxer zip per a %s: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:707
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:744
 msgid "Install Plugin Failed"
-msgstr ""
+msgstr "Ha fallat la instal·lació del connector"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:708
 msgid "Unable to locate a plugin zip file for <b>%s</b>"
-msgstr ""
+msgstr "No s'ha pogut trobar el fitxer zip de connector per a <b>%s</b>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:713
 msgid "Downloading plugin zip attachment: %s"
-msgstr ""
+msgstr "S'està descarregant l'annex zip de connector: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:718
 msgid "Installing plugin: %s"
-msgstr ""
+msgstr "S'està instal·lant el connector: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:730
 msgid "Plugin installed: %s"
-msgstr ""
+msgstr "S'ha instal·lat el connector: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:732
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:298
@@ -9706,14 +9717,17 @@ msgid ""
 "uninstalled. Please post the error message in details below into the forum "
 "thread for this plugin and restart Calibre."
 msgstr ""
+"Hi ha hagut un error en instal·lar el connector. Cal desinstal·lar aquest "
+"connector. Publiqueu el missatge d'error als detalls de més avall al fil del "
+"fòrum d'aquest connector i reinicieu el Calibre."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:770
 msgid "Version history missing"
-msgstr ""
+msgstr "No hi ha historial de versions"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:771
 msgid "Unable to find the version history for %s"
-msgstr ""
+msgstr "No s'ha trobat l'historial de versions per a %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:778
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:333
@@ -12571,6 +12585,10 @@ msgid ""
 "that tell calibre what color to use. Click the Add Rule button below to get "
 "started.<p>You can <b>change an existing rule</b> by double clicking it."
 msgstr ""
+"Podeu controlar el color de les columnes de la llista de llibres creant "
+"«regles» que li diuen al Calibre quin color ha d'utilitzar. Feu clic a "
+"«Afegeix una regla» més avall per començar.<p>Podeu <b>canviar una regla "
+"existent</b> fent-hi doble clic."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:483
 msgid "Add Rule"
@@ -13467,11 +13485,11 @@ msgstr "Suprimeix-ho &tot"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:125
 msgid "&Select default"
-msgstr ""
+msgstr "&Selecciona el predeterminat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:126
 msgid "&Set as default"
-msgstr ""
+msgstr "&Estableix com a predeterminat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:127
 msgid "Convert all downloaded comments to plain &text"
@@ -13779,15 +13797,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:112
 msgid "Get &new plugins"
-msgstr ""
+msgstr "Aconsegueix connectors &nous"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:113
 msgid "Check for &updated plugins"
-msgstr ""
+msgstr "Cerca &actualitzacions dels connectors"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:114
 msgid "&Load plugin from file"
-msgstr ""
+msgstr "&Carrega el connector del fitxer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:33
 msgid "Any custom field"
@@ -15539,11 +15557,11 @@ msgstr "Aconsegueix l'&actualització"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:95
 msgid "Update &plugins"
-msgstr ""
+msgstr "Actualitza els &connectors"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:154
 msgid " (%d plugin updates)"
-msgstr ""
+msgstr " (%d actualitzacions de connectors"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:157
 msgid "Update found"
@@ -15551,20 +15569,20 @@ msgstr "S'ha trobat una actualització"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:160
 msgid "updated plugins"
-msgstr ""
+msgstr "s'ha actualitzat els connectors"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:186
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:191
 msgid "Plugin Updates"
-msgstr ""
+msgstr "Actualitzacions de connectors"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:189
 msgid "There are %d plugin updates available"
-msgstr ""
+msgstr "Hi ha %d actualitzacions de connectors disponibles"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:193
 msgid "Install and configure user plugins"
-msgstr ""
+msgstr "Instal·la i configura els complements de l'usuari"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager.py:43
 msgid "Edit bookmark"
@@ -18639,6 +18657,20 @@ msgid ""
 "\"B.C\". Assuming a #genre value of \"A.B.C, D.E.F\", {#genre:subitems(0,1)} "
 "returns \"A, D\". {#genre:subitems(0,2)} returns \"A.B, D.E\""
 msgstr ""
+"subitems(val, índex_inici, índex_fí) -- Aquesta funció s'utilitza per "
+"separar llistes d'elements com gèneres. Interpreta el valor com a una llista "
+"d'elements separats per comes, on cada element és una llista separada per "
+"punts. S'obté una llista nova feta cercant primer tots els elements separats "
+"per punts, després per a cada element s'extreuen els components des "
+"d'«índex_inici» fins a «índex_fí» i finalment es tornen a combinar els "
+"resultats conjuntament. El primer component d'una llista separada per comes "
+"té un índex de zero. Si un índex és negatiu, es compta des del final de la "
+"llista. Com a cas especial, s'assumeix que un «índex_fí» de zero és la "
+"longitud de la llista. Exemples utilitzant el mode bàsic de plantilla i "
+"assumint un valor de #gènere d'«A.B.C»: {#gènere:subitems(0,1)} s'obté «A». "
+"{#gènere:subitems(0,2)} s'obté «A.B». {#gènere:subitems(1,0)} s'obté «B.C». "
+"Assumint un valor de #gènere d'«A.B.C, D.E.F»: {#gènere:subitems(0,1)} "
+"s'obté «A, D», {#gènere:subitems(0,2)} s'obté «A.B, D.E»."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:583
 msgid ""
@@ -18654,6 +18686,18 @@ msgid ""
 "year as two digit number (00 to 99). yyyy : the year as four digit number. "
 "iso  : the date with time and timezone. Must be the only format present"
 msgstr ""
+"format_date(val, text_format) -- dóna format a un valor que ha de ser una "
+"data utilitzant «text_format» i s'obté una cadena. Els codis de format són: "
+"«d»: el dia com a nombre sense zero inicial (1 a 31). «dd»: el dia com a "
+"nombre amb zero inicial (01 a 31). «ddd»: el nom del dia abreujat en "
+"l'idioma local (per exemple «Dil» a «Diu»). «dddd»: el nom del dia complet "
+"en l'idioma local (per exemple «Dilluns» a «Divendres»). «M»: el mes com a "
+"nombre sense número inicial (1 a 12). «MM»: el mes com a nombre amb zero "
+"inicial (01 a 12). «MMM»: el nom del mes abreujat el l'idioma local (per "
+"exemple «Gen» a «Des»). «MMMM»: el nom del mes complet en l'idioma local "
+"(per exemple «Gener» a «Desembre»). «yy»: l'any com a nombre de dues xifres "
+"(00 a 99). «yyyy»: l'any com a nombre de quatre xifres. «iso»: la data amb "
+"l'hora i la zona horària. Ha de ser l'únic format present."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:612
 msgid "uppercase(val) -- return value of the field in upper case"
@@ -18843,7 +18887,7 @@ msgstr "Anglès (Xina)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:124
 msgid "English (South Africa)"
-msgstr ""
+msgstr "Anglès (Sud-àfrica)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:125
 msgid "Spanish (Paraguay)"

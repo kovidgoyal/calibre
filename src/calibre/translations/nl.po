@@ -37,13 +37,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-06-17 18:48+0000\n"
-"PO-Revision-Date: 2011-06-18 00:50+0000\n"
+"PO-Revision-Date: 2011-06-18 18:00+0000\n"
 "Last-Translator: drMerry <Unknown>\n"
 "Language-Team: Dutch <ubuntu-l10n-nl@lists.ubuntu.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-06-18 04:39+0000\n"
+"X-Launchpad-Export-Date: 2011-06-19 04:34+0000\n"
 "X-Generator: Launchpad (build 13168)\n"
 "X-Poedit-Country: NETHERLANDS\n"
 "X-Poedit-Language: Dutch\n"
@@ -1730,8 +1730,8 @@ msgid ""
 "creating your comics in EPUB format."
 msgstr ""
 "Aantal kleuren voor conversie van afbeelding naar grijstinten. Standaard: "
-"%default. Waarden van onder de 256 kunnen resulteren in wazige tekst op je "
-"apparaat als je je strips in EPUB formaat maakt."
+"%default. Waarden van onder de 256 kunnen resulteren in wazige tekst op uw "
+"apparaat als u uw strips in EPUB formaat maakt."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:287
 msgid ""
@@ -1799,8 +1799,8 @@ msgid ""
 "device."
 msgstr ""
 "Het formaat waarnaar afbeeldingen in het gemaakte E-boek worden "
-"geconverteerd. Je kan experimenteren om te zien welk formaat de optimale "
-"grootte en weergave voor je apparaat genereren."
+"geconverteerd. U kan experimenteren om te zien welk formaat de optimale "
+"grootte en weergave voor uw apparaat genereren."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:317
 msgid "Apply no processing to the image"
@@ -1961,7 +1961,7 @@ msgid ""
 "conversion process a bug is occurring."
 msgstr ""
 "Bewaar de uitvoer van verschillende stadia van de conversielijn in de "
-"opgegeven map. Nuttig als je niet zeker weet tijdens welke stap in het "
+"opgegeven map. Nuttig als u niet zeker weet tijdens welke stap in het "
 "conversieproces een fout optreedt."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:119
@@ -2576,12 +2576,12 @@ msgid ""
 "detect these and replace them with constructs that epubcheck likes. This may "
 "cause significant changes to your epub, complain to the epubcheck project."
 msgstr ""
-"Lapmiddelen voor fouten in de laatste uitgave van epubcheck. epubcheck "
+"Lapmiddelen voor fouten in de laatste uitgave van epubcheck. Epubcheck "
 "rapporteert veel zaken die eigenlijk geen fouten zijn als fouten. ePub-"
 "reparatie zal trachten om deze te detecteren en ze te vervangen door "
-"constructies waar epubcheck geen problemen mee heeft. Dit kan voor "
-"groteveranderingen in uw epub-bestand zorgen. Klaag hierover bij het "
-"epubcheck-project."
+"constructies waar epubcheck geen problemen mee heeft. Dit kan voor grote "
+"veranderingen in uw epub-bestand zorgen. Klaag hierover bij het epubcheck-"
+"project."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/main.py:21
 msgid ""
@@ -2603,7 +2603,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/main.py:52
 msgid "You must specify an epub file"
-msgstr "Je moet een epub-bestand opgeven."
+msgstr "U moet een epub-bestand opgeven."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/unmanifested.py:17
 msgid "Fix unmanifested files"
@@ -4486,7 +4486,7 @@ msgid ""
 "processed and merged into your Calibre database according to your automerge "
 "settings:"
 msgstr ""
-"De volgende boeken werden in tweevoud gevonden. Ingevoerde boekformaten "
+"De volgende boeken werden in tweevoud gevonden. Binnenkomende boekformaten "
 "werden verwerkt en volgens de instellingen voor automatisch samenvoegen aan "
 "uw calibredatabank toegevoegd."
 
@@ -4857,8 +4857,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:425
 msgid "You cannot change libraries while jobs are running."
-msgstr ""
-"Je kunt niet van bibliotheek wisselen wanneer taken uitgevoerd worden"
+msgstr "U kunt niet van bibliotheek wisselen wanneer taken uitgevoerd worden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:22
 msgid "C"
@@ -4941,9 +4940,9 @@ msgid ""
 "<b>can be slow</b>. Should calibre skip the Recycle Bin? If you click Yes "
 "the files will be <b>permanently deleted</b>."
 msgstr ""
-"Je probeert %d boeken te verwijderen. Zo veel boeken naar de prullenbak "
-"sturen <b>kan traag zijn</b>. Moet calibre de prullenbak overslaan? Als je "
-"Ja klikt zullen bestanden <b>permanent verwijderd worden</b>."
+"U probeert %d boeken te verwijderen. Zo veel boeken naar de prullenbak "
+"sturen <b>kan traag zijn</b>. Moet calibre de prullenbak overslaan? Als u Ja "
+"klikt zullen bestanden <b>permanent verwijderd worden</b>."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:42
 msgid "Deleting..."
@@ -5192,7 +5191,7 @@ msgstr "Met het eerste geselecteerde boek samenvoegen - de anderen behouden"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:49
 msgid "Merge only formats into first selected book - delete others"
 msgstr ""
-"Enkel formaten invoegen in eerst geselecteerde boek - anderen verwijderen"
+"Enkel formaten samenvoegen in eerst geselecteerde boek - anderen verwijderen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:71
 msgid "Cannot download metadata"
@@ -5288,7 +5287,7 @@ msgid ""
 "changed.<br><br>Please confirm you want to proceed."
 msgstr ""
 "Boekformaten en metadata van de selectie zullen toegevoegd worden aan het "
-"<b>eerst geselecteerde boek</b> (%s). ISBN zal <i>niet</i> ingevoegd "
+"<b>eerst geselecteerde boek</b> (%s). ISBN zal <i>niet</i> samengevoegd "
 "worden.<br><br>De geselecteerde boeken zullen niet verwijderd of aangepast "
 "worden.<br><br>Bevestig dat u wilt doorgaan."
 
@@ -5305,7 +5304,7 @@ msgid ""
 msgstr ""
 "Boekformaten van de selectie zullen aan het <b>eerste geselecteerde boek</b> "
 "(%s) toegevoegd worden. De metadata in dit boek wordt niet aangepast. Titel, "
-"ISBN of andere metadata zullen <i>niet</i> ingevoegd worden.<br><br>Na "
+"ISBN of andere metadata zullen <i>niet</i> samengevoegd worden.<br><br>Na "
 "samenvoegen worden het tweede en daarop volgende boeken <b>verwijderd</b>. "
 "Alle boekformaten in het eerst geselecteerde boek worden behouden en elk "
 "duplicaatformaat in de andere boeken wordt <b>permanent</b> uit de "
@@ -5324,7 +5323,7 @@ msgid ""
 msgstr ""
 "Boekformaten en metadata van de selectie zullen aan he <b>eerste "
 "geselecteerde boek</b> (%s) toegevoegd worden. ISBN zal <i>niet</i> "
-"ingevoegd worden.<br><br>Na het samenvoegen worden het boek en daarop "
+"samengevoegd worden.<br><br>Na het samenvoegen worden het boek en daarop "
 "volgende boeken <b>verwijderd</b>. Alle boekformaten van het eerst "
 "geselecteerde boek worden behouden en elk duplicaatformaat in de andere "
 "boeken wordt <b>permanent</b> uit de bibliotheek <b>verwijderd</b>. "
@@ -8181,7 +8180,7 @@ msgstr "Opties catalogus"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:25
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:26
 msgid "Checking database integrity"
-msgstr "Verifiëren integriteit database"
+msgstr "Integriteit database verifiëren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:55
 msgid "Dumping database to SQL"
@@ -10523,7 +10522,7 @@ msgstr "Het sjabloonveld mag niet leeg zijn"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:97
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:244
 msgid "Set the color of the column:"
-msgstr "Stel de kleur voor kolom"
+msgstr "Geef kolom-kleur:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:98
 msgid "Template value:"
@@ -12156,17 +12155,18 @@ msgid ""
 "punctuation, case, etc.\n"
 "Author matching is exact."
 msgstr ""
-"Automatisch invoegen: als er boeken met gelijkaardige titel en auteur worden "
-"gevonden worden inkomende formaten \n"
+"Automatisch samenvoegen: als er boeken met gelijkaardige titel en auteur "
+"worden gevonden worden inkomende formaten \n"
 "automatisch bij de bestaande boekrecords toegevoegd. Dit vak geeft aan wat "
-"gebeurt als de bestaande record \n"
-"het formaat al heeft:\n"
+"gebeurt als de bestaande record het formaat al heeft: \n"
+"\n"
 "Negeer inkomende bestanden - bestaande bestanden in je bibliotheek worden "
 "niet overschreven\n"
 "Overschrijf bestaande bestanden - bestaande bestanden worden uit je "
 "bibliotheek verwijderd.\n"
 "Maak een nieuwe record voor elke dubbel - als er een duplicaat is wordt een "
 "nieuwe boekrecord aangemaakt voor elk duplicaat\n"
+"\n"
 "Titelvergelijking negeert (Engelse) lidwoorden, leestekens, grote/kleine "
 "letters enzovoorts. Vergelijking van auteurs is exact."
 
@@ -12226,7 +12226,7 @@ msgid ""
 "If checked, Yes/No custom columns values can be Yes, No, or Unknown.\n"
 "If not checked, the values can be Yes or No."
 msgstr ""
-"Als dit aangevinkt is kunnen ja/nee-kolommen de waarden Ja, Nee en\n"
+"Indien aangevinkt, kunnen Ja/Nee-kolommen de waarden Ja, Nee en\n"
 "Onbekend aannemen, anders alleen Ja en Nee."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:150
@@ -12388,7 +12388,7 @@ msgstr "Als de "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:81
 msgid " column "
-msgstr " -kolom "
+msgstr " kolom "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:87
 msgid " value "
@@ -12529,15 +12529,15 @@ msgstr "verwijdering"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns.py:96
 msgid "You must select a column to delete it"
-msgstr "Om een kolom te verwijderen moet je deze eerst selecteren"
+msgstr "U moet een kolom selecteren om deze te verwijderen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns.py:101
 msgid "The selected column is not a custom column"
-msgstr "De geselecteerde kolom is geen zelfgedefinieerde kolom"
+msgstr "De geselecteerde kolom is geen persoonlijk gedefinieerde kolom"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns.py:103
 msgid "Do you really want to delete column %s and all its data?"
-msgstr "Wil je echt kolom %s en al zijn gegevens verwijderen?"
+msgstr "Wilt u kolom %s en al zijn gegevens echt verwijderen?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns_ui.py:87
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/custom_columns_ui.py:82
@@ -12546,37 +12546,37 @@ msgid ""
 "book list. You can hide columns by unchecking them. You can also create your "
 "own, custom columns."
 msgstr ""
-"Hier kan je de opmaak van de kolommen in de boekenlijst van calibre "
-"wijzigen. Je kunt kolommen verwijderen door het vinkje uit te zetten. Je "
-"kunt ook zelf kolommen maken."
+"Hier kan u de opmaak van de kolommen in de boekenlijst van calibre wijzigen. "
+"U kunt kolommen verbergen door het vinkje uit te zetten. U kunt ook zelf "
+"kolommen maken."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns_ui.py:88
 msgid "Move column up"
-msgstr "Kolom naar omhoog"
+msgstr "Plaats kolom hoger"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns_ui.py:90
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/custom_columns_ui.py:84
 msgid "Remove a user-defined column"
-msgstr "Verwijder een door de gebruiker gedefinieerde kolom"
+msgstr "Verwijder een persoonlijk gedefinieerde kolom"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns_ui.py:92
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/custom_columns_ui.py:86
 msgid "Add a user-defined column"
-msgstr "Voeg een door de gebruiker gedefinieerde kolom toe"
+msgstr "Voeg een persoonlijk gedefinieerde kolom toe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns_ui.py:94
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/custom_columns_ui.py:88
 msgid "Edit settings of a user-defined column"
-msgstr "Bewerk een door de gebruiker gedefinieerde kolom"
+msgstr "Bewerk een persoonlijk gedefinieerde kolom"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns_ui.py:96
 msgid "Move column down"
-msgstr "Kolom naar omlaag"
+msgstr "Plaats kolom lager"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns_ui.py:98
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/custom_columns_ui.py:91
 msgid "Add &custom column"
-msgstr "Eigen &calibre-kolom maken"
+msgstr "Persoonlijke &calibre-kolom maken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/conversion.py:41
 msgid ""
@@ -12588,7 +12588,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:21
 msgid "Text, column shown in the tag browser"
-msgstr "Tekstkolom, weergegeven in de labelbrowser"
+msgstr "Tekst, kolom weergegeven in de labelbrowser"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:24
 msgid "Comma separated text, like tags, shown in the tag browser"
@@ -12601,7 +12601,7 @@ msgstr "Lange tekst, zoals commentaar, niet weergegeven in de labelbrowser"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:30
 msgid "Text column for keeping series-like information"
-msgstr "Tekstkolom voor het bewaren van informatie zoals reeksen"
+msgstr "Tekstkolom voor het bewaren van informatie als reeksen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:33
 msgid "Text, but with a fixed set of permitted values"
@@ -12632,12 +12632,12 @@ msgstr "Kolom gemaakt van andere kolommen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:48
 msgid "Column built from other columns, behaves like tags"
-msgstr "Kolom gemaakt uit andere kolommen, gedrag zoals bij labels"
+msgstr "Kolom gemaakt van andere kolommen, gedrag zoals bij labels"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:55
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:56
 msgid "Create a custom column"
-msgstr "Maak een"
+msgstr "Maak een persoonlijke kolom"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:67
 msgid "Quick create:"
@@ -12670,7 +12670,7 @@ msgstr "Tekst"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:91
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:92
 msgid "Edit a custom column"
-msgstr "Bewerk een handgemaakte kolom"
+msgstr "Bewerk een persoonlijke kolom"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:96
 msgid "No column selected"
@@ -12682,7 +12682,7 @@ msgstr "Er is geen kolom geselecteerd"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:101
 msgid "Selected column is not a user-defined column"
-msgstr "Geselecteerde kolom is geen door de gebruiker gedefinieerde kolom"
+msgstr "Geselecteerde kolom is geen gebruiker gedefinieerde kolom"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:160
 msgid "My Tags"
@@ -12750,11 +12750,11 @@ msgstr "De koptekst %s is al in gebruik"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:254
 msgid "You must enter a template for composite columns"
-msgstr "Je moet een sjabloon opgeven voor samengestelde kolommen"
+msgstr "U moet een sjabloon opgeven voor samengestelde kolommen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:263
 msgid "You must enter at least one value for enumeration columns"
-msgstr "Minstens een waarde toestaan kolom met waardebeperking"
+msgstr "U moet minstens één waarde opgeven voor opsommende kolommen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:267
 msgid "You cannot provide the empty value, as it is included by default"
@@ -12800,11 +12800,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:221
 msgid "&Column type"
-msgstr "Kolom soort &calibre"
+msgstr "Soort bes&chikbare informatie in kolom"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:222
 msgid "What kind of information will be kept in the column."
-msgstr "Soort gegevens die in de kolom opgeslagen zullen worden"
+msgstr "Type informatie in de kolom opgeslagen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:223
 msgid ""
@@ -12825,7 +12825,7 @@ msgstr "Toon aanvinkwaarden"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:227
 msgid ""
 "Check this box if this column contains names, like the authors column."
-msgstr "Vink dit vakje aan als de kolom namen bevat zoals de auterskolom."
+msgstr "Vink dit aan als de kolom namen bevat zoals de schrijverskolom."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:228
 msgid "Contains names"
@@ -12902,12 +12902,12 @@ msgstr "&Sorteren/doorzoeken kolom op"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:248
 msgid "How this column should handled in the GUI when sorting and searching"
-msgstr "Hoe de kolom gesorteerd en doorzocht wordt in de GUI."
+msgstr "Verking van de kolom in de GUI bij sorteren en doorzoeken."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:249
 msgid "If checked, this column will appear in the tags browser as a category"
 msgstr ""
-"Als aangevinkt zal de kolom als categorie in de labelbrowser verschijnen"
+"Indien aangevinkt, zal de kolom als categorie in de labelbrowser verschijnen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:250
 msgid "Show in tags browser"
@@ -13825,7 +13825,7 @@ msgstr "De zoeknaam mag niet leeg zijn"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:107
 msgid "That name is already used for a column or grouped search term"
-msgstr "Deze naam wordt al gebruikt voor een kolom of kolomgroep"
+msgstr "Deze naam wordt al gebruikt voor een kolom of gegroepeerde zoekterm"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:111
 msgid "That name is already used for user category"
@@ -13872,7 +13872,7 @@ msgstr "Te doorzoeken metadata &limiteren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:115
 msgid "&Columns that non-prefixed searches are limited to:"
-msgstr "Zonder prefix te doorzoeken kolommen van &calibre beperken tot:"
+msgstr "Bes&chikbare kolommen, doorzoekbaar zonder prefix:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:116
 msgid ""
@@ -16205,9 +16205,9 @@ msgid ""
 "verify your account periodically, before it will let calibre send email. In "
 "this case, I strongly suggest you setup a free gmail account instead."
 msgstr ""
-"Als je een nieuw Hotmailaccount aanmaakt, eist Microsoft dat je je account "
+"Als u een nieuw Hotmailaccount aanmaakt, eist Microsoft dat u uw account "
 "regelmatig verifieert voor dat het calibre mail laat versturen.  In dit "
-"geval adviseer ik je sterk om in plaats daar van een gratis Gmailaccount aan "
+"geval adviseer ik u sterk om in plaats daar van een gratis Gmailaccount aan "
 "te maken."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:221
@@ -17167,8 +17167,8 @@ msgid ""
 "This column stores tag like data (i.e. multiple comma separated values). "
 "Only applies if datatype is text."
 msgstr ""
-"Deze kolom slaat labelachtige info (waarden gescheiden door komma's) op. Kan "
-"enkel als het datatype tekst is."
+"Deze kolom slaat informatie op als bij labels (waarden gescheiden door "
+"komma's). Van toepassing op datatype tekst."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:569
 msgid ""
@@ -17176,10 +17176,9 @@ msgid ""
 "interpreted. This is a JSON  string. For enumeration columns, use --"
 "display='{\"enum_values\":[\"val1\", \"val2\"]}'"
 msgstr ""
-"Een woordenboek met opties om de interpretatie van de gegevens in deze kolom "
-"te configureren. Dit is een string in het JSON-formaat. Voor kolommen met "
-"lijst van toegestane waarden gebruik je --"
-"display='{\"enum_values\":[\"val1\", \"val2\"]}'"
+"Een woordenboek met opties om data in deze kolom te interpreteren. Dit is "
+"een JSON string. Voor kolommen met lijst van toegestane waarden gebruik je --"
+"display='{\"enum_values\":[\"waarde1\", \"waarde2\"]}'"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:583
 msgid "You must specify label, name and datatype"
@@ -17250,8 +17249,8 @@ msgstr ""
 "\n"
 "    Stel de waarde in van een gepersonaliseerde kolom voor het boek "
 "geïdentificeerd door het ID.\n"
-"    Je kan een lijst van ID's krijgen via de opdracht list.\n"
-"    Je kan een lijst van gepersonaliseerdekolomnamen krijgen door gebruik\n"
+"    U kan een lijst van ID's krijgen via de opdracht list.\n"
+"    U kan een lijst van gepersonaliseerdekolomnamen krijgen door gebruik\n"
 "    te maken van de custom_columns opdracht.\n"
 "    "
 
@@ -17260,8 +17259,8 @@ msgid ""
 "If the column stores multiple values, append the specified values to the "
 "existing ones, instead of replacing them."
 msgstr ""
-"Als de kolom meervoudige gegevens bevat, voeg dan de gespecificeerde waarden "
-"toe aan de bestaande, in plaats van ze te vervangen."
+"Als de kolom meerde waardes bevat, voeg dan de opgegeven waarden toe aan de "
+"bestaande, in plaats van ze te vervangen."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:749
 msgid "Error: You must specify a field name, id and value"
@@ -17278,8 +17277,7 @@ msgstr ""
 "\n"
 "    %prog custom_columns [options]\n"
 "\n"
-"    Maak een lijst van alle beschikbare gepersonaliseerde kolommen. Toon "
-"kolomlabels en identificaties.\n"
+"    Geef beschikbare persoonlijke kolommen weer. Toont kolom labels en IDs.\n"
 "    "
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:775
@@ -17307,7 +17305,7 @@ msgstr ""
 "\n"
 "    %prog remove_custom_column [options] label\n"
 "\n"
-"    Verwijder de gepersonaliseerde kolom aangeduid door label. Je kan\n"
+"    Verwijder de gepersonaliseerde kolom aangeduid met label. U kan\n"
 "    beschikbare kolommen zien met de custom_columns opdracht.\n"
 "    "
 
@@ -17317,7 +17315,7 @@ msgstr "Vraag niet om een bevestiging"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:813
 msgid "Error: You must specify a column label"
-msgstr "Fout: Je moet een kolomlabel opgeven"
+msgstr "Fout: U moet een kolomlabel opgeven"
 
 # is this correct?
 # don't know if lines with prog saved_searches
@@ -17584,7 +17582,7 @@ msgstr "Verwerkt"
 
 #: /home/kovid/work/calibre/src/calibre/library/restore.py:192
 msgid "creating custom column "
-msgstr "Maak zelf een kolom "
+msgstr "Maak een persoonlijke kolom "
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:32
 msgid "The title"
@@ -18094,9 +18092,8 @@ msgid ""
 "When searching for text without using lookup prefixes, as for example, Red "
 "instead of title:Red, limit the columns searched to those named below."
 msgstr ""
-"Beperk zoeken tot de kolommen die hieronder vermeld zijn bij een "
-"zoekopdracht zonder prefix, zoals bijvoorbeeld ballingschap in plaats van "
-"title:ballingschap."
+"Bij zoeken zonder prefix, bijvoorbeeld Rood in plaats van title:Rood, wordt "
+"de zoekopdracht beperkt tot onderstaande types."
 
 #: /home/kovid/work/calibre/src/calibre/utils/config_base.py:417
 msgid ""
@@ -18106,8 +18103,9 @@ msgid ""
 "columns above."
 msgstr ""
 "De kolommen waartoe zoeken zich beperkt bij een zoekopdracht zonder prefix, "
-"zoals bijvoorbeeld ballingschap in plaats van title:ballingschap. Heeft "
-"alleen invloed als de optie om dit zoeken te beperken is aangevinkt."
+"zoals bijvoorbeeld ballingschap in plaats van title:ballingschap. Geef een "
+"lijst met te doorzoeken namen op, gescheiden door komma's. Heeft alleen "
+"invloed als bovenstaande optie voor restrictie bij zoeken is ingesteld."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:27
 msgid "failed to scan program. Invalid input {0}"
@@ -19321,7 +19319,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:103
 msgid "Specify columns to sort the booklist by on startup"
-msgstr "Specificeer kolommen om de boekenlijst te sorteren bij het opstarten"
+msgstr "Specificeer kolommen om boekenlijst te sorteren bij het opstarten"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:104
 msgid ""
@@ -19333,7 +19331,7 @@ msgid ""
 "For example, set it to [('authors',0),('title',0)] to sort by\n"
 "title within authors."
 msgstr ""
-"Geef enkele kolommen op om op te sorteren als calibre start.\n"
+"Geef kolommen op om op te sorteren als calibre start.\n"
 "De parameter is None als de laatstgebruikte optie moet worden \n"
 "toegepast. Anders is het een lijst van paren kolom-volgorde. Kolom\n"
 "is de zoeknaam, te vinden door de tooltip voor de kolom te bekijken.\n"

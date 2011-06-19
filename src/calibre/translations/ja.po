@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-06-17 18:48+0000\n"
-"PO-Revision-Date: 2011-06-15 08:10+0000\n"
+"PO-Revision-Date: 2011-06-19 02:53+0000\n"
 "Last-Translator: Ado Nishimura <Unknown>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-06-18 04:44+0000\n"
+"X-Launchpad-Export-Date: 2011-06-19 04:35+0000\n"
 "X-Generator: Launchpad (build 13168)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -367,7 +367,7 @@ msgstr "ツールバーや、各々実行できるメニューが表示される
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:938
 msgid "Searching"
-msgstr "検索中"
+msgstr "検索"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:944
 msgid "Customize the way searching for books works in calibre"
@@ -638,7 +638,7 @@ msgstr "このプロファイルは、saneのデフォールト設定を提供�
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:278
 msgid ""
 "Intended for the iPad and similar devices with a resolution of 768x1024"
-msgstr "iPadや同種の解像度(768x1024)を想定する"
+msgstr "iPadや同等の解像度(768x1024)のデバイス用です。"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:438
 msgid "Intended for generic tablet devices, does no resizing of images"
@@ -682,11 +682,11 @@ msgstr "Amazon Kindle DX用のプロファイルです。"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:713
 msgid "This profile is intended for the B&N Nook Color."
-msgstr "このプロファイル設定は、バーンズアンドノーブルのNookの色を意識しています"
+msgstr "バーンズ&ノーブルのNook Color用のプロファイルです。"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:724
 msgid "This profile is intended for the Sanda Bambook."
-msgstr "Sanda Bambook"
+msgstr "Sanda Bambook 用のプロファイルです。"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:31
 msgid "Installed plugins"
@@ -1105,7 +1105,7 @@ msgstr "The Book リーダーと通信"
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:58
 msgid "Communicate with the Libre Air reader."
-msgstr ""
+msgstr "Libre Airリーダーと通信"
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:71
 msgid "Communicate with the SpringDesign Alex eBook reader."
@@ -1299,7 +1299,7 @@ msgstr "Nook 電子書籍リーダ─と通信します。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:84
 msgid "Communicate with the Nook Color and TSR eBook readers."
-msgstr ""
+msgstr "Nook Color、TSR eBookリーダーと通信"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nuut2/driver.py:17
 msgid "Communicate with the Nuut2 eBook reader."
@@ -3848,7 +3848,7 @@ msgstr "データーベース中の一番古いニュース"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:130
 msgid "Show system tray icon"
-msgstr "システムトレーにアイコンを表示"
+msgstr "システムトレイにアイコンを表示"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:132
 msgid "Upload downloaded news to device"
@@ -4352,6 +4352,8 @@ msgid ""
 "to a location with a shorter path using Windows Explorer, then point calibre "
 "to the new location and try again."
 msgstr ""
+"ライブラリへのパスが長すぎます。%d文字以下でなければなりません。Windowsエクスプローラーを使ってパスが短くなるところへライブラリを移動し、その場所"
+"をcalibreに設定しなおしてみてください。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:330
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:731
@@ -4942,7 +4944,7 @@ msgstr "O"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/plugin_updates.py:18
 msgid "Plugin Updater"
-msgstr ""
+msgstr "プラグイン・アップデーター"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:18
 msgid "Ctrl+P"
@@ -4959,7 +4961,7 @@ msgstr "ウェルカム・ウィザードを開始"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:28
 msgid "Get plugins to enhance calibre"
-msgstr ""
+msgstr "プラグインを取得してcalibreを拡張する"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:31
 msgid "Restart in debug mode"
@@ -6306,11 +6308,9 @@ msgid ""
 "the <a href=\"http://manual.calibre-ebook.com/conversion.html#heuristic-"
 "processing\">User Manual</a>."
 msgstr ""
-"<b>経験則的な処理</b>とはcalibreは書籍をスキャンし、よくある間違えのパターンを見つけるとそれらを修正します。名前のとおり、これは推測に基づき"
-"\r\n"
-"ます。なので、もしcalibreの推測が間違っていれば、変換結果は悪い方向へ行くこともありえます。なので、これはディフォールトでは無効になっています。しか"
-"\r\n"
-"しながら、もし変換が満足できない結果になった場合にこれを有効にすると、良くなることもよくあります。色々な経験則的な処理のオプションについては<a "
+"<b>経験則的な処理</b>とは、calibreが書籍をスキャンし、よくある間違いのパターンを見つけるとそれらを修正します。名前のとおり、これは推測に基づ"
+"きます。ですので、もしcalibreの推測が間違っていれば変換結果は悪くなる事もありえます。そのため、これはディフォールトでは無効になっています。しかしな"
+"がら、もし変換が満足できない結果になった場合に、これを有効にすると良くなる事もよくあります。色々な経験則的な処理のオプションについては<a "
 "href=\"http://manual.calibre-ebook.com/conversion.html#heuristic-"
 "processing\">ユーザーマニュアル</a>を参照してください。"
 
@@ -8783,40 +8783,40 @@ msgstr "パスワードの表示(&S)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:122
 msgid "Restart required"
-msgstr ""
+msgstr "再起動が必要です"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:123
 msgid "You must restart Calibre before using this plugin!"
-msgstr ""
+msgstr "このプラグインを使用する前にCalibreをリスタートする必要があります。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:164
 msgid "Version History for %s"
-msgstr ""
+msgstr "%sのヴァージョン履歴"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:184
 msgid "Update available"
-msgstr ""
+msgstr "アップデートがあります"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:184
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:302
 msgid "Installed"
-msgstr ""
+msgstr "インストール済み"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:184
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:397
 msgid "Not installed"
-msgstr ""
+msgstr "未インストール"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:184
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/chooser_widget_ui.py:82
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:136
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search_ui.py:111
 msgid "All"
-msgstr ""
+msgstr "全て"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:302
 msgid "Plugin Name"
-msgstr ""
+msgstr "プラグイン名"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:302
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:63
@@ -8825,19 +8825,19 @@ msgstr "ステータス"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:303
 msgid "Available"
-msgstr ""
+msgstr "利用可"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:303
 msgid "Calibre"
-msgstr ""
+msgstr "Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:303
 msgid "Released"
-msgstr ""
+msgstr "リリース済み"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:328
 msgid "PayPal"
-msgstr ""
+msgstr "PayPal"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:352
 msgid ""
@@ -8846,30 +8846,33 @@ msgid ""
 "\n"
 "Right-click and choose Donate to reward: "
 msgstr ""
+"このプラグインは無料ですが、作者の労力に報いるためにPayPalを使って寄付することもできます。\n"
+"\n"
+"右クリックをして寄付を選んでください: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:387
 msgid "Platform unavailable"
-msgstr ""
+msgstr "プラットフォームが判りません"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:389
 msgid "Calibre upgrade required"
-msgstr ""
+msgstr "Calibreのアップグレードが必要です"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:392
 msgid "Plugin deprecated"
-msgstr ""
+msgstr "プラグインは廃止されました"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:394
 msgid "New version available"
-msgstr ""
+msgstr "新しいヴァージョンがあります"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:396
 msgid "Latest version installed"
-msgstr ""
+msgstr "最新版がインストールされています"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:427
 msgid "This plugin has been deprecated and should be uninstalled"
-msgstr ""
+msgstr "プラグインは廃止されたのでアンインストールすべきです"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:428
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:432
@@ -8878,82 +8881,82 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:443
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:445
 msgid "Right-click to see more options"
-msgstr ""
+msgstr "右クリックして他のオプションを表示"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:430
 msgid "This plugin can only be installed on: %s"
-msgstr ""
+msgstr "このプラグインは次の環境のみにインストールできます: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:434
 msgid "You must upgrade to at least Calibre %s before installing this plugin"
-msgstr ""
+msgstr "このプラグインをインストールする前に、最新のCalibre%sにアップグレードする必要があります。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:439
 msgid "You can install this plugin"
-msgstr ""
+msgstr "このプラグインをインストールできます"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:442
 msgid "A new version of this plugin is available"
-msgstr ""
+msgstr "このプラグインの新しいヴァージョンがあります"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:444
 msgid "This plugin is installed and up-to-date"
-msgstr ""
+msgstr "このプラグインはインストール済みで最新です"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:473
 msgid "Update Check Failed"
-msgstr ""
+msgstr "アップデートのチェックに失敗しました"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:474
 msgid "Unable to reach the MobileRead plugins forum index page."
-msgstr ""
+msgstr "MobileReadのプラグイン・フォーラムのindexページにアクセスできませんでした。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:481
 msgid "User plugins"
-msgstr ""
+msgstr "ユーザープラグイン"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:486
 msgid "User Plugins"
-msgstr ""
+msgstr "ユーザープラグイン"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:494
 msgid "Filter list of plugins"
-msgstr ""
+msgstr "プラグインのリストをフィルター"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:512
 msgid "Description"
-msgstr ""
+msgstr "概要"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:523
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:535
 msgid "&Install"
-msgstr ""
+msgstr "インストール(&I)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:524
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:536
 msgid "Install the selected plugin"
-msgstr ""
+msgstr "選択したプラグインをインストール"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:527
 msgid "&Customize plugin "
-msgstr ""
+msgstr "プラグインをカスタマイズ(&C) "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:528
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:580
 msgid "Customize the options for this plugin"
-msgstr ""
+msgstr "このプラグインのオプションをカスタマイズ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:540
 msgid "Version &History"
-msgstr ""
+msgstr "ヴァージョン履歴(&H)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:541
 msgid "Show history of changes to this plugin"
-msgstr ""
+msgstr "このプラグインの変更履歴を表示"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:545
 msgid "Plugin &Forum Thread"
-msgstr ""
+msgstr "プラグインのフォーラム・スレッド(&F)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:554
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:109
@@ -8962,7 +8965,7 @@ msgstr "プラグインを有効化/無効化(&D)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:555
 msgid "Enable or disable this plugin"
-msgstr ""
+msgstr "このプラグインを有効・無効化"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:559
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:111
@@ -8971,15 +8974,15 @@ msgstr "プラグインを削除(&R)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:560
 msgid "Uninstall the selected plugin"
-msgstr ""
+msgstr "選択したプラグインをアンインストール"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:569
 msgid "Donate to developer"
-msgstr ""
+msgstr "作者に寄付"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:570
 msgid "Donate to the developer of this plugin"
-msgstr ""
+msgstr "このプラグインの作者に寄付する"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:579
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:110
@@ -8988,11 +8991,11 @@ msgstr "プラグインをカスタマイズ(&C)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:675
 msgid "Are you sure you want to uninstall the <b>%s</b> plugin?"
-msgstr ""
+msgstr "本当にプラグイン<b>%s</b>をアンインストールしますか?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:687
 msgid "Install %s"
-msgstr ""
+msgstr "%s のインストール"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:688
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:282
@@ -9001,31 +9004,33 @@ msgid ""
 "virus/malware. Only install it if you got it from a trusted source. Are you "
 "sure you want to proceed?"
 msgstr ""
+"プラグインのインストールには<b>セキュリティ・リスク</b>があります。プラグインにウイルスやマルウエアが入っていることがありえます。信頼できる場所から"
+"得た物のみをインストールしてください。続けますか？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:704
 msgid "Locating zip file for %s: %s"
-msgstr ""
+msgstr "プラグイン %s のzipファイル: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:707
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:744
 msgid "Install Plugin Failed"
-msgstr ""
+msgstr "プラグインのインストールに失敗"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:708
 msgid "Unable to locate a plugin zip file for <b>%s</b>"
-msgstr ""
+msgstr "プラグイン<b>%s</b>のzipファイルが見つかりません"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:713
 msgid "Downloading plugin zip attachment: %s"
-msgstr ""
+msgstr "プラグインzipの添付をダウンロード: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:718
 msgid "Installing plugin: %s"
-msgstr ""
+msgstr "プラグインのインストール: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:730
 msgid "Plugin installed: %s"
-msgstr ""
+msgstr "プラグインがインストールされました: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:732
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:298
@@ -9033,6 +9038,8 @@ msgid ""
 "Plugin <b>{0}</b> successfully installed under <b> {1} plugins</b>. You may "
 "have to restart calibre for the plugin to take effect."
 msgstr ""
+"プラグイン<b>{0}</b>が<b> {1} "
+"プラグイン</b>としてインストールされました。プラグインを有効にするためにはcalibreをリスタートしてください。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:745
 msgid ""
@@ -9040,45 +9047,47 @@ msgid ""
 "uninstalled. Please post the error message in details below into the forum "
 "thread for this plugin and restart Calibre."
 msgstr ""
+"プラグインのインストール中に問題が発生しました。このプラグインはアンインストールされます。下のエラーメッセージをフォーラムのこのプラグインのスレッドに投稿"
+"して、Calibreをリスタートしてください。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:770
 msgid "Version history missing"
-msgstr ""
+msgstr "ヴァージョン履歴がありません"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:771
 msgid "Unable to find the version history for %s"
-msgstr ""
+msgstr "%sのヴァージョン履歴が見つかりませんでした"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:778
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:333
 msgid "Plugin not customizable"
-msgstr ""
+msgstr "このプラグインはカスタマイズできません"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:779
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:334
 msgid "Plugin: %s does not need customization"
-msgstr ""
+msgstr "プラグイン: %s はカスタマイズする必要がありません"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:783
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:340
 msgid "Must restart"
-msgstr ""
+msgstr "要リスタート"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:784
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:341
 msgid ""
 "You must restart calibre before you can configure the <b>%s</b> plugin"
-msgstr ""
+msgstr "<b>%s</b> プラグインを設定する前にcalibreをリスタートする必要があります"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:792
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:322
 msgid "Plugin cannot be disabled"
-msgstr ""
+msgstr "プラグインを無効化できません"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:793
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:323
 msgid "The plugin: %s cannot be disabled"
-msgstr ""
+msgstr "プラグイン: %sを無効化できません"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/progress.py:59
 msgid "Aborting..."
@@ -11178,7 +11187,7 @@ msgstr "ISBNを先頭にしてクリップボードから識別子ボックス�
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:191
 msgid "&Download metadata"
-msgstr "ダウンロードされた書誌情報(&D)"
+msgstr "書誌情報をダウンロード(&D)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:202
 msgid "Configure download metadata"
@@ -11282,7 +11291,7 @@ msgid ""
 "Details."
 msgstr ""
 "検索にマッチする書籍がありませんでした。<b>少ない検索条件</b>にしてみてください。例えば、著者のラストネームだけにしたり、タイトルの一部だけを使って"
-"ください。「詳細を表示」をクリックすると全部のログが見れます。"
+"ください。「詳細を表示」をクリックするとログが見れます。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:538
 msgid "Current cover"
@@ -11402,20 +11411,29 @@ msgid ""
 "punctuation, case, etc.\n"
 "Author matching is exact."
 msgstr ""
+"オートマージ:もし類似したタイトルや作者の書籍が見つかった場合、そのフォーマットが自動的にすでにある書籍のレコードに追加されます。このボックスではそのフォ"
+"ーマットと同じフォーマットがすでに書籍レコードに存在した場合にどうするかを設定します: \n"
+"\n"
+"同じフォーマットの新しいファイルを無視 - 現在ライブラリにあるファイルはそのまま残ります。\n"
+"現在のものを上書き - 現在ライブラリにあるファイルは置き換えられます\n"
+"重複ごとに別の新しいレコードを作製 - 新しい書籍レコードがそれぞれのファイルに作られます\n"
+"\n"
+"同じ書籍の判別時、タイトルは冠詞(\\\"the\\\", \\\"a\\\", \\\"an\\"
+"\")や発音記号、大小文字を無視します。著者は完全一致です。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:85
 msgid "&Tags to apply when adding a book:"
-msgstr ""
+msgstr "書籍の追加時に適用するタグ(&T)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:86
 msgid ""
 "A comma-separated list of tags that will be applied to books added to the "
 "library"
-msgstr ""
+msgstr "書籍をライブラリに追加するときに適用する、カンマ区切りのタグのリスト"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:87
 msgid "&Configure metadata from file name"
-msgstr ""
+msgstr "ファイル名から書誌情報を設定(&C)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:34
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:36
@@ -11430,15 +11448,15 @@ msgstr "高"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:36
 msgid "Very low"
-msgstr ""
+msgstr "最低"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:64
 msgid "Compact Metadata"
-msgstr ""
+msgstr "コンパクトな書誌情報"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:65
 msgid "All on 1 tab"
-msgstr ""
+msgstr "すべて１タブ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:165
 msgid "Done"
@@ -11446,7 +11464,7 @@ msgstr "完了"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:166
 msgid "Confirmation dialogs have all been reset"
-msgstr ""
+msgstr "確認ダイアログはすべてリセットされました"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:147
 msgid "Show notification when &new version is available"
@@ -11457,10 +11475,12 @@ msgid ""
 "If checked, Yes/No custom columns values can be Yes, No, or Unknown.\n"
 "If not checked, the values can be Yes or No."
 msgstr ""
+"チェックされると、カスタム列の値は Yes, No, 不明 が使えます。\n"
+"されないと、値は Yes, No です。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:150
 msgid "Yes/No columns have three values (Requires restart)"
-msgstr ""
+msgstr "Yes/No列に３つの値を使う（要リスタート）"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:151
 msgid "Automatically send downloaded &news to ebook reader"
@@ -11482,11 +11502,11 @@ msgstr "既定のネットワーク・タイムアウト(&T):"
 msgid ""
 "Set the default timeout for network fetches (i.e. anytime we go out to the "
 "internet to get information)"
-msgstr ""
+msgstr "ネットワークからの取得時のディフォールトのタイムアウトを設定（インターネットから情報を取得しに行く時すべて）"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:156
 msgid " seconds"
-msgstr ""
+msgstr " 秒"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:157
 msgid "Job &priority:"
@@ -11494,7 +11514,7 @@ msgstr "作業優先度(&p):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:161
 msgid "Restriction to apply when the current library is opened:"
-msgstr ""
+msgstr "現在のライブラリが開かれる時の制限："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:162
 msgid ""
@@ -11502,16 +11522,19 @@ msgid ""
 "used. Also applied when switching to this library. Note that this setting is "
 "per library. "
 msgstr ""
+"この制限を、calibreのスタート時にもし現在のライブラリが使用された場合、適用します。その他、このライブラリへの切り替え時にも適用されます。この設定は"
+"ライブラリごとに設定できます。 "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:163
 msgid "Edit metadata (single) layout:"
-msgstr ""
+msgstr "書誌情報(シングル)編集レイアウト："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:164
 msgid ""
 "Choose a different layout for the Edit Metadata dialog. The compact metadata "
 "layout favors editing custom metadata over changing covers and formats."
 msgstr ""
+"書誌情報編集ダイアログのレイアウトを選択します。コンパクト書誌情報レイアウトは、表紙やフォーマットの修正よりも、カスタム書誌情報の編集に向いています。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:165
 msgid "Preferred &input format order:"
@@ -11519,165 +11542,165 @@ msgstr "入力フォーマットの優先順位(&I):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:168
 msgid "Use internal &viewer for:"
-msgstr ""
+msgstr "内部ビューワーを使用："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:169
 msgid "Reset all disabled &confirmation dialogs"
-msgstr ""
+msgstr "すべての無効な確認ダイアログをリセット(&C)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:27
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:32
 msgid "is true"
-msgstr ""
+msgstr "はOn"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:28
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:33
 msgid "is false"
-msgstr ""
+msgstr "はOff"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:29
 msgid "is undefined"
-msgstr ""
+msgstr "は不定"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:36
 msgid "has id"
-msgstr ""
+msgstr "値有り"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:37
 msgid "does not have id"
-msgstr ""
+msgstr "値無し"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:40
 msgid "is equal to"
-msgstr ""
+msgstr "は等しい"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:41
 msgid "is less than"
-msgstr ""
+msgstr "が次より小さい"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:42
 msgid "is greater than"
-msgstr ""
+msgstr "が次より大きい"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:45
 msgid "has"
-msgstr ""
+msgstr "は持っている"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:46
 msgid "does not have"
-msgstr ""
+msgstr "は持っていない"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:47
 msgid "has pattern"
-msgstr ""
+msgstr "はパターンが有る"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:48
 msgid "does not have pattern"
-msgstr ""
+msgstr "はパターンが無い"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:49
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:57
 msgid "is set"
-msgstr ""
+msgstr "は設定されている"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:50
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:58
 msgid "is not set"
-msgstr ""
+msgstr "は設定されていない"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:53
 msgid "is"
-msgstr ""
+msgstr "等しい"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:54
 msgid "is not"
-msgstr ""
+msgstr "等しくない"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:55
 msgid "matches pattern"
-msgstr ""
+msgstr "パーターンがマッチ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:56
 msgid "does not match pattern"
-msgstr ""
+msgstr "パーターンがマッチしない"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:75
 msgid "If the "
-msgstr ""
+msgstr "フィールド "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:81
 msgid " column "
-msgstr ""
+msgstr " 条件 "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:87
 msgid " value "
-msgstr ""
+msgstr " 値 "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:202
 msgid ""
 "Enter either an identifier type or an identifier type and value of the form "
 "identifier:value"
-msgstr ""
+msgstr "識別子のタイプか、識別子タイプと値を「識別子:値」のフォーマットで入力"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:205
 msgid "Enter a number"
-msgstr ""
+msgstr "番号を入力"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:210
 msgid "Enter a date in the format YYYY-MM-DD"
-msgstr ""
+msgstr "日付を YYYY-MM-DD のフォーマットで入力"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:212
 msgid "Enter a string."
-msgstr ""
+msgstr "文字列を入力。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:214
 msgid "Enter a regular expression"
-msgstr ""
+msgstr "正規表現を入力"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:216
 msgid "You can match multiple values by separating them with %s"
-msgstr ""
+msgstr "複数の値を「%s」で区切ることで入力できます"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:231
 msgid "Create/edit a column coloring rule"
-msgstr ""
+msgstr "列の色づけルールを作成/編集"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:236
 msgid "Create a coloring rule by filling in the boxes below"
-msgstr ""
+msgstr "色づけルールを下のボックスに入力して作成"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:250
 msgid "to"
-msgstr ""
+msgstr "から"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:258
 msgid "Only if the following conditions are all satisfied:"
-msgstr ""
+msgstr "次の条件がすべて当てはまった時のみ："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:268
 msgid "Add another condition"
-msgstr ""
+msgstr "他の条件を追加"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:272
 msgid "You can disable a condition by blanking all of its boxes"
-msgstr ""
+msgstr "ボックスをすべて空白にすることで、条件を無効化できます"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:344
 msgid "Invalid condition"
-msgstr ""
+msgstr "無効な条件"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:345
 msgid "One of the conditions for this rule is invalid: <b>%s</b>"
-msgstr ""
+msgstr "このルールの条件の一つが無効です: <b>%s</b>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:350
 msgid "No conditions"
-msgstr ""
+msgstr "条件がありません"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:351
 msgid "You must specify at least one non-empty condition for this rule"
-msgstr ""
+msgstr "このルールの中の最低でも１つの条件が空欄で無い様にしてください"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:439
 msgid ""
@@ -11686,6 +11709,10 @@ msgid ""
 "            <pre>%s</pre>\n"
 "            "
 msgstr ""
+"\n"
+"            <p><b>%s</b>列の高度なルール:\n"
+"            <pre>%s</pre>\n"
+"            "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:444
 msgid ""
@@ -11694,10 +11721,13 @@ msgid ""
 "            <ul>%s</ul>\n"
 "            "
 msgstr ""
+"            <p>次の条件で<b>%s</b> の色を <b>%s</b> に設定：</p>\n"
+"            <ul>%s</ul>\n"
+"            "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:459
 msgid "<li>If the <b>%s</b> column <b>%s</b> value: <b>%s</b>"
-msgstr ""
+msgstr "<li>もし <b>%s</b> 列 <b>%s</b> 値: <b>%s</b>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:474
 msgid ""
@@ -11705,50 +11735,52 @@ msgid ""
 "that tell calibre what color to use. Click the Add Rule button below to get "
 "started.<p>You can <b>change an existing rule</b> by double clicking it."
 msgstr ""
+"書籍リストの列の色を、どの色を使うかの「ルール」を作ることで決めることができます。｢ルールを追加」ボタンをクリックしてみてください。<p>ダブルクリックす"
+"る事で<b>すでにあるルールを変更</b>することもできます。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:483
 msgid "Add Rule"
-msgstr ""
+msgstr "ルールを追加"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:486
 msgid "Remove Rule"
-msgstr ""
+msgstr "ルールを削除"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:503
 msgid "Move the selected rule up"
-msgstr ""
+msgstr "選択したルールを上に移動"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:508
 msgid "Move the selected rule down"
-msgstr ""
+msgstr "選択したルールを下に移動"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:516
 msgid "Add Advanced Rule"
-msgstr ""
+msgstr "高度なルールを追加"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:564
 msgid "No rule selected"
-msgstr ""
+msgstr "ルールが選択されていません"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:565
 msgid "No rule selected for %s."
-msgstr ""
+msgstr "%s のルールが選択されていません。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:570
 msgid "removal"
-msgstr ""
+msgstr "削除"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns.py:96
 msgid "You must select a column to delete it"
-msgstr ""
+msgstr "削除する列を選択する必要があります"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns.py:101
 msgid "The selected column is not a custom column"
-msgstr ""
+msgstr "選択された列はカスタム化した列ではありません"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns.py:103
 msgid "Do you really want to delete column %s and all its data?"
-msgstr ""
+msgstr "本当に %s 列とそのデータを削除しますか？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns_ui.py:87
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/custom_columns_ui.py:82
@@ -11757,60 +11789,62 @@ msgid ""
 "book list. You can hide columns by unchecking them. You can also create your "
 "own, custom columns."
 msgstr ""
+"ここでcalibreライブラリの書籍リストの列レイアウトを再アレンジすることができます。チェックを外す事で列を隠すことができます。それに自分のカスタム列を"
+"作ることもできます。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns_ui.py:88
 msgid "Move column up"
-msgstr ""
+msgstr "列を上に移動"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns_ui.py:90
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/custom_columns_ui.py:84
 msgid "Remove a user-defined column"
-msgstr ""
+msgstr "ユーザー定義列を削除"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns_ui.py:92
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/custom_columns_ui.py:86
 msgid "Add a user-defined column"
-msgstr ""
+msgstr "ユーザー定義列を追加"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns_ui.py:94
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/custom_columns_ui.py:88
 msgid "Edit settings of a user-defined column"
-msgstr ""
+msgstr "ユーザー定義列の設定を変更"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns_ui.py:96
 msgid "Move column down"
-msgstr ""
+msgstr "列を下に移動"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns_ui.py:98
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/custom_columns_ui.py:91
 msgid "Add &custom column"
-msgstr ""
+msgstr "カスタム列を追加(&C)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/conversion.py:41
 msgid ""
 "Restore settings to default values. Only settings for the currently selected "
 "section are restored."
-msgstr ""
+msgstr "ディフォールト値に設定を戻します。現在選択されているセクションの設定のみが元に戻ります。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:21
 msgid "Text, column shown in the tag browser"
-msgstr ""
+msgstr "テキスト。タグ・ブラウザの列で表示"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:24
 msgid "Comma separated text, like tags, shown in the tag browser"
-msgstr ""
+msgstr "（タグのような）カンマ区切りのテキスト。タグ・ブラウザの列で表示"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:27
 msgid "Long text, like comments, not shown in the tag browser"
-msgstr ""
+msgstr "（コメントのような）長いテキスト。タグ・ブラウザの列で表示"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:30
 msgid "Text column for keeping series-like information"
-msgstr ""
+msgstr "テキスト列。シリーズの様な情報"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:33
 msgid "Text, but with a fixed set of permitted values"
-msgstr ""
+msgstr "決められた値のみのテキスト。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:37
 msgid "Floating point numbers"
@@ -11833,20 +11867,20 @@ msgstr "Yes/No"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:46
 msgid "Column built from other columns"
-msgstr ""
+msgstr "他の列から作られる列"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:48
 msgid "Column built from other columns, behaves like tags"
-msgstr ""
+msgstr "他の列から作られる列。タグのように扱われる。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:55
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:56
 msgid "Create a custom column"
-msgstr ""
+msgstr "カスタム列を作成"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:67
 msgid "Quick create:"
-msgstr ""
+msgstr "クイック作成："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:68
 msgid "ISBN"
@@ -11862,7 +11896,7 @@ msgstr "フォーマット"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:71
 msgid "People's names"
-msgstr ""
+msgstr "人の名前"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:76
 msgid "Number"
@@ -11875,35 +11909,35 @@ msgstr "テキスト"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:91
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:92
 msgid "Edit a custom column"
-msgstr ""
+msgstr "カスタム列を編集"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:96
 msgid "No column selected"
-msgstr ""
+msgstr "列が選択されていません"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:97
 msgid "No column has been selected"
-msgstr ""
+msgstr "列が選択されていません"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:101
 msgid "Selected column is not a user-defined column"
-msgstr ""
+msgstr "選択されている列はユーザー定義列ではありません"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:160
 msgid "My Tags"
-msgstr ""
+msgstr "私のタグ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:161
 msgid "My Series"
-msgstr ""
+msgstr "私のシリーズ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:162
 msgid "My Rating"
-msgstr ""
+msgstr "私の評価"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:163
 msgid "People"
-msgstr ""
+msgstr "人々"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:190
 msgid ""
@@ -11911,6 +11945,8 @@ msgid ""
 "leading zeros. The format <code>{0:d}&nbsp;days</code> prints the number "
 "then the word \"days\""
 msgstr ""
+"例:<code>{0:0>4d}</code>と言うフォーマットは、空きが0で埋められる4桁の数字となります。 "
+"<code>{0:d}&nbsp;日</code> は数字と「日」と言う文字を表示します。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:195
 msgid ""
@@ -11920,87 +11956,90 @@ msgid ""
 "displays the number with 2 digits after the decimal point and thousands "
 "separated by commas."
 msgstr ""
+"例: <code>{0:.1f}</code> "
+"と言うフォーマットは、小数点以下1桁の数字になります。<code>価格:&nbsp;$&nbsp;{0:,.2f}</code> "
+"と言うフォーマットは「価格&nbsp;$&nbsp;」の後に千の位にカンマがあり、小数点以下2桁の数字を表示します。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:204
 msgid "No lookup name was provided"
-msgstr ""
+msgstr "検索名がありません"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:208
 msgid ""
 "The lookup name must contain only lower case letters, digits and "
 "underscores, and start with a letter"
-msgstr ""
+msgstr "検索名は小文字（アルファベット）と数字、アンダースコアからなり、小文字で始まらなくてはいけません"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:211
 msgid ""
 "Lookup names cannot end with _index, because these names are reserved for "
 "the index of a series column."
-msgstr ""
+msgstr "検索名は_indexで終わることはできません。それらは、シリーズ列のインデックス用途に予約されています。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:221
 msgid "No column heading was provided"
-msgstr ""
+msgstr "列名がありません"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:231
 msgid "The lookup name %s is already used"
-msgstr ""
+msgstr "検索名 %s はすでに使われています"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:243
 msgid "The heading %s is already used"
-msgstr ""
+msgstr "列名 %s はすでに使われています"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:254
 msgid "You must enter a template for composite columns"
-msgstr ""
+msgstr "複合列のテンプレートを入力してください"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:263
 msgid "You must enter at least one value for enumeration columns"
-msgstr ""
+msgstr "最低１つの列挙列の値を入力する必要があります。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:267
 msgid "You cannot provide the empty value, as it is included by default"
-msgstr ""
+msgstr "ディフォールトで引用されるので、空の値にすることはできません。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:271
 msgid "The value \"{0}\" is in the list more than once"
-msgstr ""
+msgstr "\"{0}\" の値がリスト中に1つ以上あります"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:279
 msgid ""
 "The colors box must be empty or contain the same number of items as the "
 "value box"
-msgstr ""
+msgstr "色のボックスは空か、あるいは値のボックスの値と同じ数無ければいけません"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:284
 msgid "The color {0} is unknown"
-msgstr ""
+msgstr "色 {0} は不明です"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:217
 msgid "&Lookup name"
-msgstr ""
+msgstr "検索名(&L)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:218
 msgid "Column &heading"
-msgstr ""
+msgstr "列名(&H)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:219
 msgid ""
 "Used for searching the column. Must contain only digits and lower case "
 "letters."
-msgstr ""
+msgstr "列を探す時に使われます。小文字（アルファベット）と数字のみが使えます。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:220
 msgid ""
 "Column heading in the library view and category name in the tag browser"
-msgstr ""
+msgstr "ライブラリ表示の列名と、タグ・ブラウザのカテゴリ名に使われます。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:221
 msgid "&Column type"
-msgstr ""
+msgstr "列タイプ(&C)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:222
 msgid "What kind of information will be kept in the column."
-msgstr ""
+msgstr "どのような種類の情報が列に入れられるか。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:223
 msgid ""
@@ -12009,19 +12048,21 @@ msgid ""
 "a red X.\n"
 "Everything else will show nothing."
 msgstr ""
+"GUIにチェックマークを表示します。値が 'yes', 'checked', 'true'の時は緑のチェックマークが、 'no', "
+"'unchecked', 'false'の時には赤いXが表示されます。それ以外の場合には何も表示されません。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:226
 msgid "Show checkmarks"
-msgstr ""
+msgstr "チェックマークを表示"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:227
 msgid ""
 "Check this box if this column contains names, like the authors column."
-msgstr ""
+msgstr "著者列のように、名前を含む列の時にはこのボックスをチェックしてください。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:228
 msgid "Contains names"
-msgstr ""
+msgstr "名前を含む"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:229
 msgid ""
@@ -12033,10 +12074,16 @@ msgid ""
 "<li>dd MMMM yy gives 05 January 10</li>\n"
 "</ul> "
 msgstr ""
+"<p>日付フォーマット： 1-4個の 'd' は日付を、1-4個の 'M' は月、2 か 4 個の 'y' は年を表します。</p>\n"
+"<p>例:\n"
+"<ul>\n"
+"<li> ddd, d MMM yyyy は Mon, 5 Jan 2010のようになります。<li>\n"
+"<li>dd MMMM yy は 05 January 10 になります。</li>\n"
+"</ul> "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:235
 msgid "Use MMM yyyy for month + year, yyyy for year only"
-msgstr ""
+msgstr "月＋年の時には、MMM yyyy を使ってください、年だけの時には yyyy を使ってください。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:236
 msgid "Default: dd MMM yyyy."
@@ -12271,7 +12318,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:198
 msgid "User Interface &layout (needs restart):"
-msgstr ""
+msgstr "ユーザー・インターフェースのレイアウト (再起動が必要)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:199
 msgid "Choose &language (requires restart):"
@@ -12287,15 +12334,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:202
 msgid "Disable &animations"
-msgstr ""
+msgstr "アニメーションを行わない"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:203
 msgid "Disable &notifications in system tray"
-msgstr ""
+msgstr "システムトレイの通知を無効化(&N)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:204
 msgid "Show &splash screen at startup"
-msgstr ""
+msgstr "起動時にスプラッシュ画像を表示(&S)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:205
 msgid "&Toolbar"
@@ -12307,11 +12354,11 @@ msgstr "アイコンサイズ(&I):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:207
 msgid "Show &text under icons:"
-msgstr ""
+msgstr "アイコンの下のテキストを表示(&T)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:208
 msgid "Interface font:"
-msgstr ""
+msgstr "インターフェイス･フォント"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:209
 msgid "Change &font (needs restart)"
