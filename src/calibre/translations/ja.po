@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-06-17 18:48+0000\n"
-"PO-Revision-Date: 2011-06-19 02:53+0000\n"
+"PO-Revision-Date: 2011-06-19 14:59+0000\n"
 "Last-Translator: Ado Nishimura <Unknown>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-06-19 04:35+0000\n"
+"X-Launchpad-Export-Date: 2011-06-20 04:32+0000\n"
 "X-Generator: Launchpad (build 13168)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -336,7 +336,7 @@ msgstr "インターフェース"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:898
 msgid "Adjust the look and feel of the calibre interface to suit your tastes"
-msgstr "Calibreインターフェースのルック＆フィールをあなた湖のみに調整します"
+msgstr "Calibreのルック＆フィールをあなたの好みに調整します"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:904
 msgid "Behavior"
@@ -12087,7 +12087,7 @@ msgstr "月＋年の時には、MMM yyyy を使ってください、年だけの
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:236
 msgid "Default: dd MMM yyyy."
-msgstr ""
+msgstr "ディフォールト： dd MMM yyyy."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:237
 msgid ""
@@ -12096,6 +12096,10 @@ msgid ""
 "specifier.\n"
 "            "
 msgstr ""
+"<p>フォーマット指定子は必ず "
+"<code>{0:</code>からはじまり、<code>}</code>で終えなければなりません。フォーマット指定子の前後にはテキストを入れることができ"
+"ます。\n"
+"            "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:240
 msgid ""
@@ -12103,6 +12107,9 @@ msgid ""
 "href=\"http://docs.python.org/library/string.html#format-string-syntax\">the "
 "python documentation</a>"
 msgstr ""
+"<p>ディフォールト: フォーマット無し。フォーマットの詳細については <a "
+"href=\"http://docs.python.org/library/string.html#format-string-"
+"syntax\">pythonドキュメント</a>を参照してください。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:241
 msgid "Format for &dates"
@@ -12110,44 +12117,44 @@ msgstr "日付(&d)のフォーマット"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:242
 msgid "Format for &numbers"
-msgstr ""
+msgstr "数値のフォーマット(&F)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:243
 msgid "&Template"
-msgstr ""
+msgstr "テンプレート(&T)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:244
 msgid "Field template. Uses the same syntax as save templates."
-msgstr ""
+msgstr "フィールド・テンプレート。保存テンプレートと同じ構文です。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:245
 msgid "Similar to save templates. For example, {title} {isbn}"
-msgstr ""
+msgstr "保存テンプレートと似ています。例えば：{title} {isbn}"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:246
 msgid "Default: (nothing)"
-msgstr ""
+msgstr "ディフォールト：（なし）"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:247
 msgid "&Sort/search column by"
-msgstr ""
+msgstr "列のソート/検索方法(&S)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:248
 msgid "How this column should handled in the GUI when sorting and searching"
-msgstr ""
+msgstr "GUIでのソートや検索時にこの列をどのように取り扱うか"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:249
 msgid "If checked, this column will appear in the tags browser as a category"
-msgstr ""
+msgstr "もしチェックされると、この列はタグブラウザにカテゴリとして現れます"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:250
 msgid "Show in tags browser"
-msgstr ""
+msgstr "タグブラウザに表示"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:251
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:256
 msgid "Values"
-msgstr ""
+msgstr "値"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:252
 msgid ""
@@ -12155,54 +12162,56 @@ msgid ""
 "included, and is the default. For example, the list 'one,two,three' has\n"
 "four values, the first of them being the empty value."
 msgstr ""
+"コンマ区切りでの、許可される値のリスト。空欄は必ず含まれ、それがディフォールトです。例えば 'one,two,three' "
+"は４つの値があります。最初の一つが空欄になるからです。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:255
 msgid "The empty string is always the first value"
-msgstr ""
+msgstr "空文字列は必ず最初の値です"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:257
 msgid ""
 "A list of color names to use when displaying an item. The\n"
 "list must be empty or contain a color for each value."
-msgstr ""
+msgstr "表示するときに使われるカラーの名前のリスト。リストは空か、もしくは各値に対応するカラー名からなります。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:259
 msgid "Colors"
-msgstr ""
+msgstr "カラー"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_debug.py:21
 msgid "Getting debug information"
-msgstr ""
+msgstr "デバッグ情報を得る"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_debug.py:22
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:32
 msgid "Copy to &clipboard"
-msgstr ""
+msgstr "クリップボードへコピー(&C)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_debug.py:24
 msgid "Debug device detection"
-msgstr ""
+msgstr "デバイス認識をデバッグ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:31
 msgid "Getting device information"
-msgstr ""
+msgstr "デバイス情報を得る"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:34
 msgid "User-defined device information"
-msgstr ""
+msgstr "ユーザー定義されたデバイス情報"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:51
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:57
 msgid "Device Detection"
-msgstr ""
+msgstr "デバイス認識"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:52
 msgid "Ensure your device is disconnected, then press OK"
-msgstr ""
+msgstr "デバイスがつながっていないことを確認して、OKを押してください。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:58
 msgid "Ensure your device is connected, then press OK"
-msgstr ""
+msgstr "デバイスが接続されている事を確認して、OKを押してください。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:88
 msgid ""
@@ -12211,6 +12220,9 @@ msgid ""
 ">Plugins. Remember to also enter the folders where you want the books to be "
 "put. You must restart calibre for your changes to take effect.\n"
 msgstr ""
+"これらの値をコピーし、エディターに貼り付け、そして 設定->プラグイン にあるUser Difined USB "
+"Deviceの設定に入力してください。同時に書籍を保存するフォルダーも指定することを忘れないでください。この設定を有効にするにはcalibreをリスタート"
+"する必要があります。\n"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/email_ui.py:66
 msgid ""
@@ -12218,22 +12230,24 @@ msgid ""
 "automatically sent for downloaded news to all email addresses that have Auto-"
 "send checked."
 msgstr ""
+"calibreは書籍をe-mailであなた（や、あなたのリーダー）へ送ることができます。ニュースをダウンロードした時、e-"
+"mailは自動的に全ての「自動送信」がチェックされたアドレスへ送られます。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/email_ui.py:67
 msgid "Add an email address to which to send books"
-msgstr ""
+msgstr "書籍を送るe-mailアドレスを追加"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/email_ui.py:68
 msgid "&Add email"
-msgstr ""
+msgstr "e-mailを追加(&A)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/email_ui.py:69
 msgid "Make &default"
-msgstr ""
+msgstr "ディフォールトにする(&D)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/email_ui.py:70
 msgid "&Remove email"
-msgstr ""
+msgstr "e-mailを削除(&R)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/emailp.py:27
 msgid "Auto send"
@@ -12241,11 +12255,11 @@ msgstr "自動送信"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/emailp.py:27
 msgid "Email"
-msgstr ""
+msgstr "E-mail"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/emailp.py:32
 msgid "Formats to email. The first matching format will be sent."
-msgstr ""
+msgstr "e-mailするフォーマット。最初に合致したフォーマットが送信されます。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/emailp.py:33
 msgid ""
@@ -12253,16 +12267,19 @@ msgid ""
 "used for the subject. Also, the same templates used for \"Save to disk\" "
 "such as {title} and {author_sort} can be used here."
 msgstr ""
+"送信するときのe-mailの件名。空欄にするとタイトルが件名に使用されます。それと、\"ディスクへ保存\" "
+"の時に使える物と同様のテンプレート（例えば{title} や {author_sort}）が、ここでも使用できます。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/emailp.py:37
 msgid ""
 "If checked, downloaded news will be automatically mailed <br>to this email "
 "address (provided it is in one of the listed formats)."
 msgstr ""
+"もしチェックされると、ダウンロードされたニュースは自動的に<br>このメールアドレスへ送られます。 (リストされたフォーマットの一つを使用して。）"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/emailp.py:115
 msgid "new email address"
-msgstr ""
+msgstr "新しいe-mailアドレス"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:104
 msgid "Narrow"
@@ -12274,7 +12291,7 @@ msgstr "広い"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:129
 msgid "Off"
-msgstr ""
+msgstr "Off"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:129
 msgid "Small"
@@ -12294,7 +12311,7 @@ msgstr "常に"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:133
 msgid "If there is enough room"
-msgstr ""
+msgstr "もし十分な余裕があれば"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:134
 msgid "Never"
@@ -12302,19 +12319,19 @@ msgstr "停止"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:137
 msgid "By first letter"
-msgstr ""
+msgstr "最初の一文字"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:137
 msgid "Disabled"
-msgstr ""
+msgstr "無効"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:138
 msgid "Partitioned"
-msgstr ""
+msgstr "分割"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:166
 msgid "Column coloring"
-msgstr ""
+msgstr "列の色づけ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:198
 msgid "User Interface &layout (needs restart):"
@@ -12330,7 +12347,7 @@ msgstr "システムトレイアイコンを有効にする(&T) (再起動が必
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:201
 msgid "Disable all animations. Useful if you have a slow/old computer."
-msgstr ""
+msgstr "全てのアニメーションを無効化。遅い/古いコンピューターを使っている時に便利です。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:202
 msgid "Disable &animations"
@@ -12362,7 +12379,7 @@ msgstr "インターフェイス･フォント"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:209
 msgid "Change &font (needs restart)"
-msgstr ""
+msgstr "フォントを変更（要リスタート）(&F)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:210
 msgid "Main Interface"
@@ -12370,29 +12387,29 @@ msgstr "メイン画面"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:211
 msgid "Select displayed metadata"
-msgstr ""
+msgstr "表示する書誌情報を選択"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:212
 msgid "Move up"
-msgstr ""
+msgstr "上へ移動"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:213
 msgid "Move down"
-msgstr ""
+msgstr "下へ移動"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:214
 msgid "Use &Roman numerals for series"
-msgstr ""
+msgstr "シリーズ番号にローマ数字を使う(&R)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:215
 msgid ""
 "Note that <b>comments</b> will always be displayed at the end, regardless of "
 "the position you assign here."
-msgstr ""
+msgstr "注：ここでの設定にかかわらず<b>コメント</b>は必ず最後に表示されます。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:217
 msgid "Tags browser category &partitioning method:"
-msgstr ""
+msgstr "タグブラウザ･カテゴリの分割方法："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:218
 msgid ""
@@ -12402,10 +12419,13 @@ msgid ""
 "have a list of fixed-sized groups. Set to disabled\n"
 "if you never want subcategories"
 msgstr ""
+"制限以上の数がある場合、タグブラウザでサブカテゴリをどのように表示するかを設定します。\n"
+"最初の1文字にすると A, B, C のようなリストになり、分割を選ぶと同じ数のグループに分割されます。\n"
+"サブカテゴリが要らない場合には無効にしてください。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:223
 msgid "&Collapse when more items than:"
-msgstr ""
+msgstr "分割しないアイテム数："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:224
 msgid ""
@@ -12413,6 +12433,7 @@ msgid ""
 "up into sub-categories. If the partition method is set to disable, this "
 "value is ignored."
 msgstr ""
+"もしタグブラウザのカテゴリに、この数以上のアイテムがあった場合、サブカテゴリに分割されます。もし分割方法が無効に設定された場合、この数は無視されます。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:226
 msgid "Show &average ratings in the tags browser"
@@ -12420,7 +12441,7 @@ msgstr "タグブラウザで平均格付けを表示(&a)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:227
 msgid "Categories with &hierarchical items:"
-msgstr ""
+msgstr "階層化するカテゴリ・アイテム(&H)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:228
 msgid ""
@@ -12431,6 +12452,10 @@ msgid ""
 "both under 'Mystery'. If 'tags' is not in this box,\n"
 "then the tags will be displayed each on their own line."
 msgstr ""
+"タグブラウザでツリー上に表示される、ピリオドが含まれる列の名前の、カンマ区切りリスト。\n"
+"例えば、もし、このボックスで'tags' が指定されていた場合、 'Mystery.English'\n"
+"と 'Mystery.Thriller' は 'Mystery' の下に English と Thriller が表示されます。\n"
+"もし'tags' がこのボックスになければ、これらは一つずつ並んで表示されます。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:235
 msgid "Show cover &browser in a separate window (needs restart)"
@@ -12438,7 +12463,7 @@ msgstr "表紙ブラウズを別ウインドウで行う(&B) (再起動が必要
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:236
 msgid "&Number of covers to show in browse mode (needs restart):"
-msgstr ""
+msgstr "表紙ブラウザーで表示される表紙の数（要リスタート）(&N)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:230
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:96
@@ -12455,23 +12480,23 @@ msgstr "変更の保存"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:239
 msgid "Cancel and return to overview"
-msgstr ""
+msgstr "キャンセルして一覧へ戻る"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:295
 msgid "Restoring to defaults not supported for"
-msgstr ""
+msgstr "ディフォールトへ戻す機能は次の場所ではサポートされません："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:330
 msgid ""
 "Some of the changes you made require a restart. Please restart calibre as "
 "soon as possible."
-msgstr ""
+msgstr "この変更にはリスタートが必要なものが含まれています。calibreをすぐリスタートしてください。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:333
 msgid ""
 "The changes you have made require calibre be restarted immediately. You will "
 "not be allowed set any more preferences, until you restart."
-msgstr ""
+msgstr "この変更にはリスタートがすぐに必要なものが含まれています。リスタートするまで、他の設定をすることはできません。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:338
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:127
@@ -12480,39 +12505,39 @@ msgstr "再起動が必要です。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:47
 msgid "Source"
-msgstr ""
+msgstr "情報源"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:49
 msgid "Cover priority"
-msgstr ""
+msgstr "表紙の優先度"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:76
 msgid "This source is configured and ready to go"
-msgstr ""
+msgstr "この情報源は設定されているので、すぐ使えます。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:77
 msgid "This source needs configuration"
-msgstr ""
+msgstr "この情報源は設定する必要があります。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:148
 msgid "Published date"
-msgstr ""
+msgstr "出版日"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:255
 msgid "<b>Configure %s</b><br>%s"
-msgstr ""
+msgstr "<b>%s を設定</b><br>%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:312
 msgid "No source selected"
-msgstr ""
+msgstr "情報源が選択されていません"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:313
 msgid "No source selected, cannot configure."
-msgstr ""
+msgstr "情報源が選択されていないので設定できません。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:116
 msgid "Metadata sources"
-msgstr ""
+msgstr "書誌情報の情報源"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:117
 msgid ""
@@ -12520,63 +12545,65 @@ msgid ""
 "also set the cover priority. Covers from sources that have a higher "
 "(smaller) priority will be preferred when bulk downloading metadata.\n"
 msgstr ""
+"必要の無い情報源のチェックをはずす事で無効にしてください。表紙の優先順位も設定することができます。書誌情報の一括ダウンロード時に、優先順位の高い（数字の小"
+"さい）情報源の表紙が優先されます。\n"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:119
 msgid ""
 "Sources with a red X next to their names must be configured before they will "
 "be used. "
-msgstr ""
+msgstr "名前の横に赤いXが付いている情報源は、使用する前に設定しなければなりません。 "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:120
 msgid "Configure selected source"
-msgstr ""
+msgstr "選択した情報源を設定"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:122
 msgid ""
 "If you uncheck any fields, metadata for those fields will not be downloaded"
-msgstr ""
+msgstr "もしフィールドのチェックを外すと、そのフィールドの書誌情報はダウンロードされません。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:123
 msgid "&Select all"
-msgstr ""
+msgstr "全て選択(&S)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:124
 msgid "&Clear all"
-msgstr ""
+msgstr "全て消去(&C)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:125
 msgid "&Select default"
-msgstr ""
+msgstr "ディフォールトを選択(&S)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:126
 msgid "&Set as default"
-msgstr ""
+msgstr "ディフォールトとして設定(&S)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:127
 msgid "Convert all downloaded comments to plain &text"
-msgstr ""
+msgstr "ダウンロードした全てのコメントをプレーンテキストに変換(&T)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:128
 msgid "Swap author names from FN LN to LN, FN"
-msgstr ""
+msgstr "著者名を、苗字 名前 から 名前, 苗字 に変換する"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:129
 msgid "Max. number of &tags to download:"
-msgstr ""
+msgstr "ダウンロードするタグの最大数(&T)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:130
 msgid "Max. &time to wait after first match is found:"
-msgstr ""
+msgstr "最初に見つかるまでに待つ最大の時間(&T)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:131
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:133
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:199
 msgid " secs"
-msgstr ""
+msgstr " 秒"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:132
 msgid "Max. time to wait after first &cover is found:"
-msgstr ""
+msgstr "最初の表紙が見つかるまでに待つ最大の時間(&C)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:134
 msgid ""
@@ -12588,39 +12615,43 @@ msgid ""
 "metadata sources has a genre like tag set for the book you are searching "
 "for. Most often, they all have large tag sets."
 msgstr ""
+"<p>別の書誌情報・情報源からは同じ書籍であっても違ったタグが得られます。このオプションが設定されるとcalibreは賢くタグを扱います。ある物はタグにジ"
+"ャンルのような物を使い、またある物は書籍の内容を表す沢山のタグを使うからです。\n"
+"<p>注意して欲しいのは、このオプションは1つの情報源がジャンルのようなタグを使う時のみに実際的な違いが出てきます。と言うのも、ほとんどの情報源は沢山のタ"
+"グを使うからです。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:136
 msgid "Prefer &fewer tags"
-msgstr ""
+msgstr "少ないタグを優先"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc.py:56
 msgid "Failed to install command line tools."
-msgstr ""
+msgstr "コマンドライン･ツールのインストールに失敗しました。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc.py:59
 msgid "Command line tools installed"
-msgstr ""
+msgstr "コマンドライン・ツールがインストールされました。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc.py:60
 msgid "Command line tools installed in"
-msgstr ""
+msgstr "コマンドラインツールは以下にインストールされました："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc.py:61
 msgid ""
 "If you move calibre.app, you have to re-install the command line tools."
-msgstr ""
+msgstr "もし、calibre.appを移動した場合、コマンドライン･ツールを再インストールしなければなりません。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:62
 msgid "Max. simultaneous conversion/news download jobs:"
-msgstr ""
+msgstr "同時実行される、変換/ニュースダウンロードの最大ジョブ数"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:63
 msgid "Limit the max. simultaneous jobs to the available CPU &cores"
-msgstr ""
+msgstr "最大の同時実行されるジョブ数を、CPUやコア数に応じて制限する"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:64
 msgid "Debug &device detection"
-msgstr ""
+msgstr "デバイス判別をデバッグ(&D)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:65
 msgid "Get information to setup the &user defined device"
@@ -12628,19 +12659,19 @@ msgstr "ユーザー定義デバイス設定用情報を取得"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:66
 msgid "Open calibre &configuration directory"
-msgstr ""
+msgstr "calibreの設定ディレクトリを開く(&C)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:67
 msgid "&Install command line tools"
-msgstr ""
+msgstr "コマンドライン・ツールをインストール"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:52
 msgid "Device currently connected: "
-msgstr ""
+msgstr "現在接続中のデバイス: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:55
 msgid "Device currently connected: None"
-msgstr ""
+msgstr "現在接続中のデバイス: （なし）"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:187
 msgid "That format and device already has a plugboard."
