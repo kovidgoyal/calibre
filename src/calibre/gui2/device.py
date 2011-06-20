@@ -58,10 +58,17 @@ class DeviceJob(BaseJob): # {{{
     def job_done(self):
         self.duration = time.time() - self.start_time
         self.percent = 1
+        if DEBUG:
+            prints('DeviceJob:', self.id, self.description,
+                    'done, calling callback', safe_encode=True)
+
         try:
             self.callback_on_done(self)
         except:
             pass
+        if DEBUG:
+            prints('DeviceJob:', self.id, self.description,
+                    'callback returned', safe_encode=True)
         self.job_manager.changed_queue.put(self)
 
     def report_progress(self, percent, msg=''):
