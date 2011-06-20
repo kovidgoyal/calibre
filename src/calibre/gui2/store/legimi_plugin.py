@@ -58,6 +58,8 @@ class LegimiStore(BasicStoreConfig, StorePlugin):
                 cover_url = ''.join(data.xpath('.//div[@class="item_cover_container"]/a/img/@src'))
                 title = ''.join(data.xpath('.//div[@class="item_entries"]/h2/a/text()'))
                 author = ''.join(data.xpath('.//div[@class="item_entries"]/span[1]/a/text()'))
+                author = re.sub(',','',author)
+                author = re.sub(';',',',author)
                 price = ''.join(data.xpath('.//div[@class="item_entries"]/span[3]/text()'))
                 price = re.sub(r'[^0-9,]*','',price) + ' zł'
 
