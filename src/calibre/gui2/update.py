@@ -179,7 +179,7 @@ class UpdateMixin(object):
 
     def plugin_update_found(self, number_of_updates):
         # Change the plugin icon to indicate there are updates available
-        plugin = self.iactions.get('Plugin Updates', None)
+        plugin = self.iactions.get('Plugin Updater', None)
         if not plugin:
             return
         if number_of_updates:

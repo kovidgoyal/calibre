@@ -1055,6 +1055,12 @@ class Manifest(object):
                         and len(a) == 0 and not a.text:
                     remove_elem(a)
 
+            # Convert <br>s with content into paragraphs as ADE can't handle
+            # them
+            for br in xpath(data, '//h:br'):
+                if len(br) > 0 or br.text:
+                    br.tag = XHTML('div')
+
             return data
 
         def _parse_txt(self, data):
@@ -1156,7 +1162,7 @@ class Manifest(object):
                     data = self._parse_xml(data)
                 elif self.media_type.lower() in OEB_STYLES:
                     data = self._parse_css(data)
-                elif 'text' in self.media_type.lower():
+                elif self.media_type.lower() == 'text/plain':
                     self.oeb.log.warn('%s contains data in TXT format'%self.href,
                             'converting to HTML')
                     data = self._parse_txt(data)

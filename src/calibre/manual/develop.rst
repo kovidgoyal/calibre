@@ -28,7 +28,7 @@ For example, adding support for a new device to |app| typically involves writing
 a device driver plugin. You can browse the 
 `built-in drivers <http://bazaar.launchpad.net/%7Ekovid/calibre/trunk/files/head%3A/src/calibre/devices/>`_. Similarly, adding support 
 for new conversion formats involves writing input/output format plugins. Another example of the modular design is the :ref:`recipe system <news>` for 
-fetching news. 
+fetching news. For more examples of plugins designed to add features to |app|, see the `plugin index <http://www.mobileread.com/forums/showthread.php?t=118764>`_.
 
 Code layout
 ^^^^^^^^^^^^^^
@@ -36,10 +36,21 @@ Code layout
 All the |app| python code is in the ``calibre`` package. This package contains the following main sub-packages
 
     * devices - All the device drivers. Just look through some of the built-in drivers to get an idea for how they work.
-    * ebooks  - All the ebook conversion code. A good starting point is ``calibre.ebooks.conversion.cli`` which is the
-      module powering the :command:`ebook-convert` command.
-    * library - The database backed and the content server. 
-    * gui2 - The Graphical User Interface. 
+
+      * For details, see: devices.interface which defines the interface supported by device drivers and devices.usbms which
+        defines a generic driver that connects to a USBMS device. All USBMS based drivers in calibre inherit from it.
+
+    * ebooks  - All the ebook conversion/metadata code. A good starting point is ``calibre.ebooks.conversion.cli`` which is the
+      module powering the :command:`ebook-convert` command. The conversion process is controlled via conversion.plumber.
+      The format independent code is all in ebooks.oeb and the format dependent stuff is in ebooks.format_name.
+
+        * Metadata reading writing and downloading is all in ebooks.metadata
+
+    * library - The database backed and the content server. See library.database2 for the interface to the calibre library. library.server is the calibre Content Server.
+    * gui2 - The Graphical User Interface. GUI initialization happens in gui2.main and gui2.ui. The ebook-viewer is in gui2.viewer.
+
+If you need help understanding the code, post in the `development forum <http://www.mobileread.com/forums/forumdisplay.php?f=240>`_
+and you will most likely get help from one of |app|'s many developers.
 
 Getting the code
 ------------------
@@ -82,9 +93,9 @@ Now whenever you commit changes to your branch with the command::
 
     bzr commit -m "Comment describing your change"
 
-I can merge it directly from you branch into the main |app| source tree. You should also subscribe to the |app|
-developers mailing list `calibre-devs <https://launchpad.net/~calibre-devs>`_. Before making major changes, you should
-discuss them on the mailing list or the #calibre IRC channel on Freenode to ensure that the changes will be accepted once you're done. 
+I can merge it directly from you branch into the main |app| source tree. You should also keep an eye on the |app|
+`development forum <http://www.mobileread.com/forums/forumdisplay.php?f=240>`. Before making major changes, you should
+discuss them in the forum or contact Kovid directly (his email address is all over the source code). 
 
 Windows development environment
 ---------------------------------
