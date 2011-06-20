@@ -201,16 +201,14 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             dbprefs = DBPrefs(self)
             for key in default_prefs:
                 # be sure that prefs not to be copied are listed below
-                if key in ['news_to_be_synced']:
+                if key in frozenset(['news_to_be_synced']):
                     continue
-                try:
-                    dbprefs[key] = default_prefs[key]
-                except:
-                    pass # ignore options that don't exist anymore
-            fmvals = [f for f in default_prefs['field_metadata'].values() if f['is_custom']]
-            for f in fmvals:
-                self.create_custom_column(f['label'], f['name'], f['datatype'],
-                        f['is_multiple'] is not None, f['is_editable'], f['display'])
+                dbprefs[key] = default_prefs[key]
+            if 'field_metadata' in default_prefs:
+                fmvals = [f for f in default_prefs['field_metadata'].values() if f['is_custom']]
+                for f in fmvals:
+                    self.create_custom_column(f['label'], f['name'], f['datatype'],
+                            f['is_multiple'] is not None, f['is_editable'], f['display'])
         self.initialize_dynamic()
 
     def get_property(self, idx, index_is_id=False, loc=-1):
