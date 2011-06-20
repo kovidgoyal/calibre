@@ -727,6 +727,15 @@ class TagTreeItem(object): # {{{
         else:
             self.tag.state = set_to
 
+    def all_children(self):
+        res = []
+        def recurse(nodes, res):
+            for t in nodes:
+                res.append(t)
+                recurse(t.children, res)
+        recurse(self.children, res)
+        return res
+
     def child_tags(self):
         res = []
         def recurse(nodes, res):
@@ -1269,6 +1278,7 @@ class TagsModel(QAbstractItemModel): # {{{
                                      category_icon = category_node.icon,
                                      category_key=category_node.category_key,
                                      icon_map=self.icon_state_map)
+                            sub_cat.tag.is_searchable = False
                             self.endInsertRows()
                     else: # by 'first letter'
                         cl = cl_list[idx]
@@ -1644,14 +1654,23 @@ class TagsModel(QAbstractItemModel): # {{{
             if node.tag.state:
                 if node.category_key == "news":
                     if node_searches[node.tag.state] == 'true':
-                        ans.append('tags:=news')
+                        ans.append('tags:"=' + _('News') + '"')
                     else:
-                        ans.append('( not tags:=news )')
+                        ans.append('( not tags:"=' + _('News') + '")')
                 else:
                     ans.append('%s:%s'%(node.category_key, node_searches[node.tag.state]))
 
             key = node.category_key
-            for tag_item in node.child_tags():
+            for tag_item in node.all_children():
+                if tag_item.type == TagTreeItem.CATEGORY:
+                    if self.collapse_model == 'first letter' and \
+                            tag_item.temporary and not key.startswith('@') \
+                            and tag_item.tag.state:
+                        if node_searches[tag_item.tag.state] == 'true':
+                            ans.append('%s:~^%s'%(key, tag_item.py_name))
+                        else:
+                            ans.append('(not %s:~^%s )'%(key, tag_item.py_name))
+                    continue
                 tag = tag_item.tag
                 if tag.state != TAG_SEARCH_STATES['clear']:
                     if tag.state == TAG_SEARCH_STATES['mark_minus'] or \

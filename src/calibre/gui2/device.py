@@ -49,16 +49,26 @@ class DeviceJob(BaseJob): # {{{
         self._aborted = False
 
     def start_work(self):
+        if DEBUG:
+            prints('Job:', self.id, self.description, 'started',
+                safe_encode=True)
         self.start_time = time.time()
         self.job_manager.changed_queue.put(self)
 
     def job_done(self):
         self.duration = time.time() - self.start_time
         self.percent = 1
+        if DEBUG:
+            prints('DeviceJob:', self.id, self.description,
+                    'done, calling callback', safe_encode=True)
+
         try:
             self.callback_on_done(self)
         except:
             pass
+        if DEBUG:
+            prints('DeviceJob:', self.id, self.description,
+                    'callback returned', safe_encode=True)
         self.job_manager.changed_queue.put(self)
 
     def report_progress(self, percent, msg=''):
@@ -119,6 +129,7 @@ class DeviceManager(Thread): # {{{
         self.sleep_time     = sleep_time
         self.connected_slot = connected_slot
         self.jobs           = Queue.Queue(0)
+        self.job_steps      = Queue.Queue(0)
         self.keep_going     = True
         self.job_manager    = job_manager
         self.reported_errors = set([])
@@ -235,6 +246,12 @@ class DeviceManager(Thread): # {{{
                 self.connected_device.unmount_device()
 
     def next(self):
+        if not self.job_steps.empty():
+            try:
+                return self.job_steps.get_nowait()
+            except Queue.Empty:
+                pass
+
         if not self.jobs.empty():
             try:
                 return self.jobs.get_nowait()
@@ -271,12 +288,19 @@ class DeviceManager(Thread): # {{{
                     break
             time.sleep(self.sleep_time)
 
-    def create_job(self, func, done, description, args=[], kwargs={}):
+    def create_job_step(self, func, done, description, to_job, args=[], kwargs={}):
         job = DeviceJob(func, done, self.job_manager,
                         args=args, kwargs=kwargs, description=description)
         self.job_manager.add_job(job)
-        self.jobs.put(job)
+        if (done is None or isinstance(done, FunctionDispatcher)) and \
+                    (to_job is not None and to_job == self.current_job):
+            self.job_steps.put(job)
+        else:
+            self.jobs.put(job)
         return job
+
+    def create_job(self, func, done, description, args=[], kwargs={}):
+        return self.create_job_step(func, done, description, None, args, kwargs)
 
     def has_card(self):
         try:
@@ -295,10 +319,10 @@ class DeviceManager(Thread): # {{{
         self._device_information = {'info': info, 'prefixes': cp, 'freespace': fs}
         return info, cp, fs
 
-    def get_device_information(self, done):
+    def get_device_information(self, done, add_as_step_to_job=None):
         '''Get device information and free space on device'''
-        return self.create_job(self._get_device_information, done,
-                    description=_('Get device information'))
+        return self.create_job_step(self._get_device_information, done,
+                    description=_('Get device information'), to_job=add_as_step_to_job)
 
     def get_current_device_information(self):
         return self._device_information
@@ -310,36 +334,38 @@ class DeviceManager(Thread): # {{{
         cardblist = self.device.books(oncard='cardb')
         return (mainlist, cardalist, cardblist)
 
-    def books(self, done):
+    def books(self, done, add_as_step_to_job=None):
         '''Return callable that returns the list of books on device as two booklists'''
-        return self.create_job(self._books, done, description=_('Get list of books on device'))
+        return self.create_job_step(self._books, done,
+                description=_('Get list of books on device'), to_job=add_as_step_to_job)
 
     def _annotations(self, path_map):
         return self.device.get_annotations(path_map)
 
-    def annotations(self, done, path_map):
+    def annotations(self, done, path_map, add_as_step_to_job=None):
         '''Return mapping of ids to annotations. Each annotation is of the
         form (type, location_info, content). path_map is a mapping of
         ids to paths on the device.'''
-        return self.create_job(self._annotations, done, args=[path_map],
-                description=_('Get annotations from device'))
+        return self.create_job_step(self._annotations, done, args=[path_map],
+                description=_('Get annotations from device'), to_job=add_as_step_to_job)
 
     def _sync_booklists(self, booklists):
         '''Sync metadata to device'''
         self.device.sync_booklists(booklists, end_session=False)
         return self.device.card_prefix(end_session=False), self.device.free_space()
 
-    def sync_booklists(self, done, booklists, plugboards):
+    def sync_booklists(self, done, booklists, plugboards, add_as_step_to_job=None):
         if hasattr(self.connected_device, 'set_plugboards') and \
                 callable(self.connected_device.set_plugboards):
             self.connected_device.set_plugboards(plugboards, find_plugboard)
-        return self.create_job(self._sync_booklists, done, args=[booklists],
-                        description=_('Send metadata to device'))
+        return self.create_job_step(self._sync_booklists, done, args=[booklists],
+                        description=_('Send metadata to device'), to_job=add_as_step_to_job)
 
-    def upload_collections(self, done, booklist, on_card):
-        return self.create_job(booklist.rebuild_collections, done,
+    def upload_collections(self, done, booklist, on_card, add_as_step_to_job=None):
+        return self.create_job_step(booklist.rebuild_collections, done,
                                args=[booklist, on_card],
-                        description=_('Send collections to device'))
+                        description=_('Send collections to device'),
+                        to_job=add_as_step_to_job)
 
     def _upload_books(self, files, names, on_card=None, metadata=None, plugboards=None):
         '''Upload books to device: '''
@@ -374,11 +400,12 @@ class DeviceManager(Thread): # {{{
                                         metadata=metadata, end_session=False)
 
     def upload_books(self, done, files, names, on_card=None, titles=None,
-                     metadata=None, plugboards=None):
+                     metadata=None, plugboards=None, add_as_step_to_job=None):
         desc = _('Upload %d books to device')%len(names)
         if titles:
             desc += u':' + u', '.join(titles)
-        return self.create_job(self._upload_books, done, args=[files, names],
+        return self.create_job_step(self._upload_books, done, to_job=add_as_step_to_job,
+                               args=[files, names],
                 kwargs={'on_card':on_card,'metadata':metadata,'plugboards':plugboards}, description=desc)
 
     def add_books_to_metadata(self, locations, metadata, booklists):
@@ -388,9 +415,10 @@ class DeviceManager(Thread): # {{{
         '''Remove books from device'''
         self.device.delete_books(paths, end_session=True)
 
-    def delete_books(self, done, paths):
-        return self.create_job(self._delete_books, done, args=[paths],
-                        description=_('Delete books from device'))
+    def delete_books(self, done, paths, add_as_step_to_job=None):
+        return self.create_job_step(self._delete_books, done, args=[paths],
+                        description=_('Delete books from device'),
+                        to_job=add_as_step_to_job)
 
     def remove_books_from_metadata(self, paths, booklists):
         self.device.remove_books_from_metadata(paths, booklists)
@@ -405,9 +433,10 @@ class DeviceManager(Thread): # {{{
                 self.device.get_file(path, f)
                 f.close()
 
-    def save_books(self, done, paths, target):
-        return self.create_job(self._save_books, done, args=[paths, target],
-                        description=_('Download books from device'))
+    def save_books(self, done, paths, target, add_as_step_to_job=None):
+        return self.create_job_step(self._save_books, done, args=[paths, target],
+                        description=_('Download books from device'),
+                        to_job=add_as_step_to_job)
 
     def _view_book(self, path, target):
         f = open(target, 'wb')
@@ -415,9 +444,9 @@ class DeviceManager(Thread): # {{{
         f.close()
         return target
 
-    def view_book(self, done, path, target):
-        return self.create_job(self._view_book, done, args=[path, target],
-                        description=_('View book on device'))
+    def view_book(self, done, path, target, add_as_step_to_job=None):
+        return self.create_job_step(self._view_book, done, args=[path, target],
+                        description=_('View book on device'), to_job=add_as_step_to_job)
 
     def set_current_library_uuid(self, uuid):
         self.current_library_uuid = uuid
@@ -778,7 +807,8 @@ class DeviceMixin(object): # {{{
                 self.device_manager.device.icon)
         self.bars_manager.update_bars()
         self.status_bar.device_connected(info[0])
-        self.device_manager.books(FunctionDispatcher(self.metadata_downloaded))
+        self.device_manager.books(FunctionDispatcher(self.metadata_downloaded),
+                                  add_as_step_to_job=job)
 
     def metadata_downloaded(self, job):
         '''
@@ -788,7 +818,7 @@ class DeviceMixin(object): # {{{
             self.device_job_exception(job)
             return
         # set_books_in_library might schedule a sync_booklists job
-        self.set_books_in_library(job.result, reset=True)
+        self.set_books_in_library(job.result, reset=True, add_as_step_to_job=job)
         mainlist, cardalist, cardblist = job.result
         self.memory_view.set_database(mainlist)
         self.memory_view.set_editable(self.device_manager.device.CAN_SET_METADATA,
@@ -843,8 +873,8 @@ class DeviceMixin(object): # {{{
         # set_books_in_library even though books were not added because
         # the deleted book might have been an exact match. Upload the booklists
         # if set_books_in_library did not.
-        if not self.set_books_in_library(self.booklists(), reset=True):
-            self.upload_booklists()
+        if not self.set_books_in_library(self.booklists(), reset=True, add_as_step_to_job=job):
+            self.upload_booklists(job)
         self.book_on_device(None, reset=True)
         # We need to reset the ondevice flags in the library. Use a big hammer,
         # so we don't need to worry about whether some succeeded or not.
@@ -1193,13 +1223,14 @@ class DeviceMixin(object): # {{{
         self.device_manager.sync_booklists(Dispatcher(lambda x: x),
                                            self.booklists(), plugboards)
 
-    def upload_booklists(self):
+    def upload_booklists(self, add_as_step_to_job=None):
         '''
         Upload metadata to device.
         '''
         plugboards = self.library_view.model().db.prefs.get('plugboards', {})
         self.device_manager.sync_booklists(FunctionDispatcher(self.metadata_synced),
-                                           self.booklists(), plugboards)
+                                           self.booklists(), plugboards,
+                                           add_as_step_to_job=add_as_step_to_job)
 
     def metadata_synced(self, job):
         '''
@@ -1274,8 +1305,8 @@ class DeviceMixin(object): # {{{
         # because the UUID changed. Force both the device and the library view
         # to refresh the flags. Set_books_in_library could upload the booklists.
         # If it does not, then do it here.
-        if not self.set_books_in_library(self.booklists(), reset=True):
-            self.upload_booklists()
+        if not self.set_books_in_library(self.booklists(), reset=True, add_as_step_to_job=job):
+            self.upload_booklists(job)
         with self.library_view.preserve_selected_books:
             self.book_on_device(None, reset=True)
             self.refresh_ondevice()
@@ -1335,7 +1366,7 @@ class DeviceMixin(object): # {{{
                 loc[4] |= self.book_db_uuid_path_map[id]
         return loc
 
-    def set_books_in_library(self, booklists, reset=False):
+    def set_books_in_library(self, booklists, reset=False, add_as_step_to_job=None):
         '''
         Set the ondevice indications in the device database.
         This method should be called before book_on_device is called, because
@@ -1487,7 +1518,7 @@ class DeviceMixin(object): # {{{
                 plugboards = self.library_view.model().db.prefs.get('plugboards', {})
                 self.device_manager.sync_booklists(
                                     FunctionDispatcher(self.metadata_synced), booklists,
-                                    plugboards)
+                                    plugboards, add_as_step_to_job)
         return update_metadata
     # }}}
 

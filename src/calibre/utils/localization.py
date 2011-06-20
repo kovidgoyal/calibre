@@ -121,6 +121,7 @@ _extra_lang_codes = {
         'en_YE' : _('English (Yemen)'),
         'en_IE' : _('English (Ireland)'),
         'en_CN' : _('English (China)'),
+        'en_ZA' : _('English (South Africa)'),
         'es_PY' : _('Spanish (Paraguay)'),
         'es_UY' : _('Spanish (Uruguay)'),
         'es_AR' : _('Spanish (Argentina)'),
