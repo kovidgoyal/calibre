@@ -49,6 +49,9 @@ class DeviceJob(BaseJob): # {{{
         self._aborted = False
 
     def start_work(self):
+        if DEBUG:
+            prints('Job:', self.id, self.description, 'started',
+                safe_encode=True)
         self.start_time = time.time()
         self.job_manager.changed_queue.put(self)
 
