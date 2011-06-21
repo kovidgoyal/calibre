@@ -23,6 +23,8 @@ from calibre.ebooks.metadata import title_sort, author_to_author_sort
 from calibre.utils.icu import strcmp
 from calibre.utils.config import to_json, from_json, prefs, tweaks
 from calibre.utils.date import utcfromtimestamp
+from calibre.db.tables import (OneToOneTable, ManyToOneTable, ManyToManyTable,
+        SizeTable, FormatsTable, AuthorsTable, IdentifiersTable)
 # }}}
 
 '''
@@ -167,7 +169,7 @@ class Connection(apsw.Connection): # {{{
             return self.cursor().execute(sql)
 # }}}
 
-class DB(SchemaUpgrade):
+class DB(object, SchemaUpgrade):
 
     PATH_LIMIT = 40 if iswindows else 100
     WINDOWS_LIBRARY_PATH_LIMIT = 75
@@ -399,6 +401,41 @@ class DB(SchemaUpgrade):
     def last_modified(self):
         ''' Return last modified time as a UTC datetime object '''
         return utcfromtimestamp(os.stat(self.dbpath).st_mtime)
+
+    def read_tables(self):
+        tables = {}
+        for col in ('title', 'sort', 'author_sort', 'series_index', 'comments',
+                'timestamp', 'published', 'uuid', 'path', 'cover',
+                'last_modified'):
+            metadata = self.field_metadata[col].copy()
+            if metadata['table'] is None:
+                metadata['table'], metadata['column'] == 'books', ('has_cover'
+                        if col == 'cover' else col)
+            tables[col] = OneToOneTable(col, metadata)
+
+        for col in ('series', 'publisher', 'rating'):
+            tables[col] = ManyToOneTable(col, self.field_metadata[col].copy())
+
+        for col in ('authors', 'tags', 'formats', 'identifiers'):
+            cls = {
+                    'authors':AuthorsTable,
+                    'formats':FormatsTable,
+                    'identifiers':IdentifiersTable,
+                  }.get(col, ManyToManyTable)
+            tables[col] = cls(col, self.field_metadata[col].copy())
+
+        tables['size'] = SizeTable('size', self.field_metadata['size'].copy())
+
+        with self.conn: # Use a single transaction, to ensure nothing modifies
+                        # the db while we are reading
+            for table in tables.itervalues():
+                try:
+                    table.read()
+                except:
+                    prints('Failed to read table:', table.name)
+                    raise
+
+        return tables
 
    # }}}
 
