@@ -762,34 +762,42 @@ plugins += input_profiles + output_profiles
 class ActionAdd(InterfaceActionBase):
     name = 'Add Books'
     actual_plugin = 'calibre.gui2.actions.add:AddAction'
+    description = _('Add books to calibre or the connected device')
 
 class ActionFetchAnnotations(InterfaceActionBase):
     name = 'Fetch Annotations'
     actual_plugin = 'calibre.gui2.actions.annotate:FetchAnnotationsAction'
+    description = _('Fetch annotations from a connected Kindle (experimental)')
 
 class ActionGenerateCatalog(InterfaceActionBase):
     name = 'Generate Catalog'
     actual_plugin = 'calibre.gui2.actions.catalog:GenerateCatalogAction'
+    description = _('Generate a catalog of the books in your calibre library')
 
 class ActionConvert(InterfaceActionBase):
     name = 'Convert Books'
     actual_plugin = 'calibre.gui2.actions.convert:ConvertAction'
+    description = _('Convert books to various ebook formats')
 
 class ActionDelete(InterfaceActionBase):
     name = 'Remove Books'
     actual_plugin = 'calibre.gui2.actions.delete:DeleteAction'
+    description = _('Delete books from your calibre library or connected device')
 
 class ActionEditMetadata(InterfaceActionBase):
     name = 'Edit Metadata'
     actual_plugin = 'calibre.gui2.actions.edit_metadata:EditMetadataAction'
+    description = _('Edit the metadata of books in your calibre library')
 
 class ActionView(InterfaceActionBase):
     name = 'View'
     actual_plugin = 'calibre.gui2.actions.view:ViewAction'
+    description = _('Read books in your calibre library')
 
 class ActionFetchNews(InterfaceActionBase):
     name = 'Fetch News'
     actual_plugin = 'calibre.gui2.actions.fetch_news:FetchNewsAction'
+    description = _('Download news from the internet in ebook form')
 
 class ActionQuickview(InterfaceActionBase):
     name = 'Show Quickview'
@@ -798,67 +806,87 @@ class ActionQuickview(InterfaceActionBase):
 class ActionSaveToDisk(InterfaceActionBase):
     name = 'Save To Disk'
     actual_plugin = 'calibre.gui2.actions.save_to_disk:SaveToDiskAction'
+    description = _('Export books from your calibre library to the hard disk')
 
 class ActionShowBookDetails(InterfaceActionBase):
     name = 'Show Book Details'
     actual_plugin = 'calibre.gui2.actions.show_book_details:ShowBookDetailsAction'
+    description = _('Show book details in a separate popup')
 
 class ActionRestart(InterfaceActionBase):
     name = 'Restart'
     actual_plugin = 'calibre.gui2.actions.restart:RestartAction'
+    description = _('Restart calibre')
 
 class ActionOpenFolder(InterfaceActionBase):
     name = 'Open Folder'
     actual_plugin = 'calibre.gui2.actions.open:OpenFolderAction'
+    description = _('Open the folder that contains the book files in your'
+            ' calibre library')
 
 class ActionSendToDevice(InterfaceActionBase):
     name = 'Send To Device'
     actual_plugin = 'calibre.gui2.actions.device:SendToDeviceAction'
+    description = _('Send books to the connected device')
 
 class ActionConnectShare(InterfaceActionBase):
     name = 'Connect Share'
     actual_plugin = 'calibre.gui2.actions.device:ConnectShareAction'
+    description = _('Send books via email or the web also connect to iTunes or'
+            ' folders on your computer as if they are devices')
 
 class ActionHelp(InterfaceActionBase):
     name = 'Help'
     actual_plugin = 'calibre.gui2.actions.help:HelpAction'
+    description = _('Browse the calibre User Manual')
 
 class ActionPreferences(InterfaceActionBase):
     name = 'Preferences'
     actual_plugin = 'calibre.gui2.actions.preferences:PreferencesAction'
+    description = _('Customize calibre')
 
 class ActionSimilarBooks(InterfaceActionBase):
     name = 'Similar Books'
     actual_plugin = 'calibre.gui2.actions.similar_books:SimilarBooksAction'
+    description = _('Easily find books similar to the currently selected one')
 
 class ActionChooseLibrary(InterfaceActionBase):
     name = 'Choose Library'
     actual_plugin = 'calibre.gui2.actions.choose_library:ChooseLibraryAction'
+    description = _('Switch between different calibre libraries and perform'
+            ' maintenance on them')
 
 class ActionAddToLibrary(InterfaceActionBase):
     name = 'Add To Library'
     actual_plugin = 'calibre.gui2.actions.add_to_library:AddToLibraryAction'
+    description = _('Copy books from the devce to your calibre library')
 
 class ActionEditCollections(InterfaceActionBase):
     name = 'Edit Collections'
     actual_plugin = 'calibre.gui2.actions.edit_collections:EditCollectionsAction'
+    description = _('Edit the collections in which books are placed on your device')
 
 class ActionCopyToLibrary(InterfaceActionBase):
     name = 'Copy To Library'
     actual_plugin = 'calibre.gui2.actions.copy_to_library:CopyToLibraryAction'
+    description = _('Copy a book from one calibre library to another')
 
 class ActionTweakEpub(InterfaceActionBase):
     name = 'Tweak ePub'
     actual_plugin = 'calibre.gui2.actions.tweak_epub:TweakEpubAction'
+    description = _('Make small twekas to epub files in your calibre library')
 
 class ActionNextMatch(InterfaceActionBase):
     name = 'Next Match'
     actual_plugin = 'calibre.gui2.actions.next_match:NextMatchAction'
+    description = _('Find the next or previous match when searching in '
+            'your calibre library in highlight mode')
 
 class ActionStore(InterfaceActionBase):
     name = 'Store'
     author = 'John Schember'
     actual_plugin = 'calibre.gui2.actions.store:StoreAction'
+    description = _('Search for books from different book sellers')
 
     def customization_help(self, gui=False):
         return 'Customize the behavior of the store search.'
@@ -874,7 +902,7 @@ class ActionStore(InterfaceActionBase):
 class ActionPluginUpdater(InterfaceActionBase):
     name = 'Plugin Updater'
     author = 'Grant Drake'
-    description = 'Queries the MobileRead forums for updates to plugins to install'
+    description = _('Get new calibre plugins or update your existing ones')
     actual_plugin = 'calibre.gui2.actions.plugin_updates:PluginUpdaterAction'
 
 plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,
@@ -1311,6 +1339,16 @@ class StoreLegimiStore(StoreBase):
     headquarters = 'PL'
     formats = ['EPUB']
 
+class StoreLibreDEStore(StoreBase):
+    name = 'Libri DE'
+    author = 'Charles Haley'
+    description = u'Sicher Bücher, Hörbücher und Downloads online bestellen.'
+    actual_plugin = 'calibre.gui2.store.libri_de_plugin:LibreDEStore'
+
+    headquarters = 'DE'
+    formats = ['EPUB', 'PDF']
+    affiliate = True
+
 class StoreManyBooksStore(StoreBase):
     name = 'ManyBooks'
     description = u'Public domain and creative commons works from many sources.'
@@ -1461,6 +1499,7 @@ plugins += [
     StoreGutenbergStore,
     StoreKoboStore,
     StoreLegimiStore,
+    StoreLibreDEStore,
     StoreManyBooksStore,
     StoreMobileReadStore,
     StoreNextoStore,

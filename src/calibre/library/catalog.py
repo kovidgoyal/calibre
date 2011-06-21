@@ -4728,7 +4728,7 @@ Author '{0}':
                         pass
                     else:
                         # uuid found in cache with matching crc
-                        thumb_data = zf.read(title['uuid'])
+                        thumb_data = zf.read(title['uuid']+cover_crc)
                         with open(os.path.join(image_dir, thumb_file), 'wb') as f:
                             f.write(thumb_data)
                         return

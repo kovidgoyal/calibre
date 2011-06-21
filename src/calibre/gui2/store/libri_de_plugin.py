@@ -20,12 +20,12 @@ from calibre.gui2.store.basic_config import BasicStoreConfig
 from calibre.gui2.store.search_result import SearchResult
 from calibre.gui2.store.web_store_dialog import WebStoreDialog
 
-class BeamEBooksDEStore(BasicStoreConfig, StorePlugin):
+class LibreDEStore(BasicStoreConfig, StorePlugin):
 
     def open(self, parent=None, detail_item=None, external=False):
-        url = 'http://klick.affiliwelt.net/klick.php?bannerid=10072&pid=32307&prid=908'
-        url_details = ('http://klick.affiliwelt.net/klick.php?'
-                       'bannerid=10730&pid=32307&prid=908&prodid={0}')
+        url = 'http://ad.zanox.com/ppc/?18817073C15644254T'
+        url_details = ('http://ad.zanox.com/ppc/?18845780C1371495675T&ULP=[['
+                       'http://www.libri.de/shop/action/productDetails?artiId={0}]]')
 
         if external or self.config.get('open_external', False):
             if detail_item:
@@ -41,36 +41,34 @@ class BeamEBooksDEStore(BasicStoreConfig, StorePlugin):
             d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
-        url = 'http://www.beam-ebooks.de/suchergebnis.php?Type=&sw=' + urllib2.quote(query)
+        url = ('http://www.libri.de/shop/action/quickSearch?facetNodeId=6'
+               '&mainsearchSubmit=Los!&searchString=' + urllib2.quote(query))
         br = browser()
 
         counter = max_results
         with closing(br.open(url, timeout=timeout)) as f:
             doc = html.fromstring(f.read())
-            for data in doc.xpath('//table[tr/td/div[@class="stil2"]]'):
+            for data in doc.xpath('//div[contains(@class, "item")]'):
                 if counter <= 0:
                     break
 
-                id = ''.join(data.xpath('./tr/td[1]/a/@href')).strip()
+                details = data.xpath('./div[@class="beschreibungContainer"]')
+                if not details:
+                    continue
+                details = details[0]
+                id = ''.join(details.xpath('./div[@class="text"]/a/@name')).strip()
                 if not id:
                     continue
-                id = id[7:]
-                cover_url = ''.join(data.xpath('./tr/td[1]/a/img/@src'))
-                if cover_url:
-                    cover_url = 'http://www.beam-ebooks.de' + cover_url
-                temp = ''.join(data.xpath('./tr/td[1]/a/img/@alt'))
-                colon = temp.find(':')
-                if not temp.startswith('eBook') or colon < 0:
-                    continue
-                author = temp[5:colon]
-                title = temp[colon+1:]
-                price = ''.join(data.xpath('./tr/td[3]/text()'))
-                pdf = data.xpath(
-                        'boolean(./tr/td[3]/a/img[contains(@alt, "PDF")]/@alt)')
-                epub = data.xpath(
-                        'boolean(./tr/td[3]/a/img[contains(@alt, "ePub")]/@alt)')
-                mobi = data.xpath(
-                        'boolean(./tr/td[3]/a/img[contains(@alt, "Mobipocket")]/@alt)')
+                cover_url = ''.join(details.xpath('./div[@class="bild"]/a/img/@src'))
+                title = ''.join(details.xpath('./div[@class="text"]/span[@class="titel"]/a/text()')).strip()
+                author = ''.join(details.xpath('./div[@class="text"]/span[@class="author"]/text()')).strip()
+                pdf = details.xpath(
+                        'boolean(.//span[@class="format" and contains(text(), "pdf")]/text())')
+                epub = details.xpath(
+                        'boolean(.//span[@class="format" and contains(text(), "epub")]/text())')
+                mobi = details.xpath(
+                        'boolean(.//span[@class="format" and contains(text(), "mobipocket")]/text())')
+                price = (''.join(data.xpath('.//span[@class="preis"]/text()'))).replace('*', '')
                 counter -= 1
 
                 s = SearchResult()
@@ -78,7 +76,7 @@ class BeamEBooksDEStore(BasicStoreConfig, StorePlugin):
                 s.title = title.strip()
                 s.author = author.strip()
                 s.price = price
-                s.drm = SearchResult.DRM_UNLOCKED
+                s.drm = SearchResult.DRM_UNKNOWN
                 s.detail_item = id
                 formats = []
                 if epub:

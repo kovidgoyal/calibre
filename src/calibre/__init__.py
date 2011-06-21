@@ -578,6 +578,7 @@ def url_slash_cleaner(url):
 def get_download_filename(url, cookie_file=None):
     '''
     Get a local filename for a URL using the content disposition header
+    Returns empty string if no content disposition header present
     '''
     from contextlib import closing
     from urllib2 import unquote as urllib2_unquote
@@ -591,8 +592,10 @@ def get_download_filename(url, cookie_file=None):
         cj.load(cookie_file)
         br.set_cookiejar(cj)
 
+    last_part_name = ''
     try:
         with closing(br.open(url)) as r:
+            last_part_name = r.geturl().split('/')[-1]
             disposition = r.info().get('Content-disposition', '')
             for p in disposition.split(';'):
                 if 'filename' in p:
@@ -612,7 +615,7 @@ def get_download_filename(url, cookie_file=None):
         traceback.print_exc()
 
     if not filename:
-        filename = r.geturl().split('/')[-1]
+        filename = last_part_name
 
     return filename
 
