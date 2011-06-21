@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-06-17 18:48+0000\n"
-"PO-Revision-Date: 2011-06-19 14:59+0000\n"
+"PO-Revision-Date: 2011-06-20 11:08+0000\n"
 "Last-Translator: Ado Nishimura <Unknown>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-06-20 04:32+0000\n"
+"X-Launchpad-Export-Date: 2011-06-21 04:34+0000\n"
 "X-Generator: Launchpad (build 13168)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -12675,56 +12675,56 @@ msgstr "現在接続中のデバイス: （なし）"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:187
 msgid "That format and device already has a plugboard."
-msgstr ""
+msgstr "このフォーマットとデバイスの組はすでにルールにあります。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:199
 msgid "Possibly override plugboard?"
-msgstr ""
+msgstr "ルールをオーバーライドする可能性があります。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:200
 msgid ""
 "A more general plugboard already exists for that format and device. Are you "
 "sure you want to add the new plugboard?"
-msgstr ""
+msgstr "もっと汎用的なルールが、このフォーマットとデバイスに存在しています。本当に新しいルールを追加しますか？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:212
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:234
 msgid "Add possibly overridden plugboard?"
-msgstr ""
+msgstr "オーバーライドされているルールを追加する可能性があります。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:213
 msgid ""
 "More specific device plugboards exist for that format. Are you sure you want "
 "to add the new plugboard?"
-msgstr ""
+msgstr "もっと具体的なデバイスのルールが、このフォーマットに存在しています。本当に新しいルールを追加しますか？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:224
 msgid "Really add plugboard?"
-msgstr ""
+msgstr "本当にルールを追加しますか？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:225
 msgid ""
 "A different plugboard matches that format and device combination. Are you "
 "sure you want to add the new plugboard?"
-msgstr ""
+msgstr "他のルールがこのフォーマットとデバイスの組にマッチしました。本当に新しいルールを追加しますか？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:235
 msgid ""
 "More specific format and device plugboards already exist. Are you sure you "
 "want to add the new plugboard?"
-msgstr ""
+msgstr "もっと具体的なフォーマットとデバイスのルールがすでにあります。本当に新しいルールを追加しますか？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:246
 msgid "The {0} device does not support the {1} format."
-msgstr ""
+msgstr "{0}デバイスは {1} フォーマットをサポートしません。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:279
 msgid "Invalid destination"
-msgstr ""
+msgstr "不正な対象"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:280
 msgid "The destination field cannot be blank"
-msgstr ""
+msgstr "対象フィールドを指定しなければなりません。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:114
 msgid ""
@@ -12745,46 +12745,56 @@ msgid ""
 "users might do to force it to use the ';' that the kindle requires. A third "
 "would be to specify the language."
 msgstr ""
+"ここでは、calibreが書籍をディスクに保存時やデバイスに送る時に、書誌情報を変更するルールを設定できます。\n"
+"\n"
+"このダイアログで、特定のフォーマット(あるいはすべてのフォーマット)と特定のデバイス(あるいはすべてのデバイス)の組に対するルールを定義できます。ルールは"
+"どのテンプレートがどのフィールドに入れられるかを指定します。テンプレートは値を計算し、その値が指定したフィールドへ入れられます。\n"
+"\n"
+"通常はテンプレートは単に列への参照だけでしょうが、それ以上の事もできます。calibreの他の場所で使えるテンプレートが、このボックスでも使うことができま"
+"す。\n"
+"\n"
+"ルールを使う一つの例としては、タイトルを変更してシリーズ情報を加えることがあります。他の例としては、mobiファイルの作者ソートの欄にKindleが要求す"
+"る様に';'を使うことです。 3つ目の例としては、言語を指定する事もありえます。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:121
 msgid "Format (choose first)"
-msgstr ""
+msgstr "フォーマット(先に選択)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:122
 msgid "Device (choose second)"
-msgstr ""
+msgstr "デバイス(次に選択)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:123
 msgid "Add new plugboard"
-msgstr ""
+msgstr "新しいルールを追加"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:124
 msgid "Edit existing plugboard"
-msgstr ""
+msgstr "すでにあるルールを編集"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:125
 msgid "Existing plugboards"
-msgstr ""
+msgstr "すでにあるルール"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:126
 msgid "Source template"
-msgstr ""
+msgstr "元テンプレート"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:127
 msgid "Destination field"
-msgstr ""
+msgstr "保存先フィールド"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:128
 msgid "Save plugboard"
-msgstr ""
+msgstr "ルールを保存"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:129
 msgid "Delete plugboard"
-msgstr ""
+msgstr "ルールを削除"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:182
 msgid "%(plugin_type)s %(plugins)s"
-msgstr ""
+msgstr "%(plugin_type) %(plugins)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:183
 msgid "plugins"
@@ -12795,87 +12805,89 @@ msgid ""
 "\n"
 "Customization: "
 msgstr ""
+"\n"
+"設定: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:223
 msgid "Search for plugin"
-msgstr ""
+msgstr "プラグインを検索"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:232
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:328
 msgid "No matches"
-msgstr ""
+msgstr "該当なし"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:233
 msgid "Could not find any matching plugins"
-msgstr ""
+msgstr "該当するプラグインが見つかりません。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:274
 msgid "Add plugin"
-msgstr ""
+msgstr "プラグインを追加"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:306
 msgid "No valid plugin path"
-msgstr ""
+msgstr "無効なプラグインのパス"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:307
 msgid "%s is not a valid plugin path"
-msgstr ""
+msgstr "%sは有効なプラグインのパスではありません"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:316
 msgid "Select an actual plugin under <b>%s</b> to customize"
-msgstr ""
+msgstr "設定する<b>%s</b>の実際のプラグインを選択してください"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:346
 msgid "Plugin <b>{0}</b> successfully removed"
-msgstr ""
+msgstr "<b>{0}</b>プラグインは問題なく削除されました"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:354
 msgid "Cannot remove builtin plugin"
-msgstr ""
+msgstr "組み込みプラグインは削除できません"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:355
 msgid " cannot be removed. It is a builtin plugin. Try disabling it instead."
-msgstr ""
+msgstr " 削除できません。これは組み込みプラグインです。代わりに無効にしてください。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:106
 msgid ""
 "Here you can customize the behavior of Calibre by controlling what plugins "
 "it uses."
-msgstr ""
+msgstr "ここでは、どのプラグインを使用するかを制御する事でCalibreの動作をカスタマイズすることができます。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:112
 msgid "Get &new plugins"
-msgstr ""
+msgstr "新しいプラグインを取得(&N)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:113
 msgid "Check for &updated plugins"
-msgstr ""
+msgstr "プラグインの更新をチェック(&U)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:114
 msgid "&Load plugin from file"
-msgstr ""
+msgstr "ファイルからプラグインを読み込み"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:33
 msgid "Any custom field"
-msgstr ""
+msgstr "(任意のカスタム・フィールド)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:34
 msgid "The lookup name of any custom field. These names begin with \"#\")"
-msgstr ""
+msgstr "任意のカスタム・フィールドの検索名。これらは \"#\" で始めます。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:57
 msgid "Constant template"
-msgstr ""
+msgstr "固定のテンプレート"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:58
 msgid ""
 "The template contains no {fields}, so all books will have the same name. Is "
 "this OK?"
-msgstr ""
+msgstr "テンプレートに {フィールド} がありません。すべての書籍は同じ名前になります。よろしいですか？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template_ui.py:47
 msgid "Save &template"
-msgstr ""
+msgstr "テンプレートを保存(&T)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template_ui.py:48
 msgid ""
@@ -12885,20 +12897,22 @@ msgid ""
 "particular book does not have some metadata, the variable will be replaced "
 "by the empty string."
 msgstr ""
+"この下のテンプレートを修正することで、どのようなファイル名、どのようなフォルダにファイルが保存されるかを調整することができます。「/」文字を使うことでサブ"
+"フォルダーも指定できます。使用できる書誌情報の変数は下に表示されている通りです。もし書籍にいくつかの書誌情報が無かった場合、それらは空文字となります。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template_ui.py:49
 msgid "Available variables:"
-msgstr ""
+msgstr "使用できる変数："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/saving_ui.py:68
 msgid ""
 "Here you can control how calibre will save your books when you click the "
 "Save to Disk button:"
-msgstr ""
+msgstr "ここではCalibreが、ディスクに保存のボタンをクリックされたときに、どのように書籍を保存するかを設定できます。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/saving_ui.py:69
 msgid "Save &cover separately"
-msgstr ""
+msgstr "表紙を別に保存(&C)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/saving_ui.py:70
 msgid "Replace space with &underscores"
@@ -12906,11 +12920,11 @@ msgstr "空白をアンダースコアに置換する(&u)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/saving_ui.py:71
 msgid "Update &metadata in saved copies"
-msgstr ""
+msgstr "保存された物の書誌情報をアップデート(&M)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/saving_ui.py:72
 msgid "Change paths to &lowercase"
-msgstr ""
+msgstr "パスを小文字にする(&L)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/saving_ui.py:73
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:76
@@ -12927,7 +12941,7 @@ msgstr "英語以外の文字を英語の相当する文字に変換（latinの�
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/saving_ui.py:76
 msgid "Save metadata in &OPF file"
-msgstr ""
+msgstr "書誌情報をOPFファイルに保存(&O)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:33
 msgid ""
