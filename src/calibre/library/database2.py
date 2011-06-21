@@ -1931,19 +1931,28 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     def authors_with_sort_strings(self, id, index_is_id=False):
         id = id if index_is_id else self.id(id)
         aut_strings = self.conn.get('''
-                        SELECT authors.name, authors.sort
+                        SELECT authors.id, authors.name, authors.sort
                         FROM authors, books_authors_link as bl
                         WHERE bl.book=? and authors.id=bl.author
                         ORDER BY bl.id''', (id,))
         result = []
-        for (author, sort,) in aut_strings:
-            result.append((author.replace('|', ','), sort))
+        for (id_, author, sort,) in aut_strings:
+            result.append((id_, author.replace('|', ','), sort))
         return result
 
     # Given a book, return the author_sort string for authors of the book
     def author_sort_from_book(self, id, index_is_id=False):
         auts = self.authors_sort_strings(id, index_is_id)
         return ' & '.join(auts).replace('|', ',')
+
+    # Given an author, return a list of books with that author
+    def books_for_author(self, id_, index_is_id=False):
+        id_ = id_ if index_is_id else self.id(id_)
+        books = self.conn.get('''
+                        SELECT bl.book
+                        FROM books_authors_link as bl
+                        WHERE bl.author=?''', (id_,))
+        return [b[0] for b in books]
 
     # Given a list of authors, return the author_sort string for the authors,
     # preferring the author sort associated with the author over the computed
@@ -1968,7 +1977,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
         aum = self.authors_with_sort_strings(id_, index_is_id=True)
         self.data.set(id_, self.FIELD_MAP['au_map'],
-            ':#:'.join([':::'.join((au.replace(',', '|'), aus)) for (au, aus) in aum]),
+            ':#:'.join([':::'.join((au.replace(',', '|'), aus)) for (_, au, aus) in aum]),
             row_is_id=True)
 
     def _set_authors(self, id, authors, allow_case_change=False):

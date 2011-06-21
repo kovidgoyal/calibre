@@ -791,6 +791,10 @@ class ActionFetchNews(InterfaceActionBase):
     name = 'Fetch News'
     actual_plugin = 'calibre.gui2.actions.fetch_news:FetchNewsAction'
 
+class ActionQuickview(InterfaceActionBase):
+    name = 'Show Quickview'
+    actual_plugin = 'calibre.gui2.actions.show_quickview:ShowQuickviewAction'
+
 class ActionSaveToDisk(InterfaceActionBase):
     name = 'Save To Disk'
     actual_plugin = 'calibre.gui2.actions.save_to_disk:SaveToDiskAction'
@@ -875,8 +879,8 @@ class ActionPluginUpdater(InterfaceActionBase):
 
 plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,
         ActionConvert, ActionDelete, ActionEditMetadata, ActionView,
-        ActionFetchNews, ActionSaveToDisk, ActionShowBookDetails,
-        ActionRestart, ActionOpenFolder, ActionConnectShare,
+        ActionFetchNews, ActionSaveToDisk, ActionQuickview,
+        ActionShowBookDetails,ActionRestart, ActionOpenFolder, ActionConnectShare,
         ActionSendToDevice, ActionHelp, ActionPreferences, ActionSimilarBooks,
         ActionAddToLibrary, ActionEditCollections, ActionChooseLibrary,
         ActionCopyToLibrary, ActionTweakEpub, ActionNextMatch, ActionStore,
