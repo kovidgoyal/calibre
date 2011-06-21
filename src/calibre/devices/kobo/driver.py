@@ -280,8 +280,12 @@ class KOBO(USBMS):
             cursor.execute('delete from content_keys where volumeid = ?', t)
 
         # Delete the chapters associated with the book next
-        t = (ContentID,ContentID,)
-        cursor.execute('delete from content where BookID  = ? or ContentID = ?', t)
+        t = (ContentID,)
+        # Kobo does not delete the Book row (ie the row where the BookID is Null)
+        # The next server sync should remove the row
+        cursor.execute('delete from content where BookID = ?', t)
+        cursor.execute('update content set ReadStatus=0, FirstTimeReading = \'true\', ___PercentRead=0, ___ExpirationStatus=3 ' \
+                'where BookID is Null and ContentID =?',t)
 
         connection.commit()
 
