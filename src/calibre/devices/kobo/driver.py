@@ -126,7 +126,12 @@ class KOBO(USBMS):
                     bl_cache[lpath] = None
                     if ImageID is not None:
                         imagename = self.normalize_path(self._main_prefix + '.kobo/images/' + ImageID + ' - NickelBookCover.parsed')
+                        if not os.path.exists(imagename): 
+                            # Try the Touch version if the image does not exist
+                            imagename = self.normalize_path(self._main_prefix + '.kobo/images/' + ImageID + ' - N3_LIBRARY_FULL.parsed')
+
                         #print "Image name Normalized: " + imagename
+
                         if imagename is not None:
                             bl[idx].thumbnail = ImageWrapper(imagename)
                     if (ContentType != '6' and MimeType != 'Shortcover'):
@@ -194,7 +199,9 @@ class KOBO(USBMS):
         changed = False
         for i, row in enumerate(cursor):
         #  self.report_progress((i+1) / float(numrows), _('Getting list of books on device...'))
-
+            if row[3].startswith("file:///usr/local/Kobo/help/"):
+                # These are internal to the Kobo device and do not exist
+                continue
             path = self.path_from_contentid(row[3], row[5], row[4], oncard)
             mime = mime_type_ext(path_to_ext(path)) if path.find('kepub') == -1 else 'application/epub+zip'
             # debug_print("mime:", mime)
@@ -286,7 +293,7 @@ class KOBO(USBMS):
             path_prefix = '.kobo/images/'
             path = self._main_prefix + path_prefix + ImageID
 
-            file_endings = (' - iPhoneThumbnail.parsed', ' - bbMediumGridList.parsed', ' - NickelBookCover.parsed',)
+            file_endings = (' - iPhoneThumbnail.parsed', ' - bbMediumGridList.parsed', ' - NickelBookCover.parsed', ' - N3_LIBRARY_FULL.parsed', ' - N3_LIBRARY_GRID.parsed', ' - N3_LIBRARY_LIST.parsed', ' - N3_SOCIAL_CURRENTREAD.parsed',)
 
             for ending in file_endings:
                 fpath = path + ending
@@ -450,7 +457,10 @@ class KOBO(USBMS):
                 path = self._main_prefix + path + '.kobo'
                 # print "Path: " + path
             elif (ContentType == "6" or ContentType == "10") and MimeType == 'application/x-kobo-epub+zip':
-                path = self._main_prefix + '.kobo/kepub/' + path
+                if path.startswith("file:///mnt/onboard/"):
+                    path = self._main_prefix + path.replace("file:///mnt/onboard/", '')
+                else:
+                    path = self._main_prefix + '.kobo/kepub/' + path
                 # print "Internal: " + path
             else:
                 # if path.startswith("file:///mnt/onboard/"):
