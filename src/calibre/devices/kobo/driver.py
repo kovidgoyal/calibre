@@ -100,7 +100,7 @@ class KOBO(USBMS):
         for idx,b in enumerate(bl):
             bl_cache[b.lpath] = idx
 
-        def update_booklist(prefix, path, title, authors, mime, date, ContentType, ImageID, readstatus, MimeType):
+        def update_booklist(prefix, path, title, authors, mime, date, ContentType, ImageID, readstatus, MimeType, expired):
             changed = False
             try:
                 lpath = path.partition(self.normalize_path(prefix))[2]
@@ -118,6 +118,11 @@ class KOBO(USBMS):
                 elif readstatus == 3:
                     playlist_map[lpath]= "Closed"
 
+                # Related to a bug in the Kobo firmware that leaves an expired row for deleted books
+                # this shows an expired Collection so the user can decide to delete the book
+                if expired == 3:
+                    playlist_map[lpath] = "Expired"
+
                 path = self.normalize_path(path)
                 # print "Normalized FileName: " + path
 
@@ -131,7 +136,8 @@ class KOBO(USBMS):
                             imagename = self.normalize_path(self._main_prefix + '.kobo/images/' + ImageID + ' - N3_LIBRARY_FULL.parsed')
 
                         #print "Image name Normalized: " + imagename
-
+                        if not os.path.exists(imagename):
+                            debug_print("Strange - The image name does not exist - title: ", title)
                         if imagename is not None:
                             bl[idx].thumbnail = ImageWrapper(imagename)
                     if (ContentType != '6' and MimeType != 'Shortcover'):
@@ -192,7 +198,7 @@ class KOBO(USBMS):
         self.dbversion = result[0]
 
         query= 'select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
-                'ImageID, ReadStatus from content where BookID is Null'
+                'ImageID, ReadStatus, ___ExpirationStatus  from content where BookID is Null'
 
         cursor.execute (query)
 
@@ -207,10 +213,10 @@ class KOBO(USBMS):
             # debug_print("mime:", mime)
 
             if oncard != 'carda' and oncard != 'cardb' and not row[3].startswith("file:///mnt/sd/"):
-                changed = update_booklist(self._main_prefix, path, row[0], row[1], mime, row[2], row[5], row[6], row[7], row[4])
+                changed = update_booklist(self._main_prefix, path, row[0], row[1], mime, row[2], row[5], row[6], row[7], row[4], row[8])
                 # print "shortbook: " + path
             elif oncard == 'carda' and row[3].startswith("file:///mnt/sd/"):
-                changed = update_booklist(self._card_a_prefix, path, row[0], row[1], mime, row[2], row[5], row[6], row[7], row[4])
+                changed = update_booklist(self._card_a_prefix, path, row[0], row[1], mime, row[2], row[5], row[6], row[7], row[4], row[8])
 
             if changed:
                 need_sync = True
@@ -274,8 +280,12 @@ class KOBO(USBMS):
             cursor.execute('delete from content_keys where volumeid = ?', t)
 
         # Delete the chapters associated with the book next
-        t = (ContentID,ContentID,)
-        cursor.execute('delete from content where BookID  = ? or ContentID = ?', t)
+        t = (ContentID,)
+        # Kobo does not delete the Book row (ie the row where the BookID is Null)
+        # The next server sync should remove the row
+        cursor.execute('delete from content where BookID = ?', t)
+        cursor.execute('update content set ReadStatus=0, FirstTimeReading = \'true\', ___PercentRead=0, ___ExpirationStatus=3 ' \
+                'where BookID is Null and ContentID =?',t)
 
         connection.commit()
 
