@@ -5,23 +5,27 @@ __docformat__ = 'restructuredtext en'
 
 
 from PyQt4.Qt import (Qt, QDialog, QAbstractItemView, QTableWidgetItem,
-                      QListWidgetItem, QByteArray, QModelIndex)
+                      QListWidgetItem, QByteArray, QModelIndex, QCoreApplication)
 
 from calibre.gui2.dialogs.quickview_ui import Ui_Quickview
 from calibre.utils.icu import sort_key
 from calibre.gui2 import gprefs
 
-class tableItem(QTableWidgetItem):
+class TableItem(QTableWidgetItem):
+    '''
+    A QTableWidgetItem that sorts on a separate string and uses ICU rules
+    '''
 
-    def __init__(self, val):
+    def __init__(self, val, sort):
+        self.sort = sort
         QTableWidgetItem.__init__(self, val)
         self.setFlags(Qt.ItemIsEnabled|Qt.ItemIsSelectable)
 
     def __ge__(self, other):
-        return sort_key(unicode(self.text())) >= sort_key(unicode(other.text()))
+        return sort_key(self.sort) >= sort_key(other.sort)
 
     def __lt__(self, other):
-        return sort_key(unicode(self.text())) < sort_key(unicode(other.text()))
+        return sort_key(self.sort) < sort_key(other.sort)
 
 class Quickview(QDialog, Ui_Quickview):
 
@@ -31,12 +35,16 @@ class Quickview(QDialog, Ui_Quickview):
         self.setupUi(self)
         self.isClosed = False
 
+        self.books_table_column_widths = None
         try:
+            self.books_table_column_widths = \
+                        gprefs.get('quickview_dialog_books_table_widths', None)
             geom = gprefs.get('quickview_dialog_geometry', bytearray(''))
             self.restoreGeometry(QByteArray(geom))
         except:
             pass
 
+        # Remove the help button from the window title bar
         icon = self.windowIcon()
         self.setWindowFlags(self.windowFlags()&(~Qt.WindowContextHelpButtonHint))
         self.setWindowIcon(icon)
@@ -44,11 +52,16 @@ class Quickview(QDialog, Ui_Quickview):
         self.db = view.model().db
         self.view = view
         self.gui = gui
+        self.is_closed = False
+        self.current_book_id = None
+        self.current_key = None
+        self.use_current_key_for_next_refresh = False
+        self.last_search = None
 
         self.items.setSelectionMode(QAbstractItemView.SingleSelection)
         self.items.currentTextChanged.connect(self.item_selected)
-#        self.items.setFixedWidth(150)
 
+        # Set up the books table columns
         self.books_table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.books_table.setSelectionMode(QAbstractItemView.SingleSelection)
         self.books_table.setColumnCount(3)
@@ -60,67 +73,81 @@ class Quickview(QDialog, Ui_Quickview):
         self.books_table.setHorizontalHeaderItem(2, t)
         self.books_table_header_height = self.books_table.height()
         self.books_table.cellDoubleClicked.connect(self.book_doubleclicked)
+        self.books_table.sortByColumn(0, Qt.AscendingOrder)
 
-        self.is_closed = False
-        self.current_book_id = None
-        self.current_key = None
-        self.use_current_key_for_next_refresh = False
-        self.last_search = None
+        # get the standard table row height. Do this here because calling
+        # resizeRowsToContents can word wrap long cell contents, creating
+        # double-high rows
+        self.books_table.setRowCount(1)
+        self.books_table.setItem(0, 0, TableItem('A', ''))
+        self.books_table.resizeRowsToContents()
+        self.books_table_row_height = self.books_table.rowHeight(0)
+        self.books_table.setRowCount(0)
 
+        # Add the data
         self.refresh(row)
-#        self.connect(self.view.selectionModel(), SIGNAL('currentChanged(QModelIndex,QModelIndex)'), self.slave)
+
         self.view.selectionModel().currentChanged[QModelIndex,QModelIndex].connect(self.slave)
+        QCoreApplication.instance().aboutToQuit.connect(self.save_state)
         self.search_button.clicked.connect(self.do_search)
 
+    # search button
     def do_search(self):
         if self.last_search is not None:
             self.use_current_key_for_next_refresh = True
             self.gui.search.set_search_string(self.last_search)
 
+    # clicks on the items listWidget
     def item_selected(self, txt):
         self.fill_in_books_box(unicode(txt))
 
+    # Given a cell in the library view, display the information
     def refresh(self, idx):
         bv_row = idx.row()
         key = self.view.model().column_map[idx.column()]
 
         book_id = self.view.model().id(bv_row)
 
+        # Double-clicking on a book to show it in the library view will result
+        # in a signal emitted for column 1 of the book row. Use the original
+        # column for this signal.
         if self.use_current_key_for_next_refresh:
             key = self.current_key
             self.use_current_key_for_next_refresh = False
         else:
+            # Only show items for categories
             if not self.db.field_metadata[key]['is_category']:
                 if self.current_key is None:
                     return
                 key = self.current_key
         self.items_label.setText('{0} ({1})'.format(
                                     self.db.field_metadata[key]['name'], key))
+
+        self.items.blockSignals(True)
         self.items.clear()
         self.books_table.setRowCount(0)
 
         mi = self.db.get_metadata(book_id, index_is_id=True, get_user_categories=False)
         vals = mi.get(key, None)
-        if not vals:
-            return
 
-        if not isinstance(vals, list):
-            vals = [vals]
-        vals.sort(key=sort_key)
+        if vals:
+            if not isinstance(vals, list):
+                vals = [vals]
+            vals.sort(key=sort_key)
 
-        self.items.blockSignals(True)
-        for v in vals:
-            a = QListWidgetItem(v)
-            self.items.addItem(a)
-        self.items.setCurrentRow(0)
+            for v in vals:
+                a = QListWidgetItem(v)
+                self.items.addItem(a)
+            self.items.setCurrentRow(0)
+
+            self.current_book_id = book_id
+            self.current_key = key
+
+            self.fill_in_books_box(vals[0])
         self.items.blockSignals(False)
 
-        self.current_book_id = book_id
-        self.current_key = key
-
-        self.fill_in_books_box(vals[0])
-
     def fill_in_books_box(self, selected_item):
+        # Do a bit of fix-up on the items so that the search works.
         if selected_item.startswith('.'):
             sv = '.' + selected_item
         else:
@@ -129,43 +156,82 @@ class Quickview(QDialog, Ui_Quickview):
         self.last_search = self.current_key+':"=' + sv + '"'
         books = self.db.search_getting_ids(self.last_search,
                                            self.db.data.search_restriction)
+
         self.books_table.setRowCount(len(books))
         self.books_label.setText(_('Books with selected item: {0}').format(len(books)))
 
-        select_row = None
+        select_item = None
         self.books_table.setSortingEnabled(False)
         for row, b in enumerate(books):
             mi = self.db.get_metadata(b, index_is_id=True, get_user_categories=False)
-            a = tableItem(mi.title)
+            a = TableItem(mi.title, mi.title_sort)
             a.setData(Qt.UserRole, b)
             self.books_table.setItem(row, 0, a)
-            a = tableItem(' & '.join(mi.authors))
+            if b == self.current_book_id:
+                select_item = a
+            a = TableItem(' & '.join(mi.authors), mi.author_sort)
             self.books_table.setItem(row, 1, a)
             series = mi.format_field('series')[1]
             if series is None:
                 series = ''
-            a = tableItem(series)
+            a = TableItem(series, series)
             self.books_table.setItem(row, 2, a)
-            if b == self.current_book_id:
-                select_row = row
+            self.books_table.setRowHeight(row, self.books_table_row_height)
 
-        self.books_table.resizeColumnsToContents()
-#        self.books_table.resizeRowsToContents()
-
-        if select_row is not None:
-            self.books_table.selectRow(select_row)
         self.books_table.setSortingEnabled(True)
+        if select_item is not None:
+            self.books_table.setCurrentItem(select_item)
+            self.books_table.scrollToItem(select_item, QAbstractItemView.PositionAtCenter)
+
+    # Deal with sizing the table columns. Done here because the numbers are not
+    # correct until the first paint.
+    def resizeEvent(self, *args):
+        QDialog.resizeEvent(self, *args)
+        if self.books_table_column_widths is not None:
+            for c,w in enumerate(self.books_table_column_widths):
+                self.books_table.setColumnWidth(c, w)
+        else:
+            # the vertical scroll bar might not be rendered, so might not yet
+            # have a width. Assume 25. Not a problem because user-changed column
+            # widths will be remembered
+            w = self.books_table.width() - 25 - self.books_table.verticalHeader().width()
+            w /= self.books_table.columnCount()
+            for c in range(0, self.books_table.columnCount()):
+                self.books_table.setColumnWidth(c, w)
+        self.save_state()
 
     def book_doubleclicked(self, row, column):
         self.use_current_key_for_next_refresh = True
         self.view.select_rows([self.books_table.item(row, 0).data(Qt.UserRole).toInt()[0]])
 
+    # called when a book is clicked on the library view
     def slave(self, current, previous):
+        if self.is_closed:
+            return
         self.refresh(current)
         self.view.activateWindow()
 
-    def done(self, r):
-        geom = bytearray(self.saveGeometry())
-        gprefs['quickview_dialog_geometry'] = geom
+    def save_state(self):
+        if self.is_closed:
+            return
+        self.books_table_column_widths = []
+        for c in range(0, self.books_table.columnCount()):
+            self.books_table_column_widths.append(self.books_table.columnWidth(c))
+        gprefs['quickview_dialog_books_table_widths'] = self.books_table_column_widths
+        gprefs['quickview_dialog_geometry'] = bytearray(self.saveGeometry())
+
+    def close(self):
+        self.save_state()
+        # clean up to prevent memory leaks
+        self.db = self.view = self.gui = None
         self.is_closed = True
-        QDialog.done(self, r)
+
+    # called by the window system
+    def closeEvent(self, *args):
+        self.close()
+        QDialog.closeEvent(self, *args)
+
+    # called by the close button
+    def reject(self):
+        self.close()
+        QDialog.reject(self)
