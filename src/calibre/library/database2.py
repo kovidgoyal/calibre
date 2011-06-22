@@ -1132,11 +1132,16 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         return ans
 
     def format_hash(self, id_, fmt):
-        data = self.format(id_, fmt, index_is_id=True)
-        if data is None:
+        path = self.format_abspath(id_, fmt, index_is_id=True)
+        if path is None:
             raise NoSuchFormat('Record %d has no fmt: %s'%(id_, fmt))
         sha = hashlib.sha256()
-        sha.update(data)
+        with lopen(path, 'rb') as f:
+            while True:
+                raw = f.read(SPOOL_SIZE)
+                sha.update(raw)
+                if len(raw) < SPOOL_SIZE:
+                    break
         return sha.hexdigest()
 
     def format_abspath(self, index, format, index_is_id=False):
