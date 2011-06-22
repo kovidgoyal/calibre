@@ -44,13 +44,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-06-17 18:48+0000\n"
-"PO-Revision-Date: 2011-06-20 22:51+0000\n"
-"Last-Translator: Bart Bone <Unknown>\n"
+"PO-Revision-Date: 2011-06-22 00:12+0000\n"
+"Last-Translator: drMerry <Unknown>\n"
 "Language-Team: Dutch <ubuntu-l10n-nl@lists.ubuntu.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-06-21 04:34+0000\n"
+"X-Launchpad-Export-Date: 2011-06-22 04:32+0000\n"
 "X-Generator: Launchpad (build 13168)\n"
 "X-Poedit-Country: NETHERLANDS\n"
 "X-Poedit-Language: Dutch\n"
@@ -253,7 +253,7 @@ msgstr "Metadata lezer"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:384
 msgid "Metadata writer"
-msgstr "Schrijver van metadata"
+msgstr "Metadata schrijver"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:414
 msgid "Catalog generator"
@@ -1412,7 +1412,7 @@ msgstr "Alle op titel"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:63
 msgid "All by author"
-msgstr "Allen op schrijver"
+msgstr "Allen op auteur"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:66
 msgid ""
@@ -2356,8 +2356,8 @@ msgstr "Geef de titel op."
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:442
 msgid "Set the authors. Multiple authors should be separated by ampersands."
 msgstr ""
-"Geef de schrijvers op. Meerdere schrijvers moeten van elkaar worden "
-"gescheiden door het en-teken."
+"Geef de auteurs op. Meerdere auteurs moeten van elkaar worden gescheiden "
+"door het en-teken."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:447
 msgid "The version of the title to be used for sorting. "
@@ -2365,7 +2365,7 @@ msgstr "De versie van de titel die wordt gebruikt bij het sorteren. "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:451
 msgid "String to be used when sorting by author. "
-msgstr "De string die gebruikt wordt bij het sorteren op schrijver. "
+msgstr "De string die gebruikt wordt bij het sorteren op auteur. "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:455
 msgid "Set the cover to the specified file or URL"
@@ -2672,7 +2672,7 @@ msgid ""
 "disables the generation of this cover."
 msgstr ""
 "Normaal gesproken zal een standaardomslag worden aangemaakt met daarop de "
-"titel, schrijvers, enz. Als het invoerbestand geen omslag bevat en er niet "
+"titel, auteurs, enz. Als het invoerbestand geen omslag bevat en er niet "
 "expliciet een is opgegeven. Deze optie schakelt dit uit."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:86
@@ -3177,7 +3177,7 @@ msgstr "Titel"
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1029
 #: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread/models.py:23
 msgid "Author(s)"
-msgstr "Schrijver(s)"
+msgstr "Auteur(s)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:735
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:72
@@ -3823,7 +3823,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:40
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:303
 msgid "Author"
-msgstr "Schrijver"
+msgstr "Auteur"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/info.py:47
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/emailp.py:27
@@ -4314,7 +4314,7 @@ msgstr "Sociale metadata (labels, waarderingen, etc) downloaden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:172
 msgid "Overwrite author and title with new metadata"
-msgstr "Overschrijf schrijver en titel met nieuwe metadata"
+msgstr "Overschrijf auteur en titel met nieuwe metadata"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:174
 msgid "Automatically download the cover, if available"
@@ -5555,7 +5555,7 @@ msgstr "Alt+A"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:24
 msgid "Books by same author"
-msgstr "Boeken van dezelfde schrijver"
+msgstr "Boeken van dezelfde auteur"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:25
 msgid "Books in this series"
@@ -5591,7 +5591,7 @@ msgstr "Zoeken naar e-boeken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:30
 msgid "Search for this author"
-msgstr "Zoek naar deze schrijver"
+msgstr "Zoek naar deze auteur"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:31
 msgid "Search for this title"
@@ -7108,7 +7108,7 @@ msgstr "Verander de titel van dit boek"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:166
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:525
 msgid "&Author(s): "
-msgstr "Schrijver(s) "
+msgstr "&Auteur(s) "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:167
 msgid "Author So&rt:"
@@ -7180,7 +7180,7 @@ msgstr "Afbeeldingen herschalen voor &Palm-apparaten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:77
 msgid "Use author &sort for author"
-msgstr "Gebruik schrijvers &sortering als schrijver"
+msgstr "Gebruik auteurs &sortering als auteur"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:78
 msgid "Disable compression of the file contents"
@@ -7744,7 +7744,7 @@ msgstr "Heeft p&arameter:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:87
 msgid "With &value:"
-msgstr "Met &waarde:"
+msgstr "Be&vat waarde:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:88
 msgid "(A regular expression)"
@@ -7809,7 +7809,7 @@ msgstr "Niet gewaardeerd"
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:170
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:667
 msgid "Set '%s' to today"
-msgstr "Maak '%s' vandaag"
+msgstr "‘%s’ instellen op vandaag"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:172
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:669
@@ -8042,9 +8042,9 @@ msgid ""
 "Could not upload the following books to the device, as no suitable formats "
 "were found. Convert the book(s) to a format supported by your device first."
 msgstr ""
-"De volgende boeken konden niet worden geupload naar het apparaat, aangezien "
+"De volgende boeken konden niet naar het apparaat geupload worden, aangezien "
 "er geen geschikte bestandsformaten konden worden gevonden. Converteer "
-"boek(en) eerst naar een formaat dat wordt ondersteund door uw apparaat."
+"boek(en) eerst naar een formaat dat door uw apparaat wordt ondersteund."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:1254
 msgid "No space on device"
@@ -8067,8 +8067,9 @@ msgid ""
 "support them. If you send these formats to your {1} they may not work. Are "
 "you sure?"
 msgstr ""
-"U hebt de <b>{0}</b> formaten geactiveerd voor uw {1}. Misschien ondersteunt "
-"uw {1} ze niet en zullen ze niet werken als u ze verstuurt. Weet u het zeker?"
+"U heeft de <b>{0}</b>-formaten voor uw {1} ingesteld. Mogelijk ondersteunt "
+"{1} deze formaten niet en zullen ze niet werken als u ze verstuurt. Weet u "
+"zeker dat u door wilt gaan?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget.py:148
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:439
@@ -8102,7 +8103,7 @@ msgstr "Gebruik deelmappen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:84
 msgid "Use author sort for author"
-msgstr "Gebruik sorteerauteur als auteur"
+msgstr "Gebruik auteur-sortering als auteur"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:85
 msgid "Save &template:"
@@ -8142,12 +8143,12 @@ msgid ""
 "enter the full path to the file after a <code>>></code>.  For example:</p>\n"
 "<p><code>9788842915232 >> %s</code></p>"
 msgstr ""
-"<p>Geef een lijst van ISBN's in het vak links. Calibre maakt automatisch "
-"records voor deze boeken gebaseerd op ISBN en downloadt hun metadata en "
+"<p>Geef een lijst van ISBN's in het vak links, één per regel. Calibre maakt "
+"automatisch records voor deze boeken aan downloadt hun metadata en "
 "omslagen.</p>\n"
 "<p>Ongeldige ISBN's in de lijst worden genegeerd.</p>\n"
-"<p>U kan bij een ISBN ook een bestand opgeven om toe te voegen. Daarvoor "
-"tikt u het volledige pad van het bestand na een <code>>></code>, "
+"<p>U kunt ook een bestand opgeven dat aan elke ISBN toegevoegd wordt. "
+"Daarvoor vult u het volledige pad naar het bestand na een <code>>></code>, "
 "bijvoorbeeld:</p>\n"
 "<p><code>9788842915232 >> %s</code></p>"
 
@@ -8387,7 +8388,7 @@ msgstr "Naar klembord &kopieren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:236
 msgid "Delete marked files (checked subitems)"
-msgstr "Verwijder gemarkeerde bestanden (aangevinkte deelitems)"
+msgstr "Verwijder gemarkeerde bestanden (aangevinkte subitems)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:242
 msgid "Fix marked sections (checked fixable items)"
@@ -8574,7 +8575,7 @@ msgstr "&Titel:"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:98
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:178
 msgid "&Author(s):"
-msgstr "Schrijver(s)"
+msgstr "&Auteur(s)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:100
 msgid "&Profile:"
@@ -8599,7 +8600,7 @@ msgstr "Commentaar bewerken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/confirm_delete_location_ui.py:76
 msgid "Where do you want to delete from?"
-msgstr "Waar vandaag wilt u verwijderen?"
+msgstr "Waaruit wilt u verwijderen?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/confirm_delete_location_ui.py:77
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:68
@@ -8672,7 +8673,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:43
 msgid "Author sort"
-msgstr "Schrijversortering"
+msgstr "Auteur-sortering"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:104
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main.py:160
@@ -8717,7 +8718,7 @@ msgstr "Maak hoofdletters"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:141
 msgid "Copy to author sort"
-msgstr "Kopieer naar schrijversortering"
+msgstr "Kopieer naar auteur-sortering"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:144
 msgid "Copy to author"
@@ -8726,17 +8727,17 @@ msgstr "Kopieer naar auteur"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:271
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1439
 msgid "Invalid author name"
-msgstr "Ongeldige schrijversnaam"
+msgstr "Ongeldige auteursnaam"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:272
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1440
 msgid "Author names cannot contain & characters."
-msgstr "Schrijvers namen kunnen geen &-teken bevatten"
+msgstr "Namen van auteurs mogen geen &-teken bevatten."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:88
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:120
 msgid "Manage authors"
-msgstr "Beheer auteurs"
+msgstr "Auteurs beheren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:89
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:597
@@ -8750,11 +8751,11 @@ msgstr "V&ind"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:91
 msgid "Sort by author"
-msgstr "Gesorteerd op schrijver"
+msgstr "Gesorteerd op auteur"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:92
 msgid "Sort by author sort"
-msgstr "Sorteer op schrijversortering"
+msgstr "Sorteer op auteur-sortering"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:93
 msgid ""
@@ -8762,26 +8763,26 @@ msgid ""
 "generated from the author. Exactly how this value is automatically\n"
 "generated can be controlled via Preferences->Advanced->Tweaks"
 msgstr ""
-"Vervang alle waarden voor schrijverssortering naar een automatisch\n"
-"berekende waarde uit het veld schrijver. Hoe die omzetting exact gebeurd\n"
+"Vervang alle waarden voor auteursortering met een automatisch\n"
+"uit het auteur-veld berekende waarde. Hoe die omzetting exact gebeurd\n"
 "kan ingesteld worden via Voorkeuren->Geavanceerd->Tweaks"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:96
 msgid "Recalculate all author sort values"
-msgstr "Herbereken alle schrijvers sortering waarden"
+msgstr "Herbereken alle auteursorterings-waarden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:97
 msgid ""
 "Copy author sort to author for every author. You typically use this button\n"
 "after changing Preferences->Advanced->Tweaks->Author sort name algorithm"
 msgstr ""
-"Kopieer schrijvers sortering naar schrijver voor elke schrijver. Dit gebruik "
-"je na het aanpassen van Voorkeuren->geavanceerd->Tweaks->algoitme voor "
-"schrijvers sortering."
+"Kopieer de waarde voor auteursortering naar auteur, voor elke auteur. Dit "
+"gebruikt u waarschijnlijk na het aanpassen van Voorkeuren->Geavanceerd-"
+">Tweaks->algoritme voor auteursortering."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:99
 msgid "Copy all author sort values to author"
-msgstr "Kopieer alle schrijver sorteer waarden naar schrijver."
+msgstr "Kopieer alle auteursorterings-waarden naar auteur."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/job_view_ui.py:45
 msgid "Details of job"
@@ -8801,7 +8802,7 @@ msgstr "Taak&details tonen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:52
 msgid "Stop &all non device jobs"
-msgstr "Stop &alle niet-apparaatgerelateerde taken"
+msgstr "&Alle niet-apparaat gerelateerde taken stoppen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:49
 msgid "&Copy to clipboard"
@@ -8828,18 +8829,18 @@ msgstr "Gekopieerd"
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:770
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:205
 msgid "Copy to clipboard"
-msgstr "Kopieer naar klembord"
+msgstr "Naar klembord kopieren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:181
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:229
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:831
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:922
 msgid "View log"
-msgstr "Log bekijken"
+msgstr "Log weergeven"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:58
 msgid "Title/Author"
-msgstr "Titel/Schrijver"
+msgstr "Titel/auteur"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:59
 msgid "Standard metadata"
@@ -8861,7 +8862,7 @@ msgstr "Bezig"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:266
 msgid "Character match"
-msgstr "Tekenovereenkomst"
+msgstr "Teken komt overeen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:267
 msgid "Regular Expression"
@@ -8944,12 +8945,13 @@ msgstr ""
 "In regexpmodus moet de zoektekst op regexps van python zijn gebaseerd. De "
 "vervangende tekst kan terugverwijzen naar uitdrukkingen tussen haakjes in "
 "het patroon. De zoekopdracht is niet uniek en kan verschillende aanpassingen "
-"doen in een keer. De aanpassingsfuncties (kleine letters enz.) worden "
-"toegepast op de gevonden tekst, niet op het hele veld. Het doelveld geeft "
-"aan waar de aanpassingen zullen worden geplaatst. Je kunt de tekst in dat "
-"veld vervangen, of er toevoegen, ervoor erna. Zie <a "
-"href=\"http://docs.python.org/library/re.html\"> deze bron</a> voor meer "
-"informatie over pythons regexps en dan vooral de 'sub'(ingebedde)-functie."
+"op dezelfde string doen. De aanpassingsfuncties (kleine letters enz.) worden "
+"toegepast op de gevonden tekst, niet op het hele veld. Het doel-veld geeft "
+"aan waar de aanpassingen zullen worden geplaatst. U kunt de tekst in dat "
+"veld vervangen, of de gevonde tekst er aan toevoegen. Zie <a "
+"href=\"http://docs.python.org/library/re.html\"> deze uitleg</a> "
+"(Engelstalig) voor meer informatie over pythons regexps en dan vooral ‘sub’-"
+"functie."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:502
 msgid "S/R TEMPLATE ERROR"
@@ -8972,7 +8974,7 @@ msgstr "Zoeken/vervangen ongeldig"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:753
 msgid ""
 "Authors cannot be set to the empty string. Book title %s not processed"
-msgstr "Auteursveld mag niet leeg zijn. Boek titel %s niet verwerkt"
+msgstr "Het auteur-veld mag niet leeg zijn. Boek met titel %s niet verwerkt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:772
 msgid "Title cannot be set to the empty string. Book title %s not processed"
@@ -8997,7 +8999,7 @@ msgstr "Verwijder opgeslagen zoeken/vervangen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:982
 msgid "The selected saved search/replace will be deleted. Are you sure?"
-msgstr "Geselecteerde zoek/vervang wordt verwijderd. Weet u het zeker?"
+msgstr "Geselecteerde zoeken/vervangen wordt verwijderd. Weet u het zeker?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:999
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1007
@@ -9013,15 +9015,16 @@ msgid ""
 "That saved search/replace already exists and will be overwritten. Are you "
 "sure?"
 msgstr ""
-"Deze zoek/vervang bestaat al en zal overschreven worden. Weet u het zeker?"
+"Deze zoeken/vervangen bestaat al en zal overschreven worden. Weet u het "
+"zeker?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:524
 msgid "Edit Meta information"
-msgstr "Bewerk meta-informatie"
+msgstr "Metadata bewerken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:526
 msgid "A&utomatically set author sort"
-msgstr "Vul sorteerauteur automatisch in"
+msgstr "Auteursortering a&utomatisch instellen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:527
 msgid "&Swap title and author"
@@ -9029,15 +9032,15 @@ msgstr "Verwi&ssel titel en schrijver"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:528
 msgid "Author s&ort: "
-msgstr "S&orteerauteur: "
+msgstr "Auteurs&ortering: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:529
 msgid ""
 "Specify how the author(s) of this book should be sorted. For example Charles "
 "Dickens should be sorted as Dickens, Charles."
 msgstr ""
-"Geef aan hoe de schrijver(s) van dit boeken dienen te worden gesorteerd. "
-"Bijvoorbeeld: Charles Dickens moet worden gesorteerd als: Dickens, Charles"
+"Geef aan hoe de auteur(s) van dit boek gesorteerd moeten worden. "
+"Bijvoorbeeld: Charles Dickens moet worden gesorteerd als: Dickens, Charles."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:530
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:889
@@ -9066,7 +9069,7 @@ msgstr "Labels toevoe&gen: "
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:539
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:166
 msgid "Open Tag Editor"
-msgstr "Open Labelbeheer"
+msgstr "Labelbewerking openen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:540
 msgid "&Remove tags:"
@@ -9092,7 +9095,7 @@ msgstr "Als dit is ingesteld wordt de reeks verwijderd"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:548
 msgid "&Clear series"
-msgstr "Verwijder reeks uit &calibre"
+msgstr "Reeks wissen/ops&chonen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:549
 msgid ""
@@ -9157,13 +9160,15 @@ msgid ""
 "checked,\n"
 "title and author are swapped before the title case is set"
 msgstr ""
-"Maakt de eerste letter van de woorden in de titel een hoofdletter. Als zowel "
+"Maakt van de woorden in de titel de eerste letter een hoofdletter. Als zowel "
 "dit\n"
-"als 'wissel titel en auteur' aangevinkt zijn wordt eerst gewisseld"
+"als ‘titel en auteur omwisselen’ aangevinkt zijn worden titel en auteur "
+"omgewisseld\n"
+"voordat de hoofdletters aangepast worden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:570
 msgid "Change title to title &case"
-msgstr "Wijzig hoofdletters in titel naar titelformaat"
+msgstr "Wijzig bes&chikbare hoofdletters in titels naar titelformaat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:571
 msgid ""
@@ -9195,7 +9200,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:577
 msgid "Change &cover"
-msgstr "Verander &calibre omslag"
+msgstr "Bes&chikbare omslag wijzigen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:578
 msgid "&Generate default cover"
@@ -9218,7 +9223,7 @@ msgstr "&Basismetadata"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:582
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:510
 msgid "&Custom metadata"
-msgstr "Persoonlijke metadata (&calibre)"
+msgstr "Aangepaste metadata"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:583
 msgid "Load searc&h/replace:"
@@ -9243,11 +9248,11 @@ msgstr "Verwijderen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:589
 msgid "Search &field:"
-msgstr "Zoek in veld:"
+msgstr "Zoekveld:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:590
 msgid "The name of the field that you want to search"
-msgstr "De naam van het veld waarin je wilt zoeken"
+msgstr "De naam van het veld dat u wilt doorzoeken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:591
 msgid "Search &mode:"
@@ -9257,8 +9262,7 @@ msgstr "Zoek&modus:"
 msgid ""
 "Choose whether to use basic text matching or advanced regular expression "
 "matching"
-msgstr ""
-"Kies voor basis tekstvergelijking of geavanceerde regexp vergelijking"
+msgstr "Kies voor simpele tekstvergelijking of geavanceerde regexp"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:593
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:615
@@ -9276,7 +9280,7 @@ msgstr "&Sjabloon:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:596
 msgid "Enter a template to be used as the source for the search/replace"
-msgstr "Geef een sjabloon als basis voor zoek/vervang"
+msgstr "Geef een sjabloon als basis voor zoeken/vervangen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:598
 msgid ""
@@ -9312,7 +9316,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:603
 msgid "&Apply function after replace:"
-msgstr "Functie toep&assen na vervangen:"
+msgstr "Functie na vervangen toep&assen:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:604
 msgid ""
@@ -9321,9 +9325,9 @@ msgid ""
 "field is processed. In regular expression mode, only the matched text is "
 "processed"
 msgstr ""
-"Geef op hoe de tekst verwerkt moet worden na zoeken en vervangen. In "
-"tekenmodus wordt het volledige\n"
-"veld verwerkt. In regexpmodus wordt alleen de overeenkomende tekst verwerkt"
+"Geef op hoe de tekst na zoeken en vervangen verwerkt moet worden. In teken-"
+"modus wordt het volledige\n"
+"veld verwerkt. In regexp-modus wordt alleen de overeenkomende tekst verwerkt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:606
 msgid "&Destination field:"
@@ -9547,7 +9551,7 @@ msgstr "Controle op nieuwe versie mislukt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:474
 msgid "Unable to reach the MobileRead plugins forum index page."
-msgstr ""
+msgstr "Forum indexpagina onbereikbaar."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:481
 msgid "User plugins"
@@ -9689,7 +9693,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:770
 msgid "Version history missing"
-msgstr ""
+msgstr "Versiegeschiedenis niet beschikbaar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:771
 msgid "Unable to find the version history for %s"
@@ -9788,8 +9792,7 @@ msgstr "Opgeslagen zoekopdracht bestaat al"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor.py:76
 msgid "The saved search %s already exists, perhaps with different case"
 msgstr ""
-"Opgelagen zoekopdracht %s bestaat al, misschien met ander hoofdletter "
-"gebruik."
+"Opgelagen zoekopdracht %s bestaat al, misschien met ander hoofdlettergebruik"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor.py:62
 msgid ""
@@ -9800,7 +9803,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:94
 msgid "Saved Search Editor"
-msgstr "Beheer opgeslagen zoekopdrachten"
+msgstr "Opgeslagen zoekopdrachten bewerken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor_ui.py:95
 msgid "Saved Search: "
@@ -9874,7 +9877,7 @@ msgstr "&Dagen van de maand:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:105
 msgid "Comma separated list of days of the month. For example: 1, 15"
-msgstr "Komma gescheiden lijst van dagen van de maand. Bijvoorbeeld: 1, 15"
+msgstr "Komma-gescheiden lijst van dagen van de maand. Bijvoorbeeld: 1, 15"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:109
 msgid "Download &after:"
@@ -10014,11 +10017,11 @@ msgstr "&Account"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:217
 msgid "For the scheduling to work, you must leave calibre running."
-msgstr "Calibre moet blijven werken om het schema uit te voeren."
+msgstr "Calibre moet actief blijven om deze planning uit te voeren."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:218
 msgid "&Schedule"
-msgstr "&Planning"
+msgstr "&Schema"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:219
 msgid "Add &title as tag"
@@ -10049,13 +10052,13 @@ msgid ""
 "<p>Also, the setting for deleting periodicals older than a number of days, "
 "below, takes priority over this setting."
 msgstr ""
-"<p>Indien ingevuld, zal calibre maximaal dit aantal nummers van het "
+"<p>Als dit is ingesteld, zal calibre maximaal dit aantal nummers van het "
 "tijdschrift bewaren. Als dit aantal bereikt is zal calibre de oudste editie "
 "verwijderen.\n"
-"<p>Merk op dat deze functie alleen werkt als je hierboven de optie 'Voeg "
-"titel toe als label' hebt aangevinkt.\n"
+"<p>Merk op dat deze functie alleen werkt als hierboven de optie ‘Titel als "
+"label toevoegen’ is aangevinkt.\n"
 "<p>De instelling om tijdschriftnummers te verwijderen als ze ouder zijn dan "
-"een gegeven aantal dagen hieronder heeft voorrang boven deze instelling."
+"een gegeven aantal dagen heeft prioriteit over deze instelling."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:226
 msgid "all issues"
@@ -10087,9 +10090,9 @@ msgid ""
 msgstr ""
 "<p>Verwijder gedownload nieuws ouder dan het aantal aangegeven dagen. Zet op "
 "nul om uit te schakelen.\n"
-"<p>Je kan ook het maximale aantal te bewaren nummers van een specifiek "
-"tijdschrift instellen door hierboven op het 'geavanceerd'-tabblad te klikken "
-"voor dat tijdschrift."
+"<p>U kunt ook het maximale aantal te bewaren nummers van een specifiek "
+"tijdschrift instellen door naar het geavanceerd-tabblad voor dat tijdschrift "
+"te gaan."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:233
 msgid "never delete"
@@ -10126,7 +10129,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_item_ui.py:44
 msgid "Negate"
-msgstr "Negeren"
+msgstr "Omdraaien"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:198
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:206
@@ -10147,7 +10150,7 @@ msgstr "&Welk type zoeken gebruiken:"
 #: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread/adv_search_builder_ui.py:170
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:188
 msgid "Contains: the word or phrase matches anywhere in the metadata field"
-msgstr "Bevat: het woord of de zin mag overal in het metadataveld voorkomen"
+msgstr "Bevat: Het woord of de zin mag overal in het metadataveld voorkomen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:201
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:209
@@ -10155,7 +10158,7 @@ msgstr "Bevat: het woord of de zin mag overal in het metadataveld voorkomen"
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:189
 msgid "Equals: the word or phrase must match the entire metadata field"
 msgstr ""
-"Gelijk: Het woord of de zin moet gelijk zijn met het hele metadataveld."
+"Gelijk: Het woord of de zin moet gelijk zijn met het hele metadataveld"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:202
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:210
@@ -10198,7 +10201,7 @@ msgstr "Eén &of meer van deze woorden:"
 #: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread/adv_search_builder_ui.py:177
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:195
 msgid "But dont show entries that have..."
-msgstr "Maar laat geen ingangen zien die..."
+msgstr "Maar laat geen items zien die…"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:208
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:216
@@ -10235,16 +10238,17 @@ msgstr "Geef de titel op."
 #: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread/adv_search_builder_ui.py:183
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:201
 msgid "&Author:"
-msgstr "Schrijver:"
+msgstr "&Auteur:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:215
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:930
 msgid "Ta&gs:"
-msgstr "&Labels:"
+msgstr "Labels:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:216
 msgid "Enter an author's name. Only one author can be used."
-msgstr "Geef een schrijversnaam op. Er kan maar 1 schrijver gebruikt worden."
+msgstr ""
+"Geef de naam van de auteur op. Er kan slechts één auteur opgegeven worden."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:217
 msgid ""
@@ -10284,7 +10288,7 @@ msgstr "Kies formaten"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:146
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:111
 msgid "Authors"
-msgstr "Schrijvers"
+msgstr "Auteurs"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:60
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:147
@@ -10328,7 +10332,7 @@ msgstr "De naam wordt al gebruikt, misschien met ander hoofdlettergebruik."
 msgid ""
 "The current tag category will be <b>permanently deleted</b>. Are you sure?"
 msgstr ""
-"De huidige labelcategorie zal <b>definitief verwijderd worden</b>. Weet u "
+"De huidige labelcategorie zal <b>definitief verwijderd</b> worden. Weet u "
 "het zeker?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:166
@@ -10396,16 +10400,16 @@ msgid ""
 "The following tags are used by one or more books. Are you certain you want "
 "to delete them?"
 msgstr ""
-"De volgende labels zijn in gebruik door een of meerdere boeken. Weet je "
-"zeker dat je ze wilt verwijderen?"
+"De volgende labels worden voor één of meer boeken gebruikt. Weet u zeker dat "
+"u ze wilt verwijderen?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor_ui.py:128
 msgid "Tag Editor"
-msgstr "Beheer labels"
+msgstr "Labels bewerken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor_ui.py:129
 msgid "A&vailable tags"
-msgstr "&Beschikbare labels"
+msgstr "Beschikbare labels"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_editor_ui.py:130
 msgid ""
@@ -10885,7 +10889,7 @@ msgstr "E-book:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:200
 msgid "Attached, you will find the e-book"
-msgstr "In de bijlage vindt u het e-boek"
+msgstr "U vindt het e-boek in de bijlage"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:201
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:189
@@ -10971,7 +10975,7 @@ msgstr "Geen overeenkomst"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:140
 msgid "Authors:"
-msgstr "Schrijvers:"
+msgstr "Auteurs:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:141
 msgid "Regular expression (?P<author>)"
@@ -11184,7 +11188,7 @@ msgid ""
 "<p>Search the list of books by title, author, publisher, tags, comments, "
 "etc.<br><br>Words separated by spaces are ANDed"
 msgstr ""
-"<p>Doorzoek de boekenlijst gesorteerd op titel, schrijver, uitgever, labels, "
+"<p>Doorzoek de boekenlijst gesorteerd op titel, auteur, uitgever, labels, "
 "commentaar, enz.<br><br>Woorden gescheiden door spaties moeten alle voorkomen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:195
@@ -11574,15 +11578,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:192
 msgid "Authors changed"
-msgstr "Schrijvers veranderd"
+msgstr "Auteurs veranderd"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:193
 msgid ""
 "You have changed the authors for this book. You must save these changes "
 "before you can use Manage authors. Do you want to save these changes?"
 msgstr ""
-"Je hebt de schrijver van dit boek veranderd. Je moet de wijzigingen opslaan "
-"voor je schrijversbeheer kan gebruiken. Wil je de wijzigingen nu opslaan?"
+"Je hebt de auteur van dit boek veranderd. Je moet de wijzigingen opslaan "
+"voor je auteursbeheer kan gebruiken. Wil je de wijzigingen nu opslaan?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:274
 msgid ""
@@ -11591,31 +11595,31 @@ msgid ""
 "If the box is colored green, then text matches the individual author's sort "
 "strings. If it is colored red, then the authors and this text do not match."
 msgstr ""
-"Geef aan hoe de schrijvers van dit boek gesorteerd moeten worden. "
-"Bijvoorbeeld Charles Dickens moet gesorteerd worden als Dickens, Charles.\n"
+"Geef aan hoe de auteurs van dit boek gesorteerd moeten worden. Bijvoorbeeld "
+"Charles Dickens moet gesorteerd worden als Dickens, Charles.\n"
 "Als het veld groen gekleurd is, dan komt de tekst overeen met de individuele "
-"schrijvers sortering. Als het rood is, dan komen de schrijver en deze tekst "
-"niet overeen."
+"auteurssortering. Als het rood is, dan komen de auteur en deze tekst niet "
+"overeen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:279
 msgid "Author s&ort:"
-msgstr "Schrijvers s&ortering:"
+msgstr "Auteurs&ortering:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:289
 msgid ""
 " The green color indicates that the current author sort matches the current "
 "author"
 msgstr ""
-" De groene kleur geeft aan dat de huidige schrijvers sortering overeenkomt "
-"met de huidige schrijver"
+" De groene kleur geeft aan dat de huidige auteurssortering overeenkomt met "
+"de huidige auteur"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:292
 msgid ""
 " The red color indicates that the current author sort does not match the "
 "current author. No action is required if this is what you want."
 msgstr ""
-" De rode kleur geeft aan dat de huidige schrijver sorteing niet overeenkomt "
-"met de huidige schrijver. Als dit is wat je wil kan je het zo laten."
+" De rode kleur geeft aan dat de huidige auteurssortering niet overeenkomt "
+"met de huidige auteur. Als dit is wat je wil kan je het zo laten."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:433
 msgid "&Number:"
@@ -11698,11 +11702,11 @@ msgstr "Geen geldige afbeelding"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:799
 msgid "Specify title and author"
-msgstr "Geef titel en schrijver"
+msgstr "Geef titel en auteur"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:800
 msgid "You must specify a title and author before generating a cover"
-msgstr "Je moet een titel en schrijver opgeven voor je een omslag genereert"
+msgstr "Je moet een titel en auteur opgeven voor je een omslag genereert"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:818
 msgid "Invalid cover"
@@ -11890,30 +11894,30 @@ msgid ""
 "red to green.  There is a menu of functions available under this button. "
 "Click and hold on the button to see it."
 msgstr ""
-"Leid de schrijversortering automatisch af uit de schrijver. Gebruik van deze "
-"knop om de schrijversortering te maken zal de schrijversortering veranderen "
-"van rood in groen. Er is een functiemenu beschikbaar onder deze knop. Klik "
-"erop en houd vast om dit menu te zien."
+"Leid de auteurssortering automatisch af uit de schrijver. Gebruik van deze "
+"knop om de auteurssortering te maken zal de auteurssortering veranderen van "
+"rood in groen. Er is een functiemenu beschikbaar onder deze knop. Klik erop "
+"en houd vast om dit menu te zien."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:118
 msgid "Set author sort from author"
-msgstr "Leid schrijversortering af van schrijver"
+msgstr "Leid auteurssortering af van auteur"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:119
 msgid "Set author from author sort"
-msgstr "Leid schrijver af van schrijversortering"
+msgstr "Leid auteur af van auteurssortering"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:129
 msgid "Swap the author and title"
-msgstr "Verwissel schrijver en titel"
+msgstr "Verwissel auteur en titel"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:135
 msgid ""
 "Manage authors. Use to rename authors and correct individual author's sort "
 "values"
 msgstr ""
-"Beheer schrijvers. Gebruik dit om schrijvers te hernoemen en individuele "
-"schrijversortering waardes te corrigeren"
+"Beheer auteurs. Gebruik dit om auteurs te hernoemen en individuele "
+"auteurssortering waardes te corrigeren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:143
 msgid "Remove unused series (Series that have no books)"
@@ -12037,7 +12041,7 @@ msgid ""
 msgstr ""
 "Geen boeken gevonden voor de zoekopdracht. Probeer de zoekopdracht <b>minder "
 "specifiek</b> te maken. Gebruik bijvoorbeeld alleen de achternaam van de "
-"schrijver of één enkel sleutelwoord uit de titel. Om alle meldingen te zien "
+"auteur of één enkel sleutelwoord uit de titel. Om alle meldingen te zien "
 "klik je op \"Toon details\"."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:538
@@ -12118,12 +12122,12 @@ msgid ""
 "Swap the firstname and lastname of the author. This affects only metadata "
 "read from file names."
 msgstr ""
-"Verwissel de voornaam en achternaam van de schrijver. Dit heeft alleen "
+"Verwissel de voornaam en achternaam van de auteur. Dit heeft alleen "
 "betrekking op metadata gelezen uit bestandsnamen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:68
 msgid "&Swap author firstname and lastname"
-msgstr "Ver&wissel voor- en achternaam schrijver"
+msgstr "Verwi&ssel voor- en achternaam auteur"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:69
 msgid ""
@@ -12142,10 +12146,10 @@ msgstr ""
 "automatisch bij de bestaande boekrecords toegevoegd. Het vak rechts geeft "
 "aan wat gebeurt als de bestaande record\n"
 "het formaat al heeft. Merk op dat dit ook de 'kopieer naar bibliotheek'-"
-"actie beënvloedt.\n"
+"actie beïnvloedt.\n"
 "\n"
 "Titel vergelijking is niet hoofdletter-gevoelig, negeert (Engelstalige) "
-"lidwoorden, leestekens, enz. Vergelijking van schrijvers is exact."
+"lidwoorden, leestekens, enz. Vergelijking van auteurs is exact."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:74
 msgid "&Automerge added books if they already exist in the calibre library:"
@@ -12840,7 +12844,7 @@ msgstr "Toon aanvinkwaarden"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:227
 msgid ""
 "Check this box if this column contains names, like the authors column."
-msgstr "Vink dit aan als de kolom namen bevat zoals de schrijverskolom."
+msgstr "Vink dit aan als de kolom namen bevat zoals de auteurskolom."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:228
 msgid "Contains names"
@@ -13392,7 +13396,7 @@ msgstr "Zet alle binnengehaalde commentaar om naar platte &tekst"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:128
 msgid "Swap author names from FN LN to LN, FN"
-msgstr "Wissel schrijversnamen van VN AN naar AN, VN"
+msgstr "Wissel auteursnamen van VN AN naar AN, VN"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:129
 msgid "Max. number of &tags to download:"
@@ -13878,7 +13882,7 @@ msgid ""
 msgstr ""
 "Als je een zoekterm zonder prefix opgeeft dan doorzoekt calibre normaal alle "
 "metadata. Als je bijvoorbeeld \"Mulisch\" ingeeft zoekt calibre niet alleen "
-"bij schrijvers maar ook bij labels, titels enz. Hier kan je dit gedrag "
+"bij auteurs maar ook bij labels, titels enz. Hier kan je dit gedrag "
 "aanpassen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:114
@@ -14860,7 +14864,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread/adv_search_builder_ui.py:187
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:209
 msgid "Titl&e/Author/Price ..."
-msgstr "Tit&el/Schrijver/Prijs ..."
+msgstr "Tit&el/Auteur/Prijs ..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread/cache_progress_dialog_ui.py:51
 msgid "Updating book cache"
@@ -15114,8 +15118,7 @@ msgstr "De kolomgroep heet \"{0}\""
 msgid ""
 "Changing the authors for several books can take a while. Are you sure?"
 msgstr ""
-"Het veranderen van schrijvers voor deze boeken kan even duren. Weet u het "
-"zeker?"
+"Het veranderen van auteurs voor deze boeken kan even duren. Weet u het zeker?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1070
 msgid ""
@@ -15154,7 +15157,7 @@ msgstr "De opgeslagen zoekopdracht %s is reeds in gebruik"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1840
 msgid "Manage Authors"
-msgstr "Beheer schrijvers"
+msgstr "Beheer auteurs"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1842
 msgid "Manage Series"
@@ -15226,7 +15229,7 @@ msgstr ""
 "zoektekst bevat worden gevonden. Je kan zoeken beperken tot bepaalde\n"
 "kolommen met een syntax zoals die van gewoon zoeken. 'tags:foo' "
 "bijvoorbeeld\n"
-"vindt 'foo' in alle labels, maar niet in schrijvers e.d. \"*foo\" invoeren \n"
+"vindt 'foo' in alle labels, maar niet in auteurs e.d. \"*foo\" invoeren \n"
 "filtert alle categorieën tegelijk en toont alleen items die de tekst\n"
 "foo bevatten"
 
@@ -15280,7 +15283,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:2177
 msgid "Manage authors, tags, etc"
-msgstr "Beheer schrijvers, labels, enz."
+msgstr "Beheer auteurs, labels, enz."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:2178
 msgid ""
@@ -15452,11 +15455,11 @@ msgstr "Nieuwe plugin versies"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:189
 msgid "There are %d plugin updates available"
-msgstr ""
+msgstr "Er zijn %d nieuwe plugin-versies beschikbaar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:193
 msgid "Install and configure user plugins"
-msgstr ""
+msgstr "Installeer en configureer gebruikers plugins"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager.py:43
 msgid "Edit bookmark"
@@ -16635,7 +16638,7 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
-"'Schrijvers'-sectie opnemen in catalogus.\n"
+"'Auteurs'-sectie opnemen in catalogus.\n"
 "Standaard: '%default'\n"
 "Van toepassing op: ePub-, MOBI-weergaveformaten"
 
@@ -16783,14 +16786,14 @@ msgid ""
 "Select all books by '{0}', apply correct Author Sort value in Edit Metadata "
 "dialog, then rebuild the catalog.\n"
 msgstr ""
-"Inconsistente schrijvers sortering waarde voor\n"
-"Schrijver '{0}':\n"
+"Inconsistente auteurssortering waarde voor\n"
+"Auteur '{0}':\n"
 "'{1}' <> '{2}'\n"
 "MOBI-catalogus kan niet worden gemaakt.\n"
 "\n"
-"Selecteer alle boeken op '{0}', verbeter de waarde voor het veld schrijver "
-"sortering in het venster \"Metadata wijzigen\" en bouw daarna de catalogus "
-"opnieuw op.\n"
+"Selecteer alle boeken op '{0}', verbeter de waarde voor het veld "
+"auteurssortering in het venster \"Metadata wijzigen\" en bouw daarna de "
+"catalogus opnieuw op.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:1523
 msgid ""
@@ -16798,8 +16801,8 @@ msgid ""
 "Author '{0}':\n"
 "'{1}' <> '{2}'\n"
 msgstr ""
-"Waarschuwing: inconsistente waarde voor schrijvers sortering voor\n"
-"Schrijver '{0}':\n"
+"Waarschuwing: inconsistente waarde voor auteurs sortering voor\n"
+"Auteur '{0}':\n"
 "'{1}' <> '{2}'\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:1719
@@ -16820,7 +16823,7 @@ msgid ""
 "*** Adding 'By Authors' Section required for MOBI output ***"
 msgstr ""
 "\n"
-"*** Opnemen van 'schrijvers'-sectie verplicht voor MOBI-uitvoer ***"
+"*** Opnemen van 'auteurs'-sectie verplicht voor MOBI-uitvoer ***"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:26
 msgid "Invalid titles"
@@ -16832,11 +16835,11 @@ msgstr "Extra titels"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:28
 msgid "Invalid authors"
-msgstr "Ongeldige schrijvers"
+msgstr "Ongeldige auteurs"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:29
 msgid "Extra authors"
-msgstr "Extra schrijvers"
+msgstr "Extra auteurs"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:30
 msgid "Missing book formats"
@@ -17585,7 +17588,7 @@ msgstr "Identificatoren"
 
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:206
 msgid "Author Sort"
-msgstr "Schrijvers sortering"
+msgstr "Auteurs sortering"
 
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:318
 msgid "Title Sort"
@@ -17605,14 +17608,14 @@ msgstr "De titel"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:33
 msgid "The authors"
-msgstr "De schrijvers"
+msgstr "De auteurs"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:34
 msgid ""
 "The author sort string. To use only the first letter of the name use "
 "{author_sort[0]}"
 msgstr ""
-"De schrijvers sorteer string. Gebruik {author_sort[0]} om alleen de eerste "
+"De auteurssorteer string. Gebruik {author_sort[0]} om alleen de eerste "
 "letter van de naam te gebruiken"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:36
@@ -17704,9 +17707,9 @@ msgid ""
 "are: {%s}"
 msgstr ""
 "De sjabloon die de bestandsnaam en mapstructuur bepaalt voor de opgeslagen "
-"bestanden. Standaard is  \"%s\", en dit slaat boeken op in mappen per "
-"schrijver met daarin bestandsnamen met de titel en schrijver. Beschikbare "
-"opties zijn: {%s}"
+"bestanden. Standaard is  \"%s\", en dit slaat boeken op in mappen per auteur "
+"met daarin bestandsnamen met de titel en auteur. Beschikbare opties zijn: "
+"{%s}"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:99
 msgid ""
@@ -17717,8 +17720,8 @@ msgid ""
 msgstr ""
 "De sjabloon om de bestands- en mapnamen te definiëren van de bestanden die "
 "naar het apparaat worden gestuurd. Standaard is \"%s\", wat boeken opslaat "
-"in mappen per schrijver, met bestandsnamen die zowel de titel als de "
-"schrijver bevatten. Beschikbare instellingen zijn: {%s}"
+"in mappen per auteur, met bestandsnamen die zowel de titel als de auteur "
+"bevatten. Beschikbare instellingen zijn: {%s}"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:106
 msgid ""
@@ -17798,8 +17801,8 @@ msgid ""
 "more than this number of items. Default: %default. Set to a large number to "
 "disable grouping."
 msgstr ""
-"Groepeer items in categorieën zoals schrijver/labels op de eerste letter als "
-"er meer dan dit aantal items zijn. Standaard: %default. Maak hier een groot "
+"Groepeer items in categorieën zoals auteur/labels op de eerste letter als er "
+"meer dan dit aantal items zijn. Standaard: %default. Maak hier een groot "
 "getal van om groeperen uit te zetten."
 
 #: /home/kovid/work/calibre/src/calibre/library/server/__init__.py:48
@@ -18079,8 +18082,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/utils/config_base.py:399
 msgid "Swap author first and last names when reading metadata"
 msgstr ""
-"Verwissel voor- en achternaam van de schrijver bij het inlezen van de "
-"metadata"
+"Verwissel voor- en achternaam van de auteur bij het inlezen van de metadata"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config_base.py:401
 msgid "Add new formats to existing book records"
@@ -18434,8 +18436,8 @@ msgid ""
 msgstr ""
 "count(waarde, scheiding) -- interpreteert de waarde als een lijst van termen "
 "gescheiden door 'scheiding', geeft het aantal items in de lijst terug. "
-"Meeste lijsten gebruiken een komma als scheiding maar schrijvers gebruiken "
-"een ampersand. Voorbeeld: {tags:count{,}}, {authors:count{&}}"
+"Meeste lijsten gebruiken een komma als scheiding maar auteurs gebruiken een "
+"ampersand. Voorbeeld: {tags:count{,}}, {authors:count{&}}"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:475
 msgid ""
@@ -19153,7 +19155,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:31
 msgid "Add separator after completing an author name"
-msgstr "Voeg splitter toe na het completeren van een schrijvers naam"
+msgstr "Voeg splitter toe na het completeren van een auteursnaam"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:32
 msgid ""
@@ -19166,12 +19168,12 @@ msgstr ""
 "Moet het afsluitend scheidingsteken worden toegevoegd\n"
 "aan het einde van de complete tekst om\n"
 "automatisch een nieuwe afsluitingsactie uit te voeren\n"
-"voor schrijvers?\n"
+"voor auteurs.\n"
 "Kan True of False zijn"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:39
 msgid "Author sort name algorithm"
-msgstr "Algoritme voor schrijvers sortering"
+msgstr "Algoritme voor auteurssortering"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:40
 msgid ""
@@ -19191,10 +19193,10 @@ msgid ""
 "periods are automatically handled."
 msgstr ""
 "Het algoritme gebruikt om schrijver te kopiëren naar\n"
-"sorteerauteur\n"
+"auteurssortering\n"
 "Mogelijke waarden zijn:\n"
 "invert: gebruik \"vn an\" -> \"an, vn\"\n"
-"copy  : kopieer auteur naar sorteerauteur zonder aanpassing\n"
+"copy  : kopieer auteur naar auteurssortering zonder aanpassing\n"
 "comma : gebruik 'copy' als er een ',' in de naam zit, anders wordt 'invert' "
 "gebruikt\n"
 "nocomma : \"vn an\" -> \"an vn\" (zonder de komma)\n"
@@ -19202,7 +19204,7 @@ msgstr ""
 "auteur opnieuw berekend moeten worden door rechts te klikken op een auteur\n"
 "in het paneel aan de linkerkant, en 'beheer auteurs' te selecteren, gevolgd "
 "door\n"
-"'Alle sorteerauteurwaarden opnieuw berekenen'.\n"
+"'Alle autreurssortering-waarden opnieuw berekenen'.\n"
 "Achtervoegsels van auteursnamen zijn woorden die genegeerd moeten worden\n"
 "als ze aan het einde van de naam voorkomen.\n"
 "Achtervoegsels zijn hoofdletterongevoelig en punten op het einde worden \n"
@@ -19210,7 +19212,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:57
 msgid "Use author sort in Tag Browser"
-msgstr "Gebruik schrijvers sortering in de labelbrowser"
+msgstr "Gebruik auteurssortering in de labelbrowser"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:58
 msgid ""
@@ -19352,7 +19354,7 @@ msgstr ""
 "is de zoeknaam, te vinden door de tooltip voor de kolom te bekijken.\n"
 "Volgorde is 0 voor oplopend, 1 voor aflopend\n"
 "Bijvoorbeeld, instellen op [('authors',0),('title',0)] om te sorteren op\n"
-"titel binnen schrijvers."
+"titel binnen auteurs."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:113
 msgid "Control how dates are displayed"

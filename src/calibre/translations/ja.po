@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-06-17 18:48+0000\n"
-"PO-Revision-Date: 2011-06-20 11:08+0000\n"
+"PO-Revision-Date: 2011-06-21 12:59+0000\n"
 "Last-Translator: Ado Nishimura <Unknown>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-06-21 04:34+0000\n"
+"X-Launchpad-Export-Date: 2011-06-22 04:33+0000\n"
 "X-Generator: Launchpad (build 13168)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -12967,6 +12967,19 @@ msgid ""
 "check for duplicates, to find which column contains a particular item, or to "
 "have hierarchical categories (categories that contain categories)."
 msgstr ""
+"<b>グループ化検索名</b>は自動的に1つ以上の列を検索する事を可能にする検索名です。例えば、もし<code>allseries</code>と言うグル"
+"ープ化検索名を<code>series, #myseries, "
+"#myseries2</code>と言う値で作った場合、<code>allseries:adhoc</code>と検索すると、'adhoc'と言う語が、<"
+"code>series</code>, <code>#myseries</code>, と <code>#myseries2</code> "
+"の3つの列から検索されます。<p>ドロップダウンボックスにグループ化検索名の名前を入力し、値ボックスに検索する列のリストを入力して、保存ボタンを押してくだ"
+"さい。<p>注：検索文字は小文字に変換されます。<code>MySearch</code> と "
+"<code>mysearch</code>は同一です。<p>グループ化検索名をタグブラウザのユーザーカテゴリとして表示することも可能です。グループ化検索名"
+"を単にユーザーカテゴリの作成ボックスに入れてください。複数の検索名をコンマで区切って入れることもできます。新しいユーザーカテゴリーには自動的にグループ化検"
+"索名で検索された物が表示されます。<p>自動ユーザーカテゴリはグループ化検索名に含まれる列からの検索結果を簡単に見ることができます。上の<code>all"
+"series</code>の例を使うと、自動的に作られたユーザーカテゴリには<code>series</code>, "
+"<code>#myseries</code>, and "
+"<code>#myseries2</code>フィールドに入れられたすべてのシリーズ名が入ります。これは重複のチェックや、特定のアイテムを含む列を見つける"
+"時、あるいは階層的カテゴリー（カテゴリーを含むカテゴリー)を作る時に便利です。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:96
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:106
@@ -12975,40 +12988,40 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:128
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:119
 msgid "Grouped Search Terms"
-msgstr ""
+msgstr "グループ化検索名"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:97
 msgid "The search term cannot be blank"
-msgstr ""
+msgstr "検索後は空にできません"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:107
 msgid "That name is already used for a column or grouped search term"
-msgstr ""
+msgstr "この名前はすでに列名かグループ化検索語で使われています。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:111
 msgid "That name is already used for user category"
-msgstr ""
+msgstr "この名前はすでにユーザーカテゴリーに使われています。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:117
 msgid "The value box cannot be empty"
-msgstr ""
+msgstr "値の欄は空欄にはできません"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:129
 msgid "The empty grouped search term cannot be deleted"
-msgstr ""
+msgstr "中身の無いグループ化検索語は削除できません"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:110
 msgid "Search as you &type"
-msgstr ""
+msgstr "タイプする度に検索"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:111
 msgid ""
 "&Highlight search results instead of restricting the book list to the results"
-msgstr ""
+msgstr "検索結果を書籍のリストとして表示するのではなく、ハイライト表示する"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:112
 msgid "What to search by default"
-msgstr ""
+msgstr "ディフォールトでの検索対象"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:113
 msgid ""
@@ -13017,14 +13030,17 @@ msgid ""
 "search not just authors but title/tags/series/comments/etc. Use these "
 "options if you would like to change this behavior."
 msgstr ""
+"検索語に接頭辞を付けずに入力した場合、ディフォールトではcalibreはすべての書誌情報を検索します。例えば \"asimov\" "
+"と入力した場合、著者だけでなく、タイトル/タグ/シリーズ/コメント/その他のフィールドも検索されます。ここでのオプションはこの動作を変更することができます"
+"。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:114
 msgid "&Limit the searched metadata"
-msgstr ""
+msgstr "検索する対象の書誌情報を制限(&L)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:115
 msgid "&Columns that non-prefixed searches are limited to:"
-msgstr ""
+msgstr "接頭辞を付けない検索の検索対象列を、次に制限する(&C)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:116
 msgid ""
@@ -13033,20 +13049,22 @@ msgid ""
 "you always use prefixes in your saved searches. For example, use "
 "\"series:Foundation\" rather than just \"Foundation\" in  a saved search"
 msgstr ""
+"このオプションは保存された検索を含む、すべての検索に影響します。ですので、このオプションを使うときには、保存された検索に必ず接頭辞を付けると良いでしょう。"
+"例えば、保存された検索では、\"Foundation\" よりも \"series:Foundation\" を使ってください。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:117
 msgid ""
 "Clear search histories from all over calibre. Including the book list, e-"
 "book viewer, fetch news dialog, etc."
-msgstr ""
+msgstr "calibreの書籍リストやe-bookビューワー、ニュース取得を含む、すべての検索履歴を消去します。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:118
 msgid "Clear search &histories"
-msgstr ""
+msgstr "検索履歴を消去(&H)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:120
 msgid "&Names:"
-msgstr ""
+msgstr "名前(&N)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:121
 msgid ""
@@ -13056,50 +13074,52 @@ msgid ""
 "changing the name and pressing Save. Change the value of\n"
 "a search term by changing the value box then pressing Save."
 msgstr ""
+"今、定義しているグループ化検索名。新しい名前を作る時には、空欄に入力して、そして保存を押してください。名前を変更する時には、それを選択して名前を変え、保存"
+"を押してください。検索対象を変更するには値の欄を変更し、保存を押してください。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:126
 msgid "Delete the current search term"
-msgstr ""
+msgstr "現在の検索名を削除"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:128
 msgid ""
 "Save the current search term. You can rename a search term by\n"
 "changing the name then pressing Save. You can change the value\n"
 "of a search term by changing the value box then pressing Save."
-msgstr ""
+msgstr "現在のグループ化検索名を保存。名前を変えて保存を押すと名前の変更ができます。検索対象の値を変更して保存を押すと、検索対象を変更できます。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:131
 msgid "&Save"
-msgstr ""
+msgstr "保存(&S)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:132
 msgid "Make &user categories from:"
-msgstr ""
+msgstr "ユーザーカテゴリを作る(&U)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:133
 msgid ""
 "Enter the names of any grouped search terms you wish\n"
 "to be shown as user categories"
-msgstr ""
+msgstr "ユーザーカテゴリーに表示したいグループ化検索名の名前を入力"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending.py:28
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:70
 msgid "Manual management"
-msgstr ""
+msgstr "手動管理"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending.py:29
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:71
 msgid "Only on send"
-msgstr ""
+msgstr "転送時のみ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending.py:30
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:72
 msgid "Automatic management"
-msgstr ""
+msgstr "自動管理"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:69
 msgid "Metadata &management:"
-msgstr ""
+msgstr "書誌情報管理(&M)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:73
 msgid ""
@@ -13111,6 +13131,12 @@ msgid ""
 "<li><b>Automatic management</b>: Calibre automatically keeps metadata on the "
 "device in sync with the calibre library, on every connect</li></ul>"
 msgstr ""
+"<li><b>手動管理</b>: Calibre "
+"は書誌情報の更新とコレクションへの追加を、書籍が転送するときのみに行います。このオプションではcalibreはコレクションを絶対に削除しません。</li>"
+"\n"
+"<li><b>転送時のみ</b>: Calibre は書誌情報の更新とコレクションへの追加/削除を、書籍が転送するときのみに行います。 </li>\n"
+"<li><b>自動管理</b>: Calibre "
+"は自動的にデバイス上の書誌情報と、calibreのライブラリを毎回の接続時に同期します。</li></ul>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:77
 msgid ""
@@ -13118,11 +13144,13 @@ msgid ""
 "Send to Device button. This setting can be overriden for individual devices "
 "by customizing the device interface plugins in Preferences->Advanced->Plugins"
 msgstr ""
+"ここではデバイスへ送るボタンが押されたときに、calibreがどのように書籍を保存するかをコントロールします。この設定は、設定->高度な設定-"
+">プラグイン、のデバイス･インターフェイス・プラグインをカスタマイズする事で、各デバイスごとに宇和激することができます。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:70
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:422
 msgid "Failed to start content server"
-msgstr ""
+msgstr "コンテンツサーバーの開始に失敗しました"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:106
 msgid "Error log:"
@@ -13134,7 +13162,7 @@ msgstr "アクセスログ:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:128
 msgid "You need to restart the server for changes to take effect"
-msgstr ""
+msgstr "変更を有効にするには、サーバーをリスタートする必要があります。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:124
 msgid "Server &port:"
@@ -13144,29 +13172,29 @@ msgstr "サーバのポート番号(&p):"
 msgid ""
 "If you leave the password blank, anyone will be able to access your book "
 "collection using the web interface."
-msgstr ""
+msgstr "もしパスワードを空欄にしたならば、ウエブインターフェイスを使って、誰でもあなたの書籍コレクションにアクセスする事ができます。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:128
 msgid ""
 "The maximum size (widthxheight) for displayed covers. Larger covers are "
 "resized. "
-msgstr ""
+msgstr "表紙を表示する最大のサイズ (幅x高さ)。これより大きな表紙はリサイズされます。 "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:129
 msgid "Max. &cover size:"
-msgstr ""
+msgstr "最大の表紙サイズ(&C)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:131
 msgid "Max. &OPDS items per query:"
-msgstr ""
+msgstr "１クエリあたり最大のOPDSアイテム(&O)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:132
 msgid "Max. OPDS &ungrouped items:"
-msgstr ""
+msgstr "最大のグループ化されていないOPDSアイテム(&U)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:133
 msgid "Restriction (saved search) to apply:"
-msgstr ""
+msgstr "制限する対象（保存された検索）："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:134
 msgid ""
@@ -13174,6 +13202,8 @@ msgid ""
 "content server makes available to those matching the search. This setting is "
 "per library (i.e. you can have a different restriction per library)."
 msgstr ""
+"この（保存された検索による）制限は、コンテント・サーバーに現れる書籍を、検索結果にマッチした物のみに制限します。この設定はライブラリごとに設定できます。（"
+"つまり別の制限をライブラリごとにかけられます。）"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:135
 msgid "&Start Server"
@@ -13193,10 +13223,12 @@ msgid ""
 "collection using a browser from anywhere in the world. Any changes to the "
 "settings will only take effect after a server restart."
 msgstr ""
+"calibreにはネットワークサーバーが内蔵されており、世界中どこからでもブラウザを使って、あなたの書籍ライブラリにアクセスする事ができます。設定への変更"
+"はサーバーのリスタート後のみにしか有効になりません。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:139
 msgid "Run server &automatically on startup"
-msgstr ""
+msgstr "起動時に自動的にサーバーをスタート(&A)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:140
 msgid "View &server logs"
