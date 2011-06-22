@@ -100,7 +100,7 @@ class KOBO(USBMS):
         for idx,b in enumerate(bl):
             bl_cache[b.lpath] = idx
 
-        def update_booklist(prefix, path, title, authors, mime, date, ContentType, ImageID, readstatus, MimeType, expired):
+        def update_booklist(prefix, path, title, authors, mime, date, ContentType, ImageID, readstatus, MimeType, expired, favouritesindex):
             changed = False
             try:
                 lpath = path.partition(self.normalize_path(prefix))[2]
@@ -111,17 +111,23 @@ class KOBO(USBMS):
 
                 playlist_map = {}
 
+                if lpath not in playlist_map:
+                    playlist_map[lpath] = []
+
                 if readstatus == 1:
-                    playlist_map[lpath]= "Im_Reading"
+                    playlist_map[lpath].append('Im_Reading')
                 elif readstatus == 2:
-                    playlist_map[lpath]= "Read"
+                    playlist_map[lpath].append('Read')
                 elif readstatus == 3:
-                    playlist_map[lpath]= "Closed"
+                    playlist_map[lpath].append('Closed')
 
                 # Related to a bug in the Kobo firmware that leaves an expired row for deleted books
                 # this shows an expired Collection so the user can decide to delete the book
                 if expired == 3:
-                    playlist_map[lpath] = "Expired"
+                    playlist_map[lpath].append('Expired')
+                # Favourites are supported on the touch but the data field is there on most earlier models
+                if favouritesindex == 1:
+                    playlist_map[lpath].append('Favourite')
 
                 path = self.normalize_path(path)
                 # print "Normalized FileName: " + path
@@ -149,7 +155,7 @@ class KOBO(USBMS):
                              debug_print("    Strange:  The file: ", prefix, lpath, " does mot exist!")
                     if lpath in playlist_map and \
                         playlist_map[lpath] not in bl[idx].device_collections:
-                            bl[idx].device_collections.append(playlist_map[lpath])
+                            bl[idx].device_collections = playlist_map.get(lpath,[])
                 else:
                     if ContentType == '6' and MimeType == 'Shortcover':
                         book =  Book(prefix, lpath, title, authors, mime, date, ContentType, ImageID, size=1048576)
@@ -168,7 +174,7 @@ class KOBO(USBMS):
                             raise
 
                     # print 'Update booklist'
-                    book.device_collections = [playlist_map[lpath]] if lpath in playlist_map else []
+                    book.device_collections = playlist_map.get(lpath,[])# if lpath in playlist_map else []
 
                     if bl.add_book(book, replace_metadata=False):
                         changed = True
@@ -197,8 +203,12 @@ class KOBO(USBMS):
         result = cursor.fetchone()
         self.dbversion = result[0]
 
-        query= 'select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
-                'ImageID, ReadStatus, ___ExpirationStatus  from content where BookID is Null'
+        if self.dbversion >= 14:
+            query= 'select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
+                'ImageID, ReadStatus, ___ExpirationStatus, FavouritesIndex from content where BookID is Null'
+        else:
+            query= 'select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
+                'ImageID, ReadStatus, ___ExpirationStatus, "-1" as FavouritesIndex from content where BookID is Null'
 
         cursor.execute (query)
 
@@ -213,10 +223,10 @@ class KOBO(USBMS):
             # debug_print("mime:", mime)
 
             if oncard != 'carda' and oncard != 'cardb' and not row[3].startswith("file:///mnt/sd/"):
-                changed = update_booklist(self._main_prefix, path, row[0], row[1], mime, row[2], row[5], row[6], row[7], row[4], row[8])
+                changed = update_booklist(self._main_prefix, path, row[0], row[1], mime, row[2], row[5], row[6], row[7], row[4], row[8], row[9])
                 # print "shortbook: " + path
             elif oncard == 'carda' and row[3].startswith("file:///mnt/sd/"):
-                changed = update_booklist(self._card_a_prefix, path, row[0], row[1], mime, row[2], row[5], row[6], row[7], row[4], row[8])
+                changed = update_booklist(self._card_a_prefix, path, row[0], row[1], mime, row[2], row[5], row[6], row[7], row[4], row[8], row[9])
 
             if changed:
                 need_sync = True

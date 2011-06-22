@@ -688,7 +688,8 @@ class FormatsManager(QWidget): # {{{
             else:
                 stream = open(fmt.path, 'r+b')
             try:
-                mi = get_metadata(stream, ext)
+                with stream:
+                    mi = get_metadata(stream, ext)
                 return mi, ext
             except:
                 error_dialog(self, _('Could not read metadata'),

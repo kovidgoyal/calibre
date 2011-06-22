@@ -24,7 +24,7 @@ from calibre.utils.config import prefs, tweaks
 from calibre.utils.magick.draw import identify_data
 from calibre.utils.date import qt_to_dt
 
-def get_cover_data(path): # {{{
+def get_cover_data(stream, ext): # {{{
     from calibre.ebooks.metadata.meta import get_metadata
     old = prefs['read_file_metadata']
     if not old:
@@ -32,8 +32,8 @@ def get_cover_data(path): # {{{
     cdata = area = None
 
     try:
-        mi = get_metadata(open(path, 'rb'),
-                os.path.splitext(path)[1][1:].lower())
+        with stream:
+            mi = get_metadata(stream, ext)
         if mi.cover and os.access(mi.cover, os.R_OK):
             cdata = open(mi.cover).read()
         elif mi.cover_data[1] is not None:
@@ -186,9 +186,10 @@ class MyBlockingBusy(QDialog): # {{{
                 if fmts:
                     covers = []
                     for fmt in fmts.split(','):
-                        fmt = self.db.format_abspath(id, fmt, index_is_id=True)
-                        if not fmt: continue
-                        cdata, area = get_cover_data(fmt)
+                        fmtf = self.db.format(id, fmt, index_is_id=True,
+                                as_file=True)
+                        if fmtf is None: continue
+                        cdata, area = get_cover_data(fmtf, fmt)
                         if cdata:
                             covers.append((cdata, area))
                     covers.sort(key=lambda x: x[1])

@@ -12,8 +12,6 @@ import threading, random
 from itertools import repeat
 from math import ceil
 
-from PyQt4.QtGui import QImage
-
 from calibre import prints
 from calibre.ebooks.metadata import (title_sort, author_to_author_sort,
         string_to_authors, authors_to_string)
@@ -27,7 +25,7 @@ from calibre.library.sqlite import connect, IntegrityError
 from calibre.library.prefs import DBPrefs
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.constants import preferred_encoding, iswindows, filesystem_encoding
-from calibre.ptempfile import PersistentTemporaryFile
+from calibre.ptempfile import PersistentTemporaryFile, base_dir
 from calibre.customize.ui import run_plugins_on_import
 from calibre import isbytestring
 from calibre.utils.filenames import ascii_filename
@@ -39,8 +37,10 @@ from calibre.ebooks import BOOK_EXTENSIONS, check_ebook_format
 from calibre.utils.magick.draw import save_cover_data_to
 from calibre.utils.recycle_bin import delete_file, delete_tree
 from calibre.utils.formatter_functions import load_user_template_functions
+from calibre.db.errors import NoSuchFormat
 
 copyfile = os.link if hasattr(os, 'link') else shutil.copyfile
+SPOOL_SIZE = 30*1024*1024
 
 class Tag(object):
 
@@ -601,14 +601,12 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 with lopen(os.path.join(tpath, 'cover.jpg'), 'wb') as f:
                     f.write(cdata)
             for format in formats:
-                # Get data as string (can't use file as source and target files may be the same)
-                f = self.format(id, format, index_is_id=True, as_file=True)
-                if f is None:
-                    continue
-                with tempfile.SpooledTemporaryFile(max_size=30*(1024**2)) as stream:
-                    with f:
-                        shutil.copyfileobj(f, stream)
-                    stream.seek(0)
+                with tempfile.SpooledTemporaryFile(max_size=SPOOL_SIZE) as stream:
+                    try:
+                        self.copy_format_to(id, format, stream, index_is_id=True)
+                        stream.seek(0)
+                    except NoSuchFormat:
+                        continue
                     self.add_format(id, format, stream, index_is_id=True,
                         path=tpath, notify=False)
         self.conn.execute('UPDATE books SET path=? WHERE id=?', (path, id))
@@ -661,32 +659,53 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 continue
 
     def cover(self, index, index_is_id=False, as_file=False, as_image=False,
-              as_path=False):
+            as_path=False):
         '''
         Return the cover image as a bytestring (in JPEG format) or None.
 
-        `as_file` : If True return the image as an open file object
-        `as_image`: If True return the image as a QImage object
+        WARNING: Using as_path will copy the cover to a temp file and return
+        the path to the temp file. You should delete the temp file when you are
+        done with it.
+
+        :param as_file: If True return the image as an open file object (a SpooledTemporaryFile)
+        :param as_image: If True return the image as a QImage object
         '''
-        id = index if  index_is_id else self.id(index)
+        id = index if index_is_id else self.id(index)
         path = os.path.join(self.library_path, self.path(id, index_is_id=True), 'cover.jpg')
         if os.access(path, os.R_OK):
-            if as_path:
-                return path
             try:
                 f = lopen(path, 'rb')
             except (IOError, OSError):
                 time.sleep(0.2)
                 f = lopen(path, 'rb')
-            if as_image:
-                img = QImage()
-                img.loadFromData(f.read())
-                f.close()
-                return img
-            ans = f if as_file else f.read()
-            if ans is not f:
-                f.close()
-            return ans
+            with f:
+                if as_path:
+                    pt = PersistentTemporaryFile('_dbcover.jpg')
+                    with pt:
+                        shutil.copyfileobj(f, pt)
+                    return pt.name
+                if as_file:
+                    ret = tempfile.SpooledTemporaryFile(SPOOL_SIZE)
+                    shutil.copyfileobj(f, ret)
+                    ret.seek(0)
+                else:
+                    ret = f.read()
+                    if as_image:
+                        from PyQt4.Qt import QImage
+                        i = QImage()
+                        i.loadFromData(ret)
+                        ret = i
+            return ret
+
+    def cover_last_modified(self, index, index_is_id=False):
+        id = index if  index_is_id else self.id(index)
+        path = os.path.join(self.library_path, self.path(id, index_is_id=True), 'cover.jpg')
+        try:
+            return utcfromtimestamp(os.stat(path).st_mtime)
+        except:
+            # Cover doesn't exist
+            pass
+        return self.last_modified()
 
     ### The field-style interface. These use field keys.
 
@@ -859,7 +878,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         return (path, mi, sequence)
 
     def get_metadata(self, idx, index_is_id=False, get_cover=False,
-                     get_user_categories=True):
+                     get_user_categories=True, cover_as_data=False):
         '''
         Convenience method to return metadata as a :class:`Metadata` object.
         Note that the list of formats is not verified.
@@ -934,7 +953,12 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         mi.user_categories = user_cat_vals
 
         if get_cover:
-            mi.cover = self.cover(id, index_is_id=True, as_path=True)
+            if cover_as_data:
+                cdata = self.cover(id, index_is_id=True)
+                if cdata:
+                    mi.cover_data = ('jpeg', cdata)
+            else:
+                mi.cover = self.cover(id, index_is_id=True, as_path=True)
         return mi
 
     def has_book(self, mi):
@@ -1099,7 +1123,18 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             return utcfromtimestamp(os.stat(path).st_mtime)
 
     def format_abspath(self, index, format, index_is_id=False):
-        'Return absolute path to the ebook file of format `format`'
+        '''
+        Return absolute path to the ebook file of format `format`
+
+        WARNING: This method will return a dummy path for a network backend DB,
+        so do not rely on it, use format(..., as_path=True) instead.
+
+        Currently used only in calibredb list, the viewer and the catalogs (via
+        get_data_as_dict()).
+
+        Apart from the viewer, I don't believe any of the others do any file
+        I/O with the results of this call.
+        '''
         id = index if index_is_id else self.id(index)
         try:
             name = self.conn.get('SELECT name FROM data WHERE book=? AND format=?', (id, format), all=False)
@@ -1119,25 +1154,63 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 shutil.copyfile(candidates[0], fmt_path)
                 return fmt_path
 
-    def format(self, index, format, index_is_id=False, as_file=False, mode='r+b'):
+    def copy_format_to(self, index, fmt, dest, index_is_id=False):
+        '''
+        Copy the format ``fmt`` to the file like object ``dest``. If the
+        specified format does not exist, raises :class:`NoSuchFormat` error.
+        '''
+        path = self.format_abspath(index, fmt, index_is_id=index_is_id)
+        if path is None:
+            id_ = index if index_is_id else self.id(index)
+            raise NoSuchFormat('Record %d has no %s file'%(id_, fmt))
+        with lopen(path, 'rb') as f:
+            shutil.copyfileobj(f, dest)
+        if hasattr(dest, 'flush'):
+            dest.flush()
+
+    def format(self, index, format, index_is_id=False, as_file=False,
+            mode='r+b', as_path=False, preserve_filename=False):
         '''
         Return the ebook format as a bytestring or `None` if the format doesn't exist,
         or we don't have permission to write to the ebook file.
 
-        `as_file`: If True the ebook format is returned as a file object opened in `mode`
+        :param as_file: If True the ebook format is returned as a file object. Note
+                        that the file object is a SpooledTemporaryFile, so if what you want to
+                        do is copy the format to another file, use :method:`copy_format_to`
+                        instead for performance.
+        :param as_path: Copies the format file to a temp file and returns the
+                        path to the temp file
+        :param preserve_filename: If True and returning a path the filename is
+                                  the same as that used in the library. Note that using
+                                  this means that repeated calls yield the same
+                                  temp file (which is re-created each time)
+        :param mode: This is ignored (present for legacy compatibility)
         '''
         path = self.format_abspath(index, format, index_is_id=index_is_id)
         if path is not None:
-            f = lopen(path, mode)
-            try:
-                ret = f if as_file else f.read()
-            except IOError:
-                f.seek(0)
-                out = cStringIO.StringIO()
-                shutil.copyfileobj(f, out)
-                ret = out.getvalue()
-            if not as_file:
-                f.close()
+            with lopen(path, mode) as f:
+                if as_path:
+                    if preserve_filename:
+                        bd = base_dir()
+                        d = os.path.join(bd, 'format_abspath')
+                        try:
+                            os.makedirs(d)
+                        except:
+                            pass
+                        fname = os.path.basename(path)
+                        ret = os.path.join(d, fname)
+                        with lopen(ret, 'wb') as f2:
+                            shutil.copyfileobj(f, f2)
+                    else:
+                        with PersistentTemporaryFile('.'+format.lower()) as pt:
+                            shutil.copyfileobj(f, pt)
+                            ret = pt.name
+                elif as_file:
+                    ret = tempfile.SpooledTemporaryFile(max_size=SPOOL_SIZE)
+                    shutil.copyfileobj(f, ret)
+                    ret.seek(0)
+                else:
+                    ret = f.read()
             return ret
 
     def add_format_with_hooks(self, index, format, fpath, index_is_id=False,

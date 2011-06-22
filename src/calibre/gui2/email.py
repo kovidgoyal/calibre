@@ -174,7 +174,8 @@ class EmailMixin(object): # {{{
         else:
             _auto_ids = []
 
-        full_metadata = self.library_view.model().metadata_for(ids)
+        full_metadata = self.library_view.model().metadata_for(ids,
+                get_cover=False)
 
         bad, remove_ids, jobnames = [], [], []
         texts, subjects, attachments, attachment_names = [], [], [], []

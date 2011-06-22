@@ -445,6 +445,7 @@ class Saver(QObject): # {{{
         self.pd.setModal(True)
         self.pd.show()
         self.pd.set_min(0)
+        self.pd.set_msg(_('Collecting data, please wait...'))
         self._parent = parent
         self.callback = callback
         self.callback_called = False
