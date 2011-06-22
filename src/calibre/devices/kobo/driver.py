@@ -557,6 +557,7 @@ class KOBO(USBMS):
         if collections:
             # Process any collections that exist
             for category, books in collections.items():
+                debug_print (category)
                 if category == 'Im_Reading':
                     # Reset Im_Reading list in the database
                     if oncard == 'carda':
@@ -575,7 +576,8 @@ class KOBO(USBMS):
 
                     for book in books:
 #                        debug_print('Title:', book.title, 'lpath:', book.path)
-                        book.device_collections = ['Im_Reading']
+                        if 'Im_Reading' not in book.device_collections:
+                            book.device_collections.append('Im_Reading') 
 
                         extension =  os.path.splitext(book.path)[1]
                         ContentType = self.get_content_type_from_extension(extension) if extension != '' else self.get_content_type_from_path(book.path)
@@ -618,7 +620,8 @@ class KOBO(USBMS):
 
                     for book in books:
 #                       debug_print('Title:', book.title, 'lpath:', book.path)
-                        book.device_collections = ['Read']
+                        if 'Read' not in book.device_collections:
+                            book.device_collections.append('Read') 
 
                         extension =  os.path.splitext(book.path)[1]
                         ContentType = self.get_content_type_from_extension(extension) if extension != '' else self.get_content_type_from_path(book.path)
@@ -654,7 +657,8 @@ class KOBO(USBMS):
 
                     for book in books:
 #                       debug_print('Title:', book.title, 'lpath:', book.path)
-                        book.device_collections = ['Closed']
+                        if 'Closed' not in book.device_collections:
+                            book.device_collections.append('Closed') 
 
                         extension =  os.path.splitext(book.path)[1]
                         ContentType = self.get_content_type_from_extension(extension) if extension != '' else self.get_content_type_from_path(book.path)
@@ -672,6 +676,44 @@ class KOBO(USBMS):
                         else:
                             connection.commit()
 #                            debug_print('Database: Commit set ReadStatus as Closed')
+                if category == 'Favourite':
+                    # Reset FavouritesIndex list in the database
+                    if oncard == 'carda':
+                        query= 'update content set FavouritesIndex=-1 where BookID is Null and ContentID like \'file:///mnt/sd/%\''
+                    elif oncard != 'carda' and oncard != 'cardb':
+                        query= 'update content set FavouritesIndex=-1 where BookID is Null and ContentID not like \'file:///mnt/sd/%\''
+
+                    try:
+                        cursor.execute (query)
+                    except:
+                        debug_print('Database Exception:  Unable to reset Favourites list')
+                        raise
+                    else:
+#                       debug_print('Commit: Reset Favourites list')
+                        connection.commit()
+
+                    for book in books:
+#                        debug_print('Title:', book.title, 'lpath:', book.path)
+                        if 'Favourite' not in book.device_collections:
+                            book.device_collections.append('Favourite') 
+                        debug_print ("Favourite found for: ", book.title) 
+                        extension =  os.path.splitext(book.path)[1]
+                        ContentType = self.get_content_type_from_extension(extension) if extension != '' else self.get_content_type_from_path(book.path)
+
+                        ContentID = self.contentid_from_path(book.path, ContentType)
+#                        datelastread = time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime())
+
+                        t = (ContentID,)
+
+                        try:
+                            cursor.execute('update content set FavouritesIndex=1 where BookID is Null and ContentID = ?', t)
+                        except:
+                            debug_print('Database Exception:  Unable set book as Favourite')
+                            raise
+                        else:
+                            connection.commit()
+#                            debug_print('Database: Commit set FavouritesIndex as Favourite')
+
         else: # No collections
             # Since no collections exist the ReadStatus needs to be reset to 0 (Unread)
             print "Reseting ReadStatus to 0"
