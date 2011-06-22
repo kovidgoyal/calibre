@@ -100,7 +100,7 @@ class KOBO(USBMS):
         for idx,b in enumerate(bl):
             bl_cache[b.lpath] = idx
 
-        def update_booklist(prefix, path, title, authors, mime, date, ContentType, ImageID, readstatus, MimeType):
+        def update_booklist(prefix, path, title, authors, mime, date, ContentType, ImageID, readstatus, MimeType, expired, favouritesindex):
             changed = False
             try:
                 lpath = path.partition(self.normalize_path(prefix))[2]
@@ -111,12 +111,23 @@ class KOBO(USBMS):
 
                 playlist_map = {}
 
+                if lpath not in playlist_map:
+                    playlist_map[lpath] = []
+
                 if readstatus == 1:
-                    playlist_map[lpath]= "Im_Reading"
+                    playlist_map[lpath].append('Im_Reading')
                 elif readstatus == 2:
-                    playlist_map[lpath]= "Read"
+                    playlist_map[lpath].append('Read')
                 elif readstatus == 3:
-                    playlist_map[lpath]= "Closed"
+                    playlist_map[lpath].append('Closed')
+
+                # Related to a bug in the Kobo firmware that leaves an expired row for deleted books
+                # this shows an expired Collection so the user can decide to delete the book
+                if expired == 3:
+                    playlist_map[lpath].append('Expired')
+                # Favourites are supported on the touch but the data field is there on most earlier models
+                if favouritesindex == 1:
+                    playlist_map[lpath].append('Favourite')
 
                 path = self.normalize_path(path)
                 # print "Normalized FileName: " + path
@@ -126,7 +137,13 @@ class KOBO(USBMS):
                     bl_cache[lpath] = None
                     if ImageID is not None:
                         imagename = self.normalize_path(self._main_prefix + '.kobo/images/' + ImageID + ' - NickelBookCover.parsed')
+                        if not os.path.exists(imagename): 
+                            # Try the Touch version if the image does not exist
+                            imagename = self.normalize_path(self._main_prefix + '.kobo/images/' + ImageID + ' - N3_LIBRARY_FULL.parsed')
+
                         #print "Image name Normalized: " + imagename
+                        if not os.path.exists(imagename):
+                            debug_print("Strange - The image name does not exist - title: ", title)
                         if imagename is not None:
                             bl[idx].thumbnail = ImageWrapper(imagename)
                     if (ContentType != '6' and MimeType != 'Shortcover'):
@@ -138,7 +155,7 @@ class KOBO(USBMS):
                              debug_print("    Strange:  The file: ", prefix, lpath, " does mot exist!")
                     if lpath in playlist_map and \
                         playlist_map[lpath] not in bl[idx].device_collections:
-                            bl[idx].device_collections.append(playlist_map[lpath])
+                            bl[idx].device_collections = playlist_map.get(lpath,[])
                 else:
                     if ContentType == '6' and MimeType == 'Shortcover':
                         book =  Book(prefix, lpath, title, authors, mime, date, ContentType, ImageID, size=1048576)
@@ -157,7 +174,7 @@ class KOBO(USBMS):
                             raise
 
                     # print 'Update booklist'
-                    book.device_collections = [playlist_map[lpath]] if lpath in playlist_map else []
+                    book.device_collections = playlist_map.get(lpath,[])# if lpath in playlist_map else []
 
                     if bl.add_book(book, replace_metadata=False):
                         changed = True
@@ -186,24 +203,30 @@ class KOBO(USBMS):
         result = cursor.fetchone()
         self.dbversion = result[0]
 
-        query= 'select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
-                'ImageID, ReadStatus from content where BookID is Null'
+        if self.dbversion >= 14:
+            query= 'select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
+                'ImageID, ReadStatus, ___ExpirationStatus, FavouritesIndex from content where BookID is Null'
+        else:
+            query= 'select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
+                'ImageID, ReadStatus, ___ExpirationStatus, "-1" as FavouritesIndex from content where BookID is Null'
 
         cursor.execute (query)
 
         changed = False
         for i, row in enumerate(cursor):
         #  self.report_progress((i+1) / float(numrows), _('Getting list of books on device...'))
-
+            if row[3].startswith("file:///usr/local/Kobo/help/"):
+                # These are internal to the Kobo device and do not exist
+                continue
             path = self.path_from_contentid(row[3], row[5], row[4], oncard)
             mime = mime_type_ext(path_to_ext(path)) if path.find('kepub') == -1 else 'application/epub+zip'
             # debug_print("mime:", mime)
 
             if oncard != 'carda' and oncard != 'cardb' and not row[3].startswith("file:///mnt/sd/"):
-                changed = update_booklist(self._main_prefix, path, row[0], row[1], mime, row[2], row[5], row[6], row[7], row[4])
+                changed = update_booklist(self._main_prefix, path, row[0], row[1], mime, row[2], row[5], row[6], row[7], row[4], row[8], row[9])
                 # print "shortbook: " + path
             elif oncard == 'carda' and row[3].startswith("file:///mnt/sd/"):
-                changed = update_booklist(self._card_a_prefix, path, row[0], row[1], mime, row[2], row[5], row[6], row[7], row[4])
+                changed = update_booklist(self._card_a_prefix, path, row[0], row[1], mime, row[2], row[5], row[6], row[7], row[4], row[8], row[9])
 
             if changed:
                 need_sync = True
@@ -267,8 +290,12 @@ class KOBO(USBMS):
             cursor.execute('delete from content_keys where volumeid = ?', t)
 
         # Delete the chapters associated with the book next
-        t = (ContentID,ContentID,)
-        cursor.execute('delete from content where BookID  = ? or ContentID = ?', t)
+        t = (ContentID,)
+        # Kobo does not delete the Book row (ie the row where the BookID is Null)
+        # The next server sync should remove the row
+        cursor.execute('delete from content where BookID = ?', t)
+        cursor.execute('update content set ReadStatus=0, FirstTimeReading = \'true\', ___PercentRead=0, ___ExpirationStatus=3 ' \
+                'where BookID is Null and ContentID =?',t)
 
         connection.commit()
 
@@ -286,7 +313,7 @@ class KOBO(USBMS):
             path_prefix = '.kobo/images/'
             path = self._main_prefix + path_prefix + ImageID
 
-            file_endings = (' - iPhoneThumbnail.parsed', ' - bbMediumGridList.parsed', ' - NickelBookCover.parsed',)
+            file_endings = (' - iPhoneThumbnail.parsed', ' - bbMediumGridList.parsed', ' - NickelBookCover.parsed', ' - N3_LIBRARY_FULL.parsed', ' - N3_LIBRARY_GRID.parsed', ' - N3_LIBRARY_LIST.parsed', ' - N3_SOCIAL_CURRENTREAD.parsed',)
 
             for ending in file_endings:
                 fpath = path + ending
@@ -450,7 +477,10 @@ class KOBO(USBMS):
                 path = self._main_prefix + path + '.kobo'
                 # print "Path: " + path
             elif (ContentType == "6" or ContentType == "10") and MimeType == 'application/x-kobo-epub+zip':
-                path = self._main_prefix + '.kobo/kepub/' + path
+                if path.startswith("file:///mnt/onboard/"):
+                    path = self._main_prefix + path.replace("file:///mnt/onboard/", '')
+                else:
+                    path = self._main_prefix + '.kobo/kepub/' + path
                 # print "Internal: " + path
             else:
                 # if path.startswith("file:///mnt/onboard/"):

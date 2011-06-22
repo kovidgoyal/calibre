@@ -49,16 +49,26 @@ class DeviceJob(BaseJob): # {{{
         self._aborted = False
 
     def start_work(self):
+        if DEBUG:
+            prints('Job:', self.id, self.description, 'started',
+                safe_encode=True)
         self.start_time = time.time()
         self.job_manager.changed_queue.put(self)
 
     def job_done(self):
         self.duration = time.time() - self.start_time
         self.percent = 1
+        if DEBUG:
+            prints('DeviceJob:', self.id, self.description,
+                    'done, calling callback', safe_encode=True)
+
         try:
             self.callback_on_done(self)
         except:
             pass
+        if DEBUG:
+            prints('DeviceJob:', self.id, self.description,
+                    'callback returned', safe_encode=True)
         self.job_manager.changed_queue.put(self)
 
     def report_progress(self, percent, msg=''):
@@ -386,8 +396,17 @@ class DeviceManager(Thread): # {{{
                             if DEBUG:
                                 prints(traceback.format_exc(), file=sys.__stdout__)
 
-        return self.device.upload_books(files, names, on_card,
-                                        metadata=metadata, end_session=False)
+        try:
+            return self.device.upload_books(files, names, on_card,
+                    metadata=metadata, end_session=False)
+        finally:
+            if metadata:
+                for mi in metadata:
+                    try:
+                        if mi.cover:
+                            os.remove(mi.cover)
+                    except:
+                        pass
 
     def upload_books(self, done, files, names, on_card=None, titles=None,
                      metadata=None, plugboards=None, add_as_step_to_job=None):
@@ -1062,8 +1081,6 @@ class DeviceMixin(object): # {{{
                             'the device?'), autos):
                         self.iactions['Convert Books'].auto_convert_news(auto, format)
             files = [f for f in files if f is not None]
-            for f in files:
-                f.deleted_after_upload = del_on_upload
             if not files:
                 self.news_to_be_synced = set([])
                 return
@@ -1305,8 +1322,17 @@ class DeviceMixin(object): # {{{
             self.card_b_view if on_card == 'cardb' else self.memory_view
         view.model().resort(reset=False)
         view.model().research()
-        for f in files:
-            getattr(f, 'close', lambda : True)()
+        if files:
+            for f in files:
+                # Remove temporary files
+                try:
+                    rem = not getattr(
+                            self.device_manager.device,
+                            'KEEP_TEMP_FILES_AFTER_UPLOAD', False)
+                    if rem and 'caltmpfmt.' in f:
+                        os.remove(f)
+                except:
+                    pass
 
     def book_on_device(self, id, reset=False):
         '''
