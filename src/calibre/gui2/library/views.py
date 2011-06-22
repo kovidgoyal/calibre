@@ -584,14 +584,15 @@ class BooksView(QTableView): # {{{
         m = self.model()
         db = m.db
         rows = self.selectionModel().selectedRows()
-        selected = map(m.id, rows)
+        selected = list(map(m.id, rows))
         ids = ' '.join(map(str, selected))
         md = QMimeData()
         md.setData('application/calibre+from_library', ids)
         fmt = prefs['output_format']
 
         def url_for_id(i):
-            ans = db.format_abspath(i, fmt, index_is_id=True)
+            ans = db.format(i, fmt, index_is_id=True, as_path=True,
+                    preserve_filename=True)
             if ans is None:
                 fmts = db.formats(i, index_is_id=True)
                 if fmts:
@@ -599,14 +600,13 @@ class BooksView(QTableView): # {{{
                 else:
                     fmts = []
                 for f in fmts:
-                    ans = db.format_abspath(i, f, index_is_id=True)
-                    if ans is not None:
-                        break
+                    ans = db.format(i, f, index_is_id=True, as_path=True,
+                            preserve_filename=True)
             if ans is None:
                 ans = db.abspath(i, index_is_id=True)
             return QUrl.fromLocalFile(ans)
 
-        md.setUrls([url_for_id(i) for i in selected])
+        md.setUrls([url_for_id(i) for i in selected[:25]])
         drag = QDrag(self)
         col = self.selectionModel().currentIndex().column()
         md.column_name = self.column_map[col]

@@ -222,7 +222,9 @@ class DB(object, SchemaUpgrade):
         if self.user_version == 0:
             self.initialize_database()
 
-        SchemaUpgrade.__init__(self)
+        with self.conn:
+            SchemaUpgrade.__init__(self)
+
         # Guarantee that the library_id is set
         self.library_id
 
