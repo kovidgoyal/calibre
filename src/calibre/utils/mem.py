@@ -208,6 +208,8 @@ def gc_histogram():
 def diff_hists(h1, h2):
     """Prints differences between two results of gc_histogram()."""
     for k in h1:
+        if k not in h2:
+            h2[k] = 0
         if h1[k] != h2[k]:
             print "%s: %d -> %d (%s%d)" % (
                 k, h1[k], h2[k], h2[k] > h1[k] and "+" or "", h2[k] - h1[k])
