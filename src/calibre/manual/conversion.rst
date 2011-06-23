@@ -633,6 +633,7 @@ TXT input supports a number of options to differentiate how paragraphs are detec
     :guilabel:`Formatting Style: None`
         Applies no special formatting to the text, the document is converted to html with no other changes.
 
+.. _pdfconversion:
 
 Convert PDF documents
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
