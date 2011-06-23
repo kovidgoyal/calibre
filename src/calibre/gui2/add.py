@@ -451,7 +451,8 @@ class Saver(QObject): # {{{
         self.callback_called = False
         self.rq = Queue()
         self.ids = [x for x in map(db.id, [r.row() for r in rows]) if x is not None]
-        self.pd.set_max(len(self.ids))
+        self.pd_max = len(self.ids)
+        self.pd.set_max(0)
         self.pd.value = 0
         self.failures = set([])
 
@@ -510,6 +511,8 @@ class Saver(QObject): # {{{
             id, title, ok, tb = self.rq.get_nowait()
         except Empty:
             return
+        if self.pd.max != self.pd_max:
+            self.pd.max = self.pd_max
         self.pd.value += 1
         self.ids.remove(id)
         if not isinstance(title, unicode):

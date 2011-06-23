@@ -72,19 +72,27 @@ class ConditionEditor(QWidget): # {{{
         self.l = l = QGridLayout(self)
         self.setLayout(l)
 
-        self.l1 = l1 = QLabel(_('If the '))
+        texts = _('If the ___ column ___ values')
+        try:
+            one, two, three = texts.split('___')
+        except:
+            one, two, three = 'If the ', ' column ', ' value '
+
+        self.l1 = l1 = QLabel(one)
         l.addWidget(l1, 0, 0)
 
         self.column_box = QComboBox(self)
         l.addWidget(self.column_box, 0, 1)
 
-        self.l2 = l2 = QLabel(_(' column '))
+
+
+        self.l2 = l2 = QLabel(two)
         l.addWidget(l2, 0, 2)
 
         self.action_box = QComboBox(self)
         l.addWidget(self.action_box, 0, 3)
 
-        self.l3 = l3 = QLabel(_(' value '))
+        self.l3 = l3 = QLabel(three)
         l.addWidget(l3, 0, 4)
 
         self.value_box = QLineEdit(self)

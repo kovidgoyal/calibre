@@ -8,61 +8,157 @@ __docformat__ = 'restructuredtext en'
 '''
 Measure memory usage of the current process.
 
-The key function is memory() which returns the current memory usage in bytes.
+The key function is memory() which returns the current memory usage in MB.
 You can pass a number to memory and it will be subtracted from the returned
 value.
 '''
 
-import gc, os
+import gc, os, re
 
 from calibre.constants import iswindows, islinux
 
 if islinux:
-    ## {{{ http://code.activestate.com/recipes/286222/ (r1)
+    # Taken, with thanks, from:
+    # http://wingolog.org/archives/2007/11/27/reducing-the-footprint-of-python-applications
 
-    _proc_status = '/proc/%d/status' % os.getpid()
+    def permute(args):
+        ret = []
+        if args:
+            first = args.pop(0)
+            for y in permute(args):
+                for x in first:
+                    ret.append(x + y)
+        else:
+            ret.append('')
+        return ret
 
-    _scale = {'kB': 1024.0, 'mB': 1024.0*1024.0,
-            'KB': 1024.0, 'MB': 1024.0*1024.0}
+    def parsed_groups(match, *types):
+        groups = match.groups()
+        assert len(groups) == len(types)
+        return tuple([type(group) for group, type in zip(groups, types)])
 
-    def _VmB(VmKey):
-        '''Private.
-        '''
-        global _proc_status, _scale
-        # get pseudo file  /proc/<pid>/status
-        try:
-            t = open(_proc_status)
-            v = t.read()
-            t.close()
-        except:
-            return 0.0  # non-Linux?
-        # get VmKey line e.g. 'VmRSS:  9999  kB\n ...'
-        i = v.index(VmKey)
-        v = v[i:].split(None, 3)  # whitespace
-        if len(v) < 3:
-            return 0.0  # invalid format?
-        # convert Vm value to bytes
-        return float(v[1]) * _scale[v[2]]
+    class VMA(dict):
+        def __init__(self, *args):
+            (self.start, self.end, self.perms, self.offset,
+            self.major, self.minor, self.inode, self.filename) = args
 
+    def parse_smaps(pid):
+        with open('/proc/%s/smaps'%pid, 'r') as maps:
+            hex = lambda s: int(s, 16)
+
+            ret = []
+            header = re.compile(r'^([0-9a-f]+)-([0-9a-f]+) (....) ([0-9a-f]+) '
+                                r'(..):(..) (\d+) *(.*)$')
+            detail = re.compile(r'^(.*): +(\d+) kB')
+            for line in maps:
+                m = header.match(line)
+                if m:
+                    vma = VMA(*parsed_groups(m, hex, hex, str, hex, str, str, int, str))
+                    ret.append(vma)
+                else:
+                    m = detail.match(line)
+                    if m:
+                        k, v = parsed_groups(m, str, int)
+                        assert k not in vma
+                        vma[k] = v
+                    else:
+                        print 'unparseable line:', line
+            return ret
+
+    perms = permute(['r-', 'w-', 'x-', 'ps'])
+
+    def make_summary_dicts(vmas):
+        mapped = {}
+        anon = {}
+        for d in mapped, anon:
+            # per-perm
+            for k in perms:
+                d[k] = {}
+                d[k]['Size'] = 0
+                for y in 'Shared', 'Private':
+                    d[k][y] = {}
+                    for z in 'Clean', 'Dirty':
+                        d[k][y][z] = 0
+            # totals
+            for y in 'Shared', 'Private':
+                d[y] = {}
+                for z in 'Clean', 'Dirty':
+                    d[y][z] = 0
+
+        for vma in vmas:
+            if vma.major == '00' and vma.minor == '00':
+                d = anon
+            else:
+                d = mapped
+            for y in 'Shared', 'Private':
+                for z in 'Clean', 'Dirty':
+                    d[vma.perms][y][z] += vma.get(y + '_' + z, 0)
+                    d[y][z] += vma.get(y + '_' + z, 0)
+            d[vma.perms]['Size'] += vma.get('Size', 0)
+        return mapped, anon
+
+    def values(d, args):
+        if args:
+            ret = ()
+            first = args[0]
+            for k in first:
+                ret += values(d[k], args[1:])
+            return ret
+        else:
+            return (d,)
+
+    def print_summary(dicts_and_titles):
+        def desc(title, perms):
+            ret = {('Anonymous', 'rw-p'): 'Data (malloc, mmap)',
+                ('Anonymous', 'rwxp'): 'Writable code (stack)',
+                ('Mapped', 'r-xp'): 'Code',
+                ('Mapped', 'rwxp'): 'Writable code (jump tables)',
+                ('Mapped', 'r--p'): 'Read-only data',
+                ('Mapped', 'rw-p'): 'Data'}.get((title, perms), None)
+            if ret:
+                return '  -- ' + ret
+            else:
+                return ''
+
+        for d, title in dicts_and_titles:
+            print title, 'memory:'
+            print '               Shared            Private'
+            print '           Clean    Dirty    Clean    Dirty'
+            for k in perms:
+                if d[k]['Size']:
+                    print ('    %s %7d  %7d  %7d  %7d%s'
+                        % ((k,)
+                            + values(d[k], (('Shared', 'Private'),
+                                            ('Clean', 'Dirty')))
+                            + (desc(title, k),)))
+            print ('   total %7d  %7d  %7d  %7d'
+                % values(d, (('Shared', 'Private'),
+                                ('Clean', 'Dirty'))))
+
+        print '   ' + '-' * 40
+        print ('   total %7d  %7d  %7d  %7d'
+            % tuple(map(sum, zip(*[values(d, (('Shared', 'Private'),
+                                                ('Clean', 'Dirty')))
+                                    for d, title in dicts_and_titles]))))
+
+    def print_stats(pid=None):
+        if pid is None:
+            pid = os.getpid()
+        vmas = parse_smaps(pid)
+        mapped, anon = make_summary_dicts(vmas)
+        print_summary(((mapped, "Mapped"), (anon, "Anonymous")))
 
     def linux_memory(since=0.0):
-        '''Return memory usage in bytes.
-        '''
-        return _VmB('VmSize:') - since
+        vmas = parse_smaps(os.getpid())
+        mapped, anon = make_summary_dicts(vmas)
+        dicts_and_titles = ((mapped, "Mapped"), (anon, "Anonymous"))
+        totals = tuple(map(sum, zip(*[values(d, (('Shared', 'Private'),
+                                                ('Clean', 'Dirty')))
+                                    for d, title in dicts_and_titles])))
+        return (totals[-1]/1024.) - since
 
-
-    def resident(since=0.0):
-        '''Return resident memory usage in bytes.
-        '''
-        return _VmB('VmRSS:') - since
-
-
-    def stacksize(since=0.0):
-        '''Return stack size in bytes.
-        '''
-        return _VmB('VmStk:') - since
-    ## end of http://code.activestate.com/recipes/286222/ }}}
     memory = linux_memory
+
 elif iswindows:
     import win32process
     import win32con
@@ -95,7 +191,7 @@ elif iswindows:
 
     def win_memory(since=0.0):
         info = meminfo(get_handle(os.getpid()))
-        return info['WorkingSetSize'] - since
+        return (info['WorkingSetSize']/1024.**2) - since
 
     memory = win_memory
 
