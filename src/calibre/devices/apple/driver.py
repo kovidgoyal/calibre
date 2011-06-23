@@ -5,7 +5,7 @@ __copyright__ = '2010, Gregory Riker'
 __docformat__ = 'restructuredtext en'
 
 
-import cStringIO, ctypes, datetime, os, re, shutil, subprocess, sys, tempfile, time
+import cStringIO, ctypes, datetime, os, re, sys, tempfile, time
 from calibre.constants import __appname__, __version__, DEBUG
 from calibre import fit_image, confirm_config_name
 from calibre.constants import isosx, iswindows
@@ -278,7 +278,6 @@ class ITUNES(DriverBase):
     cache_dir = os.path.join(config_dir, 'caches', 'itunes')
     calibre_library_path = prefs['library_path']
     archive_path = os.path.join(cache_dir, "thumbs.zip")
-    db = None
     description_prefix = "added by calibre"
     ejected = False
     iTunes= None
