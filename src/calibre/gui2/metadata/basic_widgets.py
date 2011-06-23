@@ -21,9 +21,10 @@ from calibre.utils.config import tweaks, prefs
 from calibre.ebooks.metadata import (title_sort, authors_to_string,
         string_to_authors, check_isbn, authors_to_sort_string)
 from calibre.ebooks.metadata.meta import get_metadata
-from calibre.gui2 import (file_icon_provider, UNDEFINED_QDATE, UNDEFINED_DATE,
+from calibre.gui2 import (file_icon_provider, UNDEFINED_QDATE,
         choose_files, error_dialog, choose_images)
-from calibre.utils.date import local_tz, qt_to_dt
+from calibre.utils.date import (local_tz, qt_to_dt, as_local_time,
+        UNDEFINED_DATE)
 from calibre import strftime
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.customize.ui import run_plugins_on_import
@@ -1211,6 +1212,7 @@ class DateEdit(QDateEdit): # {{{
         def fset(self, val):
             if val is None:
                 val = UNDEFINED_DATE
+            val = as_local_time(val)
             self.setDate(QDate(val.year, val.month, val.day))
         return property(fget=fget, fset=fset)
 
