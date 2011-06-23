@@ -35,29 +35,11 @@ What are the best source formats to convert?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 In order of decreasing preference: LIT, MOBI, EPUB, FB2, HTML, PRC, RTF, PDB, TXT, PDF
 
-Why does the PDF conversion lose some images/tables?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-The PDF conversion tries to extract the text and images from the PDF file and convert them to and HTML based ebook. Some PDF files have images in a format that cannot be extracted (vector images). All tables
-are also represented as vector diagrams, thus they cannot be extracted.
+I converted a PDF file, but the result has various problems?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-How do I convert a collection of HTML files in a specific order?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-In order to convert a collection of HTML files in a specific oder, you have to create a table of contents file. That is, another HTML file that contains links to all the other files in the desired order. Such a file looks like::
+PDF is a terrible format to convert from. For a list of the various issues you will encounter when converting PDF, see: :ref:`pdfconversion`.
 
-   <html>
-      <body>
-        <h1>Table of Contents</h1>
-        <p style="text-indent:0pt">
-           <a href="file1.html">First File</a><br/>
-           <a href="file2.html">Second File</a><br/>
-           .
-           .
-           .
-        </p>
-      </body>
-   </html>
-
-Then just add this HTML file to the GUI and use the convert button to create your ebook.
 
 .. _char-encoding-faq:
 
@@ -84,6 +66,26 @@ When converting to MOBI, calibre detects the *metadata TOC* in the input documen
 If you have a hand edited TOC in the input document, you can use the TOC detection options in calibre to automatically generate the metadata TOC from it. See the conversion section of the User Manual for more details on how to use these options.
 
 Finally, I encourage you to ditch the content TOC and only have a metadata TOC in your ebooks. Metadata TOCs will give the people reading your ebooks a much superior navigation experience (except on the Kindle, where they are essentially the same as a content TOC).
+
+How do I convert a collection of HTML files in a specific order?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In order to convert a collection of HTML files in a specific oder, you have to create a table of contents file. That is, another HTML file that contains links to all the other files in the desired order. Such a file looks like::
+
+   <html>
+      <body>
+        <h1>Table of Contents</h1>
+        <p style="text-indent:0pt">
+           <a href="file1.html">First File</a><br/>
+           <a href="file2.html">Second File</a><br/>
+           .
+           .
+           .
+        </p>
+      </body>
+   </html>
+
+Then just add this HTML file to the GUI and use the convert button to create your ebook.
+
 
 How do I use some of the advanced features of the conversion tools?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
