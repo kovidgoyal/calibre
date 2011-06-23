@@ -53,6 +53,13 @@ class ProgressDialog(QDialog, Ui_Dialog):
     def set_max(self, max):
         self.bar.setMaximum(max)
 
+    @dynamic_property
+    def max(self):
+        def fget(self): return self.bar.maximum()
+        def fset(self, val): self.bar.setMaximum(val)
+        return property(fget=fget, fset=fset)
+
+
     def _canceled(self, *args):
         self.canceled = True
         self.button_box.setDisabled(True)
