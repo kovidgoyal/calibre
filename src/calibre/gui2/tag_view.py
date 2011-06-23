@@ -627,7 +627,8 @@ class TagTreeItem(object): # {{{
             except:
                 pass
         self.parent = self.icon_state_map = self.bold_font = self.tag = \
-                self.icon = self.children = None
+                      self.icon = self.children = self.tooltip = \
+                      self.py_name = self.id_set = self.category_key = None
 
     def __str__(self):
         if self.type == self.ROOT:
@@ -1121,7 +1122,7 @@ class TagsModel(QAbstractItemModel): # {{{
         self.search_restriction = s
 
     def get_node_tree(self, sort):
-        old_row_map = self.row_map[:]
+        old_row_map_len = len(self.row_map)
         self.row_map = []
         self.categories = {}
 
@@ -1176,7 +1177,7 @@ class TagsModel(QAbstractItemModel): # {{{
                 self.row_map.append(category)
                 self.categories[category] = tb_categories[category]['name']
 
-        if len(old_row_map) != 0 and len(old_row_map) != len(self.row_map):
+        if old_row_map_len != 0 and old_row_map_len != len(self.row_map):
             # A category has been added or removed. We must force a rebuild of
             # the model
             return None
@@ -1367,6 +1368,9 @@ class TagsModel(QAbstractItemModel): # {{{
                 self.beginRemoveRows(self.createIndex(category.row(), 0, category),
                                      start, len(child_map)-1)
                 category.children = ctags
+                for i in range(start, len(child_map)):
+                    child_map[i].break_cycles()
+                child_map = None
                 self.endRemoveRows()
             else:
                 state_map = {}

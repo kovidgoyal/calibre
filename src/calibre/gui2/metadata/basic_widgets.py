@@ -126,6 +126,9 @@ class TitleEdit(EnLineEdit):
 
         return property(fget=fget, fset=fset)
 
+    def break_cycles(self):
+        self.dialog = None
+
 class TitleSortEdit(TitleEdit):
 
     TITLE_ATTR = 'title_sort'
@@ -151,6 +154,7 @@ class TitleSortEdit(TitleEdit):
         self.title_edit.textChanged.connect(self.update_state)
         self.textChanged.connect(self.update_state)
 
+        self.autogen_button = autogen_button
         autogen_button.clicked.connect(self.auto_generate)
         self.update_state()
 
@@ -169,6 +173,9 @@ class TitleSortEdit(TitleEdit):
 
     def auto_generate(self, *args):
         self.current_val = title_sort(self.title_edit.current_val)
+        self.title_edit.textChanged.disconnect()
+        self.textChanged.disconnect()
+        self.autogen_button.clicked.disconnect()
 
 # }}}
 
@@ -186,6 +193,7 @@ class AuthorsEdit(MultiCompleteComboBox):
         self.setWhatsThis(self.TOOLTIP)
         self.setEditable(True)
         self.setSizeAdjustPolicy(self.AdjustToMinimumContentsLengthWithIcon)
+        self.manage_authors_signal = manage_authors
         manage_authors.triggered.connect(self.manage_authors)
 
     def manage_authors(self):
@@ -270,6 +278,10 @@ class AuthorsEdit(MultiCompleteComboBox):
 
         return property(fget=fget, fset=fset)
 
+    def break_cycles(self):
+        self.db = self.dialog = None
+        self.manage_authors_signal.triggered.disconnect()
+
 class AuthorSortEdit(EnLineEdit):
 
     TOOLTIP = _('Specify how the author(s) of this book should be sorted. '
@@ -297,6 +309,10 @@ class AuthorSortEdit(EnLineEdit):
 
         self.authors_edit.editTextChanged.connect(self.update_state_and_val)
         self.textChanged.connect(self.update_state)
+
+        self.autogen_button = autogen_button
+        self.copy_a_to_as_action = copy_a_to_as_action
+        self.copy_as_to_a_action = copy_as_to_a_action
 
         autogen_button.clicked.connect(self.auto_generate)
         copy_a_to_as_action.triggered.connect(self.auto_generate)
@@ -369,6 +385,15 @@ class AuthorSortEdit(EnLineEdit):
         db.set_author_sort(id_, aus, notify=False, commit=False)
         return True
 
+    def break_cycles(self):
+        self.db = None
+        self.authors_edit.editTextChanged.disconnect()
+        self.textChanged.disconnect()
+        self.autogen_button.clicked.disconnect()
+        self.copy_a_to_as_action.triggered.disconnect()
+        self.copy_as_to_a_action.triggered.disconnect()
+        self.authors_edit = None
+
 # }}}
 
 # Series {{{
@@ -427,6 +452,10 @@ class SeriesEdit(MultiCompleteComboBox):
         self.books_to_refresh |= db.set_series(id_, series, notify=False,
                                             commit=True, allow_case_change=True)
         return True
+
+    def break_cycles(self):
+        self.dialog = None
+
 
 class SeriesIndexEdit(QDoubleSpinBox):
 
@@ -489,6 +518,11 @@ class SeriesIndexEdit(QDoubleSpinBox):
                 import traceback
                 traceback.print_exc()
 
+    def break_cycles(self):
+        self.series_edit.currentIndexChanged.disconnect()
+        self.series_edit.editTextChanged.disconnect()
+        self.series_edit.lineEdit().editingFinished.disconnect()
+        self.db = self.series_edit = self.dialog = None
 
 # }}}
 
@@ -700,6 +734,8 @@ class FormatsManager(QWidget): # {{{
             if old != prefs['read_file_metadata']:
                 prefs['read_file_metadata'] = old
 
+    def break_cycles(self):
+        self.dialog = None
 # }}}
 
 class Cover(ImageView): # {{{
@@ -860,6 +896,10 @@ class Cover(ImageView): # {{{
             else:
                 db.remove_cover(id_, notify=False, commit=False)
         return True
+
+    def break_cycles(self):
+        self.cover_changed.disconnect()
+        self.dialog = self._cdata = self.current_val = self.original_val = None
 
 # }}}
 
