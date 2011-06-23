@@ -1184,8 +1184,6 @@ class TagsModel(QAbstractItemModel): # {{{
         return data
 
     def refresh(self, data=None):
-        from calibre.utils.mem import memory
-        print 'start of refresh:', memory()/1024**2
         sort_by = config['sort_tags_by']
         if data is None:
             data = self.get_node_tree(sort_by) # get category data
@@ -1378,7 +1376,6 @@ class TagsModel(QAbstractItemModel): # {{{
                 state_map = {}
 
             process_one_node(category, state_map)
-        print 'end of refresh:', memory()/1024**2
         return True
 
     def columnCount(self, parent):
