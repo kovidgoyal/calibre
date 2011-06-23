@@ -170,6 +170,10 @@ class EditMetadataAction(InterfaceAction):
                 list(range(self.gui.library_view.model().rowCount(QModelIndex())))
             current_row = row_list.index(cr)
 
+        from calibre.utils.mem import memory
+
+        import gc
+        print 'start of edit metadata:', memory()/1024**2
         changed, rows_to_refresh = self.do_edit_metadata(row_list, current_row)
 
         m = self.gui.library_view.model()
@@ -184,6 +188,9 @@ class EditMetadataAction(InterfaceAction):
                 self.gui.cover_flow.dataChanged()
             m.current_changed(current, previous)
             self.gui.tags_view.recount()
+        for i in range(5): gc.collect();
+        print 'end of edit metadata:', memory()/1024**2
+        print
 
     def do_edit_metadata(self, row_list, current_row):
         from calibre.gui2.metadata.single import edit_metadata
