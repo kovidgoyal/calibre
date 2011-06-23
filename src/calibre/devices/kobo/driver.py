@@ -125,9 +125,9 @@ class KOBO(USBMS):
                 # this shows an expired Collection so the user can decide to delete the book
                 if expired == 3:
                     playlist_map[lpath].append('Expired')
-                # Favourites are supported on the touch but the data field is there on most earlier models
+                # A SHORTLIST is supported on the touch but the data field is there on most earlier models
                 if favouritesindex == 1:
-                    playlist_map[lpath].append('Favourite')
+                    playlist_map[lpath].append('Shortlist')
 
                 path = self.normalize_path(path)
                 # print "Normalized FileName: " + path
@@ -557,6 +557,7 @@ class KOBO(USBMS):
         if collections:
             # Process any collections that exist
             for category, books in collections.items():
+                # debug_print (category)
                 if category == 'Im_Reading':
                     # Reset Im_Reading list in the database
                     if oncard == 'carda':
@@ -575,7 +576,8 @@ class KOBO(USBMS):
 
                     for book in books:
 #                        debug_print('Title:', book.title, 'lpath:', book.path)
-                        book.device_collections = ['Im_Reading']
+                        if 'Im_Reading' not in book.device_collections:
+                            book.device_collections.append('Im_Reading') 
 
                         extension =  os.path.splitext(book.path)[1]
                         ContentType = self.get_content_type_from_extension(extension) if extension != '' else self.get_content_type_from_path(book.path)
@@ -618,7 +620,8 @@ class KOBO(USBMS):
 
                     for book in books:
 #                       debug_print('Title:', book.title, 'lpath:', book.path)
-                        book.device_collections = ['Read']
+                        if 'Read' not in book.device_collections:
+                            book.device_collections.append('Read') 
 
                         extension =  os.path.splitext(book.path)[1]
                         ContentType = self.get_content_type_from_extension(extension) if extension != '' else self.get_content_type_from_path(book.path)
@@ -654,7 +657,8 @@ class KOBO(USBMS):
 
                     for book in books:
 #                       debug_print('Title:', book.title, 'lpath:', book.path)
-                        book.device_collections = ['Closed']
+                        if 'Closed' not in book.device_collections:
+                            book.device_collections.append('Closed') 
 
                         extension =  os.path.splitext(book.path)[1]
                         ContentType = self.get_content_type_from_extension(extension) if extension != '' else self.get_content_type_from_path(book.path)
@@ -672,6 +676,44 @@ class KOBO(USBMS):
                         else:
                             connection.commit()
 #                            debug_print('Database: Commit set ReadStatus as Closed')
+                if category == 'Shortlist':
+                    # Reset FavouritesIndex list in the database
+                    if oncard == 'carda':
+                        query= 'update content set FavouritesIndex=-1 where BookID is Null and ContentID like \'file:///mnt/sd/%\''
+                    elif oncard != 'carda' and oncard != 'cardb':
+                        query= 'update content set FavouritesIndex=-1 where BookID is Null and ContentID not like \'file:///mnt/sd/%\''
+
+                    try:
+                        cursor.execute (query)
+                    except:
+                        debug_print('Database Exception:  Unable to reset Shortlist list')
+                        raise
+                    else:
+#                       debug_print('Commit: Reset Shortlist list')
+                        connection.commit()
+
+                    for book in books:
+#                        debug_print('Title:', book.title, 'lpath:', book.path)
+                        if 'Shortlist' not in book.device_collections:
+                            book.device_collections.append('Shortlist') 
+                        # debug_print ("Shortlist found for: ", book.title) 
+                        extension =  os.path.splitext(book.path)[1]
+                        ContentType = self.get_content_type_from_extension(extension) if extension != '' else self.get_content_type_from_path(book.path)
+
+                        ContentID = self.contentid_from_path(book.path, ContentType)
+#                        datelastread = time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime())
+
+                        t = (ContentID,)
+
+                        try:
+                            cursor.execute('update content set FavouritesIndex=1 where BookID is Null and ContentID = ?', t)
+                        except:
+                            debug_print('Database Exception:  Unable set book as Shortlist')
+                            raise
+                        else:
+                            connection.commit()
+#                            debug_print('Database: Commit set Shortlist as Shortlist')
+
         else: # No collections
             # Since no collections exist the ReadStatus needs to be reset to 0 (Unread)
             print "Reseting ReadStatus to 0"
