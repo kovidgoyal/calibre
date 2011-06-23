@@ -4,7 +4,7 @@ __license__ = 'GPL 3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import re
+import re, os
 
 from PyQt4.QtCore import SIGNAL, Qt, pyqtSignal
 from PyQt4.QtGui import QDialog, QWidget, QDialogButtonBox, \
@@ -134,7 +134,12 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
                          _('Cannot build regex using the GUI builder without a book.'),
                          show=True)
             return False
-        self.open_book(db.format_abspath(book_id, format, index_is_id=True))
+        fpath = db.format(book_id, format, index_is_id=True,
+            as_path=True)
+        try:
+            self.open_book(fpath)
+        finally:
+            os.remove(fpath)
         return True
 
     def open_book(self, pathtoebook):

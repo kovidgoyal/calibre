@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, traceback, cStringIO, re, shutil
+import os, traceback, cStringIO, re
 
 from calibre.constants import DEBUG
 from calibre.utils.config import Config, StringConfig, tweaks
@@ -238,7 +238,7 @@ def get_components(template, mi, id, timefmt='%b %Y', length=250,
 
 def save_book_to_disk(id_, db, root, opts, length):
     mi = db.get_metadata(id_, index_is_id=True)
-    cover = db.cover(id_, index_is_id=True, as_path=True)
+    cover = db.cover(id_, index_is_id=True)
     plugboards = db.prefs.get('plugboards', {})
 
     available_formats = db.formats(id_, index_is_id=True)
@@ -252,12 +252,20 @@ def save_book_to_disk(id_, db, root, opts, length):
     if fmts:
         fmts = fmts.split(',')
         for fmt in fmts:
-            fpath = db.format_abspath(id_, fmt, index_is_id=True)
+            fpath = db.format(id_, fmt, index_is_id=True, as_path=True)
             if fpath is not None:
                 formats[fmt.lower()] = fpath
 
-    return do_save_book_to_disk(id_, mi, cover, plugboards,
+    try:
+        return do_save_book_to_disk(id_, mi, cover, plugboards,
             formats, root, opts, length)
+    finally:
+        for temp in formats.itervalues():
+            try:
+                os.remove(temp)
+            except:
+                pass
+
 
 
 def do_save_book_to_disk(id_, mi, cover, plugboards,
@@ -289,10 +297,9 @@ def do_save_book_to_disk(id_, mi, cover, plugboards,
             raise
 
     ocover = mi.cover
-    if opts.save_cover and cover and os.access(cover, os.R_OK):
+    if opts.save_cover and cover:
         with open(base_path+'.jpg', 'wb') as f:
-            with open(cover, 'rb') as s:
-                shutil.copyfileobj(s, f)
+            f.write(cover)
         mi.cover = base_name+'.jpg'
     else:
         mi.cover = None
@@ -395,8 +402,13 @@ def save_serialized_to_disk(ids, data, plugboards, root, opts, callback):
             pass
         tb = ''
         try:
-            failed, id, title = do_save_book_to_disk(x, mi, cover, plugboards,
-                    format_map, root, opts, length)
+            with open(cover, 'rb') as f:
+                cover = f.read()
+        except:
+            cover = None
+        try:
+            failed, id, title = do_save_book_to_disk(x, mi, cover,
+                plugboards, format_map, root, opts, length)
             tb = _('Requested formats not available')
         except:
             failed, id, title = True, x, mi.title

@@ -106,7 +106,6 @@ class Config(ResizableDialog, Ui_Dialog):
     Configuration dialog for single book conversion. If accepted, has the
     following important attributes
 
-    input_path - Path to input file
     output_format - Output format (without a leading .)
     input_format  - Input format (without a leading .)
     opf_path - Path to OPF file with user specified metadata
@@ -156,13 +155,10 @@ class Config(ResizableDialog, Ui_Dialog):
         oidx = self.groups.currentIndex().row()
         input_format = self.input_format
         output_format = self.output_format
-        input_path = self.db.format_abspath(self.book_id, input_format,
-                index_is_id=True)
-        self.input_path = input_path
         output_path = 'dummy.'+output_format
         log = Log()
         log.outputs = []
-        self.plumber = Plumber(input_path, output_path, log)
+        self.plumber = Plumber('dummy.'+input_format, output_path, log)
 
         def widget_factory(cls):
             return cls(self.stack, self.plumber.get_option_by_name,

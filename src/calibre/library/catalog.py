@@ -5137,6 +5137,7 @@ Author '{0}':
                     OptionRecommendation.HIGH))
 
             # If cover exists, use it
+            cpath = None
             try:
                 search_text = 'title:"%s" author:%s' % (
                         opts.catalog_title.replace('"', '\\"'), 'calibre')
@@ -5156,6 +5157,11 @@ Author '{0}':
                             abort_after_input_dump=False)
             plumber.merge_ui_recommendations(recommendations)
             plumber.run()
+
+            try:
+                os.remove(cpath)
+            except:
+                pass
 
         # returns to gui2.actions.catalog:catalog_generated()
         return catalog.error
