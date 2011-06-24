@@ -142,6 +142,8 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
             try:
                 os.remove(fpath)
             except:
+                # Fails on windows if the input plugin for this format keeps the file open
+                # Happens for LIT files
                 pass
         return True
 
