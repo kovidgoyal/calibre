@@ -173,9 +173,20 @@ class TitleSortEdit(TitleEdit):
 
     def auto_generate(self, *args):
         self.current_val = title_sort(self.title_edit.current_val)
-        self.title_edit.textChanged.disconnect()
-        self.textChanged.disconnect()
-        self.autogen_button.clicked.disconnect()
+
+    def break_cycles(self):
+        try:
+            self.title_edit.textChanged.disconnect()
+        except:
+            pass
+        try:
+            self.textChanged.disconnect()
+        except:
+            pass
+        try:
+            self.autogen_button.clicked.disconnect()
+        except:
+            pass
 
 # }}}
 
@@ -280,7 +291,10 @@ class AuthorsEdit(MultiCompleteComboBox):
 
     def break_cycles(self):
         self.db = self.dialog = None
-        self.manage_authors_signal.triggered.disconnect()
+        try:
+            self.manage_authors_signal.triggered.disconnect()
+        except:
+            pass
 
 class AuthorSortEdit(EnLineEdit):
 
@@ -387,11 +401,26 @@ class AuthorSortEdit(EnLineEdit):
 
     def break_cycles(self):
         self.db = None
-        self.authors_edit.editTextChanged.disconnect()
-        self.textChanged.disconnect()
-        self.autogen_button.clicked.disconnect()
-        self.copy_a_to_as_action.triggered.disconnect()
-        self.copy_as_to_a_action.triggered.disconnect()
+        try:
+            self.authors_edit.editTextChanged.disconnect()
+        except:
+            pass
+        try:
+            self.textChanged.disconnect()
+        except:
+            pass
+        try:
+            self.autogen_button.clicked.disconnect()
+        except:
+            pass
+        try:
+            self.copy_a_to_as_action.triggered.disconnect()
+        except:
+            pass
+        try:
+            self.copy_as_to_a_action.triggered.disconnect()
+        except:
+            pass
         self.authors_edit = None
 
 # }}}
@@ -519,9 +548,18 @@ class SeriesIndexEdit(QDoubleSpinBox):
                 traceback.print_exc()
 
     def break_cycles(self):
-        self.series_edit.currentIndexChanged.disconnect()
-        self.series_edit.editTextChanged.disconnect()
-        self.series_edit.lineEdit().editingFinished.disconnect()
+        try:
+            self.series_edit.currentIndexChanged.disconnect()
+        except:
+            pass
+        try:
+            self.series_edit.editTextChanged.disconnect()
+        except:
+            pass
+        try:
+            self.series_edit.lineEdit().editingFinished.disconnect()
+        except:
+            pass
         self.db = self.series_edit = self.dialog = None
 
 # }}}
@@ -898,7 +936,10 @@ class Cover(ImageView): # {{{
         return True
 
     def break_cycles(self):
-        self.cover_changed.disconnect()
+        try:
+            self.cover_changed.disconnect()
+        except:
+            pass
         self.dialog = self._cdata = self.current_val = self.original_val = None
 
 # }}}

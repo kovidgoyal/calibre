@@ -252,11 +252,12 @@ class ChooseLibraryAction(InterfaceAction):
 
     def delete_requested(self, name, location):
         loc = location.replace('/', os.sep)
-        if not question_dialog(self.gui, _('Are you sure?'), '<p>'+
+        if not question_dialog(self.gui, _('Are you sure?'),
+                _('<h1 style="color:red">WARNING</h1>')+
                 _('<b style="color: red">All files</b> (not just ebooks) '
                     'from <br><br><b>%s</b><br><br> will be '
                 '<b>permanently deleted</b>. Are you sure?') % loc,
-                show_copy_button=False):
+                show_copy_button=False, default_yes=False):
             return
         exists = self.gui.library_view.model().db.exists_at(loc)
         if exists:

@@ -1211,7 +1211,8 @@ class ITUNES(DriverBase):
         '''
         windows assumes pythoncom wrapper
         '''
-        self.log.info(" ITUNES._add_library_book()")
+        if DEBUG:
+            self.log.info(" ITUNES._add_library_book()")
         if isosx:
             added = self.iTunes.add(appscript.mactypes.File(file))
 
@@ -1335,7 +1336,8 @@ class ITUNES(DriverBase):
         assumes pythoncom wrapper for db_added
         as of iTunes 9.2, iBooks 1.1, can't set artwork for PDF files via automation
         '''
-        self.log.info(" ITUNES._cover_to_thumb()")
+        if DEBUG:
+            self.log.info(" ITUNES._cover_to_thumb()")
 
         thumb = None
         if metadata.cover:
@@ -2489,7 +2491,8 @@ class ITUNES(DriverBase):
         '''
         Windows assumes pythoncom wrapper
         '''
-        self.log.info(" ITUNES._remove_from_device()")
+        if DEBUG:
+            self.log.info(" ITUNES._remove_from_device()")
         if isosx:
             if DEBUG:
                 self.log.info("  deleting '%s' from iDevice" % cached_book['title'])
@@ -2616,7 +2619,8 @@ class ITUNES(DriverBase):
     def _update_epub_metadata(self, fpath, metadata):
         '''
         '''
-        self.log.info(" ITUNES._update_epub_metadata()")
+        if DEBUG:
+            self.log.info(" ITUNES._update_epub_metadata()")
 
         # Fetch plugboard updates
         metadata_x = self._xform_metadata_via_plugboard(metadata, 'epub')
@@ -2983,7 +2987,8 @@ class ITUNES(DriverBase):
                 self.log.info("        tags: %s %s" % (book.tags, ">>> %s" %
                                            newmi.tags if book.tags != newmi.tags else ''))
             else:
-                self.log("  matching plugboard not found")
+                if DEBUG:
+                    self.log("  matching plugboard not found")
 
         else:
             newmi = book

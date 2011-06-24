@@ -45,8 +45,11 @@ class ANDROID(USBMS):
             0xfce : { 0xd12e : [0x0100]},
 
             # Google
-            0x18d1 : { 0x4e11 : [0x0100, 0x226, 0x227], 0x4e12: [0x0100, 0x226,
-                0x227], 0x4e21: [0x0100, 0x226, 0x227], 0xb058: [0x0222]},
+            0x18d1 : {
+                0x4e11 : [0x0100, 0x226, 0x227],
+                0x4e12: [0x0100, 0x226, 0x227],
+                0x4e21: [0x0100, 0x226, 0x227],
+                0xb058: [0x0222, 0x226, 0x227]},
 
             # Samsung
             0x04e8 : { 0x681d : [0x0222, 0x0223, 0x0224, 0x0400],
@@ -107,7 +110,7 @@ class ANDROID(USBMS):
     VENDOR_NAME      = ['HTC', 'MOTOROLA', 'GOOGLE_', 'ANDROID', 'ACER',
             'GT-I5700', 'SAMSUNG', 'DELL', 'LINUX', 'GOOGLE', 'ARCHOS',
             'TELECHIP', 'HUAWEI', 'T-MOBILE', 'SEMC', 'LGE', 'NVIDIA',
-            'GENERIC-', 'ZTE']
+            'GENERIC-', 'ZTE', 'MID']
     WINDOWS_MAIN_MEM = ['ANDROID_PHONE', 'A855', 'A853', 'INC.NEXUS_ONE',
             '__UMS_COMPOSITE', '_MB200', 'MASS_STORAGE', '_-_CARD', 'SGH-I897',
             'GT-I9000', 'FILE-STOR_GADGET', 'SGH-T959', 'SAMSUNG_ANDROID',
@@ -116,7 +119,7 @@ class ANDROID(USBMS):
             'IDEOS_TABLET', 'MYTOUCH_4G', 'UMS_COMPOSITE', 'SCH-I800_CARD',
             '7', 'A956', 'A955', 'A43', 'ANDROID_PLATFORM', 'TEGRA_2',
             'MB860', 'MULTI-CARD', 'MID7015A', 'INCREDIBLE', 'A7EB', 'STREAK',
-            'MB525']
+            'MB525', 'ANDROID2.3']
     WINDOWS_CARD_A_MEM = ['ANDROID_PHONE', 'GT-I9000_CARD', 'SGH-I897',
             'FILE-STOR_GADGET', 'SGH-T959', 'SAMSUNG_ANDROID', 'GT-P1000_CARD',
             'A70S', 'A101IT', '7', 'INCREDIBLE', 'A7EB', 'SGH-T849_CARD',
