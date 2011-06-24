@@ -41,7 +41,7 @@
 
     - title: "Allow search and replace on comments custom columns."
 
-    - title: "Add a new action 'Quick View' to show the books in your library by the author(s) of the currently selected book, in a separate window. You can add it to your toolbar or right click menu by going to Preferences->Toolbars."
+    - title: "Add a new action 'Quick View' to show the books in your library by the author/tags/series/etc. of the currently selected book, in a separate window. You can add it to your toolbar or right click menu by going to Preferences->Toolbars."
 
     - title: "Get Books: Add libri.de as a book source. Fix a bug that caused some books downloads to fail. Fixes to the Legimi and  beam-ebooks.de stores"
       tickets: [799367]
