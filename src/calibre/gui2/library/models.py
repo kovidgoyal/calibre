@@ -90,6 +90,7 @@ class BooksModel(QAbstractTableModel): # {{{
         self.ids_to_highlight_set = set()
         self.current_highlighted_idx = None
         self.highlight_only = False
+        self.current_row = -1
         self.colors = frozenset([unicode(c) for c in QColor.colorNames()])
         self.read_config()
 
@@ -172,6 +173,7 @@ class BooksModel(QAbstractTableModel): # {{{
         self.color_cache = defaultdict(dict)
         for row in rows:
             if row == current_row:
+                self.current_row = row
                 self.new_bookdisplay_data.emit(
                           self.get_book_display_info(row))
             self.dataChanged.emit(self.index(row, 0), self.index(row,
@@ -329,6 +331,8 @@ class BooksModel(QAbstractTableModel): # {{{
     def refresh(self, reset=True):
         self.db.refresh(field=None)
         self.resort(reset=reset)
+        if self.current_row >= 0:
+            self.new_bookdisplay_data.emit(self.get_book_display_info(self.current_row))
 
     def reset(self):
         self.color_cache = defaultdict(dict)
@@ -368,12 +372,14 @@ class BooksModel(QAbstractTableModel): # {{{
 
     def current_changed(self, current, previous, emit_signal=True):
         if current.isValid():
-            idx = current.row()
+            self.current_row = idx = current.row()
             data = self.get_book_display_info(idx)
             if emit_signal:
                 self.new_bookdisplay_data.emit(data)
             else:
                 return data
+        else:
+            self.current_row = -1
 
     def get_book_info(self, index):
         if isinstance(index, int):

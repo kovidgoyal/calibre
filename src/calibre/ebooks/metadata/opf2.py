@@ -538,7 +538,8 @@ class OPF(object): # {{{
     user_categories = MetadataField('user_categories', is_dc=False,
                                     formatter=json.loads,
                                     renderer=dump_user_categories)
-
+    author_link_map = MetadataField('author_link_map', is_dc=False,
+                                    formatter=json.loads)
 
     def __init__(self, stream, basedir=os.getcwdu(), unquote_urls=True,
             populate_spine=True):
@@ -1039,7 +1040,7 @@ class OPF(object): # {{{
         for attr in ('title', 'authors', 'author_sort', 'title_sort',
                      'publisher', 'series', 'series_index', 'rating',
                      'isbn', 'tags', 'category', 'comments',
-                     'pubdate', 'user_categories'):
+                     'pubdate', 'user_categories', 'author_link_map'):
             val = getattr(mi, attr, None)
             if val is not None and val != [] and val != (None, None):
                 setattr(self, attr, val)
@@ -1336,6 +1337,8 @@ def metadata_to_opf(mi, as_string=True):
         for tag in mi.tags:
             factory(DC('subject'), tag)
     meta = lambda n, c: factory('meta', name='calibre:'+n, content=c)
+    if getattr(mi, 'author_link_map', None) is not None:
+        meta('author_link_map', json.dumps(mi.author_link_map))
     if mi.series:
         meta('series', mi.series)
     if mi.series_index is not None:

@@ -121,6 +121,16 @@ def render_data(mi, use_roman_numbers=True, all_fields=False):
             if links:
                 ans.append((field, u'<td class="title">%s</td><td>%s</td>'%(
                     _('Ids')+':', links)))
+        elif field == 'authors' and not isdevice:
+            authors = []
+            for aut in mi.authors:
+                if mi.author_link_map[aut]:
+                    authors.append(u'<a href="%s">%s</a>' %
+                                            (mi.author_link_map[aut], aut))
+                else:
+                    authors.append(aut)
+            ans.append((field, u'<td class="title">%s</td><td>%s</td>'%(name,
+                u' & '.join(authors))))
         else:
             val = mi.format_field(field)[-1]
             if val is None:
