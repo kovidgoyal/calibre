@@ -173,6 +173,8 @@ class TitleSortEdit(TitleEdit):
 
     def auto_generate(self, *args):
         self.current_val = title_sort(self.title_edit.current_val)
+
+    def break_cycles(self):
         try:
             self.title_edit.textChanged.disconnect()
         except:
