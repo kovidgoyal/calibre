@@ -158,7 +158,10 @@ class Config(ResizableDialog, Ui_Dialog):
         output_path = 'dummy.'+output_format
         log = Log()
         log.outputs = []
-        self.plumber = Plumber('dummy.'+input_format, output_path, log)
+        input_file = 'dummy.'+input_format
+        if input_format in ('zip', 'rar', 'oebzip'):
+            input_file = 'dummy.html'
+        self.plumber = Plumber(input_file, output_path, log)
 
         def widget_factory(cls):
             return cls(self.stack, self.plumber.get_option_by_name,
