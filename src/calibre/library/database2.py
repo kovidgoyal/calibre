@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 The database used to store ebook metadata
 '''
 import os, sys, shutil, cStringIO, glob, time, functools, traceback, re, \
-        json, uuid, tempfile
+        json, uuid, tempfile, hashlib
 import threading, random
 from itertools import repeat
 from math import ceil
@@ -1122,9 +1122,45 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         return self.format_abspath(index, format, index_is_id) is not None
 
     def format_last_modified(self, id_, fmt):
+        m = self.format_metadata(id_, fmt)
+        if m:
+            return m['mtime']
+
+    def format_metadata(self, id_, fmt):
         path = self.format_abspath(id_, fmt, index_is_id=True)
+        ans = {}
         if path is not None:
-            return utcfromtimestamp(os.stat(path).st_mtime)
+            stat = os.stat(path)
+            ans['size'] = stat.st_size
+            ans['mtime'] = utcfromtimestamp(stat.st_mtime)
+        return ans
+
+    def format_hash(self, id_, fmt):
+        path = self.format_abspath(id_, fmt, index_is_id=True)
+        if path is None:
+            raise NoSuchFormat('Record %d has no fmt: %s'%(id_, fmt))
+        sha = hashlib.sha256()
+        with lopen(path, 'rb') as f:
+            while True:
+                raw = f.read(SPOOL_SIZE)
+                sha.update(raw)
+                if len(raw) < SPOOL_SIZE:
+                    break
+        return sha.hexdigest()
+
+    def format_path(self, index, fmt, index_is_id=False):
+        '''
+        This method is intended to be used only in those rare situations, like
+        Drag'n Drop, when you absolutely need the path to the original file.
+        Otherwise, use format(..., as_path=True).
+
+        Note that a networked backend will always return None.
+        '''
+        path = self.format_abspath(index, fmt, index_is_id=index_is_id)
+        if path is None:
+            id_ = index if index_is_id else self.id(index)
+            raise NoSuchFormat('Record %d has no format: %s'%(id_, fmt))
+        return path
 
     def format_abspath(self, index, format, index_is_id=False):
         '''

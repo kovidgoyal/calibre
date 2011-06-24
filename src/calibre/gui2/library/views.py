@@ -591,8 +591,10 @@ class BooksView(QTableView): # {{{
         fmt = prefs['output_format']
 
         def url_for_id(i):
-            ans = db.format(i, fmt, index_is_id=True, as_path=True,
-                    preserve_filename=True)
+            try:
+                ans = db.format_path(i, fmt, index_is_id=True)
+            except:
+                ans = None
             if ans is None:
                 fmts = db.formats(i, index_is_id=True)
                 if fmts:
@@ -600,13 +602,15 @@ class BooksView(QTableView): # {{{
                 else:
                     fmts = []
                 for f in fmts:
-                    ans = db.format(i, f, index_is_id=True, as_path=True,
-                            preserve_filename=True)
+                    try:
+                        ans = db.format_path(i, f, index_is_id=True)
+                    except:
+                        ans = None
             if ans is None:
                 ans = db.abspath(i, index_is_id=True)
             return QUrl.fromLocalFile(ans)
 
-        md.setUrls([url_for_id(i) for i in selected[:25]])
+        md.setUrls([url_for_id(i) for i in selected])
         drag = QDrag(self)
         col = self.selectionModel().currentIndex().column()
         md.column_name = self.column_map[col]

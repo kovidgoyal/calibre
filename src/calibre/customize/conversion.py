@@ -261,7 +261,7 @@ class OutputFormatPlugin(Plugin):
 
     @property
     def description(self):
-        return _('Convert ebooks to the %s format'%self.file_type)
+        return _('Convert ebooks to the %s format')%self.file_type
 
     def __init__(self, *args):
         Plugin.__init__(self, *args)
