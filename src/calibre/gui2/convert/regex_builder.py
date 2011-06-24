@@ -139,7 +139,10 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
         try:
             self.open_book(fpath)
         finally:
-            os.remove(fpath)
+            try:
+                os.remove(fpath)
+            except:
+                pass
         return True
 
     def open_book(self, pathtoebook):
@@ -148,7 +151,8 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
         text = [u'']
         preprocessor = HTMLPreProcessor(None, False)
         for path in self.iterator.spine:
-            html = open(path, 'rb').read().decode('utf-8', 'replace')
+            with open(path, 'rb') as f:
+                html = f.read().decode('utf-8', 'replace')
             html = preprocessor(html, get_preprocess_html=True)
             text.append(html)
         self.preview.setPlainText('\n---\n'.join(text))
