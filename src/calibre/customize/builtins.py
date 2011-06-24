@@ -1380,7 +1380,7 @@ class StoreNextoStore(StoreBase):
 
 class StoreOpenBooksStore(StoreBase):
     name = 'Open Books'
-    description = u''
+    description = u'Comprehensive listing of DRM free ebooks from a variety of sources provided by users of calibre.'
     actual_plugin = 'calibre.gui2.store.open_books_plugin:OpenBooksStore'
     
     drm_free_only = True
