@@ -1144,6 +1144,20 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     break
         return sha.hexdigest()
 
+    def format_path(self, index, fmt, index_is_id=False):
+        '''
+        This method is intended to be used only in those rare situations, like
+        Drag'n Drop, when you absolutely need the path to the original file.
+        Otherwise, use format(..., as_path=True).
+
+        Note that a networked backend will always return None.
+        '''
+        path = self.format_abspath(index, fmt, index_is_id=index_is_id)
+        if path is None:
+            id_ = index if index_is_id else self.id(index)
+            raise NoSuchFormat('Record %d has no format: %s'%(id_, fmt))
+        return path
+
     def format_abspath(self, index, format, index_is_id=False):
         '''
         Return absolute path to the ebook file of format `format`

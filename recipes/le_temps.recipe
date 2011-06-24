@@ -14,7 +14,7 @@ class LeTemps(BasicNewsRecipe):
      title          = u'Le Temps'
      oldest_article = 7
      max_articles_per_feed = 100
-     __author__ = 'Sujata Raman'
+     __author__ = 'Kovid Goyal'
      description = 'French news. Needs a subscription from http://www.letemps.ch'
      no_stylesheets = True
      remove_javascript = True
@@ -27,6 +27,7 @@ class LeTemps(BasicNewsRecipe):
      def get_browser(self):
          br = BasicNewsRecipe.get_browser(self)
          br.open('http://www.letemps.ch/login')
+         br.select_form(nr=1)
          br['username'] = self.username
          br['password'] = self.password
          raw = br.submit().read()
