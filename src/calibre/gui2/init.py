@@ -16,7 +16,7 @@ from calibre.constants import isosx, __appname__, preferred_encoding, \
 from calibre.gui2 import config, is_widescreen, gprefs
 from calibre.gui2.library.views import BooksView, DeviceBooksView
 from calibre.gui2.widgets import Splitter
-from calibre.gui2.tag_view import TagBrowserWidget
+from calibre.gui2.tag_browser.ui import TagBrowserWidget
 from calibre.gui2.book_details import BookDetails
 from calibre.gui2.notify import get_notifier
 
