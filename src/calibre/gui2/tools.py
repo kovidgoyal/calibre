@@ -51,12 +51,15 @@ def convert_single_ebook(parent, db, book_ids, auto_conversion=False, # {{{
                 #    continue
 
                 mi = db.get_metadata(book_id, True)
-                in_file = db.format_abspath(book_id, d.input_format, True)
+                in_file = PersistentTemporaryFile('.'+d.input_format)
+                with in_file:
+                    db.copy_format_to(book_id, d.input_format, in_file,
+                            index_is_id=True)
 
                 out_file = PersistentTemporaryFile('.' + d.output_format)
                 out_file.write(d.output_format)
                 out_file.close()
-                temp_files = []
+                temp_files = [in_file]
 
                 try:
                     dtitle = unicode(mi.title)
@@ -74,7 +77,7 @@ def convert_single_ebook(parent, db, book_ids, auto_conversion=False, # {{{
                     recs.append(('cover', d.cover_file.name,
                         OptionRecommendation.HIGH))
                     temp_files.append(d.cover_file)
-                args = [in_file, out_file.name, recs]
+                args = [in_file.name, out_file.name, recs]
                 temp_files.append(out_file)
                 jobs.append(('gui_convert_override', args, desc, d.output_format.upper(), book_id, temp_files))
 
@@ -142,12 +145,15 @@ class QueueBulk(QProgressDialog):
         try:
             input_format = get_input_format_for_book(self.db, book_id, None)[0]
             mi, opf_file = create_opf_file(self.db, book_id)
-            in_file = self.db.format_abspath(book_id, input_format, True)
+            in_file = PersistentTemporaryFile('.'+input_format)
+            with in_file:
+                self.db.copy_format_to(book_id, input_format, in_file,
+                        index_is_id=True)
 
             out_file = PersistentTemporaryFile('.' + self.output_format)
             out_file.write(self.output_format)
             out_file.close()
-            temp_files = []
+            temp_files = [in_file]
 
             combined_recs = GuiRecommendations()
             default_recs = bulk_defaults_for_input_format(input_format)
@@ -183,7 +189,7 @@ class QueueBulk(QProgressDialog):
             self.setLabelText(_('Queueing ')+dtitle)
             desc = _('Convert book %d of %d (%s)') % (self.i, len(self.book_ids), dtitle)
 
-            args = [in_file, out_file.name, lrecs]
+            args = [in_file.name, out_file.name, lrecs]
             temp_files.append(out_file)
             self.jobs.append(('gui_convert_override', args, desc, self.output_format.upper(), book_id, temp_files))
 

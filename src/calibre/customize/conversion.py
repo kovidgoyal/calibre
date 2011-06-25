@@ -259,6 +259,10 @@ class OutputFormatPlugin(Plugin):
     #: (option_name, recommended_value, recommendation_level)
     recommendations = set([])
 
+    @property
+    def description(self):
+        return _('Convert ebooks to the %s format')%self.file_type
+
     def __init__(self, *args):
         Plugin.__init__(self, *args)
         self.report_progress = DummyReporter()

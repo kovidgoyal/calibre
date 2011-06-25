@@ -51,19 +51,19 @@ class BeamEBooksDEStore(BasicStoreConfig, StorePlugin):
                 if counter <= 0:
                     break
 
-                id = ''.join(data.xpath('./tr/td/div[@class="stil2"]/a/@href')).strip()
+                id = ''.join(data.xpath('./tr/td[1]/a/@href')).strip()
                 if not id:
                     continue
                 id = id[7:]
                 cover_url = ''.join(data.xpath('./tr/td[1]/a/img/@src'))
                 if cover_url:
                     cover_url = 'http://www.beam-ebooks.de' + cover_url
-                title = ''.join(data.xpath('./tr/td/div[@class="stil2"]/a/b/text()'))
-                author = ' '.join(data.xpath('./tr/td/div[@class="stil2"]/'
-                                             'child::b/text()'
-                                             '|'
-                                             './tr/td/div[@class="stil2"]/'
-                                             'child::strong/text()'))
+                temp = ''.join(data.xpath('./tr/td[1]/a/img/@alt'))
+                colon = temp.find(':')
+                if not temp.startswith('eBook') or colon < 0:
+                    continue
+                author = temp[5:colon]
+                title = temp[colon+1:]
                 price = ''.join(data.xpath('./tr/td[3]/text()'))
                 pdf = data.xpath(
                         'boolean(./tr/td[3]/a/img[contains(@alt, "PDF")]/@alt)')

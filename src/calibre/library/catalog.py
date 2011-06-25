@@ -3,7 +3,7 @@
 __license__   = 'GPL v3'
 __copyright__ = '2010, Greg Riker'
 
-import codecs, datetime, htmlentitydefs, os, re, shutil, time, zlib
+import codecs, datetime, htmlentitydefs, os, re, shutil, zlib
 from collections import namedtuple
 from copy import deepcopy
 from xml.sax.saxutils import escape
@@ -25,7 +25,7 @@ from calibre.utils.html2text import html2text
 from calibre.utils.icu import capitalize
 from calibre.utils.logging import default_log as log
 from calibre.utils.magick.draw import thumbnail
-from calibre.utils.zipfile import ZipFile, ZipInfo
+from calibre.utils.zipfile import ZipFile
 
 FIELDS = ['all', 'title', 'title_sort', 'author_sort', 'authors', 'comments',
           'cover', 'formats','id', 'isbn', 'ondevice', 'pubdate', 'publisher',
@@ -4704,24 +4704,33 @@ Author '{0}':
             to be replaced.
             '''
 
+            def open_archive(mode='r'):
+                try:
+                    return ZipFile(self.__archive_path, mode=mode)
+                except:
+                    # Happens on windows if the file is opened by another
+                    # process
+                    pass
+
             # Generate crc for current cover
             #self.opts.log.info(" generateThumbnail():")
-            data = open(title['cover'], 'rb').read()
+            with open(title['cover'], 'rb') as f:
+                data = f.read()
             cover_crc = hex(zlib.crc32(data))
 
             # Test cache for uuid
-            with ZipFile(self.__archive_path, mode='r') as zfr:
-                try:
-                    t_info = zfr.getinfo(title['uuid'])
-                except:
-                    pass
-                else:
-                    if t_info.comment == cover_crc:
+            zf = open_archive()
+            if zf is not None:
+                with zf:
+                    try:
+                        zf.getinfo(title['uuid']+cover_crc)
+                    except:
+                        pass
+                    else:
                         # uuid found in cache with matching crc
-                        thumb_data = zfr.read(title['uuid'])
-                        zfr.extract(title['uuid'],image_dir)
-                        os.rename(os.path.join(image_dir,title['uuid']),
-                                    os.path.join(image_dir,thumb_file))
+                        thumb_data = zf.read(title['uuid']+cover_crc)
+                        with open(os.path.join(image_dir, thumb_file), 'wb') as f:
+                            f.write(thumb_data)
                         return
 
 
@@ -4732,10 +4741,13 @@ Author '{0}':
                 f.write(thumb_data)
 
             # Save thumb to archive
-            t_info = ZipInfo(title['uuid'],time.localtime()[0:6])
-            t_info.comment = cover_crc
-            with ZipFile(self.__archive_path, mode='a') as zfw:
-                zfw.writestr(t_info, thumb_data)
+            if zf is not None: # Ensure that the read succeeded
+                # If we failed to open the zip file for reading,
+                # we dont know if it contained the thumb or not
+                zf = open_archive('a')
+                if zf is not None:
+                    with zf:
+                        zf.writestr(title['uuid']+cover_crc, thumb_data)
 
         def getFriendlyGenreTag(self, genre):
             # Find the first instance of friendly_tag matching genre
@@ -5125,6 +5137,7 @@ Author '{0}':
                     OptionRecommendation.HIGH))
 
             # If cover exists, use it
+            cpath = None
             try:
                 search_text = 'title:"%s" author:%s' % (
                         opts.catalog_title.replace('"', '\\"'), 'calibre')
@@ -5144,6 +5157,11 @@ Author '{0}':
                             abort_after_input_dump=False)
             plumber.merge_ui_recommendations(recommendations)
             plumber.run()
+
+            try:
+                os.remove(cpath)
+            except:
+                pass
 
         # returns to gui2.actions.catalog:catalog_generated()
         return catalog.error
