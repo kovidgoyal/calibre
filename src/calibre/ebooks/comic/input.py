@@ -351,7 +351,9 @@ class ComicInput(InputFormatPlugin):
         comics = []
         with CurrentDir(tdir):
             if not os.path.exists('comics.txt'):
-                raise ValueError('%s is not a valid comic collection'
+                raise ValueError((
+                    '%s is not a valid comic collection'
+                    ' no comics.txt was found in the file')
                         %stream.name)
             raw = open('comics.txt', 'rb').read()
             if raw.startswith(codecs.BOM_UTF16_BE):
