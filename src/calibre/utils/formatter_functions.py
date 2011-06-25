@@ -12,7 +12,7 @@ import inspect, re, traceback
 
 from calibre.utils.titlecase import titlecase
 from calibre.utils.icu import capitalize, strcmp, sort_key
-from calibre.utils.date import parse_date, format_date
+from calibre.utils.date import parse_date, format_date, now, UNDEFINED_DATE
 
 
 class FormatterFunctions(object):
@@ -579,7 +579,7 @@ class BuiltinSubitems(BuiltinFormatterFunction):
 class BuiltinFormatDate(BuiltinFormatterFunction):
     name = 'format_date'
     arg_count = 2
-    category = 'Get values from metadata'
+    category = 'Date functions'
     __doc__ = doc = _('format_date(val, format_string) -- format the value, '
             'which must be a date, using the format_string, returning a string. '
             'The formatting codes are: '
@@ -754,6 +754,39 @@ class BuiltinMergeLists(BuiltinFormatterFunction):
                 res.append(i)
         return ', '.join(sorted(res, key=sort_key))
 
+class BuiltinToday(BuiltinFormatterFunction):
+    name = 'today'
+    arg_count = 0
+    category = 'Date functions'
+    __doc__ = doc = _('today() -- '
+            'return a date string for today. This value is designed for use in '
+            'format_date or days_between, but can be manipulated like any '
+            'other string. The date is in ISO format.')
+    def evaluate(self, formatter, kwargs, mi, locals):
+        return format_date(now(), 'iso')
+
+class BuiltinDaysBetween(BuiltinFormatterFunction):
+    name = 'days_between'
+    arg_count = 2
+    category = 'Date functions'
+    __doc__ = doc = _('days_between(date1, date2) -- '
+            'return the number of days between date1 and date2. The number is '
+            'positive if date1 is greater than date2, otherwise negative. If '
+            'either date1 or date2 are not dates, the function returns the '
+            'empty string.')
+    def evaluate(self, formatter, kwargs, mi, locals, date1, date2):
+        try:
+            d1 = parse_date(date1)
+            if d1 == UNDEFINED_DATE:
+                return ''
+            d2 = parse_date(date2)
+            if d2 == UNDEFINED_DATE:
+                return ''
+        except:
+            return ''
+        i = d1 - d2
+        return str('%d.%d'%(i.days, i.seconds/8640))
+
 
 builtin_add         = BuiltinAdd()
 builtin_and         = BuiltinAnd()
@@ -763,6 +796,7 @@ builtin_capitalize  = BuiltinCapitalize()
 builtin_cmp         = BuiltinCmp()
 builtin_contains    = BuiltinContains()
 builtin_count       = BuiltinCount()
+builtin_days_between= BuiltinDaysBetween()
 builtin_divide      = BuiltinDivide()
 builtin_eval        = BuiltinEval()
 builtin_first_non_empty = BuiltinFirstNonEmpty()
@@ -795,6 +829,7 @@ builtin_switch      = BuiltinSwitch()
 builtin_template    = BuiltinTemplate()
 builtin_test        = BuiltinTest()
 builtin_titlecase   = BuiltinTitlecase()
+builtin_today       = BuiltinToday()
 builtin_uppercase   = BuiltinUppercase()
 
 class FormatterUserFunction(FormatterFunction):

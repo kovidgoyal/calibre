@@ -19,6 +19,129 @@
 #  new recipes:
 #    - title: 
 
+- version: 0.8.7
+  date: 2011-06-24
+
+  new features:
+    - title: "Connect to iTunes: You now need to tell iTunes to keep its own copy of every ebook. Do this in iTunes by going to Preferences->Advanced and setting the 'Copy files to iTunes Media folder when adding to library' option. To learn about why this is necessary, see: http://www.mobileread.com/forums/showthread.php?t=140260"
+      type: major
+
+    - title: "Add a couple of date related functions to the calibre template langauge to get 'todays' date and create text based on the value of a date type field"
+
+    - title: "Improved reading of metadata from FB2 files, with support for reading isbns, tags, published date, etc."
+
+    - title: "Driver for the Imagine IMEB5"
+      tickets: [800642]
+
+    - title: "Show the currently used network proxies in Preferences->Miscellaneous"
+
+    - title: "Kobo Touch driver: Show Favorites as a device collection. Various other minor fixes."
+
+    - title: "Content server now sends the Content-Disposition header when sending ebook files."
+
+    - title: "Allow search and replace on comments custom columns."
+
+    - title: "Add a new action 'Quick View' to show the books in your library by the author/tags/series/etc. of the currently selected book, in a separate window. You can add it to your toolbar or right click menu by going to Preferences->Toolbars."
+
+    - title: "Get Books: Add libri.de as a book source. Fix a bug that caused some books downloads to fail. Fixes to the Legimi and  beam-ebooks.de stores"
+      tickets: [799367]
+  
+  bug fixes:
+    - title: "Fix a memory leak that could result in the leaking of several MB of memory with large libraries"
+      tickets: [800952]
+
+    - title: "Fix the read metadata from format button in the edit metadata dialog using the wrong timezone when setting published date"
+      tickets: [799777]
+
+    - title: "Generating catalog: Fix occassional file in use errors when generating catalogs on windows"
+
+    - title: "Fix clicking on News in Tag Browser not working in non English locales."
+      tickets: [799471]
+
+    - title: "HTML Input: Fix a regression in 0.8.6 that caused CSS stylesheets to be ignored"
+      tickets: [799171]
+
+    - title: "Fix a regression that caused restore database to stop working on some windows sytems"
+
+    - title: "EPUB Output: Convert <br> tags with text in them into <divs> as ADE cannot handle them."
+      tickets: [794427]
+
+  improved recipes:
+    - Le Temps
+    - Perfil
+    - Financial Times UK
+
+  new recipes:
+    - title: "Daytona Beach Journal"
+      author: BRGriff
+
+    - title: "El club del ebook and Frontline"
+      author: Darko Miletic
+
+
+- version: 0.8.6
+  date: 2011-06-17
+
+  new features:
+    - title: "Builtin support for downloading and installing/updating calibre plugins. Go to Preferences->Plugins and click 'Get new plugins'"
+      description: "When updates for installed plugins are available, calibre will automatically (unobtrusively) notify you"
+      type: major
+
+    - title: "Metadata download configuration: Allow defining a set of 'default' fields for metadata download and quichly switching to/from them"
+
+    - title: "Allow clicking on the news category in the Tag Browser to display all downloaded periodicals"
+
+    - title: "Driver for the Libre Air"
+
+    - title: "Email sending: Allow user to stop email jobs (note that stopping may not actually prevent the email from being sent, depending on when the stop happens). Also automatically abort email sending if it takes longer than 15mins."
+      tickets: [795960]
+  
+  bug fixes:
+    - title: "MOBI Output: Allow setting of background color on tables also set the border attribute on the table if the table has any border related css defined."
+      tickets: [797580]
+
+    - title: "Nook TSR: Put news sent to the device in My Files/Newspapers instaed of My Files/Books."
+      tickets: [796674]
+
+    - title: "MOBI Output: Fix a bug where linking to the very first element in an HTML file could sometimes result in the link pointing to the last element in the previous file."
+      tickets: [797214]
+
+    - title: "CSV catalog: Convert HTML comments to plain text"
+
+    - title: "HTML Input: Ignore links to text files."
+      tickets: [791568]
+
+    - title: "EPUB Output: Change orphaned <td> tags to <div> as they cause ADE to crash."
+
+    - title: "Fix 'Stop selected jobs' button trying to stop the same job multiple times"
+
+    - title: "Database: Explicitly test for case sensitivity on OS X instead of assuming a case insensitive filesystem."
+      tickets: [796258]
+
+    - title: "Get Books: More fixes to the Amazon store plugin"
+
+    - title: "FB2 Input: Do not specify font families/background colors"
+
+
+  improved recipes:
+    - Philadelphia Inquirer
+    - Macleans Magazone
+    - Metro UK
+
+  new recipes:
+    - title: "Christian Post, Down To Earth and Words Without Borders"
+      author: sexymax15
+
+    - title: "Noticias R7"
+      author: Diniz Bortolotto
+
+    - title: "UK Daily Mirror"
+      author: Dave Asbury
+
+    - title: "New Musical Express Magazine"
+      author: scissors
+
+
 - version: 0.8.5
   date: 2011-06-10
 

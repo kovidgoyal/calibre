@@ -72,9 +72,7 @@ class UpdateNotification(QDialog):
         self.label = QLabel(('<p>'+
             _('%s has been updated to version <b>%s</b>. '
             'See the <a href="http://calibre-ebook.com/whats-new'
-            '">new features</a>.') + '<p>'+_('Update <b>only</b> if one of the '
-            'new features or bug fixes is important to you. '
-            'If the current version works well for you, do not update.'))%(
+            '">new features</a>.'))%(
                 __appname__, calibre_version))
         self.label.setOpenExternalLinks(True)
         self.label.setWordWrap(True)
@@ -179,7 +177,7 @@ class UpdateMixin(object):
 
     def plugin_update_found(self, number_of_updates):
         # Change the plugin icon to indicate there are updates available
-        plugin = self.iactions.get('Plugin Updates', None)
+        plugin = self.iactions.get('Plugin Updater', None)
         if not plugin:
             return
         if number_of_updates:

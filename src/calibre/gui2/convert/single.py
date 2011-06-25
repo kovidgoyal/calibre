@@ -11,8 +11,8 @@ import sys, cPickle, shutil, importlib
 from PyQt4.Qt import QString, SIGNAL, QAbstractListModel, Qt, QVariant, QFont
 
 from calibre.gui2 import ResizableDialog, NONE
-from calibre.ebooks.conversion.config import GuiRecommendations, save_specifics, \
-        load_specifics
+from calibre.ebooks.conversion.config import (GuiRecommendations, save_specifics,
+        load_specifics)
 from calibre.gui2.convert.single_ui import Ui_Dialog
 from calibre.gui2.convert.metadata import MetadataWidget
 from calibre.gui2.convert.look_and_feel import LookAndFeelWidget
@@ -24,7 +24,8 @@ from calibre.gui2.convert.toc import TOCWidget
 from calibre.gui2.convert.debug import DebugWidget
 
 
-from calibre.ebooks.conversion.plumber import Plumber, supported_input_formats
+from calibre.ebooks.conversion.plumber import (Plumber,
+        supported_input_formats, ARCHIVE_FMTS)
 from calibre.ebooks.conversion.config import delete_specifics
 from calibre.customize.ui import available_output_formats
 from calibre.customize.conversion import OptionRecommendation
@@ -106,7 +107,6 @@ class Config(ResizableDialog, Ui_Dialog):
     Configuration dialog for single book conversion. If accepted, has the
     following important attributes
 
-    input_path - Path to input file
     output_format - Output format (without a leading .)
     input_format  - Input format (without a leading .)
     opf_path - Path to OPF file with user specified metadata
@@ -156,13 +156,13 @@ class Config(ResizableDialog, Ui_Dialog):
         oidx = self.groups.currentIndex().row()
         input_format = self.input_format
         output_format = self.output_format
-        input_path = self.db.format_abspath(self.book_id, input_format,
-                index_is_id=True)
-        self.input_path = input_path
         output_path = 'dummy.'+output_format
         log = Log()
         log.outputs = []
-        self.plumber = Plumber(input_path, output_path, log)
+        input_file = 'dummy.'+input_format
+        if input_format in ARCHIVE_FMTS:
+            input_file = 'dummy.html'
+        self.plumber = Plumber(input_file, output_path, log)
 
         def widget_factory(cls):
             return cls(self.stack, self.plumber.get_option_by_name,

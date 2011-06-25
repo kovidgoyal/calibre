@@ -53,7 +53,7 @@ class ZixoStore(BasicStoreConfig, StorePlugin):
 
                 cover_url = ''.join(data.xpath('.//a[@class="productThumb"]/img/@src'))
                 title = ''.join(data.xpath('.//a[@class="title"]/text()'))
-                author = ''.join(data.xpath('.//div[@class="productDescription"]/span[1]/a/text()'))
+                author = ','.join(data.xpath('.//div[@class="productDescription"]/span[1]/a/text()'))
                 price = ''.join(data.xpath('.//div[@class="priceList"]/span/text()'))
                 price = re.sub('\.', ',', price)
 

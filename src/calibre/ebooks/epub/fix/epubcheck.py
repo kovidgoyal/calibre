@@ -27,6 +27,10 @@ class Epubcheck(ePubFixer):
                 'project.')
 
     @property
+    def description(self):
+        return self.long_description
+
+    @property
     def fix_name(self):
         return 'epubcheck'
 
