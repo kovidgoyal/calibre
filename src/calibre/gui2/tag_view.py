@@ -1493,6 +1493,7 @@ class TagsModel(QAbstractItemModel): # {{{
             self.tags_view.tag_item_renamed.emit()
             item.tag.name = val
             self.rename_item_in_all_user_categories(name, key, val)
+            self.tags_view.refresh_required.emit()
         self.show_item_at_path(path)
         return True
 
