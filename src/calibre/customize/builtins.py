@@ -1378,6 +1378,14 @@ class StoreNextoStore(StoreBase):
     formats = ['EPUB', 'PDF']
     affiliate = True
 
+class StoreOpenBooksStore(StoreBase):
+    name = 'Open Books'
+    description = u'Comprehensive listing of DRM free ebooks from a variety of sources provided by users of calibre.'
+    actual_plugin = 'calibre.gui2.store.open_books_plugin:OpenBooksStore'
+    
+    drm_free_only = True
+    headquarters = 'US'
+
 class StoreOpenLibraryStore(StoreBase):
     name = 'Open Library'
     description = u'One web page for every book ever published. The goal is to be a true online library. Over 20 million records from a variety of large catalogs as well as single contributions, with more on the way.'
@@ -1504,6 +1512,7 @@ plugins += [
     StoreManyBooksStore,
     StoreMobileReadStore,
     StoreNextoStore,
+    StoreOpenBooksStore,
     StoreOpenLibraryStore,
     StoreOReillyStore,
     StorePragmaticBookshelfStore,
